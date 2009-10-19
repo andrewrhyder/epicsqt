@@ -1,0 +1,346 @@
+<!DOCTYPE QtCreatorProject>
+<qtcreator>
+ <data>
+  <variable>RunConfiguration0-CommandLineArguments</variable>
+  <valuelist type="QVariantList" />
+ </data>
+ <data>
+  <variable>RunConfiguration0-ProFile</variable>
+  <value type="QString" >QCaMonitor.pro</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-RunConfiguration.name</variable>
+  <value type="QString" >QCaMonitor</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UseDyldImageSuffix</variable>
+  <value type="bool" >false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UseTerminal</variable>
+  <value type="bool" >false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UserEnvironmentChanges</variable>
+  <valuelist type="QVariantList" />
+ </data>
+ <data>
+  <variable>RunConfiguration0-UserSetName</variable>
+  <value type="bool" >false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-type</variable>
+  <value type="QString" >Qt4ProjectManager.Qt4RunConfiguration</value>
+ </data>
+ <data>
+  <variable>activeRunConfiguration</variable>
+  <value type="int" >0</value>
+ </data>
+ <data>
+  <variable>activebuildconfiguration</variable>
+  <value type="QString" >Release</value>
+ </data>
+ <data>
+  <variable>buildConfiguration-Release</variable>
+  <valuemap type="QVariantMap" >
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
+   <value key="QtVersionId" type="int" >2</value>
+   <value key="addQDumper" type="" ></value>
+   <value key="buildDirectory" type="QString" >/home/owena/Perforce/ascm01_1666/owena_dogbox1/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/QCaMonitorApp</value>
+   <valuelist key="userEnvironmentChanges" type="QVariantList" >
+    <value type="QString" >QCAFRAMEWORK=../ca_framework</value>
+    <value type="QString" >QTCREATOR=/usr/share/qtcreator</value>
+    <value type="QString" >QTDIR=/usr/lib/qt4</value>
+   </valuelist>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep0</variable>
+  <valuemap type="QVariantMap" >
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList" >
+    <value type="QString" >BUILD_BASE=/home/owena/builds</value>
+    <value type="QString" >BUILD_CLIENT=/home/owena/Perforce/ascm01_1666/owena_dogbox1</value>
+    <value type="QString" >BUILD_STREAM=soft_xray</value>
+    <value type="QString" >COLORTERM=</value>
+    <value type="QString" >CONFIG_PROTECT=/var/bind /usr/kde/3.5/share/config /usr/kde/3.5/env /usr/kde/3.5/shutdown /usr/share/config</value>
+    <value type="QString" >CONFIG_PROTECT_MASK=/etc/sandbox.d /etc/env.d/java/ /etc/udev/rules.d /etc/fonts/fonts.conf /etc/terminfo /etc/ca-certificates.conf /etc/revdep-rebuild</value>
+    <value type="QString" >CVS_RSH=ssh</value>
+    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-tvppS77UlS,guid=fc16e6b0580ea6687be392cc4aadabc2</value>
+    <value type="QString" >DCCC_PATH=/usr/lib64/distcc/bin</value>
+    <value type="QString" >DESKTOP_STARTUP_ID=</value>
+    <value type="QString" >DISPLAY=:0.0</value>
+    <value type="QString" >DISTCC_LOG=</value>
+    <value type="QString" >DISTCC_VERBOSE=</value>
+    <value type="QString" >EDITOR=/bin/nano</value>
+    <value type="QString" >EPICS_BASE=/epics/base</value>
+    <value type="QString" >EPICS_CA_ADDR_LIST=</value>
+    <value type="QString" >EPICS_EXTENSIONS=/epics/base/extensions</value>
+    <value type="QString" >EPICS_HOST_ARCH=linux-x86_64</value>
+    <value type="QString" >EPICS_TOP=/epics/base</value>
+    <value type="QString" >GCC_SPECS=</value>
+    <value type="QString" >GDK_USE_XFT=1</value>
+    <value type="QString" >GS_LIB=/home/owena/.fonts</value>
+    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/owena/.gtkrc-2.0:/home/owena/.kde3.5/share/config/gtkrc-2.0</value>
+    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/owena/.gtkrc:/home/owena/.kde3.5/share/config/gtkrc</value>
+    <value type="QString" >HOME=/home/owena</value>
+    <value type="QString" >INFOPATH=/usr/share/info:/usr/share/binutils-data/x86_64-pc-linux-gnu/2.18/info:/usr/share/gcc-data/x86_64-pc-linux-gnu/4.3.2/info</value>
+    <value type="QString" >JAVAC=/etc/java-config-2/current-system-vm/bin/javac</value>
+    <value type="QString" >JAVA_HOME=/etc/java-config-2/current-system-vm</value>
+    <value type="QString" >JDK_HOME=/etc/java-config-2/current-system-vm</value>
+    <value type="QString" >KDE_FULL_SESSION=true</value>
+    <value type="QString" >KDE_MULTIHEAD=false</value>
+    <value type="QString" >KDE_SESSION_UID=1000</value>
+    <value type="QString" >KONSOLE_DCOP=DCOPRef(konsole-13697,konsole)</value>
+    <value type="QString" >KONSOLE_DCOP_SESSION=DCOPRef(konsole-13697,session-1)</value>
+    <value type="QString" >LANG=en_GB.UTF-8</value>
+    <value type="QString" >LDPATH=/usr/kde/3.5/lib:/usr/kde/3.5/lib64:/usr/kde/3.5/lib32:</value>
+    <value type="QString" >LD_LIBRARY_PATH=/epics/base/lib/linux-x86_64</value>
+    <value type="QString" >LESS=-R -M --shift 5</value>
+    <value type="QString" >LESSOPEN=|lesspipe.sh %s</value>
+    <value type="QString" >LOGNAME=owena</value>
+    <value type="QString" >LS_COLORS=rs=0:di=01;34:ln=01;36:hl=44;37:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.pdf=00;32:*.ps=00;32:*.txt=00;32:*.patch=00;32:*.diff=00;32:*.log=00;32:*.tex=00;32:*.doc=00;32:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:</value>
+    <value type="QString" >MAIL=/var/mail/owena</value>
+    <value type="QString" >MANPATH=/etc/java-config-2/current-system-vm/man:/usr/local/share/man:/usr/share/man:/usr/share/binutils-data/x86_64-pc-linux-gnu/2.18/man:/usr/share/gcc-data/x86_64-pc-linux-gnu/4.3.2/man:/etc/java-config/system-vm/man/:/usr/kde/3.5/share/man:/usr/qt/3/doc/man</value>
+    <value type="QString" >OLDPWD=/home/owena/ca_example/api</value>
+    <value type="QString" >OPENGL_PROFILE=xorg-x11</value>
+    <value type="QString" >PAGER=/usr/bin/less</value>
+    <value type="QString" >PATH=/usr/bin:/usr/kde/3.5/bin:/usr/local/bin:/usr/bin:/bin:/opt/bin:/usr/x86_64-pc-linux-gnu/gcc-bin/4.3.2:/usr/qt/3/bin:/usr/games/bin:/epics/base/bin/linux-x86_64:/epics/base/extensions/bin/linux-x86_64:/home/owena/Perforce/ascm01_1666/owena_dogbox1/Dev/SBS/4_Controls/4_5_Support_System/4_5_4_Build_Scripts</value>
+    <value type="QString" >PKG_CONFIG_PATH=/usr/qt/3/lib64/pkgconfig</value>
+    <value type="QString" >PWD=/home/owena/ca_example</value>
+    <value type="QString" >QCAFRAMEWORK=../ca_framework</value>
+    <value type="QString" >QMAKESPEC=linux-g++</value>
+    <value type="QString" >QTCREATOR=/usr/share/qtcreator</value>
+    <value type="QString" >QTDIR=/usr/lib/qt4</value>
+    <value type="QString" >ROOTPATH=/usr/kde/3.5/sbin:/usr/kde/3.5/bin:/usr/local/bin:/usr/bin:/bin:/opt/bin:/usr/x86_64-pc-linux-gnu/gcc-bin/4.3.2:/usr/qt/3/bin:/usr/games/bin</value>
+    <value type="QString" >SESSION_MANAGER=local/dogbox1:@/tmp/.ICE-unix/5346,unix/dogbox1:/tmp/.ICE-unix/5346</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SHLVL=2</value>
+    <value type="QString" >TERM=xterm</value>
+    <value type="QString" >USER=owena</value>
+    <value type="QString" >WINDOWID=37748741</value>
+    <value type="QString" >XAUTHORITY=/home/owena/.Xauthority</value>
+    <value type="QString" >XCURSOR_THEME=default</value>
+    <value type="QString" >XDG_CONFIG_DIRS=/usr/kde/3.5/etc/xdg</value>
+    <value type="QString" >XDG_DATA_DIRS=/usr/kde/3.5/share:/usr/local/share:/usr/share</value>
+    <value type="QString" >_=/usr/bin/qtcreator</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList" >
+    <value type="QString" >/home/owena/Perforce/ascm01_1666/owena_dogbox1/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/QCaMonitorApp/QCaMonitor.pro</value>
+    <value type="QString" >-spec</value>
+    <value type="QString" >/usr/share/qt4/mkspecs/linux-g++</value>
+    <value type="QString" >-r</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/qmake</value>
+   <value key="abstractProcess.enabled" type="bool" >false</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/home/owena/Perforce/ascm01_1666/owena_dogbox1/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/QCaMonitorApp</value>
+   <value key="buildConfiguration" type="int" >0</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep1</variable>
+  <valuemap type="QVariantMap" >
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList" >
+    <value type="QString" >BUILD_BASE=/home/owena/builds</value>
+    <value type="QString" >BUILD_CLIENT=/home/owena/Perforce/ascm01_1666/owena_dogbox1</value>
+    <value type="QString" >BUILD_STREAM=soft_xray</value>
+    <value type="QString" >COLORTERM=</value>
+    <value type="QString" >CONFIG_PROTECT=/var/bind /usr/kde/3.5/share/config /usr/kde/3.5/env /usr/kde/3.5/shutdown /usr/share/config</value>
+    <value type="QString" >CONFIG_PROTECT_MASK=/etc/sandbox.d /etc/env.d/java/ /etc/udev/rules.d /etc/fonts/fonts.conf /etc/terminfo /etc/ca-certificates.conf /etc/revdep-rebuild</value>
+    <value type="QString" >CVS_RSH=ssh</value>
+    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-tvppS77UlS,guid=fc16e6b0580ea6687be392cc4aadabc2</value>
+    <value type="QString" >DCCC_PATH=/usr/lib64/distcc/bin</value>
+    <value type="QString" >DESKTOP_STARTUP_ID=</value>
+    <value type="QString" >DISPLAY=:0.0</value>
+    <value type="QString" >DISTCC_LOG=</value>
+    <value type="QString" >DISTCC_VERBOSE=</value>
+    <value type="QString" >EDITOR=/bin/nano</value>
+    <value type="QString" >EPICS_BASE=/epics/base</value>
+    <value type="QString" >EPICS_CA_ADDR_LIST=</value>
+    <value type="QString" >EPICS_EXTENSIONS=/epics/base/extensions</value>
+    <value type="QString" >EPICS_HOST_ARCH=linux-x86_64</value>
+    <value type="QString" >EPICS_TOP=/epics/base</value>
+    <value type="QString" >GCC_SPECS=</value>
+    <value type="QString" >GDK_USE_XFT=1</value>
+    <value type="QString" >GS_LIB=/home/owena/.fonts</value>
+    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/owena/.gtkrc-2.0:/home/owena/.kde3.5/share/config/gtkrc-2.0</value>
+    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/owena/.gtkrc:/home/owena/.kde3.5/share/config/gtkrc</value>
+    <value type="QString" >HOME=/home/owena</value>
+    <value type="QString" >INFOPATH=/usr/share/info:/usr/share/binutils-data/x86_64-pc-linux-gnu/2.18/info:/usr/share/gcc-data/x86_64-pc-linux-gnu/4.3.2/info</value>
+    <value type="QString" >JAVAC=/etc/java-config-2/current-system-vm/bin/javac</value>
+    <value type="QString" >JAVA_HOME=/etc/java-config-2/current-system-vm</value>
+    <value type="QString" >JDK_HOME=/etc/java-config-2/current-system-vm</value>
+    <value type="QString" >KDE_FULL_SESSION=true</value>
+    <value type="QString" >KDE_MULTIHEAD=false</value>
+    <value type="QString" >KDE_SESSION_UID=1000</value>
+    <value type="QString" >KONSOLE_DCOP=DCOPRef(konsole-13697,konsole)</value>
+    <value type="QString" >KONSOLE_DCOP_SESSION=DCOPRef(konsole-13697,session-1)</value>
+    <value type="QString" >LANG=en_GB.UTF-8</value>
+    <value type="QString" >LDPATH=/usr/kde/3.5/lib:/usr/kde/3.5/lib64:/usr/kde/3.5/lib32:</value>
+    <value type="QString" >LD_LIBRARY_PATH=/epics/base/lib/linux-x86_64</value>
+    <value type="QString" >LESS=-R -M --shift 5</value>
+    <value type="QString" >LESSOPEN=|lesspipe.sh %s</value>
+    <value type="QString" >LOGNAME=owena</value>
+    <value type="QString" >LS_COLORS=rs=0:di=01;34:ln=01;36:hl=44;37:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.pdf=00;32:*.ps=00;32:*.txt=00;32:*.patch=00;32:*.diff=00;32:*.log=00;32:*.tex=00;32:*.doc=00;32:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:</value>
+    <value type="QString" >MAIL=/var/mail/owena</value>
+    <value type="QString" >MANPATH=/etc/java-config-2/current-system-vm/man:/usr/local/share/man:/usr/share/man:/usr/share/binutils-data/x86_64-pc-linux-gnu/2.18/man:/usr/share/gcc-data/x86_64-pc-linux-gnu/4.3.2/man:/etc/java-config/system-vm/man/:/usr/kde/3.5/share/man:/usr/qt/3/doc/man</value>
+    <value type="QString" >OLDPWD=/home/owena/ca_example/api</value>
+    <value type="QString" >OPENGL_PROFILE=xorg-x11</value>
+    <value type="QString" >PAGER=/usr/bin/less</value>
+    <value type="QString" >PATH=/usr/bin:/usr/kde/3.5/bin:/usr/local/bin:/usr/bin:/bin:/opt/bin:/usr/x86_64-pc-linux-gnu/gcc-bin/4.3.2:/usr/qt/3/bin:/usr/games/bin:/epics/base/bin/linux-x86_64:/epics/base/extensions/bin/linux-x86_64:/home/owena/Perforce/ascm01_1666/owena_dogbox1/Dev/SBS/4_Controls/4_5_Support_System/4_5_4_Build_Scripts</value>
+    <value type="QString" >PKG_CONFIG_PATH=/usr/qt/3/lib64/pkgconfig</value>
+    <value type="QString" >PWD=/home/owena/ca_example</value>
+    <value type="QString" >QCAFRAMEWORK=../ca_framework</value>
+    <value type="QString" >QMAKESPEC=linux-g++</value>
+    <value type="QString" >QTCREATOR=/usr/share/qtcreator</value>
+    <value type="QString" >QTDIR=/usr/lib/qt4</value>
+    <value type="QString" >ROOTPATH=/usr/kde/3.5/sbin:/usr/kde/3.5/bin:/usr/local/bin:/usr/bin:/bin:/opt/bin:/usr/x86_64-pc-linux-gnu/gcc-bin/4.3.2:/usr/qt/3/bin:/usr/games/bin</value>
+    <value type="QString" >SESSION_MANAGER=local/dogbox1:@/tmp/.ICE-unix/5346,unix/dogbox1:/tmp/.ICE-unix/5346</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SHLVL=2</value>
+    <value type="QString" >TERM=xterm</value>
+    <value type="QString" >USER=owena</value>
+    <value type="QString" >WINDOWID=37748741</value>
+    <value type="QString" >XAUTHORITY=/home/owena/.Xauthority</value>
+    <value type="QString" >XCURSOR_THEME=default</value>
+    <value type="QString" >XDG_CONFIG_DIRS=/usr/kde/3.5/etc/xdg</value>
+    <value type="QString" >XDG_DATA_DIRS=/usr/kde/3.5/share:/usr/local/share:/usr/share</value>
+    <value type="QString" >_=/usr/bin/qtcreator</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList" >
+    <value type="QString" >-w</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool" >true</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/home/owena/Perforce/ascm01_1666/owena_dogbox1/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/QCaMonitorApp</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-cleanstep0</variable>
+  <valuemap type="QVariantMap" >
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList" >
+    <value type="QString" >BUILD_BASE=/home/owena/builds</value>
+    <value type="QString" >BUILD_CLIENT=/home/owena/Perforce/ascm01_1666/owena_dogbox1</value>
+    <value type="QString" >BUILD_STREAM=soft_xray</value>
+    <value type="QString" >COLORTERM=</value>
+    <value type="QString" >CONFIG_PROTECT=/var/bind /usr/kde/3.5/share/config /usr/kde/3.5/env /usr/kde/3.5/shutdown /usr/share/config</value>
+    <value type="QString" >CONFIG_PROTECT_MASK=/etc/sandbox.d /etc/env.d/java/ /etc/udev/rules.d /etc/fonts/fonts.conf /etc/terminfo /etc/ca-certificates.conf /etc/revdep-rebuild</value>
+    <value type="QString" >CVS_RSH=ssh</value>
+    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-tvppS77UlS,guid=fc16e6b0580ea6687be392cc4aadabc2</value>
+    <value type="QString" >DCCC_PATH=/usr/lib64/distcc/bin</value>
+    <value type="QString" >DESKTOP_STARTUP_ID=</value>
+    <value type="QString" >DISPLAY=:0.0</value>
+    <value type="QString" >DISTCC_LOG=</value>
+    <value type="QString" >DISTCC_VERBOSE=</value>
+    <value type="QString" >EDITOR=/bin/nano</value>
+    <value type="QString" >EPICS_BASE=/epics/base</value>
+    <value type="QString" >EPICS_CA_ADDR_LIST=</value>
+    <value type="QString" >EPICS_EXTENSIONS=/epics/base/extensions</value>
+    <value type="QString" >EPICS_HOST_ARCH=linux-x86_64</value>
+    <value type="QString" >EPICS_TOP=/epics/base</value>
+    <value type="QString" >GCC_SPECS=</value>
+    <value type="QString" >GDK_USE_XFT=1</value>
+    <value type="QString" >GS_LIB=/home/owena/.fonts</value>
+    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/owena/.gtkrc-2.0:/home/owena/.kde3.5/share/config/gtkrc-2.0</value>
+    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/owena/.gtkrc:/home/owena/.kde3.5/share/config/gtkrc</value>
+    <value type="QString" >HOME=/home/owena</value>
+    <value type="QString" >INFOPATH=/usr/share/info:/usr/share/binutils-data/x86_64-pc-linux-gnu/2.18/info:/usr/share/gcc-data/x86_64-pc-linux-gnu/4.3.2/info</value>
+    <value type="QString" >JAVAC=/etc/java-config-2/current-system-vm/bin/javac</value>
+    <value type="QString" >JAVA_HOME=/etc/java-config-2/current-system-vm</value>
+    <value type="QString" >JDK_HOME=/etc/java-config-2/current-system-vm</value>
+    <value type="QString" >KDE_FULL_SESSION=true</value>
+    <value type="QString" >KDE_MULTIHEAD=false</value>
+    <value type="QString" >KDE_SESSION_UID=1000</value>
+    <value type="QString" >KONSOLE_DCOP=DCOPRef(konsole-13697,konsole)</value>
+    <value type="QString" >KONSOLE_DCOP_SESSION=DCOPRef(konsole-13697,session-1)</value>
+    <value type="QString" >LANG=en_GB.UTF-8</value>
+    <value type="QString" >LDPATH=/usr/kde/3.5/lib:/usr/kde/3.5/lib64:/usr/kde/3.5/lib32:</value>
+    <value type="QString" >LD_LIBRARY_PATH=/epics/base/lib/linux-x86_64</value>
+    <value type="QString" >LESS=-R -M --shift 5</value>
+    <value type="QString" >LESSOPEN=|lesspipe.sh %s</value>
+    <value type="QString" >LOGNAME=owena</value>
+    <value type="QString" >LS_COLORS=rs=0:di=01;34:ln=01;36:hl=44;37:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.pdf=00;32:*.ps=00;32:*.txt=00;32:*.patch=00;32:*.diff=00;32:*.log=00;32:*.tex=00;32:*.doc=00;32:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:</value>
+    <value type="QString" >MAIL=/var/mail/owena</value>
+    <value type="QString" >MANPATH=/etc/java-config-2/current-system-vm/man:/usr/local/share/man:/usr/share/man:/usr/share/binutils-data/x86_64-pc-linux-gnu/2.18/man:/usr/share/gcc-data/x86_64-pc-linux-gnu/4.3.2/man:/etc/java-config/system-vm/man/:/usr/kde/3.5/share/man:/usr/qt/3/doc/man</value>
+    <value type="QString" >OLDPWD=/home/owena/ca_example/api</value>
+    <value type="QString" >OPENGL_PROFILE=xorg-x11</value>
+    <value type="QString" >PAGER=/usr/bin/less</value>
+    <value type="QString" >PATH=/usr/bin:/usr/kde/3.5/bin:/usr/local/bin:/usr/bin:/bin:/opt/bin:/usr/x86_64-pc-linux-gnu/gcc-bin/4.3.2:/usr/qt/3/bin:/usr/games/bin:/epics/base/bin/linux-x86_64:/epics/base/extensions/bin/linux-x86_64:/home/owena/Perforce/ascm01_1666/owena_dogbox1/Dev/SBS/4_Controls/4_5_Support_System/4_5_4_Build_Scripts</value>
+    <value type="QString" >PKG_CONFIG_PATH=/usr/qt/3/lib64/pkgconfig</value>
+    <value type="QString" >PWD=/home/owena/ca_example</value>
+    <value type="QString" >QCAFRAMEWORK=../ca_framework</value>
+    <value type="QString" >QMAKESPEC=linux-g++</value>
+    <value type="QString" >QTCREATOR=/usr/share/qtcreator</value>
+    <value type="QString" >QTDIR=/usr/lib/qt4</value>
+    <value type="QString" >ROOTPATH=/usr/kde/3.5/sbin:/usr/kde/3.5/bin:/usr/local/bin:/usr/bin:/bin:/opt/bin:/usr/x86_64-pc-linux-gnu/gcc-bin/4.3.2:/usr/qt/3/bin:/usr/games/bin</value>
+    <value type="QString" >SESSION_MANAGER=local/dogbox1:@/tmp/.ICE-unix/5346,unix/dogbox1:/tmp/.ICE-unix/5346</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SHLVL=2</value>
+    <value type="QString" >TERM=xterm</value>
+    <value type="QString" >USER=owena</value>
+    <value type="QString" >WINDOWID=37748741</value>
+    <value type="QString" >XAUTHORITY=/home/owena/.Xauthority</value>
+    <value type="QString" >XCURSOR_THEME=default</value>
+    <value type="QString" >XDG_CONFIG_DIRS=/usr/kde/3.5/etc/xdg</value>
+    <value type="QString" >XDG_DATA_DIRS=/usr/kde/3.5/share:/usr/local/share:/usr/share</value>
+    <value type="QString" >_=/usr/bin/qtcreator</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList" >
+    <value type="QString" >clean</value>
+    <value type="QString" >-w</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool" >true</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/home/owena/Perforce/ascm01_1666/owena_dogbox1/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/QCaMonitorApp</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfigurations</variable>
+  <valuelist type="QVariantList" >
+   <value type="QString" >Release</value>
+  </valuelist>
+ </data>
+ <data>
+  <variable>buildstep0</variable>
+  <valuemap type="QVariantMap" >
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" ></value>
+   <value key="mkspec" type="QString" ></value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildstep1</variable>
+  <valuemap type="QVariantMap" >
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" ></value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildsteps</variable>
+  <valuelist type="QVariantList" >
+   <value type="QString" >trolltech.qt4projectmanager.qmake</value>
+   <value type="QString" >trolltech.qt4projectmanager.make</value>
+  </valuelist>
+ </data>
+ <data>
+  <variable>cleanstep0</variable>
+  <valuemap type="QVariantMap" >
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" ></value>
+   <value key="clean" type="bool" >true</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>cleansteps</variable>
+  <valuelist type="QVariantList" >
+   <value type="QString" >trolltech.qt4projectmanager.make</value>
+  </valuelist>
+ </data>
+ <data>
+  <variable>defaultFileEncoding</variable>
+  <value type="QByteArray" >System</value>
+ </data>
+ <data>
+  <variable>project</variable>
+  <valuemap type="QVariantMap" />
+ </data>
+</qtcreator>
