@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/QCaMonitorApp/src/monitor.cpp $
- * $Revision: #3 $ 
- * $DateTime: 2009/07/28 17:01:05 $
+ * $Revision: #4 $ 
+ * $DateTime: 2009/10/19 12:41:02 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class Monitor
-  \version $Revision: #3 $
-  \date $DateTime: 2009/07/28 17:01:05 $
+  \version $Revision: #4 $
+  \date $DateTime: 2009/10/19 12:41:02 $
   \author andrew.rhyder
   \brief Qt-CA based version of CA Monitor.
  */
@@ -49,13 +49,35 @@ monitor::monitor( QString pvIn )
     source = new QCaString( pv, this, &formatting, 1, &messages );
     QObject::connect( source, SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ),
                       this, SLOT( log( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ) );
-    QObject::connect( &messages, SIGNAL( generalMessage( const QString& ) ), this, SLOT( log( const QString & ) ) );
+
+    QObject::connect( source, SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                      this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+
+    QObject::connect( &messages, SIGNAL( generalMessage( const QString& ) ), this, SLOT( message( const QString & ) ) );
     source->subscribe();
+}
+
+// Log connection issues
+void monitor::connectionChanged( QCaConnectionInfo& connectionInfo )
+{
+    if( !connectionInfo.isChannelConnected() )
+        *stream << QString( "%1: %2   Channel not connected\n").arg( QTime::currentTime().toString() ).arg( pv );
+    if( !connectionInfo.isLinkUp() )
+        *stream << QString( "%1: %2   Link not up\n").arg( QTime::currentTime().toString() ).arg( pv );
+
+    stream->flush();
 }
 
 // Log data updates and messages
 void monitor::log( const QString& data, QCaAlarmInfo&, QCaDateTime& timeStamp, const unsigned int & )
 {
     *stream << QString( "%1: %2   %3\n").arg( timeStamp.text() ).arg( pv ).arg( data );
+    stream->flush();
+}
+
+// Log messages
+void monitor::message( const QString& message )
+{
+    *stream << QString( "%1 %2   %3\n").arg( QTime::currentTime().toString() ).arg( pv ).arg( message );
     stream->flush();
 }
