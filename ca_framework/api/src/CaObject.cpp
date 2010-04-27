@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/api/src/CaObject.cpp $
- * $Revision: #6 $ 
- * $DateTime: 2009/08/11 15:46:33 $
+ * $Revision: #8 $ 
+ * $DateTime: 2009/11/18 10:21:48 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class CaObject
-  \version $Revision: #6 $
-  \date $DateTime: 2009/08/11 15:46:33 $
+  \version $Revision: #8 $
+  \date $DateTime: 2009/11/18 10:21:48 $
   \author anthony.owen
   \brief Provides CA to an EPICS channel.
  */
@@ -674,7 +674,9 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
             context->signalCallback( EXCEPTION );
         break;
         default :
-            context->signalCallback( EXCEPTION );
+//!!!??? crash occurs here on occasion when opening new GUI, perhaps because callbacks can occur AFTER a connection has been closed. See warning above
+//       Also crash here when ioc is shutdown.
+//            context->signalCallback( EXCEPTION );
         break;
     }
     epicsMutexUnlock( accessMutex );
