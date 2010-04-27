@@ -2,8 +2,8 @@
 
   \class GuiPushButtonPlugin
 
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/17 10:02:42 $
+  \version $Revision: #3 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author Last checked in by: $Author: rhydera $
 
   \brief Launch GUI Push Button Widget Plugin.

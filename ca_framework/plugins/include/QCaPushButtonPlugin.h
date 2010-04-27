@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/QCaPushButtonPlugin.h $
- * $Revision: #5 $
- * $DateTime: 2009/07/31 11:24:15 $
+ * $Revision: #6 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaPushButtonPlugin
-  \version $Revision: #5 $
-  \date $DateTime: 2009/07/31 11:24:15 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Push Button Widget Plugin.
  */

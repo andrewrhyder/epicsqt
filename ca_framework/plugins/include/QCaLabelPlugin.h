@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/QCaLabelPlugin.h $
- * $Revision: #4 $
- * $DateTime: 2009/07/30 14:33:44 $
+ * $Revision: #8 $
+ * $DateTime: 2010/02/18 15:15:02 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaLabelPlugin
-  \version $Revision: #4 $
-  \date $DateTime: 2009/07/30 14:33:44 $
+  \version $Revision: #8 $
+  \date $DateTime: 2010/02/18 15:15:02 $
   \author andrew.rhyder
   \brief CA Label Widget Plugin for designer.
  */
@@ -100,14 +100,20 @@ class QCaLabelPlugin : public QCaLabel {
     void setAddUnitsProperty( bool addUnits ){ stringFormatting.setAddUnits( addUnits ); }
     bool getAddUnitsProperty(){ return stringFormatting.getAddUnits(); }
 
+    /// Qt Designer Properties - localEnumeration
+    Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumerationProperty WRITE setLocalEnumerationProperty)
+    void setLocalEnumerationProperty( QString/*localEnumerationList*/ localEnumeration ){ stringFormatting.setLocalEnumeration( localEnumeration ); }
+    QString/*localEnumerationList*/ getLocalEnumerationProperty(){ return stringFormatting.getLocalEnumeration(); }
+
     /// Qt Designer Properties - format
     Q_ENUMS(Formats)
     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
-    enum Formats { Default         = QCaStringFormatting::FORMAT_DEFAULT,
-                   Floating        = QCaStringFormatting::FORMAT_FLOATING,
-                   Integer         = QCaStringFormatting::FORMAT_INTEGER,
-                   UnsignedInteger = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time            = QCaStringFormatting::FORMAT_TIME };
+    enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
+                   Floating         = QCaStringFormatting::FORMAT_FLOATING,
+                   Integer          = QCaStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time             = QCaStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
     void setFormatProperty( Formats format ){ stringFormatting.setFormat( (QCaStringFormatting::formats)format ); }
     Formats getFormatProperty(){ return (Formats)stringFormatting.getFormat(); }
 
@@ -124,6 +130,12 @@ class QCaLabelPlugin : public QCaLabel {
                      Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
     void setNotationProperty( Notations notation ){ stringFormatting.setNotation( (QCaStringFormatting::notations)notation ); }
     Notations getNotationProperty(){ return (Notations)stringFormatting.getNotation(); }
+
+    /// Qt Designer Properties - visible (widget is visible outside 'Designer')
+    Q_PROPERTY(bool visible READ getVisibleProperty WRITE setVisibleProperty)
+    // implemented in QCaLabel class void setVisibleProperty( bool visible ){ visibleProperty = visible; }
+    bool getVisibleProperty(){ return visibleProperty; }
+
 
   private:
     QCaVariableNamePropertyManager variableNamePropertyManager;

@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/QCaSliderPlugin.h $
- * $Revision: #2 $
- * $DateTime: 2009/07/30 14:33:44 $
+ * $Revision: #3 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaSliderPlugin
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/30 14:33:44 $
+  \version $Revision: #3 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Slider Widget Plugin.
  */

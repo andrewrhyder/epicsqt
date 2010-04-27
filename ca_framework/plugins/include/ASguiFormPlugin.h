@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/ASguiFormPlugin.h $
- * $Revision: #1 $ 
- * $DateTime: 2009/07/14 15:59:56 $
+ * $Revision: #2 $ 
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class ASguiFormPlugin
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #2 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief Wrapper around QCaLabel to allow QCaLabel to be used within Designer
  */

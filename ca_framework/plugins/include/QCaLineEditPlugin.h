@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/QCaLineEditPlugin.h $
- * $Revision: #4 $
- * $DateTime: 2009/07/30 14:33:44 $
+ * $Revision: #6 $
+ * $DateTime: 2010/03/23 11:07:38 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaLineEditPlugin
-  \version $Revision: #4 $
-  \date $DateTime: 2009/07/30 14:33:44 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/03/23 11:07:38 $
   \author andrew.rhyder
   \brief CA Line Edit Widget Plugin.
  */
@@ -73,11 +73,6 @@ class QCaLineEditPlugin : public QCaLineEdit {
     void setWriteOnEnterProperty( bool writeOnEnter ){ writeOnEnterProperty = writeOnEnter; }
     bool getWriteOnEnterProperty(){ return writeOnEnterProperty; }
 
-    /// Qt Designer Properties - write on change
-    Q_PROPERTY(bool writeOnChange READ getWriteOnChangeProperty WRITE setWriteOnChangeProperty)
-    void setWriteOnChangeProperty( bool writeOnChange ){ writeOnChangeProperty = writeOnChange; }
-    bool getWriteOnChangeProperty(){ return writeOnChangeProperty; }
-
     /// Qt Designer Properties - subscribe
     Q_PROPERTY(bool subscribe READ getSubscribeProperty WRITE setSubscribeProperty)
     void setSubscribeProperty( bool subscribe ){ subscribeProperty = subscribe; }
@@ -92,6 +87,11 @@ class QCaLineEditPlugin : public QCaLineEdit {
     Q_PROPERTY(bool enabled READ getEnabledProperty WRITE setEnabledProperty)
     void setEnabledProperty( bool enabled ){ setEnabled( enabled ); }
     bool getEnabledProperty(){ return enabledProperty; }
+
+    /// Qt Designer Properties - confirm write
+    Q_PROPERTY(bool confirmWrite READ getConfirmWriteProperty WRITE setConfirmWriteProperty)
+    void setConfirmWriteProperty( bool confirmWrite ){ confirmWriteProperty = confirmWrite; }
+    bool getConfirmWriteProperty(){ return confirmWriteProperty; }
 
     /// String formatting properties
 

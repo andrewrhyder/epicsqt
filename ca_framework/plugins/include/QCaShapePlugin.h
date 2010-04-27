@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/QCaShapePlugin.h $
- * $Revision: #3 $
- * $DateTime: 2009/08/03 09:51:42 $
+ * $Revision: #4 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaShapePlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2009/08/03 09:51:42 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Shape Widget Plugin.
  */

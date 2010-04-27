@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/ContainerProfile.h $
- * $Revision: #1 $ 
- * $DateTime: 2009/07/14 15:59:56 $
+ * $Revision: #2 $ 
+ * $DateTime: 2009/10/26 14:56:54 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class ContainerProfile
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #2 $
+  \date $DateTime: 2009/10/26 14:56:54 $
   \author andrew.rhyder
   \brief Defines attributes of the containing window (form, dialog, etc) within which QCa widgets are being created.
  */
@@ -60,10 +60,13 @@ class ContainerProfile
 public:
     ContainerProfile();    // Construction. Sets up local copies of any profile defined by setupProfile() in an earlier instance
     ~ContainerProfile();   // Destruction
+    void init();
+
     void setupProfile( QObject* statusMessageConsumerIn,
                        QObject* errorMessageConsumerIn,
                        QObject* warningMessageConsumerIn,
                        QObject* guiLaunchConsumerIn,
+                       QString pathIn,
                        QString macroSubstitutionsIn,
                        bool interactiveIn );      // Setup an environmental profile for all QcaWidgets to use on creation
     QObject* replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn );  // Override the current GUI launch consumer
@@ -75,6 +78,7 @@ public:
     QObject* getWarningMessageConsumer();  // Get the local copy of the object that will recieve warning message events
     QObject* getErrorMessageConsumer();    // Get the local copy of the object that will recieve error message events
     QObject* getGuiLaunchConsumer();       // Get the local copy of the object that will recieve GUI launch requests
+    QString getPath();                     // Get the local copy of the path used for file operations
     QString getMacroSubstitutions();       // Get the local copy of the variable name macro substitutions
     bool isProfileDefined();               // Returns true if a profile has been setup by setupProfile()
     bool isInteractive();                  // Returns true if the profile was set up by an application where a user is interacting with properties such as variable names
@@ -89,6 +93,7 @@ private:
     static QObject* publishedErrorMessageConsumer;      // Object to send error message event to
     static QObject* publishedWarningMessageConsumer;    // Object to send warning message event to
     static QObject* publishedGuiLaunchConsumer;         // Object to send GUI launch requests to
+    static QString publishedPath;                       // Path used for file operations
     static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
     static bool publishedInteractive;                    // Flag true if the profile was set up by an application where a user is interacting with properties such as variable names
 
@@ -100,6 +105,7 @@ private:
     QObject* errorMessageConsumer;   // Local copy of error message consumer. Still valid after the profile has been released by releaseProfile()
     QObject* warningMessageConsumer; // Local copy of warning message consumer. Still valid after the profile has been released by releaseProfile()
     QObject* guiLaunchConsumer;      // Local copy of GUI launch consumer. Still valid after the profile has been released by releaseProfile()
+    QString path;                    // Local copy of path used for file operations
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
     bool interactive;              // Local copy of 'is interactive' flag. Still valid after the profile has been released by releaseProfile()
 
