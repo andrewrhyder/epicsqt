@@ -2,8 +2,8 @@
 
   \class GuiPushButton
 
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/31 11:24:15 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author Last checked in by: $Author: rhydera $
 
   \brief Launch GUI Push Button Widget.
@@ -44,6 +44,9 @@
 GuiPushButton::GuiPushButton( QWidget *parent ) : QPushButton( parent ) {
     // Set default button text
     setText( "Launch GUI" );
+
+    // Set default properties
+    creationOption = ASguiForm::CREATION_OPTION_OPEN;
 
     // Use click signal to launch new GUI
     QObject::connect( this, SIGNAL( clicked() ), this, SLOT( userClicked() ) );
@@ -111,7 +114,7 @@ void GuiPushButton::launchGui( QString guiName, QString /*substitutions*/, ASgui
 
     // Build the gui
     // Build it in a new window.
-    //??? This could use the create options as follws: (instead of always creating a new window)
+    //??? This could use the create options as follows: (instead of always creating a new window)
     //       - Wind up through parents until the parent of the first scroll
     //       - Replace the scroll area's widget with the new gui
     QMainWindow* w = new QMainWindow;
@@ -126,4 +129,12 @@ void GuiPushButton::launchGui( QString guiName, QString /*substitutions*/, ASgui
     {
         delete w;
     }
+}
+
+
+// Slot same as default widget setEnabled slot, but renamed to match other QCa widgets where requestEnabled() will use our own setEnabled
+// which will allow alarm states to override current enabled state
+void GuiPushButton::requestEnabled( const bool& state )
+{
+    setEnabled(state);
 }

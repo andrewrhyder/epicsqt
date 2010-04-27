@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/src/QCaShape.cpp $
- * $Revision: #8 $
- * $DateTime: 2009/08/03 09:51:42 $
+ * $Revision: #11 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaShape
-  \version $Revision: #8 $
-  \date $DateTime: 2009/08/03 09:51:42 $
+  \version $Revision: #11 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Shape Widget.
  */
@@ -201,6 +201,19 @@ void QCaShape::connectionChanged( QCaConnectionInfo& connectionInfo )
     color.
 */
 void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex ) {
+
+    /// Signal a database value change to any Link widgets
+    switch( variableIndex )
+    {
+        case 0: emit dbValueChanged1( value ); break;
+        case 1: emit dbValueChanged2( value ); break;
+        case 2: emit dbValueChanged3( value ); break;
+        case 3: emit dbValueChanged4( value ); break;
+        case 4: emit dbValueChanged5( value ); break;
+        case 5: emit dbValueChanged6( value ); break;
+        default: userMessage.sendErrorMessage( "Application error: Unexpected variable index", "QCaShape.cpp" );
+    }
+
     /// Scale the data.
     /// For example, a flow of 0 to 10 l/m may adjust a shape size 0 to 200 pixels
     double scaledValue = (double)(value)*scalesProperty[variableIndex] + offsetsProperty[variableIndex];
@@ -231,8 +244,8 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         case Transperency :
         {
             int newAlpha = 0;
-            if( scaledValue > 0.0 ) {
-                if ( scaledValue < 255 ) {
+            if( scaledValue >= 0.0 ) {
+                if ( scaledValue <= 255 ) {
                     newAlpha = (unsigned int)scaledValue;
                 } else {
                     newAlpha = 255;
@@ -255,8 +268,8 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         case ColourHue :
         {
             int newHue = 0;
-            if( scaledValue > 0.0 ) {
-                if( scaledValue < 255 ) {
+            if( scaledValue >= 0.0 ) {
+                if( scaledValue <= 255 ) {
                     newHue = (unsigned int)scaledValue;
                 } else {
                     newHue = 255;
@@ -275,8 +288,8 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         case ColourSaturation :
         {
             int newSaturation = 0;
-            if( scaledValue > 0.0 ) {
-                if( scaledValue < 255 ) {
+            if( scaledValue >= 0.0 ) {
+                if( scaledValue <= 255 ) {
                     newSaturation = (unsigned int)scaledValue;
                 } else {
                     newSaturation = 255;
@@ -295,8 +308,8 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         case ColourValue :
         {
             int newValue = 0;
-            if( scaledValue > 0.0 ) {
-                if( scaledValue < 255 ) {
+            if( scaledValue >= 0.0 ) {
+                if( scaledValue <= 255 ) {
                     newValue = (unsigned int)scaledValue;
                 } else {
                     newValue = 255;
@@ -314,7 +327,7 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         }
         case ColourIndex :
         {
-            if( scaledValue > 0.0 ) {
+            if( scaledValue >= 0.0 ) {
                 if ( scaledValue < COLORS_PROPERTY_SIZE ) {
                     currentColor = (unsigned int)scaledValue;
                 } else {
@@ -444,28 +457,6 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
 }
 
 /*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QCaShape::isEnabled() const
-{
-    /// Return what the state of widget would be if connected.
-    return enabledProperty;
-}
-
-/*!
-   Override the default widget setEnabled slot to allow alarm states to override current enabled state
- */
-void QCaShape::setEnabled( bool state )
-{
-    /// Note the new 'enabled' state
-    enabledProperty = state;
-
-    /// Set the enabled state of the widget only if connected
-    if( isConnected )
-        QWidget::setEnabled( enabledProperty );
-}
-
-/*!
    Reset the brush color if the color the brush is using is changing
  */
 void QCaShape::colorChange( unsigned int index )
@@ -480,4 +471,34 @@ void QCaShape::colorChange( unsigned int index )
         brush.setColor( colorsProperty[currentColor] );
         update();
     }
+}
+
+/*!
+   Override the default widget isEnabled to allow alarm states to override current enabled state
+ */
+bool QCaShape::isEnabled() const
+{
+    /// Return what the state of widget would be if connected.
+    return enabledProperty;
+}
+
+/*!
+   Override the default widget setEnabled to allow alarm states to override current enabled state
+ */
+void QCaShape::setEnabled( bool state )
+{
+    /// Note the new 'enabled' state
+    enabledProperty = state;
+
+    /// Set the enabled state of the widget only if connected
+    if( isConnected )
+        QWidget::setEnabled( enabledProperty );
+}
+
+/*!
+   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
+ */
+void QCaShape::requestEnabled( const bool& state )
+{
+    setEnabled(state);
 }

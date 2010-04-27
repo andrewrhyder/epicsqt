@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/src/QCaSpinBox.cpp $
- * $Revision: #8 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #10 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaSpinBox
-  \version $Revision: #8 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #10 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Spinbox Widget.
  */
@@ -72,7 +72,7 @@ void QCaSpinBox::setup() {
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
-    // Use label signals
+    // Use spin box signals
     QObject::connect( this, SIGNAL( valueChanged( int ) ), this, SLOT( userValueChanged( int ) ) );
 }
 
@@ -157,10 +157,13 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 void QCaSpinBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     /// If not subscribing, then do nothing.
-    /// Note, even though there is nothing to do here if not subscribing, an initial sing shot read is still
-    /// performed to ensure we have valid information about the variable when it is time to do a write.
+    /// Note, This will still be called even if not subscribing as there may be initial sing shot read
+    /// to ensure we have valid information about the variable when it is time to do a write.
     if( !subscribeProperty )
         return;
+
+    /// Signal a database value change to any Link widgets
+    emit dbValueChanged( value );
 
     /// Update the spin box only if the user is not interacting with the object.
     if( !hasFocus() ) {
@@ -207,7 +210,7 @@ bool QCaSpinBox::isEnabled() const
 }
 
 /*!
-   Override the default widget setEnabled slot to allow alarm states to override current enabled state
+   Override the default widget setEnabled to allow alarm states to override current enabled state
  */
 void QCaSpinBox::setEnabled( bool state )
 {
@@ -217,4 +220,12 @@ void QCaSpinBox::setEnabled( bool state )
     /// Set the enabled state of the widget only if connected
     if( isConnected )
         QWidget::setEnabled( enabledProperty );
+}
+
+/*!
+   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
+ */
+void QCaSpinBox::requestEnabled( const bool& state )
+{
+    setEnabled(state);
 }

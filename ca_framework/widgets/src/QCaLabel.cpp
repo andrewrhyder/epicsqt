@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/src/QCaLabel.cpp $
- * $Revision: #7 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #11 $
+ * $DateTime: 2010/02/18 15:15:02 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaLabel
-  \version $Revision: #7 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #11 $
+  \date $DateTime: 2010/02/18 15:15:02 $
   \author andrew.rhyder
   \brief CA Label Widget.
  */
@@ -61,6 +61,7 @@ void QCaLabel::setup() {
 
     // Set up default properties
     enabledProperty = true;
+    visibleProperty = true;
 
     // Set the initial state
     setText( "" );
@@ -86,7 +87,6 @@ void QCaLabel::createQcaItem( unsigned int variableIndex ) {
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
 */
 void QCaLabel::establishConnection( unsigned int variableIndex ) {
-qDebug() << "QCaLabel::establishConnection()";
 
     if( createConnection( variableIndex ) == true ) {
         QObject::connect(getQcaItem( variableIndex ), SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
@@ -136,6 +136,9 @@ void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
  */
 void QCaLabel::setLabelText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
+    /// Signal a database value change to any Link widgets
+    emit dbValueChanged( text );
+
     /// Update the text
     setText( text );
 
@@ -158,7 +161,7 @@ bool QCaLabel::isEnabled() const
 }
 
 /*!
-   Override the default widget setEnabled slot to allow alarm states to override current enabled state
+   Override the default widget setEnabled to allow alarm states to override current enabled state
  */
 void QCaLabel::setEnabled( bool state )
 {
@@ -170,3 +173,29 @@ void QCaLabel::setEnabled( bool state )
         QWidget::setEnabled( enabledProperty );
 }
 
+/*!
+   Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
+ */
+void QCaLabel::requestEnabled( const bool& state )
+{
+    setEnabled(state);
+}
+
+
+/*!
+  Manage property to set widget visible or not
+ */
+void QCaLabel::setVisibleProperty( bool visiblePropertyIn )
+{
+    // Update the property
+    visibleProperty = visiblePropertyIn;
+
+    // If a container profile has been defined, then this widget is being used in a real GUI and
+    // should be visible or not according to the visible property. (While in Designer it can always be displayed)
+    ContainerProfile profile;
+    if( profile.isProfileDefined() )
+    {
+        setVisible( visibleProperty );
+    }
+
+}

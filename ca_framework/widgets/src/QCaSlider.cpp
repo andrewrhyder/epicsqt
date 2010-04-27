@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/src/QCaSlider.cpp $
- * $Revision: #7 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #9 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaSlider
-  \version $Revision: #7 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #9 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Slider Widget.
  */
@@ -159,6 +159,9 @@ void QCaSlider::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, Q
     if( !subscribeProperty )
         return;
 
+    /// Signal a database value change to any Link widgets
+    emit dbValueChanged( value );
+
     /// Update the slider only if the user is not interacting with the object.
     if( !hasFocus() ) {
         updateInProgress = true;
@@ -219,7 +222,7 @@ bool QCaSlider::isEnabled() const
 }
 
 /*!
-   Override the default widget setEnabled slot to allow alarm states to override current enabled state
+   Override the default widget setEnabled to allow alarm states to override current enabled state
  */
 void QCaSlider::setEnabled( bool state )
 {
@@ -229,4 +232,12 @@ void QCaSlider::setEnabled( bool state )
     /// Set the enabled state of the widget only if connected
     if( isConnected )
         QWidget::setEnabled( enabledProperty );
+}
+
+/*!
+   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
+ */
+void QCaSlider::requestEnabled( const bool& state )
+{
+    setEnabled(state);
 }

@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/src/QCaComboBox.cpp $
- * $Revision: #10 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #12 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaComboBox
-  \version $Revision: #10 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #12 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Combobox Widget.
  */
@@ -162,7 +162,8 @@ void QCaComboBox::updateToolTip ( const QString & toolTip ) {
 
 void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
-    // If the combo box is not populated, setup the enumerations if any
+    // If the combo box is not populated, setup the enumerations if any.
+    // If not subscribing, there will still be an initial update to get enumeration values.
     if( count() == 0 )
     {
         QCaInteger* qca = (QCaInteger*)getQcaItem(0);
@@ -173,10 +174,19 @@ void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo,
         }
     }
 
-    /// Update the object if we are subscribing to data updates.
-    /// If not subscribing, there will still be an initial update to get enumeration values
+    /// If not subscribing, then do nothing.
+    /// Note, This will still be called even if not subscribing as there may be initial sing shot read
+    /// to ensure we have valid information about the variable when it is time to do a write.
+    if( !subscribeProperty )
+        return;
+
+    // Signal a database value change to any Link widgets
+    emit dbValueChanged( value );
+
+    /// Update the text if appropriate
     /// If the user is editing the object then updates will be inapropriate
-    if( subscribeProperty && hasFocus() == false ) {
+    if( hasFocus() == false )
+    {
         setCurrentIndex( value );
     }
 
@@ -214,7 +224,7 @@ bool QCaComboBox::isEnabled() const
 }
 
 /*!
-   Override the default widget setEnabled slot to allow alarm states to override current enabled state
+   Override the default widget setEnabled to allow alarm states to override current enabled state
  */
 void QCaComboBox::setEnabled( bool state )
 {
@@ -224,4 +234,12 @@ void QCaComboBox::setEnabled( bool state )
     /// Set the enabled state of the widget only if connected
     if( isConnected )
         QWidget::setEnabled( enabledProperty );
+}
+
+/*!
+   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
+ */
+void QCaComboBox::requestEnabled( const bool& state )
+{
+    setEnabled(state);
 }

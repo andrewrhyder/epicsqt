@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/src/QCaPushButton.cpp $
- * $Revision: #6 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #9 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaPushButton
-  \version $Revision: #6 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #9 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Push Button Widget.
  */
@@ -155,6 +155,15 @@ void QCaPushButton::connectionChanged( QCaConnectionInfo& connectionInfo )
 */
 void QCaPushButton::setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
+    /// If not subscribing, then do nothing.
+    /// Note, This will still be called even if not subscribing as there may be an initial sing shot read
+    /// to ensure we have valid information about the variable when it is time to do a write.
+    if( !subscribeProperty )
+        return;
+
+    /// Signal a database value change to any Link widgets
+    emit dbValueChanged( text );
+
     /// Update the text
     setText( text );
 
@@ -223,9 +232,9 @@ bool QCaPushButton::isEnabled() const
 }
 
 /*!
-   Override the default widget setEnabled slot to allow alarm states to override current enabled state
+   Override the default widget setEnabled to allow alarm states to override current enabled state
  */
-void QCaPushButton::setEnabled( bool state )
+void QCaPushButton::setEnabled( const bool& state )
 {
     // Note the new 'enabled' state
     enabledProperty = state;
@@ -233,4 +242,12 @@ void QCaPushButton::setEnabled( bool state )
     // Set the enabled state of the widget only if connected
     if( isConnected )
         QWidget::setEnabled( enabledProperty );
+}
+
+/*!
+   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
+ */
+void QCaPushButton::requestEnabled( const bool& state )
+{
+    QCaPushButton::setEnabled(state);
 }

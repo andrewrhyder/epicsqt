@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/src/ASguiForm.cpp $
- * $Revision: #6 $ 
- * $DateTime: 2009/10/12 10:43:57 $
+ * $Revision: #9 $ 
+ * $DateTime: 2010/04/07 12:14:19 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class ASguiForm
-  \version $Revision: #6 $
-  \date $DateTime: 2009/10/12 10:43:57 $
+  \version $Revision: #9 $
+  \date $DateTime: 2010/04/07 12:14:19 $
   \author andrew.rhyder
   \brief Form containing widgets, including QCa widgets, read from a UI file
  */
@@ -54,6 +54,7 @@
 #include <QUiLoader>
 #include <QtGui>
 #include <QString>
+#include <QDir>
 #include <QtDebug>
 #include <ASguiForm.h>
 #include <ContainerProfile.h>
@@ -62,16 +63,24 @@
 /// Constructor.
 /// No UI file is read. uiFileNameProperty must be set and then readUiFile() called after construction
 ASguiForm::ASguiForm( QWidget* parent ) : QScrollArea( parent ) {
-    ui = NULL;
-    alertIfUINoFound = false;
+    commonInit( false );
 }
 
 /// Constructor.
 /// UI filename is supplied and UI file is read as part of construction.
 ASguiForm::ASguiForm( const QString& uiFileNameIn, QWidget* parent ) : QScrollArea( parent ) {
-    ui = NULL;
+    commonInit( true );
     uiFileNameProperty = uiFileNameIn;
-    alertIfUINoFound = true;
+}
+
+/// Common construction
+void ASguiForm::commonInit( const bool alertIfUINoFoundIn )
+{
+    ui = NULL;
+    alertIfUINoFound = alertIfUINoFoundIn;
+
+    // Prepare to recieve notification that the ui file being displayed has changed
+    QObject::connect( &fileMon, SIGNAL( fileChanged( const QString & ) ), this, SLOT( fileChanged( const QString & ) ) );
 }
 
 /// Destructor.
@@ -88,14 +97,44 @@ void ASguiForm::readUiFile()
 {
     if (!uiFileNameProperty.isEmpty()) {
 
+        /// Set up the environment profile for any QCa widgets created by the form
+        QObject* savedGuiLaunchConsumer = NULL;
+
+        ContainerProfile profile;
+        bool localProfile;
+        if( profile.isProfileDefined() )
+        {
+            // Flag the profile was not set up in this function (and so should not be released in this function)
+            localProfile = false;
+
+            // A profile is already defined, either by the gui application or by a higher level form.
+            // Extend any variable name substitutions with this form's substitutions
+            profile.addMacroSubstitutions( variableNameSubstitutions );
+
+            // If this form is handling form launch requests from object created within it, replace any form launcher with our own
+            if( handleGuiLaunchRequestsProperty )
+                savedGuiLaunchConsumer = profile.replaceGuiLaunchConsumer( this );
+        }
+        else
+        {
+            // Flag the profile was set up in this function (and so should be released in this function)
+            localProfile = true;
+
+            // A profile is not already defined. This is the case if this class is the base to a form plugin loaded by 'designer'.
+            // Use this form's default message handling, always handle any GUI launch requests, and add this form's substitutions
+            userMessage.setup( this );
+            profile.setupProfile( this, this, this, this, QDir::currentPath(), variableNameSubstitutions, true );
+        }
+
         // Attempt to open the UI file.
         // If appropriate, warn the user if the UI file could not be opened.
         QUiLoader loader;
-        QFile uiFile( uiFileNameProperty );
+        QDir path( profile.getPath() );
+        QFile uiFile( path.filePath( uiFileNameProperty ));
         if( !uiFile.open( QIODevice::ReadOnly ) ) {
             if( alertIfUINoFound ) {
                 QString msg;
-                QTextStream(&msg) << "User interface file '" << uiFileNameProperty << "' could not be opened";
+                QTextStream(&msg) << "User interface file '" << uiFile.fileName() << "' could not be opened";
                 //!!!??? currently not working. profile not set up yet so user messages can't be displayed this early perhaps
                 userMessage.sendWarningMessage( msg, "ASguiForm::readUiFile"  );
             }
@@ -103,62 +142,27 @@ void ASguiForm::readUiFile()
 
         // Load the UI file if opened
         else {
+            /// Ensure no other files are being monitored (belt and braces)
+            QStringList monitoredPaths = fileMon.files();
+            if( monitoredPaths.count())
+            {
+                fileMon.removePaths( monitoredPaths );
+            }
+
+            /// Monitor the opened file
+            fileMon.addPath( path.filePath( uiFileNameProperty ) );
 
             /// Extract the file name part used for the window title
-            QFileInfo fileInfo( uiFile.fileName() );
+            QDir fileDir( profile.getPath() );
+            QFileInfo fileInfo( fileDir, uiFile.fileName() );
             title = fileInfo.fileName();
             if( title.endsWith( ".ui" ) )
                 title.chop( 3 );
-
-            /// Set up the environment profile for any QCa widgets created by the form
-            QObject* savedGuiLaunchConsumer = NULL;
-
-            ContainerProfile profile;
-            bool localProfile;
-            if( profile.isProfileDefined() )
-            {
-                // Flag the profile was not set up in this function (and so should not be released in this function)
-                localProfile = false;
-                
-                // A profile is already defined, either by the gui application or by a higher level form.
-                // Extend any variable name substitutions with this form's substitutions
-                profile.addMacroSubstitutions( variableNameSubstitutions );
-
-                /// If this form is handling form launch requests from object created within it, replace any form launcher with our own
-                if( handleGuiLaunchRequestsProperty )
-                    savedGuiLaunchConsumer = profile.replaceGuiLaunchConsumer( this );
-                
-            }
-            else
-            {
-                // Flag the profile was set up in this function (and so should be released in this function)
-                localProfile = true;
-                
-                // A profile is not already defined. This is the case if this class is the base to a form plugin loaded by 'designer'.
-                // Use this form's default message handling, always handle any GUI launch requests, and add this form's substitutions
-                userMessage.setup( this );
-                profile.setupProfile( this, this, this, this, variableNameSubstitutions, true );
-            }
 
             /// Load the gui
             ui = loader.load(&uiFile);
             uiFile.close();
 
-            // If the profile is not our own, restore it to how we found it
-            if( !localProfile )
-            {
-                /// If this form is handling form launch requests from object created within it, put back any original
-                /// form launcher now all objects have been created
-                if ( handleGuiLaunchRequestsProperty )
-                     profile.replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
-            }
-            
-            // The profile was created within this function. Release it so nothing created later tries to use this object's services
-            else
-            {
-                profile.releaseProfile();
-            }
-            
             /// Any QCa widgets that have just been created need to be activated.
             /// Note, this is only required when QCa widgets are not loaded within a form and not directly by 'designer'.
             /// When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
@@ -174,6 +178,22 @@ void ASguiForm::readUiFile()
             /// Present the gui to the user
             setWidget( ui );
         }
+
+        // If the profile is not our own, restore it to how we found it
+        if( !localProfile )
+        {
+            /// If this form is handling form launch requests from object created within it, put back any original
+            /// form launcher now all objects have been created
+            if ( handleGuiLaunchRequestsProperty )
+                 profile.replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
+        }
+
+        // The profile was created within this function. Release it so nothing created later tries to use this object's services
+        else
+        {
+            profile.releaseProfile();
+        }
+
     }
 }
 
@@ -190,8 +210,6 @@ QString ASguiForm::getGuiFileName(){
 /// Set the variable name substitutions used by all QCa widgets wihtin the form
 void ASguiForm::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
 {
-    qDebug() << "ASguiForm::setVariableNameSubstitutions() " << variableNameSubstitutionsIn;
-
     variableNameSubstitutions = variableNameSubstitutionsIn;
 
     // The macro substitutions have changed. Reload the form to pick up new substitutions.
@@ -202,6 +220,23 @@ void ASguiForm::setVariableNameSubstitutions( QString variableNameSubstitutionsI
         ui->close();
         readUiFile();
     }
+}
+
+// Slot for reloading the file if it has changed.
+// It doesn't matter if it has been deleted, a reload attempt will still tell the user what they need to know - that the file has gone.
+void ASguiForm::fileChanged ( const QString & /*path*/ )
+{
+    // Ensure we arn't monitoring files any more
+    QStringList monitoredPaths = fileMon.files();
+    fileMon.removePaths( monitoredPaths );
+
+    // Close any existing form
+    if( ui )
+        ui->close();
+
+    // Re-open file
+    readUiFile();
+
 }
 
 // Slot for presenting messages to the user.
@@ -229,4 +264,11 @@ void ASguiForm::onGeneralMessage( QString message )
     ASguiForm* gui = new ASguiForm( guiName );
     if( gui )
         gui->readUiFile();
+}
+
+// Slot same as default widget setEnabled slot, but renamed to match other QCa widgets where requestEnabled() will use our own setEnabled
+// which will allow alarm states to override current enabled state
+void ASguiForm::requestEnabled( const bool& state )
+{
+    setEnabled(state);
 }
