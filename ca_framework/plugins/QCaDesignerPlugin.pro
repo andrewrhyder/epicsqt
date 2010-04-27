@@ -1,7 +1,7 @@
 # $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/QCaDesignerPlugin.pro $
-# $Revision: #14 $
-# $DateTime: 2009/08/18 18:16:57 $
-# Last checked in by: $Author: jacksog $
+# $Revision: #16 $
+# $DateTime: 2010/01/25 16:09:07 $
+# Last checked in by: $Author: rhydera $
 TEMPLATE = lib
 CONFIG += plugin \
     uitools \
@@ -18,6 +18,7 @@ OTHER_FILES += include/QCaSpinBox.png \
     include/QCaPushButton.png \
     include/QCaLineEdit.png \
     include/QCaLabel.png \
+    include/Link.png \
     include/GuiPushButton.png \
     include/CmdPushButton.png \
     include/ASguiForm.png
@@ -44,6 +45,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/ASguiFormPlugin.h \
     include/QCaLabelPluginManager.h \
     include/QCaLabelPlugin.h \
+    include/LinkPluginManager.h \
+    include/LinkPlugin.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -59,6 +62,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../data/include/QCaObject.h \
     ../data/include/QCaIntegerFormatting.h \
     ../data/include/QCaInteger.h \
+    ../data/include/QCaFloatingFormatting.h \
+    ../data/include/QCaFloating.h \
     ../data/include/QCaEventUpdate.h \
     ../data/include/QCaEventFilter.h \
     ../data/include/QCaDateTime.h \
@@ -71,6 +76,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaPushButton.h \
     ../widgets/include/QCaLineEdit.h \
     ../widgets/include/QCaLabel.h \
+    ../widgets/include/Link.h \
     ../widgets/include/GuiPushButton.h \
     ../widgets/include/CmdPushButton.h \
     ../widgets/include/ASguiForm.h \
@@ -89,6 +95,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaLineEditPlugin.cpp \
     src/QCaLabelPluginManager.cpp \
     src/QCaLabelPlugin.cpp \
+    src/LinkPluginManager.cpp \
+    src/LinkPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
     src/GuiPushButtonPluginManager.cpp \
     src/GuiPushButtonPlugin.cpp \
@@ -111,6 +119,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/QCaObject.cpp \
     ../data/src/QCaIntegerFormatting.cpp \
     ../data/src/QCaInteger.cpp \
+    ../data/src/QCaFloatingFormatting.cpp \
+    ../data/src/QCaFloating.cpp \
     ../data/src/QCaEventUpdate.cpp \
     ../data/src/QCaEventFilter.cpp \
     ../data/src/QCaDateTime.cpp \
@@ -123,6 +133,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaPushButton.cpp \
     ../widgets/src/QCaLineEdit.cpp \
     ../widgets/src/QCaLabel.cpp \
+    ../widgets/src/Link.cpp \
     ../widgets/src/GuiPushButton.cpp \
     ../widgets/src/CmdPushButton.cpp \
     ../widgets/src/ASguiForm.cpp \
