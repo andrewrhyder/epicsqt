@@ -1,12 +1,12 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/ASguiApp/include/MainWindow.h $
- * $Revision: #4 $
- * $DateTime: 2009/10/07 15:35:14 $
+ * $Revision: #5 $
+ * $DateTime: 2009/10/26 14:56:54 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*!
-  \version $Revision: #4 $
-  \date $DateTime: 2009/10/07 15:35:14 $
+  \version $Revision: #5 $
+  \date $DateTime: 2009/10/26 14:56:54 $
   \author andrew.rhyder
   \brief The Australian Sysnchrotron Base Form GUI
  */
@@ -48,12 +48,12 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = 0 );
-    MainWindow( QString fileName, QString substitutions, bool editEnabled, QWidget *parent = 0 );
+    MainWindow( QString fileName, QString path, QString substitutions, bool editEnabled, QWidget *parent = 0 );
 
     ~MainWindow();
 
 private:
-    void init( QString fileName, QString substitutions, bool enableEditIn );   // Code common to all constructors
+    void init( QString fileName, QString pathIn, QString substitutionsIn, bool enableEditIn );   // Code common to all constructors
     bool enableEdit;                                        // Enable edit menu
     Ui::MainWindowClass ui;                                 // Main window layout
     static QList<ASguiForm*> guiList;                       // Shared list of all forms being displayed in all main windows
@@ -62,7 +62,7 @@ private:
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
-    ASguiForm* createGui( QString caption, QString substitutions );    // Create a gui
+    ASguiForm* createGui( QString filename );               // Create a gui
     void loadGuiIntoCurrentWindow( ASguiForm* newGui );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( ASguiForm* gui );               // Load a new gui into a new tab
 
@@ -79,6 +79,10 @@ private:
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
 
     QString GuiFileNameDialog( QString caption );           // Get a gui filename from the user
+    QString path;                                           // Default path when looking for GUI ui files
+    QString substitutions;                                  // Default substitutions when creating a new GUI form
+    ContainerProfile profile;                               // Environment profile for new QCa wigets
+
 
 private slots:
     void on_actionRefresh_Current_Form_triggered();             // Slot to perform 'Refresh Current Form' action
