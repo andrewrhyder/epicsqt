@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/src/QCaLabelPlugin.cpp $
- * $Revision: #2 $
- * $DateTime: 2009/07/30 14:33:44 $
+ * $Revision: #3 $
+ * $DateTime: 2009/11/18 10:21:48 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaLabelPlugin
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/30 14:33:44 $
+  \version $Revision: #3 $
+  \date $DateTime: 2009/11/18 10:21:48 $
   \author andrew.rhyder
   \brief CA Label Widget Plugin for designer.
  */
@@ -42,7 +42,24 @@
     ???
 */
 QCaLabelPlugin::QCaLabelPlugin( QWidget* parent ) : QCaLabel( parent ) {
-    // Set some default text to give the label visibility and size as the default label has no border and the background colour is the same as the form
+
+
+
+
+
+/*
+    int id = qRegisterMetaType<localEnumerationList>();
+    qDebug() << "qRegisterMetaType ID: " << id;
+    qRegisterMetaTypeStreamOperators<localEnumerationList>("localEnumerationList");
+
+//    QVariant v;
+*/
+
+
+
+
+
+ // Set some default text to give the label visibility and size as the default label has no border and the background colour is the same as the form
     setText( "QCaLabel" );
 
     /// Set up a connection to recieve variable name property changes

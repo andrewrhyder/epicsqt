@@ -10,5 +10,6 @@
         <file>GuiPushButton.png</file>
         <file>CmdPushButton.png</file>
         <file>QCaComboBox.png</file>
+        <file>Link.png</file>
     </qresource>
 </RCC>

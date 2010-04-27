@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/src/ContainerProfile.cpp $
- * $Revision: #1 $ 
- * $DateTime: 2009/07/14 15:59:56 $
+ * $Revision: #2 $ 
+ * $DateTime: 2009/10/26 14:56:54 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class ContainerProfile
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #2 $
+  \date $DateTime: 2009/10/26 14:56:54 $
   \author andrew.rhyder
   \brief Defines attributes of the containing window (form, dialog, etc) within which QCa widgets are being created.
  */
@@ -46,11 +46,15 @@
  * QCa widgets if any have been created.
  *
  * To use this class, an instance of this class is instantiated prior to creating the QCa widgets.
- * Information to be communicated such as message handlers and macro substitutions is set up then
- * the QCa widgets are created using a mechanism such as the QUiLoader class.
+ * Information to be communicated such as message handlers and macro substitutions is set up within this class.
+ * Then the QCa widgets are created using a mechanism such as the QUiLoader class.
  *
  * As each QCa widget is created it also instantiates an instance of the ContainerProfile class.
- * If any information has been provided, it is used or saved for future reference.
+ * If any information has been provided, it can then be used.
+ * Note, as a local copy of the environment profile is saved within the container object it is available
+ * for as long as the environment container instantiated. The original container defining the environment
+ * may only be transitory, but as long ass other contaners were created while the original existed, they
+ * will hold a complete record of the environment.
  */
 
 #include <ContainerProfile.h>
@@ -65,40 +69,26 @@ QObject* ContainerProfile::publishedWarningMessageConsumer = NULL;
 
 QObject* ContainerProfile::publishedGuiLaunchConsumer = NULL;
 
-QList<QString> ContainerProfile::publishedMacroSubstitutions;
+QList<QString>   ContainerProfile::publishedMacroSubstitutions;
 QList<WidgetRef> ContainerProfile::containedWidgets;
+QString          ContainerProfile::publishedPath;
 
 bool ContainerProfile::publishedInteractive = false;
 
 bool ContainerProfile::profileDefined = false;
 
-/**
-  Constructor.
-  */
+// Constructor.
+// A local copy of the defined profile (if any) is made.
+// Note, this does not define a profile. A profile is defined only when ContainerProfile::setupProfile() is called
 ContainerProfile::ContainerProfile()
 {
-
-    // Save the current environment profile.
-    // If this is an instance created by a QCa widget then this will storing the
-    // profile, set up by the code creating the QCa widgets.
-    // If this is the instance created by the code creating the QCa widgets then this
-    // will simply clear the saved profile which is never used by this instance anyway.
-
-    statusMessageConsumer = publishedStatusMessageConsumer;
-    errorMessageConsumer = publishedErrorMessageConsumer;
-    warningMessageConsumer = publishedWarningMessageConsumer;
-
-    guiLaunchConsumer = publishedWarningMessageConsumer;
-
-    interactive = publishedInteractive;
-
-    for( int i = 0; i < publishedMacroSubstitutions.size(); i++ ) {
-        macroSubstitutions.append( " " );
-        macroSubstitutions.append( publishedMacroSubstitutions[i] );
-    }
-
+    init();
 }
 
+// Destructor
+// Note, if the profile has been defined (ContainerProfile::setupProfile() has been
+// called) this does not release the profile. A profile is released only when
+// ContainerProfile::releaseProfile() is called.
 ContainerProfile::~ContainerProfile()
 {
 }
@@ -114,6 +104,7 @@ void ContainerProfile::setupProfile( QObject* publishedStatusMessageConsumerIn,
                                      QObject* publishedErrorMessageConsumerIn,
                                      QObject* publishedWarningMessageConsumerIn,
                                      QObject* guiLaunchConsumerIn,
+                                     QString publishedPathIn,
                                      QString publishedMacroSubstitutionsIn,
                                      bool interactiveIn )
 {
@@ -123,13 +114,39 @@ void ContainerProfile::setupProfile( QObject* publishedStatusMessageConsumerIn,
 
     publishedGuiLaunchConsumer = guiLaunchConsumerIn;
 
+    publishedPath = publishedPathIn;
+
     publishedMacroSubstitutions.clear();
     publishedMacroSubstitutions.append( publishedMacroSubstitutionsIn );
 
     publishedInteractive = interactiveIn;
 
     profileDefined = true;
+
+    init();
 }
+
+void ContainerProfile::init()
+{
+
+    // Get a local copy of the current environment profile. This local copy will endure for as long as the creator of this intance keeps the object.
+    statusMessageConsumer = publishedStatusMessageConsumer;
+    errorMessageConsumer = publishedErrorMessageConsumer;
+    warningMessageConsumer = publishedWarningMessageConsumer;
+
+    guiLaunchConsumer = publishedWarningMessageConsumer;
+
+    interactive = publishedInteractive;
+
+    for( int i = 0; i < publishedMacroSubstitutions.size(); i++ ) {
+        macroSubstitutions.append( " " );
+        macroSubstitutions.append( publishedMacroSubstitutions[i] );
+    }
+
+    path = publishedPath;
+
+}
+
 
 /**
   Extend the macro substitutions currently being used by all new QCaWidgets.
@@ -167,6 +184,7 @@ void ContainerProfile::releaseProfile()
     publishedGuiLaunchConsumer = NULL;
 
     publishedMacroSubstitutions.clear();
+    publishedPath.clear();
 
     containedWidgets.clear();
 
@@ -209,6 +227,14 @@ QObject* ContainerProfile::getWarningMessageConsumer()
 QObject* ContainerProfile::getGuiLaunchConsumer()
 {
     return guiLaunchConsumer;
+}
+
+/**
+  Return the path to use for file operations.
+  */
+QString ContainerProfile::getPath()
+{
+    return path;
 }
 
 /**

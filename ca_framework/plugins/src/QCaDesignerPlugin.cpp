@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/src/QCaDesignerPlugin.cpp $
- * $Revision: #2 $
- * $DateTime: 2009/07/22 14:48:46 $
+ * $Revision: #3 $
+ * $DateTime: 2010/01/25 16:09:07 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaDesignerPlugin
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/22 14:48:46 $
+  \version $Revision: #3 $
+  \date $DateTime: 2010/01/25 16:09:07 $
   \author andrew.rhyder
   \brief Collection of CA plugins for QT Designer.
  */
@@ -44,6 +44,7 @@
 #include <QCaSpinBoxPluginManager.h>
 #include <QCaComboBoxPluginManager.h>
 #include <ASguiFormPluginManager.h>
+#include <LinkPluginManager.h>
 #include <QtCore/qplugin.h>
 
 #include <QCaDesignerPlugin.h>
@@ -62,6 +63,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaSpinBoxPluginManager(this));
     widgets.append(new QCaComboBoxPluginManager(this));
     widgets.append(new ASguiFormPluginManager(this));
+    widgets.append(new LinkPluginManager(this));
 }
 
 /*!
