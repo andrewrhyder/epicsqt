@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/src/QCaIntegerFormatting.cpp $
- * $Revision: #1 $
- * $DateTime: 2009/07/14 15:59:56 $
+ * $Revision: #2 $
+ * $DateTime: 2009/11/23 08:44:03 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaIntegerFormatting
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #2 $
+  \date $DateTime: 2009/11/23 08:44:03 $
   \author andrew.rhyder
   \brief Provides textual formatting for QCaInteger data.
  */
@@ -184,7 +184,7 @@ long QCaIntegerFormatting::formatFromString( const QVariant &value ) {
     long lValue = value.toLongLong( &convertOk );
 
     if( !convertOk )
-        return formatFailure( QString( "Warning from QCaIntegerFormatting::formatFromUnsignedInteger(). A variant could not be converted to an unsigned long." ) );
+        return formatFailure( QString( "Warning from QCaIntegerFormatting::formatFromString(). A variant could not be converted to a string." ) );
 
     return lValue;
 }

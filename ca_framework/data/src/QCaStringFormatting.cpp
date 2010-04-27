@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/src/QCaStringFormatting.cpp $
- * $Revision: #8 $
- * $DateTime: 2009/07/27 16:34:58 $
+ * $Revision: #12 $
+ * $DateTime: 2010/02/08 16:54:25 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaStringFormatting
-  \version $Revision: #8 $
-  \date $DateTime: 2009/07/27 16:34:58 $
+  \version $Revision: #12 $
+  \date $DateTime: 2010/02/08 16:54:25 $
   \author andrew.rhyder
   \brief Format the string for QCaString data.
  */
@@ -209,7 +209,7 @@ QString QCaStringFormatting::formatString( const QVariant &value ) {
                         break;
 
                     case QVariant::LongLong:
-                        formatFromInteger( value );
+                        formatFromInteger( value, false );
                         break;
 
                     case QVariant::ULongLong:
@@ -235,11 +235,15 @@ QString QCaStringFormatting::formatString( const QVariant &value ) {
             break;
 
          case FORMAT_INTEGER:
-            formatFromInteger( value );
+            formatFromInteger( value, false );
             break;
 
         case FORMAT_UNSIGNEDINTEGER:
             formatFromUnsignedInteger( value );
+            break;
+
+        case FORMAT_LOCAL_ENUMERATE:
+            formatFromInteger( value, true );
             break;
 
         case FORMAT_TIME:
@@ -319,7 +323,7 @@ void QCaStringFormatting::formatFromFloating( const QVariant &value ) {
     Then format it as a string using the formatting information stored in this
     class.
 */
-void QCaStringFormatting::formatFromInteger( const QVariant &value ) {
+void QCaStringFormatting::formatFromInteger( const QVariant &value, const bool doLocalEnumeration ) {
     // Extract the value as a long using whatever conversion the QVariant uses.
     //
     // Note, this will not pick up if the QVariant type is not one of the types used to represent CA data.
@@ -338,8 +342,31 @@ void QCaStringFormatting::formatFromInteger( const QVariant &value ) {
         return;
     }
 
-    // Generate the text
-    stream << lValue;
+
+    // Perform any required local enumeration
+    if( doLocalEnumeration )
+    {
+        // Search for a matching value in the list of local enumerated strings
+        int i;
+        for( i = 0; i < localEnumeration.size(); i++ )
+        {
+            if( localEnumeration[i].value == lValue )
+            {
+                stream << localEnumeration[i].text;
+                break;
+            }
+        }
+
+        // If no match was found, generate the text directly from the value
+        if( i >= localEnumeration.size() )
+            stream << lValue;
+    }
+
+    // No local enumeration required, so generate the text directly from the value
+    else
+    {
+        stream << lValue;
+    }
 }
 
 /*!
@@ -401,6 +428,9 @@ void QCaStringFormatting::formatFailure( QString message ) {
     // Return whatever is required for a formatting falure.
     stream << "---";
 }
+
+//========================================================================================
+// 'Set' formatting configuration methods
 
 /*!
     Set the precision - the number of significant digits displayed when
@@ -480,6 +510,299 @@ void QCaStringFormatting::setAddUnits( bool AddUnitsIn ) {
 }
 
 /*!
+    Set the string used to specify local enumeration.
+    This is used when a value is to be enumerated and the value is either not the VAL field,
+    or the database does not provide any enumeration, or the database enumeration is not appropriate
+*/
+void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ localEnumerationIn ) {
+
+    // Save the original local enumeration string.
+    // This is returned when the enumeration is requested as a property.
+    localEnumerationString = localEnumerationIn;
+
+
+    // Parse the local enumeration string.
+    //
+    // Format is:
+    //
+    //  value1 = string1 , value2 = string2 , value3 = string3 , ...
+    //
+    // Values do not have to be in any order.
+    // Consecutive values do not have to be present.
+    // White space is ignored except within quoted strings.
+    // \n may be included in a string to indicate a line break
+    //
+    // Examples are:
+    //
+    // 0=Off,1=On
+    // 0 = "Pump Running", 1 = "Pump not running"
+    // 0="", 1="Warning!\nAlarm"
+
+    // The data value is converted to a string if no enumeration for that value is available.
+    // For example, if the local enumeration is '0=off,1=on', and a value of 10 is processed, the text generated is '10'.
+    // If a blank string is required, this should be explicit. for example, '0=off,1=on,10=""'
+
+    localEnumerationItem item;
+
+    enum states { STATE_START, STATE_VALUE, STATE_EQUALS, STATE_START_QUOTE, STATE_UNQUOTED_TEXT, STATE_QUOTED_TEXT, STATE_END_QUOTE, STATE_COMMA, STATE_END };
+
+    int start = 0;                          // Index into enumeration text of current item of interest.
+    int len = 0;                            // Length of current item of interest
+    int state = STATE_START;                // Current state of finite state table
+    int size = localEnumerationIn.size();   // Length of local enumeration string to be processed
+
+    // Start with no enumerations
+    localEnumeration.clear();
+
+    // Process the enumeration text using a finite state table.
+    while( start+len <= size )
+    {
+        switch( state )
+        {
+            // Initialise processing
+            case STATE_START:
+                start = 0;
+                len = 0;
+                state = STATE_VALUE;
+                break;
+
+            // Reading a value. For example, the '0' in '0=on,1=off'
+            case STATE_VALUE:
+                // If nothing left, finish
+                if( start+len >= size )
+                {
+                    state = STATE_END;
+                    break;
+                }
+
+                // If haven't started yet, skip white space
+                if( len == 0 && localEnumerationIn[start] == ' ' )
+                {
+                    start++;
+                    break;
+                }
+
+                // If more numeric characters, continue
+                if( localEnumerationIn[start+len] >= '0' && localEnumerationIn[start+len] <= '9' )
+                {
+                    len++;
+                    break;
+                }
+
+                // If have a value, save it
+                if( len )
+                {
+                    item.value = localEnumerationIn.mid( start, len ).toInt();
+                    start += len;
+                    len = 0;
+                    state = STATE_EQUALS;
+                    break;
+                }
+
+                // Error do no more
+                state = STATE_END;
+                break;
+
+            // Reading the '=' between the value and it's enumeration string.  For example, the '=' in '0=on,1=off'
+            case STATE_EQUALS:
+                // If nothing left, finish
+                if( start >= size )
+                {
+                    state = STATE_END;
+                    break;
+                }
+
+                // If haven't started yet, skip white space
+                if( localEnumerationIn[start] == ' ' )
+                {
+                    start++;
+                    break;
+                }
+
+                // If found '=' use it
+                if( localEnumerationIn[start] == '=' )
+                {
+                    start++;
+                    len = 0;
+                    state = STATE_START_QUOTE;
+                    break;
+                }
+
+                // Error do no more
+                state = STATE_END;
+                break;
+
+
+            // Where an enumerations string is quoted, handle the opening quotation mark.
+            // For example, the first quote in 0=off,1="pump on"
+            case STATE_START_QUOTE:
+                // If nothing left, finish
+                if( start >= size )
+                {
+                    state = STATE_END;
+                    break;
+                }
+
+                // If haven't started yet, skip white space
+                if( localEnumerationIn[start] == ' ' )
+                {
+                    start++;
+                    break;
+                }
+
+                // If found '"' use it
+                if( localEnumerationIn[start] == '"' )
+                {
+                    start++;
+                    len = 0;
+                    state = STATE_QUOTED_TEXT;
+                    break;
+                }
+
+                // No quote found, assume unquoted text instead
+                state = STATE_UNQUOTED_TEXT;
+                break;
+
+            // Where an enumerations string is quoted, extract the string within quotation marks.
+            // For example, the string 'pump on' in in 0=off,1="pump on"
+            case STATE_QUOTED_TEXT:
+                // If nothing left, finish
+                if( start+len >= size )
+                {
+                    state = STATE_END;
+                    break;
+                }
+
+                // If have all text, save it
+                if( localEnumerationIn[start+len] == '"' )
+                {
+                    item.text = localEnumerationIn.mid( start, len );
+                    start += len;
+                    len = 0;
+                    localEnumeration.append( item );
+                    item.value = 0;
+                    item.text.clear();
+                    state = STATE_END_QUOTE;
+                    break;
+                }
+
+                // Extend the text
+                len++;
+                break;
+
+            // Where an enumerations string is not quoted, extract the string.
+            // For example, the string 'off' in in 0=off,1="pump on"
+            case STATE_UNQUOTED_TEXT:
+                // If nothing left, finish
+                if( start+len >= size )
+                {
+                    // if reached the end, use what ever we have
+                    if( len )
+                    {
+                        item.text = localEnumerationIn.mid( start, len );
+                        localEnumeration.append( item );
+                    }
+                    state = STATE_END;
+                    break;
+                }
+
+                // If haven't started yet, skip white space
+                if( len == 0 && localEnumerationIn[start] == ' ' )
+                {
+                    start++;
+                    break;
+                }
+
+                // If have started, finish text when white space, comma
+                if( len != 0 && ( localEnumerationIn[start+len] == ' ' ||  localEnumerationIn[start+len] == ',' ) )
+                {
+                    item.text = localEnumerationIn.mid( start, len );
+                    start += len;
+                    len = 0;
+                    localEnumeration.append( item );
+                    item.value = 0;
+                    item.text.clear();
+                    state = STATE_COMMA;
+                    break;
+                }
+
+                // Extend the text
+                len++;
+                break;
+
+            // Where an enumerations string is quoted, handle the closing quotation mark.
+            // For example, the second quote in 0=off,1="pump on"
+            case STATE_END_QUOTE:
+                // If nothing left, finish
+                if( start >= size )
+                {
+                    state = STATE_END;
+                    break;
+                }
+
+                // If found '"' use it
+                if( localEnumerationIn[start] == '"' )
+                {
+                    start++;
+                    len = 0;
+                    state = STATE_COMMA;
+                    break;
+                }
+
+                // Error do no more
+                state = STATE_END;
+                break;
+
+            // Reading the ',' between each value and string pair.  For example, the ',' in '0=on,1=off'
+            case STATE_COMMA:
+                // If nothing left, finish
+                if( start >= size )
+                {
+                    state = STATE_END;
+                    break;
+                }
+
+                // If haven't started yet, skip white space
+                if( localEnumerationIn[start] == ' ' )
+                {
+                    start++;
+                    break;
+                }
+
+                // If found ',' use it
+                if( localEnumerationIn[start] == ',' )
+                {
+                    start++;
+                    len = 0;
+                    state = STATE_VALUE;
+                    break;
+                }
+
+                // Error do no more
+                state = STATE_END;
+                break;
+
+            // finish. Re-initialise for safety
+            case STATE_END:
+                start = size+1;
+                len = 0;
+                break;
+        }
+    }
+
+    // Replace any \n strings with a real new line character
+    for( int i = 0; i < localEnumeration.size(); i++ )
+    {
+        localEnumeration[i].text.replace( "\\n", "\n" );
+
+    }
+}
+
+
+//========================================================================================
+// 'Get' formatting configuration methods
+
+/*!
     Get the precision. See setPrecision() for the use of 'precision'.
 */
 unsigned int QCaStringFormatting::getPrecision() {
@@ -537,5 +860,35 @@ QCaStringFormatting::notations QCaStringFormatting::getNotation() {
 */
 bool QCaStringFormatting::getAddUnits() {
     return addUnits;
+}
+
+/*!
+    Get the local enumeration strings. See setLocalEnumeration() for the use of 'localEnumeration'.
+*/
+QString/*localEnumerationList*/ QCaStringFormatting::getLocalEnumeration() {
+
+    return localEnumerationString;
+
+/* was returning regenerated localEumeration string
+    QString s;
+    int i;
+    for( i = 0; i < localEnumeration.size(); i++ )
+    {
+        s.append( localEnumeration[i].value ).append( "=" );
+        if( localEnumeration[i].text.contains( ' ' ) )
+        {
+            s.append( "\"" ).append( localEnumeration[i].text ).append( "\"" );
+        }
+        else
+        {
+            s.append( localEnumeration[i].text );
+        }
+        if( i != localEnumeration.size()+1 )
+        {
+            s.append( "," );
+        }
+    }
+    return s;
+*/
 }
 

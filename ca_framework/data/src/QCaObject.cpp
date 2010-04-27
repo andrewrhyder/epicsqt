@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/src/QCaObject.cpp $
- * $Revision: #11 $
- * $DateTime: 2009/07/29 14:20:04 $
+ * $Revision: #12 $
+ * $DateTime: 2009/10/19 12:41:58 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaObject
-  \version $Revision: #11 $
-  \date $DateTime: 2009/07/29 14:20:04 $
+  \version $Revision: #12 $
+  \date $DateTime: 2009/10/19 12:41:58 $
   \author anthony.owen
   \brief Provides channel access to QT.
  */
@@ -640,11 +640,20 @@ void QCaObject::processData( void* newDataPtr ) {
 */
 void QCaObject::setChannelExpired() {
 
+    // Signal a connection change.
+    // (This is done with some licence. There isn't really a connection change.
+    //  The connection has gone from 'no connection' to 'there never is going to be a connection')
+    QCaConnectionInfo connectionInfo( caconnection::NEVER_CONNECTED, caconnection::LINK_DOWN );
+    emit connectionChanged( connectionInfo );
+
+    // Generate a user message
     if( userMessage )
     {
         QString msg( recordName );
         userMessage->sendWarningMessage( msg.append( " Channel expired" ), "QCaObject::setChannelExpired()"  );
     }
+
+    // Update the current state
     connectionMachine->expired = true;
     connectionMachine->process( qcastatemachine::CONNECTION_EXPIRED );
 }
