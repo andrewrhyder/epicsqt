@@ -1,0 +1,126 @@
+#include "MainContext.h"
+
+// Construction
+//
+mainContext::mainContext( int argc, char *argv[], QWidget *parent ) : QObject( parent )
+{
+    instance = new QtSingleApplication( argc, argv );
+    QStringList args = QCoreApplication::arguments();
+    params.getStartupParams( args );
+
+    share.setKey( "ASgui_instance_communication" );
+
+    // Set up a connection so that new instances of this application can request that the current instance do the work
+    QObject::connect( instance, SIGNAL(messageReceived(const QString&)), this, SLOT(newAppRequest(const QString&)));
+
+}
+
+// If there is another instance of the application running, pass on any parameters to it.
+// Returns true if successfully hand-balled.
+// Return false if not hand-balled. This includes errors as well an no other instance of this application
+bool mainContext::handball()
+{
+    if( !instance->isRunning())
+    {
+        qDebug() << "no instance running";
+        return false;
+    }
+
+    qDebug() << "another instance running";
+    QStringList args = QCoreApplication::arguments();
+
+    // Get the shared memory
+    if( share.attach() )
+    {
+        qDebug() << "Already shared memory available (there shouldn't be - we create it here";
+        return false;
+    }
+
+    // Get the startup parameters from the command line arguments
+    startupParams newParams;
+    newParams.getStartupParams( args );
+
+    // Build a serial copy of the parameters
+    QByteArray ba;
+    newParams.setSharedParams( ba );
+
+    // Create the shared memory
+    share.create( ba.size(), QSharedMemory::ReadWrite );
+
+    // Lock the shared memory
+    if( !share.lock() )
+    {
+        qDebug() << "Could not lock shared menory";
+        return false;
+    }
+
+    // Copy the serialised startup parameters to the shared memory
+    memcpy( share.data(), ba.data(), ba.size() );
+
+    // Release the shared memory
+    if( !share.unlock() )
+        return false;
+
+    // Notify the existing application
+    qDebug() << "Waking up other instance";
+    instance->sendMessage( "Wake up!" );
+
+    // Release the shared memory
+    share.detach();
+
+    return true;
+}
+
+// Another instance of this application has started, noticed this application is already running,
+// placed a set of startup parameters in shared memory and asked this instance of the application
+// to deal with them
+void mainContext::newAppRequest( const QString& message )
+{
+    qDebug() << message;
+
+    // Get the shared memory
+
+    if( !share.attach() )
+    {
+        qDebug() << "Could not attach";
+        return;
+    }
+
+    // Lock the shared memory
+    if( !share.lock() )
+    {
+        qDebug() << "Could not lock shared menory";
+        return;
+    }
+
+    // Extract parameters from a serial copy of the parameters
+    params.getSharedParams( share.data() );
+
+    // Release the shared memory
+    if( !share.unlock() )
+        return;
+
+    // Release the shared memory
+    share.detach();
+
+
+    // Create the main window.
+    qDebug() << "Creating an new window";
+    newWindow();
+}
+
+// Create a new main window
+void mainContext::newWindow()
+{
+    qDebug() << "New window: filename: " << params.filename << "path: " << params.path << "substitutions: " << params.substitutions << "enableEdit: " << params.enableEdit;
+    MainWindow* mw = new MainWindow( params.filename, params.path, params.substitutions, params.enableEdit );
+    mw->show();
+    instance->setActivationWindow( mw );
+}
+
+// Start event processing in this application instance
+// Used if this instance of the application is the one managing all startup requests
+int mainContext::exec()
+{
+    return instance->exec();
+}

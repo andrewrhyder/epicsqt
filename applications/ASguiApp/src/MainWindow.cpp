@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/ASguiApp/src/MainWindow.cpp $
- * $Revision: #8 $
- * $DateTime: 2009/10/12 10:43:57 $
+ * $Revision: #10 $
+ * $DateTime: 2010/02/18 15:15:02 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*!
   \class MainWindow
-  \version $Revision: #8 $
-  \date $DateTime: 2009/10/12 10:43:57 $
+  \version $Revision: #10 $
+  \date $DateTime: 2010/02/18 15:15:02 $
   \author andrew.rhyder
   \brief Creates the main window in the Australian Synchrotron GUI
  */
@@ -60,18 +60,27 @@ QList<ASguiForm*> MainWindow::guiList;
 /// Constructor - No filename supplied
 MainWindow::MainWindow( QWidget *parent )  : QMainWindow( parent )
 {
-    init( "", "", false );
+    init( "", "", "", false );
 }
 
 /// Constructor - Filename supplied
-MainWindow::MainWindow( QString fileName, QString substitutions, bool enableEditIn, QWidget *parent )  : QMainWindow( parent )
+MainWindow::MainWindow( QString fileName, QString path, QString substitutions, bool enableEditIn, QWidget *parent )  : QMainWindow( parent )
 {
-    init( fileName, substitutions, enableEditIn );
+    init( fileName, path, substitutions, enableEditIn );
 }
 
 // Common construction
-void MainWindow::init( QString fileName, QString substitutions, bool enableEditIn )
+void MainWindow::init( QString fileName, QString pathIn, QString substitutionsIn, bool enableEditIn )
 {
+    // Save the substitutions
+    substitutions = substitutionsIn;
+
+    // Save the default path
+    path = pathIn;
+
+    // Setup the environment profile of the new form
+    profile.setupProfile( this, this, this, this, path, substitutions, false );
+
     // Initialise
     usingTabs = false;
 
@@ -106,7 +115,7 @@ void MainWindow::init( QString fileName, QString substitutions, bool enableEditI
     // If a filename was supplied, load it
     else
     {
-        ASguiForm* gui = createGui( fileName, substitutions );
+        ASguiForm* gui = createGui( fileName );
         loadGuiIntoCurrentWindow( gui );
     }
 }
@@ -124,6 +133,10 @@ MainWindow::~MainWindow()
             mainWindowList.removeAt( i );
             break;
         }
+
+    // Release the environment profile for new QCa wigets
+    profile.releaseProfile();
+
 }
 
 //=================================================================================
@@ -147,7 +160,7 @@ void MainWindow::on_actionNew_Tab_triggered()
         setTabMode();
 
     // Create the GUI
-    ASguiForm* gui = createGui( GuiFileNameDialog( "Open" ), "" );
+    ASguiForm* gui = createGui( GuiFileNameDialog( "Open" ) );
     loadGuiIntoNewTab( gui );
 }
 
@@ -156,7 +169,7 @@ void MainWindow::on_actionNew_Tab_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
-    ASguiForm* gui = createGui( GuiFileNameDialog( "Open" ), "" );
+    ASguiForm* gui = createGui( GuiFileNameDialog( "Open" ) );
     loadGuiIntoCurrentWindow( gui );
 }
 
@@ -246,8 +259,10 @@ void MainWindow::tabCloseRequest( int index )
 // Open designer
 void MainWindow::on_actionDesigner_triggered()
 {
+    // Start designer
     QProcess *process = new QProcess();
-    process->start( "designer" );
+    process->setWorkingDirectory( profile.getPath() );
+     process->start( "designer" );
 }
 
 // Open the current form in designer
@@ -261,6 +276,7 @@ void MainWindow::on_actionOpen_Current_Form_In_Designer_triggered()
 
     // Start designer specifying the current gui file name
     QProcess *process = new QProcess();
+    process->setWorkingDirectory( profile.getPath() );
     process->start( "designer", guiFileName );
 }
 
@@ -276,7 +292,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     // Recreate the gui and load it in place of the current window
     if( guiFileName.size() )
     {
-        ASguiForm* newGui = createGui( guiFileName, "" );
+        ASguiForm* newGui = createGui( guiFileName );
         loadGuiIntoCurrentWindow( newGui );
     }
 }
@@ -351,19 +367,18 @@ void MainWindow::loadGuiIntoCurrentWindow( ASguiForm* gui )
 // This is done as a timer event once all processing has completed after creating a new gui.
 void MainWindow::resizeToFitGui()
 {
-    // Sanity check. Do nothing if the central widget is not a scroll area
-    if ( QString::compare( centralWidget()->metaObject()->className(), "QScrollArea" ) )
+    // Sanity check. Do nothing if the central widget is not a scroll area (actually an ASguiForm class based on a scroll area)
+    if ( QString::compare( centralWidget()->metaObject()->className(), "ASguiForm" ) )
         return;
 
     // Check. Do nothing if nothing is in the scroll area.
     // Unlike the check above, this condition is expected. It can happen
     // if the UI file defining the gui was not located.
-    QScrollArea* sa = (QScrollArea*)centralWidget();
+    ASguiForm* sa = (ASguiForm*)centralWidget();
     if( !sa->widget() )
         return;
 
     // Collect relevent dimensions
-    qDebug() << sa->widget();
     int ui_w = sa->widget()->width();
     int ui_h = sa->widget()->height();
     int main_w = width();
@@ -427,7 +442,7 @@ void MainWindow::launchGui( QString guiName, QString substitutions, ASguiForm::c
         // Open the specified gui in the current window
         case ASguiForm::CREATION_OPTION_OPEN:
             {
-                ASguiForm* gui = createGui( guiName, substitutions );
+                ASguiForm* gui = createGui( guiName );
                 loadGuiIntoCurrentWindow( gui );
             }
             break;
@@ -440,7 +455,7 @@ void MainWindow::launchGui( QString guiName, QString substitutions, ASguiForm::c
                     setTabMode();
 
                 // Create the gui and load it into a new tab
-                ASguiForm* gui = createGui( guiName, substitutions );
+                ASguiForm* gui = createGui( guiName );
                 loadGuiIntoNewTab( gui );
             }
             break;
@@ -448,7 +463,7 @@ void MainWindow::launchGui( QString guiName, QString substitutions, ASguiForm::c
         // Open the specified gui in a new window
         case ASguiForm::CREATION_OPTION_NEW_WINDOW:
             {
-                MainWindow* w = new MainWindow( guiName, substitutions, enableEdit );
+                MainWindow* w = new MainWindow( guiName, path, substitutions, enableEdit );
                 w->show();
             }
             break;
@@ -529,14 +544,14 @@ void MainWindow::setTabMode()
 QString MainWindow::GuiFileNameDialog( QString caption )
 {
     // Get the filename
-    return QFileDialog::getOpenFileName( this, caption, "", "*.ui" );
+    return QFileDialog::getOpenFileName( this, caption, path, "*.ui" );
 }
 
 // Create a gui
 // Performs gui opening tasks generic to new guis, including opening a new tab,
 // replacing a gui in a tab, replacing a single gui in the main window,
 // or creating a gui in a new main window.
-ASguiForm* MainWindow::createGui( QString fileName, QString substitutions )
+ASguiForm* MainWindow::createGui( QString fileName )
 {
     // Don't do anything if no filename was supplied
      if (fileName.isEmpty())
@@ -546,16 +561,16 @@ ASguiForm* MainWindow::createGui( QString fileName, QString substitutions )
     onStatusMessage( QString( "Opening %1 in new window " ).arg( fileName ) );
 
     // Setup the environment profile of the new form
-    ContainerProfile profile;
-    profile.setupProfile( this, this, this, this, substitutions, false );
+//    ContainerProfile profile;
+//    profile.setupProfile( this, this, this, this, path, substitutions, false );
 
     // Build the gui
     ASguiForm* gui = new ASguiForm( fileName );
     if( gui )
         gui->readUiFile();
 
-    // Release the environment profile for new QCa wigets
-    profile.releaseProfile();
+//    // Release the environment profile for new QCa wigets
+//    profile.releaseProfile();
 
     // Add the form to the 'windows' menu
     if ( gui )
@@ -585,11 +600,11 @@ QTabWidget* MainWindow::getCentralTabs()
 }
 
 // Return the central widget if it is a single gui, else return NULL
-// Note, ASguiform class does not implement QOBJECT so appears as it's base class which is a QScrollArea.
+// Note, originally ASguiForm class did not implement QOBJECT so className() returned it's base class which was QScrollArea.
 ASguiForm* MainWindow::getCentralGui()
 {
     QWidget* w = centralWidget();
-    if( !w || QString( "QScrollArea").compare( w->metaObject()->className() ) )
+    if( !w || QString( "ASguiForm").compare( w->metaObject()->className() ) )
         return NULL;
     else
         return (ASguiForm*)w;

@@ -1,12 +1,12 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/ASguiApp/src/main.cpp $
- * $Revision: #4 $ 
- * $DateTime: 2009/08/04 10:57:14 $
+ * $Revision: #7 $ 
+ * $DateTime: 2009/12/14 16:17:28 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
-  \version $Revision: #4 $
-  \date $DateTime: 2009/08/04 10:57:14 $
+  \version $Revision: #7 $
+  \date $DateTime: 2009/12/14 16:17:28 $
   \author andrew.rhyder
  */
 
@@ -34,57 +34,24 @@
 
 #include <QtGui/QApplication>
 #include <MainWindow.h>
+#include <StartupParams.h>
+#include <MainContext.h>
 #include <QDebug>
 
 int main(int argc, char *argv[])
 {
     // Initialise
-    QApplication a(argc, argv);
-    bool enableEdit = false;
-    QString filename;
-    QString substitutions;
-    QStringList args = QCoreApplication::arguments();
+    mainContext ctx( argc, argv );
 
-    // Discard application name
-    args.removeFirst();
+    // If this application is already running, let that instance do the work.
+    if( ctx.handball() )
+        return 0;
 
-    // Get switches
-    while( args.size() && args[0].left(1) == QString( "-" ) )
-    {
-        QString arg = args[0];
-        args.removeFirst();
-        while( arg.remove(0,1).size() )
-        {
-            switch( arg[0].toAscii() )
-            {
-                case 'e':
-                case 'E':
-                    enableEdit = true;
-                    break;
+    // The application is not running, start a new window
+    ctx.newWindow();
 
-                default:
-                    // Unrecognised switch
-                    break;
-            }
-        }
-    }
-
-    // Get file name if any
-    if( args.size() )
-    {
-        filename = args[0];
-        args.removeFirst();
-    }
-
-    // get substitutions if any
-    if( args.size() )
-    {
-        substitutions = args[0];
-        args.removeFirst();
-    }
-
-    // Create the main window.
-    MainWindow w( filename, substitutions, enableEdit );
-    w.show();
-    return a.exec();
+    // Start the application main event processing loop
+    return ctx.exec();
 }
+
+
