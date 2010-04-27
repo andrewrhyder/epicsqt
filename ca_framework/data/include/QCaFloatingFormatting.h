@@ -1,15 +1,15 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/QCaIntegerFormatting.h $
- * $Revision: #2 $
+/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/QCaFloatingFormatting.h $
+ * $Revision: #1 $
  * $DateTime: 2009/11/23 08:44:03 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
-  \class QCaIntegerFormatting
-  \version $Revision: #2 $
+  \class QCaFloatingFormatting
+  \version $Revision: #1 $
   \date $DateTime: 2009/11/23 08:44:03 $
   \author andrew.rhyder
-  \brief Provides textual formatting for QCaInteger data.
+  \brief Provides textual formatting for QCaFloating data.
  */
 
 /* Copyright (c) 2009 Australian Synchrotron
@@ -34,48 +34,60 @@
  *
  */
 
-#ifndef QCAINTEGERFORMATTING_H
-#define QCAINTEGERFORMATTING_H
+#ifndef QCAFLOATINGFORMATTING_H
+#define QCAFLOATINGFORMATTING_H
 
 #include <QString>
 #include <QVariant>
 #include <Generic.h>
 
-class QCaIntegerFormatting {
+class QCaFloatingFormatting {
+  public:
 
-public:
+    // Formatting enumerations
+    enum formats { FORMAT_e = 'e',   // format as [-]9.9e[+|-]999
+                   FORMAT_E = 'E',   // format as [-]9.9E[+|-]999
+                   FORMAT_f = 'f',   // format as [-]9.9
+                   FORMAT_g = 'g',   // use e or f format, whichever is the most concise
+                   FORMAT_G = 'G' }; // use E or f format, whichever is the most concise
+
 
     // Construction
-    QCaIntegerFormatting();
+    QCaFloatingFormatting();
 
     //===============================================
     // Main functions of this class:
     //   - Format a double based on a value
     //   - Translate a double and generate a value
     //===============================================
-    long formatInteger( const QVariant &value );
-    QVariant formatValue( const long &integerValue, generic::generic_types valueType );
+    double formatFloating( const QVariant &value );
+    QVariant formatValue( const double &floatingValue, generic::generic_types valueType );
 
     // Functions to configure the formatting
-    void setRadix( unsigned int radix );
+    void setPrecision( unsigned int precision );
+    void setFormat( formats format );
 
     // Functions to read the formatting configuration
     unsigned int getPrecision();
-    unsigned int getRadix();
+    int getFormat();
 
   private:
+    // Private functions to read the formatting configuration
+    char getFormatChar();
+
     // Type specific conversion functions
-    long formatFromFloating( const QVariant &value );
-    long formatFromInteger( const QVariant &value );
-    long formatFromUnsignedInteger( const QVariant &value );
-    long formatFromString( const QVariant &value );
-    long formatFromTime( const QVariant &value );
+    double formatFromFloating( const QVariant &value );
+    double formatFromInteger( const QVariant &value );
+    double formatFromUnsignedInteger( const QVariant &value );
+    double formatFromString( const QVariant &value );
+    double formatFromTime( const QVariant &value );
 
     // Error reporting
-    long formatFailure( QString message );
+    double formatFailure( QString message );
 
     // Formatting configuration
-    int radix; /// Positional base system to display data.
+    unsigned int precision;
+    formats format;
 };
 
-#endif // QCAINTEGERFORMATTING_H
+#endif // QCAFLOATINGFORMATTING_H

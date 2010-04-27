@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/QCaStringFormatting.h $
- * $Revision: #5 $
- * $DateTime: 2009/07/27 16:34:58 $
+ * $Revision: #7 $
+ * $DateTime: 2009/11/23 08:44:03 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaStringFormatting
-  \version $Revision: #5 $
-  \date $DateTime: 2009/07/27 16:34:58 $
+  \version $Revision: #7 $
+  \date $DateTime: 2009/11/23 08:44:03 $
   \author andrew.rhyder
   \brief Formats the string for QCaString data.
  */
@@ -40,12 +40,22 @@
 #include <QVariant>
 #include <QString>
 #include <QStringList>
+#include <QDataStream>
+
+
+
+// Support class used to build the localEnumeration list in the QCaStringFormatting class
+class localEnumerationItem {
+    public:
+    int value;                  // This data value...
+    QString text;               // ... is translated to this text
+};
 
 class QCaStringFormatting {
   public:
 
     // Formatting enumerations
-    enum formats { FORMAT_DEFAULT, FORMAT_FLOATING, FORMAT_INTEGER, FORMAT_UNSIGNEDINTEGER, FORMAT_TIME };
+    enum formats { FORMAT_DEFAULT, FORMAT_FLOATING, FORMAT_INTEGER, FORMAT_UNSIGNEDINTEGER, FORMAT_TIME, FORMAT_LOCAL_ENUMERATE };
     enum notations { NOTATION_FIXED = QTextStream::FixedNotation,
                      NOTATION_SCIENTIFIC = QTextStream::ScientificNotation,
                      NOTATION_AUTOMATIC = QTextStream::SmartNotation };    // WARNING keep these enumerations the same as QTextStream
@@ -77,21 +87,23 @@ class QCaStringFormatting {
     void setRadix( unsigned int radix );
     void setNotation( notations notation );
     void setAddUnits( bool addUnits );
+    void setLocalEnumeration( QString/*localEnumerationList*/ localEnumerationIn );
 
     // Functions to read the formatting configuration
     unsigned int getPrecision();
-    bool getUseDbPrecision();
-    bool getLeadingZero();
-    bool getTrailingZeros();
-    formats getFormat();
+    bool         getUseDbPrecision();
+    bool         getLeadingZero();
+    bool         getTrailingZeros();
+    formats      getFormat();
     unsigned int getRadix();
-    notations getNotation();
-    bool getAddUnits();
+    notations    getNotation();
+    bool         getAddUnits();
+    QString      getLocalEnumeration();
 
   private:
     // Type specific conversion functions
     void formatFromFloating( const QVariant& value );
-    void formatFromInteger( const QVariant& value );
+    void formatFromInteger( const QVariant& value, const bool doLocalEnumeration );
     void formatFromUnsignedInteger( const QVariant& value );
     void formatFromTime( const QVariant& value );
 
@@ -115,6 +127,8 @@ class QCaStringFormatting {
     formats format;                  /// Presentation required (Floating, integer, etc).
     bool addUnits;                   /// Flag use engineering units from database
     unsigned int precision;          /// Floating point precision. Used if 'useDbPrecision' is false.
+    QList<localEnumerationItem> localEnumeration; /// Local enumerations (example: 0="Not referencing",1=Referencing)
+    QString localEnumerationString; /// Original local enumerations string
 };
 
 #endif /// QCASTRINGFORMATTING_H
