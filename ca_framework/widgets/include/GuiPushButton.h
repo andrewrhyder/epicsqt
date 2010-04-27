@@ -2,8 +2,8 @@
 
   \class GuiPushButton
 
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #2 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author Last checked in by: $Author: rhydera $
 
   \brief Launch GUI Push Button Widget.
@@ -51,6 +51,9 @@ class GuiPushButton : public QPushButton {
   public slots:
     void userClicked();
     void onGeneralMessage( QString message );
+
+    void requestEnabled( const bool& state );
+
 
 private slots:
     void launchGui( QString guiName, QString substitutions, ASguiForm::creationOptions creationOption );

@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaPushButton.h $
- * $Revision: #5 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #8 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaPushButton
-  \version $Revision: #5 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #8 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Push Button Widget.
  */
@@ -50,6 +50,7 @@ class QCaPushButton : public QPushButton, public QCaWidget {
     QCaPushButton( const QString& variableName = "", QWidget *parent = 0 );
 
     bool isEnabled() const;
+    void setEnabled( const bool& state );
 
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
@@ -59,7 +60,10 @@ class QCaPushButton : public QPushButton, public QCaWidget {
     void userClicked();
 
   public slots:
-    void setEnabled( bool state );
+    void requestEnabled( const bool& state );
+
+  signals:
+    void dbValueChanged( const QString& out );
 
   protected:
     QCaStringFormatting stringFormatting;

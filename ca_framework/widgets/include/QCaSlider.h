@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaSlider.h $
- * $Revision: #6 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #8 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaSlider
-  \version $Revision: #6 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #8 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Slider Widget.
  */
@@ -50,6 +50,7 @@ class QCaSlider : public QSlider, public QCaWidget {
     QCaSlider( const QString& variableName = "", QWidget *parent = 0 );
 
     bool isEnabled() const;
+    void setEnabled( bool state );
 
   protected:
     QCaIntegerFormatting integerFormatting; /// Integer formatting options.
@@ -64,7 +65,10 @@ class QCaSlider : public QSlider, public QCaWidget {
     void userValueChanged( const int& newValue );
 
   public slots:
-    void setEnabled( bool state );
+    void requestEnabled( const bool& state );
+
+  signals:
+    void dbValueChanged( const qlonglong& out );
 
   private:
     void setup();

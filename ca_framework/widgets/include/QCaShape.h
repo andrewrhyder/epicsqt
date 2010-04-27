@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaShape.h $
- * $Revision: #6 $
- * $DateTime: 2009/08/03 09:51:42 $
+ * $Revision: #8 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaShape
-  \version $Revision: #6 $
-  \date $DateTime: 2009/08/03 09:51:42 $
+  \version $Revision: #8 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Shape Widget.
  */
@@ -55,6 +55,7 @@ class QCaShape : public QWidget, public QCaWidget {
     QCaShape( const QString& variableName = "", QWidget *parent = 0 );
 
     bool isEnabled() const;
+    void setEnabled( bool state );
 
   protected:
     QCaIntegerFormatting integerFormatting;                     /// Integer formatting options
@@ -102,7 +103,15 @@ class QCaShape : public QWidget, public QCaWidget {
     void setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
 
   public slots:
-    void setEnabled( bool state );
+    void requestEnabled( const bool& state );
+
+  signals:
+    void dbValueChanged1( const qlonglong& out );
+    void dbValueChanged2( const qlonglong& out );
+    void dbValueChanged3( const qlonglong& out );
+    void dbValueChanged4( const qlonglong& out );
+    void dbValueChanged5( const qlonglong& out );
+    void dbValueChanged6( const qlonglong& out );
 
   private:
     void setup();                                               /// Initialisation common to all constructors

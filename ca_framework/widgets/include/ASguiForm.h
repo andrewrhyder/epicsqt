@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/ASguiForm.h $
- * $Revision: #3 $ 
- * $DateTime: 2009/10/12 10:43:57 $
+ * $Revision: #6 $ 
+ * $DateTime: 2010/04/07 12:14:19 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class ASguiForm
-  \version $Revision: #3 $
-  \date $DateTime: 2009/10/12 10:43:57 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/04/07 12:14:19 $
   \author andrew.rhyder
   \brief A base form GUI
  */
@@ -40,14 +40,17 @@
 #include <QScrollArea>
 #include <QWidget>
 #include <UserMessage.h>
+#include <QString>
+#include <QFileSystemWatcher>
 
 class ASguiForm : public QScrollArea
-
 {
+    Q_OBJECT
     public:
 
-        ASguiForm( QWidget *parent = 0 );
-        ASguiForm( const QString &uifileNameIn = "", QWidget *parent = 0 );
+        ASguiForm( QWidget* parent = 0 );
+        ASguiForm( const QString& uifileNameIn = "", QWidget* parent = 0 );
+        void commonInit( const bool alertIfUINoFoundIn );
 
         ~ASguiForm();
 
@@ -57,11 +60,14 @@ class ASguiForm : public QScrollArea
         enum creationOptions { CREATION_OPTION_OPEN, CREATION_OPTION_NEW_TAB, CREATION_OPTION_NEW_WINDOW };
 
     public slots:
+        void requestEnabled( const bool& state );
         void readUiFile();
+        void onGeneralMessage( QString message );
 
     private slots:
-        void onGeneralMessage( QString message );
         void onGuiLaunch( QString guiName, QString substitutions, creationOptions createOption );
+        void fileChanged ( const QString & path );
+
 
     protected:
         QString uiFileNameProperty;
@@ -72,6 +78,7 @@ class ASguiForm : public QScrollArea
         QString title;
         QWidget* ui;
         bool alertIfUINoFound;      // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
+        QFileSystemWatcher fileMon;
 
         QString variableNameSubstitutions;
         UserMessage userMessage;

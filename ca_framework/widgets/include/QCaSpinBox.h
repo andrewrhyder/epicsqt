@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaSpinBox.h $
- * $Revision: #6 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #8 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaSpinBox
-  \version $Revision: #6 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #8 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Spinbox Widget.
  */
@@ -50,6 +50,7 @@ class QCaSpinBox : public QSpinBox, public QCaWidget {
     QCaSpinBox( const QString& variableName = "", QWidget *parent = 0 );
 
     bool isEnabled() const;
+    void setEnabled( bool state );
 
   protected:
     QCaIntegerFormatting integerFormatting;
@@ -63,9 +64,12 @@ class QCaSpinBox : public QSpinBox, public QCaWidget {
     void userValueChanged( int value );
 
   public slots:
-    void setEnabled( bool state );
+    void requestEnabled( const bool& state );
 
-  private:
+  signals:
+    void dbValueChanged( const qlonglong& out );
+
+private:
     void setup();
     void createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
@@ -74,6 +78,7 @@ class QCaSpinBox : public QSpinBox, public QCaWidget {
     bool isConnected;
 
     bool programaticValueChange;   // Flag set while the spin box value is being changed programatically (not by the user)
+
 };
 
 #endif ///QCASPINBOX_H

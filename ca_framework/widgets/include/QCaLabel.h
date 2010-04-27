@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaLabel.h $
- * $Revision: #6 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #9 $
+ * $DateTime: 2010/02/18 15:15:02 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaLabel
-  \version $Revision: #6 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #9 $
+  \date $DateTime: 2010/02/18 15:15:02 $
   \author andrew.rhyder
   \brief Manage updating tool tip with variable name, alarm state and connected state
  */
@@ -50,6 +50,7 @@ class QCaLabel : public QLabel, public QCaWidget {
     QCaLabel( const QString &variableName = "", QWidget *parent = 0 );
 
     bool isEnabled() const;
+    void setEnabled( bool state );
 
   protected:
     QCaStringFormatting stringFormatting;
@@ -57,12 +58,18 @@ class QCaLabel : public QLabel, public QCaWidget {
 
     void establishConnection( unsigned int variableIndex );
 
+    bool visibleProperty;               // Flag true if the widget should be visible outside 'Designer'
+    void setVisibleProperty( bool visiblePropertyIn );
+
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setLabelText( const QString& text, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
 
   public slots:
-    void setEnabled( bool state );
+    void requestEnabled( const bool& state );
+
+  signals:
+    void dbValueChanged( const QString& out );
 
   private:
     void setup();

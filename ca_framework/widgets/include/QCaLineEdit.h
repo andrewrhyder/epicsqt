@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaLineEdit.h $
- * $Revision: #6 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #9 $
+ * $DateTime: 2010/03/23 11:07:38 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaLineEdit
-  \version $Revision: #6 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #9 $
+  \date $DateTime: 2010/03/23 11:07:38 $
   \author andrew.rhyder
   \brief CA Line Edit Widget.
  */
@@ -50,13 +50,14 @@ class QCaLineEdit : public QLineEdit, public QCaWidget {
     QCaLineEdit( const QString &variableName = "", QWidget *parent = 0 );
 
     bool isEnabled() const;
+    void setEnabled( bool state );
 
   protected:
     QCaStringFormatting stringFormatting;   /// String formatting options
     bool writeOnLoseFocusProperty;          /// Write changed value to database when widget object loses focus (user moves from widget)
     bool writeOnEnterProperty;              /// Write changed value to database when enter is pressed with focus on the widget
-    bool writeOnChangeProperty;             /// Write changed value to database when ever the text changes
-    bool enabledProperty;
+    bool enabledProperty;                   /// Override the default widget setEnabled to allow alarm states to override current enabled state
+    bool confirmWriteProperty;              /// Request confirmation before writing a value
 
     void establishConnection( unsigned int variableIndex );
 
@@ -65,15 +66,19 @@ class QCaLineEdit : public QLineEdit, public QCaWidget {
     void setTextIfNoFocus( const QString& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );  /// Update the text in the widget as long as the user is not entering data in it
     void userReturnPressed();                       /// Act on the user pressing return in the widget
     void userEditingFinished();                     /// Act on the user signaling text editing is complete (pressing return)
-    void userTextEdited ( const QString &text );    /// Act on the user changing the text
 
   public slots:
-    void setEnabled( bool state );
+    void requestEnabled( const bool& state );
+
+  signals:
+    void dbValueChanged( const QString& out );
 
   private:
     void setup();
     void createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
+    void writeValue( QCaString *qca, QString newValue );
+    QString lastValue;                      /// Last updated value (may have arrived while user is editing field)
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;

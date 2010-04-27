@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaComboBox.h $
- * $Revision: #8 $
- * $DateTime: 2009/07/31 15:55:17 $
+ * $Revision: #10 $
+ * $DateTime: 2010/02/01 15:54:01 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class QCaComboBox
-  \version $Revision: #8 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #10 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author andrew.rhyder
   \brief CA Combobox Widget.
  */
@@ -51,6 +51,7 @@ class QCaComboBox : public QComboBox, public QCaWidget {
     QCaComboBox( const QString& variableName = "", QWidget *parent = 0 );
 
     bool isEnabled() const;
+    void setEnabled( bool state );
 
   protected:
     QCaIntegerFormatting integerFormatting;
@@ -65,7 +66,10 @@ class QCaComboBox : public QComboBox, public QCaWidget {
     void userValueChanged( int value );
 
   public slots:
-    void setEnabled( bool state );
+    void requestEnabled( const bool& state );
+
+signals:
+    void dbValueChanged( const qlonglong& out );
 
   private:
     void setup();

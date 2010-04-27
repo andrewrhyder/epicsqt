@@ -2,8 +2,8 @@
 
   \class CmdPushButton
 
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #2 $
+  \date $DateTime: 2010/02/01 15:54:01 $
   \author Last checked in by: $Author: rhydera $
 
   \brief Command Push Button Widget.
@@ -47,6 +47,9 @@ class CmdPushButton : public QPushButton {
 
   public slots:
     void userClicked();
+
+    void requestEnabled( const bool& state );
+
 
   protected:
     QString program;        /// Program to run
