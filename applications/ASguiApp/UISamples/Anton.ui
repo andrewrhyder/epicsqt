@@ -37,18 +37,18 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>431</width>
+     <width>821</width>
      <height>51</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Abyssinica SIL</family>
-     <pointsize>20</pointsize>
+     <pointsize>18</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>Stolen from Anton Maksimenko</string>
+    <string>Compliments of Anton Maksimenko</string>
    </property>
   </widget>
  </widget>

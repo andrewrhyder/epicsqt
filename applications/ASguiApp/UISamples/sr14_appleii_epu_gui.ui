@@ -1442,10 +1442,10 @@
            </sizepolicy>
           </property>
           <property name="variable1" stdset="0">
-           <string>jacksogHost:aiStatic2</string>
+           <string>rhyderaHost:aiStatic2</string>
           </property>
           <property name="variable2" stdset="0">
-           <string>jacksogHost:aiStatic1</string>
+           <string>rhyderaHost:aiStatic1</string>
           </property>
           <property name="animation1" stdset="0">
            <enum>QCaShapePlugin::Rotation</enum>
@@ -1510,10 +1510,10 @@
            </sizepolicy>
           </property>
           <property name="variable1" stdset="0">
-           <string>jacksogHost:aiStatic2</string>
+           <string>rhyderaHost:aiStatic2</string>
           </property>
           <property name="variable2" stdset="0">
-           <string>jacksogHost:aiStatic1</string>
+           <string>rhyderaHost:aiStatic1</string>
           </property>
           <property name="animation1" stdset="0">
            <enum>QCaShapePlugin::Rotation</enum>
@@ -1569,7 +1569,7 @@
            </rect>
           </property>
           <property name="variable1" stdset="0">
-           <string>jacksogHost:aiStatic3</string>
+           <string>rhyderaHost:aiStatic3</string>
           </property>
           <property name="animation1" stdset="0">
            <enum>QCaShapePlugin::Transperency</enum>
@@ -1606,7 +1606,7 @@
          <number>80</number>
         </property>
         <property name="variable" stdset="0">
-         <string>jacksogHost:aiStatic1</string>
+         <string>rhyderaHost:aiStatic1</string>
         </property>
        </widget>
       </item>
@@ -1619,7 +1619,7 @@
          <number>50</number>
         </property>
         <property name="variable" stdset="0">
-         <string>jacksogHost:aiStatic2</string>
+         <string>rhyderaHost:aiStatic2</string>
         </property>
        </widget>
       </item>
@@ -1632,7 +1632,7 @@
          <number>200</number>
         </property>
         <property name="variable" stdset="0">
-         <string>jacksogHost:aiStatic3</string>
+         <string>rhyderaHost:aiStatic3</string>
         </property>
        </widget>
       </item>
