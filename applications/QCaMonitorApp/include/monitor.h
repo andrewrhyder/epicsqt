@@ -1,13 +1,13 @@
 /* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/QCaMonitorApp/include/monitor.h $
- * $Revision: #2 $ 
- * $DateTime: 2009/07/28 17:01:05 $
+ * $Revision: #3 $ 
+ * $DateTime: 2009/10/19 12:41:02 $
  * Last checked in by: $Author: rhydera $
  */
 
 /*! 
   \class Monitor
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/28 17:01:05 $
+  \version $Revision: #3 $
+  \date $DateTime: 2009/10/19 12:41:02 $
   \author andrew.rhyder
   \brief Qt-CA based version of CA Monitor.
  */
@@ -58,7 +58,9 @@ private:
     QTextStream* stream;
 
 private slots:
+    void connectionChanged( QCaConnectionInfo& );
     void log( const QString& data, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
+    void message( const QString& );
 
 };
 
