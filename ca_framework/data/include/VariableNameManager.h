@@ -1,7 +1,13 @@
+/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/VariableNameManager.h $
+ * $Revision: #5 $
+ * $DateTime: 2010/05/03 16:39:12 $
+ * Last checked in by: $Author: rhydera $
+ */
+
 /*!
   \class VariableNameManager
-  \version $Revision: #3 $
-  \date $DateTime: 2009/07/22 13:02:25 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/05/03 16:39:12 $
   \author andrew.rhyder
   \brief Variable name management.
  */
@@ -38,7 +44,7 @@ class VariableNameManager {
 
 public:
     VariableNameManager();
-    //virtual ~VariableNameManager();
+    virtual ~VariableNameManager(){};
 
     void variableNameManagerInitialise( unsigned int numVariables ) ;                     /// Used to set up the number of variables required (defaults to 1 if this is not called)
 

@@ -33,8 +33,8 @@ export EPICS_HOST_ARCH=linux-x86_64
 
 # Points to your local QT setup
 export QTCREATOR=/usr/share/qtcreator
-# $QTDIR/plugins/designer is where the plugin library is delivered
-export QTDIR=/usr/lib/qt4
+# $QTDIR is where the plugin library is delivered
+export QTDIR=`pwd`
 export QCAFRAMEWORK=~/epicsqt/ca_framework
 
 cd ca_framework/plugins
@@ -44,5 +44,12 @@ make
 
 #For runtime
 export LD_LIBRARY_PATH=/epics/base/lib/linux-x86_64
+
+echo
+echo
+echo "****"
+echo "Now copy libQCaPluginDebug.so to your plugins directory e.g /usr/lib/qt4/plugins/designer,"
+echo "run designer and click Help -> About Plugins to verify"
+echo "****"
 
 #End

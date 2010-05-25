@@ -1,7 +1,13 @@
+/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/QCaStateMachine.h $
+ * $Revision: #5 $
+ * $DateTime: 2010/05/03 16:39:12 $
+ * Last checked in by: $Author: rhydera $
+ */
+
 /*!
   \class QCaStateMachine
-  \version $Revision: #3 $
-  \date $DateTime: 2009/07/22 13:02:25 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/05/03 16:39:12 $
   \author anthony.owen
   \brief Statemachine architecture.
  */
@@ -36,6 +42,7 @@
 
 class StateMachineTemplate {
   public:
+    virtual ~StateMachineTemplate(){};
     int currentState;
     int requestState;
     virtual bool process( int requestedState ) = 0;
@@ -51,7 +58,7 @@ namespace qcastatemachine {
   class QCaStateMachine : public StateMachineTemplate {
     public:
       QCaStateMachine( void *parent );
-      //virtual ~QCaStateMachine();
+      virtual ~QCaStateMachine(){};
       QMutex lock;
       bool pending;
       bool active;
@@ -63,28 +70,28 @@ namespace qcastatemachine {
   class ConnectionQCaStateMachine : public QCaStateMachine {
     public:
       ConnectionQCaStateMachine( void *parent );
-      ~ConnectionQCaStateMachine();
+      ~ConnectionQCaStateMachine(){};
       bool process( int requestedState );
   };
 
   class SubscriptionQCaStateMachine : public QCaStateMachine {
     public:
       SubscriptionQCaStateMachine( void *parent );
-      ~SubscriptionQCaStateMachine();
+      ~SubscriptionQCaStateMachine(){};
       bool process( int requestedState );
   };
 
   class ReadQCaStateMachine : public QCaStateMachine {
     public:
       ReadQCaStateMachine( void *parent );
-      ~ReadQCaStateMachine();
+      ~ReadQCaStateMachine(){};
       bool process( int requestedState );
   };
 
   class WriteQCaStateMachine : public QCaStateMachine {
     public:
       WriteQCaStateMachine( void *parent );
-      ~WriteQCaStateMachine();
+      ~WriteQCaStateMachine(){};
       bool process( int requestedState );
   };
 

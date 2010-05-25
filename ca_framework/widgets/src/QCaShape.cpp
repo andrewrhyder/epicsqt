@@ -1,7 +1,13 @@
+/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/src/QCaShape.cpp $
+ * $Revision: #14 $
+ * $DateTime: 2010/05/04 14:54:28 $
+ * Last checked in by: $Author: rhydera $
+ */
+
 /*! 
   \class QCaShape
-  \version $Revision: #11 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #14 $
+  \date $DateTime: 2010/05/04 14:54:28 $
   \author andrew.rhyder
   \brief CA Shape Widget.
  */
@@ -406,7 +412,11 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
         case RoundedRect :
             if( !drawBorderProperty )
                 painter.setPen( Qt::NoPen );
+#if QT_VERSION >= 0x040400
             painter.drawRoundedRect(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), 25, 25, Qt::RelativeSize);
+#else
+            painter.drawRect( pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y() );
+#endif
             break;
         case Ellipse :
             if( !drawBorderProperty )
@@ -414,17 +424,17 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
             painter.drawEllipse(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y());
             break;
         case Arc :
-            painter.drawArc(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), startAngleProperty, arcLengthProperty );
+            painter.drawArc(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), (int)(startAngleProperty*16), (int)(arcLengthProperty*16) );
             break;
         case Chord :
             if( !drawBorderProperty )
                 painter.setPen( Qt::NoPen );
-            painter.drawChord(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), startAngleProperty, arcLengthProperty );
+            painter.drawChord(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), (int)(startAngleProperty*16), (int)(arcLengthProperty*16) );
             break;
         case Pie :
             if( !drawBorderProperty )
                 painter.setPen( Qt::NoPen );
-            painter.drawPie(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), startAngleProperty, arcLengthProperty );
+            painter.drawPie(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), (int)(startAngleProperty*16), (int)(arcLengthProperty*16) );
             break;
         case Path :
         {
@@ -440,8 +450,9 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
         }
         case Text :
         {
-            QRectF rect( pointsProperty[0], pointsProperty[1] );
-            painter.drawText( rect, Qt::AlignCenter, textProperty );
+            QRect rect( pointsProperty[0], pointsProperty[1] );
+            QRectF qrect( rect );
+            painter.drawText( qrect, Qt::AlignCenter, textProperty );
             break;
         }
         case Pixmap :

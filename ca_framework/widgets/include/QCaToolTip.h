@@ -1,7 +1,13 @@
+/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaToolTip.h $
+ * $Revision: #3 $
+ * $DateTime: 2010/05/03 16:39:12 $
+ * Last checked in by: $Author: rhydera $
+ */
+
 /*!
   \class QCaToolTip
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/30 14:33:44 $
+  \version $Revision: #3 $
+  \date $DateTime: 2010/05/03 16:39:12 $
   \author andrew.rhyder
   \brief Manage updating tool tip with variable name, alarm state and connected state
  */
@@ -36,6 +42,7 @@ class QCaToolTip
 {
     public:
         QCaToolTip();
+        virtual ~QCaToolTip(){};
         void updateToolTipVariable ( const QString& variable );
         void updateToolTipAlarm ( const QString& alarm );
         void updateToolTipConnection ( bool connection );

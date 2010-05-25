@@ -29,8 +29,8 @@ CONFIG += plugin \
 DEFINES += QCAPLUGIN_LIBRARY
 
 TARGET = QCaPluginDebug
-unix:DESTDIR = $$(QTDIR)/plugins/designer
-win32:DESTDIR = .
+unix:DESTDIR = $$(QTDIR)
+win32:DESTDIR = $$(QTDIR)
 OTHER_FILES += include/QCaSpinBox.png \
     include/QCaComboBox.png \
     include/QCaSlider.png \
