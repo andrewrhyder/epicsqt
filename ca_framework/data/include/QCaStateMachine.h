@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/QCaStateMachine.h $
- * $Revision: #3 $
- * $DateTime: 2009/07/22 13:02:25 $
- * Last checked in by: $Author: owena $
- */
-
 /*!
   \class QCaStateMachine
   \version $Revision: #3 $

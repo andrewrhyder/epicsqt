@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/LinkPluginManager.h $
- * $Revision: #1 $
- * $DateTime: 2010/01/25 16:09:07 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class LinkPluginManager
   \version $Revision: #1 $

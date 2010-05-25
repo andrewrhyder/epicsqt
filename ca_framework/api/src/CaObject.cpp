@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/api/src/CaObject.cpp $
- * $Revision: #8 $ 
- * $DateTime: 2009/11/18 10:21:48 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class CaObject
   \version $Revision: #8 $
@@ -12,33 +6,26 @@
   \brief Provides CA to an EPICS channel.
  */
 
-/* Copyright (c) 2009 Australian Synchrotron
+/*
+ *  This file is part of the EPICS QT Framework.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * Licence as published by the Free Software Foundation; either
- * version 2.1 of the Licence, or (at your option) any later version.
+ *  The EPICS QT Framework is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public Licence for more details.
+ *  The EPICS QT Framework is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * Licence along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *  You should have received a copy of the GNU General Public License
+ *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Contact details:
- * anthony.owen@synchrotron.org.au
- * 800 Blackburn Road, Clayton, Victoria 3168, Australia.
+ *  Copyright (c) 2009
  *
- *
- * Description
- *
- * CaObject is a non Qt C++ wrapper around the EPICS CA library.
- *
- * It is uses a void* pointer to a private class (CaObjectPrivate) to hide
- * CA definitions from users.
+ *  Contact details:
+ *  anthony.owen@gmail.com
  */
 
 #define epicsAlarmGLOBAL

@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/UserMessage.h $
- * $Revision: #2 $
- * $DateTime: 2009/07/21 17:58:00 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class UserMessage
   \version $Revision: #2 $

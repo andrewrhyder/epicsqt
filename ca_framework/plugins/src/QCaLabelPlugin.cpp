@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/src/QCaLabelPlugin.cpp $
- * $Revision: #3 $
- * $DateTime: 2009/11/18 10:21:48 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaLabelPlugin
   \version $Revision: #3 $

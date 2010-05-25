@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/QCaStringFormatting.h $
- * $Revision: #7 $
- * $DateTime: 2009/11/23 08:44:03 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaStringFormatting
   \version $Revision: #7 $

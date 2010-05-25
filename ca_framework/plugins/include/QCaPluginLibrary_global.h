@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/QCaPluginLibrary_global.h $
- * $Revision: #1 $ 
- * $DateTime: 2009/08/18 13:45:11 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \version $Revision: #1 $
   \date $DateTime: 2009/08/18 13:45:11 $

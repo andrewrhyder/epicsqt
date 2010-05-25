@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/src/QCaIntegerFormatting.cpp $
- * $Revision: #2 $
- * $DateTime: 2009/11/23 08:44:03 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaIntegerFormatting
   \version $Revision: #2 $

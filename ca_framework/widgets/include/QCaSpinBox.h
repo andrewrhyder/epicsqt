@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaSpinBox.h $
- * $Revision: #8 $
- * $DateTime: 2010/02/01 15:54:01 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaSpinBox
   \version $Revision: #8 $

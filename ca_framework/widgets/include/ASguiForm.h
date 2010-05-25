@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/ASguiForm.h $
- * $Revision: #6 $ 
- * $DateTime: 2010/04/07 12:14:19 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class ASguiForm
   \version $Revision: #6 $

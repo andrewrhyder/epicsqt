@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/include/QCaWidget.h $
- * $Revision: #5 $
- * $DateTime: 2009/07/31 14:45:31 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaWidget
   \version $Revision: #5 $

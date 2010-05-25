@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/ContainerProfile.h $
- * $Revision: #2 $ 
- * $DateTime: 2009/10/26 14:56:54 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class ContainerProfile
   \version $Revision: #2 $

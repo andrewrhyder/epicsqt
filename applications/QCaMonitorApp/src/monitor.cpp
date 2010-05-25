@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/QCaMonitorApp/src/monitor.cpp $
- * $Revision: #4 $ 
- * $DateTime: 2009/10/19 12:41:02 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class Monitor
   \version $Revision: #4 $

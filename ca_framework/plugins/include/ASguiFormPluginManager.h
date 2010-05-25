@@ -1,13 +1,9 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/ASguiFormPluginManager.h $
- * $Revision: #2 $ 
- * $DateTime: 2009/08/18 12:28:07 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
+  \class ASguiFormPluginManager
   \version $Revision: #2 $
   \date $DateTime: 2009/08/18 12:28:07 $
   \author <andrew.rhyder>
+  \brief 
  */
 
 /* Copyright (c) 2009 Australian Synchrotron

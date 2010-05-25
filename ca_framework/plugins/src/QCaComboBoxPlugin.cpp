@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/src/QCaComboBoxPlugin.cpp $
- * $Revision: #1 $
- * $DateTime: 2009/07/22 14:48:46 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaComboBoxPlugin
   \version $Revision: #1 $

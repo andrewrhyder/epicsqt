@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/src/QCaString.cpp $
- * $Revision: #5 $
- * $DateTime: 2009/07/28 17:01:05 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaString
   \version $Revision: #5 $

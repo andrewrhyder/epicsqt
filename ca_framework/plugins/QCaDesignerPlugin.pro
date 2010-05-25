@@ -1,7 +1,26 @@
-# $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/QCaDesignerPlugin.pro $
-# $Revision: #16 $
-# $DateTime: 2010/01/25 16:09:07 $
-# Last checked in by: $Author: rhydera $
+
+#
+#    This file is part of the EPICS QT Framework.
+#
+#    The EPICS QT Framework is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    The EPICS QT Framework is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Copyright (c) 2009
+#
+#    Contact details:
+#    anthony.owen@gmail.com
+#
+
 TEMPLATE = lib
 CONFIG += plugin \
     uitools \
@@ -10,7 +29,8 @@ CONFIG += plugin \
 DEFINES += QCAPLUGIN_LIBRARY
 
 TARGET = QCaPluginDebug
-DESTDIR = $$(QTDIR)/plugins/designer
+unix:DESTDIR = $$(QTDIR)/plugins/designer
+win32:DESTDIR = .
 OTHER_FILES += include/QCaSpinBox.png \
     include/QCaComboBox.png \
     include/QCaSlider.png \
@@ -137,8 +157,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/GuiPushButton.cpp \
     ../widgets/src/CmdPushButton.cpp \
     ../widgets/src/ASguiForm.cpp \
-    ../widgets/src/QCaToolTip.cpp \
-    $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+    ../widgets/src/QCaToolTip.cpp
+    #$$(QTCREATOR)/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
 INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
@@ -150,5 +170,5 @@ win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
 
 INCLUDEPATH += $$(EPICS_BASE)/include
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
-    -lca
-#    -lCom
+    -lca \
+    -lCom

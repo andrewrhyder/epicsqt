@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/widgets/include/QCaToolTip.h $
- * $Revision: #1 $
- * $DateTime: 2009/07/30 14:33:44 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*!
   \class QCaToolTip
   \version $Revision: #1 $

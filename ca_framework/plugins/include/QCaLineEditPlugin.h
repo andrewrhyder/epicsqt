@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/QCaLineEditPlugin.h $
- * $Revision: #6 $
- * $DateTime: 2010/03/23 11:07:38 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaLineEditPlugin
   \version $Revision: #6 $

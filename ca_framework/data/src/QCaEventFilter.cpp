@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/src/QCaEventFilter.cpp $
- * $Revision: #1 $
- * $DateTime: 2009/07/14 15:59:56 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaEventFilter
   \version $Revision: #1 $

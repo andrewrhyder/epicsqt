@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/QCaSliderPluginManager.h $
- * $Revision: #2 $
- * $DateTime: 2009/08/18 12:28:07 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaSliderPluginManager
   \version $Revision: #2 $

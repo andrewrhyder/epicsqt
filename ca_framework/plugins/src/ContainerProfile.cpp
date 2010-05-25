@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/src/ContainerProfile.cpp $
- * $Revision: #2 $ 
- * $DateTime: 2009/10/26 14:56:54 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class ContainerProfile
   \version $Revision: #2 $
@@ -32,7 +26,9 @@
  * andrew.rhyder@synchrotron.org.au
  * 800 Blackburn Road, Clayton, Victoria 3168, Australia.
  *
- *
+ */
+
+/*
  * Description:
  *
  * This class provides a communication mechanism from the code creating QCa widgets to the QCa widgets.

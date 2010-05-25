@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/src/QCaStateMachine.cpp $
- * $Revision: #5 $
- * $DateTime: 2009/07/29 14:20:04 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class QCaStateMachine
   \version $Revision: #5 $

@@ -1,10 +1,31 @@
 #!/bin/bash
 
 #
-# This is an example build script for the CAQT designer plugins.
+#    This file is part of the EPICS QT Framework.
 #
-# Dependencies: EPICS Base, QT4, QT Creator, QT Designer
+#    The EPICS QT Framework is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
+#    The EPICS QT Framework is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Copyright (c) 2009
+#
+#    Contact details:
+#    anthony.owen@gmail.com
+#
+
+#
+# This is an example build script for the CA QT Designer plugins.
+#
+# Dependencies: EPICS Base, QT4, QT Designer or QT Creator.
 
 # Points to your current epics build and architecture
 export EPICS_BASE=/epics/base

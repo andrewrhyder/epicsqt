@@ -1,9 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/plugins/include/LinkPlugin.h $
- * $Revision: #3 $
- * $DateTime: 2010/02/18 15:15:02 $
- * Last checked in by: $Author: rhydera $
- */
-
 /*! 
   \class LinkPlugin
   \version $Revision: #3 $

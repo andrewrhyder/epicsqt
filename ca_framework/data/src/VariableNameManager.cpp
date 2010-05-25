@@ -1,16 +1,3 @@
-/* $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/ca_framework/data/src/VariableNameManager.cpp $
- * $Revision: #2 $
- * $DateTime: 2009/07/23 16:17:31 $
- * Last checked in by: $Author: rhydera $
- *
- * Description:
- *
- * A class to manage changes to one or more variable names and the macro 
- * substitutions applying to the variable names. This class calls the virtual
- * function establishConnection() whenever a translated variable name is updated.
- *
- */
-
 /*! 
   \class VariableNameManager
   \version $Revision: #2 $
@@ -38,6 +25,15 @@
  * Contact details:
  * andrew.rhyder@synchrotron.org.au
  * 800 Blackburn Road, Clayton, Victoria 3168, Australia.
+ *
+ */
+
+/*
+ * Description:
+ *
+ * A class to manage changes to one or more variable names and the macro 
+ * substitutions applying to the variable names. This class calls the virtual
+ * function establishConnection() whenever a translated variable name is updated.
  *
  */
 
