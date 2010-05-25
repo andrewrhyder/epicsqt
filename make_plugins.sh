@@ -37,7 +37,7 @@ export EPICS_HOST_ARCH=linux-x86_64
 export QTCREATOR=/usr/share/qtcreator
 # $QTDIR is where the plugin library is delivered
 export QTDIR=`pwd`
-export QCAFRAMEWORK=~/epicsqt/ca_framework
+export QCAFRAMEWORK=`pwd`/ca_framework
 
 cd ca_framework/plugins
 make clean
