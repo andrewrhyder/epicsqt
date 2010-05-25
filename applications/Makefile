@@ -1,7 +1,3 @@
-# $File: //ASP/Dev/SBS/4_Controls/4_8_GUI_Frameworks/4_8_2_Qt/sw/applications/Makefile $
-# $Revision: #1 $
-# $DateTime: 2009/06/04 13:13:31 $
-# Last checked in by: $Author: starritt $
 #
 # Makefile at top of application tree
 #

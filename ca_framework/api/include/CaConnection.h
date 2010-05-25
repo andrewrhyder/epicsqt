@@ -2,10 +2,9 @@
   \class CaConnection
   \version $Revision: #1 $
   \date $DateTime: 2009/07/14 15:59:56 $
-  \author anthony.owen
+  \author glenn.jackson
   \brief Low level wrapper around the EPICS library
  */
-
 /*
  *  This file is part of the EPICS QT Framework.
  *
@@ -22,10 +21,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009
+ *  Copyright (c) 2009, 2010
  *
+ *  Author:
+ *    Glenn Jackson
  *  Contact details:
- *  anthony.owen@gmail.com
+ *    glenn.jackson@internode.net
  */
 
 #ifndef CACONNECTION_H_
