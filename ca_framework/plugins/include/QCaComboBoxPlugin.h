@@ -6,7 +6,7 @@
   \brief CA Combobox Widget Plugin.
  */
 /*
- *  This file is part of the EPICS QT Framework.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew@rhyder.org
+ *    andrew.rhyder@synchrotron.org
  */
 
 #ifndef QCAComboBOXPLUGIN_H

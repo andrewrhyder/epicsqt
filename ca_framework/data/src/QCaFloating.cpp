@@ -6,7 +6,7 @@
   \brief Floating specific wrapper for QCaObject.
  */
 /*
- *  This file is part of the EPICS QT Framework.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew@rhyder.org
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QCaFloating.h>
@@ -63,7 +63,7 @@ void QCaFloating::initialise( QCaFloatingFormatting* floatingFormattingIn,
     The type of data formatted (text, floating, integer, etc) will be determined by the record data type,
     How the floating is parsed will be determined by the floating formatting. For example, floating to string may require always including a sign.
 */
-void QCaFloating::writeFloating( const long &data ) {
+void QCaFloating::writeFloating( const double &data ) {
     writeData( floatingFormat->formatValue( data, getDataType() ) );
 }
 

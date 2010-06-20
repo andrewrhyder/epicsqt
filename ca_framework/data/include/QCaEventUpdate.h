@@ -6,7 +6,7 @@
   \brief Packages CA callback data as a Qt event
  */
 /*
- *  This file is part of the EPICS QT Framework.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew@rhyder.org
+ *    andrew.rhyder@synchrotron.org
  */
  
  /*!
@@ -95,12 +95,12 @@ class QCaEventItem {
 */
 class QCaEventUpdate : public QEvent {
   public:
-    QCaEventUpdate( qcaobject::QCaObject *emitterObjectIn,  // The object that emmited the event
+    QCaEventUpdate( qcaobject::QCaObject *emitterObjectIn,  // The object that emited the event
                     long newReason,                         // Callback reason. Actually of type caobject::callback_reasons
-                    void* newDataPtr );                     // CA data. this is actually of type carecord::CaRecord*
+                    void* newDataPtr );                     // CA data. This is actually of type carecord::CaRecord*
 
     static QEvent::Type EVENT_UPDATE_TYPE;
-    bool acceptThisEvent;                /// The originator of this event has been deleted. Ignore the event.
+    bool acceptThisEvent;                /// If true, the originator of this event has been deleted. Ignore the event.
 
     qcaobject::QCaObject *emitterObject; /// The object to process the data and emit a signal.
     long reason;                         /// Callback reason. Actually of type caobject::callback_reasons

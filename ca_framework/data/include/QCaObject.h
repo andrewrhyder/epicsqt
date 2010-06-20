@@ -6,7 +6,7 @@
   \brief Provides channel access to QT.
  */
 /*
- *  This file is part of the EPICS QT Framework.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -102,19 +102,22 @@ namespace qcaobject {
       QVariant writingData;
 
       QObject* eventHandler;                  /// Event handler
-      static QMutex outstandingEventsLock;    /// Used to protect access to outstandingEvents list
+      static QMutex pendingEventsLock;        /// Used to protect access to pendingEvents list
       static QCaEventFilter eventFilter;      /// Event filter to filter in own events
       QList<QCaEventItem> pendingEvents;      /// List of pending data events
+      QCaEventItem* lastDataEvent;            /// Outstanding data event
       QTimer setChannelTimer;
+
+      bool removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent );
 
       qcastatemachine::ConnectionQCaStateMachine *connectionMachine;
       qcastatemachine::SubscriptionQCaStateMachine *subscriptionMachine;
       qcastatemachine::ReadQCaStateMachine *readMachine;
       qcastatemachine::WriteQCaStateMachine *writeMachine;
 
-      void signalCallback( caobject::callback_reasons reason ); /// CA callback function processed within an EPICS thread
-      void processEvent( QCaEventUpdate* dataUpdateEvent );     /// Continue processing CA callback but within the contect of a Qt event
-      void processData( void* newData );                        /// Process new CA data. newData is actually of type carecord::CaRecord*
+      void signalCallback( caobject::callback_reasons reason );  /// CA callback function processed within an EPICS thread
+      void processEvent( QCaEventUpdate* dataUpdateEvent );      /// Continue processing CA callback but within the contect of a Qt event
+      void processData( void* newData );                         /// Process new CA data. newData is actually of type carecord::CaRecord*
 
       UserMessage* userMessage;
 

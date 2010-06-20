@@ -1,5 +1,5 @@
 #
-#    This file is part of the EPICS QT Framework.
+#    This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
 #
 #    The EPICS QT Framework is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,8 +19,18 @@
 #    Author:
 #      Andrew Rhyder
 #    Contact details:
-#      andrew@rhyder.org
+#      andrew.rhyder@synchrotron.org
 #
+
+# To analyse code performance using the GNU gprof profiling tool:
+#    - Include the following two lines
+#    - Clean the project
+#    - Run qmake
+#    - Build the code
+#    - Run the program from a terminal
+#    - analyse the results with the command: gprof <your-program-name>
+QMAKE_CXXFLAGS_DEBUG += -pg
+QMAKE_LFLAGS_DEBUG += -pg
 
 TARGET = ASgui
 TEMPLATE = app
@@ -40,7 +50,6 @@ INCLUDEPATH += . \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
     $$(QCAFRAMEWORK)/plugins/include
-win32:INCLUDEPATH += $$(CYGWIN)/usr/include
-LIBS += -L$$(QTDIR)/plugins/designer -lQCaPluginDebug
+LIBS += -L$$(QCAFRAMEWORK)/plugins -lQCaPlugin
 LIBS += -L/opt/fontconfig/lib
 FORMS += ./src/MainWindow.ui

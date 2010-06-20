@@ -1,26 +1,29 @@
-#
-#    This file is part of the EPICS QT Framework.
-#
-#    The EPICS QT Framework is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    The EPICS QT Framework is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
-#
-#    Copyright (c) 2009, 2010
-#
-#    Author:
-#      Anthony Owen
-#    Contact details:
-#      anthony.owen@gmail.com
-#
+# This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+# The EPICS QT Framework is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The EPICS QT Framework is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2009, 2010
+# Author:
+# Anthony Owen
+# Contact details:
+# anthony.owen@gmail.com
+
+# To alanyse code performance using the GNU gprof profiling tool:
+# - Include the following two lines
+# - Clean all
+# - Run qmake
+# - Rebuild all
+# - Run the program
+# - analyse the results with the command: gprof <your-program-name>
+ QMAKE_CXXFLAGS_DEBUG += -pg
+ QMAKE_LFLAGS_DEBUG += -pg
 
 TEMPLATE = lib
 CONFIG += plugin \
@@ -28,10 +31,7 @@ CONFIG += plugin \
     designer \
     debug_and_release
 DEFINES += QCAPLUGIN_LIBRARY
-
-TARGET = QCaPluginDebug
-unix:DESTDIR = $$(QTDIR)
-win32:DESTDIR = $$(QTDIR)
+TARGET = QCaPlugin
 OTHER_FILES += include/QCaSpinBox.png \
     include/QCaComboBox.png \
     include/QCaSlider.png \
@@ -101,7 +101,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/GuiPushButton.h \
     ../widgets/include/CmdPushButton.h \
     ../widgets/include/ASguiForm.h \
-    ../widgets/include/QCaToolTip.h
+    ../widgets/include/QCaToolTip.h \
+    include/QCaLabelPluginManager.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
@@ -158,8 +159,9 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/GuiPushButton.cpp \
     ../widgets/src/CmdPushButton.cpp \
     ../widgets/src/ASguiForm.cpp \
-    ../widgets/src/QCaToolTip.cpp
-    #$$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+    ../widgets/src/QCaToolTip.cpp \
+    $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+
 RESOURCES += src/QCaResources.qrc
 INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
@@ -168,7 +170,6 @@ INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(EPICS_BASE)/include
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
-
 INCLUDEPATH += $$(EPICS_BASE)/include
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \

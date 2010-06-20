@@ -6,7 +6,7 @@
   \brief Provides textual formatting for QCaInteger data.
  */
 /*
- *  This file is part of the EPICS QT Framework.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew@rhyder.org
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QCaIntegerFormatting.h>
@@ -138,7 +138,8 @@ long QCaIntegerFormatting::formatFromFloating( const QVariant &value ) {
 
 /*!
     Format a variant value as a (signed) integer representation of an unsigned integer.
-    Convert the variant value to an unsigned long. It may or may not be a ulonglong type variant. If it is - good,
+    This method was written to convert a QVariant of type ULongLong, but should cope with a variant of any type.
+    Convert the variant value to a long. It may or may not be a longlong type variant. If it is - good,
     there will be no conversion problems.
 */
 long QCaIntegerFormatting::formatFromUnsignedInteger( const QVariant &value ) {
@@ -162,6 +163,7 @@ long QCaIntegerFormatting::formatFromUnsignedInteger( const QVariant &value ) {
 
 /*!
     Format a variant value as an integer representation of a string.
+    This method was written to convert a QVariant of type String, but should cope with a variant of any type.
     Convert the variant value to an unsigned long. It may or may not be a ulonglong type variant. If it is - good,
     there will be no conversion problems.
 */
@@ -185,9 +187,10 @@ long QCaIntegerFormatting::formatFromString( const QVariant &value ) {
 }
 
 /*!
-    Format a variant value as an integer representation of a time.
-    Times are represented in CA data as an integer???
-    Convert the variant value to an ??? (the type used to represent CA time). It may or may not be a ??? type variant. If it is - good,
+    Format a variant value as an integer representation of time.
+    This method was written to convert a QVariant of type ??? (the type used to represent times in CA),
+    but should cope with a variant of any type.
+    Convert the variant value to a long. It may or may not be a longlong type variant. If it is - good,
     there will be no conversion problems.
 */
 long QCaIntegerFormatting::formatFromTime( const QVariant &value ) {

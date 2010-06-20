@@ -6,7 +6,7 @@
   \brief Floating specific wrapper for QCaObject.
  */
 /*
- *  This file is part of the EPICS QT Framework.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew@rhyder.org
+ *    andrew.rhyder@synchrotron.org
  */
 
 #ifndef QCAFLOATING_H
@@ -45,10 +45,10 @@ class QCaFloating : public qcaobject::QCaObject {
     QCaFloating( QString recordName, QObject *eventObject, QCaFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
-    void floatingChanged( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+    void floatingChanged( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
   public slots:
-    void writeFloating( const long &data );
+    void writeFloating( const double &data );
 
   private:
     void initialise( QCaFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn );

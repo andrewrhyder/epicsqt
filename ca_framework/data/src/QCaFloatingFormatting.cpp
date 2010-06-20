@@ -6,7 +6,7 @@
   \brief Provides textual formatting for QCaFloating data.
  */
 /*
- *  This file is part of the EPICS QT Framework.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew@rhyder.org
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QCaFloatingFormatting.h>
@@ -122,7 +122,8 @@ double QCaFloatingFormatting::formatFloating( const QVariant &value ) {
 }
 
 /*!
-    Format a variant value as a integer representation of a floating point number.
+    Format a variant value as a floating point representation of a signed integer.
+    This method was written to convert a QVariant of type LongLong, but should cope with a variant of any type.
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
     there will be no conversion problems.
 */
@@ -137,16 +138,17 @@ double QCaFloatingFormatting::formatFromInteger( const QVariant &value ) {
     // If QVariant::toDouble() does not do exactly what is required, a switch statement for each of the types used to hold CA data
     // will need to be added and the conversions done  manually or using QVariant::toDouble() as required.
     bool convertOk;
-    long iValue = value.toDouble( &convertOk );
+    double dValue = value.toDouble( &convertOk );
 
     if( !convertOk )
         return formatFailure( QString( "Warning from QCaFloatingFormatting::formatFromFloating(). A variant could not be converted to a double." ) );
 
-    return iValue;
+    return dValue;
 }
 
 /*!
-    Format a variant value as a (signed) integer representation of a floating point number.
+    Format a variant value as a floating point representation of an unsigned integer.
+    This method was written to convert a QVariant of type ULongLong, but should cope with a variant of any type.
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
     there will be no conversion problems.
 */
@@ -161,17 +163,18 @@ double QCaFloatingFormatting::formatFromUnsignedInteger( const QVariant &value )
     // If QVariant::toDouble() does not do exactly what is required, a switch statement for each of the types used to hold CA data
     // will need to be added and the conversions done  manually or using QVariant::toDouble() as required.
     bool convertOk;
-    long lValue = value.toDouble( &convertOk );
+    double dValue = value.toDouble( &convertOk );
 
     if( !convertOk )
         return formatFailure( QString( "Warning from QCaFloatingFormatting::formatFromUnsignedInteger(). A variant could not be converted to a double." ) );
 
-    return lValue;
+    return dValue;
 }
 
 /*!
-    Format a variant value as an integer representation of a string.
-    Convert the variant value to an unsigned long. It may or may not be a ulonglong type variant. If it is - good,
+    Format a variant value as a floating point representation of a string.
+    This method was written to convert a QVariant of type String, but should cope with a variant of any type.
+    Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
     there will be no conversion problems.
 */
 double QCaFloatingFormatting::formatFromString( const QVariant &value ) {
@@ -185,18 +188,19 @@ double QCaFloatingFormatting::formatFromString( const QVariant &value ) {
     // If QVariant::toLongLong() does not do exactly what is required, a switch statement for each of the types used to hold CA data
     // will need to be added and the conversions done  manually or using QVariant::toLongLong() as required.
     bool convertOk;
-    long lValue = value.toDouble( &convertOk );
+    double dValue = value.toDouble( &convertOk );
 
     if( !convertOk )
         return formatFailure( QString( "Warning from QCaFloatingFormatting::formatFromString(). A variant could not be converted to an double." ) );
 
-    return lValue;
+    return dValue;
 }
 
 /*!
-    Format a variant value as an integer representation of a time.
-    Times are represented in CA data as an integer???
-    Convert the variant value to an ??? (the type used to represent CA time). It may or may not be a ??? type variant. If it is - good,
+    Format a variant value as a floating point representation of time.
+    This method was written to convert a QVariant of type ??? (the type used to represent times in CA),
+    but should cope with a variant of any type.
+    Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
     there will be no conversion problems.
 */
 double QCaFloatingFormatting::formatFromTime( const QVariant &value ) {

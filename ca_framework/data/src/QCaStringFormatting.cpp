@@ -6,7 +6,7 @@
   \brief Format the string for QCaString data.
  */
 /*
- *  This file is part of the EPICS QT Framework.
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew@rhyder.org
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QtDebug>
@@ -311,12 +311,11 @@ void QCaStringFormatting::formatFromFloating( const QVariant &value ) {
 }
 
 /*!
-    Format a variant value as a string representation of an integer.
-    First convert the variant value to a long. It may or may not be a longlong
-    type variant. If it is - good,
+    Format a variant value as a string representation of a signed integer.
+    This method was written to convert a QVariant of type LongLong, but should cope with a variant of any type.
+    First convert the variant value to a long. It may or may not be a longlong type variant. If it is - good,
     there will be no conversion problems.
-    Then format it as a string using the formatting information stored in this
-    class.
+    Then format it as a string using the formatting information stored in this class.
 */
 void QCaStringFormatting::formatFromInteger( const QVariant &value, const bool doLocalEnumeration ) {
     // Extract the value as a long using whatever conversion the QVariant uses.
@@ -366,11 +365,10 @@ void QCaStringFormatting::formatFromInteger( const QVariant &value, const bool d
 
 /*!
     Format a variant value as a string representation of an unsigned integer.
-    First convert the variant value to an unsigned long. It may or may not be a
-    ulonglong type variant. If it is - good,
+    This method was written to convert a QVariant of type ULongLong, but should cope with a variant of any type.
+    First convert the variant value to an unsigned long. It may or may not be a ulonglong type variant. If it is - good,
     there will be no conversion problems.
-    Then format it as a string using the formatting information stored in this
-    class.
+    Then format it as a string using the formatting information stored in this class.
 */
 void QCaStringFormatting::formatFromUnsignedInteger( const QVariant &value ) {
     // Extract the value as an unsigned long using whatever conversion the QVariant uses.
@@ -396,13 +394,9 @@ void QCaStringFormatting::formatFromUnsignedInteger( const QVariant &value ) {
 }
 
 /*!
-    Format a variant value as a string representation of a time.
-    Times are represented in CA data as an integer???
-    First convert the variant value to an ??? (the type used to represent CA
-    time). It may or may not be a ??? type variant. If it is - good,
-    there will be no conversion problems.
-    Then format it as a string using the formatting information stored in this
-    class.
+    Format a variant value as a string representation of time.
+    This method was written to convert a QVariant of type ??? (the type used to represent times in CA),
+    but should cope with a variant of any type.
 */
 void QCaStringFormatting::formatFromTime( const QVariant &value ) {
     if( value.type() == QVariant::String )
