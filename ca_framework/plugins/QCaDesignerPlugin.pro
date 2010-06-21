@@ -101,8 +101,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/GuiPushButton.h \
     ../widgets/include/CmdPushButton.h \
     ../widgets/include/ASguiForm.h \
-    ../widgets/include/QCaToolTip.h \
-    include/QCaLabelPluginManager.h
+    ../widgets/include/QCaToolTip.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
