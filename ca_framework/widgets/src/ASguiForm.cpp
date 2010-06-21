@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org
+ *    andrew.rhyder@synchrotron.org.au
  */
 
 /*! This class is used as a container for QCa widgets.

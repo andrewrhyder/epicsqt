@@ -19,7 +19,7 @@
 #    Author:
 #      Andrew Rhyder
 #    Contact details:
-#      andrew.rhyder@synchrotron.org
+#      andrew.rhyder@synchrotron.org.au
 #
 
 # To analyse code performance using the GNU gprof profiling tool:

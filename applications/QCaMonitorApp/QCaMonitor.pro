@@ -19,7 +19,7 @@
 #    Author:
 #      Andrew Rhyder
 #    Contact details:
-#      andrew.rhyder@synchrotron.org
+#      andrew.rhyder@synchrotron.org.au
 #
 
 QT -= gui

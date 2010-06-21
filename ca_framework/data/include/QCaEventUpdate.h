@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org
+ *    andrew.rhyder@synchrotron.org.au
  */
  
  /*!
@@ -53,7 +53,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
   Contact details:
-  andrew.rhyder@synchrotron.org.au
+  andrew.rhyder@synchrotron.org.au.au
   800 Blackburn Road, Clayton, Victoria 3168, Australia.
 
 */
