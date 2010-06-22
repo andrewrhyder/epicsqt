@@ -44,15 +44,17 @@
   QCaObject class in what ever flavour it wants, by calling the virtual function createQcaItem.
   A QCaLabel, for example, wants string updates so it creates a QCaString which is based on a
   QCaObject class and formats all updates as strings.
-  The widget specific version of QCaObject is passed back to this class to manage by calling QCaWidget::setQcaItem().
+
   The CA aware parent class (such as QCaLabel) defines a variable by calling VariableNameManager::setVariableName().
   The VariableNameManager class calls the establishConnection function of the CA aware parent class, such as QCaLabel
   when it has a new variable name.
+
   This class uses its base QCaToolTip class to format tool tips. that class in turn calls the CA aware parent class
   (such as QCaLabel) directly to make use of a new tool tip.
 
 
-  After construction, a CA aware widget is activated in one of two ways:
+  After construction, a CA aware widget is activated (starts updating) by calling it's
+  establishConnection() function in one of two ways:
 
    1) The variable name or variable name substitutions is changed by calling setVariableName
       or setVariableNameSubstitutions respectively. These functions are in the VariableNameManager class.
@@ -64,21 +66,20 @@
       contining plugin definitions.
       After loading the plugin widgets, code in the ASguiForm class calls the activate() function in this class (QCaWiget).
       the activate() function calls  establishConnection() in the CA aware widget for each variable. This simulates
-      what the VariableNameManager does as each variable name is entered (see 1, above) for details)
+      what the VariableNameManager does as each variable name is entered (see 1, above, for details)
 
   No matter which way a CA aware widget is activated, the establishConnection() function in the CA aware widget is called
   for each variable. The establishConnection() function asks this QCaWidget base class, by calling the createConnection()
-  function, to perform the tasks common to all CA aware widgets for establishing a stream of CA data
+  function, to perform the tasks common to all CA aware widgets for establishing a stream of CA data.
 
   The createConnection() function sets up the widget 'tool tip', then immedietly calls the CA aware widget back asking it to create
   an object based on QCaObject. This object will supply a stream of CA update signals to the CA aware object in a form that
-  it needs. For example a QCaLabel creates a QCaString object. This is based on the QCaObject and converts all update data
-  to a strings which is required for updating a Qt label widget. This class stores the QCaObject based class.
+  it needs. For example a QCaLabel creates a QCaString object. The QCaString class is based on the QCaObject class and converts
+  all update data to a strings which is required for updating a Qt label widget. This class stores the QCaObject based class.
 
-  After the establishConnection() function in the CA aware widget has called createConnection(), a set of classes
-  based on the QCaObject class, and suitable for the needs of the CA aware widget, will be available as just explained.
-  The remaining task of the establishConnection() function is to connect the signals of the newly created QCaObject based
-  classes to its own slots so that data updates can be used. For example, a QCaLabel connects the 'stringChanged' signal
+  After the establishConnection() function in the CA aware widget has called createConnection(), the remaining task of the
+  establishConnection() function is to connect the signals of the newly created QCaObject based classes to its own slots
+  so that data updates can be used. For example, a QCaLabel connects the 'stringChanged' signal
   fromthe QCaString object to it's setLabelText slot.
  */
 
@@ -181,13 +182,14 @@ void QCaWidget::activate()
 /*!
     Create a CA connection and initiates updates if required.
     This is called by the establishConnection function of CA aware widgets based on this class, such as a QCaLabel.
+    If successfull it will return the QCaObject based object supplying data update signals
 */
-bool QCaWidget::createConnection( unsigned int variableIndex ) {
+qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) {
 
     /// If the index is invalid do nothing
     /// This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
     if( variableIndex >= numVariables ) {
-        return false;
+        return NULL;
     }
 
     // Set the tool tip to the variable names if required
@@ -216,38 +218,23 @@ bool QCaWidget::createConnection( unsigned int variableIndex ) {
     deleteQcaItem( variableIndex );
 
     /// Connect to new variable.
-    /// If a new variable name is present, ask the CA aware widgets based on this class to create an
-    /// appropriate object based on a QCaObject (by calling its createQcaItem function) and subscribe
-    /// to the new variable
+    /// If a new variable name is present, ask the CA aware widget based on this class to create an
+    /// appropriate object based on a QCaObject (by calling its createQcaItem() function).
+    /// If that is successfull, supply it with a mechanism for handling errors and subscribe
+    /// to the new variable if required.
     if( getSubstitutedVariableName( variableIndex ).length() > 0 ) {
-        createQcaItem( variableIndex );
-        qcaItem[variableIndex]->setUserMessage( &userMessage );
+        qcaItem[variableIndex] = createQcaItem( variableIndex );
+        if( qcaItem[variableIndex] ) {
 
-        if( subscribeProperty )
-            qcaItem[variableIndex]->subscribe();
+            qcaItem[variableIndex]->setUserMessage( &userMessage );
 
-        return true;
+            if( subscribeProperty )
+                qcaItem[variableIndex]->subscribe();
+        }
     }
 
-    return false;
-}
-
-/*!
-    Save a reference to a recently created QCaObject based object.
-    A QCaObject based class is created by the CA aware widgets based on this class (such as QCaLabel)
-    to supply CA data updates for each variable name used by the CA aware widget.
-    This function is called by the CA aware widget to manage the newly created QCaObject based class.
-*/
-void QCaWidget::setQcaItem( qcaobject::QCaObject *newQcaItem, unsigned int variableIndex ) {
-    /// If the index is invalid do nothing
-    /// This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
-    if( variableIndex >= numVariables ) {
-        return;
-    }
-
-    /// Delete any previous QCaObject used by the widget, and record a reference to the new object
-    deleteQcaItem( variableIndex );
-    qcaItem[variableIndex] = newQcaItem;
+    // Return the QCaObject, if any
+    return qcaItem[variableIndex];
 }
 
 /*!

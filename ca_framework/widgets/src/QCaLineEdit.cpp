@@ -26,7 +26,12 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org
+ *    andrew.rhyder@synchrotron.org.au
+ */
+
+/*!
+  This class is a CA aware line edit widget based on the Qt line edit widget.
+  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
 #include <QCaLineEdit.h>
@@ -78,22 +83,28 @@ void QCaLineEdit::setup() {
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a line edit a QCaObject that streams strings is required.
 */
-void QCaLineEdit::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QCaLineEdit::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaString
-    setQcaItem( new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex ), variableIndex );
+    return new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 }
 
 /*!
+    Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
-
+    This function may also be used to initiate updates when loaded as a plugin.
 */
 void QCaLineEdit::establishConnection( unsigned int variableIndex ) {
-    if( createConnection( variableIndex ) == true ) {
-        QObject::connect( getQcaItem( variableIndex ),
-                          SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+
+    // Create a connection.
+    // If successfull, the QCaObject object that will supply data update signals will be returned
+    qcaobject::QCaObject* qca = createConnection( variableIndex );
+
+    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
+    if(  qca ) {
+        QObject::connect( qca,  SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setTextIfNoFocus( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-        QObject::connect( getQcaItem( variableIndex ), SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
     }
 }

@@ -53,12 +53,11 @@ protected:
     bool subscribeProperty;                 /// Flag if data updates should be requested
     bool variableAsToolTipProperty;         /// Flag the tool tip should be set to the variable name
 
-    bool createConnection( unsigned int variableIndex );    /// Create a CA connection
+    qcaobject::QCaObject* createConnection( unsigned int variableIndex );    /// Create a CA connection. Return a QCaObject if successfull
 
     virtual void setup() = 0;                               ///???
-    virtual void createQcaItem( unsigned int variableIndex ) = 0; /// Function to create a appropriate superclass of QCaObject to stream data updates
+    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ) = 0; /// Function to create a appropriate superclass of QCaObject to stream data updates
 
-    void setQcaItem( qcaobject::QCaObject*, unsigned int variableIndex );   /// Save a reference to a recently created QCaObject based object
     qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         /// Return a reference to one of the qCaObjects used to stream CA updates
 
   private:

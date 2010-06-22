@@ -68,7 +68,7 @@ class QCaLabel : public QLabel, public QCaWidget {
 
   private:
     void setup();
-    void createQcaItem( unsigned int variableIndex );
+    qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip( const QString& tip );
 
     QCAALARMINFO_SEVERITY lastSeverity;

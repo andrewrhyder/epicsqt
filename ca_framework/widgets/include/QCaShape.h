@@ -110,7 +110,7 @@ class QCaShape : public QWidget, public QCaWidget {
 
   private:
     void setup();                                               /// Initialisation common to all constructors
-    void createQcaItem( unsigned int variableIndex );
+    qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
 
     QCAALARMINFO_SEVERITY lastSeverity;

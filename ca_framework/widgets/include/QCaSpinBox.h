@@ -66,7 +66,7 @@ class QCaSpinBox : public QSpinBox, public QCaWidget {
 
 private:
     void setup();
-    void createQcaItem( unsigned int variableIndex );
+    qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
 
     QCAALARMINFO_SEVERITY lastSeverity;

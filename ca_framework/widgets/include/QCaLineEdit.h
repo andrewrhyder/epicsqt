@@ -70,7 +70,7 @@ class QCaLineEdit : public QLineEdit, public QCaWidget {
 
   private:
     void setup();
-    void createQcaItem( unsigned int variableIndex );
+    qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
     void writeValue( QCaString *qca, QString newValue );
     QString lastValue;                      /// Last updated value (may have arrived while user is editing field)

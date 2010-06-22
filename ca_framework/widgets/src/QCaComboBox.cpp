@@ -29,6 +29,11 @@
  *    andrew.rhyder@synchrotron.org
  */
 
+/*!
+  This class is a CA aware combo box widget based on the Qt combo box widget.
+  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+ */
+
 #include <QCaComboBox.h>
 
 /*!
@@ -75,22 +80,29 @@ void QCaComboBox::setup() {
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a Combo box a QCaObject that streams integers is required.
 */
-void QCaComboBox::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QCaComboBox::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaInteger
-    setQcaItem( new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex ), variableIndex );
+    return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 }
 
 /*!
+    Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
+    This function may also be used to initiate updates when loaded as a plugin.
 */
 void QCaComboBox::establishConnection( unsigned int variableIndex ) {
-    if( createConnection( variableIndex ) == true ) {
+
+    // Create a connection.
+    // If successfull, the QCaObject object that will supply data update signals will be returned
+    qcaobject::QCaObject* qca = createConnection( variableIndex );
+
+    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
+    if(  qca ) {
         setCurrentIndex( 0 );
-        QObject::connect( getQcaItem( variableIndex ),
-                          SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+        QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setValueIfNoFocus( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-        QObject::connect( getQcaItem( variableIndex ), SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
     }
 }

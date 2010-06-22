@@ -26,7 +26,12 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org
+ *    andrew.rhyder@synchrotron.org.au
+ */
+
+/*!
+  This class is a CA aware shape widget based on QWidget.
+  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
 #include <QCaShape.h>
@@ -135,22 +140,29 @@ void QCaShape::setup() {
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a shape a QCaObject that streams integers is required.
 */
-void QCaShape::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QCaShape::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaInteger
-    setQcaItem( new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex ), variableIndex );
+    return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 }
 
 /*!
+    Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
+    This function may also be used to initiate updates when loaded as a plugin.
 */
 void QCaShape::establishConnection( unsigned int variableIndex ) {
-    if( createConnection( variableIndex ) == true ) {
+
+    // Create a connection.
+    // If successfull, the QCaObject object that will supply data update signals will be returned
+    qcaobject::QCaObject* qca = createConnection( variableIndex );
+
+    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
+    if(  qca ) {
 //        setValue( 0, QCaAlarmInfo(), QCaDateTime(), variableIndex );  //??? should this be moved up before the create connection? if create connection fails, then any previous data should be cleared? do for all types if required
-        QObject::connect( getQcaItem( variableIndex ),
-                          SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+        QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setValue( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-        QObject::connect( getQcaItem( variableIndex ), SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+        QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
     }
 }
