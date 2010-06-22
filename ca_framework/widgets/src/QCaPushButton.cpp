@@ -1,7 +1,7 @@
 /*! 
   \class QCaPushButton
-  \version $Revision: #9 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #10 $
+  \date $DateTime: 2010/06/21 11:33:51 $
   \author andrew.rhyder
   \brief CA Push Button Widget.
  */
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org.au
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QCaPushButton.h>
@@ -112,7 +112,7 @@ void QCaPushButton::establishConnection( unsigned int variableIndex ) {
 }
 
 /*!
-    Update the tool tip as requested by QCaWidget.
+    Update the tool tip as requested by QCaToolTip.
 */
 void QCaPushButton::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
@@ -121,6 +121,7 @@ void QCaPushButton::updateToolTip ( const QString & toolTip ) {
 /*!
     Act on a connection change.
     Change how the label looks and change the tool tip
+    This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QCaPushButton::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
@@ -147,6 +148,7 @@ void QCaPushButton::connectionChanged( QCaConnectionInfo& connectionInfo )
 
 /*!
   Implement a slot to set the current text of the push button
+  This is the slot used to recieve data updates from a QCaObject based class.
 */
 void QCaPushButton::setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {

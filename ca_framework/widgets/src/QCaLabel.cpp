@@ -1,7 +1,7 @@
 /*! 
   \class QCaLabel
-  \version $Revision: #11 $
-  \date $DateTime: 2010/02/18 15:15:02 $
+  \version $Revision: #12 $
+  \date $DateTime: 2010/06/21 11:33:51 $
   \author andrew.rhyder
   \brief CA Label Widget.
  */
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org.au
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QCaLabel.h>
@@ -93,7 +93,7 @@ void QCaLabel::establishConnection( unsigned int variableIndex ) {
 
 
 /*!
-    Update the tool tip as requested by QCaWidget.
+    Update the tool tip as requested by QCaToolTip.
 */
 void QCaLabel::updateToolTip( const QString& tip )
 {
@@ -103,6 +103,7 @@ void QCaLabel::updateToolTip( const QString& tip )
 /*!
     Act on a connection change.
     Change how the label looks and change the tool tip
+    This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
@@ -128,6 +129,7 @@ void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
 
 /*!
     Update the label text
+    This is the slot used to recieve data updates from a QCaObject based class.
  */
 void QCaLabel::setLabelText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 

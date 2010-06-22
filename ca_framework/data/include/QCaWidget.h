@@ -1,7 +1,7 @@
 /*! 
   \class QCaWidget
-  \version $Revision: #5 $
-  \date $DateTime: 2009/07/31 14:45:31 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/06/21 11:33:51 $
   \author anthony.owen
   \brief Template for Qt-CA aware widgets.
  */
@@ -54,7 +54,6 @@ protected:
     bool variableAsToolTipProperty;         /// Flag the tool tip should be set to the variable name
 
     bool createConnection( unsigned int variableIndex );    /// Create a CA connection
-    void deleteQcaItem( unsigned int variableIndex );       /// Delete a stream of CA updates
 
     virtual void setup() = 0;                               ///???
     virtual void createQcaItem( unsigned int variableIndex ) = 0; /// Function to create a appropriate superclass of QCaObject to stream data updates
@@ -63,6 +62,7 @@ protected:
     qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         /// Return a reference to one of the qCaObjects used to stream CA updates
 
   private:
+    void deleteQcaItem( unsigned int variableIndex );       /// Delete a stream of CA updates
     unsigned int numVariables;              /// The number of process variables that will be managed for the QCa widget.
     qcaobject::QCaObject** qcaItem;          /// CA access - provides a stream of updates. One for each variable name used by the QCa widget
 

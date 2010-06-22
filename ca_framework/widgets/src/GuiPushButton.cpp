@@ -1,7 +1,7 @@
 /*!
   \class GuiPushButton
-  \version $Revision: #5 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/06/21 11:33:51 $
   \author Last checked in by: $Author: rhydera $
   \brief Launch GUI Push Button Widget.
  */
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org.au
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QMainWindow>
@@ -77,7 +77,7 @@ GuiPushButton::GuiPushButton( QWidget *parent ) : QPushButton( parent ) {
 }
 
 /*!
-    Update the tool tip as requested by QCaWidget.
+    Update the tool tip as requested by QCaToolTip.
 */
 void GuiPushButton::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );

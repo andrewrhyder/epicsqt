@@ -1,7 +1,7 @@
 /*! 
   \class QCaLineEdit
-  \version $Revision: #11 $
-  \date $DateTime: 2010/03/23 11:07:38 $
+  \version $Revision: #12 $
+  \date $DateTime: 2010/06/21 11:33:51 $
   \author andrew.rhyder
   \brief CA Line Edit Widget.
  */
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org.au
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QCaLineEdit.h>
@@ -99,7 +99,7 @@ void QCaLineEdit::establishConnection( unsigned int variableIndex ) {
 }
 
 /*!
-    Update the tool tip as requested by QCaWidget.
+    Update the tool tip as requested by QCaToolTip.
 */
 void QCaLineEdit::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
@@ -108,6 +108,7 @@ void QCaLineEdit::updateToolTip ( const QString & toolTip ) {
 /*!
     Act on a connection change.
     Change how the label looks and change the tool tip
+    This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QCaLineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
@@ -139,6 +140,7 @@ void QCaLineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
     value. However, this scenario should be allowed for. A reasonable reason
     for a user updated value to update on a gui is if is is written to by
     another user on another gui.
+    This is the slot used to recieve data updates from a QCaObject based class.
 */
 void QCaLineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 

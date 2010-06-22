@@ -1,7 +1,7 @@
 /*! 
   \class QCaComboBox
-  \version $Revision: #12 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #13 $
+  \date $DateTime: 2010/06/21 11:33:51 $
   \author andrew.rhyder
   \brief CA Combobox Widget.
  */
@@ -26,7 +26,7 @@
  *  Author:
  *    Andrew Rhyder
  *  Contact details:
- *    andrew.rhyder@synchrotron.org.au
+ *    andrew.rhyder@synchrotron.org
  */
 
 #include <QCaComboBox.h>
@@ -98,6 +98,7 @@ void QCaComboBox::establishConnection( unsigned int variableIndex ) {
 /*!
    Act on a connection change.
    Change how the label looks and change the tool tip.
+   This is the slot used to recieve connection updates from a QCaObject based class.
 
    Perform initialisation that can only be completed once data from the variable has been read.
    Specifically, set up the combo box entries to match the enumerated types if required.
@@ -138,7 +139,7 @@ void QCaComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 }
 
 /*!
-    Update the tool tip as requested by QCaWidget.
+    Update the tool tip as requested by QCaToolTip.
 */
 void QCaComboBox::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
