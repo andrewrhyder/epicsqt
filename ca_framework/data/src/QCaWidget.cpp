@@ -1,7 +1,7 @@
 /*! 
   \class QCaWidget
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/06/22 15:26:46 $
   \author anthony.owen
   \brief Template for Qt-CA based widgets.
  */
@@ -50,6 +50,36 @@
   when it has a new variable name.
   This class uses its base QCaToolTip class to format tool tips. that class in turn calls the CA aware parent class
   (such as QCaLabel) directly to make use of a new tool tip.
+
+
+  After construction, a CA aware widget is activated in one of two ways:
+
+   1) The variable name or variable name substitutions is changed by calling setVariableName
+      or setVariableNameSubstitutions respectively. These functions are in the VariableNameManager class.
+      The VariableNameManager calls a virtual function establishConnection() which is implemented by the CA aware widget.
+      This is how a CA aware widget is activated in 'designer'. It occurs when 'designer' updates the
+      variable name property or variable name substitution property.
+
+   2) When an ASguiForm widget is created, resulting in a set of CA aware widgets being created by loading a UI file
+      contining plugin definitions.
+      After loading the plugin widgets, code in the ASguiForm class calls the activate() function in this class (QCaWiget).
+      the activate() function calls  establishConnection() in the CA aware widget for each variable. This simulates
+      what the VariableNameManager does as each variable name is entered (see 1, above) for details)
+
+  No matter which way a CA aware widget is activated, the establishConnection() function in the CA aware widget is called
+  for each variable. The establishConnection() function asks this QCaWidget base class, by calling the createConnection()
+  function, to perform the tasks common to all CA aware widgets for establishing a stream of CA data
+
+  The createConnection() function sets up the widget 'tool tip', then immedietly calls the CA aware widget back asking it to create
+  an object based on QCaObject. This object will supply a stream of CA update signals to the CA aware object in a form that
+  it needs. For example a QCaLabel creates a QCaString object. This is based on the QCaObject and converts all update data
+  to a strings which is required for updating a Qt label widget. This class stores the QCaObject based class.
+
+  After the establishConnection() function in the CA aware widget has called createConnection(), a set of classes
+  based on the QCaObject class, and suitable for the needs of the CA aware widget, will be available as just explained.
+  The remaining task of the establishConnection() function is to connect the signals of the newly created QCaObject based
+  classes to its own slots so that data updates can be used. For example, a QCaLabel connects the 'stringChanged' signal
+  fromthe QCaString object to it's setLabelText slot.
  */
 
 #include <QDebug>
