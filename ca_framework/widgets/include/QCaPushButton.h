@@ -42,7 +42,7 @@ class QCaPushButton : public QPushButton, public QCaWidget {
 
   public:
     QCaPushButton( QWidget *parent = 0 );
-    QCaPushButton( const QString& variableName = "", QWidget *parent = 0 );
+    QCaPushButton( const QString& variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( const bool& state );

@@ -37,6 +37,7 @@
 startupParams::startupParams()
 {
     enableEdit = false;
+    singleApp = false;
 }
 
 // Unserialize application startup parameters
@@ -53,6 +54,7 @@ void startupParams::getSharedParams( const void* in )
     const char* d = (char*)in;
 
     enableEdit    = (bool)(d[len]);    len += 1;
+    singleApp     = (bool)(d[len]);    len += 1;
     filename.append( &(d[len]) );      len += filename.size()+1;
     path.append( &(d[len]) );          len += path.size()+1;
     substitutions.append( &(d[len]) ); len += substitutions.size()+1;
@@ -66,6 +68,7 @@ void startupParams::setSharedParams( QByteArray& out )
     int len = 0;
 
     out[len++] = enableEdit;
+    out[len++] = singleApp;
     out.insert( len, filename.toAscii() );       len += filename.size();        out[len++] = '\0';
     out.insert( len, path.toAscii() );           len += path.size()+1;          out[len++] = '\0';
     out.insert( len, substitutions.toAscii() );  len += substitutions.size()+1; out[len++] = '\0';
@@ -100,6 +103,12 @@ void startupParams::getStartupParams( QStringList args )
                 case 'E':
                     enableEdit = true;
                     break;
+
+                    // 'Single App' flag
+                    case 's':
+                    case 'S':
+                        singleApp = true;
+                        break;
 
                 // 'path' flag (Remainder of argument is the path)
                 case 'p':

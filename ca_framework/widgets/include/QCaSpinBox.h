@@ -42,7 +42,7 @@ class QCaSpinBox : public QSpinBox, public QCaWidget {
 
   public:
     QCaSpinBox( QWidget *parent = 0 );
-    QCaSpinBox( const QString& variableName = "", QWidget *parent = 0 );
+    QCaSpinBox( const QString& variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( bool state );

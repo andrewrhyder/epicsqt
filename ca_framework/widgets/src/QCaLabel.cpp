@@ -55,6 +55,7 @@ QCaLabel::QCaLabel( const QString &variableNameIn, QWidget *parent ) : QLabel( p
     Setup common to all constructors
 */
 void QCaLabel::setup() {
+
     // Set up data
     // This control used a single data source
     setNumVariables(1);

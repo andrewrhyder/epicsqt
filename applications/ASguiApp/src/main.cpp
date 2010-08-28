@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     // Initialise
     mainContext ctx( argc, argv );
 
-    // If this application is already running, let that instance do the work.
+    // If this application is already running, let that instance do the work. (unless -s 'single app' specified)
     if( ctx.handball() )
         return 0;
 

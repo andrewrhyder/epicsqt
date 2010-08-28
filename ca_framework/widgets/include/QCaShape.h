@@ -47,7 +47,7 @@ class QCaShape : public QWidget, public QCaWidget {
 
   public:
     QCaShape( QWidget *parent = 0 );
-    QCaShape( const QString& variableName = "", QWidget *parent = 0 );
+    QCaShape( const QString& variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( bool state );

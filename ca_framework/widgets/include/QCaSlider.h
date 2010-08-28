@@ -42,7 +42,7 @@ class QCaSlider : public QSlider, public QCaWidget {
 
   public:
     QCaSlider( QWidget *parent = 0 );
-    QCaSlider( const QString& variableName = "", QWidget *parent = 0 );
+    QCaSlider( const QString& variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( bool state );

@@ -51,6 +51,18 @@ mainContext::mainContext( int argc, char *argv[], QWidget *parent ) : QObject( p
 // Return false if not hand-balled. This includes errors as well an no other instance of this application
 bool mainContext::handball()
 {
+    // Get the startup parameters from the command line arguments
+    QStringList args = QCoreApplication::arguments();
+    startupParams newParams;
+    newParams.getStartupParams( args );
+
+    // Don't pass the requests on if specifically asked not to
+    if( newParams.singleApp )
+    {
+        return false;
+    }
+
+    // Don't pass the requests on if no other app to pass them on to!
     if( !instance->isRunning())
     {
         qDebug() << "no instance running";
@@ -58,7 +70,6 @@ bool mainContext::handball()
     }
 
     qDebug() << "another instance running";
-    QStringList args = QCoreApplication::arguments();
 
     // Get the shared memory
     if( share.attach() )
@@ -66,10 +77,6 @@ bool mainContext::handball()
         qDebug() << "Already shared memory available (there shouldn't be - we create it here";
         return false;
     }
-
-    // Get the startup parameters from the command line arguments
-    startupParams newParams;
-    newParams.getStartupParams( args );
 
     // Build a serial copy of the parameters
     QByteArray ba;

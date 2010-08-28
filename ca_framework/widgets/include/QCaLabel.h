@@ -42,7 +42,7 @@ class QCaLabel : public QLabel, public QCaWidget {
 
   public:
     QCaLabel( QWidget *parent = 0 );
-    QCaLabel( const QString &variableName = "", QWidget *parent = 0 );
+    QCaLabel( const QString &variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( bool state );

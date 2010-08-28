@@ -42,7 +42,7 @@ class QCaLineEdit : public QLineEdit, public QCaWidget {
 
   public:
     QCaLineEdit( QWidget *parent = 0 );
-    QCaLineEdit( const QString &variableName = "", QWidget *parent = 0 );
+    QCaLineEdit( const QString &variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( bool state );

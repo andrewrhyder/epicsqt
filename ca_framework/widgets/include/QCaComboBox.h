@@ -43,7 +43,7 @@ class QCaComboBox : public QComboBox, public QCaWidget {
 
   public:
     QCaComboBox( QWidget *parent = 0 );
-    QCaComboBox( const QString& variableName = "", QWidget *parent = 0 );
+    QCaComboBox( const QString& variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( bool state );

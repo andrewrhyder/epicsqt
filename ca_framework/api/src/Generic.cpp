@@ -84,7 +84,7 @@ Generic::Generic( double newValue ) {
 /*!
     Actively delete the stored value and set flags
 */
-Generic::Generic::~Generic() {
+Generic::~Generic() {
     deleteValue();
 }
 

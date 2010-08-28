@@ -44,7 +44,7 @@ class ASguiForm : public QScrollArea
     public:
 
         ASguiForm( QWidget* parent = 0 );
-        ASguiForm( const QString& uifileNameIn = "", QWidget* parent = 0 );
+        ASguiForm( const QString& uifileNameIn, QWidget* parent = 0 );
         void commonInit( const bool alertIfUINoFoundIn );
 
         ~ASguiForm();
