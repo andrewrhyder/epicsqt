@@ -1,7 +1,7 @@
 /*! 
   \class QCaFloating
-  \version $Revision: #1 $
-  \date $DateTime: 2009/11/23 08:44:03 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author andrew.rhyder
   \brief Floating specific wrapper for QCaObject.
  */
@@ -36,8 +36,9 @@
 #include <QVariant>
 #include <QCaObject.h>
 #include <QCaFloatingFormatting.h>
+#include <QCaPluginLibrary_global.h>
 
-class QCaFloating : public qcaobject::QCaObject {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaFloating : public qcaobject::QCaObject {
     Q_OBJECT
 
   public:
@@ -46,6 +47,7 @@ class QCaFloating : public qcaobject::QCaObject {
 
   signals:
     void floatingChanged( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+    void floatingArrayChanged( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
   public slots:
     void writeFloating( const double &data );

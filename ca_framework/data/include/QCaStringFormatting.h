@@ -1,7 +1,7 @@
 /*! 
   \class QCaStringFormatting
-  \version $Revision: #7 $
-  \date $DateTime: 2009/11/23 08:44:03 $
+  \version $Revision: #9 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Formats the string for QCaString data.
  */

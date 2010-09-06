@@ -1,7 +1,7 @@
 /*! 
   \class QCaIntegerFormatting
-  \version $Revision: #2 $
-  \date $DateTime: 2009/11/23 08:44:03 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Provides textual formatting for QCaInteger data.
  */

@@ -1,7 +1,7 @@
 /*! 
   \class QCaSlider
-  \version $Revision: #10 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #13 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Slider Widget.
  */
@@ -63,8 +63,8 @@ void QCaSlider::setup() {
 
     // Set up default properties
     updateInProgress = false;
-    writeOnChangeProperty = true;
-    enabledProperty = true;
+    writeOnChange = true;
+    localEnabled = true;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -126,7 +126,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( enabledProperty )
+        if( localEnabled )
             QWidget::setEnabled( true );
     }
 
@@ -147,7 +147,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
     /// Note, even though there is nothing to do to initialise the spin box if not subscribing, an
     /// initial sing shot read is still performed to ensure we have valid information about the
     /// variable when it is time to do a write.
-    if( connectionInfo.isChannelConnected() && !subscribeProperty )
+    if( connectionInfo.isChannelConnected() && !subscribe )
     {
         QCaInteger* qca = (QCaInteger*)getQcaItem(0);
         qca->singleShotRead();
@@ -165,7 +165,7 @@ void QCaSlider::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, Q
     /// If not subscribing, then do nothing.
     /// Note, even though there is nothing to do here if not subscribing, an initial sing shot read is still
     /// performed to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribeProperty )
+    if( !subscribe )
         return;
 
     /// Signal a database value change to any Link widgets
@@ -205,7 +205,7 @@ void QCaSlider::userValueChanged( const int &value) {
      * and the object is set up to write when the user completes moving the slider
      * then write the value
      */
-    if( qca && writeOnChangeProperty ) {
+    if( qca && writeOnChange ) {
         /// Attempt to write the data if the destination data type is known.
         /// It is not known until a connection is established.
         if( qca->dataTypeKnown() ) {
@@ -227,7 +227,7 @@ void QCaSlider::userValueChanged( const int &value) {
 bool QCaSlider::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
-    return enabledProperty;
+    return localEnabled;
 }
 
 /*!
@@ -236,11 +236,11 @@ bool QCaSlider::isEnabled() const
 void QCaSlider::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
-    enabledProperty = state;
+    localEnabled = state;
 
     /// Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( enabledProperty );
+        QWidget::setEnabled( localEnabled );
 }
 
 /*!
@@ -250,3 +250,45 @@ void QCaSlider::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
+
+//==============================================================================
+// Property convenience functions
+
+// Variable name and substitutions
+void QCaSlider::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    setVariableName( variableNameIn, variableIndex );
+    establishConnection( variableIndex );
+}
+
+// write on change
+void QCaSlider::setWriteOnChange( bool writeOnChangeIn )
+{
+    writeOnChange = writeOnChangeIn;
+}
+bool QCaSlider::getWriteOnChange()
+{
+    return writeOnChange;
+}
+
+// subscribe
+void QCaSlider::setSubscribe( bool subscribeIn )
+{
+    subscribe = subscribeIn;
+}
+bool QCaSlider::getSubscribe()
+{
+    return subscribe;
+}
+
+// variable as tool tip
+void QCaSlider::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+    variableAsToolTip = variableAsToolTipIn;
+}
+bool QCaSlider::getVariableAsToolTip()
+{
+    return variableAsToolTip;
+}
+

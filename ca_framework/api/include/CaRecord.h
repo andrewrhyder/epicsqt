@@ -1,7 +1,7 @@
 /*! 
   \class CaRecord
-  \version $Revision: #4 $
-  \date $DateTime: 2009/07/27 16:34:58 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author anthony.owen
   \brief Provides a data holder for EPICS types.
  */

@@ -1,7 +1,7 @@
 /*! 
   \class QCaObject
-  \version $Revision: #7 $
-  \date $DateTime: 2009/07/29 14:20:04 $
+  \version $Revision: #10 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author anthony.owen
   \brief Provides channel access to QT.
  */
@@ -47,10 +47,11 @@
 #include <QCaAlarmInfo.h>
 #include <QCaDateTime.h>
 #include <QCaConnectionInfo.h>
+#include <QCaPluginLibrary_global.h>
 
 namespace qcaobject {
 
-  class QCaObject : public QObject, caobject::CaObject {
+  class QCAPLUGINLIBRARYSHARED_EXPORT QCaObject : public QObject, caobject::CaObject {
       Q_OBJECT
 
     public:

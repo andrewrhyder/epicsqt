@@ -1,7 +1,7 @@
 /*! 
   \class QCaLabel
-  \version $Revision: #9 $
-  \date $DateTime: 2010/02/18 15:15:02 $
+  \version $Revision: #13 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author andrew.rhyder
   \brief Manage updating tool tip with variable name, alarm state and connected state
  */
@@ -36,8 +36,9 @@
 #include <QCaWidget.h>
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
+#include <QCaPluginLibrary_global.h>
 
-class QCaLabel : public QLabel, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget {
     Q_OBJECT
 
   public:
@@ -47,14 +48,66 @@ class QCaLabel : public QLabel, public QCaWidget {
     bool isEnabled() const;
     void setEnabled( bool state );
 
+    // Property convenience functions
+
+    // Variable Name and substitution
+    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
+
+    // variable as tool tip
+    void setVariableAsToolTip( bool variableAsToolTip );
+    bool getVariableAsToolTip();
+
+    // String formatting properties
+
+    // precision
+    void setPrecision( unsigned int precision );
+    unsigned int getPrecision();
+
+    // useDbPrecision
+    void setUseDbPrecision( bool useDbPrecision );
+    bool getUseDbPrecision();
+
+    // leadingZero
+    void setLeadingZero( bool leadingZero );
+    bool getLeadingZero();
+
+    // trailingZeros
+    void setTrailingZeros( bool trailingZeros );
+    bool getTrailingZeros();
+
+    // addUnits
+    void setAddUnits( bool addUnits );
+    bool getAddUnits();
+
+    // localEnumeration
+    void setLocalEnumeration( QString localEnumeration );
+    QString getLocalEnumeration();
+
+    // format
+    void setFormat( QCaStringFormatting::formats format );
+    QCaStringFormatting::formats getFormat();
+
+    // radix
+    void setRadix( unsigned int radix );
+    unsigned int getRadix();
+
+    // notation
+    void setNotation( QCaStringFormatting::notations notation );
+    QCaStringFormatting::notations getNotation();
+
+    // visible (widget is visible outside 'Designer')
+    void setVisible( bool visibleIn );
+    bool getVisible();
+
+
+
   protected:
     QCaStringFormatting stringFormatting;
-    bool enabledProperty;
+    bool localEnabled;
 
     void establishConnection( unsigned int variableIndex );
 
-    bool visibleProperty;               // Flag true if the widget should be visible outside 'Designer'
-    void setVisibleProperty( bool visiblePropertyIn );
+    bool visible;               // Flag true if the widget should be visible outside 'Designer'
 
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );

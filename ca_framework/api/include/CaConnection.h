@@ -1,7 +1,7 @@
 /*! 
   \class CaConnection
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author glenn.jackson
   \brief Low level wrapper around the EPICS library
  */
@@ -65,6 +65,7 @@ namespace caconnection {
       int writeResponse;
       int state;
       short type;
+      unsigned long elementCount;
       chid id;
   };
 
@@ -100,6 +101,7 @@ namespace caconnection {
       bool hasContext() { return context.activated; }
       bool activatedChannel() { return channel.activated; }
       bool isSubscribed() { return subscription.activated; }
+      void setChannelElementCount();
 
     private:
       caLink link;

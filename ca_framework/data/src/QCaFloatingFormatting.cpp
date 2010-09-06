@@ -1,7 +1,7 @@
 /*! 
   \class QCaFloatingFormatting
-  \version $Revision: #1 $
-  \date $DateTime: 2009/11/23 08:44:03 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author andrew.rhyder
   \brief Provides textual formatting for QCaFloating data.
  */
@@ -93,8 +93,55 @@ QVariant QCaFloatingFormatting::formatValue( const double &floatingValue, generi
 
 /*!
     Generate an floating point number given a value, using formatting defined within this class.
+    The value may be an array of variants or a single variant
 */
 double QCaFloatingFormatting::formatFloating( const QVariant &value ) {
+
+    // If the value is a list, get the first item from the list.
+    // Otherwise, just use the value as is
+    if( value.type() == QVariant::List )
+    {
+        return formatFloatingNonArray( value.toList()[0] );
+    }
+    else
+    {
+        return formatFloatingNonArray( value );
+    }
+}
+
+/*!
+    Generate an floating point number array given a value, using formatting defined within this class.
+*/
+QVector<double> QCaFloatingFormatting::formatFloatingArray( const QVariant &value ) {
+
+    QVector<double> returnValue;
+
+    // If the value is a list, populate a list, converting each of the items to a double
+    if( value.type() == QVariant::List )
+    {
+        QVariantList list = value.toList();
+        for( long i=0; i < list.count(); i++ )
+        {
+            returnValue.append( formatFloatingNonArray( list[i] ));
+        }
+    }
+
+    // The value is not a list so build a list with a single double
+    else
+    {
+        returnValue.append( formatFloatingNonArray( value ));
+    }
+
+    return returnValue;
+}
+
+/*!
+    Generate an floating point number given a value, using formatting defined within this class.
+    The value must be a single variant.
+    This is used when formatting a single value, or for each value in an array of values.
+*/
+double QCaFloatingFormatting::formatFloatingNonArray( const QVariant &value ) {
+
     // Determine the format from the variant type.
     // Only the types used to store ca data are used. any other type is considered a failure.
     switch( value.type() ) {

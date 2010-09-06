@@ -1,7 +1,7 @@
 /*!
   \class VariableNameManager
-  \version $Revision: #5 $
-  \date $DateTime: 2010/05/03 16:39:12 $
+  \version $Revision: #7 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Variable name management.
  */

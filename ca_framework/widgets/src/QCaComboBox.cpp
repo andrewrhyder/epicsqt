@@ -1,7 +1,7 @@
 /*! 
   \class QCaComboBox
-  \version $Revision: #13 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #16 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Combobox Widget.
  */
@@ -62,9 +62,9 @@ void QCaComboBox::setup() {
     setNumVariables(1);
 
     // Set up default properties
-    useDbEnumerationsProperty = true;
-    subscribeProperty = false;
-    enabledProperty = true;
+    useDbEnumerations = true;
+    subscribe = false;
+    localEnabled = true;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -125,7 +125,7 @@ void QCaComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( enabledProperty )
+        if( localEnabled )
             QWidget::setEnabled( true );
     }
 
@@ -143,7 +143,7 @@ void QCaComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     /// If the combo box is already populated, then it has been set up at design time, or this is a subsequent 'channel up'
     /// If subscribing, then an update will occur without having to initiated one here.
     /// Note, channel up implies link up
-    if( connectionInfo.isChannelConnected() && count() == 0 && !subscribeProperty )
+    if( connectionInfo.isChannelConnected() && count() == 0 && !subscribe )
     {
         QCaInteger* qca = (QCaInteger*)getQcaItem(0);
         qca->singleShotRead();
@@ -176,7 +176,7 @@ void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo,
     {
         QCaInteger* qca = (QCaInteger*)getQcaItem(0);
         QStringList enumerations = qca->getEnumerations();
-        if( useDbEnumerationsProperty && enumerations.size() )
+        if( useDbEnumerations && enumerations.size() )
         {
             insertItems( 0,enumerations );
         }
@@ -185,7 +185,7 @@ void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo,
     /// If not subscribing, then do nothing.
     /// Note, This will still be called even if not subscribing as there may be initial sing shot read
     /// to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribeProperty )
+    if( !subscribe )
         return;
 
     // Signal a database value change to any Link widgets
@@ -228,7 +228,7 @@ void QCaComboBox::userValueChanged( int value ) {
 bool QCaComboBox::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
-    return enabledProperty;
+    return localEnabled;
 }
 
 /*!
@@ -237,11 +237,11 @@ bool QCaComboBox::isEnabled() const
 void QCaComboBox::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
-    enabledProperty = state;
+    localEnabled = state;
 
     /// Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( enabledProperty );
+        QWidget::setEnabled( localEnabled );
 }
 
 /*!
@@ -251,3 +251,45 @@ void QCaComboBox::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
+
+//==============================================================================
+// Property convenience functions
+
+// Variable Name and substitutions
+void QCaComboBox::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    setVariableName( variableNameIn, variableIndex );
+    establishConnection( variableIndex );
+}
+
+// subscribe
+void QCaComboBox::setSubscribe( bool subscribeIn )
+{
+    subscribe = subscribeIn;
+}
+bool QCaComboBox::getSubscribe()
+{
+    return subscribe;
+}
+
+// variable as tool tip
+void QCaComboBox::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+    variableAsToolTip = variableAsToolTipIn;
+}
+bool QCaComboBox::getVariableAsToolTip()
+{
+    return variableAsToolTip;
+}
+
+// use database enumerations
+void QCaComboBox::setUseDbEnumerations( bool useDbEnumerationsIn )
+{
+    useDbEnumerations = useDbEnumerationsIn;
+}
+bool QCaComboBox::getUseDbEnumerations()
+{
+    return useDbEnumerations;
+}
+

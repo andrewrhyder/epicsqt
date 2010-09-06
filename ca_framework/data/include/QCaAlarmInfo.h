@@ -1,7 +1,7 @@
 /*!
   \class QCaEventFilter
-  \version $Revision: #3 $
-  \date $DateTime: 2009/07/31 15:55:17 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Manage CA alarm and severity information
  */

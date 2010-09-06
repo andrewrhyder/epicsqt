@@ -1,7 +1,7 @@
 /*!
   \class QCaEventFilter
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/28 17:01:05 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author andrew.rhyder
   \brief CA Date Time manager
  */
@@ -39,12 +39,13 @@ class QCaDateTime : public QDateTime
 public:
     QCaDateTime();
     QCaDateTime( QDateTime dt );
-    void operator=( QCaDateTime& other );
+    void operator=( const QCaDateTime& other );
     QCaDateTime( unsigned long seconds, unsigned long nanoseconds );
 
     QString text();
 
     unsigned long nSec;
+    double floating( QDateTime base );
 };
 
 #endif // QCADATETIME_H

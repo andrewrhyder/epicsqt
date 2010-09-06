@@ -1,7 +1,7 @@
 /*! 
   \class QCaComboBox
-  \version $Revision: #10 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #14 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author andrew.rhyder
   \brief CA Combobox Widget.
  */
@@ -37,8 +37,9 @@
 #include <QCaInteger.h>
 #include <QCaIntegerFormatting.h>
 #include <QCaConnectionInfo.h>
+#include <QCaPluginLibrary_global.h>
 
-class QCaComboBox : public QComboBox, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWidget {
     Q_OBJECT
 
   public:
@@ -48,10 +49,28 @@ class QCaComboBox : public QComboBox, public QCaWidget {
     bool isEnabled() const;
     void setEnabled( bool state );
 
+    // Property convenience functions
+
+    // Variable Name and variable substitutions
+    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
+
+    // subscribe
+    void setSubscribe( bool subscribe );
+    bool getSubscribe();
+
+    // variable as tool tip
+    void setVariableAsToolTip( bool variableAsToolTip );
+    bool getVariableAsToolTip();
+
+    // use database enumerations
+    void setUseDbEnumerations( bool useDbEnumerations );
+    bool getUseDbEnumerations();
+
+
   protected:
     QCaIntegerFormatting integerFormatting;
-    bool useDbEnumerationsProperty;
-    bool enabledProperty;
+    bool useDbEnumerations;
+    bool localEnabled;
 
     void establishConnection( unsigned int variableIndex );
 

@@ -1,7 +1,7 @@
 /*! 
   \class QCaStringFormatting
-  \version $Revision: #12 $
-  \date $DateTime: 2010/02/08 16:54:25 $
+  \version $Revision: #15 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author andrew.rhyder
   \brief Format the string for QCaString data.
  */
@@ -203,7 +203,14 @@ QString QCaStringFormatting::formatString( const QVariant &value ) {
                         formatFromFloating( value );
                         break;
 
-                    case QVariant::LongLong:
+                    case QVariant::List :
+                        {
+                            const QVariantList valueArray = value.toList();
+                            formatFromFloating( valueArray[0].toDouble() );
+                        }
+                        break;
+
+                case QVariant::LongLong:
                         formatFromInteger( value, false );
                         break;
 

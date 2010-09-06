@@ -1,7 +1,7 @@
 /*! 
   \class QCaLabel
-  \version $Revision: #12 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #15 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Label Widget.
  */
@@ -61,8 +61,8 @@ void QCaLabel::setup() {
     setNumVariables(1);
 
     // Set up default properties
-    enabledProperty = true;
-    visibleProperty = true;
+    localEnabled = true;
+    visible = true;
 
     // Set the initial state
     setText( "" );
@@ -126,7 +126,7 @@ void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( enabledProperty )
+        if( localEnabled )
             QWidget::setEnabled( true );
     }
 
@@ -167,7 +167,7 @@ void QCaLabel::setLabelText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDa
 bool QCaLabel::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
-    return enabledProperty;
+    return localEnabled;
 }
 
 /*!
@@ -176,13 +176,12 @@ bool QCaLabel::isEnabled() const
 void QCaLabel::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
-    enabledProperty = state;
+    localEnabled = state;
 
     /// Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( enabledProperty );
+        QWidget::setEnabled( localEnabled );
 }
-
 /*!
    Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
  */
@@ -191,21 +190,137 @@ void QCaLabel::requestEnabled( const bool& state )
     setEnabled(state);
 }
 
+//==============================================================================
+// Property convenience functions
 
-/*!
-  Manage property to set widget visible or not
- */
-void QCaLabel::setVisibleProperty( bool visiblePropertyIn )
+
+// Access functions for variableName and variableNameSubstitutions
+// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+void QCaLabel::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    setVariableName( variableNameIn, variableIndex );
+    establishConnection( variableIndex );
+}
+
+// variable as tool tip
+void QCaLabel::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+    variableAsToolTip = variableAsToolTipIn;
+}
+bool QCaLabel::getVariableAsToolTip()
+{
+    return variableAsToolTip;
+}
+
+// String formatting properties
+
+// precision
+void QCaLabel::setPrecision( unsigned int precision )
+{
+    stringFormatting.setPrecision( precision );
+}
+unsigned int QCaLabel::getPrecision()
+{
+    return stringFormatting.getPrecision();
+}
+
+// useDbPrecision
+void QCaLabel::setUseDbPrecision( bool useDbPrecision )
+{
+    stringFormatting.setUseDbPrecision( useDbPrecision);
+}
+bool QCaLabel::getUseDbPrecision()
+{
+    return stringFormatting.getUseDbPrecision();
+}
+
+// leadingZero
+void QCaLabel::setLeadingZero( bool leadingZero )
+{
+    stringFormatting.setLeadingZero( leadingZero );
+}
+bool QCaLabel::getLeadingZero()
+{
+    return stringFormatting.getLeadingZero();
+}
+
+// trailingZeros
+void QCaLabel::setTrailingZeros( bool trailingZeros )
+{
+    stringFormatting.setTrailingZeros( trailingZeros );
+}
+bool QCaLabel::getTrailingZeros()
+{
+    return stringFormatting.getTrailingZeros();
+}
+
+// addUnits
+void QCaLabel::setAddUnits( bool addUnits )
+{
+    stringFormatting.setAddUnits( addUnits );
+}
+bool QCaLabel::getAddUnits()
+{
+    return stringFormatting.getAddUnits();
+}
+
+// localEnumeration
+void QCaLabel::setLocalEnumeration( QString localEnumeration )
+{
+    stringFormatting.setLocalEnumeration( localEnumeration );
+}
+QString QCaLabel::getLocalEnumeration()
+{
+    return stringFormatting.getLocalEnumeration();
+}
+
+// format
+void QCaLabel::setFormat( QCaStringFormatting::formats format )
+{
+    stringFormatting.setFormat( format );
+}
+QCaStringFormatting::formats QCaLabel::getFormat()
+{
+    return stringFormatting.getFormat();
+}
+
+// radix
+void QCaLabel::setRadix( unsigned int radix )
+{
+    stringFormatting.setRadix( radix);
+}
+unsigned int QCaLabel::getRadix()
+{
+    return stringFormatting.getRadix();
+}
+
+// notation
+void QCaLabel::setNotation( QCaStringFormatting::notations notation )
+{
+    stringFormatting.setNotation( notation );
+}
+QCaStringFormatting::notations QCaLabel::getNotation()
+{
+    return stringFormatting.getNotation();
+}
+
+// visible (widget is visible outside 'Designer')
+void QCaLabel::setVisible( bool visibleIn )
 {
     // Update the property
-    visibleProperty = visiblePropertyIn;
+    visible = visibleIn;
 
     // If a container profile has been defined, then this widget is being used in a real GUI and
     // should be visible or not according to the visible property. (While in Designer it can always be displayed)
     ContainerProfile profile;
     if( profile.isProfileDefined() )
     {
-        setVisible( visibleProperty );
+        QWidget::setVisible( visible );
     }
 
 }
+bool QCaLabel::getVisible()
+{
+    return visible;
+}
+

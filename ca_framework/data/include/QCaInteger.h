@@ -1,7 +1,7 @@
 /*! 
   \class QCaInteger
-  \version $Revision: #3 $
-  \date $DateTime: 2009/07/28 17:01:05 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author andrew.rhyder
   \brief Integer specific wrapper for QCaObject.
  */
@@ -36,8 +36,9 @@
 #include <QVariant>
 #include <QCaObject.h>
 #include <QCaIntegerFormatting.h>
+#include <QCaPluginLibrary_global.h>
 
-class QCaInteger : public qcaobject::QCaObject {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaInteger : public qcaobject::QCaObject {
     Q_OBJECT
 
   public:

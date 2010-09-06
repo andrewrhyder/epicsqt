@@ -1,7 +1,7 @@
 /*! 
   \class ContainerProfile
-  \version $Revision: #2 $
-  \date $DateTime: 2009/10/26 14:56:54 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Defines attributes of the containing window (form, dialog, etc) within which QCa widgets are being created.
  */

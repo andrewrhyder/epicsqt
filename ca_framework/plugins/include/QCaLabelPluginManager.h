@@ -1,7 +1,7 @@
 /*! 
   \class QCaLabelPluginManager
-  \version $Revision: #2 $
-  \date $DateTime: 2009/08/18 12:28:07 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief CA Label Widget Plugin Manager for designer.
  */

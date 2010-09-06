@@ -1,7 +1,7 @@
 /*! 
   \class CaConnection
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author anthony.owen
   \brief Low level wrapper around the EPICS library
  */
@@ -106,13 +106,30 @@ ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct co
     }
 }
 
+
+// Set the channel element count.
+// This can be done after the connection callback has been called and the connection is up
+void CaConnection::setChannelElementCount()
+{
+    // Get the channel element count. This can be done after the connection callback has been called and the connection is up
+    channel.elementCount = ca_element_count( channel.id );
+
+    // If fail, default element count to a single element
+
+    if( channel.elementCount < 1  )
+    {
+        channel.elementCount = 1;
+    }
+}
+
 /*!
     Subscribes to the established channel and registers for data callbacks
     Use isSubscribed() for feedback.
 */
 ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType ) {
+
     if( channel.activated == true && subscription.activated == false ) {
-        subscription.creation = ca_create_subscription( dbrStructType, 1, channel.id, DBE_VALUE|DBE_ALARM, subscriptionHandler, args, NULL );
+        subscription.creation = ca_create_subscription( dbrStructType, channel.elementCount, channel.id, DBE_VALUE|DBE_ALARM, subscriptionHandler, args, NULL );
         ca_pend_io( link.searchTimeout );
         subscription.activated = true;
         switch( subscription.creation ) {
@@ -153,7 +170,7 @@ void CaConnection::removeSubscription() {
 */
 ca_responses CaConnection::readChannel( void (*readHandler)(struct event_handler_args), void* args, short dbrStructType ) {
     if( channel.activated == true ) {
-        channel.readResponse = ca_get_callback( dbrStructType, channel.id, readHandler, args);
+        channel.readResponse = ca_array_get_callback( dbrStructType, channel.elementCount, channel.id, readHandler, args);
         ca_pend_io( link.readTimeout );
         switch( channel.readResponse ) {
             case ECA_NORMAL :

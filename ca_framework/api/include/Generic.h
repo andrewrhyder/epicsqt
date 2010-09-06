@@ -1,7 +1,7 @@
 /*! 
   \class Generic
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author anthony.owen
   \brief Provides a generic holder for different types.
  */
@@ -47,6 +47,7 @@ namespace generic {
       Generic( char newValue );
       Generic( unsigned long newValue );
       Generic( double newValue );
+      Generic( double* newValueArray, unsigned long countIn );
       ~Generic();
 
       Generic( Generic &param );
@@ -57,12 +58,15 @@ namespace generic {
       void setChar( char newValue );
       void setUnsignedLong( unsigned long newValue );
       void setDouble( double newValue );
+      void setDouble( double* newValueArray, unsigned long countIn );
 
       std::string getString();
       short getShort();
       char getChar();
       unsigned long getUnsignedLong();
       double getDouble();
+      void getDouble( double** valueArray, unsigned long* countOut = NULL );
+      unsigned long getArrayCount();
 
       generic_types getType();
 
@@ -70,6 +74,7 @@ namespace generic {
       void cloneValue( Generic *param );
 
     private:
+      unsigned long arrayCount;
       generic_types type;
       void* value;
 

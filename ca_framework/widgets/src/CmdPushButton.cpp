@@ -1,7 +1,7 @@
 /*!
   \class CmdPushButton
-  \version $Revision: #2 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author Last checked in by: $Author: rhydera $
   \brief Command Push Button Widget.
  */
@@ -79,3 +79,19 @@ void CmdPushButton::requestEnabled( const bool& state )
     setEnabled(state);
 }
 
+//==============================================================================
+// Property convenience functions
+
+// Program String
+void CmdPushButton::setProgram( QString program ){ CmdPushButton::program = program; }
+QString CmdPushButton::getProgram(){ return CmdPushButton::program; }
+
+// Arguments String
+void CmdPushButton::setArguments( QStringList arguments ){ CmdPushButton::arguments = arguments; }
+QStringList CmdPushButton::getArguments(){ return CmdPushButton::arguments; }
+
+// Variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+// Note, unlike most objects with a variable name substitions, changes to this property do not take immediate effect, so the normal code which waits
+// for the user to finish typing, then propogates the substitutions is not required. the substitutions are simply used next time the button is pushed.
+void    CmdPushButton::setVariableNameSubstitutions( QString variableNameSubstitutions ){ CmdPushButton::variableNameSubstitutions = variableNameSubstitutions; }
+QString CmdPushButton::getVariableNameSubstitutions(){ return CmdPushButton::variableNameSubstitutions; }

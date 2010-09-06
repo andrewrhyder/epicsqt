@@ -1,7 +1,7 @@
 /*! 
   \class QCaLineEdit
-  \version $Revision: #9 $
-  \date $DateTime: 2010/03/23 11:07:38 $
+  \version $Revision: #13 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author andrew.rhyder
   \brief CA Line Edit Widget.
  */
@@ -36,8 +36,9 @@
 #include <QCaWidget.h>
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
+#include <QCaPluginLibrary_global.h>
 
-class QCaLineEdit : public QLineEdit, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWidget {
     Q_OBJECT
 
   public:
@@ -47,12 +48,72 @@ class QCaLineEdit : public QLineEdit, public QCaWidget {
     bool isEnabled() const;
     void setEnabled( bool state );
 
-  protected:
+    // Property convenience functions
+
+    // Variable Name and substitution
+    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
+
+    // write on lose focus
+    void setWriteOnLoseFocus( bool writeOnLoseFocus );
+    bool getWriteOnLoseFocus();
+
+    // write on enter
+    void setWriteOnEnter( bool writeOnEnter );
+    bool getWriteOnEnter();
+
+    // subscribe
+    void setSubscribe( bool subscribe );
+    bool getSubscribe();
+
+    // variable as tool tip
+    void setVariableAsToolTip( bool variableAsToolTip );
+    bool getVariableAsToolTip();
+
+    // confirm write
+    void setConfirmWrite( bool confirmWrite );
+    bool getConfirmWrite();
+
+    // String formatting properties
+
+    // precision
+    void setPrecision( unsigned int precision );
+    unsigned int getPrecision();
+
+    // useDbPrecision
+    void setUseDbPrecision( bool useDbPrecision );
+    bool getUseDbPrecision();
+
+    // leadingZero
+    void setLeadingZero( bool leadingZero );
+    bool getLeadingZero();
+
+    // trailingZeros
+    void setTrailingZeros( bool trailingZeros );
+    bool getTrailingZeros();
+
+    // addUnits
+    void setAddUnits( bool addUnits );
+    bool getAddUnits();
+
+    // format
+    void setFormat( QCaStringFormatting::formats format );
+    QCaStringFormatting::formats getFormat();
+
+    // radix
+    void setRadix( unsigned int radix );
+    unsigned int getRadix();
+
+    // notation
+    void setNotation( QCaStringFormatting::notations notation );
+    QCaStringFormatting::notations getNotation();
+
+
+protected:
     QCaStringFormatting stringFormatting;   /// String formatting options
-    bool writeOnLoseFocusProperty;          /// Write changed value to database when widget object loses focus (user moves from widget)
-    bool writeOnEnterProperty;              /// Write changed value to database when enter is pressed with focus on the widget
-    bool enabledProperty;                   /// Override the default widget setEnabled to allow alarm states to override current enabled state
-    bool confirmWriteProperty;              /// Request confirmation before writing a value
+    bool writeOnLoseFocus;                  /// Write changed value to database when widget object loses focus (user moves from widget)
+    bool writeOnEnter;                      /// Write changed value to database when enter is pressed with focus on the widget
+    bool localEnabled;                      /// Override the default widget setEnabled to allow alarm states to override current enabled state
+    bool confirmWrite;                      /// Request confirmation before writing a value
 
     void establishConnection( unsigned int variableIndex );
 

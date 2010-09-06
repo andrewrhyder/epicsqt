@@ -1,7 +1,7 @@
 /*! 
   \class QCaShape
-  \version $Revision: #15 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #18 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Shape Widget.
  */
@@ -66,66 +66,66 @@ void QCaShape::setup() {
     setNumVariables( NUM_VARIABLES );
 
     // Set up default properties
-    subscribeProperty = true;
+    subscribe = true;
 
-    shapeProperty = Rect;
+    shape = Rect;
     setAutoFillBackground(false);
 
     antialiased = false;
     pixmap.load(":/images/qt-logo.png");
 
-    enabledProperty = true;
+    localEnabled = true;
 
     setBackgroundRole(QPalette::NoRole);
 
-    originTranslationProperty = QPoint( 0, 0 );
-    scaledOriginTranslation = originTranslationProperty;
+    originTranslation = QPoint( 0, 0 );
+    scaledOriginTranslation = originTranslation;
 
-    pointsProperty[0] = QPoint( 0, 0 );
-    pointsProperty[1] = QPoint( width()-1, this->height()-1 );
+    points[0] = QPoint( 0, 0 );
+    points[1] = QPoint( width()-1, this->height()-1 );
     unsigned int i;
-    for( i = 2; i < POINTS_PROPERTY_SIZE; i++ )
-        pointsProperty[i] = QPoint( 0, 0 );
+    for( i = 2; i < POINTS_SIZE; i++ )
+        points[i] = QPoint( 0, 0 );
 
-    numPointsProperty = 2;
+    numPoints = 2;
 
-    colorsProperty[0] = QColor( 255,0,0);
-    colorsProperty[1] = QColor( 0,255,0);
-    colorsProperty[2] = QColor( 0,0,255);
-    colorsProperty[3] = QColor( 255,255,255);
-    colorsProperty[4] = QColor( 0,0,0);
+    colors[0] = QColor( 255,0,0);
+    colors[1] = QColor( 0,255,0);
+    colors[2] = QColor( 0,0,255);
+    colors[3] = QColor( 255,255,255);
+    colors[4] = QColor( 0,0,0);
 
-    for( i = 0; i < SCALES_PROPERTY_SIZE; i++ )
-        scalesProperty[i] = 1.0;
+    for( i = 0; i < SCALES_SIZE; i++ )
+        scales[i] = 1.0;
 
 
-    for( i = 0; i < OFFSETS_PROPERTY_SIZE; i++ )
-        offsetsProperty[i] = 0.0;
+    for( i = 0; i < OFFSETS_SIZE; i++ )
+        offsets[i] = 0.0;
 
-    animationProperty[0] = Width;
-    animationProperty[1] = Height;
-    animationProperty[2] = X;
-    animationProperty[3] = Y;
-    animationProperty[4] = Transperency;
-    animationProperty[5] = ColourHue;
+    animations[0] = Width;
+    animations[1] = Height;
+    animations[2] = X;
+    animations[3] = Y;
+    animations[4] = Transperency;
+    animations[5] = ColourHue;
 
     painterCurrentScaleX = 1.0;
     painterCurrentScaleY = 1.0;
     painterCurrentTranslateX = 0;
     painterCurrentTranslateY = 0;
-    rotationProperty = 0.0;
+    rotation = 0.0;
 
-    drawBorderProperty = 1;
+    drawBorder = 1;
 
-    lineWidthProperty = 1;
-    pen.setWidth( lineWidthProperty );
+    lineWidth = 1;
+    pen.setWidth( lineWidth );
 
-    fillProperty = true;
-    borderProperty = true;
+    fill = true;
+    border = true;
 
     brush.setStyle( Qt::SolidPattern );
     currentColor = 0;
-    brush.setColor( colorsProperty[currentColor] );
+    brush.setColor( colors[currentColor] );
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -187,7 +187,7 @@ void QCaShape::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( enabledProperty )
+        if( localEnabled )
             QWidget::setEnabled( true );
     }
 
@@ -225,11 +225,11 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
 
     /// Scale the data.
     /// For example, a flow of 0 to 10 l/m may adjust a shape size 0 to 200 pixels
-    double scaledValue = (double)(value)*scalesProperty[variableIndex] + offsetsProperty[variableIndex];
+    double scaledValue = (double)(value)*scales[variableIndex] + offsets[variableIndex];
 
     /// Animate the object.
     /// Apply the data to the appropriate attribute of the shape
-    switch( animationProperty[variableIndex] ) {
+    switch( animations[variableIndex] ) {
         case Width :
         {
             painterCurrentScaleX = scaledValue;
@@ -271,7 +271,7 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         }
         case Rotation :
         {
-            rotationProperty = scaledValue;
+            rotation = scaledValue;
             break;
         }
         case ColourHue :
@@ -337,13 +337,13 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         case ColourIndex :
         {
             if( scaledValue >= 0.0 ) {
-                if ( scaledValue < COLORS_PROPERTY_SIZE ) {
+                if ( scaledValue < COLORS_SIZE ) {
                     currentColor = (unsigned int)scaledValue;
                 } else {
-                    currentColor = COLORS_PROPERTY_SIZE-1;
+                    currentColor = COLORS_SIZE-1;
                 }
             }
-            brush.setColor( colorsProperty[currentColor] );
+            brush.setColor( colors[currentColor] );
             break;
         }
         case Penwidth :
@@ -377,7 +377,7 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
     QPainter painter( this );
 
     /// Set up the pen and brush (color, thickness, etc)
-    pen.setWidth( lineWidthProperty );
+    pen.setWidth( lineWidth );
     painter.setPen( pen );
     painter.setBrush( brush );
 
@@ -390,68 +390,68 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
     /// This may not be the case, in which case the origin translation could be removed and the same effect
     /// could be achieved by giving variables associated with X and Y a negative offset.
     QRect viewportRect = painter.viewport();
-    viewportRect.moveLeft( originTranslationProperty.x() );
-    viewportRect.moveTop( originTranslationProperty.y() );
+    viewportRect.moveLeft( originTranslation.x() );
+    viewportRect.moveTop( originTranslation.y() );
     painter.setWindow( viewportRect );
 
     /// Apply the current translation, scaling and rotation
     painter.translate( painterCurrentTranslateX+0.5, painterCurrentTranslateY+0.5 );
     painter.scale( painterCurrentScaleX, painterCurrentScaleY );
-    painter.rotate( rotationProperty );
+    painter.rotate( rotation );
 
     /// Draw the shape
-    switch( shapeProperty ) {
+    switch( shape ) {
         case Line :
-            painter.drawLine( pointsProperty[0], pointsProperty[1] );
+            painter.drawLine( points[0], points[1] );
             break;
         case Points :
-            painter.drawPoints(pointsProperty, numPointsProperty);
+            painter.drawPoints(points, numPoints);
             break;
         case Polyline :
-            painter.drawPolyline(pointsProperty, numPointsProperty);
+            painter.drawPolyline(points, numPoints);
             break;
         case Polygon :
-            painter.drawPolygon(pointsProperty, numPointsProperty);
+            painter.drawPolygon(points, numPoints);
             break;
         case Rect :
-            if( !drawBorderProperty )
+            if( !drawBorder )
                 painter.setPen( Qt::NoPen );
-            painter.drawRect( pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y() );
+            painter.drawRect( points[0].x(), points[0].y(), points[1].x(), points[1].y() );
             break;
         case RoundedRect :
-            if( !drawBorderProperty )
+            if( !drawBorder )
                 painter.setPen( Qt::NoPen );
 #if QT_VERSION >= 0x040400
-            painter.drawRoundedRect(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), 25, 25, Qt::RelativeSize);
+            painter.drawRoundedRect(points[0].x(), points[0].y(), points[1].x(), points[1].y(), 25, 25, Qt::RelativeSize);
 #else
-            painter.drawRect( pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y() );
+            painter.drawRect( points[0].x(), points[0].y(), points[1].x(), points[1].y() );
 #endif
             break;
         case Ellipse :
-            if( !drawBorderProperty )
+            if( !drawBorder )
                 painter.setPen( Qt::NoPen );
-            painter.drawEllipse(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y());
+            painter.drawEllipse(points[0].x(), points[0].y(), points[1].x(), points[1].y());
             break;
         case Arc :
-            painter.drawArc(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), (int)(startAngleProperty*16), (int)(arcLengthProperty*16) );
+            painter.drawArc(points[0].x(), points[0].y(), points[1].x(), points[1].y(), (int)(startAngle*16), (int)(arcLength*16) );
             break;
         case Chord :
-            if( !drawBorderProperty )
+            if( !drawBorder )
                 painter.setPen( Qt::NoPen );
-            painter.drawChord(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), (int)(startAngleProperty*16), (int)(arcLengthProperty*16) );
+            painter.drawChord(points[0].x(), points[0].y(), points[1].x(), points[1].y(), (int)(startAngle*16), (int)(arcLength*16) );
             break;
         case Pie :
-            if( !drawBorderProperty )
+            if( !drawBorder )
                 painter.setPen( Qt::NoPen );
-            painter.drawPie(pointsProperty[0].x(), pointsProperty[0].y(), pointsProperty[1].x(), pointsProperty[1].y(), (int)(startAngleProperty*16), (int)(arcLengthProperty*16) );
+            painter.drawPie(points[0].x(), points[0].y(), points[1].x(), points[1].y(), (int)(startAngle*16), (int)(arcLength*16) );
             break;
         case Path :
         {
             QPainterPath path;
-            if( numPointsProperty > 1 ) {
-                path.moveTo(pointsProperty[0]);
-                for( unsigned int i = 1; i < numPointsProperty; i++ ) {
-                    path.lineTo( pointsProperty[i] );
+            if( numPoints > 1 ) {
+                path.moveTo(points[0]);
+                for( unsigned int i = 1; i < numPoints; i++ ) {
+                    path.lineTo( points[i] );
                 }
                 painter.drawPath(path);
             }
@@ -459,9 +459,9 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
         }
         case Text :
         {
-            QRect rect( pointsProperty[0], pointsProperty[1] );
+            QRect rect( points[0], points[1] );
             QRectF qrect( rect );
-            painter.drawText( qrect, Qt::AlignCenter, textProperty );
+            painter.drawText( qrect, Qt::AlignCenter, text );
             break;
         }
         case Pixmap :
@@ -476,13 +476,13 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
 void QCaShape::colorChange( unsigned int index )
 {
     // Sanity check. Ignore out of range color index
-    if( index >= COLORS_PROPERTY_SIZE )
+    if( index >= COLORS_SIZE )
         return;
 
     // Update the brush and redraw the shape if the color being changed is in use
     if( currentColor == index )
     {
-        brush.setColor( colorsProperty[currentColor] );
+        brush.setColor( colors[currentColor] );
         update();
     }
 }
@@ -493,7 +493,7 @@ void QCaShape::colorChange( unsigned int index )
 bool QCaShape::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
-    return enabledProperty;
+    return localEnabled;
 }
 
 /*!
@@ -502,11 +502,11 @@ bool QCaShape::isEnabled() const
 void QCaShape::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
-    enabledProperty = state;
+    localEnabled = state;
 
     /// Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( enabledProperty );
+        QWidget::setEnabled( localEnabled );
 }
 
 /*!
@@ -516,3 +516,207 @@ void QCaShape::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
+
+//==============================================================================
+// Property convenience functions
+
+void QCaShape::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    setVariableName( variableNameIn, variableIndex );
+    establishConnection( variableIndex );
+}
+
+// variable animations
+void QCaShape::setAnimation( QCaShape::Animations animation, const int index )
+{
+    animations[index] = animation;
+    update();
+}
+QCaShape::Animations QCaShape::getAnimation( const int index )
+{
+    return animations[index];
+}
+
+// scales
+void QCaShape::setScale( const double scale, const int index )
+{
+    scales[index] = scale;
+}
+double QCaShape::getScale( const int index )
+{
+    return scales[index];
+}
+
+
+// offsets
+void QCaShape::setOffset( const double offset, const int index )
+{
+    offsets[index] = offset;
+}
+double QCaShape::getOffset( const int index )
+{
+    return offsets[index];
+}
+
+// border
+void QCaShape::setBorder( bool borderIn )
+{
+    border = borderIn;
+}
+bool QCaShape::getBorder()
+{
+    return border;
+}
+
+// fill
+void QCaShape::setFill( bool fillIn )
+{
+    fill = fillIn;
+}
+bool QCaShape::getFill()
+{
+    return fill;
+}
+
+// subscribe
+void QCaShape::setSubscribe( bool subscribeIn )
+{
+    subscribe = subscribeIn;
+}
+bool QCaShape::getSubscribe()
+{
+    return subscribe;
+}
+
+// variable as tool tip
+void QCaShape::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+    variableAsToolTip = variableAsToolTipIn;
+}
+bool QCaShape::getVariableAsToolTip()
+{
+    return variableAsToolTip;
+}
+
+// shape
+void QCaShape::setShape( QCaShape::Shape shapeIn )
+{
+    shape = shapeIn;
+    update();
+}
+QCaShape::Shape QCaShape::getShape()
+{
+    return shape;
+}
+
+
+// number of points
+void QCaShape::setNumPoints( unsigned int numPointsIn )
+{
+    numPoints = (numPointsIn>POINTS_SIZE)?POINTS_SIZE:numPointsIn;
+    update();
+}
+unsigned int QCaShape::getNumPoints()
+{
+    return numPoints;
+}
+
+// Origin translation
+void QCaShape::setOriginTranslation( QPoint originTranslationIn )
+{
+    originTranslation = originTranslationIn;
+    update();
+}
+QPoint QCaShape::getOriginTranslation()
+{
+    return originTranslation;
+}
+
+// points
+void QCaShape::setPoint( const QPoint point, const int index  )
+{
+    points[index] = point;
+    update();
+}
+QPoint QCaShape::getPoint( const int index )
+{
+    return points[index];
+}
+
+// colors
+void QCaShape::setColor( const QColor color, const int index  )
+{
+    colors[index] = color;
+    colorChange( index );
+}
+QColor QCaShape::getColor( const int index )
+{
+    return colors[index];
+}
+
+// draw border
+void QCaShape::setDrawBorder( bool drawBorderIn )
+{
+    drawBorder = drawBorderIn;
+    update();
+}
+bool QCaShape::getDrawBorder()
+{
+    return drawBorder;
+}
+
+// line width
+void QCaShape::setLineWidth( unsigned int lineWidthIn )
+{
+    lineWidth = lineWidthIn;
+    update();
+}
+unsigned int QCaShape::getLineWidth()
+{
+    return lineWidth;
+}
+
+// start angle
+void QCaShape::setStartAngle( double startAngleIn )
+{
+    startAngle = startAngleIn;
+    update();
+}
+double QCaShape::getStartAngle()
+{
+    return startAngle;
+}
+
+// rotation
+void QCaShape::setRotation( double rotationIn )
+{
+    rotation = rotationIn;
+    update(); }
+double QCaShape::getRotation()
+{
+    return rotation;
+}
+
+// arc length
+void QCaShape::setArcLength( double arcLengthIn )
+{
+    arcLength = arcLengthIn;
+    update();
+}
+double QCaShape::getArcLength()
+{
+    return arcLength;
+}
+
+// text
+void QCaShape::setText( QString textIn )
+{
+    text = textIn;
+    update();
+}
+QString QCaShape::getText()
+{
+    return text;
+}
+

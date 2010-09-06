@@ -1,7 +1,7 @@
 /*!
   \class CmdPushButton
-  \version $Revision: #2 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author Last checked in by: $Author: rhydera $
   \brief Command Push Button Widget.
  */
@@ -34,14 +34,29 @@
 
 #include <QPushButton>
 #include <ContainerProfile.h>
+#include <QCaPluginLibrary_global.h>
 
-class CmdPushButton : public QPushButton {
+class QCAPLUGINLIBRARYSHARED_EXPORT CmdPushButton : public QPushButton {
     Q_OBJECT
 
   public:
     CmdPushButton( QWidget *parent = 0 );
 
-    QString variableNameSubstitutions;
+    // Property convenience functions
+
+    // Program String
+    void setProgram( QString program );
+    QString getProgram();
+
+    // Arguments String
+    void setArguments( QStringList arguments );
+    QStringList getArguments();
+
+    // Variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+    // Note, unlike most objects with a variable name substitions, changes to this property do not take immediate effect, so the normal code which waits
+    // for the user to finish typing, then propogates the substitutions is not required. the substitutions are simply used next time the button is pushed.
+    void    setVariableNameSubstitutions( QString variableNameSubstitutions );
+    QString getVariableNameSubstitutions();
 
 
   public slots:
@@ -57,6 +72,9 @@ class CmdPushButton : public QPushButton {
   private:
     void updateToolTip ( const QString & toolTip );
     ContainerProfile profile;
+
+    QString variableNameSubstitutions;
+
 };
 
 #endif /// CMDPUSHBUTTON_H

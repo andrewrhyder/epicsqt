@@ -1,7 +1,7 @@
 /*! 
   \class CaObject
-  \version $Revision: #8 $
-  \date $DateTime: 2009/11/18 10:21:48 $
+  \version $Revision: #11 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author anthony.owen
   \brief Provides CA to an EPICS channel.
  */
@@ -548,21 +548,23 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         }
         case DBR_CTRL_DOUBLE :
         {
-            struct dbr_ctrl_double incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
+//            struct dbr_ctrl_double incommingData;
+//            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
+            struct dbr_ctrl_double* incommingData = (dbr_ctrl_double*)(args.dbr);
             caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setPrecision( incommingData.precision );
-            caRecord.setUnits( std::string( incommingData.units ) );
-            caRecord.setRiscAlignment( incommingData.RISC_pad0 );
-            caRecord.setDisplayLimit( incommingData.upper_disp_limit, incommingData.lower_disp_limit );
-            caRecord.setAlarmLimit( incommingData.upper_alarm_limit, incommingData.lower_alarm_limit );
-            caRecord.setWarningLimit( incommingData.upper_warning_limit, incommingData.lower_warning_limit );
-            caRecord.setControlLimit( incommingData.upper_ctrl_limit, incommingData.lower_ctrl_limit );
-            caRecord.setDouble( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setPrecision( incommingData->precision );
+            caRecord.setUnits( std::string( incommingData->units ) );
+            caRecord.setRiscAlignment( incommingData->RISC_pad0 );
+            caRecord.setDisplayLimit( incommingData->upper_disp_limit, incommingData->lower_disp_limit );
+            caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
+            caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
+            caRecord.setControlLimit( incommingData->upper_ctrl_limit, incommingData->lower_ctrl_limit );
+  //          caRecord.setDouble( incommingData->value );
+            caRecord.setDouble( &incommingData->value, args.count );
             break;
         }
         default :
@@ -689,6 +691,7 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
                 CaObjectPrivate* grandParentPri = (CaObjectPrivate*)(grandParent->priPtr);
                 grandParentPri->caRecord.setDbrType( parent->getChannelType() );
             }
+            parent->setChannelElementCount();
             parent->setLinkState( caconnection::LINK_UP );
             grandParent->signalCallback( CONNECTION_UP );
         break;

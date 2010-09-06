@@ -14,7 +14,6 @@
 # Anthony Owen
 # Contact details:
 # anthony.owen@gmail.com
-
 # To alanyse code performance using the GNU gprof profiling tool:
 # - Include the following two lines
 # - Clean all
@@ -22,9 +21,8 @@
 # - Rebuild all
 # - Run the program
 # - analyse the results with the command: gprof <your-program-name>
- QMAKE_CXXFLAGS_DEBUG += -pg
- QMAKE_LFLAGS_DEBUG += -pg
-
+QMAKE_CXXFLAGS_DEBUG += -pg
+QMAKE_LFLAGS_DEBUG += -pg
 TEMPLATE = lib
 CONFIG += plugin \
     uitools \
@@ -32,17 +30,18 @@ CONFIG += plugin \
     debug_and_release
 DEFINES += QCAPLUGIN_LIBRARY
 TARGET = QCaPlugin
-OTHER_FILES += include/QCaSpinBox.png \
-    include/QCaComboBox.png \
-    include/QCaSlider.png \
-    include/QCaShape.png \
-    include/QCaPushButton.png \
-    include/QCaLineEdit.png \
-    include/QCaLabel.png \
-    include/Link.png \
-    include/GuiPushButton.png \
-    include/CmdPushButton.png \
-    include/ASguiForm.png
+OTHER_FILES += src/QCaSpinBox.png \
+    src/QCaSlider.png \
+    src/QCaShape.png \
+    src/QCaPushButton.png \
+    src/QCaPlot.png \
+    src/QCaLineEdit.png \
+    src/QCaLabel.png \
+    src/QCaComboBox.png \
+    src/Link.png \
+    src/GuiPushButton.png \
+    src/CmdPushButton.png \
+    src/ASguiForm.png
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \
@@ -68,6 +67,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaLabelPlugin.h \
     include/LinkPluginManager.h \
     include/LinkPlugin.h \
+    include/QCaPlotPluginManager.h \
+    include/QCaPlotPlugin.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -101,6 +102,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/GuiPushButton.h \
     ../widgets/include/CmdPushButton.h \
     ../widgets/include/ASguiForm.h \
+    ../widgets/include/QCaPlot.h \
     ../widgets/include/QCaToolTip.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
@@ -126,6 +128,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/CmdPushButtonPlugin.cpp \
     src/ASguiFormPluginManager.cpp \
     src/ASguiFormPlugin.cpp \
+    src/QCaPlotPlugin.cpp \
+    src/QCaPlotPluginManager.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -155,21 +159,24 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaLineEdit.cpp \
     ../widgets/src/QCaLabel.cpp \
     ../widgets/src/Link.cpp \
+    ../widgets/src/QCaPlot.cpp \
     ../widgets/src/GuiPushButton.cpp \
     ../widgets/src/CmdPushButton.cpp \
     ../widgets/src/ASguiForm.cpp \
-    ../widgets/src/QCaToolTip.cpp \
-    $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
-
+    ../widgets/src/QCaToolTip.cpp
+win32:SOURCES += $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
 INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
+    $$(QCAFRAMEWORK)/qwt/src \
     $$(EPICS_BASE)/include
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
 INCLUDEPATH += $$(EPICS_BASE)/include
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
-    -lCom
+    -lCom \
+    -L$$(QCAFRAMEWORK)/qwt/lib \
+    -lqwt

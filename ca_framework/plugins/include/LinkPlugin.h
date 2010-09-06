@@ -1,7 +1,7 @@
 /*! 
   \class LinkPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2010/02/18 15:15:02 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief Link Widget Plugin for designer.
  */
@@ -43,47 +43,23 @@ class LinkPlugin : public Link {
     LinkPlugin( QWidget *parent = 0 );
 
     /// Qt Designer Properties - condition
-    Q_ENUMS(Conditions)
-    Q_PROPERTY(Conditions condition READ getConditionProperty WRITE setConditionProperty)
-    enum Conditions { Equal              = Link::CONDITION_EQ,
-                      NotEqual           = Link::CONDITION_NE,
-                      GreaterThan        = Link::CONDITION_GT,
-                      GreaterThanOrEqual = Link::CONDITION_GE,
-                      LessThan           = Link::CONDITION_LT,
-                      LessThanOrEqual    = Link::CONDITION_LE };
-    void setConditionProperty( Conditions condition ){ conditionProperty = (Link::conditions)condition; }
-    Conditions getConditionProperty(){ return (Conditions)conditionProperty; }
+    Q_ENUMS(ConditionNames)
+    Q_PROPERTY(ConditionNames condition READ getConditionProperty WRITE setConditionProperty)
+    enum ConditionNames { Equal              = Link::CONDITION_EQ,
+                          NotEqual           = Link::CONDITION_NE,
+                          GreaterThan        = Link::CONDITION_GT,
+                          GreaterThanOrEqual = Link::CONDITION_GE,
+                          LessThan           = Link::CONDITION_LT,
+                          LessThanOrEqual    = Link::CONDITION_LE };
+    void setConditionProperty( ConditionNames condition ){ setCondition( (Link::conditions)condition ); }
+    ConditionNames getConditionProperty(){ return (ConditionNames)getCondition(); }
 
-    /// Qt Designer Properties - comparisonValue Value to compare input signals to
-    Q_PROPERTY(QString comparisonValue READ getComparisonValueProperty WRITE setComparisonValueProperty)
-    void    setComparisonValueProperty( QString comparisonValue ){ comparisonValueProperty = QVariant(comparisonValue); }
-    QString getComparisonValueProperty(){ return comparisonValueProperty.toString(); }
-
-    /// Qt Designer Properties - signalTrue (Signal if condition is met)
-    Q_PROPERTY(bool signalTrue READ getSignalTrueProperty WRITE setSignalTrueProperty)
-    void setSignalTrueProperty( bool signalTrue ){ signalTrueProperty = signalTrue; }
-    bool getSignalTrueProperty(){ return signalTrueProperty; }
-
-    /// Qt Designer Properties - signalFalse (Signal if condition not met)
-    Q_PROPERTY(bool signalFalse READ getSignalFalseProperty WRITE setSignalFalseProperty)
-    void setSignalFalseProperty( bool signalFalse ){ signalFalseProperty = signalFalse; }
-    bool getSignalFalseProperty(){ return signalFalseProperty; }
-
-    /// Qt Designer Properties - outTrueValue Value to emit if condition is met
-    Q_PROPERTY(QString outTrueValue READ getOutTrueValueProperty WRITE setOutTrueValueProperty)
-    void    setOutTrueValueProperty( QString outTrueValue ){ outTrueValueProperty = QVariant(outTrueValue); }
-    QString getOutTrueValueProperty(){ return outTrueValueProperty.toString(); }
-
-    /// Qt Designer Properties - outFalseValue Value to emit if condition is not met
-    Q_PROPERTY(QString outFalseValue READ getOutFalseValueProperty WRITE setOutFalseValueProperty)
-    void    setOutFalseValueProperty( QString outFalseValue ){ outFalseValueProperty = QVariant(outFalseValue); }
-    QString getOutFalseValueProperty(){ return outFalseValueProperty.toString(); }
-
-    /// Qt Designer Properties - visible (widget is visible outside 'Designer')
-    Q_PROPERTY(bool visible READ getVisibleProperty WRITE setVisibleProperty)
-    // implemented in Link class void setVisibleProperty( bool visible ){ visibleProperty = visible; }
-    bool getVisibleProperty(){ return visibleProperty; }
-
+    Q_PROPERTY(QString comparisonValue READ getComparisonValue WRITE setComparisonValue)
+    Q_PROPERTY(bool signalTrue READ getSignalTrue WRITE setSignalTrue)
+    Q_PROPERTY(bool signalFalse READ getSignalFalse WRITE setSignalFalse)
+    Q_PROPERTY(QString outTrueValue READ getOutTrueValue WRITE setOutTrueValue)
+    Q_PROPERTY(QString outFalseValue READ getOutFalseValue WRITE setOutFalseValue)
+    Q_PROPERTY(bool visible READ getVisible WRITE setVisible)
 
 };
 

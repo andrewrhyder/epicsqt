@@ -1,7 +1,7 @@
 /*!
   \class MainWindow
-  \version $Revision: #2 $
-  \date $DateTime: 2010/01/25 16:09:07 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Manage startp parameters. Parse the startup parameters in a command line, serialize and unserialize parameters when passing them to another application instance.
  */

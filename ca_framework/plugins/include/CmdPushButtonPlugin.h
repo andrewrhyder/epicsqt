@@ -1,7 +1,7 @@
 /*!
   \class CmdPushButtonPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author Last checked in by: $Author: rhydera $
   \brief Command Push Button Widget Plugin.
  */
@@ -42,22 +42,13 @@ class CmdPushButtonPlugin : public CmdPushButton {
     /// Constructors
     CmdPushButtonPlugin( QWidget *parent = 0 );
 
-    /// Qt Designer Properties - Program String
     Q_PROPERTY(QString program READ getProgram WRITE setProgram)
-    void setProgram( QString program ){ CmdPushButton::program = program; }
-    QString getProgram(){ return CmdPushButton::program; }
-
-    /// Qt Designer Properties - Arguments String
     Q_PROPERTY(QStringList arguments READ getArguments WRITE setArguments)
-    void setArguments( QStringList arguments ){ CmdPushButton::arguments = arguments; }
-    QStringList getArguments(){ return CmdPushButton::arguments; }
 
-    /// Qt Designer Properties - variable substitutions Example: $SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+    /// Variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
     /// Note, unlike most objects with a variable name substitions, changes to this property do not take immediate effect, so the normal code which waits
     /// for the user to finish typing, then propogates the substitutions is not required. the substitutions are simply used next time the button is pushed.
-    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ CmdPushButton::variableNameSubstitutions = variableNameSubstitutions; }
-    QString getVariableNameSubstitutionsProperty(){ return CmdPushButton::variableNameSubstitutions; }
+    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutions WRITE setVariableNameSubstitutions)
 };
 
 #endif /// CMDPUSHBUTTONPLUGIN_H

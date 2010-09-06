@@ -1,7 +1,7 @@
 /*!
   \class ASguiFormPlugin
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief 
  */
@@ -45,9 +45,9 @@ ASguiFormPlugin::ASguiFormPlugin( QWidget* parent ) : ASguiForm( parent )
 /*!
     Slot to recieve macro substitutions property changes.
 */
-void ASguiFormPlugin::useNewVariableNameProperty( QString, QString variableNameSubstitutionsIn, unsigned int ) {
-
+void ASguiFormPlugin::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
     /// Set a new variable name substitutions
-    /// (Ignore variable name - A form may supply macro substitutions to it's QCa widgets but does not use a variable name itself)
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    /// (Variable name will not be used. A form may supply macro substitutions to it's QCa widgets but does not use a variable name itself)
+    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }

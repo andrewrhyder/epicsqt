@@ -1,7 +1,7 @@
 /*! 
   \class Link
-  \version $Revision: #4 $
-  \date $DateTime: 2010/02/18 15:15:02 $
+  \version $Revision: #8 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author andrew.rhyder
   \brief Manage updating tool tip with variable name, alarm state and connected state
  */
@@ -35,8 +35,9 @@
 #include <QLabel>
 #include <QVariant>
 #include <QString>
+#include <QCaPluginLibrary_global.h>
 
-class Link : public QLabel {
+class QCAPLUGINLIBRARYSHARED_EXPORT Link : public QLabel {
    Q_OBJECT
 
   public:
@@ -44,17 +45,47 @@ class Link : public QLabel {
 
     enum conditions { CONDITION_EQ, CONDITION_NE, CONDITION_GT, CONDITION_GE, CONDITION_LT, CONDITION_LE };
 
+    // Property convenience functions
+
+    // condition
+    void setCondition( conditions conditionIn );
+    conditions getCondition();
+
+    // comparisonValue Value to compare input signals to
+    void    setComparisonValue( QString comparisonValue );
+    QString getComparisonValue();
+
+    // signalTrue (Signal if condition is met)
+    void setSignalTrue( bool signalTrue );
+    bool getSignalTrue();
+
+    // signalFalse (Signal if condition not met)
+    void setSignalFalse( bool signalFalse );
+    bool getSignalFalse();
+
+    // outTrueValue Value to emit if condition is met
+    void    setOutTrueValue( QString outTrueValue );
+    QString getOutTrueValue();
+
+    // outFalseValue Value to emit if condition is not met
+    void    setOutFalseValue( QString outFalseValue );
+    QString getOutFalseValue();
+
+    // visible (widget is visible outside 'Designer')
+    void setVisible( bool visibleIn );
+    bool getVisible();
+
+
   protected:
-    conditions conditionProperty;       // Rule for comparing incoming signal
-    QVariant comparisonValueProperty;    // Value to compare incoming signal against
+    conditions condition;       // Rule for comparing incoming signal
+    QVariant comparisonValue;    // Value to compare incoming signal against
 
-    bool signalTrueProperty;            // Flag true if a signal should be emmited if the condition matches
-    bool signalFalseProperty;           // Flag true if a signal should be emmited if the condition does not match
-    QVariant outTrueValueProperty;      // Value to send in signal if condition matches
-    QVariant outFalseValueProperty;     // Value to send in signal if condition does not match
+    bool signalTrue;            // Flag true if a signal should be emmited if the condition matches
+    bool signalFalse;           // Flag true if a signal should be emmited if the condition does not match
+    QVariant outTrueValue;      // Value to send in signal if condition matches
+    QVariant outFalseValue;     // Value to send in signal if condition does not match
 
-    bool visibleProperty;               // Flag true if the widget should be visible outside 'Designer'
-    void setVisibleProperty( bool visiblePropertyIn );
+    bool visible;               // Flag true if the widget should be visible outside 'Designer'
 
   public slots:
     void in( const bool& in );

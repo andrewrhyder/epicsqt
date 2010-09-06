@@ -1,7 +1,7 @@
 /*!
   \class MainWindow
-  \version $Revision: #10 $
-  \date $DateTime: 2010/02/18 15:15:02 $
+  \version $Revision: #12 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Creates the main window in the Australian Synchrotron GUI
  */

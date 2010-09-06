@@ -1,7 +1,7 @@
 /*! 
   \class QCaEventUpdate
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/28 17:01:05 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Packages CA callback data as a Qt event
  */
@@ -31,8 +31,8 @@
  
  /*!
 
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/28 17:01:05 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author Last checked in by: $Author: rhydera $
 
 

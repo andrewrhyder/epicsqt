@@ -1,7 +1,7 @@
 /*! 
   \class QCaSpinBox
-  \version $Revision: #11 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #14 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Spinbox Widget.
  */
@@ -65,7 +65,7 @@ void QCaSpinBox::setup() {
     programaticValueChange = false;
 
     // Set up default properties
-    enabledProperty = true;
+    localEnabled = true;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -127,7 +127,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( enabledProperty )
+        if( localEnabled )
             QWidget::setEnabled( true );
     }
 
@@ -148,7 +148,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     /// Note, even though there is nothing to do to initialise the spin box if not subscribing, an
     /// initial sing shot read is still performed to ensure we have valid information about the
     /// variable when it is time to do a write.
-    if( connectionInfo.isChannelConnected() && !subscribeProperty )
+    if( connectionInfo.isChannelConnected() && !subscribe )
     {
         QCaInteger* qca = (QCaInteger*)getQcaItem(0);
         qca->singleShotRead();
@@ -169,7 +169,7 @@ void QCaSpinBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
     /// If not subscribing, then do nothing.
     /// Note, This will still be called even if not subscribing as there may be initial sing shot read
     /// to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribeProperty )
+    if( !subscribe )
         return;
 
     /// Signal a database value change to any Link widgets
@@ -216,7 +216,7 @@ void QCaSpinBox::userValueChanged( int value ) {
 bool QCaSpinBox::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
-    return enabledProperty;
+    return localEnabled;
 }
 
 /*!
@@ -225,11 +225,11 @@ bool QCaSpinBox::isEnabled() const
 void QCaSpinBox::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
-    enabledProperty = state;
+    localEnabled = state;
 
     /// Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( enabledProperty );
+        QWidget::setEnabled( localEnabled );
 }
 
 /*!
@@ -238,4 +238,34 @@ void QCaSpinBox::setEnabled( bool state )
 void QCaSpinBox::requestEnabled( const bool& state )
 {
     setEnabled(state);
+}
+//==============================================================================
+// Property convenience functions
+
+// Variable name and substitutions
+void QCaSpinBox::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    setVariableName( variableNameIn, variableIndex );
+    establishConnection( variableIndex );
+}
+
+// subscribe
+void QCaSpinBox::setSubscribe( bool subscribeIn )
+{
+    subscribe = subscribeIn;
+}
+bool QCaSpinBox::getSubscribe()
+{
+    return subscribe;
+}
+
+// variable as tool tip
+void QCaSpinBox::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+    variableAsToolTip = variableAsToolTipIn;
+}
+bool QCaSpinBox::getVariableAsToolTip()
+{
+    return variableAsToolTip;
 }

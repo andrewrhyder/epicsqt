@@ -1,7 +1,7 @@
 /*! 
   \class ASguiForm
-  \version $Revision: #6 $
-  \date $DateTime: 2010/04/07 12:14:19 $
+  \version $Revision: #10 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author andrew.rhyder
   \brief A base form GUI
  */
@@ -37,8 +37,9 @@
 #include <UserMessage.h>
 #include <QString>
 #include <QFileSystemWatcher>
+#include <QCaPluginLibrary_global.h>
 
-class ASguiForm : public QScrollArea
+class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
 {
     Q_OBJECT
     public:
@@ -54,6 +55,19 @@ class ASguiForm : public QScrollArea
 
         enum creationOptions { CREATION_OPTION_OPEN, CREATION_OPTION_NEW_TAB, CREATION_OPTION_NEW_WINDOW };
 
+        // Property convenience functions
+
+        // Variable name related properties (for a form no variable name will be set, only the substitutions that will be passed on to widgets within the form)
+        void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
+
+        // UI file name
+        void    setUiFileName( QString uiFile );
+        QString getUiFileName();
+
+        // Flag indicating form should handle gui form launch requests
+        void setHandleGuiLaunchRequests( bool handleGuiLaunchRequests );
+        bool getHandleGuiLaunchRequests();
+
     public slots:
         void requestEnabled( const bool& state );
         void readUiFile();
@@ -65,9 +79,9 @@ class ASguiForm : public QScrollArea
 
 
     protected:
-        QString uiFileNameProperty;
+        QString uiFileName;
         void setVariableNameSubstitutions( QString variableNameSubstitutionsIn );
-        bool handleGuiLaunchRequestsProperty;
+        bool handleGuiLaunchRequests;
 
     private:
         QString title;

@@ -1,7 +1,7 @@
 /*! 
   \class QCaWidget
-  \version $Revision: #6 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #10 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author anthony.owen
   \brief Template for Qt-CA aware widgets.
  */
@@ -38,8 +38,9 @@
 #include <UserMessage.h>
 #include <ContainerProfile.h>
 #include <QCaToolTip.h>
+#include <QCaPluginLibrary_global.h>
 
-class QCaWidget : public VariableNameManager, public QCaToolTip, public ContainerProfile {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager, public QCaToolTip, public ContainerProfile {
 
 public:
     QCaWidget();                            /// Constructor
@@ -50,8 +51,8 @@ public:
 protected:
     void setNumVariables( unsigned int numVariablesIn );    /// Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
 
-    bool subscribeProperty;                 /// Flag if data updates should be requested
-    bool variableAsToolTipProperty;         /// Flag the tool tip should be set to the variable name
+    bool subscribe;                 /// Flag if data updates should be requested
+    bool variableAsToolTip;         /// Flag the tool tip should be set to the variable name
 
     qcaobject::QCaObject* createConnection( unsigned int variableIndex );    /// Create a CA connection. Return a QCaObject if successfull
 

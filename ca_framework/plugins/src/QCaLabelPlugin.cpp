@@ -1,7 +1,7 @@
 /*! 
   \class QCaLabelPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2009/11/18 10:21:48 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Label Widget Plugin for designer.
  */
@@ -63,12 +63,9 @@ QCaLabelPlugin::QCaLabelPlugin( QWidget* parent ) : QCaLabel( parent ) {
 }
 
 /*!
-    Slot to recieve variable name property changes.
+    Slot to recieve variable name and macro substitutions property changes.
 */
-void QCaLabelPlugin::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
-
-    /// Set a new variable name and substitutions
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
+void QCaLabelPlugin::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }

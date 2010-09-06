@@ -1,7 +1,7 @@
 /*! 
   \class Link
-  \version $Revision: #4 $
-  \date $DateTime: 2010/02/18 15:15:02 $
+  \version $Revision: #7 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief Link Widget.
  */
@@ -44,17 +44,17 @@ Link::Link( QWidget *parent ) : QLabel( parent ) {
     // should be visible or not according to the visible property. (While in Designer it can always be displayed)
     ContainerProfile profile;
     if( profile.isProfileDefined() )
-        setVisible( visibleProperty );
+        QWidget::setVisible( visible );
 
     // Set default properties
     setText( "Link" );
 
-    signalFalseProperty = true;
-    signalTrueProperty = true;
+    signalFalse = true;
+    signalTrue = true;
 
-    visibleProperty = false;
+    visible = false;
 
-    conditionProperty = CONDITION_EQ;
+    condition = CONDITION_EQ;
 }
 
 // Common comparison. Macro to evaluate the 'in' signal value.
@@ -64,7 +64,7 @@ Link::Link( QWidget *parent ) : QLabel( parent ) {
 #define EVAL_CONDITION                                              \
                                                                     \
     bool match = false;                                             \
-    switch( conditionProperty )                                     \
+    switch( condition )                                     \
     {                                                               \
         case CONDITION_EQ: if( in == val ) match = true; break;     \
         case CONDITION_NE: if( in != val ) match = true; break;     \
@@ -79,21 +79,21 @@ Link::Link( QWidget *parent ) : QLabel( parent ) {
 // Slot to perform a comparison on a bool
 void Link::in( const bool& in )
 {
-    bool val = comparisonValueProperty.toBool();
+    bool val = comparisonValue.toBool();
     EVAL_CONDITION;
 }
 
 // Slot to perform a comparison on an integer
 void Link::in( const qlonglong& in )
 {
-    qlonglong val = comparisonValueProperty.toLongLong();
+    qlonglong val = comparisonValue.toLongLong();
     EVAL_CONDITION;
 }
 
 // Slot to perform a comparison on a floating point number
 void Link::in( const double& in )
 {
-    double val = comparisonValueProperty.toDouble();
+    double val = comparisonValue.toDouble();
     EVAL_CONDITION;
 }
 
@@ -117,7 +117,7 @@ void Link::in( const QString& in )
     // If the string is not a valid number, do a string comparison
     if( !stringIsNum )
     {
-        QString val = comparisonValueProperty.toString();
+        QString val = comparisonValue.toString();
         EVAL_CONDITION;
     }
 }
@@ -128,15 +128,15 @@ void Link::sendValue( bool match )
     // If input comparison matched, emit the appropriate value if required
     if( match )
     {
-        if( signalTrueProperty )
-            emitValue( outTrueValueProperty );
+        if( signalTrue )
+            emitValue( outTrueValue );
     }
 
     // If input comparison did not match, emit the appropriate value if required
     else
     {
-        if( signalFalseProperty )
-            emitValue( outFalseValueProperty );
+        if( signalFalse )
+            emitValue( outFalseValue );
     }
 }
 
@@ -155,18 +155,85 @@ void Link::autoFillBackground( const bool& enable )
     setAutoFillBackground( enable );
 }
 
-// Manage property to set widget visible or not
-void Link::setVisibleProperty( bool visiblePropertyIn )
+//==============================================================================
+// Property convenience functions
+
+// condition
+void Link::setCondition( conditions conditionIn )
+{
+    condition = conditionIn;
+}
+Link::conditions Link::getCondition()
+{
+    return condition;
+}
+
+// comparisonValue Value to compare input signals to
+void    Link::setComparisonValue( QString comparisonValueIn )
+{
+    comparisonValue = QVariant(comparisonValueIn);
+}
+QString Link::getComparisonValue()
+{
+    return comparisonValue.toString();
+}
+
+// signalTrue (Signal if condition is met)
+void Link::setSignalTrue( bool signalTrueIn )
+{
+    signalTrue = signalTrueIn;
+}
+bool Link::getSignalTrue()
+{
+    return signalTrue;
+}
+
+// signalFalse (Signal if condition not met)
+void Link::setSignalFalse( bool signalFalseIn )
+{
+    signalFalse = signalFalseIn;
+}
+bool Link::getSignalFalse()
+{
+    return signalFalse;
+}
+
+// outTrueValue Value to emit if condition is met
+void    Link::setOutTrueValue( QString outTrueValueIn )
+{
+    outTrueValue = QVariant(outTrueValueIn);
+}
+QString Link::getOutTrueValue()
+{
+    return outTrueValue.toString();
+}
+
+// outFalseValue Value to emit if condition is not met
+void    Link::setOutFalseValue( QString outFalseValueIn )
+{
+    outFalseValue = QVariant(outFalseValueIn);
+}
+QString Link::getOutFalseValue()
+{
+    return outFalseValue.toString();
+}
+
+// visible (widget is visible outside 'Designer')
+void Link::setVisible( bool visibleIn )
 {
     // Update the property
-    visibleProperty = visiblePropertyIn;
+    visible = visibleIn;
 
     // If a container profile has been defined, then this widget is being used in a real GUI and
     // should be visible or not according to the visible property. (While in Designer it can always be displayed)
     ContainerProfile profile;
     if( profile.isProfileDefined() )
     {
-        setVisible( visibleProperty );
+        QWidget::setVisible( visible );
     }
 
+}
+bool Link::getVisible()
+{
+    return visible;
 }

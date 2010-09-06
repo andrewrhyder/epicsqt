@@ -1,7 +1,7 @@
 /*! 
   \class QCaSliderPluginManager
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #3 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief CA Slider Widget Plugin Manager for designer.
  */

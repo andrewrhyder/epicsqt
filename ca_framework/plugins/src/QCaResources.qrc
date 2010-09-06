@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/icons" >
+    <qresource prefix="/icons">
         <file>QCaLineEdit.png</file>
         <file>QCaLabel.png</file>
         <file>QCaPushButton.png</file>
@@ -11,5 +11,6 @@
         <file>CmdPushButton.png</file>
         <file>QCaComboBox.png</file>
         <file>Link.png</file>
+        <file>QCaPlot.png</file>
     </qresource>
 </RCC>

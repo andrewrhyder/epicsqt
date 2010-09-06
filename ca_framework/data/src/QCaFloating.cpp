@@ -1,7 +1,7 @@
 /*! 
   \class QCaFloating
-  \version $Revision: #1 $
-  \date $DateTime: 2009/11/23 08:44:03 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author andrew.rhyder
   \brief Floating specific wrapper for QCaObject.
  */
@@ -71,5 +71,13 @@ void QCaFloating::writeFloating( const double &data ) {
     Slot to recieve data updates from the base QCaObject and generate floating updates.
 */
 void QCaFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
-    emit floatingChanged( floatingFormat->formatFloating( value ), alarmInfo, timeStamp, variableIndex );
+
+    if( value.type() == QVariant::List )
+    {
+        emit floatingArrayChanged( floatingFormat->formatFloatingArray( value ), alarmInfo, timeStamp, variableIndex );
+    }
+    else
+    {
+        emit floatingChanged( floatingFormat->formatFloating( value ), alarmInfo, timeStamp, variableIndex );
+    }
 }

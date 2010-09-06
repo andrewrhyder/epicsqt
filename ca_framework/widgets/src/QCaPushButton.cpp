@@ -1,7 +1,7 @@
 /*! 
   \class QCaPushButton
-  \version $Revision: #10 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #13 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Push Button Widget.
  */
@@ -65,14 +65,14 @@ void QCaPushButton::setup() {
     writeOnPress = false;
     writeOnRelease = false;
     writeOnClick = true;
-    enabledProperty = true;
+    localEnabled = true;
 
     pressText = "1";
     releaseText = "0";
     clickText = "1";
 
     // Override default QCaWidget properties
-    subscribeProperty = false;
+    subscribe = false;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -109,7 +109,7 @@ void QCaPushButton::establishConnection( unsigned int variableIndex ) {
     // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
     if(  qca ) {
         // Get updates if subscribing
-        if( subscribeProperty )
+        if( subscribe )
         {
             setText( "" );
             QObject::connect( qca,  SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
@@ -143,7 +143,7 @@ void QCaPushButton::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( enabledProperty )
+        if( localEnabled )
             QWidget::setEnabled( true );
     }
 
@@ -166,7 +166,7 @@ void QCaPushButton::setButtonText( const QString& text, QCaAlarmInfo& alarmInfo,
     /// If not subscribing, then do nothing.
     /// Note, This will still be called even if not subscribing as there may be an initial sing shot read
     /// to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribeProperty )
+    if( !subscribe )
         return;
 
     /// Signal a database value change to any Link widgets
@@ -236,7 +236,7 @@ void QCaPushButton::userClicked() {
 bool QCaPushButton::isEnabled() const
 {
     // Return what the state of widget would be if connected.
-    return enabledProperty;
+    return localEnabled;
 }
 
 /*!
@@ -245,11 +245,11 @@ bool QCaPushButton::isEnabled() const
 void QCaPushButton::setEnabled( const bool& state )
 {
     // Note the new 'enabled' state
-    enabledProperty = state;
+    localEnabled = state;
 
     // Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( enabledProperty );
+        QWidget::setEnabled( localEnabled );
 }
 
 /*!
@@ -259,3 +259,177 @@ void QCaPushButton::requestEnabled( const bool& state )
 {
     QCaPushButton::setEnabled(state);
 }
+
+//==============================================================================
+// Property convenience functions
+
+
+// Variable Name and substitution
+void QCaPushButton::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    setVariableName( variableNameIn, variableIndex );
+    establishConnection( variableIndex );
+}
+
+// subscribe
+void QCaPushButton::setSubscribe( bool subscribeIn )
+{
+    subscribe = subscribeIn;
+}
+bool QCaPushButton::getSubscribe()
+{
+    return subscribe;
+}
+
+// variable as tool tip
+void QCaPushButton::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+    variableAsToolTip = variableAsToolTipIn;
+}
+bool QCaPushButton::getVariableAsToolTip()
+{
+    return variableAsToolTip;
+}
+
+
+// String formatting properties
+
+// precision
+void QCaPushButton::setPrecision( unsigned int precision )
+{
+    stringFormatting.setPrecision( precision );
+}
+unsigned int QCaPushButton::getPrecision()
+{
+    return stringFormatting.getPrecision();
+}
+
+// useDbPrecision
+void QCaPushButton::setUseDbPrecision( bool useDbPrecision )
+{
+    stringFormatting.setUseDbPrecision( useDbPrecision);
+}
+bool QCaPushButton::getUseDbPrecision()
+{
+    return stringFormatting.getUseDbPrecision();
+}
+
+// leadingZero
+void QCaPushButton::setLeadingZero( bool leadingZero )
+{
+    stringFormatting.setLeadingZero( leadingZero );
+}
+bool QCaPushButton::getLeadingZero()
+{
+    return stringFormatting.getLeadingZero();
+}
+
+// trailingZeros
+void QCaPushButton::setTrailingZeros( bool trailingZeros )
+{
+    stringFormatting.setTrailingZeros( trailingZeros );
+}
+bool QCaPushButton::getTrailingZeros()
+{
+    return stringFormatting.getTrailingZeros();
+}
+
+// addUnits
+void QCaPushButton::setAddUnits( bool addUnits )
+{
+    stringFormatting.setAddUnits( addUnits );
+}
+bool QCaPushButton::getAddUnits()
+{
+    return stringFormatting.getAddUnits();
+}
+
+// format
+void QCaPushButton::setFormat( QCaStringFormatting::formats format )
+{
+    stringFormatting.setFormat( format );
+}
+QCaStringFormatting::formats QCaPushButton::getFormat()
+{
+    return stringFormatting.getFormat();
+}
+
+// radix
+void QCaPushButton::setRadix( unsigned int radix )
+{
+    stringFormatting.setRadix( radix);
+}
+unsigned int QCaPushButton::getRadix()
+{
+    return stringFormatting.getRadix();
+}
+
+// notation
+void QCaPushButton::setNotation( QCaStringFormatting::notations notation )
+{
+    stringFormatting.setNotation( notation );
+}
+QCaStringFormatting::notations QCaPushButton::getNotation()
+{
+    return stringFormatting.getNotation();
+}
+
+// write on press
+void QCaPushButton::setWriteOnPress( bool writeOnPress )
+{
+    QCaPushButton::writeOnPress = writeOnPress;
+}
+bool QCaPushButton::getWriteOnPress()
+{
+    return QCaPushButton::writeOnPress;
+}
+
+// write on release
+void QCaPushButton::setWriteOnRelease( bool writeOnRelease )
+{
+    QCaPushButton::writeOnRelease = writeOnRelease;
+}
+bool QCaPushButton::getWriteOnRelease()
+{
+    return QCaPushButton::writeOnRelease;
+}
+
+// write on click
+void QCaPushButton::setWriteOnClick( bool writeOnClick )
+{
+    QCaPushButton::writeOnClick = writeOnClick;
+}
+bool QCaPushButton::getWriteOnClick()
+{
+    return QCaPushButton::writeOnClick;
+}
+
+
+// press value
+void QCaPushButton::setPressText( QString pressText )
+{
+    QCaPushButton::pressText = pressText;
+}
+QString QCaPushButton::getPressText()
+{
+    return QCaPushButton::pressText;
+}
+
+// release value
+void QCaPushButton::setReleaseText( QString releaseTextIn )
+{
+    releaseText = releaseTextIn;
+}
+QString QCaPushButton::getReleaseText(){ return releaseText; }
+
+// click value
+void QCaPushButton::setClickText( QString clickTextIn )
+{
+    clickText = clickTextIn;
+}
+QString QCaPushButton::getClickText()
+{
+    return clickText;
+}
+

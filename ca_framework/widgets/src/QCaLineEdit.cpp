@@ -1,7 +1,7 @@
 /*! 
   \class QCaLineEdit
-  \version $Revision: #12 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #16 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Line Edit Widget.
  */
@@ -62,10 +62,10 @@ void QCaLineEdit::setup() {
     setNumVariables(1);
 
     // Set up default properties
-    writeOnLoseFocusProperty = false;
-    writeOnEnterProperty = true;
-    enabledProperty = true;
-    confirmWriteProperty = false;
+    writeOnLoseFocus = false;
+    writeOnEnter = true;
+    localEnabled = true;
+    confirmWrite = false;
 
     // Set the initial state
     setText( "" );
@@ -76,7 +76,6 @@ void QCaLineEdit::setup() {
     // Use line edit signals
     QObject::connect( this, SIGNAL( returnPressed() ), this, SLOT( userReturnPressed() ) );
     QObject::connect( this, SIGNAL( editingFinished() ), this, SLOT( userEditingFinished() ) );
-    QObject::connect( this, SIGNAL( textEdited( const QString & ) ), this, SLOT( userTextEdited( const QString & ) ) );
 }
 
 /*!
@@ -130,7 +129,7 @@ void QCaLineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( enabledProperty )
+        if( localEnabled )
             QWidget::setEnabled( true );
     }
 
@@ -158,7 +157,7 @@ void QCaLineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInf
     /// If not subscribing, then do nothing.
     /// Note, This will still be called even if not subscribing as there is an initial sing shot read
     /// to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribeProperty )
+    if( !subscribe )
         return;
 
     /// Save the most recent value.
@@ -200,7 +199,7 @@ void QCaLineEdit::userReturnPressed() {
     /// then write the value.
     /// Note, write even if the value has not changed (isModified() is not checked)
 
-    if( qca && writeOnEnterProperty )
+    if( qca && writeOnEnter )
     {
         writeValue( qca, text() );
     }
@@ -227,7 +226,7 @@ void QCaLineEdit::userEditingFinished() {
     /// and the object is set up to write when the user changes focus away from the object
     /// and the text has actually changed
     /// then write the value
-    if( qca && writeOnLoseFocusProperty )
+    if( qca && writeOnLoseFocus )
     {
         writeValue( qca, text() );
     }
@@ -266,7 +265,7 @@ void QCaLineEdit::writeValue( QCaString *qca, QString newValue )
 {
     /// If required, get confirmation from the user as to what to do
     int confirm = QMessageBox::Yes;
-    if( confirmWriteProperty )
+    if( confirmWrite )
     {
         confirm = QMessageBox::warning( this, "Confirm write", "Do you want to write this value?",
                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes );
@@ -299,7 +298,7 @@ void QCaLineEdit::writeValue( QCaString *qca, QString newValue )
 bool QCaLineEdit::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
-    return enabledProperty;
+    return localEnabled;
 }
 
 /*!
@@ -308,11 +307,11 @@ bool QCaLineEdit::isEnabled() const
 void QCaLineEdit::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
-    enabledProperty = state;
+    localEnabled = state;
 
     /// Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( enabledProperty );
+        QWidget::setEnabled( localEnabled );
 }
 
 /*!
@@ -322,3 +321,149 @@ void QCaLineEdit::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
+
+//==============================================================================
+// Property convenience functions
+
+
+// Access functions for variableName and variableNameSubstitutions
+// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+void QCaLineEdit::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    setVariableName( variableNameIn, variableIndex );
+    establishConnection( variableIndex );
+}
+
+// write on lose focus
+void QCaLineEdit::setWriteOnLoseFocus( bool writeOnLoseFocusIn )
+{
+    writeOnLoseFocus = writeOnLoseFocusIn;
+}
+bool QCaLineEdit::getWriteOnLoseFocus()
+{
+    return writeOnLoseFocus;
+}
+
+// write on enter
+void QCaLineEdit::setWriteOnEnter( bool writeOnEnterIn )
+{
+    writeOnEnter = writeOnEnterIn;
+}
+bool QCaLineEdit::getWriteOnEnter()
+{
+    return writeOnEnter;
+}
+
+// subscribe
+void QCaLineEdit::setSubscribe( bool subscribeIn )
+{
+    subscribe = subscribeIn;
+}
+bool QCaLineEdit::getSubscribe()
+{
+    return subscribe;
+}
+
+// variable as tool tip
+void QCaLineEdit::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+    variableAsToolTip = variableAsToolTipIn;
+}
+bool QCaLineEdit::getVariableAsToolTip()
+{
+    return variableAsToolTip;
+}
+
+// confirm write
+void QCaLineEdit::setConfirmWrite( bool confirmWriteIn )
+{
+    confirmWrite = confirmWriteIn;
+}
+bool QCaLineEdit::getConfirmWrite()
+{
+    return confirmWrite;
+}
+
+// String formatting properties
+
+// precision
+void QCaLineEdit::setPrecision( unsigned int precision )
+{
+    stringFormatting.setPrecision( precision );
+}
+unsigned int QCaLineEdit::getPrecision()
+{
+    return stringFormatting.getPrecision();
+}
+
+// useDbPrecision
+void QCaLineEdit::setUseDbPrecision( bool useDbPrecision )
+{
+    stringFormatting.setUseDbPrecision( useDbPrecision);
+}
+bool QCaLineEdit::getUseDbPrecision()
+{
+    return stringFormatting.getUseDbPrecision();
+}
+
+// leadingZero
+void QCaLineEdit::setLeadingZero( bool leadingZero )
+{
+    stringFormatting.setLeadingZero( leadingZero );
+}
+bool QCaLineEdit::getLeadingZero()
+{
+    return stringFormatting.getLeadingZero();
+}
+
+// trailingZeros
+void QCaLineEdit::setTrailingZeros( bool trailingZeros )
+{
+    stringFormatting.setTrailingZeros( trailingZeros );
+}
+bool QCaLineEdit::getTrailingZeros()
+{
+    return stringFormatting.getTrailingZeros();
+}
+
+// addUnits
+void QCaLineEdit::setAddUnits( bool addUnits )
+{
+    stringFormatting.setAddUnits( addUnits );
+}
+bool QCaLineEdit::getAddUnits()
+{
+    return stringFormatting.getAddUnits();
+}
+
+// format
+void QCaLineEdit::setFormat( QCaStringFormatting::formats format )
+{
+    stringFormatting.setFormat( format );
+}
+QCaStringFormatting::formats QCaLineEdit::getFormat()
+{
+    return stringFormatting.getFormat();
+}
+
+// radix
+void QCaLineEdit::setRadix( unsigned int radix )
+{
+    stringFormatting.setRadix( radix);
+}
+unsigned int QCaLineEdit::getRadix()
+{
+    return stringFormatting.getRadix();
+}
+
+// notation
+void QCaLineEdit::setNotation( QCaStringFormatting::notations notation )
+{
+    stringFormatting.setNotation( notation );
+}
+QCaStringFormatting::notations QCaLineEdit::getNotation()
+{
+    return stringFormatting.getNotation();
+}
+

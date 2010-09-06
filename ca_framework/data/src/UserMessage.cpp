@@ -1,7 +1,7 @@
 /*! 
   \class UserMessage
-  \version $Revision: #2 $
-  \date $DateTime: 2009/07/21 17:58:00 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief User message manager.
  */

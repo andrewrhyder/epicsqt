@@ -1,7 +1,7 @@
 /*!
   \class QCaDatetime
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/28 17:01:05 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author andrew.rhyder
   \brief CA Date Time manager
  */
@@ -32,6 +32,7 @@
 #include <QString>
 #include <QTextStream>
 #include <QCaDateTime.h>
+#include <QDebug>
 
 /*!
   Construct an empty QCa date time
@@ -69,7 +70,7 @@ QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds ) {
 /*!
   Copy a QCaDateTime from another
  */
-void QCaDateTime::operator=( QCaDateTime& other )
+void QCaDateTime::operator=( const QCaDateTime& other )
 {
     setDate( other.date() );
     setTime( other.time() );
@@ -93,4 +94,15 @@ QString QCaDateTime::text() {
     s << nSec;
 
     return out;
+}
+
+/*!
+  Returns a double which represents the date and time in seconds (to mS resolution) to the base time
+ */
+double QCaDateTime::floating( QDateTime base ) {
+
+    int days = base.date().daysTo( date() );
+    int mSecs = base.time().msecsTo( time() );
+
+    return (double)days + (double)mSecs / 1000;
 }

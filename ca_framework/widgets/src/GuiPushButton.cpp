@@ -1,7 +1,7 @@
 /*!
   \class GuiPushButton
-  \version $Revision: #6 $
-  \date $DateTime: 2010/06/21 11:33:51 $
+  \version $Revision: #9 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author Last checked in by: $Author: rhydera $
   \brief Launch GUI Push Button Widget.
  */
@@ -136,4 +136,39 @@ void GuiPushButton::launchGui( QString guiName, QString /*substitutions*/, ASgui
 void GuiPushButton::requestEnabled( const bool& state )
 {
     setEnabled(state);
+}
+
+//==============================================================================
+// Property convenience functions
+
+// GUI name
+void GuiPushButton::setGuiName( QString guiNameIn )
+{
+    guiName = guiNameIn;
+}
+QString GuiPushButton::getGuiName()
+{
+    return guiName;
+}
+
+// Qt Designer Properties Creation options
+void GuiPushButton::setCreationOption( ASguiForm::creationOptions creationOptionIn )
+{
+    creationOption = creationOptionIn;
+}
+ASguiForm::creationOptions GuiPushButton::getCreationOption()
+{
+    return creationOption;
+}
+
+// Qt Designer Properties - variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+// Note, unlike most objects with a variable name substitions, changes to this property do not take immediate effect, so the normal code which waits
+// for the user to finish typing, then propogates the substitutions is not required. the substitutions are simply used next time the button is pushed.
+void    GuiPushButton::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
+{
+    variableNameSubstitutions = variableNameSubstitutionsIn;
+}
+QString GuiPushButton::getVariableNameSubstitutions()
+{
+    return GuiPushButton::variableNameSubstitutions;
 }

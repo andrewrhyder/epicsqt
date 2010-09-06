@@ -1,7 +1,7 @@
 /*! 
   \class QCaDesignerPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2010/01/25 16:09:07 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/09/06 13:29:44 $
   \author andrew.rhyder
   \brief Collection of CA plugins for QT Designer.
  */
@@ -40,6 +40,8 @@
 #include <QCaComboBoxPluginManager.h>
 #include <ASguiFormPluginManager.h>
 #include <LinkPluginManager.h>
+#include <QCaPlotPluginManager.h>
+
 #include <QtCore/qplugin.h>
 
 #include <QCaDesignerPlugin.h>
@@ -59,6 +61,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaComboBoxPluginManager(this));
     widgets.append(new ASguiFormPluginManager(this));
     widgets.append(new LinkPluginManager(this));
+    widgets.append(new QCaPlotPluginManager(this));
 }
 
 /*!

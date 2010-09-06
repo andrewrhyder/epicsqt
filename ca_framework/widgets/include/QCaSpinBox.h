@@ -1,7 +1,7 @@
 /*! 
   \class QCaSpinBox
-  \version $Revision: #8 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #12 $
+  \date $DateTime: 2010/09/06 13:16:04 $
   \author andrew.rhyder
   \brief CA Spinbox Widget.
  */
@@ -36,8 +36,9 @@
 #include <QCaWidget.h>
 #include <QCaInteger.h>
 #include <QCaIntegerFormatting.h>
+#include <QCaPluginLibrary_global.h>
 
-class QCaSpinBox : public QSpinBox, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QSpinBox, public QCaWidget {
     Q_OBJECT
 
   public:
@@ -47,9 +48,22 @@ class QCaSpinBox : public QSpinBox, public QCaWidget {
     bool isEnabled() const;
     void setEnabled( bool state );
 
+    // Property convenience functions
+
+    // Variable name and substitutions
+    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
+
+    // subscribe
+    void setSubscribe( bool subscribe );
+    bool getSubscribe();
+
+    // variable as tool tip
+    void setVariableAsToolTip( bool variableAsToolTip );
+    bool getVariableAsToolTip();
+
   protected:
     QCaIntegerFormatting integerFormatting;
-    bool enabledProperty;
+    bool localEnabled;
 
     void establishConnection( unsigned int variableIndex );
 

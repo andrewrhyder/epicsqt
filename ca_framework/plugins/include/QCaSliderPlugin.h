@@ -1,7 +1,7 @@
 /*! 
   \class QCaSliderPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #6 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Slider Widget Plugin.
  */
@@ -44,39 +44,22 @@ class QCaSliderPlugin : public QCaSlider {
   public:
     /// Constructors
     QCaSliderPlugin( QWidget *parent = 0 );
-    QCaSliderPlugin( QString variableNameProperty = "", QWidget *parent = 0 );
+    QCaSliderPlugin( QString variableName, QWidget *parent = 0 );
 
-    /// Qt Designer Properties - Variable Name
     /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     /// A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
     Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
     void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
     QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
 
-    /// Qt Designer Properties - variable substitutions Example: $SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
-    /// Qt Designer Properties - enabled (override of widget enabled)
-    Q_PROPERTY(bool enabled READ getEnabledProperty WRITE setEnabledProperty)
-    void setEnabledProperty( bool enabled ){ setEnabled( enabled ); }
-    bool getEnabledProperty(){ return enabledProperty; }
-
-    /// Qt Designer Properties - write on change
-    Q_PROPERTY(bool writeOnChange READ getWriteOnChangeProperty WRITE setWriteOnChangeProperty)
-    void setWriteOnChangeProperty( bool writeOnChange ){ writeOnChangeProperty = writeOnChange; }
-    bool getWriteOnChangeProperty(){ return writeOnChangeProperty; }
-
-    /// Qt Designer Properties - subscribe
-    Q_PROPERTY(bool subscribe READ getSubscribeProperty WRITE setSubscribeProperty)
-    void setSubscribeProperty( bool subscribe ){ subscribeProperty = subscribe; }
-    bool getSubscribeProperty(){ return subscribeProperty; }
-
-    /// Qt Designer Properties - variable as tool tip
-    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTipProperty WRITE setVariableAsToolTipProperty)
-    void setVariableAsToolTipProperty( bool variableAsToolTip ){ variableAsToolTipProperty = variableAsToolTip; }
-    bool getVariableAsToolTipProperty(){ return variableAsToolTipProperty; }
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange)
+    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
 
   private:
     QCaVariableNamePropertyManager variableNamePropertyManager;

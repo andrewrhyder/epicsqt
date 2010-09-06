@@ -59,7 +59,7 @@
    <property name="text">
     <string>Sector 10</string>
    </property>
-   <property name="guiNameProperty">
+   <property name="guiFile">
     <string>SVS10.ui</string>
    </property>
    <property name="creationOption" stdset="0">
@@ -78,7 +78,7 @@
    <property name="text">
     <string>Sector 12</string>
    </property>
-   <property name="guiNameProperty">
+   <property name="guiFile">
     <string>SVS12.ui</string>
    </property>
    <property name="creationOption" stdset="0">

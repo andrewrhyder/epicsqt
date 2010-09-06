@@ -1,7 +1,7 @@
 /*! 
   \class ASguiForm
-  \version $Revision: #9 $
-  \date $DateTime: 2010/04/07 12:14:19 $
+  \version $Revision: #12 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief Form containing widgets, including QCa widgets, read from a UI file
  */
@@ -56,7 +56,7 @@
 #include <QCaWidget.h>
 
 /// Constructor.
-/// No UI file is read. uiFileNameProperty must be set and then readUiFile() called after construction
+/// No UI file is read. uiFileName must be set and then readUiFile() called after construction
 ASguiForm::ASguiForm( QWidget* parent ) : QScrollArea( parent ) {
     commonInit( false );
 }
@@ -65,7 +65,7 @@ ASguiForm::ASguiForm( QWidget* parent ) : QScrollArea( parent ) {
 /// UI filename is supplied and UI file is read as part of construction.
 ASguiForm::ASguiForm( const QString& uiFileNameIn, QWidget* parent ) : QScrollArea( parent ) {
     commonInit( true );
-    uiFileNameProperty = uiFileNameIn;
+    uiFileName = uiFileNameIn;
 }
 
 /// Common construction
@@ -87,10 +87,10 @@ ASguiForm::~ASguiForm()
 }
 
 // Read a UI file.
-// The file read depends on the value of uiFileNameProperty
+// The file read depends on the value of uiFileName
 void ASguiForm::readUiFile()
 {
-    if (!uiFileNameProperty.isEmpty()) {
+    if (!uiFileName.isEmpty()) {
 
         /// Set up the environment profile for any QCa widgets created by the form
         QObject* savedGuiLaunchConsumer = NULL;
@@ -107,7 +107,7 @@ void ASguiForm::readUiFile()
             profile.addMacroSubstitutions( variableNameSubstitutions );
 
             // If this form is handling form launch requests from object created within it, replace any form launcher with our own
-            if( handleGuiLaunchRequestsProperty )
+            if( handleGuiLaunchRequests )
                 savedGuiLaunchConsumer = profile.replaceGuiLaunchConsumer( this );
         }
         else
@@ -125,13 +125,14 @@ void ASguiForm::readUiFile()
         // If appropriate, warn the user if the UI file could not be opened.
         QUiLoader loader;
         QDir path( profile.getPath() );
-        QFile uiFile( path.filePath( uiFileNameProperty ));
+        QFile uiFile( path.filePath( uiFileName ));
         if( !uiFile.open( QIODevice::ReadOnly ) ) {
             if( alertIfUINoFound ) {
                 QString msg;
                 QTextStream(&msg) << "User interface file '" << uiFile.fileName() << "' could not be opened";
                 //!!!??? currently not working. profile not set up yet so user messages can't be displayed this early perhaps
                 userMessage.sendWarningMessage( msg, "ASguiForm::readUiFile"  );
+                qDebug() << msg;
             }
         }
 
@@ -145,7 +146,7 @@ void ASguiForm::readUiFile()
             }
 
             /// Monitor the opened file
-            fileMon.addPath( path.filePath( uiFileNameProperty ) );
+            fileMon.addPath( path.filePath( uiFileName ) );
 
             /// Extract the file name part used for the window title
             QDir fileDir( profile.getPath() );
@@ -179,7 +180,7 @@ void ASguiForm::readUiFile()
         {
             /// If this form is handling form launch requests from object created within it, put back any original
             /// form launcher now all objects have been created
-            if ( handleGuiLaunchRequestsProperty )
+            if ( handleGuiLaunchRequests )
                  profile.replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
         }
 
@@ -199,7 +200,7 @@ QString ASguiForm::getASGuiTitle(){
 
 // Get the UI file name used to build the gui
 QString ASguiForm::getGuiFileName(){
-    return uiFileNameProperty;
+    return uiFileName;
 }
 
 /// Set the variable name substitutions used by all QCa widgets wihtin the form
@@ -266,4 +267,36 @@ void ASguiForm::onGeneralMessage( QString message )
 void ASguiForm::requestEnabled( const bool& state )
 {
     setEnabled(state);
+}
+
+//==============================================================================
+// Property convenience functions
+
+// Access functions for variableName and variableNameSubstitutions
+// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+void ASguiForm::setVariableNameAndSubstitutions( QString, QString variableNameSubstitutionsIn, unsigned int ) {
+
+    /// Set new variable name substitutions
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+}
+
+// UI file name
+void    ASguiForm::setUiFileName( QString uiFileNameIn )
+{
+    uiFileName = uiFileNameIn;
+    readUiFile();
+}
+QString ASguiForm::getUiFileName()
+{
+    return uiFileName;
+}
+
+// Flag indicating form should handle gui form launch requests
+void ASguiForm::setHandleGuiLaunchRequests( bool handleGuiLaunchRequestsIn )
+{
+    handleGuiLaunchRequests = handleGuiLaunchRequestsIn;
+}
+bool ASguiForm::getHandleGuiLaunchRequests()
+{
+    return handleGuiLaunchRequests;
 }

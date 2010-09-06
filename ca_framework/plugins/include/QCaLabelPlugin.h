@@ -1,7 +1,7 @@
 /*! 
   \class QCaLabelPlugin
-  \version $Revision: #8 $
-  \date $DateTime: 2010/02/18 15:15:02 $
+  \version $Revision: #11 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Label Widget Plugin for designer.
  */
@@ -44,63 +44,29 @@ class QCaLabelPlugin : public QCaLabel {
   public:
     /// Constructors
     QCaLabelPlugin( QWidget *parent = 0 );
-    QCaLabelPlugin( QString variableNameProperty = "", QWidget *parent = 0 );
+    QCaLabelPlugin( QString variableName, QWidget *parent = 0 );
 
-    /// Qt Designer Properties - Variable Name
     /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     /// A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
     Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
     void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
     QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
 
-    /// Qt Designer Properties - variable substitutions Example: $SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
-    /// Qt Designer Properties - variable as tool tip
-    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTipProperty WRITE setVariableAsToolTipProperty)
-    void setVariableAsToolTipProperty( bool variableAsToolTip ){ variableAsToolTipProperty = variableAsToolTip; }
-    bool getVariableAsToolTipProperty(){ return variableAsToolTipProperty; }
-
-    /// Qt Designer Properties - enabled (override of widget enabled)
-    Q_PROPERTY(bool enabled READ getEnabledProperty WRITE setEnabledProperty)
-    void setEnabledProperty( bool enabled ){ setEnabled( enabled ); }
-    bool getEnabledProperty(){ return enabledProperty; }
+    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
 
     /// String formatting properties
+    Q_PROPERTY(unsigned int precision READ getPrecision WRITE setPrecision)
+    Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
+    Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
+    Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
+    Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
+    Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
 
-    /// Qt Designer Properties - precision
-    Q_PROPERTY(unsigned int precision READ getPrecisionProperty WRITE setPrecisionProperty)
-    void setPrecisionProperty( unsigned int precision ){ stringFormatting.setPrecision( precision ); }
-    unsigned int getPrecisionProperty(){ return stringFormatting.getPrecision(); }
-
-    /// Qt Designer Properties - useDbPrecision
-    Q_PROPERTY(bool useDbPrecision READ getUseDbPrecisionProperty WRITE setUseDbPrecisionProperty)
-    void setUseDbPrecisionProperty( bool useDbPrecision ){ stringFormatting.setUseDbPrecision( useDbPrecision); }
-    bool getUseDbPrecisionProperty(){ return stringFormatting.getUseDbPrecision(); }
-
-    /// Qt Designer Properties - leadingZero
-    Q_PROPERTY(bool leadingZero READ getLeadingZeroProperty WRITE setLeadingZeroProperty)
-    void setLeadingZeroProperty( bool leadingZero ){ stringFormatting.setLeadingZero( leadingZero ); }
-    bool getLeadingZeroProperty(){ return stringFormatting.getLeadingZero(); }
-
-    /// Qt Designer Properties - trailingZeros
-    Q_PROPERTY(bool trailingZeros READ getTrailingZerosProperty WRITE setTrailingZerosProperty)
-    void setTrailingZerosProperty( bool trailingZeros ){ stringFormatting.setTrailingZeros( trailingZeros ); }
-    bool getTrailingZerosProperty(){ return stringFormatting.getTrailingZeros(); }
-
-    /// Qt Designer Properties - addUnits
-    Q_PROPERTY(bool addUnits READ getAddUnitsProperty WRITE setAddUnitsProperty)
-    void setAddUnitsProperty( bool addUnits ){ stringFormatting.setAddUnits( addUnits ); }
-    bool getAddUnitsProperty(){ return stringFormatting.getAddUnits(); }
-
-    /// Qt Designer Properties - localEnumeration
-    Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumerationProperty WRITE setLocalEnumerationProperty)
-    void setLocalEnumerationProperty( QString/*localEnumerationList*/ localEnumeration ){ stringFormatting.setLocalEnumeration( localEnumeration ); }
-    QString/*localEnumerationList*/ getLocalEnumerationProperty(){ return stringFormatting.getLocalEnumeration(); }
-
-    /// Qt Designer Properties - format
     Q_ENUMS(Formats)
     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
     enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
@@ -109,27 +75,20 @@ class QCaLabelPlugin : public QCaLabel {
                    UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
                    Time             = QCaStringFormatting::FORMAT_TIME,
                    LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
-    void setFormatProperty( Formats format ){ stringFormatting.setFormat( (QCaStringFormatting::formats)format ); }
-    Formats getFormatProperty(){ return (Formats)stringFormatting.getFormat(); }
+    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    Formats getFormatProperty(){ return (Formats)getFormat(); }
 
-    /// Qt Designer Properties - radix
-    Q_PROPERTY(unsigned int radix READ getRadixProperty WRITE setRadixProperty)
-    void setRadixProperty( unsigned int radix ){ stringFormatting.setRadix( radix); }
-    unsigned int getRadixProperty(){ return stringFormatting.getRadix(); }
+    Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
 
-    /// Qt Designer Properties - notation
     Q_ENUMS(Notations)
     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
     enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
                      Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
                      Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
-    void setNotationProperty( Notations notation ){ stringFormatting.setNotation( (QCaStringFormatting::notations)notation ); }
-    Notations getNotationProperty(){ return (Notations)stringFormatting.getNotation(); }
+    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    Notations getNotationProperty(){ return (Notations)getNotation(); }
 
-    /// Qt Designer Properties - visible (widget is visible outside 'Designer')
-    Q_PROPERTY(bool visible READ getVisibleProperty WRITE setVisibleProperty)
-    // implemented in QCaLabel class void setVisibleProperty( bool visible ){ visibleProperty = visible; }
-    bool getVisibleProperty(){ return visibleProperty; }
+    Q_PROPERTY(bool visible READ getVisible WRITE setVisible)
 
 
   private:

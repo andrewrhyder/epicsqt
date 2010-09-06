@@ -1,7 +1,7 @@
 /*! 
   \class Generic
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author anthony.owen
   \brief Provides a generic holder for different types.
  */
@@ -30,6 +30,8 @@
  */
 
 #include <Generic.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace generic;
 
@@ -38,6 +40,7 @@ using namespace generic;
 */
 Generic::Generic() { 
     value = NULL;
+    arrayCount = 0;
     type = UNKNOWN;
 }
 
@@ -46,6 +49,7 @@ Generic::Generic() {
 */
 Generic::Generic( std::string newValue ) {
     value = NULL;
+    arrayCount = 0;
     setString( newValue );
 }
 
@@ -54,6 +58,7 @@ Generic::Generic( std::string newValue ) {
 */
 Generic::Generic( short newValue ) {
     value = NULL;
+    arrayCount = 0;
     setShort( newValue );
 }
 
@@ -62,6 +67,7 @@ Generic::Generic( short newValue ) {
 */
 Generic::Generic( char newValue ) {
     value = NULL;
+    arrayCount = 0;
     setChar( newValue );
 }
 
@@ -70,6 +76,7 @@ Generic::Generic( char newValue ) {
 */
 Generic::Generic( unsigned long newValue ) {
     value = NULL;
+    arrayCount = 0;
     setUnsignedLong( newValue );
 }
 
@@ -78,7 +85,14 @@ Generic::Generic( unsigned long newValue ) {
 */
 Generic::Generic( double newValue ) {
     value = NULL;
+    arrayCount = 0;
     setDouble( newValue );
+}
+
+Generic::Generic( double* newValue, unsigned long arrayCountIn ) {
+    value = NULL;
+    arrayCount = 0;
+    setDouble( newValue, arrayCountIn );
 }
 
 /*!
@@ -143,8 +157,29 @@ void Generic::setUnsignedLong( unsigned long newValue ) {
     Creates and records new type double
 */
 void Generic::setDouble( double newValue ) { 
+    setDouble( &newValue, 1 );
+//    deleteValue();
+//    value = new double( newValue );
+//    arrayCount = 1;
+//    type = DOUBLE;
+}
+
+/*!
+    Creates and records new type double (an array larger than 1)
+*/
+
+void Generic::setDouble( double* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
-    value = new double( newValue );
+
+
+//    value = new double( *newValueArray );
+//    arrayCount = 1;
+//    type = DOUBLE;
+//    return;
+
+    value = new double[arrayCountIn];
+    memcpy( value, newValueArray, sizeof(double)*arrayCountIn );
+    arrayCount = arrayCountIn;
     type = DOUBLE;
 }
 
@@ -199,11 +234,35 @@ double Generic::getDouble() {
 }
 
 /*!
+    Returns type double array or invalid
+*/
+void Generic::getDouble( double** valueArray, unsigned long* arrayCountOut ) {
+    if( getType() == DOUBLE ) {
+        *valueArray = (double*)value;
+        if( arrayCountOut )
+            *arrayCountOut = arrayCount;
+        return;
+    }
+    *valueArray = NULL;
+    if( arrayCountOut )
+        *arrayCountOut = 0;
+}
+
+/*!
     Returns value type
 */
 generic_types Generic::getType() {
     return type;
 }
+
+/*!
+    Returns array size
+*/
+unsigned long Generic::getArrayCount() {
+    return arrayCount;
+}
+
+
 
 /*!
     Sets the value type
@@ -235,6 +294,7 @@ void Generic::deleteValue() {
         break;
         case DOUBLE :
             delete (double*)value;
+//          free( value );
         break;
         case UNKNOWN :
             value = NULL;
@@ -263,7 +323,13 @@ void Generic::cloneValue( Generic *param ) {
             setUnsignedLong( param->getUnsignedLong() );
         break;
         case DOUBLE :
-            setDouble( param->getDouble() );
+//            setDouble( param->getDouble() );
+            {
+                double* paramValue;
+                unsigned long paramCount;
+                param->getDouble( &paramValue, &paramCount );
+                setDouble( paramValue, paramCount );
+            }
         break;
         case UNKNOWN :
             deleteValue();

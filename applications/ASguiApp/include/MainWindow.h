@@ -1,7 +1,7 @@
 /*!
   \class
-  \version $Revision: #5 $
-  \date $DateTime: 2009/10/26 14:56:54 $
+  \version $Revision: #7 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief The Australian Sysnchrotron Base Form GUI
  */

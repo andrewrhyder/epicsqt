@@ -1,7 +1,7 @@
 /*! 
   \class QCaObject
-  \version $Revision: #12 $
-  \date $DateTime: 2009/10/19 12:41:58 $
+  \version $Revision: #15 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author anthony.owen
   \brief Provides channel access to QT.
  */
@@ -640,6 +640,7 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
     This is called when appropriate while processing an event containing CA data
 */
 void QCaObject::processData( void* newDataPtr ) {
+
     // Recover the data record
     carecord::CaRecord* newData = (carecord::CaRecord*)newDataPtr;
 
@@ -672,6 +673,7 @@ void QCaObject::processData( void* newDataPtr ) {
 
     // Package up the CA data as a Qt variant
     QVariant value;
+    unsigned long arrayCount = newData->getArrayCount();
     switch( newData->getType() ) {
         case generic::STRING :
             value = QVariant( QString::fromStdString( newData->getString() ) );
@@ -686,7 +688,22 @@ void QCaObject::processData( void* newDataPtr ) {
             value = QVariant( (qlonglong) newData->getUnsignedLong() );
         break;
         case generic::DOUBLE :
-            value = QVariant( newData->getDouble() );
+            if( arrayCount <= 1 )
+            {
+                value = QVariant( newData->getDouble() );
+            }
+            else
+            {
+                QVariantList values;
+                double* data;
+                newData->getDouble( &data );
+
+                for( unsigned long i = 0; i < arrayCount; i++ )
+                {
+                    values.append( data[i] );
+                }
+                value = QVariant( values );
+            }
         break;
         case generic::UNKNOWN :
             value = QVariant();

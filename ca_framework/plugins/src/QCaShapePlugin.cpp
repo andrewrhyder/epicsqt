@@ -1,7 +1,7 @@
 /*! 
   \class QCaShapePlugin
-  \version $Revision: #1 $
-  \date $DateTime: 2009/07/14 15:59:56 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief CA Shape Widget Plugin.
  */
@@ -50,9 +50,7 @@ QCaShapePlugin::QCaShapePlugin( QWidget *parent ) : QCaShape( parent ) {
 /*!
     Slot to recieve variable name property changes.
 */
-void QCaShapePlugin::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
-    /// Set a new variable name and substitutions
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
+void QCaShapePlugin::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }

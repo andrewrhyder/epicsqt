@@ -1,7 +1,7 @@
 /*! 
   \class ASguiFormPlugin
-  \version $Revision: #2 $
-  \date $DateTime: 2010/02/01 15:54:01 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author andrew.rhyder
   \brief Wrapper around QCaLabel to allow QCaLabel to be used within Designer
  */
@@ -46,26 +46,19 @@ public:
     /// Constructors
     ASguiFormPlugin( QWidget *parent = 0 );
 
-    /// Qt Designer Properties - UI file name
     /// Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.
     /// A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
-    Q_PROPERTY(QString uiFile READ getUiFileNameProperty WRITE setUiFileNameProperty);
-    void    setUiFileNameProperty( QString uiFile ){ uiFileNameProperty = uiFile; readUiFile(); }
-    QString getUiFileNameProperty(){ return uiFileNameProperty; }
+    Q_PROPERTY(QString uiFile READ getUiFileName WRITE setUiFileName);
 
-    /// Qt Designer Properties - variable substitutions Example: $SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
-    /// Qt Designer Properties - Flag indicating form should handle gui form launch requests
     Q_PROPERTY(bool handleGuiLaunchRequests READ getHandleGuiLaunchRequests WRITE setHandleGuiLaunchRequests)
-    void setHandleGuiLaunchRequests( bool handleGuiLaunchRequests ){ handleGuiLaunchRequestsProperty = handleGuiLaunchRequests; }
-    bool getHandleGuiLaunchRequests(){ return handleGuiLaunchRequestsProperty; }
-
 
   private:
     QCaVariableNamePropertyManager variableNamePropertyManager; // Note, this is only used to manage the macro substitutions that will be passed down to the form's QCa widgets. The form has no varialbe name
+
 
   private slots:
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );

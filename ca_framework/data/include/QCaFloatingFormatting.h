@@ -1,7 +1,7 @@
 /*! 
   \class QCaFloatingFormatting
-  \version $Revision: #1 $
-  \date $DateTime: 2009/11/23 08:44:03 $
+  \version $Revision: #4 $
+  \date $DateTime: 2010/08/30 16:37:08 $
   \author andrew.rhyder
   \brief Provides textual formatting for QCaFloating data.
  */
@@ -56,6 +56,7 @@ class QCaFloatingFormatting {
     //   - Translate a double and generate a value
     //===============================================
     double formatFloating( const QVariant &value );
+    QVector<double> formatFloatingArray( const QVariant &value );
     QVariant formatValue( const double &floatingValue, generic::generic_types valueType );
 
     // Functions to configure the formatting
@@ -76,6 +77,9 @@ class QCaFloatingFormatting {
     double formatFromUnsignedInteger( const QVariant &value );
     double formatFromString( const QVariant &value );
     double formatFromTime( const QVariant &value );
+
+    // Common functions
+    double formatFloatingNonArray( const QVariant &value );
 
     // Error reporting
     double formatFailure( QString message );

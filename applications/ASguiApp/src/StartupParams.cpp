@@ -1,7 +1,7 @@
 /*!
   \class startupParams
-  \version $Revision: #3 $
-  \date $DateTime: 2010/03/01 16:41:59 $
+  \version $Revision: #5 $
+  \date $DateTime: 2010/06/23 07:49:40 $
   \author andrew.rhyder
   \brief Manage startp parameters. Parse the startup parameters in a command line, serialize and unserialize parameters when passing them to another application instance.
  */

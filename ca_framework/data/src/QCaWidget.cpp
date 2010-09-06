@@ -1,7 +1,7 @@
 /*! 
   \class QCaWidget
-  \version $Revision: #5 $
-  \date $DateTime: 2010/06/22 15:26:46 $
+  \version $Revision: #8 $
+  \date $DateTime: 2010/09/06 11:58:56 $
   \author anthony.owen
   \brief Template for Qt-CA based widgets.
  */
@@ -97,8 +97,8 @@ QCaWidget::QCaWidget() {
     qcaItem = 0;
 
     /// Default properties
-    subscribeProperty = true;
-    variableAsToolTipProperty = true;
+    subscribe = true;
+    variableAsToolTip = true;
 
     // Setup an object to emit message signals according to the profile defined by whatever is creating
     // this widget (or use a default mechanism if no profile has been defined)
@@ -193,7 +193,7 @@ qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) 
     }
 
     // Set the tool tip to the variable names if required
-    if( variableAsToolTipProperty ) {
+    if( variableAsToolTip ) {
         QString tip;
         for( unsigned int i = 0; i < numVariables; i++ ) {
             /// If a variable name is present, add it to the tip
@@ -228,7 +228,7 @@ qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) 
 
             qcaItem[variableIndex]->setUserMessage( &userMessage );
 
-            if( subscribeProperty )
+            if( subscribe )
                 qcaItem[variableIndex]->subscribe();
         }
     }
