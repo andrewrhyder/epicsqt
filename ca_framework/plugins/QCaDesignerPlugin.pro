@@ -163,8 +163,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/GuiPushButton.cpp \
     ../widgets/src/CmdPushButton.cpp \
     ../widgets/src/ASguiForm.cpp \
-    ../widgets/src/QCaToolTip.cpp
-win32:SOURCES += $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+    ../widgets/src/QCaToolTip.cpp \
+    $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
 INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
