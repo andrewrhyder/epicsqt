@@ -347,7 +347,7 @@ void QCaPlot::requestEnabled( const bool& state )
 /*!
   Manage property to set widget visible or not
  */
-void QCaPlot::setVisible( bool visibleIn )
+void QCaPlot::setRunVisible( bool visibleIn )
 {
     // Update the property
     visible = visibleIn;
@@ -357,7 +357,7 @@ void QCaPlot::setVisible( bool visibleIn )
     ContainerProfile profile;
     if( profile.isProfileDefined() )
     {
-        QWidget::setVisible( visible );
+        setVisible( visible );
     }
 
 }

@@ -72,8 +72,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT Link : public QLabel {
     QString getOutFalseValue();
 
     // visible (widget is visible outside 'Designer')
-    void setVisible( bool visibleIn );
-    bool getVisible();
+    void setRunVisible( bool visibleIn );
+    bool getRunVisible();
 
 
   protected:

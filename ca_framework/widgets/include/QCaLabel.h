@@ -96,8 +96,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget {
     QCaStringFormatting::notations getNotation();
 
     // visible (widget is visible outside 'Designer')
-    void setVisible( bool visibleIn );
-    bool getVisible();
+    void setRunVisible( bool visibleIn );
+    bool getRunVisible();
 
 
 

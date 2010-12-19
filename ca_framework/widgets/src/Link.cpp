@@ -44,7 +44,7 @@ Link::Link( QWidget *parent ) : QLabel( parent ) {
     // should be visible or not according to the visible property. (While in Designer it can always be displayed)
     ContainerProfile profile;
     if( profile.isProfileDefined() )
-        QWidget::setVisible( visible );
+        setVisible( visible );
 
     // Set default properties
     setText( "Link" );
@@ -219,7 +219,7 @@ QString Link::getOutFalseValue()
 }
 
 // visible (widget is visible outside 'Designer')
-void Link::setVisible( bool visibleIn )
+void Link::setRunVisible( bool visibleIn )
 {
     // Update the property
     visible = visibleIn;
@@ -229,11 +229,11 @@ void Link::setVisible( bool visibleIn )
     ContainerProfile profile;
     if( profile.isProfileDefined() )
     {
-        QWidget::setVisible( visible );
+        setVisible( visible );
     }
 
 }
-bool Link::getVisible()
+bool Link::getRunVisible()
 {
     return visible;
 }

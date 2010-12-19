@@ -88,7 +88,7 @@ class QCaLabelPlugin : public QCaLabel {
     void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
     Notations getNotationProperty(){ return (Notations)getNotation(); }
 
-    Q_PROPERTY(bool visible READ getVisible WRITE setVisible)
+    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
 
 
   private:

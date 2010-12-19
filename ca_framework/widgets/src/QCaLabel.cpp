@@ -305,7 +305,7 @@ QCaStringFormatting::notations QCaLabel::getNotation()
 }
 
 // visible (widget is visible outside 'Designer')
-void QCaLabel::setVisible( bool visibleIn )
+void QCaLabel::setRunVisible( bool visibleIn )
 {
     // Update the property
     visible = visibleIn;
@@ -315,11 +315,11 @@ void QCaLabel::setVisible( bool visibleIn )
     ContainerProfile profile;
     if( profile.isProfileDefined() )
     {
-        QWidget::setVisible( visible );
+        setVisible( visible );
     }
 
 }
-bool QCaLabel::getVisible()
+bool QCaLabel::getRunVisible()
 {
     return visible;
 }
