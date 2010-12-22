@@ -37,7 +37,8 @@ HEADERS += \
 
 INCLUDEPATH += ./include \
     $$(QCAFRAMEWORK)/api/include \
-    $$(QCAFRAMEWORK)/data/include
+    $$(QCAFRAMEWORK)/data/include \
+    $$(QCAFRAMEWORK)/plugins/include
 
 win32:INCLUDEPATH += $$(CYGWIN)/usr/include
 
