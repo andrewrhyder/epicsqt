@@ -30,7 +30,7 @@ TEMPLATE = app
 SOURCES += \
     ./src/main.cpp \
     ./src/monitor.cpp \
-    #$$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+    $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
 
 HEADERS += \
     ./include/monitor.h
@@ -41,5 +41,5 @@ INCLUDEPATH += ./include \
 
 win32:INCLUDEPATH += $$(CYGWIN)/usr/include
 
-LIBS += -L$$(QTDIR)/plugins/designer -lQCaPluginDebug
+LIBS += -L$$(QTDIR)/plugins/designer -lQCaPlugin
 
