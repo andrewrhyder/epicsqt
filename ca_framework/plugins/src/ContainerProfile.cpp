@@ -154,8 +154,8 @@ void ContainerProfile::init()
 
 void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
 {
-    if( profileDefined )
-        publishedMacroSubstitutions.append( macroSubstitutionsIn );
+    if( profileDefined  )
+        publishedMacroSubstitutions.prepend( macroSubstitutionsIn );
 }
 
 /**
@@ -165,8 +165,8 @@ void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
 
 void ContainerProfile::removeMacroSubstitutions()
 {
-    if( profileDefined )
-        publishedMacroSubstitutions.removeLast();
+    if( profileDefined && !publishedMacroSubstitutions.isEmpty() )
+        publishedMacroSubstitutions.removeFirst();
 }
 
 /**

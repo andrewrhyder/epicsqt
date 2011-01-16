@@ -80,7 +80,7 @@
   After the establishConnection() function in the CA aware widget has called createConnection(), the remaining task of the
   establishConnection() function is to connect the signals of the newly created QCaObject based classes to its own slots
   so that data updates can be used. For example, a QCaLabel connects the 'stringChanged' signal
-  fromthe QCaString object to it's setLabelText slot.
+  fromthe QCaString object to its setLabelText slot.
  */
 
 #include <QDebug>

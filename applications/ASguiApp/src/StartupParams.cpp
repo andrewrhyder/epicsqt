@@ -41,8 +41,8 @@ startupParams::startupParams()
 }
 
 // Unserialize application startup parameters
-// They must match startupParams::setSharedParams()
-void startupParams::getSharedParams( const void* in )
+// This must match startupParams::setSharedParams()
+void startupParams::getSharedParams( const QByteArray& in )
 {
     // Initialise parameters
     filename.clear();
@@ -51,7 +51,7 @@ void startupParams::getSharedParams( const void* in )
 
     // Extract parameters from a stream of bytes.
     int len = 0;
-    const char* d = (char*)in;
+    const char* d = in.constData();
 
     enableEdit    = (bool)(d[len]);    len += 1;
     singleApp     = (bool)(d[len]);    len += 1;
@@ -61,7 +61,7 @@ void startupParams::getSharedParams( const void* in )
 }
 
 // Serialize application startup parameters
-// The must match startupParams::getSharedParams()
+// This must match startupParams::getSharedParams()
 void startupParams::setSharedParams( QByteArray& out )
 {
     // Convert parameters into a stream of bytes.

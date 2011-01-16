@@ -63,6 +63,7 @@ MainWindow::MainWindow( QString fileName, QString path, QString substitutions, b
 // Common construction
 void MainWindow::init( QString fileName, QString pathIn, QString substitutionsIn, bool enableEditIn )
 {
+
     // Save the substitutions
     substitutions = substitutionsIn;
 
@@ -433,8 +434,10 @@ void MainWindow::launchGui( QString guiName, QString substitutions, ASguiForm::c
         // Open the specified gui in the current window
         case ASguiForm::CREATION_OPTION_OPEN:
             {
+                profile.addMacroSubstitutions( substitutions );
                 ASguiForm* gui = createGui( guiName );
                 loadGuiIntoCurrentWindow( gui );
+                profile.removeMacroSubstitutions();
             }
             break;
 
@@ -446,16 +449,20 @@ void MainWindow::launchGui( QString guiName, QString substitutions, ASguiForm::c
                     setTabMode();
 
                 // Create the gui and load it into a new tab
+                profile.addMacroSubstitutions( substitutions );
                 ASguiForm* gui = createGui( guiName );
                 loadGuiIntoNewTab( gui );
+                profile.removeMacroSubstitutions();
             }
             break;
 
         // Open the specified gui in a new window
         case ASguiForm::CREATION_OPTION_NEW_WINDOW:
             {
-                MainWindow* w = new MainWindow( guiName, path, substitutions, enableEdit );
+                profile.addMacroSubstitutions( substitutions );
+                MainWindow* w = new MainWindow( guiName, path, profile.getMacroSubstitutions(), enableEdit );
                 w->show();
+                profile.removeMacroSubstitutions();
             }
             break;
 

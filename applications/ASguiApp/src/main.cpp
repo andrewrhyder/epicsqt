@@ -32,23 +32,27 @@
 #include <QtGui/QApplication>
 #include <MainWindow.h>
 #include <StartupParams.h>
-#include <MainContext.h>
+#include <InstanceManager.h>
 #include <QDebug>
+
 
 int main(int argc, char *argv[])
 {
-    // Initialise
-    mainContext ctx( argc, argv );
+    QApplication app(argc, argv);
 
-    // If this application is already running, let that instance do the work. (unless -s 'single app' specified)
-    if( ctx.handball() )
+    // Get the startup parameters from the command line arguments
+    startupParams params;
+    QStringList args = QCoreApplication::arguments();
+    params.getStartupParams( args );
+
+    // If only a single instance has been requested,
+    // and if there is already another instance of ASgui
+    // and it takes the parameters, do no more
+    instanceManager instance( &app );
+    if( !params.singleApp && instance.handball( &params ) )
         return 0;
 
-    // The application is not running, start a new window
-    ctx.newWindow();
-
-    // Start the application main event processing loop
-    return ctx.exec();
+    // Start the main application window
+    instance.newWindow( params );
+    return app.exec();
 }
-
-

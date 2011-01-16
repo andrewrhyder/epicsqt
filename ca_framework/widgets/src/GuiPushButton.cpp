@@ -87,7 +87,6 @@ void GuiPushButton::updateToolTip ( const QString & toolTip ) {
     Button click event.
 */
 void GuiPushButton::userClicked() {
-
     emit newGui( guiName, variableNameSubstitutions, creationOption );
 }
 

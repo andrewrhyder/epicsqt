@@ -45,7 +45,7 @@ class startupParams
     startupParams();                                // Construction
 
     void setSharedParams( QByteArray& out );        // Serialise parameters as a serries of bytes
-    void getSharedParams( const void* in );         // Extract parameters from a series of bytes
+    void getSharedParams( const QByteArray& in );    // Extract parameters from a series of bytes
 
     void getStartupParams( QStringList args );      // Extract startup parameters from command line arguments
 
