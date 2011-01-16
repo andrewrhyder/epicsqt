@@ -315,7 +315,7 @@ QCaStringFormatting::notations QCaLabel::getNotation()
 }
 
 // visible (widget is visible outside 'Designer')
-void QCaLabel::setCaVisible( bool visibleIn )
+void QCaLabel::setRunVisible( bool visibleIn )
 {
     // Update the property
     caVisible = visibleIn;
@@ -329,7 +329,7 @@ void QCaLabel::setCaVisible( bool visibleIn )
     }
 
 }
-bool QCaLabel::getCaVisible()
+bool QCaLabel::getRunVisible()
 {
     return caVisible;
 }

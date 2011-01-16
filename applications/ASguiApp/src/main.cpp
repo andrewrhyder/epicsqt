@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     // and if there is already another instance of ASgui
     // and it takes the parameters, do no more
     instanceManager instance( &app );
-    if( !params.singleApp && instance.handball( &params ) )
+    if( params.singleApp && instance.handball( &params ) )
         return 0;
 
     // Start the main application window
