@@ -62,6 +62,7 @@ namespace qcaobject {
       bool subscribe();
       bool singleShotRead();
 
+
       static void processEventStatic( QCaEventUpdate* dataUpdateEvent );
 
       bool dataTypeKnown();
@@ -82,6 +83,14 @@ namespace qcaobject {
       QString getEgu();
       QStringList getEnumerations();
       unsigned int getPrecision();
+      double getDisplayLimitUpper();
+      double getDisplayLimitLower();
+      double getAlarmLimitUpper();
+      double getAlarmLimitLower();
+      double getWarningLimitUpper();
+      double getWarningLimitLower();
+      double getControlLimitUpper();
+      double getControlLimitLower();
 
     signals:
       void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
@@ -89,6 +98,7 @@ namespace qcaobject {
 
     public slots:
       bool writeData( const QVariant& value );
+      void resendLastData();
 
     protected:
       generic::generic_types getDataType();
@@ -122,9 +132,27 @@ namespace qcaobject {
 
       UserMessage* userMessage;
 
+      // Last data emited
+      QCaDateTime  lastTimeStamp;
+      QCaAlarmInfo lastAlarmInfo;
+      QVariant     lastValue;
+
       // Database information relating to the variable
       QString egu;
       int precision;
+
+      double displayLimitUpper;
+      double displayLimitLower;
+
+      double alarmLimitUpper;
+      double alarmLimitLower;
+
+      double warningLimitUpper;
+      double warningLimitLower;
+
+      double controlLimitUpper;
+      double controlLimitLower;
+
       QStringList enumerations;
       bool isStatField;
 

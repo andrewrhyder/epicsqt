@@ -42,8 +42,10 @@
 // Support class used to build the localEnumeration list in the QCaStringFormatting class
 class localEnumerationItem {
     public:
-    int value;                  // This data value...
-    QString text;               // ... is translated to this text
+    enum operations { LESS, LESS_EQUAL, EQUAL, NOT_EQUAL, GREATER_EQUAL, GREATER, ALWAYS, UNKNOWN };
+    int value;                  // Value data is compared to
+    operations op;              // Operator used for comparison used between data and value (=,<,>)
+    QString text;               // Text used if the data value matches
 };
 
 class QCaStringFormatting {

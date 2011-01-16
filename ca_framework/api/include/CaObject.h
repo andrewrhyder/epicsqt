@@ -61,6 +61,14 @@ namespace caobject {
             int           getEnumStateCount();
             std::string   getEnumState( int position );
             int           getPrecision();
+            double        getDisplayUpper();
+            double        getDisplayLower();
+            double        getAlarmUpper();
+            double        getAlarmLower();
+            double        getWarningUpper();
+            double        getWarningLower();
+            double        getControlUpper();
+            double        getControlLower();
             std::string   getUnits();
             generic_types getType();
             unsigned long getTimeStampSeconds();

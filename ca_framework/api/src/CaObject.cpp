@@ -336,6 +336,102 @@ short CaObject::getAlarmSeverity()
 }
 
 /*!
+    Returns the display upper limit
+*/
+double CaObject::getDisplayUpper()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    carecord::ca_limit limit = p->caRecord.getDisplayLimit();
+    return limit.upper;
+}
+
+/*!
+    Returns the display lower limit
+*/
+double CaObject::getDisplayLower()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    carecord::ca_limit limit = p->caRecord.getDisplayLimit();
+    return limit.lower;
+}
+
+/*!
+    Returns the alarm upper limit
+*/
+double CaObject::getAlarmUpper()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    carecord::ca_limit limit = p->caRecord.getAlarmLimit();
+    return limit.upper;
+}
+
+/*!
+    Returns the alarm lower limit
+*/
+double CaObject::getAlarmLower()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    carecord::ca_limit limit = p->caRecord.getAlarmLimit();
+    return limit.lower;
+}
+
+/*!
+    Returns the warning upper limit
+*/
+double CaObject::getWarningUpper()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    carecord::ca_limit limit = p->caRecord.getWarningLimit();
+    return limit.upper;
+}
+
+/*!
+    Returns the warning lower limit
+*/
+double CaObject::getWarningLower()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    carecord::ca_limit limit = p->caRecord.getWarningLimit();
+    return limit.lower;
+}
+
+/*!
+    Returns the control upper limit
+*/
+double CaObject::getControlUpper()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    carecord::ca_limit limit = p->caRecord.getControlLimit();
+    return limit.upper;
+}
+
+/*!
+    Returns the control lower limit
+*/
+double CaObject::getControlLower()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    carecord::ca_limit limit = p->caRecord.getControlLimit();
+    return limit.lower;
+}
+
+/*!
     Returns the link status for the connection for the current record
 */
 caconnection::link_states CaObjectPrivate::getLinkState() {

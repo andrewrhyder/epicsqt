@@ -61,8 +61,8 @@ void QCaLabel::setup() {
     setNumVariables(1);
 
     // Set up default properties
-    localEnabled = true;
-    visible = true;
+    caEnabled = true;
+    caVisible = true;
 
     // Set the initial state
     setText( "" );
@@ -79,7 +79,6 @@ void QCaLabel::setup() {
     For a label a QCaObject that streams strings is required.
 */
 qcaobject::QCaObject* QCaLabel::createQcaItem( unsigned int variableIndex ) {
-
     // Create the item as a QCaString
    return new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 }
@@ -101,6 +100,8 @@ void QCaLabel::establishConnection( unsigned int variableIndex ) {
                           this, SLOT( setLabelText( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+        QObject::connect( this, SIGNAL( requestResend() ),
+                          qca, SLOT( resendLastData() ) );
     }
 }
 
@@ -126,8 +127,8 @@ void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( localEnabled )
-            QWidget::setEnabled( true );
+        if( caEnabled )
+            setEnabled( true );
     }
 
     /// If disconnected always disable the widget.
@@ -167,7 +168,7 @@ void QCaLabel::setLabelText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDa
 bool QCaLabel::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
-    return localEnabled;
+    return caEnabled;
 }
 
 /*!
@@ -176,11 +177,11 @@ bool QCaLabel::isEnabled() const
 void QCaLabel::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
-    localEnabled = state;
+    caEnabled = state;
 
     /// Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( localEnabled );
+        QWidget::setEnabled( caEnabled );
 }
 /*!
    Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
@@ -218,6 +219,7 @@ bool QCaLabel::getVariableAsToolTip()
 void QCaLabel::setPrecision( unsigned int precision )
 {
     stringFormatting.setPrecision( precision );
+    emit requestResend();
 }
 unsigned int QCaLabel::getPrecision()
 {
@@ -228,6 +230,7 @@ unsigned int QCaLabel::getPrecision()
 void QCaLabel::setUseDbPrecision( bool useDbPrecision )
 {
     stringFormatting.setUseDbPrecision( useDbPrecision);
+    emit requestResend();
 }
 bool QCaLabel::getUseDbPrecision()
 {
@@ -238,6 +241,7 @@ bool QCaLabel::getUseDbPrecision()
 void QCaLabel::setLeadingZero( bool leadingZero )
 {
     stringFormatting.setLeadingZero( leadingZero );
+    emit requestResend();
 }
 bool QCaLabel::getLeadingZero()
 {
@@ -248,6 +252,7 @@ bool QCaLabel::getLeadingZero()
 void QCaLabel::setTrailingZeros( bool trailingZeros )
 {
     stringFormatting.setTrailingZeros( trailingZeros );
+    emit requestResend();
 }
 bool QCaLabel::getTrailingZeros()
 {
@@ -258,6 +263,7 @@ bool QCaLabel::getTrailingZeros()
 void QCaLabel::setAddUnits( bool addUnits )
 {
     stringFormatting.setAddUnits( addUnits );
+    emit requestResend();
 }
 bool QCaLabel::getAddUnits()
 {
@@ -268,6 +274,7 @@ bool QCaLabel::getAddUnits()
 void QCaLabel::setLocalEnumeration( QString localEnumeration )
 {
     stringFormatting.setLocalEnumeration( localEnumeration );
+    emit requestResend();
 }
 QString QCaLabel::getLocalEnumeration()
 {
@@ -278,6 +285,7 @@ QString QCaLabel::getLocalEnumeration()
 void QCaLabel::setFormat( QCaStringFormatting::formats format )
 {
     stringFormatting.setFormat( format );
+    emit requestResend();
 }
 QCaStringFormatting::formats QCaLabel::getFormat()
 {
@@ -288,6 +296,7 @@ QCaStringFormatting::formats QCaLabel::getFormat()
 void QCaLabel::setRadix( unsigned int radix )
 {
     stringFormatting.setRadix( radix);
+    emit requestResend();
 }
 unsigned int QCaLabel::getRadix()
 {
@@ -298,6 +307,7 @@ unsigned int QCaLabel::getRadix()
 void QCaLabel::setNotation( QCaStringFormatting::notations notation )
 {
     stringFormatting.setNotation( notation );
+    emit requestResend();
 }
 QCaStringFormatting::notations QCaLabel::getNotation()
 {
@@ -305,22 +315,22 @@ QCaStringFormatting::notations QCaLabel::getNotation()
 }
 
 // visible (widget is visible outside 'Designer')
-void QCaLabel::setRunVisible( bool visibleIn )
+void QCaLabel::setCaVisible( bool visibleIn )
 {
     // Update the property
-    visible = visibleIn;
+    caVisible = visibleIn;
 
     // If a container profile has been defined, then this widget is being used in a real GUI and
     // should be visible or not according to the visible property. (While in Designer it can always be displayed)
     ContainerProfile profile;
     if( profile.isProfileDefined() )
     {
-        setVisible( visible );
+        QWidget::setVisible( caVisible );
     }
 
 }
-bool QCaLabel::getRunVisible()
+bool QCaLabel::getCaVisible()
 {
-    return visible;
+    return caVisible;
 }
 

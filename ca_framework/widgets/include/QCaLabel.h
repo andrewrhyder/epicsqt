@@ -96,18 +96,18 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget {
     QCaStringFormatting::notations getNotation();
 
     // visible (widget is visible outside 'Designer')
-    void setRunVisible( bool visibleIn );
-    bool getRunVisible();
+    void setCaVisible( bool visibleIn );
+    bool getCaVisible();
 
 
 
   protected:
     QCaStringFormatting stringFormatting;
-    bool localEnabled;
+    bool caEnabled;
 
     void establishConnection( unsigned int variableIndex );
 
-    bool visible;               // Flag true if the widget should be visible outside 'Designer'
+    bool caVisible;               // Flag true if the widget should be visible outside 'Designer'
 
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
@@ -118,6 +118,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget {
 
   signals:
     void dbValueChanged( const QString& out );
+    void requestResend();
 
   private:
     void setup();

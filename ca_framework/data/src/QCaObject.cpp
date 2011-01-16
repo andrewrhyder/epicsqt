@@ -68,7 +68,24 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
 
     // Initialise variables
     precision = 0;
+
+    displayLimitUpper = 0;
+    displayLimitLower = 0;
+
+    alarmLimitUpper = 0;
+    alarmLimitLower = 0;
+
+    warningLimitUpper = 0;
+    warningLimitLower = 0;
+
+    controlLimitUpper = 0;
+    controlLimitLower = 0;
+
     isStatField = false;
+
+    lastTimeStamp = QCaDateTime( QDateTime::currentDateTime() );
+//    lastAlarmInfo = ???;
+    lastValue = (double)0.0;
 
     // Setup any the mechanism to handle messages to the user, if supplied
     setUserMessage( userMessageIn );
@@ -669,6 +686,23 @@ void QCaObject::processData( void* newDataPtr ) {
 
         // Note the precision
         precision = CaObject::getPrecision();
+
+        // Note the display limits
+        displayLimitUpper = CaObject::getDisplayUpper();
+        displayLimitLower = CaObject::getDisplayLower();
+
+        // Note the alarm limits
+        alarmLimitUpper = CaObject::getAlarmUpper();
+        alarmLimitLower = CaObject::getAlarmLower();
+
+        // Note the warning limits
+        warningLimitUpper = CaObject::getWarningUpper();
+        warningLimitLower = CaObject::getWarningLower();
+
+        // Note the control limits
+        controlLimitUpper = CaObject::getControlUpper();
+        controlLimitLower = CaObject::getControlLower();
+
     }
 
     // Package up the CA data as a Qt variant
@@ -731,6 +765,11 @@ void QCaObject::processData( void* newDataPtr ) {
     // Send off the new data
     emit dataChanged( value, alarmInfo, timeStamp );
 
+    // Save the data just emited
+    lastValue = value;
+    lastAlarmInfo = alarmInfo;
+    lastTimeStamp = timeStamp;
+
     // Discard the event data
     delete newData;
 }
@@ -768,6 +807,15 @@ void QCaObject::setUserMessage( UserMessage* userMessageIn )
 }
 
 /*!
+  Re-emit the last data emited, if any
+  */
+void QCaObject::resendLastData()
+{
+    emit dataChanged( lastValue, lastAlarmInfo, lastTimeStamp );
+}
+
+
+/*!
  Return the engineering units, if any
 */
 QString QCaObject::getEgu() {
@@ -788,3 +836,68 @@ unsigned int QCaObject::getPrecision()
 {
     return precision;
 }
+
+/*!
+ Return the display upper limit, if any
+*/
+double QCaObject::getDisplayLimitUpper()
+{
+    return displayLimitUpper;
+}
+
+/*!
+ Return the display lower limit, if any
+*/
+double QCaObject::getDisplayLimitLower()
+{
+    return displayLimitLower;
+}
+
+/*!
+ Return the alarm upper limit, if any
+*/
+double QCaObject::getAlarmLimitUpper()
+{
+    return alarmLimitUpper;
+}
+
+/*!
+ Return the alarm lower limit, if any
+*/
+double QCaObject::getAlarmLimitLower()
+{
+    return alarmLimitLower;
+}
+
+/*!
+ Return the warning upper limit, if any
+*/
+double QCaObject::getWarningLimitUpper()
+{
+    return warningLimitUpper;
+}
+
+/*!
+ Return the warning lower limit, if any
+*/
+double QCaObject::getWarningLimitLower()
+{
+    return warningLimitLower;
+}
+
+/*!
+ Return the control upper limit, if any
+*/
+double QCaObject::getControlLimitUpper()
+{
+    return controlLimitUpper;
+}
+
+/*!
+ Return the control lower limit, if any
+*/
+double QCaObject::getControlLimitLower()
+{
+    return controlLimitLower;
+}
+

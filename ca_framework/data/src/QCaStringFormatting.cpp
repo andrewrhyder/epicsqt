@@ -351,7 +351,52 @@ void QCaStringFormatting::formatFromInteger( const QVariant &value, const bool d
         int i;
         for( i = 0; i < localEnumeration.size(); i++ )
         {
-            if( localEnumeration[i].value == lValue )
+            // Determine if the value matches an enumeration
+            bool match = false;
+            switch( localEnumeration[i].op )
+            {
+                case localEnumerationItem::LESS:
+                    if( lValue < localEnumeration[i].value )
+                        match = true;
+                    break;
+
+                case localEnumerationItem::LESS_EQUAL:
+                    if( lValue <= localEnumeration[i].value )
+                        match = true;
+                    break;
+
+                case localEnumerationItem::EQUAL:
+                    if( lValue == localEnumeration[i].value )
+                        match = true;
+                    break;
+
+                case localEnumerationItem::NOT_EQUAL:
+                    if( lValue != localEnumeration[i].value )
+                        match = true;
+                    break;
+
+                case localEnumerationItem::GREATER_EQUAL:
+                    if( lValue >= localEnumeration[i].value )
+                        match = true;
+                    break;
+
+                case localEnumerationItem::GREATER:
+                    if( lValue > localEnumeration[i].value )
+                        match = true;
+                    break;
+
+                case localEnumerationItem::ALWAYS:
+                    match = true;
+                    break;
+
+                default:
+                    match = false;
+                    break;
+
+            }
+
+            // If the value does match, use the enumeration value
+            if( match )
             {
                 stream << localEnumeration[i].text;
                 break;
@@ -521,30 +566,43 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
     //
     // Format is:
     //
-    //  value1 = string1 , value2 = string2 , value3 = string3 , ...
+    //  [[<|<=|=|!=|>=|>]value1|*] : string1 , [[<|<=|=|!=|>=|>]value2|*] : string2 , [[<|<=|=|!=|>=|>]value3|*] : string3 , ...
     //
-    // Values do not have to be in any order.
+    // Where:
+    //   <  Less than
+    //   <= Less than or equal
+    //   =  Equal (default if no operator specified)
+    //   >= Greather than or equal
+    //   >  Greater than
+    //   *  Always match (used to specify default text)
+    //
+    // Values do not have to be in any order, but first match wins
     // Consecutive values do not have to be present.
+    // Operator is assumed to be equality if not present.
     // White space is ignored except within quoted strings.
     // \n may be included in a string to indicate a line break
     //
     // Examples are:
     //
-    // 0=Off,1=On
-    // 0 = "Pump Running", 1 = "Pump not running"
-    // 0="", 1="Warning!\nAlarm"
-
+    // 0:Off,1:On
+    // 0 : "Pump Running", 1 : "Pump not running"
+    // 0:"", 1:"Warning!\nAlarm"
+    // <2:"Value is less than two", =2:"Value is equal to two", >2:"Value is grater than 2"
+    // 3:"Beamline Available", *:""
+    //
     // The data value is converted to a string if no enumeration for that value is available.
-    // For example, if the local enumeration is '0=off,1=on', and a value of 10 is processed, the text generated is '10'.
-    // If a blank string is required, this should be explicit. for example, '0=off,1=on,10=""'
+    // For example, if the local enumeration is '0:off,1:on', and a value of 10 is processed, the text generated is '10'.
+    // If a blank string is required, this should be explicit. for example, '0:off,1:on,10:""'
+
+    // A range of numbers can be covered by a pair of values as in the following example: >=4:"Between 4 and 8",<=8:"Between 4 and 8"
 
     localEnumerationItem item;
 
-    enum states { STATE_START, STATE_VALUE, STATE_EQUALS, STATE_START_QUOTE, STATE_UNQUOTED_TEXT, STATE_QUOTED_TEXT, STATE_END_QUOTE, STATE_COMMA, STATE_END };
+    enum states { STATE_START, STATE_OPERATOR, STATE_VALUE, STATE_DELIMITER, STATE_START_QUOTE, STATE_UNQUOTED_TEXT, STATE_QUOTED_TEXT, STATE_END_QUOTE, STATE_COMMA, STATE_END };
 
     int start = 0;                          // Index into enumeration text of current item of interest.
     int len = 0;                            // Length of current item of interest
-    int state = STATE_START;                // Current state of finite state table
+    int state = STATE_OPERATOR;             // Current state of finite state table
     int size = localEnumerationIn.size();   // Length of local enumeration string to be processed
 
     // Start with no enumerations
@@ -555,14 +613,86 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
     {
         switch( state )
         {
-            // Initialise processing
-            case STATE_START:
-                start = 0;
-                len = 0;
+            // Reading the optional operator before the value and it's enumeration string.  For example, the '=' in '0=on,1=off'
+            case STATE_OPERATOR:
+                // If nothing left, finish
+                if( start >= size )
+                {
+                    state = STATE_END;
+                    break;
+                }
+
+                // If haven't started yet, skip white space
+                if( len == 0 && localEnumerationIn[start] == ' ' )
+                {
+                    start++;
+                    break;
+                }
+
+                // If more operator characters, continue
+                if( localEnumerationIn[start+len] == '>' ||
+                    localEnumerationIn[start+len] == '<' ||
+                    localEnumerationIn[start+len] == '=' ||
+                    localEnumerationIn[start+len] == '!' ||
+                    localEnumerationIn[start+len] == '*' )
+                {
+                    len++;
+                    break;
+                }
+
+                // If an operator is found, use it
+                if( len )
+                {
+                    // Assume operation will not be valid
+                    item.op = localEnumerationItem::UNKNOWN;
+
+                    // Interpret operator
+                    switch( len )
+                    {
+                        case 1: // single character operator <, >, =
+                            switch( localEnumerationIn[start].toAscii() )
+                            {
+                                case '<': item.op = localEnumerationItem::LESS;    break;
+                                case '>': item.op = localEnumerationItem::GREATER; break;
+                                case '=': item.op = localEnumerationItem::EQUAL;   break;
+                                case '*': item.op = localEnumerationItem::ALWAYS;   break;
+                            }
+                            break;
+
+                        case 2: // double character operator (always ending in '=') <=, >=, !=
+                            if( localEnumerationIn[start+1] == '=' )
+                            {
+                                switch( localEnumerationIn[start].toAscii() )
+                                {
+                                    case '<': item.op = localEnumerationItem::LESS_EQUAL;    break;
+                                    case '>': item.op = localEnumerationItem::GREATER_EQUAL; break;
+                                    case '!': item.op = localEnumerationItem::NOT_EQUAL;     break;
+                                }
+                            }
+                            break;
+
+                        default:
+                            // Error do no more
+                            state = STATE_END;
+                            break;
+                    }
+
+                    // Step over operator onto the value if a comparison is to be made, or the text is there is no value expected
+                    start += len;
+                    len = 0;
+                    if( item.op == localEnumerationItem::ALWAYS )
+                        state = STATE_DELIMITER;
+                    else
+                        state = STATE_VALUE;
+                    break;
+                }
+
+                // No operator - assume equality
+                item.op = localEnumerationItem::EQUAL;
                 state = STATE_VALUE;
                 break;
 
-            // Reading a value. For example, the '0' in '0=on,1=off'
+                // Reading a value. For example, the '0' in '0=on,1=off'
             case STATE_VALUE:
                 // If nothing left, finish
                 if( start+len >= size )
@@ -591,7 +721,7 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
                     item.value = localEnumerationIn.mid( start, len ).toInt();
                     start += len;
                     len = 0;
-                    state = STATE_EQUALS;
+                    state = STATE_DELIMITER;
                     break;
                 }
 
@@ -599,24 +729,24 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
                 state = STATE_END;
                 break;
 
-            // Reading the '=' between the value and it's enumeration string.  For example, the '=' in '0=on,1=off'
-            case STATE_EQUALS:
+            // Reading the delimiter between value and text.
+            case STATE_DELIMITER:
                 // If nothing left, finish
-                if( start >= size )
+                if( start+len >= size )
                 {
                     state = STATE_END;
                     break;
                 }
 
                 // If haven't started yet, skip white space
-                if( localEnumerationIn[start] == ' ' )
+                if( len == 0 && localEnumerationIn[start] == ' ' )
                 {
                     start++;
                     break;
                 }
 
-                // If found '=' use it
-                if( localEnumerationIn[start] == '=' )
+                // If delimiter found, use it
+                if( localEnumerationIn[start] == ':' )
                 {
                     start++;
                     len = 0;
@@ -627,7 +757,6 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
                 // Error do no more
                 state = STATE_END;
                 break;
-
 
             // Where an enumerations string is quoted, handle the opening quotation mark.
             // For example, the first quote in 0=off,1="pump on"
@@ -677,6 +806,7 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
                     len = 0;
                     localEnumeration.append( item );
                     item.value = 0;
+                    item.op = localEnumerationItem::UNKNOWN;
                     item.text.clear();
                     state = STATE_END_QUOTE;
                     break;
@@ -749,7 +879,7 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
                 state = STATE_END;
                 break;
 
-            // Reading the ',' between each value and string pair.  For example, the ',' in '0=on,1=off'
+            // Reading the ',' between each value and string pair.  For example, the ',' in '0:on,1:off'
             case STATE_COMMA:
                 // If nothing left, finish
                 if( start >= size )
@@ -770,7 +900,7 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
                 {
                     start++;
                     len = 0;
-                    state = STATE_VALUE;
+                    state = STATE_OPERATOR;
                     break;
                 }
 
