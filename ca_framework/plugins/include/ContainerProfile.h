@@ -36,6 +36,7 @@
 #include <QMutex>
 #include <QList>
 #include <QDebug>
+#include <QCaPluginLibrary_global.h>
 
 class QCaWidget;
 
@@ -50,7 +51,7 @@ class WidgetRef
         QCaWidget* ref;
 };
 
-class ContainerProfile
+class QCAPLUGINLIBRARYSHARED_EXPORT ContainerProfile
 {
 public:
     ContainerProfile();    // Construction. Sets up local copies of any profile defined by setupProfile() in an earlier instance
