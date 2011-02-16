@@ -50,6 +50,10 @@ namespace caobject {
         public:
             CaObject();
             virtual ~CaObject();
+
+            void setWriteWithCallback( bool writeWithCallback);
+            bool getWriteWithCallback();
+
         private:
             void initialise();
             void shutdown();
@@ -75,6 +79,7 @@ namespace caobject {
             unsigned long getTimeStampNanoseconds();
             short         getAlarmStatus();
             short         getAlarmSeverity();
+
         public:
             virtual void  signalCallback( callback_reasons ) = 0;
 

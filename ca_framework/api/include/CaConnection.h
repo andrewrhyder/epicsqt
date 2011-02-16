@@ -67,6 +67,7 @@ namespace caconnection {
       short type;
       unsigned long elementCount;
       chid id;
+      bool writeWithCallback;
   };
 
   //! Subscription state and properties.
@@ -102,6 +103,9 @@ namespace caconnection {
       bool activatedChannel() { return channel.activated; }
       bool isSubscribed() { return subscription.activated; }
       void setChannelElementCount();
+
+      void setWriteWithCallback( bool writeWithCallbackIn );
+      bool getWriteWithCallback();
 
     private:
       caLink link;

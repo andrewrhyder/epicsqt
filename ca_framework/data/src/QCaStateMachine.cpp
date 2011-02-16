@@ -56,7 +56,6 @@ ConnectionQCaStateMachine::ConnectionQCaStateMachine( void *parent ) : QCaStateM
     Process the Connection statemachine.
 */
 bool ConnectionQCaStateMachine::process( int requestedState) {
-    //qDebug() << "ConnectionQCaStateMachine::process() " << requestedState;
     requestState = requestedState;
     QMutexLocker locker( &lock );
     qcaobject::QCaObject *worker = ( qcaobject::QCaObject* )( myWorker );
@@ -67,7 +66,6 @@ bool ConnectionQCaStateMachine::process( int requestedState) {
                 case CONNECTED :
                 {
                     if( active == false && pending == false ) {
-                        //qDebug() << "connection: DISCONNECTED -> CONNECTED (REQUEST)";
                         if( worker->createChannel() ) //??? error not handled
                         {
                             pending = true;
@@ -75,7 +73,6 @@ bool ConnectionQCaStateMachine::process( int requestedState) {
                         }
                     }
                     if( active == true ) {
-                        //qDebug() << "connection: DISCONNECTED -> CONNECTED (CALLBACK)";
                         pending = false;
                         worker->stopConnectionTimer();
                         currentState = CONNECTED;
@@ -85,7 +82,6 @@ bool ConnectionQCaStateMachine::process( int requestedState) {
                 case CONNECTION_EXPIRED :
                 {
                     if( pending == true && expired == true ) {
-                        //qDebug() << "connection: DISCONNECTED -> CONNECTION_EXPIRED";
                         pending = false;
                         expired = false;
                         worker->stopConnectionTimer();
@@ -101,7 +97,6 @@ bool ConnectionQCaStateMachine::process( int requestedState) {
             switch( requestState) {
                 case DISCONNECTED :
                 {
-                    //qDebug() << "connection: CONNECTED -> DISCONNECTED (REQUEST)";
                     if( active == true ) {
                         pending = false;
                         active = false;
@@ -134,7 +129,6 @@ SubscriptionQCaStateMachine::SubscriptionQCaStateMachine( void *parent ) : QCaSt
     Process the Subscription statemachine.
 */
 bool SubscriptionQCaStateMachine::process( int requestedState ) {
-    //qDebug() << "SubscriptionQCaStateMachine::process() " << requestedState;
     requestState = requestedState;
     qcaobject::QCaObject *worker = ( qcaobject::QCaObject* )( myWorker );
     QMutexLocker locker( &lock );
@@ -195,7 +189,6 @@ ReadQCaStateMachine::ReadQCaStateMachine( void *parent ) : QCaStateMachine( pare
     Process the Reading statemachine.
 */
 bool ReadQCaStateMachine::process( int requestedState ) {
-    //qDebug() << "ReadQCaStateMachine::process() " << requestedState;
     requestState = requestedState;
     qcaobject::QCaObject *worker = ( qcaobject::QCaObject* )( myWorker );
     QMutexLocker locker( &lock );
@@ -249,7 +242,6 @@ WriteQCaStateMachine::WriteQCaStateMachine( void *parent ) : QCaStateMachine( pa
     Process the Writing statemachine.
 */
 bool WriteQCaStateMachine::process( int requestedState ) {
-    //qDebug() << "WriteQCaStateMachine::process() " << requestedState;
     requestState = requestedState;
     QMutexLocker locker( &lock );
     qcaobject::QCaObject *worker = ( qcaobject::QCaObject* )( myWorker );
@@ -261,10 +253,18 @@ bool WriteQCaStateMachine::process( int requestedState ) {
                 {
                     if( worker->isChannelConnected() && active == false ) {
                         active = true;
-                        if( worker->putChannel() ) //??? error not handled
+                        // If write was a success and waiting for a callback, set state to writing
+                        if( worker->putChannel() && worker->isWriteCallbacksEnabled() )
+                        {
                             currentState = WRITING;
+                        }
+
+                        // Write was not success or not waiting for a callback, set state to idle
                         else
+                        {
                             currentState = WRITE_IDLE;
+                            active = false;
+                        }
                     }
                     break;
                 }

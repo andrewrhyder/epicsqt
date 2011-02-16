@@ -79,6 +79,9 @@ namespace qcaobject {
 
       void setUserMessage( UserMessage* userMessageIn );
 
+      void enableWriteCallbacks( bool enable );
+      bool isWriteCallbacksEnabled();
+
       // Get database information relating to the variable
       QString getEgu();
       QStringList getEnumerations();

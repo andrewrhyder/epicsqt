@@ -193,7 +193,11 @@ ca_responses CaConnection::readChannel( void (*readHandler)(struct event_handler
 */
 ca_responses CaConnection::writeChannel( void (*writeHandler)(struct event_handler_args), void* args, short dbrStructType, const void* newDbrValue ) {
     if( channel.activated == true ) {
-        channel.writeResponse = ca_put_callback( dbrStructType, channel.id, newDbrValue, writeHandler, args);
+        if( channel.writeWithCallback )
+            channel.writeResponse = ca_put_callback( dbrStructType, channel.id, newDbrValue, writeHandler, args);
+        else
+            channel.writeResponse = ca_put( dbrStructType, channel.id, newDbrValue);
+
         ca_pend_io( link.readTimeout );
         switch( channel.writeResponse ) {
             case ECA_NORMAL :
@@ -209,6 +213,30 @@ ca_responses CaConnection::writeChannel( void (*writeHandler)(struct event_handl
     } else {
         return CHANNEL_DISCONNECTED;
     }
+}
+
+/*!
+    Set the write callback mode.
+    Write with no callback using ca_put() (default)
+    or write with callback using ca_put_callback()
+    When using write with callback, then record will finish processing before accepting next write.
+    Writing with callback may be required when writing code that is tightly integrated with record
+    processing and code nneds to know processing has completed.
+    Writing with no callback is more desirable when a detachement from record processing is required, for
+    example in a GUI after issuing a motor record move a motor stop command will take effect immedietly
+    if writing without callback, but will only take affect after the move has finished if writing with callback.
+*/
+void CaConnection::setWriteWithCallback( bool writeWithCallbackIn )
+{
+    channel.writeWithCallback = writeWithCallbackIn;
+}
+
+/*!
+    Get the write callback mode.
+*/
+bool CaConnection::getWriteWithCallback()
+{
+    return channel.writeWithCallback;
 }
 
 /*!
@@ -301,6 +329,7 @@ void CaConnection::reset() {
     channel.state = cs_never_conn;
     channel.type = -1;
     channel.id = NULL;
+    channel.writeWithCallback = false;
 
     subscription.activated = false;
     subscription.creation = false;

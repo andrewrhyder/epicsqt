@@ -802,3 +802,35 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
     }   
     epicsMutexUnlock( accessMutex );
 }
+
+/*!
+  Set if callbacks are required on write completion. (default is write with no callback)
+  Note, this is not just for better write status, if affects the behaviour of the write as follows:
+  When using write with callback, then record will finish processing before accepting next write.
+  Writing with callback may be required when writing code that is tightly integrated with record
+  processing and code nneds to know processing has completed.
+  Writing with no callback is more desirable when a detachement from record processing is required, for
+  example in a GUI after issuing a motor record move a motor stop command will take effect immedietly
+  if writing without callback, but will only take affect after the move has finished if writing with callback.
+  */
+void CaObject::setWriteWithCallback( bool writeWithCallbackIn )
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    // Set the write callback requirements
+    p->caConnection->setWriteWithCallback( writeWithCallbackIn );
+}
+
+/*!
+  Determine if callbacks are delivered on write completion.
+  */
+bool CaObject::getWriteWithCallback()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    // return the write callback requirements
+    return p->caConnection->getWriteWithCallback();
+}
+

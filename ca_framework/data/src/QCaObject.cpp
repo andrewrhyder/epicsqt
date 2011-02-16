@@ -814,7 +814,6 @@ void QCaObject::resendLastData()
     emit dataChanged( lastValue, lastAlarmInfo, lastTimeStamp );
 }
 
-
 /*!
  Return the engineering units, if any
 */
@@ -899,5 +898,28 @@ double QCaObject::getControlLimitUpper()
 double QCaObject::getControlLimitLower()
 {
     return controlLimitLower;
+}
+
+/*!
+  Set if callbacks are required on write completion. (default is write with no callback)
+  Note, this is not just for better write status, if affects the behaviour of the write as follows:
+  When using write with callback, then record will finish processing before accepting next write.
+  Writing with callback may be required when writing code that is tightly integrated with record
+  processing and code nneds to know processing has completed.
+  Writing with no callback is more desirable when a detachement from record processing is required, for
+  example in a GUI after issuing a motor record move a motor stop command will take effect immedietly
+  if writing without callback, but will only take affect after the move has finished if writing with callback.
+  */
+void QCaObject::enableWriteCallbacks( bool enable )
+{
+    setWriteWithCallback( enable );
+}
+
+/*!
+  Determine if callbacks are required on write completion.
+*/
+bool QCaObject::isWriteCallbacksEnabled()
+{
+    return getWriteWithCallback();
 }
 
