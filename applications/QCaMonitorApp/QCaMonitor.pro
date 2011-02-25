@@ -33,14 +33,17 @@ SOURCES += \
     $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
 
 HEADERS += \
-    ./include/monitor.h
+    include/monitor.h
 
-INCLUDEPATH += ./include \
+INCLUDEPATH += \
+    ./include \
     $$(QCAFRAMEWORK)/api/include \
     $$(QCAFRAMEWORK)/data/include \
-    $$(QCAFRAMEWORK)/plugins/include
+    $$(QCAFRAMEWORK)/plugins/include \
+    $$(EPICS_BASE)/include
 
-win32:INCLUDEPATH += $$(CYGWIN)/usr/include
+# Uncomment if linking agains QCa library in Qt Designer plugin directory
+#LIBS += -L$$(QTDIR)/plugins/designer -lQCaPlugin
 
-LIBS += -L$$(QTDIR)/plugins/designer -lQCaPlugin
-
+# Uncomment if linking agains QCa library in Qt Designer plugin directory
+LIBS += -L$$(QCAFRAMEWORK)/plugins/release -lQCaPlugin
