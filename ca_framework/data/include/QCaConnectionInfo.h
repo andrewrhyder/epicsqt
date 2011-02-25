@@ -32,7 +32,9 @@
 #ifndef QCACONNECTIONINFO_H
 #define QCACONNECTIONINFO_H
 
-class QCaConnectionInfo
+#include <QCaPluginLibrary_global.h>
+
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaConnectionInfo
 {
 public:
     QCaConnectionInfo();
