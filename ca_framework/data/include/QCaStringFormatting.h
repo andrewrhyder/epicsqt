@@ -36,7 +36,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDataStream>
-
+#include <QCaPluginLibrary_global.h>
 
 
 // Support class used to build the localEnumeration list in the QCaStringFormatting class
@@ -48,7 +48,7 @@ class localEnumerationItem {
     QString text;               // Text used if the data value matches
 };
 
-class QCaStringFormatting {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
   public:
 
     // Formatting enumerations
