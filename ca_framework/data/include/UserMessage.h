@@ -33,8 +33,9 @@
 #define UserMessage_H
 
 #include <QObject>
+#include <QCaPluginLibrary_global.h>
 
-class UserMessage : public QObject
+class QCAPLUGINLIBRARYSHARED_EXPORT UserMessage : public QObject
 {
     Q_OBJECT
 
