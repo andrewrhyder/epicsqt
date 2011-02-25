@@ -175,6 +175,7 @@ INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
 INCLUDEPATH += $$(EPICS_BASE)/include
+# Depending on build, the qet library below may need to be -lqwt or -lqwt5
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \
