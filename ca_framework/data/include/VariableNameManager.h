@@ -34,8 +34,9 @@
 
 #include <QString>
 #include <QList>
+#include <QCaPluginLibrary_global.h>
 
-class VariableNameManager {
+class QCAPLUGINLIBRARYSHARED_EXPORT VariableNameManager {
 
 public:
     VariableNameManager();
