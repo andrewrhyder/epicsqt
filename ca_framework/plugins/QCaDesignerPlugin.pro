@@ -163,14 +163,15 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/GuiPushButton.cpp \
     ../widgets/src/CmdPushButton.cpp \
     ../widgets/src/ASguiForm.cpp \
-    ../widgets/src/QCaToolTip.cpp \
-    $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+    ../widgets/src/QCaToolTip.cpp
+# Include the following gdbmacros line for debugging only
+#SOURCES += $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
 INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
-    $$(QCAFRAMEWORK)/qwt/src \
+    $$(QCAFRAMEWORK)/qwt-5.2.1/src \
     $$(EPICS_BASE)/include
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
@@ -179,5 +180,5 @@ INCLUDEPATH += $$(EPICS_BASE)/include
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \
-    -L$$(QCAFRAMEWORK)/qwt/lib \
+    -L$$(QCAFRAMEWORK)/qwt-5.2.1/lib \
     -lqwt
