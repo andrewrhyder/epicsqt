@@ -165,7 +165,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/ASguiForm.cpp \
     ../widgets/src/QCaToolTip.cpp
 # Include the following gdbmacros line for debugging only
-#SOURCES += $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+#SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
 INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
