@@ -95,6 +95,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget {
     void setNotation( QCaStringFormatting::notations notation );
     QCaStringFormatting::notations getNotation();
 
+    // arrayAction
+    void setArrayAction( QCaStringFormatting::arrayActions arrayAction );
+    QCaStringFormatting::arrayActions getArrayAction();
+
+    // arrayIndex
+    void setArrayIndex( unsigned int arrayIndex );
+    unsigned int getArrayIndex();
+
     // visible (widget is visible outside 'Designer')
     void setRunVisible( bool visibleIn );
     bool getRunVisible();

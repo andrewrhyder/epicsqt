@@ -314,6 +314,28 @@ QCaStringFormatting::notations QCaLabel::getNotation()
     return stringFormatting.getNotation();
 }
 
+// arrayAction
+void QCaLabel::setArrayAction( QCaStringFormatting::arrayActions arrayAction )
+{
+    stringFormatting.setArrayAction( arrayAction );
+    emit requestResend();
+}
+QCaStringFormatting::arrayActions QCaLabel::getArrayAction()
+{
+    return stringFormatting.getArrayAction();
+}
+
+// arrayIndex
+void QCaLabel::setArrayIndex( unsigned int arrayIndex )
+{
+    stringFormatting.setArrayIndex( arrayIndex );
+    emit requestResend();
+}
+unsigned int QCaLabel::getArrayIndex()
+{
+    return stringFormatting.getArrayIndex();
+}
+
 // visible (widget is visible outside 'Designer')
 void QCaLabel::setRunVisible( bool visibleIn )
 {

@@ -56,6 +56,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     enum notations { NOTATION_FIXED = QTextStream::FixedNotation,
                      NOTATION_SCIENTIFIC = QTextStream::ScientificNotation,
                      NOTATION_AUTOMATIC = QTextStream::SmartNotation };    // WARNING keep these enumerations the same as QTextStream
+    enum arrayActions { APPEND, ASCII, INDEX };
 
     // Construction
     QCaStringFormatting();
@@ -83,6 +84,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     void setFormat( formats format );
     void setRadix( unsigned int radix );
     void setNotation( notations notation );
+    void setArrayAction( arrayActions arrayActionIn );
+    void setArrayIndex( unsigned int arrayIndexIn );
     void setAddUnits( bool addUnits );
     void setLocalEnumeration( QString/*localEnumerationList*/ localEnumerationIn );
 
@@ -94,6 +97,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     formats      getFormat();
     unsigned int getRadix();
     notations    getNotation();
+    arrayActions getArrayAction();
+    unsigned int getArrayIndex();
     bool         getAddUnits();
     QString      getLocalEnumeration();
 
@@ -126,6 +131,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     unsigned int precision;          /// Floating point precision. Used if 'useDbPrecision' is false.
     QList<localEnumerationItem> localEnumeration; /// Local enumerations (example: 0="Not referencing",1=Referencing)
     QString localEnumerationString; /// Original local enumerations string
+    arrayActions arrayAction;       /// Action to take when processing array or waveform data
+    unsigned int arrayIndex;        /// Index into array or waveform to use when into arrayAction is 'INDEX'
 };
 
 #endif /// QCASTRINGFORMATTING_H

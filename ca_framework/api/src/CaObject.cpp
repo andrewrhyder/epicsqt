@@ -178,13 +178,19 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
         }
         case generic::SHORT :
         {
-            long outValue = newValue->getShort();
+            short outValue = newValue->getShort();
             return caConnection->writeChannel( writeHandler, owner, DBR_SHORT, &outValue );
             break;
         }
-        case generic::CHAR :
+        case generic::UNSIGNED_SHORT :
         {
-            char outValue = newValue->getChar();
+            unsigned short outValue = newValue->getUnsignedShort();
+            return caConnection->writeChannel( writeHandler, owner, DBR_ENUM, &outValue );
+            break;
+        }
+        case generic::UNSIGNED_CHAR :
+        {
+            char outValue = newValue->getUnsignedChar();
             return caConnection->writeChannel( writeHandler, owner, DBR_CHAR, &outValue );
             break;
         }
@@ -192,6 +198,12 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
         {
             unsigned long outValue = newValue->getUnsignedLong();
             return caConnection->writeChannel( writeHandler, owner, DBR_LONG, &outValue );
+            break;
+        }
+        case generic::FLOAT :
+        {
+            float outValue = newValue->getFloat();
+            return caConnection->writeChannel( writeHandler, owner, DBR_FLOAT, &outValue );
             break;
         }
         case generic::DOUBLE :
@@ -481,7 +493,7 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData.status );
             caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setUnsignedLong( incommingData.value );
+            caRecord.setShort( incommingData.value );
             break;
         }
         case DBR_STS_FLOAT :
@@ -493,7 +505,7 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData.status );
             caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setDouble( incommingData.value );
+            caRecord.setFloat( incommingData.value );
             break;
         }
         case DBR_STS_ENUM :
@@ -505,7 +517,7 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData.status );
             caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setUnsignedLong( incommingData.value );
+            caRecord.setUnsignedShort( incommingData.value );
             break;
         }
         case DBR_STS_CHAR :
@@ -518,7 +530,7 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.setStatus( incommingData.status );
             caRecord.setAlarmSeverity( incommingData.severity );
             caRecord.setRiscAlignment( incommingData.RISC_pad );
-            caRecord.setChar( incommingData.value );
+            caRecord.setUnsignedChar( incommingData.value );
             break;
         }
         case DBR_STS_LONG :
@@ -559,93 +571,86 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         }
         case DBR_CTRL_SHORT :
         {
-            struct dbr_ctrl_int incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
+            struct dbr_ctrl_int* incommingData = (dbr_ctrl_int*)(args.dbr);
             caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setUnits( std::string( incommingData.units ) );
-            caRecord.setDisplayLimit( incommingData.upper_disp_limit, incommingData.lower_disp_limit );
-            caRecord.setAlarmLimit( incommingData.upper_alarm_limit, incommingData.lower_alarm_limit );
-            caRecord.setWarningLimit( incommingData.upper_warning_limit, incommingData.lower_warning_limit );
-            caRecord.setControlLimit( incommingData.upper_ctrl_limit, incommingData.lower_ctrl_limit );
-            caRecord.setUnsignedLong( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setUnits( std::string( incommingData->units ) );
+            caRecord.setDisplayLimit( incommingData->upper_disp_limit, incommingData->lower_disp_limit );
+            caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
+            caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
+            caRecord.setControlLimit( incommingData->upper_ctrl_limit, incommingData->lower_ctrl_limit );
+            caRecord.setShort( &incommingData->value, args.count );
             break;
         }
         case DBR_CTRL_FLOAT :
         {
-            struct dbr_ctrl_float incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
+            struct dbr_ctrl_float* incommingData = (dbr_ctrl_float*)(args.dbr);
             caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setPrecision( incommingData.precision );
-            caRecord.setUnits( std::string( incommingData.units ) );
-            caRecord.setRiscAlignment( incommingData.RISC_pad );
-            caRecord.setDisplayLimit( incommingData.upper_disp_limit, incommingData.lower_disp_limit );
-            caRecord.setAlarmLimit( incommingData.upper_alarm_limit, incommingData.lower_alarm_limit );
-            caRecord.setWarningLimit( incommingData.upper_warning_limit, incommingData.lower_warning_limit );
-            caRecord.setControlLimit( incommingData.upper_ctrl_limit, incommingData.lower_ctrl_limit );
-            caRecord.setDouble( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setPrecision( incommingData->precision );
+            caRecord.setUnits( std::string( incommingData->units ) );
+            caRecord.setRiscAlignment( incommingData->RISC_pad );
+            caRecord.setDisplayLimit( incommingData->upper_disp_limit, incommingData->lower_disp_limit );
+            caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
+            caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
+            caRecord.setControlLimit( incommingData->upper_ctrl_limit, incommingData->lower_ctrl_limit );
+            caRecord.setFloat( &incommingData->value, args.count );
             break;
         }
         case DBR_CTRL_ENUM :
         {
-            struct dbr_ctrl_enum incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
+            struct dbr_ctrl_enum* incommingData = (dbr_ctrl_enum*)(args.dbr);
             caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            for( int i = 0; i < incommingData.no_str; i++ ) {
-                caRecord.addEnumState( std::string( incommingData.strs[i] ) );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            for( int i = 0; i < incommingData->no_str; i++ ) {
+                caRecord.addEnumState( std::string( incommingData->strs[i] ) );
             }
-            caRecord.setUnsignedLong( incommingData.value );
+            caRecord.setUnsignedShort( &incommingData->value, args.count );
             break;
         }
         case DBR_CTRL_CHAR :
         {
-            struct dbr_ctrl_char incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
+            struct dbr_ctrl_char* incommingData = (dbr_ctrl_char*)(args.dbr);
             caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setRiscAlignment( incommingData.RISC_pad );
-            caRecord.setDisplayLimit( incommingData.upper_disp_limit, incommingData.lower_disp_limit );
-            caRecord.setAlarmLimit( incommingData.upper_alarm_limit, incommingData.lower_alarm_limit );
-            caRecord.setWarningLimit( incommingData.upper_warning_limit, incommingData.lower_warning_limit );
-            caRecord.setControlLimit( incommingData.upper_ctrl_limit, incommingData.lower_ctrl_limit );
-            caRecord.setChar( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setRiscAlignment( incommingData->RISC_pad );
+            caRecord.setDisplayLimit( incommingData->upper_disp_limit, incommingData->lower_disp_limit );
+            caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
+            caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
+            caRecord.setControlLimit( incommingData->upper_ctrl_limit, incommingData->lower_ctrl_limit );
+            caRecord.setUnsignedChar( &incommingData->value, args.count );
             break;
         }
         case DBR_CTRL_LONG :
         {
-            struct dbr_ctrl_long incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
+            struct dbr_ctrl_long* incommingData = (dbr_ctrl_long*)(args.dbr);
             caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setUnits( std::string( incommingData.units ) );
-            caRecord.setDisplayLimit( incommingData.upper_disp_limit, incommingData.lower_disp_limit );
-            caRecord.setAlarmLimit( incommingData.upper_alarm_limit, incommingData.lower_alarm_limit );
-            caRecord.setWarningLimit( incommingData.upper_warning_limit, incommingData.lower_warning_limit );
-            caRecord.setControlLimit( incommingData.upper_ctrl_limit, incommingData.lower_ctrl_limit );
-            caRecord.setUnsignedLong( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setUnits( std::string( incommingData->units ) );
+            caRecord.setDisplayLimit( incommingData->upper_disp_limit, incommingData->lower_disp_limit );
+            caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
+            caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
+            caRecord.setControlLimit( incommingData->upper_ctrl_limit, incommingData->lower_ctrl_limit );
+            caRecord.setLong( (long*)(&incommingData->value), args.count );
             break;
         }
         case DBR_CTRL_DOUBLE :
         {
-//            struct dbr_ctrl_double incommingData;
-//            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
             struct dbr_ctrl_double* incommingData = (dbr_ctrl_double*)(args.dbr);
             caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
@@ -659,7 +664,6 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
             caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
             caRecord.setControlLimit( incommingData->upper_ctrl_limit, incommingData->lower_ctrl_limit );
-  //          caRecord.setDouble( incommingData->value );
             caRecord.setDouble( &incommingData->value, args.count );
             break;
         }

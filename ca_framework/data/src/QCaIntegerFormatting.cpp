@@ -49,11 +49,20 @@ QCaIntegerFormatting::QCaIntegerFormatting() {
 */
 QVariant QCaIntegerFormatting::formatValue( const long &integerValue, generic::generic_types valueType ) {
     switch( valueType ) {
-        case generic::DOUBLE :
+        case generic::STRING :
         {
-            QVariant dValue( (double)integerValue );
-            return dValue;
+            QString string = QString::number( integerValue, radix);
+            QVariant sValue( string );
+            return sValue;
         }
+        case generic::SHORT :
+        case generic::LONG :
+        {
+            QVariant lValue( (qlonglong)integerValue );
+            return lValue;
+        }
+        case generic::UNSIGNED_SHORT :
+        case generic::UNSIGNED_CHAR :
         case generic::UNSIGNED_LONG :
         {
             qulonglong unsignedIntegerValue;
@@ -61,15 +70,13 @@ QVariant QCaIntegerFormatting::formatValue( const long &integerValue, generic::g
             QVariant ulValue( unsignedIntegerValue );
             return ulValue;
         }
-        case generic::STRING :
+        case generic::FLOAT :
+        case generic::DOUBLE :
         {
-            QString string = QString::number( integerValue, radix);
-            QVariant sValue( string );
-            return sValue;
+            QVariant dValue( (double)integerValue );
+            return dValue;
         }
         case generic::UNKNOWN :
-        {
-        }
         default :
         {
             //qDebug() << "QCaIntegerFormatting::formatValue() Unknown value 'Generic' type: " << valueType;
@@ -169,6 +176,7 @@ long QCaIntegerFormatting::formatFromUnsignedInteger( const QVariant &value ) {
 */
 long QCaIntegerFormatting::formatFromString( const QVariant &value ) {
     // Extract the value as a long using whatever conversion the QVariant uses.
+    // If that fails, try extracting the value as a double using whatever conversion the QVariant uses, then cast it as a long.
     //
     // Note, this will not pick up if the QVariant type is not one of the types used to represent CA data.
     // This is OK as it is not absolutely nessesary to do this sort of check at this point. Also the code is more robust as it will
@@ -180,10 +188,18 @@ long QCaIntegerFormatting::formatFromString( const QVariant &value ) {
     bool convertOk;
     long lValue = value.toLongLong( &convertOk );
 
-    if( !convertOk )
-        return formatFailure( QString( "Warning from QCaIntegerFormatting::formatFromString(). A variant could not be converted to a string." ) );
+    if( convertOk )
+        return lValue;
 
-    return lValue;
+    double dValue = value.toDouble( &convertOk );
+    if( convertOk )
+    {
+        lValue = (long)dValue;
+        return lValue;
+    }
+
+    return formatFailure( QString( "Warning from QCaIntegerFormatting::formatFromString(). A variant could not be converted to a string." ) );
+
 }
 
 /*!

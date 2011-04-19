@@ -37,15 +37,24 @@
 
 namespace generic {
 
-  enum generic_types { STRING, SHORT, CHAR, UNSIGNED_LONG, DOUBLE, UNKNOWN };
+  enum generic_types { STRING, SHORT, UNSIGNED_SHORT, UNSIGNED_CHAR, LONG, UNSIGNED_LONG, FLOAT, DOUBLE, UNKNOWN };
 
   class Generic {
     public:
       Generic();
       Generic( std::string newValue );
       Generic( short newValue );
-      Generic( char newValue );
+      Generic( short* newValueArray, unsigned long countIn );
+      Generic( unsigned short newValue );
+      Generic( unsigned short* newValueArray, unsigned long countIn );
+      Generic( unsigned char newValue );
+      Generic( unsigned char* newValueArray, unsigned long countIn );
+      Generic( long newValue );
+      Generic( long* newValueArray, unsigned long countIn );
       Generic( unsigned long newValue );
+      Generic( unsigned long* newValueArray, unsigned long countIn );
+      Generic( float newValue );
+      Generic( float* newValueArray, unsigned long countIn );
       Generic( double newValue );
       Generic( double* newValueArray, unsigned long countIn );
       ~Generic();
@@ -55,17 +64,36 @@ namespace generic {
 
       void setString( std::string newValue );
       void setShort( short newValue );
-      void setChar( char newValue );
+      void setShort( short* newValueArray, unsigned long countIn );
+      void setUnsignedShort( unsigned short newValue );
+      void setUnsignedShort( unsigned short* newValueArray, unsigned long countIn );
+      void setUnsignedChar( unsigned char newValue );
+      void setUnsignedChar( unsigned char* newValueArray, unsigned long countIn );
+      void setLong( long newValue );
+      void setLong( long* newValueArray, unsigned long countIn );
       void setUnsignedLong( unsigned long newValue );
+      void setUnsignedLong( unsigned long* newValueArray, unsigned long countIn );
+      void setFloat( float newValue );
+      void setFloat( float* newValueArray, unsigned long countIn );
       void setDouble( double newValue );
       void setDouble( double* newValueArray, unsigned long countIn );
 
       std::string getString();
       short getShort();
-      char getChar();
+      void  getShort( short** valueArray, unsigned long* countOut = NULL );
+      unsigned short getUnsignedShort();
+      void           getUnsignedShort( unsigned short** valueArray, unsigned long* countOut = NULL );
+      unsigned char getUnsignedChar();
+      void          getUnsignedChar( unsigned char** valueArray, unsigned long* countOut = NULL );
+      long getLong();
+      void getLong( long** valueArray, unsigned long* countOut = NULL );
       unsigned long getUnsignedLong();
+      void          getUnsignedLong( unsigned long** valueArray, unsigned long* countOut = NULL );
+      float getFloat();
+      void  getFloat( float** valueArray, unsigned long* countOut = NULL );
       double getDouble();
-      void getDouble( double** valueArray, unsigned long* countOut = NULL );
+      void   getDouble( double** valueArray, unsigned long* countOut = NULL );
+
       unsigned long getArrayCount();
 
       generic_types getType();

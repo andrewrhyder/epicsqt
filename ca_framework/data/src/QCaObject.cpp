@@ -521,7 +521,7 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             connectionMachine->process( qcastatemachine::CONNECTED );
             subscriptionMachine->process( subscriptionMachine->requestState );
             readMachine->process( readMachine->requestState );
-            writeMachine->process( writeMachine->requestState );
+            writeMachine->process( qcastatemachine::WRITE_IDLE );
             break;
         }
         case caobject::CONNECTION_DOWN :
@@ -535,7 +535,7 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             connectionMachine->process( qcastatemachine::DISCONNECTED );
             subscriptionMachine->process( subscriptionMachine->requestState );
             readMachine->process( readMachine->requestState );
-            writeMachine->process( writeMachine->requestState );
+            writeMachine->process( qcastatemachine::WRITE_IDLE );
             break;
         }
         case caobject::SUBSCRIPTION_SUCCESS :
@@ -713,13 +713,113 @@ void QCaObject::processData( void* newDataPtr ) {
             value = QVariant( QString::fromStdString( newData->getString() ) );
         break;
         case generic::SHORT :
-            value = QVariant( newData->getShort() );
+            if( arrayCount <= 1 )
+            {
+                value = QVariant( (qlonglong)newData->getShort() );
+            }
+            else
+            {
+                QVariantList values;
+                short* data;
+                newData->getShort( &data );
+
+                for( unsigned long i = 0; i < arrayCount; i++ )
+                {
+                    values.append( (qlonglong)(data[i]) );
+                }
+                value = QVariant( values );
+            }
         break;
-        case generic::CHAR :
-            value = QVariant( newData->getChar() );
+        case generic::UNSIGNED_SHORT :
+            if( arrayCount <= 1 )
+            {
+                value = QVariant( (qulonglong)newData->getUnsignedShort() );
+            }
+            else
+            {
+                QVariantList values;
+                unsigned short* data;
+                newData->getUnsignedShort( &data );
+
+                for( unsigned long i = 0; i < arrayCount; i++ )
+                {
+                    values.append( (qulonglong)(data[i]) );
+                }
+                value = QVariant( values );
+            }
+        break;
+        case generic::UNSIGNED_CHAR :
+            if( arrayCount <= 1 )
+            {
+                value = QVariant( (qulonglong)newData->getUnsignedChar() );
+            }
+            else
+            {
+                QVariantList values;
+                unsigned char* data;
+                newData->getUnsignedChar( &data );
+
+                for( unsigned long i = 0; i < arrayCount; i++ )
+                {
+                    values.append( (qulonglong)(data[i]) );
+                }
+                value = QVariant( values );
+            }
+        break;
+        case generic::LONG :
+            if( arrayCount <= 1 )
+            {
+                value = QVariant( (qlonglong)newData->getLong() );
+            }
+            else
+            {
+                QVariantList values;
+                long* data;
+                newData->getLong( &data );
+
+                for( unsigned long i = 0; i < arrayCount; i++ )
+                {
+                    values.append( (qlonglong)(data[i]) );
+                }
+                value = QVariant( values );
+            }
         break;
         case generic::UNSIGNED_LONG :
-            value = QVariant( (qlonglong) newData->getUnsignedLong() );
+            value = QVariant( (qlonglong)newData->getUnsignedLong() );
+            if( arrayCount <= 1 )
+            {
+                value = QVariant( (qulonglong)newData->getUnsignedLong() );
+            }
+            else
+            {
+                QVariantList values;
+                unsigned long* data;
+                newData->getUnsignedLong( &data );
+
+                for( unsigned long i = 0; i < arrayCount; i++ )
+                {
+                    values.append( (qulonglong)(data[i]) );
+                }
+                value = QVariant( values );
+            }
+        break;
+        case generic::FLOAT :
+            if( arrayCount <= 1 )
+            {
+                value = QVariant( (double)newData->getFloat() );
+            }
+            else
+            {
+                QVariantList values;
+                float* data;
+                newData->getFloat( &data );
+
+                for( unsigned long i = 0; i < arrayCount; i++ )
+                {
+                    values.append( (double)(data[i]) );
+                }
+                value = QVariant( values );
+            }
         break;
         case generic::DOUBLE :
             if( arrayCount <= 1 )

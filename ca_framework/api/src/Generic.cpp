@@ -62,13 +62,55 @@ Generic::Generic( short newValue ) {
     setShort( newValue );
 }
 
+Generic::Generic( short* newValue, unsigned long arrayCountIn ) {
+    value = NULL;
+    arrayCount = 0;
+    setShort( newValue, arrayCountIn );
+}
+
+/*!
+    Creates overloaded constructor of type unsigned short
+*/
+Generic::Generic( unsigned short newValue ) {
+    value = NULL;
+    arrayCount = 0;
+    setUnsignedShort( newValue );
+}
+
+Generic::Generic( unsigned short* newValue, unsigned long arrayCountIn ) {
+    value = NULL;
+    arrayCount = 0;
+    setUnsignedShort( newValue, arrayCountIn );
+}
+
 /*!
     Creates overloaded constructor of type char
 */
-Generic::Generic( char newValue ) {
+Generic::Generic( unsigned char newValue ) {
     value = NULL;
     arrayCount = 0;
-    setChar( newValue );
+    setUnsignedChar( newValue );
+}
+
+Generic::Generic( unsigned char* newValue, unsigned long arrayCountIn ) {
+    value = NULL;
+    arrayCount = 0;
+    setUnsignedChar( newValue, arrayCountIn );
+}
+
+/*!
+    Creates overloaded constructor of type long
+*/
+Generic::Generic( long newValue ) {
+    value = NULL;
+    arrayCount = 0;
+    setLong( newValue );
+}
+
+Generic::Generic( long* newValue, unsigned long arrayCountIn ) {
+    value = NULL;
+    arrayCount = 0;
+    setLong( newValue, arrayCountIn );
 }
 
 /*!
@@ -78,6 +120,27 @@ Generic::Generic( unsigned long newValue ) {
     value = NULL;
     arrayCount = 0;
     setUnsignedLong( newValue );
+}
+
+Generic::Generic( unsigned long* newValue, unsigned long arrayCountIn ) {
+    value = NULL;
+    arrayCount = 0;
+    setUnsignedLong( newValue, arrayCountIn );
+}
+
+/*!
+    Creates overloaded constructor of type float
+*/
+Generic::Generic( float newValue ) {
+    value = NULL;
+    arrayCount = 0;
+    setFloat( newValue );
+}
+
+Generic::Generic( float* newValue, unsigned long arrayCountIn ) {
+    value = NULL;
+    arrayCount = 0;
+    setFloat( newValue, arrayCountIn );
 }
 
 /*!
@@ -130,53 +193,122 @@ void Generic::setString( std::string newValue ) {
     Creates and records new type short
 */
 void Generic::setShort( short newValue ) { 
+    setShort( &newValue, 1 );
+}
+
+/*!
+    Creates and records new type short (an array larger than 1)
+*/
+void Generic::setShort( short* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
-    value = new short( newValue );
+    value = new short[arrayCountIn];
+    memcpy( value, newValueArray, sizeof(short)*arrayCountIn );
+    arrayCount = arrayCountIn;
     type = SHORT;
 }
 
 /*!
-    Creates and records new type char
+    Creates and records new type unsigned short
 */
-void Generic::setChar( char newValue ) { 
+void Generic::setUnsignedShort( unsigned short newValue ) {
+    setUnsignedShort( &newValue, 1 );
+}
+
+/*!
+    Creates and records new type unsigned short (an array larger than 1)
+*/
+void Generic::setUnsignedShort( unsigned short* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
-    value = new char( newValue );
-    type = CHAR;
+    value = new unsigned short[arrayCountIn];
+    memcpy( value, newValueArray, sizeof(unsigned short)*arrayCountIn );
+    arrayCount = arrayCountIn;
+    type = UNSIGNED_SHORT;
+}
+
+/*!
+    Creates and records new type unsigned char
+*/
+void Generic::setUnsignedChar( unsigned char newValue ) {
+    setUnsignedChar( &newValue, 1 );
+}
+
+/*!
+    Creates and records new type unsigned char (an array larger than 1)
+*/
+void Generic::setUnsignedChar( unsigned char* newValueArray, unsigned long arrayCountIn ) {
+    deleteValue();
+    value = new unsigned char[arrayCountIn];
+    memcpy( value, newValueArray, sizeof(unsigned char)*arrayCountIn );
+    arrayCount = arrayCountIn;
+    type = UNSIGNED_CHAR;
+}
+
+/*!
+    Creates and records new type  long
+*/
+void Generic::setLong( long newValue ) {
+    setLong( &newValue, 1 );
+}
+
+/*!
+    Creates and records new type long (an array larger than 1)
+*/
+void Generic::setLong( long* newValueArray, unsigned long arrayCountIn ) {
+    deleteValue();
+    value = new long[arrayCountIn];
+    memcpy( value, newValueArray, sizeof(long)*arrayCountIn );
+    arrayCount = arrayCountIn;
+    type = LONG;
 }
 
 /*!
     Creates and records new type unsigned long
 */
-void Generic::setUnsignedLong( unsigned long newValue ) { 
+void Generic::setUnsignedLong( unsigned long newValue ) {
+    setUnsignedLong( &newValue, 1 );
+}
+
+/*!
+    Creates and records new type unsigned long (an array larger than 1)
+*/
+void Generic::setUnsignedLong( unsigned long* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
-    value = new unsigned long( newValue );
+    value = new unsigned long[arrayCountIn];
+    memcpy( value, newValueArray, sizeof(unsigned long)*arrayCountIn );
+    arrayCount = arrayCountIn;
     type = UNSIGNED_LONG;
+}
+
+/*!
+    Creates and records new type float
+*/
+void Generic::setFloat( float newValue ) {
+    setFloat( &newValue, 1 );
+}
+
+/*!
+    Creates and records new type float (an array larger than 1)
+*/
+void Generic::setFloat( float* newValueArray, unsigned long arrayCountIn ) {
+    deleteValue();
+    value = new float[arrayCountIn];
+    memcpy( value, newValueArray, sizeof(float)*arrayCountIn );
+    arrayCount = arrayCountIn;
+    type = FLOAT;
 }
 
 /*!
     Creates and records new type double
 */
-void Generic::setDouble( double newValue ) { 
+void Generic::setDouble( double newValue ) {
     setDouble( &newValue, 1 );
-//    deleteValue();
-//    value = new double( newValue );
-//    arrayCount = 1;
-//    type = DOUBLE;
 }
 
 /*!
     Creates and records new type double (an array larger than 1)
 */
-
 void Generic::setDouble( double* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
-
-
-//    value = new double( *newValueArray );
-//    arrayCount = 1;
-//    type = DOUBLE;
-//    return;
-
     value = new double[arrayCountIn];
     memcpy( value, newValueArray, sizeof(double)*arrayCountIn );
     arrayCount = arrayCountIn;
@@ -194,7 +326,7 @@ std::string Generic::getString() {
 }
 
 /*!
-    Returns type string or short
+    Returns type short or invalid
 */
 short Generic::getShort() { 
     if( getType() == SHORT ) {
@@ -204,13 +336,93 @@ short Generic::getShort() {
 }
 
 /*!
+    Returns type short array or invalid
+*/
+void Generic::getShort( short** valueArray, unsigned long* arrayCountOut ) {
+    if( getType() == SHORT ) {
+        *valueArray = (short*)value;
+        if( arrayCountOut )
+            *arrayCountOut = arrayCount;
+        return;
+    }
+    *valueArray = NULL;
+    if( arrayCountOut )
+        *arrayCountOut = 0;
+}
+
+/*!
+    Returns type unsigned short or invalid
+*/
+unsigned short Generic::getUnsignedShort() {
+    if( getType() == UNSIGNED_SHORT ) {
+        return *(unsigned short*)value;
+    }
+    return 0;
+}
+
+/*!
+    Returns type short array or invalid
+*/
+void Generic::getUnsignedShort( unsigned short** valueArray, unsigned long* arrayCountOut ) {
+    if( getType() == UNSIGNED_SHORT ) {
+        *valueArray = (unsigned short*)value;
+        if( arrayCountOut )
+            *arrayCountOut = arrayCount;
+        return;
+    }
+    *valueArray = NULL;
+    if( arrayCountOut )
+        *arrayCountOut = 0;
+}
+
+/*!
     Returns type char or invalid
 */
-char Generic::getChar() { 
-    if( getType() == CHAR ) {
+unsigned char Generic::getUnsignedChar() {
+    if( getType() == UNSIGNED_CHAR ) {
         return *(char*)value;
     }
     return 0;
+}
+
+/*!
+    Returns type char array or invalid
+*/
+void Generic::getUnsignedChar( unsigned char** valueArray, unsigned long* arrayCountOut ) {
+    if( getType() == UNSIGNED_CHAR ) {
+        *valueArray = (unsigned char*)value;
+        if( arrayCountOut )
+            *arrayCountOut = arrayCount;
+        return;
+    }
+    *valueArray = NULL;
+    if( arrayCountOut )
+        *arrayCountOut = 0;
+}
+
+/*!
+    Returns type long or invalid
+*/
+long Generic::getLong() {
+    if( getType() == LONG ) {
+        return *(long*)value;
+    }
+    return 0;
+}
+
+/*!
+    Returns type long array or invalid
+*/
+void Generic::getLong( long** valueArray, unsigned long* arrayCountOut ) {
+    if( getType() == LONG ) {
+        *valueArray = (long*)value;
+        if( arrayCountOut )
+            *arrayCountOut = arrayCount;
+        return;
+    }
+    *valueArray = NULL;
+    if( arrayCountOut )
+        *arrayCountOut = 0;
 }
 
 /*!
@@ -221,6 +433,46 @@ unsigned long Generic::getUnsignedLong() {
         return *(unsigned long*)value;
     }
     return 0;
+}
+
+/*!
+    Returns type unsigned long array or invalid
+*/
+void Generic::getUnsignedLong( unsigned long** valueArray, unsigned long* arrayCountOut ) {
+    if( getType() == UNSIGNED_LONG ) {
+        *valueArray = (unsigned long*)value;
+        if( arrayCountOut )
+            *arrayCountOut = arrayCount;
+        return;
+    }
+    *valueArray = NULL;
+    if( arrayCountOut )
+        *arrayCountOut = 0;
+}
+
+/*!
+    Returns type float or invalid
+*/
+float Generic::getFloat() {
+    if( getType() == FLOAT ) {
+        return *(float*)value;
+    }
+    return 0;
+}
+
+/*!
+    Returns type double array or invalid
+*/
+void Generic::getFloat( float** valueArray, unsigned long* arrayCountOut ) {
+    if( getType() == FLOAT ) {
+        *valueArray = (float*)value;
+        if( arrayCountOut )
+            *arrayCountOut = arrayCount;
+        return;
+    }
+    *valueArray = NULL;
+    if( arrayCountOut )
+        *arrayCountOut = 0;
 }
 
 /*!
@@ -286,15 +538,23 @@ void Generic::deleteValue() {
         case SHORT :
             delete (short*)value;
         break;
-        case CHAR :
+        case UNSIGNED_SHORT :
+            delete (unsigned short*)value;
+        break;
+        case UNSIGNED_CHAR :
             delete (char*)value;
+        break;
+        case LONG :
+            delete (long*)value;
         break;
         case UNSIGNED_LONG :
             delete (unsigned long*)value;
         break;
+        case FLOAT :
+            delete (float*)value;
+        break;
         case DOUBLE :
             delete (double*)value;
-//          free( value );
         break;
         case UNKNOWN :
             value = NULL;
@@ -313,17 +573,55 @@ void Generic::cloneValue( Generic *param ) {
         case STRING :
             setString( param->getString() );
         break;
+        case UNSIGNED_SHORT :
+            {
+                unsigned short* paramValue;
+                unsigned long paramCount;
+                param->getUnsignedShort( &paramValue, &paramCount );
+                setUnsignedShort( paramValue, paramCount );
+            }
+        break;
         case SHORT :
-            setShort( param->getShort() );
+            {
+                short* paramValue;
+                unsigned long paramCount;
+                param->getShort( &paramValue, &paramCount );
+                setShort( paramValue, paramCount );
+            }
         break;
-        case CHAR :
-            setChar( param->getChar() );
+        case UNSIGNED_CHAR :
+            {
+                unsigned char* paramValue;
+                unsigned long paramCount;
+                param->getUnsignedChar( &paramValue, &paramCount );
+                setUnsignedChar( paramValue, paramCount );
+            }
         break;
-        case UNSIGNED_LONG :
-            setUnsignedLong( param->getUnsignedLong() );
+        case LONG :
+            {
+                long* paramValue;
+                unsigned long paramCount;
+                param->getLong( &paramValue, &paramCount );
+                setLong( paramValue, paramCount );
+            }
+        break;
+         case UNSIGNED_LONG :
+            {
+                unsigned long* paramValue;
+                unsigned long paramCount;
+                param->getUnsignedLong( &paramValue, &paramCount );
+                setUnsignedLong( paramValue, paramCount );
+            }
+        break;
+        case FLOAT :
+            {
+                float* paramValue;
+                unsigned long paramCount;
+                param->getFloat( &paramValue, &paramCount );
+                setFloat( paramValue, paramCount );
+            }
         break;
         case DOUBLE :
-//            setDouble( param->getDouble() );
             {
                 double* paramValue;
                 unsigned long paramCount;

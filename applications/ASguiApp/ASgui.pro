@@ -31,16 +31,14 @@ CONFIG += uitools \
 SOURCES += ./src/main.cpp \
     ./src/MainWindow.cpp \
     ./src/StartupParams.cpp \
-    ./src/InstanceManager.cpp \
-    $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+    ./src/InstanceManager.cpp
+# Include the following gdbmacros line for debugging only
+#SOURCES +=     $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
 
-# ./src/MainContext.cpp \
-# include($$(QCAFRAMEWORK)/qtsingleapplication/src/qtsingleapplication.pri)
 HEADERS += include/MainWindow.h \
     include/StartupParams.h \
     include/InstanceManager.h
 
-# include/MainContext.h \
 INCLUDEPATH += . \
     ./include \
     $$(QCAFRAMEWORK)/data/include \

@@ -88,6 +88,16 @@ class QCaLabelPlugin : public QCaLabel {
     void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
     Notations getNotationProperty(){ return (Notations)getNotation(); }
 
+    Q_ENUMS(ArrayActions)
+    Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
+    enum ArrayActions { Append = QCaStringFormatting::APPEND,
+                        Ascii  = QCaStringFormatting::ASCII,
+                        Index  = QCaStringFormatting::INDEX };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }
+    ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }
+
+    Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
+
     Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
 
 

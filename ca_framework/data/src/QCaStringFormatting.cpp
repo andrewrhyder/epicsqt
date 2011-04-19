@@ -48,6 +48,8 @@ QCaStringFormatting::QCaStringFormatting() {
     stream.setIntegerBase( 10 );
     stream.setRealNumberNotation( QTextStream::FixedNotation );
     addUnits = true;
+    arrayAction = ASCII;//INDEX;
+    arrayIndex = 0;
 
     // Initialise database information
     dbPrecision = 0;
@@ -203,23 +205,89 @@ QString QCaStringFormatting::formatString( const QVariant &value ) {
                         formatFromFloating( value );
                         break;
 
-                    case QVariant::List :
-                        {
-                            const QVariantList valueArray = value.toList();
-                            formatFromFloating( valueArray[0].toDouble() );
-                        }
-                        break;
-
-                case QVariant::LongLong:
+                    case QVariant::LongLong:
+                    case QVariant::Int:
                         formatFromInteger( value, false );
                         break;
 
                     case QVariant::ULongLong:
+                    case QVariant::UInt:
                         formatFromUnsignedInteger( value );
                         break;
 
                     case QVariant::String:
                         stream << value.toString(); // No conversion requried. Stored in variant as required type
+                        break;
+
+                    case QVariant::List :
+                        {
+                            // Get the list
+                            const QVariantList valueArray = value.toList();
+
+                            // Add nothing to the stream if a value beyond the end of the list has been requested
+                            if( arrayAction == INDEX && arrayIndex >= (unsigned int)(valueArray.count()) )
+                            {
+                                break;
+                            }
+
+                            switch( valueArray[0].type() )
+                            {
+                                case QVariant::Double:
+                                    //???!!! ignores arrayAction and arrayIndex See uint and ulonglong below
+                                    formatFromFloating( valueArray[0].toDouble() );
+                                    break;
+
+                                case QVariant::LongLong:
+                                case QVariant::Int:
+                                    //???!!! ignores arrayAction and arrayIndex See uint and ulonglong below
+                                    formatFromInteger( valueArray[0], false );
+                                    break;
+
+                                case QVariant::ULongLong:
+                                case QVariant::UInt:
+                                    switch( arrayAction )
+                                    {
+                                        case APPEND:
+                                            for( int i = 0; i < valueArray.count(); i++ )
+                                            {
+                                                formatFromUnsignedInteger( valueArray[i] );
+                                                stream << " ";
+                                            }
+                                            break;
+
+                                        case ASCII:
+                                            for( int i = 0; i < valueArray.count(); i++ )
+                                            {
+
+                                                if( valueArray[i].toInt() < ' ' || valueArray[i].toInt() > '~' )
+                                                {
+                                                    stream << "?";
+                                                }
+                                                else
+                                                {
+                                                    stream << valueArray[i].toChar();
+                                                }
+                                            }
+                                            break;
+
+                                        case INDEX:
+                                            formatFromUnsignedInteger( valueArray[arrayIndex] );
+                                            break;
+                                    }
+                                    break;
+
+                                case QVariant::String:
+                                    //???!!! ignores arrayAction and arrayIndex See uint and ulonglong above
+                                    stream << valueArray[0].toString(); // No conversion requried. Stored in variant as required type
+                                    break;
+
+                                default:
+                                    formatFailure( QString( "Bug in QCaStringFormatting::formatString(). The QVariant type was not expected" ) );
+                                    errorMessage = true;
+                                    break;
+
+                            }
+                        }
                         break;
 
                     default:
@@ -541,6 +609,20 @@ void QCaStringFormatting::setRadix( unsigned int radix ) {
 */
 void QCaStringFormatting::setNotation( notations notation ) {
     stream.setRealNumberNotation( (QTextStream::RealNumberNotation)notation );
+}
+
+/*!
+    Set how arrays are converted to text (Treates as an array of ascii characters, an array of values, etc)
+*/
+void QCaStringFormatting::setArrayAction( arrayActions arrayActionIn ) {
+    arrayAction = arrayActionIn;
+}
+
+/*!
+    Set which value from an array is formatted (not relevent when the array is processed as ascii)
+*/
+void QCaStringFormatting::setArrayIndex( unsigned int arrayIndexIn ) {
+    arrayIndex = arrayIndexIn;
 }
 
 /*!
@@ -979,6 +1061,20 @@ unsigned int QCaStringFormatting::getRadix() {
 */
 QCaStringFormatting::notations QCaStringFormatting::getNotation() {
     return (QCaStringFormatting::notations)stream.realNumberNotation();
+}
+
+/*!
+    Return the action to take when formatting an array (treat as ascii characters, a series of numbers, etc)
+*/
+QCaStringFormatting::arrayActions QCaStringFormatting::getArrayAction() {
+    return arrayAction;
+}
+
+/*!
+    Return the index to select a value from array of values (not relevent when the array is treated as ascii)
+*/
+unsigned int QCaStringFormatting::getArrayIndex() {
+    return arrayIndex;
 }
 
 /*!
