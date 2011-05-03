@@ -38,7 +38,7 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <QCaStringFormatting.h>
 
-//! ???
+//!!! ???
 #define VARIABLE_NAME_PROPERTY_MANAGERS_SIZE 6
 
 class QCaShapePlugin : public QCaShape {

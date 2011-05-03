@@ -12,5 +12,6 @@
         <file>QCaComboBox.png</file>
         <file>Link.png</file>
         <file>QCaPlot.png</file>
+        <file>QCaPeriodic.png</file>
     </qresource>
 </RCC>

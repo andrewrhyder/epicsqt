@@ -41,7 +41,8 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/Link.png \
     src/GuiPushButton.png \
     src/CmdPushButton.png \
-    src/ASguiForm.png
+    src/ASguiForm.png \
+    src/QCaPeriodic.png
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \
@@ -69,6 +70,11 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/LinkPlugin.h \
     include/QCaPlotPluginManager.h \
     include/QCaPlotPlugin.h \
+    include/QCaPeriodicPlugin.h \
+    include/QCaPeriodicPluginManager.h \
+    include/QCaPeriodicPluginTaskMenu.h \
+    include/PeriodicSetupDialog.h \
+    include/PeriodicElementSetupForm.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -103,7 +109,9 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/CmdPushButton.h \
     ../widgets/include/ASguiForm.h \
     ../widgets/include/QCaPlot.h \
-    ../widgets/include/QCaToolTip.h
+    ../widgets/include/QCaToolTip.h \
+    ../widgets/include/QCaPeriodic.h \
+    ../widgets/include/PeriodicDialog.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
@@ -130,6 +138,11 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/ASguiFormPlugin.cpp \
     src/QCaPlotPlugin.cpp \
     src/QCaPlotPluginManager.cpp \
+    src/QCaPeriodicPlugin.cpp \
+    src/QCaPeriodicPluginManager.cpp \
+    src/QCaPeriodicPluginTaskMenuExtension.cpp \
+    src/PeriodicSetupDialog.cpp \
+    src/PeriodicElementSetupForm.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -163,7 +176,9 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/GuiPushButton.cpp \
     ../widgets/src/CmdPushButton.cpp \
     ../widgets/src/ASguiForm.cpp \
-    ../widgets/src/QCaToolTip.cpp
+    ../widgets/src/QCaToolTip.cpp \
+    ../widgets/src/QCaPeriodic.cpp \
+    ../widgets/src/PeriodicDialog.cpp
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
@@ -182,3 +197,8 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lCom \
     -L$$(QCAFRAMEWORK)/qwt-5.2.1/lib \
     -lqwt
+
+FORMS += \
+    ../widgets/src/PeriodicDialog.ui \
+    src/PeriodicSetupDialog.ui \
+    src/PeriodicElementSetupForm.ui

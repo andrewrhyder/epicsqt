@@ -41,6 +41,7 @@
 #include <ASguiFormPluginManager.h>
 #include <LinkPluginManager.h>
 #include <QCaPlotPluginManager.h>
+#include <QCaPeriodicPluginManager.h>
 
 #include <QtCore/qplugin.h>
 
@@ -62,6 +63,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new ASguiFormPluginManager(this));
     widgets.append(new LinkPluginManager(this));
     widgets.append(new QCaPlotPluginManager(this));
+    widgets.append(new QCaPeriodicPluginManager(this));
 }
 
 /*!
