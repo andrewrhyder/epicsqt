@@ -32,8 +32,6 @@
 #include <QCaFloatingFormatting.h>
 #include <QtDebug>
 
-#define MAXUINT (2^(sizeof(qulonglong)))
-
 /*!
     ???
 */
@@ -53,17 +51,70 @@ QCaFloatingFormatting::QCaFloatingFormatting() {
 QVariant QCaFloatingFormatting::formatValue( const double &floatingValue, generic::generic_types valueType ) {
     switch( valueType ) {
         case generic::DOUBLE :
+        case generic::FLOAT :
         {
             QVariant dValue( floatingValue );
             return dValue;
+        }
+        case generic::LONG :
+        {
+            qlonglong integerValue;
+            if( floatingValue < (double)LONG_MIN )
+                integerValue = LONG_MIN;
+            else if( floatingValue > (double)LONG_MAX )
+                integerValue = LONG_MAX;
+            else
+                integerValue = (qlonglong)floatingValue;
+
+            QVariant lValue( integerValue );
+            return lValue;
+        }
+        case generic::SHORT :
+        {
+            qlonglong integerValue;
+            if( floatingValue < (double)SHRT_MIN )
+                integerValue = SHRT_MIN;
+            else if( floatingValue > (double)SHRT_MAX )
+                integerValue = SHRT_MAX;
+            else
+                integerValue = (qlonglong)floatingValue;
+
+            QVariant lValue( integerValue );
+            return lValue;
         }
         case generic::UNSIGNED_LONG :
         {
             qulonglong unsignedIntegerValue;
             if( floatingValue < 0 )
                 unsignedIntegerValue = 0;
-            else if( floatingValue > (double)MAXUINT )
-                unsignedIntegerValue = MAXUINT;
+            else if( floatingValue > (double)ULONG_MAX )
+                unsignedIntegerValue = ULONG_MAX;
+            else
+                unsignedIntegerValue = (qulonglong)floatingValue;
+
+            QVariant ulValue( unsignedIntegerValue );
+            return ulValue;
+        }
+        case generic::UNSIGNED_SHORT :
+        {
+            qulonglong unsignedIntegerValue;
+            if( floatingValue < 0 )
+                unsignedIntegerValue = 0;
+            else if( floatingValue > (double)USHRT_MAX )
+                unsignedIntegerValue = USHRT_MAX;
+            else
+                unsignedIntegerValue = (qulonglong)floatingValue;
+
+            QVariant ulValue( unsignedIntegerValue );
+            return ulValue;
+        }
+        case generic::UNSIGNED_CHAR :
+        {
+            qulonglong unsignedIntegerValue;
+            if( floatingValue < 0 )
+                unsignedIntegerValue = 0;
+            else if( floatingValue > (double)UCHAR_MAX )
+                unsignedIntegerValue = UCHAR_MAX;
             else
                 unsignedIntegerValue = (qulonglong)floatingValue;
 
