@@ -42,7 +42,9 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/GuiPushButton.png \
     src/CmdPushButton.png \
     src/ASguiForm.png \
-    src/QCaPeriodic.png
+    src/QCaPeriodic.png \
+    src/QAnalogProgressBar.png \
+    src/QCaAnalogProgressBar.png
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \
@@ -75,6 +77,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaPeriodicPluginTaskMenu.h \
     include/PeriodicSetupDialog.h \
     include/PeriodicElementSetupForm.h \
+    include/QAnalogProgressBarPluginManager.h \
+    include/QCaAnalogProgressBarPluginManager.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -111,7 +115,9 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaPlot.h \
     ../widgets/include/QCaToolTip.h \
     ../widgets/include/QCaPeriodic.h \
-    ../widgets/include/PeriodicDialog.h
+    ../widgets/include/PeriodicDialog.h \
+    ../widgets/include/QAnalogProgressBar.h \
+    ../widgets/include/QCaAnalogProgressBar.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
@@ -143,6 +149,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaPeriodicPluginTaskMenuExtension.cpp \
     src/PeriodicSetupDialog.cpp \
     src/PeriodicElementSetupForm.cpp \
+    src/QAnalogProgressBarPluginManager.cpp \
+    src/QCaAnalogProgressBarPluginManager.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -178,7 +186,9 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/ASguiForm.cpp \
     ../widgets/src/QCaToolTip.cpp \
     ../widgets/src/QCaPeriodic.cpp \
-    ../widgets/src/PeriodicDialog.cpp
+    ../widgets/src/PeriodicDialog.cpp \
+    ../widgets/src/QAnalogProgressBar.cpp \
+    ../widgets/src/QCaAnalogProgressBar.cpp
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc

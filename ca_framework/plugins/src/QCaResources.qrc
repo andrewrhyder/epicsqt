@@ -13,5 +13,7 @@
         <file>Link.png</file>
         <file>QCaPlot.png</file>
         <file>QCaPeriodic.png</file>
+        <file>QAnalogProgressBar.png</file>
+        <file>QCaAnalogProgressBar.png</file>
     </qresource>
 </RCC>

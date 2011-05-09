@@ -51,7 +51,7 @@ PeriodicSetupDialog::PeriodicSetupDialog(QWidget *parent) :
     if( periodicGrid )
     {
         // Populate the table elements
-        for( int i = 0; i < 113; i++ )
+        for( int i = 0; i < NUM_ELEMENTS; i++ )
         {
             elements[i] = new PeriodicElementSetupForm( this );
 
@@ -87,6 +87,12 @@ PeriodicSetupDialog::PeriodicSetupDialog(QWidget *parent) :
                 {
                     value2->setText( QString::number( plugin->userInfo[i].value2 ) );
                 }
+
+                QLineEdit* elementText = elements[i]->findChild<QLineEdit *>("lineEditString");
+                if( elementText )
+                {
+                    elementText->setText(  plugin->userInfo[i].elementText );
+                }
             }
 
             periodicGrid->addWidget( elements[i], QCaPeriodic::elementInfo[i].tableRow, QCaPeriodic::elementInfo[i].tableCol );
@@ -120,7 +126,7 @@ void PeriodicSetupDialog::on_buttonBox_accepted()
     QCaPeriodicPlugin *plugin = qobject_cast<QCaPeriodicPlugin *>(this->parent());
     if( plugin )
     {
-        for( int i = 0; i < 113; i++ )
+        for( int i = 0; i < NUM_ELEMENTS; i++ )
         {
             QCheckBox* enableButton = elements[i]->findChild<QCheckBox *>("checkBoxEnable");
             if( enableButton )
@@ -139,6 +145,12 @@ void PeriodicSetupDialog::on_buttonBox_accepted()
             if( value2 )
             {
                 plugin->userInfo[i].value2 = value2->text().toDouble( &ok );
+            }
+
+            QLineEdit* elementText = elements[i]->findChild<QLineEdit *>("lineEditString");
+            if( elementText )
+            {
+                plugin->userInfo[i].elementText = elementText->text();
             }
         }
 

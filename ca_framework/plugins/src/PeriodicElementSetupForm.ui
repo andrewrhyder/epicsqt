@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>61</width>
-    <height>79</height>
+    <width>65</width>
+    <height>94</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>61</width>
-     <height>81</height>
+     <width>66</width>
+     <height>95</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -31,10 +31,10 @@
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
+      <x>2</x>
+      <y>2</y>
       <width>61</width>
-      <height>77</height>
+      <height>91</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -42,6 +42,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0">
        <item>
         <widget class="QCheckBox" name="checkBoxEnable">
+         <property name="toolTip">
+          <string>Check if element is to be selectable by user</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -53,6 +56,9 @@
           <font>
            <pointsize>8</pointsize>
           </font>
+         </property>
+         <property name="toolTip">
+          <string/>
          </property>
          <property name="text">
           <string>Sym</string>
@@ -84,6 +90,9 @@
          <pointsize>8</pointsize>
         </font>
        </property>
+       <property name="toolTip">
+        <string>Value to be written to and compared with first variable (floating point)</string>
+       </property>
        <property name="text">
         <string>0</string>
        </property>
@@ -96,8 +105,23 @@
          <pointsize>8</pointsize>
         </font>
        </property>
+       <property name="toolTip">
+        <string>Value to be written to and compared with second variable (floating point)</string>
+       </property>
        <property name="text">
         <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEditString">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Associated text</string>
        </property>
       </widget>
      </item>

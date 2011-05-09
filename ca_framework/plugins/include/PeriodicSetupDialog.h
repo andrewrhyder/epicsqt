@@ -27,6 +27,7 @@
 
 #include <QDialog>
 #include "PeriodicElementSetupForm.h"
+#include <QCaPeriodic.h>
 
 namespace Ui {
     class PeriodicSetupDialog;
@@ -43,7 +44,7 @@ public:
 private:
     Ui::PeriodicSetupDialog *ui;
 
-        PeriodicElementSetupForm* elements[113];
+        PeriodicElementSetupForm* elements[NUM_ELEMENTS];
 
 private slots:
     void on_buttonBox_rejected();

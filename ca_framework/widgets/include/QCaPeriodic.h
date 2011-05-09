@@ -31,44 +31,59 @@
 #include <QCaFloatingFormatting.h>
 #include <QCaPluginLibrary_global.h>
 
+#define NUM_ELEMENTS 113
+
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCaWidget {
     Q_OBJECT
 
   public:
+    // Static element information structure
     struct elementInfoStruct
     {
-        unsigned int number;
-        double atomicWeight;
-        QString name;
-        QString symbol;
-        double meltingPoint;
-        double boilingPoint;
-        double density;
-        unsigned int group;
-        double ionizationEnergy;
-        unsigned int tableRow;
-        unsigned int tableCol;
+        unsigned int number;            // Atomic number:     1
+        double       atomicWeight;      // Atomic weight:     1.0079
+        QString      name;              // Element name:      Hydrogen
+        QString      symbol;            // Element symbol:    H
+        double       meltingPoint;      // Melting point:     -259 deg C
+        double       boilingPoint;      // Boiling point:     -253 deg C
+        double       density;           // Density:           0.09
+        unsigned int group;             // Periodic group:    1
+        double       ionizationEnergy;  // Ionization energy: 13.5984 eV
+        unsigned int tableRow;          // Index into table row representing periodic table (related to user interface, not chemistry)
+        unsigned int tableCol;          // Index into table column representing periodic table (related to user interface, not chemistry)
     };
+
+    // Dynamic element information structure
     struct userInfoStruct
     {
-        bool enable;
-        double value1;
-        double value2;
+        bool    enable;         // True if element is available for the user to select
+        double  value1;         // User value to be written to and compared against the first variable
+        double  value2;         // User value to be written to and compared against the second variable
+        QString elementText;    // User text associated with element (emitted on element change)
     };
 
+    // Array of dynamic element information structure
     struct userInfoStructArray
     {
-        userInfoStruct array[113];
+        userInfoStruct array[NUM_ELEMENTS];
     };
-
 
     QCaPeriodic( QWidget *parent = 0 );
     QCaPeriodic( const QString& variableName, QWidget *parent = 0 );
 
-    static elementInfoStruct elementInfo[113];
-    userInfoStruct userInfo[113];
+    static elementInfoStruct elementInfo[NUM_ELEMENTS];      // Array of static element information
+    userInfoStruct userInfo[NUM_ELEMENTS];                   // Array of dynamic element information
 
-    enum variableTypes { VARIABLE_TYPE_NUMBER, VARIABLE_TYPE_ATOMIC_WEIGHT, VARIABLE_TYPE_MELTING_POINT, VARIABLE_TYPE_BOILING_POINT, VARIABLE_TYPE_DENSITY, VARIABLE_TYPE_GROUP, VARIABLE_TYPE_IONIZATION_ENERGY, VARIABLE_TYPE_USER_VALUE_1, VARIABLE_TYPE_USER_VALUE_2 };
+    // Element information options
+    enum variableTypes { VARIABLE_TYPE_NUMBER,
+                         VARIABLE_TYPE_ATOMIC_WEIGHT,
+                         VARIABLE_TYPE_MELTING_POINT,
+                         VARIABLE_TYPE_BOILING_POINT,
+                         VARIABLE_TYPE_DENSITY,
+                         VARIABLE_TYPE_GROUP,
+                         VARIABLE_TYPE_IONIZATION_ENERGY,
+                         VARIABLE_TYPE_USER_VALUE_1,
+                         VARIABLE_TYPE_USER_VALUE_2 };
 
     bool isEnabled() const;
     void setEnabled( const bool& state );
@@ -117,6 +132,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCa
 
   signals:
     void dbValueChanged( const double& out );
+    void dbElementChanged( const QString& out );
 
   protected:
     QCaFloatingFormatting floatingFormatting;
@@ -146,6 +162,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCa
     bool haveLastData1;
     double lastData2;
     bool haveLastData2;
+
+    QString hideWSpace( QString text );     // Encode white space as characters
+    QString restoreWSpace( QString text );  // Recover white space from encoded characters
+
 
 };
 

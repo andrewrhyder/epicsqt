@@ -25,12 +25,25 @@
 /*!
   This class is a CA aware element selection widget based on the Qt push button widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+
+  This control and display widget associates one or two values with an element.
+  A typical use of this widget is to move a one or two axis element reference foil stage
+  When the user presses the button an element selection dialog appears.
+  The user selects an element and associated values written to variables.
+  The values written may be one of several static values such as the atomic weight of
+  the element selected, or they may be user defined values, such as a stage position value.
+  If subscribing and the variables change, the updated values are matched to an element and
+  the element is displayed.
+  A user defined string may be emitted on element selection.
  */
 
 #include <QCaPeriodic.h>
 #include <PeriodicDialog.h>
 
-QCaPeriodic::elementInfoStruct QCaPeriodic::elementInfo[113] = {
+
+// Table containing all static element information
+// (Another table - userInfo - contains dynamic element information that varies from instance to instance of this class)
+QCaPeriodic::elementInfoStruct QCaPeriodic::elementInfo[NUM_ELEMENTS] = {
 //    Number,	Atomic Weight,	Name,	Symbol, Melting Point (deg C),  Boiling  Point (deg C), Density,    Group,  Ionization energy, Table row, table column
     {	1,	1.0079,	"Hydrogen",	"H",	-259,	-253,	0.09,	1,	13.5984,	0,	0 },
     {	2,	4.0026,	"Helium",	"He",	-272,	-269,	0.18,	18,	24.5874,	0,	18 },
@@ -195,7 +208,7 @@ void QCaPeriodic::setup() {
     QObject::connect( this, SIGNAL( clicked() ), this, SLOT( userClicked() ) );
 
     // Initialise user values
-    for( int i = 0; i < 113; i++ )
+    for( int i = 0; i < NUM_ELEMENTS; i++ )
     {
         userInfo[i].value1 = 0.0;
         userInfo[i].value2 = 0.0;
@@ -319,15 +332,13 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
         // Value selected from element info or user info depending on type
         double value;
 
-        // Element selected (or '--' if none
-        QString element("--");
-
         // Check each element
         int i;
-        for( i = 0; i < 113; i++ )
+        bool match;
+        for( i = 0; i < NUM_ELEMENTS; i++ )
         {
             // Assume an element matches
-            bool match = true;
+            match = true;
 
             // If first variable is used, check if current element doesn't match
             if( qca1 )
@@ -375,16 +386,24 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
                 }
             }
 
-            // If neither variable caused a match fail, the element has matched. Display the result and stop the search
+            // If neither variable caused a match fail, the element has matched. Stop the search
             if( match )
-            {
-                element = elementInfo[i].symbol;
                 break;
-            }
         }
 
-        // Display the element, if any
-        setText( element );
+        // If an element matched, display it and emit any related text
+        if( match )
+        {
+            setText( elementInfo[i].symbol );
+            emit dbElementChanged( userInfo[i].elementText );
+        }
+
+        // If no element matched, display a neutral string and it emit an empty string
+        else
+        {
+            setText( "--" );
+            emit dbElementChanged( "" );
+        }
     }
 
     // If in alarm, display as an alarm
@@ -413,7 +432,7 @@ void QCaPeriodic::userClicked() {
         // !! This could be build once during construction, or when userInfo enabled is changed??
         QList<bool> enabledList;
         QList<QString> elementList;
-        for( int i = 0; i < 113; i++ )
+        for( int i = 0; i < NUM_ELEMENTS; i++ )
         {
             elementList.append( elementInfo[i].symbol );
             enabledList.append( userInfo[i].enable );
@@ -432,7 +451,7 @@ void QCaPeriodic::userClicked() {
             // Value selected from element info or user info depending on type
             double value;
 
-            for( int i = 0; i < 113; i++ )
+            for( int i = 0; i < NUM_ELEMENTS; i++ )
             {
                 if( elementInfo[i].symbol.compare( symbol ) == 0 )
                 {
@@ -590,7 +609,8 @@ void QCaPeriodic::setUserInfo( QString inStr )
         stream >> i;
 
         // If a good element index, get the values
-        if( i > 0 && i <= 113 )
+        // Format is 'elementIndex value1 value2 "text" '
+        if( i > 0 && i <= NUM_ELEMENTS )
         {
             i--;
             int b;
@@ -598,6 +618,10 @@ void QCaPeriodic::setUserInfo( QString inStr )
             userInfo[i].enable = b;
             stream >> userInfo[i].value1;
             stream >> userInfo[i].value2;
+            QString text;
+            stream >> text;
+            text = text.mid( 1, text.size()-2 );    // Remove enclosing quotes
+            userInfo[i].elementText = restoreWSpace( text );
         }
 
         // if a bad element index
@@ -615,9 +639,10 @@ QString QCaPeriodic::getUserInfo()
     // Set up the stream that will perform most conversions
     stream.setString( &outStr );
 
-    for( int i = 0; i < 113; i++ )
-    {
 
+    // Format is ':elementIndex value1 value2 "text" '
+    for( int i = 0; i < NUM_ELEMENTS; i++ )
+    {
         stream << i+1;
         stream << " ";
         stream << userInfo[i].enable;
@@ -625,7 +650,47 @@ QString QCaPeriodic::getUserInfo()
         stream << userInfo[i].value1;
         stream << " ";
         stream << userInfo[i].value2;
-        stream << " ";
+        stream << " \"";
+        stream << hideWSpace( userInfo[i].elementText );
+        stream << "\" ";
     }
     return outStr;
+}
+
+
+// Encode white space as characters.
+// restoreWSpace() must complement this function.
+// Encoding is as follows:
+//      Encode '%' as '%%'
+//      Encode ' ' as '%s'
+QString QCaPeriodic::hideWSpace( QString text )
+{
+    text = text.replace("%", "%%");
+    text = text.replace(" ", "%s");
+    return text;
+}
+
+// Recover white space from encoded characters
+// See hideWSpace() for encoding details
+QString QCaPeriodic::restoreWSpace( QString text )
+{
+    // Examine each position in the string, and if an encoding sequence is found, replace it with the original unencoded character
+    for( int i = 0; i < text.size()-1; i++)
+    {
+        if( text[i].toAscii() == '%')
+        {
+            switch( text[i+1].toAscii() )
+            {
+                case '%':
+                    text = text.left(i).append( text.right( text.size()-i-1 ) );
+                    break;
+                case 's':
+                    text = text.left(i).append( " " ).append( text.right( text.size()-i-2 ) );
+                    break;
+            }
+        }
+    }
+
+    // Return the recoovered string
+    return text;
 }
