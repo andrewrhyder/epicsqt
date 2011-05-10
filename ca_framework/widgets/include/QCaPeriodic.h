@@ -166,7 +166,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCa
     QString hideWSpace( QString text );     // Encode white space as characters
     QString restoreWSpace( QString text );  // Recover white space from encoded characters
 
-
+    bool elementMatch( int i, bool haveFirstVariable, double lastData1, bool haveSecondVariable, double lastData2 );
 };
 
 Q_DECLARE_METATYPE(QCaPeriodic::userInfoStructArray)

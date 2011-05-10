@@ -329,69 +329,36 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
     {
         // ... update the element
 
-        // Value selected from element info or user info depending on type
-        double value;
-
-        // Check each element
         int i;
-        bool match;
+        bool match = false;
+
+        // Look for the index of the currently selected element
         for( i = 0; i < NUM_ELEMENTS; i++ )
         {
-            // Assume an element matches
-            match = true;
-
-            // If first variable is used, check if current element doesn't match
-            if( qca1 )
-            {
-                switch( variableType1 )
-                {
-                case VARIABLE_TYPE_NUMBER:            value = elementInfo[i].number;           break;
-                case VARIABLE_TYPE_ATOMIC_WEIGHT:     value = elementInfo[i].atomicWeight;     break;
-                case VARIABLE_TYPE_MELTING_POINT:     value = elementInfo[i].meltingPoint;     break;
-                case VARIABLE_TYPE_BOILING_POINT:     value = elementInfo[i].boilingPoint;     break;
-                case VARIABLE_TYPE_DENSITY:           value = elementInfo[i].density;          break;
-                case VARIABLE_TYPE_GROUP:             value = elementInfo[i].group;            break;
-                case VARIABLE_TYPE_IONIZATION_ENERGY: value = elementInfo[i].ionizationEnergy; break;
-                case VARIABLE_TYPE_USER_VALUE_1:      value = userInfo[i].value1;              break;
-                case VARIABLE_TYPE_USER_VALUE_2:      value = userInfo[i].value2;              break;
-                }
-
-                if( value < lastData1 - variableTolerance1 ||
-                    value > lastData1 + variableTolerance1 )
-                {
-                    match = false;
-                }
-            }
-
-            // If second variable is used, check if current element doesn't match (but don't bother checking if alread no match because of first variable)
-            if( qca2 && match )
-            {
-                switch( variableType2 )
-                {
-                case VARIABLE_TYPE_NUMBER:            value = elementInfo[i].number;           break;
-                case VARIABLE_TYPE_ATOMIC_WEIGHT:     value = elementInfo[i].atomicWeight;     break;
-                case VARIABLE_TYPE_MELTING_POINT:     value = elementInfo[i].meltingPoint;     break;
-                case VARIABLE_TYPE_BOILING_POINT:     value = elementInfo[i].boilingPoint;     break;
-                case VARIABLE_TYPE_DENSITY:           value = elementInfo[i].density;          break;
-                case VARIABLE_TYPE_GROUP:             value = elementInfo[i].group;            break;
-                case VARIABLE_TYPE_IONIZATION_ENERGY: value = elementInfo[i].ionizationEnergy; break;
-                case VARIABLE_TYPE_USER_VALUE_1:      value = userInfo[i].value1;              break;
-                case VARIABLE_TYPE_USER_VALUE_2:      value = userInfo[i].value2;              break;
-                }
-
-                if( value < lastData2 - variableTolerance2 ||
-                    value > lastData2 + variableTolerance2 )
-                {
-                    match = false;
-                }
-            }
-
-            // If neither variable caused a match fail, the element has matched. Stop the search
-            if( match )
+            if( elementInfo[i].symbol.compare( text() ) == 0 )
                 break;
         }
 
+        // If there is a currently selected element, check if it matches the current values
+        if( i != NUM_ELEMENTS )
+        {
+            match =  elementMatch( i, qca1!=NULL, lastData1, qca2!=NULL, lastData2 );
+        }
+
+        // If there was no currently selected element, or it didn't match the current values,
+        // check each element looking for one that matches the current values
+        if( !match )
+        {
+            for( i = 0; i < NUM_ELEMENTS; i++ )
+            {
+                match =  elementMatch( i, qca1!=NULL, lastData1, qca2!=NULL, lastData2 );
+                if( match )
+                    break;
+            }
+        }
+
         // If an element matched, display it and emit any related text
+        // Note, 'i' is valid if a match has been found
         if( match )
         {
             setText( elementInfo[i].symbol );
@@ -413,6 +380,70 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
             setStyleSheet( alarmInfo.style() );
             lastSeverity = alarmInfo.getSeverity();
     }
+}
+
+// Determine if the value or values recieved match an element
+// Used in QCaPeriodic::setElement() above only
+bool QCaPeriodic::elementMatch( int i,
+                                bool haveFirstVariable,
+                                double lastData1,
+                                bool haveSecondVariable,
+                                double lastData2 )
+{
+    // Value selected from element info or user info depending on type
+    double value;
+
+    // Assume an element matches
+    bool match = true;
+
+    // If first variable is used, check if current element doesn't match
+    if( haveFirstVariable )
+    {
+        switch( variableType1 )
+        {
+        case VARIABLE_TYPE_NUMBER:            value = elementInfo[i].number;           break;
+        case VARIABLE_TYPE_ATOMIC_WEIGHT:     value = elementInfo[i].atomicWeight;     break;
+        case VARIABLE_TYPE_MELTING_POINT:     value = elementInfo[i].meltingPoint;     break;
+        case VARIABLE_TYPE_BOILING_POINT:     value = elementInfo[i].boilingPoint;     break;
+        case VARIABLE_TYPE_DENSITY:           value = elementInfo[i].density;          break;
+        case VARIABLE_TYPE_GROUP:             value = elementInfo[i].group;            break;
+        case VARIABLE_TYPE_IONIZATION_ENERGY: value = elementInfo[i].ionizationEnergy; break;
+        case VARIABLE_TYPE_USER_VALUE_1:      value = userInfo[i].value1;              break;
+        case VARIABLE_TYPE_USER_VALUE_2:      value = userInfo[i].value2;              break;
+        }
+
+        if( value < lastData1 - variableTolerance1 ||
+            value > lastData1 + variableTolerance1 )
+        {
+            match = false;
+        }
+    }
+
+    // If second variable is used, check if current element doesn't match (but don't bother checking if alread no match because of first variable)
+    if( haveSecondVariable && match )
+    {
+        switch( variableType2 )
+        {
+        case VARIABLE_TYPE_NUMBER:            value = elementInfo[i].number;           break;
+        case VARIABLE_TYPE_ATOMIC_WEIGHT:     value = elementInfo[i].atomicWeight;     break;
+        case VARIABLE_TYPE_MELTING_POINT:     value = elementInfo[i].meltingPoint;     break;
+        case VARIABLE_TYPE_BOILING_POINT:     value = elementInfo[i].boilingPoint;     break;
+        case VARIABLE_TYPE_DENSITY:           value = elementInfo[i].density;          break;
+        case VARIABLE_TYPE_GROUP:             value = elementInfo[i].group;            break;
+        case VARIABLE_TYPE_IONIZATION_ENERGY: value = elementInfo[i].ionizationEnergy; break;
+        case VARIABLE_TYPE_USER_VALUE_1:      value = userInfo[i].value1;              break;
+        case VARIABLE_TYPE_USER_VALUE_2:      value = userInfo[i].value2;              break;
+        }
+
+        if( value < lastData2 - variableTolerance2 ||
+            value > lastData2 + variableTolerance2 )
+        {
+            match = false;
+        }
+    }
+
+    // If neither variable caused a match fail, the element has matched.
+    return match;
 }
 
 /*!
