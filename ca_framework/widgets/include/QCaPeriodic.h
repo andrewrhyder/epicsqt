@@ -31,7 +31,7 @@
 #include <QCaFloatingFormatting.h>
 #include <QCaPluginLibrary_global.h>
 
-#define NUM_ELEMENTS 113
+#define NUM_ELEMENTS 118
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCaWidget {
     Q_OBJECT
@@ -166,7 +166,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCa
     QString hideWSpace( QString text );     // Encode white space as characters
     QString restoreWSpace( QString text );  // Recover white space from encoded characters
 
-    bool elementMatch( int i, bool haveFirstVariable, double lastData1, bool haveSecondVariable, double lastData2 );
+    float elementMatch( int i, bool haveFirstVariable, double lastData1, bool haveSecondVariable, double lastData2 );
 };
 
 Q_DECLARE_METATYPE(QCaPeriodic::userInfoStructArray)

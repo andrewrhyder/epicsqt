@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>874</width>
+    <width>912</width>
     <height>326</height>
    </rect>
   </property>
@@ -20,6 +20,13 @@
    <string>Element selection dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="17">
@@ -473,7 +480,7 @@
      <item row="6" column="9">
       <widget class="QPushButton" name="pushButton_110">
        <property name="text">
-        <string>Uun</string>
+        <string>Ds</string>
        </property>
       </widget>
      </item>
@@ -686,20 +693,6 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="2">
-      <widget class="QPushButton" name="pushButton_103">
-       <property name="text">
-        <string>Lr</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QPushButton" name="pushButton_071">
-       <property name="text">
-        <string>Lu</string>
-       </property>
-      </widget>
-     </item>
      <item row="4" column="2">
       <widget class="QPushButton" name="pushButton_039">
        <property name="text">
@@ -808,14 +801,103 @@
      <item row="6" column="10">
       <widget class="QPushButton" name="pushButton_111">
        <property name="text">
-        <string>Uuu</string>
+        <string>Rg</string>
        </property>
       </widget>
      </item>
      <item row="6" column="11">
       <widget class="QPushButton" name="pushButton_112">
        <property name="text">
-        <string>Uub</string>
+        <string>Cn</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="16">
+      <widget class="QPushButton" name="pushButton_071">
+       <property name="text">
+        <string>Lu</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="16">
+      <widget class="QPushButton" name="pushButton_103">
+       <property name="text">
+        <string>Lr</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>*</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>**</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>**</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>*</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="14">
+      <widget class="QPushButton" name="pushButton_115">
+       <property name="text">
+        <string>Uup</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="15">
+      <widget class="QPushButton" name="pushButton_116">
+       <property name="text">
+        <string>Uuh</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="16">
+      <widget class="QPushButton" name="pushButton_117">
+       <property name="text">
+        <string>Uus</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="17">
+      <widget class="QPushButton" name="pushButton_118">
+       <property name="text">
+        <string>Uuo</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="12">
+      <widget class="QPushButton" name="pushButton_113">
+       <property name="text">
+        <string>Uut</string>
        </property>
       </widget>
      </item>
@@ -827,13 +909,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel</set>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

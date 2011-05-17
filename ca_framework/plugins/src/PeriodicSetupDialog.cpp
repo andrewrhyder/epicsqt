@@ -100,17 +100,37 @@ PeriodicSetupDialog::PeriodicSetupDialog(QWidget *parent) :
         }
 
         // Populate unused rows and columns
-        QLabel* label57to70 = new QLabel( this );
-        label57to70->setText( "57 to 70" );
-        periodicGrid->addWidget( label57to70, 5, 2 );
+        QLabel* label;
 
-        QLabel* label89to102 = new QLabel( this );
-        label89to102->setText( "89 to 102" );
-        periodicGrid->addWidget( label89to102, 6, 2 );
+        label = new QLabel( this );
+        label->setText( "*" );
+        label->setAlignment( Qt::AlignHCenter );
+        label->setAlignment( Qt::AlignVCenter );
+        periodicGrid->addWidget( label, 5, 2 );
 
-        QLabel* spacer = new QLabel( this );
-        spacer->setText( "---" );
-        periodicGrid->addWidget( spacer, 7, 10 );
+        label = new QLabel( this );
+        label->setText( "**" );
+        label->setAlignment( Qt::AlignHCenter );
+        label->setAlignment( Qt::AlignVCenter );
+        periodicGrid->addWidget( label, 6, 2 );
+
+        label = new QLabel( this );
+        label->setText( "*" );
+        label->setAlignment( Qt::AlignRight );
+        label->setAlignment( Qt::AlignVCenter );
+        periodicGrid->addWidget( label, 8, 1 );
+
+        label = new QLabel( this );
+        label->setText( "**" );
+        label->setAlignment( Qt::AlignRight );
+        label->setAlignment( Qt::AlignVCenter );
+        periodicGrid->addWidget( label, 9, 1 );
+
+        // Force empty row 7 to remain
+        label = new QLabel( this );
+        label->setText( "" );
+        periodicGrid->addWidget( label, 7, 10 );
+
     }
 }
 

@@ -22,11 +22,23 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+/*!
+  This class manages the presenation of a periodic table and the selection of an
+  element in the table by a user.
+  It is used by the QCaPeriodic widget.
+  The QCaPeriodic widget appears as a push button displaying an element name.
+  When the QCaPeriodic widget is pressed this dialog is presented with the focus on the
+  button in the periodic table for the current element.
+  When a button for an element in the periodic table is pressed the element symbol is
+  saved ready for recall by the QCaPeriodic widget.
+ */
+
 #include "PeriodicDialog.h"
 #include "ui_PeriodicDialog.h"
 #include <QtDebug>
 
 
+// Create the periodic selection dialog
 PeriodicDialog::PeriodicDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::PeriodicDialog)
@@ -34,11 +46,13 @@ PeriodicDialog::PeriodicDialog(QWidget *parent) :
     m_ui->setupUi(this);
 }
 
+// Delete the periodic selection dialog
 PeriodicDialog::~PeriodicDialog()
 {
     delete m_ui;
 }
 
+// ???
 void PeriodicDialog::changeEvent(QEvent *e)
 {
     QDialog::changeEvent(e);
@@ -51,11 +65,15 @@ void PeriodicDialog::changeEvent(QEvent *e)
     }
 }
 
+// Return the symbolic name of the element last selected
+// Used to determine what element was selected by the user.
 QString PeriodicDialog::getElement()
 {
     return elementSelected;
 }
 
+// Set the focus to the push button for a an element with the specified symbol
+// This is used when presenting the dialog so the dialog has focus on the element currently selected.
 void PeriodicDialog::setElement( QString elementIn, QList<bool>& enabledList, QList<QString>& elementList )
 {
     QList<QPushButton *> allPButtons = this->findChildren<QPushButton *>();
@@ -78,6 +96,8 @@ void PeriodicDialog::setElement( QString elementIn, QList<bool>& enabledList, QL
     }
 }
 
+// Save the element symbol for the widget with focus (if it is a push button)
+// This is used by all the 'clicked' slots for all the element buttons
 void PeriodicDialog::noteElementSelected()
 {
     if( this->focusWidget()->inherits("QPushButton") )
