@@ -25,7 +25,10 @@
 #ifndef QCAPERIODIC_H
 #define QCAPERIODIC_H
 
+#include <QFrame>
 #include <QPushButton>
+#include <QLabel>
+#include <QHBoxLayout>
 #include <QCaWidget.h>
 #include <QCaFloating.h>
 #include <QCaFloatingFormatting.h>
@@ -33,7 +36,31 @@
 
 #define NUM_ELEMENTS 118
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCaWidget {
+class QCaPeriodicComponentData
+{
+public:
+
+    QCaPeriodicComponentData()
+    {
+        variableIndex1 = 0;
+        lastData1 = 0.0;
+        haveLastData1 = false;
+
+        variableIndex2 = 0;
+        lastData2 = 0.0;
+        haveLastData2 = false;
+    }
+
+    unsigned int variableIndex1;
+    double lastData1;
+    bool haveLastData1;
+
+    unsigned int variableIndex2;
+    double lastData2;
+    bool haveLastData2;
+};
+
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidget {
     Q_OBJECT
 
   public:
@@ -101,6 +128,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCa
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // presentation options
+    enum presentationOptions { PRESENTATION_BUTTON_AND_LABEL,
+                               PRESENTATION_BUTTON_ONLY,
+                               PRESENTATION_LABEL_ONLY };
+    void setPresentationOption( presentationOptions presentationOptionIn );
+    presentationOptions getPresentationOption();
+
     // variable 1 type
     void setVariableType1( variableTypes variableType1In );
     variableTypes getVariableType1();
@@ -124,7 +158,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCa
 
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setElement( const double& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
+    void setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void userClicked();
 
   public slots:
@@ -133,6 +167,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCa
   signals:
     void dbValueChanged( const double& out );
     void dbElementChanged( const QString& out );
+    void requestResend();
 
   protected:
     QCaFloatingFormatting floatingFormatting;
@@ -155,13 +190,33 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QPushButton, public QCa
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
+    QCaPeriodicComponentData writeButtonData;
+    QCaPeriodicComponentData readbackLabelData;
+    QPushButton* writeButton;
+    QLabel* readbackLabel;
+    QHBoxLayout *layout;
+
+
+
+    bool setComponentElement( const double& value, const unsigned int& variableIndex, QCaPeriodicComponentData& componentData, const QString& currentText, QString& newText );
+
+    presentationOptions presentationOption;
+    void updatePresentationOptions();
+
+
+
     QString hideWS( QString in );
     QString restoreWS( QString in );
 
-    double lastData1;
-    bool haveLastData1;
-    double lastData2;
-    bool haveLastData2;
+//    double lastButtonData1;
+//    bool haveLastButtonData1;
+//    double lastButtonData2;
+//    bool haveLastButtonData2;
+
+//    double lastLabelData1;
+//    bool haveLastLabelData1;
+//    double lastLabelData2;
+//    bool haveLastLabelData2;
 
     QString hideWSpace( QString text );     // Encode white space as characters
     QString restoreWSpace( QString text );  // Recover white space from encoded characters

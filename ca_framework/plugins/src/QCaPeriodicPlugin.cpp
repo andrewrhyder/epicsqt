@@ -32,7 +32,7 @@
 */
 QCaPeriodicPlugin::QCaPeriodicPlugin( QWidget *parent ) : QCaPeriodic( parent ) {
     // Set some default text
-    setText( "--" );
+//    writeButton->setText( "--" );
 
     /// Set up a connection to recieve variable name property changes
     /// The variable name property manager class only delivers an updated variable name after the user has stopped typing

@@ -101,6 +101,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../data/include/QCaDateTime.h \
     ../data/include/QCaAlarmInfo.h \
     ../data/include/QCaConnectionInfo.h \
+    ../data/include/qepicspv.h \
     ../widgets/include/QCaSpinBox.h \
     ../widgets/include/QCaComboBox.h \
     ../widgets/include/QCaSlider.h \
@@ -172,6 +173,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/QCaDateTime.cpp \
     ../data/src/QCaAlarmInfo.cpp \
     ../data/src/QCaConnectionInfo.cpp \
+    ../data/src/qepicspv.cpp \
     ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \
     ../widgets/src/QCaSlider.cpp \
