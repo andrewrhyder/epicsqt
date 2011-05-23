@@ -364,7 +364,18 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
         case 3:
             if( readbackLabel )
             {
-                if( setComponentElement( value, variableIndex, writeButtonData, readbackLabel->text(), newText  ) )
+                // When checking if an element matched the current text, use the button text in preference to the lreadback label.
+                // This is required if several elements have the same values.
+                QString currentText;
+                if( writeButton )
+                {
+                    currentText = writeButton->text();
+                }
+                else
+                {
+                    currentText = readbackLabel->text();
+                }
+                if( setComponentElement( value, variableIndex, readbackLabelData, currentText, newText  ) )
                     readbackLabel->setText( newText );
             }
             break;
