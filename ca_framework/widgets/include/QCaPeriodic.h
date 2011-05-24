@@ -198,7 +198,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidge
 
 
 
-    bool setComponentElement( const double& value, const unsigned int& variableIndex, QCaPeriodicComponentData& componentData, const QString& currentText, QString& newText );
+    bool getElementTextForValue( const double& value, const unsigned int& variableIndex, QCaPeriodicComponentData& componentData, const QString& currentText, QString& newText );
 
     presentationOptions presentationOption;
     void updatePresentationOptions();

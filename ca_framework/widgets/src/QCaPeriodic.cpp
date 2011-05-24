@@ -40,6 +40,7 @@
 #include <QCaPeriodic.h>
 #include <PeriodicDialog.h>
 #include <math.h>
+#include <QSizePolicy>
 
 // Table containing all static element information
 // (Another table - userInfo - contains dynamic element information that varies from instance to instance of this class)
@@ -243,7 +244,6 @@ void QCaPeriodic::setup() {
     For a push button a QCaObject that streams strings is required.
 */
 qcaobject::QCaObject* QCaPeriodic::createQcaItem( unsigned int variableIndex ) {
-    qDebug() << "createQcaItem" << variableIndex;
 
     // Create the items as a QCaFloating
     return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
@@ -255,7 +255,6 @@ qcaobject::QCaObject* QCaPeriodic::createQcaItem( unsigned int variableIndex ) {
     This function may also be used to initiate updates when loaded as a plugin.
 */
 void QCaPeriodic::establishConnection( unsigned int variableIndex ) {
-    qDebug() << "establishConnection" << variableIndex;
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -298,8 +297,6 @@ void QCaPeriodic::updateToolTip ( const QString & toolTip ) {
  */
 void QCaPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    qDebug() << "connectionChanged" << connectionInfo.isLinkUp();
-
     /// If connected enabled the widget if required.
     if( connectionInfo.isChannelConnected() )
     {
@@ -336,7 +333,6 @@ void QCaPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
 */
 void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex )
 {
-    qDebug() << "setElement" << value;
     /// If not subscribing, then do nothing.
     /// Note, This will still be called even if not subscribing as there may be an initial sing shot read
     /// to ensure we have valid information about the variable when it is time to do a write.
@@ -354,7 +350,7 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
         case 1:
             if( writeButton )
             {
-                if( setComponentElement( value, variableIndex, writeButtonData, writeButton->text(), newText  ) )
+                if( getElementTextForValue( value, variableIndex, writeButtonData, writeButton->text(), newText  ) )
                     writeButton->setText( newText );
             }
             break;
@@ -375,7 +371,7 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
                 {
                     currentText = readbackLabel->text();
                 }
-                if( setComponentElement( value, variableIndex, readbackLabelData, currentText, newText  ) )
+                if( getElementTextForValue( value, variableIndex, readbackLabelData, currentText, newText  ) )
                     readbackLabel->setText( newText );
             }
             break;
@@ -397,7 +393,13 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
 }
 
 
-bool QCaPeriodic::setComponentElement( const double& value, const unsigned int& variableIndex, QCaPeriodicComponentData& componentData, const QString& currentText, QString& newText )
+// Determine the element text required for the component (either the write button or the readback label)
+// Multiple elements may match the same values (for example, where a compound
+// is positioned on a reference foil stage). To avoid matching another element to the one
+// selected (because the other element has the same values) The current write button element is
+// checked for a match first. If it is even an approximate match it is selected. If it does not match,
+// then the closest element match is returned.
+bool QCaPeriodic::getElementTextForValue( const double& value, const unsigned int& variableIndex, QCaPeriodicComponentData& componentData, const QString& currentText, QString& newText )
 {
     if( variableIndex == componentData.variableIndex1 )
     {
@@ -489,6 +491,10 @@ float QCaPeriodic::elementMatch( int i,
                                  bool haveSecondVariable,
                                  double lastData2 )
 {
+    // If the element is not enabled, don't match
+    if( !userInfo[i].enable )
+        return 0.0;
+
     // Value selected from element info or user info depending on type
     double value;
 
@@ -590,7 +596,9 @@ float QCaPeriodic::elementMatch( int i,
     Button click event.
 */
 void QCaPeriodic::userClicked() {
-    /// Get the variable to write to
+
+    /// Get the variables to write to
+    /// The write button uses the first two variables
     QCaFloating *qca1 = (QCaFloating*)getQcaItem(0);
     QCaFloating *qca2 = (QCaFloating*)getQcaItem(1);
 
@@ -613,6 +621,8 @@ void QCaPeriodic::userClicked() {
         PeriodicDialog dialog( writeButton );
         dialog.setElement( writeButton->text(), enabledList, elementList );
         dialog.exec();
+
+        // Use the selected element
         QString selection = dialog.getElement();
         if( selection.size() )
         {
@@ -702,6 +712,10 @@ void QCaPeriodic::requestEnabled( const bool& state )
     QCaPeriodic::setEnabled(state);
 }
 
+
+/*!
+  Update what is presented to the user. Either an element select button, a 'current element' label, or both
+  */
 void QCaPeriodic::updatePresentationOptions()
 {
     // Create the button if it is required and not there
@@ -714,6 +728,8 @@ void QCaPeriodic::updatePresentationOptions()
             writeButton = new QPushButton();
             writeButton->setParent( this );
             layout->addWidget( writeButton );
+            writeButton->setSizePolicy( QSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored) );
+
             // If a label is already present, and will still be required,
             // Ensure the button appears to the left of the label
             if( presentationOption == PRESENTATION_BUTTON_AND_LABEL && readbackLabel )
@@ -721,6 +737,7 @@ void QCaPeriodic::updatePresentationOptions()
                 layout->removeWidget( readbackLabel );
                 layout->addWidget( readbackLabel );
             }
+
             writeButton->setAutoDefault( false );
             writeButton->setEnabled( false );  // Reflects initial disconnected state
             writeButton->setText( "--" );
@@ -748,6 +765,7 @@ void QCaPeriodic::updatePresentationOptions()
         {
             readbackLabel = new QLabel();
             readbackLabel->setParent( this );
+            readbackLabel->setSizePolicy( QSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored) );
             layout->addWidget( readbackLabel );
             readbackLabel->setEnabled( false );  // Reflects initial disconnected state
             readbackLabel->setText( "--" );
@@ -791,7 +809,6 @@ bool QCaPeriodic::getSubscribe()
 // presentation options
 void QCaPeriodic::setPresentationOption( presentationOptions presentationOptionIn )
 {
-    qDebug() << "setPresentationOption";
     presentationOption = presentationOptionIn;
     updatePresentationOptions();
     emit requestResend();
