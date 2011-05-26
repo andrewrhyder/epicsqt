@@ -189,9 +189,9 @@ QCaPeriodic::QCaPeriodic( const QString &variableNameIn, QWidget *parent ) : QFr
 */
 void QCaPeriodic::setup() {
 
-    //this
     // Place element selection button to left, and readback label on right
     layout = new QHBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
     // Note the variables associated with the write element button
@@ -728,7 +728,7 @@ void QCaPeriodic::updatePresentationOptions()
             writeButton = new QPushButton();
             writeButton->setParent( this );
             layout->addWidget( writeButton );
-            writeButton->setSizePolicy( QSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored) );
+            writeButton->setSizePolicy( QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding) );
 
             // If a label is already present, and will still be required,
             // Ensure the button appears to the left of the label
@@ -765,7 +765,8 @@ void QCaPeriodic::updatePresentationOptions()
         {
             readbackLabel = new QLabel();
             readbackLabel->setParent( this );
-            readbackLabel->setSizePolicy( QSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored) );
+            readbackLabel->setAlignment( Qt::AlignCenter);
+            readbackLabel->setSizePolicy( QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding) );
             layout->addWidget( readbackLabel );
             readbackLabel->setEnabled( false );  // Reflects initial disconnected state
             readbackLabel->setText( "--" );

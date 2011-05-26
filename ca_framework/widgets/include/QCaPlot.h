@@ -73,6 +73,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     void setAutoScale( bool autoScale );
     bool getAutoScale();
 
+    void setAxisEnableX( bool axisEnableXIn );
+    bool getAxisEnableX();
+
+    void setAxisEnableY( bool axisEnableYIn );
+    bool getAxisEnableY();
+
     // No QCaPlot::setTitle() needed. Uses QwtPlot::setTitle()
     QString getTitle();
 
@@ -138,6 +144,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     double yMin;
     double yMax;
     bool autoScale;
+    bool axisEnableX;
+    bool axisEnableY;
 
     // Trace properties
     QColor traceColor;

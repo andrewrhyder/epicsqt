@@ -60,6 +60,8 @@ class QCaPlotPlugin : public QCaPlot {
     Q_PROPERTY(double yMin READ getYMin WRITE setYMin)
     Q_PROPERTY(double yMax READ getYMax WRITE setYMax)
     Q_PROPERTY(bool autoScale READ getAutoScale WRITE setAutoScale)
+    Q_PROPERTY(bool axisEnableX READ getAxisEnableX WRITE setAxisEnableX)
+    Q_PROPERTY(bool axisEnableY READ getAxisEnableY WRITE setAxisEnableY)
     Q_PROPERTY(QString title READ getTitle WRITE setTitle)
     Q_PROPERTY(QColor backgroundColor READ getBackgroundColor WRITE setBackgroundColor)
     Q_PROPERTY(QColor traceColor READ getTraceColor WRITE setTraceColor)

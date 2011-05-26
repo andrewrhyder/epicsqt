@@ -72,6 +72,9 @@ void QCaPlot::setup() {
     yMin = 0.0;
     yMax = 0.0;
     autoScale = true;
+    axisEnableX = true;
+    axisEnableY = true;
+
     //setLabelOrientation (Qt::Orientation)Qt::Vertical
 
     // Trace properties
@@ -431,7 +434,7 @@ double QCaPlot::getYMax()
     return yMax;
 }
 
-// Access functions for qutoScale
+// Access functions for autoScale
 void QCaPlot::setAutoScale( bool autoScaleIn )
 {
     autoScale = autoScaleIn;
@@ -450,6 +453,32 @@ bool QCaPlot::getAutoScale()
 {
     return autoScale;
 }
+
+// Access functions for X axis visibility
+void QCaPlot::setAxisEnableX( bool axisEnableXIn )
+{
+    axisEnableX = axisEnableXIn;
+    enableAxis( xBottom, axisEnableX );
+}
+
+bool QCaPlot::getAxisEnableX()
+{
+    return axisEnableX;
+}
+
+// Access functions for Y axis visibility
+void QCaPlot::setAxisEnableY( bool axisEnableYIn )
+{
+    axisEnableY = axisEnableYIn;
+    enableAxis( yLeft, axisEnableY );
+}
+
+bool QCaPlot::getAxisEnableY()
+{
+    return axisEnableY;
+}
+
+
 
 // Access functions for title
 // No QCaPlot::setTitle() needed. Uses QwtPlot::setTitle()
