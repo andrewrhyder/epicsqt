@@ -42,6 +42,7 @@ Link::Link( QWidget *parent ) : QLabel( parent ) {
 
     // If a container profile has been defined, then this widget is being used in a real GUI and
     // should be visible or not according to the visible property. (While in Designer it can always be displayed)
+    visible = false;
     ContainerProfile profile;
     if( profile.isProfileDefined() )
         setVisible( visible );
@@ -51,8 +52,6 @@ Link::Link( QWidget *parent ) : QLabel( parent ) {
 
     signalFalse = true;
     signalTrue = true;
-
-    visible = false;
 
     condition = CONDITION_EQ;
 }
