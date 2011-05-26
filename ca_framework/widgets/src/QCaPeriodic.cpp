@@ -594,6 +594,7 @@ float QCaPeriodic::elementMatch( int i,
 
 /*!
     Button click event.
+    Present the element selection dialog.
 */
 void QCaPeriodic::userClicked() {
 

@@ -22,8 +22,15 @@
   <property name="windowTitle">
    <string>Element Selection</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../plugins/src/QCaResources.qrc">
+    <normaloff>:/icons/QCaPeriodic.png</normaloff>:/icons/QCaPeriodic.png</iconset>
+  </property>
   <property name="toolTip">
    <string>Element selection dialog</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -917,7 +924,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../plugins/src/QCaResources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
