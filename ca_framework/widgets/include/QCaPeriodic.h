@@ -60,6 +60,17 @@ public:
     bool haveLastData2;
 };
 
+// Dynamic element information structure
+class userInfoStruct
+{
+public:
+    userInfoStruct() { enable = false; value1 = 0.0; value2 = 0.0; }
+    bool    enable;         // True if element is available for the user to select
+    double  value1;         // User value to be written to and compared against the first variable
+    double  value2;         // User value to be written to and compared against the second variable
+    QString elementText;    // User text associated with element (emitted on element change)
+};
+
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidget {
     Q_OBJECT
 
@@ -78,15 +89,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidge
         double       ionizationEnergy;  // Ionization energy: 13.5984 eV
         unsigned int tableRow;          // Index into table row representing periodic table (related to user interface, not chemistry)
         unsigned int tableCol;          // Index into table column representing periodic table (related to user interface, not chemistry)
-    };
-
-    // Dynamic element information structure
-    struct userInfoStruct
-    {
-        bool    enable;         // True if element is available for the user to select
-        double  value1;         // User value to be written to and compared against the first variable
-        double  value2;         // User value to be written to and compared against the second variable
-        QString elementText;    // User text associated with element (emitted on element change)
     };
 
     // Array of dynamic element information structure
@@ -197,29 +199,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidge
     QHBoxLayout *layout;
 
 
-
     bool getElementTextForValue( const double& value, const unsigned int& variableIndex, QCaPeriodicComponentData& componentData, const QString& currentText, QString& newText );
 
     presentationOptions presentationOption;
     void updatePresentationOptions();
-
-
-
-    QString hideWS( QString in );
-    QString restoreWS( QString in );
-
-//    double lastButtonData1;
-//    bool haveLastButtonData1;
-//    double lastButtonData2;
-//    bool haveLastButtonData2;
-
-//    double lastLabelData1;
-//    bool haveLastLabelData1;
-//    double lastLabelData2;
-//    bool haveLastLabelData2;
-
-    QString hideWSpace( QString text );     // Encode white space as characters
-    QString restoreWSpace( QString text );  // Recover white space from encoded characters
 
     float elementMatch( int i, bool haveFirstVariable, double lastData1, bool haveSecondVariable, double lastData2 );
 };

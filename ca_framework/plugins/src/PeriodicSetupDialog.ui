@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1282</width>
-    <height>1153</height>
+    <width>1300</width>
+    <height>950</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -16,8 +16,17 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>1300</width>
+    <height>950</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>QCaPeriodic - Element configuration</string>
+  </property>
+  <property name="toolTip">
+   <string>Element configuration</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

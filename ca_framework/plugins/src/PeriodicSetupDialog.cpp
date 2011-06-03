@@ -131,6 +131,17 @@ PeriodicSetupDialog::PeriodicSetupDialog(QWidget *parent) :
         label->setText( "" );
         periodicGrid->addWidget( label, 7, 10 );
 
+        periodicGrid->setRowStretch( 0, 10);
+        periodicGrid->setRowStretch( 1, 10);
+        periodicGrid->setRowStretch( 2, 10);
+        periodicGrid->setRowStretch( 3, 10);
+        periodicGrid->setRowStretch( 4, 10);
+        periodicGrid->setRowStretch( 5, 10);
+        periodicGrid->setRowStretch( 6, 10);
+        periodicGrid->setRowStretch( 7, 2);
+        periodicGrid->setRowStretch( 8, 10);
+        periodicGrid->setRowStretch( 9, 10);
+
     }
 }
 

@@ -41,6 +41,9 @@
 #include <PeriodicDialog.h>
 #include <math.h>
 #include <QSizePolicy>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QXmlStreamAttributes>
 
 // Table containing all static element information
 // (Another table - userInfo - contains dynamic element information that varies from instance to instance of this class)
@@ -229,14 +232,6 @@ void QCaPeriodic::setup() {
     variableType1 = VARIABLE_TYPE_USER_VALUE_1;
     variableType2 = VARIABLE_TYPE_USER_VALUE_2;
 
-    // Initialise user values
-    for( int i = 0; i < NUM_ELEMENTS; i++ )
-    {
-        userInfo[i].value1 = 0.0;
-        userInfo[i].value2 = 0.0;
-        userInfo[i].enable = true;
-    }
-
 }
 
 /*!
@@ -262,12 +257,8 @@ void QCaPeriodic::establishConnection( unsigned int variableIndex ) {
 
     // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
     if(  qca ) {
-        // Get updates if subscribing
-        if( subscribe )
-        {
-            QObject::connect( qca,  SIGNAL( floatingChanged( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
-                              this, SLOT( setElement( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-        }
+        QObject::connect( qca,  SIGNAL( floatingChanged( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                          this, SLOT( setElement( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
 
         // Get conection status changes always (subscribing or not)
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
@@ -401,6 +392,7 @@ void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaD
 // then the closest element match is returned.
 bool QCaPeriodic::getElementTextForValue( const double& value, const unsigned int& variableIndex, QCaPeriodicComponentData& componentData, const QString& currentText, QString& newText )
 {
+    // Save the value
     if( variableIndex == componentData.variableIndex1 )
     {
         componentData.lastData1 = value;
@@ -412,6 +404,8 @@ bool QCaPeriodic::getElementTextForValue( const double& value, const unsigned in
         componentData.haveLastData2 = true;
     }
 
+    // Get the related QCa data objects.
+    // We won't be using them for much - their presence (or absense) just tells us what data to expect.
     QCaString* qca1 = (QCaString*)getQcaItem(componentData.variableIndex1);
     QCaString* qca2 = (QCaString*)getQcaItem(componentData.variableIndex2);
 
@@ -877,98 +871,108 @@ double QCaPeriodic::getVariableTolerance2()
 // user info
 void QCaPeriodic::setUserInfo( QString inStr )
 {
-    QTextStream stream;
-    stream.setString( &inStr );
+    QXmlStreamReader xml( inStr );
 
-    while( stream.atEnd() == false )
-    {
-        int i;
-        stream >> i;
-
-        // If a good element index, get the values
-        // Format is 'elementIndex value1 value2 "text" '
-        if( i > 0 && i <= NUM_ELEMENTS )
-        {
-            i--;
-            int b;
-            stream >> b;
-            userInfo[i].enable = b;
-            stream >> userInfo[i].value1;
-            stream >> userInfo[i].value2;
-            QString text;
-            stream >> text;
-            text = text.mid( 1, text.size()-2 );    // Remove enclosing quotes
-            userInfo[i].elementText = restoreWSpace( text );
-        }
-
-        // if a bad element index
-        else
-        {
-            break;
-        }
-    }
-    emit requestResend();
-}
-QString QCaPeriodic::getUserInfo()
-{
-    QTextStream stream;
-    QString outStr;
-
-    // Set up the stream that will perform most conversions
-    stream.setString( &outStr );
-
-
-    // Format is ':elementIndex value1 value2 "text" '
+    // Set all element info to default as only non default is saved in the XML
     for( int i = 0; i < NUM_ELEMENTS; i++ )
     {
-        stream << i+1;
-        stream << " ";
-        stream << userInfo[i].enable;
-        stream << " ";
-        stream << userInfo[i].value1;
-        stream << " ";
-        stream << userInfo[i].value2;
-        stream << " \"";
-        stream << hideWSpace( userInfo[i].elementText );
-        stream << "\" ";
+        userInfo[i].enable = false;
+        userInfo[i].value1 = 0.0;
+        userInfo[i].value2 = 0.0;
+        userInfo[i].elementText.clear();
     }
-    return outStr;
-}
 
-
-// Encode white space as characters.
-// restoreWSpace() must complement this function.
-// Encoding is as follows:
-//      Encode '%' as '%%'
-//      Encode ' ' as '%s'
-QString QCaPeriodic::hideWSpace( QString text )
-{
-    text = text.replace("%", "%%");
-    text = text.replace(" ", "%s");
-    return text;
-}
-
-// Recover white space from encoded characters
-// See hideWSpace() for encoding details
-QString QCaPeriodic::restoreWSpace( QString text )
-{
-    // Examine each position in the string, and if an encoding sequence is found, replace it with the original unencoded character
-    for( int i = 0; i < text.size()-1; i++)
+    // Step over initial document start
+    if( xml.readNext() == QXmlStreamReader::StartDocument )
     {
-        if( text[i].toAscii() == '%')
+        // Parse all elements
+        while (!xml.atEnd())
         {
-            switch( text[i+1].toAscii() )
+            // Ignore all but 'elements' elements
+            if( xml.readNext() == QXmlStreamReader::StartElement &&
+                xml.name().compare( "elements" ) == 0 )
             {
-                case '%':
-                    text = text.left(i).append( text.right( text.size()-i-1 ) );
-                    break;
-                case 's':
-                    text = text.left(i).append( " " ).append( text.right( text.size()-i-2 ) );
-                    break;
+                // Found an 'elements' element
+                // Parse all elements in the 'elements' element
+                while (!xml.atEnd())
+                {
+                    // Ignore all but 'element' elements
+                    if( xml.readNext() == QXmlStreamReader::StartElement &&
+                        xml.name().compare( "element" ) == 0 )
+                    {
+
+                        // Found an 'element' element, get any attributes
+                        bool ok;
+                        QXmlStreamAttributes attributes = xml.attributes();
+
+                        // Only use the element if it includes a valid element number attribute
+                        int i = attributes.value( "number" ).toString().toInt( &ok );
+                        if( i >= 1 && i <= NUM_ELEMENTS )
+                        {
+                            // Element number is good, so extract any other attributes.
+                            // Note, the presence of each attribute is not checked.
+                            // If not present or valid then the returned 0.0 or empty strings are used
+                            i--;
+                            if( attributes.value( "enable" ).toString().compare( "yes" ) == 0 )
+                                userInfo[i].enable = true;
+                            else
+                                userInfo[i].enable = false;
+                            userInfo[i].value1 = attributes.value( "value1" ).toString().toDouble( &ok );
+                            userInfo[i].value2 = attributes.value( "value2" ).toString().toDouble( &ok );
+                            userInfo[i].elementText = attributes.value( "text" ).toString();
+                        }
+                    }
+                }
             }
         }
     }
+//    if (xml.hasError()) {
+//        qDebug() << xml.errorString();
+//    }
 
-    // Return the recoovered string
-    return text;
+    emit requestResend();
+}
+
+QString QCaPeriodic::getUserInfo()
+{
+    QString outStr;
+    QString value1;
+    QString value2;
+    QString elementText;
+    QXmlStreamWriter xml( &outStr );
+    xml.writeStartElement("elements");
+    for( int i = 0; i < NUM_ELEMENTS; i++ )
+    {
+        // Only write out an element if anything is not the default
+        if( userInfo[i].enable != false ||
+            userInfo[i].value1 != 0.0 ||
+            userInfo[i].value2 != 0.0 ||
+            userInfo[i].elementText.isEmpty() == false )
+        {
+            // Write an element
+            xml.writeStartElement("element");
+            {
+                // Always include the element number attribute
+                xml.writeAttribute( "number", QString::number( i+1 ) );
+                if( userInfo[i].enable )
+                    xml.writeAttribute( "enable", "yes" );
+
+                // Include the value1 attribute if not the default
+                if( userInfo[i].value1 != 0.0 )
+                    xml.writeAttribute( "value1", QString::number( userInfo[i].value1 ));
+
+                // Include the value2 attribute if not the default
+                if( userInfo[i].value2 != 0.0 )
+                    xml.writeAttribute( "value2", QString::number( userInfo[i].value2 ));
+
+                // Include the elementText attribute if not the default
+                if( userInfo[i].elementText.isEmpty() == false )
+                    xml.writeAttribute( "text", userInfo[i].elementText );
+            }
+            xml.writeEndElement();
+        }
+    }
+    xml.writeEndElement();
+
+    return outStr;
 }
