@@ -64,7 +64,7 @@ class QCaPeriodicPlugin : public QCaPeriodic {
     void    setVariableName3Property( QString variable3Name ){ variableNamePropertyManagers[2].setVariableNameProperty( variable3Name ); }
     QString getVariableName3Property(){ return variableNamePropertyManagers[2].getVariableNameProperty(); }
 
-    Q_PROPERTY(QString readbackLabelVariableSubstitutions3 READ getVariableNameSubstitutions3Property WRITE setVariableNameSubstitutions3Property)
+    Q_PROPERTY(QString readbackLabelVariableSubstitutions1 READ getVariableNameSubstitutions3Property WRITE setVariableNameSubstitutions3Property)
     void    setVariableNameSubstitutions3Property( QString variableNameSubstitutions3 ){ variableNamePropertyManagers[2].setSubstitutionsProperty( variableNameSubstitutions3 ); }
     QString getVariableNameSubstitutions3Property(){ return variableNamePropertyManagers[2].getSubstitutionsProperty(); }
 
@@ -72,7 +72,7 @@ class QCaPeriodicPlugin : public QCaPeriodic {
     void    setVariableName4Property( QString variable4Name ){ variableNamePropertyManagers[3].setVariableNameProperty( variable4Name ); }
     QString getVariableName4Property(){ return variableNamePropertyManagers[3].getVariableNameProperty(); }
 
-    Q_PROPERTY(QString readbackLabelVariableSubstitutions3 READ getVariableNameSubstitutions4Property WRITE setVariableNameSubstitutions4Property)
+    Q_PROPERTY(QString readbackLabelVariableSubstitutions2 READ getVariableNameSubstitutions4Property WRITE setVariableNameSubstitutions4Property)
     void    setVariableNameSubstitutions4Property( QString variableNameSubstitutions4 ){ variableNamePropertyManagers[3].setSubstitutionsProperty( variableNameSubstitutions4 ); }
     QString getVariableNameSubstitutions4Property(){ return variableNamePropertyManagers[3].getSubstitutionsProperty(); }
 

@@ -82,9 +82,9 @@ void QCaEventFilter::addFilter( QObject *eventObject ) {
     /// Check if the filter is already present. If so, just increase the reference count
     int i;
     for( i = 0; i < installedFilters.size(); i++ ) {
-        QCaInstalledFiltersListItem item = installedFilters[i];
-        if( item.eventObject == eventObject ) {
-            item.referenceCount++;
+        QCaInstalledFiltersListItem* item = &(installedFilters[i]);
+        if( item->eventObject == eventObject ) {
+            item->referenceCount++;
             break;
         }
     }
@@ -94,7 +94,6 @@ void QCaEventFilter::addFilter( QObject *eventObject ) {
     if( i >= installedFilters.size() ) {
         /// Add the object to the list
         QCaInstalledFiltersListItem item( eventObject );
-        //qDebug() << "QCaEventFilter::addFilter() installing filter";
         installedFilters.append( item );
 
         /// Add the filter
@@ -116,14 +115,14 @@ void QCaEventFilter::deleteFilter( QObject *eventObject ) {
     for( i = 0; i < installedFilters.size(); i++ ) {
 
         /// Get the next item and check for a match
-        QCaInstalledFiltersListItem item = installedFilters[i];
-        if( item.eventObject == eventObject ) {
+        QCaInstalledFiltersListItem* item = &(installedFilters[i]);
+        if( item->eventObject == eventObject ) {
             /// Item matched. Reduce the count of QCaObjects relying on
             /// this filter and remove the filter if there are no more
             /// QCaObject requiring the filter
-            item.referenceCount--;
+            item->referenceCount--;
 
-            if( item.referenceCount == 0 ) {
+            if( item->referenceCount == 0 ) {
                 eventObject->removeEventFilter( this );
                 installedFilters.removeAt( i );
             }

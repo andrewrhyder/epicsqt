@@ -80,18 +80,21 @@ PeriodicSetupDialog::PeriodicSetupDialog(QWidget *parent) :
                 if( value1 )
                 {
                     value1->setText( QString::number( plugin->userInfo[i].value1 ) );
+                    value1->setCursorPosition( 0 );
                 }
 
                 QLineEdit* value2 = elements[i]->findChild<QLineEdit *>("lineEditValue2");
                 if( value2 )
                 {
                     value2->setText( QString::number( plugin->userInfo[i].value2 ) );
+                    value2->setCursorPosition( 0 );
                 }
 
                 QLineEdit* elementText = elements[i]->findChild<QLineEdit *>("lineEditString");
                 if( elementText )
                 {
                     elementText->setText(  plugin->userInfo[i].elementText );
+                    elementText->setCursorPosition( 0 );
                 }
             }
 
@@ -102,46 +105,36 @@ PeriodicSetupDialog::PeriodicSetupDialog(QWidget *parent) :
         // Populate unused rows and columns
         QLabel* label;
 
+        // ... Lanthanides indicators
         label = new QLabel( this );
         label->setText( "*" );
-        label->setAlignment( Qt::AlignHCenter );
-        label->setAlignment( Qt::AlignVCenter );
         periodicGrid->addWidget( label, 5, 2 );
-
-        label = new QLabel( this );
-        label->setText( "**" );
-        label->setAlignment( Qt::AlignHCenter );
-        label->setAlignment( Qt::AlignVCenter );
-        periodicGrid->addWidget( label, 6, 2 );
+        periodicGrid->setAlignment( label, Qt::AlignHCenter );
 
         label = new QLabel( this );
         label->setText( "*" );
-        label->setAlignment( Qt::AlignRight );
-        label->setAlignment( Qt::AlignVCenter );
         periodicGrid->addWidget( label, 8, 1 );
+        periodicGrid->setAlignment( label, Qt::AlignRight );
+
+        // ... Actinides indicators
+        label = new QLabel( this );
+        label->setText( "**" );
+        periodicGrid->addWidget( label, 6, 2 );
+        periodicGrid->setAlignment( label, Qt::AlignHCenter );
 
         label = new QLabel( this );
         label->setText( "**" );
-        label->setAlignment( Qt::AlignRight );
-        label->setAlignment( Qt::AlignVCenter );
         periodicGrid->addWidget( label, 9, 1 );
+        periodicGrid->setAlignment( label, Qt::AlignRight );
 
-        // Force empty row 7 to remain
+        // ... Force empty row 7 to remain
         label = new QLabel( this );
         label->setText( "" );
         periodicGrid->addWidget( label, 7, 10 );
 
-        periodicGrid->setRowStretch( 0, 10);
-        periodicGrid->setRowStretch( 1, 10);
-        periodicGrid->setRowStretch( 2, 10);
-        periodicGrid->setRowStretch( 3, 10);
-        periodicGrid->setRowStretch( 4, 10);
-        periodicGrid->setRowStretch( 5, 10);
-        periodicGrid->setRowStretch( 6, 10);
-        periodicGrid->setRowStretch( 7, 2);
-        periodicGrid->setRowStretch( 8, 10);
-        periodicGrid->setRowStretch( 9, 10);
-
+        // Make empty row 7 narrower than the rest
+        for( int i = 0; i < 10; i++ )
+            periodicGrid->setRowStretch( i, (i==7) ? 2 : 10); // row 7 stretch = 2, all other rows stretch = 10
     }
 }
 
