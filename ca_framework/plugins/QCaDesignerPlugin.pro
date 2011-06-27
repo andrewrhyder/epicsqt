@@ -44,7 +44,9 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/ASguiForm.png \
     src/QCaPeriodic.png \
     src/QAnalogProgressBar.png \
-    src/QCaAnalogProgressBar.png
+    src/QCaAnalogProgressBar.png \
+    src/QBitStatus.png \
+    src/QCaBitStatus.png
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \
@@ -79,6 +81,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/PeriodicElementSetupForm.h \
     include/QAnalogProgressBarPluginManager.h \
     include/QCaAnalogProgressBarPluginManager.h \
+    include/QBitStatusPluginManager.h \
+    include/QCaBitStatusPluginManager.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -118,7 +122,9 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaPeriodic.h \
     ../widgets/include/PeriodicDialog.h \
     ../widgets/include/QAnalogProgressBar.h \
-    ../widgets/include/QCaAnalogProgressBar.h
+    ../widgets/include/QCaAnalogProgressBar.h \
+    ../widgets/include/QBitStatus.h \
+    ../widgets/include/QCaBitStatus.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
@@ -152,6 +158,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/PeriodicElementSetupForm.cpp \
     src/QAnalogProgressBarPluginManager.cpp \
     src/QCaAnalogProgressBarPluginManager.cpp \
+    src/QBitStatusPluginManager.cpp \
+    src/QCaBitStatusPluginManager.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -190,7 +198,9 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaPeriodic.cpp \
     ../widgets/src/PeriodicDialog.cpp \
     ../widgets/src/QAnalogProgressBar.cpp \
-    ../widgets/src/QCaAnalogProgressBar.cpp
+    ../widgets/src/QCaAnalogProgressBar.cpp \
+    ../widgets/src/QBitStatus.cpp \
+    ../widgets/src/QCaBitStatus.cpp
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
@@ -198,16 +208,16 @@ INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
-    $$(QCAFRAMEWORK)/qwt-5.2.1/src \
+    $$(QCAFRAMEWORK)/qwt-6.0.0/src \
     $$(EPICS_BASE)/include
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
 INCLUDEPATH += $$(EPICS_BASE)/include
-# Depending on build, the qet library below may need to be -lqwt or -lqwt5
+# Depending on build, the qet library below may need to be -lqwt or -lqwt6
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \
-    -L$$(QCAFRAMEWORK)/qwt-5.2.1/lib \
+    -L$$(QCAFRAMEWORK)/qwt-6.0.0/lib \
     -lqwt
 
 FORMS += \

@@ -44,6 +44,8 @@
 #include <QCaPeriodicPluginManager.h>
 #include <QCaAnalogProgressBarPluginManager.h>
 #include <QAnalogProgressBarPluginManager.h>
+#include <QCaBitStatusPluginManager.h>
+#include <QBitStatusPluginManager.h>
 
 #include <QtCore/qplugin.h>
 
@@ -68,6 +70,8 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaPeriodicPluginManager(this));
     widgets.append(new QCaAnalogProgressBarPluginManager(this));
     widgets.append(new QAnalogProgressBarPluginManager(this));
+    widgets.append(new QCaBitStatusPluginManager(this));
+    widgets.append(new QBitStatusPluginManager(this));
 }
 
 /*!

@@ -15,5 +15,7 @@
         <file>QCaPeriodic.png</file>
         <file>QAnalogProgressBar.png</file>
         <file>QCaAnalogProgressBar.png</file>
+        <file>QCaBitStatus.png</file>
+        <file>QBitStatus.png</file>
     </qresource>
 </RCC>

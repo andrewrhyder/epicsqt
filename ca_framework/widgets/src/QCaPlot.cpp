@@ -279,7 +279,7 @@ void QCaPlot::setPlotDataCommon()
     }
 
     // Set the curve data
-    curve->setData(xdata, ydata);
+    curve->setSamples(xdata, ydata);
 
     // Update the plot
     replot();
@@ -490,11 +490,13 @@ QString QCaPlot::getTitle()
 // Access functions for backgroundColor
 void    QCaPlot::setBackgroundColor( QColor backgroundColor )
 {
-    setCanvasBackground( backgroundColor );
+    QBrush brush = canvasBackground();
+    brush.setColor( backgroundColor );
+    setCanvasBackground( brush );
 }
 QColor QCaPlot::getBackgroundColor()
 {
-    return canvasBackground();
+    return canvasBackground().color();
 }
 
 // Access functions for traceColor
