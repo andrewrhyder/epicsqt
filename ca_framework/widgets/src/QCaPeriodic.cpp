@@ -490,7 +490,7 @@ float QCaPeriodic::elementMatch( int i,
         return 0.0;
 
     // Value selected from element info or user info depending on type
-    double value;
+    double value = 0;
 
     // Assume an element matches
     float match1 = 1.0;

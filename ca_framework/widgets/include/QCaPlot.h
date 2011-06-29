@@ -34,6 +34,7 @@
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
 #include <QCaWidget.h>
 #include <QCaFloating.h>
 #include <QCaFloatingFormatting.h>
@@ -41,6 +42,24 @@
 #include <QVector>
 #include <QTimer>
 #include <QCaPluginLibrary_global.h>
+
+// Maximum number of variables.
+#define NUM_VARIABLES 4
+
+// Trace related data and properties
+class trace {
+    public:
+
+    QVector<QCaDateTime> timeStamps;
+    QVector<double> xdata;
+    QVector<double> ydata;
+
+    QwtPlotCurve* curve;
+    QColor color;
+    QString legend;
+    bool waveform;  // True if displaying a waveform (an array of values arriving in one update), false if displaying a strip chart (individual values arriving over time)
+    QwtPlotCurve::CurveStyle style;
+};
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     Q_OBJECT
@@ -85,17 +104,49 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     void    setBackgroundColor( QColor backgroundColor );
     QColor getBackgroundColor();
 
-    void    setTraceColor( QColor traceColor );
-    QColor getTraceColor();
+    void    setTraceStyle( QwtPlotCurve::CurveStyle traceStyle, const unsigned int variableIndex );
+    QwtPlotCurve::CurveStyle getTraceStyle( const unsigned int variableIndex );
 
-    void    setTraceLegend( QString traceLegend );
-    QString getTraceLegend();
+    void    setTraceColor( QColor traceColor, const unsigned int variableIndex );
+    void    setTraceColor1( QColor traceColor );
+    void    setTraceColor2( QColor traceColor );
+    void    setTraceColor3( QColor traceColor );
+    void    setTraceColor4( QColor traceColor );
+    QColor getTraceColor( const unsigned int variableIndex );
+    QColor getTraceColor1();
+    QColor getTraceColor2();
+    QColor getTraceColor3();
+    QColor getTraceColor4();
+
+    void    setTraceLegend1( QString traceLegend );
+    void    setTraceLegend2( QString traceLegend );
+    void    setTraceLegend3( QString traceLegend );
+    void    setTraceLegend4( QString traceLegend );
+
+    QString getTraceLegend1();
+    QString getTraceLegend2();
+    QString getTraceLegend3();
+    QString getTraceLegend4();
 
     void    setXUnit( QString xUnit );
     QString getXUnit();
 
     void    setYUnit( QString yUnit );
     QString getYUnit();
+
+    void setGridEnableMajorX( bool gridEnableMajorXIn );
+    void setGridEnableMajorY( bool gridEnableMajorYIn );
+    void setGridEnableMinorX( bool gridEnableMinorXIn );
+    void setGridEnableMinorY( bool gridEnableMinorYIn );
+    bool getGridEnableMajorX();
+    bool getGridEnableMajorY();
+    bool getGridEnableMinorX();
+    bool getGridEnableMinorY();
+
+    void setGridMajorColor( QColor gridMajorColorIn );
+    void setGridMinorColor( QColor gridMinorColorIn );
+    QColor getGridMajorColor();
+    QColor getGridMinorColor();
 
     void setXStart( double xStart );
     double getXStart();
@@ -136,7 +187,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     void setup();
 
     QTimer* tickTimer;          // Timer to keep strip chart scrolling
-    void setPlotDataCommon();
+    void setPlotDataCommon( const unsigned int variableIndex );
     void setalarmInfoCommon( QCaAlarmInfo& alarmInfo );
 
 
@@ -146,10 +197,15 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     bool autoScale;
     bool axisEnableX;
     bool axisEnableY;
+    QwtPlotGrid* grid;
+    bool gridEnableMajorX;
+    bool gridEnableMajorY;
+    bool gridEnableMinorX;
+    bool gridEnableMinorY;
+    QColor gridMajorColor;
+    QColor gridMinorColor;
 
-    // Trace properties
-    QColor traceColor;
-    QString traceLegend;
+    // Trace update and movement properties
     unsigned int tickRate; //mS
     unsigned int timeSpan; // Seconds
 
@@ -165,16 +221,15 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     bool isConnected;
     
     // Variables and functions to manage plot data
-    QDateTime baseTime;
 
-    QVector<QCaDateTime> timeStamps;
-    QVector<double> xdata;
-    QVector<double> ydata;
-    QwtPlotCurve* curve;
+    trace traces[NUM_VARIABLES];
 
-    void regenerateTickXData();
+    void regenerateTickXData( const unsigned int variableIndex );
 
-    void setCurveColor( const QColor color );
+    void setCurveColor( const QColor color, const unsigned int variableIndex );
+    void    setTraceLegend( QString traceLegend, const unsigned int variableIndex );
+    QString getTraceLegend( const unsigned int variableIndex );
+    void setGridEnable();
 };
 
 

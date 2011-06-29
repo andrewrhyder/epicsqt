@@ -38,9 +38,6 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <QCaStringFormatting.h>
 
-//!!! ???
-#define VARIABLE_NAME_PROPERTY_MANAGERS_SIZE 6
-
 class QCaShapePlugin : public QCaShape {
     Q_OBJECT
 
@@ -167,7 +164,7 @@ class QCaShapePlugin : public QCaShape {
     Q_PROPERTY(bool fill READ getFill WRITE setFill)
 
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < VARIABLE_NAME_PROPERTY_MANAGERS_SIZE; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManagers[0].getSubstitutionsProperty(); }
 
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
@@ -286,7 +283,7 @@ class QCaShapePlugin : public QCaShape {
     Q_PROPERTY(QString text READ getText WRITE setText)
 
   private:
-    QCaVariableNamePropertyManager variableNamePropertyManagers[VARIABLE_NAME_PROPERTY_MANAGERS_SIZE];
+    QCaVariableNamePropertyManager variableNamePropertyManagers[NUM_VARIABLES];
 
   private slots:
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );

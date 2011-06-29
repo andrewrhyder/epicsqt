@@ -646,7 +646,8 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
             caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
             caRecord.setControlLimit( incommingData->upper_ctrl_limit, incommingData->lower_ctrl_limit );
-            caRecord.setLong( (long*)(&incommingData->value), args.count );
+            long value = incommingData->value;
+            caRecord.setLong( &value, args.count );
             break;
         }
         case DBR_CTRL_DOUBLE :

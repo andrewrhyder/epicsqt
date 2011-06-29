@@ -1,10 +1,3 @@
-/*! 
-  \class QCaPlot
-  \version $Revision: #3 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author glenn.jackson
-  \brief CA Plot Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -58,7 +51,7 @@ QCaPlot::QCaPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( pa
 void QCaPlot::setup() {
     // Set up data
     // This control used a single data source
-    setNumVariables(1);
+    setNumVariables(NUM_VARIABLES);
 
     // Set up default properties
     visible = true;
@@ -77,19 +70,38 @@ void QCaPlot::setup() {
 
     //setLabelOrientation (Qt::Orientation)Qt::Vertical
 
-    // Trace properties
-    traceColor = Qt::black;
-
-    // Thread to use when running as a strip chart
-    tickTimer = NULL;
+    tickTimer = new QTimer(this);
+    connect(tickTimer, SIGNAL(timeout()), this, SLOT(tickTimeout()));
+    tickTimer->start( tickRate );
 
     // Waveform properties
     xStart = 0.0;
     xIncrement = 1.0;
 
-    // Initially no curve
-    curve = NULL;
-//    current_x = 0.0;  // temporary to plot an x axis.
+    // Initially no curve or grid, and different trace colors
+    for( int i = 0; i < NUM_VARIABLES; i++ )
+    {
+        trace* tr = &traces[i];
+        tr->curve = NULL;
+        switch( i ) // Note, this assumes 4 traces, but won't break with more or less
+        {
+            case 0:  tr->color = Qt::black; break;
+            case 1:  tr->color = Qt::red;   break;
+            case 2:  tr->color = Qt::green; break;
+            case 3:  tr->color = Qt::blue;  break;
+            default: tr->color = Qt::black; break;
+        }
+        tr->style = QwtPlotCurve::Lines;
+    }
+
+    grid = NULL;
+    gridEnableMajorX = false;
+    gridEnableMajorY = false;
+    gridEnableMinorX = false;
+    gridEnableMinorY = false;
+    gridMajorColor = Qt::black;
+    gridMinorColor = Qt::gray;
+
 
     tickRate = 50;
     timeSpan = 59;
@@ -106,12 +118,19 @@ QCaPlot::~QCaPlot()
         delete tickTimer;
     }
 
-    if( curve )
+    for( int i = 0; i < NUM_VARIABLES; i++ )
     {
-        delete curve;
-        curve = NULL;
+        trace* tr = &traces[i];
+        if( tr->curve )
+        {
+            delete tr->curve;
+            tr->curve = NULL;
+        }
     }
-
+    if( grid )
+    {
+        delete grid;
+    }
 }
 
 /*!
@@ -182,40 +201,33 @@ void QCaPlot::connectionChanged( QCaConnectionInfo& connectionInfo )
     This is a slot used to recieve data updates from a QCaObject based class.
  */
 
-void QCaPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& ) {
+void QCaPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) {
 
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( value );
 
-    // Setup to do if this is the first data
-    if( xdata.count() == 0 )
-    {
+    // Select the curve information for this variable
+    trace* tr = &traces[variableIndex];
 
-        baseTime = (QDateTime)timestamp;
-
-        tickTimer = new QTimer(this);
-        connect(tickTimer, SIGNAL(timeout()), this, SLOT(tickTimeout()));
-        tickTimer->start( tickRate );
-    }
-    // !!!??? This above timer is never stopped
-    // !!!??? Stop it if this switches over to an array input
+    // Flag this trace is displaying a strip chart
+    tr->waveform = false;
 
     // Add the new data point
-    timeStamps.append( timestamp );
-    ydata.append(value);
-    xdata.append( 0.0 ); // keep x and y arrays the same size
-    regenerateTickXData();
+    tr->timeStamps.append( timestamp );
+    tr->ydata.append(value);
+    tr->xdata.append( 0.0 ); // keep x and y arrays the same size
+    regenerateTickXData( variableIndex );
 
     // Remove any old data
     QDateTime oldest = QDateTime::currentDateTime();
     oldest = oldest.addSecs( -timeSpan );
-    while( timeStamps.count() > 1 )
+    while( tr->timeStamps.count() > 1 )
     {
-        if( timeStamps[1] < oldest )
+        if( tr->timeStamps[1] < oldest )
         {
-            timeStamps.remove(0);
-            xdata.remove(0);
-            ydata.remove(0);
+            tr->timeStamps.remove(0);
+            tr->xdata.remove(0);
+            tr->ydata.remove(0);
         }
         else
         {
@@ -227,7 +239,7 @@ void QCaPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateT
     setAxisScale( xBottom, -(double)timeSpan, 0.0 );
 
     // The data is now ready to plot
-    setPlotDataCommon();
+    setPlotDataCommon( variableIndex );
     setalarmInfoCommon( alarmInfo );
 }
 
@@ -235,15 +247,21 @@ void QCaPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateT
     Update the plotted data with a new array of values
     This is a slot used to recieve data updates from a QCaObject based class.
  */
-void QCaPlot::setPlotData( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QCaPlot::setPlotData( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex ) {
 
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( values );
 
+    // Select the curve information for this variable
+    trace* tr = &traces[variableIndex];
+
+    // Flag this trace is displaying a waveform
+    tr->waveform = true;
+
     // Clear any previous data
-    xdata.clear();
-    ydata.clear();
-    timeStamps.clear();
+    tr->xdata.clear();
+    tr->ydata.clear();
+    tr->timeStamps.clear();
 
     // If no increment was supplied, use 1 by default
     double inc;
@@ -251,15 +269,15 @@ void QCaPlot::setPlotData( const QVector<double>& values, QCaAlarmInfo& alarmInf
 
     for( int i = 0; i < values.count(); i++ )
     {
-        xdata.append( xStart + ((double)i * inc ) );
-        ydata.append( values[i] );
+        tr->xdata.append( xStart + ((double)i * inc ) );
+        tr->ydata.append( values[i] );
     }
 
     // Autoscale X for a waveform
     setAxisAutoScale( xBottom );
 
     // The data is now ready to plot
-    setPlotDataCommon();
+    setPlotDataCommon( variableIndex );
     setalarmInfoCommon( alarmInfo );
 
 }
@@ -267,19 +285,23 @@ void QCaPlot::setPlotData( const QVector<double>& values, QCaAlarmInfo& alarmInf
 // Update the plot with new data.
 // The new data may be due to a new value being added to the current values (stripchart)
 // or the new data may be due to a new waveform
-void QCaPlot::setPlotDataCommon()
+void QCaPlot::setPlotDataCommon( const unsigned int variableIndex )
 {
+    trace* tr = &traces[variableIndex];
+
     // Create the curve if it does not exist
-    if( !curve )
+    if( !tr->curve )
     {
-        curve = new QwtPlotCurve( traceLegend );
-        setCurveColor( traceColor );
-        curve->setRenderHint( QwtPlotItem::RenderAntialiased );
-        curve->attach(this);
+        tr->curve = new QwtPlotCurve( tr->legend );
+
+        setCurveColor( tr->color, variableIndex );
+        tr->curve->setRenderHint( QwtPlotItem::RenderAntialiased );
+        tr->curve->setStyle( tr->style );
+        tr->curve->attach(this);
     }
 
     // Set the curve data
-    curve->setSamples(xdata, ydata);
+    tr->curve->setSamples( tr->xdata, tr->ydata );
 
     // Update the plot
     replot();
@@ -300,20 +322,29 @@ void QCaPlot::setalarmInfoCommon( QCaAlarmInfo& alarmInfo )
   For strip chart functionality
   Recalculate the x value as time goes by
  */
-void QCaPlot::regenerateTickXData()
+void QCaPlot::regenerateTickXData( const unsigned int variableIndex )
 {
+    trace* tr = &traces[variableIndex];
+
     QDateTime now = QDateTime::currentDateTime();
-    for( int i = 0; i < xdata.count(); i++)
+    for( int i = 0; i < tr->xdata.count(); i++)
     {
-        xdata[i] = timeStamps[i].floating( now );
+        tr->xdata[i] = tr->timeStamps[i].floating( now );
     }
 }
 
 // Update the chart if it is a strip chart
 void QCaPlot::tickTimeout()
 {
-    regenerateTickXData();
-    setPlotDataCommon();
+    for( int i = 0; i < NUM_VARIABLES; i++ )
+    {
+        trace* tr = &traces[i];
+        if( tr->curve && !tr->waveform )
+        {
+            regenerateTickXData( i );
+            setPlotDataCommon( i );
+        }
+    }
 }
 
 /*!
@@ -366,11 +397,12 @@ void QCaPlot::setRunVisible( bool visibleIn )
 }
 
 // Update the color of the trace
-void QCaPlot::setCurveColor( const QColor color )
+void QCaPlot::setCurveColor( const QColor color, const unsigned int variableIndex )
 {
-    if( curve )
+    trace* tr = &traces[variableIndex];
+    if( tr->curve )
     {
-        curve->setPen (color);
+        tr->curve->setPen( color );
     }
 }
 
@@ -385,15 +417,6 @@ void QCaPlot::setVariableNameAndSubstitutions( QString variableNameIn, QString v
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
     establishConnection( variableIndex );
-}
-
-// Access functions for subscribe
-void QCaPlot::setSubscribe( bool subscribeIn )
-{
-    subscribe = subscribeIn;
-}
-bool QCaPlot::getSubscribe(){
-    return subscribe;
 }
 
 // Access functions for variableAsToolTip
@@ -478,6 +501,99 @@ bool QCaPlot::getAxisEnableY()
     return axisEnableY;
 }
 
+// Access functions for grid
+void QCaPlot::setGridEnableMajorX( bool gridEnableMajorXIn )
+{
+    gridEnableMajorX = gridEnableMajorXIn;
+    setGridEnable();
+}
+void QCaPlot::setGridEnableMajorY( bool gridEnableMajorYIn )
+{
+    gridEnableMajorY = gridEnableMajorYIn;
+    setGridEnable();
+}
+void QCaPlot::setGridEnableMinorX( bool gridEnableMinorXIn )
+{
+    gridEnableMinorX = gridEnableMinorXIn;
+    setGridEnable();
+}
+void QCaPlot::setGridEnableMinorY( bool gridEnableMinorYIn )
+{
+    gridEnableMinorY = gridEnableMinorYIn;
+    setGridEnable();
+}
+void QCaPlot::setGridEnable()
+{
+    // If any grid is required, create a grid and set it up
+    // Note, Qwt will ignore minor enable if major is not enabled
+    if( gridEnableMajorX || gridEnableMajorY || gridEnableMinorX || gridEnableMinorY )
+    {
+        if( !grid )
+        {
+            grid = new QwtPlotGrid;
+            grid->setMajPen(QPen(gridMajorColor, 0, Qt::DotLine));
+            grid->setMinPen(QPen(gridMinorColor, 0 , Qt::DotLine));
+            grid->attach( this );
+        }
+        grid->enableX(gridEnableMajorX);
+        grid->enableY(gridEnableMajorY);
+        grid->enableXMin(gridEnableMinorX);
+        grid->enableYMin(gridEnableMinorY);
+    }
+    // No grid required, get rid of any grid
+    else
+    {
+        if( grid )
+        {
+            grid->detach();
+            delete grid;
+            grid = NULL;
+        }
+    }
+}
+bool QCaPlot::getGridEnableMajorX()
+{
+    return gridEnableMajorX;
+}
+bool QCaPlot::getGridEnableMajorY()
+{
+    return gridEnableMajorY;
+}
+bool QCaPlot::getGridEnableMinorX()
+{
+    return gridEnableMinorX;
+}
+bool QCaPlot::getGridEnableMinorY()
+{
+    return gridEnableMinorY;
+}
+
+
+// Access functions for gridColor
+void QCaPlot::setGridMajorColor( QColor gridMajorColorIn )
+{
+    gridMajorColor = gridMajorColorIn;
+    if( grid )
+    {
+        grid->setMajPen(QPen(gridMajorColor, 0, Qt::DotLine));
+    }
+}
+void QCaPlot::setGridMinorColor( QColor gridMinorColorIn )
+{
+    gridMinorColor = gridMinorColorIn;
+    if( grid )
+    {
+        grid->setMinPen(QPen(gridMinorColor, 0 , Qt::DotLine));
+    }
+}
+QColor QCaPlot::getGridMajorColor()
+{
+    return gridMajorColor;
+}
+QColor QCaPlot::getGridMinorColor()
+{
+    return gridMinorColor;
+}
 
 
 // Access functions for title
@@ -499,22 +615,46 @@ QColor QCaPlot::getBackgroundColor()
     return canvasBackground().color();
 }
 
-// Access functions for traceColor
-void    QCaPlot::setTraceColor( QColor traceColorIn )
-{
-    traceColor = traceColorIn;
-    setCurveColor( traceColor );
+// Access functions for traceStyle
+void QCaPlot::setTraceStyle( QwtPlotCurve::CurveStyle traceStyle, const unsigned int variableIndex ){
+    trace* tr = &traces[variableIndex];
+    tr->style = traceStyle;
+    if( tr->curve )
+    {
+        tr->curve->setStyle( tr->style );
+    }
 }
 
-QColor QCaPlot::getTraceColor()
+QwtPlotCurve::CurveStyle QCaPlot::getTraceStyle( const unsigned int variableIndex )
 {
-    return traceColor;
+    return traces[variableIndex].style;
 }
+
+// Access functions for traceColor
+void QCaPlot::setTraceColor( QColor traceColor, const unsigned int variableIndex ){
+    traces[variableIndex].color = traceColor;
+    setCurveColor( traceColor, variableIndex );
+}
+void QCaPlot::setTraceColor1( QColor traceColor ){ setTraceColor( traceColor, 0 ); }
+void QCaPlot::setTraceColor2( QColor traceColor ){ setTraceColor( traceColor, 1 ); }
+void QCaPlot::setTraceColor3( QColor traceColor ){ setTraceColor( traceColor, 2 ); }
+void QCaPlot::setTraceColor4( QColor traceColor ){ setTraceColor( traceColor, 3 ); }
+
+QColor QCaPlot::getTraceColor( const unsigned int variableIndex )
+{
+    return traces[variableIndex].color;
+}
+QColor QCaPlot::getTraceColor1(){ return getTraceColor( 0 ); }
+QColor QCaPlot::getTraceColor2(){ return getTraceColor( 1 ); }
+QColor QCaPlot::getTraceColor3(){ return getTraceColor( 2 ); }
+QColor QCaPlot::getTraceColor4(){ return getTraceColor( 3 ); }
 
 // Access functions for traceLegend
-void QCaPlot::setTraceLegend( QString traceLegendIn ){
+void QCaPlot::setTraceLegend( QString traceLegend, const unsigned int variableIndex ){
 
-    traceLegend = traceLegendIn;
+    trace* tr = &traces[variableIndex];
+
+    tr->legend = traceLegend;
     if( traceLegend.count() )
     {
         insertLegend( new QwtLegend(), QwtPlot::RightLegend );
@@ -524,15 +664,24 @@ void QCaPlot::setTraceLegend( QString traceLegendIn ){
         insertLegend( NULL, QwtPlot::RightLegend );
     }
 
-    if( curve )
+    if( tr->curve )
     {
-        curve->setTitle( traceLegend );
+        tr->curve->setTitle( traceLegend );
     }
 }
-QString QCaPlot::getTraceLegend()
+void QCaPlot::setTraceLegend1( QString traceLegend ){ setTraceLegend( traceLegend, 0 ); }
+void QCaPlot::setTraceLegend2( QString traceLegend ){ setTraceLegend( traceLegend, 1 ); }
+void QCaPlot::setTraceLegend3( QString traceLegend ){ setTraceLegend( traceLegend, 2 ); }
+void QCaPlot::setTraceLegend4( QString traceLegend ){ setTraceLegend( traceLegend, 3 ); }
+
+QString QCaPlot::getTraceLegend( const unsigned int variableIndex )
 {
-    return traceLegend;
+    return traces[variableIndex].legend;
 }
+QString QCaPlot::getTraceLegend1(){ return getTraceLegend( 0 ); }
+QString QCaPlot::getTraceLegend2(){ return getTraceLegend( 1 ); }
+QString QCaPlot::getTraceLegend3(){ return getTraceLegend( 2 ); }
+QString QCaPlot::getTraceLegend4(){ return getTraceLegend( 3 ); }
 
 // Access functions for xUnit
 void    QCaPlot::setXUnit( QString xUnit )
