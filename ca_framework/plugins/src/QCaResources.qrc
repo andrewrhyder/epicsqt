@@ -17,5 +17,6 @@
         <file>QCaAnalogProgressBar.png</file>
         <file>QCaBitStatus.png</file>
         <file>QBitStatus.png</file>
+        <file>QSubstitutedLabel.png</file>
     </qresource>
 </RCC>
