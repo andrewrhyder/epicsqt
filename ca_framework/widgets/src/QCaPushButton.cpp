@@ -1,10 +1,3 @@
-/*! 
-  \class QCaPushButton
-  \version $Revision: #13 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Push Button Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -35,6 +28,10 @@
  */
 
 #include <QCaPushButton.h>
+#include <QProcess>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QIcon>
 
 /*!
     Constructor with no initialisation
@@ -57,6 +54,22 @@ QCaPushButton::QCaPushButton( const QString &variableNameIn, QWidget *parent ) :
     Setup common to all constructors
 */
 void QCaPushButton::setup() {
+    dataSetup();
+    commandSetup();
+    guiSetup();
+
+    setText( "QCaPushButton" );
+
+    // Use push button signals
+    QObject::connect( this, SIGNAL( pressed() ), this, SLOT( userPressed() ) );
+    QObject::connect( this, SIGNAL( released() ), this, SLOT( userReleased() ) );
+    QObject::connect( this, SIGNAL( clicked() ), this, SLOT( userClicked() ) );
+}
+
+/*!
+    Setup for reading and writing data
+*/
+void QCaPushButton::dataSetup() {
     // Set up data
     // This control used a single data source
     setNumVariables(1);
@@ -77,12 +90,46 @@ void QCaPushButton::setup() {
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
+}
 
-    // Use push button signals
-    QObject::connect( this, SIGNAL( pressed() ), this, SLOT( userPressed() ) );
-    QObject::connect( this, SIGNAL( released() ), this, SLOT( userReleased() ) );
-    QObject::connect( this, SIGNAL( clicked() ), this, SLOT( userClicked() ) );
+/*!
+    Setup for running commands
+*/
+void QCaPushButton::commandSetup() {
+}
+
+/*!
+    Setup for starting new GUIs
+*/
+void QCaPushButton::guiSetup() {
+
+    // Set default properties
+    creationOption = ASguiForm::CREATION_OPTION_OPEN;
+
+    // If a profile is define by whatever contains the button, use it
+    if( profile.isProfileDefined() )
+    {
+        // A profile is already defined, either by the gui application or a ASGui form form.
+        // Extend any variable name substitutions with this form's substitutions
+        profile.addMacroSubstitutions( getVariableNameSubstitutions() );
+
+        // Setup a signal to launch a new gui
+        // The signal will be used by whatever the button is in
+        QObject::connect( (QObject*)this, SIGNAL( newGui(  QString, QString, ASguiForm::creationOptions ) ),
+                          profile.getGuiLaunchConsumer(), SLOT( launchGui( QString, QString, ASguiForm::creationOptions ) ) );
+
+    }
+
+    // A profile is not already defined, create one. This is the case if this class is used by an application that does not set up a profile, such as 'designer'.
+    else
+    {
+        // Set up the button's own message handler
+        userMessage.setup( this );
+
+        // Set up the button's own gui form launcher
+        QObject::connect( (QObject*)this, SIGNAL( newGui(  QString, QString, ASguiForm::creationOptions ) ),
+                          this, SLOT( launchGui( QString, QString, ASguiForm::creationOptions ) ) );
+    }
 }
 
 /*!
@@ -136,6 +183,11 @@ void QCaPushButton::updateToolTip ( const QString & toolTip ) {
  */
 void QCaPushButton::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
+    // Do nothing if no variable name, but there is a program to run or a new gui to open.
+    // Most widgets will be dissabled at this point if there is no good connection to a PV,
+    // but this widget may be doing other stuff (running a program of starting a GUI)
+    if( getSubstitutedVariableName( 0 ).isEmpty() )
+        return;
 
     /// If connected enabled the widget if required.
     if( connectionInfo.isChannelConnected() )
@@ -172,8 +224,19 @@ void QCaPushButton::setButtonText( const QString& text, QCaAlarmInfo& alarmInfo,
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( text );
 
-    /// Update the text
-    setText( text );
+    /// Update the text if required
+    if( updateOption == UPDATE_TEXT || updateOption == UPDATE_TEXT_AND_ICON )
+    {
+        setText( text );
+    }
+
+    /// Update the icon if required
+    if( updateOption == UPDATE_ICON || updateOption == UPDATE_TEXT_AND_ICON )
+    {
+        QIcon icon;
+        icon.addPixmap( getDataPixmap( text ) );
+        setIcon( icon );
+    }
 
     /// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
@@ -219,6 +282,7 @@ void QCaPushButton::userReleased() {
     Button click event.
 */
 void QCaPushButton::userClicked() {
+    qDebug() << "userClicked()";
     /// Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
@@ -228,6 +292,22 @@ void QCaPushButton::userClicked() {
     if( qca && writeOnClick ) {
         qca->writeString( clickText );
     }
+
+    // If there is a command to run, run it
+    //??? use substitutions (from the profile) in the command and arguments (change name from variableNameSubstitutions to commandSubstitutions)
+    if( !program.isEmpty() )
+    {
+        QProcess *process = new QProcess();
+        process->start( program, arguments );
+    }
+
+    // If a new GUI is required, start it
+    if( !guiName.isEmpty() )
+    {
+        emit newGui( guiName, getVariableNameSubstitutions(), creationOption );
+    }
+
+
 }
 
 /*!
@@ -261,7 +341,18 @@ void QCaPushButton::requestEnabled( const bool& state )
 }
 
 //==============================================================================
-// Property convenience functions
+
+// Update option Property convenience function
+void QCaPushButton::setUpdateOption( updateOptions updateOptionIn )
+{
+    updateOption = updateOptionIn;
+}
+QCaPushButton::updateOptions QCaPushButton::getUpdateOption()
+{
+    return updateOption;
+}
+
+// 'Data button' Property convenience functions
 
 
 // Variable Name and substitution
@@ -433,3 +524,81 @@ QString QCaPushButton::getClickText()
     return clickText;
 }
 
+//==============================================================================
+// 'Command button' Property convenience functions
+
+// Program String
+void QCaPushButton::setProgram( QString program ){ QCaPushButton::program = program; }
+QString QCaPushButton::getProgram(){ return QCaPushButton::program; }
+
+// Arguments String
+void QCaPushButton::setArguments( QStringList arguments ){ QCaPushButton::arguments = arguments; }
+QStringList QCaPushButton::getArguments(){ return QCaPushButton::arguments; }
+
+
+
+
+//==============================================================================
+// 'Start new GUI' Property convenience functions
+
+// GUI name
+void QCaPushButton::setGuiName( QString guiNameIn )
+{
+    guiName = guiNameIn;
+}
+QString QCaPushButton::getGuiName()
+{
+    return guiName;
+}
+
+// Qt Designer Properties Creation options
+void QCaPushButton::setCreationOption( ASguiForm::creationOptions creationOptionIn )
+{
+    creationOption = creationOptionIn;
+}
+ASguiForm::creationOptions QCaPushButton::getCreationOption()
+{
+    return creationOption;
+}
+
+//==============================================================================
+// 'Start new GUI' slots
+
+// Slot for presenting messages to the user.
+// Normally a gui will have provided it's own message and error handling.
+// This is only used if no environment profile has been set up when a form is created. This is the case if created within 'designer'
+// Use a general message
+void QCaPushButton::onGeneralMessage( QString message )
+{
+    QMessageBox msgBox;
+    msgBox.setText( "Message" );
+    msgBox.setInformativeText( message );
+    msgBox.exec();
+}
+
+// Slot for launching a new gui.
+// This is the button's default action for launching a gui.
+// Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.
+void QCaPushButton::launchGui( QString guiName, QString /*substitutions*/, ASguiForm::creationOptions )
+{
+    // Extend substitutions???
+
+
+    // Build the gui
+    // Build it in a new window.
+    //??? This could use the create options as follows: (instead of always creating a new window)
+    //       - Wind up through parents until the parent of the first scroll
+    //       - Replace the scroll area's widget with the new gui
+    QMainWindow* w = new QMainWindow;
+    ASguiForm* gui = new ASguiForm( guiName );
+    if( gui )
+    {
+        gui->readUiFile();
+        w->setCentralWidget( gui );
+        w->show();
+    }
+    else
+    {
+        delete w;
+    }
+}

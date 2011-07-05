@@ -30,6 +30,7 @@
  */
  
 #include <QCaLabelPluginManager.h>
+#include <QSubstitutedLabelPluginManager.h>
 #include <QCaLineEditPluginManager.h>
 #include <QCaPushButtonPluginManager.h>
 #include <GuiPushButtonPluginManager.h>
@@ -56,6 +57,7 @@
 */
 QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaLabelPluginManager(this));
+    widgets.append(new QSubstitutedLabelPluginManager(this));
     widgets.append(new QCaLineEditPluginManager(this));
     widgets.append(new QCaPushButtonPluginManager(this));
     widgets.append(new GuiPushButtonPluginManager(this));

@@ -150,8 +150,18 @@ void QCaLabel::setLabelText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDa
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( text );
 
-    /// Update the text
-    setText( text );
+    switch( updateOption )
+    {
+        /// Update the text if required
+        case UPDATE_TEXT:
+            setText( text );
+            break;
+
+        /// Update the pixmap if required
+        case UPDATE_PIXMAP:
+            setPixmap( getDataPixmap( text ).scaled( size() ) );
+            break;
+    }
 
     /// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
@@ -211,6 +221,16 @@ void QCaLabel::setVariableAsToolTip( bool variableAsToolTipIn )
 bool QCaLabel::getVariableAsToolTip()
 {
     return variableAsToolTip;
+}
+
+// Update option Property convenience function
+void QCaLabel::setUpdateOption( updateOptions updateOptionIn )
+{
+    updateOption = updateOptionIn;
+}
+QCaLabel::updateOptions QCaLabel::getUpdateOption()
+{
+    return updateOption;
 }
 
 // String formatting properties

@@ -37,5 +37,5 @@
 /*!
     ???
 */
-GuiPushButtonPlugin::GuiPushButtonPlugin( QWidget *parent ) : GuiPushButton( parent ) {
+GuiPushButtonPlugin::GuiPushButtonPlugin( QWidget *parent ) : QCaPushButton( parent ) {
 }

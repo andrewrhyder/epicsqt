@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <GuiPushButtonPluginManager.h>
-#include <GuiPushButtonPlugin.h>
+#include <QSubstitutedLabelPluginManager.h>
+#include <QSubstitutedLabelPlugin.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-GuiPushButtonPluginManager::GuiPushButtonPluginManager( QObject *parent ) : QObject( parent ) {
+QSubstitutedLabelPluginManager::QSubstitutedLabelPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void GuiPushButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QSubstitutedLabelPluginManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -46,64 +46,64 @@ void GuiPushButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
 /*!
     ???
 */
-bool GuiPushButtonPluginManager::isInitialized() const {
+bool QSubstitutedLabelPluginManager::isInitialized() const {
     return initialized;
 }
 
 /*!
-    Widget factory. Creates a QCaLabel widget.
+    Widget factory. Creates a QSubstitutedLabel widget.
 */
-QWidget *GuiPushButtonPluginManager::createWidget ( QWidget *parent ) {
-    return new GuiPushButtonPlugin(parent);
+QWidget *QSubstitutedLabelPluginManager::createWidget ( QWidget *parent ) {
+    return new QSubstitutedLabelPlugin(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString GuiPushButtonPluginManager::name() const {
-    return "GuiPushButtonPlugin";
+QString QSubstitutedLabelPluginManager::name() const {
+    return "QSubstitutedLabelPlugin";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString GuiPushButtonPluginManager::group() const {
+QString QSubstitutedLabelPluginManager::group() const {
     return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon GuiPushButtonPluginManager::icon() const {
-    return QIcon(":/icons/GuiPushButton.png");
+QIcon QSubstitutedLabelPluginManager::icon() const {
+    return QIcon(":/icons/QSubstitutedLabel.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString GuiPushButtonPluginManager::toolTip() const {
-    return "GUI Launch Push Button (actually a QCaPushButton with only the 'GUI launch' properties)";
+QString QSubstitutedLabelPluginManager::toolTip() const {
+    return "EPICS Label";
 }
 
 /*!
     ???
 */
-QString GuiPushButtonPluginManager::whatsThis() const {
-    return "GUI Launch Push Button (actually a QCaPushButton with only the 'GUI launch' properties)";
+QString QSubstitutedLabelPluginManager::whatsThis() const {
+    return "EPICS Label";
 }
 
 /*!
     ???
 */
-bool GuiPushButtonPluginManager::isContainer() const {
+bool QSubstitutedLabelPluginManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString GuiPushButtonPluginManager::domXml() const {
-    return "<widget class=\"GuiPushButton\" name=\"GuiPushButton\">\n"
+/*QString QSubstitutedLabelPluginManager::domXml() const {
+    return "<widget class=\"QSubstitutedLabel\" name=\"qCaLabel\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -125,6 +125,6 @@ bool GuiPushButtonPluginManager::isContainer() const {
 /*!
     ???
 */
-QString GuiPushButtonPluginManager::includeFile() const {
-    return "GuiPushButtonPlugin.h";
+QString QSubstitutedLabelPluginManager::includeFile() const {
+    return "QSubstitutedLabelPlugin.h";
 }

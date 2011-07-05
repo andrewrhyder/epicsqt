@@ -1,10 +1,3 @@
-/*!
-  \class CmdPushButtonPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author Last checked in by: $Author: rhydera $
-  \brief Command Push Button Widget Plugin.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -21,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2011
  *
  *  Author:
  *    Andrew Rhyder
@@ -29,13 +22,31 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <QtCore>
-#include <QTimer>
+#ifndef MANAGEPIXMAP_H
+#define MANAGEPIXMAP_H
 
-#include "CmdPushButtonPlugin.h"
+#include <QList>
+#include <QPixmap>
 
-/*!
-    ???
-*/
-CmdPushButtonPlugin::CmdPushButtonPlugin( QWidget *parent ) : QCaPushButton( parent ) {
-}
+#define NUM_PIXMAPS_MANAGED 8
+
+class managePixmaps {
+
+  public:
+    managePixmaps();
+    // Property convenience functions
+
+    // Pixmaps
+    void setDataPixmap( QPixmap& Pixmap, unsigned int index );
+    QPixmap getDataPixmap( unsigned int index );
+    QPixmap getDataPixmap( QString value );
+
+
+  protected:
+
+  private:
+    QList<QPixmap> pixmaps;
+
+};
+
+#endif /// MANAGEPIXMAP_H

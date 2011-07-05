@@ -1,10 +1,3 @@
-/*!
-  \class CmdPushButtonPluginManager
-  \version $Revision: #3 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author Last checked in by: $Author: rhydera $
-  \brief Command Push Button Widget Plugin Manager for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -89,14 +82,14 @@ QIcon CmdPushButtonPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString CmdPushButtonPluginManager::toolTip() const {
-    return "Run Command Push Button";
+    return "Run Command Push Button (actually a QCaPushButton with only the 'Run command' properties)";
 }
 
 /*!
     ???
 */
 QString CmdPushButtonPluginManager::whatsThis() const {
-    return "Run Command Push Button";
+    return "Run Command Push Button (actually a QCaPushButton with only the 'Run command' properties)";
 }
 
 /*!

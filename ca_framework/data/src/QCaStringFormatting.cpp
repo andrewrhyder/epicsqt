@@ -1,10 +1,3 @@
-/*! 
-  \class QCaStringFormatting
-  \version $Revision: #15 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author andrew.rhyder
-  \brief Format the string for QCaString data.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -522,7 +515,7 @@ void QCaStringFormatting::formatFromTime( const QVariant &value ) {
     if( value.type() == QVariant::String )
         stream << value.toString();
     else
-        stream << QString( "notImplemented" ); //??? to do
+        stream << QString( "formatFromTime not implemented yet" ); //??? to do
 }
 
 /*!

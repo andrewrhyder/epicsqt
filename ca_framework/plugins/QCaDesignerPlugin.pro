@@ -37,6 +37,7 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaPlot.png \
     src/QCaLineEdit.png \
     src/QCaLabel.png \
+    src/QSubstitutedLabel.png \
     src/QCaComboBox.png \
     src/Link.png \
     src/GuiPushButton.png \
@@ -70,6 +71,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/ASguiFormPlugin.h \
     include/QCaLabelPluginManager.h \
     include/QCaLabelPlugin.h \
+    include/QSubstitutedLabelPluginManager.h \
+    include/QSubstitutedLabelPlugin.h \
     include/LinkPluginManager.h \
     include/LinkPlugin.h \
     include/QCaPlotPluginManager.h \
@@ -106,6 +109,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../data/include/QCaAlarmInfo.h \
     ../data/include/QCaConnectionInfo.h \
     ../data/include/qepicspv.h \
+    ../widgets/include/managePixmaps.h \
     ../widgets/include/QCaSpinBox.h \
     ../widgets/include/QCaComboBox.h \
     ../widgets/include/QCaSlider.h \
@@ -113,9 +117,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaPushButton.h \
     ../widgets/include/QCaLineEdit.h \
     ../widgets/include/QCaLabel.h \
+    ../widgets/include/QSubstitutedLabel.h \
     ../widgets/include/Link.h \
-    ../widgets/include/GuiPushButton.h \
-    ../widgets/include/CmdPushButton.h \
     ../widgets/include/ASguiForm.h \
     ../widgets/include/QCaPlot.h \
     ../widgets/include/QCaToolTip.h \
@@ -139,6 +142,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaLineEditPlugin.cpp \
     src/QCaLabelPluginManager.cpp \
     src/QCaLabelPlugin.cpp \
+    src/QSubstitutedLabelPluginManager.cpp \
+    src/QSubstitutedLabelPlugin.cpp \
     src/LinkPluginManager.cpp \
     src/LinkPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
@@ -182,6 +187,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/QCaAlarmInfo.cpp \
     ../data/src/QCaConnectionInfo.cpp \
     ../data/src/qepicspv.cpp \
+    ../widgets/src/managePixmaps.cpp \
     ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \
     ../widgets/src/QCaSlider.cpp \
@@ -189,10 +195,9 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaPushButton.cpp \
     ../widgets/src/QCaLineEdit.cpp \
     ../widgets/src/QCaLabel.cpp \
+    ../widgets/src/QSubstitutedLabel.cpp \
     ../widgets/src/Link.cpp \
     ../widgets/src/QCaPlot.cpp \
-    ../widgets/src/GuiPushButton.cpp \
-    ../widgets/src/CmdPushButton.cpp \
     ../widgets/src/ASguiForm.cpp \
     ../widgets/src/QCaToolTip.cpp \
     ../widgets/src/QCaPeriodic.cpp \

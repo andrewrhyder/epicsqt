@@ -1,10 +1,3 @@
-/*! 
-  \class QCaPushButton
-  \version $Revision: #12 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief CA Push Button Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -37,16 +30,24 @@
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
 #include <QCaPluginLibrary_global.h>
+#include <ASguiForm.h>
+#include <UserMessage.h>
+#include <ContainerProfile.h>
+#include <managePixmaps.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public QCaWidget, public managePixmaps {
     Q_OBJECT
 
   public:
+    enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON };
+
     QCaPushButton( QWidget *parent = 0 );
     QCaPushButton( const QString& variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( const bool& state );
+
+    // 'Data button' Property convenience functions
 
     // Property convenience functions
 
@@ -61,6 +62,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+
+    // Properties
+
+    // Update option (icon, text, or both)
+    void setUpdateOption( updateOptions updateOptionIn );
+    updateOptions getUpdateOption();
 
     // String formatting properties
 
@@ -121,6 +128,29 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     void setClickText( QString clickTextIn );
     QString getClickText();
 
+
+    // 'Command button' Property convenience functions
+
+    // Program String
+    void setProgram( QString program );
+    QString getProgram();
+
+    // Arguments String
+    void setArguments( QStringList arguments );
+    QStringList getArguments();
+
+    // 'Start new GUI' Property convenience functions
+
+    // GUI name
+    void setGuiName( QString guiName );
+    QString getGuiName();
+
+    // Qt Designer Properties Creation options
+    void setCreationOption( ASguiForm::creationOptions creationOption );
+    ASguiForm::creationOptions getCreationOption();
+
+
+
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
@@ -128,11 +158,20 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     void userReleased();
     void userClicked();
 
-  public slots:
+
+    void launchGui( QString guiName, QString substitutions, ASguiForm::creationOptions creationOption );
+
+public slots:
     void requestEnabled( const bool& state );
+
+    void onGeneralMessage( QString message );
+
 
   signals:
     void dbValueChanged( const QString& out );
+
+    void newGui( QString guiName, QString substitutions, ASguiForm::creationOptions creationOption );
+
 
   protected:
     QCaStringFormatting stringFormatting;
@@ -142,18 +181,32 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     QString releaseText;    /// Text to write on a button release
     QString pressText;      /// Text to write on a button press
     QString clickText;      /// Text to write on a button click
+
+    QString program;        /// Program to run
+    QStringList arguments;  /// Program arguments
+
+    QString guiName;      /// GUI file name to launch
+    ASguiForm::creationOptions creationOption;
+
     bool localEnabled;
 
     void establishConnection( unsigned int variableIndex );
 
-  private:
+    updateOptions updateOption;
+
+private:
     void setup();
+    void dataSetup();
+    void commandSetup();
+    void guiSetup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex  );
     void updateToolTip ( const QString & toolTip );
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
+    UserMessage userMessage;
+    ContainerProfile profile;
 };
 
 #endif /// QCAPUSHBUTTON_H

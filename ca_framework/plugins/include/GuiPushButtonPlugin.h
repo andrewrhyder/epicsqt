@@ -33,9 +33,9 @@
 #define GUIPUSHBUTTONPLUGIN_H
 
 #include <QString>
-#include <GuiPushButton.h>
+#include <QCaPushButton.h>
 
-class GuiPushButtonPlugin : public GuiPushButton {
+class GuiPushButtonPlugin : public QCaPushButton {
     Q_OBJECT
 
   public:

@@ -37,11 +37,14 @@
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
 #include <QCaPluginLibrary_global.h>
+#include <managePixmaps.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget, public managePixmaps {
     Q_OBJECT
 
   public:
+    enum updateOptions { UPDATE_TEXT, UPDATE_PIXMAP };
+
     QCaLabel( QWidget *parent = 0 );
     QCaLabel( const QString &variableName, QWidget *parent = 0 );
 
@@ -49,6 +52,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget {
     void setEnabled( bool state );
 
     // Property convenience functions
+
+    // Update option (icon, text, or both)
+    void setUpdateOption( updateOptions updateOptionIn );
+    updateOptions getUpdateOption();
 
     // Variable Name and substitution
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
@@ -117,7 +124,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget {
 
     bool caVisible;               // Flag true if the widget should be visible outside 'Designer'
 
-  private slots:
+    updateOptions updateOption;
+
+private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setLabelText( const QString& text, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
 
