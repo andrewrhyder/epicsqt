@@ -1,10 +1,3 @@
-/*! 
-  \class QCaLabel
-  \version $Revision: #15 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Label Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -69,6 +62,7 @@ void QCaLabel::setup() {
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
+    updateOption = UPDATE_TEXT;
 
     // Use label signals
     // --Currently none--
