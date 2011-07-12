@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>EPICS QT Framework: /home/user/epicsqt/ca_framework/plugins/include/QCaSliderPlugin.h Source File</title>
+<title>EPICS QT Framework: /home/rhydera/epicsqt/ca_framework/plugins/include/QCaSliderPlugin.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -57,7 +58,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 <div class="header">
   <div class="headertitle">
-<h1>/home/user/epicsqt/ca_framework/plugins/include/QCaSliderPlugin.h</h1>  </div>
+<h1>/home/rhydera/epicsqt/ca_framework/plugins/include/QCaSliderPlugin.h</h1>  </div>
 </div>
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
@@ -102,20 +103,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00047"></a>00047     <a class="code" href="classQCaSliderPlugin.html#ae7655cfab3572f0310d7915abd794a09" title="Constructors.">QCaSliderPlugin</a>( QString variableName, QWidget *parent = 0 );
 <a name="l00048"></a>00048 
 <a name="l00051"></a><a class="code" href="classQCaSliderPlugin.html#a2a8590b7c5ed250120147a7f3aa2eff3">00051</a>     Q_PROPERTY(QString <a class="code" href="classQCaSliderPlugin.html#a2a8590b7c5ed250120147a7f3aa2eff3">variable</a> READ getVariableNameProperty WRITE setVariableNameProperty);
-<a name="l00052"></a>00052     <span class="keywordtype">void</span>    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a3207418f259b69422cfaa2ababa594ba">setVariableNameProperty</a>( variableName ); }
-<a name="l00053"></a>00053     QString getVariableNameProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#ac284e8d6f09e8111edad88389f9b861a">getVariableNameProperty</a>(); }
+<a name="l00052"></a>00052     <span class="keywordtype">void</span>    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
+<a name="l00053"></a>00053     QString getVariableNameProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.getVariableNameProperty(); }
 <a name="l00054"></a>00054 
 <a name="l00055"></a>00055     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-<a name="l00056"></a>00056     <span class="keywordtype">void</span>    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a7f0a15766eccf9a886abd8a494a665d7">setSubstitutionsProperty</a>( variableNameSubstitutions ); }
-<a name="l00057"></a>00057     QString getVariableNameSubstitutionsProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a022d4dc9da0944490c23acc2730ba03c">getSubstitutionsProperty</a>(); }
+<a name="l00056"></a>00056     <span class="keywordtype">void</span>    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+<a name="l00057"></a>00057     QString getVariableNameSubstitutionsProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.getSubstitutionsProperty(); }
 <a name="l00058"></a>00058 
-<a name="l00059"></a>00059     Q_PROPERTY(<span class="keywordtype">bool</span> enabled READ <a class="code" href="classQCaSlider.html#ae08ad4390e220445b4700fcf23816ab6">isEnabled</a> WRITE <a class="code" href="classQCaSlider.html#af0c156940c2c4b3c6b6b6419ae05b397">setEnabled</a>)
+<a name="l00059"></a>00059     Q_PROPERTY(<span class="keywordtype">bool</span> enabled READ isEnabled WRITE setEnabled)
 <a name="l00060"></a><a class="code" href="classQCaSliderPlugin.html#ace159814bff072ed4e93832c018622c8">00060</a>     Q_PROPERTY(<span class="keywordtype">bool</span> <a class="code" href="classQCaSliderPlugin.html#ace159814bff072ed4e93832c018622c8" title="Integer formatting options.">writeOnChange</a> READ getWriteOnChange WRITE setWriteOnChange)
 <a name="l00061"></a><a class="code" href="classQCaSliderPlugin.html#a3ec98da2cc5511ea8e399d85dadc6218">00061</a>     Q_PROPERTY(<span class="keywordtype">bool</span> <a class="code" href="classQCaSliderPlugin.html#a3ec98da2cc5511ea8e399d85dadc6218" title="Set the number of variables that will stream data updates to the widget. Default of 1 if not called...">subscribe</a> READ getSubscribe WRITE setSubscribe)
 <a name="l00062"></a><a class="code" href="classQCaSliderPlugin.html#aef6305874664e53f047b92c832cc8479">00062</a>     Q_PROPERTY(<span class="keywordtype">bool</span> <a class="code" href="classQCaSliderPlugin.html#aef6305874664e53f047b92c832cc8479" title="Flag if data updates should be requested.">variableAsToolTip</a> READ getVariableAsToolTip WRITE setVariableAsToolTip)
 <a name="l00063"></a>00063 
 <a name="l00064"></a>00064   private:
-<a name="l00065"></a>00065     <a class="code" href="classQCaVariableNamePropertyManager.html" title="Handles user manipulation of variable name sets and associated macro substitutions.">QCaVariableNamePropertyManager</a> variableNamePropertyManager;
+<a name="l00065"></a>00065     <a class="code" href="classQCaVariableNamePropertyManager.html" title="Handles variable name sets.">QCaVariableNamePropertyManager</a> variableNamePropertyManager;
 <a name="l00066"></a>00066 
 <a name="l00067"></a>00067   private slots:
 <a name="l00068"></a>00068     <span class="keywordtype">void</span> useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> variableIndex );
@@ -138,7 +139,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

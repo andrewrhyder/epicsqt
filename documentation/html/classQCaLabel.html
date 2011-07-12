@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -61,6 +62,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-slots">Public Slots</a> &#124;
 <a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
@@ -70,8 +72,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h1>QCaLabel Class Reference</h1>  </div>
 </div>
 <div class="contents">
-<!-- doxytag: class="QCaLabel" --><!-- doxytag: inherits="QCaWidget" -->
-<p>CA Label Widget.  
+<!-- doxytag: class="QCaLabel" --><!-- doxytag: inherits="QCaWidget,managePixmaps" -->
+<p>Manage updating tool tip with variable name, alarm state and connected state.  
 <a href="#_details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="QCaLabel_8h_source.html">QCaLabel.h</a>&gt;</code></p>
@@ -82,18 +84,25 @@ Inheritance diagram for QCaLabel:</div>
   <img src="classQCaLabel.png" usemap="#QCaLabel_map" alt=""/>
   <map id="QCaLabel_map" name="QCaLabel_map">
 <area href="classQCaWidget.html" alt="QCaWidget" shape="rect" coords="153,56,296,80"/>
+<area href="classmanagePixmaps.html" alt="managePixmaps" shape="rect" coords="306,56,449,80"/>
 <area href="classVariableNameManager.html" alt="VariableNameManager" shape="rect" coords="0,0,143,24"/>
 <area href="classQCaToolTip.html" alt="QCaToolTip" shape="rect" coords="153,0,296,24"/>
 <area href="classContainerProfile.html" alt="ContainerProfile" shape="rect" coords="306,0,449,24"/>
-<area href="classQCaLabelPlugin.html" alt="QCaLabelPlugin" shape="rect" coords="153,168,296,192"/>
+<area href="classQCaLabelPlugin.html" alt="QCaLabelPlugin" shape="rect" coords="229,168,372,192"/>
 </map>
  </div></div>
 
 <p><a href="classQCaLabel-members.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>updateOptions</b> { <b>UPDATE_TEXT</b>, 
+<b>UPDATE_PIXMAP</b>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabel.html#a96fdcc86870a1f953dfb7121ed1e8bc9">requestEnabled</a> (const bool &amp;state)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96fdcc86870a1f953dfb7121ed1e8bc9"></a><!-- doxytag: member="QCaLabel::requestEnabled" ref="a96fdcc86870a1f953dfb7121ed1e8bc9" args="(const bool &amp;state)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>requestEnabled</b> (const bool &amp;state)</td></tr>
 <tr><td colspan="2"><h2><a name="signals"></a>
 Signals</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a51f26659263b65c8bf80ba5e3e7f9541"></a><!-- doxytag: member="QCaLabel::dbValueChanged" ref="a51f26659263b65c8bf80ba5e3e7f9541" args="(const QString &amp;out)" -->
@@ -102,10 +111,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>dbValueChanged</b> (c
 void&#160;</td><td class="memItemRight" valign="bottom"><b>requestResend</b> ()</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabel.html#a4953561b7c343c33721c17b59419f61b">QCaLabel</a> (QWidget *parent=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabel.html#a1f089fe39d57e1a23e256888275157c1">QCaLabel</a> (const QString &amp;variableName, QWidget *parent=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabel.html#a93e39263df85d17f9f3d65f1435e57f7">isEnabled</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabel.html#a502e9a3784da2c257945a42e8f9ddd70">setEnabled</a> (bool state)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4953561b7c343c33721c17b59419f61b"></a><!-- doxytag: member="QCaLabel::QCaLabel" ref="a4953561b7c343c33721c17b59419f61b" args="(QWidget *parent=0)" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>QCaLabel</b> (QWidget *parent=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f089fe39d57e1a23e256888275157c1"></a><!-- doxytag: member="QCaLabel::QCaLabel" ref="a1f089fe39d57e1a23e256888275157c1" args="(const QString &amp;variableName, QWidget *parent=0)" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>QCaLabel</b> (const QString &amp;variableName, QWidget *parent=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a93e39263df85d17f9f3d65f1435e57f7"></a><!-- doxytag: member="QCaLabel::isEnabled" ref="a93e39263df85d17f9f3d65f1435e57f7" args="() const " -->
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isEnabled</b> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a502e9a3784da2c257945a42e8f9ddd70"></a><!-- doxytag: member="QCaLabel::setEnabled" ref="a502e9a3784da2c257945a42e8f9ddd70" args="(bool state)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setEnabled</b> (bool state)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1804aeac08d54815178331cd9e7ce9ac"></a><!-- doxytag: member="QCaLabel::setUpdateOption" ref="a1804aeac08d54815178331cd9e7ce9ac" args="(updateOptions updateOptionIn)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setUpdateOption</b> (updateOptions updateOptionIn)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9377d54e779ab3b098c46015777aaf1f"></a><!-- doxytag: member="QCaLabel::getUpdateOption" ref="a9377d54e779ab3b098c46015777aaf1f" args="()" -->
+updateOptions&#160;</td><td class="memItemRight" valign="bottom"><b>getUpdateOption</b> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a968bb1445fe01d38e4968a3b660b5c3c"></a><!-- doxytag: member="QCaLabel::setVariableNameAndSubstitutions" ref="a968bb1445fe01d38e4968a3b660b5c3c" args="(QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex)" -->
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableNameAndSubstitutions</b> (QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a08c6907ecbd7a74253426db92a320242"></a><!-- doxytag: member="QCaLabel::setVariableAsToolTip" ref="a08c6907ecbd7a74253426db92a320242" args="(bool variableAsToolTip)" -->
@@ -162,7 +179,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setRunVisible</b> (bo
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>getRunVisible</b> ()</td></tr>
 <tr><td colspan="2"><h2><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabel.html#add7fefd7abf7188ae7d966cadf32fb2f">establishConnection</a> (unsigned int variableIndex)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add7fefd7abf7188ae7d966cadf32fb2f"></a><!-- doxytag: member="QCaLabel::establishConnection" ref="add7fefd7abf7188ae7d966cadf32fb2f" args="(unsigned int variableIndex)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabel.html#add7fefd7abf7188ae7d966cadf32fb2f">establishConnection</a> (unsigned int variableIndex)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise macro substitutions. May be used on creation. <br/></td></tr>
 <tr><td colspan="2"><h2><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a02e8d68df193242c7a116cba3e87883f"></a><!-- doxytag: member="QCaLabel::stringFormatting" ref="a02e8d68df193242c7a116cba3e87883f" args="" -->
@@ -171,157 +190,18 @@ Protected Attributes</h2></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>caEnabled</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25974a985cf0012bbcbce239111c315d"></a><!-- doxytag: member="QCaLabel::caVisible" ref="a25974a985cf0012bbcbce239111c315d" args="" -->
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>caVisible</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6fd048f362a9f38fca64f25e29c8a2a3"></a><!-- doxytag: member="QCaLabel::updateOption" ref="a6fd048f362a9f38fca64f25e29c8a2a3" args="" -->
+updateOptions&#160;</td><td class="memItemRight" valign="bottom"><b>updateOption</b></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>CA Label Widget. </p>
-<p>Manage updating tool tip with variable name, alarm state and connected state.</p>
-<dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>Revision:</b></dt><dd>#15 </dd></dl>
-<dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 11:58:56 </dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder</dd></dl>
-<dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>Revision:</b></dt><dd>#3 </dd></dl>
-<dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/06/23 07:49:40 </dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder</dd></dl>
+<div class="textblock"><p>Manage updating tool tip with variable name, alarm state and connected state. </p>
 <dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>Revision:</b></dt><dd>#13 </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 13:16:04 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder </dd></dl>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a4953561b7c343c33721c17b59419f61b"></a><!-- doxytag: member="QCaLabel::QCaLabel" ref="a4953561b7c343c33721c17b59419f61b" args="(QWidget *parent=0)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">QCaLabel::QCaLabel </td>
-          <td>(</td>
-          <td class="paramtype">QWidget *&#160;</td>
-          <td class="paramname"><em>parent</em> = <code>0</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>This class is a CA aware label widget based on the Qt label widget. It is tighly integrated with the base class <a class="el" href="classQCaWidget.html" title="Template for Qt-CA based widgets.">QCaWidget</a>. Refer to QCaWidget.cpp for details</p>
-<p>Constructor with no initialisation </p>
-
-</div>
-</div>
-<a class="anchor" id="a1f089fe39d57e1a23e256888275157c1"></a><!-- doxytag: member="QCaLabel::QCaLabel" ref="a1f089fe39d57e1a23e256888275157c1" args="(const QString &amp;variableName, QWidget *parent=0)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">QCaLabel::QCaLabel </td>
-          <td>(</td>
-          <td class="paramtype">const QString &amp;&#160;</td>
-          <td class="paramname"><em>variableNameIn</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">QWidget *&#160;</td>
-          <td class="paramname"><em>parent</em> = <code>0</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Constructor with known variable </p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="add7fefd7abf7188ae7d966cadf32fb2f"></a><!-- doxytag: member="QCaLabel::establishConnection" ref="add7fefd7abf7188ae7d966cadf32fb2f" args="(unsigned int variableIndex)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaLabel::establishConnection </td>
-          <td>(</td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>variableIndex</em></td><td>)</td>
-          <td><code> [protected, virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Start updating. Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed. This function may also be used to initiate updates when loaded as a plugin. </p>
-
-<p>Implements <a class="el" href="classVariableNameManager.html#aeeee4d88678042a9e1902b70d4959d60">VariableNameManager</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a93e39263df85d17f9f3d65f1435e57f7"></a><!-- doxytag: member="QCaLabel::isEnabled" ref="a93e39263df85d17f9f3d65f1435e57f7" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool QCaLabel::isEnabled </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Override the default widget isEnabled to allow alarm states to override current enabled state </p>
-
-<p><p>Return what the state of widget would be if connected. </p>
-</p>
-
-</div>
-</div>
-<a class="anchor" id="a96fdcc86870a1f953dfb7121ed1e8bc9"></a><!-- doxytag: member="QCaLabel::requestEnabled" ref="a96fdcc86870a1f953dfb7121ed1e8bc9" args="(const bool &amp;state)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaLabel::requestEnabled </td>
-          <td>(</td>
-          <td class="paramtype">const bool &amp;&#160;</td>
-          <td class="paramname"><em>state</em></td><td>)</td>
-          <td><code> [slot]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state </p>
-
-</div>
-</div>
-<a class="anchor" id="a502e9a3784da2c257945a42e8f9ddd70"></a><!-- doxytag: member="QCaLabel::setEnabled" ref="a502e9a3784da2c257945a42e8f9ddd70" args="(bool state)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaLabel::setEnabled </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>state</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Override the default widget setEnabled to allow alarm states to override current enabled state </p>
-
-<p><p>Note the new 'enabled' state</p>
-<p>Set the enabled state of the widget only if connected </p>
-</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/user/epicsqt/ca_framework/widgets/include/<a class="el" href="QCaLabel_8h_source.html">QCaLabel.h</a></li>
-<li>/home/user/epicsqt/ca_framework/widgets/src/QCaLabel.cpp</li>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li>/home/rhydera/epicsqt/ca_framework/widgets/include/<a class="el" href="QCaLabel_8h_source.html">QCaLabel.h</a></li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -338,7 +218,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>caVisible</b></td></t
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -79,15 +80,17 @@ Inheritance diagram for QCaToolTip:</div>
   <map id="QCaToolTip_map" name="QCaToolTip_map">
 <area href="classQCaWidget.html" alt="QCaWidget" shape="rect" coords="0,56,149,80"/>
 <area href="classQCaAnalogProgressBar.html" alt="QCaAnalogProgressBar" shape="rect" coords="159,112,308,136"/>
-<area href="classQCaComboBox.html" alt="QCaComboBox" shape="rect" coords="159,168,308,192"/>
-<area href="classQCaLabel.html" alt="QCaLabel" shape="rect" coords="159,224,308,248"/>
-<area href="classQCaLineEdit.html" alt="QCaLineEdit" shape="rect" coords="159,280,308,304"/>
-<area href="classQCaPeriodic.html" alt="QCaPeriodic" shape="rect" coords="159,336,308,360"/>
-<area href="classQCaPlot.html" alt="QCaPlot" shape="rect" coords="159,392,308,416"/>
-<area href="classQCaPushButton.html" alt="QCaPushButton" shape="rect" coords="159,448,308,472"/>
-<area href="classQCaShape.html" alt="QCaShape" shape="rect" coords="159,504,308,528"/>
-<area href="classQCaSlider.html" alt="QCaSlider" shape="rect" coords="159,560,308,584"/>
-<area href="classQCaSpinBox.html" alt="QCaSpinBox" shape="rect" coords="159,616,308,640"/>
+<area href="classQCaBitStatus.html" alt="QCaBitStatus" shape="rect" coords="159,168,308,192"/>
+<area href="classQCaComboBox.html" alt="QCaComboBox" shape="rect" coords="159,224,308,248"/>
+<area href="classQCaLabel.html" alt="QCaLabel" shape="rect" coords="159,280,308,304"/>
+<area href="classQCaLineEdit.html" alt="QCaLineEdit" shape="rect" coords="159,336,308,360"/>
+<area href="classQCaPeriodic.html" alt="QCaPeriodic" shape="rect" coords="159,392,308,416"/>
+<area href="classQCaPlot.html" alt="QCaPlot" shape="rect" coords="159,448,308,472"/>
+<area href="classQCaPushButton.html" alt="QCaPushButton" shape="rect" coords="159,504,308,528"/>
+<area href="classQCaShape.html" alt="QCaShape" shape="rect" coords="159,560,308,584"/>
+<area href="classQCaSlider.html" alt="QCaSlider" shape="rect" coords="159,616,308,640"/>
+<area href="classQCaSpinBox.html" alt="QCaSpinBox" shape="rect" coords="159,672,308,696"/>
+<area href="classQSubstitutedLabel.html" alt="QSubstitutedLabel" shape="rect" coords="159,728,308,752"/>
 </map>
  </div></div>
 
@@ -95,7 +98,8 @@ Inheritance diagram for QCaToolTip:</div>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaToolTip.html#a718a32c23b115e1820c85ad046af85a2">updateToolTipVariable</a> (const QString &amp;variable)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a718a32c23b115e1820c85ad046af85a2"></a><!-- doxytag: member="QCaToolTip::updateToolTipVariable" ref="a718a32c23b115e1820c85ad046af85a2" args="(const QString &amp;variable)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>updateToolTipVariable</b> (const QString &amp;variable)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0dd739c95e6a9058f3a5c56e8cc9287"></a><!-- doxytag: member="QCaToolTip::updateToolTipAlarm" ref="ab0dd739c95e6a9058f3a5c56e8cc9287" args="(const QString &amp;alarm)" -->
 void&#160;</td><td class="memItemRight" valign="bottom"><b>updateToolTipAlarm</b> (const QString &amp;alarm)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8801e79f9676395fa6462b665d7e3e46"></a><!-- doxytag: member="QCaToolTip::updateToolTipConnection" ref="a8801e79f9676395fa6462b665d7e3e46" args="(bool connection)" -->
@@ -110,28 +114,8 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateToolTip
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/06/23 07:49:40 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder </dd></dl>
-</div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a718a32c23b115e1820c85ad046af85a2"></a><!-- doxytag: member="QCaToolTip::updateToolTipVariable" ref="a718a32c23b115e1820c85ad046af85a2" args="(const QString &amp;variable)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaToolTip::updateToolTipVariable </td>
-          <td>(</td>
-          <td class="paramtype">const QString &amp;&#160;</td>
-          <td class="paramname"><em>variable</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Update the tool tip as requested by <a class="el" href="classQCaWidget.html" title="Template for Qt-CA based widgets.">QCaWidget</a>. </p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/user/epicsqt/ca_framework/widgets/include/<a class="el" href="QCaToolTip_8h_source.html">QCaToolTip.h</a></li>
-<li>/home/user/epicsqt/ca_framework/widgets/src/QCaToolTip.cpp</li>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li>/home/rhydera/epicsqt/ca_framework/widgets/include/<a class="el" href="QCaToolTip_8h_source.html">QCaToolTip.h</a></li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -148,7 +132,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateToolTip
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:43 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -79,8 +80,9 @@ Inheritance diagram for QCaLabelPlugin:</div>
  <div class="center">
   <img src="classQCaLabelPlugin.png" usemap="#QCaLabelPlugin_map" alt=""/>
   <map id="QCaLabelPlugin_map" name="QCaLabelPlugin_map">
-<area href="classQCaLabel.html" alt="QCaLabel" shape="rect" coords="153,112,296,136"/>
+<area href="classQCaLabel.html" alt="QCaLabel" shape="rect" coords="229,112,372,136"/>
 <area href="classQCaWidget.html" alt="QCaWidget" shape="rect" coords="153,56,296,80"/>
+<area href="classmanagePixmaps.html" alt="managePixmaps" shape="rect" coords="306,56,449,80"/>
 <area href="classVariableNameManager.html" alt="VariableNameManager" shape="rect" coords="0,0,143,24"/>
 <area href="classQCaToolTip.html" alt="QCaToolTip" shape="rect" coords="153,0,296,24"/>
 <area href="classContainerProfile.html" alt="ContainerProfile" shape="rect" coords="306,0,449,24"/>
@@ -91,6 +93,9 @@ Inheritance diagram for QCaLabelPlugin:</div>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>UpdateOptions</b> { <b>Text</b> =  QCaLabel::UPDATE_TEXT, 
+<b>Picture</b> =  QCaLabel::UPDATE_PIXMAP
+ }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>Formats</b> { <br/>
 &#160;&#160;<b>Default</b> =  QCaStringFormatting::FORMAT_DEFAULT, 
 <b>Floating</b> =  QCaStringFormatting::FORMAT_FLOATING, 
@@ -111,8 +116,9 @@ Public Types</h2></td></tr>
  }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabelPlugin.html#ad11c6cebb8c4fa0e8437b516dd26704b">QCaLabelPlugin</a> (QWidget *parent=0)</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructors.  <a href="#ad11c6cebb8c4fa0e8437b516dd26704b"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad11c6cebb8c4fa0e8437b516dd26704b"></a><!-- doxytag: member="QCaLabelPlugin::QCaLabelPlugin" ref="ad11c6cebb8c4fa0e8437b516dd26704b" args="(QWidget *parent=0)" -->
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabelPlugin.html#ad11c6cebb8c4fa0e8437b516dd26704b">QCaLabelPlugin</a> (QWidget *parent=0)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructors. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef27eeec870d57834ad9359115167dd4"></a><!-- doxytag: member="QCaLabelPlugin::QCaLabelPlugin" ref="aef27eeec870d57834ad9359115167dd4" args="(QString variableName, QWidget *parent=0)" -->
 &#160;</td><td class="memItemRight" valign="bottom"><b>QCaLabelPlugin</b> (QString variableName, QWidget *parent=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07dc2617202399edb9b62fa143b7e4ae"></a><!-- doxytag: member="QCaLabelPlugin::setVariableNameProperty" ref="a07dc2617202399edb9b62fa143b7e4ae" args="(QString variableName)" -->
@@ -123,6 +129,42 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableNamePro
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableNameSubstitutionsProperty</b> (QString variableNameSubstitutions)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1bbe0820a2fa41087d9fbde2cf05887e"></a><!-- doxytag: member="QCaLabelPlugin::getVariableNameSubstitutionsProperty" ref="a1bbe0820a2fa41087d9fbde2cf05887e" args="()" -->
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableNameSubstitutionsProperty</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeda1f01810275de394b6db96a36f4316"></a><!-- doxytag: member="QCaLabelPlugin::setUpdateOptionProperty" ref="aeda1f01810275de394b6db96a36f4316" args="(UpdateOptions updateOption)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setUpdateOptionProperty</b> (UpdateOptions updateOption)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adeba6fac6b5c47dd4a90db4cc10b56d4"></a><!-- doxytag: member="QCaLabelPlugin::getUpdateOptionProperty" ref="adeba6fac6b5c47dd4a90db4cc10b56d4" args="()" -->
+UpdateOptions&#160;</td><td class="memItemRight" valign="bottom"><b>getUpdateOptionProperty</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afaa6f172df533b221632534cf8d8ee02"></a><!-- doxytag: member="QCaLabelPlugin::setPixmap0Property" ref="afaa6f172df533b221632534cf8d8ee02" args="(QPixmap pixmap)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPixmap0Property</b> (QPixmap pixmap)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4afa70da422b2d76461858660e089910"></a><!-- doxytag: member="QCaLabelPlugin::setPixmap1Property" ref="a4afa70da422b2d76461858660e089910" args="(QPixmap pixmap)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPixmap1Property</b> (QPixmap pixmap)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a464eb00f4e85e9bd0dc1db44bbbdfa81"></a><!-- doxytag: member="QCaLabelPlugin::setPixmap2Property" ref="a464eb00f4e85e9bd0dc1db44bbbdfa81" args="(QPixmap pixmap)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPixmap2Property</b> (QPixmap pixmap)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa607b07675327903364e4da737555b9f"></a><!-- doxytag: member="QCaLabelPlugin::setPixmap3Property" ref="aa607b07675327903364e4da737555b9f" args="(QPixmap pixmap)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPixmap3Property</b> (QPixmap pixmap)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad362f97745c0608758645b65ecc1efa7"></a><!-- doxytag: member="QCaLabelPlugin::setPixmap4Property" ref="ad362f97745c0608758645b65ecc1efa7" args="(QPixmap pixmap)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPixmap4Property</b> (QPixmap pixmap)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af316883aa67bfd1098befc683a140ea1"></a><!-- doxytag: member="QCaLabelPlugin::setPixmap5Property" ref="af316883aa67bfd1098befc683a140ea1" args="(QPixmap pixmap)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPixmap5Property</b> (QPixmap pixmap)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a277429d14e74a5f4285a312d9c28d984"></a><!-- doxytag: member="QCaLabelPlugin::setPixmap6Property" ref="a277429d14e74a5f4285a312d9c28d984" args="(QPixmap pixmap)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPixmap6Property</b> (QPixmap pixmap)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0016d645470680c4770570bd77c763a"></a><!-- doxytag: member="QCaLabelPlugin::setPixmap7Property" ref="ab0016d645470680c4770570bd77c763a" args="(QPixmap pixmap)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPixmap7Property</b> (QPixmap pixmap)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a22a706eef7f9bc289a7ea5a859707fca"></a><!-- doxytag: member="QCaLabelPlugin::getPixmap0Property" ref="a22a706eef7f9bc289a7ea5a859707fca" args="()" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>getPixmap0Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a62807431c7caf27551222d5c2b0e79fe"></a><!-- doxytag: member="QCaLabelPlugin::getPixmap1Property" ref="a62807431c7caf27551222d5c2b0e79fe" args="()" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>getPixmap1Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a87a6d653e7e06486e4066026632a9896"></a><!-- doxytag: member="QCaLabelPlugin::getPixmap2Property" ref="a87a6d653e7e06486e4066026632a9896" args="()" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>getPixmap2Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7cdf67ad24ade665f3a8ad4d16a9eb31"></a><!-- doxytag: member="QCaLabelPlugin::getPixmap3Property" ref="a7cdf67ad24ade665f3a8ad4d16a9eb31" args="()" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>getPixmap3Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a856ab20801d9c0d213f13bb72dfa23ff"></a><!-- doxytag: member="QCaLabelPlugin::getPixmap4Property" ref="a856ab20801d9c0d213f13bb72dfa23ff" args="()" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>getPixmap4Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf033919ea6400ce60c9b3353ffd8f6a"></a><!-- doxytag: member="QCaLabelPlugin::getPixmap5Property" ref="adf033919ea6400ce60c9b3353ffd8f6a" args="()" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>getPixmap5Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa745115ede0dd5a2d7341b5246575180"></a><!-- doxytag: member="QCaLabelPlugin::getPixmap6Property" ref="aa745115ede0dd5a2d7341b5246575180" args="()" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>getPixmap6Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a200e98185011f2da243bd9c52744da16"></a><!-- doxytag: member="QCaLabelPlugin::getPixmap7Property" ref="a200e98185011f2da243bd9c52744da16" args="()" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>getPixmap7Property</b> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2277b633b37e4ff7cec09f44620cd9cd"></a><!-- doxytag: member="QCaLabelPlugin::setFormatProperty" ref="a2277b633b37e4ff7cec09f44620cd9cd" args="(Formats format)" -->
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setFormatProperty</b> (Formats format)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab8f4204779ed39d13a6507fa9816fc56"></a><!-- doxytag: member="QCaLabelPlugin::getFormatProperty" ref="ab8f4204779ed39d13a6507fa9816fc56" args="()" -->
@@ -145,6 +187,26 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag if data updates should be requested. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad06d4cb836666224b09d3a7532a19363"></a><!-- doxytag: member="QCaLabelPlugin::enabled" ref="ad06d4cb836666224b09d3a7532a19363" args="" -->
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>enabled</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69006d3d0eae9646f7ed3da25040f764"></a><!-- doxytag: member="QCaLabelPlugin::updateOption" ref="a69006d3d0eae9646f7ed3da25040f764" args="" -->
+UpdateOptions&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabelPlugin.html#a69006d3d0eae9646f7ed3da25040f764">updateOption</a></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Update options (text, pixmap, or both) <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa68246116732d442bafccf8e7525c033"></a><!-- doxytag: member="QCaLabelPlugin::pixmap0" ref="aa68246116732d442bafccf8e7525c033" args="" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabelPlugin.html#aa68246116732d442bafccf8e7525c033">pixmap0</a></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Pixmaps. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a629b034a4764759f1f7cc4a3be1c9fc7"></a><!-- doxytag: member="QCaLabelPlugin::pixmap1" ref="a629b034a4764759f1f7cc4a3be1c9fc7" args="" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>pixmap1</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af61fbf5b1a852133f2a8b39a16bacff4"></a><!-- doxytag: member="QCaLabelPlugin::pixmap2" ref="af61fbf5b1a852133f2a8b39a16bacff4" args="" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>pixmap2</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0e505713aec189ad644e90c1b14331f6"></a><!-- doxytag: member="QCaLabelPlugin::pixmap3" ref="a0e505713aec189ad644e90c1b14331f6" args="" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>pixmap3</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48d50f1a3a422392708ad44caf203029"></a><!-- doxytag: member="QCaLabelPlugin::pixmap4" ref="a48d50f1a3a422392708ad44caf203029" args="" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>pixmap4</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae995ec66e36237da3d4218e1d91ba66c"></a><!-- doxytag: member="QCaLabelPlugin::pixmap5" ref="ae995ec66e36237da3d4218e1d91ba66c" args="" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>pixmap5</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea2033c9d712c9851d96f88d8b353e31"></a><!-- doxytag: member="QCaLabelPlugin::pixmap6" ref="aea2033c9d712c9851d96f88d8b353e31" args="" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>pixmap6</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3d43750d68647a5525c3bfd5484c45d1"></a><!-- doxytag: member="QCaLabelPlugin::pixmap7" ref="a3d43750d68647a5525c3bfd5484c45d1" args="" -->
+QPixmap&#160;</td><td class="memItemRight" valign="bottom"><b>pixmap7</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b56558e34f332272fbd28dabbb84f33"></a><!-- doxytag: member="QCaLabelPlugin::int" ref="a0b56558e34f332272fbd28dabbb84f33" args="" -->
 unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaLabelPlugin.html#a0b56558e34f332272fbd28dabbb84f33">int</a></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">String formatting properties. <br/></td></tr>
@@ -170,40 +232,11 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible</b></td></tr>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>CA Label Widget Plugin for designer. </p>
 <dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>Revision:</b></dt><dd>#6 </dd></dl>
-<dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 11:58:56 </dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder</dd></dl>
-<dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>Revision:</b></dt><dd>#11 </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 11:58:56 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder </dd></dl>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="ad11c6cebb8c4fa0e8437b516dd26704b"></a><!-- doxytag: member="QCaLabelPlugin::QCaLabelPlugin" ref="ad11c6cebb8c4fa0e8437b516dd26704b" args="(QWidget *parent=0)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">QCaLabelPlugin::QCaLabelPlugin </td>
-          <td>(</td>
-          <td class="paramtype">QWidget *&#160;</td>
-          <td class="paramname"><em>parent</em> = <code>0</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Constructors. </p>
-<p>??? </p>
-
-<p><p>Set up a connection to recieve variable name property changes The variable name property manager class only delivers an updated variable name after the user has stopped typing </p>
-</p>
-
-</div>
-</div>
-<hr/><h2>Property Documentation</h2>
+</div><hr/><h2>Property Documentation</h2>
 <a class="anchor" id="ade0fc2faebe5071581967d0534023035"></a><!-- doxytag: member="QCaLabelPlugin::variable" ref="ade0fc2faebe5071581967d0534023035" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -218,9 +251,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible</b></td></tr>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/user/epicsqt/ca_framework/plugins/include/<a class="el" href="QCaLabelPlugin_8h_source.html">QCaLabelPlugin.h</a></li>
-<li>/home/user/epicsqt/ca_framework/plugins/src/QCaLabelPlugin.cpp</li>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>/home/rhydera/epicsqt/ca_framework/plugins/include/<a class="el" href="QCaLabelPlugin_8h_source.html">QCaLabelPlugin.h</a></li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -237,7 +269,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible</b></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

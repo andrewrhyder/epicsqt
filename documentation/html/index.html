@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>EPICS QT Framework: Main Page</title>
+<title>EPICS QT Framework: QCa - EPICS aware Qt Widgets</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -53,10 +54,68 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="header">
   <div class="headertitle">
-<h1>EPICS QT Framework Documentation</h1>  </div>
+<h1>QCa - EPICS aware Qt Widgets </h1>  </div>
 </div>
 <div class="contents">
+<div class="textblock"><p>QCa is a layered software framework for accessing EPICS data using Channel Access on a range of platforms.<br/>
+<br/>
+</p>
+<p>The QCa framework provides object oriented C++ access to control systems using EPICS (Experimental Physics and Industrial Control System). It is based on Qt, a widely used cross-platform application development framework.<br/>
+<br/>
+</p>
+<p>GUI or console based applications can be written that use QCa at several levels. QCa includes Qt plugin libraries, EPICS aware widgets, data formatting classes, and classes for accessing raw EPICS data in a Qt friendly way.<br/>
+<br/>
+</p>
+<p>QCa also includes an application - ASgui - for displaying forms produced by the Qt development tool ‘Designer’. Using this application a complete EPICS GUI system can be generated without writing any code. A GUI system produced in this way can interact with existing EPICS display tools such as EDM.<br/>
+<br/>
+</p>
+<p>QCa handles much of the complexities of Channel Access including initiating and managing a channel. Applications using QCa can interact with Channel Access using Qt based classes and data types. Channel Access updates are delivered using Qt’s signals and slots mechanism.</p>
+<div align="center">
+<img src="ASguiExample5.png" alt="ASguiExample5.png"/>
 </div>
+<h2><a class="anchor" id="documentation"></a>
+Documentation</h2>
+<p>Support documents can be found in the <a href="https://sourceforge.net/projects/epicsqt/files/documentation/">documentation</a> section of the epicsqt sourceforge project. The framework download (available on the epicsqt sourceforge <a href="https://sourceforge.net/projects/epicsqt/">homepage</a>) also includes this documentation as well as full Doxygen generated documentation of all the epicsqt classes and widgets.</p>
+<h2><a class="anchor" id="license"></a>
+License</h2>
+<p>epicsqt is distributed under the terms of the <a class="el" href="epicsqtlicense.html">GNU General Public License</a>.</p>
+<h2><a class="anchor" id="platforms"></a>
+Platforms</h2>
+<p>epicsqt might be usable in all environments where you find <a href="http://www.trolltech.com/products/qt">Qt</a>. It is compatible with Qt &gt;= 4.4.</p>
+<h2><a class="anchor" id="screenshotsonmainpage"></a>
+Screenshots</h2>
+<ul>
+<li><a class="el" href="ASguiscreenshots.html">ASgui screen shots</a><br/>
+</li>
+<li><a class="el" href="otherappscreenshots.html">other applications using epicsqt widgets</a><br/>
+</li>
+<li><a class="el" href="designerscreenshots.html">Qt Designer</a><br/>
+</li>
+<li><a class="el" href="qtcreatorscreenshots.html">Qt Creator</a><br/>
+</li>
+</ul>
+<h2><a class="anchor" id="downloads"></a>
+Downloads</h2>
+<p>Stable releases and development snapshots are available at the epicsqt <a href="http://sourceforge.net/projects/epicsqt">project page</a>.</p>
+<p>For getting a development snapshot from the SVN repository: </p>
+<div class="fragment"><pre class="fragment"> svn svn co https:<span class="comment">//epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt</span>
+</pre></div><h2><a class="anchor" id="installonmainpage"></a>
+Installation</h2>
+<p>Read <a href="http://sourceforge.net/projects/epicsqt/files/documentation/QCa_GettingStarted.pdf/download">QCa_GettingStarted.pdf</a> in the documentation for setting up an enviroment for building or using the epicsqt framework.<br/>
+ To build the framework, open epicsqt.pro in QtCreator and hit build.<br/>
+ Symbolic links to the resultant library libQCaPlugin.so will need to set up according to how it is to be used - see QCa_GettingStarted.pdf for details.<br/>
+ Any Qt specific queries? start at <a href="http://www.trolltech.com/developer/documentation/index.html">Qt developer documentation</a></p>
+<h2><a class="anchor" id="support"></a>
+Support</h2>
+<p>Visit the sourceforge epicsqt <a href="http://sourceforge.net/projects/epicsqt/support">support page</a> for assistance.</p>
+<h2><a class="anchor" id="relatedprojects"></a>
+Related Projects</h2>
+<p><a href="http://qwt.sourceforge.net/">Qwt</a>, The core of a Channel Access aware plotting widget.</p>
+<h2><a class="anchor" id="credits"></a>
+Credits:</h2>
+<dl class="user"><dt><b>Authors: </b></dt><dd>Andrew Rhyder, Anthony Owen, Glenn Jackson </dd></dl>
+<dl class="user"><dt><b>Project admin:</b></dt><dd>Andrew Rhyder &lt;<a href="mailto:andrew.rhyder@synchrotron.org.au">andrew.rhyder@synchrotron.org.au</a>&gt; </dd></dl>
+</div></div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -71,7 +130,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>EPICS QT Framework: /home/user/epicsqt/ca_framework/data/include/QCaFloatingFormatting.h Source File</title>
+<title>EPICS QT Framework: /home/rhydera/epicsqt/ca_framework/data/include/QCaFloatingFormatting.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -57,7 +58,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 <div class="header">
   <div class="headertitle">
-<h1>/home/user/epicsqt/ca_framework/data/include/QCaFloatingFormatting.h</h1>  </div>
+<h1>/home/rhydera/epicsqt/ca_framework/data/include/QCaFloatingFormatting.h</h1>  </div>
 </div>
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
@@ -104,24 +105,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00048"></a>00048 
 <a name="l00049"></a>00049 
 <a name="l00050"></a>00050     <span class="comment">// Construction</span>
-<a name="l00051"></a>00051     <a class="code" href="classQCaFloatingFormatting.html#af1874800ab29335db7ba721b9b32c5bf">QCaFloatingFormatting</a>();
+<a name="l00051"></a>00051     <a class="code" href="classQCaFloatingFormatting.html" title="Provides textual formatting for QCaFloating data.">QCaFloatingFormatting</a>();
 <a name="l00052"></a>00052 
 <a name="l00053"></a>00053     <span class="comment">//===============================================</span>
 <a name="l00054"></a>00054     <span class="comment">// Main functions of this class:</span>
 <a name="l00055"></a>00055     <span class="comment">//   - Format a double based on a value</span>
 <a name="l00056"></a>00056     <span class="comment">//   - Translate a double and generate a value</span>
 <a name="l00057"></a>00057     <span class="comment">//===============================================</span>
-<a name="l00058"></a>00058     <span class="keywordtype">double</span> <a class="code" href="classQCaFloatingFormatting.html#a1dca6d5931b76c2551b4e6043ef25506">formatFloating</a>( <span class="keyword">const</span> QVariant &amp;value );
-<a name="l00059"></a>00059     QVector&lt;double&gt; <a class="code" href="classQCaFloatingFormatting.html#ab9efa46fe9db3d55f2fc70f3d70c13b9">formatFloatingArray</a>( <span class="keyword">const</span> QVariant &amp;value );
-<a name="l00060"></a>00060     QVariant <a class="code" href="classQCaFloatingFormatting.html#a0b92f43d846adfc3d8f93df2365bf0f6">formatValue</a>( <span class="keyword">const</span> <span class="keywordtype">double</span> &amp;floatingValue, generic::generic_types valueType );
+<a name="l00058"></a>00058     <span class="keywordtype">double</span> formatFloating( <span class="keyword">const</span> QVariant &amp;value );
+<a name="l00059"></a>00059     QVector&lt;double&gt; formatFloatingArray( <span class="keyword">const</span> QVariant &amp;value );
+<a name="l00060"></a>00060     QVariant formatValue( <span class="keyword">const</span> <span class="keywordtype">double</span> &amp;floatingValue, generic::generic_types valueType );
 <a name="l00061"></a>00061 
 <a name="l00062"></a>00062     <span class="comment">// Functions to configure the formatting</span>
-<a name="l00063"></a>00063     <span class="keywordtype">void</span> <a class="code" href="classQCaFloatingFormatting.html#a3de13b3689bf6d2b63a0ef027158e880">setPrecision</a>( <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> precision );
-<a name="l00064"></a>00064     <span class="keywordtype">void</span> <a class="code" href="classQCaFloatingFormatting.html#ad1555423180a88020760ebcc3d10f8c6">setFormat</a>( formats format );
+<a name="l00063"></a>00063     <span class="keywordtype">void</span> setPrecision( <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> precision );
+<a name="l00064"></a>00064     <span class="keywordtype">void</span> setFormat( formats format );
 <a name="l00065"></a>00065 
 <a name="l00066"></a>00066     <span class="comment">// Functions to read the formatting configuration</span>
-<a name="l00067"></a>00067     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classQCaFloatingFormatting.html#a367809802f587db1abe5f7fb10306eca">getPrecision</a>();
-<a name="l00068"></a>00068     <span class="keywordtype">int</span> <a class="code" href="classQCaFloatingFormatting.html#ac2e43a14b28470b009143b19158993e3">getFormat</a>();
+<a name="l00067"></a>00067     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> getPrecision();
+<a name="l00068"></a>00068     <span class="keywordtype">int</span> getFormat();
 <a name="l00069"></a>00069 
 <a name="l00070"></a>00070   <span class="keyword">private</span>:
 <a name="l00071"></a>00071     <span class="comment">// Private functions to read the formatting configuration</span>
@@ -162,7 +163,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

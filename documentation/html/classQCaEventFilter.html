@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -67,7 +68,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="contents">
 <!-- doxytag: class="QCaEventFilter" -->
-<p>CA event filter for QT.  
+<p>Manage CA alarm and severity information.  
 <a href="#_details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="QCaEventFilter_8h_source.html">QCaEventFilter.h</a>&gt;</code></p>
@@ -76,26 +77,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaEventFilter.html#a9f4f576f73aeb2d8ae4af372d9636502">addFilter</a> (QObject *objectIn)</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a fitler to an object.  <a href="#a9f4f576f73aeb2d8ae4af372d9636502"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaEventFilter.html#a8c056bbade03bcce27ee42e876ef8d51">deleteFilter</a> (QObject *objectIn)</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove an event filter from an object.  <a href="#a8c056bbade03bcce27ee42e876ef8d51"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaEventFilter.html#a8919e17ccb8b19415ec592d1f84d40c1">eventFilter</a> (QObject *watched, QEvent *e)</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Event filter added to a QObject.  <a href="#a8919e17ccb8b19415ec592d1f84d40c1"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f4f576f73aeb2d8ae4af372d9636502"></a><!-- doxytag: member="QCaEventFilter::addFilter" ref="a9f4f576f73aeb2d8ae4af372d9636502" args="(QObject *objectIn)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaEventFilter.html#a9f4f576f73aeb2d8ae4af372d9636502">addFilter</a> (QObject *objectIn)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a fitler to an object. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8c056bbade03bcce27ee42e876ef8d51"></a><!-- doxytag: member="QCaEventFilter::deleteFilter" ref="a8c056bbade03bcce27ee42e876ef8d51" args="(QObject *objectIn)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaEventFilter.html#a8c056bbade03bcce27ee42e876ef8d51">deleteFilter</a> (QObject *objectIn)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove an event filter from an object. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8919e17ccb8b19415ec592d1f84d40c1"></a><!-- doxytag: member="QCaEventFilter::eventFilter" ref="a8919e17ccb8b19415ec592d1f84d40c1" args="(QObject *watched, QEvent *e)" -->
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaEventFilter.html#a8919e17ccb8b19415ec592d1f84d40c1">eventFilter</a> (QObject *watched, QEvent *e)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Event filter added to a QObject. <br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>CA event filter for QT. </p>
+<div class="textblock"><p>Manage CA alarm and severity information. </p>
+<p>CA event filter for QT.</p>
 <p>CA Date Time manager.</p>
 <p>Manage CA connection information.</p>
-<p>Manage CA alarm and severity information.</p>
 <p>This class allows instances of <a class="el" href="classQCaObject.html" title="Provides channel access to QT.">QCaObject</a> to recieve events posted to them by foriegn CA threads. Each event recipient creates an instance of this class. This class, however, manages only a single event filter for all instances of itself.</p>
 <dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>Revision:</b></dt><dd>#3 </dd></dl>
+<dl class="rcs"><dt><b>Revision:</b></dt><dd>#5 </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/06/23 07:49:40 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder</dd></dl>
 <dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>Revision:</b></dt><dd>#5 </dd></dl>
+<dl class="rcs"><dt><b>Revision:</b></dt><dd>#3 </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/06/23 07:49:40 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder</dd></dl>
@@ -104,99 +108,8 @@ Public Member Functions</h2></td></tr>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/08/30 16:37:08 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder </dd></dl>
-</div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a9f4f576f73aeb2d8ae4af372d9636502"></a><!-- doxytag: member="QCaEventFilter::addFilter" ref="a9f4f576f73aeb2d8ae4af372d9636502" args="(QObject *objectIn)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaEventFilter::addFilter </td>
-          <td>(</td>
-          <td class="paramtype">QObject *&#160;</td>
-          <td class="paramname"><em>eventObject</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Add a fitler to an object. </p>
-<p>Add the event filter to an object. </p>
-
-<p><p>Protect access to the list of objects</p>
-<p>Check if the filter is already present. If so, just increase the reference count</p>
-<p>If the filter was not present (known because the search reached the end of the list) then add the object to the list of objects using the filter and add the filter to the object.</p>
-<p>Add the object to the list</p>
-<p>Add the filter </p>
-</p>
-
-</div>
-</div>
-<a class="anchor" id="a8c056bbade03bcce27ee42e876ef8d51"></a><!-- doxytag: member="QCaEventFilter::deleteFilter" ref="a8c056bbade03bcce27ee42e876ef8d51" args="(QObject *objectIn)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaEventFilter::deleteFilter </td>
-          <td>(</td>
-          <td class="paramtype">QObject *&#160;</td>
-          <td class="paramname"><em>eventObject</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Remove an event filter from an object. </p>
-<p>Remove the event filter from an object. </p>
-
-<p><p>Protect access to the list of objects</p>
-<p>Search for the QObject the filter is to be removed from.</p>
-<p>Get the next item and check for a match</p>
-<p>Item matched. Reduce the count of QCaObjects relying on this filter and remove the filter if there are no more <a class="el" href="classQCaObject.html" title="Provides channel access to QT.">QCaObject</a> requiring the filter</p>
-<p>If the item containing the object was not found, log an error</p>
-<p>??? log an error better than this </p>
-</p>
-
-</div>
-</div>
-<a class="anchor" id="a8919e17ccb8b19415ec592d1f84d40c1"></a><!-- doxytag: member="QCaEventFilter::eventFilter" ref="a8919e17ccb8b19415ec592d1f84d40c1" args="(QObject *watched, QEvent *e)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool QCaEventFilter::eventFilter </td>
-          <td>(</td>
-          <td class="paramtype">QObject *&#160;</td>
-          <td class="paramname"><em>watched</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">QEvent *&#160;</td>
-          <td class="paramname"><em>e</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Event filter added to a QObject. </p>
-<p>Filter events for a QObject, processing events posted by a <a class="el" href="classQCaObject.html" title="Provides channel access to QT.">QCaObject</a>. This is an overloaded function of QObject As the originating <a class="el" href="classQCaObject.html" title="Provides channel access to QT.">QCaObject</a> is referenced in the event, events can be processed back within the originating <a class="el" href="classQCaObject.html" title="Provides channel access to QT.">QCaObject</a> using the QCaObject::processEvent() method. </p>
-
-<p><p>The event is our update event. Pass it back to the originating <a class="el" href="classQCaObject.html" title="Provides channel access to QT.">QCaObject</a> for processing if still required</p>
-<p>The event has been dealt with. Indicate it requires no further processing (return true) </p>
-</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/user/epicsqt/ca_framework/data/include/<a class="el" href="QCaEventFilter_8h_source.html">QCaEventFilter.h</a></li>
-<li>/home/user/epicsqt/ca_framework/data/src/QCaEventFilter.cpp</li>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li>/home/rhydera/epicsqt/ca_framework/data/include/<a class="el" href="QCaEventFilter_8h_source.html">QCaEventFilter.h</a></li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -213,7 +126,7 @@ Public Member Functions</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

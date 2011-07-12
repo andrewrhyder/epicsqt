@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>EPICS QT Framework: /home/user/epicsqt/ca_framework/plugins/include/QCaPlotPlugin.h Source File</title>
+<title>EPICS QT Framework: /home/rhydera/epicsqt/ca_framework/plugins/include/QCaPlotPlugin.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -57,7 +58,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 <div class="header">
   <div class="headertitle">
-<h1>/home/user/epicsqt/ca_framework/plugins/include/QCaPlotPlugin.h</h1>  </div>
+<h1>/home/rhydera/epicsqt/ca_framework/plugins/include/QCaPlotPlugin.h</h1>  </div>
 </div>
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
@@ -93,7 +94,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00037"></a>00037 <span class="preprocessor">#include &lt;QCaPlot.h&gt;</span>
 <a name="l00038"></a>00038 <span class="preprocessor">#include &lt;QCaStringFormatting.h&gt;</span>
 <a name="l00039"></a>00039 
-<a name="l00040"></a><a class="code" href="classQCaPlotPlugin.html">00040</a> <span class="keyword">class </span><a class="code" href="classQCaPlotPlugin.html" title="CA Plot Widget Plugin for designer.">QCaPlotPlugin</a> : <span class="keyword">public</span> <a class="code" href="classQCaPlot.html" title="CA Plot Widget.">QCaPlot</a> {
+<a name="l00040"></a><a class="code" href="classQCaPlotPlugin.html">00040</a> <span class="keyword">class </span><a class="code" href="classQCaPlotPlugin.html" title="CA Plot Widget Plugin for designer.">QCaPlotPlugin</a> : <span class="keyword">public</span> <a class="code" href="classQCaPlot.html" title="Manage updating tool tip with variable name, alarm state and connected state.">QCaPlot</a> {
 <a name="l00041"></a>00041     Q_OBJECT
 <a name="l00042"></a>00042 
 <a name="l00043"></a>00043   <span class="keyword">public</span>:
@@ -102,41 +103,94 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00047"></a>00047 
 <a name="l00048"></a>00048     <span class="comment">// Note, a property macro in the form &#39;Q_PROPERTY(QString variableName READ ...&#39; doesn&#39;t work.</span>
 <a name="l00049"></a>00049     <span class="comment">// A property name ending with &#39;Name&#39; results in some sort of string a variable being displayed, but will only accept alphanumeric and won&#39;t generate callbacks on change.</span>
-<a name="l00050"></a>00050     Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
-<a name="l00051"></a>00051     <span class="keywordtype">void</span> setVariableNameProperty( QString variableName ){ variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a3207418f259b69422cfaa2ababa594ba">setVariableNameProperty</a>( variableName ); }
-<a name="l00052"></a>00052     QString getVariableNameProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#ac284e8d6f09e8111edad88389f9b861a">getVariableNameProperty</a>(); }
+<a name="l00050"></a>00050     Q_PROPERTY(QString variable1 READ getVariableName1Property WRITE setVariableName1Property)
+<a name="l00051"></a>00051     <span class="keywordtype">void</span>    setVariableName1Property( QString variable1Name ){ variableNamePropertyManagers[0].setVariableNameProperty( variable1Name ); }
+<a name="l00052"></a>00052     QString getVariableName1Property(){ <span class="keywordflow">return</span> variableNamePropertyManagers[0].getVariableNameProperty(); }
 <a name="l00053"></a>00053 
-<a name="l00054"></a>00054     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-<a name="l00055"></a>00055     <span class="keywordtype">void</span> setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a7f0a15766eccf9a886abd8a494a665d7">setSubstitutionsProperty</a>( variableNameSubstitutions ); }
-<a name="l00056"></a>00056     QString getVariableNameSubstitutionsProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a022d4dc9da0944490c23acc2730ba03c">getSubstitutionsProperty</a>(); }
+<a name="l00054"></a>00054     Q_PROPERTY(QString variable2 READ getVariableName2Property WRITE setVariableName2Property)
+<a name="l00055"></a>00055     <span class="keywordtype">void</span>    setVariableName2Property( QString variable2Name ){ variableNamePropertyManagers[1].setVariableNameProperty( variable2Name ); }
+<a name="l00056"></a>00056     QString getVariableName2Property(){ <span class="keywordflow">return</span> variableNamePropertyManagers[1].getVariableNameProperty(); }
 <a name="l00057"></a>00057 
-<a name="l00058"></a><a class="code" href="classQCaPlotPlugin.html#a55365489a0400f4ecb796e1b4a9fce7e">00058</a>     Q_PROPERTY(<span class="keywordtype">bool</span> <a class="code" href="classQCaPlotPlugin.html#a55365489a0400f4ecb796e1b4a9fce7e" title="Set the number of variables that will stream data updates to the widget. Default of 1 if not called...">subscribe</a> READ getSubscribe WRITE setSubscribe)
-<a name="l00059"></a><a class="code" href="classQCaPlotPlugin.html#aebcfd3e609a8cee6e7a71433e934d2ae">00059</a>     Q_PROPERTY(<span class="keywordtype">bool</span> <a class="code" href="classQCaPlotPlugin.html#aebcfd3e609a8cee6e7a71433e934d2ae" title="Flag if data updates should be requested.">variableAsToolTip</a> READ getVariableAsToolTip WRITE setVariableAsToolTip)
-<a name="l00060"></a>00060     Q_PROPERTY(<span class="keywordtype">double</span> yMin READ getYMin WRITE setYMin)
-<a name="l00061"></a>00061     Q_PROPERTY(<span class="keywordtype">double</span> yMax READ getYMax WRITE setYMax)
-<a name="l00062"></a>00062     Q_PROPERTY(<span class="keywordtype">bool</span> autoScale READ getAutoScale WRITE setAutoScale)
-<a name="l00063"></a>00063     Q_PROPERTY(<span class="keywordtype">bool</span> axisEnableX READ getAxisEnableX WRITE setAxisEnableX)
-<a name="l00064"></a>00064     Q_PROPERTY(<span class="keywordtype">bool</span> axisEnableY READ getAxisEnableY WRITE setAxisEnableY)
-<a name="l00065"></a>00065     Q_PROPERTY(QString title READ getTitle WRITE setTitle)
-<a name="l00066"></a>00066     Q_PROPERTY(QColor backgroundColor READ getBackgroundColor WRITE setBackgroundColor)
-<a name="l00067"></a>00067     Q_PROPERTY(QColor traceColor READ getTraceColor WRITE setTraceColor)
-<a name="l00068"></a>00068     Q_PROPERTY(QString traceLegend READ getTraceLegend WRITE setTraceLegend)
-<a name="l00069"></a>00069     Q_PROPERTY(QString xUnit READ getXUnit WRITE setXUnit)
-<a name="l00070"></a>00070     Q_PROPERTY(QString yUnit READ getYUnit WRITE setYUnit)
-<a name="l00071"></a>00071     Q_PROPERTY(<span class="keywordtype">double</span> xStart READ getXStart WRITE setXStart)
-<a name="l00072"></a>00072     Q_PROPERTY(<span class="keywordtype">double</span> xIncrement READ getXIncrement WRITE setXIncrement)
-<a name="l00073"></a>00073     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> timeSpan READ getTimeSpan WRITE setTimeSpan)
-<a name="l00074"></a>00074     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> tickRate READ getTickRate WRITE setTickRate)
-<a name="l00075"></a>00075 
-<a name="l00076"></a>00076   private:
-<a name="l00077"></a>00077     <a class="code" href="classQCaVariableNamePropertyManager.html" title="Handles user manipulation of variable name sets and associated macro substitutions.">QCaVariableNamePropertyManager</a> variableNamePropertyManager;
-<a name="l00078"></a>00078 
-<a name="l00079"></a>00079 private slots:
-<a name="l00080"></a>00080     <span class="keywordtype">void</span> useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> variableIndex );
-<a name="l00081"></a>00081 
-<a name="l00082"></a>00082 };
-<a name="l00083"></a>00083 
-<a name="l00084"></a>00084 <span class="preprocessor">#endif /// QCAPLOTPLUGIN_H</span>
+<a name="l00058"></a>00058     Q_PROPERTY(QString variable3 READ getVariableName3Property WRITE setVariableName3Property)
+<a name="l00059"></a>00059     <span class="keywordtype">void</span>    setVariableName3Property( QString variable3Name ){ variableNamePropertyManagers[2].setVariableNameProperty( variable3Name ); }
+<a name="l00060"></a>00060     QString getVariableName3Property(){ <span class="keywordflow">return</span> variableNamePropertyManagers[2].getVariableNameProperty(); }
+<a name="l00061"></a>00061 
+<a name="l00062"></a>00062     Q_PROPERTY(QString variable4 READ getVariableName4Property WRITE setVariableName4Property)
+<a name="l00063"></a>00063     <span class="keywordtype">void</span>    setVariableName4Property( QString variable4Name ){ variableNamePropertyManagers[3].setVariableNameProperty( variable4Name ); }
+<a name="l00064"></a>00064     QString getVariableName4Property(){ <span class="keywordflow">return</span> variableNamePropertyManagers[3].getVariableNameProperty(); }
+<a name="l00065"></a>00065 
+<a name="l00066"></a>00066     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+<a name="l00067"></a>00067     <span class="keywordtype">void</span>    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ <span class="keywordflow">for</span>( <span class="keywordtype">int</span> i = 0; i &lt; NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
+<a name="l00068"></a>00068     QString getVariableNameSubstitutionsProperty(){ <span class="keywordflow">return</span> variableNamePropertyManagers[0].getSubstitutionsProperty(); }
+<a name="l00069"></a>00069 
+<a name="l00070"></a>00070 
+<a name="l00071"></a><a class="code" href="classQCaPlotPlugin.html#aebcfd3e609a8cee6e7a71433e934d2ae">00071</a>     Q_PROPERTY(<span class="keywordtype">bool</span> <a class="code" href="classQCaPlotPlugin.html#aebcfd3e609a8cee6e7a71433e934d2ae" title="Flag if data updates should be requested.">variableAsToolTip</a> READ getVariableAsToolTip WRITE setVariableAsToolTip)
+<a name="l00072"></a>00072 
+<a name="l00073"></a>00073     Q_PROPERTY(QColor traceColor1 READ getTraceColor1 WRITE setTraceColor1)
+<a name="l00074"></a>00074     Q_PROPERTY(QColor traceColor2 READ getTraceColor2 WRITE setTraceColor2)
+<a name="l00075"></a>00075     Q_PROPERTY(QColor traceColor3 READ getTraceColor3 WRITE setTraceColor3)
+<a name="l00076"></a>00076     Q_PROPERTY(QColor traceColor4 READ getTraceColor4 WRITE setTraceColor4)
+<a name="l00077"></a>00077 
+<a name="l00078"></a>00078     Q_ENUMS(TraceStyles)
+<a name="l00079"></a>00079     Q_PROPERTY(TraceStyles traceStyle1 READ getTraceStyle1 WRITE setTraceStyle1)
+<a name="l00080"></a>00080     Q_PROPERTY(TraceStyles traceStyle2 READ getTraceStyle2 WRITE setTraceStyle2)
+<a name="l00081"></a>00081     Q_PROPERTY(TraceStyles traceStyle3 READ getTraceStyle3 WRITE setTraceStyle3)
+<a name="l00082"></a>00082     Q_PROPERTY(TraceStyles traceStyle4 READ getTraceStyle4 WRITE setTraceStyle4)
+<a name="l00083"></a>00083     enum TraceStyles { Lines  = QwtPlotCurve::Lines,
+<a name="l00084"></a>00084                        Sticks = QwtPlotCurve::Sticks,
+<a name="l00085"></a>00085                        Steps  = QwtPlotCurve::Steps,
+<a name="l00086"></a>00086                        Dots   = QwtPlotCurve::Dots };
+<a name="l00087"></a>00087     <span class="keywordtype">void</span> setTraceStyle1( TraceStyles traceStyle ){ setTraceStyle( (QwtPlotCurve::CurveStyle)traceStyle, 0 ); }
+<a name="l00088"></a>00088     <span class="keywordtype">void</span> setTraceStyle2( TraceStyles traceStyle ){ setTraceStyle( (QwtPlotCurve::CurveStyle)traceStyle, 1 ); }
+<a name="l00089"></a>00089     <span class="keywordtype">void</span> setTraceStyle3( TraceStyles traceStyle ){ setTraceStyle( (QwtPlotCurve::CurveStyle)traceStyle, 2 ); }
+<a name="l00090"></a>00090     <span class="keywordtype">void</span> setTraceStyle4( TraceStyles traceStyle ){ setTraceStyle( (QwtPlotCurve::CurveStyle)traceStyle, 3 ); }
+<a name="l00091"></a>00091 
+<a name="l00092"></a>00092     TraceStyles getTraceStyle1(){ <span class="keywordflow">return</span> (TraceStyles)(getTraceStyle( 0 )); }
+<a name="l00093"></a>00093     TraceStyles getTraceStyle2(){ <span class="keywordflow">return</span> (TraceStyles)(getTraceStyle( 1 )); }
+<a name="l00094"></a>00094     TraceStyles getTraceStyle3(){ <span class="keywordflow">return</span> (TraceStyles)(getTraceStyle( 2 )); }
+<a name="l00095"></a>00095     TraceStyles getTraceStyle4(){ <span class="keywordflow">return</span> (TraceStyles)(getTraceStyle( 3 )); }
+<a name="l00096"></a>00096 
+<a name="l00097"></a>00097 
+<a name="l00098"></a>00098     Q_PROPERTY(QString traceLegend1 READ getTraceLegend1 WRITE setTraceLegend1)
+<a name="l00099"></a>00099     Q_PROPERTY(QString traceLegend2 READ getTraceLegend2 WRITE setTraceLegend2)
+<a name="l00100"></a>00100     Q_PROPERTY(QString traceLegend3 READ getTraceLegend3 WRITE setTraceLegend3)
+<a name="l00101"></a>00101     Q_PROPERTY(QString traceLegend4 READ getTraceLegend4 WRITE setTraceLegend4)
+<a name="l00102"></a>00102 
+<a name="l00103"></a>00103     Q_PROPERTY(<span class="keywordtype">double</span> yMin READ getYMin WRITE setYMin)
+<a name="l00104"></a>00104     Q_PROPERTY(<span class="keywordtype">double</span> yMax READ getYMax WRITE setYMax)
+<a name="l00105"></a>00105 
+<a name="l00106"></a>00106     Q_PROPERTY(<span class="keywordtype">bool</span> autoScale READ getAutoScale WRITE setAutoScale)
+<a name="l00107"></a>00107 
+<a name="l00108"></a>00108     Q_PROPERTY(<span class="keywordtype">bool</span> axisEnableX READ getAxisEnableX WRITE setAxisEnableX)
+<a name="l00109"></a>00109     Q_PROPERTY(<span class="keywordtype">bool</span> axisEnableY READ getAxisEnableY WRITE setAxisEnableY)
+<a name="l00110"></a>00110 
+<a name="l00111"></a>00111     Q_PROPERTY(<span class="keywordtype">bool</span> gridEnableMajorX READ getGridEnableMajorX WRITE setGridEnableMajorX)
+<a name="l00112"></a>00112     Q_PROPERTY(<span class="keywordtype">bool</span> gridEnableMajorY READ getGridEnableMajorY WRITE setGridEnableMajorY)
+<a name="l00113"></a>00113 
+<a name="l00114"></a>00114     Q_PROPERTY(<span class="keywordtype">bool</span> gridEnableMinorX READ getGridEnableMinorX WRITE setGridEnableMinorX)
+<a name="l00115"></a>00115     Q_PROPERTY(<span class="keywordtype">bool</span> gridEnableMinorY READ getGridEnableMinorY WRITE setGridEnableMinorY)
+<a name="l00116"></a>00116 
+<a name="l00117"></a>00117     Q_PROPERTY(QColor gridMajorColor READ getGridMajorColor WRITE setGridMajorColor)
+<a name="l00118"></a>00118     Q_PROPERTY(QColor gridMinorColor READ getGridMinorColor WRITE setGridMinorColor)
+<a name="l00119"></a>00119 
+<a name="l00120"></a>00120     Q_PROPERTY(QString title READ getTitle WRITE setTitle)
+<a name="l00121"></a>00121     Q_PROPERTY(QColor backgroundColor READ getBackgroundColor WRITE setBackgroundColor)
+<a name="l00122"></a>00122     Q_PROPERTY(QString xUnit READ getXUnit WRITE setXUnit)
+<a name="l00123"></a>00123     Q_PROPERTY(QString yUnit READ getYUnit WRITE setYUnit)
+<a name="l00124"></a>00124     Q_PROPERTY(<span class="keywordtype">double</span> xStart READ getXStart WRITE setXStart)
+<a name="l00125"></a>00125     Q_PROPERTY(<span class="keywordtype">double</span> xIncrement READ getXIncrement WRITE setXIncrement)
+<a name="l00126"></a>00126     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> timeSpan READ getTimeSpan WRITE setTimeSpan)
+<a name="l00127"></a>00127     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> tickRate READ getTickRate WRITE setTickRate)
+<a name="l00128"></a>00128 
+<a name="l00129"></a>00129   <span class="keyword">private</span>:
+<a name="l00130"></a>00130     <a class="code" href="classQCaVariableNamePropertyManager.html" title="Handles variable name sets.">QCaVariableNamePropertyManager</a> variableNamePropertyManagers[NUM_VARIABLES];
+<a name="l00131"></a>00131 
+<a name="l00132"></a>00132 <span class="keyword">private</span> slots:
+<a name="l00133"></a>00133     <span class="keywordtype">void</span> useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> variableIndex );
+<a name="l00134"></a>00134 
+<a name="l00135"></a>00135 };
+<a name="l00136"></a>00136 
+<a name="l00137"></a>00137 <span class="preprocessor">#endif /// QCAPLOTPLUGIN_H</span>
 </pre></div></div>
 </div>
 <!--- window showing the filter options -->
@@ -153,7 +207,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>EPICS QT Framework: /home/user/epicsqt/ca_framework/plugins/include/QCaLabelPlugin.h Source File</title>
+<title>EPICS QT Framework: /home/rhydera/epicsqt/ca_framework/plugins/include/QCaLabelPlugin.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -57,7 +58,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 <div class="header">
   <div class="headertitle">
-<h1>/home/user/epicsqt/ca_framework/plugins/include/QCaLabelPlugin.h</h1>  </div>
+<h1>/home/rhydera/epicsqt/ca_framework/plugins/include/QCaLabelPlugin.h</h1>  </div>
 </div>
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
@@ -94,7 +95,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00038"></a>00038 <span class="preprocessor">#include &lt;QCaVariableNamePropertyManager.h&gt;</span>
 <a name="l00039"></a>00039 <span class="preprocessor">#include &lt;QCaStringFormatting.h&gt;</span>
 <a name="l00040"></a>00040 
-<a name="l00041"></a><a class="code" href="classQCaLabelPlugin.html">00041</a> <span class="keyword">class </span><a class="code" href="classQCaLabelPlugin.html" title="CA Label Widget Plugin for designer.">QCaLabelPlugin</a> : <span class="keyword">public</span> <a class="code" href="classQCaLabel.html" title="CA Label Widget.">QCaLabel</a> {
+<a name="l00041"></a><a class="code" href="classQCaLabelPlugin.html">00041</a> <span class="keyword">class </span><a class="code" href="classQCaLabelPlugin.html" title="CA Label Widget Plugin for designer.">QCaLabelPlugin</a> : <span class="keyword">public</span> <a class="code" href="classQCaLabel.html" title="Manage updating tool tip with variable name, alarm state and connected state.">QCaLabel</a> {
 <a name="l00042"></a>00042     Q_OBJECT
 <a name="l00043"></a>00043 
 <a name="l00044"></a>00044   <span class="keyword">public</span>:
@@ -102,66 +103,100 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00047"></a>00047     <a class="code" href="classQCaLabelPlugin.html#ad11c6cebb8c4fa0e8437b516dd26704b" title="Constructors.">QCaLabelPlugin</a>( QString variableName, QWidget *parent = 0 );
 <a name="l00048"></a>00048 
 <a name="l00051"></a><a class="code" href="classQCaLabelPlugin.html#ade0fc2faebe5071581967d0534023035">00051</a>     Q_PROPERTY(QString <a class="code" href="classQCaLabelPlugin.html#ade0fc2faebe5071581967d0534023035">variable</a> READ getVariableNameProperty WRITE setVariableNameProperty);
-<a name="l00052"></a>00052     <span class="keywordtype">void</span>    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a3207418f259b69422cfaa2ababa594ba">setVariableNameProperty</a>( variableName ); }
-<a name="l00053"></a>00053     QString getVariableNameProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#ac284e8d6f09e8111edad88389f9b861a">getVariableNameProperty</a>(); }
+<a name="l00052"></a>00052     <span class="keywordtype">void</span>    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
+<a name="l00053"></a>00053     QString getVariableNameProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.getVariableNameProperty(); }
 <a name="l00054"></a>00054 
 <a name="l00055"></a>00055     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-<a name="l00056"></a>00056     <span class="keywordtype">void</span>    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a7f0a15766eccf9a886abd8a494a665d7">setSubstitutionsProperty</a>( variableNameSubstitutions ); }
-<a name="l00057"></a>00057     QString getVariableNameSubstitutionsProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.<a class="code" href="classQCaVariableNamePropertyManager.html#a022d4dc9da0944490c23acc2730ba03c">getSubstitutionsProperty</a>(); }
+<a name="l00056"></a>00056     <span class="keywordtype">void</span>    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+<a name="l00057"></a>00057     QString getVariableNameSubstitutionsProperty(){ <span class="keywordflow">return</span> variableNamePropertyManager.getSubstitutionsProperty(); }
 <a name="l00058"></a>00058 
 <a name="l00059"></a><a class="code" href="classQCaLabelPlugin.html#a4edcdcea21e6a9999bd3ead5597b51b8">00059</a>     Q_PROPERTY(<span class="keywordtype">bool</span> <a class="code" href="classQCaLabelPlugin.html#a4edcdcea21e6a9999bd3ead5597b51b8" title="Flag if data updates should be requested.">variableAsToolTip</a> READ getVariableAsToolTip WRITE setVariableAsToolTip)
-<a name="l00060"></a>00060     Q_PROPERTY(<span class="keywordtype">bool</span> enabled READ <a class="code" href="classQCaLabel.html#a93e39263df85d17f9f3d65f1435e57f7">isEnabled</a> WRITE <a class="code" href="classQCaLabel.html#a502e9a3784da2c257945a42e8f9ddd70">setEnabled</a>)
+<a name="l00060"></a>00060     Q_PROPERTY(<span class="keywordtype">bool</span> enabled READ isEnabled WRITE setEnabled)
 <a name="l00061"></a>00061 
 <a name="l00062"></a>00062     
-<a name="l00063"></a><a class="code" href="classQCaLabelPlugin.html#a0b56558e34f332272fbd28dabbb84f33">00063</a>     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> precision READ getPrecision WRITE setPrecision)
-<a name="l00064"></a>00064     Q_PROPERTY(<span class="keywordtype">bool</span> useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
-<a name="l00065"></a>00065     Q_PROPERTY(<span class="keywordtype">bool</span> leadingZero READ getLeadingZero WRITE setLeadingZero)
-<a name="l00066"></a>00066     Q_PROPERTY(<span class="keywordtype">bool</span> trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
-<a name="l00067"></a>00067     Q_PROPERTY(<span class="keywordtype">bool</span> addUnits READ getAddUnits WRITE setAddUnits)
-<a name="l00068"></a>00068     Q_PROPERTY(QString<span class="comment">/*localEnumerationList*/</span> localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
+<a name="l00063"></a>00063     Q_ENUMS(UpdateOptions)
+<a name="l00064"></a><a class="code" href="classQCaLabelPlugin.html#a69006d3d0eae9646f7ed3da25040f764">00064</a>     Q_PROPERTY(UpdateOptions <a class="code" href="classQCaLabelPlugin.html#a69006d3d0eae9646f7ed3da25040f764" title="Update options (text, pixmap, or both)">updateOption</a> READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
+<a name="l00065"></a>00065     enum UpdateOptions { Text     = QCaLabel::UPDATE_TEXT,
+<a name="l00066"></a>00066                          Picture  = QCaLabel::UPDATE_PIXMAP };
+<a name="l00067"></a>00067     <span class="keywordtype">void</span> setUpdateOptionProperty( UpdateOptions <a class="code" href="classQCaLabelPlugin.html#a69006d3d0eae9646f7ed3da25040f764" title="Update options (text, pixmap, or both)">updateOption</a> ){ setUpdateOption( (QCaLabel::updateOptions)updateOption ); }
+<a name="l00068"></a>00068     UpdateOptions getUpdateOptionProperty(){ <span class="keywordflow">return</span> (UpdateOptions)getUpdateOption(); }
 <a name="l00069"></a>00069 
-<a name="l00070"></a>00070     Q_ENUMS(Formats)
-<a name="l00071"></a>00071     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
-<a name="l00072"></a>00072     enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
-<a name="l00073"></a>00073                    Floating         = QCaStringFormatting::FORMAT_FLOATING,
-<a name="l00074"></a>00074                    Integer          = QCaStringFormatting::FORMAT_INTEGER,
-<a name="l00075"></a>00075                    UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
-<a name="l00076"></a>00076                    Time             = QCaStringFormatting::FORMAT_TIME,
-<a name="l00077"></a>00077                    LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
-<a name="l00078"></a>00078     <span class="keywordtype">void</span> setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
-<a name="l00079"></a>00079     Formats getFormatProperty(){ <span class="keywordflow">return</span> (Formats)getFormat(); }
-<a name="l00080"></a>00080 
-<a name="l00081"></a>00081     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> radix READ getRadix WRITE setRadix)
-<a name="l00082"></a>00082 
-<a name="l00083"></a>00083     Q_ENUMS(Notations)
-<a name="l00084"></a>00084     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
-<a name="l00085"></a>00085     enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
-<a name="l00086"></a>00086                      Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
-<a name="l00087"></a>00087                      Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
-<a name="l00088"></a>00088     <span class="keywordtype">void</span> setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
-<a name="l00089"></a>00089     Notations getNotationProperty(){ <span class="keywordflow">return</span> (Notations)getNotation(); }
-<a name="l00090"></a>00090 
-<a name="l00091"></a>00091     Q_ENUMS(ArrayActions)
-<a name="l00092"></a>00092     Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
-<a name="l00093"></a>00093     enum ArrayActions { Append = QCaStringFormatting::APPEND,
-<a name="l00094"></a>00094                         Ascii  = QCaStringFormatting::ASCII,
-<a name="l00095"></a>00095                         Index  = QCaStringFormatting::INDEX };
-<a name="l00096"></a>00096     <span class="keywordtype">void</span> setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }
-<a name="l00097"></a>00097     ArrayActions getArrayActionProperty(){ <span class="keywordflow">return</span> (ArrayActions)getArrayAction(); }
-<a name="l00098"></a>00098 
-<a name="l00099"></a>00099     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> arrayIndex READ getArrayIndex WRITE setArrayIndex)
-<a name="l00100"></a>00100 
-<a name="l00101"></a>00101     Q_PROPERTY(<span class="keywordtype">bool</span> visible READ getRunVisible WRITE setRunVisible)
-<a name="l00102"></a>00102 
-<a name="l00103"></a>00103 
-<a name="l00104"></a>00104   <span class="keyword">private</span>:
-<a name="l00105"></a>00105     <a class="code" href="classQCaVariableNamePropertyManager.html" title="Handles user manipulation of variable name sets and associated macro substitutions.">QCaVariableNamePropertyManager</a> variableNamePropertyManager;
-<a name="l00106"></a>00106 
-<a name="l00107"></a>00107   <span class="keyword">private</span> slots:
-<a name="l00108"></a>00108     <span class="keywordtype">void</span> useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> variableIndex );
-<a name="l00109"></a>00109 };
-<a name="l00110"></a>00110 
-<a name="l00111"></a>00111 <span class="preprocessor">#endif /// QCALABELPLUGIN_H</span>
+<a name="l00071"></a><a class="code" href="classQCaLabelPlugin.html#aa68246116732d442bafccf8e7525c033">00071</a>     Q_PROPERTY(QPixmap <a class="code" href="classQCaLabelPlugin.html#aa68246116732d442bafccf8e7525c033" title="Pixmaps.">pixmap0</a> READ getPixmap0Property WRITE setPixmap0Property)
+<a name="l00072"></a>00072     Q_PROPERTY(QPixmap pixmap1 READ getPixmap1Property WRITE setPixmap1Property)
+<a name="l00073"></a>00073     Q_PROPERTY(QPixmap pixmap2 READ getPixmap2Property WRITE setPixmap2Property)
+<a name="l00074"></a>00074     Q_PROPERTY(QPixmap pixmap3 READ getPixmap3Property WRITE setPixmap3Property)
+<a name="l00075"></a>00075     Q_PROPERTY(QPixmap pixmap4 READ getPixmap4Property WRITE setPixmap4Property)
+<a name="l00076"></a>00076     Q_PROPERTY(QPixmap pixmap5 READ getPixmap5Property WRITE setPixmap5Property)
+<a name="l00077"></a>00077     Q_PROPERTY(QPixmap pixmap6 READ getPixmap6Property WRITE setPixmap6Property)
+<a name="l00078"></a>00078     Q_PROPERTY(QPixmap pixmap7 READ getPixmap7Property WRITE setPixmap7Property)
+<a name="l00079"></a>00079 
+<a name="l00080"></a>00080     <span class="keywordtype">void</span> setPixmap0Property( QPixmap pixmap ){ setDataPixmap( pixmap, 0 ); }
+<a name="l00081"></a>00081     <span class="keywordtype">void</span> setPixmap1Property( QPixmap pixmap ){ setDataPixmap( pixmap, 1 ); }
+<a name="l00082"></a>00082     <span class="keywordtype">void</span> setPixmap2Property( QPixmap pixmap ){ setDataPixmap( pixmap, 2 ); }
+<a name="l00083"></a>00083     <span class="keywordtype">void</span> setPixmap3Property( QPixmap pixmap ){ setDataPixmap( pixmap, 3 ); }
+<a name="l00084"></a>00084     <span class="keywordtype">void</span> setPixmap4Property( QPixmap pixmap ){ setDataPixmap( pixmap, 4 ); }
+<a name="l00085"></a>00085     <span class="keywordtype">void</span> setPixmap5Property( QPixmap pixmap ){ setDataPixmap( pixmap, 5 ); }
+<a name="l00086"></a>00086     <span class="keywordtype">void</span> setPixmap6Property( QPixmap pixmap ){ setDataPixmap( pixmap, 6 ); }
+<a name="l00087"></a>00087     <span class="keywordtype">void</span> setPixmap7Property( QPixmap pixmap ){ setDataPixmap( pixmap, 7 ); }
+<a name="l00088"></a>00088 
+<a name="l00089"></a>00089     QPixmap getPixmap0Property(){ <span class="keywordflow">return</span> getDataPixmap( 0 ); }
+<a name="l00090"></a>00090     QPixmap getPixmap1Property(){ <span class="keywordflow">return</span> getDataPixmap( 1 ); }
+<a name="l00091"></a>00091     QPixmap getPixmap2Property(){ <span class="keywordflow">return</span> getDataPixmap( 2 ); }
+<a name="l00092"></a>00092     QPixmap getPixmap3Property(){ <span class="keywordflow">return</span> getDataPixmap( 3 ); }
+<a name="l00093"></a>00093     QPixmap getPixmap4Property(){ <span class="keywordflow">return</span> getDataPixmap( 4 ); }
+<a name="l00094"></a>00094     QPixmap getPixmap5Property(){ <span class="keywordflow">return</span> getDataPixmap( 5 ); }
+<a name="l00095"></a>00095     QPixmap getPixmap6Property(){ <span class="keywordflow">return</span> getDataPixmap( 6 ); }
+<a name="l00096"></a>00096     QPixmap getPixmap7Property(){ <span class="keywordflow">return</span> getDataPixmap( 7 ); }
+<a name="l00097"></a>00097 
+<a name="l00099"></a><a class="code" href="classQCaLabelPlugin.html#a0b56558e34f332272fbd28dabbb84f33">00099</a>     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> precision READ getPrecision WRITE setPrecision)
+<a name="l00100"></a>00100     Q_PROPERTY(<span class="keywordtype">bool</span> useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
+<a name="l00101"></a>00101     Q_PROPERTY(<span class="keywordtype">bool</span> leadingZero READ getLeadingZero WRITE setLeadingZero)
+<a name="l00102"></a>00102     Q_PROPERTY(<span class="keywordtype">bool</span> trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
+<a name="l00103"></a>00103     Q_PROPERTY(<span class="keywordtype">bool</span> addUnits READ getAddUnits WRITE setAddUnits)
+<a name="l00104"></a>00104     Q_PROPERTY(QString<span class="comment">/*localEnumerationList*/</span> localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
+<a name="l00105"></a>00105 
+<a name="l00106"></a>00106     Q_ENUMS(Formats)
+<a name="l00107"></a>00107     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
+<a name="l00108"></a>00108     enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
+<a name="l00109"></a>00109                    Floating         = QCaStringFormatting::FORMAT_FLOATING,
+<a name="l00110"></a>00110                    Integer          = QCaStringFormatting::FORMAT_INTEGER,
+<a name="l00111"></a>00111                    UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
+<a name="l00112"></a>00112                    Time             = QCaStringFormatting::FORMAT_TIME,
+<a name="l00113"></a>00113                    LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
+<a name="l00114"></a>00114     <span class="keywordtype">void</span> setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+<a name="l00115"></a>00115     Formats getFormatProperty(){ <span class="keywordflow">return</span> (Formats)getFormat(); }
+<a name="l00116"></a>00116 
+<a name="l00117"></a>00117     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> radix READ getRadix WRITE setRadix)
+<a name="l00118"></a>00118 
+<a name="l00119"></a>00119     Q_ENUMS(Notations)
+<a name="l00120"></a>00120     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
+<a name="l00121"></a>00121     enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
+<a name="l00122"></a>00122                      Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
+<a name="l00123"></a>00123                      Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
+<a name="l00124"></a>00124     <span class="keywordtype">void</span> setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+<a name="l00125"></a>00125     Notations getNotationProperty(){ <span class="keywordflow">return</span> (Notations)getNotation(); }
+<a name="l00126"></a>00126 
+<a name="l00127"></a>00127     Q_ENUMS(ArrayActions)
+<a name="l00128"></a>00128     Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
+<a name="l00129"></a>00129     enum ArrayActions { Append = QCaStringFormatting::APPEND,
+<a name="l00130"></a>00130                         Ascii  = QCaStringFormatting::ASCII,
+<a name="l00131"></a>00131                         Index  = QCaStringFormatting::INDEX };
+<a name="l00132"></a>00132     <span class="keywordtype">void</span> setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }
+<a name="l00133"></a>00133     ArrayActions getArrayActionProperty(){ <span class="keywordflow">return</span> (ArrayActions)getArrayAction(); }
+<a name="l00134"></a>00134 
+<a name="l00135"></a>00135     Q_PROPERTY(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> arrayIndex READ getArrayIndex WRITE setArrayIndex)
+<a name="l00136"></a>00136 
+<a name="l00137"></a>00137     Q_PROPERTY(<span class="keywordtype">bool</span> visible READ getRunVisible WRITE setRunVisible)
+<a name="l00138"></a>00138 
+<a name="l00139"></a>00139 
+<a name="l00140"></a>00140   <span class="keyword">private</span>:
+<a name="l00141"></a>00141     <a class="code" href="classQCaVariableNamePropertyManager.html" title="Handles variable name sets.">QCaVariableNamePropertyManager</a> variableNamePropertyManager;
+<a name="l00142"></a>00142 
+<a name="l00143"></a>00143   <span class="keyword">private</span> slots:
+<a name="l00144"></a>00144     <span class="keywordtype">void</span> useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> variableIndex );
+<a name="l00145"></a>00145 };
+<a name="l00146"></a>00146 
+<a name="l00147"></a>00147 <span class="preprocessor">#endif /// QCALABELPLUGIN_H</span>
 </pre></div></div>
 </div>
 <!--- window showing the filter options -->
@@ -178,7 +213,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

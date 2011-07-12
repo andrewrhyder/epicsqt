@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -61,6 +62,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#properties">Properties</a>  </div>
   <div class="headertitle">
@@ -88,32 +90,95 @@ Inheritance diagram for QCaPlotPlugin:</div>
 
 <p><a href="classQCaPlotPlugin-members.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>TraceStyles</b> { <b>Lines</b> =  QwtPlotCurve::Lines, 
+<b>Sticks</b> =  QwtPlotCurve::Sticks, 
+<b>Steps</b> =  QwtPlotCurve::Steps, 
+<b>Dots</b> =  QwtPlotCurve::Dots
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaPlotPlugin.html#a8ab42d07c4b26cbe97b2175052bf210c">QCaPlotPlugin</a> (QWidget *parent=0)</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructors.  <a href="#a8ab42d07c4b26cbe97b2175052bf210c"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ab42d07c4b26cbe97b2175052bf210c"></a><!-- doxytag: member="QCaPlotPlugin::QCaPlotPlugin" ref="a8ab42d07c4b26cbe97b2175052bf210c" args="(QWidget *parent=0)" -->
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaPlotPlugin.html#a8ab42d07c4b26cbe97b2175052bf210c">QCaPlotPlugin</a> (QWidget *parent=0)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructors. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abcdd48f42ca4ff673512cb96e656afca"></a><!-- doxytag: member="QCaPlotPlugin::QCaPlotPlugin" ref="abcdd48f42ca4ff673512cb96e656afca" args="(QString variableName, QWidget *parent=0)" -->
 &#160;</td><td class="memItemRight" valign="bottom"><b>QCaPlotPlugin</b> (QString variableName, QWidget *parent=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa2c651a9efb67c519e70d77a5506b64"></a><!-- doxytag: member="QCaPlotPlugin::setVariableNameProperty" ref="afa2c651a9efb67c519e70d77a5506b64" args="(QString variableName)" -->
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableNameProperty</b> (QString variableName)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ada5d7a1da107e32fb133720eed51952a"></a><!-- doxytag: member="QCaPlotPlugin::getVariableNameProperty" ref="ada5d7a1da107e32fb133720eed51952a" args="()" -->
-QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableNameProperty</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a05a6741fdb132c02d772994f279815ef"></a><!-- doxytag: member="QCaPlotPlugin::setVariableName1Property" ref="a05a6741fdb132c02d772994f279815ef" args="(QString variable1Name)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableName1Property</b> (QString variable1Name)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d5b185b3aad41a66b34bafd568bcf22"></a><!-- doxytag: member="QCaPlotPlugin::getVariableName1Property" ref="a0d5b185b3aad41a66b34bafd568bcf22" args="()" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableName1Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35725149ccafb3e43413a099634c5dd0"></a><!-- doxytag: member="QCaPlotPlugin::setVariableName2Property" ref="a35725149ccafb3e43413a099634c5dd0" args="(QString variable2Name)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableName2Property</b> (QString variable2Name)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a90b6ce7b6864fc7f95d0d3130025507c"></a><!-- doxytag: member="QCaPlotPlugin::getVariableName2Property" ref="a90b6ce7b6864fc7f95d0d3130025507c" args="()" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableName2Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58b598c00c0e7758456f92c93b1c5c16"></a><!-- doxytag: member="QCaPlotPlugin::setVariableName3Property" ref="a58b598c00c0e7758456f92c93b1c5c16" args="(QString variable3Name)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableName3Property</b> (QString variable3Name)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9afbe4c1c55ba98e445249023b9ef12d"></a><!-- doxytag: member="QCaPlotPlugin::getVariableName3Property" ref="a9afbe4c1c55ba98e445249023b9ef12d" args="()" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableName3Property</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a197f60da843886dc86291b361e9625e8"></a><!-- doxytag: member="QCaPlotPlugin::setVariableName4Property" ref="a197f60da843886dc86291b361e9625e8" args="(QString variable4Name)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableName4Property</b> (QString variable4Name)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25ea493cc0916e7603e3f2cda7c3c6fd"></a><!-- doxytag: member="QCaPlotPlugin::getVariableName4Property" ref="a25ea493cc0916e7603e3f2cda7c3c6fd" args="()" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableName4Property</b> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66121eba44ba0a505f219a88dc6ed814"></a><!-- doxytag: member="QCaPlotPlugin::setVariableNameSubstitutionsProperty" ref="a66121eba44ba0a505f219a88dc6ed814" args="(QString variableNameSubstitutions)" -->
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableNameSubstitutionsProperty</b> (QString variableNameSubstitutions)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3021489f95ad518f696868e34535f51d"></a><!-- doxytag: member="QCaPlotPlugin::getVariableNameSubstitutionsProperty" ref="a3021489f95ad518f696868e34535f51d" args="()" -->
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableNameSubstitutionsProperty</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a60e2c280332744863220739b7326ce61"></a><!-- doxytag: member="QCaPlotPlugin::setTraceStyle1" ref="a60e2c280332744863220739b7326ce61" args="(TraceStyles traceStyle)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setTraceStyle1</b> (TraceStyles traceStyle)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad846db7d771cc5f501f10e39470a33a0"></a><!-- doxytag: member="QCaPlotPlugin::setTraceStyle2" ref="ad846db7d771cc5f501f10e39470a33a0" args="(TraceStyles traceStyle)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setTraceStyle2</b> (TraceStyles traceStyle)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a112bd9082cc3580b8b5e4c2a31d6dc1c"></a><!-- doxytag: member="QCaPlotPlugin::setTraceStyle3" ref="a112bd9082cc3580b8b5e4c2a31d6dc1c" args="(TraceStyles traceStyle)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setTraceStyle3</b> (TraceStyles traceStyle)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac13d15d89132ee618eb9c08ba4e5f22e"></a><!-- doxytag: member="QCaPlotPlugin::setTraceStyle4" ref="ac13d15d89132ee618eb9c08ba4e5f22e" args="(TraceStyles traceStyle)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setTraceStyle4</b> (TraceStyles traceStyle)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a212aa7d563a90408ffdf4c2cf83a3885"></a><!-- doxytag: member="QCaPlotPlugin::getTraceStyle1" ref="a212aa7d563a90408ffdf4c2cf83a3885" args="()" -->
+TraceStyles&#160;</td><td class="memItemRight" valign="bottom"><b>getTraceStyle1</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8822d19ca188ed81fe94c204fdd7d234"></a><!-- doxytag: member="QCaPlotPlugin::getTraceStyle2" ref="a8822d19ca188ed81fe94c204fdd7d234" args="()" -->
+TraceStyles&#160;</td><td class="memItemRight" valign="bottom"><b>getTraceStyle2</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a121d4e1cf7b2310d906a8fcdf6824e98"></a><!-- doxytag: member="QCaPlotPlugin::getTraceStyle3" ref="a121d4e1cf7b2310d906a8fcdf6824e98" args="()" -->
+TraceStyles&#160;</td><td class="memItemRight" valign="bottom"><b>getTraceStyle3</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4f086b94186192b7d660f58ed3017811"></a><!-- doxytag: member="QCaPlotPlugin::getTraceStyle4" ref="a4f086b94186192b7d660f58ed3017811" args="()" -->
+TraceStyles&#160;</td><td class="memItemRight" valign="bottom"><b>getTraceStyle4</b> ()</td></tr>
 <tr><td colspan="2"><h2><a name="properties"></a>
 Properties</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d1726817693679b3e2e65960fd5ea54"></a><!-- doxytag: member="QCaPlotPlugin::variable" ref="a4d1726817693679b3e2e65960fd5ea54" args="" -->
-QString&#160;</td><td class="memItemRight" valign="bottom"><b>variable</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a760efc7b063270dd8c67af85288b2a06"></a><!-- doxytag: member="QCaPlotPlugin::variable1" ref="a760efc7b063270dd8c67af85288b2a06" args="" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>variable1</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a01c9caeca563d9c862f1212b43dca09a"></a><!-- doxytag: member="QCaPlotPlugin::variable2" ref="a01c9caeca563d9c862f1212b43dca09a" args="" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>variable2</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a3182d715e79f3199c3ecdce3a43bc2"></a><!-- doxytag: member="QCaPlotPlugin::variable3" ref="a0a3182d715e79f3199c3ecdce3a43bc2" args="" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>variable3</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d2033c5f191821cd3d01470e0b36a3b"></a><!-- doxytag: member="QCaPlotPlugin::variable4" ref="a8d2033c5f191821cd3d01470e0b36a3b" args="" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>variable4</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9196189b4557cec74091ef8bccd36a8d"></a><!-- doxytag: member="QCaPlotPlugin::variableSubstitutions" ref="a9196189b4557cec74091ef8bccd36a8d" args="" -->
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>variableSubstitutions</b></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a55365489a0400f4ecb796e1b4a9fce7e"></a><!-- doxytag: member="QCaPlotPlugin::subscribe" ref="a55365489a0400f4ecb796e1b4a9fce7e" args="" -->
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaPlotPlugin.html#a55365489a0400f4ecb796e1b4a9fce7e">subscribe</a></td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the number of variables that will stream data updates to the widget. Default of 1 if not called. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aebcfd3e609a8cee6e7a71433e934d2ae"></a><!-- doxytag: member="QCaPlotPlugin::variableAsToolTip" ref="aebcfd3e609a8cee6e7a71433e934d2ae" args="" -->
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaPlotPlugin.html#aebcfd3e609a8cee6e7a71433e934d2ae">variableAsToolTip</a></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag if data updates should be requested. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a62d101771d5b2635a1ae9d6ae4133303"></a><!-- doxytag: member="QCaPlotPlugin::traceColor1" ref="a62d101771d5b2635a1ae9d6ae4133303" args="" -->
+QColor&#160;</td><td class="memItemRight" valign="bottom"><b>traceColor1</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff19cd11f0b45c2768887e8e49a3abd4"></a><!-- doxytag: member="QCaPlotPlugin::traceColor2" ref="aff19cd11f0b45c2768887e8e49a3abd4" args="" -->
+QColor&#160;</td><td class="memItemRight" valign="bottom"><b>traceColor2</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e4f282b56db1748ac5d2805aab911fe"></a><!-- doxytag: member="QCaPlotPlugin::traceColor3" ref="a1e4f282b56db1748ac5d2805aab911fe" args="" -->
+QColor&#160;</td><td class="memItemRight" valign="bottom"><b>traceColor3</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab05e6f9f83181633ade8210fd9531394"></a><!-- doxytag: member="QCaPlotPlugin::traceColor4" ref="ab05e6f9f83181633ade8210fd9531394" args="" -->
+QColor&#160;</td><td class="memItemRight" valign="bottom"><b>traceColor4</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25e62ed4329fa97162dcbfae11a4787b"></a><!-- doxytag: member="QCaPlotPlugin::traceStyle1" ref="a25e62ed4329fa97162dcbfae11a4787b" args="" -->
+TraceStyles&#160;</td><td class="memItemRight" valign="bottom"><b>traceStyle1</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac461742074995c803149a0b2c7969d44"></a><!-- doxytag: member="QCaPlotPlugin::traceStyle2" ref="ac461742074995c803149a0b2c7969d44" args="" -->
+TraceStyles&#160;</td><td class="memItemRight" valign="bottom"><b>traceStyle2</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d3578ad464ce66a46fa07b7a77e9728"></a><!-- doxytag: member="QCaPlotPlugin::traceStyle3" ref="a6d3578ad464ce66a46fa07b7a77e9728" args="" -->
+TraceStyles&#160;</td><td class="memItemRight" valign="bottom"><b>traceStyle3</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6586ca5231ee4593ddbeaa823607baf4"></a><!-- doxytag: member="QCaPlotPlugin::traceStyle4" ref="a6586ca5231ee4593ddbeaa823607baf4" args="" -->
+TraceStyles&#160;</td><td class="memItemRight" valign="bottom"><b>traceStyle4</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0c2687276e06d082ece1ddb82476880b"></a><!-- doxytag: member="QCaPlotPlugin::traceLegend1" ref="a0c2687276e06d082ece1ddb82476880b" args="" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>traceLegend1</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2edb5dfbf70942a199c8f97d6f3d31bf"></a><!-- doxytag: member="QCaPlotPlugin::traceLegend2" ref="a2edb5dfbf70942a199c8f97d6f3d31bf" args="" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>traceLegend2</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a03935adebe2b3d084d2efb78fb0b0457"></a><!-- doxytag: member="QCaPlotPlugin::traceLegend3" ref="a03935adebe2b3d084d2efb78fb0b0457" args="" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>traceLegend3</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d619fdbecc5798f5614d7e9f4598370"></a><!-- doxytag: member="QCaPlotPlugin::traceLegend4" ref="a1d619fdbecc5798f5614d7e9f4598370" args="" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>traceLegend4</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a291d779aa9c6c802b0afda707a5edd2e"></a><!-- doxytag: member="QCaPlotPlugin::yMin" ref="a291d779aa9c6c802b0afda707a5edd2e" args="" -->
 double&#160;</td><td class="memItemRight" valign="bottom"><b>yMin</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af699e48f40b5196e8a84f0f30b66281c"></a><!-- doxytag: member="QCaPlotPlugin::yMax" ref="af699e48f40b5196e8a84f0f30b66281c" args="" -->
@@ -124,14 +189,22 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>autoScale</b></td></t
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>axisEnableX</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a311b4b258deb81d294e726e6230cdbd2"></a><!-- doxytag: member="QCaPlotPlugin::axisEnableY" ref="a311b4b258deb81d294e726e6230cdbd2" args="" -->
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>axisEnableY</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47169532f6283116d2ff55a0aa94a3e7"></a><!-- doxytag: member="QCaPlotPlugin::gridEnableMajorX" ref="a47169532f6283116d2ff55a0aa94a3e7" args="" -->
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>gridEnableMajorX</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a290622ae9a26d174439818ecd0b21cae"></a><!-- doxytag: member="QCaPlotPlugin::gridEnableMajorY" ref="a290622ae9a26d174439818ecd0b21cae" args="" -->
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>gridEnableMajorY</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a987418ab3cdcb613c37f4d9442452bfb"></a><!-- doxytag: member="QCaPlotPlugin::gridEnableMinorX" ref="a987418ab3cdcb613c37f4d9442452bfb" args="" -->
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>gridEnableMinorX</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b1b33aa97e7bac1a138d6f6870aac73"></a><!-- doxytag: member="QCaPlotPlugin::gridEnableMinorY" ref="a5b1b33aa97e7bac1a138d6f6870aac73" args="" -->
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>gridEnableMinorY</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aecf4385a0a084f9847e93ee6183e55e0"></a><!-- doxytag: member="QCaPlotPlugin::gridMajorColor" ref="aecf4385a0a084f9847e93ee6183e55e0" args="" -->
+QColor&#160;</td><td class="memItemRight" valign="bottom"><b>gridMajorColor</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa205f29793d3d4b632a1ade0ab291a13"></a><!-- doxytag: member="QCaPlotPlugin::gridMinorColor" ref="aa205f29793d3d4b632a1ade0ab291a13" args="" -->
+QColor&#160;</td><td class="memItemRight" valign="bottom"><b>gridMinorColor</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a90eeefb950b340eeb8392251d4d360ca"></a><!-- doxytag: member="QCaPlotPlugin::title" ref="a90eeefb950b340eeb8392251d4d360ca" args="" -->
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>title</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e633cf016c7b346749befa756b54976"></a><!-- doxytag: member="QCaPlotPlugin::backgroundColor" ref="a1e633cf016c7b346749befa756b54976" args="" -->
 QColor&#160;</td><td class="memItemRight" valign="bottom"><b>backgroundColor</b></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad972e051b908a8914c07b72ca69f0710"></a><!-- doxytag: member="QCaPlotPlugin::traceColor" ref="ad972e051b908a8914c07b72ca69f0710" args="" -->
-QColor&#160;</td><td class="memItemRight" valign="bottom"><b>traceColor</b></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab37e54737fb3033db432a058fd44a234"></a><!-- doxytag: member="QCaPlotPlugin::traceLegend" ref="ab37e54737fb3033db432a058fd44a234" args="" -->
-QString&#160;</td><td class="memItemRight" valign="bottom"><b>traceLegend</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0fb9f1dc2c61108ce53f2d6d0d50345"></a><!-- doxytag: member="QCaPlotPlugin::xUnit" ref="ad0fb9f1dc2c61108ce53f2d6d0d50345" args="" -->
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>xUnit</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0285d8da3259cc497f67ddbc81149c91"></a><!-- doxytag: member="QCaPlotPlugin::yUnit" ref="a0285d8da3259cc497f67ddbc81149c91" args="" -->
@@ -146,42 +219,12 @@ unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>int</b></td></tr>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>CA Plot Widget Plugin for designer. </p>
 <dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>Revision:</b></dt><dd>#2 </dd></dl>
-<dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 11:58:56 </dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>glenn.jackson</dd></dl>
-<dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>Revision:</b></dt><dd>#3 </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 11:58:56 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>glenn.jackson </dd></dl>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a8ab42d07c4b26cbe97b2175052bf210c"></a><!-- doxytag: member="QCaPlotPlugin::QCaPlotPlugin" ref="a8ab42d07c4b26cbe97b2175052bf210c" args="(QWidget *parent=0)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">QCaPlotPlugin::QCaPlotPlugin </td>
-          <td>(</td>
-          <td class="paramtype">QWidget *&#160;</td>
-          <td class="paramname"><em>parent</em> = <code>0</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Constructors. </p>
-<p>??? </p>
-
-<p><p>Set up a connection to recieve variable name property changes The variable name property manager class only delivers an updated variable name after the user has stopped typing </p>
-</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/user/epicsqt/ca_framework/plugins/include/<a class="el" href="QCaPlotPlugin_8h_source.html">QCaPlotPlugin.h</a></li>
-<li>/home/user/epicsqt/ca_framework/plugins/src/QCaPlotPlugin.cpp</li>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li>/home/rhydera/epicsqt/ca_framework/plugins/include/<a class="el" href="QCaPlotPlugin_8h_source.html">QCaPlotPlugin.h</a></li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -198,7 +241,7 @@ unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>int</b></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:43 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

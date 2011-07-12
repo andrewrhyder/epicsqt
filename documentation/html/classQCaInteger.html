@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -87,92 +88,28 @@ Inheritance diagram for QCaInteger:</div>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaInteger.html#a32941fe93ee6f6bc2eee943c7b0fcdf1">writeInteger</a> (const long &amp;data)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a32941fe93ee6f6bc2eee943c7b0fcdf1"></a><!-- doxytag: member="QCaInteger::writeInteger" ref="a32941fe93ee6f6bc2eee943c7b0fcdf1" args="(const long &amp;data)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>writeInteger</b> (const long &amp;data)</td></tr>
 <tr><td colspan="2"><h2><a name="signals"></a>
 Signals</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a000f7ea4ba845ae1f9f665aeb824c61a"></a><!-- doxytag: member="QCaInteger::integerChanged" ref="a000f7ea4ba845ae1f9f665aeb824c61a" args="(const long &amp;value, QCaAlarmInfo &amp;alarmInfo, QCaDateTime &amp;timeStamp, const unsigned int &amp;variableIndex)" -->
 void&#160;</td><td class="memItemRight" valign="bottom"><b>integerChanged</b> (const long &amp;value, <a class="el" href="classQCaAlarmInfo.html">QCaAlarmInfo</a> &amp;alarmInfo, <a class="el" href="classQCaDateTime.html">QCaDateTime</a> &amp;timeStamp, const unsigned int &amp;variableIndex)</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaInteger.html#a71fd82cfb405d05c07f0ebaf5c3cc571">QCaInteger</a> (QString recordName, QObject *eventObject, <a class="el" href="classQCaIntegerFormatting.html">QCaIntegerFormatting</a> *integerFormattingIn, unsigned int variableIndexIn)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a71fd82cfb405d05c07f0ebaf5c3cc571"></a><!-- doxytag: member="QCaInteger::QCaInteger" ref="a71fd82cfb405d05c07f0ebaf5c3cc571" args="(QString recordName, QObject *eventObject, QCaIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn)" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>QCaInteger</b> (QString recordName, QObject *eventObject, <a class="el" href="classQCaIntegerFormatting.html">QCaIntegerFormatting</a> *integerFormattingIn, unsigned int variableIndexIn)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa118d99c2918bf832ebfbf554941e0ce"></a><!-- doxytag: member="QCaInteger::QCaInteger" ref="aa118d99c2918bf832ebfbf554941e0ce" args="(QString recordName, QObject *eventObject, QCaIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn, UserMessage *userMessageIn)" -->
 &#160;</td><td class="memItemRight" valign="bottom"><b>QCaInteger</b> (QString recordName, QObject *eventObject, <a class="el" href="classQCaIntegerFormatting.html">QCaIntegerFormatting</a> *integerFormattingIn, unsigned int variableIndexIn, <a class="el" href="classUserMessage.html">UserMessage</a> *userMessageIn)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Integer specific wrapper for <a class="el" href="classQCaObject.html" title="Provides channel access to QT.">QCaObject</a>. </p>
 <dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>Revision:</b></dt><dd>#5 </dd></dl>
-<dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/06/23 07:49:40 </dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder</dd></dl>
-<dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>Revision:</b></dt><dd>#6 </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 13:16:04 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder </dd></dl>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a71fd82cfb405d05c07f0ebaf5c3cc571"></a><!-- doxytag: member="QCaInteger::QCaInteger" ref="a71fd82cfb405d05c07f0ebaf5c3cc571" args="(QString recordName, QObject *eventObject, QCaIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">QCaInteger::QCaInteger </td>
-          <td>(</td>
-          <td class="paramtype">QString&#160;</td>
-          <td class="paramname"><em>recordName</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">QObject *&#160;</td>
-          <td class="paramname"><em>eventObject</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classQCaIntegerFormatting.html">QCaIntegerFormatting</a> *&#160;</td>
-          <td class="paramname"><em>integerFormattingIn</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>variableIndexIn</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>??? </p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a32941fe93ee6f6bc2eee943c7b0fcdf1"></a><!-- doxytag: member="QCaInteger::writeInteger" ref="a32941fe93ee6f6bc2eee943c7b0fcdf1" args="(const long &amp;data)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaInteger::writeInteger </td>
-          <td>(</td>
-          <td class="paramtype">const long &amp;&#160;</td>
-          <td class="paramname"><em>data</em></td><td>)</td>
-          <td><code> [slot]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Take a new integer value and write it to the database. The type of data formatted (text, floating, integer, etc) will be determined by the record data type, How the integer is parsed will be determined by the integer formatting. For example, integer to string may require always including a sign. </p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/user/epicsqt/ca_framework/data/include/<a class="el" href="QCaInteger_8h_source.html">QCaInteger.h</a></li>
-<li>/home/user/epicsqt/ca_framework/data/src/QCaInteger.cpp</li>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li>/home/rhydera/epicsqt/ca_framework/data/include/<a class="el" href="QCaInteger_8h_source.html">QCaInteger.h</a></li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -189,7 +126,7 @@ Public Member Functions</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

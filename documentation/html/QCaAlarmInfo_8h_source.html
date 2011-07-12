@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>EPICS QT Framework: /home/user/epicsqt/ca_framework/data/include/QCaAlarmInfo.h Source File</title>
+<title>EPICS QT Framework: /home/rhydera/epicsqt/ca_framework/data/include/QCaAlarmInfo.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -57,7 +58,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 <div class="header">
   <div class="headertitle">
-<h1>/home/user/epicsqt/ca_framework/data/include/QCaAlarmInfo.h</h1>  </div>
+<h1>/home/rhydera/epicsqt/ca_framework/data/include/QCaAlarmInfo.h</h1>  </div>
 </div>
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
@@ -95,18 +96,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00039"></a><a class="code" href="classQCaAlarmInfo.html">00039</a> <span class="keyword">class </span><a class="code" href="classQCaAlarmInfo.html">QCaAlarmInfo</a>
 <a name="l00040"></a>00040 {
 <a name="l00041"></a>00041 <span class="keyword">public</span>:
-<a name="l00042"></a>00042     <a class="code" href="classQCaAlarmInfo.html#afbbd99888af9a5c40f38c28108287c6d">QCaAlarmInfo</a>();
-<a name="l00043"></a>00043     <a class="code" href="classQCaAlarmInfo.html#afbbd99888af9a5c40f38c28108287c6d">QCaAlarmInfo</a>( <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> statusIn, <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> severityIn );
+<a name="l00042"></a>00042     <a class="code" href="classQCaAlarmInfo.html">QCaAlarmInfo</a>();
+<a name="l00043"></a>00043     <a class="code" href="classQCaAlarmInfo.html">QCaAlarmInfo</a>( <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> statusIn, <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> severityIn );
 <a name="l00044"></a>00044 
-<a name="l00045"></a>00045     QString <a class="code" href="classQCaAlarmInfo.html#aecc601594126abffadc2f74706353d44">statusName</a>();       <span class="comment">// Return the name of the current alarm state</span>
-<a name="l00046"></a>00046     QString <a class="code" href="classQCaAlarmInfo.html#adee9ec5d24b85ab937b0e5f6ffaebd38">severityName</a>();     <span class="comment">// Return the name of the current alarm severity</span>
-<a name="l00047"></a>00047     <span class="keywordtype">bool</span> <a class="code" href="classQCaAlarmInfo.html#aef9379084c6b7fd2ec24cfdc9dae1513">isInAlarm</a>();           <span class="comment">// Return true if there is an alarm</span>
-<a name="l00048"></a>00048     <span class="keywordtype">bool</span> <a class="code" href="classQCaAlarmInfo.html#a0724727bcb3af4d6942311e00dc1ed14">isMinor</a>();             <span class="comment">// Return true if there is a minor alarm</span>
-<a name="l00049"></a>00049     <span class="keywordtype">bool</span> <a class="code" href="classQCaAlarmInfo.html#aa6dd174ce35e8b4f0f6f848b43c81dd7">isMajor</a>();             <span class="comment">// Return true if there is a major alarm</span>
-<a name="l00050"></a>00050     <span class="keywordtype">bool</span> <a class="code" href="classQCaAlarmInfo.html#abf75dcd9ace98f74bede7cd4b01825b0">isInvalid</a>();           <span class="comment">// Return true if there is an invalid alarm</span>
-<a name="l00051"></a>00051     QString <a class="code" href="classQCaAlarmInfo.html#ad4e747b8adb3eaf72d5e521663f5ff60">style</a>();            <span class="comment">// Return a style string to update the widget&#39;s look to reflect the current alarm state</span>
-<a name="l00052"></a>00052     <span class="keyword">static</span> QCAALARMINFO_SEVERITY <a class="code" href="classQCaAlarmInfo.html#a5f011c5378d7c95476d9bf94788b808c">getInvalidSeverity</a>(); <span class="comment">// Return a severity that will not match any valid severity</span>
-<a name="l00053"></a>00053     QCAALARMINFO_SEVERITY <a class="code" href="classQCaAlarmInfo.html#af5441aaf2ac053d2b6b8e03dd950c9ed">getSeverity</a>(); <span class="comment">// Return the current severity</span>
+<a name="l00045"></a>00045     QString statusName();       <span class="comment">// Return the name of the current alarm state</span>
+<a name="l00046"></a>00046     QString severityName();     <span class="comment">// Return the name of the current alarm severity</span>
+<a name="l00047"></a>00047     <span class="keywordtype">bool</span> isInAlarm();           <span class="comment">// Return true if there is an alarm</span>
+<a name="l00048"></a>00048     <span class="keywordtype">bool</span> isMinor();             <span class="comment">// Return true if there is a minor alarm</span>
+<a name="l00049"></a>00049     <span class="keywordtype">bool</span> isMajor();             <span class="comment">// Return true if there is a major alarm</span>
+<a name="l00050"></a>00050     <span class="keywordtype">bool</span> isInvalid();           <span class="comment">// Return true if there is an invalid alarm</span>
+<a name="l00051"></a>00051     QString style();            <span class="comment">// Return a style string to update the widget&#39;s look to reflect the current alarm state</span>
+<a name="l00052"></a>00052     <span class="keyword">static</span> QCAALARMINFO_SEVERITY getInvalidSeverity(); <span class="comment">// Return a severity that will not match any valid severity</span>
+<a name="l00053"></a>00053     QCAALARMINFO_SEVERITY getSeverity(); <span class="comment">// Return the current severity</span>
 <a name="l00054"></a>00054 
 <a name="l00055"></a>00055 <span class="keyword">private</span>:
 <a name="l00056"></a>00056     <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> status;      <span class="comment">// Alarm state</span>
@@ -132,7 +133,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

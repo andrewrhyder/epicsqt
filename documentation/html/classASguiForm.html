@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -71,7 +72,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="contents">
 <!-- doxytag: class="ASguiForm" -->
-<p>Form containing widgets, including QCa widgets, read from a UI file.  
+<p>A base form GUI.  
 <a href="#_details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="ASguiForm_8h_source.html">ASguiForm.h</a>&gt;</code></p>
@@ -97,24 +98,24 @@ Public Types</h2></td></tr>
 Public Slots</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae13e1f632cd7f17e572dfdef0c3bb321"></a><!-- doxytag: member="ASguiForm::requestEnabled" ref="ae13e1f632cd7f17e572dfdef0c3bb321" args="(const bool &amp;state)" -->
 void&#160;</td><td class="memItemRight" valign="bottom"><b>requestEnabled</b> (const bool &amp;state)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classASguiForm.html#ad80178c422128c6fa60520ef6f1ace78">readUiFile</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad80178c422128c6fa60520ef6f1ace78"></a><!-- doxytag: member="ASguiForm::readUiFile" ref="ad80178c422128c6fa60520ef6f1ace78" args="()" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>readUiFile</b> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a639e62861ddcc207f85b3fa8c453078b"></a><!-- doxytag: member="ASguiForm::onGeneralMessage" ref="a639e62861ddcc207f85b3fa8c453078b" args="(QString message)" -->
 void&#160;</td><td class="memItemRight" valign="bottom"><b>onGeneralMessage</b> (QString message)</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classASguiForm.html#ab5f288f7cd2399f5de538ebf938d2981">ASguiForm</a> (QWidget *parent=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classASguiForm.html#a7d1255ed1e4344166072e38aa0bd4450">ASguiForm</a> (const QString &amp;uifileNameIn, QWidget *parent=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5f288f7cd2399f5de538ebf938d2981"></a><!-- doxytag: member="ASguiForm::ASguiForm" ref="ab5f288f7cd2399f5de538ebf938d2981" args="(QWidget *parent=0)" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASguiForm</b> (QWidget *parent=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7d1255ed1e4344166072e38aa0bd4450"></a><!-- doxytag: member="ASguiForm::ASguiForm" ref="a7d1255ed1e4344166072e38aa0bd4450" args="(const QString &amp;uifileNameIn, QWidget *parent=0)" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASguiForm</b> (const QString &amp;uifileNameIn, QWidget *parent=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae5d744287e5f3d567382df791921a09d"></a><!-- doxytag: member="ASguiForm::commonInit" ref="ae5d744287e5f3d567382df791921a09d" args="(const bool alertIfUINoFoundIn)" -->
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classASguiForm.html#ae5d744287e5f3d567382df791921a09d">commonInit</a> (const bool alertIfUINoFoundIn)</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Common construction. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a93f5944b9157b3060d87849ca5271292"></a><!-- doxytag: member="ASguiForm::~ASguiForm" ref="a93f5944b9157b3060d87849ca5271292" args="()" -->
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classASguiForm.html#a93f5944b9157b3060d87849ca5271292">~ASguiForm</a> ()</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. <br/></td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>commonInit</b> (const bool alertIfUINoFoundIn)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac178899464f989256bc34e24e100f2e6"></a><!-- doxytag: member="ASguiForm::getASGuiTitle" ref="ac178899464f989256bc34e24e100f2e6" args="()" -->
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>getASGuiTitle</b> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca3ea99619c9bde7e217c00d04a3bf3f"></a><!-- doxytag: member="ASguiForm::getGuiFileName" ref="aca3ea99619c9bde7e217c00d04a3bf3f" args="()" -->
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>getGuiFileName</b> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classASguiForm.html#aff5ee095e858881960d7ee2e07cc6b18">setVariableNameAndSubstitutions</a> (QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff5ee095e858881960d7ee2e07cc6b18"></a><!-- doxytag: member="ASguiForm::setVariableNameAndSubstitutions" ref="aff5ee095e858881960d7ee2e07cc6b18" args="(QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableNameAndSubstitutions</b> (QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc0432e3ac64806972b6468b3bfabb5a"></a><!-- doxytag: member="ASguiForm::setUiFileName" ref="abc0432e3ac64806972b6468b3bfabb5a" args="(QString uiFile)" -->
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setUiFileName</b> (QString uiFile)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5dafcd74e166dbc4a606192e234188f9"></a><!-- doxytag: member="ASguiForm::getUiFileName" ref="a5dafcd74e166dbc4a606192e234188f9" args="()" -->
@@ -126,8 +127,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>getHandleGuiLaunchReq
 <tr><td colspan="2"><h2><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa516fb471fc7e07ec953a52946c593d3"></a><!-- doxytag: member="ASguiForm::setVariableNameSubstitutions" ref="aa516fb471fc7e07ec953a52946c593d3" args="(QString variableNameSubstitutionsIn)" -->
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classASguiForm.html#aa516fb471fc7e07ec953a52946c593d3">setVariableNameSubstitutions</a> (QString variableNameSubstitutionsIn)</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the variable name substitutions used by all QCa widgets wihtin the form. <br/></td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableNameSubstitutions</b> (QString variableNameSubstitutionsIn)</td></tr>
 <tr><td colspan="2"><h2><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e8fb30c9a5b5bf9998ee081b7c6d3bc"></a><!-- doxytag: member="ASguiForm::uiFileName" ref="a2e8fb30c9a5b5bf9998ee081b7c6d3bc" args="" -->
@@ -136,135 +136,14 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>uiFileName</b></td
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>handleGuiLaunchRequests</b></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Form containing widgets, including QCa widgets, read from a UI file. </p>
-<p>A base form GUI.</p>
-<dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>Revision:</b></dt><dd>#12 </dd></dl>
-<dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
-<dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 11:58:56 </dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder</dd></dl>
+<div class="textblock"><p>A base form GUI. </p>
 <dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>Revision:</b></dt><dd>#10 </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/09/06 13:16:04 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder </dd></dl>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="ab5f288f7cd2399f5de538ebf938d2981"></a><!-- doxytag: member="ASguiForm::ASguiForm" ref="ab5f288f7cd2399f5de538ebf938d2981" args="(QWidget *parent=0)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">ASguiForm::ASguiForm </td>
-          <td>(</td>
-          <td class="paramtype">QWidget *&#160;</td>
-          <td class="paramname"><em>parent</em> = <code>0</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>This class is used as a container for QCa widgets.</p>
-<p>It adds any variable name macro substitutions to the current environment profile, creates a form widget and reads a UI file which can contain QCa widgets.</p>
-<p>As QCa widgets are created, they note the current environment profile, including variable name substitutions. QCa widgets also register themselves with this class so this class can activate them once they are fully created. QCa widgets can't activate themselves. The Qt form loader creates each widget and calls the appropriate property functions to set it up. The widget itself does not know what properties are going to be set and when they have all been set. For this reason the QCa widgets don't know when to request CA data. Both variable name properties and variable name substitution properties must be set up to request data and other properties may need to be set up before udates can be used.</p>
-<p>This class can be used directly (within a GUI application) as the top level form, or as a base class for the <a class="el" href="classASguiFormPlugin.html" title="Wrapper around ASguiForm to make it a Qt Designer Plugin.">ASguiFormPlugin</a> class. The <a class="el" href="classASguiFormPlugin.html" title="Wrapper around ASguiForm to make it a Qt Designer Plugin.">ASguiFormPlugin</a> plugin class is used to store a gui form in a UI file. Constructor. No UI file is read. uiFileName must be set and then <a class="el" href="classASguiForm.html#ad80178c422128c6fa60520ef6f1ace78">readUiFile()</a> called after construction </p>
-
-</div>
-</div>
-<a class="anchor" id="a7d1255ed1e4344166072e38aa0bd4450"></a><!-- doxytag: member="ASguiForm::ASguiForm" ref="a7d1255ed1e4344166072e38aa0bd4450" args="(const QString &amp;uifileNameIn, QWidget *parent=0)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">ASguiForm::ASguiForm </td>
-          <td>(</td>
-          <td class="paramtype">const QString &amp;&#160;</td>
-          <td class="paramname"><em>uiFileNameIn</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">QWidget *&#160;</td>
-          <td class="paramname"><em>parent</em> = <code>0</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Constructor. UI filename is supplied and UI file is read as part of construction. </p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ad80178c422128c6fa60520ef6f1ace78"></a><!-- doxytag: member="ASguiForm::readUiFile" ref="ad80178c422128c6fa60520ef6f1ace78" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ASguiForm::readUiFile </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td><code> [slot]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p><p>Set up the environment profile for any QCa widgets created by the form</p>
-<p>!!??? currently not working. profile not set up yet so user messages can't be displayed this early perhaps</p>
-<p>Ensure no other files are being monitored (belt and braces)</p>
-<p>Monitor the opened file</p>
-<p>Extract the file name part used for the window title</p>
-<p>Load the gui</p>
-<p>Any QCa widgets that have just been created need to be activated. Note, this is only required when QCa widgets are not loaded within a form and not directly by 'designer'. When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either the variable name or variable name substitution properties are set</p>
-<p>Present the gui to the user</p>
-<p>If this form is handling form launch requests from object created within it, put back any original form launcher now all objects have been created </p>
-</p>
-
-</div>
-</div>
-<a class="anchor" id="aff5ee095e858881960d7ee2e07cc6b18"></a><!-- doxytag: member="ASguiForm::setVariableNameAndSubstitutions" ref="aff5ee095e858881960d7ee2e07cc6b18" args="(QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ASguiForm::setVariableNameAndSubstitutions </td>
-          <td>(</td>
-          <td class="paramtype">QString&#160;</td>
-          <td class="paramname"><em>variableNameIn</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">QString&#160;</td>
-          <td class="paramname"><em>variableNameSubstitutionsIn</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>variableIndex</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p><p>Set new variable name substitutions </p>
-</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/user/epicsqt/ca_framework/widgets/include/<a class="el" href="ASguiForm_8h_source.html">ASguiForm.h</a></li>
-<li>/home/user/epicsqt/ca_framework/widgets/src/ASguiForm.cpp</li>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li>/home/rhydera/epicsqt/ca_framework/widgets/include/<a class="el" href="ASguiForm_8h_source.html">ASguiForm.h</a></li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -281,7 +160,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>handleGuiLaunchReques
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -68,7 +69,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="contents">
 <!-- doxytag: class="QCaVariableNamePropertyManager" -->
-<p>Handles user manipulation of variable name sets and associated macro substitutions.  
+<p>Handles variable name sets.  
 <a href="#_details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="QCaVariableNamePropertyManager_8h_source.html">QCaVariableNamePropertyManager.h</a>&gt;</code></p>
@@ -81,141 +82,26 @@ Signals</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>newVariableNameProperty</b> (QString variable, QString Substitutions, unsigned int variableIndex)</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaVariableNamePropertyManager.html#a8f4db233eee4ebe03617b68903be9d0d">QCaVariableNamePropertyManager</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaVariableNamePropertyManager.html#ac284e8d6f09e8111edad88389f9b861a">getVariableNameProperty</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaVariableNamePropertyManager.html#a3207418f259b69422cfaa2ababa594ba">setVariableNameProperty</a> (QString variableNamePropertyIn)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaVariableNamePropertyManager.html#a022d4dc9da0944490c23acc2730ba03c">getSubstitutionsProperty</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaVariableNamePropertyManager.html#a7f0a15766eccf9a886abd8a494a665d7">setSubstitutionsProperty</a> (QString substitutionsPropertyIn)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCaVariableNamePropertyManager.html#a90a3e84be54e7d56d875b23310c44e0a">setVariableIndex</a> (unsigned int variableIndexIn)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac284e8d6f09e8111edad88389f9b861a"></a><!-- doxytag: member="QCaVariableNamePropertyManager::getVariableNameProperty" ref="ac284e8d6f09e8111edad88389f9b861a" args="()" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>getVariableNameProperty</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3207418f259b69422cfaa2ababa594ba"></a><!-- doxytag: member="QCaVariableNamePropertyManager::setVariableNameProperty" ref="a3207418f259b69422cfaa2ababa594ba" args="(QString variableNamePropertyIn)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableNameProperty</b> (QString variableNamePropertyIn)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a022d4dc9da0944490c23acc2730ba03c"></a><!-- doxytag: member="QCaVariableNamePropertyManager::getSubstitutionsProperty" ref="a022d4dc9da0944490c23acc2730ba03c" args="()" -->
+QString&#160;</td><td class="memItemRight" valign="bottom"><b>getSubstitutionsProperty</b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7f0a15766eccf9a886abd8a494a665d7"></a><!-- doxytag: member="QCaVariableNamePropertyManager::setSubstitutionsProperty" ref="a7f0a15766eccf9a886abd8a494a665d7" args="(QString substitutionsPropertyIn)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setSubstitutionsProperty</b> (QString substitutionsPropertyIn)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a90a3e84be54e7d56d875b23310c44e0a"></a><!-- doxytag: member="QCaVariableNamePropertyManager::setVariableIndex" ref="a90a3e84be54e7d56d875b23310c44e0a" args="(unsigned int variableIndexIn)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setVariableIndex</b> (unsigned int variableIndexIn)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Handles user manipulation of variable name sets and associated macro substitutions. </p>
-<p>Handles variable name sets.</p>
+<div class="textblock"><p>Handles variable name sets. </p>
 <dl class="version"><dt><b>Version:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>Revision:</b></dt><dd>#3 </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd></dd></dl>
 <dl class="rcs"><dt><b>DateTime:</b></dt><dd>2010/06/23 07:49:40 </dd></dl>
 <dl class="author"><dt><b>Author:</b></dt><dd>andrew.rhyder </dd></dl>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a8f4db233eee4ebe03617b68903be9d0d"></a><!-- doxytag: member="QCaVariableNamePropertyManager::QCaVariableNamePropertyManager" ref="a8f4db233eee4ebe03617b68903be9d0d" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">QCaVariableNamePropertyManager::QCaVariableNamePropertyManager </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Construction </p>
-
-<p><p>Setup a timer so rapid changes to the variable name property are ignored. Only after the user has stopped typing for a while will the entry be used. The timer will be set on the first keystroke and reset with each subsequent keystroke untill the keystrokes stop for longer than the timeout period. Note, timers are not required if there is no user entering variable names of macro substitutions.</p>
-<p>Default to first (and only) variable </p>
-</p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a022d4dc9da0944490c23acc2730ba03c"></a><!-- doxytag: member="QCaVariableNamePropertyManager::getSubstitutionsProperty" ref="a022d4dc9da0944490c23acc2730ba03c" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">QString QCaVariableNamePropertyManager::getSubstitutionsProperty </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return the Variable Name Substitutions property. </p>
-
-</div>
-</div>
-<a class="anchor" id="ac284e8d6f09e8111edad88389f9b861a"></a><!-- doxytag: member="QCaVariableNamePropertyManager::getVariableNameProperty" ref="ac284e8d6f09e8111edad88389f9b861a" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">QString QCaVariableNamePropertyManager::getVariableNameProperty </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return the Variable Name property. </p>
-
-</div>
-</div>
-<a class="anchor" id="a7f0a15766eccf9a886abd8a494a665d7"></a><!-- doxytag: member="QCaVariableNamePropertyManager::setSubstitutionsProperty" ref="a7f0a15766eccf9a886abd8a494a665d7" args="(QString substitutionsPropertyIn)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaVariableNamePropertyManager::setSubstitutionsProperty </td>
-          <td>(</td>
-          <td class="paramtype">QString&#160;</td>
-          <td class="paramname"><em>substitutionsPropertyIn</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Set the Variable Name Substitutions property. This changes with every keystroke. Store the new value but don't subscribe yet. Instead, set a timer that will expire only when changes stop occuring for a while. </p>
-
-<p><p>If the substitutions have changed as a result of a user typing, save them and set (or reset) a timer to complete when changes stop occuring. The timer will signal subscribeDelayExpired() If the change was not interactive, use the change immedietly. </p>
-</p>
-
-</div>
-</div>
-<a class="anchor" id="a90a3e84be54e7d56d875b23310c44e0a"></a><!-- doxytag: member="QCaVariableNamePropertyManager::setVariableIndex" ref="a90a3e84be54e7d56d875b23310c44e0a" args="(unsigned int variableIndexIn)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaVariableNamePropertyManager::setVariableIndex </td>
-          <td>(</td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>variableIndexIn</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Set the variable index. Used when multiple variables can affect an object. </p>
-
-</div>
-</div>
-<a class="anchor" id="a3207418f259b69422cfaa2ababa594ba"></a><!-- doxytag: member="QCaVariableNamePropertyManager::setVariableNameProperty" ref="a3207418f259b69422cfaa2ababa594ba" args="(QString variableNamePropertyIn)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCaVariableNamePropertyManager::setVariableNameProperty </td>
-          <td>(</td>
-          <td class="paramtype">QString&#160;</td>
-          <td class="paramname"><em>variableNamePropertyIn</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Set the Variable Name property This changes with every keystroke. Store the new value but don't subscribe yet. Instead, set a timer that will expire only when changes stop occuring for a while. </p>
-
-<p><p>If the variable name has changed as a result of a user typing, save it and set (or reset) a timer to complete when changes stop occuring. The timer will signal subscribeDelayExpired() If the change was not interactive, use the change immedietly. </p>
-</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/user/epicsqt/ca_framework/data/include/<a class="el" href="QCaVariableNamePropertyManager_8h_source.html">QCaVariableNamePropertyManager.h</a></li>
-<li>/home/user/epicsqt/ca_framework/data/src/QCaVariableNamePropertyManager.cpp</li>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li>/home/rhydera/epicsqt/ca_framework/data/include/<a class="el" href="QCaVariableNamePropertyManager_8h_source.html">QCaVariableNamePropertyManager.h</a></li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -232,7 +118,7 @@ Public Member Functions</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:43 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>EPICS QT Framework: /home/user/epicsqt/ca_framework/widgets/include/QCaLineEdit.h Source File</title>
+<title>EPICS QT Framework: /home/rhydera/epicsqt/ca_framework/widgets/include/QCaLineEdit.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -57,7 +58,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 <div class="header">
   <div class="headertitle">
-<h1>/home/user/epicsqt/ca_framework/widgets/include/QCaLineEdit.h</h1>  </div>
+<h1>/home/rhydera/epicsqt/ca_framework/widgets/include/QCaLineEdit.h</h1>  </div>
 </div>
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
@@ -94,7 +95,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00038"></a>00038 <span class="preprocessor">#include &lt;QCaStringFormatting.h&gt;</span>
 <a name="l00039"></a>00039 <span class="preprocessor">#include &lt;QCaPluginLibrary_global.h&gt;</span>
 <a name="l00040"></a>00040 
-<a name="l00041"></a><a class="code" href="classQCaLineEdit.html">00041</a> <span class="keyword">class </span>QCAPLUGINLIBRARYSHARED_EXPORT <a class="code" href="classQCaLineEdit.html" title="CA Line Edit Widget.">QCaLineEdit</a> : <span class="keyword">public</span> QLineEdit, <span class="keyword">public</span> <a class="code" href="classQCaWidget.html" title="Template for Qt-CA based widgets.">QCaWidget</a> {
+<a name="l00041"></a><a class="code" href="classQCaLineEdit.html">00041</a> <span class="keyword">class </span>QCAPLUGINLIBRARYSHARED_EXPORT <a class="code" href="classQCaLineEdit.html" title="CA Line Edit Widget.">QCaLineEdit</a> : <span class="keyword">public</span> QLineEdit, <span class="keyword">public</span> <a class="code" href="classQCaWidget.html" title="Template for Qt-CA aware widgets.">QCaWidget</a> {
 <a name="l00042"></a>00042     Q_OBJECT
 <a name="l00043"></a>00043 
 <a name="l00044"></a>00044   <span class="keyword">public</span>:
@@ -165,7 +166,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00109"></a>00109 
 <a name="l00110"></a>00110 
 <a name="l00111"></a>00111 <span class="keyword">protected</span>:
-<a name="l00112"></a>00112     <a class="code" href="classQCaStringFormatting.html" title="Format the string for QCaString data.">QCaStringFormatting</a> stringFormatting;   
+<a name="l00112"></a>00112     <a class="code" href="classQCaStringFormatting.html" title="Formats the string for QCaString data.">QCaStringFormatting</a> stringFormatting;   
 <a name="l00113"></a><a class="code" href="classQCaLineEdit.html#a200165d6dce937102330383f833a9060">00113</a>     <span class="keywordtype">bool</span> <a class="code" href="classQCaLineEdit.html#a200165d6dce937102330383f833a9060" title="String formatting options.">writeOnLoseFocus</a>;                  
 <a name="l00114"></a><a class="code" href="classQCaLineEdit.html#a2ab33b8abf4193ce3e4166034647b937">00114</a>     <span class="keywordtype">bool</span> <a class="code" href="classQCaLineEdit.html#a2ab33b8abf4193ce3e4166034647b937" title="Write changed value to database when widget object loses focus (user moves from widget)">writeOnEnter</a>;                      
 <a name="l00115"></a><a class="code" href="classQCaLineEdit.html#ae011c331bbf9170b0240fa5800dc8b8b">00115</a>     <span class="keywordtype">bool</span> <a class="code" href="classQCaLineEdit.html#ae011c331bbf9170b0240fa5800dc8b8b" title="Write changed value to database when enter is pressed with focus on the widget.">localEnabled</a>;                      
@@ -213,7 +214,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>

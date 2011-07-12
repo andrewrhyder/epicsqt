@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>EPICS QT Framework: /home/user/epicsqt/ca_framework/data/include/qepicspv.h Source File</title>
+<title>EPICS QT Framework: /home/rhydera/epicsqt/ca_framework/data/include/qepicspv.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
@@ -19,7 +19,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.4</span></div>
+   <div id="projectname">EPICS QT Framework&#160;<span id="projectnumber">1.1.5</span></div>
    <div id="projectbrief">EPICS aware Qt widgets and CA data access classes</div>
   </td>
  </tr>
@@ -29,6 +29,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -57,7 +58,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 <div class="header">
   <div class="headertitle">
-<h1>/home/user/epicsqt/ca_framework/data/include/qepicspv.h</h1>  </div>
+<h1>/home/rhydera/epicsqt/ca_framework/data/include/qepicspv.h</h1>  </div>
 </div>
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*</span>
@@ -149,13 +150,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00133"></a>00133   <span class="comment">// if this static member is called (directly or inderectly)</span>
 <a name="l00134"></a>00134   <span class="comment">// from whithin a constructor.</span>
 <a name="l00135"></a>00135   <span class="comment">// It has something to do with the threading.</span>
-<a name="l00136"></a>00136   <span class="keyword">const</span> QVariant &amp; <a class="code" href="classQEpicsPV.html#aa66e3560c7eea600befc715295647bd6" title="Returns an updated value of the field.">getUpdated</a>(<span class="keywordtype">int</span> delay=defaultDelay) <span class="keyword">const</span>;
+<a name="l00136"></a>00136   <span class="keyword">const</span> QVariant &amp; <a class="code" href="classQEpicsPV.html#ab96f9531e223a0ed27091c1335801b57" title="Returns an updated value of the field.">getUpdated</a>(<span class="keywordtype">int</span> delay=defaultDelay) <span class="keyword">const</span>;
 <a name="l00137"></a>00137 
 <a name="l00140"></a>00140   <span class="keywordtype">bool</span> <a class="code" href="classQEpicsPV.html#acaaa648d56d3aae9fcd21a0b45cb4e70">isConnected</a>() <span class="keyword">const</span>;
 <a name="l00141"></a>00141 
-<a name="l00144"></a>00144   <span class="keyword">const</span> QStringList &amp; <a class="code" href="classQEpicsPV.html#af4c1963fad08239724f13c9d5375a8fe">getEnum</a>() <span class="keyword">const</span>;
+<a name="l00144"></a>00144   <span class="keyword">const</span> QStringList &amp; <a class="code" href="classQEpicsPV.html#aabcb533fbabbf97cfa9107c493059c9a">getEnum</a>() <span class="keyword">const</span>;
 <a name="l00145"></a>00145 
-<a name="l00148"></a>00148   <span class="keyword">const</span> QString &amp; <a class="code" href="classQEpicsPV.html#a0edc1c812cbb73b0cd929a8ad3e38229">pv</a>() <span class="keyword">const</span> ;
+<a name="l00148"></a>00148   <span class="keyword">const</span> QString &amp; <a class="code" href="classQEpicsPV.html#a92db0b38fcc171ecbdef0b7ec382d4af">pv</a>() <span class="keyword">const</span> ;
 <a name="l00149"></a>00149 
 <a name="l00150"></a>00150 
 <a name="l00164"></a>00164   <span class="comment">// WARNING: BUG</span>
@@ -163,7 +164,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00166"></a>00166   <span class="comment">// if this static member is called (directly or inderectly)</span>
 <a name="l00167"></a>00167   <span class="comment">// from whithin a constructor.</span>
 <a name="l00168"></a>00168   <span class="comment">// It has something to do with the threading.</span>
-<a name="l00169"></a>00169   <span class="keyword">const</span> QVariant &amp; <a class="code" href="classQEpicsPV.html#a2c4b523e6bf14f88b1e7996d10800929" title="Ensures that the object is ready to operate.">getReady</a>(<span class="keywordtype">int</span> delay=defaultDelay) <span class="keyword">const</span>;
+<a name="l00169"></a>00169   <span class="keyword">const</span> QVariant &amp; <a class="code" href="classQEpicsPV.html#a7cb530fb55bfb12db25e36c02647642b" title="Ensures that the object is ready to operate.">getReady</a>(<span class="keywordtype">int</span> delay=defaultDelay) <span class="keyword">const</span>;
 <a name="l00170"></a>00170 
 <a name="l00182"></a>00182   <span class="comment">// WARNING: BUG</span>
 <a name="l00183"></a>00183   <span class="comment">// There is a bug which may cause the main application to crash</span>
@@ -224,7 +225,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Thu Jun 9 2011 18:48:42 for EPICS QT Framework by&#160;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jul 12 2011 for EPICS QT Framework by&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>
