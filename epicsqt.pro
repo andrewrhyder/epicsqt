@@ -25,27 +25,13 @@
 #
 ################################################################
 
-#include( qwtconfig.pri )
 
 TEMPLATE = subdirs
 CONFIG   += ordered
 
 SUBDIRS = \
-    ca_framework/qwt-6.0.0 \
+    ca_framework/qwt \
     ca_framework/plugins \
     applications/ASguiApp \
     applications/QCaMonitorApp
-
-#contains(QWT_CONFIG, QwtDesigner ) {
-#    SUBDIRS += designer 
-#}
-#
-#contains(QWT_CONFIG, QwtExamples ) {
-#    SUBDIRS += examples 
-#}
-
-#qwtspec.files  = qwtconfig.pri qwt.prf
-#qwtspec.path  = $${QWT_INSTALL_FEATURES}
-
-#INSTALLS += qwtspec
 

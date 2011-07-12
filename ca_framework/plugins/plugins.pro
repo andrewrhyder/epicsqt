@@ -213,7 +213,7 @@ INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
-    $$(QCAFRAMEWORK)/qwt-6.0.0/src \
+    $$(QCAFRAMEWORK)/qwt/src \
     $$(EPICS_BASE)/include
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
@@ -222,7 +222,7 @@ INCLUDEPATH += $$(EPICS_BASE)/include
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \
-    -L$$(QCAFRAMEWORK)/qwt-6.0.0/lib \
+    -L$$(QCAFRAMEWORK)/qwt/lib \
     -lqwt
 
 FORMS += \
