@@ -89,7 +89,7 @@ can interact with Channel Access using Qt based classes and data types. Channel 
   \section installonmainpage Installation
  
   Read <a href="http://sourceforge.net/projects/epicsqt/files/documentation/QCa_GettingStarted.pdf/download"> QCa_GettingStarted.pdf</a> in the documentation for setting up an enviroment for building or using the epicsqt framework.\n
-  To build the framework, open epicsqt.pro in QtCreator and hit build.\n
+  To build the framework, open epicsqt.pro in QtCreator, ensure shaddow build is turned off, and hit build.\n
   Symbolic links to the resultant library libQCaPlugin.so will need to set up according to how it is to be used - see QCa_GettingStarted.pdf for details.\n
   Any Qt specific queries? start at <a href="http://www.trolltech.com/developer/documentation/index.html">Qt developer documentation</a>
 
