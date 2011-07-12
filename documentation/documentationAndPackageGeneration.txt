@@ -1,0 +1,61 @@
+Doxygen documentation generation
+
+cd ~/epicsqt/documentation
+doxygen source/Doxyfile
+svn add html
+   Note, lots of warnings for pre-existing files, but this
+   is the easiest way to capture new files (althouth it does
+   not remove no longer used files from svn)
+
+
+
+Package generation:
+
+Ensure repository is up to date
+  cd ~/epicsqt
+  svn commit -m "reason for any changes"
+
+Save current version just in case.
+For example, if a new file was not added to svn
+  cd ~
+  mv epicsqt epicsqtSaveNN
+
+Recover and rebuild repository.
+This ensures the package really contains what is in the repository.
+  svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
+  qtcreator epicsqt/epicsqt.pro
+  (build)
+
+Recover repository and remove svn files
+  cd ~
+  rm -rf epicsqt
+  svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
+  find epicsqt -name *.svn -exec rm -rfv {} \;
+
+Package project
+  cd ~
+  tar -z -cvf epicsqt-1.1.5-src.tar.gz epicsqt
+  check epicsqt-1.1.5-src.tar.gz is a sensible size compared to last package
+
+  go to https://sourceforge.net/projects/epicsqt/
+  login (username rhyder - not rhydera)
+  select 'files' (https://sourceforge.net/projects/epicsqt/files/)
+  Press 'Add' button - only available when logged in
+                       (and perhaps only available in firefox?
+  browse, select ~/epicsqt-1.1.5-src.tar.gz and upload
+  revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
+
+Verify package
+  cd ~
+  rm -rf epicsqt
+  goto https://sourceforge.net/projects/epicsqt/ and press 'Download'
+  extract downloaded file to ~
+  cd epicsqt
+  qtcreator
+  open ~/epicsqt/epicsqt.pro
+  turn off shaddow build and build it
+  run ASgui
+
+  open file:///home/rhydera/epicsqt/documentation/html/index.html and browse
+
+Prior to ongoing development, 
