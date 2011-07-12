@@ -31,9 +31,11 @@ PROJECT_NAME           = "EPICS QT Framework"
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 1.1.4
+PROJECT_NUMBER         = 1.1.5
 
-# Using the PROJECT_BRIEF tag one can provide an optional one line description for a project that appears at the top of each page and should give viewer a quick idea about the purpose of the project. Keep the description short.
+# Using the PROJECT_BRIEF tag one can provide an optional one line description
+# for a project that appears at the top of each page and should give viewer a
+# quick idea about the purpose of the project. Keep the description short.
 
 PROJECT_BRIEF          = "EPICS aware Qt widgets and CA data access classes" 
 
@@ -49,7 +51,7 @@ PROJECT_LOGO           =
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = /home/user/epicsqt/documentation/
+OUTPUT_DIRECTORY       = /home/rhydera/epicsqt/documentation/
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -449,8 +451,11 @@ SORT_GROUP_NAMES       = NO
 
 SORT_BY_SCOPE_NAME     = NO
 
-# If the STRICT_PROTO_MATCHING option is enabled and doxygen fails to do proper type resolution of all parameters of a function it will reject a
-# match between the prototype and the implementation of a member function even if there is only one candidate or it is obvious which candidate to choose by doing a simple string match. By disabling STRICT_PROTO_MATCHING doxygen
+# If the STRICT_PROTO_MATCHING option is enabled and doxygen fails to do
+# proper type resolution of all parameters of a function it will reject a
+# match between the prototype and the implementation of a member function
+# even if there is only one candidate or it is obvious which candidate to
+# choose by doing a simple string match. By disabling STRICT_PROTO_MATCHING doxygen
 # will still accept a match between prototype and implementation in such cases.
 
 STRICT_PROTO_MATCHING  = NO
@@ -598,7 +603,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = /home/user/epicsqt/ca_framework/data/src /home/user/epicsqt/ca_framework/widgets/src /home/user/epicsqt/ca_framework/plugins/src /home/user/epicsqt/ca_framework/data/include /home/user/epicsqt/ca_framework/widgets/include /home/user/epicsqt/ca_framework/plugins/include
+INPUT                  = /home/rhydera/epicsqt/documentation/source /home/rhydera/epicsqt/ca_framework/data/include /home/rhydera/epicsqt/ca_framework/data/source /home/rhydera/epicsqt/ca_framework/widgets/include /home/rhydera/epicsqt/ca_framework/widgets/source /home/rhydera/epicsqt/ca_framework/plugins/include /home/rhydera/epicsqt/ca_framework/plugins/source
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -622,13 +627,13 @@ FILE_PATTERNS          =
 # should be searched for input files as well. Possible values are YES and NO.
 # If left blank NO is used.
 
-RECURSIVE              = NO
+RECURSIVE              = YES
 
 # The EXCLUDE tag can be used to specify files and/or directories that should
 # excluded from the INPUT source files. This way you can easily exclude a
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                =
+EXCLUDE                = /home/rhydera/epicsqt/qwt-6.0.0/
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -676,7 +681,7 @@ EXAMPLE_RECURSIVE      = NO
 # directories that contain image that are included in the documentation (see
 # the \image command).
 
-IMAGE_PATH             =
+IMAGE_PATH             = /home/rhydera/epicsqt/documentation/source/images
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
