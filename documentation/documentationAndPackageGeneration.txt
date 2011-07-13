@@ -9,8 +9,6 @@ Doxygen documentation generation
   cp refman.pdf ~/epicsqt/documentation/QCaReferenceManual.pdf
 
 
-
-
 Package generation:
 
 Ensure repository is up to date
