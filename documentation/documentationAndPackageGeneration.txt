@@ -1,11 +1,13 @@
 Doxygen documentation generation
+(note, preparation of pdf help from latex source requires
+ pdflatex available in lexlive "yum install texlive-latex.x86_64")
 
-cd ~/epicsqt/documentation
-doxygen source/Doxyfile
-svn add html
-   Note, lots of warnings for pre-existing files, but this
-   is the easiest way to capture new files (althouth it does
-   not remove no longer used files from svn)
+  cd ~
+  doxygen epicsqt/documentation/source/Doxyfile
+  cd epicsqt/documentation/latex
+  make pdf
+  cp refman.pdf ~/epicsqt/documentation/QCaReferenceManual.pdf
+
 
 
 
