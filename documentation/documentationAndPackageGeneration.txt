@@ -3,6 +3,7 @@ Package generation:
 Rebuild documentation:
 (note, preparation of pdf help from latex source requires
 pdflatex available in lexlive "yum install texlive-latex.x86_64")
+  update PROJECT_NUMBER in ~/epicsqr/documentation/source/Doxyfile
   cd ~
   doxygen epicsqt/documentation/source/Doxyfile
   cd epicsqt/documentation/latex
@@ -47,7 +48,7 @@ Verify package:
   cd ~
   rm -rf epicsqt
   goto https://sourceforge.net/projects/epicsqt/ and press 'Download'
-  extract downloaded file to ~
+  tar -xf <downloadLocation>/epicsqt-1.1.5-src.tar.gz
   cd epicsqt
   qtcreator
   open ~/epicsqt/epicsqt.pro
