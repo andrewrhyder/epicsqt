@@ -1,10 +1,3 @@
-/*!
-  \class VariableNameManager
-  \version $Revision: #7 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Variable name management.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -56,6 +49,8 @@ public:
 
     void setVariableName( const QString& variableName, unsigned int variableIndex );    /// Accept a new variable name which may include substitution keys preceeded by $
     void setVariableNameSubstitutions( const QString& substitutions );                  /// Accept a new set of macro substitutions in the form KEY1=VALUE1,KEY2=VALUE2
+
+    QString substituteThis( const QString string );                         /// Perform the macro substitutions on a string. used internaly for variable names, but can be used for any string
 
   private:
     QString doSubstitution( unsigned int variableIndex );

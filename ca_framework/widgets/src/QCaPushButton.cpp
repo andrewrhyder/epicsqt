@@ -258,7 +258,7 @@ void QCaPushButton::userPressed() {
     /// and the object is set up to write when the user presses the button
     /// then write the value
     if( qca && writeOnPress ) {
-        qca->writeString( pressText );
+        qca->writeString( substituteThis( pressText ));
     }
 }
 
@@ -274,7 +274,7 @@ void QCaPushButton::userReleased() {
     /// and the object is set up to write when the user releases the button
     /// then write the value
     if( qca && writeOnRelease ) {
-        qca->writeString( releaseText );
+        qca->writeString( substituteThis( releaseText ));
     }
 }
 
@@ -290,21 +290,25 @@ void QCaPushButton::userClicked() {
     /// and the object is set up to write when the user clicks the button
     /// then write the value
     if( qca && writeOnClick ) {
-        qca->writeString( clickText );
+        qca->writeString( substituteThis( substituteThis( clickText )));
     }
 
-    // If there is a command to run, run it
-    //??? use substitutions (from the profile) in the command and arguments (change name from variableNameSubstitutions to commandSubstitutions)
+    // If there is a command to run, run it, with substitutions applied to the command and arguments
     if( !program.isEmpty() )
     {
         QProcess *process = new QProcess();
-        process->start( program, arguments );
+        QStringList substitutedArguments = arguments;
+        for( int i = 0; i < substitutedArguments.size(); i++ )
+        {
+            substitutedArguments[i] = substituteThis( substitutedArguments[i] );
+        }
+        process->start( substituteThis( program ), substitutedArguments );
     }
 
     // If a new GUI is required, start it
     if( !guiName.isEmpty() )
     {
-        emit newGui( guiName, getVariableNameSubstitutions(), creationOption );
+        emit newGui( substituteThis( guiName ), getVariableNameSubstitutions(), creationOption );
     }
 
 
@@ -559,6 +563,28 @@ void QCaPushButton::setCreationOption( ASguiForm::creationOptions creationOption
 ASguiForm::creationOptions QCaPushButton::getCreationOption()
 {
     return creationOption;
+}
+
+// label text (prior to substitution)
+void QCaPushButton::setLabelTextProperty( QString labelTextIn )
+{
+    bool wasBlank = labelText.isEmpty();
+    labelText = labelTextIn;
+
+    // Update the button's text.
+    // But don't do it if the label was already displaying something and the
+    // text-to-be-substituted is just being re-set to blank). This behaviour will
+    // mean the normal label 'text' property can be used if text substitution is
+    // not required. Without this the user would always have to use the labelText property.
+    if( !text().isEmpty() && !(wasBlank && labelText.isEmpty() ))
+    {
+        setText( substituteThis( labelText ));
+    }
+}
+
+QString QCaPushButton::getLabelTextProperty()
+{
+    return labelText;
 }
 
 //==============================================================================

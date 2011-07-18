@@ -123,7 +123,7 @@ class QCaPushButtonPlugin : public QCaPushButton {
     Q_PROPERTY(QString releaseText READ getReleaseText WRITE setReleaseText)
     Q_PROPERTY(QString clickText READ getClickText WRITE setClickText)
 
-
+    Q_PROPERTY(QString labelText READ getLabelTextProperty WRITE setLabelTextProperty);
 
     Q_PROPERTY(QString program READ getProgram WRITE setProgram)
     Q_PROPERTY(QStringList arguments READ getArguments WRITE setArguments)

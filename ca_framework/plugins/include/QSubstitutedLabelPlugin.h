@@ -38,11 +38,8 @@ class QSubstitutedLabelPlugin : public QSubstitutedLabel {
     QSubstitutedLabelPlugin( QWidget *parent = 0 );
     QSubstitutedLabelPlugin( QString variableName, QWidget *parent = 0 );
 
-    /// Text to be substituted.
-    /// NOTE, this plugin uses the variable-name-and-substitutions mechism used to manage variable names to manage text displayed in the label.
-    Q_PROPERTY(QString initialText READ getVariableNameProperty WRITE setVariableNameProperty);
-    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
-    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
+    /// Label text to be substituted.
+    Q_PROPERTY(QString labelText READ getLabelTextProperty WRITE setLabelTextProperty);
 
     /// Text substitutions.
     /// NOTE, this plugin uses the variable-name-and-substitutions mechism used to manage variable names to manage text displayed in the label.

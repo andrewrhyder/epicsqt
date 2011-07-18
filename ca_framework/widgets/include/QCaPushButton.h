@@ -149,6 +149,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     void setCreationOption( ASguiForm::creationOptions creationOption );
     ASguiForm::creationOptions getCreationOption();
 
+    // label text (prior to substitution)
+    void setLabelTextProperty( QString labelTextIn );
+    QString getLabelTextProperty();
 
 
   private slots:
@@ -193,6 +196,9 @@ public slots:
     void establishConnection( unsigned int variableIndex );
 
     updateOptions updateOption;
+
+    QString labelText;                                                 // Fixed label text to which substitutions will be applied
+
 
 private:
     void setup();

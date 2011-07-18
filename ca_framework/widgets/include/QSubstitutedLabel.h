@@ -47,14 +47,24 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QSubstitutedLabel : public QLabel, public QC
   public:
     QSubstitutedLabel( QWidget *parent = 0 );
 
-    // Label text and text substitution (uses variable name and variable name substitution mechanism)
+    void establishConnection( unsigned int variableIndex ); // Used, but not to connect to data, just used to trigger substitution of the QLabel text
+
+
+
+    // Property convenience functions
+
+    // Text substitution (uses variable name and variable name substitution mechanism, even though this widget does not make any connections)
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
-    void establishConnection( unsigned int variableIndex ); // Used, but not to connect to data, just used to trigger substitution of the QLabel text
+    // label text (prior to substitution)
+    void setLabelTextProperty( QString labelTextIn );
+    QString getLabelTextProperty();
 
   protected:
 
-  private slots:
+    QString labelText;                                                 // Fixed text to which substitutions will be applied
+
+private slots:
 
   public slots:
 
@@ -64,6 +74,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QSubstitutedLabel : public QLabel, public QC
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int ){ return NULL; }; // Not used as this widget does not connect to any data source
     void updateToolTip( const QString& ){};                              // Not used as this widget does not connect to any data source
+
 
 };
 

@@ -1,10 +1,3 @@
-/*! 
-  \class VariableNameManager
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Variable name management.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -147,7 +140,7 @@ void VariableNameManager::setVariableNameSubstitutions( const QString& macroSubs
 }
 
 /*!
-    Perform a set of substitutions throughout the string.
+    Perform a set of substitutions throughout a variable name.
     Replace $MACRO1 with VALUE1, $MACRO2 with VALUE2, etc wherever they appear in the string.
 */
 QString VariableNameManager::doSubstitution( unsigned int variableIndex ) {
@@ -158,6 +151,19 @@ QString VariableNameManager::doSubstitution( unsigned int variableIndex ) {
 
     /// Start with the initial string
     QString result = variableNames[variableIndex];
+
+    /// Perform the required substitutions on the variable name
+    return substituteThis( result );
+}
+
+/*!
+    Perform a set of substitutions throughout a string.
+    Replace $MACRO1 with VALUE1, $MACRO2 with VALUE2, etc wherever they appear in the string.
+*/
+QString VariableNameManager::substituteThis( const QString string ) {
+
+    /// Start with the initial string
+    QString result = string;
 
     /// Generate a list where each item in the list is a single substitution in the form MACRO1=VALUE1
     QString subs;

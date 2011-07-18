@@ -67,13 +67,38 @@ void QSubstitutedLabel::setVariableNameAndSubstitutions( QString variableNameIn,
     establishConnection( variableIndex );
 }
 
+// label text (prior to substitution)
+void QSubstitutedLabel::setLabelTextProperty( QString labelTextIn )
+{
+    bool wasBlank = labelText.isEmpty();
+    labelText = labelTextIn;
+
+    // Update the button's text.
+    // But don't do it if the label was already displaying something and the
+    // text-to-be-substituted is just being re-set to blank). This behaviour will
+    // mean the normal label 'text' property can be used if text substitution is
+    // not required. Without this the user would always have to use the labelText property.
+    if( !text().isEmpty() && !(wasBlank && labelText.isEmpty() ))
+    {
+        setText( substituteThis( labelText ));
+    }
+}
+
+QString QSubstitutedLabel::getLabelTextProperty()
+{
+    return labelText;
+}
+
+
+
+
 /*!
     Update the label text with the required substitutions.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     NOTE, In this usage, the variable name manager is used to manage substitutions in the text displayed in the label, so the
-    'Variable Name' is not used by this widget as as a PV name (as for most other widgets), rather is is used as text to display.
+    'Variable Name' is not used by this widget (as for most other widgets), rather the substitutions are applied to fixed text.
 */
-void QSubstitutedLabel::establishConnection( unsigned int variableIndex ) {
+void QSubstitutedLabel::establishConnection( unsigned int ) {
 
-    setText( this->getSubstitutedVariableName( variableIndex ) );
+    setText( substituteThis( labelText ));
 }
