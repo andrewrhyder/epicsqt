@@ -1,10 +1,3 @@
-/*! 
-  \class CaConnection
-  \version $Revision: #4 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author glenn.jackson
-  \brief Low level wrapper around the EPICS library
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -84,6 +77,7 @@ namespace caconnection {
       ca_responses establishContext( void (*exceptionHandler)(struct exception_handler_args), void* args );
       ca_responses establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName );
       ca_responses establishSubscription( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType );
+      ca_responses establishSubscriptionPart2( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType );
 
       void removeChannel();
       void removeSubscription(); //< NOT IMPLEMENTED
@@ -120,6 +114,12 @@ namespace caconnection {
       void initialise();
       void shutdown();
       void reset();
+
+      void (*subscriptionSubscriptionHandler)(struct event_handler_args);       // Subscription callback handler
+      void* subscriptionArgs;                                                   // Data to be passed to subscription callback
+      short subscriptionDbrStructType;                                          // Data type to be used for subscription
+      static void subscriptionInitialHandler( struct event_handler_args args ); // Internal callback handler for initial subscription callback (actually a ca_get callback)
+
   };
 
 }

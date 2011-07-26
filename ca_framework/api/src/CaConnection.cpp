@@ -1,10 +1,3 @@
-/*! 
-  \class CaConnection
-  \version $Revision: #4 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author anthony.owen
-  \brief Low level wrapper around the EPICS library
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -125,13 +118,74 @@ void CaConnection::setChannelElementCount()
 /*!
     Subscribes to the established channel and registers for data callbacks
     Use isSubscribed() for feedback.
+
+    Initially, only a single shot read is performed. An internal callback handler catches the read completion,
+    calls the real callback handler, and initiates the real subscription.
+    This is a work around to solve the problem that the 'first' subscription callback with static info
+    such as units and precision does not always come first
 */
 ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType ) {
 
+    // Save the callers callback information
+    // This will be used when a subscription is really established
+    subscriptionSubscriptionHandler = subscriptionHandler;
+    subscriptionArgs = args;
+    subscriptionDbrStructType = dbrStructType;
+
     if( channel.activated == true && subscription.activated == false ) {
-        subscription.creation = ca_create_subscription( dbrStructType, channel.elementCount, channel.id, DBE_VALUE|DBE_ALARM, subscriptionHandler, args, NULL );
-        ca_pend_io( link.searchTimeout );
+        subscription.creation = ca_array_get_callback( dbrStructType, channel.elementCount, channel.id, subscriptionInitialHandler, this );
+        ca_flush_io();
         subscription.activated = true;
+        switch( subscription.creation ) {
+            case ECA_NORMAL :
+                return REQUEST_SUCCESSFUL;
+            break;
+            default :
+                return REQUEST_FAILED;
+            break;
+        }
+    } else {
+        return REQUEST_FAILED;
+    }
+}
+/*!
+  Internal handler (to this class) used by CaConnection::establishSubscription() to catch the first
+  subscription callback (actually a ca_get callback).
+  Deliver the callback to the real subscription callback, then establish a real subscription.
+
+  This is a work around to solve the problem that the 'first' subscription callback with static info
+  such as units and precision does not always come first
+  */
+void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
+{
+    // As this is a static function, recover the CaConnection class instance
+    CaConnection* me = (CaConnection*)args.usr;
+
+    // Modify the callback argument to hold the data that the caller to CaConnection::establishSubscription() wanted
+    args.usr = me->subscriptionArgs;
+
+    // Call the 'real' subscription callback
+    me->subscriptionSubscriptionHandler( args );
+
+    // Establish a real subscription now the initial read is complete
+    me->establishSubscriptionPart2( me->subscriptionSubscriptionHandler, me->subscriptionArgs, me->subscriptionDbrStructType );
+}
+
+/*!
+    Establish the real subsctiption that should have been done in CaConnection::establishSubscription().
+    This function is called by the internal callback handler CaConnection::subscriptionInitialHandler() after an initial
+    single shot read is performed prior to a subscription being establised.
+
+    This is a work around to solve the problem that the 'first' subscription callback with static info
+    such as units and precision does not always come first
+*/
+ca_responses CaConnection::establishSubscriptionPart2( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType ) {
+
+    if( channel.activated == true /*&& subscription.activated == false*/ ) {
+        subscription.creation = ca_create_subscription( dbrStructType, channel.elementCount, channel.id, DBE_VALUE|DBE_ALARM, subscriptionHandler, args, NULL );
+        ca_flush_io();
+
+//!!!??? unlike the original CaConnection::establishSubscription(), the return status is not used
         switch( subscription.creation ) {
             case ECA_NORMAL :
                 return REQUEST_SUCCESSFUL;

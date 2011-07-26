@@ -1,10 +1,3 @@
-/*! 
-  \class QCaObject
-  \version $Revision: #15 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author anthony.owen
-  \brief Provides channel access to QT.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -460,7 +453,8 @@ void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
     }
 
     // If the callback is a data update callback, and there is an earlier, unprocessed, data event
-    // of the same type in the queue, replace the data package with this one.
+    // of the same type in the queue (but not an initial update that carries extra info such as precision and units),
+    // then replace the data package with this one.
     // This is better than adding events faster than they can be processed.
     bool replaced = false;  // True if data replaced in earlier event
     if( dataPackage )
@@ -469,11 +463,15 @@ void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
         for( int i = 0; i < pendingEvents.count(); i++ )
         {
             QCaEventUpdate* event = pendingEvents[i].event;
-            if(event->reason == newReason )
+            if( event->reason == newReason )
             {
-                delete (carecord::CaRecord*)(event->dataPtr);
-                event->dataPtr = dataPackage;
-                replaced = true;
+                carecord::CaRecord* record = (carecord::CaRecord*)(event->dataPtr);
+                if( record->isFirstUpdate() == false )
+                {
+                    delete (carecord::CaRecord*)(event->dataPtr);
+                    event->dataPtr = dataPackage;
+                    replaced = true;
+                }
                 break;
             }
         }
@@ -668,8 +666,7 @@ void QCaObject::processData( void* newDataPtr ) {
         return;
 
     // On the first update, gather static information for the variable
-    if( isFirstUpdate() ) {
-
+    if( newData->isFirstUpdate() ) {
         // Note the engineering units
         egu = QString( getUnits().c_str() );
 

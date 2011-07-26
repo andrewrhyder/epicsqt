@@ -1,10 +1,3 @@
-/*! 
-  \class CaRecord
-  \version $Revision: #6 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author anthony.owen
-  \brief Provides a data holder for EPICS types.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -54,6 +47,9 @@ CaRecord::~CaRecord() {
 */
 CaRecord::CaRecord( CaRecord &param ) : Generic() {
     cloneValue( &param );
+
+    // Note in the new Carecord if the current record holds initial values
+    processState = param.processState;
 }
 
 /*!
@@ -61,6 +57,10 @@ CaRecord::CaRecord( CaRecord &param ) : Generic() {
 */
 CaRecord& CaRecord::operator= ( CaRecord &param ) {
     cloneValue( &param );
+
+    // Note in the new Carecord if the current record holds initial values
+    processState = param.processState;
+
     return *this;
 }
 
@@ -125,9 +125,12 @@ void CaRecord::setAlarmSeverity( short newSeverity ) {
 
 /*!
     Set the precision for the record.
+    The test is for protection against EPICS library. The library returns the
+    precision the first time around then 0 for every other callback. (note, it's not always in the first callback)
 */
 void CaRecord::setPrecision( short newPrecision ) {
-    precision = newPrecision;
+    if( newPrecision != 0 )
+        precision = newPrecision;
 }
 
 /*!
