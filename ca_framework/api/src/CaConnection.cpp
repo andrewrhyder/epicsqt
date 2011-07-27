@@ -168,35 +168,13 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
     me->subscriptionSubscriptionHandler( args );
 
     // Establish a real subscription now the initial read is complete
-    me->establishSubscriptionPart2( me->subscriptionSubscriptionHandler, me->subscriptionArgs, me->subscriptionDbrStructType );
-}
-
-/*!
-    Establish the real subsctiption that should have been done in CaConnection::establishSubscription().
-    This function is called by the internal callback handler CaConnection::subscriptionInitialHandler() after an initial
-    single shot read is performed prior to a subscription being establised.
-
-    This is a work around to solve the problem that the 'first' subscription callback with static info
-    such as units and precision does not always come first
-*/
-ca_responses CaConnection::establishSubscriptionPart2( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType ) {
-
-    if( channel.activated == true /*&& subscription.activated == false*/ ) {
-        subscription.creation = ca_create_subscription( dbrStructType, channel.elementCount, channel.id, DBE_VALUE|DBE_ALARM, subscriptionHandler, args, NULL );
-        ca_flush_io();
-
-//!!!??? unlike the original CaConnection::establishSubscription(), the return status is not used
-        switch( subscription.creation ) {
-            case ECA_NORMAL :
-                return REQUEST_SUCCESSFUL;
-            break;
-            default :
-                return REQUEST_FAILED;
-            break;
-        }
-    } else {
-        return REQUEST_FAILED;
-    }
+    me->subscription.creation = ca_create_subscription( me->subscriptionDbrStructType,
+                                                        me->channel.elementCount,
+                                                        me->channel.id,
+                                                        DBE_VALUE|DBE_ALARM,
+                                                        me->subscriptionSubscriptionHandler,
+                                                        me->subscriptionArgs, NULL );
+    ca_flush_io();
 }
 
 /*!

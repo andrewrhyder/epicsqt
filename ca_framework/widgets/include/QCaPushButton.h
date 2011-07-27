@@ -128,6 +128,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     void setClickText( QString clickTextIn );
     QString getClickText();
 
+    // click checked value
+    void setClickCheckedText( QString clickCheckedTextIn );
+    QString getClickCheckedText();
 
     // 'Command button' Property convenience functions
 
@@ -159,7 +162,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void userPressed();
     void userReleased();
-    void userClicked();
+    void userClicked( bool checked );
 
 
     void launchGui( QString guiName, QString substitutions, ASguiForm::creationOptions creationOption );
@@ -181,9 +184,10 @@ public slots:
     bool writeOnPress;
     bool writeOnRelease;
     bool writeOnClick;
-    QString releaseText;    /// Text to write on a button release
-    QString pressText;      /// Text to write on a button press
-    QString clickText;      /// Text to write on a button click
+    QString releaseText;      /// Text to write on a button release
+    QString pressText;        /// Text to write on a button press
+    QString clickText;        /// Text to write on a button click
+    QString clickCheckedText; /// Text to write on a button click when the button moves to the checked position
 
     QString program;        /// Program to run
     QStringList arguments;  /// Program arguments

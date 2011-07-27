@@ -63,7 +63,7 @@ void QCaPushButton::setup() {
     // Use push button signals
     QObject::connect( this, SIGNAL( pressed() ), this, SLOT( userPressed() ) );
     QObject::connect( this, SIGNAL( released() ), this, SLOT( userReleased() ) );
-    QObject::connect( this, SIGNAL( clicked() ), this, SLOT( userClicked() ) );
+    QObject::connect( this, SIGNAL( clicked( bool ) ), this, SLOT( userClicked( bool ) ) );
 }
 
 /*!
@@ -83,6 +83,7 @@ void QCaPushButton::dataSetup() {
     pressText = "1";
     releaseText = "0";
     clickText = "1";
+    clickCheckedText = "0";
 
     // Override default QCaWidget properties
     subscribe = false;
@@ -281,8 +282,7 @@ void QCaPushButton::userReleased() {
 /*!
     Button click event.
 */
-void QCaPushButton::userClicked() {
-    qDebug() << "userClicked()";
+void QCaPushButton::userClicked( bool checked ) {
     /// Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
@@ -290,7 +290,14 @@ void QCaPushButton::userClicked() {
     /// and the object is set up to write when the user clicks the button
     /// then write the value
     if( qca && writeOnClick ) {
-        qca->writeString( substituteThis( substituteThis( clickText )));
+        if( !checked )
+        {
+            qca->writeString( substituteThis( substituteThis( clickText )));
+        }
+        else
+        {
+            qca->writeString( substituteThis( substituteThis( clickCheckedText )));
+        }
     }
 
     // If there is a command to run, run it, with substitutions applied to the command and arguments
@@ -526,6 +533,16 @@ void QCaPushButton::setClickText( QString clickTextIn )
 QString QCaPushButton::getClickText()
 {
     return clickText;
+}
+
+// click off value
+void QCaPushButton::setClickCheckedText( QString clickCheckedTextIn )
+{
+    clickCheckedText = clickCheckedTextIn;
+}
+QString QCaPushButton::getClickCheckedText()
+{
+    return clickCheckedText;
 }
 
 //==============================================================================

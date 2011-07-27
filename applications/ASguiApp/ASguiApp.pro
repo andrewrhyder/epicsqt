@@ -46,5 +46,4 @@ INCLUDEPATH += . \
     $$(QCAFRAMEWORK)/plugins/include
 LIBS += -L$$(QCAFRAMEWORK)/plugins \
     -lQCaPlugin
-LIBS += -L/opt/fontconfig/lib
 FORMS += ./src/MainWindow.ui

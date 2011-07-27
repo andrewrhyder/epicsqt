@@ -77,7 +77,6 @@ namespace caconnection {
       ca_responses establishContext( void (*exceptionHandler)(struct exception_handler_args), void* args );
       ca_responses establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName );
       ca_responses establishSubscription( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType );
-      ca_responses establishSubscriptionPart2( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType );
 
       void removeChannel();
       void removeSubscription(); //< NOT IMPLEMENTED

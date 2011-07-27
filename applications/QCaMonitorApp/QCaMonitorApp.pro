@@ -29,8 +29,9 @@ CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += \
     ./src/main.cpp \
-    ./src/monitor.cpp \
-    $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+    ./src/monitor.cpp
+# Include the following gdbmacros line for debugging only
+#SOURCES +=     $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
 
 HEADERS += \
     include/monitor.h
