@@ -103,6 +103,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     void setNotation( QCaStringFormatting::notations notation );
     QCaStringFormatting::notations getNotation();
 
+    // text alignment
+    void setTextAlignment( Qt::Alignment alignment );
+    Qt::Alignment getTextAlignment();
+
     // write on press
     void setWriteOnPress( bool writeOnPress );
     bool getWriteOnPress();
@@ -181,6 +185,8 @@ public slots:
 
   protected:
     QCaStringFormatting stringFormatting;
+    Qt::Alignment textAlignment;
+
     bool writeOnPress;
     bool writeOnRelease;
     bool writeOnClick;

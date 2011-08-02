@@ -96,6 +96,7 @@ class QCaPushButtonPlugin : public QCaPushButton {
     Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
     Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
     Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
+    Q_PROPERTY(Qt::Alignment alignment READ getTextAlignment WRITE setTextAlignment )
 
     Q_ENUMS(Formats)
     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)

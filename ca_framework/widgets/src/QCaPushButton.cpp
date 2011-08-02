@@ -80,6 +80,11 @@ void QCaPushButton::dataSetup() {
     writeOnClick = true;
     localEnabled = true;
 
+    // Set text alignment to the default for a push button
+    // This will make no visual difference unless the style has been changed from the default
+    textAlignment = Qt::AlignHCenter | Qt::AlignVCenter;
+    this->setTextAlignment( textAlignment );
+
     pressText = "1";
     releaseText = "0";
     clickText = "1";
@@ -475,6 +480,35 @@ void QCaPushButton::setNotation( QCaStringFormatting::notations notation )
 QCaStringFormatting::notations QCaPushButton::getNotation()
 {
     return stringFormatting.getNotation();
+}
+
+// text alignment
+void QCaPushButton::setTextAlignment( Qt::Alignment textAlignmentIn )
+{
+    // Keep a local copy of the alignment
+    textAlignment = textAlignmentIn;
+
+    // Update the style to match the property
+    QString styleSheetString = "text-align: ";
+
+    if( textAlignmentIn & Qt::AlignLeft )
+        styleSheetString.append( " left");
+    else if( textAlignment & Qt::AlignRight )
+        styleSheetString.append( " right");
+    else if( textAlignment & Qt::AlignHCenter )
+        styleSheetString.append( " center");
+
+    else if( textAlignment & Qt::AlignTop )
+        styleSheetString.append( " top");
+    else if( textAlignment & Qt::AlignBottom )
+        styleSheetString.append( " bottom");
+
+    setStyleSheet( styleSheetString );
+
+}
+Qt::Alignment QCaPushButton::getTextAlignment()
+{
+    return textAlignment;
 }
 
 // write on press
