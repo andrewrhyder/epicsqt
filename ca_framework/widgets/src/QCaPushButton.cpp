@@ -308,13 +308,31 @@ void QCaPushButton::userClicked( bool checked ) {
     // If there is a command to run, run it, with substitutions applied to the command and arguments
     if( !program.isEmpty() )
     {
+        // Create a new process to run the program
         QProcess *process = new QProcess();
+
+        // Apply substitutions to the arguments
         QStringList substitutedArguments = arguments;
         for( int i = 0; i < substitutedArguments.size(); i++ )
         {
             substitutedArguments[i] = substituteThis( substitutedArguments[i] );
         }
-        process->start( substituteThis( program ), substitutedArguments );
+
+        // Apply substitutions to the program name
+        QString prog = substituteThis( program );
+
+        // Build up a single string with the command and arguments and run the program
+        for( int i = 0; i < substitutedArguments.size(); i++)
+        {
+            prog.append( " " );
+            prog.append( substitutedArguments[i] );
+        }
+        process->start( prog );
+
+        // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
+        // (This didn't seem to work when starting EDM with the '-one' switch, perhaps due to the
+        //  way EDM checks all arguments are identical when the '-one' switch is present?)
+        //process->start( substituteThis( program ), substitutedArguments );
     }
 
     // If a new GUI is required, start it
