@@ -175,9 +175,13 @@ inline QPointF qwtDegree2Pos( const QPointF &pole,
 inline QPointF qwtFastPolar2Pos( const QPointF &pole,
     double radius, double angle )
 {
+#if QT_VERSION < 0x040601
+        const double x = pole.x() + radius * ::cos( angle );
+        const double y = pole.y() - radius * ::sin( angle );
+#else
     const double x = pole.x() + radius * qFastCos( angle );
     const double y = pole.y() - radius * qFastSin( angle );
-
+#endif
     return QPointF( x, y);
 }
 
