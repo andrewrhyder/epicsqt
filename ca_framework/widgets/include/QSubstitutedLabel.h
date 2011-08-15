@@ -60,6 +60,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QSubstitutedLabel : public QLabel, public QC
     void setLabelTextProperty( QString labelTextIn );
     QString getLabelTextProperty();
 
+    // label text (prior to substitution) with line feeds encoded in C style to allow entry in designer
+    QString getLabelTextPropertyFormat();
+    void setLabelTextPropertyFormat( QString labelTextIn );
+
+
   protected:
 
     QString labelText;                                                 // Fixed text to which substitutions will be applied

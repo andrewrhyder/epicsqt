@@ -89,7 +89,20 @@ QString QSubstitutedLabel::getLabelTextProperty()
     return labelText;
 }
 
+// Get the label text with line feeds replaced with C style line feed characters.
+// This is to allow line feed to be entered in the property in designer, like the QLabel text property
+QString QSubstitutedLabel::getLabelTextPropertyFormat()
+{
+    return getLabelTextProperty().replace( "\n", "\\n" );
 
+}
+
+// Set the label text with C style line feed characters replaced with line feeds.
+// This is to allow line feed to be entered in the property in designer, like the QLabel text property
+void QSubstitutedLabel::setLabelTextPropertyFormat( QString labelTextIn )
+{
+    setLabelTextProperty( labelTextIn.replace( "\\n", "\n" ));
+}
 
 
 /*!
