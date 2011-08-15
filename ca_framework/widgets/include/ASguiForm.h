@@ -70,7 +70,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
 
     public slots:
         void requestEnabled( const bool& state );
-        void readUiFile();
+        void readUiFile( bool useParentPathFromProfile );
         void onGeneralMessage( QString message );
 
     private slots:
@@ -86,6 +86,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
     private:
         QString title;
         QWidget* ui;
+        QString parentPath;         // Path used by parent object (typically ASGuiform)
         bool alertIfUINoFound;      // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
         QFileSystemWatcher fileMon;
 

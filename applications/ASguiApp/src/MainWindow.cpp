@@ -71,7 +71,7 @@ void MainWindow::init( QString fileName, QString pathIn, QString substitutionsIn
     path = pathIn;
 
     // Setup the environment profile of the new form
-    profile.setupProfile( this, this, this, this, path, substitutions, false );
+    profile.setupProfile( this, this, this, this, path, "", substitutions, false );
 
     // Initialise
     usingTabs = false;
@@ -560,12 +560,12 @@ ASguiForm* MainWindow::createGui( QString fileName )
 
     // Setup the environment profile of the new form
 //    ContainerProfile profile;
-//    profile.setupProfile( this, this, this, this, path, substitutions, false );
+//    profile.setupProfile( this, this, this, this, path, "", substitutions, false );
 
     // Build the gui
     ASguiForm* gui = new ASguiForm( fileName );
     if( gui )
-        gui->readUiFile();
+        gui->readUiFile( true );
 
 //    // Release the environment profile for new QCa wigets
 //    profile.releaseProfile();

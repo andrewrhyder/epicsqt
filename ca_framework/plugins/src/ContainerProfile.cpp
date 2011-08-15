@@ -69,6 +69,7 @@ QObject* ContainerProfile::publishedGuiLaunchConsumer = NULL;
 QList<QString>   ContainerProfile::publishedMacroSubstitutions;
 QList<WidgetRef> ContainerProfile::containedWidgets;
 QString          ContainerProfile::publishedPath;
+QString          ContainerProfile::publishedParentPath;
 
 bool ContainerProfile::publishedInteractive = false;
 
@@ -102,6 +103,7 @@ void ContainerProfile::setupProfile( QObject* publishedStatusMessageConsumerIn,
                                      QObject* publishedWarningMessageConsumerIn,
                                      QObject* guiLaunchConsumerIn,
                                      QString publishedPathIn,
+                                     QString publishedParentPathIn,
                                      QString publishedMacroSubstitutionsIn,
                                      bool interactiveIn )
 {
@@ -112,6 +114,7 @@ void ContainerProfile::setupProfile( QObject* publishedStatusMessageConsumerIn,
     publishedGuiLaunchConsumer = guiLaunchConsumerIn;
 
     publishedPath = publishedPathIn;
+    publishedParentPath = publishedParentPathIn;
 
     publishedMacroSubstitutions.clear();
     publishedMacroSubstitutions.append( publishedMacroSubstitutionsIn );
@@ -141,6 +144,7 @@ void ContainerProfile::init()
     }
 
     path = publishedPath;
+    parentPath = publishedParentPath;
 
 }
 
@@ -182,6 +186,7 @@ void ContainerProfile::releaseProfile()
 
     publishedMacroSubstitutions.clear();
     publishedPath.clear();
+    publishedParentPath.clear();
 
     containedWidgets.clear();
 
@@ -227,11 +232,27 @@ QObject* ContainerProfile::getGuiLaunchConsumer()
 }
 
 /**
-  Return the path to use for file operations.
+  Return the application path to use for file operations.
   */
 QString ContainerProfile::getPath()
 {
     return path;
+}
+
+/**
+  Return the current object path to use for file operations.
+  */
+QString ContainerProfile::getParentPath()
+{
+    return parentPath;
+}
+
+/**
+  Set the current object path to use for file operations.
+  */
+void ContainerProfile::setPublishedParentPath( QString publishedParentPathIn )
+{
+    publishedParentPath = publishedParentPathIn;
 }
 
 /**

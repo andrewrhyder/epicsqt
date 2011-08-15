@@ -688,7 +688,7 @@ void QCaPushButton::launchGui( QString guiName, QString /*substitutions*/, ASgui
     ASguiForm* gui = new ASguiForm( guiName );
     if( gui )
     {
-        gui->readUiFile();
+        gui->readUiFile( true );
         w->setCentralWidget( gui );
         w->show();
     }

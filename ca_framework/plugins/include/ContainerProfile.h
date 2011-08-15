@@ -63,6 +63,7 @@ public:
                        QObject* warningMessageConsumerIn,
                        QObject* guiLaunchConsumerIn,
                        QString pathIn,
+                       QString parentPathIn,
                        QString macroSubstitutionsIn,
                        bool interactiveIn );      // Setup an environmental profile for all QcaWidgets to use on creation
     QObject* replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn );  // Override the current GUI launch consumer
@@ -70,14 +71,16 @@ public:
     void addMacroSubstitutions( QString macroSubstitutionsIn ); // Add another set of macro substitutions to those setup by setupProfile(). Used as sub forms are created
     void removeMacroSubstitutions();                            // Remove the last set of macro substitutions added by addMacroSubstitutions(). Used after sub forms are created
 
-    QObject* getStatusMessageConsumer();   // Get the local copy of the object that will recieve status message events
-    QObject* getWarningMessageConsumer();  // Get the local copy of the object that will recieve warning message events
-    QObject* getErrorMessageConsumer();    // Get the local copy of the object that will recieve error message events
-    QObject* getGuiLaunchConsumer();       // Get the local copy of the object that will recieve GUI launch requests
-    QString getPath();                     // Get the local copy of the path used for file operations
-    QString getMacroSubstitutions();       // Get the local copy of the variable name macro substitutions
-    bool isProfileDefined();               // Returns true if a profile has been setup by setupProfile()
-    bool isInteractive();                  // Returns true if the profile was set up by an application where a user is interacting with properties such as variable names
+    QObject* getStatusMessageConsumer();      // Get the local copy of the object that will recieve status message events
+    QObject* getWarningMessageConsumer();     // Get the local copy of the object that will recieve warning message events
+    QObject* getErrorMessageConsumer();       // Get the local copy of the object that will recieve error message events
+    QObject* getGuiLaunchConsumer();          // Get the local copy of the object that will recieve GUI launch requests
+    QString getPath();                        // Get the local copy of the application path used for file operations
+    QString getParentPath();                  // Get the local copy of the current object path used for file operations
+    void setPublishedParentPath( QString publishedParentPathIn ); // Set the published current object path used for file operations
+    QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
+    bool isProfileDefined();                  // Returns true if a profile has been setup by setupProfile()
+    bool isInteractive();                     // Returns true if the profile was set up by an application where a user is interacting with properties such as variable names
 
     void addContainedWidget( QCaWidget* containedWidget );  // Adds a reference to the list of QCa widgets created with this profile
     QCaWidget* getNextContainedWidget();                    // Returns a reference to the next QCa widgets in the list of QCa widgets created with this profile
@@ -89,7 +92,8 @@ private:
     static QObject* publishedErrorMessageConsumer;      // Object to send error message event to
     static QObject* publishedWarningMessageConsumer;    // Object to send warning message event to
     static QObject* publishedGuiLaunchConsumer;         // Object to send GUI launch requests to
-    static QString publishedPath;                       // Path used for file operations
+    static QString publishedPath;                       // Path used for file operations (scope: application wide)
+    static QString publishedParentPath;                 // Path used for file operations (scope: Parent object, if any. This is set up by the application, but is temporarily overwritten and then reset by each level of sub object (sub form)
     static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
     static bool publishedInteractive;                    // Flag true if the profile was set up by an application where a user is interacting with properties such as variable names
 
@@ -101,7 +105,8 @@ private:
     QObject* errorMessageConsumer;   // Local copy of error message consumer. Still valid after the profile has been released by releaseProfile()
     QObject* warningMessageConsumer; // Local copy of warning message consumer. Still valid after the profile has been released by releaseProfile()
     QObject* guiLaunchConsumer;      // Local copy of GUI launch consumer. Still valid after the profile has been released by releaseProfile()
-    QString path;                    // Local copy of path used for file operations
+    QString path;                    // Local copy of application path used for file operations
+    QString parentPath;              // Local copy of parent object path used for file operations
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
     bool interactive;              // Local copy of 'is interactive' flag. Still valid after the profile has been released by releaseProfile()
 
