@@ -146,7 +146,7 @@ bool QCaBitStatusPluginManager::isContainer () const
 */
 QString QCaBitStatusPluginManager::includeFile () const
 {
-   return "QCaBitStatusPlugin.h";
+   return "QCaBitStatus.h";
 }
 
 // end

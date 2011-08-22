@@ -126,7 +126,7 @@ bool QCaAnalogProgressBarPluginManager::isContainer() const {
     ???
 */
 QString QCaAnalogProgressBarPluginManager::includeFile() const {
-    return "QCaAnalogProgressBarPlugin.h";
+    return "QCaAnalogProgressBar.h";
 }
 
 // end

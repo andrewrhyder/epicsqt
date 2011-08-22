@@ -133,7 +133,7 @@ bool QBitStatusPluginManager::isContainer() const {
     ???
 */
 QString QBitStatusPluginManager::includeFile() const {
-    return "QBitStatusPlugin.h";
+    return "QBitStatus.h";
 }
 
 // end
