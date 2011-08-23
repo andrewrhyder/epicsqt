@@ -1,10 +1,3 @@
-/*! 
-  \class QCaLineEditPluginManager
-  \version $Revision: #3 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief CA Line Edit Widget Plugin Manager for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -58,7 +51,7 @@ bool QCaLineEditPluginManager::isInitialized() const {
 }
 
 /*!
-    Widget factory. Creates a QCaLabel widget.
+    Widget factory. Creates a QCaLineEditPlugin widget.
 */
 QWidget *QCaLineEditPluginManager::createWidget ( QWidget *parent ) {
     return new QCaLineEditPlugin(parent);

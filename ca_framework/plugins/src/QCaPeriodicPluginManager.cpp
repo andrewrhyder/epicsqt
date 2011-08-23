@@ -61,7 +61,7 @@ bool QCaPeriodicPluginManager::isInitialized() const {
 }
 
 /*!
-    Widget factory. Creates a QCaLabel widget.
+    Widget factory. Creates a QCaPeriodicPlugin widget.
 */
 QWidget *QCaPeriodicPluginManager::createWidget ( QWidget *parent ) {
     return new QCaPeriodicPlugin(parent);

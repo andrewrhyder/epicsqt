@@ -59,7 +59,7 @@ bool QCaShapePluginManager::isInitialized() const {
 }
 
 /*!
-    Widget factory. Creates a QCaLabel widget.
+    Widget factory. Creates a QCaShapePlugin widget.
 */
 QWidget *QCaShapePluginManager::createWidget ( QWidget *parent ) {
     return new QCaShapePlugin(parent);
