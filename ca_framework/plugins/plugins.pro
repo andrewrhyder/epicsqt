@@ -34,6 +34,7 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaSlider.png \
     src/QCaShape.png \
     src/QCaPushButton.png \
+    src/QCaRadioButton.png \
     src/QCaPlot.png \
     src/QCaLineEdit.png \
     src/QCaLabel.png \
@@ -59,6 +60,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaShapePlugin.h \
     include/QCaPushButtonPluginManager.h \
     include/QCaPushButtonPlugin.h \
+    include/QCaRadioButtonPluginManager.h \
+    include/QCaRadioButtonPlugin.h \
     include/QCaLineEditPluginManager.h \
     include/QCaLineEditPlugin.h \
     include/QCaDesignerPlugin.h \
@@ -115,6 +118,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaSlider.h \
     ../widgets/include/QCaShape.h \
     ../widgets/include/QCaPushButton.h \
+    ../widgets/include/QCaRadioButton.h \
+    ../widgets/include/QCaGenericButton.h \
     ../widgets/include/QCaLineEdit.h \
     ../widgets/include/QCaLabel.h \
     ../widgets/include/QSubstitutedLabel.h \
@@ -138,6 +143,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaShapePlugin.cpp \
     src/QCaPushButtonPluginManager.cpp \
     src/QCaPushButtonPlugin.cpp \
+    src/QCaRadioButtonPluginManager.cpp \
+    src/QCaRadioButtonPlugin.cpp \
     src/QCaLineEditPluginManager.cpp \
     src/QCaLineEditPlugin.cpp \
     src/QCaLabelPluginManager.cpp \
@@ -193,6 +200,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaSlider.cpp \
     ../widgets/src/QCaShape.cpp \
     ../widgets/src/QCaPushButton.cpp \
+    ../widgets/src/QCaRadioButton.cpp \
+    ../widgets/src/QCaGenericButton.cpp \
     ../widgets/src/QCaLineEdit.cpp \
     ../widgets/src/QCaLabel.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \

@@ -103,7 +103,6 @@ void ContainerProfile::setupProfile( QObject* publishedStatusMessageConsumerIn,
                                      QObject* publishedWarningMessageConsumerIn,
                                      QObject* guiLaunchConsumerIn,
                                      QString publishedPathIn,
-                                     QString publishedParentPathIn,
                                      QString publishedMacroSubstitutionsIn,
                                      bool interactiveIn )
 {
@@ -114,7 +113,6 @@ void ContainerProfile::setupProfile( QObject* publishedStatusMessageConsumerIn,
     publishedGuiLaunchConsumer = guiLaunchConsumerIn;
 
     publishedPath = publishedPathIn;
-    publishedParentPath = publishedParentPathIn;
 
     publishedMacroSubstitutions.clear();
     publishedMacroSubstitutions.append( publishedMacroSubstitutionsIn );

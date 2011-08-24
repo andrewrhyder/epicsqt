@@ -63,7 +63,6 @@ public:
                        QObject* warningMessageConsumerIn,
                        QObject* guiLaunchConsumerIn,
                        QString pathIn,
-                       QString parentPathIn,
                        QString macroSubstitutionsIn,
                        bool interactiveIn );      // Setup an environmental profile for all QcaWidgets to use on creation
     QObject* replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn );  // Override the current GUI launch consumer

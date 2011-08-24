@@ -71,7 +71,7 @@ void MainWindow::init( QString fileName, QString pathIn, QString substitutionsIn
     path = pathIn;
 
     // Setup the environment profile of the new form
-    profile.setupProfile( this, this, this, this, path, "", substitutions, false );
+    profile.setupProfile( this, this, this, this, path, substitutions, false );
 
     // Initialise
     usingTabs = false;
@@ -426,18 +426,19 @@ void MainWindow::onErrorMessage( QString message )
 //=================================================================================
 
 // Slot for launching a new gui from a contained object.
-void MainWindow::launchGui( QString guiName, QString substitutions, ASguiForm::creationOptions createOption )
+void MainWindow::launchGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions createOption )
 {
+    profile.addMacroSubstitutions( substitutions );
+    profile.setPublishedParentPath( parentPath );
+
     // Load the new gui as required
     switch( createOption )
     {
         // Open the specified gui in the current window
         case ASguiForm::CREATION_OPTION_OPEN:
             {
-                profile.addMacroSubstitutions( substitutions );
                 ASguiForm* gui = createGui( guiName );
                 loadGuiIntoCurrentWindow( gui );
-                profile.removeMacroSubstitutions();
             }
             break;
 
@@ -449,20 +450,16 @@ void MainWindow::launchGui( QString guiName, QString substitutions, ASguiForm::c
                     setTabMode();
 
                 // Create the gui and load it into a new tab
-                profile.addMacroSubstitutions( substitutions );
                 ASguiForm* gui = createGui( guiName );
                 loadGuiIntoNewTab( gui );
-                profile.removeMacroSubstitutions();
             }
             break;
 
         // Open the specified gui in a new window
         case ASguiForm::CREATION_OPTION_NEW_WINDOW:
             {
-                profile.addMacroSubstitutions( substitutions );
                 MainWindow* w = new MainWindow( guiName, path, profile.getMacroSubstitutions(), enableEdit );
                 w->show();
-                profile.removeMacroSubstitutions();
             }
             break;
 
@@ -470,6 +467,9 @@ void MainWindow::launchGui( QString guiName, QString substitutions, ASguiForm::c
             qDebug() << "MainWindow::launchGui() Unexpected gui creation option: " << createOption;
             break;
     }
+
+    profile.removeMacroSubstitutions();
+    profile.setPublishedParentPath( "" );
 }
 
 //=================================================================================
@@ -565,7 +565,7 @@ ASguiForm* MainWindow::createGui( QString fileName )
     // Build the gui
     ASguiForm* gui = new ASguiForm( fileName );
     if( gui )
-        gui->readUiFile( true );
+        gui->readUiFile();
 
 //    // Release the environment profile for new QCa wigets
 //    profile.releaseProfile();

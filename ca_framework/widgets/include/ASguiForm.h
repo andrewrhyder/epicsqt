@@ -35,6 +35,7 @@
 #include <QScrollArea>
 #include <QWidget>
 #include <UserMessage.h>
+#include <ContainerProfile.h>
 #include <QString>
 #include <QFileSystemWatcher>
 #include <QCaPluginLibrary_global.h>
@@ -70,11 +71,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
 
     public slots:
         void requestEnabled( const bool& state );
-        void readUiFile( bool useParentPathFromProfile );
-        void onGeneralMessage( QString message );
+        bool readUiFile();
+        void onGeneralMessage( QString message ){ onMessage( "Message", message ); }
+        void onStatusMessage( QString message ) { onMessage( "Status",  message ); }
+        void onErrorMessage( QString message )  { onMessage( "Error",   message ); }
+        void onWarningMessage( QString message ){ onMessage( "Warning", message ); }
 
+        void launchGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions createOption );
     private slots:
-        void onGuiLaunch( QString guiName, QString substitutions, creationOptions createOption );
         void fileChanged ( const QString & path );
 
 
@@ -86,13 +90,15 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
     private:
         QString title;
         QWidget* ui;
-        QString parentPath;         // Path used by parent object (typically ASGuiform)
         bool alertIfUINoFound;      // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
         QFileSystemWatcher fileMon;
 
         QString variableNameSubstitutions;
         UserMessage userMessage;
-        void generalMessage( QString message );
+        void onMessage( QString title, QString message );
+
+        ContainerProfile profile;
+
 };
 
 #endif // ASGUIFORM_H

@@ -22,10 +22,10 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCAPUSHBUTTON_H
-#define QCAPUSHBUTTON_H
+#ifndef QCARADIOBUTTON_H
+#define QCARADIOBUTTON_H
 
-#include <QPushButton>
+#include <QRadioButton>
 #include <QCaWidget.h>
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
@@ -36,12 +36,12 @@
 #include <managePixmaps.h>
 #include <QCaGenericButton.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public QCaGenericButton {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaRadioButton : public QRadioButton, public QCaGenericButton {
     Q_OBJECT
 
   public:
-    QCaPushButton( QWidget *parent = 0 );
-    QCaPushButton( const QString& variableName, QWidget *parent = 0 );
+    QCaRadioButton( QWidget *parent = 0 );
+    QCaRadioButton( const QString& variableName, QWidget *parent = 0 );
 
     bool isEnabled() const;
     void setEnabled( const bool& state ){ setGenericEnabled( state ); }
@@ -74,7 +74,7 @@ private:
     void setup();
     void updateToolTip ( const QString & toolTip );
 
-    void setButtonText( QString text ){ QPushButton::setText( text ); }
+    void setButtonText( QString text ){ QRadioButton::setText( text ); }
     QString getButtonText(){ return text(); }
     void setButtonIcon( QIcon& icon ) {setIcon( icon ); }
 
@@ -95,4 +95,4 @@ private:
     QObject* getButtonQObject(){ return this; }
 };
 
-#endif /// QCAPUSHBUTTON_H
+#endif /// QCARADIOBUTTON_H

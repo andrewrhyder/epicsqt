@@ -95,7 +95,7 @@ private slots:
     void onWarningMessage( QString message );       // Slot to recieve warning messages from GUIs
     void onErrorMessage( QString message );         // Slot to recieve error messages from GUIs
 
-    void launchGui( QString guiName, QString substitutions, ASguiForm::creationOptions creationOption );
+    void launchGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions creationOption );
 
     void tabCurrentChanged( int index );            // Slot to act on user changing tabs
     void tabCloseRequest( int index );              // Slot to act on user closing a tab

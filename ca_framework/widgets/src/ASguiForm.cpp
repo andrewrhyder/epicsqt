@@ -73,6 +73,7 @@ void ASguiForm::commonInit( const bool alertIfUINoFoundIn )
 {
     ui = NULL;
     alertIfUINoFound = alertIfUINoFoundIn;
+    handleGuiLaunchRequests = false;
 
     // Prepare to recieve notification that the ui file being displayed has changed
     QObject::connect( &fileMon, SIGNAL( fileChanged( const QString & ) ), this, SLOT( fileChanged( const QString & ) ) );
@@ -88,11 +89,15 @@ ASguiForm::~ASguiForm()
 
 // Read a UI file.
 // The file read depends on the value of uiFileName
-void ASguiForm::readUiFile( bool useParentPathFromProfile )
+bool ASguiForm::readUiFile()
 {
+    // Assume file is bad
+    bool fileLoaded = false;
+
+    // If any name has been provided...
     if (!uiFileName.isEmpty()) {
 
-        /// Set up the environment profile for any QCa widgets created by the form
+        // Set up the environment profile for any QCa widgets created by the form
         QObject* savedGuiLaunchConsumer = NULL;
 
 
@@ -122,61 +127,70 @@ void ASguiForm::readUiFile( bool useParentPathFromProfile )
             // A profile is not already defined. This is the case if this class is the base to a form plugin loaded by 'designer'.
             // Use this form's default message handling, always handle any GUI launch requests, and add this form's substitutions
             userMessage.setup( this );
-            profile.setupProfile( this, this, this, this, QDir::currentPath(), "", variableNameSubstitutions, true );
+            profile.setupProfile( this, this, this, this, QDir::currentPath(), variableNameSubstitutions, true );
         }
 
-        // The parent object's (the parent form's) path is only set up while the form is first created.
-        // If this is that initial creation, then save the parent path
-        if( useParentPathFromProfile )
-        {
-            parentPath = profile.getParentPath();
-        }
-
-        // Search for the file
-        // If the file is specified with an absolute path, then it is used as is.
-        // If the file is specified with a relative path, then search for it in the following locations:
+        // Build a list of all the places we expect to find the file
+        // Use a single location if an absolute path was specified.
+        // Use the following list of locations if a relative path was specified:
         //  - The directory where the parent object (form) was read from (set up in the application profile)
         //  - The application's path (set up in the application profile) (the -p sewitch for ASgui)
         //  - The current directory
-        QDir uiDir;
-        QFile* uiFile = NULL;
-        if(  uiDir.isAbsolutePath( uiFileName ) )
+        QStringList searchList;
+        if(  QDir::isAbsolutePath( uiFileName ) )
         {
-            uiFile = new QFile( uiFileName );
+            searchList.append( uiFileName );
         }
         else
         {
-            QStringList searchList;
-            searchList.append( parentPath );
-            searchList.append( profile.getPath() );
-            searchList.append( QDir::currentPath() );
+            QFileInfo fileInfo;
 
-            QDir::setSearchPaths( "QCaUI",searchList);
-            uiFile = new QFile( "QCaUI:" + uiFileName );
+            fileInfo.setFile( profile.getParentPath(), uiFileName );
+            searchList.append( fileInfo.filePath() );
+
+            fileInfo.setFile( profile.getPath(), uiFileName );
+            searchList.append(  fileInfo.filePath() );
+
+            fileInfo.setFile( QDir::currentPath(), uiFileName );
+            searchList.append(  fileInfo.filePath() );
         }
 
-        // Close any pre-existing gui in the form
-        if( ui )
+        // Attempt to open the file
+        QFile* uiFile = NULL;
+        for( int i = 0; i < searchList.count(); i++ )
         {
-            delete ui;
-            ui = NULL;
+            uiFile = new QFile( searchList[i] );
+            if( uiFile->open( QIODevice::ReadOnly ) )
+                break;
+            delete uiFile;
+            uiFile = NULL;
         }
 
-        // Attempt to open the UI file.
-        // If appropriate, warn the user if the UI file could not be opened.
-        QUiLoader loader;
-        if( !uiFile->open( QIODevice::ReadOnly ) ) {
-            if( alertIfUINoFound ) {
+        // If the file was not found and opened, notify as appropriate
+        if( !uiFile )
+        {
+            if( alertIfUINoFound )
+            {
                 QString msg;
-                QTextStream(&msg) << "User interface file '" << uiFile->fileName() << "' could not be opened";
+                QTextStream(&msg) << "User interface file '" << uiFileName << "' could not be opened";
                 //!!!??? currently not working. profile not set up yet so user messages can't be displayed this early perhaps
                 userMessage.sendWarningMessage( msg, "ASguiForm::readUiFile"  );
                 qDebug() << msg;
             }
         }
 
-        // Load the UI file if opened
-        else {
+        // If the file was found and opened, load it
+        else
+        {
+            // Close any pre-existing gui in the form
+            if( ui )
+            {
+                delete ui;
+                ui = NULL;
+            }
+            QDir uiDir;
+
+            // Load the UI file if opened
             /// Ensure no other files are being monitored (belt and braces)
             QStringList monitoredPaths = fileMon.files();
             if( monitoredPaths.count())
@@ -185,10 +199,10 @@ void ASguiForm::readUiFile( bool useParentPathFromProfile )
             }
 
             /// Monitor the opened file
-            fileMon.addPath( uiDir.absoluteFilePath(uiFile->fileName()) );
+            fileMon.addPath( uiDir.absoluteFilePath( uiFile->fileName()) );
 
             /// Extract the file name part used for the window title
-            QFileInfo fileInfo( uiDir, uiFile->fileName() );
+            QFileInfo fileInfo( uiFile->fileName() );
             title = fileInfo.fileName();
             if( title.endsWith( ".ui" ) )
                 title.chop( 3 );
@@ -198,6 +212,7 @@ void ASguiForm::readUiFile( bool useParentPathFromProfile )
             profile.setPublishedParentPath( fileInfo.absolutePath() );
 
             /// Load the gui
+            QUiLoader loader;
             ui = loader.load( uiFile );
             uiFile->close();
 
@@ -218,11 +233,13 @@ void ASguiForm::readUiFile( bool useParentPathFromProfile )
 
             /// Present the gui to the user
             setWidget( ui );
+
+            // Release the QFile
+            delete uiFile;
+            uiFile = NULL;
+            fileLoaded = true;
         }
 
-        // Release the QFile
-        delete uiFile;
-        uiFile = NULL;
 
         // If the profile is not our own, restore it to how we found it
         if( !localProfile )
@@ -240,6 +257,7 @@ void ASguiForm::readUiFile( bool useParentPathFromProfile )
         }
 
     }
+    return fileLoaded;
 }
 
 // Get the form title
@@ -263,7 +281,7 @@ void ASguiForm::setVariableNameSubstitutions( QString variableNameSubstitutionsI
     if( ui )
     {
         ui->close();
-        readUiFile( false );
+        readUiFile();
     }
 }
 
@@ -283,18 +301,17 @@ void ASguiForm::fileChanged ( const QString & /*path*/ )
     }
 
     // Re-open file
-    readUiFile( false );
+    readUiFile();
 
 }
 
-// Slot for presenting messages to the user.
+// Common function for all slots presenting messages to the user.
 // Normally a gui will have provided it's own message and error handling.
 // This is only used if no environment profile has been set up when a form is created. This is the case if created within 'designer'
-// Use a general message
-void ASguiForm::onGeneralMessage( QString message )
+void ASguiForm::onMessage( QString title, QString message )
 {
     QMessageBox msgBox;
-    msgBox.setText( "Message" );
+    msgBox.setText( title );
     msgBox.setInformativeText( message );
     msgBox.exec();
 }
@@ -305,15 +322,17 @@ void ASguiForm::onGeneralMessage( QString message )
 // Launch a GUI.
 // Note, creation options are ignored as the guiForm has no application wide context to know
 // what 'creating a new tab', etc, means. A new window is always created.
- void ASguiForm::onGuiLaunch( QString guiName, QString /*variableNameSubstitutions*/, creationOptions )
+ void ASguiForm::launchGui( QString guiName, QString parentPath, QString /*variableNameSubstitutions*/, ASguiForm::creationOptions )
  {
      // Use variable name substitutions???
      // Build the gui
+    profile.setPublishedParentPath( parentPath );
     ASguiForm* gui = new ASguiForm( guiName );
     if( gui )
     {
-        gui->readUiFile( false );
+        gui->readUiFile();
     }
+    profile.setPublishedParentPath( profile.getParentPath() );
 }
 
 // Slot same as default widget setEnabled slot, but renamed to match other QCa widgets where requestEnabled() will use our own setEnabled
@@ -338,7 +357,7 @@ void ASguiForm::setVariableNameAndSubstitutions( QString, QString variableNameSu
 void    ASguiForm::setUiFileName( QString uiFileNameIn )
 {
     uiFileName = uiFileNameIn;
-    readUiFile( true );
+    readUiFile();
 }
 QString ASguiForm::getUiFileName()
 {

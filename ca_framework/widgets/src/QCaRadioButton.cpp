@@ -27,7 +27,7 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
-#include <QCaPushButton.h>
+#include <QCaRadioButton.h>
 #include <QProcess>
 #include <QMessageBox>
 #include <QMainWindow>
@@ -36,7 +36,7 @@
 /*!
     Constructor with no initialisation
 */
-QCaPushButton::QCaPushButton( QWidget *parent ) : QPushButton( parent ) {
+QCaRadioButton::QCaRadioButton( QWidget *parent ) : QRadioButton( parent ) {
     QCaGenericButton::setup();
     setup();
 }
@@ -44,7 +44,7 @@ QCaPushButton::QCaPushButton( QWidget *parent ) : QPushButton( parent ) {
 /*!
     Constructor with known variable
 */
-QCaPushButton::QCaPushButton( const QString &variableNameIn, QWidget *parent ) : QPushButton( parent ) {
+QCaRadioButton::QCaRadioButton( const QString &variableNameIn, QWidget *parent ) : QRadioButton( parent ) {
     setVariableName( variableNameIn, 0 );
 
     QCaGenericButton::setup();
@@ -55,21 +55,21 @@ QCaPushButton::QCaPushButton( const QString &variableNameIn, QWidget *parent ) :
 /*!
     Setup common to all constructors
 */
-void QCaPushButton::setup() {
-    setText( "QCaPushButton" );
+void QCaRadioButton::setup() {
+    setText( "QCaRadioButton" );
 }
 
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
-void QCaPushButton::updateToolTip ( const QString & toolTip ) {
+void QCaRadioButton::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
 /*!
    Override the default widget isEnabled to allow alarm states to override current enabled state
  */
-bool QCaPushButton::isEnabled() const
+bool QCaRadioButton::isEnabled() const
 {
     // Return what the state of widget would be if connected.
     return localEnabled;
@@ -78,7 +78,7 @@ bool QCaPushButton::isEnabled() const
 /*!
    Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
  */
-void QCaPushButton::requestEnabled( const bool& state )
+void QCaRadioButton::requestEnabled( const bool& state )
 {
     setGenericEnabled( state );
 }
