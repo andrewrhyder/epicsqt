@@ -313,11 +313,29 @@ void ASguiForm::onMessage( QString title, QString message )
  void ASguiForm::launchGui( QString guiName, ASguiForm::creationOptions )
  {
      // Build the gui
-    ASguiForm* gui = new ASguiForm( guiName );
-    if( gui )
-    {
-        gui->readUiFile();
-    }
+     // Build it in a new window.
+     //??? This could use the create options as follows: (instead of always creating a new window)
+     //       - Wind up through parents until the parent of the first scroll
+     //       - Replace the scroll area's widget with the new gui
+     QMainWindow* w = new QMainWindow;
+     ASguiForm* gui = new ASguiForm( guiName );
+     if( gui )
+     {
+         if( gui->readUiFile())
+         {
+             w->setCentralWidget( gui );
+             w->show();
+         }
+         else
+         {
+             delete gui;
+             gui = NULL;
+         }
+     }
+     else
+     {
+         delete w;
+     }
 }
 
 // Slot same as default widget setEnabled slot, but renamed to match other QCa widgets where requestEnabled() will use our own setEnabled

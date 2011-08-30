@@ -231,7 +231,7 @@ void ContainerProfile::setupLocalProfile( QObject* statusMessageConsumerIn,
 void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
 {
     if( profileDefined  )
-        publishedMacroSubstitutions.prepend( macroSubstitutionsIn );
+        publishedMacroSubstitutions.append( macroSubstitutionsIn );
 }
 
 /**
@@ -242,7 +242,7 @@ void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
 void ContainerProfile::removeMacroSubstitutions()
 {
     if( profileDefined && !publishedMacroSubstitutions.isEmpty() )
-        publishedMacroSubstitutions.removeFirst();
+        publishedMacroSubstitutions.removeLast();
 }
 
 /**

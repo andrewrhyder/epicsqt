@@ -318,6 +318,8 @@ void QCaGenericButton::userClicked( bool checked ) {
         // Remove this form's macro substitutions now all it's children are created
         profile.removeMacroSubstitutions();
 
+        // Release the profile now all QCa widgets have been created
+        profile.releaseProfile();
     }
 
 
