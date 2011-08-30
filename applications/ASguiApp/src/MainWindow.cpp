@@ -48,30 +48,13 @@ QList<ASguiForm*> MainWindow::guiList;
 // Methods for construction, destruction, initialisation
 //=================================================================================
 
-/// Constructor - No filename supplied
-MainWindow::MainWindow( QWidget *parent )  : QMainWindow( parent )
+/// Constructor
+MainWindow::MainWindow( QString fileName, bool enableEditIn, QWidget *parent )  : QMainWindow( parent )
 {
-    init( "", "", "", false );
-}
-
-/// Constructor - Filename supplied
-MainWindow::MainWindow( QString fileName, QString path, QString substitutions, bool enableEditIn, QWidget *parent )  : QMainWindow( parent )
-{
-    init( fileName, path, substitutions, enableEditIn );
-}
-
-// Common construction
-void MainWindow::init( QString fileName, QString pathIn, QString substitutionsIn, bool enableEditIn )
-{
-
-    // Save the substitutions
-    substitutions = substitutionsIn;
-
-    // Save the default path
-    path = pathIn;
-
-    // Setup the environment profile of the new form
-    profile.setupProfile( this, this, this, this, path, substitutions, false );
+    // A published profile should always be available, but the various signal consumers will always be either NULL (if the
+    // profile was set up by the ASgui application) or objects in another main window (if the profile was published by a button in a gui)
+    // Replace the signal consuming objects
+    profile.updateConsumers( this, this, this, this );
 
     // Initialise
     usingTabs = false;
@@ -125,10 +108,6 @@ MainWindow::~MainWindow()
             mainWindowList.removeAt( i );
             break;
         }
-
-    // Release the environment profile for new QCa wigets
-    profile.releaseProfile();
-
 }
 
 //=================================================================================
@@ -139,8 +118,10 @@ MainWindow::~MainWindow()
 /// Present a file open dialog box and after generate the gui based on the ui file the user selects
 void MainWindow::on_actionNew_Window_triggered()
 {
-     MainWindow* w = new MainWindow();
-     w->show();
+    profile.publishOwnProfile();
+    MainWindow* w = new MainWindow( "", enableEdit );
+    profile.releaseProfile();
+    w->show();
 }
 
 /// Open a gui in a new tab.
@@ -426,11 +407,8 @@ void MainWindow::onErrorMessage( QString message )
 //=================================================================================
 
 // Slot for launching a new gui from a contained object.
-void MainWindow::launchGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions createOption )
+void MainWindow::launchGui( QString guiName, ASguiForm::creationOptions createOption )
 {
-    profile.addMacroSubstitutions( substitutions );
-    profile.setPublishedParentPath( parentPath );
-
     // Load the new gui as required
     switch( createOption )
     {
@@ -458,7 +436,7 @@ void MainWindow::launchGui( QString guiName, QString parentPath, QString substit
         // Open the specified gui in a new window
         case ASguiForm::CREATION_OPTION_NEW_WINDOW:
             {
-                MainWindow* w = new MainWindow( guiName, path, profile.getMacroSubstitutions(), enableEdit );
+                MainWindow* w = new MainWindow( guiName, enableEdit );
                 w->show();
             }
             break;
@@ -467,9 +445,6 @@ void MainWindow::launchGui( QString guiName, QString parentPath, QString substit
             qDebug() << "MainWindow::launchGui() Unexpected gui creation option: " << createOption;
             break;
     }
-
-    profile.removeMacroSubstitutions();
-    profile.setPublishedParentPath( "" );
 }
 
 //=================================================================================
@@ -542,7 +517,7 @@ void MainWindow::setTabMode()
 QString MainWindow::GuiFileNameDialog( QString caption )
 {
     // Get the filename
-    return QFileDialog::getOpenFileName( this, caption, path, "*.ui" );
+    return QFileDialog::getOpenFileName( this, caption, profile.getPath(), "*.ui" );
 }
 
 // Create a gui
@@ -565,15 +540,13 @@ ASguiForm* MainWindow::createGui( QString fileName )
     // Build the gui
     ASguiForm* gui = new ASguiForm( fileName );
     if( gui )
+    {
+        profile.publishOwnProfile();
         gui->readUiFile();
+        profile.releaseProfile();
 
-//    // Release the environment profile for new QCa wigets
-//    profile.releaseProfile();
-
-    // Add the form to the 'windows' menu
-    if ( gui )
         addGuiToWindowsMenu( gui );
-
+}
     // Return the created gui if any
     return gui;
  }

@@ -80,7 +80,7 @@ bool ContainerProfile::profileDefined = false;
 // Note, this does not define a profile. A profile is defined only when ContainerProfile::setupProfile() is called
 ContainerProfile::ContainerProfile()
 {
-    init();
+    takeLocalCopy();
 }
 
 // Destructor
@@ -98,54 +98,128 @@ ContainerProfile::~ContainerProfile()
   This method locks access to the envionmental profile. ReleaseProfile() must be
   called to release the lock once all QCa widgets have been created.
   */
-void ContainerProfile::setupProfile( QObject* publishedStatusMessageConsumerIn,
-                                     QObject* publishedErrorMessageConsumerIn,
-                                     QObject* publishedWarningMessageConsumerIn,
+void ContainerProfile::setupProfile( QObject* statusMessageConsumerIn,
+                                     QObject* errorMessageConsumerIn,
+                                     QObject* warningMessageConsumerIn,
                                      QObject* guiLaunchConsumerIn,
-                                     QString publishedPathIn,
-                                     QString publishedMacroSubstitutionsIn,
+                                     QString pathIn,
+                                     QString parentPathIn,
+                                     QString macroSubstitutionsIn,
                                      bool interactiveIn )
 {
-    publishedStatusMessageConsumer = publishedStatusMessageConsumerIn;
-    publishedErrorMessageConsumer = publishedErrorMessageConsumerIn;
-    publishedWarningMessageConsumer = publishedWarningMessageConsumerIn;
+    publishProfile(statusMessageConsumerIn,
+                   errorMessageConsumerIn,
+                   warningMessageConsumerIn,
+                   guiLaunchConsumerIn,
+                   pathIn,
+                   parentPathIn,
+                   macroSubstitutionsIn,
+                   interactiveIn );
+    takeLocalCopy();
+}
+
+/**
+  Update published signal consumer objects
+  */
+void ContainerProfile::updateConsumers( QObject* statusMessageConsumerIn,
+                                     QObject* errorMessageConsumerIn,
+                                     QObject* warningMessageConsumerIn,
+                                     QObject* guiLaunchConsumerIn )
+{
+    if( !isProfileDefined() )
+    {
+        qDebug() << "Can't update consumers as a published profile has not yet been defined";
+        return;
+    }
+    publishedStatusMessageConsumer = statusMessageConsumerIn;
+    publishedErrorMessageConsumer = errorMessageConsumerIn;
+    publishedWarningMessageConsumer = warningMessageConsumerIn;
 
     publishedGuiLaunchConsumer = guiLaunchConsumerIn;
 
-    publishedPath = publishedPathIn;
+    takeLocalCopy();
+}
+
+void ContainerProfile::publishProfile( QObject* statusMessageConsumerIn,
+                                     QObject* errorMessageConsumerIn,
+                                     QObject* warningMessageConsumerIn,
+                                     QObject* guiLaunchConsumerIn,
+                                     QString pathIn,
+                                     QString parentPathIn,
+                                     QString macroSubstitutionsIn,
+                                     bool interactiveIn )
+{
+    // Do nothing if a profile is already defined
+    if( profileDefined )
+    {
+        qDebug() << "Can't publish a profile as one is already published";
+        return;
+    }
+
+    publishedStatusMessageConsumer = statusMessageConsumerIn;
+    publishedErrorMessageConsumer = errorMessageConsumerIn;
+    publishedWarningMessageConsumer = warningMessageConsumerIn;
+
+    publishedGuiLaunchConsumer = guiLaunchConsumerIn;
+
+    publishedPath = pathIn;
+    publishedParentPath = parentPathIn;
 
     publishedMacroSubstitutions.clear();
-    publishedMacroSubstitutions.append( publishedMacroSubstitutionsIn );
+    if( !macroSubstitutionsIn.isEmpty() )
+    {
+        publishedMacroSubstitutions.append( macroSubstitutionsIn );
+    }
 
     publishedInteractive = interactiveIn;
 
     profileDefined = true;
-
-    init();
 }
 
-void ContainerProfile::init()
+void ContainerProfile::takeLocalCopy()
 {
-
-    // Get a local copy of the current environment profile. This local copy will endure for as long as the creator of this intance keeps the object.
-    statusMessageConsumer = publishedStatusMessageConsumer;
-    errorMessageConsumer = publishedErrorMessageConsumer;
-    warningMessageConsumer = publishedWarningMessageConsumer;
-
-    guiLaunchConsumer = publishedWarningMessageConsumer;
-
-    interactive = publishedInteractive;
-
-    for( int i = 0; i < publishedMacroSubstitutions.size(); i++ ) {
-        macroSubstitutions.append( " " );
-        macroSubstitutions.append( publishedMacroSubstitutions[i] );
+    QString subs;
+    for( int i = 0; i < publishedMacroSubstitutions.size(); i++ )
+    {
+        subs.append( " " );
+        subs.append( publishedMacroSubstitutions[i] );
     }
 
-    path = publishedPath;
-    parentPath = publishedParentPath;
-
+    setupLocalProfile( publishedStatusMessageConsumer,
+                       publishedErrorMessageConsumer,
+                       publishedWarningMessageConsumer,
+                       publishedGuiLaunchConsumer,
+                       publishedPath,
+                       publishedParentPath,
+                       subs,
+                       publishedInteractive );
 }
 
+void ContainerProfile::setupLocalProfile( QObject* statusMessageConsumerIn,
+                                     QObject* errorMessageConsumerIn,
+                                     QObject* warningMessageConsumerIn,
+                                     QObject* guiLaunchConsumerIn,
+                                     QString pathIn,
+                                     QString parentPathIn,
+                                     QString macroSubstitutionsIn,
+                                     bool interactiveIn )
+{
+    statusMessageConsumer = statusMessageConsumerIn;
+    errorMessageConsumer = errorMessageConsumerIn;
+    warningMessageConsumer = warningMessageConsumerIn;
+
+    guiLaunchConsumer = guiLaunchConsumerIn;
+
+    macroSubstitutions = macroSubstitutionsIn;
+
+    interactive = interactiveIn;
+
+    macroSubstitutions = macroSubstitutionsIn;
+
+    path = pathIn;
+    parentPath = parentPathIn;
+
+}
 
 /**
   Extend the macro substitutions currently being used by all new QCaWidgets.
@@ -172,6 +246,21 @@ void ContainerProfile::removeMacroSubstitutions()
 }
 
 /**
+  Set the published profile to whatever is saved in our local copy
+  */
+void ContainerProfile::publishOwnProfile()
+{
+    publishProfile( statusMessageConsumer,
+                          errorMessageConsumer,
+                          warningMessageConsumer,
+                          guiLaunchConsumer,
+                          path,
+                          parentPath,
+                          macroSubstitutions,
+                          interactive);
+}
+
+/**
   Clears any profile context. Must be called by any code that calls setupProfile() once the profile should no longer be used
   */
 void ContainerProfile::releaseProfile()
@@ -182,13 +271,14 @@ void ContainerProfile::releaseProfile()
 
     publishedGuiLaunchConsumer = NULL;
 
-    publishedMacroSubstitutions.clear();
     publishedPath.clear();
     publishedParentPath.clear();
 
-    containedWidgets.clear();
+    publishedMacroSubstitutions.clear();
 
     publishedInteractive = false;
+
+    containedWidgets.clear();
 
     profileDefined = false;
 }

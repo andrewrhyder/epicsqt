@@ -77,7 +77,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
         void onErrorMessage( QString message )  { onMessage( "Error",   message ); }
         void onWarningMessage( QString message ){ onMessage( "Warning", message ); }
 
-        void launchGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions createOption );
+        void launchGui( QString guiName, ASguiForm::creationOptions createOption );
     private slots:
         void fileChanged ( const QString & path );
 

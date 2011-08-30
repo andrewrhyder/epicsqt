@@ -96,15 +96,10 @@ void QCaGenericButton::guiSetup() {
     // If a profile is define by whatever contains the button, use it
     if( profile.isProfileDefined() )
     {
-        // A profile is already defined, either by the gui application or a ASGui form form.
-        // Extend any variable name substitutions with this form's substitutions
-        profile.addMacroSubstitutions( getVariableNameSubstitutions() );
-
         // Setup a signal to launch a new gui
         // The signal will be used by whatever the button is in
-        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, QString, QString, ASguiForm::creationOptions ) ),
-                          profile.getGuiLaunchConsumer(), SLOT( launchGui( QString, QString, QString, ASguiForm::creationOptions ) ) );
-
+        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, ASguiForm::creationOptions ) ),
+                          profile.getGuiLaunchConsumer(), SLOT( launchGui( QString,ASguiForm::creationOptions ) ) );
     }
 
     // A profile is not already defined, create one. This is the case if this class is used by an application that does not set up a profile, such as 'designer'.
@@ -114,8 +109,8 @@ void QCaGenericButton::guiSetup() {
         userMessage.setup( getButtonQObject() );
 
         // Set up the button's own gui form launcher
-        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, QString, QString, ASguiForm::creationOptions ) ),
-                          getButtonQObject(), SLOT( launchGui( QString, QString, QString, ASguiForm::creationOptions ) ) );
+        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, ASguiForm::creationOptions ) ),
+                          getButtonQObject(), SLOT( launchGui( QString, ASguiForm::creationOptions ) ) );
     }
 }
 
@@ -311,7 +306,18 @@ void QCaGenericButton::userClicked( bool checked ) {
     // If a new GUI is required, start it
     if( !guiName.isEmpty() )
     {
-        emitNewGui( substituteThis( guiName ), profile.getParentPath(), getVariableNameSubstitutions(), creationOption );
+
+        // Publish the profile this button recieved
+        profile.publishOwnProfile();
+
+        // Extend any variable name substitutions with this button's substitutions
+        profile.addMacroSubstitutions( getVariableNameSubstitutions() );
+
+        emitNewGui( substituteThis( guiName ), creationOption );
+
+        // Remove this form's macro substitutions now all it's children are created
+        profile.removeMacroSubstitutions();
+
     }
 
 
@@ -639,18 +645,14 @@ void QCaGenericButton::onGeneralMessage( QString message )
 // Slot for launching a new gui.
 // This is the button's default action for launching a gui.
 // Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.
-void QCaGenericButton::launchGui( QString guiName, QString parentPath, QString /*substitutions*/, ASguiForm::creationOptions )
+void QCaGenericButton::launchGui( QString guiName, ASguiForm::creationOptions )
 {
-    // Extend substitutions???
-
-
     // Build the gui
     // Build it in a new window.
     //??? This could use the create options as follows: (instead of always creating a new window)
     //       - Wind up through parents until the parent of the first scroll
     //       - Replace the scroll area's widget with the new gui
     QMainWindow* w = new QMainWindow;
-    profile.setPublishedParentPath( parentPath );
     ASguiForm* gui = new ASguiForm( guiName );
     if( gui )
     {
@@ -669,5 +671,4 @@ void QCaGenericButton::launchGui( QString guiName, QString parentPath, QString /
     {
         delete w;
     }
-    profile.setPublishedParentPath( profile.getParentPath() );
 }

@@ -162,7 +162,7 @@ protected:
     void userReleased();
     void userClicked( bool checked );
 
-    void launchGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions creationOption );
+    void launchGui( QString guiName, ASguiForm::creationOptions creationOption );
 
 public:
     void onGeneralMessage( QString message );
@@ -217,7 +217,7 @@ private:
     virtual void setButtonStyleSheet( QString style ) = 0;
 
     virtual void emitDbValueChanged( QString text ) = 0;
-    virtual void emitNewGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions creationOption ) = 0;
+    virtual void emitNewGui( QString guiName, ASguiForm::creationOptions creationOption ) = 0;
 
     virtual void connectButtonDataChange( qcaobject::QCaObject* qca ) = 0;
 

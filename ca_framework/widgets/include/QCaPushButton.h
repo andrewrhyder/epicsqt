@@ -55,7 +55,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
 
 
 public slots:
-    void launchGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions creationOption ){ QCaGenericButton::launchGui( guiName, parentPath, substitutions, creationOption); }
+    void launchGui( QString guiName, ASguiForm::creationOptions creationOption ){ QCaGenericButton::launchGui( guiName, creationOption); }
 
     void requestEnabled( const bool& state );
 
@@ -65,7 +65,7 @@ public slots:
   signals:
     void dbValueChanged( const QString& out );
 
-    void newGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions creationOption );
+    void newGui( QString guiName, ASguiForm::creationOptions creationOption );
 
 
   protected:
@@ -84,7 +84,7 @@ private:
 
     void emitDbValueChanged( QString text ){ emit dbValueChanged( text ); }
 
-    void emitNewGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions creationOption  ){ emit newGui( guiName, parentPath, substitutions, creationOption); }
+    void emitNewGui( QString guiName, ASguiForm::creationOptions creationOption  ){ emit newGui( guiName, creationOption); }
 
     void connectButtonDataChange( qcaobject::QCaObject* qca )
     {

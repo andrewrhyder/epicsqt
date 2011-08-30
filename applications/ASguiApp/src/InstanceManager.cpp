@@ -35,9 +35,9 @@
     the parameters and this instance of ASgui should start a new window regardless of the -s parameter.
 */
 
-#include "InstanceManager.h"
+#include <InstanceManager.h>
 #include <MainWindow.h>
-
+#include <ContainerProfile.h>
 
 #define ASGUISERVERNAME "ASguiInstance"
 
@@ -46,6 +46,9 @@ instanceManager::instanceManager( QObject *parent ) : QObject( parent )
     // Create a socket
     socket = new QLocalSocket(this);
     socket->connectToServer( ASGUISERVERNAME, QIODevice::WriteOnly );
+
+    // Assume no server
+    server = NULL;
 
     // If no other instance is found, discard the socket  and start a server for future instances
     // (no socket will be used to indicate no other instance)
@@ -62,12 +65,19 @@ instanceManager::instanceManager( QObject *parent ) : QObject( parent )
         server = new QLocalServer( this );
         connect( server, SIGNAL(newConnection()), this, SLOT(connected()));
         if( !server->listen( ASGUISERVERNAME ))
+        {
             qDebug() << "Couldn't start server";
+            delete server;
+            server = NULL;
+        }
     }
 }
 
 instanceManager::~instanceManager()
 {
+    delete socket;
+    if( server )
+        delete server;
 }
 
 bool instanceManager::handball( startupParams* params )
@@ -109,7 +119,10 @@ void instanceManager::readParams()
 // Create a new main window
 void instanceManager::newWindow( const startupParams& params )
 {
-    MainWindow* mw = new MainWindow( params.filename, params.path, params.substitutions, params.enableEdit );
+    ContainerProfile profile;
+    profile.setupProfile( NULL, NULL, NULL, NULL, params.path, "", params.substitutions, false );
+    MainWindow* mw = new MainWindow( params.filename, params.enableEdit );
+    profile.releaseProfile();
     mw->show();
 //    setActivationWindow( mw );
 }

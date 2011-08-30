@@ -56,15 +56,28 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ContainerProfile
 public:
     ContainerProfile();    // Construction. Sets up local copies of any profile defined by setupProfile() in an earlier instance
     ~ContainerProfile();   // Destruction
-    void init();
+    void takeLocalCopy();
 
     void setupProfile( QObject* statusMessageConsumerIn,
                        QObject* errorMessageConsumerIn,
                        QObject* warningMessageConsumerIn,
                        QObject* guiLaunchConsumerIn,
                        QString pathIn,
+                       QString parentPathIn,
                        QString macroSubstitutionsIn,
-                       bool interactiveIn );      // Setup an environmental profile for all QcaWidgets to use on creation
+                       bool interactiveIn );      // Setup a local and published environmental profile for all QcaWidgets to use on creation
+    void setupLocalProfile( QObject* statusMessageConsumerIn,
+                            QObject* errorMessageConsumerIn,
+                            QObject* warningMessageConsumerIn,
+                            QObject* guiLaunchConsumerIn,
+                            QString pathIn,
+                            QString parentPathIn,
+                            QString macroSubstitutionsIn,
+                            bool interactiveIn );      // Setup the local environmental profile for this instance only
+    void updateConsumers( QObject* statusMessageConsumerIn,
+                          QObject* errorMessageConsumerIn,
+                          QObject* warningMessageConsumerIn,
+                          QObject* guiLaunchConsumerIn );  // Update the local and published signal consumer objects
     QObject* replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn );  // Override the current GUI launch consumer
 
     void addMacroSubstitutions( QString macroSubstitutionsIn ); // Add another set of macro substitutions to those setup by setupProfile(). Used as sub forms are created
@@ -86,7 +99,18 @@ public:
 
     void releaseProfile();                                  // Clears the context setup by setupProfile(). Local data in all instances is still valid
 
+    void publishOwnProfile();                           // Set the published profile to whatever is saved in our local copy
+
 private:
+    void publishProfile( QObject* statusMessageConsumerIn,
+                         QObject* errorMessageConsumerIn,
+                         QObject* warningMessageConsumerIn,
+                         QObject* guiLaunchConsumerIn,
+                         QString pathIn,
+                         QString publishedParentPathIn,
+                         QString macroSubstitutionsIn,
+                         bool interactiveIn );      // Publish an environmental profile for all QcaWidgets to use on creation
+
     static QObject* publishedStatusMessageConsumer;     // Object to send status message event to
     static QObject* publishedErrorMessageConsumer;      // Object to send error message event to
     static QObject* publishedWarningMessageConsumer;    // Object to send warning message event to
@@ -107,7 +131,7 @@ private:
     QString path;                    // Local copy of application path used for file operations
     QString parentPath;              // Local copy of parent object path used for file operations
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
-    bool interactive;              // Local copy of 'is interactive' flag. Still valid after the profile has been released by releaseProfile()
+    bool interactive;                // Local copy of 'is interactive' flag. Still valid after the profile has been released by releaseProfile()
 
 };
 

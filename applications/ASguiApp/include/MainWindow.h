@@ -43,13 +43,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0 );
-    MainWindow( QString fileName, QString path, QString substitutions, bool editEnabled, QWidget *parent = 0 );
+    MainWindow( QString fileName, bool editEnabled, QWidget *parent = 0 );
 
     ~MainWindow();
 
 private:
-    void init( QString fileName, QString pathIn, QString substitutionsIn, bool enableEditIn );   // Code common to all constructors
     bool enableEdit;                                        // Enable edit menu
     Ui::MainWindowClass ui;                                 // Main window layout
     static QList<ASguiForm*> guiList;                       // Shared list of all forms being displayed in all main windows
@@ -75,8 +73,8 @@ private:
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
 
     QString GuiFileNameDialog( QString caption );           // Get a gui filename from the user
-    QString path;                                           // Default path when looking for GUI ui files
-    QString substitutions;                                  // Default substitutions when creating a new GUI form
+//    QString path;                                           // Default path when looking for GUI ui files
+//    QString substitutions;                                  // Default substitutions when creating a new GUI form
     ContainerProfile profile;                               // Environment profile for new QCa wigets
 
 
@@ -95,7 +93,7 @@ private slots:
     void onWarningMessage( QString message );       // Slot to recieve warning messages from GUIs
     void onErrorMessage( QString message );         // Slot to recieve error messages from GUIs
 
-    void launchGui( QString guiName, QString parentPath, QString substitutions, ASguiForm::creationOptions creationOption );
+    void launchGui( QString guiName, ASguiForm::creationOptions creationOption );
 
     void tabCurrentChanged( int index );            // Slot to act on user changing tabs
     void tabCloseRequest( int index );              // Slot to act on user closing a tab

@@ -75,6 +75,13 @@ void ASguiForm::commonInit( const bool alertIfUINoFoundIn )
     alertIfUINoFound = alertIfUINoFoundIn;
     handleGuiLaunchRequests = false;
 
+    // Setup a valid local profile if no profile was published
+    if( !profile.isProfileDefined() )
+    {
+        userMessage.setup( this );
+        profile.setupLocalProfile( this, this, this, this, QDir::currentPath(), "", "", true );
+    }
+
     // Prepare to recieve notification that the ui file being displayed has changed
     QObject::connect( &fileMon, SIGNAL( fileChanged( const QString & ) ), this, SLOT( fileChanged( const QString & ) ) );
 }
@@ -99,36 +106,6 @@ bool ASguiForm::readUiFile()
 
         // Set up the environment profile for any QCa widgets created by the form
         QObject* savedGuiLaunchConsumer = NULL;
-
-
-        // Get the container profile (attributes and services provided by whatever is containing this form)
-        // (If there is no container profile - such as when being previewed in designer, or if an application
-        // has not defined one - then create a local one)
-        ContainerProfile profile;
-        bool localProfile;
-        if( profile.isProfileDefined() )
-        {
-            // Flag the profile was not set up in this function (and so should not be released in this function)
-            localProfile = false;
-
-            // A profile is already defined, either by the gui application or by a higher level form.
-            // Extend any variable name substitutions with this form's substitutions
-            profile.addMacroSubstitutions( variableNameSubstitutions );
-
-            // If this form is handling form launch requests from object created within it, replace any form launcher with our own
-            if( handleGuiLaunchRequests )
-                savedGuiLaunchConsumer = profile.replaceGuiLaunchConsumer( this );
-        }
-        else
-        {
-            // Flag the profile was set up in this function (and so should be released in this function)
-            localProfile = true;
-
-            // A profile is not already defined. This is the case if this class is the base to a form plugin loaded by 'designer'.
-            // Use this form's default message handling, always handle any GUI launch requests, and add this form's substitutions
-            userMessage.setup( this );
-            profile.setupProfile( this, this, this, this, QDir::currentPath(), variableNameSubstitutions, true );
-        }
 
         // Build a list of all the places we expect to find the file
         // Use a single location if an absolute path was specified.
@@ -207,17 +184,42 @@ bool ASguiForm::readUiFile()
             if( title.endsWith( ".ui" ) )
                 title.chop( 3 );
 
+            // If profile has been published (for example by an application creating this form), then publish our own local profile
+            bool localProfile = false;
+            if( !profile.isProfileDefined() )
+            {
+                // Flag the profile was set up in this function (and so should be released in this function)
+                localProfile = true;
+
+                profile.publishOwnProfile();
+            }
+
+            // Add this form's macro substitutions for all it's children to use
+            profile.addMacroSubstitutions( variableNameSubstitutions );
+
             // Temporarily update the published current object's path to the path of the form being created.
             // Any objects created within the form (for example sub forms) can then know where their parent form is located.
             profile.setPublishedParentPath( fileInfo.absolutePath() );
 
-            /// Load the gui
+            // If this form is handling form launch requests from object created within it, replace any form launcher with our own
+            if( handleGuiLaunchRequests )
+                savedGuiLaunchConsumer = profile.replaceGuiLaunchConsumer( this );
+
+            // Load the gui
             QUiLoader loader;
             ui = loader.load( uiFile );
             uiFile->close();
 
+            // Remove this form's macro substitutions now all it's children are created
+            profile.removeMacroSubstitutions();
+
             // Reset the published current object's path to what ever it was
             profile.setPublishedParentPath( profile.getParentPath() );
+
+            // If this form is handling form launch requests from object created within it, put back any original
+            // form launcher now all objects have been created
+            if ( handleGuiLaunchRequests )
+                 profile.replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
 
             /// Any QCa widgets that have just been created need to be activated.
             /// Note, this is only required when QCa widgets are not loaded within a form and not directly by 'designer'.
@@ -227,9 +229,11 @@ bool ASguiForm::readUiFile()
             while( (containedWidget = profile.getNextContainedWidget()) )
                 containedWidget->activate();
 
-            // Remove the macro substitutions added for this form
-            // This is irrelelvent (but harmless) if there was no profile already defined.
-            profile.removeMacroSubstitutions();
+            // If the published profile was published within this method, release it so nothing created later tries to use this object's services
+            if( localProfile )
+            {
+                profile.releaseProfile();
+            }
 
             /// Present the gui to the user
             setWidget( ui );
@@ -240,21 +244,6 @@ bool ASguiForm::readUiFile()
             fileLoaded = true;
         }
 
-
-        // If the profile is not our own, restore it to how we found it
-        if( !localProfile )
-        {
-            /// If this form is handling form launch requests from object created within it, put back any original
-            /// form launcher now all objects have been created
-            if ( handleGuiLaunchRequests )
-                 profile.replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
-        }
-
-        // The profile was created within this function. Release it so nothing created later tries to use this object's services
-        else
-        {
-            profile.releaseProfile();
-        }
 
     }
     return fileLoaded;
@@ -302,7 +291,6 @@ void ASguiForm::fileChanged ( const QString & /*path*/ )
 
     // Re-open file
     readUiFile();
-
 }
 
 // Common function for all slots presenting messages to the user.
@@ -322,17 +310,14 @@ void ASguiForm::onMessage( QString title, QString message )
 // Launch a GUI.
 // Note, creation options are ignored as the guiForm has no application wide context to know
 // what 'creating a new tab', etc, means. A new window is always created.
- void ASguiForm::launchGui( QString guiName, QString parentPath, QString /*variableNameSubstitutions*/, ASguiForm::creationOptions )
+ void ASguiForm::launchGui( QString guiName, ASguiForm::creationOptions )
  {
-     // Use variable name substitutions???
      // Build the gui
-    profile.setPublishedParentPath( parentPath );
     ASguiForm* gui = new ASguiForm( guiName );
     if( gui )
     {
         gui->readUiFile();
     }
-    profile.setPublishedParentPath( profile.getParentPath() );
 }
 
 // Slot same as default widget setEnabled slot, but renamed to match other QCa widgets where requestEnabled() will use our own setEnabled
