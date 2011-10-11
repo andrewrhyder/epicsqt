@@ -37,8 +37,9 @@
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
 #include <QCaPluginLibrary_global.h>
+#include <QCaStringFormattingMethods.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWidget, public QCaStringFormattingMethods {
     Q_OBJECT
 
   public:
@@ -73,43 +74,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWi
     void setConfirmWrite( bool confirmWrite );
     bool getConfirmWrite();
 
-    // String formatting properties
-
-    // precision
-    void setPrecision( unsigned int precision );
-    unsigned int getPrecision();
-
-    // useDbPrecision
-    void setUseDbPrecision( bool useDbPrecision );
-    bool getUseDbPrecision();
-
-    // leadingZero
-    void setLeadingZero( bool leadingZero );
-    bool getLeadingZero();
-
-    // trailingZeros
-    void setTrailingZeros( bool trailingZeros );
-    bool getTrailingZeros();
-
-    // addUnits
-    void setAddUnits( bool addUnits );
-    bool getAddUnits();
-
-    // format
-    void setFormat( QCaStringFormatting::formats format );
-    QCaStringFormatting::formats getFormat();
-
-    // radix
-    void setRadix( unsigned int radix );
-    unsigned int getRadix();
-
-    // notation
-    void setNotation( QCaStringFormatting::notations notation );
-    QCaStringFormatting::notations getNotation();
-
-
 protected:
-    QCaStringFormatting stringFormatting;   /// String formatting options
     bool writeOnLoseFocus;                  /// Write changed value to database when widget object loses focus (user moves from widget)
     bool writeOnEnter;                      /// Write changed value to database when enter is pressed with focus on the widget
     bool localEnabled;                      /// Override the default widget setEnabled to allow alarm states to override current enabled state
@@ -128,6 +93,7 @@ protected:
 
   signals:
     void dbValueChanged( const QString& out );
+    void requestResend();
 
   private:
     void setup();
@@ -138,6 +104,8 @@ protected:
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
+
+    void stringFormattingChange(){ requestResend(); }
 };
 
 #endif /// QCALINEEDIT_H

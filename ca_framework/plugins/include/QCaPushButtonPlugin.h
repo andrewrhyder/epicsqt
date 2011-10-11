@@ -96,6 +96,7 @@ class QCaPushButtonPlugin : public QCaPushButton {
     Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
     Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
     Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
+    Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
     Q_PROPERTY(Qt::Alignment alignment READ getTextAlignment WRITE setTextAlignment )
 
     Q_ENUMS(Formats)
@@ -104,7 +105,8 @@ class QCaPushButtonPlugin : public QCaPushButton {
                    Floating        = QCaStringFormatting::FORMAT_FLOATING,
                    Integer         = QCaStringFormatting::FORMAT_INTEGER,
                    UnsignedInteger = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time            = QCaStringFormatting::FORMAT_TIME };
+                   Time            = QCaStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
     void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
     Formats getFormatProperty(){ return (Formats)getFormat(); }
 

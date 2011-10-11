@@ -105,6 +105,8 @@ void QCaLineEdit::establishConnection( unsigned int variableIndex ) {
                           this, SLOT( setTextIfNoFocus( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+        QObject::connect( this, SIGNAL( requestResend() ),
+                          qca, SLOT( resendLastData() ) );
     }
 }
 
@@ -384,86 +386,3 @@ bool QCaLineEdit::getConfirmWrite()
 {
     return confirmWrite;
 }
-
-// String formatting properties
-
-// precision
-void QCaLineEdit::setPrecision( unsigned int precision )
-{
-    stringFormatting.setPrecision( precision );
-}
-unsigned int QCaLineEdit::getPrecision()
-{
-    return stringFormatting.getPrecision();
-}
-
-// useDbPrecision
-void QCaLineEdit::setUseDbPrecision( bool useDbPrecision )
-{
-    stringFormatting.setUseDbPrecision( useDbPrecision);
-}
-bool QCaLineEdit::getUseDbPrecision()
-{
-    return stringFormatting.getUseDbPrecision();
-}
-
-// leadingZero
-void QCaLineEdit::setLeadingZero( bool leadingZero )
-{
-    stringFormatting.setLeadingZero( leadingZero );
-}
-bool QCaLineEdit::getLeadingZero()
-{
-    return stringFormatting.getLeadingZero();
-}
-
-// trailingZeros
-void QCaLineEdit::setTrailingZeros( bool trailingZeros )
-{
-    stringFormatting.setTrailingZeros( trailingZeros );
-}
-bool QCaLineEdit::getTrailingZeros()
-{
-    return stringFormatting.getTrailingZeros();
-}
-
-// addUnits
-void QCaLineEdit::setAddUnits( bool addUnits )
-{
-    stringFormatting.setAddUnits( addUnits );
-}
-bool QCaLineEdit::getAddUnits()
-{
-    return stringFormatting.getAddUnits();
-}
-
-// format
-void QCaLineEdit::setFormat( QCaStringFormatting::formats format )
-{
-    stringFormatting.setFormat( format );
-}
-QCaStringFormatting::formats QCaLineEdit::getFormat()
-{
-    return stringFormatting.getFormat();
-}
-
-// radix
-void QCaLineEdit::setRadix( unsigned int radix )
-{
-    stringFormatting.setRadix( radix);
-}
-unsigned int QCaLineEdit::getRadix()
-{
-    return stringFormatting.getRadix();
-}
-
-// notation
-void QCaLineEdit::setNotation( QCaStringFormatting::notations notation )
-{
-    stringFormatting.setNotation( notation );
-}
-QCaStringFormatting::notations QCaLineEdit::getNotation()
-{
-    return stringFormatting.getNotation();
-}
-

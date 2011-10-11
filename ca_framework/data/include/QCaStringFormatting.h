@@ -36,6 +36,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDataStream>
+#include <QTextStream>
 #include <QCaPluginLibrary_global.h>
 
 
@@ -43,7 +44,8 @@
 class localEnumerationItem {
     public:
     enum operations { LESS, LESS_EQUAL, EQUAL, NOT_EQUAL, GREATER_EQUAL, GREATER, ALWAYS, UNKNOWN };
-    int value;                  // Value data is compared to
+    double dValue;              // Numeric value that numeric data is compared to (derived from sValue if possible)
+    QString sValue;             // Text value that textual data is compared with
     operations op;              // Operator used for comparison used between data and value (=,<,>)
     QString text;               // Text used if the data value matches
 };
@@ -105,9 +107,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
   private:
     // Type specific conversion functions
     void formatFromFloating( const QVariant& value );
-    void formatFromInteger( const QVariant& value, const bool doLocalEnumeration );
+    void formatFromInteger( const QVariant& value );
     void formatFromUnsignedInteger( const QVariant& value );
     void formatFromTime( const QVariant& value );
+    void formatFromEnumeration( const QVariant& value );
 
     // Error reporting
     void formatFailure( QString message );

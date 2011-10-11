@@ -113,6 +113,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../data/include/QCaConnectionInfo.h \
     ../data/include/qepicspv.h \
     ../widgets/include/managePixmaps.h \
+    ../widgets/include/QCaStringFormattingMethods.h \
     ../widgets/include/QCaSpinBox.h \
     ../widgets/include/QCaComboBox.h \
     ../widgets/include/QCaSlider.h \
@@ -195,6 +196,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/QCaConnectionInfo.cpp \
     ../data/src/qepicspv.cpp \
     ../widgets/src/managePixmaps.cpp \
+    ../widgets/src/QCaStringFormattingMethods.cpp \
     ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \
     ../widgets/src/QCaSlider.cpp \

@@ -67,6 +67,7 @@ public slots:
 
     void newGui( QString guiName, ASguiForm::creationOptions creationOption );
 
+    void requestResend();
 
   protected:
 
@@ -90,9 +91,13 @@ private:
     {
                 QObject::connect( qca,  SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                                   this, SLOT( setButtonText( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
     }
 
     QObject* getButtonQObject(){ return this; }
+
+    void stringFormattingChange(){ requestResend(); }
 };
 
 #endif /// QCAPUSHBUTTON_H

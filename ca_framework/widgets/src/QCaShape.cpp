@@ -692,7 +692,8 @@ double QCaShape::getStartAngle()
 void QCaShape::setRotation( double rotationIn )
 {
     rotation = rotationIn;
-    update(); }
+    update();
+}
 double QCaShape::getRotation()
 {
     return rotation;

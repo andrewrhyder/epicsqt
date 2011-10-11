@@ -38,8 +38,9 @@
 #include <QCaStringFormatting.h>
 #include <QCaPluginLibrary_global.h>
 #include <managePixmaps.h>
+#include <QCaStringFormattingMethods.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget, public managePixmaps {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
     Q_OBJECT
 
   public:
@@ -64,52 +65,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget, 
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
-    // String formatting properties
-
-    // precision
-    void setPrecision( unsigned int precision );
-    unsigned int getPrecision();
-
-    // useDbPrecision
-    void setUseDbPrecision( bool useDbPrecision );
-    bool getUseDbPrecision();
-
-    // leadingZero
-    void setLeadingZero( bool leadingZero );
-    bool getLeadingZero();
-
-    // trailingZeros
-    void setTrailingZeros( bool trailingZeros );
-    bool getTrailingZeros();
-
-    // addUnits
-    void setAddUnits( bool addUnits );
-    bool getAddUnits();
-
-    // localEnumeration
-    void setLocalEnumeration( QString localEnumeration );
-    QString getLocalEnumeration();
-
-    // format
-    void setFormat( QCaStringFormatting::formats format );
-    QCaStringFormatting::formats getFormat();
-
-    // radix
-    void setRadix( unsigned int radix );
-    unsigned int getRadix();
-
-    // notation
-    void setNotation( QCaStringFormatting::notations notation );
-    QCaStringFormatting::notations getNotation();
-
-    // arrayAction
-    void setArrayAction( QCaStringFormatting::arrayActions arrayAction );
-    QCaStringFormatting::arrayActions getArrayAction();
-
-    // arrayIndex
-    void setArrayIndex( unsigned int arrayIndex );
-    unsigned int getArrayIndex();
-
     // visible (widget is visible outside 'Designer')
     void setRunVisible( bool visibleIn );
     bool getRunVisible();
@@ -117,7 +72,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget, 
 
 
   protected:
-    QCaStringFormatting stringFormatting;
     bool caEnabled;
 
     void establishConnection( unsigned int variableIndex );
@@ -144,6 +98,15 @@ private slots:
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
+
+    QString lastColor;
+
+    QString defaultStyleSheet;
+    QString alarmStyleSheet;
+    QString colorStyleSheet;
+    void updateStyleSheet();
+
+    void stringFormattingChange(){ requestResend(); }
 };
 
 #endif /// QCALABEL_H

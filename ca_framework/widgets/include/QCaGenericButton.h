@@ -32,8 +32,9 @@
 #include <UserMessage.h>
 #include <ContainerProfile.h>
 #include <managePixmaps.h>
+#include <QCaStringFormattingMethods.h>
 
-class QCaGenericButton : public QCaWidget, public managePixmaps {
+class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
 
   public:
     enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON };
@@ -62,40 +63,6 @@ class QCaGenericButton : public QCaWidget, public managePixmaps {
     // Update option (icon, text, or both)
     void setUpdateOption( updateOptions updateOptionIn );
     updateOptions getUpdateOption();
-
-    // String formatting properties
-
-    // precision
-    void setPrecision( unsigned int precision );
-    unsigned int getPrecision();
-
-    // useDbPrecision
-    void setUseDbPrecision( bool useDbPrecision );
-    bool getUseDbPrecision();
-
-    // leadingZero
-    void setLeadingZero( bool leadingZero );
-    bool getLeadingZero();
-
-    // trailingZeros
-    void setTrailingZeros( bool trailingZeros );
-    bool getTrailingZeros();
-
-    // addUnits
-    void setAddUnits( bool addUnits );
-    bool getAddUnits();
-
-    // format
-    void setFormat( QCaStringFormatting::formats format );
-    QCaStringFormatting::formats getFormat();
-
-    // radix
-    void setRadix( unsigned int radix );
-    unsigned int getRadix();
-
-    // notation
-    void setNotation( QCaStringFormatting::notations notation );
-    QCaStringFormatting::notations getNotation();
 
     // text alignment
     void setTextAlignment( Qt::Alignment alignment );
@@ -168,7 +135,6 @@ public:
     void onGeneralMessage( QString message );
 
   protected:
-    QCaStringFormatting stringFormatting;
     Qt::Alignment textAlignment;
 
     bool writeOnPress;

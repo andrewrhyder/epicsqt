@@ -64,6 +64,8 @@ void QCaLabel::setup() {
     QWidget::setEnabled( false );  // Reflects initial disconnected state
     updateOption = UPDATE_TEXT;
 
+    defaultStyleSheet = styleSheet();
+    qDebug() << "Setup" << defaultStyleSheet;
     // Use label signals
     // --Currently none--
 }
@@ -139,7 +141,38 @@ void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
     Update the label text
     This is the slot used to recieve data updates from a QCaObject based class.
  */
-void QCaLabel::setLabelText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QCaLabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+qDebug() << textIn;
+
+    // Extract any formatting info from the text
+    QString text = textIn;
+    QString color;
+    int colorStart = text.indexOf( '<' );
+    if( colorStart >= 0 )
+    {
+        int colorEnd = text.indexOf( '>', colorStart );
+        if( colorEnd >= 1 )
+        {
+            color = text.mid( colorStart+1, colorEnd-colorStart-1 );
+            text = text.left( colorStart ).append( text.right( text.length()-colorEnd-1 ));
+        }
+    }
+
+    // Update the color
+    if( color.compare( lastColor ) )
+    {
+        if( !color.isEmpty() )
+        {
+            colorStyleSheet = QString( "QWidget { " ).append( color ).append( "; }");
+        }
+        else
+        {
+            colorStyleSheet = "";
+        }
+        updateStyleSheet();
+        lastColor = color;
+        qDebug() << colorStyleSheet;
+    }
 
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( text );
@@ -160,10 +193,27 @@ void QCaLabel::setLabelText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDa
     /// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
     {
-            updateToolTipAlarm( alarmInfo.severityName() );
-            setStyleSheet( alarmInfo.style() );
-            lastSeverity = alarmInfo.getSeverity();
+        updateToolTipAlarm( alarmInfo.severityName() );
+        alarmStyleSheet = alarmInfo.style();
+        lastSeverity = alarmInfo.getSeverity();
+
+        updateStyleSheet();
+        qDebug() << colorStyleSheet;
     }
+}
+
+/*!
+   Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
+ */
+void QCaLabel::updateStyleSheet()
+{
+    qDebug() << "defaultStyleSheet: " << defaultStyleSheet;
+    qDebug() << "alarmStyleSheet: " << alarmStyleSheet;
+    qDebug() << "colorStyleSheet: " << colorStyleSheet;
+    QString newStyleSheet;
+    newStyleSheet.append( defaultStyleSheet ).append( alarmStyleSheet ).append( colorStyleSheet );
+    qDebug() << "styleSheet: " << newStyleSheet;
+    setStyleSheet( newStyleSheet );
 }
 
 /*!
@@ -225,129 +275,6 @@ void QCaLabel::setUpdateOption( updateOptions updateOptionIn )
 QCaLabel::updateOptions QCaLabel::getUpdateOption()
 {
     return updateOption;
-}
-
-// String formatting properties
-
-// precision
-void QCaLabel::setPrecision( unsigned int precision )
-{
-    stringFormatting.setPrecision( precision );
-    emit requestResend();
-}
-unsigned int QCaLabel::getPrecision()
-{
-    return stringFormatting.getPrecision();
-}
-
-// useDbPrecision
-void QCaLabel::setUseDbPrecision( bool useDbPrecision )
-{
-    stringFormatting.setUseDbPrecision( useDbPrecision);
-    emit requestResend();
-}
-bool QCaLabel::getUseDbPrecision()
-{
-    return stringFormatting.getUseDbPrecision();
-}
-
-// leadingZero
-void QCaLabel::setLeadingZero( bool leadingZero )
-{
-    stringFormatting.setLeadingZero( leadingZero );
-    emit requestResend();
-}
-bool QCaLabel::getLeadingZero()
-{
-    return stringFormatting.getLeadingZero();
-}
-
-// trailingZeros
-void QCaLabel::setTrailingZeros( bool trailingZeros )
-{
-    stringFormatting.setTrailingZeros( trailingZeros );
-    emit requestResend();
-}
-bool QCaLabel::getTrailingZeros()
-{
-    return stringFormatting.getTrailingZeros();
-}
-
-// addUnits
-void QCaLabel::setAddUnits( bool addUnits )
-{
-    stringFormatting.setAddUnits( addUnits );
-    emit requestResend();
-}
-bool QCaLabel::getAddUnits()
-{
-    return stringFormatting.getAddUnits();
-}
-
-// localEnumeration
-void QCaLabel::setLocalEnumeration( QString localEnumeration )
-{
-    stringFormatting.setLocalEnumeration( localEnumeration );
-    emit requestResend();
-}
-QString QCaLabel::getLocalEnumeration()
-{
-    return stringFormatting.getLocalEnumeration();
-}
-
-// format
-void QCaLabel::setFormat( QCaStringFormatting::formats format )
-{
-    stringFormatting.setFormat( format );
-    emit requestResend();
-}
-QCaStringFormatting::formats QCaLabel::getFormat()
-{
-    return stringFormatting.getFormat();
-}
-
-// radix
-void QCaLabel::setRadix( unsigned int radix )
-{
-    stringFormatting.setRadix( radix);
-    emit requestResend();
-}
-unsigned int QCaLabel::getRadix()
-{
-    return stringFormatting.getRadix();
-}
-
-// notation
-void QCaLabel::setNotation( QCaStringFormatting::notations notation )
-{
-    stringFormatting.setNotation( notation );
-    emit requestResend();
-}
-QCaStringFormatting::notations QCaLabel::getNotation()
-{
-    return stringFormatting.getNotation();
-}
-
-// arrayAction
-void QCaLabel::setArrayAction( QCaStringFormatting::arrayActions arrayAction )
-{
-    stringFormatting.setArrayAction( arrayAction );
-    emit requestResend();
-}
-QCaStringFormatting::arrayActions QCaLabel::getArrayAction()
-{
-    return stringFormatting.getArrayAction();
-}
-
-// arrayIndex
-void QCaLabel::setArrayIndex( unsigned int arrayIndex )
-{
-    stringFormatting.setArrayIndex( arrayIndex );
-    emit requestResend();
-}
-unsigned int QCaLabel::getArrayIndex()
-{
-    return stringFormatting.getArrayIndex();
 }
 
 // visible (widget is visible outside 'Designer')
