@@ -48,7 +48,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaRadioButton : public QRadioButton, public
 
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo ) { QCaGenericButton::connectionChanged( connectionInfo ); }
-    void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) { QCaGenericButton::setButtonText( text, alarmInfo, timestamp, variableIndex); }
+    void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) { setGenericButtonText( text, alarmInfo, timestamp, variableIndex); }
     void userPressed() { QCaGenericButton::userPressed(); }
     void userReleased() { QCaGenericButton::userReleased(); }
     void userClicked( bool checked ) { QCaGenericButton::userClicked( checked ); }
@@ -75,6 +75,7 @@ private:
     void setup();
     void updateToolTip ( const QString & toolTip );
 
+    void setButtonState( bool checked ){ QRadioButton::setChecked( checked ); }
     void setButtonText( QString text ){ QRadioButton::setText( text ); }
     QString getButtonText(){ return text(); }
     void setButtonIcon( QIcon& icon ) {setIcon( icon ); }
@@ -98,6 +99,8 @@ private:
     QObject* getButtonQObject(){ return this; }
 
     void stringFormattingChange(){ requestResend(); }
+
+    QCaGenericButton::updateOptions getDefaultUpdateOption() { return QCaGenericButton::UPDATE_STATE; }
 
 };
 

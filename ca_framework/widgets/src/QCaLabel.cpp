@@ -65,7 +65,6 @@ void QCaLabel::setup() {
     updateOption = UPDATE_TEXT;
 
     defaultStyleSheet = styleSheet();
-    qDebug() << "Setup" << defaultStyleSheet;
     // Use label signals
     // --Currently none--
 }
@@ -142,36 +141,34 @@ void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
     This is the slot used to recieve data updates from a QCaObject based class.
  */
 void QCaLabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
-qDebug() << textIn;
 
     // Extract any formatting info from the text
     QString text = textIn;
-    QString color;
-    int colorStart = text.indexOf( '<' );
-    if( colorStart >= 0 )
+    QString textStyle;
+    int textStyleStart = text.indexOf( '<' );
+    if( textStyleStart >= 0 )
     {
-        int colorEnd = text.indexOf( '>', colorStart );
-        if( colorEnd >= 1 )
+        int textStyleEnd = text.indexOf( '>', textStyleStart );
+        if( textStyleEnd >= 1 )
         {
-            color = text.mid( colorStart+1, colorEnd-colorStart-1 );
-            text = text.left( colorStart ).append( text.right( text.length()-colorEnd-1 ));
+            textStyle = text.mid( textStyleStart+1, textStyleEnd-textStyleStart-1 );
+            text = text.left( textStyleStart ).append( text.right( text.length()-textStyleEnd-1 ));
         }
     }
 
     // Update the color
-    if( color.compare( lastColor ) )
+    if( textStyle.compare( lastTextStyle ) )
     {
-        if( !color.isEmpty() )
+        if( !textStyle.isEmpty() )
         {
-            colorStyleSheet = QString( "QWidget { " ).append( color ).append( "; }");
+            textStyleSheet = QString( "QWidget { " ).append( textStyle ).append( "; }");
         }
         else
         {
-            colorStyleSheet = "";
+            textStyleSheet = "";
         }
         updateStyleSheet();
-        lastColor = color;
-        qDebug() << colorStyleSheet;
+        lastTextStyle = textStyle;
     }
 
     /// Signal a database value change to any Link widgets
@@ -198,7 +195,6 @@ qDebug() << textIn;
         lastSeverity = alarmInfo.getSeverity();
 
         updateStyleSheet();
-        qDebug() << colorStyleSheet;
     }
 }
 
@@ -207,12 +203,8 @@ qDebug() << textIn;
  */
 void QCaLabel::updateStyleSheet()
 {
-    qDebug() << "defaultStyleSheet: " << defaultStyleSheet;
-    qDebug() << "alarmStyleSheet: " << alarmStyleSheet;
-    qDebug() << "colorStyleSheet: " << colorStyleSheet;
     QString newStyleSheet;
-    newStyleSheet.append( defaultStyleSheet ).append( alarmStyleSheet ).append( colorStyleSheet );
-    qDebug() << "styleSheet: " << newStyleSheet;
+    newStyleSheet.append( defaultStyleSheet ).append( alarmStyleSheet ).append( textStyleSheet );
     setStyleSheet( newStyleSheet );
 }
 

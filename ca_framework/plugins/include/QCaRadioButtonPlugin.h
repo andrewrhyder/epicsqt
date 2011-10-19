@@ -58,7 +58,8 @@ class QCaRadioButtonPlugin : public QCaRadioButton {
     Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
     enum UpdateOptions { Text        = QCaRadioButton::UPDATE_TEXT,
                          Icon        = QCaRadioButton::UPDATE_ICON,
-                         TextAndIcon = QCaRadioButton::UPDATE_TEXT_AND_ICON };
+                         TextAndIcon = QCaRadioButton::UPDATE_TEXT_AND_ICON,
+                         State       = QCaRadioButton::UPDATE_STATE };
     void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QCaRadioButton::updateOptions)updateOption ); }
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 

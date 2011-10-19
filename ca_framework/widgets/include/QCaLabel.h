@@ -99,11 +99,11 @@ private slots:
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
-    QString lastColor;
+    QString lastTextStyle;
 
     QString defaultStyleSheet;
     QString alarmStyleSheet;
-    QString colorStyleSheet;
+    QString textStyleSheet;
     void updateStyleSheet();
 
     void stringFormattingChange(){ requestResend(); }

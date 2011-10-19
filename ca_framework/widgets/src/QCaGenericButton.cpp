@@ -77,6 +77,7 @@ void QCaGenericButton::dataSetup() {
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
+    updateOption = getDefaultUpdateOption();
 }
 
 /*!
@@ -140,7 +141,10 @@ void QCaGenericButton::establishConnection( unsigned int variableIndex ) {
         // Get updates if subscribing
         if( subscribe )
         {
-            setButtonText( "" );
+            if( updateOption == UPDATE_TEXT || updateOption == UPDATE_TEXT_AND_ICON)
+            {
+                setButtonText( "" );
+            }
             connectButtonDataChange( qca );
         }
 
@@ -187,7 +191,7 @@ void QCaGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
   Implement a slot to set the current text of the push button
   This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QCaGenericButton::setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
+void QCaGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
     /// If not subscribing, then do nothing.
     /// Note, This will still be called even if not subscribing as there may be an initial sing shot read
@@ -197,6 +201,13 @@ void QCaGenericButton::setButtonText( const QString& text, QCaAlarmInfo& alarmIn
 
     /// Signal a database value change to any Link widgets
     emitDbValueChanged( text );
+
+    /// Update the button state if required
+    /// Display checked if text matches what is written when checked
+    if( updateOption == UPDATE_STATE )
+    {
+        setButtonState( !text.compare( clickCheckedText ) );
+    }
 
     /// Update the text if required
     if( updateOption == UPDATE_TEXT || updateOption == UPDATE_TEXT_AND_ICON )

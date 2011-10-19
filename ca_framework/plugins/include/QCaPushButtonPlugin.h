@@ -58,7 +58,8 @@ class QCaPushButtonPlugin : public QCaPushButton {
     Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
     enum UpdateOptions { Text        = QCaPushButton::UPDATE_TEXT,
                          Icon        = QCaPushButton::UPDATE_ICON,
-                         TextAndIcon = QCaPushButton::UPDATE_TEXT_AND_ICON };
+                         TextAndIcon = QCaPushButton::UPDATE_TEXT_AND_ICON,
+                         State       = QCaPushButton::UPDATE_STATE };
     void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QCaPushButton::updateOptions)updateOption ); }
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 

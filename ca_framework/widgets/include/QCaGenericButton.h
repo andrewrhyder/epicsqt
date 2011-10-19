@@ -37,7 +37,7 @@
 class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
 
   public:
-    enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON };
+    enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON, UPDATE_STATE };
 
     bool isEnabled() const;
     void setGenericEnabled( const bool& state );
@@ -121,15 +121,16 @@ class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStrin
     void setLabelTextProperty( QString labelTextIn );
     QString getLabelTextProperty();
 
-
 protected:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
+    void setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void userPressed();
     void userReleased();
     void userClicked( bool checked );
 
     void launchGui( QString guiName, ASguiForm::creationOptions creationOption );
+
+    virtual updateOptions getDefaultUpdateOption() = 0;
 
 public:
     void onGeneralMessage( QString message );
@@ -175,6 +176,7 @@ private:
     UserMessage userMessage;
     ContainerProfile profile;
 
+    virtual void setButtonState( bool checked ) = 0;
     virtual void setButtonText( QString text ) = 0;
     virtual QString getButtonText() = 0;
     virtual void setButtonIcon( QIcon& icon ) = 0;
