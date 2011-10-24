@@ -611,8 +611,12 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
-            for( int i = 0; i < incommingData->no_str; i++ ) {
-                caRecord.addEnumState( std::string( incommingData->strs[i] ) );
+            if( caRecord.getEnumStateCount() == 0 )
+            {
+                for( int i = 0; i < incommingData->no_str; i++ )
+                {
+                    caRecord.addEnumState( std::string( incommingData->strs[i] ) );
+                }
             }
             caRecord.setUnsignedShort( &incommingData->value, args.count );
             break;
