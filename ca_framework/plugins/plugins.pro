@@ -41,8 +41,6 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QSubstitutedLabel.png \
     src/QCaComboBox.png \
     src/Link.png \
-    src/GuiPushButton.png \
-    src/CmdPushButton.png \
     src/ASguiForm.png \
     src/QCaPeriodic.png \
     src/QAnalogProgressBar.png \
@@ -65,11 +63,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaLineEditPluginManager.h \
     include/QCaLineEditPlugin.h \
     include/QCaDesignerPlugin.h \
-    include/GuiPushButtonPluginManager.h \
-    include/GuiPushButtonPlugin.h \
     include/ContainerProfile.h \
-    include/CmdPushButtonPluginManager.h \
-    include/CmdPushButtonPlugin.h \
     include/ASguiFormPluginManager.h \
     include/ASguiFormPlugin.h \
     include/QCaLabelPluginManager.h \
@@ -155,11 +149,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/LinkPluginManager.cpp \
     src/LinkPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
-    src/GuiPushButtonPluginManager.cpp \
-    src/GuiPushButtonPlugin.cpp \
     src/ContainerProfile.cpp \
-    src/CmdPushButtonPluginManager.cpp \
-    src/CmdPushButtonPlugin.cpp \
     src/ASguiFormPluginManager.cpp \
     src/ASguiFormPlugin.cpp \
     src/QCaPlotPlugin.cpp \

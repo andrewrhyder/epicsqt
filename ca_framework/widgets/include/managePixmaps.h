@@ -37,10 +37,9 @@ class managePixmaps {
     // Property convenience functions
 
     // Pixmaps
-    void setDataPixmap( QPixmap& Pixmap, unsigned int index );
-    QPixmap getDataPixmap( unsigned int index );
-    QPixmap getDataPixmap( QString value );
-
+    void setDataPixmap( const QPixmap& Pixmap, const unsigned int index );
+    QPixmap getDataPixmap( const unsigned int index );
+    QPixmap getDataPixmap( const QString value );
 
   protected:
 

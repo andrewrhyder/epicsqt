@@ -34,8 +34,6 @@
 #include <QCaLineEditPluginManager.h>
 #include <QCaPushButtonPluginManager.h>
 #include <QCaRadioButtonPluginManager.h>
-#include <GuiPushButtonPluginManager.h>
-#include <CmdPushButtonPluginManager.h>
 #include <QCaShapePluginManager.h>
 #include <QCaSliderPluginManager.h>
 #include <QCaSpinBoxPluginManager.h>
@@ -62,8 +60,6 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaLineEditPluginManager(this));
     widgets.append(new QCaPushButtonPluginManager(this));
     widgets.append(new QCaRadioButtonPluginManager(this));
-    widgets.append(new GuiPushButtonPluginManager(this));
-    widgets.append(new CmdPushButtonPluginManager(this));
     widgets.append(new QCaShapePluginManager(this));
     widgets.append(new QCaSliderPluginManager(this));
     widgets.append(new QCaSpinBoxPluginManager(this));

@@ -34,6 +34,9 @@
 #include <managePixmaps.h>
 #include <QCaStringFormattingMethods.h>
 
+//! Maximum number of variables.
+#define NUM_VARIABLES 2
+
 class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
 
   public:
@@ -67,6 +70,10 @@ class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStrin
     // text alignment
     void setTextAlignment( Qt::Alignment alignment );
     Qt::Alignment getTextAlignment();
+
+    // password
+    void setPassword( QString password );
+    QString getPassword();
 
     // write on press
     void setWriteOnPress( bool writeOnPress );
@@ -123,7 +130,7 @@ class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStrin
 
 protected:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
+    void setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
     void userPressed();
     void userReleased();
     void userClicked( bool checked );
@@ -137,6 +144,8 @@ public:
 
   protected:
     Qt::Alignment textAlignment;
+
+    QString password; // Text to be entered in a dialog before any action
 
     bool writeOnPress;
     bool writeOnRelease;
@@ -190,6 +199,7 @@ private:
     virtual void connectButtonDataChange( qcaobject::QCaObject* qca ) = 0;
 
     virtual QObject* getButtonQObject() = 0;
+    bool checkPassword();
 };
 
 #endif /// QCAGENERICBUTTON_H

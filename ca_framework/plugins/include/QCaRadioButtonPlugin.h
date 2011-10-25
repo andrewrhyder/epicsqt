@@ -117,6 +117,8 @@ class QCaRadioButtonPlugin : public QCaRadioButton {
     void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
     Notations getNotationProperty(){ return (Notations)getNotation(); }
 
+    Q_PROPERTY(QString password READ getPassword WRITE setPassword)
+
     Q_PROPERTY(bool writeOnPress READ getWriteOnPress WRITE setWriteOnPress)
     Q_PROPERTY(bool writeOnRelease READ getWriteOnRelease WRITE setWriteOnRelease)
     Q_PROPERTY(bool writeOnClick READ getWriteOnClick WRITE setWriteOnClick)

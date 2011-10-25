@@ -41,13 +41,17 @@ class QCaPushButtonPlugin : public QCaPushButton {
 
     /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     /// A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
-    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
-    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
-    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
+    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty)
+    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManagers[0].setVariableNameProperty( variableName ); }
+    QString getVariableNameProperty(){ return variableNamePropertyManagers[0].getVariableNameProperty(); }
+
+    Q_PROPERTY(QString altReadbackVariable READ getAltReadbackVariableNameProperty WRITE setAltReadbackVariableNameProperty)
+    void    setAltReadbackVariableNameProperty( QString altReadbackVariableName ){ variableNamePropertyManagers[1].setVariableNameProperty( altReadbackVariableName ); }
+    QString getAltReadbackVariableNameProperty(){ return variableNamePropertyManagers[1].getVariableNameProperty(); }
 
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
-    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
+    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManagers[0].getSubstitutionsProperty(); }
 
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
@@ -119,6 +123,8 @@ class QCaPushButtonPlugin : public QCaPushButton {
     void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
     Notations getNotationProperty(){ return (Notations)getNotation(); }
 
+    Q_PROPERTY(QString password READ getPassword WRITE setPassword)
+
     Q_PROPERTY(bool writeOnPress READ getWriteOnPress WRITE setWriteOnPress)
     Q_PROPERTY(bool writeOnRelease READ getWriteOnRelease WRITE setWriteOnRelease)
     Q_PROPERTY(bool writeOnClick READ getWriteOnClick WRITE setWriteOnClick)
@@ -150,7 +156,7 @@ class QCaPushButtonPlugin : public QCaPushButton {
 
 
   private:
-    QCaVariableNamePropertyManager variableNamePropertyManager;
+    QCaVariableNamePropertyManager variableNamePropertyManagers[NUM_VARIABLES];
 
   private slots:
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );

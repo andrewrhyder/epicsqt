@@ -32,6 +32,7 @@
 #include <QMessageBox>
 #include <QMainWindow>
 #include <QIcon>
+#include <QInputDialog>
 
 /*!
     Setup common to all constructors
@@ -52,8 +53,8 @@ void QCaGenericButton::setup() {
 */
 void QCaGenericButton::dataSetup() {
     // Set up data
-    // This control used a single data source
-    setNumVariables(1);
+    // This control uses two data sources, the first is written to and (by default) read from. The second is the alternative read back
+    setNumVariables(NUM_VARIABLES);
 
     // Set up default properties
     writeOnPress = false;
@@ -138,8 +139,13 @@ void QCaGenericButton::establishConnection( unsigned int variableIndex ) {
 
     // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
     if(  qca ) {
-        // Get updates if subscribing
-        if( subscribe )
+        // Get updates if subscribing and if this is the alternate read back, or if this is the primary readback and there is no alternate read back.
+        if( subscribe &&
+            (
+              ( variableIndex == 1 /*1=Alternate readback variable*/ ) ||
+              ( variableIndex == 0 /*0=Primary readback variable*/ && getSubstitutedVariableName(1/*1=Alternate readback variable*/ ).isEmpty() )
+            )
+          )
         {
             if( updateOption == UPDATE_TEXT || updateOption == UPDATE_TEXT_AND_ICON)
             {
@@ -191,13 +197,19 @@ void QCaGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
   Implement a slot to set the current text of the push button
   This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QCaGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
+void QCaGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex )
 {
-    /// If not subscribing, then do nothing.
-    /// Note, This will still be called even if not subscribing as there may be an initial sing shot read
-    /// to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribe )
+    // If not subscribing, or subscribing but update is not for the readback variable, then do nothing.
+    //
+    // Note, This will still be called even if not subscribing as there may be an initial sing shot read
+    // to ensure we have valid information about the variable when it is time to do a write.
+    //
+    // Note, variableIndex = 0 = Primary readback variable, variableIndex = 1 = Alternate readback variable,
+    // so an update for variable 1 is always OK, an update from variable 0 is OK as long as there is no variable 1
+    if( !subscribe || ( variableIndex == 0 && !getSubstitutedVariableName( 1 ).isEmpty() ))
+    {
         return;
+    }
 
     /// Signal a database value change to any Link widgets
     emitDbValueChanged( text );
@@ -242,7 +254,7 @@ void QCaGenericButton::userPressed() {
     /// If a QCa object is present (if there is a variable to write to)
     /// and the object is set up to write when the user presses the button
     /// then write the value
-    if( qca && writeOnPress ) {
+    if( qca && writeOnPress && checkPassword() ) {
         qca->writeString( substituteThis( pressText ));
     }
 }
@@ -258,7 +270,7 @@ void QCaGenericButton::userReleased() {
     /// If a QCa object is present (if there is a variable to write to)
     /// and the object is set up to write when the user releases the button
     /// then write the value
-    if( qca && writeOnRelease ) {
+    if( qca && writeOnRelease && checkPassword() ) {
         qca->writeString( substituteThis( releaseText ));
     }
 }
@@ -269,6 +281,10 @@ void QCaGenericButton::userReleased() {
 void QCaGenericButton::userClicked( bool checked ) {
     /// Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
+
+    // Do nothing if some action is due to be taken, but user does not anter any required password correctly
+    if( ( writeOnClick || !program.isEmpty() || !guiName.isEmpty() ) && !checkPassword() )
+        return;
 
     /// If a QCa object is present (if there is a variable to write to)
     /// and the object is set up to write when the user clicks the button
@@ -334,6 +350,37 @@ void QCaGenericButton::userClicked( bool checked ) {
     }
 
 
+}
+
+/*!
+  Check the password.
+  Return true if there is no password, or if the user enters it correctly.
+  Return false if the user cancels, or enteres an incorrect password.
+  Give the user a warning message if a password is entered incorrectly.
+*/
+bool QCaGenericButton::checkPassword()
+{
+    // All OK if there is no password
+    if( password.isEmpty() )
+       return true;
+
+    // Ask the user what the password is
+    bool ok;
+    QString text = QInputDialog::getText( (QWidget*)getButtonQObject(), "Password", "Password:", QLineEdit::Password, "", &ok );
+
+    // If the user canceled, silently return password failure
+    if( !ok )
+        return false;
+
+    // If the user entered the wrong password, show a warning, then return password failure
+    if ( text.compare( password ) )
+    {
+        QMessageBox::warning( (QWidget*)getButtonQObject(), "Incorrect Password", "You entered the wrong password. No action will be taken" );
+        return false;
+    }
+
+    // All OK, return password success
+    return true;
 }
 
 /*!
@@ -430,6 +477,16 @@ Qt::Alignment QCaGenericButton::getTextAlignment()
     return textAlignment;
 }
 
+// password
+void QCaGenericButton::setPassword( QString password )
+{
+    QCaGenericButton::password = password;
+}
+QString QCaGenericButton::getPassword()
+{
+    return QCaGenericButton::password;
+}
+
 // write on press
 void QCaGenericButton::setWriteOnPress( bool writeOnPress )
 {
@@ -459,7 +516,6 @@ bool QCaGenericButton::getWriteOnClick()
 {
     return QCaGenericButton::writeOnClick;
 }
-
 
 // press value
 void QCaGenericButton::setPressText( QString pressText )

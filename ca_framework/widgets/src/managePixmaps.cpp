@@ -24,8 +24,10 @@
 
 
 #include <managePixmaps.h>
+
 managePixmaps::managePixmaps()
 {
+    // Initialy set all pixmaps to a blank pixmap
     QPixmap blank;
     for( int i = 0; i < NUM_PIXMAPS_MANAGED; i++)
     {
@@ -33,7 +35,7 @@ managePixmaps::managePixmaps()
     }
 }
 
-void managePixmaps::setDataPixmap( QPixmap& pixmap, unsigned int index )
+void managePixmaps::setDataPixmap( const QPixmap& pixmap, const unsigned int index )
 {
     // Sanity check
     if( index >= (unsigned int)pixmaps.count() )
@@ -43,7 +45,7 @@ void managePixmaps::setDataPixmap( QPixmap& pixmap, unsigned int index )
     pixmaps[index] = pixmap;
 }
 
-QPixmap managePixmaps::getDataPixmap( unsigned int index )
+QPixmap managePixmaps::getDataPixmap( const unsigned int index )
 {
     // Sanity check
     if( index >= (unsigned int)pixmaps.count() )
@@ -56,15 +58,27 @@ QPixmap managePixmaps::getDataPixmap( unsigned int index )
     return pixmaps[index];
 }
 
-QPixmap managePixmaps::getDataPixmap( QString text )
+QPixmap managePixmaps::getDataPixmap( const QString text )
 {
-    bool ok;
-    double dValue = text.toDouble( &ok );
+    QStringList list = text.simplified().split(QRegExp("\\s+"));
+
+    // Attempt to interpret the text as a floating point number
+    bool ok = false;
+    double dValue = 0.0;
+
+    if( list.count() )
+        dValue = list[0].toDouble( &ok );
+
+    // Convert any resultant floating point number to a pixmap index
     unsigned int iValue = (unsigned int)dValue;
+
+    // If the text was interpreted as a floating point number, select and return the pixmap
     if( ok )
     {
         return getDataPixmap( iValue );
     }
+
+    // If the text could not be interpreted as a floating point number, return a blank pixmap
     else
     {
         QPixmap blank;
