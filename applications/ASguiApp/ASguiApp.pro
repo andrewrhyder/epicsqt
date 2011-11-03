@@ -21,8 +21,8 @@
 # - Build the code
 # - Run the program from a terminal
 # - analyse the results with the command: gprof <your-program-name>
-QMAKE_CXXFLAGS_DEBUG += -pg
-QMAKE_LFLAGS_DEBUG += -pg
+#QMAKE_CXXFLAGS_DEBUG += -pg
+#QMAKE_LFLAGS_DEBUG += -pg
 QT += network
 TARGET = ASgui
 TEMPLATE = app
