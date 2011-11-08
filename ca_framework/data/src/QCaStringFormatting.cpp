@@ -92,7 +92,7 @@ QVariant QCaStringFormatting::formatValue( const QString &text ) {
     //??? should know the record type (passed in to QCaStringFormatting::formatValue() )
 
     // Strip unit if present
-    QString unitlessText = text.trimmed();
+    QString unitlessText = text;
     if( addUnits )
     {
         if( dbEgu == unitlessText.right( dbEgu.length() ) )
