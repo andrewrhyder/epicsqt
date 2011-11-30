@@ -94,7 +94,7 @@ bool instanceManager::handball( startupParams* params )
     socket->write( ba );
 
     // Wait until it is gone.
-    // The application will be closing down almost immedietly and we don't
+    // The application will be closing down almost immedietly and if we don't
     // wait here it doesn't get written
     socket->waitForBytesWritten ( 10000 );
 
@@ -121,7 +121,7 @@ void instanceManager::newWindow( const startupParams& params )
 {
     ContainerProfile profile;
     profile.setupProfile( NULL, NULL, NULL, NULL, params.path, "", params.substitutions, false );
-    MainWindow* mw = new MainWindow( params.filename, params.enableEdit );
+    MainWindow* mw = new MainWindow( params.filename, params.enableEdit, params.disableMenu );
     profile.releaseProfile();
     mw->show();
 //    setActivationWindow( mw );

@@ -37,6 +37,7 @@
 startupParams::startupParams()
 {
     enableEdit = false;
+    disableMenu = false;
     singleApp = false;
 }
 
@@ -54,6 +55,7 @@ void startupParams::getSharedParams( const QByteArray& in )
     const char* d = in.constData();
 
     enableEdit    = (bool)(d[len]);    len += 1;
+    disableMenu   = (bool)(d[len]);    len += 1;
     singleApp     = (bool)(d[len]);    len += 1;
     filename.append( &(d[len]) );      len += filename.size()+1;
     path.append( &(d[len]) );          len += path.size()+1;
@@ -68,6 +70,7 @@ void startupParams::setSharedParams( QByteArray& out )
     int len = 0;
 
     out[len++] = enableEdit;
+    out[len++] = disableMenu;
     out[len++] = singleApp;
     out.insert( len, filename.toAscii() );       len += filename.size();        out[len++] = '\0';
     out.insert( len, path.toAscii() );           len += path.size()+1;          out[len++] = '\0';
@@ -104,11 +107,17 @@ void startupParams::getStartupParams( QStringList args )
                     enableEdit = true;
                     break;
 
-                    // 'Single App' flag
-                    case 's':
-                    case 'S':
-                        singleApp = true;
-                        break;
+                // 'Single App' flag
+                case 's':
+                case 'S':
+                    singleApp = true;
+                    break;
+
+                        // 'Menu disabled' flag
+                case 'm':
+                case 'M':
+                    disableMenu = true;
+                    break;
 
                 // 'path' flag (Remainder of argument is the path)
                 case 'p':

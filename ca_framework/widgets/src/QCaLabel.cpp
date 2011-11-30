@@ -143,6 +143,7 @@ void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
 void QCaLabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     // Extract any formatting info from the text
+    // For example "<background-color: red>Engineering Mode" or "<color: red>not selected"
     QString text = textIn;
     QString textStyle;
     int textStyleStart = text.indexOf( '<' );

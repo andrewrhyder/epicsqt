@@ -43,12 +43,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow( QString fileName, bool editEnabled, QWidget *parent = 0 );
+    MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn, QWidget *parent = 0 );
 
     ~MainWindow();
 
 private:
     bool enableEdit;                                        // Enable edit menu
+    bool disableMenu;                                       // Disable menu bar
     Ui::MainWindowClass ui;                                 // Main window layout
     static QList<ASguiForm*> guiList;                       // Shared list of all forms being displayed in all main windows
     static QList<MainWindow*> mainWindowList;               // Shared list of all main windows

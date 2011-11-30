@@ -49,7 +49,7 @@ QList<ASguiForm*> MainWindow::guiList;
 //=================================================================================
 
 /// Constructor
-MainWindow::MainWindow( QString fileName, bool enableEditIn, QWidget *parent )  : QMainWindow( parent )
+MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn, QWidget *parent )  : QMainWindow( parent )
 {
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
     // profile was set up by the ASgui application) or objects in another main window (if the profile was published by a button in a gui)
@@ -79,6 +79,14 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, QWidget *parent )  
     enableEdit = enableEditIn;
     if( enableEdit )
         ui.menuEdit->setEnabled( true );
+
+    // Hide the main tool bar (nothing in it yet)
+    ui.mainToolBar->hide();
+
+    // Hide the menu bar if not required
+    disableMenu = disableMenuIn;
+    if( disableMenu )
+        ui.menuBar->hide();
 
     // If no filename was supplied, open the file selection dialog
     // Do it after the creation of the main window is complete
@@ -119,7 +127,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNew_Window_triggered()
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( "", enableEdit );
+    MainWindow* w = new MainWindow( "", enableEdit, disableMenu );
     profile.releaseProfile();
     w->show();
 }
@@ -436,7 +444,7 @@ void MainWindow::launchGui( QString guiName, ASguiForm::creationOptions createOp
         // Open the specified gui in a new window
         case ASguiForm::CREATION_OPTION_NEW_WINDOW:
             {
-                MainWindow* w = new MainWindow( guiName, enableEdit );
+                MainWindow* w = new MainWindow( guiName, enableEdit, disableMenu );
                 w->show();
             }
             break;

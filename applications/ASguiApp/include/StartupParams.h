@@ -51,6 +51,7 @@ class startupParams
 
     // Startup parameters
     bool enableEdit;                                // Flag true if 'Edit' menu should be available
+    bool disableMenu;                               // Flag true if menu bar should be disabled
     bool singleApp;                                 // True if only a single instance of this application should be started
     QString filename;                               // Default gui file name
     QString path;                                   // Default gui file path
