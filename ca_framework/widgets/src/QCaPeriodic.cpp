@@ -173,14 +173,14 @@ QCaPeriodic::elementInfoStruct QCaPeriodic::elementInfo[NUM_ELEMENTS] = {
 /*!
     Constructor with no initialisation
 */
-QCaPeriodic::QCaPeriodic( QWidget *parent ) : QFrame( parent ), QCaWidget() {
+QCaPeriodic::QCaPeriodic( QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaPeriodic::QCaPeriodic( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QCaWidget() {
+QCaPeriodic::QCaPeriodic( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -224,6 +224,7 @@ void QCaPeriodic::setup() {
     localEnabled = true;
     variableTolerance1 = 0.1;
     variableTolerance2 = 0.1;
+    setAllowDrop( false );
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -780,6 +781,19 @@ void QCaPeriodic::updatePresentationOptions()
 }
 
 //==============================================================================
+// Drag drop
+void QCaPeriodic::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaPeriodic::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
 // Property convenience functions
 
 
@@ -822,6 +836,18 @@ void QCaPeriodic::setVariableAsToolTip( bool variableAsToolTipIn )
 bool QCaPeriodic::getVariableAsToolTip()
 {
     return variableAsToolTip;
+}
+
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaPeriodic::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaPeriodic::getAllowDrop()
+{
+    return allowDrop;
 }
 
 // variable 1 type

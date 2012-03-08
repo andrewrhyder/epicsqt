@@ -1,17 +1,3 @@
-/* $File: //ASP/Personal/starritt/qt/QCaBitStatus.h $
- * $Revision: #1 $
- * $DateTime: 2011/06/11 21:36:00 $
- * Last checked in by: $Author: starritt $
-*/
-
-/*!
-  \class QCaBitStatus
-  \version $Revision: #1 $
-  \date $DateTime: 2011/06/11 21:36:00 $
-  \author andrew.starritt
-  \brief CA Bit Status Widget.
- */
-
 /*  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
@@ -69,6 +55,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaBitStatus : public QBitStatus, public QCa
                WRITE setVariableAsToolTip)
 
    Q_PROPERTY (bool enabled READ isEnabled WRITE setEnabled)
+   Q_PROPERTY (bool allowDrop READ getAllowDrop WRITE setAllowDrop)
 
    // Display properties
    //
@@ -102,6 +89,10 @@ public:
    void setVariableAsToolTip (bool variableAsToolTip);
    bool getVariableAsToolTip ();
 
+   // Allow user to drop new PVs into this widget
+   void setAllowDrop( bool allowDropIn );
+   bool getAllowDrop();
+
    // Display properties
    // visible (widget is visible outside 'Designer')
    //
@@ -116,6 +107,7 @@ protected:
    QCaIntegerFormatting integerFormatting;
    bool localEnabled;
    bool visible;      // Flag true if the widget should be visible outside 'Designer'
+   bool allowDrop;
 
    void establishConnection (unsigned int variableIndex);
 
@@ -143,6 +135,15 @@ private slots:
 
 signals:
    void dbValueChanged (const long &out);
+
+   // Drag and Drop
+protected:
+   void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+   void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+   void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+   void setDropText( QString text );
+   QString getDropText();
+
 };
 
 #endif                          /// QCABITSTATUS_H

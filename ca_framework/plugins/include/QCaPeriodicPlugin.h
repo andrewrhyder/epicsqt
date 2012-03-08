@@ -79,6 +79,7 @@ class QCaPeriodicPlugin : public QCaPeriodic {
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
 
 
     Q_ENUMS(PresentationOptions)

@@ -1,10 +1,3 @@
-/*! 
-  \class QCaShape
-  \version $Revision: #12 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief CA Shape Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -90,6 +83,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     void setVariableAsToolTip( const bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
+
     // shape
     void setShape( Shape shape );
     Shape getShape();
@@ -139,6 +136,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
 
   protected:
     QCaIntegerFormatting integerFormatting;                     /// Integer formatting options
+    bool allowDrop;
 
 
   #define OFFSETS_SIZE NUM_VARIABLES
@@ -211,6 +209,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     double painterCurrentTranslateY;
 
     QPoint scaledOriginTranslation;
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
 };
 
 #endif /// QCASHAPE_H

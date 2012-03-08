@@ -93,11 +93,11 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     if( recordName.right( statName.length() ) == statName )
         isStatField = true;
 
-    /// Set initial states of the connection and link as reported by the event system.
+    // Set initial states of the connection and link as reported by the event system.
     lastEventChannelState = caconnection::NEVER_CONNECTED;
     lastEventLinkState = caconnection::LINK_DOWN;
 
-    /// This object will post events to itself to transfer processing to a Qt aware thread via this filter.
+    // This object will post events to itself to transfer processing to a Qt aware thread via this filter.
     eventHandler = newEventHandler;
     eventFilter.addFilter( eventHandler );
 
@@ -108,8 +108,13 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
 
     QObject::connect( &setChannelTimer, SIGNAL( timeout() ), this, SLOT( setChannelExpired() ) );
     setChannelTimer.stop();
-    /// Start/request connecting state
+    // Start/request connecting state
     connectionMachine->process( qcastatemachine::CONNECTED );
+
+    // Add the record name to the drag text
+    QStringList dragText = eventHandler->property( "dragText" ).toStringList();
+    dragText.append( recordName );
+    eventHandler->setProperty( "dragText", dragText );
 }
 
 /*!
@@ -117,36 +122,48 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     they pop out of the event queue. Also, remove the event filter if this is the last QCaObject.
 */
 QCaObject::~QCaObject() {
-    /// Prevent channel access callbacks.
-    /// There will be no more callbacks from CaObject after this call returns.
-    /// Without this, a callback could occur while the outstanding events list contents
-    /// is being marked as 'to be ignored' (below). While access to the list is thread safe, this would
-    /// result in an active event in the event queue which would be cause this QCaObject to be accessed
-    /// after deletion.
+    // Remove our PV from the drag text.
+    QStringList dragText = eventHandler->property( "dragText" ).toStringList();
+    for( int i = 0; i < dragText.size(); i++ )
+    {
+        if( !dragText[i].compare( recordName ) )
+        {
+            dragText.removeAt( i );
+            eventHandler->setProperty( "dragText", dragText );
+            break;
+        }
+    }
+
+    // Prevent channel access callbacks.
+    // There will be no more callbacks from CaObject after this call returns.
+    // Without this, a callback could occur while the outstanding events list contents
+    // is being marked as 'to be ignored' (below). While access to the list is thread safe, this would
+    // result in an active event in the event queue which would be cause this QCaObject to be accessed
+    // after deletion.
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
     p->removeChannel();
 
-    /// Protect access to pending events list
+    // Protect access to pending events list
     QMutexLocker locker( &pendingEventsLock );
 
-    /// Ensure processing of outstanding events will not access this QCaObject after deletion.
-    /// If an event has been posted by a QCaObject, and the QCaObject is deleted before
-    /// the event is processed, the event will still be processed if the event filter is
-    /// still in place - and the filter will still be there if any other QCaObjects are using
-    /// the same QObject to process events. In this case the event will reference a QCaObject
-    /// which no longer exists.
-    /// To manage this problem outstanding events are marked 'to be ignored'.
+    // Ensure processing of outstanding events will not access this QCaObject after deletion.
+    // If an event has been posted by a QCaObject, and the QCaObject is deleted before
+    // the event is processed, the event will still be processed if the event filter is
+    // still in place - and the filter will still be there if any other QCaObjects are using
+    // the same QObject to process events. In this case the event will reference a QCaObject
+    // which no longer exists.
+    // To manage this problem outstanding events are marked 'to be ignored'.
     for( int i = 0; i < pendingEvents.size(); i++ ) {
         pendingEvents[i].event->acceptThisEvent = false;
-        pendingEvents[i].event->emitterObject = NULL;   /// Ensure a 'nice' crash if referenced in error
+        pendingEvents[i].event->emitterObject = NULL;   // Ensure a 'nice' crash if referenced in error
     }
     pendingEvents.clear();
 
-    /// Remove the event filter for this QCaObject.
-    /// Note, this only removes the filter if this is the last QCaObject to use the event loop for 'eventObject'.
-    /// If this is not the last QCaObject to use the event loop for 'eventObject' any remaining events will still
-    /// be processed as the event filter remains to handle events for other QCaOjects. The outstanding events are,
-    /// however, now safe.
+    // Remove the event filter for this QCaObject.
+    // Note, this only removes the filter if this is the last QCaObject to use the event loop for 'eventObject'.
+    // If this is not the last QCaObject to use the event loop for 'eventObject' any remaining events will still
+    // be processed as the event filter remains to handle events for other QCaOjects. The outstanding events are,
+    // however, now safe.
     eventFilter.deleteFilter( eventHandler );
 }
 
@@ -204,7 +221,7 @@ void QCaObject::processEventStatic( QCaEventUpdate* dataUpdateEvent )
 */
 bool QCaObject::removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent )
 {
-    /// If list is empty, something is wrong - report it
+    // If list is empty, something is wrong - report it
     if( pendingEvents.isEmpty() )
     {
         QString msg( recordName );
@@ -216,7 +233,7 @@ bool QCaObject::removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent )
         return false;
     }
 
-    /// If the first item in the list is not the current event, something is wrong - report it
+    // If the first item in the list is not the current event, something is wrong - report it
     if( pendingEvents[0].event != dataUpdateEvent )
     {
         QString msg( recordName );
@@ -228,7 +245,7 @@ bool QCaObject::removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent )
         return false;
     }
 
-    /// Remove this event from the list
+    // Remove this event from the list
     pendingEvents.removeFirst();
     return true;
 }
@@ -446,7 +463,7 @@ void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
     // It is really of type carecord::CaRecord*
     void* dataPackage = NULL;
 
-    /// Only case where data is processed. Package the data
+    // Only case where data is processed. Package the data
     if( newReason == caobject::SUBSCRIPTION_SUCCESS || newReason == caobject::READ_SUCCESS )
     {
         dataPackage = getRecordCopyPtr();
@@ -481,20 +498,20 @@ void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
     // create a new event and post it to the event queue
     if( !replaced )
     {
-        /// Package the data to be processed within the context of a Qt thread.
+        // Package the data to be processed within the context of a Qt thread.
         QCaEventUpdate* newDataEvent = new QCaEventUpdate( this, newReason, dataPackage );
 
-        /// Add the event to the list of pending events.
-        /// A list is maintained to allow pending events to be updated 'in transit'.
-        /// This must be done before posting the event as the event is likely to be processed before
-        /// the postEvent call returns.
+        // Add the event to the list of pending events.
+        // A list is maintained to allow pending events to be updated 'in transit'.
+        // This must be done before posting the event as the event is likely to be processed before
+        // the postEvent call returns.
         QCaEventItem item( newDataEvent );
         { // Limit scope of pending event list lock
             QMutexLocker locker( &pendingEventsLock );
             pendingEvents.append( item );
         }
 
-        /// Post the data to be processed within the context of a Qt thread.
+        // Post the data to be processed within the context of a Qt thread.
         QCoreApplication::postEvent( eventHandler, newDataEvent );
 
     }
@@ -628,20 +645,20 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
     // Assume there will be no change in the channel or link
     bool connectionChange = false;
 
-    /// If the channel state has changed, signal if the channel is connected or not
+    // If the channel state has changed, signal if the channel is connected or not
     CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
     if( p->getChannelState() != lastEventChannelState ) {
         lastEventChannelState = p->getChannelState();
         connectionChange = true;
     }
 
-    /// If the link state has changed, signal if the link is up or not
+    // If the link state has changed, signal if the link is up or not
     if( p->getLinkState() != lastEventLinkState ) {
         lastEventLinkState = p->getLinkState();
         connectionChange = true;
     }
 
-    /// If there is a change in the connection (link of channel), signal it
+    // If there is a change in the connection (link of channel), signal it
     if( connectionChange )
     {
         QCaConnectionInfo connectionInfo( lastEventChannelState, lastEventLinkState );

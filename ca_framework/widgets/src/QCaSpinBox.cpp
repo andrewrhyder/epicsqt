@@ -1,10 +1,3 @@
-/*! 
-  \class QCaSpinBox
-  \version $Revision: #14 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Spinbox Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -39,14 +32,14 @@
 /*!
     Create a CA aware spin box with no variable name yet
 */
-QCaSpinBox::QCaSpinBox( QWidget *parent ) : QSpinBox( parent ), QCaWidget() {
+QCaSpinBox::QCaSpinBox( QWidget *parent ) : QSpinBox( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Create a CA aware spin box with a variable name already known
 */
-QCaSpinBox::QCaSpinBox( const QString &variableNameIn, QWidget *parent ) : QSpinBox( parent ), QCaWidget() {
+QCaSpinBox::QCaSpinBox( const QString &variableNameIn, QWidget *parent ) : QSpinBox( parent ), QCaWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -66,6 +59,7 @@ void QCaSpinBox::setup() {
 
     // Set up default properties
     localEnabled = true;
+    setAllowDrop( false );
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -239,6 +233,20 @@ void QCaSpinBox::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
+
+//==============================================================================
+// Drag drop
+void QCaSpinBox::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaSpinBox::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+
 //==============================================================================
 // Property convenience functions
 
@@ -268,4 +276,16 @@ void QCaSpinBox::setVariableAsToolTip( bool variableAsToolTipIn )
 bool QCaSpinBox::getVariableAsToolTip()
 {
     return variableAsToolTip;
+}
+
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaSpinBox::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaSpinBox::getAllowDrop()
+{
+    return allowDrop;
 }

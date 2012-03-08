@@ -1,10 +1,3 @@
-/*! 
-  \class QCaComboBox
-  \version $Revision: #14 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief CA Combobox Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -62,6 +55,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
+
     // use database enumerations
     void setUseDbEnumerations( bool useDbEnumerations );
     bool getUseDbEnumerations();
@@ -71,6 +68,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
     QCaIntegerFormatting integerFormatting;
     bool useDbEnumerations;
     bool localEnabled;
+    bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -92,6 +90,15 @@ signals:
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
+
 };
 
 #endif ///QCAComboBOX_H

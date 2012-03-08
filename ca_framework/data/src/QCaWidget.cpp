@@ -1,10 +1,3 @@
-/*! 
-  \class QCaWidget
-  \version $Revision: #8 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author anthony.owen
-  \brief Template for Qt-CA based widgets.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -89,7 +82,7 @@
 /*!
     Constructor
 */
-QCaWidget::QCaWidget() {
+QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ) {
 
     /// Initially flag no variables array is defined.
     /// This will be corrected when the first variable is declared

@@ -1,10 +1,3 @@
-/*! 
-  \class QCaSlider
-  \version $Revision: #12 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief CA Slider Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -65,10 +58,15 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
+
   protected:
     QCaIntegerFormatting integerFormatting; /// Integer formatting options.
     bool writeOnChange;             /// Write changed value to database when ever the position changes.
     bool localEnabled;
+    bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -92,6 +90,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
 };
 
 #endif /// QCASLIDER_H

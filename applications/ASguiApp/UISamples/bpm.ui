@@ -78,6 +78,9 @@
     <property name="variable5" stdset="0">
      <string>SR11BCM01:CURRENT_MONITOR</string>
     </property>
+    <property name="allowDrop">
+     <bool>true</bool>
+    </property>
     <property name="scale1" stdset="0">
      <double>0.002000000000000</double>
     </property>
@@ -102,7 +105,7 @@
     <property name="shape" stdset="0">
      <enum>QCaShapePlugin::Ellipse</enum>
     </property>
-    <property name="originTranslation" stdset="0">
+    <property name="originTranslation">
      <point>
       <x>-200</x>
       <y>-200</y>
@@ -152,7 +155,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>191.620 mA</string>
+    <string>159.547 mA</string>
    </property>
    <property name="variable" stdset="0">
     <string>SR11BCM01:CURRENT_MONITOR</string>
@@ -180,7 +183,7 @@
       <item>
        <widget class="QCaLabelPlugin" name="qcalabelplugin_3">
         <property name="text">
-         <string>18.6 µm</string>
+         <string>0.0 µm</string>
         </property>
         <property name="variable" stdset="0">
          <string>SR10BM02IMG01:X_OFFSET_MONITOR</string>
@@ -201,7 +204,7 @@
       <item>
        <widget class="QCaLabelPlugin" name="qcalabelplugin">
         <property name="text">
-         <string>245.2 µm</string>
+         <string>0.0 µm</string>
         </property>
         <property name="variable" stdset="0">
          <string>SR10BM02IMG01:X_SIZE_MONITOR</string>
@@ -234,10 +237,13 @@
       <item>
        <widget class="QCaLabelPlugin" name="qcalabelplugin_6">
         <property name="text">
-         <string>23.8 µm</string>
+         <string>0.0 µm</string>
         </property>
         <property name="variable" stdset="0">
          <string>SR10BM02IMG01:Y_OFFSET_MONITOR</string>
+        </property>
+        <property name="allowDrop">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -255,7 +261,7 @@
       <item>
        <widget class="QCaLabelPlugin" name="qcalabelplugin_7">
         <property name="text">
-         <string>209.6 µm</string>
+         <string>0.0 µm</string>
         </property>
         <property name="variable" stdset="0">
          <string>SR10BM02IMG01:Y_SIZE_MONITOR</string>

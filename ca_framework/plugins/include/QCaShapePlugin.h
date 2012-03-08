@@ -1,10 +1,3 @@
-/*! 
-  \class QCaShapePlugin
-  \version $Revision: #7 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Shape Widget Plugin.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -73,6 +66,7 @@ class QCaShapePlugin : public QCaShape {
     void    setVariableName6Property( QString variable6Name ){ variableNamePropertyManagers[5].setVariableNameProperty( variable6Name ); }
     QString getVariableName6Property(){ return variableNamePropertyManagers[5].getVariableNameProperty(); }
 
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
 
     Q_ENUMS(animationOptions)
     enum animationOptions {Width = QCaShape::Width,

@@ -1,10 +1,3 @@
-/*! 
-  \class QCaSlider
-  \version $Revision: #13 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Slider Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -39,14 +32,14 @@
 /*!
     Constructor with no initialisation
 */
-QCaSlider::QCaSlider( QWidget *parent ) : QSlider( parent ), QCaWidget() {
+QCaSlider::QCaSlider( QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaSlider::QCaSlider( const QString &variableNameIn, QWidget *parent ) : QSlider( parent ), QCaWidget() {
+QCaSlider::QCaSlider( const QString &variableNameIn, QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -65,6 +58,7 @@ void QCaSlider::setup() {
     updateInProgress = false;
     writeOnChange = true;
     localEnabled = true;
+    setAllowDrop( false );
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -252,6 +246,19 @@ void QCaSlider::requestEnabled( const bool& state )
 }
 
 //==============================================================================
+// Drag drop
+void QCaSlider::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaSlider::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
 // Property convenience functions
 
 // Variable name and substitutions
@@ -292,3 +299,14 @@ bool QCaSlider::getVariableAsToolTip()
     return variableAsToolTip;
 }
 
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaSlider::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaSlider::getAllowDrop()
+{
+    return allowDrop;
+}

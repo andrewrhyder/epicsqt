@@ -1,10 +1,3 @@
-/*! 
-  \class QCaLabel
-  \version $Revision: #13 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief Manage updating tool tip with variable name, alarm state and connected state
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -40,6 +33,7 @@
 #include <managePixmaps.h>
 #include <QCaStringFormattingMethods.h>
 
+
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
     Q_OBJECT
 
@@ -69,6 +63,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget, 
     void setRunVisible( bool visibleIn );
     bool getRunVisible();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
 
 
   protected:
@@ -79,6 +76,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabel : public QLabel, public QCaWidget, 
     bool caVisible;               // Flag true if the widget should be visible outside 'Designer'
 
     updateOptions updateOption;
+
+    bool allowDrop;
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
@@ -107,6 +106,15 @@ private slots:
     void updateStyleSheet();
 
     void stringFormattingChange(){ requestResend(); }
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
+
 };
 
 #endif /// QCALABEL_H

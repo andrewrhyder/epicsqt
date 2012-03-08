@@ -1,10 +1,3 @@
-/*! 
-  \class ASguiForm
-  \version $Revision: #12 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief Form containing widgets, including QCa widgets, read from a UI file
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -71,6 +64,8 @@ ASguiForm::ASguiForm( const QString& uiFileNameIn, QWidget* parent ) : QScrollAr
 /// Common construction
 void ASguiForm::commonInit( const bool alertIfUINoFoundIn )
 {
+    setAcceptDrops(true);
+
     ui = NULL;
     alertIfUINoFound = alertIfUINoFoundIn;
     handleGuiLaunchRequests = false;

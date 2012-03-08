@@ -1,10 +1,3 @@
-/*! 
-  \class QCaLineEdit
-  \version $Revision: #16 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Line Edit Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -40,14 +33,14 @@
 /*!
     Constructor with no initialisation
 */
-QCaLineEdit::QCaLineEdit( QWidget *parent ) : QLineEdit( parent ), QCaWidget() {
+QCaLineEdit::QCaLineEdit( QWidget *parent ) : QLineEdit( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaLineEdit::QCaLineEdit( const QString& variableNameIn, QWidget *parent ) : QLineEdit( parent ), QCaWidget() {
+QCaLineEdit::QCaLineEdit( const QString& variableNameIn, QWidget *parent ) : QLineEdit( parent ), QCaWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -66,6 +59,7 @@ void QCaLineEdit::setup() {
     writeOnEnter = true;
     localEnabled = true;
     confirmWrite = false;
+    setAllowDrop( false );
 
     // Set the initial state
     setText( "" );
@@ -325,6 +319,19 @@ void QCaLineEdit::requestEnabled( const bool& state )
 }
 
 //==============================================================================
+// Drag drop
+void QCaLineEdit::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaLineEdit::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
 // Property convenience functions
 
 
@@ -385,4 +392,16 @@ void QCaLineEdit::setConfirmWrite( bool confirmWriteIn )
 bool QCaLineEdit::getConfirmWrite()
 {
     return confirmWrite;
+}
+
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaLineEdit::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaLineEdit::getAllowDrop()
+{
+    return allowDrop;
 }

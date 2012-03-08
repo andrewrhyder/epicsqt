@@ -1,17 +1,3 @@
-/* $File: //ASP/Personal/starritt/qt/QCaBitStatus.cpp $
- * $Revision: #1 $
- * $DateTime: 2011/06/11 21:36:00 $
- * Last checked in by: $Author: starritt $
-*/
-
-/*!
-  \class QCaBitStatus
-  \version $Revision: #1 $
-  \date $DateTime: 2011/06/11 21:36:00 $
-  \author andrew.starritt
-  \brief CA Bit Status Widget.
- */
-
 /*  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
@@ -49,7 +35,7 @@
 /*! ----------------------------------------------------------------------------
     Constructor with no initialisation
 */
-QCaBitStatus::QCaBitStatus (QWidget * parent):QBitStatus (parent), QCaWidget ()
+QCaBitStatus::QCaBitStatus (QWidget * parent):QBitStatus (parent), QCaWidget ( this )
 {
    setup ();
 }
@@ -59,7 +45,7 @@ QCaBitStatus::QCaBitStatus (QWidget * parent):QBitStatus (parent), QCaWidget ()
     Constructor with known variable
 */
 QCaBitStatus::QCaBitStatus (const QString & variableNameIn,
-                            QWidget * parent):QBitStatus (parent), QCaWidget ()
+                            QWidget * parent):QBitStatus (parent), QCaWidget ( this )
 {
    setup ();
    setVariableName (variableNameIn, 0);
@@ -81,6 +67,7 @@ void QCaBitStatus::setup ()
    //
    localEnabled = true;
    visible = true;
+   setAllowDrop( false );
 
    // Set the initial state
    //
@@ -261,6 +248,19 @@ void QCaBitStatus::requestEnabled (const bool & state)
 
 
 //==============================================================================
+// Drag drop
+void QCaBitStatus::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaBitStatus::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
 // Property convenience functions
 //
 void QCaBitStatus::setVariableNameProperty (QString variableName)
@@ -346,4 +346,16 @@ bool QCaBitStatus::getRunVisible ()
    return visible;
 }
 
+//------------------------------------------------------------------------------
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaBitStatus::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaBitStatus::getAllowDrop()
+{
+    return allowDrop;
+}
 // end

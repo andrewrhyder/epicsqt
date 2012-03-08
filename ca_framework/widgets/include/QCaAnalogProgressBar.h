@@ -44,6 +44,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaAnalogProgressBar : public QAnalogProgres
     Q_PROPERTY( QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty )
     Q_PROPERTY( bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip )
     Q_PROPERTY( bool enabled READ isEnabled WRITE setEnabled )
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
 
     /// Display properties
     //
@@ -77,6 +78,10 @@ public:
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
+
     // Display properties
 
     // useDbPrecision
@@ -107,6 +112,7 @@ protected:
     void establishConnection( unsigned int variableIndex );
 
     bool visible;               // Flag true if the widget should be visible outside 'Designer'
+    bool allowDrop;
 
 private:
     void setup();
@@ -132,6 +138,15 @@ private slots:
 
 signals:
     void dbValueChanged( const double& out );
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
+
 };
 
 #endif /// QCAANALOGPROGRESSBAR_H

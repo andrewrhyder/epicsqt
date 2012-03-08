@@ -1,10 +1,3 @@
-/*! 
-  \class ASguiForm
-  \version $Revision: #10 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief A base form GUI
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -98,7 +91,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
         void onMessage( QString title, QString message );
 
         ContainerProfile profile;
-
 };
 
 #endif // ASGUIFORM_H

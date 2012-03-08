@@ -102,6 +102,13 @@ private:
 
     QCaGenericButton::updateOptions getDefaultUpdateOption() { return QCaGenericButton::UPDATE_TEXT; }
 
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
 };
 
 #endif /// QCAPUSHBUTTON_H

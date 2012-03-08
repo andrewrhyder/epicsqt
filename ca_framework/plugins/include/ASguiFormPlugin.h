@@ -1,10 +1,3 @@
-/*! 
-  \class ASguiFormPlugin
-  \version $Revision: #5 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief Wrapper around QCaLabel to allow QCaLabel to be used within Designer
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *

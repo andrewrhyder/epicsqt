@@ -1,10 +1,3 @@
-/*! 
-  \class QCaWidget
-  \version $Revision: #10 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author anthony.owen
-  \brief Template for Qt-CA aware widgets.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -39,11 +32,12 @@
 #include <ContainerProfile.h>
 #include <QCaToolTip.h>
 #include <QCaPluginLibrary_global.h>
+#include <QCaDragDrop.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager, public QCaToolTip, public ContainerProfile {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager, public QCaToolTip, public ContainerProfile, public QCaDragDrop {
 
 public:
-    QCaWidget();                            /// Constructor
+    QCaWidget( QWidget* ownerIn );          /// Constructor
     ~QCaWidget();                           /// Destructor
     UserMessage userMessage;                /// Manager of messages to the user
     void activate();                        /// Initiate updates.
@@ -65,7 +59,6 @@ protected:
     void deleteQcaItem( unsigned int variableIndex );       /// Delete a stream of CA updates
     unsigned int numVariables;              /// The number of process variables that will be managed for the QCa widget.
     qcaobject::QCaObject** qcaItem;          /// CA access - provides a stream of updates. One for each variable name used by the QCa widget
-
 };
 
 #endif // QCAWIDGET_H

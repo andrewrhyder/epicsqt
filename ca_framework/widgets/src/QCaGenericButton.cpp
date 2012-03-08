@@ -34,8 +34,12 @@
 #include <QIcon>
 #include <QInputDialog>
 
+QCaGenericButton::QCaGenericButton( QWidget *owner ) : QCaWidget( owner )
+{
+}
+
 /*!
-    Setup common to all constructors
+    Setup common to all button constructors
 */
 void QCaGenericButton::setup() {
     dataSetup();
@@ -61,6 +65,7 @@ void QCaGenericButton::dataSetup() {
     writeOnRelease = false;
     writeOnClick = true;
     localEnabled = true;
+    setAllowDrop( false );
 
     // Set text alignment to the default for a push button
     // This will make no visual difference unless the style has been changed from the default
@@ -611,6 +616,19 @@ void QCaGenericButton::setLabelTextProperty( QString labelTextIn )
 QString QCaGenericButton::getLabelTextProperty()
 {
     return labelText;
+}
+
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaGenericButton::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    QWidget* btn = (QWidget*)getButtonQObject();
+    btn->setAcceptDrops( allowDrop );
+}
+
+bool QCaGenericButton::getAllowDrop()
+{
+    return allowDrop;
 }
 
 //==============================================================================

@@ -1,10 +1,3 @@
-/*! 
-  \class QCaPlot
-  \version $Revision: #4 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author glenn.jackson
-  \brief Manage updating tool tip with variable name, alarm state and connected state
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -82,6 +75,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
 
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
+
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
 
     void setYMin( double yMin );
     double getYMin();
@@ -163,6 +160,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
   protected:
     QCaFloatingFormatting floatingFormatting;
     bool localEnabled;
+    bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -230,6 +228,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     void    setTraceLegend( QString traceLegend, const unsigned int variableIndex );
     QString getTraceLegend( const unsigned int variableIndex );
     void setGridEnable();
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
 };
 
 

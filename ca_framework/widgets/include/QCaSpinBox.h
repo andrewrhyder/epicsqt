@@ -1,10 +1,3 @@
-/*! 
-  \class QCaSpinBox
-  \version $Revision: #12 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief CA Spinbox Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -61,9 +54,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QSpinBox, public QCaWidg
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
+
   protected:
     QCaIntegerFormatting integerFormatting;
     bool localEnabled;
+    bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -88,6 +86,14 @@ private:
 
     bool programaticValueChange;   // Flag set while the spin box value is being changed programatically (not by the user)
 
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
 };
 
 #endif ///QCASPINBOX_H

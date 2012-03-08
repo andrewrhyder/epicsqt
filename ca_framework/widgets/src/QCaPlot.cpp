@@ -33,14 +33,14 @@
 /*!
     Constructor with no initialisation
 */
-QCaPlot::QCaPlot( QWidget *parent ) : QwtPlot( parent ), QCaWidget() {
+QCaPlot::QCaPlot( QWidget *parent ) : QwtPlot( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaPlot::QCaPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( parent ), QCaWidget() {
+QCaPlot::QCaPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( parent ), QCaWidget( this ) {
     setup();
     setVariableName( variableNameIn, 0 );
 }
@@ -55,6 +55,7 @@ void QCaPlot::setup() {
 
     // Set up default properties
     visible = true;
+    setAllowDrop( false );
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -404,6 +405,47 @@ void QCaPlot::setCurveColor( const QColor color, const unsigned int variableInde
     {
         tr->curve->setPen( color );
     }
+}
+
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaPlot::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaPlot::getAllowDrop()
+{
+    return allowDrop;
+}
+
+//==============================================================================
+// Drag and Drop
+void QCaPlot::setDropText( QString text )
+{
+    QStringList PVs = text.split( ' ' );
+    for( int i = 0; i < PVs.size() && i < NUM_VARIABLES; i++ )
+    {
+        setVariableName( PVs[i], i );
+        establishConnection( i );
+    }
+}
+
+QString QCaPlot::getDropText()
+{
+    QString text;
+    for( int i = 0; i < NUM_VARIABLES; i++ )
+    {
+        QString pv = getSubstitutedVariableName(i);
+        if( !pv.isEmpty() )
+        {
+            if( !text.isEmpty() )
+                text.append( " " );
+            text.append( pv );
+        }
+    }
+
+        return text;
 }
 
 //==============================================================================

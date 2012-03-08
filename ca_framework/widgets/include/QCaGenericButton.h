@@ -40,6 +40,8 @@
 class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
 
   public:
+    QCaGenericButton( QWidget *owner );
+
     enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON, UPDATE_STATE };
 
     bool isEnabled() const;
@@ -60,6 +62,9 @@ class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStrin
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
 
     // Properties
 
@@ -166,6 +171,7 @@ public:
     void establishConnection( unsigned int variableIndex );
 
     updateOptions updateOption;
+    bool allowDrop;
 
     QString labelText;                                                 // Fixed label text to which substitutions will be applied
 

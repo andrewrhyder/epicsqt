@@ -1,10 +1,3 @@
-/*! 
-  \class QCaComboBoxPlugin
-  \version $Revision: #7 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Combobox Widget Plugin.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -58,6 +51,7 @@ class QCaComboBoxPlugin : public QCaComboBox {
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
     Q_PROPERTY(bool useDbEnumerations READ getUseDbEnumerations WRITE setUseDbEnumerations)
 
   private:

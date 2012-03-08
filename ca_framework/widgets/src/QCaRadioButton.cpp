@@ -36,7 +36,7 @@
 /*!
     Constructor with no initialisation
 */
-QCaRadioButton::QCaRadioButton( QWidget *parent ) : QRadioButton( parent ) {
+QCaRadioButton::QCaRadioButton( QWidget *parent ) : QRadioButton( parent ), QCaGenericButton( this ) {
     QCaGenericButton::setup();
     setup();
 }
@@ -44,7 +44,7 @@ QCaRadioButton::QCaRadioButton( QWidget *parent ) : QRadioButton( parent ) {
 /*!
     Constructor with known variable
 */
-QCaRadioButton::QCaRadioButton( const QString &variableNameIn, QWidget *parent ) : QRadioButton( parent ) {
+QCaRadioButton::QCaRadioButton( const QString &variableNameIn, QWidget *parent ) : QRadioButton( parent ), QCaGenericButton( this ) {
     setVariableName( variableNameIn, 0 );
 
     QCaGenericButton::setup();
@@ -81,4 +81,17 @@ bool QCaRadioButton::isEnabled() const
 void QCaRadioButton::requestEnabled( const bool& state )
 {
     setGenericEnabled( state );
+}
+
+//==============================================================================
+// Drag drop
+void QCaRadioButton::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaRadioButton::getDropText()
+{
+    return getSubstitutedVariableName(0);
 }

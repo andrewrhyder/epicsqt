@@ -1,10 +1,3 @@
-/*! 
-  \class QCaSliderPlugin
-  \version $Revision: #6 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Slider Widget Plugin.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -57,6 +50,7 @@ class QCaSliderPlugin : public QCaSlider {
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
     Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange)
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)

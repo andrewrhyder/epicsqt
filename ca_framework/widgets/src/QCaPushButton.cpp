@@ -36,7 +36,7 @@
 /*!
     Constructor with no initialisation
 */
-QCaPushButton::QCaPushButton( QWidget *parent ) : QPushButton( parent ) {
+QCaPushButton::QCaPushButton( QWidget *parent ) : QPushButton( parent ), QCaGenericButton( this ) {
     QCaGenericButton::setup();
     setup();
 }
@@ -44,7 +44,7 @@ QCaPushButton::QCaPushButton( QWidget *parent ) : QPushButton( parent ) {
 /*!
     Constructor with known variable
 */
-QCaPushButton::QCaPushButton( const QString &variableNameIn, QWidget *parent ) : QPushButton( parent ) {
+QCaPushButton::QCaPushButton( const QString &variableNameIn, QWidget *parent ) : QPushButton( parent ), QCaGenericButton( this ) {
     setVariableName( variableNameIn, 0 );
 
     QCaGenericButton::setup();
@@ -82,3 +82,17 @@ void QCaPushButton::requestEnabled( const bool& state )
 {
     setGenericEnabled( state );
 }
+
+//==============================================================================
+// Drag drop
+void QCaPushButton::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaPushButton::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+

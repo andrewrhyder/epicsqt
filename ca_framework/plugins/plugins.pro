@@ -107,6 +107,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../data/include/QCaConnectionInfo.h \
     ../data/include/qepicspv.h \
     ../widgets/include/managePixmaps.h \
+    ../widgets/include/QCaDragDrop.h \
     ../widgets/include/QCaStringFormattingMethods.h \
     ../widgets/include/QCaSpinBox.h \
     ../widgets/include/QCaComboBox.h \
@@ -186,6 +187,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/QCaConnectionInfo.cpp \
     ../data/src/qepicspv.cpp \
     ../widgets/src/managePixmaps.cpp \
+    ../widgets/src/QCaDragDrop.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
     ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \
@@ -219,7 +221,7 @@ INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
 INCLUDEPATH += $$(EPICS_BASE)/include
-# Depending on build, the qet library below may need to be -lqwt or -lqwt6
+# Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \

@@ -1,10 +1,3 @@
-/*! 
-  \class QCaLineEdit
-  \version $Revision: #13 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief CA Line Edit Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -70,6 +63,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWi
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
+
     // confirm write
     void setConfirmWrite( bool confirmWrite );
     bool getConfirmWrite();
@@ -79,6 +76,7 @@ protected:
     bool writeOnEnter;                      /// Write changed value to database when enter is pressed with focus on the widget
     bool localEnabled;                      /// Override the default widget setEnabled to allow alarm states to override current enabled state
     bool confirmWrite;                      /// Request confirmation before writing a value
+    bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -106,6 +104,14 @@ protected:
     bool isConnected;
 
     void stringFormattingChange(){ requestResend(); }
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
 };
 
 #endif /// QCALINEEDIT_H

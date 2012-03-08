@@ -42,14 +42,14 @@
 /*!
     Create without a known variable. Just manage parental hirarchy.
 */
-QCaShape::QCaShape( QWidget *parent ) : QWidget( parent ), QCaWidget() {
+QCaShape::QCaShape( QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Create with a known variable. Subscription occurs immedietly.
 */
-QCaShape::QCaShape( const QString &variableNameIn, QWidget *parent ) : QWidget( parent ), QCaWidget() {
+QCaShape::QCaShape( const QString &variableNameIn, QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
     /// Call common setup code.
     setup();
 
@@ -67,6 +67,7 @@ void QCaShape::setup() {
 
     // Set up default properties
     subscribe = true;
+    setAllowDrop( false );
 
     shape = Rect;
     setAutoFillBackground(false);
@@ -518,6 +519,35 @@ void QCaShape::requestEnabled( const bool& state )
 }
 
 //==============================================================================
+// Drag and Drop
+void QCaShape::setDropText( QString text )
+{
+    QStringList PVs = text.split( ' ' );
+    for( int i = 0; i < PVs.size() && i < NUM_VARIABLES; i++ )
+    {
+        setVariableName( PVs[i], i );
+        establishConnection( i );
+    }
+}
+
+QString QCaShape::getDropText()
+{
+    QString text;
+    for( int i = 0; i < NUM_VARIABLES; i++ )
+    {
+        QString pv = getSubstitutedVariableName(i);
+        if( !pv.isEmpty() )
+        {
+            if( !text.isEmpty() )
+                text.append( " " );
+            text.append( pv );
+        }
+    }
+
+        return text;
+}
+
+//==============================================================================
 // Property convenience functions
 
 void QCaShape::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
@@ -597,6 +627,18 @@ void QCaShape::setVariableAsToolTip( bool variableAsToolTipIn )
 bool QCaShape::getVariableAsToolTip()
 {
     return variableAsToolTip;
+}
+
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaShape::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaShape::getAllowDrop()
+{
+    return allowDrop;
 }
 
 // shape

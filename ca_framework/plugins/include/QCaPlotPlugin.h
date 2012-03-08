@@ -1,10 +1,3 @@
-/*! 
-  \class QCaPlotPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author glenn.jackson
-  \brief CA Plot Widget Plugin for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -69,6 +62,7 @@ class QCaPlotPlugin : public QCaPlot {
 
 
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
 
     Q_PROPERTY(QColor traceColor1 READ getTraceColor1 WRITE setTraceColor1)
     Q_PROPERTY(QColor traceColor2 READ getTraceColor2 WRITE setTraceColor2)

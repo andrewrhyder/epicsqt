@@ -130,6 +130,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidge
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
+    // Allow user to drop new PVs into this widget
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
+
     // presentation options
     enum presentationOptions { PRESENTATION_BUTTON_AND_LABEL,
                                PRESENTATION_BUTTON_ONLY,
@@ -174,6 +178,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidge
   protected:
     QCaFloatingFormatting floatingFormatting;
     bool localEnabled;
+    bool allowDrop;
 
     variableTypes variableType1;
     variableTypes variableType2;
@@ -205,6 +210,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidge
     void updatePresentationOptions();
 
     float elementMatch( int i, bool haveFirstVariable, double lastData1, bool haveSecondVariable, double lastData2 );
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDropText( QString text );
+    QString getDropText();
 };
 
 Q_DECLARE_METATYPE(QCaPeriodic::userInfoStructArray)

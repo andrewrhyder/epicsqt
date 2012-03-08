@@ -33,7 +33,7 @@
 /*! ----------------------------------------------------------------------------
     Constructor with no initialisation
 */
-QCaAnalogProgressBar::QCaAnalogProgressBar( QWidget *parent ) : QAnalogProgressBar( parent ), QCaWidget()
+QCaAnalogProgressBar::QCaAnalogProgressBar( QWidget *parent ) : QAnalogProgressBar( parent ), QCaWidget( this )
 {
     setup();
 }
@@ -43,7 +43,7 @@ QCaAnalogProgressBar::QCaAnalogProgressBar( QWidget *parent ) : QAnalogProgressB
     Constructor with known variable
 */
 QCaAnalogProgressBar::QCaAnalogProgressBar( const QString &variableNameIn,
-                                            QWidget *parent ) : QAnalogProgressBar( parent ), QCaWidget()
+                                            QWidget *parent ) : QAnalogProgressBar( parent ), QCaWidget( this )
 {
 
     setup();
@@ -64,6 +64,7 @@ void QCaAnalogProgressBar::setup() {
     localEnabled = true;
     visible = true;
     useDbDisplayLimits = false;
+    setAllowDrop( false );
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -281,6 +282,19 @@ void QCaAnalogProgressBar::requestEnabled( const bool& state )
 
 
 //==============================================================================
+// Drag drop
+void QCaAnalogProgressBar::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaAnalogProgressBar::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
 // Property convenience functions
 //
 void    QCaAnalogProgressBar::setVariableNameProperty( QString variableName )
@@ -392,4 +406,16 @@ bool QCaAnalogProgressBar::getRunVisible()
     return visible;
 }
 
+//------------------------------------------------------------------------------
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaAnalogProgressBar::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaAnalogProgressBar::getAllowDrop()
+{
+    return allowDrop;
+}
 // end

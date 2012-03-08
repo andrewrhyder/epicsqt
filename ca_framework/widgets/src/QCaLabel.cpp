@@ -32,14 +32,14 @@
 /*!
     Constructor with no initialisation
 */
-QCaLabel::QCaLabel( QWidget *parent ) : QLabel( parent ), QCaWidget() {
+QCaLabel::QCaLabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaLabel::QCaLabel( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget() {
+QCaLabel::QCaLabel( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget( this )  {
     setup();
     setVariableName( variableNameIn, 0 );
 }
@@ -56,6 +56,7 @@ void QCaLabel::setup() {
     // Set up default properties
     caEnabled = true;
     caVisible = true;
+    setAllowDrop( false );
 
     // Set the initial state
     setText( "" );
@@ -239,6 +240,19 @@ void QCaLabel::requestEnabled( const bool& state )
 }
 
 //==============================================================================
+// Drag drop
+void QCaLabel::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaLabel::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
 // Property convenience functions
 
 
@@ -290,3 +304,14 @@ bool QCaLabel::getRunVisible()
     return caVisible;
 }
 
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaLabel::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaLabel::getAllowDrop()
+{
+    return allowDrop;
+}

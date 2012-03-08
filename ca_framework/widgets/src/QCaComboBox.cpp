@@ -1,10 +1,3 @@
-/*! 
-  \class QCaComboBox
-  \version $Revision: #16 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Combobox Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -39,14 +32,14 @@
 /*!
     Construct a combo box with no variable specified yet
 */
-QCaComboBox::QCaComboBox( QWidget *parent ) : QComboBox( parent ), QCaWidget() {
+QCaComboBox::QCaComboBox( QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Construct a combo box with a variable specified
 */
-QCaComboBox::QCaComboBox( const QString &variableNameIn, QWidget *parent ) : QComboBox( parent ), QCaWidget() {
+QCaComboBox::QCaComboBox( const QString &variableNameIn, QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -65,6 +58,7 @@ void QCaComboBox::setup() {
     useDbEnumerations = true;
     subscribe = false;
     localEnabled = true;
+    setAllowDrop( false );
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -253,6 +247,19 @@ void QCaComboBox::requestEnabled( const bool& state )
 }
 
 //==============================================================================
+// Drag drop
+void QCaComboBox::setDropText( QString text )
+{
+    setVariableName( text, 0 );
+    establishConnection( 0 );
+}
+
+QString QCaComboBox::getDropText()
+{
+    return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
 // Property convenience functions
 
 // Variable Name and substitutions
@@ -293,3 +300,14 @@ bool QCaComboBox::getUseDbEnumerations()
     return useDbEnumerations;
 }
 
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaComboBox::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    setAcceptDrops( allowDrop );
+}
+
+bool QCaComboBox::getAllowDrop()
+{
+    return allowDrop;
+}
