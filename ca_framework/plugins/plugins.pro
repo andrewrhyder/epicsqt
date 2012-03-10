@@ -187,7 +187,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/QCaConnectionInfo.cpp \
     ../data/src/qepicspv.cpp \
     ../widgets/src/managePixmaps.cpp \
-    ../widgets/src/QCaDragDrop.cpp \
+#    ../widgets/src/QCaDragDrop.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
     ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \
