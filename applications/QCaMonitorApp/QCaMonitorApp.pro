@@ -47,4 +47,4 @@ INCLUDEPATH += \
 #LIBS += -L$$(QTDIR)/plugins/designer -lQCaPlugin
 
 # Uncomment if linking agains QCa library in epicsQt release build directory
-LIBS += -L$$(QCAFRAMEWORK)/plugins/release -lQCaPlugin
+LIBS += -L$$(QCAFRAMEWORK)/plugins -lQCaPlugin
