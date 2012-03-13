@@ -187,7 +187,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/QCaConnectionInfo.cpp \
     ../data/src/qepicspv.cpp \
     ../widgets/src/managePixmaps.cpp \
-#    ../widgets/src/QCaDragDrop.cpp \
+    ../widgets/src/QCaDragDrop.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
     ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \
@@ -226,7 +226,7 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \
     -L$$(QCAFRAMEWORK)/qwt/lib \
-    -lqwt
+    -lqwt6
 
 FORMS += \
     ../widgets/src/PeriodicDialog.ui \
