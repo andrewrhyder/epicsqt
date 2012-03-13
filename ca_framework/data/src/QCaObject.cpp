@@ -331,7 +331,7 @@ bool QCaObject::createSubscription() {
 }
 
 /*!
-    ???
+    Read from a PV
 */
 bool QCaObject::getChannel() {
 
@@ -361,7 +361,7 @@ bool QCaObject::getChannel() {
 }
 
 /*!
-    ???
+    Write to a PV
 */
 bool QCaObject::putChannel() {
 
@@ -412,26 +412,22 @@ bool QCaObject::putChannel() {
 }
 
 /*!
-    ???
+    Determine if the channel is currently connected
 */
 bool QCaObject::isChannelConnected() {
-    if( connectionMachine->currentState == qcastatemachine::CONNECTED ) {
-        return true;
-    } else {
-        return false;
-    }
+    return ( connectionMachine->currentState == qcastatemachine::CONNECTED );
 }
 
 /*!
-    ???
-*/
+    Wait one minute for a connection, then re-attempt the connection
+ */
 void QCaObject::startConnectionTimer() {
-    setChannelTimer.start( 3000 );
+    setChannelTimer.start( 60000 );
 }
 
 /*!
-    ???
-*/
+    Connection has been achieved within the expected time, stop the timer used to wait for a connection
+ */
 void QCaObject::stopConnectionTimer() {
     setChannelTimer.stop();
 }
@@ -889,13 +885,16 @@ void QCaObject::processData( void* newDataPtr ) {
 }
 
 /*!
-    Connecting timeout
+    Connecting timeout.
+    Generally, we could just wait forever for a connection to complete, but due to
+    rumours of gateways not honouring an old request when an IOC serving the requested
+    PV finally appears, we re-attempt the connection here after an extended wait.
 */
 void QCaObject::setChannelExpired() {
 
     // Signal a connection change.
     // (This is done with some licence. There isn't really a connection change.
-    //  The connection has gone from 'no connection' to 'there never is going to be a connection')
+    //  The connection has gone from 'no connection' to 'given up waiting for a connection')
     QCaConnectionInfo connectionInfo( caconnection::NEVER_CONNECTED, caconnection::LINK_DOWN );
     emit connectionChanged( connectionInfo );
 
@@ -903,12 +902,16 @@ void QCaObject::setChannelExpired() {
     if( userMessage )
     {
         QString msg( recordName );
-        userMessage->sendWarningMessage( msg.append( " Channel expired" ), "QCaObject::setChannelExpired()"  );
+        userMessage->sendWarningMessage( msg.append( " Channel expired, retrying" ), "QCaObject::setChannelExpired()"  );
     }
 
     // Update the current state
     connectionMachine->expired = true;
     connectionMachine->process( qcastatemachine::CONNECTION_EXPIRED );
+
+    // Attempt a re-connection
+    connectionMachine->process( qcastatemachine::CONNECTED );
+    subscribe();
 }
 
 /*!
