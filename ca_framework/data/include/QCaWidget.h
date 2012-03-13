@@ -38,7 +38,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager, publ
 
 public:
     QCaWidget( QWidget* ownerIn );          /// Constructor
-    ~QCaWidget();                           /// Destructor
+    virtual ~QCaWidget();                   /// Destructor
     UserMessage userMessage;                /// Manager of messages to the user
     void activate();                        /// Initiate updates.
 

@@ -1,10 +1,3 @@
-/*! 
-  \class Generic
-  \version $Revision: #4 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author anthony.owen
-  \brief Provides a generic holder for different types.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -57,7 +50,7 @@ namespace generic {
       Generic( float* newValueArray, unsigned long countIn );
       Generic( double newValue );
       Generic( double* newValueArray, unsigned long countIn );
-      ~Generic();
+      virtual ~Generic();
 
       Generic( Generic &param );
       Generic& operator= ( Generic &param );

@@ -1,10 +1,3 @@
-/*!
-  \class QCaStateMachine
-  \version $Revision: #7 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author anthony.owen
-  \brief Statemachine architecture.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -37,7 +30,7 @@
 
 class StateMachineTemplate {
   public:
-    virtual ~StateMachineTemplate(){};
+    virtual ~StateMachineTemplate(){}
     int currentState;
     int requestState;
     virtual bool process( int requestedState ) = 0;
@@ -53,7 +46,7 @@ namespace qcastatemachine {
   class QCaStateMachine : public StateMachineTemplate {
     public:
       QCaStateMachine( void *parent );
-      virtual ~QCaStateMachine(){};
+      virtual ~QCaStateMachine(){}
       QMutex lock;
       bool pending;
       bool active;
@@ -65,28 +58,28 @@ namespace qcastatemachine {
   class ConnectionQCaStateMachine : public QCaStateMachine {
     public:
       ConnectionQCaStateMachine( void *parent );
-      ~ConnectionQCaStateMachine(){};
+      ~ConnectionQCaStateMachine(){}
       bool process( int requestedState );
   };
 
   class SubscriptionQCaStateMachine : public QCaStateMachine {
     public:
       SubscriptionQCaStateMachine( void *parent );
-      ~SubscriptionQCaStateMachine(){};
+      ~SubscriptionQCaStateMachine(){}
       bool process( int requestedState );
   };
 
   class ReadQCaStateMachine : public QCaStateMachine {
     public:
       ReadQCaStateMachine( void *parent );
-      ~ReadQCaStateMachine(){};
+      ~ReadQCaStateMachine(){}
       bool process( int requestedState );
   };
 
   class WriteQCaStateMachine : public QCaStateMachine {
     public:
       WriteQCaStateMachine( void *parent );
-      ~WriteQCaStateMachine(){};
+      ~WriteQCaStateMachine(){}
       bool process( int requestedState );
   };
 

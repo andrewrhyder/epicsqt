@@ -1,10 +1,3 @@
-/*!
-  \class QCaToolTip
-  \version $Revision: #5 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Manage updating tool tip with variable name, alarm state and connected state
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -38,7 +31,7 @@ class QCaToolTip
 {
     public:
         QCaToolTip();
-        virtual ~QCaToolTip(){};
+        virtual ~QCaToolTip(){}
         void updateToolTipVariable ( const QString& variable );
         void updateToolTipAlarm ( const QString& alarm );
         void updateToolTipConnection ( bool connection );

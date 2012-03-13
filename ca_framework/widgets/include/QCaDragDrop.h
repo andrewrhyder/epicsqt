@@ -33,6 +33,7 @@ class QCaDragDrop {
 
 public:
     QCaDragDrop( QWidget* ownerIn );
+    virtual ~QCaDragDrop(){}
   protected:
 
     // Drag and Drop

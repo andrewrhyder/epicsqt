@@ -41,6 +41,7 @@ class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStrin
 
   public:
     QCaGenericButton( QWidget *owner );
+    virtual ~QCaGenericButton(){}
 
     enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON, UPDATE_STATE };
 

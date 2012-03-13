@@ -55,6 +55,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaAnalogProgressBar : public QAnalogProgres
 public:
     QCaAnalogProgressBar( QWidget *parent = 0 );
     QCaAnalogProgressBar( const QString &variableName, QWidget *parent = 0 );
+    virtual ~QCaAnalogProgressBar(){}
 
     bool isEnabled() const;
     void setEnabled( bool state );

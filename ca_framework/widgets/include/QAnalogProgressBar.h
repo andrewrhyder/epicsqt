@@ -86,6 +86,7 @@ protected:
 public:
     /// Constructor
     QAnalogProgressBar (QWidget * parent = 0);
+    virtual ~QAnalogProgressBar(){}
 
     double getAnalogMinimum ();
     double getAnalogMaximum ();

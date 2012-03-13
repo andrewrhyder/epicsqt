@@ -1,10 +1,3 @@
-/*! 
-  \class QCaObject
-  \version $Revision: #10 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author anthony.owen
-  \brief Provides channel access to QT.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -57,7 +50,7 @@ namespace qcaobject {
     public:
       QCaObject( const QString& recordName, QObject *eventObject );
       QCaObject( const QString& recordName, QObject *eventObject, UserMessage* userMessageIn );
-      ~QCaObject();
+      virtual ~QCaObject();
 
       bool subscribe();
       bool singleShotRead();

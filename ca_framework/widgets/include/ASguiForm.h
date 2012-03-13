@@ -42,7 +42,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
         ASguiForm( const QString& uifileNameIn, QWidget* parent = 0 );
         void commonInit( const bool alertIfUINoFoundIn );
 
-        ~ASguiForm();
+        virtual ~ASguiForm();
 
         QString getASGuiTitle();        // Get the title to be used as the window or form title.
         QString getGuiFileName();       // Get the UI file name used to build the gui

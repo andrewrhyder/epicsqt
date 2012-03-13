@@ -33,7 +33,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT VariableNameManager {
 
 public:
     VariableNameManager();
-    virtual ~VariableNameManager(){};
+    virtual ~VariableNameManager(){}
 
     void variableNameManagerInitialise( unsigned int numVariables ) ;                     /// Used to set up the number of variables required (defaults to 1 if this is not called)
 

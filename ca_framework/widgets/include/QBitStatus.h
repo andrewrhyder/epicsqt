@@ -1,17 +1,3 @@
-/* $File: //ASP/Personal/starritt/qt/QBitStatus.h $
- * $Revision: #3 $
- * $DateTime: 2011/06/12 15:07:03 $
- * Last checked in by: $Author: starritt $
- */
-
-/*!
-  \class QBitStatus
-  \version $Revision: #3 $
-  \date $DateTime: 2011/06/12 15:07:03 $
-  \author andrew.starritt
-  \brief Bit Status Widget.
- */
-
 /*  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
@@ -99,6 +85,8 @@ public:
    // Constructor
    //
    QBitStatus (QWidget *parent = 0);
+   virtual ~QBitStatus(){}
+
    virtual QSize sizeHint() const;
 
 

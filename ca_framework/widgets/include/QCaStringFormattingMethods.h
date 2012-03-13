@@ -30,6 +30,8 @@
 class QCaStringFormattingMethods {
 
   public:
+    virtual ~QCaStringFormattingMethods(){}
+
     virtual void stringFormattingChange() = 0;
 
     // String formatting properties

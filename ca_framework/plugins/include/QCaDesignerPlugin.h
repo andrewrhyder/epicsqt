@@ -1,10 +1,3 @@
-/*! 
-  \class QCaDesignerPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Collection of CA plugins for QT Designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -40,6 +33,8 @@ class QCaWidgets: public QObject, public QDesignerCustomWidgetCollectionInterfac
 
   public:
     QCaWidgets(QObject *parent = 0);
+    virtual ~QCaWidgets(){}
+
     virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
 
   private:
