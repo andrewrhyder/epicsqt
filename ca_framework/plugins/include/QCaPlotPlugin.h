@@ -57,7 +57,7 @@ class QCaPlotPlugin : public QCaPlot {
     QString getVariableName4Property(){ return variableNamePropertyManagers[3].getVariableNameProperty(); }
 
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < QCAPLOT_NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManagers[0].getSubstitutionsProperty(); }
 
 
@@ -121,7 +121,7 @@ class QCaPlotPlugin : public QCaPlot {
     Q_PROPERTY(unsigned int tickRate READ getTickRate WRITE setTickRate)
 
   private:
-    QCaVariableNamePropertyManager variableNamePropertyManagers[NUM_VARIABLES];
+    QCaVariableNamePropertyManager variableNamePropertyManagers[QCAPLOT_NUM_VARIABLES];
 
 private slots:
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );

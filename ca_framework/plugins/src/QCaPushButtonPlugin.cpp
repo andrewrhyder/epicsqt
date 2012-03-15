@@ -44,7 +44,7 @@ QCaPushButtonPlugin::QCaPushButtonPlugin( QWidget *parent ) : QCaPushButton( par
     /// For each variable name property manager, set up an index to identify it when it signals and
     /// set up a connection to recieve variable name property changes.
     /// The variable name property manager class only delivers an updated variable name after the user has stopped typing
-    for( int i = 0; i < NUM_VARIABLES; i++ ) {
+    for( int i = 0; i < QCAGENERICBUTTON_NUM_VARIABLES; i++ ) {
         variableNamePropertyManagers[i].setVariableIndex( i );
         QObject::connect( &variableNamePropertyManagers[i], SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int ) ) );
     }

@@ -50,7 +50,7 @@ class QCaPushButtonPlugin : public QCaPushButton {
     QString getAltReadbackVariableNameProperty(){ return variableNamePropertyManagers[1].getVariableNameProperty(); }
 
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < QCAGENERICBUTTON_NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManagers[0].getSubstitutionsProperty(); }
 
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
@@ -157,7 +157,7 @@ class QCaPushButtonPlugin : public QCaPushButton {
 
 
   private:
-    QCaVariableNamePropertyManager variableNamePropertyManagers[NUM_VARIABLES];
+    QCaVariableNamePropertyManager variableNamePropertyManagers[QCAGENERICBUTTON_NUM_VARIABLES];
 
   private slots:
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );

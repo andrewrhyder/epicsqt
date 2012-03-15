@@ -63,7 +63,7 @@ QCaShape::QCaShape( const QString &variableNameIn, QWidget *parent ) : QWidget( 
 void QCaShape::setup() {
     // Set up data
     // Set the number of variables equal to the base VariableNameManager is to manage
-    setNumVariables( NUM_VARIABLES );
+    setNumVariables( QCASHAPE_NUM_VARIABLES );
 
     // Set up default properties
     subscribe = true;
@@ -523,7 +523,7 @@ void QCaShape::requestEnabled( const bool& state )
 void QCaShape::setDropText( QString text )
 {
     QStringList PVs = text.split( ' ' );
-    for( int i = 0; i < PVs.size() && i < NUM_VARIABLES; i++ )
+    for( int i = 0; i < PVs.size() && i < QCASHAPE_NUM_VARIABLES; i++ )
     {
         setVariableName( PVs[i], i );
         establishConnection( i );
@@ -533,7 +533,7 @@ void QCaShape::setDropText( QString text )
 QString QCaShape::getDropText()
 {
     QString text;
-    for( int i = 0; i < NUM_VARIABLES; i++ )
+    for( int i = 0; i < QCASHAPE_NUM_VARIABLES; i++ )
     {
         QString pv = getSubstitutedVariableName(i);
         if( !pv.isEmpty() )

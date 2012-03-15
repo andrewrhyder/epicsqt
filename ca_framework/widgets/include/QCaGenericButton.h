@@ -35,7 +35,7 @@
 #include <QCaStringFormattingMethods.h>
 
 //! Maximum number of variables.
-#define NUM_VARIABLES 2
+#define QCAGENERICBUTTON_NUM_VARIABLES 2
 
 class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
 

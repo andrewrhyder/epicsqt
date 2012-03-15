@@ -37,7 +37,7 @@
 #include <QCaPluginLibrary_global.h>
 
 // Maximum number of variables.
-#define NUM_VARIABLES 4
+#define QCAPLOT_NUM_VARIABLES 4
 
 // Trace related data and properties
 class trace {
@@ -220,7 +220,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     
     // Variables and functions to manage plot data
 
-    trace traces[NUM_VARIABLES];
+    trace traces[QCAPLOT_NUM_VARIABLES];
 
     void regenerateTickXData( const unsigned int variableIndex );
 

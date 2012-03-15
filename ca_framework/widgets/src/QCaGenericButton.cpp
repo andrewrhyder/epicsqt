@@ -58,7 +58,7 @@ void QCaGenericButton::setup() {
 void QCaGenericButton::dataSetup() {
     // Set up data
     // This control uses two data sources, the first is written to and (by default) read from. The second is the alternative read back
-    setNumVariables(NUM_VARIABLES);
+    setNumVariables(QCAGENERICBUTTON_NUM_VARIABLES);
 
     // Set up default properties
     writeOnPress = false;

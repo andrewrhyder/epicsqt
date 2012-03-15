@@ -34,7 +34,7 @@
 #include <QCaPluginLibrary_global.h>
 
 //! Maximum number of variables.
-#define NUM_VARIABLES 6
+#define QCASHAPE_NUM_VARIABLES 6
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget {
     Q_OBJECT
@@ -139,10 +139,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     bool allowDrop;
 
 
-  #define OFFSETS_SIZE NUM_VARIABLES
+  #define OFFSETS_SIZE QCASHAPE_NUM_VARIABLES
     double offsets[OFFSETS_SIZE];
 
-  #define SCALES_SIZE NUM_VARIABLES
+  #define SCALES_SIZE QCASHAPE_NUM_VARIABLES
     double scales[SCALES_SIZE];
 
     Shape shape;

@@ -51,7 +51,7 @@ QCaPlot::QCaPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( pa
 void QCaPlot::setup() {
     // Set up data
     // This control used a single data source
-    setNumVariables(NUM_VARIABLES);
+    setNumVariables(QCAPLOT_NUM_VARIABLES);
 
     // Set up default properties
     visible = true;
@@ -80,7 +80,7 @@ void QCaPlot::setup() {
     xIncrement = 1.0;
 
     // Initially no curve or grid, and different trace colors
-    for( int i = 0; i < NUM_VARIABLES; i++ )
+    for( int i = 0; i < QCAPLOT_NUM_VARIABLES; i++ )
     {
         trace* tr = &traces[i];
         tr->curve = NULL;
@@ -119,7 +119,7 @@ QCaPlot::~QCaPlot()
         delete tickTimer;
     }
 
-    for( int i = 0; i < NUM_VARIABLES; i++ )
+    for( int i = 0; i < QCAPLOT_NUM_VARIABLES; i++ )
     {
         trace* tr = &traces[i];
         if( tr->curve )
@@ -337,7 +337,7 @@ void QCaPlot::regenerateTickXData( const unsigned int variableIndex )
 // Update the chart if it is a strip chart
 void QCaPlot::tickTimeout()
 {
-    for( int i = 0; i < NUM_VARIABLES; i++ )
+    for( int i = 0; i < QCAPLOT_NUM_VARIABLES; i++ )
     {
         trace* tr = &traces[i];
         if( tr->curve && !tr->waveform )
@@ -424,7 +424,7 @@ bool QCaPlot::getAllowDrop()
 void QCaPlot::setDropText( QString text )
 {
     QStringList PVs = text.split( ' ' );
-    for( int i = 0; i < PVs.size() && i < NUM_VARIABLES; i++ )
+    for( int i = 0; i < PVs.size() && i < QCAPLOT_NUM_VARIABLES; i++ )
     {
         setVariableName( PVs[i], i );
         establishConnection( i );
@@ -434,7 +434,7 @@ void QCaPlot::setDropText( QString text )
 QString QCaPlot::getDropText()
 {
     QString text;
-    for( int i = 0; i < NUM_VARIABLES; i++ )
+    for( int i = 0; i < QCAPLOT_NUM_VARIABLES; i++ )
     {
         QString pv = getSubstitutedVariableName(i);
         if( !pv.isEmpty() )
