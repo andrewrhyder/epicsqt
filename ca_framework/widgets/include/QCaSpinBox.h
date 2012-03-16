@@ -91,7 +91,7 @@ private:
 protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDropText( QString text );
     QString getDropText();
 };
