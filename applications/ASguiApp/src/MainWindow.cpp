@@ -541,17 +541,42 @@ ASguiForm* MainWindow::createGui( QString fileName )
     // Inform user
     onStatusMessage( QString( "Opening %1 in new window " ).arg( fileName ) );
 
-    // Setup the environment profile of the new form
-//    ContainerProfile profile;
-//    profile.setupProfile( this, this, this, this, path, "", substitutions, false );
-
     // Build the gui
     ASguiForm* gui = new ASguiForm( fileName );
+
+    // If built ok, read the ui file
     if( gui )
     {
-        profile.publishOwnProfile();
+        // This method may be called with or without a profile defined.
+        // For example, when this method is the result of a QCa button launching a new GUI,
+        // the button will have published its own profile. This is fine for some
+        // things - such as picking up the required macro substitutions - but not
+        // appropriate for other things, such as which widgets should be signaled
+        // for error messages - The newly created window should be receiving those,
+        // not the window the button lives in.
+        bool profileDefinedHere = false;
+        if( !profile.isProfileDefined() )
+        {
+            // Flag we are defining a profile here (we need to release it ourselves later)
+            profileDefinedHere = true;
+
+            // Publish our profile
+            profile.publishOwnProfile();
+
+        }
+
+        // Regardless of who set up the profile, this window should be receiving
+        // requests to do things such as display errors.
+        profile.updateConsumers( this, this, this, this );
+
+        // Load the .ui file into the GUI
         gui->readUiFile();
-        profile.releaseProfile();
+
+        // If a profile was defined in this method, release it now.
+        if( profileDefinedHere )
+        {
+            profile.releaseProfile();
+        }
 
         addGuiToWindowsMenu( gui );
 }

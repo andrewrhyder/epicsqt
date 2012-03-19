@@ -41,6 +41,8 @@
 
 #define ASGUISERVERNAME "ASguiInstance"
 
+// Construction
+// Look for an instance server, and if can't find one, then start one
 instanceManager::instanceManager( QObject *parent ) : QObject( parent )
 {
     // Create a socket
@@ -73,6 +75,7 @@ instanceManager::instanceManager( QObject *parent ) : QObject( parent )
     }
 }
 
+// Destruction
 instanceManager::~instanceManager()
 {
     delete socket;
@@ -80,6 +83,7 @@ instanceManager::~instanceManager()
         delete server;
 }
 
+// Pass on the startup parameters to an already existing instance of the application
 bool instanceManager::handball( startupParams* params )
 {
     // If no other instance, do nothing
@@ -102,12 +106,16 @@ bool instanceManager::handball( startupParams* params )
     return true;
 }
 
+// Slot called when the server starts
 void instanceManager::connected()
 {
     client = server->nextPendingConnection();
     connect( client, SIGNAL(readyRead ()), this, SLOT(readParams()));
 }
 
+// Read the startup parameters from a new instance of the application.
+// The new instance wants this old instance to do the work.
+// It has passed on the startup parameters and will now exit
 void instanceManager::readParams()
 {
     QByteArray ba(client->readAll());
@@ -120,9 +128,8 @@ void instanceManager::readParams()
 void instanceManager::newWindow( const startupParams& params )
 {
     ContainerProfile profile;
-    profile.setupProfile( NULL, NULL, NULL, NULL, params.path, "", params.substitutions, false );
+    profile.setupProfile( NULL, NULL, NULL, NULL, params.path, "", params.substitutions );
     MainWindow* mw = new MainWindow( params.filename, params.enableEdit, params.disableMenu );
     profile.releaseProfile();
     mw->show();
-//    setActivationWindow( mw );
 }

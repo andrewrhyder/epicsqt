@@ -74,7 +74,7 @@ void ASguiForm::commonInit( const bool alertIfUINoFoundIn )
     if( !profile.isProfileDefined() )
     {
         userMessage.setup( this );
-        profile.setupLocalProfile( this, this, this, this, QDir::currentPath(), "", "", true );
+        profile.setupLocalProfile( this, this, this, this, QDir::currentPath(), "", "" );
     }
 
     // Prepare to recieve notification that the ui file being displayed has changed

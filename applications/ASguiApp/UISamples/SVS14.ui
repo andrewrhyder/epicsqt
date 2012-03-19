@@ -47,7 +47,7 @@
     <string>SR=14 SRPREV=13</string>
    </property>
   </widget>
-  <widget class="GuiPushButtonPlugin" name="guipushbuttonplugin">
+  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin">
    <property name="geometry">
     <rect>
      <x>550</x>
@@ -63,10 +63,10 @@
     <string>SVS01.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>GuiPushButtonPlugin::Open</enum>
+    <enum>QCaPushButtonPlugin::Open</enum>
    </property>
   </widget>
-  <widget class="GuiPushButtonPlugin" name="guipushbuttonplugin_2">
+  <widget class="QCaPushButtonPlugin" name="guipushbuttonplugin_2">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -82,15 +82,15 @@
     <string>SVS13.ui</string>
    </property>
    <property name="creationOption" stdset="0">
-    <enum>GuiPushButtonPlugin::Open</enum>
+    <enum>QCaPushButtonPlugin::Open</enum>
    </property>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>GuiPushButtonPlugin</class>
+   <class>QCaPushButtonPlugin</class>
    <extends>QPushButton</extends>
-   <header>GuiPushButtonPlugin.h</header>
+   <header>QCaPushButtonPlugin.h</header>
   </customwidget>
   <customwidget>
    <class>ASguiFormPlugin</class>

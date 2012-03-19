@@ -104,6 +104,10 @@ QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ) {
     // messages in a manner appropriate for the application.
     // In this case, the widget is taking the oppertunity to tell its creator it exists, and also to
     // get any variable name macro substitutions offered by its creator.
+    if( !getStatusMessageConsumer() || !getErrorMessageConsumer() || !getWarningMessageConsumer() )
+    {
+        qDebug() << "why not?";
+    }
     userMessage.setup( getStatusMessageConsumer(),
                        getErrorMessageConsumer(),
                        getWarningMessageConsumer() );

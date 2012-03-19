@@ -1,10 +1,3 @@
-/*! 
-  \class ContainerProfile
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Defines attributes of the containing window (form, dialog, etc) within which QCa widgets are being created.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -48,10 +41,25 @@
  *
  * As each QCa widget is created it also instantiates an instance of the ContainerProfile class.
  * If any information has been provided, it can then be used.
- * Note, as a local copy of the environment profile is saved within the container object it is available
- * for as long as the environment container instantiated. The original container defining the environment
- * may only be transitory, but as long ass other contaners were created while the original existed, they
- * will hold a complete record of the environment.
+ *
+ * Note, a local copy of the environment profile is saved per instance, so an application
+ * creating QCa widgets (the container) can define a profile, create QCa widgets, then release the profile.
+ *
+ * To use this class
+ *         - Instantiate a ContainerProfile class
+ *         - Call setupProfile()
+ *         - Create QCa widgets
+ *         - Call releaseProfile()
+ *
+ * Notes:
+ * - If an application creates the ContainerProfile class early, before the widgets that are published in the
+ *   profile, or if the published widgets change the widgets in the profile can be updated by calling updateConsumers().
+ *   Alternatively, just the widget that launches new GUIs can be updated with replaceGuiLaunchConsumer().
+ *
+ * - An application may need to temprarily extend the the macro substitutions. For example, when creating an ASguiForm
+ *   widget as a sub form within another ASguiform widget. Macro substitutions can be extended by calling addMacroSubstitutions()
+ *   then restored using removeMacroSubstitutions().
+ *
  */
 
 #include <ContainerProfile.h>
@@ -71,7 +79,7 @@ QList<WidgetRef> ContainerProfile::containedWidgets;
 QString          ContainerProfile::publishedPath;
 QString          ContainerProfile::publishedParentPath;
 
-bool ContainerProfile::publishedInteractive = false;
+//bool ContainerProfile::publishedInteractive = false;
 
 bool ContainerProfile::profileDefined = false;
 
@@ -104,58 +112,82 @@ void ContainerProfile::setupProfile( QObject* statusMessageConsumerIn,
                                      QObject* guiLaunchConsumerIn,
                                      QString pathIn,
                                      QString parentPathIn,
-                                     QString macroSubstitutionsIn,
-                                     bool interactiveIn )
+                                     QString macroSubstitutionsIn )
 {
+    // Publish the profile supplied
     publishProfile(statusMessageConsumerIn,
                    errorMessageConsumerIn,
                    warningMessageConsumerIn,
                    guiLaunchConsumerIn,
                    pathIn,
                    parentPathIn,
-                   macroSubstitutionsIn,
-                   interactiveIn );
+                   macroSubstitutionsIn );
+
+    // Save a local copy of what has been published
     takeLocalCopy();
 }
 
 /**
-  Update published signal consumer objects
+  Update published signal consumer objects.
+  This is used if the signal consumer objects were not available when the profile was
+  first set up, or if the objects are changing
   */
 void ContainerProfile::updateConsumers( QObject* statusMessageConsumerIn,
                                      QObject* errorMessageConsumerIn,
                                      QObject* warningMessageConsumerIn,
                                      QObject* guiLaunchConsumerIn )
 {
+    // If no profile has been defined, then can't update it
     if( !isProfileDefined() )
     {
         qDebug() << "Can't update consumers as a published profile has not yet been defined";
         return;
     }
+
+    // Update the published profile
     publishedStatusMessageConsumer = statusMessageConsumerIn;
     publishedErrorMessageConsumer = errorMessageConsumerIn;
     publishedWarningMessageConsumer = warningMessageConsumerIn;
 
     publishedGuiLaunchConsumer = guiLaunchConsumerIn;
 
+    // Keep the local copy matching what has been published
     takeLocalCopy();
 }
 
+/**
+  Update just the published signal consumer object that is used to launch new GUIs.
+  The previous object is returned so it can be reinstated later.
+  */
+QObject* ContainerProfile::replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn )
+{
+    QObject* savedGuiLaunchConsumer = guiLaunchConsumer;
+    publishedGuiLaunchConsumer = newGuiLaunchConsumerIn;
+    guiLaunchConsumer = publishedGuiLaunchConsumer;
+
+    return savedGuiLaunchConsumer;
+}
+
+/*
+  Set up the published profile.
+  All instances of ContainerProfile will be able to see the published profile.
+  */
 void ContainerProfile::publishProfile( QObject* statusMessageConsumerIn,
                                      QObject* errorMessageConsumerIn,
                                      QObject* warningMessageConsumerIn,
                                      QObject* guiLaunchConsumerIn,
                                      QString pathIn,
                                      QString parentPathIn,
-                                     QString macroSubstitutionsIn,
-                                     bool interactiveIn )
+                                     QString macroSubstitutionsIn )
 {
-    // Do nothing if a profile is already defined
+    // Do nothing if a profile has already been published
     if( profileDefined )
     {
         qDebug() << "Can't publish a profile as one is already published";
         return;
     }
 
+    // Publish the profile
     publishedStatusMessageConsumer = statusMessageConsumerIn;
     publishedErrorMessageConsumer = errorMessageConsumerIn;
     publishedWarningMessageConsumer = warningMessageConsumerIn;
@@ -171,11 +203,13 @@ void ContainerProfile::publishProfile( QObject* statusMessageConsumerIn,
         publishedMacroSubstitutions.append( macroSubstitutionsIn );
     }
 
-    publishedInteractive = interactiveIn;
-
+    // flag a published profile now exists
     profileDefined = true;
 }
 
+/*
+ Take a local copy of the profile visable to all instances of ContainerProfile
+ */
 void ContainerProfile::takeLocalCopy()
 {
     QString subs;
@@ -191,19 +225,24 @@ void ContainerProfile::takeLocalCopy()
                        publishedGuiLaunchConsumer,
                        publishedPath,
                        publishedParentPath,
-                       subs,
-                       publishedInteractive );
+                       subs );
 }
 
+/**
+  Set up the local profile only (don't refer to any published profile)
+  This is used when a QCa widget needs a profile, but none has been published.
+  A default local profile can be set up using this method.
+  The local profile can then be made public if required by calling publishOwnProfile()
+  */
 void ContainerProfile::setupLocalProfile( QObject* statusMessageConsumerIn,
                                      QObject* errorMessageConsumerIn,
                                      QObject* warningMessageConsumerIn,
                                      QObject* guiLaunchConsumerIn,
                                      QString pathIn,
                                      QString parentPathIn,
-                                     QString macroSubstitutionsIn,
-                                     bool interactiveIn )
+                                     QString macroSubstitutionsIn )
 {
+    // Set up the local profile as specified
     statusMessageConsumer = statusMessageConsumerIn;
     errorMessageConsumer = errorMessageConsumerIn;
     warningMessageConsumer = warningMessageConsumerIn;
@@ -211,8 +250,6 @@ void ContainerProfile::setupLocalProfile( QObject* statusMessageConsumerIn,
     guiLaunchConsumer = guiLaunchConsumerIn;
 
     macroSubstitutions = macroSubstitutionsIn;
-
-    interactive = interactiveIn;
 
     macroSubstitutions = macroSubstitutionsIn;
 
@@ -227,7 +264,6 @@ void ContainerProfile::setupLocalProfile( QObject* statusMessageConsumerIn,
   Since it adds to the end of the existing macro substitutions, any substitutions already added by the originating
   container or higher forms take precedence.
   */
-
 void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
 {
     if( profileDefined  )
@@ -238,7 +274,6 @@ void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
   Reduce the macro substitutions currently being used by all new QCaWidgets.
   This is used after a form is created. Any macro substitutions passed on by the form being created are no longer relevent.
   */
-
 void ContainerProfile::removeMacroSubstitutions()
 {
     if( profileDefined && !publishedMacroSubstitutions.isEmpty() )
@@ -256,8 +291,7 @@ void ContainerProfile::publishOwnProfile()
                           guiLaunchConsumer,
                           path,
                           parentPath,
-                          macroSubstitutions,
-                          interactive);
+                          macroSubstitutions );
 }
 
 /**
@@ -265,6 +299,7 @@ void ContainerProfile::publishOwnProfile()
   */
 void ContainerProfile::releaseProfile()
 {
+    // Clear the profile
     publishedStatusMessageConsumer = NULL;
     publishedErrorMessageConsumer = NULL;
     publishedWarningMessageConsumer = NULL;
@@ -276,10 +311,9 @@ void ContainerProfile::releaseProfile()
 
     publishedMacroSubstitutions.clear();
 
-    publishedInteractive = false;
-
     containedWidgets.clear();
 
+    // Indicate no profile is defined
     profileDefined = false;
 }
 
@@ -352,34 +386,37 @@ QString ContainerProfile::getMacroSubstitutions()
     return macroSubstitutions;
 }
 
+/**
+  Return the flag indicating true if a profile is currently being published.
+  */
 bool ContainerProfile::isProfileDefined()
 {
     return profileDefined;
 }
 
+/**
+  Add a QCa widget to the list of QCa widgets created under the currently published profile.
+  This provides the application with a list of its QCa widgets without having to trawl through
+  the widget hierarchy looking for them. Note, in some applications the application may know
+  exactly what QCa widgets have been created, but if the application has loaded a .ui file
+  unrelated to the application development (for example, a user created control GUI), then the
+  application will not know how many, if any, QCa widgets it owns.
+  */
 void ContainerProfile::addContainedWidget( QCaWidget* containedWidget )
 {
     containedWidgets.append( WidgetRef( containedWidget ) );
 }
 
+/**
+  Return the next QCa widget from the list of QCa widgets built using addContainedWidget().
+  Note, this is destructive to the list. It is fine if the application only needs to get the
+  widgets from the list once, such as when activating QCa widgets after creating a form.
+  */
 QCaWidget* ContainerProfile::getNextContainedWidget()
 {
+    // Remove and return the first widget in the list, or return NULL if no more
     if( !containedWidgets.isEmpty() )
         return containedWidgets.takeFirst().getRef();
     else
         return NULL;
-}
-
-bool ContainerProfile::isInteractive()
-{
-    return interactive;
-}
-
-QObject* ContainerProfile::replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn )
-{
-    QObject* savedGuiLaunchConsumer = guiLaunchConsumer;
-    publishedGuiLaunchConsumer = newGuiLaunchConsumerIn;
-    guiLaunchConsumer = publishedGuiLaunchConsumer;
-
-    return savedGuiLaunchConsumer;
 }

@@ -1,10 +1,3 @@
-/*! 
-  \class ContainerProfile
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Defines attributes of the containing window (form, dialog, etc) within which QCa widgets are being created.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -64,16 +57,14 @@ public:
                        QObject* guiLaunchConsumerIn,
                        QString pathIn,
                        QString parentPathIn,
-                       QString macroSubstitutionsIn,
-                       bool interactiveIn );      // Setup a local and published environmental profile for all QcaWidgets to use on creation
+                       QString macroSubstitutionsIn );      // Setup a local and published environmental profile for all QcaWidgets to use on creation
     void setupLocalProfile( QObject* statusMessageConsumerIn,
                             QObject* errorMessageConsumerIn,
                             QObject* warningMessageConsumerIn,
                             QObject* guiLaunchConsumerIn,
                             QString pathIn,
                             QString parentPathIn,
-                            QString macroSubstitutionsIn,
-                            bool interactiveIn );      // Setup the local environmental profile for this instance only
+                            QString macroSubstitutionsIn );      // Setup the local environmental profile for this instance only
     void updateConsumers( QObject* statusMessageConsumerIn,
                           QObject* errorMessageConsumerIn,
                           QObject* warningMessageConsumerIn,
@@ -92,7 +83,6 @@ public:
     void setPublishedParentPath( QString publishedParentPathIn ); // Set the published current object path used for file operations
     QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
     bool isProfileDefined();                  // Returns true if a profile has been setup by setupProfile()
-    bool isInteractive();                     // Returns true if the profile was set up by an application where a user is interacting with properties such as variable names
 
     void addContainedWidget( QCaWidget* containedWidget );  // Adds a reference to the list of QCa widgets created with this profile
     QCaWidget* getNextContainedWidget();                    // Returns a reference to the next QCa widgets in the list of QCa widgets created with this profile
@@ -108,8 +98,7 @@ private:
                          QObject* guiLaunchConsumerIn,
                          QString pathIn,
                          QString publishedParentPathIn,
-                         QString macroSubstitutionsIn,
-                         bool interactiveIn );      // Publish an environmental profile for all QcaWidgets to use on creation
+                         QString macroSubstitutionsIn );      // Publish an environmental profile for all QcaWidgets to use on creation
 
     static QObject* publishedStatusMessageConsumer;     // Object to send status message event to
     static QObject* publishedErrorMessageConsumer;      // Object to send error message event to
@@ -118,7 +107,6 @@ private:
     static QString publishedPath;                       // Path used for file operations (scope: application wide)
     static QString publishedParentPath;                 // Path used for file operations (scope: Parent object, if any. This is set up by the application, but is temporarily overwritten and then reset by each level of sub object (sub form)
     static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
-    static bool publishedInteractive;                    // Flag true if the profile was set up by an application where a user is interacting with properties such as variable names
 
     static QList<WidgetRef> containedWidgets;           // List of QCa widgets created with this profile
 
@@ -131,7 +119,6 @@ private:
     QString path;                    // Local copy of application path used for file operations
     QString parentPath;              // Local copy of parent object path used for file operations
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
-    bool interactive;                // Local copy of 'is interactive' flag. Still valid after the profile has been released by releaseProfile()
 
 };
 
