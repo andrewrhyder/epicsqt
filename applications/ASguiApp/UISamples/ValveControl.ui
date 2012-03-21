@@ -40,20 +40,6 @@
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Valve 1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Valve 2</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
@@ -91,7 +77,7 @@
       <item row="2" column="1">
        <widget class="QCaLabelPlugin" name="qcalabelplugin_3">
         <property name="variable" stdset="0">
-         <string>SR01SGV01:EPS_OOS_STATUS</string>
+         <string>SR$(SR)SGV01:EPS_OOS_STATUS</string>
         </property>
         <property name="variableSubstitutions" stdset="0">
          <string>SR=01</string>
@@ -118,7 +104,7 @@
       <item row="3" column="1">
        <widget class="QCaLabelPlugin" name="qcalabelplugin_4">
         <property name="variable" stdset="0">
-         <string>SR01SGV01:INHIBIT_OPEN_STATUS</string>
+         <string>SR$(SR)SGV01:INHIBIT_OPEN_STATUS</string>
         </property>
         <property name="variableSubstitutions" stdset="0">
          <string>SR=01</string>
@@ -148,7 +134,7 @@
          <string>No Action</string>
         </property>
         <property name="variable" stdset="0">
-         <string>SR01SGV01:OPEN_CLOSE_CMD</string>
+         <string>SR$(SR)SGV01:OPEN_CLOSE_CMD</string>
         </property>
         <property name="variableSubstitutions" stdset="0">
          <string>SR=01</string>
@@ -598,15 +584,15 @@
            <string>Open</string>
           </property>
           <property name="variable" stdset="0">
-           <string>SR01SGV01:OPEN_CLOSE_CMD</string>
+           <string>SR$(SR)SGV01:OPEN_CLOSE_CMD</string>
           </property>
           <property name="variableSubstitutions" stdset="0">
            <string>SR=01</string>
           </property>
-          <property name="pressText" stdset="0">
+          <property name="pressText">
            <string>1</string>
           </property>
-          <property name="clickText" stdset="0">
+          <property name="clickText">
            <string>Open</string>
           </property>
          </widget>
@@ -1035,15 +1021,15 @@
            <string>Close</string>
           </property>
           <property name="variable" stdset="0">
-           <string>SR01SGV01:OPEN_CLOSE_CMD</string>
+           <string>SR$(SR)SGV01:OPEN_CLOSE_CMD</string>
           </property>
           <property name="variableSubstitutions" stdset="0">
            <string>SR=01</string>
           </property>
-          <property name="pressText" stdset="0">
+          <property name="pressText">
            <string>1</string>
           </property>
-          <property name="clickText" stdset="0">
+          <property name="clickText">
            <string>Close</string>
           </property>
          </widget>
@@ -1481,10 +1467,10 @@
           <property name="variableSubstitutions" stdset="0">
            <string>SR=01</string>
           </property>
-          <property name="pressText" stdset="0">
+          <property name="pressText">
            <string>1</string>
           </property>
-          <property name="clickText" stdset="0">
+          <property name="clickText">
            <string>Open</string>
           </property>
          </widget>
@@ -1915,10 +1901,10 @@
           <property name="variableSubstitutions" stdset="0">
            <string>SR=01</string>
           </property>
-          <property name="pressText" stdset="0">
+          <property name="pressText">
            <string>1</string>
           </property>
-          <property name="clickText" stdset="0">
+          <property name="clickText">
            <string>Close</string>
           </property>
          </widget>
@@ -1938,7 +1924,7 @@
          <string>Ok</string>
         </property>
         <property name="variable" stdset="0">
-         <string>SR01SGV01:MOVEMENT_FAILURE</string>
+         <string>SR$(SR)SGV01:MOVEMENT_FAILURE</string>
         </property>
         <property name="variableSubstitutions" stdset="0">
          <string>SR=01</string>
@@ -1974,15 +1960,15 @@
          <string>Reset</string>
         </property>
         <property name="variable" stdset="0">
-         <string>SR01SGV01:MOVEMENT_FAILURE_RESET</string>
+         <string>SR$(SR)SGV01:MOVEMENT_FAILURE_RESET</string>
         </property>
         <property name="variableSubstitutions" stdset="0">
          <string>SR=01</string>
         </property>
-        <property name="pressText" stdset="0">
+        <property name="pressText">
          <string>1</string>
         </property>
-        <property name="clickText" stdset="0">
+        <property name="clickText">
          <string>Reset</string>
         </property>
        </widget>
@@ -2001,11 +1987,37 @@
         <property name="variableSubstitutions" stdset="0">
          <string>SR=01</string>
         </property>
-        <property name="pressText" stdset="0">
+        <property name="pressText">
          <string>1</string>
         </property>
-        <property name="clickText" stdset="0">
+        <property name="clickText">
          <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSubstitutedLabelPlugin" name="qsubstitutedlabelplugin">
+        <property name="text">
+         <string>Sector 01 Valve 1</string>
+        </property>
+        <property name="labelText" stdset="0">
+         <string>Sector $(SR) Valve 1</string>
+        </property>
+        <property name="textSubstitutions" stdset="0">
+         <string>SR=01</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QSubstitutedLabelPlugin" name="qsubstitutedlabelplugin_2">
+        <property name="text">
+         <string>Sector 01 Valve 2</string>
+        </property>
+        <property name="labelText" stdset="0">
+         <string>Sector $(SR) Valve 2</string>
+        </property>
+        <property name="textSubstitutions" stdset="0">
+         <string>SR=01</string>
         </property>
        </widget>
       </item>
@@ -2019,6 +2031,11 @@
    <class>QCaLabelPlugin</class>
    <extends>QLabel</extends>
    <header>QCaLabelPlugin.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QSubstitutedLabelPlugin</class>
+   <extends>QLabel</extends>
+   <header>QSubstitutedLabelPlugin.h</header>
   </customwidget>
   <customwidget>
    <class>QCaPushButtonPlugin</class>
