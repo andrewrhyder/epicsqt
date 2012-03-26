@@ -3,7 +3,7 @@ Package generation:
 Rebuild documentation:
 (note, preparation of pdf help from latex source requires
 pdflatex available in lexlive "yum install texlive-latex.x86_64")
-  update PROJECT_NUMBER in ~/epicsqr/documentation/source/Doxyfile
+  update PROJECT_NUMBER in ~/epicsqt/documentation/source/Doxyfile
   cd ~
   doxygen epicsqt/documentation/source/Doxyfile
   cd epicsqt/documentation/latex
