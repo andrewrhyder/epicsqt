@@ -54,6 +54,9 @@ void QCaFloating::initialise( QCaFloatingFormatting* floatingFormattingIn,
     floatingFormat = floatingFormattingIn;
     variableIndex = variableIndexIn;
 
+    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo& ) ),
+                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo& ) ) );
+
     QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ),
                       this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
 }
@@ -81,3 +84,12 @@ void QCaFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo
         emit floatingChanged( floatingFormat->formatFloating( value ), alarmInfo, timeStamp, variableIndex );
     }
 }
+
+/*!
+    Take a basic connection change and append variableIndex
+*/
+void QCaFloating::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+    emit floatingConnectionChanged( connectionInfo, variableIndex );
+}
+
+// end

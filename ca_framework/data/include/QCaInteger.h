@@ -46,6 +46,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaInteger : public qcaobject::QCaObject {
     QCaInteger( QString recordName, QObject *eventObject, QCaIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
+    void integerConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
     void integerChanged( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
   public slots:
@@ -58,6 +59,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaInteger : public qcaobject::QCaObject {
 
   private slots:
     void convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
+    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
 #endif /// QCAINTEGER_H

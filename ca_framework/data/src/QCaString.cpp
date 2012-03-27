@@ -53,6 +53,9 @@ void QCaString::initialise( QCaStringFormatting* newStringFormat, unsigned int v
     stringFormat = newStringFormat;
     variableIndex = variableIndexIn;
 
+    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo& ) ),
+                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo& ) ) );
+
     QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ),
                       this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
 }
@@ -84,3 +87,12 @@ void QCaString::convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, 
     // Format the data and send it
     emit stringChanged( stringFormat->formatString( value ), alarmInfo, timeStamp, variableIndex );
 }
+
+/*!
+    Take a basic connection change and append variableIndex
+*/
+void QCaString::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+    emit stringConnectionChanged( connectionInfo, variableIndex );
+}
+
+// end

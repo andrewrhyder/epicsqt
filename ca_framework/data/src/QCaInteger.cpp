@@ -54,6 +54,9 @@ void QCaInteger::initialise( QCaIntegerFormatting* integerFormattingIn,
     integerFormat = integerFormattingIn;
     variableIndex = variableIndexIn;
 
+    QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo& ) ),
+                      this, SLOT( forwardConnectionChanged( QCaConnectionInfo& ) ) );
+
     QObject::connect( this, SIGNAL( dataChanged( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ),
                       this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
 }
@@ -73,3 +76,12 @@ void QCaInteger::writeInteger( const long &data ) {
 void QCaInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
     emit integerChanged( integerFormat->formatInteger( value ), alarmInfo, timeStamp, variableIndex );
 }
+
+/*!
+    Take a basic connection change and append variableIndex
+*/
+void QCaInteger::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+    emit integerConnectionChanged( connectionInfo, variableIndex );
+}
+
+// end

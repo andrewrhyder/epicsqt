@@ -46,6 +46,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFloating : public qcaobject::QCaObject {
     QCaFloating( QString recordName, QObject *eventObject, QCaFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
+    void floatingConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
     void floatingChanged( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
     void floatingArrayChanged( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
@@ -59,6 +60,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFloating : public qcaobject::QCaObject {
 
   private slots:
     void convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
+    void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
 #endif /// QCAFLOATING_H
