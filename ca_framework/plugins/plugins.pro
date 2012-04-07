@@ -36,6 +36,7 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaPushButton.png \
     src/QCaRadioButton.png \
     src/QCaPlot.png \
+    src/QCaPvProperties.png \
     src/QCaLineEdit.png \
     src/QCaLabel.png \
     src/QSubstitutedLabel.png \
@@ -81,6 +82,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/PeriodicElementSetupForm.h \
     include/QAnalogProgressBarPluginManager.h \
     include/QCaAnalogProgressBarPluginManager.h \
+    include/QCaPvPropertiesPluginManager.h \
     include/QBitStatusPluginManager.h \
     include/QCaBitStatusPluginManager.h \
     ../api/include/Generic.h \
@@ -114,6 +116,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaSlider.h \
     ../widgets/include/QCaShape.h \
     ../widgets/include/QCaPushButton.h \
+    ../widgets/include/QCaPvProperties.h \
     ../widgets/include/QCaRadioButton.h \
     ../widgets/include/QCaGenericButton.h \
     ../widgets/include/QCaLineEdit.h \
@@ -164,6 +167,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaAnalogProgressBarPluginManager.cpp \
     src/QBitStatusPluginManager.cpp \
     src/QCaBitStatusPluginManager.cpp \
+    src/QCaPvPropertiesPluginManager.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -194,6 +198,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaSlider.cpp \
     ../widgets/src/QCaShape.cpp \
     ../widgets/src/QCaPushButton.cpp \
+    ../widgets/src/QCaPvProperties.cpp \
     ../widgets/src/QCaRadioButton.cpp \
     ../widgets/src/QCaGenericButton.cpp \
     ../widgets/src/QCaLineEdit.cpp \
