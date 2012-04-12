@@ -1,10 +1,3 @@
-/*!
-  \class
-  \version $Revision: #7 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief The Australian Sysnchrotron Base Form GUI
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -37,6 +30,8 @@
 #include <ASguiForm.h>
 #include <UserMessage.h>
 #include <ContainerProfile.h>
+#include <QProcess>
+#include <QTimer>
 
 class MainWindow : public QMainWindow
 {
@@ -78,6 +73,13 @@ private:
 //    QString substitutions;                                  // Default substitutions when creating a new GUI form
     ContainerProfile profile;                               // Environment profile for new QCa wigets
 
+    QProcess process;                                       // Process used to start designer
+    QTimer processTimer;                                    // Timer used to attempt restarting designer from outside a QProcess error signal
+    void startDesigner();                                   // Start designer (attempt with first command)
+    void startDesignerCore( QString command );              // Start designer core called for both start attempts
+
+    bool processSecondAttempt;                              // Flag indicating this is the second attempt to start designer with an alternate command
+    bool processOpenGui;                                    // Flag indicating designer should be opened with the current GUI
 
 private slots:
     void on_actionRefresh_Current_Form_triggered();             // Slot to perform 'Refresh Current Form' action
@@ -99,6 +101,9 @@ private slots:
     void tabCurrentChanged( int index );            // Slot to act on user changing tabs
     void tabCloseRequest( int index );              // Slot to act on user closing a tab
     void resizeToFitGui();                          // Resize the form to fit a GUI without scroll bars
+
+    void processError( QProcess::ProcessError error ); // An error occured starting designer process
+    void startDesignerAlternate();                  // Timer signal used to attempt restarting designer from outside a QProcess error signal
 
 };
 

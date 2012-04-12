@@ -1,10 +1,3 @@
-/*!
-  \class MainWindow
-  \version $Revision: #12 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Creates the main window in the Australian Synchrotron GUI
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -36,6 +29,12 @@
 #include <ASguiForm.h>
 #include <QMessageBox>
 #include <ContainerProfile.h>
+
+// Before Qt 4.8, the command to start designer is 'designer'.
+// Qt 4.8 later uses the command 'designer-qt4'
+// Try both before giving up starting designer
+#define DESIGNER_COMMAND_1 "designer-qt4"
+#define DESIGNER_COMMAND_2 "designer"
 
 /// Shared list of all main windows
 QList<MainWindow*> MainWindow::mainWindowList;
@@ -101,6 +100,10 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
         ASguiForm* gui = createGui( fileName );
         loadGuiIntoCurrentWindow( gui );
     }
+
+    // Set up signals for starting the 'designer' process
+    QObject::connect( &process, SIGNAL(error(QProcess::ProcessError)), this, SLOT( processError(QProcess::ProcessError) ) );
+    QObject::connect( &processTimer, SIGNAL(timeout()), this, SLOT( startDesignerAlternate() ) );
 }
 
 /// Destructor
@@ -241,24 +244,91 @@ void MainWindow::tabCloseRequest( int index )
 void MainWindow::on_actionDesigner_triggered()
 {
     // Start designer
-    QProcess *process = new QProcess();
-    process->setWorkingDirectory( profile.getPath() );
-     process->start( "designer" );
+    processOpenGui = false;
+    process.setWorkingDirectory( profile.getPath() );
+    startDesigner();
 }
 
 // Open the current form in designer
 void MainWindow::on_actionOpen_Current_Form_In_Designer_triggered()
 {
-    // Get the gui file name (left empthy if no gui)
-    QStringList guiFileName;
-    ASguiForm* gui = getCurrentGui();
-    if( gui )
-        guiFileName.append( gui->getGuiFileName() );
-
     // Start designer specifying the current gui file name
-    QProcess *process = new QProcess();
-    process->setWorkingDirectory( profile.getPath() );
-    process->start( "designer", guiFileName );
+    processOpenGui = true;
+    process.setWorkingDirectory( profile.getPath() );
+    startDesigner();
+}
+
+// Common 'designer' startup
+// Called if starting designer with or without a filename
+void MainWindow::startDesigner()
+{
+    // If not already running, start designer
+    if( process.state() == QProcess::NotRunning )
+    {
+        processSecondAttempt = false;
+        startDesignerCore( DESIGNER_COMMAND_1 );
+    }
+
+    // If already running, tell the user
+    else
+    {
+        QMessageBox::about(this, "ASgui", "Designer (started by ASgui) is already running.");
+    }
+}
+
+// Core 'designer' startup
+// Called first and second time designer startup is attempted
+void MainWindow::startDesignerCore( QString command )
+{
+    // If opening the current gui, get the name and start designer with the name
+    if( processOpenGui )
+    {
+        // Get the gui file name (left empthy if no gui)
+        QStringList guiFileName;
+        ASguiForm* gui = getCurrentGui();
+        if( gui )
+            guiFileName.append( gui->getGuiFileName() );
+
+        // Start designer
+        process.start( command, guiFileName );
+    }
+
+    // If just opening designer, then start it with no file name
+    else
+    {
+        process.start( command );
+    }
+}
+
+// An error occures starting designer
+// One possibility is that a Qt version older then 4.8 is in use and the name is different
+// (Before Qt 4.8, command is 'designer'. Qt 4.8 later uses the command 'designer-qt4')
+// So, try again with the alternate name.
+// However, the process can be started while still in the error function for the last process,
+// so set a timer for 0mS and start it in the signal from that
+void MainWindow::processError( QProcess::ProcessError )
+{
+    // Do nothing if this was the second attempt using an algternate command
+    if( processSecondAttempt )
+    {
+        QMessageBox::about(this, "ASgui", "Sorry, an error occured starting designer.");
+        return;
+    }
+
+    // Signal startDesignerAlternate() immedietly to try starting designer again
+    // with an alternate command
+    processTimer.setSingleShot(true);
+    processTimer.setInterval(0);
+    processTimer.start();
+}
+
+// Try starting designer again with an alternate command.
+// See description of processError() for more details.
+void MainWindow::startDesignerAlternate()
+{
+    // Try starting designer again with an alternate command.
+    processSecondAttempt = true;
+    startDesignerCore( DESIGNER_COMMAND_2 );
 }
 
 // Refresh the current window (reload the ui file)
@@ -267,13 +337,18 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     // Get the gui file name (left empty if no gui)
     QString guiFileName;
     ASguiForm* currentGui = getCurrentGui();
+    QString guiPath;
     if( currentGui )
+    {
         guiFileName = currentGui->getGuiFileName();
+        QDir directory( profile.getPath() );
+        guiPath = directory.filePath( guiFileName );
+    }
 
     // Recreate the gui and load it in place of the current window
     if( guiFileName.size() )
     {
-        ASguiForm* newGui = createGui( guiFileName );
+        ASguiForm* newGui = createGui( guiPath );
         loadGuiIntoCurrentWindow( newGui );
     }
 }
