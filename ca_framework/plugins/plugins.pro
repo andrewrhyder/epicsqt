@@ -175,12 +175,9 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaAnalogProgressBarPluginManager.cpp \
     src/QBitStatusPluginManager.cpp \
     src/QCaBitStatusPluginManager.cpp \
-<<<<<<< .mine
     src/QCaImagePluginManager.cpp \
     src/QCaImagePlugin.cpp \
-=======
     src/QCaPvPropertiesPluginManager.cpp \
->>>>>>> .r133
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
