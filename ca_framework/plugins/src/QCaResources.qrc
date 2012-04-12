@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/icons" >
+    <qresource prefix="/icons">
         <file>QCaLineEdit.png</file>
         <file>QCaLabel.png</file>
         <file>QCaPushButton.png</file>
@@ -17,5 +17,6 @@
         <file>QBitStatus.png</file>
         <file>QSubstitutedLabel.png</file>
         <file>QCaRadioButton.png</file>
+        <file>QCaImage.png</file>
     </qresource>
 </RCC>

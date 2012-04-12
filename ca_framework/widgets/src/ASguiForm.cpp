@@ -202,6 +202,9 @@ bool ASguiForm::readUiFile()
 
             // Load the gui
             QUiLoader loader;
+// Debuggind: include the following line to check where it is expecting to find plugins
+            qDebug() << "PATHS" << loader.pluginPaths();
+
             ui = loader.load( uiFile );
             uiFile->close();
 

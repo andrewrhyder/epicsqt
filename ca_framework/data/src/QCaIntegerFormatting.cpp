@@ -91,8 +91,52 @@ QVariant QCaIntegerFormatting::formatValue( const long &integerValue, generic::g
 
 /*!
     Generate an integer given a value, using formatting defined within this class.
+    The value may be an array of variants or a single variant
 */
 long QCaIntegerFormatting::formatInteger( const QVariant &value ) {
+
+    // If the value is a list, get the first item from the list.
+    // Otherwise, just use the value as is
+    if( value.type() == QVariant::List )
+    {
+        return formatIntegerNonArray( value.toList()[0] );
+    }
+    else
+    {
+        return formatIntegerNonArray( value );
+    }
+}
+
+/*!
+    Generate an integer array given a value, using formatting defined within this class.
+*/
+QVector<long> QCaIntegerFormatting::formatIntegerArray( const QVariant &value ) {
+
+    QVector<long> returnValue;
+
+    // If the value is a list, populate a list, converting each of the items to a long
+    if( value.type() == QVariant::List )
+    {
+        QVariantList list = value.toList();
+        for( long i=0; i < list.count(); i++ )
+        {
+            returnValue.append( formatIntegerNonArray( list[i] ));
+        }
+    }
+
+    // The value is not a list so build a list with a single long
+    else
+    {
+        returnValue.append( formatIntegerNonArray( value ));
+    }
+
+    return returnValue;
+}
+
+/*!
+    Generate an integer given a value, using formatting defined within this class.
+*/
+long QCaIntegerFormatting::formatIntegerNonArray( const QVariant &value ) {
     // Determine the format from the variant type.
     // Only the types used to store ca data are used. any other type is considered a failure.
     switch( value.type() ) {

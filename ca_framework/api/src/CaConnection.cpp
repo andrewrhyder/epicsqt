@@ -23,6 +23,7 @@
  */
 
 #include <CaConnection.h>
+#include <QDebug>
 
 using namespace caconnection;
 
@@ -141,6 +142,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
                 return REQUEST_SUCCESSFUL;
             break;
             default :
+                qDebug() << " subscription failure: " << ca_message( subscription.creation );
                 return REQUEST_FAILED;
             break;
         }

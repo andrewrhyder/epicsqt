@@ -49,6 +49,7 @@ public:
     //   - Translate a double and generate a value
     //===============================================
     long formatInteger( const QVariant &value );
+    QVector<long> formatIntegerArray( const QVariant &value );
     QVariant formatValue( const long &integerValue, generic::generic_types valueType );
 
     // Functions to configure the formatting
@@ -65,6 +66,9 @@ public:
     long formatFromUnsignedInteger( const QVariant &value );
     long formatFromString( const QVariant &value );
     long formatFromTime( const QVariant &value );
+
+    // Common functions
+    long formatIntegerNonArray( const QVariant &value );
 
     // Error reporting
     long formatFailure( QString message );

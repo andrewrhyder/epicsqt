@@ -44,13 +44,17 @@
 
 namespace qcaobject {
 
+#define SIG_VARIANT   1
+#define SIG_BYTEARRAY 2
+
   class QCAPLUGINLIBRARYSHARED_EXPORT QCaObject : public QObject, caobject::CaObject {
       Q_OBJECT
 
     public:
-      QCaObject( const QString& recordName, QObject *eventObject );
-      QCaObject( const QString& recordName, QObject *eventObject, UserMessage* userMessageIn );
+      QCaObject( const QString& recordName, QObject *eventObject, unsigned char signalsToSendIn=SIG_VARIANT );
+      QCaObject( const QString& recordName, QObject *eventObject, UserMessage* userMessageIn, unsigned char signalsToSendIn=SIG_VARIANT );
       virtual ~QCaObject();
+
 
       bool subscribe();
       bool singleShotRead();
@@ -90,6 +94,7 @@ namespace qcaobject {
 
     signals:
       void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
+      void dataChanged( const QByteArray& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
       void connectionChanged( QCaConnectionInfo& connectionInfo );
 
     public slots:
@@ -100,7 +105,7 @@ namespace qcaobject {
       generic::generic_types getDataType();
 
     private:
-      void initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn );
+      void initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn );
 
       long lastEventChannelState; /// Channel state from most recent update event. This is actually of type caconnection::channel_states
       long lastEventLinkState;    /// Link state from most recent update event. This is actually of type aconnection::link_states
@@ -131,7 +136,8 @@ namespace qcaobject {
       // Last data emited
       QCaDateTime  lastTimeStamp;
       QCaAlarmInfo lastAlarmInfo;
-      QVariant     lastValue;
+      QVariant     lastVariantValue;
+      QByteArray   lastByteArrayValue;
 
       // Database information relating to the variable
       QString egu;
@@ -152,6 +158,7 @@ namespace qcaobject {
       QStringList enumerations;
       bool isStatField;
 
+      unsigned char signalsToSend;
 
     private slots:
       void setChannelExpired();

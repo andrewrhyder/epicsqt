@@ -74,7 +74,14 @@ void QCaInteger::writeInteger( const long &data ) {
     Slot to recieve data updates from the base QCaObject and generate integer updates.
 */
 void QCaInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
-    emit integerChanged( integerFormat->formatInteger( value ), alarmInfo, timeStamp, variableIndex );
+    if( value.type() == QVariant::List )
+    {
+        emit integerArrayChanged( integerFormat->formatIntegerArray( value ), alarmInfo, timeStamp, variableIndex );
+    }
+    else
+    {
+        emit integerChanged( integerFormat->formatInteger( value ), alarmInfo, timeStamp, variableIndex );
+    }
 }
 
 /*!

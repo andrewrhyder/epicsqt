@@ -24,6 +24,7 @@
 
 #include <QtCore>
 #include <QtDebug>
+#include <QByteArray>
 
 #include <CaObjectPrivate.h>
 #include <CaObject.h>
@@ -31,6 +32,7 @@
 #include <QCaEventUpdate.h>
 #include <CaRecord.h>
 #include <CaConnection.h>
+
 
 using namespace qcaobject;
 using namespace generic;
@@ -49,15 +51,15 @@ QCaEventFilter QCaObject::eventFilter;
    In other words, the event object does not need to be set up in any way.
    It just need to have a suitable event loop running.
 */
-QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler ) {
-    initialise( newRecordName, newEventHandler, NULL );
+QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, unsigned char signalsToSendIn ) {
+    initialise( newRecordName, newEventHandler, NULL, signalsToSendIn );
 }
 
-QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn ) {
-    initialise( newRecordName, newEventHandler, userMessageIn );
+QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn ) {
+    initialise( newRecordName, newEventHandler, userMessageIn, signalsToSendIn );
 }
 
-void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn ) {
+void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn ) {
 
     // Initialise variables
     precision = 0;
@@ -77,8 +79,9 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     isStatField = false;
 
     lastTimeStamp = QCaDateTime( QDateTime::currentDateTime() );
-//    lastAlarmInfo = ???;
-    lastValue = (double)0.0;
+    lastVariantValue = (double)0.0;
+
+    signalsToSend = signalsToSendIn;
 
     // Setup any the mechanism to handle messages to the user, if supplied
     setUserMessage( userMessageIn );
@@ -715,145 +718,6 @@ void QCaObject::processData( void* newDataPtr ) {
 
     }
 
-    // Package up the CA data as a Qt variant
-    QVariant value;
-    unsigned long arrayCount = newData->getArrayCount();
-    switch( newData->getType() ) {
-        case generic::STRING :
-            value = QVariant( QString::fromStdString( newData->getString() ) );
-        break;
-        case generic::SHORT :
-            if( arrayCount <= 1 )
-            {
-                value = QVariant( (qlonglong)newData->getShort() );
-            }
-            else
-            {
-                QVariantList values;
-                short* data;
-                newData->getShort( &data );
-
-                for( unsigned long i = 0; i < arrayCount; i++ )
-                {
-                    values.append( (qlonglong)(data[i]) );
-                }
-                value = QVariant( values );
-            }
-        break;
-        case generic::UNSIGNED_SHORT :
-            if( arrayCount <= 1 )
-            {
-                value = QVariant( (qulonglong)newData->getUnsignedShort() );
-            }
-            else
-            {
-                QVariantList values;
-                unsigned short* data;
-                newData->getUnsignedShort( &data );
-
-                for( unsigned long i = 0; i < arrayCount; i++ )
-                {
-                    values.append( (qulonglong)(data[i]) );
-                }
-                value = QVariant( values );
-            }
-        break;
-        case generic::UNSIGNED_CHAR :
-            if( arrayCount <= 1 )
-            {
-                value = QVariant( (qulonglong)newData->getUnsignedChar() );
-            }
-            else
-            {
-                QVariantList values;
-                unsigned char* data;
-                newData->getUnsignedChar( &data );
-
-                for( unsigned long i = 0; i < arrayCount; i++ )
-                {
-                    values.append( (qulonglong)(data[i]) );
-                }
-                value = QVariant( values );
-            }
-        break;
-        case generic::LONG :
-            if( arrayCount <= 1 )
-            {
-                value = QVariant( (qlonglong)newData->getLong() );
-            }
-            else
-            {
-                QVariantList values;
-                long* data;
-                newData->getLong( &data );
-
-                for( unsigned long i = 0; i < arrayCount; i++ )
-                {
-                    values.append( (qlonglong)(data[i]) );
-                }
-                value = QVariant( values );
-            }
-        break;
-        case generic::UNSIGNED_LONG :
-            value = QVariant( (qlonglong)newData->getUnsignedLong() );
-            if( arrayCount <= 1 )
-            {
-                value = QVariant( (qulonglong)newData->getUnsignedLong() );
-            }
-            else
-            {
-                QVariantList values;
-                unsigned long* data;
-                newData->getUnsignedLong( &data );
-
-                for( unsigned long i = 0; i < arrayCount; i++ )
-                {
-                    values.append( (qulonglong)(data[i]) );
-                }
-                value = QVariant( values );
-            }
-        break;
-        case generic::FLOAT :
-            if( arrayCount <= 1 )
-            {
-                value = QVariant( (double)newData->getFloat() );
-            }
-            else
-            {
-                QVariantList values;
-                float* data;
-                newData->getFloat( &data );
-
-                for( unsigned long i = 0; i < arrayCount; i++ )
-                {
-                    values.append( (double)(data[i]) );
-                }
-                value = QVariant( values );
-            }
-        break;
-        case generic::DOUBLE :
-            if( arrayCount <= 1 )
-            {
-                value = QVariant( newData->getDouble() );
-            }
-            else
-            {
-                QVariantList values;
-                double* data;
-                newData->getDouble( &data );
-
-                for( unsigned long i = 0; i < arrayCount; i++ )
-                {
-                    values.append( data[i] );
-                }
-                value = QVariant( values );
-            }
-        break;
-        case generic::UNKNOWN :
-            value = QVariant();
-        break;
-    }
-
     // Build the alarm infomation (alarm state and severity)
     QCaAlarmInfo alarmInfo( getAlarmStatus(), getAlarmSeverity() );
 
@@ -872,11 +736,173 @@ void QCaObject::processData( void* newDataPtr ) {
         timeStamp = localTimeStamp;
     }
 
-    // Send off the new data
-    emit dataChanged( value, alarmInfo, timeStamp );
+    // Determine size of data array.
+    unsigned long arrayCount = newData->getArrayCount();
+
+    // Build and emit a Qt variantg containing the data
+    if( signalsToSend & SIG_VARIANT )
+    {
+        // Package up the CA data as a Qt variant
+        QVariant value;
+        switch( newData->getType() ) {
+            case generic::STRING :
+                value = QVariant( QString::fromStdString( newData->getString() ) );
+            break;
+            case generic::SHORT :
+                if( arrayCount <= 1 )
+                {
+                    value = QVariant( (qlonglong)newData->getShort() );
+                }
+                else
+                {
+                    QVariantList values;
+                    short* data;
+                    newData->getShort( &data );
+
+                    for( unsigned long i = 0; i < arrayCount; i++ )
+                    {
+                        values.append( (qlonglong)(data[i]) );
+                    }
+                    value = QVariant( values );
+                }
+            break;
+            case generic::UNSIGNED_SHORT :
+                if( arrayCount <= 1 )
+                {
+                    value = QVariant( (qulonglong)newData->getUnsignedShort() );
+                }
+                else
+                {
+                    QVariantList values;
+                    unsigned short* data;
+                    newData->getUnsignedShort( &data );
+
+                    for( unsigned long i = 0; i < arrayCount; i++ )
+                    {
+                        values.append( (qulonglong)(data[i]) );
+                    }
+                    value = QVariant( values );
+                }
+            break;
+            case generic::UNSIGNED_CHAR :
+                if( arrayCount <= 1 )
+                {
+                    value = QVariant( (qulonglong)newData->getUnsignedChar() );
+                }
+                else
+                {
+                    QVariantList values;
+                    unsigned char* data;
+                    newData->getUnsignedChar( &data );
+
+                    for( unsigned long i = 0; i < arrayCount; i++ )
+                    {
+                        values.append( (qulonglong)(data[i]) );
+                    }
+                    value = QVariant( values );
+                }
+            break;
+            case generic::LONG :
+                if( arrayCount <= 1 )
+                {
+                    value = QVariant( (qlonglong)newData->getLong() );
+                }
+                else
+                {
+                    QVariantList values;
+                    long* data;
+                    newData->getLong( &data );
+
+                    for( unsigned long i = 0; i < arrayCount; i++ )
+                    {
+                        values.append( (qlonglong)(data[i]) );
+                    }
+                    value = QVariant( values );
+                }
+            break;
+            case generic::UNSIGNED_LONG :
+                value = QVariant( (qlonglong)newData->getUnsignedLong() );
+                if( arrayCount <= 1 )
+                {
+                    value = QVariant( (qulonglong)newData->getUnsignedLong() );
+                }
+                else
+                {
+                    QVariantList values;
+                    unsigned long* data;
+                    newData->getUnsignedLong( &data );
+
+                    for( unsigned long i = 0; i < arrayCount; i++ )
+                    {
+                        values.append( (qulonglong)(data[i]) );
+                    }
+                    value = QVariant( values );
+                }
+            break;
+            case generic::FLOAT :
+                if( arrayCount <= 1 )
+                {
+                    value = QVariant( (double)newData->getFloat() );
+                }
+                else
+                {
+                    QVariantList values;
+                    float* data;
+                    newData->getFloat( &data );
+
+                    for( unsigned long i = 0; i < arrayCount; i++ )
+                    {
+                        values.append( (double)(data[i]) );
+                    }
+                    value = QVariant( values );
+                }
+            break;
+            case generic::DOUBLE :
+                if( arrayCount <= 1 )
+                {
+                    value = QVariant( newData->getDouble() );
+                }
+                else
+                {
+                    QVariantList values;
+                    double* data;
+                    newData->getDouble( &data );
+
+                    for( unsigned long i = 0; i < arrayCount; i++ )
+                    {
+                        values.append( data[i] );
+                    }
+                    value = QVariant( values );
+                }
+            break;
+            case generic::UNKNOWN :
+                value = QVariant();
+            break;
+        }
+
+        // Send off the new data
+        emit dataChanged( value, alarmInfo, timeStamp );
+
+        // Save the data just emited
+        lastVariantValue = value;
+    }
+
+    // Build and emit a byte array containing the data
+    if( signalsToSend & SIG_BYTEARRAY )
+    {
+        unsigned char* data;
+        newData->getUnsignedChar( &data );
+
+        QByteArray ba( (char*)data, arrayCount );
+
+        // Send off the new data
+        emit dataChanged( ba, alarmInfo, timeStamp );
+
+        // Save the data just emited
+        lastByteArrayValue = ba;
+    }
 
     // Save the data just emited
-    lastValue = value;
     lastAlarmInfo = alarmInfo;
     lastTimeStamp = timeStamp;
 
@@ -925,10 +951,19 @@ void QCaObject::setUserMessage( UserMessage* userMessageIn )
 
 /*!
   Re-emit the last data emited, if any
+  This can be used after a property of a widget using this QCaObject has changed to
+  force an update of the data and a re-presentation of the data in the widget to reflect the new property
   */
 void QCaObject::resendLastData()
 {
-    emit dataChanged( lastValue, lastAlarmInfo, lastTimeStamp );
+    if( signalsToSend & SIG_VARIANT )
+    {
+        emit dataChanged( lastVariantValue, lastAlarmInfo, lastTimeStamp );
+    }
+    if( signalsToSend & SIG_BYTEARRAY )
+    {
+        emit dataChanged( lastByteArrayValue, lastAlarmInfo, lastTimeStamp );
+    }
 }
 
 /*!

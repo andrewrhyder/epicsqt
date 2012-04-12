@@ -1,10 +1,3 @@
-/*! 
-  \class QCaDesignerPlugin
-  \version $Revision: #6 $
-  \date $DateTime: 2010/09/06 13:29:44 $
-  \author andrew.rhyder
-  \brief Collection of CA plugins for QT Designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -46,6 +39,7 @@
 #include <QAnalogProgressBarPluginManager.h>
 #include <QCaBitStatusPluginManager.h>
 #include <QBitStatusPluginManager.h>
+#include <QCaImagePluginManager.h>
 
 #include <QtCore/qplugin.h>
 
@@ -72,6 +66,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QAnalogProgressBarPluginManager(this));
     widgets.append(new QCaBitStatusPluginManager(this));
     widgets.append(new QBitStatusPluginManager(this));
+    widgets.append(new QCaImagePluginManager(this));
 }
 
 /*!

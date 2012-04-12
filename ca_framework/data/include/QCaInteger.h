@@ -48,6 +48,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaInteger : public qcaobject::QCaObject {
   signals:
     void integerConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
     void integerChanged( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+    void integerArrayChanged( const QVector<long>& values, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
   public slots:
     void writeInteger( const long &data );

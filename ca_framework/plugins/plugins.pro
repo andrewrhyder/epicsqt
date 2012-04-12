@@ -23,6 +23,7 @@
 # - analyse the results with the command: gprof <your-program-name>
 QMAKE_CXXFLAGS_DEBUG += -pg
 QMAKE_LFLAGS_DEBUG += -pg
+QT += core gui multimedia
 TEMPLATE = lib
 CONFIG += plugin \
     uitools \
@@ -47,7 +48,8 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QAnalogProgressBar.png \
     src/QCaAnalogProgressBar.png \
     src/QBitStatus.png \
-    src/QCaBitStatus.png
+    src/QCaBitStatus.png \
+    src/QCaImage.png
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \
@@ -85,6 +87,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaPvPropertiesPluginManager.h \
     include/QBitStatusPluginManager.h \
     include/QCaBitStatusPluginManager.h \
+    include/QCaImagePluginManager.h \
+    include/QCaImagePlugin.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -102,6 +106,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../data/include/QCaInteger.h \
     ../data/include/QCaFloatingFormatting.h \
     ../data/include/QCaFloating.h \
+    ../data/include/QCaByteArray.h \
     ../data/include/QCaEventUpdate.h \
     ../data/include/QCaEventFilter.h \
     ../data/include/QCaDateTime.h \
@@ -131,7 +136,10 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QAnalogProgressBar.h \
     ../widgets/include/QCaAnalogProgressBar.h \
     ../widgets/include/QBitStatus.h \
-    ../widgets/include/QCaBitStatus.h
+    ../widgets/include/QCaBitStatus.h \
+    ../widgets/include/QCaImage.h \
+    ../widgets/include/videowidget.h \
+    ../widgets/include/videowidgetsurface.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
@@ -167,7 +175,12 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaAnalogProgressBarPluginManager.cpp \
     src/QBitStatusPluginManager.cpp \
     src/QCaBitStatusPluginManager.cpp \
+<<<<<<< .mine
+    src/QCaImagePluginManager.cpp \
+    src/QCaImagePlugin.cpp \
+=======
     src/QCaPvPropertiesPluginManager.cpp \
+>>>>>>> .r133
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -184,6 +197,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/QCaInteger.cpp \
     ../data/src/QCaFloatingFormatting.cpp \
     ../data/src/QCaFloating.cpp \
+    ../data/src/QCaByteArray.cpp \
     ../data/src/QCaEventUpdate.cpp \
     ../data/src/QCaEventFilter.cpp \
     ../data/src/QCaDateTime.cpp \
@@ -213,7 +227,10 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QAnalogProgressBar.cpp \
     ../widgets/src/QCaAnalogProgressBar.cpp \
     ../widgets/src/QBitStatus.cpp \
-    ../widgets/src/QCaBitStatus.cpp
+    ../widgets/src/QCaBitStatus.cpp \
+    ../widgets/src/QCaImage.cpp \
+    ../widgets/src/videowidget.cpp \
+    ../widgets/src/videowidgetsurface.cpp
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
@@ -231,7 +248,7 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \
     -L$$(QCAFRAMEWORK)/qwt/lib \
-    -lqwt6
+    -lqwt
 
 FORMS += \
     ../widgets/src/PeriodicDialog.ui \
