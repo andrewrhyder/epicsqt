@@ -40,9 +40,9 @@ QCaSlider::QCaSlider( QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
     Constructor with known variable
 */
 QCaSlider::QCaSlider( const QString &variableNameIn, QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
-    setVariableName( variableNameIn, 0 );
 
     setup();
+    setVariableName( variableNameIn, 0 );
 
 }
 
