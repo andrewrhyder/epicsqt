@@ -72,6 +72,7 @@ namespace generic {
       void setDouble( double* newValueArray, unsigned long countIn );
 
       std::string getString();
+      void getString( char** valueArray, unsigned long* countOut = NULL );
       short getShort();
       void  getShort( short** valueArray, unsigned long* countOut = NULL );
       unsigned short getUnsignedShort();

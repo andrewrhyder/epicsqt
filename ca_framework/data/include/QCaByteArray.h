@@ -39,7 +39,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaByteArray : public qcaobject::QCaObject {
 
   signals:
     void byteArrayConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
-    void byteArrayChanged( const QByteArray& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
+    void byteArrayChanged( const QByteArray& value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int& variableIndex );
 
   public slots:
     void writeByteArray( const QByteArray& data );
@@ -49,7 +49,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaByteArray : public qcaobject::QCaObject {
     unsigned int variableIndex;
 
   private slots:
-    void forwardDataChanged( const QByteArray &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
+    void forwardDataChanged( const QByteArray &value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 

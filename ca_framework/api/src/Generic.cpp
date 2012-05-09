@@ -326,6 +326,21 @@ std::string Generic::getString() {
 }
 
 /*!
+    Returns type string array (char array) or invalid
+*/
+void Generic::getString( char** valueArray, unsigned long* arrayCountOut ){
+    if( getType() == STRING ) {
+        *valueArray = (char*)value;
+        if( arrayCountOut )
+            *arrayCountOut = arrayCount;
+        return;
+    }
+    *valueArray = NULL;
+    if( arrayCountOut )
+        *arrayCountOut = 0;
+}
+
+/*!
     Returns type short or invalid
 */
 short Generic::getShort() { 

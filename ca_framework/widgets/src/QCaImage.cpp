@@ -95,9 +95,7 @@ void QCaImage::setup() {
     imageBuffHeight = 0;
 
     // Set default image format
-    imageDepth = 1;
-    formatOption = GREY;
-
+    formatOption = GREY8;
 }
 
 /*!
@@ -140,8 +138,8 @@ void QCaImage::establishConnection( unsigned int variableIndex ) {
         case IMAGE_VARIABLE:
             if(  qca )
             {
-                QObject::connect( qca,  SIGNAL( byteArrayChanged( const QByteArray&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
-                                  this, SLOT( setImage( const QByteArray&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( byteArrayChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setImage( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
                 QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                                   this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
                 QObject::connect( this, SIGNAL( requestResend() ),
@@ -239,7 +237,7 @@ void QCaImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDate
         Note: Drawing into a QImage with QImage::Format_Indexed8 is not supported.
         Note: Do not render into ARGB32 images using QPainter. Using QImage::Format_ARGB32_Premultiplied is significantly faster.
  */
-void QCaImage::setImage( const QByteArray& imageIn, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
+void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
 
     /// Signal a database value change to any Link widgets
@@ -296,8 +294,8 @@ void QCaImage::setImage( const QByteArray& imageIn, QCaAlarmInfo& alarmInfo, QCa
 */
 
     // Set up input and output pointers and counters ready to process each pixel
-    const char* dataIn = imageIn.data();
-    unsigned long* dataOut = (unsigned long*)(imageBuff.data());
+    const unsigned char* dataIn = (unsigned char*)imageIn.data();
+    unsigned int* dataOut = (unsigned int*)(imageBuff.data());
     unsigned long buffIndex = 0;
     unsigned long dataIndex = 0;
 
@@ -305,9 +303,9 @@ void QCaImage::setImage( const QByteArray& imageIn, QCaAlarmInfo& alarmInfo, QCa
     // If something is wrong, reduce the number of pixels to ensure neither
     // input or output image buffers overrun
     unsigned long pixelCount = imageBuffHeight*imageBuffWidth;
-    if( pixelCount * imageDepth > (unsigned long)imageIn.size() )
+    if( pixelCount * dataSize > (unsigned long)imageIn.size() )
     {
-        pixelCount = imageIn.size() / imageDepth;
+        pixelCount = imageIn.size() / dataSize;
     }
 
     if( pixelCount * IMAGEBUFF_BYTES_PER_PIXEL > (unsigned long)imageBuff.size() )
@@ -315,6 +313,11 @@ void QCaImage::setImage( const QByteArray& imageIn, QCaAlarmInfo& alarmInfo, QCa
         pixelCount = imageBuff.size() / IMAGEBUFF_BYTES_PER_PIXEL;
     }
 
+    unsigned char* temp = (unsigned char*)(imageBuff.data());
+    for( int i = 0; i < imageBuff.size(); i++ )
+    {
+        temp[i] = 0;
+    }
 // !!!! Note, the following won't work for greater than 1 byte depth as is will populate
 // !!! the image data with the least significant 8 bits, not the most significant.
 // !!! Instead, this loop should be entered with the byte/bit offset required and extract the correct 8 bits
@@ -327,10 +330,19 @@ void QCaImage::setImage( const QByteArray& imageIn, QCaAlarmInfo& alarmInfo, QCa
         // Format the pixel ready for use in an RGB32 QImage
         switch( formatOption )
         {
-            case GREY:
+            case GREY8:
             {
                 // Duplicate 8 bits of the grey scale into each color
                 unsigned long inPixel = dataIn[dataIndex];
+                dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
+                break;
+            }
+
+            case GREY12:
+            {
+                // Duplicate top 8 bits of the grey scale into each color
+                unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex]);
+                inPixel = inPixel>>4;
                 dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
                 break;
             }
@@ -345,7 +357,7 @@ void QCaImage::setImage( const QByteArray& imageIn, QCaAlarmInfo& alarmInfo, QCa
 
         // Step on to the next pixel
         buffIndex++;
-        dataIndex+=imageDepth;
+        dataIndex+=dataSize;
     }
 
     // Generate a frame from the data
@@ -503,16 +515,4 @@ void QCaImage::setFormatOption( formatOptions formatOptionIn )
 QCaImage::formatOptions QCaImage::getFormatOption()
 {
     return formatOption;
-}
-
-// Allow user to set image depth (bytes)
-void QCaImage::setDepth( unsigned int imageDepthIn )
-{
-    imageDepth = imageDepthIn;
-    setImageBuff();
-}
-
-unsigned int QCaImage::getDepth()
-{
-    return imageDepth;
 }

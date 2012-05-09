@@ -94,7 +94,7 @@ namespace qcaobject {
 
     signals:
       void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
-      void dataChanged( const QByteArray& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
+      void dataChanged( const QByteArray& value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
       void connectionChanged( QCaConnectionInfo& connectionInfo );
 
     public slots:

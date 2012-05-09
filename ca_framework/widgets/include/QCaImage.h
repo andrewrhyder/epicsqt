@@ -63,13 +63,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     bool getAllowDrop();
 
     // Allow user to set the video format
-    enum formatOptions{ GREY, RGB_888 };
+    enum formatOptions{ GREY8, GREY12, RGB_888 };
     void setFormatOption( formatOptions formatOption );
     formatOptions getFormatOption();
-
-    // Allow user to set image depth (bytes)
-    void setDepth( unsigned int );
-    unsigned int getDepth();
 
   protected:
     QCaIntegerFormatting integerFormatting; // Integer formatting options.
@@ -86,7 +82,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setImage( const QByteArray& image, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
   public slots:
@@ -116,7 +112,6 @@ private slots:
     unsigned long imageBuffWidth;
     unsigned long imageBuffHeight;
 
-    unsigned long imageDepth;
     formatOptions formatOption;
 
     // Drag and Drop

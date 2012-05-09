@@ -55,8 +55,8 @@ void QCaByteArray::initialise( unsigned int variableIndexIn ) {
     QObject::connect( this, SIGNAL( connectionChanged(  QCaConnectionInfo& ) ),
                       this, SLOT( forwardConnectionChanged( QCaConnectionInfo& ) ) );
 
-    QObject::connect( this, SIGNAL( dataChanged( const QByteArray&, QCaAlarmInfo&, QCaDateTime& ) ),
-                      this, SLOT( forwardDataChanged( const QByteArray&, QCaAlarmInfo&, QCaDateTime& ) ) );
+    QObject::connect( this, SIGNAL( dataChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime& ) ),
+                      this, SLOT( forwardDataChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime& ) ) );
 }
 
 /*!
@@ -69,8 +69,8 @@ void QCaByteArray::writeByteArray( const QByteArray &data ) {
 /*!
     Slot to recieve data updates from the base QCaObject and generate byte array updates.
 */
-void QCaByteArray::forwardDataChanged( const QByteArray &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
-    emit byteArrayChanged( value, alarmInfo, timeStamp, variableIndex );
+void QCaByteArray::forwardDataChanged( const QByteArray &value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
+    emit byteArrayChanged( value, dataSize, alarmInfo, timeStamp, variableIndex );
 }
 
 /*!

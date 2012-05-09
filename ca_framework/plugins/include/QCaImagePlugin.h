@@ -72,8 +72,6 @@ class QCaImagePlugin : public QCaImage {
     void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QCaImage::formatOptions)formatOption ); }
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
 
-    Q_PROPERTY(unsigned int depth READ getDepth WRITE setDepth)
-
   private:
     QCaVariableNamePropertyManager variableNamePropertyManagers[QCAIMAGE_NUM_VARIABLES];
 

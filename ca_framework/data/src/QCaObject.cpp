@@ -891,12 +891,25 @@ void QCaObject::processData( void* newDataPtr ) {
     if( signalsToSend & SIG_BYTEARRAY )
     {
         unsigned char* data;
-        newData->getUnsignedChar( &data );
+        unsigned long dataSize = 0;
 
-        QByteArray ba( (char*)data, arrayCount );
+        switch( newData->getType() ) {
+            case generic::STRING         : newData->getString       ( (char**)          (&data)  ); dataSize = 1; break;
+            case generic::SHORT          : newData->getShort        ( (short**)         (&data) ); dataSize = 2; break;
+            case generic::UNSIGNED_SHORT : newData->getUnsignedShort( (unsigned short**)(&data) ); dataSize = 2; break;
+            case generic::UNSIGNED_CHAR  : newData->getUnsignedChar (                    &data  ); dataSize = 1; break;
+            case generic::LONG           : newData->getLong         ( (long**)          (&data) ); dataSize = 4; break;
+            case generic::UNSIGNED_LONG  : newData->getUnsignedLong ( (unsigned long**) (&data) ); dataSize = 4; break;
+            case generic::FLOAT          : newData->getFloat        ( (float**)         (&data) ); dataSize = 4; break;
+            case generic::DOUBLE         : newData->getDouble       ( (double**)        (&data) ); dataSize = 8; break;
+            case generic::UNKNOWN        : data = NULL;                                            dataSize = 0; break;
+        }
+
+        unsigned long arraySize = arrayCount * dataSize;
+        QByteArray ba( (char*)data, arraySize );
 
         // Send off the new data
-        emit dataChanged( ba, alarmInfo, timeStamp );
+        emit dataChanged( ba, dataSize, alarmInfo, timeStamp );
 
         // Save the data just emited
         lastByteArrayValue = ba;
