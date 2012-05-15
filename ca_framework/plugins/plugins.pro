@@ -49,7 +49,8 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaAnalogProgressBar.png \
     src/QBitStatus.png \
     src/QCaBitStatus.png \
-    src/QCaImage.png
+    src/QCaImage.png \
+    src/QCaLogin.png
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \
@@ -89,6 +90,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaBitStatusPluginManager.h \
     include/QCaImagePluginManager.h \
     include/QCaImagePlugin.h \
+    include/QCaLoginPluginManager.h \
+    include/QCaLoginPlugin.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -139,7 +142,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaBitStatus.h \
     ../widgets/include/QCaImage.h \
     ../widgets/include/videowidget.h \
-    ../widgets/include/videowidgetsurface.h
+    ../widgets/include/videowidgetsurface.h \
+    ../widgets/include/QCaLogin.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
@@ -178,6 +182,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaImagePluginManager.cpp \
     src/QCaImagePlugin.cpp \
     src/QCaPvPropertiesPluginManager.cpp \
+    src/QCaLoginPluginManager.cpp \
+    src/QCaLoginPlugin.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -227,7 +233,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaBitStatus.cpp \
     ../widgets/src/QCaImage.cpp \
     ../widgets/src/videowidget.cpp \
-    ../widgets/src/videowidgetsurface.cpp
+    ../widgets/src/videowidgetsurface.cpp \
+    ../widgets/src/QCaLogin.cpp
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
