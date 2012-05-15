@@ -449,6 +449,8 @@ void QCaStringFormatting::formatFromEnumeration( const QVariant &value ) {
     double dValue;
     QString sValue;
 
+    dValue = 0;
+
     // If it is a double, use it as a double.
     // If it is a string, use it as a string.
     // If it is anything else, try to convert it to a double, else a string.
