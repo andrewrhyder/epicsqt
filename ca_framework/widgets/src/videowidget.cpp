@@ -49,7 +49,7 @@ VideoWidget::VideoWidget(QWidget *parent)
     : QWidget(parent)
     , surface(0)
 {
-    resize(1000,1000);
+    resize(100,100);
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setAttribute(Qt::WA_PaintOnScreen, true);
@@ -112,3 +112,8 @@ void VideoWidget::resizeEvent(QResizeEvent *event)
     surface->updateVideoRect();
 }
 //! [4]
+
+void VideoWidget::setScale( int zoom )
+{
+    surface->setScale( zoom );
+}

@@ -47,6 +47,7 @@ VideoWidgetSurface::VideoWidgetSurface(QWidget *widget, QObject *parent)
     , widget(widget)
     , imageFormat(QImage::Format_Invalid)
 {
+    zoom = 1;
 }
 
 //! [0]
@@ -154,8 +155,12 @@ void VideoWidgetSurface::paint(QPainter *painter)
         const QTransform oldTransform = painter->transform();
 
         if (surfaceFormat().scanLineDirection() == QVideoSurfaceFormat::BottomToTop) {
-           painter->scale(1, -1);
+           painter->scale( (double)(zoom)/100, -(double)(zoom)/100 );
            painter->translate(0, -widget->height());
+        }
+        else
+        {
+            painter->scale( (double)(zoom)/100, (double)(zoom)/100 );
         }
 
         QImage image(
@@ -173,3 +178,11 @@ void VideoWidgetSurface::paint(QPainter *painter)
     }
 }
 //! [6]
+
+
+// Set the scale factor (only for scaling up - when scaling down, canvas is reduced)
+// Scale factor is %
+void VideoWidgetSurface::setScale( int zoomIn )
+{
+    zoom = zoomIn;
+}

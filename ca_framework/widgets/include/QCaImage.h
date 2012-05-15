@@ -25,10 +25,13 @@
 #ifndef QCAIMAGE_H
 #define QCAIMAGE_H
 
-#include <QFrame>
+#include <QScrollArea>
 #include <QCaWidget.h>
 #include <QAbstractVideoSurface>
 #include <videowidget.h>
+#include <QCaLabel.h>
+#include <QVBoxLayout>
+#include <QGridLayout>
 
 #include <QCaPluginLibrary_global.h>
 #include <QCaIntegerFormatting.h>
@@ -41,6 +44,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     QCaImage( QWidget *parent = 0 );
     QCaImage( const QString &variableName, QWidget *parent = 0 );
+    ~QCaImage();
 
     bool isEnabled() const;
     void setEnabled( bool state );
@@ -67,6 +71,25 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     void setFormatOption( formatOptions formatOption );
     formatOptions getFormatOption();
 
+    // Zoom
+    void setZoom( int zoomIn );
+    int getZoom();
+
+    void setInitialHozScrollPos( int initialHosScrollPosIn );
+    int getInitialHozScrollPos();
+
+    void setInitialVertScrollPos( int initialVertScrollPosIn );
+    int getInitialVertScrollPos();
+
+    // Display the acquire period
+    void setDisplayAcquirePeriod( bool displayAcquirePeriodIn );
+    bool getDisplayAcquirePeriod();
+
+    // Display the exposure time
+    void setDisplayExposureTime( bool displayExposureTimeIn );
+    bool getDisplayExposureTime();
+
+
   protected:
     QCaIntegerFormatting integerFormatting; // Integer formatting options.
     bool caEnabled;
@@ -77,7 +100,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     bool allowDrop;
 
-    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, QCAIMAGE_NUM_VARIABLES };
+    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ACQUIREPERIOD_VARIABLE, EXPOSURETIME_VARIABLE, QCAIMAGE_NUM_VARIABLES };
+
+    int zoom;
+    int initialHozScrollPos;
+    int initialVertScrollPos;
+    bool displayAcquirePeriod;
+    bool displayExposureTime;
 
 
 private slots:
@@ -103,7 +132,24 @@ private slots:
 
     void setImageBuff();
 
+    QVBoxLayout *mainLayout;
+    QGridLayout *labelLayout;
+
+    QCaLabel* acquirePeriodQCaLabel;
+    QLabel* acquirePeriodLabel;
+
+    QCaLabel* exposureTimeQCaLabel;
+    QLabel* exposureTimeLabel;
+
+    QScrollArea* scrollArea;
+    bool initScrollPosSet;
+
+    VideoWidget *videoWidget;
+
     QAbstractVideoSurface *surface;
+
+    void manageAcquirePeriodLabel();
+    void manageExposureTimeLabel();
     // The following table is required if using Format_Indexed8 QImage with a grey scale lookup table
     // QVector<QRgb> greyscaleColors;
 
@@ -118,7 +164,7 @@ private slots:
 protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDropText( QString text );
     QString getDropText();
 };

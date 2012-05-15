@@ -31,6 +31,7 @@
 #include <QCaByteArray.h>
 #include <QCaInteger.h>
 #include <QtMultimedia>
+#include <QSpacerItem>
 
 
 /*!
@@ -64,23 +65,57 @@ void QCaImage::setup() {
     caEnabled = true;
     caVisible = true;
     setAllowDrop( false );
+    zoom = 100;
+    initialHozScrollPos = 0;
+    initialVertScrollPos = 0;
+    initScrollPosSet = false;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     // Use frame signals
     // --Currently none--
 
     // Create the video destination
-    VideoWidget *videoWidget = new VideoWidget;
+    videoWidget = new VideoWidget;
     surface = videoWidget->videoSurface();
 
     // Add the video destination to the widget
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget( videoWidget );
-    setLayout( layout );
+    scrollArea = new QScrollArea;
+    scrollArea->setFrameStyle( QFrame::NoFrame );
+    scrollArea->setBackgroundRole(QPalette::Dark);
+    scrollArea->setWidget( videoWidget );
+    scrollArea->setEnabled( false );  // Reflects initial disconnected state
+
+    // Sum layout containing labels
+    labelLayout = new QGridLayout;
+    labelLayout->setMargin( 0 );
+
+    acquirePeriodQCaLabel = new QCaLabel( this );
+    acquirePeriodLabel = new QLabel( this );
+    acquirePeriodLabel->setText( "Acquire Period:" );
+
+    exposureTimeQCaLabel = new QCaLabel( this );
+    exposureTimeLabel = new QLabel( this );
+    exposureTimeLabel->setText( "Exposure Time:" );
+
+    // Main layout containing image and label layout
+    mainLayout = new QVBoxLayout;
+    mainLayout->setMargin( 0 );
+
+    mainLayout->addWidget( scrollArea );
+    mainLayout->addItem( labelLayout );
+
+    setLayout( mainLayout );
+
+    // set up labels as required by properties
+    manageAcquirePeriodLabel();
+    manageExposureTimeLabel();
+
+    // Initially set the video widget to the size of the scroll bar
+    // This will be resized when the image size is known
+    videoWidget->resize( scrollArea->width(), scrollArea->height() );
 
     // Populate color index table for grayscale
     // The following table is required if using Format_Indexed8 QImage with a grey scale lookup table
@@ -96,6 +131,12 @@ void QCaImage::setup() {
 
     // Set default image format
     formatOption = GREY8;
+}
+
+QCaImage::~QCaImage()
+{
+// need to delete anything added to widget hierarchy?
+//    delete videoWidget;
 }
 
 /*!
@@ -116,6 +157,16 @@ qcaobject::QCaObject* QCaImage::createQcaItem( unsigned int variableIndex ) {
         // Create the heigh item as a QCaInteger
         case HEIGHT_VARIABLE:
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+
+        // Don't create anything - just pass on the variable name and substitutions on to the acquire period QCaLabel
+        case ACQUIREPERIOD_VARIABLE:
+            acquirePeriodQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ACQUIREPERIOD_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            return NULL;
+
+        // Don't create anything - just pass on the variable name and substitutions on to the exposure time QCaLabel
+        case EXPOSURETIME_VARIABLE:
+            exposureTimeQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( EXPOSURETIME_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            return NULL;
 
         default:
             return NULL;
@@ -161,7 +212,9 @@ void QCaImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
-        default:
+        case ACQUIREPERIOD_VARIABLE:
+        case EXPOSURETIME_VARIABLE:
+            // QCa creation for these variables was handballed to the embedded QCaLabel widgets. Do nothing here
             break;
     }
 }
@@ -197,7 +250,7 @@ void QCaImage::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        QWidget::setEnabled( false );
+        scrollArea->setEnabled( false );
     }
 }
 
@@ -402,6 +455,27 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
 // Set the image buffer used for generate images will be large enough to hold the processed image
 void QCaImage::setImageBuff()
 {
+    // Zoom the image
+    // If zoom smaller reduce canvas and don't scale the image
+    // If zoom larger, increase the canvas and scale the image
+    videoWidget->resize( imageBuffWidth * zoom / 100, imageBuffHeight * zoom / 100  );
+    if( zoom < 100 )
+    {
+        videoWidget->setScale( 100 );
+    }
+    else
+    {
+        videoWidget->setScale( zoom );
+    }
+
+    // Now the image size is known and the canvas size is set, set the initial scroll bar positions if not set before
+    if( initScrollPosSet == false )
+    {
+        scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
+        scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
+        initScrollPosSet = true;
+    }
+
     // Determine buffer size
     unsigned long buffSize = IMAGEBUFF_BYTES_PER_PIXEL * imageBuffWidth * imageBuffHeight;
 
@@ -428,7 +502,7 @@ void QCaImage::setEnabled( bool state )
 
     /// Set the enabled state of the widget only if connected
     if( isConnected )
-        QWidget::setEnabled( caEnabled );
+        scrollArea->setEnabled( caEnabled );
 }
 
 /*!
@@ -437,6 +511,46 @@ void QCaImage::setEnabled( bool state )
 void QCaImage::requestEnabled( const bool& state )
 {
     setEnabled(state);
+}
+
+// Add or remove the acquire period label
+void QCaImage::manageAcquirePeriodLabel()
+{
+    if( displayAcquirePeriod )
+    {
+        labelLayout->addWidget( acquirePeriodLabel, 0, 0 );
+        labelLayout->addWidget( acquirePeriodQCaLabel, 0, 1 );
+        labelLayout->setColumnStretch( 1, 1 );
+        acquirePeriodLabel->show();
+        acquirePeriodQCaLabel->show();
+    }
+    else
+    {
+        labelLayout->removeWidget( acquirePeriodLabel );
+        labelLayout->removeWidget( acquirePeriodQCaLabel );
+        acquirePeriodLabel->hide();
+        acquirePeriodQCaLabel->hide();
+    }
+}
+
+// Add or remove the exposure time label
+void QCaImage::manageExposureTimeLabel()
+{
+    if( displayExposureTime )
+    {
+        labelLayout->addWidget( exposureTimeLabel, 1, 0 );
+        labelLayout->addWidget( exposureTimeQCaLabel, 1, 1 );
+        labelLayout->setColumnStretch( 1, 1 );
+        exposureTimeLabel->show();
+        exposureTimeQCaLabel->show();
+    }
+    else
+    {
+        labelLayout->removeWidget( exposureTimeLabel );
+        labelLayout->removeWidget( exposureTimeQCaLabel );
+        exposureTimeLabel->hide();
+        exposureTimeQCaLabel->hide();
+    }
 }
 
 //==============================================================================
@@ -515,4 +629,66 @@ void QCaImage::setFormatOption( formatOptions formatOptionIn )
 QCaImage::formatOptions QCaImage::getFormatOption()
 {
     return formatOption;
+}
+
+void QCaImage::setZoom( int zoomIn )
+{
+    if( zoom < 10 )
+        zoom = 10;
+    else if( zoom > 400 )
+        zoom = 400;
+    else
+        zoom = zoomIn;
+
+    // Resize and rescale
+    setImageBuff();
+}
+
+// Zoom level
+int QCaImage::getZoom()
+{
+    return zoom;
+}
+void QCaImage::setInitialHozScrollPos( int initialHozScrollPosIn )
+{
+    initialHozScrollPos = initialHozScrollPosIn;
+}
+
+int QCaImage::getInitialHozScrollPos()
+{
+    return initialHozScrollPos;
+}
+
+void QCaImage::setInitialVertScrollPos( int initialVertScrollPosIn )
+{
+    initialVertScrollPos = initialVertScrollPosIn;
+}
+
+int QCaImage::getInitialVertScrollPos()
+{
+    return initialVertScrollPos;
+}
+
+// Display the acquire period
+void QCaImage::setDisplayAcquirePeriod( bool displayAcquirePeriodIn )
+{
+    displayAcquirePeriod = displayAcquirePeriodIn;
+    manageAcquirePeriodLabel();
+}
+
+bool QCaImage::getDisplayAcquirePeriod()
+{
+    return displayAcquirePeriod;
+}
+
+// Display the exposure time
+void QCaImage::setDisplayExposureTime( bool displayExposureTimeIn )
+{
+    displayExposureTime = displayExposureTimeIn;
+    manageExposureTimeLabel();
+}
+
+bool QCaImage::getDisplayExposureTime()
+{
+    return displayExposureTime;
 }

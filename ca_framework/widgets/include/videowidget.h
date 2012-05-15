@@ -63,6 +63,8 @@ public:
 
     QSize sizeHint() const;
 
+    void setScale( int zoom );
+
 protected:
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
