@@ -81,6 +81,8 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     lastTimeStamp = QCaDateTime( QDateTime::currentDateTime() );
     lastVariantValue = (double)0.0;
 
+    lastNewData = NULL;
+
     signalsToSend = signalsToSendIn;
 
     // Setup any the mechanism to handle messages to the user, if supplied
@@ -168,6 +170,11 @@ QCaObject::~QCaObject() {
     // be processed as the event filter remains to handle events for other QCaOjects. The outstanding events are,
     // however, now safe.
     eventFilter.deleteFilter( eventHandler );
+
+    // Release any 'last data'
+    if( lastNewData )
+        delete (carecord::CaRecord*)lastNewData;
+
 }
 
 /*!
@@ -887,17 +894,20 @@ void QCaObject::processData( void* newDataPtr ) {
         lastVariantValue = value;
     }
 
-    // Build and emit a byte array containing the data
+    // Build and emit a byte array containing the data.
+    // Note, the byte array (and copies of it such as the lastByteArrayValue will
+    // have a pointer directly into the data, so don't delete the data until all
+    // byte arrays referencing it have been deleted.
     if( signalsToSend & SIG_BYTEARRAY )
     {
-        unsigned char* data;
+        char* data;
         unsigned long dataSize = 0;
 
         switch( newData->getType() ) {
-            case generic::STRING         : newData->getString       ( (char**)          (&data)  ); dataSize = 1; break;
+            case generic::STRING         : newData->getString       ( (char**)          (&data) ); dataSize = 1; break;
             case generic::SHORT          : newData->getShort        ( (short**)         (&data) ); dataSize = 2; break;
             case generic::UNSIGNED_SHORT : newData->getUnsignedShort( (unsigned short**)(&data) ); dataSize = 2; break;
-            case generic::UNSIGNED_CHAR  : newData->getUnsignedChar (                    &data  ); dataSize = 1; break;
+            case generic::UNSIGNED_CHAR  : newData->getUnsignedChar ( (unsigned char**) (&data) ); dataSize = 1; break;
             case generic::LONG           : newData->getLong         ( (long**)          (&data) ); dataSize = 4; break;
             case generic::UNSIGNED_LONG  : newData->getUnsignedLong ( (unsigned long**) (&data) ); dataSize = 4; break;
             case generic::FLOAT          : newData->getFloat        ( (float**)         (&data) ); dataSize = 4; break;
@@ -906,21 +916,33 @@ void QCaObject::processData( void* newDataPtr ) {
         }
 
         unsigned long arraySize = arrayCount * dataSize;
-        QByteArray ba( (char*)data, arraySize );
+        byteArrayValue.setRawData( data, arraySize );
 
         // Send off the new data
-        emit dataChanged( ba, dataSize, alarmInfo, timeStamp );
+        // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection
+        // as the byte array refernces the data directly which may be deleted before a queued connection is completed
+        emit dataChanged( byteArrayValue, dataSize, alarmInfo, timeStamp );
 
-        // Save the data just emited
-        lastByteArrayValue = ba;
+        // Save the data just emited so it can be re-sent if required
+        lastByteArrayValue = byteArrayValue;
+
+        // Delete any old data now it is no longer referenced by byte arrays
+        if( lastNewData )
+            delete (carecord::CaRecord*)lastNewData;
+        lastNewData = (void*)newData;
+    }
+
+    // If not emiting an array, the data can be deleted (emitted byte arrays have pointers directly into the data)
+    else
+    {
+        // Discard the event data
+        delete newData;
     }
 
     // Save the data just emited
     lastAlarmInfo = alarmInfo;
     lastTimeStamp = timeStamp;
 
-    // Discard the event data
-    delete newData;
 }
 
 /*!
@@ -975,6 +997,8 @@ void QCaObject::resendLastData()
     }
     if( signalsToSend & SIG_BYTEARRAY )
     {
+        // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection as the byte array
+        // refernces the data held in lastNewData directly which may be deleted before a queued connection is completed
         emit dataChanged( lastByteArrayValue, lastAlarmInfo, lastTimeStamp );
     }
 }

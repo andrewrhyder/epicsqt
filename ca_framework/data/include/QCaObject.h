@@ -133,11 +133,15 @@ namespace qcaobject {
 
       UserMessage* userMessage;
 
+      // Current data
+      QByteArray   byteArrayValue;
+
       // Last data emited
       QCaDateTime  lastTimeStamp;
       QCaAlarmInfo lastAlarmInfo;
       QVariant     lastVariantValue;
       QByteArray   lastByteArrayValue;
+      void*        lastNewData; // Record containing data directly refernced by lastByteArrayValue (actually of type carecord::CaRecord*)
 
       // Database information relating to the variable
       QString egu;

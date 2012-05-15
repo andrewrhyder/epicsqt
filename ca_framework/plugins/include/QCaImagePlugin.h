@@ -53,6 +53,14 @@ class QCaImagePlugin : public QCaImage {
     void    setVariableName3Property( QString variable3Name ){ variableNamePropertyManagers[2].setVariableNameProperty( variable3Name ); }
     QString getVariableName3Property(){ return variableNamePropertyManagers[2].getVariableNameProperty(); }
 
+    Q_PROPERTY(QString acquirePeriodVariable READ getVariableName4Property WRITE setVariableName4Property)
+    void    setVariableName4Property( QString variable4Name ){ variableNamePropertyManagers[3].setVariableNameProperty( variable4Name ); }
+    QString getVariableName4Property(){ return variableNamePropertyManagers[3].getVariableNameProperty(); }
+
+    Q_PROPERTY(QString exposureTimeVariable READ getVariableName5Property WRITE setVariableName5Property)
+    void    setVariableName5Property( QString variable5Name ){ variableNamePropertyManagers[4].setVariableNameProperty( variable5Name ); }
+    QString getVariableName5Property(){ return variableNamePropertyManagers[4].getVariableNameProperty(); }
+
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < QCAIMAGE_NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManagers[0].getSubstitutionsProperty(); }
@@ -69,9 +77,18 @@ class QCaImagePlugin : public QCaImage {
     Q_PROPERTY(FormatOptions formatOption READ getFormatOptionProperty WRITE setFormatOptionProperty)
 
     enum FormatOptions { Grey_8   = QCaImage::GREY8,
+                         Grey_12  = QCaImage::GREY12,
                          RGB_888  = QCaImage::RGB_888 };
     void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QCaImage::formatOptions)formatOption ); }
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
+
+    Q_PROPERTY(bool displayAcquirePeriod READ getDisplayAcquirePeriod WRITE setDisplayAcquirePeriod)
+    Q_PROPERTY(bool displayExposureTime READ getDisplayExposureTime WRITE setDisplayExposureTime)
+
+    Q_PROPERTY(int zoom READ getZoom WRITE setZoom)
+
+    Q_PROPERTY(int initialHosScrollPos READ getInitialHozScrollPos WRITE setInitialHozScrollPos)
+    Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)
 
   private:
     QCaVariableNamePropertyManager variableNamePropertyManagers[QCAIMAGE_NUM_VARIABLES];
