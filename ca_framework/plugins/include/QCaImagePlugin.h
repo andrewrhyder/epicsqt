@@ -67,7 +67,8 @@ class QCaImagePlugin : public QCaImage {
     /// Format options (8 bit grey scale, 32 bit color, etc)
     Q_ENUMS(FormatOptions)
     Q_PROPERTY(FormatOptions formatOption READ getFormatOptionProperty WRITE setFormatOptionProperty)
-    enum FormatOptions { Grey_8   = QCaImage::GREY,
+
+    enum FormatOptions { Grey_8   = QCaImage::GREY8,
                          RGB_888  = QCaImage::RGB_888 };
     void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QCaImage::formatOptions)formatOption ); }
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
