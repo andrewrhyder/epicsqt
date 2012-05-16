@@ -57,26 +57,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin : public QLabel, public QCaWidget, 
     bool isEnabled() const;
     void setEnabled( bool state );
 
-    // Property convenience functions
-
-    // Update option (icon, text, or both)
-    void setUpdateOption( updateOptions updateOptionIn );
-    updateOptions getUpdateOption();
-
-    // Variable Name and substitution
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // visible (widget is visible outside 'Designer')
-    void setRunVisible( bool visibleIn );
-    bool getRunVisible();
-
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
 
 
   protected:
@@ -91,8 +71,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin : public QLabel, public QCaWidget, 
     bool allowDrop;
 
 private slots:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setLabelText( const QString& text, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
 
   public slots:
     void requestEnabled( const bool& state );
@@ -114,7 +92,6 @@ private slots:
     QString defaultStyleSheet;
     QString alarmStyleSheet;
     QString textStyleSheet;
-    void updateStyleSheet();
 
     void stringFormattingChange(){ requestResend(); }
 
@@ -123,9 +100,13 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
-    void setDropText( QString text );
-    QString getDropText();
 
+
+
+
+    protected:
+        void setDropText(QString text);
+        QString getDropText();
 
 
 
@@ -152,3 +133,6 @@ protected:
 };
 
 #endif /// QCALOGIN_H
+
+
+

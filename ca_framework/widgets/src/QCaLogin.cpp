@@ -29,6 +29,8 @@
 
 #include <QCaLogin.h>
 
+
+
 /*!
     Constructor with no initialisation
 */
@@ -37,39 +39,18 @@ QCaLogin::QCaLogin( QWidget *parent ) : QLabel( parent ), QCaWidget( this )
     setup();
 }
 
-/*!
-    Constructor with known variable
-*/
-//QCaLogin::QCaLogin( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget( this )  {
-//    setup();
-//    setVariableName( variableNameIn, 0 );
-//}
+
 
 /*!
     Setup common to all constructors
 */
-void QCaLogin::setup() {
+void QCaLogin::setup()
+{
 
-    // Set up data
-    // This control used a single data source
-    setNumVariables(1);
 
-    // Set up default properties
-    caEnabled = true;
-    caVisible = true;
-    setAllowDrop( false );
-
-    // Set the initial state
-    setText( "" );
-    lastSeverity = QCaAlarmInfo::getInvalidSeverity();
-    isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
-    updateOption = UPDATE_TEXT;
-
-    defaultStyleSheet = styleSheet();
-    // Use label signals
-    // --Currently none--
 }
+
+
 
 /*!
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
@@ -79,6 +60,8 @@ qcaobject::QCaObject* QCaLogin::createQcaItem( unsigned int variableIndex ) {
     // Create the item as a QCaString
    return new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 }
+
+
 
 /*!
     Start updating.
@@ -103,6 +86,8 @@ void QCaLogin::establishConnection( unsigned int variableIndex ) {
 }
 
 
+
+
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
@@ -111,105 +96,9 @@ void QCaLogin::updateToolTip( const QString& tip )
     setToolTip( tip );
 }
 
-/*!
-    Act on a connection change.
-    Change how the label looks and change the tool tip
-    This is the slot used to recieve connection updates from a QCaObject based class.
- */
-void QCaLogin::connectionChanged( QCaConnectionInfo& connectionInfo )
-{
-    /// If connected, enable the widget if the QCa enabled property is true
-    if( connectionInfo.isChannelConnected() )
-    {
-        isConnected = true;
-        updateToolTipConnection( isConnected );
 
-        if( caEnabled )
-            setEnabled( true );
-    }
 
-    /// If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
 
-        QWidget::setEnabled( false );
-    }
-}
-
-/*!
-    Update the label text
-    This is the slot used to recieve data updates from a QCaObject based class.
- */
-void QCaLogin::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
-
-    // Extract any formatting info from the text
-    // For example "<background-color: red>Engineering Mode" or "<color: red>not selected"
-    QString text = textIn;
-    QString textStyle;
-    int textStyleStart = text.indexOf( '<' );
-    if( textStyleStart >= 0 )
-    {
-        int textStyleEnd = text.indexOf( '>', textStyleStart );
-        if( textStyleEnd >= 1 )
-        {
-            textStyle = text.mid( textStyleStart+1, textStyleEnd-textStyleStart-1 );
-            text = text.left( textStyleStart ).append( text.right( text.length()-textStyleEnd-1 ));
-        }
-    }
-
-    // Update the color
-    if( textStyle.compare( lastTextStyle ) )
-    {
-        if( !textStyle.isEmpty() )
-        {
-            textStyleSheet = QString( "QWidget { " ).append( textStyle ).append( "; }");
-        }
-        else
-        {
-            textStyleSheet = "";
-        }
-        updateStyleSheet();
-        lastTextStyle = textStyle;
-    }
-
-    /// Signal a database value change to any Link widgets
-    emit dbValueChanged( text );
-
-    switch( updateOption )
-    {
-        /// Update the text if required
-        case UPDATE_TEXT:
-            setText( text );
-            break;
-
-        /// Update the pixmap if required
-        case UPDATE_PIXMAP:
-            setPixmap( getDataPixmap( text ).scaled( size() ) );
-            break;
-    }
-
-    /// If in alarm, display as an alarm
-    if( alarmInfo.getSeverity() != lastSeverity )
-    {
-        updateToolTipAlarm( alarmInfo.severityName() );
-        alarmStyleSheet = alarmInfo.style();
-        lastSeverity = alarmInfo.getSeverity();
-
-        updateStyleSheet();
-    }
-}
-
-/*!
-   Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
- */
-void QCaLogin::updateStyleSheet()
-{
-    QString newStyleSheet;
-    newStyleSheet.append( defaultStyleSheet ).append( alarmStyleSheet ).append( textStyleSheet );
-    setStyleSheet( newStyleSheet );
-}
 
 /*!
    Override the default widget isEnabled to allow alarm states to override current enabled state
@@ -219,6 +108,9 @@ bool QCaLogin::isEnabled() const
     /// Return what the state of widget would be if connected.
     return caEnabled;
 }
+
+
+
 
 /*!
    Override the default widget setEnabled to allow alarm states to override current enabled state
@@ -232,6 +124,9 @@ void QCaLogin::setEnabled( bool state )
     if( isConnected )
         QWidget::setEnabled( caEnabled );
 }
+
+
+
 /*!
    Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
  */
@@ -240,101 +135,34 @@ void QCaLogin::requestEnabled( const bool& state )
     setEnabled(state);
 }
 
-//==============================================================================
-// Drag drop
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void QCaLogin::setDropText( QString text )
 {
     setVariableName( text, 0 );
     establishConnection( 0 );
 }
 
+
+
 QString QCaLogin::getDropText()
 {
     return getSubstitutedVariableName(0);
 }
-
-//==============================================================================
-// Property convenience functions
-
-
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void QCaLogin::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
-// variable as tool tip
-void QCaLogin::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaLogin::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
-// Update option Property convenience function
-void QCaLogin::setUpdateOption( updateOptions updateOptionIn )
-{
-    updateOption = updateOptionIn;
-}
-QCaLogin::updateOptions QCaLogin::getUpdateOption()
-{
-    return updateOption;
-}
-
-// visible (widget is visible outside 'Designer')
-void QCaLogin::setRunVisible( bool visibleIn )
-{
-    // Update the property
-    caVisible = visibleIn;
-
-    // If a container profile has been defined, then this widget is being used in a real GUI and
-    // should be visible or not according to the visible property. (While in Designer it can always be displayed)
-    ContainerProfile profile;
-    if( profile.isProfileDefined() )
-    {
-        QWidget::setVisible( caVisible );
-    }
-
-}
-bool QCaLogin::getRunVisible()
-{
-    return caVisible;
-}
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaLogin::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QCaLogin::getAllowDrop()
-{
-    return allowDrop;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
