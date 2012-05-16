@@ -32,17 +32,18 @@
 /*!
     Constructor with no initialisation
 */
-QCaLogin::QCaLogin( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
+QCaLogin::QCaLogin( QWidget *parent ) : QLabel( parent ), QCaWidget( this )
+{
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaLogin::QCaLogin( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget( this )  {
-    setup();
-    setVariableName( variableNameIn, 0 );
-}
+//QCaLogin::QCaLogin( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget( this )  {
+//    setup();
+//    setVariableName( variableNameIn, 0 );
+//}
 
 /*!
     Setup common to all constructors

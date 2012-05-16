@@ -52,7 +52,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin : public QLabel, public QCaWidget, 
 
 
     QCaLogin( QWidget *parent = 0 );
-    QCaLogin( const QString &variableName, QWidget *parent = 0 );
+
 
     bool isEnabled() const;
     void setEnabled( bool state );
