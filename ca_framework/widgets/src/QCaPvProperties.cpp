@@ -375,7 +375,6 @@ void QCaPvProperties::common_setup ()
    this->fieldStringFormatting.setPrecision (12);
    this->fieldStringFormatting.setNotation (QCaStringFormatting::NOTATION_AUTOMATIC);
 
-
    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    // Framework boiler-plate stuff.
    //
@@ -385,8 +384,11 @@ void QCaPvProperties::common_setup ()
 
    // Set up default properties
    //
-   visible = true;
-   setAllowDrop (false);
+   this->visible = true;
+
+   // Enable drag drop onto this widget by default.
+   //
+   this->setAllowDrop (true);
 
    // Set the initial state
    //
