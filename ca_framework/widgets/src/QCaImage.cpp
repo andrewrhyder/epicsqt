@@ -382,9 +382,6 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     {
         temp[i] = 0;
     }
-// !!!! Note, the following won't work for greater than 1 byte depth as is will populate
-// !!! the image data with the least significant 8 bits, not the most significant.
-// !!! Instead, this loop should be entered with the byte/bit offset required and extract the correct 8 bits
 
     // Process all pixels.
     // Note, a two dimensional loop will be required if using a non 32 bit
@@ -476,13 +473,18 @@ void QCaImage::setImageBuff()
 
         // Resize the image to fit exactly within the QCaItem
         case SIZE_OPTION_FIT:
-            videoWidget->resize( contentsRect().size() );
+            videoWidget->resize( scrollArea->size() );
             break;
 
         // Resize the QCaItem to exactly fit the image
         case SIZE_OPTION_RESIZE:
-            resize( imageBuffWidth+contentsMargins().left()+contentsMargins().right(),
-                    imageBuffHeight+contentsMargins().top()+contentsMargins().bottom() );
+            // The top level QFrame of the QCaImage needs to be resized, so rather
+            // than determine how large it needs to be to fit the image and whatever
+            // extra is taken up with borders and info widgets, just calculate how
+            // much bigger or smaller the current scroll area widget neesds to be
+            // and increase the Qframe by that much
+            resize( size().width()+imageBuffWidth-scrollArea->size().width(),
+                    size().height()+imageBuffHeight-scrollArea->size().height() );
             videoWidget->resize( imageBuffWidth, imageBuffHeight );
             break;
     }

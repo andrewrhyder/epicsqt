@@ -917,8 +917,11 @@ void QCaObject::processData( void* newDataPtr ) {
         }
 
         unsigned long arraySize = arrayCount * dataSize;
-//        byteArrayValue.setRawData( data, arraySize );  // Better, but only available from 4.7
-        byteArrayValue.fromRawData( data, arraySize );
+#if QT_VERSION >= 0x040700
+        byteArrayValue.setRawData( data, arraySize );
+#else
+        byteArrayValue = QByteArray::fromRawData( data, arraySize );
+#endif
 
         // Send off the new data
         // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection
