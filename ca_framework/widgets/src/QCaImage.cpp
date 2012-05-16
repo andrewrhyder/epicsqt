@@ -304,6 +304,14 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     if( imageBuff.isEmpty() )
         setImageBuff();
 
+    // Now an image can be displayed, set the initial scroll bar positions if not set before
+    if( initScrollPosSet == false )
+    {
+        scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
+        scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
+        initScrollPosSet = true;
+    }
+
 /* The following code was used to generate a grey scale QImage (Format_Indexed8 using a grey scale lookup table)
    Since the data is one byte per pixel, it needed to ensure each line was 32bit aligned
    NOTE!!   This code had the advantage of not having to do ANY processing for 8 bit grey scale
@@ -367,7 +375,8 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     }
 
     unsigned char* temp = (unsigned char*)(imageBuff.data());
-    for( int i = 0; i < imageBuff.size(); i++ )
+    int buffSize = imageBuff.size();
+    for( int i = 0; i < buffSize; i++ )
     {
         temp[i] = 0;
     }
@@ -466,14 +475,6 @@ void QCaImage::setImageBuff()
     else
     {
         videoWidget->setScale( zoom );
-    }
-
-    // Now the image size is known and the canvas size is set, set the initial scroll bar positions if not set before
-    if( initScrollPosSet == false )
-    {
-        scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
-        scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
-        initScrollPosSet = true;
     }
 
     // Determine buffer size
@@ -652,6 +653,7 @@ int QCaImage::getZoom()
 void QCaImage::setInitialHozScrollPos( int initialHozScrollPosIn )
 {
     initialHozScrollPos = initialHozScrollPosIn;
+    scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
 }
 
 int QCaImage::getInitialHozScrollPos()
@@ -662,6 +664,7 @@ int QCaImage::getInitialHozScrollPos()
 void QCaImage::setInitialVertScrollPos( int initialVertScrollPosIn )
 {
     initialVertScrollPos = initialVertScrollPosIn;
+    scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
 }
 
 int QCaImage::getInitialVertScrollPos()
