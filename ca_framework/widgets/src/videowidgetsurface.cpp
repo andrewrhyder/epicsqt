@@ -47,7 +47,7 @@ VideoWidgetSurface::VideoWidgetSurface(QWidget *widget, QObject *parent)
     , widget(widget)
     , imageFormat(QImage::Format_Invalid)
 {
-    zoom = 1;
+    rotation = 0.0;
 }
 
 //! [0]
@@ -140,10 +140,7 @@ bool VideoWidgetSurface::present(const QVideoFrame &frame)
 //! [5]
 void VideoWidgetSurface::updateVideoRect()
 {
-    QSize size = surfaceFormat().sizeHint();
-    size.scale(widget->size().boundedTo(size), Qt::KeepAspectRatio);
-
-    targetRect = QRect(QPoint(0, 0), size);
+    targetRect = QRect(QPoint(0, 0), widget->size());
     targetRect.moveCenter(widget->rect().center());
 }
 //! [5]
@@ -155,13 +152,11 @@ void VideoWidgetSurface::paint(QPainter *painter)
         const QTransform oldTransform = painter->transform();
 
         if (surfaceFormat().scanLineDirection() == QVideoSurfaceFormat::BottomToTop) {
-           painter->scale( (double)(zoom)/100, -(double)(zoom)/100 );
+           painter->scale( 1, -1 );
            painter->translate(0, -widget->height());
         }
-        else
-        {
-            painter->scale( (double)(zoom)/100, (double)(zoom)/100 );
-        }
+
+        painter->rotate( rotation );
 
         QImage image(
                 currentFrame.bits(),
@@ -179,10 +174,7 @@ void VideoWidgetSurface::paint(QPainter *painter)
 }
 //! [6]
 
-
-// Set the scale factor (only for scaling up - when scaling down, canvas is reduced)
-// Scale factor is %
-void VideoWidgetSurface::setScale( int zoomIn )
+void VideoWidgetSurface::setRotation( double angle )
 {
-    zoom = zoomIn;
+    rotation = angle;
 }

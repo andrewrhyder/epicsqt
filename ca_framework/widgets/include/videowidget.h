@@ -63,7 +63,7 @@ public:
 
     QSize sizeHint() const;
 
-    void setScale( int zoom );
+    void setRotation( double angle );
 
 protected:
     void paintEvent(QPaintEvent *event);

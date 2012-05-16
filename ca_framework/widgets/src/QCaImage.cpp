@@ -65,7 +65,9 @@ void QCaImage::setup() {
     caEnabled = true;
     caVisible = true;
     setAllowDrop( false );
+    sizeOption = SIZE_OPTION_ZOOM;
     zoom = 100;
+    rotation = 0.0;
     initialHozScrollPos = 0;
     initialVertScrollPos = 0;
     initScrollPosSet = false;
@@ -464,18 +466,27 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
 // Set the image buffer used for generate images will be large enough to hold the processed image
 void QCaImage::setImageBuff()
 {
-    // Zoom the image
-    // If zoom smaller reduce canvas and don't scale the image
-    // If zoom larger, increase the canvas and scale the image
-    videoWidget->resize( imageBuffWidth * zoom / 100, imageBuffHeight * zoom / 100  );
-    if( zoom < 100 )
+    // Size the image
+    switch( sizeOption )
     {
-        videoWidget->setScale( 100 );
+        // Zoom the image
+        case SIZE_OPTION_ZOOM:
+            videoWidget->resize( imageBuffWidth * zoom / 100, imageBuffHeight * zoom / 100 );
+            break;
+
+        // Resize the image to fit exactly within the QCaItem
+        case SIZE_OPTION_FIT:
+            videoWidget->resize( contentsRect().size() );
+            break;
+
+        // Resize the QCaItem to exactly fit the image
+        case SIZE_OPTION_RESIZE:
+            resize( imageBuffWidth+contentsMargins().left()+contentsMargins().right(),
+                    imageBuffHeight+contentsMargins().top()+contentsMargins().bottom() );
+            videoWidget->resize( imageBuffWidth, imageBuffHeight );
+            break;
     }
-    else
-    {
-        videoWidget->setScale( zoom );
-    }
+
 
     // Determine buffer size
     unsigned long buffSize = IMAGEBUFF_BYTES_PER_PIXEL * imageBuffWidth * imageBuffHeight;
@@ -624,7 +635,11 @@ bool QCaImage::getAllowDrop()
 // Allow user to set the video format
 void QCaImage::setFormatOption( formatOptions formatOptionIn )
 {
+    // Save the option
     formatOption = formatOptionIn;
+
+    // Resize and rescale
+    setImageBuff();
 }
 
 QCaImage::formatOptions QCaImage::getFormatOption()
@@ -634,6 +649,8 @@ QCaImage::formatOptions QCaImage::getFormatOption()
 
 void QCaImage::setZoom( int zoomIn )
 {
+
+    // Save the zoom
     if( zoom < 10 )
         zoom = 10;
     else if( zoom > 400 )
@@ -643,6 +660,33 @@ void QCaImage::setZoom( int zoomIn )
 
     // Resize and rescale
     setImageBuff();
+}
+
+// Rotation
+void QCaImage::setRotation( double rotationIn )
+{
+    rotation = rotationIn;
+    videoWidget->setRotation( rotation );
+}
+
+double QCaImage::getRotation()
+{
+    return rotation;
+}
+
+// Size options
+void QCaImage::setSizeOption( sizeOptions sizeOptionIn )
+{
+    // Save the size option
+    sizeOption = sizeOptionIn;
+
+    // Resize and rescale
+    setImageBuff();
+}
+
+QCaImage::sizeOptions QCaImage::getSizeOption()
+{
+    return sizeOption;
 }
 
 // Zoom level

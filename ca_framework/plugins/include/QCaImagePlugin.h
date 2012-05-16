@@ -75,7 +75,6 @@ class QCaImagePlugin : public QCaImage {
     /// Format options (8 bit grey scale, 32 bit color, etc)
     Q_ENUMS(FormatOptions)
     Q_PROPERTY(FormatOptions formatOption READ getFormatOptionProperty WRITE setFormatOptionProperty)
-
     enum FormatOptions { Grey_8   = QCaImage::GREY8,
                          Grey_12  = QCaImage::GREY12,
                          RGB_888  = QCaImage::RGB_888 };
@@ -85,7 +84,17 @@ class QCaImagePlugin : public QCaImage {
     Q_PROPERTY(bool displayAcquirePeriod READ getDisplayAcquirePeriod WRITE setDisplayAcquirePeriod)
     Q_PROPERTY(bool displayExposureTime READ getDisplayExposureTime WRITE setDisplayExposureTime)
 
+    Q_ENUMS(SizeOptions)
+    Q_PROPERTY(SizeOptions sizeOption READ getSizeOptionProperty WRITE setSizeOptionProperty)
+    enum SizeOptions { Zoom   = QCaImage::SIZE_OPTION_ZOOM,
+                       Fit    = QCaImage::SIZE_OPTION_FIT,
+                       Resize = QCaImage::SIZE_OPTION_RESIZE };
+    void setSizeOptionProperty( SizeOptions sizeOption ){ setSizeOption( (QCaImage::sizeOptions)sizeOption ); }
+    SizeOptions getSizeOptionProperty(){ return (SizeOptions)getSizeOption(); }
+
     Q_PROPERTY(int zoom READ getZoom WRITE setZoom)
+
+    Q_PROPERTY(double rotation READ getRotation WRITE setRotation)
 
     Q_PROPERTY(int initialHosScrollPos READ getInitialHozScrollPos WRITE setInitialHozScrollPos)
     Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)

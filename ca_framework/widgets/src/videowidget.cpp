@@ -113,7 +113,7 @@ void VideoWidget::resizeEvent(QResizeEvent *event)
 }
 //! [4]
 
-void VideoWidget::setScale( int zoom )
+void VideoWidget::setRotation( double angle )
 {
-    surface->setScale( zoom );
+    surface->setRotation( angle );
 }

@@ -71,9 +71,18 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     void setFormatOption( formatOptions formatOption );
     formatOptions getFormatOption();
 
+    // Size options
+    enum sizeOptions { SIZE_OPTION_ZOOM, SIZE_OPTION_FIT, SIZE_OPTION_RESIZE };
+    void setSizeOption( sizeOptions sizeOptionIn );
+    sizeOptions getSizeOption();
+
     // Zoom
     void setZoom( int zoomIn );
     int getZoom();
+
+    // Rotation
+    void setRotation( double rotationIn );
+    double getRotation();
 
     void setInitialHozScrollPos( int initialHosScrollPosIn );
     int getInitialHozScrollPos();
@@ -102,7 +111,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ACQUIREPERIOD_VARIABLE, EXPOSURETIME_VARIABLE, QCAIMAGE_NUM_VARIABLES };
 
+    sizeOptions sizeOption;
     int zoom;
+    double rotation;
     int initialHozScrollPos;
     int initialVertScrollPos;
     bool displayAcquirePeriod;

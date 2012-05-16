@@ -67,7 +67,7 @@ public:
 
     void paint(QPainter *painter);
 
-    void setScale( int zooom );
+    void setRotation( double angle );
 
 private:
     QWidget *widget;
@@ -76,7 +76,7 @@ private:
     QSize imageSize;
     QRect sourceRect;
     QVideoFrame currentFrame;
-    int zoom;
+    double rotation;
 };
 //! [0]
 
