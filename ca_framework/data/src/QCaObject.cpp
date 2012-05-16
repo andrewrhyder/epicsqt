@@ -158,7 +158,8 @@ QCaObject::~QCaObject() {
     // the same QObject to process events. In this case the event will reference a QCaObject
     // which no longer exists.
     // To manage this problem outstanding events are marked 'to be ignored'.
-    for( int i = 0; i < pendingEvents.size(); i++ ) {
+    int pendingEventsSize = pendingEvents.size();
+    for( int i = 0; i < pendingEventsSize; i++ ) {
         pendingEvents[i].event->acceptThisEvent = false;
         pendingEvents[i].event->emitterObject = NULL;   // Ensure a 'nice' crash if referenced in error
     }
@@ -916,7 +917,8 @@ void QCaObject::processData( void* newDataPtr ) {
         }
 
         unsigned long arraySize = arrayCount * dataSize;
-        byteArrayValue.setRawData( data, arraySize );
+//        byteArrayValue.setRawData( data, arraySize );  // Better, but only available from 4.7
+        byteArrayValue.fromRawData( data, arraySize );
 
         // Send off the new data
         // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection
