@@ -38,20 +38,21 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
     Q_OBJECT
 
     private:
+
+
+
+    protected:
         QGridLayout *qGridLayout;
-        QLabel *qLabelUserType;
         QPushButton *qPushButtonLogin;
+        QLabel *qLabelUserType;
         QString userPassword;
         QString scientistPassword;
         QString engineerPassword;
         int currentUserType;
 
 
-    protected:
-
 
     public:
-
         enum userTypes
         {
             USER_TYPE,
@@ -78,7 +79,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
 
-
         Q_PROPERTY(bool showButtonLogin READ getShowButtonLogin WRITE setShowButtonLogin)
 
         Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
@@ -103,6 +103,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
         {
             return (userTypesProperty) getCurrentUserType();
         }
+
+
+    public slots:
+        void buttonLoginClicked();
 
 
 };

@@ -22,22 +22,26 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
+#include <QMessageBox>
 #include <QCaLogin.h>
 
 
 QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
 {
 
-    QGridLayout *qGridLayout = new QGridLayout(this);
-    QLabel *qLabelUserType = new QLabel();
-    QPushButton *qPushButtonLogin = new QPushButton();
+    qGridLayout = new QGridLayout(this);
+    qLabelUserType = new QLabel(this);
+    qPushButtonLogin = new QPushButton(this);
+
+    qLabelUserType->setToolTip("Current user");
 
     qPushButtonLogin->setText("Login");
     qPushButtonLogin->setToolTip("Change user");
+    QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
+
+
     qGridLayout->addWidget(qLabelUserType, 0, 0);
     qGridLayout->addWidget(qPushButtonLogin, 0, 1);
-
-
 
     setUserPassword("");
     setScientistPassword("");
@@ -52,7 +56,7 @@ QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
 void QCaLogin::setShowButtonLogin(bool pValue)
 {
 
-//    qPushButtonLogin->setVisible(pValue);
+    qPushButtonLogin->setVisible(pValue);
 
 }
 
@@ -61,7 +65,7 @@ void QCaLogin::setShowButtonLogin(bool pValue)
 bool QCaLogin::getShowButtonLogin()
 {
 
-//    return qPushButtonLogin->isVisible();
+    return qPushButtonLogin->isVisible();
 
 }
 
@@ -125,20 +129,20 @@ void QCaLogin::setCurrentUserType(int pValue)
     {
         case USER_TYPE:
             currentUserType = USER_TYPE;
-//            qLabelUserType->setText("User");
-//            // should update slot to notify other widgets that the user type has changed
+            qLabelUserType->setText("User");
+            // should update slot to notify other widgets that the user type has changed
             break;
 
         case SCIENTIST_TYPE:
             currentUserType = SCIENTIST_TYPE;
-//            qLabelUserType->setText("Scientist");
-//            // should update slot to notify other widgets that the user type has changed
+            qLabelUserType->setText("Scientist");
+            // should update slot to notify other widgets that the user type has changed
             break;
 
         case ENGINEER_TYPE:
             currentUserType = ENGINEER_TYPE;
-//            qLabelUserType->setText("Engineer");
-//            // should update slot to notify other widgets that the user type has changed
+            qLabelUserType->setText("Engineer");
+            // should update slot to notify other widgets that the user type has changed
     }
 
 }
@@ -149,6 +153,15 @@ int QCaLogin::getCurrentUserType()
 {
 
     return currentUserType;
+
+}
+
+
+
+void QCaLogin::buttonLoginClicked()
+{
+
+    QMessageBox::information(this, "Next Meeting", "Today", QMessageBox::Ok);
 
 }
 
