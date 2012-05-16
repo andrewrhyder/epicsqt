@@ -91,7 +91,6 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaImagePluginManager.h \
     include/QCaImagePlugin.h \
     include/QCaLoginPluginManager.h \
-    include/QCaLoginPlugin.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -183,7 +182,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaImagePlugin.cpp \
     src/QCaPvPropertiesPluginManager.cpp \
     src/QCaLoginPluginManager.cpp \
-    src/QCaLoginPlugin.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \

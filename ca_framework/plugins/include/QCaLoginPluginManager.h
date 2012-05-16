@@ -1,16 +1,10 @@
-/*!
-  \class QCaLoginPluginManager
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief CA Label Widget Plugin Manager for designer.
- */
 /*
- *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *  This file is part of the EPICS QT Framework, initially developed at
+ *  the Australian Synchrotron.
  *
- *  The EPICS QT Framework is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
+ *  The EPICS QT Framework is free software: you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License as published
+ *  by the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
  *  The EPICS QT Framework is distributed in the hope that it will be useful,
@@ -38,27 +32,31 @@
 /*!
     ???
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLoginPluginManager : public QObject, public QDesignerCustomWidgetInterface {
-     Q_OBJECT
-     Q_INTERFACES(QDesignerCustomWidgetInterface)
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLoginPluginManager:public QObject, public QDesignerCustomWidgetInterface
+{
 
-  public:
-    QCaLoginPluginManager( QObject *parent = 0 );
+    Q_OBJECT
+    Q_INTERFACES (QDesignerCustomWidgetInterface)
 
-    bool isContainer() const;
-    bool isInitialized() const;
-    QIcon icon() const;
-    //QString domXml() const;
-    QString group() const;
-    QString includeFile() const;
-    QString name() const;
-    QString toolTip() const;
-    QString whatsThis() const;
-    QWidget *createWidget( QWidget *parent );
-    void initialize( QDesignerFormEditorInterface *core );
+    public:
+        QCaLoginPluginManager(QObject *pParent = 0);
 
-  private:
-    bool initialized;
+        bool isContainer () const;
+        bool isInitialized () const;
+        QIcon icon () const;
+        //QString domXml  () const;
+        QString group () const;
+        QString includeFile () const;
+        QString name () const;
+        QString toolTip () const;
+        QString whatsThis () const;
+        QWidget *createWidget (QWidget *pParent);
+        void initialize (QDesignerFormEditorInterface *pCore);
+
+    private:
+        bool initialized;
+
 };
 
 #endif /// QCALOGINPLUGINMANAGER_H
+

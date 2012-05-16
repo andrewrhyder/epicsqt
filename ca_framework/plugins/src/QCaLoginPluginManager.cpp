@@ -23,82 +23,98 @@
  */
 
 #include <QCaLoginPluginManager.h>
-#include <QCaLoginPlugin.h>
+#include <QCaLogin.h>
 #include <QtPlugin>
 
 
-/*!
-    ???
-*/
-QCaLoginPluginManager::QCaLoginPluginManager( QObject *parent ) : QObject( parent ) {
+
+QCaLoginPluginManager::QCaLoginPluginManager(QObject *pParent):QObject(pParent)
+{
     initialized = false;
 }
 
-/*!
-    ???
-*/
-void QCaLoginPluginManager::initialize( QDesignerFormEditorInterface * ) {
-    if( initialized ) {
+
+
+void QCaLoginPluginManager::initialize( QDesignerFormEditorInterface * )
+{
+    if (initialized)
+    {
         return;
     }
     initialized = true;
 }
 
-/*!
-    ???
-*/
-bool QCaLoginPluginManager::isInitialized() const {
+
+
+bool QCaLoginPluginManager::isInitialized() const
+{
+
     return initialized;
+
 }
 
-/*!
-    Widget factory. Creates a QCaLoginPlugin widget.
-*/
-QWidget *QCaLoginPluginManager::createWidget ( QWidget *parent ) {
-    return new QCaLoginPlugin(parent);
+
+
+QWidget *QCaLoginPluginManager::createWidget (QWidget *pParent)
+{
+
+    return new QCaLogin(pParent);
 }
 
-/*!
-    Name for widget. Used by Qt Designer in widget list.
-*/
-QString QCaLoginPluginManager::name() const {
-    return "QCaLoginPlugin";
+
+
+QString QCaLoginPluginManager::name() const
+{
+
+    return "QCaLogin";
+
 }
 
-/*!
-    Name of group Qt Designer will add widget to.
-*/
-QString QCaLoginPluginManager::group() const {
+
+
+QString QCaLoginPluginManager::group() const
+{
+
     return "EPICS Widgets";
+
 }
 
-/*!
-    Icon for widget. Used by Qt Designer in widget list.
-*/
-QIcon QCaLoginPluginManager::icon() const {
+
+
+QIcon QCaLoginPluginManager::icon() const
+{
+
     return QIcon(":/icons/QCaLogin.png");
+
 }
 
-/*!
-    Tool tip for widget. Used by Qt Designer in widget list.
-*/
-QString QCaLoginPluginManager::toolTip() const {
+
+
+QString QCaLoginPluginManager::toolTip() const
+{
+
     return "EPICS Label";
+
 }
 
-/*!
-    ???
-*/
-QString QCaLoginPluginManager::whatsThis() const {
+
+
+QString QCaLoginPluginManager::whatsThis() const
+{
+
     return "EPICS Label";
+
 }
 
-/*!
-    ???
-*/
-bool QCaLoginPluginManager::isContainer() const {
+
+
+bool QCaLoginPluginManager::isContainer() const
+{
+
     return false;
 }
+
+
 
 /*!
     ???
@@ -123,9 +139,13 @@ bool QCaLoginPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
-    ???
-*/
-QString QCaLoginPluginManager::includeFile() const {
-    return "QCaLoginPlugin.h";
+
+
+QString QCaLoginPluginManager::includeFile() const
+{
+
+    return "QCaLoginPluginManager.h";
+
 }
+
+

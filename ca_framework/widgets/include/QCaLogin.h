@@ -1,9 +1,9 @@
-/*
- *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+/*  This file is part of the EPICS QT Framework, initially developed at the
+ *  Australian Synchrotron.
  *
- *  The EPICS QT Framework is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
+ *  The EPICS QT Framework is free software: you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License as published
+ *  by the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
  *  The EPICS QT Framework is distributed in the hope that it will be useful,
@@ -25,93 +25,43 @@
 #ifndef QCALOGIN_H
 #define QCALOGIN_H
 
+#include <QWidget>
+#include <QGridLayout>
 #include <QLabel>
-#include <QCaWidget.h>
-#include <QCaString.h>
-#include <QCaStringFormatting.h>
+#include <QPushButton>
 #include <QCaPluginLibrary_global.h>
-#include <managePixmaps.h>
-#include <QCaStringFormattingMethods.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin : public QLabel, public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
+{
+
     Q_OBJECT
 
-  public:
-    enum updateOptions { UPDATE_TEXT, UPDATE_PIXMAP };
-
-
-    enum userTypes
-    {
-        USER_TYPE,
-        SCIENTIST_TYPE,
-        ENGINEER_TYPE
-    };
-
-
-
-
-    QCaLogin( QWidget *parent = 0 );
-
-
-    bool isEnabled() const;
-    void setEnabled( bool state );
-
-
-
-  protected:
-    bool caEnabled;
-
-    void establishConnection( unsigned int variableIndex );
-
-    bool caVisible;               // Flag true if the widget should be visible outside 'Designer'
-
-    updateOptions updateOption;
-
-    bool allowDrop;
-
-private slots:
-
-  public slots:
-    void requestEnabled( const bool& state );
-
-  signals:
-    void dbValueChanged( const QString& out );
-    void requestResend();
-
-  private:
-    void setup();
-    qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void updateToolTip( const QString& tip );
-
-    QCAALARMINFO_SEVERITY lastSeverity;
-    bool isConnected;
-
-    QString lastTextStyle;
-
-    QString defaultStyleSheet;
-    QString alarmStyleSheet;
-    QString textStyleSheet;
-
-    void stringFormattingChange(){ requestResend(); }
-
-    // Drag and Drop
-protected:
-    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
-    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
-
-
+    private:
+        QGridLayout *qGridLayout;
+        QLabel *qLabelUserType;
+        QPushButton *qPushButtonLogin;
+        QString userPassword;
+        QString scientistPassword;
+        QString engineerPassword;
+        int currentUserType;
 
 
     protected:
-        void setDropText(QString text);
-        QString getDropText();
-
-
 
 
     public:
+
+        enum userTypes
+        {
+            USER_TYPE,
+            SCIENTIST_TYPE,
+            ENGINEER_TYPE
+        };
+
+
+        QCaLogin(QWidget *pParent = 0);
+        virtual ~QCaLogin(){}
 
         void setShowButtonLogin(bool pValue);
         bool getShowButtonLogin();
@@ -129,10 +79,34 @@ protected:
         int getCurrentUserType();
 
 
+        Q_PROPERTY(bool showButtonLogin READ getShowButtonLogin WRITE setShowButtonLogin)
+
+        Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
+
+        Q_PROPERTY(QString scientistPassword READ getScientistPassword WRITE setScientistPassword)
+
+        Q_PROPERTY(QString engineerPassword READ getEngineerPassword WRITE setEngineerPassword)
+
+        Q_ENUMS(userTypesProperty)
+        Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
+        enum userTypesProperty
+        {
+            User = USER_TYPE,
+            Scientist = SCIENTIST_TYPE,
+            Engineer = ENGINEER_TYPE
+        };
+        void setCurrentUserTypeProperty(userTypesProperty pUserType)
+        {
+            setCurrentUserType((userTypesProperty) pUserType);
+        }
+        userTypesProperty getCurrentUserTypeProperty()
+        {
+            return (userTypesProperty) getCurrentUserType();
+        }
+
 
 };
 
 #endif /// QCALOGIN_H
-
 
 
