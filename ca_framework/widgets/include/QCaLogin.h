@@ -40,6 +40,17 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin : public QLabel, public QCaWidget, 
   public:
     enum updateOptions { UPDATE_TEXT, UPDATE_PIXMAP };
 
+
+    enum userTypes
+    {
+        USER_TYPE,
+        SCIENTIST_TYPE,
+        ENGINEER_TYPE
+    };
+
+
+
+
     QCaLogin( QWidget *parent = 0 );
     QCaLogin( const QString &variableName, QWidget *parent = 0 );
 
@@ -114,6 +125,29 @@ protected:
     void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDropText( QString text );
     QString getDropText();
+
+
+
+
+
+    public:
+
+        void setShowButtonLogin(bool pValue);
+        bool getShowButtonLogin();
+
+        void setUserPassword(QString pValue);
+        QString getUserPassword();
+
+        void setScientistPassword(QString pValue);
+        QString getScientistPassword();
+
+        void setEngineerPassword(QString pValue);
+        QString getEngineerPassword();
+
+        void setCurrentUserType(int pValue);
+        int getCurrentUserType();
+
+
 
 };
 

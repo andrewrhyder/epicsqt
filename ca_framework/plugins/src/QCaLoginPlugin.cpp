@@ -29,43 +29,15 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QtCore>
-#include <QTimer>
 #include <QCaLoginPlugin.h>
 
 /*!
     ???
 */
-QCaLoginPlugin::QCaLoginPlugin( QWidget* parent ) : QCaLogin( parent ) {
-
-
-
-
-
-/*
-    int id = qRegisterMetaType<localEnumerationList>();
-    qDebug() << "qRegisterMetaType ID: " << id;
-    qRegisterMetaTypeStreamOperators<localEnumerationList>("localEnumerationList");
-
-//    QVariant v;
-*/
-
-
-
-
-
- // Set some default text to give the label visibility and size as the default label has no border and the background colour is the same as the form
-    setText( "QCaLogin" );
-
-    /// Set up a connection to recieve variable name property changes
-    /// The variable name property manager class only delivers an updated variable name after the user has stopped typing
-    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
-}
-
-/*!
-    Slot to recieve variable name and macro substitutions property changes.
-*/
-void QCaLoginPlugin::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+QCaLoginPlugin::QCaLoginPlugin(QWidget* parent):QCaLogin(parent)
 {
-    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+
+    setText("QCaLogin");
+
 }
+

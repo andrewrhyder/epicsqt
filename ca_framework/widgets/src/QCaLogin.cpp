@@ -315,3 +315,122 @@ bool QCaLogin::getAllowDrop()
 {
     return allowDrop;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void QCaLogin::setShowButtonLogin(bool pValue)
+{
+
+    //qPushButtonLogin->setVisible(pValue);
+
+}
+
+
+
+bool QCaLogin::getShowButtonLogin()
+{
+
+    //return qPushButtonLogin->isVisible();
+
+}
+
+
+
+void QCaLogin::setUserPassword(QString pValue)
+{
+
+    //userPassword = pValue;
+
+}
+
+
+
+QString QCaLogin::getUserPassword()
+{
+
+    //return userPassword;
+    return "abc";
+
+}
+
+
+void QCaLogin::setScientistPassword(QString pValue)
+{
+
+    //scientistPassword = pValue;
+
+}
+
+
+QString QCaLogin::getScientistPassword()
+{
+
+    //return scientistPassword;
+    return "def";
+
+}
+
+
+void QCaLogin::setEngineerPassword(QString pValue)
+{
+
+    //engineerPassword = pValue;
+
+}
+
+
+
+QString QCaLogin::getEngineerPassword()
+{
+
+    //return engineerPassword;
+    return "ghi";
+
+}
+
+
+
+void QCaLogin::setCurrentUserType(int pValue)
+{
+
+//    if (pValue == USER_TYPE || pValue == SCIENTIST_TYPE || pValue == ENGINEER_TYPE)
+//    {
+//        currentUserType = pValue;
+//        setCurrentUserType(currentUserType);
+//        // should update slot to notify other widgets that the user type has changed
+//    }
+
+}
+
+
+
+int QCaLogin::getCurrentUserType()
+{
+
+    //return currentUserType;
+    return 0;
+
+}
+
+
