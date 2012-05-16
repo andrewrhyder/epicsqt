@@ -50,7 +50,8 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QBitStatus.png \
     src/QCaBitStatus.png \
     src/QCaImage.png \
-    src/QCaLogin.png
+    src/QCaLogin.png \
+    src/record_field_list.txt
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \

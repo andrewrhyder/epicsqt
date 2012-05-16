@@ -20,4 +20,7 @@
         <file>QCaImage.png</file>
         <file>QCaPvProperties.png</file>
     </qresource>
+    <qresource prefix="/user">
+        <file>record_field_list.txt</file>
+    </qresource>
 </RCC>
