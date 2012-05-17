@@ -28,6 +28,7 @@
 #include <QWidget>
 #include <QDialog>
 #include <QGroupBox>
+#include <ContainerProfile.h>
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QGridLayout>
@@ -76,7 +77,7 @@ class QCaLoginDialog:public QDialog
 
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerProfile
 {
 
     Q_OBJECT
@@ -97,13 +98,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
 
 
     public:
-        enum userTypes
-        {
-            USER_TYPE,
-            SCIENTIST_TYPE,
-            ENGINEER_TYPE
-        };
-
 
         QCaLogin(QWidget *pParent = 0);
         virtual ~QCaLogin(){}
@@ -135,10 +129,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
         enum userTypesProperty
         {
-            User = USER_TYPE,
-            Scientist = SCIENTIST_TYPE,
-            Engineer = ENGINEER_TYPE
+            User = USERLEVEL_USER,
+            Scientist = USERLEVEL_SCIENTIST,
+            Engineer = USERLEVEL_ENGINEER
         };
+
         void setCurrentUserTypeProperty(userTypesProperty pUserType)
         {
             setCurrentUserType((userTypesProperty) pUserType);

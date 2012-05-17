@@ -29,14 +29,12 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
-    ???
-*/
+
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLoginPluginManager:public QObject, public QDesignerCustomWidgetInterface
 {
 
     Q_OBJECT
-    Q_INTERFACES (QDesignerCustomWidgetInterface)
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
 
     public:
         QCaLoginPluginManager(QObject *pParent = 0);

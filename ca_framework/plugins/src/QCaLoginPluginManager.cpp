@@ -96,7 +96,7 @@ QIcon QCaLoginPluginManager::icon() const
 QString QCaLoginPluginManager::toolTip() const
 {
 
-    return "EPICS Label";
+    return "EPICS Login";
 
 }
 

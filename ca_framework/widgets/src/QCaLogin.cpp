@@ -28,6 +28,7 @@
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QCaLogin.h>
+#include <ContainerProfile.h>
 #include <QDebug>
 
 
@@ -54,7 +55,7 @@ QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
     setUserPassword("");
     setScientistPassword("");
     setEngineerPassword("");
-    setCurrentUserType(USER_TYPE);
+    setCurrentUserType(USERLEVEL_USER);
 
 }
 
@@ -135,22 +136,22 @@ void QCaLogin::setCurrentUserType(int pValue)
 
     switch(pValue)
     {
-        case USER_TYPE:
-            currentUserType = USER_TYPE;
+        case USERLEVEL_USER:
             qLabelUserType->setText("User");
-            // should update slot to notify other widgets that the user type has changed
+            currentUserType = USERLEVEL_USER;
+            setUserLevel((userLevels) currentUserType);
             break;
 
-        case SCIENTIST_TYPE:
-            currentUserType = SCIENTIST_TYPE;
+        case USERLEVEL_SCIENTIST:
             qLabelUserType->setText("Scientist");
-            // should update slot to notify other widgets that the user type has changed
+            currentUserType = USERLEVEL_SCIENTIST;
+            setUserLevel((userLevels) currentUserType);
             break;
 
-        case ENGINEER_TYPE:
-            currentUserType = ENGINEER_TYPE;
+        case USERLEVEL_ENGINEER:
             qLabelUserType->setText("Engineer");
-            // should update slot to notify other widgets that the user type has changed
+            currentUserType = USERLEVEL_ENGINEER;
+            setUserLevel((userLevels) currentUserType);
     }
 
     qDebug() << "setCurrentUserType() = " << currentUserType;
@@ -245,11 +246,11 @@ void QCaLoginDialog::setCurrentUserType(int pValue)
 
     switch(pValue)
     {
-        case QCaLogin::USER_TYPE:
+        case USERLEVEL_USER:
             qRadioButtonUser->setChecked(true);
             break;
 
-        case QCaLogin::SCIENTIST_TYPE:
+        case USERLEVEL_SCIENTIST:
             qRadioButtonScientist->setChecked(true);
             break;
 
@@ -314,7 +315,7 @@ void QCaLoginDialog::buttonOkClicked()
     {
         if (parent->getUserPassword() == qLineEditPassword->text())
         {
-            type = QCaLogin::USER_TYPE;
+            type = USERLEVEL_USER;
         }
     }
     else
@@ -323,14 +324,14 @@ void QCaLoginDialog::buttonOkClicked()
         {
             if (parent->getScientistPassword() == qLineEditPassword->text())
             {
-                type = QCaLogin::SCIENTIST_TYPE;
+                type = USERLEVEL_SCIENTIST;
             }
         }
         else
         {
             if (parent->getEngineerPassword() == qLineEditPassword->text())
             {
-                type = QCaLogin::ENGINEER_TYPE;
+                type = USERLEVEL_ENGINEER;
             }
         }
     }
