@@ -40,7 +40,7 @@ QCaLoginPluginManager::QCaLoginPluginManager(QObject *pParent):QObject(pParent)
 void QCaLoginPluginManager::initialize( QDesignerFormEditorInterface * )
 {
 
-    if (!initialized)
+    if (initialized == false)
     {
         initialized = true;
     }

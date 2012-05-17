@@ -27,6 +27,9 @@
 
 #include <QWidget>
 #include <QDialog>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QRadioButton>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -41,11 +44,33 @@ class QCaLoginDialog:public QDialog
 
     private:
 
+
     protected:
+        QGridLayout *qGridLayout;
+        QVBoxLayout *qVBoxLayout;
+        QGroupBox *qGroupBox;
+        QRadioButton *qRadioButtonUser;
+        QRadioButton *qRadioButtonScientist;
+        QRadioButton *qRadioButtonEngineer;
+        QLabel *qLabelType;
+        QLineEdit *qLineEditPassword;
+        QPushButton *qPushButtonOk;
+        QPushButton *qPushButtonCancel;
+
+
 
     public:
         QCaLoginDialog(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
+        void setCurrentUserType(int pValue);
+        void setPassword(QString pValue);
 
+
+    public slots:
+        void radioButtonClicked();
+
+        void buttonOkClicked();
+
+        void buttonCancelClicked();
 
 };
 
