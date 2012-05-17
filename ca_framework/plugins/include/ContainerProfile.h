@@ -32,7 +32,77 @@
 #include <QCaPluginLibrary_global.h>
 
 class QCaWidget;
+class ContainerProfile;
+// Define the user levels
+enum userLevels { USERLEVEL_USER, USERLEVEL_SCIENTIST, USERLEVEL_ENGINEER };
 
+// Class used to generate signals that the user level has changed.
+// A single instance of this class is shared by all instances of
+// the ContainerProfile class.
+// The ContainerProfile class can't generate signals directly as it
+// is not based on QObject and can't be as it is a base class for
+// Widgets that may also be based on Qwidgets and only one base
+// class can be based on a QObject.
+class userLevelSignal : public QObject
+{
+    Q_OBJECT
+
+public:
+
+    // Constructor, destructor
+    // Default to 'user'
+    userLevelSignal();
+    ~userLevelSignal();
+
+    // Set the application wide user level
+    // When level is set in the single instance of this class, all ContainerPRofile
+    // classes are signaled
+    void setLevel( userLevels levelIn );
+
+    // Get the application wide user level
+    // Each widget can reimplement ContainerProfile::userLevelChanged() to be
+    // notified of user level changes, but this function can be used to
+    // determine the user level when a widget is first created
+    userLevels getLevel();
+
+  signals:
+    void userChanged( userLevels level );   // User level change signal
+
+  private:
+    userLevels level;    // Current user level
+
+};
+
+// Class used to recieve signals that the user level has changed.
+// An instance of this class is used by each instance of the
+// ContainerProfile class.
+// The ContainerProfile class can't recieve signals directly as it
+// is not based on QObject and can't be as it is a base class for
+// Widgets that may also be based on Qwidgets and only one base
+// class can be based on a QObject.
+class userLevelSlot : public QObject
+{
+    Q_OBJECT
+
+public:
+    // Constructor, destructor
+    // Default to no owner
+    userLevelSlot();
+    ~userLevelSlot();
+
+    // Set the ContainerProfile class that this instance is a part of
+    void setOwner( ContainerProfile* ownerIn );
+
+public slots:
+    void userChanged( userLevels level );  // Receive user level change signals
+
+private:
+    ContainerProfile* owner;                                // ContainerProfile class that this instance is a part of
+};
+
+// Class to allow construction of a QCa widget list
+// The class simply holds a reference to a class based on a QCaWidget
+// Usage QList<WidgetRef> myWidgetList
 class WidgetRef
 {
     public:
@@ -44,6 +114,8 @@ class WidgetRef
         QCaWidget* ref;
 };
 
+// Class to provide a communication mechanism from the code creating QCa widgets to the QCa widgets.
+// See ContainerProfile.cpp for details
 class QCAPLUGINLIBRARYSHARED_EXPORT ContainerProfile
 {
 public:
@@ -91,6 +163,11 @@ public:
 
     void publishOwnProfile();                           // Set the published profile to whatever is saved in our local copy
 
+    void setUserLevel( userLevels level );
+    userLevels getUserLevel();
+
+    virtual void userLevelChanged( userLevels ){} // Virtual function implemented by widgets based on QCaWidget to allow them to be notified of changes in user level
+
 private:
     void publishProfile( QObject* statusMessageConsumerIn,
                          QObject* errorMessageConsumerIn,
@@ -109,6 +186,9 @@ private:
     static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
 
     static QList<WidgetRef> containedWidgets;           // List of QCa widgets created with this profile
+
+    static userLevelSignal userSignal;                  // Current user level signal object. One instance to signal all QCa Widgets
+    userLevelSlot userSlot;                             // Current user level slot object. An instance per ContainerProfile to recieve level changes
 
     static bool profileDefined;                         // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()
 

@@ -51,6 +51,18 @@
  *         - Create QCa widgets
  *         - Call releaseProfile()
  *
+ * This class also communicates the current user level between the application and contained widgets.
+ * This differs from other environmental information described above in the following ways:
+ *
+ * - Widgets based on the QCaWidget class (and therefore this ContainerProfile class) can be
+ *   notified of user level changes by reimplementing ContainerProfile::userLevelChanged()
+ *   Note, Widgets can also determine the current user level by calling ContainerProfile::getUserLevel()
+ *
+ * - Both the application and any widgets based on the QCaWidget class can set the user level by
+ *   calling ContainerProfile::setUserLevel().
+ *   For example, the QCaLogin widgt can alter the user level from within a GUI, alternatively
+ *   the application can manage the user level.
+ *
  * Notes:
  * - If an application creates the ContainerProfile class early, before the widgets that are published in the
  *   profile, or if the published widgets change the widgets in the profile can be updated by calling updateConsumers().
@@ -79,6 +91,8 @@ QList<WidgetRef> ContainerProfile::containedWidgets;
 QString          ContainerProfile::publishedPath;
 QString          ContainerProfile::publishedParentPath;
 
+userLevelSignal   ContainerProfile::userSignal;                  // Current user level signal object
+
 //bool ContainerProfile::publishedInteractive = false;
 
 bool ContainerProfile::profileDefined = false;
@@ -88,6 +102,12 @@ bool ContainerProfile::profileDefined = false;
 // Note, this does not define a profile. A profile is defined only when ContainerProfile::setupProfile() is called
 ContainerProfile::ContainerProfile()
 {
+    // Set up the object that will recieve signals that the user level has changed
+    userSlot.setOwner( this );
+    QObject::connect( &userSignal,  SIGNAL( userChanged( userLevels ) ),
+                      &userSlot,    SLOT  ( userChanged( userLevels ) ) );
+
+    // Take a local copy of the defined profile
     takeLocalCopy();
 }
 
@@ -420,3 +440,63 @@ QCaWidget* ContainerProfile::getNextContainedWidget()
     else
         return NULL;
 }
+
+/**
+  Set the application user type (user/scientist/engineer)
+  */
+void ContainerProfile::setUserLevel( userLevels level )
+{
+    // Update the user level (this will result in a signal being emited
+    userSignal.setLevel( level );
+}
+
+
+
+
+void userLevelSignal::setLevel( userLevels levelIn )
+{
+    level = levelIn;
+    emit userChanged( level );
+}
+
+/**
+  Get the application user type (user/scientist/engineer)
+  */
+userLevels ContainerProfile::getUserLevel()
+{
+    return userSignal.getLevel();
+}
+
+
+userLevelSlot::userLevelSlot()
+{
+    owner = NULL;
+}
+userLevelSlot::~userLevelSlot()
+{
+}
+
+void userLevelSlot::setOwner( ContainerProfile* ownerIn )
+{
+    owner = ownerIn;
+}
+
+void userLevelSlot::userChanged( userLevels level )
+{
+    if( owner )
+        owner->userLevelChanged( level );
+}
+
+userLevelSignal::userLevelSignal()
+{
+    level = USERLEVEL_USER;
+}
+userLevelSignal::~userLevelSignal()
+{
+}
+
+userLevels userLevelSignal::getLevel()
+{
+    return level;
+}
+
