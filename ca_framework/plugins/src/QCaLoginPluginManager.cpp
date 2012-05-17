@@ -30,18 +30,21 @@
 
 QCaLoginPluginManager::QCaLoginPluginManager(QObject *pParent):QObject(pParent)
 {
+
     initialized = false;
+
 }
 
 
 
 void QCaLoginPluginManager::initialize( QDesignerFormEditorInterface * )
 {
-    if (initialized)
+
+    if (!initialized)
     {
-        return;
+        initialized = true;
     }
-    initialized = true;
+
 }
 
 
@@ -116,9 +119,16 @@ bool QCaLoginPluginManager::isContainer() const
 
 
 
-/*!
-    ???
-*/
+QString QCaLoginPluginManager::includeFile() const
+{
+
+    return "QCaLoginPluginManager.h";
+
+}
+
+
+
+
 /*QString QCaLoginPluginManager::domXml() const {
     return "<widget class=\"QCaLogin\" name=\"qCaLogin\">\n"
            " <property name=\"geometry\">\n"
@@ -138,14 +148,5 @@ bool QCaLoginPluginManager::isContainer() const
            " </property>\n"
            "</widget>\n";
 }*/
-
-
-
-QString QCaLoginPluginManager::includeFile() const
-{
-
-    return "QCaLoginPluginManager.h";
-
-}
 
 

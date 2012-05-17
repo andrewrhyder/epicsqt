@@ -26,10 +26,29 @@
 #define QCALOGIN_H
 
 #include <QWidget>
+#include <QDialog>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QCaPluginLibrary_global.h>
+
+
+
+class QCaLoginDialog:public QDialog
+{
+
+    Q_OBJECT
+
+    private:
+
+    protected:
+
+    public:
+        QCaLoginDialog(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
+
+
+};
+
 
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
@@ -42,6 +61,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
 
 
     protected:
+        QCaLoginDialog *qCaLoginDialog;
         QGridLayout *qGridLayout;
         QPushButton *qPushButtonLogin;
         QLabel *qLabelUserType;
@@ -49,7 +69,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
         QString scientistPassword;
         QString engineerPassword;
         int currentUserType;
-
 
 
     public:
@@ -111,6 +130,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget
 
 };
 
+
+
+
+
 #endif /// QCALOGIN_H
+
 
 

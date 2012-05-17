@@ -23,12 +23,14 @@
  */
 
 #include <QMessageBox>
+#include <QDialog>
 #include <QCaLogin.h>
 
 
 QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
 {
 
+    qCaLoginDialog = new QCaLoginDialog(this);
     qGridLayout = new QGridLayout(this);
     qLabelUserType = new QLabel(this);
     qPushButtonLogin = new QPushButton(this);
@@ -161,7 +163,22 @@ int QCaLogin::getCurrentUserType()
 void QCaLogin::buttonLoginClicked()
 {
 
-    QMessageBox::information(this, "Next Meeting", "Today", QMessageBox::Ok);
+    qCaLoginDialog->show();
+    qCaLoginDialog->activateWindow();
 
 }
+
+
+
+
+
+QCaLoginDialog::QCaLoginDialog(QWidget * pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
+{
+
+//    QLabel *qLabelUserType;
+
+//    qLabelUserType = new QLabel(this);
+
+}
+
 
