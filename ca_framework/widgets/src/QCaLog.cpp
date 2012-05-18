@@ -23,268 +23,76 @@
  */
 
 #include <QMessageBox>
-#include <QDialog>
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QCaLog.h>
 #include <ContainerProfile.h>
 #include <QDebug>
+#include <QFileDialog>
+
 
 
 QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
 {
 
     qGridLayout = new QGridLayout(this);
-    qLabelUserType = new QLabel(this);
-    qPushButtonLogin = new QPushButton(this);
-
-    qLabelUserType->setToolTip("Current user");
-
-    qPushButtonLogin->setText("Login");
-    qPushButtonLogin->setToolTip("Change user");
-    QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
+    qTableWidget = new QTableWidget(this);
+    qPushButtonClear = new QPushButton(this);
+    qPushButtonSave = new QPushButton(this);
 
 
-    qGridLayout->addWidget(qLabelUserType, 0, 0);
-    qGridLayout->addWidget(qPushButtonLogin, 0, 1);
+    qTableWidget->setColumnCount(3);
+    qTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Time"));
+    qTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Type"));
+    qTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("Message"));
+    qTableWidget->setToolTip("Current log messages");
 
-    setUserPassword("");
-    setScientistPassword("");
-    setEngineerPassword("");
-    setCurrentUserType(USERLEVEL_USER);
+    qTableWidget->setRowCount(4);
+
+    qPushButtonClear->setText("Clear");
+    qPushButtonClear->setToolTip("Clear log messages");
+    QObject::connect(qPushButtonClear, SIGNAL(clicked()), this, SLOT(buttonClearClicked()));
+
+    qPushButtonSave->setText("Save");
+    qPushButtonSave->setToolTip("Save log messages");
+    QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
+
+    qGridLayout->addWidget(qTableWidget, 0, 0, 1, 2);
+    qGridLayout->addWidget(qPushButtonClear, 1, 0);
+    qGridLayout->addWidget(qPushButtonSave, 1, 1);
+
 
 }
 
 
 
 
-void QCaLog::setShowButtonLogin(bool pValue)
+void QCaLog::setShowButtonClear(bool pValue)
 {
 
-    qPushButtonLogin->setVisible(pValue);
+    qPushButtonClear->setVisible(pValue);
 
 }
 
 
 
-bool QCaLog::getShowButtonLogin()
+bool QCaLog::getShowButtonClear()
 {
 
-    return qPushButtonLogin->isVisible();
+    return qPushButtonClear->isVisible();
 
 }
 
 
 
-void QCaLog::setUserPassword(QString pValue)
+
+void QCaLog::buttonClearClicked()
 {
 
-    userPassword = pValue;
-
-}
-
-
-
-QString QCaLog::getUserPassword()
-{
-
-    return userPassword;
-
-}
-
-
-void QCaLog::setScientistPassword(QString pValue)
-{
-
-    scientistPassword = pValue;
-
-}
-
-
-QString QCaLog::getScientistPassword()
-{
-
-    return scientistPassword;
-
-}
-
-
-void QCaLog::setEngineerPassword(QString pValue)
-{
-
-    engineerPassword = pValue;
-
-}
-
-
-
-QString QCaLog::getEngineerPassword()
-{
-
-    return engineerPassword;
-
-}
-
-
-
-void QCaLog::setCurrentUserType(int pValue)
-{
-
-    switch(pValue)
+    if (QMessageBox::question(this, "Info", "Do you want to clear the log messages?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
-        case USERLEVEL_USER:
-            qLabelUserType->setText("User");
-            currentUserType = USERLEVEL_USER;
-            setUserLevel((userLevels) currentUserType);
-            break;
-
-        case USERLEVEL_SCIENTIST:
-            qLabelUserType->setText("Scientist");
-            currentUserType = USERLEVEL_SCIENTIST;
-            setUserLevel((userLevels) currentUserType);
-            break;
-
-        case USERLEVEL_ENGINEER:
-            qLabelUserType->setText("Engineer");
-            currentUserType = USERLEVEL_ENGINEER;
-            setUserLevel((userLevels) currentUserType);
-    }
-
-//    qDebug() << "setCurrentUserType() = " << currentUserType;
-
-}
-
-
-
-int QCaLog::getCurrentUserType()
-{
-
-//    qDebug() << "getCurrentUserType() = " << currentUserType;
-
-    return currentUserType;
-
-}
-
-
-
-void QCaLog::buttonLoginClicked()
-{
-
-    if (qCaLogDialog)
-    {
-        if (qCaLogDialog->isVisible())
-        {
-            qCaLogDialog->activateWindow();
-        }
-        else
-        {
-            qCaLogDialog = new QCaLogDialog(this);
-        }
-    }
-    else
-    {
-        qCaLogDialog = new QCaLogDialog(this);
-    }
-    qCaLogDialog->show();
-
-}
-
-
-
-
-
-QCaLogDialog::QCaLogDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
-{
-
-    qGridLayout = new QGridLayout(this);
-    qGroupBox = new QGroupBox(this);
-    qVBoxLayout = new QVBoxLayout();
-    qRadioButtonUser = new QRadioButton();
-    qRadioButtonScientist = new QRadioButton(this);
-    qRadioButtonEngineer = new QRadioButton(this);
-    qLabelType = new QLabel(this);
-    qLineEditPassword = new QLineEdit(this);
-    qPushButtonOk = new QPushButton(this);
-    qPushButtonCancel = new QPushButton(this);
-
-    setWindowTitle("Login");
-
-    qLabelType->setText("Type:");
-
-    qRadioButtonUser->setText("User");
-    QObject::connect(qRadioButtonUser, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
-
-    qRadioButtonScientist->setText("Scientist");
-    QObject::connect(qRadioButtonScientist, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
-
-    qRadioButtonEngineer->setText("Engineer");
-    QObject::connect(qRadioButtonEngineer, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
-
-    qVBoxLayout->addWidget(qRadioButtonUser);
-    qVBoxLayout->addWidget(qRadioButtonScientist);
-    qVBoxLayout->addWidget(qRadioButtonEngineer);
-    qGroupBox->setLayout(qVBoxLayout);
-
-    qLineEditPassword->setEchoMode(QLineEdit::Password);
-    qLineEditPassword->setToolTip("Password for the selected type");
-
-    qPushButtonOk->setText("Ok");
-    qPushButtonOk->setToolTip("Perform login");
-    QObject::connect(qPushButtonOk, SIGNAL(clicked()), this, SLOT(buttonOkClicked()));
-
-    qPushButtonCancel->setText("Cancel");
-    qPushButtonCancel->setToolTip("Cancel login");
-    QObject::connect(qPushButtonCancel, SIGNAL(clicked()), this, SLOT(buttonCancelClicked()));
-
-    qGridLayout->addWidget(qLabelType, 0, 0);
-    qGridLayout->addWidget(qGroupBox, 0, 1);
-    qGridLayout->addWidget(qLineEditPassword, 1, 0, 1, 2);
-    qGridLayout->addWidget(qPushButtonCancel, 2, 0);
-    qGridLayout->addWidget(qPushButtonOk, 2, 1);
-
-
-    switch(((QCaLog *) this->parent())->getCurrentUserType())
-    {
-        case USERLEVEL_USER:
-            qRadioButtonUser->setFocus();
-            qRadioButtonUser->setChecked(true);
-            radioButtonClicked();
-            break;
-
-        case USERLEVEL_SCIENTIST:
-            qRadioButtonScientist->setFocus();
-            qRadioButtonScientist->setChecked(true);
-            radioButtonClicked();
-            break;
-
-        case USERLEVEL_ENGINEER:
-            qRadioButtonEngineer->setFocus();
-            qRadioButtonEngineer->setChecked(true);
-            radioButtonClicked();
-    }
-
-
-}
-
-
-
-
-void QCaLogDialog::setCurrentUserType(int pValue)
-{
-
-    switch(pValue)
-    {
-        case USERLEVEL_USER:
-            qRadioButtonUser->setChecked(true);
-            break;
-
-        case USERLEVEL_SCIENTIST:
-            qRadioButtonScientist->setChecked(true);
-            break;
-
-        default:
-            qRadioButtonEngineer->setChecked(true);
+        qTableWidget->setRowCount(0);
     }
 
 }
@@ -292,98 +100,33 @@ void QCaLogDialog::setCurrentUserType(int pValue)
 
 
 
-void QCaLogDialog::setPassword(QString pValue)
+void QCaLog::setShowButtonSave(bool pValue)
 {
 
-    qLineEditPassword->setText(pValue);
+    qPushButtonSave->setVisible(pValue);
 
 }
 
 
 
-
-void QCaLogDialog::radioButtonClicked()
+bool QCaLog::getShowButtonSave()
 {
 
-    QCaLog *parent;
-
-    parent = (QCaLog *) this->parent();
-
-    if (qRadioButtonUser->isChecked())
-    {
-        qLineEditPassword->setEnabled(parent->getUserPassword() != "");
-    }
-    else
-    {
-        if (qRadioButtonScientist->isChecked())
-        {
-            qLineEditPassword->setEnabled(parent->getScientistPassword() != "");
-        }
-        else
-        {
-            qLineEditPassword->setEnabled(parent->getEngineerPassword() != "");
-        }
-    }
-
+    return qPushButtonSave->isVisible();
 
 }
 
 
-
-void QCaLogDialog::buttonOkClicked()
+void QCaLog::buttonSaveClicked()
 {
 
-    QCaLog *parent;
-    int type;
+    QString filename;
 
+    filename = QFileDialog::getSaveFileName(this, "Save log messages", QString(), "Text (*.txt);All (*.*)");
 
-    parent = (QCaLog *) this->parent();
-    type = -1;
-
-    if (qRadioButtonUser->isChecked())
-    {
-        if (parent->getUserPassword() == qLineEditPassword->text())
-        {
-            type = USERLEVEL_USER;
-        }
-    }
-    else
-    {
-        if (qRadioButtonScientist->isChecked())
-        {
-            if (parent->getScientistPassword() == qLineEditPassword->text())
-            {
-                type = USERLEVEL_SCIENTIST;
-            }
-        }
-        else
-        {
-            if (parent->getEngineerPassword() == qLineEditPassword->text())
-            {
-                type = USERLEVEL_ENGINEER;
-            }
-        }
-    }
-
-
-    if (type == -1)
-    {
-        QMessageBox::critical(this, "Error", "The password is invalid. Please try again!");
-    }
-    else
-    {
-        parent->setCurrentUserType(type);
-        this->close();
-    }
+//    qDebug() << filename;
 
 }
 
 
-
-void QCaLogDialog::buttonCancelClicked()
-{
-
-    this->close();
-
-}
 

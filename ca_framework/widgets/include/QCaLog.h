@@ -26,54 +26,17 @@
 #define QCALOG_H
 
 #include <QWidget>
-#include <QDialog>
+//#include <QDialog>
+//#include <QTableView>
 #include <QGroupBox>
 #include <ContainerProfile.h>
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QGridLayout>
-#include <QLabel>
+#include <QTableWidget>
 #include <QPushButton>
 #include <QCaPluginLibrary_global.h>
 
-
-
-class QCaLogDialog:public QDialog
-{
-
-    Q_OBJECT
-
-    private:
-
-
-    protected:
-        QGridLayout *qGridLayout;
-        QVBoxLayout *qVBoxLayout;
-        QGroupBox *qGroupBox;
-        QRadioButton *qRadioButtonUser;
-        QRadioButton *qRadioButtonScientist;
-        QRadioButton *qRadioButtonEngineer;
-        QLabel *qLabelType;
-        QLineEdit *qLineEditPassword;
-        QPushButton *qPushButtonOk;
-        QPushButton *qPushButtonCancel;
-
-
-
-    public:
-        QCaLogDialog(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
-        void setCurrentUserType(int pValue);
-        void setPassword(QString pValue);
-
-
-    public slots:
-        void radioButtonClicked();
-
-        void buttonOkClicked();
-
-        void buttonCancelClicked();
-
-};
 
 
 
@@ -87,14 +50,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
 
 
     protected:
-        QCaLogDialog *qCaLogDialog;
         QGridLayout *qGridLayout;
-        QPushButton *qPushButtonLogin;
-        QLabel *qLabelUserType;
-        QString userPassword;
-        QString scientistPassword;
-        QString engineerPassword;
-        int currentUserType;
+        QTableWidget *qTableWidget;
+        QPushButton *qPushButtonClear;
+        QPushButton *qPushButtonSave;
 
 
     public:
@@ -102,50 +61,21 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
         QCaLog(QWidget *pParent = 0);
         virtual ~QCaLog(){}
 
-        void setShowButtonLogin(bool pValue);
-        bool getShowButtonLogin();
+        void setShowButtonClear(bool pValue);
+        bool getShowButtonClear();
 
-        void setUserPassword(QString pValue);
-        QString getUserPassword();
+        void setShowButtonSave(bool pValue);
+        bool getShowButtonSave();
 
-        void setScientistPassword(QString pValue);
-        QString getScientistPassword();
+        Q_PROPERTY(bool showButtonClear READ getShowButtonClear WRITE setShowButtonClear)
 
-        void setEngineerPassword(QString pValue);
-        QString getEngineerPassword();
-
-        void setCurrentUserType(int pValue);
-        int getCurrentUserType();
-
-        Q_PROPERTY(bool showButtonLogin READ getShowButtonLogin WRITE setShowButtonLogin)
-
-        Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
-
-        Q_PROPERTY(QString scientistPassword READ getScientistPassword WRITE setScientistPassword)
-
-        Q_PROPERTY(QString engineerPassword READ getEngineerPassword WRITE setEngineerPassword)
-
-        Q_ENUMS(userTypesProperty)
-        Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
-        enum userTypesProperty
-        {
-            User = USERLEVEL_USER,
-            Scientist = USERLEVEL_SCIENTIST,
-            Engineer = USERLEVEL_ENGINEER
-        };
-
-        void setCurrentUserTypeProperty(userTypesProperty pUserType)
-        {
-            setCurrentUserType((userTypesProperty) pUserType);
-        }
-        userTypesProperty getCurrentUserTypeProperty()
-        {
-            return (userTypesProperty) getCurrentUserType();
-        }
+        Q_PROPERTY(bool showButtonSave READ getShowButtonSave WRITE setShowButtonSave)
 
 
     public slots:
-        void buttonLoginClicked();
+        void buttonClearClicked();
+
+        void buttonSaveClicked();
 
 
 };

@@ -105,7 +105,7 @@ QString QCaLogPluginManager::toolTip() const
 QString QCaLogPluginManager::whatsThis() const
 {
 
-    return "EPICS Label";
+    return "EPICS Log";
 
 }
 
