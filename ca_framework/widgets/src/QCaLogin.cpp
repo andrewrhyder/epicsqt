@@ -35,12 +35,9 @@
 QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
 {
 
-    qCaLoginDialog = new QCaLoginDialog(this);
     qGridLayout = new QGridLayout(this);
     qLabelUserType = new QLabel(this);
     qPushButtonLogin = new QPushButton(this);
-
-    qCaLoginDialog->setWindowTitle("Login");
 
     qLabelUserType->setToolTip("Current user");
 
@@ -154,7 +151,7 @@ void QCaLogin::setCurrentUserType(int pValue)
             setUserLevel((userLevels) currentUserType);
     }
 
-    qDebug() << "setCurrentUserType() = " << currentUserType;
+//    qDebug() << "setCurrentUserType() = " << currentUserType;
 
 }
 
@@ -163,7 +160,7 @@ void QCaLogin::setCurrentUserType(int pValue)
 int QCaLogin::getCurrentUserType()
 {
 
-    qDebug() << "getCurrentUserType() = " << currentUserType;
+//    qDebug() << "getCurrentUserType() = " << currentUserType;
 
     return currentUserType;
 
@@ -174,13 +171,22 @@ int QCaLogin::getCurrentUserType()
 void QCaLogin::buttonLoginClicked()
 {
 
-    if (qCaLoginDialog->isVisible() == false)
+    if (qCaLoginDialog)
     {
-        qCaLoginDialog->setCurrentUserType(getCurrentUserType());
-        qCaLoginDialog->setPassword("");
+        if (qCaLoginDialog->isVisible())
+        {
+            qCaLoginDialog->activateWindow();
+        }
+        else
+        {
+            qCaLoginDialog = new QCaLoginDialog(this);
+        }
+    }
+    else
+    {
+        qCaLoginDialog = new QCaLoginDialog(this);
     }
     qCaLoginDialog->show();
-    qCaLoginDialog->activateWindow();
 
 }
 
@@ -202,6 +208,8 @@ QCaLoginDialog::QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pPa
     qPushButtonOk = new QPushButton(this);
     qPushButtonCancel = new QPushButton(this);
 
+    setWindowTitle("Login");
+
     qLabelType->setText("Type:");
 
     qRadioButtonUser->setText("User");
@@ -212,7 +220,6 @@ QCaLoginDialog::QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pPa
 
     qRadioButtonEngineer->setText("Engineer");
     QObject::connect(qRadioButtonEngineer, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
-
 
     qVBoxLayout->addWidget(qRadioButtonUser);
     qVBoxLayout->addWidget(qRadioButtonScientist);
@@ -235,6 +242,28 @@ QCaLoginDialog::QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pPa
     qGridLayout->addWidget(qLineEditPassword, 1, 0, 1, 2);
     qGridLayout->addWidget(qPushButtonCancel, 2, 0);
     qGridLayout->addWidget(qPushButtonOk, 2, 1);
+
+
+    switch(((QCaLogin *) this->parent())->getCurrentUserType())
+    {
+        case USERLEVEL_USER:
+            qRadioButtonUser->setFocus();
+            qRadioButtonUser->setChecked(true);
+            radioButtonClicked();
+            break;
+
+        case USERLEVEL_SCIENTIST:
+            qRadioButtonScientist->setFocus();
+            qRadioButtonScientist->setChecked(true);
+            radioButtonClicked();
+            break;
+
+        case USERLEVEL_ENGINEER:
+            qRadioButtonEngineer->setFocus();
+            qRadioButtonEngineer->setChecked(true);
+            radioButtonClicked();
+    }
+
 
 }
 
@@ -344,7 +373,7 @@ void QCaLoginDialog::buttonOkClicked()
     else
     {
         parent->setCurrentUserType(type);
-        this->hide();
+        this->close();
     }
 
 }
@@ -354,7 +383,7 @@ void QCaLoginDialog::buttonOkClicked()
 void QCaLoginDialog::buttonCancelClicked()
 {
 
-    this->hide();
+    this->close();
 
 }
 
