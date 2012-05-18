@@ -69,6 +69,8 @@ class QCaLoginDialog:public QDialog
     public slots:
         void radioButtonClicked();
 
+        void lineEditPasswordTextChanged(QString pValue);
+
         void buttonOkClicked();
 
         void buttonCancelClicked();

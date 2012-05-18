@@ -228,6 +228,7 @@ QCaLoginDialog::QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pPa
 
     qLineEditPassword->setEchoMode(QLineEdit::Password);
     qLineEditPassword->setToolTip("Password for the selected type");
+    QObject::connect(qLineEditPassword, SIGNAL(textChanged(const QString &)), this, SLOT(lineEditPasswordTextChanged(QString)));
 
     qPushButtonOk->setText("Ok");
     qPushButtonOk->setToolTip("Perform login");
@@ -324,9 +325,25 @@ void QCaLoginDialog::radioButtonClicked()
             qLineEditPassword->setEnabled(parent->getEngineerPassword() != "");
         }
     }
-
+    qPushButtonOk->setEnabled(qLineEditPassword->isEnabled() == false || qLineEditPassword->text() != "");
 
 }
+
+
+
+
+
+void QCaLoginDialog::lineEditPasswordTextChanged(QString pValue)
+{
+
+//    qDebug() << "inside lineEditTextChanged";
+
+    qPushButtonOk->setEnabled(pValue != "");
+
+}
+
+
+
 
 
 
@@ -338,11 +355,12 @@ void QCaLoginDialog::buttonOkClicked()
 
 
     parent = (QCaLogin *) this->parent();
+
     type = -1;
 
     if (qRadioButtonUser->isChecked())
     {
-        if (parent->getUserPassword() == qLineEditPassword->text())
+        if (qLineEditPassword->isEnabled() == false || parent->getUserPassword() == qLineEditPassword->text())
         {
             type = USERLEVEL_USER;
         }
@@ -351,14 +369,14 @@ void QCaLoginDialog::buttonOkClicked()
     {
         if (qRadioButtonScientist->isChecked())
         {
-            if (parent->getScientistPassword() == qLineEditPassword->text())
+            if (qLineEditPassword->isEnabled() == false || parent->getScientistPassword() == qLineEditPassword->text())
             {
                 type = USERLEVEL_SCIENTIST;
             }
         }
         else
         {
-            if (parent->getEngineerPassword() == qLineEditPassword->text())
+            if (qLineEditPassword->isEnabled() == false || parent->getEngineerPassword() == qLineEditPassword->text())
             {
                 type = USERLEVEL_ENGINEER;
             }

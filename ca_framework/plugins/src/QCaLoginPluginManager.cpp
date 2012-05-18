@@ -105,7 +105,7 @@ QString QCaLoginPluginManager::toolTip() const
 QString QCaLoginPluginManager::whatsThis() const
 {
 
-    return "EPICS Label";
+    return "EPICS Login";
 
 }
 
