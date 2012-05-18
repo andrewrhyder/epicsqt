@@ -22,13 +22,13 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QCaLoginPluginManager.h>
-#include <QCaLogin.h>
+#include <QCaLogPluginManager.h>
+#include <QCaLog.h>
 #include <QtPlugin>
 
 
 
-QCaLoginPluginManager::QCaLoginPluginManager(QObject *pParent):QObject(pParent)
+QCaLogPluginManager::QCaLogPluginManager(QObject *pParent):QObject(pParent)
 {
 
     initialized = false;
@@ -37,7 +37,7 @@ QCaLoginPluginManager::QCaLoginPluginManager(QObject *pParent):QObject(pParent)
 
 
 
-void QCaLoginPluginManager::initialize(QDesignerFormEditorInterface *)
+void QCaLogPluginManager::initialize(QDesignerFormEditorInterface *)
 {
 
     if (initialized == false)
@@ -49,7 +49,7 @@ void QCaLoginPluginManager::initialize(QDesignerFormEditorInterface *)
 
 
 
-bool QCaLoginPluginManager::isInitialized() const
+bool QCaLogPluginManager::isInitialized() const
 {
 
     return initialized;
@@ -58,24 +58,24 @@ bool QCaLoginPluginManager::isInitialized() const
 
 
 
-QWidget *QCaLoginPluginManager::createWidget (QWidget *pParent)
+QWidget *QCaLogPluginManager::createWidget (QWidget *pParent)
 {
 
-    return new QCaLogin(pParent);
+    return new QCaLog(pParent);
 }
 
 
 
-QString QCaLoginPluginManager::name() const
+QString QCaLogPluginManager::name() const
 {
 
-    return "QCaLogin";
+    return "QCaLog";
 
 }
 
 
 
-QString QCaLoginPluginManager::group() const
+QString QCaLogPluginManager::group() const
 {
 
     return "EPICS Widgets";
@@ -84,25 +84,25 @@ QString QCaLoginPluginManager::group() const
 
 
 
-QIcon QCaLoginPluginManager::icon() const
+QIcon QCaLogPluginManager::icon() const
 {
 
-    return QIcon(":/icons/QCaLogin.png");
+    return QIcon(":/icons/QCaLog.png");
 
 }
 
 
 
-QString QCaLoginPluginManager::toolTip() const
+QString QCaLogPluginManager::toolTip() const
 {
 
-    return "EPICS Login";
+    return "EPICS Log";
 
 }
 
 
 
-QString QCaLoginPluginManager::whatsThis() const
+QString QCaLogPluginManager::whatsThis() const
 {
 
     return "EPICS Label";
@@ -111,7 +111,7 @@ QString QCaLoginPluginManager::whatsThis() const
 
 
 
-bool QCaLoginPluginManager::isContainer() const
+bool QCaLogPluginManager::isContainer() const
 {
 
     return false;
@@ -119,18 +119,18 @@ bool QCaLoginPluginManager::isContainer() const
 
 
 
-QString QCaLoginPluginManager::includeFile() const
+QString QCaLogPluginManager::includeFile() const
 {
 
-    return "QCaLoginPluginManager.h";
+    return "QCaLogPluginManager.h";
 
 }
 
 
 
 
-/*QString QCaLoginPluginManager::domXml() const {
-    return "<widget class=\"QCaLogin\" name=\"qCaLogin\">\n"
+/*QString QCaLogPluginManager::domXml() const {
+    return "<widget class=\"QCaLog\" name=\"qCaLog\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"

@@ -42,6 +42,7 @@
 #include <QCaImagePluginManager.h>
 #include <QCaPvPropertiesPluginManager.h>
 #include <QCaLoginPluginManager.h>
+#include <QCaLogPluginManager.h>
 
 #include <QtCore/qplugin.h>
 
@@ -71,6 +72,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaImagePluginManager(this));
     widgets.append(new QCaPvPropertiesPluginManager(this));
     widgets.append(new QCaLoginPluginManager(this));
+    widgets.append(new QCaLogPluginManager(this));
 }
 
 /*!
@@ -82,3 +84,5 @@ QList<QDesignerCustomWidgetInterface*> QCaWidgets::customWidgets() const {
 
 //! Publish plugins through to QT designer.
 Q_EXPORT_PLUGIN2(QCaWidgetsPlugin, QCaWidgets)
+
+
