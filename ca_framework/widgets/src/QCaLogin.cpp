@@ -35,6 +35,7 @@
 QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
 {
 
+    qCaLoginDialog = NULL;
     qLayout = NULL;
 
     qLabelUserType = new QLabel(this);
