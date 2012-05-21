@@ -78,6 +78,14 @@ class QCaLoginDialog:public QDialog
 };
 
 
+enum details
+{
+    ABOVE,
+    BELLOW,
+    LEFT,
+    RIGHT
+};
+
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerProfile
 {
@@ -90,19 +98,23 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerPro
 
     protected:
         QCaLoginDialog *qCaLoginDialog;
-        QGridLayout *qGridLayout;
+        QLayout *qLayout;
         QPushButton *qPushButtonLogin;
         QLabel *qLabelUserType;
         QString userPassword;
         QString scientistPassword;
         QString engineerPassword;
         int currentUserType;
+        int detailsLayout;
 
 
     public:
 
         QCaLogin(QWidget *pParent = 0);
         virtual ~QCaLogin(){}
+
+        void setShowLabelUserType(bool pValue);
+        bool getShowLabelUserType();
 
         void setShowButtonLogin(bool pValue);
         bool getShowButtonLogin();
@@ -118,6 +130,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerPro
 
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
+
+        void setDetailsLayout(int pValue);
+        int getDetailsLayout();
+
+
+        Q_PROPERTY(bool showLabelUserType READ getShowLabelUserType WRITE setShowLabelUserType)
 
         Q_PROPERTY(bool showButtonLogin READ getShowButtonLogin WRITE setShowButtonLogin)
 
@@ -144,6 +162,27 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerPro
         {
             return (userTypesProperty) getCurrentUserType();
         }
+
+
+        Q_ENUMS(detailsLayoutProperty)
+        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
+        enum detailsLayoutProperty
+        {
+            Above = ABOVE,
+            Bellow = BELLOW,
+            Left = LEFT,
+            Right = RIGHT
+        };
+
+        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
+        {
+            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
+        }
+        detailsLayoutProperty getDetailsLayoutProperty()
+        {
+            return (detailsLayoutProperty) getDetailsLayout();
+        }
+
 
 
     public slots:

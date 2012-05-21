@@ -35,7 +35,8 @@
 QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
 {
 
-    qGridLayout = new QGridLayout(this);
+    qLayout = NULL;
+
     qLabelUserType = new QLabel(this);
     qPushButtonLogin = new QPushButton(this);
 
@@ -45,14 +46,30 @@ QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
     qPushButtonLogin->setToolTip("Change user");
     QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
 
-
-    qGridLayout->addWidget(qLabelUserType, 0, 0);
-    qGridLayout->addWidget(qPushButtonLogin, 0, 1);
-
     setUserPassword("");
     setScientistPassword("");
     setEngineerPassword("");
     setCurrentUserType(USERLEVEL_USER);
+    setDetailsLayout(RIGHT);
+
+}
+
+
+
+
+void QCaLogin::setShowLabelUserType(bool pValue)
+{
+
+    qLabelUserType->setVisible(pValue);
+
+}
+
+
+
+bool QCaLogin::getShowLabelUserType()
+{
+
+    return qLabelUserType->isVisible();
 
 }
 
@@ -74,6 +91,7 @@ bool QCaLogin::getShowButtonLogin()
     return qPushButtonLogin->isVisible();
 
 }
+
 
 
 
@@ -165,6 +183,78 @@ int QCaLogin::getCurrentUserType()
     return currentUserType;
 
 }
+
+
+
+
+void QCaLogin::setDetailsLayout(int pValue)
+{
+
+    switch(pValue)
+    {
+        case ABOVE:
+            if (qLayout)
+            {
+                delete qLayout;
+            }
+            detailsLayout = ABOVE;
+            qLayout = new QVBoxLayout(this);
+            qLayout->setAlignment(Qt::AlignCenter);
+            qLayout->addWidget(qPushButtonLogin);
+            qLayout->addWidget(qLabelUserType);
+            break;
+
+        case BELLOW:
+            if (qLayout)
+            {
+                delete qLayout;
+            }
+            detailsLayout = BELLOW;
+            qLayout = new QVBoxLayout(this);
+            qLayout->setAlignment(Qt::AlignCenter);
+            qLayout->addWidget(qLabelUserType);
+            qLayout->addWidget(qPushButtonLogin);
+            break;
+
+        case LEFT:
+            if (qLayout)
+            {
+                delete qLayout;
+            }
+            detailsLayout = LEFT;
+            qLayout = new QHBoxLayout(this);
+            qLayout->setAlignment(Qt::AlignCenter);
+            qLayout->addWidget(qPushButtonLogin);
+            qLayout->addWidget(qLabelUserType);
+            break;
+
+        case RIGHT:
+            if (qLayout)
+            {
+                delete qLayout;
+            }
+            detailsLayout = RIGHT;
+            qLayout = new QHBoxLayout(this);
+            qLayout->setAlignment(Qt::AlignCenter);
+            qLayout->addWidget(qLabelUserType);
+            qLayout->addWidget(qPushButtonLogin);
+    }
+
+//    qDebug() << "setDetailsLayout() = " << detailsLayout;
+
+}
+
+
+
+int QCaLogin::getDetailsLayout()
+{
+
+//    qDebug() << "getDetailsLayout() = " << detailsLayout;
+
+    return detailsLayout;
+
+}
+
 
 
 
