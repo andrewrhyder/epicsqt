@@ -193,24 +193,24 @@ void QCaLogin::setDetailsLayout(int pValue)
 
     switch(pValue)
     {
-        case ABOVE:
+        case TOP:
             if (qLayout)
             {
                 delete qLayout;
             }
-            detailsLayout = ABOVE;
+            detailsLayout = TOP;
             qLayout = new QVBoxLayout(this);
             qLayout->setAlignment(Qt::AlignCenter);
             qLayout->addWidget(qPushButtonLogin);
             qLayout->addWidget(qLabelUserType);
             break;
 
-        case BELLOW:
+        case BOTTOM:
             if (qLayout)
             {
                 delete qLayout;
             }
-            detailsLayout = BELLOW;
+            detailsLayout = BOTTOM;
             qLayout = new QVBoxLayout(this);
             qLayout->setAlignment(Qt::AlignCenter);
             qLayout->addWidget(qLabelUserType);

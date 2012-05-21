@@ -38,6 +38,18 @@
 
 
 
+enum details
+{
+    TOP,
+    BOTTOM,
+    LEFT,
+    RIGHT
+};
+
+
+
+
+
 class QCaLoginDialog:public QDialog
 {
 
@@ -78,13 +90,7 @@ class QCaLoginDialog:public QDialog
 };
 
 
-enum details
-{
-    ABOVE,
-    BELLOW,
-    LEFT,
-    RIGHT
-};
+
 
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerProfile
@@ -168,8 +174,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerPro
         Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
         enum detailsLayoutProperty
         {
-            Above = ABOVE,
-            Bellow = BELLOW,
+            Top = TOP,
+            Bottom = BOTTOM,
             Left = LEFT,
             Right = RIGHT
         };

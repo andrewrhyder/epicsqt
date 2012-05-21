@@ -38,6 +38,22 @@
 #include <QCaPluginLibrary_global.h>
 
 
+enum details
+{
+    TOP,
+    BOTTOM,
+    LEFT,
+    RIGHT
+};
+
+
+
+enum messageTypes
+{
+    INFO,
+    WARNING,
+    ERROR
+};
 
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfile
@@ -50,10 +66,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
 
 
     protected:
-        QGridLayout *qGridLayout;
+        QGridLayout *qLayout;
         QTableWidget *qTableWidget;
         QPushButton *qPushButtonClear;
         QPushButton *qPushButtonSave;
+        QColor *qColorInfo;
+        QColor *qColorWarning;
+        QColor *qColorError;
+        int detailsLayout;
 
 
     public:
@@ -61,15 +81,75 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
         QCaLog(QWidget *pParent = 0);
         virtual ~QCaLog(){}
 
+        void setShowColumnTime(bool pValue);
+        bool getShowColumnTime();
+
+        void setShowColumnType(bool pValue);
+        bool getShowColumnType();
+
+        void setShowColumnMessage(bool pValue);
+        bool getShowColumnMessage();
+
         void setShowButtonClear(bool pValue);
         bool getShowButtonClear();
 
         void setShowButtonSave(bool pValue);
         bool getShowButtonSave();
 
+        void setDetailsLayout(int pValue);
+        int getDetailsLayout();
+
+        void setInfoColor(QColor &pValue);
+        QColor getInfoColor();
+
+        void setWarningColor(QColor &pValue);
+        QColor getWarningColor();
+
+        void setErrorColor(QColor &pValue);
+        QColor getErrorColor();
+
+        void clearLog();
+
+        void addLog(int pType, QString pMessage);
+
+
+
+        Q_PROPERTY(bool showColumnTime READ getShowColumnTime WRITE setShowColumnTime)
+
+        Q_PROPERTY(bool showColumnType READ getShowColumnType WRITE setShowColumnType)
+
+        Q_PROPERTY(bool showColumnMessage READ getShowColumnMessage WRITE setShowColumnMessage)
+
         Q_PROPERTY(bool showButtonClear READ getShowButtonClear WRITE setShowButtonClear)
 
         Q_PROPERTY(bool showButtonSave READ getShowButtonSave WRITE setShowButtonSave)
+
+
+        Q_ENUMS(detailsLayoutProperty)
+        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
+        enum detailsLayoutProperty
+        {
+            Top = TOP,
+            Bottom = BOTTOM,
+            Left = LEFT,
+            Right = RIGHT
+        };
+
+        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
+        {
+            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
+        }
+        detailsLayoutProperty getDetailsLayoutProperty()
+        {
+            return (detailsLayoutProperty) getDetailsLayout();
+        }
+
+
+        Q_PROPERTY(QColor infoColor READ getInfoColor WRITE setInfoColor)
+
+        Q_PROPERTY(QColor warningColor READ getWarningColor WRITE setWarningColor)
+
+        Q_PROPERTY(QColor errorColor READ getErrorColor WRITE setErrorColor)
 
 
     public slots:
