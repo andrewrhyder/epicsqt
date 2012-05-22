@@ -70,9 +70,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
         QTableWidget *qTableWidget;
         QPushButton *qPushButtonClear;
         QPushButton *qPushButtonSave;
-        QColor *qColorInfo;
-        QColor *qColorWarning;
-        QColor *qColorError;
+        QColor qColorInfo;
+        QColor qColorWarning;
+        QColor qColorError;
         int detailsLayout;
 
 
@@ -99,18 +99,20 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
 
-        void setInfoColor(QColor &pValue);
+        void setInfoColor(QColor pValue);
         QColor getInfoColor();
 
-        void setWarningColor(QColor &pValue);
+        void setWarningColor(QColor pValue);
         QColor getWarningColor();
 
-        void setErrorColor(QColor &pValue);
+        void setErrorColor(QColor pValue);
         QColor getErrorColor();
 
         void clearLog();
 
         void addLog(int pType, QString pMessage);
+
+        void refreshLog();
 
 
 

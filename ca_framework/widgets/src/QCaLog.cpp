@@ -31,7 +31,6 @@
 #include <QDebug>
 #include <QFileDialog>
 
-
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -58,10 +57,6 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
     //qTableWidget->verticalHeader()->setVisible(false);
 
 
-    qColorInfo = new QColor(0, 0, 255);
-    qColorWarning = new QColor(127, 127, 0);
-    qColorError = new QColor(255, 0, 0);
-
     qPushButtonClear->setText("Clear");
     qPushButtonClear->setToolTip("Clear log messages");
     QObject::connect(qPushButtonClear, SIGNAL(clicked()), this, SLOT(buttonClearClicked()));
@@ -72,8 +67,11 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
 
     setDetailsLayout(BOTTOM);
 
-    clearLog();
+    setInfoColor(QColor(0, 0, 255));
+    setWarningColor(QColor(255, 160, 0));
+    setErrorColor(QColor(255, 0, 0));
 
+    clearLog();
     addLog(INFO, "This is the first line!");
     addLog(INFO, "This is the second line!");
     addLog(WARNING, "This is the third line!");
@@ -273,10 +271,11 @@ int QCaLog::getDetailsLayout()
 
 
 
-void QCaLog::setInfoColor(QColor &pValue)
+void QCaLog::setInfoColor(QColor pValue)
 {
 
-    //qColorInfo = pValue;
+    qColorInfo = pValue;
+    refreshLog();
 
 }
 
@@ -285,16 +284,17 @@ void QCaLog::setInfoColor(QColor &pValue)
 QColor QCaLog::getInfoColor()
 {
 
-    //return qColorInfo;
+    return qColorInfo;
 
 }
 
 
 
-void QCaLog::setWarningColor(QColor &pValue)
+void QCaLog::setWarningColor(QColor pValue)
 {
 
-    //qColorWarning = pValue;
+    qColorWarning = pValue;
+    refreshLog();
 
 }
 
@@ -303,16 +303,17 @@ void QCaLog::setWarningColor(QColor &pValue)
 QColor QCaLog::getWarningColor()
 {
 
-    //return &qColorWarning;
+    return qColorWarning;
 
 }
 
 
 
-void QCaLog::setErrorColor(QColor &pValue)
+void QCaLog::setErrorColor(QColor pValue)
 {
 
-    //qColorError = pValue;
+    qColorError = pValue;
+    refreshLog();
 
 }
 
@@ -321,7 +322,7 @@ void QCaLog::setErrorColor(QColor &pValue)
 QColor QCaLog::getErrorColor()
 {
 
-    //return qColorError;
+    return qColorError;
 
 }
 
@@ -374,46 +375,88 @@ void QCaLog::clearLog()
 void QCaLog::addLog(int pType, QString pMessage)
 {
 
-
     QTableWidgetItem *qTableWidgetItem;
-    QString qString;
-    QColor *qColor;
+    QString type;
+    QColor color;
     int i;
+
 
     switch(pType)
     {
         case INFO:
-            qColor = qColorInfo;
+            type = "INFO";
+            color = qColorInfo;
             break;
 
         case WARNING:
-            qColor = qColorWarning;
+            type = "WARNING";
+            color = qColorWarning;
             break;
 
         case ERROR:
-            qColor = qColorError;
+            type = "ERROR";
+            color = qColorError;
             break;
 
         default:
-            qColor = NULL;
+            type = "";
     }
 
-    if (qColor)
+    if (type != "")
     {
         i = qTableWidget->rowCount();
         qTableWidget->insertRow(i);
-
-        qTableWidgetItem = new QTableWidgetItem("yyyy/mm/dd * hh:mm:ss");
-//        qTableWidgetItem->setBackgroundColor(qColor);
+        qTableWidgetItem = new QTableWidgetItem("yyyy/mm/dd * hh:mm:ss" + i);
+        qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 0, qTableWidgetItem);
-
-        qTableWidgetItem = new QTableWidgetItem("INFO|WARNING|ERROR");
-//        qTableWidgetItem->setBackgroundColor(qColor);
+        qTableWidgetItem = new QTableWidgetItem(type);
+        qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 1, qTableWidgetItem);
-
         qTableWidgetItem = new QTableWidgetItem(pMessage);
-//        qTableWidgetItem->setBackgroundColor(qColor);
+        qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 2, qTableWidgetItem);
+    }
+
+}
+
+
+
+
+
+void QCaLog::refreshLog()
+{
+
+    QTableWidgetItem *qTableWidgetItem;
+    QColor color;
+    int i;
+
+    for(i = 0; i < qTableWidget->rowCount(); i++)
+    {
+
+        qTableWidgetItem = qTableWidget->item(i, 1);
+
+        if (qTableWidgetItem->text() == "INFO")
+        {
+            color = qColorInfo;
+        }
+        else
+        {
+            if (qTableWidgetItem->text() == "WARNING")
+            {
+                color = qColorWarning;
+            }
+            else
+            {
+                color = qColorError;
+            }
+        }
+        qTableWidgetItem->setTextColor(color);
+
+        qTableWidgetItem = qTableWidget->item(i, 0);
+        qTableWidgetItem->setTextColor(color);
+
+        qTableWidgetItem = qTableWidget->item(i, 2);
+        qTableWidgetItem->setTextColor(color);
 
     }
 
