@@ -26,8 +26,6 @@
 #define QCALOG_H
 
 #include <QWidget>
-//#include <QDialog>
-//#include <QTableView>
 #include <QGroupBox>
 #include <ContainerProfile.h>
 #include <QLineEdit>

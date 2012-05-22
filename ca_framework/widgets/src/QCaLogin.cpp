@@ -403,20 +403,20 @@ void QCaLoginDialog::radioButtonClicked()
 
     if (qRadioButtonUser->isChecked())
     {
-        qLineEditPassword->setEnabled(parent->getUserPassword() != "");
+        qLineEditPassword->setEnabled(parent->getUserPassword().isEmpty() == false);
     }
     else
     {
         if (qRadioButtonScientist->isChecked())
         {
-            qLineEditPassword->setEnabled(parent->getScientistPassword() != "");
+            qLineEditPassword->setEnabled(parent->getScientistPassword().isEmpty() == false);
         }
         else
         {
-            qLineEditPassword->setEnabled(parent->getEngineerPassword() != "");
+            qLineEditPassword->setEnabled(parent->getEngineerPassword().isEmpty() == false);
         }
     }
-    qPushButtonOk->setEnabled(qLineEditPassword->isEnabled() == false || qLineEditPassword->text() != "");
+    qPushButtonOk->setEnabled(qLineEditPassword->isEnabled() == false || qLineEditPassword->text().isEmpty() == false);
 
 }
 
@@ -429,7 +429,7 @@ void QCaLoginDialog::lineEditPasswordTextChanged(QString pValue)
 
 //    qDebug() << "inside lineEditTextChanged";
 
-    qPushButtonOk->setEnabled(pValue != "");
+    qPushButtonOk->setEnabled(pValue.isEmpty() == false);
 
 }
 

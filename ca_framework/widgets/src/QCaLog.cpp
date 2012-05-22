@@ -26,11 +26,13 @@
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QRadioButton>
+#include <QDateTime>
 #include <QCaLog.h>
 #include <ContainerProfile.h>
 #include <QDebug>
 #include <QFileDialog>
-
+#include <QHeaderView>
+#include <QSize>
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -39,6 +41,8 @@ using namespace std;
 
 QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
 {
+
+    QFont qFont;
 
     qLayout = NULL;
 
@@ -54,8 +58,13 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
     qTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     qTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     qTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    //qTableWidget->verticalHeader()->setVisible(false);
+    qTableWidget->horizontalHeader()->setStretchLastSection(true);
+    qTableWidget->horizontalHeader()->resizeSection(0, 165);
+    qTableWidget->horizontalHeader()->resizeSection(1, 85);
+    qTableWidget->verticalHeader()->hide();
 
+    qFont.setPointSize(9);
+    qTableWidget->setFont(qFont);
 
     qPushButtonClear->setText("Clear");
     qPushButtonClear->setToolTip("Clear log messages");
@@ -72,10 +81,11 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
     setErrorColor(QColor(255, 0, 0));
 
     clearLog();
-    addLog(INFO, "This is the first line!");
-    addLog(INFO, "This is the second line!");
-    addLog(WARNING, "This is the third line!");
-    addLog(ERROR, "This is the fourth line!");
+
+//    addLog(INFO, "This is the first line!");
+//    addLog(INFO, "This is the second line!");
+//    addLog(WARNING, "This is the third line!");
+//    addLog(ERROR, "This is the fourth line!");
 
 }
 
@@ -84,7 +94,7 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
 void QCaLog::setShowColumnTime(bool pValue)
 {
 
-    qPushButtonClear->setVisible(pValue);
+    qTableWidget->setColumnHidden(0, pValue == false);
 
 }
 
@@ -93,7 +103,7 @@ void QCaLog::setShowColumnTime(bool pValue)
 bool QCaLog::getShowColumnTime()
 {
 
-    return qPushButtonClear->isVisible();
+    return qTableWidget->isColumnHidden(0) == false;
 
 }
 
@@ -102,7 +112,7 @@ bool QCaLog::getShowColumnTime()
 void QCaLog::setShowColumnType(bool pValue)
 {
 
-    qPushButtonClear->setVisible(pValue);
+    qTableWidget->setColumnHidden(1, pValue == false);
 
 }
 
@@ -111,7 +121,7 @@ void QCaLog::setShowColumnType(bool pValue)
 bool QCaLog::getShowColumnType()
 {
 
-    return qPushButtonClear->isVisible();
+    return qTableWidget->isColumnHidden(1) == false;
 
 }
 
@@ -119,7 +129,7 @@ bool QCaLog::getShowColumnType()
 void QCaLog::setShowColumnMessage(bool pValue)
 {
 
-    qPushButtonClear->setVisible(pValue);
+    qTableWidget->setColumnHidden(2, pValue == false);
 
 }
 
@@ -128,7 +138,7 @@ void QCaLog::setShowColumnMessage(bool pValue)
 bool QCaLog::getShowColumnMessage()
 {
 
-    return qPushButtonClear->isVisible();
+    return qTableWidget->isColumnHidden(2) == false;
 
 }
 
@@ -334,18 +344,49 @@ void QCaLog::buttonSaveClicked()
 
     QString filename;
     ofstream fileStream;
+    QString line;
     int i;
 
-    filename = QFileDialog::getSaveFileName(this, "Save log messages", QString(), "Text (*.txt);All (*.*)");
+    filename = QFileDialog::getSaveFileName(this, "Save log messages", QString(), "All files (*)");
 
-    if (filename != "")
+    if (filename.isEmpty() == false)
     {
         fileStream.open(filename.toUtf8().constData());
         if (fileStream.is_open())
         {
             for(i = 0; i < qTableWidget->rowCount(); i++)
             {
-                fileStream << ((QString *) qTableWidget->cellWidget(i, 0))->toUtf8().constData() << "," << ((QString *) qTableWidget->cellWidget(i, 1))->toUtf8().constData() << "," << ((QString *) qTableWidget->cellWidget(i, 2))->toUtf8().constData() << "\n";
+                if (getShowColumnTime())
+                {
+                    line = qTableWidget->item(i, 0)->text();
+                }
+                else
+                {
+                    line = "";
+                }
+                if (getShowColumnType())
+                {
+                    if (line.isEmpty())
+                    {
+                        line = qTableWidget->item(i, 1)->text();
+                    }
+                    else
+                    {
+                        line += "," + qTableWidget->item(i, 1)->text();
+                    }
+                }
+                if (getShowColumnMessage())
+                {
+                    if (line.isEmpty())
+                    {
+                        line = qTableWidget->item(i, 2)->text();
+                    }
+                    else
+                    {
+                        line += "," + qTableWidget->item(i, 2)->text();
+                    }
+                }
+                fileStream << line.toUtf8().constData() << "\n";
             }
             fileStream.close();
             QMessageBox::information(this, "Info", "The log messages were successfully saved in file '" + filename + "'!");
@@ -367,6 +408,8 @@ void QCaLog::clearLog()
 {
 
     qTableWidget->setRowCount(0);
+    qPushButtonClear->setEnabled(false);
+    qPushButtonSave->setEnabled(false);
 
 }
 
@@ -402,19 +445,23 @@ void QCaLog::addLog(int pType, QString pMessage)
             type = "";
     }
 
-    if (type != "")
+
+    if (type.isEmpty() == false)
     {
         i = qTableWidget->rowCount();
         qTableWidget->insertRow(i);
-        qTableWidgetItem = new QTableWidgetItem("yyyy/mm/dd * hh:mm:ss" + i);
+        qTableWidgetItem = new QTableWidgetItem(QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss"));
         qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 0, qTableWidgetItem);
         qTableWidgetItem = new QTableWidgetItem(type);
+//        qTableWidgetItem->setTextAlignment(Qt::AlignCenter);
         qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 1, qTableWidgetItem);
         qTableWidgetItem = new QTableWidgetItem(pMessage);
         qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 2, qTableWidgetItem);
+        qPushButtonClear->setEnabled(true);
+        qPushButtonSave->setEnabled(true);
     }
 
 }
