@@ -78,7 +78,7 @@ class QCaLoginDialog:public QDialog
         void setPassword(QString pValue);
 
 
-    public slots:
+    private slots:
         void radioButtonClicked();
 
         void lineEditPasswordTextChanged(QString pValue);
@@ -191,7 +191,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerPro
 
 
 
-    public slots:
+    private slots:
         void buttonLoginClicked();
 
 

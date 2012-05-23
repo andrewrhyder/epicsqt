@@ -82,10 +82,10 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
 
     clearLog();
 
-//    addLog(INFO, "This is the first line!");
-//    addLog(INFO, "This is the second line!");
-//    addLog(WARNING, "This is the third line!");
-//    addLog(ERROR, "This is the fourth line!");
+    addLog(INFO, "This is the first line!");
+    addLog(INFO, "This is the second line!");
+    addLog(WARNING, "This is the third line!");
+    addLog(ERROR, "This is the fourth line!");
 
 }
 
@@ -342,15 +342,32 @@ QColor QCaLog::getErrorColor()
 void QCaLog::buttonSaveClicked()
 {
 
+    QFileDialog *qFileDialog;
+    QStringList filterList;
     QString filename;
     ofstream fileStream;
     QString line;
     int i;
 
-    filename = QFileDialog::getSaveFileName(this, "Save log messages", QString(), "All files (*)");
+    qFileDialog = new QFileDialog(this, "Save log messages", QString());
+    filterList << "Text file (*.txt)" << "All files  (*.*)";
+    qFileDialog->setFilters(filterList);
+    qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
 
-    if (filename.isEmpty() == false)
+    if (qFileDialog->exec())
     {
+        if (qFileDialog->selectedNameFilter() == filterList.at(0))
+        {
+            filename = qFileDialog->selectedFiles().at(0);
+            if (filename.endsWith(".txt", Qt::CaseInsensitive) == false)
+            {
+                filename += ".txt";
+            }
+        }
+        else
+        {
+            filename = qFileDialog->selectedFiles().at(0);
+        }
         fileStream.open(filename.toUtf8().constData());
         if (fileStream.is_open())
         {

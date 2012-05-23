@@ -152,7 +152,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
         Q_PROPERTY(QColor errorColor READ getErrorColor WRITE setErrorColor)
 
 
-    public slots:
+    private slots:
         void buttonClearClicked();
 
         void buttonSaveClicked();
