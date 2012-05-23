@@ -35,9 +35,6 @@
 QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
 {
 
-    qCaLoginDialog = NULL;
-    qLayout = NULL;
-
     qLabelUserType = new QLabel(this);
     qPushButtonLogin = new QPushButton(this);
 
@@ -46,6 +43,9 @@ QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
     qPushButtonLogin->setText("Login");
     qPushButtonLogin->setToolTip("Change user");
     QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
+
+    qCaLoginDialog = NULL;
+    qLayout = NULL;
 
     setUserPassword("");
     setScientistPassword("");
@@ -262,22 +262,8 @@ int QCaLogin::getDetailsLayout()
 void QCaLogin::buttonLoginClicked()
 {
 
-    if (qCaLoginDialog)
-    {
-        if (qCaLoginDialog->isVisible())
-        {
-            qCaLoginDialog->activateWindow();
-        }
-        else
-        {
-            qCaLoginDialog = new QCaLoginDialog(this);
-        }
-    }
-    else
-    {
-        qCaLoginDialog = new QCaLoginDialog(this);
-    }
-    qCaLoginDialog->show();
+    qCaLoginDialog = new QCaLoginDialog(this);
+    qCaLoginDialog->exec();
 
 }
 
