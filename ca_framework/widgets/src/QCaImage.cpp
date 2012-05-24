@@ -467,9 +467,10 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
 
     if (showTimeEnabled)
     {
-        QPainter painter(&frameImage);
-        painter.setPen(qColorShowTime);
-        painter.drawText(5, 15, QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss"));
+        QPainter qPainter(&frameImage);
+        qPainter.setFont(QFont("Courier", 9 * ((float) imageBuffWidth / (float) imageBuffHeight)));
+        qPainter.setPen(qColorShowTime);
+        qPainter.drawText(5, 15, QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss"));
     }
 
 
@@ -548,6 +549,7 @@ void QCaImage::setImageBuff()
 
     // Resize buffer
     imageBuff.resize( buffSize );
+
 }
 
 /*!
