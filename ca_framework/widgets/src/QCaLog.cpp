@@ -71,18 +71,17 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
 
     qLayout = NULL;
 
-    setDetailsLayout(BOTTOM);
-
     setInfoColor(QColor(0, 0, 255));
     setWarningColor(QColor(255, 160, 0));
     setErrorColor(QColor(255, 0, 0));
+    setDetailsLayout(BOTTOM);
 
     clearLog();
 
-    addLog(INFO, "This is the first line!");
-    addLog(INFO, "This is the second line!");
-    addLog(WARNING, "This is the third line!");
-    addLog(ERROR, "This is the fourth line!");
+//    addLog(INFO, "This is the first line!");
+//    addLog(INFO, "This is the second line!");
+//    addLog(WARNING, "This is the third line!");
+//    addLog(ERROR, "This is the fourth line!");
 
 }
 
@@ -521,6 +520,8 @@ void QCaLog::refreshLog()
 TableWidget::TableWidget(QWidget *pParent):QTableWidget(pParent)
 {
 
+    initialized = false;
+
 }
 
 
@@ -615,7 +616,11 @@ void TableWidget::refreshSize()
 void TableWidget::resizeEvent(QResizeEvent *pEvent)
 {
 
-    refreshSize();
+    if (initialized == false)
+    {
+        refreshSize();
+        initialized = true;
+    }
 
 }
 

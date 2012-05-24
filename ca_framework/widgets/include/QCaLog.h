@@ -63,6 +63,7 @@ class TableWidget:public QTableWidget
     Q_OBJECT
 
     private:
+        bool initialized;
 
 
     protected:
@@ -72,6 +73,7 @@ class TableWidget:public QTableWidget
         TableWidget(QWidget * pParent = 0);
         void refreshSize();
         void resizeEvent(QResizeEvent *pEvent);
+        void resize(int w, int h);
 
 
     private slots:
