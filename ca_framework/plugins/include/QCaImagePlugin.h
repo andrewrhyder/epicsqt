@@ -84,6 +84,16 @@ class QCaImagePlugin : public QCaImage {
     Q_PROPERTY(bool displayAcquirePeriod READ getDisplayAcquirePeriod WRITE setDisplayAcquirePeriod)
     Q_PROPERTY(bool displayExposureTime READ getDisplayExposureTime WRITE setDisplayExposureTime)
 
+
+    Q_PROPERTY(bool showButtonPause READ getShowButtonPause WRITE setShowButtonPause)
+
+    Q_PROPERTY(bool showButtonSave READ getShowButtonSave WRITE setShowButtonSave)
+
+    Q_PROPERTY(bool showTime READ getShowTime WRITE setShowTime)
+
+    Q_PROPERTY(QColor showTimeColor READ getShowTimeColor WRITE setShowTimeColor)
+
+
     Q_ENUMS(SizeOptions)
     Q_PROPERTY(SizeOptions sizeOption READ getSizeOptionProperty WRITE setSizeOptionProperty)
     enum SizeOptions { Zoom   = QCaImage::SIZE_OPTION_ZOOM,

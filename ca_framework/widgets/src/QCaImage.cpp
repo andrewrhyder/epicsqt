@@ -102,12 +102,35 @@ void QCaImage::setup() {
     exposureTimeLabel = new QLabel( this );
     exposureTimeLabel->setText( "Exposure Time:" );
 
+
+
+    buttonLayout = new QGridLayout;
+    buttonLayout->setMargin(0);
+
+    qPushButtonPause = new QPushButton(this);
+    qPushButtonPause->setText("Pause");
+    qPushButtonPause->setToolTip("Pause image display");
+    buttonLayout->addWidget(qPushButtonPause, 0, 0);
+    QObject::connect(qPushButtonPause, SIGNAL(clicked()), this, SLOT(buttonPauseClicked()));
+
+    qPushButtonSave = new QPushButton(this);
+    qPushButtonSave->setText("Save");
+    qPushButtonSave->setToolTip("Save displayed image");
+    QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
+    buttonLayout->addWidget(qPushButtonSave, 0, 1);
+
+
+
+
+
     // Main layout containing image and label layout
     mainLayout = new QVBoxLayout;
     mainLayout->setMargin( 0 );
 
     mainLayout->addWidget( scrollArea );
     mainLayout->addItem( labelLayout );
+    mainLayout->addItem(buttonLayout);
+
 
     setLayout( mainLayout );
 
@@ -133,6 +156,14 @@ void QCaImage::setup() {
 
     // Set default image format
     formatOption = GREY8;
+
+
+    setShowTimeColor(QColor(0, 255, 0));
+
+    pauseEnabled = false;
+    showTimeEnabled = false;
+
+
 }
 
 QCaImage::~QCaImage()
@@ -295,6 +326,14 @@ void QCaImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDate
 void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
 
+
+    if (pauseEnabled)
+    {
+        return;
+    }
+
+
+
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( "image" );
 
@@ -423,6 +462,18 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
 
     // Generate a frame from the data
     QImage frameImage( (uchar*)(imageBuff.data()), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32 );
+
+
+
+    if (showTimeEnabled)
+    {
+        QPainter painter(&frameImage);
+        painter.setPen(qColorShowTime);
+        painter.drawText(5, 15, QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss"));
+    }
+
+
+
     QVideoFrame frame( frameImage );
     if( !frame.isValid() )
     {
@@ -430,8 +481,10 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
         return;
     }
 
+
     // Format and present the frame
     QVideoSurfaceFormat currentFormat = surface->surfaceFormat();
+
 
     if( frame.pixelFormat() != currentFormat.pixelFormat() ||
         frame.size() != currentFormat.frameSize() )
@@ -566,6 +619,10 @@ void QCaImage::manageExposureTimeLabel()
         exposureTimeQCaLabel->hide();
     }
 }
+
+
+
+
 
 //==============================================================================
 // Drag drop
@@ -741,3 +798,155 @@ bool QCaImage::getDisplayExposureTime()
 {
     return displayExposureTime;
 }
+
+
+
+
+
+
+void QCaImage::setShowButtonPause(bool pValue)
+{
+
+    qPushButtonPause->setVisible(pValue);
+
+}
+
+
+
+bool QCaImage::getShowButtonPause()
+{
+
+    return qPushButtonPause->isVisible();
+
+}
+
+
+
+
+void QCaImage::buttonPauseClicked()
+{
+
+    if (pauseEnabled)
+    {
+        qPushButtonPause->setText("Pause");
+        qPushButtonPause->setToolTip("Pause image display");
+        pauseEnabled = false;
+    }
+    else
+    {
+        qPushButtonPause->setText("Resume");
+        qPushButtonPause->setToolTip("Resume image display");
+        pauseEnabled = true;
+    }
+
+}
+
+
+
+void QCaImage::setShowButtonSave(bool pValue)
+{
+
+    qPushButtonSave->setVisible(pValue);
+
+}
+
+
+
+bool QCaImage::getShowButtonSave()
+{
+
+    return qPushButtonSave->isVisible();
+
+}
+
+
+
+void QCaImage::buttonSaveClicked()
+{
+
+    QFileDialog *qFileDialog;
+    QStringList filterList;
+    QString filename;
+    bool result;
+
+    qFileDialog = new QFileDialog(this, "Save displayed image", QString());
+    filterList << "Portable Network Graphics (*.png)" << "Windows Bitmap (*.bmp)" << "Joint Photographics Experts Group (*.jpg)";
+    qFileDialog->setFilters(filterList);
+    qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
+
+    if (qFileDialog->exec())
+    {
+
+        QImage qImage((uchar*) imageBuff.data(), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32);
+        filename = qFileDialog->selectedFiles().at(0);
+
+        if (qFileDialog->selectedNameFilter() == filterList.at(0))
+        {
+            result = qImage.save(filename, "PNG");
+        }
+        else
+        {
+            if (qFileDialog->selectedNameFilter() == filterList.at(1))
+            {
+                result = qImage.save(filename, "BMP");
+            }
+            else
+            {
+                result = qImage.save(filename, "JPG");
+            }
+        }
+
+        if (result)
+        {
+            QMessageBox::information(this, "Info", "The displayed image was successfully saved in file '" + filename + "'!");
+        }
+        else
+        {
+            QMessageBox::critical(this, "Error", "Unable to save displayed image in file '" + filename + "'!");
+        }
+
+
+    }
+
+}
+
+
+
+
+
+void QCaImage::setShowTime(bool pValue)
+{
+
+    showTimeEnabled = pValue;
+
+}
+
+
+
+bool QCaImage::getShowTime()
+{
+
+    return showTimeEnabled;
+
+}
+
+
+
+
+
+void QCaImage::setShowTimeColor(QColor pValue)
+{
+
+    qColorShowTime = pValue;
+
+}
+
+
+
+QColor QCaImage::getShowTimeColor()
+{
+
+    return qColorShowTime;
+
+}
+

@@ -99,6 +99,20 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     bool getDisplayExposureTime();
 
 
+    void setShowButtonPause(bool pValue);
+    bool getShowButtonPause();
+
+    void setShowButtonSave(bool pValue);
+    bool getShowButtonSave();
+
+    void setShowTime(bool pValue);
+    bool getShowTime();
+
+    void setShowTimeColor(QColor pValue);
+    QColor getShowTimeColor();
+
+
+
   protected:
     QCaIntegerFormatting integerFormatting; // Integer formatting options.
     bool caEnabled;
@@ -125,6 +139,11 @@ private slots:
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
+    void buttonPauseClicked();
+
+    void buttonSaveClicked();
+
+
   public slots:
     void requestEnabled( const bool& state );
 
@@ -145,6 +164,7 @@ private slots:
 
     QVBoxLayout *mainLayout;
     QGridLayout *labelLayout;
+    QGridLayout *buttonLayout;
 
     QCaLabel* acquirePeriodQCaLabel;
     QLabel* acquirePeriodLabel;
@@ -159,10 +179,24 @@ private slots:
 
     QAbstractVideoSurface *surface;
 
+
+
+
+    QColor qColorShowTime;
+    QPushButton *qPushButtonPause;
+    QPushButton *qPushButtonSave;
+
+    bool pauseEnabled;
+    bool showTimeEnabled;
+
+
     void manageAcquirePeriodLabel();
     void manageExposureTimeLabel();
     // The following table is required if using Format_Indexed8 QImage with a grey scale lookup table
     // QVector<QRgb> greyscaleColors;
+
+
+
 
     QByteArray imageBuff;
 #define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32
