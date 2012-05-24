@@ -54,6 +54,32 @@ enum messageTypes
 };
 
 
+
+
+
+class TableWidget:public QTableWidget
+{
+
+    Q_OBJECT
+
+    private:
+
+
+    protected:
+
+
+    public:
+        TableWidget(QWidget * pParent = 0);
+        void refreshSize();
+        void resizeEvent(QResizeEvent *pEvent);
+
+
+    private slots:
+
+};
+
+
+
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfile
 {
 
@@ -65,7 +91,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
 
     protected:
         QGridLayout *qLayout;
-        QTableWidget *qTableWidget;
+        TableWidget *qTableWidget;
         QPushButton *qPushButtonClear;
         QPushButton *qPushButtonSave;
         QColor qColorInfo;

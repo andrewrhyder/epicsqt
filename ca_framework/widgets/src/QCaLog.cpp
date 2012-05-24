@@ -44,9 +44,7 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
 
     QFont qFont;
 
-    qLayout = NULL;
-
-    qTableWidget = new QTableWidget(this);
+    qTableWidget = new TableWidget(this);
     qPushButtonClear = new QPushButton(this);
     qPushButtonSave = new QPushButton(this);
 
@@ -55,12 +53,9 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
     qTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Type"));
     qTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("Message"));
     qTableWidget->setToolTip("Current log messages");
+    qTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     qTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     qTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    qTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    qTableWidget->horizontalHeader()->setStretchLastSection(true);
-    qTableWidget->horizontalHeader()->resizeSection(0, 165);
-    qTableWidget->horizontalHeader()->resizeSection(1, 85);
     qTableWidget->verticalHeader()->hide();
 
     qFont.setPointSize(9);
@@ -73,6 +68,8 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
     qPushButtonSave->setText("Save");
     qPushButtonSave->setToolTip("Save log messages");
     QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
+
+    qLayout = NULL;
 
     setDetailsLayout(BOTTOM);
 
@@ -95,6 +92,7 @@ void QCaLog::setShowColumnTime(bool pValue)
 {
 
     qTableWidget->setColumnHidden(0, pValue == false);
+    qTableWidget->refreshSize();
 
 }
 
@@ -103,7 +101,7 @@ void QCaLog::setShowColumnTime(bool pValue)
 bool QCaLog::getShowColumnTime()
 {
 
-    return qTableWidget->isColumnHidden(0) == false;
+    return (qTableWidget->isColumnHidden(0) == false);
 
 }
 
@@ -113,6 +111,7 @@ void QCaLog::setShowColumnType(bool pValue)
 {
 
     qTableWidget->setColumnHidden(1, pValue == false);
+    qTableWidget->refreshSize();
 
 }
 
@@ -121,7 +120,7 @@ void QCaLog::setShowColumnType(bool pValue)
 bool QCaLog::getShowColumnType()
 {
 
-    return qTableWidget->isColumnHidden(1) == false;
+    return (qTableWidget->isColumnHidden(1) == false);
 
 }
 
@@ -130,6 +129,7 @@ void QCaLog::setShowColumnMessage(bool pValue)
 {
 
     qTableWidget->setColumnHidden(2, pValue == false);
+    qTableWidget->refreshSize();
 
 }
 
@@ -138,7 +138,7 @@ void QCaLog::setShowColumnMessage(bool pValue)
 bool QCaLog::getShowColumnMessage()
 {
 
-    return qTableWidget->isColumnHidden(2) == false;
+    return (qTableWidget->isColumnHidden(2) == false);
 
 }
 
@@ -343,31 +343,17 @@ void QCaLog::buttonSaveClicked()
 {
 
     QFileDialog *qFileDialog;
-    QStringList filterList;
     QString filename;
     ofstream fileStream;
     QString line;
     int i;
 
     qFileDialog = new QFileDialog(this, "Save log messages", QString());
-    filterList << "Text file (*.txt)" << "All files  (*.*)";
-    qFileDialog->setFilters(filterList);
     qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
 
     if (qFileDialog->exec())
     {
-        if (qFileDialog->selectedNameFilter() == filterList.at(0))
-        {
-            filename = qFileDialog->selectedFiles().at(0);
-            if (filename.endsWith(".txt", Qt::CaseInsensitive) == false)
-            {
-                filename += ".txt";
-            }
-        }
-        else
-        {
-            filename = qFileDialog->selectedFiles().at(0);
-        }
+        filename = qFileDialog->selectedFiles().at(0);
         fileStream.open(filename.toUtf8().constData());
         if (fileStream.is_open())
         {
@@ -389,7 +375,7 @@ void QCaLog::buttonSaveClicked()
                     }
                     else
                     {
-                        line += "," + qTableWidget->item(i, 1)->text();
+                        line += ", " + qTableWidget->item(i, 1)->text();
                     }
                 }
                 if (getShowColumnMessage())
@@ -400,7 +386,7 @@ void QCaLog::buttonSaveClicked()
                     }
                     else
                     {
-                        line += "," + qTableWidget->item(i, 2)->text();
+                        line += ", " + qTableWidget->item(i, 2)->text();
                     }
                 }
                 fileStream << line.toUtf8().constData() << "\n";
@@ -523,6 +509,113 @@ void QCaLog::refreshLog()
         qTableWidgetItem->setTextColor(color);
 
     }
+
+}
+
+
+
+
+
+
+
+TableWidget::TableWidget(QWidget *pParent):QTableWidget(pParent)
+{
+
+}
+
+
+
+
+void TableWidget::refreshSize()
+{
+
+    int sizeColumn0;
+    int sizeColumn1;
+    int sizeColumn2;
+
+
+    if (this->isColumnHidden(0))
+    {
+        if (this->isColumnHidden(1))
+        {
+            if (this->isColumnHidden(2))
+            {
+                sizeColumn0 = 0;
+                sizeColumn1 = 0;
+                sizeColumn2 = 0;
+            }
+            else
+            {
+                sizeColumn0 = 0;
+                sizeColumn1 = 0;
+                sizeColumn2 = this->width();
+            }
+        }
+        else
+        {
+            if (this->isColumnHidden(2))
+            {
+                sizeColumn0 = 0;
+                sizeColumn1 = this->width();
+                sizeColumn2 = 0;
+            }
+            else
+            {
+                sizeColumn0 = 0;
+                sizeColumn1 = 1 * this->width() / 5;
+                sizeColumn2 = 4 * this->width() / 5 - 1;
+            }
+        }
+    }
+    else
+    {
+        if (this->isColumnHidden(1))
+        {
+            if (this->isColumnHidden(2))
+            {
+                sizeColumn0 = this->width();
+                sizeColumn1 = 0;
+                sizeColumn2 = 0;
+            }
+            else
+            {
+                sizeColumn0 = 1 * this->width() / 5;
+                sizeColumn1 = 0;
+                sizeColumn2 = 4 * this->width() / 5 - 1;
+            }
+        }
+        else
+        {
+            if (this->isColumnHidden(2))
+            {
+                sizeColumn0 = this->width() / 2;
+                sizeColumn1 = this->width() / 2 - 1;
+                sizeColumn2 = 0;
+            }
+            else
+            {
+                sizeColumn0 = 1 * this->width() / 5;
+                sizeColumn1 = 1 * this->width() / 5;
+                sizeColumn2 = 3 * this->width() / 5 - 1;
+            }
+        }
+    }
+
+    this->setColumnWidth(0, sizeColumn0);
+    this->setColumnWidth(1, sizeColumn1);
+    this->setColumnWidth(2, sizeColumn2);
+
+    //qDebug() << "inside refreshSize";
+
+}
+
+
+
+
+void TableWidget::resizeEvent(QResizeEvent *pEvent)
+{
+
+    refreshSize();
 
 }
 
