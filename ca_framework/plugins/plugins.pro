@@ -52,7 +52,8 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaImage.png \
     src/QCaLogin.png \
     src/record_field_list.txt \
-    src/QCaLog.png
+    src/QCaLog.png \
+    src/QCaMotor.png
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \
@@ -146,7 +147,9 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/videowidgetsurface.h \
     ../widgets/include/QCaLogin.h \
     ../widgets/include/QCaLog.h \
-    include/QCaLogPluginManager.h
+    include/QCaLogPluginManager.h \
+    include/QCaMotorPluginManager.h \
+    ../widgets/include/QCaMotor.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
@@ -238,7 +241,9 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/videowidgetsurface.cpp \
     ../widgets/src/QCaLogin.cpp \
     ../widgets/src/QCaLog.cpp \
-    src/QCaLogPluginManager.cpp
+    src/QCaLogPluginManager.cpp \
+    src/QCaMotorPluginManager.cpp \
+    ../widgets/src/QCaMotor.cpp
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc

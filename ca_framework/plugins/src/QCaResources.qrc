@@ -19,6 +19,9 @@
         <file>QCaRadioButton.png</file>
         <file>QCaImage.png</file>
         <file>QCaPvProperties.png</file>
+        <file>QCaLogin.png</file>
+        <file>QCaLog.png</file>
+        <file>QCaMotor.png</file>
     </qresource>
     <qresource prefix="/user">
         <file>record_field_list.txt</file>

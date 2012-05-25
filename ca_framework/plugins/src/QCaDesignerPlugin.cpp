@@ -43,6 +43,7 @@
 #include <QCaPvPropertiesPluginManager.h>
 #include <QCaLoginPluginManager.h>
 #include <QCaLogPluginManager.h>
+#include <QCaMotorPluginManager.h>
 
 #include <QtCore/qplugin.h>
 
@@ -73,6 +74,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaPvPropertiesPluginManager(this));
     widgets.append(new QCaLoginPluginManager(this));
     widgets.append(new QCaLogPluginManager(this));
+    widgets.append(new QCaMotorPluginManager(this));
 }
 
 /*!
