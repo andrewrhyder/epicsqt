@@ -1,10 +1,3 @@
-/*! 
-  \class UserMessage
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief User message manager.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -21,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2012
  *
  *  Author:
  *    Andrew Rhyder
@@ -34,36 +27,108 @@
 
 #include <QObject>
 #include <QCaPluginLibrary_global.h>
+#include <QtDebug>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT UserMessage : public QObject
+enum message_types {MESSAGE_TYPE_INFO, MESSAGE_TYPE_WARNING, MESSAGE_TYPE_ERROR };
+
+class UserMessage;
+
+// Class used to send message signals.
+// A single instance of this class is shared by all instances of
+// the UserMessage class. This allows every UserMessage class instance to
+// connect to a single source of messages
+class UserMessageSignal : public QObject
 {
     Q_OBJECT
 
-    public:
-        UserMessage();
-        ~UserMessage();
+public:
+    UserMessageSignal(){}
+    ~UserMessageSignal(){}
 
-    void setup( QObject* statusMessageConsumer,                 // Setup the signal / slot connections required to present messages to the user
-                QObject* warningMessageConsumer,
-                QObject* errorMessageConsumer );
-
-    void setup( QObject* generalMessageConsumer );              // Setup the signal / slot connections required to present messages to the user
-
-    void sendStatusMessage( QString message );                  // Send a status message to the user
-    void sendStatusMessage( QString message, QString source );  // Send a status message to the user including a string identifying the source of the message
-
-    void sendWarningMessage( QString message );                 // Send a warning message to the user
-    void sendWarningMessage( QString message, QString source ); // Send a warning message to the user including a string identifying the source of the message
-
-    void sendErrorMessage( QString message );                   // Send an error message to the user
-    void sendErrorMessage( QString message, QString source );   // Send an error message to the user including a string identifying the source of the message
+    void sendMessage( QString msg,
+                      message_types type,
+                      unsigned int formId,
+                      unsigned int sourceId,
+                      UserMessage* originator );    // Send a message to all widgets
 
 signals:
-    void statusMessage( QString message );                      // Signal a status message
-    void warningMessage( QString message );                     // Signal a warning message
-    void errorMessage( QString message );                       // Signal an error message
+    void message( QString msg,
+                  message_types type,
+                  unsigned int formId,
+                  unsigned int sourceId,
+                  UserMessage* originator );        // Emit a message signal
+};
 
-    void generalMessage( QString message );                     // Signal a message (emitted for status, warning, and error
-  };
+// Class used to receive message signals.
+// An instance of this class is created by all instances of
+// the UserMessage class. The UserMessage class uses an instance of this class
+// to receive messages so it does not have to be based on QObject itself. This is
+// required as derived classes generally need to be also based on another object
+// derived from QObject (and QObject can only be the base of a single base class)
+class UserMessageSlot : public QObject
+{
+    Q_OBJECT
+
+public:
+    UserMessageSlot(){}
+    ~UserMessageSlot(){}
+
+    void setOwner( UserMessage* ownerIn ){ owner = ownerIn; }   // Set the UserMessage class this is a part of
+
+public slots:
+    void message( QString msg,
+                  message_types type,
+                  unsigned int formId,
+                  unsigned int sourceId,
+                  UserMessage* originator );                    // A message has been received
+
+private:
+    UserMessage* owner;                                         // UserMessage class that this instance is a part of
+};
+
+//!!! No need to export this once it is within the QCaWidget core class???
+class QCAPLUGINLIBRARYSHARED_EXPORT UserMessage
+{
+public:
+    enum message_filter_options {MESSAGE_FILTER_ANY, MESSAGE_FILTER_MATCH, MESSAGE_FILTER_NONE };
+    UserMessage();
+    ~UserMessage();
+
+    void setSourceId( unsigned int sourceId );                    // Set the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets)
+    void setFormId( unsigned int formId );                        // Set the form ID (the the same ID for all sibling widgets within an ASguiForm widget)
+    void setFormFilter( message_filter_options formFilterIn );    // Set the message filtering applied to the form ID
+    void setSourceFilter( message_filter_options sourceFilterIn );// Set the message filtering applied to the source ID
+
+    unsigned int getSourceId();                                 // Get the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets
+    unsigned int getFormId();                                   // Get the form ID (the the same ID for all sibling widgets within an ASguiForm widget)
+    message_filter_options getFormFilter();                     // Get the message filtering applied to the form ID
+    message_filter_options getSourceFilter();                   // Get the message filtering applied to the source ID
+
+    void setChildFormId( unsigned int );                        // Set the for ID of all widgets that are children of this widget
+    unsigned int getChildFormId();                              // Get the for ID of all widgets that are children of this widget
+
+    unsigned int getNextMessageFormId();                        // Generate a new form ID for all widgets in a new form
+
+    void sendMessage( QString message,
+                      message_types type = MESSAGE_TYPE_INFO ); // Send a message to the user
+    void sendMessage( QString message,
+                      QString source,
+                      message_types type = MESSAGE_TYPE_INFO ); // Send a message to the user with a source reference
+
+    QString getMessageTypeName( message_types type );           // Convenience function to provide string names for each message type
+
+    virtual void newMessage( QString, message_types );          // Virtual function to pass messages to derived classes (typicaly logging widgets or application windows)
+
+    unsigned int childFormId;                                   // Only relevent for form (ASguiForm) widgets. Form ID of all child widgets
+    message_filter_options formFilter;                          // Message filtering to apply to form ID
+    message_filter_options sourceFilter;                        // Message filtering to apply to source ID
+
+private:
+    static UserMessageSignal userMessageSignal;                 // Single object to send all message signals
+    static unsigned int nextMessageFormId;                      // The next message form ID
+    unsigned int formId;                                        // The form ID passed with each message. Shared by all widgets within an ASguiForm widget
+    unsigned int sourceId;                                      // The source ID passed with each message. Set to any value the GUI designer requires.
+    UserMessageSlot userMessageSlot;                            // QObject based object to receive all messages. It calls newMessage() with each message.
+};
 
 #endif // UserMessage_H

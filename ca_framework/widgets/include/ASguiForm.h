@@ -26,6 +26,7 @@
 #define ASGUIFORM_H
 
 #include <QScrollArea>
+#include <QCaWidget.h>
 #include <QWidget>
 #include <UserMessage.h>
 #include <ContainerProfile.h>
@@ -33,7 +34,7 @@
 #include <QFileSystemWatcher>
 #include <QCaPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
+class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea, public QCaWidget
 {
     Q_OBJECT
     public:
@@ -65,15 +66,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
     public slots:
         void requestEnabled( const bool& state );
         bool readUiFile();
-        void onGeneralMessage( QString message ){ onMessage( "Message", message ); }
-        void onStatusMessage( QString message ) { onMessage( "Status",  message ); }
-        void onErrorMessage( QString message )  { onMessage( "Error",   message ); }
-        void onWarningMessage( QString message ){ onMessage( "Warning", message ); }
 
         void launchGui( QString guiName, ASguiForm::creationOptions createOption );
+
     private slots:
         void fileChanged ( const QString & path );
-
 
     protected:
         QString uiFileName;
@@ -87,10 +84,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ASguiForm : public QScrollArea
         QFileSystemWatcher fileMon;
 
         QString variableNameSubstitutions;
-        UserMessage userMessage;
-        void onMessage( QString title, QString message );
 
-        ContainerProfile profile;
+        void newMessage( QString msg, message_types type );
 };
 
 #endif // ASGUIFORM_H

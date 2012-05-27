@@ -1,10 +1,3 @@
-/*! 
-  \class Link
-  \version $Revision: #7 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief Link Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -38,7 +31,7 @@
 /*!
     Constructor with no initialisation
 */
-Link::Link( QWidget *parent ) : QLabel( parent ) {
+Link::Link( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
 
     // If a container profile has been defined, then this widget is being used in a real GUI and
     // should be visible or not according to the visible property. (While in Designer it can always be displayed)

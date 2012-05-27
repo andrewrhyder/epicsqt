@@ -1,10 +1,3 @@
-/*! 
-  \class Monitor
-  \version $Revision: #5 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Qt-CA based version of CA Monitor.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -34,11 +27,12 @@
 
 #include <QObject>
 #include <QCaString.h>
+#include <UserMessage.h>
 
 /*!
   Class to monitor a PV. All data updats and messages are timestamped and written to std out
   */
-class monitor : public QObject
+class monitor : public QObject, public UserMessage
 {
       Q_OBJECT
 
@@ -51,12 +45,11 @@ private:
     QCaStringFormatting formatting;
     QString pv;
     QTextStream* stream;
+    void newMessage( QString msg, message_types type );
 
 private slots:
     void connectionChanged( QCaConnectionInfo& );
     void log( const QString& data, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp, const unsigned int & );
-    void message( const QString& );
-
 };
 
 #endif // MONITOR_H

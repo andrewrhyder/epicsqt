@@ -43,8 +43,6 @@ public:
 
     void initialiseVariableNameSubstitutions( const QString& substitutions );   /// Initialise macro substitutions. May be used on creation.
 
-    virtual void establishConnection( unsigned int variableIndex ) = 0;     /// Create a CA connection and initiates updates if required
-
     void setVariableNameSubstitutionsOverride( const QString& substitutions );
 
     void setVariableName( const QString& variableName, unsigned int variableIndex );    /// Accept a new variable name which may include substitution keys preceeded by $

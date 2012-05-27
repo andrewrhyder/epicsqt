@@ -123,32 +123,20 @@ public:
     ~ContainerProfile();   // Destruction
     void takeLocalCopy();
 
-    void setupProfile( QObject* statusMessageConsumerIn,
-                       QObject* errorMessageConsumerIn,
-                       QObject* warningMessageConsumerIn,
-                       QObject* guiLaunchConsumerIn,
+    void setupProfile( QObject* guiLaunchConsumerIn,
                        QString pathIn,
                        QString parentPathIn,
-                       QString macroSubstitutionsIn );      // Setup a local and published environmental profile for all QcaWidgets to use on creation
-    void setupLocalProfile( QObject* statusMessageConsumerIn,
-                            QObject* errorMessageConsumerIn,
-                            QObject* warningMessageConsumerIn,
-                            QObject* guiLaunchConsumerIn,
+                       QString macroSubstitutionsIn );     // Setup a local and published environmental profile for all QcaWidgets to use on creation
+    void setupLocalProfile( QObject* guiLaunchConsumerIn,
                             QString pathIn,
                             QString parentPathIn,
-                            QString macroSubstitutionsIn );      // Setup the local environmental profile for this instance only
-    void updateConsumers( QObject* statusMessageConsumerIn,
-                          QObject* errorMessageConsumerIn,
-                          QObject* warningMessageConsumerIn,
-                          QObject* guiLaunchConsumerIn );  // Update the local and published signal consumer objects
+                            QString macroSubstitutionsIn );// Setup the local environmental profile for this instance only
+    void updateConsumers( QObject* guiLaunchConsumerIn );  // Update the local and published signal consumer objects
     QObject* replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn );  // Override the current GUI launch consumer
 
     void addMacroSubstitutions( QString macroSubstitutionsIn ); // Add another set of macro substitutions to those setup by setupProfile(). Used as sub forms are created
     void removeMacroSubstitutions();                            // Remove the last set of macro substitutions added by addMacroSubstitutions(). Used after sub forms are created
 
-    QObject* getStatusMessageConsumer();      // Get the local copy of the object that will recieve status message events
-    QObject* getWarningMessageConsumer();     // Get the local copy of the object that will recieve warning message events
-    QObject* getErrorMessageConsumer();       // Get the local copy of the object that will recieve error message events
     QObject* getGuiLaunchConsumer();          // Get the local copy of the object that will recieve GUI launch requests
     QString getPath();                        // Get the local copy of the application path used for file operations
     QString getParentPath();                  // Get the local copy of the current object path used for file operations
@@ -159,31 +147,30 @@ public:
     void addContainedWidget( QCaWidget* containedWidget );  // Adds a reference to the list of QCa widgets created with this profile
     QCaWidget* getNextContainedWidget();                    // Returns a reference to the next QCa widgets in the list of QCa widgets created with this profile
 
-    void releaseProfile();                                  // Clears the context setup by setupProfile(). Local data in all instances is still valid
+    unsigned int getMessageFormId();                    // Get the local copy of the message form ID
+    unsigned int getPublishedMessageFormId();           // Get the currently published message form ID
+    void setPublishedMessageFormId( unsigned int publishedMessageFormIdIn );  // Set the currently published message form ID
+
+    void releaseProfile();                              // Clears the context setup by setupProfile(). Local data in all instances is still valid
 
     void publishOwnProfile();                           // Set the published profile to whatever is saved in our local copy
 
-    void setUserLevel( userLevels level );
-    userLevels getUserLevel();
+    void setUserLevel( userLevels level );              // Set the current user level
+    userLevels getUserLevel();                          // Return the current user level
 
-    virtual void userLevelChanged( userLevels ){} // Virtual function implemented by widgets based on QCaWidget to allow them to be notified of changes in user level
+    virtual void userLevelChanged( userLevels ){}       // Virtual function implemented by widgets based on QCaWidget to allow them to be notified of changes in user level
 
 private:
-    void publishProfile( QObject* statusMessageConsumerIn,
-                         QObject* errorMessageConsumerIn,
-                         QObject* warningMessageConsumerIn,
-                         QObject* guiLaunchConsumerIn,
+    void publishProfile( QObject* guiLaunchConsumerIn,
                          QString pathIn,
                          QString publishedParentPathIn,
-                         QString macroSubstitutionsIn );      // Publish an environmental profile for all QcaWidgets to use on creation
+                         QString macroSubstitutionsIn );// Publish an environmental profile for all QcaWidgets to use on creation
 
-    static QObject* publishedStatusMessageConsumer;     // Object to send status message event to
-    static QObject* publishedErrorMessageConsumer;      // Object to send error message event to
-    static QObject* publishedWarningMessageConsumer;    // Object to send warning message event to
     static QObject* publishedGuiLaunchConsumer;         // Object to send GUI launch requests to
     static QString publishedPath;                       // Path used for file operations (scope: application wide)
     static QString publishedParentPath;                 // Path used for file operations (scope: Parent object, if any. This is set up by the application, but is temporarily overwritten and then reset by each level of sub object (sub form)
     static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
+    static unsigned int publishedMessageFormId;         // Current form ID. Used to group forms with their widgets for messaging
 
     static QList<WidgetRef> containedWidgets;           // List of QCa widgets created with this profile
 
@@ -192,14 +179,12 @@ private:
 
     static bool profileDefined;                         // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()
 
-    QObject* statusMessageConsumer;  // Local copy of status message consumer. Still valid after the profile has been released by releaseProfile()
-    QObject* errorMessageConsumer;   // Local copy of error message consumer. Still valid after the profile has been released by releaseProfile()
-    QObject* warningMessageConsumer; // Local copy of warning message consumer. Still valid after the profile has been released by releaseProfile()
     QObject* guiLaunchConsumer;      // Local copy of GUI launch consumer. Still valid after the profile has been released by releaseProfile()
     QString path;                    // Local copy of application path used for file operations
     QString parentPath;              // Local copy of parent object path used for file operations
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
 
+    unsigned int messageFormId;      // Local copy of current form ID. Used to group forms with their widgets for messaging
 };
 
 #endif // CONTAINERPROFILE_H

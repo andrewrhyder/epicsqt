@@ -48,7 +48,6 @@ monitor::monitor( QString pvIn )
     QObject::connect( source, SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                       this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
 
-    QObject::connect( &messages, SIGNAL( generalMessage( const QString& ) ), this, SLOT( message( const QString & ) ) );
     source->subscribe();
 }
 
@@ -71,8 +70,8 @@ void monitor::log( const QString& data, QCaAlarmInfo&, QCaDateTime& timeStamp, c
 }
 
 // Log messages
-void monitor::message( const QString& message )
+void monitor::newMessage( QString msg, message_types )
 {
-    *stream << QString( "%1 %2   %3\n").arg( QTime::currentTime().toString() ).arg( pv ).arg( message );
+    *stream << QString( "%1 %2   %3\n").arg( QTime::currentTime().toString() ).arg( pv ).arg( msg );
     stream->flush();
 }

@@ -39,7 +39,7 @@ using namespace std;
 
 
 
-QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
+QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 {
 
     QFont qFont;
@@ -77,6 +77,13 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent)
     setDetailsLayout(BOTTOM);
 
     clearLog();
+
+    // Set up the UserMessage class to match on any messages from widgets on the same form by default
+    setFormFilter( MESSAGE_FILTER_MATCH );
+    setSourceFilter( MESSAGE_FILTER_NONE );
+
+    // Set the form ID to use when matching the form of received message
+    setChildFormId( getFormId() );
 
 //    addLog(INFO, "This is the first line!");
 //    addLog(INFO, "This is the second line!");
@@ -513,6 +520,12 @@ void QCaLog::refreshLog()
 
 
 
+// Receive new log messages from other QCaWidgets.
+void QCaLog::newMessage( QString msg, message_types type )
+{
+    // Add the message to the log
+    addLog( type, msg );
+}
 
 
 

@@ -101,20 +101,17 @@ void QCaGenericButton::guiSetup() {
     creationOption = ASguiForm::CREATION_OPTION_OPEN;
 
     // If a profile is define by whatever contains the button, use it
-    if( profile.isProfileDefined() )
+    if( isProfileDefined() )
     {
         // Setup a signal to launch a new gui
         // The signal will be used by whatever the button is in
         QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, ASguiForm::creationOptions ) ),
-                          profile.getGuiLaunchConsumer(), SLOT( launchGui( QString,ASguiForm::creationOptions ) ) );
+                          getGuiLaunchConsumer(), SLOT( launchGui( QString,ASguiForm::creationOptions ) ) );
     }
 
     // A profile is not already defined, create one. This is the case if this class is used by an application that does not set up a profile, such as 'designer'.
     else
     {
-        // Set up the button's own message handler
-        userMessage.setup( getButtonQObject() );
-
         // Set up the button's own gui form launcher
         QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, ASguiForm::creationOptions ) ),
                           getButtonQObject(), SLOT( launchGui( QString, ASguiForm::creationOptions ) ) );
@@ -340,18 +337,18 @@ void QCaGenericButton::userClicked( bool checked ) {
     {
 
         // Publish the profile this button recieved
-        profile.publishOwnProfile();
+        publishOwnProfile();
 
         // Extend any variable name substitutions with this button's substitutions
-        profile.addMacroSubstitutions( getVariableNameSubstitutions() );
+        addMacroSubstitutions( getVariableNameSubstitutions() );
 
         emitNewGui( substituteThis( guiName ), creationOption );
 
         // Remove this form's macro substitutions now all it's children are created
-        profile.removeMacroSubstitutions();
+        removeMacroSubstitutions();
 
         // Release the profile now all QCa widgets have been created
-        profile.releaseProfile();
+        releaseProfile();
     }
 
 

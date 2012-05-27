@@ -39,7 +39,7 @@
   QCaObject class and formats all updates as strings.
 
   The CA aware parent class (such as QCaLabel) defines a variable by calling VariableNameManager::setVariableName().
-  The VariableNameManager class calls the establishConnection function of the CA aware parent class, such as QCaLabel
+  The VariableNamePropertyManager class calls the establishConnection function of the CA aware parent class, such as QCaLabel
   when it has a new variable name.
 
   This class uses its base QCaToolTip class to format tool tips. that class in turn calls the CA aware parent class
@@ -51,7 +51,7 @@
 
    1) The variable name or variable name substitutions is changed by calling setVariableName
       or setVariableNameSubstitutions respectively. These functions are in the VariableNameManager class.
-      The VariableNameManager calls a virtual function establishConnection() which is implemented by the CA aware widget.
+      The VariableNamePropertyManager calls a virtual function establishConnection() which is implemented by the CA aware widget.
       This is how a CA aware widget is activated in 'designer'. It occurs when 'designer' updates the
       variable name property or variable name substitution property.
 
@@ -59,7 +59,7 @@
       contining plugin definitions.
       After loading the plugin widgets, code in the ASguiForm class calls the activate() function in this class (QCaWiget).
       the activate() function calls  establishConnection() in the CA aware widget for each variable. This simulates
-      what the VariableNameManager does as each variable name is entered (see 1, above, for details)
+      what the VariableNamePropertyManager does as each variable name is entered (see 1, above, for details)
 
   No matter which way a CA aware widget is activated, the establishConnection() function in the CA aware widget is called
   for each variable. The establishConnection() function asks this QCaWidget base class, by calling the createConnection()
@@ -92,11 +92,13 @@ QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ) {
     /// Default properties
     subscribe = true;
     variableAsToolTip = true;
+    setSourceId( 0 );
 
-    // Setup an object to emit message signals according to the profile defined by whatever is creating
-    // this widget (or use a default mechanism if no profile has been defined)
-    // If there is a profile defining the environment containing this widget, add this widget
-    // to the list of contained widgets so whatever is managing the container can activate this widget.
+    // Set the UserMessage form ID to be whatever has been published in the ContainerProfile
+    setFormId( getMessageFormId() );
+
+    // If there is a profile defining the environment containing this widget add this widget to the
+    // list of contained widgets so whatever is managing the container can activate this widget.
     //
     // Although a widget is self contained, whatever is creating the widget has the option of providing
     // a list of services and other information through a containerProfile that QCaWidgets can use.
@@ -104,9 +106,6 @@ QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ) {
     // messages in a manner appropriate for the application.
     // In this case, the widget is taking the oppertunity to tell its creator it exists, and also to
     // get any variable name macro substitutions offered by its creator.
-    userMessage.setup( getStatusMessageConsumer(),
-                       getErrorMessageConsumer(),
-                       getWarningMessageConsumer() );
     if( isProfileDefined() )
     {
         addContainedWidget( this );
@@ -219,7 +218,7 @@ qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) 
         qcaItem[variableIndex] = createQcaItem( variableIndex );
         if( qcaItem[variableIndex] ) {
 
-            qcaItem[variableIndex]->setUserMessage( &userMessage );
+            qcaItem[variableIndex]->setUserMessage( (UserMessage*)this );
 
             if( subscribe )
                 qcaItem[variableIndex]->subscribe();
@@ -229,6 +228,28 @@ qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) 
     // Return the QCaObject, if any
     return qcaItem[variableIndex];
 }
+
+// Default implementation of createQcaItem().
+// Usually a QCa widget will request a connection be established by this class and this class will
+// call back the QCa widget for it to create the specific flavour of QCaObject required using this function.
+// Since this class can also be used as a base class for widgets that don't establish any CA connection,
+// this default implementation is here to always return NULL when asked to create a QCaObject
+//
+qcaobject::QCaObject* QCaWidget::createQcaItem( unsigned int )
+{
+    return NULL;
+}
+
+// Default implementation of establishConnection().
+// Usually a QCa widget will request a connection be established by this class and this class will
+// call back the QCa widget for it to establish a connection on a newly created QCaObject using this function.
+// Since this class can also be used as a base class for widgets that don't establish any CA connection,
+// this default implementation is here as a default when not implemented
+//
+void QCaWidget::establishConnection( unsigned int )
+{
+}
+
 
 /*!
     Return a reference to one of the qCaObjects used to stream CA data updates to the widget

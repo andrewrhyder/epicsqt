@@ -53,10 +53,16 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
     // profile was set up by the ASgui application) or objects in another main window (if the profile was published by a button in a gui)
     // Replace the signal consuming objects
-    profile.updateConsumers( this, this, this, this );
+    profile.updateConsumers( this );
 
     // Initialise
     usingTabs = false;
+
+    // Give the main window's USerMessage class a unique form ID so only messages from
+    // the form in each main window are displayed that main window's status bar
+    setFormId( getNextMessageFormId() );
+    setFormFilter( MESSAGE_FILTER_MATCH );
+    setSourceFilter( MESSAGE_FILTER_NONE );
 
     // Present the main form's ui
     ui.setupUi( this );
@@ -416,6 +422,16 @@ void MainWindow::loadGuiIntoCurrentWindow( ASguiForm* gui )
 }
 
 //=================================================================================
+// Reimplementation of UserMessage method for presenting messages
+//=================================================================================
+
+void MainWindow::newMessage( QString msg, message_types type )
+{
+    // Change the message in the status bar
+    statusBar()->showMessage( getMessageTypeName( type ).append( ": ").append( msg ) );
+}
+
+//=================================================================================
 // Slots for managing resizing
 //=================================================================================
 
@@ -445,44 +461,6 @@ void MainWindow::resizeToFitGui()
 
     // The size required is the size of the user interface plus the difference between the main window size and the central widget size
     this->resize( ui_w + main_w - central_w + frame_w * 2, ui_h + main_h - central_h + frame_w * 2 );
-}
-
-//=================================================================================
-// Slots for presenting warnings, errors, and status messages
-//=================================================================================
-
-// Use a status message
-void MainWindow::onStatusMessage( QString message )
-{
-    // Change the message in the status bar
-    statusBar()->showMessage( message );
-}
-
-// Use a warning message
-void MainWindow::onWarningMessage( QString message )
-{
-    statusBar()->showMessage( message );
-
-/* Message box option
-    QMessageBox msgBox;
-    msgBox.setText( "Warning" );
-    msgBox.setInformativeText( message );
-    msgBox.exec();
-*/
-}
-
-// Use an error message
-void MainWindow::onErrorMessage( QString message )
-{
-    statusBar()->showMessage( message );
-
-
-/* Message box option
-    QMessageBox msgBox;
-    msgBox.setText( "Error" );
-    msgBox.setInformativeText( message );
-    msgBox.exec();
-*/
 }
 
 //=================================================================================
@@ -610,11 +588,15 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 ASguiForm* MainWindow::createGui( QString fileName )
 {
     // Don't do anything if no filename was supplied
-     if (fileName.isEmpty())
+    if (fileName.isEmpty())
         return NULL;
 
+    // Publish the main window's form Id so the new ASguiForm will pick it up
+    setChildFormId( getNextMessageFormId() );
+    profile.setPublishedMessageFormId( getChildFormId() );
+
     // Inform user
-    onStatusMessage( QString( "Opening %1 in new window " ).arg( fileName ) );
+    newMessage( QString( "Opening %1 in new window " ).arg( fileName ), MESSAGE_TYPE_INFO );
 
     // Build the gui
     ASguiForm* gui = new ASguiForm( fileName );
@@ -642,7 +624,7 @@ ASguiForm* MainWindow::createGui( QString fileName )
 
         // Regardless of who set up the profile, this window should be receiving
         // requests to do things such as display errors.
-        profile.updateConsumers( this, this, this, this );
+        profile.updateConsumers( this );
 
         // Load the .ui file into the GUI
         gui->readUiFile();

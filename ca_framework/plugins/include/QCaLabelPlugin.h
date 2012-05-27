@@ -130,6 +130,7 @@ class QCaLabelPlugin : public QCaLabel {
 
     Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
 
+    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
 
   private:
     QCaVariableNamePropertyManager variableNamePropertyManager;

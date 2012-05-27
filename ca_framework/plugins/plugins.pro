@@ -94,6 +94,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaImagePluginManager.h \
     include/QCaImagePlugin.h \
     include/QCaLoginPluginManager.h \
+    include/QCaLogPluginManager.h \
+    include/QCaMotorPluginManager.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -147,8 +149,6 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/videowidgetsurface.h \
     ../widgets/include/QCaLogin.h \
     ../widgets/include/QCaLog.h \
-    include/QCaLogPluginManager.h \
-    include/QCaMotorPluginManager.h \
     ../widgets/include/QCaMotor.h
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
@@ -189,6 +189,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaImagePlugin.cpp \
     src/QCaPvPropertiesPluginManager.cpp \
     src/QCaLoginPluginManager.cpp \
+    src/QCaLogPluginManager.cpp \
+    src/QCaMotorPluginManager.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -241,8 +243,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/videowidgetsurface.cpp \
     ../widgets/src/QCaLogin.cpp \
     ../widgets/src/QCaLog.cpp \
-    src/QCaLogPluginManager.cpp \
-    src/QCaMotorPluginManager.cpp \
     ../widgets/src/QCaMotor.cpp
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp

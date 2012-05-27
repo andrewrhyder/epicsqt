@@ -1,10 +1,3 @@
-/*! 
-  \class QCaVariableNamePropertyManager
-  \version $Revision: #3 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Handles user manipulation of variable name sets and associated macro substitutions.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -52,6 +45,9 @@
  * This knowledge is infered by checking if there is an envirionmental profile defined. All code loading a
  * UI file should create and setup an instance of the ContainerProfile class. If this has been done then it is
  * safe to assume the properties are not being set by a user tying into 'designer'.
+ *
+ * This class calls the virtual
+ * function establishConnection() whenever a translated variable name is updated
  */
 
 #include <QCaVariableNamePropertyManager.h>

@@ -26,8 +26,7 @@
  * Description:
  *
  * A class to manage changes to one or more variable names and the macro 
- * substitutions applying to the variable names. This class calls the virtual
- * function establishConnection() whenever a translated variable name is updated.
+ * substitutions applying to the variable names.
  *
  */
 

@@ -155,6 +155,9 @@ class QCaPushButtonPlugin : public QCaPushButton {
     void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (ASguiForm::creationOptions)creationOptionIn ); }
     CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
 
+    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+
+
 
   private:
     QCaVariableNamePropertyManager variableNamePropertyManagers[QCAGENERICBUTTON_NUM_VARIABLES];

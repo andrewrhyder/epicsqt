@@ -33,7 +33,7 @@
 #include <QProcess>
 #include <QTimer>
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public UserMessage
 {
     Q_OBJECT
 
@@ -69,8 +69,6 @@ private:
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
 
     QString GuiFileNameDialog( QString caption );           // Get a gui filename from the user
-//    QString path;                                           // Default path when looking for GUI ui files
-//    QString substitutions;                                  // Default substitutions when creating a new GUI form
     ContainerProfile profile;                               // Environment profile for new QCa wigets
 
     QProcess process;                                       // Process used to start designer
@@ -80,6 +78,9 @@ private:
 
     bool processSecondAttempt;                              // Flag indicating this is the second attempt to start designer with an alternate command
     bool processOpenGui;                                    // Flag indicating designer should be opened with the current GUI
+
+private:
+    void newMessage( QString msg, message_types type );
 
 private slots:
     void on_actionRefresh_Current_Form_triggered();             // Slot to perform 'Refresh Current Form' action
@@ -92,9 +93,6 @@ private slots:
     void onWindowMenuSelection( QAction* action );  // Slot to recieve requests to change focus to a specific gui
     void on_actionAbout_triggered();                // Slot to perform 'About' action
 
-    void onStatusMessage( QString message );        // Slot to recieve status messages from GUIs
-    void onWarningMessage( QString message );       // Slot to recieve warning messages from GUIs
-    void onErrorMessage( QString message );         // Slot to recieve error messages from GUIs
 
     void launchGui( QString guiName, ASguiForm::creationOptions creationOption );
 

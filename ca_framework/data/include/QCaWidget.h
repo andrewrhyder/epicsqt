@@ -34,13 +34,17 @@
 #include <QCaPluginLibrary_global.h>
 #include <QCaDragDrop.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager, public QCaToolTip, public ContainerProfile, public QCaDragDrop {
+//!!! since this class is only ever used as a base class, it doesn't need to be exported
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager, public QCaToolTip, public ContainerProfile, public QCaDragDrop, public UserMessage {
 
 public:
     QCaWidget( QWidget* ownerIn );          /// Constructor
     virtual ~QCaWidget();                   /// Destructor
-    UserMessage userMessage;                /// Manager of messages to the user
     void activate();                        /// Initiate updates.
+
+    unsigned int getMessageSourceId(){ return getSourceId(); }
+    void setMessageSourceId( unsigned int messageSourceId ){ setSourceId( messageSourceId ); }
+
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );    /// Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
@@ -50,12 +54,12 @@ protected:
 
     qcaobject::QCaObject* createConnection( unsigned int variableIndex );    /// Create a CA connection. Return a QCaObject if successfull
 
-    virtual void setup() = 0;                               ///???
-    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ) = 0; /// Function to create a appropriate superclass of QCaObject to stream data updates
+    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ); /// Function to create a appropriate superclass of QCaObject to stream data updates
+    virtual void establishConnection( unsigned int variableIndex );     /// Create a CA connection and initiates updates if required
 
     qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         /// Return a reference to one of the qCaObjects used to stream CA updates
 
-  private:
+private:
     void deleteQcaItem( unsigned int variableIndex );       /// Delete a stream of CA updates
     unsigned int numVariables;              /// The number of process variables that will be managed for the QCa widget.
     qcaobject::QCaObject** qcaItem;          /// CA access - provides a stream of updates. One for each variable name used by the QCa widget

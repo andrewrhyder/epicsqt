@@ -189,9 +189,6 @@ private:
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
-    UserMessage userMessage;
-    ContainerProfile profile;
-
     virtual void setButtonState( bool checked ) = 0;
     virtual void setButtonText( QString text ) = 0;
     virtual QString getButtonText() = 0;

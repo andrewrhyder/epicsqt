@@ -50,13 +50,13 @@
 
 /// Constructor.
 /// No UI file is read. uiFileName must be set and then readUiFile() called after construction
-ASguiForm::ASguiForm( QWidget* parent ) : QScrollArea( parent ) {
+ASguiForm::ASguiForm( QWidget* parent ) : QScrollArea( parent ), QCaWidget( this ) {
     commonInit( false );
 }
 
 /// Constructor.
 /// UI filename is supplied and UI file is read as part of construction.
-ASguiForm::ASguiForm( const QString& uiFileNameIn, QWidget* parent ) : QScrollArea( parent ) {
+ASguiForm::ASguiForm( const QString& uiFileNameIn, QWidget* parent ) : QScrollArea( parent ), QCaWidget( this ) {
     commonInit( true );
     uiFileName = uiFileNameIn;
 }
@@ -70,11 +70,14 @@ void ASguiForm::commonInit( const bool alertIfUINoFoundIn )
     alertIfUINoFound = alertIfUINoFoundIn;
     handleGuiLaunchRequests = false;
 
+    // Set up the UserMessage class
+    setFormFilter( MESSAGE_FILTER_MATCH );
+    setSourceFilter( MESSAGE_FILTER_NONE );
+
     // Setup a valid local profile if no profile was published
-    if( !profile.isProfileDefined() )
+    if( !isProfileDefined() )
     {
-        userMessage.setup( this );
-        profile.setupLocalProfile( this, this, this, this, QDir::currentPath(), "", "" );
+        setupLocalProfile( this, QDir::currentPath(), "", "" );
     }
 
     // Prepare to recieve notification that the ui file being displayed has changed
@@ -117,10 +120,10 @@ bool ASguiForm::readUiFile()
         {
             QFileInfo fileInfo;
 
-            fileInfo.setFile( profile.getParentPath(), uiFileName );
+            fileInfo.setFile( getParentPath(), uiFileName );
             searchList.append( fileInfo.filePath() );
 
-            fileInfo.setFile( profile.getPath(), uiFileName );
+            fileInfo.setFile( getPath(), uiFileName );
             searchList.append(  fileInfo.filePath() );
 
             fileInfo.setFile( QDir::currentPath(), uiFileName );
@@ -145,9 +148,7 @@ bool ASguiForm::readUiFile()
             {
                 QString msg;
                 QTextStream(&msg) << "User interface file '" << uiFileName << "' could not be opened";
-                //!!!??? currently not working. profile not set up yet so user messages can't be displayed this early perhaps
-                userMessage.sendWarningMessage( msg, "ASguiForm::readUiFile"  );
-                qDebug() << msg;
+                sendMessage( msg, "ASguiForm::readUiFile", MESSAGE_TYPE_WARNING );
             }
         }
 
@@ -181,56 +182,66 @@ bool ASguiForm::readUiFile()
 
             // If profile has been published (for example by an application creating this form), then publish our own local profile
             bool localProfile = false;
-            if( !profile.isProfileDefined() )
+            if( !isProfileDefined() )
             {
                 // Flag the profile was set up in this function (and so should be released in this function)
                 localProfile = true;
 
-                profile.publishOwnProfile();
+                publishOwnProfile();
             }
 
             // Add this form's macro substitutions for all it's children to use
-            profile.addMacroSubstitutions( variableNameSubstitutions );
+            addMacroSubstitutions( variableNameSubstitutions );
 
             // Temporarily update the published current object's path to the path of the form being created.
             // Any objects created within the form (for example sub forms) can then know where their parent form is located.
-            profile.setPublishedParentPath( fileInfo.absolutePath() );
+            setPublishedParentPath( fileInfo.absolutePath() );
 
             // If this form is handling form launch requests from object created within it, replace any form launcher with our own
             if( handleGuiLaunchRequests )
-                savedGuiLaunchConsumer = profile.replaceGuiLaunchConsumer( this );
+                savedGuiLaunchConsumer = replaceGuiLaunchConsumer( this );
+
+            // Note the current published message form ID, and set up a new
+            // message form ID for widgets created within this form.
+            // This new message form ID will also be used when matching the
+            // form ID of received messages
+            unsigned int parentMessageFormId = getPublishedMessageFormId();
+            unsigned int childMessageFormId = getNextMessageFormId();
+            setPublishedMessageFormId( childMessageFormId );
+            setChildFormId( childMessageFormId );
 
             // Load the gui
             QUiLoader loader;
-// Debuggind: include the following line to check where it is expecting to find plugins
-            qDebug() << "PATHS" << loader.pluginPaths();
 
             ui = loader.load( uiFile );
             uiFile->close();
 
+            // Restore the original published message form ID
+            setPublishedMessageFormId( parentMessageFormId );
+
             // Remove this form's macro substitutions now all it's children are created
-            profile.removeMacroSubstitutions();
+            removeMacroSubstitutions();
 
             // Reset the published current object's path to what ever it was
-            profile.setPublishedParentPath( profile.getParentPath() );
+            setPublishedParentPath( getParentPath() );
 
             // If this form is handling form launch requests from object created within it, put back any original
             // form launcher now all objects have been created
             if ( handleGuiLaunchRequests )
-                 profile.replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
+                 replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
 
             /// Any QCa widgets that have just been created need to be activated.
             /// Note, this is only required when QCa widgets are not loaded within a form and not directly by 'designer'.
             /// When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
             /// the variable name or variable name substitution properties are set
             QCaWidget* containedWidget;
-            while( (containedWidget = profile.getNextContainedWidget()) )
+            while( (containedWidget = getNextContainedWidget()) )
                 containedWidget->activate();
 
             // If the published profile was published within this method, release it so nothing created later tries to use this object's services
             if( localProfile )
             {
-                profile.releaseProfile();
+                releaseProfile();
             }
 
             /// Present the gui to the user
@@ -291,17 +302,6 @@ void ASguiForm::fileChanged ( const QString & /*path*/ )
     readUiFile();
 }
 
-// Common function for all slots presenting messages to the user.
-// Normally a gui will have provided it's own message and error handling.
-// This is only used if no environment profile has been set up when a form is created. This is the case if created within 'designer'
-void ASguiForm::onMessage( QString title, QString message )
-{
-    QMessageBox msgBox;
-    msgBox.setText( title );
-    msgBox.setInformativeText( message );
-    msgBox.exec();
-}
-
 // Slot for launching another form.
 // Normally a gui will have provided it's own GUI launch mechanism.
 // This is only used if no environment profile has been set up when a form is created. This is the case if created within 'designer'
@@ -341,6 +341,15 @@ void ASguiForm::onMessage( QString title, QString message )
 void ASguiForm::requestEnabled( const bool& state )
 {
     setEnabled(state);
+}
+
+// Receive new log messages.
+// This widget doesn't do anything itself with messages, but it can regenerate the message as if it came from itself.
+void ASguiForm::newMessage( QString msg, message_types type )
+{
+    // An ASguiForm deals with any message it receives by resending it with its own form and source ids.
+    // This way messages from widgets in sibling ASguiForm widgets filtered as if they came from sibling widgets
+    sendMessage( msg, type );
 }
 
 //==============================================================================

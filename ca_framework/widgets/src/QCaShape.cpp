@@ -1,10 +1,3 @@
-/*! 
-  \class QCaShape
-  \version $Revision: #18 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Shape Widget.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -221,7 +214,7 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         case 3: emit dbValueChanged4( value ); break;
         case 4: emit dbValueChanged5( value ); break;
         case 5: emit dbValueChanged6( value ); break;
-        default: userMessage.sendErrorMessage( "Application error: Unexpected variable index", "QCaShape.cpp" );
+        default: sendMessage( "Application error: Unexpected variable index", "QCaShape.cpp QCaShape::setValue()", MESSAGE_TYPE_ERROR );
     }
 
     /// Scale the data.
@@ -290,7 +283,6 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
             color = brush.color();
             color.getHsv( &h, &s, &v, &a );
             h = newHue;
-            qDebug() << "hue " << h;
             color.setHsv( h, s, v, a );
             brush.setColor( color );
             break;
@@ -310,7 +302,6 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
             color = brush.color();
             color.getHsv( &h, &s, &v, &a );
             s = newSaturation;
-            qDebug() << "saturation " << s;
             color.setHsv( h, s, v, a );
             brush.setColor( color );
             break;
@@ -330,7 +321,6 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
             color = brush.color();
             color.getHsv( &h, &s, &v, &a );
             v = newValue;
-            qDebug() << "value " << v;
             color.setHsv( h, s, v, a );
             brush.setColor( color );
             break;
@@ -350,7 +340,6 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         case Penwidth :
         {
             pen.setWidth( (int)scaledValue );
-            qDebug() << "pen width " << (int)scaledValue;
             break;
         }
     }

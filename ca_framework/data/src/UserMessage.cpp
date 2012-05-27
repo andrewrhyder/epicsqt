@@ -1,10 +1,3 @@
-/*! 
-  \class UserMessage
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief User message manager.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -21,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2012
  *
  *  Author:
  *    Andrew Rhyder
@@ -33,33 +26,77 @@
  *
  * A class to manage user messages.
  *
- * Prior to use the class instance is supplied with slot references to 
- * receive status, warning, and error messages.
+ * This class passes messages between widgets and application code
  *
- * Once setup, this class can be used to present messages to the user.
+ * This class is used as a base class.
  *
- * If the slots used change only the call to UserMessage::setup() needs
- * to change.  The methods used to present messages to the user are overloaded 
- * so the caller can supply either a message string, or a message string and
- * a source string to help identify where teh message originated.
+ * Messages are sent by calling sendMessage()
+ * Messages are received by implementing newMessage() in the derived class.
  *
- * A reference to an instance of this class can be passed to an object 
- * that needs to present messages to the user, but has no user context. 
- * That is, it does not know what slots to connect to.
+ * Messages can be filtered based on a source ID or a form ID
  *
- * FUTURE USES
- * Perhaps add additioinal setup methods to provide log file locations, 
- * connections to slots that take more than a single QString, etc.
+ * The derived widget is free to set the source ID to any value
  *
+ * Derived form widgets (ASguiForm) get a unique form ID using getNextMessageFormId()
+ * and pass this to all widgets within the form using the ContainerProfile class
+ *
+ * Messages sent by a widget are received by all widgets and can filter the messages
+ * required by form id and source id.
+ * The form id is under the management of the ASguiForm widget, the source ID is under
+ * the control of the GUI designer.
+ *
+ * The ASguiForm widget does not display messages, but re-send them using its own
+ * form ID. Read on to see how this can be used.
+ *
+ * Widgets that generate messages and widgets (or applicatino code) that uses messages
+ * can be set up as follows:
+ *
+ * - Application wide logging:
+ *   An application with a single log window can can base a class on the UserMessage class
+ *   and set up filtering to receive all messages.
+ *   An application with log messages for seperate windows containing ASguiForm
+ *   widgets (such as ASgui) can base each window class on the UserMessage class, then
+ *   set up filtering for the appropriate form ID.
+ *
+ * - Logging within an ASguiForm.
+ *   A logging widget can be set to filter matching on the current form and so will pick up
+ *   messages from any sibling widget. This includes messages from an sibling widget which is
+ *   a nested ASguiForm. Whatever messages that nested form is set to receive, it will resend
+ *   to it's siblings. For example, if it is set to receive messages from the widgets it
+ *   contains, these are resent up one level to the main form.
+ *   If messages are dealt with within the nested ASguiForm (for example, it may have its own
+ *   logging widget) then the nested ASguiForm could be set up not to filter and resend any messages.
  */
 
-#include <QDebug>
-
 #include <UserMessage.h>
+
+// Static variables used to manage message signals and slots.
+UserMessageSignal UserMessage::userMessageSignal;
+unsigned int UserMessage::nextMessageFormId = 1;
+
 
 /// Construction
 UserMessage::UserMessage()
 {
+    // Initialise
+    formId = 0;
+    sourceId = 0;
+    formFilter = MESSAGE_FILTER_NONE;
+    sourceFilter = MESSAGE_FILTER_ANY;  // Note, default of MESSAGE_FILTER_ANY means default implementation of
+                                        // newMessage() will be called which cancels future unwanted messages.
+                                        // An alternate default of MESSAGE_FILTER_NONE would mean newMEssage()
+                                        // is never called (good), but the opertunity to cancel future signals
+                                        // for uninterested widgets would be lost (bad)
+
+    childFormId = 0;
+
+    // Allow the object receiving messages to pass them back to us
+    userMessageSlot.setOwner( this );
+
+    // Connect the single source of all messages to this instance of the UserMessage class
+    QObject::connect( &userMessageSignal, SIGNAL( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ),
+                      &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );
+
 }
 
 /// Destruction
@@ -67,92 +104,147 @@ UserMessage::~UserMessage()
 {
 }
 
-
-/*!
-  Set up the signal / slot connections required for various types of messages.
-
-  The caller can supply a slot that accepts a QString for each of status, warning, and error messages.
-  Once set up, this class can be used to send messages to the user without knowledge of what signal needs to be emited.
-  */
-void UserMessage::setup( QObject* statusMessageConsumer,
-                         QObject* warningMessageConsumer,
-                         QObject* errorMessageConsumer )
+// Set the source ID
+// (the ID set up by the GUI designer, usually matched to the source ID of logging widgets)
+void UserMessage::setSourceId( unsigned int sourceIdIn )
 {
-    if( statusMessageConsumer )
-        QObject::connect( (QObject*)this, SIGNAL( statusMessage( QString ) ), statusMessageConsumer, SLOT( onStatusMessage( QString ) ) );
-
-    if( warningMessageConsumer )
-        QObject::connect( (QObject*)this, SIGNAL( warningMessage( QString ) ), warningMessageConsumer, SLOT( onWarningMessage( QString ) ) );
-
-    if( errorMessageConsumer )
-        QObject::connect( (QObject*)this, SIGNAL( errorMessage( QString ) ), errorMessageConsumer, SLOT( onErrorMessage( QString ) ) );
+    sourceId = sourceIdIn;
 }
 
-/*!
-  Set up the signal / slot connections required for user messages.
-
-  The caller can supply a slot that accepts a QString for general messages.
-  Once set up, this class can be used to send messages to the user without knowledge of what signal needs to be emited.
-  */
-void UserMessage::setup( QObject* generalMessageConsumer )
+// Set the form ID (the the same ID for all sibling widgets within an ASguiForm widget)
+void UserMessage::setFormId( unsigned int formIdIn )
 {
-    if( generalMessageConsumer )
-        QObject::connect( (QObject*)this, SIGNAL( generalMessage( QString ) ), generalMessageConsumer, SLOT( onGeneralMessage( QString ) ) );
+    formId = formIdIn;
 }
 
-/*!
-  Send a status message to the user.
-  A string containing the message and a string containing information as to the source of the message is required
-  */
-void UserMessage::sendStatusMessage( QString message, QString source  ) {
+// Set the message filtering applied to the form ID
+void UserMessage::setFormFilter( message_filter_options formFilterIn )
+{
+    formFilter = formFilterIn;
+}
+
+// Set the message filtering applied to the source ID
+void UserMessage::setSourceFilter( message_filter_options sourceFilterIn )
+{
+    sourceFilter = sourceFilterIn;
+}
+
+// Get the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets
+unsigned int UserMessage::getSourceId()
+{
+    return sourceId;
+}
+
+// Get the form ID (the the same ID for all sibling widgets within an ASguiForm widget)
+unsigned int UserMessage::getFormId()
+{
+    return formId;
+}
+
+// Get the message filtering applied to the form ID
+UserMessage::message_filter_options UserMessage::getFormFilter()
+{
+    return formFilter;
+}
+
+// Get the message filtering applied to the source ID
+UserMessage::message_filter_options UserMessage::getSourceFilter()
+{
+    return sourceFilter;
+}
+
+// Set the for ID of all widgets that are children of this widget
+void UserMessage::setChildFormId( unsigned int childFormIdIn )
+{
+    childFormId = childFormIdIn;
+}
+
+// Get the for ID of all widgets that are children of this widget
+unsigned int UserMessage::getChildFormId()
+{
+    return childFormId;
+}
+
+// Generate a new form ID for all widgets in a new form
+unsigned int UserMessage::getNextMessageFormId()
+{
+    return nextMessageFormId++;
+}
+
+// Convenience function to provide string names for each message type
+QString UserMessage::getMessageTypeName( message_types type )
+{
+    switch( type )
+    {
+        case MESSAGE_TYPE_INFO:    return "Information";
+        case MESSAGE_TYPE_WARNING: return "Warning";
+        case MESSAGE_TYPE_ERROR:   return "Error";
+    }
+    return "";
+}
+
+
+// Send a message to the user.
+// A string containing the message and a string containing information as to the source of the message is required
+void UserMessage::sendMessage( QString message,
+                               QString source,
+                               message_types type )
+{
     // Combine message and source and call base send message function
-    sendStatusMessage( QString("%1 (Source %2)").arg(message).arg(source) );
+    sendMessage( QString("%1 (Source %2)").arg(message).arg(source), type );
 }
 
-/*!
-  Send a status message to the user.
-  A string containing the message is required
-  */
-void UserMessage::sendStatusMessage( QString message ) {
-    emit statusMessage( message );
-    emit generalMessage( message );
+// Send a message to the user.
+// A string containing the message is required
+void UserMessage::sendMessage( QString msg,
+                               message_types type )
+{
+    userMessageSignal.sendMessage( msg, type, formId, sourceId, this );
 }
 
-/*!
-  Send a warning message to the user.
-  A string containing the message and a string containing information as to the source of the message is required
-  */
-void UserMessage::sendWarningMessage( QString message, QString source ) {
-    // Combine message and source and call base send message function
-    sendWarningMessage( QString("%1 (Source %2)").arg(message).arg(source) );
+// Emit a signal to all other user message classes
+// Note, there is only a single UserMessageSignal class instance
+void UserMessageSignal::sendMessage( QString msg,
+                               message_types type,
+                               unsigned int formId,
+                               unsigned int sourceId,
+                               UserMessage* originator )
+{
+    emit message( msg, type, formId, sourceId, originator );
 }
 
-/*!
-  Send a warning message to the user.
-  A string containing the message is required
-  */
-void UserMessage::sendWarningMessage( QString message ) {
-    emit errorMessage( message );
-    emit generalMessage( message );
+// Receive a signal from another message class
+// Note, there is a UserMessageSlot for every UserMessage class instance
+void UserMessageSlot::message( QString msg,
+                               message_types type,
+                               unsigned int messageFormId,
+                               unsigned int messageSourceId,
+                               UserMessage* originator )
+{
+    // Ignore our own messages
+    if( originator == owner )
+    {
+        return;
+    }
+
+    // If filter matches, use it
+    if(( owner->formFilter == UserMessage::MESSAGE_FILTER_ANY ) ||
+       ( owner->formFilter == UserMessage::MESSAGE_FILTER_MATCH && owner->childFormId == messageFormId ) ||
+       ( owner->sourceFilter == UserMessage::MESSAGE_FILTER_ANY ) ||
+       ( owner->sourceFilter == UserMessage::MESSAGE_FILTER_MATCH && owner->getSourceId() == messageSourceId ))
+    {
+        owner->newMessage( msg, type );
+    }
 }
 
-/*!
-  Send an error message to the user.
-  A string containing the message and a string containing information as to the source of the message is required
-  */
-
-void UserMessage::sendErrorMessage( QString message, QString source ) {
-    // Combine message and source and call base send message function
-    sendErrorMessage( QString("%1 (Source %2)").arg(message).arg(source) );
+// Default implementation of virtual function to pass messages to derived classes (typicaly logging widgets or application windows)
+// If this default function is called it means the widget is not going to receive any messages and so there is no need to be receiving signals.
+// Since only a few widgets will be interested in messages, disconnecting
+// uninterested widgets from message signals will reduce the message signal count
+// significantly. So if this function is called, there is no re implementation by a derived class, so signals can be disconnected
+void UserMessage::newMessage( QString, message_types )
+{
+    // Disconnect. If this default implementation of useMessage is called, no derived class is interested in messages
+    QObject::disconnect( &userMessageSignal, SIGNAL( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ),
+                         &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );
 }
-
-/*!
-  Send an error message to the user.
-  A string containing the message is required
-  */
-
-void UserMessage::sendErrorMessage( QString message ) {
-    emit warningMessage( message );
-    emit generalMessage( message );
-}
-

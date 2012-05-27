@@ -49,6 +49,19 @@ public:
 
     Q_PROPERTY(bool handleGuiLaunchRequests READ getHandleGuiLaunchRequests WRITE setHandleGuiLaunchRequests)
 
+    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+
+    Q_ENUMS(MessageFilterOptions)
+    Q_PROPERTY(MessageFilterOptions messageFormFilter READ getMessageFormFilter WRITE setMessageFormFilter )
+    Q_PROPERTY(MessageFilterOptions messageSourceFilter READ getMessageSourceFilter WRITE setMessageSourceFilter )
+    enum MessageFilterOptions { /* Any   = UserMessage::MESSAGE_FILTER_ANY, This would allow ASguiForm widgets to get in a message resend loop */
+                                Match = UserMessage::MESSAGE_FILTER_MATCH,
+                                None  = UserMessage::MESSAGE_FILTER_NONE };
+    MessageFilterOptions getMessageFormFilter(){ return (MessageFilterOptions)getFormFilter(); }
+    void setMessageFormFilter( MessageFilterOptions messageFormFilter ){ setFormFilter( (message_filter_options)messageFormFilter ); }
+    MessageFilterOptions getMessageSourceFilter(){ return (MessageFilterOptions)getSourceFilter(); }
+    void setMessageSourceFilter( MessageFilterOptions messageSourceFilter ){ setSourceFilter( (message_filter_options)messageSourceFilter ); }
+
   private:
     QCaVariableNamePropertyManager variableNamePropertyManager; // Note, this is only used to manage the macro substitutions that will be passed down to the form's QCa widgets. The form has no varialbe name
 

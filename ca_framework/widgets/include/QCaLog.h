@@ -27,7 +27,7 @@
 
 #include <QWidget>
 #include <QGroupBox>
-#include <ContainerProfile.h>
+#include <QCaWidget.h>
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QGridLayout>
@@ -82,14 +82,14 @@ class TableWidget:public QTableWidget
 
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfile
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 {
 
     Q_OBJECT
 
     private:
 
-
+    void newMessage( QString msg, message_types type );
 
     protected:
         QGridLayout *qLayout;
@@ -178,6 +178,19 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public ContainerProfi
         Q_PROPERTY(QColor warningColor READ getWarningColor WRITE setWarningColor)
 
         Q_PROPERTY(QColor errorColor READ getErrorColor WRITE setErrorColor)
+
+        // Message properties !!!Include these by a common definition (QCA_MESSAGE_PROPERTIES for example)
+        // Not all QCa widgets need these properties (only those that do something with messages - like the logging widget)
+        Q_ENUMS(MessageFilterOptions)
+        Q_PROPERTY(MessageFilterOptions messageFormFilter READ getMessageFormFilter WRITE setMessageFormFilter )
+        Q_PROPERTY(MessageFilterOptions messageSourceFilter READ getMessageSourceFilter WRITE setMessageSourceFilter )
+        enum MessageFilterOptions { Any   = UserMessage::MESSAGE_FILTER_ANY,
+                                    Match = UserMessage::MESSAGE_FILTER_MATCH,
+                                    None  = UserMessage::MESSAGE_FILTER_NONE };
+        MessageFilterOptions getMessageFormFilter(){ return (MessageFilterOptions)getFormFilter(); }
+        void setMessageFormFilter( MessageFilterOptions messageFormFilter ){ setFormFilter( (message_filter_options)messageFormFilter ); }
+        MessageFilterOptions getMessageSourceFilter(){ return (MessageFilterOptions)getSourceFilter(); }
+        void setMessageSourceFilter( MessageFilterOptions messageSourceFilter ){ setSourceFilter( (message_filter_options)messageSourceFilter ); }
 
 
     private slots:

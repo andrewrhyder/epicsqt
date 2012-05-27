@@ -41,6 +41,7 @@ HEADERS += include/MainWindow.h \
 
 INCLUDEPATH += . \
     ./include \
+    $$(QCAFRAMEWORK)/api/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
     $$(QCAFRAMEWORK)/plugins/include

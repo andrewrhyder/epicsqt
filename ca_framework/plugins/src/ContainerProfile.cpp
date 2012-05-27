@@ -80,16 +80,14 @@
 
 
 /// Static variables used to pass information from the creator of QCa widgets to the QCa widgets themselves.
-QObject* ContainerProfile::publishedStatusMessageConsumer = NULL;
-QObject* ContainerProfile::publishedErrorMessageConsumer = NULL;
-QObject* ContainerProfile::publishedWarningMessageConsumer = NULL;
-
 QObject* ContainerProfile::publishedGuiLaunchConsumer = NULL;
 
 QList<QString>   ContainerProfile::publishedMacroSubstitutions;
 QList<WidgetRef> ContainerProfile::containedWidgets;
 QString          ContainerProfile::publishedPath;
 QString          ContainerProfile::publishedParentPath;
+unsigned int     ContainerProfile::publishedMessageFormId;
+
 
 userLevelSignal   ContainerProfile::userSignal;                  // Current user level signal object
 
@@ -126,19 +124,13 @@ ContainerProfile::~ContainerProfile()
   This method locks access to the envionmental profile. ReleaseProfile() must be
   called to release the lock once all QCa widgets have been created.
   */
-void ContainerProfile::setupProfile( QObject* statusMessageConsumerIn,
-                                     QObject* errorMessageConsumerIn,
-                                     QObject* warningMessageConsumerIn,
-                                     QObject* guiLaunchConsumerIn,
-                                     QString pathIn,
-                                     QString parentPathIn,
-                                     QString macroSubstitutionsIn )
+void ContainerProfile::setupProfile( QObject* guiLaunchConsumerIn,
+                                             QString pathIn,
+                                             QString parentPathIn,
+                                             QString macroSubstitutionsIn )
 {
     // Publish the profile supplied
-    publishProfile(statusMessageConsumerIn,
-                   errorMessageConsumerIn,
-                   warningMessageConsumerIn,
-                   guiLaunchConsumerIn,
+    publishProfile(guiLaunchConsumerIn,
                    pathIn,
                    parentPathIn,
                    macroSubstitutionsIn );
@@ -152,23 +144,15 @@ void ContainerProfile::setupProfile( QObject* statusMessageConsumerIn,
   This is used if the signal consumer objects were not available when the profile was
   first set up, or if the objects are changing
   */
-void ContainerProfile::updateConsumers( QObject* statusMessageConsumerIn,
-                                     QObject* errorMessageConsumerIn,
-                                     QObject* warningMessageConsumerIn,
-                                     QObject* guiLaunchConsumerIn )
+void ContainerProfile::updateConsumers( QObject* guiLaunchConsumerIn )
 {
     // If no profile has been defined, then can't update it
     if( !isProfileDefined() )
     {
         qDebug() << "Can't update consumers as a published profile has not yet been defined";
-        return;
     }
 
     // Update the published profile
-    publishedStatusMessageConsumer = statusMessageConsumerIn;
-    publishedErrorMessageConsumer = errorMessageConsumerIn;
-    publishedWarningMessageConsumer = warningMessageConsumerIn;
-
     publishedGuiLaunchConsumer = guiLaunchConsumerIn;
 
     // Keep the local copy matching what has been published
@@ -192,13 +176,10 @@ QObject* ContainerProfile::replaceGuiLaunchConsumer( QObject* newGuiLaunchConsum
   Set up the published profile.
   All instances of ContainerProfile will be able to see the published profile.
   */
-void ContainerProfile::publishProfile( QObject* statusMessageConsumerIn,
-                                     QObject* errorMessageConsumerIn,
-                                     QObject* warningMessageConsumerIn,
-                                     QObject* guiLaunchConsumerIn,
-                                     QString pathIn,
-                                     QString parentPathIn,
-                                     QString macroSubstitutionsIn )
+void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
+                                       QString pathIn,
+                                       QString parentPathIn,
+                                       QString macroSubstitutionsIn )
 {
     // Do nothing if a profile has already been published
     if( profileDefined )
@@ -208,10 +189,6 @@ void ContainerProfile::publishProfile( QObject* statusMessageConsumerIn,
     }
 
     // Publish the profile
-    publishedStatusMessageConsumer = statusMessageConsumerIn;
-    publishedErrorMessageConsumer = errorMessageConsumerIn;
-    publishedWarningMessageConsumer = warningMessageConsumerIn;
-
     publishedGuiLaunchConsumer = guiLaunchConsumerIn;
 
     publishedPath = pathIn;
@@ -239,13 +216,12 @@ void ContainerProfile::takeLocalCopy()
         subs.append( publishedMacroSubstitutions[i] );
     }
 
-    setupLocalProfile( publishedStatusMessageConsumer,
-                       publishedErrorMessageConsumer,
-                       publishedWarningMessageConsumer,
-                       publishedGuiLaunchConsumer,
+    setupLocalProfile( publishedGuiLaunchConsumer,
                        publishedPath,
                        publishedParentPath,
                        subs );
+
+    messageFormId = publishedMessageFormId;
 }
 
 /**
@@ -254,19 +230,12 @@ void ContainerProfile::takeLocalCopy()
   A default local profile can be set up using this method.
   The local profile can then be made public if required by calling publishOwnProfile()
   */
-void ContainerProfile::setupLocalProfile( QObject* statusMessageConsumerIn,
-                                     QObject* errorMessageConsumerIn,
-                                     QObject* warningMessageConsumerIn,
-                                     QObject* guiLaunchConsumerIn,
-                                     QString pathIn,
-                                     QString parentPathIn,
-                                     QString macroSubstitutionsIn )
+void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
+                                                  QString pathIn,
+                                                  QString parentPathIn,
+                                                  QString macroSubstitutionsIn )
 {
     // Set up the local profile as specified
-    statusMessageConsumer = statusMessageConsumerIn;
-    errorMessageConsumer = errorMessageConsumerIn;
-    warningMessageConsumer = warningMessageConsumerIn;
-
     guiLaunchConsumer = guiLaunchConsumerIn;
 
     macroSubstitutions = macroSubstitutionsIn;
@@ -276,6 +245,7 @@ void ContainerProfile::setupLocalProfile( QObject* statusMessageConsumerIn,
     path = pathIn;
     parentPath = parentPathIn;
 
+    messageFormId = 0;
 }
 
 /**
@@ -305,13 +275,10 @@ void ContainerProfile::removeMacroSubstitutions()
   */
 void ContainerProfile::publishOwnProfile()
 {
-    publishProfile( statusMessageConsumer,
-                          errorMessageConsumer,
-                          warningMessageConsumer,
-                          guiLaunchConsumer,
-                          path,
-                          parentPath,
-                          macroSubstitutions );
+    publishProfile( guiLaunchConsumer,
+                    path,
+                    parentPath,
+                    macroSubstitutions );
 }
 
 /**
@@ -320,10 +287,6 @@ void ContainerProfile::publishOwnProfile()
 void ContainerProfile::releaseProfile()
 {
     // Clear the profile
-    publishedStatusMessageConsumer = NULL;
-    publishedErrorMessageConsumer = NULL;
-    publishedWarningMessageConsumer = NULL;
-
     publishedGuiLaunchConsumer = NULL;
 
     publishedPath.clear();
@@ -335,33 +298,6 @@ void ContainerProfile::releaseProfile()
 
     // Indicate no profile is defined
     profileDefined = false;
-}
-
-/**
-  Return the object to emit status message signals to.
-  If NULL, there is no object available.
-  */
-QObject* ContainerProfile::getStatusMessageConsumer()
-{
-    return statusMessageConsumer;
-}
-
-/**
-  Return the object to emit error message signals to.
-  If NULL, there is no object available.
-  */
-QObject* ContainerProfile::getErrorMessageConsumer()
-{
-    return errorMessageConsumer;
-}
-
-/**
-  Return the object to emit warning message signals to.
-  If NULL, there is no object available.
-  */
-QObject* ContainerProfile::getWarningMessageConsumer()
-{
-    return warningMessageConsumer;
 }
 
 /**
@@ -405,6 +341,25 @@ QString ContainerProfile::getMacroSubstitutions()
 {
     return macroSubstitutions;
 }
+
+/**
+  Return the message form ID
+  */
+unsigned int ContainerProfile::getMessageFormId()
+{
+    return messageFormId;
+}
+
+unsigned int ContainerProfile::getPublishedMessageFormId()
+{
+    return publishedMessageFormId;
+}
+
+void ContainerProfile::setPublishedMessageFormId( unsigned int publishedMessageFormIdIn )
+{
+    publishedMessageFormId = publishedMessageFormIdIn;
+}
+
 
 /**
   Return the flag indicating true if a profile is currently being published.

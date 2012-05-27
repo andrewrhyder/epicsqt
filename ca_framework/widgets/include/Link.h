@@ -1,10 +1,3 @@
-/*! 
-  \class Link
-  \version $Revision: #8 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief Manage updating tool tip with variable name, alarm state and connected state
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -33,11 +26,12 @@
 #define QLINK_H
 
 #include <QLabel>
+#include <QCaWidget.h>
 #include <QVariant>
 #include <QString>
 #include <QCaPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT Link : public QLabel {
+class QCAPLUGINLIBRARYSHARED_EXPORT Link : public QLabel, QCaWidget {
    Q_OBJECT
 
   public:
