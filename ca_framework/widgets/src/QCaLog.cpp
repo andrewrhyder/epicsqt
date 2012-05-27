@@ -28,7 +28,6 @@
 #include <QRadioButton>
 #include <QDateTime>
 #include <QCaLog.h>
-#include <ContainerProfile.h>
 #include <QDebug>
 #include <QFileDialog>
 #include <QHeaderView>

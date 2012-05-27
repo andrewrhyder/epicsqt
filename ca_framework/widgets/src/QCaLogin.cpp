@@ -32,7 +32,7 @@
 #include <QDebug>
 
 
-QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent)
+QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 {
 
     qLabelUserType = new QLabel(this);
@@ -172,6 +172,17 @@ void QCaLogin::setCurrentUserType(int pValue)
 
 //    qDebug() << "setCurrentUserType() = " << currentUserType;
 
+}
+
+QString QCaLogin::getUserTypeName( userLevels type )
+{
+    switch( type )
+    {
+        case USERLEVEL_USER:      return "User";
+        case USERLEVEL_SCIENTIST: return "Scientist";
+        case USERLEVEL_ENGINEER:  return "Engineer";
+        default:                  return "Unknown";
+    }
 }
 
 
@@ -468,6 +479,7 @@ void QCaLoginDialog::buttonOkClicked()
     else
     {
         parent->setCurrentUserType(type);
+        parent->sendMessage( QString( "User level changed to " ).append( parent->getUserTypeName( (userLevels)type ) ));
         this->close();
     }
 
