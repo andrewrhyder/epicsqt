@@ -28,7 +28,7 @@
 #include <QWidget>
 #include <QDialog>
 #include <QGroupBox>
-#include <ContainerProfile.h>
+#include <QCaWidget.h>
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QGridLayout>
@@ -93,7 +93,7 @@ class QCaLoginDialog:public QDialog
 
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerProfile
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
 {
 
     Q_OBJECT
@@ -140,6 +140,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public ContainerPro
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
 
+        QString getUserTypeName( userLevels type );
 
         Q_PROPERTY(bool showLabelUserType READ getShowLabelUserType WRITE setShowLabelUserType)
 
