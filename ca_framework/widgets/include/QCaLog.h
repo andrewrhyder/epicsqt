@@ -57,7 +57,7 @@ enum messageTypes
 
 
 
-class TableWidget:public QTableWidget
+class _QTableWidget:public QTableWidget
 {
 
     Q_OBJECT
@@ -70,7 +70,7 @@ class TableWidget:public QTableWidget
 
 
     public:
-        TableWidget(QWidget * pParent = 0);
+        _QTableWidget(QWidget * pParent = 0);
         void refreshSize();
         void resizeEvent(QResizeEvent *pEvent);
         void resize(int w, int h);
@@ -93,7 +93,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 
     protected:
         QGridLayout *qLayout;
-        TableWidget *qTableWidget;
+        _QTableWidget *qTableWidget;
         QPushButton *qPushButtonClear;
         QPushButton *qPushButtonSave;
         QColor qColorInfo;

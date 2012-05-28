@@ -270,7 +270,7 @@ int QCaLogin::getDetailsLayout()
 void QCaLogin::buttonLoginClicked()
 {
 
-    qCaLoginDialog = new _QCaLoginDialog(this);
+    qCaLoginDialog = new _QDialogLogin(this);
     qCaLoginDialog->exec();
 
 }
@@ -279,7 +279,7 @@ void QCaLogin::buttonLoginClicked()
 
 
 
-_QCaLoginDialog::_QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
+_QDialogLogin::_QDialogLogin(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
 {
 
     qGridLayout = new QGridLayout(this);
@@ -356,7 +356,7 @@ _QCaLoginDialog::_QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(p
 
 
 
-void _QCaLoginDialog::setCurrentUserType(int pValue)
+void _QDialogLogin::setCurrentUserType(int pValue)
 {
 
     switch(pValue)
@@ -378,7 +378,7 @@ void _QCaLoginDialog::setCurrentUserType(int pValue)
 
 
 
-void _QCaLoginDialog::setPassword(QString pValue)
+void _QDialogLogin::setPassword(QString pValue)
 {
 
     qLineEditPassword->setText(pValue);
@@ -388,7 +388,7 @@ void _QCaLoginDialog::setPassword(QString pValue)
 
 
 
-void _QCaLoginDialog::radioButtonClicked()
+void _QDialogLogin::radioButtonClicked()
 {
 
     QCaLogin *parent;
@@ -418,7 +418,7 @@ void _QCaLoginDialog::radioButtonClicked()
 
 
 
-void _QCaLoginDialog::lineEditPasswordTextChanged(QString pValue)
+void _QDialogLogin::lineEditPasswordTextChanged(QString pValue)
 {
 
     qPushButtonOk->setEnabled(pValue.isEmpty() == false);
@@ -430,7 +430,7 @@ void _QCaLoginDialog::lineEditPasswordTextChanged(QString pValue)
 
 
 
-void _QCaLoginDialog::buttonOkClicked()
+void _QDialogLogin::buttonOkClicked()
 {
 
     QCaLogin *parent;
@@ -481,7 +481,7 @@ void _QCaLoginDialog::buttonOkClicked()
 
 
 
-void _QCaLoginDialog::buttonCancelClicked()
+void _QDialogLogin::buttonCancelClicked()
 {
 
     this->close();
