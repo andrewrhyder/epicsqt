@@ -50,7 +50,7 @@ enum details
 
 
 
-class QCaLoginDialog:public QDialog
+class _QCaLoginDialog:public QDialog
 {
 
     Q_OBJECT
@@ -73,7 +73,7 @@ class QCaLoginDialog:public QDialog
 
 
     public:
-        QCaLoginDialog(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
+        _QCaLoginDialog(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
         void setCurrentUserType(int pValue);
         void setPassword(QString pValue);
 
@@ -103,7 +103,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
 
 
     protected:
-        QCaLoginDialog *qCaLoginDialog;
+        _QCaLoginDialog *qCaLoginDialog;
         QLayout *qLayout;
         QPushButton *qPushButtonLogin;
         QLabel *qLabelUserType;

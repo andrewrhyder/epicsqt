@@ -153,28 +153,31 @@ void QCaLogin::setCurrentUserType(int pValue)
     switch(pValue)
     {
         case USERLEVEL_USER:
-            qLabelUserType->setText("User");
+            qLabelUserType->setText(getUserTypeName((userLevels) pValue));
             currentUserType = USERLEVEL_USER;
             setUserLevel((userLevels) currentUserType);
+            sendMessage("The user type was changed to '" + getUserTypeName((userLevels) pValue) + "'");
             break;
 
         case USERLEVEL_SCIENTIST:
-            qLabelUserType->setText("Scientist");
+            qLabelUserType->setText(getUserTypeName((userLevels) pValue));
             currentUserType = USERLEVEL_SCIENTIST;
             setUserLevel((userLevels) currentUserType);
+            sendMessage("The user type was changed to '" + getUserTypeName((userLevels) pValue) + "'");
             break;
 
         case USERLEVEL_ENGINEER:
-            qLabelUserType->setText("Engineer");
+            qLabelUserType->setText(getUserTypeName((userLevels) pValue));
             currentUserType = USERLEVEL_ENGINEER;
             setUserLevel((userLevels) currentUserType);
+            sendMessage("The user type was changed to '" + getUserTypeName((userLevels) pValue) + "'");
     }
-
-//    qDebug() << "setCurrentUserType() = " << currentUserType;
 
 }
 
-QString QCaLogin::getUserTypeName( userLevels type )
+
+
+QString QCaLogin::getUserTypeName(userLevels type)
 {
     switch( type )
     {
@@ -189,8 +192,6 @@ QString QCaLogin::getUserTypeName( userLevels type )
 
 int QCaLogin::getCurrentUserType()
 {
-
-//    qDebug() << "getCurrentUserType() = " << currentUserType;
 
     return currentUserType;
 
@@ -252,16 +253,12 @@ void QCaLogin::setDetailsLayout(int pValue)
             qLayout->addWidget(qPushButtonLogin);
     }
 
-//    qDebug() << "setDetailsLayout() = " << detailsLayout;
-
 }
 
 
 
 int QCaLogin::getDetailsLayout()
 {
-
-//    qDebug() << "getDetailsLayout() = " << detailsLayout;
 
     return detailsLayout;
 
@@ -273,7 +270,7 @@ int QCaLogin::getDetailsLayout()
 void QCaLogin::buttonLoginClicked()
 {
 
-    qCaLoginDialog = new QCaLoginDialog(this);
+    qCaLoginDialog = new _QCaLoginDialog(this);
     qCaLoginDialog->exec();
 
 }
@@ -282,7 +279,7 @@ void QCaLogin::buttonLoginClicked()
 
 
 
-QCaLoginDialog::QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
+_QCaLoginDialog::_QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
 {
 
     qGridLayout = new QGridLayout(this);
@@ -359,7 +356,7 @@ QCaLoginDialog::QCaLoginDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pPa
 
 
 
-void QCaLoginDialog::setCurrentUserType(int pValue)
+void _QCaLoginDialog::setCurrentUserType(int pValue)
 {
 
     switch(pValue)
@@ -381,7 +378,7 @@ void QCaLoginDialog::setCurrentUserType(int pValue)
 
 
 
-void QCaLoginDialog::setPassword(QString pValue)
+void _QCaLoginDialog::setPassword(QString pValue)
 {
 
     qLineEditPassword->setText(pValue);
@@ -391,7 +388,7 @@ void QCaLoginDialog::setPassword(QString pValue)
 
 
 
-void QCaLoginDialog::radioButtonClicked()
+void _QCaLoginDialog::radioButtonClicked()
 {
 
     QCaLogin *parent;
@@ -421,10 +418,8 @@ void QCaLoginDialog::radioButtonClicked()
 
 
 
-void QCaLoginDialog::lineEditPasswordTextChanged(QString pValue)
+void _QCaLoginDialog::lineEditPasswordTextChanged(QString pValue)
 {
-
-//    qDebug() << "inside lineEditTextChanged";
 
     qPushButtonOk->setEnabled(pValue.isEmpty() == false);
 
@@ -435,7 +430,7 @@ void QCaLoginDialog::lineEditPasswordTextChanged(QString pValue)
 
 
 
-void QCaLoginDialog::buttonOkClicked()
+void _QCaLoginDialog::buttonOkClicked()
 {
 
     QCaLogin *parent;
@@ -479,7 +474,6 @@ void QCaLoginDialog::buttonOkClicked()
     else
     {
         parent->setCurrentUserType(type);
-        parent->sendMessage( QString( "User level changed to " ).append( parent->getUserTypeName( (userLevels)type ) ));
         this->close();
     }
 
@@ -487,7 +481,7 @@ void QCaLoginDialog::buttonOkClicked()
 
 
 
-void QCaLoginDialog::buttonCancelClicked()
+void _QCaLoginDialog::buttonCancelClicked()
 {
 
     this->close();

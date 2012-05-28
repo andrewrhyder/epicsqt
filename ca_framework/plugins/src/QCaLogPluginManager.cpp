@@ -58,7 +58,7 @@ bool QCaLogPluginManager::isInitialized() const
 
 
 
-QWidget *QCaLogPluginManager::createWidget (QWidget *pParent)
+QWidget *QCaLogPluginManager::createWidget(QWidget *pParent)
 {
 
     return new QCaLog(pParent);

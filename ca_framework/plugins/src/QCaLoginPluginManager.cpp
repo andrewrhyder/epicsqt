@@ -58,7 +58,7 @@ bool QCaLoginPluginManager::isInitialized() const
 
 
 
-QWidget *QCaLoginPluginManager::createWidget (QWidget *pParent)
+QWidget *QCaLoginPluginManager::createWidget(QWidget *pParent)
 {
 
     return new QCaLogin(pParent);
