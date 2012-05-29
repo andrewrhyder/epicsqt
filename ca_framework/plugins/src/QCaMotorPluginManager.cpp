@@ -58,7 +58,7 @@ bool QCaMotorPluginManager::isInitialized() const
 
 
 
-QWidget *QCaMotorPluginManager::createWidget (QWidget *pParent)
+QWidget *QCaMotorPluginManager::createWidget(QWidget *pParent)
 {
 
     return new QCaMotor(pParent);
@@ -96,7 +96,7 @@ QIcon QCaMotorPluginManager::icon() const
 QString QCaMotorPluginManager::toolTip() const
 {
 
-    return "EPICS Login";
+    return "EPICS Motor";
 
 }
 
@@ -105,7 +105,7 @@ QString QCaMotorPluginManager::toolTip() const
 QString QCaMotorPluginManager::whatsThis() const
 {
 
-    return "EPICS Login";
+    return "EPICS Motor";
 
 }
 

@@ -30,6 +30,8 @@
 #include <QCaMotor.h>
 #include <ContainerProfile.h>
 #include <QDebug>
+#include <QDomDocument>
+#include <QFile>
 
 
 QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent)
@@ -47,9 +49,7 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent)
     qCaMotorDialog = NULL;
     qLayout = NULL;
 
-    setUserPassword("");
-    setScientistPassword("");
-    setEngineerPassword("");
+    setMotorConfiguration("");
     setCurrentUserType(USERLEVEL_USER);
     setDetailsLayout(RIGHT);
 
@@ -58,90 +58,50 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent)
 
 
 
-void QCaMotor::setShowLabelUserType(bool pValue)
+void QCaMotor::setMotorConfiguration(QString pValue)
 {
 
-    qLabelUserType->setVisible(pValue);
+    QDomDocument *document;
+    QFile *file;
+
+
+    motorConfiguration = pValue;
+
+    document = new QDomDocument("epicsqt");
+    file = new QFile(motorConfiguration);
+
+    if (file->open(QFile::ReadOnly | QFile::Text))
+    {
+        if (document->setContent(file))
+        {
+            qDebug() << "The file '" << motorConfiguration << "' was successfully read and parsed!";
+        }
+        else
+        {
+            qDebug() << "The file '" << motorConfiguration << "' was successfully read but it has an invalid XML data!";
+        }
+        file->close();
+    }
+    else
+    {
+        if (document->setContent(motorConfiguration))
+        {
+            qDebug() << "The XML data '" << motorConfiguration << "' was successfully parsed!";
+        }
+        else
+        {
+            qDebug() << "The XML data '" << motorConfiguration << "' is invalid!";
+        }
+    }
 
 }
 
 
 
-bool QCaMotor::getShowLabelUserType()
+QString QCaMotor::getMotorConfiguration()
 {
 
-    return qLabelUserType->isVisible();
-
-}
-
-
-
-
-void QCaMotor::setShowButtonLogin(bool pValue)
-{
-
-    qPushButtonLogin->setVisible(pValue);
-
-}
-
-
-
-bool QCaMotor::getShowButtonLogin()
-{
-
-    return qPushButtonLogin->isVisible();
-
-}
-
-
-
-
-void QCaMotor::setUserPassword(QString pValue)
-{
-
-    userPassword = pValue;
-
-}
-
-
-
-QString QCaMotor::getUserPassword()
-{
-
-    return userPassword;
-
-}
-
-
-void QCaMotor::setScientistPassword(QString pValue)
-{
-
-    scientistPassword = pValue;
-
-}
-
-
-QString QCaMotor::getScientistPassword()
-{
-
-    return scientistPassword;
-
-}
-
-
-void QCaMotor::setEngineerPassword(QString pValue)
-{
-
-    engineerPassword = pValue;
-
-}
-
-
-
-QString QCaMotor::getEngineerPassword()
-{
-
-    return engineerPassword;
+    return motorConfiguration;
 
 }
 
@@ -262,7 +222,7 @@ int QCaMotor::getDetailsLayout()
 void QCaMotor::buttonLoginClicked()
 {
 
-    qCaMotorDialog = new QCaMotorDialog(this);
+    qCaMotorDialog = new _QDialogMotor(this);
     qCaMotorDialog->exec();
 
 }
@@ -271,7 +231,7 @@ void QCaMotor::buttonLoginClicked()
 
 
 
-QCaMotorDialog::QCaMotorDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
+_QDialogMotor::_QDialogMotor(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
 {
 
     qGridLayout = new QGridLayout(this);
@@ -348,7 +308,7 @@ QCaMotorDialog::QCaMotorDialog(QWidget *pParent, Qt::WindowFlags pF):QDialog(pPa
 
 
 
-void QCaMotorDialog::setCurrentUserType(int pValue)
+void _QDialogMotor::setCurrentUserType(int pValue)
 {
 
     switch(pValue)
@@ -370,7 +330,7 @@ void QCaMotorDialog::setCurrentUserType(int pValue)
 
 
 
-void QCaMotorDialog::setPassword(QString pValue)
+void _QDialogMotor::setPassword(QString pValue)
 {
 
     qLineEditPassword->setText(pValue);
@@ -380,29 +340,29 @@ void QCaMotorDialog::setPassword(QString pValue)
 
 
 
-void QCaMotorDialog::radioButtonClicked()
+void _QDialogMotor::radioButtonClicked()
 {
 
     QCaMotor *parent;
 
-    parent = (QCaMotor *) this->parent();
+//    parent = (QCaMotor *) this->parent();
 
-    if (qRadioButtonUser->isChecked())
-    {
-        qLineEditPassword->setEnabled(parent->getUserPassword().isEmpty() == false);
-    }
-    else
-    {
-        if (qRadioButtonScientist->isChecked())
-        {
-            qLineEditPassword->setEnabled(parent->getScientistPassword().isEmpty() == false);
-        }
-        else
-        {
-            qLineEditPassword->setEnabled(parent->getEngineerPassword().isEmpty() == false);
-        }
-    }
-    qPushButtonOk->setEnabled(qLineEditPassword->isEnabled() == false || qLineEditPassword->text().isEmpty() == false);
+//    if (qRadioButtonUser->isChecked())
+//    {
+//        qLineEditPassword->setEnabled(parent->getUserPassword().isEmpty() == false);
+//    }
+//    else
+//    {
+//        if (qRadioButtonScientist->isChecked())
+//        {
+//            qLineEditPassword->setEnabled(parent->getScientistPassword().isEmpty() == false);
+//        }
+//        else
+//        {
+//            qLineEditPassword->setEnabled(parent->getEngineerPassword().isEmpty() == false);
+//        }
+//    }
+//    qPushButtonOk->setEnabled(qLineEditPassword->isEnabled() == false || qLineEditPassword->text().isEmpty() == false);
 
 }
 
@@ -410,7 +370,7 @@ void QCaMotorDialog::radioButtonClicked()
 
 
 
-void QCaMotorDialog::lineEditPasswordTextChanged(QString pValue)
+void _QDialogMotor::lineEditPasswordTextChanged(QString pValue)
 {
 
 //    qDebug() << "inside lineEditTextChanged";
@@ -424,58 +384,58 @@ void QCaMotorDialog::lineEditPasswordTextChanged(QString pValue)
 
 
 
-void QCaMotorDialog::buttonOkClicked()
+void _QDialogMotor::buttonOkClicked()
 {
 
     QCaMotor *parent;
     int type;
 
 
-    parent = (QCaMotor *) this->parent();
+//    parent = (QCaMotor *) this->parent();
 
-    type = -1;
+//    type = -1;
 
-    if (qRadioButtonUser->isChecked())
-    {
-        if (qLineEditPassword->isEnabled() == false || parent->getUserPassword() == qLineEditPassword->text())
-        {
-            type = USERLEVEL_USER;
-        }
-    }
-    else
-    {
-        if (qRadioButtonScientist->isChecked())
-        {
-            if (qLineEditPassword->isEnabled() == false || parent->getScientistPassword() == qLineEditPassword->text())
-            {
-                type = USERLEVEL_SCIENTIST;
-            }
-        }
-        else
-        {
-            if (qLineEditPassword->isEnabled() == false || parent->getEngineerPassword() == qLineEditPassword->text())
-            {
-                type = USERLEVEL_ENGINEER;
-            }
-        }
-    }
+//    if (qRadioButtonUser->isChecked())
+//    {
+//        if (qLineEditPassword->isEnabled() == false || parent->getUserPassword() == qLineEditPassword->text())
+//        {
+//            type = USERLEVEL_USER;
+//        }
+//    }
+//    else
+//    {
+//        if (qRadioButtonScientist->isChecked())
+//        {
+//            if (qLineEditPassword->isEnabled() == false || parent->getScientistPassword() == qLineEditPassword->text())
+//            {
+//                type = USERLEVEL_SCIENTIST;
+//            }
+//        }
+//        else
+//        {
+//            if (qLineEditPassword->isEnabled() == false || parent->getEngineerPassword() == qLineEditPassword->text())
+//            {
+//                type = USERLEVEL_ENGINEER;
+//            }
+//        }
+//    }
 
 
-    if (type == -1)
-    {
-        QMessageBox::critical(this, "Error", "The password is invalid. Please try again!");
-    }
-    else
-    {
-        parent->setCurrentUserType(type);
-        this->close();
-    }
+//    if (type == -1)
+//    {
+//        QMessageBox::critical(this, "Error", "The password is invalid. Please try again!");
+//    }
+//    else
+//    {
+//        parent->setCurrentUserType(type);
+//        this->close();
+//    }
 
 }
 
 
 
-void QCaMotorDialog::buttonCancelClicked()
+void _QDialogMotor::buttonCancelClicked()
 {
 
     this->close();

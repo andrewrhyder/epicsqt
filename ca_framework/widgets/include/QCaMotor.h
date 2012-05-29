@@ -35,7 +35,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QCaPluginLibrary_global.h>
+#include <list>
 
+using namespace std;
 
 
 enum details
@@ -48,9 +50,59 @@ enum details
 
 
 
+class _Field
+{
+
+    private:
+        QString name;
+        QString processVariable;
+        QString mask;
+        bool visible;
+
+    public:
+        _Field();
+
+        QString getName();
+        void setName(QString pValue);
+
+        QString getProcessVariable();
+        void setProcessVariable(QString pValue);
+
+        QString getDescription();
+        void setDescription(QString pValue);
+
+        QString getVisible();
+        void setVisible(bool pValue);
+
+        QString getEditable();
+        void setEditable(QString pValue);
+
+        QString getMask();
+        void setMask(QString pValue);
+
+};
 
 
-class QCaMotorDialog:public QDialog
+
+
+class _Group
+{
+
+    private:
+        list <_Field> fieldList;
+
+    public:
+        void addField(QString pName, QString pProcessVariable, QString pMask, bool pVisible);
+
+        list <_Field> getFieldList();
+
+
+};
+
+
+
+
+class _QDialogMotor:public QDialog
 {
 
     Q_OBJECT
@@ -73,7 +125,7 @@ class QCaMotorDialog:public QDialog
 
 
     public:
-        QCaMotorDialog(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
+        _QDialogMotor(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
         void setCurrentUserType(int pValue);
         void setPassword(QString pValue);
 
@@ -103,13 +155,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public ContainerPro
 
 
     protected:
-        QCaMotorDialog *qCaMotorDialog;
+        _QDialogMotor *qCaMotorDialog;
         QLayout *qLayout;
         QPushButton *qPushButtonLogin;
         QLabel *qLabelUserType;
-        QString userPassword;
-        QString scientistPassword;
-        QString engineerPassword;
+        QString motorConfiguration;
         int currentUserType;
         int detailsLayout;
 
@@ -119,20 +169,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public ContainerPro
         QCaMotor(QWidget *pParent = 0);
         virtual ~QCaMotor(){}
 
-        void setShowLabelUserType(bool pValue);
-        bool getShowLabelUserType();
-
-        void setShowButtonLogin(bool pValue);
-        bool getShowButtonLogin();
-
-        void setUserPassword(QString pValue);
-        QString getUserPassword();
-
-        void setScientistPassword(QString pValue);
-        QString getScientistPassword();
-
-        void setEngineerPassword(QString pValue);
-        QString getEngineerPassword();
+        void setMotorConfiguration(QString pValue);
+        QString getMotorConfiguration();
 
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
@@ -141,15 +179,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public ContainerPro
         int getDetailsLayout();
 
 
-        Q_PROPERTY(bool showLabelUserType READ getShowLabelUserType WRITE setShowLabelUserType)
-
-        Q_PROPERTY(bool showButtonLogin READ getShowButtonLogin WRITE setShowButtonLogin)
-
-        Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
-
-        Q_PROPERTY(QString scientistPassword READ getScientistPassword WRITE setScientistPassword)
-
-        Q_PROPERTY(QString engineerPassword READ getEngineerPassword WRITE setEngineerPassword)
+        Q_PROPERTY(QString motorConfiguration READ getMotorConfiguration WRITE setMotorConfiguration)
 
         Q_ENUMS(userTypesProperty)
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
