@@ -89,10 +89,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 
     private:
 
-    void newMessage( QString msg, message_types type );
+        void newMessage( QString msg, message_types type );
 
     protected:
-        QGridLayout *qLayout;
         _QTableWidget *qTableWidget;
         QPushButton *qPushButtonClear;
         QPushButton *qPushButtonSave;

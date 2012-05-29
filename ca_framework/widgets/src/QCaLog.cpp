@@ -69,8 +69,6 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     qPushButtonSave->setToolTip("Save log messages");
     QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
 
-    qLayout = NULL;
-
     setInfoColor(QColor(0, 0, 255));
     setWarningColor(QColor(255, 160, 0));
     setErrorColor(QColor(255, 0, 0));
@@ -201,69 +199,48 @@ bool QCaLog::getShowButtonSave()
 void QCaLog::setDetailsLayout(int pValue)
 {
 
-    QLayout *layout;
+    QGridLayout *qGridLayout;
+    QLayout *qLayout;
 
+    qGridLayout = new QGridLayout(this);
 
     switch(pValue)
     {
         case TOP:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
             detailsLayout = TOP;
-            qLayout = new QGridLayout(this);
-            layout = new QHBoxLayout();
-            layout->addWidget(qPushButtonClear);
-            layout->addWidget(qPushButtonSave);
-            qLayout->addLayout(layout, 0, 0, 1, 2);
-            qLayout->addWidget(qTableWidget, 1, 0);
+            qLayout = new QHBoxLayout();
+            qLayout->addWidget(qPushButtonClear);
+            qLayout->addWidget(qPushButtonSave);
+            qGridLayout->addLayout(qLayout, 0, 0, 1, 2);
+            qGridLayout->addWidget(qTableWidget, 1, 0);
             break;
 
         case BOTTOM:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
             detailsLayout = BOTTOM;
-            qLayout = new QGridLayout(this);
-            layout = new QHBoxLayout();
-            layout->addWidget(qPushButtonClear);
-            layout->addWidget(qPushButtonSave);
-            qLayout->addWidget(qTableWidget, 0, 0);
-            qLayout->addLayout(layout, 1, 0, 1, 2);
+            qLayout = new QHBoxLayout();
+            qLayout->addWidget(qPushButtonClear);
+            qLayout->addWidget(qPushButtonSave);
+            qGridLayout->addWidget(qTableWidget, 0, 0);
+            qGridLayout->addLayout(qLayout, 1, 0, 1, 2);
             break;
 
         case LEFT:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
             detailsLayout = LEFT;
-            qLayout = new QGridLayout(this);
-            layout = new QVBoxLayout();
-            layout->addWidget(qPushButtonClear);
-            layout->addWidget(qPushButtonSave);
-            qLayout->addLayout(layout, 0, 0);
-            qLayout->addWidget(qTableWidget, 0, 1);
+            qLayout = new QVBoxLayout();
+            qLayout->addWidget(qPushButtonClear);
+            qLayout->addWidget(qPushButtonSave);
+            qGridLayout->addLayout(qLayout, 0, 0);
+            qGridLayout->addWidget(qTableWidget, 0, 1);
             break;
 
         case RIGHT:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
             detailsLayout = RIGHT;
-            qLayout = new QGridLayout(this);
-            layout = new QVBoxLayout();
-            layout->addWidget(qPushButtonClear);
-            layout->addWidget(qPushButtonSave);
-            qLayout->addWidget(qTableWidget, 0, 0);
-            qLayout->addLayout(layout, 0, 1);
-
+            qLayout = new QVBoxLayout();
+            qLayout->addWidget(qPushButtonClear);
+            qLayout->addWidget(qPushButtonSave);
+            qGridLayout->addWidget(qTableWidget, 0, 0);
+            qGridLayout->addLayout(qLayout, 0, 1);
     }
-
-//    qDebug() << "setDetailsLayout() = " << detailsLayout;
 
 }
 
@@ -271,8 +248,6 @@ void QCaLog::setDetailsLayout(int pValue)
 
 int QCaLog::getDetailsLayout()
 {
-
-//    qDebug() << "getDetailsLayout() = " << detailsLayout;
 
     return detailsLayout;
 
@@ -614,7 +589,6 @@ void _QTableWidget::refreshSize()
     this->setColumnWidth(1, sizeColumn1);
     this->setColumnWidth(2, sizeColumn2);
 
-    //qDebug() << "inside refreshSize";
 
 }
 
@@ -623,7 +597,7 @@ void _QTableWidget::refreshSize()
 void _QTableWidget::resizeEvent(QResizeEvent *pEvent)
 {
 
-    // TODO: it should also always execute this condition when in Qt Designer
+    // TODO: it should also always execute this condition when inside Qt Designer
     if (initialized == false)
     {
         refreshSize();

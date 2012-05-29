@@ -44,9 +44,6 @@ QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
     qPushButtonLogin->setToolTip("Change user");
     QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
 
-    qCaLoginDialog = NULL;
-    qLayout = NULL;
-
     setUserPassword("");
     setScientistPassword("");
     setEngineerPassword("");
@@ -202,14 +199,11 @@ int QCaLogin::getCurrentUserType()
 
 void QCaLogin::setDetailsLayout(int pValue)
 {
+    QLayout *qLayout;
 
     switch(pValue)
     {
         case TOP:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
             detailsLayout = TOP;
             qLayout = new QVBoxLayout(this);
             qLayout->setAlignment(Qt::AlignCenter);
@@ -218,10 +212,6 @@ void QCaLogin::setDetailsLayout(int pValue)
             break;
 
         case BOTTOM:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
             detailsLayout = BOTTOM;
             qLayout = new QVBoxLayout(this);
             qLayout->setAlignment(Qt::AlignCenter);
@@ -230,10 +220,6 @@ void QCaLogin::setDetailsLayout(int pValue)
             break;
 
         case LEFT:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
             detailsLayout = LEFT;
             qLayout = new QHBoxLayout(this);
             qLayout->setAlignment(Qt::AlignCenter);
@@ -242,10 +228,6 @@ void QCaLogin::setDetailsLayout(int pValue)
             break;
 
         case RIGHT:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
             detailsLayout = RIGHT;
             qLayout = new QHBoxLayout(this);
             qLayout->setAlignment(Qt::AlignCenter);
@@ -269,6 +251,8 @@ int QCaLogin::getDetailsLayout()
 
 void QCaLogin::buttonLoginClicked()
 {
+
+    _QDialogLogin *qCaLoginDialog;
 
     qCaLoginDialog = new _QDialogLogin(this);
     qCaLoginDialog->exec();

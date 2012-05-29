@@ -103,8 +103,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
 
 
     protected:
-        _QDialogLogin *qCaLoginDialog;
-        QLayout *qLayout;
         QPushButton *qPushButtonLogin;
         QLabel *qLabelUserType;
         QString userPassword;
