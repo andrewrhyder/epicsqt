@@ -34,20 +34,23 @@
 #include <QFile>
 
 
-QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent)
+
+QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
-    qLabelUserType = new QLabel(this);
-    qPushButtonLogin = new QPushButton(this);
+    //qLabelMotor = new QLabel(this);
 
-    qLabelUserType->setToolTip("Current user");
+    //qLabelMotor->setText("Motor");
 
-    qPushButtonLogin->setText("Login");
-    qPushButtonLogin->setToolTip("Change user");
-    QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
+//    qPushButtonLogin->setText("Login");
+//    qPushButtonLogin->setToolTip("Change user");
+//    QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
 
-    qCaMotorDialog = NULL;
+//    qCaMotorDialog = NULL;
+
+//    qWidgetMotor = NULL;
     qLayout = NULL;
+
 
     setMotorConfiguration("");
     setCurrentUserType(USERLEVEL_USER);
@@ -57,44 +60,85 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent)
 
 
 
-
 void QCaMotor::setMotorConfiguration(QString pValue)
 {
 
-    QDomDocument *document;
+    QDomDocument document;
+    QDomElement rootElement;
+    QDomElement motorElement;
+    QDomElement fieldElement;
+    QDomNode rootNode;
+    QDomNode motorNode;
+    QDomNode fieldNode;
     QFile *file;
+    _Motor motor;
+    _Group group;
+    bool  flag;
+    int count;
 
 
     motorConfiguration = pValue;
 
-    document = new QDomDocument("epicsqt");
+    document = QDomDocument("epicsqt");
     file = new QFile(motorConfiguration);
 
     if (file->open(QFile::ReadOnly | QFile::Text))
     {
-        if (document->setContent(file))
-        {
-            qDebug() << "The file '" << motorConfiguration << "' was successfully read and parsed!";
-        }
-        else
-        {
-            qDebug() << "The file '" << motorConfiguration << "' was successfully read but it has an invalid XML data!";
-        }
+        flag = document.setContent(file);
         file->close();
     }
     else
     {
-        if (document->setContent(motorConfiguration))
+        flag = document.setContent(motorConfiguration);
+    }
+
+
+    if (flag)
+    {
+        rootElement = document.documentElement();
+        if (rootElement.tagName().toLower() == "epicsqt")
         {
-            qDebug() << "The XML data '" << motorConfiguration << "' was successfully parsed!";
+            count = 0;
+            rootNode = rootElement.firstChild();
+            while (rootNode.isNull() == false)
+            {
+                motorElement = rootNode.toElement();
+                if (motorElement.tagName().toLower() == "motor")
+                {
+                    motor = _Motor();
+                    if (motorElement.attribute("name").isEmpty())
+                    {
+                        motor.setName("Motor #" + count);
+                        count++;
+                    }
+                    else
+                    {
+                        motor.setName(motorElement.attribute("name"));
+                    }
+
+                    motorNode = motorElement.firstChild();
+                    while (motorNode.isNull() == false)
+                    {
+                        fieldElement = motorNode.toElement();
+
+                        if (fieldElement.tagName().toLower() == "field")
+                        {
+                            //motor.
+                        }
+                        motorNode = motorNode.nextSibling();
+                    }
+
+                    motorList.push_back(motor);
+                }
+                rootNode = rootNode.nextSibling();
+            }
         }
-        else
-        {
-            qDebug() << "The XML data '" << motorConfiguration << "' is invalid!";
-        }
+
+        //refreshMotor();
     }
 
 }
+
 
 
 
@@ -113,24 +157,19 @@ void QCaMotor::setCurrentUserType(int pValue)
     switch(pValue)
     {
         case USERLEVEL_USER:
-            qLabelUserType->setText("User");
             currentUserType = USERLEVEL_USER;
-            setUserLevel((userLevels) currentUserType);
+            refreshDetailsLayout();
             break;
 
         case USERLEVEL_SCIENTIST:
-            qLabelUserType->setText("Scientist");
             currentUserType = USERLEVEL_SCIENTIST;
-            setUserLevel((userLevels) currentUserType);
+            refreshDetailsLayout();
             break;
 
         case USERLEVEL_ENGINEER:
-            qLabelUserType->setText("Engineer");
             currentUserType = USERLEVEL_ENGINEER;
-            setUserLevel((userLevels) currentUserType);
+            refreshDetailsLayout();
     }
-
-//    qDebug() << "setCurrentUserType() = " << currentUserType;
 
 }
 
@@ -138,8 +177,6 @@ void QCaMotor::setCurrentUserType(int pValue)
 
 int QCaMotor::getCurrentUserType()
 {
-
-//    qDebug() << "getCurrentUserType() = " << currentUserType;
 
     return currentUserType;
 
@@ -150,58 +187,50 @@ int QCaMotor::getCurrentUserType()
 
 void QCaMotor::setDetailsLayout(int pValue)
 {
+    QHBoxLayout *qHBoxLayout;
+    int i;
 
-    switch(pValue)
+
+    if (qLayout)
     {
-        case TOP:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
-            detailsLayout = TOP;
-            qLayout = new QVBoxLayout(this);
-            qLayout->setAlignment(Qt::AlignCenter);
-            qLayout->addWidget(qPushButtonLogin);
-            qLayout->addWidget(qLabelUserType);
-            break;
+        delete qLayout;
+    }
+    detailsLayout = TOP;
 
-        case BOTTOM:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
-            detailsLayout = BOTTOM;
-            qLayout = new QVBoxLayout(this);
-            qLayout->setAlignment(Qt::AlignCenter);
-            qLayout->addWidget(qLabelUserType);
-            qLayout->addWidget(qPushButtonLogin);
-            break;
+    qLayout = new QVBoxLayout(this);
+    //qLayout->setAlignment(Qt::AlignCenter);
 
-        case LEFT:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
-            detailsLayout = LEFT;
-            qLayout = new QHBoxLayout(this);
-            qLayout->setAlignment(Qt::AlignCenter);
-            qLayout->addWidget(qPushButtonLogin);
-            qLayout->addWidget(qLabelUserType);
-            break;
 
-        case RIGHT:
-            if (qLayout)
-            {
-                delete qLayout;
-            }
-            detailsLayout = RIGHT;
-            qLayout = new QHBoxLayout(this);
-            qLayout->setAlignment(Qt::AlignCenter);
-            qLayout->addWidget(qLabelUserType);
-            qLayout->addWidget(qPushButtonLogin);
+    qDebug() << motorList.size();
+
+
+    if (motorList.size() > 1)
+    {
+        //qWidgetMotor = new QComboBox(this);
+        // fill up with data
+    }
+    else
+    {
+        //qWidgetMotor = new QLineEdit(this);
+        // fill up with data
+    }
+    //qWidgetMotor->setEnabled(false);
+
+
+    qHBoxLayout = new QHBoxLayout();
+    qHBoxLayout->addWidget(new QLabel("Motor", this));
+    //qHBoxLayout->addWidget(qWidgetMotor);
+    ((QVBoxLayout *) qLayout)->addLayout(qHBoxLayout);
+
+
+    for(i = 0; i < motorList.size(); i++)
+    {
+//        qHBoxLayout = new QHBoxLayout();
+//        qHBoxLayout->addWidget(qLabelMotor);
+//        qHBoxLayout->addWidget(qWidgetMotor);
+//        ((QVBoxLayout *) qLayout)->addLayout(qHBoxLayout);
     }
 
-//    qDebug() << "setDetailsLayout() = " << detailsLayout;
 
 }
 
@@ -210,9 +239,17 @@ void QCaMotor::setDetailsLayout(int pValue)
 int QCaMotor::getDetailsLayout()
 {
 
-//    qDebug() << "getDetailsLayout() = " << detailsLayout;
-
     return detailsLayout;
+
+}
+
+
+
+
+void QCaMotor::refreshDetailsLayout()
+{
+
+    setDetailsLayout(detailsLayout);
 
 }
 
@@ -222,8 +259,8 @@ int QCaMotor::getDetailsLayout()
 void QCaMotor::buttonLoginClicked()
 {
 
-    qCaMotorDialog = new _QDialogMotor(this);
-    qCaMotorDialog->exec();
+//    qCaMotorDialog = new _QDialogMotor(this);
+//    qCaMotorDialog->exec();
 
 }
 
@@ -231,214 +268,38 @@ void QCaMotor::buttonLoginClicked()
 
 
 
-_QDialogMotor::_QDialogMotor(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
+
+_Motor::_Motor()
 {
 
-    qGridLayout = new QGridLayout(this);
-    qGroupBox = new QGroupBox(this);
-    qVBoxLayout = new QVBoxLayout();
-    qRadioButtonUser = new QRadioButton();
-    qRadioButtonScientist = new QRadioButton(this);
-    qRadioButtonEngineer = new QRadioButton(this);
-    qLabelType = new QLabel(this);
-    qLineEditPassword = new QLineEdit(this);
-    qPushButtonOk = new QPushButton(this);
-    qPushButtonCancel = new QPushButton(this);
-
-    setWindowTitle("Login");
-
-    qLabelType->setText("Type:");
-
-    qRadioButtonUser->setText("User");
-    QObject::connect(qRadioButtonUser, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
-
-    qRadioButtonScientist->setText("Scientist");
-    QObject::connect(qRadioButtonScientist, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
-
-    qRadioButtonEngineer->setText("Engineer");
-    QObject::connect(qRadioButtonEngineer, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
-
-    qVBoxLayout->addWidget(qRadioButtonUser);
-    qVBoxLayout->addWidget(qRadioButtonScientist);
-    qVBoxLayout->addWidget(qRadioButtonEngineer);
-    qGroupBox->setLayout(qVBoxLayout);
-
-    qLineEditPassword->setEchoMode(QLineEdit::Password);
-    qLineEditPassword->setToolTip("Password for the selected type");
-    QObject::connect(qLineEditPassword, SIGNAL(textChanged(const QString &)), this, SLOT(lineEditPasswordTextChanged(QString)));
-
-    qPushButtonOk->setText("Ok");
-    qPushButtonOk->setToolTip("Perform login");
-    QObject::connect(qPushButtonOk, SIGNAL(clicked()), this, SLOT(buttonOkClicked()));
-
-    qPushButtonCancel->setText("Cancel");
-    qPushButtonCancel->setToolTip("Cancel login");
-    QObject::connect(qPushButtonCancel, SIGNAL(clicked()), this, SLOT(buttonCancelClicked()));
-
-    qGridLayout->addWidget(qLabelType, 0, 0);
-    qGridLayout->addWidget(qGroupBox, 0, 1);
-    qGridLayout->addWidget(qLineEditPassword, 1, 0, 1, 2);
-    qGridLayout->addWidget(qPushButtonCancel, 2, 0);
-    qGridLayout->addWidget(qPushButtonOk, 2, 1);
-
-
-    switch(((QCaMotor *) this->parent())->getCurrentUserType())
-    {
-        case USERLEVEL_USER:
-            qRadioButtonUser->setFocus();
-            qRadioButtonUser->setChecked(true);
-            radioButtonClicked();
-            break;
-
-        case USERLEVEL_SCIENTIST:
-            qRadioButtonScientist->setFocus();
-            qRadioButtonScientist->setChecked(true);
-            radioButtonClicked();
-            break;
-
-        case USERLEVEL_ENGINEER:
-            qRadioButtonEngineer->setFocus();
-            qRadioButtonEngineer->setChecked(true);
-            radioButtonClicked();
-    }
-
-
 }
 
 
 
 
-void _QDialogMotor::setCurrentUserType(int pValue)
+void _Motor::setName(QString pValue)
 {
 
-    switch(pValue)
-    {
-        case USERLEVEL_USER:
-            qRadioButtonUser->setChecked(true);
-            break;
-
-        case USERLEVEL_SCIENTIST:
-            qRadioButtonScientist->setChecked(true);
-            break;
-
-        default:
-            qRadioButtonEngineer->setChecked(true);
-    }
+    name = pValue;
 
 }
 
 
 
 
-void _QDialogMotor::setPassword(QString pValue)
+QString _Motor::getName()
 {
 
-    qLineEditPassword->setText(pValue);
+    return name;
 
 }
 
 
 
 
-void _QDialogMotor::radioButtonClicked()
+void _Motor::addGroup(_Group pValue)
 {
 
-    QCaMotor *parent;
-
-//    parent = (QCaMotor *) this->parent();
-
-//    if (qRadioButtonUser->isChecked())
-//    {
-//        qLineEditPassword->setEnabled(parent->getUserPassword().isEmpty() == false);
-//    }
-//    else
-//    {
-//        if (qRadioButtonScientist->isChecked())
-//        {
-//            qLineEditPassword->setEnabled(parent->getScientistPassword().isEmpty() == false);
-//        }
-//        else
-//        {
-//            qLineEditPassword->setEnabled(parent->getEngineerPassword().isEmpty() == false);
-//        }
-//    }
-//    qPushButtonOk->setEnabled(qLineEditPassword->isEnabled() == false || qLineEditPassword->text().isEmpty() == false);
+//    groupList.assign(insert( = new List <>;
 
 }
-
-
-
-
-
-void _QDialogMotor::lineEditPasswordTextChanged(QString pValue)
-{
-
-//    qDebug() << "inside lineEditTextChanged";
-
-    qPushButtonOk->setEnabled(pValue.isEmpty() == false);
-
-}
-
-
-
-
-
-
-void _QDialogMotor::buttonOkClicked()
-{
-
-    QCaMotor *parent;
-    int type;
-
-
-//    parent = (QCaMotor *) this->parent();
-
-//    type = -1;
-
-//    if (qRadioButtonUser->isChecked())
-//    {
-//        if (qLineEditPassword->isEnabled() == false || parent->getUserPassword() == qLineEditPassword->text())
-//        {
-//            type = USERLEVEL_USER;
-//        }
-//    }
-//    else
-//    {
-//        if (qRadioButtonScientist->isChecked())
-//        {
-//            if (qLineEditPassword->isEnabled() == false || parent->getScientistPassword() == qLineEditPassword->text())
-//            {
-//                type = USERLEVEL_SCIENTIST;
-//            }
-//        }
-//        else
-//        {
-//            if (qLineEditPassword->isEnabled() == false || parent->getEngineerPassword() == qLineEditPassword->text())
-//            {
-//                type = USERLEVEL_ENGINEER;
-//            }
-//        }
-//    }
-
-
-//    if (type == -1)
-//    {
-//        QMessageBox::critical(this, "Error", "The password is invalid. Please try again!");
-//    }
-//    else
-//    {
-//        parent->setCurrentUserType(type);
-//        this->close();
-//    }
-
-}
-
-
-
-void _QDialogMotor::buttonCancelClicked()
-{
-
-    this->close();
-
-}
-

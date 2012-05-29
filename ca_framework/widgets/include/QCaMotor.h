@@ -35,6 +35,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QCaPluginLibrary_global.h>
+#include <QCaWidget.h>
 #include <list>
 
 using namespace std;
@@ -71,14 +72,14 @@ class _Field
         QString getDescription();
         void setDescription(QString pValue);
 
+        QString getMask();
+        void setMask(QString pValue);
+
         QString getVisible();
         void setVisible(bool pValue);
 
         QString getEditable();
         void setEditable(QString pValue);
-
-        QString getMask();
-        void setMask(QString pValue);
 
 };
 
@@ -92,7 +93,7 @@ class _Group
         list <_Field> fieldList;
 
     public:
-        void addField(QString pName, QString pProcessVariable, QString pMask, bool pVisible);
+        void addField(QString pName, QString pProcessVariable, QString pDescription, QString pMask, QString pVisible, QString pEditable);
 
         list <_Field> getFieldList();
 
@@ -101,51 +102,27 @@ class _Group
 
 
 
-
-class _QDialogMotor:public QDialog
+class _Motor
 {
 
-    Q_OBJECT
 
     private:
-
-
-    protected:
-        QGridLayout *qGridLayout;
-        QVBoxLayout *qVBoxLayout;
-        QGroupBox *qGroupBox;
-        QRadioButton *qRadioButtonUser;
-        QRadioButton *qRadioButtonScientist;
-        QRadioButton *qRadioButtonEngineer;
-        QLabel *qLabelType;
-        QLineEdit *qLineEditPassword;
-        QPushButton *qPushButtonOk;
-        QPushButton *qPushButtonCancel;
-
-
+        QString name;
+        list <_Group> groupList;
 
     public:
-        _QDialogMotor(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
-        void setCurrentUserType(int pValue);
-        void setPassword(QString pValue);
-
-
-    private slots:
-        void radioButtonClicked();
-
-        void lineEditPasswordTextChanged(QString pValue);
-
-        void buttonOkClicked();
-
-        void buttonCancelClicked();
+        _Motor();
+        void setName(QString pValue);
+        QString getName();
+        void addGroup(_Group pGroup);
+        //list <_Group> getGroupList();
 
 };
 
 
 
 
-
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public ContainerProfile
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 {
 
     Q_OBJECT
@@ -155,10 +132,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public ContainerPro
 
 
     protected:
-        _QDialogMotor *qCaMotorDialog;
+//        _QDialogMotor *qCaMotorDialog;
         QLayout *qLayout;
-        QPushButton *qPushButtonLogin;
-        QLabel *qLabelUserType;
+
+
+
+        list <_Motor> motorList;
+
         QString motorConfiguration;
         int currentUserType;
         int detailsLayout;
@@ -177,6 +157,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public ContainerPro
 
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
+
+        void refreshDetailsLayout();
 
 
         Q_PROPERTY(QString motorConfiguration READ getMotorConfiguration WRITE setMotorConfiguration)
