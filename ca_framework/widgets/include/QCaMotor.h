@@ -132,13 +132,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
 
     protected:
-//        _QDialogMotor *qCaMotorDialog;
-        QLayout *qLayout;
-
-
-
         list <_Motor> motorList;
-
         QString motorConfiguration;
         int currentUserType;
         int detailsLayout;

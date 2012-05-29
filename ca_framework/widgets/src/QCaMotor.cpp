@@ -38,20 +38,6 @@
 QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
-    //qLabelMotor = new QLabel(this);
-
-    //qLabelMotor->setText("Motor");
-
-//    qPushButtonLogin->setText("Login");
-//    qPushButtonLogin->setToolTip("Change user");
-//    QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
-
-//    qCaMotorDialog = NULL;
-
-//    qWidgetMotor = NULL;
-    qLayout = NULL;
-
-
     setMotorConfiguration("");
     setCurrentUserType(USERLEVEL_USER);
     setDetailsLayout(RIGHT);
@@ -187,40 +173,34 @@ int QCaMotor::getCurrentUserType()
 
 void QCaMotor::setDetailsLayout(int pValue)
 {
+    QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
+    QWidget *qWidgetMotor;
     int i;
 
 
-    if (qLayout)
-    {
-        delete qLayout;
-    }
-    detailsLayout = TOP;
-
-    qLayout = new QVBoxLayout(this);
-    //qLayout->setAlignment(Qt::AlignCenter);
+    detailsLayout = pValue;
 
 
-    qDebug() << motorList.size();
-
+    qVBoxLayout = new QVBoxLayout(this);
 
     if (motorList.size() > 1)
     {
-        //qWidgetMotor = new QComboBox(this);
+        qWidgetMotor = new QComboBox();
         // fill up with data
     }
     else
     {
-        //qWidgetMotor = new QLineEdit(this);
+        qWidgetMotor = new QLineEdit();
         // fill up with data
     }
-    //qWidgetMotor->setEnabled(false);
+    qWidgetMotor->setEnabled(false);
 
 
     qHBoxLayout = new QHBoxLayout();
-    qHBoxLayout->addWidget(new QLabel("Motor", this));
-    //qHBoxLayout->addWidget(qWidgetMotor);
-    ((QVBoxLayout *) qLayout)->addLayout(qHBoxLayout);
+    qHBoxLayout->addWidget(new QLabel("Motor"));
+    qHBoxLayout->addWidget(qWidgetMotor);
+    qVBoxLayout->addLayout(qHBoxLayout);
 
 
     for(i = 0; i < motorList.size(); i++)
