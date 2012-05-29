@@ -38,12 +38,12 @@ using namespace std;
 
 
 
-QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget( this )
+QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
     QFont qFont;
 
-    qTableWidget = new TableWidget(this);
+    qTableWidget = new _QTableWidget(this);
     qPushButtonClear = new QPushButton(this);
     qPushButtonSave = new QPushButton(this);
 
@@ -56,6 +56,7 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget( this )
     qTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     qTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     qTableWidget->verticalHeader()->hide();
+
 
     qFont.setPointSize(9);
     qTableWidget->setFont(qFont);
@@ -83,11 +84,6 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 
     // Set the form ID to use when matching the form of received message
     setChildFormId( getFormId() );
-
-//    addLog(INFO, "This is the first line!");
-//    addLog(INFO, "This is the second line!");
-//    addLog(WARNING, "This is the third line!");
-//    addLog(ERROR, "This is the fourth line!");
 
 }
 
@@ -529,7 +525,7 @@ void QCaLog::newMessage( QString msg, message_types type )
 
 
 
-TableWidget::TableWidget(QWidget *pParent):QTableWidget(pParent)
+_QTableWidget::_QTableWidget(QWidget *pParent):QTableWidget(pParent)
 {
 
     initialized = false;
@@ -539,7 +535,7 @@ TableWidget::TableWidget(QWidget *pParent):QTableWidget(pParent)
 
 
 
-void TableWidget::refreshSize()
+void _QTableWidget::refreshSize()
 {
 
     int sizeColumn0;
@@ -624,10 +620,10 @@ void TableWidget::refreshSize()
 
 
 
-
-void TableWidget::resizeEvent(QResizeEvent *pEvent)
+void _QTableWidget::resizeEvent(QResizeEvent *pEvent)
 {
 
+    // TODO: it should also always execute this condition when in Qt Designer
     if (initialized == false)
     {
         refreshSize();
@@ -635,5 +631,6 @@ void TableWidget::resizeEvent(QResizeEvent *pEvent)
     }
 
 }
+
 
 
