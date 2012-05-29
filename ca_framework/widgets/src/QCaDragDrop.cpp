@@ -116,27 +116,38 @@ void QCaDragDrop::qcaDropEvent(QDropEvent *event)
 // Prepare to drag
 void QCaDragDrop::qcaMousePressEvent(QMouseEvent *event)
 {
+    // Use only left button presses
+    if( event->button() == Qt::LeftButton )
+    {
 
-    // Make the hotspot match the point clicked over
-    QPoint hotSpot = event->pos();
+        // Make the hotspot match the point clicked over
+        QPoint hotSpot = event->pos();
 
-    // Set up the transfer data
-    QMimeData *mimeData = new QMimeData;
-    mimeData->setText( getDropText() );
-    mimeData->setData( "application/x-hotspot",
-                       QByteArray::number( hotSpot.x() )
-                       + " " + QByteArray::number( hotSpot.y()) );
+        // Set up the transfer data
+        QMimeData *mimeData = new QMimeData;
+        mimeData->setText( getDropText() );
+        mimeData->setData( "application/x-hotspot",
+                           QByteArray::number( hotSpot.x() )
+                           + " " + QByteArray::number( hotSpot.y()) );
 
-    // Get a copy of the object
-    QPixmap pixmap( owner->size() );
-    owner->render( &pixmap );
+        // Get a copy of the object
+        QPixmap pixmap( owner->size() );
+        owner->render( &pixmap );
 
-    // Set up the drag
-    QDrag *drag = new QDrag( owner );
-    drag->setMimeData( mimeData );
-    drag->setPixmap( pixmap );
-    drag->setHotSpot( hotSpot );
+        // Set up the drag
+        QDrag *drag = new QDrag( owner );
+        drag->setMimeData( mimeData );
+        drag->setPixmap( pixmap );
+        drag->setHotSpot( hotSpot );
 
-    // Carry out the drag operation
-    drag->exec( Qt::CopyAction, Qt::CopyAction );
+        // Carry out the drag operation
+        drag->exec( Qt::CopyAction, Qt::CopyAction );
+
+    }
+
+    // Ignore other than left button presses
+    else
+    {
+        event->ignore();
+    }
 }
