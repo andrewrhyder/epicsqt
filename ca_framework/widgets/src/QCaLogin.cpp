@@ -201,6 +201,9 @@ void QCaLogin::setDetailsLayout(int pValue)
 {
     QLayout *qLayout;
 
+
+    delete layout();
+
     switch(pValue)
     {
         case TOP:

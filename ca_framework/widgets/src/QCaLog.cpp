@@ -202,6 +202,8 @@ void QCaLog::setDetailsLayout(int pValue)
     QGridLayout *qGridLayout;
     QLayout *qLayout;
 
+
+    delete layout();
     qGridLayout = new QGridLayout(this);
 
     switch(pValue)
