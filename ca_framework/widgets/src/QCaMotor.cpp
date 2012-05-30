@@ -32,15 +32,22 @@
 #include <QDebug>
 #include <QDomDocument>
 #include <QFile>
+#include <QCaLabel.h>
 
 
 
+
+// ============================================================
+//  QCAMOTOR METHODS
+// ============================================================
 QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
-    setMotorConfiguration("");
-    setCurrentUserType(USERLEVEL_USER);
-    setDetailsLayout(RIGHT);
+    motorCount = 0;
+
+//    setMotorConfiguration("");
+//    setCurrentUserType(USERLEVEL_USER);
+//    setDetailsLayout(RIGHT);
 
 }
 
@@ -55,12 +62,14 @@ void QCaMotor::setMotorConfiguration(QString pValue)
     QDomElement fieldElement;
     QDomNode rootNode;
     QDomNode motorNode;
-    QDomNode fieldNode;
     QFile *file;
-    _Motor motor;
-    _Group group;
+    _Motor *motor;
+    _Group *group;
+    _Field *field;
+    QString tmp;
     bool  flag;
     int count;
+    int i;
 
 
     motorConfiguration = pValue;
@@ -81,46 +90,69 @@ void QCaMotor::setMotorConfiguration(QString pValue)
 
     if (flag)
     {
+        motorCount = 0;
         rootElement = document.documentElement();
-        if (rootElement.tagName().toLower() == "epicsqt")
+        if (rootElement.tagName() == "epicsqt")
         {
             count = 0;
             rootNode = rootElement.firstChild();
             while (rootNode.isNull() == false)
             {
                 motorElement = rootNode.toElement();
-                if (motorElement.tagName().toLower() == "motor")
+                if (motorElement.tagName() == "motor")
                 {
-                    motor = _Motor();
+                    motor = new _Motor();
                     if (motorElement.attribute("name").isEmpty())
                     {
-                        motor.setName("Motor #" + count);
+                        motor->setName("Motor #" + QString::number(count));
                         count++;
                     }
                     else
                     {
-                        motor.setName(motorElement.attribute("name"));
+                        motor->setName(motorElement.attribute("name"));
                     }
-
+                    motor->setVisible(motorElement.attribute("visible"));
                     motorNode = motorElement.firstChild();
                     while (motorNode.isNull() == false)
                     {
                         fieldElement = motorNode.toElement();
-
-                        if (fieldElement.tagName().toLower() == "field")
+                        if (fieldElement.tagName() == "field")
                         {
-                            //motor.
+                            field = new _Field();
+                            field->setName(fieldElement.attribute("name"));
+                            field->setProcessVariable(fieldElement.attribute("processvariable"));
+                            field->setDescription(fieldElement.attribute("description"));
+                            field->setMask(fieldElement.attribute("mask"));
+                            field->setVisible(fieldElement.attribute("visible"));
+                            field->setEditable(fieldElement.attribute("editable"));
+                            tmp = fieldElement.attribute("group");
+                            flag = true;
+                            for (i = 0; i < motor->groupCount; i++)
+                            {
+                                if (motor->groupList[i].getName() == tmp)
+                                {
+                                    motor->groupList[i].addField(*field);
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                            if (flag)
+                            {
+                                group = new _Group();
+                                group->setName(tmp);
+                                group->addField(*field);
+                                motor->addGroup(*group);
+                            }
                         }
                         motorNode = motorNode.nextSibling();
                     }
-
-                    motorList.push_back(motor);
+                    motorList[motorCount] = *motor;
+                    motorCount++;
                 }
                 rootNode = rootNode.nextSibling();
             }
         }
-
-        //refreshMotor();
+        setDetailsLayout(detailsLayout);
     }
 
 }
@@ -137,6 +169,17 @@ QString QCaMotor::getMotorConfiguration()
 
 
 
+
+void QCaMotor::userLevelChanged(userLevels pValue)
+{
+
+    setCurrentUserType(pValue);
+
+}
+
+
+
+
 void QCaMotor::setCurrentUserType(int pValue)
 {
 
@@ -144,17 +187,17 @@ void QCaMotor::setCurrentUserType(int pValue)
     {
         case USERLEVEL_USER:
             currentUserType = USERLEVEL_USER;
-            refreshDetailsLayout();
+            setDetailsLayout(detailsLayout);
             break;
 
         case USERLEVEL_SCIENTIST:
             currentUserType = USERLEVEL_SCIENTIST;
-            refreshDetailsLayout();
+            setDetailsLayout(detailsLayout);
             break;
 
         case USERLEVEL_ENGINEER:
             currentUserType = USERLEVEL_ENGINEER;
-            refreshDetailsLayout();
+            setDetailsLayout(detailsLayout);
     }
 
 }
@@ -173,42 +216,94 @@ int QCaMotor::getCurrentUserType()
 
 void QCaMotor::setDetailsLayout(int pValue)
 {
+
     QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
-    QWidget *qWidgetMotor;
+    QComboBox *qComboBox;
+    QPushButton *qPushButton;
+    QString userType;
+    QString tmp;
+    QCaLabel *qCaLabel;
     int i;
+    int j;
 
 
     detailsLayout = pValue;
 
 
+
+    if (layout() != NULL)
+    {
+        QLayoutItem* item;
+        while ( ( item = layout()->takeAt( 0 ) ) != NULL )
+        {
+            layout()->removeItem(item);
+            layout()->removeWidget(item->widget());
+            delete item->widget();
+            delete item;
+        }
+        delete layout();
+    }
+
+
     qVBoxLayout = new QVBoxLayout(this);
 
-    if (motorList.size() > 1)
+
+    if (currentUserType == USERLEVEL_USER)
     {
-        qWidgetMotor = new QComboBox();
-        // fill up with data
+        userType = "USER";
     }
     else
     {
-        qWidgetMotor = new QLineEdit();
-        // fill up with data
+        if (currentUserType == USERLEVEL_SCIENTIST)
+        {
+            userType = "SCIENTIST";
+        }
+        else
+        {
+            userType = "ENGINEER";
+        }
     }
-    qWidgetMotor->setEnabled(false);
+
+    qComboBox = new QComboBox();
+    for(i = 0; i < motorCount; i++)
+    {
+        if (motorList[i].getVisible().isEmpty() || motorList[i].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+        {
+            qComboBox->addItem(motorList[i].getName());
+        }
+    }
 
 
     qHBoxLayout = new QHBoxLayout();
     qHBoxLayout->addWidget(new QLabel("Motor"));
-    qHBoxLayout->addWidget(qWidgetMotor);
+    qHBoxLayout->addWidget(qComboBox);
     qVBoxLayout->addLayout(qHBoxLayout);
 
-
-    for(i = 0; i < motorList.size(); i++)
+    for(i = 0; i < motorList[0].groupCount; i++)
     {
-//        qHBoxLayout = new QHBoxLayout();
-//        qHBoxLayout->addWidget(qLabelMotor);
-//        qHBoxLayout->addWidget(qWidgetMotor);
-//        ((QVBoxLayout *) qLayout)->addLayout(qHBoxLayout);
+        tmp = motorList[0].groupList[i].getName();
+        if (tmp.isEmpty())
+        {
+            qPushButton = new QPushButton(this);
+            qPushButton->setText(tmp);
+            qVBoxLayout->addWidget(qPushButton);
+        }
+        else
+        {
+            for(j = 0; j < motorList[0].groupList[i].fieldCount; j++)
+            {
+                qHBoxLayout = new QHBoxLayout();
+                if (motorList[0].groupList[i].fieldList[j].getVisible().isEmpty() || motorList[0].groupList[i].fieldList[j].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+                {
+                    qHBoxLayout->addWidget(new QLabel(motorList[0].groupList[i].fieldList[j].getName()));
+                    qCaLabel = new QCaLabel(motorList[0].groupList[i].fieldList[j].getProcessVariable());
+                    qCaLabel->setEnabled(motorList[0].groupList[i].fieldList[j].getEditable().isEmpty() || motorList[0].groupList[i].fieldList[j].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1);
+                    qHBoxLayout->addWidget(qCaLabel);
+                }
+                qVBoxLayout->addLayout(qHBoxLayout);
+            }
+        }
     }
 
 
@@ -226,15 +321,6 @@ int QCaMotor::getDetailsLayout()
 
 
 
-void QCaMotor::refreshDetailsLayout()
-{
-
-    setDetailsLayout(detailsLayout);
-
-}
-
-
-
 
 void QCaMotor::buttonLoginClicked()
 {
@@ -249,11 +335,131 @@ void QCaMotor::buttonLoginClicked()
 
 
 
-_Motor::_Motor()
+
+// ============================================================
+//  FIELD METHODS
+// ============================================================
+_Field::_Field()
 {
+
 
 }
 
+
+
+QString _Field::getName()
+{
+
+    return name;
+
+}
+
+
+void _Field::setName(QString pValue)
+{
+
+    name = pValue;
+
+}
+
+
+
+QString _Field::getProcessVariable()
+{
+
+    return processVariable;
+
+}
+
+
+void _Field::setProcessVariable(QString pValue)
+{
+
+    processVariable = pValue;
+
+}
+
+
+
+QString _Field::getDescription()
+{
+
+    return description;
+
+}
+
+
+void _Field::setDescription(QString pValue)
+{
+
+    description = pValue;
+
+}
+
+
+
+
+QString _Field::getMask()
+{
+
+    return mask;
+
+}
+
+
+void _Field::setMask(QString pValue)
+{
+
+    mask = pValue;
+
+}
+
+
+
+QString _Field::getVisible()
+{
+
+    return visible;
+
+}
+
+
+void _Field::setVisible(QString pValue)
+{
+
+    visible = pValue;
+
+}
+
+
+
+QString _Field::getEditable()
+{
+
+    return editable;
+
+}
+
+
+void _Field::setEditable(QString pValue)
+{
+
+    editable = pValue;
+
+}
+
+
+
+
+// ============================================================
+//  MOTOR METHODS
+// ============================================================
+_Motor::_Motor()
+{
+
+    groupCount = 0;
+
+}
 
 
 
@@ -263,7 +469,6 @@ void _Motor::setName(QString pValue)
     name = pValue;
 
 }
-
 
 
 
@@ -277,9 +482,71 @@ QString _Motor::getName()
 
 
 
+
+void _Motor::setVisible(QString pValue)
+{
+
+    visible = pValue;
+
+}
+
+
+
+QString _Motor::getVisible()
+{
+
+    return visible;
+
+}
+
+
+
 void _Motor::addGroup(_Group pValue)
 {
 
-//    groupList.assign(insert( = new List <>;
+    groupList[groupCount] = pValue;
+    groupCount++;
 
 }
+
+
+
+
+
+// ============================================================
+//  GROUP METHODS
+// ============================================================
+_Group::_Group()
+{
+
+    fieldCount = 0;
+
+}
+
+
+void _Group::setName(QString pValue)
+{
+
+    name = pValue;
+
+}
+
+
+QString _Group::getName()
+{
+
+    return name;
+
+}
+
+
+
+void _Group::addField(_Field pValue)
+{
+
+    fieldList[fieldCount] = pValue;
+    fieldCount++;
+
+}
+
+

@@ -51,14 +51,20 @@ enum details
 
 
 
+
+// ============================================================
+//  FIELD CLASS
+// ============================================================
 class _Field
 {
 
     private:
         QString name;
         QString processVariable;
+        QString description;
         QString mask;
-        bool visible;
+        QString visible;
+        QString editable;
 
     public:
         _Field();
@@ -76,7 +82,7 @@ class _Field
         void setMask(QString pValue);
 
         QString getVisible();
-        void setVisible(bool pValue);
+        void setVisible(QString pValue);
 
         QString getEditable();
         void setEditable(QString pValue);
@@ -86,42 +92,70 @@ class _Field
 
 
 
+// ============================================================
+//  GROUP CLASS
+// ============================================================
 class _Group
 {
 
     private:
-        list <_Field> fieldList;
+        QString name;
 
     public:
-        void addField(QString pName, QString pProcessVariable, QString pDescription, QString pMask, QString pVisible, QString pEditable);
+        _Group();
 
-        list <_Field> getFieldList();
+        QString getName();
+
+        void setName(QString pValue);
+
+        void addField(_Field pValue);
+
+        _Field fieldList[256];   // to be refactored with a C++ list
+
+        int fieldCount;
 
 
 };
 
 
 
+
+// ============================================================
+//  MOTOR CLASS
+// ============================================================
 class _Motor
 {
 
-
     private:
         QString name;
-        list <_Group> groupList;
+        QString visible;
+
 
     public:
         _Motor();
+
         void setName(QString pValue);
+
         QString getName();
+
+        void setVisible(QString pValue);
+
+        QString getVisible();
+
         void addGroup(_Group pGroup);
-        //list <_Group> getGroupList();
+
+        _Group groupList[256];   // to be refactored with a C++ list
+
+        int groupCount;
 
 };
 
 
 
 
+// ============================================================
+//  QCAMOTOR CLASS
+// ============================================================
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 {
 
@@ -132,7 +166,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
 
     protected:
-        list <_Motor> motorList;
+//        list <_Motor> motorList;
         QString motorConfiguration;
         int currentUserType;
         int detailsLayout;
@@ -152,7 +186,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
 
-        void refreshDetailsLayout();
+        void userLevelChanged(userLevels pValue);
 
 
         Q_PROPERTY(QString motorConfiguration READ getMotorConfiguration WRITE setMotorConfiguration)
@@ -195,6 +229,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
             return (detailsLayoutProperty) getDetailsLayout();
         }
 
+        _Motor motorList[256];   // to be refactored with a C++ list
+
+        int motorCount;
 
 
     private slots:
