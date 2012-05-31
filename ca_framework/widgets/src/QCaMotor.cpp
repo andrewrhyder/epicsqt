@@ -47,29 +47,29 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     QVBoxLayout *qVBoxLayout;
     QLabel *qLabel;
 
-
     qVBoxLayout = new QVBoxLayout();
     qHBoxLayout = new QHBoxLayout();
     qVBoxLayoutFields = new QVBoxLayout();
 
-
     qLabel = new QLabel();
     qLabel->setText("Motor");
+    qLabel->setFixedWidth(100);
     qHBoxLayout->addWidget(qLabel);
 
     qComboBoxMotor = new QComboBox();
+    qComboBoxMotor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     qComboBoxMotor->setToolTip("Select current motor");
     QObject::connect(qComboBoxMotor, SIGNAL(currentIndexChanged(QString)), this, SLOT(comboBoxMotorSelected(QString)));
     qHBoxLayout->addWidget(qComboBoxMotor);
 
     qVBoxLayout->addLayout(qHBoxLayout);
+    qVBoxLayout->addItem(new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
     qVBoxLayout->addLayout(qVBoxLayoutFields);
+    qVBoxLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     motorCount = 0;
 
-    delete layout();
     setLayout(qVBoxLayout);
-
     setCurrentUserType(getUserLevel());
 
 }
@@ -242,7 +242,6 @@ void QCaMotor::setCurrentUserType(int pValue)
         {
            qComboBoxMotor->setCurrentIndex(i);
         }
-//        setDetailsLayout(detailsLayout);
         refreshFields();
     }
 
@@ -263,11 +262,14 @@ int QCaMotor::getCurrentUserType()
 void QCaMotor::refreshFields()
 {
 
-    QVBoxLayout *qVBoxLayout;
+    QLayout *qLayout;
     QHBoxLayout *qHBoxLayout;
+    QWidget *qWidget;
+    QLabel *qLabel;
     QString userType;
     QString tmp;
     QCaLabel *qCaLabel;
+    QPushButton *qPushButtonEdit;
     _QPushButtonGroup *qPushButtonGroup;
     _Motor *motor;
     _Group *group;
@@ -276,38 +278,22 @@ void QCaMotor::refreshFields()
     int j;
 
 
-//    detailsLayout = pValue;
-
-
-    QLayoutItem* item;
-    QLayoutItem* item1;
-
-//    i = 0;
-//    while ((item = qVBoxLayoutFields->takeAt(0)) != NULL)
-//    {
-
-//        while ((item1 = ((QHBoxLayout *) item)->takeAt(0)) != NULL)
-//        {
-//            ((QHBoxLayout *) item)->removeWidget(item1->widget());
-//        }
-
-//        qVBoxLayoutFields->removeItem(item);
-//        qDebug() << i++;
-//        delete item;
-//    }
-
-
-//    if (qVBoxLayoutFields != NULL )
-//    {
-//        QLayoutItem* item;
-//        while ( ( item = qVBoxLayoutFields->takeAt( 0 ) ) != NULL )
-//        {
-//            delete item->widget();
-//            delete item;
-//        }
-//    }
-
-
+    if (qVBoxLayoutFields)
+    {
+        while(qVBoxLayoutFields->isEmpty() == false)
+        {
+            qLayout = qVBoxLayoutFields->takeAt(0)->layout();
+            if (qLayout)
+            {
+                while(qLayout->isEmpty() == false)
+                {
+                    qWidget = qLayout->takeAt(0)->widget();
+                    delete qWidget;
+                }
+                delete qLayout;
+            }
+        }
+    }
 
     switch (currentUserType)
     {
@@ -319,9 +305,7 @@ void QCaMotor::refreshFields()
             break;
         default:
             userType = "ENGINEER";
-
     }
-
 
     motor = NULL;
     for(i = 0; i < motorCount; i++)
@@ -333,13 +317,11 @@ void QCaMotor::refreshFields()
         }
     }
 
-
     if (motor)
     {
         for(i = 0; i < motor->groupCount; i++)
         {
             group = &motor->groupList[i];
-
             tmp = group->getName();
             if (tmp.isEmpty())
             {
@@ -348,11 +330,23 @@ void QCaMotor::refreshFields()
                     qHBoxLayout = new QHBoxLayout();
                     if (group->fieldList[j].getVisible().isEmpty() || group->fieldList[j].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
                     {
-                        qHBoxLayout->addWidget(new QLabel(group->fieldList[j].getName()));
+                        qLabel = new QLabel();
+                        qLabel->setText(group->fieldList[j].getName());
+                        qLabel->setFixedWidth(100);
+                        qHBoxLayout->addWidget(qLabel);
                         qCaLabel = new QCaLabel();
+                        qCaLabel->setFrameStyle(1);
+                        qCaLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
                         qCaLabel->setVariableNameAndSubstitutions(group->fieldList[j].getProcessVariable(), motor->getSubstitution(), 0);
-                        qCaLabel->setEnabled(group->fieldList[j].getEditable().isEmpty() || group->fieldList[j].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1);
                         qHBoxLayout->addWidget(qCaLabel);
+                        if (group->fieldList[j].getEditable().isEmpty() || group->fieldList[j].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+                        {
+                            qPushButtonEdit = new QPushButton();
+                            qPushButtonEdit->setFixedSize(30, 22);
+                            qPushButtonEdit->setText("...");
+                            qPushButtonEdit->setToolTip("Edit value of field '" + group->fieldList[j].getName() + "'");
+                            qHBoxLayout->addWidget(qPushButtonEdit);
+                        }
                     }
                     qVBoxLayoutFields->addLayout(qHBoxLayout);
                 }
@@ -368,7 +362,6 @@ void QCaMotor::refreshFields()
                         break;
                     }
                 }
-
                 if (flag)
                 {
                     qHBoxLayout = new QHBoxLayout();
@@ -647,9 +640,11 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
 
     QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
+    QPushButton *qPushButtonEdit;
     QPushButton *qPushButtonClose;
-    QString userType;
+    QLabel *qLabel;
     QCaLabel *qCaLabel;
+    QString userType;
     int i;
 
 
@@ -675,11 +670,23 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
         qHBoxLayout = new QHBoxLayout();
         if (pGroup->fieldList[i].getVisible().isEmpty() || pGroup->fieldList[i].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
         {
-            qHBoxLayout->addWidget(new QLabel(pGroup->fieldList[i].getName()));
+            qLabel = new QLabel();
+            qLabel->setText(pGroup->fieldList[i].getName());
+            qLabel->setFixedWidth(100);
+            qHBoxLayout->addWidget(qLabel);
             qCaLabel = new QCaLabel();
+            qCaLabel->setFrameStyle(1);
+            qCaLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             qCaLabel->setVariableNameAndSubstitutions(pGroup->fieldList[i].getProcessVariable(), pMotor->getSubstitution(), 0);
-            qCaLabel->setEnabled(pGroup->fieldList[i].getEditable().isEmpty() || pGroup->fieldList[i].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1);
             qHBoxLayout->addWidget(qCaLabel);
+            if (pGroup->fieldList[i].getEditable().isEmpty() || pGroup->fieldList[i].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+            {
+                qPushButtonEdit = new QPushButton();
+                qPushButtonEdit->setFixedSize(30, 22);
+                qPushButtonEdit->setText("...");
+                qPushButtonEdit->setToolTip("Edit value of field '" + pGroup->fieldList[i].getName() + "'");
+                qHBoxLayout->addWidget(qPushButtonEdit);
+            }
         }
         qVBoxLayout->addLayout(qHBoxLayout);
     }

@@ -45,6 +45,7 @@ QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 
     qLabelUserType->setToolTip("Current user");
 
+    qPushButtonLogin->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     qPushButtonLogin->setText("Login");
     qPushButtonLogin->setToolTip("Change user");
     QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));

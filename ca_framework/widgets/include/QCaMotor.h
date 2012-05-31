@@ -110,7 +110,7 @@ class _Group
 
         void addField(_Field pValue);
 
-        _Field fieldList[256];   // to be refactored with a C++ list
+        _Field fieldList[256];   // TODO: to be refactored with a C++ list
 
         int fieldCount;
 
