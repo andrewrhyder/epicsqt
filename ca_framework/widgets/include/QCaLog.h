@@ -56,7 +56,9 @@ enum messageTypes
 
 
 
-
+// ============================================================
+//  _QTABLEWIDGET CLASS
+// ============================================================
 class _QTableWidget:public QTableWidget
 {
 
@@ -82,6 +84,11 @@ class _QTableWidget:public QTableWidget
 
 
 
+
+
+// ============================================================
+//  _QCALOG METHODS
+// ============================================================
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 {
 

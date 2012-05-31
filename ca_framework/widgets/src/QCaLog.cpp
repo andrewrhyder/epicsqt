@@ -38,6 +38,9 @@ using namespace std;
 
 
 
+// ============================================================
+//  QCALOG METHODS
+// ============================================================
 QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
@@ -502,6 +505,11 @@ void QCaLog::newMessage( QString msg, message_types type )
 
 
 
+
+
+// ============================================================
+//  _QTABLEWIDGET METHODS
+// ============================================================
 _QTableWidget::_QTableWidget(QWidget *pParent):QTableWidget(pParent)
 {
 
@@ -599,7 +607,7 @@ void _QTableWidget::refreshSize()
 void _QTableWidget::resizeEvent(QResizeEvent *pEvent)
 {
 
-    // TODO: it should also always execute this condition when inside Qt Designer
+    // TODO: this condition should also always be execute when inside Qt Designer
     if (initialized == false)
     {
         refreshSize();

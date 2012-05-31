@@ -49,7 +49,9 @@ enum details
 
 
 
-
+// ============================================================
+//  _QDIALOGLOGIN CLASS
+// ============================================================
 class _QDialogLogin:public QDialog
 {
 
@@ -93,6 +95,9 @@ class _QDialogLogin:public QDialog
 
 
 
+// ============================================================
+//  QCALOGIN CLASS
+// ============================================================
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
 {
 

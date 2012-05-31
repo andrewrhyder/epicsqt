@@ -167,9 +167,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
     protected:
 //        list <_Motor> motorList;
+        QComboBox *qComboBoxMotor;
+        QVBoxLayout *qVBoxLayoutFields;
         QString motorConfiguration;
         int currentUserType;
-        int detailsLayout;
+//        int detailsLayout;
 
 
     public:
@@ -183,8 +185,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
 
-        void setDetailsLayout(int pValue);
-        int getDetailsLayout();
+//        void setDetailsLayout(int pValue);
+//        int getDetailsLayout();
+
+        void refreshFields();
 
         void userLevelChanged(userLevels pValue);
 
@@ -210,24 +214,24 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         }
 
 
-        Q_ENUMS(detailsLayoutProperty)
-        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
-        enum detailsLayoutProperty
-        {
-            Top = TOP,
-            Bottom = BOTTOM,
-            Left = LEFT,
-            Right = RIGHT
-        };
+//        Q_ENUMS(detailsLayoutProperty)
+//        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
+//        enum detailsLayoutProperty
+//        {
+//            Top = TOP,
+//            Bottom = BOTTOM,
+//            Left = LEFT,
+//            Right = RIGHT
+//        };
 
-        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
-        {
-            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
-        }
-        detailsLayoutProperty getDetailsLayoutProperty()
-        {
-            return (detailsLayoutProperty) getDetailsLayout();
-        }
+//        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
+//        {
+//            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
+//        }
+//        detailsLayoutProperty getDetailsLayoutProperty()
+//        {
+//            return (detailsLayoutProperty) getDetailsLayout();
+//        }
 
         _Motor motorList[256];   // to be refactored with a C++ list
 
@@ -236,6 +240,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
     private slots:
         void buttonLoginClicked();
+        void comboBoxMotorSelected(QString);
 
 
 };

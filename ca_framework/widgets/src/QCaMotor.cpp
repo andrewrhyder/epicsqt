@@ -43,11 +43,35 @@
 QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
+    QHBoxLayout *qHBoxLayout;
+    QVBoxLayout *qVBoxLayout;
+    QLabel *qLabel;
+
+
+    qVBoxLayout = new QVBoxLayout();
+    qHBoxLayout = new QHBoxLayout();
+    qVBoxLayoutFields = new QVBoxLayout();
+
+    qLabel = new QLabel();
+    qLabel->setText("Motor");
+    qHBoxLayout->addWidget(qLabel);
+
+    qComboBoxMotor = new QComboBox();
+    qHBoxLayout->addWidget(qComboBoxMotor);
+
+    QObject::connect(qComboBoxMotor, SIGNAL(currentIndexChanged(QString)), this, SLOT(comboBoxMotorSelected(QString)));
+
+    qVBoxLayout->addLayout(qHBoxLayout);
+
+
     motorCount = 0;
 
-//    setMotorConfiguration("");
-//    setCurrentUserType(USERLEVEL_USER);
-//    setDetailsLayout(RIGHT);
+    setLayout(qVBoxLayout);
+
+//    layout()->addItem(qVBoxLayout);
+//    layout()->addItem(qVBoxLayoutFields);
+
+    setCurrentUserType(getUserLevel());
 
 }
 
@@ -152,7 +176,9 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                 rootNode = rootNode.nextSibling();
             }
         }
-        setDetailsLayout(detailsLayout);
+
+        setCurrentUserType(currentUserType);
+
     }
 
 }
@@ -183,21 +209,41 @@ void QCaMotor::userLevelChanged(userLevels pValue)
 void QCaMotor::setCurrentUserType(int pValue)
 {
 
-    switch(pValue)
+    QString motorSelected;
+    QString userType;
+    int i;
+
+
+    if (pValue == USERLEVEL_USER || pValue == USERLEVEL_SCIENTIST || pValue == USERLEVEL_ENGINEER)
     {
-        case USERLEVEL_USER:
-            currentUserType = USERLEVEL_USER;
-            setDetailsLayout(detailsLayout);
-            break;
-
-        case USERLEVEL_SCIENTIST:
-            currentUserType = USERLEVEL_SCIENTIST;
-            setDetailsLayout(detailsLayout);
-            break;
-
-        case USERLEVEL_ENGINEER:
-            currentUserType = USERLEVEL_ENGINEER;
-            setDetailsLayout(detailsLayout);
+        currentUserType = pValue;
+        switch (currentUserType)
+        {
+            case USERLEVEL_USER:
+                userType = "USER";
+                break;
+            case USERLEVEL_SCIENTIST:
+                userType = "SCIENTIST";
+                break;
+            default:
+                userType = "ENGINEER";
+        }
+        motorSelected = qComboBoxMotor->currentText();
+        qComboBoxMotor->clear();
+        for(i = 0; i < motorCount; i++)
+        {
+            if (motorList[i].getVisible().isEmpty() || motorList[i].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+            {
+                qComboBoxMotor->addItem(motorList[i].getName());
+            }
+        }
+        i = qComboBoxMotor->findText(motorSelected);
+        if (i != -1)
+        {
+           qComboBoxMotor->setCurrentIndex(i);
+        }
+//        setDetailsLayout(detailsLayout);
+        refreshFields();
     }
 
 }
@@ -214,94 +260,84 @@ int QCaMotor::getCurrentUserType()
 
 
 
-void QCaMotor::setDetailsLayout(int pValue)
+void QCaMotor::refreshFields()
 {
 
     QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
-    QComboBox *qComboBox;
     QPushButton *qPushButton;
     QString userType;
     QString tmp;
     QCaLabel *qCaLabel;
+    _Motor *motorSelected;
     int i;
     int j;
 
 
-    detailsLayout = pValue;
+//    detailsLayout = pValue;
 
 
+//    QLayoutItem* item;
+//    while ((item = qVBoxLayoutFields->takeAt(0)) != NULL)
+//    {
+//        qVBoxLayoutFields->removeItem(item);
+//        qVBoxLayoutFields->removeWidget(item->widget());
+//        delete item->widget();
+//        delete item;
+//    }
 
-    if (layout() != NULL)
+
+    switch (currentUserType)
     {
-        QLayoutItem* item;
-        while ( ( item = layout()->takeAt( 0 ) ) != NULL )
-        {
-            layout()->removeItem(item);
-            layout()->removeWidget(item->widget());
-            delete item->widget();
-            delete item;
-        }
-        delete layout();
-    }
-
-
-    qVBoxLayout = new QVBoxLayout(this);
-
-
-    if (currentUserType == USERLEVEL_USER)
-    {
-        userType = "USER";
-    }
-    else
-    {
-        if (currentUserType == USERLEVEL_SCIENTIST)
-        {
+        case USERLEVEL_USER:
+            userType = "USER";
+            break;
+        case USERLEVEL_SCIENTIST:
             userType = "SCIENTIST";
-        }
-        else
-        {
+            break;
+        default:
             userType = "ENGINEER";
-        }
+
     }
 
-    qComboBox = new QComboBox();
+
+    motorSelected = NULL;
     for(i = 0; i < motorCount; i++)
     {
-        if (motorList[i].getVisible().isEmpty() || motorList[i].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+        if (motorList[i].getName() == qComboBoxMotor->currentText())
         {
-            qComboBox->addItem(motorList[i].getName());
+            motorSelected = &motorList[i];
+            break;
         }
     }
 
 
-    qHBoxLayout = new QHBoxLayout();
-    qHBoxLayout->addWidget(new QLabel("Motor"));
-    qHBoxLayout->addWidget(qComboBox);
-    qVBoxLayout->addLayout(qHBoxLayout);
-
-    for(i = 0; i < motorList[0].groupCount; i++)
+    if (motorSelected)
     {
-        tmp = motorList[0].groupList[i].getName();
-        if (tmp.isEmpty())
+        for(i = 0; i < motorSelected->groupCount; i++)
         {
-            qPushButton = new QPushButton(this);
-            qPushButton->setText(tmp);
-            qVBoxLayout->addWidget(qPushButton);
-        }
-        else
-        {
-            for(j = 0; j < motorList[0].groupList[i].fieldCount; j++)
+            tmp = motorSelected->groupList[i].getName();
+
+            if (tmp.isEmpty())
             {
-                qHBoxLayout = new QHBoxLayout();
-                if (motorList[0].groupList[i].fieldList[j].getVisible().isEmpty() || motorList[0].groupList[i].fieldList[j].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+                for(j = 0; j < motorSelected->groupList[i].fieldCount; j++)
                 {
-                    qHBoxLayout->addWidget(new QLabel(motorList[0].groupList[i].fieldList[j].getName()));
-                    qCaLabel = new QCaLabel(motorList[0].groupList[i].fieldList[j].getProcessVariable());
-                    qCaLabel->setEnabled(motorList[0].groupList[i].fieldList[j].getEditable().isEmpty() || motorList[0].groupList[i].fieldList[j].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1);
-                    qHBoxLayout->addWidget(qCaLabel);
+                    qHBoxLayout = new QHBoxLayout();
+                    if (motorSelected->groupList[i].fieldList[j].getVisible().isEmpty() || motorSelected->groupList[i].fieldList[j].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+                    {
+                        qHBoxLayout->addWidget(new QLabel(motorSelected->groupList[i].fieldList[j].getName()));
+                        qCaLabel = new QCaLabel(motorSelected->groupList[i].fieldList[j].getProcessVariable());
+                        qCaLabel->setEnabled(motorSelected->groupList[i].fieldList[j].getEditable().isEmpty() || motorSelected->groupList[i].fieldList[j].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1);
+                        qHBoxLayout->addWidget(qCaLabel);
+                    }
+                    ((QVBoxLayout *) layout())->addLayout(qHBoxLayout);
                 }
-                qVBoxLayout->addLayout(qHBoxLayout);
+            }
+            else
+            {
+                qPushButton = new QPushButton();
+                qPushButton->setText(tmp);
+                ((QVBoxLayout *) layout())->addWidget(qPushButton);
             }
         }
     }
@@ -311,12 +347,12 @@ void QCaMotor::setDetailsLayout(int pValue)
 
 
 
-int QCaMotor::getDetailsLayout()
-{
+//int QCaMotor::getDetailsLayout()
+//{
 
-    return detailsLayout;
+//    return detailsLayout;
 
-}
+//}
 
 
 
@@ -330,6 +366,16 @@ void QCaMotor::buttonLoginClicked()
 
 }
 
+
+
+
+void QCaMotor::comboBoxMotorSelected(QString pValue)
+{
+
+//    setDetailsLayout(detailsLayout);
+    refreshFields();
+
+}
 
 
 

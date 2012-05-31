@@ -32,6 +32,11 @@
 #include <QDebug>
 
 
+
+
+// ============================================================
+//  QCALOGIN METHODS
+// ============================================================
 QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 {
 
@@ -266,6 +271,10 @@ void QCaLogin::buttonLoginClicked()
 
 
 
+
+// ============================================================
+//  _QDIALOGLOGIN METHODS
+// ============================================================
 _QDialogLogin::_QDialogLogin(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
 {
 
