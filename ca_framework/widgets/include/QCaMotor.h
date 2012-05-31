@@ -128,6 +128,7 @@ class _Motor
 
     private:
         QString name;
+        QString substitution;
         QString visible;
 
 
@@ -138,17 +139,91 @@ class _Motor
 
         QString getName();
 
+        void setSubstitution(QString pValue);
+
+        QString getSubstitution();
+
         void setVisible(QString pValue);
 
         QString getVisible();
 
         void addGroup(_Group pGroup);
 
-        _Group groupList[256];   // to be refactored with a C++ list
+        _Group groupList[256];   // TODO: to be refactored with a C++ list
 
         int groupCount;
 
 };
+
+
+
+
+
+// ============================================================
+//  _QDIALOGMOTOR CLASS
+// ============================================================
+class _QDialogMotor:public QDialog
+{
+
+    Q_OBJECT
+
+    private:
+
+
+    protected:
+
+
+    public:
+        _QDialogMotor(QWidget * pParent = 0, int pCurrentUserType = 0, _Motor *pMotor = 0, _Group *pGroup = 0, Qt::WindowFlags pF = 0);
+
+
+    private slots:
+
+        void buttonCloseClicked();
+
+};
+
+
+
+
+
+// ============================================================
+//  _QPUSHBUTTONGROUP CLASS
+// ============================================================
+class _QPushButtonGroup:public QPushButton
+{
+
+    Q_OBJECT
+
+
+    private:
+
+
+    protected:
+
+
+    public:
+        _QPushButtonGroup(QWidget * pParent = 0);
+
+        void mouseReleaseEvent(QMouseEvent *qMouseEvent);
+
+        void keyPressEvent(QKeyEvent *pKeyEvent);
+
+        void showDialogGroup();
+
+        // TODO: these attributes should be private and the create set/get for it
+        _Motor *motor;
+        _Group *group;
+        int currentUserType;
+
+
+    private slots:
+
+
+
+};
+
+
 
 
 
@@ -171,7 +246,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         QVBoxLayout *qVBoxLayoutFields;
         QString motorConfiguration;
         int currentUserType;
-//        int detailsLayout;
 
 
     public:
@@ -185,8 +259,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
 
-//        void setDetailsLayout(int pValue);
-//        int getDetailsLayout();
 
         void refreshFields();
 
@@ -214,32 +286,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         }
 
 
-//        Q_ENUMS(detailsLayoutProperty)
-//        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
-//        enum detailsLayoutProperty
-//        {
-//            Top = TOP,
-//            Bottom = BOTTOM,
-//            Left = LEFT,
-//            Right = RIGHT
-//        };
-
-//        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
-//        {
-//            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
-//        }
-//        detailsLayoutProperty getDetailsLayoutProperty()
-//        {
-//            return (detailsLayoutProperty) getDetailsLayout();
-//        }
-
-        _Motor motorList[256];   // to be refactored with a C++ list
+        _Motor motorList[256];   // TODO: to be refactored with a C++ list
 
         int motorCount;
 
 
     private slots:
-        void buttonLoginClicked();
         void comboBoxMotorSelected(QString);
 
 

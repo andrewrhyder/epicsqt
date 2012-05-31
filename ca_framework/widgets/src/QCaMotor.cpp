@@ -52,24 +52,23 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     qHBoxLayout = new QHBoxLayout();
     qVBoxLayoutFields = new QVBoxLayout();
 
+
     qLabel = new QLabel();
     qLabel->setText("Motor");
     qHBoxLayout->addWidget(qLabel);
 
     qComboBoxMotor = new QComboBox();
+    qComboBoxMotor->setToolTip("Select current motor");
+    QObject::connect(qComboBoxMotor, SIGNAL(currentIndexChanged(QString)), this, SLOT(comboBoxMotorSelected(QString)));
     qHBoxLayout->addWidget(qComboBoxMotor);
 
-    QObject::connect(qComboBoxMotor, SIGNAL(currentIndexChanged(QString)), this, SLOT(comboBoxMotorSelected(QString)));
-
     qVBoxLayout->addLayout(qHBoxLayout);
-
+    qVBoxLayout->addLayout(qVBoxLayoutFields);
 
     motorCount = 0;
 
+    delete layout();
     setLayout(qVBoxLayout);
-
-//    layout()->addItem(qVBoxLayout);
-//    layout()->addItem(qVBoxLayoutFields);
 
     setCurrentUserType(getUserLevel());
 
@@ -135,6 +134,7 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                     {
                         motor->setName(motorElement.attribute("name"));
                     }
+                    motor->setSubstitution(motorElement.attribute("substitution"));
                     motor->setVisible(motorElement.attribute("visible"));
                     motorNode = motorElement.firstChild();
                     while (motorNode.isNull() == false)
@@ -209,7 +209,7 @@ void QCaMotor::userLevelChanged(userLevels pValue)
 void QCaMotor::setCurrentUserType(int pValue)
 {
 
-    QString motorSelected;
+    QString motor;
     QString userType;
     int i;
 
@@ -228,7 +228,7 @@ void QCaMotor::setCurrentUserType(int pValue)
             default:
                 userType = "ENGINEER";
         }
-        motorSelected = qComboBoxMotor->currentText();
+        motor = qComboBoxMotor->currentText();
         qComboBoxMotor->clear();
         for(i = 0; i < motorCount; i++)
         {
@@ -237,7 +237,7 @@ void QCaMotor::setCurrentUserType(int pValue)
                 qComboBoxMotor->addItem(motorList[i].getName());
             }
         }
-        i = qComboBoxMotor->findText(motorSelected);
+        i = qComboBoxMotor->findText(motor);
         if (i != -1)
         {
            qComboBoxMotor->setCurrentIndex(i);
@@ -265,11 +265,13 @@ void QCaMotor::refreshFields()
 
     QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
-    QPushButton *qPushButton;
     QString userType;
     QString tmp;
     QCaLabel *qCaLabel;
-    _Motor *motorSelected;
+    _QPushButtonGroup *qPushButtonGroup;
+    _Motor *motor;
+    _Group *group;
+    bool flag;
     int i;
     int j;
 
@@ -277,14 +279,34 @@ void QCaMotor::refreshFields()
 //    detailsLayout = pValue;
 
 
-//    QLayoutItem* item;
+    QLayoutItem* item;
+    QLayoutItem* item1;
+
+//    i = 0;
 //    while ((item = qVBoxLayoutFields->takeAt(0)) != NULL)
 //    {
+
+//        while ((item1 = ((QHBoxLayout *) item)->takeAt(0)) != NULL)
+//        {
+//            ((QHBoxLayout *) item)->removeWidget(item1->widget());
+//        }
+
 //        qVBoxLayoutFields->removeItem(item);
-//        qVBoxLayoutFields->removeWidget(item->widget());
-//        delete item->widget();
+//        qDebug() << i++;
 //        delete item;
 //    }
+
+
+//    if (qVBoxLayoutFields != NULL )
+//    {
+//        QLayoutItem* item;
+//        while ( ( item = qVBoxLayoutFields->takeAt( 0 ) ) != NULL )
+//        {
+//            delete item->widget();
+//            delete item;
+//        }
+//    }
+
 
 
     switch (currentUserType)
@@ -301,43 +323,64 @@ void QCaMotor::refreshFields()
     }
 
 
-    motorSelected = NULL;
+    motor = NULL;
     for(i = 0; i < motorCount; i++)
     {
         if (motorList[i].getName() == qComboBoxMotor->currentText())
         {
-            motorSelected = &motorList[i];
+            motor = &motorList[i];
             break;
         }
     }
 
 
-    if (motorSelected)
+    if (motor)
     {
-        for(i = 0; i < motorSelected->groupCount; i++)
+        for(i = 0; i < motor->groupCount; i++)
         {
-            tmp = motorSelected->groupList[i].getName();
+            group = &motor->groupList[i];
 
+            tmp = group->getName();
             if (tmp.isEmpty())
             {
-                for(j = 0; j < motorSelected->groupList[i].fieldCount; j++)
+                for(j = 0; j < group->fieldCount; j++)
                 {
                     qHBoxLayout = new QHBoxLayout();
-                    if (motorSelected->groupList[i].fieldList[j].getVisible().isEmpty() || motorSelected->groupList[i].fieldList[j].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+                    if (group->fieldList[j].getVisible().isEmpty() || group->fieldList[j].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
                     {
-                        qHBoxLayout->addWidget(new QLabel(motorSelected->groupList[i].fieldList[j].getName()));
-                        qCaLabel = new QCaLabel(motorSelected->groupList[i].fieldList[j].getProcessVariable());
-                        qCaLabel->setEnabled(motorSelected->groupList[i].fieldList[j].getEditable().isEmpty() || motorSelected->groupList[i].fieldList[j].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1);
+                        qHBoxLayout->addWidget(new QLabel(group->fieldList[j].getName()));
+                        qCaLabel = new QCaLabel();
+                        qCaLabel->setVariableNameAndSubstitutions(group->fieldList[j].getProcessVariable(), motor->getSubstitution(), 0);
+                        qCaLabel->setEnabled(group->fieldList[j].getEditable().isEmpty() || group->fieldList[j].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1);
                         qHBoxLayout->addWidget(qCaLabel);
                     }
-                    ((QVBoxLayout *) layout())->addLayout(qHBoxLayout);
+                    qVBoxLayoutFields->addLayout(qHBoxLayout);
                 }
             }
             else
             {
-                qPushButton = new QPushButton();
-                qPushButton->setText(tmp);
-                ((QVBoxLayout *) layout())->addWidget(qPushButton);
+                flag = false;
+                for(j = 0; j < group->fieldCount; j++)
+                {
+                    if (group->fieldList[j].getVisible().isEmpty() || group->fieldList[j].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+                    {
+                        flag = true;
+                        break;
+                    }
+                }
+
+                if (flag)
+                {
+                    qHBoxLayout = new QHBoxLayout();
+                    qPushButtonGroup = new _QPushButtonGroup();
+                    qPushButtonGroup->setText(tmp);
+                    qPushButtonGroup->setToolTip("Show fields of group '" + tmp + "'");
+                    qPushButtonGroup->motor = motor;
+                    qPushButtonGroup->group = group;
+                    qPushButtonGroup->currentUserType = currentUserType;
+                    qHBoxLayout->addWidget(qPushButtonGroup);
+                    qVBoxLayoutFields->addLayout(qHBoxLayout);
+                }
             }
         }
     }
@@ -345,26 +388,6 @@ void QCaMotor::refreshFields()
 
 }
 
-
-
-//int QCaMotor::getDetailsLayout()
-//{
-
-//    return detailsLayout;
-
-//}
-
-
-
-
-
-void QCaMotor::buttonLoginClicked()
-{
-
-//    qCaMotorDialog = new _QDialogMotor(this);
-//    qCaMotorDialog->exec();
-
-}
 
 
 
@@ -372,7 +395,6 @@ void QCaMotor::buttonLoginClicked()
 void QCaMotor::comboBoxMotorSelected(QString pValue)
 {
 
-//    setDetailsLayout(detailsLayout);
     refreshFields();
 
 }
@@ -528,6 +550,24 @@ QString _Motor::getName()
 
 
 
+void _Motor::setSubstitution(QString pValue)
+{
+
+    substitution = pValue;
+
+}
+
+
+
+QString _Motor::getSubstitution()
+{
+
+    return substitution;
+
+}
+
+
+
 
 void _Motor::setVisible(QString pValue)
 {
@@ -592,6 +632,127 @@ void _Group::addField(_Field pValue)
 
     fieldList[fieldCount] = pValue;
     fieldCount++;
+
+}
+
+
+
+
+
+// ============================================================
+//  _QDIALOGMOTOR METHODS
+// ============================================================
+_QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMotor, _Group *pGroup, Qt::WindowFlags pF):QDialog(pParent, pF)
+{
+
+    QVBoxLayout *qVBoxLayout;
+    QHBoxLayout *qHBoxLayout;
+    QPushButton *qPushButtonClose;
+    QString userType;
+    QCaLabel *qCaLabel;
+    int i;
+
+
+    qVBoxLayout = new QVBoxLayout();
+    qPushButtonClose = new QPushButton();
+
+    setWindowTitle(pMotor->getName() + " (" + pGroup->getName() + ")");
+
+    switch (pCurrentUserType)
+    {
+        case USERLEVEL_USER:
+            userType = "USER";
+            break;
+        case USERLEVEL_SCIENTIST:
+            userType = "SCIENTIST";
+            break;
+        default:
+            userType = "ENGINEER";
+    }
+
+    for(i = 0; i < pGroup->fieldCount; i++)
+    {
+        qHBoxLayout = new QHBoxLayout();
+        if (pGroup->fieldList[i].getVisible().isEmpty() || pGroup->fieldList[i].getVisible().indexOf(userType, 0, Qt::CaseInsensitive) != -1)
+        {
+            qHBoxLayout->addWidget(new QLabel(pGroup->fieldList[i].getName()));
+            qCaLabel = new QCaLabel();
+            qCaLabel->setVariableNameAndSubstitutions(pGroup->fieldList[i].getProcessVariable(), pMotor->getSubstitution(), 0);
+            qCaLabel->setEnabled(pGroup->fieldList[i].getEditable().isEmpty() || pGroup->fieldList[i].getEditable().indexOf(userType, 0, Qt::CaseInsensitive) != -1);
+            qHBoxLayout->addWidget(qCaLabel);
+        }
+        qVBoxLayout->addLayout(qHBoxLayout);
+    }
+
+    qPushButtonClose->setText("Close");
+    qPushButtonClose->setToolTip("Close fields window");
+    QObject::connect(qPushButtonClose, SIGNAL(clicked()), this, SLOT(buttonCloseClicked()));
+    qVBoxLayout->addWidget(qPushButtonClose);
+
+    setLayout(qVBoxLayout);
+
+}
+
+
+
+
+void _QDialogMotor::buttonCloseClicked()
+{
+
+    this->close();
+
+}
+
+
+
+
+
+
+// ============================================================
+//  _QPUSHBUTTONGROUP METHODS
+// ============================================================
+_QPushButtonGroup::_QPushButtonGroup(QWidget *pParent):QPushButton(pParent)
+{
+
+
+}
+
+
+
+
+void _QPushButtonGroup::mouseReleaseEvent(QMouseEvent *qMouseEvent)
+{
+
+    if (qMouseEvent->button() & Qt::LeftButton)
+    {
+        showDialogGroup();
+    }
+
+}
+
+
+
+
+void _QPushButtonGroup::keyPressEvent(QKeyEvent *pKeyEvent)
+{
+
+    if (pKeyEvent->key () == Qt::Key_Enter || pKeyEvent->key () == Qt::Key_Space)
+    {
+        showDialogGroup();
+    }
+
+}
+
+
+
+
+void _QPushButtonGroup::showDialogGroup()
+{
+
+    _QDialogMotor *qDialogMotor;
+
+    qDialogMotor = new _QDialogMotor(this, currentUserType, motor, group);
+    qDialogMotor->exec();
 
 }
 
