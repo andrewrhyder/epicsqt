@@ -383,6 +383,33 @@ void ContainerProfile::addContainedWidget( QCaWidget* containedWidget )
 }
 
 /**
+  Remove a QCa widget to the list of QCa widgets created under the currently published profile.
+  This list provides the application with a list of its QCa widgets without having to trawl through
+  the widget hierarchy looking for them. Generally the entire list is discarded after it has
+  been used and is no longer relevent when the widgets are deleted. Some QCaWidgets can be
+  destroyed, however, while a form is being created (for example, QCaLabel widgets are used
+  within QCaMotor widgets and are created and sometimes destroyed during the creation of a QCaMotor
+  record) For this reason, QCaWidgets are removed from this list on destruction.
+
+  This operation is reasonably expensive, but only when there is a large number of widgets in the list.
+  Generally, the list is empty.
+  */
+void ContainerProfile::removeContainedWidget( QCaWidget* containedWidget )
+{
+    // Search for the widget in the list
+    int s = containedWidgets.size();
+    for( int i = 0; i < s; i++ )
+    {
+        // If found, remove the widget and finish
+        if( containedWidgets[i].getRef() == containedWidget )
+        {
+            containedWidgets.removeAt( i );
+            break;
+        }
+    }
+}
+
+/**
   Return the next QCa widget from the list of QCa widgets built using addContainedWidget().
   Note, this is destructive to the list. It is fine if the application only needs to get the
   widgets from the list once, such as when activating QCa widgets after creating a form.

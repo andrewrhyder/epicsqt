@@ -118,6 +118,12 @@ QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ) {
     Delete all variable sources for the widgeet
 */
 QCaWidget::~QCaWidget() {
+    // Remove this widget remove this widget from the list of contained widgets if it is there.
+    // The list is only used during form construction and generally widgets are not destroyed during form
+    // construction, but there are exceptions. A typical exception is QCaMotor, which creates and sometimes
+    // destroys QCaLabels during contruction. These QCaLabels get added to the contained widgets list
+    // but are then destroyed. Unless they are removed from the list, the form will attempt to activate them.
+    removeContainedWidget( this );
 
     // Delete all the QCaObject instances
     for( unsigned int i = 0; i < numVariables; i++ ) {

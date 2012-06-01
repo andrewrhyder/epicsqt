@@ -144,8 +144,9 @@ public:
     QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
     bool isProfileDefined();                  // Returns true if a profile has been setup by setupProfile()
 
-    void addContainedWidget( QCaWidget* containedWidget );  // Adds a reference to the list of QCa widgets created with this profile
-    QCaWidget* getNextContainedWidget();                    // Returns a reference to the next QCa widgets in the list of QCa widgets created with this profile
+    void addContainedWidget( QCaWidget* containedWidget );    // Adds a reference to the list of QCa widgets created with this profile
+    QCaWidget* getNextContainedWidget();                      // Returns a reference to the next QCa widgets in the list of QCa widgets created with this profile
+    void removeContainedWidget( QCaWidget* containedWidget ); // Remove a reference from the list of QCa widgets created with this profile
 
     unsigned int getMessageFormId();                    // Get the local copy of the message form ID
     unsigned int getPublishedMessageFormId();           // Get the currently published message form ID
