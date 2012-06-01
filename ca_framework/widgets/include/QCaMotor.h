@@ -41,16 +41,6 @@
 using namespace std;
 
 
-enum details
-{
-    TOP,
-    BOTTOM,
-    LEFT,
-    RIGHT
-};
-
-
-
 
 // ============================================================
 //  FIELD CLASS
@@ -108,12 +98,9 @@ class _Group
 
         void setName(QString pValue);
 
-        void addField(_Field pValue);
+        void addField(_Field &pField);
 
-        _Field fieldList[100];   // TODO: to be refactored with a C++ list
-
-        int fieldCount;
-
+        list <_Field *> fieldList;  // TODO: this attribute should be private
 
 };
 
@@ -132,6 +119,9 @@ class _Motor
         QString visible;
 
 
+    protected:
+
+
     public:
         _Motor();
 
@@ -147,11 +137,9 @@ class _Motor
 
         QString getVisible();
 
-        void addGroup(_Group pGroup);
+        void addGroup(_Group &pGroup);
 
-        _Group groupList[100];   // TODO: to be refactored with a C++ list
-
-        int groupCount;
+        list <_Group *> groupList;  // TODO: this attribute should be private
 
 };
 
@@ -205,7 +193,7 @@ class _QPushButtonGroup:public QPushButton
 
         void showDialogGroup();
 
-        // TODO: these attributes should be private and the create set/get for it
+        // TODO: these attributes should be private
         _Motor *motor;
         _Group *group;
         int currentUserType;
@@ -233,7 +221,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
     private:
 
     protected:
-        list <_Motor> motorList;
+        list <_Motor *> motorList;
         QComboBox *qComboBoxMotor;
         QVBoxLayout *qVBoxLayoutFields;
         QString motorConfiguration;

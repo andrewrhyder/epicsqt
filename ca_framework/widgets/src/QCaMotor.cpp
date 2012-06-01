@@ -78,6 +78,7 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 void QCaMotor::setMotorConfiguration(QString pValue)
 {
 
+    list<_Group *>::iterator iterator;
     QDomDocument document;
     QDomElement rootElement;
     QDomElement motorElement;
@@ -91,7 +92,6 @@ void QCaMotor::setMotorConfiguration(QString pValue)
     QString tmp;
     bool  flag;
     int count;
-    int i;
 
 
     motorConfiguration = pValue;
@@ -149,14 +149,16 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                             field->setEditable(fieldElement.attribute("editable"));
                             tmp = fieldElement.attribute("group");
                             flag = true;
-                            for (i = 0; i < motor->groupCount; i++)
+                            iterator = motor->groupList.begin();
+                            while(iterator != motor->groupList.end())
                             {
-                                if (motor->groupList[i].getName() == tmp)
+                                if ((*iterator)->getName() == tmp)
                                 {
-                                    motor->groupList[i].addField(*field);
+                                    (*iterator)->addField(*field);
                                     flag = false;
                                     break;
                                 }
+                                iterator++;
                             }
                             if (flag)
                             {
@@ -169,7 +171,7 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                         motorNode = motorNode.nextSibling();
                     }
 
-                    motorList.push_back(*motor);
+                    motorList.push_back(motor);
 
                 }
                 rootNode = rootNode.nextSibling();
@@ -206,7 +208,7 @@ void QCaMotor::userLevelChanged(userLevels pValue)
 void QCaMotor::setCurrentUserType(int pValue)
 {
 
-    list<_Motor>::iterator iterator;
+    list<_Motor *>::iterator iterator;
     QString tmp;
     QString userType;
     int i;
@@ -232,9 +234,9 @@ void QCaMotor::setCurrentUserType(int pValue)
         iterator = motorList.begin();
         while(iterator != motorList.end())
         {
-            if (iterator->getVisible().isEmpty() || iterator->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
+            if ((*iterator)->getVisible().isEmpty() || (*iterator)->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
             {
-                qComboBoxMotor->addItem(iterator->getName());
+                qComboBoxMotor->addItem((*iterator)->getName());
             }
             iterator++;
         }
@@ -267,20 +269,21 @@ int QCaMotor::getCurrentUserType()
 void QCaMotor::refreshFields()
 {
 
-    list<_Motor>::iterator iterator;
+    list<_Motor *>::iterator iteratorMotor;
+    list<_Group *>::iterator iteratorGroup;
+    list<_Field *>::iterator iteratorField;
     QLayout *qLayout;
     QHBoxLayout *qHBoxLayout;
     QWidget *qWidget;
     QLabel *qLabel;
     QString userType;
-    QString tmp;
     QCaLineEdit *qCaLineEdit;
     _QPushButtonGroup *qPushButtonGroup;
-    _Motor motor;
+    _Motor *motor;
     _Group *group;
+    _Field *field;
     bool flag;
     int i;
-    int j;
 
 
     while(qVBoxLayoutFields->isEmpty() == false)
@@ -307,71 +310,76 @@ void QCaMotor::refreshFields()
     }
 
     flag = false;
-    iterator = motorList.begin();
-    while(iterator != motorList.end())
+    iteratorMotor = motorList.begin();
+    while(iteratorMotor != motorList.end())
     {
-        if (iterator->getName() == qComboBoxMotor->currentText())
+        if ((*iteratorMotor)->getName() == qComboBoxMotor->currentText())
         {
-            motor = *iterator;
+            motor = *iteratorMotor;
             flag = true;
             break;
         }
-        iterator++;
+        iteratorMotor++;
     }
 
     if (flag)
     {
 
-        qDebug() << motor.groupCount;
-
-        for(i = 0; i < motor.groupCount; i++)
+        iteratorGroup = motor->groupList.begin();
+        while(iteratorGroup != motor->groupList.end())
         {
-            group = &motor.groupList[i];
-            tmp = group->getName();
-            if (tmp.isEmpty())
+            group = *iteratorGroup;
+            if (group->getName().isEmpty())
             {
-                for(j = 0; j < group->fieldCount; j++)
+                iteratorField = group->fieldList.begin();
+                while(iteratorField != group->fieldList.end())
                 {
                     qHBoxLayout = new QHBoxLayout();
-                    if (group->fieldList[j].getVisible().isEmpty() || group->fieldList[j].getVisible().split(",").contains(userType, Qt::CaseInsensitive))
+                    field = *iteratorField;
+                    if (field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
                     {
                         qLabel = new QLabel();
-                        qLabel->setText(group->fieldList[j].getName());
+                        qLabel->setText(field->getName());
                         qLabel->setFixedWidth(110);
                         qHBoxLayout->addWidget(qLabel);
                         qCaLineEdit = new QCaLineEdit();
                         qCaLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-                        qCaLineEdit->setVariableNameAndSubstitutions(group->fieldList[j].getProcessVariable(), motor.getSubstitution(), 0);
-                        qCaLineEdit->setEnabled(group->fieldList[j].getEditable().isEmpty() || group->fieldList[j].getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                        qCaLineEdit->setVariableNameAndSubstitutions(field->getProcessVariable(), motor->getSubstitution(), 0);
+                        qCaLineEdit->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                         qHBoxLayout->addWidget(qCaLineEdit);
                     }
                     qVBoxLayoutFields->addLayout(qHBoxLayout);
+                    iteratorField++;
                 }
             }
             else
             {
                 flag = false;
-                for(j = 0; j < group->fieldCount; j++)
+                iteratorField = group->fieldList.begin();
+                while(iteratorField != group->fieldList.end())
                 {
-                    if (group->fieldList[j].getVisible().isEmpty() || group->fieldList[j].getVisible().split(",").contains(userType, Qt::CaseInsensitive))
+                    field = *iteratorField;
+                    if (field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
                     {
                         flag = true;
                         break;
                     }
+                    iteratorField++;
                 }
                 if (flag)
                 {
                     qHBoxLayout = new QHBoxLayout();
                     qPushButtonGroup = new _QPushButtonGroup();
-                    qPushButtonGroup->setText(tmp);
-                    qPushButtonGroup->setToolTip("Show fields of group '" + tmp + "'");
-                    qPushButtonGroup->motor = &motor;
+                    qPushButtonGroup->setText(group->getName());
+                    qPushButtonGroup->setToolTip("Show fields of group '" + group->getName() + "'");
+                    qPushButtonGroup->motor = motor;
                     qPushButtonGroup->group = group;
                     qPushButtonGroup->currentUserType = currentUserType;
                     qHBoxLayout->addWidget(qPushButtonGroup);
                     qVBoxLayoutFields->addLayout(qHBoxLayout);
                 }
             }
+            iteratorGroup++;
         }
     }
 
@@ -515,8 +523,6 @@ void _Field::setEditable(QString pValue)
 _Motor::_Motor()
 {
 
-    groupCount = 0;
-
 }
 
 
@@ -577,11 +583,10 @@ QString _Motor::getVisible()
 
 
 
-void _Motor::addGroup(_Group pValue)
+void _Motor::addGroup(_Group &pGroup)
 {
 
-    groupList[groupCount] = pValue;
-    groupCount++;
+    groupList.push_back(&pGroup);
 
 }
 
@@ -595,7 +600,6 @@ void _Motor::addGroup(_Group pValue)
 _Group::_Group()
 {
 
-    fieldCount = 0;
 
 }
 
@@ -617,11 +621,10 @@ QString _Group::getName()
 
 
 
-void _Group::addField(_Field pValue)
+void _Group::addField(_Field &pField)
 {
 
-    fieldList[fieldCount] = pValue;
-    fieldCount++;
+    fieldList.push_back(&pField);
 
 }
 
@@ -635,11 +638,13 @@ void _Group::addField(_Field pValue)
 _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMotor, _Group *pGroup, Qt::WindowFlags pF):QDialog(pParent, pF)
 {
 
+    list<_Field *>::iterator iterator;
     QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
     QLabel *qLabel;
     QCaLineEdit *qCaLineEdit;
     QString userType;
+    _Field *field;
     int i;
 
 
@@ -660,22 +665,26 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
             userType = "ENGINEER";
     }
 
-    for(i = 0; i < pGroup->fieldCount; i++)
+
+    iterator = pGroup->fieldList.begin();
+    while(iterator != pGroup->fieldList.end())
     {
+        field = *iterator;
         qHBoxLayout = new QHBoxLayout();
-        if (pGroup->fieldList[i].getVisible().isEmpty() || pGroup->fieldList[i].getVisible().split(",").contains(userType, Qt::CaseInsensitive))
+        if (field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
         {
             qLabel = new QLabel();
-            qLabel->setText(pGroup->fieldList[i].getName());
+            qLabel->setText(field->getName());
             qLabel->setFixedWidth(110);
             qHBoxLayout->addWidget(qLabel);
             qCaLineEdit = new QCaLineEdit();
             qCaLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-            qCaLineEdit->setVariableNameAndSubstitutions(pGroup->fieldList[i].getProcessVariable(), pMotor->getSubstitution(), 0);
-            qCaLineEdit->setEnabled(pGroup->fieldList[i].getEditable().isEmpty() || pGroup->fieldList[i].getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+            qCaLineEdit->setVariableNameAndSubstitutions(field->getProcessVariable(), pMotor->getSubstitution(), 0);
+            qCaLineEdit->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
             qHBoxLayout->addWidget(qCaLineEdit);
         }
         qVBoxLayout->addLayout(qHBoxLayout);
+        iterator++;
     }
 
     qPushButtonClose->setText("Close");
