@@ -110,7 +110,7 @@ class _Group
 
         void addField(_Field pValue);
 
-        _Field fieldList[256];   // TODO: to be refactored with a C++ list
+        _Field fieldList[100];   // TODO: to be refactored with a C++ list
 
         int fieldCount;
 
@@ -149,7 +149,7 @@ class _Motor
 
         void addGroup(_Group pGroup);
 
-        _Group groupList[256];   // TODO: to be refactored with a C++ list
+        _Group groupList[100];   // TODO: to be refactored with a C++ list
 
         int groupCount;
 
@@ -168,9 +168,7 @@ class _QDialogMotor:public QDialog
     Q_OBJECT
 
     private:
-
-
-    protected:
+        QPushButton *qPushButtonClose;
 
 
     public:
@@ -178,7 +176,6 @@ class _QDialogMotor:public QDialog
 
 
     private slots:
-
         void buttonCloseClicked();
 
 };
@@ -199,9 +196,6 @@ class _QPushButtonGroup:public QPushButton
     private:
 
 
-    protected:
-
-
     public:
         _QPushButtonGroup(QWidget * pParent = 0);
 
@@ -217,8 +211,8 @@ class _QPushButtonGroup:public QPushButton
         int currentUserType;
 
 
-    private slots:
-
+    public slots:
+        void buttonGroupClicked();
 
 
 };
@@ -238,10 +232,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
     private:
 
-
-
     protected:
-//        list <_Motor> motorList;
+        list <_Motor> motorList;
         QComboBox *qComboBoxMotor;
         QVBoxLayout *qVBoxLayoutFields;
         QString motorConfiguration;
@@ -285,10 +277,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
             return (userTypesProperty) getCurrentUserType();
         }
 
-
-        _Motor motorList[256];   // TODO: to be refactored with a C++ list
-
-        int motorCount;
 
 
     private slots:
