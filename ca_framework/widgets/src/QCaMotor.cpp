@@ -60,7 +60,7 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     qComboBoxMotor = new QComboBox();
     qComboBoxMotor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     qComboBoxMotor->setToolTip("Select current motor");
-    QObject::connect(qComboBoxMotor, SIGNAL(currentIndexChanged(QString)), this, SLOT(comboBoxMotorSelected(QString)));
+    QObject::connect(qComboBoxMotor, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxMotorSelected(int)));
     qHBoxLayout->addWidget(qComboBoxMotor);
 
     qVBoxLayout->addLayout(qHBoxLayout);
@@ -226,9 +226,9 @@ void QCaMotor::setCurrentUserType(int pValue)
             default:
                 userType = "ENGINEER";
         }
+        qComboBoxMotor->blockSignals(true);
         tmp = qComboBoxMotor->currentText();
         qComboBoxMotor->clear();
-
         iterator = motorList.begin();
         while(iterator != motorList.end())
         {
@@ -238,13 +238,17 @@ void QCaMotor::setCurrentUserType(int pValue)
             }
             iterator++;
         }
-
         i = qComboBoxMotor->findText(tmp);
-        if (i != -1)
+        if (i == -1)
+        {
+            qComboBoxMotor->setCurrentIndex(0);
+        }
+        else
         {
            qComboBoxMotor->setCurrentIndex(i);
         }
         refreshFields();
+        qComboBoxMotor->blockSignals(false);
     }
 
 }
@@ -317,6 +321,9 @@ void QCaMotor::refreshFields()
 
     if (flag)
     {
+
+        qDebug() << motor.groupCount;
+
         for(i = 0; i < motor.groupCount; i++)
         {
             group = &motor.groupList[i];
@@ -375,7 +382,7 @@ void QCaMotor::refreshFields()
 
 
 
-void QCaMotor::comboBoxMotorSelected(QString pValue)
+void QCaMotor::comboBoxMotorSelected(int pValue)
 {
 
     refreshFields();
@@ -692,8 +699,6 @@ void _QDialogMotor::buttonCloseClicked()
     }
 
 }
-
-
 
 
 

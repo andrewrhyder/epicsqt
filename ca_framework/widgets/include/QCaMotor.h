@@ -280,7 +280,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
 
     private slots:
-        void comboBoxMotorSelected(QString);
+        void comboBoxMotorSelected(int);
 
 
 };
