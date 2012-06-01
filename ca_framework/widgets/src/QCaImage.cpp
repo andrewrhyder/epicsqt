@@ -30,9 +30,6 @@
 #include <QCaImage.h>
 #include <QCaByteArray.h>
 #include <QCaInteger.h>
-#include <QtMultimedia>
-#include <QSpacerItem>
-
 
 /*!
     Constructor with no initialisation
@@ -81,7 +78,6 @@ void QCaImage::setup() {
 
     // Create the video destination
     videoWidget = new VideoWidget;
-    surface = videoWidget->videoSurface();
 
     // Add the video destination to the widget
     scrollArea = new QScrollArea;
@@ -118,9 +114,6 @@ void QCaImage::setup() {
     qPushButtonSave->setToolTip("Save displayed image");
     QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
     buttonLayout->addWidget(qPushButtonSave, 0, 1);
-
-
-
 
 
     // Main layout containing image and label layout
@@ -325,16 +318,13 @@ void QCaImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDate
  */
 void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
-
-
+    // If the display is paused, do nothing
     if (pauseEnabled)
     {
         return;
     }
 
-
-
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     emit dbValueChanged( "image" );
 
     // Do nothing if there are no image dimensions yet
@@ -352,48 +342,6 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
         scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
         initScrollPosSet = true;
     }
-
-/* The following code was used to generate a grey scale QImage (Format_Indexed8 using a grey scale lookup table)
-   Since the data is one byte per pixel, it needed to ensure each line was 32bit aligned
-   NOTE!!   This code had the advantage of not having to do ANY processing for 8 bit grey scale
-            images that had 32 bit aligned lines.
-
-    // If supplied data is already 4 byte aligned, copy it straight in
-    if( imageBuffWidth%4 == 0 )
-    {
-        imageBuff = imageIn;
-    }
-
-    // If supplied data is not 4 byte aligned, then align it
-    else
-    {
-        const char* dataIn = imageIn.data();
-        char* dataOut = imageBuff.data();
-        unsigned long buffIndex = 0;
-        unsigned long dataIndex = 0;
-        unsigned long pad = 4-(imageBuffWidth%4);
-        for( unsigned long y = 0; y < imageBuffHeight; y++ )
-        {
-            for( unsigned long x = 0; x < imageBuffWidth; x++ )
-            {
-                // Don't overrun byte array buffer
-                if( buffIndex >= (unsigned long)imageBuff.size() )
-                    break;
-
-                // Copy pixel
-                dataOut[buffIndex] = dataIn[dataIndex];
-                dataIndex++;
-                buffIndex++;
-            }
-            buffIndex += pad;
-        }
-    }
-
-    // Generate a frame from the data
-    QImage image( (uchar*)(imageBuff.data()), imageBuffWidth, imageBuffHeight, QImage::Format_Indexed8 );
-    image.setColorTable( greyscaleColors );
-    QImage frameImage = image.convertToFormat( QImage::Format_RGB888 );
-*/
 
     // Set up input and output pointers and counters ready to process each pixel
     const unsigned char* dataIn = (unsigned char*)imageIn.data();
@@ -413,13 +361,6 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     if( pixelCount * IMAGEBUFF_BYTES_PER_PIXEL > (unsigned long)imageBuff.size() )
     {
         pixelCount = imageBuff.size() / IMAGEBUFF_BYTES_PER_PIXEL;
-    }
-
-    unsigned char* temp = (unsigned char*)(imageBuff.data());
-    int buffSize = imageBuff.size();
-    for( int i = 0; i < buffSize; i++ )
-    {
-        temp[i] = 0;
     }
 
     // Process all pixels.
@@ -463,8 +404,7 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     // Generate a frame from the data
     QImage frameImage( (uchar*)(imageBuff.data()), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32 );
 
-
-
+    // Add the tmie to the image if required
     if (showTimeEnabled)
     {
         QPainter qPainter(&frameImage);
@@ -473,38 +413,9 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
         qPainter.drawText(5, 15, QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss"));
     }
 
-
-
-    QVideoFrame frame( frameImage );
-    if( !frame.isValid() )
-    {
-        qDebug() << "Bad Frame";
-        return;
-    }
-
-
-    // Format and present the frame
-    QVideoSurfaceFormat currentFormat = surface->surfaceFormat();
-
-
-    if( frame.pixelFormat() != currentFormat.pixelFormat() ||
-        frame.size() != currentFormat.frameSize() )
-    {
-        QVideoSurfaceFormat format( frame.size(), frame.pixelFormat() );
-
-        if( !surface->start(format) )
-        {
-            qDebug() << "Surface start failed";
-            return;
-        }
-    }
-
-    if( !surface->present(frame) )
-    {
-        surface->stop();
-        qDebug() << "Surface could not present frame";
-        return;
-    }
+    // Display the new image
+    videoWidget->setNewImage( frameImage );
+    videoWidget->update();
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -952,3 +863,8 @@ QColor QCaImage::getShowTimeColor()
 
 }
 
+// Update the video widget if the QCaImage has changed
+void QCaImage::resizeEvent(QResizeEvent* )
+{
+    setImageBuff();
+}

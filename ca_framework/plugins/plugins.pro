@@ -146,7 +146,6 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaBitStatus.h \
     ../widgets/include/QCaImage.h \
     ../widgets/include/videowidget.h \
-    ../widgets/include/videowidgetsurface.h \
     ../widgets/include/QCaLogin.h \
     ../widgets/include/QCaLog.h \
     ../widgets/include/QCaMotor.h
@@ -240,7 +239,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaBitStatus.cpp \
     ../widgets/src/QCaImage.cpp \
     ../widgets/src/videowidget.cpp \
-    ../widgets/src/videowidgetsurface.cpp \
     ../widgets/src/QCaLogin.cpp \
     ../widgets/src/QCaLog.cpp \
     ../widgets/src/QCaMotor.cpp

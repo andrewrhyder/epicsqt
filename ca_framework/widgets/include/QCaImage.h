@@ -27,7 +27,6 @@
 
 #include <QScrollArea>
 #include <QCaWidget.h>
-#include <QAbstractVideoSurface>
 #include <videowidget.h>
 #include <QCaLabel.h>
 #include <QVBoxLayout>
@@ -177,11 +176,6 @@ private slots:
 
     VideoWidget *videoWidget;
 
-    QAbstractVideoSurface *surface;
-
-
-
-
     QColor qColorShowTime;
     QPushButton *qPushButtonPause;
     QPushButton *qPushButtonSave;
@@ -192,11 +186,6 @@ private slots:
 
     void manageAcquirePeriodLabel();
     void manageExposureTimeLabel();
-    // The following table is required if using Format_Indexed8 QImage with a grey scale lookup table
-    // QVector<QRgb> greyscaleColors;
-
-
-
 
     QByteArray imageBuff;
 #define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32
@@ -212,6 +201,9 @@ protected:
     // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDropText( QString text );
     QString getDropText();
+
+    void resizeEvent(QResizeEvent* );
+
 };
 
-#endif /// QCAIMAGE_H
+#endif // QCAIMAGE_H
