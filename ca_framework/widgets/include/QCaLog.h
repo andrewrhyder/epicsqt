@@ -95,11 +95,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
     Q_OBJECT
 
     private:
-
         void newMessage( QString msg, message_types type );
 
     protected:
         _QTableWidget *qTableWidget;
+        QCheckBox *qCheckBoxInfoMessage;
+        QCheckBox *qCheckBoxWarningMessage;
+        QCheckBox *qCheckBoxErrorMessage;
         QPushButton *qPushButtonClear;
         QPushButton *qPushButtonSave;
         QColor qColorInfo;
@@ -121,6 +123,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 
         void setShowColumnMessage(bool pValue);
         bool getShowColumnMessage();
+
+        void setShowMessageFilter(bool pValue);
+        bool getShowMessageFilter();
 
         void setShowButtonClear(bool pValue);
         bool getShowButtonClear();
@@ -153,6 +158,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
         Q_PROPERTY(bool showColumnType READ getShowColumnType WRITE setShowColumnType)
 
         Q_PROPERTY(bool showColumnMessage READ getShowColumnMessage WRITE setShowColumnMessage)
+
+        Q_PROPERTY(bool showMessageFilter READ getShowMessageFilter WRITE setShowMessageFilter)
 
         Q_PROPERTY(bool showButtonClear READ getShowButtonClear WRITE setShowButtonClear)
 
@@ -200,6 +207,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 
 
     private slots:
+        void checkBoxInfoToggled(bool);
+
+        void checkBoxWarningToggled(bool);
+
+        void checkBoxErrorToggled(bool);
+
         void buttonClearClicked();
 
         void buttonSaveClicked();
@@ -212,6 +225,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 
 
 #endif /// QCALOG_H
-
 
 
