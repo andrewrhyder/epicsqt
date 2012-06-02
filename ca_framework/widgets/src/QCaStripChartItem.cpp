@@ -1,4 +1,4 @@
-/*  QCaStripChartItem.cpp
+/*  $Id: QCaStripChartItem.cpp $
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -50,7 +50,6 @@ static const QColor item_colours [QCaStripChart::NUMBER_OF_PVS] = {
 
 
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
-static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 
 
 //==============================================================================
@@ -199,6 +198,15 @@ void QCaStripChartItem::clear ()
 
 //------------------------------------------------------------------------------
 //
+qcaobject::QCaObject* QCaStripChartItem::getQcaItem ()
+{
+   // We "know" that a QCaLabel has only one PV.
+   //
+   return this->privateData->caLabel->getQcaItem (0);
+}
+
+//------------------------------------------------------------------------------
+//
 void QCaStripChartItem::setPvName (QString pvName, QString substitutions)
 {
    qcaobject::QCaObject *qca;
@@ -212,7 +220,7 @@ void QCaStripChartItem::setPvName (QString pvName, QString substitutions)
 
    // We know that QCaLabels use slot zero for the connection.
    //
-   qca = this->privateData->caLabel->getQcaItem (0);
+   qca = this->getQcaItem ();
    if (qca) {
       QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo&) ),
                         this,  SLOT (setDataConnection (QCaConnectionInfo&) ) );
@@ -257,7 +265,7 @@ TrackRange QCaStripChartItem::getLoprHopr ()
    result.clear ();
 
    if (this->isInUse ()) {
-      qca = this->privateData->caLabel->getQcaItem (0);
+      qca = this->getQcaItem ();
       lopr = qca->getDisplayLimitLower ();
       hopr = qca->getDisplayLimitUpper ();
 
@@ -493,6 +501,20 @@ void QCaStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm
       this->realTimeDataPoints.remove (0);
    }
 }   // setDataValue
+
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChartItem::channelPropertiesClicked (bool)
+{
+   // Eventually lauch a PV setup/edit dialog.
+   //
+   if (this->isInUse()) {
+      // For now just clear from chart.
+      //
+      this->clear ();
+   }
+}
 
 
 //------------------------------------------------------------------------------

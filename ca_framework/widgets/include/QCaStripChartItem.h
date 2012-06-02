@@ -1,4 +1,4 @@
-/*  QCaStripChartItem.h
+/*  $Id: QCaStripChartItem.h $
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -45,7 +45,8 @@
 #include <QCaStripChart.h>
 
 
-// Utility class - move to a separate unit.
+// Utility class - move to a separate unit??
+// Tracks the minimum and maximum range of a value.
 //
 class TrackRange {
 public:
@@ -53,7 +54,7 @@ public:
    void clear ();
    void merge (const double d);
    void merge (const TrackRange that);
-   /* returns true if range is defined together with min and max.
+   /*! returns true if range is defined together with min and max.
     */
    bool getMinMax (double & min, double& max);
 private:
@@ -63,9 +64,9 @@ private:
 };
 
 
-// This is essentially a private classes used soley by the QCaStripChart widget.
-// We have to make is public so that it can be pukka Q_OBJECT and as such receive
-// signals.
+/// This is essentially a private classes used soley by the QCaStripChart widget.
+/// We have to make is public so that it can be pukka Q_OBJECT and as such receive
+/// signals.
 //
 class QCaStripChartItem : public QObject {
    Q_OBJECT
@@ -79,6 +80,7 @@ private:
                       unsigned int slot);
    ~QCaStripChartItem ();
 
+   qcaobject::QCaObject* getQcaItem ();   // Return reference to QCaLabel used to stream CA updates
    QCaVariableNamePropertyManager pvNameProperyManager;
    void setPvName (QString pvName, QString substitutions);
    QString getPvName ();
@@ -118,6 +120,7 @@ private slots:
    void newVariableNameProperty (QString pvName, QString substitutions, unsigned int slot);
    void setDataConnection (QCaConnectionInfo& connectionInfo);
    void setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime);
+   void channelPropertiesClicked (bool checked = false);
 };
 
 #endif  // QSTRIPCHARTITEM_H

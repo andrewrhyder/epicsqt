@@ -1,4 +1,4 @@
-/*  QCaStripChart.h
+/*  $Id: QCaStripChart.h $
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -28,6 +28,7 @@
 #define QCASTRIPCHART_H
 
 #include <QObject>
+#include <QColor>
 #include <QFrame>
 #include <QSize>
 #include <QDateTime>
@@ -63,6 +64,19 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStripChart : public QFrame, public QCaWid
    Q_PROPERTY (QString variable10 READ getPropertyVariableName10 WRITE setPropertyVariableName10)
    Q_PROPERTY (QString variable11 READ getPropertyVariableName11 WRITE setPropertyVariableName11)
    Q_PROPERTY (QString variable12 READ getPropertyVariableName12 WRITE setPropertyVariableName12)
+
+   Q_PROPERTY (QColor  color1     READ getColor1Property         WRITE setColor1Property)
+   Q_PROPERTY (QColor  color2     READ getColor2Property         WRITE setColor2Property)
+   Q_PROPERTY (QColor  color3     READ getColor3Property         WRITE setColor3Property)
+   Q_PROPERTY (QColor  color4     READ getColor4Property         WRITE setColor4Property)
+   Q_PROPERTY (QColor  color5     READ getColor5Property         WRITE setColor5Property)
+   Q_PROPERTY (QColor  color6     READ getColor6Property         WRITE setColor6Property)
+   Q_PROPERTY (QColor  color7     READ getColor7Property         WRITE setColor7Property)
+   Q_PROPERTY (QColor  color8     READ getColor8Property         WRITE setColor8Property)
+   Q_PROPERTY (QColor  color9     READ getColor9Property         WRITE setColor9Property)
+   Q_PROPERTY (QColor  color10    READ getColor10Property        WRITE setColor10Property)
+   Q_PROPERTY (QColor  color11    READ getColor11Property        WRITE setColor11Property)
+   Q_PROPERTY (QColor  color12    READ getColor12Property        WRITE setColor12Property)
 
 public:
    enum Constants {
@@ -145,13 +159,19 @@ private:
    void    setVariableNameProperty (unsigned int slot, QString pvName);
    QString getVariableNameProperty (unsigned int slot);
 
+   void   setColorProperty (unsigned int slot, QColor color);
+   QColor getColorProperty (unsigned int slot);
+
    // Property access READ and WRITE functions.
    // We can define the access functions using a macro.
    // Alas we cannot embedded the property definition itself in a macro.
    //
    #define PROPERTY_ACCESS(slot)  \
       void    setPropertyVariableName##slot (QString name) { this->setVariableNameProperty (slot - 1, name); }   \
-      QString getPropertyVariableName##slot ()      { return this->getVariableNameProperty (slot - 1); }
+      QString getPropertyVariableName##slot ()      { return this->getVariableNameProperty (slot - 1); }         \
+                                                                                                                 \
+      void   setColor##slot##Property (QColor color) { this->setColorProperty (slot - 1, color); }               \
+      QColor getColor##slot##Property ()      { return this->getColorProperty (slot - 1); }
 
    PROPERTY_ACCESS  (1)
    PROPERTY_ACCESS  (2)
@@ -174,7 +194,6 @@ private slots:
    void menuSetDuration (QAction *action);
    void menuSetTimeMode (QAction *action);
    void readArchiveClicked (bool checked = false);
-   void channelPropertiesClicked (bool checked = false);
 };
 
 # endif  // QCASTRIPCHART_H

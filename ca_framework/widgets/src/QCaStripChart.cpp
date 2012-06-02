@@ -1,4 +1,4 @@
-/*  QCaStripChart.cpp
+/*  $Id: QCaStripChart.cpp $
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -30,7 +30,6 @@
 #include <QFont>
 #include <QPen>
 #include <QBrush>
-#include <QColor>
 #include <QPushButton>
 #include <QMenu>
 #include <QToolButton>
@@ -137,11 +136,12 @@ private:
    QPushButton * b3;
    QMenu *m3;
    QPushButton * b4;
-   QPushButton * b5;
 
+   QToolButton *channelProperties [NUMBER_OF_PVS];
    QLabel *pvNames [NUMBER_OF_PVS];
    QCaLabel *caLabels [NUMBER_OF_PVS];
    QCaStripChartItem *items [NUMBER_OF_PVS];
+
    QVector<QwtPlotCurve *> curve_list;
 
    double minY, maxY;
@@ -219,13 +219,8 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    this->b3->setMenu (this->m3);
 
    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   this->b4 = new QPushButton ("Channel Properites", this->toolFrame);
-   QObject::connect (this->b4,  SIGNAL (clicked                  (bool)),
-                     this->chart, SLOT (channelPropertiesClicked (bool)));
-
-   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   this->b5 = new QPushButton ("Read Archive", this->toolFrame);
-   QObject::connect (this->b5,  SIGNAL (clicked            (bool)),
+   this->b4 = new QPushButton ("Read Archive", this->toolFrame);
+   QObject::connect (this->b4,  SIGNAL (clicked            (bool)),
                      this->chart, SLOT (readArchiveClicked (bool)));
 
 
@@ -235,31 +230,36 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    this->b1->setGeometry (left, 4, 76, 24);   left += 4 + 76;
    this->b2->setGeometry (left, 4, 76, 24);   left += 4 + 76;
    this->b3->setGeometry (left, 4, 96, 24);   left += 4 + 96;
-   this->b4->setGeometry (left, 4, 132, 24);  left += 4 + 132;
-   this->b5->setGeometry (left, 4, 112, 24);  left += 4 + 112;
+   this->b4->setGeometry (left, 4, 100, 24);  left += 4 + 100;
 
    // Create PV frame and PV name labels and associated CA labels.
    //
    this->pvFrame = new QFrame (this->chart);
    this->pvFrame->setFrameShape (QFrame::Panel);
-   this->pvFrame->setFixedHeight ( (NUMBER_OF_PVS / 2) * 18 + 12 );
+   this->pvFrame->setFixedHeight ( (NUMBER_OF_PVS / 2) * 18 + 8);
 
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       int x, y;
 
-      x = (slot % 2) * 488 + 6;
-      y = (slot / 2) * 18  + 6;
-
+      this->channelProperties [slot] = new QToolButton (this->pvFrame);
       this->pvNames [slot] = new QLabel (this->pvFrame);
-      this->pvNames [slot]->setGeometry  (x,       y, 340, 15);
-
       this->caLabels [slot] = new QCaLabel (this->pvFrame);
-      this->caLabels [slot]->setGeometry (x + 348, y, 120, 15);
+
+      x = (slot % 2) * 492 + 4;
+      y = (slot / 2) * 18  + 4;
+
+      this->channelProperties [slot]->setGeometry (x, y,  16, 15); x += 20;
+      this->pvNames [slot]->setGeometry           (x, y, 340, 15); x += 344;
+      this->caLabels [slot]->setGeometry          (x, y, 120, 15); x += 124;
 
       this->items [slot] = new QCaStripChartItem (this->chart,
                                                   this->pvNames [slot],
                                                   this->caLabels [slot],
                                                   slot);
+
+      QObject::connect (this->channelProperties [slot],  SIGNAL (clicked            (bool)),
+                        this->items [slot],              SLOT   (channelPropertiesClicked (bool)));
+
    }
 
    // Create plotting frame and plot area.
@@ -300,7 +300,8 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
 QCaStripChart::PrivateData::~PrivateData ()
 {
    this->releaseCurves ();
-   // all the QWidget are (indirectly) paraented by this - they are automatically deleted.
+   // all the created QWidget are (indirectly) parented by this QCaStripChart,
+   // they are automatically deleted.
 }
 
 //------------------------------------------------------------------------------
@@ -372,7 +373,7 @@ void QCaStripChart::PrivateData::calcDisplayMinMax ()
 
    if (tr.getMinMax (min, max) == true) {
       this->minY = min;
-      this->maxY = MAX (max, min + 1.0E-6);
+      this->maxY = MAX (max, min + 1.0E-3);
    } // else do not change.
 }
 
@@ -387,16 +388,6 @@ void QCaStripChart::PrivateData::plotData ()
    d = this->chart->getDuration ();
    this->plot->setAxisScale (QwtPlot::xBottom, -d,         0.0,         d/5.0);
 
-   if (this->chartYScale == ysDynamic) {
-      // Re-calculate chart range.
-      // Technically we should plot data to find the latest min/max range and
-      // then replot, but the cost/benefit seems excessive.
-      //
-      this->calcDisplayMinMax ();
-   }
-   step = (this->maxY - this->maxY)/5.0;
-   this->plot->setAxisScale (QwtPlot::yLeft, this->minY, this->maxY, step);
-
    // Update the plot
    //
    this->releaseCurves ();
@@ -405,6 +396,15 @@ void QCaStripChart::PrivateData::plotData ()
           this->getItem (slot)->plotData ();
       }
    }
+
+   if (this->chartYScale == ysDynamic) {
+      // Re-calculate chart range.
+      //
+      this->calcDisplayMinMax ();
+   }
+   step = (this->maxY - this->maxY)/5.0;
+   this->plot->setAxisScale (QwtPlot::yLeft, this->minY, this->maxY, step);
+
    this->plot->replot ();
 }
 
@@ -471,6 +471,31 @@ QString QCaStripChart::getVariableNameProperty (unsigned int slot)
    } else {
       DEBUG << "slot out of range " << slot;
       return "";
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChart::setColorProperty (unsigned int slot, QColor color)
+{
+   if (slot < NUMBER_OF_PVS) {
+      QCaStripChartItem * item = this->privateData->getItem (slot);
+      item->setColor (color);
+   } else {
+      DEBUG << "slot out of range " << slot;
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QColor QCaStripChart::getColorProperty (unsigned int slot)
+{
+   if (slot < NUMBER_OF_PVS) {
+      QCaStripChartItem * item = this->privateData->getItem (slot);
+      return item->getColor ();
+   } else {
+      DEBUG << "slot out of range " << slot;
+      return QColor (0x00, 0x00, 0x00, 0xFF);
    }
 }
 
@@ -622,13 +647,6 @@ void QCaStripChart::menuSetTimeMode (QAction *action)
 void QCaStripChart::readArchiveClicked (bool checked)
 {
    DEBUG << "TBD" << checked;
-}
-
-//------------------------------------------------------------------------------
-//
-void QCaStripChart::channelPropertiesClicked (bool checked)
-{
-   DEBUG <<  "TBD" << checked;
 }
 
 //------------------------------------------------------------------------------

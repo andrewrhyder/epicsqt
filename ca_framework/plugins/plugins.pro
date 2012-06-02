@@ -38,6 +38,7 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaRadioButton.png \
     src/QCaPlot.png \
     src/QCaPvProperties.png \
+    src/QCaStripChart.png \
     src/QCaLineEdit.png \
     src/QCaLabel.png \
     src/QSubstitutedLabel.png \
@@ -89,6 +90,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/QAnalogProgressBarPluginManager.h \
     include/QCaAnalogProgressBarPluginManager.h \
     include/QCaPvPropertiesPluginManager.h \
+    include/QCaStripChartPluginManager.h \
     include/QBitStatusPluginManager.h \
     include/QCaBitStatusPluginManager.h \
     include/QCaImagePluginManager.h \
@@ -103,6 +105,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../api/include/CaObjectPrivate.h \
     ../data/include/VariableNameManager.h \
     ../data/include/UserMessage.h \
+    ../data/include/QCaDataPoint.h \
     ../data/include/QCaWidget.h \
     ../data/include/QCaVariableNamePropertyManager.h \
     ../data/include/QCaStringFormatting.h \
@@ -129,6 +132,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaShape.h \
     ../widgets/include/QCaPushButton.h \
     ../widgets/include/QCaPvProperties.h \
+    ../widgets/include/QCaStripChart.h \
+    ../widgets/include/QCaStripChartItem.h \
     ../widgets/include/QCaRadioButton.h \
     ../widgets/include/QCaGenericButton.h \
     ../widgets/include/QCaLineEdit.h \
@@ -187,6 +192,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaImagePluginManager.cpp \
     src/QCaImagePlugin.cpp \
     src/QCaPvPropertiesPluginManager.cpp \
+    src/QCaStripChartPluginManager.cpp \
     src/QCaLoginPluginManager.cpp \
     src/QCaLogPluginManager.cpp \
     src/QCaMotorPluginManager.cpp \
@@ -222,6 +228,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaShape.cpp \
     ../widgets/src/QCaPushButton.cpp \
     ../widgets/src/QCaPvProperties.cpp \
+    ../widgets/src/QCaStripChart.cpp \
+    ../widgets/src/QCaStripChartItem.cpp \
     ../widgets/src/QCaRadioButton.cpp \
     ../widgets/src/QCaGenericButton.cpp \
     ../widgets/src/QCaLineEdit.cpp \
@@ -265,3 +273,4 @@ FORMS += \
     ../widgets/src/PeriodicDialog.ui \
     src/PeriodicSetupDialog.ui \
     src/PeriodicElementSetupForm.ui
+

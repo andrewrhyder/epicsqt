@@ -45,6 +45,7 @@ public:
     unsigned int getMessageSourceId(){ return getSourceId(); }
     void setMessageSourceId( unsigned int messageSourceId ){ setSourceId( messageSourceId ); }
 
+    qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         /// Return a reference to one of the qCaObjects used to stream CA updates
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );    /// Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
@@ -56,8 +57,6 @@ protected:
 
     virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ); /// Function to create a appropriate superclass of QCaObject to stream data updates
     virtual void establishConnection( unsigned int variableIndex );     /// Create a CA connection and initiates updates if required
-
-    qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         /// Return a reference to one of the qCaObjects used to stream CA updates
 
 private:
     void deleteQcaItem( unsigned int variableIndex );       /// Delete a stream of CA updates
