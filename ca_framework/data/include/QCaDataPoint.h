@@ -31,12 +31,14 @@
 #include <QCaAlarmInfo.h>
 #include <QCaDateTime.h>
 
-// As intended to QCaStripChart in particular, we just use a double
-// value and not bother with a variant.
-//
-// A double can use used for all EPICS data types except string.
+// This struct used to hold a single data point. Objects of this type are
+// intended for use QCaStripChart in particular, but also for the interface
+// to the Channel Access archives.
 //
 struct QCaDataPoint {
+   // We don't bother with a variant but just use a double.  A double can be
+   // used to hold all CA data types except strings (which is are not plotable).
+   //
    double value;
    QCaDateTime datetime;  // datetime + nSec
    QCaAlarmInfo alarm;

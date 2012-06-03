@@ -140,7 +140,7 @@ private:
    //
    QTimer* tickTimer;
 
-   // Chart time range.
+   // Chart time range in seconds.
    //
    int duration;
    QDateTime endTime;

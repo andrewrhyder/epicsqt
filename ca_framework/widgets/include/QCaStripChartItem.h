@@ -24,6 +24,7 @@
  *    andrew.starritt@synchrotron.org.au
  *
  */
+
 #ifndef QSTRIPCHARTITEM_H
 #define QSTRIPCHARTITEM_H
 

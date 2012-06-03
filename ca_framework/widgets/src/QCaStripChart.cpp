@@ -179,27 +179,28 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
 
    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    this->m2 = new QMenu ();
-   this->m2->addAction ("1s  ")->setData (QVariant (1));
-   this->m2->addAction ("2s  ")->setData (QVariant (2));
-   this->m2->addAction ("5s  ")->setData (QVariant (5));
-   this->m2->addAction ("10s ")->setData (QVariant (10));
-   this->m2->addAction ("20s ")->setData (QVariant (20));
-   this->m2->addAction ("30s ")->setData (QVariant (30));
+   this->m2->addAction ("1 sec   ")->setData (QVariant (1));
+   this->m2->addAction ("2 secs  ")->setData (QVariant (2));
+   this->m2->addAction ("5 secs  ")->setData (QVariant (5));
+   this->m2->addAction ("10 secs ")->setData (QVariant (10));
+   this->m2->addAction ("20 secs ")->setData (QVariant (20));
+   this->m2->addAction ("30 secs ")->setData (QVariant (30));
 
-   this->m2->addAction ("1m  ")->setData (QVariant (1*60));
-   this->m2->addAction ("2m  ")->setData (QVariant (2*60));
-   this->m2->addAction ("5m  ")->setData (QVariant (5*60));
-   this->m2->addAction ("10m ")->setData (QVariant (10*60));
-   this->m2->addAction ("20m ")->setData (QVariant (20*60));
-   this->m2->addAction ("30m ")->setData (QVariant (30*60));
+   this->m2->addAction ("1 min   ")->setData (QVariant (1*60));
+   this->m2->addAction ("2 mins  ")->setData (QVariant (2*60));
+   this->m2->addAction ("5 mins  ")->setData (QVariant (5*60));
+   this->m2->addAction ("10 mins ")->setData (QVariant (10*60));
+   this->m2->addAction ("20 mins ")->setData (QVariant (20*60));
+   this->m2->addAction ("30 mins ")->setData (QVariant (30*60));
 
-   this->m2->addAction ("1h  ")->setData (QVariant (1*3600));
-   this->m2->addAction ("2h  ")->setData (QVariant (2*3600));
-   this->m2->addAction ("4h  ")->setData (QVariant (4*3600));
-   this->m2->addAction ("12h ")->setData (QVariant (12*3600));
+   this->m2->addAction ("1 hr   ")->setData (QVariant (1*3600));
+   this->m2->addAction ("2 hrs  ")->setData (QVariant (2*3600));
+   this->m2->addAction ("4 hrs  ")->setData (QVariant (4*3600));
+   this->m2->addAction ("12 hrs ")->setData (QVariant (12*3600));
 
-   this->m2->addAction ("1d  ")->setData (QVariant (1*86400));
-   this->m2->addAction ("2d  ")->setData (QVariant (2*86400));
+   this->m2->addAction ("1 day  ")->setData (QVariant (1*86400));
+   this->m2->addAction ("2 days ")->setData (QVariant (2*86400));
+   this->m2->addAction ("7 days ")->setData (QVariant (7*86400));
 
    QObject::connect (this->m2,  SIGNAL (triggered       (QAction *)),
                      this->chart, SLOT (menuSetDuration (QAction *)));
@@ -256,6 +257,10 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
                                                   this->pvNames [slot],
                                                   this->caLabels [slot],
                                                   slot);
+
+      // TODO: Update once a proper setup dialog has been created.
+      //
+      this->channelProperties [slot]->setToolTip ("Remove this PV from stripchart");
 
       QObject::connect (this->channelProperties [slot],  SIGNAL (clicked            (bool)),
                         this->items [slot],              SLOT   (channelPropertiesClicked (bool)));

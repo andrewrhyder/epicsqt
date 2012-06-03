@@ -188,11 +188,14 @@ void QCaStripChartItem::clear ()
 {
    this->privateData->pvName->setText ("");
    this->privateData->caLabel->setVariableNameAndSubstitutions ("", "", 0);
+   this->privateData->caLabel->setText ("-");
 
    this->displayedMinMax.clear ();
    this->bufferedMinMax.clear ();
    this->historicalTimeDataPoints.clear ();
    this->realTimeDataPoints.clear ();
+
+   this->privateData->chart->calcAllowDrop ();
 }   // clear
 
 
@@ -214,6 +217,11 @@ void QCaStripChartItem::setPvName (QString pvName, QString substitutions)
    // Clear any existing data and reset defaults.
    //
    this->clear ();
+
+   // Verify caller attempting add a potentially sensible PV?
+   //
+   pvName = pvName.trimmed ();
+   if (pvName == "") return;
 
    this->privateData->pvName->setText (pvName);
    this->privateData->caLabel->setVariableNameAndSubstitutions (pvName, substitutions, 0);
@@ -507,11 +515,10 @@ void QCaStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm
 //
 void QCaStripChartItem::channelPropertiesClicked (bool)
 {
-   // Eventually lauch a PV setup/edit dialog.
+   // TODO: Eventually lauch a PV setup/edit dialog form.
+   // For now just clear this PV from the chart.
    //
    if (this->isInUse()) {
-      // For now just clear from chart.
-      //
       this->clear ();
    }
 }
