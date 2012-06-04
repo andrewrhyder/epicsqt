@@ -239,65 +239,68 @@ bool QCaLog::getShowButtonSave()
 void QCaLog::setDetailsLayout(int pValue)
 {
 
-    QGridLayout *qGridLayout;
-    QLayout *qLayout;
+    QLayout *qLayoutMain;
+    QLayout *qLayoutChild;
 
 
     delete layout();
-    qGridLayout = new QGridLayout(this);
 
     switch(pValue)
     {
         case TOP:
             detailsLayout = TOP;
-            qLayout = new QHBoxLayout();
-            qLayout->addWidget(qCheckBoxInfoMessage);
-            qLayout->addWidget(qCheckBoxWarningMessage);
-            qLayout->addWidget(qCheckBoxErrorMessage);
-            qGridLayout->addLayout(qLayout, 0, 0, 1, 2);
-            qLayout = new QHBoxLayout();
-            qLayout->addWidget(qPushButtonClear);
-            qLayout->addWidget(qPushButtonSave);
-            qGridLayout->addLayout(qLayout, 1, 0, 1, 2);
-            qGridLayout->addWidget(qTableWidget, 2, 0);
+            qLayoutMain = new QVBoxLayout(this);
+            qLayoutChild = new QHBoxLayout();
+            qLayoutChild->addWidget(qCheckBoxInfoMessage);
+            qLayoutChild->addWidget(qCheckBoxWarningMessage);
+            qLayoutChild->addWidget(qCheckBoxErrorMessage);
+            qLayoutMain->addItem(qLayoutChild);
+            qLayoutChild = new QHBoxLayout();
+            qLayoutChild->addWidget(qPushButtonClear);
+            qLayoutChild->addWidget(qPushButtonSave);
+            qLayoutMain->addItem(qLayoutChild);
+            qLayoutMain->addWidget(qTableWidget);
             break;
 
         case BOTTOM:
             detailsLayout = BOTTOM;
-            qGridLayout->addWidget(qTableWidget, 0, 0);
-            qLayout = new QHBoxLayout();
-            qLayout->addWidget(qCheckBoxInfoMessage);
-            qLayout->addWidget(qCheckBoxWarningMessage);
-            qLayout->addWidget(qCheckBoxErrorMessage);
-            qGridLayout->addLayout(qLayout, 1, 0, 1, 2);
-            qLayout = new QHBoxLayout();
-            qLayout->addWidget(qPushButtonClear);
-            qLayout->addWidget(qPushButtonSave);
-            qGridLayout->addLayout(qLayout, 2, 0, 1, 2);
+            qLayoutMain = new QVBoxLayout(this);
+            qLayoutChild = new QHBoxLayout();
+            qLayoutMain->addWidget(qTableWidget);
+            qLayoutChild->addWidget(qCheckBoxInfoMessage);
+            qLayoutChild->addWidget(qCheckBoxWarningMessage);
+            qLayoutChild->addWidget(qCheckBoxErrorMessage);
+            qLayoutMain->addItem(qLayoutChild);
+            qLayoutChild = new QHBoxLayout();
+            qLayoutChild->addWidget(qPushButtonClear);
+            qLayoutChild->addWidget(qPushButtonSave);
+            qLayoutMain->addItem(qLayoutChild);
             break;
 
         case LEFT:
             detailsLayout = LEFT;
-            qLayout = new QVBoxLayout();
-            qLayout->addWidget(qCheckBoxInfoMessage);
-            qLayout->addWidget(qCheckBoxWarningMessage);
-            qLayout->addWidget(qCheckBoxErrorMessage);
-            qLayout->addWidget(qPushButtonClear);
-            qLayout->addWidget(qPushButtonSave);
-            qGridLayout->addLayout(qLayout, 0, 0);
-            qGridLayout->addWidget(qTableWidget, 0, 1);
+            qLayoutMain = new QHBoxLayout(this);
+            qLayoutChild = new QVBoxLayout();
+            qLayoutChild->addWidget(qCheckBoxInfoMessage);
+            qLayoutChild->addWidget(qCheckBoxWarningMessage);
+            qLayoutChild->addWidget(qCheckBoxErrorMessage);
+            qLayoutChild->addWidget(qPushButtonClear);
+            qLayoutChild->addWidget(qPushButtonSave);
+            qLayoutMain->addItem(qLayoutChild);
+            qLayoutMain->addWidget(qTableWidget);
             break;
 
         case RIGHT:
             detailsLayout = RIGHT;
-            qLayout = new QVBoxLayout();
-            qLayout->addWidget(qCheckBoxInfoMessage);
-            qLayout->addWidget(qCheckBoxWarningMessage);
-            qLayout->addWidget(qCheckBoxErrorMessage);
-            qLayout->addWidget(qPushButtonClear);
-            qLayout->addWidget(qPushButtonSave);
-            qGridLayout->addWidget(qTableWidget, 0, 0);
-            qGridLayout->addLayout(qLayout, 0, 1);
+            qLayoutMain = new QHBoxLayout(this);
+            qLayoutChild = new QVBoxLayout();
+            qLayoutChild->addWidget(qCheckBoxInfoMessage);
+            qLayoutChild->addWidget(qCheckBoxWarningMessage);
+            qLayoutChild->addWidget(qCheckBoxErrorMessage);
+            qLayoutChild->addWidget(qPushButtonClear);
+            qLayoutChild->addWidget(qPushButtonSave);
+            qLayoutMain->addWidget(qTableWidget);
+            qLayoutMain->addItem(qLayoutChild);
     }
 
 }
@@ -317,14 +320,9 @@ int QCaLog::getDetailsLayout()
 
 void QCaLog::setInfoColor(QColor pValue)
 {
-    QPalette qPalette;
 
     qColorInfo = pValue;
-
-//    qPalette = qCheckBoxInfoMessage->palette();
-//    qPalette.setColor(QPalette::WindowText, Qt::red);
-//    qCheckBoxInfoMessage->setPalette(qPalette);
-
+    qCheckBoxInfoMessage->setStyleSheet("QCheckBox{color: rgb(" + QString::number(pValue.red()) + ", " + QString::number(pValue.green()) + ", " + QString::number(pValue.blue()) + ")}");
     refreshLog();
 
 }
@@ -344,6 +342,7 @@ void QCaLog::setWarningColor(QColor pValue)
 {
 
     qColorWarning = pValue;
+    qCheckBoxWarningMessage->setStyleSheet("QCheckBox{color: rgb(" + QString::number(pValue.red()) + ", " + QString::number(pValue.green()) + ", " + QString::number(pValue.blue()) + ")}");
     refreshLog();
 
 }
@@ -363,6 +362,7 @@ void QCaLog::setErrorColor(QColor pValue)
 {
 
     qColorError = pValue;
+    qCheckBoxErrorMessage->setStyleSheet("QCheckBox{color: rgb(" + QString::number(pValue.red()) + ", " + QString::number(pValue.green()) + ", " + QString::number(pValue.blue()) + ")}");
     refreshLog();
 
 }
@@ -519,7 +519,6 @@ void QCaLog::addLog(int pType, QString pMessage)
             type = "";
     }
 
-
     if (type.isEmpty() == false)
     {
         i = qTableWidget->rowCount();
@@ -543,7 +542,6 @@ void QCaLog::addLog(int pType, QString pMessage)
         qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 0, qTableWidgetItem);
         qTableWidgetItem = new QTableWidgetItem(type);
-//        qTableWidgetItem->setTextAlignment(Qt::AlignCenter);
         qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 1, qTableWidgetItem);
         qTableWidgetItem = new QTableWidgetItem(pMessage);
@@ -624,7 +622,6 @@ _QTableWidget::_QTableWidget(QWidget *pParent):QTableWidget(pParent)
     initialized = false;
 
 }
-
 
 
 
@@ -715,7 +712,7 @@ void _QTableWidget::refreshSize()
 void _QTableWidget::resizeEvent(QResizeEvent *pEvent)
 {
 
-    // TODO: this condition should also always be execute when inside Qt Designer
+    // TODO: this condition should always be execute when inside Qt Designer
     if (initialized == false)
     {
         refreshSize();

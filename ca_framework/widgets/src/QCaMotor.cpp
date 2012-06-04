@@ -283,7 +283,6 @@ void QCaMotor::refreshFields()
     _Group *group;
     _Field *field;
     bool flag;
-    int i;
 
 
     while(qVBoxLayoutFields->isEmpty() == false)
@@ -645,7 +644,6 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
     QCaLineEdit *qCaLineEdit;
     QString userType;
     _Field *field;
-    int i;
 
 
     qVBoxLayout = new QVBoxLayout();
