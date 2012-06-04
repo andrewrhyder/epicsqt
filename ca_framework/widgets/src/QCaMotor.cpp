@@ -109,9 +109,10 @@ void QCaMotor::setMotorConfiguration(QString pValue)
         flag = document.setContent(motorConfiguration);
     }
 
+
+    motorList.clear();
     if (flag)
     {
-        motorList.clear();
         rootElement = document.documentElement();
         if (rootElement.tagName() == "epicsqt")
         {
@@ -177,8 +178,8 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                 rootNode = rootNode.nextSibling();
             }
         }
-        setCurrentUserType(currentUserType);
     }
+    setCurrentUserType(currentUserType);
 
 }
 
