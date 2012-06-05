@@ -1,10 +1,3 @@
-/*!
-  \class QCaDatetime
-  \version $Revision: #4 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author andrew.rhyder
-  \brief CA Date Time manager
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -97,12 +90,12 @@ QString QCaDateTime::text() {
 }
 
 /*!
-  Returns a double which represents the date and time in seconds (to mS resolution) to the base time
+  Returns a double which represents the date and time in seconds (to mS resolution) from the base time
  */
 double QCaDateTime::floating( QDateTime base ) {
 
     int days = base.date().daysTo( date() );
     int mSecs = base.time().msecsTo( time() );
 
-    return (double)days + (double)mSecs / 1000;
+    return (double)(days) * 86400.0 + (double)mSecs / 1000;
 }
