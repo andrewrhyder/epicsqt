@@ -98,6 +98,7 @@ protected:
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
     void writeValue( QCaString *qca, QString newValue );
+    virtual void valueWritten( const QString, const QString ){}     // method to notify a derived class that a value has just been written
     QString lastValue;                      /// Last updated value (may have arrived while user is editing field)
 
     QCAALARMINFO_SEVERITY lastSeverity;

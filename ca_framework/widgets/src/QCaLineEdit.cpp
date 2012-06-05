@@ -270,9 +270,10 @@ void QCaLineEdit::writeValue( QCaString *qca, QString newValue )
     /// Perform the required action. Either write the value (the default) or what ever the user requested
     switch( confirm )
     {
-        /// Write the value
+        /// Write the value and inform any derived class
         case QMessageBox::Yes:
             qca->writeString( newValue );
+            valueWritten( newValue, lastValue );
             setText( text() );          /// Clear 'isModified' flag
             break;
 
