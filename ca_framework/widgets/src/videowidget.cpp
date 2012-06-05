@@ -6,6 +6,8 @@
 VideoWidget::VideoWidget(QWidget *parent)
     : QWidget(parent)
 {
+    playImage = NULL;
+
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setAttribute(Qt::WA_PaintOnScreen, true);
@@ -21,7 +23,10 @@ VideoWidget::VideoWidget(QWidget *parent)
 
 VideoWidget::~VideoWidget()
 {
-
+    if( playImage )
+    {
+        delete playImage;
+    }
 }
 
 /*
@@ -53,6 +58,37 @@ void VideoWidget::paintEvent(QPaintEvent* )
     }
 }
 
+//// The markup overlay has changed, redraw part of it
+//void VideoWidget::markupChange( QImage& markups, QRect changedArea )
+//{
+//    qDebug() << "VideoWidget::markupChange" << changedArea;
+//    // If the image used for preparing the combined image and markup
+//    // fragments is present, but the wrong size, delete it
+//    if( playImage && playImage->size() != markupImage.size() )
+//    {
+//        delete playImage;
+//        playImage = NULL;
+//    }
+
+//    // If the image used for preparing the combined image and markup
+//    // fragments is not present, create it
+//    if( !playImage )
+//    {
+//        playImage = new QImage( markupImage.size(), markupImage.format() );
+//    }
+
+////!!! the following double buffers the drawing of the markups. This avoids bits of markups flickering
+////!!! is this achieved easier (or even free) by the fact that the changed image won't be flushed to the screen between two paints to the widget?
+
+//    // Draw the changed markup area over the image
+//    QPainter playPainter( playImage );
+//    playPainter.drawImage( changedArea, currentImage, changedArea );
+//    playPainter.drawImage( changedArea, markups, changedArea );
+
+//    // Update the changed part of the image
+//    QPainter screenPainter( this );
+//    screenPainter.drawImage( changedArea, *playImage, changedArea );
+//}
 
 /*
 void VideoWidget::resizeEvent(QResizeEvent *event)
@@ -69,24 +105,24 @@ void VideoWidget::setRotation( double angle )
 //    surface->setRotation( angle );
 }
 
-void VideoWidget::mousePressEvent(QMouseEvent *event)
-{
+//void VideoWidget::mousePressEvent(QMouseEvent *event)
+//{
+//
+//    qDebug() << event << event->pos();
+//}
 
-    qDebug() << event << event->pos();
-}
+//void VideoWidget::mouseReleaseEvent ( QMouseEvent * event )
+//{
+//    qDebug() << event << event->pos();
+//}
 
-void VideoWidget::mouseReleaseEvent ( QMouseEvent * event )
-{
-    qDebug() << event << event->pos();
-}
+//void VideoWidget::mouseMoveEvent ( QMouseEvent * event )
+//{
+//    qDebug() << event << event->pos();
 
-void VideoWidget::mouseMoveEvent ( QMouseEvent * event )
-{
-    qDebug() << event << event->pos();
-
-}
-void VideoWidget::wheelEvent( QWheelEvent* event )
-{
-    qDebug() << event << event->pos();
-}
+//}
+//void VideoWidget::wheelEvent( QWheelEvent* event )
+//{
+//    qDebug() << event << event->pos();
+//}
 

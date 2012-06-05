@@ -68,6 +68,10 @@ void QCaImage::setup() {
     initialHozScrollPos = 0;
     initialVertScrollPos = 0;
     initScrollPosSet = false;
+    formatOption = GREY8;
+    setShowTimeColor(QColor(0, 255, 0));
+    pauseEnabled = false;
+    showTimeEnabled = false;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -86,7 +90,7 @@ void QCaImage::setup() {
     scrollArea->setWidget( videoWidget );
     scrollArea->setEnabled( false );  // Reflects initial disconnected state
 
-    // Sum layout containing labels
+    // Create label layout
     labelLayout = new QGridLayout;
     labelLayout->setMargin( 0 );
 
@@ -98,8 +102,7 @@ void QCaImage::setup() {
     exposureTimeLabel = new QLabel( this );
     exposureTimeLabel->setText( "Exposure Time:" );
 
-
-
+    // Create button layout
     buttonLayout = new QGridLayout;
     buttonLayout->setMargin(0);
 
@@ -115,8 +118,7 @@ void QCaImage::setup() {
     QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
     buttonLayout->addWidget(qPushButtonSave, 0, 1);
 
-
-    // Main layout containing image and label layout
+    // Create main layout containing image, label, and button layouts
     mainLayout = new QVBoxLayout;
     mainLayout->setMargin( 0 );
 
@@ -124,10 +126,9 @@ void QCaImage::setup() {
     mainLayout->addItem( labelLayout );
     mainLayout->addItem(buttonLayout);
 
-
     setLayout( mainLayout );
 
-    // set up labels as required by properties
+    // Set up labels as required by properties
     manageAcquirePeriodLabel();
     manageExposureTimeLabel();
 
@@ -135,28 +136,10 @@ void QCaImage::setup() {
     // This will be resized when the image size is known
     videoWidget->resize( scrollArea->width(), scrollArea->height() );
 
-    // Populate color index table for grayscale
-    // The following table is required if using Format_Indexed8 QImage with a grey scale lookup table
-    //for( int i = 0; i < 256; i++ )
-    //{
-    //    greyscaleColors.append( (i<<16)+(i<<8)+i );
-    //}
-
     // Set image size to zero
     // Image will not be presented until size is available
     imageBuffWidth = 0;
     imageBuffHeight = 0;
-
-    // Set default image format
-    formatOption = GREY8;
-
-
-    setShowTimeColor(QColor(0, 255, 0));
-
-    pauseEnabled = false;
-    showTimeEnabled = false;
-
-
 }
 
 QCaImage::~QCaImage()
@@ -533,9 +516,80 @@ void QCaImage::manageExposureTimeLabel()
     }
 }
 
+// Pause button pressed
+void QCaImage::buttonPauseClicked()
+{
+
+    if (pauseEnabled)
+    {
+        qPushButtonPause->setText("Pause");
+        qPushButtonPause->setToolTip("Pause image display");
+        pauseEnabled = false;
+    }
+    else
+    {
+        qPushButtonPause->setText("Resume");
+        qPushButtonPause->setToolTip("Resume image display");
+        pauseEnabled = true;
+    }
+
+}
+
+// Save button pressed
+void QCaImage::buttonSaveClicked()
+{
+
+    QFileDialog *qFileDialog;
+    QStringList filterList;
+    QString filename;
+    bool result;
+
+    qFileDialog = new QFileDialog(this, "Save displayed image", QString());
+    filterList << "Portable Network Graphics (*.png)" << "Windows Bitmap (*.bmp)" << "Joint Photographics Experts Group (*.jpg)";
+    qFileDialog->setFilters(filterList);
+    qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
+
+    if (qFileDialog->exec())
+    {
+
+        QImage qImage((uchar*) imageBuff.data(), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32);
+        filename = qFileDialog->selectedFiles().at(0);
+
+        if (qFileDialog->selectedNameFilter() == filterList.at(0))
+        {
+            result = qImage.save(filename, "PNG");
+        }
+        else
+        {
+            if (qFileDialog->selectedNameFilter() == filterList.at(1))
+            {
+                result = qImage.save(filename, "BMP");
+            }
+            else
+            {
+                result = qImage.save(filename, "JPG");
+            }
+        }
+
+        if (result)
+        {
+            QMessageBox::information(this, "Info", "The displayed image was successfully saved in file '" + filename + "'!");
+        }
+        else
+        {
+            QMessageBox::critical(this, "Error", "Unable to save displayed image in file '" + filename + "'!");
+        }
 
 
+    }
 
+}
+
+// Update the video widget if the QCaImage has changed
+void QCaImage::resizeEvent(QResizeEvent* )
+{
+    setImageBuff();
+}
 
 //==============================================================================
 // Drag drop
@@ -619,10 +673,11 @@ QCaImage::formatOptions QCaImage::getFormatOption()
     return formatOption;
 }
 
+// Zoom level
 void QCaImage::setZoom( int zoomIn )
 {
-
     // Save the zoom
+    // (Limit to 10 - 400 %)
     if( zoom < 10 )
         zoom = 10;
     else if( zoom > 400 )
@@ -632,6 +687,11 @@ void QCaImage::setZoom( int zoomIn )
 
     // Resize and rescale
     setImageBuff();
+}
+
+int QCaImage::getZoom()
+{
+    return zoom;
 }
 
 // Rotation
@@ -661,11 +721,7 @@ QCaImage::sizeOptions QCaImage::getSizeOption()
     return sizeOption;
 }
 
-// Zoom level
-int QCaImage::getZoom()
-{
-    return zoom;
-}
+// Initial vorizontal scroll position
 void QCaImage::setInitialHozScrollPos( int initialHozScrollPosIn )
 {
     initialHozScrollPos = initialHozScrollPosIn;
@@ -677,6 +733,7 @@ int QCaImage::getInitialHozScrollPos()
     return initialHozScrollPos;
 }
 
+// Initial vertical scroll position
 void QCaImage::setInitialVertScrollPos( int initialVertScrollPosIn )
 {
     initialVertScrollPos = initialVertScrollPosIn;
@@ -712,159 +769,47 @@ bool QCaImage::getDisplayExposureTime()
     return displayExposureTime;
 }
 
-
-
-
-
-
+// Show pause button
 void QCaImage::setShowButtonPause(bool pValue)
 {
-
     qPushButtonPause->setVisible(pValue);
-
 }
-
-
 
 bool QCaImage::getShowButtonPause()
 {
-
     return qPushButtonPause->isVisible();
-
 }
 
-
-
-
-void QCaImage::buttonPauseClicked()
-{
-
-    if (pauseEnabled)
-    {
-        qPushButtonPause->setText("Pause");
-        qPushButtonPause->setToolTip("Pause image display");
-        pauseEnabled = false;
-    }
-    else
-    {
-        qPushButtonPause->setText("Resume");
-        qPushButtonPause->setToolTip("Resume image display");
-        pauseEnabled = true;
-    }
-
-}
-
-
-
+// Show save button
 void QCaImage::setShowButtonSave(bool pValue)
 {
-
     qPushButtonSave->setVisible(pValue);
-
 }
-
-
 
 bool QCaImage::getShowButtonSave()
 {
-
     return qPushButtonSave->isVisible();
-
 }
 
-
-
-void QCaImage::buttonSaveClicked()
-{
-
-    QFileDialog *qFileDialog;
-    QStringList filterList;
-    QString filename;
-    bool result;
-
-    qFileDialog = new QFileDialog(this, "Save displayed image", QString());
-    filterList << "Portable Network Graphics (*.png)" << "Windows Bitmap (*.bmp)" << "Joint Photographics Experts Group (*.jpg)";
-    qFileDialog->setFilters(filterList);
-    qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
-
-    if (qFileDialog->exec())
-    {
-
-        QImage qImage((uchar*) imageBuff.data(), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32);
-        filename = qFileDialog->selectedFiles().at(0);
-
-        if (qFileDialog->selectedNameFilter() == filterList.at(0))
-        {
-            result = qImage.save(filename, "PNG");
-        }
-        else
-        {
-            if (qFileDialog->selectedNameFilter() == filterList.at(1))
-            {
-                result = qImage.save(filename, "BMP");
-            }
-            else
-            {
-                result = qImage.save(filename, "JPG");
-            }
-        }
-
-        if (result)
-        {
-            QMessageBox::information(this, "Info", "The displayed image was successfully saved in file '" + filename + "'!");
-        }
-        else
-        {
-            QMessageBox::critical(this, "Error", "Unable to save displayed image in file '" + filename + "'!");
-        }
-
-
-    }
-
-}
-
-
-
-
-
+// Show time
 void QCaImage::setShowTime(bool pValue)
 {
-
     showTimeEnabled = pValue;
-
 }
-
-
 
 bool QCaImage::getShowTime()
 {
-
     return showTimeEnabled;
-
 }
 
-
-
-
-
+// Show time colour
 void QCaImage::setShowTimeColor(QColor pValue)
 {
-
     qColorShowTime = pValue;
-
 }
-
-
 
 QColor QCaImage::getShowTimeColor()
 {
-
     return qColorShowTime;
-
 }
 
-// Update the video widget if the QCaImage has changed
-void QCaImage::resizeEvent(QResizeEvent* )
-{
-    setImageBuff();
-}

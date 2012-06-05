@@ -26,8 +26,9 @@
 #define VIDEOWIDGET_H
 
 #include <QtGui/QWidget>
+#include <imageMarkup.h>
 
-class VideoWidget : public QWidget
+class VideoWidget : public QWidget//, imageMarkup
 {
     Q_OBJECT
 public:
@@ -40,13 +41,16 @@ public:
 protected:
     void paintEvent(QPaintEvent*);
 
-    void mousePressEvent( QMouseEvent* event);
-    void mouseReleaseEvent ( QMouseEvent* event );
-    void mouseMoveEvent( QMouseEvent* event );
-    void wheelEvent( QWheelEvent* event );
+//    void mousePressEvent( QMouseEvent* event) { markupMousePressEvent( event ); }
+//    void mouseReleaseEvent ( QMouseEvent* event ) { markupMouseReleaseEvent( event ); }
+//    void mouseMoveEvent( QMouseEvent* event ) { markupMouseMoveEvent( event ); }
+//    void wheelEvent( QWheelEvent* event ) { markupMouseWheelEvent( event ); }
+
+//    void markupChange( QImage& markups, QRect changedArea );    // The markup overlay has changed, redraw part of it
 
 private:
     QImage currentImage;
+    QImage* playImage;
     double rotation;
     bool firstUpdate;
 };
