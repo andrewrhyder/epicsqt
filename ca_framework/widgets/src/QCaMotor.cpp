@@ -22,18 +22,17 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QMessageBox>
-#include <QDialog>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QRadioButton>
+//#include <QMessageBox>
+//#include <QDialog>
+//#include <QGroupBox>
+//#include <QLineEdit>
+//#include <QRadioButton>
 #include <QCaMotor.h>
-#include <ContainerProfile.h>
-#include <QDebug>
+//#include <QDebug>
 #include <QDomDocument>
-#include <QFile>
-#include <QCaLabel.h>
-#include <QCaLineEdit.h>
+//#include <QFile>
+//#include <QCaLabel.h>
+//#include <QCaLineEdit.h>
 
 
 
@@ -90,7 +89,8 @@ void QCaMotor::setMotorConfiguration(QString pValue)
     _Group *group;
     _Field *field;
     QString tmp;
-    bool  flag;
+    bool  flag0;
+    bool  flag1;
     int count;
 
 
@@ -101,17 +101,16 @@ void QCaMotor::setMotorConfiguration(QString pValue)
 
     if (file->open(QFile::ReadOnly | QFile::Text))
     {
-        flag = document.setContent(file);
+        flag0 = document.setContent(file);
         file->close();
     }
     else
     {
-        flag = document.setContent(motorConfiguration);
+        flag0 = document.setContent(motorConfiguration);
     }
 
-
     motorList.clear();
-    if (flag)
+    if (flag0)
     {
         rootElement = document.documentElement();
         if (rootElement.tagName() == "epicsqt")
@@ -123,6 +122,7 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                 motorElement = rootNode.toElement();
                 if (motorElement.tagName() == "motor")
                 {
+                    flag1 = true;
                     motor = new _Motor();
                     if (motorElement.attribute("name").isEmpty())
                     {
@@ -149,19 +149,33 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                             field->setVisible(fieldElement.attribute("visible"));
                             field->setEditable(fieldElement.attribute("editable"));
                             tmp = fieldElement.attribute("group");
-                            flag = true;
-                            iterator = motor->groupList.begin();
-                            while(iterator != motor->groupList.end())
+                            if (tmp.isEmpty())
                             {
-                                if ((*iterator)->getName() == tmp)
+                                if (flag1)
                                 {
-                                    (*iterator)->addField(*field);
-                                    flag = false;
-                                    break;
+                                    flag1 = false;
                                 }
-                                iterator++;
                             }
-                            if (flag)
+                            else
+                            {
+                                flag1 = true;
+                            }
+                            flag0 = true;
+                            if (flag1)
+                            {
+                                iterator = motor->groupList.begin();
+                                while(iterator != motor->groupList.end())
+                                {
+                                    if ((*iterator)->getName() == tmp)
+                                    {
+                                        (*iterator)->addField(*field);
+                                        flag0 = false;
+                                        break;
+                                    }
+                                    iterator++;
+                                }
+                            }
+                            if (flag0)
                             {
                                 group = new _Group();
                                 group->setName(tmp);
@@ -171,9 +185,7 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                         }
                         motorNode = motorNode.nextSibling();
                     }
-
                     motorList.push_back(motor);
-
                 }
                 rootNode = rootNode.nextSibling();
             }
@@ -278,7 +290,7 @@ void QCaMotor::refreshFields()
     QWidget *qWidget;
     QLabel *qLabel;
     QString userType;
-    QCaLineEdit *qCaLineEdit;
+    _QCaLineEdit *qCaLineEdit;
     _QPushButtonGroup *qPushButtonGroup;
     _Motor *motor;
     _Group *group;
@@ -332,7 +344,9 @@ void QCaMotor::refreshFields()
             if (group->getName().isEmpty())
             {
                 iteratorField = group->fieldList.begin();
+//                iteratorField = group->getFieldList().begin();
                 while(iteratorField != group->fieldList.end())
+//                while(iteratorField != group->getFieldList().end())
                 {
                     qHBoxLayout = new QHBoxLayout();
                     field = *iteratorField;
@@ -342,7 +356,9 @@ void QCaMotor::refreshFields()
                         qLabel->setText(field->getName());
                         qLabel->setFixedWidth(110);
                         qHBoxLayout->addWidget(qLabel);
-                        qCaLineEdit = new QCaLineEdit();
+                        qCaLineEdit = new _QCaLineEdit();
+                        qCaLineEdit->setMotorName(motor->getName());
+                        qCaLineEdit->setFieldName(field->getName());
                         qCaLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
                         qCaLineEdit->setVariableNameAndSubstitutions(field->getProcessVariable(), motor->getSubstitution(), 0);
                         qCaLineEdit->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
@@ -356,7 +372,9 @@ void QCaMotor::refreshFields()
             {
                 flag = false;
                 iteratorField = group->fieldList.begin();
+//                iteratorField = group->getFieldList().begin();
                 while(iteratorField != group->fieldList.end())
+//                while(iteratorField != group->getFieldList().end())
                 {
                     field = *iteratorField;
                     if (field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
@@ -621,12 +639,23 @@ QString _Group::getName()
 
 
 
+
 void _Group::addField(_Field &pField)
 {
 
     fieldList.push_back(&pField);
 
 }
+
+
+
+
+//list <_Field> _Group::getFieldList()
+//{
+
+//    return fieldList;
+
+//}
 
 
 
@@ -642,7 +671,7 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
     QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
     QLabel *qLabel;
-    QCaLineEdit *qCaLineEdit;
+    _QCaLineEdit *qCaLineEdit;
     QString userType;
     _Field *field;
 
@@ -666,7 +695,9 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
 
 
     iterator = pGroup->fieldList.begin();
+//    iterator = pGroup->getFieldList().begin();
     while(iterator != pGroup->fieldList.end())
+//    while(iterator != pGroup->getFieldList().end())
     {
         field = *iterator;
         qHBoxLayout = new QHBoxLayout();
@@ -676,7 +707,9 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
             qLabel->setText(field->getName());
             qLabel->setFixedWidth(110);
             qHBoxLayout->addWidget(qLabel);
-            qCaLineEdit = new QCaLineEdit();
+            qCaLineEdit = new _QCaLineEdit();
+            qCaLineEdit->setMotorName(pMotor->getName());
+            qCaLineEdit->setFieldName(field->getName());
             qCaLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             qCaLineEdit->setVariableNameAndSubstitutions(field->getProcessVariable(), pMotor->getSubstitution(), 0);
             qCaLineEdit->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
@@ -707,6 +740,73 @@ void _QDialogMotor::buttonCloseClicked()
     }
 
 }
+
+
+
+
+
+// ============================================================
+//  _QCALINEEDIT METHODS
+// ============================================================
+_QCaLineEdit::_QCaLineEdit(QWidget *pParent):QCaLineEdit(pParent)
+{
+
+
+}
+
+
+
+void _QCaLineEdit::setMotorName(QString pMotorName)
+{
+
+    motorName = pMotorName;
+
+}
+
+
+
+
+
+QString _QCaLineEdit::getMotorName()
+{
+
+    return motorName;
+
+}
+
+
+
+void _QCaLineEdit::setFieldName(QString pFieldName)
+{
+
+    fieldName = pFieldName;
+
+}
+
+
+
+
+
+QString _QCaLineEdit::getFieldName()
+{
+
+    return fieldName;
+
+}
+
+
+
+
+void _QCaLineEdit::valueWritten(QString pNewValue, QString pOldValue)
+{
+
+    if (pOldValue != pNewValue)
+    {
+        sendMessage("The value of field '" + getFieldName() + "' (of motor '" + getMotorName() + "') was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+    }
+
+}
+
 
 
 
@@ -771,3 +871,5 @@ void _QPushButtonGroup::buttonGroupClicked()
 
 }
 
+
+//            sendMessage("The user type was changed to '" + getUserTypeName((userLevels) pValue) + "'");

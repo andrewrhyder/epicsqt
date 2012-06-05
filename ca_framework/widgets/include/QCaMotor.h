@@ -36,6 +36,7 @@
 #include <QPushButton>
 #include <QCaPluginLibrary_global.h>
 #include <QCaWidget.h>
+#include <QCaLineEdit.h>
 #include <list>
 
 using namespace std;
@@ -90,6 +91,7 @@ class _Group
 
     private:
         QString name;
+//        list <_Field *> fieldList;  // TODO: this attribute should be private
 
     public:
         _Group();
@@ -101,6 +103,9 @@ class _Group
         void addField(_Field &pField);
 
         list <_Field *> fieldList;  // TODO: this attribute should be private
+
+//        list <_Field> getFieldList();
+
 
 };
 
@@ -206,6 +211,34 @@ class _QPushButtonGroup:public QPushButton
 };
 
 
+
+
+
+// ============================================================
+//  _QCALINEEDIT CLASS
+// ============================================================
+class _QCaLineEdit:public QCaLineEdit
+{
+
+    private:
+        QString motorName;
+        QString fieldName;
+
+
+    public:
+        _QCaLineEdit(QWidget * pParent = 0);
+
+        void setMotorName(QString pMotorName);
+
+        QString getMotorName();
+
+        void setFieldName(QString pFieldName);
+
+        QString getFieldName();
+
+        void valueWritten(QString pNewValue, QString pOldValue);
+
+};
 
 
 
