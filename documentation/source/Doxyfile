@@ -51,7 +51,8 @@ PROJECT_LOGO           =
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = /home/rhydera/epicsqt/documentation/
+#OUTPUT_DIRECTORY       = /home/rhydera/epicsqt/documentation/
+OUTPUT_DIRECTORY       = ../../documentation/
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -603,7 +604,9 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = /home/rhydera/epicsqt/documentation/source /home/rhydera/epicsqt/ca_framework/data/include /home/rhydera/epicsqt/ca_framework/data/src /home/rhydera/epicsqt/ca_framework/widgets/include /home/rhydera/epicsqt/ca_framework/widgets/src /home/rhydera/epicsqt/ca_framework/plugins/include /home/rhydera/epicsqt/ca_framework/plugins/src
+#INPUT                  = /home/rhydera/epicsqt/documentation/source /home/rhydera/epicsqt/ca_framework/data/include /home/rhydera/epicsqt/ca_framework/data/src /home/rhydera/epicsqt/ca_framework/widgets/include /home/rhydera/epicsqt/#ca_framework/widgets/src /home/rhydera/epicsqt/ca_framework/plugins/include /home/rhydera/epicsqt/ca_framework/plugins/src
+
+INPUT                  = . ../../ca_framework/data/include ../../ca_framework/data/src ../../ca_framework/widgets/include ../../ca_framework/widgets/src ../../ca_framework/plugins/include ../../ca_framework/plugins/src
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
