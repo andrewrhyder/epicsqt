@@ -52,10 +52,11 @@ class _Field
     private:
         QString name;
         QString processVariable;
-        QString description;
         QString mask;
         QString visible;
         QString editable;
+        bool join;
+
 
     public:
         _Field();
@@ -66,8 +67,8 @@ class _Field
         QString getProcessVariable();
         void setProcessVariable(QString pValue);
 
-        QString getDescription();
-        void setDescription(QString pValue);
+        bool getJoin();
+        void setJoin(bool pValue);
 
         QString getMask();
         void setMask(QString pValue);
