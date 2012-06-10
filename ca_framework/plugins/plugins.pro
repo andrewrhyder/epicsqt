@@ -23,7 +23,7 @@
 # - analyse the results with the command: gprof <your-program-name>
 QMAKE_CXXFLAGS_DEBUG += -pg
 QMAKE_LFLAGS_DEBUG += -pg
-QT += core gui multimedia
+QT += core gui multimedia xml network
 TEMPLATE = lib
 CONFIG += plugin \
     uitools \
@@ -103,6 +103,11 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../api/include/CaObject.h \
     ../api/include/CaConnection.h \
     ../api/include/CaObjectPrivate.h \
+    ../archive/include/QCaArchiveInterface.h \
+    ../archive/include/QCaArchiveManager.h \
+    ../archive/include/maiaFault.h \
+    ../archive/include/maiaObject.h \
+    ../archive/include/maiaXmlRpcClient.h \
     ../data/include/VariableNameManager.h \
     ../data/include/UserMessage.h \
     ../data/include/QCaDataPoint.h \
@@ -134,6 +139,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaPvProperties.h \
     ../widgets/include/QCaStripChart.h \
     ../widgets/include/QCaStripChartItem.h \
+    ../widgets/include/QCaStripChartItemDialog.h \
     ../widgets/include/QCaRadioButton.h \
     ../widgets/include/QCaGenericButton.h \
     ../widgets/include/QCaLineEdit.h \
@@ -201,6 +207,11 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
     ../api/src/CaConnection.cpp \
+    ../archive/src/QCaArchiveInterface.cpp \
+    ../archive/src/QCaArchiveManager.cpp \
+    ../archive/src/maiaFault.cpp \
+    ../archive/src/maiaObject.cpp \
+    ../archive/src/maiaXmlRpcClient.cpp \
     ../data/src/VariableNameManager.cpp \
     ../data/src/UserMessage.cpp \
     ../data/src/QCaWidget.cpp \
@@ -231,6 +242,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaPvProperties.cpp \
     ../widgets/src/QCaStripChart.cpp \
     ../widgets/src/QCaStripChartItem.cpp \
+    ../widgets/src/QCaStripChartItemDialog.cpp \
     ../widgets/src/QCaRadioButton.cpp \
     ../widgets/src/QCaGenericButton.cpp \
     ../widgets/src/QCaLineEdit.cpp \
@@ -257,6 +269,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
 RESOURCES += src/QCaResources.qrc
 INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/api/include \
+    $$(QCAFRAMEWORK)/archive/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
     $$(QCAFRAMEWORK)/qwt/src \
@@ -273,6 +286,7 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
 
 FORMS += \
     ../widgets/src/PeriodicDialog.ui \
+    ../widgets/src/QCaStripChartItemDialog.ui \
     src/PeriodicSetupDialog.ui \
     src/PeriodicElementSetupForm.ui
 
