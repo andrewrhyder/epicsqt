@@ -42,8 +42,10 @@
 #include <QCaLabel.h>
 #include <QCaObject.h>
 #include <QCaVariableNamePropertyManager.h>
+#include <QCaArchiveManager.h>
 
 #include <QCaStripChart.h>
+#include <QCaStripChartItemDialog.h>
 
 
 // Utility class - move to a separate unit??
@@ -92,20 +94,27 @@ private:
    QColor getColor ();
    QPen getPen ();
    QwtPlotCurve *allocateCurve ();
+   void readArchive ();
+   void plotDataPoints (const QCaDataPointList & dataPoints, const bool isRealTime, TrackRange & plottedTrackRange);
+   static bool isDisplayable (QCaDataPoint & point);
 
-   // data memebers
-   //
    TrackRange getLoprHopr ();
    TrackRange getDisplayedMinMax ();
    TrackRange getBufferedMinMax ();
 
+   // data members
+   //
    bool isConnected;
    QColor color;
    QCaDataPointList historicalTimeDataPoints;
    QCaDataPointList realTimeDataPoints;
+   TrackRange historicalMinMax;
+   TrackRange realTimeMinMax;
 
    TrackRange displayedMinMax;
-   TrackRange bufferedMinMax;
+
+   QCaArchiveAccess archiveAccess;
+   QCaStripChartItemDialog dialog;
 
    // Return pv name label style, i.e. colour
    //
@@ -119,9 +128,12 @@ private:
 
 private slots:
    void newVariableNameProperty (QString pvName, QString substitutions, unsigned int slot);
+   void channelPropertiesClicked (bool checked = false);
+
    void setDataConnection (QCaConnectionInfo& connectionInfo);
    void setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime);
-   void channelPropertiesClicked (bool checked = false);
+
+   void setArchiveData (const QObject *userData, const bool okay, const QCaDataPointList &archiveData);
 };
 
 #endif  // QSTRIPCHARTITEM_H

@@ -48,6 +48,12 @@
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaStripChart : public QFrame, public QCaWidget {
    Q_OBJECT
 
+
+   Q_PROPERTY (int     duration   READ getDuration               WRITE setDuration)
+   Q_PROPERTY (double  yMinimum   READ getYMinimum               WRITE setYMinimum)
+   Q_PROPERTY (double  yMaximum   READ getYMaximum               WRITE setYMaximum)
+
+
    // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
    // A property name ending with 'Name' results in some sort of string a variable being displayed,
    // but will only accept alphanumeric and won't generate callbacks on change.
@@ -78,6 +84,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStripChart : public QFrame, public QCaWid
    Q_PROPERTY (QColor  color11    READ getColor11Property        WRITE setColor11Property)
    Q_PROPERTY (QColor  color12    READ getColor12Property        WRITE setColor12Property)
 
+
 public:
    enum Constants {
       NUMBER_OF_PVS = 12
@@ -104,6 +111,12 @@ public:
 
    int getDuration ();
    void setDuration (int durationIn);
+
+   double getYMinimum ();
+   void setYMinimum (double yMinimumIn);
+
+   double getYMaximum ();
+   void setYMaximum (double yMaximumIn);
 
 protected:
    /// Drag and Drop
@@ -135,6 +148,7 @@ private:
    //
    class PrivateData;
    PrivateData *privateData;
+   friend class PrivateData;
 
    // Timer to keep strip chart scrolling
    //
@@ -145,12 +159,18 @@ private:
    int duration;
    QDateTime endTime;
 
+   // Chart lower/upper range
+   //
+   double yMinimum;
+   double yMaximum;
+
+
    void addPvName (QString pvName);  // make public ??
 
    // Used by QCaStripChartItem
    //
    friend class QCaStripChartItem;
-   void calcAllowDrop ();
+   void evaluateAllowDrop ();
    QwtPlotCurve *allocateCurve ();
 
 

@@ -28,9 +28,9 @@
 #include <alarm.h>
 #include <qwt_plot_curve.h>
 #include <QCaObject.h>
+#include <QCaArchiveInterface.h>
 
 #include <QCaStripChartItem.h>
-
 
 #define DEBUG  qDebug () << __FILE__  << ":" << __LINE__ << "(" << __FUNCTION__ << ")"
 
@@ -80,7 +80,7 @@ void TrackRange::merge (const double d)
       this->minimum = MIN (this->minimum, d);
       this->maximum = MAX (this->maximum, d);
    } else {
-      // use single value to "stat things off".
+      // use single value to "start things off".
       this->minimum = d;
       this->maximum = d;
       this->isDefined = true;
@@ -170,7 +170,14 @@ QCaStripChartItem::QCaStripChartItem (QCaStripChart *chart,
    //
    this->pvNameProperyManager.setVariableIndex (0);
    QObject::connect (&this->pvNameProperyManager, SIGNAL (newVariableNameProperty (QString, QString, unsigned int)),
-                     this,                        SLOT   (newVariableNameProperty (QString, QString, unsigned int)) );
+                     this,                        SLOT   (newVariableNameProperty (QString, QString, unsigned int)));
+
+
+   // Set up connection to archive access mamanger.
+   //
+   QObject::connect (&this->archiveAccess, SIGNAL (setArchiveData (const QObject *, const bool, const QCaDataPointList &)),
+                     this,                 SLOT   (setArchiveData (const QObject *, const bool, const QCaDataPointList &)));
+
 }   //QCaStripChartItem
 
 
@@ -191,11 +198,12 @@ void QCaStripChartItem::clear ()
    this->privateData->caLabel->setText ("-");
 
    this->displayedMinMax.clear ();
-   this->bufferedMinMax.clear ();
+   this->historicalMinMax.clear ();
+   this->realTimeMinMax.clear ();
    this->historicalTimeDataPoints.clear ();
    this->realTimeDataPoints.clear ();
 
-   this->privateData->chart->calcAllowDrop ();
+   this->privateData->chart->evaluateAllowDrop ();
 }   // clear
 
 
@@ -300,7 +308,12 @@ TrackRange QCaStripChartItem::getDisplayedMinMax ()
 //
 TrackRange QCaStripChartItem::getBufferedMinMax ()
 {
-   return this->bufferedMinMax;
+   TrackRange temp;
+
+   temp = this->historicalMinMax;
+   temp.merge (this->realTimeMinMax);
+
+   return temp;
 }   // getBufferedMinMax
 
 
@@ -322,9 +335,43 @@ QwtPlotCurve * QCaStripChartItem::allocateCurve ()
 
 //------------------------------------------------------------------------------
 //
-void QCaStripChartItem::plotData ()
+bool QCaStripChartItem::isDisplayable (QCaDataPoint & point)
 {
-   const QDateTime start_time = this->privateData->chart->getStartTime ();
+   // The archive severity encompasses the normal EPICS severity.
+   //
+   QCaArchiveInterface::archiveAlarmSeverity severity = (QCaArchiveInterface::archiveAlarmSeverity) point.alarm.getSeverity ();
+   bool result;
+
+   switch (severity) {
+   case QCaArchiveInterface::archSevNone:
+   case QCaArchiveInterface::archSevMinor:
+   case QCaArchiveInterface::archSevMajor:
+   case QCaArchiveInterface::archSevEstRepeat:
+   case QCaArchiveInterface::archSevRepeat:
+      result = true;
+      break;
+
+   case QCaArchiveInterface::archSevInvalid:
+   case QCaArchiveInterface::archSevDisconnect:
+   case QCaArchiveInterface::archSevStopped:
+   case QCaArchiveInterface::archSevDisabled:
+      result = false;
+      break;
+
+   default:
+      result = false;
+      break;
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
+                                        const bool isRealTime,
+                                        TrackRange & plottedTrackRange)
+{
    const QDateTime end_time   = this->privateData->chart->getEndTime ();
    const double duration = this->privateData->chart->getDuration ();
 
@@ -341,15 +388,19 @@ void QCaStripChartItem::plotData ()
 
    // Both values zero is deemed to be undefined.
    //
-   this->displayedMinMax.clear ();
+   plottedTrackRange.clear ();
    isFirstPoint = true;
    doesPreviousExist = false;
 
-   count = this->realTimeDataPoints.count ();
+   count = dataPoints.count ();
    for (j = 0; j < count; j++) {
-      point = this->realTimeDataPoints.value (j);
+      point = dataPoints.value (j);
 
-      if (point.datetime < start_time) {
+      // Calculate the time of this point (in seconds) relative to the end of the chart.
+      //
+      t = point.datetime.floating (end_time);
+
+      if (t < -duration) {
          // Just save this point. Last time it is saved it will be the
          // pen-ultimate point before the chart start time.
          //
@@ -359,12 +410,11 @@ void QCaStripChartItem::plotData ()
          //
          doesPreviousExist = (previous.alarm.isInvalid () == false);
       }
-      else if ((point.datetime >= start_time) &&
-               (point.datetime <= end_time)) {
+      else if ((t >= -duration) && (t <= 0.0)) {
 
          // Is it a valid point - can we sensible plot it?
          //
-         if (point.alarm.isInvalid () == false) {
+         if (this->isDisplayable (point)) {
             // Yes we can.
             //
             // start edge effect required?
@@ -373,12 +423,8 @@ void QCaStripChartItem::plotData ()
                 t = -duration;
                 tdata.append (t);
                 ydata.append (previous.value);
-                this->displayedMinMax.merge (previous.value);
+                plottedTrackRange.merge (previous.value);
             }
-
-            // calculate relative time (in seconds) from the chart end time.
-            //
-            t = point.datetime.floating (end_time);
 
             // Do steps - do it like this as using qwt Step mode is not quite what I want.
             //
@@ -389,7 +435,7 @@ void QCaStripChartItem::plotData ()
 
             tdata.append (t);
             ydata.append (point.value);
-            this->displayedMinMax.merge (point.value);
+            plottedTrackRange.merge (point.value);
 
          } else {
 
@@ -405,9 +451,13 @@ void QCaStripChartItem::plotData ()
             }
          }
 
-         // We have processes at leat one point now.
+         // We have processed at least one point now.
          //
          isFirstPoint = false;
+      } else {
+         // t > 0 - beyond the end time of the chart.
+         // Nothing more to see here.
+         break;
       }
    }
 
@@ -417,24 +467,41 @@ void QCaStripChartItem::plotData ()
        t = -duration;
        tdata.append (t);
        ydata.append (previous.value);
-       this->displayedMinMax.merge (previous.value);
+       plottedTrackRange.merge (previous.value);
    }
 
-   // End egde special required?
+   // Plot what we have accumulated.
    //
    if (ydata.count () >= 1) {
-      curve = this->allocateCurve ();
-
-      // Replicate last value upto end of chart.
+      // Real time extention to time now required?
       //
-      tdata.append (0.0);
-      ydata.append (ydata.last ());
-      this->displayedMinMax.merge (ydata.last ());
-
+      if (isRealTime) {
+         // Replicate last value upto end of chart.
+         //
+         tdata.append (0.0);
+         ydata.append (ydata.last ());
+         plottedTrackRange.merge (ydata.last ());
+      }
+      curve = this->allocateCurve ();
       curve->setSamples (tdata, ydata);
    }
-}   // plotData
+}   // plotDataPoints
 
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChartItem::plotData ()
+{
+   TrackRange temp;
+
+   this->displayedMinMax.clear ();
+
+   this->plotDataPoints (this->historicalTimeDataPoints, false, temp);
+   this->displayedMinMax.merge (temp);
+
+   this->plotDataPoints (this->realTimeDataPoints, true, temp);
+   this->displayedMinMax.merge (temp);
+}
 
 //------------------------------------------------------------------------------
 //
@@ -444,7 +511,7 @@ void QCaStripChartItem::newVariableNameProperty (QString pvName, QString substit
 
    // Re evaluate the chart drag drop allowed status.
    //
-   this->privateData->chart->calcAllowDrop ();
+   this->privateData->chart->evaluateAllowDrop ();
 }
 
 
@@ -461,7 +528,7 @@ void QCaStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
       // create a dummy point with last value and time now.
       //
       point = this->realTimeDataPoints.last ();
-      point.datetime = QDateTime::currentDateTime ();
+      point.datetime = QDateTime::currentDateTime ().toUTC ();
       this->realTimeDataPoints.append (point);
       if (this->realTimeDataPoints.count () > MAXIMUM_POINTS) {
          this->realTimeDataPoints.remove (0);
@@ -492,17 +559,19 @@ void QCaStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm
       //
       point.value = y;
       point.alarm = alarm;
-      point.datetime = datetime;
-
-      this->bufferedMinMax.merge (point.value);
    } else {
       // Could not convert to a double - mark as an invalid point.
       //
       point.value = 0.0;
       point.alarm = QCaAlarmInfo (NO_ALARM, INVALID_ALARM);
-      point.datetime = datetime;
    }
 
+   point.datetime = datetime.toUTC ();
+   point.datetime.nSec = datetime.nSec;
+
+   if (this->isDisplayable (point)){
+      this->realTimeMinMax.merge (point.value);
+   }
    this->realTimeDataPoints.append (point);
 
    if (this->realTimeDataPoints.count () > MAXIMUM_POINTS) {
@@ -513,13 +582,106 @@ void QCaStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm
 
 //------------------------------------------------------------------------------
 //
+void QCaStripChartItem::setArchiveData (const QObject *userData, const bool okay,
+                                        const QCaDataPointList & archiveData)
+{
+   QCaDateTime firstRealTime;
+   QCaDateTime pointTime;
+   int count;
+   int j, last;
+   QCaDataPoint point;
+
+   if ((userData == this) && (okay)) {
+
+      // Clear any existing data and save new data
+      // Maybe would could/should do some stiching together
+      //
+      this->historicalTimeDataPoints.clear ();
+      this->historicalTimeDataPoints = archiveData;
+
+
+      // Have any data points been returned?
+      //
+      count = this->historicalTimeDataPoints.count ();
+      if (count > 0) {
+
+         // Now throw away any historical data that overlaps with the real time data,
+         // there is no need for two copies. We keep the real time data as it is of
+         // a better quality.
+         //
+         // Find trucate time
+         //
+         if (this->realTimeDataPoints.count () > 0) {
+            firstRealTime = this->realTimeDataPoints.value (0).datetime;
+         } else {
+            firstRealTime = QDateTime::currentDateTime ().toUTC ();
+         }
+
+         // Purge
+         //
+         last = count - 1;
+         for (j = count - 1; j >= 0; j--) {
+            point = this->historicalTimeDataPoints.value (j);
+            pointTime = point.datetime;
+            if (pointTime < firstRealTime) {
+               last = j;
+               break;
+            }
+         }
+
+         // Keep points 0 to last, and modify modify (last + 1) if exists.
+         //
+         if (last < (count - 1)) {
+            last++;
+            point = this->historicalTimeDataPoints.value (last);
+            point.datetime = firstRealTime;
+            this->historicalTimeDataPoints.replace (last, point);
+            this->historicalTimeDataPoints.remove (last + 1, count - last - 1);
+         }
+
+         this->historicalMinMax.clear ();
+         count = this->historicalTimeDataPoints.count ();
+         for (j = 0; j < count; j++) {
+            point = this->historicalTimeDataPoints.value (j);
+            if (this->isDisplayable(point)) {
+               this->historicalMinMax.merge (point.value);
+            }
+         }
+      }
+
+   } else {
+      DEBUG << "wrong item and/or data response not okay";
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChartItem::readArchive ()
+{
+   const QDateTime startTime = this->privateData->chart->getStartTime ();
+   const QDateTime endTime   = this->privateData->chart->getEndTime ();
+
+   this->archiveAccess.readArchive
+         (this, this->getPvName (),  startTime, endTime,  4000,
+          QCaArchiveInterface::Linear,  0);
+}
+
+//------------------------------------------------------------------------------
+//
 void QCaStripChartItem::channelPropertiesClicked (bool)
 {
-   // TODO: Eventually lauch a PV setup/edit dialog form.
-   // For now just clear this PV from the chart.
-   //
-   if (this->isInUse()) {
-      this->clear ();
+   int n;
+
+   this->dialog.setPvName (this->getPvName ());
+   this->dialog.setColor  (this->getColor ());
+
+   n = this->dialog.exec ();
+   if (n == 1) {
+      // User has selected okay.
+      if (this->getPvName () != this->dialog.getPvName ()) {
+         this->setPvName (this->dialog.getPvName (), "");
+      }
+      this->setColor (this->dialog.getColor ());
    }
 }
 

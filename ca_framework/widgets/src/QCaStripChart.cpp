@@ -100,12 +100,12 @@ static const QString chartTimeModeNames [TMMAXIMUM] = {
 //==============================================================================
 // The imperitive to create this class is to hold references to created QWidgets.
 // If this are declared directly in the header, either none of the widget defined
-// in the plugin are visible in designer or it seg faults. I think the moc file
-// generation and other Qt stuff gets very confused.
+// in the plugin are visible in designer or designer seg faults. I think the moc
+// file generation and other Qt stuff gets very confused.
 //
-// But given that the class does it exist it is a convient palce holder for
-// some additional data and associated functions. The placement of some here or
-// in the main component is somewhat arbitary.
+// But given that the class does it exist it is a convient place holder for
+// some additional data and associated functions. The placement of there artefacts
+// here (PrivateData) or in the main widget (QCaStripChart) is somewhat arbitary.
 //
 class QCaStripChart::PrivateData : public QObject {
 public:
@@ -143,9 +143,6 @@ private:
    QCaStripChartItem *items [NUMBER_OF_PVS];
 
    QVector<QwtPlotCurve *> curve_list;
-
-   double minY, maxY;
-
    void releaseCurves ();
 };
 
@@ -258,11 +255,9 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
                                                   this->caLabels [slot],
                                                   slot);
 
-      // TODO: Update once a proper setup dialog has been created.
-      //
-      this->channelProperties [slot]->setToolTip ("Remove this PV from stripchart");
+      this->channelProperties [slot]->setToolTip ("Modify PV attributes");
 
-      QObject::connect (this->channelProperties [slot],  SIGNAL (clicked            (bool)),
+      QObject::connect (this->channelProperties [slot],  SIGNAL (clicked                  (bool)),
                         this->items [slot],              SLOT   (channelPropertiesClicked (bool)));
 
    }
@@ -292,8 +287,6 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
 
    // Clear / initaialise plot.
    //
-   this->minY = 0.0;
-   this->maxY = 100.0;
    this->chartYScale = ysManual;
    this->chartTimeMode = tmRealTime;
 
@@ -377,8 +370,8 @@ void QCaStripChart::PrivateData::calcDisplayMinMax ()
    }
 
    if (tr.getMinMax (min, max) == true) {
-      this->minY = min;
-      this->maxY = MAX (max, min + 1.0E-3);
+      this->chart->yMinimum = min;
+      this->chart->yMaximum = MAX (max, min + 1.0E-3);
    } // else do not change.
 }
 
@@ -407,8 +400,11 @@ void QCaStripChart::PrivateData::plotData ()
       //
       this->calcDisplayMinMax ();
    }
-   step = (this->maxY - this->maxY)/5.0;
-   this->plot->setAxisScale (QwtPlot::yLeft, this->minY, this->maxY, step);
+
+   step = (this->chart->getYMaximum () - this->chart->getYMinimum ())/5.0;
+   this->plot->setAxisScale (QwtPlot::yLeft,
+                             this->chart->getYMinimum (),
+                             this->chart->getYMaximum (), step);
 
    this->plot->replot ();
 }
@@ -420,13 +416,22 @@ void QCaStripChart::PrivateData::plotData ()
 //
 QCaStripChart::QCaStripChart (QWidget * parent) : QFrame (parent), QCaWidget (this)
 {
-   // configure the panel and create contents
+   QCaDateTime A, B, C;
+
+   // Configure the panel and create contents
    //
    this->setFrameShape (Panel);
    this->setMinimumSize (1000, 400);
 
    this->duration = 120;  // two minites.
-   this->endTime = QDateTime::currentDateTime ();
+
+   // We always use UTC (EPICS) time within the strip chart.
+   // Set directly here as setEndTime has side effects.
+   //
+   this->endTime = QDateTime::currentDateTime ().toUTC ();
+
+   this->yMinimum = 0.0;
+   this->yMaximum = 100.0;
 
    // construct private data for this chart.
    //
@@ -438,7 +443,7 @@ QCaStripChart::QCaStripChart (QWidget * parent) : QFrame (parent), QCaWidget (th
 
    // Enable drag drop onto this widget.
    //
-   this->calcAllowDrop ();
+   this->evaluateAllowDrop ();
 }
 
 //------------------------------------------------------------------------------
@@ -522,7 +527,7 @@ void QCaStripChart::addPvName (QString pvName)
 
    // Determine if we are now full.
    //
-   this->calcAllowDrop ();
+   this->evaluateAllowDrop ();
 }
 
 
@@ -537,11 +542,8 @@ void QCaStripChart::updateToolTip (const QString& tip)
 //
 void QCaStripChart::tickTimeout ()
 {
-   // qDebug () << QDateTime::currentDateTime ();
-
-   // Go with just real time for now.
-   //
    if (this->privateData->chartTimeMode == tmRealTime) {
+      // Note: when end time changes - setEndTime calls plotData ().
       this->setEndTime (QDateTime::currentDateTime ());
    } else {
       this->privateData->plotData ();
@@ -651,7 +653,16 @@ void QCaStripChart::menuSetTimeMode (QAction *action)
 //
 void QCaStripChart::readArchiveClicked (bool checked)
 {
-   DEBUG << "TBD" << checked;
+   unsigned int slot;
+
+   if (checked) return;
+
+   for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
+      QCaStripChartItem * item = this->privateData->getItem (slot);
+      if (item->isInUse ()) {
+         item->readArchive ();
+      }
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -673,8 +684,10 @@ QDateTime QCaStripChart::getEndTime ()
 //
 void QCaStripChart::setEndTime (QDateTime endTimeIn)
 {
-   if (this->endTime != endTimeIn) {
-      this->endTime = endTimeIn;
+   QDateTime useUTC = endTimeIn.toUTC ();
+
+   if (this->endTime != useUTC) {
+      this->endTime = useUTC;
       this->privateData->plotData ();
    }
 }
@@ -704,6 +717,40 @@ void QCaStripChart::setDuration (int durationIn)
 
 //----------------------------------------------------------------------------
 //
+double QCaStripChart::getYMinimum ()
+{
+   return this->yMinimum;
+}
+
+//----------------------------------------------------------------------------
+//
+void QCaStripChart::setYMinimum (double yMinimumIn)
+{
+   this->yMinimum = yMinimumIn;
+   this->yMaximum = MAX (this->yMaximum, this->yMinimum + 1.0E-3);
+   this->privateData->chartYScale = ysManual;
+   this->privateData->plotData ();
+}
+
+//----------------------------------------------------------------------------
+//
+double QCaStripChart::getYMaximum ()
+{
+   return this->yMaximum;
+}
+
+//----------------------------------------------------------------------------
+//
+void QCaStripChart::setYMaximum (double yMaximumIn)
+{
+   this->yMaximum = yMaximumIn;
+   this->yMinimum = MIN (this->yMinimum, this->yMaximum - 1.0E-3);
+   this->privateData->chartYScale = ysManual;
+   this->privateData->plotData ();
+}
+
+//----------------------------------------------------------------------------
+//
 void QCaStripChart::setDropText (QString text)
 {
    // Use dropped text to add a PV tp the chart.
@@ -713,9 +760,9 @@ void QCaStripChart::setDropText (QString text)
 
 
 //----------------------------------------------------------------------------
-// Determinte if user allowed to drop new PVs into this widget
+// Determine if user allowed to drop new PVs into this widget
 //
-void QCaStripChart::calcAllowDrop ()
+void QCaStripChart::evaluateAllowDrop ()
 {
    unsigned int slot;
    bool allowDrop;
@@ -735,7 +782,7 @@ void QCaStripChart::calcAllowDrop ()
    }
 
    this->setAcceptDrops (allowDrop);
-}   // calcAllowDrop
+}
 
 //----------------------------------------------------------------------------
 //

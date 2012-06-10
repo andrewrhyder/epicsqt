@@ -206,7 +206,7 @@ static void initialise_record_specs ()
    // definitions file names.
    //
    fileList.clear ();
-   fileList << getenv ("RECORD_FIELD_LIST");
+   fileList << getenv ("QCA_RECORD_FIELD_LIST");
    fileList << "./record_field_list.txt";
    fileList << ":/user/record_field_list.txt";
 
@@ -242,7 +242,7 @@ static QString record_name (const QString pvName)
 }
 
 //------------------------------------------------------------------------------
-// Form pseudo filed record type PV name
+// Form pseudo field record type PV name
 //
 static QString rtype_pv_name (const QString pvName)
 {
