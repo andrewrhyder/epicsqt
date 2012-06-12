@@ -68,17 +68,9 @@ void markupItem::erase()
 {
     // Clear the item
     QPainter p( owner->markupImage );
-    QRect aa = area;
-    aa.adjust( 0,0,0,0);
-    p.fillRect( aa, Qt::red);//!!!black );
+    p.setCompositionMode( QPainter::CompositionMode_Clear );
+    p.fillRect( area, Qt::black );
     p.end();
-
-//    QPainter p( owner->markupImage );
-//    p.setCompositionMode( QPainter::CompositionMode_Clear );
-//    p.fillRect( area, Qt::black );
-//    p.end();
-
-
 
     // Redraw any other visible items that have had any part erased as well
     int n = owner->items.count();
