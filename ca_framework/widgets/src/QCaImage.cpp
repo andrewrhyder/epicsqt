@@ -71,7 +71,6 @@ void QCaImage::setup() {
     formatOption = GREY8;
     setShowTimeColor(QColor(0, 255, 0));
     pauseEnabled = false;
-    showTimeEnabled = false;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -135,6 +134,9 @@ void QCaImage::setup() {
     // Initially set the video widget to the size of the scroll bar
     // This will be resized when the image size is known
     videoWidget->resize( scrollArea->width(), scrollArea->height() );
+
+    // Set the initial selection mode of the setup widget
+    videoWidget->setMode(  MARKUP_MODE_AREA ); //!!! testing only MARKUP_MODE_NONE );
 
     // Set image size to zero
     // Image will not be presented until size is available
@@ -322,7 +324,7 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     if( initScrollPosSet == false )
     {
         scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
-        scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
+        scrollArea->horizontalScrollBar()->setValue( 0 );//initialHozScrollPos );
         initScrollPosSet = true;
     }
 
@@ -387,18 +389,8 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     // Generate a frame from the data
     QImage frameImage( (uchar*)(imageBuff.data()), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32 );
 
-    // Add the tmie to the image if required
-    if (showTimeEnabled)
-    {
-        QPainter qPainter(&frameImage);
-        qPainter.setFont(QFont("Courier", 9 * ((float) imageBuffWidth / (float) imageBuffHeight)));
-        qPainter.setPen(qColorShowTime);
-        qPainter.drawText(5, 15, QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss"));
-    }
-
     // Display the new image
     videoWidget->setNewImage( frameImage );
-    videoWidget->update();
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -794,12 +786,12 @@ bool QCaImage::getShowButtonSave()
 // Show time
 void QCaImage::setShowTime(bool pValue)
 {
-    showTimeEnabled = pValue;
+    videoWidget->setShowTime( pValue );
 }
 
 bool QCaImage::getShowTime()
 {
-    return showTimeEnabled;
+    return videoWidget->getShowTime();
 }
 
 // Show time colour

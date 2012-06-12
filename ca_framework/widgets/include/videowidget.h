@@ -28,7 +28,7 @@
 #include <QtGui/QWidget>
 #include <imageMarkup.h>
 
-class VideoWidget : public QWidget//, imageMarkup
+class VideoWidget : public QWidget, public imageMarkup
 {
     Q_OBJECT
 public:
@@ -41,16 +41,24 @@ public:
 protected:
     void paintEvent(QPaintEvent*);
 
-//    void mousePressEvent( QMouseEvent* event) { markupMousePressEvent( event ); }
-//    void mouseReleaseEvent ( QMouseEvent* event ) { markupMouseReleaseEvent( event ); }
-//    void mouseMoveEvent( QMouseEvent* event ) { markupMouseMoveEvent( event ); }
-//    void wheelEvent( QWheelEvent* event ) { markupMouseWheelEvent( event ); }
+    void mousePressEvent( QMouseEvent* event) { markupMousePressEvent( event ); }
+    void mouseReleaseEvent ( QMouseEvent* event ) { markupMouseReleaseEvent( event ); }
+    void mouseMoveEvent( QMouseEvent* event ) { markupMouseMoveEvent( event ); }
+    void wheelEvent( QWheelEvent* event ) { markupMouseWheelEvent( event ); }
 
-//    void markupChange( QImage& markups, QRect changedArea );    // The markup overlay has changed, redraw part of it
+    void markupChange( QImage& markups, QRect changedArea );    // The markup overlay has changed, redraw part of it
+
+    void resizeEvent( QResizeEvent *event );
 
 private:
-    QImage currentImage;
-    QImage* playImage;
+    void addMarkups( QPainter& screenPainter, QRect redrawArea );
+    void updateCompositeImage( QRect changedArea );
+
+    QImage currentImage;        // Latest camera image
+    QImage markupImage;         // Image of markups, such as region of interest
+    QImage* compositeImage;     // Composite of current and markup images
+    QImage displayImage;        // Image to display, either current image, or composite
+
     double rotation;
     bool firstUpdate;
 };

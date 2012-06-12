@@ -33,6 +33,8 @@
  and zoomed and reports those markups in terms of the underlying image.
  */
 
+#ifndef IMAGEMARKUP_H
+#define IMAGEMARKUP_H
 
 #include <QSize>
 #include <QPoint>
@@ -40,50 +42,67 @@
 #include <QRect>
 #include <QMouseEvent>
 #include <QImage>
+#include <QColor>
 
 #include <QDebug>
 
 
-#ifndef IMAGEMARKUP_H
-#define IMAGEMARKUP_H
-
-
+class imageMarkup;
 
 class markupItem
 {
 public:
     enum isOverOptions{ OVER_LINE, OVER_BORDER, OVER_AREA }; // test required to determine if pointer is over the object
+    markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn );
+    ~markupItem();
 
-    markupItem( QImage** imageIn, isOverOptions over, bool interactiveIn );
-    ~markupItem(){}
 
-    void setHighlight( bool highlightIn );
-    void setActive( bool activeIn );
-    bool isActive();
+    enum markupHandles { MARKUP_HANDLE_NONE,
+                         MARKUP_HANDLE_START, MARKUP_HANDLE_END,  // Lines
+                         MARKUP_HANDLE_TL, MARKUP_HANDLE_TR, MARKUP_HANDLE_BL, MARKUP_HANDLE_BR, // Area corners
+                         MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
+
+    markupHandles activeHandle;
+
+
+    virtual void setArea()=0;
+    virtual QPoint origin()=0;
+
+    virtual void moveTo( QPoint pos )=0;  // Move an item (always make it visible and highlighed)
+
+    void erase();                // Erase and item and redraw any items that it was over (note, this does not change its status. For example, it is used if hiding an item, but also when moving an item)
+
+
 
     virtual void drawMarkup()=0;
+    virtual void startDrawing( QPoint pos ) = 0;
 
-    bool isOver( QPoint point );
-
+    virtual bool isOver( QPoint point )=0;
+    bool overlaps( markupItem* other );
 
 
     isOverOptions isOverType;
-    QRect         area;
-    bool          active;
-    bool          visible;
-    bool          highlight;
-    bool          interactive;
-    QImage**      image;
+    QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
+    bool          visible;      // Object is visible to the user
+    bool          interactive;  // Object can be moved by the user
+    bool          highlighted;  // Object is highlighted
+    int           highlightMargin; // Extra margin required for highlighting
+    QColor        markupColor;  // Object color
+    imageMarkup*  owner;
 };
 
 class markupHLine : public markupItem
 {
 public:
 
-    markupHLine( QImage** imageIn, bool interactiveIn );
+    markupHLine( imageMarkup* ownerIn, bool interactiveIn );
 
-    void setPos( int yIn );
+    void startDrawing( QPoint pos );
+    void setArea();
     void drawMarkup();
+    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( QPoint point );
+    QPoint origin();
 
     int y;
 };
@@ -92,10 +111,14 @@ class markupVLine : public markupItem
 {
 public:
 
-    markupVLine( QImage** imageIn, bool interactiveIn );
+    markupVLine( imageMarkup* ownerIn, bool interactiveIn );
 
-    void setPos( int xIn );
+    void startDrawing( QPoint pos );
+    void setArea();
     void drawMarkup();
+    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( QPoint point );
+    QPoint origin();
 
     int x;
 };
@@ -103,28 +126,55 @@ public:
 class markupLine : public markupItem
 {
 public:
+    markupLine( imageMarkup* ownerIn, bool interactiveIn );
 
-    markupLine( QImage** imageIn, bool interactiveIn );
-
-    void setPos( QPoint startIn, QPoint endIn );
+    void startDrawing( QPoint pos );
+    void setArea();
     void drawMarkup();
+    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( QPoint point );
+    QPoint origin();
 
     QPoint start;
     QPoint end;
+};
+
+class markupRegion : public markupItem
+{
+public:
+
+    markupRegion( imageMarkup* ownerIn, bool interactiveIn );
+
+    void startDrawing( QPoint pos );
+    void setArea();
+    void drawMarkup();
+    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( QPoint point );
+    QPoint origin();
+
+    QRect rect;
 };
 
 class markupText : public markupItem
 {
 public:
 
-    markupText( QImage** imageIn, bool interactiveIn );
+    markupText( imageMarkup* ownerIn, bool interactiveIn );
 
     void setText( QString textIn );
-    void setPos( QRect areaIn );
+
+    void startDrawing( QPoint pos );
+    void setArea();
     void drawMarkup();
+    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( QPoint point );
+    QPoint origin();
 
     QString text;
+    QRect rect;
 };
+
+enum markupModes { MARKUP_MODE_NONE, MARKUP_MODE_H_LINE, MARKUP_MODE_V_LINE, MARKUP_MODE_LINE, MARKUP_MODE_AREA };
 
 class imageMarkup {
 public:
@@ -136,29 +186,41 @@ public:
     void markupMouseMoveEvent( QMouseEvent* event );
     void markupMouseWheelEvent( QWheelEvent* event );
 
+    void setShowTime( bool visibleIn );     // Display timestamp markup if true
+    bool getShowTime();                     // Rturn true if displaying timestamp markup
+
+    void setMode( markupModes modeIn );
+    QImage* markupImage;
+    QList<markupItem*> items;
+    QPoint grabOffset;
+
 protected:
     void markupResize( QSize newSize );   // The viewport size has changed
-    void markupScroll( QPoint newPos ); // The underlying image has moved in the viewport
-    void markupZoom( double newZoom ); // The underlying image zoom factor has changed
+    void markupScroll( QPoint newPos );   // The underlying image has moved in the viewport
+    void markupZoom( double newZoom );    // The underlying image zoom factor has changed
 
-    virtual void markupChange( QImage& markups, QRect changedArea );    // The markup overlay has changed, redraw part of it
-    QImage* markupImage;
+    virtual void markupChange( QImage& markups, QRect changedArea )=0;    // The markup overlay has changed, redraw part of it
+
+    void setMarkupTime();                   // A new image has arrived, build a timestamp
+
 private:
 
+
+    markupItem* activeItem;
     enum interactiveStates { WAITING, MOVING };
 
     interactiveStates interaction;
+    markupModes mode;
 
-    markupHLine* lineRoiTop;
-    markupHLine* lineRoiBottom;
-    markupVLine* lineRoiLeft;
-    markupVLine* lineRoiRight;
+    markupHLine* lineHoz;
+    markupVLine* lineVert;
 
     markupLine*  lineProfile;
 
+    markupRegion*  region;
+
     markupText*  timeDate;
 
-    QList<markupItem*> items;
 
 };
 

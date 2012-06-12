@@ -6,7 +6,7 @@
 VideoWidget::VideoWidget(QWidget *parent)
     : QWidget(parent)
 {
-    playImage = NULL;
+    compositeImage = NULL;
 
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground, true);
@@ -18,14 +18,14 @@ VideoWidget::VideoWidget(QWidget *parent)
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     firstUpdate = true;
-    update();
+    update();//!!!required???
 }
 
 VideoWidget::~VideoWidget()
 {
-    if( playImage )
+    if( compositeImage )
     {
-        delete playImage;
+        delete compositeImage;
     }
 }
 
@@ -38,91 +38,99 @@ QSize VideoWidget::sizeHint() const
 
 void VideoWidget::setNewImage( const QImage image )
 {
+    if( !currentImage.isNull() ) return;//!!!
+
     currentImage = image;
+    setMarkupTime();
+    updateCompositeImage( image.rect() );
+    update();
 }
 
-void VideoWidget::paintEvent(QPaintEvent* )
+// The markup overlay has changed, redraw part of it
+//!! Call this with a null markups image if no markups
+void VideoWidget::markupChange( QImage& markups, QRect changedArea )
 {
+    // Save the current markups. The markups image is null if no markups
+    markupImage = markups;
+    updateCompositeImage( changedArea );
+    update( changedArea );
+}
+
+void VideoWidget::updateCompositeImage( QRect changedArea )
+{
+    // If there are no markups, just display the current image
+    if( markupImage.isNull() )
+    {
+        displayImage = currentImage;
+    }
+
+    // If there are markups, ensure the composite image is created, composed, and displayed
+    else
+    {
+        // If the image used for preparing the combined image and markup
+        // fragments is present, but the wrong size, delete it
+        if( compositeImage && compositeImage->size() != currentImage.size() )
+        {
+            delete compositeImage;
+            compositeImage = NULL;
+        }
+
+        // If the image used for preparing the combined image and markup
+        // is not present, create it and prepare to populate it from the entire current image
+        QRect redrawArea;
+        if( !compositeImage )
+        {
+            compositeImage = new QImage( currentImage.size(), currentImage.format() );
+            redrawArea = currentImage.rect();
+        }
+
+        // If the image used for preparing the combined image and markup
+        // was already present, prepare to update just the changed areas
+        else
+        {
+            redrawArea = changedArea;
+        }
+
+        // Draw the changed markup area over the image
+        QPainter playPainter( compositeImage );
+        playPainter.drawImage( redrawArea, currentImage, redrawArea );
+        playPainter.drawImage( redrawArea, markupImage, redrawArea );
+
+        // Display the composite image
+        displayImage = *compositeImage;
+    }
+}
+
+// Manage a paint event in the video widget
+void VideoWidget::paintEvent(QPaintEvent* event )
+{
+    // If this is the first paint event, and there is no image to display, fill it with black
     QPainter painter(this);
-    if( firstUpdate )
+    if( firstUpdate && displayImage.isNull() )
     {
         QColor bg(0, 0, 0, 255);
         painter.fillRect(rect(), bg);
-        firstUpdate = false;
     }
+
+    // If there is an image to display, paint the appropriate bits
     else
     {
         painter.rotate( rotation );
-
-        painter.drawImage(rect(), currentImage, currentImage.rect() );
+        painter.drawImage( event->rect(), displayImage, event->rect() );
     }
+
+    // Flag first update is over
+    firstUpdate = false;
 }
 
-//// The markup overlay has changed, redraw part of it
-//void VideoWidget::markupChange( QImage& markups, QRect changedArea )
-//{
-//    qDebug() << "VideoWidget::markupChange" << changedArea;
-//    // If the image used for preparing the combined image and markup
-//    // fragments is present, but the wrong size, delete it
-//    if( playImage && playImage->size() != markupImage.size() )
-//    {
-//        delete playImage;
-//        playImage = NULL;
-//    }
-
-//    // If the image used for preparing the combined image and markup
-//    // fragments is not present, create it
-//    if( !playImage )
-//    {
-//        playImage = new QImage( markupImage.size(), markupImage.format() );
-//    }
-
-////!!! the following double buffers the drawing of the markups. This avoids bits of markups flickering
-////!!! is this achieved easier (or even free) by the fact that the changed image won't be flushed to the screen between two paints to the widget?
-
-//    // Draw the changed markup area over the image
-//    QPainter playPainter( playImage );
-//    playPainter.drawImage( changedArea, currentImage, changedArea );
-//    playPainter.drawImage( changedArea, markups, changedArea );
-
-//    // Update the changed part of the image
-//    QPainter screenPainter( this );
-//    screenPainter.drawImage( changedArea, *playImage, changedArea );
-//}
-
-/*
-void VideoWidget::resizeEvent(QResizeEvent *event)
+// Manage a resize event
+void VideoWidget::resizeEvent( QResizeEvent *event )
 {
-    update();
-//    QWidget::resizeEvent(event);
-
-//    surface->updateVideoRect();
+    // Ensure the markups match the new size
+    markupResize( event->size() );
 }
-*/
+
 void VideoWidget::setRotation( double angle )
 {
     rotation = angle;
-//    surface->setRotation( angle );
 }
-
-//void VideoWidget::mousePressEvent(QMouseEvent *event)
-//{
-//
-//    qDebug() << event << event->pos();
-//}
-
-//void VideoWidget::mouseReleaseEvent ( QMouseEvent * event )
-//{
-//    qDebug() << event << event->pos();
-//}
-
-//void VideoWidget::mouseMoveEvent ( QMouseEvent * event )
-//{
-//    qDebug() << event << event->pos();
-
-//}
-//void VideoWidget::wheelEvent( QWheelEvent* event )
-//{
-//    qDebug() << event << event->pos();
-//}
-
