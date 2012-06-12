@@ -471,6 +471,11 @@ void imageMarkup::setShowTime( bool visibleIn )
     timeDate->visible = visibleIn;
 }
 
+bool imageMarkup::getShowTime()
+{
+    return timeDate->visible;
+}
+
 // User pressed a mouse button
 void imageMarkup::markupMousePressEvent(QMouseEvent *event)
 {
