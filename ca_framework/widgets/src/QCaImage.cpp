@@ -136,6 +136,10 @@ void QCaImage::setup() {
     videoWidget->resize( scrollArea->width(), scrollArea->height() );
 
     // Set the initial selection mode of the setup widget
+//    videoWidget->setMode(  MARKUP_MODE_NONE );
+//    videoWidget->setMode(  MARKUP_MODE_H_LINE ); //!!! testing only MARKUP_MODE_NONE );
+//    videoWidget->setMode(  MARKUP_MODE_V_LINE ); //!!! testing only MARKUP_MODE_NONE );
+//    videoWidget->setMode(  MARKUP_MODE_LINE ); //!!! testing only MARKUP_MODE_NONE );
     videoWidget->setMode(  MARKUP_MODE_AREA ); //!!! testing only MARKUP_MODE_NONE );
 
     // Set image size to zero

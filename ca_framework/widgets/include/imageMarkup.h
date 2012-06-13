@@ -46,7 +46,6 @@
 
 #include <QDebug>
 
-
 class imageMarkup;
 
 class markupItem
@@ -74,11 +73,12 @@ public:
 
 
 
-    virtual void drawMarkup()=0;
+    virtual void drawMarkup( QPainter& p )=0;
     virtual void startDrawing( QPoint pos ) = 0;
 
     virtual bool isOver( QPoint point )=0;
-    bool overlaps( markupItem* other );
+
+    bool pointIsNear( QPoint p1, QPoint p );
 
 
     isOverOptions isOverType;
@@ -89,6 +89,10 @@ public:
     int           highlightMargin; // Extra margin required for highlighting
     QColor        markupColor;  // Object color
     imageMarkup*  owner;
+
+    void drawMarkupIn();
+    void drawMarkupOut();
+
 };
 
 class markupHLine : public markupItem
@@ -99,7 +103,7 @@ public:
 
     void startDrawing( QPoint pos );
     void setArea();
-    void drawMarkup();
+    void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
@@ -115,7 +119,7 @@ public:
 
     void startDrawing( QPoint pos );
     void setArea();
-    void drawMarkup();
+    void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
@@ -130,7 +134,7 @@ public:
 
     void startDrawing( QPoint pos );
     void setArea();
-    void drawMarkup();
+    void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
@@ -147,7 +151,7 @@ public:
 
     void startDrawing( QPoint pos );
     void setArea();
-    void drawMarkup();
+    void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
@@ -165,7 +169,7 @@ public:
 
     void startDrawing( QPoint pos );
     void setArea();
-    void drawMarkup();
+    void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
@@ -205,7 +209,6 @@ protected:
 
 private:
 
-
     markupItem* activeItem;
     enum interactiveStates { WAITING, MOVING };
 
@@ -221,6 +224,7 @@ private:
 
     markupText*  timeDate;
 
+    void redrawActiveItemHere( QPoint pos );
 
 };
 
