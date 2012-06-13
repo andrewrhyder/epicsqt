@@ -287,6 +287,7 @@ void QCaMotor::refreshFields()
     list<_Field *>::iterator iteratorField;
     QLayout *qLayout;
     QHBoxLayout *qHBoxLayout;
+    QHBoxLayout *qHBoxLayoutLast;
     QWidget *qWidget;
     QLabel *qLabel;
     QString userType;
@@ -297,8 +298,6 @@ void QCaMotor::refreshFields()
     _Field *field;
     bool flag;
 
-
-    bool joinFlag;
 
 
     while(qVBoxLayoutFields->isEmpty() == false)
@@ -340,9 +339,7 @@ void QCaMotor::refreshFields()
     if (flag)
     {
 
-        qHBoxLayout = new QHBoxLayout();
-        joinFlag = false;
-
+        qHBoxLayoutLast = NULL;
         iteratorGroup = motor->groupList.begin();
 
         while(iteratorGroup != motor->groupList.end())
@@ -350,68 +347,56 @@ void QCaMotor::refreshFields()
             group = *iteratorGroup;
             if (group->getName().isEmpty())
             {
-
-
                 iteratorField = group->fieldList.begin();
-//                iteratorField = group->getFieldList().begin();
                 while(iteratorField != group->fieldList.end())
-//                while(iteratorField != group->getFieldList().end())
                 {
-
                     field = *iteratorField;
-
-//                    qDebug() << field->getJoin();
-
-                    if (field->getJoin())
-                    {
-                        joinFlag = true;
-                    }
-
                     if (field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
                     {
                         qLabel = new QLabel();
                         qLabel->setText(field->getName());
                         qLabel->setFixedWidth(125);
-                        qHBoxLayout->addWidget(qLabel);
                         qCaLineEdit = new _QCaLineEdit();
                         qCaLineEdit->setMotorName(motor->getName());
                         qCaLineEdit->setFieldName(field->getName());
                         qCaLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
                         qCaLineEdit->setVariableNameAndSubstitutions(field->getProcessVariable(), motor->getSubstitution(), 0);
                         qCaLineEdit->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                        qHBoxLayout->addWidget(qCaLineEdit);
-                    }
-
-                    if (joinFlag == false || iteratorField == group->fieldList.end())
-                    {
-//                        qDebug() << "inside 0: " << field->getName();
-                        qVBoxLayoutFields->addLayout(qHBoxLayout);
-                        qHBoxLayout = new QHBoxLayout();
-                    }
-                    else
-                    {
-                        qDebug() << "inside 1: " << field->getName();
-                        field = *iteratorField;
-                        if (field->getJoin() == false)
+                        if (field->getJoin())
                         {
-//                            qDebug() << "inside 2: " << field->getName();
-                            qVBoxLayoutFields->addLayout(qHBoxLayout);
+                            if (qHBoxLayoutLast == NULL)
+                            {
+                                qHBoxLayout = new QHBoxLayout();
+                                qHBoxLayoutLast = qHBoxLayout;
+                                flag = true;
+                            }
+                            else
+                            {
+                                qHBoxLayout = qHBoxLayoutLast;
+                                flag = false;
+                            }
+                        }
+                        else
+                        {
                             qHBoxLayout = new QHBoxLayout();
-                            joinFlag = false;
+                            qHBoxLayoutLast = qHBoxLayout;
+                            flag = true;
+                        }
+                        qHBoxLayout->addWidget(qLabel);
+                        qHBoxLayout->addWidget(qCaLineEdit);
+                        if (flag)
+                        {
+                            qVBoxLayoutFields->addLayout(qHBoxLayout);
                         }
                     }
-
                     iteratorField++;
-
                 }
             }
             else
             {
                 flag = false;
                 iteratorField = group->fieldList.begin();
-//                iteratorField = group->getFieldList().begin();
                 while(iteratorField != group->fieldList.end())
-//                while(iteratorField != group->getFieldList().end())
                 {
                     field = *iteratorField;
                     if (field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
@@ -430,8 +415,31 @@ void QCaMotor::refreshFields()
                     qPushButtonGroup->motor = motor;
                     qPushButtonGroup->group = group;
                     qPushButtonGroup->currentUserType = currentUserType;
+                    if (field->getJoin())
+                    {
+                        if (qHBoxLayoutLast == NULL)
+                        {
+                            qHBoxLayout = new QHBoxLayout();
+                            qHBoxLayoutLast = qHBoxLayout;
+                            flag = true;
+                        }
+                        else
+                        {
+                            qHBoxLayout = qHBoxLayoutLast;
+                            flag = false;
+                        }
+                    }
+                    else
+                    {
+                        qHBoxLayout = new QHBoxLayout();
+                        qHBoxLayoutLast = qHBoxLayout;
+                        flag = true;
+                    }
                     qHBoxLayout->addWidget(qPushButtonGroup);
-                    qVBoxLayoutFields->addLayout(qHBoxLayout);
+                    if (flag)
+                    {
+                        qVBoxLayoutFields->addLayout(qHBoxLayout);
+                    }
                 }
             }
             iteratorGroup++;
