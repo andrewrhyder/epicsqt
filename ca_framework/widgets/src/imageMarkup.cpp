@@ -819,7 +819,9 @@ void imageMarkup::markupResize( QSize newSize )
         markupImage = new QImage( newSize, QImage::Format_ARGB32 );
 
         // Fill with transparent background
-        markupImage->fill( QColor ( 0, 0, 0, 0 ) );
+        // markupImage->fill( QColor ( 0, 0, 0, 0 ) );               <-- Qt 4.8 only
+        QPainter p( markupImage );                                // <-- Qt 4.7
+        p.fillRect( markupImage->rect(), QColor ( 0, 0, 0, 0 ) ); // <-- Qt 4.7
     }
 }
 
