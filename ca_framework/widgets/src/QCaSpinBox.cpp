@@ -32,14 +32,14 @@
 /*!
     Create a CA aware spin box with no variable name yet
 */
-QCaSpinBox::QCaSpinBox( QWidget *parent ) : QSpinBox( parent ), QCaWidget( this ) {
+QCaSpinBox::QCaSpinBox( QWidget *parent ) : QDoubleSpinBox( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Create a CA aware spin box with a variable name already known
 */
-QCaSpinBox::QCaSpinBox( const QString &variableNameIn, QWidget *parent ) : QSpinBox( parent ), QCaWidget( this ) {
+QCaSpinBox::QCaSpinBox( const QString &variableNameIn, QWidget *parent ) : QDoubleSpinBox( parent ), QCaWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -67,7 +67,7 @@ void QCaSpinBox::setup() {
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     // Use spin box signals
-    QObject::connect( this, SIGNAL( valueChanged( int ) ), this, SLOT( userValueChanged( int ) ) );
+    QObject::connect( this, SIGNAL( valueChanged( double ) ), this, SLOT( userValueChanged( double ) ) );
 }
 
 /*!
@@ -77,7 +77,7 @@ void QCaSpinBox::setup() {
 qcaobject::QCaObject* QCaSpinBox::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaInteger
-    return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+    return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 }
 
 /*!
@@ -94,8 +94,8 @@ void QCaSpinBox::establishConnection( unsigned int variableIndex ) {
     // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
     if(  qca ) {
         setValue( 0 );
-        QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
-                          this, SLOT( setValueIfNoFocus( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+        QObject::connect( qca,  SIGNAL( floatingChanged( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                          this, SLOT( setValueIfNoFocus( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
     }
@@ -144,7 +144,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     /// variable when it is time to do a write.
     if( connectionInfo.isChannelConnected() && !subscribe )
     {
-        QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+        QCaFloating* qca = (QCaFloating*)getQcaItem(0);
         qca->singleShotRead();
     }
 }
@@ -158,7 +158,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     This is the slot used to recieve data updates from a QCaObject based class.
     This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QCaSpinBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     /// If not subscribing, then do nothing.
     /// Note, This will still be called even if not subscribing as there may be initial sing shot read
@@ -168,6 +168,17 @@ void QCaSpinBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
 
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( value );
+
+    // Set the limits and step size
+    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+    double upper = qca->getControlLimitUpper();
+    double lower = qca->getControlLimitLower();
+    if( upper != lower)
+    {
+        setMaximum( qca->getControlLimitUpper() );
+        setMinimum( qca->getControlLimitLower() );
+    }
+    setDecimals( qca->getPrecision() );
 
     /// Update the spin box only if the user is not interacting with the object.
     if( !hasFocus() ) {
@@ -188,18 +199,18 @@ void QCaSpinBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
 /*!
     The user has changed the spin box.
 */
-void QCaSpinBox::userValueChanged( int value ) {
+void QCaSpinBox::userValueChanged( double value ) {
     // If the user is changing the value, write it.
     // Note, the spin box does not appear to have a signal that distinguishes between user changes and programatic changes
     if( !programaticValueChange )
     {
         /// Get the variable to write to
-        QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+        QCaFloating* qca = (QCaFloating*)getQcaItem(0);
 
         /// If a QCa object is present (if there is a variable to write to)
         /// then write the value
         if( qca ) {
-            qca->writeInteger( (long)value );
+            qca->writeFloating( value );
         }
     }
 }

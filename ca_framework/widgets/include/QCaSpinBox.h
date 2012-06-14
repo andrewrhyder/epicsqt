@@ -25,13 +25,13 @@
 #ifndef QCASPINBOX_H
 #define QCASPINBOX_H
 
-#include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QCaWidget.h>
-#include <QCaInteger.h>
-#include <QCaIntegerFormatting.h>
+#include <QCaFloating.h>
+#include <QCaFloatingFormatting.h>
 #include <QCaPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QSpinBox, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public QCaWidget {
     Q_OBJECT
 
   public:
@@ -59,7 +59,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QSpinBox, public QCaWidg
     bool getAllowDrop();
 
   protected:
-    QCaIntegerFormatting integerFormatting;
+    QCaFloatingFormatting floatingFormatting;
     bool localEnabled;
     bool allowDrop;
 
@@ -67,14 +67,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QSpinBox, public QCaWidg
 
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setValueIfNoFocus( const long& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
-    void userValueChanged( int value );
+    void setValueIfNoFocus( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void userValueChanged( double value );
 
   public slots:
     void requestEnabled( const bool& state );
 
   signals:
-    void dbValueChanged( const qlonglong& out );
+    void dbValueChanged( const double& out );
 
 private:
     void setup();
