@@ -18,6 +18,10 @@ VideoWidget::VideoWidget(QWidget *parent)
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     firstUpdate = true;
+
+    setMouseTracking( true );
+    setCursor( getDefaultMarkupCursor() );
+
     update();//!!!required???
 }
 
@@ -29,6 +33,11 @@ VideoWidget::~VideoWidget()
     }
 }
 
+void VideoWidget::markupSetCursor( QCursor cursor )
+{
+    setCursor( cursor );
+}
+
 /*
 QSize VideoWidget::sizeHint() const
 {
@@ -36,28 +45,39 @@ QSize VideoWidget::sizeHint() const
 }
 */
 
+// The displayed image has changed, redraw it
 void VideoWidget::setNewImage( const QImage image )
 {
-    if( !currentImage.isNull() ) return;//!!!
+//!!!    if( !currentImage.isNull() ) return;//!!!
 
     currentImage = image;
     setMarkupTime();
-    updateCompositeImage( image.rect() );
+
+    // Update the composite image with a completely new image, and redraw whatever markup areas are required
+    updateCompositeImage( true, getMarkupAreas() );
     update();
 }
 
 // The markup overlay has changed, redraw part of it
 //!! Call this with a null markups image if no markups
-void VideoWidget::markupChange( QImage& markups, QRect changedArea )
+void VideoWidget::markupChange( QImage& markups,  QVector<QRect>& changedAreas )
 {
     // Save the current markups. The markups image is null if no markups
     markupImage = markups;
-    updateCompositeImage( changedArea );
-    update( changedArea );
+    updateCompositeImage( false, changedAreas );
+    for( int i = 0; i < changedAreas.count(); i++ )
+    {
+        update( changedAreas[i] );
+    }
 }
 
-void VideoWidget::updateCompositeImage( QRect changedArea )
+// Update the composite image.
+// The composite image consists of the display image plus any markups such as a region of interest.
+// If there are no markups, the image is used directly as is, so no copying is required
+void VideoWidget::updateCompositeImage( bool imageChanged, QVector<QRect>& markupChangedAreas )
 {
+    qDebug() << "VideoWidget::updateCompositeImage" << imageChanged << markupChangedAreas;
+
     // If there are no markups, just display the current image
     if( markupImage.isNull() )
     {
@@ -69,6 +89,7 @@ void VideoWidget::updateCompositeImage( QRect changedArea )
     {
         // If the image used for preparing the combined image and markup
         // fragments is present, but the wrong size, delete it
+        bool newCompositeImage = false;
         if( compositeImage && compositeImage->size() != currentImage.size() )
         {
             delete compositeImage;
@@ -76,25 +97,29 @@ void VideoWidget::updateCompositeImage( QRect changedArea )
         }
 
         // If the image used for preparing the combined image and markup
-        // is not present, create it and prepare to populate it from the entire current image
-        QRect redrawArea;
+        // is not present, create it
         if( !compositeImage )
         {
             compositeImage = new QImage( currentImage.size(), currentImage.format() );
-            redrawArea = currentImage.rect();
+            newCompositeImage = true;
         }
 
-        // If the image used for preparing the combined image and markup
-        // was already present, prepare to update just the changed areas
-        else
-        {
-            redrawArea = changedArea;
-        }
-
-        // Draw the changed markup area over the image
+        // Draw the displayed image if it has changed
         QPainter playPainter( compositeImage );
-        playPainter.drawImage( redrawArea, currentImage, redrawArea );
-        playPainter.drawImage( redrawArea, markupImage, redrawArea );
+        if( imageChanged || newCompositeImage )
+        {
+            playPainter.drawImage( compositeImage->rect(), currentImage, currentImage.rect() );
+        }
+
+        // Draw the required markup areas over the image
+        for( int i = 0; i < markupChangedAreas.count(); i++ )
+        {
+            if( !imageChanged )
+            {
+                playPainter.drawImage( markupChangedAreas[i], currentImage, markupChangedAreas[i] );
+            }
+            playPainter.drawImage( markupChangedAreas[i], markupImage, markupChangedAreas[i] );
+        }
 
         // Display the composite image
         displayImage = *compositeImage;
@@ -133,4 +158,9 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
 void VideoWidget::setRotation( double angle )
 {
     rotation = angle;
+}
+
+void VideoWidget::markupAction( markupIds activeItem, QPoint point1, QPoint point2 )
+{
+    qDebug() << "VideoWidget::markupAction()" << activeItem << point1 << point2;
 }

@@ -29,6 +29,7 @@
 
 #include <QPainter>
 #include <QDateTime>
+#include <QCursor>
 
 #include <imageMarkup.h>
 
@@ -127,6 +128,8 @@ void markupVLine::setArea()
     }
     area.setTop( 0 );
     area.setBottom( owner->markupImage->rect().bottom());
+
+    owner->markupAreasStale = true;
 }
 
 void markupVLine::startDrawing( QPoint pos )
@@ -149,6 +152,16 @@ bool markupVLine::isOver( QPoint point )
 QPoint markupVLine::origin()
 {
     return QPoint( x, 0 );
+}
+
+QPoint markupVLine::getPoint1()
+{
+    return origin();
+}
+
+QPoint markupVLine::getPoint2()
+{
+    return QPoint();
 }
 
 //===========================================================================
@@ -178,6 +191,8 @@ void markupHLine::setArea()
     }
     area.setLeft( 0 );
     area.setRight( owner->markupImage->rect().right());
+
+    owner->markupAreasStale = true;
 }
 
 void markupHLine::startDrawing( QPoint pos )
@@ -200,6 +215,16 @@ bool markupHLine::isOver( QPoint point )
 QPoint markupHLine::origin()
 {
     return QPoint( 0, y );
+}
+
+QPoint markupHLine::getPoint1()
+{
+    return origin();
+}
+
+QPoint markupHLine::getPoint2()
+{
+    return QPoint();
 }
 
 //===========================================================================
@@ -242,6 +267,9 @@ void markupLine::setArea()
     {
         area.adjust( -highlightMargin, -highlightMargin, highlightMargin, highlightMargin );
     }
+
+    owner->markupAreasStale = true;
+
 }
 
 void markupLine::startDrawing( QPoint pos )
@@ -278,13 +306,9 @@ void markupLine::moveTo( QPoint pos )
 
 bool markupLine::isOver( QPoint point )
 {
-    qDebug() << "markupLine::isOver()" << point << area << start << end;
-
     // Not over the line if outside the drawing rectangle more than the tolerance
     QRect tolArea = area;
-    qDebug() << tolArea;
     tolArea.adjust( -OVER_TOLERANCE, -OVER_TOLERANCE, OVER_TOLERANCE, OVER_TOLERANCE);
-    qDebug() << tolArea;
     if( !tolArea.contains( point ) )
     {
         return false;
@@ -344,7 +368,6 @@ bool markupLine::isOver( QPoint point )
         {
             activeHandle = MARKUP_HANDLE_NONE;
         }
-        qDebug() << activeHandle;
         return true;
     }
     else
@@ -356,6 +379,16 @@ bool markupLine::isOver( QPoint point )
 QPoint markupLine::origin()
 {
     return start;
+}
+
+QPoint markupLine::getPoint1()
+{
+    return start;
+}
+
+QPoint markupLine::getPoint2()
+{
+    return end;
 }
 
 //===========================================================================
@@ -412,11 +445,8 @@ void markupRegion::setArea()
     area.setTop( std::min( y1, y2 ) );
     area.setBottom( std::max( y1, y2 ) );
 
-    qDebug() << x1 << y1 << x2 << y2;
-
     area.adjust( -HANDLE_SIZE, -HANDLE_SIZE, HANDLE_SIZE+1, HANDLE_SIZE+1 );
 
-    qDebug() << "markupRegion::setArea()" << area;
     if( highlighted )
     {
         area.setLeft(   area.left()   - highlightMargin );
@@ -424,6 +454,9 @@ void markupRegion::setArea()
         area.setTop(    area.top()    - highlightMargin );
         area.setBottom( area.bottom() + highlightMargin );
     }
+
+    owner->markupAreasStale = true;
+
 //    qDebug() << "setArea()" << area;
 }
 
@@ -569,6 +602,16 @@ QPoint markupRegion::origin()
     return rect.topLeft();
 }
 
+QPoint markupRegion::getPoint1()
+{
+    return rect.topLeft();
+}
+
+QPoint markupRegion::getPoint2()
+{
+    return rect.bottomRight();
+}
+
 //===========================================================================
 // Text markup
 
@@ -596,6 +639,9 @@ void markupText::setText( QString textIn )
 void markupText::setArea()
 {
     area = rect;
+
+    owner->markupAreasStale = true;
+
 }
 
 void markupText::startDrawing( QPoint pos )
@@ -621,33 +667,38 @@ QPoint markupText::origin()
     return rect.topLeft();
 }
 
+QPoint markupText::getPoint1()
+{
+    return rect.topLeft();
+}
+
+QPoint markupText::getPoint2()
+{
+    return rect.bottomRight();
+}
+
 //===========================================================================
 // imageMarkup
 
 // Constructor
 imageMarkup::imageMarkup()
 {
-    interaction = WAITING;
     mode = MARKUP_MODE_NONE;
-    activeItem = NULL;
+    activeItem = MARKUP_ID_NONE;
 
     markupImage = new QImage();
 
-    // Create the markup items with a specific handle for each
-    lineHoz      = new markupHLine(  this, true );
-    lineVert     = new markupVLine(  this, true );
-    lineProfile  = new markupLine(   this, true );
-    region       = new markupRegion( this, true );
-    timeDate     = new markupText(   this, false );
+    items.resize(MARKUP_ID_COUNT );
+    items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true );
+    items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true );
+    items[MARKUP_ID_LINE]      = new markupLine(   this, true );
+    items[MARKUP_ID_REGION]    = new markupRegion( this, true );
+    items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false );
 
-    // Add the items to a list of items so they can be iterated
-    items.append( lineHoz );
-    items.append( lineVert );
-    items.append( lineProfile );
-    items.append( region );
-    items.append( timeDate );
+    markupAreasStale = true;
 
     // !!!temp testing
+    markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
     timeDate->setText( "hi there" );
     timeDate->visible = true;
     timeDate->drawMarkupIn();
@@ -666,17 +717,18 @@ void imageMarkup::setMode( markupModes modeIn )
 
 void imageMarkup::setMarkupTime()
 {
+    markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
     timeDate->setText( QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss" ));
 }
 
 void imageMarkup::setShowTime( bool visibleIn )
 {
-    timeDate->visible = visibleIn;
+    items[MARKUP_ID_TIMESTAMP]->visible = visibleIn;
 }
 
 bool imageMarkup::getShowTime()
 {
-    return timeDate->visible;
+    return items[MARKUP_ID_TIMESTAMP]->visible;
 }
 
 // User pressed a mouse button
@@ -684,34 +736,36 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
 {
 //    qDebug() << "imageMarkup::markupMousePressEvent" << event;
 
+    buttonDown = true;
+
     // Determine if the user clicked over an interactive, visible item,
     // and if so, make the first item found the active item
-    activeItem = NULL;
+    activeItem = MARKUP_ID_NONE;
     int n = items.count();
     for( int i = 0; i < n; i++ )
     {
         if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos() ) )
         {
-            activeItem = items[i];
-            grabOffset = event->pos() - activeItem->origin();
+            activeItem = (markupIds)i;
+            grabOffset = event->pos() - items[i]->origin();
             break;
         }
     }
 
     // If not over an item, start creating a new item
     // move the appropriate item to the point clicked on
-    if( !activeItem )
+    if( activeItem == MARKUP_ID_NONE )
     {
         bool pointAndClick = true;
         switch( mode )
         {
-            case MARKUP_MODE_NONE:                                                    break;
-            case MARKUP_MODE_H_LINE: activeItem = lineHoz;                            break;
-            case MARKUP_MODE_V_LINE: activeItem = lineVert;                           break;
-            case MARKUP_MODE_LINE:   activeItem = lineProfile; pointAndClick = false; break;
-            case MARKUP_MODE_AREA:   activeItem = region;      pointAndClick = false; break;
+            case MARKUP_MODE_NONE:                                                          break;
+            case MARKUP_MODE_H_LINE: activeItem = MARKUP_ID_H_SLICE;                        break;
+            case MARKUP_MODE_V_LINE: activeItem = MARKUP_ID_V_SLICE;                        break;
+            case MARKUP_MODE_LINE:   activeItem = MARKUP_ID_LINE;    pointAndClick = false; break;
+            case MARKUP_MODE_AREA:   activeItem = MARKUP_ID_REGION;  pointAndClick = false; break;
         }
-        if( activeItem )
+        if( activeItem != MARKUP_ID_NONE )
         {
             // Some items are point-and-click items. They don't require the user to drag to select where the item is.
             // Typical point-and-click items are vertical lines and horizontal lines (traversing the entire window)
@@ -727,11 +781,14 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
             // and start the process of draging from the current position
             else
             {
-                if( activeItem->visible )
+                if( items[activeItem]->visible )
                 {
-                    activeItem->erase();
+                    items[activeItem]->erase();
+                    QVector<QRect> changedAreas;
+                    changedAreas.append( items[activeItem]->area );
+                    markupChange( *markupImage, changedAreas );
                 }
-                activeItem->startDrawing( event->pos() );
+                items[activeItem]->startDrawing( event->pos() );
             }
         }
     }
@@ -741,15 +798,58 @@ void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
 {
 //    qDebug() << "imageMarkup::markupMouseMoveEvent" << event;
 
-    redrawActiveItemHere( event->pos() );
+    if( buttonDown )
+    {
+        redrawActiveItemHere( event->pos() );
+    }
 
+    // Set cursor
+    QCursor cursor = getDefaultMarkupCursor();
+    int n = items.count();
+    for( int i = 0; i < n; i++ )
+    {
+        if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos() ) )
+        {
+            switch( items[i]->activeHandle )
+            {
+                case markupItem::MARKUP_HANDLE_NONE:    cursor = Qt::OpenHandCursor; break;
+
+                case markupItem::MARKUP_HANDLE_START:
+                case markupItem::MARKUP_HANDLE_END:     cursor = Qt::SizeAllCursor; break;
+
+                case markupItem::MARKUP_HANDLE_TL:
+                case markupItem::MARKUP_HANDLE_BR:      cursor = Qt::SizeBDiagCursor; break;
+
+                case markupItem::MARKUP_HANDLE_TR:
+                case markupItem::MARKUP_HANDLE_BL:      cursor = Qt::SizeFDiagCursor; break;
+
+                case markupItem::MARKUP_HANDLE_T:
+                case markupItem::MARKUP_HANDLE_B:       cursor = Qt::SizeVerCursor; break;
+
+                case markupItem::MARKUP_HANDLE_L:
+                case markupItem::MARKUP_HANDLE_R:       cursor = Qt::SizeHorCursor; break;
+            }
+            break;
+        }
+    }
+    markupSetCursor( cursor );
+}
+
+QCursor imageMarkup::getDefaultMarkupCursor()
+{
+    return  Qt::CrossCursor;
 }
 
 void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )// event )
 {
 //    qDebug() << "imageMarkup::markupMouseReleaseEvent" << event;
 
-    activeItem = NULL;
+    if( activeItem != MARKUP_ID_NONE )
+    {
+        markupAction( activeItem, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
+    }
+    activeItem = MARKUP_ID_NONE;
+    buttonDown = false;
 
     // Do nothing if no active item
 //    if( !activeItem )
@@ -783,7 +883,7 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
 {
 
     // Do nothing if no active item
-    if( !activeItem )
+    if( activeItem == MARKUP_ID_NONE )
         return;
 
     // Area to update
@@ -791,20 +891,21 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
     //!!! It could (should?) be a region that includes a single rect for mostly hoz and vert lines,
     //!!! four rects for the four sides of an area, and a number of rectangles that efficiently
     //!!! allows redrawing of diagonal lines
-    QRect changedArea;
+    QVector<QRect> changedAreas;
 
     // Erase if visible, move, then redraw the item
-    if( activeItem->visible )
+    if( items[activeItem]->visible )
     {
-        changedArea = activeItem->area;
-        activeItem->erase();
+        changedAreas.append( items[activeItem]->area );
+        items[activeItem]->erase();
     }
-    activeItem->moveTo( pos );
-    activeItem->drawMarkupIn();
+    items[activeItem]->moveTo( pos );
+    items[activeItem]->drawMarkupIn();
 
     // Extend the changed area to include the item's new area and notify markups require redrawing
-    changedArea = changedArea.united( activeItem->area );
-    markupChange( *markupImage, changedArea );
+    //!!! if the two areas overlap by much, perhaps smarter to join the two into one, or generate the required four?
+    changedAreas.append( items[activeItem]->area );
+    markupChange( *markupImage, changedAreas );
 
 }
 
@@ -839,3 +940,20 @@ void imageMarkup::markupZoom( double )//newZoom )
 
 }
 
+QVector<QRect>& imageMarkup::getMarkupAreas()
+{
+    if( markupAreasStale )
+    {
+        markupAreas.clear();
+        int n = items.count();
+        for( int i = 0; i < n; i ++ )
+        {
+            if( items[i]->visible )
+            {
+                markupAreas.append( items[i]->area );
+            }
+        }
+        markupAreasStale = false;
+    }
+    return markupAreas;
+}

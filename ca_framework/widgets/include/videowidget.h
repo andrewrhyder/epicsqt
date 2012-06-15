@@ -46,13 +46,15 @@ protected:
     void mouseMoveEvent( QMouseEvent* event ) { markupMouseMoveEvent( event ); }
     void wheelEvent( QWheelEvent* event ) { markupMouseWheelEvent( event ); }
 
-    void markupChange( QImage& markups, QRect changedArea );    // The markup overlay has changed, redraw part of it
+    void markupChange( QImage& markups, QVector<QRect>& changedAreas );    // The markup overlay has changed, redraw part of it
 
     void resizeEvent( QResizeEvent *event );
+    void markupSetCursor( QCursor cursor );
+    void markupAction( markupIds activeItem, QPoint point1, QPoint point2 );
 
 private:
-    void addMarkups( QPainter& screenPainter, QRect redrawArea );
-    void updateCompositeImage( QRect changedArea );
+    void addMarkups( QPainter& screenPainter, QVector<QRect>& changedAreas );
+    void updateCompositeImage( bool imageChanged, QVector<QRect>& changedAreas );
 
     QImage currentImage;        // Latest camera image
     QImage markupImage;         // Image of markups, such as region of interest

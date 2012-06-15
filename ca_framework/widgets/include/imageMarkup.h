@@ -77,6 +77,8 @@ public:
     virtual void startDrawing( QPoint pos ) = 0;
 
     virtual bool isOver( QPoint point )=0;
+    virtual QPoint getPoint1()=0;
+    virtual QPoint getPoint2()=0;
 
     bool pointIsNear( QPoint p1, QPoint p );
 
@@ -107,6 +109,8 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
+    QPoint getPoint1();
+    QPoint getPoint2();
 
     int y;
 };
@@ -123,6 +127,8 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
+    QPoint getPoint1();
+    QPoint getPoint2();
 
     int x;
 };
@@ -138,6 +144,8 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
+    QPoint getPoint1();
+    QPoint getPoint2();
 
     QPoint start;
     QPoint end;
@@ -155,6 +163,8 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
+    QPoint getPoint1();
+    QPoint getPoint2();
 
     QRect rect;
 };
@@ -173,17 +183,21 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point );
     QPoint origin();
+    QPoint getPoint1();
+    QPoint getPoint2();
 
     QString text;
     QRect rect;
 };
 
-enum markupModes { MARKUP_MODE_NONE, MARKUP_MODE_H_LINE, MARKUP_MODE_V_LINE, MARKUP_MODE_LINE, MARKUP_MODE_AREA };
-
 class imageMarkup {
 public:
     imageMarkup();
     ~imageMarkup();
+
+    enum markupModes { MARKUP_MODE_NONE, MARKUP_MODE_H_LINE, MARKUP_MODE_V_LINE, MARKUP_MODE_LINE, MARKUP_MODE_AREA };
+
+    enum markupIds { MARKUP_ID_REGION, MARKUP_ID_H_SLICE, MARKUP_ID_V_SLICE, MARKUP_ID_LINE, MARKUP_ID_TIMESTAMP, MARKUP_ID_COUNT, MARKUP_ID_NONE };
 
     void markupMousePressEvent(QMouseEvent *event);
     void markupMouseReleaseEvent ( QMouseEvent* event );
@@ -195,36 +209,34 @@ public:
 
     void setMode( markupModes modeIn );
     QImage* markupImage;
-    QList<markupItem*> items;
+    QVector<markupItem*> items;
     QPoint grabOffset;
+    QVector<QRect>& getMarkupAreas();
+    bool markupAreasStale;
+    QCursor getDefaultMarkupCursor();
+
 
 protected:
     void markupResize( QSize newSize );   // The viewport size has changed
     void markupScroll( QPoint newPos );   // The underlying image has moved in the viewport
     void markupZoom( double newZoom );    // The underlying image zoom factor has changed
 
-    virtual void markupChange( QImage& markups, QRect changedArea )=0;    // The markup overlay has changed, redraw part of it
+    virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
+    virtual void markupSetCursor( QCursor cursor )=0;
+    virtual void markupAction( markupIds activeItem, QPoint point1, QPoint point2 )=0;
 
     void setMarkupTime();                   // A new image has arrived, build a timestamp
 
 private:
 
-    markupItem* activeItem;
-    enum interactiveStates { WAITING, MOVING };
+    markupIds activeItem;
 
-    interactiveStates interaction;
     markupModes mode;
 
-    markupHLine* lineHoz;
-    markupVLine* lineVert;
-
-    markupLine*  lineProfile;
-
-    markupRegion*  region;
-
-    markupText*  timeDate;
-
     void redrawActiveItemHere( QPoint pos );
+    QVector<QRect> markupAreas;
+
+    bool buttonDown;
 
 };
 
