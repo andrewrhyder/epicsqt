@@ -23,6 +23,10 @@
         <file>QCaLogin.png</file>
         <file>QCaLog.png</file>
         <file>QCaMotor.png</file>
+        <file>strip_chart_play.png</file>
+        <file>strip_chart_pause.png</file>
+        <file>strip_chart_page_forward.png</file>
+        <file>strip_chart_page_backward.png</file>
     </qresource>
     <qresource prefix="/user">
         <file>record_field_list.txt</file>
