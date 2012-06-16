@@ -61,6 +61,22 @@ class QCaImagePlugin : public QCaImage {
     void    setVariableName5Property( QString variable5Name ){ variableNamePropertyManagers[4].setVariableNameProperty( variable5Name ); }
     QString getVariableName5Property(){ return variableNamePropertyManagers[4].getVariableNameProperty(); }
 
+    Q_PROPERTY(QString regionOfInterestXVariable READ getVariableName6Property WRITE setVariableName6Property)
+    void    setVariableName6Property( QString variable6Name ){ variableNamePropertyManagers[5].setVariableNameProperty( variable6Name ); }
+    QString getVariableName6Property(){ return variableNamePropertyManagers[5].getVariableNameProperty(); }
+
+    Q_PROPERTY(QString regionOfInterestYVariable READ getVariableName7Property WRITE setVariableName7Property)
+    void    setVariableName7Property( QString variable7Name ){ variableNamePropertyManagers[6].setVariableNameProperty( variable7Name ); }
+    QString getVariableName7Property(){ return variableNamePropertyManagers[6].getVariableNameProperty(); }
+
+    Q_PROPERTY(QString regionOfInterestWVariable READ getVariableName8Property WRITE setVariableName8Property)
+    void    setVariableName8Property( QString variable8Name ){ variableNamePropertyManagers[7].setVariableNameProperty( variable8Name ); }
+    QString getVariableName8Property(){ return variableNamePropertyManagers[7].getVariableNameProperty(); }
+
+    Q_PROPERTY(QString regionOfInterestHVariable READ getVariableName9Property WRITE setVariableName9Property)
+    void    setVariableName9Property( QString variable9Name ){ variableNamePropertyManagers[8].setVariableNameProperty( variable9Name ); }
+    QString getVariableName9Property(){ return variableNamePropertyManagers[8].getVariableNameProperty(); }
+
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < QCAIMAGE_NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManagers[0].getSubstitutionsProperty(); }
@@ -80,6 +96,8 @@ class QCaImagePlugin : public QCaImage {
                          RGB_888  = QCaImage::RGB_888 };
     void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QCaImage::formatOptions)formatOption ); }
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
+
+    Q_PROPERTY(bool displayRegionOfInterest READ getDisplayRegionOfInterest WRITE setDisplayRegionOfInterest)
 
     Q_PROPERTY(bool displayAcquirePeriod READ getDisplayAcquirePeriod WRITE setDisplayAcquirePeriod)
     Q_PROPERTY(bool displayExposureTime READ getDisplayExposureTime WRITE setDisplayExposureTime)

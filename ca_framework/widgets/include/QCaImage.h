@@ -89,6 +89,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     void setInitialVertScrollPos( int initialVertScrollPosIn );
     int getInitialVertScrollPos();
 
+
+    void setDisplayRegionOfInterest( bool displayRoiLayoutIn );
+    bool getDisplayRegionOfInterest();
+
     // Display the acquire period
     void setDisplayAcquirePeriod( bool displayAcquirePeriodIn );
     bool getDisplayAcquirePeriod();
@@ -122,7 +126,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     bool allowDrop;
 
-    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ACQUIREPERIOD_VARIABLE, EXPOSURETIME_VARIABLE, QCAIMAGE_NUM_VARIABLES };
+    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ACQUIREPERIOD_VARIABLE, EXPOSURETIME_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, QCAIMAGE_NUM_VARIABLES };
 
     sizeOptions sizeOption;
     int zoom;
@@ -131,6 +135,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     int initialVertScrollPos;
     bool displayAcquirePeriod;
     bool displayExposureTime;
+    bool displayRoiLayout;
 
 
 private slots:
@@ -163,6 +168,7 @@ private slots:
 
     QVBoxLayout *mainLayout;
     QGridLayout *labelLayout;
+    QGridLayout *roiLayout;
     QGridLayout *buttonLayout;
 
     QCaLabel* acquirePeriodQCaLabel;
@@ -170,6 +176,18 @@ private slots:
 
     QCaLabel* exposureTimeQCaLabel;
     QLabel* exposureTimeLabel;
+
+    QCaLabel* roiXQCaLabel;
+    QLabel* roiXLabel;
+
+    QCaLabel* roiYQCaLabel;
+    QLabel* roiYLabel;
+
+    QCaLabel* roiWQCaLabel;
+    QLabel* roiWLabel;
+
+    QCaLabel* roiHQCaLabel;
+    QLabel* roiHLabel;
 
     QScrollArea* scrollArea;
     bool initScrollPosSet;
@@ -184,6 +202,7 @@ private slots:
     bool showTimeEnabled;
 
 
+    void manageRoiLayout();
     void manageAcquirePeriodLabel();
     void manageExposureTimeLabel();
 

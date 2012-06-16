@@ -56,10 +56,12 @@ private:
     void addMarkups( QPainter& screenPainter, QVector<QRect>& changedAreas );
     void updateCompositeImage( bool imageChanged, QVector<QRect>& changedAreas );
 
-    QImage currentImage;        // Latest camera image
-    QImage markupImage;         // Image of markups, such as region of interest
-    QImage* compositeImage;     // Composite of current and markup images
-    QImage displayImage;        // Image to display, either current image, or composite
+    QImage currentImage;              // Latest camera image
+    QImage markupImage;               // Image of markups, such as region of interest
+    QImage* compositeImage;           // Composite of current and markup images
+    QImage* compositeImageBackground; // Current image, scaled to the composite image size
+    bool compositeImageBackgroundStale;
+    QImage displayImage;              // Image to display, either current image, or composite
 
     double rotation;
     bool firstUpdate;

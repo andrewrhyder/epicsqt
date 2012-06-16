@@ -48,9 +48,8 @@ QSize VideoWidget::sizeHint() const
 // The displayed image has changed, redraw it
 void VideoWidget::setNewImage( const QImage image )
 {
-//!!!    if( !currentImage.isNull() ) return;//!!!
-
     currentImage = image;
+    compositeImageBackgroundStale = true;
     setMarkupTime();
 
     // Update the composite image with a completely new image, and redraw whatever markup areas are required
@@ -76,8 +75,6 @@ void VideoWidget::markupChange( QImage& markups,  QVector<QRect>& changedAreas )
 // If there are no markups, the image is used directly as is, so no copying is required
 void VideoWidget::updateCompositeImage( bool imageChanged, QVector<QRect>& markupChangedAreas )
 {
-    qDebug() << "VideoWidget::updateCompositeImage" << imageChanged << markupChangedAreas;
-
     // If there are no markups, just display the current image
     if( markupImage.isNull() )
     {
@@ -87,28 +84,34 @@ void VideoWidget::updateCompositeImage( bool imageChanged, QVector<QRect>& marku
     // If there are markups, ensure the composite image is created, composed, and displayed
     else
     {
+        //!!! only create a background image if a different size to the current image
+
         // If the image used for preparing the combined image and markup
         // fragments is present, but the wrong size, delete it
         bool newCompositeImage = false;
-        if( compositeImage && compositeImage->size() != currentImage.size() )
+        if( compositeImage && compositeImage->size() != size() )
         {
             delete compositeImage;
+            delete compositeImageBackground;
             compositeImage = NULL;
+            compositeImageBackground = NULL;
         }
 
         // If the image used for preparing the combined image and markup
         // is not present, create it
         if( !compositeImage )
         {
-            compositeImage = new QImage( currentImage.size(), currentImage.format() );
+            compositeImage = new QImage( size(), currentImage.format() );
+            compositeImageBackground = new QImage( size(), currentImage.format() );
             newCompositeImage = true;
+            compositeImageBackgroundStale = true;
         }
 
         // Draw the displayed image if it has changed
-        QPainter playPainter( compositeImage );
+        QPainter compositePainter( compositeImage );
         if( imageChanged || newCompositeImage )
         {
-            playPainter.drawImage( compositeImage->rect(), currentImage, currentImage.rect() );
+            compositePainter.drawImage( compositeImage->rect(), currentImage, currentImage.rect() );
         }
 
         // Draw the required markup areas over the image
@@ -116,9 +119,17 @@ void VideoWidget::updateCompositeImage( bool imageChanged, QVector<QRect>& marku
         {
             if( !imageChanged )
             {
-                playPainter.drawImage( markupChangedAreas[i], currentImage, markupChangedAreas[i] );
+                // If the composite background is out of date, recreate it
+                if( compositeImageBackgroundStale )
+                {
+                    QPainter bgPainter( compositeImageBackground );
+                    bgPainter.drawImage( compositeImageBackground->rect(), currentImage, currentImage.rect() );
+                    compositeImageBackgroundStale = false;
+                }
+                // Draw the required background part
+                compositePainter.drawImage( markupChangedAreas[i], *compositeImageBackground, markupChangedAreas[i] );
             }
-            playPainter.drawImage( markupChangedAreas[i], markupImage, markupChangedAreas[i] );
+            compositePainter.drawImage( markupChangedAreas[i], markupImage, markupChangedAreas[i] );
         }
 
         // Display the composite image
@@ -141,7 +152,34 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     else
     {
         painter.rotate( rotation );
-        painter.drawImage( event->rect(), displayImage, event->rect() );
+        qDebug() << event->rect() << displayImage.rect();
+        // 1) The display image has changed, and is not marked up.
+        //    A single repaint event will occur for the entire display widget.
+        //    The display image can be any size and should be scaled to the
+        //    display widget.
+        //    So displayImage.rect() as the source area is OK
+        //
+        // 2) The display image has changed, and is marked up.
+        //    A single repaint event will occur for the entire display widget.
+        //    The display image will be generated with markups and will be the
+        //    same size as the display widget. It doesn't matter if it is scaled to the
+        //    display widget, or not.
+        //    So, event->rect() as the source area is OK
+        //
+        // 3) The markups have changed.
+        //    Multiple update events will occur for each changed markup area.
+        //    The display image will be generated with markups and will be the
+        //    same size as the display widget. The pixel area from the display
+        //    image should match the event update area.
+        //    So, event->rect() as the source area is OK
+        if( displayImage.size() != size() )
+        {
+            painter.drawImage( event->rect(), displayImage, displayImage.rect() );
+        }
+        else
+        {
+            painter.drawImage( event->rect(), displayImage, event->rect() );
+        }
     }
 
     // Flag first update is over

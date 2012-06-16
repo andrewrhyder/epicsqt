@@ -101,6 +101,26 @@ void QCaImage::setup() {
     exposureTimeLabel = new QLabel( this );
     exposureTimeLabel->setText( "Exposure Time:" );
 
+    // Create region of interest layout
+    roiLayout = new QGridLayout;
+    roiLayout->setMargin( 0 );
+
+    roiXQCaLabel = new QCaLabel( this );
+    roiXLabel = new QLabel( this );
+    roiXLabel->setText( "X:" );
+
+    roiYQCaLabel = new QCaLabel( this );
+    roiYLabel = new QLabel( this );
+    roiYLabel->setText( "Y:" );
+
+    roiWQCaLabel = new QCaLabel( this );
+    roiWLabel = new QLabel( this );
+    roiWLabel->setText( "Width:" );
+
+    roiHQCaLabel = new QCaLabel( this );
+    roiHLabel = new QLabel( this );
+    roiHLabel->setText( "Height:" );
+
     // Create button layout
     buttonLayout = new QGridLayout;
     buttonLayout->setMargin(0);
@@ -123,11 +143,13 @@ void QCaImage::setup() {
 
     mainLayout->addWidget( scrollArea );
     mainLayout->addItem( labelLayout );
+    mainLayout->addItem( roiLayout );
     mainLayout->addItem(buttonLayout);
 
     setLayout( mainLayout );
 
     // Set up labels as required by properties
+    manageRoiLayout();
     manageAcquirePeriodLabel();
     manageExposureTimeLabel();
 
@@ -182,6 +204,26 @@ qcaobject::QCaObject* QCaImage::createQcaItem( unsigned int variableIndex ) {
         case EXPOSURETIME_VARIABLE:
             exposureTimeQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( EXPOSURETIME_VARIABLE ), getVariableNameSubstitutions(), 0 );
             return NULL;
+
+        // Pass on the variable name and substitutions on to the region of interext X QCaLabel, then create the roi X as a QCaInteger
+        case ROI_X_VARIABLE:
+            roiXQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_X_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+
+        // Pass on the variable name and substitutions on to the region of interext Y QCaLabel, then create the roi Y as a QCaInteger
+        case ROI_Y_VARIABLE:
+            roiYQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_Y_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+
+        // Pass on the variable name and substitutions on to the region of interext Width QCaLabel, then create the roi width as a QCaInteger
+        case ROI_W_VARIABLE:
+            roiWQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_W_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+
+        // Pass on the variable name and substitutions on to the region of interext Height QCaLabel, then create the roi height as a QCaInteger
+        case ROI_H_VARIABLE:
+            roiHQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_H_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
         default:
             return NULL;
@@ -472,6 +514,58 @@ void QCaImage::requestEnabled( const bool& state )
     setEnabled(state);
 }
 
+// Add or remove the region of interest layout
+void QCaImage::manageRoiLayout()
+{
+    if( displayRoiLayout )
+    {
+        roiLayout->addWidget( roiXLabel, 0, 0 );
+        roiLayout->addWidget( roiXQCaLabel, 0, 1 );
+
+        roiLayout->addWidget( roiYLabel, 1, 0 );
+        roiLayout->addWidget( roiYQCaLabel, 1, 1 );
+
+        roiLayout->addWidget( roiWLabel, 2, 0 );
+        roiLayout->addWidget( roiWQCaLabel, 2, 1 );
+
+        roiLayout->addWidget( roiHLabel, 3, 0 );
+        roiLayout->addWidget( roiHQCaLabel, 3, 1 );
+
+        roiLayout->setColumnStretch( 1, 1 );
+
+        roiXLabel->show();
+        roiXQCaLabel->show();
+
+        roiYLabel->show();
+        roiYQCaLabel->show();
+
+        roiWLabel->show();
+        roiWQCaLabel->show();
+
+        roiHLabel->show();
+        roiHQCaLabel->show();
+    }
+    else
+    {
+        roiLayout->removeWidget( roiXLabel );
+        roiLayout->removeWidget( roiXQCaLabel );
+
+        roiLayout->removeWidget( roiYLabel );
+        roiLayout->removeWidget( roiYQCaLabel );
+
+        roiLayout->removeWidget( roiWLabel );
+        roiLayout->removeWidget( roiWQCaLabel );
+
+        roiLayout->removeWidget( roiHLabel );
+        roiLayout->removeWidget( roiHQCaLabel );
+
+        roiXLabel->hide();
+        roiYLabel->hide();
+        roiWLabel->hide();
+        roiHLabel->hide();
+    }
+}
+
 // Add or remove the acquire period label
 void QCaImage::manageAcquirePeriodLabel()
 {
@@ -739,6 +833,18 @@ void QCaImage::setInitialVertScrollPos( int initialVertScrollPosIn )
 int QCaImage::getInitialVertScrollPos()
 {
     return initialVertScrollPos;
+}
+
+// Display the region of interest values
+void QCaImage::setDisplayRegionOfInterest( bool displayRoiLayoutIn )
+{
+    displayRoiLayout = displayRoiLayoutIn;
+    manageRoiLayout();
+}
+
+bool QCaImage::getDisplayRegionOfInterest()
+{
+    return displayRoiLayout;
 }
 
 // Display the acquire period
