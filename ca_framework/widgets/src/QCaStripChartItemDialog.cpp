@@ -36,7 +36,11 @@ QCaStripChartItemDialog::QCaStripChartItemDialog (QWidget *parent) :
       QDialog (parent),
       ui (new Ui::QCaStripChartItemDialog)
 {
-   ui->setupUi (this);
+   this->ui->setupUi (this);
+   this->colorDialog = new QColorDialog (this);
+
+   QObject::connect (this->ui->colorButton,  SIGNAL (clicked            (bool)),
+                     this,                   SLOT   (colorButtonClicked (bool)));
 
    QObject::connect (this->ui->clearButton,  SIGNAL (clicked            (bool)),
                      this,                   SLOT   (clearButtonClicked (bool)));
@@ -68,21 +72,14 @@ QString QCaStripChartItemDialog::getPvName ()
 //
 void QCaStripChartItemDialog::setColor (QColor colorIn)
 {
-   this->ui->red->setValue   (colorIn.red ());
-   this->ui->green->setValue (colorIn.green ());
-   this->ui->blue->setValue  (colorIn.blue ());
+   this->color = colorIn;
 }
 
 //------------------------------------------------------------------------------
 //
 QColor QCaStripChartItemDialog::getColor ()
 {
-   QColor result;
-
-   result.setRed   (this->ui->red->value ());
-   result.setGreen (this->ui->green->value ());
-   result.setBlue  (this->ui->blue->value ());
-   return result;
+   return this->color;
 }
 
 //------------------------------------------------------------------------------
@@ -90,6 +87,22 @@ QColor QCaStripChartItemDialog::getColor ()
 bool QCaStripChartItemDialog::isClear ()
 {
    return (this->getPvName() == "");
+}
+
+//------------------------------------------------------------------------------
+// User has pressed color
+//
+void QCaStripChartItemDialog::colorButtonClicked (bool)
+{
+   this->colorDialog->setCurrentColor (this->color);
+   this->colorDialog->open (this, SLOT (colorSelected (const QColor &)));
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChartItemDialog::colorSelected (const QColor & colorIn)
+{
+   this->color = colorIn;
 }
 
 //------------------------------------------------------------------------------
@@ -106,7 +119,6 @@ void QCaStripChartItemDialog::clearButtonClicked (bool)
 //
 void QCaStripChartItemDialog::on_buttonBox_accepted ()
 {
-   qDebug () << "on_buttonBox_accepted";
    this->accept ();
 }
 
@@ -115,7 +127,6 @@ void QCaStripChartItemDialog::on_buttonBox_accepted ()
 //
 void QCaStripChartItemDialog::on_buttonBox_rejected ()
 {
-   qDebug () << "on_buttonBox_rejected";
    this->close ();
 }
 

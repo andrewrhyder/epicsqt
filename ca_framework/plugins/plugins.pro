@@ -54,7 +54,11 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaLogin.png \
     src/record_field_list.txt \
     src/QCaLog.png \
-    src/QCaMotor.png
+    src/QCaMotor.png \
+    src/strip_chart_play.png \
+    src/strip_chart_pause.png \
+    src/strip_chart_page_forward.png \
+    src/strip_chart_page_backward.png
 HEADERS += include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \

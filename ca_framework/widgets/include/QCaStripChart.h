@@ -28,13 +28,14 @@
 #define QCASTRIPCHART_H
 
 #include <QObject>
+#include <QAction>
 #include <QColor>
-#include <QFrame>
-#include <QSize>
 #include <QDateTime>
+#include <QFrame>
+#include <QMouseEvent>
+#include <QSize>
 #include <QTimer>
 #include <QVariant>
-#include <QAction>
 
 #include <qwt_plot_curve.h>
 
@@ -164,7 +165,6 @@ private:
    double yMinimum;
    double yMaximum;
 
-
    void addPvName (QString pvName);  // make public ??
 
    // Used by QCaStripChartItem
@@ -212,7 +212,12 @@ private slots:
    void tickTimeout ();
    void menuSetYScale (QAction *action);
    void menuSetDuration (QAction *action);
-   void menuSetTimeMode (QAction *action);
+
+   void playClicked (bool checked = false);
+   void pauseClicked (bool checked = false);
+   void forwardClicked (bool checked = false);
+   void backwardClicked (bool checked = false);
+
    void readArchiveClicked (bool checked = false);
 };
 

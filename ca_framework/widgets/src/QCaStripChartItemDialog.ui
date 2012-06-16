@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>366</width>
-    <height>130</height>
+    <width>364</width>
+    <height>132</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>180</x>
+     <x>176</x>
      <y>90</y>
      <width>171</width>
      <height>26</height>
@@ -42,9 +42,9 @@
   <widget class="QLineEdit" name="pvNameEdit">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>16</x>
      <y>20</y>
-     <width>331</width>
+     <width>332</width>
      <height>21</height>
     </rect>
    </property>
@@ -52,61 +52,17 @@
     <string/>
    </property>
   </widget>
-  <widget class="QSpinBox" name="red">
+  <widget class="QPushButton" name="colorButton">
    <property name="geometry">
     <rect>
-     <x>144</x>
-     <y>50</y>
-     <width>60</width>
-     <height>22</height>
+     <x>272</x>
+     <y>52</y>
+     <width>75</width>
+     <height>26</height>
     </rect>
    </property>
-   <property name="suffix">
-    <string>r</string>
-   </property>
-   <property name="maximum">
-    <number>255</number>
-   </property>
-   <property name="value">
-    <number>255</number>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="green">
-   <property name="geometry">
-    <rect>
-     <x>220</x>
-     <y>50</y>
-     <width>60</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="suffix">
-    <string>g</string>
-   </property>
-   <property name="maximum">
-    <number>255</number>
-   </property>
-   <property name="value">
-    <number>255</number>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="blue">
-   <property name="geometry">
-    <rect>
-     <x>290</x>
-     <y>50</y>
-     <width>60</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="suffix">
-    <string>b</string>
-   </property>
-   <property name="maximum">
-    <number>255</number>
-   </property>
-   <property name="value">
-    <number>255</number>
+   <property name="text">
+    <string>Color...</string>
    </property>
   </widget>
  </widget>

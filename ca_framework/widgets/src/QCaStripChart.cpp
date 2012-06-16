@@ -27,6 +27,7 @@
 #include <QDebug>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QIcon>
 #include <QFont>
 #include <QPen>
 #include <QBrush>
@@ -35,6 +36,7 @@
 #include <QToolButton>
 
 #include <qwt_plot.h>
+#include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
 
 #include <alarm.h>
@@ -79,25 +81,35 @@ static const QString chartScaleNames [YSMAXIMUM] = {
 //
 enum ChartTimeMode {
    tmRealTime,
-   tmPause,
-   tmBackward,
-   tmForward,
-   tmHistorical,
+   tmPaused,
    TMMAXIMUM
 };
 
-static const QString chartTimeModeNames [TMMAXIMUM] = {
-   "Real Time ",
-   "Pause ",
-   "Backward ",
-   "Forward ",
-   "Historical... "
+struct PushButtonSpecifications {
+   const QString caption;
+   QIcon icon;
+   QString toolTip;
+   int width;
+   const char * member;
 };
+
+#define NUMBER_OF_BUTTONS  5
+
+static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
+   { QString (""), QIcon (":/icons/strip_chart_play.png"),          QString ("Play - Real time"), 24, SLOT (playClicked (bool))        },
+   { QString (""), QIcon (":/icons/strip_chart_pause.png"),         QString ("Pause"),            24, SLOT (pauseClicked (bool))       },
+   { QString (""), QIcon (":/icons/strip_chart_page_forward.png"),  QString ("Forward one page"), 24, SLOT (forwardClicked (bool))     },
+   { QString (""), QIcon (":/icons/strip_chart_page_backward.png"), QString ("Back one page"),    24, SLOT (backwardClicked (bool))    },
+   { QString ("Read Archive"),   QIcon (""),  QString ("Extract data from archive(s)"),           96, SLOT (readArchiveClicked (bool)) }
+};
+
 
 
 //==============================================================================
 // Local support classes.
 //==============================================================================
+//
+//------------------------------------------------------------------------------
 // The imperitive to create this class is to hold references to created QWidgets.
 // If this are declared directly in the header, either none of the widget defined
 // in the plugin are visible in designer or designer seg faults. I think the moc
@@ -117,25 +129,31 @@ public:
    QwtPlotCurve *allocateCurve ();
    void calcDisplayMinMax ();
    void plotData ();
-
+   void setReadOut (QString text);
    enum ChartYScale chartYScale;
    enum ChartTimeMode chartTimeMode;
+
+protected:
+   bool eventFilter (QObject *obj, QEvent *event);
 
 private:
    QCaStripChart *chart;
    QFrame *toolFrame;
    QFrame *pvFrame;
    QFrame *plotFrame;
+   QFrame *statusFrame;
    QwtPlot *plot;
+
    QVBoxLayout *layout1;
    QVBoxLayout *layout2;
    QPushButton * b1;
    QMenu *m1;
+
    QPushButton * b2;
    QMenu *m2;
-   QPushButton * b3;
-   QMenu *m3;
-   QPushButton * b4;
+   QPushButton *pushButtons [NUMBER_OF_BUTTONS];
+   QLabel *readOut;
+   QLabel *timeStatus;
 
    QToolButton *channelProperties [NUMBER_OF_PVS];
    QLabel *pvNames [NUMBER_OF_PVS];
@@ -144,6 +162,8 @@ private:
 
    QVector<QwtPlotCurve *> curve_list;
    void releaseCurves ();
+   void onCanvasMouseMove (QMouseEvent * event);
+   static double selectStep (const double step);
 };
 
 //------------------------------------------------------------------------------
@@ -153,6 +173,7 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    int j;
    unsigned int slot;
    int left;
+   QPushButton *button;
 
    this->chart = chartIn;
 
@@ -205,30 +226,24 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    this->b2 = new QPushButton ("Duration", this->toolFrame);
    this->b2->setMenu (this->m2);
 
-   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   this->m3 = new QMenu ();
-   for (j = 0; j < TMMAXIMUM; j++) {
-      this->m3->addAction (chartTimeModeNames [j])->setData (QVariant (j));
-   }
-   QObject::connect (this->m3,  SIGNAL (triggered       (QAction *)),
-                     this->chart, SLOT (menuSetTimeMode (QAction *)));
-
-   this->b3 = new QPushButton ("Time Mode", this->toolFrame);
-   this->b3->setMenu (this->m3);
-
-   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   this->b4 = new QPushButton ("Read Archive", this->toolFrame);
-   QObject::connect (this->b4,  SIGNAL (clicked            (bool)),
-                     this->chart, SLOT (readArchiveClicked (bool)));
-
-
    // TODO: Try QToolBar - it may auto layout.
    //
    left = 4;
-   this->b1->setGeometry (left, 4, 76, 24);   left += 4 + 76;
-   this->b2->setGeometry (left, 4, 76, 24);   left += 4 + 76;
-   this->b3->setGeometry (left, 4, 96, 24);   left += 4 + 96;
-   this->b4->setGeometry (left, 4, 100, 24);  left += 4 + 100;
+   this->b1->setGeometry  (left, 4, 76, 24);   left += 4 + 76;
+   this->b2->setGeometry  (left, 4, 76, 24);   left += 4 + 76;
+
+   // Create some simple non-menu buttons
+   //
+   for (j = 0 ; j < NUMBER_OF_BUTTONS; j++) {
+      button = new QPushButton (buttonSpecs[j].caption, this->toolFrame);
+      button->setIcon (buttonSpecs[j].icon);
+      button->setToolTip(buttonSpecs[j].toolTip);
+      button->setGeometry (left, 4, buttonSpecs[j].width, 24);
+      left += 4 + buttonSpecs[j].width;
+      QObject::connect (button,  SIGNAL (clicked (bool)), this->chart, buttonSpecs[j].member);
+
+      this->pushButtons [j] = button;
+   }
 
    // Create PV frame and PV name labels and associated CA labels.
    //
@@ -270,6 +285,25 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    this->plot = new QwtPlot (this->plotFrame);
    this->plot->setCanvasBackground (QBrush (clWhite));
    this->plot->setCanvasLineWidth (1);
+   this->plot->setLineWidth (1);
+
+   this->plot->canvas()->setMouseTracking (true);
+   // Use the privateData object as the event filter object.
+   this->plot->canvas()->installEventFilter (this);
+
+   // Create status frame.
+   //
+   this->statusFrame = new QFrame (this->chart);
+   this->statusFrame->setFrameShape (QFrame::Panel);
+   this->statusFrame->setFixedHeight (24);
+
+   this->readOut = new QLabel (this->statusFrame);
+   this->readOut->setGeometry (8, 2, 600, 20);
+   this->readOut->setFont (QFont ("MonoSpace"));
+
+   this->timeStatus = new QLabel (this->statusFrame);
+   this->timeStatus->setGeometry (620, 2, 364, 20);
+   this->timeStatus->setFont (QFont ("MonoSpace"));
 
    // Create layouts.
    //
@@ -279,6 +313,7 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    this->layout1->addWidget (this->toolFrame);
    this->layout1->addWidget (this->pvFrame);
    this->layout1->addWidget (this->plotFrame);
+   this->layout1->addWidget (this->statusFrame);
 
    this->layout2 = new QVBoxLayout (this->plotFrame);
    this->layout2->setMargin (4);
@@ -298,7 +333,7 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
 QCaStripChart::PrivateData::~PrivateData ()
 {
    this->releaseCurves ();
-   // all the created QWidget are (indirectly) parented by this QCaStripChart,
+   // all the created QWidget are (indirectly) parented by the PrivateData,
    // they are automatically deleted.
 }
 
@@ -316,8 +351,6 @@ QwtPlotCurve * QCaStripChart::PrivateData::allocateCurve ()
    QwtPlotCurve * result = NULL;
 
    result = new QwtPlotCurve ();
-   result->setRenderHint (QwtPlotItem::RenderAntialiased);
-   result->setStyle (QwtPlotCurve::Lines);
    result->attach (this->plot);
 
    this->curve_list.append (result);
@@ -364,7 +397,7 @@ void QCaStripChart::PrivateData::calcDisplayMinMax ()
          case ysDisplayed: tr.merge (item->getDisplayedMinMax ());  break;
          case ysBuffered:  tr.merge (item->getBufferedMinMax ());   break;
          case ysDynamic:   tr.merge (item->getDisplayedMinMax ());  break;
-         default:          DEBUG "Well this is unexpected"; return; break;
+         default:       DEBUG << "Well this is unexpected"; return; break;
          }
       }
    }
@@ -377,14 +410,47 @@ void QCaStripChart::PrivateData::calcDisplayMinMax ()
 
 //------------------------------------------------------------------------------
 //
+double QCaStripChart::PrivateData::selectStep (const double step)
+{
+   static const double min_step = 1.0E-4;
+   static const double max_step = 1.0E+10;
+   double result;
+   double im;
+   double m;
+
+   result = max_step;
+
+   // We use 1.001 in case of any rounding errors
+   // It's more accurate if m starts big and is divided by 10 to get smaller.
+   //
+   for (im = 1.0/min_step; im > 1.001/max_step; im = im / 10.0) {
+      m = 1.0/im;
+
+      if (step <= 1.0 * m) {
+         result = 1.0 * m; break;
+      }
+      if (step <= 2.0 * m) {
+         result = 2.0 * m; break;
+      }
+      if (step <= 5.0 * m) {
+         result = 5.0 * m; break;
+      }
+   }
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
 void QCaStripChart::PrivateData::plotData ()
 {
    unsigned int slot;
    double d;
    double step;
+   QString format;
+   QString times;
 
    d = this->chart->getDuration ();
-   this->plot->setAxisScale (QwtPlot::xBottom, -d,         0.0,         d/5.0);
+   this->plot->setAxisScale (QwtPlot::xBottom, -d, 0.0, d/5.0);
 
    // Update the plot
    //
@@ -402,11 +468,73 @@ void QCaStripChart::PrivateData::plotData ()
    }
 
    step = (this->chart->getYMaximum () - this->chart->getYMinimum ())/5.0;
+   step = this->selectStep (step);
    this->plot->setAxisScale (QwtPlot::yLeft,
                              this->chart->getYMinimum (),
                              this->chart->getYMaximum (), step);
 
    this->plot->replot ();
+
+   format = "yyyy-MM-dd hh:mm:ss UTC";
+   times = " ";
+   times.append (this->chart->getStartTime().toUTC().toString (format));
+   times.append (" to ");
+   times.append (this->chart->getEndTime().toUTC().toString (format));
+   this->timeStatus->setText (times);
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChart::PrivateData::setReadOut (QString text)
+{
+   this->readOut->setText (text);
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
+{
+   double x;
+   double y;
+   QDateTime t;
+   QString format;
+   QString mouseReadOut;
+   QString f;
+
+   // Convert pixel (x, y) to real world value (x, y)
+   //
+   x = this->plot->invTransform(QwtPlot::xBottom, event->x ());
+   y = this->plot->invTransform(QwtPlot::yLeft,   event->y ());
+
+   // Convert cursor x to absolute cursor time.
+   // x is the time (in seconds) relative to the chart end time.
+   //
+   t = this->chart->getEndTime ().toUTC ().addMSecs ((qint64)(1000.0 * x));
+
+   // Keep only most significant digit of the milli-seconds,
+   // i.e. tenths of a second.
+   //
+   format = "yyyy-MM-dd hh:mm:ss.zzz";
+   mouseReadOut = t.toString (format).left (format.length() - 2);
+   mouseReadOut.append (" UTC");
+
+   f.sprintf (" %12.1f secs    %+.10g", x, y);
+   mouseReadOut.append (f);
+
+   this->setReadOut (mouseReadOut);
+}
+
+//------------------------------------------------------------------------------
+//
+bool QCaStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
+{
+   if ((event->type () == QEvent::MouseMove) && (obj == this->plot->canvas ())) {
+      this->onCanvasMouseMove (static_cast<QMouseEvent *> (event));
+      return true;
+   } else {
+      // standard event processing
+      return QObject::eventFilter (obj, event);
+   }
 }
 
 
@@ -426,7 +554,7 @@ QCaStripChart::QCaStripChart (QWidget * parent) : QFrame (parent), QCaWidget (th
    this->duration = 120;  // two minites.
 
    // We always use UTC (EPICS) time within the strip chart.
-   // Set directly here as setEndTime has side effects.
+   // Set directly here as using setEndTime has side effects.
    //
    this->endTime = QDateTime::currentDateTime ().toUTC ();
 
@@ -437,6 +565,8 @@ QCaStripChart::QCaStripChart (QWidget * parent) : QFrame (parent), QCaWidget (th
    //
    this->privateData = new PrivateData (this);
 
+   // Refresh the stip chart at 1Hz.
+   //
    this->tickTimer = new QTimer (this);
    connect (this->tickTimer, SIGNAL (timeout ()), this, SLOT (tickTimeout ()));
    this->tickTimer->start (1000);  // mSec = 1.0 s
@@ -450,14 +580,14 @@ QCaStripChart::QCaStripChart (QWidget * parent) : QFrame (parent), QCaWidget (th
 //
 QCaStripChart::~QCaStripChart ()
 {
-   // privateData is a QObject parented by this, so it is automativally deleted.
+   // privateData is a QObject parented by this, so it is automatically deleted.
 }
 
 //------------------------------------------------------------------------------
 //
 QSize QCaStripChart::sizeHint () const {
    return QSize (1000, 400);
-}   // sizeHint
+}
 
 //------------------------------------------------------------------------------
 //
@@ -529,7 +659,6 @@ void QCaStripChart::addPvName (QString pvName)
    //
    this->evaluateAllowDrop ();
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -603,51 +732,36 @@ void QCaStripChart::menuSetYScale (QAction *action)
 
 //------------------------------------------------------------------------------
 //
-void QCaStripChart::menuSetTimeMode (QAction *action)
+void QCaStripChart::playClicked (bool)
 {
-   int n;
-   bool okay;
-   ChartTimeMode tm;
-
-   n = action->data().toInt (&okay);
-   if (!okay) {
-      DEBUG << " action data tag unavailable";
-      return;
-   }
-
-   tm = (ChartTimeMode) n;
-
-   switch (tm) {
-   case tmRealTime:
-      this->privateData->chartTimeMode = tmRealTime;
-      // Note: using setEndTime causes a replot.
-      this->setEndTime (QDateTime::currentDateTime ());
-      break;
-
-   case tmPause:
-      this->privateData->chartTimeMode = tmPause;
-      break;
-
-   case tmBackward:
-      this->privateData->chartTimeMode = tmPause;
-      this->setEndTime (this->endTime.addSecs (-this->duration));
-      break;
-
-   case tmForward:
-      this->privateData->chartTimeMode = tmPause;
-      this->setEndTime (this->endTime.addSecs (+this->duration));
-      break;
-
-   case tmHistorical:
-      this->privateData->chartTimeMode = tmHistorical;
-      DEBUG << "TBD historical mode";
-      break;
-
-   default:
-      DEBUG "Well this is unexpected, action tag = " << n;
-      break;
-   }
+   this->privateData->chartTimeMode = tmRealTime;
+   // Note: using setEndTime causes a replot.
+   this->setEndTime (QDateTime::currentDateTime ());
 }
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChart::pauseClicked (bool)
+{
+   this->privateData->chartTimeMode = tmPaused;
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChart::forwardClicked (bool)
+{
+   this->privateData->chartTimeMode = tmPaused;
+   this->setEndTime (this->endTime.addSecs (+this->duration));
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChart::backwardClicked (bool)
+{
+   this->privateData->chartTimeMode = tmPaused;
+   this->setEndTime (this->endTime.addSecs (-this->duration));
+}
+
 
 //------------------------------------------------------------------------------
 //
@@ -685,6 +799,13 @@ QDateTime QCaStripChart::getEndTime ()
 void QCaStripChart::setEndTime (QDateTime endTimeIn)
 {
    QDateTime useUTC = endTimeIn.toUTC ();
+   QDateTime nowUTC = QDateTime::currentDateTime ().toUTC ();
+
+   // No peeking into the future.
+   //
+   if (useUTC > nowUTC) {
+      useUTC = nowUTC;
+   }
 
    if (this->endTime != useUTC) {
       this->endTime = useUTC;
@@ -756,11 +877,10 @@ void QCaStripChart::setDropText (QString text)
    // Use dropped text to add a PV tp the chart.
    //
    this->addPvName (text);
-}   // setDropText
-
+}
 
 //----------------------------------------------------------------------------
-// Determine if user allowed to drop new PVs into this widget
+// Determine if user allowed to drop new PVs into this widget.
 //
 void QCaStripChart::evaluateAllowDrop ()
 {

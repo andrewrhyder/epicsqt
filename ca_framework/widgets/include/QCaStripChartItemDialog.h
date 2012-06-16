@@ -30,6 +30,7 @@
 #include <QString>
 #include <QColor>
 #include <QDialog>
+#include <QColorDialog>
 
 namespace Ui {
     class QCaStripChartItemDialog;
@@ -56,11 +57,16 @@ public:
 
 private:
    Ui::QCaStripChartItemDialog *ui;
+   QColorDialog *colorDialog;
+   QColor color;
 
 private slots:
-    void on_buttonBox_rejected ();
-    void on_buttonBox_accepted ();
-    void clearButtonClicked (bool checked = false);
+   void colorButtonClicked (bool checked = false);
+   void colorSelected (const QColor & colorIn);
+
+   void on_buttonBox_rejected ();
+   void on_buttonBox_accepted ();
+   void clearButtonClicked (bool checked = false);
 };
 
 #endif  // QCASTRIPCHARTITEMDIALOG_H

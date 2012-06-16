@@ -322,13 +322,17 @@ TrackRange QCaStripChartItem::getBufferedMinMax ()
 QwtPlotCurve * QCaStripChartItem::allocateCurve ()
 {
    QwtPlotCurve * result;
+
    // Curves are managed by the chart widget.
    //
    result = this->privateData->chart->allocateCurve ();
 
-   // Set item Pen which include its colour.
+   // Set curvepropeties plus item Pen which include its colour.
    //
+   result->setRenderHint (QwtPlotItem::RenderAntialiased);
+   result->setStyle (QwtPlotCurve::Lines);
    result->setPen (this->getPen ());
+
    return result;
 }   // allocateCurve
 
