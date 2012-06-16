@@ -92,7 +92,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT UserMessage
 public:
     enum message_filter_options {MESSAGE_FILTER_ANY, MESSAGE_FILTER_MATCH, MESSAGE_FILTER_NONE };
     UserMessage();
-    ~UserMessage();
+    virtual ~UserMessage();
 
     void setSourceId( unsigned int sourceId );                    // Set the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets)
     void setFormId( unsigned int formId );                        // Set the form ID (the the same ID for all sibling widgets within an ASguiForm widget)

@@ -120,7 +120,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT ContainerProfile
 {
 public:
     ContainerProfile();    // Construction. Sets up local copies of any profile defined by setupProfile() in an earlier instance
-    ~ContainerProfile();   // Destruction
+    virtual ~ContainerProfile();   // Destruction
     void takeLocalCopy();
 
     void setupProfile( QObject* guiLaunchConsumerIn,
