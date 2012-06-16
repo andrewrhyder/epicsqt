@@ -1,4 +1,6 @@
-/*  This file is part of the EPICS QT Framework, initially developed at the
+/* $Id: QBitStatus.h $
+ *
+ * This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or
@@ -25,6 +27,7 @@
 #ifndef QBITSTATUS_H
 #define QBITSTATUS_H
 
+#include <QString>
 #include <QBrush>
 #include <QPen>
 #include <QWidget>
@@ -36,25 +39,30 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QBitStatus : public QWidget {
 
 public:
    enum Orientations { LSB_On_Right, LSB_On_Bottom, LSB_On_Left, LSB_On_Top };
+   Q_ENUMS (Orientations)
 
 //#ifdef PLUGIN_APP
    // Declare in type order.
    //
-   Q_PROPERTY (int    value          READ getValue          WRITE setValue)
-   Q_PROPERTY (int    numberOfBits   READ getNumberOfBits   WRITE setNumberOfBits)
-   Q_PROPERTY (int    shift          READ getShift          WRITE setShift)
+   Q_PROPERTY (int     value               READ getValue                WRITE setValue)
+   Q_PROPERTY (int     numberOfBits        READ getNumberOfBits         WRITE setNumberOfBits)
+   Q_PROPERTY (int     shift               READ getShift                WRITE setShift)
 
-   Q_PROPERTY (QColor boarderColour  READ getBorderColour   WRITE setBorderColour)
-   Q_PROPERTY (QColor invalidColour  READ getInvalidColour  WRITE setInvalidColour)
-   Q_PROPERTY (QColor onColour       READ getOnColour       WRITE setOnColour)
-   Q_PROPERTY (QColor offColour      READ getOffColour      WRITE setOffColour)
+   /*! The applicable and revserve polarity masks apply to value AFTER the shift.
+    */
+   Q_PROPERTY (QString applicableMask      READ getApplicableMask       WRITE setApplicableMask)
+   Q_PROPERTY (QString reversePolarityMask READ getReversePolarityMask WRITE setReversePolarityMask)
 
-   Q_PROPERTY (bool   drawBorder     READ getDrawBorder     WRITE setDrawBorder)
-   Q_PROPERTY (bool   isValid        READ getIsValid        WRITE setIsValid)
+   Q_PROPERTY (QColor  boarderColour       READ getBorderColour         WRITE setBorderColour)
+   Q_PROPERTY (QColor  invalidColour       READ getInvalidColour        WRITE setInvalidColour)
+   Q_PROPERTY (QColor  onColour            READ getOnColour             WRITE setOnColour)
+   Q_PROPERTY (QColor  offColour           READ getOffColour            WRITE setOffColour)
+   Q_PROPERTY (QColor  naColour            READ getNotApplicableColour  WRITE setNotApplicableColour)
 
-   Q_ENUMS (Orientations)
-   Q_PROPERTY (Orientations Orientation READ getOrientation
-                                        WRITE setOrientation )
+   Q_PROPERTY (bool    drawBorder          READ getDrawBorder           WRITE setDrawBorder)
+   Q_PROPERTY (bool    isValid             READ getIsValid              WRITE setIsValid)
+
+   Q_PROPERTY (Orientations Orientation    READ getOrientation          WRITE setOrientation )
 //#endif
 
 private:
@@ -66,10 +74,13 @@ private:
    QColor mOnColour;
    QColor mOffColour;
    QColor mInvalidColour;
+   QColor mNotApplicableColour;
 
    bool mDrawBorder;
    int  mNumberOfBits;      // 1 .. 32
    int  mShift;             // 0 .. 31
+   int  mApplicableMask;
+   int  mReversePolarityMask;
    bool mIsValid;
    long mValue;
    enum Orientations mOrientation;
@@ -79,15 +90,18 @@ private:
 
    void paintEvent (QPaintEvent *event);
 
+   static QString intToMask (int n);
+   static int maskToInt (const QString mask);
+
 protected:
 
 public:
    // Constructor
    //
    QBitStatus (QWidget *parent = 0);
-   virtual ~QBitStatus(){}
+   virtual ~QBitStatus () {}
 
-   virtual QSize sizeHint() const;
+   virtual QSize sizeHint () const;
 
 
    // Property functions
@@ -104,6 +118,9 @@ public:
    void setInvalidColour (const QColor value);
    QColor getInvalidColour ();
 
+   void setNotApplicableColour (const QColor value);
+   QColor getNotApplicableColour ();
+
    void setDrawBorder (const bool value);
    bool getDrawBorder ();
 
@@ -112,6 +129,12 @@ public:
 
    void setShift (const int value);
    int getShift ();
+
+   void setApplicableMask (const QString value);
+   QString getApplicableMask ();
+
+   void setReversePolarityMask (const QString value);
+   QString getReversePolarityMask ();
 
    void setIsValid (const bool value);
    bool getIsValid ();

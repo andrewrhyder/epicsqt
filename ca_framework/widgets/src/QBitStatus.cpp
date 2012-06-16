@@ -1,15 +1,12 @@
-/* $File: //ASP/Personal/starritt/qt/QBitStatus.cpp $
- * $Revision: #3 $
- * $DateTime: 2011/06/12 15:07:03 $
- * Last checked in by: $Author: starritt $
+/* $Id: QBitStatus.cpp $
  */
 
 /*! 
   \class QBitStatus
-  \version $Revision: #3 $
-  \date $DateTime: 2011/06/12 15:07:03 $
+  \version $Revision: #4 $
+  \date $DateTime: 2012/06/16 17:40:00 $
   \author andrew.starritt
-  \brief CA Shape Widget.
+  \brief Bit wise display of integer values.
  */
 
 /*  This file is part of the EPICS QT Framework, initially developed at
@@ -62,6 +59,7 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    mOffColour     = QColor (255, 128, 128);   // red
    mOnColour      = QColor (128, 255, 128);   // green
    mInvalidColour = QColor (255, 182, 128);   // orange
+   mNotApplicableColour = QColor (200, 200, 200);   // light gray
 
    mDrawBorder = true;
    mNumberOfBits = 8;      // 1 .. 32
@@ -69,6 +67,8 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    mIsValid = true;
    mValue = 0;
    mOrientation = LSB_On_Right;
+   mApplicableMask = 0xFFFFFFFF;
+   mReversePolarityMask = 0x00000000;
 
    // move to paintEvent ??
    //
@@ -103,6 +103,7 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    int left;
    int right;
    int work;
+   int applies;
 
    // Draw everything with antialiasing off.
    //
@@ -162,7 +163,9 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    bit_area.setTop(1);
    bit_area.setHeight ((int) draw_height);
 
-   work = mValue >> mShift;
+   work = (mValue >> mShift) ^ mReversePolarityMask;
+   applies = mApplicableMask;
+
    right = (int) draw_width;
    for (j = mNumberOfBits - 1; j >= 0 ;  j--) {
 
@@ -179,18 +182,23 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
          pen.setWidth (1);
          painter.setPen (pen);
       } else {
-         painter.setPen( Qt::NoPen );
+         painter.setPen (Qt::NoPen);
       }
 
-      if (mIsValid) {
-         if ((work & 1) == 1) {
-            brush.setColor (mOnColour);
+      if ((applies & 1) == 1) {
+         if (mIsValid) {
+            if ((work & 1) == 1) {
+               brush.setColor (mOnColour);
+            } else {
+               brush.setColor (mOffColour);
+            }
          } else {
-            brush.setColor (mOffColour);
+            brush.setColor (mInvalidColour);
          }
       } else {
-         brush.setColor (mInvalidColour);
+         brush.setColor (mNotApplicableColour);
       }
+
       painter.setBrush (brush);
 
       // Do the actual draw.
@@ -201,6 +209,7 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
       // We don't worry about checking for last time through the loop.
       //
       work = work >> 1;
+      applies = applies >> 1;
       right = left;
    }
 }
@@ -210,90 +219,106 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
 // Property functions
 //=============================================================================
 //
-void QBitStatus::setValue (const long value) {
-   if (mValue != value) {
-      mValue = value;
-      update ();  // Force re-draw
+void QBitStatus::setValue (const long value)
+{
+   if (this->mValue != value) {
+      this->mValue = value;
+      this->update ();  // Force re-draw
    }
 }
 
 long QBitStatus::getValue () {
-   return mValue;
+   return this->mValue;
 }
 
 //=============================================================================
 //
 void QBitStatus::setBorderColour (const QColor value)
 {
-   if (mBorderColour != value) {
-      mBorderColour = value;
-      update ();  // Force re-draw
+   if (this->mBorderColour != value) {
+      this->mBorderColour = value;
+      this->update ();  // Force re-draw
    }
 }
 
 QColor QBitStatus::getBorderColour ()
 {
-   return mBorderColour;
+   return this->mBorderColour;
 }
 
 //=============================================================================
 //
 void QBitStatus::setOnColour (const QColor value)
 {
-   if (mOnColour != value) {
-      mOnColour = value;
-      update ();  // Force re-draw
+   if (this->mOnColour != value) {
+      this->mOnColour = value;
+      this->update ();  // Force re-draw
    }
 }
 
 QColor QBitStatus::getOnColour ()
 {
-   return mOnColour;
+   return this->mOnColour;
 }
 
 //=============================================================================
 //
 void QBitStatus::setOffColour (const QColor value)
 {
-   if (mOffColour != value) {
-      mOffColour = value;
-      update ();  // Force re-draw
+   if (this->mOffColour != value) {
+      this->mOffColour = value;
+      this->update ();  // Force re-draw
    }
 }
 
 QColor QBitStatus::getOffColour ()
 {
-   return mOffColour;
+   return this->mOffColour;
 }
 
 //=============================================================================
 //
 void QBitStatus::setInvalidColour (const QColor value)
 {
-   if (mInvalidColour != value) {
-      mInvalidColour = value;
-      update ();  // Force re-draw
+   if (this->mInvalidColour != value) {
+      this->mInvalidColour = value;
+      this->update ();  // Force re-draw
    }
 }
 
 QColor QBitStatus::getInvalidColour ()
 {
-   return mInvalidColour;
+   return this->mInvalidColour;
+}
+
+//=============================================================================
+//
+void QBitStatus::setNotApplicableColour (const QColor value)
+{
+   if (this->mNotApplicableColour != value) {
+      this->mNotApplicableColour = value;
+      this->update ();  // Force re-draw
+   }
+}
+
+QColor QBitStatus::getNotApplicableColour ()
+{
+   return this->mNotApplicableColour;
 }
 
 //=============================================================================
 //
 void QBitStatus::setDrawBorder (const bool value)
 {
-   if (mDrawBorder != value) {
-      mDrawBorder = value;
-      update ();  // Force re-draw
+   if (this->mDrawBorder != value) {
+      this->mDrawBorder = value;
+      this->update ();  // Force re-draw
    }
 }
 
 bool QBitStatus::getDrawBorder ()
 {
-   return mDrawBorder;
+   return this->mDrawBorder;
 }
 
 //=============================================================================
@@ -304,15 +329,15 @@ void QBitStatus::setNumberOfBits (const int value)
 
    temp = LIMIT (value, 1, 32);
 
-   if (mNumberOfBits != temp) {
-      mNumberOfBits = temp;
-      update ();  // Force re-draw
+   if (this->mNumberOfBits != temp) {
+      this->mNumberOfBits = temp;
+      this->update ();  // Force re-draw
    }
 }
 
 int QBitStatus::getNumberOfBits ()
 {
-   return mNumberOfBits;
+   return this->mNumberOfBits;
 }
 
 //=============================================================================
@@ -323,16 +348,56 @@ void QBitStatus::setShift (const int value)
 
    temp = LIMIT (value, 0, 31);
 
-   if (mShift != temp) {
-      mShift = temp;
-      update ();  // Force re-draw
+   if (this->mShift != temp) {
+      this->mShift = temp;
+      this->update ();  // Force re-draw
    }
 }
 
 int QBitStatus::getShift ()
 {
-   return mShift;
+   return this->mShift;
 }
+
+//=============================================================================
+//
+void QBitStatus::setApplicableMask (const QString value)
+{
+   int temp;
+
+   temp = this->maskToInt (value);
+
+   if (this->mApplicableMask != temp) {
+      this->mApplicableMask = temp;
+      this->update ();
+   }
+}
+
+QString QBitStatus::getApplicableMask ()
+{
+   return this->intToMask (this->mApplicableMask);
+}
+
+
+//=============================================================================
+//
+void QBitStatus::setReversePolarityMask (const QString value)
+{
+   int temp;
+
+   temp = this->maskToInt (value);
+
+   if (this->mReversePolarityMask != temp) {
+      this->mReversePolarityMask = temp;
+      this->update ();
+   }
+}
+
+QString QBitStatus::getReversePolarityMask ()
+{
+   return this->intToMask (this->mReversePolarityMask);
+}
+
 
 //=============================================================================
 //
@@ -364,6 +429,74 @@ void QBitStatus::setOrientation (const enum Orientations value)
 enum QBitStatus::Orientations QBitStatus::getOrientation ()
 {
    return mOrientation;
+}
+
+
+//=============================================================================
+// Private static functions
+//=============================================================================
+//
+/*! ---------------------------------------------------------------------------
+ *  Converts integer to a binary mask of hexadecimal characters.
+ */
+QString QBitStatus::intToMask (int n)
+{
+   QString result ("");
+   result.sprintf ("%02X-%02X-%02X-%02X", (n>>24)&255, (n>>16)&255, (n>>8)&255, (n>>0)&255);
+   return result;
+}
+
+/*! ---------------------------------------------------------------------------
+ *  Converts a hexadecimal character mask to an integer;
+ */
+int QBitStatus::maskToInt (const QString mask)
+{
+   int result;
+   int j;
+   char c;
+
+   result = 0;
+   for (j = 0; j < mask.length(); j++) {
+      c = mask.at (j).toAscii ();
+
+      switch (c) {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+         result = (result << 4) + int (c) - int ('0');
+         break;
+
+      case 'A':
+      case 'B':
+      case 'C':
+      case 'D':
+      case 'E':
+      case 'F':
+         result = (result << 4) + int (c) - int ('A') + 10;
+         break;
+
+      case 'a':
+      case 'b':
+      case 'c':
+      case 'd':
+      case 'e':
+      case 'f':
+         result = (result << 4) + int (c) - int ('a') + 10;
+         break;
+
+      default:
+         // not a hex digit - don't care - just ignore.
+         break;
+      }
+   }
+   return result;
 }
 
 // end
