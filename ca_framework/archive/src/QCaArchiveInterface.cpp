@@ -529,6 +529,7 @@ QString QCaArchiveInterface::alarmSeverityName (enum archiveAlarmSeverity severi
    case archSevMinor:
    case archSevMajor:
    case archSevInvalid:
+      // use standard epics severity string
       result = QString (epicsAlarmSeverityStrings [severity]);
       break;
 

@@ -134,8 +134,6 @@ bool QCaArchiveManager::initialise (QString archives, QString patternIn)
          qDebug () << "Archive info:" << interface->getUrl ().toString ();
       }
       qDebug () << "Archive info:  pattern:" << pattern;
-   } else {
-      qDebug () << "Archive info:  QCA_ARCHIVE_LIST undefined";
    }
 
    return true;
@@ -156,6 +154,7 @@ bool QCaArchiveManager::initialise ()
       }
       result = this->initialise (archives, pattern);
    } else {
+      qDebug () << "Archive info:  QCA_ARCHIVE_LIST undefined";
       result = false;
    }
    return result;
@@ -187,7 +186,8 @@ public:
    int instance;
    int number;
    // constructor
-   NamesResponseContext (QCaArchiveInterface * interfaceIn, QCaArchiveInterface::Archive archiveIn, int i, int n) {
+   NamesResponseContext (QCaArchiveInterface * interfaceIn, QCaArchiveInterface::Archive archiveIn, int i, int n)
+   {
       this->interface = interfaceIn;
       this->archive = archiveIn;
       this->instance = i;
