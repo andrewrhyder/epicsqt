@@ -957,3 +957,16 @@ QVector<QRect>& imageMarkup::getMarkupAreas()
     }
     return markupAreas;
 }
+
+bool imageMarkup::anyVisibleMarkups()
+{
+    int n = items.count();
+    for( int i = 0; i < n; i ++ )
+    {
+        if( items[i]->visible )
+        {
+            return true;
+        }
+    }
+    return false;
+}

@@ -6,7 +6,7 @@
 VideoWidget::VideoWidget(QWidget *parent)
     : QWidget(parent)
 {
-    compositeImage = NULL;
+    compositeImageBackground = NULL;
 
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground, true);
@@ -22,14 +22,15 @@ VideoWidget::VideoWidget(QWidget *parent)
     setMouseTracking( true );
     setCursor( getDefaultMarkupCursor() );
 
+    setAttribute( Qt::WA_OpaquePaintEvent, true );
     update();//!!!required???
 }
 
 VideoWidget::~VideoWidget()
 {
-    if( compositeImage )
+    if( compositeImageBackground )
     {
-        delete compositeImage;
+        delete compositeImageBackground;
     }
 }
 
@@ -51,9 +52,6 @@ void VideoWidget::setNewImage( const QImage image )
     currentImage = image;
     compositeImageBackgroundStale = true;
     setMarkupTime();
-
-    // Update the composite image with a completely new image, and redraw whatever markup areas are required
-    updateCompositeImage( true, getMarkupAreas() );
     update();
 }
 
@@ -63,77 +61,9 @@ void VideoWidget::markupChange( QImage& markups,  QVector<QRect>& changedAreas )
 {
     // Save the current markups. The markups image is null if no markups
     markupImage = markups;
-    updateCompositeImage( false, changedAreas );
     for( int i = 0; i < changedAreas.count(); i++ )
     {
         update( changedAreas[i] );
-    }
-}
-
-// Update the composite image.
-// The composite image consists of the display image plus any markups such as a region of interest.
-// If there are no markups, the image is used directly as is, so no copying is required
-void VideoWidget::updateCompositeImage( bool imageChanged, QVector<QRect>& markupChangedAreas )
-{
-    // If there are no markups, just display the current image
-    if( markupImage.isNull() )
-    {
-        displayImage = currentImage;
-    }
-
-    // If there are markups, ensure the composite image is created, composed, and displayed
-    else
-    {
-        //!!! only create a background image if a different size to the current image
-
-        // If the image used for preparing the combined image and markup
-        // fragments is present, but the wrong size, delete it
-        bool newCompositeImage = false;
-        if( compositeImage && compositeImage->size() != size() )
-        {
-            delete compositeImage;
-            delete compositeImageBackground;
-            compositeImage = NULL;
-            compositeImageBackground = NULL;
-        }
-
-        // If the image used for preparing the combined image and markup
-        // is not present, create it
-        if( !compositeImage )
-        {
-            compositeImage = new QImage( size(), currentImage.format() );
-            compositeImageBackground = new QImage( size(), currentImage.format() );
-            newCompositeImage = true;
-            compositeImageBackgroundStale = true;
-        }
-
-        // Draw the displayed image if it has changed
-        QPainter compositePainter( compositeImage );
-        if( imageChanged || newCompositeImage )
-        {
-            compositePainter.drawImage( compositeImage->rect(), currentImage, currentImage.rect() );
-        }
-
-        // Draw the required markup areas over the image
-        for( int i = 0; i < markupChangedAreas.count(); i++ )
-        {
-            if( !imageChanged )
-            {
-                // If the composite background is out of date, recreate it
-                if( compositeImageBackgroundStale )
-                {
-                    QPainter bgPainter( compositeImageBackground );
-                    bgPainter.drawImage( compositeImageBackground->rect(), currentImage, currentImage.rect() );
-                    compositeImageBackgroundStale = false;
-                }
-                // Draw the required background part
-                compositePainter.drawImage( markupChangedAreas[i], *compositeImageBackground, markupChangedAreas[i] );
-            }
-            compositePainter.drawImage( markupChangedAreas[i], markupImage, markupChangedAreas[i] );
-        }
-
-        // Display the composite image
-        displayImage = *compositeImage;
     }
 }
 
@@ -142,7 +72,8 @@ void VideoWidget::paintEvent(QPaintEvent* event )
 {
     // If this is the first paint event, and there is no image to display, fill it with black
     QPainter painter(this);
-    if( firstUpdate && displayImage.isNull() )
+    painter.rotate( rotation );
+    if( firstUpdate && currentImage.isNull() )
     {
         QColor bg(0, 0, 0, 255);
         painter.fillRect(rect(), bg);
@@ -151,34 +82,74 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     // If there is an image to display, paint the appropriate bits
     else
     {
-        painter.rotate( rotation );
-        qDebug() << event->rect() << displayImage.rect();
-        // 1) The display image has changed, and is not marked up.
-        //    A single repaint event will occur for the entire display widget.
-        //    The display image can be any size and should be scaled to the
-        //    display widget.
-        //    So displayImage.rect() as the source area is OK
-        //
-        // 2) The display image has changed, and is marked up.
-        //    A single repaint event will occur for the entire display widget.
-        //    The display image will be generated with markups and will be the
-        //    same size as the display widget. It doesn't matter if it is scaled to the
-        //    display widget, or not.
-        //    So, event->rect() as the source area is OK
-        //
-        // 3) The markups have changed.
-        //    Multiple update events will occur for each changed markup area.
-        //    The display image will be generated with markups and will be the
-        //    same size as the display widget. The pixel area from the display
-        //    image should match the event update area.
-        //    So, event->rect() as the source area is OK
-        if( displayImage.size() != size() )
+        // If there are no markups, just display the current image
+        if( !anyVisibleMarkups() )
         {
-            painter.drawImage( event->rect(), displayImage, displayImage.rect() );
+            painter.drawImage( event->rect(), currentImage, currentImage.rect() );
+            qDebug() << "no markups, just draw image";
         }
+
+        // If there are markups, draw the current image overlayed with the appropriate markups
         else
         {
-            painter.drawImage( event->rect(), displayImage, event->rect() );
+            // If there is a composite background, but it is a different size to the display widget, delete it.
+            if( compositeImageBackground && compositeImageBackground->size() != size())
+            {
+                delete compositeImageBackground;
+                compositeImageBackground = NULL;
+            }
+
+            // Flag if a composite background image is needed.
+            // (If the current image is the same size as the display widget, then the current
+            // image can be used directly for markup backgrounds)
+            bool usingCompositeBackground = currentImage.size() != size();
+
+            // If there is no composite background and the current image is a different size to
+            // the display widget, then create a composite background.
+            if( !compositeImageBackground && usingCompositeBackground )
+            {
+                compositeImageBackground = new QImage( size(), currentImage.format() );
+                compositeImageBackgroundStale = true;
+                qDebug() << "create composite background";
+            }
+
+            if( usingCompositeBackground && compositeImageBackgroundStale )
+            {
+                QPainter bgPainter( compositeImageBackground );
+                bgPainter.drawImage( compositeImageBackground->rect(), currentImage, currentImage.rect() );
+                compositeImageBackgroundStale = false;
+                qDebug() << "update composite background";
+            }
+
+            // Draw the required background part.
+            // The background part must be taken from an image scaled to the drawing widget
+            // If the current image is the same size, then it will be used. If not, then the
+            // compositeImageBackground image will have been set up.
+            if( usingCompositeBackground )
+            {
+                painter.drawImage( event->rect(), *compositeImageBackground, event->rect() );
+                qDebug() << "draw event rectangle from composite background" << event->rect();
+            }
+            else
+            {
+                painter.drawImage( event->rect(), currentImage, event->rect() );
+                qDebug() << "draw event rectangle from current image" << event->rect();
+            }
+
+            // Draw markups for the required section
+            // Repainting the markup image as follows works fine:
+            //    painter.drawImage(  event->rect(), markupImage,  event->rect() );
+            // and is all that is required when this paint event is due to markup changes.
+            // When the current image changes, it is a bit of overkill to repaint the entire markup image.
+            // Instead, only markup areas containing visible marklups within the event rectangle are redrawn
+            for( int i = 0; i < getMarkupAreas().count(); i++ )
+            {
+                if( getMarkupAreas()[i].intersects( event->rect() ))
+                {
+                    painter.drawImage(  getMarkupAreas()[i], markupImage,  getMarkupAreas()[i] );
+                    qDebug() << "draw area from markups" << getMarkupAreas()[i];
+                }
+            }
         }
     }
 
@@ -202,3 +173,4 @@ void VideoWidget::markupAction( markupIds activeItem, QPoint point1, QPoint poin
 {
     qDebug() << "VideoWidget::markupAction()" << activeItem << point1 << point2;
 }
+

@@ -212,6 +212,7 @@ public:
     QVector<markupItem*> items;
     QPoint grabOffset;
     QVector<QRect>& getMarkupAreas();
+    bool anyVisibleMarkups();
     bool markupAreasStale;
     QCursor getDefaultMarkupCursor();
 
