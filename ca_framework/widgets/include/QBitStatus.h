@@ -48,16 +48,20 @@ public:
    Q_PROPERTY (int     numberOfBits        READ getNumberOfBits         WRITE setNumberOfBits)
    Q_PROPERTY (int     shift               READ getShift                WRITE setShift)
 
-   /*! The applicable and revserve polarity masks apply to value AFTER the shift.
+   /*! The revserve polarity mask applies to value AFTER the shift.
     */
-   Q_PROPERTY (QString applicableMask      READ getApplicableMask       WRITE setApplicableMask)
-   Q_PROPERTY (QString reversePolarityMask READ getReversePolarityMask WRITE setReversePolarityMask)
+   Q_PROPERTY (QString reversePolarityMask READ getReversePolarityMask  WRITE setReversePolarityMask)
+
+   /*! The clear (aka inhibit aka not applicable) masks apply to value AFTER reversePolarityMask.
+    */
+   Q_PROPERTY (QString onClearMask         READ getOnClearMask          WRITE setOnClearMask)
+   Q_PROPERTY (QString offClearMask        READ getOffClearMask         WRITE setOffClearMask)
 
    Q_PROPERTY (QColor  boarderColour       READ getBorderColour         WRITE setBorderColour)
    Q_PROPERTY (QColor  invalidColour       READ getInvalidColour        WRITE setInvalidColour)
    Q_PROPERTY (QColor  onColour            READ getOnColour             WRITE setOnColour)
    Q_PROPERTY (QColor  offColour           READ getOffColour            WRITE setOffColour)
-   Q_PROPERTY (QColor  naColour            READ getNotApplicableColour  WRITE setNotApplicableColour)
+   Q_PROPERTY (QColor  clearColour         READ getClearColour          WRITE setClearColour)
 
    Q_PROPERTY (bool    drawBorder          READ getDrawBorder           WRITE setDrawBorder)
    Q_PROPERTY (bool    isValid             READ getIsValid              WRITE setIsValid)
@@ -74,13 +78,14 @@ private:
    QColor mOnColour;
    QColor mOffColour;
    QColor mInvalidColour;
-   QColor mNotApplicableColour;
+   QColor mClearColour;
 
    bool mDrawBorder;
    int  mNumberOfBits;      // 1 .. 32
    int  mShift;             // 0 .. 31
-   int  mApplicableMask;
    int  mReversePolarityMask;
+   int  mOnClearMask;
+   int  mOffClearMask;
    bool mIsValid;
    long mValue;
    enum Orientations mOrientation;
@@ -118,8 +123,8 @@ public:
    void setInvalidColour (const QColor value);
    QColor getInvalidColour ();
 
-   void setNotApplicableColour (const QColor value);
-   QColor getNotApplicableColour ();
+   void setClearColour (const QColor value);
+   QColor getClearColour ();
 
    void setDrawBorder (const bool value);
    bool getDrawBorder ();
@@ -130,8 +135,11 @@ public:
    void setShift (const int value);
    int getShift ();
 
-   void setApplicableMask (const QString value);
-   QString getApplicableMask ();
+   void setOnClearMask (const QString value);
+   QString getOnClearMask ();
+
+   void setOffClearMask (const QString value);
+   QString getOffClearMask ();
 
    void setReversePolarityMask (const QString value);
    QString getReversePolarityMask ();

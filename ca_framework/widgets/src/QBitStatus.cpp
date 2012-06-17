@@ -39,8 +39,10 @@
   widgets of the same name.
  */
 
-#include <QBitStatus.h>
+#include <QDebug>
 #include <QtGui>
+
+#include <QBitStatus.h>
 
 
 #define MAX(a, b)           ((a) >= (b) ? (a) : (b))
@@ -59,7 +61,7 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    mOffColour     = QColor (255, 128, 128);   // red
    mOnColour      = QColor (128, 255, 128);   // green
    mInvalidColour = QColor (255, 182, 128);   // orange
-   mNotApplicableColour = QColor (200, 200, 200);   // light gray
+   mClearColour   = QColor (230, 230, 230);   // light gray
 
    mDrawBorder = true;
    mNumberOfBits = 8;      // 1 .. 32
@@ -67,7 +69,8 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    mIsValid = true;
    mValue = 0;
    mOrientation = LSB_On_Right;
-   mApplicableMask = 0xFFFFFFFF;
+   mOnClearMask = 0x00000000;
+   mOffClearMask = 0x00000000;
    mReversePolarityMask = 0x00000000;
 
    // move to paintEvent ??
@@ -103,7 +106,8 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    int left;
    int right;
    int work;
-   int applies;
+   int onApplies;
+   int offApplies;
 
    // Draw everything with antialiasing off.
    //
@@ -164,10 +168,11 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    bit_area.setHeight ((int) draw_height);
 
    work = (mValue >> mShift) ^ mReversePolarityMask;
-   applies = mApplicableMask;
+   onApplies  = (-1) ^ mOnClearMask;
+   offApplies = (-1) ^ mOffClearMask;
 
    right = (int) draw_width;
-   for (j = mNumberOfBits - 1; j >= 0 ;  j--) {
+   for (j = mNumberOfBits - 1; j >= 0;  j--) {
 
       fraction = (double) j /(double) mNumberOfBits;
       left = (int) (1.0 + fraction * draw_width);
@@ -185,18 +190,26 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
          painter.setPen (Qt::NoPen);
       }
 
-      if ((applies & 1) == 1) {
-         if (mIsValid) {
-            if ((work & 1) == 1) {
+      if (mIsValid) {
+
+         if ((work & 1) == 1) {
+            // Bit is on
+            if ((onApplies & 1) == 1) {
                brush.setColor (mOnColour);
-            } else {
-               brush.setColor (mOffColour);
+            }  else {
+               brush.setColor (mClearColour);
             }
          } else {
-            brush.setColor (mInvalidColour);
+            // Bit is off
+            if ((offApplies & 1) == 1) {
+               brush.setColor (mOffColour);
+            }  else {
+               brush.setColor (mClearColour);
+            }
          }
+
       } else {
-         brush.setColor (mNotApplicableColour);
+         brush.setColor (mInvalidColour);
       }
 
       painter.setBrush (brush);
@@ -209,7 +222,8 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
       // We don't worry about checking for last time through the loop.
       //
       work = work >> 1;
-      applies = applies >> 1;
+      onApplies = onApplies >> 1;
+      offApplies = offApplies >> 1;
       right = left;
    }
 }
@@ -293,17 +307,17 @@ QColor QBitStatus::getInvalidColour ()
 
 //=============================================================================
 //
-void QBitStatus::setNotApplicableColour (const QColor value)
+void QBitStatus::setClearColour (const QColor value)
 {
-   if (this->mNotApplicableColour != value) {
-      this->mNotApplicableColour = value;
+   if (this->mClearColour != value) {
+      this->mClearColour = value;
       this->update ();  // Force re-draw
    }
 }
 
-QColor QBitStatus::getNotApplicableColour ()
+QColor QBitStatus::getClearColour ()
 {
-   return this->mNotApplicableColour;
+   return this->mClearColour;
 }
 
 //=============================================================================
@@ -361,23 +375,41 @@ int QBitStatus::getShift ()
 
 //=============================================================================
 //
-void QBitStatus::setApplicableMask (const QString value)
+void QBitStatus::setOnClearMask (const QString value)
 {
    int temp;
 
    temp = this->maskToInt (value);
 
-   if (this->mApplicableMask != temp) {
-      this->mApplicableMask = temp;
+   if (this->mOnClearMask != temp) {
+      this->mOnClearMask = temp;
       this->update ();
    }
 }
 
-QString QBitStatus::getApplicableMask ()
+QString QBitStatus::getOnClearMask ()
 {
-   return this->intToMask (this->mApplicableMask);
+   return this->intToMask (this->mOnClearMask);
 }
 
+//=============================================================================
+//
+void QBitStatus::setOffClearMask (const QString value)
+{
+   int temp;
+
+   temp = this->maskToInt (value);
+
+   if (this->mOffClearMask != temp) {
+      this->mOffClearMask = temp;
+      this->update ();
+   }
+}
+
+QString QBitStatus::getOffClearMask ()
+{
+   return this->intToMask (this->mOffClearMask);
+}
 
 //=============================================================================
 //
