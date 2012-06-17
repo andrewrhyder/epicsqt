@@ -143,6 +143,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaPvProperties.h \
     ../widgets/include/QCaStripChart.h \
     ../widgets/include/QCaStripChartItem.h \
+    ../widgets/include/QCaStripChartTimeDialog.h \
     ../widgets/include/QCaStripChartItemDialog.h \
     ../widgets/include/QCaRadioButton.h \
     ../widgets/include/QCaGenericButton.h \
@@ -246,6 +247,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaPvProperties.cpp \
     ../widgets/src/QCaStripChart.cpp \
     ../widgets/src/QCaStripChartItem.cpp \
+    ../widgets/src/QCaStripChartTimeDialog.cpp \
     ../widgets/src/QCaStripChartItemDialog.cpp \
     ../widgets/src/QCaRadioButton.cpp \
     ../widgets/src/QCaGenericButton.cpp \
@@ -290,6 +292,7 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
 
 FORMS += \
     ../widgets/src/PeriodicDialog.ui \
+    ../widgets/src/QCaStripChartTimeDialog.ui \
     ../widgets/src/QCaStripChartItemDialog.ui \
     src/PeriodicSetupDialog.ui \
     src/PeriodicElementSetupForm.ui
