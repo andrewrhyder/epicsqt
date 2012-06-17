@@ -37,10 +37,10 @@ QCaStripChartItemDialog::QCaStripChartItemDialog (QWidget *parent) :
       ui (new Ui::QCaStripChartItemDialog)
 {
    this->ui->setupUi (this);
-   this->colorDialog = new QColorDialog (this);
+   this->colourDialog = new QColorDialog (this);
 
-   QObject::connect (this->ui->colorButton,  SIGNAL (clicked            (bool)),
-                     this,                   SLOT   (colorButtonClicked (bool)));
+   QObject::connect (this->ui->colourButton, SIGNAL (clicked             (bool)),
+                     this,                   SLOT   (colourButtonClicked (bool)));
 
    QObject::connect (this->ui->clearButton,  SIGNAL (clicked            (bool)),
                      this,                   SLOT   (clearButtonClicked (bool)));
@@ -70,16 +70,16 @@ QString QCaStripChartItemDialog::getPvName ()
 
 //------------------------------------------------------------------------------
 //
-void QCaStripChartItemDialog::setColor (QColor colorIn)
+void QCaStripChartItemDialog::setColour (QColor colourIn)
 {
-   this->color = colorIn;
+   this->colour = colourIn;
 }
 
 //------------------------------------------------------------------------------
 //
-QColor QCaStripChartItemDialog::getColor ()
+QColor QCaStripChartItemDialog::getColour ()
 {
-   return this->color;
+   return this->colour;
 }
 
 //------------------------------------------------------------------------------
@@ -92,17 +92,17 @@ bool QCaStripChartItemDialog::isClear ()
 //------------------------------------------------------------------------------
 // User has pressed color
 //
-void QCaStripChartItemDialog::colorButtonClicked (bool)
+void QCaStripChartItemDialog::colourButtonClicked (bool)
 {
-   this->colorDialog->setCurrentColor (this->color);
-   this->colorDialog->open (this, SLOT (colorSelected (const QColor &)));
+   this->colourDialog->setCurrentColor (this->colour);
+   this->colourDialog->open (this, SLOT (colourSelected (const QColor &)));
 }
 
 //------------------------------------------------------------------------------
 //
-void QCaStripChartItemDialog::colorSelected (const QColor & colorIn)
+void QCaStripChartItemDialog::colourSelected (const QColor & colourIn)
 {
-   this->color = colorIn;
+   this->colour = colourIn;
 }
 
 //------------------------------------------------------------------------------

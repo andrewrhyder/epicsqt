@@ -68,7 +68,7 @@ private:
 
 
 /// This is essentially a private classes used soley by the QCaStripChart widget.
-/// We have to make is public so that it can be pukka Q_OBJECT and as such receive
+/// We have to make is public so that it can be a pukka Q_OBJECT and as such receive
 /// signals.
 //
 class QCaStripChartItem : public QObject {
@@ -90,8 +90,12 @@ private:
    void clear ();
    bool isInUse ();
    void plotData ();
-   void setColor (QColor colorIn);
-   QColor getColor ();
+
+   // NOTE: Where ever possible I spell colour properly.
+   //
+   void setColour (QColor colourIn);
+   QColor getColour ();
+
    QPen getPen ();
    QwtPlotCurve *allocateCurve ();
    void readArchive ();
@@ -105,7 +109,7 @@ private:
    // data members
    //
    bool isConnected;
-   QColor color;
+   QColor colour;
    QCaDataPointList historicalTimeDataPoints;
    QCaDataPointList realTimeDataPoints;
    TrackRange historicalMinMax;

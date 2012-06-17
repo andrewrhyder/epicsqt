@@ -50,19 +50,19 @@ public:
    void setPvName (QString pvNameIn);
    QString getPvName ();
 
-   void setColor (QColor colorIn);
-   QColor getColor ();
+   void setColour (QColor colourIn);
+   QColor getColour ();
 
    bool isClear ();
 
 private:
    Ui::QCaStripChartItemDialog *ui;
-   QColorDialog *colorDialog;
-   QColor color;
+   QColorDialog *colourDialog;
+   QColor colour;
 
 private slots:
-   void colorButtonClicked (bool checked = false);
-   void colorSelected (const QColor & colorIn);
+   void colourButtonClicked (bool checked = false);
+   void colourSelected (const QColor & colourIn);
 
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();

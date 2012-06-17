@@ -139,7 +139,7 @@ QCaStripChartItem::QCaStripChartItem (QCaStripChart *chart,
                                       QCaLabel *caLabel,
                                       unsigned int slot) : QObject (chart)
 {
-   QColor defaultColor;
+   QColor defaultColour;
 
    // construct private data for this chart.
    //
@@ -158,11 +158,11 @@ QCaStripChartItem::QCaStripChartItem (QCaStripChart *chart,
    caLabel->setIndent (6);
 
    if (slot < QCaStripChart::NUMBER_OF_PVS) {
-      defaultColor = item_colours [slot];
+      defaultColour = item_colours [slot];
    } else {
-      defaultColor = clBlack;
+      defaultColour = clBlack;
    }
-   this->setColor (defaultColor);
+   this->setColour (defaultColour);
 
    // Set up a connection to recieve variable name property changes.  The variable
    // name property manager class only delivers an updated variable name after the
@@ -376,7 +376,7 @@ void QCaStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
                                         const bool isRealTime,
                                         TrackRange & plottedTrackRange)
 {
-   const QDateTime end_time   = this->privateData->chart->getEndTime ();
+   const QDateTime end_time   = this->privateData->chart->getEndDateTime ();
    const double duration = this->privateData->chart->getDuration ();
 
    QVector<double> tdata;
@@ -662,11 +662,11 @@ void QCaStripChartItem::setArchiveData (const QObject *userData, const bool okay
 //
 void QCaStripChartItem::readArchive ()
 {
-   const QDateTime startTime = this->privateData->chart->getStartTime ();
-   const QDateTime endTime   = this->privateData->chart->getEndTime ();
+   const QDateTime startDateTime = this->privateData->chart->getStartDateTime ();
+   const QDateTime endDateTime   = this->privateData->chart->getEndDateTime ();
 
    this->archiveAccess.readArchive
-         (this, this->getPvName (),  startTime, endTime,  4000,
+         (this, this->getPvName (),  startDateTime, endDateTime,  4000,
           QCaArchiveInterface::Linear,  0);
 }
 
@@ -677,7 +677,7 @@ void QCaStripChartItem::channelPropertiesClicked (bool)
    int n;
 
    this->dialog.setPvName (this->getPvName ());
-   this->dialog.setColor  (this->getColor ());
+   this->dialog.setColour  (this->getColour ());
 
    n = this->dialog.exec ();
    if (n == 1) {
@@ -685,7 +685,7 @@ void QCaStripChartItem::channelPropertiesClicked (bool)
       if (this->getPvName () != this->dialog.getPvName ()) {
          this->setPvName (this->dialog.getPvName (), "");
       }
-      this->setColor (this->dialog.getColor ());
+      this->setColour (this->dialog.getColour ());
    }
 }
 
@@ -698,9 +698,9 @@ QString QCaStripChartItem::getStyle ()
    int r, g, b;
    bool white_text;
 
-   r = this->color.red ();
-   g = this->color.green ();
-   b = this->color.blue ();
+   r = this->colour.red ();
+   g = this->colour.green ();
+   b = this->colour.blue ();
 
    // Weight sum of background colour to detrmine if white ot black text.
    //
@@ -714,16 +714,16 @@ QString QCaStripChartItem::getStyle ()
 
 //------------------------------------------------------------------------------
 //
-QColor QCaStripChartItem::getColor ()
+QColor QCaStripChartItem::getColour ()
 {
-   return this->color;
-}   // getColor
+   return this->colour;
+}   // getColour
 
 //------------------------------------------------------------------------------
 //
-void QCaStripChartItem::setColor (QColor colorIn)
+void QCaStripChartItem::setColour (QColor colourIn)
 {
-   this->color = colorIn;
+   this->colour = colourIn;
    this->privateData->pvName->setStyleSheet (this->getStyle ());
 }
 
@@ -731,7 +731,7 @@ void QCaStripChartItem::setColor (QColor colorIn)
 //
 QPen QCaStripChartItem::getPen ()
 {
-   QPen result (this->getColor ());
+   QPen result (this->getColour ());
 
    result.setWidth (1);
    return result;

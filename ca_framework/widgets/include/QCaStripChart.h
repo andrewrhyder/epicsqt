@@ -46,6 +46,8 @@
 #include <QCaDragDrop.h>
 #include <QCaWidget.h>
 
+#include <QCaStripChartTimeDialog.h>
+
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaStripChart : public QFrame, public QCaWidget {
    Q_OBJECT
 
@@ -72,18 +74,20 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStripChart : public QFrame, public QCaWid
    Q_PROPERTY (QString variable11 READ getPropertyVariableName11 WRITE setPropertyVariableName11)
    Q_PROPERTY (QString variable12 READ getPropertyVariableName12 WRITE setPropertyVariableName12)
 
-   Q_PROPERTY (QColor  color1     READ getColor1Property         WRITE setColor1Property)
-   Q_PROPERTY (QColor  color2     READ getColor2Property         WRITE setColor2Property)
-   Q_PROPERTY (QColor  color3     READ getColor3Property         WRITE setColor3Property)
-   Q_PROPERTY (QColor  color4     READ getColor4Property         WRITE setColor4Property)
-   Q_PROPERTY (QColor  color5     READ getColor5Property         WRITE setColor5Property)
-   Q_PROPERTY (QColor  color6     READ getColor6Property         WRITE setColor6Property)
-   Q_PROPERTY (QColor  color7     READ getColor7Property         WRITE setColor7Property)
-   Q_PROPERTY (QColor  color8     READ getColor8Property         WRITE setColor8Property)
-   Q_PROPERTY (QColor  color9     READ getColor9Property         WRITE setColor9Property)
-   Q_PROPERTY (QColor  color10    READ getColor10Property        WRITE setColor10Property)
-   Q_PROPERTY (QColor  color11    READ getColor11Property        WRITE setColor11Property)
-   Q_PROPERTY (QColor  color12    READ getColor12Property        WRITE setColor12Property)
+   // NOTE: Where ever possible I spell colour properly.
+   //
+   Q_PROPERTY (QColor  colour1    READ getColour1Property        WRITE setColour1Property)
+   Q_PROPERTY (QColor  colour2    READ getColour2Property        WRITE setColour2Property)
+   Q_PROPERTY (QColor  colour3    READ getColour3Property        WRITE setColour3Property)
+   Q_PROPERTY (QColor  colour4    READ getColour4Property        WRITE setColour4Property)
+   Q_PROPERTY (QColor  colour5    READ getColour5Property        WRITE setColour5Property)
+   Q_PROPERTY (QColor  colour6    READ getColour6Property        WRITE setColour6Property)
+   Q_PROPERTY (QColor  colour7    READ getColour7Property        WRITE setColour7Property)
+   Q_PROPERTY (QColor  colour8    READ getColour8Property        WRITE setColour8Property)
+   Q_PROPERTY (QColor  colour9    READ getColour9Property        WRITE setColour9Property)
+   Q_PROPERTY (QColor  colour10   READ getColour10Property       WRITE setColour10Property)
+   Q_PROPERTY (QColor  colour11   READ getColour11Property       WRITE setColour11Property)
+   Q_PROPERTY (QColor  colour12   READ getColour12Property       WRITE setColour12Property)
 
 
 public:
@@ -105,10 +109,10 @@ public:
    // Setting duration keeps end time fixed and adjusts start time.
    // Setting a duration value < 1 limited to 1 second.
    //
-   QDateTime getStartTime ();
+   QDateTime getStartDateTime ();
 
-   QDateTime getEndTime ();
-   void setEndTime (QDateTime endTimeIn);
+   QDateTime getEndDateTime ();
+   void setEndDateTime (QDateTime endDateTimeIn);
 
    int getDuration ();
    void setDuration (int durationIn);
@@ -142,10 +146,10 @@ protected:
    void updateToolTip (const QString& tip);
 
 private:
-   // Intermal widgets and associated support data.
-   // If these items declared at class level, there is a run time exception.
-   // Also allows, what is essentially private, to be actually private, well
-   // at least only declared in QCaStripChart.cpp
+   // Internal widgets and associated support data. These are declared in
+   // PrivateData If these items are declared at class level, there is a run
+   // time exception. PrivateData also allows, what is essentially private,
+   // to be actually private, well at least declared in QCaStripChart.cpp
    //
    class PrivateData;
    PrivateData *privateData;
@@ -158,7 +162,8 @@ private:
    // Chart time range in seconds.
    //
    int duration;
-   QDateTime endTime;
+   QDateTime endDateTime;
+   QCaStripChartTimeDialog timeDialog;
 
    // Chart lower/upper range
    //
@@ -173,14 +178,13 @@ private:
    void evaluateAllowDrop ();
    QwtPlotCurve *allocateCurve ();
 
-
    // Property access support functions.
    //
    void    setVariableNameProperty (unsigned int slot, QString pvName);
    QString getVariableNameProperty (unsigned int slot);
 
-   void   setColorProperty (unsigned int slot, QColor color);
-   QColor getColorProperty (unsigned int slot);
+   void   setColourProperty (unsigned int slot, QColor color);
+   QColor getColourProperty (unsigned int slot);
 
    // Property access READ and WRITE functions.
    // We can define the access functions using a macro.
@@ -190,8 +194,8 @@ private:
       void    setPropertyVariableName##slot (QString name) { this->setVariableNameProperty (slot - 1, name); }   \
       QString getPropertyVariableName##slot ()      { return this->getVariableNameProperty (slot - 1); }         \
                                                                                                                  \
-      void   setColor##slot##Property (QColor color) { this->setColorProperty (slot - 1, color); }               \
-      QColor getColor##slot##Property ()      { return this->getColorProperty (slot - 1); }
+      void   setColour##slot##Property (QColor colour) { this->setColourProperty (slot - 1, colour); }           \
+      QColor getColour##slot##Property ()       { return this->getColourProperty (slot - 1); }
 
    PROPERTY_ACCESS  (1)
    PROPERTY_ACCESS  (2)
@@ -217,7 +221,7 @@ private slots:
    void pauseClicked (bool checked = false);
    void forwardClicked (bool checked = false);
    void backwardClicked (bool checked = false);
-
+   void selectTimeClicked (bool checked = false);
    void readArchiveClicked (bool checked = false);
 };
 

@@ -93,14 +93,17 @@ struct PushButtonSpecifications {
    const char * member;
 };
 
-#define NUMBER_OF_BUTTONS  5
+#define NUMBER_OF_BUTTONS  8
 
 static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
+   { QString ("Scale To"),   QIcon (""),  QString ("Scale chart Y axis"),                         76, NULL                             },
+   { QString ("Duration"),   QIcon (""),  QString ("Select chart T axis"),                        76, NULL                             },
    { QString (""), QIcon (":/icons/strip_chart_play.png"),          QString ("Play - Real time"), 24, SLOT (playClicked (bool))        },
    { QString (""), QIcon (":/icons/strip_chart_pause.png"),         QString ("Pause"),            24, SLOT (pauseClicked (bool))       },
    { QString (""), QIcon (":/icons/strip_chart_page_forward.png"),  QString ("Forward one page"), 24, SLOT (forwardClicked (bool))     },
    { QString (""), QIcon (":/icons/strip_chart_page_backward.png"), QString ("Back one page"),    24, SLOT (backwardClicked (bool))    },
-   { QString ("Read Archive"),   QIcon (""),  QString ("Extract data from archive(s)"),           96, SLOT (readArchiveClicked (bool)) }
+   { QString ("Select Times"),   QIcon (""),  QString ("Set chart start/end time"),               92, SLOT (selectTimeClicked (bool))  },
+   { QString ("Read Archive"),   QIcon (""),  QString ("Extract data from archive(s)"),           92, SLOT (readArchiveClicked (bool)) }
 };
 
 
@@ -146,11 +149,16 @@ private:
 
    QVBoxLayout *layout1;
    QVBoxLayout *layout2;
-   QPushButton * b1;
+
    QMenu *m1;
 
-   QPushButton * b2;
    QMenu *m2;
+   QMenu *m2s;
+   QMenu *m2m;
+   QMenu *m2h;
+   QMenu *m2d;
+   QMenu *m2w;
+
    QPushButton *pushButtons [NUMBER_OF_BUTTONS];
    QLabel *readOut;
    QLabel *timeStatus;
@@ -170,6 +178,11 @@ private:
 //
 QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
 {
+   static const int seconds_per_minute = 60;
+   static const int seconds_per_hour = 60 * seconds_per_minute;
+   static const int seconds_per_day = 24 * seconds_per_hour;
+   static const int seconds_per_week = 7 * seconds_per_day;
+
    int j;
    unsigned int slot;
    int left;
@@ -183,67 +196,85 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    this->toolFrame->setFrameShape (QFrame::Panel);
    this->toolFrame->setFixedHeight (32);
 
-   // Create tool bar menus and buttons.
-   //
-   this->m1 = new QMenu ();
-   for (j = 0; j < YSMAXIMUM; j++) {
-      this->m1->addAction (chartScaleNames [j])->setData (QVariant (j));
-   }
-   QObject::connect (this->m1,  SIGNAL (triggered     (QAction *)),
-                     this->chart, SLOT (menuSetYScale (QAction *)));
-
-   this->b1 = new QPushButton ("Scale To", this->toolFrame);
-   this->b1->setMenu (this->m1);
-
-   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   this->m2 = new QMenu ();
-   this->m2->addAction ("1 sec   ")->setData (QVariant (1));
-   this->m2->addAction ("2 secs  ")->setData (QVariant (2));
-   this->m2->addAction ("5 secs  ")->setData (QVariant (5));
-   this->m2->addAction ("10 secs ")->setData (QVariant (10));
-   this->m2->addAction ("20 secs ")->setData (QVariant (20));
-   this->m2->addAction ("30 secs ")->setData (QVariant (30));
-
-   this->m2->addAction ("1 min   ")->setData (QVariant (1*60));
-   this->m2->addAction ("2 mins  ")->setData (QVariant (2*60));
-   this->m2->addAction ("5 mins  ")->setData (QVariant (5*60));
-   this->m2->addAction ("10 mins ")->setData (QVariant (10*60));
-   this->m2->addAction ("20 mins ")->setData (QVariant (20*60));
-   this->m2->addAction ("30 mins ")->setData (QVariant (30*60));
-
-   this->m2->addAction ("1 hr   ")->setData (QVariant (1*3600));
-   this->m2->addAction ("2 hrs  ")->setData (QVariant (2*3600));
-   this->m2->addAction ("4 hrs  ")->setData (QVariant (4*3600));
-   this->m2->addAction ("12 hrs ")->setData (QVariant (12*3600));
-
-   this->m2->addAction ("1 day  ")->setData (QVariant (1*86400));
-   this->m2->addAction ("2 days ")->setData (QVariant (2*86400));
-   this->m2->addAction ("7 days ")->setData (QVariant (7*86400));
-
-   QObject::connect (this->m2,  SIGNAL (triggered       (QAction *)),
-                     this->chart, SLOT (menuSetDuration (QAction *)));
-
-   this->b2 = new QPushButton ("Duration", this->toolFrame);
-   this->b2->setMenu (this->m2);
-
+   // Create toobar buttons
    // TODO: Try QToolBar - it may auto layout.
    //
    left = 4;
-   this->b1->setGeometry  (left, 4, 76, 24);   left += 4 + 76;
-   this->b2->setGeometry  (left, 4, 76, 24);   left += 4 + 76;
-
-   // Create some simple non-menu buttons
-   //
    for (j = 0 ; j < NUMBER_OF_BUTTONS; j++) {
       button = new QPushButton (buttonSpecs[j].caption, this->toolFrame);
       button->setIcon (buttonSpecs[j].icon);
       button->setToolTip(buttonSpecs[j].toolTip);
       button->setGeometry (left, 4, buttonSpecs[j].width, 24);
       left += 4 + buttonSpecs[j].width;
-      QObject::connect (button,  SIGNAL (clicked (bool)), this->chart, buttonSpecs[j].member);
-
+      if (buttonSpecs[j].member != NULL) {
+         QObject::connect (button,  SIGNAL (clicked (bool)), this->chart, buttonSpecs[j].member);
+      }
       this->pushButtons [j] = button;
    }
+
+   // Create tool bar menus for selected buttons.
+   //
+   this->m1 = new QMenu (this->toolFrame);
+   for (j = 0; j < YSMAXIMUM; j++) {
+      this->m1->addAction (chartScaleNames [j])->setData (QVariant (j));
+   }
+   QObject::connect (this->m1,  SIGNAL (triggered     (QAction *)),
+                     this->chart, SLOT (menuSetYScale (QAction *)));
+
+   this->pushButtons [0]->setMenu (this->m1);
+
+   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   this->m2 = new QMenu (this->toolFrame);
+
+   this->m2s = new QMenu ("seconds", this->m2);
+   this->m2m = new QMenu ("minutes", this->m2);
+   this->m2h = new QMenu ("hours", this->m2);
+   this->m2d = new QMenu ("days", this->m2);
+   this->m2w = new QMenu ("weeks", this->m2);
+
+   this->m2->addMenu (this->m2s);
+   this->m2->addMenu (this->m2m);
+   this->m2->addMenu (this->m2h);
+   this->m2->addMenu (this->m2d);
+   this->m2->addMenu (this->m2w);
+
+   this->m2s->addAction ("1 sec   ")->setData (QVariant (1));
+   this->m2s->addAction ("2 secs  ")->setData (QVariant (2));
+   this->m2s->addAction ("5 secs  ")->setData (QVariant (5));
+   this->m2s->addAction ("10 secs ")->setData (QVariant (10));
+   this->m2s->addAction ("20 secs ")->setData (QVariant (20));
+   this->m2s->addAction ("30 secs ")->setData (QVariant (30));
+
+   this->m2m->addAction ("1 min   ")->setData (QVariant (1 * seconds_per_minute));
+   this->m2m->addAction ("2 mins  ")->setData (QVariant (2 * seconds_per_minute));
+   this->m2m->addAction ("5 mins  ")->setData (QVariant (5 * seconds_per_minute));
+   this->m2m->addAction ("10 mins ")->setData (QVariant (10 * seconds_per_minute));
+   this->m2m->addAction ("20 mins ")->setData (QVariant (20 * seconds_per_minute));
+   this->m2m->addAction ("30 mins ")->setData (QVariant (30 * seconds_per_minute));
+
+   this->m2h->addAction ("1 hour   ")->setData (QVariant (1 * seconds_per_hour));
+   this->m2h->addAction ("2 hours  ")->setData (QVariant (2 * seconds_per_hour));
+   this->m2h->addAction ("5 hours  ")->setData (QVariant (5 * seconds_per_hour));
+   this->m2h->addAction ("10 hours ")->setData (QVariant (10 * seconds_per_hour));
+   this->m2h->addAction ("20 hours ")->setData (QVariant (20 * seconds_per_hour));
+
+   this->m2d->addAction ("1 day    ")->setData (QVariant (1 * seconds_per_day));
+   this->m2d->addAction ("2 days   ")->setData (QVariant (2 * seconds_per_day));
+   this->m2d->addAction ("5 days   ")->setData (QVariant (5 * seconds_per_day));
+   this->m2d->addAction ("10 days  ")->setData (QVariant (10 * seconds_per_day));
+
+   this->m2w->addAction ("1 week   ")->setData (QVariant (1 * seconds_per_week));
+   this->m2w->addAction ("2 weeks  ")->setData (QVariant (2 * seconds_per_week));
+   this->m2w->addAction ("5 weeks  ")->setData (QVariant (5 * seconds_per_week));
+   this->m2w->addAction ("10 weeks ")->setData (QVariant (10 * seconds_per_week));
+
+   // Connextion seems to apply to all the sub-menus as well
+   //
+   QObject::connect (this->m2,  SIGNAL (triggered       (QAction *)),
+                     this->chart, SLOT (menuSetDuration (QAction *)));
+
+   this->pushButtons [1]->setMenu (this->m2);
+
 
    // Create PV frame and PV name labels and associated CA labels.
    //
@@ -477,9 +508,9 @@ void QCaStripChart::PrivateData::plotData ()
 
    format = "yyyy-MM-dd hh:mm:ss UTC";
    times = " ";
-   times.append (this->chart->getStartTime().toUTC().toString (format));
+   times.append (this->chart->getStartDateTime().toUTC().toString (format));
    times.append (" to ");
-   times.append (this->chart->getEndTime().toUTC().toString (format));
+   times.append (this->chart->getEndDateTime().toUTC().toString (format));
    this->timeStatus->setText (times);
 }
 
@@ -509,7 +540,7 @@ void QCaStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    // Convert cursor x to absolute cursor time.
    // x is the time (in seconds) relative to the chart end time.
    //
-   t = this->chart->getEndTime ().toUTC ().addMSecs ((qint64)(1000.0 * x));
+   t = this->chart->getEndDateTime ().toUTC ().addMSecs ((qint64)(1000.0 * x));
 
    // Keep only most significant digit of the milli-seconds,
    // i.e. tenths of a second.
@@ -544,8 +575,6 @@ bool QCaStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
 //
 QCaStripChart::QCaStripChart (QWidget * parent) : QFrame (parent), QCaWidget (this)
 {
-   QCaDateTime A, B, C;
-
    // Configure the panel and create contents
    //
    this->setFrameShape (Panel);
@@ -556,7 +585,7 @@ QCaStripChart::QCaStripChart (QWidget * parent) : QFrame (parent), QCaWidget (th
    // We always use UTC (EPICS) time within the strip chart.
    // Set directly here as using setEndTime has side effects.
    //
-   this->endTime = QDateTime::currentDateTime ().toUTC ();
+   this->endDateTime = QDateTime::currentDateTime ().toUTC ();
 
    this->yMinimum = 0.0;
    this->yMaximum = 100.0;
@@ -616,11 +645,11 @@ QString QCaStripChart::getVariableNameProperty (unsigned int slot)
 
 //------------------------------------------------------------------------------
 //
-void QCaStripChart::setColorProperty (unsigned int slot, QColor color)
+void QCaStripChart::setColourProperty (unsigned int slot, QColor colour)
 {
    if (slot < NUMBER_OF_PVS) {
       QCaStripChartItem * item = this->privateData->getItem (slot);
-      item->setColor (color);
+      item->setColour (colour);
    } else {
       DEBUG << "slot out of range " << slot;
    }
@@ -628,11 +657,11 @@ void QCaStripChart::setColorProperty (unsigned int slot, QColor color)
 
 //------------------------------------------------------------------------------
 //
-QColor QCaStripChart::getColorProperty (unsigned int slot)
+QColor QCaStripChart::getColourProperty (unsigned int slot)
 {
    if (slot < NUMBER_OF_PVS) {
       QCaStripChartItem * item = this->privateData->getItem (slot);
-      return item->getColor ();
+      return item->getColour ();
    } else {
       DEBUG << "slot out of range " << slot;
       return QColor (0x00, 0x00, 0x00, 0xFF);
@@ -673,7 +702,7 @@ void QCaStripChart::tickTimeout ()
 {
    if (this->privateData->chartTimeMode == tmRealTime) {
       // Note: when end time changes - setEndTime calls plotData ().
-      this->setEndTime (QDateTime::currentDateTime ());
+      this->setEndDateTime (QDateTime::currentDateTime ());
    } else {
       this->privateData->plotData ();
    }
@@ -736,7 +765,7 @@ void QCaStripChart::playClicked (bool)
 {
    this->privateData->chartTimeMode = tmRealTime;
    // Note: using setEndTime causes a replot.
-   this->setEndTime (QDateTime::currentDateTime ());
+   this->setEndDateTime (QDateTime::currentDateTime ());
 }
 
 //------------------------------------------------------------------------------
@@ -751,7 +780,7 @@ void QCaStripChart::pauseClicked (bool)
 void QCaStripChart::forwardClicked (bool)
 {
    this->privateData->chartTimeMode = tmPaused;
-   this->setEndTime (this->endTime.addSecs (+this->duration));
+   this->setEndDateTime (this->getEndDateTime ().addSecs (+this->duration));
 }
 
 //------------------------------------------------------------------------------
@@ -759,9 +788,34 @@ void QCaStripChart::forwardClicked (bool)
 void QCaStripChart::backwardClicked (bool)
 {
    this->privateData->chartTimeMode = tmPaused;
-   this->setEndTime (this->endTime.addSecs (-this->duration));
+   this->setEndDateTime (this->getEndDateTime ().addSecs (-this->duration));
 }
 
+//------------------------------------------------------------------------------
+//
+void QCaStripChart::selectTimeClicked (bool)
+{
+   int n;
+   int d;
+
+   this->timeDialog.setMaximumDateTime (QDateTime::currentDateTime ().toUTC ());
+   this->timeDialog.setStartDateTime (this->getStartDateTime());
+   this->timeDialog.setEndDateTime (this->getEndDateTime());
+
+   n = this->timeDialog.exec ();
+   if (n == 1) {
+      // User has selected okay.
+      //
+      this->privateData->chartTimeMode = tmPaused;
+      this->setEndDateTime (this->timeDialog.getEndDateTime ());
+
+      // We use the possibly limited chart end time in order to calculate the
+      // duration.
+      //
+      d = this->timeDialog.getStartDateTime ().secsTo (this->getEndDateTime());
+      this->setDuration (d);
+   }
+}
 
 //------------------------------------------------------------------------------
 //
@@ -782,23 +836,23 @@ void QCaStripChart::readArchiveClicked (bool checked)
 //------------------------------------------------------------------------------
 // Start/end time
 //
-QDateTime QCaStripChart::getStartTime ()
+QDateTime QCaStripChart::getStartDateTime ()
 {
-   return this->getEndTime().addSecs (-this->duration);
+   return this->getEndDateTime().addSecs (-this->duration);
 }
 
 //------------------------------------------------------------------------------
 //
-QDateTime QCaStripChart::getEndTime ()
+QDateTime QCaStripChart::getEndDateTime ()
 {
-   return this->endTime;
+   return this->endDateTime;
 }
 
 //------------------------------------------------------------------------------
 //
-void QCaStripChart::setEndTime (QDateTime endTimeIn)
+void QCaStripChart::setEndDateTime (QDateTime endDateTimeIn)
 {
-   QDateTime useUTC = endTimeIn.toUTC ();
+   QDateTime useUTC = endDateTimeIn.toUTC ();
    QDateTime nowUTC = QDateTime::currentDateTime ().toUTC ();
 
    // No peeking into the future.
@@ -807,8 +861,8 @@ void QCaStripChart::setEndTime (QDateTime endTimeIn)
       useUTC = nowUTC;
    }
 
-   if (this->endTime != useUTC) {
-      this->endTime = useUTC;
+   if (this->endDateTime != useUTC) {
+      this->endDateTime = useUTC;
       this->privateData->plotData ();
    }
 }

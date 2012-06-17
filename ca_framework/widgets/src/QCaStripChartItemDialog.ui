@@ -52,7 +52,7 @@
     <string/>
    </property>
   </widget>
-  <widget class="QPushButton" name="colorButton">
+  <widget class="QPushButton" name="colourButton">
    <property name="geometry">
     <rect>
      <x>272</x>
@@ -62,7 +62,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Color...</string>
+    <string>Colour...</string>
    </property>
   </widget>
  </widget>
