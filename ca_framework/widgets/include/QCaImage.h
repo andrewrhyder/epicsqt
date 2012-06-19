@@ -102,11 +102,17 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     bool getDisplayExposureTime();
 
 
-    void setShowButtonPause(bool pValue);
-    bool getShowButtonPause();
+    void setShowPauseButton(bool displayPauseButtonIn );
+    bool getShowPauseButton();
 
-    void setShowButtonSave(bool pValue);
-    bool getShowButtonSave();
+    void setShowSaveButton(bool displaySaveButtonIn );
+    bool getShowSaveButton();
+
+    void setShowRoiButton( bool displayRoiButtonIn );
+    bool getShowRoiButton();
+
+    void setShowZoomButton( bool displayZoomButtonIn );
+    bool getShowZoomButton();
 
     void setShowTime(bool pValue);
     bool getShowTime();
@@ -137,16 +143,23 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     bool displayExposureTime;
     bool displayRoiLayout;
 
+    bool displayPauseButton;
+    bool displaySaveButton;
+    bool displayZoomButton;
+    bool displayRoiButton;
+
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
-    void buttonPauseClicked();
+    void pauseClicked();
 
-    void buttonSaveClicked();
+    void saveClicked();
 
+    void roiClicked();
+    void zoomClicked();
 
   public slots:
     void requestEnabled( const bool& state );
@@ -167,9 +180,11 @@ private slots:
     void setImageBuff();
 
     QVBoxLayout *mainLayout;
-    QGridLayout *labelLayout;
-    QGridLayout *roiLayout;
-    QGridLayout *buttonLayout;
+
+    QGroupBox *labelGroup;
+    QGroupBox *roiGroup;
+    QGroupBox *buttonGroup;
+
 
     QCaLabel* acquirePeriodQCaLabel;
     QLabel* acquirePeriodLabel;
@@ -195,16 +210,30 @@ private slots:
     VideoWidget *videoWidget;
 
     QColor qColorShowTime;
-    QPushButton *qPushButtonPause;
-    QPushButton *qPushButtonSave;
+    QPushButton *pauseButton;
+    QPushButton *saveButton;
+    QPushButton *roiButton;
+    QPushButton *zoomButton;
 
     bool pauseEnabled;
     bool showTimeEnabled;
+
+    void hideWidget( QWidget* w );
+    void showWidget( QWidget* w );
+
+
+    void manageLabelGroup();
+    void manageButtonGroup();
 
 
     void manageRoiLayout();
     void manageAcquirePeriodLabel();
     void manageExposureTimeLabel();
+    void managePauseButton();
+    void manageSaveButton();
+    void manageRoiButton();
+    void manageZoomButton();
+
 
     QByteArray imageBuff;
 #define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32

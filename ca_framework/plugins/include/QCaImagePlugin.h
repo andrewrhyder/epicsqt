@@ -103,10 +103,10 @@ class QCaImagePlugin : public QCaImage {
     Q_PROPERTY(bool displayAcquirePeriod READ getDisplayAcquirePeriod WRITE setDisplayAcquirePeriod)
     Q_PROPERTY(bool displayExposureTime READ getDisplayExposureTime WRITE setDisplayExposureTime)
 
-
-    Q_PROPERTY(bool showButtonPause READ getShowButtonPause WRITE setShowButtonPause)
-
-    Q_PROPERTY(bool showButtonSave READ getShowButtonSave WRITE setShowButtonSave)
+    Q_PROPERTY(bool showPauseButton READ getShowPauseButton WRITE setShowPauseButton)
+    Q_PROPERTY(bool showSaveButton READ getShowSaveButton WRITE setShowSaveButton)
+    Q_PROPERTY(bool showROIButton READ getShowRoiButton WRITE setShowRoiButton)
+    Q_PROPERTY(bool showZoomButton READ getShowZoomButton WRITE setShowZoomButton)
 
     Q_PROPERTY(bool showTime READ getShowTime WRITE setShowTime)
 

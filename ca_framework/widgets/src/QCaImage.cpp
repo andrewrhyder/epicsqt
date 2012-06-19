@@ -72,6 +72,14 @@ void QCaImage::setup() {
     setShowTimeColor(QColor(0, 255, 0));
     pauseEnabled = false;
 
+    displayPauseButton = false;
+    displaySaveButton = false;
+    displayZoomButton = false;
+    displayRoiButton = false;
+
+
+//!!!all property variables initialised?
+
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
@@ -89,9 +97,14 @@ void QCaImage::setup() {
     scrollArea->setWidget( videoWidget );
     scrollArea->setEnabled( false );  // Reflects initial disconnected state
 
-    // Create label layout
-    labelLayout = new QGridLayout;
+
+
+    // Create label group
+    labelGroup = new QGroupBox();
+    labelGroup->setTitle( "Details");
+    QGridLayout* labelLayout = new QGridLayout();
     labelLayout->setMargin( 0 );
+    labelGroup->setLayout( labelLayout);
 
     acquirePeriodQCaLabel = new QCaLabel( this );
     acquirePeriodLabel = new QLabel( this );
@@ -101,57 +114,105 @@ void QCaImage::setup() {
     exposureTimeLabel = new QLabel( this );
     exposureTimeLabel->setText( "Exposure Time:" );
 
-    // Create region of interest layout
-    roiLayout = new QGridLayout;
-    roiLayout->setMargin( 0 );
+    labelLayout->addWidget( acquirePeriodLabel, 0, 0 );
+    labelLayout->addWidget( acquirePeriodQCaLabel, 0, 1 );
+    labelLayout->addWidget( exposureTimeLabel, 1, 0 );
+    labelLayout->addWidget( exposureTimeQCaLabel, 1, 1 );
 
-    roiXQCaLabel = new QCaLabel( this );
-    roiXLabel = new QLabel( this );
+
+
+    // Create region of interest group
+    roiGroup = new QGroupBox();
+    roiGroup->setTitle( "R.O.I.");
+    QGridLayout* roiLayout = new QGridLayout();
+    roiLayout->setMargin( 0 );
+    roiGroup->setLayout( roiLayout);
+
+
+    roiXQCaLabel = new QCaLabel( roiGroup );
+    roiXLabel = new QLabel( roiGroup );
     roiXLabel->setText( "X:" );
 
-    roiYQCaLabel = new QCaLabel( this );
-    roiYLabel = new QLabel( this );
+    roiYQCaLabel = new QCaLabel( roiGroup );
+    roiYLabel = new QLabel( roiGroup );
     roiYLabel->setText( "Y:" );
 
-    roiWQCaLabel = new QCaLabel( this );
-    roiWLabel = new QLabel( this );
+    roiWQCaLabel = new QCaLabel( roiGroup );
+    roiWLabel = new QLabel( roiGroup );
     roiWLabel->setText( "Width:" );
 
-    roiHQCaLabel = new QCaLabel( this );
-    roiHLabel = new QLabel( this );
+    roiHQCaLabel = new QCaLabel( roiGroup );
+    roiHLabel = new QLabel( roiGroup );
     roiHLabel->setText( "Height:" );
 
-    // Create button layout
-    buttonLayout = new QGridLayout;
-    buttonLayout->setMargin(0);
 
-    qPushButtonPause = new QPushButton(this);
-    qPushButtonPause->setText("Pause");
-    qPushButtonPause->setToolTip("Pause image display");
-    buttonLayout->addWidget(qPushButtonPause, 0, 0);
-    QObject::connect(qPushButtonPause, SIGNAL(clicked()), this, SLOT(buttonPauseClicked()));
+    roiLayout->addWidget( roiXLabel, 0, 0 );
+    roiLayout->addWidget( roiXQCaLabel, 0, 1 );
+    roiLayout->addWidget( roiYLabel, 1, 0 );
+    roiLayout->addWidget( roiYQCaLabel, 1, 1 );
+    roiLayout->addWidget( roiWLabel, 2, 0 );
+    roiLayout->addWidget( roiWQCaLabel, 2, 1 );
+    roiLayout->addWidget( roiHLabel, 3, 0 );
+    roiLayout->addWidget( roiHQCaLabel, 3, 1 );
 
-    qPushButtonSave = new QPushButton(this);
-    qPushButtonSave->setText("Save");
-    qPushButtonSave->setToolTip("Save displayed image");
-    QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
-    buttonLayout->addWidget(qPushButtonSave, 0, 1);
+
+    // Create button group
+    buttonGroup = new QGroupBox();
+    buttonGroup->setTitle( "Actions");
+    QGridLayout* buttonLayout = new QGridLayout();
+    buttonLayout->setMargin( 0 );
+    buttonGroup->setLayout( buttonLayout);
+
+
+    pauseButton= new QPushButton(this);
+    pauseButton->setText("Pause");
+    pauseButton->setToolTip("Pause image display");
+    QObject::connect(pauseButton, SIGNAL(clicked()), this, SLOT(pauseClicked()));
+
+    saveButton = new QPushButton(this);
+    saveButton->setText("Save");
+    saveButton->setToolTip("Save displayed image");
+    QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
+
+    roiButton = new QPushButton(this);
+    roiButton->setText("ROI");
+    roiButton->setToolTip("Apply selected area to Region Of Interst");
+    QObject::connect(roiButton, SIGNAL(clicked()), this, SLOT(roiClicked()));
+
+    zoomButton = new QPushButton(this);
+    zoomButton->setText("Zoom");
+    zoomButton->setToolTip("Zoom to selected area");
+    QObject::connect(zoomButton, SIGNAL(clicked()), this, SLOT(zoomClicked()));
+
+
+    buttonLayout->addWidget(pauseButton, 0, 0);
+    buttonLayout->addWidget(saveButton, 0, 1);
+    buttonLayout->addWidget(roiButton, 0, 2);
+    buttonLayout->addWidget(zoomButton, 0, 3);
+
+
 
     // Create main layout containing image, label, and button layouts
     mainLayout = new QVBoxLayout;
     mainLayout->setMargin( 0 );
 
     mainLayout->addWidget( scrollArea );
-    mainLayout->addItem( labelLayout );
-    mainLayout->addItem( roiLayout );
-    mainLayout->addItem(buttonLayout);
+    mainLayout->addWidget( labelGroup );
+    mainLayout->addWidget( roiGroup );
+    mainLayout->addWidget(buttonGroup);
 
     setLayout( mainLayout );
 
     // Set up labels as required by properties
     manageRoiLayout();
+
     manageAcquirePeriodLabel();
     manageExposureTimeLabel();
+
+    managePauseButton();
+    manageSaveButton();
+    manageRoiButton();
+    manageZoomButton();
 
     // Initially set the video widget to the size of the scroll bar
     // This will be resized when the image size is known
@@ -529,116 +590,104 @@ void QCaImage::manageRoiLayout()
 {
     if( displayRoiLayout )
     {
-        roiLayout->addWidget( roiXLabel, 0, 0 );
-        roiLayout->addWidget( roiXQCaLabel, 0, 1 );
-
-        roiLayout->addWidget( roiYLabel, 1, 0 );
-        roiLayout->addWidget( roiYQCaLabel, 1, 1 );
-
-        roiLayout->addWidget( roiWLabel, 2, 0 );
-        roiLayout->addWidget( roiWQCaLabel, 2, 1 );
-
-        roiLayout->addWidget( roiHLabel, 3, 0 );
-        roiLayout->addWidget( roiHQCaLabel, 3, 1 );
-
-        roiLayout->setColumnStretch( 1, 1 );
-
-        roiXLabel->show();
-        roiXQCaLabel->show();
-
-        roiYLabel->show();
-        roiYQCaLabel->show();
-
-        roiWLabel->show();
-        roiWQCaLabel->show();
-
-        roiHLabel->show();
-        roiHQCaLabel->show();
+        roiGroup->show();
     }
     else
     {
-        roiLayout->removeWidget( roiXLabel );
-        roiLayout->removeWidget( roiXQCaLabel );
-
-        roiLayout->removeWidget( roiYLabel );
-        roiLayout->removeWidget( roiYQCaLabel );
-
-        roiLayout->removeWidget( roiWLabel );
-        roiLayout->removeWidget( roiWQCaLabel );
-
-        roiLayout->removeWidget( roiHLabel );
-        roiLayout->removeWidget( roiHQCaLabel );
-
-        roiXLabel->hide();
-        roiYLabel->hide();
-        roiWLabel->hide();
-        roiHLabel->hide();
+        roiGroup->hide();
     }
+}
+
+// Add or remove the pause button
+void QCaImage::managePauseButton()
+{
+    pauseButton->setVisible( displayPauseButton );
+    manageButtonGroup();
+}
+
+// Add or remove the save button
+void QCaImage::manageSaveButton()
+{
+    saveButton->setVisible( displaySaveButton );
+    manageButtonGroup();
+}
+
+// Add or remove the ROI apply button
+void QCaImage::manageRoiButton()
+{
+    roiButton->setVisible( displayRoiButton );
+    manageButtonGroup();
+}
+
+// Add or remove the zoom button
+void QCaImage::manageZoomButton()
+{
+    zoomButton->setVisible( displayZoomButton );
+    manageButtonGroup();
+}
+
+void QCaImage::manageButtonGroup()
+{
+    buttonGroup->setVisible( displayPauseButton ||
+                             displaySaveButton  ||
+                             displayRoiButton   ||
+                             displayZoomButton );
 }
 
 // Add or remove the acquire period label
 void QCaImage::manageAcquirePeriodLabel()
 {
-    if( displayAcquirePeriod )
-    {
-        labelLayout->addWidget( acquirePeriodLabel, 0, 0 );
-        labelLayout->addWidget( acquirePeriodQCaLabel, 0, 1 );
-        labelLayout->setColumnStretch( 1, 1 );
-        acquirePeriodLabel->show();
-        acquirePeriodQCaLabel->show();
-    }
-    else
-    {
-        labelLayout->removeWidget( acquirePeriodLabel );
-        labelLayout->removeWidget( acquirePeriodQCaLabel );
-        acquirePeriodLabel->hide();
-        acquirePeriodQCaLabel->hide();
-    }
+    acquirePeriodLabel->setVisible( displayAcquirePeriod );
+    acquirePeriodQCaLabel->setVisible( displayAcquirePeriod );
+    manageLabelGroup();
 }
 
 // Add or remove the exposure time label
 void QCaImage::manageExposureTimeLabel()
 {
-    if( displayExposureTime )
-    {
-        labelLayout->addWidget( exposureTimeLabel, 1, 0 );
-        labelLayout->addWidget( exposureTimeQCaLabel, 1, 1 );
-        labelLayout->setColumnStretch( 1, 1 );
-        exposureTimeLabel->show();
-        exposureTimeQCaLabel->show();
-    }
-    else
-    {
-        labelLayout->removeWidget( exposureTimeLabel );
-        labelLayout->removeWidget( exposureTimeQCaLabel );
-        exposureTimeLabel->hide();
-        exposureTimeQCaLabel->hide();
-    }
+    exposureTimeLabel->setVisible( displayExposureTime );
+    exposureTimeQCaLabel->setVisible( displayExposureTime );
+    manageLabelGroup();
+}
+
+void QCaImage::manageLabelGroup()
+{
+    labelGroup->setVisible( displayExposureTime ||
+                            displayAcquirePeriod );
+}
+
+// Zoom button pressed
+void QCaImage::zoomClicked()
+{
+    qDebug() << "zoom clicked";
+}
+
+// ROI apply button pressed
+void QCaImage::roiClicked()
+{
+    qDebug() << "roi clicked";
 }
 
 // Pause button pressed
-void QCaImage::buttonPauseClicked()
+void QCaImage::pauseClicked()
 {
-
     if (pauseEnabled)
     {
-        qPushButtonPause->setText("Pause");
-        qPushButtonPause->setToolTip("Pause image display");
+        pauseButton->setText("Pause");
+        pauseButton->setToolTip("Pause image display");
         pauseEnabled = false;
     }
     else
     {
-        qPushButtonPause->setText("Resume");
-        qPushButtonPause->setToolTip("Resume image display");
+        pauseButton->setText("Resume");
+        pauseButton->setToolTip("Resume image display");
         pauseEnabled = true;
     }
-
 }
 
 // Save button pressed
-void QCaImage::buttonSaveClicked()
+void QCaImage::saveClicked()
 {
-
     QFileDialog *qFileDialog;
     QStringList filterList;
     QString filename;
@@ -882,25 +931,51 @@ bool QCaImage::getDisplayExposureTime()
 }
 
 // Show pause button
-void QCaImage::setShowButtonPause(bool pValue)
+void QCaImage::setShowPauseButton( bool displayPauseButtonIn )
 {
-    qPushButtonPause->setVisible(pValue);
+    displayPauseButton = displayPauseButtonIn;
+    managePauseButton();
 }
 
-bool QCaImage::getShowButtonPause()
+bool QCaImage::getShowPauseButton()
 {
-    return qPushButtonPause->isVisible();
+    return displayPauseButton;
 }
 
 // Show save button
-void QCaImage::setShowButtonSave(bool pValue)
+void QCaImage::setShowSaveButton( bool displaySaveButtonIn )
 {
-    qPushButtonSave->setVisible(pValue);
+    displaySaveButton = displaySaveButtonIn;
+    manageSaveButton();
 }
 
-bool QCaImage::getShowButtonSave()
+bool QCaImage::getShowSaveButton()
 {
-    return qPushButtonSave->isVisible();
+    return displaySaveButton;
+}
+
+// Show ROI apply button
+void QCaImage::setShowRoiButton( bool displayRoiButtonIn )
+{
+    displayRoiButton = displayRoiButtonIn;
+    manageRoiButton();
+}
+
+bool QCaImage::getShowRoiButton()
+{
+    return displayRoiButton;
+}
+
+// Show zoom button
+void QCaImage::setShowZoomButton( bool displayZoomButtonIn )
+{
+    displayZoomButton = displayZoomButtonIn;
+    manageZoomButton();
+}
+
+bool QCaImage::getShowZoomButton()
+{
+    return displayZoomButton;
 }
 
 // Show time
