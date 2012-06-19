@@ -87,7 +87,7 @@ enum ChartTimeMode {
 
 struct PushButtonSpecifications {
    const QString caption;
-   QIcon icon;
+   const QString iconName;
    QString toolTip;
    int width;
    const char * member;
@@ -96,14 +96,14 @@ struct PushButtonSpecifications {
 #define NUMBER_OF_BUTTONS  8
 
 static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
-   { QString ("Scale To"),   QIcon (""),  QString ("Scale chart Y axis"),                         76, NULL                             },
-   { QString ("Duration"),   QIcon (""),  QString ("Select chart T axis"),                        76, NULL                             },
-   { QString (""), QIcon (":/icons/strip_chart_play.png"),          QString ("Play - Real time"), 24, SLOT (playClicked (bool))        },
-   { QString (""), QIcon (":/icons/strip_chart_pause.png"),         QString ("Pause"),            24, SLOT (pauseClicked (bool))       },
-   { QString (""), QIcon (":/icons/strip_chart_page_forward.png"),  QString ("Forward one page"), 24, SLOT (forwardClicked (bool))     },
-   { QString (""), QIcon (":/icons/strip_chart_page_backward.png"), QString ("Back one page"),    24, SLOT (backwardClicked (bool))    },
-   { QString ("Select Times"),   QIcon (""),  QString ("Set chart start/end time"),               92, SLOT (selectTimeClicked (bool))  },
-   { QString ("Read Archive"),   QIcon (""),  QString ("Extract data from archive(s)"),           92, SLOT (readArchiveClicked (bool)) }
+   { QString ("Scale To"),   QString (""),  QString ("Scale chart Y axis"),                         92,  NULL                             },
+   { QString ("Duration"),   QString (""),  QString ("Select chart T axis"),                        96,  NULL                             },
+   { QString (""), QString (":/icons/strip_chart_play.png"),          QString ("Play - Real time"), 24,  SLOT (playClicked (bool))        },
+   { QString (""), QString (":/icons/strip_chart_pause.png"),         QString ("Pause"),            24,  SLOT (pauseClicked (bool))       },
+   { QString (""), QString (":/icons/strip_chart_page_forward.png"),  QString ("Forward one page"), 24,  SLOT (forwardClicked (bool))     },
+   { QString (""), QString (":/icons/strip_chart_page_backward.png"), QString ("Back one page"),    24,  SLOT (backwardClicked (bool))    },
+   { QString ("Select Times"),   QString (""),  QString ("Set chart start/end time"),               104, SLOT (selectTimeClicked (bool))  },
+   { QString ("Read Archive"),   QString (""),  QString ("Extract data from archive(s)"),           104, SLOT (readArchiveClicked (bool)) }
 };
 
 
@@ -202,7 +202,9 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    left = 4;
    for (j = 0 ; j < NUMBER_OF_BUTTONS; j++) {
       button = new QPushButton (buttonSpecs[j].caption, this->toolFrame);
-      button->setIcon (buttonSpecs[j].icon);
+      if ( ! buttonSpecs[j].iconName.isEmpty () ) {
+          button->setIcon (QIcon (buttonSpecs[j].iconName));
+      }
       button->setToolTip(buttonSpecs[j].toolTip);
       button->setGeometry (left, 4, buttonSpecs[j].width, 24);
       left += 4 + buttonSpecs[j].width;
@@ -329,11 +331,11 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    this->statusFrame->setFixedHeight (24);
 
    this->readOut = new QLabel (this->statusFrame);
-   this->readOut->setGeometry (8, 2, 600, 20);
+   this->readOut->setGeometry (8, 2, 552, 20);
    this->readOut->setFont (QFont ("MonoSpace"));
 
    this->timeStatus = new QLabel (this->statusFrame);
-   this->timeStatus->setGeometry (620, 2, 364, 20);
+   this->timeStatus->setGeometry (564, 2, 420, 20);
    this->timeStatus->setFont (QFont ("MonoSpace"));
 
    // Create layouts.
@@ -408,7 +410,6 @@ void QCaStripChart::PrivateData::releaseCurves ()
 //
 void QCaStripChart::PrivateData::calcDisplayMinMax ()
 {
-   bool atLeastOne;
    int slot;
    TrackRange tr;
    double min;
@@ -416,7 +417,6 @@ void QCaStripChart::PrivateData::calcDisplayMinMax ()
 
    if (this->chartYScale == ysManual) return;
 
-   atLeastOne = false;
    tr.clear ();
 
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
@@ -506,11 +506,13 @@ void QCaStripChart::PrivateData::plotData ()
 
    this->plot->replot ();
 
-   format = "yyyy-MM-dd hh:mm:ss UTC";
+   format = "yyyy-MM-dd hh:mm:ss";
    times = " ";
    times.append (this->chart->getStartDateTime().toUTC().toString (format));
+   times.append (" UTC");
    times.append (" to ");
    times.append (this->chart->getEndDateTime().toUTC().toString (format));
+   times.append (" UTC");
    this->timeStatus->setText (times);
 }
 
