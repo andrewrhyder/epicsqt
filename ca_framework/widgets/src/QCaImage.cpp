@@ -410,11 +410,21 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
                 break;
             }
 
+            case GREY16:
+            {
+                // Duplicate top 8 bits of the grey scale into each color
+                unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex]);
+//                qDebug() << ((inPixel>>8)&0xff) << (inPixel&0xff);
+                inPixel = inPixel>>8;
+                dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
+                break;
+            }
+
             case GREY12:
             {
                 // Duplicate top 8 bits of the grey scale into each color
                 unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex]);
-                inPixel = inPixel>>4;
+                inPixel = (inPixel>>4)&0xff;
                 dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
                 break;
             }

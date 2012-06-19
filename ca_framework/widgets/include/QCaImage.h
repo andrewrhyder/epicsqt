@@ -66,7 +66,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     bool getAllowDrop();
 
     // Allow user to set the video format
-    enum formatOptions{ GREY8, GREY12, RGB_888 };
+    enum formatOptions{ GREY8, GREY12, GREY16, RGB_888 };
     void setFormatOption( formatOptions formatOption );
     formatOptions getFormatOption();
 

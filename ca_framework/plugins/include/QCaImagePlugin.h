@@ -93,6 +93,7 @@ class QCaImagePlugin : public QCaImage {
     Q_PROPERTY(FormatOptions formatOption READ getFormatOptionProperty WRITE setFormatOptionProperty)
     enum FormatOptions { Grey_8   = QCaImage::GREY8,
                          Grey_12  = QCaImage::GREY12,
+                         Grey_16  = QCaImage::GREY16,
                          RGB_888  = QCaImage::RGB_888 };
     void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QCaImage::formatOptions)formatOption ); }
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }

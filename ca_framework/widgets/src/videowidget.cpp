@@ -7,6 +7,7 @@ VideoWidget::VideoWidget(QWidget *parent)
     : QWidget(parent)
 {
     compositeImageBackground = NULL;
+    compositeImage = NULL;
 
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground, true);
@@ -82,8 +83,8 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     // If there is an image to display, paint the appropriate bits
     else
     {
-        // If there are no markups, just display the current image
-        if( !anyVisibleMarkups() )
+        // If there are no markups, and the entire image is being drawn, just display the current image
+        if( !anyVisibleMarkups() && event->rect() == rect() )
         {
             painter.drawImage( event->rect(), currentImage, currentImage.rect() );
             qDebug() << "no markups, just draw image";
