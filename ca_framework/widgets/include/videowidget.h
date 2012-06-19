@@ -57,6 +57,7 @@ private:
 
     QImage currentImage;              // Latest camera image
     QImage markupImage;               // Image of markups, such as region of interest
+    QImage* compositeImage;           // Composite of current image and markups
     QImage* compositeImageBackground; // Current image, scaled to the composite image size
     bool compositeImageBackgroundStale;
 

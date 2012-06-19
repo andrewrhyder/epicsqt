@@ -99,6 +99,20 @@ void VideoWidget::paintEvent(QPaintEvent* event )
                 compositeImageBackground = NULL;
             }
 
+            // If there is a composite image, but it is a different size to the display widget, delete it.
+            if( compositeImage && compositeImage->size() != size())
+            {
+                delete compositeImage;
+                compositeImage = NULL;
+            }
+
+            // If there is no composite image, create it.
+            if( !compositeImage )
+            {
+                compositeImage = new QImage( size(), currentImage.format() );
+                qDebug() << "create composite image";
+            }
+
             // Flag if a composite background image is needed.
             // (If the current image is the same size as the display widget, then the current
             // image can be used directly for markup backgrounds)
@@ -121,18 +135,20 @@ void VideoWidget::paintEvent(QPaintEvent* event )
                 qDebug() << "update composite background";
             }
 
+            QPainter compPainter( compositeImage );
+
             // Draw the required background part.
             // The background part must be taken from an image scaled to the drawing widget
             // If the current image is the same size, then it will be used. If not, then the
             // compositeImageBackground image will have been set up.
             if( usingCompositeBackground )
             {
-                painter.drawImage( event->rect(), *compositeImageBackground, event->rect() );
+                compPainter.drawImage( event->rect(), *compositeImageBackground, event->rect() );
                 qDebug() << "draw event rectangle from composite background" << event->rect();
             }
             else
             {
-                painter.drawImage( event->rect(), currentImage, event->rect() );
+                compPainter.drawImage( event->rect(), currentImage, event->rect() );
                 qDebug() << "draw event rectangle from current image" << event->rect();
             }
 
@@ -146,10 +162,13 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             {
                 if( getMarkupAreas()[i].intersects( event->rect() ))
                 {
-                    painter.drawImage(  getMarkupAreas()[i], markupImage,  getMarkupAreas()[i] );
+                    compPainter.drawImage(  getMarkupAreas()[i], markupImage,  getMarkupAreas()[i] );
                     qDebug() << "draw area from markups" << getMarkupAreas()[i];
                 }
             }
+
+            // Apply the appropriate part of the composite image to the displayed image
+            painter.drawImage( event->rect(), *compositeImage, event->rect() );
         }
     }
 
