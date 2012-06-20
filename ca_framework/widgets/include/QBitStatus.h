@@ -46,6 +46,7 @@ public:
    //
    Q_PROPERTY (int     value               READ getValue                WRITE setValue)
    Q_PROPERTY (int     numberOfBits        READ getNumberOfBits         WRITE setNumberOfBits)
+   Q_PROPERTY (int     gap                 READ getGap                  WRITE setGap)
    Q_PROPERTY (int     shift               READ getShift                WRITE setShift)
 
    /*! The revserve polarity mask applies to value AFTER the shift.
@@ -81,6 +82,7 @@ private:
    QColor mClearColour;
 
    bool mDrawBorder;
+   int  mGap;
    int  mNumberOfBits;      // 1 .. 32
    int  mShift;             // 0 .. 31
    int  mReversePolarityMask;
@@ -131,6 +133,9 @@ public:
 
    void setNumberOfBits (const int value);
    int getNumberOfBits ();
+
+   void setGap (const int value);
+   int getGap ();
 
    void setShift (const int value);
    int getShift ();

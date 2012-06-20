@@ -65,6 +65,7 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
 
    mDrawBorder = true;
    mNumberOfBits = 8;      // 1 .. 32
+   mGap = 0;
    mShift = 0;             // 0 .. 32
    mIsValid = true;
    mValue = 0;
@@ -100,9 +101,13 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    QRect draw_area;
    QRect bit_area;
    int j;
-   double fraction;
    double draw_width;
    double draw_height;
+   double rNumberOfBits;
+   double gap_fraction;
+   double bit_fraction;
+   double left_fraction;
+   double right_fraction;
    int left;
    int right;
    int work;
@@ -164,18 +169,37 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    // We do the basic draw from right to left, i.e. LSB_On_Right.
    // The previously set translation and rotation looks after the rest.
    //
-   bit_area.setTop(1);
+   bit_area.setTop (1);
    bit_area.setHeight ((int) draw_height);
+
+   // Calulate fractional widths of the gaps and the bits.
+   // Re-adjust the gaps if the fractonal bits are too small.
+   // We draw 1 .. draw_width, and do fractions 0 .. (draw_width - 1).
+   //
+   // Just keep in mind:
+   //    (number - 1)*gap_fraction + number*bit_fraction == 1
+   //
+   rNumberOfBits = double (mNumberOfBits);
+   gap_fraction = double (this->mGap) / (draw_width - 1.0);
+   bit_fraction = (1.0 - (rNumberOfBits - 1.0) * gap_fraction) / rNumberOfBits;
+   if (bit_fraction <= 0.5 / rNumberOfBits) {
+      bit_fraction = 0.5 / rNumberOfBits;
+      gap_fraction = (1.0 - rNumberOfBits * bit_fraction) / (rNumberOfBits - 1.0);
+   }
 
    work = (mValue >> mShift) ^ mReversePolarityMask;
    onApplies  = (-1) ^ mOnClearMask;
    offApplies = (-1) ^ mOffClearMask;
 
-   right = (int) draw_width;
    for (j = mNumberOfBits - 1; j >= 0;  j--) {
 
-      fraction = (double) j /(double) mNumberOfBits;
-      left = (int) (1.0 + fraction * draw_width);
+      left_fraction = double (j) * (bit_fraction + gap_fraction);
+      right_fraction = left_fraction + bit_fraction;
+
+      // Convert fractions back to pixels.
+      //
+      left  = 1 + int (left_fraction  * (draw_width - 1.0));
+      right = 1 + int (right_fraction * (draw_width - 1.0));
 
       bit_area.setLeft (left);
       bit_area.setRight (right);
@@ -224,7 +248,6 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
       work = work >> 1;
       onApplies = onApplies >> 1;
       offApplies = offApplies >> 1;
-      right = left;
    }
 }
 
@@ -352,6 +375,26 @@ void QBitStatus::setNumberOfBits (const int value)
 int QBitStatus::getNumberOfBits ()
 {
    return this->mNumberOfBits;
+}
+
+
+//=============================================================================
+//
+void QBitStatus::setGap (const int value)
+{
+   int temp;
+
+   temp = LIMIT (value, 0, 40);
+
+   if (this->mGap != temp) {
+      this->mGap = temp;
+      this->update ();  // Force re-draw
+   }
+}
+
+int QBitStatus::getGap ()
+{
+   return this->mGap;
 }
 
 //=============================================================================
