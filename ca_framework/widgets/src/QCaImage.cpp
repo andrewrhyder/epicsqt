@@ -72,6 +72,8 @@ void QCaImage::setup() {
     setShowTimeColor(QColor(0, 255, 0));
     pauseEnabled = false;
 
+    interactionMode = INTERACT_NONE;
+
     displayPauseButton = false;
     displaySaveButton = false;
     displayZoomButton = false;
@@ -89,6 +91,8 @@ void QCaImage::setup() {
 
     // Create the video destination
     videoWidget = new VideoWidget;
+    QObject::connect( videoWidget, SIGNAL( userSelection( QPoint, QPoint ) ), this, SLOT( userSelection( QPoint, QPoint )) );
+
 
     // Add the video destination to the widget
     scrollArea = new QScrollArea;
@@ -99,9 +103,14 @@ void QCaImage::setup() {
 
 
     // Create vertical, horizontal, and general profile plots
-    vSlice = new QwtPlot();
-    hSlice = new QwtPlot();
-    profile = new QwtPlot();
+    vSlice = new profilePlot();
+    vSlice->setMinimumWidth( 100 );
+
+    hSlice = new profilePlot();
+    hSlice->setMinimumHeight( 100 );
+
+    profile = new profilePlot();
+    profile->setMinimumHeight( 100 );
 
 
     QGridLayout* graphicsLayout = new QGridLayout();
@@ -109,6 +118,9 @@ void QCaImage::setup() {
     graphicsLayout->addWidget( vSlice, 0, 1 );
     graphicsLayout->addWidget( hSlice, 1, 0 );
     graphicsLayout->addWidget( profile, 2, 0 );
+
+    graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
+    graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
 
     // Create label group
     labelGroup = new QGroupBox();
@@ -191,11 +203,13 @@ void QCaImage::setup() {
     roiButton = new QPushButton(buttonGroup);
     roiButton->setText("ROI");
     roiButton->setToolTip("Apply selected area to Region Of Interst");
+    roiButton->setEnabled( false );
     QObject::connect(roiButton, SIGNAL(clicked()), this, SLOT(roiClicked()));
 
     zoomButton = new QPushButton(buttonGroup);
     zoomButton->setText("Zoom");
     zoomButton->setToolTip("Zoom to selected area");
+    zoomButton->setEnabled( false );
     QObject::connect(zoomButton, SIGNAL(clicked()), this, SLOT(zoomClicked()));
 
 
@@ -207,20 +221,39 @@ void QCaImage::setup() {
     buttonLayout->setColumnStretch( 2, 1 );
 
     // Create area selection options
-    areaSelectionGroup = new QGroupBox( "Selection", areaSelectionGroup );
-    QVBoxLayout* areaSelectionLayout = new QVBoxLayout();
+    areaSelectionGroup = new QGroupBox( "Selection", this );
+    QVBoxLayout* areaSelectionLayout = new QVBoxLayout(); // !!! are layouts added to a widget deleted with the widget???
     areaSelectionLayout->setMargin( 0 );
     areaSelectionGroup->setLayout( areaSelectionLayout);
 
     vSliceSelectMode = new QRadioButton( "Vertical Slice", areaSelectionGroup );
+    vSliceSelectMode->setToolTip("Allows user to select a vertical slice through the image");
+
     hSliceSelectMode = new QRadioButton( "Horizontal Slice", areaSelectionGroup );
-    areaSelectMode = new QRadioButton( "Area (ROI and Zoom", areaSelectionGroup );
+    hSliceSelectMode->setToolTip("Allows user to select a horizontal slice across the image");
+
+    areaSelectMode = new QRadioButton( "Area (ROI and Zoom)", areaSelectionGroup );
+    areaSelectMode->setToolTip("Allows user to select an area of the image for Region Of Interest, of for local zoom");
+
     profileSelectMode = new QRadioButton( "Profile", areaSelectionGroup );
+    profileSelectMode->setToolTip("Allows user to select a line within the image");
+
+
+    QObject::connect(vSliceSelectMode, SIGNAL(clicked()), this, SLOT(vSliceSelectModeClicked()));
+    QObject::connect(hSliceSelectMode, SIGNAL(clicked()), this, SLOT(hSliceSelectModeClicked()));
+    QObject::connect(areaSelectMode, SIGNAL(clicked()), this, SLOT(areaSelectModeClicked()));
+    QObject::connect(profileSelectMode, SIGNAL(clicked()), this, SLOT(profileSelectModeClicked()));
+
+
+
 
     areaSelectionLayout->addWidget(vSliceSelectMode, 0 );
     areaSelectionLayout->addWidget(hSliceSelectMode, 1 );
     areaSelectionLayout->addWidget(areaSelectMode, 2 );
     areaSelectionLayout->addWidget(profileSelectMode, 3 );
+
+    manageSelectionOptions();
+
 
 
     // Create main layout containing image, label, and button layouts
@@ -232,6 +265,8 @@ void QCaImage::setup() {
     mainLayout->addWidget( labelGroup );
     mainLayout->addWidget( roiGroup );
     mainLayout->addWidget(buttonGroup);
+
+    mainLayout->setStretch( 0, 1 );  // Graphics to take all spare room
 
     setLayout( mainLayout );
 
@@ -255,11 +290,7 @@ void QCaImage::setup() {
     videoWidget->resize( scrollArea->width(), scrollArea->height() );
 
     // Set the initial selection mode of the setup widget
-//    videoWidget->setMode(  imageMarkup::MARKUP_MODE_NONE );
-//    videoWidget->setMode(  imageMarkup::MARKUP_MODE_H_LINE ); //!!! testing only MARKUP_MODE_NONE );
-//    videoWidget->setMode(  imageMarkup::MARKUP_MODE_V_LINE ); //!!! testing only MARKUP_MODE_NONE );
-//    videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE ); //!!! testing only MARKUP_MODE_NONE );
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_AREA ); //!!! testing only MARKUP_MODE_NONE );
+    videoWidget->setMode(  imageMarkup::MARKUP_MODE_NONE );
 
     // Set image size to zero
     // Image will not be presented until size is available
@@ -269,15 +300,15 @@ void QCaImage::setup() {
 
 QCaImage::~QCaImage()
 {
-// need to delete anything added to widget hierarchy?
-//    delete videoWidget;
+    delete videoWidget;
+
 }
 
 /*!
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
-    For a label a QCaObject that streams strings is required.
 */
 qcaobject::QCaObject* QCaImage::createQcaItem( unsigned int variableIndex ) {
+
     switch( variableIndex )
     {
         // Create the image item as a QCaByteArray
@@ -340,6 +371,7 @@ void QCaImage::establishConnection( unsigned int variableIndex ) {
 
     switch( variableIndex )
     {
+        // Connect the image waveform record to the display image
         case IMAGE_VARIABLE:
             if(  qca )
             {
@@ -352,7 +384,7 @@ void QCaImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
-        // Create the width item as a QCaInteger
+        // Connect the image dimension variables
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
             if(  qca )
@@ -366,11 +398,19 @@ void QCaImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
+        // QCa creation for these variables was handballed to the embedded QCaLabel widgets. Do nothing here
         case ACQUIREPERIOD_VARIABLE:
         case EXPOSURETIME_VARIABLE:
-            // QCa creation for these variables was handballed to the embedded QCaLabel widgets. Do nothing here
             break;
-    }
+
+        // QCa creation occured, but no connection for display is required here.
+        // (Display was handballed to the embedded QCaLabel widgets which will manage their own connections)
+        case ROI_X_VARIABLE:
+        case ROI_Y_VARIABLE:
+        case ROI_W_VARIABLE:
+        case ROI_H_VARIABLE:
+            break;
+     }
 }
 
 /*!
@@ -696,12 +736,36 @@ void QCaImage::manageLabelGroup()
 void QCaImage::zoomClicked()
 {
     qDebug() << "zoom clicked";
+    zoomButton->setEnabled( false );
+//!!    Set zoom factor
+//!!    set scroll bars
+//!!    update image
 }
 
 // ROI apply button pressed
 void QCaImage::roiClicked()
 {
     qDebug() << "roi clicked";
+
+    // Disable the ROI button now it has been applied
+    // !!! should be disabled when the area stops being selected. It's OK for the zoom to be disabled when pressed, but there is no reason why the current ROI can't be reapplied
+    roiButton->setEnabled( false );
+
+    // Write the ROI variables.
+    QCaInteger *qca;
+    qca = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
+    if( qca ) qca->writeInteger( selectedAreaPoint1.x() );
+
+    qca = (QCaInteger*)getQcaItem( ROI_Y_VARIABLE );
+    if( qca ) qca->writeInteger(  selectedAreaPoint1.y() );
+
+    qca = (QCaInteger*)getQcaItem( ROI_W_VARIABLE );
+    if( qca ) qca->writeInteger( selectedAreaPoint2.x()-selectedAreaPoint1.x() );
+
+    qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
+    if( qca ) qca->writeInteger( selectedAreaPoint2.y()-selectedAreaPoint1.y() );
+
+    return;
 }
 
 // Pause button pressed
@@ -724,6 +788,13 @@ void QCaImage::pauseClicked()
 // Save button pressed
 void QCaImage::saveClicked()
 {
+    QCaInteger *qcaX = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
+    if( qcaX )
+    {
+        qcaX->writeInteger( 10 );
+    }
+    return;
+
     QFileDialog *qFileDialog;
     QStringList filterList;
     QString filename;
@@ -1070,7 +1141,7 @@ bool QCaImage::getEnableHozSliceSelection()
     return enableHSliceSelection;
 }
 
-// Enable area selection (used for ROI and zoom
+// Enable area selection (used for ROI and zoom)
 void QCaImage::setEnableAreaSelection( bool enableAreaSelectionIn )
 {
     enableAreaSelection = enableAreaSelectionIn;
@@ -1096,17 +1167,49 @@ bool QCaImage::getEnableProfileSelection()
 
 void QCaImage::manageSelectionOptions()
 {
-    // If any buttons required, then make the appropriate ones visible
-    if( enableAreaSelection ||
-        enableVSliceSelection ||
-        enableHSliceSelection ||
-        enableProfileSelection )
+    // If more than one buton is required, then make the appropriate ones visible
+    // (If only one selection option is required, no point having a radio button for it)
+    int count = 0;
+    if( enableAreaSelection ) count++;
+    if( enableVSliceSelection ) count++;
+    if( enableHSliceSelection ) count++;
+    if( enableProfileSelection ) count++;
+
+    if( count >= 2 )
     {
         areaSelectionGroup->setVisible( true );
-        areaSelectMode->setVisible(enableAreaSelection );
-        vSliceSelectMode->setVisible(enableVSliceSelection );
-        hSliceSelectMode->setVisible(enableHSliceSelection );
-        profileSelectMode->setVisible(enableProfileSelection );
+
+        // For each button, make it visible if it is enabled.
+        areaSelectMode->setVisible( enableAreaSelection );
+        vSliceSelectMode->setVisible( enableVSliceSelection );
+        hSliceSelectMode->setVisible( enableHSliceSelection );
+        profileSelectMode->setVisible( enableProfileSelection );
+
+        // If no buttons are checked, check the first visible button
+        if( !areaSelectMode->isChecked() &&
+            !areaSelectMode->isChecked() &&
+            !areaSelectMode->isChecked() &&
+            !areaSelectMode->isChecked() )
+        {
+            if( enableAreaSelection ) {
+                areaSelectMode->setChecked( true );
+                areaSelectModeClicked();
+            }
+            else if( enableVSliceSelection ){
+                vSliceSelectMode->setChecked( true );
+                vSliceSelectModeClicked();
+            }
+            else if( enableHSliceSelection ){
+                hSliceSelectMode->setChecked( true );
+                hSliceSelectModeClicked();
+            }
+            else if( enableProfileSelection ){
+                profileSelectMode->setChecked( true );
+                profileSelectModeClicked();
+            }
+        }
+
+
     }
     // If no buttons are required, hide the entire group
     else
@@ -1114,4 +1217,80 @@ void QCaImage::manageSelectionOptions()
         areaSelectionGroup->setVisible( false );
 
     }
+}
+
+
+void QCaImage::vSliceSelectModeClicked()
+{
+    videoWidget->setMode(  imageMarkup::MARKUP_MODE_V_LINE );
+    interactionMode = INTERACT_V_SLICE;
+}
+
+void QCaImage::hSliceSelectModeClicked()
+{
+    videoWidget->setMode(  imageMarkup::MARKUP_MODE_H_LINE );
+    interactionMode = INTERACT_H_SLICE;
+}
+
+void QCaImage::areaSelectModeClicked()
+{
+    videoWidget->setMode(  imageMarkup::MARKUP_MODE_AREA );
+    interactionMode = INTERACT_AREA;
+}
+
+void QCaImage::profileSelectModeClicked()
+{
+    videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE );
+    interactionMode = INTERACT_PROFILE;
+}
+
+void QCaImage::userSelection( QPoint point1, QPoint point2 )
+{
+    qDebug() << "QCaImage::userSelection()" << point1 << point2;
+
+    switch( interactionMode )
+    {
+        case INTERACT_V_SLICE:
+            generateVSlice( point1.x() );
+            break;
+
+        case INTERACT_H_SLICE:
+            generateHSlice( point1.y() );
+            break;
+
+        case INTERACT_AREA:
+            selectedAreaPoint1 = point1;
+            selectedAreaPoint2 = point2;
+
+            roiButton->setEnabled( true );
+            zoomButton->setEnabled( true );
+            break;
+
+        case INTERACT_PROFILE:
+            generateProfile( point1, point2 );
+            break;
+
+        case INTERACT_NONE:
+            break;
+
+    }
+
+}
+
+void QCaImage::generateVSlice( int x )
+{
+    qDebug() << "QCaImage::generateVSlice()" << x;
+
+}
+
+void QCaImage::generateHSlice( int y )
+{
+    qDebug() << "QCaImage::generateHSlice()" << y;
+
+}
+
+void QCaImage::generateProfile( QPoint point1, QPoint point2 )
+{
+    qDebug() << "QCaImage::generateProfile()" << point1 << point2;
+
 }

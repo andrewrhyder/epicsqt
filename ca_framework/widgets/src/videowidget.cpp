@@ -87,7 +87,6 @@ void VideoWidget::paintEvent(QPaintEvent* event )
         if( !anyVisibleMarkups() && event->rect() == rect() )
         {
             painter.drawImage( event->rect(), currentImage, currentImage.rect() );
-            qDebug() << "no markups, just draw image";
         }
 
         // If there are markups, draw the current image overlayed with the appropriate markups
@@ -111,7 +110,6 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             if( !compositeImage )
             {
                 compositeImage = new QImage( size(), currentImage.format() );
-                qDebug() << "create composite image";
             }
 
             // Flag if a composite background image is needed.
@@ -125,7 +123,6 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             {
                 compositeImageBackground = new QImage( size(), currentImage.format() );
                 compositeImageBackgroundStale = true;
-                qDebug() << "create composite background";
             }
 
             if( usingCompositeBackground && compositeImageBackgroundStale )
@@ -133,7 +130,6 @@ void VideoWidget::paintEvent(QPaintEvent* event )
                 QPainter bgPainter( compositeImageBackground );
                 bgPainter.drawImage( compositeImageBackground->rect(), currentImage, currentImage.rect() );
                 compositeImageBackgroundStale = false;
-                qDebug() << "update composite background";
             }
 
             QPainter compPainter( compositeImage );
@@ -145,12 +141,10 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             if( usingCompositeBackground )
             {
                 compPainter.drawImage( event->rect(), *compositeImageBackground, event->rect() );
-                qDebug() << "draw event rectangle from composite background" << event->rect();
             }
             else
             {
                 compPainter.drawImage( event->rect(), currentImage, event->rect() );
-                qDebug() << "draw event rectangle from current image" << event->rect();
             }
 
             // Draw markups for the required section
@@ -164,7 +158,6 @@ void VideoWidget::paintEvent(QPaintEvent* event )
                 if( getMarkupAreas()[i].intersects( event->rect() ))
                 {
                     compPainter.drawImage(  getMarkupAreas()[i], markupImage,  getMarkupAreas()[i] );
-                    qDebug() << "draw area from markups" << getMarkupAreas()[i];
                 }
             }
 
@@ -192,5 +185,42 @@ void VideoWidget::setRotation( double angle )
 void VideoWidget::markupAction( markupIds activeItem, QPoint point1, QPoint point2 )
 {
     qDebug() << "VideoWidget::markupAction()" << activeItem << point1 << point2;
+
+
+
+    //!!! don't scale here. Need to scale when applying roi, but not when zooming
+    QPoint scaledPoint1;
+    QPoint scaledPoint2;
+
+    scaledPoint1.setX( (int)(double)((point1.x()) * getHScale() ));
+    scaledPoint1.setY( (int)(double)((point1.y()) * getVScale() ));
+
+    scaledPoint2.setX( (int)(double)((point2.x()) * getHScale() ));
+    scaledPoint2.setY( (int)(double)((point2.y()) * getVScale() ));
+
+
+    emit userSelection( scaledPoint1, scaledPoint2 );
+
 }
 
+// Return the vertical scale of the displayed image
+double VideoWidget::getVScale()
+{
+    // If for any reason a scale can't be determined, return scale of 1.0
+    if( currentImage.isNull() || currentImage.height() == 0 || height() == 0)
+        return 1.0;
+
+    // Return the vertical scale of the displayed image
+    return height() / currentImage.height();
+}
+
+// Return the horizontal scale of the displayed image
+double VideoWidget::getHScale()
+{
+    // If for any reason a scale can't be determined, return scale of 1.0
+    if( currentImage.isNull() || currentImage.width() == 0 || width() == 0)
+        return 1.0;
+
+    // Return the horizontal scale of the displayed image
+    return width() / currentImage.width();
+}

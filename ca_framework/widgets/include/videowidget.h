@@ -38,6 +38,7 @@ public:
     void setRotation( double angle );
     void setNewImage( const QImage image );
 
+
 protected:
     void paintEvent(QPaintEvent*);
 
@@ -52,6 +53,12 @@ protected:
     void markupSetCursor( QCursor cursor );
     void markupAction( markupIds activeItem, QPoint point1, QPoint point2 );
 
+
+signals:
+    void userSelection( QPoint point1, QPoint point2 );
+
+
+
 private:
     void addMarkups( QPainter& screenPainter, QVector<QRect>& changedAreas );
 
@@ -63,6 +70,10 @@ private:
 
     double rotation;
     bool firstUpdate;
+
+    double getHScale();
+    double getVScale();
+
 };
 
 #endif // VIDEOWIDGET_H

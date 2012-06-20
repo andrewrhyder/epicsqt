@@ -27,12 +27,12 @@
 
 #include <QScrollArea>
 #include <QCaWidget.h>
+#include <QCaInteger.h>
 #include <videowidget.h>
 #include <QCaLabel.h>
 #include <QVBoxLayout>
 #include <QGridLayout>
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
+#include <profilePlot.h>
 
 #include <QCaPluginLibrary_global.h>
 #include <QCaIntegerFormatting.h>
@@ -178,8 +178,16 @@ private slots:
     void roiClicked();
     void zoomClicked();
 
+    void vSliceSelectModeClicked();
+    void hSliceSelectModeClicked();
+    void areaSelectModeClicked();
+    void profileSelectModeClicked();
+
+
+
   public slots:
     void requestEnabled( const bool& state );
+    void userSelection( QPoint point1, QPoint point2 );
 
   signals:
     void dbValueChanged( const QString& out );
@@ -230,7 +238,7 @@ private slots:
     QScrollArea* scrollArea;
     bool initScrollPosSet;
 
-    VideoWidget *videoWidget;
+    VideoWidget* videoWidget;
 
     QColor qColorShowTime;
     QPushButton *pauseButton;
@@ -238,9 +246,9 @@ private slots:
     QPushButton *roiButton;
     QPushButton *zoomButton;
 
-    QwtPlot* vSlice;
-    QwtPlot* hSlice;
-    QwtPlot* profile;
+    profilePlot* vSlice;
+    profilePlot* hSlice;
+    profilePlot* profile;
 
 
     bool pauseEnabled;
@@ -268,14 +276,28 @@ private slots:
 
     void manageSelectionOptions();
 
-
-
     QByteArray imageBuff;
 #define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32
     unsigned long imageBuffWidth;
     unsigned long imageBuffHeight;
 
     formatOptions formatOption;
+
+
+    enum interactionModes { INTERACT_V_SLICE, INTERACT_H_SLICE, INTERACT_AREA, INTERACT_PROFILE, INTERACT_NONE };
+
+
+    interactionModes interactionMode;
+
+
+    QPoint selectedAreaPoint1;
+    QPoint selectedAreaPoint2;
+
+
+    void generateVSlice( int x );
+    void generateHSlice( int y );
+    void generateProfile( QPoint point1, QPoint point2 );
+
 
     // Drag and Drop
 protected:
@@ -284,6 +306,9 @@ protected:
     // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDropText( QString text );
     QString getDropText();
+
+
+
 
     void resizeEvent(QResizeEvent* );
 
