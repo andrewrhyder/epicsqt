@@ -31,6 +31,8 @@
 #include <QCaLabel.h>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 
 #include <QCaPluginLibrary_global.h>
 #include <QCaIntegerFormatting.h>
@@ -120,6 +122,21 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     void setShowTimeColor(QColor pValue);
     QColor getShowTimeColor();
 
+    void setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn );
+    bool getDisplayCursorPixelInfo();
+
+    void setEnableVertSliceSelection( bool enableVSliceSelectionIn );
+    bool getEnableVertSliceSelection();
+
+    void setEnableHozSliceSelection( bool enableHSliceSelectionIn );
+    bool getEnableHozSliceSelection();
+
+    void setEnableAreaSelection( bool enableAreaSelectionIn );
+    bool getEnableAreaSelection();
+
+    void setEnableProfileSelection( bool enableProfileSelectionIn );
+    bool getEnableProfileSelection();
+
 
 
   protected:
@@ -185,6 +202,12 @@ private slots:
     QGroupBox *roiGroup;
     QGroupBox *buttonGroup;
 
+    QGroupBox* areaSelectionGroup;
+    QRadioButton* vSliceSelectMode;
+    QRadioButton* hSliceSelectMode;
+    QRadioButton* areaSelectMode;
+    QRadioButton* profileSelectMode;
+
 
     QCaLabel* acquirePeriodQCaLabel;
     QLabel* acquirePeriodLabel;
@@ -215,11 +238,20 @@ private slots:
     QPushButton *roiButton;
     QPushButton *zoomButton;
 
+    QwtPlot* vSlice;
+    QwtPlot* hSlice;
+    QwtPlot* profile;
+
+
     bool pauseEnabled;
     bool showTimeEnabled;
 
-    void hideWidget( QWidget* w );
-    void showWidget( QWidget* w );
+    bool enableAreaSelection;
+    bool enableVSliceSelection;
+    bool enableHSliceSelection;
+    bool enableProfileSelection;
+
+    bool displayCursorPixelInfo;
 
 
     void manageLabelGroup();
@@ -233,6 +265,9 @@ private slots:
     void manageSaveButton();
     void manageRoiButton();
     void manageZoomButton();
+
+    void manageSelectionOptions();
+
 
 
     QByteArray imageBuff;

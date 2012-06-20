@@ -98,6 +98,17 @@ void QCaImage::setup() {
     scrollArea->setEnabled( false );  // Reflects initial disconnected state
 
 
+    // Create vertical, horizontal, and general profile plots
+    vSlice = new QwtPlot();
+    hSlice = new QwtPlot();
+    profile = new QwtPlot();
+
+
+    QGridLayout* graphicsLayout = new QGridLayout();
+    graphicsLayout->addWidget( scrollArea, 0, 0 );
+    graphicsLayout->addWidget( vSlice, 0, 1 );
+    graphicsLayout->addWidget( hSlice, 1, 0 );
+    graphicsLayout->addWidget( profile, 2, 0 );
 
     // Create label group
     labelGroup = new QGroupBox();
@@ -119,6 +130,7 @@ void QCaImage::setup() {
     labelLayout->addWidget( exposureTimeLabel, 1, 0 );
     labelLayout->addWidget( exposureTimeQCaLabel, 1, 1 );
 
+    labelLayout->setColumnStretch( 2, 1 );
 
 
     // Create region of interest group
@@ -155,6 +167,8 @@ void QCaImage::setup() {
     roiLayout->addWidget( roiHLabel, 3, 0 );
     roiLayout->addWidget( roiHQCaLabel, 3, 1 );
 
+    roiLayout->setColumnStretch( 2, 1 );
+
 
     // Create button group
     buttonGroup = new QGroupBox();
@@ -164,22 +178,22 @@ void QCaImage::setup() {
     buttonGroup->setLayout( buttonLayout);
 
 
-    pauseButton= new QPushButton(this);
+    pauseButton= new QPushButton(buttonGroup);
     pauseButton->setText("Pause");
     pauseButton->setToolTip("Pause image display");
     QObject::connect(pauseButton, SIGNAL(clicked()), this, SLOT(pauseClicked()));
 
-    saveButton = new QPushButton(this);
+    saveButton = new QPushButton(buttonGroup);
     saveButton->setText("Save");
     saveButton->setToolTip("Save displayed image");
     QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
 
-    roiButton = new QPushButton(this);
+    roiButton = new QPushButton(buttonGroup);
     roiButton->setText("ROI");
     roiButton->setToolTip("Apply selected area to Region Of Interst");
     QObject::connect(roiButton, SIGNAL(clicked()), this, SLOT(roiClicked()));
 
-    zoomButton = new QPushButton(this);
+    zoomButton = new QPushButton(buttonGroup);
     zoomButton->setText("Zoom");
     zoomButton->setToolTip("Zoom to selected area");
     QObject::connect(zoomButton, SIGNAL(clicked()), this, SLOT(zoomClicked()));
@@ -187,16 +201,34 @@ void QCaImage::setup() {
 
     buttonLayout->addWidget(pauseButton, 0, 0);
     buttonLayout->addWidget(saveButton, 0, 1);
-    buttonLayout->addWidget(roiButton, 0, 2);
-    buttonLayout->addWidget(zoomButton, 0, 3);
+    buttonLayout->addWidget(roiButton, 1, 0);
+    buttonLayout->addWidget(zoomButton, 1, 1);
 
+    buttonLayout->setColumnStretch( 2, 1 );
+
+    // Create area selection options
+    areaSelectionGroup = new QGroupBox( "Selection", areaSelectionGroup );
+    QVBoxLayout* areaSelectionLayout = new QVBoxLayout();
+    areaSelectionLayout->setMargin( 0 );
+    areaSelectionGroup->setLayout( areaSelectionLayout);
+
+    vSliceSelectMode = new QRadioButton( "Vertical Slice", areaSelectionGroup );
+    hSliceSelectMode = new QRadioButton( "Horizontal Slice", areaSelectionGroup );
+    areaSelectMode = new QRadioButton( "Area (ROI and Zoom", areaSelectionGroup );
+    profileSelectMode = new QRadioButton( "Profile", areaSelectionGroup );
+
+    areaSelectionLayout->addWidget(vSliceSelectMode, 0 );
+    areaSelectionLayout->addWidget(hSliceSelectMode, 1 );
+    areaSelectionLayout->addWidget(areaSelectMode, 2 );
+    areaSelectionLayout->addWidget(profileSelectMode, 3 );
 
 
     // Create main layout containing image, label, and button layouts
     mainLayout = new QVBoxLayout;
     mainLayout->setMargin( 0 );
 
-    mainLayout->addWidget( scrollArea );
+    mainLayout->addLayout( graphicsLayout );
+    mainLayout->addWidget( areaSelectionGroup );
     mainLayout->addWidget( labelGroup );
     mainLayout->addWidget( roiGroup );
     mainLayout->addWidget(buttonGroup);
@@ -213,6 +245,10 @@ void QCaImage::setup() {
     manageSaveButton();
     manageRoiButton();
     manageZoomButton();
+
+
+
+
 
     // Initially set the video widget to the size of the scroll bar
     // This will be resized when the image size is known
@@ -1000,3 +1036,82 @@ QColor QCaImage::getShowTimeColor()
     return qColorShowTime;
 }
 
+// Show cursor pixel
+void QCaImage::setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn )
+{
+    displayCursorPixelInfo = displayCursorPixelInfoIn;
+}
+
+bool QCaImage::getDisplayCursorPixelInfo(){
+    return displayCursorPixelInfo;
+}
+
+// Enable vertical slice selection
+void QCaImage::setEnableVertSliceSelection( bool enableVSliceSelectionIn )
+{
+    enableVSliceSelection = enableVSliceSelectionIn;
+    manageSelectionOptions();
+}
+
+bool QCaImage::getEnableVertSliceSelection()
+{
+    return enableVSliceSelection;
+}
+
+// Enable horizontal slice selection
+void QCaImage::setEnableHozSliceSelection( bool enableHSliceSelectionIn )
+{
+    enableHSliceSelection = enableHSliceSelectionIn;
+    manageSelectionOptions();
+}
+
+bool QCaImage::getEnableHozSliceSelection()
+{
+    return enableHSliceSelection;
+}
+
+// Enable area selection (used for ROI and zoom
+void QCaImage::setEnableAreaSelection( bool enableAreaSelectionIn )
+{
+    enableAreaSelection = enableAreaSelectionIn;
+    manageSelectionOptions();
+}
+
+bool QCaImage::getEnableAreaSelection()
+{
+    return enableAreaSelection;
+}
+
+// Enable profile selection
+void QCaImage::setEnableProfileSelection( bool enableProfileSelectionIn )
+{
+    enableProfileSelection = enableProfileSelectionIn;
+    manageSelectionOptions();
+}
+
+bool QCaImage::getEnableProfileSelection()
+{
+    return enableProfileSelection;
+}
+
+void QCaImage::manageSelectionOptions()
+{
+    // If any buttons required, then make the appropriate ones visible
+    if( enableAreaSelection ||
+        enableVSliceSelection ||
+        enableHSliceSelection ||
+        enableProfileSelection )
+    {
+        areaSelectionGroup->setVisible( true );
+        areaSelectMode->setVisible(enableAreaSelection );
+        vSliceSelectMode->setVisible(enableVSliceSelection );
+        hSliceSelectMode->setVisible(enableHSliceSelection );
+        profileSelectMode->setVisible(enableProfileSelection );
+    }
+    // If no buttons are required, hide the entire group
+    else
+    {
+        areaSelectionGroup->setVisible( false );
+
+    }
+}
