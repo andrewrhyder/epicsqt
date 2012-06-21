@@ -30,6 +30,8 @@
 #include <QPainter>
 #include <QDateTime>
 #include <QCursor>
+#include <QMainWindow>//!!testing
+#include <QLabel>//!!testing
 
 #include <imageMarkup.h>
 
@@ -97,7 +99,7 @@ void markupItem::erase()
     {
         if( owner->items[i] != this && owner->items[i]->visible && owner->items[i]->area.intersects( this->area ) )
         {
-            drawMarkupIn();
+            owner->items[i]->drawMarkupIn();
         }
     }
 }
@@ -125,7 +127,7 @@ void markupVLine::setArea()
     else
     {
         area.setLeft( x - HANDLE_SIZE/2 );
-        area.setRight( x - HANDLE_SIZE/2 );
+        area.setRight( x + HANDLE_SIZE/2 );
     }
     area.setTop( 0 );
     area.setBottom( owner->markupImage->rect().bottom());
@@ -689,7 +691,7 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true, true );
     items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true, true );
     items[MARKUP_ID_LINE]      = new markupLine(   this, true, true );
-    items[MARKUP_ID_REGION]    = new markupRegion( this, true, false );
+    items[MARKUP_ID_REGION]    = new markupRegion( this, true, true );
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false );
 
     markupAreasStale = true;
@@ -881,7 +883,6 @@ void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )// event )
 
 void imageMarkup::redrawActiveItemHere( QPoint pos )
 {
-
     // Do nothing if no active item
     if( activeItem == MARKUP_ID_NONE )
         return;
@@ -906,7 +907,6 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
     //!!! if the two areas overlap by much, perhaps smarter to join the two into one, or generate the required four?
     changedAreas.append( items[activeItem]->area );
     markupChange( *markupImage, changedAreas );
-
 }
 
 // The viewport size has changed

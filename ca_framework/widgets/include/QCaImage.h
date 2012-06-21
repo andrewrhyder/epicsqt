@@ -188,6 +188,9 @@ private slots:
   public slots:
     void requestEnabled( const bool& state );
     void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
+    void zoomInOut( int zoomAmount );
+    void currentPixelInfo( QPoint pos, int value );
+
 
   signals:
     void dbValueChanged( const QString& out );
@@ -239,6 +242,14 @@ private slots:
     bool initScrollPosSet;
 
     VideoWidget* videoWidget;
+
+    QHBoxLayout* infoLayout;
+    QLabel* currentCursorPixelLabel;
+    QLabel* currentVertPixelLabel;
+    QLabel* currentHozPixelLabel;
+    QLabel* currentLineLabel;
+    QLabel* currentAreaLabel;
+
 
     QColor qColorShowTime;
     QPushButton *pauseButton;

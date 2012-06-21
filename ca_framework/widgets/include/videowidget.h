@@ -44,7 +44,7 @@ protected:
 
     void mousePressEvent( QMouseEvent* event) { markupMousePressEvent( event ); }
     void mouseReleaseEvent ( QMouseEvent* event ) { markupMouseReleaseEvent( event ); }
-    void mouseMoveEvent( QMouseEvent* event ) { markupMouseMoveEvent( event ); }
+    void mouseMoveEvent( QMouseEvent* event );
     void wheelEvent( QWheelEvent* event );
 
     void markupChange( QImage& markups, QVector<QRect>& changedAreas );    // The markup overlay has changed, redraw part of it
@@ -56,7 +56,8 @@ protected:
 
 signals:
     void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
-
+    void zoomInOut( int zoomAmount );
+    void currentPixelInfo( QPoint pos, int value );
 
 
 private:

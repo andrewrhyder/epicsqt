@@ -80,7 +80,7 @@ void VideoWidget::paintEvent(QPaintEvent* event )
         painter.fillRect(rect(), bg);
     }
 
-    // If there is an image to display, paint the appropriate bits
+    // If there is an image to display, paint the appropriate parts
     else
     {
         // If there are no markups, and the entire image is being drawn, just display the current image
@@ -89,7 +89,8 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             painter.drawImage( event->rect(), currentImage, currentImage.rect() );
         }
 
-        // If there are markups, draw the current image overlayed with the appropriate markups
+        // If there are markups, or only a part of the display is being painted,
+        // draw the appropriate current image overlayed with the appropriate markups
         else
         {
             // If there is a composite background, but it is a different size to the display widget, delete it.
@@ -106,7 +107,7 @@ void VideoWidget::paintEvent(QPaintEvent* event )
                 compositeImage = NULL;
             }
 
-            // If there is no composite image, create it.
+            // If there is no composite image (because there never has been one, or we have just deleted it) then create it.
             if( !compositeImage )
             {
                 compositeImage = new QImage( size(), currentImage.format() );
@@ -117,14 +118,14 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             // image can be used directly for markup backgrounds)
             bool usingCompositeBackground = currentImage.size() != size();
 
-            // If there is no composite background and the current image is a different size to
-            // the display widget, then create a composite background.
+            // If there is no composite background and one is required then create a composite background.
             if( !compositeImageBackground && usingCompositeBackground )
             {
                 compositeImageBackground = new QImage( size(), currentImage.format() );
                 compositeImageBackgroundStale = true;
             }
 
+            // If using a composite background, and it isn't up to date, refresh it
             if( usingCompositeBackground && compositeImageBackgroundStale )
             {
                 QPainter bgPainter( compositeImageBackground );
@@ -132,12 +133,11 @@ void VideoWidget::paintEvent(QPaintEvent* event )
                 compositeImageBackgroundStale = false;
             }
 
-            QPainter compPainter( compositeImage );
-
             // Draw the required background part.
             // The background part must be taken from an image scaled to the drawing widget
             // If the current image is the same size, then it will be used. If not, then the
-            // compositeImageBackground image will have been set up.
+            // compositeImageBackground image will have been set up and will be used.
+            QPainter compPainter( compositeImage );
             if( usingCompositeBackground )
             {
                 compPainter.drawImage( event->rect(), *compositeImageBackground, event->rect() );
@@ -152,7 +152,9 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             //    painter.drawImage(  event->rect(), markupImage,  event->rect() );
             // and is all that is required when this paint event is due to markup changes.
             // When the current image changes, it is a bit of overkill to repaint the entire markup image.
-            // Instead, only markup areas containing visible marklups within the event rectangle are redrawn
+            // Instead, only markup areas containing visible markups within the event rectangle are redrawn.
+            // When the repaint is due to markup changes, this loop may finding only the single markup
+            // rectangle used when to generating this paint event.
             for( int i = 0; i < getMarkupAreas().count(); i++ )
             {
                 if( getMarkupAreas()[i].intersects( event->rect() ))
@@ -222,5 +224,13 @@ double VideoWidget::getHScale()
 
 void VideoWidget::wheelEvent( QWheelEvent* event )
 {
-    qDebug() << "VideoWidget::wheelEvent" << event;
+    int zoomAmount = event->delta() / 12;
+    emit zoomInOut( zoomAmount );
+}
+
+void VideoWidget::mouseMoveEvent( QMouseEvent* event )
+{
+    markupMouseMoveEvent( event );
+
+    emit currentPixelInfo( event->pos(), 123 );
 }

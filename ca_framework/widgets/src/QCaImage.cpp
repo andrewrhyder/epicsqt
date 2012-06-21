@@ -94,6 +94,10 @@ void QCaImage::setup() {
     videoWidget = new VideoWidget;
     QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint ) ),
                       this,        SLOT  ( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint )) );
+    QObject::connect( videoWidget, SIGNAL( zoomInOut( int ) ),
+                      this,        SLOT  ( zoomInOut( int ) ) );
+    QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint, int ) ),
+                      this,        SLOT  ( currentPixelInfo( QPoint, int ) ) );
 
 
     // Add the video destination to the widget
@@ -102,6 +106,20 @@ void QCaImage::setup() {
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget( videoWidget );
     scrollArea->setEnabled( false );  // Reflects initial disconnected state
+
+    // Add the pixel display labels
+    currentCursorPixelLabel = new QLabel();
+    currentVertPixelLabel = new QLabel();
+    currentHozPixelLabel = new QLabel();
+    currentLineLabel = new QLabel();
+    currentAreaLabel = new QLabel();
+
+    infoLayout = new QHBoxLayout();
+    infoLayout->addWidget( currentCursorPixelLabel );
+    infoLayout->addWidget( currentVertPixelLabel );
+    infoLayout->addWidget( currentHozPixelLabel );
+    infoLayout->addWidget( currentLineLabel );
+    infoLayout->addWidget( currentAreaLabel, 1 );
 
 
     // Create vertical, horizontal, and general profile plots
@@ -117,9 +135,10 @@ void QCaImage::setup() {
 
     QGridLayout* graphicsLayout = new QGridLayout();
     graphicsLayout->addWidget( scrollArea, 0, 0 );
+    graphicsLayout->addLayout( infoLayout, 1, 0 );
     graphicsLayout->addWidget( vSliceDisplay, 0, 1 );
-    graphicsLayout->addWidget( hSliceDisplay, 1, 0 );
-    graphicsLayout->addWidget( profileDisplay, 2, 0 );
+    graphicsLayout->addWidget( hSliceDisplay, 2, 0 );
+    graphicsLayout->addWidget( profileDisplay, 3, 0 );
 
     graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
     graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
@@ -145,6 +164,7 @@ void QCaImage::setup() {
     labelLayout->addWidget( exposureTimeQCaLabel, 1, 1 );
 
     labelLayout->setColumnStretch( 2, 1 );
+    labelLayout->setRowStretch( 2, 1 );
 
 
     // Create region of interest group
@@ -744,11 +764,35 @@ void QCaImage::manageLabelGroup()
 // Zoom button pressed
 void QCaImage::zoomClicked()
 {
+    // Disable the zoom button now the area has been applied
     zoomButton->setEnabled( false );
 
-//!!    Set zoom factor
-//!!    set scroll bars
-//!!    update image
+    // Determine the zoom factors
+    int sizeX = selectedAreaPoint2.x()-selectedAreaPoint1.x();
+    int sizeY = selectedAreaPoint2.y()-selectedAreaPoint1.y();
+    double zoomFactorX = (double)(videoWidget->width()) / (double)sizeX;
+    double zoomFactorY = (double)(videoWidget->height()) / (double)sizeY;
+
+    // Resize the display widget
+    int newSizeX = (double)(videoWidget->width()) * zoomFactorX;
+    if( newSizeX > 5000 )
+    {
+        newSizeX = 5000;
+        zoomFactorX = (double)newSizeX / (double)videoWidget->width();
+    }
+
+    int newSizeY = (double)(videoWidget->height()) * zoomFactorY;
+    if( newSizeY > 5000 )
+    {
+        newSizeY = 5000;
+        zoomFactorY = (double)newSizeY / (double)videoWidget->height();
+    }
+
+    videoWidget->resize( newSizeX, newSizeY );
+
+    // Reposition the display widget
+    scrollArea->horizontalScrollBar()->setValue( (double)(selectedAreaPoint1.x()) * zoomFactorX );
+    scrollArea->verticalScrollBar()->setValue( (double)(selectedAreaPoint1.y()) * zoomFactorY );
 }
 
 // ROI apply button pressed
@@ -761,16 +805,16 @@ void QCaImage::roiClicked()
     // Write the ROI variables.
     QCaInteger *qca;
     qca = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
-    if( qca ) qca->writeInteger( selectedAreaPoint1.x() );
+    if( qca ) qca->writeInteger( selectedAreaScaledPoint1.x() );
 
     qca = (QCaInteger*)getQcaItem( ROI_Y_VARIABLE );
-    if( qca ) qca->writeInteger(  selectedAreaPoint1.y() );
+    if( qca ) qca->writeInteger(  selectedAreaScaledPoint1.y() );
 
     qca = (QCaInteger*)getQcaItem( ROI_W_VARIABLE );
-    if( qca ) qca->writeInteger( selectedAreaPoint2.x()-selectedAreaPoint1.x() );
+    if( qca ) qca->writeInteger( selectedAreaScaledPoint1.x()-selectedAreaScaledPoint1.x() );
 
     qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
-    if( qca ) qca->writeInteger( selectedAreaPoint2.y()-selectedAreaPoint1.y() );
+    if( qca ) qca->writeInteger( selectedAreaScaledPoint1.y()-selectedAreaScaledPoint1.y() );
 
     return;
 }
@@ -1247,18 +1291,40 @@ void QCaImage::profileSelectModeClicked()
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE );
 }
 
+void QCaImage::zoomInOut( int zoomAmount )
+{
+    setSizeOption( SIZE_OPTION_ZOOM );
+    double oldZoom = zoom;
+    double newZoom = zoom + zoomAmount;
+    setZoom( newZoom);
+
+    double currentScrollPosX = scrollArea->horizontalScrollBar()->value();
+    double currentScrollPosY = scrollArea->verticalScrollBar()->value();
+    double newScrollPosX = currentScrollPosX *newZoom / oldZoom;
+    double newScrollPosY = currentScrollPosY *newZoom / oldZoom;
+
+    scrollArea->horizontalScrollBar()->setValue( newScrollPosX );
+    scrollArea->verticalScrollBar()->setValue( newScrollPosY );
+
+}
+
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
 void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 )
 {
+    QString s;
     switch( mode )
     {
         case imageMarkup::MARKUP_MODE_V_LINE:
             generateVSlice( scaledPoint1.x() );
+            s.sprintf( "Vert: %d", scaledPoint1.x() );
+            currentVertPixelLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_H_LINE:
             generateHSlice( scaledPoint1.y() );
+            s.sprintf( "Hoz: %d", scaledPoint1.y() );
+            currentHozPixelLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_AREA:
@@ -1269,10 +1335,15 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
 
             roiButton->setEnabled( true );
             zoomButton->setEnabled( true );
+
+            s.sprintf( "Area: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
+            currentLineLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_LINE:
             generateProfile( scaledPoint1, scaledPoint2 );
+            s.sprintf( "Line: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
+            currentLineLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_NONE:
@@ -1348,7 +1419,6 @@ void QCaImage::generateHSlice( int y )
 
     // Display the profile
     hSliceDisplay->setProfile( hSliceData, hSliceData.size(), 1<<(imageDataSize*8) );
-
 }
 
 // Generate a profile along an arbitrary line through an image
@@ -1405,6 +1475,23 @@ void QCaImage::generateHSlice( int y )
 // 4 |       |       |       |       |       |
 //   |       |       |       |       |       |
 //   +-------+-------+-------+-------+-------+
+//
+//  Formulas for x and y values along the selected line:
+//
+//  d = line length
+//  x = x component
+//  y = y component
+//  s = slope
+//
+//  s = y / x
+//  y = sx
+
+//  d^2 = x^2 + y^2
+//  d^2 = x^2 + (sx)^2
+//  d^2 = x^2 + s^2 + x^2
+//  d^2 = x^2(1 + s^2)
+//  d^2 / (1 + s^2) = x^2
+//  sqrt( d^2 / (1 + s^2) ) = x
 //
 void QCaImage::generateProfile( QPoint point1, QPoint point2 )
 {
@@ -1475,6 +1562,7 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
         }
 
         // Calculate the value if the point is within the image (user can drag outside the image)
+        double value;
         if( x >= 0 && x < imageBuffWidth && y >= 0 && y < imageBuffHeight )
         {
 
@@ -1510,7 +1598,6 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
             // The larger the proportion of the real picture overlayed, the greated the weight.
             // (Ignore pixels outside the image)
             int pixelsInValue = 0;
-            double value;
             if( xTLi >= 0 && yTLi >= 0 )
             {
                 value = propTL * getFloatingPixelValueFromData( dataPtrTL, imageDataSize );
@@ -1536,13 +1623,20 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
             }
 
             value = value / pixelsInValue * 4;
-
-            // Set the data value
-            profileData[i].setX( i );
-            profileData[i].setY( value );
         }
+
+        // Use a value of zero if the point is not within the image (user can drag outside the image)
+        else
+        {
+            value = 0.0;
+        }
+
+        // Set the data value
+        profileData[i].setX( i );
+        profileData[i].setY( value );
     }
 
+    // Update the profile display
     profileDisplay->setProfile( profileData, profileData.size(), 1<<(imageDataSize*8) );
 }
 
@@ -1557,5 +1651,12 @@ double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr, unsign
         case 2: return *(unsigned short*)ptr;
         case 4: return *(unsigned int*)ptr;
     }
+}
+
+void QCaImage::currentPixelInfo( QPoint pos, int value )
+{
+    QString s;
+    s.sprintf( "(%d,%d)=%d", pos.x(), pos.y(), value );
+    currentCursorPixelLabel->setText( s );
 }
 
