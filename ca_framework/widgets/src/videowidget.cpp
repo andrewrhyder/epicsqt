@@ -182,10 +182,8 @@ void VideoWidget::setRotation( double angle )
     rotation = angle;
 }
 
-void VideoWidget::markupAction( markupIds activeItem, QPoint point1, QPoint point2 )
+void VideoWidget::markupAction( markupModes mode, QPoint point1, QPoint point2 )
 {
-    qDebug() << "VideoWidget::markupAction()" << activeItem << point1 << point2;
-
     QPoint scaledPoint1;
     QPoint scaledPoint2;
 
@@ -196,7 +194,7 @@ void VideoWidget::markupAction( markupIds activeItem, QPoint point1, QPoint poin
     scaledPoint2.setY( (double)(point2.y()) / getVScale() );
 
 
-    emit userSelection( point1, point2, scaledPoint1, scaledPoint2 );
+    emit userSelection( mode, point1, point2, scaledPoint1, scaledPoint2 );
 
 }
 
@@ -220,4 +218,9 @@ double VideoWidget::getHScale()
 
     // Return the horizontal scale of the displayed image
     return (double)width() / (double)currentImage.width();
+}
+
+void VideoWidget::wheelEvent( QWheelEvent* event )
+{
+    qDebug() << "VideoWidget::wheelEvent" << event;
 }

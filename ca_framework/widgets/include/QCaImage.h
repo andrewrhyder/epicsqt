@@ -187,7 +187,7 @@ private slots:
 
   public slots:
     void requestEnabled( const bool& state );
-    void userSelection( QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
+    void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
 
   signals:
     void dbValueChanged( const QString& out );
@@ -204,7 +204,7 @@ private slots:
 
     void setImageBuff();
 
-    QVBoxLayout *mainLayout;
+    QGridLayout *mainLayout;
 
     QGroupBox *labelGroup;
     QGroupBox *roiGroup;
@@ -284,13 +284,6 @@ private slots:
     unsigned long imageBuffHeight;  // Original image height
 
     formatOptions formatOption;
-
-
-    enum interactionModes { INTERACT_V_SLICE, INTERACT_H_SLICE, INTERACT_AREA, INTERACT_PROFILE, INTERACT_NONE };
-
-
-    interactionModes interactionMode;
-
 
     QPoint selectedAreaPoint1;
     QPoint selectedAreaPoint2;

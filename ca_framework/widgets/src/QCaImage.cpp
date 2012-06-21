@@ -72,8 +72,6 @@ void QCaImage::setup() {
     setShowTimeColor(QColor(0, 255, 0));
     pauseEnabled = false;
 
-    interactionMode = INTERACT_NONE;
-
     displayPauseButton = false;
     displaySaveButton = false;
     displayZoomButton = false;
@@ -94,8 +92,8 @@ void QCaImage::setup() {
 
     // Create the video destination
     videoWidget = new VideoWidget;
-    QObject::connect( videoWidget, SIGNAL( userSelection( QPoint, QPoint, QPoint, QPoint ) ),
-                      this,        SLOT  ( userSelection( QPoint, QPoint, QPoint, QPoint )) );
+    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint ) ),
+                      this,        SLOT  ( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint )) );
 
 
     // Add the video destination to the widget
@@ -261,16 +259,20 @@ void QCaImage::setup() {
 
 
     // Create main layout containing image, label, and button layouts
-    mainLayout = new QVBoxLayout;
+    mainLayout = new QGridLayout;
     mainLayout->setMargin( 0 );
 
-    mainLayout->addLayout( graphicsLayout );
-    mainLayout->addWidget( areaSelectionGroup );
-    mainLayout->addWidget( labelGroup );
-    mainLayout->addWidget( roiGroup );
-    mainLayout->addWidget(buttonGroup);
+    mainLayout->addLayout( graphicsLayout, 0, 0, 1, 0 );
+    mainLayout->addWidget( areaSelectionGroup, 1, 0  );
+    mainLayout->addWidget( labelGroup, 1, 1 );
+    mainLayout->addWidget( buttonGroup, 2, 0 );
+    mainLayout->addWidget( roiGroup, 2, 1 );
 
-    mainLayout->setStretch( 0, 1 );  // Graphics to take all spare room
+    // Set graphics to take all spare room
+    mainLayout->setColumnStretch( 1, 1 );
+    mainLayout->setRowStretch( 0, 1 );
+
+//    mainLayout->setStretch( 0, 1 );  // Graphics to take all spare room
 
     setLayout( mainLayout );
 
@@ -559,7 +561,6 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
             {
                 // Duplicate top 8 bits of the grey scale into each color
                 unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex]);
-//                qDebug() << ((inPixel>>8)&0xff) << (inPixel&0xff);
                 inPixel = inPixel>>8;
                 dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
                 break;
@@ -743,7 +744,6 @@ void QCaImage::manageLabelGroup()
 // Zoom button pressed
 void QCaImage::zoomClicked()
 {
-    qDebug() << "zoom clicked";
     zoomButton->setEnabled( false );
 
 //!!    Set zoom factor
@@ -754,8 +754,6 @@ void QCaImage::zoomClicked()
 // ROI apply button pressed
 void QCaImage::roiClicked()
 {
-    qDebug() << "roi clicked";
-
     // Disable the ROI button now it has been applied
     // !!! should be disabled when the area stops being selected. It's OK for the zoom to be disabled when pressed, but there is no reason why the current ROI can't be reapplied
     roiButton->setEnabled( false );
@@ -1232,43 +1230,38 @@ void QCaImage::manageSelectionOptions()
 void QCaImage::vSliceSelectModeClicked()
 {
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_V_LINE );
-    interactionMode = INTERACT_V_SLICE;
 }
 
 void QCaImage::hSliceSelectModeClicked()
 {
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_H_LINE );
-    interactionMode = INTERACT_H_SLICE;
 }
 
 void QCaImage::areaSelectModeClicked()
 {
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_AREA );
-    interactionMode = INTERACT_AREA;
 }
 
 void QCaImage::profileSelectModeClicked()
 {
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE );
-    interactionMode = INTERACT_PROFILE;
 }
 
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
-void QCaImage::userSelection( QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 )
+void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 )
 {
-    qDebug() <<  point1 << point2 << scaledPoint1 << scaledPoint2;
-    switch( interactionMode )
+    switch( mode )
     {
-        case INTERACT_V_SLICE:
+        case imageMarkup::MARKUP_MODE_V_LINE:
             generateVSlice( scaledPoint1.x() );
             break;
 
-        case INTERACT_H_SLICE:
+        case imageMarkup::MARKUP_MODE_H_LINE:
             generateHSlice( scaledPoint1.y() );
             break;
 
-        case INTERACT_AREA:
+        case imageMarkup::MARKUP_MODE_AREA:
             selectedAreaPoint1 = point1;
             selectedAreaPoint2 = point2;
             selectedAreaScaledPoint1 = scaledPoint1;
@@ -1278,11 +1271,11 @@ void QCaImage::userSelection( QPoint point1, QPoint point2, QPoint scaledPoint1,
             zoomButton->setEnabled( true );
             break;
 
-        case INTERACT_PROFILE:
+        case imageMarkup::MARKUP_MODE_LINE:
             generateProfile( scaledPoint1, scaledPoint2 );
             break;
 
-        case INTERACT_NONE:
+        case imageMarkup::MARKUP_MODE_NONE:
             break;
 
     }
@@ -1328,8 +1321,6 @@ void QCaImage::generateVSlice( int x )
 // The profile contains values for each pixel intersected by the line.
 void QCaImage::generateHSlice( int y )
 {
-    qDebug() << "QCaImage::generateHSlice()" << y;
-
     // If not over the image, remove the profile
     if( y < 0 || y >= (int)imageBuffHeight )
     {
@@ -1417,8 +1408,6 @@ void QCaImage::generateHSlice( int y )
 //
 void QCaImage::generateProfile( QPoint point1, QPoint point2 )
 {
-    qDebug() << "QCaImage::generateProfile()" << point1 << point2;
-
     // X and Y components of line drawn
     double dX = point2.x()-point1.x();
     double dY = point2.y()-point1.y();
@@ -1433,8 +1422,6 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
 
     // Line length
     double len = sqrt( dX*dX+dY*dY );
-    if( len > 200 )
-        qDebug() << "len" << len;
 
     // Line slope
     // To handle infinite slope, switch slope between x/y or y/x as appropriate
@@ -1471,8 +1458,7 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
     const unsigned char* data = (unsigned char*)image.data();
 
     // Calculate a value for each pixel length along the selected line
-    int i;//!!
-    for( i = 0; i < (int) len; i++ )
+    for( int i = 0; i < (int) len; i++ )
     {
         // Determine the next 'point' on the line
         // Each point is one pixel length from the last.
@@ -1550,15 +1536,12 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
             }
 
             value = value / pixelsInValue * 4;
-            if( pixelsInValue < 4 )
-                qDebug() << "Less than 4";
 
             // Set the data value
             profileData[i].setX( i );
             profileData[i].setY( value );
         }
     }
-    qDebug() << "data size" << profileData.size() << "i" << i;
 
     profileDisplay->setProfile( profileData, profileData.size(), 1<<(imageDataSize*8) );
 }

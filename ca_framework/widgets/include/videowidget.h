@@ -45,17 +45,17 @@ protected:
     void mousePressEvent( QMouseEvent* event) { markupMousePressEvent( event ); }
     void mouseReleaseEvent ( QMouseEvent* event ) { markupMouseReleaseEvent( event ); }
     void mouseMoveEvent( QMouseEvent* event ) { markupMouseMoveEvent( event ); }
-    void wheelEvent( QWheelEvent* event ) { markupMouseWheelEvent( event ); }
+    void wheelEvent( QWheelEvent* event );
 
     void markupChange( QImage& markups, QVector<QRect>& changedAreas );    // The markup overlay has changed, redraw part of it
 
     void resizeEvent( QResizeEvent *event );
     void markupSetCursor( QCursor cursor );
-    void markupAction( markupIds activeItem, QPoint point1, QPoint point2 );
+    void markupAction( markupModes mode, QPoint point1, QPoint point2 );
 
 
 signals:
-    void userSelection( QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
+    void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
 
 
 

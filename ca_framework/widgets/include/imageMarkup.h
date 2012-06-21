@@ -76,7 +76,7 @@ public:
     virtual void drawMarkup( QPainter& p )=0;
     virtual void startDrawing( QPoint pos ) = 0;
 
-    virtual bool isOver( QPoint point )=0;
+    virtual bool isOver( QPoint point, markupHandles* handle )=0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
 
@@ -108,7 +108,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point );
+    bool isOver( QPoint point, markupHandles* handle );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -126,7 +126,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point );
+    bool isOver( QPoint point, markupHandles* handle );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -143,7 +143,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point );
+    bool isOver( QPoint point, markupHandles* handle );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -162,7 +162,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point );
+    bool isOver( QPoint point, markupHandles* handle );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -182,7 +182,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point );
+    bool isOver( QPoint point, markupHandles* handle );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -203,7 +203,6 @@ public:
     void markupMousePressEvent(QMouseEvent *event);
     void markupMouseReleaseEvent ( QMouseEvent* event );
     void markupMouseMoveEvent( QMouseEvent* event );
-    void markupMouseWheelEvent( QWheelEvent* event );
 
     void setShowTime( bool visibleIn );     // Display timestamp markup if true
     bool getShowTime();                     // Rturn true if displaying timestamp markup
@@ -220,12 +219,10 @@ public:
 
 protected:
     void markupResize( QSize newSize );   // The viewport size has changed
-    void markupScroll( QPoint newPos );   // The underlying image has moved in the viewport
-    void markupZoom( double newZoom );    // The underlying image zoom factor has changed
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
     virtual void markupSetCursor( QCursor cursor )=0;
-    virtual void markupAction( markupIds activeItem, QPoint point1, QPoint point2 )=0;
+    virtual void markupAction( markupModes mode, QPoint point1, QPoint point2 )=0;
 
     void setMarkupTime();                   // A new image has arrived, build a timestamp
 
@@ -239,6 +236,7 @@ private:
     QVector<QRect> markupAreas;
 
     bool buttonDown;
+    markupModes getActionMode();
 
 };
 
