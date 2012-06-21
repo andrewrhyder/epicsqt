@@ -350,6 +350,7 @@ bool QCaArchiveAccess::readArchive (QObject * userData,
    QMutexLocker locker (mutex);
 
    bool result;
+   QString effectivePvName;
    int j;
    QStringList pvNames;
    SourceSpec sourceSpec;
@@ -361,11 +362,35 @@ bool QCaArchiveAccess::readArchive (QObject * userData,
    QCaDateTime useEnd;
    int overlap;
 
-   // TODO: check for pvName +/- .VAL
+   // Is this PV currently being archived?
    //
    result = pvNameHash.contains (pvName);
    if (result) {
-      sourceSpec = pvNameHash.value (pvName);
+       // Yes - save this exact name.
+       //
+       effectivePvName = pvName;
+   } else {
+       // No - the PV 'as is' is not archived.
+       // If user has requested XXXXXX.VAL, check if XXXXXX is archived.
+       // Similarly, if user requested YYYYYY, check if YYYYYY.VAL archived.
+       //
+       if (pvName.right (4) == ".VAL") {
+           // Remove the .VAL field and try again.
+           //
+           effectivePvName = pvName;
+           effectivePvName.chop (4);
+           result = pvNameHash.contains (effectivePvName);
+       } else {
+           // Add .VAL and try again.
+           //
+           effectivePvName = pvName;
+           effectivePvName = effectivePvName.append (".VAL");
+           result = pvNameHash.contains (effectivePvName);
+       }
+   }
+
+   if (result) {
+      sourceSpec = pvNameHash.value (effectivePvName);
 
       key = -1;
       bestOverlap = -864000;
