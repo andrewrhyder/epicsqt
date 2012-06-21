@@ -44,10 +44,11 @@
 // Construct a markup item
 // All markup items share the same markup image
 
-markupItem::markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn )
+markupItem::markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn )
 {
     isOverType = over;
     interactive = interactiveIn;
+    reportOnMove = reportOnMoveIn;
     visible = false;
     markupColor = Qt::blue;
     activeHandle = MARKUP_HANDLE_NONE;
@@ -104,7 +105,7 @@ void markupItem::erase()
 //===========================================================================
 // Vertical line markup
 
-markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn )
+markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
 {
 
 }
@@ -167,7 +168,7 @@ QPoint markupVLine::getPoint2()
 //===========================================================================
 // Horizontal line markup
 
-markupHLine::markupHLine( imageMarkup* ownerIn, bool interactiveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn )
+markupHLine::markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
 {
 
 }
@@ -230,7 +231,7 @@ QPoint markupHLine::getPoint2()
 //===========================================================================
 // Profile line markup
 
-markupLine::markupLine( imageMarkup* ownerIn, bool interactiveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn )
+markupLine::markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
 {
 
 }
@@ -394,7 +395,7 @@ QPoint markupLine::getPoint2()
 //===========================================================================
 // Region markup
 
-markupRegion::markupRegion( imageMarkup* ownerIn, bool interactiveIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn )
+markupRegion::markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn )
 {
 
 }
@@ -464,7 +465,7 @@ void markupRegion::startDrawing( QPoint pos )
 {
     rect.setBottomLeft( pos );
     rect.setTopRight( pos );
-    activeHandle = MARKUP_HANDLE_TR;
+    activeHandle = MARKUP_HANDLE_BR;
 
 //    qDebug() << "startDrawing()" << rect;
 }
@@ -486,10 +487,11 @@ void markupRegion::moveTo( QPoint pos )
         default:
             break;
     }
+    rect = rect.normalized();
 
     setArea();
 
-//    qDebug() << "moveTo()" << rect << pos;
+    qDebug() << "moveTo()" << rect << pos;
 }
 
 bool markupRegion::isOver( QPoint point )
@@ -615,7 +617,7 @@ QPoint markupRegion::getPoint2()
 //===========================================================================
 // Text markup
 
-markupText::markupText( imageMarkup* ownerIn, bool interactiveIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn )
+markupText::markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn )
 {
 
 }
@@ -689,11 +691,11 @@ imageMarkup::imageMarkup()
     markupImage = new QImage();
 
     items.resize(MARKUP_ID_COUNT );
-    items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true );
-    items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true );
-    items[MARKUP_ID_LINE]      = new markupLine(   this, true );
-    items[MARKUP_ID_REGION]    = new markupRegion( this, true );
-    items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false );
+    items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true, true );
+    items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true, true );
+    items[MARKUP_ID_LINE]      = new markupLine(   this, true, true );
+    items[MARKUP_ID_REGION]    = new markupRegion( this, true, false );
+    items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false );
 
     markupAreasStale = true;
 
@@ -798,6 +800,7 @@ void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
 {
 //    qDebug() << "imageMarkup::markupMouseMoveEvent" << event;
 
+    // If the user has the button down, redraw the item in its new position or shape.
     if( buttonDown )
     {
         redrawActiveItemHere( event->pos() );
@@ -833,6 +836,12 @@ void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
         }
     }
     markupSetCursor( cursor );
+
+    if( activeItem != MARKUP_ID_NONE && items[activeItem]->reportOnMove )
+    {
+        markupAction( activeItem, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
+    }
+
 }
 
 QCursor imageMarkup::getDefaultMarkupCursor()
@@ -851,26 +860,6 @@ void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )// event )
     activeItem = MARKUP_ID_NONE;
     buttonDown = false;
 
-    // Do nothing if no active item
-//    if( !activeItem )
-//        return;
-
-//    // Erase the active item, make it no longer the active item, the redraw it
-//    activeItem->erase();
-//    markupItem* item = activeItem;
-//    activeItem = NULL;
-//    item->drawMarkupIn();
-
-//    // Draw all
-//    int n = items.count();
-//    for( int i = 0; i < n; i++ )
-//    {
-//        if( items[i]->visible && items[i]->isOver( event->pos() ) )
-//        {
-//            activeItem = items[i];
-//            break;
-//        }
-//    }
 }
 
 void imageMarkup::markupMouseWheelEvent( QWheelEvent* )//event )

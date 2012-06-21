@@ -52,7 +52,7 @@ class markupItem
 {
 public:
     enum isOverOptions{ OVER_LINE, OVER_BORDER, OVER_AREA }; // test required to determine if pointer is over the object
-    markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn );
+    markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn );
     ~markupItem();
 
 
@@ -87,6 +87,7 @@ public:
     QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
     bool          visible;      // Object is visible to the user
     bool          interactive;  // Object can be moved by the user
+    bool          reportOnMove; // Movements reported (not just on move completion)
     bool          highlighted;  // Object is highlighted
     int           highlightMargin; // Extra margin required for highlighting
     QColor        markupColor;  // Object color
@@ -101,7 +102,7 @@ class markupHLine : public markupItem
 {
 public:
 
-    markupHLine( imageMarkup* ownerIn, bool interactiveIn );
+    markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -119,7 +120,7 @@ class markupVLine : public markupItem
 {
 public:
 
-    markupVLine( imageMarkup* ownerIn, bool interactiveIn );
+    markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -136,7 +137,7 @@ public:
 class markupLine : public markupItem
 {
 public:
-    markupLine( imageMarkup* ownerIn, bool interactiveIn );
+    markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -155,7 +156,7 @@ class markupRegion : public markupItem
 {
 public:
 
-    markupRegion( imageMarkup* ownerIn, bool interactiveIn );
+    markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -173,7 +174,7 @@ class markupText : public markupItem
 {
 public:
 
-    markupText( imageMarkup* ownerIn, bool interactiveIn );
+    markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
 
     void setText( QString textIn );
 

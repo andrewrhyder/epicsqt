@@ -86,12 +86,16 @@ void QCaImage::setup() {
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
 
+
+    imageDataSize = 0;
+
     // Use frame signals
     // --Currently none--
 
     // Create the video destination
     videoWidget = new VideoWidget;
-    QObject::connect( videoWidget, SIGNAL( userSelection( QPoint, QPoint ) ), this, SLOT( userSelection( QPoint, QPoint )) );
+    QObject::connect( videoWidget, SIGNAL( userSelection( QPoint, QPoint, QPoint, QPoint ) ),
+                      this,        SLOT  ( userSelection( QPoint, QPoint, QPoint, QPoint )) );
 
 
     // Add the video destination to the widget
@@ -103,21 +107,21 @@ void QCaImage::setup() {
 
 
     // Create vertical, horizontal, and general profile plots
-    vSlice = new profilePlot();
-    vSlice->setMinimumWidth( 100 );
+    vSliceDisplay = new profilePlot();
+    vSliceDisplay->setMinimumWidth( 100 );
 
-    hSlice = new profilePlot();
-    hSlice->setMinimumHeight( 100 );
+    hSliceDisplay = new profilePlot();
+    hSliceDisplay->setMinimumHeight( 100 );
 
-    profile = new profilePlot();
-    profile->setMinimumHeight( 100 );
+    profileDisplay = new profilePlot();
+    profileDisplay->setMinimumHeight( 100 );
 
 
     QGridLayout* graphicsLayout = new QGridLayout();
     graphicsLayout->addWidget( scrollArea, 0, 0 );
-    graphicsLayout->addWidget( vSlice, 0, 1 );
-    graphicsLayout->addWidget( hSlice, 1, 0 );
-    graphicsLayout->addWidget( profile, 2, 0 );
+    graphicsLayout->addWidget( vSliceDisplay, 0, 1 );
+    graphicsLayout->addWidget( hSliceDisplay, 1, 0 );
+    graphicsLayout->addWidget( profileDisplay, 2, 0 );
 
     graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
     graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
@@ -495,6 +499,10 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     // Signal a database value change to any Link widgets
     emit dbValueChanged( "image" );
 
+    // Save the image data for analysis
+    image = imageIn;
+    imageDataSize = dataSize;
+
     // Do nothing if there are no image dimensions yet
     if( !imageBuffWidth || !imageBuffHeight )
         return;
@@ -737,6 +745,7 @@ void QCaImage::zoomClicked()
 {
     qDebug() << "zoom clicked";
     zoomButton->setEnabled( false );
+
 //!!    Set zoom factor
 //!!    set scroll bars
 //!!    update image
@@ -1244,30 +1253,33 @@ void QCaImage::profileSelectModeClicked()
     interactionMode = INTERACT_PROFILE;
 }
 
-void QCaImage::userSelection( QPoint point1, QPoint point2 )
+// The user has made (or is making) a selection in the displayed image.
+// Act on the selelection
+void QCaImage::userSelection( QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 )
 {
-    qDebug() << "QCaImage::userSelection()" << point1 << point2;
-
+    qDebug() <<  point1 << point2 << scaledPoint1 << scaledPoint2;
     switch( interactionMode )
     {
         case INTERACT_V_SLICE:
-            generateVSlice( point1.x() );
+            generateVSlice( scaledPoint1.x() );
             break;
 
         case INTERACT_H_SLICE:
-            generateHSlice( point1.y() );
+            generateHSlice( scaledPoint1.y() );
             break;
 
         case INTERACT_AREA:
             selectedAreaPoint1 = point1;
             selectedAreaPoint2 = point2;
+            selectedAreaScaledPoint1 = scaledPoint1;
+            selectedAreaScaledPoint2 = scaledPoint2;
 
             roiButton->setEnabled( true );
             zoomButton->setEnabled( true );
             break;
 
         case INTERACT_PROFILE:
-            generateProfile( point1, point2 );
+            generateProfile( scaledPoint1, scaledPoint2 );
             break;
 
         case INTERACT_NONE:
@@ -1277,20 +1289,290 @@ void QCaImage::userSelection( QPoint point1, QPoint point2 )
 
 }
 
+// Generate a profile along a line down an image at a given X position
+// The profile contains values for each pixel intersected by the line.
 void QCaImage::generateVSlice( int x )
 {
-    qDebug() << "QCaImage::generateVSlice()" << x;
+    // If not over the image, remove the profile
+    if( x < 0 || x >= (int)imageBuffWidth )
+    {
+        QVector<QPointF> empty;
+        vSliceDisplay->setProfile( empty, 1, 1 );
+        return;
+    }
 
+    // Ensure the buffer is the correct size
+    if( vSliceData.size() != (int)imageBuffHeight )
+        vSliceData.resize( imageBuffHeight );
+
+    // Set up to step pixel by pixel through the image data along the line
+    const unsigned char* data = (unsigned char*)image.data();
+    const unsigned char* dataPtr = &(data[x*imageDataSize]);
+    int dataPtrStep = imageBuffWidth*imageDataSize;
+
+
+    // Determine the image data value at each pixel
+    // The buffer is filled backwards so the plot, which sits on its side beside the image is drawn correctly
+    for( int i = imageBuffHeight-1; i >= 0; i-- )
+    {
+        vSliceData[i].setY( i );
+        vSliceData[i].setX( getFloatingPixelValueFromData( dataPtr, imageDataSize ) );
+        dataPtr += dataPtrStep;
+    }
+
+    // Display the profile
+    vSliceDisplay->setProfile( vSliceData, 1<<(imageDataSize*8), vSliceData.size() );
 }
 
+// Generate a profile along a line across an image at a given Y position
+// The profile contains values for each pixel intersected by the line.
 void QCaImage::generateHSlice( int y )
 {
     qDebug() << "QCaImage::generateHSlice()" << y;
 
+    // If not over the image, remove the profile
+    if( y < 0 || y >= (int)imageBuffHeight )
+    {
+        QVector<QPointF> empty;
+        hSliceDisplay->setProfile( empty, 1, 1 );
+        return;
+    }
+
+    // Ensure the buffer is the correct size
+    if( hSliceData.size() != (int)imageBuffWidth )
+        hSliceData.resize( imageBuffWidth );
+
+    // Set up to step pixel by pixel through the image data along the line
+    const unsigned char* data = (unsigned char*)image.data();
+    const unsigned char* dataPtr = &(data[y*imageBuffWidth*imageDataSize]);
+    int dataPtrStep = imageDataSize;
+
+    // Determine the image data value at each pixel
+    for( unsigned int i = 0; i < imageBuffWidth; i++ )
+    {
+        hSliceData[i].setX( i );
+        hSliceData[i].setY( getFloatingPixelValueFromData( dataPtr, imageDataSize ) );
+        dataPtr += dataPtrStep;
+    }
+
+    // Display the profile
+    hSliceDisplay->setProfile( hSliceData, hSliceData.size(), 1<<(imageDataSize*8) );
+
 }
 
+// Generate a profile along an arbitrary line through an image
+// The profile contains values one pixel length along the line.
+// Except where the line is vertical or horizontal points one pixel
+// length along the line will not line up with actual pixels.
+// The values returned are a weighted average of the four actual pixels
+// containing a notional pixel drawn around the each point on the line.
+//
+// In the example below, a line was drawn from pixels (1,1) to (3,3).
+//
+// The starting and ending points are the center of the start and end
+// pixels: (1.5,1.5)  (3.5,3.5)
+//
+// The points along the line one pixel length apart are roughly at points
+// (1.5,1.5) (2.2,2.2) (2.9,2.9) (3.6,3.6)
+//
+// The points are marked in the example with an 'x'.
+// The second point has a notional pixel drawn around it like so:
+//      .........
+//      .       .
+//      .       .
+//      .   x   .
+//      .       .
+//      .........
+//
+// This notional pixel overlaps pixels (1,1) (1,2) (2,1) and (2,2).
+//
+// The notional pixel overlaps about 10% of pixel (1,1),
+// 20% of pixels (1,2) and (2,1) and 50% of pixel (2,2).
+//
+// A value for the second point will be the sum of the four pixels
+// overlayed by the notional pixel weighted by these values.
+//
+//     0       1       2       3       4
+//   +-------+-------+-------+-------+-------+
+//   |       |       |       |       |       |
+// 0 |       |       |       |       |       |
+//   |       |       |       |       |       |
+//   +-------+-------+-------+-------+-------+
+//   |       |       |       |       |       |
+// 1 |       |   x ......... |       |       |
+//   |       |     . |     . |       |       |
+//   +-------+-----.-+-----.-+-------+-------+
+//   |       |     . | x   . |       |       |
+// 2 |       |     . |     . |       |       |
+//   |       |     .........x|       |       |
+//   +-------+-------+-------+-------+-------+
+//   |       |       |       |       |       |
+// 3 |       |       |       |   x   |       |
+//   |       |       |       |       |       |
+//   +-------+-------+-------+-------+-------+
+//   |       |       |       |       |       |
+// 4 |       |       |       |       |       |
+//   |       |       |       |       |       |
+//   +-------+-------+-------+-------+-------+
+//
 void QCaImage::generateProfile( QPoint point1, QPoint point2 )
 {
     qDebug() << "QCaImage::generateProfile()" << point1 << point2;
 
+    // X and Y components of line drawn
+    double dX = point2.x()-point1.x();
+    double dY = point2.y()-point1.y();
+
+    // Do nothing if no line
+    if( dX == 0 && dY == 0 )
+    {
+        QVector<QPointF> empty;
+        profileDisplay->setProfile( empty, 1, 1 );
+        return;
+    }
+
+    // Line length
+    double len = sqrt( dX*dX+dY*dY );
+    if( len > 200 )
+        qDebug() << "len" << len;
+
+    // Line slope
+    // To handle infinite slope, switch slope between x/y or y/x as appropriate
+    // This is more accurate for otherwise very steep slopes, and does not need a
+    // special case for infinite slopes
+    double slopeY; // Y/X
+    double slopeX; // X/Y
+    bool useSlopeY;
+    if( dX != 0 )
+    {
+        slopeY = dY/dX;
+        useSlopeY = true;
+    }
+    else
+    {
+        slopeX = dX/dY;
+        useSlopeY = false;
+    }
+
+    // Determine the direction of the line relative the the start point
+    double dirX, dirY;
+    (dX<0)?dirX=-1.0:dirX=+1.0;
+    (dY<0)?dirY=-1.0:dirY=+1.0;
+
+    // Starting point in center of start pixel
+    double initX = point1.x()+0.5;
+    double initY = point1.y()+0.5;
+
+    // Ensure output buffer is the correct size
+    if( profileData.size() != len )
+        profileData.resize( len );
+
+    // Get reference to image data
+    const unsigned char* data = (unsigned char*)image.data();
+
+    // Calculate a value for each pixel length along the selected line
+    int i;//!!
+    for( i = 0; i < (int) len; i++ )
+    {
+        // Determine the next 'point' on the line
+        // Each point is one pixel length from the last.
+        double x, y;
+        if( useSlopeY)
+        {
+            x = initX + dirX * sqrt((double)(i*i) / (1 + slopeY*slopeY));
+            y = initY + (x-initX) * slopeY;
+        }
+        else
+        {
+            y = initY + dirY * sqrt((double)(i*i) / (1 + slopeX*slopeX));
+            x = initY + (y-initY) * slopeX;
+        }
+
+        // Calculate the value if the point is within the image (user can drag outside the image)
+        if( x >= 0 && x < imageBuffWidth && y >= 0 && y < imageBuffHeight )
+        {
+
+            // Determine the top left of the notional pixel that will be measured
+            // The notional pixel is one pixel length both dimensions and will not
+            // nessesarily overlay a single real pixel
+            double xTL = x-0.5;
+            double yTL = y-0.5;
+
+            // Determine the top left actual pixel of the four actual pixels that
+            // the notional pixel overlays, and the fractional part of a pixel that
+            // the notional pixel is offset by.
+            double xTLi, xTLf; // i = integer part, f = fractional part
+            double yTLi, yTLf; // i = integer part, f = fractional part
+
+            xTLf = modf( xTL, & xTLi );
+            yTLf = modf( yTL, & yTLi );
+
+            // For each of the four actual pixels that the notional pixel overlays,
+            // determine the proportion of the actual pixel covered by the notional pixel
+            double propTL = (1.0-xTLf)*(1-yTLf);
+            double propTR = (xTLf)*(1-yTLf);
+            double propBL = (1.0-xTLf)*(yTLf);
+            double propBR = (xTLf)*(yTLf);
+
+            // Determine a pointer into the image data for each of the four actual pixels overlayed by the notional pixel
+            const unsigned char* dataPtrTL = &(data[((int)xTLi+(int)yTLi*imageBuffWidth)*imageDataSize]);
+            const unsigned char* dataPtrTR = &(dataPtrTL[imageDataSize]);
+            const unsigned char* dataPtrBL = &(dataPtrTL[imageBuffWidth*imageDataSize]);
+            const unsigned char* dataPtrBR = &(dataPtrBL[imageDataSize]);
+
+            // Determine the value of the notional pixel from a weighted average of the four real pixels it overlays.
+            // The larger the proportion of the real picture overlayed, the greated the weight.
+            // (Ignore pixels outside the image)
+            int pixelsInValue = 0;
+            double value;
+            if( xTLi >= 0 && yTLi >= 0 )
+            {
+                value = propTL * getFloatingPixelValueFromData( dataPtrTL, imageDataSize );
+                pixelsInValue++;
+            }
+
+            if( xTLi+1 < imageBuffWidth && yTLi >= 0 )
+            {
+                value += propTR * getFloatingPixelValueFromData( dataPtrTR, imageDataSize );
+                pixelsInValue++;
+            }
+
+            if( xTLi >= 0 && yTLi+1 < imageBuffHeight )
+            {
+
+                value += propBL * getFloatingPixelValueFromData( dataPtrBL, imageDataSize );
+                pixelsInValue++;
+            }
+            if( xTLi+1 < imageBuffWidth && yTLi+1 < imageBuffHeight )
+            {
+                value += propBR * getFloatingPixelValueFromData( dataPtrBR, imageDataSize );
+                pixelsInValue++;
+            }
+
+            value = value / pixelsInValue * 4;
+            if( pixelsInValue < 4 )
+                qDebug() << "Less than 4";
+
+            // Set the data value
+            profileData[i].setX( i );
+            profileData[i].setY( value );
+        }
+    }
+    qDebug() << "data size" << profileData.size() << "i" << i;
+
+    profileDisplay->setProfile( profileData, profileData.size(), 1<<(imageDataSize*8) );
 }
+
+// Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
+double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr, unsigned long dataSize )
+{
+    // Case the data to the correct size, then return the data as a floating point number.
+    switch( dataSize )
+    {
+        default:
+        case 1: return *ptr;
+        case 2: return *(unsigned short*)ptr;
+        case 4: return *(unsigned int*)ptr;
+    }
+}
+

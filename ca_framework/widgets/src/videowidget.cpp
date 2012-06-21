@@ -186,20 +186,17 @@ void VideoWidget::markupAction( markupIds activeItem, QPoint point1, QPoint poin
 {
     qDebug() << "VideoWidget::markupAction()" << activeItem << point1 << point2;
 
-
-
-    //!!! don't scale here. Need to scale when applying roi, but not when zooming
     QPoint scaledPoint1;
     QPoint scaledPoint2;
 
-    scaledPoint1.setX( (int)(double)((point1.x()) * getHScale() ));
-    scaledPoint1.setY( (int)(double)((point1.y()) * getVScale() ));
+    scaledPoint1.setX( (double)(point1.x()) / getHScale() );
+    scaledPoint1.setY( (double)(point1.y()) / getVScale() );
 
-    scaledPoint2.setX( (int)(double)((point2.x()) * getHScale() ));
-    scaledPoint2.setY( (int)(double)((point2.y()) * getVScale() ));
+    scaledPoint2.setX( (double)(point2.x()) / getHScale() );
+    scaledPoint2.setY( (double)(point2.y()) / getVScale() );
 
 
-    emit userSelection( scaledPoint1, scaledPoint2 );
+    emit userSelection( point1, point2, scaledPoint1, scaledPoint2 );
 
 }
 
@@ -211,7 +208,7 @@ double VideoWidget::getVScale()
         return 1.0;
 
     // Return the vertical scale of the displayed image
-    return height() / currentImage.height();
+    return (double)height() / (double)currentImage.height();
 }
 
 // Return the horizontal scale of the displayed image
@@ -222,5 +219,5 @@ double VideoWidget::getHScale()
         return 1.0;
 
     // Return the horizontal scale of the displayed image
-    return width() / currentImage.width();
+    return (double)width() / (double)currentImage.width();
 }

@@ -187,7 +187,7 @@ private slots:
 
   public slots:
     void requestEnabled( const bool& state );
-    void userSelection( QPoint point1, QPoint point2 );
+    void userSelection( QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
 
   signals:
     void dbValueChanged( const QString& out );
@@ -246,9 +246,9 @@ private slots:
     QPushButton *roiButton;
     QPushButton *zoomButton;
 
-    profilePlot* vSlice;
-    profilePlot* hSlice;
-    profilePlot* profile;
+    profilePlot* vSliceDisplay;
+    profilePlot* hSliceDisplay;
+    profilePlot* profileDisplay;
 
 
     bool pauseEnabled;
@@ -276,10 +276,12 @@ private slots:
 
     void manageSelectionOptions();
 
-    QByteArray imageBuff;
+    unsigned long imageDataSize;
+    QByteArray image;       // Buffer to hold original image data.
+    QByteArray imageBuff;   // Buffer to hold data converted to format for generating QImage.
 #define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32
-    unsigned long imageBuffWidth;
-    unsigned long imageBuffHeight;
+    unsigned long imageBuffWidth;   // Original image width
+    unsigned long imageBuffHeight;  // Original image height
 
     formatOptions formatOption;
 
@@ -293,10 +295,19 @@ private slots:
     QPoint selectedAreaPoint1;
     QPoint selectedAreaPoint2;
 
+    QPoint selectedAreaScaledPoint1;
+    QPoint selectedAreaScaledPoint2;
 
     void generateVSlice( int x );
     void generateHSlice( int y );
     void generateProfile( QPoint point1, QPoint point2 );
+
+
+    QVector<QPointF> vSliceData;
+    QVector<QPointF> hSliceData;
+    QVector<QPointF> profileData;
+
+    double getFloatingPixelValueFromData( const unsigned char* ptr, unsigned long dataSize );
 
 
     // Drag and Drop

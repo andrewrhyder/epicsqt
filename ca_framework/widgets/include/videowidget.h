@@ -55,7 +55,7 @@ protected:
 
 
 signals:
-    void userSelection( QPoint point1, QPoint point2 );
+    void userSelection( QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
 
 
 
