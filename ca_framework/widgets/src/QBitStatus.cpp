@@ -176,7 +176,7 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
 
    // Calulate fractional widths of the gaps and the bits.
    // Re-adjust the gaps if the fractonal bits are too small.
-   // We draw 0 .. draw_width - 1, and do fractions 0 .. (draw_width - 1).
+   // We draw 0 .. draw_width, and do fractions 0 .. draw_width.
    //
    // Just keep in mind:
    //    (number - 1)*gap_fraction + number*bit_fraction == 1
