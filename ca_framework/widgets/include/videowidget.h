@@ -57,7 +57,7 @@ protected:
 signals:
     void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
     void zoomInOut( int zoomAmount );
-    void currentPixelInfo( QPoint pos, int value );
+    void currentPixelInfo( QPoint pos );
 
 
 private:

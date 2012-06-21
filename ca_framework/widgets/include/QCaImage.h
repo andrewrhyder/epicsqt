@@ -189,7 +189,7 @@ private slots:
     void requestEnabled( const bool& state );
     void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
     void zoomInOut( int zoomAmount );
-    void currentPixelInfo( QPoint pos, int value );
+    void currentPixelInfo( QPoint pos );
 
 
   signals:
@@ -311,6 +311,7 @@ private slots:
     QVector<QPointF> hSliceData;
     QVector<QPointF> profileData;
 
+    int getPixelValueFromData( const unsigned char* ptr, unsigned long dataSize );
     double getFloatingPixelValueFromData( const unsigned char* ptr, unsigned long dataSize );
 
 

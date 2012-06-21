@@ -96,8 +96,8 @@ void QCaImage::setup() {
                       this,        SLOT  ( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint )) );
     QObject::connect( videoWidget, SIGNAL( zoomInOut( int ) ),
                       this,        SLOT  ( zoomInOut( int ) ) );
-    QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint, int ) ),
-                      this,        SLOT  ( currentPixelInfo( QPoint, int ) ) );
+    QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint ) ),
+                      this,        SLOT  ( currentPixelInfo( QPoint ) ) );
 
 
     // Add the video destination to the widget
@@ -1337,7 +1337,7 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
             zoomButton->setEnabled( true );
 
             s.sprintf( "Area: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
-            currentLineLabel->setText( s );
+            currentAreaLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_LINE:
@@ -1641,7 +1641,7 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
 }
 
 // Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
-double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr, unsigned long dataSize )
+int QCaImage::getPixelValueFromData( const unsigned char* ptr, unsigned long dataSize )
 {
     // Case the data to the correct size, then return the data as a floating point number.
     switch( dataSize )
@@ -1653,9 +1653,19 @@ double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr, unsign
     }
 }
 
-void QCaImage::currentPixelInfo( QPoint pos, int value )
+// Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
+double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr, unsigned long dataSize )
+{
+    return getPixelValueFromData( ptr, dataSize );
+}
+
+void QCaImage::currentPixelInfo( QPoint pos )
 {
     QString s;
+
+    const unsigned char* data = (unsigned char*)image.data();
+    const unsigned char* dataPtr = &(data[(pos.x()+ pos.y()*imageBuffWidth)*imageDataSize]);
+    int value = getPixelValueFromData( dataPtr, imageDataSize );
     s.sprintf( "(%d,%d)=%d", pos.x(), pos.y(), value );
     currentCursorPixelLabel->setText( s );
 }

@@ -232,5 +232,8 @@ void VideoWidget::mouseMoveEvent( QMouseEvent* event )
 {
     markupMouseMoveEvent( event );
 
-    emit currentPixelInfo( event->pos(), 123 );
+    QPoint pos;
+    pos.setX( (double)(event->pos().x()) / getHScale() );
+    pos.setY( (double)(event->pos().y()) / getVScale() );
+    emit currentPixelInfo( pos );
 }
