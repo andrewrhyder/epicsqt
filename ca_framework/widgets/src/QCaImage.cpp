@@ -24,7 +24,13 @@
 
 /*!
   This class is a CA aware image widget based on the Qt frame widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details.
+
+  This class displays images from bytearray (originating from a EPICS waveform record)
+  It determines the width and height from other EPICS variables.
+  The user can interact with the image.
+  The image is managed by the VideoWidget class.
+  User interaction and drawing markups over the image (such as selecting an area) is managed by the imageMarkup class.
  */
 
 #include <QCaImage.h>
@@ -69,7 +75,6 @@ void QCaImage::setup() {
     initialVertScrollPos = 0;
     initScrollPosSet = false;
     formatOption = GREY8;
-    setShowTimeColor(QColor(0, 255, 0));
     pauseEnabled = false;
 
     displayPauseButton = false;
@@ -92,6 +97,7 @@ void QCaImage::setup() {
 
     // Create the video destination
     videoWidget = new VideoWidget;
+    setMarkupColor(QColor(0, 255, 0));
     QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint ) ),
                       this,        SLOT  ( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint )) );
     QObject::connect( videoWidget, SIGNAL( zoomInOut( int ) ),
@@ -315,9 +321,6 @@ void QCaImage::setup() {
     // This will be resized when the image size is known
     videoWidget->resize( scrollArea->width(), scrollArea->height() );
 
-    // Set the initial selection mode of the setup widget
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_NONE );
-
     // Set image size to zero
     // Image will not be presented until size is available
     imageBuffWidth = 0;
@@ -510,7 +513,7 @@ void QCaImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDate
         Note: Drawing into a QImage with QImage::Format_Indexed8 is not supported.
         Note: Do not render into ARGB32 images using QPainter. Using QImage::Format_ARGB32_Premultiplied is significantly faster.
  */
-void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
+void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time, const unsigned int& )
 {
     // If the display is paused, do nothing
     if (pauseEnabled)
@@ -612,7 +615,7 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     QImage frameImage( (uchar*)(imageBuff.data()), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32 );
 
     // Display the new image
-    videoWidget->setNewImage( frameImage );
+    videoWidget->setNewImage( frameImage, time );
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -660,6 +663,10 @@ void QCaImage::setImageBuff()
 
 }
 
+//=================================================================================================
+// Manage the enabled state
+//=================================================================================================
+
 /*!
    Override the default widget isEnabled to allow alarm states to override current enabled state
  */
@@ -689,6 +696,8 @@ void QCaImage::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
+
+//=================================================================================================
 
 // Add or remove the region of interest layout
 void QCaImage::manageRoiLayout()
@@ -811,10 +820,10 @@ void QCaImage::roiClicked()
     if( qca ) qca->writeInteger(  selectedAreaScaledPoint1.y() );
 
     qca = (QCaInteger*)getQcaItem( ROI_W_VARIABLE );
-    if( qca ) qca->writeInteger( selectedAreaScaledPoint1.x()-selectedAreaScaledPoint1.x() );
+    if( qca ) qca->writeInteger( selectedAreaScaledPoint2.x()-selectedAreaScaledPoint1.x() );
 
     qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
-    if( qca ) qca->writeInteger( selectedAreaScaledPoint1.y()-selectedAreaScaledPoint1.y() );
+    if( qca ) qca->writeInteger( selectedAreaScaledPoint2.y()-selectedAreaScaledPoint1.y() );
 
     return;
 }
@@ -839,13 +848,6 @@ void QCaImage::pauseClicked()
 // Save button pressed
 void QCaImage::saveClicked()
 {
-    QCaInteger *qcaX = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
-    if( qcaX )
-    {
-        qcaX->writeInteger( 10 );
-    }
-    return;
-
     QFileDialog *qFileDialog;
     QStringList filterList;
     QString filename;
@@ -985,9 +987,9 @@ void QCaImage::setZoom( int zoomIn )
 {
     // Save the zoom
     // (Limit to 10 - 400 %)
-    if( zoom < 10 )
+    if( zoomIn < 10 )
         zoom = 10;
-    else if( zoom > 400 )
+    else if( zoomIn > 400 )
         zoom = 400;
     else
         zoom = zoomIn;
@@ -1147,15 +1149,15 @@ bool QCaImage::getShowTime()
     return videoWidget->getShowTime();
 }
 
-// Show time colour
-void QCaImage::setShowTimeColor(QColor pValue)
+// Markup colour
+void QCaImage::setMarkupColor(QColor markupColor )
 {
-    qColorShowTime = pValue;
+    videoWidget->setMarkupColor( markupColor );
 }
 
-QColor QCaImage::getShowTimeColor()
+QColor QCaImage::getMarkupColor()
 {
-    return qColorShowTime;
+    return videoWidget->getMarkupColor();
 }
 
 // Show cursor pixel
@@ -1216,6 +1218,8 @@ bool QCaImage::getEnableProfileSelection()
     return enableProfileSelection;
 }
 
+//=================================================================================================
+
 void QCaImage::manageSelectionOptions()
 {
     // If more than one buton is required, then make the appropriate ones visible
@@ -1270,6 +1274,8 @@ void QCaImage::manageSelectionOptions()
     }
 }
 
+//=================================================================================================
+
 
 void QCaImage::vSliceSelectModeClicked()
 {
@@ -1290,6 +1296,8 @@ void QCaImage::profileSelectModeClicked()
 {
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE );
 }
+
+//=================================================================================================
 
 void QCaImage::zoomInOut( int zoomAmount )
 {
@@ -1317,13 +1325,13 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
     {
         case imageMarkup::MARKUP_MODE_V_LINE:
             generateVSlice( scaledPoint1.x() );
-            s.sprintf( "Vert: %d", scaledPoint1.x() );
+            s.sprintf( "V: %d", scaledPoint1.x() );
             currentVertPixelLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_H_LINE:
             generateHSlice( scaledPoint1.y() );
-            s.sprintf( "Hoz: %d", scaledPoint1.y() );
+            s.sprintf( "H: %d", scaledPoint1.y() );
             currentHozPixelLabel->setText( s );
             break;
 
@@ -1336,13 +1344,13 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
             roiButton->setEnabled( true );
             zoomButton->setEnabled( true );
 
-            s.sprintf( "Area: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
+            s.sprintf( "A: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
             currentAreaLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_LINE:
             generateProfile( scaledPoint1, scaledPoint2 );
-            s.sprintf( "Line: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
+            s.sprintf( "L: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
             currentLineLabel->setText( s );
             break;
 
@@ -1639,6 +1647,8 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
     // Update the profile display
     profileDisplay->setProfile( profileData, profileData.size(), 1<<(imageDataSize*8) );
 }
+//=================================================================================================
+
 
 // Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
 int QCaImage::getPixelValueFromData( const unsigned char* ptr, unsigned long dataSize )
@@ -1659,14 +1669,26 @@ double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr, unsign
     return getPixelValueFromData( ptr, dataSize );
 }
 
+//=================================================================================================
+
 void QCaImage::currentPixelInfo( QPoint pos )
 {
+    // If the pixel is not within the image, display nothing
     QString s;
+    if( pos.x() < 0 || pos.y() < 0 || pos.x() >= imageBuffWidth || pos.y() >= imageBuffHeight )
+    {
+        qDebug() << pos << imageBuffWidth << imageBuffHeight;
+        s = "";
+    }
 
-    const unsigned char* data = (unsigned char*)image.data();
-    const unsigned char* dataPtr = &(data[(pos.x()+ pos.y()*imageBuffWidth)*imageDataSize]);
-    int value = getPixelValueFromData( dataPtr, imageDataSize );
-    s.sprintf( "(%d,%d)=%d", pos.x(), pos.y(), value );
+    // If the pixel is within the image, display the pixel position and value
+    else
+    {
+        const unsigned char* data = (unsigned char*)image.data();
+        const unsigned char* dataPtr = &(data[(pos.x()+ pos.y()*imageBuffWidth)*imageDataSize]);
+        int value = getPixelValueFromData( dataPtr, imageDataSize );
+        s.sprintf( "(%d,%d)=%d", pos.x(), pos.y(), value );
+    }
     currentCursorPixelLabel->setText( s );
 }
 

@@ -116,7 +116,7 @@ class QCaImagePlugin : public QCaImage {
 
     Q_PROPERTY(bool showTime READ getShowTime WRITE setShowTime)
 
-    Q_PROPERTY(QColor showTimeColor READ getShowTimeColor WRITE setShowTimeColor)
+    Q_PROPERTY(QColor markupColor READ getMarkupColor WRITE setMarkupColor)
 
 
     Q_ENUMS(SizeOptions)

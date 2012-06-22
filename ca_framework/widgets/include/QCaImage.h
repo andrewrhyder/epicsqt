@@ -119,8 +119,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     void setShowTime(bool pValue);
     bool getShowTime();
 
-    void setShowTimeColor(QColor pValue);
-    QColor getShowTimeColor();
+    void setMarkupColor(QColor pValue);
+    QColor getMarkupColor();
 
     void setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn );
     bool getDisplayCursorPixelInfo();
@@ -251,7 +251,6 @@ private slots:
     QLabel* currentAreaLabel;
 
 
-    QColor qColorShowTime;
     QPushButton *pauseButton;
     QPushButton *saveButton;
     QPushButton *roiButton;

@@ -30,8 +30,6 @@
 #include <QPainter>
 #include <QDateTime>
 #include <QCursor>
-#include <QMainWindow>//!!testing
-#include <QLabel>//!!testing
 
 #include <imageMarkup.h>
 
@@ -52,7 +50,6 @@ markupItem::markupItem( imageMarkup* ownerIn, isOverOptions over, bool interacti
     interactive = interactiveIn;
     reportOnMove = reportOnMoveIn;
     visible = false;
-    markupColor = Qt::blue;
     activeHandle = MARKUP_HANDLE_NONE;
     highlighted = false;
     highlightMargin = 2;
@@ -72,7 +69,7 @@ bool markupItem::pointIsNear( QPoint p1, QPoint p2 )
 void markupItem::drawMarkupIn()
 {
     QPainter p( owner->markupImage );
-    p.setPen( markupColor);
+    p.setPen( owner->getMarkupColor() );
     drawMarkup( p );
     visible = true;
 }
@@ -442,13 +439,7 @@ void markupRegion::drawMarkup( QPainter& p )
 
 void markupRegion::setArea()
 {
-    int x1, y1, x2, y2;
-    rect.getCoords( &x1, &y1, &x2, &y2 );
-    area.setLeft( std::min( x1, x2 ) );
-    area.setRight( std::max( x1, x2 ) );
-    area.setTop( std::min( y1, y2 ) );
-    area.setBottom( std::max( y1, y2 ) );
-
+    area = rect.normalized();
     area.adjust( -HANDLE_SIZE, -HANDLE_SIZE, HANDLE_SIZE+1, HANDLE_SIZE+1 );
 
     if( highlighted )
@@ -483,8 +474,7 @@ void markupRegion::moveTo( QPoint pos )
         case MARKUP_HANDLE_L:    rect.setLeft(        pos.x() ); break;
         case MARKUP_HANDLE_R:    rect.setRight(       pos.x() ); break;
 
-        default:
-            break;
+        default: break;
     }
 
     setArea();
@@ -600,14 +590,12 @@ QPoint markupRegion::origin()
 
 QPoint markupRegion::getPoint1()
 {
-    rect = rect.normalized();
-    return rect.topLeft();
+    return rect.normalized().topLeft();
 }
 
 QPoint markupRegion::getPoint2()
 {
-    rect = rect.normalized();
-    return rect.bottomRight();
+    return rect.normalized().bottomRight();
 }
 
 //===========================================================================
@@ -622,16 +610,24 @@ void markupText::drawMarkup( QPainter& p )
 {
     // Set the area to more than enough.
     // This will be trimmed to the bounding retangle of the text
-    rect = QRect(10, 10, 200, 400 );
+    rect = QRect( 0, 0, 300, 20 );
 
     // Draw the text
-    p.setFont(QFont("Courier", 9));
+    p.setFont(QFont("Courier", 12));
     p.drawText( rect, Qt::AlignLeft, text, &rect );
+
+    setArea();
 }
 
-void markupText::setText( QString textIn )
+void markupText::setText( QString textIn, bool draw )
 {
+    if( draw )
+        erase();
+
     text = textIn;
+
+    if( draw )
+        drawMarkupIn();
 }
 
 void markupText::setArea()
@@ -695,12 +691,6 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false );
 
     markupAreasStale = true;
-
-    // !!!temp testing
-    markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
-    timeDate->setText( "hi there" );
-    timeDate->visible = true;
-    timeDate->drawMarkupIn();
 }
 
 // Destructor
@@ -714,21 +704,42 @@ void imageMarkup::setMode( markupModes modeIn )
     mode = modeIn;
 }
 
-void imageMarkup::setMarkupTime()
+//===========================================================================
+
+void imageMarkup::setMarkupTime( QCaDateTime& time )
 {
-    markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
-    timeDate->setText( QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss" ));
+    if( showTime )
+    {
+        markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
+        timeDate->setText( time.text().left( 23 ), showTime );
+
+        QVector<QRect> changedAreas;
+        changedAreas.append( timeDate->area );
+        markupChange( *markupImage, changedAreas );
+    }
 }
 
-void imageMarkup::setShowTime( bool visibleIn )
+void imageMarkup::setShowTime( bool showTimeIn )
 {
-    items[MARKUP_ID_TIMESTAMP]->visible = visibleIn;
+    showTime = showTimeIn;
+
+    markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
+    if( showTime )
+        timeDate->drawMarkupIn();
+    else
+        timeDate->drawMarkupOut();
+
+    QVector<QRect> changedAreas;
+    changedAreas.append( timeDate->area );
+    markupChange( *markupImage, changedAreas );
 }
 
 bool imageMarkup::getShowTime()
 {
-    return items[MARKUP_ID_TIMESTAMP]->visible;
+    return showTime;
 }
+
+//===========================================================================
 
 // User pressed a mouse button
 void imageMarkup::markupMousePressEvent(QMouseEvent *event)
@@ -853,12 +864,13 @@ imageMarkup::markupModes imageMarkup::getActionMode()
 {
     switch( activeItem )
     {
-        case MARKUP_ID_NONE:    return MARKUP_MODE_NONE;
-        case MARKUP_ID_H_SLICE: return MARKUP_MODE_H_LINE;
-        case MARKUP_ID_V_SLICE: return MARKUP_MODE_V_LINE;
-        case MARKUP_ID_LINE:    return MARKUP_MODE_LINE;
-        case MARKUP_ID_REGION:  return MARKUP_MODE_AREA;
-        default:                return MARKUP_MODE_NONE;
+        case MARKUP_ID_NONE:      return MARKUP_MODE_NONE;
+        case MARKUP_ID_H_SLICE:   return MARKUP_MODE_H_LINE;
+        case MARKUP_ID_V_SLICE:   return MARKUP_MODE_V_LINE;
+        case MARKUP_ID_LINE:      return MARKUP_MODE_LINE;
+        case MARKUP_ID_REGION:    return MARKUP_MODE_AREA;
+        case MARKUP_ID_TIMESTAMP: return MARKUP_MODE_NONE; // Should never be the active item, but included for completeness
+        default:                  return MARKUP_MODE_NONE;
     }
 }
 
@@ -955,4 +967,23 @@ bool imageMarkup::anyVisibleMarkups()
         }
     }
     return false;
+}
+
+void imageMarkup::setMarkupColor( QColor markupColorIn )
+{
+    markupColor = markupColorIn;
+
+    QVector<QRect> changedAreas;
+    int n = items.count();
+    for( int i = 0; i < n; i++ )
+    {
+        items[i]->drawMarkupIn();
+        changedAreas.append( items[i]->area );
+    }
+    markupChange( *markupImage, changedAreas );
+}
+
+QColor imageMarkup::getMarkupColor()
+{
+    return markupColor;
 }

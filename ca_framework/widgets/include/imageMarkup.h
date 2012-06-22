@@ -27,10 +27,6 @@
  The class also handles user interaction with the markups, such as creation and draging.
  The class works at the display resolution of the image, but also understands the actual resolution of
  the underlying image and can describe markups in terms of the underlying image.
- For example: a user is working in a 500x500 pixel window viewing the center of a 2000x2000 pixel image
- that has been scaled to 1000x1000 pixels. In this example, this class manages all markups in the context
- of the 500x500 pixel viewport but keeps those markups aligned with the underlying image as it is scrolled
- and zoomed and reports those markups in terms of the underlying image.
  */
 
 #ifndef IMAGEMARKUP_H
@@ -43,6 +39,8 @@
 #include <QMouseEvent>
 #include <QImage>
 #include <QColor>
+#include <QCaDateTime.h>
+
 
 #include <QDebug>
 
@@ -90,7 +88,6 @@ public:
     bool          reportOnMove; // Movements reported (not just on move completion)
     bool          highlighted;  // Object is highlighted
     int           highlightMargin; // Extra margin required for highlighting
-    QColor        markupColor;  // Object color
     imageMarkup*  owner;
 
     void drawMarkupIn();
@@ -176,7 +173,7 @@ public:
 
     markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
 
-    void setText( QString textIn );
+    void setText( QString textIn, bool draw );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -216,6 +213,10 @@ public:
     bool markupAreasStale;
     QCursor getDefaultMarkupCursor();
 
+    void setMarkupTime( QCaDateTime& time );                   // A new image has arrived, note it's time
+    void setMarkupColor( QColor markupColorIn );
+    QColor getMarkupColor();
+
 
 protected:
     void markupResize( QSize newSize );   // The viewport size has changed
@@ -224,7 +225,6 @@ protected:
     virtual void markupSetCursor( QCursor cursor )=0;
     virtual void markupAction( markupModes mode, QPoint point1, QPoint point2 )=0;
 
-    void setMarkupTime();                   // A new image has arrived, build a timestamp
 
 private:
 
@@ -237,6 +237,9 @@ private:
 
     bool buttonDown;
     markupModes getActionMode();
+
+    bool showTime;
+    QColor markupColor;
 
 };
 

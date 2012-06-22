@@ -40,19 +40,12 @@ void VideoWidget::markupSetCursor( QCursor cursor )
     setCursor( cursor );
 }
 
-/*
-QSize VideoWidget::sizeHint() const
-{
-    return this->surface->surfaceFormat().sizeHint();
-}
-*/
-
 // The displayed image has changed, redraw it
-void VideoWidget::setNewImage( const QImage image )
+void VideoWidget::setNewImage( const QImage image, QCaDateTime& time )
 {
     currentImage = image;
     compositeImageBackgroundStale = true;
-    setMarkupTime();
+    setMarkupTime( time );
     update();
 }
 

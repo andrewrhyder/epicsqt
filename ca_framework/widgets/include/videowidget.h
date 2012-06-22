@@ -36,7 +36,7 @@ public:
     ~VideoWidget();
 
     void setRotation( double angle );
-    void setNewImage( const QImage image );
+    void setNewImage( const QImage image, QCaDateTime& time );
 
 
 protected:

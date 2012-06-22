@@ -1,10 +1,3 @@
-/*! 
-  \class QCaImagePlugin
-  \version $Revision: #6 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Image Widget Plugin for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -21,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2012
  *
  *  Author:
  *    Andrew Rhyder
