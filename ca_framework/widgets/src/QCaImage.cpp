@@ -1686,7 +1686,6 @@ void QCaImage::currentPixelInfo( QPoint pos )
     QString s;
     if( pos.x() < 0 || pos.y() < 0 || pos.x() >= imageBuffWidth || pos.y() >= imageBuffHeight )
     {
-        qDebug() << pos << imageBuffWidth << imageBuffHeight;
         s = "";
     }
 

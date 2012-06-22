@@ -460,7 +460,17 @@ void MainWindow::resizeToFitGui()
     int frame_w = sa->frameWidth();
 
     // The size required is the size of the user interface plus the difference between the main window size and the central widget size
-    this->resize( ui_w + main_w - central_w + frame_w * 2, ui_h + main_h - central_h + frame_w * 2 );
+    resize( ui_w + main_w - central_w + frame_w * 2, ui_h + main_h - central_h + frame_w * 2 );
+
+    // Now the form is matching the user interface, set the interface to resizable
+    // if it has a layout that means it can manage being resized
+    // Note, the object to set resizable is the widget of the scroll area of
+    // the ASguiForm. This is generally present by is probably not if a .ui file could not be loaded.
+    QWidget* form = sa->widget();
+    if( form )
+    {
+        sa->setWidgetResizable( form->layout() != NULL );
+    }
 }
 
 //=================================================================================
