@@ -1236,8 +1236,11 @@ void QCaImage::manageSelectionOptions()
 
         // For each button, make it visible if it is enabled.
         areaSelectMode->setVisible( enableAreaSelection );
+
         vSliceSelectMode->setVisible( enableVSliceSelection );
+
         hSliceSelectMode->setVisible( enableHSliceSelection );
+
         profileSelectMode->setVisible( enableProfileSelection );
 
         // If no buttons are checked, check the first visible button
@@ -1272,6 +1275,12 @@ void QCaImage::manageSelectionOptions()
         areaSelectionGroup->setVisible( false );
 
     }
+
+    // Display, or don't display, the profile plots as required
+    profileDisplay->setVisible( enableProfileSelection );
+    hSliceDisplay->setVisible(enableHSliceSelection );
+    vSliceDisplay->setVisible( enableVSliceSelection );
+
 }
 
 //=================================================================================================
