@@ -378,6 +378,16 @@ void MainWindow::loadGuiIntoNewTab( ASguiForm* gui )
         int index = tabs->addTab( gui, gui->getASGuiTitle() );
         tabs->setCurrentIndex( index );
     }
+
+    // Set the interface to resizable if it has a layout that means it can manage being resized
+    // Note, the object to set resizable is the widget of the scroll area of
+    // the ASguiForm. This is generally present by is probably not if a .ui file could not be loaded.
+    QWidget* form = gui->widget();
+    if( form )
+    {
+        gui->setWidgetResizable( form->layout() != NULL );
+    }
+
 }
 
 /// Open a gui in the current window
