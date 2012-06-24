@@ -723,6 +723,10 @@ void imageMarkup::setShowTime( bool showTimeIn )
 {
     showTime = showTimeIn;
 
+    // Do nothing more (no need to add or remove time) if no markup image yet
+    if( markupImage->isNull() )
+        return;
+
     markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
     if( showTime )
         timeDate->drawMarkupIn();
@@ -971,15 +975,26 @@ bool imageMarkup::anyVisibleMarkups()
 
 void imageMarkup::setMarkupColor( QColor markupColorIn )
 {
+    // Save the new markup color
     markupColor = markupColorIn;
 
+    // Do nothing (no need to change drawn colors) if no markup image yet
+    if( markupImage->isNull() )
+        return;
+
+    // For each visible item, redraw it in the new color
     QVector<QRect> changedAreas;
     int n = items.count();
     for( int i = 0; i < n; i++ )
     {
-        items[i]->drawMarkupIn();
-        changedAreas.append( items[i]->area );
+        if( items[i]->visible )
+        {
+            items[i]->drawMarkupIn();
+            changedAreas.append( items[i]->area );
+        }
     }
+
+    // Force update of appropriate parts of displayed image
     markupChange( *markupImage, changedAreas );
 }
 

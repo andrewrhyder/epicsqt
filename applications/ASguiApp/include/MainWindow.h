@@ -65,6 +65,7 @@ private:
 
     void addGuiToWindowsMenu( ASguiForm* gui );             // Add a gui to the 'windows' menus
     void buildWindowsMenu();                                // Build a new 'windows' menu
+    void addWindowMenuAction( QMenu* menu, ASguiForm* gui );// Add a gui to a 'window' menu
     void removeGuiFromWindowsMenu( ASguiForm* gui );        // Remove a gui from the 'windows' menus
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
 
@@ -93,7 +94,6 @@ private slots:
     void onWindowMenuSelection( QAction* action );  // Slot to recieve requests to change focus to a specific gui
     void on_actionAbout_triggered();                // Slot to perform 'About' action
 
-
     void launchGui( QString guiName, ASguiForm::creationOptions creationOption );
 
     void tabCurrentChanged( int index );            // Slot to act on user changing tabs
@@ -102,7 +102,6 @@ private slots:
 
     void processError( QProcess::ProcessError error ); // An error occured starting designer process
     void startDesignerAlternate();                  // Timer signal used to attempt restarting designer from outside a QProcess error signal
-
 };
 
 #endif /// MAINWINDOW_H

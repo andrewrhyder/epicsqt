@@ -29,6 +29,7 @@
 #include <ASguiForm.h>
 #include <QMessageBox>
 #include <ContainerProfile.h>
+#include <QVariant>
 
 // Before Qt 4.8, the command to start designer is 'designer'.
 // Qt 4.8 later uses the command 'designer-qt4'
@@ -42,6 +43,7 @@ QList<MainWindow*> MainWindow::mainWindowList;
 // Shared list of all GUIs being displayed in all main windows
 QList<ASguiForm*> MainWindow::guiList;
 
+Q_DECLARE_METATYPE( ASguiForm* )
 
 //=================================================================================
 // Methods for construction, destruction, initialisation
@@ -71,7 +73,6 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     QObject::connect( ui.menuWindows, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
 
     // Save this instance of a main window in the global list of main windows
-    // ??? is this list required?
     mainWindowList.append( this );
 
     // Set the default title
@@ -110,6 +111,9 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     // Set up signals for starting the 'designer' process
     QObject::connect( &process, SIGNAL(error(QProcess::ProcessError)), this, SLOT( processError(QProcess::ProcessError) ) );
     QObject::connect( &processTimer, SIGNAL(timeout()), this, SLOT( startDesignerAlternate() ) );
+
+    // Ensure this class destructor gets called.
+    setAttribute ( Qt::WA_DeleteOnClose );
 }
 
 /// Destructor
@@ -120,11 +124,13 @@ MainWindow::~MainWindow()
 
     // Remove this main window from the global list of main windows
     for (int i = 0; i < mainWindowList.size(); ++i)
+    {
         if( mainWindowList[i] == this )
         {
             mainWindowList.removeAt( i );
             break;
         }
+    }
 }
 
 //=================================================================================
@@ -183,7 +189,6 @@ void MainWindow::on_actionClose_triggered()
         if( gui )
         {
             removeGuiFromWindowsMenu( gui );
-            delete gui;
         }
 
         setTitle( "" );
@@ -193,13 +198,67 @@ void MainWindow::on_actionClose_triggered()
 // Raise the window selected in the 'Window' menu
 void MainWindow::onWindowMenuSelection( QAction* action )
 {
-    // Untested
-    return;
+    // Extract the gui from the action data
+    ASguiForm* gui = action->data().value<ASguiForm*>();
 
+    // Prepare to look for gui
+    int mwIndex;
+    int tabIndex = 0;
+    MainWindow* mw = NULL;
+    QTabWidget* tabs = NULL;
 
-    for (int i = 0; i < guiList.size(); ++i) {
-        if( guiList[i]->getASGuiTitle() == action->text() )
-            guiList[i]->raise();
+    // Search each main window for the gui
+    for( mwIndex = 0; mwIndex < mainWindowList.size(); mwIndex++ )
+    {
+        mw = mainWindowList[mwIndex];
+
+        // If the main window is not using tabs, just check the central widget
+        if( !mw->usingTabs )
+        {
+            if( mw->centralWidget() == gui )
+            {
+                qDebug() << "gui found (no tabs)";
+                break;
+            }
+        }
+
+        // If the main window is using tabs, check each tab
+        else
+        {
+            tabs = mw->getCentralTabs();
+            if( tabs )
+            {
+                // Compare the gui in each tab
+                for( tabIndex = 0; tabIndex < tabs->count(); tabIndex++ )
+                {
+                    if( tabs->widget( tabIndex ) == gui )
+                    {
+                        break;
+                    }
+                }
+
+                // If fond a matching tab, stop looking in more forms
+                if( tabIndex < tabs->count() )
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    // If the gui was found in a main form, show it
+
+    if( mwIndex < mainWindowList.size() )
+    {
+        // Ensure the main form is visible and the active form
+        mw->raise();
+        mw->activateWindow();
+
+        // If using tabs, and a tab was found, the go to that tab
+        if( mw->usingTabs && tabIndex < tabs->count() )
+        {
+            tabs->setCurrentIndex( tabIndex );
+        }
     }
 }
 
@@ -234,12 +293,11 @@ void MainWindow::tabCloseRequest( int index )
     tabs->setCurrentIndex( index );
     ASguiForm* gui = (ASguiForm*)(tabs->currentWidget() );
 
-    // Remove the tab, then delete the page (scroll area) the tab represented
-    tabs->removeTab( index );
-    delete gui;
-
     // Remove the gui from the 'windows' menus
     removeGuiFromWindowsMenu( gui );
+
+    // Remove the tab
+    tabs->removeTab( index );
 
     // If there is no need for tabs (only one GUI) stop using tabs
     if( tabs->count() == 1 )
@@ -404,8 +462,18 @@ void MainWindow::loadGuiIntoCurrentWindow( ASguiForm* gui )
         QTabWidget* tabs = getCentralTabs();
         if( tabs )
         {
+            // Remove the gui from the 'windows' menus and delete it
+            ASguiForm* oldGui = (ASguiForm*)(tabs->currentWidget() );
+            if( oldGui )
+            {
+                removeGuiFromWindowsMenu( oldGui );
+            }
+
+            // Remove the tab
             int i = tabs->currentIndex();
             tabs->removeTab( i );
+
+            // Replace the tab
             tabs->insertTab( i, gui, gui->getASGuiTitle() );
             tabs->setCurrentWidget( gui );
         }
@@ -415,6 +483,12 @@ void MainWindow::loadGuiIntoCurrentWindow( ASguiForm* gui )
     // (note, resize with a timer event to allow all widget sizes to be recalculated before we use them
     else
     {
+        // Remove the old gui from the 'windows' menus
+        ASguiForm* oldGui = (ASguiForm*)centralWidget();
+        if( oldGui )
+        {
+            removeGuiFromWindowsMenu( oldGui );
+        }
         setCentralWidget( gui );
         QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
     }
@@ -717,21 +791,18 @@ ASguiForm* MainWindow::getCurrentGui()
 //=================================================================================
 // Methods to manage the application wide 'Windows' menu
 //=================================================================================
-//??? To be tested and debugged. Currently crashing regularly
-
 
 // Add a gui to the 'windows' menus
 // Used when creating a new gui
 void MainWindow::addGuiToWindowsMenu( ASguiForm* gui )
 {
-    //??? To be tested
-    return;
-
     // Add the gui to the list of guis
     guiList.append( gui );
+
+    // For each main window, add a new action to the window menu
     for( int i = 0; i < mainWindowList.size(); i++ )
     {
-        mainWindowList[i]->ui.menuWindows->addAction( gui->getASGuiTitle() );
+        addWindowMenuAction(  mainWindowList[i]->ui.menuWindows, gui );
     }
 }
 
@@ -739,33 +810,46 @@ void MainWindow::addGuiToWindowsMenu( ASguiForm* gui )
 // Used when creating a new main window and there are already other main windows present with GUIs
 void MainWindow::buildWindowsMenu()
 {
-    //??? To be tested
-    return;
-
     // Add all current guis to the 'windows' menu
     for( int i = 0; i < guiList.size(); i++ )
-        ui.menuWindows->addAction( guiList[i]->getASGuiTitle() );
+    {
+        addWindowMenuAction(  ui.menuWindows, guiList[i] );
+    }
+}
+
+// Add a gui to a 'window' menu
+void MainWindow::addWindowMenuAction( QMenu* menu, ASguiForm* gui )
+{
+    // Create the action and add it to the window menu, setting the action data to be the gui
+    QAction* action = new QAction( gui->getASGuiTitle(), menu );
+    action->setData( qVariantFromValue( gui ) );
+    menu->addAction( action );
 }
 
 // Remove a gui from the 'windows' menus
 // Used when deleting a single gui
 void MainWindow::removeGuiFromWindowsMenu( ASguiForm* gui )
 {
-    //??? To be tested
-    return;
-
-    for( int i = 0; i < mainWindowList.size(); i++ )
+    // Remove the gui from the application wide list of guis
+    bool guiFound = false;
+    int i;
+    for( i = 0; i < guiList.size(); i++ )
     {
-        for( int j = 0; j < guiList.size(); j++ )
+        if( guiList[i] == gui )
         {
-            if( guiList[j] == gui )
-            {
-                guiList.removeAt( j );
+            guiList.removeAt( i );
+            guiFound = true;
+            break;
+        }
+    }
 
-                QList<QAction*> actions = mainWindowList[i]->ui.menuWindows->actions();
-                mainWindowList[i]->ui.menuWindows->removeAction( actions[j] );
-                break;
-            }
+    // For each main window, also remove the gui
+    if( guiFound )
+    {
+        for( int j = 0; j < mainWindowList.size(); j++ )
+        {
+            QList<QAction*> actions = mainWindowList[j]->ui.menuWindows->actions();
+            mainWindowList[j]->ui.menuWindows->removeAction( actions[i] );
         }
     }
 }
@@ -774,9 +858,6 @@ void MainWindow::removeGuiFromWindowsMenu( ASguiForm* gui )
 // Used when deleting a main window
 void MainWindow::removeAllGuisFromWindowsMenu()
 {
-    //??? To be tested
-    return;
-
     // If using tabs, delete the 'windows' menu references for each gui displayed in the tabs
     if( usingTabs )
     {
@@ -787,7 +868,7 @@ void MainWindow::removeAllGuisFromWindowsMenu()
             for( int i = 0; i < children.size(); i++ )
             {
                 ASguiForm* gui = (ASguiForm*)children[i];
-                    removeGuiFromWindowsMenu( gui );
+                removeGuiFromWindowsMenu( gui );
             }
         }
     }
@@ -797,6 +878,8 @@ void MainWindow::removeAllGuisFromWindowsMenu()
     {
         ASguiForm* gui = getCentralGui();
         if( gui )
+        {
             removeGuiFromWindowsMenu( gui );
+        }
     }
 }
