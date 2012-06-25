@@ -42,7 +42,7 @@
 #include <alarm.h>
 
 #include <QCaObject.h>
-#include <QCaLabel.h>
+#include <QELabel.h>
 #include <QCaVariableNamePropertyManager.h>
 
 #include <QCaStripChart.h>
@@ -165,7 +165,7 @@ private:
 
    QToolButton *channelProperties [NUMBER_OF_PVS];
    QLabel *pvNames [NUMBER_OF_PVS];
-   QCaLabel *caLabels [NUMBER_OF_PVS];
+   QELabel *caLabels [NUMBER_OF_PVS];
    QCaStripChartItem *items [NUMBER_OF_PVS];
 
    QVector<QwtPlotCurve *> curve_list;
@@ -289,7 +289,7 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
 
       this->channelProperties [slot] = new QToolButton (this->pvFrame);
       this->pvNames [slot] = new QLabel (this->pvFrame);
-      this->caLabels [slot] = new QCaLabel (this->pvFrame);
+      this->caLabels [slot] = new QELabel (this->pvFrame);
 
       x = (slot % 2) * 492 + 4;
       y = (slot / 2) * 18  + 4;
