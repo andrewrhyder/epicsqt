@@ -21,8 +21,8 @@
 # - Rebuild all
 # - Run the program
 # - analyse the results with the command: gprof <your-program-name>
-QMAKE_CXXFLAGS_DEBUG += -pg
-QMAKE_LFLAGS_DEBUG += -pg
+#QMAKE_CXXFLAGS_DEBUG += -pg
+#QMAKE_LFLAGS_DEBUG += -pg
 QT += core gui multimedia xml network
 TEMPLATE = lib
 CONFIG += plugin \
@@ -40,7 +40,7 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaPvProperties.png \
     src/QCaStripChart.png \
     src/QCaLineEdit.png \
-    src/QCaLabel.png \
+    src/QELabel.png \
     src/QSubstitutedLabel.png \
     src/QCaComboBox.png \
     src/Link.png \
@@ -59,7 +59,9 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/strip_chart_pause.png \
     src/strip_chart_page_forward.png \
     src/strip_chart_page_backward.png
-HEADERS += include/QCaPluginLibrary_global.h \
+
+HEADERS += \
+    include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
     include/QCaSpinBoxPlugin.h \
     include/QCaComboBoxPluginManager.h \
@@ -78,8 +80,6 @@ HEADERS += include/QCaPluginLibrary_global.h \
     include/ContainerProfile.h \
     include/ASguiFormPluginManager.h \
     include/ASguiFormPlugin.h \
-    include/QCaLabelPluginManager.h \
-    include/QCaLabelPlugin.h \
     include/QSubstitutedLabelPluginManager.h \
     include/QSubstitutedLabelPlugin.h \
     include/LinkPluginManager.h \
@@ -134,6 +134,7 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../data/include/qepicspv.h \
     ../widgets/include/managePixmaps.h \
     ../widgets/include/QCaDragDrop.h \
+    ../widgets/include/styleManager.h \
     ../widgets/include/QCaStringFormattingMethods.h \
     ../widgets/include/QCaSpinBox.h \
     ../widgets/include/QCaComboBox.h \
@@ -148,7 +149,8 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaRadioButton.h \
     ../widgets/include/QCaGenericButton.h \
     ../widgets/include/QCaLineEdit.h \
-    ../widgets/include/QCaLabel.h \
+    ../widgets/QELabel/QELabel.h \
+    ../widgets/QELabel/QELabelManager.h \
     ../widgets/include/QSubstitutedLabel.h \
     ../widgets/include/Link.h \
     ../widgets/include/ASguiForm.h \
@@ -167,6 +169,22 @@ HEADERS += include/QCaPluginLibrary_global.h \
     ../widgets/include/QCaLogin.h \
     ../widgets/include/QCaLog.h \
     ../widgets/include/QCaMotor.h
+
+#====================================
+# common properties
+HEADERS += \
+    ../widgets/include/singleVariableProperties.inc> \
+    ../widgets/include/standardProperties.inc> \
+    ../widgets/include/stringProperties.inc>
+
+#====================================
+# deprecated
+HEADERS += \
+    include/QCaLabelPluginManager.h \
+    include/QCaLabelPlugin.h
+
+#====================================
+
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \
@@ -181,8 +199,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaRadioButtonPlugin.cpp \
     src/QCaLineEditPluginManager.cpp \
     src/QCaLineEditPlugin.cpp \
-    src/QCaLabelPluginManager.cpp \
-    src/QCaLabelPlugin.cpp \
     src/QSubstitutedLabelPluginManager.cpp \
     src/QSubstitutedLabelPlugin.cpp \
     src/LinkPluginManager.cpp \
@@ -239,6 +255,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/qepicspv.cpp \
     ../widgets/src/managePixmaps.cpp \
     ../widgets/src/QCaDragDrop.cpp \
+    ../widgets/src/styleManager.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
     ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \
@@ -253,7 +270,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaRadioButton.cpp \
     ../widgets/src/QCaGenericButton.cpp \
     ../widgets/src/QCaLineEdit.cpp \
-    ../widgets/src/QCaLabel.cpp \
+    ../widgets/QELabel/QELabel.cpp \
+    ../widgets/QELabel/QELabelManager.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \
     ../widgets/src/Link.cpp \
     ../widgets/src/QCaPlot.cpp \
@@ -272,6 +290,15 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaLogin.cpp \
     ../widgets/src/QCaLog.cpp \
     ../widgets/src/QCaMotor.cpp
+
+#====================================
+# deprecated
+SOURCES += \
+    src/QCaLabelPluginManager.cpp
+#====================================
+
+
+
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
@@ -280,6 +307,7 @@ INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/archive/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
+    $$(QCAFRAMEWORK)/widgets/QELabel \
     $$(QCAFRAMEWORK)/qwt/src \
     $$(EPICS_BASE)/include
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux

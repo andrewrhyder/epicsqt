@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2012
  *
  *  Author:
  *    Andrew Rhyder
@@ -22,36 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCALABELPLUGINMANAGER_H
-#define QCALABELPLUGINMANAGER_H
+#ifndef STANDARDPROPERTIES_H
+#define STANDARDPROPERTIES_H
 
-#include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+public:
 
-/*!
-    ???
-*/
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabelPluginManager : public QObject, public QDesignerCustomWidgetInterface {
-     Q_OBJECT
-     Q_INTERFACES(QDesignerCustomWidgetInterface)
+    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
 
-  public:
-    QCaLabelPluginManager( QObject *parent = 0 );
+    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
 
-    bool isContainer() const;
-    bool isInitialized() const;
-    QIcon icon() const;
-    //QString domXml() const;
-    QString group() const;
-    QString includeFile() const;
-    QString name() const;
-    QString toolTip() const;
-    QString whatsThis() const;
-    QWidget *createWidget( QWidget *parent );
-    void initialize( QDesignerFormEditorInterface *core );
+    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
 
-  private:
-    bool initialized;
-};
+    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser);
+    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist);
+    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer);
 
-#endif /// QCALABELPLUGINMANAGER_H
+#endif // STANDARDPROPERTIES_H

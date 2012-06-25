@@ -27,19 +27,19 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
-#include <QCaLabel.h>
+#include <QELabel.h>
 
 /*!
     Constructor with no initialisation
 */
-QCaLabel::QCaLabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
+QELabel::QELabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaLabel::QCaLabel( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget( this )  {
+QELabel::QELabel( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget( this )  {
     setup();
     setVariableName( variableNameIn, 0 );
 }
@@ -47,7 +47,11 @@ QCaLabel::QCaLabel( const QString &variableNameIn, QWidget *parent ) : QLabel( p
 /*!
     Setup common to all constructors
 */
-void QCaLabel::setup() {
+void QELabel::setup() {
+
+    /// Set up a connection to recieve variable name property changes
+    /// The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 
     // Set up data
     // This control used a single data source
@@ -59,13 +63,13 @@ void QCaLabel::setup() {
     setAllowDrop( false );
 
     // Set the initial state
-    setText( "" );
+    setText( "----" );
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
     updateOption = UPDATE_TEXT;
 
-    defaultStyleSheet = styleSheet();
+//    defaultStyleSheet = styleSheet();
     // Use label signals
     // --Currently none--
 }
@@ -74,7 +78,7 @@ void QCaLabel::setup() {
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a label a QCaObject that streams strings is required.
 */
-qcaobject::QCaObject* QCaLabel::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QELabel::createQcaItem( unsigned int variableIndex ) {
     // Create the item as a QCaString
    return new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 }
@@ -84,7 +88,7 @@ qcaobject::QCaObject* QCaLabel::createQcaItem( unsigned int variableIndex ) {
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
 */
-void QCaLabel::establishConnection( unsigned int variableIndex ) {
+void QELabel::establishConnection( unsigned int variableIndex ) {
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -105,7 +109,7 @@ void QCaLabel::establishConnection( unsigned int variableIndex ) {
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
-void QCaLabel::updateToolTip( const QString& tip )
+void QELabel::updateToolTip( const QString& tip )
 {
     setToolTip( tip );
 }
@@ -115,7 +119,7 @@ void QCaLabel::updateToolTip( const QString& tip )
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QELabel::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
     /// If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
@@ -141,7 +145,7 @@ void QCaLabel::connectionChanged( QCaConnectionInfo& connectionInfo )
     Update the label text
     This is the slot used to recieve data updates from a QCaObject based class.
  */
-void QCaLabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QELabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     // Extract any formatting info from the text
     // For example "<background-color: red>Engineering Mode" or "<color: red>not selected"
@@ -163,13 +167,12 @@ void QCaLabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCa
     {
         if( !textStyle.isEmpty() )
         {
-            textStyleSheet = QString( "QWidget { " ).append( textStyle ).append( "; }");
+            updateDataStyle( QString( "QWidget { " ).append( textStyle ).append( "; }") );
         }
         else
         {
-            textStyleSheet = "";
+            updateDataStyle( "" );
         }
-        updateStyleSheet();
         lastTextStyle = textStyle;
     }
 
@@ -193,27 +196,15 @@ void QCaLabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCa
     if( alarmInfo.getSeverity() != lastSeverity )
     {
         updateToolTipAlarm( alarmInfo.severityName() );
-        alarmStyleSheet = alarmInfo.style();
+        updateStatusStyle( alarmInfo.style() );
         lastSeverity = alarmInfo.getSeverity();
-
-        updateStyleSheet();
     }
-}
-
-/*!
-   Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
- */
-void QCaLabel::updateStyleSheet()
-{
-    QString newStyleSheet;
-    newStyleSheet.append( defaultStyleSheet ).append( alarmStyleSheet ).append( textStyleSheet );
-    setStyleSheet( newStyleSheet );
 }
 
 /*!
    Override the default widget isEnabled to allow alarm states to override current enabled state
  */
-bool QCaLabel::isEnabled() const
+bool QELabel::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
     return caEnabled;
@@ -222,7 +213,7 @@ bool QCaLabel::isEnabled() const
 /*!
    Override the default widget setEnabled to allow alarm states to override current enabled state
  */
-void QCaLabel::setEnabled( bool state )
+void QELabel::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
     caEnabled = state;
@@ -234,22 +225,32 @@ void QCaLabel::setEnabled( bool state )
 /*!
    Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
  */
-void QCaLabel::requestEnabled( const bool& state )
+void QELabel::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
 
 //==============================================================================
 // Drag drop
-void QCaLabel::setDropText( QString text )
+void QELabel::setDropText( QString text )
 {
     setVariableName( text, 0 );
     establishConnection( 0 );
 }
 
-QString QCaLabel::getDropText()
+QString QELabel::getDropText()
 {
     return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
+// User level
+
+// The user level has changed
+// Modify the label properties accordingly
+void QELabel::userLevelChanged( userLevels level )
+{
+    styleUserLevelChanged( level );
 }
 
 //==============================================================================
@@ -258,34 +259,34 @@ QString QCaLabel::getDropText()
 
 // Access functions for variableName and variableNameSubstitutions
 // variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void QCaLabel::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
+void QELabel::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
     establishConnection( variableIndex );
 }
 
 // variable as tool tip
-void QCaLabel::setVariableAsToolTip( bool variableAsToolTipIn )
+void QELabel::setVariableAsToolTip( bool variableAsToolTipIn )
 {
     variableAsToolTip = variableAsToolTipIn;
 }
-bool QCaLabel::getVariableAsToolTip()
+bool QELabel::getVariableAsToolTip()
 {
     return variableAsToolTip;
 }
 
 // Update option Property convenience function
-void QCaLabel::setUpdateOption( updateOptions updateOptionIn )
+void QELabel::setUpdateOption( updateOptions updateOptionIn )
 {
     updateOption = updateOptionIn;
 }
-QCaLabel::updateOptions QCaLabel::getUpdateOption()
+QELabel::updateOptions QELabel::getUpdateOption()
 {
     return updateOption;
 }
 
 // visible (widget is visible outside 'Designer')
-void QCaLabel::setRunVisible( bool visibleIn )
+void QELabel::setRunVisible( bool visibleIn )
 {
     // Update the property
     caVisible = visibleIn;
@@ -299,19 +300,19 @@ void QCaLabel::setRunVisible( bool visibleIn )
     }
 
 }
-bool QCaLabel::getRunVisible()
+bool QELabel::getRunVisible()
 {
     return caVisible;
 }
 
 // allow drop (Enable/disable as a drop site for drag and drop)
-void QCaLabel::setAllowDrop( bool allowDropIn )
+void QELabel::setAllowDrop( bool allowDropIn )
 {
     allowDrop = allowDropIn;
     setAcceptDrops( allowDrop );
 }
 
-bool QCaLabel::getAllowDrop()
+bool QELabel::getAllowDrop()
 {
     return allowDrop;
 }

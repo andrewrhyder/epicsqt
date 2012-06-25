@@ -39,7 +39,7 @@
 #include <QCaConnectionInfo.h>
 #include <QCaDataPoint.h>
 #include <QCaDateTime.h>
-#include <QCaLabel.h>
+#include <QELabel.h>
 #include <QCaObject.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QCaArchiveManager.h>
@@ -79,11 +79,11 @@ private:
 
    QCaStripChartItem (QCaStripChart *chart,
                       QLabel *pvName,
-                      QCaLabel *caLabel,
+                      QELabel *caLabel,
                       unsigned int slot);
    ~QCaStripChartItem ();
 
-   qcaobject::QCaObject* getQcaItem ();   // Return reference to QCaLabel used to stream CA updates
+   qcaobject::QCaObject* getQcaItem ();   // Return reference to QELabel used to stream CA updates
    QCaVariableNamePropertyManager pvNameProperyManager;
    void setPvName (QString pvName, QString substitutions);
    QString getPvName ();

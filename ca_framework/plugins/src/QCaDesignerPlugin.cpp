@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
  
-#include <QCaLabelPluginManager.h>
+#include <QELabelManager.h>
 #include <QSubstitutedLabelPluginManager.h>
 #include <QCaLineEditPluginManager.h>
 #include <QCaPushButtonPluginManager.h>
@@ -46,6 +46,12 @@
 #include <QCaLogPluginManager.h>
 #include <QCaMotorPluginManager.h>
 
+//======================================================
+// Deprecated widgets
+#include <QCaLabelPluginManager.h>
+//======================================================
+
+
 #include <QtCore/qplugin.h>
 
 #include <QCaDesignerPlugin.h>
@@ -54,7 +60,7 @@
     Add all plugins that will be provided in QT Designer.
 */
 QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
-    widgets.append(new QCaLabelPluginManager(this));
+    widgets.append(new QELabelManager(this));
     widgets.append(new QSubstitutedLabelPluginManager(this));
     widgets.append(new QCaLineEditPluginManager(this));
     widgets.append(new QCaPushButtonPluginManager(this));
@@ -77,8 +83,13 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaLoginPluginManager(this));
     widgets.append(new QCaLogPluginManager(this));
     widgets.append(new QCaMotorPluginManager(this));
-}
 
+//======================================================
+// Deprecated widgets
+    widgets.append(new QCaLabelPluginManager(this));
+//======================================================
+
+}
 /*!
     Multiplugin interface.
 */
@@ -88,5 +99,4 @@ QList<QDesignerCustomWidgetInterface*> QCaWidgets::customWidgets() const {
 
 //! Publish plugins through to QT designer.
 Q_EXPORT_PLUGIN2(QCaWidgetsPlugin, QCaWidgets)
-
 

@@ -29,7 +29,7 @@
 #include <QCaWidget.h>
 #include <QCaInteger.h>
 #include <videowidget.h>
-#include <QCaLabel.h>
+#include <QELabel.h>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <profilePlot.h>
@@ -220,22 +220,22 @@ private slots:
     QRadioButton* profileSelectMode;
 
 
-    QCaLabel* acquirePeriodQCaLabel;
+    QELabel* acquirePeriodQELabel;
     QLabel* acquirePeriodLabel;
 
-    QCaLabel* exposureTimeQCaLabel;
+    QELabel* exposureTimeQELabel;
     QLabel* exposureTimeLabel;
 
-    QCaLabel* roiXQCaLabel;
+    QELabel* roiXQELabel;
     QLabel* roiXLabel;
 
-    QCaLabel* roiYQCaLabel;
+    QELabel* roiYQELabel;
     QLabel* roiYLabel;
 
-    QCaLabel* roiWQCaLabel;
+    QELabel* roiWQELabel;
     QLabel* roiWLabel;
 
-    QCaLabel* roiHQCaLabel;
+    QELabel* roiHQELabel;
     QLabel* roiHLabel;
 
     QScrollArea* scrollArea;

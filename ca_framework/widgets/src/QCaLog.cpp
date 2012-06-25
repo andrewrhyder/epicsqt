@@ -378,7 +378,7 @@ QColor QCaLog::getErrorColor()
 
 
 
-void QCaLog::checkBoxInfoToggled(bool pValue)
+void QCaLog::checkBoxInfoToggled(bool )//!!pValue)
 {
 
     refreshLog();
@@ -389,7 +389,7 @@ void QCaLog::checkBoxInfoToggled(bool pValue)
 
 
 
-void QCaLog::checkBoxWarningToggled(bool pValue)
+void QCaLog::checkBoxWarningToggled(bool )//!!pValue)
 {
 
     refreshLog();
@@ -399,7 +399,7 @@ void QCaLog::checkBoxWarningToggled(bool pValue)
 
 
 
-void QCaLog::checkBoxErrorToggled(bool pValue)
+void QCaLog::checkBoxErrorToggled(bool )//!!pValue)
 {
 
     refreshLog();
@@ -709,7 +709,7 @@ void _QTableWidget::refreshSize()
 
 
 
-void _QTableWidget::resizeEvent(QResizeEvent *pEvent)
+void _QTableWidget::resizeEvent(QResizeEvent* )//!!pEvent)
 {
 
     // TODO: this condition should always be execute when inside Qt Designer

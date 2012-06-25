@@ -31,7 +31,7 @@
 //#include <QDebug>
 #include <QDomDocument>
 //#include <QFile>
-//#include <QCaLabel.h>
+//#include <QELabel.h>
 //#include <QCaLineEdit.h>
 
 
@@ -453,7 +453,7 @@ void QCaMotor::refreshFields()
 
 
 
-void QCaMotor::comboBoxMotorSelected(int pValue)
+void QCaMotor::comboBoxMotorSelected(int )//!!pValue)
 {
 
     refreshFields();

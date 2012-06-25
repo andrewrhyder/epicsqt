@@ -51,7 +51,7 @@ bool QCaRadioButtonPluginManager::isInitialized() const {
 }
 
 /*!
-    Widget factory. Creates a QCaLabel widget.
+    Widget factory. Creates a QCaRadioButton widget.
 */
 QWidget *QCaRadioButtonPluginManager::createWidget ( QWidget *parent ) {
     return new QCaRadioButtonPlugin(parent);

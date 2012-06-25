@@ -122,7 +122,7 @@ public:
    PrivateData ();
    QCaStripChart *chart;
    QLabel *pvName;
-   QCaLabel *caLabel;
+   QELabel *caLabel;
 };
 
 QCaStripChartItem::PrivateData::PrivateData ()
@@ -136,7 +136,7 @@ QCaStripChartItem::PrivateData::PrivateData ()
 //
 QCaStripChartItem::QCaStripChartItem (QCaStripChart *chart,
                                       QLabel *pvName,
-                                      QCaLabel *caLabel,
+                                      QELabel *caLabel,
                                       unsigned int slot) : QObject (chart)
 {
    QColor defaultColour;
@@ -211,7 +211,7 @@ void QCaStripChartItem::clear ()
 //
 qcaobject::QCaObject* QCaStripChartItem::getQcaItem ()
 {
-   // We "know" that a QCaLabel has only one PV.
+   // We "know" that a QELabel has only one PV.
    //
    return this->privateData->caLabel->getQcaItem (0);
 }
@@ -234,7 +234,7 @@ void QCaStripChartItem::setPvName (QString pvName, QString substitutions)
    this->privateData->pvName->setText (pvName);
    this->privateData->caLabel->setVariableNameAndSubstitutions (pvName, substitutions, 0);
 
-   // We know that QCaLabels use slot zero for the connection.
+   // We know that QELabels use slot zero for the connection.
    //
    qca = this->getQcaItem ();
    if (qca) {

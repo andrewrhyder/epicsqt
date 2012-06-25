@@ -27,7 +27,7 @@
  *
  * This class provides a communication mechanism from the code creating QCa widgets to the QCa widgets.
  *
- * When QCa widgets, such as QCaLabel, are created, they need to know environmental
+ * When QCa widgets, such as QELabel, are created, they need to know environmental
  * information such as what macro substitutions to apply, or where to signal error messages.
  * Also, the code creating the QCa widgets may require a reference to all the created QCa widgets.
  * In some cases this information cannot be passed during construction or set up post construction
@@ -387,7 +387,7 @@ void ContainerProfile::addContainedWidget( QCaWidget* containedWidget )
   This list provides the application with a list of its QCa widgets without having to trawl through
   the widget hierarchy looking for them. Generally the entire list is discarded after it has
   been used and is no longer relevent when the widgets are deleted. Some QCaWidgets can be
-  destroyed, however, while a form is being created (for example, QCaLabel widgets are used
+  destroyed, however, while a form is being created (for example, QELabel widgets are used
   within QCaMotor widgets and are created and sometimes destroyed during the creation of a QCaMotor
   record) For this reason, QCaWidgets are removed from this list on destruction.
 

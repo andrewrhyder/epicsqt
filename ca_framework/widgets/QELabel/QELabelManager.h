@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2012
  *
  *  Author:
  *    Andrew Rhyder
@@ -22,8 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCALABELPLUGINMANAGER_H
-#define QCALABELPLUGINMANAGER_H
+#ifndef QELABELMANAGER_H
+#define QELABELMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
@@ -31,12 +31,12 @@
 /*!
     ???
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabelPluginManager : public QObject, public QDesignerCustomWidgetInterface {
+class QCAPLUGINLIBRARYSHARED_EXPORT QELabelManager : public QObject, public QDesignerCustomWidgetInterface {
      Q_OBJECT
      Q_INTERFACES(QDesignerCustomWidgetInterface)
 
   public:
-    QCaLabelPluginManager( QObject *parent = 0 );
+    QELabelManager( QObject *parent = 0 );
 
     bool isContainer() const;
     bool isInitialized() const;
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabelPluginManager : public QObject, publ
     bool initialized;
 };
 
-#endif /// QCALABELPLUGINMANAGER_H
+#endif /// QELABELMANAGER_H

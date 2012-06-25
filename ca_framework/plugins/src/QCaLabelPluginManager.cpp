@@ -68,7 +68,7 @@ QString QCaLabelPluginManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QCaLabelPluginManager::group() const {
-    return "EPICS Widgets";
+    return "EPICS Deprecated Widgets";
 }
 
 /*!

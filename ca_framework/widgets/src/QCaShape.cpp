@@ -198,7 +198,7 @@ void QCaShape::connectionChanged( QCaConnectionInfo& connectionInfo )
 /*!
     Use a data update to alter the shape's attributes.
     The name setValue is less appropriate for this QCa widget than for others
-    such as QCaLabel where setValue() sets the value displayed. For this
+    such as QELabel where setValue() sets the value displayed. For this
     widget setting the value means modifying one attribute such as position or
     color.
     This is the slot used to recieve data updates from a QCaObject based class.

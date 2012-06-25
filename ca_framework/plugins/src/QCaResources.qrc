@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
         <file>QCaLineEdit.png</file>
-        <file>QCaLabel.png</file>
         <file>QCaPushButton.png</file>
         <file>QCaSlider.png</file>
         <file>QCaSpinBox.png</file>
@@ -27,6 +26,7 @@
         <file>strip_chart_pause.png</file>
         <file>strip_chart_page_forward.png</file>
         <file>strip_chart_page_backward.png</file>
+        <file>QELabel.png</file>
     </qresource>
     <qresource prefix="/user">
         <file>record_field_list.txt</file>

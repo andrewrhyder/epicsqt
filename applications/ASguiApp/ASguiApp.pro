@@ -44,7 +44,9 @@ INCLUDEPATH += . \
     $$(QCAFRAMEWORK)/api/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
+    $$(QCAFRAMEWORK)/widgets/QELabel \
     $$(QCAFRAMEWORK)/plugins/include
+
 LIBS += -L$$(QCAFRAMEWORK)/plugins \
     -lQCaPlugin
 FORMS += ./src/MainWindow.ui

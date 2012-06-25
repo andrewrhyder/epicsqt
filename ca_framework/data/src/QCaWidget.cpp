@@ -23,7 +23,7 @@
  */
 
 /*!
-  This class is used as a base for all CA aware wigets, such as QCaLabel, QCaSpinBox, etc.
+  This class is used as a base for all CA aware wigets, such as QELabel, QCaSpinBox, etc.
   It manages common issues including creating a source of CA data updates, handling error,
   warning and status messages, and setting tool tips based on variable names.
 
@@ -33,17 +33,17 @@
   In particular, this class manages QCaObject classes that stream updates to the
   CA aware widget class. But this class, however, doesn't know how to format the data,
   or how the updates will be used.
-  To resolve this, this class asks its parent class (such as QCaLabel) to create the
+  To resolve this, this class asks its parent class (such as QELabel) to create the
   QCaObject class in what ever flavour it wants, by calling the virtual function createQcaItem.
-  A QCaLabel, for example, wants string updates so it creates a QCaString which is based on a
+  A QELabel, for example, wants string updates so it creates a QCaString which is based on a
   QCaObject class and formats all updates as strings.
 
-  The CA aware parent class (such as QCaLabel) defines a variable by calling VariableNameManager::setVariableName().
-  The VariableNamePropertyManager class calls the establishConnection function of the CA aware parent class, such as QCaLabel
+  The CA aware parent class (such as QELabel) defines a variable by calling VariableNameManager::setVariableName().
+  The VariableNamePropertyManager class calls the establishConnection function of the CA aware parent class, such as QELabel
   when it has a new variable name.
 
   This class uses its base QCaToolTip class to format tool tips. that class in turn calls the CA aware parent class
-  (such as QCaLabel) directly to make use of a new tool tip.
+  (such as QELabel) directly to make use of a new tool tip.
 
 
   After construction, a CA aware widget is activated (starts updating) by calling it's
@@ -67,12 +67,12 @@
 
   The createConnection() function sets up the widget 'tool tip', then immedietly calls the CA aware widget back asking it to create
   an object based on QCaObject. This object will supply a stream of CA update signals to the CA aware object in a form that
-  it needs. For example a QCaLabel creates a QCaString object. The QCaString class is based on the QCaObject class and converts
+  it needs. For example a QELabel creates a QCaString object. The QCaString class is based on the QCaObject class and converts
   all update data to a strings which is required for updating a Qt label widget. This class stores the QCaObject based class.
 
   After the establishConnection() function in the CA aware widget has called createConnection(), the remaining task of the
   establishConnection() function is to connect the signals of the newly created QCaObject based classes to its own slots
-  so that data updates can be used. For example, a QCaLabel connects the 'stringChanged' signal
+  so that data updates can be used. For example, a QELabel connects the 'stringChanged' signal
   fromthe QCaString object to its setLabelText slot.
  */
 
@@ -82,7 +82,7 @@
 /*!
     Constructor
 */
-QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ) {
+QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( owner )  {
 
     /// Initially flag no variables array is defined.
     /// This will be corrected when the first variable is declared
@@ -121,7 +121,7 @@ QCaWidget::~QCaWidget() {
     // Remove this widget remove this widget from the list of contained widgets if it is there.
     // The list is only used during form construction and generally widgets are not destroyed during form
     // construction, but there are exceptions. A typical exception is QCaMotor, which creates and sometimes
-    // destroys QCaLabels during contruction. These QCaLabels get added to the contained widgets list
+    // destroys QELabels during contruction. These QELabels get added to the contained widgets list
     // but are then destroyed. Unless they are removed from the list, the form will attempt to activate them.
     removeContainedWidget( this );
 
@@ -138,7 +138,7 @@ QCaWidget::~QCaWidget() {
 /*!
     Set the number of variables that will be used for this widget.
     Create an array of QCaObject based objects to suit.
-    This is called by the CA aware widgets based on this class, such as a QCaLabel.
+    This is called by the CA aware widgets based on this class, such as a QELabel.
 */
 void QCaWidget::setNumVariables( unsigned int numVariablesIn ) {
 
@@ -179,7 +179,7 @@ void QCaWidget::activate()
 
 /*!
     Create a CA connection and initiates updates if required.
-    This is called by the establishConnection function of CA aware widgets based on this class, such as a QCaLabel.
+    This is called by the establishConnection function of CA aware widgets based on this class, such as a QELabel.
     If successfull it will return the QCaObject based object supplying data update signals
 */
 qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) {
@@ -259,7 +259,7 @@ void QCaWidget::establishConnection( unsigned int )
 
 /*!
     Return a reference to one of the qCaObjects used to stream CA data updates to the widget
-    This is called by CA aware widgets based on this class, such as a QCaLabel, mainly when they
+    This is called by CA aware widgets based on this class, such as a QELabel, mainly when they
     want to connect to its signals to recieve data updates.
 */
 qcaobject::QCaObject* QCaWidget::getQcaItem( unsigned int variableIndex ) {

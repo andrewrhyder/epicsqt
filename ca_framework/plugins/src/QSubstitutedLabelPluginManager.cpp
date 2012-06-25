@@ -103,7 +103,7 @@ bool QSubstitutedLabelPluginManager::isContainer() const {
     ???
 */
 /*QString QSubstitutedLabelPluginManager::domXml() const {
-    return "<widget class=\"QSubstitutedLabel\" name=\"qCaLabel\">\n"
+    return "<widget class=\"QSubstitutedLabel\" name=\"qSubstitutedLabel\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"

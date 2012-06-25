@@ -156,18 +156,18 @@ void QCaImage::setup() {
     labelLayout->setMargin( 0 );
     labelGroup->setLayout( labelLayout);
 
-    acquirePeriodQCaLabel = new QCaLabel( this );
+    acquirePeriodQELabel = new QELabel( this );
     acquirePeriodLabel = new QLabel( this );
     acquirePeriodLabel->setText( "Acquire Period:" );
 
-    exposureTimeQCaLabel = new QCaLabel( this );
+    exposureTimeQELabel = new QELabel( this );
     exposureTimeLabel = new QLabel( this );
     exposureTimeLabel->setText( "Exposure Time:" );
 
     labelLayout->addWidget( acquirePeriodLabel, 0, 0 );
-    labelLayout->addWidget( acquirePeriodQCaLabel, 0, 1 );
+    labelLayout->addWidget( acquirePeriodQELabel, 0, 1 );
     labelLayout->addWidget( exposureTimeLabel, 1, 0 );
-    labelLayout->addWidget( exposureTimeQCaLabel, 1, 1 );
+    labelLayout->addWidget( exposureTimeQELabel, 1, 1 );
 
     labelLayout->setColumnStretch( 2, 1 );
     labelLayout->setRowStretch( 2, 1 );
@@ -181,31 +181,31 @@ void QCaImage::setup() {
     roiGroup->setLayout( roiLayout);
 
 
-    roiXQCaLabel = new QCaLabel( roiGroup );
+    roiXQELabel = new QELabel( roiGroup );
     roiXLabel = new QLabel( roiGroup );
     roiXLabel->setText( "X:" );
 
-    roiYQCaLabel = new QCaLabel( roiGroup );
+    roiYQELabel = new QELabel( roiGroup );
     roiYLabel = new QLabel( roiGroup );
     roiYLabel->setText( "Y:" );
 
-    roiWQCaLabel = new QCaLabel( roiGroup );
+    roiWQELabel = new QELabel( roiGroup );
     roiWLabel = new QLabel( roiGroup );
     roiWLabel->setText( "Width:" );
 
-    roiHQCaLabel = new QCaLabel( roiGroup );
+    roiHQELabel = new QELabel( roiGroup );
     roiHLabel = new QLabel( roiGroup );
     roiHLabel->setText( "Height:" );
 
 
     roiLayout->addWidget( roiXLabel, 0, 0 );
-    roiLayout->addWidget( roiXQCaLabel, 0, 1 );
+    roiLayout->addWidget( roiXQELabel, 0, 1 );
     roiLayout->addWidget( roiYLabel, 1, 0 );
-    roiLayout->addWidget( roiYQCaLabel, 1, 1 );
+    roiLayout->addWidget( roiYQELabel, 1, 1 );
     roiLayout->addWidget( roiWLabel, 2, 0 );
-    roiLayout->addWidget( roiWQCaLabel, 2, 1 );
+    roiLayout->addWidget( roiWQELabel, 2, 1 );
     roiLayout->addWidget( roiHLabel, 3, 0 );
-    roiLayout->addWidget( roiHQCaLabel, 3, 1 );
+    roiLayout->addWidget( roiHQELabel, 3, 1 );
 
     roiLayout->setColumnStretch( 2, 1 );
 
@@ -352,34 +352,34 @@ qcaobject::QCaObject* QCaImage::createQcaItem( unsigned int variableIndex ) {
         case HEIGHT_VARIABLE:
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
-        // Don't create anything - just pass on the variable name and substitutions on to the acquire period QCaLabel
+        // Don't create anything - just pass on the variable name and substitutions on to the acquire period QELabel
         case ACQUIREPERIOD_VARIABLE:
-            acquirePeriodQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ACQUIREPERIOD_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            acquirePeriodQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ACQUIREPERIOD_VARIABLE ), getVariableNameSubstitutions(), 0 );
             return NULL;
 
-        // Don't create anything - just pass on the variable name and substitutions on to the exposure time QCaLabel
+        // Don't create anything - just pass on the variable name and substitutions on to the exposure time QELabel
         case EXPOSURETIME_VARIABLE:
-            exposureTimeQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( EXPOSURETIME_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            exposureTimeQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( EXPOSURETIME_VARIABLE ), getVariableNameSubstitutions(), 0 );
             return NULL;
 
-        // Pass on the variable name and substitutions on to the region of interext X QCaLabel, then create the roi X as a QCaInteger
+        // Pass on the variable name and substitutions on to the region of interext X QELabel, then create the roi X as a QCaInteger
         case ROI_X_VARIABLE:
-            roiXQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_X_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            roiXQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_X_VARIABLE ), getVariableNameSubstitutions(), 0 );
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
-        // Pass on the variable name and substitutions on to the region of interext Y QCaLabel, then create the roi Y as a QCaInteger
+        // Pass on the variable name and substitutions on to the region of interext Y QELabel, then create the roi Y as a QCaInteger
         case ROI_Y_VARIABLE:
-            roiYQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_Y_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            roiYQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_Y_VARIABLE ), getVariableNameSubstitutions(), 0 );
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
-        // Pass on the variable name and substitutions on to the region of interext Width QCaLabel, then create the roi width as a QCaInteger
+        // Pass on the variable name and substitutions on to the region of interext Width QELabel, then create the roi width as a QCaInteger
         case ROI_W_VARIABLE:
-            roiWQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_W_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            roiWQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_W_VARIABLE ), getVariableNameSubstitutions(), 0 );
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
-        // Pass on the variable name and substitutions on to the region of interext Height QCaLabel, then create the roi height as a QCaInteger
+        // Pass on the variable name and substitutions on to the region of interext Height QELabel, then create the roi height as a QCaInteger
         case ROI_H_VARIABLE:
-            roiHQCaLabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_H_VARIABLE ), getVariableNameSubstitutions(), 0 );
+            roiHQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_H_VARIABLE ), getVariableNameSubstitutions(), 0 );
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
         default:
@@ -427,13 +427,13 @@ void QCaImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
-        // QCa creation for these variables was handballed to the embedded QCaLabel widgets. Do nothing here
+        // QCa creation for these variables was handballed to the embedded QELabel widgets. Do nothing here
         case ACQUIREPERIOD_VARIABLE:
         case EXPOSURETIME_VARIABLE:
             break;
 
         // QCa creation occured, but no connection for display is required here.
-        // (Display was handballed to the embedded QCaLabel widgets which will manage their own connections)
+        // (Display was handballed to the embedded QELabel widgets which will manage their own connections)
         case ROI_X_VARIABLE:
         case ROI_Y_VARIABLE:
         case ROI_W_VARIABLE:
@@ -752,7 +752,7 @@ void QCaImage::manageButtonGroup()
 void QCaImage::manageAcquirePeriodLabel()
 {
     acquirePeriodLabel->setVisible( displayAcquirePeriod );
-    acquirePeriodQCaLabel->setVisible( displayAcquirePeriod );
+    acquirePeriodQELabel->setVisible( displayAcquirePeriod );
     manageLabelGroup();
 }
 
@@ -760,7 +760,7 @@ void QCaImage::manageAcquirePeriodLabel()
 void QCaImage::manageExposureTimeLabel()
 {
     exposureTimeLabel->setVisible( displayExposureTime );
-    exposureTimeQCaLabel->setVisible( displayExposureTime );
+    exposureTimeQELabel->setVisible( displayExposureTime );
     manageLabelGroup();
 }
 
@@ -1684,7 +1684,7 @@ void QCaImage::currentPixelInfo( QPoint pos )
 {
     // If the pixel is not within the image, display nothing
     QString s;
-    if( pos.x() < 0 || pos.y() < 0 || pos.x() >= imageBuffWidth || pos.y() >= imageBuffHeight )
+    if( pos.x() < 0 || pos.y() < 0 || pos.x() >= (int)imageBuffWidth || pos.y() >= (int)imageBuffHeight )
     {
         s = "";
     }
