@@ -316,7 +316,11 @@ QCaStripChart::PrivateData::PrivateData (QCaStripChart *chartIn)
    this->plotFrame->setFrameShape (QFrame::Panel);
 
    this->plot = new QwtPlot (this->plotFrame);
+#if QWT_VERSION >= 0x060000
    this->plot->setCanvasBackground (QBrush (clWhite));
+#else
+   this->plot->setCanvasBackground (clWhite);
+#endif
    this->plot->setCanvasLineWidth (1);
    this->plot->setLineWidth (1);
 

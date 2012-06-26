@@ -308,7 +308,7 @@ INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
     $$(QCAFRAMEWORK)/data/include \
     $$(QCAFRAMEWORK)/widgets/include \
     $$(QCAFRAMEWORK)/widgets/QELabel \
-    $$(QCAFRAMEWORK)/qwt/src \
+    /usr/include/qwt \
     $$(EPICS_BASE)/include
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
@@ -317,7 +317,7 @@ INCLUDEPATH += $$(EPICS_BASE)/include
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \
-    -L$$(QCAFRAMEWORK)/qwt/lib \
+#    -L$$(QCAFRAMEWORK)/qwt/lib \
     -lqwt
 
 FORMS += \

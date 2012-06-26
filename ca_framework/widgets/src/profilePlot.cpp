@@ -27,8 +27,11 @@ void profilePlot::setScale( int scaleIn )
 void profilePlot::setProfile( QVector<QPointF>& profile, double maxX, double maxY )
 {
     // Set the curve data
+#if QWT_VERSION >= 0x060000
     curve->setSamples( profile );
-
+#else
+    curve->setData( profile );
+#endif
     setAxisScale( xBottom, 0, maxX );
     setAxisScale( yLeft, 0, maxY );
 

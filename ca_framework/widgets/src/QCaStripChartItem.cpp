@@ -448,7 +448,11 @@ void QCaStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
             if (tdata.count () >= 1) {
                if (tdata.count () >= 2) {
                   curve = this->allocateCurve ();
+#if QWT_VERSION >= 0x060000
                   curve->setSamples (tdata, ydata);
+#else
+                  curve->setData (tdata, ydata);
+#endif
                }
                tdata.clear ();
                ydata.clear ();
@@ -487,7 +491,11 @@ void QCaStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
          plottedTrackRange.merge (ydata.last ());
       }
       curve = this->allocateCurve ();
+#if QWT_VERSION >= 0x060000
       curve->setSamples (tdata, ydata);
+#else
+      curve->setData (tdata, ydata);
+#endif
    }
 }   // plotDataPoints
 

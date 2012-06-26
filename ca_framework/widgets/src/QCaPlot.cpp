@@ -302,8 +302,11 @@ void QCaPlot::setPlotDataCommon( const unsigned int variableIndex )
     }
 
     // Set the curve data
+#if QWT_VERSION >= 0x060000
     tr->curve->setSamples( tr->xdata, tr->ydata );
-
+#else
+    tr->curve->setData( tr->xdata, tr->ydata );
+#endif
     // Update the plot
     replot();
 }
@@ -648,13 +651,21 @@ QString QCaPlot::getTitle()
 // Access functions for backgroundColor
 void    QCaPlot::setBackgroundColor( QColor backgroundColor )
 {
+#if QWT_VERSION >= 0x060000
     QBrush brush = canvasBackground();
     brush.setColor( backgroundColor );
     setCanvasBackground( brush );
+#else
+    setCanvasBackground( backgroundColor );
+#endif
 }
 QColor QCaPlot::getBackgroundColor()
 {
+#if QWT_VERSION >= 0x060000
     return canvasBackground().color();
+#else
+    return canvasBackground();
+#endif
 }
 
 // Access functions for traceStyle
