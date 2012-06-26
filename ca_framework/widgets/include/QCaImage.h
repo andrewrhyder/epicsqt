@@ -295,16 +295,25 @@ private slots:
 
     formatOptions formatOption;
 
+    int vSliceX;
+    int hSliceY;
+    QPoint profileLineStart;
+    QPoint profileLineEnd;
     QPoint selectedAreaPoint1;
     QPoint selectedAreaPoint2;
-
     QPoint selectedAreaScaledPoint1;
     QPoint selectedAreaScaledPoint2;
+
+    bool haveVSliceX;
+    bool haveHSliceY;
+    bool haveProfileLine;
+    bool haveSelectedArea;
 
     void generateVSlice( int x );
     void generateHSlice( int y );
     void generateProfile( QPoint point1, QPoint point2 );
 
+    void updateMarkups();
 
     QVector<QPointF> vSliceData;
     QVector<QPointF> hSliceData;

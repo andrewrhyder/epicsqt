@@ -26,7 +26,7 @@
   This class is a CA aware image widget based on the Qt frame widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details.
 
-  This class displays images from bytearray (originating from a EPICS waveform record)
+  This class displays images from byte array (originating from a EPICS waveform record)
   It determines the width and height from other EPICS variables.
   The user can interact with the image.
   The image is managed by the VideoWidget class.
@@ -82,6 +82,10 @@ void QCaImage::setup() {
     displayZoomButton = false;
     displayRoiButton = false;
 
+    haveVSliceX = false;
+    haveHSliceY = false;
+    haveProfileLine = false;
+    haveSelectedArea = false;
 
 //!!!all property variables initialised?
 
@@ -623,6 +627,30 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
         //setImageInvalid()
         //!!! not done
     }
+
+    // Update markups if required
+    updateMarkups();
+}
+
+// Update markups if required
+void QCaImage::updateMarkups()
+{
+    if( haveVSliceX )
+    {
+        generateVSlice( vSliceX );
+    }
+    if( haveHSliceY )
+    {
+        generateHSlice( hSliceY );
+    }
+    if( haveProfileLine )
+    {
+        generateProfile( profileLineStart, profileLineEnd );
+    }
+    // Nothing to regenerate for area yet
+    //if( haveSelectedArea )
+    //{
+    //}
 }
 
 // Set the image buffer used for generate images will be large enough to hold the processed image
@@ -1333,13 +1361,17 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
     switch( mode )
     {
         case imageMarkup::MARKUP_MODE_V_LINE:
-            generateVSlice( scaledPoint1.x() );
+            vSliceX = scaledPoint1.x();
+            haveVSliceX = true;
+            generateVSlice( vSliceX );
             s.sprintf( "V: %d", scaledPoint1.x() );
             currentVertPixelLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_H_LINE:
-            generateHSlice( scaledPoint1.y() );
+            hSliceY = scaledPoint1.y();
+            haveHSliceY = true;
+            generateHSlice( hSliceY );
             s.sprintf( "H: %d", scaledPoint1.y() );
             currentHozPixelLabel->setText( s );
             break;
@@ -1349,6 +1381,7 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
             selectedAreaPoint2 = point2;
             selectedAreaScaledPoint1 = scaledPoint1;
             selectedAreaScaledPoint2 = scaledPoint2;
+            haveSelectedArea = true;
 
             roiButton->setEnabled( true );
             zoomButton->setEnabled( true );
@@ -1358,7 +1391,10 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
             break;
 
         case imageMarkup::MARKUP_MODE_LINE:
-            generateProfile( scaledPoint1, scaledPoint2 );
+            profileLineStart = scaledPoint1;
+            profileLineEnd = scaledPoint2;
+            haveProfileLine = true;
+            generateProfile( profileLineStart, profileLineEnd );
             s.sprintf( "L: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
             currentLineLabel->setText( s );
             break;
