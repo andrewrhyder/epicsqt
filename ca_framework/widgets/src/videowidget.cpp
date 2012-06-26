@@ -66,7 +66,7 @@ void VideoWidget::paintEvent(QPaintEvent* event )
 {
     // If this is the first paint event, and there is no image to display, fill it with black
     QPainter painter(this);
-    painter.rotate( rotation );
+
     if( firstUpdate && currentImage.isNull() )
     {
         QColor bg(0, 0, 0, 255);
@@ -170,11 +170,6 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
 {
     // Ensure the markups match the new size
     markupResize( event->size() );
-}
-
-void VideoWidget::setRotation( double angle )
-{
-    rotation = angle;
 }
 
 void VideoWidget::markupAction( markupModes mode, QPoint point1, QPoint point2 )

@@ -69,7 +69,6 @@ private:
     QImage* compositeImageBackground; // Current image, scaled to the composite image size
     bool compositeImageBackgroundStale;
 
-    double rotation;
     bool firstUpdate;
 
     double getHScale();

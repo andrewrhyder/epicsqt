@@ -119,17 +119,25 @@ class QCaImagePlugin : public QCaImage {
     Q_PROPERTY(QColor markupColor READ getMarkupColor WRITE setMarkupColor)
 
 
-    Q_ENUMS(SizeOptions)
-    Q_PROPERTY(SizeOptions sizeOption READ getSizeOptionProperty WRITE setSizeOptionProperty)
-    enum SizeOptions { Zoom   = QCaImage::SIZE_OPTION_ZOOM,
-                       Fit    = QCaImage::SIZE_OPTION_FIT,
-                       Resize = QCaImage::SIZE_OPTION_RESIZE };
-    void setSizeOptionProperty( SizeOptions sizeOption ){ setSizeOption( (QCaImage::sizeOptions)sizeOption ); }
-    SizeOptions getSizeOptionProperty(){ return (SizeOptions)getSizeOption(); }
+    Q_ENUMS(ResizeOptions)
+    Q_PROPERTY(ResizeOptions resizeOption READ getResizeOptionProperty WRITE setResizeOptionProperty)
+    enum ResizeOptions { Zoom   = QCaImage::RESIZE_OPTION_ZOOM,
+                         Fit    = QCaImage::RESIZE_OPTION_FIT };
+    void setResizeOptionProperty( ResizeOptions resizeOption ){ setResizeOption( (QCaImage::resizeOptions)resizeOption ); }
+    ResizeOptions getResizeOptionProperty(){ return (ResizeOptions)getResizeOption(); }
 
     Q_PROPERTY(int zoom READ getZoom WRITE setZoom)
 
-    Q_PROPERTY(double rotation READ getRotation WRITE setRotation)
+    Q_PROPERTY(RotationOptions rotation READ getRotationProperty WRITE setRotationProperty)
+    enum RotationOptions { NoRotation    = QCaImage::ROTATION_0,
+                           Rotate90Right = QCaImage::ROTATION_90_RIGHT,
+                           Rotate90Left  = QCaImage::ROTATION_90_LEFT,
+                           Rotate180     = QCaImage::ROTATION_180 };
+    void setRotationProperty( RotationOptions rotation ){ setRotation( (QCaImage::rotationOptions)rotation ); }
+    RotationOptions getRotationProperty(){ return (RotationOptions)getRotation(); }
+
+    Q_PROPERTY(bool verticalFlip READ getVerticalFlip WRITE setVerticalFlip)
+    Q_PROPERTY(bool horizontalFlip READ getHorizontalFlip WRITE setHorizontalFlip)
 
     Q_PROPERTY(int initialHosScrollPos READ getInitialHozScrollPos WRITE setInitialHozScrollPos)
     Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)

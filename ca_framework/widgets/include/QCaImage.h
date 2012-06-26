@@ -73,17 +73,24 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     formatOptions getFormatOption();
 
     // Size options
-    enum sizeOptions { SIZE_OPTION_ZOOM, SIZE_OPTION_FIT, SIZE_OPTION_RESIZE };
-    void setSizeOption( sizeOptions sizeOptionIn );
-    sizeOptions getSizeOption();
+    enum resizeOptions { RESIZE_OPTION_ZOOM, RESIZE_OPTION_FIT };
+    void setResizeOption( resizeOptions resizeOptionIn );
+    resizeOptions getResizeOption();
 
     // Zoom
     void setZoom( int zoomIn );
     int getZoom();
 
     // Rotation
-    void setRotation( double rotationIn );
-    double getRotation();
+    enum rotationOptions { ROTATION_0, ROTATION_90_RIGHT, ROTATION_90_LEFT, ROTATION_180 };
+    void setRotation( rotationOptions rotationIn );
+    rotationOptions getRotation();
+
+    void setHorizontalFlip( bool flipHozIn );
+    bool getHorizontalFlip();
+
+    void setVerticalFlip( bool flipVertIn );
+    bool getVerticalFlip();
 
     void setInitialHozScrollPos( int initialHosScrollPosIn );
     int getInitialHozScrollPos();
@@ -151,9 +158,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ACQUIREPERIOD_VARIABLE, EXPOSURETIME_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, QCAIMAGE_NUM_VARIABLES };
 
-    sizeOptions sizeOption;
+    resizeOptions resizeOption;
     int zoom;
-    double rotation;
+    rotationOptions rotation;
+    bool flipVert;
+    bool flipHoz;
+
     int initialHozScrollPos;
     int initialVertScrollPos;
     bool displayAcquirePeriod;
