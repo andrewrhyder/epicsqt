@@ -36,7 +36,7 @@ public:
     ~profilePlot();
 
     void setScale( int scaleIn );
-    void setProfile( QVector<QPointF>& profile, double maxX, double maxY );
+    void setProfile( QVector<QPointF>& profile, double minX, double maxX, double minY, double maxY );
     void setCursor( int cursorIn );
 
 protected:

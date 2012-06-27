@@ -660,7 +660,6 @@ void QCaImage::displayImage()
     // loops to where ever that next pixel is according to the rotation and flipping.
     dataIndex = start;
     //!!! this code needs to go FAST. Put the switch in the inner loop outside both and reproduce both loops within each case
-    unsigned char aa=0;
     for( int i = 0; i < outCount; i++ )
     {
         for( int j = 0; j < inCount; j++ )
@@ -1536,7 +1535,7 @@ void QCaImage::generateVSlice( int x )
     if( x < 0 || x >= (int)rotatedImageBuffWidth() )
     {
         QVector<QPointF> empty;
-        vSliceDisplay->setProfile( empty, 1, 1 );
+        vSliceDisplay->setProfile( empty, 0.0, 1.0, 0.0, 1.0 );
         return;
     }
 
@@ -1555,16 +1554,14 @@ void QCaImage::generateVSlice( int x )
     pos.setX( x );
     for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
     {
-        // Determine the next position
         pos.setY( i );
-
         vSliceData[i].setY( i );
         vSliceData[i].setX( getFloatingPixelValueFromData( getImageDataPtr( pos ), imageDataSize ) );
         dataPtr += dataPtrStep;
     }
 
     // Display the profile
-    vSliceDisplay->setProfile( vSliceData, 1<<(imageDataSize*8), vSliceData.size() );
+    vSliceDisplay->setProfile( vSliceData, (double)(1<<(imageDataSize*8)), 0.0, (double)(vSliceData.size()), 0.0 );
 }
 
 // Return a pointer to pixel data in the original image data.
@@ -1589,7 +1586,7 @@ void QCaImage::generateHSlice( int y )
     if( y < 0 || y >= (int)rotatedImageBuffHeight() )
     {
         QVector<QPointF> empty;
-        hSliceDisplay->setProfile( empty, 1, 1 );
+        hSliceDisplay->setProfile( empty, 0.0, 1.0, 0.0, 1.0 );
         return;
     }
 
@@ -1603,15 +1600,18 @@ void QCaImage::generateHSlice( int y )
     int dataPtrStep = imageDataSize;
 
     // Determine the image data value at each pixel
+    QPoint pos;
+    pos.setY( y );
     for( unsigned int i = 0; i < rotatedImageBuffWidth(); i++ )
     {
+        pos.setX( i );
         hSliceData[i].setX( i );
-        hSliceData[i].setY( getFloatingPixelValueFromData( dataPtr, imageDataSize ) );
+        hSliceData[i].setY( getFloatingPixelValueFromData( getImageDataPtr( pos ), imageDataSize ) );
         dataPtr += dataPtrStep;
     }
 
     // Display the profile
-    hSliceDisplay->setProfile( hSliceData, hSliceData.size(), 1<<(imageDataSize*8) );
+    hSliceDisplay->setProfile( hSliceData, 0.0, (double)(hSliceData.size()), 0.0, (double)(1<<(imageDataSize*8)) );
 }
 
 // Generate a profile along an arbitrary line through an image
@@ -1696,7 +1696,7 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
     if( dX == 0 && dY == 0 )
     {
         QVector<QPointF> empty;
-        profileDisplay->setProfile( empty, 1, 1 );
+        profileDisplay->setProfile( empty, 0.0, 1.0, 0.0, 1.0 );
         return;
     }
 
@@ -1733,9 +1733,6 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
     // Ensure output buffer is the correct size
     if( profileData.size() != len )
         profileData.resize( len );
-
-    // Get reference to image data
-    const unsigned char* data = (unsigned char*)image.data();
 
     // Calculate a value for each pixel length along the selected line
     for( int i = 0; i < (int) len; i++ )
@@ -1782,18 +1779,26 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
             double propBR = (xTLf)*(yTLf);
 
             // Determine a pointer into the image data for each of the four actual pixels overlayed by the notional pixel
-            const unsigned char* dataPtrTL = &(data[((int)xTLi+(int)yTLi*rotatedImageBuffWidth())*imageDataSize]);
-            const unsigned char* dataPtrTR = &(dataPtrTL[imageDataSize]);
-            const unsigned char* dataPtrBL = &(dataPtrTL[rotatedImageBuffWidth()*imageDataSize]);
-            const unsigned char* dataPtrBR = &(dataPtrBL[imageDataSize]);
+            int actualXTL = (int)xTLi;
+            int actualYTL = (int)yTLi;
+            QPoint posTL( actualXTL,   actualYTL );
+            QPoint posTR( actualXTL+1, actualYTL );
+            QPoint posBL( actualXTL,   actualYTL+1 );
+            QPoint posBR( actualXTL+1, actualYTL+1 );
+
+            const unsigned char* dataPtrTL = getImageDataPtr( posTL );
+            const unsigned char* dataPtrTR = getImageDataPtr( posTR );
+            const unsigned char* dataPtrBL = getImageDataPtr( posBL );
+            const unsigned char* dataPtrBR = getImageDataPtr( posBR );
 
             // Determine the value of the notional pixel from a weighted average of the four real pixels it overlays.
             // The larger the proportion of the real picture overlayed, the greated the weight.
             // (Ignore pixels outside the image)
             int pixelsInValue = 0;
+            value = 0;
             if( xTLi >= 0 && yTLi >= 0 )
             {
-                value = propTL * getFloatingPixelValueFromData( dataPtrTL, imageDataSize );
+                value += propTL * getFloatingPixelValueFromData( dataPtrTL, imageDataSize );
                 pixelsInValue++;
             }
 
@@ -1830,7 +1835,7 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
     }
 
     // Update the profile display
-    profileDisplay->setProfile( profileData, profileData.size(), 1<<(imageDataSize*8) );
+    profileDisplay->setProfile( profileData, 0.0, (double)(profileData.size()), 0.0, (double)(1<<(imageDataSize*8)) );
 }
 //=================================================================================================
 
@@ -1883,7 +1888,8 @@ QPoint QCaImage::rotateFLipPoint( QPoint& pos )
     int w = (int)imageBuffWidth;
     int h = (int)imageBuffHeight;
     QPoint posTr;
-    switch( getScanOption() )
+    int scanOption = getScanOption();
+    switch( scanOption )
     {
         default:
         case 1: posTr = pos;                                      break;
@@ -1895,7 +1901,6 @@ QPoint QCaImage::rotateFLipPoint( QPoint& pos )
         case 7: posTr.setX( pos.y() );   posTr.setY( h-pos.x() ); break;
         case 8: posTr.setX( w-pos.y() ); posTr.setY( h-pos.x() ); break;
     }
-qDebug() << pos <<  posTr;
     return posTr;
 }
 
@@ -1927,6 +1932,7 @@ unsigned int QCaImage::rotatedImageBuffWidth()
 {
     switch( rotation)
     {
+        default:
         case ROTATION_0:
         case ROTATION_180:
             return imageBuffWidth;
@@ -1942,6 +1948,7 @@ unsigned int QCaImage::rotatedImageBuffHeight()
 {
     switch( rotation)
     {
+        default:
         case ROTATION_0:
         case ROTATION_180:
             return imageBuffHeight;

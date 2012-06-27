@@ -77,15 +77,15 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     else
     {
         // If there are no markups, and the entire image is being drawn, just display the current image
-        if( !anyVisibleMarkups() && event->rect() == rect() )
-        {
-            painter.drawImage( event->rect(), currentImage, currentImage.rect() );
-        }
+//        if( !anyVisibleMarkups() && event->rect() == rect() )
+//        {
+//            painter.drawImage( event->rect(), currentImage, currentImage.rect() );
+//        }
 
         // If there are markups, or only a part of the display is being painted,
         // draw the appropriate current image overlayed with the appropriate markups
-        else
-        {
+//        else
+//        {
             // If there is a composite background, but it is a different size to the display widget, delete it.
             if( compositeImageBackground && compositeImageBackground->size() != size())
             {
@@ -159,7 +159,7 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             // Apply the appropriate part of the composite image to the displayed image
             painter.drawImage( event->rect(), *compositeImage, event->rect() );
         }
-    }
+  //  }
 
     // Flag first update is over
     firstUpdate = false;

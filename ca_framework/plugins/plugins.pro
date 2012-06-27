@@ -317,7 +317,6 @@ INCLUDEPATH += $$(EPICS_BASE)/include
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom \
-#    -L$$(QCAFRAMEWORK)/qwt/lib \
     -lqwt
 
 FORMS += \
