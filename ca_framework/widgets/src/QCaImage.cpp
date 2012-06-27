@@ -742,6 +742,10 @@ void QCaImage::updateMarkups()
 // Set the image buffer used for generate images will be large enough to hold the processed image
 void QCaImage::setImageBuff()
 {
+    // Do nothing if there are no image dimensions yet
+    if( !imageBuffWidth || !imageBuffHeight )
+        return;
+
     // Size the image
     switch( resizeOption )
     {
@@ -752,7 +756,11 @@ void QCaImage::setImageBuff()
 
         // Resize the image to fit exactly within the QCaItem
         case RESIZE_OPTION_FIT:
-            videoWidget->resize( scrollArea->size() );
+            double vScale = (double)(scrollArea->size().height()) / (double)(rotatedImageBuffHeight());
+            double hScale = (double)(scrollArea->size().width()) / (double)(rotatedImageBuffWidth());
+            double scale = (hScale<vScale)?hScale:vScale;
+
+            videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale), (int)((double)rotatedImageBuffHeight() * scale) );
             break;
 
 //        // Resize the QCaItem to exactly fit the image
