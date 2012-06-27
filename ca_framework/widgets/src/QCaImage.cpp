@@ -530,16 +530,29 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     // Signal a database value change to any Link widgets
     emit dbValueChanged( "image" );
 
-    // Save the image data for analysis
+    // Save the image data for analysis and redisplay
     image = imageIn;
     imageDataSize = dataSize;
+    imageTime = time;
 
+    // Present the new image
+    displayImage();
+
+    // Display invalid if invalid
+    if( alarmInfo.isInvalid() )
+    {
+        //setImageInvalid()
+        //!!! not done
+    }
+}
+
+void QCaImage::displayImage()
+{
     // Do nothing if there are no image dimensions yet
     if( !imageBuffWidth || !imageBuffHeight )
         return;
 
     // Set up the image buffer if not done already
-    //!!! PROBLEM for 90 degree rotation set image buff will get it wrong
     if( imageBuff.isEmpty() )
         setImageBuff();
 
@@ -552,7 +565,7 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     }
 
     // Set up input and output pointers and counters ready to process each pixel
-    const unsigned char* dataIn = (unsigned char*)imageIn.data();
+    const unsigned char* dataIn = (unsigned char*)image.data();
     unsigned int* dataOut = (unsigned int*)(imageBuff.data());
     unsigned long buffIndex = 0;
     unsigned long dataIndex = 0;
@@ -560,15 +573,17 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     // Determine the number of pixels to process
     // If something is wrong, do nothing
     unsigned long pixelCount = imageBuffHeight*imageBuffWidth;
-    if(( pixelCount * dataSize > (unsigned long)imageIn.size() ) ||
+    if(( pixelCount * imageDataSize > (unsigned long)image.size() ) ||
        ( pixelCount * IMAGEBUFF_BYTES_PER_PIXEL > (unsigned long)imageBuff.size() ))
     {
         return;  // !!! should clear the image
     }
 
-    // Depending on the flipping and rotating options drawing can start in any of
+    // Depending on the flipping and rotating options pixel drawing can start in any of
     // the four corners and start scanning either vertically or horizontally.
-    // The 8 scanning options are shown here:
+    // See getScanOption() comments for more details on how the rotate and flip
+    // options are used to generate one of 8 scan options.
+    // The 8 scanning options are shown numbered here:
     //
     //    o----->1         2<-----o
     //    |                       |
@@ -586,49 +601,19 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     //    |                       |
     //    o----->3         4<-----o
     //
-    //
-    // The rotation and flip properties can be set in 16 combinations, but these 16
-    // options can only specify the 8 possible scan options as follows:
-    // (for example rotating 180 degrees, then flipping both vertically and horizontally
-    // is the same as doing no rotation and flipping at all - scan option 1)
-    //
-    //  rot vflip hflip scan_option
-    //    0   0     0      1
-    //    0   0     1      2
-    //    0   1     0      3
-    //    0   1     1      4
-    //  R90   0     0      6
-    //  R90   0     1      5
-    //  R90   1     0      8
-    //  R90   1     1      7
-    //  L90   0     0      7
-    //  L90   0     1      8
-    //  L90   1     0      5
-    //  L90   1     1      6
-    //  180   0     0      4
-    //  180   0     1      3
-    //  180   1     0      2
-    //  180   1     1      1
+    int scanOption = getScanOption();
 
-    int scanOption = 0;
-    switch( rotation )
-    {
-        case ROTATION_0:        scanOption = flipVert?flipHoz?4:3:flipHoz?2:1; break;
-        case ROTATION_90_RIGHT: scanOption = flipVert?flipHoz?7:8:flipHoz?5:6; break;
-        case ROTATION_90_LEFT:  scanOption = flipVert?flipHoz?6:5:flipHoz?8:7; break;
-        case ROTATION_180:      scanOption = flipVert?flipHoz?1:2:flipHoz?3:4; break;
-    }
-
-    // Drawing is performed in two nested loops, one for each dimension.
+    // Drawing is performed in two nested loops, one for height and one for width.
+    // Depenting on the scan option, however, the outer may be height or width.
     // The input buffer is read consecutivly from first pixel to last and written to the
-    // output buffer, which is moved to the next pixel - where ever that is
-    // according to the rotation and flipping - by both the inner and outer loops.
-    // The following defines parameters driving the loops
+    // output buffer, which is moved to the next pixel by both the inner and outer
+    // loops to where ever that next pixel is according to the rotation and flipping.
+    // The following defines parameters driving the loops:
     //
     // opt      = scan option
-    // outCount = outer loop count;
-    // inCount  = inner loop count
-    // start    = output buffer start pixel
+    // outCount = outer loop count (width or height);
+    // inCount  = inner loop count (height or width)
+    // start    = output buffer start pixel (one of the four corners)
     // outInc   = outer loop increment to output buffer
     // inInc    = inner loop increment to output buffer
     // w        = image width
@@ -645,46 +630,48 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     //  8      w       h    (w*h)-1  w*(h-1)-1  -w
 
 
-    int outCount;
-    int inCount;
-    int start;
-    int outInc;
-    int inInc;
+    int outCount;   // Outer loop count (width or height);
+    int inCount;    // Inner loop count (height or width)
+    int start;      // Output buffer start pixel (one of the four corners)
+    int outInc;     // Outer loop increment to output buffer
+    int inInc;      // Inner loop increment to output buffer
     int h = imageBuffHeight;
     int w = imageBuffWidth;
 
+    // Set the loop parameters according to the scan option
     switch( scanOption )
     {
-        default:
-        case 1: outCount = h; inCount = w; start = 0;       outInc = 0;          inInc = 1;  break;
-        case 2: outCount = h; inCount = w; start = w-1;     outInc = w;          inInc = -1; break;
-        case 3: outCount = h; inCount = w; start = w*(h-1); outInc = -2*w;       inInc = 1;  break;
-        case 4: outCount = h; inCount = w; start = (w*h)-1; outInc = 0;          inInc = -1; break;
-        case 5: outCount = w; inCount = h; start = 0;       outInc = -w*(h-1)+1; inInc = w;  break;
-        case 6: outCount = w; inCount = h; start = w-1;     outInc = -w*(h-1)-1; inInc = w;  break;
-        case 7: outCount = w; inCount = h; start = w*(h-1); outInc = w*(h-1)+1;  inInc = -w; break;
-        case 8: outCount = w; inCount = h; start = (w*h)-1; outInc = w*(h-1)-1;  inInc = -w; break;
+        default:  // Sanity check. default to 1
+        case 1: outCount = h; inCount = w; start = 0;       outInc =  0;     inInc =  1; break;
+        case 2: outCount = h; inCount = w; start = w-1;     outInc =  2*w;   inInc = -1; break;
+        case 3: outCount = h; inCount = w; start = w*(h-1); outInc = -2*w;   inInc =  1; break;
+        case 4: outCount = h; inCount = w; start = (w*h)-1; outInc =  0;     inInc = -1; break;
+        case 5: outCount = w; inCount = h; start = 0;       outInc = -w*h+1; inInc =  w; break;
+        case 6: outCount = w; inCount = h; start = w-1;     outInc = -w*h-1; inInc =  w; break;
+        case 7: outCount = w; inCount = h; start = w*(h-1); outInc =  w*h+1; inInc = -w; break;
+        case 8: outCount = w; inCount = h; start = (w*h)-1; outInc =  w*h-1; inInc = -w; break;
     }
 
     // Draw the input pixels into the image buffer .
-    // Drawing is performed in two nested loops, one for each dimension.
+    // Drawing is performed in two nested loops, one for height and one for width.
+    // Depenting on the scan option, however, the outer may be height or width.
     // The input buffer is read consecutivly from first pixel to last and written to the
-    // output buffer, which is moved to the next pixel - where ever that is
-    // according to the rotation and flipping - by both the inner and outer loops.
-    // The following defines parameters driving the loops
-    buffIndex = start;
+    // output buffer, which is moved to the next pixel by both the inner and outer
+    // loops to where ever that next pixel is according to the rotation and flipping.
+    dataIndex = start;
+    //!!! this code needs to go FAST. Put the switch in the inner loop outside both and reproduce both loops within each case
+    unsigned char aa=0;
     for( int i = 0; i < outCount; i++ )
     {
         for( int j = 0; j < inCount; j++ )
         {
-
             // Format the pixel ready for use in an RGB32 QImage
             switch( formatOption )
             {
                 case GREY8:
                 {
                     // Duplicate 8 bits of the grey scale into each color
-                    unsigned long inPixel = dataIn[dataIndex];
+                    unsigned long inPixel = dataIn[dataIndex*imageDataSize];
                     dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
                     break;
                 }
@@ -692,7 +679,7 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
                 case GREY16:
                 {
                     // Duplicate top 8 bits of the grey scale into each color
-                    unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex]);
+                    unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
                     inPixel = inPixel>>8;
                     dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
                     break;
@@ -701,7 +688,7 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
                 case GREY12:
                 {
                     // Duplicate top 8 bits of the grey scale into each color
-                    unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex]);
+                    unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
                     inPixel = (inPixel>>4)&0xff;
                     dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
                     break;
@@ -709,31 +696,24 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
 
                 case RGB_888:
                 {
-                    unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex]);
+                    unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*imageDataSize]);
                     dataOut[buffIndex] = 0xff000000+(inPixel[2]<<16)+(inPixel[1]<<8)+inPixel[0];
                     break;
                 }
             }
 
             // Step on to the next pixel
-            dataIndex += dataSize;
-            buffIndex += inInc;
+            dataIndex += inInc;
+            buffIndex++;
         }
-        buffIndex += outInc;
+        dataIndex += outInc;
     }
 
     // Generate a frame from the data
-    QImage frameImage( (uchar*)(imageBuff.data()), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32 );
+    QImage frameImage( (uchar*)(imageBuff.data()), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32 );
 
     // Display the new image
-    videoWidget->setNewImage( frameImage, time );
-
-    // Display invalid if invalid
-    if( alarmInfo.isInvalid() )
-    {
-        //setImageInvalid()
-        //!!! not done
-    }
+    videoWidget->setNewImage( frameImage, imageTime );
 
     // Update markups if required
     updateMarkups();
@@ -768,7 +748,7 @@ void QCaImage::setImageBuff()
     {
         // Zoom the image
         case RESIZE_OPTION_ZOOM:
-            videoWidget->resize( imageBuffWidth * zoom / 100, imageBuffHeight * zoom / 100 );
+            videoWidget->resize( rotatedImageBuffWidth() * zoom / 100, rotatedImageBuffHeight() * zoom / 100 );
             break;
 
         // Resize the image to fit exactly within the QCaItem
@@ -783,9 +763,9 @@ void QCaImage::setImageBuff()
 //            // extra is taken up with borders and info widgets, just calculate how
 //            // much bigger or smaller the current scroll area widget neesds to be
 //            // and increase the Qframe by that much
-//            resize( size().width()+imageBuffWidth-scrollArea->size().width(),
-//                    size().height()+imageBuffHeight-scrollArea->size().height() );
-//            videoWidget->resize( imageBuffWidth, imageBuffHeight );
+//            resize( size().width()+rotatedImageBuffWidth()-scrollArea->size().width(),
+//                    size().height()+rotatedImageBuffHeight()-scrollArea->size().height() );
+//            videoWidget->resize( rotatedImageBuffWidth(), rotatedImageBuffHeight() );
 //            break;
     }
 
@@ -996,7 +976,7 @@ void QCaImage::saveClicked()
     if (qFileDialog->exec())
     {
 
-        QImage qImage((uchar*) imageBuff.data(), imageBuffWidth, imageBuffHeight, QImage::Format_RGB32);
+        QImage qImage((uchar*) imageBuff.data(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
         filename = qFileDialog->selectedFiles().at(0);
 
         if (qFileDialog->selectedNameFilter() == filterList.at(0))
@@ -1142,7 +1122,9 @@ int QCaImage::getZoom()
 void QCaImage::setRotation( rotationOptions rotationIn )
 {
     rotation = rotationIn;
-    videoWidget->setRotation( rotation );
+
+    // Present the updated image
+    displayImage();
 }
 
 QCaImage::rotationOptions QCaImage::getRotation()
@@ -1154,6 +1136,9 @@ QCaImage::rotationOptions QCaImage::getRotation()
 void QCaImage::setHorizontalFlip( bool flipHozIn )
 {
     flipHoz = flipHozIn;
+
+    // Present the updated image
+    displayImage();
 }
 
 bool QCaImage::getHorizontalFlip()
@@ -1165,6 +1150,9 @@ bool QCaImage::getHorizontalFlip()
 void QCaImage::setVerticalFlip( bool flipVertIn )
 {
     flipVert = flipVertIn;
+
+    // Present the updated image
+    displayImage();
 }
 
 bool QCaImage::getVerticalFlip()
@@ -1182,6 +1170,9 @@ void QCaImage::setResizeOption( resizeOptions resizeOptionIn )
 
     // Resize and rescale
     setImageBuff();
+
+    // Present the updated image
+    displayImage();
 }
 
 QCaImage::resizeOptions QCaImage::getResizeOption()
@@ -1542,7 +1533,7 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
 void QCaImage::generateVSlice( int x )
 {
     // If not over the image, remove the profile
-    if( x < 0 || x >= (int)imageBuffWidth )
+    if( x < 0 || x >= (int)rotatedImageBuffWidth() )
     {
         QVector<QPointF> empty;
         vSliceDisplay->setProfile( empty, 1, 1 );
@@ -1550,21 +1541,25 @@ void QCaImage::generateVSlice( int x )
     }
 
     // Ensure the buffer is the correct size
-    if( vSliceData.size() != (int)imageBuffHeight )
-        vSliceData.resize( imageBuffHeight );
+    if( vSliceData.size() != (int)rotatedImageBuffHeight() )
+        vSliceData.resize( rotatedImageBuffHeight() );
 
     // Set up to step pixel by pixel through the image data along the line
     const unsigned char* data = (unsigned char*)image.data();
     const unsigned char* dataPtr = &(data[x*imageDataSize]);
-    int dataPtrStep = imageBuffWidth*imageDataSize;
-
+    int dataPtrStep = rotatedImageBuffWidth()*imageDataSize;
 
     // Determine the image data value at each pixel
     // The buffer is filled backwards so the plot, which sits on its side beside the image is drawn correctly
-    for( int i = imageBuffHeight-1; i >= 0; i-- )
+    QPoint pos;
+    pos.setX( x );
+    for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
     {
+        // Determine the next position
+        pos.setY( i );
+
         vSliceData[i].setY( i );
-        vSliceData[i].setX( getFloatingPixelValueFromData( dataPtr, imageDataSize ) );
+        vSliceData[i].setX( getFloatingPixelValueFromData( getImageDataPtr( pos ), imageDataSize ) );
         dataPtr += dataPtrStep;
     }
 
@@ -1572,12 +1567,26 @@ void QCaImage::generateVSlice( int x )
     vSliceDisplay->setProfile( vSliceData, 1<<(imageDataSize*8), vSliceData.size() );
 }
 
+// Return a pointer to pixel data in the original image data.
+// The position parameter is scaled to the original image size but reflects
+// the displayed rotation and flip options, so it must be transformed first.
+const unsigned char* QCaImage::getImageDataPtr( QPoint& pos )
+{
+    QPoint posTr;
+
+    // Transform the position to reflect the original unrotated or flipped data
+    posTr = rotateFLipPoint( pos );
+
+    const unsigned char* data = (unsigned char*)image.data();
+    return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*imageDataSize]);
+}
+
 // Generate a profile along a line across an image at a given Y position
 // The profile contains values for each pixel intersected by the line.
 void QCaImage::generateHSlice( int y )
 {
     // If not over the image, remove the profile
-    if( y < 0 || y >= (int)imageBuffHeight )
+    if( y < 0 || y >= (int)rotatedImageBuffHeight() )
     {
         QVector<QPointF> empty;
         hSliceDisplay->setProfile( empty, 1, 1 );
@@ -1585,16 +1594,16 @@ void QCaImage::generateHSlice( int y )
     }
 
     // Ensure the buffer is the correct size
-    if( hSliceData.size() != (int)imageBuffWidth )
-        hSliceData.resize( imageBuffWidth );
+    if( hSliceData.size() != (int)rotatedImageBuffWidth() )
+        hSliceData.resize( rotatedImageBuffWidth() );
 
     // Set up to step pixel by pixel through the image data along the line
     const unsigned char* data = (unsigned char*)image.data();
-    const unsigned char* dataPtr = &(data[y*imageBuffWidth*imageDataSize]);
+    const unsigned char* dataPtr = &(data[y*rotatedImageBuffWidth()*imageDataSize]);
     int dataPtrStep = imageDataSize;
 
     // Determine the image data value at each pixel
-    for( unsigned int i = 0; i < imageBuffWidth; i++ )
+    for( unsigned int i = 0; i < rotatedImageBuffWidth(); i++ )
     {
         hSliceData[i].setX( i );
         hSliceData[i].setY( getFloatingPixelValueFromData( dataPtr, imageDataSize ) );
@@ -1747,7 +1756,7 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
 
         // Calculate the value if the point is within the image (user can drag outside the image)
         double value;
-        if( x >= 0 && x < imageBuffWidth && y >= 0 && y < imageBuffHeight )
+        if( x >= 0 && x < rotatedImageBuffWidth() && y >= 0 && y < rotatedImageBuffHeight() )
         {
 
             // Determine the top left of the notional pixel that will be measured
@@ -1773,9 +1782,9 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
             double propBR = (xTLf)*(yTLf);
 
             // Determine a pointer into the image data for each of the four actual pixels overlayed by the notional pixel
-            const unsigned char* dataPtrTL = &(data[((int)xTLi+(int)yTLi*imageBuffWidth)*imageDataSize]);
+            const unsigned char* dataPtrTL = &(data[((int)xTLi+(int)yTLi*rotatedImageBuffWidth())*imageDataSize]);
             const unsigned char* dataPtrTR = &(dataPtrTL[imageDataSize]);
-            const unsigned char* dataPtrBL = &(dataPtrTL[imageBuffWidth*imageDataSize]);
+            const unsigned char* dataPtrBL = &(dataPtrTL[rotatedImageBuffWidth()*imageDataSize]);
             const unsigned char* dataPtrBR = &(dataPtrBL[imageDataSize]);
 
             // Determine the value of the notional pixel from a weighted average of the four real pixels it overlays.
@@ -1788,19 +1797,19 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
                 pixelsInValue++;
             }
 
-            if( xTLi+1 < imageBuffWidth && yTLi >= 0 )
+            if( xTLi+1 < rotatedImageBuffWidth() && yTLi >= 0 )
             {
                 value += propTR * getFloatingPixelValueFromData( dataPtrTR, imageDataSize );
                 pixelsInValue++;
             }
 
-            if( xTLi >= 0 && yTLi+1 < imageBuffHeight )
+            if( xTLi >= 0 && yTLi+1 < rotatedImageBuffHeight() )
             {
 
                 value += propBL * getFloatingPixelValueFromData( dataPtrBL, imageDataSize );
                 pixelsInValue++;
             }
-            if( xTLi+1 < imageBuffWidth && yTLi+1 < imageBuffHeight )
+            if( xTLi+1 < rotatedImageBuffWidth() && yTLi+1 < rotatedImageBuffHeight() )
             {
                 value += propBR * getFloatingPixelValueFromData( dataPtrBR, imageDataSize );
                 pixelsInValue++;
@@ -1845,13 +1854,58 @@ double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr, unsign
     return getPixelValueFromData( ptr, dataSize );
 }
 
-//=================================================================================================
+QPoint QCaImage::rotateFLipPoint( QPoint& pos )
+{
+    // Transform the point according to current rotation and flip options.
+    // Depending on the flipping and rotating options pixel drawing can start in any of
+    // the four corners and start scanning either vertically or horizontally.
+    // The 8 scanning options are shown numbered here:
+    //
+    //    o----->1         2<-----o
+    //    |                       |
+    //    |                       |
+    //    |                       |
+    //    v                       v
+    //    5                       6
+    //
+    //
+    //
+    //    7                       8
+    //    ^                       ^
+    //    |                       |
+    //    |                       |
+    //    |                       |
+    //    o----->3         4<-----o
+    //
+    // A point from a rotated and fliped image needs to be transformed to be able to
+    // reference pixel data in the original data buffer.
+    // Base the transformation on the scanning option used when building the image
+    int w = (int)imageBuffWidth;
+    int h = (int)imageBuffHeight;
+    QPoint posTr;
+    switch( getScanOption() )
+    {
+        default:
+        case 1: posTr = pos;                                      break;
+        case 2: posTr.setX( w-pos.x() ); posTr.setY( pos.y() );   break;
+        case 3: posTr.setX( pos.x() );   posTr.setY( h-pos.y() ); break;
+        case 4: posTr.setX( w-pos.x() ); posTr.setY( h-pos.y() ); break;
+        case 5: posTr.setX( pos.y() );   posTr.setY( pos.x() );   break;
+        case 6: posTr.setX( w-pos.y() ); posTr.setY( pos.x() );   break;
+        case 7: posTr.setX( pos.y() );   posTr.setY( h-pos.x() ); break;
+        case 8: posTr.setX( w-pos.y() ); posTr.setY( h-pos.x() ); break;
+    }
+qDebug() << pos <<  posTr;
+    return posTr;
+}
 
+//=================================================================================================
+// Display a pixel value.
 void QCaImage::currentPixelInfo( QPoint pos )
 {
     // If the pixel is not within the image, display nothing
     QString s;
-    if( pos.x() < 0 || pos.y() < 0 || pos.x() >= (int)imageBuffWidth || pos.y() >= (int)imageBuffHeight )
+    if( pos.x() < 0 || pos.y() < 0 || pos.x() >= (int)rotatedImageBuffWidth() || pos.y() >= (int)rotatedImageBuffHeight() )
     {
         s = "";
     }
@@ -1859,11 +1913,102 @@ void QCaImage::currentPixelInfo( QPoint pos )
     // If the pixel is within the image, display the pixel position and value
     else
     {
-        const unsigned char* data = (unsigned char*)image.data();
-        const unsigned char* dataPtr = &(data[(pos.x()+ pos.y()*imageBuffWidth)*imageDataSize]);
-        int value = getPixelValueFromData( dataPtr, imageDataSize );
+        // Extract the pixel data from the original image data
+//        const unsigned char* data = (unsigned char*)image.data();
+//        const unsigned char* dataPtr = &(data[(posTr.x()+ posTr.y()*w)*imageDataSize]);
+        int value = getPixelValueFromData( getImageDataPtr( pos ), imageDataSize );
         s.sprintf( "(%d,%d)=%d", pos.x(), pos.y(), value );
     }
     currentCursorPixelLabel->setText( s );
 }
 
+// Return the image width following any rotation
+unsigned int QCaImage::rotatedImageBuffWidth()
+{
+    switch( rotation)
+    {
+        case ROTATION_0:
+        case ROTATION_180:
+            return imageBuffWidth;
+
+        case ROTATION_90_RIGHT:
+        case ROTATION_90_LEFT:
+            return imageBuffHeight;
+    }
+}
+
+// Return the image height following any rotation
+unsigned int QCaImage::rotatedImageBuffHeight()
+{
+    switch( rotation)
+    {
+        case ROTATION_0:
+        case ROTATION_180:
+            return imageBuffHeight;
+
+        case ROTATION_90_RIGHT:
+        case ROTATION_90_LEFT:
+            return imageBuffWidth;
+    }
+}
+
+
+// Determine the way the input pixel data must be scanned to accommodate the required
+// rotate and flip options. This is used when generating the image data, and also when
+// transforming points in the image back to references in the original pixel data.
+int QCaImage::getScanOption()
+{
+    // Depending on the flipping and rotating options pixel drawing can start in any of
+    // the four corners and start scanning either vertically or horizontally.
+    // The 8 scanning options are shown numbered here:
+    //
+    //    o----->1         2<-----o
+    //    |                       |
+    //    |                       |
+    //    |                       |
+    //    v                       v
+    //    5                       6
+    //
+    //
+    //
+    //    7                       8
+    //    ^                       ^
+    //    |                       |
+    //    |                       |
+    //    |                       |
+    //    o----->3         4<-----o
+    //
+    //
+    // The rotation and flip properties can be set in 16 combinations, but these 16
+    // options can only specify the 8 possible scan options as follows:
+    // (for example rotating 180 degrees, then flipping both vertically and horizontally
+    // is the same as doing no rotation or flipping at all - scan option 1)
+    //
+    //  rot vflip hflip scan_option
+    //    0   0     0      1
+    //    0   0     1      2
+    //    0   1     0      3
+    //    0   1     1      4
+    //  R90   0     0      7
+    //  R90   0     1      5
+    //  R90   1     0      8
+    //  R90   1     1      6
+    //  L90   0     0      6
+    //  L90   0     1      8
+    //  L90   1     0      5
+    //  L90   1     1      7
+    //  180   0     0      4
+    //  180   0     1      3
+    //  180   1     0      2
+    //  180   1     1      1
+    //
+    // Determine the scan option as shown in the above diagram
+    switch( rotation )
+    {                                               // vh v!h     !vh !v!h
+        case ROTATION_0:        return flipVert?flipHoz?4:3:flipHoz?2:1;
+        case ROTATION_90_RIGHT: return flipVert?flipHoz?6:8:flipHoz?5:7;
+        case ROTATION_90_LEFT:  return flipVert?flipHoz?7:5:flipHoz?8:6;
+        case ROTATION_180:      return flipVert?flipHoz?1:2:flipHoz?3:4;
+        default:                return 1; // Sanity check
+    }
+}

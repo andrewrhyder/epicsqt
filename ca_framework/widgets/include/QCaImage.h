@@ -296,6 +296,7 @@ private slots:
 
     void manageSelectionOptions();
 
+    QCaDateTime imageTime;
     unsigned long imageDataSize;
     QByteArray image;       // Buffer to hold original image data.
     QByteArray imageBuff;   // Buffer to hold data converted to format for generating QImage.
@@ -331,6 +332,17 @@ private slots:
 
     int getPixelValueFromData( const unsigned char* ptr, unsigned long dataSize );
     double getFloatingPixelValueFromData( const unsigned char* ptr, unsigned long dataSize );
+
+
+    unsigned int rotatedImageBuffWidth();
+    unsigned int rotatedImageBuffHeight();
+
+
+    void displayImage();
+    int getScanOption();
+    QPoint rotateFLipPoint( QPoint& pos );
+    const unsigned char* getImageDataPtr( QPoint& pos );
+
 
 
     // Drag and Drop

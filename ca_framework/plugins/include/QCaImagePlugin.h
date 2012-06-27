@@ -128,6 +128,8 @@ class QCaImagePlugin : public QCaImage {
 
     Q_PROPERTY(int zoom READ getZoom WRITE setZoom)
 
+
+    Q_ENUMS(RotationOptions)
     Q_PROPERTY(RotationOptions rotation READ getRotationProperty WRITE setRotationProperty)
     enum RotationOptions { NoRotation    = QCaImage::ROTATION_0,
                            Rotate90Right = QCaImage::ROTATION_90_RIGHT,
