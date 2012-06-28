@@ -53,6 +53,7 @@ class _Field
         QString name;
         QString processVariable;
         QString mask;
+        QString type;
         QString visible;
         QString editable;
         bool join;
@@ -72,6 +73,9 @@ class _Field
 
         QString getMask();
         void setMask(QString pValue);
+
+        QString getType();
+        void setType(QString pValue);
 
         QString getVisible();
         void setVisible(QString pValue);
@@ -258,6 +262,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         list <_Motor *> motorList;
         QComboBox *qComboBoxMotor;
         QVBoxLayout *qVBoxLayoutFields;
+        QScrollArea *qScrollArea;
         QString motorConfiguration;
         int currentUserType;
 
