@@ -89,6 +89,17 @@ void QCaImage::setup() {
     haveProfileLine = false;
     haveSelectedArea = false;
 
+    pauseEnabled = false;
+    showTimeEnabled = false;
+
+    enablePan = true;
+    enableAreaSelection = false;
+    enableVSliceSelection = false;
+    enableHSliceSelection = false;
+    enableProfileSelection = false;
+
+    displayCursorPixelInfo = false;
+
 //!!!all property variables initialised?
 
     // Set the initial state
@@ -110,6 +121,8 @@ void QCaImage::setup() {
                       this,        SLOT  ( zoomInOut( int ) ) );
     QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint ) ),
                       this,        SLOT  ( currentPixelInfo( QPoint ) ) );
+    QObject::connect( videoWidget, SIGNAL( pan( QPoint ) ),
+                      this,        SLOT  ( pan( QPoint ) ) );
 
 
     // Add the video destination to the widget
@@ -260,6 +273,9 @@ void QCaImage::setup() {
     areaSelectionLayout->setMargin( 0 );
     areaSelectionGroup->setLayout( areaSelectionLayout);
 
+    panMode = new QRadioButton( "Pan", areaSelectionGroup );
+    panMode->setToolTip("Allows user pan the visible part of an image");
+
     vSliceSelectMode = new QRadioButton( "Vertical Slice", areaSelectionGroup );
     vSliceSelectMode->setToolTip("Allows user to select a vertical slice through the image");
 
@@ -273,18 +289,18 @@ void QCaImage::setup() {
     profileSelectMode->setToolTip("Allows user to select a line within the image");
 
 
-    QObject::connect(vSliceSelectMode, SIGNAL(clicked()), this, SLOT(vSliceSelectModeClicked()));
-    QObject::connect(hSliceSelectMode, SIGNAL(clicked()), this, SLOT(hSliceSelectModeClicked()));
-    QObject::connect(areaSelectMode, SIGNAL(clicked()), this, SLOT(areaSelectModeClicked()));
-    QObject::connect(profileSelectMode, SIGNAL(clicked()), this, SLOT(profileSelectModeClicked()));
+    QObject::connect( panMode,           SIGNAL(clicked()), this, SLOT(panModeClicked()));
+    QObject::connect( vSliceSelectMode,  SIGNAL(clicked()), this, SLOT(vSliceSelectModeClicked()));
+    QObject::connect( hSliceSelectMode,  SIGNAL(clicked()), this, SLOT(hSliceSelectModeClicked()));
+    QObject::connect( areaSelectMode,    SIGNAL(clicked()), this, SLOT(areaSelectModeClicked()));
+    QObject::connect( profileSelectMode, SIGNAL(clicked()), this, SLOT(profileSelectModeClicked()));
 
 
-
-
-    areaSelectionLayout->addWidget(vSliceSelectMode, 0 );
-    areaSelectionLayout->addWidget(hSliceSelectMode, 1 );
-    areaSelectionLayout->addWidget(areaSelectMode, 2 );
-    areaSelectionLayout->addWidget(profileSelectMode, 3 );
+    areaSelectionLayout->addWidget( panMode,           0 );
+    areaSelectionLayout->addWidget( vSliceSelectMode,  1 );
+    areaSelectionLayout->addWidget( hSliceSelectMode,  2 );
+    areaSelectionLayout->addWidget( areaSelectMode,    3 );
+    areaSelectionLayout->addWidget( profileSelectMode, 4 );
 
     manageSelectionOptions();
 
@@ -760,7 +776,9 @@ void QCaImage::setImageBuff()
             double hScale = (double)(scrollArea->size().width()) / (double)(rotatedImageBuffWidth());
             double scale = (hScale<vScale)?hScale:vScale;
 
-            videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale), (int)((double)rotatedImageBuffHeight() * scale) );
+
+            videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale),
+                                 (int)((double)rotatedImageBuffHeight() * scale) );
             break;
 
 //        // Resize the QCaItem to exactly fit the image
@@ -919,11 +937,13 @@ void QCaImage::zoomClicked()
         zoomFactorY = (double)newSizeY / (double)videoWidget->height();
     }
 
+    //!! zoom to keep aspect ratio
     videoWidget->resize( newSizeX, newSizeY );
 
     // Reposition the display widget
     scrollArea->horizontalScrollBar()->setValue( (double)(selectedAreaPoint1.x()) * zoomFactorX );
     scrollArea->verticalScrollBar()->setValue( (double)(selectedAreaPoint1.y()) * zoomFactorY );
+
 }
 
 // ROI apply button pressed
@@ -1351,6 +1371,18 @@ bool QCaImage::getEnableHozSliceSelection()
     return enableHSliceSelection;
 }
 
+// Enable panning
+void QCaImage::setEnablePan( bool enablePanIn )
+{
+    enablePan = enablePanIn;
+    manageSelectionOptions();
+}
+
+bool QCaImage::getEnablePan()
+{
+    return enablePan;
+}
+
 // Enable area selection (used for ROI and zoom)
 void QCaImage::setEnableAreaSelection( bool enableAreaSelectionIn )
 {
@@ -1382,6 +1414,7 @@ void QCaImage::manageSelectionOptions()
     // If more than one buton is required, then make the appropriate ones visible
     // (If only one selection option is required, no point having a radio button for it)
     int count = 0;
+    if( enablePan ) count++;
     if( enableAreaSelection ) count++;
     if( enableVSliceSelection ) count++;
     if( enableHSliceSelection ) count++;
@@ -1392,21 +1425,24 @@ void QCaImage::manageSelectionOptions()
         areaSelectionGroup->setVisible( true );
 
         // For each button, make it visible if it is enabled.
+        panMode->setVisible( enablePan );
         areaSelectMode->setVisible( enableAreaSelection );
-
         vSliceSelectMode->setVisible( enableVSliceSelection );
-
         hSliceSelectMode->setVisible( enableHSliceSelection );
-
         profileSelectMode->setVisible( enableProfileSelection );
 
         // If no buttons are checked, check the first visible button
-        if( !areaSelectMode->isChecked() &&
+        if( !panMode->isChecked() &&
             !areaSelectMode->isChecked() &&
-            !areaSelectMode->isChecked() &&
-            !areaSelectMode->isChecked() )
+            !vSliceSelectMode->isChecked() &&
+            !hSliceSelectMode->isChecked() &&
+            !profileSelectMode->isChecked() )
         {
-            if( enableAreaSelection ) {
+            if( enablePan ) {
+                panMode->setChecked( true );
+                panModeClicked();
+            }
+            else if( enableAreaSelection ) {
                 areaSelectMode->setChecked( true );
                 areaSelectModeClicked();
             }
@@ -1443,23 +1479,33 @@ void QCaImage::manageSelectionOptions()
 //=================================================================================================
 
 
+void QCaImage::panModeClicked()
+{
+    videoWidget->setMode(  imageMarkup::MARKUP_MODE_NONE );
+    videoWidget->setPanning( true );
+}
+
 void QCaImage::vSliceSelectModeClicked()
 {
+    videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_V_LINE );
 }
 
 void QCaImage::hSliceSelectModeClicked()
 {
+    videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_H_LINE );
 }
 
 void QCaImage::areaSelectModeClicked()
 {
+    videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_AREA );
 }
 
 void QCaImage::profileSelectModeClicked()
 {
+    videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE );
 }
 
@@ -2026,4 +2072,40 @@ int QCaImage::getScanOption()
         case ROTATION_180:      return flipVert?flipHoz?1:2:flipHoz?3:4;
         default:                return 1; // Sanity check
     }
+}
+
+// Reset the scroll bars now a pan has finished.
+// Panning has been done by moving the VideoWidget in the viewport directly (not via the
+// scroll bars) as the VideoWidget can be moved directly more smoothly to pixel resolution,
+// whereas the VideoWidget can only be moved by the resolution of a scrollbar step when moved
+// by setting the scroll bar values.
+// A consequence of this is, however, the scroll bars are left where ever they were
+// when panning started. This function will set the scroll bars to match the new
+// VideoWidget position. Note, if the scroll bar values are changed here, this will itself
+// cause the VideoWidget to pan, but only from the pixel accurate position set by the
+// direct scan to a close pixel determined by the scroll bar pixel resolution.
+// Note, the VideoWidget can be panned with the mouse beyond the scroll range. If either
+// scroll bar value is changed here the VideoWidget will be pulled back within the scroll
+// bar range. If neither scroll bar value changes here, the VideoWidget is left panned
+// beyond the scroll bar range. To demonstrate this, set both scroll bars to zero,
+// then pan the viewport down and to the right with the mouse.
+void QCaImage::pan( QPoint origin )
+{
+    // Determine the proportion of the scroll bar maximums to set the scroll bar to.
+    // The scroll bar will be zero when the VideoWidget origin is zero, and maximum when the
+    // part of the VideoWidget past the origin equals the viewport size.
+    QSize vpSize = scrollArea->viewport()->size();
+
+    double xProportion = (double)-origin.x()/(double)(videoWidget->width()-vpSize.width());
+    double yProportion = (double)-origin.y()/(double)(videoWidget->height()-vpSize.height());
+
+    xProportion = (xProportion<0.0)?0.0:xProportion;
+    yProportion = (yProportion<0.0)?0.0:yProportion;
+
+    xProportion = (xProportion>1.0)?1.0:xProportion;
+    yProportion = (yProportion>1.0)?1.0:yProportion;
+
+    // Update the scroll bars to match the panning
+    scrollArea->horizontalScrollBar()->setValue( scrollArea->horizontalScrollBar()->maximum() * xProportion );
+    scrollArea->verticalScrollBar()->setValue( scrollArea->verticalScrollBar()->maximum() * yProportion );
 }

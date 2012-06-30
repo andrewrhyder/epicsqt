@@ -36,13 +36,13 @@ public:
     ~VideoWidget();
 
     void setNewImage( const QImage image, QCaDateTime& time );
-
+    void setPanning( bool panningIn );
 
 protected:
     void paintEvent(QPaintEvent*);
 
-    void mousePressEvent( QMouseEvent* event) { markupMousePressEvent( event ); }
-    void mouseReleaseEvent ( QMouseEvent* event ) { markupMouseReleaseEvent( event ); }
+    void mousePressEvent( QMouseEvent* event);
+    void mouseReleaseEvent ( QMouseEvent* event );
     void mouseMoveEvent( QMouseEvent* event );
     void wheelEvent( QWheelEvent* event );
 
@@ -53,10 +53,12 @@ protected:
     void markupAction( markupModes mode, QPoint point1, QPoint point2 );
 
 
+
 signals:
     void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
+    void pan( QPoint pos );
 
 
 private:
@@ -72,6 +74,9 @@ private:
 
     double getHScale();
     double getVScale();
+
+    bool panning;       // If true user is dragging image with mouse (rather than performing any markup)
+    QPoint panStart;
 
 };
 

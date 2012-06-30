@@ -132,6 +132,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     void setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn );
     bool getDisplayCursorPixelInfo();
 
+    void setEnablePan( bool enablePanIn );
+    bool getEnablePan();
+
     void setEnableVertSliceSelection( bool enableVSliceSelectionIn );
     bool getEnableVertSliceSelection();
 
@@ -193,6 +196,9 @@ private slots:
     void areaSelectModeClicked();
     void profileSelectModeClicked();
 
+    void panModeClicked();
+
+
 
 
   public slots:
@@ -200,6 +206,7 @@ private slots:
     void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
+    void pan( QPoint pos );
 
 
   signals:
@@ -224,6 +231,7 @@ private slots:
     QGroupBox *buttonGroup;
 
     QGroupBox* areaSelectionGroup;
+    QRadioButton* panMode;
     QRadioButton* vSliceSelectMode;
     QRadioButton* hSliceSelectMode;
     QRadioButton* areaSelectMode;
@@ -274,6 +282,7 @@ private slots:
     bool pauseEnabled;
     bool showTimeEnabled;
 
+    bool enablePan;
     bool enableAreaSelection;
     bool enableVSliceSelection;
     bool enableHSliceSelection;

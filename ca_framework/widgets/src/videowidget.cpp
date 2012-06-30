@@ -9,6 +9,8 @@ VideoWidget::VideoWidget(QWidget *parent)
     compositeImageBackground = NULL;
     compositeImage = NULL;
 
+    panning = false;
+
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setAttribute(Qt::WA_PaintOnScreen, true);
@@ -77,15 +79,15 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     else
     {
         // If there are no markups, and the entire image is being drawn, just display the current image
-//        if( !anyVisibleMarkups() && event->rect() == rect() )
-//        {
-//            painter.drawImage( event->rect(), currentImage, currentImage.rect() );
-//        }
+        if( !anyVisibleMarkups() && event->rect() == rect() )
+        {
+            painter.drawImage( event->rect(), currentImage, currentImage.rect() );
+        }
 
         // If there are markups, or only a part of the display is being painted,
         // draw the appropriate current image overlayed with the appropriate markups
-//        else
-//        {
+        else
+        {
             // If there is a composite background, but it is a different size to the display widget, delete it.
             if( compositeImageBackground && compositeImageBackground->size() != size())
             {
@@ -159,7 +161,7 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             // Apply the appropriate part of the composite image to the displayed image
             painter.drawImage( event->rect(), *compositeImage, event->rect() );
         }
-  //  }
+    }
 
     // Flag first update is over
     firstUpdate = false;
@@ -210,18 +212,67 @@ double VideoWidget::getHScale()
     return (double)width() / (double)currentImage.width();
 }
 
+void VideoWidget::mousePressEvent( QMouseEvent* event)
+{
+    if( !panning )
+    {
+        markupMousePressEvent( event );
+    }
+    else
+    {
+        setCursor( Qt::ClosedHandCursor );
+        panStart = event->pos();
+    }
+}
+
+void VideoWidget::mouseReleaseEvent ( QMouseEvent* event )
+{
+    if( !panning )
+    {
+        markupMouseReleaseEvent( event );
+    }
+    else
+    {
+        setCursor( Qt::OpenHandCursor );
+        emit pan( pos() );
+    }
+}
+
 void VideoWidget::wheelEvent( QWheelEvent* event )
 {
     int zoomAmount = event->delta() / 12;
     emit zoomInOut( zoomAmount );
+
+//!! what if draging image (with mouse button down) when wheel event occurs???
+
 }
 
 void VideoWidget::mouseMoveEvent( QMouseEvent* event )
 {
-    markupMouseMoveEvent( event );
+    if( !panning )
+    {
+        markupMouseMoveEvent( event );
+        QPoint pos;
 
-    QPoint pos;
-    pos.setX( (double)(event->pos().x()) / getHScale() );
-    pos.setY( (double)(event->pos().y()) / getVScale() );
-    emit currentPixelInfo( pos );
+        // maintain aspect ratio - use one scale only
+        pos.setX( (double)(event->pos().x()) / getHScale() );
+        pos.setY( (double)(event->pos().y()) / getVScale() );
+        emit currentPixelInfo( pos );
+    }
+    else
+    {
+        if( event->buttons()&Qt::LeftButton)
+        {
+            move( pos() - ( panStart - event->pos() ) );
+        }
+    }
+}
+
+void  VideoWidget::setPanning( bool panningIn )
+{
+    panning = panningIn;
+    if( panning )
+    {
+        setCursor( Qt::OpenHandCursor );
+    }
 }

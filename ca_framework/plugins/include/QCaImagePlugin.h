@@ -98,6 +98,7 @@ class QCaImagePlugin : public QCaImage {
     void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QCaImage::formatOptions)formatOption ); }
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
 
+    Q_PROPERTY(bool enablePan READ getEnablePan WRITE setEnablePan)
     Q_PROPERTY(bool enableVertSliceSelection READ getEnableVertSliceSelection WRITE setEnableVertSliceSelection)
     Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSliceSelection WRITE setEnableHozSliceSelection)
     Q_PROPERTY(bool enableAreaSelection READ getEnableAreaSelection WRITE setEnableAreaSelection)
