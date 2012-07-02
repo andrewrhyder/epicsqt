@@ -37,6 +37,8 @@ public:
 
     void setNewImage( const QImage image, QCaDateTime& time );
     void setPanning( bool panningIn );
+    bool getPanning();
+
 
 protected:
     void paintEvent(QPaintEvent*);

@@ -207,7 +207,7 @@ private slots:
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
-
+    void ShowContextMenu( const QPoint& );
 
   signals:
     void dbValueChanged( const QString& out );
@@ -279,7 +279,7 @@ private slots:
     profilePlot* profileDisplay;
 
 
-    bool pauseEnabled;
+    bool paused;
     bool showTimeEnabled;
 
     bool enablePan;
@@ -295,6 +295,7 @@ private slots:
     void manageButtonGroup();
 
 
+    void manageInfoLayout();
     void manageRoiLayout();
     void manageAcquirePeriodLabel();
     void manageExposureTimeLabel();

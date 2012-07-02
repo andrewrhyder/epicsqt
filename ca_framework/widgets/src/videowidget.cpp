@@ -214,6 +214,10 @@ double VideoWidget::getHScale()
 
 void VideoWidget::mousePressEvent( QMouseEvent* event)
 {
+    // Only act on left mouse button press
+    if( !(event->buttons()&Qt::LeftButton) )
+        return;
+
     if( !panning )
     {
         markupMousePressEvent( event );
@@ -268,7 +272,12 @@ void VideoWidget::mouseMoveEvent( QMouseEvent* event )
     }
 }
 
-void  VideoWidget::setPanning( bool panningIn )
+bool VideoWidget::getPanning()
+{
+    return panning;
+}
+
+void VideoWidget::setPanning( bool panningIn )
 {
     panning = panningIn;
     if( panning )

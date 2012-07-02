@@ -77,7 +77,7 @@ void QCaImage::setup() {
     initialVertScrollPos = 0;
     initScrollPosSet = false;
     formatOption = GREY8;
-    pauseEnabled = false;
+    paused = false;
 
     displayPauseButton = false;
     displaySaveButton = false;
@@ -89,7 +89,6 @@ void QCaImage::setup() {
     haveProfileLine = false;
     haveSelectedArea = false;
 
-    pauseEnabled = false;
     showTimeEnabled = false;
 
     enablePan = true;
@@ -335,9 +334,11 @@ void QCaImage::setup() {
     manageRoiButton();
     manageZoomButton();
 
+    manageInfoLayout();
 
-
-
+    // Set up context sensitive menu (right click menu)
+    setContextMenuPolicy( Qt::CustomContextMenu );
+    connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( ShowContextMenu( const QPoint& )));
 
     // Initially set the video widget to the size of the scroll bar
     // This will be resized when the image size is known
@@ -538,7 +539,7 @@ void QCaImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDate
 void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time, const unsigned int& )
 {
     // If the display is paused, do nothing
-    if (pauseEnabled)
+    if (paused)
     {
         return;
     }
@@ -839,6 +840,47 @@ void QCaImage::requestEnabled( const bool& state )
 
 //=================================================================================================
 
+// Add or remove the pixel information layout
+void QCaImage::manageInfoLayout()
+{
+    //!!! does nothing as infoLayout has no children
+    //!!! show and hide all widgets in infoLayout directly
+    if( displayCursorPixelInfo )
+    {
+        currentCursorPixelLabel->show();
+        currentVertPixelLabel->show();
+        currentHozPixelLabel->show();
+        currentLineLabel->show();
+        currentAreaLabel->show();
+    }
+    else
+    {
+        currentCursorPixelLabel->hide();
+        currentVertPixelLabel->hide();
+        currentHozPixelLabel->hide();
+        currentLineLabel->hide();
+        currentAreaLabel->hide();
+    }
+
+
+//    QObjectList ol = infoLayout->children();
+//    for( int i = 0; i < ol.count(); i++ )
+//    {
+//        if( ol.at(i)->isWidgetType() )
+//        {
+//            QWidget* w = (QWidget*)(ol.at(i));
+//            if( displayCursorPixelInfo )
+//            {
+//                w->show();
+//            }
+//            else
+//            {
+//                w->hide();
+//            }
+//        }
+//    }
+}
+
 // Add or remove the region of interest layout
 void QCaImage::manageRoiLayout()
 {
@@ -973,17 +1015,17 @@ void QCaImage::roiClicked()
 // Pause button pressed
 void QCaImage::pauseClicked()
 {
-    if (pauseEnabled)
+    if (paused)
     {
         pauseButton->setText("Pause");
         pauseButton->setToolTip("Pause image display");
-        pauseEnabled = false;
+        paused = false;
     }
     else
     {
         pauseButton->setText("Resume");
         pauseButton->setToolTip("Resume image display");
-        pauseEnabled = true;
+        paused = true;
     }
 }
 
@@ -1341,6 +1383,7 @@ QColor QCaImage::getMarkupColor()
 void QCaImage::setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn )
 {
     displayCursorPixelInfo = displayCursorPixelInfoIn;
+    manageInfoLayout();
 }
 
 bool QCaImage::getDisplayCursorPixelInfo(){
@@ -2108,4 +2151,276 @@ void QCaImage::pan( QPoint origin )
     // Update the scroll bars to match the panning
     scrollArea->horizontalScrollBar()->setValue( scrollArea->horizontalScrollBar()->maximum() * xProportion );
     scrollArea->verticalScrollBar()->setValue( scrollArea->verticalScrollBar()->maximum() * yProportion );
+}
+
+void QCaImage::ShowContextMenu( const QPoint& pos )
+{
+        // for most widgets
+        QPoint globalPos = mapToGlobal( pos );
+        // for QAbstractScrollArea and derived classes you would use:
+        // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
+
+        QMenu myMenu;
+        QAction* a;
+
+        enum contectMenuOptions{ CM_PAN,
+                                 CM_VERT,
+                                 CM_HOZ,
+                                 CM_AREA,
+                                 CM_LINE,
+                                 CM_SAVE,
+                                 CM_PAUSE,
+                                 CM_ENABLE_TIME,
+                                 CM_ENABLE_CURSOR_PIXEL,
+                                 CM_ENABLE_PAN,
+                                 CM_ENABLE_VERT,
+                                 CM_ENABLE_HOZ,
+                                 CM_ENABLE_AREA,
+                                 CM_ENABLE_LINE,
+                                 CM_DISPLAY_ROI_INFO,
+                                 CM_DISPLAY_ACQ,
+                                 CM_DISPLAY_EXP,
+                                 CM_DISPLAY_SAVE,
+                                 CM_DISPLAY_PAUSE,
+                                 CM_DISPLAY_ROI_BUTTON,
+                                 CM_DISPLAY_ZOOM
+                               };
+
+        if( enablePan )
+        {
+            a = new QAction( "Pan", this );
+            a->setCheckable( true );
+            a->setChecked( videoWidget->getPanning() );
+            a->setData( CM_PAN );
+            myMenu.addAction( a );
+        }
+
+        if( enableVSliceSelection )
+        {
+            a = new QAction( "Select vertical slice", this );
+            a->setCheckable( true );
+            a->setChecked( videoWidget->getMode() == imageMarkup::MARKUP_MODE_V_LINE );
+            a->setData( CM_VERT );
+            myMenu.addAction( a );
+        }
+
+        if( enableHSliceSelection )
+        {
+            a = new QAction( "Select horizontal slice", this );
+            a->setCheckable( true );
+            a->setChecked( videoWidget->getMode() == imageMarkup::MARKUP_MODE_H_LINE );
+            a->setData( CM_HOZ );
+            myMenu.addAction( a );
+        }
+
+        if( enableAreaSelection )
+        {
+            a = new QAction( "Select area", this );
+            a->setCheckable( true );
+            a->setChecked( videoWidget->getMode() == imageMarkup::MARKUP_MODE_AREA );
+            a->setData( CM_AREA );
+            myMenu.addAction( a );
+        }
+
+        if( enableProfileSelection )
+        {
+            a = new QAction( "Select profile line", this );
+            a->setCheckable( true );
+            a->setChecked( videoWidget->getMode() == imageMarkup::MARKUP_MODE_LINE );
+            a->setData( CM_LINE );
+            myMenu.addAction( a );
+        }
+
+        a = new QAction( "Save...", this );
+        a->setData( CM_SAVE );
+        myMenu.addAction( a );
+
+        QString pauseStr = paused?"Resume":"Pause";
+        a = new QAction( pauseStr, this );
+        a->setCheckable( true );
+        a->setChecked( paused );
+        a->setData( CM_PAUSE );
+        myMenu.addAction( a );
+
+        a = new QAction( "Show time", this );
+        a->setCheckable( true );
+        a->setChecked( showTimeEnabled );
+        a->setData( CM_ENABLE_TIME );
+        myMenu.addAction( a );
+
+        a = new QAction( "Show cursor pixel info", this );
+        a->setCheckable( true );
+        a->setChecked( displayCursorPixelInfo );
+        a->setData( CM_ENABLE_CURSOR_PIXEL );
+        myMenu.addAction( a );
+
+        a = new QAction( "Enable panning", this );
+        a->setCheckable( true );
+        a->setChecked( enablePan );
+        a->setData( CM_ENABLE_PAN );
+        myMenu.addAction( a );
+
+        a = new QAction( "Enable vertical selection", this );
+        a->setCheckable( true );
+        a->setChecked( enableVSliceSelection );
+        a->setData( CM_ENABLE_VERT );
+        myMenu.addAction( a );
+
+        a = new QAction( "Enable horizontal selection", this );
+        a->setCheckable( true );
+        a->setChecked( enableHSliceSelection );
+        a->setData( CM_ENABLE_HOZ );
+        myMenu.addAction( a );
+
+        a = new QAction( "Enable area selection", this );
+        a->setCheckable( true );
+        a->setChecked( enableAreaSelection );
+        a->setData( CM_ENABLE_AREA );
+        myMenu.addAction( a );
+
+        a = new QAction( "Enable profile selection", this );
+        a->setCheckable( true );
+        a->setChecked( enableProfileSelection );
+        a->setData( CM_ENABLE_LINE );
+        myMenu.addAction( a );
+
+        a = new QAction( "Display ROI info", this );
+        a->setCheckable( true );
+        a->setChecked( displayRoiLayout );
+        a->setData( CM_DISPLAY_ROI_INFO );
+        myMenu.addAction( a );
+
+        a = new QAction( "Display acquisition period", this );
+        a->setCheckable( true );
+        a->setChecked( displayAcquirePeriod );
+        a->setData( CM_DISPLAY_ACQ );
+        myMenu.addAction( a );
+
+        a = new QAction( "Display exposure time", this );
+        a->setCheckable( true );
+        a->setChecked( displayExposureTime );
+        a->setData( CM_DISPLAY_EXP );
+        myMenu.addAction( a );
+
+        a = new QAction( "Display 'Save...' button", this );
+        a->setCheckable( true );
+        a->setChecked( displaySaveButton );
+        a->setData( CM_DISPLAY_SAVE );
+        myMenu.addAction( a );
+
+        a = new QAction( "Display 'Pause/Resume' button", this );
+        a->setCheckable( true );
+        a->setChecked( displayPauseButton );
+        a->setData( CM_DISPLAY_PAUSE );
+        myMenu.addAction( a );
+
+        a = new QAction( "Show 'ROI button", this );
+        a->setCheckable( true );
+        a->setChecked( displayRoiButton );
+        a->setData( CM_DISPLAY_ROI_BUTTON );
+        myMenu.addAction( a );
+
+        a = new QAction( "Display 'Zoom' button", this );
+        a->setCheckable( true );
+        a->setChecked( displayZoomButton );
+        a->setData( CM_DISPLAY_ZOOM );
+        myMenu.addAction( a );
+
+        QAction* selectedItem = myMenu.exec( globalPos );
+        if (selectedItem)
+        {
+
+
+            switch( selectedItem->data().toInt() )
+            {
+                case CM_PAN:
+                    panMode->setChecked( true );
+                    panModeClicked();
+                    break;
+
+                case CM_VERT:
+                    vSliceSelectMode->setChecked( true );
+                    vSliceSelectModeClicked();
+                    break;
+
+                case CM_HOZ:
+                    hSliceSelectMode->setChecked( true );
+                    hSliceSelectModeClicked();
+                    break;
+
+                case CM_AREA:
+                    areaSelectMode->setChecked( true );
+                    areaSelectModeClicked();
+                    break;
+
+                case CM_LINE:
+                    profileSelectMode->setChecked( true );
+                    profileSelectModeClicked();
+                    break;
+
+                case CM_SAVE:
+                    saveClicked();
+                    break;
+
+                case CM_PAUSE:
+                    pauseClicked();
+                    break;
+
+                case CM_ENABLE_CURSOR_PIXEL:
+                    setDisplayCursorPixelInfo( selectedItem->isChecked() );
+                    break;
+
+                case CM_ENABLE_TIME:
+                    setShowTime( selectedItem->isChecked() );
+                    break;
+
+                case CM_ENABLE_PAN:
+                    setEnablePan( selectedItem->isChecked() );
+                    break;
+
+                case CM_ENABLE_VERT:
+                    setEnableVertSliceSelection( selectedItem->isChecked() );
+                    break;
+
+                case CM_ENABLE_HOZ:
+                    setEnableHozSliceSelection( selectedItem->isChecked() );
+                    break;
+
+                case CM_ENABLE_AREA:
+                    setEnableAreaSelection( selectedItem->isChecked() );
+                    break;
+
+                case CM_ENABLE_LINE:
+                    setEnableProfileSelection( selectedItem->isChecked() );
+                    break;
+
+                case CM_DISPLAY_ROI_INFO:
+                    setDisplayRegionOfInterest( selectedItem->isChecked() );
+                    break;
+
+                case CM_DISPLAY_ACQ:
+                    setDisplayAcquirePeriod( selectedItem->isChecked() );
+                    break;
+
+                case CM_DISPLAY_EXP:
+                    setDisplayExposureTime( selectedItem->isChecked() );
+                    break;
+
+                case CM_DISPLAY_SAVE:
+                    setShowSaveButton( selectedItem->isChecked() );
+                    break;
+
+                case CM_DISPLAY_PAUSE:
+                    setShowPauseButton( selectedItem->isChecked() );
+                    break;
+
+                case CM_DISPLAY_ROI_BUTTON:
+                    setShowRoiButton( selectedItem->isChecked() );
+                    break;
+
+                case CM_DISPLAY_ZOOM:
+                    setShowZoomButton( selectedItem->isChecked() );
+                    break;
+            }
+        }
 }

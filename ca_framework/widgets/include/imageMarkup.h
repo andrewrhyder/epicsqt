@@ -204,6 +204,7 @@ public:
     void setShowTime( bool visibleIn );     // Display timestamp markup if true
     bool getShowTime();                     // Rturn true if displaying timestamp markup
 
+    markupModes getMode();
     void setMode( markupModes modeIn );
     QImage* markupImage;
     QVector<markupItem*> items;

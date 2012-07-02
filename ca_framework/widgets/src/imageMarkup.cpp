@@ -698,6 +698,11 @@ imageMarkup::~imageMarkup()
 {
 }
 
+imageMarkup::markupModes imageMarkup::getMode()
+{
+    return mode;
+}
+
 // Set the current markup mode - (what is the user doing? selecting an area? drawing a line?)
 void imageMarkup::setMode( markupModes modeIn )
 {
@@ -748,6 +753,10 @@ bool imageMarkup::getShowTime()
 // User pressed a mouse button
 void imageMarkup::markupMousePressEvent(QMouseEvent *event)
 {
+    // Only act on left mouse button press
+    if( !(event->buttons()&Qt::LeftButton ))
+        return;
+
     buttonDown = true;
 
     // Determine if the user clicked over an interactive, visible item,
@@ -883,7 +892,7 @@ QCursor imageMarkup::getDefaultMarkupCursor()
     return  Qt::CrossCursor;
 }
 
-void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )// event )
+void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )//event )
 {
     // If there is an active item, take action
     if( activeItem != MARKUP_ID_NONE )
