@@ -78,6 +78,11 @@ void markupItem::drawMarkupIn()
 void markupItem::drawMarkupOut()
 {
     QPainter p( owner->markupImage );
+    // Erase the item
+    p.setPen( QColor( 0, 0, 0, 255 ) ); // black with fully opaque alpha
+    drawMarkup( p );
+
+    // Draw a transparent background
     p.setCompositionMode( QPainter::CompositionMode_Clear );
     drawMarkup( p );
     visible = false;
@@ -944,11 +949,25 @@ void imageMarkup::markupResize( QSize newSize )
         delete markupImage;
         markupImage = new QImage( newSize, QImage::Format_ARGB32 );
 
-        // Fill with transparent background
+        // Erase, then fill with transparent background
         // markupImage->fill( QColor ( 0, 0, 0, 0 ) );               <-- Qt 4.8 only
-        QPainter p( markupImage );                                // <-- Qt 4.7
-        p.fillRect( markupImage->rect(), QColor ( 0, 0, 0, 0 ) ); // <-- Qt 4.7
+        QPainter p( markupImage );                                  // <-- Qt 4.7
+        p.fillRect( markupImage->rect(), QColor ( 0, 0, 0, 255 ) ); // <-- Qt 4.7
+        p.fillRect( markupImage->rect(), QColor ( 0, 0, 0, 0 ) );   // <-- Qt 4.7
     }
+
+    // Redraw any visible markups
+    int n = items.count();
+    for( int i = 0; i < n; i ++ )
+    {
+        if( items[i]->visible )
+        {
+            items[i]->drawMarkupIn();
+        }
+    }
+
+    // Notify the change
+    markupChange( *markupImage, getMarkupAreas() );
 }
 
 QVector<QRect>& imageMarkup::getMarkupAreas()

@@ -69,7 +69,7 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     // If this is the first paint event, and there is no image to display, fill it with black
     QPainter painter(this);
 
-    if( firstUpdate && currentImage.isNull() )
+    if( firstUpdate || currentImage.isNull() )
     {
         QColor bg(0, 0, 0, 255);
         painter.fillRect(rect(), bg);
@@ -155,6 +155,13 @@ void VideoWidget::paintEvent(QPaintEvent* event )
                 if( getMarkupAreas()[i].intersects( event->rect() ))
                 {
                     compPainter.drawImage(  getMarkupAreas()[i], markupImage,  getMarkupAreas()[i] );
+                    for( int k = 0; k < markupImage.width(); k++ )
+                    {
+                        if( markupImage.pixel( markupImage.height()/2,k ) & 0x00000000 )
+                        {
+                            qDebug() << markupImage.pixel( markupImage.height()/2,k );
+                        }
+                    }
                 }
             }
 
@@ -267,7 +274,23 @@ void VideoWidget::mouseMoveEvent( QMouseEvent* event )
     {
         if( event->buttons()&Qt::LeftButton)
         {
-            move( pos() - ( panStart - event->pos() ) );
+            // Determine a new position that will keep the same point in the image under the mouse
+            QPoint newPos = pos() - ( panStart - event->pos() ) ;
+
+            // Limit panning. Don't pan beyond the image
+            if( newPos.x() > 0 )
+                newPos.setX( 0 );
+            if( newPos.y() > 0 )
+                newPos.setY( 0 );
+
+            QWidget* p = this->parentWidget();
+            if( newPos.x() <  p->width() - width() )
+                newPos.setX( p->width() - width());
+            if( newPos.y() < p->height() - height() )
+                newPos.setY( p->height() - height() );
+
+            // Do the pan
+            move( newPos );
         }
     }
 }

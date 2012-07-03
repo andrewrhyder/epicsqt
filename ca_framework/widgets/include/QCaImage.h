@@ -354,6 +354,9 @@ private slots:
     const unsigned char* getImageDataPtr( QPoint& pos );
 
 
+    void zoomToArea();
+    void setResizeOptionAndZoom( int zoomIn );
+
 
     // Drag and Drop
 protected:
