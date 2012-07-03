@@ -43,6 +43,14 @@ using namespace std;
 
 
 
+enum motorConfiguration
+{
+    FROM_FILE,
+    FROM_TEXT
+};
+
+
+
 // ============================================================
 //  FIELD CLASS
 // ============================================================
@@ -257,13 +265,18 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
     Q_OBJECT
 
     private:
+        void setMotorConfiguration(QString pValue);
+
 
     protected:
         list <_Motor *> motorList;
+        QLabel *qLabel;
         QComboBox *qComboBoxMotor;
         QVBoxLayout *qVBoxLayoutFields;
         QScrollArea *qScrollArea;
-        QString motorConfiguration;
+        QString motorConfigurationFile;
+        QString motorConfigurationText;
+        int motorConfigurationType;
         int currentUserType;
 
 
@@ -272,8 +285,17 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         QCaMotor(QWidget *pParent = 0);
         virtual ~QCaMotor(){}
 
-        void setMotorConfiguration(QString pValue);
-        QString getMotorConfiguration();
+        void setMotorConfigurationType(int pValue);
+        int getMotorConfigurationType();
+
+        void setShowMotorList(bool pValue);
+        bool getShowMotorList();
+
+        void setMotorConfigurationFile(QString pValue);
+        QString getMotorConfigurationFile();
+
+        void setMotorConfigurationText(QString pValue);
+        QString getMotorConfigurationText();
 
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
@@ -283,8 +305,28 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
         void userLevelChanged(userLevels pValue);
 
+        Q_PROPERTY(bool showMotorList READ getShowMotorList WRITE setShowMotorList)
 
-        Q_PROPERTY(QString motorConfiguration READ getMotorConfiguration WRITE setMotorConfiguration)
+        Q_ENUMS(motorConfigurationTypesProperty)
+        Q_PROPERTY(motorConfigurationTypesProperty motorConfigurationType READ getMotorConfigurationTypeProperty WRITE setMotorConfigurationTypeProperty)
+        enum motorConfigurationTypesProperty
+        {
+            File = FROM_FILE,
+            Text = FROM_TEXT
+        };
+
+        void setMotorConfigurationTypeProperty(motorConfigurationTypesProperty pMotorConfigurationType)
+        {
+            setMotorConfigurationType((motorConfigurationTypesProperty) pMotorConfigurationType);
+        }
+        motorConfigurationTypesProperty getMotorConfigurationTypeProperty()
+        {
+            return (motorConfigurationTypesProperty) getMotorConfigurationType();
+        }
+
+        Q_PROPERTY(QString motorConfigurationFile READ getMotorConfigurationFile WRITE setMotorConfigurationFile)
+
+        Q_PROPERTY(QString motorConfigurationText READ getMotorConfigurationText WRITE setMotorConfigurationText)
 
         Q_ENUMS(userTypesProperty)
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)

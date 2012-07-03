@@ -22,20 +22,10 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-//#include <QMessageBox>
-//#include <QDialog>
-//#include <QGroupBox>
-//#include <QLineEdit>
-//#include <QRadioButton>
 #include <QCaSpinBox.h>
 #include <QCaComboBox.h>
 #include <QCaMotor.h>
-//#include <QDebug>
 #include <QDomDocument>
-//#include <QFile>
-//#include <QELabel.h>
-//#include <QCaLineEdit.h>
-
 
 
 
@@ -45,9 +35,10 @@
 QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
+    //qDebug() << "BEGIN: QCaMotor";
+
     QHBoxLayout *qHBoxLayout;
     QVBoxLayout *qVBoxLayout;
-    QLabel *qLabel;
 
     qScrollArea = new QScrollArea();
     qVBoxLayout = new QVBoxLayout();
@@ -65,15 +56,125 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     QObject::connect(qComboBoxMotor, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxMotorSelected(int)));
     qHBoxLayout->addWidget(qComboBoxMotor);
 
+    qScrollArea->setWidgetResizable(true);
     qScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     qScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     qVBoxLayout->addLayout(qHBoxLayout);
-    qVBoxLayout->addItem(new QSpacerItem(0, 15, QSizePolicy::Expanding, QSizePolicy::Fixed));
+    //qVBoxLayout->addItem(new QSpacerItem(0, 15, QSizePolicy::Expanding, QSizePolicy::Fixed));
     qVBoxLayout->addWidget(qScrollArea);
 
     setLayout(qVBoxLayout);
     setCurrentUserType(getUserLevel());
+
+    //qDebug() << "END: QCaMotor";
+
+}
+
+
+
+
+
+
+void QCaMotor::setMotorConfigurationType(int pValue)
+{
+
+    motorConfigurationType = pValue;
+    setMotorConfigurationFile(motorConfigurationFile);
+    setMotorConfigurationText(motorConfigurationText);
+
+}
+
+
+
+
+
+int QCaMotor::getMotorConfigurationType()
+{
+
+    return motorConfigurationType;
+
+}
+
+
+
+
+
+void QCaMotor::setShowMotorList(bool pValue)
+{
+
+    qComboBoxMotor->setVisible(pValue);
+    qLabel->setVisible(pValue);
+
+}
+
+
+
+
+
+bool QCaMotor::getShowMotorList()
+{
+
+    return qComboBoxMotor->isVisible();
+
+}
+
+
+
+
+void QCaMotor::setMotorConfigurationFile(QString pValue)
+{
+
+    QFile *file;
+    QString data;
+
+    motorConfigurationFile = pValue;
+    if (motorConfigurationType == FROM_FILE)
+    {
+        file = new QFile(motorConfigurationFile);
+        if (file->open(QFile::ReadOnly | QFile::Text))
+        {
+            data = file->readAll();
+            file->close();
+            setMotorConfiguration(data);
+        }
+    }
+
+}
+
+
+
+
+QString QCaMotor::getMotorConfigurationFile()
+{
+
+    return motorConfigurationFile;
+
+}
+
+
+
+
+
+void QCaMotor::setMotorConfigurationText(QString pValue)
+{
+
+    motorConfigurationText = pValue;
+    if (motorConfigurationType == FROM_TEXT)
+    {
+        setMotorConfiguration(motorConfigurationText);
+    }
+
+}
+
+
+
+
+
+QString QCaMotor::getMotorConfigurationText()
+{
+
+    return motorConfigurationText;
 
 }
 
@@ -90,7 +191,6 @@ void QCaMotor::setMotorConfiguration(QString pValue)
     QDomElement fieldElement;
     QDomNode rootNode;
     QDomNode motorNode;
-    QFile *file;
     _Motor *motor;
     _Group *group;
     _Field *field;
@@ -99,24 +199,13 @@ void QCaMotor::setMotorConfiguration(QString pValue)
     bool  flag1;
     int count;
 
+    //qDebug() << "BEGIN: setMotorConfigurationString";
 
-    motorConfiguration = pValue;
-
-    document = QDomDocument("epicsqt");
-    file = new QFile(motorConfiguration);
-
-    if (file->open(QFile::ReadOnly | QFile::Text))
-    {
-        flag0 = document.setContent(file);
-        file->close();
-    }
-    else
-    {
-        flag0 = document.setContent(motorConfiguration);
-    }
+    //return ;
 
     motorList.clear();
-    if (flag0)
+
+    if (document.setContent(pValue))
     {
         rootElement = document.documentElement();
         if (rootElement.tagName() == "epicsqt")
@@ -139,6 +228,7 @@ void QCaMotor::setMotorConfiguration(QString pValue)
                     {
                         motor->setName(motorElement.attribute("name"));
                     }
+
                     motor->setSubstitution(motorElement.attribute("substitution"));
                     motor->setVisible(motorElement.attribute("visible"));
                     motorNode = motorElement.firstChild();
@@ -200,17 +290,10 @@ void QCaMotor::setMotorConfiguration(QString pValue)
     }
     setCurrentUserType(currentUserType);
 
-}
-
-
-
-
-QString QCaMotor::getMotorConfiguration()
-{
-
-    return motorConfiguration;
+    // qDebug() << "END: setMotorConfigurationString";
 
 }
+
 
 
 
@@ -233,6 +316,9 @@ void QCaMotor::setCurrentUserType(int pValue)
     QString userType;
     int i;
 
+    //qDebug() << "BEGIN: setCurrentUserType";
+
+    //return ;
 
     if (pValue == USERLEVEL_USER || pValue == USERLEVEL_SCIENTIST || pValue == USERLEVEL_ENGINEER)
     {
@@ -273,6 +359,8 @@ void QCaMotor::setCurrentUserType(int pValue)
         qComboBoxMotor->blockSignals(false);
     }
 
+    // qDebug() << "END: setCurrentUserType";
+
 }
 
 
@@ -305,6 +393,9 @@ void QCaMotor::refreshFields()
     _Field *field;
     bool flag;
 
+    //qDebug() << "BEGIN: refreshFields ***";
+
+    //return ;
 
     while(qVBoxLayoutFields->isEmpty() == false)
     {
@@ -481,10 +572,11 @@ void QCaMotor::refreshFields()
 
         qWidget = new QWidget();
         qWidget->setLayout(qVBoxLayoutFields);
-        qScrollArea->setWidgetResizable(true);
         qScrollArea->setWidget(qWidget);
 
     }
+
+    // qDebug() << "END: refreshFields";
 
 }
 
@@ -492,7 +584,7 @@ void QCaMotor::refreshFields()
 
 
 
-void QCaMotor::comboBoxMotorSelected(int )//!!pValue)
+void QCaMotor::comboBoxMotorSelected(int)
 {
 
     refreshFields();
@@ -777,6 +869,11 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
     _Field *field;
 
 
+    //qDebug() << "BEGIN: _QDialogMotor";
+
+    //return ;
+
+
     qVBoxLayout = new QVBoxLayout();
     qPushButtonClose = new QPushButton();
 
@@ -826,6 +923,8 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
     qVBoxLayout->addWidget(qPushButtonClose);
 
     setLayout(qVBoxLayout);
+
+    //qDebug() << "END: _QDialogMotor";
 
 }
 
