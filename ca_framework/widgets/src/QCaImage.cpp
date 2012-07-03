@@ -38,6 +38,7 @@
 #include <QCaInteger.h>
 #include <contextMenu.h>
 #include <zoomMenu.h>
+#include <flipRotateMenu.h>
 
 /*!
     Constructor with no initialisation
@@ -2208,8 +2209,8 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
     menu.addOptionMenuItem( "Display 'ROI button",           true,  displayRoiButton,       contextMenu::CM_DISPLAY_EXP         );
     menu.addOptionMenuItem( "Display 'Zoom' button",         true,  displayZoomButton,      contextMenu::CM_DISPLAY_ZOOM        );
 
-    zoomMenu* zMenu = new zoomMenu( haveSelectedArea );
-    menu.addMenu( zMenu );
+    menu.addMenu( new zoomMenu( haveSelectedArea ) );
+    menu.addMenu( new flipRotateMenu( rotation, flipHoz, flipVert ) );
 
     contextMenu::contextMenuOptions option;
     bool checked;
@@ -2252,7 +2253,11 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
         case contextMenu::CM_ZOOM_200:            setResizeOptionAndZoom( 200 );          break;
         case contextMenu::CM_ZOOM_300:            setResizeOptionAndZoom( 300 );          break;
         case contextMenu::CM_ZOOM_400:            setResizeOptionAndZoom( 400 );          break;
+        case contextMenu::CM_ROTATE_NONE:         setRotation( ROTATION_0 );              break;
+        case contextMenu::CM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );       break;
+        case contextMenu::CM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );        break;
+        case contextMenu::CM_ROTATE_180:          setRotation( ROTATION_180 );            break;
+        case contextMenu::CM_FLIP_HORIZONTAL:     setHorizontalFlip( checked );           break;
+        case contextMenu::CM_FLIP_VERTICAL:       setVerticalFlip  ( checked );           break;
     }
 }
-
-

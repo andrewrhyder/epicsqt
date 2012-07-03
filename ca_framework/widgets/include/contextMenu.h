@@ -43,7 +43,13 @@ public:
                              CM_ZOOM_150,
                              CM_ZOOM_200,
                              CM_ZOOM_300,
-                             CM_ZOOM_400
+                             CM_ZOOM_400,
+                             CM_ROTATE_NONE,
+                             CM_ROTATE_RIGHT,
+                             CM_ROTATE_LEFT,
+                             CM_ROTATE_180,
+                             CM_FLIP_HORIZONTAL,
+                             CM_FLIP_VERTICAL
                             };
 
 
