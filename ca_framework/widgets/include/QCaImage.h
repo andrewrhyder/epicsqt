@@ -33,6 +33,9 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <profilePlot.h>
+#include <zoomMenu.h>
+#include <flipRotateMenu.h>
+
 
 #include <QCaPluginLibrary_global.h>
 #include <QCaIntegerFormatting.h>
@@ -98,7 +101,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     void setInitialVertScrollPos( int initialVertScrollPosIn );
     int getInitialVertScrollPos();
 
-
     void setDisplayRegionOfInterest( bool displayRoiLayoutIn );
     bool getDisplayRegionOfInterest();
 
@@ -110,18 +112,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
     void setDisplayExposureTime( bool displayExposureTimeIn );
     bool getDisplayExposureTime();
 
-
-    void setShowPauseButton(bool displayPauseButtonIn );
-    bool getShowPauseButton();
-
-    void setShowSaveButton(bool displaySaveButtonIn );
-    bool getShowSaveButton();
-
-    void setShowRoiButton( bool displayRoiButtonIn );
-    bool getShowRoiButton();
-
-    void setShowZoomButton( bool displayZoomButtonIn );
-    bool getShowZoomButton();
+    void setDisplayButtonBar( bool displayButtonBarIn );
+    bool getDisplayButtonBar();
 
     void setShowTime(bool pValue);
     bool getShowTime();
@@ -159,7 +151,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     bool allowDrop;
 
-    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ACQUIREPERIOD_VARIABLE, EXPOSURETIME_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, QCAIMAGE_NUM_VARIABLES };
+    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, QCAIMAGE_NUM_VARIABLES };
 
     resizeOptions resizeOption;
     int zoom;
@@ -169,15 +161,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     int initialHozScrollPos;
     int initialVertScrollPos;
-    bool displayAcquirePeriod;
-    bool displayExposureTime;
     bool displayRoiLayout;
 
-    bool displayPauseButton;
-    bool displaySaveButton;
-    bool displayZoomButton;
-    bool displayRoiButton;
-
+    bool displayButtonBar;
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
@@ -189,7 +175,7 @@ private slots:
     void saveClicked();
 
     void roiClicked();
-    void zoomClicked();
+    void resetRoiClicked();
 
     void vSliceSelectModeClicked();
     void hSliceSelectModeClicked();
@@ -203,11 +189,13 @@ private slots:
 
   public slots:
     void requestEnabled( const bool& state );
-    void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
+    void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
     void ShowContextMenu( const QPoint& );
+    void zoomMenuTriggered( QAction* selectedItem );
+    void flipRotateMenuTriggered( QAction* selectedItem );
 
   signals:
     void dbValueChanged( const QString& out );
@@ -226,9 +214,8 @@ private slots:
 
     QGridLayout *mainLayout;
 
-    QGroupBox *labelGroup;
     QGroupBox *roiGroup;
-    QGroupBox *buttonGroup;
+    QFrame *buttonGroup;
 
     QGroupBox* areaSelectionGroup;
     QRadioButton* panMode;
@@ -236,13 +223,6 @@ private slots:
     QRadioButton* hSliceSelectMode;
     QRadioButton* areaSelectMode;
     QRadioButton* profileSelectMode;
-
-
-    QELabel* acquirePeriodQELabel;
-    QLabel* acquirePeriodLabel;
-
-    QELabel* exposureTimeQELabel;
-    QLabel* exposureTimeLabel;
 
     QELabel* roiXQELabel;
     QLabel* roiXLabel;
@@ -272,12 +252,17 @@ private slots:
     QPushButton *pauseButton;
     QPushButton *saveButton;
     QPushButton *roiButton;
+    QPushButton *resetRoiButton;
     QPushButton *zoomButton;
+    QPushButton *flipRotateButton;
 
     profilePlot* vSliceDisplay;
     profilePlot* hSliceDisplay;
     profilePlot* profileDisplay;
 
+
+    zoomMenu*       zMenu;
+    flipRotateMenu* frMenu;
 
     bool paused;
     bool showTimeEnabled;
@@ -291,18 +276,10 @@ private slots:
     bool displayCursorPixelInfo;
 
 
-    void manageLabelGroup();
-    void manageButtonGroup();
 
-
+    void manageButtonBar();
     void manageInfoLayout();
     void manageRoiLayout();
-    void manageAcquirePeriodLabel();
-    void manageExposureTimeLabel();
-    void managePauseButton();
-    void manageSaveButton();
-    void manageRoiButton();
-    void manageZoomButton();
 
     void manageSelectionOptions();
 
@@ -322,8 +299,6 @@ private slots:
     QPoint profileLineEnd;
     QPoint selectedAreaPoint1;
     QPoint selectedAreaPoint2;
-    QPoint selectedAreaScaledPoint1;
-    QPoint selectedAreaScaledPoint2;
 
     bool haveVSliceX;
     bool haveHSliceY;
@@ -333,6 +308,7 @@ private slots:
     void generateVSlice( int x );
     void generateHSlice( int y );
     void generateProfile( QPoint point1, QPoint point2 );
+    void displaySelectedAreaInfo( QPoint point1, QPoint point2 );
 
     void updateMarkups();
 

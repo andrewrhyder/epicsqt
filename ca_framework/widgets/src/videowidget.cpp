@@ -1,7 +1,6 @@
 
 #include "videowidget.h"
-
-#include <QtMultimedia>
+#include <QPainter>
 
 VideoWidget::VideoWidget(QWidget *parent)
     : QWidget(parent)
@@ -155,13 +154,6 @@ void VideoWidget::paintEvent(QPaintEvent* event )
                 if( getMarkupAreas()[i].intersects( event->rect() ))
                 {
                     compPainter.drawImage(  getMarkupAreas()[i], markupImage,  getMarkupAreas()[i] );
-                    for( int k = 0; k < markupImage.width(); k++ )
-                    {
-                        if( markupImage.pixel( markupImage.height()/2,k ) & 0x00000000 )
-                        {
-                            qDebug() << markupImage.pixel( markupImage.height()/2,k );
-                        }
-                    }
                 }
             }
 
@@ -183,18 +175,22 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
 
 void VideoWidget::markupAction( markupModes mode, QPoint point1, QPoint point2 )
 {
-    QPoint scaledPoint1;
-    QPoint scaledPoint2;
+    emit userSelection( mode, point1, point2 );
+}
 
-    scaledPoint1.setX( (double)(point1.x()) / getHScale() );
-    scaledPoint1.setY( (double)(point1.y()) / getVScale() );
+// Return an ordinate from the displayed image as an ordinate in the original image
+QPoint VideoWidget::scalePoint( QPoint pnt )
+{
+    QPoint scaled;
+    scaled.setX( scaleOrdinate( pnt.x() ));
+    scaled.setY( scaleOrdinate( pnt.y() ));
+    return scaled;
+}
 
-    scaledPoint2.setX( (double)(point2.x()) / getHScale() );
-    scaledPoint2.setY( (double)(point2.y()) / getVScale() );
-
-
-    emit userSelection( mode, point1, point2, scaledPoint1, scaledPoint2 );
-
+// Return an ordinate from the displayed image as an ordinate in the original image
+int VideoWidget::scaleOrdinate( int ord )
+{
+    return (int)((double)ord / getHScale());
 }
 
 // Return the vertical scale of the displayed image

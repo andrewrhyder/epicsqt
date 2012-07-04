@@ -23,7 +23,7 @@
 # - analyse the results with the command: gprof <your-program-name>
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
-QT += core gui multimedia xml network
+QT += core gui xml network
 TEMPLATE = lib
 CONFIG += plugin \
     uitools \

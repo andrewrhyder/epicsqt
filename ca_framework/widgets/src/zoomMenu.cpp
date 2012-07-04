@@ -1,16 +1,12 @@
 #include "zoomMenu.h"
 
-zoomMenu::zoomMenu( const bool areaSelected, QWidget *parent) : QMenu(parent)
+zoomMenu::zoomMenu( QWidget *parent) : QMenu(parent)
 {
+    areaSelectedAction = new QAction( "Selected area", this );
+    areaSelectedAction->setData( contextMenu::CM_ZOOM_SELECTED );
+    addAction( areaSelectedAction );
+
     QAction* a;
-
-    if( areaSelected )
-    {
-        a = new QAction( "Selected area", this );
-        a->setData( contextMenu::CM_ZOOM_SELECTED );
-        addAction( a );
-    }
-
     a = new QAction( "Fit",  this ); a->setData( contextMenu::CM_ZOOM_FIT ); addAction( a );
     a = new QAction( "10%",  this ); a->setData( contextMenu::CM_ZOOM_10  ); addAction( a );
     a = new QAction( "25%",  this ); a->setData( contextMenu::CM_ZOOM_25  ); addAction( a );
@@ -38,4 +34,9 @@ contextMenu::contextMenuOptions zoomMenu::getZoom( const QPoint& pos )
     {
         return contextMenu::CM_NONE;
     }
+}
+
+void zoomMenu::enableAreaSelected( bool enable )
+{
+    areaSelectedAction->setEnabled( enable );
 }

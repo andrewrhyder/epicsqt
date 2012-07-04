@@ -37,8 +37,6 @@
 #include <QCaByteArray.h>
 #include <QCaInteger.h>
 #include <contextMenu.h>
-#include <zoomMenu.h>
-#include <flipRotateMenu.h>
 
 /*!
     Constructor with no initialisation
@@ -82,10 +80,7 @@ void QCaImage::setup() {
     formatOption = GREY8;
     paused = false;
 
-    displayPauseButton = false;
-    displaySaveButton = false;
-    displayZoomButton = false;
-    displayRoiButton = false;
+    displayButtonBar = false;
 
     haveVSliceX = false;
     haveHSliceY = false;
@@ -114,18 +109,28 @@ void QCaImage::setup() {
     // Use frame signals
     // --Currently none--
 
+
+    zMenu = new zoomMenu( );
+    zMenu->enableAreaSelected( haveSelectedArea );
+    QObject::connect( zMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( zoomMenuTriggered( QAction* )) );
+
+    frMenu = new flipRotateMenu();
+    frMenu->setChecked( rotation, flipHoz, flipVert );
+
+    QObject::connect( frMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( flipRotateMenuTriggered( QAction* )) );
+
+
     // Create the video destination
     videoWidget = new VideoWidget;
     setMarkupColor(QColor(0, 255, 0));
-    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint ) ),
-                      this,        SLOT  ( userSelection( imageMarkup::markupModes, QPoint, QPoint, QPoint, QPoint )) );
+    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupModes, QPoint, QPoint ) ),
+                      this,        SLOT  ( userSelection( imageMarkup::markupModes, QPoint, QPoint )) );
     QObject::connect( videoWidget, SIGNAL( zoomInOut( int ) ),
                       this,        SLOT  ( zoomInOut( int ) ) );
     QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint ) ),
                       this,        SLOT  ( currentPixelInfo( QPoint ) ) );
     QObject::connect( videoWidget, SIGNAL( pan( QPoint ) ),
                       this,        SLOT  ( pan( QPoint ) ) );
-
 
     // Add the video destination to the widget
     scrollArea = new QScrollArea;
@@ -170,30 +175,6 @@ void QCaImage::setup() {
     graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
     graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
 
-    // Create label group
-    labelGroup = new QGroupBox();
-    labelGroup->setTitle( "Details");
-    QGridLayout* labelLayout = new QGridLayout();
-    labelLayout->setMargin( 0 );
-    labelGroup->setLayout( labelLayout);
-
-    acquirePeriodQELabel = new QELabel( this );
-    acquirePeriodLabel = new QLabel( this );
-    acquirePeriodLabel->setText( "Acquire Period:" );
-
-    exposureTimeQELabel = new QELabel( this );
-    exposureTimeLabel = new QLabel( this );
-    exposureTimeLabel->setText( "Exposure Time:" );
-
-    labelLayout->addWidget( acquirePeriodLabel, 0, 0 );
-    labelLayout->addWidget( acquirePeriodQELabel, 0, 1 );
-    labelLayout->addWidget( exposureTimeLabel, 1, 0 );
-    labelLayout->addWidget( exposureTimeQELabel, 1, 1 );
-
-    labelLayout->setColumnStretch( 2, 1 );
-    labelLayout->setRowStretch( 2, 1 );
-
-
     // Create region of interest group
     roiGroup = new QGroupBox();
     roiGroup->setTitle( "R.O.I.");
@@ -231,13 +212,12 @@ void QCaImage::setup() {
     roiLayout->setColumnStretch( 2, 1 );
 
 
+
     // Create button group
-    buttonGroup = new QGroupBox();
-    buttonGroup->setTitle( "Actions");
+    buttonGroup = new QFrame;
     QGridLayout* buttonLayout = new QGridLayout();
     buttonLayout->setMargin( 0 );
-    buttonGroup->setLayout( buttonLayout);
-
+    buttonGroup->setLayout( buttonLayout );
 
     pauseButton= new QPushButton(buttonGroup);
     pauseButton->setText("Pause");
@@ -251,23 +231,33 @@ void QCaImage::setup() {
 
     roiButton = new QPushButton(buttonGroup);
     roiButton->setText("ROI");
-    roiButton->setToolTip("Apply selected area to Region Of Interst");
+    roiButton->setToolTip("Apply selected area to Region Of Interest");
     roiButton->setEnabled( false );
     QObject::connect(roiButton, SIGNAL(clicked()), this, SLOT(roiClicked()));
 
+    resetRoiButton = new QPushButton(buttonGroup);
+    resetRoiButton->setText("Reset ROI");
+    resetRoiButton->setToolTip("Apply selected area to Region Of Interest");
+    resetRoiButton->setEnabled( false );
+    QObject::connect(resetRoiButton, SIGNAL(clicked()), this, SLOT(resetRoiClicked()));
+
     zoomButton = new QPushButton(buttonGroup);
     zoomButton->setText("Zoom");
-    zoomButton->setToolTip("Zoom to selected area");
-    zoomButton->setEnabled( false );
-    QObject::connect(zoomButton, SIGNAL(clicked()), this, SLOT(zoomClicked()));
+    zoomButton->setToolTip("Zoom options");
+    zoomButton->setMenu( zMenu );
+
+    flipRotateButton = new QPushButton(buttonGroup);
+    flipRotateButton->setText("Flip / rotate");
+    flipRotateButton->setToolTip("Flip and rotate options");
+    flipRotateButton->setMenu( frMenu );
 
 
-    buttonLayout->addWidget(pauseButton, 0, 0);
-    buttonLayout->addWidget(saveButton, 0, 1);
-    buttonLayout->addWidget(roiButton, 1, 0);
-    buttonLayout->addWidget(zoomButton, 1, 1);
-
-    buttonLayout->setColumnStretch( 2, 1 );
+    buttonLayout->addWidget( pauseButton,      0, 0);
+    buttonLayout->addWidget( saveButton,       0, 1);
+    buttonLayout->addWidget( roiButton,        0, 2);
+    buttonLayout->addWidget( resetRoiButton,   0, 3);
+    buttonLayout->addWidget( zoomButton,       0, 4);
+    buttonLayout->addWidget( flipRotateButton, 0, 5);
 
     // Create area selection options
     areaSelectionGroup = new QGroupBox( "Selection", this );
@@ -312,31 +302,20 @@ void QCaImage::setup() {
     mainLayout = new QGridLayout;
     mainLayout->setMargin( 0 );
 
-    mainLayout->addLayout( graphicsLayout, 0, 0, 1, 0 );
-    mainLayout->addWidget( areaSelectionGroup, 1, 0  );
-    mainLayout->addWidget( labelGroup, 1, 1 );
-    mainLayout->addWidget( buttonGroup, 2, 0 );
-    mainLayout->addWidget( roiGroup, 2, 1 );
+    mainLayout->addWidget( buttonGroup, 0, 0 );
+    mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
+    mainLayout->addWidget( areaSelectionGroup, 2, 0  );
+    mainLayout->addWidget( roiGroup, 3, 1 );
 
     // Set graphics to take all spare room
     mainLayout->setColumnStretch( 1, 1 );
-    mainLayout->setRowStretch( 0, 1 );
-
-//    mainLayout->setStretch( 0, 1 );  // Graphics to take all spare room
+    mainLayout->setRowStretch( 1, 1 );
 
     setLayout( mainLayout );
 
     // Set up labels as required by properties
     manageRoiLayout();
-
-    manageAcquirePeriodLabel();
-    manageExposureTimeLabel();
-
-    managePauseButton();
-    manageSaveButton();
-    manageRoiButton();
-    manageZoomButton();
-
+    manageButtonBar();
     manageInfoLayout();
 
     // Set up context sensitive menu (right click menu)
@@ -377,16 +356,6 @@ qcaobject::QCaObject* QCaImage::createQcaItem( unsigned int variableIndex ) {
         // Create the heigh item as a QCaInteger
         case HEIGHT_VARIABLE:
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
-
-        // Don't create anything - just pass on the variable name and substitutions on to the acquire period QELabel
-        case ACQUIREPERIOD_VARIABLE:
-            acquirePeriodQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ACQUIREPERIOD_VARIABLE ), getVariableNameSubstitutions(), 0 );
-            return NULL;
-
-        // Don't create anything - just pass on the variable name and substitutions on to the exposure time QELabel
-        case EXPOSURETIME_VARIABLE:
-            exposureTimeQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( EXPOSURETIME_VARIABLE ), getVariableNameSubstitutions(), 0 );
-            return NULL;
 
         // Pass on the variable name and substitutions on to the region of interext X QELabel, then create the roi X as a QCaInteger
         case ROI_X_VARIABLE:
@@ -451,11 +420,6 @@ void QCaImage::establishConnection( unsigned int variableIndex ) {
                 QObject::connect( this, SIGNAL( requestResend() ),
                                   qca, SLOT( resendLastData() ) );
             }
-            break;
-
-        // QCa creation for these variables was handballed to the embedded QELabel widgets. Do nothing here
-        case ACQUIREPERIOD_VARIABLE:
-        case EXPOSURETIME_VARIABLE:
             break;
 
         // QCa creation occured, but no connection for display is required here.
@@ -753,10 +717,10 @@ void QCaImage::updateMarkups()
     {
         generateProfile( profileLineStart, profileLineEnd );
     }
-    // Nothing to regenerate for area yet
-    //if( haveSelectedArea )
-    //{
-    //}
+    if( haveSelectedArea )
+    {
+        displaySelectedAreaInfo( selectedAreaPoint1, selectedAreaPoint2 );
+    }
 }
 
 // Set the image buffer used for generate images will be large enough to hold the processed image
@@ -804,7 +768,6 @@ void QCaImage::setImageBuff()
 
     // Resize buffer
     imageBuff.resize( buffSize );
-
 }
 
 //=================================================================================================
@@ -842,6 +805,19 @@ void QCaImage::requestEnabled( const bool& state )
 }
 
 //=================================================================================================
+
+// Add or remove the button bar
+void QCaImage::manageButtonBar()
+{
+    if( displayButtonBar )
+    {
+        buttonGroup->show();
+    }
+    else
+    {
+        buttonGroup->hide();
+    }
+}
 
 // Add or remove the pixel information layout
 void QCaImage::manageInfoLayout()
@@ -897,75 +873,7 @@ void QCaImage::manageRoiLayout()
     }
 }
 
-// Add or remove the pause button
-void QCaImage::managePauseButton()
-{
-    pauseButton->setVisible( displayPauseButton );
-    manageButtonGroup();
-}
-
-// Add or remove the save button
-void QCaImage::manageSaveButton()
-{
-    saveButton->setVisible( displaySaveButton );
-    manageButtonGroup();
-}
-
-// Add or remove the ROI apply button
-void QCaImage::manageRoiButton()
-{
-    roiButton->setVisible( displayRoiButton );
-    manageButtonGroup();
-}
-
-// Add or remove the zoom button
-void QCaImage::manageZoomButton()
-{
-    zoomButton->setVisible( displayZoomButton );
-    manageButtonGroup();
-}
-
-void QCaImage::manageButtonGroup()
-{
-    buttonGroup->setVisible( displayPauseButton ||
-                             displaySaveButton  ||
-                             displayRoiButton   ||
-                             displayZoomButton );
-}
-
-// Add or remove the acquire period label
-void QCaImage::manageAcquirePeriodLabel()
-{
-    acquirePeriodLabel->setVisible( displayAcquirePeriod );
-    acquirePeriodQELabel->setVisible( displayAcquirePeriod );
-    manageLabelGroup();
-}
-
-// Add or remove the exposure time label
-void QCaImage::manageExposureTimeLabel()
-{
-    exposureTimeLabel->setVisible( displayExposureTime );
-    exposureTimeQELabel->setVisible( displayExposureTime );
-    manageLabelGroup();
-}
-
-void QCaImage::manageLabelGroup()
-{
-    labelGroup->setVisible( displayExposureTime ||
-                            displayAcquirePeriod );
-}
-
-// Zoom button pressed
-void QCaImage::zoomClicked()
-{
-    // Disable the zoom button now the area has been applied
-    zoomButton->setEnabled( false );
-
-    // Zoom tothe selected area
-    zoomToArea();
-}
-
-// Zoom button pressed
+// Zoom to the area selected on the image
 void QCaImage::zoomToArea()
 {
 
@@ -1001,7 +909,27 @@ void QCaImage::zoomToArea()
     scrollArea->verticalScrollBar()->setValue( (double)(selectedAreaPoint1.y()) * zoomFactorY );
 
     // Set current zoom percentage
-    //!!! zoom = ???
+    zoom = zoomFactorY/100;
+}
+
+// Reset ROI apply button pressed
+void QCaImage::resetRoiClicked()
+{
+    // Write the ROI variables, setting them to the limits of the image.
+    QCaInteger *qca;
+    qca = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
+    if( qca ) qca->writeInteger( 0 );
+
+    qca = (QCaInteger*)getQcaItem( ROI_Y_VARIABLE );
+    if( qca ) qca->writeInteger(  0 );
+
+    qca = (QCaInteger*)getQcaItem( ROI_W_VARIABLE );
+    if( qca ) qca->writeInteger( imageBuffWidth );
+
+    qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
+    if( qca ) qca->writeInteger( imageBuffHeight );
+
+    return;
 }
 
 // ROI apply button pressed
@@ -1014,16 +942,16 @@ void QCaImage::roiClicked()
     // Write the ROI variables.
     QCaInteger *qca;
     qca = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
-    if( qca ) qca->writeInteger( selectedAreaScaledPoint1.x() );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint1.x() ));
 
     qca = (QCaInteger*)getQcaItem( ROI_Y_VARIABLE );
-    if( qca ) qca->writeInteger(  selectedAreaScaledPoint1.y() );
+    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedAreaPoint1.y() ));
 
     qca = (QCaInteger*)getQcaItem( ROI_W_VARIABLE );
-    if( qca ) qca->writeInteger( selectedAreaScaledPoint2.x()-selectedAreaScaledPoint1.x() );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint2.x() ) - videoWidget->scaleOrdinate( selectedAreaPoint1.x() ));
 
     qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
-    if( qca ) qca->writeInteger( selectedAreaScaledPoint2.y()-selectedAreaScaledPoint1.y() );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint2.y() ) - videoWidget->scaleOrdinate( selectedAreaPoint1.y() ));
 
     return;
 }
@@ -1214,7 +1142,11 @@ int QCaImage::getZoom()
 // Rotation
 void QCaImage::setRotation( rotationOptions rotationIn )
 {
+    // save the rotation requested
     rotation = rotationIn;
+
+    // Adjust the size of the image to maintain aspect ratio if required
+    setImageBuff();
 
     // Present the updated image
     displayImage();
@@ -1309,76 +1241,16 @@ bool QCaImage::getDisplayRegionOfInterest()
     return displayRoiLayout;
 }
 
-// Display the acquire period
-void QCaImage::setDisplayAcquirePeriod( bool displayAcquirePeriodIn )
-{
-    displayAcquirePeriod = displayAcquirePeriodIn;
-    manageAcquirePeriodLabel();
-}
-
-bool QCaImage::getDisplayAcquirePeriod()
-{
-    return displayAcquirePeriod;
-}
-
 // Display the exposure time
-void QCaImage::setDisplayExposureTime( bool displayExposureTimeIn )
+void QCaImage::setDisplayButtonBar( bool displayButtonBarIn )
 {
-    displayExposureTime = displayExposureTimeIn;
-    manageExposureTimeLabel();
+    displayButtonBar = displayButtonBarIn;
+    manageButtonBar();
 }
 
-bool QCaImage::getDisplayExposureTime()
+bool QCaImage::getDisplayButtonBar()
 {
-    return displayExposureTime;
-}
-
-// Show pause button
-void QCaImage::setShowPauseButton( bool displayPauseButtonIn )
-{
-    displayPauseButton = displayPauseButtonIn;
-    managePauseButton();
-}
-
-bool QCaImage::getShowPauseButton()
-{
-    return displayPauseButton;
-}
-
-// Show save button
-void QCaImage::setShowSaveButton( bool displaySaveButtonIn )
-{
-    displaySaveButton = displaySaveButtonIn;
-    manageSaveButton();
-}
-
-bool QCaImage::getShowSaveButton()
-{
-    return displaySaveButton;
-}
-
-// Show ROI apply button
-void QCaImage::setShowRoiButton( bool displayRoiButtonIn )
-{
-    displayRoiButton = displayRoiButtonIn;
-    manageRoiButton();
-}
-
-bool QCaImage::getShowRoiButton()
-{
-    return displayRoiButton;
-}
-
-// Show zoom button
-void QCaImage::setShowZoomButton( bool displayZoomButtonIn )
-{
-    displayZoomButton = displayZoomButtonIn;
-    manageZoomButton();
-}
-
-bool QCaImage::getShowZoomButton()
-{
-    return displayZoomButton;
+    return displayButtonBar;
 }
 
 // Show time
@@ -1597,48 +1469,39 @@ void QCaImage::zoomInOut( int zoomAmount )
 
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
-void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 )
+void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 )
 {
-    QString s;
     switch( mode )
     {
+        //!!! the calculations and display of pixel position (here and below) will need to be done when the window is zoomed
         case imageMarkup::MARKUP_MODE_V_LINE:
-            vSliceX = scaledPoint1.x();
+            vSliceX = point1.x();
             haveVSliceX = true;
-            generateVSlice( vSliceX );
-            s.sprintf( "V: %d", scaledPoint1.x() );
-            currentVertPixelLabel->setText( s );
+            generateVSlice(  vSliceX );
             break;
 
         case imageMarkup::MARKUP_MODE_H_LINE:
-            hSliceY = scaledPoint1.y();
+            hSliceY = point1.y();
             haveHSliceY = true;
             generateHSlice( hSliceY );
-            s.sprintf( "H: %d", scaledPoint1.y() );
-            currentHozPixelLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_AREA:
             selectedAreaPoint1 = point1;
             selectedAreaPoint2 = point2;
-            selectedAreaScaledPoint1 = scaledPoint1;
-            selectedAreaScaledPoint2 = scaledPoint2;
             haveSelectedArea = true;
 
             roiButton->setEnabled( true );
-            zoomButton->setEnabled( true );
+            zMenu->enableAreaSelected( haveSelectedArea );
 
-            s.sprintf( "A: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
-            currentAreaLabel->setText( s );
+            displaySelectedAreaInfo( selectedAreaPoint1, selectedAreaPoint2 );
             break;
 
         case imageMarkup::MARKUP_MODE_LINE:
-            profileLineStart = scaledPoint1;
-            profileLineEnd = scaledPoint2;
+            profileLineStart = point1;
+            profileLineEnd = point2;
             haveProfileLine = true;
             generateProfile( profileLineStart, profileLineEnd );
-            s.sprintf( "L: (%d,%d)(%d,%d)", scaledPoint1.x(), scaledPoint1.y(), scaledPoint2.x(), scaledPoint2.y() );
-            currentLineLabel->setText( s );
             break;
 
         case imageMarkup::MARKUP_MODE_NONE:
@@ -1650,8 +1513,17 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
 
 // Generate a profile along a line down an image at a given X position
 // The profile contains values for each pixel intersected by the line.
-void QCaImage::generateVSlice( int x )
+void QCaImage::generateVSlice( int xUnscaled )
 {
+    // Scale the ordinate to the original image data
+    int x = videoWidget->scaleOrdinate( xUnscaled );
+
+    // Display textual info
+    QString s;
+    s.sprintf( "V: %d", x );
+    currentVertPixelLabel->setText( s );
+
+    qDebug() << x << rotatedImageBuffWidth();
     // If not over the image, remove the profile
     if( x < 0 || x >= (int)rotatedImageBuffWidth() )
     {
@@ -1699,10 +1571,32 @@ const unsigned char* QCaImage::getImageDataPtr( QPoint& pos )
     return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*imageDataSize]);
 }
 
+void QCaImage::displaySelectedAreaInfo( QPoint point1, QPoint point2 )
+{
+    // Display textual info
+    QString s;
+    s.sprintf( "A: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
+                                    videoWidget->scaleOrdinate( point1.y() ),
+                                    videoWidget->scaleOrdinate( point2.x() ),
+                                    videoWidget->scaleOrdinate( point2.y() ));
+    currentAreaLabel->setText( s );
+
+    // No graphical info as for V slice, H slice and profile line
+    //...
+}
+
 // Generate a profile along a line across an image at a given Y position
 // The profile contains values for each pixel intersected by the line.
-void QCaImage::generateHSlice( int y )
+void QCaImage::generateHSlice( int yUnscaled )
 {
+    // Scale the ordinate to the original image data
+    int y = videoWidget->scaleOrdinate( yUnscaled );
+
+    // Display textual info
+    QString s;
+    s.sprintf( "H: %d", y );
+    currentHozPixelLabel->setText( s );
+
     // If not over the image, remove the profile
     if( y < 0 || y >= (int)rotatedImageBuffHeight() )
     {
@@ -1807,8 +1701,17 @@ void QCaImage::generateHSlice( int y )
 //  d^2 / (1 + s^2) = x^2
 //  sqrt( d^2 / (1 + s^2) ) = x
 //
-void QCaImage::generateProfile( QPoint point1, QPoint point2 )
+void QCaImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
 {
+    // Scale the coordinates to the original image data
+    QPoint point1 = videoWidget->scalePoint( point1Unscaled );
+    QPoint point2 = videoWidget->scalePoint( point2Unscaled );
+
+    // Display textual information
+    QString s;
+    s.sprintf( "L: (%d,%d)(%d,%d)", point1.x(), point1.y(), point2.x(), point2.y() );
+    currentLineLabel->setText( s );
+
     // X and Y components of line drawn
     double dX = point2.x()-point1.x();
     double dY = point2.y()-point1.y();
@@ -1869,7 +1772,7 @@ void QCaImage::generateProfile( QPoint point1, QPoint point2 )
         else
         {
             y = initY + dirY * sqrt((double)(i*i) / (1 + slopeX*slopeX));
-            x = initY + (y-initY) * slopeX;
+            x = initX + (y-initY) * slopeX;
         }
 
         // Calculate the value if the point is within the image (user can drag outside the image)
@@ -2201,21 +2104,18 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
     menu.addOptionMenuItem( "Enable horizontal selection",   true,  enableHSliceSelection,  contextMenu::CM_ENABLE_HOZ          );
     menu.addOptionMenuItem( "Enable area selection",         true,  enableAreaSelection,    contextMenu::CM_ENABLE_AREA         );
     menu.addOptionMenuItem( "Enable profile selection",      true,  enableProfileSelection, contextMenu::CM_ENABLE_LINE         );
+    menu.addOptionMenuItem( "Display button bar",            true,  displayButtonBar,       contextMenu::CM_DISPLAY_BUTTON_BAR  );
     menu.addOptionMenuItem( "Display ROI info",              true,  displayRoiLayout,       contextMenu::CM_DISPLAY_ROI_INFO    );
-    menu.addOptionMenuItem( "Display acquisition period",    true,  displayAcquirePeriod,   contextMenu::CM_DISPLAY_ACQ         );
-    menu.addOptionMenuItem( "Display exposure time",         true,  displayExposureTime,    contextMenu::CM_DISPLAY_EXP         );
-    menu.addOptionMenuItem( "Display 'Save...' button",      true,  displaySaveButton,      contextMenu::CM_DISPLAY_SAVE        );
-    menu.addOptionMenuItem( "Display 'Pause/Resume' button", true,  displayPauseButton,     contextMenu::CM_DISPLAY_ROI_BUTTON  );
-    menu.addOptionMenuItem( "Display 'ROI button",           true,  displayRoiButton,       contextMenu::CM_DISPLAY_EXP         );
-    menu.addOptionMenuItem( "Display 'Zoom' button",         true,  displayZoomButton,      contextMenu::CM_DISPLAY_ZOOM        );
 
-    menu.addMenu( new zoomMenu( haveSelectedArea ) );
-    menu.addMenu( new flipRotateMenu( rotation, flipHoz, flipVert ) );
+    zMenu->enableAreaSelected( haveSelectedArea );
+    menu.addMenu( zMenu );
+
+    frMenu->setChecked( rotation, flipHoz, flipVert );
+    menu.addMenu( frMenu );
 
     contextMenu::contextMenuOptions option;
     bool checked;
     menu.getContextMenuOption( globalPos, &option, &checked );
-    qDebug() << option;
     switch( option )
     {
         default:
@@ -2235,13 +2135,21 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
         case contextMenu::CM_ENABLE_HOZ:          setEnableHozSliceSelection ( checked ); break;
         case contextMenu::CM_ENABLE_AREA:         setEnableAreaSelection     ( checked ); break;
         case contextMenu::CM_ENABLE_LINE:         setEnableProfileSelection  ( checked ); break;
+        case contextMenu::CM_DISPLAY_BUTTON_BAR:  setDisplayButtonBar        ( checked ); break;
         case contextMenu::CM_DISPLAY_ROI_INFO:    setDisplayRegionOfInterest ( checked ); break;
-        case contextMenu::CM_DISPLAY_ACQ:         setDisplayAcquirePeriod    ( checked ); break;
-        case contextMenu::CM_DISPLAY_EXP:         setDisplayExposureTime     ( checked ); break;
-        case contextMenu::CM_DISPLAY_SAVE:        setShowSaveButton          ( checked ); break;
-        case contextMenu::CM_DISPLAY_PAUSE:       setShowPauseButton         ( checked ); break;
-        case contextMenu::CM_DISPLAY_ROI_BUTTON:  setShowRoiButton           ( checked ); break;
-        case contextMenu::CM_DISPLAY_ZOOM:        setShowZoomButton          ( checked ); break;
+
+        // Note, zoom options caught by zoom menu signal
+        // Note, rotate and flip options caught by flip rotate menu signal
+    }
+}
+
+void QCaImage::zoomMenuTriggered( QAction* selectedItem )
+{
+    switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
+    {
+        default:
+        case contextMenu::CM_NONE: break;
+
         case contextMenu::CM_ZOOM_SELECTED:       zoomToArea();                           break;
         case contextMenu::CM_ZOOM_FIT:            setResizeOption( RESIZE_OPTION_FIT );   break;
         case contextMenu::CM_ZOOM_10:             setResizeOptionAndZoom(  10 );          break;
@@ -2253,11 +2161,21 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
         case contextMenu::CM_ZOOM_200:            setResizeOptionAndZoom( 200 );          break;
         case contextMenu::CM_ZOOM_300:            setResizeOptionAndZoom( 300 );          break;
         case contextMenu::CM_ZOOM_400:            setResizeOptionAndZoom( 400 );          break;
-        case contextMenu::CM_ROTATE_NONE:         setRotation( ROTATION_0 );              break;
-        case contextMenu::CM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );       break;
-        case contextMenu::CM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );        break;
-        case contextMenu::CM_ROTATE_180:          setRotation( ROTATION_180 );            break;
-        case contextMenu::CM_FLIP_HORIZONTAL:     setHorizontalFlip( checked );           break;
-        case contextMenu::CM_FLIP_VERTICAL:       setVerticalFlip  ( checked );           break;
+    }
+}
+
+void QCaImage::flipRotateMenuTriggered( QAction* selectedItem )
+{
+    switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
+    {
+        default:
+        case contextMenu::CM_NONE: break;
+
+        case contextMenu::CM_ROTATE_NONE:         setRotation( ROTATION_0 );                      break;
+        case contextMenu::CM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );               break;
+        case contextMenu::CM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );                break;
+        case contextMenu::CM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
+        case contextMenu::CM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
+        case contextMenu::CM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
     }
 }

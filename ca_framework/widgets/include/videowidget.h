@@ -38,6 +38,9 @@ public:
     void setNewImage( const QImage image, QCaDateTime& time );
     void setPanning( bool panningIn );
     bool getPanning();
+    QPoint scalePoint( QPoint pnt );
+    int scaleOrdinate( int ord );
+
 
 
 protected:
@@ -54,14 +57,11 @@ protected:
     void markupSetCursor( QCursor cursor );
     void markupAction( markupModes mode, QPoint point1, QPoint point2 );
 
-
-
 signals:
-    void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2, QPoint scaledPoint1, QPoint scaledPoint2 );
+    void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
-
 
 private:
     void addMarkups( QPainter& screenPainter, QVector<QRect>& changedAreas );
