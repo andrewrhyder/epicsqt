@@ -37,17 +37,12 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaPushButton.png \
     src/QCaRadioButton.png \
     src/QCaPlot.png \
-    src/QCaPvProperties.png \
     src/QCaLineEdit.png \
     src/QSubstitutedLabel.png \
     src/QCaComboBox.png \
     src/Link.png \
     src/ASguiForm.png \
     src/QCaPeriodic.png \
-    src/QAnalogProgressBar.png \
-    src/QCaAnalogProgressBar.png \
-    src/QBitStatus.png \
-    src/QCaBitStatus.png \
     src/QCaImage.png \
     src/QCaLogin.png \
     src/record_field_list.txt \
@@ -85,11 +80,6 @@ HEADERS += \
     include/QCaPeriodicPluginTaskMenu.h \
     include/PeriodicSetupDialog.h \
     include/PeriodicElementSetupForm.h \
-    include/QAnalogProgressBarPluginManager.h \
-    include/QCaAnalogProgressBarPluginManager.h \
-    include/QCaPvPropertiesPluginManager.h \
-    include/QBitStatusPluginManager.h \
-    include/QCaBitStatusPluginManager.h \
     include/QCaImagePluginManager.h \
     include/QCaImagePlugin.h \
     include/QCaLoginPluginManager.h \
@@ -129,7 +119,6 @@ HEADERS += \
     ../widgets/include/QCaSlider.h \
     ../widgets/include/QCaShape.h \
     ../widgets/include/QCaPushButton.h \
-    ../widgets/include/QCaPvProperties.h \
     ../widgets/include/QCaRadioButton.h \
     ../widgets/include/QCaGenericButton.h \
     ../widgets/include/QCaLineEdit.h \
@@ -140,10 +129,6 @@ HEADERS += \
     ../widgets/include/QCaToolTip.h \
     ../widgets/include/QCaPeriodic.h \
     ../widgets/include/PeriodicDialog.h \
-    ../widgets/include/QAnalogProgressBar.h \
-    ../widgets/include/QCaAnalogProgressBar.h \
-    ../widgets/include/QBitStatus.h \
-    ../widgets/include/QCaBitStatus.h \
     ../widgets/include/QCaImage.h \
     ../widgets/include/videowidget.h \
     ../widgets/include/contextMenu.h \
@@ -199,13 +184,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaPeriodicPluginTaskMenuExtension.cpp \
     src/PeriodicSetupDialog.cpp \
     src/PeriodicElementSetupForm.cpp \
-    src/QAnalogProgressBarPluginManager.cpp \
-    src/QCaAnalogProgressBarPluginManager.cpp \
-    src/QBitStatusPluginManager.cpp \
-    src/QCaBitStatusPluginManager.cpp \
     src/QCaImagePluginManager.cpp \
     src/QCaImagePlugin.cpp \
-    src/QCaPvPropertiesPluginManager.cpp \
     src/QCaLoginPluginManager.cpp \
     src/QCaLogPluginManager.cpp \
     src/QCaMotorPluginManager.cpp \
@@ -241,7 +221,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaSlider.cpp \
     ../widgets/src/QCaShape.cpp \
     ../widgets/src/QCaPushButton.cpp \
-    ../widgets/src/QCaPvProperties.cpp \
     ../widgets/src/QCaRadioButton.cpp \
     ../widgets/src/QCaGenericButton.cpp \
     ../widgets/src/QCaLineEdit.cpp \
@@ -252,10 +231,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaToolTip.cpp \
     ../widgets/src/QCaPeriodic.cpp \
     ../widgets/src/PeriodicDialog.cpp \
-    ../widgets/src/QAnalogProgressBar.cpp \
-    ../widgets/src/QCaAnalogProgressBar.cpp \
-    ../widgets/src/QBitStatus.cpp \
-    ../widgets/src/QCaBitStatus.cpp \
     ../widgets/src/QCaImage.cpp \
     ../widgets/src/videowidget.cpp \
     ../widgets/src/contextMenu.cpp \
@@ -317,6 +292,78 @@ INCLUDEPATH += \
     $$(QCAFRAMEWORK)/widgets/QELabel
 
 
+    
+#===========================================================
+# AnalogProgressBar and QAnalogProgressBar
+#
+OTHER_FILES += \
+    src/QAnalogProgressBar.png \
+    src/QCaAnalogProgressBar.png
+
+HEADERS += \
+    ../widgets/include/QAnalogProgressBar.h \
+    ../widgets/include/QCaAnalogProgressBar.h \
+    include/QAnalogProgressBarPluginManager.h \
+    include/QCaAnalogProgressBarPluginManager.h
+
+
+SOURCES += \
+    ../widgets/src/QAnalogProgressBar.cpp \
+    ../widgets/src/QCaAnalogProgressBar.cpp \
+    src/QAnalogProgressBarPluginManager.cpp \
+    src/QCaAnalogProgressBarPluginManager.cpp
+
+
+INCLUDEPATH += \
+    $$(QCAFRAMEWORK)/widgets/QEAnalogProgressBar
+
+
+#===========================================================
+# BitStatus and QBitStatus
+#
+OTHER_FILES += \
+    src/QBitStatus.png \
+    src/QCaBitStatus.png
+
+
+HEADERS += \
+    ../widgets/include/QBitStatus.h \
+    ../widgets/include/QCaBitStatus.h \
+    include/QBitStatusPluginManager.h \
+    include/QCaBitStatusPluginManager.h
+
+
+SOURCES += \
+    ../widgets/src/QBitStatus.cpp \
+    ../widgets/src/QCaBitStatus.cpp \
+    src/QBitStatusPluginManager.cpp \
+    src/QCaBitStatusPluginManager.cpp
+
+
+INCLUDEPATH += \
+    $$(QCAFRAMEWORK)/widgets/QEBitStatus
+
+
+#===========================================================
+# QPvProperties
+#
+OTHER_FILES += \
+    src/QCaPvProperties.png
+
+
+HEADERS += \
+    ../widgets/include/QCaPvProperties.h \
+    include/QCaPvPropertiesPluginManager.h \
+
+
+SOURCES += \
+    ../widgets/src/QCaPvProperties.cpp \
+    src/QCaPvPropertiesPluginManager.cpp
+
+
+INCLUDEPATH += \
+    $$(QCAFRAMEWORK)/widgets/QEPvProperties
+
 
 #===========================================================
 # Archive Access
@@ -374,7 +421,6 @@ INCLUDEPATH += \
 FORMS += \
     ../widgets/src/QCaStripChartTimeDialog.ui \
     ../widgets/src/QCaStripChartItemDialog.ui \
-
 
 #
 # end
