@@ -400,18 +400,18 @@ OTHER_FILES += \
     src/strip_chart_page_backward.png
 
 HEADERS += \
-    include/QCaStripChartPluginManager.h \
-    ../widgets/include/QCaStripChart.h \
-    ../widgets/include/QCaStripChartItem.h \
-    ../widgets/include/QCaStripChartTimeDialog.h \
-    ../widgets/include/QCaStripChartItemDialog.h
+    ../widgets/QEStripChart/QCaStripChartPluginManager.h \
+    ../widgets/QEStripChart/QCaStripChart.h \
+    ../widgets/QEStripChart/QCaStripChartItem.h \
+    ../widgets/QEStripChart/QCaStripChartTimeDialog.h \
+    ../widgets/QEStripChart/QCaStripChartItemDialog.h
 
 SOURCES += \
-    src/QCaStripChartPluginManager.cpp \
-    ../widgets/src/QCaStripChart.cpp \
-    ../widgets/src/QCaStripChartItem.cpp \
-    ../widgets/src/QCaStripChartTimeDialog.cpp \
-    ../widgets/src/QCaStripChartItemDialog.cpp
+    ../widgets/QEStripChart/QCaStripChartPluginManager.cpp \
+    ../widgets/QEStripChart/QCaStripChart.cpp \
+    ../widgets/QEStripChart/QCaStripChartItem.cpp \
+    ../widgets/QEStripChart/QCaStripChartTimeDialog.cpp \
+    ../widgets/QEStripChart/QCaStripChartItemDialog.cpp
 
 
 INCLUDEPATH += \
@@ -419,8 +419,8 @@ INCLUDEPATH += \
 
 
 FORMS += \
-    ../widgets/src/QCaStripChartTimeDialog.ui \
-    ../widgets/src/QCaStripChartItemDialog.ui \
+    ../widgets/QEStripChart/QCaStripChartTimeDialog.ui \
+    ../widgets/QEStripChart/QCaStripChartItemDialog.ui \
 
 #
 # end
