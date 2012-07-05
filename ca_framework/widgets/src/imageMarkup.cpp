@@ -946,14 +946,10 @@ void imageMarkup::markupResize( QSize newSize )
     if( markupImage->size() != newSize )
     {
         // Delete the old one (may be the initial empty image)
+        // Replace it with a new one, and fill it with a completely transparent background
         delete markupImage;
         markupImage = new QImage( newSize, QImage::Format_ARGB32 );
-
-        // Erase, then fill with transparent background
-        // markupImage->fill( QColor ( 0, 0, 0, 0 ) );               <-- Qt 4.8 only
-        QPainter p( markupImage );                                  // <-- Qt 4.7
-        p.fillRect( markupImage->rect(), QColor ( 0, 0, 0, 255 ) ); // <-- Qt 4.7
-        p.fillRect( markupImage->rect(), QColor ( 0, 0, 0, 0 ) );   // <-- Qt 4.7
+        markupImage->fill( 0 );
     }
 
     // Redraw any visible markups

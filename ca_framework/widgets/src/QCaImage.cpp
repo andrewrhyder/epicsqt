@@ -1523,7 +1523,6 @@ void QCaImage::generateVSlice( int xUnscaled )
     s.sprintf( "V: %d", x );
     currentVertPixelLabel->setText( s );
 
-    qDebug() << x << rotatedImageBuffWidth();
     // If not over the image, remove the profile
     if( x < 0 || x >= (int)rotatedImageBuffWidth() )
     {
