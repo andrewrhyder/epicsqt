@@ -35,7 +35,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QCaPluginLibrary_global.h>
+#include <stack>
 
+using namespace std;
 
 
 enum details
@@ -71,11 +73,12 @@ class _QDialogLogin:public QDialog
         QLineEdit *qLineEditPassword;
         QPushButton *qPushButtonOk;
         QPushButton *qPushButtonCancel;
+        int userType;
 
 
 
     public:
-        _QDialogLogin(QWidget * pParent = 0, Qt::WindowFlags pF = 0);
+        _QDialogLogin(QWidget * pParent = 0, int pUserType = -1, Qt::WindowFlags pF = 0);
         void setCurrentUserType(int pValue);
         void setPassword(QString pValue);
 
@@ -108,7 +111,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
 
 
     protected:
+        stack<int> loginHistory;
         QPushButton *qPushButtonLogin;
+        QPushButton *qPushButtonLogout;
         QLabel *qLabelUserType;
         QString userPassword;
         QString scientistPassword;
@@ -128,6 +133,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
         void setShowButtonLogin(bool pValue);
         bool getShowButtonLogin();
 
+        void setShowButtonLogout(bool pValue);
+        bool getShowButtonLogout();
+
         void setUserPassword(QString pValue);
         QString getUserPassword();
 
@@ -145,9 +153,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
 
         QString getUserTypeName( userLevels type );
 
+        void logoutCurrentUserType();
+
         Q_PROPERTY(bool showLabelUserType READ getShowLabelUserType WRITE setShowLabelUserType)
 
         Q_PROPERTY(bool showButtonLogin READ getShowButtonLogin WRITE setShowButtonLogin)
+
+        Q_PROPERTY(bool showButtonLogout READ getShowButtonLogout WRITE setShowButtonLogout)
 
         Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
 
@@ -198,14 +210,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
     private slots:
         void buttonLoginClicked();
 
+        void buttonLogoutClicked();
+
 
 };
 
 
 
-
-
 #endif /// QCALOGIN_H
-
 
 
