@@ -74,7 +74,7 @@ class _QTableWidget:public QTableWidget
     public:
         _QTableWidget(QWidget * pParent = 0);
         void refreshSize();
-        void resizeEvent(QResizeEvent *pEvent);
+        void resizeEvent(QResizeEvent *);
         void resize(int w, int h);
 
 
@@ -107,6 +107,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
         QColor qColorInfo;
         QColor qColorWarning;
         QColor qColorError;
+        bool scrollToBottom;
         int detailsLayout;
 
 
@@ -136,6 +137,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
 
+        void setScrollToBottom(bool pValue);
+        bool getScrollToBottom();
+
         void setInfoColor(QColor pValue);
         QColor getInfoColor();
 
@@ -164,6 +168,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
         Q_PROPERTY(bool showButtonClear READ getShowButtonClear WRITE setShowButtonClear)
 
         Q_PROPERTY(bool showButtonSave READ getShowButtonSave WRITE setShowButtonSave)
+
+        Q_PROPERTY(bool scrollToBottom READ getScrollToBottom WRITE setScrollToBottom)
 
 
         Q_ENUMS(detailsLayoutProperty)

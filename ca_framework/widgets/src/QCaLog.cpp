@@ -91,6 +91,7 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     setInfoColor(QColor(0, 0, 255));
     setWarningColor(QColor(255, 160, 0));
     setErrorColor(QColor(255, 0, 0));
+    setScrollToBottom(true);
     setDetailsLayout(BOTTOM);
 
     clearLog();
@@ -317,6 +318,28 @@ int QCaLog::getDetailsLayout()
 
 
 
+void QCaLog::setScrollToBottom(bool pValue)
+{
+
+    scrollToBottom = pValue;
+    if (scrollToBottom)
+    {
+        qTableWidget->scrollToBottom();
+    }
+
+}
+
+
+
+bool QCaLog::getScrollToBottom()
+{
+
+    return scrollToBottom;
+
+}
+
+
+
 
 void QCaLog::setInfoColor(QColor pValue)
 {
@@ -378,7 +401,7 @@ QColor QCaLog::getErrorColor()
 
 
 
-void QCaLog::checkBoxInfoToggled(bool )//!!pValue)
+void QCaLog::checkBoxInfoToggled(bool)
 {
 
     refreshLog();
@@ -389,7 +412,7 @@ void QCaLog::checkBoxInfoToggled(bool )//!!pValue)
 
 
 
-void QCaLog::checkBoxWarningToggled(bool )//!!pValue)
+void QCaLog::checkBoxWarningToggled(bool)
 {
 
     refreshLog();
@@ -399,7 +422,7 @@ void QCaLog::checkBoxWarningToggled(bool )//!!pValue)
 
 
 
-void QCaLog::checkBoxErrorToggled(bool )//!!pValue)
+void QCaLog::checkBoxErrorToggled(bool)
 {
 
     refreshLog();
@@ -547,6 +570,10 @@ void QCaLog::addLog(int pType, QString pMessage)
         qTableWidgetItem = new QTableWidgetItem(pMessage);
         qTableWidgetItem->setTextColor(color);
         qTableWidget->setItem(i, 2, qTableWidgetItem);
+        if (scrollToBottom)
+        {
+            qTableWidget->scrollToBottom();
+        }
         qPushButtonClear->setEnabled(true);
         qPushButtonSave->setEnabled(true);
     }
@@ -709,7 +736,7 @@ void _QTableWidget::refreshSize()
 
 
 
-void _QTableWidget::resizeEvent(QResizeEvent* )//!!pEvent)
+void _QTableWidget::resizeEvent(QResizeEvent *)
 {
 
     // TODO: this condition should always be execute when inside Qt Designer
