@@ -123,6 +123,10 @@ public:
    double getYMaximum ();
    void setYMaximum (double yMaximumIn);
 
+   /*! Replots chart data
+    */
+   void plotData ();
+
 protected:
    /// Drag and Drop
    //

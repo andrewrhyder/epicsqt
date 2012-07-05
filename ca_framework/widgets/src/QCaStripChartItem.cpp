@@ -266,7 +266,7 @@ bool QCaStripChartItem::isInUse ()
 
    qca = this->privateData->caLabel->getQcaItem (0);
    return (qca != NULL);
-}   // isInUse
+}
 
 
 //------------------------------------------------------------------------------
@@ -661,6 +661,10 @@ void QCaStripChartItem::setArchiveData (const QObject *userData, const bool okay
          }
       }
 
+      // and replot the data
+      //
+      this->privateData->chart->plotData ();
+
    } else {
       DEBUG << "wrong item and/or data response not okay";
    }
@@ -694,6 +698,10 @@ void QCaStripChartItem::channelPropertiesClicked (bool)
          this->setPvName (this->dialog.getPvName (), "");
       }
       this->setColour (this->dialog.getColour ());
+
+      // and replot the data
+      //
+      this->privateData->chart->plotData ();
    }
 }
 

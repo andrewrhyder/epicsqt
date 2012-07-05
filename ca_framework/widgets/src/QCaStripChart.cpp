@@ -98,12 +98,12 @@ struct PushButtonSpecifications {
 static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { QString ("Scale To"),   QString (""),  QString ("Scale chart Y axis"),                         92,  NULL                             },
    { QString ("Duration"),   QString (""),  QString ("Select chart T axis"),                        96,  NULL                             },
+   { QString (""), QString (":/icons/strip_chart_archive.png"),       QString ("Extract data from archive(s)"), 24, SLOT (readArchiveClicked (bool)) },
+   { QString ("Select Times"),   QString (""),  QString ("Set chart start/end time"),               104, SLOT (selectTimeClicked (bool))  },
    { QString (""), QString (":/icons/strip_chart_play.png"),          QString ("Play - Real time"), 24,  SLOT (playClicked (bool))        },
    { QString (""), QString (":/icons/strip_chart_pause.png"),         QString ("Pause"),            24,  SLOT (pauseClicked (bool))       },
    { QString (""), QString (":/icons/strip_chart_page_forward.png"),  QString ("Forward one page"), 24,  SLOT (forwardClicked (bool))     },
    { QString (""), QString (":/icons/strip_chart_page_backward.png"), QString ("Back one page"),    24,  SLOT (backwardClicked (bool))    },
-   { QString ("Select Times"),   QString (""),  QString ("Set chart start/end time"),               104, SLOT (selectTimeClicked (bool))  },
-   { QString ("Read Archive"),   QString (""),  QString ("Extract data from archive(s)"),           104, SLOT (readArchiveClicked (bool)) }
 };
 
 
@@ -837,6 +837,14 @@ void QCaStripChart::readArchiveClicked (bool checked)
          item->readArchive ();
       }
    }
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QCaStripChart::plotData ()
+{
+   this->privateData->plotData ();
 }
 
 //------------------------------------------------------------------------------
