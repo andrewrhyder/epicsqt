@@ -36,13 +36,6 @@
 #include <QCaPluginLibrary_global.h>
 
 
-enum sort
-{
-    ASCEND,
-    DESCEND
-};
-
-
 
 enum details
 {
@@ -100,10 +93,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
     protected:
         QLineEdit *qlineEditDirectoryPath;
         QPushButton *qPushButtonDirectoryBrowser;
-//        QListWidget *qListWidgetFiles;
+        QPushButton *qPushButtonRefresh;
         _QTableWidgetFileBrowser *qTableWidgetFileBrowser;
         QString fileFilter;
-        int sortPolicy;
         int detailsLayout;
 
 
@@ -121,8 +113,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
         void setShowDirectoryBrowser(bool pValue);
         bool getShowDirectoryBrowser();
 
-        void setFileFilter(QString pValue);
-        QString getFileFilter();
+        void setShowRefresh(bool pValue);
+        bool getShowRefresh();
 
         void setShowColumnTime(bool pValue);
         bool getShowColumnTime();
@@ -133,13 +125,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
         void setShowColumnFilename(bool pValue);
         bool getShowColumnFilename();
 
-        void setSortPolicy(int pValue);
-        int getSortPolicy();
+        void setFileFilter(QString pValue);
+        QString getFileFilter();
 
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
 
-        void updateList();
+        void updateTable();
 
 
         Q_PROPERTY(QString directoryPath READ getDirectoryPath WRITE setDirectoryPath)
@@ -148,7 +140,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
 
         Q_PROPERTY(bool showDirectoryBrowser READ getShowDirectoryBrowser WRITE setShowDirectoryBrowser)
 
-        Q_PROPERTY(QString fileFilter READ getFileFilter WRITE setFileFilter)
+        Q_PROPERTY(bool showRefresh READ getShowRefresh WRITE setShowRefresh)
 
         Q_PROPERTY(bool showColumnTime READ getShowColumnTime WRITE setShowColumnTime)
 
@@ -156,23 +148,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
 
         Q_PROPERTY(bool showColumnFilename READ getShowColumnFilename WRITE setShowColumnFilename)
 
-        Q_ENUMS(sortProperty)
-        Q_PROPERTY(sortProperty sortPolicy READ getSortPolicyProperty WRITE setSortPolicyProperty)
-        enum sortProperty
-        {
-            Ascend = ASCEND,
-            Descend = DESCEND
-        };
-
-        void setSortPolicyProperty(sortProperty pDetailsLayout)
-        {
-            setSortPolicy((sortProperty) pDetailsLayout);
-        }
-        sortProperty getSortPolicyProperty()
-        {
-            return (sortProperty) getSortPolicy();
-        }
-
+        Q_PROPERTY(QString fileFilter READ getFileFilter WRITE setFileFilter)
 
         Q_ENUMS(detailsLayoutProperty)
         Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
@@ -199,8 +175,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
 
         void buttonDirectoryBrowserClicked();
 
+        void buttonRefreshClicked();
+
         void itemActivated(QTableWidgetItem *);
 
+
+    signals:
+        void selected(QString pFilename);
 
 };
 

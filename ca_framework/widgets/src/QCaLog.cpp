@@ -46,24 +46,24 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 
     QFont qFont;
 
-    qTableWidget = new _QTableWidget(this);
+    qTableWidgetLog = new _QTableWidgetLog(this);
     qCheckBoxInfoMessage = new QCheckBox(this);
     qCheckBoxWarningMessage = new QCheckBox(this);
     qCheckBoxErrorMessage = new QCheckBox(this);
     qPushButtonClear = new QPushButton(this);
     qPushButtonSave = new QPushButton(this);
 
-    qTableWidget->setColumnCount(3);
-    qTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Time"));
-    qTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Type"));
-    qTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("Message"));
-    qTableWidget->setToolTip("Current log messages");
-    qTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    qTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-    qTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    qTableWidget->verticalHeader()->hide();
+    qTableWidgetLog->setColumnCount(3);
+    qTableWidgetLog->setHorizontalHeaderItem(0, new QTableWidgetItem("Time"));
+    qTableWidgetLog->setHorizontalHeaderItem(1, new QTableWidgetItem("Type"));
+    qTableWidgetLog->setHorizontalHeaderItem(2, new QTableWidgetItem("Message"));
+    qTableWidgetLog->setToolTip("Current log messages");
+    qTableWidgetLog->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    qTableWidgetLog->setSelectionBehavior(QAbstractItemView::SelectRows);
+    qTableWidgetLog->setSelectionMode(QAbstractItemView::SingleSelection);
+    qTableWidgetLog->verticalHeader()->hide();
     qFont.setPointSize(9);
-    qTableWidget->setFont(qFont);
+    qTableWidgetLog->setFont(qFont);
 
     qCheckBoxInfoMessage->setText("Info messages");
     qCheckBoxInfoMessage->setToolTip("Show/hide info messages");
@@ -110,8 +110,8 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 void QCaLog::setShowColumnTime(bool pValue)
 {
 
-    qTableWidget->setColumnHidden(0, pValue == false);
-    qTableWidget->refreshSize();
+    qTableWidgetLog->setColumnHidden(0, pValue == false);
+    qTableWidgetLog->refreshSize();
 
 }
 
@@ -120,7 +120,7 @@ void QCaLog::setShowColumnTime(bool pValue)
 bool QCaLog::getShowColumnTime()
 {
 
-    return (qTableWidget->isColumnHidden(0) == false);
+    return (qTableWidgetLog->isColumnHidden(0) == false);
 
 }
 
@@ -129,8 +129,8 @@ bool QCaLog::getShowColumnTime()
 void QCaLog::setShowColumnType(bool pValue)
 {
 
-    qTableWidget->setColumnHidden(1, pValue == false);
-    qTableWidget->refreshSize();
+    qTableWidgetLog->setColumnHidden(1, pValue == false);
+    qTableWidgetLog->refreshSize();
 
 }
 
@@ -139,7 +139,7 @@ void QCaLog::setShowColumnType(bool pValue)
 bool QCaLog::getShowColumnType()
 {
 
-    return (qTableWidget->isColumnHidden(1) == false);
+    return (qTableWidgetLog->isColumnHidden(1) == false);
 
 }
 
@@ -147,8 +147,8 @@ bool QCaLog::getShowColumnType()
 void QCaLog::setShowColumnMessage(bool pValue)
 {
 
-    qTableWidget->setColumnHidden(2, pValue == false);
-    qTableWidget->refreshSize();
+    qTableWidgetLog->setColumnHidden(2, pValue == false);
+    qTableWidgetLog->refreshSize();
 
 }
 
@@ -157,7 +157,7 @@ void QCaLog::setShowColumnMessage(bool pValue)
 bool QCaLog::getShowColumnMessage()
 {
 
-    return (qTableWidget->isColumnHidden(2) == false);
+    return (qTableWidgetLog->isColumnHidden(2) == false);
 
 }
 
@@ -260,14 +260,14 @@ void QCaLog::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonClear);
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutMain->addItem(qLayoutChild);
-            qLayoutMain->addWidget(qTableWidget);
+            qLayoutMain->addWidget(qTableWidgetLog);
             break;
 
         case BOTTOM:
             detailsLayout = BOTTOM;
             qLayoutMain = new QVBoxLayout(this);
             qLayoutChild = new QHBoxLayout();
-            qLayoutMain->addWidget(qTableWidget);
+            qLayoutMain->addWidget(qTableWidgetLog);
             qLayoutChild->addWidget(qCheckBoxInfoMessage);
             qLayoutChild->addWidget(qCheckBoxWarningMessage);
             qLayoutChild->addWidget(qCheckBoxErrorMessage);
@@ -288,7 +288,7 @@ void QCaLog::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonClear);
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutMain->addItem(qLayoutChild);
-            qLayoutMain->addWidget(qTableWidget);
+            qLayoutMain->addWidget(qTableWidgetLog);
             break;
 
         case RIGHT:
@@ -300,7 +300,7 @@ void QCaLog::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qCheckBoxErrorMessage);
             qLayoutChild->addWidget(qPushButtonClear);
             qLayoutChild->addWidget(qPushButtonSave);
-            qLayoutMain->addWidget(qTableWidget);
+            qLayoutMain->addWidget(qTableWidgetLog);
             qLayoutMain->addItem(qLayoutChild);
     }
 
@@ -324,7 +324,7 @@ void QCaLog::setScrollToBottom(bool pValue)
     scrollToBottom = pValue;
     if (scrollToBottom)
     {
-        qTableWidget->scrollToBottom();
+        qTableWidgetLog->scrollToBottom();
     }
 
 }
@@ -449,13 +449,13 @@ void QCaLog::buttonSaveClicked()
         fileStream.open(filename.toUtf8().constData());
         if (fileStream.is_open())
         {
-            for(i = 0; i < qTableWidget->rowCount(); i++)
+            for(i = 0; i < qTableWidgetLog->rowCount(); i++)
             {
-                if (qTableWidget->isRowHidden(i) == false)
+                if (qTableWidgetLog->isRowHidden(i) == false)
                 {
                     if (getShowColumnTime())
                     {
-                        line = qTableWidget->item(i, 0)->text();
+                        line = qTableWidgetLog->item(i, 0)->text();
                     }
                     else
                     {
@@ -465,22 +465,22 @@ void QCaLog::buttonSaveClicked()
                     {
                         if (line.isEmpty())
                         {
-                            line = qTableWidget->item(i, 1)->text();
+                            line = qTableWidgetLog->item(i, 1)->text();
                         }
                         else
                         {
-                            line += ", " + qTableWidget->item(i, 1)->text();
+                            line += ", " + qTableWidgetLog->item(i, 1)->text();
                         }
                     }
                     if (getShowColumnMessage())
                     {
                         if (line.isEmpty())
                         {
-                            line = qTableWidget->item(i, 2)->text();
+                            line = qTableWidgetLog->item(i, 2)->text();
                         }
                         else
                         {
-                            line += ", " + qTableWidget->item(i, 2)->text();
+                            line += ", " + qTableWidgetLog->item(i, 2)->text();
                         }
                     }
                     fileStream << line.toUtf8().constData() << "\n";
@@ -504,7 +504,7 @@ void QCaLog::buttonSaveClicked()
 void QCaLog::clearLog()
 {
 
-    qTableWidget->setRowCount(0);
+    qTableWidgetLog->setRowCount(0);
     qPushButtonClear->setEnabled(false);
     qPushButtonSave->setEnabled(false);
 
@@ -544,35 +544,35 @@ void QCaLog::addLog(int pType, QString pMessage)
 
     if (type.isEmpty() == false)
     {
-        i = qTableWidget->rowCount();
-        qTableWidget->insertRow(i);
+        i = qTableWidgetLog->rowCount();
+        qTableWidgetLog->insertRow(i);
         if (type == "INFO")
         {
-            qTableWidget->setRowHidden(i, qCheckBoxInfoMessage->isChecked() == false);
+            qTableWidgetLog->setRowHidden(i, qCheckBoxInfoMessage->isChecked() == false);
         }
         else
         {
             if (type == "WARNING")
             {
-                qTableWidget->setRowHidden(i, qCheckBoxWarningMessage->isChecked() == false);
+                qTableWidgetLog->setRowHidden(i, qCheckBoxWarningMessage->isChecked() == false);
             }
             else
             {
-                qTableWidget->setRowHidden(i, qCheckBoxErrorMessage->isChecked() == false);
+                qTableWidgetLog->setRowHidden(i, qCheckBoxErrorMessage->isChecked() == false);
             }
         }
         qTableWidgetItem = new QTableWidgetItem(QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss"));
         qTableWidgetItem->setTextColor(color);
-        qTableWidget->setItem(i, 0, qTableWidgetItem);
+        qTableWidgetLog->setItem(i, 0, qTableWidgetItem);
         qTableWidgetItem = new QTableWidgetItem(type);
         qTableWidgetItem->setTextColor(color);
-        qTableWidget->setItem(i, 1, qTableWidgetItem);
+        qTableWidgetLog->setItem(i, 1, qTableWidgetItem);
         qTableWidgetItem = new QTableWidgetItem(pMessage);
         qTableWidgetItem->setTextColor(color);
-        qTableWidget->setItem(i, 2, qTableWidgetItem);
+        qTableWidgetLog->setItem(i, 2, qTableWidgetItem);
         if (scrollToBottom)
         {
-            qTableWidget->scrollToBottom();
+            qTableWidgetLog->scrollToBottom();
         }
         qPushButtonClear->setEnabled(true);
         qPushButtonSave->setEnabled(true);
@@ -591,35 +591,35 @@ void QCaLog::refreshLog()
     QColor color;
     int i;
 
-    for(i = 0; i < qTableWidget->rowCount(); i++)
+    for(i = 0; i < qTableWidgetLog->rowCount(); i++)
     {
 
-        qTableWidgetItem = qTableWidget->item(i, 1);
+        qTableWidgetItem = qTableWidgetLog->item(i, 1);
 
         if (qTableWidgetItem->text() == "INFO")
         {
-            qTableWidget->setRowHidden(i, qCheckBoxInfoMessage->isChecked() == false);
+            qTableWidgetLog->setRowHidden(i, qCheckBoxInfoMessage->isChecked() == false);
             color = qColorInfo;
         }
         else
         {
             if (qTableWidgetItem->text() == "WARNING")
             {
-                qTableWidget->setRowHidden(i, qCheckBoxWarningMessage->isChecked() == false);
+                qTableWidgetLog->setRowHidden(i, qCheckBoxWarningMessage->isChecked() == false);
                 color = qColorWarning;
             }
             else
             {
-                qTableWidget->setRowHidden(i, qCheckBoxErrorMessage->isChecked() == false);
+                qTableWidgetLog->setRowHidden(i, qCheckBoxErrorMessage->isChecked() == false);
                 color = qColorError;
             }
         }
         qTableWidgetItem->setTextColor(color);
 
-        qTableWidgetItem = qTableWidget->item(i, 0);
+        qTableWidgetItem = qTableWidgetLog->item(i, 0);
         qTableWidgetItem->setTextColor(color);
 
-        qTableWidgetItem = qTableWidget->item(i, 2);
+        qTableWidgetItem = qTableWidgetLog->item(i, 2);
         qTableWidgetItem->setTextColor(color);
 
     }
@@ -641,9 +641,9 @@ void QCaLog::newMessage( QString msg, message_types type )
 
 
 // ============================================================
-//  _QTABLEWIDGET METHODS
+//  _QTABLEWIDGETLOG METHODS
 // ============================================================
-_QTableWidget::_QTableWidget(QWidget *pParent):QTableWidget(pParent)
+_QTableWidgetLog::_QTableWidgetLog(QWidget *pParent):QTableWidget(pParent)
 {
 
     initialized = false;
@@ -652,7 +652,7 @@ _QTableWidget::_QTableWidget(QWidget *pParent):QTableWidget(pParent)
 
 
 
-void _QTableWidget::refreshSize()
+void _QTableWidgetLog::refreshSize()
 {
 
     int sizeColumn0;
@@ -736,7 +736,7 @@ void _QTableWidget::refreshSize()
 
 
 
-void _QTableWidget::resizeEvent(QResizeEvent *)
+void _QTableWidgetLog::resizeEvent(QResizeEvent *)
 {
 
     // TODO: this condition should always be execute when inside Qt Designer

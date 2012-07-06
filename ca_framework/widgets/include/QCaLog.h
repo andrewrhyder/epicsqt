@@ -57,9 +57,9 @@ enum messageTypes
 
 
 // ============================================================
-//  _QTABLEWIDGET CLASS
+//  _QTABLEWIDGETLOG CLASS
 // ============================================================
-class _QTableWidget:public QTableWidget
+class _QTableWidgetLog:public QTableWidget
 {
 
     Q_OBJECT
@@ -72,7 +72,7 @@ class _QTableWidget:public QTableWidget
 
 
     public:
-        _QTableWidget(QWidget * pParent = 0);
+        _QTableWidgetLog(QWidget * pParent = 0);
         void refreshSize();
         void resizeEvent(QResizeEvent *);
         void resize(int w, int h);
@@ -98,7 +98,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
         void newMessage( QString msg, message_types type );
 
     protected:
-        _QTableWidget *qTableWidget;
+        _QTableWidgetLog *qTableWidgetLog;
         QCheckBox *qCheckBoxInfoMessage;
         QCheckBox *qCheckBoxWarningMessage;
         QCheckBox *qCheckBoxErrorMessage;

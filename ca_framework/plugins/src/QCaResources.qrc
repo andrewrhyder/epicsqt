@@ -28,6 +28,7 @@
         <file>strip_chart_page_forward.png</file>
         <file>strip_chart_page_backward.png</file>
         <file>QELabel.png</file>
+        <file>QCaFileBrowser.png</file>
     </qresource>
     <qresource prefix="/user">
         <file>record_field_list.txt</file>
