@@ -47,7 +47,8 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaLogin.png \
     src/record_field_list.txt \
     src/QCaLog.png \
-    src/QCaMotor.png
+    src/QCaMotor.png \
+    src/QCaFileBrowser.png
 
 HEADERS += \
     include/QCaPluginLibrary_global.h \
@@ -138,7 +139,9 @@ HEADERS += \
     ../widgets/include/imageMarkup.h \
     ../widgets/include/QCaLogin.h \
     ../widgets/include/QCaLog.h \
-    ../widgets/include/QCaMotor.h
+    ../widgets/include/QCaMotor.h \
+    ../widgets/include/QCaFileBrowser.h \
+    include/QCaFileBrowserPluginManager.h
 
 #====================================
 # common properties
@@ -240,7 +243,9 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/imageMarkup.cpp \
     ../widgets/src/QCaLogin.cpp \
     ../widgets/src/QCaLog.cpp \
-    ../widgets/src/QCaMotor.cpp
+    ../widgets/src/QCaMotor.cpp \
+    ../widgets/src/QCaFileBrowser.cpp \
+    src/QCaFileBrowserPluginManager.cpp
 
 #====================================
 # deprecated

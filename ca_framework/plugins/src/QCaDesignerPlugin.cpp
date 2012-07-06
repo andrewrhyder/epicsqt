@@ -45,6 +45,7 @@
 #include <QCaLoginPluginManager.h>
 #include <QCaLogPluginManager.h>
 #include <QCaMotorPluginManager.h>
+#include <QCaFileBrowserPluginManager.h>
 
 //======================================================
 // Deprecated widgets
@@ -83,6 +84,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaLoginPluginManager(this));
     widgets.append(new QCaLogPluginManager(this));
     widgets.append(new QCaMotorPluginManager(this));
+    widgets.append(new QCaFileBrowserPluginManager(this));
 
 //======================================================
 // Deprecated widgets
