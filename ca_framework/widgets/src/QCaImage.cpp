@@ -876,40 +876,49 @@ void QCaImage::manageRoiLayout()
 // Zoom to the area selected on the image
 void QCaImage::zoomToArea()
 {
-
-    //!!! move to near other zoom code and set 'zoom' variable to nearest integer percentage
-
-    // Determine the zoom factors
-    //!!! keep aspect ratio
+    // Determine the x and y zoom factors for the selected area
+    // (the user is most likely to have selected an area with an
+    // aspect ratio that does not match the current viewport)
+    // Note, these zoom factors are the multiple the current zoom
+    // must be changed by, not the actual zoom required
     int sizeX = selectedAreaPoint2.x()-selectedAreaPoint1.x();
     int sizeY = selectedAreaPoint2.y()-selectedAreaPoint1.y();
-    double zoomFactorX = (double)(videoWidget->width()) / (double)sizeX;
-    double zoomFactorY = (double)(videoWidget->height()) / (double)sizeY;
+    double zoomFactorX = (double)(scrollArea->viewport()->width()) / (double)sizeX;
+    double zoomFactorY = (double)(scrollArea->viewport()->height()) / (double)sizeY;
+
+    // Determine which of the zoom factors will display all the selected area
+    double zoomFactor = std::min( zoomFactorX, zoomFactorY );
+
+    //Determine the new zoom
+    double newZoom = zoomFactor * (double)(videoWidget->width()) / (double)(imageBuffWidth);
+
+    // Ensure the zoom factor will not generate an image that is too large
+    double maxDim = 5000;
+    if( ((double)(imageBuffWidth) * newZoom ) > maxDim )
+    {
+        newZoom = (double)maxDim / (double)videoWidget->width();
+    }
+    if( ((double)(videoWidget->height()) * newZoom ) > maxDim )
+    {
+        newZoom = (double)maxDim / (double)videoWidget->height();
+    }
+
+    // Note the pixel position of the top left of the selected area in the original image
+    // This will be the position that should be at the top left in the scroll area.
+    QPoint newOrigin = videoWidget->scalePoint( selectedAreaPoint1 );
 
     // Resize the display widget
-    int newSizeX = (double)(videoWidget->width()) * zoomFactorX;
-    if( newSizeX > 5000 )
-    {
-        newSizeX = 5000;
-        zoomFactorX = (double)newSizeX / (double)videoWidget->width();
-    }
-
-    int newSizeY = (double)(videoWidget->height()) * zoomFactorY;
-    if( newSizeY > 5000 )
-    {
-        newSizeY = 5000;
-        zoomFactorY = (double)newSizeY / (double)videoWidget->height();
-    }
-
-    //!! zoom to keep aspect ratio
+    int newSizeX = (double)(imageBuffWidth) * newZoom;
+    int newSizeY = (double)(imageBuffHeight) * newZoom;
     videoWidget->resize( newSizeX, newSizeY );
 
     // Reposition the display widget
-    scrollArea->horizontalScrollBar()->setValue( (double)(selectedAreaPoint1.x()) * zoomFactorX );
-    scrollArea->verticalScrollBar()->setValue( (double)(selectedAreaPoint1.y()) * zoomFactorY );
+    newOrigin.setX( -newOrigin.x()*newZoom );
+    newOrigin.setY( -newOrigin.y()*newZoom );
+    pan( newOrigin );
 
     // Set current zoom percentage
-    zoom = zoomFactorY/100;
+    zoom = newZoom*100.0;
 }
 
 // Reset ROI apply button pressed
@@ -2043,7 +2052,14 @@ int QCaImage::getScanOption()
     }
 }
 
-// Reset the scroll bars now a pan has finished.
+// Pan the image.
+// This is used when:
+//   - Zooming to a selected area (zoom to the right level, then call this
+//     method to move the selected area into view).
+//   - Resetting the scroll bars after the user has panned by dragging the image.
+//
+// Note: when the user is panning by dragging the image, this method is only used to tidy
+// up the scroll bars at the end of the pan.
 // Panning has been done by moving the VideoWidget in the viewport directly (not via the
 // scroll bars) as the VideoWidget can be moved directly more smoothly to pixel resolution,
 // whereas the VideoWidget can only be moved by the resolution of a scrollbar step when moved

@@ -170,6 +170,12 @@ QPoint markupVLine::getPoint2()
     return QPoint();
 }
 
+void markupVLine::tidy()
+{
+    // Nothing to do
+}
+
+
 //===========================================================================
 // Horizontal line markup
 
@@ -232,6 +238,11 @@ QPoint markupHLine::getPoint1()
 QPoint markupHLine::getPoint2()
 {
     return QPoint();
+}
+
+void markupHLine::tidy()
+{
+    // Nothing to do
 }
 
 //===========================================================================
@@ -398,6 +409,11 @@ QPoint markupLine::getPoint2()
     return end;
 }
 
+void markupLine::tidy()
+{
+    // Nothing to do
+}
+
 //===========================================================================
 // Region markup
 
@@ -467,6 +483,7 @@ void markupRegion::startDrawing( QPoint pos )
 
 void markupRegion::moveTo( QPoint pos )
 {
+    // Move the appropriate part of the region, according to which bit the user has grabbed
     switch( activeHandle )
     {
         case MARKUP_HANDLE_NONE: rect.moveTo( pos - owner->grabOffset ); break;
@@ -482,6 +499,7 @@ void markupRegion::moveTo( QPoint pos )
         default: break;
     }
 
+    // Update the area the region now ocupies
     setArea();
 }
 
@@ -603,6 +621,11 @@ QPoint markupRegion::getPoint2()
     return rect.normalized().bottomRight();
 }
 
+void markupRegion::tidy()
+{
+    rect = rect.normalized();
+}
+
 //===========================================================================
 // Text markup
 
@@ -675,6 +698,11 @@ QPoint markupText::getPoint1()
 QPoint markupText::getPoint2()
 {
     return rect.bottomRight();
+}
+
+void markupText::tidy()
+{
+    // Nothing to do
 }
 
 //===========================================================================
@@ -830,37 +858,41 @@ void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
         redrawActiveItemHere( event->pos() );
     }
 
-    // Set cursor
-    QCursor cursor = getDefaultMarkupCursor();
-    int n = items.count();
-    for( int i = 0; i < n; i++ )
+    // If no button is down, ensure the cursor reflects what it is over
+    else
     {
-        markupItem::markupHandles handle;
-        if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &handle ) )
+        // Set cursor
+        QCursor cursor = getDefaultMarkupCursor();
+        int n = items.count();
+        for( int i = 0; i < n; i++ )
         {
-            switch( handle )
+            markupItem::markupHandles handle;
+            if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &handle ) )
             {
-                case markupItem::MARKUP_HANDLE_NONE:    cursor = Qt::OpenHandCursor;  break;
+                switch( handle )
+                {
+                    case markupItem::MARKUP_HANDLE_NONE:    cursor = Qt::OpenHandCursor;  break;
 
-                case markupItem::MARKUP_HANDLE_START:
-                case markupItem::MARKUP_HANDLE_END:     cursor = Qt::SizeAllCursor;   break;
+                    case markupItem::MARKUP_HANDLE_START:
+                    case markupItem::MARKUP_HANDLE_END:     cursor = Qt::SizeAllCursor;   break;
 
-                case markupItem::MARKUP_HANDLE_TL:
-                case markupItem::MARKUP_HANDLE_BR:      cursor = Qt::SizeFDiagCursor; break;
+                    case markupItem::MARKUP_HANDLE_TL:
+                    case markupItem::MARKUP_HANDLE_BR:      cursor = Qt::SizeFDiagCursor; break;
 
-                case markupItem::MARKUP_HANDLE_TR:
-                case markupItem::MARKUP_HANDLE_BL:      cursor = Qt::SizeBDiagCursor; break;
+                    case markupItem::MARKUP_HANDLE_TR:
+                    case markupItem::MARKUP_HANDLE_BL:      cursor = Qt::SizeBDiagCursor; break;
 
-                case markupItem::MARKUP_HANDLE_T:
-                case markupItem::MARKUP_HANDLE_B:       cursor = Qt::SizeVerCursor;   break;
+                    case markupItem::MARKUP_HANDLE_T:
+                    case markupItem::MARKUP_HANDLE_B:       cursor = Qt::SizeVerCursor;   break;
 
-                case markupItem::MARKUP_HANDLE_L:
-                case markupItem::MARKUP_HANDLE_R:       cursor = Qt::SizeHorCursor;   break;
+                    case markupItem::MARKUP_HANDLE_L:
+                    case markupItem::MARKUP_HANDLE_R:       cursor = Qt::SizeHorCursor;   break;
+                }
+                break;
             }
-            break;
         }
+        markupSetCursor( cursor );
     }
-    markupSetCursor( cursor );
 
     // If there is an active item and action is required on move, then report the move
     if( activeItem != MARKUP_ID_NONE && items[activeItem]->reportOnMove )
@@ -904,6 +936,10 @@ void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )//event )
     {
         markupAction( getActionMode(), items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
     }
+
+    // Tidy up the item.
+    // In particular, normalise any rectangles
+    items[activeItem]->tidy();
 
     // Flag there is no longer an active item
     activeItem = MARKUP_ID_NONE;

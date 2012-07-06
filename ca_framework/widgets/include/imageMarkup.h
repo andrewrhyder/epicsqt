@@ -77,6 +77,7 @@ public:
     virtual bool isOver( QPoint point, markupHandles* handle )=0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
+    virtual void tidy()=0;
 
     bool pointIsNear( QPoint p1, QPoint p );
 
@@ -109,7 +110,9 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
+    void tidy();
 
+private:
     int y;
 };
 
@@ -127,7 +130,9 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
+    void tidy();
 
+private:
     int x;
 };
 
@@ -144,7 +149,9 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
+    void tidy();
 
+private:
     QPoint start;
     QPoint end;
 };
@@ -163,7 +170,9 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
+    void tidy();
 
+private:
     QRect rect;
 };
 
@@ -183,7 +192,9 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
+    void tidy();
 
+private:
     QString text;
     QRect rect;
 };
