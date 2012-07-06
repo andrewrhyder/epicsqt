@@ -190,22 +190,11 @@ QPoint VideoWidget::scalePoint( QPoint pnt )
 // Return an ordinate from the displayed image as an ordinate in the original image
 int VideoWidget::scaleOrdinate( int ord )
 {
-    return (int)((double)ord / getHScale());
+    return (int)((double)ord / getScale());
 }
 
-// Return the vertical scale of the displayed image
-double VideoWidget::getVScale()
-{
-    // If for any reason a scale can't be determined, return scale of 1.0
-    if( currentImage.isNull() || currentImage.height() == 0 || height() == 0)
-        return 1.0;
-
-    // Return the vertical scale of the displayed image
-    return (double)height() / (double)currentImage.height();
-}
-
-// Return the horizontal scale of the displayed image
-double VideoWidget::getHScale()
+// Return the scale of the displayed image
+double VideoWidget::getScale()
 {
     // If for any reason a scale can't be determined, return scale of 1.0
     if( currentImage.isNull() || currentImage.width() == 0 || width() == 0)
@@ -261,9 +250,8 @@ void VideoWidget::mouseMoveEvent( QMouseEvent* event )
         markupMouseMoveEvent( event );
         QPoint pos;
 
-        // maintain aspect ratio - use one scale only
-        pos.setX( (double)(event->pos().x()) / getHScale() );
-        pos.setY( (double)(event->pos().y()) / getVScale() );
+        pos.setX( (double)(event->pos().x()) / getScale() );
+        pos.setY( (double)(event->pos().y()) / getScale() );
         emit currentPixelInfo( pos );
     }
     else

@@ -74,8 +74,7 @@ private:
 
     bool firstUpdate;
 
-    double getHScale();
-    double getVScale();
+    double getScale();
 
     bool panning;       // If true user is dragging image with mouse (rather than performing any markup)
     QPoint panStart;
