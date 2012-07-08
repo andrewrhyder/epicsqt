@@ -102,8 +102,8 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 104, QString ("Select Times"), QString (""),                  QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))  },
    { 24,  QString (""),             QString ("play.png"),          QString ("Play - Real time"),             SLOT (playClicked (bool))        },
    { 24,  QString (""),             QString ("pause.png"),         QString ("Pause"),                        SLOT (pauseClicked (bool))       },
-   { 24,  QString (""),             QString ("page_forward.png"),  QString ("Forward one page"),             SLOT (forwardClicked (bool))     },
-   { 24,  QString (""),             QString ("page_backward.png"), QString ("Back one page"),                SLOT (backwardClicked (bool))    }
+   { 24,  QString (""),             QString ("page_backward.png"), QString ("Back one page"),                SLOT (backwardClicked (bool))    },
+   { 24,  QString (""),             QString ("page_forward.png"),  QString ("Forward one page"),             SLOT (forwardClicked (bool))     }
 };
 
 
