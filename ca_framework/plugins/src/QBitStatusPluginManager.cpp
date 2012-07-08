@@ -89,14 +89,14 @@ QIcon QBitStatusPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QBitStatusPluginManager::toolTip() const {
-    return "Bit Status 1";
+    return "Bit Status";
 }
 
 /*!
     ???
 */
 QString QBitStatusPluginManager::whatsThis() const {
-    return "Bit Status 2";
+    return "Bit Status";
 }
 
 /*!

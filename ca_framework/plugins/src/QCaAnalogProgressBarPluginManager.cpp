@@ -68,28 +68,28 @@ QString QCaAnalogProgressBarPluginManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QCaAnalogProgressBarPluginManager::group() const {
-    return "EPICS Widgets";
+    return "EPICS Deprecated Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaAnalogProgressBarPluginManager::icon() const {
-    return QIcon(":/icons/QCaAnalogProgressBar.png");
+    return QIcon("");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaAnalogProgressBarPluginManager::toolTip() const {
-    return "EPICS ProgressBar";
+    return "Deprecated EPICS Analog ProgressBar";
 }
 
 /*!
     ???
 */
 QString QCaAnalogProgressBarPluginManager::whatsThis() const {
-    return "EPICS ProgressBar";
+    return "Deprecated EPICS Analog ProgressBar";
 }
 
 /*!

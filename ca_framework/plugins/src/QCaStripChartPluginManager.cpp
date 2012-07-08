@@ -57,7 +57,7 @@ bool QCaStripChartPluginManager::isInitialized () const
 }
 
 /*!
-    Widget factory. Creates a QCaStripChart widget.
+    Widget factory. Creates a QEStripChart widget.
 */
 QWidget *QCaStripChartPluginManager::createWidget (QWidget * parent)
 {
@@ -77,7 +77,7 @@ QString QCaStripChartPluginManager::name () const
 */
 QString QCaStripChartPluginManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICS Deprecated Widgets";
 }
 
 /*!
@@ -85,7 +85,7 @@ QString QCaStripChartPluginManager::group () const
 */
 QIcon QCaStripChartPluginManager::icon () const
 {
-   return QIcon (":/icons/QCaStripChart.png");
+   return QIcon ("");
 }
 
 /*!
@@ -93,7 +93,7 @@ QIcon QCaStripChartPluginManager::icon () const
 */
 QString QCaStripChartPluginManager::toolTip () const
 {
-   return "PV/Archive Strip Chart";
+   return "Deprecated PV/Archive Strip Chart";
 }
 
 /*!
@@ -101,7 +101,7 @@ QString QCaStripChartPluginManager::toolTip () const
 */
 QString QCaStripChartPluginManager::whatsThis () const
 {
-   return "PV/Archive Strip Chart";
+   return "Deprecated PV/Archive Strip Chart";
 }
 
 /*!

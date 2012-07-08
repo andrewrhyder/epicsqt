@@ -35,12 +35,16 @@
 #include <LinkPluginManager.h>
 #include <QCaPlotPluginManager.h>
 #include <QCaPeriodicPluginManager.h>
+#include <QEAnalogProgressBarManager.h>
 #include <QCaAnalogProgressBarPluginManager.h>
 #include <QAnalogProgressBarPluginManager.h>
+#include <QEBitStatusManager.h>
 #include <QCaBitStatusPluginManager.h>
 #include <QBitStatusPluginManager.h>
 #include <QCaImagePluginManager.h>
+#include <QEPvPropertiesManager.h>
 #include <QCaPvPropertiesPluginManager.h>
+#include <QEStripChartManager.h>
 #include <QCaStripChartPluginManager.h>
 #include <QCaLoginPluginManager.h>
 #include <QCaLogPluginManager.h>
@@ -61,7 +65,12 @@
     Add all plugins that will be provided in QT Designer.
 */
 QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
+    widgets.append(new QEAnalogProgressBarManager(this));
+    widgets.append(new QEBitStatusManager(this));
     widgets.append(new QELabelManager(this));
+    widgets.append(new QEPvPropertiesManager(this));
+    widgets.append(new QEStripChartManager(this));
+
     widgets.append(new QSubstitutedLabelPluginManager(this));
     widgets.append(new QCaLineEditPluginManager(this));
     widgets.append(new QCaPushButtonPluginManager(this));
@@ -74,21 +83,23 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new LinkPluginManager(this));
     widgets.append(new QCaPlotPluginManager(this));
     widgets.append(new QCaPeriodicPluginManager(this));
-    widgets.append(new QCaAnalogProgressBarPluginManager(this));
-    widgets.append(new QAnalogProgressBarPluginManager(this));
-    widgets.append(new QCaBitStatusPluginManager(this));
-    widgets.append(new QBitStatusPluginManager(this));
     widgets.append(new QCaImagePluginManager(this));
-    widgets.append(new QCaPvPropertiesPluginManager(this));
-    widgets.append(new QCaStripChartPluginManager(this));
     widgets.append(new QCaLoginPluginManager(this));
     widgets.append(new QCaLogPluginManager(this));
     widgets.append(new QCaMotorPluginManager(this));
     widgets.append(new QCaFileBrowserPluginManager(this));
 
+    // Non-EPICS aware framework widgets
+    widgets.append(new QAnalogProgressBarPluginManager(this));
+    widgets.append(new QBitStatusPluginManager(this));
+
 //======================================================
 // Deprecated widgets
+    widgets.append(new QCaAnalogProgressBarPluginManager(this));
+    widgets.append(new QCaBitStatusPluginManager(this));
     widgets.append(new QCaLabelPluginManager(this));
+    widgets.append(new QCaPvPropertiesPluginManager(this));
+    widgets.append(new QCaStripChartPluginManager(this));
 //======================================================
 
 }

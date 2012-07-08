@@ -83,7 +83,7 @@ QString QCaBitStatusPluginManager::name () const
 */
 QString QCaBitStatusPluginManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICS Deprecated Widgets";
 }
 
 /*!
@@ -91,7 +91,7 @@ QString QCaBitStatusPluginManager::group () const
 */
 QIcon QCaBitStatusPluginManager::icon () const
 {
-   return QIcon (":/icons/QCaBitStatus.png");
+   return QIcon ("");
 }
 
 /*!
@@ -99,7 +99,7 @@ QIcon QCaBitStatusPluginManager::icon () const
 */
 QString QCaBitStatusPluginManager::toolTip () const
 {
-   return "EPICS ProgressBar";
+   return "Deprecated EPICS Bit Status";
 }
 
 /*!
@@ -107,7 +107,7 @@ QString QCaBitStatusPluginManager::toolTip () const
 */
 QString QCaBitStatusPluginManager::whatsThis () const
 {
-   return "EPICS ProgressBar";
+   return "Deprecated EPICS Bit Status";
 }
 
 /*!

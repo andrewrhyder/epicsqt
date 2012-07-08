@@ -76,7 +76,7 @@ QString QCaPvPropertiesPluginManager::name () const
 */
 QString QCaPvPropertiesPluginManager::group () const
 {
-   return "EPICS Widgets";
+   return "EPICS Deprecated Widgets";
 }
 
 /*!
@@ -84,7 +84,7 @@ QString QCaPvPropertiesPluginManager::group () const
 */
 QIcon QCaPvPropertiesPluginManager::icon () const
 {
-   return QIcon (":/icons/QCaPvProperties.png");
+   return QIcon ("");
 }
 
 /*!
@@ -92,7 +92,7 @@ QIcon QCaPvPropertiesPluginManager::icon () const
 */
 QString QCaPvPropertiesPluginManager::toolTip () const
 {
-   return "EPICS IOC record fields";
+   return "Deprecated EPICS IOC record fields";
 }
 
 /*!
@@ -100,7 +100,7 @@ QString QCaPvPropertiesPluginManager::toolTip () const
 */
 QString QCaPvPropertiesPluginManager::whatsThis () const
 {
-   return "EPICS IOC record fields";
+   return "Deprecated EPICS IOC record fields";
 }
 
 /*!

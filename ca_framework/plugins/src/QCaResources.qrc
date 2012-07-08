@@ -11,26 +11,14 @@
         <file>QCaPlot.png</file>
         <file>QCaPeriodic.png</file>
         <file>QAnalogProgressBar.png</file>
-        <file>QCaAnalogProgressBar.png</file>
-        <file>QCaBitStatus.png</file>
         <file>QBitStatus.png</file>
         <file>QSubstitutedLabel.png</file>
         <file>QCaRadioButton.png</file>
         <file>QCaImage.png</file>
-        <file>QCaPvProperties.png</file>
-        <file>QCaStripChart.png</file>
         <file>QCaLogin.png</file>
         <file>QCaLog.png</file>
         <file>QCaMotor.png</file>
-        <file>strip_chart_archive.png</file>
-        <file>strip_chart_play.png</file>
-        <file>strip_chart_pause.png</file>
-        <file>strip_chart_page_forward.png</file>
-        <file>strip_chart_page_backward.png</file>
         <file>QELabel.png</file>
         <file>QCaFileBrowser.png</file>
-    </qresource>
-    <qresource prefix="/user">
-        <file>record_field_list.txt</file>
     </qresource>
 </RCC>
