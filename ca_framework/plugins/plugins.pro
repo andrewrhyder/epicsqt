@@ -151,12 +151,6 @@ HEADERS += \
     ../widgets/include/stringProperties.inc
 
 #====================================
-# deprecated
-HEADERS += \
-    include/QCaLabelPluginManager.h \
-    include/QCaLabelPlugin.h
-
-#====================================
 
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
@@ -247,10 +241,28 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaFileBrowser.cpp \
     src/QCaFileBrowserPluginManager.cpp
 
+
 #====================================
 # deprecated
+HEADERS += \
+    include/QCaLabelPluginManager.h \
+    include/QCaLabelPlugin.h   \
+    include/QCaAnalogProgressBarPluginManager.h  \
+    include/QCaAnalogProgressBar.h  \
+    include/QCaBitStatusPluginManager.h  \
+    include/QCaBitStatus.h  \
+    include/QCaPvPropertiesPluginManager.h  \
+    include/QCaPvProperties.h  \
+    include/QCaStripChartPluginManager.h  \
+    include/QCaStripChart.h
+
 SOURCES += \
-    src/QCaLabelPluginManager.cpp
+    src/QCaAnalogProgressBarPluginManager.cpp  \
+    src/QCaBitStatusPluginManager.cpp  \
+    src/QCaLabelPluginManager.cpp  \
+    src/QCaPvPropertiesPluginManager.cpp  \
+    src/QCaStripChartPluginManager.cpp
+
 #====================================
 
 
@@ -283,7 +295,11 @@ FORMS += \
 # QElabel
 #
 OTHER_FILES += \
-    src/QELabel.png
+    src/QELabel.png  \
+    ../widgets/QELabel/icon.png
+
+RESOURCES += \
+    ../widgets/QELabel/QELabel.qrc
 
 HEADERS += \
     ../widgets/QELabel/QELabel.h \
@@ -297,74 +313,94 @@ INCLUDEPATH += \
     $$(QCAFRAMEWORK)/widgets/QELabel
 
 
-    
 #===========================================================
-# AnalogProgressBar and QAnalogProgressBar
+# AnalogProgressBar
 #
 OTHER_FILES += \
-    src/QAnalogProgressBar.png \
-    src/QCaAnalogProgressBar.png
+    src/QAnalogProgressBar.png
 
 HEADERS += \
     ../widgets/include/QAnalogProgressBar.h \
-    ../widgets/include/QCaAnalogProgressBar.h \
-    include/QAnalogProgressBarPluginManager.h \
-    include/QCaAnalogProgressBarPluginManager.h
-
+    include/QAnalogProgressBarPluginManager.h
 
 SOURCES += \
     ../widgets/src/QAnalogProgressBar.cpp \
-    ../widgets/src/QCaAnalogProgressBar.cpp \
-    src/QAnalogProgressBarPluginManager.cpp \
-    src/QCaAnalogProgressBarPluginManager.cpp
+    src/QAnalogProgressBarPluginManager.cpp
 
+
+#===========================================================
+# QEAnalogProgressBar
+#
+OTHER_FILES += \
+    ../widgets/QEAnalogProgressBar/icon.png
+
+RESOURCES += \
+    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.qrc
+
+HEADERS += \
+    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.h \
+    ../widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.h
+
+SOURCES += \
+    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.cpp \
+    ../widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.cpp
 
 INCLUDEPATH += \
     $$(QCAFRAMEWORK)/widgets/QEAnalogProgressBar
 
 
 #===========================================================
-# BitStatus and QBitStatus
+# BitStatus
 #
 OTHER_FILES += \
-    src/QBitStatus.png \
-    src/QCaBitStatus.png
-
+    src/QBitStatus.png 
 
 HEADERS += \
     ../widgets/include/QBitStatus.h \
-    ../widgets/include/QCaBitStatus.h \
-    include/QBitStatusPluginManager.h \
-    include/QCaBitStatusPluginManager.h
-
+    include/QBitStatusPluginManager.h
 
 SOURCES += \
     ../widgets/src/QBitStatus.cpp \
-    ../widgets/src/QCaBitStatus.cpp \
-    src/QBitStatusPluginManager.cpp \
-    src/QCaBitStatusPluginManager.cpp
+    src/QBitStatusPluginManager.cpp
 
+
+#===========================================================
+# QEBitStatus
+#
+OTHER_FILES += \
+    ../widgets/QEBitStatus/icon.png
+
+RESOURCES += \
+    ../widgets/QEBitStatus/QEBitStatus.qrc
+
+HEADERS += \
+    ../widgets/QEBitStatus/QEBitStatus.h \
+    ../widgets/QEBitStatus/QEBitStatusManager.h
+
+SOURCES += \
+    ../widgets/QEBitStatus/QEBitStatus.cpp \
+    ../widgets/QEBitStatus/QEBitStatusManager.cpp
 
 INCLUDEPATH += \
     $$(QCAFRAMEWORK)/widgets/QEBitStatus
 
 
 #===========================================================
-# QPvProperties
+# QEPvProperties
 #
 OTHER_FILES += \
-    src/QCaPvProperties.png
+    ../widgets/QEPvProperties/icon.png
 
+RESOURCES += \
+    ../widgets/QEPvProperties/QEPvProperties.qrc
 
 HEADERS += \
-    ../widgets/include/QCaPvProperties.h \
-    include/QCaPvPropertiesPluginManager.h \
-
+    ../widgets/QEPvProperties/QEPvProperties.h \
+    ../widgets/QEPvProperties/QEPvPropertiesManager.h \
 
 SOURCES += \
-    ../widgets/src/QCaPvProperties.cpp \
-    src/QCaPvPropertiesPluginManager.cpp
-
+    ../widgets/QEPvProperties/QEPvProperties.cpp \
+    ../widgets/QEPvProperties/QEPvPropertiesManager.cpp
 
 INCLUDEPATH += \
     $$(QCAFRAMEWORK)/widgets/QEPvProperties
@@ -397,35 +433,36 @@ INCLUDEPATH += \
 # Strip Chart
 #
 OTHER_FILES += \
-    src/QCaStripChart.png \
-    src/strip_chart_archive.png \
-    src/strip_chart_play.png \
-    src/strip_chart_pause.png \
-    src/strip_chart_page_forward.png \
-    src/strip_chart_page_backward.png
+    ../widgets/QEStripChart/icon.png \
+    ../widgets/QEStripChart/archive.png \
+    ../widgets/QEStripChart/play.png \
+    ../widgets/QEStripChart/pause.png \
+    ../widgets/QEStripChart/page_forward.png \
+    ../widgets/QEStripChart/page_backward.png
+
+RESOURCES += \
+    ../widgets/QEStripChart/QEStripChart.qrc
 
 HEADERS += \
-    ../widgets/QEStripChart/QCaStripChartPluginManager.h \
-    ../widgets/QEStripChart/QCaStripChart.h \
-    ../widgets/QEStripChart/QCaStripChartItem.h \
-    ../widgets/QEStripChart/QCaStripChartTimeDialog.h \
-    ../widgets/QEStripChart/QCaStripChartItemDialog.h
+    ../widgets/QEStripChart/QEStripChart.h \
+    ../widgets/QEStripChart/QEStripChartItem.h \
+    ../widgets/QEStripChart/QEStripChartTimeDialog.h \
+    ../widgets/QEStripChart/QEStripChartItemDialog.h \
+    ../widgets/QEStripChart/QEStripChartManager.h
 
 SOURCES += \
-    ../widgets/QEStripChart/QCaStripChartPluginManager.cpp \
-    ../widgets/QEStripChart/QCaStripChart.cpp \
-    ../widgets/QEStripChart/QCaStripChartItem.cpp \
-    ../widgets/QEStripChart/QCaStripChartTimeDialog.cpp \
-    ../widgets/QEStripChart/QCaStripChartItemDialog.cpp
-
+    ../widgets/QEStripChart/QEStripChart.cpp \
+    ../widgets/QEStripChart/QEStripChartItem.cpp \
+    ../widgets/QEStripChart/QEStripChartTimeDialog.cpp \
+    ../widgets/QEStripChart/QEStripChartItemDialog.cpp \
+    ../widgets/QEStripChart/QEStripChartManager.cpp
 
 INCLUDEPATH += \
     $$(QCAFRAMEWORK)/widgets/QEStripChart
 
-
 FORMS += \
-    ../widgets/QEStripChart/QCaStripChartTimeDialog.ui \
-    ../widgets/QEStripChart/QCaStripChartItemDialog.ui \
+    ../widgets/QEStripChart/QEStripChartTimeDialog.ui \
+    ../widgets/QEStripChart/QEStripChartItemDialog.ui \
 
 #
 # end
