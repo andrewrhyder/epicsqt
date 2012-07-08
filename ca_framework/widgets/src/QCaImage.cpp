@@ -110,16 +110,6 @@ void QCaImage::setup() {
     // --Currently none--
 
 
-    zMenu = new zoomMenu( );
-    zMenu->enableAreaSelected( haveSelectedArea );
-    QObject::connect( zMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( zoomMenuTriggered( QAction* )) );
-
-    frMenu = new flipRotateMenu();
-    frMenu->setChecked( rotation, flipHoz, flipVert );
-
-    QObject::connect( frMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( flipRotateMenuTriggered( QAction* )) );
-
-
     // Create the video destination
     videoWidget = new VideoWidget;
     setMarkupColor(QColor(0, 255, 0));
@@ -131,6 +121,25 @@ void QCaImage::setup() {
                       this,        SLOT  ( currentPixelInfo( QPoint ) ) );
     QObject::connect( videoWidget, SIGNAL( pan( QPoint ) ),
                       this,        SLOT  ( pan( QPoint ) ) );
+
+
+    // Create sub menus
+    zMenu = new zoomMenu( );
+    zMenu->enableAreaSelected( haveSelectedArea );
+    QObject::connect( zMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( zoomMenuTriggered( QAction* )) );
+
+    frMenu = new flipRotateMenu();
+    frMenu->setChecked( rotation, flipHoz, flipVert );
+    QObject::connect( frMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( flipRotateMenuTriggered( QAction* )) );
+
+    sMenu = new selectMenu();
+    sMenu->setChecked( getSelectionOption() );
+    sMenu->setPanEnabled( enablePan );
+    sMenu->setVSliceEnabled( enableVSliceSelection );
+    sMenu->setHSlicetEnabled( enableHSliceSelection );
+    sMenu->setAreaEnabled( enableAreaSelection );
+    sMenu->setProfileEnabled( enableProfileSelection );
+    QObject::connect( sMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( selectMenuTriggered( QAction* )) );
 
     // Add the video destination to the widget
     scrollArea = new QScrollArea;
@@ -241,6 +250,11 @@ void QCaImage::setup() {
     resetRoiButton->setEnabled( false );
     QObject::connect(resetRoiButton, SIGNAL(clicked()), this, SLOT(resetRoiClicked()));
 
+    selectModeButton = new QPushButton(buttonGroup);
+    selectModeButton->setText("Select / Pan");
+    selectModeButton->setToolTip("Choose selection and pan modes");
+    selectModeButton->setMenu( sMenu );
+
     zoomButton = new QPushButton(buttonGroup);
     zoomButton->setText("Zoom");
     zoomButton->setToolTip("Zoom options");
@@ -256,46 +270,9 @@ void QCaImage::setup() {
     buttonLayout->addWidget( saveButton,       0, 1);
     buttonLayout->addWidget( roiButton,        0, 2);
     buttonLayout->addWidget( resetRoiButton,   0, 3);
-    buttonLayout->addWidget( zoomButton,       0, 4);
-    buttonLayout->addWidget( flipRotateButton, 0, 5);
-
-    // Create area selection options
-    areaSelectionGroup = new QGroupBox( "Selection", this );
-    QVBoxLayout* areaSelectionLayout = new QVBoxLayout(); // !!! are layouts added to a widget deleted with the widget???
-    areaSelectionLayout->setMargin( 0 );
-    areaSelectionGroup->setLayout( areaSelectionLayout);
-
-    panMode = new QRadioButton( "Pan", areaSelectionGroup );
-    panMode->setToolTip("Allows user pan the visible part of an image");
-
-    vSliceSelectMode = new QRadioButton( "Vertical Slice", areaSelectionGroup );
-    vSliceSelectMode->setToolTip("Allows user to select a vertical slice through the image");
-
-    hSliceSelectMode = new QRadioButton( "Horizontal Slice", areaSelectionGroup );
-    hSliceSelectMode->setToolTip("Allows user to select a horizontal slice across the image");
-
-    areaSelectMode = new QRadioButton( "Area (ROI and Zoom)", areaSelectionGroup );
-    areaSelectMode->setToolTip("Allows user to select an area of the image for Region Of Interest, of for local zoom");
-
-    profileSelectMode = new QRadioButton( "Profile", areaSelectionGroup );
-    profileSelectMode->setToolTip("Allows user to select a line within the image");
-
-
-    QObject::connect( panMode,           SIGNAL(clicked()), this, SLOT(panModeClicked()));
-    QObject::connect( vSliceSelectMode,  SIGNAL(clicked()), this, SLOT(vSliceSelectModeClicked()));
-    QObject::connect( hSliceSelectMode,  SIGNAL(clicked()), this, SLOT(hSliceSelectModeClicked()));
-    QObject::connect( areaSelectMode,    SIGNAL(clicked()), this, SLOT(areaSelectModeClicked()));
-    QObject::connect( profileSelectMode, SIGNAL(clicked()), this, SLOT(profileSelectModeClicked()));
-
-
-    areaSelectionLayout->addWidget( panMode,           0 );
-    areaSelectionLayout->addWidget( vSliceSelectMode,  1 );
-    areaSelectionLayout->addWidget( hSliceSelectMode,  2 );
-    areaSelectionLayout->addWidget( areaSelectMode,    3 );
-    areaSelectionLayout->addWidget( profileSelectMode, 4 );
-
-    manageSelectionOptions();
-
+    buttonLayout->addWidget( selectModeButton, 0, 4);
+    buttonLayout->addWidget( zoomButton,       0, 5);
+    buttonLayout->addWidget( flipRotateButton, 0, 6);
 
 
     // Create main layout containing image, label, and button layouts
@@ -304,8 +281,7 @@ void QCaImage::setup() {
 
     mainLayout->addWidget( buttonGroup, 0, 0 );
     mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
-    mainLayout->addWidget( areaSelectionGroup, 2, 0  );
-    mainLayout->addWidget( roiGroup, 3, 1 );
+    mainLayout->addWidget( roiGroup, 2, 0 );
 
     // Set graphics to take all spare room
     mainLayout->setColumnStretch( 1, 1 );
@@ -1299,7 +1275,8 @@ bool QCaImage::getDisplayCursorPixelInfo(){
 void QCaImage::setEnableVertSliceSelection( bool enableVSliceSelectionIn )
 {
     enableVSliceSelection = enableVSliceSelectionIn;
-    manageSelectionOptions();
+    sMenu->setVSliceEnabled( enableVSliceSelection );
+    vSliceDisplay->setVisible( enableVSliceSelection );
 }
 
 bool QCaImage::getEnableVertSliceSelection()
@@ -1311,7 +1288,8 @@ bool QCaImage::getEnableVertSliceSelection()
 void QCaImage::setEnableHozSliceSelection( bool enableHSliceSelectionIn )
 {
     enableHSliceSelection = enableHSliceSelectionIn;
-    manageSelectionOptions();
+    sMenu->setHSlicetEnabled( enableHSliceSelection );
+    hSliceDisplay->setVisible(enableHSliceSelection );
 }
 
 bool QCaImage::getEnableHozSliceSelection()
@@ -1323,7 +1301,8 @@ bool QCaImage::getEnableHozSliceSelection()
 void QCaImage::setEnablePan( bool enablePanIn )
 {
     enablePan = enablePanIn;
-    manageSelectionOptions();
+    sMenu->setPanEnabled( enablePan );
+
 }
 
 bool QCaImage::getEnablePan()
@@ -1335,7 +1314,7 @@ bool QCaImage::getEnablePan()
 void QCaImage::setEnableAreaSelection( bool enableAreaSelectionIn )
 {
     enableAreaSelection = enableAreaSelectionIn;
-    manageSelectionOptions();
+    sMenu->setAreaEnabled( enableAreaSelection );
 }
 
 bool QCaImage::getEnableAreaSelection()
@@ -1347,81 +1326,13 @@ bool QCaImage::getEnableAreaSelection()
 void QCaImage::setEnableProfileSelection( bool enableProfileSelectionIn )
 {
     enableProfileSelection = enableProfileSelectionIn;
-    manageSelectionOptions();
+    sMenu->setProfileEnabled( enableProfileSelection );
+    profileDisplay->setVisible( enableProfileSelection );
 }
 
 bool QCaImage::getEnableProfileSelection()
 {
     return enableProfileSelection;
-}
-
-//=================================================================================================
-
-void QCaImage::manageSelectionOptions()
-{
-    // If more than one buton is required, then make the appropriate ones visible
-    // (If only one selection option is required, no point having a radio button for it)
-    int count = 0;
-    if( enablePan ) count++;
-    if( enableAreaSelection ) count++;
-    if( enableVSliceSelection ) count++;
-    if( enableHSliceSelection ) count++;
-    if( enableProfileSelection ) count++;
-
-    if( count >= 2 )
-    {
-        areaSelectionGroup->setVisible( true );
-
-        // For each button, make it visible if it is enabled.
-        panMode->setVisible( enablePan );
-        areaSelectMode->setVisible( enableAreaSelection );
-        vSliceSelectMode->setVisible( enableVSliceSelection );
-        hSliceSelectMode->setVisible( enableHSliceSelection );
-        profileSelectMode->setVisible( enableProfileSelection );
-
-        // If no buttons are checked, check the first visible button
-        if( !panMode->isChecked() &&
-            !areaSelectMode->isChecked() &&
-            !vSliceSelectMode->isChecked() &&
-            !hSliceSelectMode->isChecked() &&
-            !profileSelectMode->isChecked() )
-        {
-            if( enablePan ) {
-                panMode->setChecked( true );
-                panModeClicked();
-            }
-            else if( enableAreaSelection ) {
-                areaSelectMode->setChecked( true );
-                areaSelectModeClicked();
-            }
-            else if( enableVSliceSelection ){
-                vSliceSelectMode->setChecked( true );
-                vSliceSelectModeClicked();
-            }
-            else if( enableHSliceSelection ){
-                hSliceSelectMode->setChecked( true );
-                hSliceSelectModeClicked();
-            }
-            else if( enableProfileSelection ){
-                profileSelectMode->setChecked( true );
-                profileSelectModeClicked();
-            }
-        }
-
-
-    }
-    // If no buttons are required, hide the entire group
-    else
-    {
-        areaSelectionGroup->setVisible( false );
-
-    }
-
-    // Display, or don't display, the profile plots as required
-    profileDisplay->setVisible( enableProfileSelection );
-    hSliceDisplay->setVisible(enableHSliceSelection );
-    vSliceDisplay->setVisible( enableVSliceSelection );
-
 }
 
 //=================================================================================================
@@ -2104,11 +2015,8 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
 
     contextMenu menu;
 
-    if( enablePan              ) menu.addMenuItem( "Pan",                     true, videoWidget->getPanning(),                                 contextMenu::CM_PAN  );
-    if( enableVSliceSelection  ) menu.addMenuItem( "Select vertical slice",   true, videoWidget->getMode() == imageMarkup::MARKUP_MODE_V_LINE, contextMenu::CM_VERT );
-    if( enableHSliceSelection  ) menu.addMenuItem( "Select horizontal slice", true, videoWidget->getMode() == imageMarkup::MARKUP_MODE_H_LINE, contextMenu::CM_HOZ  );
-    if( enableAreaSelection    ) menu.addMenuItem( "Select area",             true, videoWidget->getMode() == imageMarkup::MARKUP_MODE_AREA,   contextMenu::CM_AREA );
-    if( enableProfileSelection ) menu.addMenuItem( "Select profile line",     true, videoWidget->getMode() == imageMarkup::MARKUP_MODE_LINE,   contextMenu::CM_LINE );
+    sMenu->setChecked( getSelectionOption() );
+    menu.addMenu( sMenu );
 
     menu.addMenuItem(       "Save...",                       false, false,                  contextMenu::CM_SAVE                );
     menu.addMenuItem(       paused?"Resume":"Pause",         true,  paused,                 contextMenu::CM_PAUSE               );
@@ -2128,6 +2036,7 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
     frMenu->setChecked( rotation, flipHoz, flipVert );
     menu.addMenu( frMenu );
 
+
     contextMenu::contextMenuOptions option;
     bool checked;
     menu.getContextMenuOption( globalPos, &option, &checked );
@@ -2136,11 +2045,6 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
         default:
         case contextMenu::CM_NONE: break;
 
-        case contextMenu::CM_PAN:                 panMode->setChecked( true );           panModeClicked();           break;
-        case contextMenu::CM_VERT:                vSliceSelectMode->setChecked( true );  vSliceSelectModeClicked();  break;
-        case contextMenu::CM_HOZ:                 hSliceSelectMode->setChecked( true );  hSliceSelectModeClicked();  break;
-        case contextMenu::CM_AREA:                areaSelectMode->setChecked( true );    areaSelectModeClicked();    break;
-        case contextMenu::CM_LINE:                profileSelectMode->setChecked( true ); profileSelectModeClicked(); break;
         case contextMenu::CM_SAVE:                saveClicked();                          break;
         case contextMenu::CM_PAUSE:               pauseClicked();                         break;
         case contextMenu::CM_ENABLE_CURSOR_PIXEL: setDisplayCursorPixelInfo  ( checked ); break;
@@ -2192,5 +2096,42 @@ void QCaImage::flipRotateMenuTriggered( QAction* selectedItem )
         case contextMenu::CM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
         case contextMenu::CM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
         case contextMenu::CM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
+    }
+}
+
+void QCaImage::selectMenuTriggered( QAction* selectedItem )
+{
+    switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
+    {
+        default:
+        case contextMenu::CM_NONE: break;
+
+        case contextMenu::CM_SELECT_PAN:          panModeClicked();           break;
+        case contextMenu::CM_SELECT_VSLICE:       vSliceSelectModeClicked();  break;
+        case contextMenu::CM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
+        case contextMenu::CM_SELECT_AREA:         areaSelectModeClicked();    break;
+        case contextMenu::CM_SELECT_PROFILE:      profileSelectModeClicked(); break;
+    }
+}
+
+QCaImage::selectOptions QCaImage::getSelectionOption()
+{
+    if( videoWidget->getPanning() )
+    {
+        return SO_PANNING;
+    }
+    else
+    {
+        switch( videoWidget->getMode() )
+        {
+        case imageMarkup::MARKUP_MODE_V_LINE: return SO_VSLICE;
+        case imageMarkup::MARKUP_MODE_H_LINE: return SO_HSLICE;
+        case imageMarkup::MARKUP_MODE_AREA:   return SO_AREA;
+        case imageMarkup::MARKUP_MODE_LINE:   return SO_PROFILE;
+
+        default:
+        case imageMarkup::MARKUP_MODE_NONE:   return SO_NONE;
+
+        }
     }
 }

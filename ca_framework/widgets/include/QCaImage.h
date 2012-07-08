@@ -35,6 +35,7 @@
 #include <profilePlot.h>
 #include <zoomMenu.h>
 #include <flipRotateMenu.h>
+#include <selectMenu.h>
 
 
 #include <QCaPluginLibrary_global.h>
@@ -52,6 +53,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     bool isEnabled() const;
     void setEnabled( bool state );
+
+    enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA, SO_PROFILE };
+    selectOptions getSelectionOption();
 
     // Property convenience functions
 
@@ -194,6 +198,7 @@ private slots:
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
     void ShowContextMenu( const QPoint& );
+    void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
 
@@ -216,13 +221,6 @@ private slots:
 
     QGroupBox *roiGroup;
     QFrame *buttonGroup;
-
-    QGroupBox* areaSelectionGroup;
-    QRadioButton* panMode;
-    QRadioButton* vSliceSelectMode;
-    QRadioButton* hSliceSelectMode;
-    QRadioButton* areaSelectMode;
-    QRadioButton* profileSelectMode;
 
     QELabel* roiXQELabel;
     QLabel* roiXLabel;
@@ -253,6 +251,7 @@ private slots:
     QPushButton *saveButton;
     QPushButton *roiButton;
     QPushButton *resetRoiButton;
+    QPushButton *selectModeButton;
     QPushButton *zoomButton;
     QPushButton *flipRotateButton;
 
@@ -263,6 +262,7 @@ private slots:
 
     zoomMenu*       zMenu;
     flipRotateMenu* frMenu;
+    selectMenu*     sMenu;
 
     bool paused;
     bool showTimeEnabled;
@@ -280,8 +280,6 @@ private slots:
     void manageButtonBar();
     void manageInfoLayout();
     void manageRoiLayout();
-
-    void manageSelectionOptions();
 
     QCaDateTime imageTime;
     unsigned long imageDataSize;

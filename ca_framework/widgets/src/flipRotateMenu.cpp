@@ -47,7 +47,6 @@ contextMenu::contextMenuOptions flipRotateMenu::getFlipRotate( const QPoint& pos
 
 void flipRotateMenu::setChecked( const int rotation, const bool flipH, const bool flipV )
 {
-
     rotationNoneAction->setChecked( (QCaImage::rotationOptions)(rotation) == QCaImage::ROTATION_0        );
     rotation90RAction->setChecked ( (QCaImage::rotationOptions)(rotation) == QCaImage::ROTATION_90_RIGHT );
     rotation90LAction->setChecked ( (QCaImage::rotationOptions)(rotation) == QCaImage::ROTATION_90_LEFT  );

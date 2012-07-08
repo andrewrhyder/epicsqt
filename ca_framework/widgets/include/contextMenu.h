@@ -12,11 +12,6 @@ public:
 
 
     enum contextMenuOptions{ CM_NONE,
-                             CM_PAN,
-                             CM_VERT,
-                             CM_HOZ,
-                             CM_AREA,
-                             CM_LINE,
                              CM_SAVE,
                              CM_PAUSE,
                              CM_ENABLE_TIME,
@@ -44,7 +39,12 @@ public:
                              CM_ROTATE_LEFT,
                              CM_ROTATE_180,
                              CM_FLIP_HORIZONTAL,
-                             CM_FLIP_VERTICAL
+                             CM_FLIP_VERTICAL,
+                             CM_SELECT_PAN,
+                             CM_SELECT_HSLICE,
+                             CM_SELECT_VSLICE,
+                             CM_SELECT_AREA,
+                             CM_SELECT_PROFILE
                             };
 
 

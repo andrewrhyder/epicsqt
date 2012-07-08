@@ -134,6 +134,7 @@ HEADERS += \
     ../widgets/include/videowidget.h \
     ../widgets/include/contextMenu.h \
     ../widgets/include/flipRotateMenu.h \
+    ../widgets/include/selectMenu.h \
     ../widgets/include/zoomMenu.h \
     ../widgets/include/profilePlot.h \
     ../widgets/include/imageMarkup.h \
@@ -232,6 +233,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/videowidget.cpp \
     ../widgets/src/contextMenu.cpp \
     ../widgets/src/flipRotateMenu.cpp \
+    ../widgets/src/selectMenu.cpp \
     ../widgets/src/zoomMenu.cpp \
     ../widgets/src/profilePlot.cpp \
     ../widgets/src/imageMarkup.cpp \
