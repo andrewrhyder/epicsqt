@@ -354,9 +354,6 @@ void  QCaArchiveInterface::processOnePoint (const DataType dtype,
       //
       datum.alarm = QCaAlarmInfo (epicsAlarmSoft, epicsSevInvalid);
    }
-
-   enum archiveAlarmSeverity s;
-   s = (archiveAlarmSeverity) datum.alarm.getSeverity ();
 }
 
 
