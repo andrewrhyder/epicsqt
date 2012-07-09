@@ -96,6 +96,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
         QPushButton *qPushButtonRefresh;
         _QTableWidgetFileBrowser *qTableWidgetFileBrowser;
         QString fileFilter;
+        bool showFileExtension;
         int detailsLayout;
 
 
@@ -125,6 +126,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
         void setShowColumnFilename(bool pValue);
         bool getShowColumnFilename();
 
+        void setShowFileExtension(bool pValue);
+        bool getShowFileExtension();
+
         void setFileFilter(QString pValue);
         QString getFileFilter();
 
@@ -147,6 +151,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
         Q_PROPERTY(bool showColumnSize READ getShowColumnSize WRITE setShowColumnSize)
 
         Q_PROPERTY(bool showColumnFilename READ getShowColumnFilename WRITE setShowColumnFilename)
+
+        Q_PROPERTY(bool showFileExtension READ getShowFileExtension WRITE setShowFileExtension)
 
         Q_PROPERTY(QString fileFilter READ getFileFilter WRITE setFileFilter)
 

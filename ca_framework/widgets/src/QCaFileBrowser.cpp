@@ -71,6 +71,7 @@ QCaFileBrowser::QCaFileBrowser(QWidget *pParent):QWidget(pParent), QCaWidget( th
     qTableWidgetFileBrowser->setFont(qFont);
     QObject::connect(qTableWidgetFileBrowser, SIGNAL(itemActivated(QTableWidgetItem *)), this, SLOT(itemActivated(QTableWidgetItem *)));
 
+    setShowFileExtension(true);
     setFileFilter("");
     setDetailsLayout(TOP);
 
@@ -228,6 +229,24 @@ bool QCaFileBrowser::getShowColumnFilename()
 
 }
 
+
+
+void QCaFileBrowser::setShowFileExtension(bool pValue)
+{
+
+    showFileExtension = pValue;
+    updateTable();
+
+}
+
+
+
+bool QCaFileBrowser::getShowFileExtension()
+{
+
+    return showFileExtension;
+
+}
 
 
 
@@ -392,7 +411,14 @@ void QCaFileBrowser::updateTable()
         qTableWidgetItem = new QTableWidgetItem(QString::number(fileList.at(i).size()) + " bytes");
         qTableWidgetFileBrowser->setItem(j, 1, qTableWidgetItem);
 
-        qTableWidgetItem = new QTableWidgetItem(fileList.at(i).baseName());
+        if (showFileExtension)
+        {
+            qTableWidgetItem = new QTableWidgetItem(fileList.at(i).fileName());
+        }
+        else
+        {
+            qTableWidgetItem = new QTableWidgetItem(fileList.at(i).baseName());
+        }
         qTableWidgetFileBrowser->setItem(j, 2, qTableWidgetItem);
     }
 
@@ -452,7 +478,7 @@ void _QTableWidgetFileBrowser::refreshSize()
             {
                 sizeColumn0 = 0;
                 sizeColumn1 = 1 * this->width() / 5;
-                sizeColumn2 = 4 * this->width() / 5 - 1;
+                sizeColumn2 = 4 * this->width() / 5 - 2;
             }
         }
     }
@@ -470,7 +496,7 @@ void _QTableWidgetFileBrowser::refreshSize()
             {
                 sizeColumn0 = 1 * this->width() / 5;
                 sizeColumn1 = 0;
-                sizeColumn2 = 4 * this->width() / 5 - 1;
+                sizeColumn2 = 4 * this->width() / 5 - 2;
             }
         }
         else
@@ -478,14 +504,14 @@ void _QTableWidgetFileBrowser::refreshSize()
             if (this->isColumnHidden(2))
             {
                 sizeColumn0 = this->width() / 2;
-                sizeColumn1 = this->width() / 2 - 1;
+                sizeColumn1 = this->width() / 2 - 2;
                 sizeColumn2 = 0;
             }
             else
             {
                 sizeColumn0 = 1 * this->width() / 5;
                 sizeColumn1 = 1 * this->width() / 5;
-                sizeColumn2 = 3 * this->width() / 5 - 1;
+                sizeColumn2 = 3 * this->width() / 5 - 2;
             }
         }
     }
