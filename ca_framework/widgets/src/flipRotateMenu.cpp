@@ -3,28 +3,19 @@
 
 flipRotateMenu::flipRotateMenu( QWidget *parent) : QMenu(parent)
 {
-    QAction* a;
 
-    //!!! Set up a macro to do this table
-    a = new QAction( "No rotation",             this ); a->setData( contextMenu::CM_ROTATE_NONE     );
-    a->setCheckable( true ); addAction( a );        rotationNoneAction = a;
+#define NEW_FLIP_ROTATE_MENU_BUTTON( TITLE, ID, ACTION ) \
+    ACTION = new QAction( TITLE, this );                 \
+    ACTION->setData( contextMenu::ID );                  \
+    ACTION->setCheckable( true );                        \
+    addAction( ACTION );
 
-    a = new QAction( "Rotate 90 Clockwise",     this ); a->setData( contextMenu::CM_ROTATE_RIGHT    );
-    a->setCheckable( true ); addAction( a ); rotation90RAction = a;
-
-    a = new QAction( "Rotate 90 Anticlockwise", this ); a->setData( contextMenu::CM_ROTATE_LEFT     );
-    a->setCheckable( true );addAction( a );  rotation90LAction = a;
-
-    a = new QAction( "Rotate 180",              this ); a->setData( contextMenu::CM_ROTATE_180      );
-    a->setCheckable( true ); addAction( a );      rotation180Action = a;
-
-
-
-    a = new QAction( "Flip Horizontal",         this ); a->setData( contextMenu::CM_FLIP_HORIZONTAL );
-    a->setCheckable( true ); addAction( a ); flipHAction = a;
-
-    a = new QAction( "Flip Vertical",           this ); a->setData( contextMenu::CM_FLIP_VERTICAL   );
-    a->setCheckable( true ); addAction( a ); flipVAction = a;
+    NEW_FLIP_ROTATE_MENU_BUTTON( "No rotation",             CM_ROTATE_NONE,     rotationNoneAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 90 Clockwise",     CM_ROTATE_RIGHT,    rotation90RAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 90 Anticlockwise", CM_ROTATE_LEFT,     rotation90LAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 180",              CM_ROTATE_180,      rotation180Action )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Flip Horizontal",         CM_FLIP_HORIZONTAL, flipHAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Flip Vertical",           CM_FLIP_VERTICAL,   flipVAction )
 
     setTitle( "Flip / Rotate" );
 }
@@ -37,6 +28,7 @@ contextMenu::contextMenuOptions flipRotateMenu::getFlipRotate( const QPoint& pos
     if( selectedItem )
     {
         //!!! Doesn't return fliped state
+        qDebug() << (contextMenu::contextMenuOptions)(selectedItem->data().toInt());
         return (contextMenu::contextMenuOptions)(selectedItem->data().toInt());
     }
     else

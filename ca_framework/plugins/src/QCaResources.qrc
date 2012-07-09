@@ -20,5 +20,10 @@
         <file>QCaMotor.png</file>
         <file>QELabel.png</file>
         <file>QCaFileBrowser.png</file>
+        <file>play.png</file>
+        <file>pause.png</file>
+        <file>zoom.png</file>
+        <file>save.png</file>
+        <file>flipRotate.png</file>
     </qresource>
 </RCC>

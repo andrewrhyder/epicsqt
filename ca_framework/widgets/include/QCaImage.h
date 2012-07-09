@@ -315,8 +315,8 @@ private slots:
     QVector<QPointF> hSliceData;
     QVector<QPointF> profileData;
 
-    int getPixelValueFromData( const unsigned char* ptr, unsigned long dataSize );
-    double getFloatingPixelValueFromData( const unsigned char* ptr, unsigned long dataSize );
+    int getPixelValueFromData( const unsigned char* ptr );
+    double getFloatingPixelValueFromData( const unsigned char* ptr );
 
 
     unsigned int rotatedImageBuffWidth();
@@ -333,6 +333,10 @@ private slots:
     void zoomToArea();
     void setResizeOptionAndZoom( int zoomIn );
 
+    double maxPixelValue();
+
+    QIcon* pauseButtonIcon;
+    QIcon* playButtonIcon;
 
     // Drag and Drop
 protected:

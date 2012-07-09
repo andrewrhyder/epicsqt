@@ -4,12 +4,17 @@
 
 selectMenu::selectMenu( QWidget *parent) : QMenu(parent)
 {
-    //!! macro for this
-    actionPan     = new QAction( "Pan",              this ); actionPan    ->setData( contextMenu::CM_SELECT_PAN     ); addAction( actionPan     );
-    actionHSlice  = new QAction( "Horizontal slice", this ); actionHSlice ->setData( contextMenu::CM_SELECT_HSLICE  ); addAction( actionHSlice  );
-    actionVSlice  = new QAction( "Vertical slice",   this ); actionVSlice ->setData( contextMenu::CM_SELECT_VSLICE  ); addAction( actionVSlice  );
-    actionArea    = new QAction( "Area",             this ); actionArea   ->setData( contextMenu::CM_SELECT_AREA    ); addAction( actionArea    );
-    actionProfile = new QAction( "Line profile",     this ); actionProfile->setData( contextMenu::CM_SELECT_PROFILE ); addAction( actionProfile );
+#define NEW_SELECT_MENU_BUTTON( TITLE, ID, ACTION ) \
+    ACTION = new QAction( TITLE, this );            \
+    ACTION->setCheckable( true );                   \
+    ACTION ->setData( contextMenu::ID );            \
+    addAction( ACTION );
+
+    NEW_SELECT_MENU_BUTTON( "Pan",              CM_SELECT_PAN,     actionPan     )
+    NEW_SELECT_MENU_BUTTON( "Horizontal slice", CM_SELECT_HSLICE,  actionHSlice  )
+    NEW_SELECT_MENU_BUTTON( "Vertical slice",   CM_SELECT_VSLICE,  actionVSlice  )
+    NEW_SELECT_MENU_BUTTON( "Area",             CM_SELECT_AREA,    actionArea    )
+    NEW_SELECT_MENU_BUTTON( "Line profile",     CM_SELECT_PROFILE, actionProfile )
 
     setTitle( "Select" );
 }

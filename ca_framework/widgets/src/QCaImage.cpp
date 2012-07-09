@@ -37,6 +37,7 @@
 #include <QCaByteArray.h>
 #include <QCaInteger.h>
 #include <contextMenu.h>
+#include <QIcon>
 
 /*!
     Constructor with no initialisation
@@ -229,40 +230,50 @@ void QCaImage::setup() {
     buttonLayout->setMargin( 0 );
     buttonGroup->setLayout( buttonLayout );
 
-    pauseButton= new QPushButton(buttonGroup);
-    pauseButton->setText("Pause");
+    //!!! 'new' icons leak memory???
+
+    pauseButton = new QPushButton(buttonGroup);
+    pauseButtonIcon = new QIcon( ":/icons/pause.png" );
+    playButtonIcon = new QIcon( ":/icons/play.png" );
+    pauseButton->setIcon( *pauseButtonIcon );
     pauseButton->setToolTip("Pause image display");
     QObject::connect(pauseButton, SIGNAL(clicked()), this, SLOT(pauseClicked()));
 
     saveButton = new QPushButton(buttonGroup);
-    saveButton->setText("Save");
+    QIcon* saveButtonIcon = new QIcon( ":/icons/save.png" );
+    saveButton->setIcon( *saveButtonIcon );
     saveButton->setToolTip("Save displayed image");
     QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
 
     roiButton = new QPushButton(buttonGroup);
-    roiButton->setText("ROI");
+    QIcon* roiButtonIcon = new QIcon( ":/icons/ROI.png" );
+    roiButton->setIcon( *roiButtonIcon );
     roiButton->setToolTip("Apply selected area to Region Of Interest");
     roiButton->setEnabled( false );
     QObject::connect(roiButton, SIGNAL(clicked()), this, SLOT(roiClicked()));
 
     resetRoiButton = new QPushButton(buttonGroup);
-    resetRoiButton->setText("Reset ROI");
-    resetRoiButton->setToolTip("Apply selected area to Region Of Interest");
-    resetRoiButton->setEnabled( false );
+    QIcon* resetRoiButtonIcon = new QIcon( ":/icons/resetROI.png" );
+    resetRoiButton->setIcon( *resetRoiButtonIcon );
+    resetRoiButton->setToolTip("Reset Region Of Interest");
+    resetRoiButton->setEnabled( true );
     QObject::connect(resetRoiButton, SIGNAL(clicked()), this, SLOT(resetRoiClicked()));
 
     selectModeButton = new QPushButton(buttonGroup);
-    selectModeButton->setText("Select / Pan");
+    QIcon* selectModeButtonIcon = new QIcon( ":/icons/selectMode.png" );
+    selectModeButton->setIcon( *selectModeButtonIcon );
     selectModeButton->setToolTip("Choose selection and pan modes");
     selectModeButton->setMenu( sMenu );
 
     zoomButton = new QPushButton(buttonGroup);
-    zoomButton->setText("Zoom");
+    QIcon* zoomButtonIcon = new QIcon( ":/icons/zoom.png" );
+    zoomButton->setIcon( *zoomButtonIcon );
     zoomButton->setToolTip("Zoom options");
     zoomButton->setMenu( zMenu );
 
     flipRotateButton = new QPushButton(buttonGroup);
-    flipRotateButton->setText("Flip / rotate");
+    QIcon* flipRotateButtonIcon = new QIcon( ":/icons/flipRotate.png" );
+    flipRotateButton->setIcon( *flipRotateButtonIcon );
     flipRotateButton->setToolTip("Flip and rotate options");
     flipRotateButton->setMenu( frMenu );
 
@@ -323,6 +334,8 @@ void QCaImage::setup() {
 
     setDisplayCursorPixelInfo( displayCursorPixelInfo );
     setDisplayRegionOfInterest( displayRoiLayout );
+
+    panModeClicked();
 
 }
 
@@ -724,7 +737,7 @@ void QCaImage::setImageFile( QString name )
     QFileInfo fi( name );
     QCaDateTime time = fi.lastModified();
 
-    setEnabled( true );
+    scrollArea->setEnabled( true );
 
     imageBuffWidth = stdImage.width();
     imageBuffHeight = stdImage.height();
@@ -1003,13 +1016,13 @@ void QCaImage::pauseClicked()
 {
     if (paused)
     {
-        pauseButton->setText("Pause");
+        pauseButton->setIcon( *pauseButtonIcon );
         pauseButton->setToolTip("Pause image display");
         paused = false;
     }
     else
     {
-        pauseButton->setText("Resume");
+        pauseButton->setIcon( *playButtonIcon );
         pauseButton->setToolTip("Resume image display");
         paused = true;
     }
@@ -1526,14 +1539,26 @@ void QCaImage::generateVSlice( int xUnscaled )
     {
         pos.setY( i );
         vSliceData[i].setY( i );
-        vSliceData[i].setX( getFloatingPixelValueFromData( getImageDataPtr( pos ), imageDataSize ) );
+        vSliceData[i].setX( getFloatingPixelValueFromData( getImageDataPtr( pos ) ) );
         dataPtr += dataPtrStep;
     }
 
     // Display the profile
-    vSliceDisplay->setProfile( vSliceData, (double)(1<<(imageDataSize*8)), 0.0, (double)(vSliceData.size()), 0.0 );
+    vSliceDisplay->setProfile( vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0 );
 }
 
+double QCaImage::maxPixelValue()
+{
+    // Determine the maximum pixel value for the current format
+    switch( formatOption )
+    {
+        default:
+        case GREY8:  return (1<<8)-1;
+        case GREY16: return (1<<16)-1;
+        case GREY12: return (1<<12)-2;
+        case RGB_888:return (1<<8)-1;
+    }
+}
 // Return a pointer to pixel data in the original image data.
 // The position parameter is scaled to the original image size but reflects
 // the displayed rotation and flip options, so it must be transformed first.
@@ -1598,12 +1623,12 @@ void QCaImage::generateHSlice( int yUnscaled )
     {
         pos.setX( i );
         hSliceData[i].setX( i );
-        hSliceData[i].setY( getFloatingPixelValueFromData( getImageDataPtr( pos ), imageDataSize ) );
+        hSliceData[i].setY( getFloatingPixelValueFromData( getImageDataPtr( pos ) ) );
         dataPtr += dataPtrStep;
     }
 
     // Display the profile
-    hSliceDisplay->setProfile( hSliceData, 0.0, (double)(hSliceData.size()), 0.0, (double)(1<<(imageDataSize*8)) );
+    hSliceDisplay->setProfile( hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue() );
 }
 
 // Generate a profile along an arbitrary line through an image
@@ -1799,25 +1824,25 @@ void QCaImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
             value = 0;
             if( xTLi >= 0 && yTLi >= 0 )
             {
-                value += propTL * getFloatingPixelValueFromData( dataPtrTL, imageDataSize );
+                value += propTL * getFloatingPixelValueFromData( dataPtrTL );
                 pixelsInValue++;
             }
 
             if( xTLi+1 < rotatedImageBuffWidth() && yTLi >= 0 )
             {
-                value += propTR * getFloatingPixelValueFromData( dataPtrTR, imageDataSize );
+                value += propTR * getFloatingPixelValueFromData( dataPtrTR );
                 pixelsInValue++;
             }
 
             if( xTLi >= 0 && yTLi+1 < rotatedImageBuffHeight() )
             {
 
-                value += propBL * getFloatingPixelValueFromData( dataPtrBL, imageDataSize );
+                value += propBL * getFloatingPixelValueFromData( dataPtrBL );
                 pixelsInValue++;
             }
             if( xTLi+1 < rotatedImageBuffWidth() && yTLi+1 < rotatedImageBuffHeight() )
             {
-                value += propBR * getFloatingPixelValueFromData( dataPtrBR, imageDataSize );
+                value += propBR * getFloatingPixelValueFromData( dataPtrBR );
                 pixelsInValue++;
             }
 
@@ -1836,28 +1861,40 @@ void QCaImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
     }
 
     // Update the profile display
-    profileDisplay->setProfile( profileData, 0.0, (double)(profileData.size()), 0.0, (double)(1<<(imageDataSize*8)) );
+    profileDisplay->setProfile( profileData, 0.0, (double)(profileData.size()), 0.0,  maxPixelValue() );
 }
+
 //=================================================================================================
 
 
-// Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
-int QCaImage::getPixelValueFromData( const unsigned char* ptr, unsigned long dataSize )
+// Return a floating point number given a pointer into an image data buffer.
+// Note, the pointer is indexed according to the pixel data size which will be at least
+// big enough for the data format.
+int QCaImage::getPixelValueFromData( const unsigned char* ptr )
 {
     // Case the data to the correct size, then return the data as a floating point number.
-    switch( dataSize )
+    switch( formatOption )
     {
         default:
-        case 1: return *ptr;
-        case 2: return *(unsigned short*)ptr;
-        case 4: return *(unsigned int*)ptr;
+        case GREY8:
+            return *ptr;
+
+        case GREY16:
+            return *(unsigned short*)ptr;
+
+        case GREY12:
+            return *(unsigned short*)ptr;
+
+        case RGB_888:
+            unsigned int pixel = *(unsigned int*)ptr;
+            return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
     }
 }
 
 // Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
-double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr, unsigned long dataSize )
+double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr )
 {
-    return getPixelValueFromData( ptr, dataSize );
+    return getPixelValueFromData( ptr );
 }
 
 QPoint QCaImage::rotateFLipPoint( QPoint& pos )
@@ -1920,9 +1957,7 @@ void QCaImage::currentPixelInfo( QPoint pos )
     else
     {
         // Extract the pixel data from the original image data
-//        const unsigned char* data = (unsigned char*)image.constData();
-//        const unsigned char* dataPtr = &(data[(posTr.x()+ posTr.y()*w)*imageDataSize]);
-        int value = getPixelValueFromData( getImageDataPtr( pos ), imageDataSize );
+        int value = getPixelValueFromData( getImageDataPtr( pos ) );
         s.sprintf( "(%d,%d)=%d", pos.x(), pos.y(), value );
     }
     currentCursorPixelLabel->setText( s );
@@ -2155,6 +2190,11 @@ void QCaImage::flipRotateMenuTriggered( QAction* selectedItem )
         case contextMenu::CM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
         case contextMenu::CM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
     }
+
+    // Update the checked state of the buttons now the user has selected an option.
+    // Note, this is also called before displaying the menu to reflect any property
+    // changes from other sources
+    frMenu->setChecked( rotation, flipHoz, flipVert );
 }
 
 void QCaImage::selectMenuTriggered( QAction* selectedItem )
