@@ -939,7 +939,10 @@ void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )//event )
 
     // Tidy up the item.
     // In particular, normalise any rectangles
-    items[activeItem]->tidy();
+    if( activeItem != MARKUP_ID_NONE )
+    {
+        items[activeItem]->tidy();
+    }
 
     // Flag there is no longer an active item
     activeItem = MARKUP_ID_NONE;

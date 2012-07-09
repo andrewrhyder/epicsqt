@@ -90,12 +90,13 @@ void QCaImage::setup() {
     showTimeEnabled = false;
 
     enablePan = true;
-    enableAreaSelection = false;
+    enableAreaSelection = true;
     enableVSliceSelection = false;
     enableHSliceSelection = false;
     enableProfileSelection = false;
 
     displayCursorPixelInfo = false;
+    displayRoiLayout = false;
 
 //!!!all property variables initialised?
 
@@ -306,6 +307,23 @@ void QCaImage::setup() {
     // Image will not be presented until size is available
     imageBuffWidth = 0;
     imageBuffHeight = 0;
+
+
+    // Act on default property values
+    // Note, this resets them to their current value
+    showTimeEnabled = false;
+
+    setShowTime( showTimeEnabled );
+
+    setEnablePan( enablePan );
+    setEnableAreaSelection( enableAreaSelection );
+    setEnableVertSliceSelection( enableVSliceSelection );
+    setEnableHozSliceSelection( enableHSliceSelection );
+    setEnableProfileSelection( enableProfileSelection );
+
+    setDisplayCursorPixelInfo( displayCursorPixelInfo );
+    setDisplayRegionOfInterest( displayRoiLayout );
+
 }
 
 QCaImage::~QCaImage()
@@ -525,7 +543,7 @@ void QCaImage::displayImage()
     }
 
     // Set up input and output pointers and counters ready to process each pixel
-    const unsigned char* dataIn = (unsigned char*)image.data();
+    const unsigned char* dataIn = (unsigned char*)image.constData();
     unsigned int* dataOut = (unsigned int*)(imageBuff.data());
     unsigned long buffIndex = 0;
     unsigned long dataIndex = 0;
@@ -669,14 +687,53 @@ void QCaImage::displayImage()
     }
 
     // Generate a frame from the data
-    QImage frameImage( (uchar*)(imageBuff.data()), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32 );
+    //!! don't create new image!!!
+    QImage frameImage( (uchar*)(imageBuff.constData()), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32 );
+    useNewImage( frameImage );
+}
 
+void QCaImage::useNewImage( const QImage newImage )
+{
     // Display the new image
-    videoWidget->setNewImage( frameImage, imageTime );
+    videoWidget->setNewImage( newImage, imageTime );
 
     // Update markups if required
     updateMarkups();
 }
+
+void QCaImage::setImageFile( QString name )
+{
+    QImage image( name );
+//    useNewImage( image );
+
+    // Generate an array of image data so the mechanisms that normally work
+    // on the raw image waveform data have data to work on
+    QImage stdImage = image.convertToFormat( QImage::Format_RGB32 );
+    const uchar* iDataPtr = stdImage.constBits();
+    int iDataSize = stdImage.byteCount();
+
+    QByteArray baData;
+    baData.resize( iDataSize );
+    char* baDataPtr = baData.data();
+    for( int i = 0; i < iDataSize; i++ )
+    {
+        baDataPtr[i] = iDataPtr[i];
+    }
+    QCaAlarmInfo alarmInfo;
+
+    QFileInfo fi( name );
+    QCaDateTime time = fi.lastModified();
+
+    setEnabled( true );
+
+    imageBuffWidth = stdImage.width();
+    imageBuffHeight = stdImage.height();
+    setFormatOption( RGB_888 );
+    setImageBuff();
+
+    setImage( baData, 4, alarmInfo, time, 0 );
+}
+
 
 // Update markups if required
 void QCaImage::updateMarkups()
@@ -974,7 +1031,7 @@ void QCaImage::saveClicked()
     if (qFileDialog->exec())
     {
 
-        QImage qImage((uchar*) imageBuff.data(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
+        QImage qImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
         filename = qFileDialog->selectedFiles().at(0);
 
         if (qFileDialog->selectedNameFilter() == filterList.at(0))
@@ -1087,6 +1144,7 @@ void QCaImage::setFormatOption( formatOptions formatOptionIn )
     formatOption = formatOptionIn;
 
     // Resize and rescale
+    //!!! why is this needed??? is formatOption used by the video widget?
     setImageBuff();
 }
 
@@ -1456,7 +1514,7 @@ void QCaImage::generateVSlice( int xUnscaled )
         vSliceData.resize( rotatedImageBuffHeight() );
 
     // Set up to step pixel by pixel through the image data along the line
-    const unsigned char* data = (unsigned char*)image.data();
+    const unsigned char* data = (unsigned char*)image.constData();
     const unsigned char* dataPtr = &(data[x*imageDataSize]);
     int dataPtrStep = rotatedImageBuffWidth()*imageDataSize;
 
@@ -1486,7 +1544,7 @@ const unsigned char* QCaImage::getImageDataPtr( QPoint& pos )
     // Transform the position to reflect the original unrotated or flipped data
     posTr = rotateFLipPoint( pos );
 
-    const unsigned char* data = (unsigned char*)image.data();
+    const unsigned char* data = (unsigned char*)image.constData();
     return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*imageDataSize]);
 }
 
@@ -1529,7 +1587,7 @@ void QCaImage::generateHSlice( int yUnscaled )
         hSliceData.resize( rotatedImageBuffWidth() );
 
     // Set up to step pixel by pixel through the image data along the line
-    const unsigned char* data = (unsigned char*)image.data();
+    const unsigned char* data = (unsigned char*)image.constData();
     const unsigned char* dataPtr = &(data[y*rotatedImageBuffWidth()*imageDataSize]);
     int dataPtrStep = imageDataSize;
 
@@ -1862,7 +1920,7 @@ void QCaImage::currentPixelInfo( QPoint pos )
     else
     {
         // Extract the pixel data from the original image data
-//        const unsigned char* data = (unsigned char*)image.data();
+//        const unsigned char* data = (unsigned char*)image.constData();
 //        const unsigned char* dataPtr = &(data[(posTr.x()+ posTr.y()*w)*imageDataSize]);
         int value = getPixelValueFromData( getImageDataPtr( pos ), imageDataSize );
         s.sprintf( "(%d,%d)=%d", pos.x(), pos.y(), value );

@@ -201,6 +201,7 @@ private slots:
     void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
+    void setImageFile( QString name );
 
   signals:
     void dbValueChanged( const QString& out );
@@ -323,6 +324,7 @@ private slots:
 
 
     void displayImage();
+    void useNewImage( const QImage newImage );
     int getScanOption();
     QPoint rotateFLipPoint( QPoint& pos );
     const unsigned char* getImageDataPtr( QPoint& pos );
