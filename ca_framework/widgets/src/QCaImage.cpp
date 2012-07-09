@@ -246,21 +246,21 @@ void QCaImage::setup() {
     QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
 
     roiButton = new QPushButton(buttonGroup);
-    QIcon* roiButtonIcon = new QIcon( ":/icons/ROI.png" );
+    QIcon* roiButtonIcon = new QIcon( ":/icons/cameraROI.png" );
     roiButton->setIcon( *roiButtonIcon );
     roiButton->setToolTip("Apply selected area to Region Of Interest");
     roiButton->setEnabled( false );
     QObject::connect(roiButton, SIGNAL(clicked()), this, SLOT(roiClicked()));
 
     resetRoiButton = new QPushButton(buttonGroup);
-    QIcon* resetRoiButtonIcon = new QIcon( ":/icons/resetROI.png" );
+    QIcon* resetRoiButtonIcon = new QIcon( ":/icons/cameraROIreset.png" );
     resetRoiButton->setIcon( *resetRoiButtonIcon );
     resetRoiButton->setToolTip("Reset Region Of Interest");
     resetRoiButton->setEnabled( true );
     QObject::connect(resetRoiButton, SIGNAL(clicked()), this, SLOT(resetRoiClicked()));
 
     selectModeButton = new QPushButton(buttonGroup);
-    QIcon* selectModeButtonIcon = new QIcon( ":/icons/selectMode.png" );
+    QIcon* selectModeButtonIcon = new QIcon( ":/icons/select.png" );
     selectModeButton->setIcon( *selectModeButtonIcon );
     selectModeButton->setToolTip("Choose selection and pan modes");
     selectModeButton->setMenu( sMenu );

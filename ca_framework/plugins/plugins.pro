@@ -48,7 +48,15 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/record_field_list.txt \
     src/QCaLog.png \
     src/QCaMotor.png \
-    src/QCaFileBrowser.png
+    src/QCaFileBrowser.png \
+    src/cameraROI.png \
+    src/cameraROIreset.png \
+    src/flipRotate.png \
+    src/pause.png \
+    src/play.png \
+    src/save.png \
+    src/select.png \
+    src/zoom.png
 
 HEADERS += \
     include/QCaPluginLibrary_global.h \

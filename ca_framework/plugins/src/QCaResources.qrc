@@ -25,5 +25,8 @@
         <file>zoom.png</file>
         <file>save.png</file>
         <file>flipRotate.png</file>
+        <file>cameraROI.png</file>
+        <file>cameraROIreset.png</file>
+        <file>select.png</file>
     </qresource>
 </RCC>
