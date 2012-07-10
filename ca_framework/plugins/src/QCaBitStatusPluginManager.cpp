@@ -91,7 +91,7 @@ QString QCaBitStatusPluginManager::group () const
 */
 QIcon QCaBitStatusPluginManager::icon () const
 {
-   return QIcon ("");
+   return QIcon (":/qe/bitstatus/icon.png");
 }
 
 /*!

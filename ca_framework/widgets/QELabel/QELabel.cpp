@@ -49,10 +49,6 @@ QELabel::QELabel( const QString &variableNameIn, QWidget *parent ) : QLabel( par
 */
 void QELabel::setup() {
 
-    /// Set up a connection to recieve variable name property changes
-    /// The variable name property manager class only delivers an updated variable name after the user has stopped typing
-    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
-
     // Set up data
     // This control used a single data source
     setNumVariables(1);
@@ -72,6 +68,11 @@ void QELabel::setup() {
 //    defaultStyleSheet = styleSheet();
     // Use label signals
     // --Currently none--
+
+    /// Set up a connection to recieve variable name property changes
+    /// The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
+
 }
 
 /*!

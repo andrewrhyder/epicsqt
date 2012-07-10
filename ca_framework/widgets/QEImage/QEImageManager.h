@@ -22,8 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCAIMAGEPLUGINMANAGER_H
-#define QCAIMAGEPLUGINMANAGER_H
+#ifndef QEIMAGEMANAGER_H
+#define QEIMAGEMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
@@ -31,12 +31,12 @@
 /*!
     ???
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaImagePluginManager : public QObject, public QDesignerCustomWidgetInterface {
+class QCAPLUGINLIBRARYSHARED_EXPORT QEImageManager : public QObject, public QDesignerCustomWidgetInterface {
      Q_OBJECT
      Q_INTERFACES(QDesignerCustomWidgetInterface)
 
   public:
-    QCaImagePluginManager( QObject *parent = 0 );
+    QEImageManager( QObject *parent = 0 );
 
     bool isContainer() const;
     bool isInitialized() const;
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImagePluginManager : public QObject, publ
     bool initialized;
 };
 
-#endif /// QCAIMAGEPLUGINMANAGER_H
+#endif /// QEIMAGEMANAGER_H

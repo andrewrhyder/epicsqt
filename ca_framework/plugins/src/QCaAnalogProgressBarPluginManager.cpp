@@ -75,7 +75,7 @@ QString QCaAnalogProgressBarPluginManager::group() const {
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaAnalogProgressBarPluginManager::icon() const {
-    return QIcon("");
+    return QIcon(":/qe/analogprogressbar/icon.png");
 }
 
 /*!

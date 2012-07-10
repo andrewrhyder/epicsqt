@@ -145,6 +145,8 @@ HEADERS += \
 # common properties
 HEADERS += \
     ../widgets/include/singleVariableProperties.inc \
+    ../widgets/include/multipleVariablePropertiesBase.inc \
+    ../widgets/include/multipleVariablePropertiesTail.inc \
     ../widgets/include/standardProperties.inc \
     ../widgets/include/stringProperties.inc
 
@@ -465,10 +467,10 @@ FORMS += \
     ../widgets/QEStripChart/QEStripChartItemDialog.ui \
 
 #===========================================================
-# QCaImage
+# QEImage
 #
 OTHER_FILES += \
-    ../widgets/QEImage/QCaImage.png  \
+    ../widgets/QEImage/QEImage.png  \
     ../widgets/QEImage/cameraROI.png \
     ../widgets/QEImage/cameraROIreset.png \
     ../widgets/QEImage/flipRotate.png \
@@ -486,22 +488,20 @@ HEADERS += \
     ../widgets/QEImage/flipRotateMenu.h \
     ../widgets/QEImage/imageMarkup.h \
     ../widgets/QEImage/profilePlot.h \
-    ../widgets/QEImage/QCaImage.h \
-    ../widgets/QEImage/QCaImagePlugin.h \
-    ../widgets/QEImage/QCaImagePluginManager.h \
+    ../widgets/QEImage/QEImage.h \
+    ../widgets/QEImage/QEImageManager.h \
     ../widgets/QEImage/selectMenu.h \
     ../widgets/QEImage/videowidget.h \
     ../widgets/QEImage/zoomMenu.h
 
 SOURCES += \
-    ../widgets/QEImage/QCaImage.cpp \
-    ../widgets/QEImage/QCaImagePluginManager.cpp \
+    ../widgets/QEImage/QEImage.cpp \
+    ../widgets/QEImage/QEImageManager.cpp \
     ../widgets/QEImage/contextMenu.cpp \
     ../widgets/QEImage/imageMarkup.cpp \
     ../widgets/QEImage/videowidget.cpp \
     ../widgets/QEImage/flipRotateMenu.cpp \
     ../widgets/QEImage/profilePlot.cpp \
-    ../widgets/QEImage/QCaImagePlugin.cpp \
     ../widgets/QEImage/selectMenu.cpp \
     ../widgets/QEImage/zoomMenu.cpp
 
@@ -529,7 +529,7 @@ isEmpty( _QWT_INCLUDE_PATH ) {
 }
 
 INCLUDEPATH += \
-    /usr/include/qwt \
+    $$(QWT_INCLUDE_PATH)
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 LIBS += -lqwt

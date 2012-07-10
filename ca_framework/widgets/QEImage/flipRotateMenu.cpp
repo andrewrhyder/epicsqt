@@ -1,5 +1,5 @@
 #include "flipRotateMenu.h"
-#include "QCaImage.h"
+#include "QEImage.h"
 
 flipRotateMenu::flipRotateMenu( QWidget *parent) : QMenu(parent)
 {
@@ -39,10 +39,10 @@ contextMenu::contextMenuOptions flipRotateMenu::getFlipRotate( const QPoint& pos
 
 void flipRotateMenu::setChecked( const int rotation, const bool flipH, const bool flipV )
 {
-    rotationNoneAction->setChecked( (QCaImage::rotationOptions)(rotation) == QCaImage::ROTATION_0        );
-    rotation90RAction->setChecked ( (QCaImage::rotationOptions)(rotation) == QCaImage::ROTATION_90_RIGHT );
-    rotation90LAction->setChecked ( (QCaImage::rotationOptions)(rotation) == QCaImage::ROTATION_90_LEFT  );
-    rotation180Action->setChecked ( (QCaImage::rotationOptions)(rotation) == QCaImage::ROTATION_180      );
+    rotationNoneAction->setChecked( (QEImage::rotationOptions)(rotation) == QEImage::ROTATION_0        );
+    rotation90RAction->setChecked ( (QEImage::rotationOptions)(rotation) == QEImage::ROTATION_90_RIGHT );
+    rotation90LAction->setChecked ( (QEImage::rotationOptions)(rotation) == QEImage::ROTATION_90_LEFT  );
+    rotation180Action->setChecked ( (QEImage::rotationOptions)(rotation) == QEImage::ROTATION_180      );
     flipHAction->setChecked( flipH );
     flipVAction->setChecked( flipV );
 }

@@ -1,5 +1,5 @@
 #include "selectMenu.h"
-#include "QCaImage.h"
+#include "QEImage.h"
 #include <QAction>
 
 selectMenu::selectMenu( QWidget *parent) : QMenu(parent)
@@ -36,11 +36,11 @@ contextMenu::contextMenuOptions selectMenu::getSelectOption( const QPoint& pos )
 
 void selectMenu::setChecked( const int mode )
 {
-    actionPan    ->setChecked( (QCaImage::selectOptions)(mode) == QCaImage::SO_PANNING );
-    actionHSlice ->setChecked( (QCaImage::selectOptions)(mode) == QCaImage::SO_HSLICE );
-    actionVSlice ->setChecked( (QCaImage::selectOptions)(mode) == QCaImage::SO_VSLICE );
-    actionArea   ->setChecked( (QCaImage::selectOptions)(mode) == QCaImage::SO_AREA );
-    actionProfile->setChecked( (QCaImage::selectOptions)(mode) == QCaImage::SO_PROFILE );
+    actionPan    ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_PANNING );
+    actionHSlice ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_HSLICE );
+    actionVSlice ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_VSLICE );
+    actionArea   ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_AREA );
+    actionProfile->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_PROFILE );
 }
 
 void selectMenu::setPanEnabled( bool enablePan )

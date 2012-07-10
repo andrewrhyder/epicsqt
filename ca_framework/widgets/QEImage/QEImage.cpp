@@ -33,7 +33,7 @@
   User interaction and drawing markups over the image (such as selecting an area) is managed by the imageMarkup class.
  */
 
-#include <QCaImage.h>
+#include <QEImage.h>
 #include <QCaByteArray.h>
 #include <QCaInteger.h>
 #include <contextMenu.h>
@@ -42,14 +42,14 @@
 /*!
     Constructor with no initialisation
 */
-QCaImage::QCaImage( QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
+QEImage::QEImage( QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaImage::QCaImage( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QCaWidget( this )  {
+QEImage::QEImage( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QCaWidget( this )  {
     setup();
     setVariableName( variableNameIn, 0 );
 }
@@ -57,14 +57,14 @@ QCaImage::QCaImage( const QString &variableNameIn, QWidget *parent ) : QFrame( p
 /*!
     Setup common to all constructors
 */
-void QCaImage::setup() {
+void QEImage::setup() {
 
     // Set up data
     // This control uses the following data sources:
     //  - image
     //  - width
     //  - height
-    setNumVariables( QCAIMAGE_NUM_VARIABLES );
+    setNumVariables( QEIMAGE_NUM_VARIABLES );
 
     // Set up default properties
     caEnabled = true;
@@ -346,9 +346,19 @@ void QCaImage::setup() {
 
     panModeClicked();
 
+    //!! move this functionality into QCaWidget???
+    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    // for each variable name property manager, set up an index to identify it when it signals and
+    // set up a connection to recieve variable name property changes.
+    // The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    for( int i = 0; i < QEIMAGE_NUM_VARIABLES; i++ )
+    {
+        variableNamePropertyManagers[i].setVariableIndex( i );
+        QObject::connect( &variableNamePropertyManagers[i], SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int ) ) );
+    }
 }
 
-QCaImage::~QCaImage()
+QEImage::~QEImage()
 {
     delete videoWidget;
 
@@ -357,7 +367,7 @@ QCaImage::~QCaImage()
 /*!
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
 */
-qcaobject::QCaObject* QCaImage::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
 
     switch( variableIndex )
     {
@@ -403,7 +413,7 @@ qcaobject::QCaObject* QCaImage::createQcaItem( unsigned int variableIndex ) {
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
 */
-void QCaImage::establishConnection( unsigned int variableIndex ) {
+void QEImage::establishConnection( unsigned int variableIndex ) {
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -451,7 +461,7 @@ void QCaImage::establishConnection( unsigned int variableIndex ) {
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
-void QCaImage::updateToolTip( const QString& tip )
+void QEImage::updateToolTip( const QString& tip )
 {
     setToolTip( tip );
 }
@@ -461,7 +471,7 @@ void QCaImage::updateToolTip( const QString& tip )
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QCaImage::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
     /// If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
@@ -487,7 +497,7 @@ void QCaImage::connectionChanged( QCaConnectionInfo& connectionInfo )
     Update the image dimensions
     This is the slot used to recieve data updates from a QCaObject based class.
  */
-void QCaImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
 {
     // Update image size variable
     switch( variableIndex )
@@ -519,7 +529,7 @@ void QCaImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDate
         Note: Drawing into a QImage with QImage::Format_Indexed8 is not supported.
         Note: Do not render into ARGB32 images using QPainter. Using QImage::Format_ARGB32_Premultiplied is significantly faster.
  */
-void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time, const unsigned int& )
+void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time, const unsigned int& )
 {
     // If the display is paused, do nothing
     if (paused)
@@ -546,7 +556,7 @@ void QCaImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaA
     }
 }
 
-void QCaImage::displayImage()
+void QEImage::displayImage()
 {
     // Do nothing if there are no image dimensions yet
     if( !imageBuffWidth || !imageBuffHeight )
@@ -719,7 +729,7 @@ void QCaImage::displayImage()
     updateMarkups();
 }
 
-void QCaImage::setImageFile( QString name )
+void QEImage::setImageFile( QString name )
 {
     // Generate an image given the filename
     QImage image( name );
@@ -758,7 +768,7 @@ void QCaImage::setImageFile( QString name )
 
 
 // Update markups if required
-void QCaImage::updateMarkups()
+void QEImage::updateMarkups()
 {
     if( haveVSliceX )
     {
@@ -779,7 +789,7 @@ void QCaImage::updateMarkups()
 }
 
 // Set the image buffer used for generate images will be large enough to hold the processed image
-void QCaImage::setImageBuff()
+void QEImage::setImageBuff()
 {
     // Do nothing if there are no image dimensions yet
     if( !imageBuffWidth || !imageBuffHeight )
@@ -806,7 +816,7 @@ void QCaImage::setImageBuff()
 
 //        // Resize the QCaItem to exactly fit the image
 //        case SIZE_OPTION_RESIZE:
-//            // The top level QFrame of the QCaImage needs to be resized, so rather
+//            // The top level QFrame of the QEImage needs to be resized, so rather
 //            // than determine how large it needs to be to fit the image and whatever
 //            // extra is taken up with borders and info widgets, just calculate how
 //            // much bigger or smaller the current scroll area widget neesds to be
@@ -832,7 +842,7 @@ void QCaImage::setImageBuff()
 /*!
    Override the default widget isEnabled to allow alarm states to override current enabled state
  */
-bool QCaImage::isEnabled() const
+bool QEImage::isEnabled() const
 {
     /// Return what the state of widget would be if connected.
     return caEnabled;
@@ -841,7 +851,7 @@ bool QCaImage::isEnabled() const
 /*!
    Override the default widget setEnabled to allow alarm states to override current enabled state
  */
-void QCaImage::setEnabled( bool state )
+void QEImage::setEnabled( bool state )
 {
     /// Note the new 'enabled' state
     caEnabled = state;
@@ -854,7 +864,7 @@ void QCaImage::setEnabled( bool state )
 /*!
    Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
  */
-void QCaImage::requestEnabled( const bool& state )
+void QEImage::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
@@ -862,7 +872,7 @@ void QCaImage::requestEnabled( const bool& state )
 //=================================================================================================
 
 // Add or remove the button bar
-void QCaImage::manageButtonBar()
+void QEImage::manageButtonBar()
 {
     if( displayButtonBar )
     {
@@ -875,7 +885,7 @@ void QCaImage::manageButtonBar()
 }
 
 // Add or remove the pixel information layout
-void QCaImage::manageInfoLayout()
+void QEImage::manageInfoLayout()
 {
     //!!! does nothing as infoLayout has no children
     //!!! show and hide all widgets in infoLayout directly
@@ -916,7 +926,7 @@ void QCaImage::manageInfoLayout()
 }
 
 // Add or remove the region of interest layout
-void QCaImage::manageRoiLayout()
+void QEImage::manageRoiLayout()
 {
     if( displayRoiLayout )
     {
@@ -929,7 +939,7 @@ void QCaImage::manageRoiLayout()
 }
 
 // Zoom to the area selected on the image
-void QCaImage::zoomToArea()
+void QEImage::zoomToArea()
 {
     // Determine the x and y zoom factors for the selected area
     // (the user is most likely to have selected an area with an
@@ -977,7 +987,7 @@ void QCaImage::zoomToArea()
 }
 
 // Reset ROI apply button pressed
-void QCaImage::resetRoiClicked()
+void QEImage::resetRoiClicked()
 {
     // Write the ROI variables, setting them to the limits of the image.
     QCaInteger *qca;
@@ -997,7 +1007,7 @@ void QCaImage::resetRoiClicked()
 }
 
 // ROI apply button pressed
-void QCaImage::roiClicked()
+void QEImage::roiClicked()
 {
     // Disable the ROI button now it has been applied
     // !!! should be disabled when the area stops being selected. It's OK for the zoom to be disabled when pressed, but there is no reason why the current ROI can't be reapplied
@@ -1021,7 +1031,7 @@ void QCaImage::roiClicked()
 }
 
 // Pause button pressed
-void QCaImage::pauseClicked()
+void QEImage::pauseClicked()
 {
     if (paused)
     {
@@ -1038,7 +1048,7 @@ void QCaImage::pauseClicked()
 }
 
 // Save button pressed
-void QCaImage::saveClicked()
+void QEImage::saveClicked()
 {
     QFileDialog *qFileDialog;
     QStringList filterList;
@@ -1086,21 +1096,21 @@ void QCaImage::saveClicked()
 
 }
 
-// Update the video widget if the QCaImage has changed
-void QCaImage::resizeEvent(QResizeEvent* )
+// Update the video widget if the QEImage has changed
+void QEImage::resizeEvent(QResizeEvent* )
 {
     setImageBuff();
 }
 
 //==============================================================================
 // Drag drop
-void QCaImage::setDropText( QString text )
+void QEImage::setDropText( QString text )
 {
     setVariableName( text, 0 );
     establishConnection( 0 );
 }
 
-QString QCaImage::getDropText()
+QString QEImage::getDropText()
 {
     return getSubstitutedVariableName(0);
 }
@@ -1111,24 +1121,24 @@ QString QCaImage::getDropText()
 
 // Access functions for variableName and variableNameSubstitutions
 // variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void QCaImage::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
+void QEImage::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
     establishConnection( variableIndex );
 }
 
 // variable as tool tip
-void QCaImage::setVariableAsToolTip( bool variableAsToolTipIn )
+void QEImage::setVariableAsToolTip( bool variableAsToolTipIn )
 {
     variableAsToolTip = variableAsToolTipIn;
 }
-bool QCaImage::getVariableAsToolTip()
+bool QEImage::getVariableAsToolTip()
 {
     return variableAsToolTip;
 }
 
 // visible (widget is visible outside 'Designer')
-void QCaImage::setRunVisible( bool visibleIn )
+void QEImage::setRunVisible( bool visibleIn )
 {
     // Update the property
     caVisible = visibleIn;
@@ -1142,25 +1152,25 @@ void QCaImage::setRunVisible( bool visibleIn )
     }
 
 }
-bool QCaImage::getRunVisible()
+bool QEImage::getRunVisible()
 {
     return caVisible;
 }
 
 // allow drop (Enable/disable as a drop site for drag and drop)
-void QCaImage::setAllowDrop( bool allowDropIn )
+void QEImage::setAllowDrop( bool allowDropIn )
 {
     allowDrop = allowDropIn;
     setAcceptDrops( allowDrop );
 }
 
-bool QCaImage::getAllowDrop()
+bool QEImage::getAllowDrop()
 {
     return allowDrop;
 }
 
 // Allow user to set the video format
-void QCaImage::setFormatOption( formatOptions formatOptionIn )
+void QEImage::setFormatOption( formatOptions formatOptionIn )
 {
     // Save the option
     formatOption = formatOptionIn;
@@ -1170,12 +1180,12 @@ void QCaImage::setFormatOption( formatOptions formatOptionIn )
     setImageBuff();
 }
 
-QCaImage::formatOptions QCaImage::getFormatOption()
+QEImage::formatOptions QEImage::getFormatOption()
 {
     return formatOption;
 }
 
-void QCaImage::setResizeOptionAndZoom( int zoomIn )
+void QEImage::setResizeOptionAndZoom( int zoomIn )
 {
 
     //!!! do each of the following two lines call setImageBuff()???
@@ -1184,7 +1194,7 @@ void QCaImage::setResizeOptionAndZoom( int zoomIn )
 }
 
 // Zoom level
-void QCaImage::setZoom( int zoomIn )
+void QEImage::setZoom( int zoomIn )
 {
     // Save the zoom
     // (Limit to 10 - 400 %)
@@ -1199,13 +1209,13 @@ void QCaImage::setZoom( int zoomIn )
     setImageBuff();
 }
 
-int QCaImage::getZoom()
+int QEImage::getZoom()
 {
     return zoom;
 }
 
 // Rotation
-void QCaImage::setRotation( rotationOptions rotationIn )
+void QEImage::setRotation( rotationOptions rotationIn )
 {
     // save the rotation requested
     rotation = rotationIn;
@@ -1217,13 +1227,13 @@ void QCaImage::setRotation( rotationOptions rotationIn )
     displayImage();
 }
 
-QCaImage::rotationOptions QCaImage::getRotation()
+QEImage::rotationOptions QEImage::getRotation()
 {
     return rotation;
 }
 
 // Horizontal flip
-void QCaImage::setHorizontalFlip( bool flipHozIn )
+void QEImage::setHorizontalFlip( bool flipHozIn )
 {
     flipHoz = flipHozIn;
 
@@ -1231,13 +1241,13 @@ void QCaImage::setHorizontalFlip( bool flipHozIn )
     displayImage();
 }
 
-bool QCaImage::getHorizontalFlip()
+bool QEImage::getHorizontalFlip()
 {
     return flipHoz;
 }
 
 // Vertical flip
-void QCaImage::setVerticalFlip( bool flipVertIn )
+void QEImage::setVerticalFlip( bool flipVertIn )
 {
     flipVert = flipVertIn;
 
@@ -1245,7 +1255,7 @@ void QCaImage::setVerticalFlip( bool flipVertIn )
     displayImage();
 }
 
-bool QCaImage::getVerticalFlip()
+bool QEImage::getVerticalFlip()
 {
     return flipVert;
 }
@@ -1253,7 +1263,7 @@ bool QCaImage::getVerticalFlip()
 
 
 // Resize options
-void QCaImage::setResizeOption( resizeOptions resizeOptionIn )
+void QEImage::setResizeOption( resizeOptions resizeOptionIn )
 {
     // Save the resize option
     resizeOption = resizeOptionIn;
@@ -1265,152 +1275,152 @@ void QCaImage::setResizeOption( resizeOptions resizeOptionIn )
     displayImage();
 }
 
-QCaImage::resizeOptions QCaImage::getResizeOption()
+QEImage::resizeOptions QEImage::getResizeOption()
 {
     return resizeOption;
 }
 
 // Initial vorizontal scroll position
-void QCaImage::setInitialHozScrollPos( int initialHozScrollPosIn )
+void QEImage::setInitialHozScrollPos( int initialHozScrollPosIn )
 {
     initialHozScrollPos = initialHozScrollPosIn;
     scrollArea->horizontalScrollBar()->setValue( initialHozScrollPos );
 }
 
-int QCaImage::getInitialHozScrollPos()
+int QEImage::getInitialHozScrollPos()
 {
     return initialHozScrollPos;
 }
 
 // Initial vertical scroll position
-void QCaImage::setInitialVertScrollPos( int initialVertScrollPosIn )
+void QEImage::setInitialVertScrollPos( int initialVertScrollPosIn )
 {
     initialVertScrollPos = initialVertScrollPosIn;
     scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
 }
 
-int QCaImage::getInitialVertScrollPos()
+int QEImage::getInitialVertScrollPos()
 {
     return initialVertScrollPos;
 }
 
 // Display the region of interest values
-void QCaImage::setDisplayRegionOfInterest( bool displayRoiLayoutIn )
+void QEImage::setDisplayRegionOfInterest( bool displayRoiLayoutIn )
 {
     displayRoiLayout = displayRoiLayoutIn;
     manageRoiLayout();
 }
 
-bool QCaImage::getDisplayRegionOfInterest()
+bool QEImage::getDisplayRegionOfInterest()
 {
     return displayRoiLayout;
 }
 
 // Display the exposure time
-void QCaImage::setDisplayButtonBar( bool displayButtonBarIn )
+void QEImage::setDisplayButtonBar( bool displayButtonBarIn )
 {
     displayButtonBar = displayButtonBarIn;
     manageButtonBar();
 }
 
-bool QCaImage::getDisplayButtonBar()
+bool QEImage::getDisplayButtonBar()
 {
     return displayButtonBar;
 }
 
 // Show time
-void QCaImage::setShowTime(bool pValue)
+void QEImage::setShowTime(bool pValue)
 {
     videoWidget->setShowTime( pValue );
 }
 
-bool QCaImage::getShowTime()
+bool QEImage::getShowTime()
 {
     return videoWidget->getShowTime();
 }
 
 // Markup colour
-void QCaImage::setMarkupColor(QColor markupColor )
+void QEImage::setMarkupColor(QColor markupColor )
 {
     videoWidget->setMarkupColor( markupColor );
 }
 
-QColor QCaImage::getMarkupColor()
+QColor QEImage::getMarkupColor()
 {
     return videoWidget->getMarkupColor();
 }
 
 // Show cursor pixel
-void QCaImage::setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn )
+void QEImage::setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn )
 {
     displayCursorPixelInfo = displayCursorPixelInfoIn;
     manageInfoLayout();
 }
 
-bool QCaImage::getDisplayCursorPixelInfo(){
+bool QEImage::getDisplayCursorPixelInfo(){
     return displayCursorPixelInfo;
 }
 
 // Enable vertical slice selection
-void QCaImage::setEnableVertSliceSelection( bool enableVSliceSelectionIn )
+void QEImage::setEnableVertSliceSelection( bool enableVSliceSelectionIn )
 {
     enableVSliceSelection = enableVSliceSelectionIn;
     sMenu->setVSliceEnabled( enableVSliceSelection );
     vSliceDisplay->setVisible( enableVSliceSelection );
 }
 
-bool QCaImage::getEnableVertSliceSelection()
+bool QEImage::getEnableVertSliceSelection()
 {
     return enableVSliceSelection;
 }
 
 // Enable horizontal slice selection
-void QCaImage::setEnableHozSliceSelection( bool enableHSliceSelectionIn )
+void QEImage::setEnableHozSliceSelection( bool enableHSliceSelectionIn )
 {
     enableHSliceSelection = enableHSliceSelectionIn;
     sMenu->setHSlicetEnabled( enableHSliceSelection );
     hSliceDisplay->setVisible(enableHSliceSelection );
 }
 
-bool QCaImage::getEnableHozSliceSelection()
+bool QEImage::getEnableHozSliceSelection()
 {
     return enableHSliceSelection;
 }
 
 // Enable panning
-void QCaImage::setEnablePan( bool enablePanIn )
+void QEImage::setEnablePan( bool enablePanIn )
 {
     enablePan = enablePanIn;
     sMenu->setPanEnabled( enablePan );
 
 }
 
-bool QCaImage::getEnablePan()
+bool QEImage::getEnablePan()
 {
     return enablePan;
 }
 
 // Enable area selection (used for ROI and zoom)
-void QCaImage::setEnableAreaSelection( bool enableAreaSelectionIn )
+void QEImage::setEnableAreaSelection( bool enableAreaSelectionIn )
 {
     enableAreaSelection = enableAreaSelectionIn;
     sMenu->setAreaEnabled( enableAreaSelection );
 }
 
-bool QCaImage::getEnableAreaSelection()
+bool QEImage::getEnableAreaSelection()
 {
     return enableAreaSelection;
 }
 
 // Enable profile selection
-void QCaImage::setEnableProfileSelection( bool enableProfileSelectionIn )
+void QEImage::setEnableProfileSelection( bool enableProfileSelectionIn )
 {
     enableProfileSelection = enableProfileSelectionIn;
     sMenu->setProfileEnabled( enableProfileSelection );
     profileDisplay->setVisible( enableProfileSelection );
 }
 
-bool QCaImage::getEnableProfileSelection()
+bool QEImage::getEnableProfileSelection()
 {
     return enableProfileSelection;
 }
@@ -1418,31 +1428,31 @@ bool QCaImage::getEnableProfileSelection()
 //=================================================================================================
 
 
-void QCaImage::panModeClicked()
+void QEImage::panModeClicked()
 {
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_NONE );
     videoWidget->setPanning( true );
 }
 
-void QCaImage::vSliceSelectModeClicked()
+void QEImage::vSliceSelectModeClicked()
 {
     videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_V_LINE );
 }
 
-void QCaImage::hSliceSelectModeClicked()
+void QEImage::hSliceSelectModeClicked()
 {
     videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_H_LINE );
 }
 
-void QCaImage::areaSelectModeClicked()
+void QEImage::areaSelectModeClicked()
 {
     videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_AREA );
 }
 
-void QCaImage::profileSelectModeClicked()
+void QEImage::profileSelectModeClicked()
 {
     videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE );
@@ -1450,7 +1460,7 @@ void QCaImage::profileSelectModeClicked()
 
 //=================================================================================================
 
-void QCaImage::zoomInOut( int zoomAmount )
+void QEImage::zoomInOut( int zoomAmount )
 {
     setResizeOption( RESIZE_OPTION_ZOOM );
     double oldZoom = zoom;
@@ -1469,7 +1479,7 @@ void QCaImage::zoomInOut( int zoomAmount )
 
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
-void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 )
+void QEImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 )
 {
     switch( mode )
     {
@@ -1513,7 +1523,7 @@ void QCaImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoi
 
 // Generate a profile along a line down an image at a given X position
 // The profile contains values for each pixel intersected by the line.
-void QCaImage::generateVSlice( int xUnscaled )
+void QEImage::generateVSlice( int xUnscaled )
 {
     // Scale the ordinate to the original image data
     int x = videoWidget->scaleOrdinate( xUnscaled );
@@ -1556,7 +1566,7 @@ void QCaImage::generateVSlice( int xUnscaled )
     vSliceDisplay->setProfile( vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0 );
 }
 
-double QCaImage::maxPixelValue()
+double QEImage::maxPixelValue()
 {
     // Determine the maximum pixel value for the current format
     switch( formatOption )
@@ -1571,7 +1581,7 @@ double QCaImage::maxPixelValue()
 // Return a pointer to pixel data in the original image data.
 // The position parameter is scaled to the original image size but reflects
 // the displayed rotation and flip options, so it must be transformed first.
-const unsigned char* QCaImage::getImageDataPtr( QPoint& pos )
+const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
 {
     QPoint posTr;
 
@@ -1582,7 +1592,7 @@ const unsigned char* QCaImage::getImageDataPtr( QPoint& pos )
     return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*imageDataSize]);
 }
 
-void QCaImage::displaySelectedAreaInfo( QPoint point1, QPoint point2 )
+void QEImage::displaySelectedAreaInfo( QPoint point1, QPoint point2 )
 {
     // Display textual info
     QString s;
@@ -1598,7 +1608,7 @@ void QCaImage::displaySelectedAreaInfo( QPoint point1, QPoint point2 )
 
 // Generate a profile along a line across an image at a given Y position
 // The profile contains values for each pixel intersected by the line.
-void QCaImage::generateHSlice( int yUnscaled )
+void QEImage::generateHSlice( int yUnscaled )
 {
     // Scale the ordinate to the original image data
     int y = videoWidget->scaleOrdinate( yUnscaled );
@@ -1712,7 +1722,7 @@ void QCaImage::generateHSlice( int yUnscaled )
 //  d^2 / (1 + s^2) = x^2
 //  sqrt( d^2 / (1 + s^2) ) = x
 //
-void QCaImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
+void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
 {
     // Scale the coordinates to the original image data
     QPoint point1 = videoWidget->scalePoint( point1Unscaled );
@@ -1879,7 +1889,7 @@ void QCaImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
 // Return a floating point number given a pointer into an image data buffer.
 // Note, the pointer is indexed according to the pixel data size which will be at least
 // big enough for the data format.
-int QCaImage::getPixelValueFromData( const unsigned char* ptr )
+int QEImage::getPixelValueFromData( const unsigned char* ptr )
 {
     // Case the data to the correct size, then return the data as a floating point number.
     switch( formatOption )
@@ -1901,12 +1911,12 @@ int QCaImage::getPixelValueFromData( const unsigned char* ptr )
 }
 
 // Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
-double QCaImage::getFloatingPixelValueFromData( const unsigned char* ptr )
+double QEImage::getFloatingPixelValueFromData( const unsigned char* ptr )
 {
     return getPixelValueFromData( ptr );
 }
 
-QPoint QCaImage::rotateFLipPoint( QPoint& pos )
+QPoint QEImage::rotateFLipPoint( QPoint& pos )
 {
     // Transform the point according to current rotation and flip options.
     // Depending on the flipping and rotating options pixel drawing can start in any of
@@ -1953,7 +1963,7 @@ QPoint QCaImage::rotateFLipPoint( QPoint& pos )
 
 //=================================================================================================
 // Display a pixel value.
-void QCaImage::currentPixelInfo( QPoint pos )
+void QEImage::currentPixelInfo( QPoint pos )
 {
     // If the pixel is not within the image, display nothing
     QString s;
@@ -1973,7 +1983,7 @@ void QCaImage::currentPixelInfo( QPoint pos )
 }
 
 // Return the image width following any rotation
-unsigned int QCaImage::rotatedImageBuffWidth()
+unsigned int QEImage::rotatedImageBuffWidth()
 {
     switch( rotation)
     {
@@ -1989,7 +1999,7 @@ unsigned int QCaImage::rotatedImageBuffWidth()
 }
 
 // Return the image height following any rotation
-unsigned int QCaImage::rotatedImageBuffHeight()
+unsigned int QEImage::rotatedImageBuffHeight()
 {
     switch( rotation)
     {
@@ -2008,7 +2018,7 @@ unsigned int QCaImage::rotatedImageBuffHeight()
 // Determine the way the input pixel data must be scanned to accommodate the required
 // rotate and flip options. This is used when generating the image data, and also when
 // transforming points in the image back to references in the original pixel data.
-int QCaImage::getScanOption()
+int QEImage::getScanOption()
 {
     // Depending on the flipping and rotating options pixel drawing can start in any of
     // the four corners and start scanning either vertically or horizontally.
@@ -2087,7 +2097,7 @@ int QCaImage::getScanOption()
 // bar range. If neither scroll bar value changes here, the VideoWidget is left panned
 // beyond the scroll bar range. To demonstrate this, set both scroll bars to zero,
 // then pan the viewport down and to the right with the mouse.
-void QCaImage::pan( QPoint origin )
+void QEImage::pan( QPoint origin )
 {
     // Determine the proportion of the scroll bar maximums to set the scroll bar to.
     // The scroll bar will be zero when the VideoWidget origin is zero, and maximum when the
@@ -2108,7 +2118,7 @@ void QCaImage::pan( QPoint origin )
     scrollArea->verticalScrollBar()->setValue( scrollArea->verticalScrollBar()->maximum() * yProportion );
 }
 
-void QCaImage::ShowContextMenu( const QPoint& pos )
+void QEImage::ShowContextMenu( const QPoint& pos )
 {
     // for most widgets
     QPoint globalPos = mapToGlobal( pos );
@@ -2164,7 +2174,7 @@ void QCaImage::ShowContextMenu( const QPoint& pos )
     }
 }
 
-void QCaImage::zoomMenuTriggered( QAction* selectedItem )
+void QEImage::zoomMenuTriggered( QAction* selectedItem )
 {
     switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
     {
@@ -2185,7 +2195,7 @@ void QCaImage::zoomMenuTriggered( QAction* selectedItem )
     }
 }
 
-void QCaImage::flipRotateMenuTriggered( QAction* selectedItem )
+void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
 {
     switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
     {
@@ -2206,7 +2216,7 @@ void QCaImage::flipRotateMenuTriggered( QAction* selectedItem )
     frMenu->setChecked( rotation, flipHoz, flipVert );
 }
 
-void QCaImage::selectMenuTriggered( QAction* selectedItem )
+void QEImage::selectMenuTriggered( QAction* selectedItem )
 {
     switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
     {
@@ -2221,7 +2231,7 @@ void QCaImage::selectMenuTriggered( QAction* selectedItem )
     }
 }
 
-QCaImage::selectOptions QCaImage::getSelectionOption()
+QEImage::selectOptions QEImage::getSelectionOption()
 {
     if( videoWidget->getPanning() )
     {

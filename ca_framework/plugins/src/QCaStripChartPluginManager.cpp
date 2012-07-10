@@ -85,7 +85,7 @@ QString QCaStripChartPluginManager::group () const
 */
 QIcon QCaStripChartPluginManager::icon () const
 {
-   return QIcon ("");
+   return QIcon (":/qe/stripchart/icon.png");
 }
 
 /*!

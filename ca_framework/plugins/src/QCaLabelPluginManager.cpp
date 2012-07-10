@@ -75,7 +75,7 @@ QString QCaLabelPluginManager::group() const {
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaLabelPluginManager::icon() const {
-    return QIcon(":/icons/QCaLabel.png");
+    return QIcon(":/qe/label/QELabel.png");
 }
 
 /*!

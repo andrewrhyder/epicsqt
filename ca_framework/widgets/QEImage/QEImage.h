@@ -22,8 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCAIMAGE_H
-#define QCAIMAGE_H
+#ifndef QEIMAGE_H
+#define QEIMAGE_H
 
 #include <QScrollArea>
 #include <QCaWidget.h>
@@ -42,14 +42,14 @@
 #include <QCaIntegerFormatting.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
     Q_OBJECT
 
   public:
 
-    QCaImage( QWidget *parent = 0 );
-    QCaImage( const QString &variableName, QWidget *parent = 0 );
-    ~QCaImage();
+    QEImage( QWidget *parent = 0 );
+    QEImage( const QString &variableName, QWidget *parent = 0 );
+    ~QEImage();
 
     bool isEnabled() const;
     void setEnabled( bool state );
@@ -155,7 +155,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaImage : public QFrame, public QCaWidget {
 
     bool allowDrop;
 
-    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, QCAIMAGE_NUM_VARIABLES };
+    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, QEIMAGE_NUM_VARIABLES };
 
     resizeOptions resizeOption;
     int zoom;
@@ -188,6 +188,12 @@ private slots:
 
     void panModeClicked();
 
+    //!! move this functionality into QCaWidget???
+    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+    {
+        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+    }
 
 
 
@@ -350,6 +356,92 @@ protected:
 
     void resizeEvent(QResizeEvent* );
 
+//==========================================================================
+// Standard properties
+
+#define NUM_VARIABLES QEIMAGE_NUM_VARIABLES
+#include <multipleVariablePropertiesBase.inc>
+
+    VARIABLE_PROPERTY_ACCESS(0)
+    Q_PROPERTY(QString imageVariable READ getVariableName0Property WRITE setVariableName0Property)
+
+    VARIABLE_PROPERTY_ACCESS(1)
+    Q_PROPERTY(QString widthVariable READ getVariableName1Property WRITE setVariableName1Property)
+
+    VARIABLE_PROPERTY_ACCESS(2)
+    Q_PROPERTY(QString heightVariable READ getVariableName2Property WRITE setVariableName2Property)
+
+    VARIABLE_PROPERTY_ACCESS(3)
+    Q_PROPERTY(QString regionOfInterestXVariable READ getVariableName3Property WRITE setVariableName3Property)
+
+    VARIABLE_PROPERTY_ACCESS(4)
+    Q_PROPERTY(QString regionOfInterestYVariable READ getVariableName4Property WRITE setVariableName4Property)
+
+    VARIABLE_PROPERTY_ACCESS(5)
+    Q_PROPERTY(QString regionOfInterestWVariable READ getVariableName5Property WRITE setVariableName5Property)
+
+    VARIABLE_PROPERTY_ACCESS(6)
+    Q_PROPERTY(QString regionOfInterestHVariable READ getVariableName6Property WRITE setVariableName6Property)
+
+#include <multipleVariablePropertiesTail.inc>
+#include <standardProperties.inc>
+
+//==========================================================================
+// Widget specific properties
+public:
+
+    /// Format options (8 bit grey scale, 32 bit color, etc)
+    Q_ENUMS(FormatOptions)
+    Q_PROPERTY(FormatOptions formatOption READ getFormatOptionProperty WRITE setFormatOptionProperty)
+    enum FormatOptions { Grey_8   = QEImage::GREY8,
+                         Grey_12  = QEImage::GREY12,
+                         Grey_16  = QEImage::GREY16,
+                         RGB      = QEImage::RGB_888 };
+    void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QEImage::formatOptions)formatOption ); }
+    FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
+
+    Q_PROPERTY(bool enablePan READ getEnablePan WRITE setEnablePan)
+    Q_PROPERTY(bool enableVertSliceSelection READ getEnableVertSliceSelection WRITE setEnableVertSliceSelection)
+    Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSliceSelection WRITE setEnableHozSliceSelection)
+    Q_PROPERTY(bool enableAreaSelection READ getEnableAreaSelection WRITE setEnableAreaSelection)
+    Q_PROPERTY(bool enableProfileSelection READ getEnableProfileSelection WRITE setEnableProfileSelection)
+
+    Q_PROPERTY(bool displayCursorPixelInfo READ getDisplayCursorPixelInfo WRITE setDisplayCursorPixelInfo)
+    Q_PROPERTY(bool displayRegionOfInterest READ getDisplayRegionOfInterest WRITE setDisplayRegionOfInterest)
+
+    Q_PROPERTY(bool displayButtonBar READ getDisplayButtonBar WRITE setDisplayButtonBar)
+
+    Q_PROPERTY(bool showTime READ getShowTime WRITE setShowTime)
+
+    Q_PROPERTY(QColor markupColor READ getMarkupColor WRITE setMarkupColor)
+
+
+    Q_ENUMS(ResizeOptions)
+    Q_PROPERTY(ResizeOptions resizeOption READ getResizeOptionProperty WRITE setResizeOptionProperty)
+    enum ResizeOptions { Zoom   = QEImage::RESIZE_OPTION_ZOOM,
+                         Fit    = QEImage::RESIZE_OPTION_FIT };
+    void setResizeOptionProperty( ResizeOptions resizeOption ){ setResizeOption( (QEImage::resizeOptions)resizeOption ); }
+    ResizeOptions getResizeOptionProperty(){ return (ResizeOptions)getResizeOption(); }
+
+    Q_PROPERTY(int zoom READ getZoom WRITE setZoom)
+
+
+    Q_ENUMS(RotationOptions)
+    Q_PROPERTY(RotationOptions rotation READ getRotationProperty WRITE setRotationProperty)
+    enum RotationOptions { NoRotation    = QEImage::ROTATION_0,
+                           Rotate90Right = QEImage::ROTATION_90_RIGHT,
+                           Rotate90Left  = QEImage::ROTATION_90_LEFT,
+                           Rotate180     = QEImage::ROTATION_180 };
+    void setRotationProperty( RotationOptions rotation ){ setRotation( (QEImage::rotationOptions)rotation ); }
+    RotationOptions getRotationProperty(){ return (RotationOptions)getRotation(); }
+
+    Q_PROPERTY(bool verticalFlip READ getVerticalFlip WRITE setVerticalFlip)
+    Q_PROPERTY(bool horizontalFlip READ getHorizontalFlip WRITE setHorizontalFlip)
+
+    Q_PROPERTY(int initialHosScrollPos READ getInitialHozScrollPos WRITE setInitialHozScrollPos)
+    Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)
+
+
 };
 
-#endif // QCAIMAGE_H
+#endif // QEIMAGE_H

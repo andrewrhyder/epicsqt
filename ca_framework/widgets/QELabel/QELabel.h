@@ -126,8 +126,8 @@ public:
 #include <standardProperties.inc>
 #include <stringProperties.inc>
 
-    //==========================================================================
-    // Widget specific properties
+//==========================================================================
+// Widget specific properties
 
 public:
     /// Update options (text, pixmap, or both)

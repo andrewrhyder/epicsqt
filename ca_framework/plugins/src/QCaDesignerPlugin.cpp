@@ -41,7 +41,7 @@
 #include <QEBitStatusManager.h>
 #include <QCaBitStatusPluginManager.h>
 #include <QBitStatusPluginManager.h>
-#include <QCaImagePluginManager.h>
+#include <QEImageManager.h>
 #include <QEPvPropertiesManager.h>
 #include <QCaPvPropertiesPluginManager.h>
 #include <QEStripChartManager.h>
@@ -83,7 +83,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new LinkPluginManager(this));
     widgets.append(new QCaPlotPluginManager(this));
     widgets.append(new QCaPeriodicPluginManager(this));
-    widgets.append(new QCaImagePluginManager(this));
+    widgets.append(new QEImageManager(this));
     widgets.append(new QCaLoginPluginManager(this));
     widgets.append(new QCaLogPluginManager(this));
     widgets.append(new QCaMotorPluginManager(this));
