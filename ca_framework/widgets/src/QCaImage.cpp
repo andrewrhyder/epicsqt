@@ -225,14 +225,16 @@ void QCaImage::setup() {
 
 
     // Create button group
+    int buttonWidth = 28;
+    int buttonMenuWidth = 48;
+
     buttonGroup = new QFrame;
-    QGridLayout* buttonLayout = new QGridLayout();
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
     buttonLayout->setMargin( 0 );
     buttonGroup->setLayout( buttonLayout );
 
-    //!!! 'new' icons leak memory???
-
-    pauseButton = new QPushButton(buttonGroup);
+    pauseButton = new QPushButton( buttonGroup );
+    pauseButton->setMinimumWidth( buttonWidth );
     pauseButtonIcon = new QIcon( ":/icons/pause.png" );
     playButtonIcon = new QIcon( ":/icons/play.png" );
     pauseButton->setIcon( *pauseButtonIcon );
@@ -240,51 +242,58 @@ void QCaImage::setup() {
     QObject::connect(pauseButton, SIGNAL(clicked()), this, SLOT(pauseClicked()));
 
     saveButton = new QPushButton(buttonGroup);
-    QIcon* saveButtonIcon = new QIcon( ":/icons/save.png" );
-    saveButton->setIcon( *saveButtonIcon );
+    saveButton->setMinimumWidth( buttonWidth );
+    QIcon saveButtonIcon( ":/icons/save.png" );
+    saveButton->setIcon( saveButtonIcon );
     saveButton->setToolTip("Save displayed image");
     QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
 
     roiButton = new QPushButton(buttonGroup);
-    QIcon* roiButtonIcon = new QIcon( ":/icons/cameraROI.png" );
-    roiButton->setIcon( *roiButtonIcon );
+    roiButton->setMinimumWidth( buttonWidth );
+    QIcon roiButtonIcon( ":/icons/cameraROI.png" );
+    roiButton->setIcon( roiButtonIcon );
     roiButton->setToolTip("Apply selected area to Region Of Interest");
     roiButton->setEnabled( false );
     QObject::connect(roiButton, SIGNAL(clicked()), this, SLOT(roiClicked()));
 
     resetRoiButton = new QPushButton(buttonGroup);
-    QIcon* resetRoiButtonIcon = new QIcon( ":/icons/cameraROIreset.png" );
-    resetRoiButton->setIcon( *resetRoiButtonIcon );
+    resetRoiButton->setMinimumWidth( buttonWidth );
+    QIcon resetRoiButtonIcon( ":/icons/cameraROIreset.png" );
+    resetRoiButton->setIcon( resetRoiButtonIcon );
     resetRoiButton->setToolTip("Reset Region Of Interest");
     resetRoiButton->setEnabled( true );
     QObject::connect(resetRoiButton, SIGNAL(clicked()), this, SLOT(resetRoiClicked()));
 
     selectModeButton = new QPushButton(buttonGroup);
-    QIcon* selectModeButtonIcon = new QIcon( ":/icons/select.png" );
-    selectModeButton->setIcon( *selectModeButtonIcon );
+    selectModeButton->setMinimumWidth( buttonMenuWidth );
+    QIcon selectModeButtonIcon( ":/icons/select.png" );
+    selectModeButton->setIcon( selectModeButtonIcon );
     selectModeButton->setToolTip("Choose selection and pan modes");
     selectModeButton->setMenu( sMenu );
 
     zoomButton = new QPushButton(buttonGroup);
-    QIcon* zoomButtonIcon = new QIcon( ":/icons/zoom.png" );
-    zoomButton->setIcon( *zoomButtonIcon );
+    zoomButton->setMinimumWidth( buttonMenuWidth );
+    QIcon zoomButtonIcon( ":/icons/zoom.png" );
+    zoomButton->setIcon( zoomButtonIcon );
     zoomButton->setToolTip("Zoom options");
     zoomButton->setMenu( zMenu );
 
     flipRotateButton = new QPushButton(buttonGroup);
-    QIcon* flipRotateButtonIcon = new QIcon( ":/icons/flipRotate.png" );
-    flipRotateButton->setIcon( *flipRotateButtonIcon );
+    flipRotateButton->setMinimumWidth( buttonMenuWidth );
+    QIcon flipRotateButtonIcon( ":/icons/flipRotate.png" );
+    flipRotateButton->setIcon( flipRotateButtonIcon );
     flipRotateButton->setToolTip("Flip and rotate options");
     flipRotateButton->setMenu( frMenu );
 
 
-    buttonLayout->addWidget( pauseButton,      0, 0);
-    buttonLayout->addWidget( saveButton,       0, 1);
-    buttonLayout->addWidget( roiButton,        0, 2);
-    buttonLayout->addWidget( resetRoiButton,   0, 3);
-    buttonLayout->addWidget( selectModeButton, 0, 4);
-    buttonLayout->addWidget( zoomButton,       0, 5);
-    buttonLayout->addWidget( flipRotateButton, 0, 6);
+    buttonLayout->addWidget( pauseButton,      0);
+    buttonLayout->addWidget( saveButton,       1);
+    buttonLayout->addWidget( roiButton,        2);
+    buttonLayout->addWidget( resetRoiButton,   3);
+    buttonLayout->addWidget( selectModeButton, 4);
+    buttonLayout->addWidget( zoomButton,       5);
+    buttonLayout->addWidget( flipRotateButton, 6);
+    buttonLayout->addStretch();
 
 
     // Create main layout containing image, label, and button layouts
