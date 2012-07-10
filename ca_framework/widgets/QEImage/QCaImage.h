@@ -324,7 +324,6 @@ private slots:
 
 
     void displayImage();
-    void useNewImage( const QImage newImage );
     int getScanOption();
     QPoint rotateFLipPoint( QPoint& pos );
     const unsigned char* getImageDataPtr( QPoint& pos );

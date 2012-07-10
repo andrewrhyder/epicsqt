@@ -14,19 +14,9 @@
         <file>QBitStatus.png</file>
         <file>QSubstitutedLabel.png</file>
         <file>QCaRadioButton.png</file>
-        <file>QCaImage.png</file>
         <file>QCaLogin.png</file>
         <file>QCaLog.png</file>
         <file>QCaMotor.png</file>
-        <file>QELabel.png</file>
         <file>QCaFileBrowser.png</file>
-        <file>play.png</file>
-        <file>pause.png</file>
-        <file>zoom.png</file>
-        <file>save.png</file>
-        <file>flipRotate.png</file>
-        <file>cameraROI.png</file>
-        <file>cameraROIreset.png</file>
-        <file>select.png</file>
     </qresource>
 </RCC>

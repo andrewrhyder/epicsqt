@@ -43,7 +43,6 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/Link.png \
     src/ASguiForm.png \
     src/QCaPeriodic.png \
-    src/QCaImage.png \
     src/QCaLogin.png \
     src/record_field_list.txt \
     src/QCaLog.png \
@@ -89,8 +88,6 @@ HEADERS += \
     include/QCaPeriodicPluginTaskMenu.h \
     include/PeriodicSetupDialog.h \
     include/PeriodicElementSetupForm.h \
-    include/QCaImagePluginManager.h \
-    include/QCaImagePlugin.h \
     include/QCaLoginPluginManager.h \
     include/QCaLogPluginManager.h \
     include/QCaMotorPluginManager.h \
@@ -138,14 +135,6 @@ HEADERS += \
     ../widgets/include/QCaToolTip.h \
     ../widgets/include/QCaPeriodic.h \
     ../widgets/include/PeriodicDialog.h \
-    ../widgets/include/QCaImage.h \
-    ../widgets/include/videowidget.h \
-    ../widgets/include/contextMenu.h \
-    ../widgets/include/flipRotateMenu.h \
-    ../widgets/include/selectMenu.h \
-    ../widgets/include/zoomMenu.h \
-    ../widgets/include/profilePlot.h \
-    ../widgets/include/imageMarkup.h \
     ../widgets/include/QCaLogin.h \
     ../widgets/include/QCaLog.h \
     ../widgets/include/QCaMotor.h \
@@ -190,8 +179,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaPeriodicPluginTaskMenuExtension.cpp \
     src/PeriodicSetupDialog.cpp \
     src/PeriodicElementSetupForm.cpp \
-    src/QCaImagePluginManager.cpp \
-    src/QCaImagePlugin.cpp \
     src/QCaLoginPluginManager.cpp \
     src/QCaLogPluginManager.cpp \
     src/QCaMotorPluginManager.cpp \
@@ -237,14 +224,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaToolTip.cpp \
     ../widgets/src/QCaPeriodic.cpp \
     ../widgets/src/PeriodicDialog.cpp \
-    ../widgets/src/QCaImage.cpp \
-    ../widgets/src/videowidget.cpp \
-    ../widgets/src/contextMenu.cpp \
-    ../widgets/src/flipRotateMenu.cpp \
-    ../widgets/src/selectMenu.cpp \
-    ../widgets/src/zoomMenu.cpp \
-    ../widgets/src/profilePlot.cpp \
-    ../widgets/src/imageMarkup.cpp \
     ../widgets/src/QCaLogin.cpp \
     ../widgets/src/QCaLog.cpp \
     ../widgets/src/QCaMotor.cpp \
@@ -280,20 +259,31 @@ SOURCES += \
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
-INCLUDEPATH += $$(QCAFRAMEWORK)/plugins/include \
-    $$(QCAFRAMEWORK)/api/include \
-    $$(QCAFRAMEWORK)/data/include \
-    $$(QCAFRAMEWORK)/widgets/include \
-    /usr/include/qwt \
+
+_EPICS_BASE = $$(EPICS_BASE)
+isEmpty( _EPICS_BASE ) {
+    error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up" )
+}
+
+_EPICS_HOST_ARCH = $$(EPICS_HOST_ARCH)
+isEmpty( _EPICS_HOST_ARCH ) {
+    error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up" )
+}
+
+INCLUDEPATH += \
+    ../plugins/include \
+    ../api/include \
+    ../data/include \
+    ../widgets/include \
     $$(EPICS_BASE)/include
+
 unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
 win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
 INCLUDEPATH += $$(EPICS_BASE)/include
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
-    -lCom \
-    -lqwt
+    -lCom
 
 FORMS += \
     ../widgets/src/PeriodicDialog.ui \
@@ -302,10 +292,10 @@ FORMS += \
 
 
 #===========================================================
-# QElabel
+# QELabel
 #
 OTHER_FILES += \
-    src/QELabel.png  \
+    ../widgets/QELabel.png  \
     ../widgets/QELabel/icon.png
 
 RESOURCES += \
@@ -320,7 +310,7 @@ SOURCES += \
     ../widgets/QELabel/QELabelManager.cpp
 
 INCLUDEPATH += \
-    $$(QCAFRAMEWORK)/widgets/QELabel
+    ../widgets/QELabel
 
 
 #===========================================================
@@ -356,7 +346,7 @@ SOURCES += \
     ../widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.cpp
 
 INCLUDEPATH += \
-    $$(QCAFRAMEWORK)/widgets/QEAnalogProgressBar
+    ../widgets/QEAnalogProgressBar
 
 
 #===========================================================
@@ -392,7 +382,7 @@ SOURCES += \
     ../widgets/QEBitStatus/QEBitStatusManager.cpp
 
 INCLUDEPATH += \
-    $$(QCAFRAMEWORK)/widgets/QEBitStatus
+    ../widgets/QEBitStatus
 
 
 #===========================================================
@@ -413,7 +403,7 @@ SOURCES += \
     ../widgets/QEPvProperties/QEPvPropertiesManager.cpp
 
 INCLUDEPATH += \
-    $$(QCAFRAMEWORK)/widgets/QEPvProperties
+    ../widgets/QEPvProperties
 
 
 #===========================================================
@@ -436,7 +426,7 @@ SOURCES += \
     ../archive/src/maiaXmlRpcClient.cpp
 
 INCLUDEPATH += \
-    $$(QCAFRAMEWORK)/archive/include
+    ../archive/include
 
 
 #===========================================================
@@ -468,11 +458,81 @@ SOURCES += \
     ../widgets/QEStripChart/QEStripChartManager.cpp
 
 INCLUDEPATH += \
-    $$(QCAFRAMEWORK)/widgets/QEStripChart
+    ../widgets/QEStripChart
 
 FORMS += \
     ../widgets/QEStripChart/QEStripChartTimeDialog.ui \
     ../widgets/QEStripChart/QEStripChartItemDialog.ui \
+
+#===========================================================
+# QCaImage
+#
+OTHER_FILES += \
+    ../widgets/QEImage/QCaImage.png  \
+    ../widgets/QEImage/cameraROI.png \
+    ../widgets/QEImage/cameraROIreset.png \
+    ../widgets/QEImage/flipRotate.png \
+    ../widgets/QEImage/pause.png \
+    ../widgets/QEImage/play.png \
+    ../widgets/QEImage/save.png \
+    ../widgets/QEImage/select.png \
+    ../widgets/QEImage/zoom.png
+
+RESOURCES += \
+    ../widgets/QEImage/QEImage.qrc
+
+HEADERS += \
+    ../widgets/QEImage/contextMenu.h \
+    ../widgets/QEImage/flipRotateMenu.h \
+    ../widgets/QEImage/imageMarkup.h \
+    ../widgets/QEImage/profilePlot.h \
+    ../widgets/QEImage/QCaImage.h \
+    ../widgets/QEImage/QCaImagePlugin.h \
+    ../widgets/QEImage/QCaImagePluginManager.h \
+    ../widgets/QEImage/selectMenu.h \
+    ../widgets/QEImage/videowidget.h \
+    ../widgets/QEImage/zoomMenu.h
+
+SOURCES += \
+    ../widgets/QEImage/QCaImage.cpp \
+    ../widgets/QEImage/QCaImagePluginManager.cpp \
+    ../widgets/QEImage/contextMenu.cpp \
+    ../widgets/QEImage/imageMarkup.cpp \
+    ../widgets/QEImage/videowidget.cpp \
+    ../widgets/QEImage/flipRotateMenu.cpp \
+    ../widgets/QEImage/profilePlot.cpp \
+    ../widgets/QEImage/QCaImagePlugin.cpp \
+    ../widgets/QEImage/selectMenu.cpp \
+    ../widgets/QEImage/zoomMenu.cpp
+
+INCLUDEPATH += \
+    ../widgets/QEImage
+
+#===========================================================
+# QEPlot
+#
+#OTHER_FILES += \
+#
+
+#RESOURCES += \
+#
+
+#HEADERS += \
+#
+
+#SOURCES += \
+#
+
+_QWT_INCLUDE_PATH = $$(QWT_INCLUDE_PATH)
+isEmpty( _QWT_INCLUDE_PATH ) {
+    error( "QWT_INCLUDE_PATH must be defined. Ensure Qwt is installed for development and QWT_INCLUDE_PATH is set up" )
+}
+
+INCLUDEPATH += \
+    /usr/include/qwt \
+
+# Depending on build, the qwt library below may need to be -lqwt or -lqwt6
+LIBS += -lqwt
 
 #
 # end
