@@ -731,7 +731,11 @@ void QCaImage::setImageFile( QString name )
     // Generate an array of image data so the mechanisms that normally work
     // on the raw image waveform data have data to work on
     QImage stdImage = image.convertToFormat( QImage::Format_RGB32 );
+#if QT_VERSION >= 0x040700
     const uchar* iDataPtr = stdImage.constBits();
+#else
+    const uchar* iDataPtr = stdImage.bits();
+#endif
     int iDataSize = stdImage.byteCount();
 
     QByteArray baData;
