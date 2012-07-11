@@ -484,7 +484,7 @@ RESOURCES += \
     ../widgets/QEImage/QEImage.qrc
 
 HEADERS += \
-    ../widgets/QEImage/contextMenu.h \
+    ../widgets/QEImage/imageContextMenu.h \
     ../widgets/QEImage/flipRotateMenu.h \
     ../widgets/QEImage/imageMarkup.h \
     ../widgets/QEImage/profilePlot.h \
@@ -497,7 +497,7 @@ HEADERS += \
 SOURCES += \
     ../widgets/QEImage/QEImage.cpp \
     ../widgets/QEImage/QEImageManager.cpp \
-    ../widgets/QEImage/contextMenu.cpp \
+    ../widgets/QEImage/imageContextMenu.cpp \
     ../widgets/QEImage/imageMarkup.cpp \
     ../widgets/QEImage/videowidget.cpp \
     ../widgets/QEImage/flipRotateMenu.cpp \

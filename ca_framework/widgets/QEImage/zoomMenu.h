@@ -2,7 +2,7 @@
 #define ZOOMMENU_H
 
 #include <QMenu>
-#include <contextMenu.h>
+#include <imageContextMenu.h>
 
 class zoomMenu : public QMenu
 {
@@ -12,7 +12,7 @@ public:
     explicit zoomMenu( QWidget *parent = 0 );
 
     void enableAreaSelected( bool enable );
-    contextMenu::contextMenuOptions getZoom( const QPoint& pos );
+    imageContextMenu::imageContextMenuOptions getZoom( const QPoint& pos );
 
 signals:
 

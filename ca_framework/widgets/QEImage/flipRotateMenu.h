@@ -2,7 +2,7 @@
 #define FLIPROTATEMENU_H
 
 #include <QMenu>
-#include "contextMenu.h"
+#include "imageContextMenu.h"
 
 class flipRotateMenu : public QMenu
 {
@@ -11,7 +11,7 @@ public:
 
     explicit flipRotateMenu( QWidget *parent = 0 );
 
-    contextMenu::contextMenuOptions getFlipRotate( const QPoint& pos );
+    imageContextMenu::imageContextMenuOptions getFlipRotate( const QPoint& pos );
     void setChecked( const int rotation, const bool flipH, const bool flipV );
 
 signals:

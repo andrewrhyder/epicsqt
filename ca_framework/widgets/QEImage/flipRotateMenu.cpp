@@ -6,34 +6,34 @@ flipRotateMenu::flipRotateMenu( QWidget *parent) : QMenu(parent)
 
 #define NEW_FLIP_ROTATE_MENU_BUTTON( TITLE, ID, ACTION ) \
     ACTION = new QAction( TITLE, this );                 \
-    ACTION->setData( contextMenu::ID );                  \
+    ACTION->setData( imageContextMenu::ID );                  \
     ACTION->setCheckable( true );                        \
     addAction( ACTION );
 
-    NEW_FLIP_ROTATE_MENU_BUTTON( "No rotation",             CM_ROTATE_NONE,     rotationNoneAction )
-    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 90 Clockwise",     CM_ROTATE_RIGHT,    rotation90RAction )
-    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 90 Anticlockwise", CM_ROTATE_LEFT,     rotation90LAction )
-    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 180",              CM_ROTATE_180,      rotation180Action )
-    NEW_FLIP_ROTATE_MENU_BUTTON( "Flip Horizontal",         CM_FLIP_HORIZONTAL, flipHAction )
-    NEW_FLIP_ROTATE_MENU_BUTTON( "Flip Vertical",           CM_FLIP_VERTICAL,   flipVAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "No rotation",             ICM_ROTATE_NONE,     rotationNoneAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 90 Clockwise",     ICM_ROTATE_RIGHT,    rotation90RAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 90 Anticlockwise", ICM_ROTATE_LEFT,     rotation90LAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Rotate 180",              ICM_ROTATE_180,      rotation180Action )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Flip Horizontal",         ICM_FLIP_HORIZONTAL, flipHAction )
+    NEW_FLIP_ROTATE_MENU_BUTTON( "Flip Vertical",           ICM_FLIP_VERTICAL,   flipVAction )
 
     setTitle( "Flip / Rotate" );
 }
 
 // Get a flip/rotate option from the user.
 // Used when this menu is used independantly of the main context menu
-contextMenu::contextMenuOptions flipRotateMenu::getFlipRotate( const QPoint& pos )
+imageContextMenu::imageContextMenuOptions flipRotateMenu::getFlipRotate( const QPoint& pos )
 {
     QAction* selectedItem = exec( pos );
     if( selectedItem )
     {
         //!!! Doesn't return fliped state
-        qDebug() << (contextMenu::contextMenuOptions)(selectedItem->data().toInt());
-        return (contextMenu::contextMenuOptions)(selectedItem->data().toInt());
+        qDebug() << (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt());
+        return (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt());
     }
     else
     {
-        return contextMenu::CM_NONE;
+        return imageContextMenu::ICM_NONE;
     }
 }
 

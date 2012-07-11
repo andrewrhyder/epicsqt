@@ -36,7 +36,7 @@
 #include <QEImage.h>
 #include <QCaByteArray.h>
 #include <QCaInteger.h>
-#include <contextMenu.h>
+#include <imageContextMenu.h>
 #include <QIcon>
 
 /*!
@@ -2129,22 +2129,22 @@ void QEImage::ShowContextMenu( const QPoint& pos )
     // for QAbstractScrollArea and derived classes you would use:
     // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
 
-    contextMenu menu;
+    imageContextMenu menu;
 
     sMenu->setChecked( getSelectionOption() );
     menu.addMenu( sMenu );
 
-    menu.addMenuItem(       "Save...",                       false, false,                  contextMenu::CM_SAVE                );
-    menu.addMenuItem(       paused?"Resume":"Pause",         true,  paused,                 contextMenu::CM_PAUSE               );
-    menu.addMenuItem(       "Show time",                     true,  showTimeEnabled,        contextMenu::CM_ENABLE_TIME         );
-    menu.addMenuItem(       "Show cursor pixel info",        true,  displayCursorPixelInfo, contextMenu::CM_ENABLE_CURSOR_PIXEL );
-    menu.addOptionMenuItem( "Enable panning",                true,  enablePan,              contextMenu::CM_ENABLE_PAN          );
-    menu.addOptionMenuItem( "Enable vertical selection",     true,  enableVSliceSelection,  contextMenu::CM_ENABLE_VERT         );
-    menu.addOptionMenuItem( "Enable horizontal selection",   true,  enableHSliceSelection,  contextMenu::CM_ENABLE_HOZ          );
-    menu.addOptionMenuItem( "Enable area selection",         true,  enableAreaSelection,    contextMenu::CM_ENABLE_AREA         );
-    menu.addOptionMenuItem( "Enable profile selection",      true,  enableProfileSelection, contextMenu::CM_ENABLE_LINE         );
-    menu.addOptionMenuItem( "Display button bar",            true,  displayButtonBar,       contextMenu::CM_DISPLAY_BUTTON_BAR  );
-    menu.addOptionMenuItem( "Display ROI info",              true,  displayRoiLayout,       contextMenu::CM_DISPLAY_ROI_INFO    );
+    menu.addMenuItem(       "Save...",                       false, false,                  imageContextMenu::ICM_SAVE                );
+    menu.addMenuItem(       paused?"Resume":"Pause",         true,  paused,                 imageContextMenu::ICM_PAUSE               );
+    menu.addMenuItem(       "Show time",                     true,  showTimeEnabled,        imageContextMenu::ICM_ENABLE_TIME         );
+    menu.addMenuItem(       "Show cursor pixel info",        true,  displayCursorPixelInfo, imageContextMenu::ICM_ENABLE_CURSOR_PIXEL );
+    menu.addOptionMenuItem( "Enable panning",                true,  enablePan,              imageContextMenu::ICM_ENABLE_PAN          );
+    menu.addOptionMenuItem( "Enable vertical selection",     true,  enableVSliceSelection,  imageContextMenu::ICM_ENABLE_VERT         );
+    menu.addOptionMenuItem( "Enable horizontal selection",   true,  enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ          );
+    menu.addOptionMenuItem( "Enable area selection",         true,  enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA         );
+    menu.addOptionMenuItem( "Enable profile selection",      true,  enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE         );
+    menu.addOptionMenuItem( "Display button bar",            true,  displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR  );
+    menu.addOptionMenuItem( "Display ROI info",              true,  displayRoiLayout,       imageContextMenu::ICM_DISPLAY_ROI_INFO    );
 
     zMenu->enableAreaSelected( haveSelectedArea );
     menu.addMenu( zMenu );
@@ -2153,25 +2153,25 @@ void QEImage::ShowContextMenu( const QPoint& pos )
     menu.addMenu( frMenu );
 
 
-    contextMenu::contextMenuOptions option;
+    imageContextMenu::imageContextMenuOptions option;
     bool checked;
     menu.getContextMenuOption( globalPos, &option, &checked );
     switch( option )
     {
         default:
-        case contextMenu::CM_NONE: break;
+        case imageContextMenu::ICM_NONE: break;
 
-        case contextMenu::CM_SAVE:                saveClicked();                          break;
-        case contextMenu::CM_PAUSE:               pauseClicked();                         break;
-        case contextMenu::CM_ENABLE_CURSOR_PIXEL: setDisplayCursorPixelInfo  ( checked ); break;
-        case contextMenu::CM_ENABLE_TIME:         setShowTime                ( checked ); break;
-        case contextMenu::CM_ENABLE_PAN:          setEnablePan               ( checked ); break;
-        case contextMenu::CM_ENABLE_VERT:         setEnableVertSliceSelection( checked ); break;
-        case contextMenu::CM_ENABLE_HOZ:          setEnableHozSliceSelection ( checked ); break;
-        case contextMenu::CM_ENABLE_AREA:         setEnableAreaSelection     ( checked ); break;
-        case contextMenu::CM_ENABLE_LINE:         setEnableProfileSelection  ( checked ); break;
-        case contextMenu::CM_DISPLAY_BUTTON_BAR:  setDisplayButtonBar        ( checked ); break;
-        case contextMenu::CM_DISPLAY_ROI_INFO:    setDisplayRegionOfInterest ( checked ); break;
+        case imageContextMenu::ICM_SAVE:                saveClicked();                          break;
+        case imageContextMenu::ICM_PAUSE:               pauseClicked();                         break;
+        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL: setDisplayCursorPixelInfo  ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_TIME:         setShowTime                ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_PAN:          setEnablePan               ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_VERT:         setEnableVertSliceSelection( checked ); break;
+        case imageContextMenu::ICM_ENABLE_HOZ:          setEnableHozSliceSelection ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA:         setEnableAreaSelection     ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_LINE:         setEnableProfileSelection  ( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:  setDisplayButtonBar        ( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_ROI_INFO:    setDisplayRegionOfInterest ( checked ); break;
 
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal
@@ -2180,38 +2180,38 @@ void QEImage::ShowContextMenu( const QPoint& pos )
 
 void QEImage::zoomMenuTriggered( QAction* selectedItem )
 {
-    switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
+    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
     {
         default:
-        case contextMenu::CM_NONE: break;
+        case imageContextMenu::ICM_NONE: break;
 
-        case contextMenu::CM_ZOOM_SELECTED:       zoomToArea();                           break;
-        case contextMenu::CM_ZOOM_FIT:            setResizeOption( RESIZE_OPTION_FIT );   break;
-        case contextMenu::CM_ZOOM_10:             setResizeOptionAndZoom(  10 );          break;
-        case contextMenu::CM_ZOOM_25:             setResizeOptionAndZoom(  25 );          break;
-        case contextMenu::CM_ZOOM_50:             setResizeOptionAndZoom(  50 );          break;
-        case contextMenu::CM_ZOOM_75:             setResizeOptionAndZoom(  75 );          break;
-        case contextMenu::CM_ZOOM_100:            setResizeOptionAndZoom( 100 );          break;
-        case contextMenu::CM_ZOOM_150:            setResizeOptionAndZoom( 150 );          break;
-        case contextMenu::CM_ZOOM_200:            setResizeOptionAndZoom( 200 );          break;
-        case contextMenu::CM_ZOOM_300:            setResizeOptionAndZoom( 300 );          break;
-        case contextMenu::CM_ZOOM_400:            setResizeOptionAndZoom( 400 );          break;
+        case imageContextMenu::ICM_ZOOM_SELECTED:       zoomToArea();                           break;
+        case imageContextMenu::ICM_ZOOM_FIT:            setResizeOption( RESIZE_OPTION_FIT );   break;
+        case imageContextMenu::ICM_ZOOM_10:             setResizeOptionAndZoom(  10 );          break;
+        case imageContextMenu::ICM_ZOOM_25:             setResizeOptionAndZoom(  25 );          break;
+        case imageContextMenu::ICM_ZOOM_50:             setResizeOptionAndZoom(  50 );          break;
+        case imageContextMenu::ICM_ZOOM_75:             setResizeOptionAndZoom(  75 );          break;
+        case imageContextMenu::ICM_ZOOM_100:            setResizeOptionAndZoom( 100 );          break;
+        case imageContextMenu::ICM_ZOOM_150:            setResizeOptionAndZoom( 150 );          break;
+        case imageContextMenu::ICM_ZOOM_200:            setResizeOptionAndZoom( 200 );          break;
+        case imageContextMenu::ICM_ZOOM_300:            setResizeOptionAndZoom( 300 );          break;
+        case imageContextMenu::ICM_ZOOM_400:            setResizeOptionAndZoom( 400 );          break;
     }
 }
 
 void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
 {
-    switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
+    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
     {
         default:
-        case contextMenu::CM_NONE: break;
+        case imageContextMenu::ICM_NONE: break;
 
-        case contextMenu::CM_ROTATE_NONE:         setRotation( ROTATION_0 );                      break;
-        case contextMenu::CM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );               break;
-        case contextMenu::CM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );                break;
-        case contextMenu::CM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
-        case contextMenu::CM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
-        case contextMenu::CM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_ROTATE_NONE:         setRotation( ROTATION_0 );                      break;
+        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );               break;
+        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );                break;
+        case imageContextMenu::ICM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
+        case imageContextMenu::ICM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
     }
 
     // Update the checked state of the buttons now the user has selected an option.
@@ -2222,16 +2222,16 @@ void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
 
 void QEImage::selectMenuTriggered( QAction* selectedItem )
 {
-    switch( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) )
+    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
     {
         default:
-        case contextMenu::CM_NONE: break;
+        case imageContextMenu::ICM_NONE: break;
 
-        case contextMenu::CM_SELECT_PAN:          panModeClicked();           break;
-        case contextMenu::CM_SELECT_VSLICE:       vSliceSelectModeClicked();  break;
-        case contextMenu::CM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
-        case contextMenu::CM_SELECT_AREA:         areaSelectModeClicked();    break;
-        case contextMenu::CM_SELECT_PROFILE:      profileSelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_PAN:          panModeClicked();           break;
+        case imageContextMenu::ICM_SELECT_VSLICE:       vSliceSelectModeClicked();  break;
+        case imageContextMenu::ICM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
+        case imageContextMenu::ICM_SELECT_AREA:         areaSelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_PROFILE:      profileSelectModeClicked(); break;
     }
 }
 

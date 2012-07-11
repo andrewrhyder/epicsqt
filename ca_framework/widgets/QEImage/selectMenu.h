@@ -2,7 +2,7 @@
 #define SELECTMENU_H
 
 #include <QMenu>
-#include <contextMenu.h>
+#include <imageContextMenu.h>
 
 class selectMenu : public QMenu
 {
@@ -11,7 +11,7 @@ public:
 
     explicit selectMenu( QWidget *parent = 0 );
 
-    contextMenu::contextMenuOptions getSelectOption( const QPoint& pos );
+    imageContextMenu::imageContextMenuOptions getSelectOption( const QPoint& pos );
 
     void setChecked( const int mode );
 
