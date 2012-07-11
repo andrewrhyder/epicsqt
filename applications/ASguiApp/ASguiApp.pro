@@ -41,12 +41,12 @@ HEADERS += include/MainWindow.h \
 
 INCLUDEPATH += . \
     ./include \
-    $$(QCAFRAMEWORK)/api/include \
-    $$(QCAFRAMEWORK)/data/include \
-    $$(QCAFRAMEWORK)/widgets/include \
-    $$(QCAFRAMEWORK)/widgets/QELabel \
-    $$(QCAFRAMEWORK)/plugins/include
+    ../../ca_framework/api/include \
+    ../../ca_framework/data/include \
+    ../../ca_framework/widgets/include \
+    ../../ca_framework/widgets/QELabel \
+    ../../ca_framework/plugins/include
 
-LIBS += -L$$(QCAFRAMEWORK)/plugins \
+LIBS += -L../../ca_framework/plugins \
     -lQCaPlugin
 FORMS += ./src/MainWindow.ui
