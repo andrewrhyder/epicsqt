@@ -1,6 +1,7 @@
 #ifndef IMAGECONTEXTMENU_H
 #define IMAGECONTEXTMENU_H
 
+#include <contextMenu.h>
 #include <QMenu>
 
 class imageContextMenu : public QMenu
@@ -11,7 +12,7 @@ public:
     explicit imageContextMenu( QWidget *parent = 0 );
 
 
-    enum imageContextMenuOptions{ ICM_NONE,
+    enum imageContextMenuOptions{ ICM_NONE = contextMenu::CM_SPECIFIC_WIDGETS_START_HERE,
                                   ICM_SAVE,
                                   ICM_PAUSE,
                                   ICM_ENABLE_TIME,

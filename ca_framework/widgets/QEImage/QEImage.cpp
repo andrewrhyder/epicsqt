@@ -126,7 +126,7 @@ void QEImage::setup() {
 
 
     // Create sub menus
-    zMenu = new zoomMenu( );
+    zMenu = new zoomMenu();
     zMenu->enableAreaSelected( haveSelectedArea );
     QObject::connect( zMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( zoomMenuTriggered( QAction* )) );
 

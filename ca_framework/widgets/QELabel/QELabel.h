@@ -106,6 +106,7 @@ public slots:
     bool isConnected;
 
     QString lastTextStyle;
+    QString currentText;
 
     void stringFormattingChange(){ requestResend(); }
 
@@ -119,6 +120,12 @@ protected:
     void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDropText( QString text );
     QString getDropText();
+
+    // Copy paste
+    QString copyVariable();
+    QString copyData();
+    void paste( QString s );
+
 
 public:
 

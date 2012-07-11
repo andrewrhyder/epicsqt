@@ -65,7 +65,7 @@ void QELabel::setup() {
     QWidget::setEnabled( false );  // Reflects initial disconnected state
     updateOption = UPDATE_TEXT;
 
-    setupConectMenu( this );
+    setupContextMenu( this );
 
 //    defaultStyleSheet = styleSheet();
     // Use label signals
@@ -152,16 +152,16 @@ void QELabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaD
 
     // Extract any formatting info from the text
     // For example "<background-color: red>Engineering Mode" or "<color: red>not selected"
-    QString text = textIn;
+    currentText = textIn;
     QString textStyle;
-    int textStyleStart = text.indexOf( '<' );
+    int textStyleStart = currentText.indexOf( '<' );
     if( textStyleStart >= 0 )
     {
-        int textStyleEnd = text.indexOf( '>', textStyleStart );
+        int textStyleEnd = currentText.indexOf( '>', textStyleStart );
         if( textStyleEnd >= 1 )
         {
-            textStyle = text.mid( textStyleStart+1, textStyleEnd-textStyleStart-1 );
-            text = text.left( textStyleStart ).append( text.right( text.length()-textStyleEnd-1 ));
+            textStyle = currentText.mid( textStyleStart+1, textStyleEnd-textStyleStart-1 );
+            currentText = currentText.left( textStyleStart ).append( currentText.right( currentText.length()-textStyleEnd-1 ));
         }
     }
 
@@ -180,18 +180,18 @@ void QELabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaD
     }
 
     /// Signal a database value change to any Link widgets
-    emit dbValueChanged( text );
+    emit dbValueChanged( currentText );
 
     switch( updateOption )
     {
         /// Update the text if required
         case UPDATE_TEXT:
-            setText( text );
+            setText( currentText );
             break;
 
         /// Update the pixmap if required
         case UPDATE_PIXMAP:
-            setPixmap( getDataPixmap( text ).scaled( size() ) );
+            setPixmap( getDataPixmap( currentText ).scaled( size() ) );
             break;
     }
 
@@ -244,6 +244,24 @@ void QELabel::setDropText( QString text )
 QString QELabel::getDropText()
 {
     return getSubstitutedVariableName(0);
+}
+
+//==============================================================================
+// Copy / Paste
+QString QELabel::copyVariable()
+{
+    return getSubstitutedVariableName(0);
+}
+
+QString QELabel::copyData()
+{
+    return currentText;
+}
+
+void QELabel::paste( QString s )
+{
+//!! only do this if drop enabled
+//!!    setDropText( s );
 }
 
 //==============================================================================
