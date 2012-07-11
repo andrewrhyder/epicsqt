@@ -100,6 +100,7 @@ HEADERS += \
     ../data/include/UserMessage.h \
     ../data/include/QCaDataPoint.h \
     ../data/include/QCaWidget.h \
+    ../data/include/contextMenu.h \
     ../data/include/QCaVariableNamePropertyManager.h \
     ../data/include/QCaStringFormatting.h \
     ../data/include/QCaString.h \
@@ -191,6 +192,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../data/src/VariableNameManager.cpp \
     ../data/src/UserMessage.cpp \
     ../data/src/QCaWidget.cpp \
+    ../data/src/contextMenu.cpp \
     ../data/src/QCaVariableNamePropertyManager.cpp \
     ../data/src/QCaStringFormatting.cpp \
     ../data/src/QCaString.cpp \

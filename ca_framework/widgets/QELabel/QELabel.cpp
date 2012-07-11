@@ -65,6 +65,8 @@ void QELabel::setup() {
     QWidget::setEnabled( false );  // Reflects initial disconnected state
     updateOption = UPDATE_TEXT;
 
+    setupConectMenu( this );
+
 //    defaultStyleSheet = styleSheet();
     // Use label signals
     // --Currently none--

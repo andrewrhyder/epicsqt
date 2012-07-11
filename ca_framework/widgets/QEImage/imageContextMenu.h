@@ -1,5 +1,5 @@
-#ifndef CONTEXTMENU_H
-#define CONTEXTMENU_H
+#ifndef IMAGECONTEXTMENU_H
+#define IMAGECONTEXTMENU_H
 
 #include <QMenu>
 
@@ -62,4 +62,4 @@ private:
     QMenu* optionMenu;
 };
 
-#endif // CONTEXTMENU_H
+#endif // IMAGECONTEXTMENU_H

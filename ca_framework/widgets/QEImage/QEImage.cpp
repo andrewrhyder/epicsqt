@@ -317,7 +317,7 @@ void QEImage::setup() {
 
     // Set up context sensitive menu (right click menu)
     setContextMenuPolicy( Qt::CustomContextMenu );
-    connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( ShowContextMenu( const QPoint& )));
+    connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showContextMenu( const QPoint& )));
 
     // Initially set the video widget to the size of the scroll bar
     // This will be resized when the image size is known
@@ -2122,7 +2122,7 @@ void QEImage::pan( QPoint origin )
     scrollArea->verticalScrollBar()->setValue( scrollArea->verticalScrollBar()->maximum() * yProportion );
 }
 
-void QEImage::ShowContextMenu( const QPoint& pos )
+void QEImage::showContextMenu( const QPoint& pos )
 {
     // for most widgets
     QPoint globalPos = mapToGlobal( pos );
@@ -2130,6 +2130,8 @@ void QEImage::ShowContextMenu( const QPoint& pos )
     // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
 
     imageContextMenu menu;
+
+    menu.addMenu( getContextMenu() );
 
     sMenu->setChecked( getSelectionOption() );
     menu.addMenu( sMenu );

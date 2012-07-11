@@ -94,6 +94,9 @@ QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( own
     variableAsToolTip = true;
     setSourceId( 0 );
 
+    ctxMenu = new contextMenu();
+
+
     // Set the UserMessage form ID to be whatever has been published in the ContainerProfile
     setFormId( getMessageFormId() );
 
@@ -287,4 +290,17 @@ void QCaWidget::deleteQcaItem( unsigned int variableIndex ) {
 
     // Remove the reference to the deleted object to prevent accidental use
     qcaItem[variableIndex] = NULL;
+}
+
+
+void QCaWidget::setupConectMenu( QWidget* w )
+{
+    // Set up context sensitive menu (right click menu)
+    w->setContextMenuPolicy( Qt::CustomContextMenu );
+    QObject::connect( w, SIGNAL( customContextMenuRequested( const QPoint& )), ctxMenu, SLOT( showContextMenu( const QPoint& )));
+}
+
+QMenu* QCaWidget::getContextMenu()
+{
+    return ctxMenu;
 }

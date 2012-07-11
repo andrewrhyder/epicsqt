@@ -203,7 +203,7 @@ private slots:
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
-    void ShowContextMenu( const QPoint& );
+    void showContextMenu( const QPoint& );
     void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );

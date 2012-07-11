@@ -34,6 +34,7 @@
 #include <QCaPluginLibrary_global.h>
 #include <QCaDragDrop.h>
 #include <styleManager.h>
+#include <contextMenu.h>
 
 //!!! since this class is only ever used as a base class, it doesn't need to be exported
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager,
@@ -41,8 +42,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager,
                                                 public ContainerProfile,
                                                 public QCaDragDrop,
                                                 public styleManager,
-                                                public UserMessage {
-
+                                                public UserMessage
+{
 public:
     QCaWidget( QWidget* ownerIn );          /// Constructor
     virtual ~QCaWidget();                   /// Destructor
@@ -52,6 +53,9 @@ public:
     void setMessageSourceId( unsigned int messageSourceId ){ setSourceId( messageSourceId ); }
 
     qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         /// Return a reference to one of the qCaObjects used to stream CA updates
+
+    void setupConectMenu( QWidget* w );
+    QMenu* getContextMenu();
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );    /// Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
@@ -68,6 +72,8 @@ private:
     void deleteQcaItem( unsigned int variableIndex );       /// Delete a stream of CA updates
     unsigned int numVariables;              /// The number of process variables that will be managed for the QCa widget.
     qcaobject::QCaObject** qcaItem;          /// CA access - provides a stream of updates. One for each variable name used by the QCa widget
+
+    contextMenu* ctxMenu;
 
 };
 
