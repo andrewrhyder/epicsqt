@@ -35,8 +35,6 @@
 QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
-    //qDebug() << "BEGIN: QCaMotor";
-
     QHBoxLayout *qHBoxLayout;
     QVBoxLayout *qVBoxLayout;
 
@@ -45,14 +43,12 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     qHBoxLayout = new QHBoxLayout();
     qVBoxLayoutFields = new QVBoxLayout();
 
-    qLabel = new QLabel();
-    qLabel->setText("Motor");
-    qLabel->setFixedWidth(125);
-    qHBoxLayout->addWidget(qLabel);
+    qLabelDescriptionList = new QLabel();
+    qHBoxLayout->addWidget(qLabelDescriptionList);
 
     qComboBoxMotor = new QComboBox();
     qComboBoxMotor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    qComboBoxMotor->setToolTip("Select current motor");
+    qComboBoxMotor->setToolTip("Select item to be viewed/controlled");
     QObject::connect(qComboBoxMotor, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxMotorSelected(int)));
     qHBoxLayout->addWidget(qComboBoxMotor);
 
@@ -61,13 +57,15 @@ QCaMotor::QCaMotor(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     qScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     qVBoxLayout->addLayout(qHBoxLayout);
-    //qVBoxLayout->addItem(new QSpacerItem(0, 15, QSizePolicy::Expanding, QSizePolicy::Fixed));
     qVBoxLayout->addWidget(qScrollArea);
 
     setLayout(qVBoxLayout);
+    setMotorConfigurationFile("");
+    setMotorConfigurationText("");
+    setDescriptionList("");
+    setMotorConfigurationType(FROM_FILE);
+    setShowMotorList(true);
     setCurrentUserType(getUserLevel());
-
-    //qDebug() << "END: QCaMotor";
 
 }
 
@@ -104,7 +102,7 @@ void QCaMotor::setShowMotorList(bool pValue)
 {
 
     qComboBoxMotor->setVisible(pValue);
-    qLabel->setVisible(pValue);
+    qLabelDescriptionList->setVisible(qLabelDescriptionList->text().isEmpty() == false);
 
 }
 
@@ -116,6 +114,30 @@ bool QCaMotor::getShowMotorList()
 {
 
     return qComboBoxMotor->isVisible();
+
+}
+
+
+
+
+
+
+void QCaMotor::setDescriptionList(QString pValue)
+{
+
+    qLabelDescriptionList->setText(pValue);
+    qLabelDescriptionList->setVisible(qLabelDescriptionList->text().isEmpty() == false);
+
+}
+
+
+
+
+
+QString QCaMotor::getDescriptionList()
+{
+
+    return qLabelDescriptionList->text();
 
 }
 
@@ -199,9 +221,6 @@ void QCaMotor::setMotorConfiguration(QString pValue)
     bool  flag1;
     int count;
 
-    //qDebug() << "BEGIN: setMotorConfigurationString";
-
-    //return ;
 
     motorList.clear();
 
@@ -290,7 +309,6 @@ void QCaMotor::setMotorConfiguration(QString pValue)
     }
     setCurrentUserType(currentUserType);
 
-    // qDebug() << "END: setMotorConfigurationString";
 
 }
 
@@ -316,9 +334,6 @@ void QCaMotor::setCurrentUserType(int pValue)
     QString userType;
     int i;
 
-    //qDebug() << "BEGIN: setCurrentUserType";
-
-    //return ;
 
     if (pValue == USERLEVEL_USER || pValue == USERLEVEL_SCIENTIST || pValue == USERLEVEL_ENGINEER)
     {
@@ -359,7 +374,6 @@ void QCaMotor::setCurrentUserType(int pValue)
         qComboBoxMotor->blockSignals(false);
     }
 
-    // qDebug() << "END: setCurrentUserType";
 
 }
 
@@ -393,9 +407,6 @@ void QCaMotor::refreshFields()
     _Field *field;
     bool flag;
 
-    //qDebug() << "BEGIN: refreshFields ***";
-
-    //return ;
 
     while(qVBoxLayoutFields->isEmpty() == false)
     {
@@ -478,24 +489,24 @@ void QCaMotor::refreshFields()
 
                         if (field->getType().compare("spinbox", Qt::CaseInsensitive) == 0)
                         {
-                            qCaWidget = new QCaSpinBox();
-//                            ((QCaSpinBox *) qCaWidget)->setMotorName(motor->getName());
-//                            ((QCaSpinBox *) qCaWidget)->setFieldName(field->getName());
-//                            ((QCaSpinBox *) qCaWidget)->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-//                            ((QCaSpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), motor->getSubstitution(), 0);
-//                            ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                            qCaWidget = new _QCaSpinBox();
+                            ((_QCaSpinBox *) qCaWidget)->setMotorName(motor->getName());
+                            ((_QCaSpinBox *) qCaWidget)->setFieldName(field->getName());
+//                            ((_QCaSpinBox *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
+                            ((_QCaSpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), motor->getSubstitution(), 0);
+                            ((_QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                             qHBoxLayout->addWidget((QCaSpinBox *) qCaWidget);
                         }
                         else
                         {
                             if (field->getType().compare("combobox", Qt::CaseInsensitive) == 0)
                             {
-                                qCaWidget = new QCaComboBox();
-//                                ((QCaComboBox *) qCaWidget)->setMotorName(motor->getName());
-//                                ((QCaComboBox *) qCaWidget)->setFieldName(field->getName());
-//                                ((QCaComboBox *) qCaWidget)->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-//                                ((QCaComboBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), motor->getSubstitution(), 0);
-//                                ((QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                                qCaWidget = new _QCaComboBox();
+                                ((_QCaComboBox *) qCaWidget)->setMotorName(motor->getName());
+                                ((_QCaComboBox *) qCaWidget)->setFieldName(field->getName());
+//                                ((_QCaComboBox *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
+                                ((_QCaComboBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), motor->getSubstitution(), 0);
+                                ((_QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                                 qHBoxLayout->addWidget((QCaComboBox *) qCaWidget);
                             }
                             else
@@ -503,7 +514,7 @@ void QCaMotor::refreshFields()
                                 qCaWidget = new _QCaLineEdit();
                                 ((_QCaLineEdit *) qCaWidget)->setMotorName(motor->getName());
                                 ((_QCaLineEdit *) qCaWidget)->setFieldName(field->getName());
-//                                ((_QCaLineEdit *) qCaWidget)->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+                                ((_QCaLineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
                                 ((_QCaLineEdit *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), motor->getSubstitution(), 0);
                                 ((_QCaLineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                                 qHBoxLayout->addWidget((_QCaLineEdit *) qCaWidget);
@@ -576,7 +587,6 @@ void QCaMotor::refreshFields()
 
     }
 
-    // qDebug() << "END: refreshFields";
 
 }
 
@@ -869,10 +879,6 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
     _Field *field;
 
 
-    //qDebug() << "BEGIN: _QDialogMotor";
-
-    //return ;
-
 
     qVBoxLayout = new QVBoxLayout();
     qPushButtonClose = new QPushButton();
@@ -923,8 +929,6 @@ _QDialogMotor::_QDialogMotor(QWidget *pParent, int pCurrentUserType, _Motor *pMo
     qVBoxLayout->addWidget(qPushButtonClose);
 
     setLayout(qVBoxLayout);
-
-    //qDebug() << "END: _QDialogMotor";
 
 }
 
@@ -1002,7 +1006,141 @@ void _QCaLineEdit::valueWritten(QString pNewValue, QString pOldValue)
 
     if (pOldValue != pNewValue)
     {
-        sendMessage("The value of field '" + getFieldName() + "' (of motor '" + getMotorName() + "') was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+        sendMessage("The value of field '" + getFieldName() + "' (of item '" + getMotorName() + "') was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+    }
+
+}
+
+
+
+
+
+
+// ============================================================
+//  _QCACOMBOBOX METHODS
+// ============================================================
+_QCaComboBox::_QCaComboBox(QWidget *pParent):QCaComboBox(pParent)
+{
+
+
+}
+
+
+
+void _QCaComboBox::setMotorName(QString pMotorName)
+{
+
+    motorName = pMotorName;
+
+}
+
+
+
+
+
+QString _QCaComboBox::getMotorName()
+{
+
+    return motorName;
+
+}
+
+
+
+void _QCaComboBox::setFieldName(QString pFieldName)
+{
+
+    fieldName = pFieldName;
+
+}
+
+
+
+
+
+QString _QCaComboBox::getFieldName()
+{
+
+    return fieldName;
+
+}
+
+
+
+
+void _QCaComboBox::valueWritten(QString pNewValue, QString pOldValue)
+{
+
+    if (pOldValue != pNewValue)
+    {
+        sendMessage("The value of field '" + getFieldName() + "' (of item '" + getMotorName() + "') was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+    }
+
+}
+
+
+
+
+
+
+// ============================================================
+//  _QCASPINBOX METHODS
+// ============================================================
+_QCaSpinBox::_QCaSpinBox(QWidget *pParent):QCaSpinBox(pParent)
+{
+
+
+}
+
+
+
+void _QCaSpinBox::setMotorName(QString pMotorName)
+{
+
+    motorName = pMotorName;
+
+}
+
+
+
+
+
+QString _QCaSpinBox::getMotorName()
+{
+
+    return motorName;
+
+}
+
+
+
+void _QCaSpinBox::setFieldName(QString pFieldName)
+{
+
+    fieldName = pFieldName;
+
+}
+
+
+
+
+
+QString _QCaSpinBox::getFieldName()
+{
+
+    return fieldName;
+
+}
+
+
+
+
+void _QCaSpinBox::valueWritten(QString pNewValue, QString pOldValue)
+{
+
+    if (pOldValue != pNewValue)
+    {
+        sendMessage("The value of field '" + getFieldName() + "' (of item '" + getMotorName() + "') was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
     }
 
 }

@@ -37,6 +37,8 @@
 #include <QCaPluginLibrary_global.h>
 #include <QCaWidget.h>
 #include <QCaLineEdit.h>
+#include <QCaComboBox.h>
+#include <QCaSpinBox.h>
 #include <list>
 
 using namespace std;
@@ -257,6 +259,67 @@ class _QCaLineEdit:public QCaLineEdit
 
 
 // ============================================================
+//  _QCACOMBOBOX CLASS
+// ============================================================
+class _QCaComboBox:public QCaComboBox
+{
+
+    private:
+        QString motorName;
+        QString fieldName;
+
+
+    public:
+        _QCaComboBox(QWidget * pParent = 0);
+
+        void setMotorName(QString pMotorName);
+
+        QString getMotorName();
+
+        void setFieldName(QString pFieldName);
+
+        QString getFieldName();
+
+        void valueWritten(QString pNewValue, QString pOldValue);
+
+};
+
+
+
+
+
+// ============================================================
+//  _QCASPINBOX CLASS
+// ============================================================
+class _QCaSpinBox:public QCaSpinBox
+{
+
+    private:
+        QString motorName;
+        QString fieldName;
+
+
+    public:
+        _QCaSpinBox(QWidget * pParent = 0);
+
+        void setMotorName(QString pMotorName);
+
+        QString getMotorName();
+
+        void setFieldName(QString pFieldName);
+
+        QString getFieldName();
+
+        void valueWritten(QString pNewValue, QString pOldValue);
+
+};
+
+
+
+
+
+
+// ============================================================
 //  QCAMOTOR CLASS
 // ============================================================
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
@@ -270,12 +333,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
     protected:
         list <_Motor *> motorList;
-        QLabel *qLabel;
+        QLabel *qLabelDescriptionList;
         QComboBox *qComboBoxMotor;
         QVBoxLayout *qVBoxLayoutFields;
         QScrollArea *qScrollArea;
         QString motorConfigurationFile;
         QString motorConfigurationText;
+        //QString descriptionList;
         int motorConfigurationType;
         int currentUserType;
 
@@ -291,6 +355,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
         void setShowMotorList(bool pValue);
         bool getShowMotorList();
 
+        void setDescriptionList(QString pValue);
+        QString getDescriptionList();
+
         void setMotorConfigurationFile(QString pValue);
         QString getMotorConfigurationFile();
 
@@ -305,7 +372,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
         void userLevelChanged(userLevels pValue);
 
-        Q_PROPERTY(bool showMotorList READ getShowMotorList WRITE setShowMotorList)
+        Q_PROPERTY(bool showMotorList READ getShowMotorList WRITE setShowMotorList)        
+
+        Q_PROPERTY(QString descriptionList READ getDescriptionList WRITE setDescriptionList)
+
 
         Q_ENUMS(motorConfigurationTypesProperty)
         Q_PROPERTY(motorConfigurationTypesProperty motorConfigurationType READ getMotorConfigurationTypeProperty WRITE setMotorConfigurationTypeProperty)
