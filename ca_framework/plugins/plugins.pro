@@ -260,6 +260,7 @@ SOURCES += \
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
 
+
 _EPICS_BASE = $$(EPICS_BASE)
 isEmpty( _EPICS_BASE ) {
     error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up" )
