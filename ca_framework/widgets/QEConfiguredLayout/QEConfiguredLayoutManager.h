@@ -23,21 +23,21 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QCAMOTORPLUGINMANAGER_H
-#define QCAMOTORPLUGINMANAGER_H
+#ifndef QECONFIGUREDLAYOUTMANAGER_H
+#define QECONFIGUREDLAYOUTMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotorPluginManager:public QObject, public QDesignerCustomWidgetInterface
+class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayoutManager:public QObject, public QDesignerCustomWidgetInterface
 {
 
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
     public:
-        QCaMotorPluginManager(QObject *pParent = 0);
+        QEConfiguredLayoutManager(QObject *pParent = 0);
 
         bool isContainer () const;
         bool isInitialized () const;
@@ -56,5 +56,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotorPluginManager:public QObject, public
 
 };
 
-#endif /// QCAMOTORPLUGINMANAGER_H
+#endif /// QECONFIGUREDLAYOUTMANAGER_H
 

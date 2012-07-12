@@ -48,7 +48,7 @@
 #include <QCaStripChartPluginManager.h>
 #include <QCaLoginPluginManager.h>
 #include <QCaLogPluginManager.h>
-#include <QCaMotorPluginManager.h>
+#include <QEConfiguredLayoutManager.h>
 #include <QCaFileBrowserPluginManager.h>
 
 //======================================================
@@ -86,7 +86,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEImageManager(this));
     widgets.append(new QCaLoginPluginManager(this));
     widgets.append(new QCaLogPluginManager(this));
-    widgets.append(new QCaMotorPluginManager(this));
+    widgets.append(new QEConfiguredLayoutManager(this));
     widgets.append(new QCaFileBrowserPluginManager(this));
 
     // Non-EPICS aware framework widgets

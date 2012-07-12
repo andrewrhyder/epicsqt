@@ -478,7 +478,7 @@ void _QTableWidgetFileBrowser::refreshSize()
             {
                 sizeColumn0 = 0;
                 sizeColumn1 = 1 * this->width() / 5;
-                sizeColumn2 = 4 * this->width() / 5 - 2;
+                sizeColumn2 = 4 * this->width() / 5 - 1;
             }
         }
     }
@@ -496,7 +496,7 @@ void _QTableWidgetFileBrowser::refreshSize()
             {
                 sizeColumn0 = 1 * this->width() / 5;
                 sizeColumn1 = 0;
-                sizeColumn2 = 4 * this->width() / 5 - 2;
+                sizeColumn2 = 4 * this->width() / 5 - 1;
             }
         }
         else
@@ -504,14 +504,14 @@ void _QTableWidgetFileBrowser::refreshSize()
             if (this->isColumnHidden(2))
             {
                 sizeColumn0 = this->width() / 2;
-                sizeColumn1 = this->width() / 2 - 2;
+                sizeColumn1 = this->width() / 2 - 1;
                 sizeColumn2 = 0;
             }
             else
             {
                 sizeColumn0 = 1 * this->width() / 5;
                 sizeColumn1 = 1 * this->width() / 5;
-                sizeColumn2 = 3 * this->width() / 5 - 2;
+                sizeColumn2 = 3 * this->width() / 5 - 1;
             }
         }
     }

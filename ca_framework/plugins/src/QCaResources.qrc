@@ -16,7 +16,6 @@
         <file>QCaRadioButton.png</file>
         <file>QCaLogin.png</file>
         <file>QCaLog.png</file>
-        <file>QCaMotor.png</file>
         <file>QCaFileBrowser.png</file>
     </qresource>
 </RCC>

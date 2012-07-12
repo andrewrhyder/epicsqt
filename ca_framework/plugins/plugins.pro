@@ -46,7 +46,6 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaLogin.png \
     src/record_field_list.txt \
     src/QCaLog.png \
-    src/QCaMotor.png \
     src/QCaFileBrowser.png \
     src/cameraROI.png \
     src/cameraROIreset.png \
@@ -90,7 +89,6 @@ HEADERS += \
     include/PeriodicElementSetupForm.h \
     include/QCaLoginPluginManager.h \
     include/QCaLogPluginManager.h \
-    include/QCaMotorPluginManager.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -138,9 +136,9 @@ HEADERS += \
     ../widgets/include/PeriodicDialog.h \
     ../widgets/include/QCaLogin.h \
     ../widgets/include/QCaLog.h \
-    ../widgets/include/QCaMotor.h \
     ../widgets/include/QCaFileBrowser.h \
-    include/QCaFileBrowserPluginManager.h
+    include/QCaFileBrowserPluginManager.h \
+
 
 #====================================
 # common properties
@@ -184,7 +182,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/PeriodicElementSetupForm.cpp \
     src/QCaLoginPluginManager.cpp \
     src/QCaLogPluginManager.cpp \
-    src/QCaMotorPluginManager.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -230,9 +227,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/PeriodicDialog.cpp \
     ../widgets/src/QCaLogin.cpp \
     ../widgets/src/QCaLog.cpp \
-    ../widgets/src/QCaMotor.cpp \
     ../widgets/src/QCaFileBrowser.cpp \
-    src/QCaFileBrowserPluginManager.cpp
+    src/QCaFileBrowserPluginManager.cpp \
 
 
 #====================================
@@ -509,6 +505,30 @@ SOURCES += \
 
 INCLUDEPATH += \
     ../widgets/QEImage
+
+
+#===========================================================
+# QEConfiguredLayout
+#
+OTHER_FILES += \
+    ../widgets/QEConfiguredLayout/QEConfiguredLayout.png
+
+RESOURCES += \
+    ../widgets/QEConfiguredLayout/QEConfiguredLayout.qrc
+
+HEADERS += \
+    ../widgets/QEConfiguredLayout/QEConfiguredLayout.h \
+    ../widgets/QEConfiguredLayout/QEConfiguredLayoutManager.h
+
+SOURCES += \
+    ../widgets/QEConfiguredLayout/QEConfiguredLayout.cpp \
+    ../widgets/QEConfiguredLayout/QEConfiguredLayoutManager.cpp
+
+INCLUDEPATH += \
+    ../widgets/QEConfiguredLayout
+
+
+
 
 #===========================================================
 # QEPlot

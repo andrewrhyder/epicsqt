@@ -22,13 +22,13 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QCaMotorPluginManager.h>
-#include <QCaMotor.h>
+#include <QEConfiguredLayoutManager.h>
+#include <QEConfiguredLayout.h>
 #include <QtPlugin>
 
 
 
-QCaMotorPluginManager::QCaMotorPluginManager(QObject *pParent):QObject(pParent)
+QEConfiguredLayoutManager::QEConfiguredLayoutManager(QObject *pParent):QObject(pParent)
 {
 
     initialized = false;
@@ -37,7 +37,7 @@ QCaMotorPluginManager::QCaMotorPluginManager(QObject *pParent):QObject(pParent)
 
 
 
-void QCaMotorPluginManager::initialize(QDesignerFormEditorInterface *)
+void QEConfiguredLayoutManager::initialize(QDesignerFormEditorInterface *)
 {
 
     if (initialized == false)
@@ -49,7 +49,7 @@ void QCaMotorPluginManager::initialize(QDesignerFormEditorInterface *)
 
 
 
-bool QCaMotorPluginManager::isInitialized() const
+bool QEConfiguredLayoutManager::isInitialized() const
 {
 
     return initialized;
@@ -58,24 +58,24 @@ bool QCaMotorPluginManager::isInitialized() const
 
 
 
-QWidget *QCaMotorPluginManager::createWidget(QWidget *pParent)
+QWidget *QEConfiguredLayoutManager::createWidget(QWidget *pParent)
 {
 
-    return new QCaMotor(pParent);
+    return new QEConfiguredLayout(pParent);
 }
 
 
 
-QString QCaMotorPluginManager::name() const
+QString QEConfiguredLayoutManager::name() const
 {
 
-    return "QCaMotor";
+    return "QEConfiguredLayout";
 
 }
 
 
 
-QString QCaMotorPluginManager::group() const
+QString QEConfiguredLayoutManager::group() const
 {
 
     return "EPICS Widgets";
@@ -84,34 +84,34 @@ QString QCaMotorPluginManager::group() const
 
 
 
-QIcon QCaMotorPluginManager::icon() const
+QIcon QEConfiguredLayoutManager::icon() const
 {
 
-    return QIcon(":/icons/QCaMotor.png");
+    return QIcon(":/icons/QEConfiguredLayout.png");
 
 }
 
 
 
-QString QCaMotorPluginManager::toolTip() const
+QString QEConfiguredLayoutManager::toolTip() const
 {
 
-    return "EPICS Motor";
+    return "EPICS Configured Layout";
 
 }
 
 
 
-QString QCaMotorPluginManager::whatsThis() const
+QString QEConfiguredLayoutManager::whatsThis() const
 {
 
-    return "EPICS Motor";
+    return "EPICS Configured Layout";
 
 }
 
 
 
-bool QCaMotorPluginManager::isContainer() const
+bool QEConfiguredLayoutManager::isContainer() const
 {
 
     return false;
@@ -119,18 +119,18 @@ bool QCaMotorPluginManager::isContainer() const
 
 
 
-QString QCaMotorPluginManager::includeFile() const
+QString QEConfiguredLayoutManager::includeFile() const
 {
 
-    return "QCaMotorPluginManager.h";
+    return "QEConfiguredLayoutManager.h";
 
 }
 
 
 
 
-/*QString QCaMotorPluginManager::domXml() const {
-    return "<widget class=\"QCaMotor\" name=\"QCaMotor\">\n"
+/*QString QEConfiguredLayoutManager::domXml() const {
+    return "<widget class=\"QEConfiguredLayout\" name=\"QEConfiguredLayout\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"

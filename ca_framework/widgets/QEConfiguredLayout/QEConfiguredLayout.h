@@ -22,8 +22,8 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QCAMOTOR_H
-#define QCAMOTOR_H
+#ifndef QECONFIGUREDLAYOUT_H
+#define QECONFIGUREDLAYOUT_H
 
 #include <QWidget>
 #include <QDialog>
@@ -45,7 +45,7 @@ using namespace std;
 
 
 
-enum motorConfiguration
+enum configuration
 {
     FROM_FILE,
     FROM_TEXT
@@ -128,9 +128,9 @@ class _Group
 
 
 // ============================================================
-//  MOTOR CLASS
+//  CONFIGUREDLAYOUT CLASS
 // ============================================================
-class _Motor
+class _Item
 {
 
     private:
@@ -143,7 +143,7 @@ class _Motor
 
 
     public:
-        _Motor();
+        _Item();
 
         void setName(QString pValue);
 
@@ -168,9 +168,9 @@ class _Motor
 
 
 // ============================================================
-//  _QDIALOGMOTOR CLASS
+//  _QDIALOGITEM CLASS
 // ============================================================
-class _QDialogMotor:public QDialog
+class _QDialogItem:public QDialog
 {
 
     Q_OBJECT
@@ -180,7 +180,7 @@ class _QDialogMotor:public QDialog
 
 
     public:
-        _QDialogMotor(QWidget * pParent = 0, int pCurrentUserType = 0, _Motor *pMotor = 0, _Group *pGroup = 0, Qt::WindowFlags pF = 0);
+        _QDialogItem(QWidget * pParent = 0, int pCurrentUserType = 0, _Item *pItem = 0, _Group *pGroup = 0, Qt::WindowFlags pF = 0);
 
 
     private slots:
@@ -214,7 +214,7 @@ class _QPushButtonGroup:public QPushButton
         void showDialogGroup();
 
         // TODO: these attributes should be private
-        _Motor *motor;
+        _Item *item;
         _Group *group;
         int currentUserType;
 
@@ -236,16 +236,16 @@ class _QCaLineEdit:public QCaLineEdit
 {
 
     private:
-        QString motorName;
+        QString itemName;
         QString fieldName;
 
 
     public:
         _QCaLineEdit(QWidget * pParent = 0);
 
-        void setMotorName(QString pMotorName);
+        void setItemName(QString pItemName);
 
-        QString getMotorName();
+        QString getItemName();
 
         void setFieldName(QString pFieldName);
 
@@ -265,16 +265,16 @@ class _QCaComboBox:public QCaComboBox
 {
 
     private:
-        QString motorName;
+        QString itemName;
         QString fieldName;
 
 
     public:
         _QCaComboBox(QWidget * pParent = 0);
 
-        void setMotorName(QString pMotorName);
+        void setItemName(QString pItemName);
 
-        QString getMotorName();
+        QString getItemName();
 
         void setFieldName(QString pFieldName);
 
@@ -295,16 +295,16 @@ class _QCaSpinBox:public QCaSpinBox
 {
 
     private:
-        QString motorName;
+        QString itemName;
         QString fieldName;
 
 
     public:
         _QCaSpinBox(QWidget * pParent = 0);
 
-        void setMotorName(QString pMotorName);
+        void setItemName(QString pItemName);
 
-        QString getMotorName();
+        QString getItemName();
 
         void setFieldName(QString pFieldName);
 
@@ -320,49 +320,49 @@ class _QCaSpinBox:public QCaSpinBox
 
 
 // ============================================================
-//  QCAMOTOR CLASS
+//  QECONFIGUREDLAYOUT CLASS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
+class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QCaWidget
 {
 
     Q_OBJECT
 
     private:
-        void setMotorConfiguration(QString pValue);
+        void setConfiguration(QString pValue);
 
 
     protected:
-        list <_Motor *> motorList;
+        list <_Item *> itemList;
         QLabel *qLabelDescriptionList;
-        QComboBox *qComboBoxMotor;
+        QComboBox *qComboBoxItemList;
         QVBoxLayout *qVBoxLayoutFields;
         QScrollArea *qScrollArea;
-        QString motorConfigurationFile;
-        QString motorConfigurationText;
+        QString configurationFile;
+        QString configurationText;
         //QString descriptionList;
-        int motorConfigurationType;
+        int configurationType;
         int currentUserType;
 
 
     public:
 
-        QCaMotor(QWidget *pParent = 0);
-        virtual ~QCaMotor(){}
+        QEConfiguredLayout(QWidget *pParent = 0);
+        virtual ~QEConfiguredLayout(){}
 
-        void setMotorConfigurationType(int pValue);
-        int getMotorConfigurationType();
+        void setConfigurationType(int pValue);
+        int getConfigurationType();
 
-        void setShowMotorList(bool pValue);
-        bool getShowMotorList();
+        void setShowItemList(bool pValue);
+        bool getShowItemList();
 
         void setDescriptionList(QString pValue);
         QString getDescriptionList();
 
-        void setMotorConfigurationFile(QString pValue);
-        QString getMotorConfigurationFile();
+        void setConfigurationFile(QString pValue);
+        QString getConfigurationFile();
 
-        void setMotorConfigurationText(QString pValue);
-        QString getMotorConfigurationText();
+        void setConfigurationText(QString pValue);
+        QString getConfigurationText();
 
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
@@ -372,31 +372,31 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
         void userLevelChanged(userLevels pValue);
 
-        Q_PROPERTY(bool showMotorList READ getShowMotorList WRITE setShowMotorList)        
+        Q_PROPERTY(bool showItemList READ getShowItemList WRITE setShowItemList)
 
         Q_PROPERTY(QString descriptionList READ getDescriptionList WRITE setDescriptionList)
 
 
-        Q_ENUMS(motorConfigurationTypesProperty)
-        Q_PROPERTY(motorConfigurationTypesProperty motorConfigurationType READ getMotorConfigurationTypeProperty WRITE setMotorConfigurationTypeProperty)
-        enum motorConfigurationTypesProperty
+        Q_ENUMS(configurationTypesProperty)
+        Q_PROPERTY(configurationTypesProperty configurationType READ getConfigurationTypeProperty WRITE setConfigurationTypeProperty)
+        enum configurationTypesProperty
         {
             File = FROM_FILE,
             Text = FROM_TEXT
         };
 
-        void setMotorConfigurationTypeProperty(motorConfigurationTypesProperty pMotorConfigurationType)
+        void setConfigurationTypeProperty(configurationTypesProperty pConfigurationType)
         {
-            setMotorConfigurationType((motorConfigurationTypesProperty) pMotorConfigurationType);
+            setConfigurationType((configurationTypesProperty) pConfigurationType);
         }
-        motorConfigurationTypesProperty getMotorConfigurationTypeProperty()
+        configurationTypesProperty getConfigurationTypeProperty()
         {
-            return (motorConfigurationTypesProperty) getMotorConfigurationType();
+            return (configurationTypesProperty) getConfigurationType();
         }
 
-        Q_PROPERTY(QString motorConfigurationFile READ getMotorConfigurationFile WRITE setMotorConfigurationFile)
+        Q_PROPERTY(QString configurationFile READ getConfigurationFile WRITE setConfigurationFile)
 
-        Q_PROPERTY(QString motorConfigurationText READ getMotorConfigurationText WRITE setMotorConfigurationText)
+        Q_PROPERTY(QString configurationText READ getConfigurationText WRITE setConfigurationText)
 
         Q_ENUMS(userTypesProperty)
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
@@ -419,7 +419,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
 
     private slots:
-        void comboBoxMotorSelected(int);
+        void comboBoxItemSelected(int);
 
 
 };
@@ -428,7 +428,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaMotor:public QWidget, public QCaWidget
 
 
 
-#endif /// QCAMOTOR_H
+#endif /// QCACONFIGUREDLAYOUT_H
 
 
 
