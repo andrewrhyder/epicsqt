@@ -45,8 +45,8 @@
 
   To allow this class to obtain text for dragging, or deliver text dropped, the QCa widget also needs to
   implement the following functions defined in this class:
-        setDropText()
-        getDropText()
+        setDrop()
+        getDrop()
 
   Typically, the text dragged and dropped is the underlying PV
 
@@ -92,14 +92,27 @@ void QCaDragDrop::qcaDropEvent(QDropEvent *event)
         return;
     }
 
-    // Get the component textual parts
+    // Get the drop data
     const QMimeData *mime = event->mimeData();
-    QStringList pieces = mime->text().split(QRegExp("\\s+"),
-                         QString::SkipEmptyParts);
 
-    // Carry out the drop action
-    // Assume only the first text part is of interest
-    setDropText( pieces[0] );
+    // If there is any text, drop the text
+    if( !mime->text().isEmpty() )
+    {
+        // Get the component textual parts
+        QStringList pieces = mime->text().split(QRegExp("\\s+"),
+                             QString::SkipEmptyParts);
+
+        // Carry out the drop action
+        // Assume only the first text part is of interest
+        setDrop( pieces[0] );
+    }
+
+    // There is no text. If there is any image data, drop the image
+    else if( !mime->imageData().isNull() )
+    {
+        QVariant image = mime->imageData();
+        setDrop( image );
+    }
 
     // Tell the dropee that the drop has been acted on
     if (event->source() == owner )
@@ -125,13 +138,37 @@ void QCaDragDrop::qcaMousePressEvent(QMouseEvent *event)
 
         // Set up the transfer data
         QMimeData *mimeData = new QMimeData;
-        mimeData->setText( getDropText() );
+        QVariant dropData = getDrop();
+        switch( dropData.type() )
+        {
+            default:
+            case QVariant::String:
+                mimeData->setText( dropData.toString() );
+                break;
+
+            case QVariant::Image:
+                mimeData->setImageData( dropData );
+                break;
+        }
+
         mimeData->setData( "application/x-hotspot",
                            QByteArray::number( hotSpot.x() )
                            + " " + QByteArray::number( hotSpot.y()) );
 
+        // Determine the size of the copy of the object that is dragged
+        // It will be the full size unless it exceeds a maximum height or width, in which case it is scaled
+        QSize pixSize = owner->size();
+        double widthScale = (double)(pixSize.width())/100.0;
+        double heightScale = (double)(pixSize.height())/50.0;
+        double scale = std::max( widthScale, heightScale );
+        if( scale > 1.0 )
+        {
+            pixSize.setWidth( pixSize.width() / scale );
+            pixSize.setHeight( pixSize.height() / scale );
+        }
+
         // Get a copy of the object
-        QPixmap pixmap( owner->size() );
+        QPixmap pixmap( pixSize );
         owner->render( &pixmap );
 
         // Set up the drag

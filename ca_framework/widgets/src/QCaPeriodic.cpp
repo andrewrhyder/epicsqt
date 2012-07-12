@@ -782,15 +782,15 @@ void QCaPeriodic::updatePresentationOptions()
 
 //==============================================================================
 // Drag drop
-void QCaPeriodic::setDropText( QString text )
+void QCaPeriodic::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QCaPeriodic::getDropText()
+QVariant QCaPeriodic::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }
 
 //==============================================================================

@@ -247,15 +247,15 @@ void QCaSpinBox::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag drop
-void QCaSpinBox::setDropText( QString text )
+void QCaSpinBox::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QCaSpinBox::getDropText()
+QVariant QCaSpinBox::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }
 
 //==============================================================================

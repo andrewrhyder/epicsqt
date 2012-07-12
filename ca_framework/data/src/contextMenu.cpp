@@ -1,4 +1,6 @@
 #include "contextMenu.h"
+#include <QClipboard>
+#include <QApplication>
 #include <QDebug>
 
 // Create a context menu
@@ -104,26 +106,49 @@ void contextMenu::doCopyVariable()
 {
     qDebug() << "contextMenu::doCopyVariable()";
     QString s = copyVariable();
+    QClipboard *cb = QApplication::clipboard();
+    cb->setText( s );
 }
 
 void contextMenu::doCopyData()
 {
     qDebug() << "contextMenu::doCopyData()";
-    QString s = copyData();
+    QClipboard *cb = QApplication::clipboard();
+    QVariant v = copyData();
+    switch( v.type() )
+    {
+        default:
+        case QVariant::String:
+            cb->setText( v.toString() );
+            break;
 
+        case QVariant::Image:
+            cb->setImage( v.value<QImage>() );
+            break;
+    }
 }
 
-void contextMenu::copyToClipboard( QString text )
-{
-    qDebug() << "contextMenu::copyToClipboard()" << text;
-    //!! copy text to clipboard
-}
+//void contextMenu::copyToClipboard( QString text )
+//{
+//    qDebug() << "contextMenu::copyToClipboard()" << text;
+//    //!! copy text to clipboard
+//}
 
 void contextMenu::doPaste()
 {
     qDebug() << "contextMenu::doPaste()";
-    //!! get text from clipboard
-    paste( "PASTE!!!" );
+
+    QVariant v;
+    QClipboard *cb = QApplication::clipboard();
+    if( !cb->text().isEmpty() )
+    {
+        v = QVariant( cb->text() );
+    }
+    else if( !cb->image().isNull() )
+    {
+        v = QVariant( cb->image() );
+    }
+    paste( v );
 }
 
 bool contextMenu::isDraggingVariable()

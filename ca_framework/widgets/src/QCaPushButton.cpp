@@ -85,14 +85,14 @@ void QCaPushButton::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag drop
-void QCaPushButton::setDropText( QString text )
+void QCaPushButton::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QCaPushButton::getDropText()
+QVariant QCaPushButton::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }
 

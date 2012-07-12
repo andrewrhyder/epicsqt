@@ -249,15 +249,15 @@ void QEBitStatus::requestEnabled (const bool & state)
 
 //==============================================================================
 // Drag drop
-void QEBitStatus::setDropText( QString text )
+void QEBitStatus::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QEBitStatus::getDropText()
+QVariant QEBitStatus::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }
 
 //==============================================================================

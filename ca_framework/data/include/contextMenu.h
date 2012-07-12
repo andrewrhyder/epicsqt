@@ -44,14 +44,14 @@ public:
     void triggered( contextMenuOptions option );
 
     virtual QString copyVariable(){ return ""; }
-    virtual QString copyData(){ return ""; }
-    virtual void paste( QString ){}
+    virtual QVariant copyData(){ return ""; }
+    virtual void paste( QVariant ){}
 
 private:
     contextMenuObject* object;
     void doCopyVariable();
     void doCopyData();
-    void copyToClipboard( QString text );
+//    void copyToClipboard( QString text );
     void doPaste();
     bool draggingVariable;
 

@@ -941,11 +941,11 @@ void QEStripChart::setYMaximum (double yMaximumIn)
 
 //----------------------------------------------------------------------------
 //
-void QEStripChart::setDropText (QString text)
+void QEStripChart::setDrop (QVariant drop)
 {
    // Use dropped text to add a PV tp the chart.
    //
-   this->addPvName (text);
+   this->addPvName (drop.toString());
 }
 
 //----------------------------------------------------------------------------

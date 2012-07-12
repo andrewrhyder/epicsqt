@@ -85,13 +85,13 @@ void QCaRadioButton::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag drop
-void QCaRadioButton::setDropText( QString text )
+void QCaRadioButton::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QCaRadioButton::getDropText()
+QVariant QCaRadioButton::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }

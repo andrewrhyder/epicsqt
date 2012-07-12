@@ -216,8 +216,8 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
-    void setDropText( QString text );
-    QString getDropText();
+    void setDrop( QVariant drop );
+    QVariant getDrop();
 };
 
 Q_DECLARE_METATYPE(QCaPeriodic::userInfoStructArray)

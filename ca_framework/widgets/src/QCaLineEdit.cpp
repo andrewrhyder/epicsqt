@@ -321,15 +321,15 @@ void QCaLineEdit::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag drop
-void QCaLineEdit::setDropText( QString text )
+void QCaLineEdit::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QCaLineEdit::getDropText()
+QVariant QCaLineEdit::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }
 
 //==============================================================================

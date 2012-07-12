@@ -247,15 +247,15 @@ void QCaSlider::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag drop
-void QCaSlider::setDropText( QString text )
+void QCaSlider::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QCaSlider::getDropText()
+QVariant QCaSlider::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }
 
 //==============================================================================

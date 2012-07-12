@@ -248,15 +248,15 @@ void QCaComboBox::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag drop
-void QCaComboBox::setDropText( QString text )
+void QCaComboBox::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QCaComboBox::getDropText()
+QVariant QCaComboBox::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }
 
 //==============================================================================

@@ -283,15 +283,15 @@ void QEAnalogProgressBar::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag drop
-void QEAnalogProgressBar::setDropText( QString text )
+void QEAnalogProgressBar::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QEAnalogProgressBar::getDropText()
+QVariant QEAnalogProgressBar::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    return QVariant( getSubstitutedVariableName(0) );
 }
 
 //==============================================================================

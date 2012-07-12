@@ -41,6 +41,7 @@ public:
     QPoint scalePoint( QPoint pnt );
     int scaleOrdinate( int ord );
 
+    QImage getImage(){ return currentImage; }
 
 
 protected:
@@ -56,6 +57,7 @@ protected:
     void resizeEvent( QResizeEvent *event );
     void markupSetCursor( QCursor cursor );
     void markupAction( markupModes mode, QPoint point1, QPoint point2 );
+
 
 signals:
     void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 );

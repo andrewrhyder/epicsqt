@@ -424,9 +424,9 @@ bool QCaPlot::getAllowDrop()
 
 //==============================================================================
 // Drag and Drop
-void QCaPlot::setDropText( QString text )
+void QCaPlot::setDrop( QVariant drop )
 {
-    QStringList PVs = text.split( ' ' );
+    QStringList PVs = drop.toString().split( ' ' );
     for( int i = 0; i < PVs.size() && i < QCAPLOT_NUM_VARIABLES; i++ )
     {
         setVariableName( PVs[i], i );
@@ -434,7 +434,7 @@ void QCaPlot::setDropText( QString text )
     }
 }
 
-QString QCaPlot::getDropText()
+QVariant QCaPlot::getDrop()
 {
     QString text;
     for( int i = 0; i < QCAPLOT_NUM_VARIABLES; i++ )
@@ -448,7 +448,7 @@ QString QCaPlot::getDropText()
         }
     }
 
-        return text;
+    return QVariant( text );
 }
 
 //==============================================================================

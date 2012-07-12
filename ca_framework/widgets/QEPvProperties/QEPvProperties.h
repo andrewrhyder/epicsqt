@@ -161,8 +161,8 @@ protected:
 
    // Override QCaDragDrop functions.
    //
-   void setDropText (QString text);
-   QString getDropText ();
+   void setDrop (QVariant drop);
+   QVariant getDrop ();
 
 public:
    /// Constructors

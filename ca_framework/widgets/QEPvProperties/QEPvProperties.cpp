@@ -755,19 +755,19 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
 //==============================================================================
 // Drag drop
 //
-void QEPvProperties::setDropText (QString text)
+void QEPvProperties::setDrop (QVariant drop)
 {
-   setVariableName (text, 0);
+   setVariableName( drop.toString(), 0);
    this->establishConnection (0);
 }
 
 //------------------------------------------------------------------------------
 //
-QString QEPvProperties::getDropText ()
+QVariant QEPvProperties::getDrop ()
 {
    // Note: we return the record name, as opposed to the selected PV name.
    //
-   return this->recordBaseName;
+   return QVariant( this->recordBaseName );
 }
 
 

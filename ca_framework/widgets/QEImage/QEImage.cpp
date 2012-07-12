@@ -1108,15 +1108,38 @@ void QEImage::resizeEvent(QResizeEvent* )
 
 //==============================================================================
 // Drag drop
-void QEImage::setDropText( QString text )
+void QEImage::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QEImage::getDropText()
+QVariant QEImage::getDrop()
+{
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
+}
+
+//==============================================================================
+// Copy / Paste
+QString QEImage::copyVariable()
 {
     return getSubstitutedVariableName(0);
+}
+
+QVariant QEImage::copyData()
+{
+    return QVariant( videoWidget->getImage() );
+}
+
+void QEImage::paste( QVariant v )
+{
+    if( allowDrop )
+    {
+        setDrop( v );
+    }
 }
 
 //==============================================================================

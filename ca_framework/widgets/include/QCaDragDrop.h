@@ -45,8 +45,8 @@ public:
 
     // Virtual functions to allow this class to get and set the QCa widgets drag/drop text
     // They are not defined as pure virtual as the QCa widget does not have to use this class's drag drop.
-    virtual void setDropText( QString ) {}
-    virtual QString getDropText() { return ""; }
+    virtual void setDrop( QVariant ) {}
+    virtual QVariant getDrop() { return QVariant(); }
 
 private:
     QWidget* owner;

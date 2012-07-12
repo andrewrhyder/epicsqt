@@ -140,7 +140,7 @@ protected:
 
    // Override QCaDragDrop functions.
    //
-   void setDropText (QString text);
+   void setDrop (QVariant drop);
 
    // override pure virtual functions
    //

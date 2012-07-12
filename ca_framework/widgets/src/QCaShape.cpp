@@ -509,9 +509,9 @@ void QCaShape::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag and Drop
-void QCaShape::setDropText( QString text )
+void QCaShape::setDrop( QVariant drop )
 {
-    QStringList PVs = text.split( ' ' );
+    QStringList PVs = drop.toString().split( ' ' );
     for( int i = 0; i < PVs.size() && i < QCASHAPE_NUM_VARIABLES; i++ )
     {
         setVariableName( PVs[i], i );
@@ -519,7 +519,7 @@ void QCaShape::setDropText( QString text )
     }
 }
 
-QString QCaShape::getDropText()
+QVariant QCaShape::getDrop()
 {
     QString text;
     for( int i = 0; i < QCASHAPE_NUM_VARIABLES; i++ )
@@ -533,7 +533,7 @@ QString QCaShape::getDropText()
         }
     }
 
-        return text;
+    return QVariant( text );
 }
 
 //==============================================================================

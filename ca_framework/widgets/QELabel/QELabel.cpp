@@ -235,15 +235,18 @@ void QELabel::requestEnabled( const bool& state )
 
 //==============================================================================
 // Drag drop
-void QELabel::setDropText( QString text )
+void QELabel::setDrop( QVariant drop )
 {
-    setVariableName( text, 0 );
+    setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QString QELabel::getDropText()
+QVariant QELabel::getDrop()
 {
-    return getSubstitutedVariableName(0);
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
 }
 
 //==============================================================================
@@ -253,15 +256,17 @@ QString QELabel::copyVariable()
     return getSubstitutedVariableName(0);
 }
 
-QString QELabel::copyData()
+QVariant QELabel::copyData()
 {
-    return currentText;
+    return QVariant( currentText );
 }
 
-void QELabel::paste( QString s )
+void QELabel::paste( QVariant v )
 {
-//!! only do this if drop enabled
-//!!    setDropText( s );
+    if( allowDrop )
+    {
+        setDrop( v );
+    }
 }
 
 //==============================================================================
