@@ -46,10 +46,10 @@
 #include <QCaPvPropertiesPluginManager.h>
 #include <QEStripChartManager.h>
 #include <QCaStripChartPluginManager.h>
-#include <QCaLoginPluginManager.h>
-#include <QCaLogPluginManager.h>
 #include <QEConfiguredLayoutManager.h>
-#include <QCaFileBrowserPluginManager.h>
+#include <QEFileBrowserManager.h>
+#include <QELoginManager.h>
+#include <QELogManager.h>
 
 //======================================================
 // Deprecated widgets
@@ -67,9 +67,14 @@
 QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEAnalogProgressBarManager(this));
     widgets.append(new QEBitStatusManager(this));
+    widgets.append(new QEConfiguredLayoutManager(this));
+    widgets.append(new QEFileBrowserManager(this));
     widgets.append(new QELabelManager(this));
+    widgets.append(new QELoginManager(this));
+    widgets.append(new QELogManager(this));
     widgets.append(new QEPvPropertiesManager(this));
     widgets.append(new QEStripChartManager(this));
+
 
     widgets.append(new QSubstitutedLabelPluginManager(this));
     widgets.append(new QCaLineEditPluginManager(this));
@@ -84,10 +89,6 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaPlotPluginManager(this));
     widgets.append(new QCaPeriodicPluginManager(this));
     widgets.append(new QEImageManager(this));
-    widgets.append(new QCaLoginPluginManager(this));
-    widgets.append(new QCaLogPluginManager(this));
-    widgets.append(new QEConfiguredLayoutManager(this));
-    widgets.append(new QCaFileBrowserPluginManager(this));
 
     // Non-EPICS aware framework widgets
     widgets.append(new QAnalogProgressBarPluginManager(this));

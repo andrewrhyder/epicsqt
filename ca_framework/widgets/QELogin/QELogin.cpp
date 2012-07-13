@@ -27,16 +27,16 @@
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QRadioButton>
-#include <QCaLogin.h>
+#include <QELogin.h>
 #include <QDebug>
 
 
 
 
 // ============================================================
-//  QCALOGIN METHODS
+//  QELOGIN METHODS
 // ============================================================
-QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
+QELogin::QELogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 {
 
     qLabelUserType = new QLabel(this);
@@ -70,7 +70,7 @@ QCaLogin::QCaLogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 
 
 
-void QCaLogin::setShowLabelUserType(bool pValue)
+void QELogin::setShowLabelUserType(bool pValue)
 {
 
     qLabelUserType->setVisible(pValue);
@@ -79,7 +79,7 @@ void QCaLogin::setShowLabelUserType(bool pValue)
 
 
 
-bool QCaLogin::getShowLabelUserType()
+bool QELogin::getShowLabelUserType()
 {
 
     return qLabelUserType->isVisible();
@@ -89,7 +89,7 @@ bool QCaLogin::getShowLabelUserType()
 
 
 
-void QCaLogin::setShowButtonLogin(bool pValue)
+void QELogin::setShowButtonLogin(bool pValue)
 {
 
     qPushButtonLogin->setVisible(pValue);
@@ -98,7 +98,7 @@ void QCaLogin::setShowButtonLogin(bool pValue)
 
 
 
-bool QCaLogin::getShowButtonLogin()
+bool QELogin::getShowButtonLogin()
 {
 
     return qPushButtonLogin->isVisible();
@@ -108,7 +108,7 @@ bool QCaLogin::getShowButtonLogin()
 
 
 
-void QCaLogin::setShowButtonLogout(bool pValue)
+void QELogin::setShowButtonLogout(bool pValue)
 {
 
     qPushButtonLogout->setVisible(pValue);
@@ -117,7 +117,7 @@ void QCaLogin::setShowButtonLogout(bool pValue)
 
 
 
-bool QCaLogin::getShowButtonLogout()
+bool QELogin::getShowButtonLogout()
 {
 
     return qPushButtonLogout->isVisible();
@@ -127,7 +127,7 @@ bool QCaLogin::getShowButtonLogout()
 
 
 
-void QCaLogin::setUserPassword(QString pValue)
+void QELogin::setUserPassword(QString pValue)
 {
 
     userPassword = pValue;
@@ -136,7 +136,7 @@ void QCaLogin::setUserPassword(QString pValue)
 
 
 
-QString QCaLogin::getUserPassword()
+QString QELogin::getUserPassword()
 {
 
     return userPassword;
@@ -144,7 +144,7 @@ QString QCaLogin::getUserPassword()
 }
 
 
-void QCaLogin::setScientistPassword(QString pValue)
+void QELogin::setScientistPassword(QString pValue)
 {
 
     scientistPassword = pValue;
@@ -152,7 +152,7 @@ void QCaLogin::setScientistPassword(QString pValue)
 }
 
 
-QString QCaLogin::getScientistPassword()
+QString QELogin::getScientistPassword()
 {
 
     return scientistPassword;
@@ -160,7 +160,7 @@ QString QCaLogin::getScientistPassword()
 }
 
 
-void QCaLogin::setEngineerPassword(QString pValue)
+void QELogin::setEngineerPassword(QString pValue)
 {
 
     engineerPassword = pValue;
@@ -169,7 +169,7 @@ void QCaLogin::setEngineerPassword(QString pValue)
 
 
 
-QString QCaLogin::getEngineerPassword()
+QString QELogin::getEngineerPassword()
 {
 
     return engineerPassword;
@@ -178,7 +178,7 @@ QString QCaLogin::getEngineerPassword()
 
 
 
-void QCaLogin::setCurrentUserType(int pValue)
+void QELogin::setCurrentUserType(int pValue)
 {
 
     switch(pValue)
@@ -215,7 +215,7 @@ void QCaLogin::setCurrentUserType(int pValue)
 
 
 
-QString QCaLogin::getUserTypeName(userLevels type)
+QString QELogin::getUserTypeName(userLevels type)
 {
     switch( type )
     {
@@ -228,7 +228,7 @@ QString QCaLogin::getUserTypeName(userLevels type)
 
 
 
-int QCaLogin::getCurrentUserType()
+int QELogin::getCurrentUserType()
 {
 
     return currentUserType;
@@ -238,7 +238,7 @@ int QCaLogin::getCurrentUserType()
 
 
 
-void QCaLogin::setDetailsLayout(int pValue)
+void QELogin::setDetailsLayout(int pValue)
 {
     QLayout *qLayout;
 
@@ -287,7 +287,7 @@ void QCaLogin::setDetailsLayout(int pValue)
 
 
 
-int QCaLogin::getDetailsLayout()
+int QELogin::getDetailsLayout()
 {
 
     return detailsLayout;
@@ -297,23 +297,23 @@ int QCaLogin::getDetailsLayout()
 
 
 
-void QCaLogin::buttonLoginClicked()
+void QELogin::buttonLoginClicked()
 {
 
-    _QDialogLogin *qCaLoginDialog;
+    _QDialogLogin *qELoginDialog;
 
-    qCaLoginDialog = new _QDialogLogin(this);
-    qCaLoginDialog->exec();
+    qELoginDialog = new _QDialogLogin(this);
+    qELoginDialog->exec();
 
 }
 
 
 
 
-void QCaLogin::buttonLogoutClicked()
+void QELogin::buttonLogoutClicked()
 {
 
-    _QDialogLogin *qCaLoginDialog;
+    _QDialogLogin *qELoginDialog;
     int logoutUserType;
 
 
@@ -329,8 +329,8 @@ void QCaLogin::buttonLogoutClicked()
             }
             else
             {
-                qCaLoginDialog = new _QDialogLogin(this, USERLEVEL_USER);
-                qCaLoginDialog->exec();
+                qELoginDialog = new _QDialogLogin(this, USERLEVEL_USER);
+                qELoginDialog->exec();
             }
         }
         else
@@ -343,8 +343,8 @@ void QCaLogin::buttonLogoutClicked()
                 }
                 else
                 {
-                    qCaLoginDialog = new _QDialogLogin(this, USERLEVEL_SCIENTIST);
-                    qCaLoginDialog->exec();
+                    qELoginDialog = new _QDialogLogin(this, USERLEVEL_SCIENTIST);
+                    qELoginDialog->exec();
                 }
             }
             else
@@ -355,8 +355,8 @@ void QCaLogin::buttonLogoutClicked()
                 }
                 else
                 {
-                    qCaLoginDialog = new _QDialogLogin(this, USERLEVEL_ENGINEER);
-                    qCaLoginDialog->exec();
+                    qELoginDialog = new _QDialogLogin(this, USERLEVEL_ENGINEER);
+                    qELoginDialog->exec();
                 }
             }
         }
@@ -370,7 +370,7 @@ void QCaLogin::buttonLogoutClicked()
 }
 
 
-void QCaLogin::logoutCurrentUserType()
+void QELogin::logoutCurrentUserType()
 {
 
     sendMessage("The user type was changed from '" + getUserTypeName((userLevels) currentUserType) + "' to '" + getUserTypeName((userLevels) loginHistory.top()) + "'");
@@ -394,11 +394,11 @@ void QCaLogin::logoutCurrentUserType()
 _QDialogLogin::_QDialogLogin(QWidget *pParent, int pUserType, Qt::WindowFlags pF):QDialog(pParent, pF)
 {
 
-    QCaLogin *parent;
+    QELogin *parent;
 
 
     userType = pUserType;
-    parent = (QCaLogin *) this->parent();
+    parent = (QELogin *) this->parent();
 
     qGridLayout = new QGridLayout(this);
     qGroupBox = new QGroupBox(this);
@@ -517,9 +517,9 @@ void _QDialogLogin::setPassword(QString pValue)
 void _QDialogLogin::radioButtonClicked()
 {
 
-    QCaLogin *parent;
+    QELogin *parent;
 
-    parent = (QCaLogin *) this->parent();
+    parent = (QELogin *) this->parent();
 
     if (qRadioButtonUser->isChecked())
     {
@@ -559,11 +559,11 @@ void _QDialogLogin::lineEditPasswordTextChanged(QString pValue)
 void _QDialogLogin::buttonOkClicked()
 {
 
-    QCaLogin *parent;
+    QELogin *parent;
     int type;
 
 
-    parent = (QCaLogin *) this->parent();
+    parent = (QELogin *) this->parent();
 
     type = -1;
 

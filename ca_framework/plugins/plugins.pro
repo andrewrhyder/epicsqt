@@ -43,10 +43,7 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/Link.png \
     src/ASguiForm.png \
     src/QCaPeriodic.png \
-    src/QCaLogin.png \
     src/record_field_list.txt \
-    src/QCaLog.png \
-    src/QCaFileBrowser.png \
     src/cameraROI.png \
     src/cameraROIreset.png \
     src/flipRotate.png \
@@ -87,8 +84,6 @@ HEADERS += \
     include/QCaPeriodicPluginTaskMenu.h \
     include/PeriodicSetupDialog.h \
     include/PeriodicElementSetupForm.h \
-    include/QCaLoginPluginManager.h \
-    include/QCaLogPluginManager.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -134,10 +129,7 @@ HEADERS += \
     ../widgets/include/QCaToolTip.h \
     ../widgets/include/QCaPeriodic.h \
     ../widgets/include/PeriodicDialog.h \
-    ../widgets/include/QCaLogin.h \
-    ../widgets/include/QCaLog.h \
-    ../widgets/include/QCaFileBrowser.h \
-    include/QCaFileBrowserPluginManager.h \
+
 
 
 #====================================
@@ -180,8 +172,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaPeriodicPluginTaskMenuExtension.cpp \
     src/PeriodicSetupDialog.cpp \
     src/PeriodicElementSetupForm.cpp \
-    src/QCaLoginPluginManager.cpp \
-    src/QCaLogPluginManager.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -225,10 +215,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaToolTip.cpp \
     ../widgets/src/QCaPeriodic.cpp \
     ../widgets/src/PeriodicDialog.cpp \
-    ../widgets/src/QCaLogin.cpp \
-    ../widgets/src/QCaLog.cpp \
-    ../widgets/src/QCaFileBrowser.cpp \
-    src/QCaFileBrowserPluginManager.cpp \
 
 
 #====================================
@@ -528,6 +514,78 @@ SOURCES += \
 INCLUDEPATH += \
     ../widgets/QEConfiguredLayout
 
+
+
+
+
+#===========================================================
+# QELogin
+#
+OTHER_FILES += \
+    ../widgets/QELogin/QELogin.png
+
+RESOURCES += \
+    ../widgets/QELogin/QELogin.qrc
+
+HEADERS += \
+    ../widgets/QELogin/QELogin.h \
+    ../widgets/QELogin/QELoginManager.h
+
+SOURCES += \
+    ../widgets/QELogin/QELogin.cpp \
+    ../widgets/QELogin/QELoginManager.cpp
+
+INCLUDEPATH += \
+    ../widgets/QELogin
+
+
+
+
+
+#===========================================================
+# QELog
+#
+OTHER_FILES += \
+    ../widgets/QELog/QELog.png
+
+RESOURCES += \
+    ../widgets/QELog/QELog.qrc
+
+HEADERS += \
+    ../widgets/QELog/QELog.h \
+    ../widgets/QELog/QELogManager.h
+
+SOURCES += \
+    ../widgets/QELog/QELog.cpp \
+    ../widgets/QELog/QELogManager.cpp
+
+INCLUDEPATH += \
+    ../widgets/QELog
+
+
+
+
+
+
+#===========================================================
+# QEFileBrowser
+#
+OTHER_FILES += \
+    ../widgets/QEFileBrowser/QEFileBrowser.png
+
+RESOURCES += \
+    ../widgets/QEFileBrowser/QEFileBrowser.qrc
+
+HEADERS += \
+    ../widgets/QEFileBrowser/QEFileBrowser.h \
+    ../widgets/QEFileBrowser/QEFileBrowserManager.h
+
+SOURCES += \
+    ../widgets/QEFileBrowser/QEFileBrowser.cpp \
+    ../widgets/QEFileBrowser/QEFileBrowserManager.cpp
+
+INCLUDEPATH += \
+    ../widgets/QEFileBrowser
 
 
 

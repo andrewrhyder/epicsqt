@@ -22,8 +22,8 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QCAFILEBROWSER_H
-#define QCAFILEBROWSER_H
+#ifndef QEFILEBROWSER_H
+#define QEFILEBROWSER_H
 
 #include <QWidget>
 #include <QGroupBox>
@@ -80,9 +80,9 @@ class _QTableWidgetFileBrowser:public QTableWidget
 
 
 // ============================================================
-//  QCAFILEBROWSER METHODS
+//  QEFILEBROWSER METHODS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWidget
+class QCAPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QCaWidget
 {
 
     Q_OBJECT
@@ -102,8 +102,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
 
     public:
 
-        QCaFileBrowser(QWidget *pParent = 0);
-        virtual ~QCaFileBrowser(){}
+        QEFileBrowser(QWidget *pParent = 0);
+        virtual ~QEFileBrowser(){}
 
         void setDirectoryPath(QString pValue);
         QString getDirectoryPath();
@@ -195,6 +195,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFileBrowser:public QWidget, public QCaWid
 
 
 
-#endif /// QCAFILEBROWSER_H
+#endif /// QEFILEBROWSER_H
 
 

@@ -22,8 +22,8 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QCALOG_H
-#define QCALOG_H
+#ifndef QELOG_H
+#define QELOG_H
 
 #include <QWidget>
 #include <QGroupBox>
@@ -87,9 +87,9 @@ class _QTableWidgetLog:public QTableWidget
 
 
 // ============================================================
-//  _QCALOG METHODS
+//  _QELOG METHODS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
+class QCAPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QCaWidget
 {
 
     Q_OBJECT
@@ -113,8 +113,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 
     public:
 
-        QCaLog(QWidget *pParent = 0);
-        virtual ~QCaLog(){}
+        QELog(QWidget *pParent = 0);
+        virtual ~QELog(){}
 
         void setShowColumnTime(bool pValue);
         bool getShowColumnTime();
@@ -230,6 +230,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLog:public QWidget, public QCaWidget
 
 
 
-#endif /// QCALOG_H
+#endif /// QELOG_H
 
 

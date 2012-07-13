@@ -27,16 +27,16 @@
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QRadioButton>
-#include <QCaFileBrowser.h>
+#include <QEFileBrowser.h>
 #include <QDebug>
 
 
 
 
 // ============================================================
-//  QCAFILEBROWSER METHODS
+//  QEFILEBROWSER METHODS
 // ============================================================
-QCaFileBrowser::QCaFileBrowser(QWidget *pParent):QWidget(pParent), QCaWidget( this )
+QEFileBrowser::QEFileBrowser(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 {
 
     QFont qFont;
@@ -80,7 +80,7 @@ QCaFileBrowser::QCaFileBrowser(QWidget *pParent):QWidget(pParent), QCaWidget( th
 
 
 
-void QCaFileBrowser::setDirectoryPath(QString pValue)
+void QEFileBrowser::setDirectoryPath(QString pValue)
 {
 
     qlineEditDirectoryPath->setText(pValue);
@@ -89,7 +89,7 @@ void QCaFileBrowser::setDirectoryPath(QString pValue)
 
 
 
-QString QCaFileBrowser::getDirectoryPath()
+QString QEFileBrowser::getDirectoryPath()
 {
 
     return qlineEditDirectoryPath->text();
@@ -100,7 +100,7 @@ QString QCaFileBrowser::getDirectoryPath()
 
 
 
-void QCaFileBrowser::setShowDirectoryPath(bool pValue)
+void QEFileBrowser::setShowDirectoryPath(bool pValue)
 {
 
     qlineEditDirectoryPath->setVisible(pValue);
@@ -109,7 +109,7 @@ void QCaFileBrowser::setShowDirectoryPath(bool pValue)
 
 
 
-bool QCaFileBrowser::getShowDirectoryPath()
+bool QEFileBrowser::getShowDirectoryPath()
 {
 
     return qlineEditDirectoryPath->isVisible();
@@ -119,7 +119,7 @@ bool QCaFileBrowser::getShowDirectoryPath()
 
 
 
-void QCaFileBrowser::setShowDirectoryBrowser(bool pValue)
+void QEFileBrowser::setShowDirectoryBrowser(bool pValue)
 {
 
     qPushButtonDirectoryBrowser->setVisible(pValue);
@@ -128,7 +128,7 @@ void QCaFileBrowser::setShowDirectoryBrowser(bool pValue)
 
 
 
-bool QCaFileBrowser::getShowDirectoryBrowser()
+bool QEFileBrowser::getShowDirectoryBrowser()
 {
 
     return qPushButtonDirectoryBrowser->isVisible();
@@ -137,7 +137,7 @@ bool QCaFileBrowser::getShowDirectoryBrowser()
 
 
 
-void QCaFileBrowser::setShowRefresh(bool pValue)
+void QEFileBrowser::setShowRefresh(bool pValue)
 {
 
     qPushButtonRefresh->setVisible(pValue);
@@ -146,7 +146,7 @@ void QCaFileBrowser::setShowRefresh(bool pValue)
 
 
 
-bool QCaFileBrowser::getShowRefresh()
+bool QEFileBrowser::getShowRefresh()
 {
 
     return qPushButtonRefresh->isVisible();
@@ -155,7 +155,7 @@ bool QCaFileBrowser::getShowRefresh()
 
 
 
-void QCaFileBrowser::setFileFilter(QString pValue)
+void QEFileBrowser::setFileFilter(QString pValue)
 {
 
     fileFilter = pValue;
@@ -165,7 +165,7 @@ void QCaFileBrowser::setFileFilter(QString pValue)
 
 
 
-QString QCaFileBrowser::getFileFilter()
+QString QEFileBrowser::getFileFilter()
 {
 
     return fileFilter;
@@ -175,7 +175,7 @@ QString QCaFileBrowser::getFileFilter()
 
 
 
-void QCaFileBrowser::setShowColumnTime(bool pValue)
+void QEFileBrowser::setShowColumnTime(bool pValue)
 {
 
     qTableWidgetFileBrowser->setColumnHidden(0, pValue == false);
@@ -185,7 +185,7 @@ void QCaFileBrowser::setShowColumnTime(bool pValue)
 
 
 
-bool QCaFileBrowser::getShowColumnTime()
+bool QEFileBrowser::getShowColumnTime()
 {
 
     return (qTableWidgetFileBrowser->isColumnHidden(0) == false);
@@ -194,7 +194,7 @@ bool QCaFileBrowser::getShowColumnTime()
 
 
 
-void QCaFileBrowser::setShowColumnSize(bool pValue)
+void QEFileBrowser::setShowColumnSize(bool pValue)
 {
 
     qTableWidgetFileBrowser->setColumnHidden(1, pValue == false);
@@ -204,7 +204,7 @@ void QCaFileBrowser::setShowColumnSize(bool pValue)
 
 
 
-bool QCaFileBrowser::getShowColumnSize()
+bool QEFileBrowser::getShowColumnSize()
 {
 
     return (qTableWidgetFileBrowser->isColumnHidden(1) == false);
@@ -212,7 +212,7 @@ bool QCaFileBrowser::getShowColumnSize()
 }
 
 
-void QCaFileBrowser::setShowColumnFilename(bool pValue)
+void QEFileBrowser::setShowColumnFilename(bool pValue)
 {
 
     qTableWidgetFileBrowser->setColumnHidden(2, pValue == false);
@@ -222,7 +222,7 @@ void QCaFileBrowser::setShowColumnFilename(bool pValue)
 
 
 
-bool QCaFileBrowser::getShowColumnFilename()
+bool QEFileBrowser::getShowColumnFilename()
 {
 
     return (qTableWidgetFileBrowser->isColumnHidden(2) == false);
@@ -231,7 +231,7 @@ bool QCaFileBrowser::getShowColumnFilename()
 
 
 
-void QCaFileBrowser::setShowFileExtension(bool pValue)
+void QEFileBrowser::setShowFileExtension(bool pValue)
 {
 
     showFileExtension = pValue;
@@ -241,7 +241,7 @@ void QCaFileBrowser::setShowFileExtension(bool pValue)
 
 
 
-bool QCaFileBrowser::getShowFileExtension()
+bool QEFileBrowser::getShowFileExtension()
 {
 
     return showFileExtension;
@@ -250,7 +250,7 @@ bool QCaFileBrowser::getShowFileExtension()
 
 
 
-void QCaFileBrowser::setDetailsLayout(int pValue)
+void QEFileBrowser::setDetailsLayout(int pValue)
 {
 
     QLayout *qLayoutMain;
@@ -308,7 +308,7 @@ void QCaFileBrowser::setDetailsLayout(int pValue)
 
 
 
-int QCaFileBrowser::getDetailsLayout()
+int QEFileBrowser::getDetailsLayout()
 {
 
     return detailsLayout;
@@ -318,7 +318,7 @@ int QCaFileBrowser::getDetailsLayout()
 
 
 
-void QCaFileBrowser::lineEditDirectoryPathChanged(QString)
+void QEFileBrowser::lineEditDirectoryPathChanged(QString)
 {
 
     updateTable();
@@ -329,7 +329,7 @@ void QCaFileBrowser::lineEditDirectoryPathChanged(QString)
 
 
 
-void QCaFileBrowser::buttonDirectoryBrowserClicked()
+void QEFileBrowser::buttonDirectoryBrowserClicked()
 {
 
     QString directory;
@@ -345,7 +345,7 @@ void QCaFileBrowser::buttonDirectoryBrowserClicked()
 
 
 
-void QCaFileBrowser::buttonRefreshClicked()
+void QEFileBrowser::buttonRefreshClicked()
 {
 
     updateTable();
@@ -355,7 +355,7 @@ void QCaFileBrowser::buttonRefreshClicked()
 
 
 
-void QCaFileBrowser::itemActivated(QTableWidgetItem *)
+void QEFileBrowser::itemActivated(QTableWidgetItem *)
 {
 
     QModelIndexList selectedRows;
@@ -382,7 +382,7 @@ void QCaFileBrowser::itemActivated(QTableWidgetItem *)
 
 
 
-void QCaFileBrowser::updateTable()
+void QEFileBrowser::updateTable()
 {
 
     QTableWidgetItem *qTableWidgetItem;

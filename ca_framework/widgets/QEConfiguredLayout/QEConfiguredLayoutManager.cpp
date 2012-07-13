@@ -87,7 +87,7 @@ QString QEConfiguredLayoutManager::group() const
 QIcon QEConfiguredLayoutManager::icon() const
 {
 
-    return QIcon(":/icons/QEConfiguredLayout.png");
+    return QIcon(":/qe/configuredlayout/QEConfiguredLayout.png");
 
 }
 

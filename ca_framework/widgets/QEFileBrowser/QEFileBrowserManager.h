@@ -23,21 +23,21 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QCALOGINPLUGINMANAGER_H
-#define QCALOGINPLUGINMANAGER_H
+#ifndef QEFILEBROWSERPLUGINMANAGER_H
+#define QEFILEBROWSERPLUGINMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLoginPluginManager:public QObject, public QDesignerCustomWidgetInterface
+class QCAPLUGINLIBRARYSHARED_EXPORT QEFileBrowserManager:public QObject, public QDesignerCustomWidgetInterface
 {
 
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
     public:
-        QCaLoginPluginManager(QObject *pParent = 0);
+        QEFileBrowserManager(QObject *pParent = 0);
 
         bool isContainer () const;
         bool isInitialized () const;
@@ -56,5 +56,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLoginPluginManager:public QObject, public
 
 };
 
-#endif /// QCALOGINPLUGINMANAGER_H
+#endif /// QEFILEBROWSERPLUGINMANAGER_H
+
+
 

@@ -22,13 +22,13 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QCaLoginPluginManager.h>
-#include <QCaLogin.h>
+#include <QEFileBrowserManager.h>
+#include <QEFileBrowser.h>
 #include <QtPlugin>
 
 
 
-QCaLoginPluginManager::QCaLoginPluginManager(QObject *pParent):QObject(pParent)
+QEFileBrowserManager::QEFileBrowserManager(QObject *pParent):QObject(pParent)
 {
 
     initialized = false;
@@ -37,7 +37,7 @@ QCaLoginPluginManager::QCaLoginPluginManager(QObject *pParent):QObject(pParent)
 
 
 
-void QCaLoginPluginManager::initialize(QDesignerFormEditorInterface *)
+void QEFileBrowserManager::initialize(QDesignerFormEditorInterface *)
 {
 
     if (initialized == false)
@@ -49,7 +49,7 @@ void QCaLoginPluginManager::initialize(QDesignerFormEditorInterface *)
 
 
 
-bool QCaLoginPluginManager::isInitialized() const
+bool QEFileBrowserManager::isInitialized() const
 {
 
     return initialized;
@@ -58,24 +58,24 @@ bool QCaLoginPluginManager::isInitialized() const
 
 
 
-QWidget *QCaLoginPluginManager::createWidget(QWidget *pParent)
+QWidget *QEFileBrowserManager::createWidget(QWidget *pParent)
 {
 
-    return new QCaLogin(pParent);
+    return new QEFileBrowser(pParent);
 }
 
 
 
-QString QCaLoginPluginManager::name() const
+QString QEFileBrowserManager::name() const
 {
 
-    return "QCaLogin";
+    return "QEFileBrowser";
 
 }
 
 
 
-QString QCaLoginPluginManager::group() const
+QString QEFileBrowserManager::group() const
 {
 
     return "EPICS Widgets";
@@ -84,34 +84,34 @@ QString QCaLoginPluginManager::group() const
 
 
 
-QIcon QCaLoginPluginManager::icon() const
+QIcon QEFileBrowserManager::icon() const
 {
 
-    return QIcon(":/icons/QCaLogin.png");
+    return QIcon(":/qe/filebrowser/QEFileBrowser.png");
 
 }
 
 
 
-QString QCaLoginPluginManager::toolTip() const
+QString QEFileBrowserManager::toolTip() const
 {
 
-    return "EPICS Login";
+    return "EPICS File Browser";
 
 }
 
 
 
-QString QCaLoginPluginManager::whatsThis() const
+QString QEFileBrowserManager::whatsThis() const
 {
 
-    return "EPICS Login";
+    return "EPICS File Browser";
 
 }
 
 
 
-bool QCaLoginPluginManager::isContainer() const
+bool QEFileBrowserManager::isContainer() const
 {
 
     return false;
@@ -119,18 +119,18 @@ bool QCaLoginPluginManager::isContainer() const
 
 
 
-QString QCaLoginPluginManager::includeFile() const
+QString QEFileBrowserManager::includeFile() const
 {
 
-    return "QCaLoginPluginManager.h";
+    return "QEFileBrowserManager.h";
 
 }
 
 
 
 
-/*QString QCaLoginPluginManager::domXml() const {
-    return "<widget class=\"QCaLogin\" name=\"qCaLogin\">\n"
+/*QString QEFileBrowserManager::domXml() const {
+    return "<widget class=\"QEFileBrowser\" name=\"qEFileBrowser\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"

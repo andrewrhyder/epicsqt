@@ -22,13 +22,13 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QCaLogPluginManager.h>
-#include <QCaLog.h>
+#include <QELoginManager.h>
+#include <QELogin.h>
 #include <QtPlugin>
 
 
 
-QCaLogPluginManager::QCaLogPluginManager(QObject *pParent):QObject(pParent)
+QELoginManager::QELoginManager(QObject *pParent):QObject(pParent)
 {
 
     initialized = false;
@@ -37,7 +37,7 @@ QCaLogPluginManager::QCaLogPluginManager(QObject *pParent):QObject(pParent)
 
 
 
-void QCaLogPluginManager::initialize(QDesignerFormEditorInterface *)
+void QELoginManager::initialize(QDesignerFormEditorInterface *)
 {
 
     if (initialized == false)
@@ -49,7 +49,7 @@ void QCaLogPluginManager::initialize(QDesignerFormEditorInterface *)
 
 
 
-bool QCaLogPluginManager::isInitialized() const
+bool QELoginManager::isInitialized() const
 {
 
     return initialized;
@@ -58,24 +58,24 @@ bool QCaLogPluginManager::isInitialized() const
 
 
 
-QWidget *QCaLogPluginManager::createWidget(QWidget *pParent)
+QWidget *QELoginManager::createWidget(QWidget *pParent)
 {
 
-    return new QCaLog(pParent);
+    return new QELogin(pParent);
 }
 
 
 
-QString QCaLogPluginManager::name() const
+QString QELoginManager::name() const
 {
 
-    return "QCaLog";
+    return "QELogin";
 
 }
 
 
 
-QString QCaLogPluginManager::group() const
+QString QELoginManager::group() const
 {
 
     return "EPICS Widgets";
@@ -84,34 +84,34 @@ QString QCaLogPluginManager::group() const
 
 
 
-QIcon QCaLogPluginManager::icon() const
+QIcon QELoginManager::icon() const
 {
 
-    return QIcon(":/icons/QCaLog.png");
+    return QIcon(":/qe/login/QELogin.png");
 
 }
 
 
 
-QString QCaLogPluginManager::toolTip() const
+QString QELoginManager::toolTip() const
 {
 
-    return "EPICS Log";
+    return "EPICS Login";
 
 }
 
 
 
-QString QCaLogPluginManager::whatsThis() const
+QString QELoginManager::whatsThis() const
 {
 
-    return "EPICS Log";
+    return "EPICS Login";
 
 }
 
 
 
-bool QCaLogPluginManager::isContainer() const
+bool QELoginManager::isContainer() const
 {
 
     return false;
@@ -119,18 +119,18 @@ bool QCaLogPluginManager::isContainer() const
 
 
 
-QString QCaLogPluginManager::includeFile() const
+QString QELoginManager::includeFile() const
 {
 
-    return "QCaLogPluginManager.h";
+    return "QELoginManager.h";
 
 }
 
 
 
 
-/*QString QCaLogPluginManager::domXml() const {
-    return "<widget class=\"QCaLog\" name=\"qCaLog\">\n"
+/*QString QELoginManager::domXml() const {
+    return "<widget class=\"QELogin\" name=\"qELogin\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"

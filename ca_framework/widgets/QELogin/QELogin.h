@@ -22,8 +22,8 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QCALOGIN_H
-#define QCALOGIN_H
+#ifndef QELOGIN_H
+#define QELOGIN_H
 
 #include <QWidget>
 #include <QDialog>
@@ -99,9 +99,9 @@ class _QDialogLogin:public QDialog
 
 
 // ============================================================
-//  QCALOGIN CLASS
+//  QELOGIN CLASS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
+class QCAPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QCaWidget
 {
 
     Q_OBJECT
@@ -124,8 +124,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
 
     public:
 
-        QCaLogin(QWidget *pParent = 0);
-        virtual ~QCaLogin(){}
+        QELogin(QWidget *pParent = 0);
+        virtual ~QELogin(){}
 
         void setShowLabelUserType(bool pValue);
         bool getShowLabelUserType();
@@ -217,6 +217,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogin:public QWidget, public QCaWidget
 
 
 
-#endif /// QCALOGIN_H
+#endif /// QELOGIN_H
 
 

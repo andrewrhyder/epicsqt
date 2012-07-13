@@ -30,14 +30,14 @@
 #include <QCaPluginLibrary_global.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaLogPluginManager:public QObject, public QDesignerCustomWidgetInterface
+class QCAPLUGINLIBRARYSHARED_EXPORT QELogManager:public QObject, public QDesignerCustomWidgetInterface
 {
 
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
     public:
-        QCaLogPluginManager(QObject *pParent = 0);
+        QELogManager(QObject *pParent = 0);
 
         bool isContainer () const;
         bool isInitialized () const;

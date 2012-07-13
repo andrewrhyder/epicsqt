@@ -27,7 +27,7 @@
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QDateTime>
-#include <QCaLog.h>
+#include <QELog.h>
 #include <QDebug>
 #include <QFileDialog>
 #include <QHeaderView>
@@ -39,9 +39,9 @@ using namespace std;
 
 
 // ============================================================
-//  QCALOG METHODS
+//  QELOG METHODS
 // ============================================================
-QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
+QELog::QELog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
     QFont qFont;
@@ -107,7 +107,7 @@ QCaLog::QCaLog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 
 
 
-void QCaLog::setShowColumnTime(bool pValue)
+void QELog::setShowColumnTime(bool pValue)
 {
 
     qTableWidgetLog->setColumnHidden(0, pValue == false);
@@ -117,7 +117,7 @@ void QCaLog::setShowColumnTime(bool pValue)
 
 
 
-bool QCaLog::getShowColumnTime()
+bool QELog::getShowColumnTime()
 {
 
     return (qTableWidgetLog->isColumnHidden(0) == false);
@@ -126,7 +126,7 @@ bool QCaLog::getShowColumnTime()
 
 
 
-void QCaLog::setShowColumnType(bool pValue)
+void QELog::setShowColumnType(bool pValue)
 {
 
     qTableWidgetLog->setColumnHidden(1, pValue == false);
@@ -136,7 +136,7 @@ void QCaLog::setShowColumnType(bool pValue)
 
 
 
-bool QCaLog::getShowColumnType()
+bool QELog::getShowColumnType()
 {
 
     return (qTableWidgetLog->isColumnHidden(1) == false);
@@ -144,7 +144,7 @@ bool QCaLog::getShowColumnType()
 }
 
 
-void QCaLog::setShowColumnMessage(bool pValue)
+void QELog::setShowColumnMessage(bool pValue)
 {
 
     qTableWidgetLog->setColumnHidden(2, pValue == false);
@@ -154,7 +154,7 @@ void QCaLog::setShowColumnMessage(bool pValue)
 
 
 
-bool QCaLog::getShowColumnMessage()
+bool QELog::getShowColumnMessage()
 {
 
     return (qTableWidgetLog->isColumnHidden(2) == false);
@@ -164,7 +164,7 @@ bool QCaLog::getShowColumnMessage()
 
 
 
-void QCaLog::setShowMessageFilter(bool pValue)
+void QELog::setShowMessageFilter(bool pValue)
 {
 
     qCheckBoxInfoMessage->setVisible(pValue);
@@ -175,7 +175,7 @@ void QCaLog::setShowMessageFilter(bool pValue)
 
 
 
-bool QCaLog::getShowMessageFilter()
+bool QELog::getShowMessageFilter()
 {
 
     return qCheckBoxInfoMessage->isVisible();
@@ -185,7 +185,7 @@ bool QCaLog::getShowMessageFilter()
 
 
 
-void QCaLog::setShowButtonClear(bool pValue)
+void QELog::setShowButtonClear(bool pValue)
 {
 
     qPushButtonClear->setVisible(pValue);
@@ -194,7 +194,7 @@ void QCaLog::setShowButtonClear(bool pValue)
 
 
 
-bool QCaLog::getShowButtonClear()
+bool QELog::getShowButtonClear()
 {
 
     return qPushButtonClear->isVisible();
@@ -204,7 +204,7 @@ bool QCaLog::getShowButtonClear()
 
 
 
-void QCaLog::buttonClearClicked()
+void QELog::buttonClearClicked()
 {
 
     if (QMessageBox::question(this, "Info", "Do you want to clear the log messages?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
@@ -217,7 +217,7 @@ void QCaLog::buttonClearClicked()
 
 
 
-void QCaLog::setShowButtonSave(bool pValue)
+void QELog::setShowButtonSave(bool pValue)
 {
 
     qPushButtonSave->setVisible(pValue);
@@ -226,7 +226,7 @@ void QCaLog::setShowButtonSave(bool pValue)
 
 
 
-bool QCaLog::getShowButtonSave()
+bool QELog::getShowButtonSave()
 {
 
     return qPushButtonSave->isVisible();
@@ -237,7 +237,7 @@ bool QCaLog::getShowButtonSave()
 
 
 
-void QCaLog::setDetailsLayout(int pValue)
+void QELog::setDetailsLayout(int pValue)
 {
 
     QLayout *qLayoutMain;
@@ -308,7 +308,7 @@ void QCaLog::setDetailsLayout(int pValue)
 
 
 
-int QCaLog::getDetailsLayout()
+int QELog::getDetailsLayout()
 {
 
     return detailsLayout;
@@ -318,7 +318,7 @@ int QCaLog::getDetailsLayout()
 
 
 
-void QCaLog::setScrollToBottom(bool pValue)
+void QELog::setScrollToBottom(bool pValue)
 {
 
     scrollToBottom = pValue;
@@ -331,7 +331,7 @@ void QCaLog::setScrollToBottom(bool pValue)
 
 
 
-bool QCaLog::getScrollToBottom()
+bool QELog::getScrollToBottom()
 {
 
     return scrollToBottom;
@@ -341,7 +341,7 @@ bool QCaLog::getScrollToBottom()
 
 
 
-void QCaLog::setInfoColor(QColor pValue)
+void QELog::setInfoColor(QColor pValue)
 {
 
     qColorInfo = pValue;
@@ -352,7 +352,7 @@ void QCaLog::setInfoColor(QColor pValue)
 
 
 
-QColor QCaLog::getInfoColor()
+QColor QELog::getInfoColor()
 {
 
     return qColorInfo;
@@ -361,7 +361,7 @@ QColor QCaLog::getInfoColor()
 
 
 
-void QCaLog::setWarningColor(QColor pValue)
+void QELog::setWarningColor(QColor pValue)
 {
 
     qColorWarning = pValue;
@@ -372,7 +372,7 @@ void QCaLog::setWarningColor(QColor pValue)
 
 
 
-QColor QCaLog::getWarningColor()
+QColor QELog::getWarningColor()
 {
 
     return qColorWarning;
@@ -381,7 +381,7 @@ QColor QCaLog::getWarningColor()
 
 
 
-void QCaLog::setErrorColor(QColor pValue)
+void QELog::setErrorColor(QColor pValue)
 {
 
     qColorError = pValue;
@@ -392,7 +392,7 @@ void QCaLog::setErrorColor(QColor pValue)
 
 
 
-QColor QCaLog::getErrorColor()
+QColor QELog::getErrorColor()
 {
 
     return qColorError;
@@ -401,7 +401,7 @@ QColor QCaLog::getErrorColor()
 
 
 
-void QCaLog::checkBoxInfoToggled(bool)
+void QELog::checkBoxInfoToggled(bool)
 {
 
     refreshLog();
@@ -412,7 +412,7 @@ void QCaLog::checkBoxInfoToggled(bool)
 
 
 
-void QCaLog::checkBoxWarningToggled(bool)
+void QELog::checkBoxWarningToggled(bool)
 {
 
     refreshLog();
@@ -422,7 +422,7 @@ void QCaLog::checkBoxWarningToggled(bool)
 
 
 
-void QCaLog::checkBoxErrorToggled(bool)
+void QELog::checkBoxErrorToggled(bool)
 {
 
     refreshLog();
@@ -431,7 +431,7 @@ void QCaLog::checkBoxErrorToggled(bool)
 
 
 
-void QCaLog::buttonSaveClicked()
+void QELog::buttonSaveClicked()
 {
 
     QFileDialog *qFileDialog;
@@ -501,7 +501,7 @@ void QCaLog::buttonSaveClicked()
 
 
 
-void QCaLog::clearLog()
+void QELog::clearLog()
 {
 
     qTableWidgetLog->setRowCount(0);
@@ -512,7 +512,7 @@ void QCaLog::clearLog()
 
 
 
-void QCaLog::addLog(int pType, QString pMessage)
+void QELog::addLog(int pType, QString pMessage)
 {
 
     QTableWidgetItem *qTableWidgetItem;
@@ -584,7 +584,7 @@ void QCaLog::addLog(int pType, QString pMessage)
 
 
 
-void QCaLog::refreshLog()
+void QELog::refreshLog()
 {
 
     QTableWidgetItem *qTableWidgetItem;
@@ -629,7 +629,7 @@ void QCaLog::refreshLog()
 
 
 // Receive new log messages from other QCaWidgets.
-void QCaLog::newMessage( QString msg, message_types type )
+void QELog::newMessage( QString msg, message_types type )
 {
     // Add the message to the log
     addLog( type, msg );
