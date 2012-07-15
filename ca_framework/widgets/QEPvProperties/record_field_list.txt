@@ -1,12 +1,15 @@
 # $Id: record_field_list.txt $
 #
 # Description:
-# This file specifies the field names associated with the various record
-# types defined for the local EPICS installation that are to be include
-# on the TProcess_Variable_Form/PV_Properties widget.
+# This file provides a default set of record types and their associated filed names
+# as used by the Delphi TProcess_Variable_Form and the QEPvProperties widget.
 #
-# The record type is derived from the RTYP field.
-# This file is (indirectly) derived from the records' dbd files.
+# It includes all the records from base-3-14-11, most of the records from the
+# synApps distribution, together with the AS developed concat record.
+#
+# The record type is derived from the RTYP pseudo field which IS passed on by
+# the gateways. The RTYP pseudo field is included in the set of fields.
+# This file is (indirectly) derived from each record's dbd file.
 #
 
 #-------------------------------------------------------------------------------
