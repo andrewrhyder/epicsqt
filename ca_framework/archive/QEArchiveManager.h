@@ -1,4 +1,4 @@
-/*  QCaArchiveManager.h
+/*  QEArchiveManager.h
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -30,20 +30,20 @@
  * to interface/archive mapping.
  */
 
-#ifndef QCAARCHIVEMANAGER_H
-#define QCAARCHIVEMANAGER_H
+#ifndef QEARCHIVEMANAGER_H
+#define QEARCHIVEMANAGER_H
 
 #include <QObject>
 #include <QString>
 
 #include <QCaDateTime.h>
-#include <QCaArchiveInterface.h>
+#include <QEArchiveInterface.h>
 
 /*! This is a singleton class - the single instance is declared in the .cpp file.
  *  It's only exposed in a header because the Qt framework demand that signals/slots
  *  are in headers.
  */
-class QCaArchiveManager : public QObject {
+class QEArchiveManager : public QObject {
    Q_OBJECT
 private:
    /*! This function connects the specified the archive(s). The format of the string is
@@ -67,14 +67,14 @@ private:
 
    /*! Used to automatically run ::initialise () at elaboration time.
     */
-   static const bool inited;
+   static const bool initialised;
 
    void clear ();
 
 private slots:
-   void archivesResponse (const QObject * userData, const bool isSuccess, const QList<QCaArchiveInterface::Archive>& archiveList);
-   void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QList<QCaArchiveInterface::PVName>& pvNameList);
-   void valuesResponse   (const QObject * userData, const bool isSuccess, const QList<QCaArchiveInterface::ResponseValues>& valuesList);
+   void archivesResponse (const QObject * userData, const bool isSuccess, const QList<QEArchiveInterface::Archive>& archiveList);
+   void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QList<QEArchiveInterface::PVName>& pvNameList);
+   void valuesResponse   (const QObject * userData, const bool isSuccess, const QList<QEArchiveInterface::ResponseValues>& valuesList);
 };
 
 
@@ -83,11 +83,11 @@ private slots:
  * Currently only handles scaler values but can/will be extended to to
  * provide array data retrival.
  */
-class QCaArchiveAccess : public QObject {
+class QEArchiveAccess : public QObject {
    Q_OBJECT
 public:
-   QCaArchiveAccess (QObject * parent = 0);
-   ~QCaArchiveAccess ();
+   QEArchiveAccess (QObject * parent = 0);
+   ~QEArchiveAccess ();
 
    static int getNumberInterfaces ();
    static QString getPattern ();
@@ -102,12 +102,12 @@ public:
                      const QCaDateTime startTime,
                      const QCaDateTime endTime,
                      const int count,
-                     const QCaArchiveInterface::How how,
+                     const QEArchiveInterface::How how,
                      const unsigned int element = 0);
 
 signals:
    void setArchiveData (const QObject *, const bool, const QCaDataPointList &);
-   friend class QCaArchiveManager;
+   friend class QEArchiveManager;
 };
 
-#endif  // QCAARCHIVEMANAGER_H
+#endif  // QEARCHIVEMANAGER_H

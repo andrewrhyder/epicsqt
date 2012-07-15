@@ -1,4 +1,4 @@
-/*  QCaArchiveManager.cpp
+/*  QEArchiveManager.cpp
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -30,19 +30,19 @@
 #include <QMutex>
 #include <QHash>
 
-#include <QCaArchiveManager.h>
+#include <QEArchiveManager.h>
 
 
 #define DEBUG qDebug () << __FILE__  << ":" << __LINE__ << "(" << __FUNCTION__ << ")"
 
-#define MAX(a, b)           ((a) >= (b) ? (a) : (b))
-#define MIN(a, b)           ((a) <= (b) ? (a) : (b))
+#define MAX(a, b)    ((a) >= (b) ? (a) : (b))
+#define MIN(a, b)    ((a) <= (b) ? (a) : (b))
 
 
 //==============================================================================
 // Archive class type provides key (and name and path).
 //
-class KeyTimeSpec : public QCaArchiveInterface::Archive {
+class KeyTimeSpec : public QEArchiveInterface::Archive {
 public:
    QCaDateTime startTime;
    QCaDateTime endTime;
@@ -55,86 +55,75 @@ public:
 //
 class SourceSpec : public QHash<int, KeyTimeSpec> {
 public:
-   QCaArchiveInterface * interface;
+   QEArchiveInterface * interface;
 };
 
 
 //==============================================================================
 // Local Data
 //==============================================================================
-// We declare these ietms here as opposed as stict items in the class because
-// the later made all the epicd plugin widgets "go away" in designer.
+// We declare these items here as opposed as static members of the class because
+// the later made all the EPICS plugin widgets "go away" in designer.
 //
 static QMutex *mutex = new QMutex ();
 
-static QList<QCaArchiveInterface *> archiveInterfaceList;
+static QList<QEArchiveInterface *> archiveInterfaceList;
 static QString pattern;
 static QHash<QString, SourceSpec> pvNameHash;
 
-static QCaArchiveManager singleton;
-const bool QCaArchiveManager::inited = singleton.initialise ();
-
+static QEArchiveManager singleton;
+const bool QEArchiveManager::initialised = singleton.initialise ();
 
 
 //==============================================================================
-// Class Methods
+// QEArchiveManager Class Methods
 //==============================================================================
 //
-bool QCaArchiveManager::initialise (QString archives, QString patternIn)
+bool QEArchiveManager::initialise (QString archives, QString patternIn)
 {
-   int sp_posn;
+   QStringList archiveList;
    QString item;
    QUrl url;
-   QCaArchiveInterface * interface;
+   QEArchiveInterface * interface;
    int j;
 
-   if (archives == "") {
+   pattern = patternIn;
+
+   // Split input string using space.
+   // Could extend to use regular expression and split on any white space character.
+   //
+   archiveList = archives.split (' ', QString::SkipEmptyParts);
+
+   if (archiveList.count () == 0) {
       DEBUG << "no archives specified";
       return false;
    }
 
    this->clear ();
 
-   while (archives != "") {
-      archives = archives.trimmed ();
-      sp_posn = archives.indexOf (" ");
-      if (sp_posn > 0) {
-         // found one
-         //
-         item = archives.left (sp_posn);
-         archives.remove(0, sp_posn);
+   for (j = 0; j < archiveList.count (); j++) {
 
-      } else {
-         item = archives;
-         archives.clear ();
-      }
-
-      item.prepend("http://");
+      item = "http://";
+      item.append (archiveList.value (j));
       url = QUrl (item);
 
-      interface = new QCaArchiveInterface (url, &singleton);
+      interface = new QEArchiveInterface (url, &singleton);
       archiveInterfaceList.append (interface);
 
-      connect (interface, SIGNAL (archivesResponse (const QObject *, const bool, const QList<QCaArchiveInterface::Archive>&)),
-               this,      SLOT   (archivesResponse (const QObject *, const bool, const QList<QCaArchiveInterface::Archive>&)));
+      connect (interface, SIGNAL (archivesResponse (const QObject *, const bool, const QList<QEArchiveInterface::Archive>&)),
+               this,      SLOT   (archivesResponse (const QObject *, const bool, const QList<QEArchiveInterface::Archive>&)));
 
-      connect (interface, SIGNAL (pvNamesResponse  (const QObject *, const bool, const QList<QCaArchiveInterface::PVName>&)),
-               this,      SLOT   (pvNamesResponse  (const QObject *, const bool, const QList<QCaArchiveInterface::PVName>&)));
+      connect (interface, SIGNAL (pvNamesResponse  (const QObject *, const bool, const QList<QEArchiveInterface::PVName>&)),
+               this,      SLOT   (pvNamesResponse  (const QObject *, const bool, const QList<QEArchiveInterface::PVName>&)));
 
-      connect (interface, SIGNAL (valuesResponse   (const QObject *, const bool, const QList<QCaArchiveInterface::ResponseValues>&)),
-               this,      SLOT   (valuesResponse   (const QObject *, const bool, const QList<QCaArchiveInterface::ResponseValues>&)));
+      connect (interface, SIGNAL (valuesResponse   (const QObject *, const bool, const QList<QEArchiveInterface::ResponseValues>&)),
+               this,      SLOT   (valuesResponse   (const QObject *, const bool, const QList<QEArchiveInterface::ResponseValues>&)));
+
+      interface->archivesRequest (interface);
+      qDebug () << "Archive info:  url:" << interface->getUrl ().toString ();
    }
 
-   pattern = patternIn;
-
-   if (archiveInterfaceList.count() > 0) {
-      for (j = 0; j < archiveInterfaceList.count(); j++) {
-         interface = archiveInterfaceList.value (j);
-         interface->archivesRequest (interface);
-         qDebug () << "Archive info:" << interface->getUrl ().toString ();
-      }
-      qDebug () << "Archive info:  pattern:" << pattern;
-   }
+   qDebug () << "Archive info:  pattern:" << pattern;
 
    return true;
 }
@@ -142,7 +131,7 @@ bool QCaArchiveManager::initialise (QString archives, QString patternIn)
 
 //------------------------------------------------------------------------------
 //
-bool QCaArchiveManager::initialise ()
+bool QEArchiveManager::initialise ()
 {
    bool result;
    QString archives = getenv ("QCA_ARCHIVE_LIST");
@@ -150,6 +139,7 @@ bool QCaArchiveManager::initialise ()
 
    if (archives != "") {
       if (pattern == "") {
+         // Pattern environment variable undefined use "get all" by default.
          pattern = ".*";
       }
       result = this->initialise (archives, pattern);
@@ -162,7 +152,7 @@ bool QCaArchiveManager::initialise ()
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveManager::clear ()
+void QEArchiveManager::clear ()
 {
    int j;
 
@@ -181,12 +171,12 @@ void QCaArchiveManager::clear ()
 //
 class NamesResponseContext : public QObject {
 public:
-   QCaArchiveInterface * interface;
-   QCaArchiveInterface::Archive archive;
+   QEArchiveInterface * interface;
+   QEArchiveInterface::Archive archive;
    int instance;
    int number;
    // constructor
-   NamesResponseContext (QCaArchiveInterface * interfaceIn, QCaArchiveInterface::Archive archiveIn, int i, int n)
+   NamesResponseContext (QEArchiveInterface * interfaceIn, QEArchiveInterface::Archive archiveIn, int i, int n)
    {
       this->interface = interfaceIn;
       this->archive = archiveIn;
@@ -198,13 +188,13 @@ public:
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveManager::archivesResponse (const QObject * userData,
-                                          const bool isSuccess,
-                                          const QList<QCaArchiveInterface::Archive>& archiveList)
+void QEArchiveManager::archivesResponse (const QObject * userData,
+                                         const bool isSuccess,
+                                         const QList<QEArchiveInterface::Archive>& archiveList)
 {
    QMutexLocker locker (mutex);
 
-   QCaArchiveInterface * interface = (QCaArchiveInterface *) userData;
+   QEArchiveInterface * interface = (QEArchiveInterface *) userData;
    int count;
    int j;
 
@@ -212,7 +202,7 @@ void QCaArchiveManager::archivesResponse (const QObject * userData,
 
       count = archiveList.count ();
       for (j = 0; j < count; j++) {
-         QCaArchiveInterface::Archive archive = archiveList.value (j);
+         QEArchiveInterface::Archive archive = archiveList.value (j);
          NamesResponseContext *context;
 
          // Create the callback context.
@@ -221,16 +211,16 @@ void QCaArchiveManager::archivesResponse (const QObject * userData,
          interface->namesRequest (context, archive.key, pattern);
       }
    } else {
-      DEBUG << "failure" << interface->getUrl().toString ();
+      qDebug () << "request archives failure from " << interface->getUrl().toString ();
    }
 }
 
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveManager::pvNamesResponse  (const QObject * userData,
-                                          const bool isSuccess,
-                                          const QList<QCaArchiveInterface::PVName>& pvNameList)
+void QEArchiveManager::pvNamesResponse  (const QObject * userData,
+                                         const bool isSuccess,
+                                         const QList<QEArchiveInterface::PVName>& pvNameList)
 {
    QMutexLocker locker (mutex);
 
@@ -239,7 +229,7 @@ void QCaArchiveManager::pvNamesResponse  (const QObject * userData,
 
    if (isSuccess) {
       for (j = 0; j < pvNameList.count (); j++ ) {
-         QCaArchiveInterface::PVName pvChannel = pvNameList.value (j);
+         QEArchiveInterface::PVName pvChannel = pvNameList.value (j);
          KeyTimeSpec keyTimeSpec;
          SourceSpec sourceSpec;
 
@@ -295,10 +285,10 @@ void QCaArchiveManager::pvNamesResponse  (const QObject * userData,
 //
 class ValuesResponseContext : public QObject {
 public:
-   QCaArchiveAccess * accessor;
+   QEArchiveAccess * accessor;
    QObject * userData;
       // constructor
-      ValuesResponseContext (QCaArchiveAccess * accessorIn, QObject * userDataIn) {
+      ValuesResponseContext (QEArchiveAccess * accessorIn, QObject * userDataIn) {
       this->accessor = accessorIn;
       this->userData = userDataIn;
    }
@@ -307,9 +297,9 @@ public:
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveManager::valuesResponse (const QObject * userData,
-                                        const bool isSuccess,
-                                        const QList<QCaArchiveInterface::ResponseValues>& valuesList)
+void QEArchiveManager::valuesResponse (const QObject * userData,
+                                       const bool isSuccess,
+                                       const QList<QEArchiveInterface::ResponseValues>& valuesList)
 {
     ValuesResponseContext *context = (ValuesResponseContext *) userData;
 
@@ -326,26 +316,26 @@ void QCaArchiveManager::valuesResponse (const QObject * userData,
 
 //==============================================================================
 //
-QCaArchiveAccess::QCaArchiveAccess (QObject * parent) : QObject (parent)
+QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
 {
 }
 
 //------------------------------------------------------------------------------
 //
-QCaArchiveAccess:: ~QCaArchiveAccess ()
+QEArchiveAccess:: ~QEArchiveAccess ()
 {
 }
 
 
 //------------------------------------------------------------------------------
 //
-bool QCaArchiveAccess::readArchive (QObject * userData,
-                                    const QString pvName,
-                                    const QCaDateTime startTime,
-                                    const QCaDateTime endTime,
-                                    const int count,
-                                    const QCaArchiveInterface::How how,
-                                    const unsigned int element)
+bool QEArchiveAccess::readArchive (QObject * userData,
+                                   const QString pvName,
+                                   const QCaDateTime startTime,
+                                   const QCaDateTime endTime,
+                                   const int count,
+                                   const QEArchiveInterface::How how,
+                                   const unsigned int element)
 {
    QMutexLocker locker (mutex);
 
@@ -435,21 +425,21 @@ bool QCaArchiveAccess::readArchive (QObject * userData,
 
 //------------------------------------------------------------------------------
 //
-int QCaArchiveAccess::getNumberInterfaces ()
+int QEArchiveAccess::getNumberInterfaces ()
 {
    return archiveInterfaceList.count ();
 }
 
 //------------------------------------------------------------------------------
 //
-QString QCaArchiveAccess::getPattern ()
+QString QEArchiveAccess::getPattern ()
 {
    return pattern;
 }
 
 //------------------------------------------------------------------------------
 //
-int QCaArchiveAccess::getNumberPVs ()
+int QEArchiveAccess::getNumberPVs ()
 {
    return pvNameHash.count ();
 }

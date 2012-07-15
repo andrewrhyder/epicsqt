@@ -29,14 +29,14 @@
 #include <QtXml>
 #include <QVariantList>
 
-#include <QCaArchiveInterface.h>
+#include <QEArchiveInterface.h>
 
 #define DEBUG   qDebug () << __FILE__ << ":" << __LINE__<< "(" << __FUNCTION__  << ") "
 
 
 //------------------------------------------------------------------------------
 //
-QCaArchiveInterface::QCaArchiveInterface (QUrl url, QObject *parent) : QObject (parent)
+QEArchiveInterface::QEArchiveInterface (QUrl url, QObject *parent) : QObject (parent)
 {
    QSslConfiguration config;
 
@@ -51,14 +51,14 @@ QCaArchiveInterface::QCaArchiveInterface (QUrl url, QObject *parent) : QObject (
 
 //------------------------------------------------------------------------------
 //
-QCaArchiveInterface::~QCaArchiveInterface ()
+QEArchiveInterface::~QEArchiveInterface ()
 {
    // this->client owned by this so should be automatically deleted.
 }
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::setUrl (QUrl url)
+void QEArchiveInterface::setUrl (QUrl url)
 {
    this->mUrl = url;
    this->client->setUrl (url);
@@ -66,7 +66,7 @@ void QCaArchiveInterface::setUrl (QUrl url)
 
 //------------------------------------------------------------------------------
 //
-QUrl QCaArchiveInterface::getUrl ()
+QUrl QEArchiveInterface::getUrl ()
 {
    return this->mUrl;
 }
@@ -74,9 +74,9 @@ QUrl QCaArchiveInterface::getUrl ()
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::infoRequest (QObject *userData)
+void QEArchiveInterface::infoRequest (QObject *userData)
 {
-   QCaArchiveInterfaceAgent *agent;
+   QEArchiveInterfaceAgent *agent;
    Context context;
    QVariantList args;
 
@@ -86,7 +86,7 @@ void QCaArchiveInterface::infoRequest (QObject *userData)
    context.userData = userData;
    context.requested_element = 0;
 
-   agent = new QCaArchiveInterfaceAgent (this->client, this);
+   agent = new QEArchiveInterfaceAgent (this->client, this);
 
    // no arguments per se.
    //
@@ -96,9 +96,9 @@ void QCaArchiveInterface::infoRequest (QObject *userData)
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::archivesRequest (QObject *userData)
+void QEArchiveInterface::archivesRequest (QObject *userData)
 {
-   QCaArchiveInterfaceAgent *agent;
+   QEArchiveInterfaceAgent *agent;
    Context context;
    QVariantList args;
 
@@ -108,7 +108,7 @@ void QCaArchiveInterface::archivesRequest (QObject *userData)
    context.userData = userData;
    context.requested_element = 0;
 
-   agent = new QCaArchiveInterfaceAgent (this->client, this);
+   agent = new QEArchiveInterfaceAgent (this->client, this);
 
    // no arguments per se.
    //
@@ -118,9 +118,9 @@ void QCaArchiveInterface::archivesRequest (QObject *userData)
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::namesRequest (QObject *userData, const int key, QString pattern)
+void QEArchiveInterface::namesRequest (QObject *userData, const int key, QString pattern)
 {
-   QCaArchiveInterfaceAgent *agent;
+   QEArchiveInterfaceAgent *agent;
    Context context;
    QVariantList args;
 
@@ -130,7 +130,7 @@ void QCaArchiveInterface::namesRequest (QObject *userData, const int key, QStrin
    context.userData = userData;
    context.requested_element = 0;
 
-   agent = new QCaArchiveInterfaceAgent (this->client, this);
+   agent = new QEArchiveInterfaceAgent (this->client, this);
 
    // setup arguments
    //
@@ -142,7 +142,7 @@ void QCaArchiveInterface::namesRequest (QObject *userData, const int key, QStrin
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::valuesRequest (QObject *userData,
+void QEArchiveInterface::valuesRequest (QObject *userData,
                                          const int key,
                                          const QCaDateTime startTime,
                                          const QCaDateTime endTime,
@@ -151,7 +151,7 @@ void QCaArchiveInterface::valuesRequest (QObject *userData,
                                          const QStringList pvNames,
                                          const unsigned int requested_element)
 {
-   QCaArchiveInterfaceAgent *agent;
+   QEArchiveInterfaceAgent *agent;
    Context context;
    QVariantList args;
    QVariantList list;
@@ -165,7 +165,7 @@ void QCaArchiveInterface::valuesRequest (QObject *userData,
    context.userData = userData;
    context.requested_element = requested_element;
 
-   agent = new QCaArchiveInterfaceAgent (this->client, this);
+   agent = new QEArchiveInterfaceAgent (this->client, this);
 
    args.append (QVariant (key));
 
@@ -192,7 +192,7 @@ void QCaArchiveInterface::valuesRequest (QObject *userData,
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::processInfo (const QObject *userData, QVariant & response)
+void QEArchiveInterface::processInfo (const QObject *userData, QVariant & response)
 {
    QMap<QString, QVariant> map;
    QString description;
@@ -221,7 +221,7 @@ void QCaArchiveInterface::processInfo (const QObject *userData, QVariant & respo
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::processArchives (const QObject *userData, QVariant & response)
+void QEArchiveInterface::processArchives (const QObject *userData, QVariant & response)
 {
    QList<Archive> PvArchives;
    QVariantList list;
@@ -258,7 +258,7 @@ void QCaArchiveInterface::processArchives (const QObject *userData, QVariant & r
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::processPvNames  (const QObject *userData, QVariant & response)
+void QEArchiveInterface::processPvNames  (const QObject *userData, QVariant & response)
 {
    QList<PVName> PvNames;
    QVariantList list;
@@ -306,7 +306,7 @@ void QCaArchiveInterface::processPvNames  (const QObject *userData, QVariant & r
 
 //------------------------------------------------------------------------------
 //
-void  QCaArchiveInterface::processOnePoint (const DataType dtype,
+void  QEArchiveInterface::processOnePoint (const DataType dtype,
                                             QMap<QString, QVariant> value,
                                             const unsigned int requested_element,
                                             QCaDataPoint & datum)
@@ -359,7 +359,7 @@ void  QCaArchiveInterface::processOnePoint (const DataType dtype,
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::processOnePV (QMap<QString, QVariant> map,
+void QEArchiveInterface::processOnePV (QMap<QString, QVariant> map,
                                         const unsigned int requested_element,
                                         struct ResponseValues& item)
 {
@@ -421,7 +421,7 @@ void QCaArchiveInterface::processOnePV (QMap<QString, QVariant> map,
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::processValues (const QObject *userData, QVariant & response, const unsigned int requested_element)
+void QEArchiveInterface::processValues (const QObject *userData, QVariant & response, const unsigned int requested_element)
 {
    QList<ResponseValues> PvValues;
    QVariantList list;
@@ -456,7 +456,7 @@ void QCaArchiveInterface::processValues (const QObject *userData, QVariant & res
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::xmlRpcResponse (const QCaArchiveInterface::Context & context, QVariant & response)
+void QEArchiveInterface::xmlRpcResponse (const QEArchiveInterface::Context & context, QVariant & response)
 {
    switch (context.method) {
 
@@ -484,7 +484,7 @@ void QCaArchiveInterface::xmlRpcResponse (const QCaArchiveInterface::Context & c
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterface::xmlRpcFault (const QCaArchiveInterface::Context & context, int error, const QString & response)
+void QEArchiveInterface::xmlRpcFault (const QEArchiveInterface::Context & context, int error, const QString & response)
 {
    QList<Archive> nullPvArchives;
    QList<PVName> nullPvNames;
@@ -517,7 +517,7 @@ void QCaArchiveInterface::xmlRpcFault (const QCaArchiveInterface::Context & cont
 
 //------------------------------------------------------------------------------
 //
-QString QCaArchiveInterface::alarmSeverityName (enum archiveAlarmSeverity severity)
+QString QEArchiveInterface::alarmSeverityName (enum archiveAlarmSeverity severity)
 {
    QString result;
 
@@ -566,7 +566,7 @@ static const QDateTime archiveEpoch (QDate (1970, 1, 1), QTime (0, 0, 0, 0), Qt:
 
 //------------------------------------------------------------------------------
 //
-QCaDateTime QCaArchiveInterface::convertArchiveToEpics (const int seconds, const int nanoSecs)
+QCaDateTime QEArchiveInterface::convertArchiveToEpics (const int seconds, const int nanoSecs)
 {
    QCaDateTime result;
 
@@ -580,7 +580,7 @@ QCaDateTime QCaArchiveInterface::convertArchiveToEpics (const int seconds, const
 
 //------------------------------------------------------------------------------
 //
-void  QCaArchiveInterface::convertEpicsToArchive (const QCaDateTime datetime, int& seconds, int& nanoSecs)
+void  QEArchiveInterface::convertEpicsToArchive (const QCaDateTime datetime, int& seconds, int& nanoSecs)
 {
    const int seconds_per_day = 24 * 60 * 60;
 
@@ -612,25 +612,25 @@ void  QCaArchiveInterface::convertEpicsToArchive (const QCaDateTime datetime, in
 
 
 //==============================================================================
-//QCaArchiveInterfaceAgent
+//QEArchiveInterfaceAgent
 //==============================================================================
 //
-QCaArchiveInterfaceAgent::QCaArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
-                                                    QCaArchiveInterface *parent) : QObject (parent)
+QEArchiveInterfaceAgent::QEArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
+                                                    QEArchiveInterface *parent) : QObject (parent)
 {
    this->client = clientIn;
 
-   QObject::connect (this, SIGNAL (xmlRpcResponse (const QCaArchiveInterface::Context &, QVariant &)),
-                     parent, SLOT (xmlRpcResponse (const QCaArchiveInterface::Context &, QVariant &)));
+   QObject::connect (this, SIGNAL (xmlRpcResponse (const QEArchiveInterface::Context &, QVariant &)),
+                     parent, SLOT (xmlRpcResponse (const QEArchiveInterface::Context &, QVariant &)));
 
-   QObject::connect (this, SIGNAL (xmlRpcFault (const QCaArchiveInterface::Context &, int, const QString&)),
-                     parent, SLOT (xmlRpcFault (const QCaArchiveInterface::Context &, int, const QString&)));
+   QObject::connect (this, SIGNAL (xmlRpcFault (const QEArchiveInterface::Context &, int, const QString&)),
+                     parent, SLOT (xmlRpcFault (const QEArchiveInterface::Context &, int, const QString&)));
 
 }
 
 //------------------------------------------------------------------------------
 //
-QNetworkReply* QCaArchiveInterfaceAgent::call (QCaArchiveInterface::Context & contextIn,
+QNetworkReply* QEArchiveInterfaceAgent::call (QEArchiveInterface::Context & contextIn,
                                                QString procedure,
                                                QList<QVariant> args)
 {
@@ -642,7 +642,7 @@ QNetworkReply* QCaArchiveInterfaceAgent::call (QCaArchiveInterface::Context & co
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterfaceAgent::xmlRpcResponse (QVariant &response)
+void QEArchiveInterfaceAgent::xmlRpcResponse (QVariant &response)
 {
    // re-transmit signal to parent together with user context appended.
    //
@@ -652,7 +652,7 @@ void QCaArchiveInterfaceAgent::xmlRpcResponse (QVariant &response)
 
 //------------------------------------------------------------------------------
 //
-void QCaArchiveInterfaceAgent::xmlRpcFault (int error, const QString &response)
+void QEArchiveInterfaceAgent::xmlRpcFault (int error, const QString &response)
 {
    // re-transmit signal to parent together with user context appended.
    //

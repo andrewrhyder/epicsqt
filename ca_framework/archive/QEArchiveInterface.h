@@ -1,4 +1,4 @@
-/*  QCaArchiveInterface.h
+/*  QEArchiveInterface.h
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -53,7 +53,7 @@
  *  This class uses the libMaia client written by
  *  Sebastian Wiedenroth <wiedi@frubar.net> and Karl Glatz.
  */
-class QCaArchiveInterface : public QObject {
+class QEArchiveInterface : public QObject {
    Q_OBJECT
 
 public:
@@ -116,15 +116,15 @@ public:
 
    //---------------------------------------------------------------------------
    //
-   QCaArchiveInterface (QUrl url, QObject *parent = 0);
-   ~QCaArchiveInterface ();
+   QEArchiveInterface (QUrl url, QObject *parent = 0);
+   ~QEArchiveInterface ();
 
    void setUrl (QUrl url);
    QUrl getUrl ();
 
    // Each of the xxxxRequest functions result in a xxxxResponse signal
    // being emitted. In each case the given userData is not used by the
-   // QCaArchiveInterface class per se other it is returned in the signal
+   // QEArchiveInterface class per se other it is returned in the signal
    // to provide the caller with signal context.
    //
    void infoRequest (QObject *userData);
@@ -154,12 +154,12 @@ signals:
    // condition. For the later case, the actual value parameters are undefined.
    //
    void infoResponse     (const QObject *, const bool, const int, const QString&);
-   void archivesResponse (const QObject *, const bool, const QList<QCaArchiveInterface::Archive>&);
-   void pvNamesResponse  (const QObject *, const bool, const QList<QCaArchiveInterface::PVName>&);
-   void valuesResponse   (const QObject *, const bool, const QList<QCaArchiveInterface::ResponseValues>&);
+   void archivesResponse (const QObject *, const bool, const QList<QEArchiveInterface::Archive>&);
+   void pvNamesResponse  (const QObject *, const bool, const QList<QEArchiveInterface::PVName>&);
+   void valuesResponse   (const QObject *, const bool, const QList<QEArchiveInterface::ResponseValues>&);
 
 private:
-   friend class QCaArchiveInterfaceAgent;
+   friend class QEArchiveInterfaceAgent;
 
    enum Methods {
       Information,
@@ -169,7 +169,7 @@ private:
    };
 
    struct Context {
-      QCaArchiveInterface::Methods method;
+      QEArchiveInterface::Methods method;
       QObject *userData;
       unsigned int requested_element;
    };
@@ -207,11 +207,11 @@ private:
                       struct ResponseValues& item);
 
 private slots:
-   // Used by intermediary QCaArchiveInterfaceAgent
-   // Note need fully qualified QCaArchiveInterface::Context in order to match signals.
+   // Used by intermediary QEArchiveInterfaceAgent
+   // Note need fully qualified QEArchiveInterface::Context in order to match signals.
    //
-   void xmlRpcResponse (const QCaArchiveInterface::Context & context, QVariant & response);
-   void xmlRpcFault    (const QCaArchiveInterface::Context & context, int error, const QString & response);
+   void xmlRpcResponse (const QEArchiveInterface::Context & context, QVariant & response);
+   void xmlRpcFault    (const QEArchiveInterface::Context & context, int error, const QString & response);
 };
 
 
@@ -222,25 +222,25 @@ private slots:
 // passive. If we change underlying XML RPC library then the agent class can be
 // modified to inherit from QThread to provide the asynchronicity if needs be.
 //
-class QCaArchiveInterfaceAgent : public QObject {
+class QEArchiveInterfaceAgent : public QObject {
    Q_OBJECT
 
 private:
-   friend class QCaArchiveInterface;
+   friend class QEArchiveInterface;
 
-   QCaArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
-                             QCaArchiveInterface *parent);
+   QEArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
+                             QEArchiveInterface *parent);
 
-   QNetworkReply* call (QCaArchiveInterface::Context & contextIn,
+   QNetworkReply* call (QEArchiveInterface::Context & contextIn,
                         QString procedure,
                         QList<QVariant> args);
 
    MaiaXmlRpcClient *client;
-   QCaArchiveInterface::Context context;
+   QEArchiveInterface::Context context;
 
 signals:
-   void xmlRpcResponse (const QCaArchiveInterface::Context &, QVariant &);
-   void xmlRpcFault    (const QCaArchiveInterface::Context &, int, const QString &);
+   void xmlRpcResponse (const QEArchiveInterface::Context &, QVariant &);
+   void xmlRpcFault    (const QEArchiveInterface::Context &, int, const QString &);
 
 
 private slots:
