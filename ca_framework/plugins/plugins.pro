@@ -316,27 +316,6 @@ SOURCES += \
 
 
 #===========================================================
-# QEAnalogProgressBar
-#
-OTHER_FILES += \
-    ../widgets/QEAnalogProgressBar/icon.png
-
-RESOURCES += \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.qrc
-
-HEADERS += \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.h \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.h
-
-SOURCES += \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.cpp \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QEAnalogProgressBar
-
-
-#===========================================================
 # BitStatus
 #
 OTHER_FILES += \
@@ -349,173 +328,6 @@ HEADERS += \
 SOURCES += \
     ../widgets/src/QBitStatus.cpp \
     src/QBitStatusPluginManager.cpp
-
-
-#===========================================================
-# QEBitStatus
-#
-OTHER_FILES += \
-    ../widgets/QEBitStatus/icon.png
-
-RESOURCES += \
-    ../widgets/QEBitStatus/QEBitStatus.qrc
-
-HEADERS += \
-    ../widgets/QEBitStatus/QEBitStatus.h \
-    ../widgets/QEBitStatus/QEBitStatusManager.h
-
-SOURCES += \
-    ../widgets/QEBitStatus/QEBitStatus.cpp \
-    ../widgets/QEBitStatus/QEBitStatusManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QEBitStatus
-
-
-#===========================================================
-# QEPvProperties
-#
-OTHER_FILES += \
-    ../widgets/QEPvProperties/icon.png
-
-RESOURCES += \
-    ../widgets/QEPvProperties/QEPvProperties.qrc
-
-HEADERS += \
-    ../widgets/QEPvProperties/QEPvProperties.h \
-    ../widgets/QEPvProperties/QEPvPropertiesManager.h \
-
-SOURCES += \
-    ../widgets/QEPvProperties/QEPvProperties.cpp \
-    ../widgets/QEPvProperties/QEPvPropertiesManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QEPvProperties
-
-
-#===========================================================
-# Archive Access
-#
-QT += xml network
-
-HEADERS += \
-    ../archive/include/QCaArchiveInterface.h \
-    ../archive/include/QCaArchiveManager.h \
-    ../archive/include/maiaFault.h \
-    ../archive/include/maiaObject.h \
-    ../archive/include/maiaXmlRpcClient.h
-
-SOURCES += \
-    ../archive/src/QCaArchiveInterface.cpp \
-    ../archive/src/QCaArchiveManager.cpp \
-    ../archive/src/maiaFault.cpp \
-    ../archive/src/maiaObject.cpp \
-    ../archive/src/maiaXmlRpcClient.cpp
-
-INCLUDEPATH += \
-    ../archive/include
-
-
-#===========================================================
-# Strip Chart
-#
-OTHER_FILES += \
-    ../widgets/QEStripChart/icon.png \
-    ../widgets/QEStripChart/archive.png \
-    ../widgets/QEStripChart/play.png \
-    ../widgets/QEStripChart/pause.png \
-    ../widgets/QEStripChart/page_forward.png \
-    ../widgets/QEStripChart/page_backward.png
-
-RESOURCES += \
-    ../widgets/QEStripChart/QEStripChart.qrc
-
-HEADERS += \
-    ../widgets/QEStripChart/QEStripChart.h \
-    ../widgets/QEStripChart/QEStripChartItem.h \
-    ../widgets/QEStripChart/QEStripChartTimeDialog.h \
-    ../widgets/QEStripChart/QEStripChartItemDialog.h \
-    ../widgets/QEStripChart/QEStripChartManager.h
-
-SOURCES += \
-    ../widgets/QEStripChart/QEStripChart.cpp \
-    ../widgets/QEStripChart/QEStripChartItem.cpp \
-    ../widgets/QEStripChart/QEStripChartTimeDialog.cpp \
-    ../widgets/QEStripChart/QEStripChartItemDialog.cpp \
-    ../widgets/QEStripChart/QEStripChartManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QEStripChart
-
-FORMS += \
-    ../widgets/QEStripChart/QEStripChartTimeDialog.ui \
-    ../widgets/QEStripChart/QEStripChartItemDialog.ui \
-
-#===========================================================
-# QEImage
-#
-OTHER_FILES += \
-    ../widgets/QEImage/QEImage.png  \
-    ../widgets/QEImage/cameraROI.png \
-    ../widgets/QEImage/cameraROIreset.png \
-    ../widgets/QEImage/flipRotate.png \
-    ../widgets/QEImage/pause.png \
-    ../widgets/QEImage/play.png \
-    ../widgets/QEImage/save.png \
-    ../widgets/QEImage/select.png \
-    ../widgets/QEImage/zoom.png
-
-RESOURCES += \
-    ../widgets/QEImage/QEImage.qrc
-
-HEADERS += \
-    ../widgets/QEImage/imageContextMenu.h \
-    ../widgets/QEImage/flipRotateMenu.h \
-    ../widgets/QEImage/imageMarkup.h \
-    ../widgets/QEImage/profilePlot.h \
-    ../widgets/QEImage/QEImage.h \
-    ../widgets/QEImage/QEImageManager.h \
-    ../widgets/QEImage/selectMenu.h \
-    ../widgets/QEImage/videowidget.h \
-    ../widgets/QEImage/zoomMenu.h
-
-SOURCES += \
-    ../widgets/QEImage/QEImage.cpp \
-    ../widgets/QEImage/QEImageManager.cpp \
-    ../widgets/QEImage/imageContextMenu.cpp \
-    ../widgets/QEImage/imageMarkup.cpp \
-    ../widgets/QEImage/videowidget.cpp \
-    ../widgets/QEImage/flipRotateMenu.cpp \
-    ../widgets/QEImage/profilePlot.cpp \
-    ../widgets/QEImage/selectMenu.cpp \
-    ../widgets/QEImage/zoomMenu.cpp
-
-INCLUDEPATH += \
-    ../widgets/QEImage
-
-
-#===========================================================
-# QEConfiguredLayout
-#
-OTHER_FILES += \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayout.png
-
-RESOURCES += \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayout.qrc
-
-HEADERS += \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayout.h \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayoutManager.h
-
-SOURCES += \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayout.cpp \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayoutManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QEConfiguredLayout
-
-
-
 
 
 #===========================================================
@@ -539,9 +351,6 @@ INCLUDEPATH += \
     ../widgets/QELogin
 
 
-
-
-
 #===========================================================
 # QELog
 #
@@ -561,10 +370,6 @@ SOURCES += \
 
 INCLUDEPATH += \
     ../widgets/QELog
-
-
-
-
 
 
 #===========================================================
@@ -588,7 +393,6 @@ INCLUDEPATH += \
     ../widgets/QEFileBrowser
 
 
-
 #===========================================================
 # QEPlot
 #
@@ -604,6 +408,32 @@ INCLUDEPATH += \
 #SOURCES += \
 #
 
+
+#===========================================================
+# Included .pri (project include?) files.
+#
+include (../archive/QEArchive.pri)
+
+include (../widgets/QEAnalogProgressBar/QEAnalogProgressBar.pri)
+
+include (../widgets/QEBitStatus/QEBitStatus.pri)
+
+include (../widgets/QEConfiguredLayout/QEConfiguredLayout.pri)
+
+include (../widgets/QEImage/QEImage.pri)
+
+include (../widgets/QELabel/QELabel.pri)
+
+# include (../widgets/QEPlot/QEPlot.pri)
+
+include (../widgets/QEPvProperties/QEPvProperties.pri)
+
+include (../widgets/QEStripChart/QEStripChart.pri)
+
+
+
+#===========================================================
+#
 _QWT_INCLUDE_PATH = $$(QWT_INCLUDE_PATH)
 isEmpty( _QWT_INCLUDE_PATH ) {
     error( "QWT_INCLUDE_PATH must be defined. Ensure Qwt is installed for development and QWT_INCLUDE_PATH is set up" )
