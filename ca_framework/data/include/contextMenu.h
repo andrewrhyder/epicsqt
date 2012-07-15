@@ -34,7 +34,7 @@ class contextMenu
 public:
 
     explicit contextMenu( QWidget *parent = 0 );
-    ~contextMenu();
+    virtual ~contextMenu();
 
     enum contextMenuOptions{ CM_NONE, CM_COPY_VARIABLE, CM_COPY_DATA, CM_PASTE, CM_DRAG_VARIABLE, CM_DRAG_DATA, CM_SPECIFIC_WIDGETS_START_HERE };
 
