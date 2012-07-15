@@ -279,28 +279,6 @@ FORMS += \
 
 
 #===========================================================
-# QELabel
-#
-OTHER_FILES += \
-    ../widgets/QELabel.png  \
-    ../widgets/QELabel/icon.png
-
-RESOURCES += \
-    ../widgets/QELabel/QELabel.qrc
-
-HEADERS += \
-    ../widgets/QELabel/QELabel.h \
-    ../widgets/QELabel/QELabelManager.h
-
-SOURCES += \
-    ../widgets/QELabel/QELabel.cpp \
-    ../widgets/QELabel/QELabelManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QELabel
-
-
-#===========================================================
 # AnalogProgressBar
 #
 OTHER_FILES += \
