@@ -42,8 +42,7 @@
 #include <QELabel.h>
 #include <QCaObject.h>
 #include <QCaVariableNamePropertyManager.h>
-#include <QCaArchiveManager.h>
-
+#include <QEArchiveManager.h>
 #include <QEStripChart.h>
 #include <QEStripChartItemDialog.h>
 
@@ -117,7 +116,7 @@ private:
 
    TrackRange displayedMinMax;
 
-   QCaArchiveAccess archiveAccess;
+   QEArchiveAccess archiveAccess;
    QEStripChartItemDialog dialog;
 
    // Return pv name label style, i.e. colour

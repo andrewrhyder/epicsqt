@@ -28,7 +28,7 @@
 #include <alarm.h>
 #include <qwt_plot_curve.h>
 #include <QCaObject.h>
-#include <QCaArchiveInterface.h>
+#include <QEArchiveInterface.h>
 
 #include <QEStripChartItem.h>
 
@@ -343,22 +343,22 @@ bool QEStripChartItem::isDisplayable (QCaDataPoint & point)
 {
    // The archive severity encompasses the normal EPICS severity.
    //
-   QCaArchiveInterface::archiveAlarmSeverity severity = (QCaArchiveInterface::archiveAlarmSeverity) point.alarm.getSeverity ();
+   QEArchiveInterface::archiveAlarmSeverity severity = (QEArchiveInterface::archiveAlarmSeverity) point.alarm.getSeverity ();
    bool result;
 
    switch (severity) {
-   case QCaArchiveInterface::archSevNone:
-   case QCaArchiveInterface::archSevMinor:
-   case QCaArchiveInterface::archSevMajor:
-   case QCaArchiveInterface::archSevEstRepeat:
-   case QCaArchiveInterface::archSevRepeat:
+   case QEArchiveInterface::archSevNone:
+   case QEArchiveInterface::archSevMinor:
+   case QEArchiveInterface::archSevMajor:
+   case QEArchiveInterface::archSevEstRepeat:
+   case QEArchiveInterface::archSevRepeat:
       result = true;
       break;
 
-   case QCaArchiveInterface::archSevInvalid:
-   case QCaArchiveInterface::archSevDisconnect:
-   case QCaArchiveInterface::archSevStopped:
-   case QCaArchiveInterface::archSevDisabled:
+   case QEArchiveInterface::archSevInvalid:
+   case QEArchiveInterface::archSevDisconnect:
+   case QEArchiveInterface::archSevStopped:
+   case QEArchiveInterface::archSevDisabled:
       result = false;
       break;
 
@@ -679,7 +679,7 @@ void QEStripChartItem::readArchive ()
 
    this->archiveAccess.readArchive
          (this, this->getPvName (),  startDateTime, endDateTime,  4000,
-          QCaArchiveInterface::Linear,  0);
+          QEArchiveInterface::Linear,  0);
 }
 
 //------------------------------------------------------------------------------
