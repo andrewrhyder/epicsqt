@@ -309,69 +309,6 @@ SOURCES += \
 
 
 #===========================================================
-# QELogin
-#
-OTHER_FILES += \
-    ../widgets/QELogin/QELogin.png
-
-RESOURCES += \
-    ../widgets/QELogin/QELogin.qrc
-
-HEADERS += \
-    ../widgets/QELogin/QELogin.h \
-    ../widgets/QELogin/QELoginManager.h
-
-SOURCES += \
-    ../widgets/QELogin/QELogin.cpp \
-    ../widgets/QELogin/QELoginManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QELogin
-
-
-#===========================================================
-# QELog
-#
-OTHER_FILES += \
-    ../widgets/QELog/QELog.png
-
-RESOURCES += \
-    ../widgets/QELog/QELog.qrc
-
-HEADERS += \
-    ../widgets/QELog/QELog.h \
-    ../widgets/QELog/QELogManager.h
-
-SOURCES += \
-    ../widgets/QELog/QELog.cpp \
-    ../widgets/QELog/QELogManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QELog
-
-
-#===========================================================
-# QEFileBrowser
-#
-OTHER_FILES += \
-    ../widgets/QEFileBrowser/QEFileBrowser.png
-
-RESOURCES += \
-    ../widgets/QEFileBrowser/QEFileBrowser.qrc
-
-HEADERS += \
-    ../widgets/QEFileBrowser/QEFileBrowser.h \
-    ../widgets/QEFileBrowser/QEFileBrowserManager.h
-
-SOURCES += \
-    ../widgets/QEFileBrowser/QEFileBrowser.cpp \
-    ../widgets/QEFileBrowser/QEFileBrowserManager.cpp
-
-INCLUDEPATH += \
-    ../widgets/QEFileBrowser
-
-
-#===========================================================
 # QEPlot
 #
 #OTHER_FILES += \
@@ -398,9 +335,15 @@ include (../widgets/QEBitStatus/QEBitStatus.pri)
 
 include (../widgets/QEConfiguredLayout/QEConfiguredLayout.pri)
 
+include (../widgets/QEFileBrowser/QEFileBrowser.pri)
+
 include (../widgets/QEImage/QEImage.pri)
 
 include (../widgets/QELabel/QELabel.pri)
+
+include (../widgets/QELog/QELog.pri)
+
+include (../widgets/QELogin/QELogin.pri)
 
 # include (../widgets/QEPlot/QEPlot.pri)
 
