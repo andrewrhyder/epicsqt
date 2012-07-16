@@ -33,6 +33,7 @@
 #define QCAALARMINFO_H
 
 #include <QString>
+#include <QColor>
 
 #define QCAALARMINFO_SEVERITY unsigned short
 
@@ -49,6 +50,8 @@ public:
     bool isMajor();             // Return true if there is a major alarm
     bool isInvalid();           // Return true if there is an invalid alarm
     QString style();            // Return a style string to update the widget's look to reflect the current alarm state
+    QColor getColor( int saturation = 64 );  // Return 'standard' colour for the alarm state.
+
     static QCAALARMINFO_SEVERITY getInvalidSeverity(); // Return a severity that will not match any valid severity
     QCAALARMINFO_SEVERITY getSeverity(); // Return the current severity
 

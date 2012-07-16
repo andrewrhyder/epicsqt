@@ -115,6 +115,42 @@ QString QCaAlarmInfo::style()
     }
 }
 
+
+/*!
+  Return a colour to update the widget's look to reflect the current alarm state
+ */
+QColor  QCaAlarmInfo::getColor( int saturation )
+{
+    const int v = 210;
+
+    QColor result;
+
+    switch( severity )
+    {
+    case NO_ALARM:
+        result.setHsv (120, saturation, v);    // green
+        break;
+
+    case MINOR_ALARM:
+        result.setHsv (60, saturation, v);     // yellow
+        break;
+
+    case MAJOR_ALARM:
+        result.setHsv (0, saturation, v);      // red
+        break;
+
+    case INVALID_ALARM:
+        result.setHsv (0, 0, v);               // white
+        break;
+
+    default:
+        result.setHsv (0, 0, v);               // white
+        break;
+    }
+    return result;
+}
+
+
 /*!
   Return a severity that will not match any valid severity
  */
