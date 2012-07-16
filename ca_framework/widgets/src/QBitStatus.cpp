@@ -120,15 +120,13 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    // Set draw width and height and also apply translation and rotation
    // dependent upon widget orientation.
    //
-   // There appears to be a one pixel difference between height and width.
-   // hence the -2 or -1.
    //
    draw_area = geometry ();
 
    switch (mOrientation) {
       case LSB_On_Right:
          draw_width = draw_area.width ()   - 2;
-         draw_height = draw_area.height () - 1;
+         draw_height = draw_area.height () - 2;
          painter.translate (0.0, 0.0);
          painter.rotate (0.0);
          break;
@@ -136,7 +134,7 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
 
       case LSB_On_Bottom:
          draw_width = draw_area.height () - 2;
-         draw_height = draw_area.width () - 1;
+         draw_height = draw_area.width () - 2;
          painter.translate (draw_area.width () - 1, 0.0);
          painter.rotate (90.0);    // clock wise (degrees)
          break;
@@ -144,7 +142,7 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
 
       case LSB_On_Left:
          draw_width  =  draw_area.width ()  - 2;
-         draw_height =  draw_area.height () - 1;
+         draw_height =  draw_area.height () - 2;
          painter.translate (draw_area.width () - 1, draw_area.height () - 1);
          painter.rotate (180.0);    // clock wise (degrees)
          break;
@@ -152,7 +150,7 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
 
       case LSB_On_Top:
          draw_width  = draw_area.height () - 2;
-         draw_height = draw_area.width ()  - 1;
+         draw_height = draw_area.width ()  - 2;
          painter.translate (0.0, draw_area.height () - 1);
          painter.rotate (270.0);    // clock wise (degrees)
          break;
@@ -162,7 +160,7 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
          // report an error??
          //
          draw_width  = draw_area.width ()  - 2;
-         draw_height = draw_area.height () - 1;
+         draw_height = draw_area.height () - 2;
          break;
    }
 
@@ -172,7 +170,7 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    // The previously set translation and rotation looks after the rest.
    //
    bit_area.setTop (0);
-   bit_area.setHeight (draw_height);
+   bit_area.setBottom (draw_height);
 
    // Calulate fractional widths of the gaps and the bits.
    // Re-adjust the gaps if the fractonal bits are too small.
@@ -254,171 +252,59 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
    }
 }
 
-
 //=============================================================================
 // Property functions
 //=============================================================================
 //
-void QBitStatus::setValue (const long value)
-{
-   if (this->mValue != value) {
-      this->mValue = value;
-      this->update ();  // Force re-draw
-   }
-}
-
-long QBitStatus::getValue () {
-   return this->mValue;
-}
-
-//=============================================================================
+// Standard propery access macro.
 //
-void QBitStatus::setBorderColour (const QColor value)
-{
-   if (this->mBorderColour != value) {
-      this->mBorderColour = value;
-      this->update ();  // Force re-draw
-   }
+#define PROPERTY_ACCESS(type, name, convert)                 \
+                                                             \
+void QBitStatus::set##name (const type value)  {             \
+   type temp;                                                \
+   temp = convert;                                           \
+   if (this->m##name != temp) {                              \
+      this->m##name = temp;                                  \
+      update ();                                             \
+   }                                                         \
+ }                                                           \
+                                                             \
+type QBitStatus::get##name () {                              \
+   return this->m##name;                                     \
 }
 
-QColor QBitStatus::getBorderColour ()
-{
-   return this->mBorderColour;
-}
 
-//=============================================================================
+// NOTE: we have to qualify function return type here.
 //
-void QBitStatus::setOnColour (const QColor value)
-{
-   if (this->mOnColour != value) {
-      this->mOnColour = value;
-      this->update ();  // Force re-draw
-   }
-}
+PROPERTY_ACCESS (QBitStatus::Orientations, Orientation, value)
 
-QColor QBitStatus::getOnColour ()
-{
-   return this->mOnColour;
-}
+PROPERTY_ACCESS (bool, IsValid, value)
 
-//=============================================================================
-//
-void QBitStatus::setOffColour (const QColor value)
-{
-   if (this->mOffColour != value) {
-      this->mOffColour = value;
-      this->update ();  // Force re-draw
-   }
-}
+PROPERTY_ACCESS (bool, DrawBorder, value)
 
-QColor QBitStatus::getOffColour ()
-{
-   return this->mOffColour;
-}
+PROPERTY_ACCESS (long, Value, value)
 
-//=============================================================================
-//
-void QBitStatus::setInvalidColour (const QColor value)
-{
-   if (this->mInvalidColour != value) {
-      this->mInvalidColour = value;
-      this->update ();  // Force re-draw
-   }
-}
+PROPERTY_ACCESS (int, NumberOfBits, LIMIT (value, 1, 32))
 
-QColor QBitStatus::getInvalidColour ()
-{
-   return this->mInvalidColour;
-}
+PROPERTY_ACCESS (int, Gap, LIMIT (value, 0, 40))
 
-//=============================================================================
-//
-void QBitStatus::setClearColour (const QColor value)
-{
-   if (this->mClearColour != value) {
-      this->mClearColour = value;
-      this->update ();  // Force re-draw
-   }
-}
+PROPERTY_ACCESS (int, Shift, LIMIT (value, 0, 31))
 
-QColor QBitStatus::getClearColour ()
-{
-   return this->mClearColour;
-}
+PROPERTY_ACCESS (QColor, BorderColour, value)
 
-//=============================================================================
-//
-void QBitStatus::setDrawBorder (const bool value)
-{
-   if (this->mDrawBorder != value) {
-      this->mDrawBorder = value;
-      this->update ();  // Force re-draw
-   }
-}
+PROPERTY_ACCESS (QColor, OnColour, value)
 
-bool QBitStatus::getDrawBorder ()
-{
-   return this->mDrawBorder;
-}
+PROPERTY_ACCESS (QColor, OffColour, value)
 
-//=============================================================================
-//
-void QBitStatus::setNumberOfBits (const int value)
-{
-   int temp;
+PROPERTY_ACCESS (QColor, InvalidColour, value)
 
-   temp = LIMIT (value, 1, 32);
+PROPERTY_ACCESS (QColor, ClearColour, value)
 
-   if (this->mNumberOfBits != temp) {
-      this->mNumberOfBits = temp;
-      this->update ();  // Force re-draw
-   }
-}
-
-int QBitStatus::getNumberOfBits ()
-{
-   return this->mNumberOfBits;
-}
+#undef PROPERTY_ACCESS
 
 
 //=============================================================================
-//
-void QBitStatus::setGap (const int value)
-{
-   int temp;
-
-   temp = LIMIT (value, 0, 40);
-
-   if (this->mGap != temp) {
-      this->mGap = temp;
-      this->update ();  // Force re-draw
-   }
-}
-
-int QBitStatus::getGap ()
-{
-   return this->mGap;
-}
-
-//=============================================================================
-//
-void QBitStatus::setShift (const int value)
-{
-   int temp;
-
-   temp = LIMIT (value, 0, 31);
-
-   if (this->mShift != temp) {
-      this->mShift = temp;
-      this->update ();  // Force re-draw
-   }
-}
-
-int QBitStatus::getShift ()
-{
-   return this->mShift;
-}
-
+// Non-standard propery access macro.
 //=============================================================================
 //
 void QBitStatus::setOnClearMask (const QString value)
@@ -476,38 +362,6 @@ QString QBitStatus::getReversePolarityMask ()
    return this->intToMask (this->mReversePolarityMask);
 }
 
-
-//=============================================================================
-//
-void QBitStatus::setIsValid (const bool value)
-{
-   if (mIsValid != value) {
-      mIsValid = value;
-      update ();  // Force re-draw
-   }
-}
-
-bool QBitStatus::getIsValid ()
-{
-   return mIsValid;
-}
-
-//=============================================================================
-//
-void QBitStatus::setOrientation (const enum Orientations value)
-{
-   if (mOrientation != value) {
-      mOrientation = value;
-      update ();  // Force re-draw
-   }
-}
-
-// NOTE: we have to qualify function return type here.
-//
-enum QBitStatus::Orientations QBitStatus::getOrientation ()
-{
-   return mOrientation;
-}
 
 
 //=============================================================================
