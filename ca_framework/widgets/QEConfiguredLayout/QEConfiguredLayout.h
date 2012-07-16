@@ -234,6 +234,7 @@ class _QPushButtonGroup:public QPushButton
 // ============================================================
 class _QCaLineEdit:public QCaLineEdit
 {
+    Q_OBJECT
 
     private:
         QString itemName;
@@ -251,7 +252,8 @@ class _QCaLineEdit:public QCaLineEdit
 
         QString getFieldName();
 
-        void valueWritten(QString pNewValue, QString pOldValue);
+  private slots:
+        void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
 
 };
 

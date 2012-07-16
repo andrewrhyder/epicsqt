@@ -62,6 +62,7 @@ void QCaSpinBox::setup() {
     setAllowDrop( false );
 
     // Set the initial state
+    lastValue = 0.0;
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
@@ -169,6 +170,9 @@ void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( value );
 
+    // Save the last database value
+    lastValue = value;
+
     // Set the limits and step size
     QCaFloating* qca = (QCaFloating*)getQcaItem(0);
     double upper = qca->getControlLimitUpper();
@@ -182,9 +186,13 @@ void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo
 
     /// Update the spin box only if the user is not interacting with the object.
     if( !hasFocus() ) {
+        // Update the spin box
         programaticValueChange = true;
         setValue( value );
         programaticValueChange = false;
+
+        // Note the last value seen by the user
+        lastUserValue = text();
     }
 
     /// If in alarm, display as an alarm
@@ -210,7 +218,11 @@ void QCaSpinBox::userValueChanged( double value ) {
         /// If a QCa object is present (if there is a variable to write to)
         /// then write the value
         if( qca ) {
+            // Write the value
             qca->writeFloating( value );
+
+            // Manage notifying user changes
+            emit userChange( text(), lastUserValue, QString("%1").arg( lastValue ) );
         }
     }
 }

@@ -55,6 +55,8 @@ class QCaSliderPlugin : public QCaSlider {
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
 
+    Q_PROPERTY(double scale READ getScale WRITE setScale)
+    Q_PROPERTY(double offset READ getOffset WRITE setOffset)
   private:
     QCaVariableNamePropertyManager variableNamePropertyManager;
 

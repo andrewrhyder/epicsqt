@@ -27,8 +27,8 @@
 
 #include <QSlider>
 #include <QCaWidget.h>
-#include <QCaInteger.h>
-#include <QCaIntegerFormatting.h>
+#include <QCaFloating.h>
+#include <QCaFloatingFormatting.h>
 #include <QCaPluginLibrary_global.h>
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget {
@@ -62,8 +62,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
     void setAllowDrop( bool allowDropIn );
     bool getAllowDrop();
 
+    // Set scale and offset (used to scale data when inteter scale bar min and max are not suitable)
+    void setScale( double scaleIn );
+    double getScale();
+    void setOffset( double offsetIn );
+    double getOffset();
+
   protected:
-    QCaIntegerFormatting integerFormatting; /// Integer formatting options.
+    QCaFloatingFormatting floatingFormatting; /// Floating formatting options.
     bool writeOnChange;             /// Write changed value to database when ever the position changes.
     bool localEnabled;
     bool allowDrop;
@@ -72,7 +78,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
 
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setValueIfNoFocus( const long& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void setValueIfNoFocus( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void userValueChanged( const int& newValue );
 
   public slots:
@@ -90,6 +96,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
+
+    double scale;
+    double offset;
 
     // Drag and Drop
 protected:

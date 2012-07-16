@@ -61,6 +61,7 @@ void QCaComboBox::setup() {
     setAllowDrop( false );
 
     // Set the initial state
+    lastValue = 0;
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
@@ -185,11 +186,18 @@ void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo,
     // Signal a database value change to any Link widgets
     emit dbValueChanged( value );
 
+    // Save the last database value
+    lastValue = value;
+
     /// Update the text if appropriate
     /// If the user is editing the object then updates will be inapropriate
     if( hasFocus() == false )
     {
+        // Update the combo box
         setCurrentIndex( value );
+
+        // Note the last value presented to the user
+        lastUserValue = currentText();
     }
 
     /// If in alarm, display as an alarm
@@ -212,7 +220,21 @@ void QCaComboBox::userValueChanged( int value ) {
     /// If a QCa object is present (if there is a variable to write to)
     /// then write the value
     if( qca ) {
+        // Write the value
         qca->writeInteger( (long)value );
+
+        // Notify user changes
+        QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+        QStringList enumerations = qca->getEnumerations();
+        QString lastValueString;
+        if( lastValue >= 0 && lastValue < enumerations.size() )
+        {
+            lastValueString = enumerations[lastValue];
+        }
+        emit userChange( currentText(), lastUserValue, lastValueString );
+
+        // Note the last value presented to the user
+        lastUserValue = currentText();
     }
 }
 

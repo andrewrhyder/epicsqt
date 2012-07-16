@@ -156,9 +156,10 @@ void QCaLineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInf
     if( !subscribe )
         return;
 
-    /// Save the most recent value.
-    /// If the user is editing the value updates are not applied. If the user cancels the write, the value the widget
-    /// should revert to the latest value.
+    // Save the most recent value.
+    // If the user is editing the value updates are not applied. If the user cancels the write, the value the widget
+    // should revert to the latest value.
+    // This last value is also used to manage notifying user changes (save what the user will be changing from)
     lastValue = value;
 
     /// Signal a database value change to any Link widgets
@@ -167,7 +168,10 @@ void QCaLineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInf
     /// Update the text if appropriate
     /// If the user is editing the object then updates will be inapropriate
     if( hasFocus() == false )
+    {
         setText( value );
+        lastUserValue = value;
+    }
 
     /// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
@@ -272,14 +276,20 @@ void QCaLineEdit::writeValue( QCaString *qca, QString newValue )
     {
         /// Write the value and inform any derived class
         case QMessageBox::Yes:
+            // Write the value
             qca->writeString( newValue );
-            valueWritten( newValue, lastValue );
-            setText( text() );          /// Clear 'isModified' flag
+
+            // Manage notifying user changes
+            emit userChange( newValue, lastUserValue, lastValue );
+
+            // Clear 'isModified' flag
+            setText( text() );
             break;
 
         /// Abort the write, revert to latest value
         case QMessageBox::No:
-            setText( lastValue );       /// Note, also clears 'isModified' flag
+            // Revert the text. Note, also clears 'isModified' flag
+            setText( lastValue );
             break;
 
         /// Don't write the value, keep editing the field

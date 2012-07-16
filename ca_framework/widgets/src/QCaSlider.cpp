@@ -60,6 +60,9 @@ void QCaSlider::setup() {
     localEnabled = true;
     setAllowDrop( false );
 
+    scale = 1.0;
+    offset = 0.0;
+
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
@@ -75,8 +78,8 @@ void QCaSlider::setup() {
 */
 qcaobject::QCaObject* QCaSlider::createQcaItem( unsigned int variableIndex ) {
 
-    // Create the item as a QCaInteger
-    return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+    // Create the item as a QCaFloating
+    return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 }
 
 /*!
@@ -93,8 +96,8 @@ void QCaSlider::establishConnection( unsigned int variableIndex ) {
     // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
     if(  qca ) {
         setValue( 0 );
-        QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
-                          this, SLOT( setValueIfNoFocus( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+        QObject::connect( qca,  SIGNAL( floatingChanged( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                          this, SLOT( setValueIfNoFocus( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
     }
@@ -143,7 +146,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
     /// variable when it is time to do a write.
     if( connectionInfo.isChannelConnected() && !subscribe )
     {
-        QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+        QCaFloating* qca = (QCaFloating*)getQcaItem(0);
         qca->singleShotRead();
     }
 }
@@ -155,7 +158,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
     if is is written to by another user on another gui.
     This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QCaSlider::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QCaSlider::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
     /// If not subscribing, then do nothing.
     /// Note, even though there is nothing to do here if not subscribing, an initial sing shot read is still
     /// performed to ensure we have valid information about the variable when it is time to do a write.
@@ -168,7 +171,8 @@ void QCaSlider::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, Q
     /// Update the slider only if the user is not interacting with the object.
     if( !hasFocus() ) {
         updateInProgress = true;
-        setValue( value );
+        int intValue = (value - offset) * scale;
+        setValue( intValue );
         updateInProgress = false;
     }
 
@@ -193,7 +197,7 @@ void QCaSlider::userValueChanged( const int &value) {
     }
 
     /// Get the variable to write to
-    QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
 
     /** If a QCa object is present (if there is a variable to write to)
      * and the object is set up to write when the user completes moving the slider
@@ -203,7 +207,7 @@ void QCaSlider::userValueChanged( const int &value) {
         /// Attempt to write the data if the destination data type is known.
         /// It is not known until a connection is established.
         if( qca->dataTypeKnown() ) {
-            qca->writeInteger( value );
+            qca->writeFloating( (value/scale)+offset );
         } else {
             /// Inform the user that the write could not be performed.
             /// It is normally not possible to get here. If the connection or link has not
@@ -309,4 +313,25 @@ void QCaSlider::setAllowDrop( bool allowDropIn )
 bool QCaSlider::getAllowDrop()
 {
     return allowDrop;
+}
+
+// Set scale and offset (used to scale data when inteter scale bar min and max are not suitable)
+void QCaSlider::setScale( double scaleIn )
+{
+    scale = scaleIn;
+}
+
+double QCaSlider::getScale()
+{
+    return scale;
+}
+
+void QCaSlider::setOffset( double offsetIn )
+{
+    offset = offsetIn;
+}
+
+double QCaSlider::getOffset()
+{
+    return offset;
 }

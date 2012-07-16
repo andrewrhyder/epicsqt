@@ -69,6 +69,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setValueIfNoFocus( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void userValueChanged( double value );
+    void userChange( const QString& oldValue, const QString& newValue, const QString& lastValue );    // Signal a user attempt to change a value. Values are strings as the user sees them
 
   public slots:
     void requestEnabled( const bool& state );
@@ -85,7 +86,8 @@ private:
     bool isConnected;
 
     bool programaticValueChange;   // Flag set while the spin box value is being changed programatically (not by the user)
-
+    double lastValue;
+    QString lastUserValue;
 
     // Drag and Drop
 protected:

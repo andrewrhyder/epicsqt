@@ -954,8 +954,8 @@ void _QDialogItem::buttonCloseClicked()
 // ============================================================
 _QCaLineEdit::_QCaLineEdit(QWidget *pParent):QCaLineEdit(pParent)
 {
-
-
+    QObject::connect( this,  SIGNAL( userChange( const QString&, const QString&, const QString& ) ),
+                      this, SLOT( valueWritten(  const QString&, const QString&, const QString&  ) ) );
 }
 
 
@@ -1001,7 +1001,7 @@ QString _QCaLineEdit::getFieldName()
 
 
 
-void _QCaLineEdit::valueWritten(QString pNewValue, QString pOldValue)
+void _QCaLineEdit::valueWritten(const QString& pNewValue, const QString& pOldValue, const QString&)
 {
 
     if (pOldValue != pNewValue)

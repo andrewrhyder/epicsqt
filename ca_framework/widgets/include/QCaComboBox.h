@@ -76,12 +76,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void userValueChanged( int value );
+    void userChange( const QString& oldValue, const QString& newValue, const QString& lastValue );    // Signal a user attempt to change a value. Values are strings as the user sees them
 
   public slots:
     void requestEnabled( const bool& state );
 
 signals:
     void dbValueChanged( const qlonglong& out );
+    void userChange( const QString& oldValue, const QString& newValue );    // Signal a user attempt to change a value. Values are strings as the user sees them
 
   private:
     void setup();
@@ -90,6 +92,9 @@ signals:
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
+
+    long lastValue;
+    QString lastUserValue;
 
     // Drag and Drop
 protected:
