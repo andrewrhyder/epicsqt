@@ -1,4 +1,5 @@
-/*
+/* $Id: QEAnalogProgressBar.cpp $
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -43,7 +44,7 @@ QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) : QAnalogProgressBar
     Constructor with known variable
 */
 QEAnalogProgressBar::QEAnalogProgressBar( const QString &variableNameIn,
-                                            QWidget *parent ) : QAnalogProgressBar( parent ), QCaWidget( this )
+                                          QWidget *parent ) : QAnalogProgressBar( parent ), QCaWidget( this )
 {
 
     setup();
@@ -74,6 +75,10 @@ void QEAnalogProgressBar::setup() {
     // Use progress bar signals
     // --Currently none--
 
+    // Use default context menu.
+    //
+    setupContextMenu (this);
+
     // Set up a connection to recieve variable name property changes
     // The variable name property manager class only delivers an updated
     // variable name after the user has stopped typing.
@@ -89,8 +94,8 @@ void QEAnalogProgressBar::setup() {
     Slot to recieve variable name and macro substitutions property changes.
 */
 void QEAnalogProgressBar::useNewVariableNameProperty( QString variableNameIn,
-                                                       QString variableNameSubstitutionsIn,
-                                                       unsigned int variableIndex )
+                                                      QString variableNameSubstitutionsIn,
+                                                      unsigned int variableIndex )
 {
     setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }
@@ -108,7 +113,7 @@ qcaobject::QCaObject* QEAnalogProgressBar::createQcaItem( unsigned int variableI
     if (variableIndex == 0) {
         result = new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
     } else {
-        result = NULL;  // WTF??
+        result = NULL;  // Unexpected
     }
 
     return result;
@@ -202,8 +207,8 @@ QString QEAnalogProgressBar::getSprintfFormat ()
     This is the slot used to recieve data updates from a QCaObject based class.
  */
 void QEAnalogProgressBar::setProgressBarValue( const double& value,
-                                                QCaAlarmInfo& alarmInfo,
-                                                QCaDateTime&, const unsigned int& )
+                                               QCaAlarmInfo& alarmInfo,
+                                               QCaDateTime&, const unsigned int& )
 {
     /// Update display limits if requested and defined.
     if (isFirstUpdate && getUseDbDisplayLimits ()) {
@@ -222,13 +227,17 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
             // Otherwise, leave as design time limits.
             //
             if ((lower != 0.0) || (upper != 0.0)) {
-                setAnalogRange( lower, upper );
+                setAnalogRange (lower, upper);
             }
         }
     }
 
     /// Update the progress bar
     setAnalogValue( value );
+
+    // check mode option - set background/foregound/font colour
+    //
+    setBackgroundColour (alarmInfo.getColor (64));
 
     /// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
@@ -327,8 +336,8 @@ QString QEAnalogProgressBar::getVariableNameSubstitutionsProperty()
 // of $(SECTOR) in variable name being replaced with 01.
 //
 void QEAnalogProgressBar::setVariableNameAndSubstitutions( QString variableNameIn,
-                                                            QString variableNameSubstitutionsIn,
-                                                            unsigned int variableIndex )
+                                                           QString variableNameSubstitutionsIn,
+                                                           unsigned int variableIndex )
 {
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
 
