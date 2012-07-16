@@ -1,4 +1,5 @@
-/*
+/*  $Id: QAnalogProgressBar.h $
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -23,8 +24,8 @@
  */
 
 /*!
-   This class inherits directly from QProgressBar and provides an analog view of
-   the progress bar widget including analogous analog functions and properties:
+   This mimics QProgressBar and provides an analog view of the progress bar
+   widget including analogous analog functions and properties:
 
        QProgressBar      QAnalogProgressBar
 
@@ -40,41 +41,61 @@
        Maximum           analogMaximum
        Value             analogValue
 
-   The class sets the range of of the underlying QProgressBar to 0 .. 10000.
-   It it considered unlikely, in practice, that  an AnalogProgressBar wll stretch
-   more than 10000 pixels given that current screen technology is limited to 2000 pixels.
-
-   This class inherited from rather than containing a QProgressBar, and as such cannot
-   hide and does not override the integer related base class functions and properties.
-   Therefore they should not be used.
  */
-
 
 #ifndef QANALOGPROGRESSBAR_H
 #define QANALOGPROGRESSBAR_H
 
-#include <QProgressBar>
+#include <QColor>
+#include <QObject>
+#include <QWidget>
+#include <QPainter>
+
 #include <QCaPluginLibrary_global.h>
 
-
-class QCAPLUGINLIBRARYSHARED_EXPORT QAnalogProgressBar:public QProgressBar {
+class QCAPLUGINLIBRARYSHARED_EXPORT QAnalogProgressBar:public QWidget {
     Q_OBJECT
-//#ifdef PLUGIN_APP
-    Q_PROPERTY (double analogMinimum READ getAnalogMinimum WRITE setAnalogMinimum)
-    Q_PROPERTY (double analogMaximum READ getAnalogMaximum WRITE setAnalogMaximum)
-    Q_PROPERTY (double analogValue   READ getAnalogValue   WRITE setAnalogValue)
-//#endif
+
+public:
+    enum Orientations { Left_To_Right, Top_To_Bottom, Right_To_Left, Bottom_To_Top };
+    Q_ENUMS (Orientations)
+
+    enum Modes { Bar, Scale };
+    Q_ENUMS (Modes)
+
+    Q_PROPERTY (double analogValue       READ getAnalogValue         WRITE setAnalogValue)
+    Q_PROPERTY (double analogMinimum     READ getAnalogMinimum       WRITE setAnalogMinimum)
+    Q_PROPERTY (double analogMaximum     READ getAnalogMaximum       WRITE setAnalogMaximum)
+    Q_PROPERTY (Orientations Orientation READ getOrientation         WRITE setOrientation)
+    Q_PROPERTY (Modes  Mode              READ getMode                WRITE setMode)
+
+    // NOTE: Where possible I spell colour properly.
+    //
+    Q_PROPERTY (QColor boarderColour     READ getBorderColour        WRITE setBorderColour)
+    Q_PROPERTY (QColor foregroundColour  READ getForegroundColour    WRITE setForegroundColour)
+    Q_PROPERTY (QColor backgroundColour  READ getBackgroundColour    WRITE setBackgroundColour)
+    Q_PROPERTY (QColor fontColour        READ getFontColour          WRITE setFontColour)
+    Q_PROPERTY (bool   showText          READ getShowText            WRITE setShowText)
 
 private:
-    double getScale ();
-    void set_progress_bar ();
-
     // class member variable names start with m so as not to clash with
     // the propery names.
     //
+    QColor mBorderColour;
+    QColor mForegroundColour;
+    QColor mBackgroundColour;
+    QColor mFontColour;
     double mAnalogMinimum;
     double mAnalogMaximum;
     double mAnalogValue;
+    enum Orientations mOrientation;
+    enum Modes mMode;
+    bool mShowText;
+
+    void paintEvent (QPaintEvent *event);
+
+    void drawBar   (QPainter & painter, int top,  int left,  int bottom,  int right, const double fraction);
+    void drawScale (QPainter & painter, int top,  int left,  int bottom,  int right, const double fraction);
 
 protected:
     // Returns the format parameter for a call to sprintf, used to set
@@ -86,16 +107,42 @@ protected:
 public:
     /// Constructor
     QAnalogProgressBar (QWidget * parent = 0);
-    virtual ~QAnalogProgressBar(){}
+    virtual ~QAnalogProgressBar() {}
+    virtual QSize sizeHint () const;
 
-    double getAnalogMinimum ();
-    double getAnalogMaximum ();
+    // property access functions.
+    //
     double getAnalogValue   ();
+
+    void setAnalogMinimum (const double analogMinimumIn);
+    double getAnalogMinimum ();
+
+    void setAnalogMaximum (const double analogMaximumIn);
+    double getAnalogMaximum ();
+
+    void setOrientation   (const enum Orientations value);
+    enum Orientations getOrientation ();
+
+    void setMode          (const enum Modes value);
+    enum Modes getMode ();
+
+    void setBorderColour (const QColor value);
+    QColor getBorderColour ();
+
+    void setForegroundColour (const QColor value);
+    QColor getForegroundColour ();
+
+    void setBackgroundColour (const QColor value);
+    QColor getBackgroundColour ();
+
+    void setFontColour (const QColor value);
+    QColor getFontColour ();
+
+    void setShowText (const bool value);
+    bool getShowText ();
 
 public slots:
     void setAnalogRange   (const double analogMinimumIn, const double analogMaximumIn);
-    void setAnalogMinimum (const double analogMinimumIn);
-    void setAnalogMaximum (const double analogMaximumIn);
     void setAnalogValue   (const double analogValueIn);
 };
 
