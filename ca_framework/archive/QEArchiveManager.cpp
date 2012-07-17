@@ -51,7 +51,7 @@ static QList <struct BufferedMessage> bufferedUserMessages;
 //------------------------------------------------------------------------------
 //
 static void bufferMessage (QString message, 
-			   message_types type = MESSAGE_TYPE_WARNING)
+                           message_types type = MESSAGE_TYPE_INFO)
 {
    QMutexLocker locker (bufferedUserMessagesMutex);
    BufferedMessage bm;
@@ -506,14 +506,14 @@ bool QEArchiveAccess::readArchive (QObject * userData,
          message = "Archive Manager: PV ";
          message.append (pvName);
          message.append (" has no matching time overlaps.");
-         this->sendMessage (message, MESSAGE_TYPE_INFO);
+         this->sendMessage (message, MESSAGE_TYPE_WARNING);
       }
 
    } else {
       message = "Archive Manager: PV ";
       message.append (pvName);
       message.append (" not found in archive.");
-      this->sendMessage (message, MESSAGE_TYPE_INFO);
+      this->sendMessage (message, MESSAGE_TYPE_WARNING);
    }
 
    return result;
