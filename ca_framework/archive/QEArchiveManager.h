@@ -44,7 +44,7 @@
  *  It's only exposed in a header because the Qt framework demand that signals/slots
  *  are in headers.
  */
-class QEArchiveManager : public QObject {
+class QEArchiveManager : public QObject, UserMessage {
    Q_OBJECT
 public:
     QEArchiveManager();
@@ -62,17 +62,12 @@ private:
     *  The pattern parameter can be used to restrict the set of extracted PVs. The same
     *  pattern applies of all archives. The pattern is a regular expression.
     */
-   bool initialise (QString archives, QString patternIn = ".*");
+   void initialise (QString archives, QString patternIn = ".*");
 
    /*! As above, but uses the environment variables QE_ARCHIVE_LIST and QE_ARCHIVE_PATTERN.
     *  If QE_ARCHIVE_PATTERN is undefined then ".*" is used.
     */
-   bool initialise ();
-
-   /*! Used to automatically run ::initialise () at elaboration time.
-    */
-   static const bool initialised;
-
+   void initialise ();
    void clear ();
 
 private slots:
@@ -108,9 +103,6 @@ public:
                      const int count,
                      const QEArchiveInterface::How how,
                      const unsigned int element = 0);
-
-private:
-   UserMessage userMessage;
 
 signals:
    void setArchiveData (const QObject *, const bool, const QCaDataPointList &);

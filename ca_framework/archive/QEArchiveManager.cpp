@@ -25,24 +25,66 @@
  */
 
 #include <stdlib.h>
-#include <QDebug>
 #include <QUrl>
 #include <QMutex>
 #include <QHash>
-
+#include <QList>
 #include <QEArchiveManager.h>
 
-
-#define DEBUG qDebug () << __FILE__  << ":" << __LINE__ << "(" << __FUNCTION__ << ")"
 
 #define MAX(a, b)    ((a) >= (b) ? (a) : (b))
 #define MIN(a, b)    ((a) <= (b) ? (a) : (b))
 
 
 //==============================================================================
+// Cannot use user message paradigm during static initialisation.
+// This is used to buffer user messages to an aprorpiate time to send the messages
+//
+struct BufferedMessage {
+   QString message;
+   message_types type;
+};
+
+static QMutex *bufferedUserMessagesMutex = new QMutex ();
+static QList <struct BufferedMessage> bufferedUserMessages;
+
+//------------------------------------------------------------------------------
+//
+static void bufferMessage (QString message, 
+			   message_types type = MESSAGE_TYPE_WARNING)
+{
+   QMutexLocker locker (bufferedUserMessagesMutex);
+   BufferedMessage bm;
+
+   bm.message = message;
+   bm.type = type;
+
+   bufferedUserMessages << bm;
+}
+
+//------------------------------------------------------------------------------
+//
+static void sendBufferedMessages (UserMessage *item)
+{
+   QMutexLocker locker (bufferedUserMessagesMutex);
+   BufferedMessage bm;
+
+   int j, count;
+
+   count = bufferedUserMessages.count ();
+   for (j = 0; j < count; j++) {
+      bm = bufferedUserMessages.at (j);
+      item->sendMessage (QString ("ArchiveManager: ").append (bm.message), bm.type);
+      bm.message.clear ();
+   }
+   bufferedUserMessages.clear ();
+}
+
+
+//==============================================================================
 // Archive class type provides key (and name and path).
 //
-class KeyTimeSpec : public QEArchiveInterface::Archive {
+class KeyTimeSpec:public QEArchiveInterface::Archive {
 public:
    QCaDateTime startTime;
    QCaDateTime endTime;
@@ -53,7 +95,7 @@ public:
 // host, e.g. a short term archive and a long term archive.
 // However we expect all archives for a particlar PV to be co-hosted.
 //
-class SourceSpec : public QHash<int, KeyTimeSpec> {
+class SourceSpec:public QHash <int, KeyTimeSpec> {
 public:
    QEArchiveInterface * interface;
 };
@@ -65,46 +107,57 @@ public:
 // We declare these items here as opposed as static members of the class because
 // the later made all the EPICS plugin widgets "go away" in designer.
 //
-static QMutex *mutex = new QMutex ();
+static QMutex *archiveDataMutex = new QMutex ();
 
-static QList<QEArchiveInterface *> archiveInterfaceList;
+static QList <QEArchiveInterface *>archiveInterfaceList;
 static QString pattern;
-static QHash<QString, SourceSpec> pvNameHash;
+static QHash <QString, SourceSpec> pvNameHash;
 
+static bool alreadyConstructed = false;
 static QEArchiveManager singleton;
-//const bool QEArchiveManager::initialised = singleton.initialise ();
 
-QEArchiveManager::QEArchiveManager()
-{
-    initialise();
-}
 
 //==============================================================================
 // QEArchiveManager Class Methods
 //==============================================================================
 //
-bool QEArchiveManager::initialise (QString archives, QString patternIn)
+QEArchiveManager::QEArchiveManager ()
+{
+   if (alreadyConstructed) {
+       bufferMessage ("Duplicate QEArchiveManager object - not used");
+       return;
+   }
+
+   alreadyConstructed = true;
+   bufferedUserMessages.clear ();
+   initialise ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveManager::initialise (QString archives, QString patternIn)
 {
    QStringList archiveList;
    QString item;
    QUrl url;
-   QEArchiveInterface * interface;
+   QEArchiveInterface *interface;
    int j;
 
    pattern = patternIn;
 
-   // Split input string using space.
+   // Split input string using space as delimiter.
    // Could extend to use regular expression and split on any white space character.
    //
    archiveList = archives.split (' ', QString::SkipEmptyParts);
 
    if (archiveList.count () == 0) {
-      DEBUG << "no archives specified";
-      return false;
+      bufferMessage ("no archives specified", MESSAGE_TYPE_WARNING);
+      return;
    }
 
    this->clear ();
 
+   bufferMessage (QString ("pattern: ").append (pattern));
    for (j = 0; j < archiveList.count (); j++) {
 
       item = "http://";
@@ -114,45 +167,42 @@ bool QEArchiveManager::initialise (QString archives, QString patternIn)
       interface = new QEArchiveInterface (url, &singleton);
       archiveInterfaceList.append (interface);
 
-      connect (interface, SIGNAL (archivesResponse (const QObject *, const bool, const QList<QEArchiveInterface::Archive>&)),
-               this,      SLOT   (archivesResponse (const QObject *, const bool, const QList<QEArchiveInterface::Archive>&)));
+      connect (interface, SIGNAL (archivesResponse (const QObject *, const bool, const QList <QEArchiveInterface::Archive> &)),
+               this,      SLOT   (archivesResponse (const QObject *, const bool, const QList <QEArchiveInterface::Archive> &)));
 
-      connect (interface, SIGNAL (pvNamesResponse  (const QObject *, const bool, const QList<QEArchiveInterface::PVName>&)),
-               this,      SLOT   (pvNamesResponse  (const QObject *, const bool, const QList<QEArchiveInterface::PVName>&)));
+      connect (interface, SIGNAL (pvNamesResponse (const QObject *, const bool, const QList <QEArchiveInterface::PVName> &)),
+               this,      SLOT   (pvNamesResponse (const QObject *, const bool, const QList <QEArchiveInterface::PVName> &)));
 
-      connect (interface, SIGNAL (valuesResponse   (const QObject *, const bool, const QList<QEArchiveInterface::ResponseValues>&)),
-               this,      SLOT   (valuesResponse   (const QObject *, const bool, const QList<QEArchiveInterface::ResponseValues>&)));
+      connect (interface, SIGNAL (valuesResponse (const QObject *, const bool, const QList <QEArchiveInterface::ResponseValues> &)),
+               this,      SLOT   (valuesResponse (const QObject *, const bool, const QList <QEArchiveInterface::ResponseValues> &)));
 
       interface->archivesRequest (interface);
-      qDebug () << "Archive info:  url:" << interface->getUrl ().toString ();
+
+      bufferMessage (QString ("requesting PV name info from ").append (interface->getName ()));
    }
-
-   qDebug () << "Archive info:  pattern:" << pattern;
-
-   return true;
 }
 
 
 //------------------------------------------------------------------------------
 //
-bool QEArchiveManager::initialise ()
+void QEArchiveManager::initialise ()
 {
-   bool result;
    QString archives = getenv ("QE_ARCHIVE_LIST");
    QString pattern = getenv ("QE_ARCHIVE_PATTERN");
 
    if (archives != "") {
       if (pattern == "") {
          // Pattern environment variable undefined use "get all" by default.
+         //
          pattern = ".*";
       }
-      result = this->initialise (archives, pattern);
+      this->initialise (archives, pattern);
+
    } else {
-      //!!      userMessage.sendMessage( "QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs", MESSAGE_TYPE_INFO );
-       qDebug() << "QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs";
-      result = false;
+      // Cannot use user message paradigm during static initialisation.
+      //
+      bufferMessage ("QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs");
    }
-   return result;
 }
 
 //------------------------------------------------------------------------------
@@ -165,8 +215,8 @@ void QEArchiveManager::clear ()
 
    // Do a deep clear of the archive interface list.
    //
-   for (j = 0; j < archiveInterfaceList.count(); j++) {
-      delete archiveInterfaceList.value(j);
+   for (j = 0; j < archiveInterfaceList.count (); j++) {
+      delete archiveInterfaceList.value (j);
    }
    archiveInterfaceList.clear ();
 }
@@ -174,15 +224,18 @@ void QEArchiveManager::clear ()
 
 //==============================================================================
 //
-class NamesResponseContext : public QObject {
+class NamesResponseContext:public QObject {
 public:
    QEArchiveInterface * interface;
    QEArchiveInterface::Archive archive;
    int instance;
    int number;
+
    // constructor
-   NamesResponseContext (QEArchiveInterface * interfaceIn, QEArchiveInterface::Archive archiveIn, int i, int n)
-   {
+   NamesResponseContext (QEArchiveInterface * interfaceIn,
+                         QEArchiveInterface::Archive archiveIn,
+                         int i,
+                         int n) {
       this->interface = interfaceIn;
       this->archive = archiveIn;
       this->instance = i;
@@ -195,13 +248,16 @@ public:
 //
 void QEArchiveManager::archivesResponse (const QObject * userData,
                                          const bool isSuccess,
-                                         const QList<QEArchiveInterface::Archive>& archiveList)
+                                         const QList <
+                                         QEArchiveInterface::Archive >
+                                         &archiveList)
 {
-   QMutexLocker locker (mutex);
+   QMutexLocker locker (archiveDataMutex);
 
-   QEArchiveInterface * interface = (QEArchiveInterface *) userData;
+   QEArchiveInterface *interface = (QEArchiveInterface *) userData;
    int count;
    int j;
+
    if (isSuccess) {
 
       count = archiveList.count ();
@@ -211,28 +267,33 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
 
          // Create the callback context.
          //
-         context = new NamesResponseContext (interface, archive, j+1, count);
+         context =
+             new NamesResponseContext (interface, archive, j + 1, count);
          interface->namesRequest (context, archive.key, pattern);
       }
    } else {
-      qDebug () << "request archives failure from " << interface->getUrl().toString ();
+       bufferMessage (QString ("request failure from ").append (interface->getName ()),
+                      MESSAGE_TYPE_ERROR);
    }
 }
 
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveManager::pvNamesResponse  (const QObject * userData,
-                                         const bool isSuccess,
-                                         const QList<QEArchiveInterface::PVName>& pvNameList)
+void QEArchiveManager::pvNamesResponse (const QObject * userData,
+                                        const bool isSuccess,
+                                        const QList <
+                                        QEArchiveInterface::PVName >
+                                        &pvNameList)
 {
-   QMutexLocker locker (mutex);
+   QMutexLocker locker (archiveDataMutex);
 
    NamesResponseContext *context = (NamesResponseContext *) userData;
+   QString message;
    int j;
 
    if (isSuccess) {
-      for (j = 0; j < pvNameList.count (); j++ ) {
+      for (j = 0; j < pvNameList.count (); j++) {
          QEArchiveInterface::PVName pvChannel = pvNameList.value (j);
          KeyTimeSpec keyTimeSpec;
          SourceSpec sourceSpec;
@@ -262,23 +323,38 @@ void QEArchiveManager::pvNamesResponse  (const QObject * userData,
                   pvNameHash.insert (pvChannel.pvName, sourceSpec);
 
                } else {
-                  DEBUG << "PV " << pvChannel.pvName << " multiple instances of key" << keyTimeSpec.key;
+
+                  message.sprintf ("PV %s has multiple instances of key %d",
+                                   pvChannel.pvName.toAscii().data (), keyTimeSpec.key ) ;
+                  bufferMessage (message, MESSAGE_TYPE_ERROR);
+
                }
 
             } else {
-               DEBUG << "PV " << pvChannel.pvName << " hosted on multiple interfaces";
-               DEBUG << "primarry: " << sourceSpec.interface->getUrl().toString ();
-               DEBUG << "secondary:" << context->interface->getUrl().toString ();
+
+               message.sprintf ("PV %s hosted on multiple interfaces. Primary %s, Secondary %s",
+                                pvChannel.pvName.toAscii().data (),
+                                sourceSpec.interface->getName ().toAscii().data (),
+                                context->interface->getName ().toAscii().data ());
+               bufferMessage (message, MESSAGE_TYPE_ERROR);
             }
          }
       }
 
    } else {
-      DEBUG << "failure" << context->interface->getUrl().toString () << context->archive.key << context->archive.name;
+
+      bufferMessage (QString ("PV names failure from ").
+                     append (context->interface->getName ()).
+                     append (" for archive ").
+                     append (context->archive.name), MESSAGE_TYPE_ERROR);
+
    }
 
    if (context->instance == context->number) {
-      qDebug () << context->interface->getUrl ().toString () << " complete";
+      message = "PV name retrival from ";
+      message.append (context->interface->getName ());
+      message.append (" complete");
+      bufferMessage (message);
    }
 
    delete context;
@@ -287,12 +363,15 @@ void QEArchiveManager::pvNamesResponse  (const QObject * userData,
 
 //==============================================================================
 //
-class ValuesResponseContext : public QObject {
+class ValuesResponseContext:public QObject {
 public:
    QEArchiveAccess * accessor;
-   QObject * userData;
-      // constructor
-      ValuesResponseContext (QEArchiveAccess * accessorIn, QObject * userDataIn) {
+   QObject *userData;
+
+   // constructor
+   ValuesResponseContext (QEArchiveAccess * accessorIn,
+                          QObject * userDataIn)
+   {
       this->accessor = accessorIn;
       this->userData = userDataIn;
    }
@@ -303,16 +382,17 @@ public:
 //
 void QEArchiveManager::valuesResponse (const QObject * userData,
                                        const bool isSuccess,
-                                       const QList<QEArchiveInterface::ResponseValues>& valuesList)
+                                       const QList <QEArchiveInterface::ResponseValues>& valuesList)
 {
-    ValuesResponseContext *context = (ValuesResponseContext *) userData;
+   ValuesResponseContext *context = (ValuesResponseContext *) userData;
 
-    if ((isSuccess) && (valuesList.count () == 1)) {
-       emit context->accessor->setArchiveData (context->userData, true, valuesList.value (0).dataPoints);
-    } else {
-       QCaDataPointList empty;
-       emit context->accessor->setArchiveData (context->userData, false, empty);
-    }
+   if ((isSuccess) && (valuesList.count () == 1)) {
+      emit context->accessor->setArchiveData
+              (context->userData, true, valuesList.value (0).dataPoints);
+   } else {
+      QCaDataPointList empty;
+      emit context->accessor->setArchiveData (context->userData, false, empty);
+   }
 
    delete context;
 }
@@ -320,16 +400,15 @@ void QEArchiveManager::valuesResponse (const QObject * userData,
 
 //==============================================================================
 //
-QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
+QEArchiveAccess::QEArchiveAccess (QObject * parent):QObject (parent)
 {
 }
 
 //------------------------------------------------------------------------------
 //
-QEArchiveAccess:: ~QEArchiveAccess ()
+QEArchiveAccess::~QEArchiveAccess ()
 {
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -341,7 +420,12 @@ bool QEArchiveAccess::readArchive (QObject * userData,
                                    const QEArchiveInterface::How how,
                                    const unsigned int element)
 {
-   QMutexLocker locker (mutex);
+   // This is a user call, hopefully not part of static initialisation.
+   // Send any buffered messages.
+   //
+   sendBufferedMessages (this);
+
+   QMutexLocker locker (archiveDataMutex);
 
    bool result;
    QString effectivePvName;
@@ -351,36 +435,37 @@ bool QEArchiveAccess::readArchive (QObject * userData,
    KeyTimeSpec keyTimeSpec;
    int key;
    int bestOverlap;
-   QList<int> keys;
+   QList < int >keys;
    QCaDateTime useStart;
    QCaDateTime useEnd;
    int overlap;
+   QString message;
 
    // Is this PV currently being archived?
    //
    result = pvNameHash.contains (pvName);
    if (result) {
-       // Yes - save this exact name.
-       //
-       effectivePvName = pvName;
+      // Yes - save this exact name.
+      //
+      effectivePvName = pvName;
    } else {
-       // No - the PV 'as is' is not archived.
-       // If user has requested XXXXXX.VAL, check if XXXXXX is archived.
-       // Similarly, if user requested YYYYYY, check if YYYYYY.VAL archived.
-       //
-       if (pvName.right (4) == ".VAL") {
-           // Remove the .VAL field and try again.
-           //
-           effectivePvName = pvName;
-           effectivePvName.chop (4);
-           result = pvNameHash.contains (effectivePvName);
-       } else {
-           // Add .VAL and try again.
-           //
-           effectivePvName = pvName;
-           effectivePvName = effectivePvName.append (".VAL");
-           result = pvNameHash.contains (effectivePvName);
-       }
+      // No - the PV 'as is' is not archived.
+      // If user has requested XXXXXX.VAL, check if XXXXXX is archived.
+      // Similarly, if user requested YYYYYY, check if YYYYYY.VAL archived.
+      //
+      if (pvName.right (4) == ".VAL") {
+         // Remove the .VAL field and try again.
+         //
+         effectivePvName = pvName;
+         effectivePvName.chop (4);
+         result = pvNameHash.contains (effectivePvName);
+      } else {
+         // Add .VAL and try again.
+         //
+         effectivePvName = pvName;
+         effectivePvName = effectivePvName.append (".VAL");
+         result = pvNameHash.contains (effectivePvName);
+      }
    }
 
    if (result) {
@@ -395,7 +480,7 @@ bool QEArchiveAccess::readArchive (QObject * userData,
          keyTimeSpec = sourceSpec.value (keys.value (j));
 
          useStart = MAX (startTime.toUTC (), keyTimeSpec.startTime);
-         useEnd   = MIN (endTime.toUTC (),   keyTimeSpec.endTime);
+         useEnd = MIN (endTime.toUTC (), keyTimeSpec.endTime);
 
          // We don't worry about calculating the overlap to an accuracy
          // of any one than one second.
@@ -418,12 +503,19 @@ bool QEArchiveAccess::readArchive (QObject * userData,
          sourceSpec.interface->valuesRequest (context, key, startTime, endTime, count, how, pvNames, element);
 
       } else {
-         DEBUG " PV" << pvName <<  "has no matching time overlaps";
+         message = "Archive Manager: PV ";
+         message.append (pvName);
+         message.append (" has no matching time overlaps.");
+         this->sendMessage (message, MESSAGE_TYPE_INFO);
       }
 
    } else {
-      DEBUG " PV" << pvName <<  "not found in archive";
+      message = "Archive Manager: PV ";
+      message.append (pvName);
+      message.append (" not found in archive.");
+      this->sendMessage (message, MESSAGE_TYPE_INFO);
    }
+
    return result;
 }
 
@@ -449,4 +541,3 @@ int QEArchiveAccess::getNumberPVs ()
 }
 
 // end
-
