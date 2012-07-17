@@ -90,12 +90,12 @@ UserMessage::UserMessage()
 
     childFormId = 0;
 
-    connected = false;
-
     // Allow the object receiving messages to pass them back to us
     userMessageSlot.setOwner( this );
 
-
+    // Establish the connection between the common message signaler, and this instance's message slot
+    QObject::connect( &userMessageSignal, SIGNAL( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ),
+                      &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );
 }
 
 /// Destruction
@@ -198,14 +198,6 @@ void UserMessage::sendMessage( QString message,
 void UserMessage::sendMessage( QString msg,
                                message_types type )
 {
-    // Now we know the owner of this class is actually sending messages, establish the connection
-    // (Most owners don't send messages)
-    if( !connected )
-    {
-        QObject::connect( &userMessageSignal, SIGNAL( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ),
-                          &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );
-        connected = true;
-    }
     // Send the message
     userMessageSignal.sendMessage( msg, type, formId, sourceId, this );
 }

@@ -135,7 +135,6 @@ private:
     unsigned int childFormId;                                   // Only relevent for form (ASguiForm) widgets. Form ID of all child widgets
     message_filter_options formFilter;                          // Message filtering to apply to form ID
     message_filter_options sourceFilter;                        // Message filtering to apply to source ID
-    bool connected;                                             // true if a connection has been established between this class's signal and common slot
 };
 
 #endif // UserMessage_H
