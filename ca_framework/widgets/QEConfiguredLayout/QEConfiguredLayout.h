@@ -44,6 +44,15 @@
 using namespace std;
 
 
+enum details
+{
+    TOP,
+    BOTTOM,
+    LEFT,
+    RIGHT
+};
+
+
 
 enum configuration
 {
@@ -335,14 +344,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
     protected:
         list <_Item *> itemList;
-        QLabel *qLabelDescriptionList;
+        QLabel *qLabelItemDescription;
         QComboBox *qComboBoxItemList;
         QVBoxLayout *qVBoxLayoutFields;
         QScrollArea *qScrollArea;
         QString configurationFile;
         QString configurationText;
-        //QString descriptionList;
         int configurationType;
+        int detailsLayout;
         int currentUserType;
 
 
@@ -357,14 +366,17 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
         void setShowItemList(bool pValue);
         bool getShowItemList();
 
-        void setDescriptionList(QString pValue);
-        QString getDescriptionList();
+        void setItemDescription(QString pValue);
+        QString getItemDescription();
 
         void setConfigurationFile(QString pValue);
         QString getConfigurationFile();
 
         void setConfigurationText(QString pValue);
         QString getConfigurationText();
+
+        void setDetailsLayout(int pValue);
+        int getDetailsLayout();
 
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
@@ -376,7 +388,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
         Q_PROPERTY(bool showItemList READ getShowItemList WRITE setShowItemList)
 
-        Q_PROPERTY(QString descriptionList READ getDescriptionList WRITE setDescriptionList)
+        Q_PROPERTY(QString itemDescription READ getItemDescription WRITE setItemDescription)
 
 
         Q_ENUMS(configurationTypesProperty)
@@ -400,6 +412,27 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
         Q_PROPERTY(QString configurationText READ getConfigurationText WRITE setConfigurationText)
 
+
+        Q_ENUMS(detailsLayoutProperty)
+        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
+        enum detailsLayoutProperty
+        {
+            Top = TOP,
+            Bottom = BOTTOM,
+            Left = LEFT,
+            Right = RIGHT
+        };
+
+        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
+        {
+            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
+        }
+        detailsLayoutProperty getDetailsLayoutProperty()
+        {
+            return (detailsLayoutProperty) getDetailsLayout();
+        }
+
+
         Q_ENUMS(userTypesProperty)
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
         enum userTypesProperty
@@ -419,7 +452,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
         }
 
 
-
     private slots:
         void comboBoxItemSelected(int);
 
@@ -430,7 +462,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
 
 
-#endif /// QCACONFIGUREDLAYOUT_H
-
-
+#endif /// QECONFIGUREDLAYOUT_H
 

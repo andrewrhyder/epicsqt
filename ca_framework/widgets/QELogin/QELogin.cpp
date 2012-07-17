@@ -240,7 +240,8 @@ int QELogin::getCurrentUserType()
 
 void QELogin::setDetailsLayout(int pValue)
 {
-    QLayout *qLayout;
+
+    QLayout *qLayoutMain;
 
 
     delete layout();
@@ -249,39 +250,40 @@ void QELogin::setDetailsLayout(int pValue)
     {
         case TOP:
             detailsLayout = TOP;
-            qLayout = new QVBoxLayout(this);
-            qLayout->setAlignment(Qt::AlignCenter);
-            qLayout->addWidget(qPushButtonLogin);
-            qLayout->addWidget(qPushButtonLogout);
-            qLayout->addWidget(qLabelUserType);
+            qLayoutMain = new QVBoxLayout(this);
+            qLayoutMain->setAlignment(Qt::AlignCenter);
+            qLayoutMain->addWidget(qPushButtonLogin);
+            qLayoutMain->addWidget(qPushButtonLogout);
+            qLayoutMain->addWidget(qLabelUserType);
             break;
 
         case BOTTOM:
             detailsLayout = BOTTOM;
-            qLayout = new QVBoxLayout(this);
-            qLayout->setAlignment(Qt::AlignCenter);
-            qLayout->addWidget(qLabelUserType);
-            qLayout->addWidget(qPushButtonLogin);
-            qLayout->addWidget(qPushButtonLogout);
+            qLayoutMain = new QVBoxLayout(this);
+            qLayoutMain->setAlignment(Qt::AlignCenter);
+            qLayoutMain->addWidget(qLabelUserType);
+            qLayoutMain->addWidget(qPushButtonLogin);
+            qLayoutMain->addWidget(qPushButtonLogout);
             break;
 
         case LEFT:
             detailsLayout = LEFT;
-            qLayout = new QHBoxLayout(this);
-            qLayout->setAlignment(Qt::AlignCenter);
-            qLayout->addWidget(qPushButtonLogin);
-            qLayout->addWidget(qPushButtonLogout);
-            qLayout->addWidget(qLabelUserType);
+            qLayoutMain = new QHBoxLayout(this);
+            qLayoutMain->setAlignment(Qt::AlignCenter);
+            qLayoutMain->addWidget(qPushButtonLogin);
+            qLayoutMain->addWidget(qPushButtonLogout);
+            qLayoutMain->addWidget(qLabelUserType);
             break;
 
         case RIGHT:
             detailsLayout = RIGHT;
-            qLayout = new QHBoxLayout(this);
-            qLayout->setAlignment(Qt::AlignCenter);
-            qLayout->addWidget(qLabelUserType);
-            qLayout->addWidget(qPushButtonLogin);
-            qLayout->addWidget(qPushButtonLogout);
+            qLayoutMain = new QHBoxLayout(this);
+            qLayoutMain->setAlignment(Qt::AlignCenter);
+            qLayoutMain->addWidget(qLabelUserType);
+            qLayoutMain->addWidget(qPushButtonLogin);
+            qLayoutMain->addWidget(qPushButtonLogout);
     }
+
 
 }
 

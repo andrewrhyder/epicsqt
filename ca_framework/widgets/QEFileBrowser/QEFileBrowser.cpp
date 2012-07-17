@@ -256,6 +256,7 @@ void QEFileBrowser::setDetailsLayout(int pValue)
     QLayout *qLayoutMain;
     QLayout *qLayoutChild;
 
+
     delete layout();
 
     switch(pValue)

@@ -35,36 +35,25 @@
 QEConfiguredLayout::QEConfiguredLayout(QWidget *pParent):QWidget(pParent), QCaWidget(this)
 {
 
-    QHBoxLayout *qHBoxLayout;
-    QVBoxLayout *qVBoxLayout;
-
-    qScrollArea = new QScrollArea();
-    qVBoxLayout = new QVBoxLayout();
-    qHBoxLayout = new QHBoxLayout();
+    qScrollArea = new QScrollArea(this);
+    qLabelItemDescription = new QLabel(this);
     qVBoxLayoutFields = new QVBoxLayout();
 
-    qLabelDescriptionList = new QLabel();
-    qHBoxLayout->addWidget(qLabelDescriptionList);
-
-    qComboBoxItemList = new QComboBox();
+    qComboBoxItemList = new QComboBox(this);
     qComboBoxItemList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     qComboBoxItemList->setToolTip("Select item to be viewed/controlled");
     QObject::connect(qComboBoxItemList, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxItemSelected(int)));
-    qHBoxLayout->addWidget(qComboBoxItemList);
 
     qScrollArea->setWidgetResizable(true);
     qScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     qScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    qVBoxLayout->addLayout(qHBoxLayout);
-    qVBoxLayout->addWidget(qScrollArea);
-
-    setLayout(qVBoxLayout);
     setConfigurationFile("");
     setConfigurationText("");
-    setDescriptionList("");
+    setItemDescription("");
     setConfigurationType(FROM_FILE);
     setShowItemList(true);
+    setDetailsLayout(TOP);
     setCurrentUserType(getUserLevel());
 
 }
@@ -102,7 +91,7 @@ void QEConfiguredLayout::setShowItemList(bool pValue)
 {
 
     qComboBoxItemList->setVisible(pValue);
-    qLabelDescriptionList->setVisible(qLabelDescriptionList->text().isEmpty() == false);
+    qLabelItemDescription->setVisible(qLabelItemDescription->text().isEmpty() == false);
 
 }
 
@@ -122,11 +111,11 @@ bool QEConfiguredLayout::getShowItemList()
 
 
 
-void QEConfiguredLayout::setDescriptionList(QString pValue)
+void QEConfiguredLayout::setItemDescription(QString pValue)
 {
 
-    qLabelDescriptionList->setText(pValue);
-    qLabelDescriptionList->setVisible(qLabelDescriptionList->text().isEmpty() == false);
+    qLabelItemDescription->setText(pValue);
+    qLabelItemDescription->setVisible(qLabelItemDescription->text().isEmpty() == false);
 
 }
 
@@ -134,10 +123,10 @@ void QEConfiguredLayout::setDescriptionList(QString pValue)
 
 
 
-QString QEConfiguredLayout::getDescriptionList()
+QString QEConfiguredLayout::getItemDescription()
 {
 
-    return qLabelDescriptionList->text();
+    return qLabelItemDescription->text();
 
 }
 
@@ -311,6 +300,73 @@ void QEConfiguredLayout::setConfiguration(QString pValue)
 
 
 }
+
+
+
+
+
+void QEConfiguredLayout::setDetailsLayout(int pValue)
+{
+
+    QLayout *qLayoutMain;
+    QLayout *qLayoutChild;
+
+
+    delete layout();
+
+    switch(pValue)
+    {
+        case TOP:
+            detailsLayout = TOP;
+            qLayoutMain = new QVBoxLayout(this);
+            qLayoutChild = new QHBoxLayout();
+            qLayoutChild->addWidget(qLabelItemDescription);
+            qLayoutChild->addWidget(qComboBoxItemList);
+            qLayoutMain->addItem(qLayoutChild);
+            qLayoutMain->addWidget(qScrollArea);
+            break;
+
+        case BOTTOM:
+            detailsLayout = BOTTOM;
+            qLayoutMain = new QVBoxLayout(this);
+            qLayoutChild = new QHBoxLayout();
+            qLayoutMain->addWidget(qScrollArea);
+            qLayoutChild->addWidget(qLabelItemDescription);
+            qLayoutChild->addWidget(qComboBoxItemList);
+            qLayoutMain->addItem(qLayoutChild);
+            break;
+
+        case LEFT:
+            detailsLayout = LEFT;
+            qLayoutMain = new QHBoxLayout(this);
+            qLayoutChild = new QVBoxLayout();
+            qLayoutChild->addWidget(qLabelItemDescription);
+            qLayoutChild->addWidget(qComboBoxItemList);
+            qLayoutMain->addItem(qLayoutChild);
+            qLayoutMain->addWidget(qScrollArea);
+            break;
+
+        case RIGHT:
+            detailsLayout = RIGHT;
+            qLayoutMain = new QHBoxLayout(this);
+            qLayoutChild = new QVBoxLayout();
+            qLayoutMain->addWidget(qScrollArea);
+            qLayoutChild->addWidget(qLabelItemDescription);
+            qLayoutChild->addWidget(qComboBoxItemList);
+            qLayoutMain->addItem(qLayoutChild);
+    }
+
+}
+
+
+
+int QEConfiguredLayout::getDetailsLayout()
+{
+
+    return detailsLayout;
+
+}
+
 
 
 
@@ -767,6 +823,7 @@ QString _Item::getName()
 
 
 
+
 void _Item::setSubstitution(QString pValue)
 {
 
@@ -874,7 +931,7 @@ _QDialogItem::_QDialogItem(QWidget *pParent, int pCurrentUserType, _Item *pItem,
     QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
     QLabel *qLabel;
-    _QCaLineEdit *qCaLineEdit;
+    QCaWidget *qCaWidget;
     QString userType;
     _Field *field;
 
@@ -911,13 +968,41 @@ _QDialogItem::_QDialogItem(QWidget *pParent, int pCurrentUserType, _Item *pItem,
             qLabel->setText(field->getName());
             qLabel->setFixedWidth(125);
             qHBoxLayout->addWidget(qLabel);
-            qCaLineEdit = new _QCaLineEdit();
-            qCaLineEdit->setItemName(pItem->getName());
-            qCaLineEdit->setFieldName(field->getName());
-            qCaLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-            qCaLineEdit->setVariableNameAndSubstitutions(field->getProcessVariable(), pItem->getSubstitution(), 0);
-            qCaLineEdit->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-            qHBoxLayout->addWidget(qCaLineEdit);
+
+            if (field->getType().compare("spinbox", Qt::CaseInsensitive) == 0)
+            {
+                qCaWidget = new _QCaSpinBox();
+                ((_QCaSpinBox *) qCaWidget)->setItemName(pItem->getName());
+                ((_QCaSpinBox *) qCaWidget)->setFieldName(field->getName());
+//                ((_QCaSpinBox *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
+                ((_QCaSpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), pItem->getSubstitution(), 0);
+                ((_QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                qHBoxLayout->addWidget((QCaSpinBox *) qCaWidget);
+            }
+            else
+            {
+                if (field->getType().compare("combobox", Qt::CaseInsensitive) == 0)
+                {
+                    qCaWidget = new _QCaComboBox();
+                    ((_QCaComboBox *) qCaWidget)->setItemName(pItem->getName());
+                    ((_QCaComboBox *) qCaWidget)->setFieldName(field->getName());
+//                    ((_QCaComboBox *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
+                    ((_QCaComboBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), pItem->getSubstitution(), 0);
+                    ((_QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                    qHBoxLayout->addWidget((QCaComboBox *) qCaWidget);
+                }
+                else
+                {
+                    qCaWidget = new _QCaLineEdit();
+                    ((_QCaLineEdit *) qCaWidget)->setItemName(pItem->getName());
+                    ((_QCaLineEdit *) qCaWidget)->setFieldName(field->getName());
+                    ((_QCaLineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
+                    ((_QCaLineEdit *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), pItem->getSubstitution(), 0);
+                    ((_QCaLineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                    qHBoxLayout->addWidget((_QCaLineEdit *) qCaWidget);
+                }
+            }
+
         }
         qVBoxLayout->addLayout(qHBoxLayout);
         iterator++;

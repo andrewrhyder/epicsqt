@@ -23,8 +23,8 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QCALOGPLUGINMANAGER_H
-#define QCALOGPLUGINMANAGER_H
+#ifndef QELOGMANAGER_H
+#define QELOGMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
@@ -56,5 +56,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELogManager:public QObject, public QDesigne
 
 };
 
-#endif /// QCALOGPLUGINMANAGER_H
+#endif /// QELOGMANAGER_H
 
