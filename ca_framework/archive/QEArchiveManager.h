@@ -44,7 +44,7 @@
  *  It's only exposed in a header because the Qt framework demand that signals/slots
  *  are in headers.
  */
-class QEArchiveManager : public QObject, UserMessage {
+class QEArchiveManager : public QObject {
    Q_OBJECT
 public:
     QEArchiveManager();
