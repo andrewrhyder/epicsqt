@@ -108,46 +108,26 @@ QString QCaAlarmInfo::style()
     switch( severity )
     {
         case NO_ALARM:      return "";
-        case MINOR_ALARM:   return "QWidget { background-color: #ffff80; }";
-        case MAJOR_ALARM:   return "QWidget { background-color: #ff8080; }";
-        case INVALID_ALARM: return "QWidget { background-color: #ffffff; }";
+        case MINOR_ALARM:   return "QWidget { background-color: #ffff80; }"; // yellow
+        case MAJOR_ALARM:   return "QWidget { background-color: #ff8080; }"; // red
+        case INVALID_ALARM: return "QWidget { background-color: #ffffff; }"; // white
         default:            return "";
     }
 }
 
-
 /*!
-  Return a colour to update the widget's look to reflect the current alarm state
+  Return the color name for the alarm state
  */
-QColor  QCaAlarmInfo::getColor( int saturation )
+QString QCaAlarmInfo::getColorName()
 {
-    const int v = 210;
-
-    QColor result;
-
     switch( severity )
     {
-    case NO_ALARM:
-        result.setHsv (120, saturation, v);    // green
-        break;
-
-    case MINOR_ALARM:
-        result.setHsv (60, saturation, v);     // yellow
-        break;
-
-    case MAJOR_ALARM:
-        result.setHsv (0, saturation, v);      // red
-        break;
-
-    case INVALID_ALARM:
-        result.setHsv (0, 0, v);               // white
-        break;
-
-    default:
-        result.setHsv (0, 0, v);               // white
-        break;
+        case NO_ALARM:      return "#00ff00"; // green
+        case MINOR_ALARM:   return "#ffff00"; // yellow
+        case MAJOR_ALARM:   return "#ff0080"; // red
+        default:
+        case INVALID_ALARM: return "#ffffff"; // white
     }
-    return result;
 }
 
 

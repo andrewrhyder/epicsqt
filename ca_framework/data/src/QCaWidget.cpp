@@ -296,3 +296,19 @@ void QCaWidget::setupContextMenu( QWidget* w )
     addContextMenuToWidget( w );
 }
 
+/*!
+  Return a colour to update the widget's look to reflect the current alarm state
+  Note, the color is determined by the alarmInfo class, but since that class is used in non
+  gui applications, it can't return a QColor
+ */
+QColor  QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
+{
+    QColor result(alarmInfo.getColorName());
+
+    int h, s, v;
+    result.getHsv( &h, &s, &v );
+    result.setHsv( h, saturation, 210 );
+    return result;
+}
+
+

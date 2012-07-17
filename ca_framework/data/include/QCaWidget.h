@@ -56,6 +56,8 @@ public:
     qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         /// Return a reference to one of the qCaObjects used to stream CA updates
 
     void setupContextMenu( QWidget* w );
+    QColor getColor( QCaAlarmInfo& alarmInfo, const int saturation );
+
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );    /// Set the number of variables that will stream data updates to the widget. Default of 1 if not called.

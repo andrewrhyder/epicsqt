@@ -237,7 +237,7 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
 
     // check mode option - set background/foregound/font colour
     //
-    setBackgroundColour (alarmInfo.getColor (64));
+    setBackgroundColour (getColor (alarmInfo, 64));
 
     /// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
