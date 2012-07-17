@@ -25,7 +25,7 @@
 /*!
   This class adds common style support to all QCa widgets if required.
 
-  Standard properties for all QCa widgets specify a tyle to be applied for user, scientist, and engineer mode.
+  Standard properties for all QCa widgets specify a style to be applied for user, scientist, and engineer mode.
   Also QCa widgets can specify data or status related style changes.
 
   All QCa widgets (eg, QELabel, QCaLineEdit) have an instance of this class as they based on
@@ -55,45 +55,51 @@ styleManager::styleManager( QWidget* ownerIn )
 }
 
 
-//
-
+//!!
 void styleManager::setStyleUser( QString style )
 {
     userUserStyle = style;
 
 }
 
+//!!
 QString styleManager::getStyleUser()
 {
     return userUserStyle;
 }
 
+//!!
 void styleManager::setStyleScientist( QString style )
 {
     userScientistStyle = style;
 }
 
+//!!
 QString styleManager::getStyleScientist()
 {
     return userScientistStyle;
 }
 
+//!!
 void styleManager::setStyleEngineer( QString style )
 {
     userEngineerStyle = style;
 }
 
+//!!
 QString styleManager::getStyleEngineer()
 {
     return userEngineerStyle;
 }
 
+//!!
 void styleManager::updateDataStyle( QString style )
 {
     dataStyleSheet = style;
     updateStyleSheet();
 }
 
+//!!
 void styleManager::updateStatusStyle( QString style )
 {
     statusStyleSheet = style;
@@ -125,6 +131,7 @@ void styleManager::updateStyleSheet()
     owner->setStyleSheet( newStyleSheet );
 }
 
+//!!
 void styleManager::styleUserLevelChanged( userLevels levelIn )
 {
     bool newLevel = level != levelIn;

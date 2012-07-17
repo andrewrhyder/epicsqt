@@ -34,6 +34,7 @@ enum message_types {MESSAGE_TYPE_INFO, MESSAGE_TYPE_WARNING, MESSAGE_TYPE_ERROR 
 class UserMessage;
 
 // Class used to send message signals.
+// Used only within UserMessage.cpp
 // A single instance of this class is shared by all instances of
 // the UserMessage class. This allows every UserMessage class instance to
 // connect to a single source of messages
@@ -60,6 +61,7 @@ signals:
 };
 
 // Class used to receive message signals.
+// Used only within UserMessage.cpp
 // An instance of this class is created by all instances of
 // the UserMessage class. The UserMessage class uses an instance of this class
 // to receive messages so it does not have to be based on QObject itself. This is
@@ -90,6 +92,9 @@ private:
 class QCAPLUGINLIBRARYSHARED_EXPORT UserMessage
 {
 public:
+    friend class UserMessageSlot;
+    friend class UserMessageSignal;
+
     enum message_filter_options {MESSAGE_FILTER_ANY, MESSAGE_FILTER_MATCH, MESSAGE_FILTER_NONE };
     UserMessage();
     virtual ~UserMessage();
@@ -119,9 +124,6 @@ public:
 
     virtual void newMessage( QString, message_types );          // Virtual function to pass messages to derived classes (typicaly logging widgets or application windows)
 
-    unsigned int childFormId;                                   // Only relevent for form (ASguiForm) widgets. Form ID of all child widgets
-    message_filter_options formFilter;                          // Message filtering to apply to form ID
-    message_filter_options sourceFilter;                        // Message filtering to apply to source ID
 
 private:
     static UserMessageSignal userMessageSignal;                 // Single object to send all message signals
@@ -129,6 +131,11 @@ private:
     unsigned int formId;                                        // The form ID passed with each message. Shared by all widgets within an ASguiForm widget
     unsigned int sourceId;                                      // The source ID passed with each message. Set to any value the GUI designer requires.
     UserMessageSlot userMessageSlot;                            // QObject based object to receive all messages. It calls newMessage() with each message.
+
+    unsigned int childFormId;                                   // Only relevent for form (ASguiForm) widgets. Form ID of all child widgets
+    message_filter_options formFilter;                          // Message filtering to apply to form ID
+    message_filter_options sourceFilter;                        // Message filtering to apply to source ID
+    bool connected;                                             // true if a connection has been established between this class's signal and common slot
 };
 
 #endif // UserMessage_H

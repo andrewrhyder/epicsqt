@@ -1,4 +1,4 @@
-#include "contextMenu.h"
+#include <contextMenu.h>
 #include <QClipboard>
 #include <QApplication>
 #include <QDebug>
@@ -156,3 +156,12 @@ bool contextMenu::isDraggingVariable()
     return draggingVariable;
 }
 
+void contextMenu::addContextMenuToWidget( QWidget* w )
+{
+    object->addContextMenuToWidget( w );
+}
+
+QMenu* contextMenu::getContextMenu()
+{
+    return (QMenu*)object;
+}

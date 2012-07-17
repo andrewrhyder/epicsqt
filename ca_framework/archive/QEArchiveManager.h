@@ -38,6 +38,7 @@
 
 #include <QCaDateTime.h>
 #include <QEArchiveInterface.h>
+#include <UserMessage.h>
 
 /*! This is a singleton class - the single instance is declared in the .cpp file.
  *  It's only exposed in a header because the Qt framework demand that signals/slots
@@ -45,6 +46,9 @@
  */
 class QEArchiveManager : public QObject {
    Q_OBJECT
+public:
+    QEArchiveManager();
+
 private:
    /*! This function connects the specified the archive(s). The format of the string is
     *  space separated set of one or more hostname:port/endpoint triplets, e.g.
@@ -60,8 +64,8 @@ private:
     */
    bool initialise (QString archives, QString patternIn = ".*");
 
-   /*! As above, but uses the environment variables QCA_ARCHIVE_LIST and QCA_ARCHIVE_PATTERN.
-    *  If QCA_ARCHIVE_PATTERN is undefined then ".*" is used.
+   /*! As above, but uses the environment variables QE_ARCHIVE_LIST and QE_ARCHIVE_PATTERN.
+    *  If QE_ARCHIVE_PATTERN is undefined then ".*" is used.
     */
    bool initialise ();
 
@@ -83,7 +87,7 @@ private slots:
  * Currently only handles scaler values but can/will be extended to to
  * provide array data retrival.
  */
-class QEArchiveAccess : public QObject {
+class QEArchiveAccess : public QObject, UserMessage {
    Q_OBJECT
 public:
    QEArchiveAccess (QObject * parent = 0);
@@ -104,6 +108,9 @@ public:
                      const int count,
                      const QEArchiveInterface::How how,
                      const unsigned int element = 0);
+
+private:
+   UserMessage userMessage;
 
 signals:
    void setArchiveData (const QObject *, const bool, const QCaDataPointList &);

@@ -85,17 +85,16 @@ UserMessage::UserMessage()
     sourceFilter = MESSAGE_FILTER_ANY;  // Note, default of MESSAGE_FILTER_ANY means default implementation of
                                         // newMessage() will be called which cancels future unwanted messages.
                                         // An alternate default of MESSAGE_FILTER_NONE would mean newMEssage()
-                                        // is never called (good), but the opertunity to cancel future signals
+                                        // is never called (good), but the opportunity to cancel future signals
                                         // for uninterested widgets would be lost (bad)
 
     childFormId = 0;
 
+    connected = false;
+
     // Allow the object receiving messages to pass them back to us
     userMessageSlot.setOwner( this );
 
-    // Connect the single source of all messages to this instance of the UserMessage class
-    QObject::connect( &userMessageSignal, SIGNAL( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ),
-                      &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );
 
 }
 
@@ -199,6 +198,15 @@ void UserMessage::sendMessage( QString message,
 void UserMessage::sendMessage( QString msg,
                                message_types type )
 {
+    // Now we know the owner of this class is actually sending messages, establish the connection
+    // (Most owners don't send messages)
+    if( !connected )
+    {
+        QObject::connect( &userMessageSignal, SIGNAL( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ),
+                          &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );
+        connected = true;
+    }
+    // Send the message
     userMessageSignal.sendMessage( msg, type, formId, sourceId, this );
 }
 
@@ -239,9 +247,9 @@ void UserMessageSlot::message( QString msg,
 
 // Default implementation of virtual function to pass messages to derived classes (typicaly logging widgets or application windows)
 // If this default function is called it means the widget is not going to receive any messages and so there is no need to be receiving signals.
-// Since only a few widgets will be interested in messages, disconnecting
-// uninterested widgets from message signals will reduce the message signal count
-// significantly. So if this function is called, there is no re implementation by a derived class, so signals can be disconnected
+// Since only a few widgets will be interested in messages, disconnecting uninterested widgets from message signals will reduce the
+// message signal count significantly.
+// In summarey if this function is called, there is no re implementation by a derived class, so signals can be disconnected.
 void UserMessage::newMessage( QString, message_types )
 {
     // Disconnect. If this default implementation of useMessage is called, no derived class is interested in messages

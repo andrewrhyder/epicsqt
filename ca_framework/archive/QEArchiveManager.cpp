@@ -72,8 +72,12 @@ static QString pattern;
 static QHash<QString, SourceSpec> pvNameHash;
 
 static QEArchiveManager singleton;
-const bool QEArchiveManager::initialised = singleton.initialise ();
+//const bool QEArchiveManager::initialised = singleton.initialise ();
 
+QEArchiveManager::QEArchiveManager()
+{
+    initialise();
+}
 
 //==============================================================================
 // QEArchiveManager Class Methods
@@ -134,8 +138,8 @@ bool QEArchiveManager::initialise (QString archives, QString patternIn)
 bool QEArchiveManager::initialise ()
 {
    bool result;
-   QString archives = getenv ("QCA_ARCHIVE_LIST");
-   QString pattern = getenv ("QCA_ARCHIVE_PATTERN");
+   QString archives = getenv ("QE_ARCHIVE_LIST");
+   QString pattern = getenv ("QE_ARCHIVE_PATTERN");
 
    if (archives != "") {
       if (pattern == "") {
@@ -144,7 +148,8 @@ bool QEArchiveManager::initialise ()
       }
       result = this->initialise (archives, pattern);
    } else {
-      qDebug () << "Archive info:  QCA_ARCHIVE_LIST undefined";
+      //!!      userMessage.sendMessage( "QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs", MESSAGE_TYPE_INFO );
+       qDebug() << "QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs";
       result = false;
    }
    return result;
@@ -197,7 +202,6 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
    QEArchiveInterface * interface = (QEArchiveInterface *) userData;
    int count;
    int j;
-
    if (isSuccess) {
 
       count = archiveList.count ();
