@@ -121,6 +121,7 @@ public:
 
    void setUrl (QUrl url);
    QUrl getUrl ();
+   QString getName ();
 
    // Each of the xxxxRequest functions result in a xxxxResponse signal
    // being emitted. In each case the given userData is not used by the

@@ -71,6 +71,12 @@ QUrl QEArchiveInterface::getUrl ()
    return this->mUrl;
 }
 
+//------------------------------------------------------------------------------
+//
+QString QEArchiveInterface::getName ()
+{
+   return this->getUrl ().toString ();
+}
 
 //------------------------------------------------------------------------------
 //
