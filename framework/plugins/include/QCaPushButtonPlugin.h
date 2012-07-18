@@ -149,10 +149,10 @@ class QCaPushButtonPlugin : public QCaPushButton {
     // Creation options
     Q_ENUMS(CreationOptionNames)
     Q_PROPERTY(CreationOptionNames creationOption READ getCreationOptionProperty WRITE setCreationOptionProperty)
-    enum CreationOptionNames { Open = ASguiForm::CREATION_OPTION_OPEN,
-                               NewTab = ASguiForm::CREATION_OPTION_NEW_TAB,
-                               NewWindow = ASguiForm::CREATION_OPTION_NEW_WINDOW };
-    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (ASguiForm::creationOptions)creationOptionIn ); }
+    enum CreationOptionNames { Open = QEForm::CREATION_OPTION_OPEN,
+                               NewTab = QEForm::CREATION_OPTION_NEW_TAB,
+                               NewWindow = QEForm::CREATION_OPTION_NEW_WINDOW };
+    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEForm::creationOptions)creationOptionIn ); }
     CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
 
     Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )

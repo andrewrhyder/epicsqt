@@ -148,7 +148,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QCaLabelPlugin" name="qcalabelplugin">
+          <widget class="QELabelPlugin" name="qcalabelplugin">
            <property name="minimumSize">
             <size>
              <width>140</width>
@@ -182,7 +182,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCaLabelPlugin" name="qcalabelplugin_2">
+          <widget class="QELabelPlugin" name="qcalabelplugin_2">
            <property name="minimumSize">
             <size>
              <width>140</width>
@@ -347,7 +347,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QCaLabelPlugin" name="qcalabelplugin_18">
+            <widget class="QELabelPlugin" name="qcalabelplugin_18">
              <property name="variable" stdset="0">
               <string>SR14ID01:BL_GAP_REQUEST.EGU</string>
              </property>
@@ -356,7 +356,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QCaLabelPlugin" name="qcalabelplugin_7">
+          <widget class="QELabelPlugin" name="qcalabelplugin_7">
            <property name="minimumSize">
             <size>
              <width>140</width>
@@ -390,7 +390,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCaLabelPlugin" name="qcalabelplugin_8">
+          <widget class="QELabelPlugin" name="qcalabelplugin_8">
            <property name="minimumSize">
             <size>
              <width>140</width>
@@ -552,7 +552,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QCaLabelPlugin" name="qcalabelplugin_19">
+            <widget class="QELabelPlugin" name="qcalabelplugin_19">
              <property name="maximumSize">
               <size>
                <width>120</width>
@@ -567,7 +567,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QCaLabelPlugin" name="qcalabelplugin_5">
+          <widget class="QELabelPlugin" name="qcalabelplugin_5">
            <property name="minimumSize">
             <size>
              <width>140</width>
@@ -598,7 +598,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCaLabelPlugin" name="qcalabelplugin_6">
+          <widget class="QELabelPlugin" name="qcalabelplugin_6">
            <property name="minimumSize">
             <size>
              <width>140</width>
@@ -760,7 +760,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QCaLabelPlugin" name="qcalabelplugin_20">
+            <widget class="QELabelPlugin" name="qcalabelplugin_20">
              <property name="maximumSize">
               <size>
                <width>120</width>
@@ -775,7 +775,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QCaLabelPlugin" name="qcalabelplugin_3">
+          <widget class="QELabelPlugin" name="qcalabelplugin_3">
            <property name="minimumSize">
             <size>
              <width>140</width>
@@ -806,7 +806,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCaLabelPlugin" name="qcalabelplugin_4">
+          <widget class="QELabelPlugin" name="qcalabelplugin_4">
            <property name="minimumSize">
             <size>
              <width>140</width>
@@ -988,7 +988,7 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_12">
+        <widget class="QELabelPlugin" name="qcalabelplugin_12">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1019,7 +1019,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_13">
+        <widget class="QELabelPlugin" name="qcalabelplugin_13">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1050,7 +1050,7 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_14">
+        <widget class="QELabelPlugin" name="qcalabelplugin_14">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1081,7 +1081,7 @@
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_15">
+        <widget class="QELabelPlugin" name="qcalabelplugin_15">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1112,7 +1112,7 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_16">
+        <widget class="QELabelPlugin" name="qcalabelplugin_16">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1171,7 +1171,7 @@
         </widget>
        </item>
        <item row="3" column="2">
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_17">
+        <widget class="QELabelPlugin" name="qcalabelplugin_17">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1208,7 +1208,7 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_11">
+        <widget class="QELabelPlugin" name="qcalabelplugin_11">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1283,7 +1283,7 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_9">
+        <widget class="QELabelPlugin" name="qcalabelplugin_9">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1348,7 +1348,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QCaLabelPlugin" name="qcalabelplugin_10">
+        <widget class="QELabelPlugin" name="qcalabelplugin_10">
          <property name="minimumSize">
           <size>
            <width>140</width>
@@ -1665,9 +1665,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCaLabelPlugin</class>
+   <class>QELabelPlugin</class>
    <extends>QLabel</extends>
-   <header>QCaLabelPlugin.h</header>
+   <header>QELabelPlugin.h</header>
   </customwidget>
   <customwidget>
    <class>QCaLineEditPlugin</class>

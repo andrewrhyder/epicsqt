@@ -26,7 +26,7 @@
 #include <QString>
 
 #include <MainWindow.h>
-#include <ASguiForm.h>
+#include <QEForm.h>
 #include <QMessageBox>
 #include <ContainerProfile.h>
 #include <QVariant>
@@ -41,9 +41,9 @@
 QList<MainWindow*> MainWindow::mainWindowList;
 
 // Shared list of all GUIs being displayed in all main windows
-QList<ASguiForm*> MainWindow::guiList;
+QList<QEForm*> MainWindow::guiList;
 
-Q_DECLARE_METATYPE( ASguiForm* )
+Q_DECLARE_METATYPE( QEForm* )
 
 //=================================================================================
 // Methods for construction, destruction, initialisation
@@ -104,7 +104,7 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     // If a filename was supplied, load it
     else
     {
-        ASguiForm* gui = createGui( fileName );
+        QEForm* gui = createGui( fileName );
         loadGuiIntoCurrentWindow( gui );
     }
 
@@ -156,7 +156,7 @@ void MainWindow::on_actionNew_Tab_triggered()
         setTabMode();
 
     // Create the GUI
-    ASguiForm* gui = createGui( GuiFileNameDialog( "Open" ) );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
     loadGuiIntoNewTab( gui );
 }
 
@@ -165,7 +165,7 @@ void MainWindow::on_actionNew_Tab_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
-    ASguiForm* gui = createGui( GuiFileNameDialog( "Open" ) );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
     loadGuiIntoCurrentWindow( gui );
 }
 
@@ -185,7 +185,7 @@ void MainWindow::on_actionClose_triggered()
     // Using a single window, just delete the gui
     else
     {
-        ASguiForm* gui = getCentralGui();
+        QEForm* gui = getCentralGui();
         if( gui )
         {
             removeGuiFromWindowsMenu( gui );
@@ -199,7 +199,7 @@ void MainWindow::on_actionClose_triggered()
 void MainWindow::onWindowMenuSelection( QAction* action )
 {
     // Extract the gui from the action data
-    ASguiForm* gui = action->data().value<ASguiForm*>();
+    QEForm* gui = action->data().value<QEForm*>();
 
     // Prepare to look for gui
     int mwIndex;
@@ -291,7 +291,7 @@ void MainWindow::tabCloseRequest( int index )
 
     // Get a reference to the scroll area for the tab being deleted
     tabs->setCurrentIndex( index );
-    ASguiForm* gui = (ASguiForm*)(tabs->currentWidget() );
+    QEForm* gui = (QEForm*)(tabs->currentWidget() );
 
     // Remove the gui from the 'windows' menus
     removeGuiFromWindowsMenu( gui );
@@ -349,7 +349,7 @@ void MainWindow::startDesignerCore( QString command )
     {
         // Get the gui file name (left empthy if no gui)
         QStringList guiFileName;
-        ASguiForm* gui = getCurrentGui();
+        QEForm* gui = getCurrentGui();
         if( gui )
             guiFileName.append( gui->getGuiFileName() );
 
@@ -400,7 +400,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
 {
     // Get the gui file name (left empty if no gui)
     QString guiFileName;
-    ASguiForm* currentGui = getCurrentGui();
+    QEForm* currentGui = getCurrentGui();
     QString guiPath;
     if( currentGui )
     {
@@ -412,7 +412,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     // Recreate the gui and load it in place of the current window
     if( guiFileName.size() )
     {
-        ASguiForm* newGui = createGui( guiPath );
+        QEForm* newGui = createGui( guiPath );
         loadGuiIntoCurrentWindow( newGui );
     }
 }
@@ -423,7 +423,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
 
 /// Open a gui in a new tab
 /// Either as a result of the gui user requesting a new tab, or a contained object (gui push button) requesting a new tab
-void MainWindow::loadGuiIntoNewTab( ASguiForm* gui )
+void MainWindow::loadGuiIntoNewTab( QEForm* gui )
 {
     // Do nothing if couldn't create gui
     if( !gui )
@@ -439,7 +439,7 @@ void MainWindow::loadGuiIntoNewTab( ASguiForm* gui )
 
     // Set the interface to resizable if it has a layout that means it can manage being resized
     // Note, the object to set resizable is the widget of the scroll area of
-    // the ASguiForm. This is generally present by is probably not if a .ui file could not be loaded.
+    // the QEForm. This is generally present by is probably not if a .ui file could not be loaded.
     QWidget* form = gui->widget();
     if( form )
     {
@@ -450,7 +450,7 @@ void MainWindow::loadGuiIntoNewTab( ASguiForm* gui )
 
 /// Open a gui in the current window
 /// Either as a result of the gui user requesting a new window, or a contained object (gui push button) requesting a new window
-void MainWindow::loadGuiIntoCurrentWindow( ASguiForm* gui )
+void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
 {
     // Do nothing if couldn't create gui
     if( !gui )
@@ -463,7 +463,7 @@ void MainWindow::loadGuiIntoCurrentWindow( ASguiForm* gui )
         if( tabs )
         {
             // Remove the gui from the 'windows' menus and delete it
-            ASguiForm* oldGui = (ASguiForm*)(tabs->currentWidget() );
+            QEForm* oldGui = (QEForm*)(tabs->currentWidget() );
             if( oldGui )
             {
                 removeGuiFromWindowsMenu( oldGui );
@@ -484,7 +484,7 @@ void MainWindow::loadGuiIntoCurrentWindow( ASguiForm* gui )
     else
     {
         // Remove the old gui from the 'windows' menus
-        ASguiForm* oldGui = (ASguiForm*)centralWidget();
+        QEForm* oldGui = (QEForm*)centralWidget();
         if( oldGui )
         {
             removeGuiFromWindowsMenu( oldGui );
@@ -523,14 +523,14 @@ void MainWindow::newMessage( QString msg, message_types type )
 // This is done as a timer event once all processing has completed after creating a new gui.
 void MainWindow::resizeToFitGui()
 {
-    // Sanity check. Do nothing if the central widget is not a scroll area (actually an ASguiForm class based on a scroll area)
-    if ( QString::compare( centralWidget()->metaObject()->className(), "ASguiForm" ) )
+    // Sanity check. Do nothing if the central widget is not a scroll area (actually an QEForm class based on a scroll area)
+    if ( QString::compare( centralWidget()->metaObject()->className(), "QEForm" ) )
         return;
 
     // Check. Do nothing if nothing is in the scroll area.
     // Unlike the check above, this condition is expected. It can happen
     // if the UI file defining the gui was not located.
-    ASguiForm* sa = (ASguiForm*)centralWidget();
+    QEForm* sa = (QEForm*)centralWidget();
     if( !sa->widget() )
         return;
 
@@ -549,7 +549,7 @@ void MainWindow::resizeToFitGui()
     // Now the form is matching the user interface, set the interface to resizable
     // if it has a layout that means it can manage being resized
     // Note, the object to set resizable is the widget of the scroll area of
-    // the ASguiForm. This is generally present by is probably not if a .ui file could not be loaded.
+    // the QEForm. This is generally present by is probably not if a .ui file could not be loaded.
     QWidget* form = sa->widget();
     if( form )
     {
@@ -562,34 +562,34 @@ void MainWindow::resizeToFitGui()
 //=================================================================================
 
 // Slot for launching a new gui from a contained object.
-void MainWindow::launchGui( QString guiName, ASguiForm::creationOptions createOption )
+void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOption )
 {
     // Load the new gui as required
     switch( createOption )
     {
         // Open the specified gui in the current window
-        case ASguiForm::CREATION_OPTION_OPEN:
+        case QEForm::CREATION_OPTION_OPEN:
             {
-                ASguiForm* gui = createGui( guiName );
+                QEForm* gui = createGui( guiName );
                 loadGuiIntoCurrentWindow( gui );
             }
             break;
 
         // Open the specified gui in a new tab
-        case ASguiForm::CREATION_OPTION_NEW_TAB:
+        case QEForm::CREATION_OPTION_NEW_TAB:
             {
                 // If not using tabs, start tabs and migrate any single gui to the first tab
                 if( !usingTabs )
                     setTabMode();
 
                 // Create the gui and load it into a new tab
-                ASguiForm* gui = createGui( guiName );
+                QEForm* gui = createGui( guiName );
                 loadGuiIntoNewTab( gui );
             }
             break;
 
         // Open the specified gui in a new window
-        case ASguiForm::CREATION_OPTION_NEW_WINDOW:
+        case QEForm::CREATION_OPTION_NEW_WINDOW:
             {
                 MainWindow* w = new MainWindow( guiName, enableEdit, disableMenu );
                 w->show();
@@ -620,7 +620,7 @@ void MainWindow::setSingleMode()
         return;
 
     // Move the gui from the first (and only) tab to be the central widget
-    ASguiForm* gui = (ASguiForm*)( tabs->currentWidget() );
+    QEForm* gui = (QEForm*)( tabs->currentWidget() );
     if( gui )
     {
         // Make the gui the central widget.
@@ -658,7 +658,7 @@ void MainWindow::setTabMode()
     QObject::connect( tabs, SIGNAL( currentChanged ( int ) ), this, SLOT( tabCurrentChanged( int ) ) );
 
     // If there was a single gui present, move it to the first tab
-    ASguiForm* gui = getCentralGui();
+    QEForm* gui = getCentralGui();
     if( gui )
         tabs->addTab( gui, gui->getASGuiTitle() );
 
@@ -679,13 +679,13 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 // Performs gui opening tasks generic to new guis, including opening a new tab,
 // replacing a gui in a tab, replacing a single gui in the main window,
 // or creating a gui in a new main window.
-ASguiForm* MainWindow::createGui( QString fileName )
+QEForm* MainWindow::createGui( QString fileName )
 {
     // Don't do anything if no filename was supplied
     if (fileName.isEmpty())
         return NULL;
 
-    // Publish the main window's form Id so the new ASguiForm will pick it up
+    // Publish the main window's form Id so the new QEForm will pick it up
     setChildFormId( getNextMessageFormId() );
     profile.setPublishedMessageFormId( getChildFormId() );
 
@@ -693,7 +693,7 @@ ASguiForm* MainWindow::createGui( QString fileName )
     newMessage( QString( "Opening %1 in new window " ).arg( fileName ), MESSAGE_TYPE_INFO );
 
     // Build the gui
-    ASguiForm* gui = new ASguiForm( fileName );
+    QEForm* gui = new QEForm( fileName );
 
     // If built ok, read the ui file
     if( gui )
@@ -755,31 +755,31 @@ QTabWidget* MainWindow::getCentralTabs()
 }
 
 // Return the central widget if it is a single gui, else return NULL
-// Note, originally ASguiForm class did not implement QOBJECT so className() returned it's base class which was QScrollArea.
-ASguiForm* MainWindow::getCentralGui()
+// Note, originally QEForm class did not implement QOBJECT so className() returned it's base class which was QScrollArea.
+QEForm* MainWindow::getCentralGui()
 {
     QWidget* w = centralWidget();
-    if( !w || QString( "ASguiForm").compare( w->metaObject()->className() ) )
+    if( !w || QString( "QEForm").compare( w->metaObject()->className() ) )
         return NULL;
     else
-        return (ASguiForm*)w;
+        return (QEForm*)w;
 }
 
 // Get the current gui if any
-ASguiForm* MainWindow::getCurrentGui()
+QEForm* MainWindow::getCurrentGui()
 {
     // If using tabs, return the current tab if any
     if( usingTabs )
     {
         QTabWidget* tabs = getCentralTabs();
         if( tabs )
-            return (ASguiForm*)(tabs->currentWidget());
+            return (QEForm*)(tabs->currentWidget());
     }
 
     // Using a single window, return the gui
     else
     {
-        ASguiForm* gui = getCentralGui();
+        QEForm* gui = getCentralGui();
         if( gui )
             return gui;
     }
@@ -794,7 +794,7 @@ ASguiForm* MainWindow::getCurrentGui()
 
 // Add a gui to the 'windows' menus
 // Used when creating a new gui
-void MainWindow::addGuiToWindowsMenu( ASguiForm* gui )
+void MainWindow::addGuiToWindowsMenu( QEForm* gui )
 {
     // Add the gui to the list of guis
     guiList.append( gui );
@@ -818,7 +818,7 @@ void MainWindow::buildWindowsMenu()
 }
 
 // Add a gui to a 'window' menu
-void MainWindow::addWindowMenuAction( QMenu* menu, ASguiForm* gui )
+void MainWindow::addWindowMenuAction( QMenu* menu, QEForm* gui )
 {
     // Create the action and add it to the window menu, setting the action data to be the gui
     QAction* action = new QAction( gui->getASGuiTitle(), menu );
@@ -828,7 +828,7 @@ void MainWindow::addWindowMenuAction( QMenu* menu, ASguiForm* gui )
 
 // Remove a gui from the 'windows' menus
 // Used when deleting a single gui
-void MainWindow::removeGuiFromWindowsMenu( ASguiForm* gui )
+void MainWindow::removeGuiFromWindowsMenu( QEForm* gui )
 {
     // Remove the gui from the application wide list of guis
     bool guiFound = false;
@@ -867,7 +867,7 @@ void MainWindow::removeAllGuisFromWindowsMenu()
             QList<QObject*> children = tabs->children();
             for( int i = 0; i < children.size(); i++ )
             {
-                ASguiForm* gui = (ASguiForm*)children[i];
+                QEForm* gui = (QEForm*)children[i];
                 removeGuiFromWindowsMenu( gui );
             }
         }
@@ -876,7 +876,7 @@ void MainWindow::removeAllGuisFromWindowsMenu()
     // Not using tabs, so just remove the entry for the single gui displayed, if any
     else
     {
-        ASguiForm* gui = getCentralGui();
+        QEForm* gui = getCentralGui();
         if( gui )
         {
             removeGuiFromWindowsMenu( gui );

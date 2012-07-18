@@ -26,11 +26,9 @@
 #define QCAGENERICBUTTON_H
 
 #include <QCaWidget.h>
+#include <QEForm.h>
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
-#include <ASguiForm.h>
-#include <UserMessage.h>
-#include <ContainerProfile.h>
 #include <managePixmaps.h>
 #include <QCaStringFormattingMethods.h>
 
@@ -127,8 +125,8 @@ class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStrin
     QString getGuiName();
 
     // Qt Designer Properties Creation options
-    void setCreationOption( ASguiForm::creationOptions creationOption );
-    ASguiForm::creationOptions getCreationOption();
+    void setCreationOption( QEForm::creationOptions creationOption );
+    QEForm::creationOptions getCreationOption();
 
     // label text (prior to substitution)
     void setLabelTextProperty( QString labelTextIn );
@@ -141,7 +139,7 @@ protected:
     void userReleased();
     void userClicked( bool checked );
 
-    void launchGui( QString guiName, ASguiForm::creationOptions creationOption );
+    void launchGui( QString guiName, QEForm::creationOptions creationOption );
 
     virtual updateOptions getDefaultUpdateOption() = 0;
 
@@ -165,7 +163,7 @@ public:
     QStringList arguments;  /// Program arguments
 
     QString guiName;      /// GUI file name to launch
-    ASguiForm::creationOptions creationOption;
+    QEForm::creationOptions creationOption;
 
     bool localEnabled;
 
@@ -198,7 +196,7 @@ private:
     virtual void setButtonStyleSheet( QString style ) = 0;
 
     virtual void emitDbValueChanged( QString text ) = 0;
-    virtual void emitNewGui( QString guiName, ASguiForm::creationOptions creationOption ) = 0;
+    virtual void emitNewGui( QString guiName, QEForm::creationOptions creationOption ) = 0;
 
     virtual void connectButtonDataChange( qcaobject::QCaObject* qca ) = 0;
 

@@ -1,10 +1,3 @@
-/*!
-  \class ASguiFormPluginManager
-  \version $Revision: #3 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -61,12 +54,12 @@ QString ASguiFormPluginManager::name() const {
 
 /// Name of group Qt Designer will add widget to
 QString ASguiFormPluginManager::group() const {
-    return "EPICS Widgets";
+    return "EPICS Deprecated Widgets";
 }
 
 /// Icon for widget. Used by Qt Designer in widget list
 QIcon ASguiFormPluginManager::icon() const {
-    return QIcon(":/icons/ASguiForm.png");
+    return QIcon(":/qe/form/QEForm.png");
 }
 
 /// Tool tip for widget. Used by Qt Designer in widget list

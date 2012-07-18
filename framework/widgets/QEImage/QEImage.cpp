@@ -1779,8 +1779,8 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
     // To handle infinite slope, switch slope between x/y or y/x as appropriate
     // This is more accurate for otherwise very steep slopes, and does not need a
     // special case for infinite slopes
-    double slopeY; // Y/X
-    double slopeX; // X/Y
+    double slopeY = 0.0; // Y/X
+    double slopeX = 0.0; // X/Y
     bool useSlopeY;
     if( dX != 0 )
     {

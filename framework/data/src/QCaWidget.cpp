@@ -55,9 +55,9 @@
       This is how a CA aware widget is activated in 'designer'. It occurs when 'designer' updates the
       variable name property or variable name substitution property.
 
-   2) When an ASguiForm widget is created, resulting in a set of CA aware widgets being created by loading a UI file
+   2) When an QEForm widget is created, resulting in a set of CA aware widgets being created by loading a UI file
       contining plugin definitions.
-      After loading the plugin widgets, code in the ASguiForm class calls the activate() function in this class (QCaWiget).
+      After loading the plugin widgets, code in the QEForm class calls the activate() function in this class (QCaWiget).
       the activate() function calls  establishConnection() in the CA aware widget for each variable. This simulates
       what the VariableNamePropertyManager does as each variable name is entered (see 1, above, for details)
 

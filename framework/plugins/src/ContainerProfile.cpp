@@ -68,8 +68,8 @@
  *   profile, or if the published widgets change the widgets in the profile can be updated by calling updateConsumers().
  *   Alternatively, just the widget that launches new GUIs can be updated with replaceGuiLaunchConsumer().
  *
- * - An application may need to temprarily extend the the macro substitutions. For example, when creating an ASguiForm
- *   widget as a sub form within another ASguiform widget. Macro substitutions can be extended by calling addMacroSubstitutions()
+ * - An application may need to temprarily extend the the macro substitutions. For example, when creating an QEForm
+ *   widget as a sub form within another QEForm widget. Macro substitutions can be extended by calling addMacroSubstitutions()
  *   then restored using removeMacroSubstitutions().
  *
  */

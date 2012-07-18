@@ -30,9 +30,6 @@
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
 #include <QCaPluginLibrary_global.h>
-#include <ASguiForm.h>
-#include <UserMessage.h>
-#include <ContainerProfile.h>
 #include <managePixmaps.h>
 #include <QCaGenericButton.h>
 
@@ -55,7 +52,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaRadioButton : public QRadioButton, public
 
 
 public slots:
-    void launchGui( QString guiName, ASguiForm::creationOptions creationOption ){ QCaGenericButton::launchGui( guiName, creationOption); }
+    void launchGui( QString guiName, QEForm::creationOptions creationOption ){ QCaGenericButton::launchGui( guiName, creationOption); }
 
     void requestEnabled( const bool& state );
 
@@ -65,7 +62,7 @@ public slots:
   signals:
     void dbValueChanged( const QString& out );
 
-    void newGui( QString guiName, ASguiForm::creationOptions creationOption );
+    void newGui( QString guiName, QEForm::creationOptions creationOption );
 
     void requestResend();
 
@@ -86,7 +83,7 @@ private:
 
     void emitDbValueChanged( QString text ){ emit dbValueChanged( text ); }
 
-    void emitNewGui( QString guiName, ASguiForm::creationOptions creationOption  ){ emit newGui( guiName, creationOption); }
+    void emitNewGui( QString guiName, QEForm::creationOptions creationOption  ){ emit newGui( guiName, creationOption); }
 
     void connectButtonDataChange( qcaobject::QCaObject* qca )
     {

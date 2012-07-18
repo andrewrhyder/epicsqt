@@ -31,7 +31,6 @@
 #include <QCaSliderPluginManager.h>
 #include <QCaSpinBoxPluginManager.h>
 #include <QCaComboBoxPluginManager.h>
-#include <ASguiFormPluginManager.h>
 #include <LinkPluginManager.h>
 #include <QCaPlotPluginManager.h>
 #include <QCaPeriodicPluginManager.h>
@@ -50,9 +49,11 @@
 #include <QEFileBrowserManager.h>
 #include <QELoginManager.h>
 #include <QELogManager.h>
+#include <QEFormManager.h>
 
 //======================================================
 // Deprecated widgets
+#include <ASguiFormPluginManager.h>
 #include <QCaLabelPluginManager.h>
 //======================================================
 
@@ -84,7 +85,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaSliderPluginManager(this));
     widgets.append(new QCaSpinBoxPluginManager(this));
     widgets.append(new QCaComboBoxPluginManager(this));
-    widgets.append(new ASguiFormPluginManager(this));
+    widgets.append(new QEFormManager(this));
     widgets.append(new LinkPluginManager(this));
     widgets.append(new QCaPlotPluginManager(this));
     widgets.append(new QCaPeriodicPluginManager(this));
@@ -101,6 +102,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaLabelPluginManager(this));
     widgets.append(new QCaPvPropertiesPluginManager(this));
     widgets.append(new QCaStripChartPluginManager(this));
+    widgets.append(new ASguiFormPluginManager(this));
 //======================================================
 
 }

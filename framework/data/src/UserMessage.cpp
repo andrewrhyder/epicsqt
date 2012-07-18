@@ -37,15 +37,15 @@
  *
  * The derived widget is free to set the source ID to any value
  *
- * Derived form widgets (ASguiForm) get a unique form ID using getNextMessageFormId()
+ * Derived form widgets (QEForm) get a unique form ID using getNextMessageFormId()
  * and pass this to all widgets within the form using the ContainerProfile class
  *
  * Messages sent by a widget are received by all widgets and can filter the messages
  * required by form id and source id.
- * The form id is under the management of the ASguiForm widget, the source ID is under
+ * The form id is under the management of the QEForm widget, the source ID is under
  * the control of the GUI designer.
  *
- * The ASguiForm widget does not display messages, but re-send them using its own
+ * The QEForm widget does not display messages, but re-send them using its own
  * form ID. Read on to see how this can be used.
  *
  * Widgets that generate messages and widgets (or applicatino code) that uses messages
@@ -54,18 +54,18 @@
  * - Application wide logging:
  *   An application with a single log window can can base a class on the UserMessage class
  *   and set up filtering to receive all messages.
- *   An application with log messages for seperate windows containing ASguiForm
+ *   An application with log messages for seperate windows containing QEForm
  *   widgets (such as ASgui) can base each window class on the UserMessage class, then
  *   set up filtering for the appropriate form ID.
  *
- * - Logging within an ASguiForm.
+ * - Logging within an QEForm.
  *   A logging widget can be set to filter matching on the current form and so will pick up
  *   messages from any sibling widget. This includes messages from an sibling widget which is
- *   a nested ASguiForm. Whatever messages that nested form is set to receive, it will resend
+ *   a nested QEForm. Whatever messages that nested form is set to receive, it will resend
  *   to it's siblings. For example, if it is set to receive messages from the widgets it
  *   contains, these are resent up one level to the main form.
- *   If messages are dealt with within the nested ASguiForm (for example, it may have its own
- *   logging widget) then the nested ASguiForm could be set up not to filter and resend any messages.
+ *   If messages are dealt with within the nested QEForm (for example, it may have its own
+ *   logging widget) then the nested QEForm could be set up not to filter and resend any messages.
  */
 
 #include <UserMessage.h>
@@ -110,7 +110,7 @@ void UserMessage::setSourceId( unsigned int sourceIdIn )
     sourceId = sourceIdIn;
 }
 
-// Set the form ID (the the same ID for all sibling widgets within an ASguiForm widget)
+// Set the form ID (the the same ID for all sibling widgets within an QEForm widget)
 void UserMessage::setFormId( unsigned int formIdIn )
 {
     formId = formIdIn;
@@ -134,7 +134,7 @@ unsigned int UserMessage::getSourceId()
     return sourceId;
 }
 
-// Get the form ID (the the same ID for all sibling widgets within an ASguiForm widget)
+// Get the form ID (the the same ID for all sibling widgets within an QEForm widget)
 unsigned int UserMessage::getFormId()
 {
     return formId;

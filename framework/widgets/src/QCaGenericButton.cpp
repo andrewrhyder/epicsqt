@@ -98,23 +98,23 @@ void QCaGenericButton::commandSetup() {
 void QCaGenericButton::guiSetup() {
 
     // Set default properties
-    creationOption = ASguiForm::CREATION_OPTION_OPEN;
+    creationOption = QEForm::CREATION_OPTION_OPEN;
 
     // If a profile is define by whatever contains the button, use it
     if( isProfileDefined() )
     {
         // Setup a signal to launch a new gui
         // The signal will be used by whatever the button is in
-        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, ASguiForm::creationOptions ) ),
-                          getGuiLaunchConsumer(), SLOT( launchGui( QString,ASguiForm::creationOptions ) ) );
+        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, QEForm::creationOptions ) ),
+                          getGuiLaunchConsumer(), SLOT( launchGui( QString,QEForm::creationOptions ) ) );
     }
 
     // A profile is not already defined, create one. This is the case if this class is used by an application that does not set up a profile, such as 'designer'.
     else
     {
         // Set up the button's own gui form launcher
-        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, ASguiForm::creationOptions ) ),
-                          getButtonQObject(), SLOT( launchGui( QString, ASguiForm::creationOptions ) ) );
+        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, QEForm::creationOptions ) ),
+                          getButtonQObject(), SLOT( launchGui( QString, QEForm::creationOptions ) ) );
     }
 }
 
@@ -584,11 +584,11 @@ QString QCaGenericButton::getGuiName()
 }
 
 // Qt Designer Properties Creation options
-void QCaGenericButton::setCreationOption( ASguiForm::creationOptions creationOptionIn )
+void QCaGenericButton::setCreationOption( QEForm::creationOptions creationOptionIn )
 {
     creationOption = creationOptionIn;
 }
-ASguiForm::creationOptions QCaGenericButton::getCreationOption()
+QEForm::creationOptions QCaGenericButton::getCreationOption()
 {
     return creationOption;
 }
@@ -646,7 +646,7 @@ void QCaGenericButton::onGeneralMessage( QString message )
 // Slot for launching a new gui.
 // This is the button's default action for launching a gui.
 // Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.
-void QCaGenericButton::launchGui( QString guiName, ASguiForm::creationOptions )
+void QCaGenericButton::launchGui( QString guiName, QEForm::creationOptions )
 {
     // Build the gui
     // Build it in a new window.
@@ -654,7 +654,7 @@ void QCaGenericButton::launchGui( QString guiName, ASguiForm::creationOptions )
     //       - Wind up through parents until the parent of the first scroll
     //       - Replace the scroll area's widget with the new gui
     QMainWindow* w = new QMainWindow;
-    ASguiForm* gui = new ASguiForm( guiName );
+    QEForm* gui = new QEForm( guiName );
     if( gui )
     {
         if( gui->readUiFile())

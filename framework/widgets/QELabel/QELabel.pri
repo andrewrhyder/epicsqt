@@ -4,8 +4,7 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QELabel.png  \
-    ../widgets/QELabel/icon.png
+    ../widgets/QELabel.png
 
 RESOURCES += \
     ../widgets/QELabel/QELabel.qrc

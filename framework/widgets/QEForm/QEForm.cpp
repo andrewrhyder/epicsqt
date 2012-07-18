@@ -35,8 +35,7 @@
     and variable name substitution properties must be set up to request data and other properties may need to be set
     up before udates can be used.
 
-    This class can be used directly (within a GUI application) as the top level form, or as a base class for
-    the ASguiFormPlugin class. The ASguiFormPlugin plugin class is used to store a gui form in a UI file.
+    This class can be used directly (within a GUI application) as the top level form, or as a designer plugin class.
 */
 
 #include <QUiLoader>
@@ -44,25 +43,25 @@
 #include <QString>
 #include <QDir>
 #include <QtDebug>
-#include <ASguiForm.h>
+#include <QEForm.h>
 #include <ContainerProfile.h>
 #include <QCaWidget.h>
 
 /// Constructor.
 /// No UI file is read. uiFileName must be set and then readUiFile() called after construction
-ASguiForm::ASguiForm( QWidget* parent ) : QScrollArea( parent ), QCaWidget( this ) {
+QEForm::QEForm( QWidget* parent ) : QScrollArea( parent ), QCaWidget( this ) {
     commonInit( false );
 }
 
 /// Constructor.
 /// UI filename is supplied and UI file is read as part of construction.
-ASguiForm::ASguiForm( const QString& uiFileNameIn, QWidget* parent ) : QScrollArea( parent ), QCaWidget( this ) {
+QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QScrollArea( parent ), QCaWidget( this ) {
     commonInit( true );
     uiFileName = uiFileNameIn;
 }
 
 /// Common construction
-void ASguiForm::commonInit( const bool alertIfUINoFoundIn )
+void QEForm::commonInit( const bool alertIfUINoFoundIn )
 {
     setAcceptDrops(true);
 
@@ -85,7 +84,7 @@ void ASguiForm::commonInit( const bool alertIfUINoFoundIn )
 }
 
 /// Destructor.
-ASguiForm::~ASguiForm()
+QEForm::~QEForm()
 {
     // Close any existing form
     if( ui )
@@ -94,7 +93,7 @@ ASguiForm::~ASguiForm()
 
 // Read a UI file.
 // The file read depends on the value of uiFileName
-bool ASguiForm::readUiFile()
+bool QEForm::readUiFile()
 {
     // Assume file is bad
     bool fileLoaded = false;
@@ -148,7 +147,7 @@ bool ASguiForm::readUiFile()
             {
                 QString msg;
                 QTextStream(&msg) << "User interface file '" << uiFileName << "' could not be opened";
-                sendMessage( msg, "ASguiForm::readUiFile", MESSAGE_TYPE_WARNING );
+                sendMessage( msg, "QEForm::readUiFile", MESSAGE_TYPE_WARNING );
             }
         }
 
@@ -259,17 +258,17 @@ bool ASguiForm::readUiFile()
 }
 
 // Get the form title
-QString ASguiForm::getASGuiTitle(){
+QString QEForm::getASGuiTitle(){
     return title;
 }
 
 // Get the UI file name used to build the gui
-QString ASguiForm::getGuiFileName(){
+QString QEForm::getGuiFileName(){
     return uiFileName;
 }
 
 /// Set the variable name substitutions used by all QCa widgets wihtin the form
-void ASguiForm::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
+void QEForm::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
 {
     variableNameSubstitutions = variableNameSubstitutionsIn;
 
@@ -285,7 +284,7 @@ void ASguiForm::setVariableNameSubstitutions( QString variableNameSubstitutionsI
 
 // Slot for reloading the file if it has changed.
 // It doesn't matter if it has been deleted, a reload attempt will still tell the user what they need to know - that the file has gone.
-void ASguiForm::fileChanged ( const QString & /*path*/ )
+void QEForm::fileChanged ( const QString & /*path*/ )
 {
     // Ensure we arn't monitoring files any more
     QStringList monitoredPaths = fileMon.files();
@@ -308,7 +307,7 @@ void ASguiForm::fileChanged ( const QString & /*path*/ )
 // Launch a GUI.
 // Note, creation options are ignored as the guiForm has no application wide context to know
 // what 'creating a new tab', etc, means. A new window is always created.
- void ASguiForm::launchGui( QString guiName, ASguiForm::creationOptions )
+ void QEForm::launchGui( QString guiName, QEForm::creationOptions )
  {
      // Build the gui
      // Build it in a new window.
@@ -316,7 +315,7 @@ void ASguiForm::fileChanged ( const QString & /*path*/ )
      //       - Wind up through parents until the parent of the first scroll
      //       - Replace the scroll area's widget with the new gui
      QMainWindow* w = new QMainWindow;
-     ASguiForm* gui = new ASguiForm( guiName );
+     QEForm* gui = new QEForm( guiName );
      if( gui )
      {
          if( gui->readUiFile())
@@ -338,17 +337,17 @@ void ASguiForm::fileChanged ( const QString & /*path*/ )
 
 // Slot same as default widget setEnabled slot, but renamed to match other QCa widgets where requestEnabled() will use our own setEnabled
 // which will allow alarm states to override current enabled state
-void ASguiForm::requestEnabled( const bool& state )
+void QEForm::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
 
 // Receive new log messages.
 // This widget doesn't do anything itself with messages, but it can regenerate the message as if it came from itself.
-void ASguiForm::newMessage( QString msg, message_types type )
+void QEForm::newMessage( QString msg, message_types type )
 {
-    // An ASguiForm deals with any message it receives by resending it with its own form and source ids.
-    // This way messages from widgets in sibling ASguiForm widgets filtered as if they came from sibling widgets
+    // An QEForm deals with any message it receives by resending it with its own form and source ids.
+    // This way messages from widgets in sibling QEForm widgets filtered as if they came from sibling widgets
     sendMessage( msg, type );
 }
 
@@ -357,29 +356,29 @@ void ASguiForm::newMessage( QString msg, message_types type )
 
 // Access functions for variableName and variableNameSubstitutions
 // variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void ASguiForm::setVariableNameAndSubstitutions( QString, QString variableNameSubstitutionsIn, unsigned int ) {
+void QEForm::setVariableNameAndSubstitutions( QString, QString variableNameSubstitutionsIn, unsigned int ) {
 
     /// Set new variable name substitutions
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
 }
 
 // UI file name
-void    ASguiForm::setUiFileName( QString uiFileNameIn )
+void    QEForm::setUiFileName( QString uiFileNameIn )
 {
     uiFileName = uiFileNameIn;
     readUiFile();
 }
-QString ASguiForm::getUiFileName()
+QString QEForm::getUiFileName()
 {
     return uiFileName;
 }
 
 // Flag indicating form should handle gui form launch requests
-void ASguiForm::setHandleGuiLaunchRequests( bool handleGuiLaunchRequestsIn )
+void QEForm::setHandleGuiLaunchRequests( bool handleGuiLaunchRequestsIn )
 {
     handleGuiLaunchRequests = handleGuiLaunchRequestsIn;
 }
-bool ASguiForm::getHandleGuiLaunchRequests()
+bool QEForm::getHandleGuiLaunchRequests()
 {
     return handleGuiLaunchRequests;
 }

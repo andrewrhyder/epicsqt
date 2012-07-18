@@ -27,7 +27,7 @@
 
 #include <QtGui/QMainWindow>
 #include <ui_MainWindow.h>
-#include <ASguiForm.h>
+#include <QEForm.h>
 #include <UserMessage.h>
 #include <ContainerProfile.h>
 #include <QProcess>
@@ -46,27 +46,27 @@ private:
     bool enableEdit;                                        // Enable edit menu
     bool disableMenu;                                       // Disable menu bar
     Ui::MainWindowClass ui;                                 // Main window layout
-    static QList<ASguiForm*> guiList;                       // Shared list of all forms being displayed in all main windows
+    static QList<QEForm*> guiList;                       // Shared list of all forms being displayed in all main windows
     static QList<MainWindow*> mainWindowList;               // Shared list of all main windows
     bool usingTabs;                                         // True if using tabs to display multiple GUIs, false if displaying a single GUI
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
-    ASguiForm* createGui( QString filename );               // Create a gui
-    void loadGuiIntoCurrentWindow( ASguiForm* newGui );     // Load a new gui into the current window (either single window, or tab)
-    void loadGuiIntoNewTab( ASguiForm* gui );               // Load a new gui into a new tab
+    QEForm* createGui( QString filename );               // Create a gui
+    void loadGuiIntoCurrentWindow( QEForm* newGui );     // Load a new gui into the current window (either single window, or tab)
+    void loadGuiIntoNewTab( QEForm* gui );               // Load a new gui into a new tab
 
     void setTitle( QString fileName );                      // Set the main window title to 'AS GUI - filename'
 
     QTabWidget* getCentralTabs();                           // Return the central widget if it is the tab widget
-    ASguiForm* getCentralGui();                             // Return the central widget if it is a single gui, else return NULL
-    ASguiForm* getCurrentGui();                             // Return the current gui if any (central, or tab)
+    QEForm* getCentralGui();                             // Return the central widget if it is a single gui, else return NULL
+    QEForm* getCurrentGui();                             // Return the current gui if any (central, or tab)
     void refresh();                                         // Reload the current gui
 
-    void addGuiToWindowsMenu( ASguiForm* gui );             // Add a gui to the 'windows' menus
+    void addGuiToWindowsMenu( QEForm* gui );             // Add a gui to the 'windows' menus
     void buildWindowsMenu();                                // Build a new 'windows' menu
-    void addWindowMenuAction( QMenu* menu, ASguiForm* gui );// Add a gui to a 'window' menu
-    void removeGuiFromWindowsMenu( ASguiForm* gui );        // Remove a gui from the 'windows' menus
+    void addWindowMenuAction( QMenu* menu, QEForm* gui );// Add a gui to a 'window' menu
+    void removeGuiFromWindowsMenu( QEForm* gui );        // Remove a gui from the 'windows' menus
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
 
     QString GuiFileNameDialog( QString caption );           // Get a gui filename from the user
@@ -94,7 +94,7 @@ private slots:
     void onWindowMenuSelection( QAction* action );  // Slot to recieve requests to change focus to a specific gui
     void on_actionAbout_triggered();                // Slot to perform 'About' action
 
-    void launchGui( QString guiName, ASguiForm::creationOptions creationOption );
+    void launchGui( QString guiName, QEForm::creationOptions creationOption );
 
     void tabCurrentChanged( int index );            // Slot to act on user changing tabs
     void tabCloseRequest( int index );              // Slot to act on user closing a tab

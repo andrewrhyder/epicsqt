@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin_5">
+  <widget class="QELabelPlugin" name="qcalabelplugin_5">
    <property name="geometry">
     <rect>
      <x>360</x>
@@ -32,10 +32,10 @@
     <string>SR=01</string>
    </property>
    <property name="format" stdset="0">
-    <enum>QCaLabelPlugin::Default</enum>
+    <enum>QELabelPlugin::Default</enum>
    </property>
    <property name="notation" stdset="0">
-    <enum>QCaLabelPlugin::Scientific</enum>
+    <enum>QELabelPlugin::Scientific</enum>
    </property>
   </widget>
   <widget class="QCaShapePlugin" name="qcashapeplugin_20">
@@ -100,7 +100,7 @@
     <UInt>3</UInt>
    </property>
   </widget>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin">
+  <widget class="QELabelPlugin" name="qcalabelplugin">
    <property name="geometry">
     <rect>
      <x>19</x>
@@ -119,10 +119,10 @@
     <string>SR=01</string>
    </property>
    <property name="format" stdset="0">
-    <enum>QCaLabelPlugin::Default</enum>
+    <enum>QELabelPlugin::Default</enum>
    </property>
    <property name="notation" stdset="0">
-    <enum>QCaLabelPlugin::Scientific</enum>
+    <enum>QELabelPlugin::Scientific</enum>
    </property>
   </widget>
   <widget class="QCaShapePlugin" name="qcashapeplugin_3">
@@ -268,7 +268,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin_7">
+  <widget class="QELabelPlugin" name="qcalabelplugin_7">
    <property name="geometry">
     <rect>
      <x>430</x>
@@ -287,10 +287,10 @@
     <string>SR=01</string>
    </property>
    <property name="format" stdset="0">
-    <enum>QCaLabelPlugin::Default</enum>
+    <enum>QELabelPlugin::Default</enum>
    </property>
    <property name="notation" stdset="0">
-    <enum>QCaLabelPlugin::Scientific</enum>
+    <enum>QELabelPlugin::Scientific</enum>
    </property>
   </widget>
   <widget class="QCaShapePlugin" name="qcashapeplugin_2">
@@ -380,7 +380,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin_3">
+  <widget class="QELabelPlugin" name="qcalabelplugin_3">
    <property name="geometry">
     <rect>
      <x>152</x>
@@ -399,13 +399,13 @@
     <string>SR=01</string>
    </property>
    <property name="format" stdset="0">
-    <enum>QCaLabelPlugin::Default</enum>
+    <enum>QELabelPlugin::Default</enum>
    </property>
    <property name="notation" stdset="0">
-    <enum>QCaLabelPlugin::Scientific</enum>
+    <enum>QELabelPlugin::Scientific</enum>
    </property>
   </widget>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin_4">
+  <widget class="QELabelPlugin" name="qcalabelplugin_4">
    <property name="geometry">
     <rect>
      <x>401</x>
@@ -424,13 +424,13 @@
     <string>SR=01</string>
    </property>
    <property name="format" stdset="0">
-    <enum>QCaLabelPlugin::Default</enum>
+    <enum>QELabelPlugin::Default</enum>
    </property>
    <property name="notation" stdset="0">
-    <enum>QCaLabelPlugin::Scientific</enum>
+    <enum>QELabelPlugin::Scientific</enum>
    </property>
   </widget>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin_6">
+  <widget class="QELabelPlugin" name="qcalabelplugin_6">
    <property name="geometry">
     <rect>
      <x>310</x>
@@ -449,10 +449,10 @@
     <string>SR=01</string>
    </property>
    <property name="format" stdset="0">
-    <enum>QCaLabelPlugin::Default</enum>
+    <enum>QELabelPlugin::Default</enum>
    </property>
    <property name="notation" stdset="0">
-    <enum>QCaLabelPlugin::Scientific</enum>
+    <enum>QELabelPlugin::Scientific</enum>
    </property>
   </widget>
   <widget class="QCaShapePlugin" name="qcashapeplugin_16">
@@ -511,7 +511,7 @@
     </color>
    </property>
   </widget>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin_2">
+  <widget class="QELabelPlugin" name="qcalabelplugin_2">
    <property name="geometry">
     <rect>
      <x>90</x>
@@ -530,10 +530,10 @@
     <string>SR=01</string>
    </property>
    <property name="format" stdset="0">
-    <enum>QCaLabelPlugin::Default</enum>
+    <enum>QELabelPlugin::Default</enum>
    </property>
    <property name="notation" stdset="0">
-    <enum>QCaLabelPlugin::Scientific</enum>
+    <enum>QELabelPlugin::Scientific</enum>
    </property>
   </widget>
   <widget class="QCaShapePlugin" name="qcashapeplugin">
@@ -1050,7 +1050,7 @@
     <UInt>3</UInt>
    </property>
   </widget>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin_8">
+  <widget class="QELabelPlugin" name="qcalabelplugin_8">
    <property name="geometry">
     <rect>
      <x>491</x>
@@ -1069,10 +1069,10 @@
     <string>SR=01</string>
    </property>
    <property name="format" stdset="0">
-    <enum>QCaLabelPlugin::Default</enum>
+    <enum>QELabelPlugin::Default</enum>
    </property>
    <property name="notation" stdset="0">
-    <enum>QCaLabelPlugin::Scientific</enum>
+    <enum>QELabelPlugin::Scientific</enum>
    </property>
   </widget>
   <widget class="QCaShapePlugin" name="qcashapeplugin_18">
@@ -1224,9 +1224,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCaLabelPlugin</class>
+   <class>QELabelPlugin</class>
    <extends>QLabel</extends>
-   <header>QCaLabelPlugin.h</header>
+   <header>QELabelPlugin.h</header>
   </customwidget>
   <customwidget>
    <class>QCaShapePlugin</class>

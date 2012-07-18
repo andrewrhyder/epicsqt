@@ -41,7 +41,6 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QSubstitutedLabel.png \
     src/QCaComboBox.png \
     src/Link.png \
-    src/ASguiForm.png \
     src/QCaPeriodic.png \
     src/record_field_list.txt \
     src/cameraROI.png \
@@ -71,8 +70,6 @@ HEADERS += \
     include/QCaLineEditPlugin.h \
     include/QCaDesignerPlugin.h \
     include/ContainerProfile.h \
-    include/ASguiFormPluginManager.h \
-    include/ASguiFormPlugin.h \
     include/QSubstitutedLabelPluginManager.h \
     include/QSubstitutedLabelPlugin.h \
     include/LinkPluginManager.h \
@@ -124,7 +121,6 @@ HEADERS += \
     ../widgets/include/QCaLineEdit.h \
     ../widgets/include/QSubstitutedLabel.h \
     ../widgets/include/Link.h \
-    ../widgets/include/ASguiForm.h \
     ../widgets/include/QCaPlot.h \
     ../widgets/include/QCaToolTip.h \
     ../widgets/include/QCaPeriodic.h \
@@ -163,8 +159,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/LinkPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
     src/ContainerProfile.cpp \
-    src/ASguiFormPluginManager.cpp \
-    src/ASguiFormPlugin.cpp \
     src/QCaPlotPlugin.cpp \
     src/QCaPlotPluginManager.cpp \
     src/QCaPeriodicPlugin.cpp \
@@ -211,7 +205,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \
     ../widgets/src/Link.cpp \
     ../widgets/src/QCaPlot.cpp \
-    ../widgets/src/ASguiForm.cpp \
     ../widgets/src/QCaToolTip.cpp \
     ../widgets/src/QCaPeriodic.cpp \
     ../widgets/src/PeriodicDialog.cpp \
@@ -229,14 +222,17 @@ HEADERS += \
     include/QCaPvPropertiesPluginManager.h  \
     include/QCaPvProperties.h  \
     include/QCaStripChartPluginManager.h  \
-    include/QCaStripChart.h
+    include/QCaStripChart.h \
+    include/ASguiFormPluginManager.h \
+    include/ASguiFormPlugin.h
 
 SOURCES += \
     src/QCaAnalogProgressBarPluginManager.cpp  \
     src/QCaBitStatusPluginManager.cpp  \
     src/QCaLabelPluginManager.cpp  \
     src/QCaPvPropertiesPluginManager.cpp  \
-    src/QCaStripChartPluginManager.cpp
+    src/QCaStripChartPluginManager.cpp \
+    src/ASguiFormPluginManager.cpp
 
 #====================================
 
@@ -351,6 +347,7 @@ include (../widgets/QEPvProperties/QEPvProperties.pri)
 
 include (../widgets/QEStripChart/QEStripChart.pri)
 
+include (../widgets/QEForm/QEForm.pri)
 
 
 #===========================================================

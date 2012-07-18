@@ -100,12 +100,12 @@ public:
     virtual ~UserMessage();
 
     void setSourceId( unsigned int sourceId );                    // Set the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets)
-    void setFormId( unsigned int formId );                        // Set the form ID (the the same ID for all sibling widgets within an ASguiForm widget)
+    void setFormId( unsigned int formId );                        // Set the form ID (the the same ID for all sibling widgets within an QEForm widget)
     void setFormFilter( message_filter_options formFilterIn );    // Set the message filtering applied to the form ID
     void setSourceFilter( message_filter_options sourceFilterIn );// Set the message filtering applied to the source ID
 
     unsigned int getSourceId();                                 // Get the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets
-    unsigned int getFormId();                                   // Get the form ID (the the same ID for all sibling widgets within an ASguiForm widget)
+    unsigned int getFormId();                                   // Get the form ID (the the same ID for all sibling widgets within an QEForm widget)
     message_filter_options getFormFilter();                     // Get the message filtering applied to the form ID
     message_filter_options getSourceFilter();                   // Get the message filtering applied to the source ID
 
@@ -128,11 +128,11 @@ public:
 private:
     static UserMessageSignal userMessageSignal;                 // Single object to send all message signals
     static unsigned int nextMessageFormId;                      // The next message form ID
-    unsigned int formId;                                        // The form ID passed with each message. Shared by all widgets within an ASguiForm widget
+    unsigned int formId;                                        // The form ID passed with each message. Shared by all widgets within an QEForm widget
     unsigned int sourceId;                                      // The source ID passed with each message. Set to any value the GUI designer requires.
     UserMessageSlot userMessageSlot;                            // QObject based object to receive all messages. It calls newMessage() with each message.
 
-    unsigned int childFormId;                                   // Only relevent for form (ASguiForm) widgets. Form ID of all child widgets
+    unsigned int childFormId;                                   // Only relevent for form (QEForm) widgets. Form ID of all child widgets
     message_filter_options formFilter;                          // Message filtering to apply to form ID
     message_filter_options sourceFilter;                        // Message filtering to apply to source ID
 };

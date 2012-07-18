@@ -44,7 +44,7 @@ INCLUDEPATH += . \
     ../../framework/api/include \
     ../../framework/data/include \
     ../../framework/widgets/include \
-    ../../framework/widgets/QELabel \
+    ../../framework/widgets/QEForm \
     ../../framework/plugins/include
 
 LIBS += -L../../framework/plugins \

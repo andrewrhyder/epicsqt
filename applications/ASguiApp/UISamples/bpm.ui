@@ -145,7 +145,7 @@
     <string>Beam Current</string>
    </property>
   </widget>
-  <widget class="QCaLabelPlugin" name="qcalabelplugin_5">
+  <widget class="QELabelPlugin" name="qcalabelplugin_5">
    <property name="geometry">
     <rect>
      <x>70</x>
@@ -181,7 +181,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QCaLabelPlugin" name="qcalabelplugin_3">
+       <widget class="QELabelPlugin" name="qcalabelplugin_3">
         <property name="text">
          <string>0.0 µm</string>
         </property>
@@ -202,7 +202,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QCaLabelPlugin" name="qcalabelplugin">
+       <widget class="QELabelPlugin" name="qcalabelplugin">
         <property name="text">
          <string>0.0 µm</string>
         </property>
@@ -235,7 +235,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QCaLabelPlugin" name="qcalabelplugin_6">
+       <widget class="QELabelPlugin" name="qcalabelplugin_6">
         <property name="text">
          <string>0.0 µm</string>
         </property>
@@ -259,7 +259,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QCaLabelPlugin" name="qcalabelplugin_7">
+       <widget class="QELabelPlugin" name="qcalabelplugin_7">
         <property name="text">
          <string>0.0 µm</string>
         </property>
@@ -293,9 +293,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCaLabelPlugin</class>
+   <class>QELabelPlugin</class>
    <extends>QLabel</extends>
-   <header>QCaLabelPlugin.h</header>
+   <header>QELabelPlugin.h</header>
   </customwidget>
   <customwidget>
    <class>QCaShapePlugin</class>
