@@ -38,9 +38,9 @@
 
 #define DEBUG qDebug () << __FUNCTION__ << __LINE__
 
-
-#define PROGRESS_BAR_SIZE     10000
-#define MINIMUM_SPAN          0.000001
+#define MINIMUM_SPAN        0.000001
+#define PI                  3.14159265358979323846
+#define RADIANS_PER_DEGREE  (PI / 180.0)
 
 #define MAX(a, b)           ((a) >= (b) ? (a) : (b))
 #define MIN(a, b)           ((a) <= (b) ? (a) : (b))
@@ -52,17 +52,25 @@
 //
 QAnalogProgressBar::QAnalogProgressBar (QWidget *parent) : QWidget (parent)
 {
-    this->mBorderColour      = QColor (  0,   0,  96);   // dark blue
-    this->mForegroundColour  = QColor (128, 192, 255);   // blue
-    this->mBackgroundColour  = QColor (220, 220, 220);   // light gray
-    this->mFontColour        = QColor (0,     0,   0);   // black
+   this->mBorderColour      = QColor (  0,   0,  96);   // dark blue
+   this->mForegroundColour  = QColor ( 90, 140, 190);   // blue
+   this->mBackgroundColour  = QColor (220, 220, 220);   // light gray
+   this->mFontColour        = QColor (0,     0,   0);   // black
 
-    this->mAnalogMinimum = 0.0;
-    this->mAnalogMaximum = 10.0;
-    this->mOrientation = Left_To_Right;
-    this->mMode = Bar;
-    this->mShowText = true;
-    this->mAnalogValue = 0.0;
+   this->mAnalogMinimum = 0.0;
+   this->mAnalogMaximum = 100.0;
+   this->mMajorInterval = 20.0;
+   this->mMinorInterval = 4.0;
+
+   this->mOrientation = Left_To_Right;
+   this->mMode = Bar;
+   this->mShowText = true;
+   this->mAnalogValue = 0.0;
+   this->mCentreAngle = 0.0;
+   this->mSpanAngle = 180;
+
+   this->setAutoFillBackground (false);
+   this->setBackgroundRole (QPalette::NoRole);
 }
 
 
@@ -229,6 +237,178 @@ void QAnalogProgressBar::drawScale (QPainter & painter, int top,  int left,
     painter.drawPolygon (polygon);
 }
 
+//------------------------------------------------------------------------------
+//
+void QAnalogProgressBar::drawMeter (QPainter & painter,
+                                    int top,  int left,
+                                    int bottom,  int right,
+                                    const double fraction)
+{
+   const int width_span = right - left;
+   const int height_span = bottom - top;
+
+   QPen pen;
+   double centre_x, centre_y;
+   double radius;
+   int j;
+   double lowerAngle;
+   double upperAngle;
+   double angle;
+   double minS, maxS, minC, maxC;
+   double s, c;
+   int first;
+   int last;
+   int m;
+   double value;
+   double f;
+   QPoint p1, p2;
+
+   // Working in degrees.
+   //
+   lowerAngle = this->mCentreAngle - this->mSpanAngle / 2.0;
+   upperAngle = this->mCentreAngle + this->mSpanAngle / 2.0;
+
+   // Find min and max sin/cosine so that we can find optimum centre.
+   //
+   minS = maxS = minC = maxC = 0.0;
+   angle = lowerAngle;
+   while (true) {
+      s = sin (angle * RADIANS_PER_DEGREE);
+      c = cos (angle * RADIANS_PER_DEGREE);
+
+      minS = MIN (minS, s);
+      maxS = MAX (maxS, s);
+      minC = MIN (minC, c);
+      maxC = MAX (maxC, c);
+
+      if (angle >= upperAngle) break;
+
+      // Determine next angle.
+      //
+      if (angle < -360.0)      { angle = -360.0; }
+      else if (angle < -270.0) { angle = -270.0; }
+      else if (angle < -180.0) { angle = -180.0; }
+      else if (angle < -90.0)  { angle = -90.0;  }
+      else if (angle < 0.0)    { angle =  0.0;   }
+      else if (angle < 90.0)   { angle =  90.0;  }
+      else if (angle < 180.0)  { angle = 180.0;  }
+      else if (angle < 270.0)  { angle = 270.0;  }
+      else if (angle < 360.0)  { angle = 360.0;  }
+
+      angle = MIN (angle, upperAngle);
+   }
+
+   // Determine centre.
+   //
+   f = (-minS) / (maxS - minS);
+   centre_x = 6.0 + f * (width_span - 12);
+
+   f = (+maxC) / (maxC - minC);
+   centre_y = 6.0 + f * (height_span - 12);
+
+   radius = MIN (width_span, height_span);
+   if (maxS > 0) radius = MIN (radius, ((right - 6) - centre_x) /maxS);
+   if (minS < 0) radius = MIN (radius, ((left + 6)  - centre_x) /minS);
+   if (maxC > 0) radius = MIN (radius, (centre_y - (top + 6)) /maxC);
+   if (minC < 0) radius = MIN (radius, (centre_y - (bottom - 6)) /minC);
+
+   pen.setWidth (1);
+   pen.setColor (this->mFontColour);
+   painter.setPen (pen);
+
+#define RPOINT(f)  QPoint (int (centre_x + f*radius*s),  int (centre_y - f*radius*c))
+
+   first = int (this->getAnalogMinimum() / this->getMinorInterval() - 0.5);
+   last  = int (this->getAnalogMaximum() / this->getMinorInterval() + 0.5);
+   m = int (this->getMajorInterval() / this->getMinorInterval());
+   for (j = first; j <= last; j++) {
+
+      value = j *  this->getMinorInterval();
+
+      f = (value                     - this->getAnalogMinimum ()) /
+          (this->getAnalogMaximum()  - this->getAnalogMinimum ());
+
+      angle = lowerAngle +  f * (upperAngle - lowerAngle);
+      s = sin (angle * RADIANS_PER_DEGREE);
+      c = cos (angle * RADIANS_PER_DEGREE);
+
+      // major or minor tick ?
+      //
+      if (j%m == 0) {
+         QString v;
+
+         v.sprintf ("%.1f", value);
+         p1 = RPOINT (0.88);
+         this->drawText (painter, p1, v, 7);
+
+         p1 = RPOINT (0.92);
+
+      } else {
+         p1 = RPOINT (0.96);
+      }
+      p2 = RPOINT (1.0);
+
+      painter.drawLine (p1, p2);
+   }
+
+   angle = lowerAngle + fraction *(upperAngle - lowerAngle);
+   s = sin (angle * RADIANS_PER_DEGREE);
+   c = cos (angle * RADIANS_PER_DEGREE);
+
+   pen.setColor (this->mForegroundColour);
+   p1 = RPOINT (0.0);
+
+   p2 = RPOINT (1.0);
+   pen.setWidth (2);
+   painter.setPen (pen);
+   painter.drawLine (p1, p2);
+
+   p2 = RPOINT (0.75);
+   pen.setWidth (3);
+   painter.setPen (pen);
+   painter.drawLine (p1, p2);
+
+   p2 = RPOINT (0.5);
+   pen.setWidth (4);
+   painter.setPen (pen);
+   painter.drawLine (p1, p2);
+
+   p2 = RPOINT (0.25);
+   pen.setWidth (5);
+   painter.setPen (pen);
+   painter.drawLine (p1, p2);
+
+#undef RPOINT
+}
+
+//------------------------------------------------------------------------------
+//
+void QAnalogProgressBar::drawText  (QPainter & painter, QPoint & textCentre, QString & text, const int pointSize)
+{
+   QFont pf (this->font ());
+   QFontMetrics fm = painter.fontMetrics ();
+   QPen pen;
+   int x;
+   int y;
+
+   if (pointSize > 0) {
+      pf.setPointSize (pointSize);
+   }
+   painter.setFont (pf);
+
+   // Centre text. For height, pointSize seems better than fm.height ()
+   // painter.drawText needs bottom left.
+   //
+   x = textCentre.x () - fm.width (text)/2;
+   y = textCentre.y () + this->font ().pointSize ()/2;
+
+   pen.setColor (this->mFontColour);
+   painter.setPen (pen);
+
+   // If text too wide, then ensure we show most significant part.
+   //
+   painter.drawText (MAX (1, x), y, text);
+}
 
 //------------------------------------------------------------------------------
 //
@@ -241,9 +421,8 @@ void QAnalogProgressBar::paintEvent (QPaintEvent * /* event - make warning go aw
    int bottom;
    double fraction;
    QRect background;
+   QPoint textCentre;
 
-   setAutoFillBackground (false);
-   setBackgroundRole (QPalette::NoRole);
    pen.setWidth (1);
    brush.setStyle (Qt::SolidPattern);
    brush.setColor (this->mBorderColour);
@@ -277,47 +456,45 @@ void QAnalogProgressBar::paintEvent (QPaintEvent * /* event - make warning go aw
               (this->mAnalogMaximum - this->mAnalogMinimum);
    fraction = LIMIT (fraction, 0.0, 1.0);
 
+
+   // Set default centre text positions.
+   //
+   textCentre.setX (right / 2);
+   textCentre.setY (bottom / 2);
+
    switch  (this->mMode) {
 
-   // Bar, Scale has 1 pixel bouldary.
-   //
-   case Bar:
-       this->drawBar (painter, 1, 1, bottom - 1, right - 1, fraction);
-       break;
+      // Bar, Scale etc. has 1 pixel bouldary.
+      //
+      case Bar:
+         this->drawBar (painter, 1, 1, bottom - 1, right - 1, fraction);
+         break;
 
-   case Scale:
-       this->drawScale (painter, 1, 1, bottom - 1, right - 1, fraction);
-       break;
+      case Scale:
+         this->drawScale (painter, 1, 1, bottom - 1, right - 1, fraction);
+         break;
 
-   default:
-       // report an error??
-       //
-       break;
+      case Meter:
+         this->drawMeter (painter, 1, 1, bottom - 1, right - 1, fraction);
+         textCentre.setY (3*bottom / 4);
+         break;
+
+      default:
+         // report an error??
+         //
+         break;
    }
 
    if (this->getShowText ()) {
-      QFontMetrics fm = painter.fontMetrics ();
       QString sprintfFormat;
       QString barText;
-      int x;
-      int y;
 
       // This is a dispatching call.
       //
       sprintfFormat = getSprintfFormat ();
       barText.sprintf (sprintfFormat.toAscii().data (), this->mAnalogValue);
 
-      // Centre text. For height, pointSize seems better than fm.height ()
-      //
-      x = (this->width () - fm.width (barText))/2;
-      y = (this->height () + this->font ().pointSize ())/2;
-
-      pen.setColor (this->mFontColour);
-      painter.setPen (pen);
-
-      // If text too wide, then ensure we show most significant part.
-      //
-      painter.drawText (MAX (1, x), y, barText);
+      this->drawText(painter, textCentre, barText);
    }
 }
 
@@ -326,6 +503,47 @@ void QAnalogProgressBar::paintEvent (QPaintEvent * /* event - make warning go aw
 QString QAnalogProgressBar::getSprintfFormat ()
 {
     return QString ("%+0.7g");
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QAnalogProgressBar::setMinorInterval (const double value)
+{
+   double temp;
+
+   temp = MAX (0.001, value);
+   if (this->mMinorInterval != temp) {
+      this->mMinorInterval = temp;
+      this->setMajorInterval (this->getMajorInterval());
+      this->update ();
+   }
+}
+
+double QAnalogProgressBar::getMinorInterval ()
+{
+    return this->mMinorInterval;
+}
+
+//------------------------------------------------------------------------------
+//
+void QAnalogProgressBar::setMajorInterval (const double value)
+{
+   double temp;
+   long n;
+
+   n = long (value / this->mMinorInterval + 0.4999);
+   n = MAX (1, n);
+   temp = n*this->mMinorInterval;
+   if (this->mMajorInterval != temp) {
+      this->mMajorInterval = temp;
+     this->update ();
+   }
+}
+
+double QAnalogProgressBar::getMajorInterval ()
+{
+   return this->mMajorInterval;
 }
 
 //------------------------------------------------------------------------------
@@ -337,15 +555,17 @@ void QAnalogProgressBar::setAnalogRange (const double analogMinimumIn,
     this->setAnalogMaximum (analogMaximumIn);
 }
 
+//------------------------------------------------------------------------------
 // Standard propery access macro.
 //
-#define PROPERTY_ACCESS(type, name, extra)                   \
+#define PROPERTY_ACCESS(type, name, convert)                 \
                                                              \
 void QAnalogProgressBar::set##name (const type value)  {     \
-   if (this->m##name != value) {                             \
-      this->m##name = value;                                 \
-      extra                                                  \
-      update ();                                             \
+   type temp;                                                \
+   temp = convert;                                           \
+   if (this->m##name != temp) {                              \
+      this->m##name = temp;                                  \
+      this->update ();                                       \
     }                                                        \
  }                                                           \
                                                              \
@@ -355,29 +575,31 @@ type QAnalogProgressBar::get##name () {                      \
 
 // NOTE: we have to use qualified type for Orientation and Mode.
 //
-PROPERTY_ACCESS (QAnalogProgressBar::Orientations, Orientation, )
+PROPERTY_ACCESS (QAnalogProgressBar::Orientations, Orientation, value)
 
-PROPERTY_ACCESS (QAnalogProgressBar::Modes, Mode, )
+PROPERTY_ACCESS (QAnalogProgressBar::Modes, Mode, value)
 
-PROPERTY_ACCESS (QColor, BorderColour, )
+PROPERTY_ACCESS (int, CentreAngle, LIMIT (value, -180, +180) )
 
-PROPERTY_ACCESS (QColor, ForegroundColour, )
+PROPERTY_ACCESS (int, SpanAngle, LIMIT (value, 5, 350) )
 
-PROPERTY_ACCESS (QColor, BackgroundColour, )
+PROPERTY_ACCESS (QColor, BorderColour, value)
 
-PROPERTY_ACCESS (QColor, FontColour, )
+PROPERTY_ACCESS (QColor, ForegroundColour, value)
 
-PROPERTY_ACCESS (bool, ShowText, )
+PROPERTY_ACCESS (QColor, BackgroundColour, value)
 
-PROPERTY_ACCESS (double, AnalogValue, )
+PROPERTY_ACCESS (QColor, FontColour, value)
+
+PROPERTY_ACCESS (bool, ShowText, value)
+
+PROPERTY_ACCESS (double, AnalogValue, value)
 
 // Ensure  max - min >= minimum span for all updated
 //
-PROPERTY_ACCESS (double, AnalogMinimum,
-                 this->mAnalogMaximum = MAX (this->mAnalogMaximum, this->mAnalogMinimum + MINIMUM_SPAN); )
+PROPERTY_ACCESS (double, AnalogMinimum, MIN (value, this->mAnalogMaximum - MINIMUM_SPAN) )
 
-PROPERTY_ACCESS (double, AnalogMaximum,
-                 this->mAnalogMinimum = MIN (this->mAnalogMinimum, this->mAnalogMaximum - MINIMUM_SPAN); )
+PROPERTY_ACCESS (double, AnalogMaximum, MAX (value, this->mAnalogMinimum + MINIMUM_SPAN) )
 
 #undef PROPERTY_ACCESS
 

@@ -50,7 +50,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QPainter>
-
+#include <QPoint>
 #include <QCaPluginLibrary_global.h>
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QAnalogProgressBar:public QWidget {
@@ -60,7 +60,7 @@ public:
     enum Orientations { Left_To_Right, Top_To_Bottom, Right_To_Left, Bottom_To_Top };
     Q_ENUMS (Orientations)
 
-    enum Modes { Bar, Scale };
+    enum Modes { Bar, Scale, Meter };
     Q_ENUMS (Modes)
 
     Q_PROPERTY (double analogValue       READ getAnalogValue         WRITE setAnalogValue)
@@ -68,6 +68,10 @@ public:
     Q_PROPERTY (double analogMaximum     READ getAnalogMaximum       WRITE setAnalogMaximum)
     Q_PROPERTY (Orientations Orientation READ getOrientation         WRITE setOrientation)
     Q_PROPERTY (Modes  Mode              READ getMode                WRITE setMode)
+    Q_PROPERTY (int    centreAngle       READ getCentreAngle         WRITE setCentreAngle)
+    Q_PROPERTY (int    spanAngle         READ getSpanAngle           WRITE setSpanAngle)
+    Q_PROPERTY (double minorInterval     READ getMinorInterval       WRITE setMinorInterval)
+    Q_PROPERTY (double majorInterval     READ getMajorInterval       WRITE setMajorInterval)
 
     // NOTE: Where possible I spell colour properly.
     //
@@ -90,12 +94,21 @@ private:
     double mAnalogValue;
     enum Orientations mOrientation;
     enum Modes mMode;
+    int mCentreAngle;
+    int mSpanAngle;
     bool mShowText;
+    double mMinorInterval;
+    double mMajorInterval;
 
     void paintEvent (QPaintEvent *event);
 
     void drawBar   (QPainter & painter, int top,  int left,  int bottom,  int right, const double fraction);
     void drawScale (QPainter & painter, int top,  int left,  int bottom,  int right, const double fraction);
+    void drawMeter (QPainter & painter, int top,  int left,  int bottom,  int right, const double fraction);
+
+    /// Like draw text, but centred on cx an cy.
+    //
+    void drawText  (QPainter & painter, QPoint & textCentre, QString & text, const int pointSize = 0);
 
 protected:
     // Returns the format parameter for a call to sprintf, used to set
@@ -114,10 +127,10 @@ public:
     //
     double getAnalogValue   ();
 
-    void setAnalogMinimum (const double analogMinimumIn);
+    void setAnalogMinimum (const double value);
     double getAnalogMinimum ();
 
-    void setAnalogMaximum (const double analogMaximumIn);
+    void setAnalogMaximum (const double value);
     double getAnalogMaximum ();
 
     void setOrientation   (const enum Orientations value);
@@ -125,6 +138,18 @@ public:
 
     void setMode          (const enum Modes value);
     enum Modes getMode ();
+
+    void setCentreAngle (const int value);
+    int getCentreAngle ();
+
+    void setSpanAngle (const int value);
+    int getSpanAngle ();
+
+    void setMinorInterval (const double value);
+    double getMinorInterval ();
+
+    void setMajorInterval (const double value);
+    double getMajorInterval ();
 
     void setBorderColour (const QColor value);
     QColor getBorderColour ();
