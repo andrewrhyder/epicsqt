@@ -41,12 +41,12 @@ HEADERS += include/MainWindow.h \
 
 INCLUDEPATH += . \
     ./include \
-    ../../ca_framework/api/include \
-    ../../ca_framework/data/include \
-    ../../ca_framework/widgets/include \
-    ../../ca_framework/widgets/QELabel \
-    ../../ca_framework/plugins/include
+    ../../framework/api/include \
+    ../../framework/data/include \
+    ../../framework/widgets/include \
+    ../../framework/widgets/QELabel \
+    ../../framework/plugins/include
 
-LIBS += -L../../ca_framework/plugins \
+LIBS += -L../../framework/plugins \
     -lQCaPlugin
 FORMS += ./src/MainWindow.ui

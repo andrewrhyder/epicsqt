@@ -38,12 +38,12 @@ HEADERS += \
 
 INCLUDEPATH += \
     ./include \
-    ../../ca_framework/api/include \
-    ../../ca_framework/data/include \
-    ../../ca_framework/plugins/include
+    ../../framework/api/include \
+    ../../framework/data/include \
+    ../../framework/plugins/include
 
 # Uncomment if linking agains QCa library in Qt Designer plugin directory
 #LIBS += -L$$(QTDIR)/plugins/designer -lQCaPlugin
 
 # Uncomment if linking agains QCa library in epicsQt release build directory
-LIBS += -L../../ca_framework/plugins -lQCaPlugin
+LIBS += -L../../framework/plugins -lQCaPlugin

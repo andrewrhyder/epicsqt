@@ -30,8 +30,7 @@ TEMPLATE = subdirs
 CONFIG   += ordered
 
 SUBDIRS = \
-#    ca_framework/qwt \
-    ca_framework/plugins \
+    framework/plugins \
     applications/ASguiApp \
     applications/QCaMonitorApp
 
