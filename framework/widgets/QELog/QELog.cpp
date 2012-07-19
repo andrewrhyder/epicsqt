@@ -185,7 +185,7 @@ bool QELog::getShowMessageFilter()
 
 
 
-void QELog::setShowButtonClear(bool pValue)
+void QELog::setShowClear(bool pValue)
 {
 
     qPushButtonClear->setVisible(pValue);
@@ -194,7 +194,7 @@ void QELog::setShowButtonClear(bool pValue)
 
 
 
-bool QELog::getShowButtonClear()
+bool QELog::getShowClear()
 {
 
     return qPushButtonClear->isVisible();
@@ -217,7 +217,7 @@ void QELog::buttonClearClicked()
 
 
 
-void QELog::setShowButtonSave(bool pValue)
+void QELog::setShowSave(bool pValue)
 {
 
     qPushButtonSave->setVisible(pValue);
@@ -226,7 +226,7 @@ void QELog::setShowButtonSave(bool pValue)
 
 
 
-bool QELog::getShowButtonSave()
+bool QELog::getShowSave()
 {
 
     return qPushButtonSave->isVisible();

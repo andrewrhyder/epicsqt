@@ -360,14 +360,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
         QEConfiguredLayout(QWidget *pParent = 0);
         virtual ~QEConfiguredLayout(){}
 
-        void setConfigurationType(int pValue);
-        int getConfigurationType();
+        void setItemDescription(QString pValue);
+        QString getItemDescription();
 
         void setShowItemList(bool pValue);
         bool getShowItemList();
 
-        void setItemDescription(QString pValue);
-        QString getItemDescription();
+        void setConfigurationType(int pValue);
+        int getConfigurationType();
 
         void setConfigurationFile(QString pValue);
         QString getConfigurationFile();
@@ -386,10 +386,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
         void userLevelChanged(userLevels pValue);
 
-        Q_PROPERTY(bool showItemList READ getShowItemList WRITE setShowItemList)
-
         Q_PROPERTY(QString itemDescription READ getItemDescription WRITE setItemDescription)
 
+        Q_PROPERTY(bool showItemList READ getShowItemList WRITE setShowItemList)
 
         Q_ENUMS(configurationTypesProperty)
         Q_PROPERTY(configurationTypesProperty configurationType READ getConfigurationTypeProperty WRITE setConfigurationTypeProperty)

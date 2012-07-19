@@ -85,6 +85,27 @@ int QEConfiguredLayout::getConfigurationType()
 
 
 
+void QEConfiguredLayout::setItemDescription(QString pValue)
+{
+
+    qLabelItemDescription->setText(pValue);
+    qLabelItemDescription->setVisible(qLabelItemDescription->text().isEmpty() == false);
+
+}
+
+
+
+
+
+QString QEConfiguredLayout::getItemDescription()
+{
+
+    return qLabelItemDescription->text();
+
+}
+
+
+
 
 
 void QEConfiguredLayout::setShowItemList(bool pValue)
@@ -103,30 +124,6 @@ bool QEConfiguredLayout::getShowItemList()
 {
 
     return qComboBoxItemList->isVisible();
-
-}
-
-
-
-
-
-
-void QEConfiguredLayout::setItemDescription(QString pValue)
-{
-
-    qLabelItemDescription->setText(pValue);
-    qLabelItemDescription->setVisible(qLabelItemDescription->text().isEmpty() == false);
-
-}
-
-
-
-
-
-QString QEConfiguredLayout::getItemDescription()
-{
-
-    return qLabelItemDescription->text();
 
 }
 

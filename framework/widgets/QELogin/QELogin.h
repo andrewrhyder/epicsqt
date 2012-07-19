@@ -127,13 +127,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QCaWidget
         QELogin(QWidget *pParent = 0);
         virtual ~QELogin(){}
 
-        void setShowLabelUserType(bool pValue);
-        bool getShowLabelUserType();
+        void setShowUserType(bool pValue);
+        bool getShowUserType();
 
-        void setShowButtonLogin(bool pValue);
+        void setShowLogin(bool pValue);
         bool getShowButtonLogin();
 
-        void setShowButtonLogout(bool pValue);
+        void setShowLogout(bool pValue);
         bool getShowButtonLogout();
 
         void setUserPassword(QString pValue);
@@ -155,11 +155,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QCaWidget
 
         void logoutCurrentUserType();
 
-        Q_PROPERTY(bool showLabelUserType READ getShowLabelUserType WRITE setShowLabelUserType)
+        Q_PROPERTY(bool showUserType READ getShowUserType WRITE setShowUserType)
 
-        Q_PROPERTY(bool showButtonLogin READ getShowButtonLogin WRITE setShowButtonLogin)
+        Q_PROPERTY(bool showLogin READ getShowButtonLogin WRITE setShowLogin)
 
-        Q_PROPERTY(bool showButtonLogout READ getShowButtonLogout WRITE setShowButtonLogout)
+        Q_PROPERTY(bool showLogout READ getShowButtonLogout WRITE setShowLogout)
 
         Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
 

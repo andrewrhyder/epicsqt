@@ -128,11 +128,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QCaWidget
         void setShowMessageFilter(bool pValue);
         bool getShowMessageFilter();
 
-        void setShowButtonClear(bool pValue);
-        bool getShowButtonClear();
+        void setShowClear(bool pValue);
+        bool getShowClear();
 
-        void setShowButtonSave(bool pValue);
-        bool getShowButtonSave();
+        void setShowSave(bool pValue);
+        bool getShowSave();
 
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
@@ -165,9 +165,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QCaWidget
 
         Q_PROPERTY(bool showMessageFilter READ getShowMessageFilter WRITE setShowMessageFilter)
 
-        Q_PROPERTY(bool showButtonClear READ getShowButtonClear WRITE setShowButtonClear)
+        Q_PROPERTY(bool showClear READ getShowClear WRITE setShowClear)
 
-        Q_PROPERTY(bool showButtonSave READ getShowButtonSave WRITE setShowButtonSave)
+        Q_PROPERTY(bool showSave READ getShowSave WRITE setShowSave)
 
         Q_PROPERTY(bool scrollToBottom READ getScrollToBottom WRITE setScrollToBottom)
 

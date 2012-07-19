@@ -70,7 +70,7 @@ QELogin::QELogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 
 
 
-void QELogin::setShowLabelUserType(bool pValue)
+void QELogin::setShowUserType(bool pValue)
 {
 
     qLabelUserType->setVisible(pValue);
@@ -79,7 +79,7 @@ void QELogin::setShowLabelUserType(bool pValue)
 
 
 
-bool QELogin::getShowLabelUserType()
+bool QELogin::getShowUserType()
 {
 
     return qLabelUserType->isVisible();
@@ -89,7 +89,7 @@ bool QELogin::getShowLabelUserType()
 
 
 
-void QELogin::setShowButtonLogin(bool pValue)
+void QELogin::setShowLogin(bool pValue)
 {
 
     qPushButtonLogin->setVisible(pValue);
@@ -108,7 +108,7 @@ bool QELogin::getShowButtonLogin()
 
 
 
-void QELogin::setShowButtonLogout(bool pValue)
+void QELogin::setShowLogout(bool pValue)
 {
 
     qPushButtonLogout->setVisible(pValue);
