@@ -124,7 +124,7 @@ QString QCaAlarmInfo::getColorName()
     {
         case NO_ALARM:      return "#00ff00"; // green
         case MINOR_ALARM:   return "#ffff00"; // yellow
-        case MAJOR_ALARM:   return "#ff0080"; // red
+        case MAJOR_ALARM:   return "#ff0000"; // red
         default:
         case INVALID_ALARM: return "#ffffff"; // white
     }

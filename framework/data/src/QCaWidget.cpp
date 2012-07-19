@@ -307,7 +307,7 @@ QColor  QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
 
     int h, s, v;
     result.getHsv( &h, &s, &v );
-    result.setHsv( h, saturation, 210 );
+    result.setHsv( h, saturation, 255 );
     return result;
 }
 
