@@ -28,6 +28,8 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
+#include <alarm.h>
+
 #include <QEAnalogProgressBar.h>
 #include <QCaObject.h>
 
@@ -210,6 +212,8 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
                                                QCaAlarmInfo& alarmInfo,
                                                QCaDateTime&, const unsigned int& )
 {
+    int saturation;
+
     /// Update display limits if requested and defined.
     if (isFirstUpdate && getUseDbDisplayLimits ()) {
 
@@ -227,17 +231,19 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
             // Otherwise, leave as design time limits.
             //
             if ((lower != 0.0) || (upper != 0.0)) {
-                setAnalogRange (lower, upper);
+                this->setRange (lower, upper);
             }
         }
     }
 
     /// Update the progress bar
-    setAnalogValue( value );
-
-    // check mode option - set background/foregound/font colour
     //
-    setBackgroundColour (getColor (alarmInfo, 64));
+    this->setValue( value );
+
+    // Use low saturation when no alarm, otherwise set a medium saturation level.
+    //
+    saturation = (alarmInfo.getSeverity() == NO_ALARM) ? 20 : 128;
+    setBackgroundColour( getColor( alarmInfo, saturation ) );
 
     /// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
