@@ -345,6 +345,8 @@ include (../widgets/QELogin/QELogin.pri)
 
 include (../widgets/QEPvProperties/QEPvProperties.pri)
 
+include (../widgets/QERecipe/QERecipe.pri)
+
 include (../widgets/QEStripChart/QEStripChart.pri)
 
 include (../widgets/QEForm/QEForm.pri)

@@ -47,6 +47,7 @@
 #include <QCaStripChartPluginManager.h>
 #include <QEConfiguredLayoutManager.h>
 #include <QEFileBrowserManager.h>
+#include <QERecipeManager.h>
 #include <QELoginManager.h>
 #include <QELogManager.h>
 #include <QEFormManager.h>
@@ -74,6 +75,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QELoginManager(this));
     widgets.append(new QELogManager(this));
     widgets.append(new QEPvPropertiesManager(this));
+    widgets.append(new QERecipeManager(this));
     widgets.append(new QEStripChartManager(this));
 
 
