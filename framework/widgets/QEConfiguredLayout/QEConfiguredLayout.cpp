@@ -48,9 +48,9 @@ QEConfiguredLayout::QEConfiguredLayout(QWidget *pParent):QWidget(pParent), QCaWi
     qScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     qScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
+    setItemDescription("");
     setConfigurationFile("");
     setConfigurationText("");
-    setItemDescription("");
     setConfigurationType(FROM_FILE);
     setShowItemList(true);
     setDetailsLayout(TOP);
@@ -144,8 +144,8 @@ void QEConfiguredLayout::setConfigurationFile(QString pValue)
         {
             data = file->readAll();
             file->close();
-            setConfiguration(data);
         }
+        setConfiguration(data);
     }
 
 }

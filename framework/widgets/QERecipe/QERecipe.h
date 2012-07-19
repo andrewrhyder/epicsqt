@@ -34,6 +34,7 @@
 #include <QTableWidget>
 #include <QPushButton>
 #include <QEConfiguredLayout.h>
+#include <QDomDocument>
 #include <QCaPluginLibrary_global.h>
 
 
@@ -53,10 +54,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
     protected:
         QLabel *qLabelRecipe;
         QComboBox *qComboBoxRecipeList;
+        QPushButton *qPushButtonLoad;
         QPushButton *qPushButtonSave;
         QPushButton *qPushButtonDelete;
         QPushButton *qPushButtonApply;
         QEConfiguredLayout *qEConfiguredLayoutRecipeFields;
+        QDomDocument currentDocument;
         QString recipeFile;
         int detailsLayout;
         int currentUserType;
@@ -114,6 +117,30 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
         Q_PROPERTY(bool showFields READ getShowFields WRITE setShowFields)
 
+        Q_PROPERTY(QString recipeFile READ getRecipeFile WRITE setRecipeFile)
+
+
+        Q_ENUMS(configurationTypesProperty)
+        Q_PROPERTY(configurationTypesProperty configurationType READ getConfigurationTypeProperty WRITE setConfigurationTypeProperty)
+        enum configurationTypesProperty
+        {
+            File = FROM_FILE,
+            Text = FROM_TEXT
+        };
+
+        void setConfigurationTypeProperty(configurationTypesProperty pConfigurationType)
+        {
+            setConfigurationType((configurationTypesProperty) pConfigurationType);
+        }
+        configurationTypesProperty getConfigurationTypeProperty()
+        {
+            return (configurationTypesProperty) getConfigurationType();
+        }
+
+        Q_PROPERTY(QString configurationFile READ getConfigurationFile WRITE setConfigurationFile)
+
+        Q_PROPERTY(QString configurationText READ getConfigurationText WRITE setConfigurationText)
+
         Q_ENUMS(detailsLayoutProperty)
         Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
         enum detailsLayoutProperty
@@ -154,7 +181,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
 
     private slots:
-        void comboBoxRecipeSelected(int);
+        void comboBoxRecipeListChanged(QString);
+
+        void buttonLoadClicked();
 
         void buttonSaveClicked();
 

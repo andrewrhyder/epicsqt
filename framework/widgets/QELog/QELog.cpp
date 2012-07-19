@@ -440,6 +440,9 @@ void QELog::buttonSaveClicked()
     QString line;
     int i;
 
+
+    //TODO: refactor this code to use QFile instead
+
     qFileDialog = new QFileDialog(this, "Save log messages", QString());
     qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
 
