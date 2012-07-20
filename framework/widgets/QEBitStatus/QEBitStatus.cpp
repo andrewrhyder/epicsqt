@@ -82,6 +82,10 @@ void QEBitStatus::setup ()
    // Use progress bar signals
    // --Currently none--
 
+   // Use default context menu.
+   //
+   setupContextMenu (this);
+
    // Set up a connection to recieve variable name property changes
    // The variable name property manager class only delivers an updated
    // variable name after the user has stopped typing.
@@ -249,6 +253,7 @@ void QEBitStatus::requestEnabled (const bool & state)
 
 //==============================================================================
 // Drag drop
+//
 void QEBitStatus::setDrop( QVariant drop )
 {
     setVariableName( drop.toString(), 0 );
@@ -258,6 +263,19 @@ void QEBitStatus::setDrop( QVariant drop )
 QVariant QEBitStatus::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
+}
+
+//==============================================================================
+// Copy (no paste)
+//
+QString QEBitStatus::copyVariable()
+{
+   return getSubstitutedVariableName (0);
+}
+
+QVariant QEBitStatus::copyData()
+{
+   return QVariant( this->getValue () );
 }
 
 //==============================================================================

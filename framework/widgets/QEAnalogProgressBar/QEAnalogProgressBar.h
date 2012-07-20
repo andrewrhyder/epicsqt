@@ -140,13 +140,17 @@ private slots:
 signals:
     void dbValueChanged( const double& out );
 
-    // Drag and Drop
 protected:
+    // Drag and Drop
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDrop( QVariant drop );
     QVariant getDrop();
+
+    // Copy paste
+    QString copyVariable();
+    QVariant copyData();
 
 };
 

@@ -195,7 +195,11 @@ QString QEAnalogProgressBar::getSprintfFormat ()
 
     qca = getQcaItem( 0 );
     if (qca) {
-        result.sprintf( "%%0.%df %s", qca->getPrecision(), qca->getEgu().toAscii().data () );
+        QString egu = qca->getEgu();
+        if (!egu.isEmpty()) {
+           egu.prepend( ' ' );
+        }
+        result.sprintf( "%%0.%df%s", qca->getPrecision(), egu.toAscii().data () );
     } else {
         // Go with generic parent format.
         result = QAnalogProgressBar::getSprintfFormat ();
@@ -242,7 +246,7 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
 
     // Use low saturation when no alarm, otherwise set a medium saturation level.
     //
-    saturation = (alarmInfo.getSeverity() == NO_ALARM) ? 20 : 128;
+    saturation = (alarmInfo.getSeverity() == NO_ALARM) ? 24 : 128;
     setBackgroundColour( getColor( alarmInfo, saturation ) );
 
     /// If in alarm, display as an alarm
@@ -307,6 +311,19 @@ void QEAnalogProgressBar::setDrop( QVariant drop )
 QVariant QEAnalogProgressBar::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
+}
+
+//==============================================================================
+// Copy (no paste)
+//
+QString QEAnalogProgressBar::copyVariable()
+{
+   return getSubstitutedVariableName (0);
+}
+
+QVariant QEAnalogProgressBar::copyData()
+{
+   return QVariant( this->getValue () );
 }
 
 //==============================================================================
