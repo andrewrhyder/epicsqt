@@ -282,7 +282,7 @@ PROPERTY_ACCESS (bool, IsValid, value)
 
 PROPERTY_ACCESS (bool, DrawBorder, value)
 
-PROPERTY_ACCESS (long, Value, value)
+PROPERTY_ACCESS (int, Value, value)
 
 PROPERTY_ACCESS (int, NumberOfBits, LIMIT (value, 1, 32))
 

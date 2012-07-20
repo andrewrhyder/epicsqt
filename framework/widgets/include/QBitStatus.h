@@ -89,7 +89,7 @@ private:
    int  mOnClearMask;
    int  mOffClearMask;
    bool mIsValid;
-   long mValue;
+   int mValue;
    enum Orientations mOrientation;
 
    QPen pen;
@@ -156,10 +156,10 @@ public:
    enum Orientations getOrientation ();
 
 public slots:
-   void setValue (const long value);
+   void setValue (const int value);
 
 public:
-   long getValue ();
+   int getValue ();
 
 };
 
