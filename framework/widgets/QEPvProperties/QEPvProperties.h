@@ -159,6 +159,12 @@ protected:
    void dropEvent (QDropEvent *event)           { qcaDropEvent(event); }
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
 
+   // Copy paste
+   QString copyVariable();
+   QVariant copyData();
+   void paste( QVariant s );
+
+
    // Override QCaDragDrop functions.
    //
    void setDrop (QVariant drop);

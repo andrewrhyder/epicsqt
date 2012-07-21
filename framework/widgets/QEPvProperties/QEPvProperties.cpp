@@ -399,6 +399,9 @@ void QEPvProperties::common_setup ()
    //
    QWidget::setEnabled (true);
 
+   // Use standard context menu
+   setupContextMenu( this );
+
    // Set up a connection to recieve variable name property changes
    // The variable name property manager class only delivers an updated
    // variable name after the user has stopped typing.
@@ -765,11 +768,45 @@ void QEPvProperties::setDrop (QVariant drop)
 //
 QVariant QEPvProperties::getDrop ()
 {
-   // Note: we return the record name, as opposed to the selected PV name.
-   //
-   return QVariant( this->recordBaseName );
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
 }
 
+
+//==============================================================================
+// Copy / Paste
+QString QEPvProperties::copyVariable()
+{
+    // Note: we return the record name, as opposed to the selected PV name.
+    //
+    return recordBaseName;
+}
+
+QVariant QEPvProperties::copyData()
+{
+    QTableWidget *table = ownWidgets.table;
+   for( int i = 0; i < table->rowCount(); i++ )
+    {
+        QTableWidgetItem *item = table->item( i, 0 );
+        qDebug() << item->text();
+
+    }
+
+
+    //!! built a list of field/values
+    QString fieldValues;
+    return QVariant( fieldValues );
+}
+
+void QEPvProperties::paste( QVariant v )
+{
+    if( allowDrop )
+    {
+        setDrop( v );
+    }
+}
 
 //==============================================================================
 // Property access functions

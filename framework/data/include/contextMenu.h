@@ -25,7 +25,7 @@ public:
 
 private:
     void triggered( contextMenuOptions option );
-    contextMenuObject* object;
+    static contextMenuObject* object;
     void doCopyVariable();
     void doCopyData();
     void doPaste();

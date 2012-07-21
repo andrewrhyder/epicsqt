@@ -3,6 +3,8 @@
 #include <QApplication>
 #include <QDebug>
 
+contextMenuObject* contextMenu::object = NULL;
+
 // Create a context menu
 contextMenuObject::contextMenuObject( QWidget *parent, contextMenu* menuIn ) : QMenu(parent)
 {
@@ -52,15 +54,18 @@ void contextMenuObject::addContextMenuToWidget( QWidget* w )
 
 void contextMenuObject::manageChecked( bool draggingVariable )
 {
-        dragVarAction->setChecked( draggingVariable );
-        dragDataAction->setChecked( !draggingVariable );
+    dragVarAction->setChecked( draggingVariable );
+    dragDataAction->setChecked( !draggingVariable );
 }
 
 //======================================================
 
 contextMenu::contextMenu( QWidget *parent )
 {
-    object = new contextMenuObject( parent, this );
+    if( !object )
+    {
+        object = new contextMenuObject( parent, this );
+    }
     draggingVariable = true;
 }
 

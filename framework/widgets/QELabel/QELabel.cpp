@@ -65,6 +65,7 @@ void QELabel::setup() {
     QWidget::setEnabled( false );  // Reflects initial disconnected state
     updateOption = UPDATE_TEXT;
 
+    // Use standard context menu
     setupContextMenu( this );
 
 //    defaultStyleSheet = styleSheet();
