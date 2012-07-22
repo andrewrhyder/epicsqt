@@ -34,6 +34,7 @@
 #include <QPushButton>
 #include <QMenu>
 #include <QToolButton>
+#include <QStringList>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
@@ -125,7 +126,7 @@ public:
    // Constructor
    //
    PrivateData (QEStripChart *chartIn);
-   ~PrivateData();
+   ~PrivateData ();
    QEStripChartItem * getItem (unsigned int slot);
    QwtPlotCurve *allocateCurve ();
    void calcDisplayMinMax ();
@@ -174,7 +175,7 @@ private:
 
 //------------------------------------------------------------------------------
 //
-QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn)
+QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartIn)
 {
    static const int seconds_per_minute = 60;
    static const int seconds_per_hour = 60 * seconds_per_minute;
@@ -371,6 +372,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn)
 QEStripChart::PrivateData::~PrivateData ()
 {
    this->releaseCurves ();
+
    // all the created QWidget are (indirectly) parented by the PrivateData,
    // they are automatically deleted.
 }
@@ -610,6 +612,10 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QCaWidget (this
    // Enable drag drop onto this widget.
    //
    this->evaluateAllowDrop ();
+
+   // Use default context menu.
+   //
+   this->setupContextMenu (this);
 }
 
 //------------------------------------------------------------------------------
@@ -694,6 +700,23 @@ void QEStripChart::addPvName (QString pvName)
    // Determine if we are now full.
    //
    this->evaluateAllowDrop ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::addPvNameSet (QString pvNameSet)
+{
+   QStringList pvNameList;
+   int j;
+
+   // Split input string using space as delimiter.
+   // Could extend to use regular expression and split on any white space character,
+   // and or comma, and or semi colon.
+   //
+   pvNameList = pvNameSet.split (' ', QString::SkipEmptyParts);
+   for (j = 0; j < pvNameList.count (); j++) {
+      this->addPvName (pvNameList.value (j));
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -840,7 +863,6 @@ void QEStripChart::readArchiveClicked (bool checked)
    }
 }
 
-
 //------------------------------------------------------------------------------
 //
 void QEStripChart::plotData ()
@@ -943,9 +965,63 @@ void QEStripChart::setYMaximum (double yMaximumIn)
 //
 void QEStripChart::setDrop (QVariant drop)
 {
-   // Use dropped text to add a PV tp the chart.
+   // Use dropped text to add a PV(s) to the chart.
    //
-   this->addPvName (drop.toString());
+   this->addPvNameSet (drop.toString());
+}
+
+//----------------------------------------------------------------------------
+//
+QVariant QEStripChart::getDrop ()
+{
+   if (this->isDraggingVariable ()) {
+      return QVariant (this->copyVariable ());
+   } else {
+      return this->copyData ();
+   }
+}
+
+//----------------------------------------------------------------------------
+// Copy and paste
+//
+QString QEStripChart::copyVariable ()
+{
+   QString result;
+   unsigned int slot;
+
+   // Copy string delimited set of PV names.
+   //
+   result = "";
+   for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
+      QEStripChartItem * item = this->privateData->getItem (slot);
+
+      if (item->isInUse ()) {
+         if (!result.isEmpty()) {
+            result = result.append (" ");
+         };
+         result = result.append (item->getPvName());
+      }
+   }
+   return result;
+}
+
+//----------------------------------------------------------------------------
+//
+QVariant QEStripChart::copyData ()
+{
+   // Place holder for now.
+   // How can we sensibley interpret this? Image?
+   //
+   return QVariant ("");
+}
+
+//----------------------------------------------------------------------------
+//
+void QEStripChart::paste (QVariant s)
+{
+   // Use pasted text to add PV(s) to the chart.
+   //
+   this->addPvNameSet (s.toString());
 }
 
 //----------------------------------------------------------------------------

@@ -51,11 +51,9 @@
 class QCAPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QCaWidget {
    Q_OBJECT
 
-
    Q_PROPERTY (int     duration   READ getDuration               WRITE setDuration)
    Q_PROPERTY (double  yMinimum   READ getYMinimum               WRITE setYMinimum)
    Q_PROPERTY (double  yMaximum   READ getYMaximum               WRITE setYMaximum)
-
 
    // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
    // A property name ending with 'Name' results in some sort of string a variable being displayed,
@@ -97,7 +95,7 @@ public:
 
    /// Constructors
    //
-   QEStripChart (QWidget * parent = 0);
+   explicit QEStripChart (QWidget * parent = 0);
    ~QEStripChart ();
 
    QSize sizeHint () const;
@@ -134,13 +132,16 @@ protected:
    //
    void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
    void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
-
-   // Don't drag from this widget.
-   // void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
-
-   // Override QCaDragDrop functions.
-   //
+   void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
    void setDrop (QVariant drop);
+   QVariant getDrop ();
+
+   // Copy and paste
+   //
+   QString copyVariable ();
+   QVariant copyData ();
+   void paste (QVariant s);
+
 
    // override pure virtual functions
    //
@@ -174,7 +175,11 @@ private:
    double yMinimum;
    double yMaximum;
 
-   void addPvName (QString pvName);  // make public ??
+   void addPvName (QString pvName);
+
+   // Handles space separated set of names
+   //
+   void addPvNameSet (QString pvNameSet);  // make public ??
 
    // Used by QEStripChartItem
    //
