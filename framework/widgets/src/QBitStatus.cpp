@@ -39,6 +39,7 @@
   widgets of the same name.
  */
 
+#include <math.h>
 #include <QDebug>
 #include <QtGui>
 
@@ -61,11 +62,11 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    mOffColour     = QColor (255, 128, 128);   // red
    mOnColour      = QColor (128, 255, 128);   // green
    mInvalidColour = QColor (255, 182, 128);   // orange
-   mClearColour   = QColor (230, 230, 230);   // light gray
+   mClearColour   = QColor (192, 192, 192, 0);   // gray, but clear
 
    mDrawBorder = true;
    mNumberOfBits = 8;      // 1 .. 32
-   mGap = 0;
+   mGap = 0;               // -1 .. 40
    mShift = 0;             // 0 .. 32
    mIsValid = true;
    mValue = 0;
@@ -74,13 +75,10 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    mOffClearMask = 0x00000000;
    mReversePolarityMask = 0x00000000;
 
-   // move to paintEvent ??
+   // Do this only once, not in paintEvent as it causes another paint event.
    //
    setAutoFillBackground (false);
    setBackgroundRole (QPalette::NoRole);
-   pen.setWidth (1);
-   brush.setStyle (Qt::SolidPattern);
-   brush.setColor (mBorderColour);
 }
 
 
@@ -91,156 +89,205 @@ QSize QBitStatus::sizeHint () const {
    return QSize (48, 16);
 }
 
+//------------------------------------------------------------------------------
+//
+QColor QBitStatus::getBorderPaintColour ()
+{
+   return this->isEnabled () ? this->mBorderColour : QColor (160, 160, 160);
+}
+
+//------------------------------------------------------------------------------
+//
+QColor QBitStatus::getOffPaintColour ()
+{
+   return this->isEnabled () ? this->mOffColour : QColor (220, 220, 220);
+}
+
+//------------------------------------------------------------------------------
+//
+QColor QBitStatus::getOnPaintColour ()
+{
+   return this->isEnabled () ? this->mOnColour : QColor (240, 240, 240);
+}
+
+//------------------------------------------------------------------------------
+//
+QColor QBitStatus::getInvalidPaintColour ()
+{
+   return this->isEnabled () ? this->mInvalidColour : QColor (200, 200, 200);
+}
+
+
+//------------------------------------------------------------------------------
+// Note: drawRect adds pen width on right and bottom, from the help info:
+// "A stroked rectangle has a size of rectangle.size() plus the pen width."
+//
+// This function un-does that "helpful feature".
+// The drawn rectangle IS bounded by the specified rect.
+//
+void QBitStatus::drawRect (QPainter & painter, const QRect & rect)
+{
+   // Round down top-left offset, round up botton-right offset.
+   //
+   const int pen_width =  painter.pen().width ();
+   const int tl = pen_width / 2;
+   const int br = pen_width - tl;
+
+   QRect r;
+
+   r.setTop    (rect.top ()    + tl);
+   r.setLeft   (rect.left ()   + tl);
+   r.setRight  (rect.right ()  - br);
+   r.setBottom (rect.bottom () - br);
+
+   painter.drawRect (r);
+}
 
 /*! ---------------------------------------------------------------------------
  *  Draw the bit status.
  */
-void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
-
+void QBitStatus::paintEvent (QPaintEvent *)
+{
    QPainter painter (this);
-   QRect draw_area;
+   QPen pen;
+   QBrush brush;
    QRect bit_area;
    int j;
-   int draw_width;
-   int draw_height;
-   int useGap;
-   double gap_fraction;
-   double bit_fraction;
-   double fraction;
+   int bottom;
    int left;
    int right;
+   double bitSpacing;
+   int useGap;
    int work;
    int onApplies;
    int offApplies;
+
+   pen.setWidth (1);
+   brush.setStyle (Qt::SolidPattern);
 
    // Draw everything with antialiasing off.
    //
    painter.setRenderHint (QPainter::Antialiasing, false);
 
-   // Set draw width and height and also apply translation and rotation
+   // Set right and bottom; and also apply translation and rotation
    // dependent upon widget orientation.
    //
-   //
-   draw_area = geometry ();
-
    switch (mOrientation) {
+
       case LSB_On_Right:
-         draw_width = draw_area.width ()   - 2;
-         draw_height = draw_area.height () - 2;
+         // Note: Pixels are  in range (0 .. size - 1).
+         //
+         right = this->width () - 1;
+         bottom = this->height () - 1;
          painter.translate (0.0, 0.0);
          painter.rotate (0.0);
          break;
 
-
       case LSB_On_Bottom:
-         draw_width = draw_area.height () - 2;
-         draw_height = draw_area.width () - 2;
-         painter.translate (draw_area.width () - 1, 0.0);
+         right = this->height () - 1;
+         bottom = this->width () - 1;
+         painter.translate (this->width () - 1, 0.0);
          painter.rotate (90.0);    // clock wise (degrees)
          break;
 
-
       case LSB_On_Left:
-         draw_width  =  draw_area.width ()  - 2;
-         draw_height =  draw_area.height () - 2;
-         painter.translate (draw_area.width () - 1, draw_area.height () - 1);
+         right = this->width () - 1;
+         bottom = this->height () - 1;
+         painter.translate (this->width () - 1, this->height () - 1);
          painter.rotate (180.0);    // clock wise (degrees)
          break;
 
-
       case LSB_On_Top:
-         draw_width  = draw_area.height () - 2;
-         draw_height = draw_area.width ()  - 2;
-         painter.translate (0.0, draw_area.height () - 1);
+         right = this->height () - 1;
+         bottom = this->width () - 1;
+         painter.translate (0.0, this->height () - 1);
          painter.rotate (270.0);    // clock wise (degrees)
          break;
-
 
       default:
          // report an error??
          //
-         draw_width  = draw_area.width ()  - 2;
-         draw_height = draw_area.height () - 2;
+         right = this->width () - 1;
+         bottom = this->height () - 1;
          break;
    }
 
-   painter.scale (1.0, 1.0);
+   left = 0;
 
    // We do the basic draw from right to left, i.e. LSB_On_Right.
    // The previously set translation and rotation looks after the rest.
    //
    bit_area.setTop (0);
-   bit_area.setBottom (draw_height);
+   bit_area.setBottom (bottom);
 
-   // Calulate fractional widths of the gaps and the bits.
-   // Re-adjust the gaps if the fractonal bits are too small.
-   // We draw 0 .. draw_width, and do fractions 0 .. draw_width.
-   //
-   // Just keep in mind:
-   //    (number - 1)*gap_fraction + number*bit_fraction == 1
+   // Copy the specified gap
    //
    useGap = this->mGap;
-   while ((this->mNumberOfBits - 1) * useGap > (draw_width / 2)) {
+
+   // Don't allow gap to overwhelm the actual drawn bits.
+   //
+   while ((useGap > 0) && ((this->mNumberOfBits * useGap) > (right / 2))) {
        useGap--;
    }
 
-   gap_fraction = double (useGap) / double (draw_width);
-   bit_fraction = (1.0 - double (this->mNumberOfBits - 1) * gap_fraction) /
-                  double (this->mNumberOfBits);
+   //
+   if (this->mDrawBorder) {
+      useGap -= 1;  // subtract pen width, i.e. allow boaders to overlap.
+   }
+
+   // Calculate the (floating) pixel size per bit, including the gap.
+   //
+   bitSpacing = double (right - left + 1 + useGap)/this->mNumberOfBits;
 
    work = (mValue >> mShift) ^ mReversePolarityMask;
    onApplies  = (-1) ^ mOnClearMask;
    offApplies = (-1) ^ mOffClearMask;
 
-   right = draw_width;
    for (j = mNumberOfBits - 1; j >= 0;  j--) {
+      QColor bitColour;
 
-      fraction = double (j) * (bit_fraction + gap_fraction);
-
-      // Convert fractions back to pixels.
+      // Calculate and set left and right of this bit.
       //
-      left  = int (fraction * draw_width);
-
-      bit_area.setLeft (left);
-      bit_area.setRight (right);
-
-      // Set up the pen and brush (color, thickness, etc.)
-      //
-      if (mDrawBorder == true) {
-         pen.setColor (mBorderColour);
-         pen.setWidth (1);
-         painter.setPen (pen);
-      } else {
-         painter.setPen (Qt::NoPen);
-      }
+      bit_area.setLeft  (int (lround (left + bitSpacing*(j + 0))));
+      bit_area.setRight (int (lround (left + bitSpacing*(j + 1))) - (useGap + 1));
 
       if (mIsValid) {
 
          if ((work & 1) == 1) {
             // Bit is on
             if ((onApplies & 1) == 1) {
-               brush.setColor (mOnColour);
+               bitColour = this->getOnPaintColour ();
             }  else {
-               brush.setColor (mClearColour);
+               bitColour = this->mClearColour;
             }
          } else {
             // Bit is off
             if ((offApplies & 1) == 1) {
-               brush.setColor (mOffColour);
+               bitColour = this->getOffPaintColour ();
             }  else {
-               brush.setColor (mClearColour);
+               bitColour = this->mClearColour;
             }
          }
 
       } else {
-         brush.setColor (mInvalidColour);
+         bitColour = this->getInvalidPaintColour ();
       }
 
+      brush.setColor (bitColour);
       painter.setBrush (brush);
+
+      // Set up the pen and brush (color, thickness, etc.)
+      //
+      if (this->mDrawBorder) {
+         pen.setColor (this->getBorderPaintColour ());
+      } else {
+         pen.setColor (bitColour);
+      }
+      painter.setPen (pen);
 
       // Do the actual draw.
       //
-      painter.drawRect (bit_area);
+      this->drawRect (painter, bit_area);
 
       // Pre-pare for next iteration through the loop.
       // We don't worry about checking for last time through the loop.
@@ -248,7 +295,6 @@ void QBitStatus::paintEvent (QPaintEvent * /* event - make warning go away */) {
       work = work >> 1;
       onApplies = onApplies >> 1;
       offApplies = offApplies >> 1;
-      right = left - useGap;
    }
 }
 

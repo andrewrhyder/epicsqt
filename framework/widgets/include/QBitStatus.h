@@ -28,6 +28,8 @@
 #define QBITSTATUS_H
 
 #include <QString>
+#include <QRect>
+#include <QPainter>
 #include <QBrush>
 #include <QPen>
 #include <QWidget>
@@ -46,8 +48,13 @@ public:
    //
    Q_PROPERTY (int     value               READ getValue                WRITE setValue)
    Q_PROPERTY (int     numberOfBits        READ getNumberOfBits         WRITE setNumberOfBits)
-   Q_PROPERTY (int     gap                 READ getGap                  WRITE setGap)
    Q_PROPERTY (int     shift               READ getShift                WRITE setShift)
+
+   // If draw borders are off, a gap of zero means right and left pixel positions of
+   // consecutive items are adjactent pixels. If draw borders are on, a gap of zero means
+   // the borders of consecutive items use the same pixel position.
+   //
+   Q_PROPERTY (int     gap                 READ getGap                  WRITE setGap)
 
    /*! The revserve polarity mask applies to value AFTER the shift.
     */
@@ -92,11 +99,19 @@ private:
    int mValue;
    enum Orientations mOrientation;
 
-   QPen pen;
-   QBrush brush;
+   // Note: the getXxxxColour functions (line 125-ish) gets the Xxxx property colour.
+   // The getXxxxPaintColour functions return actual colour to for drawing the widget.
+   //
+   QColor getBorderPaintColour ();
+   QColor getOffPaintColour ();
+   QColor getOnPaintColour ();
+   QColor getInvalidPaintColour ();
+
+   /// Like painter drawRect, but bounded by rect, i.e.sensible.
+   //
+   void drawRect  (QPainter & painter, const QRect & rect);
 
    void paintEvent (QPaintEvent *event);
-
    static QString intToMask (int n);
    static int maskToInt (const QString mask);
 
@@ -105,7 +120,7 @@ protected:
 public:
    // Constructor
    //
-   QBitStatus (QWidget *parent = 0);
+   explicit QBitStatus (QWidget *parent = 0);
    virtual ~QBitStatus () {}
 
    virtual QSize sizeHint () const;

@@ -28,6 +28,8 @@
   Refer to QCaWidget.cpp for details
  */
 
+#include <alarm.h>
+
 #include <QEBitStatus.h>
 #include <QCaObject.h>
 
@@ -57,6 +59,8 @@ QEBitStatus::QEBitStatus (const QString & variableNameIn,
 */
 void QEBitStatus::setup ()
 {
+   QCaAlarmInfo invalid (NO_ALARM, INVALID_ALARM);
+
    // Set up data
    //
    // This control used a single data source
@@ -74,8 +78,7 @@ void QEBitStatus::setup ()
    lastSeverity = QCaAlarmInfo::getInvalidSeverity ();
    isConnected = false;
 
-   setInvalidColour (QColor ( 255, 255, 255));
-   setIsValid (isConnected);
+   setInvalidColour (this->getColor( invalid, 128));
 
    QWidget::setEnabled (false); // Reflects initial disconnected state
 
@@ -170,6 +173,7 @@ void QEBitStatus::updateToolTip (const QString & tip)
 void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
 {
    // If connected, enable the widget if the QCa enabled property is true
+   //
    if (connectionInfo.isChannelConnected ()) {
       isConnected = true;
       updateToolTipConnection (isConnected);
@@ -185,7 +189,6 @@ void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
 
       QWidget::setEnabled (false);
    }
-   setIsValid (isConnected);
 }
 
 
@@ -195,12 +198,16 @@ void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
     This is the slot used to recieve data updates from a QCaObject based class.
  */
 void QEBitStatus::setBitStatusValue (const long &value,
-                                      QCaAlarmInfo & alarmInfo,
-                                      QCaDateTime &, const unsigned int &)
+                                     QCaAlarmInfo & alarmInfo,
+                                     QCaDateTime &, const unsigned int &)
 {
    // Update the Bit Status
    //
-   setValue (value);
+   setValue (int (value));
+
+   // Set validity status.
+   //
+   this->setIsValid (alarmInfo.getSeverity () != INVALID_ALARM);
 
    // If in alarm, display as an alarm
    //
