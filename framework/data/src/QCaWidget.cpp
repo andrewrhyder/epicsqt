@@ -82,7 +82,7 @@
 /*!
     Constructor
 */
-QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( owner ), contextMenu( owner ) {
+QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( owner ) {
 
     /// Initially flag no variables array is defined.
     /// This will be corrected when the first variable is declared

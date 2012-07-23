@@ -3,14 +3,43 @@
 
 #include <QMenu>
 
-class contextMenuObject;
+class contextMenu;
+
+class contextMenuObject : public QMenu
+{
+    Q_OBJECT
+public:
+
+    contextMenuObject();
+
+    void addContextMenuToWidget( QWidget* w );
+
+    void manageChecked( bool draggingVariable );
+
+    void setMenu( contextMenu* menuIn );
+    bool isDraggingVariable();
+
+signals:
+
+public slots:
+    void contextMenuTriggered( QAction* selectedItem );
+    void showContextMenu( const QPoint& pos );
+    void setChecked();
+
+private:
+    static bool draggingVariable;
+    QAction* dragVarAction;
+    QAction* dragDataAction;
+    QWidget* owner;
+    contextMenu* menu;
+};
 
 class contextMenu
 {
 public:
     friend class contextMenuObject;
 
-    explicit contextMenu( QWidget *parent = 0 );
+    explicit contextMenu();
     virtual ~contextMenu();
 
     enum contextMenuOptions{ CM_NONE, CM_COPY_VARIABLE, CM_COPY_DATA, CM_PASTE, CM_DRAG_VARIABLE, CM_DRAG_DATA, CM_SPECIFIC_WIDGETS_START_HERE };
@@ -25,35 +54,11 @@ public:
 
 private:
     void triggered( contextMenuOptions option );
-    static contextMenuObject* object;
+    contextMenuObject object;
     void doCopyVariable();
     void doCopyData();
     void doPaste();
-    bool draggingVariable;
 };
 
-class contextMenuObject : public QMenu
-{
-    Q_OBJECT
-public:
-
-    contextMenuObject( QWidget *parent, contextMenu* menuIn );
-
-    void addContextMenuToWidget( QWidget* w );
-
-    void manageChecked( bool draggingVariable );
-
-signals:
-
-public slots:
-    void contextMenuTriggered( QAction* selectedItem );
-    void showContextMenu( const QPoint& pos );
-
-private:
-    QAction* dragVarAction;
-    QAction* dragDataAction;
-    QWidget* owner;
-    contextMenu* menu;
-};
 
 #endif // CONTEXTMENU_H

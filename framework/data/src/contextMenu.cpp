@@ -3,30 +3,36 @@
 #include <QApplication>
 #include <QDebug>
 
-contextMenuObject* contextMenu::object = NULL;
+bool contextMenuObject::draggingVariable = true;
 
 // Create a context menu
-contextMenuObject::contextMenuObject( QWidget *parent, contextMenu* menuIn ) : QMenu(parent)
+void contextMenuObject::setMenu( contextMenu* menuIn )
 {
     menu = menuIn;
+}
+
+contextMenuObject::contextMenuObject()
+{
+    menu = NULL;
     owner = NULL;
+
+    //!!! Should all menus be able to share the same actions???
 
     QAction* a;
     a = new QAction( "Copy variable name", this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_VARIABLE );  addAction( a );
     a = new QAction( "Copy data",          this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_DATA );      addAction( a );
     a = new QAction( "Paste",              this ); a->setCheckable( false ); a->setData( contextMenu::CM_PASTE );          addAction( a );
     addSeparator();
-    a = new QAction( "Drag variable name", this ); a->setCheckable( true  ); a->setData( contextMenu::CM_DRAG_VARIABLE  ); addAction( a );
+    a = new QAction( "Drag variable name", this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_VARIABLE );  addAction( a );
     dragVarAction = a;
-    a = new QAction( "Drag data",          this ); a->setCheckable( true  ); a->setData( contextMenu::CM_DRAG_DATA  );     addAction( a );
+    a = new QAction( "Drag data",          this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_DATA );      addAction( a );
     dragDataAction = a;
-
-    dragVarAction->setChecked( true );
-    dragDataAction->setChecked( false );
+    manageChecked( true );
 
     setTitle( "Standard" );
 
     QObject::connect( this, SIGNAL( triggered ( QAction* ) ), this, SLOT( contextMenuTriggered( QAction* )) );
+    QObject::connect( this, SIGNAL( aboutToShow () ), this, SLOT( setChecked( )) );
 
 }
 
@@ -52,26 +58,32 @@ void contextMenuObject::addContextMenuToWidget( QWidget* w )
     QObject::connect( w, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showContextMenu( const QPoint& )));
 }
 
-void contextMenuObject::manageChecked( bool draggingVariable )
+void contextMenuObject::manageChecked( bool draggingVariableIn )
 {
+    draggingVariable = draggingVariableIn;
     dragVarAction->setChecked( draggingVariable );
     dragDataAction->setChecked( !draggingVariable );
 }
 
+void contextMenuObject::setChecked()
+{
+    manageChecked( draggingVariable );
+}
+
+bool contextMenuObject::isDraggingVariable()
+{
+    return draggingVariable;
+}
+
 //======================================================
 
-contextMenu::contextMenu( QWidget *parent )
+contextMenu::contextMenu()
 {
-    if( !object )
-    {
-        object = new contextMenuObject( parent, this );
-    }
-    draggingVariable = true;
+    object.setMenu( this );
 }
 
 contextMenu::~contextMenu()
 {
-    delete object;
 }
 
 void contextMenu::triggered( contextMenuOptions option )
@@ -95,13 +107,11 @@ void contextMenu::triggered( contextMenuOptions option )
             break;
 
         case contextMenu::CM_DRAG_VARIABLE:
-            draggingVariable = true;
-            object->manageChecked( draggingVariable );
+            object.manageChecked( true );
             break;
 
         case contextMenu::CM_DRAG_DATA:
-            draggingVariable = false;
-            object->manageChecked( draggingVariable );
+            object.manageChecked( false );
             break;
 
     }
@@ -158,15 +168,15 @@ void contextMenu::doPaste()
 
 bool contextMenu::isDraggingVariable()
 {
-    return draggingVariable;
+    return object.isDraggingVariable();
 }
 
 void contextMenu::addContextMenuToWidget( QWidget* w )
 {
-    object->addContextMenuToWidget( w );
+    object.addContextMenuToWidget( w );
 }
 
 QMenu* contextMenu::getContextMenu()
 {
-    return (QMenu*)object;
+    return &object;
 }
