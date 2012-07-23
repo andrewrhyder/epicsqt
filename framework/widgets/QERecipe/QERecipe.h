@@ -54,12 +54,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
     protected:
         QLabel *qLabelRecipe;
         QComboBox *qComboBoxRecipeList;
-        QPushButton *qPushButtonLoad;
+        QPushButton *qPushButtonNew;
         QPushButton *qPushButtonSave;
         QPushButton *qPushButtonDelete;
         QPushButton *qPushButtonApply;
         QEConfiguredLayout *qEConfiguredLayoutRecipeFields;
-        QDomDocument currentDocument;
+        QDomDocument document;
         QString recipeFile;
         int detailsLayout;
         int currentUserType;
@@ -72,6 +72,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
         void setShowRecipeList(bool pValue);
         bool getShowRecipeList();
+
+        void setShowNew(bool pValue);
+        bool getShowNew();
 
         void setShowSave(bool pValue);
         bool getShowSave();
@@ -108,6 +111,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
 
         Q_PROPERTY(bool showRecipeList READ getShowRecipeList WRITE setShowRecipeList)
+
+        Q_PROPERTY(bool showNew READ getShowNew WRITE setShowNew)
 
         Q_PROPERTY(bool showSave READ getShowSave WRITE setShowSave)
 
@@ -181,9 +186,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
 
     private slots:
-        void comboBoxRecipeListChanged(QString);
+        void comboBoxRecipeSelected(int);
 
-        void buttonLoadClicked();
+//        void comboBoxRecipeListChanged(QString);
+
+        void buttonNewClicked();
 
         void buttonSaveClicked();
 
@@ -199,5 +206,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
 
 #endif /// QERECIPE_H
-
 

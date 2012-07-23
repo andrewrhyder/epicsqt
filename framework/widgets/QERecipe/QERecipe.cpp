@@ -42,42 +42,39 @@ QERecipe::QERecipe(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 
     qLabelRecipe = new QLabel(this);
     qComboBoxRecipeList = new QComboBox(this);
-    qPushButtonLoad = new QPushButton(this);
+    qPushButtonNew = new QPushButton(this);
     qPushButtonSave = new QPushButton(this);
     qPushButtonDelete = new QPushButton(this);
     qPushButtonApply = new QPushButton(this);
     qEConfiguredLayoutRecipeFields = new QEConfiguredLayout(this);
 
-
     qLabelRecipe->setText("Recipe");
 
     qComboBoxRecipeList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     qComboBoxRecipeList->setToolTip("Select recipe");
-    qComboBoxRecipeList->setEditable(true);
-    //QObject::connect(qComboBoxRecipeList, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxRecipeSelected(int)));
-    QObject::connect(qComboBoxRecipeList, SIGNAL(editTextChanged(QString)), this, SLOT(comboBoxRecipeListChanged(QString)));
+    QObject::connect(qComboBoxRecipeList, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxRecipeSelected(int)));
+//    QObject::connect(qComboBoxRecipeList, SIGNAL(editTextChanged(QString)), this, SLOT(comboBoxRecipeListChanged(QString)));
 
-    qPushButtonLoad->setText("Load");
-    qPushButtonLoad->setToolTip("Load selected recipe");
-    QObject::connect(qPushButtonLoad, SIGNAL(clicked()), this, SLOT(buttonLoadClicked()));
+    qPushButtonNew->setText("New");
+    qPushButtonNew->setToolTip("Create new recipe");
+    QObject::connect(qPushButtonNew, SIGNAL(clicked()), this, SLOT(buttonNewClicked()));
 
     qPushButtonSave->setText("Save");
     qPushButtonSave->setToolTip("Save current values in the selected recipe");
+    qPushButtonSave->setEnabled(false);
     QObject::connect(qPushButtonSave, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
 
     qPushButtonDelete->setText("Delete");
     qPushButtonDelete->setToolTip("Delete selected recipe");
+    qPushButtonDelete->setEnabled(false);
     QObject::connect(qPushButtonDelete, SIGNAL(clicked()), this, SLOT(buttonDeleteClicked()));
 
     qPushButtonApply->setText("Apply");
     qPushButtonApply->setToolTip("Apply selected recipe");
+    qPushButtonApply->setEnabled(false);
     QObject::connect(qPushButtonApply, SIGNAL(clicked()), this, SLOT(buttonApplyClicked()));
 
     qEConfiguredLayoutRecipeFields->setShowItemList(false);
-
-
-//    setItemDescription("");
-    qComboBoxRecipeList->setEditText("");
 
     setRecipeFile("");
     setConfigurationFile("");
@@ -112,12 +109,33 @@ bool QERecipe::getShowRecipeList()
 
 
 
+void QERecipe::setShowNew(bool pValue)
+{
+
+    qPushButtonNew->setVisible(pValue);
+
+}
+
+
+
+bool QERecipe::getShowNew()
+{
+
+    return qPushButtonNew->isVisible();
+
+}
+
+
+
+
+
 void QERecipe::setShowSave(bool pValue)
 {
 
     qPushButtonSave->setVisible(pValue);
 
 }
+
 
 
 
@@ -255,14 +273,73 @@ QString QERecipe::getConfigurationText()
 void QERecipe::setRecipeFile(QString pValue)
 {
 
-    recipeFile = pValue;
-    qComboBoxRecipeList->clear();
-    currentDocument.clear();
+    QDomElement rootElement;
+    QDomElement recipeElement;
+    QDomNode rootNode;
+    QFile *file;
+    QString data;
+    QString filename;
+    bool flag;
+    int count;
 
-    if (currentDocument.setContent(recipeFile))
+
+    recipeFile = pValue;
+    document.clear();
+    qComboBoxRecipeList->clear();
+
+    if (recipeFile.isEmpty())
     {
-//        rootElement = document.documentElement();
-        // walk through the document and fill-up the combobox with the name of the recipes.
+        //TODO: the EPICS Qt core should provide a method which returns the path where resources should be stored
+        filename = QApplication::applicationFilePath() + QDir::separator() + "QERecipe.xml";
+    }
+    else
+    {
+        filename = recipeFile;
+    }
+
+    file = new QFile(filename);
+    if (file->open(QFile::ReadOnly | QFile::Text))
+    {
+        data = file->readAll();
+        file->close();
+        flag = document.setContent(data);
+    }
+    else
+    {
+        flag = false;
+    }
+
+    if (flag)
+    {
+        rootElement = document.documentElement();
+        if (rootElement.tagName() == "epicsqt")
+        {
+            count = 0;
+            rootNode = rootElement.firstChild();
+            while (rootNode.isNull() == false)
+            {
+                recipeElement = rootNode.toElement();
+                if (recipeElement.tagName() == "recipe")
+                {
+                    data = recipeElement.attribute("name");
+                    if (data.isEmpty())
+                    {
+                        qComboBoxRecipeList->addItem("Recipe #" + QString::number(count));
+                        count++;
+                    }
+                    else
+                    {
+                        qComboBoxRecipeList->addItem(data);
+                    }
+                }
+                rootNode = rootNode.nextSibling();
+            }
+        }
+    }
+    else
+    {
+        rootNode = document.createElement("epicsqt");
+        document.appendChild(rootNode);
     }
 
 }
@@ -295,7 +372,7 @@ void QERecipe::setDetailsLayout(int pValue)
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qLabelRecipe);
             qLayoutChild->addWidget(qComboBoxRecipeList);
-            qLayoutChild->addWidget(qPushButtonLoad);
+            qLayoutChild->addWidget(qPushButtonNew);
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonApply);
@@ -310,7 +387,7 @@ void QERecipe::setDetailsLayout(int pValue)
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qLabelRecipe);
             qLayoutChild->addWidget(qComboBoxRecipeList);
-            qLayoutChild->addWidget(qPushButtonLoad);
+            qLayoutChild->addWidget(qPushButtonNew);
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonApply);
@@ -323,7 +400,7 @@ void QERecipe::setDetailsLayout(int pValue)
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qLabelRecipe);
             qLayoutChild->addWidget(qComboBoxRecipeList);
-            qLayoutChild->addWidget(qPushButtonLoad);
+            qLayoutChild->addWidget(qPushButtonNew);
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonApply);
@@ -337,7 +414,7 @@ void QERecipe::setDetailsLayout(int pValue)
             qLayoutChild = new QVBoxLayout();
             qLayoutChild->addWidget(qLabelRecipe);
             qLayoutChild->addWidget(qComboBoxRecipeList);
-            qLayoutChild->addWidget(qPushButtonLoad);
+            qLayoutChild->addWidget(qPushButtonNew);
             qLayoutChild->addWidget(qPushButtonSave);
             qLayoutChild->addWidget(qPushButtonDelete);
             qLayoutChild->addWidget(qPushButtonApply);
@@ -426,29 +503,70 @@ int QERecipe::getCurrentUserType()
 
 
 
-//void QERecipe::comboBoxRecipeSelected(int)
-//{
-
-
-//}
-
-
-
-
-void QERecipe::comboBoxRecipeListChanged(QString pValue)
+void QERecipe::comboBoxRecipeSelected(int)
 {
 
-    qPushButtonLoad->setEnabled(pValue.isEmpty() == false);
-    qPushButtonSave->setEnabled(pValue.isEmpty() == false);
-    qPushButtonDelete->setEnabled(pValue.isEmpty() == false);
+    qPushButtonSave->setEnabled(true);
+    qPushButtonDelete->setEnabled(true);
+    qPushButtonApply->setEnabled(true);
 
 }
 
 
 
 
-void QERecipe::buttonLoadClicked()
+//void QERecipe::comboBoxRecipeListChanged(QString pValue)
+//{
+
+//    qPushButtonSave->setEnabled(pValue.isEmpty() == false);
+//    qPushButtonDelete->setEnabled(pValue.isEmpty() == false);
+
+//}
+
+
+
+
+
+void QERecipe::buttonNewClicked()
 {
+
+    QDomElement rootElement;
+    QDomElement recipeElement;
+    QString filename;
+
+
+    rootElement = document.documentElement();
+    recipeElement = document.createElement("recipe");
+    recipeElement.attribute("name", "myName");
+    recipeElement.attribute("value", "myValue");
+    rootElement.appendChild(recipeElement);
+
+
+    if (recipeFile.isEmpty())
+    {
+        //TODO: the EPICS Qt core should provide a method which returns the path where resources should be stored
+        filename = QApplication::applicationFilePath() + QDir::separator() + "QERecipe.xml";
+    }
+    else
+    {
+        filename = recipeFile;
+    }
+
+
+    QFile outFile(filename);
+
+    if(outFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream stream(&outFile);
+        stream << document.toString();
+        outFile.close();
+//        QMessageBox::information(this, "Info", "The new recipe '" + qComboBoxRecipeList->lineEdit()->text() + "' was successfully created!");
+    }
+    else
+    {
+//        QMessageBox::critical(this, "Error", "Unable to create new recipe '" + qComboBoxRecipeList->lineEdit()->text() + "' in file '" + filename + "'!");
+    }
+
 
 }
 
@@ -473,6 +591,7 @@ void QERecipe::buttonSaveClicked()
         {
             filename = recipeFile;
         }
+
 
         // store document in file
         flag = true;
