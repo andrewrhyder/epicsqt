@@ -52,12 +52,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
 
     protected:
-        QLabel *qLabelRecipe;
+        QLabel *qLabelRecipeDescription;
         QComboBox *qComboBoxRecipeList;
         QPushButton *qPushButtonNew;
         QPushButton *qPushButtonSave;
         QPushButton *qPushButtonDelete;
         QPushButton *qPushButtonApply;
+        QPushButton *qPushButtonRead;
         QEConfiguredLayout *qEConfiguredLayoutRecipeFields;
         QDomDocument document;
         QString recipeFile;
@@ -69,6 +70,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
         QERecipe(QWidget *pParent = 0);
         virtual ~QERecipe(){}
+
+        void setRecipeDescription(QString pValue);
+        QString getRecipeDescription();
 
         void setShowRecipeList(bool pValue);
         bool getShowRecipeList();
@@ -84,6 +88,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
         void setShowApply(bool pValue);
         bool getShowApply();
+
+        void setShowRead(bool pValue);
+        bool getShowRead();
 
         void setShowFields(bool pValue);
         bool getShowFields();
@@ -106,9 +113,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
 
-        void updateTable();
+        bool saveRecipeList(QString pFilename);
+
+        void refreshRecipeList();
+
+        void userLevelChanged(userLevels pValue);
 
 
+        Q_PROPERTY(QString recipeDescription READ getRecipeDescription WRITE setRecipeDescription)
 
         Q_PROPERTY(bool showRecipeList READ getShowRecipeList WRITE setShowRecipeList)
 
@@ -119,6 +131,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
         Q_PROPERTY(bool showDelete READ getShowDelete WRITE setShowDelete)
 
         Q_PROPERTY(bool showApply READ getShowApply WRITE setShowApply)
+
+        Q_PROPERTY(bool showRead READ getShowRead WRITE setShowRead)
 
         Q_PROPERTY(bool showFields READ getShowFields WRITE setShowFields)
 
@@ -188,8 +202,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
     private slots:
         void comboBoxRecipeSelected(int);
 
-//        void comboBoxRecipeListChanged(QString);
-
         void buttonNewClicked();
 
         void buttonSaveClicked();
@@ -198,6 +210,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
         void buttonApplyClicked();
 
+        void buttonReadClicked();
 
 };
 
