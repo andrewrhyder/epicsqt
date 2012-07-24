@@ -35,6 +35,7 @@
 #include <QCaDragDrop.h>
 #include <styleManager.h>
 #include <contextMenu.h>
+#include <standardProperties.h>
 
 //!!! since this class is only ever used as a base class, it doesn't need to be exported
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager,
@@ -43,7 +44,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager,
                                                 public QCaDragDrop,
                                                 public styleManager,
                                                 public UserMessage,
-                                                public contextMenu
+                                                public contextMenu,
+                                                public standardProperties
 {
 public:
     QCaWidget( QWidget* ownerIn );          /// Constructor
@@ -69,6 +71,10 @@ protected:
 
     virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ); /// Function to create a appropriate superclass of QCaObject to stream data updates
     virtual void establishConnection( unsigned int variableIndex );     /// Create a CA connection and initiates updates if required
+
+    // variable as tool tip
+    void setVariableAsToolTip( bool variableAsToolTip );
+    bool getVariableAsToolTip();
 
 private:
     void deleteQcaItem( unsigned int variableIndex );       /// Delete a stream of CA updates

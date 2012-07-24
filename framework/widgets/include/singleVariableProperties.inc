@@ -22,8 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef SINGLEVARIABLEPROPERTIES_H
-#define SINGLEVARIABLEPROPERTIES_H
+#ifndef SINGLEVARIABLEPROPERTIES_INC
+#define SINGLEVARIABLEPROPERTIES_INC
 
 public:
     /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
@@ -40,4 +40,4 @@ private:
     QCaVariableNamePropertyManager variableNamePropertyManager;
 
 
-#endif // SINGLEVARIABLEPROPERTIES_H
+#endif // SINGLEVARIABLEPROPERTIES_INC

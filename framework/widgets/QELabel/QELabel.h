@@ -44,9 +44,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QCaWidget, p
     QELabel( QWidget *parent = 0 );
     QELabel( const QString &variableName, QWidget *parent = 0 );
 
-    bool isEnabled() const;
-    void setEnabled( bool state );
-
     // Property convenience functions
 
     // Update option (icon, text, or both)
@@ -56,25 +53,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QCaWidget, p
     // Variable Name and substitution
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // visible (widget is visible outside 'Designer')
-    void setRunVisible( bool visibleIn );
-    bool getRunVisible();
-
     // Allow user to drop new PVs into this widget
     void setAllowDrop( bool allowDropIn );
     bool getAllowDrop();
 
 
   protected:
-    bool caEnabled;
-
     void establishConnection( unsigned int variableIndex );
-
-    bool caVisible;               // Flag true if the widget should be visible outside 'Designer'
 
     updateOptions updateOption;
 
@@ -91,7 +76,7 @@ private slots:
 
 
 public slots:
-    void requestEnabled( const bool& state );
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
 
   signals:
     void dbValueChanged( const QString& out );

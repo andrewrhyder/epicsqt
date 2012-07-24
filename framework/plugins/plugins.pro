@@ -110,6 +110,7 @@ HEADERS += \
     ../widgets/include/managePixmaps.h \
     ../widgets/include/QCaDragDrop.h \
     ../widgets/include/styleManager.h \
+    ../widgets/include/standardProperties.h \
     ../widgets/include/QCaStringFormattingMethods.h \
     ../widgets/include/QCaSpinBox.h \
     ../widgets/include/QCaComboBox.h \
@@ -124,7 +125,7 @@ HEADERS += \
     ../widgets/include/QCaPlot.h \
     ../widgets/include/QCaToolTip.h \
     ../widgets/include/QCaPeriodic.h \
-    ../widgets/include/PeriodicDialog.h \
+    ../widgets/include/PeriodicDialog.h
 
 
 
@@ -193,6 +194,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/managePixmaps.cpp \
     ../widgets/src/QCaDragDrop.cpp \
     ../widgets/src/styleManager.cpp \
+    ../widgets/src/standardProperties.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
     ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \

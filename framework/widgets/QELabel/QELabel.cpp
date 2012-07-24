@@ -54,7 +54,6 @@ void QELabel::setup() {
     setNumVariables(1);
 
     // Set up default properties
-    caEnabled = true;
     caVisible = true;
     setAllowDrop( false );
 
@@ -131,8 +130,7 @@ void QELabel::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( caEnabled )
-            setEnabled( true );
+        setDataDisabled( false );
     }
 
     /// If disconnected always disable the widget.
@@ -141,7 +139,7 @@ void QELabel::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        QWidget::setEnabled( false );
+        setDataDisabled( true );
     }
 }
 
@@ -205,35 +203,6 @@ void QELabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaD
     }
 }
 
-/*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QELabel::isEnabled() const
-{
-    /// Return what the state of widget would be if connected.
-    return caEnabled;
-}
-
-/*!
-   Override the default widget setEnabled to allow alarm states to override current enabled state
- */
-void QELabel::setEnabled( bool state )
-{
-    /// Note the new 'enabled' state
-    caEnabled = state;
-
-    /// Set the enabled state of the widget only if connected
-    if( isConnected )
-        QWidget::setEnabled( caEnabled );
-}
-/*!
-   Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QELabel::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
 //==============================================================================
 // Drag drop
 void QELabel::setDrop( QVariant drop )
@@ -278,6 +247,7 @@ void QELabel::paste( QVariant v )
 void QELabel::userLevelChanged( userLevels level )
 {
     styleUserLevelChanged( level );
+    checkVisibilityEnabledLevel( level );
 }
 
 //==============================================================================
@@ -292,16 +262,6 @@ void QELabel::setVariableNameAndSubstitutions( QString variableNameIn, QString v
     establishConnection( variableIndex );
 }
 
-// variable as tool tip
-void QELabel::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QELabel::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
 // Update option Property convenience function
 void QELabel::setUpdateOption( updateOptions updateOptionIn )
 {
@@ -310,26 +270,6 @@ void QELabel::setUpdateOption( updateOptions updateOptionIn )
 QELabel::updateOptions QELabel::getUpdateOption()
 {
     return updateOption;
-}
-
-// visible (widget is visible outside 'Designer')
-void QELabel::setRunVisible( bool visibleIn )
-{
-    // Update the property
-    caVisible = visibleIn;
-
-    // If a container profile has been defined, then this widget is being used in a real GUI and
-    // should be visible or not according to the visible property. (While in Designer it can always be displayed)
-    ContainerProfile profile;
-    if( profile.isProfileDefined() )
-    {
-        QWidget::setVisible( caVisible );
-    }
-
-}
-bool QELabel::getRunVisible()
-{
-    return caVisible;
 }
 
 // allow drop (Enable/disable as a drop site for drag and drop)

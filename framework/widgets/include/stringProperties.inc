@@ -22,9 +22,10 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef STRINGPROPERTIES_H
-#define STRINGPROPERTIES_H
+#ifndef STRINGPROPERTIES_INC
+#define STRINGPROPERTIES_INC
 
+public:
     // String formatting properties
     Q_PROPERTY(unsigned int precision READ getPrecision WRITE setPrecision)
     Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
@@ -64,4 +65,4 @@
 
     Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
 
-#endif // STRINGPROPERTIES_H
+#endif // STRINGPROPERTIES_INC

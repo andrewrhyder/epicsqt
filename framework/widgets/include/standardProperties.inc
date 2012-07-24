@@ -22,8 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef STANDARDPROPERTIES_H
-#define STANDARDPROPERTIES_H
+#ifndef STANDARDPROPERTIES_INC
+#define STANDARDPROPERTIES_INC
 
 public:
 
@@ -39,4 +39,22 @@ public:
     Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist);
     Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer);
 
-#endif // STANDARDPROPERTIES_H
+    Q_ENUMS(UserLevels)
+
+    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty);
+    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty);
+    enum UserLevels { User      = USERLEVEL_USER,
+                      Scientist = USERLEVEL_SCIENTIST,
+                      Engineer  = USERLEVEL_ENGINEER };
+
+    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }
+    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }
+
+    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }
+    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }
+
+    // Override the default widget isEnabled and setEnabled to allow alarm states to override current enabled state
+    bool isEnabled() const { return getApplicationEnabled(); }
+    void setEnabled( bool state ){ setApplicationEnabled( state ); }
+
+#endif // STANDARDPROPERTIES_INC

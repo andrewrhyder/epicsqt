@@ -82,7 +82,7 @@
 /*!
     Constructor
 */
-QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( owner ) {
+QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( owner ), standardProperties( owner ) {
 
     /// Initially flag no variables array is defined.
     /// This will be corrected when the first variable is declared
@@ -301,7 +301,7 @@ void QCaWidget::setupContextMenu( QWidget* w )
   Note, the color is determined by the alarmInfo class, but since that class is used in non
   gui applications, it can't return a QColor
  */
-QColor  QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
+QColor QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
 {
     QColor result(alarmInfo.getColorName());
 
@@ -309,6 +309,16 @@ QColor  QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
     result.getHsv( &h, &s, &v );
     result.setHsv( h, saturation, 255 );
     return result;
+}
+
+// variable as tool tip
+void QCaWidget::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+    variableAsToolTip = variableAsToolTipIn;
+}
+bool QCaWidget::getVariableAsToolTip()
+{
+    return variableAsToolTip;
 }
 
 

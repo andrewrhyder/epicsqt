@@ -202,6 +202,8 @@ void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
 
     // flag a published profile now exists
     profileDefined = true;
+    qDebug() << "Profile created";
+
 }
 
 /*
@@ -298,6 +300,7 @@ void ContainerProfile::releaseProfile()
 
     // Indicate no profile is defined
     profileDefined = false;
+    qDebug() << "Profile released";
 }
 
 /**
