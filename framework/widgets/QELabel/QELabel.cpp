@@ -54,7 +54,6 @@ void QELabel::setup() {
     setNumVariables(1);
 
     // Set up default properties
-    caVisible = true;
     setAllowDrop( false );
 
     // Set the initial state
