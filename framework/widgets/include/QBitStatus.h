@@ -43,12 +43,18 @@ public:
    enum Orientations { LSB_On_Right, LSB_On_Bottom, LSB_On_Left, LSB_On_Top };
    Q_ENUMS (Orientations)
 
+   enum Shapes { Rectangle, Circle };
+   Q_ENUMS (Shapes)
+
 //#ifdef PLUGIN_APP
    // Declare in type order.
    //
    Q_PROPERTY (int     value               READ getValue                WRITE setValue)
    Q_PROPERTY (int     numberOfBits        READ getNumberOfBits         WRITE setNumberOfBits)
    Q_PROPERTY (int     shift               READ getShift                WRITE setShift)
+
+   Q_PROPERTY (Orientations Orientation    READ getOrientation          WRITE setOrientation)
+   Q_PROPERTY (Shapes  shape               READ getShape                WRITE setShape)
 
    // If draw borders are off, a gap of zero means right and left pixel positions of
    // consecutive items are adjactent pixels. If draw borders are on, a gap of zero means
@@ -74,7 +80,6 @@ public:
    Q_PROPERTY (bool    drawBorder          READ getDrawBorder           WRITE setDrawBorder)
    Q_PROPERTY (bool    isValid             READ getIsValid              WRITE setIsValid)
 
-   Q_PROPERTY (Orientations Orientation    READ getOrientation          WRITE setOrientation )
 //#endif
 
 private:
@@ -98,6 +103,8 @@ private:
    bool mIsValid;
    int mValue;
    enum Orientations mOrientation;
+   enum Shapes mShape;
+
 
    // Note: the getXxxxColour functions (line 125-ish) gets the Xxxx property colour.
    // The getXxxxPaintColour functions return actual colour to for drawing the widget.
@@ -107,9 +114,9 @@ private:
    QColor getOnPaintColour ();
    QColor getInvalidPaintColour ();
 
-   /// Like painter drawRect, but bounded by rect, i.e.sensible.
+   /// Like painter drawRect or drawEllipse, but bounded by rect, i.e.sensible.
    //
-   void drawRect  (QPainter & painter, const QRect & rect);
+   void drawItem  (QPainter & painter, const QRect & rect);
 
    void paintEvent (QPaintEvent *event);
    static QString intToMask (int n);
@@ -169,6 +176,9 @@ public:
 
    void setOrientation (const enum Orientations value);
    enum Orientations getOrientation ();
+
+   void setShape (const enum Shapes value);
+   enum Shapes getShape ();
 
 public slots:
    void setValue (const int value);

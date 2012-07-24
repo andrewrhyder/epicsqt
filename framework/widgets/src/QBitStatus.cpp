@@ -66,11 +66,12 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
 
    mDrawBorder = true;
    mNumberOfBits = 8;      // 1 .. 32
-   mGap = 0;               // -1 .. 40
+   mGap = 0;               // 0 .. 80
    mShift = 0;             // 0 .. 32
    mIsValid = true;
    mValue = 0;
    mOrientation = LSB_On_Right;
+   mShape = Rectangle;
    mOnClearMask = 0x00000000;
    mOffClearMask = 0x00000000;
    mReversePolarityMask = 0x00000000;
@@ -119,13 +120,13 @@ QColor QBitStatus::getInvalidPaintColour ()
 
 
 //------------------------------------------------------------------------------
-// Note: drawRect adds pen width on right and bottom, from the help info:
+// Note: drawItem adds pen width on right and bottom, from the help info:
 // "A stroked rectangle has a size of rectangle.size() plus the pen width."
 //
-// This function un-does that "helpful feature".
-// The drawn rectangle IS bounded by the specified rect.
+// This function un-does this "helpful feature".
+// The drawn rectangle/ellipse IS bounded by the specified rect.
 //
-void QBitStatus::drawRect (QPainter & painter, const QRect & rect)
+void QBitStatus::drawItem (QPainter & painter, const QRect & rect)
 {
    // Round down top-left offset, round up botton-right offset.
    //
@@ -134,13 +135,40 @@ void QBitStatus::drawRect (QPainter & painter, const QRect & rect)
    const int br = pen_width - tl;
 
    QRect r;
+   int d;
+   int c1, c2;
 
    r.setTop    (rect.top ()    + tl);
    r.setLeft   (rect.left ()   + tl);
    r.setRight  (rect.right ()  - br);
    r.setBottom (rect.bottom () - br);
 
-   painter.drawRect (r);
+   switch (this->mShape) {
+      case Rectangle:
+         painter.drawRect (r);
+         break;
+
+      case Circle:
+         d = rect.width () - rect.height ();
+         if (d > 0) {
+            c1 = d / 2;
+            c2 = d - c1;
+            r.setLeft   (rect.left ()  + c1);
+            r.setRight  (rect.right () - c2);
+         } else if (d < 0) {
+            d = -d;
+            c1 = d / 2;
+            c2 = d - c1;
+            r.setTop    (rect.top ()    + c1);
+            r.setBottom (rect.bottom () - c2);
+         }
+         painter.drawEllipse (r);
+         break;
+
+      default:
+         break;
+   }
+
 }
 
 /*! ---------------------------------------------------------------------------
@@ -156,7 +184,9 @@ void QBitStatus::paintEvent (QPaintEvent *)
    int bottom;
    int left;
    int right;
+   double length;
    double bitSpacing;
+   double offset;
    int useGap;
    int work;
    int onApplies;
@@ -226,7 +256,7 @@ void QBitStatus::paintEvent (QPaintEvent *)
 
    // Don't allow gap to overwhelm the actual drawn bits.
    //
-   while ((useGap > 0) && ((this->mNumberOfBits * useGap) > (right / 2))) {
+   while ((useGap > 0) && ((this->mNumberOfBits * useGap) > (3 * right / 4))) {
        useGap--;
    }
 
@@ -235,21 +265,33 @@ void QBitStatus::paintEvent (QPaintEvent *)
       useGap -= 1;  // subtract pen width, i.e. allow boaders to overlap.
    }
 
-   // Calculate the (floating) pixel size per bit, including the gap.
+   // Calculate the available (floating) pixel length.
    //
-   bitSpacing = double (right - left + 1 + useGap)/this->mNumberOfBits;
+   length = double (right - left + 1);
+
+   // Calculate the (floating) pixel size per bit.
+   //
+   bitSpacing = length / this->mNumberOfBits;
+
+   // Calucate of edge offset from the centre.
+   // - 1 for the pen width.
+   //
+   offset = (bitSpacing - 1.0 - useGap) / 2.0;
 
    work = (mValue >> mShift) ^ mReversePolarityMask;
    onApplies  = (-1) ^ mOnClearMask;
    offApplies = (-1) ^ mOffClearMask;
 
    for (j = mNumberOfBits - 1; j >= 0;  j--) {
+      double centre;
       QColor bitColour;
 
-      // Calculate and set left and right of this bit.
+      // Calculate the centre, and then and set left and right of this bit.
       //
-      bit_area.setLeft  (int (lround (left + bitSpacing*(j + 0))));
-      bit_area.setRight (int (lround (left + bitSpacing*(j + 1))) - (useGap + 1));
+      centre = left - 0.5 + (j + 0.5)*bitSpacing;
+
+      bit_area.setLeft  (MAX (left,  int (lround (centre - offset))));
+      bit_area.setRight (MIN (right, int (lround (centre + offset))));
 
       if (mIsValid) {
 
@@ -287,7 +329,7 @@ void QBitStatus::paintEvent (QPaintEvent *)
 
       // Do the actual draw.
       //
-      this->drawRect (painter, bit_area);
+      this->drawItem (painter, bit_area);
 
       // Pre-pare for next iteration through the loop.
       // We don't worry about checking for last time through the loop.
@@ -324,6 +366,8 @@ type QBitStatus::get##name () {                              \
 //
 PROPERTY_ACCESS (QBitStatus::Orientations, Orientation, value)
 
+PROPERTY_ACCESS (QBitStatus::Shapes, Shape, value)
+
 PROPERTY_ACCESS (bool, IsValid, value)
 
 PROPERTY_ACCESS (bool, DrawBorder, value)
@@ -332,7 +376,7 @@ PROPERTY_ACCESS (int, Value, value)
 
 PROPERTY_ACCESS (int, NumberOfBits, LIMIT (value, 1, 32))
 
-PROPERTY_ACCESS (int, Gap, LIMIT (value, 0, 40))
+PROPERTY_ACCESS (int, Gap, LIMIT (value, 0, 80))
 
 PROPERTY_ACCESS (int, Shift, LIMIT (value, 0, 31))
 
