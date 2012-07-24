@@ -309,6 +309,8 @@ void QEConfiguredLayout::setDetailsLayout(int pValue)
     QLayout *qLayoutChild;
 
 
+    //TODO: fix issue of buttons not being centered when using LEFT and RIGHT layout
+
     delete layout();
 
     switch(pValue)

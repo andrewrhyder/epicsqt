@@ -62,6 +62,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
         QEConfiguredLayout *qEConfiguredLayoutRecipeFields;
         QDomDocument document;
         QString recipeFile;
+        QString filename;
         int detailsLayout;
         int currentUserType;
 
@@ -113,7 +114,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
         void setCurrentUserType(int pValue);
         int getCurrentUserType();
 
-        bool saveRecipeList(QString pFilename);
+        bool saveRecipeList();
 
         void refreshRecipeList();
 

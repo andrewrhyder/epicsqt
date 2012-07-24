@@ -317,7 +317,6 @@ void QERecipe::setRecipeFile(QString pValue)
     QDomElement rootElement;
     QFile *file;
     QString data;
-    QString filename;
     bool flag;
 
 
@@ -377,6 +376,9 @@ void QERecipe::setDetailsLayout(int pValue)
 
 
     delete layout();
+
+
+    //TODO: fix issue of buttons not being centered when using LEFT and RIGHT layout
 
     switch(pValue)
     {
@@ -498,7 +500,6 @@ void QERecipe::buttonNewClicked()
     QDomElement rootElement;
     QDomElement recipeElement;
     QDomNode rootNode;
-    QString filename;
     QString newName;
     QString currentName;
     bool flag;
@@ -550,7 +551,7 @@ void QERecipe::buttonNewClicked()
 
         if (flag)
         {
-            rootElement = document.documentElement();
+//            rootElement = document.documentElement();
             recipeElement = document.createElement("recipe");
             recipeElement.setAttribute("name", newName);
             switch (currentUserType)
@@ -566,21 +567,14 @@ void QERecipe::buttonNewClicked()
             }
             rootElement.appendChild(recipeElement);
 
-            if (recipeFile.isEmpty())
-            {
-                //TODO: the EPICS Qt core should provide a method which returns the path where resources should be stored
-                filename = QApplication::applicationFilePath() + QDir::separator() + "QERecipe.xml";
-            }
-            else
-            {
-                filename = recipeFile;
-            }
-            if (saveRecipeList(filename))
+            if (saveRecipeList())
             {
                 QMessageBox::information(this, "Info", "The recipe '" + newName + "' was successfully saved!");
             }
             else
             {
+                //rootElement.removeChild(recipeElement);
+                // TODO: restore original document if there is an error
                 QMessageBox::critical(this, "Error", "Unable to save recipe '" + newName + "' in file '" + filename + "'!");
             }
 
@@ -596,26 +590,20 @@ void QERecipe::buttonNewClicked()
 void QERecipe::buttonSaveClicked()
 {
 
-    QString filename;
+    QString currentName;
 
-    if (QMessageBox::question(this, "Info", "Do you want to save the current values in recipe '" + qComboBoxRecipeList->currentText() + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+
+    currentName = qComboBoxRecipeList->currentText();
+
+    if (QMessageBox::question(this, "Info", "Do you want to save the current values in recipe '" + currentName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
-        if (recipeFile.isEmpty())
+        if (saveRecipeList())
         {
-            //TODO: the EPICS Qt core should provide a method which returns the path where resources should be stored
-            filename = QApplication::applicationFilePath() + QDir::separator() + "QERecipe.xml";
+            QMessageBox::information(this, "Info", "The recipe '" + currentName + "' was successfully saved!");
         }
         else
         {
-            filename = recipeFile;
-        }
-        if (saveRecipeList(filename))
-        {
-            QMessageBox::information(this, "Info", "The recipe '" + qComboBoxRecipeList->currentText() + "' was successfully saved!");
-        }
-        else
-        {
-            QMessageBox::critical(this, "Error", "Unable to save recipe '" + qComboBoxRecipeList->currentText() + "' in file '" + filename + "'!");
+            QMessageBox::critical(this, "Error", "Unable to save recipe '" + currentName + "' in file '" + filename + "'!");
         }
     }
 
@@ -627,26 +615,55 @@ void QERecipe::buttonSaveClicked()
 void QERecipe::buttonDeleteClicked()
 {
 
-    QString filename;
+    QDomElement rootElement;
+    QDomElement recipeElement;
+    QDomNode rootNode;
+    QString newName;
+    QString currentName;
+    int count;
 
-    if (QMessageBox::question(this, "Info", "Do you want to delete recipe '" + qComboBoxRecipeList->currentText() + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+
+    currentName = qComboBoxRecipeList->currentText();
+
+    if (QMessageBox::question(this, "Info", "Do you want to delete recipe '" + currentName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
-        if (recipeFile.isEmpty())
+        count = 0;
+        rootElement = document.documentElement();
+        if (rootElement.tagName() == "epicsqt")
         {
-            //TODO: the EPICS Qt core should provide a method which returns the path where resources should be stored
-            filename = QApplication::applicationFilePath() + QDir::separator() + "QERecipe.xml";
+            rootNode = rootElement.firstChild();
+            while (rootNode.isNull() == false)
+            {
+                recipeElement = rootNode.toElement();
+                if (recipeElement.tagName() == "recipe")
+                {
+                    if (recipeElement.attribute("name").isEmpty())
+                    {
+                        newName = "Recipe #" + QString::number(count);
+                        count++;
+                    }
+                    else
+                    {
+                        newName = recipeElement.attribute("name");
+                    }
+                    if (currentName.compare(newName) == 0)
+                    {
+                        rootElement.removeChild(rootNode);
+                        break;
+                    }
+                }
+                rootNode = rootNode.nextSibling();
+            }
+        }
+
+        if (saveRecipeList())
+        {
+            QMessageBox::information(this, "Info", "The recipe '" + currentName + "' was successfully delete!");
         }
         else
         {
-            filename = recipeFile;
-        }
-        if (saveRecipeList(filename))
-        {
-            QMessageBox::information(this, "Info", "The recipe '" + qComboBoxRecipeList->currentText() + "' was successfully delete!");
-        }
-        else
-        {
-            QMessageBox::critical(this, "Error", "Unable to delete recipe '" + qComboBoxRecipeList->currentText() + "' in file '" + filename + "'!");
+            // TODO: restore original document if there is an error
+           QMessageBox::critical(this, "Error", "Unable to delete recipe '" + currentName + "' in file '" + filename + "'!");
         }
     }
 
@@ -682,12 +699,12 @@ void QERecipe::buttonReadClicked()
 
 
 
-bool QERecipe::saveRecipeList(QString pFilename)
+bool QERecipe::saveRecipeList()
 {
 
     QFile *file;
 
-    file = new QFile(pFilename);
+    file = new QFile(filename);
     if (file->open(QFile::WriteOnly | QFile::Text))
     {
         QTextStream stream(file);
