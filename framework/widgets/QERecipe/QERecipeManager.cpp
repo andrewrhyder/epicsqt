@@ -24,7 +24,6 @@
 
 #include <QERecipeManager.h>
 #include <QERecipe.h>
-#include <QtPlugin>
 
 
 

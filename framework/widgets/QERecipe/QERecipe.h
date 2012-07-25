@@ -25,18 +25,8 @@
 #ifndef QERECIPE_H
 #define QERECIPE_H
 
-#include <QWidget>
-#include <QGroupBox>
-#include <QCaWidget.h>
-#include <QLineEdit>
-#include <QRadioButton>
-#include <QGridLayout>
-#include <QTableWidget>
-#include <QPushButton>
 #include <QEConfiguredLayout.h>
 #include <QDomDocument>
-#include <QCaPluginLibrary_global.h>
-
 
 
 
@@ -117,6 +107,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
         bool saveRecipeList();
 
         void refreshRecipeList();
+
+        void refreshButton();
 
         void userLevelChanged(userLevels pValue);
 

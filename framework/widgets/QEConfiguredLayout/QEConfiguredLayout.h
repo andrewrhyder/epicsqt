@@ -31,6 +31,7 @@
 #include <QCaSpinBox.h>
 
 
+
 enum details
 {
     TOP,
@@ -59,6 +60,7 @@ class _Field
         QString name;
         QString processVariable;
         QString type;
+        QString group;
         QString visible;
         QString editable;
         bool join;
@@ -79,6 +81,9 @@ class _Field
         QString getType();
         void setType(QString pValue);
 
+        QString getGroup();
+        void setGroup(QString pValue);
+
         QString getVisible();
         void setVisible(QString pValue);
 
@@ -91,33 +96,7 @@ class _Field
 
 
 // ============================================================
-//  GROUP CLASS
-// ============================================================
-class _Group
-{
-
-    private:
-        QString name;
-
-
-    public:
-        _Group();
-
-        QString getName();
-
-        void setName(QString pValue);
-
-        void addField(_Field &pField);
-
-        QList <_Field *> fieldList;  // TODO: this attribute should be private
-
-};
-
-
-
-
-// ============================================================
-//  CONFIGUREDLAYOUT CLASS
+//  _ITEM CLASS
 // ============================================================
 class _Item
 {
@@ -146,9 +125,7 @@ class _Item
 
         QString getVisible();
 
-        void addGroup(_Group &pGroup);
-
-        QList <_Group *> groupList;  // TODO: this attribute should be private
+        QList <_Field *> fieldList;  // TODO: this attribute should be private
 
 };
 
@@ -166,10 +143,13 @@ class _QDialogItem:public QDialog
 
     private:
         QPushButton *qPushButtonClose;
+        QHBoxLayout *qHBoxLayout;
 
 
     public:
-        _QDialogItem(QWidget * pParent = 0, int pCurrentUserType = 0, _Item *pItem = 0, _Group *pGroup = 0, Qt::WindowFlags pF = 0);
+        _QDialogItem(QWidget *pParent = 0, Qt::WindowFlags pF = 0);
+
+        void addField(QWidget *pWidget);
 
 
     private slots:
@@ -182,9 +162,9 @@ class _QDialogItem:public QDialog
 
 
 // ============================================================
-//  _QPUSHBUTTONGROUP CLASS
+//  _QPUSHBUTTON CLASS
 // ============================================================
-class _QPushButtonGroup:public QPushButton
+class _QPushButton:public QPushButton
 {
 
     Q_OBJECT
@@ -194,7 +174,9 @@ class _QPushButtonGroup:public QPushButton
 
 
     public:
-        _QPushButtonGroup(QWidget * pParent = 0);
+        _QPushButton(QWidget * pParent = 0);
+
+        void addField(QWidget *pWidget);
 
         void mouseReleaseEvent(QMouseEvent *qMouseEvent);
 
@@ -202,10 +184,7 @@ class _QPushButtonGroup:public QPushButton
 
         void showDialogGroup();
 
-        // TODO: these attributes should be private
-        _Item *item;
-        _Group *group;
-        int currentUserType;
+        _QDialogItem *qDialogItem;
 
 
     public slots:
@@ -412,8 +391,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
         void userLevelChanged(userLevels pValue);
 
         QList <_Item *> itemList;    // TODO: this attribute shoule be private
-        QList <QCaWidget *> currentFields;    // TODO: this attribute shoule be private
 
+        QList <QCaWidget *> currentFieldList;    // TODO: this attribute shoule be private
 
         Q_PROPERTY(QString itemDescription READ getItemDescription WRITE setItemDescription)
 
@@ -485,8 +464,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
 
 };
-
-
 
 
 

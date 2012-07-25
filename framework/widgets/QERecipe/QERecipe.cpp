@@ -22,15 +22,7 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QMessageBox>
-#include <QDialog>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QRadioButton>
 #include <QERecipe.h>
-#include <QDomDocument>
-#include <QDebug>
-
 
 
 
@@ -484,9 +476,7 @@ int QERecipe::getCurrentUserType()
 void QERecipe::comboBoxRecipeSelected(int)
 {
 
-    qPushButtonSave->setEnabled(qComboBoxRecipeList->currentText().isEmpty() == false);
-    qPushButtonDelete->setEnabled(qComboBoxRecipeList->currentText().isEmpty() == false);
-    qPushButtonApply->setEnabled(qComboBoxRecipeList->currentText().isEmpty() == false);
+    refreshButton();
 
 }
 
@@ -499,11 +489,15 @@ void QERecipe::buttonNewClicked()
 
     QDomElement rootElement;
     QDomElement recipeElement;
+    QDomElement processVariableElement;
     QDomNode rootNode;
+    QCaWidget *qCaWidget;
     QString newName;
     QString currentName;
+    QString visible;
     bool flag;
     int count;
+    int i;
 
 
     do
@@ -521,7 +515,7 @@ void QERecipe::buttonNewClicked()
         if (rootElement.tagName() == "epicsqt")
         {
             rootNode = rootElement.firstChild();
-            while (flag && rootNode.isNull() == false)
+            while (rootNode.isNull() == false)
             {
                 recipeElement = rootNode.toElement();
                 if (recipeElement.tagName() == "recipe")
@@ -538,6 +532,7 @@ void QERecipe::buttonNewClicked()
                     if (currentName.compare(newName) == 0)
                     {
                         flag = false;
+                        break;
                     }
                 }
                 rootNode = rootNode.nextSibling();
@@ -546,41 +541,85 @@ void QERecipe::buttonNewClicked()
 
         if (flag == false)
         {
-            flag = (QMessageBox::question(this, "Info", "Do you want to replace existing recipe '" + newName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
+            visible = recipeElement.attribute("visible").toUpper();
+            if (visible.isEmpty())
+            {
+                flag = true;
+            }
+            else
+            {
+                if (visible == "USER")
+                {
+                    flag = true;
+                }
+                else if (visible == "SCIENTIST")
+                {
+                    flag = (currentUserType > 0);
+                }
+                else if (visible == "ENGINEER")
+                {
+                    flag = (currentUserType > 1);
+                }
+                else
+                {
+                    flag = false;
+                }
+            }
+            if (flag)
+            {
+                flag = (QMessageBox::question(this, "Info", "Do you want to replace existing recipe '" + newName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
+                if (flag)
+                {
+                    rootElement.removeChild(rootNode);
+                }
+            }
+            else
+            {
+                QMessageBox::warning(this, "Warning", "Unable to create recipe '" + newName + "' since it already exists and belongs to another user type with more priviledges!");
+            }
+        }
+        else
+        {
+            switch (currentUserType)
+            {
+                case USERLEVEL_USER:
+                    visible = "USER";
+                    break;
+                case USERLEVEL_SCIENTIST:
+                    visible = "SCIENTIST";
+                    break;
+                default:
+                    visible = "ENGINEER";
+            }
         }
 
         if (flag)
         {
-//            rootElement = document.documentElement();
             recipeElement = document.createElement("recipe");
             recipeElement.setAttribute("name", newName);
-            switch (currentUserType)
+            recipeElement.setAttribute("visible", visible);
+            for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
             {
-                case USERLEVEL_USER:
-                    recipeElement.setAttribute("visible", "USER");
-                    break;
-                case USERLEVEL_SCIENTIST:
-                    recipeElement.setAttribute("visible", "SCIENTIST");
-                    break;
-                default:
-                    recipeElement.setAttribute("visible", "ENGINEER");
+                qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
+                processVariableElement = document.createElement("processvariable");
+                processVariableElement.setAttribute("name", ((_QELineEdit *) qCaWidget)->getProcessVariable());
+                processVariableElement.setAttribute("value", ((_QELineEdit *) qCaWidget)->text());
+                recipeElement.appendChild(processVariableElement);
             }
             rootElement.appendChild(recipeElement);
-
             if (saveRecipeList())
             {
-                QMessageBox::information(this, "Info", "The recipe '" + newName + "' was successfully saved!");
+                QMessageBox::information(this, "Info", "The recipe '" + newName + "' was successfully created!");
             }
             else
             {
                 //rootElement.removeChild(recipeElement);
                 // TODO: restore original document if there is an error
-                QMessageBox::critical(this, "Error", "Unable to save recipe '" + newName + "' in file '" + filename + "'!");
+                QMessageBox::critical(this, "Error", "Unable to create recipe '" + newName + "' in file '" + filename + "'!");
             }
-
         }
-    }
 
+    }
 
 }
 
@@ -590,19 +629,67 @@ void QERecipe::buttonNewClicked()
 void QERecipe::buttonSaveClicked()
 {
 
+    QDomElement rootElement;
+    QDomElement recipeElement;
+    QDomElement processVariableElement;
+    QDomNode rootNode;
+    QCaWidget *qCaWidget;
     QString currentName;
+    QString name;
+    int count;
+    int i;
 
 
     currentName = qComboBoxRecipeList->currentText();
 
     if (QMessageBox::question(this, "Info", "Do you want to save the current values in recipe '" + currentName + "'?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
+
+        count = 0;
+        rootElement = document.documentElement();
+        if (rootElement.tagName() == "epicsqt")
+        {
+            rootNode = rootElement.firstChild();
+            while (rootNode.isNull() == false)
+            {
+                recipeElement = rootNode.toElement();
+                if (recipeElement.tagName() == "recipe")
+                {
+                    if (recipeElement.attribute("name").isEmpty())
+                    {
+                        name= "Recipe #" + QString::number(count);
+                        count++;
+                    }
+                    else
+                    {
+                        name = recipeElement.attribute("name");
+                    }
+                    if (currentName.compare(name) == 0)
+                    {
+                        break;
+                    }
+                }
+                rootNode = rootNode.nextSibling();
+            }
+        }
+
+        recipeElement.clear();
+        for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
+        {
+            qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
+            processVariableElement = document.createElement("processvariable");
+            processVariableElement.setAttribute("name", ((_QELineEdit *) qCaWidget)->getProcessVariable());
+            processVariableElement.setAttribute("value", ((_QELineEdit *) qCaWidget)->text());
+            recipeElement.appendChild(processVariableElement);
+        }
+
         if (saveRecipeList())
         {
             QMessageBox::information(this, "Info", "The recipe '" + currentName + "' was successfully saved!");
         }
         else
         {
+            // TODO: restore original document if there is an error
             QMessageBox::critical(this, "Error", "Unable to save recipe '" + currentName + "' in file '" + filename + "'!");
         }
     }
@@ -737,9 +824,9 @@ void QERecipe::refreshRecipeList()
 
 
     qComboBoxRecipeList->blockSignals(true);
+
     tmp = qComboBoxRecipeList->currentText();
     qComboBoxRecipeList->clear();
-
     rootElement = document.documentElement();
     if (rootElement.tagName() == "epicsqt")
     {
@@ -792,8 +879,6 @@ void QERecipe::refreshRecipeList()
     }
     qComboBoxRecipeList->blockSignals(false);
 
-
-    // TODO: check that the slot "itemchanged" is called
     i = qComboBoxRecipeList->findText(tmp);
     if (i == -1)
     {
@@ -803,10 +888,21 @@ void QERecipe::refreshRecipeList()
     {
        qComboBoxRecipeList->setCurrentIndex(i);
     }
+    refreshButton();
 
 }
 
 
+
+
+void QERecipe::refreshButton()
+{
+
+    qPushButtonSave->setEnabled(qComboBoxRecipeList->currentText().isEmpty() == false);
+    qPushButtonDelete->setEnabled(qComboBoxRecipeList->currentText().isEmpty() == false);
+    qPushButtonApply->setEnabled(qComboBoxRecipeList->currentText().isEmpty() == false);
+
+}
 
 
 
