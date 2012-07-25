@@ -24,7 +24,7 @@
 
 #include <QEConfiguredLayoutManager.h>
 #include <QEConfiguredLayout.h>
-#include <QtPlugin>
+//#include <QtPlugin>
 
 
 

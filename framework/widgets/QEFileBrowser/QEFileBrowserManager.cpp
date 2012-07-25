@@ -24,7 +24,6 @@
 
 #include <QEFileBrowserManager.h>
 #include <QEFileBrowser.h>
-#include <QtPlugin>
 
 
 

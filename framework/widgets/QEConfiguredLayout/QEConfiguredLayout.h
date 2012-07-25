@@ -25,23 +25,10 @@
 #ifndef QECONFIGUREDLAYOUT_H
 #define QECONFIGUREDLAYOUT_H
 
-#include <QWidget>
-#include <QDialog>
-#include <QGroupBox>
-#include <ContainerProfile.h>
-#include <QLineEdit>
-#include <QRadioButton>
-#include <QGridLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QCaPluginLibrary_global.h>
-#include <QCaWidget.h>
+
 #include <QCaLineEdit.h>
 #include <QCaComboBox.h>
 #include <QCaSpinBox.h>
-#include <list>
-
-using namespace std;
 
 
 enum details
@@ -71,7 +58,6 @@ class _Field
     private:
         QString name;
         QString processVariable;
-        QString mask;
         QString type;
         QString visible;
         QString editable;
@@ -87,11 +73,8 @@ class _Field
         QString getProcessVariable();
         void setProcessVariable(QString pValue);
 
-        bool getJoin();
         void setJoin(bool pValue);
-
-        QString getMask();
-        void setMask(QString pValue);
+        bool getJoin();
 
         QString getType();
         void setType(QString pValue);
@@ -115,7 +98,7 @@ class _Group
 
     private:
         QString name;
-//        list <_Field *> fieldList;  // TODO: this attribute should be private
+
 
     public:
         _Group();
@@ -126,10 +109,7 @@ class _Group
 
         void addField(_Field &pField);
 
-        list <_Field *> fieldList;  // TODO: this attribute should be private
-
-//        list <_Field> getFieldList();
-
+        QList <_Field *> fieldList;  // TODO: this attribute should be private
 
 };
 
@@ -168,7 +148,7 @@ class _Item
 
         void addGroup(_Group &pGroup);
 
-        list <_Group *> groupList;  // TODO: this attribute should be private
+        QList <_Group *> groupList;  // TODO: this attribute should be private
 
 };
 
@@ -239,27 +219,43 @@ class _QPushButtonGroup:public QPushButton
 
 
 // ============================================================
-//  _QCALINEEDIT CLASS
+//  _QELINEEDIT CLASS
 // ============================================================
-class _QCaLineEdit:public QCaLineEdit
+class _QELineEdit:public QCaLineEdit
 {
     Q_OBJECT
 
     private:
         QString itemName;
+        QString groupName;
         QString fieldName;
+        QString processVariable;
+        bool fieldJoin;
 
 
     public:
-        _QCaLineEdit(QWidget * pParent = 0);
+        _QELineEdit(QWidget * pParent = 0);
 
         void setItemName(QString pItemName);
 
         QString getItemName();
 
+        void setGroupName(QString pGroupName);
+
+        QString getGroupName();
+
         void setFieldName(QString pFieldName);
 
         QString getFieldName();
+
+        void setFieldJoin(bool pFieldJoin);
+
+        bool getFieldJoin();
+
+        void setProcessVariable(QString pFieldName);
+
+        QString getProcessVariable();
+
 
   private slots:
         void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
@@ -270,28 +266,43 @@ class _QCaLineEdit:public QCaLineEdit
 
 
 // ============================================================
-//  _QCACOMBOBOX CLASS
+//  _QECOMBOBOX CLASS
 // ============================================================
-class _QCaComboBox:public QCaComboBox
+class _QEComboBox:public QCaComboBox
 {
 
     private:
         QString itemName;
+        QString groupName;
         QString fieldName;
+        QString processVariable;
+        bool fieldJoin;
 
 
     public:
-        _QCaComboBox(QWidget * pParent = 0);
+        _QEComboBox(QWidget * pParent = 0);
 
         void setItemName(QString pItemName);
 
         QString getItemName();
 
+        void setGroupName(QString pGroupName);
+
+        QString getGroupName();
+
         void setFieldName(QString pFieldName);
 
         QString getFieldName();
 
-        void valueWritten(QString pNewValue, QString pOldValue);
+        void setFieldJoin(bool pFieldJoin);
+
+        bool getFieldJoin();
+
+        void setProcessVariable(QString pFieldName);
+
+        QString getProcessVariable();
+
+        void valueWritten(QString pNewValue, QString pOldValue);        
 
 };
 
@@ -300,26 +311,41 @@ class _QCaComboBox:public QCaComboBox
 
 
 // ============================================================
-//  _QCASPINBOX CLASS
+//  _QESPINBOX CLASS
 // ============================================================
-class _QCaSpinBox:public QCaSpinBox
+class _QESpinBox:public QCaSpinBox
 {
 
     private:
         QString itemName;
+        QString groupName;
         QString fieldName;
+        QString processVariable;
+        bool fieldJoin;
 
 
     public:
-        _QCaSpinBox(QWidget * pParent = 0);
+        _QESpinBox(QWidget * pParent = 0);
 
         void setItemName(QString pItemName);
 
-        QString getItemName();
+        QString getItemName();        
+
+        void setGroupName(QString pGroupName);
+
+        QString getGroupName();
 
         void setFieldName(QString pFieldName);
 
         QString getFieldName();
+
+        void setFieldJoin(bool pFieldJoin);
+
+        bool getFieldJoin();
+
+        void setProcessVariable(QString pFieldName);
+
+        QString getProcessVariable();
 
         void valueWritten(QString pNewValue, QString pOldValue);
 
@@ -343,7 +369,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
 
     protected:
-        list <_Item *> itemList;
         QLabel *qLabelItemDescription;
         QComboBox *qComboBoxItemList;
         QVBoxLayout *qVBoxLayoutFields;
@@ -385,6 +410,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
         void refreshFields();
 
         void userLevelChanged(userLevels pValue);
+
+        QList <_Item *> itemList;    // TODO: this attribute shoule be private
+        QList <QCaWidget *> currentFields;    // TODO: this attribute shoule be private
+
 
         Q_PROPERTY(QString itemDescription READ getItemDescription WRITE setItemDescription)
 

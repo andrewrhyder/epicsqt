@@ -22,14 +22,7 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QMessageBox>
-#include <QDialog>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QRadioButton>
 #include <QEFileBrowser.h>
-#include <QDebug>
-
 
 
 
@@ -40,7 +33,6 @@ QEFileBrowser::QEFileBrowser(QWidget *pParent):QWidget(pParent), QCaWidget( this
 {
 
     QFont qFont;
-
 
     qlineEditDirectoryPath = new QLineEdit(this);
     qPushButtonDirectoryBrowser = new QPushButton(this);

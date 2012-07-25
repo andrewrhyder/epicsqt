@@ -25,16 +25,7 @@
 #ifndef QEFILEBROWSER_H
 #define QEFILEBROWSER_H
 
-#include <QWidget>
-#include <QGroupBox>
 #include <QCaWidget.h>
-#include <QLineEdit>
-#include <QRadioButton>
-#include <QGridLayout>
-#include <QTableWidget>
-#include <QPushButton>
-#include <QCaPluginLibrary_global.h>
-
 
 
 enum details
@@ -44,8 +35,6 @@ enum details
     LEFT,
     RIGHT
 };
-
-
 
 
 
