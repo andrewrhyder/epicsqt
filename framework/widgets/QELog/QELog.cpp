@@ -22,19 +22,7 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QMessageBox>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QRadioButton>
-#include <QDateTime>
 #include <QELog.h>
-#include <QDebug>
-#include <QFileDialog>
-#include <QHeaderView>
-#include <QSize>
-#include <iostream>
-#include <fstream>
-using namespace std;
 
 
 
@@ -435,13 +423,11 @@ void QELog::buttonSaveClicked()
 {
 
     QFileDialog *qFileDialog;
+    QFile *file;
     QString filename;
-    ofstream fileStream;
     QString line;
     int i;
 
-
-    //TODO: refactor this code to use QFile instead
 
     qFileDialog = new QFileDialog(this, "Save log messages", QString());
     qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
@@ -449,9 +435,10 @@ void QELog::buttonSaveClicked()
     if (qFileDialog->exec())
     {
         filename = qFileDialog->selectedFiles().at(0);
-        fileStream.open(filename.toUtf8().constData());
-        if (fileStream.is_open())
+        file = new QFile(filename);
+        if (file->open(QFile::WriteOnly | QFile::Text))
         {
+            QTextStream stream(file);
             for(i = 0; i < qTableWidgetLog->rowCount(); i++)
             {
                 if (qTableWidgetLog->isRowHidden(i) == false)
@@ -486,18 +473,18 @@ void QELog::buttonSaveClicked()
                             line += ", " + qTableWidgetLog->item(i, 2)->text();
                         }
                     }
-                    fileStream << line.toUtf8().constData() << "\n";
+                    stream << line << "\n";
                 }
             }
-            fileStream.close();
+            file->close();
             QMessageBox::information(this, "Info", "The log messages were successfully saved in file '" + filename + "'!");
         }
         else
         {
             QMessageBox::critical(this, "Error", "Unable to save log messages in file '" + filename + "'!");
         }
-    }
 
+    }
 
 }
 
@@ -553,16 +540,13 @@ void QELog::addLog(int pType, QString pMessage)
         {
             qTableWidgetLog->setRowHidden(i, qCheckBoxInfoMessage->isChecked() == false);
         }
+        else if (type == "WARNING")
+        {
+            qTableWidgetLog->setRowHidden(i, qCheckBoxWarningMessage->isChecked() == false);
+        }
         else
         {
-            if (type == "WARNING")
-            {
-                qTableWidgetLog->setRowHidden(i, qCheckBoxWarningMessage->isChecked() == false);
-            }
-            else
-            {
-                qTableWidgetLog->setRowHidden(i, qCheckBoxErrorMessage->isChecked() == false);
-            }
+            qTableWidgetLog->setRowHidden(i, qCheckBoxErrorMessage->isChecked() == false);
         }
         qTableWidgetItem = new QTableWidgetItem(QDateTime().currentDateTime().toString("yyyy/MM/dd - hh:mm:ss"));
         qTableWidgetItem->setTextColor(color);
@@ -604,19 +588,17 @@ void QELog::refreshLog()
             qTableWidgetLog->setRowHidden(i, qCheckBoxInfoMessage->isChecked() == false);
             color = qColorInfo;
         }
+        else if (qTableWidgetItem->text() == "WARNING")
+        {
+            qTableWidgetLog->setRowHidden(i, qCheckBoxWarningMessage->isChecked() == false);
+            color = qColorWarning;
+        }
         else
         {
-            if (qTableWidgetItem->text() == "WARNING")
-            {
-                qTableWidgetLog->setRowHidden(i, qCheckBoxWarningMessage->isChecked() == false);
-                color = qColorWarning;
-            }
-            else
-            {
-                qTableWidgetLog->setRowHidden(i, qCheckBoxErrorMessage->isChecked() == false);
-                color = qColorError;
-            }
+            qTableWidgetLog->setRowHidden(i, qCheckBoxErrorMessage->isChecked() == false);
+            color = qColorError;
         }
+
         qTableWidgetItem->setTextColor(color);
 
         qTableWidgetItem = qTableWidgetLog->item(i, 0);

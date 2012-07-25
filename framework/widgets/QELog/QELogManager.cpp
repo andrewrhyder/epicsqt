@@ -24,7 +24,6 @@
 
 #include <QELogManager.h>
 #include <QELog.h>
-#include <QtPlugin>
 
 
 
