@@ -22,14 +22,7 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QMessageBox>
-#include <QDialog>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QRadioButton>
 #include <QELogin.h>
-#include <QDebug>
-
 
 
 
@@ -335,31 +328,28 @@ void QELogin::buttonLogoutClicked()
                 qELoginDialog->exec();
             }
         }
-        else
+        else if (logoutUserType == USERLEVEL_SCIENTIST)
         {
-            if (logoutUserType == USERLEVEL_SCIENTIST)
+            if (scientistPassword.isEmpty())
             {
-                if (scientistPassword.isEmpty())
-                {
-                    logoutCurrentUserType();
-                }
-                else
-                {
-                    qELoginDialog = new _QDialogLogin(this, USERLEVEL_SCIENTIST);
-                    qELoginDialog->exec();
-                }
+                logoutCurrentUserType();
             }
             else
             {
-                if (engineerPassword.isEmpty())
-                {
-                    logoutCurrentUserType();
-                }
-                else
-                {
-                    qELoginDialog = new _QDialogLogin(this, USERLEVEL_ENGINEER);
-                    qELoginDialog->exec();
-                }
+                qELoginDialog = new _QDialogLogin(this, USERLEVEL_SCIENTIST);
+                qELoginDialog->exec();
+            }
+        }
+        else
+        {
+            if (engineerPassword.isEmpty())
+            {
+                logoutCurrentUserType();
+            }
+            else
+            {
+                qELoginDialog = new _QDialogLogin(this, USERLEVEL_ENGINEER);
+                qELoginDialog->exec();
             }
         }
 
@@ -527,17 +517,15 @@ void _QDialogLogin::radioButtonClicked()
     {
         qLineEditPassword->setEnabled(parent->getUserPassword().isEmpty() == false);
     }
+    else if (qRadioButtonScientist->isChecked())
+    {
+        qLineEditPassword->setEnabled(parent->getScientistPassword().isEmpty() == false);
+    }
     else
     {
-        if (qRadioButtonScientist->isChecked())
-        {
-            qLineEditPassword->setEnabled(parent->getScientistPassword().isEmpty() == false);
-        }
-        else
-        {
-            qLineEditPassword->setEnabled(parent->getEngineerPassword().isEmpty() == false);
-        }
+        qLineEditPassword->setEnabled(parent->getEngineerPassword().isEmpty() == false);
     }
+
     qPushButtonOk->setEnabled(qLineEditPassword->isEnabled() == false || qLineEditPassword->text().isEmpty() == false);
 
 }
@@ -576,24 +564,20 @@ void _QDialogLogin::buttonOkClicked()
             type = USERLEVEL_USER;
         }
     }
-    else
+    else if (qRadioButtonScientist->isChecked())
     {
-        if (qRadioButtonScientist->isChecked())
+        if (qLineEditPassword->isEnabled() == false || parent->getScientistPassword() == qLineEditPassword->text())
         {
-            if (qLineEditPassword->isEnabled() == false || parent->getScientistPassword() == qLineEditPassword->text())
-            {
-                type = USERLEVEL_SCIENTIST;
-            }
-        }
-        else
-        {
-            if (qLineEditPassword->isEnabled() == false || parent->getEngineerPassword() == qLineEditPassword->text())
-            {
-                type = USERLEVEL_ENGINEER;
-            }
+            type = USERLEVEL_SCIENTIST;
         }
     }
-
+    else
+    {
+        if (qLineEditPassword->isEnabled() == false || parent->getEngineerPassword() == qLineEditPassword->text())
+        {
+            type = USERLEVEL_ENGINEER;
+        }
+    }
 
     if (type == -1)
     {

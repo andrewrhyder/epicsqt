@@ -24,7 +24,6 @@
 
 #include <QELoginManager.h>
 #include <QELogin.h>
-#include <QtPlugin>
 
 
 

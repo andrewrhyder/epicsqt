@@ -25,19 +25,7 @@
 #ifndef QELOGIN_H
 #define QELOGIN_H
 
-#include <QWidget>
-#include <QDialog>
-#include <QGroupBox>
 #include <QCaWidget.h>
-#include <QLineEdit>
-#include <QRadioButton>
-#include <QGridLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QCaPluginLibrary_global.h>
-#include <stack>
-
-using namespace std;
 
 
 enum details
@@ -76,7 +64,6 @@ class _QDialogLogin:public QDialog
         int userType;
 
 
-
     public:
         _QDialogLogin(QWidget * pParent = 0, int pUserType = -1, Qt::WindowFlags pF = 0);
         void setCurrentUserType(int pValue);
@@ -111,7 +98,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QCaWidget
 
 
     protected:
-        stack<int> loginHistory;
+        QStack<int> loginHistory;
         QPushButton *qPushButtonLogin;
         QPushButton *qPushButtonLogout;
         QLabel *qLabelUserType;
