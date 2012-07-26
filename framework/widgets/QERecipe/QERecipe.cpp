@@ -476,6 +476,8 @@ int QERecipe::getCurrentUserType()
 void QERecipe::comboBoxRecipeSelected(int)
 {
 
+    //TODO: should update the widgets with the values of the recipe
+
     refreshButton();
 
 }
@@ -888,8 +890,6 @@ void QERecipe::refreshRecipeList()
             rootNode = rootNode.nextSibling();
         }
     }
-    qComboBoxRecipeList->blockSignals(false);
-
     i = qComboBoxRecipeList->findText(tmp);
     if (i == -1)
     {
@@ -900,6 +900,7 @@ void QERecipe::refreshRecipeList()
        qComboBoxRecipeList->setCurrentIndex(i);
     }
     refreshButton();
+    qComboBoxRecipeList->blockSignals(false);
 
 }
 

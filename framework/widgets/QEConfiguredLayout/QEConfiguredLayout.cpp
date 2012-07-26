@@ -226,7 +226,7 @@ void QEConfiguredLayout::setConfiguration(QString pValue)
                         item->setName(itemElement.attribute("name"));
                     }
                     item->setSubstitution(itemElement.attribute("substitution"));
-                    item->setVisible(itemElement.attribute("visible"));
+                    item->setVisibility(itemElement.attribute("visible"));
                     itemNode = itemElement.firstChild();
                     while (itemNode.isNull() == false)
                     {
@@ -239,7 +239,7 @@ void QEConfiguredLayout::setConfiguration(QString pValue)
                             field->setJoin(fieldElement.attribute("join").compare("true", Qt::CaseInsensitive) == 0);
                             field->setType(fieldElement.attribute("type"));
                             field->setGroup(fieldElement.attribute("group"));
-                            field->setVisible(fieldElement.attribute("visible"));
+                            field->setVisibility(fieldElement.attribute("visible"));
                             field->setEditable(fieldElement.attribute("editable"));
                             item->fieldList.append(field);
                         }
@@ -366,7 +366,7 @@ void QEConfiguredLayout::setCurrentUserType(int pValue)
         qComboBoxItemList->clear();
         for(i = 0; i < itemList.size(); i++)
         {
-            if (itemList.at(i)->getVisible().isEmpty() || itemList.at(i)->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
+            if (itemList.at(i)->getVisibility().isEmpty() || itemList.at(i)->getVisibility().split(",").contains(userType, Qt::CaseInsensitive))
             {
                 qComboBoxItemList->addItem(itemList.at(i)->getName());
             }
@@ -408,7 +408,7 @@ void QEConfiguredLayout::refreshFields()
     QLabel *qLabel;
     QString userType;
     QCaWidget *qCaWidget;
-    _QPushButton *qPushButton;
+    _QPushButtonGroup *qPushButtonGroup;
     _Item *item;
     _Field *field;
     _QELineEdit *currentField;
@@ -459,43 +459,39 @@ void QEConfiguredLayout::refreshFields()
             if (field->getType().compare("spinbox", Qt::CaseInsensitive) == 0)
             {
                 qCaWidget = new _QESpinBox();
-                ((_QESpinBox *) qCaWidget)->setItemName(item->getName());   // TODO: necessary?
                 ((_QESpinBox *) qCaWidget)->setGroupName(field->getGroup());
                 ((_QESpinBox *) qCaWidget)->setFieldName(field->getName());
                 ((_QESpinBox *) qCaWidget)->setFieldJoin(field->getJoin());
                 ((_QESpinBox *) qCaWidget)->setProcessVariable(field->getProcessVariable());
+                ((_QESpinBox *) qCaWidget)->setVisibility(field->getVisibility().isEmpty() || field->getVisibility().split(",").contains(userType, Qt::CaseInsensitive));
                 ((_QESpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
-                ((_QESpinBox *) qCaWidget)->setVisible(field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive));
                 ((_QESpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
             }
             else if (field->getType().compare("combobox", Qt::CaseInsensitive) == 0)
             {
                 qCaWidget = new _QEComboBox();
-                ((_QEComboBox *) qCaWidget)->setItemName(item->getName());   // TODO: necessary?
                 ((_QEComboBox *) qCaWidget)->setGroupName(field->getGroup());
                 ((_QEComboBox *) qCaWidget)->setFieldName(field->getName());
                 ((_QEComboBox *) qCaWidget)->setFieldJoin(field->getJoin());
                 ((_QEComboBox *) qCaWidget)->setProcessVariable(field->getProcessVariable());
+                ((_QEComboBox *) qCaWidget)->setVisibility(field->getVisibility().isEmpty() || field->getVisibility().split(",").contains(userType, Qt::CaseInsensitive));
                 ((_QEComboBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
-                ((_QEComboBox *) qCaWidget)->setVisible(field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive));
                 ((_QEComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
             }
             else
             {
-                qCaWidget = new _QELineEdit();
-                ((_QELineEdit *) qCaWidget)->setItemName(item->getName());   // TODO: necessary?
+                qCaWidget = new _QELineEdit(NULL);
                 ((_QELineEdit *) qCaWidget)->setGroupName(field->getGroup());
                 ((_QELineEdit *) qCaWidget)->setFieldName(field->getName());
                 ((_QELineEdit *) qCaWidget)->setFieldJoin(field->getJoin());
                 ((_QELineEdit *) qCaWidget)->setProcessVariable(field->getProcessVariable());
+                ((_QELineEdit *) qCaWidget)->setVisibility(field->getVisibility().isEmpty() || field->getVisibility().split(",").contains(userType, Qt::CaseInsensitive));
                 ((_QELineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
                 ((_QELineEdit *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
-                ((_QELineEdit *) qCaWidget)->setVisible(field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive));
                 ((_QELineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
             }
             currentFieldList.append(qCaWidget);
         }
-
 
         qHBoxLayoutLast = NULL;
         for(i = 0; i < currentFieldList.size(); i++)
@@ -504,43 +500,46 @@ void QEConfiguredLayout::refreshFields()
 
             if (currentField->getGroupName().isEmpty())
             {
-                if (currentField->getFieldJoin())
+
+                if (currentField->getVisibility())
                 {
-                    if (qHBoxLayoutLast == NULL)
+                    if (currentField->getFieldJoin())
+                    {
+                        if (qHBoxLayoutLast == NULL)
+                        {
+                            qHBoxLayout = new QHBoxLayout();
+                            qHBoxLayoutLast = qHBoxLayout;
+                            flag = true;
+                        }
+                        else
+                        {
+                            qHBoxLayout = qHBoxLayoutLast;
+                            flag = false;
+                        }
+                    }
+                    else
                     {
                         qHBoxLayout = new QHBoxLayout();
                         qHBoxLayoutLast = qHBoxLayout;
                         flag = true;
                     }
-                    else
+                    if (currentField->getFieldName().isEmpty() == false)
                     {
-                        qHBoxLayout = qHBoxLayoutLast;
-                        flag = false;
+                        qLabel = new QLabel();
+                        qLabel->setText(currentField->getFieldName());
+                        qLabel->setFixedWidth(130);
+                        qHBoxLayout->addWidget(qLabel);
                     }
-                }
-                else
-                {
-                    qHBoxLayout = new QHBoxLayout();
-                    qHBoxLayoutLast = qHBoxLayout;
-                    flag = true;
-                }
-                if (currentField->isVisible() && currentField->getFieldName().isEmpty() == false)
-                {
-                    qLabel = new QLabel();
-                    qLabel->setText(currentField->getFieldName());
-                    qLabel->setFixedWidth(130);
-                    qHBoxLayout->addWidget(qLabel);
-                }
-                qHBoxLayout->addWidget(currentField);
-                if (flag)
-                {
-                    qVBoxLayoutFields->addLayout(qHBoxLayout);
+                    qHBoxLayout->addWidget(currentField);
+                    if (flag)
+                    {
+                        qVBoxLayoutFields->addLayout(qHBoxLayout);
+                    }
                 }
 
             }
             else
             {
-
                 flag = true;
                 for(j = 0; j < i; j++)
                 {
@@ -557,21 +556,20 @@ void QEConfiguredLayout::refreshFields()
                     {
                         if (currentField->getGroupName() == ((_QELineEdit *) currentFieldList.at(j))->getGroupName())
                         {
-                            if (((_QELineEdit *) currentFieldList.at(j))->isVisible())
+                            if (((_QELineEdit *) currentFieldList.at(j))->getVisibility())
                             {
                                 flag = true;
                                 break;
                             }
                         }
                     }
+
                     if (flag)
                     {
                         qHBoxLayout = new QHBoxLayout();
-                        qPushButton = new _QPushButton();
-
-                        qPushButton->setText(currentField->getGroupName());
-                        qPushButton->setToolTip("Show fields of group '" + currentField->getGroupName() + "'");
-                        qPushButton->addField(new QLabel("aaaa"));
+                        qPushButtonGroup = new _QPushButtonGroup(this, item->getName(), currentField->getGroupName(), &currentFieldList);
+                        qPushButtonGroup->setText(currentField->getGroupName());
+                        qPushButtonGroup->setToolTip("Show fields of group '" + currentField->getGroupName() + "'");
 
                         if (currentField->getFieldJoin())
                         {
@@ -593,7 +591,7 @@ void QEConfiguredLayout::refreshFields()
                             qHBoxLayoutLast = qHBoxLayout;
                             flag = true;
                         }
-                        qHBoxLayout->addWidget(qPushButton);
+                        qHBoxLayout->addWidget(qPushButtonGroup);
                         if (flag)
                         {
                             qVBoxLayoutFields->addLayout(qHBoxLayout);
@@ -727,19 +725,19 @@ QString _Field::getGroup()
 
 
 
-QString _Field::getVisible()
+QString _Field::getVisibility()
 {
 
-    return visible;
+    return visibility;
 
 }
 
 
 
-void _Field::setVisible(QString pValue)
+void _Field::setVisibility(QString pValue)
 {
 
-    visible = pValue;
+    visibility = pValue;
 
 }
 
@@ -811,19 +809,19 @@ QString _Item::getSubstitution()
 
 
 
-void _Item::setVisible(QString pValue)
+void _Item::setVisibility(QString pValue)
 {
 
-    visible = pValue;
+    visibility = pValue;
 
 }
 
 
 
-QString _Item::getVisible()
+QString _Item::getVisibility()
 {
 
-    return visible;
+    return visibility;
 
 }
 
@@ -835,89 +833,65 @@ QString _Item::getVisible()
 // ============================================================
 //  _QDIALOGITEM METHODS
 // ============================================================
-/*
-_QDialogItem::_QDialogItem(QWidget *pParent, int pCurrentUserType, _Item *pItem, _Group *pGroup, Qt::WindowFlags pF):QDialog(pParent, pF)
+_QDialogItem::_QDialogItem(QWidget *pParent, QString pItemName, QString pGroupName, QList <QCaWidget *> *pCurrentFieldList, Qt::WindowFlags pF):QDialog(pParent, pF)
 {
 
-    list<_Field *>::iterator iterator;
     QVBoxLayout *qVBoxLayout;
     QHBoxLayout *qHBoxLayout;
+    QHBoxLayout *qHBoxLayoutLast;
+    _QELineEdit *currentField;
     QLabel *qLabel;
-    QCaWidget *qCaWidget;
-    QString userType;
-    _Field *field;
-
+    bool flag;
+    int i;
 
 
     qVBoxLayout = new QVBoxLayout();
     qPushButtonClose = new QPushButton();
 
-    setWindowTitle(pItem->getName() + " (" + pGroup->getName() + ")");
+    setWindowTitle(pItemName + " (" + pGroupName + ")");
 
-    switch (pCurrentUserType)
+    qHBoxLayoutLast = NULL;
+    for(i = 0; i < pCurrentFieldList->size(); i++)
     {
-        case USERLEVEL_USER:
-            userType = "USER";
-            break;
-        case USERLEVEL_SCIENTIST:
-            userType = "SCIENTIST";
-            break;
-        default:
-            userType = "ENGINEER";
-    }
-
-
-    iterator = pGroup->fieldList.begin();
-//    iterator = pGroup->getFieldList().begin();
-    while(iterator != pGroup->fieldList.end())
-//    while(iterator != pGroup->getFieldList().end())
-    {
-        field = *iterator;
-        qHBoxLayout = new QHBoxLayout();
-        if (field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
+        currentField = ((_QELineEdit *) pCurrentFieldList->at(i));
+        if (currentField->getGroupName().compare(pGroupName) == 0)
         {
-            qLabel = new QLabel();
-            qLabel->setText(field->getName());
-            qLabel->setFixedWidth(125);
-            qHBoxLayout->addWidget(qLabel);
-
-            if (field->getType().compare("spinbox", Qt::CaseInsensitive) == 0)
+            if (currentField->getVisibility())
             {
-                qCaWidget = new _QESpinBox();
-                ((_QESpinBox *) qCaWidget)->setItemName(pItem->getName());
-                ((_QESpinBox *) qCaWidget)->setFieldName(field->getName());
-//                ((_QCaSpinBox *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
-                ((_QESpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), pItem->getSubstitution(), 0);
-                ((_QESpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                qHBoxLayout->addWidget((QCaSpinBox *) qCaWidget);
-            }
-            else
-            {
-                if (field->getType().compare("combobox", Qt::CaseInsensitive) == 0)
+                if (currentField->getFieldJoin())
                 {
-                    qCaWidget = new _QEComboBox();
-                    ((_QEComboBox *) qCaWidget)->setItemName(pItem->getName());
-                    ((_QEComboBox *) qCaWidget)->setFieldName(field->getName());
-//                    ((_QCaComboBox *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
-                    ((_QEComboBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), pItem->getSubstitution(), 0);
-                    ((_QEComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                    qHBoxLayout->addWidget((QCaComboBox *) qCaWidget);
+                    if (qHBoxLayoutLast == NULL)
+                    {
+                        qHBoxLayout = new QHBoxLayout();
+                        qHBoxLayoutLast = qHBoxLayout;
+                        flag = true;
+                    }
+                    else
+                    {
+                        qHBoxLayout = qHBoxLayoutLast;
+                        flag = false;
+                    }
                 }
                 else
                 {
-                    qCaWidget = new _QELineEdit();
-                    ((_QELineEdit *) qCaWidget)->setItemName(pItem->getName());
-                    ((_QELineEdit *) qCaWidget)->setFieldName(field->getName());
-                    ((_QELineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
-                    ((_QELineEdit *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), pItem->getSubstitution(), 0);
-                    ((_QELineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                    qHBoxLayout->addWidget((_QELineEdit *) qCaWidget);
+                    qHBoxLayout = new QHBoxLayout();
+                    qHBoxLayoutLast = qHBoxLayout;
+                    flag = true;
+                }
+                if (currentField->getFieldName().isEmpty() == false)
+                {
+                    qLabel = new QLabel();
+                    qLabel->setText(currentField->getFieldName());
+                    qLabel->setFixedWidth(130);
+                    qHBoxLayout->addWidget(qLabel);
+                }
+                qHBoxLayout->addWidget(currentField);
+                if (flag)
+                {
+                    qVBoxLayout->addLayout(qHBoxLayout);
                 }
             }
-
         }
-        qVBoxLayout->addLayout(qHBoxLayout);
-        iterator++;
     }
 
     qPushButtonClose->setText("Close");
@@ -928,43 +902,8 @@ _QDialogItem::_QDialogItem(QWidget *pParent, int pCurrentUserType, _Item *pItem,
     setLayout(qVBoxLayout);
 
 }
-*/
 
 
-
-_QDialogItem::_QDialogItem(QWidget *pParent, Qt::WindowFlags pF):QDialog(pParent, pF)
-{
-
-    QVBoxLayout *qVBoxLayout;
-
-
-    qHBoxLayout = new QHBoxLayout();
-    qVBoxLayout = new QVBoxLayout();
-    qPushButtonClose = new QPushButton();
-
-    qVBoxLayout->addLayout(qHBoxLayout);
-
-    qPushButtonClose->setText("Close");
-    qPushButtonClose->setToolTip("Close window");
-    QObject::connect(qPushButtonClose, SIGNAL(clicked()), this, SLOT(buttonCloseClicked()));
-    qVBoxLayout->addWidget(qPushButtonClose);
-
-    setLayout(qVBoxLayout);
-
-}
-
-
-
-void _QDialogItem::addField(QWidget *pWidget)
-{
-
-    qDebug() << "inside: " << ((QLabel *) pWidget)->text();
-
-    pWidget->setParent(this);
-
-    qHBoxLayout->addWidget(pWidget);
-
-}
 
 
 
@@ -987,27 +926,9 @@ void _QDialogItem::buttonCloseClicked()
 // ============================================================
 _QELineEdit::_QELineEdit(QWidget *pParent):QCaLineEdit(pParent)
 {
+
     QObject::connect( this,  SIGNAL( userChange( const QString&, const QString&, const QString& ) ),
                       this, SLOT( valueWritten(  const QString&, const QString&, const QString&  ) ) );
-}
-
-
-
-void _QELineEdit::setItemName(QString pItemName)
-{
-
-    itemName = pItemName;
-
-}
-
-
-
-
-
-QString _QELineEdit::getItemName()
-{
-
-    return itemName;
 
 }
 
@@ -1019,7 +940,6 @@ void _QELineEdit::setGroupName(QString pGroupName)
     groupName = pGroupName;
 
 }
-
 
 
 
@@ -1041,8 +961,6 @@ void _QELineEdit::setFieldName(QString pFieldName)
 
 
 
-
-
 QString _QELineEdit::getFieldName()
 {
 
@@ -1052,15 +970,12 @@ QString _QELineEdit::getFieldName()
 
 
 
-
 void _QELineEdit::setFieldJoin(bool pFieldJoin)
 {
 
     fieldJoin = pFieldJoin;
 
 }
-
-
 
 
 
@@ -1089,6 +1004,23 @@ QString _QELineEdit::getProcessVariable()
 
 }
 
+
+
+void _QELineEdit::setVisibility(bool pVisibility)
+{
+
+    visibility = pVisibility;
+
+}
+
+
+
+bool _QELineEdit::getVisibility()
+{
+
+    return visibility;
+
+}
 
 
 
@@ -1120,26 +1052,8 @@ void _QELineEdit::valueWritten(const QString& pNewValue, const QString& pOldValu
 _QEComboBox::_QEComboBox(QWidget *pParent):QCaComboBox(pParent)
 {
 
-
-}
-
-
-
-void _QEComboBox::setItemName(QString pItemName)
-{
-
-    itemName = pItemName;
-
-}
-
-
-
-
-
-QString _QEComboBox::getItemName()
-{
-
-    return itemName;
+    QObject::connect( this,  SIGNAL( userChange( const QString&, const QString&, const QString& ) ),
+                      this, SLOT( valueWritten(  const QString&, const QString&, const QString&  ) ) );
 
 }
 
@@ -1174,8 +1088,6 @@ void _QEComboBox::setFieldName(QString pFieldName)
 
 
 
-
-
 QString _QEComboBox::getFieldName()
 {
 
@@ -1185,15 +1097,12 @@ QString _QEComboBox::getFieldName()
 
 
 
-
 void _QEComboBox::setFieldJoin(bool pFieldJoin)
 {
 
     fieldJoin = pFieldJoin;
 
 }
-
-
 
 
 
@@ -1224,15 +1133,37 @@ QString _QEComboBox::getProcessVariable()
 
 
 
+void _QEComboBox::setVisibility(bool pVisibility)
+{
+
+    visibility = pVisibility;
+
+}
 
 
-//TODO: refactor this method
-void _QEComboBox::valueWritten(QString pNewValue, QString pOldValue)
+
+bool _QEComboBox::getVisibility()
+{
+
+    return visibility;
+
+}
+
+
+
+void _QEComboBox::valueWritten(const QString& pNewValue, const QString& pOldValue, const QString&)
 {
 
     if (pOldValue != pNewValue)
     {
-        sendMessage("The value of field '" + getFieldName() + "' (of item '" + getItemName() + "') was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+        if (getFieldName().isEmpty())
+        {
+            sendMessage("The field was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+        }
+        else
+        {
+            sendMessage("The field '" + getFieldName() + "' was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+        }
     }
 
 }
@@ -1248,29 +1179,10 @@ void _QEComboBox::valueWritten(QString pNewValue, QString pOldValue)
 _QESpinBox::_QESpinBox(QWidget *pParent):QCaSpinBox(pParent)
 {
 
+    QObject::connect( this,  SIGNAL( userChange( const QString&, const QString&, const QString& ) ),
+                      this, SLOT( valueWritten(  const QString&, const QString&, const QString&  ) ) );
 
 }
-
-
-
-void _QESpinBox::setItemName(QString pItemName)
-{
-
-    itemName = pItemName;
-
-}
-
-
-
-
-
-QString _QESpinBox::getItemName()
-{
-
-    return itemName;
-
-}
-
 
 
 
@@ -1281,7 +1193,6 @@ void _QESpinBox::setGroupName(QString pGroupName)
     groupName = pGroupName;
 
 }
-
 
 
 
@@ -1305,7 +1216,6 @@ void _QESpinBox::setFieldName(QString pFieldName)
 
 
 
-
 QString _QESpinBox::getFieldName()
 {
 
@@ -1322,7 +1232,6 @@ void _QESpinBox::setFieldJoin(bool pFieldJoin)
     fieldJoin = pFieldJoin;
 
 }
-
 
 
 
@@ -1356,13 +1265,38 @@ QString _QESpinBox::getProcessVariable()
 
 
 
-//TODO: refactor this method
-void _QESpinBox::valueWritten(QString pNewValue, QString pOldValue)
+void _QESpinBox::setVisibility(bool pVisibility)
+{
+
+    visibility = pVisibility;
+
+}
+
+
+
+bool _QESpinBox::getVisibility()
+{
+
+    return visibility;
+
+}
+
+
+
+
+void _QESpinBox::valueWritten(const QString& pNewValue, const QString& pOldValue, const QString&)
 {
 
     if (pOldValue != pNewValue)
     {
-        sendMessage("The value of field '" + getFieldName() + "' (of item '" + getItemName() + "') was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+        if (getFieldName().isEmpty())
+        {
+            sendMessage("The field was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+        }
+        else
+        {
+            sendMessage("The field '" + getFieldName() + "' was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+        }
     }
 
 }
@@ -1372,28 +1306,20 @@ void _QESpinBox::valueWritten(QString pNewValue, QString pOldValue)
 
 
 // ============================================================
-//  _QPUSHBUTTON METHODS
+//  _QPUSHBUTTONGROUP METHODS
 // ============================================================
-_QPushButton::_QPushButton(QWidget *pParent):QPushButton(pParent)
+_QPushButtonGroup::_QPushButtonGroup(QWidget *pParent, QString pItemName, QString pGroupName, QList <QCaWidget *> *pCurrentFieldList):QPushButton(pParent)
 {
 
-    qDialogItem = new _QDialogItem();
+    itemName = pItemName;
+    groupName = pGroupName;
+    currentFieldList = pCurrentFieldList;
 
 }
 
 
 
-
-void _QPushButton::addField(QWidget *pWidget)
-{
-
-    qDialogItem->addField(pWidget);
-
-}
-
-
-
-void _QPushButton::mouseReleaseEvent(QMouseEvent *qMouseEvent)
+void _QPushButtonGroup::mouseReleaseEvent(QMouseEvent *qMouseEvent)
 {
 
     if (qMouseEvent->button() & Qt::LeftButton)
@@ -1406,7 +1332,7 @@ void _QPushButton::mouseReleaseEvent(QMouseEvent *qMouseEvent)
 
 
 
-void _QPushButton::keyPressEvent(QKeyEvent *pKeyEvent)
+void _QPushButtonGroup::keyPressEvent(QKeyEvent *pKeyEvent)
 {
 
     QPushButton::keyPressEvent(pKeyEvent);
@@ -1421,7 +1347,7 @@ void _QPushButton::keyPressEvent(QKeyEvent *pKeyEvent)
 
 
 
-void _QPushButton::buttonGroupClicked()
+void _QPushButtonGroup::buttonGroupClicked()
 {
 
     showDialogGroup();
@@ -1431,10 +1357,12 @@ void _QPushButton::buttonGroupClicked()
 
 
 
-void _QPushButton::showDialogGroup()
+void _QPushButtonGroup::showDialogGroup()
 {
 
-    qDialogItem = new _QDialogItem(this);
+    _QDialogItem *qDialogItem;
+
+    qDialogItem = new _QDialogItem(this, itemName, groupName, currentFieldList);
     qDialogItem->exec();
 
 }

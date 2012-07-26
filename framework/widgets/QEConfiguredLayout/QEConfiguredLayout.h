@@ -50,6 +50,8 @@ enum configuration
 
 
 
+
+
 // ============================================================
 //  FIELD CLASS
 // ============================================================
@@ -61,7 +63,7 @@ class _Field
         QString processVariable;
         QString type;
         QString group;
-        QString visible;
+        QString visibility;
         QString editable;
         bool join;
 
@@ -84,8 +86,8 @@ class _Field
         QString getGroup();
         void setGroup(QString pValue);
 
-        QString getVisible();
-        void setVisible(QString pValue);
+        QString getVisibility();
+        void setVisibility(QString pValue);
 
         QString getEditable();
         void setEditable(QString pValue);
@@ -104,31 +106,24 @@ class _Item
     private:
         QString name;
         QString substitution;
-        QString visible;
-
-
-    protected:
+        QString visibility;
 
 
     public:
         _Item();
 
         void setName(QString pValue);
-
         QString getName();
 
         void setSubstitution(QString pValue);
-
         QString getSubstitution();
 
-        void setVisible(QString pValue);
-
-        QString getVisible();
+        void setVisibility(QString pValue);
+        QString getVisibility();
 
         QList <_Field *> fieldList;  // TODO: this attribute should be private
 
 };
-
 
 
 
@@ -143,13 +138,10 @@ class _QDialogItem:public QDialog
 
     private:
         QPushButton *qPushButtonClose;
-        QHBoxLayout *qHBoxLayout;
 
 
     public:
-        _QDialogItem(QWidget *pParent = 0, Qt::WindowFlags pF = 0);
-
-        void addField(QWidget *pWidget);
+        _QDialogItem(QWidget *pParent = 0, QString pItemName = "", QString pGroupName = "", QList <QCaWidget *> *pCurrentFieldList = 0, Qt::WindowFlags pF = 0);
 
 
     private slots:
@@ -162,21 +154,22 @@ class _QDialogItem:public QDialog
 
 
 // ============================================================
-//  _QPUSHBUTTON CLASS
+//  _QPUSHBUTTONGROUP CLASS
 // ============================================================
-class _QPushButton:public QPushButton
+class _QPushButtonGroup:public QPushButton
 {
 
     Q_OBJECT
 
 
     private:
+        QList <QCaWidget *> *currentFieldList;
+        QString itemName;
+        QString groupName;
 
 
     public:
-        _QPushButton(QWidget * pParent = 0);
-
-        void addField(QWidget *pWidget);
+        _QPushButtonGroup(QWidget * pParent = 0, QString pItemName = "", QString pGroupName = "", QList <QCaWidget *> *pCurrentFieldList = 0);
 
         void mouseReleaseEvent(QMouseEvent *qMouseEvent);
 
@@ -184,7 +177,6 @@ class _QPushButton:public QPushButton
 
         void showDialogGroup();
 
-        _QDialogItem *qDialogItem;
 
 
     public slots:
@@ -205,38 +197,33 @@ class _QELineEdit:public QCaLineEdit
     Q_OBJECT
 
     private:
-        QString itemName;
         QString groupName;
         QString fieldName;
         QString processVariable;
         bool fieldJoin;
+        bool visibility;
 
 
     public:
-        _QELineEdit(QWidget * pParent = 0);
-
-        void setItemName(QString pItemName);
-
-        QString getItemName();
+        _QELineEdit(QWidget *pParent = 0);
 
         void setGroupName(QString pGroupName);
-
         QString getGroupName();
 
         void setFieldName(QString pFieldName);
-
         QString getFieldName();
 
         void setFieldJoin(bool pFieldJoin);
-
         bool getFieldJoin();
 
         void setProcessVariable(QString pFieldName);
-
         QString getProcessVariable();
 
+        void setVisibility(bool pVisibility);
+        bool getVisibility();
 
-  private slots:
+
+    private slots:
         void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
 
 };
@@ -250,38 +237,39 @@ class _QELineEdit:public QCaLineEdit
 class _QEComboBox:public QCaComboBox
 {
 
+    Q_OBJECT
+
     private:
-        QString itemName;
         QString groupName;
         QString fieldName;
         QString processVariable;
         bool fieldJoin;
+        bool visibility;
 
 
     public:
         _QEComboBox(QWidget * pParent = 0);
 
-        void setItemName(QString pItemName);
-
-        QString getItemName();
-
         void setGroupName(QString pGroupName);
-
         QString getGroupName();
 
         void setFieldName(QString pFieldName);
-
         QString getFieldName();
 
         void setFieldJoin(bool pFieldJoin);
-
         bool getFieldJoin();
 
         void setProcessVariable(QString pFieldName);
-
         QString getProcessVariable();
 
-        void valueWritten(QString pNewValue, QString pOldValue);        
+
+        void setVisibility(bool pVisibility);
+        bool getVisibility();
+
+
+
+    private slots:
+          void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
 
 };
 
@@ -295,42 +283,40 @@ class _QEComboBox:public QCaComboBox
 class _QESpinBox:public QCaSpinBox
 {
 
+    Q_OBJECT
+
     private:
-        QString itemName;
         QString groupName;
         QString fieldName;
         QString processVariable;
         bool fieldJoin;
+        bool visibility;
 
 
     public:
         _QESpinBox(QWidget * pParent = 0);
 
-        void setItemName(QString pItemName);
-
-        QString getItemName();        
-
         void setGroupName(QString pGroupName);
-
         QString getGroupName();
 
         void setFieldName(QString pFieldName);
-
         QString getFieldName();
 
         void setFieldJoin(bool pFieldJoin);
-
         bool getFieldJoin();
 
         void setProcessVariable(QString pFieldName);
-
         QString getProcessVariable();
 
-        void valueWritten(QString pNewValue, QString pOldValue);
+        void setVisibility(bool pVisibility);
+        bool getVisibility();
+
+
+    private slots:
+          void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
+
 
 };
-
-
 
 
 
@@ -360,7 +346,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
 
     public:
-
         QEConfiguredLayout(QWidget *pParent = 0);
         virtual ~QEConfiguredLayout(){}
 
