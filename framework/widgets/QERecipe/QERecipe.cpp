@@ -494,6 +494,7 @@ void QERecipe::buttonNewClicked()
     QDomElement processVariableElement;
     QDomNode rootNode;
     QCaWidget *qCaWidget;
+    _Field *fieldInfo;
     QString currentName;
     QString name;
     QString visible;
@@ -597,9 +598,21 @@ void QERecipe::buttonNewClicked()
             for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
             {
                 qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
+                fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
                 processVariableElement = document.createElement("processvariable");
-                processVariableElement.setAttribute("name", ((_QELineEdit *) qCaWidget)->getProcessVariable());
-                processVariableElement.setAttribute("value", ((_QELineEdit *) qCaWidget)->text());
+                processVariableElement.setAttribute("name", fieldInfo->getProcessVariable());
+                if (fieldInfo->getType() == 2)
+                {
+                    processVariableElement.setAttribute("value", ((QCaSpinBox *) qCaWidget)->text());
+                }
+                else if (fieldInfo->getType() == 1)
+                {
+                    processVariableElement.setAttribute("value", ((QCaComboBox *) qCaWidget)->currentText());
+                }
+                else
+                {
+                    processVariableElement.setAttribute("value", ((QCaLineEdit *) qCaWidget)->text());
+                }
                 recipeElement.appendChild(processVariableElement);
             }
             rootElement.appendChild(recipeElement);
@@ -629,6 +642,7 @@ void QERecipe::buttonSaveClicked()
     QDomElement processVariableElement;
     QDomNode rootNode;
     QCaWidget *qCaWidget;
+    _Field *fieldInfo;
     QString currentName;
     QString name;
     int count;
@@ -670,14 +684,28 @@ void QERecipe::buttonSaveClicked()
         {
             recipeElement.removeChild(recipeElement.lastChild());
         }
+
         for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
         {
             qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
+            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
             processVariableElement = document.createElement("processvariable");
-            processVariableElement.setAttribute("name", ((_QELineEdit *) qCaWidget)->getProcessVariable());
-            processVariableElement.setAttribute("value", ((_QELineEdit *) qCaWidget)->text());
+            processVariableElement.setAttribute("name", fieldInfo->getProcessVariable());
+            if (fieldInfo->getType() == 2)
+            {
+                processVariableElement.setAttribute("value", ((QCaSpinBox *) qCaWidget)->text());
+            }
+            else if (fieldInfo->getType() == 1)
+            {
+                processVariableElement.setAttribute("value", ((QCaComboBox *) qCaWidget)->currentText());
+            }
+            else
+            {
+                processVariableElement.setAttribute("value", ((QCaLineEdit *) qCaWidget)->text());
+            }
             recipeElement.appendChild(processVariableElement);
         }
+
         if (saveRecipeList())
         {
             QMessageBox::information(this, "Info", "The recipe '" + currentName + "' was successfully saved!");
@@ -757,16 +785,29 @@ void QERecipe::buttonApplyClicked()
 {
 
     QCaWidget *qCaWidget;
+    _Field *fieldInfo;
     int i;
+
 
     if (QMessageBox::question(this, "Info", "Do you want to apply recipe '" + qComboBoxRecipeList->currentText() + "' to process variables?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
         for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
         {
             qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
-            if (((_QELineEdit *) qCaWidget)->isVisible())
+            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
+            if (fieldInfo->getVisibility())
             {
                 // TODO: should call method to apply values to PVs
+                if (fieldInfo->getType() == 2)
+                {
+
+                }
+                else if (fieldInfo->getType() == 1)
+                {
+                }
+                else
+                {
+                }
             }
         }
         QMessageBox::information(this, "Info", "The recipe '" + qComboBoxRecipeList->currentText() + "' was successfully applied to process variables!");
@@ -780,16 +821,29 @@ void QERecipe::buttonReadClicked()
 {
 
     QCaWidget *qCaWidget;
+    _Field *fieldInfo;
     int i;
+
 
     if (QMessageBox::question(this, "Info", "Do you want to read the values from process variables?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
         for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
         {
             qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
-            if (((_QELineEdit *) qCaWidget)->isVisible())
+            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
+            if (fieldInfo->getVisibility())
             {
                 // TODO: should call method to read values from PVs
+                if (fieldInfo->getType() == 2)
+                {
+
+                }
+                else if (fieldInfo->getType() == 1)
+                {
+                }
+                else
+                {
+                }
             }
         }
         QMessageBox::information(this, "Info", "The values were successfully read from the process variables!");

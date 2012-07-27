@@ -61,11 +61,12 @@ class _Field
     private:
         QString name;
         QString processVariable;
-        QString type;
         QString group;
-        QString visibility;
+        QString visible;
         QString editable;
+        bool visibility;
         bool join;
+        int type;
 
 
     public:
@@ -80,19 +81,24 @@ class _Field
         void setJoin(bool pValue);
         bool getJoin();
 
-        QString getType();
-        void setType(QString pValue);
+        int getType();
+        void setType(int pValue);
 
         QString getGroup();
         void setGroup(QString pValue);
 
-        QString getVisibility();
-        void setVisibility(QString pValue);
+        QString getVisible();
+        void setVisible(QString pValue);
 
         QString getEditable();
         void setEditable(QString pValue);
 
+        bool getVisibility();
+        void setVisibility(bool pValue);
+
+
 };
+
 
 
 
@@ -106,7 +112,7 @@ class _Item
     private:
         QString name;
         QString substitution;
-        QString visibility;
+        QString visible;
 
 
     public:
@@ -118,77 +124,13 @@ class _Item
         void setSubstitution(QString pValue);
         QString getSubstitution();
 
-        void setVisibility(QString pValue);
-        QString getVisibility();
+        void setVisible(QString pValue);
+        QString getVisible();
 
         QList <_Field *> fieldList;  // TODO: this attribute should be private
 
 };
 
-
-
-
-// ============================================================
-//  _QEGENERIC CLASS
-// ============================================================
-class _QEGeneric
-{
-
-    private:
-        QString groupName;
-        QString fieldName;
-        QString processVariable;
-        bool fieldJoin;
-        bool visibility;
-        int fieldType;
-
-
-    public:
-        _QEGeneric();
-
-        void setGroupName(QString pGroupName);
-        QString getGroupName();
-
-        void setFieldName(QString pFieldName);
-        QString getFieldName();
-
-        void setFieldJoin(bool pFieldJoin);
-        bool getFieldJoin();
-
-        int getFieldType();
-        void setFieldType(int pFieldValue);
-
-        void setProcessVariable(QString pFieldName);
-        QString getProcessVariable();
-
-        void setVisibility(bool pVisibility);
-        bool getVisibility();
-
-};
-
-
-
-
-// ============================================================
-//  _QDIALOGITEM CLASS
-// ============================================================
-class _QDialogItem:public QDialog
-{
-
-    Q_OBJECT
-
-    private:
-        QPushButton *qPushButtonClose;
-
-
-    public:
-        _QDialogItem(QWidget *pParent = 0, QString pItemName = "", QString pGroupName = "", QList <QCaWidget *> *pCurrentFieldList = 0, QList <_QEGeneric *> *pCurrentFieldInfo = 0, Qt::WindowFlags pF = 0);
-
-
-    private slots:
-        void buttonCloseClicked();
-
-};
 
 
 
@@ -205,13 +147,13 @@ class _QPushButtonGroup:public QPushButton
 
     private:
         QList <QCaWidget *> *currentFieldList;
-        QList <_QEGeneric *> *currentFieldInfo;
+        QList <_Field *> *currentFieldInfo;
         QString itemName;
         QString groupName;
 
 
     public:
-        _QPushButtonGroup(QWidget * pParent = 0, QString pItemName = "", QString pGroupName = "", QList <QCaWidget *> *pCurrentFieldList = 0, QList <_QEGeneric *> *pCurrentFieldInfo = 0);
+        _QPushButtonGroup(QWidget * pParent = 0, QString pItemName = "", QString pGroupName = "", QList <QCaWidget *> *pCurrentFieldList = 0, QList <_Field *> *pCurrentFieldInfo = 0);
 
         void mouseReleaseEvent(QMouseEvent *qMouseEvent);
 
@@ -232,192 +174,26 @@ class _QPushButtonGroup:public QPushButton
 
 
 
-
-
 // ============================================================
-//  _QELINEEDIT CLASS
+//  _QDIALOGITEM CLASS
 // ============================================================
-//class _QELineEdit:public QCaLineEdit
-//{
-//    Q_OBJECT
+class _QDialogItem:public QDialog
+{
 
-//    private:
-//        QString groupName;
-//        QString fieldName;
-//        QString processVariable;
-//        bool fieldJoin;
-//        bool visibility;
+    Q_OBJECT
 
+    private:
+        QPushButton *qPushButtonClose;
 
-//    public:
-//        _QELineEdit(QWidget *pParent = 0);
 
-//        void setGroupName(QString pGroupName);
-//        QString getGroupName();
+    public:
+        _QDialogItem(QWidget *pParent = 0, QString pItemName = "", QString pGroupName = "", QList <QCaWidget *> *pCurrentFieldList = 0, QList <_Field *> *pCurrentFieldInfo = 0, Qt::WindowFlags pF = 0);
 
-//        void setFieldName(QString pFieldName);
-//        QString getFieldName();
 
-//        void setFieldJoin(bool pFieldJoin);
-//        bool getFieldJoin();
+    private slots:
+        void buttonCloseClicked();
 
-//        void setProcessVariable(QString pFieldName);
-//        QString getProcessVariable();
-
-//        void setVisibility(bool pVisibility);
-//        bool getVisibility();
-
-
-//    private slots:
-//        void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
-
-//};
-
-//class _QELineEdit:public QCaLineEdit
-//{
-//    Q_OBJECT
-
-//    private:
-
-
-//    public:
-//        _QELineEdit(QWidget *pParent = 0);
-
-
-////    private slots:
-////        void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
-
-//};
-
-
-
-
-
-
-
-// ============================================================
-//  _QECOMBOBOX CLASS
-// ============================================================
-//class _QEComboBox:public QCaComboBox
-//{
-
-//    Q_OBJECT
-
-//    private:
-//        QString groupName;
-//        QString fieldName;
-//        QString processVariable;
-//        bool fieldJoin;
-//        bool visibility;
-
-
-//    public:
-//        _QEComboBox(QWidget * pParent = 0);
-
-//        void setGroupName(QString pGroupName);
-//        QString getGroupName();
-
-//        void setFieldName(QString pFieldName);
-//        QString getFieldName();
-
-//        void setFieldJoin(bool pFieldJoin);
-//        bool getFieldJoin();
-
-//        void setProcessVariable(QString pFieldName);
-//        QString getProcessVariable();
-
-
-//        void setVisibility(bool pVisibility);
-//        bool getVisibility();
-
-
-
-//    private slots:
-//          void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
-
-//};
-//class _QEComboBox:public QCaComboBox
-//{
-
-//    Q_OBJECT
-
-//    private:
-
-
-//    public:
-//        _QEComboBox(QWidget * pParent = 0);
-
-
-////    private slots:
-////          void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
-
-//};
-
-
-
-
-
-
-// ============================================================
-//  _QESPINBOX CLASS
-// ============================================================
-//class _QESpinBox:public QCaSpinBox
-//{
-
-//    Q_OBJECT
-
-//    private:
-//        QString groupName;
-//        QString fieldName;
-//        QString processVariable;
-//        bool fieldJoin;
-//        bool visibility;
-
-
-//    public:
-//        _QESpinBox(QWidget * pParent = 0);
-
-//        void setGroupName(QString pGroupName);
-//        QString getGroupName();
-
-//        void setFieldName(QString pFieldName);
-//        QString getFieldName();
-
-//        void setFieldJoin(bool pFieldJoin);
-//        bool getFieldJoin();
-
-//        void setProcessVariable(QString pFieldName);
-//        QString getProcessVariable();
-
-//        void setVisibility(bool pVisibility);
-//        bool getVisibility();
-
-
-//    private slots:
-//          void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
-
-
-//};
-
-//class _QESpinBox:public QCaSpinBox
-//{
-
-//    Q_OBJECT
-
-//    private:
-
-
-//    public:
-//        _QESpinBox(QWidget * pParent = 0);
-
-
-//    private slots:
-//          void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
-
-
-//};
-
-
+};
 
 
 
@@ -482,7 +258,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
         QList <QCaWidget *> currentFieldList;    // TODO: this attribute should be private
 
-        QList <_QEGeneric *> currentFieldInfo;   //TODO: this attribute should be private
+        QList <_Field *> currentFieldInfo;   //TODO: this attribute should be private
 
         Q_PROPERTY(QString itemDescription READ getItemDescription WRITE setItemDescription)
 
