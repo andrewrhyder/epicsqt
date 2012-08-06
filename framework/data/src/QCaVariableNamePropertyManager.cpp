@@ -51,8 +51,8 @@
  */
 
 #include <QCaVariableNamePropertyManager.h>
-#include <ContainerProfile.h>
 #include <QDebug>
+#include <QCaWidget.h>
 
 #define WAIT_FOR_TYPING_TO_FINISH 1000  // One Second
 
@@ -65,8 +65,7 @@ QCaVariableNamePropertyManager::QCaVariableNamePropertyManager() {
     // so flag the variable name and substitutions are not being modified interactively.
     // If a user is not modifying the variable name or macro substitutions there is no need for
     // the variable name property name manager to wait for a user to finish typing before using a variable name.
-    ContainerProfile profile;
-    interactive = !profile.isProfileDefined();
+    interactive = QCaWidget::inDesigner();
 
     /// Setup a timer so rapid changes to the variable name property are ignored.
     /// Only after the user has stopped typing for a while will the entry be used.

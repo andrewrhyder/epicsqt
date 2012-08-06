@@ -81,6 +81,9 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
 
     // Prepare to recieve notification that the ui file being displayed has changed
     QObject::connect( &fileMon, SIGNAL( fileChanged( const QString & ) ), this, SLOT( fileChanged( const QString & ) ) );
+
+    // Set up a connection to recieve variable name property changes (Actually only interested in substitution changes
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
 /// Destructor.
@@ -251,8 +254,6 @@ bool QEForm::readUiFile()
             uiFile = NULL;
             fileLoaded = true;
         }
-
-
     }
     return fileLoaded;
 }
@@ -267,7 +268,7 @@ QString QEForm::getGuiFileName(){
     return uiFileName;
 }
 
-/// Set the variable name substitutions used by all QCa widgets wihtin the form
+/// Set the variable name substitutions used by all QCa widgets within the form
 void QEForm::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
 {
     variableNameSubstitutions = variableNameSubstitutionsIn;

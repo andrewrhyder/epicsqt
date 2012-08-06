@@ -64,7 +64,6 @@ void QCaGenericButton::dataSetup() {
     writeOnPress = false;
     writeOnRelease = false;
     writeOnClick = true;
-    localEnabled = true;
     setAllowDrop( false );
 
     // Set text alignment to the default for a push button
@@ -181,8 +180,7 @@ void QCaGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( localEnabled )
-            setButtonEnabled( true );
+        setDataDisabled( false );
     }
 
     /// If disconnected always disable the widget.
@@ -191,7 +189,7 @@ void QCaGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        setButtonEnabled( false );
+        setDataDisabled( true );
     }
 }
 
@@ -385,28 +383,6 @@ bool QCaGenericButton::checkPassword()
     return true;
 }
 
-/*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QCaGenericButton::isEnabled() const
-{
-    // Return what the state of widget would be if connected.
-    return localEnabled;
-}
-
-/*!
-   Override the default widget setEnabled to allow alarm states to override current enabled state
- */
-void QCaGenericButton::setGenericEnabled( const bool& state )
-{
-    // Note the new 'enabled' state
-    localEnabled = state;
-
-    // Set the enabled state of the widget only if connected
-    if( isConnected )
-        setButtonEnabled( localEnabled );
-}
-
 //==============================================================================
 
 // Update option Property convenience function
@@ -438,16 +414,6 @@ void QCaGenericButton::setSubscribe( bool subscribeIn )
 bool QCaGenericButton::getSubscribe()
 {
     return subscribe;
-}
-
-// variable as tool tip
-void QCaGenericButton::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaGenericButton::getVariableAsToolTip()
-{
-    return variableAsToolTip;
 }
 
 // text alignment
@@ -613,19 +579,6 @@ void QCaGenericButton::setLabelTextProperty( QString labelTextIn )
 QString QCaGenericButton::getLabelTextProperty()
 {
     return labelText;
-}
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaGenericButton::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    QWidget* btn = (QWidget*)getButtonQObject();
-    btn->setAcceptDrops( allowDrop );
-}
-
-bool QCaGenericButton::getAllowDrop()
-{
-    return allowDrop;
 }
 
 //==============================================================================

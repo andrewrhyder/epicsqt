@@ -38,9 +38,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
     QCaSlider( QWidget *parent = 0 );
     QCaSlider( const QString& variableName, QWidget *parent = 0 );
 
-    bool isEnabled() const;
-    void setEnabled( bool state );
-
     // Property convenience functions
 
     // Variable name and substitutions
@@ -54,14 +51,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
     void setSubscribe( bool subscribe );
     bool getSubscribe();
 
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
     // Set scale and offset (used to scale data when inteter scale bar min and max are not suitable)
     void setScale( double scaleIn );
     double getScale();
@@ -71,8 +60,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
   protected:
     QCaFloatingFormatting floatingFormatting; /// Floating formatting options.
     bool writeOnChange;             /// Write changed value to database when ever the position changes.
-    bool localEnabled;
-    bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -82,7 +69,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
     void userValueChanged( const int& newValue );
 
   public slots:
-    void requestEnabled( const bool& state );
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
 
   signals:
     void dbValueChanged( const qlonglong& out );

@@ -57,7 +57,6 @@ void QCaComboBox::setup() {
     // Set up default properties
     useDbEnumerations = true;
     subscribe = false;
-    localEnabled = true;
     setAllowDrop( false );
 
     // Set the initial state
@@ -120,8 +119,7 @@ void QCaComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( localEnabled )
-            QWidget::setEnabled( true );
+        setDataDisabled( false );
     }
 
     /// If disconnected always disable the widget.
@@ -130,7 +128,7 @@ void QCaComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        QWidget::setEnabled( false );
+        setDataDisabled( true );
     }
 
     /// Start a single shot read if the channel is up (ignore channel down),
@@ -238,36 +236,6 @@ void QCaComboBox::userValueChanged( int value ) {
     }
 }
 
-/*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QCaComboBox::isEnabled() const
-{
-    /// Return what the state of widget would be if connected.
-    return localEnabled;
-}
-
-/*!
-   Override the default widget setEnabled to allow alarm states to override current enabled state
- */
-void QCaComboBox::setEnabled( bool state )
-{
-    /// Note the new 'enabled' state
-    localEnabled = state;
-
-    /// Set the enabled state of the widget only if connected
-    if( isConnected )
-        QWidget::setEnabled( localEnabled );
-}
-
-/*!
-   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QCaComboBox::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
 //==============================================================================
 // Drag drop
 void QCaComboBox::setDrop( QVariant drop )
@@ -302,34 +270,13 @@ bool QCaComboBox::getSubscribe()
     return subscribe;
 }
 
-// variable as tool tip
-void QCaComboBox::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaComboBox::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
 // use database enumerations
 void QCaComboBox::setUseDbEnumerations( bool useDbEnumerationsIn )
 {
     useDbEnumerations = useDbEnumerationsIn;
 }
+
 bool QCaComboBox::getUseDbEnumerations()
 {
     return useDbEnumerations;
-}
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaComboBox::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QCaComboBox::getAllowDrop()
-{
-    return allowDrop;
 }

@@ -76,24 +76,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEPvProperties : public QFrame,
                                                      public QCaWidget {
    Q_OBJECT
 
-   /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
-   /// A property name ending with 'Name' results in some sort of string a variable being displayed,
-   /// but will only accept alphanumeric and won't generate callbacks on change.
-   //
-   Q_PROPERTY (QString variable READ getVariableNameProperty WRITE setVariableNameProperty)
-   Q_PROPERTY (QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-   Q_PROPERTY (bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
-   Q_PROPERTY (bool enabled READ isEnabled WRITE setEnabled)      // Note: handled directly by QWidget
-   Q_PROPERTY (bool allowDrop READ getAllowDrop WRITE setAllowDrop)
-   Q_PROPERTY (bool visible READ getRunVisible WRITE setRunVisible)
+#include <singleVariableProperties.inc>
+#include <standardProperties.inc>
 
 private:
-   QCaVariableNamePropertyManager variableNamePropertyManager;
    QCAALARMINFO_SEVERITY lastSeverity;
    QCaStringFormatting stringFormatting;
    bool isFirstUpdate;
-   bool visible;               // Flag true if the widget should be visible outside 'Designer'
-   bool allowDrop;
    int valFieldIndex;
 
    // If these items declared at class level, there is a run time exception.
@@ -119,9 +108,10 @@ private:
                                          unsigned int variableIndex);
 
 private slots:
-   void useNewVariableNameProperty( QString variableNameIn,
-                                    QString variableNameSubstitutionsIn,
-                                    unsigned int variableIndex );
+   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+   {
+       setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+   }
 
    // Basic PV relates slots (used for RTYP pseudo field).
    //
@@ -184,27 +174,6 @@ public:
 
    // "Property" access functions.
    //
-   void    setVariableNameProperty (QString variableName);
-   QString getVariableNameProperty ();
-
-   void    setVariableNameSubstitutionsProperty (QString variableNameSubstitutions);
-   QString getVariableNameSubstitutionsProperty ();
-
-   // variable as tool tip
-   //
-   void setVariableAsToolTip (bool variableAsToolTipIn);
-   bool getVariableAsToolTip ();
-
-   // Allow user to drop new PVs into this widget
-   //
-   void setAllowDrop (bool allowDropIn);
-   bool getAllowDrop ();
-
-   // Display properties
-   // visible (widget is visible outside 'Designer')
-   //
-   void setRunVisible (bool visibleIn);
-   bool getRunVisible ();
 
 public slots:
    void requestEnabled (const bool & state);

@@ -57,7 +57,6 @@ void QCaSlider::setup() {
     // Set up default properties
     updateInProgress = false;
     writeOnChange = true;
-    localEnabled = true;
     setAllowDrop( false );
 
     scale = 1.0;
@@ -123,8 +122,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( localEnabled )
-            QWidget::setEnabled( true );
+        setDataDisabled( false );
     }
 
     /// If disconnected always disable the widget.
@@ -133,7 +131,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        QWidget::setEnabled( false );
+        setDataDisabled( true );
     }
 
     /// ??? not sure if this is right. Added as the record type was comming back as GENERIC::UNKNOWN deep in the write
@@ -219,36 +217,6 @@ void QCaSlider::userValueChanged( const int &value) {
     }
 }
 
-/*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QCaSlider::isEnabled() const
-{
-    /// Return what the state of widget would be if connected.
-    return localEnabled;
-}
-
-/*!
-   Override the default widget setEnabled to allow alarm states to override current enabled state
- */
-void QCaSlider::setEnabled( bool state )
-{
-    /// Note the new 'enabled' state
-    localEnabled = state;
-
-    /// Set the enabled state of the widget only if connected
-    if( isConnected )
-        QWidget::setEnabled( localEnabled );
-}
-
-/*!
-   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QCaSlider::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
 //==============================================================================
 // Drag drop
 void QCaSlider::setDrop( QVariant drop )
@@ -291,28 +259,6 @@ void QCaSlider::setSubscribe( bool subscribeIn )
 bool QCaSlider::getSubscribe()
 {
     return subscribe;
-}
-
-// variable as tool tip
-void QCaSlider::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaSlider::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaSlider::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QCaSlider::getAllowDrop()
-{
-    return allowDrop;
 }
 
 // Set scale and offset (used to scale data when inteter scale bar min and max are not suitable)

@@ -48,8 +48,13 @@ public:
     virtual void setDrop( QVariant ) {}
     virtual QVariant getDrop() { return QVariant(); }
 
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
+
 private:
     QWidget* owner;
+    bool allowDrop;
+
 };
 
 #endif // QCADRAGDROP_H

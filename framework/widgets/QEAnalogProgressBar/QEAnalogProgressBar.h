@@ -36,20 +36,11 @@
 class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar : public QAnalogProgressBar, public QCaWidget {
     Q_OBJECT
 
-    /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
-    /// A property name ending with 'Name' results in some sort of string a variable being displayed,
-    /// but will only accept alphanumeric and won't generate callbacks on change.
-    //
-    Q_PROPERTY( QString variable READ getVariableNameProperty WRITE setVariableNameProperty )
-    Q_PROPERTY( QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty )
-    Q_PROPERTY( bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip )
-    Q_PROPERTY( bool enabled READ isEnabled WRITE setEnabled )
-    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
+#include <singleVariableProperties.inc>
+#include <standardProperties.inc>
 
-    /// Display properties
-    //
+    // Display properties
     Q_PROPERTY( bool useDbDisplayLimits READ getUseDbDisplayLimits WRITE setUseDbDisplayLimits )
-    Q_PROPERTY( bool visible READ getRunVisible WRITE setRunVisible )
 
 
 public:
@@ -57,38 +48,13 @@ public:
     QEAnalogProgressBar( const QString &variableName, QWidget *parent = 0 );
     virtual ~QEAnalogProgressBar(){}
 
-    bool isEnabled() const;
-    void setEnabled( bool state );
-
-    // Property convenience functions
-    //
-    void    setVariableNameProperty( QString variableName );
-    QString getVariableNameProperty();
-
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions );
-    QString getVariableNameSubstitutionsProperty();
-
     // Variable Name and substitution
     //
     void setVariableNameAndSubstitutions( QString variableNameIn,
                                           QString variableNameSubstitutionsIn,
                                           unsigned int variableIndex );
 
-    // variable as tool tip
-    //
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
-    // Display properties
-
-    // useDbPrecision
-    //
-    void setUseDbPrecision( bool useDbPrecisionIn );
-    bool getUseDbPrecision();
+    // Property convenience functions
 
     // useDbDisplayLimits, e.g. as specified by LOPR and HOPR fields for ai, ao, longin
     // and longout record types, to call setAnalogMinimum and setAnalogMaximum.
@@ -96,31 +62,21 @@ public:
     void setUseDbDisplayLimits( bool useDbDisplayLimitsIn );
     bool getUseDbDisplayLimits();
 
-    // visible (widget is visible outside 'Designer')
-    void setRunVisible( bool visibleIn );
-    bool getRunVisible();
-
 public slots:
-    void requestEnabled( const bool& state );
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
 
 
 protected:
     virtual QString getSprintfFormat ();
 
     QCaFloatingFormatting floatingFormatting;
-    bool localEnabled;
 
     void establishConnection( unsigned int variableIndex );
-
-    bool visible;               // Flag true if the widget should be visible outside 'Designer'
-    bool allowDrop;
 
 private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip( const QString& tip );
-
-    QCaVariableNamePropertyManager variableNamePropertyManager;
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
@@ -133,9 +89,11 @@ private slots:
 
     void setProgressBarValue( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
 
-    void useNewVariableNameProperty( QString variableNameIn,
-                                     QString variableNameSubstitutionsIn,
-                                     unsigned int variableIndex );
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+    {
+        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+    }
+//#include <variablePropertiesSlots.inc>  // MOC doesn't seem to like included private slots.
 
 signals:
     void dbValueChanged( const double& out );

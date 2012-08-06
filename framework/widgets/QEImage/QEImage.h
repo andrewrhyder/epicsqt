@@ -62,18 +62,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
     // Variable Name and substitution
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // visible (widget is visible outside 'Designer')
-    void setRunVisible( bool visibleIn );
-    bool getRunVisible();
-
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
     // Allow user to set the video format
     enum formatOptions{ GREY8, GREY12, GREY16, RGB_888 };
     void setFormatOption( formatOptions formatOption );
@@ -147,13 +135,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
 
   protected:
     QCaIntegerFormatting integerFormatting; // Integer formatting options.
-    bool caEnabled;
 
     void establishConnection( unsigned int variableIndex );
-
-    bool caVisible;               // Flag true if the widget should be visible outside 'Designer'
-
-    bool allowDrop;
 
     enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, QEIMAGE_NUM_VARIABLES };
 
@@ -198,7 +181,7 @@ private slots:
 
 
   public slots:
-    void requestEnabled( const bool& state );
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
     void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );

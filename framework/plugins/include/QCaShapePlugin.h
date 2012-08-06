@@ -66,7 +66,18 @@ class QCaShapePlugin : public QCaShape {
     void    setVariableName6Property( QString variable6Name ){ variableNamePropertyManagers[5].setVariableNameProperty( variable6Name ); }
     QString getVariableName6Property(){ return variableNamePropertyManagers[5].getVariableNameProperty(); }
 
+
+    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < QCASHAPE_NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
+    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManagers[0].getSubstitutionsProperty(); }
+
+    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+
     Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
+
+
 
     Q_ENUMS(animationOptions)
     enum animationOptions {Width = QCaShape::Width,
@@ -156,14 +167,6 @@ class QCaShapePlugin : public QCaShape {
 
     Q_PROPERTY(bool border READ getBorder WRITE setBorder)
     Q_PROPERTY(bool fill READ getFill WRITE setFill)
-
-    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ for( int i = 0; i < QCASHAPE_NUM_VARIABLES; i++ ) variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions ); }
-    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManagers[0].getSubstitutionsProperty(); }
-
-    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
-    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
 
     Q_ENUMS(shapeOptions)
     Q_PROPERTY(shapeOptions shape READ getShapeProperty WRITE setShapeProperty)

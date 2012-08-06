@@ -47,9 +47,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     enum Animations {Width, Height, X, Y, Transperency, Rotation, ColourHue, ColourSaturation, ColourValue, ColourIndex, Penwidth};
 
 
-    bool isEnabled() const;
-    void setEnabled( bool state );
-
     // Property convenience functions
 
     // Variable name and substitutions
@@ -79,18 +76,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     void setSubscribe( const bool subscribe );
     bool getSubscribe();
 
-    // variable as tool tip
-    void setVariableAsToolTip( const bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
     // shape
     void setShape( Shape shape );
     Shape getShape();
-
 
     // number of points
     void setNumPoints( const unsigned int numPoints );
@@ -136,8 +124,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
 
   protected:
     QCaIntegerFormatting integerFormatting;                     /// Integer formatting options
-    bool allowDrop;
-
 
   #define OFFSETS_SIZE QCASHAPE_NUM_VARIABLES
     double offsets[OFFSETS_SIZE];
@@ -167,8 +153,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     unsigned int lineWidth;
     bool drawBorder;
 
-    bool localEnabled;
-
     void colorChange( unsigned int index );                     /// Act on a color property change. (will update shape if using the color)
     unsigned int currentColor;                                  /// Index into colorsProperty last used when setting brush color
 
@@ -179,7 +163,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     void setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
 
   public slots:
-    void requestEnabled( const bool& state );
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
 
   signals:
     void dbValueChanged1( const qlonglong& out );

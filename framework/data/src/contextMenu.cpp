@@ -29,7 +29,7 @@ contextMenuObject::contextMenuObject()
     dragDataAction = a;
     manageChecked( true );
 
-    setTitle( "Standard" );
+    setTitle( "Edit" );
 
     QObject::connect( this, SIGNAL( triggered ( QAction* ) ), this, SLOT( contextMenuTriggered( QAction* )) );
     QObject::connect( this, SIGNAL( aboutToShow () ), this, SLOT( setChecked( )) );

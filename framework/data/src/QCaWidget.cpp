@@ -321,4 +321,14 @@ bool QCaWidget::getVariableAsToolTip()
     return variableAsToolTip;
 }
 
-
+// Returns true if running within the Qt Designer application.
+// used when the behaviour needs to be different in designer.
+// For example, a run-time-visible property - always visible in designer, visible at run time dependant on the property.
+bool QCaWidget::inDesigner()
+{
+    // check if the current executable has 'designer' in the name
+    // Note, depending on Qt version, (and installation?) designer image may be 'designer' or 'designer-qt4'
+    QString appPath = QCoreApplication::applicationFilePath();
+    QFileInfo fi( appPath );
+    return fi.baseName().contains( "designer" );
+}

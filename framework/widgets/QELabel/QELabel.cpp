@@ -232,7 +232,7 @@ QVariant QELabel::copyData()
 
 void QELabel::paste( QVariant v )
 {
-    if( allowDrop )
+    if( getAllowDrop() )
     {
         setDrop( v );
     }
@@ -269,16 +269,4 @@ void QELabel::setUpdateOption( updateOptions updateOptionIn )
 QELabel::updateOptions QELabel::getUpdateOption()
 {
     return updateOption;
-}
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QELabel::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QELabel::getAllowDrop()
-{
-    return allowDrop;
 }

@@ -164,9 +164,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
 
     void establishConnection( unsigned int variableIndex );
 
-    bool visible;               // Flag true if the widget should be visible outside 'Designer'
-    void setRunVisible( bool visibleIn );
-
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setPlotData( const QVector<double>& values, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );

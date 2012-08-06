@@ -53,17 +53,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QCaWidget, p
     // Variable Name and substitution
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
 
   protected:
     void establishConnection( unsigned int variableIndex );
 
     updateOptions updateOption;
-
-    bool allowDrop;
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );

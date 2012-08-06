@@ -39,25 +39,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
     QCaComboBox( QWidget *parent = 0 );
     QCaComboBox( const QString& variableName, QWidget *parent = 0 );
 
-    bool isEnabled() const;
-    void setEnabled( bool state );
-
-    // Property convenience functions
-
     // Variable Name and variable substitutions
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
     // subscribe
     void setSubscribe( bool subscribe );
     bool getSubscribe();
-
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
 
     // use database enumerations
     void setUseDbEnumerations( bool useDbEnumerations );
@@ -67,8 +54,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
   protected:
     QCaIntegerFormatting integerFormatting;
     bool useDbEnumerations;
-    bool localEnabled;
-    bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -78,7 +63,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
     void userValueChanged( int value );
 
   public slots:
-    void requestEnabled( const bool& state );
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
 
 signals:
     void dbValueChanged( const qlonglong& out );

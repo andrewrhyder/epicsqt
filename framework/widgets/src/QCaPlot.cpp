@@ -54,7 +54,6 @@ void QCaPlot::setup() {
     setNumVariables(QCAPLOT_NUM_VARIABLES);
 
     // Set up default properties
-    visible = true;
     setAllowDrop( false );
 
     // Set the initial state
@@ -381,24 +380,6 @@ void QCaPlot::requestEnabled( const bool& state )
     setEnabled(state);
 }
 
-
-/*!
-  Manage property to set widget visible or not
- */
-void QCaPlot::setRunVisible( bool visibleIn )
-{
-    // Update the property
-    visible = visibleIn;
-
-    // If a container profile has been defined, then this widget is being used in a real GUI and
-    // should be visible or not according to the visible property. (While in Designer it can always be displayed)
-    ContainerProfile profile;
-    if( profile.isProfileDefined() )
-    {
-        setVisible( visible );
-    }
-
-}
 
 // Update the color of the trace
 void QCaPlot::setCurveColor( const QColor color, const unsigned int variableIndex )

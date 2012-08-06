@@ -68,8 +68,6 @@ void QCaShape::setup() {
     antialiased = false;
     pixmap.load(":/images/qt-logo.png");
 
-    localEnabled = true;
-
     setBackgroundRole(QPalette::NoRole);
 
     originTranslation = QPoint( 0, 0 );
@@ -181,8 +179,7 @@ void QCaShape::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( localEnabled )
-            QWidget::setEnabled( true );
+        setDataDisabled( false );
     }
 
     /// If disconnected always disable the widget.
@@ -191,7 +188,7 @@ void QCaShape::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        QWidget::setEnabled( false );
+        setDataDisabled( true );
     }
 }
 
@@ -477,36 +474,6 @@ void QCaShape::colorChange( unsigned int index )
     }
 }
 
-/*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QCaShape::isEnabled() const
-{
-    /// Return what the state of widget would be if connected.
-    return localEnabled;
-}
-
-/*!
-   Override the default widget setEnabled to allow alarm states to override current enabled state
- */
-void QCaShape::setEnabled( bool state )
-{
-    /// Note the new 'enabled' state
-    localEnabled = state;
-
-    /// Set the enabled state of the widget only if connected
-    if( isConnected )
-        QWidget::setEnabled( localEnabled );
-}
-
-/*!
-   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QCaShape::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
 //==============================================================================
 // Drag and Drop
 void QCaShape::setDrop( QVariant drop )
@@ -606,28 +573,6 @@ void QCaShape::setSubscribe( bool subscribeIn )
 bool QCaShape::getSubscribe()
 {
     return subscribe;
-}
-
-// variable as tool tip
-void QCaShape::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaShape::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaShape::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QCaShape::getAllowDrop()
-{
-    return allowDrop;
 }
 
 // shape

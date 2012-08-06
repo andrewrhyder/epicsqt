@@ -188,3 +188,15 @@ void QCaDragDrop::qcaMousePressEvent(QMouseEvent *event)
         event->ignore();
     }
 }
+
+// allow drop (Enable/disable as a drop site for drag and drop)
+void QCaDragDrop::setAllowDrop( bool allowDropIn )
+{
+    allowDrop = allowDropIn;
+    owner->setAcceptDrops( allowDrop );
+}
+
+bool QCaDragDrop::getAllowDrop()
+{
+    return allowDrop;
+}

@@ -64,8 +64,6 @@ void QEAnalogProgressBar::setup() {
     setNumVariables( 1 );
 
     // Set up default properties
-    localEnabled = true;
-    visible = true;
     useDbDisplayLimits = false;
     setAllowDrop( false );
 
@@ -90,19 +88,6 @@ void QEAnalogProgressBar::setup() {
                       this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 
 }
-
-
-/*! ----------------------------------------------------------------------------
-    Slot to recieve variable name and macro substitutions property changes.
-*/
-void QEAnalogProgressBar::useNewVariableNameProperty( QString variableNameIn,
-                                                      QString variableNameSubstitutionsIn,
-                                                      unsigned int variableIndex )
-{
-    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-}
-
-
 
 /*! ----------------------------------------------------------------------------
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
@@ -168,8 +153,7 @@ void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( localEnabled )
-            QWidget::setEnabled( true );
+        setDataDisabled( false );
 
         isFirstUpdate = true;
     }
@@ -180,7 +164,7 @@ void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        QWidget::setEnabled( false );
+        setDataDisabled( true );
     }
 }
 
@@ -265,41 +249,6 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
 }
 
 
-/*! ----------------------------------------------------------------------------
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QEAnalogProgressBar::isEnabled() const
-{
-    /// Return what the state of widget would be if connected.
-    return localEnabled;
-}
-
-/*! ----------------------------------------------------------------------------
-   Override the default widget setEnabled to allow alarm states to override
-   current enabled state.
- */
-void QEAnalogProgressBar::setEnabled( bool state )
-{
-    /// Note the new 'enabled' state
-    localEnabled = state;
-
-    /// Set the enabled state of the widget only if connected
-    if( isConnected ) {
-        QWidget::setEnabled( localEnabled );
-    }
-}
-
-
-/*! ----------------------------------------------------------------------------
-   Slot similar to default widget setEnabled, but will use our own setEnabled
-   which will allow alarm states to override current enabled state.
- */
-void QEAnalogProgressBar::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
-
 //==============================================================================
 // Drag drop
 void QEAnalogProgressBar::setDrop( QVariant drop )
@@ -326,33 +275,6 @@ QVariant QEAnalogProgressBar::copyData()
    return QVariant( this->getValue () );
 }
 
-//==============================================================================
-// Property convenience functions
-//
-void    QEAnalogProgressBar::setVariableNameProperty( QString variableName )
-{
-    variableNamePropertyManager.setVariableNameProperty( variableName );
-}
-
-//------------------------------------------------------------------------------
-QString QEAnalogProgressBar::getVariableNameProperty()
-{
-    return variableNamePropertyManager.getVariableNameProperty();
-}
-
-//------------------------------------------------------------------------------
-void    QEAnalogProgressBar::setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
-{
-    variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions );
-}
-
-//------------------------------------------------------------------------------
-QString QEAnalogProgressBar::getVariableNameSubstitutionsProperty()
-{
-    return variableNamePropertyManager.getSubstitutionsProperty();
-}
-
-
 //------------------------------------------------------------------------------
 // Access functions for variableName and variableNameSubstitutions
 // variable substitutions Example: SECTOR=01 will result in any occurance
@@ -373,33 +295,6 @@ void QEAnalogProgressBar::setVariableNameAndSubstitutions( QString variableNameI
 }
 
 //------------------------------------------------------------------------------
-// variable as tool tip
-void QEAnalogProgressBar::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-
-//------------------------------------------------------------------------------
-bool QEAnalogProgressBar::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
-//------------------------------------------------------------------------------
-// Display properties
-void  QEAnalogProgressBar::setUseDbPrecision( bool useDbPrecisionIn )
-{
-    useDbPrecison = useDbPrecisionIn;
-}
-
-//------------------------------------------------------------------------------
-bool  QEAnalogProgressBar::getUseDbPrecision()
-{
-    return useDbPrecison;
-}
-
-
-//------------------------------------------------------------------------------
 // useDbDisplayLimits
 void QEAnalogProgressBar::setUseDbDisplayLimits( bool useDbDisplayLimitsIn )
 {
@@ -410,44 +305,5 @@ void QEAnalogProgressBar::setUseDbDisplayLimits( bool useDbDisplayLimitsIn )
 bool QEAnalogProgressBar::getUseDbDisplayLimits()
 {
     return useDbDisplayLimits;
-}
-
-
-//------------------------------------------------------------------------------
-// visible (widget is visible outside 'Designer')
-void QEAnalogProgressBar::setRunVisible( bool visibleIn )
-{
-    // Update the property
-    visible = visibleIn;
-
-    // If a container profile has been defined, then this widget is being used in a real GUI and
-    // should be visible or not according to the visible property.
-    // (While in Designer it can always be displayed)
-    //
-    ContainerProfile profile;
-    if( profile.isProfileDefined() )
-    {
-        setVisible( visible );
-    }
-
-}
-
-//------------------------------------------------------------------------------
-bool QEAnalogProgressBar::getRunVisible()
-{
-    return visible;
-}
-
-//------------------------------------------------------------------------------
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QEAnalogProgressBar::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QEAnalogProgressBar::getAllowDrop()
-{
-    return allowDrop;
 }
 // end

@@ -38,9 +38,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
     QCaSpinBox( QWidget *parent = 0 );
     QCaSpinBox( const QString& variableName, QWidget *parent = 0 );
 
-    bool isEnabled() const;
-    void setEnabled( bool state );
-
     // Property convenience functions
 
     // Variable name and substitutions
@@ -50,18 +47,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
     void setSubscribe( bool subscribe );
     bool getSubscribe();
 
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
   protected:
     QCaFloatingFormatting floatingFormatting;
-    bool localEnabled;
-    bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -71,7 +58,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
     void userValueChanged( double value );
 
   public slots:
-    void requestEnabled( const bool& state );
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
 
   signals:
     void dbValueChanged( const double& out );

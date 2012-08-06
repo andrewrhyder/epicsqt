@@ -43,9 +43,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
     QCaPushButton( QWidget *parent = 0 );
     QCaPushButton( const QString& variableName, QWidget *parent = 0 );
 
-    bool isEnabled() const;
-    void setEnabled( const bool& state ){ setGenericEnabled( state ); }
-
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo ) { QCaGenericButton::connectionChanged( connectionInfo ); }
     void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) { setGenericButtonText( text, alarmInfo, timestamp, variableIndex); }
@@ -56,9 +53,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
 
 public slots:
     void launchGui( QString guiName, QEForm::creationOptions creationOption ){ QCaGenericButton::launchGui( guiName, creationOption); }
-
-    void requestEnabled( const bool& state );
-
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
     void onGeneralMessage( QString message ){ QCaGenericButton::onGeneralMessage( message ); }
 
 
@@ -79,8 +74,6 @@ private:
     void setButtonText( QString text ){ QPushButton::setText( text ); }
     QString getButtonText(){ return text(); }
     void setButtonIcon( QIcon& icon ) {setIcon( icon ); }
-
-    void setButtonEnabled( bool state ){ QWidget::setEnabled( state ); }
 
     void setButtonStyleSheet( QString style ){ setStyleSheet( style ); }
 

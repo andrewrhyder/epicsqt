@@ -66,23 +66,6 @@ void QCaPushButton::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
-/*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QCaPushButton::isEnabled() const
-{
-    // Return what the state of widget would be if connected.
-    return localEnabled;
-}
-
-/*!
-   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QCaPushButton::requestEnabled( const bool& state )
-{
-    setGenericEnabled( state );
-}
-
 //==============================================================================
 // Drag drop
 void QCaPushButton::setDrop( QVariant drop )

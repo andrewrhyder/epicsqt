@@ -38,28 +38,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEBitStatus : public QBitStatus, public QCaW
 
 /// #ifdef PLUGIN_APP
 
-   // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
-   // A property name ending with 'Name' results in some sort of string a variable being displayed,
-   // but will only accept alphanumeric and won't generate callbacks on change.
-   //
-   Q_PROPERTY (QString variable
-               READ  getVariableNameProperty
-               WRITE setVariableNameProperty)
-
-   Q_PROPERTY (QString variableSubstitutions
-               READ  getVariableNameSubstitutionsProperty
-               WRITE setVariableNameSubstitutionsProperty)
-
-   Q_PROPERTY (bool variableAsToolTip
-               READ  getVariableAsToolTip
-               WRITE setVariableAsToolTip)
-
-   Q_PROPERTY (bool enabled READ isEnabled WRITE setEnabled)
-   Q_PROPERTY (bool allowDrop READ getAllowDrop WRITE setAllowDrop)
-
-   // Display properties
-   //
-   Q_PROPERTY (bool visible READ getRunVisible WRITE setRunVisible)
+#include <singleVariableProperties.inc>
+#include <standardProperties.inc>
 
 /// #endif
 
@@ -67,47 +47,18 @@ public:
    QEBitStatus (QWidget * parent = 0);
    QEBitStatus (const QString & variableName, QWidget * parent = 0);
 
-   bool isEnabled () const;
-   void setEnabled (bool state);
-
-   // Property functions
-   //
-   void setVariableNameProperty (QString variableName);
-   QString getVariableNameProperty ();
-
-   void setVariableNameSubstitutionsProperty (QString variableNameSubstitutions);
-   QString getVariableNameSubstitutionsProperty ();
-
    // Variable Name and substitution
    //
    void setVariableNameAndSubstitutions (QString variableNameIn,
                                          QString variableNameSubstitutionsIn,
                                          unsigned int variableIndex);
 
-   // variable as tool tip
-   //
-   void setVariableAsToolTip (bool variableAsToolTip);
-   bool getVariableAsToolTip ();
-
-   // Allow user to drop new PVs into this widget
-   void setAllowDrop( bool allowDropIn );
-   bool getAllowDrop();
-
-   // Display properties
-   // visible (widget is visible outside 'Designer')
-   //
-   void setRunVisible (bool visibleIn);
-   bool getRunVisible ();
-
 public slots:
-   void requestEnabled (const bool & state);
+   void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
 
 
 protected:
    QCaIntegerFormatting integerFormatting;
-   bool localEnabled;
-   bool visible;      // Flag true if the widget should be visible outside 'Designer'
-   bool allowDrop;
 
    void establishConnection (unsigned int variableIndex);
 
@@ -116,8 +67,6 @@ private:
 
    qcaobject::QCaObject * createQcaItem (unsigned int variableIndex);
    void updateToolTip (const QString & tip);
-
-   QCaVariableNamePropertyManager variableNamePropertyManager;
 
    QCAALARMINFO_SEVERITY lastSeverity;
    bool isConnected;
@@ -129,9 +78,11 @@ private slots:
    void setBitStatusValue (const long &value, QCaAlarmInfo &,
                            QCaDateTime &, const unsigned int &);
 
-   void useNewVariableNameProperty (QString variableNameIn,
-                                    QString variableNameSubstitutionsIn,
-                                    unsigned int variableIndex);
+   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+   {
+       setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+   }
+//#include <variablePropertiesSlots.inc>  // MOC doesn't seem to like included private slots.
 
 signals:
    void dbValueChanged (const long &out);

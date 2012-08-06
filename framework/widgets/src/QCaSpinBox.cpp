@@ -58,7 +58,6 @@ void QCaSpinBox::setup() {
     programaticValueChange = false;
 
     // Set up default properties
-    localEnabled = true;
     setAllowDrop( false );
 
     // Set the initial state
@@ -122,8 +121,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( localEnabled )
-            QWidget::setEnabled( true );
+        setDataDisabled( false );
     }
 
     /// If disconnected always disable the widget.
@@ -132,7 +130,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        QWidget::setEnabled( false );
+        setDataDisabled( true );
     }
 
     /// ??? not sure if this is right. Added as the record type was comming back as GENERIC::UNKNOWN deep in the write
@@ -227,36 +225,6 @@ void QCaSpinBox::userValueChanged( double value ) {
     }
 }
 
-/*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QCaSpinBox::isEnabled() const
-{
-    /// Return what the state of widget would be if connected.
-    return localEnabled;
-}
-
-/*!
-   Override the default widget setEnabled to allow alarm states to override current enabled state
- */
-void QCaSpinBox::setEnabled( bool state )
-{
-    /// Note the new 'enabled' state
-    localEnabled = state;
-
-    /// Set the enabled state of the widget only if connected
-    if( isConnected )
-        QWidget::setEnabled( localEnabled );
-}
-
-/*!
-   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QCaSpinBox::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
 //==============================================================================
 // Drag drop
 void QCaSpinBox::setDrop( QVariant drop )
@@ -289,26 +257,4 @@ void QCaSpinBox::setSubscribe( bool subscribeIn )
 bool QCaSpinBox::getSubscribe()
 {
     return subscribe;
-}
-
-// variable as tool tip
-void QCaSpinBox::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaSpinBox::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaSpinBox::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QCaSpinBox::getAllowDrop()
-{
-    return allowDrop;
 }

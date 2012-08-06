@@ -33,12 +33,11 @@
 */
 Link::Link( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
 
-    // If a container profile has been defined, then this widget is being used in a real GUI and
-    // should be visible or not according to the visible property. (While in Designer it can always be displayed)
+    // If this widget is not being used in a real GUI (it is in Designer) then it
+    // should be displayed all the time, not visible according to the visible property.
     visible = false;
-    ContainerProfile profile;
-    if( profile.isProfileDefined() )
-        setVisible( visible );
+    if( inDesigner() )
+        setVisible( true );
 
     // Set default properties
     setText( "Link" );
@@ -216,13 +215,10 @@ void Link::setRunVisible( bool visibleIn )
     // Update the property
     visible = visibleIn;
 
-    // If a container profile has been defined, then this widget is being used in a real GUI and
-    // should be visible or not according to the visible property. (While in Designer it can always be displayed)
-    ContainerProfile profile;
-    if( profile.isProfileDefined() )
-    {
+    // If this widget is being used in a real GUI (not in Designer) then it
+    // should be visible according to the visible property.
+    if( !inDesigner() )
         setVisible( visible );
-    }
 
 }
 bool Link::getRunVisible()

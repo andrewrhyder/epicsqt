@@ -43,27 +43,12 @@ class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStrin
 
     enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON, UPDATE_STATE };
 
-    bool isEnabled() const;
-    void setGenericEnabled( const bool& state );
-
-    // 'Data button' Property convenience functions
-
-    // Property convenience functions
-
     // Variable Name and substitution
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
     // subscribe
     void setSubscribe( bool subscribe );
     bool getSubscribe();
-
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
 
     // Properties
 
@@ -170,7 +155,6 @@ public:
     void establishConnection( unsigned int variableIndex );
 
     updateOptions updateOption;
-    bool allowDrop;
 
     QString labelText;                                                 // Fixed label text to which substitutions will be applied
 
@@ -187,12 +171,12 @@ private:
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
+    //!! Any of these that are accessing the QWidget don't have to call back up to the specific push button
     virtual void setButtonState( bool checked ) = 0;
     virtual void setButtonText( QString text ) = 0;
     virtual QString getButtonText() = 0;
     virtual void setButtonIcon( QIcon& icon ) = 0;
 
-    virtual void setButtonEnabled( bool state ) = 0;
     virtual void setButtonStyleSheet( QString style ) = 0;
 
     virtual void emitDbValueChanged( QString text ) = 0;

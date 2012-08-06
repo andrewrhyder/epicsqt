@@ -68,9 +68,6 @@ void QEBitStatus::setup ()
    setNumVariables (1);
 
    // Set up default properties
-   //
-   localEnabled = true;
-   visible = true;
    setAllowDrop( false );
 
    // Set the initial state
@@ -98,18 +95,6 @@ void QEBitStatus::setup ()
                      this, SLOT (useNewVariableNameProperty (QString, QString, unsigned int)));
 }
 
-
-/*! ----------------------------------------------------------------------------
-    Slot to recieve variable name and macro substitutions property changes.
-*/
-void QEBitStatus::useNewVariableNameProperty (QString variableNameIn,
-                                               QString variableNameSubstitutionsIn,
-                                               unsigned int variableIndex)
-{
-   setVariableNameAndSubstitutions (variableNameIn,
-                                    variableNameSubstitutionsIn,
-                                    variableIndex);
-}
 
 
 /*! ----------------------------------------------------------------------------
@@ -178,16 +163,14 @@ void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
       isConnected = true;
       updateToolTipConnection (isConnected);
 
-      if (localEnabled) {
-         QWidget::setEnabled (true);
-      }
+      setDataDisabled( false );
    }
    // If disconnected always disable the widget.
    else {
       isConnected = false;
       updateToolTipConnection (isConnected);
 
-      QWidget::setEnabled (false);
+      setDataDisabled( true );
    }
 }
 
@@ -223,41 +206,6 @@ void QEBitStatus::setBitStatusValue (const long &value,
 }
 
 
-/*! ----------------------------------------------------------------------------
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QEBitStatus::isEnabled () const
-{
-   /// Return what the state of widget would be if connected.
-   return localEnabled;
-}
-
-/*! ----------------------------------------------------------------------------
-   Override the default widget setEnabled to allow alarm states to override
-   current enabled state.
- */
-void QEBitStatus::setEnabled (bool state)
-{
-   /// Note the new 'enabled' state
-   localEnabled = state;
-
-   /// Set the enabled state of the widget only if connected
-   if (isConnected) {
-      QWidget::setEnabled (localEnabled);
-   }
-}
-
-
-/*! ----------------------------------------------------------------------------
-   Slot similar to default widget setEnabled, but will use our own setEnabled
-   which will allow alarm states to override current enabled state.
- */
-void QEBitStatus::requestEnabled (const bool & state)
-{
-   setEnabled (state);
-}
-
-
 //==============================================================================
 // Drag drop
 //
@@ -285,33 +233,6 @@ QVariant QEBitStatus::copyData()
    return QVariant( this->getValue () );
 }
 
-//==============================================================================
-// Property convenience functions
-//
-void QEBitStatus::setVariableNameProperty (QString variableName)
-{
-   variableNamePropertyManager.setVariableNameProperty (variableName);
-}
-
-//------------------------------------------------------------------------------
-QString QEBitStatus::getVariableNameProperty ()
-{
-   return variableNamePropertyManager.getVariableNameProperty ();
-}
-
-//------------------------------------------------------------------------------
-void QEBitStatus::setVariableNameSubstitutionsProperty (QString variableNameSubstitutions)
-{
-   variableNamePropertyManager.setSubstitutionsProperty (variableNameSubstitutions);
-}
-
-//------------------------------------------------------------------------------
-QString QEBitStatus::getVariableNameSubstitutionsProperty ()
-{
-   return variableNamePropertyManager.getSubstitutionsProperty ();
-}
-
-
 //------------------------------------------------------------------------------
 // Access functions for variableName and variableNameSubstitutions
 // variable substitutions Example: SECTOR=01 will result in any occurance
@@ -329,58 +250,5 @@ void QEBitStatus::setVariableNameAndSubstitutions (QString variableNameIn,
 
    setVariableName (variableNameIn, variableIndex + 1);
    establishConnection (variableIndex + 1);
-}
-
-//------------------------------------------------------------------------------
-// variable as tool tip
-void QEBitStatus::setVariableAsToolTip (bool variableAsToolTipIn)
-{
-   variableAsToolTip = variableAsToolTipIn;
-}
-
-//------------------------------------------------------------------------------
-bool QEBitStatus::getVariableAsToolTip ()
-{
-   return variableAsToolTip;
-}
-
-//------------------------------------------------------------------------------
-// Display properties
-//
-// visible (widget is visible outside 'Designer')
-//
-void QEBitStatus::setRunVisible (bool visibleIn)
-{
-   // Update the property
-   visible = visibleIn;
-
-   // If a container profile has been defined, then this widget is being
-   // used in a real GUI and should be visible or not according to the
-   // visible property (while in Designer it can always be displayed).
-   //
-   ContainerProfile profile;
-   if (profile.isProfileDefined ()) {
-      setVisible (visible);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEBitStatus::getRunVisible ()
-{
-   return visible;
-}
-
-//------------------------------------------------------------------------------
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QEBitStatus::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QEBitStatus::getAllowDrop()
-{
-    return allowDrop;
 }
 // end

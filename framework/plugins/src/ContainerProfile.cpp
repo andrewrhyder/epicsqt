@@ -202,8 +202,6 @@ void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
 
     // flag a published profile now exists
     profileDefined = true;
-    qDebug() << "Profile created";
-
 }
 
 /*

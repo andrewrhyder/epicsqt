@@ -67,8 +67,6 @@ void QEImage::setup() {
     setNumVariables( QEIMAGE_NUM_VARIABLES );
 
     // Set up default properties
-    caEnabled = true;
-    caVisible = true;
     setAllowDrop( false );
     resizeOption = RESIZE_OPTION_ZOOM;
     zoom = 100;
@@ -479,8 +477,7 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = true;
         updateToolTipConnection( isConnected );
 
-        if( caEnabled )
-            setEnabled( true );
+        setDataDisabled( false );
     }
 
     /// If disconnected always disable the widget.
@@ -489,7 +486,7 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
         isConnected = false;
         updateToolTipConnection( isConnected );
 
-        scrollArea->setEnabled( false );
+        setDataDisabled( true );
     }
 }
 
@@ -840,40 +837,6 @@ void QEImage::setImageBuff()
 }
 
 //=================================================================================================
-// Manage the enabled state
-//=================================================================================================
-
-/*!
-   Override the default widget isEnabled to allow alarm states to override current enabled state
- */
-bool QEImage::isEnabled() const
-{
-    /// Return what the state of widget would be if connected.
-    return caEnabled;
-}
-
-/*!
-   Override the default widget setEnabled to allow alarm states to override current enabled state
- */
-void QEImage::setEnabled( bool state )
-{
-    /// Note the new 'enabled' state
-    caEnabled = state;
-
-    /// Set the enabled state of the widget only if connected
-    if( isConnected )
-        scrollArea->setEnabled( caEnabled );
-}
-
-/*!
-   Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QEImage::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
-//=================================================================================================
 
 // Add or remove the button bar
 void QEImage::manageButtonBar()
@@ -1136,7 +1099,7 @@ QVariant QEImage::copyData()
 
 void QEImage::paste( QVariant v )
 {
-    if( allowDrop )
+    if( getAllowDrop() )
     {
         setDrop( v );
     }
@@ -1152,48 +1115,6 @@ void QEImage::setVariableNameAndSubstitutions( QString variableNameIn, QString v
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
     establishConnection( variableIndex );
-}
-
-// variable as tool tip
-void QEImage::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QEImage::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
-// visible (widget is visible outside 'Designer')
-void QEImage::setRunVisible( bool visibleIn )
-{
-    // Update the property
-    caVisible = visibleIn;
-
-    // If a container profile has been defined, then this widget is being used in a real GUI and
-    // should be visible or not according to the visible property. (While in Designer it can always be displayed)
-    ContainerProfile profile;
-    if( profile.isProfileDefined() )
-    {
-        QWidget::setVisible( caVisible );
-    }
-
-}
-bool QEImage::getRunVisible()
-{
-    return caVisible;
-}
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QEImage::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QEImage::getAllowDrop()
-{
-    return allowDrop;
 }
 
 // Allow user to set the video format

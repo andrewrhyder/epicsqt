@@ -382,10 +382,6 @@ void QEPvProperties::common_setup ()
    //
    setNumVariables (1);
 
-   // Set up default properties
-   //
-   this->visible = true;
-
    // Enable drag drop onto this widget by default.
    //
    this->setAllowDrop (true);
@@ -409,20 +405,6 @@ void QEPvProperties::common_setup ()
    QObject::connect (
          &variableNamePropertyManager, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
          this,                         SLOT   (useNewVariableNameProperty (QString, QString, unsigned int)));
-}
-
-//------------------------------------------------------------------------------
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=04 will result in any occurance
-// of $(SECTOR) in variable name being replaced with 04.
-//
-void QEPvProperties::useNewVariableNameProperty (QString variableNameIn,
-                                                  QString variableNameSubstitutionsIn,
-                                                  unsigned int variableIndex)
-{
-   setVariableNameAndSubstitutions (variableNameIn,
-                                    variableNameSubstitutionsIn,
-                                    variableIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -723,11 +705,12 @@ void QEPvProperties::setFieldValue (const QString &value,
 
 
 //------------------------------------------------------------------------------
-// Unlike most widgets, the freame is not disabled if/when PVs disconnet
+// Unlike most widgets, the freme is not disabled if/when PVs disconnet
+// Normally, setApplicationEnabled() is called
 //
 void QEPvProperties::requestEnabled (const bool & state)
 {
-   QWidget::setEnabled (state);
+    QWidget::setEnabled (state);
 }
 
 //==============================================================================
@@ -802,96 +785,9 @@ QVariant QEPvProperties::copyData()
 
 void QEPvProperties::paste( QVariant v )
 {
-    if( allowDrop )
+    if( getAllowDrop() )
     {
         setDrop( v );
     }
 }
-
-//==============================================================================
-// Property access functions
-//==============================================================================
-//
-void QEPvProperties::setVariableNameProperty (QString variableName)
-{
-   variableNamePropertyManager.setVariableNameProperty (variableName);
-}
-
-//----------------------------------------------------------------------------
-//
-QString QEPvProperties::getVariableNameProperty ()
-{
-   return variableNamePropertyManager.getVariableNameProperty ();
-}
-
-//----------------------------------------------------------------------------
-//
-void QEPvProperties::setVariableNameSubstitutionsProperty (QString variableNameSubstitutions)
-{
-   variableNamePropertyManager.setSubstitutionsProperty (variableNameSubstitutions);
-}
-
-//----------------------------------------------------------------------------
-//
-QString QEPvProperties::getVariableNameSubstitutionsProperty ()
-{
-   return variableNamePropertyManager.getSubstitutionsProperty();
-}
-
-//----------------------------------------------------------------------------
-//
-void QEPvProperties::setVariableAsToolTip (bool variableAsToolTipIn)
-{
-   this->variableAsToolTip = variableAsToolTipIn;
-}
-
-//----------------------------------------------------------------------------
-//
-bool QEPvProperties::getVariableAsToolTip ()
-{
-   return this->variableAsToolTip;
-}
-
-//----------------------------------------------------------------------------
-// Allow user to drop new PVs into this widget
-//
-void QEPvProperties::setAllowDrop (bool allowDropIn)
-{
-   this->allowDrop = allowDropIn;
-   this->setAcceptDrops (this->allowDrop);
-}
-
-//----------------------------------------------------------------------------
-//
-bool QEPvProperties::getAllowDrop ()
-{
-   return this->allowDrop;
-}
-
-//----------------------------------------------------------------------------
-//
-void QEPvProperties::setRunVisible (bool visibleIn)
-{
-   // Update the property
-   //
-   this->visible = visibleIn;
-
-   // If a container profile has been defined, then this widget is being used in a real GUI and
-   // should be visible or not according to the visible property.
-   // (While in Designer it can always be displayed)
-   //
-   ContainerProfile profile;
-   if (profile.isProfileDefined ())
-   {
-       setVisible (this->visible);
-   }
-}
-
-//----------------------------------------------------------------------------
-//
-bool QEPvProperties::getRunVisible ()
-{
-    return this->visible;
-}
-
 // end
