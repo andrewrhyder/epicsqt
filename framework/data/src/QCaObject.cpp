@@ -111,8 +111,11 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     readMachine = new qcastatemachine::ReadQCaStateMachine( this );
     writeMachine = new qcastatemachine::WriteQCaStateMachine( this );
 
+    // Set a timer to retry if no connection
+    channelExpiredMessage = false;
     QObject::connect( &setChannelTimer, SIGNAL( timeout() ), this, SLOT( setChannelExpired() ) );
     setChannelTimer.stop();
+
     // Start/request connecting state
     connectionMachine->process( qcastatemachine::CONNECTED );
 
@@ -539,6 +542,7 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
     switch( dataUpdateEvent->reason ) {
         case caobject::CONNECTION_UP :
         {
+            channelExpiredMessage = false;
             connectionMachine->active = true;
             connectionMachine->process( qcastatemachine::CONNECTED );
             subscriptionMachine->process( subscriptionMachine->requestState );
@@ -965,10 +969,11 @@ void QCaObject::setChannelExpired() {
     emit connectionChanged( connectionInfo );
 
     // Generate a user message
-    if( userMessage )
+    if( userMessage && !channelExpiredMessage )
     {
         QString msg( recordName );
-        userMessage->sendMessage( msg.append( " Channel expired, retrying" ), "QCaObject::setChannelExpired()", MESSAGE_TYPE_WARNING );
+        userMessage->sendMessage( msg.append( " Channel expired, will keep retrying" ), "QCaObject::setChannelExpired()", MESSAGE_TYPE_WARNING );
+        channelExpiredMessage = true;
     }
 
     // Update the current state

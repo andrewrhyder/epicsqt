@@ -163,6 +163,7 @@ namespace qcaobject {
       bool isStatField;
 
       unsigned char signalsToSend;
+      bool channelExpiredMessage;
 
     private slots:
       void setChannelExpired();
