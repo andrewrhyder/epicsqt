@@ -146,7 +146,6 @@ void QEImage::setup() {
     scrollArea->setFrameStyle( QFrame::NoFrame );
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget( videoWidget );
-    scrollArea->setEnabled( false );  // Reflects initial disconnected state
 
     // Add the pixel display labels
     currentCursorPixelLabel = new QLabel();
