@@ -63,10 +63,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWi
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
     // confirm write
     void setConfirmWrite( bool confirmWrite );
     bool getConfirmWrite();

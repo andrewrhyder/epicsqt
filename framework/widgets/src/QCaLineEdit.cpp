@@ -404,15 +404,3 @@ bool QCaLineEdit::getConfirmWrite()
 {
     return confirmWrite;
 }
-
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaLineEdit::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QCaLineEdit::getAllowDrop()
-{
-    return allowDrop;
-}

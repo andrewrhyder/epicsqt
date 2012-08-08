@@ -81,6 +81,8 @@ private:
     unsigned int numVariables;              /// The number of process variables that will be managed for the QCa widget.
     qcaobject::QCaObject** qcaItem;          /// CA access - provides a stream of updates. One for each variable name used by the QCa widget
 
+    void userLevelChanged( userLevels level );
+
 public:
     static bool inDesigner();
 };

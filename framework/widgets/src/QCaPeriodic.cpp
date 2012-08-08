@@ -838,18 +838,6 @@ bool QCaPeriodic::getVariableAsToolTip()
     return variableAsToolTip;
 }
 
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaPeriodic::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QCaPeriodic::getAllowDrop()
-{
-    return allowDrop;
-}
-
 // variable 1 type
 void QCaPeriodic::setVariableType1( variableTypes variableType1In )
 {

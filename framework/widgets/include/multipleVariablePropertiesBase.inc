@@ -74,6 +74,7 @@
 
   private:
     QCaVariableNamePropertyManager variableNamePropertyManagers[NUM_VARIABLES];
+  public:
 
 // Define a variable
 // Note, the QPROPERTY declaration itself can't be in this macro

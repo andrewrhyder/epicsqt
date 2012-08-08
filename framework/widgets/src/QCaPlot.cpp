@@ -391,18 +391,6 @@ void QCaPlot::setCurveColor( const QColor color, const unsigned int variableInde
     }
 }
 
-// allow drop (Enable/disable as a drop site for drag and drop)
-void QCaPlot::setAllowDrop( bool allowDropIn )
-{
-    allowDrop = allowDropIn;
-    setAcceptDrops( allowDrop );
-}
-
-bool QCaPlot::getAllowDrop()
-{
-    return allowDrop;
-}
-
 //==============================================================================
 // Drag and Drop
 void QCaPlot::setDrop( QVariant drop )

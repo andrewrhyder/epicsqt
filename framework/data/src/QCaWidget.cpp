@@ -332,3 +332,15 @@ bool QCaWidget::inDesigner()
     QFileInfo fi( appPath );
     return fi.baseName().contains( "designer" );
 }
+
+//==============================================================================
+// User level
+
+// The user level has changed
+// Modify the label properties accordingly
+void QCaWidget::userLevelChanged( userLevels level )
+{
+    styleUserLevelChanged( level );
+    checkVisibilityEnabledLevel( level );
+}
+

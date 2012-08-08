@@ -89,7 +89,6 @@ public slots:
 
     void stringFormattingChange(){ requestResend(); }
 
-    void userLevelChanged( userLevels level );
 
 
     // Drag and Drop

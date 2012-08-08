@@ -76,10 +76,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
-    // Allow user to drop new PVs into this widget
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
     void setYMin( double yMin );
     double getYMin();
 

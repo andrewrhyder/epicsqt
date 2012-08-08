@@ -239,17 +239,6 @@ void QELabel::paste( QVariant v )
 }
 
 //==============================================================================
-// User level
-
-// The user level has changed
-// Modify the label properties accordingly
-void QELabel::userLevelChanged( userLevels level )
-{
-    styleUserLevelChanged( level );
-    checkVisibilityEnabledLevel( level );
-}
-
-//==============================================================================
 // Property convenience functions
 
 
