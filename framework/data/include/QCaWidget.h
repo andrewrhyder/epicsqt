@@ -60,6 +60,7 @@ public:
     void setupContextMenu( QWidget* w );
     QColor getColor( QCaAlarmInfo& alarmInfo, const int saturation );
     void readNow();  // Perform a single shot read on all variables (Usefull when not subscribing by defualt)
+    virtual void writeNow(){}    // (Control widgets only - such as QELineEdit) Write the value now. Used when writeOnChange, writeOnEnter, etc are all false
 
 
 protected:
