@@ -55,6 +55,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWi
     void setWriteOnEnter( bool writeOnEnter );
     bool getWriteOnEnter();
 
+    // write on finish
+    void setWriteOnFinish( bool writeOnFinish );
+    bool getWriteOnFinish();
+
     // subscribe
     void setSubscribe( bool subscribe );
     bool getSubscribe();
@@ -67,9 +71,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWi
     void setConfirmWrite( bool confirmWrite );
     bool getConfirmWrite();
 
+
+
 protected:
     bool writeOnLoseFocus;                  /// Write changed value to database when widget object loses focus (user moves from widget)
     bool writeOnEnter;                      /// Write changed value to database when enter is pressed with focus on the widget
+    bool writeOnFinish;                     /// Write changed value to database when user finishes editing (leaves a widget)
     bool localEnabled;                      /// Override the default widget setEnabled to allow alarm states to override current enabled state
     bool confirmWrite;                      /// Request confirmation before writing a value
     bool allowDrop;
@@ -84,6 +91,7 @@ protected:
 
   public slots:
     void requestEnabled( const bool& state );
+    void writeNow();
 
   signals:
     void dbValueChanged( const QString& out );
@@ -97,7 +105,7 @@ protected:
     void writeValue( QCaString *qca, QString newValue );
     QString lastValue;                      /// Last updated value (may have arrived while user is editing field)
     QString lastUserValue;                  /// Last updated value seen by the user (same as lastValue unless the user is editing the text)
-
+    bool writeConfirmDialogPresent;         // True if write confirm dialog box is present. When this dialog box is present the line edit no longer have focus, but the user is still effectivly interacting with it
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 

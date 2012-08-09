@@ -20,6 +20,7 @@ public:
     void setHSlicetEnabled( bool enableHSliceSelection );
     void setAreaEnabled( bool enableAreaSelection );
     void setProfileEnabled( bool enableProfileSelection );
+    void setTargetEnabled( bool enableTargetSelection );
 
 signals:
 
@@ -31,6 +32,7 @@ private:
     QAction* actionVSlice;
     QAction* actionArea;
     QAction* actionProfile;
+    QAction* actionTarget;
 
 };
 

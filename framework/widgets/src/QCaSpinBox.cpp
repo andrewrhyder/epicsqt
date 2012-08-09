@@ -58,6 +58,7 @@ void QCaSpinBox::setup() {
     programaticValueChange = false;
 
     // Set up default properties
+    writeOnChange = true;
     setAllowDrop( false );
 
     // Set the initial state
@@ -205,23 +206,42 @@ void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo
 /*!
     The user has changed the spin box.
 */
-void QCaSpinBox::userValueChanged( double value ) {
-    // If the user is changing the value, write it.
-    // Note, the spin box does not appear to have a signal that distinguishes between user changes and programatic changes
-    if( !programaticValueChange )
+void QCaSpinBox::userValueChanged( double value )
+{
+    // If the user is not changing the value, or not writing on change, do nothing
+    if( programaticValueChange || !writeOnChange )
     {
-        /// Get the variable to write to
-        QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+        return;
+    }
 
-        /// If a QCa object is present (if there is a variable to write to)
-        /// then write the value
-        if( qca ) {
-            // Write the value
-            qca->writeFloating( value );
+    /// Get the variable to write to
+    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
 
-            // Manage notifying user changes
-            emit userChange( text(), lastUserValue, QString("%1").arg( lastValue ) );
-        }
+    /// If a QCa object is present (if there is a variable to write to)
+    /// then write the value
+    if( qca ) {
+        // Write the value
+        qca->writeFloating( value );
+
+        // Manage notifying user changes
+        emit userChange( text(), lastUserValue, QString("%1").arg( lastValue ) );
+    }
+}
+
+// Write a value immedietly.
+// Used when writeOnChange is false
+// (widget will never write due to the user pressing return or leaving the widget)
+void QCaSpinBox::writeNow()
+{
+    // Get the variable to write to
+    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+
+    // If a QCa object is present (if there is a variable to write to)
+    // then write the value
+    if( qca )
+    {
+        // Write the value
+        qca->writeFloating( value() );
     }
 }
 
@@ -247,6 +267,16 @@ void QCaSpinBox::setVariableNameAndSubstitutions( QString variableNameIn, QStrin
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
     establishConnection( variableIndex );
+}
+
+// write on change
+void QCaSpinBox::setWriteOnChange( bool writeOnChangeIn )
+{
+    writeOnChange = writeOnChangeIn;
+}
+bool QCaSpinBox::getWriteOnChange()
+{
+    return writeOnChange;
 }
 
 // subscribe

@@ -59,6 +59,7 @@ public:
 
     void setupContextMenu( QWidget* w );
     QColor getColor( QCaAlarmInfo& alarmInfo, const int saturation );
+    void readNow();  // Perform a single shot read on all variables (Usefull when not subscribing by defualt)
 
 
 protected:

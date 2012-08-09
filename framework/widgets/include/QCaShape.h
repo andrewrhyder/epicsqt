@@ -72,10 +72,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     void setFill( const bool fill );
     bool getFill();
 
-    // subscribe
-    void setSubscribe( const bool subscribe );
-    bool getSubscribe();
-
     // shape
     void setShape( Shape shape );
     Shape getShape();

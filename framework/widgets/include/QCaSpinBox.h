@@ -43,12 +43,17 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
     // Variable name and substitutions
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
+    // write on change
+    void setWriteOnChange( bool writeOnChangeIn );
+    bool getWriteOnChange();
+
     // subscribe
     void setSubscribe( bool subscribe );
     bool getSubscribe();
 
   protected:
     QCaFloatingFormatting floatingFormatting;
+    bool writeOnChange;                     // Write changed value to database when user changes a value
 
     void establishConnection( unsigned int variableIndex );
 
@@ -59,6 +64,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
 
   public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
+    void writeNow();
 
   signals:
     void dbValueChanged( const double& out );

@@ -56,6 +56,7 @@ void QCaComboBox::setup() {
 
     // Set up default properties
     useDbEnumerations = true;
+    writeOnChange = true;
     subscribe = false;
     setAllowDrop( false );
 
@@ -212,12 +213,17 @@ void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo,
 */
 void QCaComboBox::userValueChanged( int value ) {
 
+    // Do nothing unless writing on change
+    if( !writeOnChange )
+        return;
+
     /// Get the variable to write to
     QCaInteger* qca = (QCaInteger*)getQcaItem(0);
 
     /// If a QCa object is present (if there is a variable to write to)
     /// then write the value
-    if( qca ) {
+    if( qca )
+    {
         // Write the value
         qca->writeInteger( (long)value );
 
@@ -233,6 +239,23 @@ void QCaComboBox::userValueChanged( int value ) {
 
         // Note the last value presented to the user
         lastUserValue = currentText();
+    }
+}
+
+// Write a value immedietly.
+// Used when writeOnChange are false
+// (widget will never write due to the user pressing return or leaving the widget)
+void QCaComboBox::writeNow()
+{
+    // Get the variable to write to
+    QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+
+    // If a QCa object is present (if there is a variable to write to)
+    // then write the value
+    if( qca )
+    {
+        // Write the value
+        qca->writeInteger( currentIndex() );
     }
 }
 
@@ -258,6 +281,16 @@ void QCaComboBox::setVariableNameAndSubstitutions( QString variableNameIn, QStri
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
     establishConnection( variableIndex );
+}
+
+// write on change
+void QCaComboBox::setWriteOnChange( bool writeOnChangeIn )
+{
+    writeOnChange = writeOnChangeIn;
+}
+bool QCaComboBox::getWriteOnChange()
+{
+    return writeOnChange;
 }
 
 // subscribe

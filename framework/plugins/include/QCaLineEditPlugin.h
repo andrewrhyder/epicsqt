@@ -51,6 +51,7 @@ class QCaLineEditPlugin : public QCaLineEdit {
 
     Q_PROPERTY(bool writeOnLoseFocus READ getWriteOnLoseFocus WRITE setWriteOnLoseFocus)
     Q_PROPERTY(bool writeOnEnter READ getWriteOnEnter WRITE setWriteOnEnter)
+    Q_PROPERTY(bool writeOnFinish READ getWriteOnFinish WRITE setWriteOnFinish)
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)

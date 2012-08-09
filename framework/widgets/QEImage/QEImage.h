@@ -54,7 +54,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
     bool isEnabled() const;
     void setEnabled( bool state );
 
-    enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA, SO_PROFILE };
+    enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA, SO_PROFILE, SO_TARGET };
     selectOptions getSelectionOption();
 
     // Property convenience functions
@@ -131,6 +131,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
     void setEnableProfileSelection( bool enableProfileSelectionIn );
     bool getEnableProfileSelection();
 
+    void setEnableTargetSelection( bool enableTargetSelectionIn );
+    bool getEnableTargetSelection();
 
 
   protected:
@@ -138,7 +140,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
 
     void establishConnection( unsigned int variableIndex );
 
-    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, QEIMAGE_NUM_VARIABLES };
+    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, TARGET_X_VARIABLE, TARGET_Y_VARIABLE, BEAM_X_VARIABLE, BEAM_Y_VARIABLE, TARGET_TRIGGER_VARIABLE, QEIMAGE_NUM_VARIABLES };
 
     resizeOptions resizeOption;
     int zoom;
@@ -164,10 +166,13 @@ private slots:
     void roiClicked();
     void resetRoiClicked();
 
+    void targetClicked();
+
     void vSliceSelectModeClicked();
     void hSliceSelectModeClicked();
     void areaSelectModeClicked();
     void profileSelectModeClicked();
+    void targetSelectModeClicked();
 
     void panModeClicked();
 
@@ -235,15 +240,17 @@ private slots:
     QLabel* currentHozPixelLabel;
     QLabel* currentLineLabel;
     QLabel* currentAreaLabel;
+    QLabel* currentTargetLabel;
 
 
-    QPushButton *pauseButton;
-    QPushButton *saveButton;
-    QPushButton *roiButton;
-    QPushButton *resetRoiButton;
-    QPushButton *selectModeButton;
-    QPushButton *zoomButton;
-    QPushButton *flipRotateButton;
+    QPushButton* pauseButton;
+    QPushButton* saveButton;
+    QPushButton* roiButton;
+    QPushButton* resetRoiButton;
+    QPushButton* targetButton;
+    QPushButton* selectModeButton;
+    QPushButton* zoomButton;
+    QPushButton* flipRotateButton;
 
     profilePlot* vSliceDisplay;
     profilePlot* hSliceDisplay;
@@ -262,6 +269,7 @@ private slots:
     bool enableVSliceSelection;
     bool enableHSliceSelection;
     bool enableProfileSelection;
+    bool enableTargetSelection;
 
     bool displayCursorPixelInfo;
 
@@ -287,11 +295,13 @@ private slots:
     QPoint profileLineEnd;
     QPoint selectedAreaPoint1;
     QPoint selectedAreaPoint2;
+    QPoint target;
 
     bool haveVSliceX;
     bool haveHSliceY;
     bool haveProfileLine;
     bool haveSelectedArea;
+    bool haveTarget;
 
     void generateVSlice( int x );
     void generateHSlice( int y );
@@ -367,6 +377,21 @@ protected:
     VARIABLE_PROPERTY_ACCESS(6)
     Q_PROPERTY(QString regionOfInterestHVariable READ getVariableName6Property WRITE setVariableName6Property)
 
+    VARIABLE_PROPERTY_ACCESS(7)
+    Q_PROPERTY(QString targetXVariable READ getVariableName7Property WRITE setVariableName7Property)
+
+    VARIABLE_PROPERTY_ACCESS(8)
+    Q_PROPERTY(QString targetYVariable READ getVariableName8Property WRITE setVariableName8Property)
+
+    VARIABLE_PROPERTY_ACCESS(9)
+    Q_PROPERTY(QString beamXVariable READ getVariableName9Property WRITE setVariableName9Property)
+
+    VARIABLE_PROPERTY_ACCESS(10)
+    Q_PROPERTY(QString beamYVariable READ getVariableName10Property WRITE setVariableName10Property)
+
+    VARIABLE_PROPERTY_ACCESS(11)
+    Q_PROPERTY(QString targetTriggerVariable READ getVariableName10Property WRITE setVariableName10Property)
+
 #include <multipleVariablePropertiesTail.inc>
 
 #include <standardProperties.inc>
@@ -390,6 +415,7 @@ public:
     Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSliceSelection WRITE setEnableHozSliceSelection)
     Q_PROPERTY(bool enableAreaSelection READ getEnableAreaSelection WRITE setEnableAreaSelection)
     Q_PROPERTY(bool enableProfileSelection READ getEnableProfileSelection WRITE setEnableProfileSelection)
+    Q_PROPERTY(bool enableTargetSelection READ getEnableTargetSelection WRITE setEnableTargetSelection)
 
     Q_PROPERTY(bool displayCursorPixelInfo READ getDisplayCursorPixelInfo WRITE setDisplayCursorPixelInfo)
     Q_PROPERTY(bool displayRegionOfInterest READ getDisplayRegionOfInterest WRITE setDisplayRegionOfInterest)

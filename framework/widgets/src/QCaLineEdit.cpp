@@ -57,6 +57,7 @@ void QCaLineEdit::setup() {
     // Set up default properties
     writeOnLoseFocus = false;
     writeOnEnter = true;
+    writeOnFinish = true;
     localEnabled = true;
     confirmWrite = false;
     setAllowDrop( false );
@@ -66,6 +67,7 @@ void QCaLineEdit::setup() {
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
+    writeConfirmDialogPresent = false;
 
     // Use line edit signals
     QObject::connect( this, SIGNAL( returnPressed() ), this, SLOT( userReturnPressed() ) );
@@ -167,7 +169,7 @@ void QCaLineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInf
 
     /// Update the text if appropriate
     /// If the user is editing the object then updates will be inapropriate
-    if( hasFocus() == false )
+    if( hasFocus() == false && !writeConfirmDialogPresent )
     {
         setText( value );
         lastUserValue = value;
@@ -183,7 +185,7 @@ void QCaLineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInf
 }
 
 /*!
-    The user has pressed return.
+    The user has pressed return/enter. (Not write when user enters the widget)
     Note, it doesn't matter if the user presses return and both this function
     AND userReturnPressed() is called since setText is called in each to clear
     the 'isModified' flag. So, the first called will perform the write, the
@@ -216,7 +218,7 @@ void QCaLineEdit::userReturnPressed() {
 void QCaLineEdit::userEditingFinished() {
 
     /// If no changes were made by the user, do nothing
-    if( !isModified() )
+    if( !isModified() || !writeOnFinish )
         return;
 
     /// Get the variable to write to
@@ -235,8 +237,10 @@ void QCaLineEdit::userEditingFinished() {
     /// check with the user what to do about it.
     else
     {
+        writeConfirmDialogPresent = true;
         int confirm = QMessageBox::warning( this, "Value changed", "You altered a value but didn't write it.\nDo you want to write this value?",
                                             QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No );
+        writeConfirmDialogPresent = false;
 
         switch( confirm )
         {
@@ -256,6 +260,22 @@ void QCaLineEdit::userEditingFinished() {
                 setFocus();
                 break;
         }
+    }
+}
+
+// Write a value immedietly.
+// Used when writeOnLoseFocus, writeOnEnter, writeOnFinish are all false
+// (widget will never write due to the user pressing return or leaving the widget)
+void QCaLineEdit::writeNow()
+{
+    // Get the variable to write to
+    QCaString *qca = (QCaString*)getQcaItem(0);
+
+    // If a QCa object is present (if there is a variable to write to)
+    // then write the value.
+    if( qca )
+    {
+        writeValue( qca, text() );
     }
 }
 
@@ -373,6 +393,16 @@ void QCaLineEdit::setWriteOnEnter( bool writeOnEnterIn )
 bool QCaLineEdit::getWriteOnEnter()
 {
     return writeOnEnter;
+}
+
+// write on finish
+void QCaLineEdit::setWriteOnFinish( bool writeOnFinishIn )
+{
+    writeOnFinish = writeOnFinishIn;
+}
+bool QCaLineEdit::getWriteOnFinish()
+{
+    return writeOnFinish;
 }
 
 // subscribe

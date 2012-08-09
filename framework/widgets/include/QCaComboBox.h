@@ -42,6 +42,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
     // Variable Name and variable substitutions
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
+    // write on change
+    void setWriteOnChange( bool writeOnChangeIn );
+    bool getWriteOnChange();
+
     // subscribe
     void setSubscribe( bool subscribe );
     bool getSubscribe();
@@ -54,6 +58,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
   protected:
     QCaIntegerFormatting integerFormatting;
     bool useDbEnumerations;
+    bool writeOnChange;                     // Write changed value to database when user changes a value
 
     void establishConnection( unsigned int variableIndex );
 
@@ -64,6 +69,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
 
   public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
+    void writeNow();
 
 signals:
     void dbValueChanged( const qlonglong& out );

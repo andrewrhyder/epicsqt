@@ -54,7 +54,7 @@ public:
     ~markupItem();
 
 
-    enum markupHandles { MARKUP_HANDLE_NONE,
+    enum markupHandles { MARKUP_HANDLE_NONE, // Over a markup, but not over any specific handle of the markup
                          MARKUP_HANDLE_START, MARKUP_HANDLE_END,  // Lines
                          MARKUP_HANDLE_TL, MARKUP_HANDLE_TR, MARKUP_HANDLE_BL, MARKUP_HANDLE_BR, // Area corners
                          MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
@@ -74,7 +74,7 @@ public:
     virtual void drawMarkup( QPainter& p )=0;
     virtual void startDrawing( QPoint pos ) = 0;
 
-    virtual bool isOver( QPoint point, markupHandles* handle )=0;
+    virtual bool isOver( QPoint point, Qt::CursorShape* cursor )=0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
     virtual void tidy()=0;
@@ -96,6 +96,26 @@ public:
 
 };
 
+class markupTarget : public markupItem
+{
+public:
+
+    markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+
+    void startDrawing( QPoint pos );
+    void setArea();
+    void drawMarkup( QPainter& p );
+    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    QPoint origin();
+    QPoint getPoint1();
+    QPoint getPoint2();
+    void tidy();
+
+private:
+    QPoint pos;
+};
+
 class markupHLine : public markupItem
 {
 public:
@@ -106,7 +126,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, markupHandles* handle );
+    bool isOver( QPoint point, Qt::CursorShape* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -126,7 +146,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, markupHandles* handle );
+    bool isOver( QPoint point, Qt::CursorShape* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -145,7 +165,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, markupHandles* handle );
+    bool isOver( QPoint point, Qt::CursorShape* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -166,7 +186,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, markupHandles* handle );
+    bool isOver( QPoint point, Qt::CursorShape* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -188,7 +208,7 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, markupHandles* handle );
+    bool isOver( QPoint point, Qt::CursorShape* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
@@ -204,9 +224,9 @@ public:
     imageMarkup();
     ~imageMarkup();
 
-    enum markupModes { MARKUP_MODE_NONE, MARKUP_MODE_H_LINE, MARKUP_MODE_V_LINE, MARKUP_MODE_LINE, MARKUP_MODE_AREA };
+    enum markupModes { MARKUP_MODE_NONE, MARKUP_MODE_H_LINE, MARKUP_MODE_V_LINE, MARKUP_MODE_LINE, MARKUP_MODE_AREA, MARKUP_MODE_TARGET };
 
-    enum markupIds { MARKUP_ID_REGION, MARKUP_ID_H_SLICE, MARKUP_ID_V_SLICE, MARKUP_ID_LINE, MARKUP_ID_TIMESTAMP, MARKUP_ID_COUNT, MARKUP_ID_NONE };
+    enum markupIds { MARKUP_ID_REGION, MARKUP_ID_H_SLICE, MARKUP_ID_V_SLICE, MARKUP_ID_LINE, MARKUP_ID_TARGET, MARKUP_ID_TIMESTAMP, MARKUP_ID_COUNT, MARKUP_ID_NONE };
 
     void markupMousePressEvent(QMouseEvent *event);
     void markupMouseReleaseEvent ( QMouseEvent* event );

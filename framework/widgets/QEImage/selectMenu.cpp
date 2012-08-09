@@ -15,6 +15,7 @@ selectMenu::selectMenu( QWidget *parent) : QMenu(parent)
     NEW_SELECT_MENU_BUTTON( "Vertical slice",   ICM_SELECT_VSLICE,  actionVSlice  )
     NEW_SELECT_MENU_BUTTON( "Area",             ICM_SELECT_AREA,    actionArea    )
     NEW_SELECT_MENU_BUTTON( "Line profile",     ICM_SELECT_PROFILE, actionProfile )
+    NEW_SELECT_MENU_BUTTON( "Target",           ICM_SELECT_TARGET,  actionTarget  )
 
     setTitle( "Select" );
 }
@@ -41,6 +42,7 @@ void selectMenu::setChecked( const int mode )
     actionVSlice ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_VSLICE );
     actionArea   ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_AREA );
     actionProfile->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_PROFILE );
+    actionTarget ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_TARGET );
 }
 
 void selectMenu::setPanEnabled( bool enablePan )
@@ -68,4 +70,8 @@ void selectMenu::setProfileEnabled( bool enableProfileSelection )
     actionProfile->setEnabled( enableProfileSelection );
 }
 
+void selectMenu::setTargetEnabled( bool enableTargetSelection )
+{
+    actionProfile->setEnabled( enableTargetSelection );
+}
 

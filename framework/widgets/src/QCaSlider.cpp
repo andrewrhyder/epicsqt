@@ -189,8 +189,11 @@ void QCaSlider::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo,
     or when the user completes sliding if tracking is not enabled.
 */
 void QCaSlider::userValueChanged( const int &value) {
-    // If the change is due to an update (and not the user) then ignore the change
-    if( updateInProgress == true ) {
+
+    // If the change is due to an update (and not the user)
+    // or not writing on change, then ignore the change
+    if( updateInProgress == true || !writeOnChange )
+    {
         return;
     }
 
@@ -198,21 +201,45 @@ void QCaSlider::userValueChanged( const int &value) {
     QCaFloating* qca = (QCaFloating*)getQcaItem(0);
 
     /** If a QCa object is present (if there is a variable to write to)
-     * and the object is set up to write when the user completes moving the slider
      * then write the value
      */
-    if( qca && writeOnChange ) {
+    if( qca )
+    {
         /// Attempt to write the data if the destination data type is known.
         /// It is not known until a connection is established.
-        if( qca->dataTypeKnown() ) {
+        if( qca->dataTypeKnown() )
+        {
             qca->writeFloating( (value/scale)+offset );
-        } else {
+        }
+        else
+        {
             /// Inform the user that the write could not be performed.
             /// It is normally not possible to get here. If the connection or link has not
             /// yet been established (and therefore the data type is unknown) then the user
             /// interface object should be unaccessable. This code is here in the event that
             /// the user can, by design or omision, still attempt a write.
             sendMessage( "Could not write value as type is not known yet.", "QCaSlider::userValueChanged()", MESSAGE_TYPE_WARNING );
+        }
+    }
+}
+
+// Write a value immedietly.
+// Used when writeOnChange is false
+// (widget will never write due to the user pressing return or leaving the widget)
+void QCaSlider::writeNow()
+{
+    // Get the variable to write to
+    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+
+    // If a QCa object is present (if there is a variable to write to)
+    // then write the value
+    if( qca )
+    {
+        // Attempt to write the data if the destination data type is known.
+        // It is not known until a connection is established.
+        if( qca->dataTypeKnown() )
+        {
+            qca->writeFloating( (value()/scale)+offset );
         }
     }
 }

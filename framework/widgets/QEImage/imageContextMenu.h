@@ -22,6 +22,7 @@ public:
                                   ICM_ENABLE_HOZ,
                                   ICM_ENABLE_AREA,
                                   ICM_ENABLE_LINE,
+                                  ICM_ENABLE_TARGET,
                                   ICM_DISPLAY_BUTTON_BAR,
                                   ICM_DISPLAY_ROI_INFO,
                                   ICM_ZOOM_SELECTED,
@@ -45,7 +46,8 @@ public:
                                   ICM_SELECT_HSLICE,
                                   ICM_SELECT_VSLICE,
                                   ICM_SELECT_AREA,
-                                  ICM_SELECT_PROFILE
+                                  ICM_SELECT_PROFILE,
+                                  ICM_SELECT_TARGET
                                 };
 
 

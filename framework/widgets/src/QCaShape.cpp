@@ -59,7 +59,6 @@ void QCaShape::setup() {
     setNumVariables( QCASHAPE_NUM_VARIABLES );
 
     // Set up default properties
-    subscribe = true;
     setAllowDrop( false );
 
     shape = Rect;
@@ -563,16 +562,6 @@ void QCaShape::setFill( bool fillIn )
 bool QCaShape::getFill()
 {
     return fill;
-}
-
-// subscribe
-void QCaShape::setSubscribe( bool subscribeIn )
-{
-    subscribe = subscribeIn;
-}
-bool QCaShape::getSubscribe()
-{
-    return subscribe;
 }
 
 // shape

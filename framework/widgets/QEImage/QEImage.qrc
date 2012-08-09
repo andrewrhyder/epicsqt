@@ -9,5 +9,6 @@
         <file>cameraROI.png</file>
         <file>cameraROIreset.png</file>
         <file>QEImage.png</file>
+        <file>target.png</file>
     </qresource>
 </RCC>

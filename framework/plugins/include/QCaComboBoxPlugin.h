@@ -48,6 +48,7 @@ class QCaComboBoxPlugin : public QCaComboBox {
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
+    Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange)
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)

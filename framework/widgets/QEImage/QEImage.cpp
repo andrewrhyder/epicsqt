@@ -153,13 +153,15 @@ void QEImage::setup() {
     currentHozPixelLabel = new QLabel();
     currentLineLabel = new QLabel();
     currentAreaLabel = new QLabel();
+    currentTargetLabel = new QLabel();
 
     infoLayout = new QHBoxLayout();
     infoLayout->addWidget( currentCursorPixelLabel );
     infoLayout->addWidget( currentVertPixelLabel );
     infoLayout->addWidget( currentHozPixelLabel );
     infoLayout->addWidget( currentLineLabel );
-    infoLayout->addWidget( currentAreaLabel, 1 );
+    infoLayout->addWidget( currentAreaLabel );
+    infoLayout->addWidget( currentTargetLabel, 1 );
 
 
     // Create vertical, horizontal, and general profile plots
@@ -261,6 +263,13 @@ void QEImage::setup() {
     resetRoiButton->setEnabled( true );
     QObject::connect(resetRoiButton, SIGNAL(clicked()), this, SLOT(resetRoiClicked()));
 
+    targetButton = new QPushButton(buttonGroup);
+    targetButton->setMinimumWidth( buttonWidth );
+    QIcon targetButtonIcon( ":/qe/image/target.png" );
+    targetButton->setIcon( targetButtonIcon );
+    targetButton->setToolTip("Move target position into beam");
+    QObject::connect(targetButton, SIGNAL(clicked()), this, SLOT(targetClicked()));
+
     selectModeButton = new QPushButton(buttonGroup);
     selectModeButton->setMinimumWidth( buttonMenuWidth );
     QIcon selectModeButtonIcon( ":/qe/image/select.png" );
@@ -287,9 +296,10 @@ void QEImage::setup() {
     buttonLayout->addWidget( saveButton,       1);
     buttonLayout->addWidget( roiButton,        2);
     buttonLayout->addWidget( resetRoiButton,   3);
-    buttonLayout->addWidget( selectModeButton, 4);
-    buttonLayout->addWidget( zoomButton,       5);
-    buttonLayout->addWidget( flipRotateButton, 6);
+    buttonLayout->addWidget( targetButton,     4);
+    buttonLayout->addWidget( selectModeButton, 5);
+    buttonLayout->addWidget( zoomButton,       6);
+    buttonLayout->addWidget( flipRotateButton, 7);
     buttonLayout->addStretch();
 
 
@@ -337,6 +347,7 @@ void QEImage::setup() {
     setEnableVertSliceSelection( enableVSliceSelection );
     setEnableHozSliceSelection( enableHSliceSelection );
     setEnableProfileSelection( enableProfileSelection );
+    setEnableProfileSelection( enableTargetSelection );
 
     setDisplayCursorPixelInfo( displayCursorPixelInfo );
     setDisplayRegionOfInterest( displayRoiLayout );
@@ -372,12 +383,14 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case IMAGE_VARIABLE:
             return new QCaByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
 
-        // Create the width item as a QCaInteger
+        // Create the width, height, target and beam items as a QCaInteger
         case WIDTH_VARIABLE:
-            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
-
-        // Create the heigh item as a QCaInteger
         case HEIGHT_VARIABLE:
+        case TARGET_X_VARIABLE:
+        case TARGET_Y_VARIABLE:
+        case BEAM_X_VARIABLE:
+        case BEAM_Y_VARIABLE:
+        case TARGET_TRIGGER_VARIABLE:
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
         // Pass on the variable name and substitutions on to the region of interext X QELabel, then create the roi X as a QCaInteger
@@ -451,6 +464,10 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
         case ROI_Y_VARIABLE:
         case ROI_W_VARIABLE:
         case ROI_H_VARIABLE:
+        case TARGET_X_VARIABLE:
+        case TARGET_Y_VARIABLE:
+        case BEAM_X_VARIABLE:
+        case BEAM_Y_VARIABLE:
             break;
      }
 }
@@ -862,6 +879,7 @@ void QEImage::manageInfoLayout()
         currentHozPixelLabel->show();
         currentLineLabel->show();
         currentAreaLabel->show();
+        currentTargetLabel->show();
     }
     else
     {
@@ -870,6 +888,7 @@ void QEImage::manageInfoLayout()
         currentHozPixelLabel->hide();
         currentLineLabel->hide();
         currentAreaLabel->hide();
+        currentTargetLabel->hide();
     }
 
 
@@ -956,7 +975,7 @@ void QEImage::zoomToArea()
 void QEImage::resetRoiClicked()
 {
     // Write the ROI variables, setting them to the limits of the image.
-    QCaInteger *qca;
+    QCaInteger* qca;
     qca = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
     if( qca ) qca->writeInteger( 0 );
 
@@ -992,6 +1011,19 @@ void QEImage::roiClicked()
 
     qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint2.y() ) - videoWidget->scaleOrdinate( selectedAreaPoint1.y() ));
+
+    //!!! should do the above whenever ROI changes?. This function should write to a trigger PV?
+
+    return;
+}
+
+// Move target into beam button pressed
+void QEImage::targetClicked()
+{
+    // Write to the target trigger variable.
+    QCaInteger *qca;
+    qca = (QCaInteger*)getQcaItem( TARGET_TRIGGER_VARIABLE );
+    if( qca ) qca->writeInteger( 1 );
 
     return;
 }
@@ -1372,6 +1404,18 @@ bool QEImage::getEnableProfileSelection()
     return enableProfileSelection;
 }
 
+// Enable target selection
+void QEImage::setEnableTargetSelection( bool enableTargetSelectionIn )
+{
+    enableTargetSelection = enableTargetSelectionIn;
+    sMenu->setTargetEnabled( enableTargetSelection );
+}
+
+bool QEImage::getEnableTargetSelection()
+{
+    return enableTargetSelection;
+}
+
 //=================================================================================================
 
 
@@ -1403,6 +1447,12 @@ void QEImage::profileSelectModeClicked()
 {
     videoWidget->setPanning( false );
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE );
+}
+
+void QEImage::targetSelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_MODE_TARGET );
 }
 
 //=================================================================================================
@@ -1459,6 +1509,19 @@ void QEImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoin
             profileLineEnd = point2;
             haveProfileLine = true;
             generateProfile( profileLineStart, profileLineEnd );
+            break;
+
+        case imageMarkup::MARKUP_MODE_TARGET:
+            target = point1;
+
+            // Write the target variables.
+            QCaInteger *qca;
+            qca = (QCaInteger*)getQcaItem( TARGET_X_VARIABLE );
+            if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( target.x() ));
+
+            qca = (QCaInteger*)getQcaItem( TARGET_Y_VARIABLE );
+            if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
+
             break;
 
         case imageMarkup::MARKUP_MODE_NONE:
@@ -2088,6 +2151,7 @@ void QEImage::showContextMenu( const QPoint& pos )
     menu.addOptionMenuItem( "Enable horizontal selection",   true,  enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ          );
     menu.addOptionMenuItem( "Enable area selection",         true,  enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA         );
     menu.addOptionMenuItem( "Enable profile selection",      true,  enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE         );
+    menu.addOptionMenuItem( "Enable target selection",       true,  enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET       );
     menu.addOptionMenuItem( "Display button bar",            true,  displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR  );
     menu.addOptionMenuItem( "Display ROI info",              true,  displayRoiLayout,       imageContextMenu::ICM_DISPLAY_ROI_INFO    );
 
@@ -2115,6 +2179,7 @@ void QEImage::showContextMenu( const QPoint& pos )
         case imageContextMenu::ICM_ENABLE_HOZ:          setEnableHozSliceSelection ( checked ); break;
         case imageContextMenu::ICM_ENABLE_AREA:         setEnableAreaSelection     ( checked ); break;
         case imageContextMenu::ICM_ENABLE_LINE:         setEnableProfileSelection  ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_TARGET:       setEnableTargetSelection   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:  setDisplayButtonBar        ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_ROI_INFO:    setDisplayRegionOfInterest ( checked ); break;
 
@@ -2177,6 +2242,7 @@ void QEImage::selectMenuTriggered( QAction* selectedItem )
         case imageContextMenu::ICM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
         case imageContextMenu::ICM_SELECT_AREA:         areaSelectModeClicked();    break;
         case imageContextMenu::ICM_SELECT_PROFILE:      profileSelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_TARGET:       targetSelectModeClicked();  break;
     }
 }
 

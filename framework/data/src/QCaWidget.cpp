@@ -344,3 +344,20 @@ void QCaWidget::userLevelChanged( userLevels level )
     checkVisibilityEnabledLevel( level );
 }
 
+// Perform a single shot read on all variables.
+// Widgets may be write only and do not need to subscribe (subscribe property is false).
+// When not subscribing it may still be usefull to do a single shot read to get initial
+// values, or perhaps confirm a write.
+void QCaWidget::readNow()
+{
+    // Perform a single shot read on all variables.
+    qcaobject::QCaObject* qca;
+    for( unsigned int i = 0; i < numVariables; i++ )
+    {
+        qca = getQcaItem( i );
+        if( qca ) // If variable exists...
+        {
+            qca->singleShotRead();
+        }
+    }
+}

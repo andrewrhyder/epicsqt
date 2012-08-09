@@ -107,6 +107,67 @@ void markupItem::erase()
 }
 
 //===========================================================================
+// Target markup
+
+markupTarget::markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
+{
+
+}
+
+void markupTarget::drawMarkup( QPainter& p )
+{
+    p.drawLine( pos.x(), 0, pos.x(), owner->markupImage->rect().height() );
+    p.drawLine( 0, pos.y(), owner->markupImage->rect().width(), pos.y() );
+}
+
+void markupTarget::setArea()
+{
+    area = owner->markupImage->rect();
+
+    owner->markupAreasStale = true;
+}
+
+void markupTarget::startDrawing( QPoint posIn )
+{
+    pos = posIn;
+    activeHandle = MARKUP_HANDLE_NONE;
+}
+
+void markupTarget::moveTo( QPoint posIn )
+{
+    pos = posIn;
+    setArea();
+}
+
+bool markupTarget::isOver( QPoint point, Qt::CursorShape* cursor )
+{
+    *cursor = Qt::SizeAllCursor;
+    activeHandle = MARKUP_HANDLE_NONE;
+    return ( abs( point.x() - pos.x() ) <= OVER_TOLERANCE ) || ( abs( point.y() - pos.y() ) <= OVER_TOLERANCE );
+}
+
+QPoint markupTarget::origin()
+{
+    return pos;
+}
+
+QPoint markupTarget::getPoint1()
+{
+    return origin();
+}
+
+QPoint markupTarget::getPoint2()
+{
+    return QPoint();
+}
+
+void markupTarget::tidy()
+{
+    // Nothing to do
+}
+
+
+//===========================================================================
 // Vertical line markup
 
 markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
@@ -149,9 +210,10 @@ void markupVLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupVLine::isOver( QPoint point, markupHandles* handle )
+bool markupVLine::isOver( QPoint point, Qt::CursorShape* cursor )
 {
-    *handle = MARKUP_HANDLE_NONE;
+    *cursor = Qt::OpenHandCursor;
+    activeHandle = MARKUP_HANDLE_NONE;
     return ( abs( point.x() - x ) <= OVER_TOLERANCE );
 }
 
@@ -219,9 +281,10 @@ void markupHLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupHLine::isOver( QPoint point, markupHandles* handle )
+bool markupHLine::isOver( QPoint point, Qt::CursorShape* cursor )
 {
-    *handle = MARKUP_HANDLE_NONE;
+    *cursor = Qt::OpenHandCursor;
+    activeHandle = MARKUP_HANDLE_NONE;
     return ( abs( point.y() - y ) <= OVER_TOLERANCE );
 }
 
@@ -322,7 +385,7 @@ void markupLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupLine::isOver( QPoint point, markupHandles* handle )
+bool markupLine::isOver( QPoint point, Qt::CursorShape* cursor )
 {
     // Not over the line if outside the drawing rectangle more than the tolerance
     QRect tolArea = area;
@@ -376,20 +439,24 @@ bool markupLine::isOver( QPoint point, markupHandles* handle )
     {
         if( pointIsNear( point, start ) )
         {
-            *handle = MARKUP_HANDLE_START;
+            *cursor = Qt::SizeAllCursor;
+            activeHandle = MARKUP_HANDLE_START;
         }
         else if(  pointIsNear( point, end ) )
         {
-            *handle = MARKUP_HANDLE_END;
+            *cursor = Qt::SizeAllCursor;
+            activeHandle = MARKUP_HANDLE_END;
         }
         else
         {
-            *handle = MARKUP_HANDLE_NONE;
+            *cursor = Qt::OpenHandCursor;
+            activeHandle = MARKUP_HANDLE_NONE;
         }
         return true;
     }
     else
     {
+        activeHandle = MARKUP_HANDLE_NONE;
         return false;
     }
 }
@@ -503,7 +570,7 @@ void markupRegion::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupRegion::isOver( QPoint point, markupHandles* handle )
+bool markupRegion::isOver( QPoint point, Qt::CursorShape* cursor )
 {
     // If the point is over the left side, return 'is over' after checking the left handles
     QRect l( rect.topLeft(), QSize( 0, rect.height()) );
@@ -512,19 +579,23 @@ bool markupRegion::isOver( QPoint point, markupHandles* handle )
     {
         if( pointIsNear( point, rect.topLeft() ) )
         {
-            *handle = MARKUP_HANDLE_TL;
+            activeHandle = MARKUP_HANDLE_TL;
+            *cursor = Qt::SizeFDiagCursor;
         }
         else if( pointIsNear( point, rect.bottomLeft() ) )
         {
-            *handle = MARKUP_HANDLE_BL;
+            activeHandle = MARKUP_HANDLE_BL;
+            *cursor = Qt::SizeBDiagCursor;
         }
         else if( pointIsNear( point, QPoint( rect.left(), rect.top()+(rect.height()/2) )))
         {
-            *handle = MARKUP_HANDLE_L;
+            activeHandle = MARKUP_HANDLE_L;
+            *cursor = Qt::SizeHorCursor;
         }
         else
         {
-            *handle = MARKUP_HANDLE_NONE;
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = Qt::OpenHandCursor;
         }
         return true;
     }
@@ -536,19 +607,23 @@ bool markupRegion::isOver( QPoint point, markupHandles* handle )
     {
         if( pointIsNear( point, rect.topRight() ) )
         {
-            *handle = MARKUP_HANDLE_TR;
+            activeHandle = MARKUP_HANDLE_TR;
+            *cursor = Qt::SizeBDiagCursor;
         }
         else if( pointIsNear( point, rect.bottomRight() ) )
         {
-            *handle = MARKUP_HANDLE_BR;
+            activeHandle = MARKUP_HANDLE_BR;
+            *cursor = Qt::SizeFDiagCursor;
         }
         else if( pointIsNear( point, QPoint( rect.right(), rect.top()+(rect.height()/2) )))
         {
-            *handle = MARKUP_HANDLE_R;
+            activeHandle = MARKUP_HANDLE_R;
+            *cursor = Qt::SizeHorCursor;
         }
         else
         {
-            *handle = MARKUP_HANDLE_NONE;
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = Qt::OpenHandCursor;
         }
         return true;
     }
@@ -560,19 +635,23 @@ bool markupRegion::isOver( QPoint point, markupHandles* handle )
     {
         if( pointIsNear( point, rect.topLeft() ) )
         {
-            *handle = MARKUP_HANDLE_TL;
+            activeHandle = MARKUP_HANDLE_TL;
+            *cursor = Qt::SizeFDiagCursor;
         }
         else if( pointIsNear( point, rect.topRight() ) )
         {
-            *handle = MARKUP_HANDLE_TR;
+            activeHandle = MARKUP_HANDLE_TR;
+            *cursor = Qt::SizeBDiagCursor;
         }
         else if( pointIsNear( point, QPoint( rect.left()+(rect.width()/2), rect.top() )))
         {
-            *handle = MARKUP_HANDLE_T;
+            activeHandle = MARKUP_HANDLE_T;
+            *cursor = Qt::SizeVerCursor;
         }
         else
         {
-            *handle = MARKUP_HANDLE_NONE;
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = Qt::OpenHandCursor;
         }
         return true;
     }
@@ -584,24 +663,29 @@ bool markupRegion::isOver( QPoint point, markupHandles* handle )
     {
         if( pointIsNear( point, rect.bottomLeft() ) )
         {
-            *handle = MARKUP_HANDLE_BL;
+            activeHandle = MARKUP_HANDLE_BL;
+            *cursor = Qt::SizeBDiagCursor;
         }
         else if( pointIsNear( point, rect.bottomRight() ) )
         {
-            *handle = MARKUP_HANDLE_BR;
+            activeHandle = MARKUP_HANDLE_BR;
+            *cursor = Qt::SizeFDiagCursor;
         }
         else if( pointIsNear( point, QPoint( rect.left()+(rect.width()/2), rect.bottom() )))
         {
-            *handle = MARKUP_HANDLE_B;
+            activeHandle = MARKUP_HANDLE_B;
+            *cursor = Qt::SizeVerCursor;
         }
         else
         {
-            *handle = MARKUP_HANDLE_NONE;
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = Qt::OpenHandCursor;
         }
         return true;
     }
 
     // Not over
+    activeHandle = MARKUP_HANDLE_NONE;
     return false;
 }
 
@@ -679,9 +763,10 @@ void markupText::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupText::isOver( QPoint point, markupHandles* handle )
+bool markupText::isOver( QPoint point, Qt::CursorShape* cursor )
 {
-    *handle = MARKUP_HANDLE_NONE;
+    *cursor = Qt::OpenHandCursor;
+    activeHandle = MARKUP_HANDLE_NONE;
     return rect.contains( point );
 }
 
@@ -721,6 +806,7 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true, true );
     items[MARKUP_ID_LINE]      = new markupLine(   this, true, true );
     items[MARKUP_ID_REGION]    = new markupRegion( this, true, true );
+    items[MARKUP_ID_TARGET]    = new markupTarget( this, true, true );
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false );
 
     markupAreasStale = true;
@@ -798,12 +884,11 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
     int n = items.count();
     for( int i = 0; i < n; i++ )
     {
-        markupItem::markupHandles handle;
-        if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &handle ) )
+        Qt::CursorShape cursor;
+        if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &cursor ) )
         {
             activeItem = (markupIds)i;
             grabOffset = event->pos() - items[i]->origin();
-            items[i]->activeHandle = handle;
             break;
         }
     }
@@ -820,6 +905,7 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
             case MARKUP_MODE_V_LINE: activeItem = MARKUP_ID_V_SLICE;                        break;
             case MARKUP_MODE_LINE:   activeItem = MARKUP_ID_LINE;    pointAndClick = false; break;
             case MARKUP_MODE_AREA:   activeItem = MARKUP_ID_REGION;  pointAndClick = false; break;
+            case MARKUP_MODE_TARGET: activeItem = MARKUP_ID_TARGET;                         break;
         }
         if( activeItem != MARKUP_ID_NONE )
         {
@@ -866,28 +952,10 @@ void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
         int n = items.count();
         for( int i = 0; i < n; i++ )
         {
-            markupItem::markupHandles handle;
-            if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &handle ) )
+            Qt::CursorShape specificCursor;
+            if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &specificCursor ) )
             {
-                switch( handle )
-                {
-                    case markupItem::MARKUP_HANDLE_NONE:    cursor = Qt::OpenHandCursor;  break;
-
-                    case markupItem::MARKUP_HANDLE_START:
-                    case markupItem::MARKUP_HANDLE_END:     cursor = Qt::SizeAllCursor;   break;
-
-                    case markupItem::MARKUP_HANDLE_TL:
-                    case markupItem::MARKUP_HANDLE_BR:      cursor = Qt::SizeFDiagCursor; break;
-
-                    case markupItem::MARKUP_HANDLE_TR:
-                    case markupItem::MARKUP_HANDLE_BL:      cursor = Qt::SizeBDiagCursor; break;
-
-                    case markupItem::MARKUP_HANDLE_T:
-                    case markupItem::MARKUP_HANDLE_B:       cursor = Qt::SizeVerCursor;   break;
-
-                    case markupItem::MARKUP_HANDLE_L:
-                    case markupItem::MARKUP_HANDLE_R:       cursor = Qt::SizeHorCursor;   break;
-                }
+                cursor = specificCursor;
                 break;
             }
         }
@@ -919,6 +987,7 @@ imageMarkup::markupModes imageMarkup::getActionMode()
         case MARKUP_ID_V_SLICE:   return MARKUP_MODE_V_LINE;
         case MARKUP_ID_LINE:      return MARKUP_MODE_LINE;
         case MARKUP_ID_REGION:    return MARKUP_MODE_AREA;
+        case MARKUP_ID_TARGET:    return MARKUP_MODE_TARGET;
         case MARKUP_ID_TIMESTAMP: return MARKUP_MODE_NONE; // Should never be the active item, but included for completeness
         default:                  return MARKUP_MODE_NONE;
     }
