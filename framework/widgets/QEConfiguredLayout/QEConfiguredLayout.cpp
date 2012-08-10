@@ -22,9 +22,8 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
+
 #include <QEConfiguredLayout.h>
-#include <QDomDocument>
-#include <typeinfo>
 
 
 
@@ -239,17 +238,29 @@ void QEConfiguredLayout::setConfiguration(QString pValue)
                             field->setName(fieldElement.attribute("name"));
                             field->setProcessVariable(fieldElement.attribute("processvariable"));
                             field->setJoin(fieldElement.attribute("join").compare("true", Qt::CaseInsensitive) == 0);
-                            if (fieldElement.attribute("type").compare("spinbox", Qt::CaseInsensitive) == 0)
+                            if (fieldElement.attribute("type").compare("bitstatus", Qt::CaseInsensitive) == 0)
                             {
-                                field->setType(2);
+                                field->setType(BITSTATUS);
+                            }
+                            else if (fieldElement.attribute("type").compare("button", Qt::CaseInsensitive) == 0)
+                            {
+                                field->setType(BUTTON);
+                            }
+                            else if (fieldElement.attribute("type").compare("label", Qt::CaseInsensitive) == 0)
+                            {
+                                field->setType(LABEL);
+                            }
+                            else if (fieldElement.attribute("type").compare("spinbox", Qt::CaseInsensitive) == 0)
+                            {
+                                field->setType(SPINBOX);
                             }
                             else if (fieldElement.attribute("type").compare("combobox", Qt::CaseInsensitive) == 0)
                             {
-                                field->setType(1);
+                                field->setType(COMBOBOX);
                             }
                             else
                             {
-                                field->setType(0);
+                                field->setType(LINEEDIT);
                             }
                             field->setGroup(fieldElement.attribute("group"));
                             field->setVisible(fieldElement.attribute("visible"));
@@ -473,17 +484,41 @@ void QEConfiguredLayout::refreshFields()
             field = item->fieldList.at(i);
             fieldInfo = new _Field();
 
-            if (field->getType() == 2)
+
+            if (field->getType() == BITSTATUS)
+            {
+//                qCaWidget = new QEBitStatus();
+//                ((QCaSpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
+//                ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+//                QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+            }
+            else if (field->getType() == BUTTON)
+            {
+                qCaWidget = new QCaPushButton();
+                ((QCaPushButton *) qCaWidget)->setText(field->getName());
+                ((QCaPushButton *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
+                ((QCaPushButton *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+            }
+
+            else if (field->getType() == LABEL)
+            {
+                qCaWidget = new QELabel();
+                ((QELabel *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
+                ((QELabel *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+            }
+            else if (field->getType() == SPINBOX)
             {
                 qCaWidget = new QCaSpinBox();
                 ((QCaSpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
                 ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
             }
-            else if (field->getType() == 1)
+            else if (field->getType() == COMBOBOX)
             {
                 qCaWidget = new QCaComboBox();
                 ((QCaComboBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
                 ((QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                QObject::connect(((QCaComboBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
             }
             else
             {
@@ -491,10 +526,10 @@ void QEConfiguredLayout::refreshFields()
                 ((QCaLineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
                 ((QCaLineEdit *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
                 ((QCaLineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                QObject::connect(((QCaLineEdit *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
             }
 
             currentFieldList.append(qCaWidget);
-
 
             fieldInfo->setGroup(field->getGroup());
             fieldInfo->setName(field->getName());
@@ -539,7 +574,7 @@ void QEConfiguredLayout::refreshFields()
                         flag = true;
                     }
 
-                    if (fieldInfo->getName().isEmpty() == false)
+                    if (fieldInfo->getType() != BUTTON && fieldInfo->getName().isEmpty() == false)
                     {
                         qLabel = new QLabel();
                         qLabel->setText(fieldInfo->getName());
@@ -547,11 +582,23 @@ void QEConfiguredLayout::refreshFields()
                         qHBoxLayout->addWidget(qLabel);
                     }
 
-                    if (field->getType() == 2)
+                    if (field->getType() == BITSTATUS)
+                    {
+                        qHBoxLayout->addWidget((QEBitStatus *) currentField);
+                    }
+                    else if (field->getType() == BUTTON)
+                    {
+                        qHBoxLayout->addWidget((QCaPushButton *) currentField);
+                    }
+                    else if (field->getType() == LABEL)
+                    {
+                        qHBoxLayout->addWidget((QELabel *) currentField);
+                    }
+                    else if (field->getType() == SPINBOX)
                     {
                         qHBoxLayout->addWidget((QCaSpinBox *) currentField);
                     }
-                    else if (field->getType() == 1)
+                    else if (field->getType() == COMBOBOX)
                     {
                         qHBoxLayout->addWidget((QCaComboBox *) currentField);
                     }
@@ -655,65 +702,22 @@ void QEConfiguredLayout::comboBoxItemSelected(int)
 
 
 
+void QEConfiguredLayout::valueWritten(const QString &pNewValue, const QString &pOldValue, const QString &)
+{
 
-
-// ============================================================
-//  _QESPINBOX METHODS
-// ============================================================
-//_QESpinBox::_QESpinBox(QWidget *pParent):QCaSpinBox(pParent)
-//{
-
-//    QObject::connect( this,  SIGNAL( userChange( const QString&, const QString&, const QString& ) ),
-//                      this, SLOT( valueWritten(  const QString&, const QString&, const QString&  ) ) );
-
-//}
-
-
-
-//void QEConfiguredLayout::valueWritten(const QString &pNewValue, const QString &pOldValue, const QString&)
-//{
-
-//    if (pOldValue != pNewValue)
-//    {
-//        if (getFieldName().isEmpty())
+    if (pOldValue != pNewValue)
+    {
+//        if (pFieldName.isEmpty())
 //        {
-//            sendMessage("The field was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+            sendMessage("The field was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
 //        }
 //        else
 //        {
-//            sendMessage("The field '" + getFieldName() + "' was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
+//            sendMessage("The field '" + pFieldName + "' was changed from '" + pOldValue + "' to '" + pNewValue + "'.");
 //        }
-//    }
+    }
 
-//}
-
-
-
-
-//    private slots:
-//          void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
-
-
-//};
-
-//class _QESpinBox:public QCaSpinBox
-//{
-
-//    Q_OBJECT
-
-//    private:
-
-
-//    public:
-//        _QESpinBox(QWidget * pParent = 0);
-
-
-//    private slots:
-//          void valueWritten(const QString& pNewValue, const QString& pOldValue, const QString& pLastValue);
-
-
-//};
-
+}
 
 
 
@@ -1063,18 +1067,31 @@ _QDialogItem::_QDialogItem(QWidget *pParent, QString pItemName, QString pGroupNa
                     flag = true;
                 }
 
-                if (fieldInfo->getName().isEmpty() == false)
+                if (fieldInfo->getType() != BUTTON && fieldInfo->getName().isEmpty() == false)
                 {
                     qLabel = new QLabel();
                     qLabel->setText(fieldInfo->getName());
                     qLabel->setFixedWidth(130);
                     qHBoxLayout->addWidget(qLabel);
                 }
-                if (fieldInfo->getType() == 2)
+
+                if (fieldInfo->getType() == BITSTATUS)
+                {
+                    qHBoxLayout->addWidget((QEBitStatus *) pCurrentFieldList->at(i));
+                }
+                else if (fieldInfo->getType() == BUTTON)
+                {
+                    qHBoxLayout->addWidget((QCaPushButton *) pCurrentFieldList->at(i));
+                }
+                else if (fieldInfo->getType() == LABEL)
+                {
+                    qHBoxLayout->addWidget((QELabel *) pCurrentFieldList->at(i));
+                }
+                else if (fieldInfo->getType() == SPINBOX)
                 {
                     qHBoxLayout->addWidget((QCaSpinBox *) pCurrentFieldList->at(i));
                 }
-                else if (fieldInfo->getType() == 1)
+                else if (fieldInfo->getType() == COMBOBOX)
                 {
                     qHBoxLayout->addWidget((QCaComboBox *) pCurrentFieldList->at(i));
                 }
@@ -1082,6 +1099,7 @@ _QDialogItem::_QDialogItem(QWidget *pParent, QString pItemName, QString pGroupNa
                 {
                     qHBoxLayout->addWidget((QCaLineEdit *) pCurrentFieldList->at(i));
                 }
+
                 if (flag)
                 {
                     qVBoxLayout->addLayout(qHBoxLayout);

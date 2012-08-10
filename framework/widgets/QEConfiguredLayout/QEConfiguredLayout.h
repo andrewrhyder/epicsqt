@@ -25,7 +25,10 @@
 #ifndef QECONFIGUREDLAYOUT_H
 #define QECONFIGUREDLAYOUT_H
 
-
+#include <QDomDocument>
+#include <QELabel.h>
+#include <QEBitStatus.h>
+#include <QCaPushButton.h>
 #include <QCaLineEdit.h>
 #include <QCaComboBox.h>
 #include <QCaSpinBox.h>
@@ -46,6 +49,19 @@ enum configuration
 {
     FROM_FILE,
     FROM_TEXT
+};
+
+
+
+
+enum types
+{
+    LABEL,
+    LINEEDIT,
+    COMBOBOX,
+    SPINBOX,
+    BUTTON,
+    BITSTATUS
 };
 
 
@@ -328,6 +344,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
     private slots:
         void comboBoxItemSelected(int);
 
+        void valueWritten(const QString &pNewValue, const QString &pOldValue, const QString&);
 
 };
 
