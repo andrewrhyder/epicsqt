@@ -601,11 +601,23 @@ void QERecipe::buttonNewClicked()
                 fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
                 processVariableElement = document.createElement("processvariable");
                 processVariableElement.setAttribute("name", fieldInfo->getProcessVariable());
-                if (fieldInfo->getType() == 2)
+                if (fieldInfo->getType() == BITSTATUS)
                 {
                     processVariableElement.setAttribute("value", ((QCaSpinBox *) qCaWidget)->text());
                 }
-                else if (fieldInfo->getType() == 1)
+                else if (fieldInfo->getType() == BUTTON)
+                {
+                    processVariableElement.setAttribute("value", ((QCaPushButton *) qCaWidget)->text());
+                }
+                else if (fieldInfo->getType() == LABEL)
+                {
+                    processVariableElement.setAttribute("value", ((QELabel *) qCaWidget)->text());
+                }
+                else if (fieldInfo->getType() == SPINBOX)
+                {
+                    processVariableElement.setAttribute("value", ((QCaSpinBox *) qCaWidget)->text());
+                }
+                else if (fieldInfo->getType() == COMBOBOX)
                 {
                     processVariableElement.setAttribute("value", ((QCaComboBox *) qCaWidget)->currentText());
                 }
@@ -691,11 +703,23 @@ void QERecipe::buttonSaveClicked()
             fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
             processVariableElement = document.createElement("processvariable");
             processVariableElement.setAttribute("name", fieldInfo->getProcessVariable());
-            if (fieldInfo->getType() == 2)
+            if (fieldInfo->getType() == BITSTATUS)
+            {
+//                processVariableElement.setAttribute("value", ((QEBitStatus *) qCaWidget)->text());
+            }
+            else if (fieldInfo->getType() == BUTTON)
+            {
+                processVariableElement.setAttribute("value", ((QCaPushButton *) qCaWidget)->text());
+            }
+            else if (fieldInfo->getType() == LABEL)
+            {
+                processVariableElement.setAttribute("value", ((QELabel *) qCaWidget)->text());
+            }
+            else if (fieldInfo->getType() == SPINBOX)
             {
                 processVariableElement.setAttribute("value", ((QCaSpinBox *) qCaWidget)->text());
             }
-            else if (fieldInfo->getType() == 1)
+            else if (fieldInfo->getType() == COMBOBOX)
             {
                 processVariableElement.setAttribute("value", ((QCaComboBox *) qCaWidget)->currentText());
             }

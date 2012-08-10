@@ -52,6 +52,7 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/select.png \
     src/zoom.png
 
+
 HEADERS += \
     include/QCaPluginLibrary_global.h \
     include/QCaSpinBoxPluginManager.h \
@@ -209,7 +210,8 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaPlot.cpp \
     ../widgets/src/QCaToolTip.cpp \
     ../widgets/src/QCaPeriodic.cpp \
-    ../widgets/src/PeriodicDialog.cpp \
+    ../widgets/src/PeriodicDialog.cpp
+
 
 
 #====================================
@@ -243,6 +245,7 @@ SOURCES += \
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
 RESOURCES += src/QCaResources.qrc
+
 
 
 _EPICS_BASE = $$(EPICS_BASE)
@@ -338,6 +341,8 @@ include (../widgets/QEFileBrowser/QEFileBrowser.pri)
 include (../widgets/QEImage/QEImage.pri)
 
 include (../widgets/QELabel/QELabel.pri)
+
+include (../widgets/QELauncher/QELauncher.pri)
 
 include (../widgets/QELog/QELog.pri)
 
