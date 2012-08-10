@@ -12,7 +12,8 @@ OTHER_FILES += \
     ../widgets/QEImage/play.png \
     ../widgets/QEImage/save.png \
     ../widgets/QEImage/select.png \
-    ../widgets/QEImage/zoom.png
+    ../widgets/QEImage/zoom.png \
+    ../widgets/QEImage/target.png
 
 RESOURCES += \
     ../widgets/QEImage/QEImage.qrc
