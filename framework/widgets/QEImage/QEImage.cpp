@@ -93,6 +93,7 @@ void QEImage::setup() {
     enableVSliceSelection = false;
     enableHSliceSelection = false;
     enableProfileSelection = false;
+    enableTargetSelection = false;
 
     displayCursorPixelInfo = false;
 
@@ -310,7 +311,7 @@ void QEImage::setup() {
     setEnableVertSliceSelection( enableVSliceSelection );
     setEnableHozSliceSelection( enableHSliceSelection );
     setEnableProfileSelection( enableProfileSelection );
-    setEnableProfileSelection( enableTargetSelection );
+    setEnableTargetSelection( enableTargetSelection );
 
     setDisplayCursorPixelInfo( displayCursorPixelInfo );
 
