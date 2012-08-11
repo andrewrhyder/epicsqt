@@ -54,7 +54,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
     bool isEnabled() const;
     void setEnabled( bool state );
 
-    enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA, SO_PROFILE, SO_TARGET };
+    enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA, SO_PROFILE, SO_TARGET, SO_BEAM };
     selectOptions getSelectionOption();
 
     // Property convenience functions
@@ -92,9 +92,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
 
     void setInitialVertScrollPos( int initialVertScrollPosIn );
     int getInitialVertScrollPos();
-
-    void setDisplayRegionOfInterest( bool displayRoiLayoutIn );
-    bool getDisplayRegionOfInterest();
 
     // Display the acquire period
     void setDisplayAcquirePeriod( bool displayAcquirePeriodIn );
@@ -150,7 +147,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
 
     int initialHozScrollPos;
     int initialVertScrollPos;
-    bool displayRoiLayout;
 
     bool displayButtonBar;
 
@@ -173,6 +169,7 @@ private slots:
     void areaSelectModeClicked();
     void profileSelectModeClicked();
     void targetSelectModeClicked();
+    void beamSelectModeClicked();
 
     void panModeClicked();
 
@@ -214,20 +211,7 @@ private slots:
 
     QGridLayout *mainLayout;
 
-    QGroupBox *roiGroup;
     QFrame *buttonGroup;
-
-    QELabel* roiXQELabel;
-    QLabel* roiXLabel;
-
-    QELabel* roiYQELabel;
-    QLabel* roiYLabel;
-
-    QELabel* roiWQELabel;
-    QLabel* roiWLabel;
-
-    QELabel* roiHQELabel;
-    QLabel* roiHLabel;
 
     QScrollArea* scrollArea;
     bool initScrollPosSet;
@@ -241,6 +225,7 @@ private slots:
     QLabel* currentLineLabel;
     QLabel* currentAreaLabel;
     QLabel* currentTargetLabel;
+    QLabel* currentBeamLabel;
 
 
     QPushButton* pauseButton;
@@ -277,7 +262,6 @@ private slots:
 
     void manageButtonBar();
     void manageInfoLayout();
-    void manageRoiLayout();
 
     QCaDateTime imageTime;
     unsigned long imageDataSize;
@@ -296,12 +280,14 @@ private slots:
     QPoint selectedAreaPoint1;
     QPoint selectedAreaPoint2;
     QPoint target;
+    QPoint beam;
 
     bool haveVSliceX;
     bool haveHSliceY;
     bool haveProfileLine;
     bool haveSelectedArea;
-    bool haveTarget;
+    bool haveTarget; //!!! not used??
+    bool haveBeam; //!!! not used??
 
     void generateVSlice( int x );
     void generateHSlice( int y );
@@ -390,7 +376,7 @@ protected:
     Q_PROPERTY(QString beamYVariable READ getVariableName10Property WRITE setVariableName10Property)
 
     VARIABLE_PROPERTY_ACCESS(11)
-    Q_PROPERTY(QString targetTriggerVariable READ getVariableName10Property WRITE setVariableName10Property)
+    Q_PROPERTY(QString targetTriggerVariable READ getVariableName11Property WRITE setVariableName11Property)
 
 #include <multipleVariablePropertiesTail.inc>
 
@@ -411,14 +397,15 @@ public:
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
 
     Q_PROPERTY(bool enablePan READ getEnablePan WRITE setEnablePan)
+
     Q_PROPERTY(bool enableVertSliceSelection READ getEnableVertSliceSelection WRITE setEnableVertSliceSelection)
     Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSliceSelection WRITE setEnableHozSliceSelection)
-    Q_PROPERTY(bool enableAreaSelection READ getEnableAreaSelection WRITE setEnableAreaSelection)
     Q_PROPERTY(bool enableProfileSelection READ getEnableProfileSelection WRITE setEnableProfileSelection)
+
+    Q_PROPERTY(bool enableAreaSelection READ getEnableAreaSelection WRITE setEnableAreaSelection)
     Q_PROPERTY(bool enableTargetSelection READ getEnableTargetSelection WRITE setEnableTargetSelection)
 
     Q_PROPERTY(bool displayCursorPixelInfo READ getDisplayCursorPixelInfo WRITE setDisplayCursorPixelInfo)
-    Q_PROPERTY(bool displayRegionOfInterest READ getDisplayRegionOfInterest WRITE setDisplayRegionOfInterest)
 
     Q_PROPERTY(bool displayButtonBar READ getDisplayButtonBar WRITE setDisplayButtonBar)
 

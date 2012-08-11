@@ -95,7 +95,6 @@ void QEImage::setup() {
     enableProfileSelection = false;
 
     displayCursorPixelInfo = false;
-    displayRoiLayout = false;
 
 //!!!all property variables initialised?
 
@@ -139,6 +138,7 @@ void QEImage::setup() {
     sMenu->setHSlicetEnabled( enableHSliceSelection );
     sMenu->setAreaEnabled( enableAreaSelection );
     sMenu->setProfileEnabled( enableProfileSelection );
+    sMenu->setTargetEnabled( enableTargetSelection );
     QObject::connect( sMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( selectMenuTriggered( QAction* )) );
 
     // Add the video destination to the widget
@@ -154,6 +154,7 @@ void QEImage::setup() {
     currentLineLabel = new QLabel();
     currentAreaLabel = new QLabel();
     currentTargetLabel = new QLabel();
+    currentBeamLabel = new QLabel();
 
     infoLayout = new QHBoxLayout();
     infoLayout->addWidget( currentCursorPixelLabel );
@@ -161,7 +162,8 @@ void QEImage::setup() {
     infoLayout->addWidget( currentHozPixelLabel );
     infoLayout->addWidget( currentLineLabel );
     infoLayout->addWidget( currentAreaLabel );
-    infoLayout->addWidget( currentTargetLabel, 1 );
+    infoLayout->addWidget( currentTargetLabel );
+    infoLayout->addWidget( currentBeamLabel, 1 );
 
 
     // Create vertical, horizontal, and general profile plots
@@ -184,43 +186,6 @@ void QEImage::setup() {
 
     graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
     graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
-
-    // Create region of interest group
-    roiGroup = new QGroupBox();
-    roiGroup->setTitle( "R.O.I.");
-    QGridLayout* roiLayout = new QGridLayout();
-    roiLayout->setMargin( 0 );
-    roiGroup->setLayout( roiLayout);
-
-
-    roiXQELabel = new QELabel( roiGroup );
-    roiXLabel = new QLabel( roiGroup );
-    roiXLabel->setText( "X:" );
-
-    roiYQELabel = new QELabel( roiGroup );
-    roiYLabel = new QLabel( roiGroup );
-    roiYLabel->setText( "Y:" );
-
-    roiWQELabel = new QELabel( roiGroup );
-    roiWLabel = new QLabel( roiGroup );
-    roiWLabel->setText( "Width:" );
-
-    roiHQELabel = new QELabel( roiGroup );
-    roiHLabel = new QLabel( roiGroup );
-    roiHLabel->setText( "Height:" );
-
-
-    roiLayout->addWidget( roiXLabel, 0, 0 );
-    roiLayout->addWidget( roiXQELabel, 0, 1 );
-    roiLayout->addWidget( roiYLabel, 1, 0 );
-    roiLayout->addWidget( roiYQELabel, 1, 1 );
-    roiLayout->addWidget( roiWLabel, 2, 0 );
-    roiLayout->addWidget( roiWQELabel, 2, 1 );
-    roiLayout->addWidget( roiHLabel, 3, 0 );
-    roiLayout->addWidget( roiHQELabel, 3, 1 );
-
-    roiLayout->setColumnStretch( 2, 1 );
-
 
 
     // Create button group
@@ -309,7 +274,6 @@ void QEImage::setup() {
 
     mainLayout->addWidget( buttonGroup, 0, 0 );
     mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
-    mainLayout->addWidget( roiGroup, 2, 0 );
 
     // Set graphics to take all spare room
     mainLayout->setColumnStretch( 1, 1 );
@@ -318,7 +282,6 @@ void QEImage::setup() {
     setLayout( mainLayout );
 
     // Set up labels as required by properties
-    manageRoiLayout();
     manageButtonBar();
     manageInfoLayout();
 
@@ -350,7 +313,6 @@ void QEImage::setup() {
     setEnableProfileSelection( enableTargetSelection );
 
     setDisplayCursorPixelInfo( displayCursorPixelInfo );
-    setDisplayRegionOfInterest( displayRoiLayout );
 
     panModeClicked();
 
@@ -386,31 +348,15 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         // Create the width, height, target and beam items as a QCaInteger
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
+        case ROI_X_VARIABLE:
+        case ROI_Y_VARIABLE:
+        case ROI_W_VARIABLE:
+        case ROI_H_VARIABLE:
         case TARGET_X_VARIABLE:
         case TARGET_Y_VARIABLE:
         case BEAM_X_VARIABLE:
         case BEAM_Y_VARIABLE:
         case TARGET_TRIGGER_VARIABLE:
-            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
-
-        // Pass on the variable name and substitutions on to the region of interext X QELabel, then create the roi X as a QCaInteger
-        case ROI_X_VARIABLE:
-            roiXQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_X_VARIABLE ), getVariableNameSubstitutions(), 0 );
-            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
-
-        // Pass on the variable name and substitutions on to the region of interext Y QELabel, then create the roi Y as a QCaInteger
-        case ROI_Y_VARIABLE:
-            roiYQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_Y_VARIABLE ), getVariableNameSubstitutions(), 0 );
-            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
-
-        // Pass on the variable name and substitutions on to the region of interext Width QELabel, then create the roi width as a QCaInteger
-        case ROI_W_VARIABLE:
-            roiWQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_W_VARIABLE ), getVariableNameSubstitutions(), 0 );
-            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
-
-        // Pass on the variable name and substitutions on to the region of interext Height QELabel, then create the roi height as a QCaInteger
-        case ROI_H_VARIABLE:
-            roiHQELabel->setVariableNameAndSubstitutions( getOriginalVariableName( ROI_H_VARIABLE ), getVariableNameSubstitutions(), 0 );
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
         default:
@@ -880,6 +826,7 @@ void QEImage::manageInfoLayout()
         currentLineLabel->show();
         currentAreaLabel->show();
         currentTargetLabel->show();
+        currentBeamLabel->show();
     }
     else
     {
@@ -889,6 +836,7 @@ void QEImage::manageInfoLayout()
         currentLineLabel->hide();
         currentAreaLabel->hide();
         currentTargetLabel->hide();
+        currentBeamLabel->hide();
     }
 
 
@@ -908,19 +856,6 @@ void QEImage::manageInfoLayout()
 //            }
 //        }
 //    }
-}
-
-// Add or remove the region of interest layout
-void QEImage::manageRoiLayout()
-{
-    if( displayRoiLayout )
-    {
-        roiGroup->show();
-    }
-    else
-    {
-        roiGroup->hide();
-    }
 }
 
 // Zoom to the area selected on the image
@@ -1283,19 +1218,7 @@ int QEImage::getInitialVertScrollPos()
     return initialVertScrollPos;
 }
 
-// Display the region of interest values
-void QEImage::setDisplayRegionOfInterest( bool displayRoiLayoutIn )
-{
-    displayRoiLayout = displayRoiLayoutIn;
-    manageRoiLayout();
-}
-
-bool QEImage::getDisplayRegionOfInterest()
-{
-    return displayRoiLayout;
-}
-
-// Display the exposure time
+// Display the button bar
 void QEImage::setDisplayButtonBar( bool displayButtonBarIn )
 {
     displayButtonBar = displayButtonBarIn;
@@ -1455,6 +1378,11 @@ void QEImage::targetSelectModeClicked()
     videoWidget->setMode(  imageMarkup::MARKUP_MODE_TARGET );
 }
 
+void QEImage::beamSelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_MODE_BEAM);
+}
 //=================================================================================================
 
 void QEImage::zoomInOut( int zoomAmount )
@@ -1512,16 +1440,31 @@ void QEImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoin
             break;
 
         case imageMarkup::MARKUP_MODE_TARGET:
-            target = point1;
+            {
+                target = point1;
 
-            // Write the target variables.
-            QCaInteger *qca;
-            qca = (QCaInteger*)getQcaItem( TARGET_X_VARIABLE );
-            if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( target.x() ));
+                // Write the target variables.
+                QCaInteger *qca;
+                qca = (QCaInteger*)getQcaItem( TARGET_X_VARIABLE );
+                if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( target.x() ));
 
-            qca = (QCaInteger*)getQcaItem( TARGET_Y_VARIABLE );
-            if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
+                qca = (QCaInteger*)getQcaItem( TARGET_Y_VARIABLE );
+                if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
+            }
+            break;
 
+        case imageMarkup::MARKUP_MODE_BEAM:
+            {
+                beam = point1;
+
+                // Write the beam variables.
+                QCaInteger *qca;
+                qca = (QCaInteger*)getQcaItem( BEAM_X_VARIABLE );
+                if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beam.x() ));
+
+                qca = (QCaInteger*)getQcaItem( BEAM_Y_VARIABLE );
+                if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beam.y() ));
+            }
             break;
 
         case imageMarkup::MARKUP_MODE_NONE:
@@ -2153,7 +2096,6 @@ void QEImage::showContextMenu( const QPoint& pos )
     menu.addOptionMenuItem( "Enable profile selection",      true,  enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE         );
     menu.addOptionMenuItem( "Enable target selection",       true,  enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET       );
     menu.addOptionMenuItem( "Display button bar",            true,  displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR  );
-    menu.addOptionMenuItem( "Display ROI info",              true,  displayRoiLayout,       imageContextMenu::ICM_DISPLAY_ROI_INFO    );
 
     zMenu->enableAreaSelected( haveSelectedArea );
     menu.addMenu( zMenu );
@@ -2181,7 +2123,6 @@ void QEImage::showContextMenu( const QPoint& pos )
         case imageContextMenu::ICM_ENABLE_LINE:         setEnableProfileSelection  ( checked ); break;
         case imageContextMenu::ICM_ENABLE_TARGET:       setEnableTargetSelection   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:  setDisplayButtonBar        ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_ROI_INFO:    setDisplayRegionOfInterest ( checked ); break;
 
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal
@@ -2243,6 +2184,7 @@ void QEImage::selectMenuTriggered( QAction* selectedItem )
         case imageContextMenu::ICM_SELECT_AREA:         areaSelectModeClicked();    break;
         case imageContextMenu::ICM_SELECT_PROFILE:      profileSelectModeClicked(); break;
         case imageContextMenu::ICM_SELECT_TARGET:       targetSelectModeClicked();  break;
+        case imageContextMenu::ICM_SELECT_BEAM:         beamSelectModeClicked();    break;
     }
 }
 
@@ -2260,6 +2202,8 @@ QEImage::selectOptions QEImage::getSelectionOption()
         case imageMarkup::MARKUP_MODE_H_LINE: return SO_HSLICE;
         case imageMarkup::MARKUP_MODE_AREA:   return SO_AREA;
         case imageMarkup::MARKUP_MODE_LINE:   return SO_PROFILE;
+        case imageMarkup::MARKUP_MODE_TARGET: return SO_TARGET;
+        case imageMarkup::MARKUP_MODE_BEAM:   return SO_BEAM;
 
         default:
         case imageMarkup::MARKUP_MODE_NONE:   return SO_NONE;

@@ -33,7 +33,7 @@ private:
     QAction* actionArea;
     QAction* actionProfile;
     QAction* actionTarget;
-
+    QAction* actionBeam;
 };
 
 #endif // SELECTMENU_H

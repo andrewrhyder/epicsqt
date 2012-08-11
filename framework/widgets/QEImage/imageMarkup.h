@@ -116,6 +116,27 @@ private:
     QPoint pos;
 };
 
+class markupBeam : public markupItem
+{
+public:
+
+    markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+
+    void startDrawing( QPoint pos );
+    void setArea();
+    void drawMarkup( QPainter& p );
+    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    QPoint origin();
+    QPoint getPoint1();
+    QPoint getPoint2();
+    void tidy();
+
+private:
+    QPoint pos;
+    int armSize;    // Length of arms in cross hair
+};
+
 class markupHLine : public markupItem
 {
 public:
@@ -224,9 +245,9 @@ public:
     imageMarkup();
     ~imageMarkup();
 
-    enum markupModes { MARKUP_MODE_NONE, MARKUP_MODE_H_LINE, MARKUP_MODE_V_LINE, MARKUP_MODE_LINE, MARKUP_MODE_AREA, MARKUP_MODE_TARGET };
+    enum markupModes { MARKUP_MODE_NONE, MARKUP_MODE_H_LINE, MARKUP_MODE_V_LINE, MARKUP_MODE_LINE, MARKUP_MODE_AREA, MARKUP_MODE_TARGET, MARKUP_MODE_BEAM };
 
-    enum markupIds { MARKUP_ID_REGION, MARKUP_ID_H_SLICE, MARKUP_ID_V_SLICE, MARKUP_ID_LINE, MARKUP_ID_TARGET, MARKUP_ID_TIMESTAMP, MARKUP_ID_COUNT, MARKUP_ID_NONE };
+    enum markupIds { MARKUP_ID_REGION, MARKUP_ID_H_SLICE, MARKUP_ID_V_SLICE, MARKUP_ID_LINE, MARKUP_ID_TARGET, MARKUP_ID_BEAM, MARKUP_ID_TIMESTAMP, MARKUP_ID_COUNT, MARKUP_ID_NONE };
 
     void markupMousePressEvent(QMouseEvent *event);
     void markupMouseReleaseEvent ( QMouseEvent* event );

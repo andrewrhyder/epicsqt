@@ -16,6 +16,7 @@ selectMenu::selectMenu( QWidget *parent) : QMenu(parent)
     NEW_SELECT_MENU_BUTTON( "Area",             ICM_SELECT_AREA,    actionArea    )
     NEW_SELECT_MENU_BUTTON( "Line profile",     ICM_SELECT_PROFILE, actionProfile )
     NEW_SELECT_MENU_BUTTON( "Target",           ICM_SELECT_TARGET,  actionTarget  )
+    NEW_SELECT_MENU_BUTTON( "Beam",             ICM_SELECT_BEAM,    actionBeam    )
 
     setTitle( "Select" );
 }
@@ -43,6 +44,7 @@ void selectMenu::setChecked( const int mode )
     actionArea   ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_AREA );
     actionProfile->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_PROFILE );
     actionTarget ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_TARGET );
+    actionTarget ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_BEAM );
 }
 
 void selectMenu::setPanEnabled( bool enablePan )
@@ -72,6 +74,7 @@ void selectMenu::setProfileEnabled( bool enableProfileSelection )
 
 void selectMenu::setTargetEnabled( bool enableTargetSelection )
 {
-    actionProfile->setEnabled( enableTargetSelection );
+    actionTarget->setEnabled( enableTargetSelection );
+    actionBeam->setEnabled( enableTargetSelection );
 }
 

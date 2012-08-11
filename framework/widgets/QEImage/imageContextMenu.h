@@ -24,7 +24,6 @@ public:
                                   ICM_ENABLE_LINE,
                                   ICM_ENABLE_TARGET,
                                   ICM_DISPLAY_BUTTON_BAR,
-                                  ICM_DISPLAY_ROI_INFO,
                                   ICM_ZOOM_SELECTED,
                                   ICM_ZOOM_FIT,
                                   ICM_ZOOM_10,
@@ -47,7 +46,8 @@ public:
                                   ICM_SELECT_VSLICE,
                                   ICM_SELECT_AREA,
                                   ICM_SELECT_PROFILE,
-                                  ICM_SELECT_TARGET
+                                  ICM_SELECT_TARGET,
+                                  ICM_SELECT_BEAM
                                 };
 
 

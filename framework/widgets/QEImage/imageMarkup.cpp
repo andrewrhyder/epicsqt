@@ -168,6 +168,83 @@ void markupTarget::tidy()
 
 
 //===========================================================================
+// Beam markup
+
+markupBeam::markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
+{
+    // Size of cross hair
+    armSize = 20;
+}
+
+void markupBeam::drawMarkup( QPainter& p )
+{
+    p.drawLine( pos.x()-1, pos.y()+1, pos.x()-1, pos.y()+armSize );
+    p.drawLine( pos.x()+1, pos.y()+1, pos.x()+1, pos.y()+armSize );
+
+    p.drawLine( pos.x()-1, pos.y()-1, pos.x()-1, pos.y()-armSize );
+    p.drawLine( pos.x()+1, pos.y()-1, pos.x()+1, pos.y()-armSize );
+
+    p.drawLine( pos.x()+1, pos.y()-1, pos.x()+armSize, pos.y()-1 );
+    p.drawLine( pos.x()+1, pos.y()+1, pos.x()+armSize, pos.y()+1 );
+
+    p.drawLine( pos.x()-1, pos.y()-1, pos.x()-armSize, pos.y()-1 );
+    p.drawLine( pos.x()-1, pos.y()+1, pos.x()-armSize, pos.y()+1 );
+}
+
+void markupBeam::setArea()
+{
+    area.setLeft  ( pos.x()-armSize );
+    area.setRight ( pos.x()+armSize );
+    area.setTop   ( pos.y()-armSize );
+    area.setBottom( pos.y()+armSize );
+
+    owner->markupAreasStale = true;
+}
+
+void markupBeam::startDrawing( QPoint posIn )
+{
+    pos = posIn;
+    activeHandle = MARKUP_HANDLE_NONE;
+}
+
+void markupBeam::moveTo( QPoint posIn )
+{
+    pos = posIn;
+    setArea();
+}
+
+bool markupBeam::isOver( QPoint point, Qt::CursorShape* cursor )
+{
+    *cursor = Qt::SizeAllCursor;
+    activeHandle = MARKUP_HANDLE_NONE;
+    return ((( abs( point.x() - pos.x() ) <= OVER_TOLERANCE ) &&
+             ( abs( point.y() - pos.y() ) <= (armSize+OVER_TOLERANCE) )) ||
+            (( abs( point.y() - pos.y() ) <= OVER_TOLERANCE ) &&
+             ( abs( point.x() - pos.x() ) <= (armSize+OVER_TOLERANCE) )));
+}
+
+QPoint markupBeam::origin()
+{
+    return pos;
+}
+
+QPoint markupBeam::getPoint1()
+{
+    return origin();
+}
+
+QPoint markupBeam::getPoint2()
+{
+    return QPoint();
+}
+
+void markupBeam::tidy()
+{
+    // Nothing to do
+}
+
+
+//===========================================================================
 // Vertical line markup
 
 markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
@@ -802,11 +879,12 @@ imageMarkup::imageMarkup()
     markupImage = new QImage();
 
     items.resize(MARKUP_ID_COUNT );
-    items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true, true );
-    items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true, true );
-    items[MARKUP_ID_LINE]      = new markupLine(   this, true, true );
-    items[MARKUP_ID_REGION]    = new markupRegion( this, true, true );
-    items[MARKUP_ID_TARGET]    = new markupTarget( this, true, true );
+    items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true,  true );
+    items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true,  true );
+    items[MARKUP_ID_LINE]      = new markupLine(   this, true,  true );
+    items[MARKUP_ID_REGION]    = new markupRegion( this, true,  true );
+    items[MARKUP_ID_TARGET]    = new markupTarget( this, true,  true );
+    items[MARKUP_ID_BEAM]      = new markupBeam(   this, true,  true );
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false );
 
     markupAreasStale = true;
@@ -906,6 +984,7 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
             case MARKUP_MODE_LINE:   activeItem = MARKUP_ID_LINE;    pointAndClick = false; break;
             case MARKUP_MODE_AREA:   activeItem = MARKUP_ID_REGION;  pointAndClick = false; break;
             case MARKUP_MODE_TARGET: activeItem = MARKUP_ID_TARGET;                         break;
+            case MARKUP_MODE_BEAM:   activeItem = MARKUP_ID_BEAM;                           break;
         }
         if( activeItem != MARKUP_ID_NONE )
         {
@@ -988,6 +1067,7 @@ imageMarkup::markupModes imageMarkup::getActionMode()
         case MARKUP_ID_LINE:      return MARKUP_MODE_LINE;
         case MARKUP_ID_REGION:    return MARKUP_MODE_AREA;
         case MARKUP_ID_TARGET:    return MARKUP_MODE_TARGET;
+        case MARKUP_ID_BEAM:      return MARKUP_MODE_BEAM;
         case MARKUP_ID_TIMESTAMP: return MARKUP_MODE_NONE; // Should never be the active item, but included for completeness
         default:                  return MARKUP_MODE_NONE;
     }
