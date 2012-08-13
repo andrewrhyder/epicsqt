@@ -13,7 +13,9 @@ OTHER_FILES += \
     ../widgets/QEImage/save.png \
     ../widgets/QEImage/select.png \
     ../widgets/QEImage/zoom.png \
-    ../widgets/QEImage/target.png
+    ../widgets/QEImage/target.png \
+    ../widgets/QEImage/circleCursor.png \
+    ../widgets/QEImage/targetCursor.png
 
 RESOURCES += \
     ../widgets/QEImage/QEImage.qrc

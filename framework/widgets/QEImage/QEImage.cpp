@@ -112,9 +112,16 @@ void QEImage::setup() {
 
     // Create the video destination
     videoWidget = new VideoWidget;
-    setMarkupColor(QColor(0, 255, 0));
-    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupModes, QPoint, QPoint ) ),
-                      this,        SLOT  ( userSelection( imageMarkup::markupModes, QPoint, QPoint )) );
+    setVertSliceMarkupColor( QColor(127, 255, 127));
+    setHozSliceMarkupColor(  QColor(255, 100, 100));
+    setProfileMarkupColor(   QColor(255, 255, 100));
+    setAreaMarkupColor(      QColor(100, 100, 255));
+    setBeamMarkupColor(      QColor(255,   0,   0));
+    setTargetMarkupColor(    QColor(  0, 255,   0));
+    setTimeMarkupColor(      QColor(255, 255, 255));
+
+    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, QPoint, QPoint ) ),
+                      this,        SLOT  ( userSelection( imageMarkup::markupIds, QPoint, QPoint )) );
     QObject::connect( videoWidget, SIGNAL( zoomInOut( int ) ),
                       this,        SLOT  ( zoomInOut( int ) ) );
     QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint ) ),
@@ -1242,15 +1249,81 @@ bool QEImage::getShowTime()
     return videoWidget->getShowTime();
 }
 
-// Markup colour
-void QEImage::setMarkupColor(QColor markupColor )
+// Vertical slice markup colour
+void QEImage::setVertSliceMarkupColor(QColor markupColor )
 {
-    videoWidget->setMarkupColor( markupColor );
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_V_SLICE, markupColor );
 }
 
-QColor QEImage::getMarkupColor()
+QColor QEImage::getVertSliceMarkupColor()
 {
-    return videoWidget->getMarkupColor();
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_V_SLICE );
+}
+
+// Horizontal slice markup colour
+void QEImage::setHozSliceMarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_H_SLICE, markupColor );
+}
+
+QColor QEImage::getHozSliceMarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_H_SLICE );
+}
+
+// Profile markup colour
+void QEImage::setProfileMarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_LINE, markupColor );
+}
+
+QColor QEImage::getProfileMarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_LINE );
+}
+
+// Area markup colour
+void QEImage::setAreaMarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_REGION, markupColor );
+}
+
+QColor QEImage::getAreaMarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_REGION );
+}
+
+// Area markup colour
+void QEImage::setTimeMarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_TIMESTAMP, markupColor );
+}
+
+QColor QEImage::getTimeMarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_TIMESTAMP );
+}
+
+// Target slice markup colour
+void QEImage::setTargetMarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_TARGET, markupColor );
+}
+
+QColor QEImage::getTargetMarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_TARGET );
+}
+
+// Beam slice markup colour
+void QEImage::setBeamMarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_BEAM, markupColor );
+}
+
+QColor QEImage::getBeamMarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_BEAM );
 }
 
 // Show cursor pixel
@@ -1345,44 +1418,44 @@ bool QEImage::getEnableTargetSelection()
 
 void QEImage::panModeClicked()
 {
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_NONE );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_NONE );
     videoWidget->setPanning( true );
 }
 
 void QEImage::vSliceSelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_V_LINE );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_V_SLICE );
 }
 
 void QEImage::hSliceSelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_H_LINE );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_H_SLICE );
 }
 
 void QEImage::areaSelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_AREA );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_REGION );
 }
 
 void QEImage::profileSelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_LINE );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_LINE );
 }
 
 void QEImage::targetSelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_TARGET );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_TARGET );
 }
 
 void QEImage::beamSelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_MODE_BEAM);
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_BEAM);
 }
 //=================================================================================================
 
@@ -1405,24 +1478,24 @@ void QEImage::zoomInOut( int zoomAmount )
 
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
-void QEImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 )
+void QEImage::userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint point2 )
 {
     switch( mode )
     {
         //!!! the calculations and display of pixel position (here and below) will need to be done when the window is zoomed
-        case imageMarkup::MARKUP_MODE_V_LINE:
+        case imageMarkup::MARKUP_ID_V_SLICE:
             vSliceX = point1.x();
             haveVSliceX = true;
             generateVSlice(  vSliceX );
             break;
 
-        case imageMarkup::MARKUP_MODE_H_LINE:
+        case imageMarkup::MARKUP_ID_H_SLICE:
             hSliceY = point1.y();
             haveHSliceY = true;
             generateHSlice( hSliceY );
             break;
 
-        case imageMarkup::MARKUP_MODE_AREA:
+        case imageMarkup::MARKUP_ID_REGION:
             selectedAreaPoint1 = point1;
             selectedAreaPoint2 = point2;
             haveSelectedArea = true;
@@ -1433,14 +1506,14 @@ void QEImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoin
             displaySelectedAreaInfo( selectedAreaPoint1, selectedAreaPoint2 );
             break;
 
-        case imageMarkup::MARKUP_MODE_LINE:
+        case imageMarkup::MARKUP_ID_LINE:
             profileLineStart = point1;
             profileLineEnd = point2;
             haveProfileLine = true;
             generateProfile( profileLineStart, profileLineEnd );
             break;
 
-        case imageMarkup::MARKUP_MODE_TARGET:
+        case imageMarkup::MARKUP_ID_TARGET:
             {
                 target = point1;
 
@@ -1454,7 +1527,7 @@ void QEImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoin
             }
             break;
 
-        case imageMarkup::MARKUP_MODE_BEAM:
+        case imageMarkup::MARKUP_ID_BEAM:
             {
                 beam = point1;
 
@@ -1468,7 +1541,7 @@ void QEImage::userSelection( imageMarkup::markupModes mode, QPoint point1, QPoin
             }
             break;
 
-        case imageMarkup::MARKUP_MODE_NONE:
+        default:
             break;
 
     }
@@ -2199,15 +2272,15 @@ QEImage::selectOptions QEImage::getSelectionOption()
     {
         switch( videoWidget->getMode() )
         {
-        case imageMarkup::MARKUP_MODE_V_LINE: return SO_VSLICE;
-        case imageMarkup::MARKUP_MODE_H_LINE: return SO_HSLICE;
-        case imageMarkup::MARKUP_MODE_AREA:   return SO_AREA;
-        case imageMarkup::MARKUP_MODE_LINE:   return SO_PROFILE;
-        case imageMarkup::MARKUP_MODE_TARGET: return SO_TARGET;
-        case imageMarkup::MARKUP_MODE_BEAM:   return SO_BEAM;
+        case imageMarkup::MARKUP_ID_V_SLICE: return SO_VSLICE;
+        case imageMarkup::MARKUP_ID_H_SLICE: return SO_HSLICE;
+        case imageMarkup::MARKUP_ID_REGION:  return SO_AREA;
+        case imageMarkup::MARKUP_ID_LINE:    return SO_PROFILE;
+        case imageMarkup::MARKUP_ID_TARGET:  return SO_TARGET;
+        case imageMarkup::MARKUP_ID_BEAM:    return SO_BEAM;
 
         default:
-        case imageMarkup::MARKUP_MODE_NONE:   return SO_NONE;
+        case imageMarkup::MARKUP_ID_NONE:    return SO_NONE;
 
         }
     }

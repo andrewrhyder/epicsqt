@@ -54,6 +54,7 @@ markupItem::markupItem( imageMarkup* ownerIn, isOverOptions over, bool interacti
     highlighted = false;
     highlightMargin = 2;
     owner = ownerIn;
+    color = QColor( 0, 255, 0 ); // green
 }
 
 markupItem::~markupItem()
@@ -69,7 +70,7 @@ bool markupItem::pointIsNear( QPoint p1, QPoint p2 )
 void markupItem::drawMarkupIn()
 {
     QPainter p( owner->markupImage );
-    p.setPen( owner->getMarkupColor() );
+    p.setPen( color );
     drawMarkup( p );
     visible = true;
 }
@@ -86,6 +87,17 @@ void markupItem::drawMarkupOut()
     p.setCompositionMode( QPainter::CompositionMode_Clear );
     drawMarkup( p );
     visible = false;
+}
+
+
+void markupItem::setColor( QColor colorIn )
+{
+    color = colorIn;
+}
+
+QColor markupItem::getColor()
+{
+    return color;
 }
 
 // Erase and item and redraw any items that it was over
@@ -139,9 +151,9 @@ void markupTarget::moveTo( QPoint posIn )
     setArea();
 }
 
-bool markupTarget::isOver( QPoint point, Qt::CursorShape* cursor )
+bool markupTarget::isOver( QPoint point, QCursor* cursor )
 {
-    *cursor = Qt::SizeAllCursor;
+    *cursor = owner->getCircleCursor();
     activeHandle = MARKUP_HANDLE_NONE;
     return ( abs( point.x() - pos.x() ) <= OVER_TOLERANCE ) || ( abs( point.y() - pos.y() ) <= OVER_TOLERANCE );
 }
@@ -164,6 +176,11 @@ QPoint markupTarget::getPoint2()
 void markupTarget::tidy()
 {
     // Nothing to do
+}
+
+QCursor markupTarget::defaultCursor()
+{
+    return owner->getTargetCursor();
 }
 
 
@@ -213,9 +230,9 @@ void markupBeam::moveTo( QPoint posIn )
     setArea();
 }
 
-bool markupBeam::isOver( QPoint point, Qt::CursorShape* cursor )
+bool markupBeam::isOver( QPoint point, QCursor* cursor )
 {
-    *cursor = Qt::SizeAllCursor;
+    *cursor = owner->getCircleCursor();
     activeHandle = MARKUP_HANDLE_NONE;
     return ((( abs( point.x() - pos.x() ) <= OVER_TOLERANCE ) &&
              ( abs( point.y() - pos.y() ) <= (armSize+OVER_TOLERANCE) )) ||
@@ -243,6 +260,10 @@ void markupBeam::tidy()
     // Nothing to do
 }
 
+QCursor markupBeam::defaultCursor()
+{
+    return owner->getTargetCursor();
+}
 
 //===========================================================================
 // Vertical line markup
@@ -287,7 +308,7 @@ void markupVLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupVLine::isOver( QPoint point, Qt::CursorShape* cursor )
+bool markupVLine::isOver( QPoint point, QCursor* cursor )
 {
     *cursor = Qt::OpenHandCursor;
     activeHandle = MARKUP_HANDLE_NONE;
@@ -314,6 +335,10 @@ void markupVLine::tidy()
     // Nothing to do
 }
 
+QCursor markupVLine::defaultCursor()
+{
+    return Qt::CrossCursor;
+}
 
 //===========================================================================
 // Horizontal line markup
@@ -358,7 +383,7 @@ void markupHLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupHLine::isOver( QPoint point, Qt::CursorShape* cursor )
+bool markupHLine::isOver( QPoint point, QCursor* cursor )
 {
     *cursor = Qt::OpenHandCursor;
     activeHandle = MARKUP_HANDLE_NONE;
@@ -383,6 +408,11 @@ QPoint markupHLine::getPoint2()
 void markupHLine::tidy()
 {
     // Nothing to do
+}
+
+QCursor markupHLine::defaultCursor()
+{
+    return Qt::CrossCursor;
 }
 
 //===========================================================================
@@ -462,7 +492,7 @@ void markupLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupLine::isOver( QPoint point, Qt::CursorShape* cursor )
+bool markupLine::isOver( QPoint point, QCursor* cursor )
 {
     // Not over the line if outside the drawing rectangle more than the tolerance
     QRect tolArea = area;
@@ -558,6 +588,11 @@ void markupLine::tidy()
     // Nothing to do
 }
 
+QCursor markupLine::defaultCursor()
+{
+    return Qt::CrossCursor;
+}
+
 //===========================================================================
 // Region markup
 
@@ -647,7 +682,7 @@ void markupRegion::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupRegion::isOver( QPoint point, Qt::CursorShape* cursor )
+bool markupRegion::isOver( QPoint point, QCursor* cursor )
 {
     // If the point is over the left side, return 'is over' after checking the left handles
     QRect l( rect.topLeft(), QSize( 0, rect.height()) );
@@ -787,6 +822,11 @@ void markupRegion::tidy()
     rect = rect.normalized();
 }
 
+QCursor markupRegion::defaultCursor()
+{
+    return Qt::CrossCursor;
+}
+
 //===========================================================================
 // Text markup
 
@@ -840,7 +880,7 @@ void markupText::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupText::isOver( QPoint point, Qt::CursorShape* cursor )
+bool markupText::isOver( QPoint point, QCursor* cursor )
 {
     *cursor = Qt::OpenHandCursor;
     activeHandle = MARKUP_HANDLE_NONE;
@@ -867,13 +907,18 @@ void markupText::tidy()
     // Nothing to do
 }
 
+QCursor markupText::defaultCursor()
+{
+    return Qt::CrossCursor;
+}
+
 //===========================================================================
 // imageMarkup
 
 // Constructor
 imageMarkup::imageMarkup()
 {
-    mode = MARKUP_MODE_NONE;
+    mode = MARKUP_ID_NONE;
     activeItem = MARKUP_ID_NONE;
 
     markupImage = new QImage();
@@ -888,6 +933,15 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false );
 
     markupAreasStale = true;
+
+    // Create circle cursoe used for target and beam
+    QPixmap circlePixmap = QPixmap( ":/qe/image/circleCursor.png" );
+    circleCursor = QCursor( circlePixmap );
+
+    // Create target cursoe used for target and beam
+    QPixmap targetPixmap = QPixmap( ":/qe/image/targetCursor.png" );
+    targetCursor = QCursor( targetPixmap );
+
 }
 
 // Destructor
@@ -895,13 +949,13 @@ imageMarkup::~imageMarkup()
 {
 }
 
-imageMarkup::markupModes imageMarkup::getMode()
+imageMarkup::markupIds imageMarkup::getMode()
 {
     return mode;
 }
 
 // Set the current markup mode - (what is the user doing? selecting an area? drawing a line?)
-void imageMarkup::setMode( markupModes modeIn )
+void imageMarkup::setMode( markupIds modeIn )
 {
     mode = modeIn;
 }
@@ -962,7 +1016,7 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
     int n = items.count();
     for( int i = 0; i < n; i++ )
     {
-        Qt::CursorShape cursor;
+        QCursor cursor;
         if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &cursor ) )
         {
             activeItem = (markupIds)i;
@@ -978,13 +1032,23 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
         bool pointAndClick = true;
         switch( mode )
         {
-            case MARKUP_MODE_NONE:                                                          break;
-            case MARKUP_MODE_H_LINE: activeItem = MARKUP_ID_H_SLICE;                        break;
-            case MARKUP_MODE_V_LINE: activeItem = MARKUP_ID_V_SLICE;                        break;
-            case MARKUP_MODE_LINE:   activeItem = MARKUP_ID_LINE;    pointAndClick = false; break;
-            case MARKUP_MODE_AREA:   activeItem = MARKUP_ID_REGION;  pointAndClick = false; break;
-            case MARKUP_MODE_TARGET: activeItem = MARKUP_ID_TARGET;                         break;
-            case MARKUP_MODE_BEAM:   activeItem = MARKUP_ID_BEAM;                           break;
+            default:
+            case MARKUP_ID_NONE:
+                break;
+
+            case MARKUP_ID_H_SLICE:
+            case MARKUP_ID_V_SLICE:
+            case MARKUP_ID_TARGET:
+            case MARKUP_ID_BEAM:
+                activeItem = mode;
+                pointAndClick = true;
+                break;
+
+            case MARKUP_ID_LINE:
+            case MARKUP_ID_REGION:
+                activeItem = mode;
+                pointAndClick = false;
+                break;
         }
         if( activeItem != MARKUP_ID_NONE )
         {
@@ -1010,6 +1074,11 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
                     markupChange( *markupImage, changedAreas );
                 }
                 items[activeItem]->startDrawing( event->pos() );
+
+                // Set the cursor according to the bit we are over after creation
+                QCursor cursor;
+                items[activeItem]->isOver( event->pos(), &cursor ) ;
+                markupSetCursor( cursor );
             }
         }
     }
@@ -1031,7 +1100,7 @@ void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
         int n = items.count();
         for( int i = 0; i < n; i++ )
         {
-            Qt::CursorShape specificCursor;
+            QCursor specificCursor;
             if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &specificCursor ) )
             {
                 cursor = specificCursor;
@@ -1057,25 +1126,33 @@ void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
 // For example, if the current mode set by setMode() is MARKUP_MODE_AREA
 // (select and area) but the user has draged the profile line the mode
 // returned by this method is MARKUP_MODE_LINE
-imageMarkup::markupModes imageMarkup::getActionMode()
+imageMarkup::markupIds imageMarkup::getActionMode()
 {
     switch( activeItem )
     {
-        case MARKUP_ID_NONE:      return MARKUP_MODE_NONE;
-        case MARKUP_ID_H_SLICE:   return MARKUP_MODE_H_LINE;
-        case MARKUP_ID_V_SLICE:   return MARKUP_MODE_V_LINE;
-        case MARKUP_ID_LINE:      return MARKUP_MODE_LINE;
-        case MARKUP_ID_REGION:    return MARKUP_MODE_AREA;
-        case MARKUP_ID_TARGET:    return MARKUP_MODE_TARGET;
-        case MARKUP_ID_BEAM:      return MARKUP_MODE_BEAM;
-        case MARKUP_ID_TIMESTAMP: return MARKUP_MODE_NONE; // Should never be the active item, but included for completeness
-        default:                  return MARKUP_MODE_NONE;
+        case MARKUP_ID_H_SLICE:
+        case MARKUP_ID_V_SLICE:
+        case MARKUP_ID_LINE:
+        case MARKUP_ID_REGION:
+        case MARKUP_ID_TARGET:
+        case MARKUP_ID_BEAM:
+            return activeItem;
+
+        default:
+            return MARKUP_ID_NONE;
     }
 }
 
 QCursor imageMarkup::getDefaultMarkupCursor()
 {
-    return  Qt::CrossCursor;
+    if( mode < MARKUP_ID_COUNT )
+    {
+        return items[mode]->defaultCursor();
+    }
+    else
+    {
+        return Qt::CrossCursor;
+    }
 }
 
 void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )//event )
@@ -1185,32 +1262,50 @@ bool imageMarkup::anyVisibleMarkups()
     return false;
 }
 
-void imageMarkup::setMarkupColor( QColor markupColorIn )
+void imageMarkup::setMarkupColor( markupIds mode, QColor markupColorIn )
 {
+    // Do nothing if mode is invalid
+    if( mode < 0 || mode >= MARKUP_ID_NONE )
+    {
+        return ;
+    }
+
     // Save the new markup color
-    markupColor = markupColorIn;
+    items[mode]->setColor( markupColorIn );
 
     // Do nothing (no need to change drawn colors) if no markup image yet
     if( markupImage->isNull() )
         return;
 
-    // For each visible item, redraw it in the new color
+    // If the item is visible, redraw it in the new color
     QVector<QRect> changedAreas;
-    int n = items.count();
-    for( int i = 0; i < n; i++ )
+    if( items[mode]->visible )
     {
-        if( items[i]->visible )
-        {
-            items[i]->drawMarkupIn();
-            changedAreas.append( items[i]->area );
-        }
+        items[mode]->drawMarkupIn();
+        changedAreas.append( items[mode]->area );
+        markupChange( *markupImage, changedAreas );
     }
 
-    // Force update of appropriate parts of displayed image
-    markupChange( *markupImage, changedAreas );
 }
 
-QColor imageMarkup::getMarkupColor()
+QColor imageMarkup::getMarkupColor( markupIds mode )
 {
-    return markupColor;
+    // Return a valid deault color mode is invalid
+    if( mode < 0 || mode >= MARKUP_ID_NONE )
+    {
+        return QColor( 127, 127, 127 );
+    }
+
+    // Return the markup color
+    return items[mode]->color;
+}
+
+QCursor imageMarkup::getCircleCursor()
+{
+    return circleCursor;
+}
+
+QCursor imageMarkup::getTargetCursor()
+{
+    return targetCursor;
 }

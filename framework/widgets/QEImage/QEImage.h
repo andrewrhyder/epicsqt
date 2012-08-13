@@ -107,8 +107,26 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
     void setShowTime(bool pValue);
     bool getShowTime();
 
-    void setMarkupColor(QColor pValue);
-    QColor getMarkupColor();
+    void setVertSliceMarkupColor(QColor pValue);
+    QColor getVertSliceMarkupColor();
+
+    void setHozSliceMarkupColor(QColor pValue);
+    QColor getHozSliceMarkupColor();
+
+    void setProfileMarkupColor(QColor pValue);
+    QColor getProfileMarkupColor();
+
+    void setAreaMarkupColor(QColor pValue);
+    QColor getAreaMarkupColor();
+
+    void setTargetMarkupColor(QColor pValue);
+    QColor getTargetMarkupColor();
+
+    void setBeamMarkupColor(QColor pValue);
+    QColor getBeamMarkupColor();
+
+    void setTimeMarkupColor(QColor pValue);
+    QColor getTimeMarkupColor();
 
     void setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn );
     bool getDisplayCursorPixelInfo();
@@ -184,7 +202,7 @@ private slots:
 
   public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
-    void userSelection( imageMarkup::markupModes mode, QPoint point1, QPoint point2 );
+    void userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
@@ -380,6 +398,7 @@ protected:
 
 #include <multipleVariablePropertiesTail.inc>
 
+    public:
 #include <standardProperties.inc>
 
 //==========================================================================
@@ -411,7 +430,13 @@ public:
 
     Q_PROPERTY(bool showTime READ getShowTime WRITE setShowTime)
 
-    Q_PROPERTY(QColor markupColor READ getMarkupColor WRITE setMarkupColor)
+    Q_PROPERTY(QColor vertSliceColor READ getVertSliceMarkupColor WRITE setVertSliceMarkupColor)
+    Q_PROPERTY(QColor hozSliceColor READ getHozSliceMarkupColor WRITE setHozSliceMarkupColor)
+    Q_PROPERTY(QColor profileColor READ getProfileMarkupColor WRITE setProfileMarkupColor)
+    Q_PROPERTY(QColor areaColor READ getAreaMarkupColor WRITE setAreaMarkupColor)
+    Q_PROPERTY(QColor beamColor READ getBeamMarkupColor WRITE setBeamMarkupColor)
+    Q_PROPERTY(QColor targetColor READ getTargetMarkupColor WRITE setTargetMarkupColor)
+    Q_PROPERTY(QColor timeColor READ getTimeMarkupColor WRITE setTimeMarkupColor)
 
 
     Q_ENUMS(ResizeOptions)

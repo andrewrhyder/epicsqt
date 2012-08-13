@@ -10,5 +10,7 @@
         <file>cameraROIreset.png</file>
         <file>QEImage.png</file>
         <file>target.png</file>
+        <file>circleCursor.png</file>
+        <file>targetCursor.png</file>
     </qresource>
 </RCC>

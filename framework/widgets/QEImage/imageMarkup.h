@@ -74,10 +74,11 @@ public:
     virtual void drawMarkup( QPainter& p )=0;
     virtual void startDrawing( QPoint pos ) = 0;
 
-    virtual bool isOver( QPoint point, Qt::CursorShape* cursor )=0;
+    virtual bool isOver( QPoint point, QCursor* cursor )=0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
     virtual void tidy()=0;
+    virtual QCursor defaultCursor()=0;
 
     bool pointIsNear( QPoint p1, QPoint p );
 
@@ -89,11 +90,13 @@ public:
     bool          reportOnMove; // Movements reported (not just on move completion)
     bool          highlighted;  // Object is highlighted
     int           highlightMargin; // Extra margin required for highlighting
+    QColor        color;            // Color markup is drawn in
     imageMarkup*  owner;
 
     void drawMarkupIn();
     void drawMarkupOut();
-
+    void setColor( QColor colorIn );
+    QColor getColor();
 };
 
 class markupTarget : public markupItem
@@ -106,11 +109,12 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
     void tidy();
+    QCursor defaultCursor();
 
 private:
     QPoint pos;
@@ -126,11 +130,12 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
     void tidy();
+    QCursor defaultCursor();
 
 private:
     QPoint pos;
@@ -147,11 +152,12 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
     void tidy();
+    QCursor defaultCursor();
 
 private:
     int y;
@@ -167,11 +173,12 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
     void tidy();
+    QCursor defaultCursor();
 
 private:
     int x;
@@ -186,11 +193,12 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
     void tidy();
+    QCursor defaultCursor();
 
 private:
     QPoint start;
@@ -207,11 +215,12 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
     void tidy();
+    QCursor defaultCursor();
 
 private:
     QRect rect;
@@ -229,11 +238,12 @@ public:
     void setArea();
     void drawMarkup( QPainter& p );
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, Qt::CursorShape* cursor );
+    bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
     void tidy();
+    QCursor defaultCursor();
 
 private:
     QString text;
@@ -245,9 +255,15 @@ public:
     imageMarkup();
     ~imageMarkup();
 
-    enum markupModes { MARKUP_MODE_NONE, MARKUP_MODE_H_LINE, MARKUP_MODE_V_LINE, MARKUP_MODE_LINE, MARKUP_MODE_AREA, MARKUP_MODE_TARGET, MARKUP_MODE_BEAM };
-
-    enum markupIds { MARKUP_ID_REGION, MARKUP_ID_H_SLICE, MARKUP_ID_V_SLICE, MARKUP_ID_LINE, MARKUP_ID_TARGET, MARKUP_ID_BEAM, MARKUP_ID_TIMESTAMP, MARKUP_ID_COUNT, MARKUP_ID_NONE };
+    enum markupIds { MARKUP_ID_REGION,
+                     MARKUP_ID_H_SLICE,
+                     MARKUP_ID_V_SLICE,
+                     MARKUP_ID_LINE,
+                     MARKUP_ID_TARGET,
+                     MARKUP_ID_BEAM,
+                     MARKUP_ID_TIMESTAMP,
+                     MARKUP_ID_COUNT,  // must be second last
+                     MARKUP_ID_NONE }; // must be last
 
     void markupMousePressEvent(QMouseEvent *event);
     void markupMouseReleaseEvent ( QMouseEvent* event );
@@ -256,8 +272,8 @@ public:
     void setShowTime( bool visibleIn );     // Display timestamp markup if true
     bool getShowTime();                     // Rturn true if displaying timestamp markup
 
-    markupModes getMode();
-    void setMode( markupModes modeIn );
+    markupIds getMode();
+    void setMode( markupIds modeIn );
     QImage* markupImage;
     QVector<markupItem*> items;
     QPoint grabOffset;
@@ -267,8 +283,10 @@ public:
     QCursor getDefaultMarkupCursor();
 
     void setMarkupTime( QCaDateTime& time );                   // A new image has arrived, note it's time
-    void setMarkupColor( QColor markupColorIn );
-    QColor getMarkupColor();
+    void setMarkupColor( markupIds mode, QColor markupColorIn );
+    QColor getMarkupColor( markupIds mode );
+    QCursor getCircleCursor();
+    QCursor getTargetCursor();
 
 
 protected:
@@ -276,24 +294,24 @@ protected:
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
     virtual void markupSetCursor( QCursor cursor )=0;
-    virtual void markupAction( markupModes mode, QPoint point1, QPoint point2 )=0;
+    virtual void markupAction( markupIds mode, QPoint point1, QPoint point2 )=0;
 
 
 private:
 
     markupIds activeItem;
 
-    markupModes mode;
+    markupIds mode;
 
     void redrawActiveItemHere( QPoint pos );
     QVector<QRect> markupAreas;
 
     bool buttonDown;
-    markupModes getActionMode();
+    markupIds getActionMode();
 
     bool showTime;
-    QColor markupColor;
-
+    QCursor circleCursor;   // Used as cursoe when over a target or beam markup
+    QCursor targetCursor;   // Used as default cursor when in target or beam mode
 };
 
 #endif // IMAGEMARKUP_H

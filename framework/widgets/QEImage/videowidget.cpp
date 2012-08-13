@@ -173,7 +173,7 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
     markupResize( event->size() );
 }
 
-void VideoWidget::markupAction( markupModes mode, QPoint point1, QPoint point2 )
+void VideoWidget::markupAction( markupIds mode, QPoint point1, QPoint point2 )
 {
     emit userSelection( mode, point1, point2 );
 }
