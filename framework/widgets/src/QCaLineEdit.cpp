@@ -415,16 +415,6 @@ bool QCaLineEdit::getSubscribe()
     return subscribe;
 }
 
-// variable as tool tip
-void QCaLineEdit::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaLineEdit::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
 // confirm write
 void QCaLineEdit::setConfirmWrite( bool confirmWriteIn )
 {

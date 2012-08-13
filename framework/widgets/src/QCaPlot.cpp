@@ -433,16 +433,6 @@ void QCaPlot::setVariableNameAndSubstitutions( QString variableNameIn, QString v
     establishConnection( variableIndex );
 }
 
-// Access functions for variableAsToolTip
-void QCaPlot::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaPlot::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
 // Access functions for YMin
 void QCaPlot::setYMin( double yMinIn )
 {

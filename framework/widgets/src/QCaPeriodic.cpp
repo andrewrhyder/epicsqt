@@ -828,16 +828,6 @@ QCaPeriodic::presentationOptions QCaPeriodic::getPresentationOption()
     return presentationOption;
 }
 
-// variable as tool tip
-void QCaPeriodic::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-}
-bool QCaPeriodic::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
 // variable 1 type
 void QCaPeriodic::setVariableType1( variableTypes variableType1In )
 {
