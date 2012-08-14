@@ -14,6 +14,8 @@ FRAMEWORK_DIRECTORY = epicsqt
 PACKAGE_DIRECTORY = package
 SVN_REPOSITORY = https://epicsqt.svn.sourceforge.net/svnroot/epicsqt
 SVN = svn
+LDD = ldd
+GREP = grep
 SED = sed
 QMAKE = qmake-qt4
 
@@ -27,6 +29,7 @@ all: check svncheckout buildframework
 
 
 # check target
+.PHONY: check
 check:
 	@echo "Checking conditions for building the framework..."
 
@@ -56,6 +59,7 @@ endif
 
 
 # svn checkout/update framework target
+.PHONY: svncheckout
 svncheckout:
 	@if test -d $(FRAMEWORK_DIRECTORY); then \
 		echo "Updating framework to the latest version from SVN repository to '"$(FRAMEWORK_DIRECTORY)"'..."; \
@@ -72,6 +76,7 @@ svncheckout:
 
 
 # build framework target
+.PHONY: buildframework
 buildframework:
 	@echo "Building framework located in '"$(FRAMEWORK_DIRECTORY)"'..."
 	@$(QMAKE) $(FRAMEWORK_DIRECTORY)/epicsqt.pro -r -spec linux-g++
@@ -84,7 +89,16 @@ buildframework:
 
 #TODO: the result of the execution of 'ldd' should be stored in a variable in order to avoid the cost of creating a temporary file
 # package framework target
+.PHONY: package
 package:
+
+ifeq ($(shell which $(LDD) 2>/dev/null),)
+	@$(error The program '$(LDD)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install glibc-common' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
+endif
+
+ifeq ($(shell which $(GREP) 2>/dev/null),)
+	@$(error The program '$(GREP)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install grep' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
+endif
 
 ifeq ($(shell which $(SED) 2>/dev/null),)
 	@$(error The program '$(SED)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install sed' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
@@ -95,6 +109,7 @@ endif
 	else \
 		$(MAKE); \
 	fi
+
 	@echo "Packaging framework to '"$(PACKAGE_DIRECTORY)"'..."
 	@mkdir -p $(PACKAGE_DIRECTORY)/lib
 	@cp -r /usr/lib/qt4/plugins $(PACKAGE_DIRECTORY)/lib/.
@@ -103,11 +118,7 @@ endif
 	@cd $(PACKAGE_DIRECTORY)/lib/plugins/designer ; ln -s -f ../../libQCaPlugin.so
 	@chmod u+x $(PACKAGE_DIRECTORY)/ASgui
 	@echo "#!/bin/bash" > script.tmp
-	@echo "ldd $(PACKAGE_DIRECTORY)/ASgui | grep 'libca.so\|libCom.so\|libQt\|libqwt\|libreadline\|libncurses' | sed s/lib.*\>// | sed s/\(.*\)// > dependencies.tmp" >> script.tmp
-	@echo "while read line;" >> script.tmp
-	@echo "do cp \$$line $(PACKAGE_DIRECTORY)/lib/." >> script.tmp
-	@echo "done < dependencies.tmp" >> script.tmp
-	@echo "rm -f dependencies.tmp" >> script.tmp
+	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/ASgui | $(GREP) 'libca.so\|libCom.so\|libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
 	@chmod u+x script.tmp
 	@./script.tmp
 	@rm -f script.tmp
@@ -116,14 +127,15 @@ endif
 	@echo "export QT_PLUGIN_PATH=./lib/plugins" >> $(PACKAGE_DIRECTORY)/execute
 	@echo "./ASgui -m \$$1" >> $(PACKAGE_DIRECTORY)/execute
 	@chmod u+x $(PACKAGE_DIRECTORY)/execute
-	@echo "Please note that a file called 'execute' (located in '"$(PACKAGE_DIRECTORY)"') was created in order to facilitate the launching of .ui files. To use it, do the following in a terminal: ./execute XXX (where XXX is the .ui file to be launched)."
+	@echo "Please note that a file called 'execute' (located in '"$(PACKAGE_DIRECTORY)"') was created in order to facilitate the launching of ui files. To use it, do the following in a terminal: ./execute XXX (where XXX is the ui file to be launched)."
 	@echo "...done packaging framework to '"$(PACKAGE_DIRECTORY)"'!"
 
 
 
 
 # clean framework target
-.PHONY clean:
+.PHONY: clean
+clean:
 	@echo "Cleaning framework located in '"$(FRAMEWORK_DIRECTORY)"' and package located in '"$(PACKAGE_DIRECTORY)"'..."
 	@rm -rf $(FRAMEWORK_DIRECTORY) $(PACKAGE_DIRECTORY)
 	@echo "...done cleaning framework located in '"$(FRAMEWORK_DIRECTORY)"' and package located in '"$(PACKAGE_DIRECTORY)"'!"
