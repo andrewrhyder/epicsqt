@@ -1969,8 +1969,8 @@ QPoint QEImage::rotateFLipPoint( QPoint& pos )
     // A point from a rotated and fliped image needs to be transformed to be able to
     // reference pixel data in the original data buffer.
     // Base the transformation on the scanning option used when building the image
-    int w = (int)imageBuffWidth;
-    int h = (int)imageBuffHeight;
+    int w = (int)imageBuffWidth-1;
+    int h = (int)imageBuffHeight-1;
     QPoint posTr;
     int scanOption = getScanOption();
     switch( scanOption )
@@ -1985,6 +1985,7 @@ QPoint QEImage::rotateFLipPoint( QPoint& pos )
         case 7: posTr.setX( pos.y() );   posTr.setY( h-pos.x() ); break;
         case 8: posTr.setX( w-pos.y() ); posTr.setY( h-pos.x() ); break;
     }
+
     return posTr;
 }
 
