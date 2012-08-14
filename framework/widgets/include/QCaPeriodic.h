@@ -126,10 +126,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidge
     void setSubscribe( bool subscribe );
     bool getSubscribe();
 
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
     // presentation options
     enum presentationOptions { PRESENTATION_BUTTON_AND_LABEL,
                                PRESENTATION_BUTTON_ONLY,

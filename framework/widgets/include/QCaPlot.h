@@ -70,9 +70,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
 
     void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
     void setYMin( double yMin );
     double getYMin();
 

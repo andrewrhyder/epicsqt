@@ -63,10 +63,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWi
     void setSubscribe( bool subscribe );
     bool getSubscribe();
 
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
-
     // confirm write
     void setConfirmWrite( bool confirmWrite );
     bool getConfirmWrite();
