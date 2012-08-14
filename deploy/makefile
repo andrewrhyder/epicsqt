@@ -87,7 +87,6 @@ buildframework:
 
 
 
-#TODO: the result of the execution of 'ldd' should be stored in a variable in order to avoid the cost of creating a temporary file
 # package framework target
 .PHONY: package
 package:
