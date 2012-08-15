@@ -53,7 +53,7 @@ ifeq ($(shell which $(QMAKE) 2>/dev/null),)
 	@$(error The program '$(QMAKE)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install qt4 qt4-devel' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
 endif
 
-	@echo "...done checking conditions for building the framework!"
+	@echo "...done checking conditions!"
 
 
 
@@ -79,9 +79,9 @@ svncheckout:
 .PHONY: buildframework
 buildframework:
 	@echo "Building framework located in '"$(FRAMEWORK_DIRECTORY)"'..."
-	@$(QMAKE) $(FRAMEWORK_DIRECTORY)/epicsqt.pro -r -spec linux-g++
+	@cd $(FRAMEWORK_DIRECTORY) ; $(QMAKE) epicsqt.pro -r -spec linux-g++
 	@export LD_LIBRARY_PATH=$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH) ; $(MAKE) -C $(FRAMEWORK_DIRECTORY) -w
-	@echo "...done building framework located in '"$(FRAMEWORK_DIRECTORY)"'!"
+	@echo "...done building framework!"
 
 
 
@@ -127,7 +127,7 @@ endif
 	@echo "./ASgui -m \$$1" >> $(PACKAGE_DIRECTORY)/execute
 	@chmod u+x $(PACKAGE_DIRECTORY)/execute
 	@echo "Please note that a file called 'execute' (located in '"$(PACKAGE_DIRECTORY)"') was created in order to facilitate the launching of ui files. To use it, do the following in a terminal: ./execute XXX (where XXX is the ui file to be launched)."
-	@echo "...done packaging framework to '"$(PACKAGE_DIRECTORY)"'!"
+	@echo "...done packaging framework!"
 
 
 
@@ -137,7 +137,7 @@ endif
 clean:
 	@echo "Cleaning framework located in '"$(FRAMEWORK_DIRECTORY)"' and package located in '"$(PACKAGE_DIRECTORY)"'..."
 	@rm -rf $(FRAMEWORK_DIRECTORY) $(PACKAGE_DIRECTORY)
-	@echo "...done cleaning framework located in '"$(FRAMEWORK_DIRECTORY)"' and package located in '"$(PACKAGE_DIRECTORY)"'!"
+	@echo "...done cleaning framework and package!"
 
 
 
