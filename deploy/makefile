@@ -65,11 +65,11 @@ svncheckout:
 		echo "Updating framework to the latest version from SVN repository to '"$(FRAMEWORK_DIRECTORY)"'..."; \
 		$(SVN) update $(FRAMEWORK_DIRECTORY); \
 		$(MAKE) -C $(FRAMEWORK_DIRECTORY) clean uninstall; \
-		echo "...done updating framework to the latest version from SVN repository to '"$(FRAMEWORK_DIRECTORY)"'!"; \
+		echo "...done updating framework!"; \
 	else \
 		echo "Checkout framework from SVN repository to '"$(FRAMEWORK_DIRECTORY)"'..."; \
 		$(SVN) checkout $(SVN_REPOSITORY) $(FRAMEWORK_DIRECTORY); \
-		echo "...done checkout framework from SVN repository to '"$(FRAMEWORK_DIRECTORY)"'!"; \
+		echo "...done checkout framework!"; \
 	fi
 
 

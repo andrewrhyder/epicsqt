@@ -22,12 +22,12 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QELauncherManager.h>
-#include <QELauncher.h>
+#include <QEScriptManager.h>
+#include <QEScript.h>
 
 
 
-QELauncherManager::QELauncherManager(QObject *pParent):QObject(pParent)
+QEScriptManager::QEScriptManager(QObject *pParent):QObject(pParent)
 {
 
     initialized = false;
@@ -36,7 +36,7 @@ QELauncherManager::QELauncherManager(QObject *pParent):QObject(pParent)
 
 
 
-void QELauncherManager::initialize(QDesignerFormEditorInterface *)
+void QEScriptManager::initialize(QDesignerFormEditorInterface *)
 {
 
     if (initialized == false)
@@ -48,7 +48,7 @@ void QELauncherManager::initialize(QDesignerFormEditorInterface *)
 
 
 
-bool QELauncherManager::isInitialized() const
+bool QEScriptManager::isInitialized() const
 {
 
     return initialized;
@@ -57,24 +57,24 @@ bool QELauncherManager::isInitialized() const
 
 
 
-QWidget *QELauncherManager::createWidget(QWidget *pParent)
+QWidget *QEScriptManager::createWidget(QWidget *pParent)
 {
 
-    return new QELauncher(pParent);
+    return new QEScript(pParent);
 }
 
 
 
-QString QELauncherManager::name() const
+QString QEScriptManager::name() const
 {
 
-    return "QELauncher";
+    return "QEScript";
 
 }
 
 
 
-QString QELauncherManager::group() const
+QString QEScriptManager::group() const
 {
 
     return "EPICS Widgets";
@@ -83,34 +83,34 @@ QString QELauncherManager::group() const
 
 
 
-QIcon QELauncherManager::icon() const
+QIcon QEScriptManager::icon() const
 {
 
-    return QIcon(":/qe/launcher/QELauncher.png");
+    return QIcon(":/qe/script/QEScript.png");
 
 }
 
 
 
-QString QELauncherManager::toolTip() const
+QString QEScriptManager::toolTip() const
 {
 
-    return "EPICS Launcher";
+    return "EPICS Script";
 
 }
 
 
 
-QString QELauncherManager::whatsThis() const
+QString QEScriptManager::whatsThis() const
 {
 
-    return "EPICS Launcher";
+    return "EPICS Script";
 
 }
 
 
 
-bool QELauncherManager::isContainer() const
+bool QEScriptManager::isContainer() const
 {
 
     return false;
@@ -118,18 +118,18 @@ bool QELauncherManager::isContainer() const
 
 
 
-QString QELauncherManager::includeFile() const
+QString QEScriptManager::includeFile() const
 {
 
-    return "QELauncherManager.h";
+    return "QEScriptManager.h";
 
 }
 
 
 
 
-/*QString QELauncherManager::domXml() const {
-    return "<widget class=\"QELauncher\" name=\"qELauncher\">\n"
+/*QString QEScriptManager::domXml() const {
+    return "<widget class=\"QEScript\" name=\"qEScript\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"

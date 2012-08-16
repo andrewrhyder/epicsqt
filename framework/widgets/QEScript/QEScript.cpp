@@ -22,14 +22,14 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#include <QELauncher.h>
+#include <QEScript.h>
 
 
 
 // ============================================================
-//  QELAUNCHER METHODS
+//  QESCRIPT METHODS
 // ============================================================
-QELauncher::QELauncher(QWidget *pParent):QWidget(pParent), QCaWidget( this )
+QEScript::QEScript(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 {
 
     QFont qFont;
@@ -37,7 +37,7 @@ QELauncher::QELauncher(QWidget *pParent):QWidget(pParent), QCaWidget( this )
     qlineEditDirectoryPath = new QLineEdit(this);
     qPushButtonDirectoryBrowser = new QPushButton(this);
     qPushButtonRefresh = new QPushButton(this);
-    qTableWidgetLauncher = new _QTableWidgetLauncher(this);
+    qTableWidgetScript = new _QTableWidgetScript(this);
 
     qlineEditDirectoryPath->setToolTip("Specify the directory where to browse for files");
     QObject::connect(qlineEditDirectoryPath, SIGNAL(textChanged(QString)), this, SLOT(lineEditDirectoryPathChanged(QString)));
@@ -50,18 +50,18 @@ QELauncher::QELauncher(QWidget *pParent):QWidget(pParent), QCaWidget( this )
     qPushButtonRefresh->setToolTip("Refresh file browse result");
     QObject::connect(qPushButtonRefresh, SIGNAL(clicked()), this, SLOT(buttonRefreshClicked()));
 
-    qTableWidgetLauncher->setColumnCount(3);
-    qTableWidgetLauncher->setHorizontalHeaderItem(0, new QTableWidgetItem("Time"));
-    qTableWidgetLauncher->setHorizontalHeaderItem(1, new QTableWidgetItem("Size"));
-    qTableWidgetLauncher->setHorizontalHeaderItem(2, new QTableWidgetItem("Filename"));
-    qTableWidgetLauncher->setToolTip("Files contained in the specified directory");
-    qTableWidgetLauncher->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    qTableWidgetLauncher->setSelectionBehavior(QAbstractItemView::SelectRows);
-    qTableWidgetLauncher->setSelectionMode(QAbstractItemView::SingleSelection);
-    qTableWidgetLauncher->verticalHeader()->hide();
+    qTableWidgetScript->setColumnCount(3);
+    qTableWidgetScript->setHorizontalHeaderItem(0, new QTableWidgetItem("Time"));
+    qTableWidgetScript->setHorizontalHeaderItem(1, new QTableWidgetItem("Size"));
+    qTableWidgetScript->setHorizontalHeaderItem(2, new QTableWidgetItem("Filename"));
+    qTableWidgetScript->setToolTip("Files contained in the specified directory");
+    qTableWidgetScript->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    qTableWidgetScript->setSelectionBehavior(QAbstractItemView::SelectRows);
+    qTableWidgetScript->setSelectionMode(QAbstractItemView::SingleSelection);
+    qTableWidgetScript->verticalHeader()->hide();
     qFont.setPointSize(9);
-    qTableWidgetLauncher->setFont(qFont);
-    QObject::connect(qTableWidgetLauncher, SIGNAL(itemActivated(QTableWidgetItem *)), this, SLOT(itemActivated(QTableWidgetItem *)));
+    qTableWidgetScript->setFont(qFont);
+    QObject::connect(qTableWidgetScript, SIGNAL(itemActivated(QTableWidgetItem *)), this, SLOT(itemActivated(QTableWidgetItem *)));
 
     setShowFileExtension(true);
     setFileFilter("");
@@ -72,7 +72,7 @@ QELauncher::QELauncher(QWidget *pParent):QWidget(pParent), QCaWidget( this )
 
 
 
-void QELauncher::setDirectoryPath(QString pValue)
+void QEScript::setDirectoryPath(QString pValue)
 {
 
     qlineEditDirectoryPath->setText(pValue);
@@ -81,7 +81,7 @@ void QELauncher::setDirectoryPath(QString pValue)
 
 
 
-QString QELauncher::getDirectoryPath()
+QString QEScript::getDirectoryPath()
 {
 
     return qlineEditDirectoryPath->text();
@@ -92,7 +92,7 @@ QString QELauncher::getDirectoryPath()
 
 
 
-void QELauncher::setShowDirectoryPath(bool pValue)
+void QEScript::setShowDirectoryPath(bool pValue)
 {
 
     qlineEditDirectoryPath->setVisible(pValue);
@@ -101,7 +101,7 @@ void QELauncher::setShowDirectoryPath(bool pValue)
 
 
 
-bool QELauncher::getShowDirectoryPath()
+bool QEScript::getShowDirectoryPath()
 {
 
     return qlineEditDirectoryPath->isVisible();
@@ -111,7 +111,7 @@ bool QELauncher::getShowDirectoryPath()
 
 
 
-void QELauncher::setShowDirectoryBrowser(bool pValue)
+void QEScript::setShowDirectoryBrowser(bool pValue)
 {
 
     qPushButtonDirectoryBrowser->setVisible(pValue);
@@ -120,7 +120,7 @@ void QELauncher::setShowDirectoryBrowser(bool pValue)
 
 
 
-bool QELauncher::getShowDirectoryBrowser()
+bool QEScript::getShowDirectoryBrowser()
 {
 
     return qPushButtonDirectoryBrowser->isVisible();
@@ -129,7 +129,7 @@ bool QELauncher::getShowDirectoryBrowser()
 
 
 
-void QELauncher::setShowRefresh(bool pValue)
+void QEScript::setShowRefresh(bool pValue)
 {
 
     qPushButtonRefresh->setVisible(pValue);
@@ -138,7 +138,7 @@ void QELauncher::setShowRefresh(bool pValue)
 
 
 
-bool QELauncher::getShowRefresh()
+bool QEScript::getShowRefresh()
 {
 
     return qPushButtonRefresh->isVisible();
@@ -147,7 +147,7 @@ bool QELauncher::getShowRefresh()
 
 
 
-void QELauncher::setFileFilter(QString pValue)
+void QEScript::setFileFilter(QString pValue)
 {
 
     fileFilter = pValue;
@@ -157,7 +157,7 @@ void QELauncher::setFileFilter(QString pValue)
 
 
 
-QString QELauncher::getFileFilter()
+QString QEScript::getFileFilter()
 {
 
     return fileFilter;
@@ -167,63 +167,63 @@ QString QELauncher::getFileFilter()
 
 
 
-void QELauncher::setShowColumnTime(bool pValue)
+void QEScript::setShowColumnTime(bool pValue)
 {
 
-    qTableWidgetLauncher->setColumnHidden(0, pValue == false);
-    qTableWidgetLauncher->refreshSize();
+    qTableWidgetScript->setColumnHidden(0, pValue == false);
+    qTableWidgetScript->refreshSize();
 
 }
 
 
 
-bool QELauncher::getShowColumnTime()
+bool QEScript::getShowColumnTime()
 {
 
-    return (qTableWidgetLauncher->isColumnHidden(0) == false);
+    return (qTableWidgetScript->isColumnHidden(0) == false);
 
 }
 
 
 
-void QELauncher::setShowColumnSize(bool pValue)
+void QEScript::setShowColumnSize(bool pValue)
 {
 
-    qTableWidgetLauncher->setColumnHidden(1, pValue == false);
-    qTableWidgetLauncher->refreshSize();
+    qTableWidgetScript->setColumnHidden(1, pValue == false);
+    qTableWidgetScript->refreshSize();
 
 }
 
 
 
-bool QELauncher::getShowColumnSize()
+bool QEScript::getShowColumnSize()
 {
 
-    return (qTableWidgetLauncher->isColumnHidden(1) == false);
+    return (qTableWidgetScript->isColumnHidden(1) == false);
 
 }
 
 
-void QELauncher::setShowColumnFilename(bool pValue)
+void QEScript::setShowColumnFilename(bool pValue)
 {
 
-    qTableWidgetLauncher->setColumnHidden(2, pValue == false);
-    qTableWidgetLauncher->refreshSize();
-
-}
-
-
-
-bool QELauncher::getShowColumnFilename()
-{
-
-    return (qTableWidgetLauncher->isColumnHidden(2) == false);
+    qTableWidgetScript->setColumnHidden(2, pValue == false);
+    qTableWidgetScript->refreshSize();
 
 }
 
 
 
-void QELauncher::setShowFileExtension(bool pValue)
+bool QEScript::getShowColumnFilename()
+{
+
+    return (qTableWidgetScript->isColumnHidden(2) == false);
+
+}
+
+
+
+void QEScript::setShowFileExtension(bool pValue)
 {
 
     showFileExtension = pValue;
@@ -233,7 +233,7 @@ void QELauncher::setShowFileExtension(bool pValue)
 
 
 
-bool QELauncher::getShowFileExtension()
+bool QEScript::getShowFileExtension()
 {
 
     return showFileExtension;
@@ -242,7 +242,7 @@ bool QELauncher::getShowFileExtension()
 
 
 
-void QELauncher::setDetailsLayout(int pValue)
+void QEScript::setDetailsLayout(int pValue)
 {
 
     QLayout *qLayoutMain;
@@ -261,13 +261,13 @@ void QELauncher::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonDirectoryBrowser);
             qLayoutChild->addWidget(qPushButtonRefresh);
             qLayoutMain->addItem(qLayoutChild);
-            qLayoutMain->addWidget(qTableWidgetLauncher);
+            qLayoutMain->addWidget(qTableWidgetScript);
             break;
 
         case BOTTOM:
             detailsLayout = BOTTOM;
             qLayoutMain = new QVBoxLayout(this);
-            qLayoutMain->addWidget(qTableWidgetLauncher);
+            qLayoutMain->addWidget(qTableWidgetScript);
             qLayoutChild = new QHBoxLayout();
             qLayoutChild->addWidget(qlineEditDirectoryPath);
             qLayoutChild->addWidget(qPushButtonDirectoryBrowser);
@@ -283,7 +283,7 @@ void QELauncher::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qPushButtonDirectoryBrowser);
             qLayoutChild->addWidget(qPushButtonRefresh);
             qLayoutMain->addItem(qLayoutChild);
-            qLayoutMain->addWidget(qTableWidgetLauncher);
+            qLayoutMain->addWidget(qTableWidgetScript);
             break;
 
         case RIGHT:
@@ -293,7 +293,7 @@ void QELauncher::setDetailsLayout(int pValue)
             qLayoutChild->addWidget(qlineEditDirectoryPath);
             qLayoutChild->addWidget(qPushButtonDirectoryBrowser);
             qLayoutChild->addWidget(qPushButtonRefresh);
-            qLayoutMain->addWidget(qTableWidgetLauncher);
+            qLayoutMain->addWidget(qTableWidgetScript);
             qLayoutMain->addItem(qLayoutChild);
     }
 
@@ -301,7 +301,7 @@ void QELauncher::setDetailsLayout(int pValue)
 
 
 
-int QELauncher::getDetailsLayout()
+int QEScript::getDetailsLayout()
 {
 
     return detailsLayout;
@@ -311,7 +311,7 @@ int QELauncher::getDetailsLayout()
 
 
 
-void QELauncher::lineEditDirectoryPathChanged(QString)
+void QEScript::lineEditDirectoryPathChanged(QString)
 {
 
     updateTable();
@@ -322,7 +322,7 @@ void QELauncher::lineEditDirectoryPathChanged(QString)
 
 
 
-void QELauncher::buttonDirectoryBrowserClicked()
+void QEScript::buttonDirectoryBrowserClicked()
 {
 
     QString directory;
@@ -338,7 +338,7 @@ void QELauncher::buttonDirectoryBrowserClicked()
 
 
 
-void QELauncher::buttonRefreshClicked()
+void QEScript::buttonRefreshClicked()
 {
 
     updateTable();
@@ -348,7 +348,7 @@ void QELauncher::buttonRefreshClicked()
 
 
 
-void QELauncher::itemActivated(QTableWidgetItem *)
+void QEScript::itemActivated(QTableWidgetItem *)
 {
 
     QModelIndexList selectedRows;
@@ -356,8 +356,8 @@ void QELauncher::itemActivated(QTableWidgetItem *)
     QString data;
 
 
-    selectedRows = qTableWidgetLauncher->selectionModel()->selectedRows();
-    data = qTableWidgetLauncher->item(selectedRows.at(0).row(), 2)->text();
+    selectedRows = qTableWidgetScript->selectionModel()->selectedRows();
+    data = qTableWidgetScript->item(selectedRows.at(0).row(), 2)->text();
 
     if (qlineEditDirectoryPath->text().endsWith(QDir::separator()))
     {
@@ -375,7 +375,7 @@ void QELauncher::itemActivated(QTableWidgetItem *)
 
 
 
-void QELauncher::updateTable()
+void QEScript::updateTable()
 {
 
     QTableWidgetItem *qTableWidgetItem;
@@ -384,7 +384,7 @@ void QELauncher::updateTable()
     int i;
     int j;
 
-    qTableWidgetLauncher->setRowCount(0);
+    qTableWidgetScript->setRowCount(0);
     directory.setPath(qlineEditDirectoryPath->text());
     directory.setFilter(QDir::Files);
     if (fileFilter.isEmpty() == false)
@@ -395,14 +395,14 @@ void QELauncher::updateTable()
 
     for(i = 0; i < fileList.size(); i++)
     {
-        j = qTableWidgetLauncher->rowCount();
-        qTableWidgetLauncher->insertRow(j);
+        j = qTableWidgetScript->rowCount();
+        qTableWidgetScript->insertRow(j);
 
         qTableWidgetItem = new QTableWidgetItem(fileList.at(i).lastModified().toString("yyyy/MM/dd - hh:mm:ss"));
-        qTableWidgetLauncher->setItem(j, 0, qTableWidgetItem);
+        qTableWidgetScript->setItem(j, 0, qTableWidgetItem);
 
         qTableWidgetItem = new QTableWidgetItem(QString::number(fileList.at(i).size()) + " bytes");
-        qTableWidgetLauncher->setItem(j, 1, qTableWidgetItem);
+        qTableWidgetScript->setItem(j, 1, qTableWidgetItem);
 
         if (showFileExtension)
         {
@@ -412,7 +412,7 @@ void QELauncher::updateTable()
         {
             qTableWidgetItem = new QTableWidgetItem(fileList.at(i).baseName());
         }
-        qTableWidgetLauncher->setItem(j, 2, qTableWidgetItem);
+        qTableWidgetScript->setItem(j, 2, qTableWidgetItem);
     }
 
 }
@@ -423,9 +423,9 @@ void QELauncher::updateTable()
 
 
 // ============================================================
-//  _QTABLEWIDGETLAUNCHER METHODS
+//  _QTABLEWIDGETSCRIPT METHODS
 // ============================================================
-_QTableWidgetLauncher::_QTableWidgetLauncher(QWidget *pParent):QTableWidget(pParent)
+_QTableWidgetScript::_QTableWidgetScript(QWidget *pParent):QTableWidget(pParent)
 {
 
     initialized = false;
@@ -434,7 +434,7 @@ _QTableWidgetLauncher::_QTableWidgetLauncher(QWidget *pParent):QTableWidget(pPar
 
 
 
-void _QTableWidgetLauncher::refreshSize()
+void _QTableWidgetScript::refreshSize()
 {
 
     int sizeColumn0;
@@ -518,7 +518,7 @@ void _QTableWidgetLauncher::refreshSize()
 
 
 
-void _QTableWidgetLauncher::resizeEvent(QResizeEvent *)
+void _QTableWidgetScript::resizeEvent(QResizeEvent *)
 {
 
     // TODO: this condition should always be execute when inside Qt Designer

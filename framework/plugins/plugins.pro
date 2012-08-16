@@ -342,8 +342,6 @@ include (../widgets/QEImage/QEImage.pri)
 
 include (../widgets/QELabel/QELabel.pri)
 
-include (../widgets/QELauncher/QELauncher.pri)
-
 include (../widgets/QELog/QELog.pri)
 
 include (../widgets/QELogin/QELogin.pri)
@@ -353,6 +351,8 @@ include (../widgets/QELogin/QELogin.pri)
 include (../widgets/QEPvProperties/QEPvProperties.pri)
 
 include (../widgets/QERecipe/QERecipe.pri)
+
+include (../widgets/QEScript/QEScript.pri)
 
 include (../widgets/QEStripChart/QEStripChart.pri)
 

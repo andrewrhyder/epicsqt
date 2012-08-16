@@ -50,7 +50,7 @@
 #include <QERecipeManager.h>
 #include <QELoginManager.h>
 #include <QELogManager.h>
-#include <QELauncherManager.h>
+#include <QEScriptManager.h>
 #include <QEFormManager.h>
 
 //======================================================
@@ -73,13 +73,12 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEConfiguredLayoutManager(this));
     widgets.append(new QEFileBrowserManager(this));
     widgets.append(new QELabelManager(this));
-    widgets.append(new QELauncherManager(this));
     widgets.append(new QELoginManager(this));
     widgets.append(new QELogManager(this));
     widgets.append(new QEPvPropertiesManager(this));
     widgets.append(new QERecipeManager(this));
+    widgets.append(new QEScriptManager(this));
     widgets.append(new QEStripChartManager(this));
-
 
     widgets.append(new QSubstitutedLabelPluginManager(this));
     widgets.append(new QCaLineEditPluginManager(this));

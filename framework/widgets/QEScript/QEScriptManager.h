@@ -23,21 +23,21 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QELAUNCHERPLUGINMANAGER_H
-#define QELAUNCHERPLUGINMANAGER_H
+#ifndef QESCRIPTPLUGINMANAGER_H
+#define QESCRIPTPLUGINMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QELauncherManager:public QObject, public QDesignerCustomWidgetInterface
+class QCAPLUGINLIBRARYSHARED_EXPORT QEScriptManager:public QObject, public QDesignerCustomWidgetInterface
 {
 
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
     public:
-        QELauncherManager(QObject *pParent = 0);
+        QEScriptManager(QObject *pParent = 0);
 
         bool isContainer () const;
         bool isInitialized () const;
@@ -56,7 +56,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELauncherManager:public QObject, public QDe
 
 };
 
-#endif /// QELAUNCHERPLUGINMANAGER_H
+#endif /// QESCRIPTPLUGINMANAGER_H
 
 
 

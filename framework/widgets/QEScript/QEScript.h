@@ -22,8 +22,8 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
-#ifndef QELAUNCHER_H
-#define QELAUNCHER_H
+#ifndef QESCRIPT_H
+#define QESCRIPT_H
 
 #include <QCaWidget.h>
 
@@ -39,9 +39,9 @@ enum details
 
 
 // ============================================================
-//  _QTABLEWIDGETLAUNCHER CLASS
+//  _QTABLEWIDGETSCRIPT CLASS
 // ============================================================
-class _QTableWidgetLauncher:public QTableWidget
+class _QTableWidgetScript:public QTableWidget
 {
 
     Q_OBJECT
@@ -54,7 +54,7 @@ class _QTableWidgetLauncher:public QTableWidget
 
 
     public:
-        _QTableWidgetLauncher(QWidget * pParent = 0);
+        _QTableWidgetScript(QWidget * pParent = 0);
         void refreshSize();
         void resizeEvent(QResizeEvent *);
         void resize(int w, int h);
@@ -69,9 +69,9 @@ class _QTableWidgetLauncher:public QTableWidget
 
 
 // ============================================================
-//  QELAUNCHER METHODS
+//  QESCRIPT METHODS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QELauncher:public QWidget, public QCaWidget
+class QCAPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QCaWidget
 {
 
     Q_OBJECT
@@ -83,7 +83,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELauncher:public QWidget, public QCaWidget
         QLineEdit *qlineEditDirectoryPath;
         QPushButton *qPushButtonDirectoryBrowser;
         QPushButton *qPushButtonRefresh;
-        _QTableWidgetLauncher *qTableWidgetLauncher;
+        _QTableWidgetScript *qTableWidgetScript;
         QString fileFilter;
         bool showFileExtension;
         int detailsLayout;
@@ -91,8 +91,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELauncher:public QWidget, public QCaWidget
 
     public:
 
-        QELauncher(QWidget *pParent = 0);
-        virtual ~QELauncher(){}
+        QEScript(QWidget *pParent = 0);
+        virtual ~QEScript(){}
 
         void setDirectoryPath(QString pValue);
         QString getDirectoryPath();
@@ -184,6 +184,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELauncher:public QWidget, public QCaWidget
 
 
 
-#endif /// QELAUNCHER_H
+#endif /// QESCRIPT_H
 
 
