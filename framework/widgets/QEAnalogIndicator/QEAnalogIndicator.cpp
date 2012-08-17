@@ -66,7 +66,7 @@ QEAnalogIndicator::QEAnalogIndicator (QWidget *parent) : QWidget (parent)
    this->mOrientation = Left_To_Right;
    this->mMode = Bar;
    this->mShowText = true;
-   this->mShowScale = true;
+   this->mShowScale = false;
    this->mLogScale = false;
    this->mValue = 0.0;
    this->mCentreAngle = 0;
@@ -242,7 +242,7 @@ void QEAnalogIndicator::drawAxis  (QPainter & painter, QRect & axis)
       case Bottom_To_Top:
          x_first = axis.left ();
          x_last  = axis.left ();
-         y_first = axis. bottom ();
+         y_first = axis.bottom ();
          y_last  = axis.top ();
          break;
 
@@ -259,29 +259,36 @@ void QEAnalogIndicator::drawAxis  (QPainter & painter, QRect & axis)
    for (ok = this->firstValue (j, value, isMajor); ok;
         ok = this->nextValue  (j, value, isMajor)) {
 
+      // Tick sizes on axis
+      //
+      const int minorTick = 5;
+      const int majorTick = 10;
+      const int pointSize = 7;
+
       double f;
       int x, y;
       QPoint p1, p2;
 
       f = this->calcFraction (value);
 
-      x = int (x_first + int (f * double (x_last - x_first)));
-      y = int (y_first + int (f * double (y_last - y_first)));
+      x = int (x_first + (f * double (x_last - x_first + 1)));
+      y = int (y_first + (f * double (y_last - y_first + 1)));
 
       p1 = QPoint (x, y);
       if (isMajor) {
-         p2 = this->isLeftRight () ? QPoint (x, y + 11) :  QPoint (x + 11, y);
+         p2 = this->isLeftRight () ? QPoint (x, y + majorTick) : QPoint (x + majorTick, y);
       }  else {
-         p2 = this->isLeftRight () ? QPoint (x, y + 6) :  QPoint (x + 6, y);
+         p2 = this->isLeftRight () ? QPoint (x, y + minorTick) : QPoint (x + minorTick, y);
       }
 
       painter.drawLine (p1, p2);
 
       if (isMajor) {
          QString vt;
+
          vt.sprintf ("%.1f", value);
-         p2 = this->isLeftRight () ? QPoint (x, y + 18) :  QPoint (x + 18, y);
-         this->drawText (painter, p2, vt, 7);
+         p2 = this->isLeftRight () ? QPoint (x, y + majorTick + pointSize) : QPoint (x + majorTick + 1, y);
+         this->drawText (painter, p2, vt, pointSize);
       }
    }
 }
@@ -611,7 +618,11 @@ void QEAnalogIndicator::drawText (QPainter & painter, QPoint & textCentre, QStri
    // Centre text. For height, pointSize seems better than fm.height ()
    // painter.drawText needs bottom left coordinates.
    //
-   x = textCentre.x () - fm.width (text)/2;
+   if (this->isLeftRight ()) {
+      x = textCentre.x () - fm.width (text)/2;
+   } else {
+      x = textCentre.x ();
+   }
    y = textCentre.y () + (pf.pointSize () + 1) / 2;
 
    pen.setColor (this->getFontPaintColour ());
@@ -666,27 +677,32 @@ void QEAnalogIndicator::paintEvent (QPaintEvent * /* event - make warning go awa
       // We do draw a separate axis.
       //
       if (this->isLeftRight ()) {
+         const int axisSize = 20;   // vertical
+         const int edge = 20;       // horizontal
+
 
          outlineRect.setTop (0);
-         outlineRect.setLeft (0);
-         outlineRect.setBottom (bottom - 21);
-         outlineRect.setRight (right);
+         outlineRect.setBottom (bottom - (axisSize + 1));
+         outlineRect.setLeft (edge);
+         outlineRect.setRight (right - edge);
 
-         axisRect.setTop (bottom - 20);
-         axisRect.setLeft (0);
+         axisRect.setTop (bottom - axisSize);
          axisRect.setBottom (bottom);
-         axisRect.setRight (right);
+         axisRect.setLeft (edge + 1);
+         axisRect.setRight (right - (edge + 1));
 
       } else {
+         const int axisSize = 40;   // horizontal
+         const int edge = 5;        // vertical
 
-         outlineRect.setTop (0);
+         outlineRect.setTop (edge);
+         outlineRect.setBottom (bottom - edge);
          outlineRect.setLeft (0);
-         outlineRect.setBottom (bottom);
-         outlineRect.setRight (right - 41);
+         outlineRect.setRight (right - (axisSize + 1));
 
-         axisRect.setTop (0);
-         axisRect.setLeft (right - 40);
-         axisRect.setBottom (bottom);
+         axisRect.setTop (edge + 1);
+         axisRect.setBottom (bottom - (edge + 1));
+         axisRect.setLeft (right - axisSize);
          axisRect.setRight (right);
       }
    }

@@ -111,7 +111,7 @@ private:
     void drawMarker  (QPainter & painter, QRect &area, const double fraction);
     void drawMeter   (QPainter & painter, QRect &area, const double fraction);
 
-    /// Like painter drawText, but centred on textCentre.
+    // Like painter drawText, but centred on textCentre in left-right mode.
     //
     void drawText  (QPainter & painter, QPoint & textCentre, QString & text, const int pointSize = 0);
 
