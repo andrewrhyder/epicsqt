@@ -295,7 +295,7 @@ QColor QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
 // variable as tool tip
 void QCaWidget::setVariableAsToolTip( bool variableAsToolTipIn )
 {
-    qDebug() << "setting tool tip from variable names property" << variableAsToolTipIn;
+//    qDebug() << "setting tool tip from variable names property" << variableAsToolTipIn;
     variableAsToolTip = variableAsToolTipIn;
     setToolTipFromVariableNames();
 }
@@ -308,12 +308,12 @@ bool QCaWidget::getVariableAsToolTip()
 // Update the variable name list used in tool tips if requried
 void QCaWidget::setToolTipFromVariableNames()
 {
-    qDebug() << "setting tool tip from variable names";
+//    qDebug() << "setting tool tip from variable names";
     // Set the tool tip to the variable names if required
     if( variableAsToolTip ) {
         // Determine what seperator to place between variable names. To avoid long tool tips, use line breaks if over two variables
         QString seperator;
-        qDebug() << numVariables;
+//        qDebug() << numVariables;
         if( numVariables > 2 )
         {
             seperator = "\n";

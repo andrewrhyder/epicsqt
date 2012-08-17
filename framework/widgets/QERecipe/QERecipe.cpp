@@ -39,7 +39,7 @@ QERecipe::QERecipe(QWidget *pParent):QWidget(pParent), QCaWidget(this)
     qPushButtonDelete = new QPushButton(this);
     qPushButtonApply = new QPushButton(this);
     qPushButtonRead = new QPushButton(this);
-    qEConfiguredLayoutRecipeFields = new QEConfiguredLayout(this);
+    qEConfiguredLayoutRecipeFields = new QEConfiguredLayout(this, false);
 
 
     qComboBoxRecipeList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -476,8 +476,6 @@ int QERecipe::getCurrentUserType()
 void QERecipe::comboBoxRecipeSelected(int)
 {
 
-    //TODO: should update the widgets with the values of the recipe
-
     refreshButton();
 
 }
@@ -493,7 +491,6 @@ void QERecipe::buttonNewClicked()
     QDomElement recipeElement;
     QDomElement processVariableElement;
     QDomNode rootNode;
-    QCaWidget *qCaWidget;
     _Field *fieldInfo;
     QString currentName;
     QString name;
@@ -597,33 +594,29 @@ void QERecipe::buttonNewClicked()
             recipeElement.setAttribute("visible", visible);
             for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
             {
-                qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
-                fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
+                fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
                 processVariableElement = document.createElement("processvariable");
                 processVariableElement.setAttribute("name", fieldInfo->getProcessVariable());
                 if (fieldInfo->getType() == BITSTATUS)
                 {
-                    processVariableElement.setAttribute("value", ((QCaSpinBox *) qCaWidget)->text());
                 }
                 else if (fieldInfo->getType() == BUTTON)
                 {
-                    processVariableElement.setAttribute("value", ((QCaPushButton *) qCaWidget)->text());
                 }
                 else if (fieldInfo->getType() == LABEL)
                 {
-                    processVariableElement.setAttribute("value", ((QELabel *) qCaWidget)->text());
                 }
                 else if (fieldInfo->getType() == SPINBOX)
                 {
-                    processVariableElement.setAttribute("value", ((QCaSpinBox *) qCaWidget)->text());
+                    processVariableElement.setAttribute("value", ((QCaSpinBox *) fieldInfo->qCaWidget)->text());
                 }
                 else if (fieldInfo->getType() == COMBOBOX)
                 {
-                    processVariableElement.setAttribute("value", ((QCaComboBox *) qCaWidget)->currentText());
+                    processVariableElement.setAttribute("value", ((QCaComboBox *) fieldInfo->qCaWidget)->currentText());
                 }
                 else
                 {
-                    processVariableElement.setAttribute("value", ((QCaLineEdit *) qCaWidget)->text());
+                    processVariableElement.setAttribute("value", ((QCaLineEdit *) fieldInfo->qCaWidget)->text());
                 }
                 recipeElement.appendChild(processVariableElement);
             }
@@ -653,7 +646,6 @@ void QERecipe::buttonSaveClicked()
     QDomElement recipeElement;
     QDomElement processVariableElement;
     QDomNode rootNode;
-    QCaWidget *qCaWidget;
     _Field *fieldInfo;
     QString currentName;
     QString name;
@@ -692,6 +684,7 @@ void QERecipe::buttonSaveClicked()
                 rootNode = rootNode.nextSibling();
             }
         }
+
         while (recipeElement.hasChildNodes())
         {
             recipeElement.removeChild(recipeElement.lastChild());
@@ -699,33 +692,29 @@ void QERecipe::buttonSaveClicked()
 
         for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
         {
-            qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
-            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
+            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
             processVariableElement = document.createElement("processvariable");
             processVariableElement.setAttribute("name", fieldInfo->getProcessVariable());
             if (fieldInfo->getType() == BITSTATUS)
             {
-//                processVariableElement.setAttribute("value", ((QEBitStatus *) qCaWidget)->text());
             }
             else if (fieldInfo->getType() == BUTTON)
             {
-                processVariableElement.setAttribute("value", ((QCaPushButton *) qCaWidget)->text());
             }
             else if (fieldInfo->getType() == LABEL)
             {
-                processVariableElement.setAttribute("value", ((QELabel *) qCaWidget)->text());
             }
             else if (fieldInfo->getType() == SPINBOX)
             {
-                processVariableElement.setAttribute("value", ((QCaSpinBox *) qCaWidget)->text());
+                processVariableElement.setAttribute("value", ((QCaSpinBox *) fieldInfo->qCaWidget)->text());
             }
             else if (fieldInfo->getType() == COMBOBOX)
             {
-                processVariableElement.setAttribute("value", ((QCaComboBox *) qCaWidget)->currentText());
+                processVariableElement.setAttribute("value", ((QCaComboBox *) fieldInfo->qCaWidget)->currentText());
             }
             else
             {
-                processVariableElement.setAttribute("value", ((QCaLineEdit *) qCaWidget)->text());
+                processVariableElement.setAttribute("value", ((QCaLineEdit *) fieldInfo->qCaWidget)->text());
             }
             recipeElement.appendChild(processVariableElement);
         }
@@ -808,7 +797,6 @@ void QERecipe::buttonDeleteClicked()
 void QERecipe::buttonApplyClicked()
 {
 
-    QCaWidget *qCaWidget;
     _Field *fieldInfo;
     int i;
 
@@ -817,21 +805,10 @@ void QERecipe::buttonApplyClicked()
     {
         for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
         {
-            qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
-            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
+            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
             if (fieldInfo->getVisibility())
             {
-                // TODO: should call method to apply values to PVs
-                if (fieldInfo->getType() == 2)
-                {
-
-                }
-                else if (fieldInfo->getType() == 1)
-                {
-                }
-                else
-                {
-                }
+                fieldInfo->qCaWidget->writeNow();
             }
         }
         QMessageBox::information(this, "Info", "The recipe '" + qComboBoxRecipeList->currentText() + "' was successfully applied to process variables!");
@@ -841,10 +818,10 @@ void QERecipe::buttonApplyClicked()
 
 
 
+
 void QERecipe::buttonReadClicked()
 {
 
-    QCaWidget *qCaWidget;
     _Field *fieldInfo;
     int i;
 
@@ -853,21 +830,10 @@ void QERecipe::buttonReadClicked()
     {
         for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
         {
-            qCaWidget = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
-            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldInfo.at(i);
+            fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
             if (fieldInfo->getVisibility())
             {
-                // TODO: should call method to read values from PVs
-                if (fieldInfo->getType() == 2)
-                {
-
-                }
-                else if (fieldInfo->getType() == 1)
-                {
-                }
-                else
-                {
-                }
+                fieldInfo->qCaWidget->readNow();
             }
         }
         QMessageBox::information(this, "Info", "The values were successfully read from the process variables!");
@@ -987,6 +953,98 @@ void QERecipe::refreshRecipeList()
 
 void QERecipe::refreshButton()
 {
+
+    QDomElement rootElement;
+    QDomElement recipeElement;
+    QDomElement processVariableElement;
+    QDomNode rootNode;
+    _Field *fieldInfo;
+    QString currentName;
+    QString name;
+    int count;
+    int i;
+
+    currentName = qComboBoxRecipeList->currentText();
+
+
+    qDebug() << "recipe: " + currentName;
+
+
+    count = 0;
+    rootElement = document.documentElement();
+    if (rootElement.tagName() == "epicsqt")
+    {
+        rootNode = rootElement.firstChild();
+        while (rootNode.isNull() == false)
+        {
+            recipeElement = rootNode.toElement();
+            if (recipeElement.tagName() == "recipe")
+            {
+                if (recipeElement.attribute("name").isEmpty())
+                {
+                    name = "Recipe #" + QString::number(count);
+                    count++;
+                }
+                else
+                {
+                    name = recipeElement.attribute("name");
+                }
+
+                if (currentName.compare(name) == 0)
+                {
+                    for(i = 0; i < qEConfiguredLayoutRecipeFields->currentFieldList.size(); i++)
+                    {
+                        fieldInfo = qEConfiguredLayoutRecipeFields->currentFieldList.at(i);
+
+                        if (fieldInfo->getVisibility())
+                        {
+                            rootNode = recipeElement.firstChild();
+                            while (rootNode.isNull() == false)
+                            {
+                                processVariableElement = rootNode.toElement();
+                                if (processVariableElement.tagName() == "processvariable")
+                                {
+                                    if (fieldInfo->getProcessVariable() == processVariableElement.attribute("name"))
+                                    {
+
+                                        if (fieldInfo->getType() == BITSTATUS)
+                                        {
+                                        }
+                                        else if (fieldInfo->getType() == BUTTON)
+                                        {
+                                        }
+                                        else if (fieldInfo->getType() == LABEL)
+                                        {
+                                        }
+                                        else if (fieldInfo->getType() == SPINBOX)
+                                        {
+//                                            ((QCaSpinBox *) fieldInfo->qCaWidget)->setValue(fieldElement.attribute("value"));
+                                        }
+                                        else if (fieldInfo->getType() == COMBOBOX)
+                                        {
+                                            ((QCaComboBox *) fieldInfo->qCaWidget)->setEditText(processVariableElement.attribute("value"));
+                                        }
+                                        else
+                                        {
+                                            ((QCaLineEdit *) fieldInfo->qCaWidget)->setText(processVariableElement.attribute("value"));
+                                            qDebug() << fieldInfo->getName() + ": " + ((QCaLineEdit *) fieldInfo->qCaWidget)->text();
+                                        }
+                                        break;
+                                    }
+                                }
+                                rootNode = rootNode.nextSibling();
+                            }
+                        }
+
+                    }
+
+                    break;
+                }
+            }
+            rootNode = rootNode.nextSibling();
+        }
+    }
+
 
     qPushButtonSave->setEnabled(qComboBoxRecipeList->currentText().isEmpty() == false);
     qPushButtonDelete->setEnabled(qComboBoxRecipeList->currentText().isEmpty() == false);

@@ -88,6 +88,9 @@ class _Field
     public:
         _Field();
 
+        QCaWidget *getWidget();
+        void setWidget(QString *pValue);
+
         QString getName();
         void setName(QString pValue);
 
@@ -112,6 +115,7 @@ class _Field
         bool getVisibility();
         void setVisibility(bool pValue);
 
+        QCaWidget *qCaWidget;  // TODO: this attribute should be private
 
 };
 
@@ -162,14 +166,13 @@ class _QPushButtonGroup:public QPushButton
 
 
     private:
-        QList <QCaWidget *> *currentFieldList;
-        QList <_Field *> *currentFieldInfo;
+        QList <_Field *> *currentFieldList;
         QString itemName;
         QString groupName;
 
 
     public:
-        _QPushButtonGroup(QWidget * pParent = 0, QString pItemName = "", QString pGroupName = "", QList <QCaWidget *> *pCurrentFieldList = 0, QList <_Field *> *pCurrentFieldInfo = 0);
+        _QPushButtonGroup(QWidget * pParent = 0, QString pItemName = "", QString pGroupName = "", QList <_Field *> *pCurrentFieldList = 0);
 
         void mouseReleaseEvent(QMouseEvent *qMouseEvent);
 
@@ -203,7 +206,7 @@ class _QDialogItem:public QDialog
 
 
     public:
-        _QDialogItem(QWidget *pParent = 0, QString pItemName = "", QString pGroupName = "", QList <QCaWidget *> *pCurrentFieldList = 0, QList <_Field *> *pCurrentFieldInfo = 0, Qt::WindowFlags pF = 0);
+        _QDialogItem(QWidget *pParent = 0, QString pItemName = "", QString pGroupName = "", QList <_Field *> *pCurrentFieldList = 0, Qt::WindowFlags pF = 0);
 
 
     private slots:
@@ -238,10 +241,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
         int configurationType;
         int detailsLayout;
         int currentUserType;
+        bool subscription;
 
 
     public:
-        QEConfiguredLayout(QWidget *pParent = 0);
+        QEConfiguredLayout(QWidget *pParent = 0, bool pSubscription = true);
         virtual ~QEConfiguredLayout(){}
 
         void setItemDescription(QString pValue);
@@ -272,9 +276,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
         QList <_Item *> itemList;    // TODO: this attribute shoule be private
 
-        QList <QCaWidget *> currentFieldList;    // TODO: this attribute should be private
-
-        QList <_Field *> currentFieldInfo;   //TODO: this attribute should be private
+        QList <_Field *> currentFieldList;   //TODO: this attribute should be private
 
         Q_PROPERTY(QString itemDescription READ getItemDescription WRITE setItemDescription)
 
