@@ -23,14 +23,14 @@ QMAKE = qmake-qt4
 
 
 # make all; default target when nothing is specified when executing make
-all: check svncheckout buildframework
+all: svncheckout buildframework
 
 
 
 
-# check target
-.PHONY: check
-check:
+# svn checkout/update framework target
+.PHONY: svncheckout
+svncheckout:
 	@echo "Checking conditions for building the framework..."
 
 ifeq ($(strip $(QWT_INCLUDE_PATH)),)
@@ -55,12 +55,6 @@ endif
 
 	@echo "...done checking conditions!"
 
-
-
-
-# svn checkout/update framework target
-.PHONY: svncheckout
-svncheckout:
 	@if test -d $(FRAMEWORK_DIRECTORY); then \
 		echo "Updating framework to the latest version from SVN repository to '"$(FRAMEWORK_DIRECTORY)"'..."; \
 		$(SVN) update $(FRAMEWORK_DIRECTORY); \
@@ -90,6 +84,15 @@ buildframework:
 # package framework target
 .PHONY: package
 package:
+	@echo "Checking conditions for packaging the framework..."
+
+ifeq ($(strip $(EPICS_BASE)),)
+	@$(error The environment variable 'EPICS_BASE' should be defined and pointing to the right EPICS base directory (example: export EPICS_BASE=/epics/base-3-14-12-2). If EPICS is not installed in your machine, please download it from 'http://www.aps.anl.gov/epics/download/index.php')
+endif
+
+ifeq ($(strip $(EPICS_HOST_ARCH)),)
+	@$(error The environment variable 'EPICS_HOST_ARCH' should be defined and with the right host architecture (example: export EPICS_HOST_ARCH=linux-x86))
+endif
 
 ifeq ($(shell which $(LDD) 2>/dev/null),)
 	@$(error The program '$(LDD)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install glibc-common' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
@@ -103,6 +106,8 @@ ifeq ($(shell which $(SED) 2>/dev/null),)
 	@$(error The program '$(SED)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install sed' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
 endif
 
+	@echo "...done checking conditions!"
+
 	@if test -d $(FRAMEWORK_DIRECTORY); then \
 		echo "The framework already exists in '"$(FRAMEWORK_DIRECTORY)"' so no need to build it."; \
 	else \
@@ -114,10 +119,12 @@ endif
 	@cp -r /usr/lib/qt4/plugins $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(FRAMEWORK_DIRECTORY)/applications/ASguiApp/ASgui $(PACKAGE_DIRECTORY)/.
 	@cp $(FRAMEWORK_DIRECTORY)/framework/plugins/libQCaPlugin.so $(PACKAGE_DIRECTORY)/lib/.
+	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libca.so* $(PACKAGE_DIRECTORY)/lib/.
+	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libCom.so* $(PACKAGE_DIRECTORY)/lib/.
 	@cd $(PACKAGE_DIRECTORY)/lib/plugins/designer ; ln -s -f ../../libQCaPlugin.so
 	@chmod u+x $(PACKAGE_DIRECTORY)/ASgui
 	@echo "#!/bin/bash" > script.tmp
-	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/ASgui | $(GREP) 'libca.so\|libCom.so\|libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
+	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/ASgui | $(GREP) 'libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
 	@chmod u+x script.tmp
 	@./script.tmp
 	@rm -f script.tmp
