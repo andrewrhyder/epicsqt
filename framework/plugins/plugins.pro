@@ -280,21 +280,6 @@ FORMS += \
 
 
 #===========================================================
-# AnalogProgressBar
-#
-OTHER_FILES += \
-    src/QAnalogProgressBar.png
-
-HEADERS += \
-    ../widgets/include/QAnalogProgressBar.h \
-    include/QAnalogProgressBarPluginManager.h
-
-SOURCES += \
-    ../widgets/src/QAnalogProgressBar.cpp \
-    src/QAnalogProgressBarPluginManager.cpp
-
-
-#===========================================================
 # BitStatus
 #
 OTHER_FILES += \
@@ -329,6 +314,8 @@ SOURCES += \
 # Included .pri (project include?) files.
 #
 include (../archive/QEArchive.pri)
+
+include (../widgets/QEAnalogIndicator/QEAnalogIndicator.pri)
 
 include (../widgets/QEAnalogProgressBar/QEAnalogProgressBar.pri)
 
