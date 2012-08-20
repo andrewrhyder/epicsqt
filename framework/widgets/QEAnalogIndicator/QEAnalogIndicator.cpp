@@ -207,6 +207,7 @@ bool QEAnalogIndicator::isLeftRight ()
 void QEAnalogIndicator::drawAxis  (QPainter & painter, QRect & axis)
 {
    QPen pen;
+   QBrush brush;
 
    int x_first, x_last;
    int y_first, y_last;
@@ -215,6 +216,7 @@ void QEAnalogIndicator::drawAxis  (QPainter & painter, QRect & axis)
    bool ok;
    bool isMajor;
    double value;
+   BandList bandList;
 
    switch (this->mOrientation) {
 
@@ -250,6 +252,49 @@ void QEAnalogIndicator::drawAxis  (QPainter & painter, QRect & axis)
          // report an error??
          //
          return;
+   }
+
+   // Note: this is a dispatching call.
+   //
+   bandList = this->getBandList ();
+   for (j = 0; j < bandList.count (); j++) {
+      Band band = bandList.at (j);
+      double fl;
+      double fu;
+      int x1, x2;
+      int y1, y2;
+      QRect bandRect;
+
+      pen.setWidth (0);
+      pen.setColor (band.colour);
+      painter.setPen (pen);
+
+      brush.setColor (band.colour);
+      brush.setStyle (Qt::SolidPattern);
+      painter.setBrush (brush);
+
+      fl = this->calcFraction (band.lower);
+      fu =  this->calcFraction (band.upper);
+
+      if (this->isLeftRight ()) {
+         x1 = int (x_first + (fl * double (x_last - x_first + 1)));
+         x2 = int (x_first + (fu * double (x_last - x_first + 1)));
+
+         y1 = axis.top () + 1;
+         y2 = axis.bottom ();
+      } else {
+         y1 = int (y_first + (fl * double (y_last - y_first + 1)));
+         y2 = int (y_first + (fu * double (y_last - y_first + 1)));
+
+         x1 = axis.left () + 1;
+         x2 = axis.right ();
+      }
+
+      bandRect.setTop (y1);
+      bandRect.setBottom (y2);
+      bandRect.setLeft (x1);
+      bandRect.setRight (x2);
+      painter.drawRect (bandRect);
    }
 
    pen.setWidth (1);
@@ -677,7 +722,7 @@ void QEAnalogIndicator::paintEvent (QPaintEvent * /* event - make warning go awa
       // We do draw a separate axis.
       //
       if (this->isLeftRight ()) {
-         const int axisSize = 20;   // vertical
+         const int axisSize = 22;   // vertical
          const int edge = 20;       // horizontal
 
 
@@ -776,6 +821,16 @@ QString QEAnalogIndicator::getSprintfFormat ()
    return QString ("%+0.7g");
 }
 
+
+//------------------------------------------------------------------------------
+//
+QEAnalogIndicator::BandList QEAnalogIndicator::getBandList ()
+{
+   BandList result;
+
+   result.clear ();
+   return result;
+}
 
 //------------------------------------------------------------------------------
 //

@@ -33,6 +33,10 @@
 #include <QEAnalogProgressBar.h>
 #include <QCaObject.h>
 
+#define ALARM_SATURATION      128
+#define NO_ALARM_SATURATION    32
+
+
 /*! ----------------------------------------------------------------------------
     Constructor with no initialisation
 */
@@ -192,6 +196,69 @@ QString QEAnalogProgressBar::getSprintfFormat ()
     return result;
 }
 
+/*! ----------------------------------------------------------------------------
+    Create a list of alarm thresholds and colours.
+ */
+QEAnalogIndicator::BandList QEAnalogProgressBar::getBandList ()
+{
+    BandList result;
+    qcaobject::QCaObject* qca;
+    QCaAlarmInfo alarmInfo;
+
+    Band band;
+    result.clear();
+    qca = getQcaItem( 0 );
+    if (qca) {
+
+       band.lower = this->getMinimum ();
+       band.upper = qca->getAlarmLimitLower ();
+       if (band.upper > band.lower) {
+          // NOTE: We are making the assumption that alarm limits are major,
+          // and warning limits are minor - at least as far as the colour
+          // selection.
+          //
+          alarmInfo = QCaAlarmInfo (0, MAJOR_ALARM);
+          band.colour = this->getColor(alarmInfo, ALARM_SATURATION);
+          result << band;
+       }
+
+       band.lower = band.upper;
+       band.upper = qca->getWarningLimitLower ();
+       if (band.upper > band.lower) {
+          alarmInfo = QCaAlarmInfo (0, MINOR_ALARM);
+          band.colour = this->getColor(alarmInfo, ALARM_SATURATION);
+          result << band;
+       }
+
+       band.lower = band.upper;
+       band.upper = qca->getWarningLimitUpper ();
+       if (band.upper > band.lower) {
+          alarmInfo = QCaAlarmInfo (0, NO_ALARM);
+          band.colour = this->getColor(alarmInfo, NO_ALARM_SATURATION);
+          result << band;
+       }
+
+       band.lower = band.upper;
+       band.upper = qca->getAlarmLimitUpper ();
+       if (band.upper > band.lower) {
+          alarmInfo = QCaAlarmInfo (0, MINOR_ALARM);
+          band.colour = this->getColor(alarmInfo, ALARM_SATURATION);
+          result << band;
+       }
+
+       band.lower = band.upper;
+       band.upper = this->getMaximum ();
+       if (band.upper > band.lower) {
+          alarmInfo = QCaAlarmInfo (0, MAJOR_ALARM);
+          band.colour = this->getColor(alarmInfo, ALARM_SATURATION);
+          result << band;
+       }
+
+    }
+
+    return result;
+}
+
 
 /*! ----------------------------------------------------------------------------
     Update the progress bar value
@@ -231,7 +298,7 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
 
     // Use low saturation when no alarm, otherwise set a medium saturation level.
     //
-    saturation = (alarmInfo.getSeverity() == NO_ALARM) ? 24 : 128;
+    saturation = (alarmInfo.getSeverity() == NO_ALARM) ? NO_ALARM_SATURATION : ALARM_SATURATION;
     setBackgroundColour( getColor( alarmInfo, saturation ) );
 
     /// If in alarm, display as an alarm

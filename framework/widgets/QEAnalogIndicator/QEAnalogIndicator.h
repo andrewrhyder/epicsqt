@@ -40,6 +40,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QPoint>
+#include <QList>
 #include <QCaPluginLibrary_global.h>
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogIndicator : public QWidget {
@@ -133,6 +134,16 @@ protected:
     // This may be overridden by a derived class.
     //
     virtual QString getSprintfFormat ();
+
+    struct Band {
+       double lower;
+       double upper;
+       QColor colour;
+    };
+
+    class BandList : public QList <Band> { };
+
+    virtual BandList getBandList ();
 
 public:
     /// Constructor

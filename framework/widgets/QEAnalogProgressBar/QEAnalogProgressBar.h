@@ -68,7 +68,8 @@ public slots:
 
 
 protected:
-    virtual QString getSprintfFormat ();
+    QString getSprintfFormat ();
+    BandList getBandList ();
 
     QCaFloatingFormatting floatingFormatting;
 
