@@ -35,10 +35,8 @@
 #include <QCaPlotPluginManager.h>
 #include <QCaPeriodicPluginManager.h>
 #include <QEAnalogProgressBarManager.h>
-#include <QCaAnalogProgressBarPluginManager.h>
-#include <QAnalogProgressBarPluginManager.h>
+#include <QEAnalogIndicatorManager.h>
 #include <QEBitStatusManager.h>
-#include <QCaBitStatusPluginManager.h>
 #include <QBitStatusPluginManager.h>
 #include <QEImageManager.h>
 #include <QEPvPropertiesManager.h>
@@ -57,6 +55,8 @@
 // Deprecated widgets
 #include <ASguiFormPluginManager.h>
 #include <QCaLabelPluginManager.h>
+#include <QCaAnalogProgressBarPluginManager.h>
+#include <QCaBitStatusPluginManager.h>
 //======================================================
 
 
@@ -95,7 +95,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEImageManager(this));
 
     // Non-EPICS aware framework widgets
-    widgets.append(new QAnalogProgressBarPluginManager(this));
+    widgets.append(new QEAnalogIndicatorManager(this));
     widgets.append(new QBitStatusPluginManager(this));
 
 //======================================================
