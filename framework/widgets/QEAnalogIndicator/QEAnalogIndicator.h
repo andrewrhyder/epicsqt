@@ -112,9 +112,15 @@ private:
     void drawMarker  (QPainter & painter, QRect &area, const double fraction);
     void drawMeter   (QPainter & painter, QRect &area, const double fraction);
 
-    // Like painter drawText, but centred on textCentre in left-right mode.
+    // Like painter drawText, but centred on textCentre.
+    // (drawText aligns bottom left corner on given point).
     //
-    void drawText  (QPainter & painter, QPoint & textCentre, QString & text, const int pointSize = 0);
+    void drawText (QPainter & painter, QPoint & textCentre, QString & text, const int pointSize = 0);
+
+    // In left right mode text centred on x, just below y.
+    // In top bottom mode text centred on y, just to right of x.
+    //
+    void drawAxisText (QPainter & painter, QPoint & textCentre, QString & text, const int pointSize = 0);
 
     // Value iterator.
     // itc is the iterator control value.

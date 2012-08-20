@@ -96,7 +96,8 @@ double QEAnalogIndicator::safeLog (const double x)
 
 //------------------------------------------------------------------------------
 //
-double QEAnalogIndicator::calcFraction (const double x) {
+double QEAnalogIndicator::calcFraction (const double x)
+{
    double result;
 
    // Calculate the fractional scale and constrain to be in range.
@@ -281,13 +282,13 @@ void QEAnalogIndicator::drawAxis  (QPainter & painter, QRect & axis)
          x2 = int (x_first + (fu * double (x_last - x_first + 1)));
 
          y1 = axis.top () + 1;
-         y2 = axis.bottom ();
+         y2 = y1 + 4;
       } else {
          y1 = int (y_first + (fl * double (y_last - y_first + 1)));
          y2 = int (y_first + (fu * double (y_last - y_first + 1)));
 
          x1 = axis.left () + 1;
-         x2 = axis.right ();
+         x2 = x1 + 4;
       }
 
       bandRect.setTop (y1);
@@ -332,8 +333,8 @@ void QEAnalogIndicator::drawAxis  (QPainter & painter, QRect & axis)
          QString vt;
 
          vt.sprintf ("%.1f", value);
-         p2 = this->isLeftRight () ? QPoint (x, y + majorTick + pointSize) : QPoint (x + majorTick + 1, y);
-         this->drawText (painter, p2, vt, pointSize);
+         p2 = this->isLeftRight () ? QPoint (x, y + majorTick + 1) : QPoint (x + majorTick + 1, y);
+         this->drawAxisText (painter, p2, vt, pointSize);
       }
    }
 }
@@ -650,25 +651,57 @@ void QEAnalogIndicator::drawMeter (QPainter & painter, QRect &area, const double
 void QEAnalogIndicator::drawText (QPainter & painter, QPoint & textCentre, QString & text, const int pointSize)
 {
    QFont pf (this->font ());
-   QFontMetrics fm = painter.fontMetrics ();
-   QPen pen;
-   int x;
-   int y;
 
    if (pointSize > 0) {
       pf.setPointSize (pointSize);
    }
    painter.setFont (pf);
 
+   QFontMetrics fm = painter.fontMetrics ();
+   QPen pen;
+   int x;
+   int y;
+
+   // Centre text. For height, pointSize seems better than fm.height ()
+   // painter.drawText takes bottom left coordinates.
+   //
+   x = textCentre.x () - fm.width (text)/2;
+   y = textCentre.y () + (pf.pointSize () + 1) / 2;
+
+   pen.setColor (this->getFontPaintColour ());
+   painter.setPen (pen);
+
+   // If text too wide, then ensure we show most significant part.
+   //
+   painter.drawText (MAX (1, x), y, text);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEAnalogIndicator::drawAxisText (QPainter & painter, QPoint & textCentre, QString & text, const int pointSize)
+{
+   QFont pf (this->font ());
+
+   if (pointSize > 0) {
+      pf.setPointSize (pointSize);
+   }
+   painter.setFont (pf);
+
+   QFontMetrics fm = painter.fontMetrics ();
+   QPen pen;
+   int x;
+   int y;
+
    // Centre text. For height, pointSize seems better than fm.height ()
    // painter.drawText needs bottom left coordinates.
    //
    if (this->isLeftRight ()) {
       x = textCentre.x () - fm.width (text)/2;
+      y = textCentre.y () +  pf.pointSize ();
    } else {
       x = textCentre.x ();
+      y = textCentre.y () + (pf.pointSize () + 1) / 2;
    }
-   y = textCentre.y () + (pf.pointSize () + 1) / 2;
 
    pen.setColor (this->getFontPaintColour ());
    painter.setPen (pen);
@@ -801,7 +834,6 @@ void QEAnalogIndicator::paintEvent (QPaintEvent * /* event - make warning go awa
          break;
    }
 
-
    if (this->getShowText ()) {
       QString sprintfFormat;
       QString barText;
@@ -810,6 +842,7 @@ void QEAnalogIndicator::paintEvent (QPaintEvent * /* event - make warning go awa
       //
       sprintfFormat = getSprintfFormat ();
       barText.sprintf (sprintfFormat.toAscii().data (), this->mValue);
+
       this->drawText (painter, textCentre, barText);
    }
 }
