@@ -36,7 +36,7 @@
 /*! ----------------------------------------------------------------------------
     Constructor with no initialisation
 */
-QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) : QAnalogProgressBar( parent ), QCaWidget( this )
+QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) : QEAnalogIndicator( parent ), QCaWidget( this )
 {
     setup();
 }
@@ -46,7 +46,7 @@ QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) : QAnalogProgressBar
     Constructor with known variable
 */
 QEAnalogProgressBar::QEAnalogProgressBar( const QString &variableNameIn,
-                                          QWidget *parent ) : QAnalogProgressBar( parent ), QCaWidget( this )
+                                          QWidget *parent ) : QEAnalogIndicator( parent ), QCaWidget( this )
 {
 
     setup();
@@ -186,7 +186,8 @@ QString QEAnalogProgressBar::getSprintfFormat ()
         result.sprintf( "%%0.%df%s", qca->getPrecision(), egu.toAscii().data () );
     } else {
         // Go with generic parent format.
-        result = QAnalogProgressBar::getSprintfFormat ();
+        //
+        result = QEAnalogIndicator::getSprintfFormat ();
     }
     return result;
 }

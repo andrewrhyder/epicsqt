@@ -1,4 +1,5 @@
-/*
+/*  QEAnalogProgressBar.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -26,14 +27,14 @@
 #define QEANALOGPROGRESSBAR_H
 
 #include <QString>
-#include <QAnalogProgressBar.h>
+#include <QEAnalogIndicator.h>
 #include <QCaWidget.h>
 #include <QCaFloating.h>
 #include <QCaFloatingFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QCaPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar : public QAnalogProgressBar, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar : public QEAnalogIndicator, public QCaWidget {
     Q_OBJECT
 
 #include <singleVariableProperties.inc>
