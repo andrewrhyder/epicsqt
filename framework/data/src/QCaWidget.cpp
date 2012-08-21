@@ -295,7 +295,6 @@ QColor QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
 // variable as tool tip
 void QCaWidget::setVariableAsToolTip( bool variableAsToolTipIn )
 {
-//    qDebug() << "setting tool tip from variable names property" << variableAsToolTipIn;
     variableAsToolTip = variableAsToolTipIn;
     setToolTipFromVariableNames();
 }
@@ -308,12 +307,10 @@ bool QCaWidget::getVariableAsToolTip()
 // Update the variable name list used in tool tips if requried
 void QCaWidget::setToolTipFromVariableNames()
 {
-//    qDebug() << "setting tool tip from variable names";
     // Set the tool tip to the variable names if required
     if( variableAsToolTip ) {
         // Determine what seperator to place between variable names. To avoid long tool tips, use line breaks if over two variables
         QString seperator;
-//        qDebug() << numVariables;
         if( numVariables > 2 )
         {
             seperator = "\n";
@@ -385,4 +382,93 @@ void QCaWidget::readNow()
             qca->singleShotRead();
         }
     }
+}
+
+// Access functions for variableName and variableNameSubstitutions
+// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
+void QCaWidget::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameSubstitutions( variableNameSubstitutionsIn );
+    setVariableName( variableNameIn, variableIndex );
+    establishConnection( variableIndex );
+}
+
+// Returns the default location to create files.
+// Use this to create files in a consistant location
+QString QCaWidget::defaultFileLocation()
+{
+    QString path = getParentPath();
+    if( !path.isEmpty() )
+    {
+        return path;
+    }
+
+    path = getPath();
+    if( !path.isEmpty() )
+    {
+        return path;
+    }
+
+    path = QDir::currentPath();
+    if( !path.isEmpty() )
+    {
+        return path;
+    }
+    return "";
+}
+
+// Returns an open file given a file name.
+// Use this to find files in a consistant set of locations:
+// If the file name contains an absolute path, then no options, just try to open it
+// If the file name contains a relative path (including no path) look in the following locations:
+//  - The directory where the parent object (form) was read from (set up in the application profile)
+//  - The application's path (set up in the application profile) (the -p switch for ASgui)
+//  - The current directory
+
+QFile* QCaWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
+{
+        // Build a list of all the places we expect to find the file
+        // Use a single location if an absolute path was specified.
+        // Use the following list of locations if a relative path was specified:
+        //  - The directory where the parent object (form) was read from (set up in the application profile)
+        //  - The application's path (set up in the application profile) (the -p switch for ASgui)
+        //  - The current directory
+        QStringList searchList;
+        if(  QDir::isAbsolutePath( name ) )
+        {
+            searchList.append( name );
+        }
+        else
+        {
+            QFileInfo fileInfo;
+
+            QString parentPath =  getParentPath();
+            if( !parentPath.isEmpty() )
+            {
+                fileInfo.setFile( parentPath, name );
+                searchList.append( fileInfo.filePath() );
+            }
+
+            QString path = getPath();
+            if( !path.isEmpty() )
+            {
+                fileInfo.setFile( path, name );
+                searchList.append(  fileInfo.filePath() );
+            }
+
+            fileInfo.setFile( QDir::currentPath(), name );
+            searchList.append(  fileInfo.filePath() );
+        }
+
+        // Attempt to open the file
+        QFile* uiFile = NULL;
+        for( int i = 0; i < searchList.count(); i++ )
+        {
+            uiFile = new QFile( searchList[i] );
+            if( uiFile->open( mode ) )
+                break;
+            delete uiFile;
+            uiFile = NULL;
+        }
+        return uiFile;
 }
