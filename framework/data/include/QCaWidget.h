@@ -62,6 +62,10 @@ public:
     void readNow();  // Perform a single shot read on all variables (Usefull when not subscribing by defualt)
     virtual void writeNow(){}    // (Control widgets only - such as QELineEdit) Write the value now. Used when writeOnChange, writeOnEnter, etc are all false
 
+    virtual void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ); // Generally don't need to override
+
+    QFile* openQEFile( QString name, QFile::OpenModeFlag mode );   // Looks for a file in a standard set of locations (and opens the file)
+    QString defaultFileLocation();
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );    /// Set the number of variables that will stream data updates to the widget. Default of 1 if not called.

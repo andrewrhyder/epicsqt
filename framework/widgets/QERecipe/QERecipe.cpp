@@ -317,16 +317,17 @@ void QERecipe::setRecipeFile(QString pValue)
 
     if (recipeFile.isEmpty())
     {
-        //TODO: the EPICS Qt core should provide a method which returns the path where resources should be stored
-        filename = QApplication::applicationFilePath() + QDir::separator() + "QERecipe.xml";
+        QFileInfo fileInfo;
+        fileInfo.setFile( defaultFileLocation(), "QERecipe.xml" );
+        filename = fileInfo.filePath();
     }
     else
     {
         filename = recipeFile;
     }
 
-    file = new QFile(filename);
-    if (file->open(QFile::ReadOnly | QFile::Text))
+    file = openQEFile( filename, (QIODevice::OpenModeFlag)((int)(QFile::ReadOnly | QFile::Text)) );
+    if (file)
     {
         data = file->readAll();
         file->close();

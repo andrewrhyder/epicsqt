@@ -397,15 +397,6 @@ QCaGenericButton::updateOptions QCaGenericButton::getUpdateOption()
 
 // 'Data button' Property convenience functions
 
-
-// Variable Name and substitution
-void QCaGenericButton::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-{
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // subscribe
 void QCaGenericButton::setSubscribe( bool subscribeIn )
 {

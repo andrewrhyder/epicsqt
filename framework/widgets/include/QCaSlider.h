@@ -40,9 +40,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
 
     // Property convenience functions
 
-    // Variable name and substitutions
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // write on change
     void setWriteOnChange( bool writeOnChange );
     bool getWriteOnChange();

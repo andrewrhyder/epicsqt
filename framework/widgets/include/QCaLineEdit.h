@@ -44,9 +44,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEdit : public QLineEdit, public QCaWi
 
     // Property convenience functions
 
-    // Variable Name and substitution
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // write on lose focus
     void setWriteOnLoseFocus( bool writeOnLoseFocus );
     bool getWriteOnLoseFocus();

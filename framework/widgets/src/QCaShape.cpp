@@ -505,13 +505,6 @@ QVariant QCaShape::getDrop()
 //==============================================================================
 // Property convenience functions
 
-void QCaShape::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-{
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // variable animations
 void QCaShape::setAnimation( QCaShape::Animations animation, const int index )
 {

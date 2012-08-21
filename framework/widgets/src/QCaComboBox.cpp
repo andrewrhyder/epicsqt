@@ -275,14 +275,6 @@ QVariant QCaComboBox::getDrop()
 //==============================================================================
 // Property convenience functions
 
-// Variable Name and substitutions
-void QCaComboBox::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-{
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // write on change
 void QCaComboBox::setWriteOnChange( bool writeOnChangeIn )
 {

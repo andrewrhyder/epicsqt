@@ -103,10 +103,6 @@ private:
    void common_setup ();
    void clearFieldChannels ();
 
-   void setVariableNameAndSubstitutions (QString variableNameIn,
-                                         QString variableNameSubstitutionsIn,
-                                         unsigned int variableIndex);
-
 private slots:
    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
    {

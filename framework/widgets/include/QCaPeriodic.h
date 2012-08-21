@@ -119,9 +119,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodic : public QFrame, public QCaWidge
 
     // Property convenience functions
 
-    // Variable Name and substitution
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // subscribe
     void setSubscribe( bool subscribe );
     bool getSubscribe();

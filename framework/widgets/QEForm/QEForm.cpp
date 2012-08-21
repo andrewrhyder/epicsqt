@@ -107,41 +107,7 @@ bool QEForm::readUiFile()
         // Set up the environment profile for any QCa widgets created by the form
         QObject* savedGuiLaunchConsumer = NULL;
 
-        // Build a list of all the places we expect to find the file
-        // Use a single location if an absolute path was specified.
-        // Use the following list of locations if a relative path was specified:
-        //  - The directory where the parent object (form) was read from (set up in the application profile)
-        //  - The application's path (set up in the application profile) (the -p sewitch for ASgui)
-        //  - The current directory
-        QStringList searchList;
-        if(  QDir::isAbsolutePath( uiFileName ) )
-        {
-            searchList.append( uiFileName );
-        }
-        else
-        {
-            QFileInfo fileInfo;
-
-            fileInfo.setFile( getParentPath(), uiFileName );
-            searchList.append( fileInfo.filePath() );
-
-            fileInfo.setFile( getPath(), uiFileName );
-            searchList.append(  fileInfo.filePath() );
-
-            fileInfo.setFile( QDir::currentPath(), uiFileName );
-            searchList.append(  fileInfo.filePath() );
-        }
-
-        // Attempt to open the file
-        QFile* uiFile = NULL;
-        for( int i = 0; i < searchList.count(); i++ )
-        {
-            uiFile = new QFile( searchList[i] );
-            if( uiFile->open( QIODevice::ReadOnly ) )
-                break;
-            delete uiFile;
-            uiFile = NULL;
-        }
+        QFile* uiFile = openQEFile( uiFileName, QIODevice::ReadOnly );
 
         // If the file was not found and opened, notify as appropriate
         if( !uiFile )

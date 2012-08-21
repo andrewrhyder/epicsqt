@@ -298,7 +298,6 @@ void ContainerProfile::releaseProfile()
 
     // Indicate no profile is defined
     profileDefined = false;
-    qDebug() << "Profile released";
 }
 
 /**

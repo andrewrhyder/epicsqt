@@ -50,10 +50,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QCaWidget, p
     void setUpdateOption( updateOptions updateOptionIn );
     updateOptions getUpdateOption();
 
-    // Variable Name and substitution
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
-
   protected:
     void establishConnection( unsigned int variableIndex );
 

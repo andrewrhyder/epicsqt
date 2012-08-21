@@ -43,9 +43,6 @@ class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStrin
 
     enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON, UPDATE_STATE };
 
-    // Variable Name and substitution
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // subscribe
     void setSubscribe( bool subscribe );
     bool getSubscribe();

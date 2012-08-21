@@ -1083,14 +1083,6 @@ void QEImage::paste( QVariant v )
 // Property convenience functions
 
 
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void QEImage::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // Allow user to set the video format
 void QEImage::setFormatOption( formatOptions formatOptionIn )
 {

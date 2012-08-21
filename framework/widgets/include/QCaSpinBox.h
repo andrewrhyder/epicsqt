@@ -40,9 +40,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
 
     // Property convenience functions
 
-    // Variable name and substitutions
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // write on change
     void setWriteOnChange( bool writeOnChangeIn );
     bool getWriteOnChange();

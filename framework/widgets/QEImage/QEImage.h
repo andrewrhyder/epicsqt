@@ -59,9 +59,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
 
     // Property convenience functions
 
-    // Variable Name and substitution
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // Allow user to set the video format
     enum formatOptions{ GREY8, GREY12, GREY16, RGB_888 };
     void setFormatOption( formatOptions formatOption );

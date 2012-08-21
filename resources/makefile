@@ -5,6 +5,8 @@
 # version: 1.0
 # date: 2012/AUG/07
 # description: Makefile to automate the building and deployment of the EPICS Qt framework
+#              NOTE: Although managed as part of  EPICS Qt framework this makefile is intended
+#                    to be run from outside the EPICS Qt framework directories.
 # status: Production
 
 

@@ -49,9 +49,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
 
     // Property convenience functions
 
-    // Variable name and substitutions
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // variable animations
     void setAnimation( Animations animation, const int index );
     Animations getAnimation( const int index );

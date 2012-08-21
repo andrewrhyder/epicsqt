@@ -460,7 +460,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QELabelPlugin" name="qcalabelplugin_5">
+     <widget class="QELabel" name="qelabel_5">
       <property name="font">
        <font>
         <pointsize>16</pointsize>
@@ -850,9 +850,9 @@
    <header>QtWebKit/QWebView</header>
   </customwidget>
   <customwidget>
-   <class>QELabelPlugin</class>
+   <class>QELabel</class>
    <extends>QLabel</extends>
-   <header>QELabelPlugin.h</header>
+   <header>QELabel.h</header>
   </customwidget>
   <customwidget>
    <class>QCaPushButtonPlugin</class>

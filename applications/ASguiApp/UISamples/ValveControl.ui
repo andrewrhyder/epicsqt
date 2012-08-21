@@ -48,7 +48,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QELabelPlugin" name="qcalabelplugin">
+       <widget class="QELabel" name="qcalabel">
         <property name="variable" stdset="0">
          <string>SR$(SR)SGV01:OPEN_CLOSE_STATUS</string>
         </property>
@@ -58,7 +58,7 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QELabelPlugin" name="qcalabelplugin_2">
+       <widget class="QELabel" name="qelabel_2">
         <property name="variable" stdset="0">
          <string>SR$(SR)SGV02:OPEN_CLOSE_STATUS</string>
         </property>
@@ -75,7 +75,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QELabelPlugin" name="qcalabelplugin_3">
+       <widget class="QELabel" name="qelabel_3">
         <property name="variable" stdset="0">
          <string>SR$(SR)SGV01:EPS_OOS_STATUS</string>
         </property>
@@ -85,7 +85,7 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QELabelPlugin" name="qcalabelplugin_10">
+       <widget class="QELabel" name="qelabel_10">
         <property name="variable" stdset="0">
          <string>SR$(SR)SGV02:EPS_OOS_STATUS</string>
         </property>
@@ -102,7 +102,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QELabelPlugin" name="qcalabelplugin_4">
+       <widget class="QELabel" name="qelabel_4">
         <property name="variable" stdset="0">
          <string>SR$(SR)SGV01:INHIBIT_OPEN_STATUS</string>
         </property>
@@ -112,7 +112,7 @@
        </widget>
       </item>
       <item row="3" column="2">
-       <widget class="QELabelPlugin" name="qcalabelplugin_8">
+       <widget class="QELabel" name="qelabel_8">
         <property name="variable" stdset="0">
          <string>SR$(SR)SGV02:INHIBIT_OPEN_STATUS</string>
         </property>
@@ -129,7 +129,7 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QELabelPlugin" name="qcalabelplugin_5">
+       <widget class="QELabel" name="qelabel_5">
         <property name="text">
          <string>No Action</string>
         </property>
@@ -142,7 +142,7 @@
        </widget>
       </item>
       <item row="4" column="2">
-       <widget class="QELabelPlugin" name="qcalabelplugin_9">
+       <widget class="QELabel" name="qelabel_9">
         <property name="text">
          <string>No Action</string>
         </property>
@@ -1919,7 +1919,7 @@
        </widget>
       </item>
       <item row="6" column="1">
-       <widget class="QELabelPlugin" name="qcalabelplugin_6">
+       <widget class="QELabel" name="qelabel_6">
         <property name="text">
          <string>Ok</string>
         </property>
@@ -1932,7 +1932,7 @@
        </widget>
       </item>
       <item row="6" column="2">
-       <widget class="QELabelPlugin" name="qcalabelplugin_7">
+       <widget class="QELabel" name="qelabel_7">
         <property name="text">
          <string>Ok</string>
         </property>
@@ -2028,9 +2028,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QELabelPlugin</class>
+   <class>QELabel</class>
    <extends>QLabel</extends>
-   <header>QELabelPlugin.h</header>
+   <header>QELabel.h</header>
   </customwidget>
   <customwidget>
    <class>QSubstitutedLabelPlugin</class>

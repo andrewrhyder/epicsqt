@@ -261,14 +261,6 @@ QVariant QCaSpinBox::getDrop()
 //==============================================================================
 // Property convenience functions
 
-// Variable name and substitutions
-void QCaSpinBox::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-{
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // write on change
 void QCaSpinBox::setWriteOnChange( bool writeOnChangeIn )
 {

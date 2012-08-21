@@ -241,15 +241,6 @@ void QELabel::paste( QVariant v )
 //==============================================================================
 // Property convenience functions
 
-
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void QELabel::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // Update option Property convenience function
 void QELabel::setUpdateOption( updateOptions updateOptionIn )
 {

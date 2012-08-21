@@ -39,9 +39,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBox : public QComboBox, public QCaWi
     QCaComboBox( QWidget *parent = 0 );
     QCaComboBox( const QString& variableName, QWidget *parent = 0 );
 
-    // Variable Name and variable substitutions
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // write on change
     void setWriteOnChange( bool writeOnChangeIn );
     bool getWriteOnChange();

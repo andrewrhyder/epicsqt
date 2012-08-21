@@ -260,14 +260,6 @@ QVariant QCaSlider::getDrop()
 //==============================================================================
 // Property convenience functions
 
-// Variable name and substitutions
-void QCaSlider::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-{
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // write on change
 void QCaSlider::setWriteOnChange( bool writeOnChangeIn )
 {

@@ -408,18 +408,6 @@ void QEPvProperties::common_setup ()
 }
 
 //------------------------------------------------------------------------------
-//
-void QEPvProperties::setVariableNameAndSubstitutions (QString variableNameIn,
-                                                       QString variableNameSubstitutionsIn,
-                                                       unsigned int variableIndex)
-{
-   setVariableNameSubstitutions (variableNameSubstitutionsIn);
-
-   setVariableName (variableNameIn, variableIndex);
-   establishConnection (variableIndex);
-}
-
-//------------------------------------------------------------------------------
 // Update the tool tip as requested by QCaToolTip.
 //
 void QEPvProperties::updateToolTip (const QString& tip)

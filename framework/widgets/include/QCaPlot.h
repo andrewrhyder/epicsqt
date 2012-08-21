@@ -68,8 +68,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlot : public QwtPlot, public QCaWidget {
 
     // Property convenience functions
 
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     void setYMin( double yMin );
     double getYMin();
 

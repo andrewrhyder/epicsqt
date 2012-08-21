@@ -423,16 +423,6 @@ QVariant QCaPlot::getDrop()
 //==============================================================================
 // Property convenience functions
 
-
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void QCaPlot::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-{
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // Access functions for YMin
 void QCaPlot::setYMin( double yMinIn )
 {

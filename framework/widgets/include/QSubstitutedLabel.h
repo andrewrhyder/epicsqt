@@ -53,9 +53,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QSubstitutedLabel : public QLabel, public QC
 
     // Property convenience functions
 
-    // Text substitution (uses variable name and variable name substitution mechanism, even though this widget does not make any connections)
-    void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
     // label text (prior to substitution)
     void setLabelTextProperty( QString labelTextIn );
     QString getLabelTextProperty();

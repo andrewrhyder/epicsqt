@@ -57,16 +57,6 @@ void QSubstitutedLabel::setup() {
 // Property convenience functions
 
 
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-//
-// NOTE: there is no data associated with this widget, but it uses the same substitution mechanism as other data widgets.
-void QSubstitutedLabel::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) {
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-}
-
 // label text (prior to substitution)
 void QSubstitutedLabel::setLabelTextProperty( QString labelTextIn )
 {
