@@ -519,12 +519,15 @@ void QEAnalogIndicator::drawMeter (QPainter & painter, QRect &area, const double
    double radius;
    double s, c;
    QPen pen;
+   QBrush brush;
    int j;
    double lowerAngle;
    double upperAngle;
    double angle;
    double minS, maxS, minC, maxC;
    double gap;
+   QRect dialRect;
+   BandList bandList;
    bool ok;
    bool isMajor;
    double value;
@@ -582,6 +585,89 @@ void QEAnalogIndicator::drawMeter (QPainter & painter, QRect &area, const double
    if (maxC > 0) radius = MIN (radius, (centre_y -    (area.top () + gap)) /maxC);
    if (minC < 0) radius = MIN (radius, (centre_y - (area.bottom () - gap)) /minC);
 
+
+   // Draw band/colour based annulus.  We do this as two sets of drawPie
+   // calls: one set with full radius and one with 97% radius.
+   //
+   dialRect.setLeft   (int (centre_x - radius));
+   dialRect.setRight  (int (centre_x + radius));
+   dialRect.setTop    (int (centre_y - radius));
+   dialRect.setBottom (int (centre_y + radius));
+
+   // Note: this is a dispatching call.
+   //
+   bandList = this->getBandList ();
+   for (j = 0; j < bandList.count (); j++) {
+      Band band = bandList.at (j);
+      double fl;
+      double fu;
+      double al;
+      double au;
+      int startAngle;
+      int spanAngle;
+
+      pen.setWidth (0);
+      pen.setColor (band.colour);
+      painter.setPen (pen);
+
+      brush.setColor (band.colour);
+      brush.setStyle (Qt::SolidPattern);
+      painter.setBrush (brush);
+
+      fl = this->calcFraction (band.lower);
+      fu =  this->calcFraction (band.upper);
+
+      al = lowerAngle +  fl * (upperAngle - lowerAngle);
+      au = lowerAngle +  fu * (upperAngle - lowerAngle);
+
+      // The startAngle and spanAngle must be specified in 1/16th of a degree,
+      // i.e. a full circle equals 5760 (16 * 360). Positive values for the
+      // angles mean counter-clockwise while negative values mean the clockwise
+      // direction. Zero degrees is at the 3 o'clock position.
+      //
+      startAngle = int ((90.0 - au) * 16.0);
+      if (startAngle < 0) {
+         startAngle +=  5760;
+      }
+      spanAngle = int ((au - al) * 16.0);
+      if (spanAngle < 0) {
+         spanAngle +=  5760;
+      }
+
+      painter.drawPie (dialRect, startAngle, spanAngle);
+   }
+
+   if (bandList.count () > 0) {
+      int startAngle;
+      int spanAngle;
+
+      dialRect.setLeft   (int (centre_x - 0.97 * radius));
+      dialRect.setRight  (int (centre_x + 0.97 * radius));
+      dialRect.setTop    (int (centre_y - 0.97 * radius));
+      dialRect.setBottom (int (centre_y + 0.97 * radius));
+
+      pen.setWidth (0);
+      pen.setColor (this->getBackgroundPaintColour ());
+      painter.setPen (pen);
+
+      brush.setColor (this->getBackgroundPaintColour ());
+      brush.setStyle (Qt::SolidPattern);
+      painter.setBrush (brush);
+
+      startAngle = int ((90.0 - upperAngle) * 16.0) - 1;
+      if (startAngle < 0) {
+         startAngle +=  5760;
+      }
+      spanAngle = int ((upperAngle - lowerAngle) * 16.0) + 4;
+      if (spanAngle < 0) {
+         spanAngle +=  5760;
+      }
+
+      painter.drawPie (dialRect, startAngle, spanAngle);
+   }
+
+   // Draw axis
+   //
    pen.setWidth (1);
    pen.setColor (this->getFontPaintColour ());
    painter.setPen (pen);

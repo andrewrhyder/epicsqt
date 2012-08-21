@@ -159,7 +159,7 @@ public:
 
     // property access functions.
     //
-    double getValue   ();
+    double getValue ();
 
     void setMinimum (const double value);
     double getMinimum ();

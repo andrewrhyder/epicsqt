@@ -43,6 +43,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar : public QEAnalogIndicat
     // Display properties
     Q_PROPERTY( bool useDbDisplayLimits READ getUseDbDisplayLimits WRITE setUseDbDisplayLimits )
 
+    enum AlarmSeverityDisplayModes { none, foreground, background };
+    Q_ENUMS (AlarmSeverityDisplayModes)
+
+    Q_PROPERTY( AlarmSeverityDisplayModes alarmSeverityDisplayMode READ getAlarmSeverityDisplayMode WRITE setAlarmSeverityDisplayMode )
 
 public:
     QEAnalogProgressBar( QWidget *parent = 0 );
@@ -62,6 +66,9 @@ public:
     //
     void setUseDbDisplayLimits( bool useDbDisplayLimitsIn );
     bool getUseDbDisplayLimits();
+
+    void setAlarmSeverityDisplayMode( AlarmSeverityDisplayModes value );
+    AlarmSeverityDisplayModes getAlarmSeverityDisplayMode ();
 
 public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
@@ -84,7 +91,11 @@ private:
     bool isConnected;
     bool useDbPrecison;
     bool useDbDisplayLimits;
+    AlarmSeverityDisplayModes alarmSeverityDisplayMode;
     bool isFirstUpdate;
+    QColor savedForegroundColour;
+    QColor savedBackgroundColour;
+
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );

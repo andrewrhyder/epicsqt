@@ -69,6 +69,7 @@ void QEAnalogProgressBar::setup() {
 
     // Set up default properties
     useDbDisplayLimits = false;
+    this->alarmSeverityDisplayMode = none;
     setAllowDrop( false );
 
     // Set the initial state
@@ -296,10 +297,24 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
     //
     this->setValue( value );
 
-    // Use low saturation when no alarm, otherwise set a medium saturation level.
-    //
-    saturation = (alarmInfo.getSeverity() == NO_ALARM) ? NO_ALARM_SATURATION : ALARM_SATURATION;
-    setBackgroundColour( getColor( alarmInfo, saturation ) );
+    switch (this->getAlarmSeverityDisplayMode()) {
+       case none:
+          break;
+
+       case foreground:
+          // Use low saturation when no alarm, otherwise set a medium saturation level.
+          //
+          saturation = ALARM_SATURATION;
+          setForegroundColour( getColor( alarmInfo, saturation ) );
+          break;
+
+       case background:
+          // Use low saturation when no alarm, otherwise set a medium saturation level.
+          //
+          saturation = (alarmInfo.getSeverity() == NO_ALARM) ? NO_ALARM_SATURATION : ALARM_SATURATION;
+          setBackgroundColour( getColor( alarmInfo, saturation ) );
+          break;
+    }
 
     /// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
@@ -374,4 +389,53 @@ bool QEAnalogProgressBar::getUseDbDisplayLimits()
 {
     return useDbDisplayLimits;
 }
+
+
+//------------------------------------------------------------------------------
+void QEAnalogProgressBar::setAlarmSeverityDisplayMode( AlarmSeverityDisplayModes value )
+{
+    if (this->alarmSeverityDisplayMode != value) {
+
+        // case on old value and restore colour
+        //
+        switch (this->alarmSeverityDisplayMode) {
+            case none:
+                break;
+
+            case foreground:
+                this->setForegroundColour (this->savedForegroundColour);
+                break;
+
+            case background:
+                this->setBackgroundColour (this->savedBackgroundColour);
+                break;
+        }
+
+        // Do actual property update.
+        //
+        this->alarmSeverityDisplayMode = value;
+
+        // case on new value and restore colour
+        //
+        switch (this->alarmSeverityDisplayMode) {
+            case none:
+                break;
+
+            case foreground:
+                this->savedForegroundColour = this->getForegroundColour();
+                break;
+
+            case background:
+                this->savedBackgroundColour = this->getBackgroundColour();
+                break;
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+QEAnalogProgressBar::AlarmSeverityDisplayModes QEAnalogProgressBar::getAlarmSeverityDisplayMode ()
+{
+    return this->alarmSeverityDisplayMode;
+}
+
 // end
