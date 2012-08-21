@@ -489,7 +489,6 @@ void QEConfiguredLayout::refreshFields()
             if (field->getType() == BITSTATUS)
             {
 //                qCaWidget = new QEBitStatus();
-//                ((QCaSpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
 //                ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
 //                QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
             }
@@ -498,7 +497,6 @@ void QEConfiguredLayout::refreshFields()
                 qCaWidget = new QCaPushButton();
                 ((QCaPushButton *) qCaWidget)->setSubscribe(subscription);
                 ((QCaPushButton *) qCaWidget)->setText(field->getName());
-                ((QCaPushButton *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
                 ((QCaPushButton *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
             }
 
@@ -506,14 +504,12 @@ void QEConfiguredLayout::refreshFields()
             {
                 qCaWidget = new QELabel();
 //                ((QELabel *) qCaWidget)->setSubscribe(false);
-                ((QELabel *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
                 ((QELabel *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
             }
             else if (field->getType() == SPINBOX)
             {
                 qCaWidget = new QCaSpinBox();
                 ((QCaSpinBox *) qCaWidget)->setSubscribe(subscription);
-                ((QCaSpinBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
                 ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                 QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
             }
@@ -521,12 +517,11 @@ void QEConfiguredLayout::refreshFields()
             {
                 qCaWidget = new QCaComboBox();
                 ((QCaComboBox *) qCaWidget)->setSubscribe(subscription);
-                ((QCaComboBox *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
                 ((QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                 QObject::connect(((QCaComboBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
                 if (subscription)
                 {
-                    qCaWidget->activate();
+//                    qCaWidget->activate();
                 }
                 else
                 {
@@ -538,18 +533,19 @@ void QEConfiguredLayout::refreshFields()
                 qCaWidget = new QCaLineEdit();
                 ((QCaLineEdit *) qCaWidget)->setSubscribe(subscription);
                 ((QCaLineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
-                ((QCaLineEdit *) qCaWidget)->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
                 ((QCaLineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                 QObject::connect(((QCaLineEdit *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
                 if (subscription)
                 {
-                    qCaWidget->activate();
+//                    qCaWidget->activate();
                 }
                 else
                 {
                     ((QCaLineEdit *) qCaWidget)->setConfirmWrite(false);
                 }
             }
+
+            qCaWidget->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
 
             fieldInfo->qCaWidget = qCaWidget;
             fieldInfo->setGroup(field->getGroup());

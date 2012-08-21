@@ -153,7 +153,7 @@ void QCaLineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
 void QCaLineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     /// If not subscribing, then do nothing.
-    /// Note, This will still be called even if not subscribing as there is an initial sing shot read
+    /// Note, This will still be called even if not subscribing as there is an initial single shot read
     /// to ensure we have valid information about the variable when it is time to do a write.
     if( !subscribe )
         return;

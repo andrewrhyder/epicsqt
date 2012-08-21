@@ -413,7 +413,6 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             break;
 
         // QCa creation occured, but no connection for display is required here.
-        // (Display was handballed to the embedded QELabel widgets which will manage their own connections)
         case ROI_X_VARIABLE:
         case ROI_Y_VARIABLE:
         case ROI_W_VARIABLE:
