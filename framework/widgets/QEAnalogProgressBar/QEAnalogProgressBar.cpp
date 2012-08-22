@@ -32,6 +32,8 @@
 
 #include <QEAnalogProgressBar.h>
 #include <QCaObject.h>
+#include <QCaStringFormatting.h>
+
 
 #define ALARM_SATURATION      128
 #define NO_ALARM_SATURATION    32
@@ -40,7 +42,8 @@
 /*! ----------------------------------------------------------------------------
     Constructor with no initialisation
 */
-QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) : QEAnalogIndicator( parent ), QCaWidget( this )
+QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) :
+   QEAnalogIndicator( parent ), QCaWidget( this ), QCaStringFormattingMethods ()
 {
     setup();
 }
@@ -50,7 +53,8 @@ QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) : QEAnalogIndicator(
     Constructor with known variable
 */
 QEAnalogProgressBar::QEAnalogProgressBar( const QString &variableNameIn,
-                                          QWidget *parent ) : QEAnalogIndicator( parent ), QCaWidget( this )
+                                          QWidget *parent ) :
+   QEAnalogIndicator( parent ), QCaWidget( this ), QCaStringFormattingMethods ()
 {
 
     setup();
@@ -132,6 +136,8 @@ void QEAnalogProgressBar::establishConnection( unsigned int variableIndex )
                           this, SLOT( setProgressBarValue( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+        QObject::connect( this, SIGNAL( requestResend() ),
+                          qca,  SLOT( resendLastData() ) );
     }
 }
 
@@ -173,29 +179,14 @@ void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-
 /*! ----------------------------------------------------------------------------
-    Provide suffix, i.e. EGU if appropriate
+    Provide image, e.g. with EGU if appropriate
  */
-QString QEAnalogProgressBar::getSprintfFormat ()
+QString QEAnalogProgressBar::getTextImage ()
 {
-    QString result;
-    qcaobject::QCaObject* qca;
-
-    qca = getQcaItem( 0 );
-    if (qca) {
-        QString egu = qca->getEgu();
-        if (!egu.isEmpty()) {
-           egu.prepend( ' ' );
-        }
-        result.sprintf( "%%0.%df%s", qca->getPrecision(), egu.toAscii().data () );
-    } else {
-        // Go with generic parent format.
-        //
-        result = QEAnalogIndicator::getSprintfFormat ();
-    }
-    return result;
+   return this->theImage;
 }
+
 
 /*! ----------------------------------------------------------------------------
     Create a list of alarm thresholds and colours.
@@ -269,29 +260,45 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
                                                QCaAlarmInfo& alarmInfo,
                                                QCaDateTime&, const unsigned int& )
 {
+    qcaobject::QCaObject* qca;
     int saturation;
 
-    /// Update display limits if requested and defined.
-    if (isFirstUpdate && getUseDbDisplayLimits ()) {
+    // Associated qca object - avod the segmentation fault.
+    //
+    qca = getQcaItem( 0 );
+    if (!qca) return;
 
-        qcaobject::QCaObject* qca;
-        double lower;
-        double upper;
+    if (isFirstUpdate) {
 
-        qca = getQcaItem( 0 );
-        if (qca) {
-            lower = qca->getDisplayLimitLower();
-            upper = qca->getDisplayLimitUpper();
+       // Set up variable details used by some formatting options
+       //
+       this->stringFormatting.setDbEgu( qca->getEgu() );
+       this->stringFormatting.setDbEnumerations( qca->getEnumerations() );
+       this->stringFormatting.setDbPrecision( qca->getPrecision() );
 
-            // Check that sensible limits have been defined and not just left
-            // at the default (i.e. zero) values by a lazy database creator.
-            // Otherwise, leave as design time limits.
-            //
-            if ((lower != 0.0) || (upper != 0.0)) {
-                this->setRange (lower, upper);
-            }
-        }
+       // Update display limits if requested and defined.
+       //
+       if (this->getUseDbDisplayLimits ()) {
+
+          double lower;
+          double upper;
+
+          lower = qca->getDisplayLimitLower();
+          upper = qca->getDisplayLimitUpper();
+
+          // Check that sensible limits have been defined and not just left
+          // at the default (i.e. zero) values by a lazy database creator.
+          // Otherwise, leave as design time limits.
+          //
+          if ((lower != 0.0) || (upper != 0.0)) {
+             this->setRange (lower, upper);
+          }
+       }
     }
+
+    /// Form and save the image - mut do before call to setValue.
+    //
+    this->theImage = this->stringFormatting.formatString( value );
 
     /// Update the progress bar
     //
@@ -329,6 +336,15 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
 
     /// This update is over, clear first update flag.
     isFirstUpdate = false;
+}
+
+
+/*! ----------------------------------------------------------------------------
+    Update variable name etc.
+ */
+void  QEAnalogProgressBar::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }
 
 

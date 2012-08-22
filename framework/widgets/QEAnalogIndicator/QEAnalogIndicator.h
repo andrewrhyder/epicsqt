@@ -135,11 +135,10 @@ private:
     double calcFraction (const double value);
 
 protected:
-    // Returns the format parameter for a call to sprintf, used to set
-    // underlying bar format property.
+    // Returns thetest image to be displayed.
     // This may be overridden by a derived class.
     //
-    virtual QString getSprintfFormat ();
+    virtual QString getTextImage ();
 
     struct Band {
        double lower;

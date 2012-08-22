@@ -332,7 +332,12 @@ void QEAnalogIndicator::drawAxis  (QPainter & painter, QRect & axis)
       if (isMajor) {
          QString vt;
 
-         vt.sprintf ("%.1f", value);
+         if (this->getLogScale () ) {
+            vt.sprintf ("%.0e", value);
+         } else {
+            vt.sprintf ("%.1f", value);
+         }
+
          p2 = this->isLeftRight () ? QPoint (x, y + majorTick + 1) : QPoint (x + majorTick + 1, y);
          this->drawAxisText (painter, p2, vt, pointSize);
       }
@@ -696,7 +701,12 @@ void QEAnalogIndicator::drawMeter (QPainter & painter, QRect &area, const double
 
       if (isMajor) {
          QString vt;
-         vt.sprintf ("%.1f", value);
+
+         if (this->getLogScale () ) {
+            vt.sprintf ("%.0e", value);
+         } else {
+            vt.sprintf ("%.1f", value);
+         }
          p1 = RPOINT (0.88);
          this->drawText (painter, p1, vt, 7);
       }
@@ -921,13 +931,11 @@ void QEAnalogIndicator::paintEvent (QPaintEvent * /* event - make warning go awa
    }
 
    if (this->getShowText ()) {
-      QString sprintfFormat;
       QString barText;
 
       // This is a dispatching call.
       //
-      sprintfFormat = getSprintfFormat ();
-      barText.sprintf (sprintfFormat.toAscii().data (), this->mValue);
+      barText = this->getTextImage ();
 
       this->drawText (painter, textCentre, barText);
    }
@@ -935,11 +943,13 @@ void QEAnalogIndicator::paintEvent (QPaintEvent * /* event - make warning go awa
 
 //------------------------------------------------------------------------------
 //
-QString QEAnalogIndicator::getSprintfFormat ()
+QString QEAnalogIndicator::getTextImage ()
 {
-   return QString ("%+0.7g");
-}
+   QString result;
 
+   result.sprintf ("%+0.7g", this->mValue);
+   return result;
+}
 
 //------------------------------------------------------------------------------
 //

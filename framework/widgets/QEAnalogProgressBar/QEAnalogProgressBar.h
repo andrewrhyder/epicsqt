@@ -33,12 +33,17 @@
 #include <QCaFloatingFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QCaPluginLibrary_global.h>
+#include <QCaStringFormattingMethods.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar : public QEAnalogIndicator, public QCaWidget {
-    Q_OBJECT
+
+class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar :
+      public QEAnalogIndicator, public QCaWidget, public QCaStringFormattingMethods  {
+
+Q_OBJECT
 
 #include <singleVariableProperties.inc>
 #include <standardProperties.inc>
+#include <stringProperties.inc>
 
     // Display properties
     Q_PROPERTY( bool useDbDisplayLimits READ getUseDbDisplayLimits WRITE setUseDbDisplayLimits )
@@ -75,12 +80,13 @@ public slots:
 
 
 protected:
-    QString getSprintfFormat ();
+    QString getTextImage ();
     BandList getBandList ();
 
     QCaFloatingFormatting floatingFormatting;
 
     void establishConnection( unsigned int variableIndex );
+    void stringFormattingChange() { emit requestResend();  }
 
 private:
     void setup();
@@ -95,21 +101,19 @@ private:
     bool isFirstUpdate;
     QColor savedForegroundColour;
     QColor savedBackgroundColour;
-
+    QString theImage;
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
 
     void setProgressBarValue( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
 
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-    {
-        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-    }
-//#include <variablePropertiesSlots.inc>  // MOC doesn't seem to like included private slots.
+ //#include <variablePropertiesSlots.inc>  // MOC doesn't seem to like included private slots.
 
 signals:
     void dbValueChanged( const double& out );
+    void requestResend();
 
 protected:
     // Drag and Drop
