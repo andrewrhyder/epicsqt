@@ -900,17 +900,17 @@ void QEImage::zoomToArea()
     QPoint newOrigin = videoWidget->scalePoint( selectedAreaPoint1 );
 
     // Resize the display widget
-    int newSizeX = (double)(imageBuffWidth) * newZoom;
-    int newSizeY = (double)(imageBuffHeight) * newZoom;
+    int newSizeX = int( (double)(imageBuffWidth) * newZoom );
+    int newSizeY = int( (double)(imageBuffHeight) * newZoom );
     videoWidget->resize( newSizeX, newSizeY );
 
     // Reposition the display widget
-    newOrigin.setX( -newOrigin.x()*newZoom );
-    newOrigin.setY( -newOrigin.y()*newZoom );
+    newOrigin.setX( int( -newOrigin.x()*newZoom ) );
+    newOrigin.setY( int( -newOrigin.y()*newZoom ) );
     pan( newOrigin );
 
     // Set current zoom percentage
-    zoom = newZoom*100.0;
+    zoom = int( newZoom*100.0 );
 }
 
 // Reset ROI apply button pressed
@@ -1455,15 +1455,15 @@ void QEImage::zoomInOut( int zoomAmount )
     setResizeOption( RESIZE_OPTION_ZOOM );
     double oldZoom = zoom;
     double newZoom = zoom + zoomAmount;
-    setZoom( newZoom);
+    setZoom( int( newZoom ) );
 
     double currentScrollPosX = scrollArea->horizontalScrollBar()->value();
     double currentScrollPosY = scrollArea->verticalScrollBar()->value();
     double newScrollPosX = currentScrollPosX *newZoom / oldZoom;
     double newScrollPosY = currentScrollPosY *newZoom / oldZoom;
 
-    scrollArea->horizontalScrollBar()->setValue( newScrollPosX );
-    scrollArea->verticalScrollBar()->setValue( newScrollPosY );
+    scrollArea->horizontalScrollBar()->setValue( int( newScrollPosX ) );
+    scrollArea->verticalScrollBar()->setValue( int( newScrollPosY ) );
 
 }
 
@@ -1794,8 +1794,9 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
     double initY = point1.y()+0.5;
 
     // Ensure output buffer is the correct size
-    if( profileData.size() != len )
-        profileData.resize( len );
+    if( profileData.size() != len ) {
+       profileData.resize( int( len ) );
+    }
 
     // Calculate a value for each pixel length along the selected line
     for( int i = 0; i < (int) len; i++ )
@@ -2133,8 +2134,8 @@ void QEImage::pan( QPoint origin )
     yProportion = (yProportion>1.0)?1.0:yProportion;
 
     // Update the scroll bars to match the panning
-    scrollArea->horizontalScrollBar()->setValue( scrollArea->horizontalScrollBar()->maximum() * xProportion );
-    scrollArea->verticalScrollBar()->setValue( scrollArea->verticalScrollBar()->maximum() * yProportion );
+    scrollArea->horizontalScrollBar()->setValue( int( scrollArea->horizontalScrollBar()->maximum() * xProportion ) );
+    scrollArea->verticalScrollBar()->setValue( int( scrollArea->verticalScrollBar()->maximum() * yProportion ) );
 }
 
 void QEImage::showContextMenu( const QPoint& pos )

@@ -163,8 +163,8 @@ void QCaDragDrop::qcaMousePressEvent(QMouseEvent *event)
         double scale = std::max( widthScale, heightScale );
         if( scale > 1.0 )
         {
-            pixSize.setWidth( pixSize.width() / scale );
-            pixSize.setHeight( pixSize.height() / scale );
+            pixSize.setWidth( int( pixSize.width() / scale ) );
+            pixSize.setHeight( int( pixSize.height() / scale ) );
         }
 
         // Get a copy of the object

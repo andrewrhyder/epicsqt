@@ -169,12 +169,12 @@ void QCaSlider::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo,
     }
 
     /// Signal a database value change to any Link widgets
-    emit dbValueChanged( value );
+    emit dbValueChanged( qlonglong( value ) );
 
     /// Update the slider only if the user is not interacting with the object.
     if( !hasFocus() ) {
         updateInProgress = true;
-        int intValue = (value - offset) * scale;
+        int intValue = int( (value - offset) * scale );
         setValue( intValue );
         updateInProgress = false;
     }
