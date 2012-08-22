@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>QCaLineEdit.png</file>
         <file>QCaPushButton.png</file>
         <file>QCaSlider.png</file>
         <file>QCaSpinBox.png</file>

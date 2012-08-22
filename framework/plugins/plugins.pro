@@ -37,7 +37,6 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QCaPushButton.png \
     src/QCaRadioButton.png \
     src/QCaPlot.png \
-    src/QCaLineEdit.png \
     src/QSubstitutedLabel.png \
     src/QCaComboBox.png \
     src/Link.png \
@@ -67,8 +66,6 @@ HEADERS += \
     include/QCaPushButtonPlugin.h \
     include/QCaRadioButtonPluginManager.h \
     include/QCaRadioButtonPlugin.h \
-    include/QCaLineEditPluginManager.h \
-    include/QCaLineEditPlugin.h \
     include/QCaDesignerPlugin.h \
     include/ContainerProfile.h \
     include/QSubstitutedLabelPluginManager.h \
@@ -120,7 +117,6 @@ HEADERS += \
     ../widgets/include/QCaPushButton.h \
     ../widgets/include/QCaRadioButton.h \
     ../widgets/include/QCaGenericButton.h \
-    ../widgets/include/QCaLineEdit.h \
     ../widgets/include/QSubstitutedLabel.h \
     ../widgets/include/Link.h \
     ../widgets/include/QCaPlot.h \
@@ -153,8 +149,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaPushButtonPlugin.cpp \
     src/QCaRadioButtonPluginManager.cpp \
     src/QCaRadioButtonPlugin.cpp \
-    src/QCaLineEditPluginManager.cpp \
-    src/QCaLineEditPlugin.cpp \
     src/QSubstitutedLabelPluginManager.cpp \
     src/QSubstitutedLabelPlugin.cpp \
     src/LinkPluginManager.cpp \
@@ -204,7 +198,6 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QCaPushButton.cpp \
     ../widgets/src/QCaRadioButton.cpp \
     ../widgets/src/QCaGenericButton.cpp \
-    ../widgets/src/QCaLineEdit.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \
     ../widgets/src/Link.cpp \
     ../widgets/src/QCaPlot.cpp \
@@ -216,6 +209,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
 
 #====================================
 # deprecated
+#
 HEADERS += \
     include/QCaLabelPluginManager.h \
     include/QCaLabelPlugin.h   \
@@ -223,6 +217,8 @@ HEADERS += \
     include/QCaAnalogProgressBar.h  \
     include/QCaBitStatusPluginManager.h  \
     include/QCaBitStatus.h  \
+    include/QCaLineEditPluginManager.h \
+    include/QCaLineEditPlugin.h \
     include/QCaPvPropertiesPluginManager.h  \
     include/QCaPvProperties.h  \
     include/QCaStripChartPluginManager.h  \
@@ -234,6 +230,7 @@ SOURCES += \
     src/QCaAnalogProgressBarPluginManager.cpp  \
     src/QCaBitStatusPluginManager.cpp  \
     src/QCaLabelPluginManager.cpp  \
+    src/QCaLineEditPluginManager.cpp \
     src/QCaPvPropertiesPluginManager.cpp  \
     src/QCaStripChartPluginManager.cpp \
     src/ASguiFormPluginManager.cpp
@@ -295,22 +292,6 @@ SOURCES += \
 
 
 #===========================================================
-# QEPlot
-#
-#OTHER_FILES += \
-#
-
-#RESOURCES += \
-#
-
-#HEADERS += \
-#
-
-#SOURCES += \
-#
-
-
-#===========================================================
 # Included .pri (project include?) files.
 #
 include (../archive/QEArchive.pri)
@@ -328,6 +309,8 @@ include (../widgets/QEFileBrowser/QEFileBrowser.pri)
 include (../widgets/QEImage/QEImage.pri)
 
 include (../widgets/QELabel/QELabel.pri)
+
+include (../widgets/QELineEdit/QELineEdit.pri)
 
 include (../widgets/QELog/QELog.pri)
 

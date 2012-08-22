@@ -25,72 +25,15 @@
 #ifndef QCALINEEDITPLUGIN_H
 #define QCALINEEDITPLUGIN_H
 
-#include <QTimer>
-#include <QString>
-#include <QCaLineEdit.h>
-#include <QCaVariableNamePropertyManager.h>
-#include <QCaStringFormatting.h>
+#include <QELineEdit.h>
 
-class QCaLineEditPlugin : public QCaLineEdit {
+/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+//
+class QCaLineEditPlugin : public QELineEdit {
     Q_OBJECT
 
-  public:
-    /// Constructors
-    QCaLineEditPlugin( QWidget *parent = 0 );
-    QCaLineEditPlugin( QString variableName, QWidget *parent = 0 );
-
-    /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
-    /// A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
-    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
-    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
-    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
-
-    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
-    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
-
-    Q_PROPERTY(bool writeOnLoseFocus READ getWriteOnLoseFocus WRITE setWriteOnLoseFocus)
-    Q_PROPERTY(bool writeOnEnter READ getWriteOnEnter WRITE setWriteOnEnter)
-    Q_PROPERTY(bool writeOnFinish READ getWriteOnFinish WRITE setWriteOnFinish)
-    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
-    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
-    Q_PROPERTY(bool confirmWrite READ getConfirmWrite WRITE setConfirmWrite)
-
-    /// String formatting properties
-    Q_PROPERTY(unsigned int precision READ getPrecision WRITE setPrecision)
-    Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
-    Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
-    Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
-    Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
-
-    Q_ENUMS(Formats)
-    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
-    enum Formats { Default         = QCaStringFormatting::FORMAT_DEFAULT,
-                   Floating        = QCaStringFormatting::FORMAT_FLOATING,
-                   Integer         = QCaStringFormatting::FORMAT_INTEGER,
-                   UnsignedInteger = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time            = QCaStringFormatting::FORMAT_TIME };
-    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
-    Formats getFormatProperty(){ return (Formats)getFormat(); }
-
-    Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
-
-    Q_ENUMS(Notations)
-    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
-    enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
-                     Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
-                     Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
-    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
-    Notations getNotationProperty(){ return (Notations)getNotation(); }
-
-
-  private:
-    QCaVariableNamePropertyManager variableNamePropertyManager;
-
-  private slots:
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
+public:
+    QCaLineEditPlugin  ( QWidget *parent = 0 ) : QELineEdit ( parent ) {}
 };
 
 #endif /// QCALINEEDITPLUGIN_H

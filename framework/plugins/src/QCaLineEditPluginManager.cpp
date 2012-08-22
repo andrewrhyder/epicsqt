@@ -68,14 +68,14 @@ QString QCaLineEditPluginManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QCaLineEditPluginManager::group() const {
-    return "EPICS Widgets";
+    return "EPICS Deprecated Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaLineEditPluginManager::icon() const {
-    return QIcon(":/icons/QCaLineEdit.png");
+    return QIcon(":/qe/lineedit/QELineEdit.png");
 }
 
 /*!

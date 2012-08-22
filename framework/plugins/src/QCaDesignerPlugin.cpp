@@ -24,7 +24,7 @@
  
 #include <QELabelManager.h>
 #include <QSubstitutedLabelPluginManager.h>
-#include <QCaLineEditPluginManager.h>
+#include <QELineEditManager.h>
 #include <QCaPushButtonPluginManager.h>
 #include <QCaRadioButtonPluginManager.h>
 #include <QCaShapePluginManager.h>
@@ -40,9 +40,7 @@
 #include <QBitStatusPluginManager.h>
 #include <QEImageManager.h>
 #include <QEPvPropertiesManager.h>
-#include <QCaPvPropertiesPluginManager.h>
 #include <QEStripChartManager.h>
-#include <QCaStripChartPluginManager.h>
 #include <QEConfiguredLayoutManager.h>
 #include <QEFileBrowserManager.h>
 #include <QERecipeManager.h>
@@ -57,6 +55,9 @@
 #include <QCaLabelPluginManager.h>
 #include <QCaAnalogProgressBarPluginManager.h>
 #include <QCaBitStatusPluginManager.h>
+#include <QCaLineEditPluginManager.h>
+#include <QCaPvPropertiesPluginManager.h>
+#include <QCaStripChartPluginManager.h>
 //======================================================
 
 
@@ -81,7 +82,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEStripChartManager(this));
 
     widgets.append(new QSubstitutedLabelPluginManager(this));
-    widgets.append(new QCaLineEditPluginManager(this));
+    widgets.append(new QELineEditManager(this));
     widgets.append(new QCaPushButtonPluginManager(this));
     widgets.append(new QCaRadioButtonPluginManager(this));
     widgets.append(new QCaShapePluginManager(this));
@@ -103,6 +104,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaAnalogProgressBarPluginManager(this));
     widgets.append(new QCaBitStatusPluginManager(this));
     widgets.append(new QCaLabelPluginManager(this));
+    widgets.append(new QCaLineEditPluginManager(this));
     widgets.append(new QCaPvPropertiesPluginManager(this));
     widgets.append(new QCaStripChartPluginManager(this));
     widgets.append(new ASguiFormPluginManager(this));
