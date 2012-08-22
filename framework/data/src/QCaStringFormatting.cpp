@@ -22,6 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+#include <math.h>
 #include <QtDebug>
 #include <QCaStringFormatting.h>
 
@@ -324,7 +325,7 @@ QString QCaStringFormatting::formatString( const QVariant &value ) {
 
     // Add units if required, if there are any present, and if the text is not an error message
     int eguLen = dbEgu.length(); // ??? Why cant this be in the 'if' statement? If it is it never adds an egu
-    if( addUnits && !errorMessage && eguLen )
+    if( addUnits && !errorMessage && eguLen && (format != FORMAT_TIME))
         stream << " " << dbEgu;
 
     return outStr;
@@ -534,10 +535,63 @@ void QCaStringFormatting::formatFromEnumeration( const QVariant &value ) {
     but should cope with a variant of any type.
 */
 void QCaStringFormatting::formatFromTime( const QVariant &value ) {
+    bool okay;
+    double seconds;
+    double time;
+    QString sign;
+    int days;
+    int hours;
+    int mins;
+    int secs;
+    int nanoSecs;
+    QString image;
+    int effectivePrecision;
+    QString fraction;
+
+
     if( value.type() == QVariant::String )
         stream << value.toString();
-    else
-        stream << QString( "formatFromTime not implemented yet" ); //??? to do
+    else {
+        seconds = value.toDouble(&okay);
+        if (okay) {
+           if (seconds >= 0.0) {
+              time = seconds;
+              sign= "";
+           } else {
+              time = -seconds;
+              sign= "-";
+           }
+
+           #define EXTRACT(item, spi) { item = int (floor (time / spi)); time = time - (spi * item); }
+
+           EXTRACT (days, 86400.0);
+           EXTRACT (hours, 3600.0);
+           EXTRACT (mins, 60.0);
+           EXTRACT (secs, 1.0);
+           EXTRACT (nanoSecs, 1.0E-9);
+
+           #undef EXTRACT
+
+           image.sprintf ("%d %02d:%02d:%02d", days, hours, mins, secs);
+
+           // Select data base or user precision as appropriate.
+           //
+           effectivePrecision = useDbPrecision ? dbPrecision : precision;
+           if (effectivePrecision > 9) effectivePrecision = 9;
+
+           if (effectivePrecision > 0) {
+              fraction.sprintf (".%09d", nanoSecs);
+              fraction.truncate( effectivePrecision + 1 );
+           } else {
+              fraction = "";
+           }
+
+           stream << sign << image << fraction;
+
+        } else {
+            stream << QString( "not a valid numeric" );
+        }
+    }
 }
 
 /*!
