@@ -93,6 +93,7 @@ protected:
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setTextIfNoFocus( const QString& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );  /// Update the text in the widget as long as the user is not entering data in it
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
     void userReturnPressed();                       /// Act on the user pressing return in the widget
     void userEditingFinished();                     /// Act on the user signaling text editing is complete (pressing return)
 

@@ -31,6 +31,7 @@
 #include <QELineEdit.h>
 #include <QMessageBox>
 
+
 /*!
     Constructor with no initialisation
 */
@@ -42,15 +43,15 @@ QELineEdit::QELineEdit( QWidget *parent ) : QLineEdit( parent ), QCaWidget( this
     Constructor with known variable
 */
 QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QLineEdit( parent ), QCaWidget( this ) {
-    setVariableName( variableNameIn, 0 );
-
     setup();
+    setVariableName( variableNameIn, 0 );
 }
 
 /*!
     Setup common to all constructors
 */
 void QELineEdit::setup() {
+
     // Set up data
     // This control used a single data source
     setNumVariables(1);
@@ -73,7 +74,17 @@ void QELineEdit::setup() {
     // Use line edit signals
     QObject::connect( this, SIGNAL( returnPressed() ), this, SLOT( userReturnPressed() ) );
     QObject::connect( this, SIGNAL( editingFinished() ), this, SLOT( userEditingFinished() ) );
-}
+
+    // Set up a connection to recieve variable name property changes
+    // The variable name property manager class only delivers an updated
+    // variable name after the user has stopped typing.
+    //
+    QObject::connect( &variableNamePropertyManager,
+                      SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
+                      this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
+
+ }
+
 
 /*!
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
@@ -322,6 +333,15 @@ void QELineEdit::requestEnabled( const bool& state )
 {
     setEnabled(state);
 }
+
+/*!
+    Update variable name etc.
+*/
+void QELineEdit::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+{
+    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+}
+
 
 //==============================================================================
 // Drag drop
