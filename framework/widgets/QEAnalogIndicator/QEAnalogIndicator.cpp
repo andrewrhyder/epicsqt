@@ -866,7 +866,7 @@ void QEAnalogIndicator::paintEvent (QPaintEvent * /* event - make warning go awa
          axisRect.setRight (right - (edge + 1));
 
       } else {
-         const int axisSize = 40;   // horizontal
+         const int axisSize = 44;   // horizontal
          const int edge = 5;        // vertical
 
          outlineRect.setTop (edge);
