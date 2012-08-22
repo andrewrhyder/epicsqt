@@ -51,7 +51,7 @@ class markupItem
 public:
     enum isOverOptions{ OVER_LINE, OVER_BORDER, OVER_AREA }; // test required to determine if pointer is over the object
     markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn );
-    ~markupItem();
+    virtual ~markupItem();
 
 
     enum markupHandles { MARKUP_HANDLE_NONE, // Over a markup, but not over any specific handle of the markup
@@ -253,7 +253,7 @@ private:
 class imageMarkup {
 public:
     imageMarkup();
-    ~imageMarkup();
+    virtual ~imageMarkup();
 
     enum markupIds { MARKUP_ID_REGION,
                      MARKUP_ID_H_SLICE,
