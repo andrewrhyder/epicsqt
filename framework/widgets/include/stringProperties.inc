@@ -27,7 +27,7 @@
 
 public:
     // String formatting properties
-    Q_PROPERTY(unsigned int precision READ getPrecision WRITE setPrecision)
+    Q_PROPERTY(int  precision READ getPrecision WRITE setPrecision)
     Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
     Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
     Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)

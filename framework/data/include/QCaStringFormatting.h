@@ -79,7 +79,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     void setDbVariableIsStatField( bool isStatField );
 
     // Functions to configure the formatting
-    void setPrecision( unsigned int precision );
+    void setPrecision( int precision );
     void setUseDbPrecision( bool useDbPrecision );
     void setLeadingZero( bool leadingZero );
     void setTrailingZeros( bool trailingZeros );
@@ -92,7 +92,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     void setLocalEnumeration( QString/*localEnumerationList*/ localEnumerationIn );
 
     // Functions to read the formatting configuration
-    unsigned int getPrecision();
+    int          getPrecision();
     bool         getUseDbPrecision();
     bool         getLeadingZero();
     bool         getTrailingZeros();
@@ -131,7 +131,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     bool trailingZeros;              /// Add trailing zeros when required (up to the precision).
     formats format;                  /// Presentation required (Floating, integer, etc).
     bool addUnits;                   /// Flag use engineering units from database
-    unsigned int precision;          /// Floating point precision. Used if 'useDbPrecision' is false.
+    int precision;                   /// Floating point precision. Used if 'useDbPrecision' is false.
     QList<localEnumerationItem> localEnumeration; /// Local enumerations (example: 0="Not referencing",1=Referencing)
     QString localEnumerationString; /// Original local enumerations string
     arrayActions arrayAction;       /// Action to take when processing array or waveform data

@@ -37,8 +37,8 @@ class QCaStringFormattingMethods {
     // String formatting properties
 
     // precision
-    void setPrecision( unsigned int precision );
-    unsigned int getPrecision();
+    void setPrecision( int precision );
+    int getPrecision();
 
     // useDbPrecision
     void setUseDbPrecision( bool useDbPrecision );

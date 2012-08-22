@@ -562,8 +562,12 @@ void QCaStringFormatting::formatFailure( QString message ) {
     Relevent when formatting the string as a floating point number.
     Note, this will only be used if 'useDbPrecision' is false.
 */
-void QCaStringFormatting::setPrecision( unsigned int precisionIn ) {
+void QCaStringFormatting::setPrecision( int precisionIn ) {
     precision = precisionIn;
+    // Ensure rangeis sensible.
+    //
+    if (precision < 0) precision = 0;
+    if (precision > 18) precision = 18;
 }
 
 /*!
@@ -1129,7 +1133,7 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
 /*!
     Get the precision. See setPrecision() for the use of 'precision'.
 */
-unsigned int QCaStringFormatting::getPrecision() {
+int QCaStringFormatting::getPrecision() {
     return precision;
 }
 

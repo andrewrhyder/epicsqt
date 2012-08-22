@@ -33,12 +33,12 @@
 // String formatting properties
 
 // precision
-void QCaStringFormattingMethods::setPrecision( unsigned int precision )
+void QCaStringFormattingMethods::setPrecision( int precision )
 {
     stringFormatting.setPrecision( precision );
     stringFormattingChange();
 }
-unsigned int QCaStringFormattingMethods::getPrecision()
+int QCaStringFormattingMethods::getPrecision()
 {
     return stringFormatting.getPrecision();
 }
