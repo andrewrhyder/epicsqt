@@ -325,13 +325,7 @@ void QCaPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
 */
 void QCaPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex )
 {
-    /// If not subscribing, then do nothing.
-    /// Note, This will still be called even if not subscribing as there may be an initial sing shot read
-    /// to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribe )
-        return;
-
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     emit dbValueChanged( value );
 
     QString newText;

@@ -107,6 +107,7 @@ bool QEForm::readUiFile()
         // Set up the environment profile for any QCa widgets created by the form
         QObject* savedGuiLaunchConsumer = NULL;
 
+        // Try to open the UI file
         QFile* uiFile = openQEFile( uiFileName, QIODevice::ReadOnly );
 
         // If the file was not found and opened, notify as appropriate

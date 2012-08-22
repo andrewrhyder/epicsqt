@@ -79,6 +79,8 @@ private:
     double lastValue;
     QString lastUserValue;
 
+    bool ignoreSingleShotRead;
+
     // Drag and Drop
 protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }

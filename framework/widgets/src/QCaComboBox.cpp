@@ -66,6 +66,8 @@ void QCaComboBox::setup() {
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
+    ignoreSingleShotRead = false;
+
     // Use line edit signals
     // Set up to write data when the user changes the value
     QObject::connect( this, SIGNAL( activated ( int ) ), this, SLOT( userValueChanged( int ) ) );
@@ -141,6 +143,7 @@ void QCaComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     {
         QCaInteger* qca = (QCaInteger*)getQcaItem(0);
         qca->singleShotRead();
+        ignoreSingleShotRead = true;
     }
 }
 
@@ -176,11 +179,12 @@ void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo,
         }
     }
 
-    /// If not subscribing, then do nothing.
-    /// Note, This will still be called even if not subscribing as there may be initial sing shot read
-    /// to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribe )
+    // Do nothing more if doing a single shot read (done when not subscribing to get enumeration values)
+    if( ignoreSingleShotRead )
+    {
+        ignoreSingleShotRead = false;
         return;
+    }
 
     // Signal a database value change to any Link widgets
     emit dbValueChanged( value );

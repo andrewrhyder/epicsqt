@@ -82,6 +82,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSlider : public QSlider, public QCaWidget
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
+    bool ignoreSingleShotRead;
+
     double scale;
     double offset;
 

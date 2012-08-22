@@ -67,6 +67,8 @@ void QCaSpinBox::setup() {
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
+    ignoreSingleShotRead = false;
+
     // Use spin box signals
     QObject::connect( this, SIGNAL( valueChanged( double ) ), this, SLOT( userValueChanged( double ) ) );
 }
@@ -134,7 +136,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         setDataDisabled( true );
     }
 
-    /// ??? not sure if this is right. Added as the record type was comming back as GENERIC::UNKNOWN deep in the write
+    //!!! ??? not sure if this is right. Added as the record type was comming back as GENERIC::UNKNOWN deep in the write
     /// Start a single shot read if the channel is up (ignore channel down),
     /// This will allow initialisation of the widget using info from the database.
     /// If subscribing, then an update will occur without having to initiated one here.
@@ -146,6 +148,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     {
         QCaFloating* qca = (QCaFloating*)getQcaItem(0);
         qca->singleShotRead();
+        ignoreSingleShotRead = true;
     }
 }
 
@@ -160,18 +163,6 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 */
 void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
-    /// If not subscribing, then do nothing.
-    /// Note, This will still be called even if not subscribing as there may be initial sing shot read
-    /// to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribe )
-        return;
-
-    /// Signal a database value change to any Link widgets
-    emit dbValueChanged( value );
-
-    // Save the last database value
-    lastValue = value;
-
     // Set the limits and step size
     QCaFloating* qca = (QCaFloating*)getQcaItem(0);
     double upper = qca->getControlLimitUpper();
@@ -182,6 +173,19 @@ void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo
         setMinimum( qca->getControlLimitLower() );
     }
     setDecimals( qca->getPrecision() );
+
+    // Do nothing more if doing a single shot read (done when not subscribing to get range values)
+    if( ignoreSingleShotRead )
+    {
+        ignoreSingleShotRead = false;
+        return;
+    }
+
+    /// Signal a database value change to any Link widgets
+    emit dbValueChanged( value );
+
+    // Save the last database value
+    lastValue = value;
 
     /// Update the spin box only if the user is not interacting with the object.
     if( !hasFocus() ) {

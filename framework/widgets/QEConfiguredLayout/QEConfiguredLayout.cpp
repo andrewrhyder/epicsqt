@@ -518,15 +518,8 @@ void QEConfiguredLayout::refreshFields()
                 qCaWidget = new QCaComboBox();
                 ((QCaComboBox *) qCaWidget)->setSubscribe(subscription);
                 ((QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                ((QCaComboBox *) qCaWidget)->setWriteOnChange(false);
                 QObject::connect(((QCaComboBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
-                if (subscription)
-                {
-//                    qCaWidget->activate();
-                }
-                else
-                {
-                    ((QCaComboBox *) qCaWidget)->setWriteOnChange(false);
-                }
             }
             else
             {
@@ -534,15 +527,9 @@ void QEConfiguredLayout::refreshFields()
                 ((QCaLineEdit *) qCaWidget)->setSubscribe(subscription);
                 ((QCaLineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
                 ((QCaLineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                ((QCaLineEdit *) qCaWidget)->setWriteOnFinish(false);
+                ((QCaLineEdit *) qCaWidget)->setConfirmWrite(false);
                 QObject::connect(((QCaLineEdit *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
-                if (subscription)
-                {
-//                    qCaWidget->activate();
-                }
-                else
-                {
-                    ((QCaLineEdit *) qCaWidget)->setConfirmWrite(false);
-                }
             }
 
             qCaWidget->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);

@@ -67,6 +67,8 @@ void QCaSlider::setup() {
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
+    ignoreSingleShotRead = false;
+
     // Use slider signals
     QObject::connect( this, SIGNAL( valueChanged( const int &) ), this, SLOT( userValueChanged( const int & ) ) );
 }
@@ -134,7 +136,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
         setDataDisabled( true );
     }
 
-    /// ??? not sure if this is right. Added as the record type was comming back as GENERIC::UNKNOWN deep in the write
+    // !!! ??? not sure if this is right. Added as the record type was comming back as GENERIC::UNKNOWN deep in the write
     /// Start a single shot read if the channel is up (ignore channel down),
     /// This will allow initialisation of the widget using info from the database.
     /// If subscribing, then an update will occur without having to initiated one here.
@@ -146,6 +148,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
     {
         QCaFloating* qca = (QCaFloating*)getQcaItem(0);
         qca->singleShotRead();
+        ignoreSingleShotRead = true;
     }
 }
 
@@ -157,11 +160,13 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
     This is the slot used to recieve data updates from a QCaObject based class.
 */
 void QCaSlider::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
-    /// If not subscribing, then do nothing.
-    /// Note, even though there is nothing to do here if not subscribing, an initial sing shot read is still
-    /// performed to ensure we have valid information about the variable when it is time to do a write.
-    if( !subscribe )
+
+    // Do nothing if doing a single shot read (done when not subscribing to get enumeration values)
+    if( ignoreSingleShotRead )
+    {
+        ignoreSingleShotRead = false;
         return;
+    }
 
     /// Signal a database value change to any Link widgets
     emit dbValueChanged( value );
