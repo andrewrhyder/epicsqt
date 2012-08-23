@@ -189,63 +189,84 @@ QString QEAnalogProgressBar::getTextImage ()
 
 
 /*! ----------------------------------------------------------------------------
+    Create a single thresholds and colour band item.
+ */
+QEAnalogIndicator::Band QEAnalogProgressBar::createBand (const double lower,
+                                                         const double upper,
+                                                         unsigned short severity)
+{
+   Band result;
+   QCaAlarmInfo alarmInfo (0, severity);
+   int saturation;
+
+   result.lower = lower;
+   result.upper = upper;
+
+   saturation = (severity == NO_ALARM) ? NO_ALARM_SATURATION : ALARM_SATURATION;
+   result.colour = this->getColor (alarmInfo, saturation);
+
+   return result;
+}
+
+/*! ----------------------------------------------------------------------------
     Create a list of alarm thresholds and colours.
  */
 QEAnalogIndicator::BandList QEAnalogProgressBar::getBandList ()
 {
     BandList result;
     qcaobject::QCaObject* qca;
-    QCaAlarmInfo alarmInfo;
 
-    Band band;
     result.clear();
+
+    // Associated qca object - avoid the segmentation fault.
+    //
     qca = getQcaItem( 0 );
     if (qca) {
+        const double dispLower = this->getMinimum ();
+        const double dispUpper = this->getMaximum ();
+        const double alarmLower = qca->getAlarmLimitLower ();
+        const double alarmUpper = qca->getAlarmLimitUpper ();
+        const double warnLower =  qca->getWarningLimitLower ();
+        const double warnUpper = qca->getWarningLimitUpper ();
+        bool alarmIsDefined;
+        bool warnIsDefined;
 
-       band.lower = this->getMinimum ();
-       band.upper = qca->getAlarmLimitLower ();
-       if (band.upper > band.lower) {
-          // NOTE: We are making the assumption that alarm limits are major,
-          // and warning limits are minor - at least as far as the colour
-          // selection.
-          //
-          alarmInfo = QCaAlarmInfo (0, MAJOR_ALARM);
-          band.colour = this->getColor(alarmInfo, ALARM_SATURATION);
-          result << band;
-       }
+        // Unfortunately, the Channel Access protocol only provides the
+        // alarm/warning values, and not the associated severities.
+        // We assume major for alarms, and minor for warnings.
+        //
+        alarmIsDefined = ((alarmLower != 0.0) || (alarmUpper != 0.0) );
+        warnIsDefined  = ((warnLower  != 0.0) || (warnUpper  != 0.0) );
 
-       band.lower = band.upper;
-       band.upper = qca->getWarningLimitLower ();
-       if (band.upper > band.lower) {
-          alarmInfo = QCaAlarmInfo (0, MINOR_ALARM);
-          band.colour = this->getColor(alarmInfo, ALARM_SATURATION);
-          result << band;
-       }
-
-       band.lower = band.upper;
-       band.upper = qca->getWarningLimitUpper ();
-       if (band.upper > band.lower) {
-          alarmInfo = QCaAlarmInfo (0, NO_ALARM);
-          band.colour = this->getColor(alarmInfo, NO_ALARM_SATURATION);
-          result << band;
-       }
-
-       band.lower = band.upper;
-       band.upper = qca->getAlarmLimitUpper ();
-       if (band.upper > band.lower) {
-          alarmInfo = QCaAlarmInfo (0, MINOR_ALARM);
-          band.colour = this->getColor(alarmInfo, ALARM_SATURATION);
-          result << band;
-       }
-
-       band.lower = band.upper;
-       band.upper = this->getMaximum ();
-       if (band.upper > band.lower) {
-          alarmInfo = QCaAlarmInfo (0, MAJOR_ALARM);
-          band.colour = this->getColor(alarmInfo, ALARM_SATURATION);
-          result << band;
-       }
-
+        if (alarmIsDefined) {
+            if (warnIsDefined) {
+                // All alarms defined.
+                //
+                result << createBand (dispLower,  alarmLower, MAJOR_ALARM);
+                result << createBand (alarmLower, warnLower,  MINOR_ALARM);
+                result << createBand (warnLower,  warnUpper,  NO_ALARM);
+                result << createBand (warnUpper,  alarmUpper, MINOR_ALARM);
+                result << createBand (alarmUpper, dispUpper,  MAJOR_ALARM);
+            } else {
+                // Major alarms defined.
+                //
+                result << createBand (dispLower,  alarmLower, MAJOR_ALARM);
+                result << createBand (alarmLower, alarmUpper, NO_ALARM);
+                result << createBand (alarmUpper, dispUpper,  MAJOR_ALARM);
+            }
+        } else {
+           if (warnIsDefined) {
+                // Minor alarms defined.
+                //
+                result << createBand (dispLower,  warnLower,  MINOR_ALARM);
+                result << createBand (warnLower,  warnUpper,  NO_ALARM);
+                result << createBand (warnUpper,  dispUpper,  MINOR_ALARM);
+            } else {
+                // No alarms defined at all.
+                //
+                result << createBand (dispLower,  dispUpper,  NO_ALARM);
+            }
+        }
     }
 
     return result;
@@ -263,7 +284,12 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
     qcaobject::QCaObject* qca;
     int saturation;
 
-    // Associated qca object - avod the segmentation fault.
+    // If not enabled then do nothing.
+    // NOTE: the regular isEnabled is hidden by function in standardProperties.inc
+    //
+    if (!QWidget::isEnabled ()) return;
+
+    // Associated qca object - avoid the segmentation fault.
     //
     qca = getQcaItem( 0 );
     if (!qca) return;
@@ -342,7 +368,9 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
 /*! ----------------------------------------------------------------------------
     Update variable name etc.
  */
-void  QEAnalogProgressBar::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+void QEAnalogProgressBar::useNewVariableNameProperty( QString variableNameIn,
+                                                      QString variableNameSubstitutionsIn,
+                                                      unsigned int variableIndex )
 {
     setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }
