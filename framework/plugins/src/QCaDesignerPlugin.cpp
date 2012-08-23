@@ -48,6 +48,8 @@
 #include <QELogManager.h>
 #include <QEScriptManager.h>
 #include <QEFormManager.h>
+#include <QEFrameManager.h>
+#include <QEGroupBoxManager.h>
 
 //======================================================
 // Deprecated widgets
@@ -98,6 +100,8 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     // Non-EPICS aware framework widgets
     widgets.append(new QEAnalogIndicatorManager(this));
     widgets.append(new QBitStatusPluginManager(this));
+    widgets.append(new QEFrameManager(this));
+    widgets.append(new QEGroupBoxManager(this));
 
 //======================================================
 // Deprecated widgets

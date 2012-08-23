@@ -304,6 +304,10 @@ include (../widgets/QEBitStatus/QEBitStatus.pri)
 
 include (../widgets/QEConfiguredLayout/QEConfiguredLayout.pri)
 
+include (../widgets/QEFrame/QEFrame.pri)
+
+include (../widgets/QEGroupBox/QEGroupBox.pri)
+
 include (../widgets/QEFileBrowser/QEFileBrowser.pri)
 
 include (../widgets/QEImage/QEImage.pri)
