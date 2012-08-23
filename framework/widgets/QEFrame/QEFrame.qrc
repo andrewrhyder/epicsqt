@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qe/frame">
+        <file>QEFrame.png</file>
+    </qresource>
+</RCC>
