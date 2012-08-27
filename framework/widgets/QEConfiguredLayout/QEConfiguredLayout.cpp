@@ -523,13 +523,13 @@ void QEConfiguredLayout::refreshFields()
             }
             else
             {
-                qCaWidget = new QCaLineEdit();
-                ((QCaLineEdit *) qCaWidget)->setSubscribe(subscription);
-                ((QCaLineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
-                ((QCaLineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                ((QCaLineEdit *) qCaWidget)->setWriteOnFinish(false);
-                ((QCaLineEdit *) qCaWidget)->setConfirmWrite(false);
-                QObject::connect(((QCaLineEdit *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+                qCaWidget = new QELineEdit();
+                ((QELineEdit *) qCaWidget)->setSubscribe(subscription);
+                ((QELineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
+                ((QELineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                ((QELineEdit *) qCaWidget)->setWriteOnFinish(false);
+                ((QELineEdit *) qCaWidget)->setConfirmWrite(false);
+                QObject::connect(((QELineEdit *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
             }
 
             qCaWidget->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
@@ -606,7 +606,7 @@ void QEConfiguredLayout::refreshFields()
                     }
                     else
                     {
-                        qHBoxLayout->addWidget((QCaLineEdit *) fieldInfo->qCaWidget);
+                        qHBoxLayout->addWidget((QELineEdit *) fieldInfo->qCaWidget);
                     }
 
                     if (flag)
@@ -1135,7 +1135,7 @@ _QDialogItem::_QDialogItem(QWidget *pParent, QString pItemName, QString pGroupNa
                 }
                 else
                 {
-                    qHBoxLayout->addWidget((QCaLineEdit *) pCurrentFieldList->at(i)->qCaWidget);
+                    qHBoxLayout->addWidget((QELineEdit *) pCurrentFieldList->at(i)->qCaWidget);
                 }
 
                 if (flag)

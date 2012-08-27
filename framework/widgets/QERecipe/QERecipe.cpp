@@ -617,7 +617,7 @@ void QERecipe::buttonNewClicked()
                 }
                 else
                 {
-                    processVariableElement.setAttribute("value", ((QCaLineEdit *) fieldInfo->qCaWidget)->text());
+                    processVariableElement.setAttribute("value", ((QELineEdit *) fieldInfo->qCaWidget)->text());
                 }
                 recipeElement.appendChild(processVariableElement);
             }
@@ -715,7 +715,7 @@ void QERecipe::buttonSaveClicked()
             }
             else
             {
-                processVariableElement.setAttribute("value", ((QCaLineEdit *) fieldInfo->qCaWidget)->text());
+                processVariableElement.setAttribute("value", ((QELineEdit *) fieldInfo->qCaWidget)->text());
             }
             recipeElement.appendChild(processVariableElement);
         }
@@ -1027,8 +1027,8 @@ void QERecipe::refreshButton()
                                         }
                                         else
                                         {
-                                            ((QCaLineEdit *) fieldInfo->qCaWidget)->setText(processVariableElement.attribute("value"));
-                                            qDebug() << fieldInfo->getName() + ": " + ((QCaLineEdit *) fieldInfo->qCaWidget)->text();
+                                            ((QELineEdit *) fieldInfo->qCaWidget)->setText(processVariableElement.attribute("value"));
+                                            qDebug() << fieldInfo->getName() + ": " + ((QELineEdit *) fieldInfo->qCaWidget)->text();
                                         }
                                         break;
                                     }
