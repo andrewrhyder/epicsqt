@@ -39,7 +39,21 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELineEdit :
 
     Q_OBJECT
 
-#include <singleVariableProperties.inc>
+//#include <singleVariableProperties.inc>
+  public:
+      /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
+      /// A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+      Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
+      void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
+      QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
+
+      Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+      void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+      QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
+
+  private:
+      QCaVariableNamePropertyManager variableNamePropertyManager;
+
 #include <standardProperties.inc>
 #include <stringProperties.inc>
 
