@@ -104,7 +104,7 @@ bool QELineEditManager::isContainer() const {
     ???
 */
 /*QString QELineEditManager::domXml() const {
-    return "<widget class=\"QELineEdit\" name=\"qCaLineEdit\">\n"
+    return "<widget class=\"QELineEdit\" name=\"qELineEdit\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"

@@ -28,7 +28,7 @@
   Standard properties for all QCa widgets specify a style to be applied for user, scientist, and engineer mode.
   Also QCa widgets can specify data or status related style changes.
 
-  All QCa widgets (eg, QELabel, QCaLineEdit) have an instance of this class as they based on
+  All QCa widgets (eg, QELabel, QELineEdit) have an instance of this class as they based on
   QCaWidget which itself uses this class as a base class.
 
   To enable user level related properties to affect style, the QCa widget must include the following:

@@ -28,7 +28,7 @@
   This class manages the common drag and drop functions leaving the actual QCa widget class
   to supply and accept the data transfered (typically a PV name).
 
-  All QCa widgets (eg, QELabel, QCaLineEdit) have an instance of this class as they based on
+  All QCa widgets (eg, QELabel, QELineEdit) have an instance of this class as they based on
   QCaWidget which itself uses this class as a base class.
 
   To implement any sort of drag/drop a QCa widget (like any other widget) must implement the following
