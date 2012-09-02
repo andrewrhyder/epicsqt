@@ -29,11 +29,18 @@
 //
 QEGroupBox::QEGroupBox (QWidget *parent) : QGroupBox (parent), QCaWidget (this)
 {
+   this->setTitle ("QEGroupBox");
 }
 
 //------------------------------------------------------------------------------
 //
 QEGroupBox::~QEGroupBox () {
+}
+
+//------------------------------------------------------------------------------
+//
+QSize QEGroupBox::sizeHint () const {
+    return QSize (120, 80);
 }
 
 // end

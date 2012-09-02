@@ -29,11 +29,22 @@
 //
 QEFrame::QEFrame (QWidget *parent) : QFrame (parent), QCaWidget (this)
 {
+   // These are the settings for a drag-and-dropped QFrame within designer, but
+   // not set in the constructor, so we don't automatically inherit these settings.
+   //
+   this->setFrameShape (QFrame::StyledPanel);
+   this->setFrameShadow (QFrame::Raised);
 }
 
 //------------------------------------------------------------------------------
 //
 QEFrame::~QEFrame () {
+}
+
+//------------------------------------------------------------------------------
+//
+QSize QEFrame::sizeHint () const {
+    return QSize (120, 80);
 }
 
 // end

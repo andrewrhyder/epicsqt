@@ -30,10 +30,10 @@
 #include <QCaWidget.h>
 #include <QCaPluginLibrary_global.h>
 
-/// The QEGroupBox class provide a minimalist extention to the QGroupBox class
+/// The QEGroupBox class provides a minimalist extention to the QGroupBox class
 /// in that it provides user level enabled and user level visibility control to
-/// the group box but more significantly to all the widget enclosed within the
-/// QEGroupBox container as well.
+/// the group box but more significantly to all the widgets enclosed within the
+/// QEGroupBox container also.
 /// See QEFrame as well.
 ///
 class QCAPLUGINLIBRARYSHARED_EXPORT QEGroupBox :
@@ -46,6 +46,7 @@ Q_OBJECT
 public:
     explicit QEGroupBox (QWidget *parent = 0);
     virtual ~QEGroupBox ();
+    QSize sizeHint () const;
 
 };
 
