@@ -60,6 +60,7 @@ void QCaSpinBox::setup() {
     // Set up default properties
     writeOnChange = true;
     setAllowDrop( false );
+    addUnitsAsSuffix = false;
 
     // Set the initial state
     lastValue = 0.0;
@@ -173,6 +174,7 @@ void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo
         setMinimum( qca->getControlLimitLower() );
     }
     setDecimals( qca->getPrecision() );
+    setSuffixEgu( qca );
 
     // Do nothing more if doing a single shot read (done when not subscribing to get range values)
     if( ignoreSingleShotRead )
@@ -249,6 +251,21 @@ void QCaSpinBox::writeNow()
     }
 }
 
+// Set the EGU as the suffix
+void QCaSpinBox::setSuffixEgu( qcaobject::QCaObject* qca )
+{
+    // If using the EGU as the suffix, and the EGU is available, set the suffix to the EGU
+    // otherwise clear the suffix
+    if( qca && addUnitsAsSuffix )
+    {
+        setSuffix( QString( " " ).append( qca->getEgu() ) );
+    }
+    else
+    {
+        setSuffix( "" );
+    }
+}
+
 //==============================================================================
 // Drag drop
 void QCaSpinBox::setDrop( QVariant drop )
@@ -284,3 +301,20 @@ bool QCaSpinBox::getSubscribe()
 {
     return subscribe;
 }
+
+// Add units (as suffix).
+// Note, for most widgets with an 'addUnits' property, the property is passed to a
+//       QCaStringFormatting class where the units are added to the displayed string.
+//       In this case, the units are added as the spin box suffix.
+bool QCaSpinBox::getAddUnitsAsSuffix()
+{
+    return addUnitsAsSuffix;
+}
+
+void QCaSpinBox::setAddUnitsAsSuffix( bool addUnitsAsSuffixIn )
+{
+    addUnitsAsSuffix = addUnitsAsSuffixIn;
+    qcaobject::QCaObject* qca = (QCaFloating*)getQcaItem(0);
+    setSuffixEgu( qca );
+}
+

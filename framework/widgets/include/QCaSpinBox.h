@@ -48,9 +48,16 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
     void setSubscribe( bool subscribe );
     bool getSubscribe();
 
+    // Add units (as suffix)
+    void setAddUnitsAsSuffix( bool addUnitsAsSuffixIn );
+    bool getAddUnitsAsSuffix();
+
+
+
   protected:
     QCaFloatingFormatting floatingFormatting;
     bool writeOnChange;                     // Write changed value to database when user changes a value
+    bool addUnitsAsSuffix;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -80,6 +87,9 @@ private:
     QString lastUserValue;
 
     bool ignoreSingleShotRead;
+
+    void setSuffixEgu( qcaobject::QCaObject* qca );
+
 
     // Drag and Drop
 protected:

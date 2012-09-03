@@ -54,6 +54,11 @@ class QCaSpinBoxPlugin : public QCaSpinBox {
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
 
+    // Note, this addUnits property is normally part of the standard 'string properties' set.
+    //       The normal get and set methods are QCaStringFormatting::getAddUnits() and QCaStringFormatting::setAddUnits().
+    //       In this case, the units are added as the QSpinBox suffix, and not as part of a string.
+    Q_PROPERTY(bool addUnits READ getAddUnitsAsSuffix WRITE setAddUnitsAsSuffix)
+
   private:
     QCaVariableNamePropertyManager variableNamePropertyManager;
 
