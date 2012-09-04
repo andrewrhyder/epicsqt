@@ -61,6 +61,7 @@ void QCaSpinBox::setup() {
     writeOnChange = true;
     setAllowDrop( false );
     addUnitsAsSuffix = false;
+    useDbPrecisionForDecimal = true;
 
     // Set the initial state
     lastValue = 0.0;
@@ -173,7 +174,7 @@ void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo
         setMaximum( qca->getControlLimitUpper() );
         setMinimum( qca->getControlLimitLower() );
     }
-    setDecimals( qca->getPrecision() );
+    setDecimalsFromPrecision( qca );
     setSuffixEgu( qca );
 
     // Do nothing more if doing a single shot read (done when not subscribing to get range values)
@@ -266,6 +267,16 @@ void QCaSpinBox::setSuffixEgu( qcaobject::QCaObject* qca )
     }
 }
 
+// Set the spin box decimal places from the data precision if required
+void QCaSpinBox::setDecimalsFromPrecision( qcaobject::QCaObject* qca )
+{
+    // If using the database precision to determine the number of decimal places, and it is available, then apply it
+    if( qca && useDbPrecisionForDecimal )
+    {
+        setDecimals( qca->getPrecision() );
+    }
+}
+
 //==============================================================================
 // Drag drop
 void QCaSpinBox::setDrop( QVariant drop )
@@ -317,4 +328,21 @@ void QCaSpinBox::setAddUnitsAsSuffix( bool addUnitsAsSuffixIn )
     qcaobject::QCaObject* qca = (QCaFloating*)getQcaItem(0);
     setSuffixEgu( qca );
 }
+
+// useDbPrecision
+// Note, for most widgets with an 'useDbPrecision' property, the property is passed to a
+//       QCaStringFormatting class where it is used to determine the precision when formatting numbers as a string.
+//       In this case, it is used to determine the spin box number-of-decimals property.
+void QCaSpinBox::setUseDbPrecisionForDecimals( bool useDbPrecisionForDecimalIn )
+{
+    useDbPrecisionForDecimal = useDbPrecisionForDecimalIn;
+    qcaobject::QCaObject* qca = (QCaFloating*)getQcaItem(0);
+    setDecimalsFromPrecision( qca );
+}
+
+bool QCaSpinBox::getUseDbPrecisionForDecimals()
+{
+    return useDbPrecisionForDecimal;
+}
+
 

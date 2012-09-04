@@ -54,6 +54,11 @@ class QCaSpinBoxPlugin : public QCaSpinBox {
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
 
+    // Note, this useDbPrecision property is normally part of the standard 'string properties' set.
+    //       The normal get and set methods are QCaStringFormatting::getUseDbPrecision() and QCaStringFormatting::setUseDbPrecision().
+    //       In this case, the flag is used to determine the QSpinBox 'decimals' property.
+    Q_PROPERTY(bool useDbPrecision READ getUseDbPrecisionForDecimals WRITE setUseDbPrecisionForDecimals)
+
     // Note, this addUnits property is normally part of the standard 'string properties' set.
     //       The normal get and set methods are QCaStringFormatting::getAddUnits() and QCaStringFormatting::setAddUnits().
     //       In this case, the units are added as the QSpinBox suffix, and not as part of a string.

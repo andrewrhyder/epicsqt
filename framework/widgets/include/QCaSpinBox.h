@@ -52,12 +52,16 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBox : public QDoubleSpinBox, public Q
     void setAddUnitsAsSuffix( bool addUnitsAsSuffixIn );
     bool getAddUnitsAsSuffix();
 
+    // useDbPrecision (as spinbox 'decimals')
+    void setUseDbPrecisionForDecimals( bool useDbPrecisionForDecimalIn );
+    bool getUseDbPrecisionForDecimals();
 
 
   protected:
     QCaFloatingFormatting floatingFormatting;
     bool writeOnChange;                     // Write changed value to database when user changes a value
     bool addUnitsAsSuffix;
+    bool useDbPrecisionForDecimal;
 
     void establishConnection( unsigned int variableIndex );
 
@@ -89,6 +93,8 @@ private:
     bool ignoreSingleShotRead;
 
     void setSuffixEgu( qcaobject::QCaObject* qca );
+    void setDecimalsFromPrecision( qcaobject::QCaObject* qca );
+
 
 
     // Drag and Drop
