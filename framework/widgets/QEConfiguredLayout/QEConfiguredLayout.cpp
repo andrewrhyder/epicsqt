@@ -357,7 +357,10 @@ int QEConfiguredLayout::getDetailsLayout()
 void QEConfiguredLayout::userLevelChanged(userLevels pValue)
 {
 
-    setCurrentUserType(pValue);
+    if (subscription)
+    {
+        setCurrentUserType(pValue);
+    }
 
 }
 
@@ -442,7 +445,6 @@ void QEConfiguredLayout::refreshFields()
     int i;
     int j;
 
-
     while(qVBoxLayoutFields->isEmpty() == false)
     {
         qLayout = qVBoxLayoutFields->takeAt(0)->layout();
@@ -483,78 +485,74 @@ void QEConfiguredLayout::refreshFields()
         for(i = 0; i < item->fieldList.size(); i++)
         {
             field = item->fieldList.at(i);
-            fieldInfo = new _Field();
-
-
-            if (field->getType() == BITSTATUS)
+            if (field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive))
             {
-//                qCaWidget = new QEBitStatus();
-//                ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-//                QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+                fieldInfo = new _Field();
+                if (field->getType() == BITSTATUS)
+                {
+//                    qCaWidget = new QEBitStatus();
+//                    ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+//                    QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+                }
+                else if (field->getType() == BUTTON)
+                {
+                    qCaWidget = new QCaPushButton();
+                    ((QCaPushButton *) qCaWidget)->setSubscribe(subscription);
+                    ((QCaPushButton *) qCaWidget)->setText(field->getName());
+                    ((QCaPushButton *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                }
+                else if (field->getType() == LABEL)
+                {
+                    qCaWidget = new QELabel();
+//                    ((QELabel *) qCaWidget)->setSubscribe(false);
+                    ((QELabel *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                }
+                else if (field->getType() == SPINBOX)
+                {
+                    qCaWidget = new QCaSpinBox();
+                    ((QCaSpinBox *) qCaWidget)->setSubscribe(subscription);
+                    ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                    QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+                }
+                else if (field->getType() == COMBOBOX)
+                {
+                    qCaWidget = new QCaComboBox();
+                    ((QCaComboBox *) qCaWidget)->setSubscribe(subscription);
+                    ((QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                    ((QCaComboBox *) qCaWidget)->setWriteOnChange(false);
+                    QObject::connect(((QCaComboBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+                }
+                else
+                {
+                    qCaWidget = new QELineEdit();
+                    ((QELineEdit *) qCaWidget)->setText(field->getName());
+                    ((QELineEdit *) qCaWidget)->setSubscribe(subscription);
+                    ((QELineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
+                    ((QELineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                    ((QELineEdit *) qCaWidget)->setWriteOnFinish(false);
+                    ((QELineEdit *) qCaWidget)->setConfirmWrite(false);
+                    QObject::connect(((QELineEdit *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+                }
+                fieldInfo->qCaWidget = qCaWidget;
+                fieldInfo->setGroup(field->getGroup());
+                fieldInfo->setName(field->getName());
+                fieldInfo->setProcessVariable(field->getProcessVariable());
+                fieldInfo->setJoin(field->getJoin());
+                fieldInfo->setType(field->getType());
+                fieldInfo->setVisibility(field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive));
+                currentFieldList.append(fieldInfo);
             }
-            else if (field->getType() == BUTTON)
-            {
-                qCaWidget = new QCaPushButton();
-                ((QCaPushButton *) qCaWidget)->setSubscribe(subscription);
-                ((QCaPushButton *) qCaWidget)->setText(field->getName());
-                ((QCaPushButton *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-            }
-
-            else if (field->getType() == LABEL)
-            {
-                qCaWidget = new QELabel();
-//                ((QELabel *) qCaWidget)->setSubscribe(false);
-                ((QELabel *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-            }
-            else if (field->getType() == SPINBOX)
-            {
-                qCaWidget = new QCaSpinBox();
-                ((QCaSpinBox *) qCaWidget)->setSubscribe(subscription);
-                ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
-            }
-            else if (field->getType() == COMBOBOX)
-            {
-                qCaWidget = new QCaComboBox();
-                ((QCaComboBox *) qCaWidget)->setSubscribe(subscription);
-                ((QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                ((QCaComboBox *) qCaWidget)->setWriteOnChange(false);
-                QObject::connect(((QCaComboBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
-            }
-            else
-            {
-                qCaWidget = new QELineEdit();
-                ((QELineEdit *) qCaWidget)->setSubscribe(subscription);
-                ((QELineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
-                ((QELineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                ((QELineEdit *) qCaWidget)->setWriteOnFinish(false);
-                ((QELineEdit *) qCaWidget)->setConfirmWrite(false);
-                QObject::connect(((QELineEdit *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
-            }
-
-            qCaWidget->setVariableNameAndSubstitutions(field->getProcessVariable(), item->getSubstitution(), 0);
-
-            fieldInfo->qCaWidget = qCaWidget;
-            fieldInfo->setGroup(field->getGroup());
-            fieldInfo->setName(field->getName());
-            fieldInfo->setProcessVariable(field->getProcessVariable());
-            fieldInfo->setJoin(field->getJoin());
-            fieldInfo->setType(field->getType());
-            fieldInfo->setVisibility(field->getVisible().isEmpty() || field->getVisible().split(",").contains(userType, Qt::CaseInsensitive));
-            currentFieldList.append(fieldInfo);
         }
 
 
         qHBoxLayoutLast = NULL;
         for(i = 0; i < currentFieldList.size(); i++)
         {
-
             fieldInfo = currentFieldList.at(i);
-
             if (fieldInfo->getGroup().isEmpty())
             {
-                if (fieldInfo->getVisibility())
-                {
+//                if (fieldInfo->getVisibility())
+//                {
                     if (fieldInfo->getJoin())
                     {
                         if (qHBoxLayoutLast == NULL)
@@ -613,8 +611,7 @@ void QEConfiguredLayout::refreshFields()
                     {
                         qVBoxLayoutFields->addLayout(qHBoxLayout);
                     }
-                }
-
+//                }
             }
             else
             {

@@ -968,7 +968,7 @@ void QERecipe::refreshButton()
     currentName = qComboBoxRecipeList->currentText();
 
 
-    qDebug() << "recipe: " + currentName;
+//    qDebug() << "recipe: " + currentName;
 
 
     count = 0;
@@ -1019,7 +1019,7 @@ void QERecipe::refreshButton()
                                         }
                                         else if (fieldInfo->getType() == SPINBOX)
                                         {
-//                                            ((QCaSpinBox *) fieldInfo->qCaWidget)->setValue(fieldElement.attribute("value"));
+//                                            ((QCaSpinBox *) fieldInfo->qCaWidget)->setValue((float) processVariableElement.attribute("value"));
                                         }
                                         else if (fieldInfo->getType() == COMBOBOX)
                                         {
@@ -1028,7 +1028,6 @@ void QERecipe::refreshButton()
                                         else
                                         {
                                             ((QELineEdit *) fieldInfo->qCaWidget)->setText(processVariableElement.attribute("value"));
-                                            qDebug() << fieldInfo->getName() + ": " + ((QELineEdit *) fieldInfo->qCaWidget)->text();
                                         }
                                         break;
                                     }
