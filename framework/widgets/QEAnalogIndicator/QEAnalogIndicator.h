@@ -56,8 +56,16 @@ public:
     Q_PROPERTY (double value             READ getValue               WRITE setValue)
     Q_PROPERTY (double minimum           READ getMinimum             WRITE setMinimum)
     Q_PROPERTY (double maximum           READ getMaximum             WRITE setMaximum)
+
+    // Applies when logScale false
+    //
     Q_PROPERTY (double minorInterval     READ getMinorInterval       WRITE setMinorInterval)
     Q_PROPERTY (double majorInterval     READ getMajorInterval       WRITE setMajorInterval)
+
+    // Applies when logScale true
+    //
+    Q_PROPERTY (int    logScaleInterval  READ getLogScaleInterval    WRITE setLogScaleInterval)
+
     Q_PROPERTY (bool   showText          READ getShowText            WRITE setShowText)
     Q_PROPERTY (bool   showScale         READ getShowScale           WRITE setShowScale)
     Q_PROPERTY (bool   logScale          READ getLogScale            WRITE setLogScale)
@@ -93,6 +101,7 @@ private:
     bool mLogScale;
     double mMinorInterval;
     int mMajorMinorRatio;
+    int mLogScaleInterval;
 
     // Note: the getXxxxColour functions (line 160-ish) gets the Xxxx property colour.
     // The getXxxxPaintColour functions return actual colour to for drawing the widget.
@@ -183,6 +192,9 @@ public:
 
     void setMajorInterval (const double value);
     double getMajorInterval ();
+
+    void setLogScaleInterval (const int value);
+    int getLogScaleInterval ();
 
     void setBorderColour (const QColor value);
     QColor getBorderColour ();

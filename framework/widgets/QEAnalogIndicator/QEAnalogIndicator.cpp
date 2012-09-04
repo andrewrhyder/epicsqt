@@ -62,6 +62,7 @@ QEAnalogIndicator::QEAnalogIndicator (QWidget *parent) : QWidget (parent)
    this->mMaximum = 100.0;
    this->mMinorInterval = 4.0;
    this->mMajorMinorRatio = 5;   // => major = 20
+   this->mLogScaleInterval = 1;
 
    this->mOrientation = Left_To_Right;
    this->mMode = Bar;
@@ -145,20 +146,28 @@ bool QEAnalogIndicator::firstValue (int & itc, double & value, bool & isMajor)
 bool QEAnalogIndicator::nextValue  (int & itc, double & value, bool & isMajor)
 {
    const int fs = 9;
-   const int offset = 10000;
 
    int d;
    int f;
 
    itc++;
    if (this->getLogScale ()) {
-      // Ensure round down towards -infinity
+      // Ensure round down towards -infinity (as opposed to 0)
       // (Oh how I wish C/C++ has a proper "mod" operator).
       //
-      d = (itc + (offset * fs)) /fs - offset;
+      d = itc / fs;
+      if ((fs * d) > itc) d--;
       f = itc -(fs * d);
       value = (1.0 + f) * pow (10.0, d);
-      isMajor = (f == 0);
+      if (f == 0) {
+         // Is an exact power of 10 - test for being major.
+         //
+         isMajor = ((d % this->getLogScaleInterval ()) == 0);
+      } else {
+         // Is not an exact power of 10 - canot be major.
+         //
+         isMajor = false;
+      }
    } else {
       value = itc * this->getMinorInterval ();
       isMajor = ((itc % this->mMajorMinorRatio) == 0);
@@ -1038,6 +1047,8 @@ PROPERTY_ACCESS (QEAnalogIndicator::Modes, Mode, value)
 PROPERTY_ACCESS (int, CentreAngle, LIMIT (value, -180, +180) )
 
 PROPERTY_ACCESS (int, SpanAngle, LIMIT (value, 15, 350) )
+
+PROPERTY_ACCESS (int, LogScaleInterval, LIMIT (value, 1, 10) )
 
 PROPERTY_ACCESS (QColor, BorderColour, value)
 
