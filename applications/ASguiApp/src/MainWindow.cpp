@@ -367,11 +367,11 @@ void MainWindow::startDesignerCore( QString command )
     }
 }
 
-// An error occures starting designer
+// An error occured starting designer.
 // One possibility is that a Qt version older then 4.8 is in use and the name is different
 // (Before Qt 4.8, command is 'designer'. Qt 4.8 later uses the command 'designer-qt4')
 // So, try again with the alternate name.
-// However, the process can be started while still in the error function for the last process,
+// However, the process can't be started while still in the error function for the last process,
 // so set a timer for 0mS and start it in the signal from that
 void MainWindow::processError( QProcess::ProcessError error )
 {
@@ -550,16 +550,8 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
         QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
     }
 
-
-    // Set the titles (the main window title, and also the tab if in a tab)
+    // Set the title
     setTitle( gui->getASGuiTitle() );
-/*    if( usingTabs )
-    {
-        QTabWidget* tabs = getCentralTabs();
-        if( tabs )
-            tabs->setTabText( tabs->currentIndex(), gui->getASGuiTitle() );
-    }
- */
 }
 
 //=================================================================================
