@@ -59,6 +59,7 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
 
     // Initialise
     usingTabs = false;
+    nativeSize = QSize( 0, 0 );
 
     // Give the main window's USerMessage class a unique form ID so only messages from
     // the form in each main window are displayed that main window's status bar
@@ -351,7 +352,9 @@ void MainWindow::startDesignerCore( QString command )
         QStringList guiFileName;
         QEForm* gui = getCurrentGui();
         if( gui )
+        {
             guiFileName.append( gui->getGuiFileName() );
+        }
 
         // Start designer
         process.start( command, guiFileName );
@@ -370,20 +373,23 @@ void MainWindow::startDesignerCore( QString command )
 // So, try again with the alternate name.
 // However, the process can be started while still in the error function for the last process,
 // so set a timer for 0mS and start it in the signal from that
-void MainWindow::processError( QProcess::ProcessError )
+void MainWindow::processError( QProcess::ProcessError error )
 {
-    // Do nothing if this was the second attempt using an algternate command
-    if( processSecondAttempt )
+    if( error == QProcess::FailedToStart )
     {
-        QMessageBox::about(this, "ASgui", "Sorry, an error occured starting designer.");
-        return;
-    }
+        // Do nothing if this was the second attempt using an alternate command
+        if( processSecondAttempt )
+        {
+            QMessageBox::about(this, "ASgui", "Sorry, an error occured starting designer.");
+            return;
+        }
 
-    // Signal startDesignerAlternate() immedietly to try starting designer again
-    // with an alternate command
-    processTimer.setSingleShot(true);
-    processTimer.setInterval(0);
-    processTimer.start();
+        // Signal startDesignerAlternate() immedietly to try starting designer again
+        // with an alternate command
+        processTimer.setSingleShot(true);
+        processTimer.setInterval(0);
+        processTimer.start();
+    }
 }
 
 // Try starting designer again with an alternate command.
@@ -421,6 +427,58 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
 // Methods for managing GUI windows
 //=================================================================================
 
+// Given a QEForm, return a widget that will manage being resized.
+// If the QEForm has a scroll area as its top level child, or if its top level child has
+// a layout, it is managing its own size so just return the QEForm, otherwise return a
+// scroll area containing the QEForm.
+QWidget* MainWindow::resizeableGui( QEForm* gui )
+{
+    // Determine if the top level widget in the ui is a scroll area
+    QObjectList children = gui->children();
+    bool topLevelScrollArea = false;
+    if( children.size() && QString::compare( children[0]->metaObject()->className(), "QScrollArea" ) == 0 )
+    {
+        topLevelScrollArea = true;
+    }
+
+    // If the widget is managing its own size (it is in in a scroll or has a layout), return it as is
+    if( topLevelScrollArea || gui->layout() )
+    {
+        return gui;
+    }
+    // If the widget is not managing its own size return it within a scroll area
+    else
+    {
+        QScrollArea* sa = new QScrollArea();
+        sa->setWidget( gui );
+        return sa;
+    }
+}
+
+// Return a QEForm from a widget that may be a QEForm, or a QScrollArea containg a QEForm
+QEForm* MainWindow::extractGui( QWidget* rGui )
+{
+    // Assume the resizable gui supplied is the actual QEForm
+    QWidget* w = rGui;
+
+    // If the resizable gui is a scroll area, then extract the widget the scroll area is managing - it should be a QEForm
+    if ( QString::compare( w->metaObject()->className(), "QScrollArea" ) == 0 )
+    {
+        QScrollArea* sa = (QScrollArea*)w;
+        w = sa->widget();
+    }
+
+    // We should now have the QEform. Return it
+    if ( QString::compare( w->metaObject()->className(), "QEForm" ) == 0 )
+    {
+        return (QEForm*)w;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
 /// Open a gui in a new tab
 /// Either as a result of the gui user requesting a new tab, or a contained object (gui push button) requesting a new tab
 void MainWindow::loadGuiIntoNewTab( QEForm* gui )
@@ -429,23 +487,16 @@ void MainWindow::loadGuiIntoNewTab( QEForm* gui )
     if( !gui )
         return;
 
+    // Ensure the gui can be resized
+    QWidget* rGui = resizeableGui( gui );
+
     // Add a tab
     QTabWidget* tabs = getCentralTabs();
     if( tabs )
     {
-        int index = tabs->addTab( gui, gui->getASGuiTitle() );
+        int index = tabs->addTab( rGui, gui->getASGuiTitle() );
         tabs->setCurrentIndex( index );
     }
-
-    // Set the interface to resizable if it has a layout that means it can manage being resized
-    // Note, the object to set resizable is the widget of the scroll area of
-    // the QEForm. This is generally present by is probably not if a .ui file could not be loaded.
-    QWidget* form = gui->widget();
-    if( form )
-    {
-        gui->setWidgetResizable( form->layout() != NULL );
-    }
-
 }
 
 /// Open a gui in the current window
@@ -456,6 +507,12 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
     if( !gui )
         return;
 
+    // Note the native size of the gui
+    nativeSize = gui->geometry().size();
+
+    // Ensure the gui can be resized
+    QWidget* rGui = resizeableGui( gui );
+
     // If using tabs, load the gui into the current tab
     if( usingTabs )
     {
@@ -463,7 +520,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
         if( tabs )
         {
             // Remove the gui from the 'windows' menus and delete it
-            QEForm* oldGui = (QEForm*)(tabs->currentWidget() );
+            QEForm* oldGui = extractGui( tabs->currentWidget() );
             if( oldGui )
             {
                 removeGuiFromWindowsMenu( oldGui );
@@ -474,8 +531,8 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
             tabs->removeTab( i );
 
             // Replace the tab
-            tabs->insertTab( i, gui, gui->getASGuiTitle() );
-            tabs->setCurrentWidget( gui );
+            tabs->insertTab( i, rGui, gui->getASGuiTitle() );
+            tabs->setCurrentWidget( rGui );
         }
     }
 
@@ -484,12 +541,12 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
     else
     {
         // Remove the old gui from the 'windows' menus
-        QEForm* oldGui = (QEForm*)centralWidget();
+        QEForm* oldGui = extractGui( centralWidget() );
         if( oldGui )
         {
             removeGuiFromWindowsMenu( oldGui );
         }
-        setCentralWidget( gui );
+        setCentralWidget( rGui );
         QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
     }
 
@@ -523,38 +580,39 @@ void MainWindow::newMessage( QString msg, message_types type )
 // This is done as a timer event once all processing has completed after creating a new gui.
 void MainWindow::resizeToFitGui()
 {
-    // Sanity check. Do nothing if the central widget is not a scroll area (actually an QEForm class based on a scroll area)
-    if ( QString::compare( centralWidget()->metaObject()->className(), "QEForm" ) )
-        return;
-
-    // Check. Do nothing if nothing is in the scroll area.
-    // Unlike the check above, this condition is expected. It can happen
-    // if the UI file defining the gui was not located.
-    QEForm* sa = (QEForm*)centralWidget();
-    if( !sa->widget() )
-        return;
-
-    // Collect relevent dimensions
-    int ui_w = sa->widget()->width();
-    int ui_h = sa->widget()->height();
     int main_w = width();
     int main_h = height();
     int central_w = centralWidget()->width();
     int central_h = centralWidget()->height();
-    int frame_w = sa->frameWidth();
 
-    // The size required is the size of the user interface plus the difference between the main window size and the central widget size
-    resize( ui_w + main_w - central_w + frame_w * 2, ui_h + main_h - central_h + frame_w * 2 );
+    int ui_w = nativeSize.width();
+    int ui_h = nativeSize.height();
+    int frame_w = 0;
 
-    // Now the form is matching the user interface, set the interface to resizable
-    // if it has a layout that means it can manage being resized
-    // Note, the object to set resizable is the widget of the scroll area of
-    // the QEForm. This is generally present by is probably not if a .ui file could not be loaded.
-    QWidget* form = sa->widget();
-    if( form )
+    // If the central widget is a QEForm, then the area to size around is simply the form size
+    if ( QString::compare( centralWidget()->metaObject()->className(), "QEForm" ) == 0)
     {
-        sa->setWidgetResizable( form->layout() != NULL );
+        frame_w = 0;
     }
+
+    // If the central widget is a scroll area (containing a QEForm), then the area to size around is
+    // the area of the scroll area's managed widget
+    else if ( QString::compare( centralWidget()->metaObject()->className(), "QScrollArea" ) == 0 )
+    {
+        QScrollArea* sa = (QScrollArea*)centralWidget();
+        frame_w = sa->frameWidth();
+    }
+
+    // If no user interface height or width (probably gui file not found) then create an empty window of a reasonable size
+    if( !ui_w || !ui_h )
+    {
+        ui_w = 400;
+        ui_h = 200;
+    }
+
+    // The size required is the size of the user interface plus any
+    // difference between the main window size and the central widget size
+    resize( ui_w + main_w - central_w + frame_w * 2, ui_h + main_h - central_h + frame_w * 2 );
 }
 
 //=================================================================================
@@ -620,7 +678,7 @@ void MainWindow::setSingleMode()
         return;
 
     // Move the gui from the first (and only) tab to be the central widget
-    QEForm* gui = (QEForm*)( tabs->currentWidget() );
+    QEForm* gui = extractGui( tabs->currentWidget() );
     if( gui )
     {
         // Make the gui the central widget.
@@ -632,11 +690,12 @@ void MainWindow::setSingleMode()
         // It appears it is removed from the tab widget hierarchy before the tab widget is deleted.
         // If this proves not be the case, it may be nessesary to reparent the gui widget manually before
         // calling setCentralWidget() here.
-        setCentralWidget( gui );
+        QWidget* w = resizeableGui( gui );
+        setCentralWidget( w );
 
         // Must 'show' the gui following the reparenting inherent in the above invocation of setCentralWidget
         // where the gui is reparented from from the tab widget to the main window.
-        gui->show();
+        w->show();
     }
 
     // Flag tabs are no longer in use
@@ -660,7 +719,7 @@ void MainWindow::setTabMode()
     // If there was a single gui present, move it to the first tab
     QEForm* gui = getCentralGui();
     if( gui )
-        tabs->addTab( gui, gui->getASGuiTitle() );
+        tabs->addTab( resizeableGui( gui ), gui->getASGuiTitle() );
 
     // Start using tabs as the main area of the main window
     setCentralWidget( tabs );
@@ -672,7 +731,7 @@ void MainWindow::setTabMode()
 QString MainWindow::GuiFileNameDialog( QString caption )
 {
     // Get the filename
-    return QFileDialog::getOpenFileName( this, caption, profile.getPath(), "*.ui" );
+    return QFileDialog::getOpenFileName( this, caption, profile.getPath(), "Interfaces(*.ui)" );
 }
 
 // Create a gui
@@ -730,7 +789,7 @@ QEForm* MainWindow::createGui( QString fileName )
         }
 
         addGuiToWindowsMenu( gui );
-}
+    }
     // Return the created gui if any
     return gui;
  }
@@ -759,10 +818,10 @@ QTabWidget* MainWindow::getCentralTabs()
 QEForm* MainWindow::getCentralGui()
 {
     QWidget* w = centralWidget();
-    if( !w || QString( "QEForm").compare( w->metaObject()->className() ) )
+    if( !w || QString( "QTabWidget").compare( w->metaObject()->className() ) == 0 )
         return NULL;
     else
-        return (QEForm*)w;
+        return extractGui( w );
 }
 
 // Get the current gui if any
@@ -773,7 +832,7 @@ QEForm* MainWindow::getCurrentGui()
     {
         QTabWidget* tabs = getCentralTabs();
         if( tabs )
-            return (QEForm*)(tabs->currentWidget());
+            return extractGui(tabs->currentWidget());
     }
 
     // Using a single window, return the gui

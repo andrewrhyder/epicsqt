@@ -33,7 +33,7 @@
 #include <QCaPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QScrollArea, public QCaWidget
+class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
 {
     Q_OBJECT
     public:
@@ -91,6 +91,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QScrollArea, public QCaWidge
         QString variableNameSubstitutions;
 
         void newMessage( QString msg, message_types type );
+        void resizeEvent ( QResizeEvent * event );
 
 
 

@@ -80,6 +80,11 @@ private:
     bool processSecondAttempt;                              // Flag indicating this is the second attempt to start designer with an alternate command
     bool processOpenGui;                                    // Flag indicating designer should be opened with the current GUI
 
+    QWidget* resizeableGui( QEForm* gui );                  // Given a QEForm, return a widget that will manage being resized.
+    QEForm* extractGui( QWidget* rGui );                    // Return a QEForm from a widget that may be a QEForm, or a QScrollArea containg a QEForm
+
+    QSize nativeSize;                                       // Size of gui as defined in .ui file (prior to any resizing)
+
 private:
     void newMessage( QString msg, message_types type );
 

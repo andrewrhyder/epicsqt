@@ -49,13 +49,13 @@
 
 /// Constructor.
 /// No UI file is read. uiFileName must be set and then readUiFile() called after construction
-QEForm::QEForm( QWidget* parent ) : QScrollArea( parent ), QCaWidget( this ) {
+QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QCaWidget( this ) {
     commonInit( false );
 }
 
 /// Constructor.
 /// UI filename is supplied and UI file is read as part of construction.
-QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QScrollArea( parent ), QCaWidget( this ) {
+QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QCaWidget( this ) {
     commonInit( true );
     uiFileName = uiFileNameIn;
 }
@@ -83,7 +83,8 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
     QObject::connect( &fileMon, SIGNAL( fileChanged( const QString & ) ), this, SLOT( fileChanged( const QString & ) ) );
 
     // Set up a connection to recieve variable name property changes (Actually only interested in substitution changes
-    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
+                      this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
 /// Destructor.
@@ -213,8 +214,31 @@ bool QEForm::readUiFile()
                 releaseProfile();
             }
 
-            /// Present the gui to the user
-            setWidget( ui );
+            // Set the form's size related properties to match the top ui widget
+            // This will ensure the form behaves in the same way as the ui was designed when loaded within another ui
+            setGeometry(0, 0, ui->width(), ui->height() );
+            setSizePolicy( ui->sizePolicy() );
+            setMinimumSize( ui->minimumSize() );
+            setMaximumSize( ui->maximumSize() );
+            setSizeIncrement( this->sizeIncrement() );
+            setBaseSize( ui->baseSize() );
+
+            // Load the user interface into the QEForm widget
+            ui->setParent( this );
+            ui->show();         // note, this show is only needed when replacing ui in existing QEForm
+
+            // If the ui is managed by a layout, add a layout to the QEform (if not already present) and add
+            // the ui to the layout so layout requests are passed down
+            if( ui->layout() )
+            {
+                QLayout* lo = layout();
+                if( !lo )
+                {
+                    lo = new QVBoxLayout;
+                    setLayout( lo );
+                }
+                lo->addWidget( ui );
+            }
 
             // Release the QFile
             delete uiFile;
@@ -317,6 +341,20 @@ void QEForm::newMessage( QString msg, message_types type )
     // An QEForm deals with any message it receives by resending it with its own form and source ids.
     // This way messages from widgets in sibling QEForm widgets filtered as if they came from sibling widgets
     sendMessage( msg, type );
+}
+
+// The form is being resized.
+// Resize the ui to match.
+// (not required if a layout is present)
+void QEForm::resizeEvent ( QResizeEvent * event )
+{
+    // If the form's ui does not have a layout, resize it to match the QEForm
+    // If it does have a layout, then the QEForm will also have given itself a
+    // layout to ensure layout requests are propogated. In this case a resize is not nessesary.
+    if( ui && !ui->layout() )
+    {
+        ui->resize( event->size() );
+    }
 }
 
 //==============================================================================
