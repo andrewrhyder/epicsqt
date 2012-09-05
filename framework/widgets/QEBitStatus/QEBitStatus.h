@@ -38,8 +38,47 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEBitStatus : public QBitStatus, public QCaW
 
 /// #ifdef PLUGIN_APP
 
-#include <singleVariableProperties.inc>
-#include <standardProperties.inc>
+public:
+    //=================================================================================
+    // Single Variable properties
+    // These properties should be identical for every widget using a single variable.
+    // WHEN MAKING CHANGES: search for SINGLEVARIABLEPROPERTIES and change all occurances.
+    //
+    // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
+    // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
+    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+
+    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
+    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
+
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
+
+private:
+    QCaVariableNamePropertyManager variableNamePropertyManager;
+public:
+    //=================================================================================
+
+    //=================================================================================
+    // Standard properties
+    // These properties should be identical for every widget using them.
+    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    // Override the default widget isEnabled and setEnabled to allow alarm states to override current enabled state
+    bool isEnabled() const { return getApplicationEnabled(); }
+    void setEnabled( bool state ){ setApplicationEnabled( state ); }
+    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
+    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
+    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser);
+    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist);
+    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer);
+    Q_ENUMS(UserLevels)
+    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty);
+    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty);
+    //=================================================================================
 
 /// #endif
 
@@ -54,7 +93,7 @@ public:
                                          unsigned int variableIndex);
 
 public slots:
-   void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
+   void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }  //!! move into Standard Properties section??
 
 
 protected:
@@ -78,11 +117,10 @@ private slots:
    void setBitStatusValue (const long &value, QCaAlarmInfo &,
                            QCaDateTime &, const unsigned int &);
 
-   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) //!! move into Standard Properties section??
    {
        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
    }
-//#include <variablePropertiesSlots.inc>  // MOC doesn't seem to like included private slots.
 
 signals:
    void dbValueChanged (const long &out);

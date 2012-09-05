@@ -285,7 +285,7 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
     int saturation;
 
     // If not enabled then do nothing.
-    // NOTE: the regular isEnabled is hidden by function in standardProperties.inc
+    // NOTE: the regular isEnabled is hidden by function in the standard properties
     //
     if (!QWidget::isEnabled ()) return;
 

@@ -41,7 +41,24 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEGroupBox :
 
 Q_OBJECT
 
-#include <standardProperties.inc>
+    //=================================================================================
+    // Standard properties
+    // These properties should be identical for every widget using them.
+    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    bool isEnabled() const { return getApplicationEnabled(); }
+    void setEnabled( bool state ){ setApplicationEnabled( state ); }
+    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
+    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
+    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser);
+    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist);
+    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer);
+    Q_ENUMS(UserLevels)
+    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty);
+    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty);
+    //=================================================================================
 
 public:
     explicit QEGroupBox (QWidget *parent = 0);

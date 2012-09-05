@@ -125,18 +125,6 @@ HEADERS += \
     ../widgets/include/PeriodicDialog.h
 
 
-
-#====================================
-# common properties
-HEADERS += \
-    ../widgets/include/singleVariableProperties.inc \
-    ../widgets/include/multipleVariablePropertiesBase.inc \
-    ../widgets/include/multipleVariablePropertiesTail.inc \
-    ../widgets/include/standardProperties.inc \
-    ../widgets/include/stringProperties.inc
-
-#====================================
-
 SOURCES += src/QCaSpinBoxPluginManager.cpp \
     src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPluginManager.cpp \

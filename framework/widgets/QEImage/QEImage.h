@@ -51,9 +51,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
     QEImage( const QString &variableName, QWidget *parent = 0 );
     ~QEImage();
 
-    bool isEnabled() const;
-    void setEnabled( bool state );
-
     enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA, SO_PROFILE, SO_TARGET, SO_BEAM };
     selectOptions getSelectionOption();
 
@@ -190,7 +187,7 @@ private slots:
 
     //!! move this functionality into QCaWidget???
     //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
@@ -198,7 +195,7 @@ private slots:
 
 
   public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
     void userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
@@ -351,11 +348,21 @@ protected:
 
     void resizeEvent(QResizeEvent* );
 
-//==========================================================================
-// Standard properties
-
 #define NUM_VARIABLES QEIMAGE_NUM_VARIABLES
-#include <multipleVariablePropertiesBase.inc>
+
+    //=================================================================================
+    // Multiple Variable properties
+    // These properties should be identical for every widget using multiple variables (The number of variables may vary).
+    // WHEN MAKING CHANGES: search for MULTIPLEVARIABLEPROPERTIESBASE and change all occurances.
+    private:
+        QCaVariableNamePropertyManager variableNamePropertyManagers[NUM_VARIABLES];
+    public:
+
+    // Define a variable
+    // Note, the QPROPERTY declaration itself can't be in this macro
+#define VARIABLE_PROPERTY_ACCESS(VAR_INDEX) \
+    void    setVariableName##VAR_INDEX##Property( QString variableName ){ variableNamePropertyManagers[VAR_INDEX].setVariableNameProperty( variableName ); } \
+    QString getVariableName##VAR_INDEX##Property(){ return variableNamePropertyManagers[VAR_INDEX].getVariableNameProperty(); }
 
     VARIABLE_PROPERTY_ACCESS(0)
     Q_PROPERTY(QString imageVariable READ getVariableName0Property WRITE setVariableName0Property)
@@ -393,10 +400,41 @@ protected:
     VARIABLE_PROPERTY_ACCESS(11)
     Q_PROPERTY(QString targetTriggerVariable READ getVariableName11Property WRITE setVariableName11Property)
 
-#include <multipleVariablePropertiesTail.inc>
+
+    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
+    {
+        for( int i = 0; i < QEIMAGE_NUM_VARIABLES; i++ )
+        {
+            variableNamePropertyManagers[i].setSubstitutionsProperty( variableNameSubstitutions );
+        }
+    }
+    QString getVariableNameSubstitutionsProperty()
+    {
+        return variableNamePropertyManagers[0].getSubstitutionsProperty();
+    }
+    //=================================================================================
+
 
     public:
-#include <standardProperties.inc>
+    //=================================================================================
+    // Standard properties
+    // These properties should be identical for every widget using them.
+    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    bool isEnabled() const { return getApplicationEnabled(); }
+    void setEnabled( bool state ){ setApplicationEnabled( state ); }
+    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
+    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
+    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser);
+    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist);
+    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer);
+    Q_ENUMS(UserLevels)
+    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty);
+    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty);
+    //=================================================================================
 
 //==========================================================================
 // Widget specific properties

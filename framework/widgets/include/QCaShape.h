@@ -156,7 +156,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShape : public QWidget, public QCaWidget 
     void setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
 
   public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
 
   signals:
     void dbValueChanged1( const qlonglong& out );

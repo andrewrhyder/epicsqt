@@ -58,15 +58,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QCaWidget, p
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setLabelText( const QString& text, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
-//#include <variablePropertiesSlots.inc>  // MOC doesn't seem to like included private slots.
-
 
 public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
 
   signals:
     void dbValueChanged( const QString& out );
@@ -102,10 +100,65 @@ protected:
 
 
 public:
+    //=================================================================================
+    // Single Variable properties
+    // These properties should be identical for every widget using a single variable.
+    // WHEN MAKING CHANGES: search for SINGLEVARIABLEPROPERTIES and change all occurances.
+    //
+    // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
+    // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
+    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
 
-#include <singleVariableProperties.inc>
-#include <standardProperties.inc>
-#include <stringProperties.inc>
+    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
+    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
+
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
+
+private:
+    QCaVariableNamePropertyManager variableNamePropertyManager;
+public:
+    //=================================================================================
+
+    //=================================================================================
+    // Standard properties
+    // These properties should be identical for every widget using them.
+    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    bool isEnabled() const { return getApplicationEnabled(); }
+    void setEnabled( bool state ){ setApplicationEnabled( state ); }
+    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
+    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
+    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser);
+    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist);
+    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer);
+    Q_ENUMS(UserLevels)
+    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty);
+    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty);
+    //=================================================================================
+
+    //=================================================================================
+    // String formatting properties
+    // These properties should be identical for every widget managing strings.
+    // WHEN MAKING CHANGES: search for STRINGPROPERTIES and change all occurances.
+    Q_PROPERTY(int  precision READ getPrecision WRITE setPrecision)
+    Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
+    Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
+    Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
+    Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
+    Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
+    Q_ENUMS(Formats)
+    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
+    Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
+    Q_ENUMS(Notations)
+    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
+    Q_ENUMS(ArrayActions)
+    Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
+    Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
+    //=================================================================================
 
 //==========================================================================
 // Widget specific properties

@@ -70,12 +70,11 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
 
     private slots:
         void fileChanged ( const QString & path );
-        void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+        void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) //!! move into Standard Properties section??
         {
             // Note, for a form, variable name is not used. Substitutions still are
             setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
         }
-    //#include <variablePropertiesSlots.inc>  // MOC doesn't seem to like included private slots.
 
     protected:
         QString uiFileName;

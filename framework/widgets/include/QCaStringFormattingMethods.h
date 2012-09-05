@@ -34,6 +34,28 @@ class QCaStringFormattingMethods {
 
     virtual void stringFormattingChange() = 0;
 
+    // Property enuerations and translation functions
+    enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
+                   Floating         = QCaStringFormatting::FORMAT_FLOATING,
+                   Integer          = QCaStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time             = QCaStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    Formats getFormatProperty(){ return (Formats)getFormat(); }
+
+    enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
+                     Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    Notations getNotationProperty(){ return (Notations)getNotation(); }
+
+    enum ArrayActions { Append = QCaStringFormatting::APPEND,
+                        Ascii  = QCaStringFormatting::ASCII,
+                        Index  = QCaStringFormatting::INDEX };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }
+    ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }
+
     // String formatting properties
 
     // precision

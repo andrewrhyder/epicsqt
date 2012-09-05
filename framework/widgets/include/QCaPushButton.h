@@ -53,7 +53,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButton : public QPushButton, public Q
 
 public slots:
     void launchGui( QString guiName, QEForm::creationOptions creationOption ){ QCaGenericButton::launchGui( guiName, creationOption); }
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! with the MOC mind if this is moved into standardProperties.inc
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
     void onGeneralMessage( QString message ){ QCaGenericButton::onGeneralMessage( message ); }
 
 
