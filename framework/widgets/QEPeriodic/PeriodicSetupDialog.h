@@ -27,7 +27,7 @@
 
 #include <QDialog>
 #include "PeriodicElementSetupForm.h"
-#include <QCaPeriodic.h>
+#include <QEPeriodic.h>
 
 namespace Ui {
     class PeriodicSetupDialog;

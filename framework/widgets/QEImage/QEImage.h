@@ -36,6 +36,7 @@
 #include <zoomMenu.h>
 #include <flipRotateMenu.h>
 #include <selectMenu.h>
+#include <QCaVariableNamePropertyManager.h>
 
 
 #include <QCaPluginLibrary_global.h>
@@ -348,14 +349,12 @@ protected:
 
     void resizeEvent(QResizeEvent* );
 
-#define NUM_VARIABLES QEIMAGE_NUM_VARIABLES
-
     //=================================================================================
     // Multiple Variable properties
     // These properties should be identical for every widget using multiple variables (The number of variables may vary).
     // WHEN MAKING CHANGES: search for MULTIPLEVARIABLEPROPERTIESBASE and change all occurances.
     private:
-        QCaVariableNamePropertyManager variableNamePropertyManagers[NUM_VARIABLES];
+        QCaVariableNamePropertyManager variableNamePropertyManagers[QEIMAGE_NUM_VARIABLES];
     public:
 
     // Define a variable
@@ -416,7 +415,6 @@ protected:
     //=================================================================================
 
 
-    public:
     //=================================================================================
     // Standard properties
     // These properties should be identical for every widget using them.

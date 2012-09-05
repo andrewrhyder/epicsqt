@@ -29,8 +29,8 @@
    <string>Element Selection</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../plugins/src/QCaResources.qrc">
-    <normaloff>:/icons/QCaPeriodic.png</normaloff>:/icons/QCaPeriodic.png</iconset>
+   <iconset resource="QEPeriodic.qrc">
+    <normaloff>:/qe/periodic/QEPeriodic.png</normaloff>:/qe/periodic/QEPeriodic.png</iconset>
   </property>
   <property name="toolTip">
    <string>Element selection dialog</string>
@@ -1675,7 +1675,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../plugins/src/QCaResources.qrc"/>
+  <include location="QEPeriodic.qrc"/>
  </resources>
  <connections>
   <connection>

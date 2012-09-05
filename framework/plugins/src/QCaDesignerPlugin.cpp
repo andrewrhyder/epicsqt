@@ -33,7 +33,7 @@
 #include <QCaComboBoxPluginManager.h>
 #include <LinkPluginManager.h>
 #include <QCaPlotPluginManager.h>
-#include <QCaPeriodicPluginManager.h>
+#include <QEPeriodicManager.h>
 #include <QEAnalogProgressBarManager.h>
 #include <QEAnalogIndicatorManager.h>
 #include <QEBitStatusManager.h>
@@ -60,6 +60,7 @@
 #include <QCaLineEditPluginManager.h>
 #include <QCaPvPropertiesPluginManager.h>
 #include <QCaStripChartPluginManager.h>
+#include <QCaPeriodicPluginManager.h>
 //======================================================
 
 
@@ -82,6 +83,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QERecipeManager(this));
     widgets.append(new QEScriptManager(this));
     widgets.append(new QEStripChartManager(this));
+    widgets.append(new QEPeriodicManager(this));
 
     widgets.append(new QSubstitutedLabelPluginManager(this));
     widgets.append(new QELineEditManager(this));
@@ -94,7 +96,6 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEFormManager(this));
     widgets.append(new LinkPluginManager(this));
     widgets.append(new QCaPlotPluginManager(this));
-    widgets.append(new QCaPeriodicPluginManager(this));
     widgets.append(new QEImageManager(this));
 
     // Non-EPICS aware framework widgets
@@ -112,6 +113,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaPvPropertiesPluginManager(this));
     widgets.append(new QCaStripChartPluginManager(this));
     widgets.append(new ASguiFormPluginManager(this));
+    widgets.append(new QCaPeriodicPluginManager(this));
 //======================================================
 
 }

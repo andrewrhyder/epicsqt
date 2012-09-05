@@ -22,8 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCAPERIODICPLUGINTASKMENU_H
-#define QCAPERIODICPLUGINTASKMENU_H
+#ifndef QEPERIODICTASKMENU_H
+#define QEPERIODICTASKMENU_H
 
 #include <QDesignerTaskMenuExtension>
 #include <QExtensionFactory>
@@ -32,15 +32,15 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QExtensionManager;
 QT_END_NAMESPACE
-class QCaPeriodicPlugin;
+class QEPeriodic;
 
-class QCaPeriodicPluginTaskMenu : public QObject, public QDesignerTaskMenuExtension
+class QEPeriodicTaskMenu : public QObject, public QDesignerTaskMenuExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerTaskMenuExtension)
 
 public:
-    QCaPeriodicPluginTaskMenu(QCaPeriodicPlugin *periodicPlugin, QObject *parent);
+    QEPeriodicTaskMenu(QEPeriodic *periodic, QObject *parent);
 
     QAction *preferredEditAction() const;
     QList<QAction *> taskActions() const;
@@ -50,18 +50,18 @@ private slots:
 
 private:
     QAction *editUserInfoAction;
-    QCaPeriodicPlugin *periodicPlugin;
+    QEPeriodic *periodic;
 };
 
-class QCaPeriodicPluginTaskMenuFactory : public QExtensionFactory
+class QEPeriodicTaskMenuFactory : public QExtensionFactory
 {
     Q_OBJECT
 
 public:
-    QCaPeriodicPluginTaskMenuFactory(QExtensionManager *parent = 0);
+    QEPeriodicTaskMenuFactory(QExtensionManager *parent = 0);
 
 protected:
     QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-#endif
+#endif  // QEPERIODICTASKMENU_H

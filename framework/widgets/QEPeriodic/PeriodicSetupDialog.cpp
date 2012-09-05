@@ -23,19 +23,18 @@
  */
 
 /*!
-  This class manages a dialog for setting up a QCaPeriodicPlugin in Qt designer.
+  This class manages a dialog for setting up a QEPeriodic in Qt designer.
  */
 
 #include "PeriodicSetupDialog.h"
 #include "ui_PeriodicSetupDialog.h"
 #include "PeriodicElementSetupForm.h"
 #include <QGridLayout>
-#include <QCaPeriodic.h>
+#include <QEPeriodic.h>
 #include <QLabel>
 #include <QFrame>
 #include <QCheckBox>
 #include <QLineEdit>
-#include "QCaPeriodicPlugin.h"
 #include <QtDesigner>
 
 
@@ -58,16 +57,16 @@ PeriodicSetupDialog::PeriodicSetupDialog(QWidget *parent) :
             QLabel* label = elements[i]->findChild<QLabel *>("label");
             if( label )
             {
-                label->setText( QCaPeriodic::elementInfo[i].symbol );
+                label->setText( QEPeriodic::elementInfo[i].symbol );
             }
 
             QFrame* frame = elements[i]->findChild<QFrame *>("frame");
             if( frame )
             {
-                frame->setToolTip( QCaPeriodic::elementInfo[i].name );
+                frame->setToolTip( QEPeriodic::elementInfo[i].name );
             }
 
-            QCaPeriodicPlugin *plugin = qobject_cast<QCaPeriodicPlugin *>(parent);
+            QEPeriodic *plugin = qobject_cast<QEPeriodic *>(parent);
             if( plugin )
             {
                 QCheckBox* enableButton = elements[i]->findChild<QCheckBox *>("checkBoxEnable");
@@ -98,7 +97,7 @@ PeriodicSetupDialog::PeriodicSetupDialog(QWidget *parent) :
                 }
             }
 
-            periodicGrid->addWidget( elements[i], QCaPeriodic::elementInfo[i].tableRow, QCaPeriodic::elementInfo[i].tableCol );
+            periodicGrid->addWidget( elements[i], QEPeriodic::elementInfo[i].tableRow, QEPeriodic::elementInfo[i].tableCol );
 
         }
 
@@ -147,7 +146,7 @@ PeriodicSetupDialog::~PeriodicSetupDialog()
 // User has pressed OK
 void PeriodicSetupDialog::on_buttonBox_accepted()
 {
-    QCaPeriodicPlugin *plugin = qobject_cast<QCaPeriodicPlugin *>(this->parent());
+    QEPeriodic *plugin = qobject_cast<QEPeriodic *>(this->parent());
     if( plugin )
     {
         for( int i = 0; i < NUM_ELEMENTS; i++ )

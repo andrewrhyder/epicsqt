@@ -26,51 +26,51 @@
 #include <QtDesigner>
 #include <QtGui>
 
-#include "QCaPeriodicPlugin.h"
+#include "QEPeriodic.h"
 #include "PeriodicSetupDialog.h"
-#include "QCaPeriodicPluginTaskMenu.h"
+#include "QEPeriodicTaskMenu.h"
 
-QCaPeriodicPluginTaskMenu::QCaPeriodicPluginTaskMenu(QCaPeriodicPlugin *periodicPluginIn, QObject *parent)
+QEPeriodicTaskMenu::QEPeriodicTaskMenu(QEPeriodic *periodicIn, QObject *parent)
     : QObject(parent)
 {
-    periodicPlugin = periodicPluginIn;
+    periodic = periodicIn;
 
     editUserInfoAction = new QAction(tr("Edit User Info..."), this);
     connect(editUserInfoAction, SIGNAL(triggered()), this, SLOT(editUserInfo()));
 }
 
-void QCaPeriodicPluginTaskMenu::editUserInfo()
+void QEPeriodicTaskMenu::editUserInfo()
 {
-    PeriodicSetupDialog dialog(periodicPlugin);
+    PeriodicSetupDialog dialog(periodic);
     dialog.exec();
 }
 
-QAction *QCaPeriodicPluginTaskMenu::preferredEditAction() const
+QAction *QEPeriodicTaskMenu::preferredEditAction() const
 {
     return editUserInfoAction;
 }
 
-QList<QAction *> QCaPeriodicPluginTaskMenu::taskActions() const
+QList<QAction *> QEPeriodicTaskMenu::taskActions() const
 {
     QList<QAction *> list;
     list.append(editUserInfoAction);
     return list;
 }
 
-QCaPeriodicPluginTaskMenuFactory::QCaPeriodicPluginTaskMenuFactory(QExtensionManager *parent)
+QEPeriodicTaskMenuFactory::QEPeriodicTaskMenuFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)
 {
 }
 
-QObject *QCaPeriodicPluginTaskMenuFactory::createExtension(QObject *object,
+QObject *QEPeriodicTaskMenuFactory::createExtension(QObject *object,
                                                    const QString &iid,
                                                    QObject *parent) const
 {
     if (iid != Q_TYPEID(QDesignerTaskMenuExtension))
         return 0;
 
-    if (QCaPeriodicPlugin *pp = qobject_cast<QCaPeriodicPlugin*>(object))
-        return new QCaPeriodicPluginTaskMenu(pp, parent);
+    if (QEPeriodic *pp = qobject_cast<QEPeriodic*>(object))
+        return new QEPeriodicTaskMenu(pp, parent);
 
     return 0;
 }

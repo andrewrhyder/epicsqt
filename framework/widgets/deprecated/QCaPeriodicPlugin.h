@@ -22,21 +22,20 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
-  This class manages a each of the element sub forms in the dialog for setting up a QCaPeriodicPlugin in Qt designer.
- */
+#ifndef QCAPERIODICPLUGIN_H
+#define QCAPERIODICPLUGIN_H
 
-#include "PeriodicElementSetupForm.h"
-#include "ui_PeriodicElementSetupForm.h"
+#include <QEPeriodic.h>
 
-PeriodicElementSetupForm::PeriodicElementSetupForm(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::PeriodicElementSetupForm)
-{
-    ui->setupUi(this);
-}
 
-PeriodicElementSetupForm::~PeriodicElementSetupForm()
-{
-    delete ui;
-}
+/// QCaPeriodicPlugin IS deprecated - use QEPeriodic.
+//
+class QCaPeriodicPlugin : public QEPeriodic {
+    Q_OBJECT
+
+  public:
+    QCaPeriodicPlugin( QWidget *parent = 0 ) : QEPeriodic( parent ) {}
+
+};
+
+#endif /// QCAPERIODICPLUGIN_H

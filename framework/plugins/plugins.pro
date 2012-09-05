@@ -14,6 +14,8 @@
 # Anthony Owen
 # Contact details:
 # anthony.owen@gmail.com
+
+
 # To alanyse code performance using the GNU gprof profiling tool:
 # - Include the following two lines
 # - Clean all
@@ -23,6 +25,7 @@
 # - analyse the results with the command: gprof <your-program-name>
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
+
 QT += core gui xml network
 TEMPLATE = lib
 CONFIG += plugin \
@@ -40,7 +43,6 @@ OTHER_FILES += src/QCaSpinBox.png \
     src/QSubstitutedLabel.png \
     src/QCaComboBox.png \
     src/Link.png \
-    src/QCaPeriodic.png \
     src/record_field_list.txt \
     src/cameraROI.png \
     src/cameraROIreset.png \
@@ -54,31 +56,8 @@ OTHER_FILES += src/QCaSpinBox.png \
 
 HEADERS += \
     include/QCaPluginLibrary_global.h \
-    include/QCaSpinBoxPluginManager.h \
-    include/QCaSpinBoxPlugin.h \
-    include/QCaComboBoxPluginManager.h \
-    include/QCaComboBoxPlugin.h \
-    include/QCaSliderPluginManager.h \
-    include/QCaSliderPlugin.h \
-    include/QCaShapePluginManager.h \
-    include/QCaShapePlugin.h \
-    include/QCaPushButtonPluginManager.h \
-    include/QCaPushButtonPlugin.h \
-    include/QCaRadioButtonPluginManager.h \
-    include/QCaRadioButtonPlugin.h \
     include/QCaDesignerPlugin.h \
     include/ContainerProfile.h \
-    include/QSubstitutedLabelPluginManager.h \
-    include/QSubstitutedLabelPlugin.h \
-    include/LinkPluginManager.h \
-    include/LinkPlugin.h \
-    include/QCaPlotPluginManager.h \
-    include/QCaPlotPlugin.h \
-    include/QCaPeriodicPlugin.h \
-    include/QCaPeriodicPluginManager.h \
-    include/QCaPeriodicPluginTaskMenu.h \
-    include/PeriodicSetupDialog.h \
-    include/PeriodicElementSetupForm.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -121,35 +100,20 @@ HEADERS += \
     ../widgets/include/Link.h \
     ../widgets/include/QCaPlot.h \
     ../widgets/include/QCaToolTip.h \
-    ../widgets/include/QCaPeriodic.h \
-    ../widgets/include/PeriodicDialog.h
 
 
-SOURCES += src/QCaSpinBoxPluginManager.cpp \
+SOURCES += \
     src/QCaSpinBoxPlugin.cpp \
-    src/QCaComboBoxPluginManager.cpp \
     src/QCaComboBoxPlugin.cpp \
-    src/QCaSliderPluginManager.cpp \
     src/QCaSliderPlugin.cpp \
-    src/QCaShapePluginManager.cpp \
     src/QCaShapePlugin.cpp \
-    src/QCaPushButtonPluginManager.cpp \
     src/QCaPushButtonPlugin.cpp \
-    src/QCaRadioButtonPluginManager.cpp \
     src/QCaRadioButtonPlugin.cpp \
-    src/QSubstitutedLabelPluginManager.cpp \
     src/QSubstitutedLabelPlugin.cpp \
-    src/LinkPluginManager.cpp \
     src/LinkPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
     src/ContainerProfile.cpp \
     src/QCaPlotPlugin.cpp \
-    src/QCaPlotPluginManager.cpp \
-    src/QCaPeriodicPlugin.cpp \
-    src/QCaPeriodicPluginManager.cpp \
-    src/QCaPeriodicPluginTaskMenuExtension.cpp \
-    src/PeriodicSetupDialog.cpp \
-    src/PeriodicElementSetupForm.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -189,42 +153,7 @@ SOURCES += src/QCaSpinBoxPluginManager.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \
     ../widgets/src/Link.cpp \
     ../widgets/src/QCaPlot.cpp \
-    ../widgets/src/QCaToolTip.cpp \
-    ../widgets/src/QCaPeriodic.cpp \
-    ../widgets/src/PeriodicDialog.cpp
-
-
-
-#====================================
-# deprecated
-#
-HEADERS += \
-    include/QCaLabelPluginManager.h \
-    include/QCaLabelPlugin.h   \
-    include/QCaAnalogProgressBarPluginManager.h  \
-    include/QCaAnalogProgressBar.h  \
-    include/QCaBitStatusPluginManager.h  \
-    include/QCaBitStatus.h  \
-    include/QCaLineEditPluginManager.h \
-    include/QCaLineEditPlugin.h \
-    include/QCaPvPropertiesPluginManager.h  \
-    include/QCaPvProperties.h  \
-    include/QCaStripChartPluginManager.h  \
-    include/QCaStripChart.h \
-    include/ASguiFormPluginManager.h \
-    include/ASguiFormPlugin.h
-
-SOURCES += \
-    src/QCaAnalogProgressBarPluginManager.cpp  \
-    src/QCaBitStatusPluginManager.cpp  \
-    src/QCaLabelPluginManager.cpp  \
-    src/QCaLineEditPluginManager.cpp \
-    src/QCaPvPropertiesPluginManager.cpp  \
-    src/QCaStripChartPluginManager.cpp \
-    src/ASguiFormPluginManager.cpp
-
-#====================================
-
+    ../widgets/src/QCaToolTip.cpp
 
 
 # Include the following gdbmacros line for debugging only
@@ -258,12 +187,6 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lca \
     -lCom
 
-FORMS += \
-    ../widgets/src/PeriodicDialog.ui \
-    src/PeriodicSetupDialog.ui \
-    src/PeriodicElementSetupForm.ui
-
-
 #===========================================================
 # BitStatus
 #
@@ -280,46 +203,37 @@ SOURCES += \
 
 
 #===========================================================
-# Included .pri (project include?) files.
+# Included .pri (project include) files for each widget
 #
 include (../archive/QEArchive.pri)
-
 include (../widgets/QEAnalogIndicator/QEAnalogIndicator.pri)
-
 include (../widgets/QEAnalogProgressBar/QEAnalogProgressBar.pri)
-
 include (../widgets/QEBitStatus/QEBitStatus.pri)
-
+#include (../widgets/bitStatus/bitStatus.pri)
 include (../widgets/QEConfiguredLayout/QEConfiguredLayout.pri)
-
 include (../widgets/QEFrame/QEFrame.pri)
-
 include (../widgets/QEGroupBox/QEGroupBox.pri)
-
 include (../widgets/QEFileBrowser/QEFileBrowser.pri)
-
 include (../widgets/QEImage/QEImage.pri)
-
 include (../widgets/QELabel/QELabel.pri)
-
 include (../widgets/QELineEdit/QELineEdit.pri)
-
 include (../widgets/QELog/QELog.pri)
-
 include (../widgets/QELogin/QELogin.pri)
-
-# include (../widgets/QEPlot/QEPlot.pri)
-
 include (../widgets/QEPvProperties/QEPvProperties.pri)
-
 include (../widgets/QERecipe/QERecipe.pri)
-
 include (../widgets/QEScript/QEScript.pri)
-
 include (../widgets/QEStripChart/QEStripChart.pri)
-
 include (../widgets/QEForm/QEForm.pri)
-
+include (../widgets/QEPeriodic/QEPeriodic.pri)
+#include (../widgets/QEComboBox/QEComboBox.pri)
+#include (../widgets/QEButton/QEButton.pri)
+#include (../widgets/QEShape/QEShape.pri)
+#include (../widgets/QESlider/QESlider.pri)
+#include (../widgets/QESpinBox/QESpinBox.pri)
+#include (../widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
+#include (../widgets/QELink/QELink.pri)
+#include (../widgets/QEPlot/QEPlot.pri)
+include (../widgets/deprecated/deprecated.pri)
 
 #===========================================================
 #

@@ -23,22 +23,22 @@
  */
 
 #include <QtDesigner>
-#include <QCaPeriodicPluginManager.h>
-#include <QCaPeriodicPlugin.h>
-#include <QCaPeriodicPluginTaskMenu.h>
+#include <QEPeriodicManager.h>
+#include <QEPeriodic.h>
+#include <QEPeriodicTaskMenu.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-QCaPeriodicPluginManager::QCaPeriodicPluginManager( QObject *parent ) : QObject( parent ) {
+QEPeriodicManager::QEPeriodicManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void QCaPeriodicPluginManager::initialize( QDesignerFormEditorInterface * formEditor ) {
+void QEPeriodicManager::initialize( QDesignerFormEditorInterface * formEditor ) {
     if( initialized ) {
         return;
     }
@@ -46,7 +46,7 @@ void QCaPeriodicPluginManager::initialize( QDesignerFormEditorInterface * formEd
     QExtensionManager *manager = formEditor->extensionManager();
     Q_ASSERT(manager != 0);
 
-    manager->registerExtensions(new QCaPeriodicPluginTaskMenuFactory(manager),
+    manager->registerExtensions(new QEPeriodicTaskMenuFactory(manager),
                                 Q_TYPEID(QDesignerTaskMenuExtension));
 
 
@@ -56,64 +56,64 @@ void QCaPeriodicPluginManager::initialize( QDesignerFormEditorInterface * formEd
 /*!
     ???
 */
-bool QCaPeriodicPluginManager::isInitialized() const {
+bool QEPeriodicManager::isInitialized() const {
     return initialized;
 }
 
 /*!
-    Widget factory. Creates a QCaPeriodicPlugin widget.
+    Widget factory. Creates a QEPeriodic widget.
 */
-QWidget *QCaPeriodicPluginManager::createWidget ( QWidget *parent ) {
-    return new QCaPeriodicPlugin(parent);
+QWidget *QEPeriodicManager::createWidget ( QWidget *parent ) {
+    return new QEPeriodic(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString QCaPeriodicPluginManager::name() const {
-    return "QCaPeriodicPlugin";
+QString QEPeriodicManager::name() const {
+    return "QEPeriodic";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString QCaPeriodicPluginManager::group() const {
+QString QEPeriodicManager::group() const {
     return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon QCaPeriodicPluginManager::icon() const {
-    return QIcon(":/icons/QCaPeriodic.png");
+QIcon QEPeriodicManager::icon() const {
+    return QIcon(":/qe/periodic/QEPeriodic.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString QCaPeriodicPluginManager::toolTip() const {
-    return "EPICS Push Button";
+QString QEPeriodicManager::toolTip() const {
+    return "EPICS Elemental Selection";
 }
 
 /*!
     ???
 */
-QString QCaPeriodicPluginManager::whatsThis() const {
-    return "EPICS Push Button";
+QString QEPeriodicManager::whatsThis() const {
+    return "EPICS Elemental Selection";
 }
 
 /*!
     ???
 */
-bool QCaPeriodicPluginManager::isContainer() const {
+bool QEPeriodicManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString QCaPeriodicPluginManager::domXml() const {
-    return "<widget class=\"QCaPeriodic\" name=\"qCaPeriodic\">\n"
+/*QString QEPeriodicManager::domXml() const {
+    return "<widget class=\"QEPeriodic\" name=\"qEPeriodic\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -135,7 +135,7 @@ bool QCaPeriodicPluginManager::isContainer() const {
 /*!
     ???
 */
-QString QCaPeriodicPluginManager::includeFile() const {
-    return "QCaPeriodicPlugin.h";
+QString QEPeriodicManager::includeFile() const {
+    return "QEPeriodic.h";
 }
 
