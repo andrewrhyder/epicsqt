@@ -34,15 +34,12 @@ CONFIG += plugin \
     debug_and_release
 DEFINES += QCAPLUGIN_LIBRARY
 TARGET = QCaPlugin
-OTHER_FILES += src/QCaSpinBox.png \
+OTHER_FILES += \
     src/QCaSlider.png \
     src/QCaShape.png \
-    src/QCaPushButton.png \
-    src/QCaRadioButton.png \
     src/QCaPlot.png \
     src/QSubstitutedLabel.png \
     src/QCaComboBox.png \
-    src/Link.png \
     src/record_field_list.txt \
     src/cameraROI.png \
     src/cameraROIreset.png \
@@ -89,28 +86,19 @@ HEADERS += \
     ../widgets/include/styleManager.h \
     ../widgets/include/standardProperties.h \
     ../widgets/include/QCaStringFormattingMethods.h \
-    ../widgets/include/QCaSpinBox.h \
     ../widgets/include/QCaComboBox.h \
     ../widgets/include/QCaSlider.h \
     ../widgets/include/QCaShape.h \
-    ../widgets/include/QCaPushButton.h \
-    ../widgets/include/QCaRadioButton.h \
-    ../widgets/include/QCaGenericButton.h \
     ../widgets/include/QSubstitutedLabel.h \
-    ../widgets/include/Link.h \
     ../widgets/include/QCaPlot.h \
     ../widgets/include/QCaToolTip.h \
 
 
 SOURCES += \
-    src/QCaSpinBoxPlugin.cpp \
     src/QCaComboBoxPlugin.cpp \
     src/QCaSliderPlugin.cpp \
     src/QCaShapePlugin.cpp \
-    src/QCaPushButtonPlugin.cpp \
-    src/QCaRadioButtonPlugin.cpp \
     src/QSubstitutedLabelPlugin.cpp \
-    src/LinkPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
     src/ContainerProfile.cpp \
     src/QCaPlotPlugin.cpp \
@@ -143,15 +131,10 @@ SOURCES += \
     ../widgets/src/styleManager.cpp \
     ../widgets/src/standardProperties.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
-    ../widgets/src/QCaSpinBox.cpp \
     ../widgets/src/QCaComboBox.cpp \
     ../widgets/src/QCaSlider.cpp \
     ../widgets/src/QCaShape.cpp \
-    ../widgets/src/QCaPushButton.cpp \
-    ../widgets/src/QCaRadioButton.cpp \
-    ../widgets/src/QCaGenericButton.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \
-    ../widgets/src/Link.cpp \
     ../widgets/src/QCaPlot.cpp \
     ../widgets/src/QCaToolTip.cpp
 
@@ -226,12 +209,12 @@ include (../widgets/QEStripChart/QEStripChart.pri)
 include (../widgets/QEForm/QEForm.pri)
 include (../widgets/QEPeriodic/QEPeriodic.pri)
 #include (../widgets/QEComboBox/QEComboBox.pri)
-#include (../widgets/QEButton/QEButton.pri)
+include (../widgets/QEButton/QEButton.pri)
 #include (../widgets/QEShape/QEShape.pri)
 #include (../widgets/QESlider/QESlider.pri)
-#include (../widgets/QESpinBox/QESpinBox.pri)
+include (../widgets/QESpinBox/QESpinBox.pri)
 #include (../widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
-#include (../widgets/QELink/QELink.pri)
+include (../widgets/QELink/QELink.pri)
 #include (../widgets/QEPlot/QEPlot.pri)
 include (../widgets/deprecated/deprecated.pri)
 

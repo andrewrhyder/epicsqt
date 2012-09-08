@@ -25,13 +25,13 @@
 #include <QELabelManager.h>
 #include <QSubstitutedLabelPluginManager.h>
 #include <QELineEditManager.h>
-#include <QCaPushButtonPluginManager.h>
-#include <QCaRadioButtonPluginManager.h>
+#include <QEPushButtonManager.h>
+#include <QERadioButtonManager.h>
 #include <QCaShapePluginManager.h>
 #include <QCaSliderPluginManager.h>
-#include <QCaSpinBoxPluginManager.h>
+#include <QESpinBoxManager.h>
 #include <QCaComboBoxPluginManager.h>
-#include <LinkPluginManager.h>
+#include <QELinkManager.h>
 #include <QCaPlotPluginManager.h>
 #include <QEPeriodicManager.h>
 #include <QEAnalogProgressBarManager.h>
@@ -61,6 +61,10 @@
 #include <QCaPvPropertiesPluginManager.h>
 #include <QCaStripChartPluginManager.h>
 #include <QCaPeriodicPluginManager.h>
+#include <QCaSpinBoxPluginManager.h>
+#include <LinkPluginManager.h>
+#include <QCaPushButtonPluginManager.h>
+#include <QCaRadioButtonPluginManager.h>
 //======================================================
 
 
@@ -87,14 +91,13 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
 
     widgets.append(new QSubstitutedLabelPluginManager(this));
     widgets.append(new QELineEditManager(this));
-    widgets.append(new QCaPushButtonPluginManager(this));
-    widgets.append(new QCaRadioButtonPluginManager(this));
+    widgets.append(new QEPushButtonManager(this));
+    widgets.append(new QERadioButtonManager(this));
     widgets.append(new QCaShapePluginManager(this));
     widgets.append(new QCaSliderPluginManager(this));
-    widgets.append(new QCaSpinBoxPluginManager(this));
+    widgets.append(new QESpinBoxManager(this));
     widgets.append(new QCaComboBoxPluginManager(this));
     widgets.append(new QEFormManager(this));
-    widgets.append(new LinkPluginManager(this));
     widgets.append(new QCaPlotPluginManager(this));
     widgets.append(new QEImageManager(this));
 
@@ -103,6 +106,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QBitStatusPluginManager(this));
     widgets.append(new QEFrameManager(this));
     widgets.append(new QEGroupBoxManager(this));
+    widgets.append(new QELinkManager(this));
 
 //======================================================
 // Deprecated widgets
@@ -114,6 +118,10 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaStripChartPluginManager(this));
     widgets.append(new ASguiFormPluginManager(this));
     widgets.append(new QCaPeriodicPluginManager(this));
+    widgets.append(new QCaSpinBoxPluginManager(this));
+    widgets.append(new LinkPluginManager(this));
+    widgets.append(new QCaPushButtonPluginManager(this));
+    widgets.append(new QCaRadioButtonPluginManager(this));
 //======================================================
 
 }

@@ -27,7 +27,7 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
-#include <QCaPushButton.h>
+#include <QERadioButton.h>
 #include <QProcess>
 #include <QMessageBox>
 #include <QMainWindow>
@@ -36,18 +36,18 @@
 /*!
     Constructor with no initialisation
 */
-QCaPushButton::QCaPushButton( QWidget *parent ) : QPushButton( parent ), QCaGenericButton( this ) {
-    QCaGenericButton::setup();
+QERadioButton::QERadioButton( QWidget *parent ) : QRadioButton( parent ), QEGenericButton( this ) {
+    QEGenericButton::setup();
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaPushButton::QCaPushButton( const QString &variableNameIn, QWidget *parent ) : QPushButton( parent ), QCaGenericButton( this ) {
+QERadioButton::QERadioButton( const QString &variableNameIn, QWidget *parent ) : QRadioButton( parent ), QEGenericButton( this ) {
     setVariableName( variableNameIn, 0 );
 
-    QCaGenericButton::setup();
+    QEGenericButton::setup();
     setup();
 
 }
@@ -55,27 +55,30 @@ QCaPushButton::QCaPushButton( const QString &variableNameIn, QWidget *parent ) :
 /*!
     Setup common to all constructors
 */
-void QCaPushButton::setup() {
-    setText( "QCaPushButton" );
+void QERadioButton::setup() {
+    setText( "QERadioButton" );
+
+    // Set up a connection to recieve variable name property changes
+    // The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
-void QCaPushButton::updateToolTip ( const QString & toolTip ) {
+void QERadioButton::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
 //==============================================================================
 // Drag drop
-void QCaPushButton::setDrop( QVariant drop )
+void QERadioButton::setDrop( QVariant drop )
 {
     setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QVariant QCaPushButton::getDrop()
+QVariant QERadioButton::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
 }
-

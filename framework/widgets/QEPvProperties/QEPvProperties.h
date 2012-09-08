@@ -109,12 +109,12 @@ public:
     Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
     Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
     Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
-    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser);
-    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist);
-    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer);
+    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
+    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
+    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
     Q_ENUMS(UserLevels)
-    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty);
-    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty);
+    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty)
+    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
     //=================================================================================
 
 private:

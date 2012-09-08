@@ -27,19 +27,19 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
-#include "QCaSpinBox.h"
+#include "QESpinBox.h"
 
 /*!
     Create a CA aware spin box with no variable name yet
 */
-QCaSpinBox::QCaSpinBox( QWidget *parent ) : QDoubleSpinBox( parent ), QCaWidget( this ) {
+QESpinBox::QESpinBox( QWidget *parent ) : QDoubleSpinBox( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Create a CA aware spin box with a variable name already known
 */
-QCaSpinBox::QCaSpinBox( const QString &variableNameIn, QWidget *parent ) : QDoubleSpinBox( parent ), QCaWidget( this ) {
+QESpinBox::QESpinBox( const QString &variableNameIn, QWidget *parent ) : QDoubleSpinBox( parent ), QCaWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -49,7 +49,7 @@ QCaSpinBox::QCaSpinBox( const QString &variableNameIn, QWidget *parent ) : QDoub
 /*!
     Common construction
 */
-void QCaSpinBox::setup() {
+void QESpinBox::setup() {
     // Set up data
     // This control used a single data source
     setNumVariables(1);
@@ -73,13 +73,18 @@ void QCaSpinBox::setup() {
 
     // Use spin box signals
     QObject::connect( this, SIGNAL( valueChanged( double ) ), this, SLOT( userValueChanged( double ) ) );
+
+    // Set up a connection to recieve variable name property changes
+    // The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
+
 }
 
 /*!
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a spin box a QCaObject that streams integers is required.
 */
-qcaobject::QCaObject* QCaSpinBox::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QESpinBox::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaInteger
     return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
@@ -90,7 +95,7 @@ qcaobject::QCaObject* QCaSpinBox::createQcaItem( unsigned int variableIndex ) {
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
 */
-void QCaSpinBox::establishConnection( unsigned int variableIndex ) {
+void QESpinBox::establishConnection( unsigned int variableIndex ) {
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -109,7 +114,7 @@ void QCaSpinBox::establishConnection( unsigned int variableIndex ) {
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
-void QCaSpinBox::updateToolTip ( const QString & toolTip ) {
+void QESpinBox::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
@@ -118,7 +123,7 @@ void QCaSpinBox::updateToolTip ( const QString & toolTip ) {
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
     /// If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
@@ -163,7 +168,7 @@ void QCaSpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     This is the slot used to recieve data updates from a QCaObject based class.
     This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QESpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     // Set the limits and step size
     QCaFloating* qca = (QCaFloating*)getQcaItem(0);
@@ -213,7 +218,7 @@ void QCaSpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo
 /*!
     The user has changed the spin box.
 */
-void QCaSpinBox::userValueChanged( double value )
+void QESpinBox::userValueChanged( double value )
 {
     // If the user is not changing the value, or not writing on change, do nothing
     if( programaticValueChange || !writeOnChange )
@@ -238,7 +243,7 @@ void QCaSpinBox::userValueChanged( double value )
 // Write a value immedietly.
 // Used when writeOnChange is false
 // (widget will never write due to the user pressing return or leaving the widget)
-void QCaSpinBox::writeNow()
+void QESpinBox::writeNow()
 {
     // Get the variable to write to
     QCaFloating* qca = (QCaFloating*)getQcaItem(0);
@@ -253,7 +258,7 @@ void QCaSpinBox::writeNow()
 }
 
 // Set the EGU as the suffix
-void QCaSpinBox::setSuffixEgu( qcaobject::QCaObject* qca )
+void QESpinBox::setSuffixEgu( qcaobject::QCaObject* qca )
 {
     // If using the EGU as the suffix, and the EGU is available, set the suffix to the EGU
     // otherwise clear the suffix
@@ -268,7 +273,7 @@ void QCaSpinBox::setSuffixEgu( qcaobject::QCaObject* qca )
 }
 
 // Set the spin box decimal places from the data precision if required
-void QCaSpinBox::setDecimalsFromPrecision( qcaobject::QCaObject* qca )
+void QESpinBox::setDecimalsFromPrecision( qcaobject::QCaObject* qca )
 {
     // If using the database precision to determine the number of decimal places, and it is available, then apply it
     if( qca && useDbPrecisionForDecimal )
@@ -279,13 +284,13 @@ void QCaSpinBox::setDecimalsFromPrecision( qcaobject::QCaObject* qca )
 
 //==============================================================================
 // Drag drop
-void QCaSpinBox::setDrop( QVariant drop )
+void QESpinBox::setDrop( QVariant drop )
 {
     setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QVariant QCaSpinBox::getDrop()
+QVariant QESpinBox::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
 }
@@ -294,21 +299,21 @@ QVariant QCaSpinBox::getDrop()
 // Property convenience functions
 
 // write on change
-void QCaSpinBox::setWriteOnChange( bool writeOnChangeIn )
+void QESpinBox::setWriteOnChange( bool writeOnChangeIn )
 {
     writeOnChange = writeOnChangeIn;
 }
-bool QCaSpinBox::getWriteOnChange()
+bool QESpinBox::getWriteOnChange()
 {
     return writeOnChange;
 }
 
 // subscribe
-void QCaSpinBox::setSubscribe( bool subscribeIn )
+void QESpinBox::setSubscribe( bool subscribeIn )
 {
     subscribe = subscribeIn;
 }
-bool QCaSpinBox::getSubscribe()
+bool QESpinBox::getSubscribe()
 {
     return subscribe;
 }
@@ -317,12 +322,12 @@ bool QCaSpinBox::getSubscribe()
 // Note, for most widgets with an 'addUnits' property, the property is passed to a
 //       QCaStringFormatting class where the units are added to the displayed string.
 //       In this case, the units are added as the spin box suffix.
-bool QCaSpinBox::getAddUnitsAsSuffix()
+bool QESpinBox::getAddUnitsAsSuffix()
 {
     return addUnitsAsSuffix;
 }
 
-void QCaSpinBox::setAddUnitsAsSuffix( bool addUnitsAsSuffixIn )
+void QESpinBox::setAddUnitsAsSuffix( bool addUnitsAsSuffixIn )
 {
     addUnitsAsSuffix = addUnitsAsSuffixIn;
     qcaobject::QCaObject* qca = (QCaFloating*)getQcaItem(0);
@@ -333,14 +338,14 @@ void QCaSpinBox::setAddUnitsAsSuffix( bool addUnitsAsSuffixIn )
 // Note, for most widgets with an 'useDbPrecision' property, the property is passed to a
 //       QCaStringFormatting class where it is used to determine the precision when formatting numbers as a string.
 //       In this case, it is used to determine the spin box number-of-decimals property.
-void QCaSpinBox::setUseDbPrecisionForDecimals( bool useDbPrecisionForDecimalIn )
+void QESpinBox::setUseDbPrecisionForDecimals( bool useDbPrecisionForDecimalIn )
 {
     useDbPrecisionForDecimal = useDbPrecisionForDecimalIn;
     qcaobject::QCaObject* qca = (QCaFloating*)getQcaItem(0);
     setDecimalsFromPrecision( qca );
 }
 
-bool QCaSpinBox::getUseDbPrecisionForDecimals()
+bool QESpinBox::getUseDbPrecisionForDecimals()
 {
     return useDbPrecisionForDecimal;
 }

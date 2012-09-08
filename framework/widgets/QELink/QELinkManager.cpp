@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <CmdPushButtonPluginManager.h>
-#include <CmdPushButtonPlugin.h>
+#include <QELinkManager.h>
+#include <QELink.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-CmdPushButtonPluginManager::CmdPushButtonPluginManager( QObject *parent ) : QObject( parent ) {
+QELinkManager::QELinkManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void CmdPushButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QELinkManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -46,64 +46,64 @@ void CmdPushButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
 /*!
     ???
 */
-bool CmdPushButtonPluginManager::isInitialized() const {
+bool QELinkManager::isInitialized() const {
     return initialized;
 }
 
 /*!
-    Widget factory. Creates a QCaLabel widget.
+    Widget factory. Creates a Link widget.
 */
-QWidget *CmdPushButtonPluginManager::createWidget ( QWidget *parent ) {
-    return new CmdPushButtonPlugin(parent);
+QWidget *QELinkManager::createWidget ( QWidget *parent ) {
+    return new QELink(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString CmdPushButtonPluginManager::name() const {
-    return "CmdPushButtonPlugin";
+QString QELinkManager::name() const {
+    return "QELink";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString CmdPushButtonPluginManager::group() const {
+QString QELinkManager::group() const {
     return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon CmdPushButtonPluginManager::icon() const {
-    return QIcon(":/icons/CmdPushButton.png");
+QIcon QELinkManager::icon() const {
+    return QIcon(":/qe/link/QELink.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString CmdPushButtonPluginManager::toolTip() const {
-    return "Run Command Push Button (actually a QCaPushButton with only the 'Run command' properties)";
+QString QELinkManager::toolTip() const {
+    return "Link";
 }
 
 /*!
     ???
 */
-QString CmdPushButtonPluginManager::whatsThis() const {
-    return "Run Command Push Button (actually a QCaPushButton with only the 'Run command' properties)";
+QString QELinkManager::whatsThis() const {
+    return "Link";
 }
 
 /*!
     ???
 */
-bool CmdPushButtonPluginManager::isContainer() const {
+bool QELinkManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString CmdPushButtonPluginManager::domXml() const {
-    return "<widget class=\"CmdPushButton\" name=\"CmdPushButton\">\n"
+/*QString QELinkManager::domXml() const {
+    return "<widget class=\"QELink\" name=\"qELink\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -125,6 +125,6 @@ bool CmdPushButtonPluginManager::isContainer() const {
 /*!
     ???
 */
-QString CmdPushButtonPluginManager::includeFile() const {
-    return "CmdPushButtonPlugin.h";
+QString QELinkManager::includeFile() const {
+    return "QELink.h";
 }

@@ -70,8 +70,8 @@ void QELabel::setup() {
     // Use label signals
     // --Currently none--
 
-    /// Set up a connection to recieve variable name property changes
-    /// The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    // Set up a connection to recieve variable name property changes
+    // The variable name property manager class only delivers an updated variable name after the user has stopped typing
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 
 }

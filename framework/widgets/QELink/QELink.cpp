@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <Link.h>
+#include <QELink.h>
 #include <ContainerProfile.h>
 #include <QVariant>
 #include <QString>
@@ -31,7 +31,7 @@
 /*!
     Constructor with no initialisation
 */
-Link::Link( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
+QELink::QELink( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
 
     // If this widget is not being used in a real GUI (it is in Designer) then it
     // should be displayed all the time, not visible according to the visible property.
@@ -68,28 +68,28 @@ Link::Link( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
     sendValue( match );
 
 // Slot to perform a comparison on a bool
-void Link::in( const bool& in )
+void QELink::in( const bool& in )
 {
     bool val = comparisonValue.toBool();
     EVAL_CONDITION;
 }
 
 // Slot to perform a comparison on an integer
-void Link::in( const qlonglong& in )
+void QELink::in( const qlonglong& in )
 {
     qlonglong val = comparisonValue.toLongLong();
     EVAL_CONDITION;
 }
 
 // Slot to perform a comparison on a floating point number
-void Link::in( const double& in )
+void QELink::in( const double& in )
 {
     double val = comparisonValue.toDouble();
     EVAL_CONDITION;
 }
 
 // Slot to perform a comparison on a string
-void Link::in( const QString& in )
+void QELink::in( const QString& in )
 {
     bool stringIsNum = false;
 
@@ -114,7 +114,7 @@ void Link::in( const QString& in )
 }
 
 // Generate appropriate signals following a comparison of an input value
-void Link::sendValue( bool match )
+void QELink::sendValue( bool match )
 {
     // If input comparison matched, emit the appropriate value if required
     if( match )
@@ -132,7 +132,7 @@ void Link::sendValue( bool match )
 }
 
 // Emit signals required when input value matches or fails to match
-void Link::emitValue( QVariant value )
+void QELink::emitValue( QVariant value )
 {
     emit out( value.toBool() );
     emit out( value.toLongLong() );
@@ -141,7 +141,7 @@ void Link::emitValue( QVariant value )
 }
 
 // Slot to allow signal/slot manipulation of the auto fill background attribute of the base label class
-void Link::autoFillBackground( const bool& enable )
+void QELink::autoFillBackground( const bool& enable )
 {
     setAutoFillBackground( enable );
 }
@@ -150,67 +150,67 @@ void Link::autoFillBackground( const bool& enable )
 // Property convenience functions
 
 // condition
-void Link::setCondition( conditions conditionIn )
+void QELink::setCondition( conditions conditionIn )
 {
     condition = conditionIn;
 }
-Link::conditions Link::getCondition()
+QELink::conditions QELink::getCondition()
 {
     return condition;
 }
 
 // comparisonValue Value to compare input signals to
-void    Link::setComparisonValue( QString comparisonValueIn )
+void    QELink::setComparisonValue( QString comparisonValueIn )
 {
     comparisonValue = QVariant(comparisonValueIn);
 }
-QString Link::getComparisonValue()
+QString QELink::getComparisonValue()
 {
     return comparisonValue.toString();
 }
 
 // signalTrue (Signal if condition is met)
-void Link::setSignalTrue( bool signalTrueIn )
+void QELink::setSignalTrue( bool signalTrueIn )
 {
     signalTrue = signalTrueIn;
 }
-bool Link::getSignalTrue()
+bool QELink::getSignalTrue()
 {
     return signalTrue;
 }
 
 // signalFalse (Signal if condition not met)
-void Link::setSignalFalse( bool signalFalseIn )
+void QELink::setSignalFalse( bool signalFalseIn )
 {
     signalFalse = signalFalseIn;
 }
-bool Link::getSignalFalse()
+bool QELink::getSignalFalse()
 {
     return signalFalse;
 }
 
 // outTrueValue Value to emit if condition is met
-void    Link::setOutTrueValue( QString outTrueValueIn )
+void    QELink::setOutTrueValue( QString outTrueValueIn )
 {
     outTrueValue = QVariant(outTrueValueIn);
 }
-QString Link::getOutTrueValue()
+QString QELink::getOutTrueValue()
 {
     return outTrueValue.toString();
 }
 
 // outFalseValue Value to emit if condition is not met
-void    Link::setOutFalseValue( QString outFalseValueIn )
+void    QELink::setOutFalseValue( QString outFalseValueIn )
 {
     outFalseValue = QVariant(outFalseValueIn);
 }
-QString Link::getOutFalseValue()
+QString QELink::getOutFalseValue()
 {
     return outFalseValue.toString();
 }
 
 // visible (widget is visible outside 'Designer')
-void Link::setRunVisible( bool visibleIn )
+void QELink::setRunVisible( bool visibleIn )
 {
     // Update the property
     visible = visibleIn;
@@ -221,7 +221,7 @@ void Link::setRunVisible( bool visibleIn )
         setVisible( visible );
 
 }
-bool Link::getRunVisible()
+bool QELink::getRunVisible()
 {
     return visible;
 }

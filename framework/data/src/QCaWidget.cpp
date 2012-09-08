@@ -23,7 +23,7 @@
  */
 
 /*!
-  This class is used as a base for all CA aware wigets, such as QELabel, QCaSpinBox, etc.
+  This class is used as a base for all CA aware wigets, such as QELabel, QESpinBox, etc.
   It manages common issues including creating a source of CA data updates, handling error,
   warning and status messages, and setting tool tips based on variable names.
 

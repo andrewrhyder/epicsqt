@@ -22,27 +22,36 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <QtCore>
-#include <QTimer>
+#ifndef QEPUSHBUTTONMANAGER_H
+#define QEPUSHBUTTONMANAGER_H
 
-#include "QCaRadioButtonPlugin.h"
+#include <QDesignerCustomWidgetInterface>
+#include <QCaPluginLibrary_global.h>
 
 /*!
     ???
 */
-QCaRadioButtonPlugin::QCaRadioButtonPlugin( QWidget *parent ) : QCaRadioButton( parent ) {
-    // Set some default text
-    setText( "QCaRadioButton" );
+class QCAPLUGINLIBRARYSHARED_EXPORT QEPushButtonManager : public QObject, public QDesignerCustomWidgetInterface {
+     Q_OBJECT
+     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
-    /// Set up a connection to recieve variable name property changes
-    /// The variable name property manager class only delivers an updated variable name after the user has stopped typing
-    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
-}
+  public:
+    QEPushButtonManager( QObject *parent = 0 );
 
-/*!
-    Slot to recieve variable name property changes.
-*/
-void QCaRadioButtonPlugin::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-{
-    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-}
+    bool isContainer() const;
+    bool isInitialized() const;
+    QIcon icon() const;
+    //QString domXml() const;
+    QString group() const;
+    QString includeFile() const;
+    QString name() const;
+    QString toolTip() const;
+    QString whatsThis() const;
+    QWidget *createWidget( QWidget *parent );
+    void initialize( QDesignerFormEditorInterface *core );
+
+  private:
+    bool initialized;
+};
+
+#endif // QEPUSHBUTTONMANAGER_H

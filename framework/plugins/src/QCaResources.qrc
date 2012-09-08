@@ -1,14 +1,10 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>QCaPushButton.png</file>
         <file>QCaSlider.png</file>
-        <file>QCaSpinBox.png</file>
         <file>QCaShape.png</file>
         <file>QCaComboBox.png</file>
-        <file>Link.png</file>
         <file>QCaPlot.png</file>
         <file>QBitStatus.png</file>
         <file>QSubstitutedLabel.png</file>
-        <file>QCaRadioButton.png</file>
     </qresource>
 </RCC>

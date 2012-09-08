@@ -609,7 +609,7 @@ void QERecipe::buttonNewClicked()
                 }
                 else if (fieldInfo->getType() == SPINBOX)
                 {
-                    processVariableElement.setAttribute("value", ((QCaSpinBox *) fieldInfo->qCaWidget)->text());
+                    processVariableElement.setAttribute("value", ((QESpinBox *) fieldInfo->qCaWidget)->text());
                 }
                 else if (fieldInfo->getType() == COMBOBOX)
                 {
@@ -707,7 +707,7 @@ void QERecipe::buttonSaveClicked()
             }
             else if (fieldInfo->getType() == SPINBOX)
             {
-                processVariableElement.setAttribute("value", ((QCaSpinBox *) fieldInfo->qCaWidget)->text());
+                processVariableElement.setAttribute("value", ((QESpinBox *) fieldInfo->qCaWidget)->text());
             }
             else if (fieldInfo->getType() == COMBOBOX)
             {
@@ -1019,7 +1019,7 @@ void QERecipe::refreshButton()
                                         }
                                         else if (fieldInfo->getType() == SPINBOX)
                                         {
-//                                            ((QCaSpinBox *) fieldInfo->qCaWidget)->setValue((float) processVariableElement.attribute("value"));
+//                                            ((QESpinBox *) fieldInfo->qCaWidget)->setValue((float) processVariableElement.attribute("value"));
                                         }
                                         else if (fieldInfo->getType() == COMBOBOX)
                                         {

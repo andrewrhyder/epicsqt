@@ -85,7 +85,7 @@ QString QCaPeriodicPluginManager::group() const {
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaPeriodicPluginManager::icon() const {
-    return QIcon(":/qe/periodic/QCaPeriodic.png");
+    return QIcon(":/qe/periodic/QEPeriodic.png");
 }
 
 /*!

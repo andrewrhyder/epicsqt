@@ -491,15 +491,15 @@ void QEConfiguredLayout::refreshFields()
                 if (field->getType() == BITSTATUS)
                 {
 //                    qCaWidget = new QEBitStatus();
-//                    ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-//                    QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+//                    ((QESpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+//                    QObject::connect(((QESpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
                 }
                 else if (field->getType() == BUTTON)
                 {
-                    qCaWidget = new QCaPushButton();
-                    ((QCaPushButton *) qCaWidget)->setSubscribe(subscription);
-                    ((QCaPushButton *) qCaWidget)->setText(field->getName());
-                    ((QCaPushButton *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                    qCaWidget = new QEPushButton();
+                    ((QEPushButton *) qCaWidget)->setSubscribe(subscription);
+                    ((QEPushButton *) qCaWidget)->setText(field->getName());
+                    ((QEPushButton *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                 }
                 else if (field->getType() == LABEL)
                 {
@@ -509,10 +509,10 @@ void QEConfiguredLayout::refreshFields()
                 }
                 else if (field->getType() == SPINBOX)
                 {
-                    qCaWidget = new QCaSpinBox();
-                    ((QCaSpinBox *) qCaWidget)->setSubscribe(subscription);
-                    ((QCaSpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                    QObject::connect(((QCaSpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+                    qCaWidget = new QESpinBox();
+                    ((QESpinBox *) qCaWidget)->setSubscribe(subscription);
+                    ((QESpinBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                    QObject::connect(((QESpinBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
                 }
                 else if (field->getType() == COMBOBOX)
                 {
@@ -588,7 +588,7 @@ void QEConfiguredLayout::refreshFields()
                     }
                     else if (field->getType() == BUTTON)
                     {
-                        qHBoxLayout->addWidget((QCaPushButton *) fieldInfo->qCaWidget);
+                        qHBoxLayout->addWidget((QEPushButton *) fieldInfo->qCaWidget);
                     }
                     else if (field->getType() == LABEL)
                     {
@@ -596,7 +596,7 @@ void QEConfiguredLayout::refreshFields()
                     }
                     else if (field->getType() == SPINBOX)
                     {
-                        qHBoxLayout->addWidget((QCaSpinBox *) fieldInfo->qCaWidget);
+                        qHBoxLayout->addWidget((QESpinBox *) fieldInfo->qCaWidget);
                     }
                     else if (field->getType() == COMBOBOX)
                     {
@@ -1116,7 +1116,7 @@ _QDialogItem::_QDialogItem(QWidget *pParent, QString pItemName, QString pGroupNa
                 }
                 else if (fieldInfo->getType() == BUTTON)
                 {
-                    qHBoxLayout->addWidget((QCaPushButton *) pCurrentFieldList->at(i)->qCaWidget);
+                    qHBoxLayout->addWidget((QEPushButton *) pCurrentFieldList->at(i)->qCaWidget);
                 }
                 else if (fieldInfo->getType() == LABEL)
                 {
@@ -1124,7 +1124,7 @@ _QDialogItem::_QDialogItem(QWidget *pParent, QString pItemName, QString pGroupNa
                 }
                 else if (fieldInfo->getType() == SPINBOX)
                 {
-                    qHBoxLayout->addWidget((QCaSpinBox *) pCurrentFieldList->at(i)->qCaWidget);
+                    qHBoxLayout->addWidget((QESpinBox *) pCurrentFieldList->at(i)->qCaWidget);
                 }
                 else if (fieldInfo->getType() == COMBOBOX)
                 {

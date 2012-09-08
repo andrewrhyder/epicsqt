@@ -750,7 +750,7 @@ QEForm* MainWindow::createGui( QString fileName )
     if( gui )
     {
         // This method may be called with or without a profile defined.
-        // For example, when this method is the result of a QCa button launching a new GUI,
+        // For example, when this method is the result of a QEButton launching a new GUI,
         // the button will have published its own profile. This is fine for some
         // things - such as picking up the required macro substitutions - but not
         // appropriate for other things, such as which widgets should be signaled

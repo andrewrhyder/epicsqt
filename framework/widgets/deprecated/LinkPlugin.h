@@ -1,10 +1,3 @@
-/*! 
-  \class LinkPlugin
-  \version $Revision: #6 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief Link Widget Plugin for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -32,33 +25,15 @@
 #ifndef LINKPLUGIN_H
 #define LINKPLUGIN_H
 
-#include <QString>
-#include <Link.h>
+#include <QELink.h>
 
-class LinkPlugin : public Link {
+class LinkPlugin : public QELink {
     Q_OBJECT
 
   public:
     /// Constructors
     LinkPlugin( QWidget *parent = 0 );
 
-    /// Qt Designer Properties - condition
-    Q_ENUMS(ConditionNames)
-    Q_PROPERTY(ConditionNames condition READ getConditionProperty WRITE setConditionProperty)
-    enum ConditionNames { Equal              = Link::CONDITION_EQ,
-                          NotEqual           = Link::CONDITION_NE,
-                          GreaterThan        = Link::CONDITION_GT,
-                          GreaterThanOrEqual = Link::CONDITION_GE,
-                          LessThan           = Link::CONDITION_LT,
-                          LessThanOrEqual    = Link::CONDITION_LE };
-    void setConditionProperty( ConditionNames condition ){ setCondition( (Link::conditions)condition ); }
-    ConditionNames getConditionProperty(){ return (ConditionNames)getCondition(); }
-
-    Q_PROPERTY(QString comparisonValue READ getComparisonValue WRITE setComparisonValue)
-    Q_PROPERTY(bool signalTrue READ getSignalTrue WRITE setSignalTrue)
-    Q_PROPERTY(bool signalFalse READ getSignalFalse WRITE setSignalFalse)
-    Q_PROPERTY(QString outTrueValue READ getOutTrueValue WRITE setOutTrueValue)
-    Q_PROPERTY(QString outFalseValue READ getOutFalseValue WRITE setOutFalseValue)
 };
 
 #endif /// LINKPLUGIN_H

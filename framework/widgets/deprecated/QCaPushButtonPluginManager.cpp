@@ -1,10 +1,3 @@
-/*! 
-  \class QCaPushButtonPluginManager
-  \version $Revision: #3 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief CA Push Button Widget Plugin Manager for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -75,14 +68,14 @@ QString QCaPushButtonPluginManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QCaPushButtonPluginManager::group() const {
-    return "EPICS Widgets";
+    return "EPICS Deprecated Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaPushButtonPluginManager::icon() const {
-    return QIcon(":/icons/QCaPushButton.png");
+    return QIcon(":/qe/button/QEPushButton.png");
 }
 
 /*!

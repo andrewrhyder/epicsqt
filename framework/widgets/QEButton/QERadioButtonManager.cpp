@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <LinkPluginManager.h>
-#include <LinkPlugin.h>
+#include <QERadioButtonManager.h>
+#include <QERadioButton.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-LinkPluginManager::LinkPluginManager( QObject *parent ) : QObject( parent ) {
+QERadioButtonManager::QERadioButtonManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void LinkPluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QERadioButtonManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -46,64 +46,64 @@ void LinkPluginManager::initialize( QDesignerFormEditorInterface * ) {
 /*!
     ???
 */
-bool LinkPluginManager::isInitialized() const {
+bool QERadioButtonManager::isInitialized() const {
     return initialized;
 }
 
 /*!
-    Widget factory. Creates a Link widget.
+    Widget factory. Creates a QCaRadioButton widget.
 */
-QWidget *LinkPluginManager::createWidget ( QWidget *parent ) {
-    return new QELink(parent);
+QWidget *QERadioButtonManager::createWidget ( QWidget *parent ) {
+    return new QERadioButton(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString LinkPluginManager::name() const {
-    return "LinkPlugin";
+QString QERadioButtonManager::name() const {
+    return "QERadioButton";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString LinkPluginManager::group() const {
-    return "EPICS Deprecated Widgets";
+QString QERadioButtonManager::group() const {
+    return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon LinkPluginManager::icon() const {
-    return QIcon(":/qe/link/QELink.png");
+QIcon QERadioButtonManager::icon() const {
+    return QIcon(":/qe/button/QERadioButton.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString LinkPluginManager::toolTip() const {
-    return "Link";
+QString QERadioButtonManager::toolTip() const {
+    return "EPICS Radio Button";
 }
 
 /*!
     ???
 */
-QString LinkPluginManager::whatsThis() const {
-    return "Link";
+QString QERadioButtonManager::whatsThis() const {
+    return "EPICS Radio Button";
 }
 
 /*!
     ???
 */
-bool LinkPluginManager::isContainer() const {
+bool QERadioButtonManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString LinkPluginManager::domXml() const {
-    return "<widget class=\"Link\" name=\"Link\">\n"
+/*QString QERadioButtonManager::domXml() const {
+    return "<widget class=\"QERadioButton\" name=\"qERadioButton\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -125,6 +125,6 @@ bool LinkPluginManager::isContainer() const {
 /*!
     ???
 */
-QString LinkPluginManager::includeFile() const {
-    return "LinkPlugin.h";
+QString QERadioButtonManager::includeFile() const {
+    return "QERadioButton.h";
 }

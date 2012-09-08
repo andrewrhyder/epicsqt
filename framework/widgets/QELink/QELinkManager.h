@@ -1,10 +1,3 @@
-/*! 
-  \class LinkPlugin
-  \version $Revision: #3 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Link Widget Plugin for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -29,11 +22,36 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <QtCore>
-#include <LinkPlugin.h>
+#ifndef QELINKMANAGER_H
+#define QELINKMANAGER_H
+
+#include <QDesignerCustomWidgetInterface>
+#include <QCaPluginLibrary_global.h>
 
 /*!
     ???
 */
-LinkPlugin::LinkPlugin( QWidget* parent ) : Link( parent ) {
-}
+class QCAPLUGINLIBRARYSHARED_EXPORT QELinkManager : public QObject, public QDesignerCustomWidgetInterface {
+     Q_OBJECT
+     Q_INTERFACES(QDesignerCustomWidgetInterface)
+
+  public:
+    QELinkManager( QObject *parent = 0 );
+
+    bool isContainer() const;
+    bool isInitialized() const;
+    QIcon icon() const;
+    //QString domXml() const;
+    QString group() const;
+    QString includeFile() const;
+    QString name() const;
+    QString toolTip() const;
+    QString whatsThis() const;
+    QWidget *createWidget( QWidget *parent );
+    void initialize( QDesignerFormEditorInterface *core );
+
+  private:
+    bool initialized;
+};
+
+#endif /// QELINKMANAGER_H

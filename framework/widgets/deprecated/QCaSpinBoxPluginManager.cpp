@@ -68,14 +68,14 @@ QString QCaSpinBoxPluginManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QCaSpinBoxPluginManager::group() const {
-    return "EPICS Widgets";
+    return "EPICS Deprecated Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaSpinBoxPluginManager::icon() const {
-    return QIcon(":/icons/QCaSpinBox.png");
+    return QIcon(":/qe/spinbox/QESpinBox.png");
 }
 
 /*!

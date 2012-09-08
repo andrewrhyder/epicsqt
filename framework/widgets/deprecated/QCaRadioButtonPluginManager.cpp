@@ -68,28 +68,28 @@ QString QCaRadioButtonPluginManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QCaRadioButtonPluginManager::group() const {
-    return "EPICS Widgets";
+    return "EPICS Deprecated Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaRadioButtonPluginManager::icon() const {
-    return QIcon(":/icons/QCaRadioButton.png");
+    return QIcon(":/qe/button/QERadioButton.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaRadioButtonPluginManager::toolTip() const {
-    return "EPICS Push Button";
+    return "EPICS Radio Button";
 }
 
 /*!
     ???
 */
 QString QCaRadioButtonPluginManager::whatsThis() const {
-    return "EPICS Push Button";
+    return "EPICS Radio Button";
 }
 
 /*!

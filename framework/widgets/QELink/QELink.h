@@ -22,8 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QLINK_H
-#define QLINK_H
+#ifndef QELINK_H
+#define QELINK_H
 
 #include <QLabel>
 #include <QCaWidget.h>
@@ -31,11 +31,11 @@
 #include <QString>
 #include <QCaPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT Link : public QLabel, QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QELink : public QLabel, QCaWidget {
    Q_OBJECT
 
   public:
-    Link( QWidget *parent = 0 );
+    QELink( QWidget *parent = 0 );
 
     enum conditions { CONDITION_EQ, CONDITION_NE, CONDITION_GT, CONDITION_GE, CONDITION_LT, CONDITION_LE };
 
@@ -100,6 +100,25 @@ class QCAPLUGINLIBRARYSHARED_EXPORT Link : public QLabel, QCaWidget {
     void sendValue( bool match );
     void emitValue( QVariant value );
 
+  public:
+    // Qt Designer Properties - condition
+    Q_ENUMS(ConditionNames)
+    Q_PROPERTY(ConditionNames condition READ getConditionProperty WRITE setConditionProperty)
+    enum ConditionNames { Equal              = QELink::CONDITION_EQ,
+                          NotEqual           = QELink::CONDITION_NE,
+                          GreaterThan        = QELink::CONDITION_GT,
+                          GreaterThanOrEqual = QELink::CONDITION_GE,
+                          LessThan           = QELink::CONDITION_LT,
+                          LessThanOrEqual    = QELink::CONDITION_LE };
+    void setConditionProperty( ConditionNames condition ){ setCondition( (QELink::conditions)condition ); }
+    ConditionNames getConditionProperty(){ return (ConditionNames)getCondition(); }
+
+    Q_PROPERTY(QString comparisonValue READ getComparisonValue WRITE setComparisonValue)
+    Q_PROPERTY(bool signalTrue READ getSignalTrue WRITE setSignalTrue)
+    Q_PROPERTY(bool signalFalse READ getSignalFalse WRITE setSignalFalse)
+    Q_PROPERTY(QString outTrueValue READ getOutTrueValue WRITE setOutTrueValue)
+    Q_PROPERTY(QString outFalseValue READ getOutFalseValue WRITE setOutFalseValue)
+
 };
 
-#endif /// QLINK_H
+#endif /// QELINK_H

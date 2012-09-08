@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <GuiPushButtonPluginManager.h>
-#include <GuiPushButtonPlugin.h>
+#include <QEPushButtonManager.h>
+#include <QEPushButton.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-GuiPushButtonPluginManager::GuiPushButtonPluginManager( QObject *parent ) : QObject( parent ) {
+QEPushButtonManager::QEPushButtonManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void GuiPushButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QEPushButtonManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -46,64 +46,64 @@ void GuiPushButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
 /*!
     ???
 */
-bool GuiPushButtonPluginManager::isInitialized() const {
+bool QEPushButtonManager::isInitialized() const {
     return initialized;
 }
 
 /*!
     Widget factory. Creates a QCaLabel widget.
 */
-QWidget *GuiPushButtonPluginManager::createWidget ( QWidget *parent ) {
-    return new GuiPushButtonPlugin(parent);
+QWidget *QEPushButtonManager::createWidget ( QWidget *parent ) {
+    return new QEPushButton(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString GuiPushButtonPluginManager::name() const {
-    return "GuiPushButtonPlugin";
+QString QEPushButtonManager::name() const {
+    return "QEPushButton";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString GuiPushButtonPluginManager::group() const {
+QString QEPushButtonManager::group() const {
     return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon GuiPushButtonPluginManager::icon() const {
-    return QIcon(":/icons/GuiPushButton.png");
+QIcon QEPushButtonManager::icon() const {
+    return QIcon(":/qe/button/QEPushButton.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString GuiPushButtonPluginManager::toolTip() const {
-    return "GUI Launch Push Button (actually a QCaPushButton with only the 'GUI launch' properties)";
+QString QEPushButtonManager::toolTip() const {
+    return "EPICS Push Button";
 }
 
 /*!
     ???
 */
-QString GuiPushButtonPluginManager::whatsThis() const {
-    return "GUI Launch Push Button (actually a QCaPushButton with only the 'GUI launch' properties)";
+QString QEPushButtonManager::whatsThis() const {
+    return "EPICS Push Button";
 }
 
 /*!
     ???
 */
-bool GuiPushButtonPluginManager::isContainer() const {
+bool QEPushButtonManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString GuiPushButtonPluginManager::domXml() const {
-    return "<widget class=\"GuiPushButton\" name=\"GuiPushButton\">\n"
+/*QString QEPushButtonManager::domXml() const {
+    return "<widget class=\"QEPushButton\" name=\"qEPushButton\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -125,6 +125,6 @@ bool GuiPushButtonPluginManager::isContainer() const {
 /*!
     ???
 */
-QString GuiPushButtonPluginManager::includeFile() const {
-    return "GuiPushButtonPlugin.h";
+QString QEPushButtonManager::includeFile() const {
+    return "QEPushButton.h";
 }

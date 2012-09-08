@@ -25,51 +25,14 @@
 #ifndef QCASPINBOXPLUGIN_H
 #define QCASPINBOXPLUGIN_H
 
-#include <QTimer>
-#include <QString>
-#include <QCaSpinBox.h>
-#include <QCaVariableNamePropertyManager.h>
-#include <QCaStringFormatting.h>
+#include <QESpinBox.h>
 
-class QCaSpinBoxPlugin : public QCaSpinBox {
+class QCaSpinBoxPlugin : public QESpinBox {
     Q_OBJECT
 
   public:
-    QCaSpinBoxPlugin( QWidget *parent = 0 );
-    QCaSpinBoxPlugin( QString variableName, QWidget *parent = 0 );
-
-    /// Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
-    /// A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
-    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
-    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
-    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
-
-    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
-    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
-
-    Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange)
-    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
-    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
-
-    // Note, this useDbPrecision property is normally part of the standard 'string properties' set.
-    //       The normal get and set methods are QCaStringFormatting::getUseDbPrecision() and QCaStringFormatting::setUseDbPrecision().
-    //       In this case, the flag is used to determine the QSpinBox 'decimals' property.
-    Q_PROPERTY(bool useDbPrecision READ getUseDbPrecisionForDecimals WRITE setUseDbPrecisionForDecimals)
-
-    // Note, this addUnits property is normally part of the standard 'string properties' set.
-    //       The normal get and set methods are QCaStringFormatting::getAddUnits() and QCaStringFormatting::setAddUnits().
-    //       In this case, the units are added as the QSpinBox suffix, and not as part of a string.
-    Q_PROPERTY(bool addUnits READ getAddUnitsAsSuffix WRITE setAddUnitsAsSuffix)
-
-  private:
-    QCaVariableNamePropertyManager variableNamePropertyManager;
-
-  private slots:
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
+    QCaSpinBoxPlugin( QWidget *parent = 0 ) : QESpinBox( parent ) {}
 
 };
 
-#endif /// QCASPINBOXPLUGIN_H
+#endif // QCASPINBOXPLUGIN_H

@@ -22,8 +22,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCAGENERICBUTTON_H
-#define QCAGENERICBUTTON_H
+#ifndef QEGENERICBUTTON_H
+#define QEGENERICBUTTON_H
 
 #include <QCaWidget.h>
 #include <QEForm.h>
@@ -32,14 +32,14 @@
 #include <managePixmaps.h>
 #include <QCaStringFormattingMethods.h>
 
-//! Maximum number of variables.
-#define QCAGENERICBUTTON_NUM_VARIABLES 2
+// Maximum number of variables.
+#define QEGENERICBUTTON_NUM_VARIABLES 2
 
-class QCaGenericButton : public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
+class QEGenericButton : public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
 
   public:
-    QCaGenericButton( QWidget *owner );
-    virtual ~QCaGenericButton(){}
+    QEGenericButton( QWidget *owner );
+    virtual ~QEGenericButton(){}
 
     enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON, UPDATE_STATE };
 
@@ -136,15 +136,15 @@ public:
     bool writeOnPress;
     bool writeOnRelease;
     bool writeOnClick;
-    QString releaseText;      /// Text to write on a button release
-    QString pressText;        /// Text to write on a button press
-    QString clickText;        /// Text to write on a button click
-    QString clickCheckedText; /// Text to write on a button click when the button moves to the checked position
+    QString releaseText;      // Text to write on a button release
+    QString pressText;        // Text to write on a button press
+    QString clickText;        // Text to write on a button click
+    QString clickCheckedText; // Text to write on a button click when the button moves to the checked position
 
-    QString program;        /// Program to run
-    QStringList arguments;  /// Program arguments
+    QString program;        // Program to run
+    QStringList arguments;  // Program arguments
 
-    QString guiName;      /// GUI file name to launch
+    QString guiName;      // GUI file name to launch
     QEForm::creationOptions creationOption;
 
     bool localEnabled;
@@ -185,4 +185,4 @@ private:
     bool checkPassword();
 };
 
-#endif /// QCAGENERICBUTTON_H
+#endif // QEGENERICBUTTON_H

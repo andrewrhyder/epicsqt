@@ -22,82 +22,87 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QELABEL_H
-#define QELABEL_H
+#ifndef QERADIOBUTTON_H
+#define QERADIOBUTTON_H
 
-#include <QLabel>
+#include <QRadioButton>
 #include <QCaWidget.h>
 #include <QCaString.h>
 #include <QCaStringFormatting.h>
 #include <QCaPluginLibrary_global.h>
 #include <managePixmaps.h>
-#include <QCaStringFormattingMethods.h>
-#include <QCaVariableNamePropertyManager.h>
+#include <QEGenericButton.h>
 
-
-class QCAPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
+class QCAPLUGINLIBRARYSHARED_EXPORT QERadioButton : public QRadioButton, public QEGenericButton {
     Q_OBJECT
 
   public:
-    enum updateOptions { UPDATE_TEXT, UPDATE_PIXMAP };
-
-    QELabel( QWidget *parent = 0 );
-    QELabel( const QString &variableName, QWidget *parent = 0 );
-
-    // Property convenience functions
-
-    // Update option (icon, text, or both)
-    void setUpdateOption( updateOptions updateOptionIn );
-    updateOptions getUpdateOption();
-
-  protected:
-    void establishConnection( unsigned int variableIndex );
-
-    updateOptions updateOption;
+    QERadioButton( QWidget *parent = 0 );
+    QERadioButton( const QString& variableName, QWidget *parent = 0 );
 
 private slots:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setLabelText( const QString& text, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void connectionChanged( QCaConnectionInfo& connectionInfo ) { QEGenericButton::connectionChanged( connectionInfo ); }
+    void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) { setGenericButtonText( text, alarmInfo, timestamp, variableIndex); }
+    void userPressed() { QEGenericButton::userPressed(); }
+    void userReleased() { QEGenericButton::userReleased(); }
+    void userClicked( bool checked ) { QEGenericButton::userClicked( checked ); }
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
+
 public slots:
+    void launchGui( QString guiName, QEForm::creationOptions creationOption ){ QEGenericButton::launchGui( guiName, creationOption); }
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void onGeneralMessage( QString message ){ QEGenericButton::onGeneralMessage( message ); }
+
 
   signals:
     void dbValueChanged( const QString& out );
+
+    void newGui( QString guiName, QEForm::creationOptions creationOption );
+
     void requestResend();
 
-  private:
+  protected:
+
+private:
     void setup();
-    qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void updateToolTip( const QString& tip );
+    void updateToolTip ( const QString & toolTip );
 
-    QCAALARMINFO_SEVERITY lastSeverity;
-    bool isConnected;
+    void setButtonState( bool checked ){ QRadioButton::setChecked( checked ); }
+    void setButtonText( QString text ){ QRadioButton::setText( text ); }
+    QString getButtonText(){ return text(); }
+    void setButtonIcon( QIcon& icon ) {setIcon( icon ); }
 
-    QString lastTextStyle;
-    QString currentText;
+    void setButtonStyleSheet( QString style ){ setStyleSheet( style ); }
+
+    void emitDbValueChanged( QString text ){ emit dbValueChanged( text ); }
+
+    void emitNewGui( QString guiName, QEForm::creationOptions creationOption  ){ emit newGui( guiName, creationOption); }
+
+    void connectButtonDataChange( qcaobject::QCaObject* qca )
+    {
+                QObject::connect( qca,  SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setButtonText( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+    }
+
+    QObject* getButtonQObject(){ return this; }
 
     void stringFormattingChange(){ requestResend(); }
 
-
+    QEGenericButton::updateOptions getDefaultUpdateOption() { return QEGenericButton::UPDATE_STATE; }
 
     // Drag and Drop
 protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDrop( QVariant drop );
     QVariant getDrop();
-
-    // Copy paste
-    QString copyVariable();
-    QVariant copyData();
-    void paste( QVariant s );
-
 
 public:
     //=================================================================================
@@ -140,36 +145,17 @@ public:
     Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
     //=================================================================================
 
-    //=================================================================================
-    // String formatting properties
-    // These properties should be identical for every widget managing strings.
-    // WHEN MAKING CHANGES: search for STRINGPROPERTIES and change all occurances.
-    Q_PROPERTY(int  precision READ getPrecision WRITE setPrecision)
-    Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
-    Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
-    Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
-    Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
-    Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
-    Q_ENUMS(Formats)
-    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
-    Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
-    Q_ENUMS(Notations)
-    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
-    Q_ENUMS(ArrayActions)
-    Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
-    Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
-    //=================================================================================
 
-//==========================================================================
-// Widget specific properties
+    // Widget specific properties
 
-public:
-    /// Update options (text, pixmap, or both)
+    // Update options (text, pixmap, or both)
     Q_ENUMS(UpdateOptions)
     Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
-    enum UpdateOptions { Text     = QELabel::UPDATE_TEXT,
-                         Picture  = QELabel::UPDATE_PIXMAP };
-    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QELabel::updateOptions)updateOption ); }
+    enum UpdateOptions { Text        = QERadioButton::UPDATE_TEXT,
+                         Icon        = QERadioButton::UPDATE_ICON,
+                         TextAndIcon = QERadioButton::UPDATE_TEXT_AND_ICON,
+                         State       = QERadioButton::UPDATE_STATE };
+    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QERadioButton::updateOptions)updateOption ); }
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 
     /// Pixmaps
@@ -200,7 +186,62 @@ public:
     QPixmap getPixmap6Property(){ return getDataPixmap( 6 ); }
     QPixmap getPixmap7Property(){ return getDataPixmap( 7 ); }
 
+    /// String formatting properties
+    Q_PROPERTY(unsigned int precision READ getPrecision WRITE setPrecision)
+    Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
+    Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
+    Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
+    Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
+    Q_PROPERTY(Qt::Alignment alignment READ getTextAlignment WRITE setTextAlignment )
 
+    Q_ENUMS(Formats)
+    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
+    enum Formats { Default         = QCaStringFormatting::FORMAT_DEFAULT,
+                   Floating        = QCaStringFormatting::FORMAT_FLOATING,
+                   Integer         = QCaStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time            = QCaStringFormatting::FORMAT_TIME };
+    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    Formats getFormatProperty(){ return (Formats)getFormat(); }
+
+    Q_ENUMS(Notations)
+    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
+    enum Notations { Fixed      = QCaStringFormatting::NOTATION_FIXED,
+                     Scientific = QCaStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic  = QCaStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    Notations getNotationProperty(){ return (Notations)getNotation(); }
+
+    Q_PROPERTY(QString password READ getPassword WRITE setPassword)
+
+    Q_PROPERTY(bool writeOnPress READ getWriteOnPress WRITE setWriteOnPress)
+    Q_PROPERTY(bool writeOnRelease READ getWriteOnRelease WRITE setWriteOnRelease)
+    Q_PROPERTY(bool writeOnClick READ getWriteOnClick WRITE setWriteOnClick)
+
+    Q_PROPERTY(QString pressText READ getPressText WRITE setPressText)
+    Q_PROPERTY(QString releaseText READ getReleaseText WRITE setReleaseText)
+    Q_PROPERTY(QString clickText READ getClickText WRITE setClickText)
+    Q_PROPERTY(QString clickCheckedText READ getClickCheckedText WRITE setClickCheckedText)
+
+    Q_PROPERTY(QString labelText READ getLabelTextProperty WRITE setLabelTextProperty)
+
+    Q_PROPERTY(QString program READ getProgram WRITE setProgram)
+    Q_PROPERTY(QStringList arguments READ getArguments WRITE setArguments)
+
+
+
+    // Note, a property macro in the form 'Q_PROPERTY(QString guiName READ ...' doesn't work.
+    // A property name ending with 'Name' results in some sort of string variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+    Q_PROPERTY(QString guiFile READ getGuiName WRITE setGuiName)
+
+    // Creation options
+    Q_ENUMS(CreationOptionNames)
+    Q_PROPERTY(CreationOptionNames creationOption READ getCreationOptionProperty WRITE setCreationOptionProperty)
+    enum CreationOptionNames { Open = QEForm::CREATION_OPTION_OPEN,
+                               NewTab = QEForm::CREATION_OPTION_NEW_TAB,
+                               NewWindow = QEForm::CREATION_OPTION_NEW_WINDOW };
+    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEForm::creationOptions)creationOptionIn ); }
+    CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
 };
 
-#endif /// QELABEL_H
+#endif // QERADIOBUTTON_H

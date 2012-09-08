@@ -28,10 +28,10 @@
 #include <QDomDocument>
 #include <QELabel.h>
 #include <QEBitStatus.h>
-#include <QCaPushButton.h>
+#include <QEPushButton.h>
 #include <QELineEdit.h>
 #include <QCaComboBox.h>
-#include <QCaSpinBox.h>
+#include <QESpinBox.h>
 
 
 

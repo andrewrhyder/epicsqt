@@ -27,21 +27,21 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
-#include <QCaGenericButton.h>
+#include <QEGenericButton.h>
 #include <QProcess>
 #include <QMessageBox>
 #include <QMainWindow>
 #include <QIcon>
 #include <QInputDialog>
 
-QCaGenericButton::QCaGenericButton( QWidget *owner ) : QCaWidget( owner )
+QEGenericButton::QEGenericButton( QWidget *owner ) : QCaWidget( owner )
 {
 }
 
 /*!
     Setup common to all button constructors
 */
-void QCaGenericButton::setup() {
+void QEGenericButton::setup() {
     dataSetup();
     commandSetup();
     guiSetup();
@@ -55,10 +55,10 @@ void QCaGenericButton::setup() {
 /*!
     Setup for reading and writing data
 */
-void QCaGenericButton::dataSetup() {
+void QEGenericButton::dataSetup() {
     // Set up data
     // This control uses two data sources, the first is written to and (by default) read from. The second is the alternative read back
-    setNumVariables(QCAGENERICBUTTON_NUM_VARIABLES);
+    setNumVariables(QEGENERICBUTTON_NUM_VARIABLES);
 
     // Set up default properties
     writeOnPress = false;
@@ -88,13 +88,13 @@ void QCaGenericButton::dataSetup() {
 /*!
     Setup for running commands
 */
-void QCaGenericButton::commandSetup() {
+void QEGenericButton::commandSetup() {
 }
 
 /*!
     Setup for starting new GUIs
 */
-void QCaGenericButton::guiSetup() {
+void QEGenericButton::guiSetup() {
 
     // Set default properties
     creationOption = QEForm::CREATION_OPTION_OPEN;
@@ -121,7 +121,7 @@ void QCaGenericButton::guiSetup() {
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a push button a QCaObject that streams strings is required.
 */
-qcaobject::QCaObject* QCaGenericButton::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QEGenericButton::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaString
     return new QCaString( getSubstitutedVariableName( variableIndex ), getButtonQObject(), &stringFormatting, variableIndex );
@@ -132,7 +132,7 @@ qcaobject::QCaObject* QCaGenericButton::createQcaItem( unsigned int variableInde
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
 */
-void QCaGenericButton::establishConnection( unsigned int variableIndex ) {
+void QEGenericButton::establishConnection( unsigned int variableIndex ) {
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -166,7 +166,7 @@ void QCaGenericButton::establishConnection( unsigned int variableIndex ) {
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QCaGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
     // Do nothing if no variable name, but there is a program to run or a new gui to open.
     // Most widgets will be dissabled at this point if there is no good connection to a PV,
@@ -197,7 +197,7 @@ void QCaGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
   Implement a slot to set the current text of the push button
   This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QCaGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex )
+void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex )
 {
     // If not subscribing, or subscribing but update is not for the readback variable, then do nothing.
     //
@@ -247,7 +247,7 @@ void QCaGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& 
 /*!
     Button press event.
 */
-void QCaGenericButton::userPressed() {
+void QEGenericButton::userPressed() {
     /// Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
@@ -263,7 +263,7 @@ void QCaGenericButton::userPressed() {
     Button release event.
 */
 
-void QCaGenericButton::userReleased() {
+void QEGenericButton::userReleased() {
     /// Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
@@ -278,7 +278,7 @@ void QCaGenericButton::userReleased() {
 /*!
     Button click event.
 */
-void QCaGenericButton::userClicked( bool checked ) {
+void QEGenericButton::userClicked( bool checked ) {
     /// Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
@@ -358,7 +358,7 @@ void QCaGenericButton::userClicked( bool checked ) {
   Return false if the user cancels, or enteres an incorrect password.
   Give the user a warning message if a password is entered incorrectly.
 */
-bool QCaGenericButton::checkPassword()
+bool QEGenericButton::checkPassword()
 {
     // All OK if there is no password
     if( password.isEmpty() )
@@ -386,11 +386,11 @@ bool QCaGenericButton::checkPassword()
 //==============================================================================
 
 // Update option Property convenience function
-void QCaGenericButton::setUpdateOption( updateOptions updateOptionIn )
+void QEGenericButton::setUpdateOption( updateOptions updateOptionIn )
 {
     updateOption = updateOptionIn;
 }
-QCaGenericButton::updateOptions QCaGenericButton::getUpdateOption()
+QEGenericButton::updateOptions QEGenericButton::getUpdateOption()
 {
     return updateOption;
 }
@@ -398,17 +398,17 @@ QCaGenericButton::updateOptions QCaGenericButton::getUpdateOption()
 // 'Data button' Property convenience functions
 
 // subscribe
-void QCaGenericButton::setSubscribe( bool subscribeIn )
+void QEGenericButton::setSubscribe( bool subscribeIn )
 {
     subscribe = subscribeIn;
 }
-bool QCaGenericButton::getSubscribe()
+bool QEGenericButton::getSubscribe()
 {
     return subscribe;
 }
 
 // text alignment
-void QCaGenericButton::setTextAlignment( Qt::Alignment textAlignmentIn )
+void QEGenericButton::setTextAlignment( Qt::Alignment textAlignmentIn )
 {
     // Keep a local copy of the alignment
     textAlignment = textAlignmentIn;
@@ -431,84 +431,84 @@ void QCaGenericButton::setTextAlignment( Qt::Alignment textAlignmentIn )
     setButtonStyleSheet( styleSheetString );
 
 }
-Qt::Alignment QCaGenericButton::getTextAlignment()
+Qt::Alignment QEGenericButton::getTextAlignment()
 {
     return textAlignment;
 }
 
 // password
-void QCaGenericButton::setPassword( QString password )
+void QEGenericButton::setPassword( QString password )
 {
-    QCaGenericButton::password = password;
+    QEGenericButton::password = password;
 }
-QString QCaGenericButton::getPassword()
+QString QEGenericButton::getPassword()
 {
-    return QCaGenericButton::password;
+    return QEGenericButton::password;
 }
 
 // write on press
-void QCaGenericButton::setWriteOnPress( bool writeOnPress )
+void QEGenericButton::setWriteOnPress( bool writeOnPress )
 {
-    QCaGenericButton::writeOnPress = writeOnPress;
+    QEGenericButton::writeOnPress = writeOnPress;
 }
-bool QCaGenericButton::getWriteOnPress()
+bool QEGenericButton::getWriteOnPress()
 {
-    return QCaGenericButton::writeOnPress;
+    return QEGenericButton::writeOnPress;
 }
 
 // write on release
-void QCaGenericButton::setWriteOnRelease( bool writeOnRelease )
+void QEGenericButton::setWriteOnRelease( bool writeOnRelease )
 {
-    QCaGenericButton::writeOnRelease = writeOnRelease;
+    QEGenericButton::writeOnRelease = writeOnRelease;
 }
-bool QCaGenericButton::getWriteOnRelease()
+bool QEGenericButton::getWriteOnRelease()
 {
-    return QCaGenericButton::writeOnRelease;
+    return QEGenericButton::writeOnRelease;
 }
 
 // write on click
-void QCaGenericButton::setWriteOnClick( bool writeOnClick )
+void QEGenericButton::setWriteOnClick( bool writeOnClick )
 {
-    QCaGenericButton::writeOnClick = writeOnClick;
+    QEGenericButton::writeOnClick = writeOnClick;
 }
-bool QCaGenericButton::getWriteOnClick()
+bool QEGenericButton::getWriteOnClick()
 {
-    return QCaGenericButton::writeOnClick;
+    return QEGenericButton::writeOnClick;
 }
 
 // press value
-void QCaGenericButton::setPressText( QString pressText )
+void QEGenericButton::setPressText( QString pressText )
 {
-    QCaGenericButton::pressText = pressText;
+    QEGenericButton::pressText = pressText;
 }
-QString QCaGenericButton::getPressText()
+QString QEGenericButton::getPressText()
 {
-    return QCaGenericButton::pressText;
+    return QEGenericButton::pressText;
 }
 
 // release value
-void QCaGenericButton::setReleaseText( QString releaseTextIn )
+void QEGenericButton::setReleaseText( QString releaseTextIn )
 {
     releaseText = releaseTextIn;
 }
-QString QCaGenericButton::getReleaseText(){ return releaseText; }
+QString QEGenericButton::getReleaseText(){ return releaseText; }
 
 // click value
-void QCaGenericButton::setClickText( QString clickTextIn )
+void QEGenericButton::setClickText( QString clickTextIn )
 {
     clickText = clickTextIn;
 }
-QString QCaGenericButton::getClickText()
+QString QEGenericButton::getClickText()
 {
     return clickText;
 }
 
 // click off value
-void QCaGenericButton::setClickCheckedText( QString clickCheckedTextIn )
+void QEGenericButton::setClickCheckedText( QString clickCheckedTextIn )
 {
     clickCheckedText = clickCheckedTextIn;
 }
-QString QCaGenericButton::getClickCheckedText()
+QString QEGenericButton::getClickCheckedText()
 {
     return clickCheckedText;
 }
@@ -517,12 +517,12 @@ QString QCaGenericButton::getClickCheckedText()
 // 'Command button' Property convenience functions
 
 // Program String
-void QCaGenericButton::setProgram( QString program ){ QCaGenericButton::program = program; }
-QString QCaGenericButton::getProgram(){ return QCaGenericButton::program; }
+void QEGenericButton::setProgram( QString program ){ QEGenericButton::program = program; }
+QString QEGenericButton::getProgram(){ return QEGenericButton::program; }
 
 // Arguments String
-void QCaGenericButton::setArguments( QStringList arguments ){ QCaGenericButton::arguments = arguments; }
-QStringList QCaGenericButton::getArguments(){ return QCaGenericButton::arguments; }
+void QEGenericButton::setArguments( QStringList arguments ){ QEGenericButton::arguments = arguments; }
+QStringList QEGenericButton::getArguments(){ return QEGenericButton::arguments; }
 
 
 
@@ -531,27 +531,27 @@ QStringList QCaGenericButton::getArguments(){ return QCaGenericButton::arguments
 // 'Start new GUI' Property convenience functions
 
 // GUI name
-void QCaGenericButton::setGuiName( QString guiNameIn )
+void QEGenericButton::setGuiName( QString guiNameIn )
 {
     guiName = guiNameIn;
 }
-QString QCaGenericButton::getGuiName()
+QString QEGenericButton::getGuiName()
 {
     return guiName;
 }
 
 // Qt Designer Properties Creation options
-void QCaGenericButton::setCreationOption( QEForm::creationOptions creationOptionIn )
+void QEGenericButton::setCreationOption( QEForm::creationOptions creationOptionIn )
 {
     creationOption = creationOptionIn;
 }
-QEForm::creationOptions QCaGenericButton::getCreationOption()
+QEForm::creationOptions QEGenericButton::getCreationOption()
 {
     return creationOption;
 }
 
 // label text (prior to substitution)
-void QCaGenericButton::setLabelTextProperty( QString labelTextIn )
+void QEGenericButton::setLabelTextProperty( QString labelTextIn )
 {
     bool wasBlank = labelText.isEmpty();
     labelText = labelTextIn;
@@ -567,7 +567,7 @@ void QCaGenericButton::setLabelTextProperty( QString labelTextIn )
     }
 }
 
-QString QCaGenericButton::getLabelTextProperty()
+QString QEGenericButton::getLabelTextProperty()
 {
     return labelText;
 }
@@ -579,7 +579,7 @@ QString QCaGenericButton::getLabelTextProperty()
 // Normally a gui will have provided it's own message and error handling.
 // This is only used if no environment profile has been set up when a form is created. This is the case if created within 'designer'
 // Use a general message
-void QCaGenericButton::onGeneralMessage( QString message )
+void QEGenericButton::onGeneralMessage( QString message )
 {
     QMessageBox msgBox;
     msgBox.setText( "Message" );
@@ -590,7 +590,7 @@ void QCaGenericButton::onGeneralMessage( QString message )
 // Slot for launching a new gui.
 // This is the button's default action for launching a gui.
 // Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.
-void QCaGenericButton::launchGui( QString guiName, QEForm::creationOptions )
+void QEGenericButton::launchGui( QString guiName, QEForm::creationOptions )
 {
     // Build the gui
     // Build it in a new window.
