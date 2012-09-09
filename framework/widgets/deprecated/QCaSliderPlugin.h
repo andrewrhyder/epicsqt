@@ -31,7 +31,7 @@ class QCaSliderPlugin : public QESlider {
 
   public:
     // Constructors
-    QCaSliderPlugin( QWidget *parent = 0 );
+    QCaSliderPlugin( QWidget *parent = 0 ) : QESlider( parent ) {}
 
 };
 

@@ -71,6 +71,10 @@ void QESlider::setup() {
 
     // Use slider signals
     QObject::connect( this, SIGNAL( valueChanged( const int &) ), this, SLOT( userValueChanged( const int & ) ) );
+
+    // Set up a connection to recieve variable name property changes
+    // The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int ) ) );
 }
 
 /*!

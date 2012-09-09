@@ -68,14 +68,14 @@ QString QCaSliderPluginManager::name() const {
     Name of group Qt Designer will add widget to.
 */
 QString QCaSliderPluginManager::group() const {
-    return "EPICS Widgets";
+    return "EPICS Deprecated Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaSliderPluginManager::icon() const {
-    return QIcon(":/icons/QCaSlider.png");
+    return QIcon(":/qe/slider/QESlider.png");
 }
 
 /*!
