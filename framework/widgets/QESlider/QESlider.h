@@ -1,9 +1,9 @@
-/*  This file is part of the EPICS QT Framework, initially developed at the
- *  Australian Synchrotron.
+/*
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
- *  The EPICS QT Framework is free software: you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License as published
- *  by the Free Software Foundation, either version 3 of the License, or
+ *  The EPICS QT Framework is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
  *  The EPICS QT Framework is distributed in the hope that it will be useful,
@@ -14,31 +14,93 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2011
+ *  Copyright (c) 2009, 2010
  *
  *  Author:
- *    Andrew Starritt
+ *    Andrew Rhyder
  *  Contact details:
- *    andrew.starritt@synchrotron.org.au
+ *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QEBITSTATUS_H
-#define QEBITSTATUS_H
+#ifndef QESLIDER_H
+#define QESLIDER_H
 
-#include <QString>
-#include <QBitStatus.h>
+#include <QSlider>
 #include <QCaWidget.h>
-#include <QCaInteger.h>
-#include <QCaIntegerFormatting.h>
-#include <QCaVariableNamePropertyManager.h>
+#include <QCaFloating.h>
+#include <QCaFloatingFormatting.h>
 #include <QCaPluginLibrary_global.h>
+#include <QCaVariableNamePropertyManager.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEBitStatus : public QBitStatus, public QCaWidget {
-   Q_OBJECT
+class QCAPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QCaWidget {
+    Q_OBJECT
 
-/// #ifdef PLUGIN_APP
+  public:
+    QESlider( QWidget *parent = 0 );
+    QESlider( const QString& variableName, QWidget *parent = 0 );
 
-public:
+    // Property convenience functions
+
+    // write on change
+    void setWriteOnChange( bool writeOnChange );
+    bool getWriteOnChange();
+
+    // subscribe
+    void setSubscribe( bool subscribe );
+    bool getSubscribe();
+
+    // Set scale and offset (used to scale data when inteter scale bar min and max are not suitable)
+    void setScale( double scaleIn );
+    double getScale();
+    void setOffset( double offsetIn );
+    double getOffset();
+
+  protected:
+    QCaFloatingFormatting floatingFormatting; /// Floating formatting options.
+    bool writeOnChange;             /// Write changed value to database when ever the position changes.
+
+    void establishConnection( unsigned int variableIndex );
+
+  private slots:
+    void connectionChanged( QCaConnectionInfo& connectionInfo );
+    void setValueIfNoFocus( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void userValueChanged( const int& newValue );
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    {
+        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+    }
+
+  public slots:
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void writeNow();
+
+  signals:
+    void dbValueChanged( const qlonglong& out );
+
+  private:
+    void setup();
+    qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
+    void updateToolTip ( const QString & toolTip );
+
+    bool updateInProgress;                  /// Ignore changes during updates, it isn't the user changing the slider.
+
+    QCAALARMINFO_SEVERITY lastSeverity;
+    bool isConnected;
+
+    bool ignoreSingleShotRead;
+
+    double scale;
+    double offset;
+
+    // Drag and Drop
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
+    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
+    // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void setDrop( QVariant drop );
+    QVariant getDrop();
+
+
     //=================================================================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
@@ -60,11 +122,13 @@ private:
 public:
     //=================================================================================
 
+    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe) //!! subscribe is in enough widgets to make common
+    Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange) //!! writeOnChange is in enough widgets to make common
+
     //=================================================================================
     // Standard properties
     // These properties should be identical for every widget using them.
     // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
-    // Override the default widget isEnabled and setEnabled to allow alarm states to override current enabled state
     bool isEnabled() const { return getApplicationEnabled(); }
     void setEnabled( bool state ){ setApplicationEnabled( state ); }
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
@@ -80,63 +144,11 @@ public:
     Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
     //=================================================================================
 
-/// #endif
-
-public:
-   QEBitStatus (QWidget * parent = 0);
-   QEBitStatus (const QString & variableName, QWidget * parent = 0);
-
-   // Variable Name and substitution
-   //
-   void setVariableNameAndSubstitutions (QString variableNameIn,
-                                         QString variableNameSubstitutionsIn,
-                                         unsigned int variableIndex);
-
-public slots:
-   void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }  //!! move into Standard Properties section??
+    // Widget specific properties
 
 
-protected:
-   QCaIntegerFormatting integerFormatting;
-
-   void establishConnection (unsigned int variableIndex);
-
-private:
-   void setup ();
-
-   qcaobject::QCaObject * createQcaItem (unsigned int variableIndex);
-   void updateToolTip (const QString & tip);
-
-   QCAALARMINFO_SEVERITY lastSeverity;
-   bool isConnected;
-
-private slots:
-   void connectionChanged (QCaConnectionInfo &
-                           connectionInfo);
-
-   void setBitStatusValue (const long &value, QCaAlarmInfo &,
-                           QCaDateTime &, const unsigned int &);
-
-   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) //!! move into Standard Properties section??
-   {
-       setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-   }
-
-signals:
-   void dbValueChanged (const long &out);
-
-protected:
-   // Drag and Drop
-   void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
-   void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-   void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
-   void setDrop( QVariant drop );
-   QVariant getDrop();
-
-   // Copy paste
-   QString copyVariable();
-   QVariant copyData();
-
+    Q_PROPERTY(double scale READ getScale WRITE setScale)
+    Q_PROPERTY(double offset READ getOffset WRITE setOffset)
 };
 
-#endif                          /// QEBITSTATUS_H
+#endif // QESLIDER_H

@@ -40,7 +40,7 @@ class QCaComboBoxPlugin : public QCaComboBox {
 
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
-    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty);
+    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty)
     void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
     QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
 

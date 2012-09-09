@@ -27,19 +27,19 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
-#include <QCaSlider.h>
+#include <QESlider.h>
 
 /*!
     Constructor with no initialisation
 */
-QCaSlider::QCaSlider( QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
+QESlider::QESlider( QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Constructor with known variable
 */
-QCaSlider::QCaSlider( const QString &variableNameIn, QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
+QESlider::QESlider( const QString &variableNameIn, QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
 
     setup();
     setVariableName( variableNameIn, 0 );
@@ -49,7 +49,7 @@ QCaSlider::QCaSlider( const QString &variableNameIn, QWidget *parent ) : QSlider
 /*!
     Setup common to all constructors
 */
-void QCaSlider::setup() {
+void QESlider::setup() {
     // Set up data
     // This control used a single data source
     setNumVariables(1);
@@ -77,7 +77,7 @@ void QCaSlider::setup() {
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a slider a QCaObject that streams integers is required.
 */
-qcaobject::QCaObject* QCaSlider::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QESlider::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaFloating
     return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
@@ -88,7 +88,7 @@ qcaobject::QCaObject* QCaSlider::createQcaItem( unsigned int variableIndex ) {
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
 */
-void QCaSlider::establishConnection( unsigned int variableIndex ) {
+void QESlider::establishConnection( unsigned int variableIndex ) {
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -107,7 +107,7 @@ void QCaSlider::establishConnection( unsigned int variableIndex ) {
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
-void QCaSlider::updateToolTip ( const QString & toolTip ) {
+void QESlider::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
@@ -116,7 +116,7 @@ void QCaSlider::updateToolTip ( const QString & toolTip ) {
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QESlider::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
     /// If connected enabled the widget if required.
     if( connectionInfo.isChannelConnected() )
@@ -159,7 +159,7 @@ void QCaSlider::connectionChanged( QCaConnectionInfo& connectionInfo )
     if is is written to by another user on another gui.
     This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QCaSlider::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QESlider::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     // Do nothing if doing a single shot read (done when not subscribing to get enumeration values)
     if( ignoreSingleShotRead )
@@ -193,7 +193,7 @@ void QCaSlider::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo,
     This will occur as the user slides the slider if tracking is enabled,
     or when the user completes sliding if tracking is not enabled.
 */
-void QCaSlider::userValueChanged( const int &value) {
+void QESlider::userValueChanged( const int &value) {
 
     // If the change is due to an update (and not the user)
     // or not writing on change, then ignore the change
@@ -223,7 +223,7 @@ void QCaSlider::userValueChanged( const int &value) {
             /// yet been established (and therefore the data type is unknown) then the user
             /// interface object should be unaccessable. This code is here in the event that
             /// the user can, by design or omision, still attempt a write.
-            sendMessage( "Could not write value as type is not known yet.", "QCaSlider::userValueChanged()", MESSAGE_TYPE_WARNING );
+            sendMessage( "Could not write value as type is not known yet.", "QESlider::userValueChanged()", MESSAGE_TYPE_WARNING );
         }
     }
 }
@@ -231,7 +231,7 @@ void QCaSlider::userValueChanged( const int &value) {
 // Write a value immedietly.
 // Used when writeOnChange is false
 // (widget will never write due to the user pressing return or leaving the widget)
-void QCaSlider::writeNow()
+void QESlider::writeNow()
 {
     // Get the variable to write to
     QCaFloating* qca = (QCaFloating*)getQcaItem(0);
@@ -251,13 +251,13 @@ void QCaSlider::writeNow()
 
 //==============================================================================
 // Drag drop
-void QCaSlider::setDrop( QVariant drop )
+void QESlider::setDrop( QVariant drop )
 {
     setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QVariant QCaSlider::getDrop()
+QVariant QESlider::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
 }
@@ -266,42 +266,42 @@ QVariant QCaSlider::getDrop()
 // Property convenience functions
 
 // write on change
-void QCaSlider::setWriteOnChange( bool writeOnChangeIn )
+void QESlider::setWriteOnChange( bool writeOnChangeIn )
 {
     writeOnChange = writeOnChangeIn;
 }
-bool QCaSlider::getWriteOnChange()
+bool QESlider::getWriteOnChange()
 {
     return writeOnChange;
 }
 
 // subscribe
-void QCaSlider::setSubscribe( bool subscribeIn )
+void QESlider::setSubscribe( bool subscribeIn )
 {
     subscribe = subscribeIn;
 }
-bool QCaSlider::getSubscribe()
+bool QESlider::getSubscribe()
 {
     return subscribe;
 }
 
 // Set scale and offset (used to scale data when inteter scale bar min and max are not suitable)
-void QCaSlider::setScale( double scaleIn )
+void QESlider::setScale( double scaleIn )
 {
     scale = scaleIn;
 }
 
-double QCaSlider::getScale()
+double QESlider::getScale()
 {
     return scale;
 }
 
-void QCaSlider::setOffset( double offsetIn )
+void QESlider::setOffset( double offsetIn )
 {
     offset = offsetIn;
 }
 
-double QCaSlider::getOffset()
+double QESlider::getOffset()
 {
     return offset;
 }

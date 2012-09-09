@@ -35,7 +35,6 @@ CONFIG += plugin \
 DEFINES += QCAPLUGIN_LIBRARY
 TARGET = QCaPlugin
 OTHER_FILES += \
-    src/QCaSlider.png \
     src/QCaShape.png \
     src/QCaPlot.png \
     src/QSubstitutedLabel.png \
@@ -87,7 +86,6 @@ HEADERS += \
     ../widgets/include/standardProperties.h \
     ../widgets/include/QCaStringFormattingMethods.h \
     ../widgets/include/QCaComboBox.h \
-    ../widgets/include/QCaSlider.h \
     ../widgets/include/QCaShape.h \
     ../widgets/include/QSubstitutedLabel.h \
     ../widgets/include/QCaPlot.h \
@@ -96,7 +94,6 @@ HEADERS += \
 
 SOURCES += \
     src/QCaComboBoxPlugin.cpp \
-    src/QCaSliderPlugin.cpp \
     src/QCaShapePlugin.cpp \
     src/QSubstitutedLabelPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
@@ -132,7 +129,6 @@ SOURCES += \
     ../widgets/src/standardProperties.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
     ../widgets/src/QCaComboBox.cpp \
-    ../widgets/src/QCaSlider.cpp \
     ../widgets/src/QCaShape.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \
     ../widgets/src/QCaPlot.cpp \
@@ -211,7 +207,7 @@ include (../widgets/QEPeriodic/QEPeriodic.pri)
 #include (../widgets/QEComboBox/QEComboBox.pri)
 include (../widgets/QEButton/QEButton.pri)
 #include (../widgets/QEShape/QEShape.pri)
-#include (../widgets/QESlider/QESlider.pri)
+include (../widgets/QESlider/QESlider.pri)
 include (../widgets/QESpinBox/QESpinBox.pri)
 #include (../widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
 include (../widgets/QELink/QELink.pri)

@@ -22,17 +22,33 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCASLIDERPLUGIN_H
-#define QCASLIDERPLUGIN_H
-#include <QESlider.h>
+#ifndef QESLIDERMANAGER_H
+#define QESLIDERMANAGER_H
 
-class QCaSliderPlugin : public QESlider {
-    Q_OBJECT
+#include <QDesignerCustomWidgetInterface>
+#include <QCaPluginLibrary_global.h>
+
+class QCAPLUGINLIBRARYSHARED_EXPORT QESliderManager : public QObject, public QDesignerCustomWidgetInterface {
+     Q_OBJECT
+     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
   public:
-    // Constructors
-    QCaSliderPlugin( QWidget *parent = 0 );
+    QESliderManager( QObject *parent = 0 );
 
+    bool isContainer() const;
+    bool isInitialized() const;
+    QIcon icon() const;
+    //QString domXml() const;
+    QString group() const;
+    QString includeFile() const;
+    QString name() const;
+    QString toolTip() const;
+    QString whatsThis() const;
+    QWidget *createWidget( QWidget *parent );
+    void initialize( QDesignerFormEditorInterface *core );
+
+  private:
+    bool initialized;
 };
 
-#endif // QCASLIDERPLUGIN_H
+#endif /// QESLIDERMANAGER_H
