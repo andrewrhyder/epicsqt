@@ -30,7 +30,7 @@
 #include <QCaShapePluginManager.h>
 #include <QESliderManager.h>
 #include <QESpinBoxManager.h>
-#include <QCaComboBoxPluginManager.h>
+#include <QEComboBoxManager.h>
 #include <QELinkManager.h>
 #include <QCaPlotPluginManager.h>
 #include <QEPeriodicManager.h>
@@ -66,6 +66,7 @@
 #include <QCaPushButtonPluginManager.h>
 #include <QCaRadioButtonPluginManager.h>
 #include <QCaSliderPluginManager.h>
+#include <QCaComboBoxPluginManager.h>
 //======================================================
 
 
@@ -97,7 +98,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaShapePluginManager(this));
     widgets.append(new QESliderManager(this));
     widgets.append(new QESpinBoxManager(this));
-    widgets.append(new QCaComboBoxPluginManager(this));
+    widgets.append(new QEComboBoxManager(this));
     widgets.append(new QEFormManager(this));
     widgets.append(new QCaPlotPluginManager(this));
     widgets.append(new QEImageManager(this));
@@ -124,6 +125,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaPushButtonPluginManager(this));
     widgets.append(new QCaRadioButtonPluginManager(this));
     widgets.append(new QCaSliderPluginManager(this));
+    widgets.append(new QCaComboBoxPluginManager(this));
 //======================================================
 
 }

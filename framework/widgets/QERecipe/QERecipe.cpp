@@ -613,7 +613,7 @@ void QERecipe::buttonNewClicked()
                 }
                 else if (fieldInfo->getType() == COMBOBOX)
                 {
-                    processVariableElement.setAttribute("value", ((QCaComboBox *) fieldInfo->qCaWidget)->currentText());
+                    processVariableElement.setAttribute("value", ((QEComboBox *) fieldInfo->qCaWidget)->currentText());
                 }
                 else
                 {
@@ -711,7 +711,7 @@ void QERecipe::buttonSaveClicked()
             }
             else if (fieldInfo->getType() == COMBOBOX)
             {
-                processVariableElement.setAttribute("value", ((QCaComboBox *) fieldInfo->qCaWidget)->currentText());
+                processVariableElement.setAttribute("value", ((QEComboBox *) fieldInfo->qCaWidget)->currentText());
             }
             else
             {
@@ -1023,7 +1023,7 @@ void QERecipe::refreshButton()
                                         }
                                         else if (fieldInfo->getType() == COMBOBOX)
                                         {
-                                            ((QCaComboBox *) fieldInfo->qCaWidget)->setEditText(processVariableElement.attribute("value"));
+                                            ((QEComboBox *) fieldInfo->qCaWidget)->setEditText(processVariableElement.attribute("value"));
                                         }
                                         else
                                         {

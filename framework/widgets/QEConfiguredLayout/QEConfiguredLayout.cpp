@@ -516,11 +516,11 @@ void QEConfiguredLayout::refreshFields()
                 }
                 else if (field->getType() == COMBOBOX)
                 {
-                    qCaWidget = new QCaComboBox();
-                    ((QCaComboBox *) qCaWidget)->setSubscribe(subscription);
-                    ((QCaComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
-                    ((QCaComboBox *) qCaWidget)->setWriteOnChange(false);
-                    QObject::connect(((QCaComboBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
+                    qCaWidget = new QEComboBox();
+                    ((QEComboBox *) qCaWidget)->setSubscribe(subscription);
+                    ((QEComboBox *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
+                    ((QEComboBox *) qCaWidget)->setWriteOnChange(false);
+                    QObject::connect(((QEComboBox *) qCaWidget), SIGNAL(userChange(const QString &, const QString &, const QString &)), this, SLOT(valueWritten(const QString &, const QString &, const QString &)));
                 }
                 else
                 {
@@ -600,7 +600,7 @@ void QEConfiguredLayout::refreshFields()
                     }
                     else if (field->getType() == COMBOBOX)
                     {
-                        qHBoxLayout->addWidget((QCaComboBox *) fieldInfo->qCaWidget);
+                        qHBoxLayout->addWidget((QEComboBox *) fieldInfo->qCaWidget);
                     }
                     else
                     {
@@ -1128,7 +1128,7 @@ _QDialogItem::_QDialogItem(QWidget *pParent, QString pItemName, QString pGroupNa
                 }
                 else if (fieldInfo->getType() == COMBOBOX)
                 {
-                    qHBoxLayout->addWidget((QCaComboBox *) pCurrentFieldList->at(i)->qCaWidget);
+                    qHBoxLayout->addWidget((QEComboBox *) pCurrentFieldList->at(i)->qCaWidget);
                 }
                 else
                 {

@@ -30,7 +30,7 @@
 #include <QEBitStatus.h>
 #include <QEPushButton.h>
 #include <QELineEdit.h>
-#include <QCaComboBox.h>
+#include <QEComboBox.h>
 #include <QESpinBox.h>
 
 

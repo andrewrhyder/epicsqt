@@ -24,8 +24,8 @@
 
 // CA Combobox Widget Plugin Manager for designer.
 
-#ifndef QCAComboBOXPLUGINMANAGER_H
-#define QCAComboBOXPLUGINMANAGER_H
+#ifndef QCACOMBOBOXPLUGINMANAGER_H
+#define QCACOMBOBOXPLUGINMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
@@ -53,4 +53,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBoxPluginManager : public QObject, p
     bool initialized;
 };
 
-#endif /// QCAComboBOXPLUGINMANAGER_H
+#endif // QCACOMBOBOXPLUGINMANAGER_H

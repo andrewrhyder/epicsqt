@@ -38,7 +38,6 @@ OTHER_FILES += \
     src/QCaShape.png \
     src/QCaPlot.png \
     src/QSubstitutedLabel.png \
-    src/QCaComboBox.png \
     src/record_field_list.txt \
     src/cameraROI.png \
     src/cameraROIreset.png \
@@ -85,7 +84,6 @@ HEADERS += \
     ../widgets/include/styleManager.h \
     ../widgets/include/standardProperties.h \
     ../widgets/include/QCaStringFormattingMethods.h \
-    ../widgets/include/QCaComboBox.h \
     ../widgets/include/QCaShape.h \
     ../widgets/include/QSubstitutedLabel.h \
     ../widgets/include/QCaPlot.h \
@@ -93,7 +91,6 @@ HEADERS += \
 
 
 SOURCES += \
-    src/QCaComboBoxPlugin.cpp \
     src/QCaShapePlugin.cpp \
     src/QSubstitutedLabelPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
@@ -128,7 +125,6 @@ SOURCES += \
     ../widgets/src/styleManager.cpp \
     ../widgets/src/standardProperties.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
-    ../widgets/src/QCaComboBox.cpp \
     ../widgets/src/QCaShape.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \
     ../widgets/src/QCaPlot.cpp \
@@ -204,7 +200,7 @@ include (../widgets/QEScript/QEScript.pri)
 include (../widgets/QEStripChart/QEStripChart.pri)
 include (../widgets/QEForm/QEForm.pri)
 include (../widgets/QEPeriodic/QEPeriodic.pri)
-#include (../widgets/QEComboBox/QEComboBox.pri)
+include (../widgets/QEComboBox/QEComboBox.pri)
 include (../widgets/QEButton/QEButton.pri)
 #include (../widgets/QEShape/QEShape.pri)
 include (../widgets/QESlider/QESlider.pri)

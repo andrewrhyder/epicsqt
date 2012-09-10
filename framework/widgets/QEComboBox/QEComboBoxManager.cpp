@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <QCaComboBoxPluginManager.h>
-#include <QCaComboBoxPlugin.h>
+#include <QEComboBoxManager.h>
+#include <QEComboBox.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-QCaComboBoxPluginManager::QCaComboBoxPluginManager( QObject *parent ) : QObject( parent ) {
+QEComboBoxManager::QEComboBoxManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void QCaComboBoxPluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QEComboBoxManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -46,64 +46,64 @@ void QCaComboBoxPluginManager::initialize( QDesignerFormEditorInterface * ) {
 /*!
     ???
 */
-bool QCaComboBoxPluginManager::isInitialized() const {
+bool QEComboBoxManager::isInitialized() const {
     return initialized;
 }
 
 /*!
-    Widget factory. Creates a QCaComboBoxPlugin widget.
+    Widget factory. Creates a QEComboBox widget.
 */
-QWidget *QCaComboBoxPluginManager::createWidget ( QWidget *parent ) {
-    return new QCaComboBoxPlugin(parent);
+QWidget *QEComboBoxManager::createWidget ( QWidget *parent ) {
+    return new QEComboBox(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString QCaComboBoxPluginManager::name() const {
-    return "QCaComboBoxPlugin";
+QString QEComboBoxManager::name() const {
+    return "QEComboBox";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString QCaComboBoxPluginManager::group() const {
-    return "EPICS Deprecated Widgets";
+QString QEComboBoxManager::group() const {
+    return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon QCaComboBoxPluginManager::icon() const {
+QIcon QEComboBoxManager::icon() const {
     return QIcon(":/qe/combobox/QEComboBox.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString QCaComboBoxPluginManager::toolTip() const {
+QString QEComboBoxManager::toolTip() const {
     return "EPICS ComboBox";
 }
 
 /*!
     ???
 */
-QString QCaComboBoxPluginManager::whatsThis() const {
+QString QEComboBoxManager::whatsThis() const {
     return "EPICS ComboBox";
 }
 
 /*!
     ???
 */
-bool QCaComboBoxPluginManager::isContainer() const {
+bool QEComboBoxManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString QCaComboBoxPluginManager::domXml() const {
-    return "<widget class=\"QCaComboBox\" name=\"qCaComboBox\">\n"
+/*QString QEComboBoxManager::domXml() const {
+    return "<widget class=\"QEComboBox\" name=\"qEComboBox\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -125,6 +125,6 @@ bool QCaComboBoxPluginManager::isContainer() const {
 /*!
     ???
 */
-QString QCaComboBoxPluginManager::includeFile() const {
-    return "QCaComboBoxPlugin.h";
+QString QEComboBoxManager::includeFile() const {
+    return "QEComboBox.h";
 }

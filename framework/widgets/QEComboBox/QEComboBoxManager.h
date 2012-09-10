@@ -22,16 +22,35 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCACOMBOBOXPLUGIN_H
-#define QCACOMBOBOXPLUGIN_H
+// CA Combobox Widget Plugin Manager for designer.
 
-#include <QEComboBox.h>
+#ifndef QECOMBOBOXMANAGER_H
+#define QECOMBOBOXMANAGER_H
 
-class QCaComboBoxPlugin : public QEComboBox {
-    Q_OBJECT
+#include <QDesignerCustomWidgetInterface>
+#include <QCaPluginLibrary_global.h>
+
+class QCAPLUGINLIBRARYSHARED_EXPORT QEComboBoxManager : public QObject, public QDesignerCustomWidgetInterface {
+     Q_OBJECT
+     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
   public:
-    QCaComboBoxPlugin( QWidget *parent = 0 ) : QEComboBox( parent ) {}
+    QEComboBoxManager( QObject *parent = 0 );
+
+    bool isContainer() const;
+    bool isInitialized() const;
+    QIcon icon() const;
+    //QString domXml() const;
+    QString group() const;
+    QString includeFile() const;
+    QString name() const;
+    QString toolTip() const;
+    QString whatsThis() const;
+    QWidget *createWidget( QWidget *parent );
+    void initialize( QDesignerFormEditorInterface *core );
+
+  private:
+    bool initialized;
 };
 
-#endif // QCACOMBOBOXPLUGIN_H
+#endif // QECOMBOBOXMANAGER_H

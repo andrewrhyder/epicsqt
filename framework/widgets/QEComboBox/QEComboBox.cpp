@@ -27,19 +27,19 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
-#include <QCaComboBox.h>
+#include <QEComboBox.h>
 
 /*!
     Construct a combo box with no variable specified yet
 */
-QCaComboBox::QCaComboBox( QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
+QEComboBox::QEComboBox( QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Construct a combo box with a variable specified
 */
-QCaComboBox::QCaComboBox( const QString &variableNameIn, QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
+QEComboBox::QEComboBox( const QString &variableNameIn, QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -49,7 +49,7 @@ QCaComboBox::QCaComboBox( const QString &variableNameIn, QWidget *parent ) : QCo
 /*!
     Common construction
 */
-void QCaComboBox::setup() {
+void QEComboBox::setup() {
     // Set up data
     // This control used a single data source
     setNumVariables(1);
@@ -71,13 +71,17 @@ void QCaComboBox::setup() {
     // Use line edit signals
     // Set up to write data when the user changes the value
     QObject::connect( this, SIGNAL( activated ( int ) ), this, SLOT( userValueChanged( int ) ) );
+
+    // Set up a connection to recieve variable name property changes
+    // The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
 /*!
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a Combo box a QCaObject that streams integers is required.
 */
-qcaobject::QCaObject* QCaComboBox::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QEComboBox::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaInteger
     return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
@@ -88,7 +92,7 @@ qcaobject::QCaObject* QCaComboBox::createQcaItem( unsigned int variableIndex ) {
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
 */
-void QCaComboBox::establishConnection( unsigned int variableIndex ) {
+void QEComboBox::establishConnection( unsigned int variableIndex ) {
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -114,7 +118,7 @@ void QCaComboBox::establishConnection( unsigned int variableIndex ) {
    This function is called when the channel is first established to the data. It will also be called if the channel fails
    and recovers. Subsequent calls will do nothing as the combo box is already populated.
 */
-void QCaComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
     /// If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
@@ -150,7 +154,7 @@ void QCaComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
-void QCaComboBox::updateToolTip ( const QString & toolTip ) {
+void QEComboBox::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
@@ -162,10 +166,10 @@ void QCaComboBox::updateToolTip ( const QString & toolTip ) {
     another user on another gui.
 
     Note, this will still be called once if not subscribing to set up enumeration values.
-    See  QCaComboBox::dynamicSetup() for details.
+    See  QEComboBox::dynamicSetup() for details.
 */
 
-void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     // If the combo box is not populated, setup the enumerations if any.
     // If not subscribing, there will still be an initial update to get enumeration values.
@@ -215,7 +219,7 @@ void QCaComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo,
 /*!
     The user has changed the Combo box.
 */
-void QCaComboBox::userValueChanged( int value ) {
+void QEComboBox::userValueChanged( int value ) {
 
     // Do nothing unless writing on change
     if( !writeOnChange )
@@ -249,7 +253,7 @@ void QCaComboBox::userValueChanged( int value ) {
 // Write a value immedietly.
 // Used when writeOnChange are false
 // (widget will never write due to the user pressing return or leaving the widget)
-void QCaComboBox::writeNow()
+void QEComboBox::writeNow()
 {
     // Get the variable to write to
     QCaInteger* qca = (QCaInteger*)getQcaItem(0);
@@ -265,13 +269,13 @@ void QCaComboBox::writeNow()
 
 //==============================================================================
 // Drag drop
-void QCaComboBox::setDrop( QVariant drop )
+void QEComboBox::setDrop( QVariant drop )
 {
     setVariableName( drop.toString(), 0 );
     establishConnection( 0 );
 }
 
-QVariant QCaComboBox::getDrop()
+QVariant QEComboBox::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
 }
@@ -280,32 +284,32 @@ QVariant QCaComboBox::getDrop()
 // Property convenience functions
 
 // write on change
-void QCaComboBox::setWriteOnChange( bool writeOnChangeIn )
+void QEComboBox::setWriteOnChange( bool writeOnChangeIn )
 {
     writeOnChange = writeOnChangeIn;
 }
-bool QCaComboBox::getWriteOnChange()
+bool QEComboBox::getWriteOnChange()
 {
     return writeOnChange;
 }
 
 // subscribe
-void QCaComboBox::setSubscribe( bool subscribeIn )
+void QEComboBox::setSubscribe( bool subscribeIn )
 {
     subscribe = subscribeIn;
 }
-bool QCaComboBox::getSubscribe()
+bool QEComboBox::getSubscribe()
 {
     return subscribe;
 }
 
 // use database enumerations
-void QCaComboBox::setUseDbEnumerations( bool useDbEnumerationsIn )
+void QEComboBox::setUseDbEnumerations( bool useDbEnumerationsIn )
 {
     useDbEnumerations = useDbEnumerationsIn;
 }
 
-bool QCaComboBox::getUseDbEnumerations()
+bool QEComboBox::getUseDbEnumerations()
 {
     return useDbEnumerations;
 }
