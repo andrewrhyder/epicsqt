@@ -31,8 +31,7 @@ class LinkPlugin : public QELink {
     Q_OBJECT
 
   public:
-    /// Constructors
-    LinkPlugin( QWidget *parent = 0 );
+    LinkPlugin( QWidget *parent = 0 ) : QELink( parent ) {}
 
 };
 

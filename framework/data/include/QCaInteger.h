@@ -1,10 +1,3 @@
-/*! 
-  \class QCaInteger
-  \version $Revision: #6 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief Integer specific wrapper for QCaObject.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
+
+// Integer specific wrapper for QCaObject.
 
 #ifndef QCAINTEGER_H
 #define QCAINTEGER_H

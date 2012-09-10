@@ -1,14 +1,3 @@
-/* $Id: QBitStatus.cpp $
- */
-
-/*! 
-  \class QBitStatus
-  \version $Revision: #4 $
-  \date $DateTime: 2012/06/16 17:40:00 $
-  \author andrew.starritt
-  \brief Bit wise display of integer values.
- */
-
 /*  This file is part of the EPICS QT Framework, initially developed at
  *  the Australian Synchrotron.
  *
@@ -32,6 +21,8 @@
  *  Contact details:
  *    andrew.starritt@synchrotron.org.au
  */
+
+//  Bit wise display of integer values.
 
 /*!
   This class is a BitStatus widget based on directly QWidget.

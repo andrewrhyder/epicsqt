@@ -165,6 +165,14 @@ public:
     Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
     Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
     Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
+    enum UserLevels { User      = USERLEVEL_USER,
+                      Scientist = USERLEVEL_SCIENTIST,
+                      Engineer  = USERLEVEL_ENGINEER };
+    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }
+    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }
+
+    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }
+    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }
     Q_ENUMS(UserLevels)
     Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty)
     Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)

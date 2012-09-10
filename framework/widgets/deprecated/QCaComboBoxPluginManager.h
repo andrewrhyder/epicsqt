@@ -1,10 +1,3 @@
-/*! 
-  \class QCaComboBoxPluginManager
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief CA Combobox Widget Plugin Manager for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
+
+// CA Combobox Widget Plugin Manager for designer.
 
 #ifndef QCAComboBOXPLUGINMANAGER_H
 #define QCAComboBOXPLUGINMANAGER_H

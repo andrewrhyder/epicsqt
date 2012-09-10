@@ -150,4 +150,3 @@ bool standardProperties::getRunVisible()
 {
     return applicationVisibility;
 }
-

@@ -35,18 +35,6 @@ public:
     standardProperties( QWidget* ownerIn );
     virtual ~standardProperties(){}
 
-    // Property enuerations and translation functions
-    enum UserLevels { User      = USERLEVEL_USER,
-                      Scientist = USERLEVEL_SCIENTIST,
-                      Engineer  = USERLEVEL_ENGINEER };
-
-    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }
-    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }
-
-    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }
-    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }
-
-
 protected:
     userLevels getUserLevelVisibility();
     void setUserLevelVisibility( userLevels level );

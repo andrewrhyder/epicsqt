@@ -54,7 +54,7 @@ bool LinkPluginManager::isInitialized() const {
     Widget factory. Creates a Link widget.
 */
 QWidget *LinkPluginManager::createWidget ( QWidget *parent ) {
-    return new QELink(parent);
+    return new LinkPlugin(parent);
 }
 
 /*!

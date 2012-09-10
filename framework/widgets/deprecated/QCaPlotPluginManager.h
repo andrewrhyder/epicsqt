@@ -1,10 +1,3 @@
-/*! 
-  \class QCaPlotPluginManager
-  \version $Revision: #1 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author glenn.jackson
-  \brief CA Plot Widget Plugin Manager for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    glenn.jackson@synchrotron.org.au
  */
+
+// CA Plot Widget Plugin Manager for designer.
 
 #ifndef QCAPLOTPLUGINMANAGER_H
 #define QCAPLOTPLUGINMANAGER_H

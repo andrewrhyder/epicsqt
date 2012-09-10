@@ -1,10 +1,3 @@
-/*! 
-  \class QCaString
-  \version $Revision: #6 $
-  \date $DateTime: 2010/09/06 13:16:04 $
-  \author andrew.rhyder
-  \brief String wrapper for QCaObject variant data.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
+
+// String wrapper for QCaObject variant data.
 
 #ifndef QCASTRING_H
 #define QCASTRING_H

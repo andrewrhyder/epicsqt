@@ -1,10 +1,3 @@
-/*! 
-  \class QCaFloatingFormatting
-  \version $Revision: #4 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author andrew.rhyder
-  \brief Provides textual formatting for QCaFloating data.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
+
+// Provides textual formatting for QCaFloating data.
 
 #ifndef QCAFLOATINGFORMATTING_H
 #define QCAFLOATINGFORMATTING_H

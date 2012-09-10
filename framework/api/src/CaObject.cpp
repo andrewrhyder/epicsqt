@@ -1,10 +1,3 @@
-/*! 
-  \class CaObject
-  \version $Revision: #11 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author anthony.owen
-  \brief Provides CA to an EPICS channel.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    anthony.owen@gmail.com
  */
+
+// Provides CA to an EPICS channel.
 
 #define epicsAlarmGLOBAL
 

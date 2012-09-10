@@ -36,6 +36,7 @@ HEADERS += \
     ../widgets/deprecated/QSubstitutedLabelPluginManager.h \
     ../widgets/deprecated/QSubstitutedLabelPlugin.h \
     ../widgets/deprecated/LinkPluginManager.h \
+    ../widgets/deprecated/LinkPlugin.h \
     ../widgets/deprecated/QCaPlotPluginManager.h \
     ../widgets/deprecated/QCaPlotPlugin.h \
     ../widgets/deprecated/QCaPeriodicPluginManager.h \

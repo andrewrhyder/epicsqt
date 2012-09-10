@@ -1,10 +1,3 @@
-/*! 
-  \class QCaFloating
-  \version $Revision: #4 $
-  \date $DateTime: 2010/08/30 16:37:08 $
-  \author andrew.rhyder
-  \brief Floating specific wrapper for QCaObject.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
+
+// Floating specific wrapper for QCaObject.
 
 #include <QCaFloating.h>
 #include <QtDebug>

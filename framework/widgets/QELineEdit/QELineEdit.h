@@ -77,6 +77,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELineEdit :
     Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
     Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
     Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
+    enum UserLevels { User      = USERLEVEL_USER,
+                      Scientist = USERLEVEL_SCIENTIST,
+                      Engineer  = USERLEVEL_ENGINEER };
+    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }
+    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }
+
+    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }
+    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }
     Q_ENUMS(UserLevels)
     Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty)
     Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
@@ -92,11 +100,29 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELineEdit :
     Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
     Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
     Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
+    enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
+                   Floating         = QCaStringFormatting::FORMAT_FLOATING,
+                   Integer          = QCaStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time             = QCaStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    Formats getFormatProperty(){ return (Formats)getFormat(); }
     Q_ENUMS(Formats)
     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
     Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
+    enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
+                     Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    Notations getNotationProperty(){ return (Notations)getNotation(); }
     Q_ENUMS(Notations)
     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
+    enum ArrayActions { Append = QCaStringFormatting::APPEND,
+                        Ascii  = QCaStringFormatting::ASCII,
+                        Index  = QCaStringFormatting::INDEX };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }
+    ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }
     Q_ENUMS(ArrayActions)
     Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
     Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)

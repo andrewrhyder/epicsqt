@@ -1,10 +1,3 @@
-/*!
-  \class MainWindow
-  \version $Revision: #4 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author andrew.rhyder
-  \brief Manage startp parameters. Parse the startup parameters in a command line, serialize and unserialize parameters when passing them to another application instance.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,9 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
+
+// Manage startup parameters. Parse the startup parameters in a command line, serialize and unserialize parameters when passing them to another application instance.
+
 
 #ifndef STARTUPPARAMS_H
 #define STARTUPPARAMS_H

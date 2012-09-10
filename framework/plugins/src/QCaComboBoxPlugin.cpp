@@ -1,10 +1,3 @@
-/*! 
-  \class QCaComboBoxPlugin
-  \version $Revision: #4 $
-  \date $DateTime: 2010/09/06 11:58:56 $
-  \author andrew.rhyder
-  \brief CA Combobox Widget Plugin.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
+
+//  CA Combobox Widget Plugin.
 
 #include <QDebug>
 #include <QtCore>

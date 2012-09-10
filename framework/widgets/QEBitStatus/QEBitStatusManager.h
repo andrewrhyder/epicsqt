@@ -1,10 +1,3 @@
-/*!
-  \class QEBitStatusManager
-  \version $Revision: #1 $
-  \date $DateTime: 2011/06/11 21:36:00 $
-  \author andrew.starritt
-  \brief CA ProgressBar Widget Plugin Manager for designer.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -29,6 +22,8 @@
  *  Contact details:
  *    andrew.starritt@synchrotron.org.au
  */
+
+// CA ProgressBar Widget Plugin Manager for designer.
 
 #ifndef QEBITSTATUSMANAGER_H
 #define QEBITSTATUSMANAGER_H

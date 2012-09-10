@@ -1,10 +1,3 @@
-/*! 
-  \class CaRecord
-  \version $Revision: #6 $
-  \date $DateTime: 2010/06/23 07:49:40 $
-  \author anthony.owen
-  \brief Provides a data holder for EPICS types.
- */
 /*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -28,6 +21,8 @@
  *  Contact details:
  *    anthony.owen@gmail.com
  */
+
+// Provides a data holder for EPICS types
 
 #ifndef CARECORD_H_
 #define CARECORD_H_
