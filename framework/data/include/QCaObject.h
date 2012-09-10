@@ -91,6 +91,7 @@ namespace qcaobject {
       double getWarningLimitLower();
       double getControlLimitUpper();
       double getControlLimitLower();
+      generic::generic_types getDataType();
 
     signals:
       void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
@@ -100,9 +101,6 @@ namespace qcaobject {
     public slots:
       bool writeData( const QVariant& value );
       void resendLastData();
-
-    protected:
-      generic::generic_types getDataType();
 
     private:
       void initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn );
