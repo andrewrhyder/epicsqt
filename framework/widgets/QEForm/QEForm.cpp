@@ -95,6 +95,26 @@ QEForm::~QEForm()
         ui->close();
 }
 
+// Debug function to list the widget hierarchy
+//void showObjects( QObject* obj )
+//{
+//    static int depth = 0;
+
+//    QWidget* w;
+//    if( obj->isWidgetType() )
+//    {
+//        w = (QWidget*)obj;
+//        qDebug() << depth << obj->metaObject()->className() << w->pos() << w->size();
+//    }
+//    QObjectList objList = obj->children();
+//    depth++;
+//    for( int i = 0; i < objList.size(); i++ )
+//    {
+//        showObjects( objList[i] );
+//    }
+//    depth--;
+//}
+
 // Read a UI file.
 // The file read depends on the value of uiFileName
 bool QEForm::readUiFile()
@@ -215,13 +235,20 @@ bool QEForm::readUiFile()
             }
 
             // Set the form's size related properties to match the top ui widget
-            // This will ensure the form behaves in the same way as the ui was designed when loaded within another ui
+            // This will ensure the form behaves in the same way as the ui was designed to when loaded within another ui
             setGeometry(0, 0, ui->width(), ui->height() );
             setSizePolicy( ui->sizePolicy() );
             setMinimumSize( ui->minimumSize() );
             setMaximumSize( ui->maximumSize() );
             setSizeIncrement( this->sizeIncrement() );
             setBaseSize( ui->baseSize() );
+            setContentsMargins( ui->contentsMargins() );
+
+            // Reset the user interface's position.
+            // Not sure why, but the loaded user interface does not always have a position of 0,0
+            // When debugged, the particular example was a QDialog with a position of 0,0 when viewed in designer.
+            QRect rect = ui->geometry();
+            ui->setGeometry(0, 0, rect.width(), rect.height());
 
             // Load the user interface into the QEForm widget
             ui->setParent( this );
@@ -244,10 +271,14 @@ bool QEForm::readUiFile()
             delete uiFile;
             uiFile = NULL;
             fileLoaded = true;
+
+// Debuging only  showObjects( this );
+
         }
     }
     return fileLoaded;
 }
+
 
 // Get the form title
 QString QEForm::getASGuiTitle(){

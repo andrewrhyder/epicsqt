@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>308</width>
+    <width>332</width>
     <height>635</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>281</width>
+     <width>296</width>
      <height>106</height>
     </rect>
    </property>
@@ -97,8 +97,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCaLineEditPlugin</class>
+   <class>QELineEdit</class>
    <extends>QLineEdit</extends>
+   <header>QELineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QCaLineEditPlugin</class>
+   <extends>QELineEdit</extends>
    <header>QCaLineEditPlugin.h</header>
   </customwidget>
  </customwidgets>
