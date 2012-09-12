@@ -32,7 +32,7 @@
 #include <QESpinBoxManager.h>
 #include <QEComboBoxManager.h>
 #include <QELinkManager.h>
-#include <QCaPlotPluginManager.h>
+#include <QEPlotManager.h>
 #include <QEPeriodicManager.h>
 #include <QEAnalogProgressBarManager.h>
 #include <QEAnalogIndicatorManager.h>
@@ -67,6 +67,7 @@
 #include <QCaRadioButtonPluginManager.h>
 #include <QCaSliderPluginManager.h>
 #include <QCaComboBoxPluginManager.h>
+#include <QCaPlotPluginManager.h>
 //======================================================
 
 
@@ -100,7 +101,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QESpinBoxManager(this));
     widgets.append(new QEComboBoxManager(this));
     widgets.append(new QEFormManager(this));
-    widgets.append(new QCaPlotPluginManager(this));
+    widgets.append(new QEPlotManager(this));
     widgets.append(new QEImageManager(this));
 
     // Non-EPICS aware framework widgets
@@ -126,6 +127,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaRadioButtonPluginManager(this));
     widgets.append(new QCaSliderPluginManager(this));
     widgets.append(new QCaComboBoxPluginManager(this));
+    widgets.append(new QCaPlotPluginManager(this));
 //======================================================
 
 }

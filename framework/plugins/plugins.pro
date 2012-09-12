@@ -36,7 +36,6 @@ DEFINES += QCAPLUGIN_LIBRARY
 TARGET = QCaPlugin
 OTHER_FILES += \
     src/QCaShape.png \
-    src/QCaPlot.png \
     src/QSubstitutedLabel.png \
     src/record_field_list.txt \
     src/cameraROI.png \
@@ -86,7 +85,6 @@ HEADERS += \
     ../widgets/include/QCaStringFormattingMethods.h \
     ../widgets/include/QCaShape.h \
     ../widgets/include/QSubstitutedLabel.h \
-    ../widgets/include/QCaPlot.h \
     ../widgets/include/QCaToolTip.h \
 
 
@@ -95,7 +93,6 @@ SOURCES += \
     src/QSubstitutedLabelPlugin.cpp \
     src/QCaDesignerPlugin.cpp \
     src/ContainerProfile.cpp \
-    src/QCaPlotPlugin.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -127,7 +124,6 @@ SOURCES += \
     ../widgets/src/QCaStringFormattingMethods.cpp \
     ../widgets/src/QCaShape.cpp \
     ../widgets/src/QSubstitutedLabel.cpp \
-    ../widgets/src/QCaPlot.cpp \
     ../widgets/src/QCaToolTip.cpp
 
 
@@ -207,7 +203,7 @@ include (../widgets/QESlider/QESlider.pri)
 include (../widgets/QESpinBox/QESpinBox.pri)
 #include (../widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
 include (../widgets/QELink/QELink.pri)
-#include (../widgets/QEPlot/QEPlot.pri)
+include (../widgets/QEPlot/QEPlot.pri)
 include (../widgets/deprecated/deprecated.pri)
 
 #===========================================================

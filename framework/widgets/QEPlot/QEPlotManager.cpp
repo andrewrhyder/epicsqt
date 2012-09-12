@@ -24,21 +24,21 @@
 
 // CA Plot Widget Plugin Manager for designer.
 
-#include <QCaPlotPluginManager.h>
-#include <QCaPlotPlugin.h>
+#include <QEPlotManager.h>
+#include <QEPlot.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-QCaPlotPluginManager::QCaPlotPluginManager( QObject *parent ) : QObject( parent ) {
+QEPlotManager::QEPlotManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void QCaPlotPluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QEPlotManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -48,64 +48,64 @@ void QCaPlotPluginManager::initialize( QDesignerFormEditorInterface * ) {
 /*!
     ???
 */
-bool QCaPlotPluginManager::isInitialized() const {
+bool QEPlotManager::isInitialized() const {
     return initialized;
 }
 
 /*!
-    Widget factory. Creates a QCaPlot widget.
+    Widget factory. Creates a QEPlot widget.
 */
-QWidget *QCaPlotPluginManager::createWidget ( QWidget *parent ) {
-    return new QCaPlotPlugin(parent);
+QWidget *QEPlotManager::createWidget ( QWidget *parent ) {
+    return new QEPlot(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString QCaPlotPluginManager::name() const {
-    return "QCaPlotPlugin";
+QString QEPlotManager::name() const {
+    return "QEPlot";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString QCaPlotPluginManager::group() const {
-    return "EPICS Deprecated Widgets";
+QString QEPlotManager::group() const {
+    return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon QCaPlotPluginManager::icon() const {
+QIcon QEPlotManager::icon() const {
     return QIcon(":/qe/plot/QEPlot.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString QCaPlotPluginManager::toolTip() const {
-    return "EPICS Plot";
+QString QEPlotManager::toolTip() const {
+    return "EPICS Strip Chart";
 }
 
 /*!
     ???
 */
-QString QCaPlotPluginManager::whatsThis() const {
-    return "EPICS Plot";
+QString QEPlotManager::whatsThis() const {
+    return "EPICS Strip Chart";
 }
 
 /*!
     ???
 */
-bool QCaPlotPluginManager::isContainer() const {
+bool QEPlotManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString QCaPlotPluginManager::domXml() const {
-    return "<widget class=\"QCaPlot\" name=\"qCaPlot\">\n"
+/*QString QEPlotManager::domXml() const {
+    return "<widget class=\"QEPlot\" name=\"qEPlot\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -127,6 +127,6 @@ bool QCaPlotPluginManager::isContainer() const {
 /*!
     ???
 */
-QString QCaPlotPluginManager::includeFile() const {
-    return "QCaPlotPlugin.h";
+QString QEPlotManager::includeFile() const {
+    return "QEPlot.h";
 }

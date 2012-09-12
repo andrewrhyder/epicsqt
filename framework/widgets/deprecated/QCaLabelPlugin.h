@@ -31,7 +31,7 @@ class QCaLabelPlugin : public QELabel {
     Q_OBJECT
 
   public:
-  QCaLabelPlugin( QWidget *parent = 0 ) : QELabel( parent ) {}
+    QCaLabelPlugin( QWidget *parent = 0 ) : QELabel( parent ) {}
 };
 
 #endif // QCALABELPLUGIN_H
