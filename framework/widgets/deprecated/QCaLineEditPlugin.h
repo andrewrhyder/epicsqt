@@ -34,6 +34,37 @@ class QCaLineEditPlugin : public QELineEdit {
 
 public:
     QCaLineEditPlugin  ( QWidget *parent = 0 ) : QELineEdit ( parent ) {}
+
+    // This deprecated widget is now just a shell around its replacement.
+    // Its replacement does not recognise any properties defined in using a Q_ENUM in the original widget,
+    // so these properties must still be implemented in the deprecated widget
+    enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
+                   Floating         = QCaStringFormatting::FORMAT_FLOATING,
+                   Integer          = QCaStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time             = QCaStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    Formats getFormatProperty(){ return (Formats)getFormat(); }
+    Q_ENUMS(Formats)
+    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
+
+    enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
+                     Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    Notations getNotationProperty(){ return (Notations)getNotation(); }
+    Q_ENUMS(Notations)
+    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
+
+    enum ArrayActions { Append = QCaStringFormatting::APPEND,
+                        Ascii  = QCaStringFormatting::ASCII,
+                        Index  = QCaStringFormatting::INDEX };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }
+    ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }
+    Q_ENUMS(ArrayActions)
+    Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
+
 };
 
 #endif /// QCALINEEDITPLUGIN_H

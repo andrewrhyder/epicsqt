@@ -27,6 +27,7 @@
 
 #include <QESpinBox.h>
 
+/// QCaLineEditPlugin IS deprecated - use QELineEdit.
 class QCaSpinBoxPlugin : public QESpinBox {
     Q_OBJECT
 

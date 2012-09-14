@@ -30,6 +30,7 @@
 #include <QSubstitutedLabel.h>
 #include <QCaVariableNamePropertyManager.h>
 
+/// QCaLineEditPlugin IS deprecated - use QELineEdit.
 class QSubstitutedLabelPlugin : public QSubstitutedLabel {
     Q_OBJECT
 

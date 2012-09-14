@@ -27,11 +27,53 @@
 
 #include <QERadioButton.h>
 
+/// QCaLineEditPlugin IS deprecated - use QELineEdit.
 class QCaRadioButtonPlugin : public QERadioButton {
     Q_OBJECT
 
   public:
     QCaRadioButtonPlugin( QWidget *parent = 0 ) : QERadioButton( parent ) {}
+
+
+    // This deprecated widget is now just a shell around its replacement.
+    // Its replacement does not recognise any properties defined in using a Q_ENUM in the original widget,
+    // so these properties must still be implemented in the deprecated widget
+    Q_ENUMS(UpdateOptions)
+    Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
+    enum UpdateOptions { Text        = QERadioButton::UPDATE_TEXT,
+                         Icon        = QERadioButton::UPDATE_ICON,
+                         TextAndIcon = QERadioButton::UPDATE_TEXT_AND_ICON,
+                         State       = QERadioButton::UPDATE_STATE };
+    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QERadioButton::updateOptions)updateOption ); }
+    UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
+
+
+    Q_ENUMS(Formats)
+    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
+    enum Formats { Default         = QCaStringFormatting::FORMAT_DEFAULT,
+                   Floating        = QCaStringFormatting::FORMAT_FLOATING,
+                   Integer         = QCaStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time            = QCaStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    Formats getFormatProperty(){ return (Formats)getFormat(); }
+
+    Q_ENUMS(Notations)
+    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
+    enum Notations { Fixed      = QCaStringFormatting::NOTATION_FIXED,
+                     Scientific = QCaStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic  = QCaStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    Notations getNotationProperty(){ return (Notations)getNotation(); }
+
+    Q_ENUMS(CreationOptionNames)
+    Q_PROPERTY(CreationOptionNames creationOption READ getCreationOptionProperty WRITE setCreationOptionProperty)
+    enum CreationOptionNames { Open = QEForm::CREATION_OPTION_OPEN,
+                               NewTab = QEForm::CREATION_OPTION_NEW_TAB,
+                               NewWindow = QEForm::CREATION_OPTION_NEW_WINDOW };
+    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEForm::creationOptions)creationOptionIn ); }
+    CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
 
 };
 

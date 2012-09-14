@@ -27,7 +27,7 @@
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
-#include <QCaShape.h>
+#include <QEShape.h>
 #include <QCaDateTime.h>
 #include <QtGui>
 #include <QDebug>
@@ -35,14 +35,14 @@
 /*!
     Create without a known variable. Just manage parental hirarchy.
 */
-QCaShape::QCaShape( QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
+QEShape::QEShape( QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Create with a known variable. Subscription occurs immedietly.
 */
-QCaShape::QCaShape( const QString &variableNameIn, QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
+QEShape::QEShape( const QString &variableNameIn, QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
     /// Call common setup code.
     setup();
 
@@ -53,10 +53,10 @@ QCaShape::QCaShape( const QString &variableNameIn, QWidget *parent ) : QWidget( 
 /*!
     Common setup code.
 */
-void QCaShape::setup() {
+void QEShape::setup() {
     // Set up data
     // Set the number of variables equal to the base VariableNameManager is to manage
-    setNumVariables( QCASHAPE_NUM_VARIABLES );
+    setNumVariables( QESHAPE_NUM_VARIABLES );
 
     // Set up default properties
     setAllowDrop( false );
@@ -124,14 +124,23 @@ void QCaShape::setup() {
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     // Use widget signals
-    // --Currently none--
+    //!! move this functionality into QCaWidget???
+    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    // for each variable name property manager, set up an index to identify it when it signals and
+    // set up a connection to recieve variable name property changes.
+    // The variable name property manager class only delivers an updated variable name after the user has stopped typing
+    for( int i = 0; i < QESHAPE_NUM_VARIABLES; i++ )
+    {
+        variableNamePropertyManagers[i].setVariableIndex( i );
+        QObject::connect( &variableNamePropertyManagers[i], SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int ) ) );
+    }
 }
 
 /*!
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a shape a QCaObject that streams integers is required.
 */
-qcaobject::QCaObject* QCaShape::createQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QEShape::createQcaItem( unsigned int variableIndex ) {
 
     // Create the item as a QCaInteger
     return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
@@ -142,7 +151,7 @@ qcaobject::QCaObject* QCaShape::createQcaItem( unsigned int variableIndex ) {
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
 */
-void QCaShape::establishConnection( unsigned int variableIndex ) {
+void QEShape::establishConnection( unsigned int variableIndex ) {
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -161,7 +170,7 @@ void QCaShape::establishConnection( unsigned int variableIndex ) {
 /*!
     Update the tool tip as requested by QCaToolTip.
 */
-void QCaShape::updateToolTip ( const QString & toolTip ) {
+void QEShape::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
@@ -170,7 +179,7 @@ void QCaShape::updateToolTip ( const QString & toolTip ) {
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
-void QCaShape::connectionChanged( QCaConnectionInfo& connectionInfo )
+void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
     /// If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
@@ -199,7 +208,7 @@ void QCaShape::connectionChanged( QCaConnectionInfo& connectionInfo )
     color.
     This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex ) {
+void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex ) {
 
     /// Signal a database value change to any Link widgets
     switch( variableIndex )
@@ -210,7 +219,7 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
         case 3: emit dbValueChanged4( value ); break;
         case 4: emit dbValueChanged5( value ); break;
         case 5: emit dbValueChanged6( value ); break;
-        default: sendMessage( "Application error: Unexpected variable index", "QCaShape.cpp QCaShape::setValue()", MESSAGE_TYPE_ERROR );
+        default: sendMessage( "Application error: Unexpected variable index", "QEShape.cpp QEShape::setValue()", MESSAGE_TYPE_ERROR );
     }
 
     /// Scale the data.
@@ -359,7 +368,7 @@ void QCaShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime
     system decides the object requires drawing, such as when the window
     containing the shape widget is scrolled into view.
 */
-void QCaShape::paintEvent(QPaintEvent * /* event */) {
+void QEShape::paintEvent(QPaintEvent * /* event */) {
     QPainter painter( this );
 
     /// Set up the pen and brush (color, thickness, etc)
@@ -459,7 +468,7 @@ void QCaShape::paintEvent(QPaintEvent * /* event */) {
 /*!
    Reset the brush color if the color the brush is using is changing
  */
-void QCaShape::colorChange( unsigned int index )
+void QEShape::colorChange( unsigned int index )
 {
     // Sanity check. Ignore out of range color index
     if( index >= COLORS_SIZE )
@@ -475,20 +484,20 @@ void QCaShape::colorChange( unsigned int index )
 
 //==============================================================================
 // Drag and Drop
-void QCaShape::setDrop( QVariant drop )
+void QEShape::setDrop( QVariant drop )
 {
     QStringList PVs = drop.toString().split( ' ' );
-    for( int i = 0; i < PVs.size() && i < QCASHAPE_NUM_VARIABLES; i++ )
+    for( int i = 0; i < PVs.size() && i < QESHAPE_NUM_VARIABLES; i++ )
     {
         setVariableName( PVs[i], i );
         establishConnection( i );
     }
 }
 
-QVariant QCaShape::getDrop()
+QVariant QEShape::getDrop()
 {
     QString text;
-    for( int i = 0; i < QCASHAPE_NUM_VARIABLES; i++ )
+    for( int i = 0; i < QESHAPE_NUM_VARIABLES; i++ )
     {
         QString pv = getSubstitutedVariableName(i);
         if( !pv.isEmpty() )
@@ -506,175 +515,175 @@ QVariant QCaShape::getDrop()
 // Property convenience functions
 
 // variable animations
-void QCaShape::setAnimation( QCaShape::Animations animation, const int index )
+void QEShape::setAnimation( QEShape::animationOptions animation, const int index )
 {
     animations[index] = animation;
     update();
 }
-QCaShape::Animations QCaShape::getAnimation( const int index )
+QEShape::animationOptions QEShape::getAnimation( const int index )
 {
     return animations[index];
 }
 
 // scales
-void QCaShape::setScale( const double scale, const int index )
+void QEShape::setScale( const double scale, const int index )
 {
     scales[index] = scale;
 }
-double QCaShape::getScale( const int index )
+double QEShape::getScale( const int index )
 {
     return scales[index];
 }
 
 
 // offsets
-void QCaShape::setOffset( const double offset, const int index )
+void QEShape::setOffset( const double offset, const int index )
 {
     offsets[index] = offset;
 }
-double QCaShape::getOffset( const int index )
+double QEShape::getOffset( const int index )
 {
     return offsets[index];
 }
 
 // border
-void QCaShape::setBorder( bool borderIn )
+void QEShape::setBorder( bool borderIn )
 {
     border = borderIn;
 }
-bool QCaShape::getBorder()
+bool QEShape::getBorder()
 {
     return border;
 }
 
 // fill
-void QCaShape::setFill( bool fillIn )
+void QEShape::setFill( bool fillIn )
 {
     fill = fillIn;
 }
-bool QCaShape::getFill()
+bool QEShape::getFill()
 {
     return fill;
 }
 
 // shape
-void QCaShape::setShape( QCaShape::Shape shapeIn )
+void QEShape::setShape( QEShape::shapeOptions shapeIn )
 {
     shape = shapeIn;
     update();
 }
-QCaShape::Shape QCaShape::getShape()
+QEShape::shapeOptions QEShape::getShape()
 {
     return shape;
 }
 
 
 // number of points
-void QCaShape::setNumPoints( unsigned int numPointsIn )
+void QEShape::setNumPoints( unsigned int numPointsIn )
 {
     numPoints = (numPointsIn>POINTS_SIZE)?POINTS_SIZE:numPointsIn;
     update();
 }
-unsigned int QCaShape::getNumPoints()
+unsigned int QEShape::getNumPoints()
 {
     return numPoints;
 }
 
 // Origin translation
-void QCaShape::setOriginTranslation( QPoint originTranslationIn )
+void QEShape::setOriginTranslation( QPoint originTranslationIn )
 {
     originTranslation = originTranslationIn;
     update();
 }
-QPoint QCaShape::getOriginTranslation()
+QPoint QEShape::getOriginTranslation()
 {
     return originTranslation;
 }
 
 // points
-void QCaShape::setPoint( const QPoint point, const int index  )
+void QEShape::setPoint( const QPoint point, const int index  )
 {
     points[index] = point;
     update();
 }
-QPoint QCaShape::getPoint( const int index )
+QPoint QEShape::getPoint( const int index )
 {
     return points[index];
 }
 
 // colors
-void QCaShape::setColor( const QColor color, const int index  )
+void QEShape::setColor( const QColor color, const int index  )
 {
     colors[index] = color;
     colorChange( index );
 }
-QColor QCaShape::getColor( const int index )
+QColor QEShape::getColor( const int index )
 {
     return colors[index];
 }
 
 // draw border
-void QCaShape::setDrawBorder( bool drawBorderIn )
+void QEShape::setDrawBorder( bool drawBorderIn )
 {
     drawBorder = drawBorderIn;
     update();
 }
-bool QCaShape::getDrawBorder()
+bool QEShape::getDrawBorder()
 {
     return drawBorder;
 }
 
 // line width
-void QCaShape::setLineWidth( unsigned int lineWidthIn )
+void QEShape::setLineWidth( unsigned int lineWidthIn )
 {
     lineWidth = lineWidthIn;
     update();
 }
-unsigned int QCaShape::getLineWidth()
+unsigned int QEShape::getLineWidth()
 {
     return lineWidth;
 }
 
 // start angle
-void QCaShape::setStartAngle( double startAngleIn )
+void QEShape::setStartAngle( double startAngleIn )
 {
     startAngle = startAngleIn;
     update();
 }
-double QCaShape::getStartAngle()
+double QEShape::getStartAngle()
 {
     return startAngle;
 }
 
 // rotation
-void QCaShape::setRotation( double rotationIn )
+void QEShape::setRotation( double rotationIn )
 {
     rotation = rotationIn;
     update();
 }
-double QCaShape::getRotation()
+double QEShape::getRotation()
 {
     return rotation;
 }
 
 // arc length
-void QCaShape::setArcLength( double arcLengthIn )
+void QEShape::setArcLength( double arcLengthIn )
 {
     arcLength = arcLengthIn;
     update();
 }
-double QCaShape::getArcLength()
+double QEShape::getArcLength()
 {
     return arcLength;
 }
 
 // text
-void QCaShape::setText( QString textIn )
+void QEShape::setText( QString textIn )
 {
     text = textIn;
     update();
 }
-QString QCaShape::getText()
+QString QEShape::getText()
 {
     return text;
 }

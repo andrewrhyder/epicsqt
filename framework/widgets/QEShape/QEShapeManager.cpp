@@ -22,22 +22,22 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <QCaShapePluginManager.h>
-#include <QCaShapePlugin.h>
+#include <QEShapeManager.h>
+#include <QEShape.h>
 
 #include <QtPlugin>
 
 /*!
     ???
 */
-QCaShapePluginManager::QCaShapePluginManager( QObject *parent ) : QObject( parent ) {
+QEShapeManager::QEShapeManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void QCaShapePluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QEShapeManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -47,64 +47,64 @@ void QCaShapePluginManager::initialize( QDesignerFormEditorInterface * ) {
 /*!
     ???
 */
-bool QCaShapePluginManager::isInitialized() const {
+bool QEShapeManager::isInitialized() const {
     return initialized;
 }
 
 /*!
-    Widget factory. Creates a QCaShapePlugin widget.
+    Widget factory. Creates a QEShape widget.
 */
-QWidget *QCaShapePluginManager::createWidget ( QWidget *parent ) {
-    return new QCaShapePlugin(parent);
+QWidget *QEShapeManager::createWidget ( QWidget *parent ) {
+    return new QEShape(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString QCaShapePluginManager::name() const {
-    return "QCaShapePlugin";
+QString QEShapeManager::name() const {
+    return "QEShape";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString QCaShapePluginManager::group() const {
-    return "EPICS Deprecated Widgets";
+QString QEShapeManager::group() const {
+    return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon QCaShapePluginManager::icon() const {
+QIcon QEShapeManager::icon() const {
     return QIcon(":/qe/shape/QEShape.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString QCaShapePluginManager::toolTip() const {
+QString QEShapeManager::toolTip() const {
     return "EPICS Shape";
 }
 
 /*!
     ???
 */
-QString QCaShapePluginManager::whatsThis() const {
+QString QEShapeManager::whatsThis() const {
     return "EPICS Shape";
 }
 
 /*!
     ???
 */
-bool QCaShapePluginManager::isContainer() const {
+bool QEShapeManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString QCaShapePluginManager::domXml() const {
-    return "<widget class=\"QCaShape\" name=\"qCaShape\">\n"
+/*QString QEShapeManager::domXml() const {
+    return "<widget class=\"QEShape\" name=\"qEShape\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -126,6 +126,6 @@ bool QCaShapePluginManager::isContainer() const {
 /*!
     ???
 */
-QString QCaShapePluginManager::includeFile() const {
-    return "QCaShapePlugin.h";
+QString QEShapeManager::includeFile() const {
+    return "QEShape.h";
 }

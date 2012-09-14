@@ -22,18 +22,35 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCASLIDERPLUGIN_H
-#define QCASLIDERPLUGIN_H
-#include <QESlider.h>
+// CA Shape Widget Plugin Manager for designer.
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
-class QCaSliderPlugin : public QESlider {
-    Q_OBJECT
+#ifndef QESHAPEMANAGER_H
+#define QESHAPEMANAGER_H
+
+#include <QDesignerCustomWidgetInterface>
+#include <QCaPluginLibrary_global.h>
+
+class QCAPLUGINLIBRARYSHARED_EXPORT QEShapeManager : public QObject, public QDesignerCustomWidgetInterface {
+     Q_OBJECT
+     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
   public:
-    // Constructors
-    QCaSliderPlugin( QWidget *parent = 0 ) : QESlider( parent ) {}
+    QEShapeManager( QObject *parent = 0 );
 
+    bool isContainer() const;
+    bool isInitialized() const;
+    QIcon icon() const;
+    //QString domXml() const;
+    QString group() const;
+    QString includeFile() const;
+    QString name() const;
+    QString toolTip() const;
+    QString whatsThis() const;
+    QWidget *createWidget( QWidget *parent );
+    void initialize( QDesignerFormEditorInterface *core );
+
+  private:
+    bool initialized;
 };
 
-#endif // QCASLIDERPLUGIN_H
+#endif // QESHAPEMANAGER_H

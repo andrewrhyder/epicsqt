@@ -27,11 +27,35 @@
 
 #include <QEPlot.h>
 
+/// QCaLineEditPlugin IS deprecated - use QELineEdit.
 class QCaPlotPlugin : public QEPlot {
     Q_OBJECT
 
   public:
     QCaPlotPlugin( QWidget *parent = 0 ) : QEPlot( parent ) {}
+
+    // This deprecated widget is now just a shell around its replacement.
+    // Its replacement does not recognise any properties defined in using a Q_ENUM in the original widget,
+    // so these properties must still be implemented in the deprecated widget
+    Q_ENUMS(TraceStyles)
+    Q_PROPERTY(TraceStyles traceStyle1 READ getTraceStyle1 WRITE setTraceStyle1)
+    Q_PROPERTY(TraceStyles traceStyle2 READ getTraceStyle2 WRITE setTraceStyle2)
+    Q_PROPERTY(TraceStyles traceStyle3 READ getTraceStyle3 WRITE setTraceStyle3)
+    Q_PROPERTY(TraceStyles traceStyle4 READ getTraceStyle4 WRITE setTraceStyle4)
+    enum TraceStyles { Lines  = QwtPlotCurve::Lines,
+                       Sticks = QwtPlotCurve::Sticks,
+                       Steps  = QwtPlotCurve::Steps,
+                       Dots   = QwtPlotCurve::Dots };
+    void setTraceStyle1( TraceStyles traceStyle ){ setTraceStyle( (QwtPlotCurve::CurveStyle)traceStyle, 0 ); }
+    void setTraceStyle2( TraceStyles traceStyle ){ setTraceStyle( (QwtPlotCurve::CurveStyle)traceStyle, 1 ); }
+    void setTraceStyle3( TraceStyles traceStyle ){ setTraceStyle( (QwtPlotCurve::CurveStyle)traceStyle, 2 ); }
+    void setTraceStyle4( TraceStyles traceStyle ){ setTraceStyle( (QwtPlotCurve::CurveStyle)traceStyle, 3 ); }
+
+    TraceStyles getTraceStyle1(){ return (TraceStyles)(getTraceStyle( 0 )); }
+    TraceStyles getTraceStyle2(){ return (TraceStyles)(getTraceStyle( 1 )); }
+    TraceStyles getTraceStyle3(){ return (TraceStyles)(getTraceStyle( 2 )); }
+    TraceStyles getTraceStyle4(){ return (TraceStyles)(getTraceStyle( 3 )); }
+
 };
 
 #endif // QCAPLOTPLUGIN_H

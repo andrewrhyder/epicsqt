@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>QCaShape.png</file>
         <file>QBitStatus.png</file>
         <file>QSubstitutedLabel.png</file>
     </qresource>

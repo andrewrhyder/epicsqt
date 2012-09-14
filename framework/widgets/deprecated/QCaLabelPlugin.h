@@ -27,11 +27,42 @@
 
 #include <QELabel.h>
 
+/// QCaLineEditPlugin IS deprecated - use QELineEdit.
 class QCaLabelPlugin : public QELabel {
     Q_OBJECT
 
   public:
     QCaLabelPlugin( QWidget *parent = 0 ) : QELabel( parent ) {}
+
+    // This deprecated widget is now just a shell around its replacement.
+    // Its replacement does not recognise any properties defined in using a Q_ENUM in the original widget,
+    // so these properties must still be implemented in the deprecated widget
+    Q_ENUMS(Formats)
+    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
+
+    enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
+                     Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    Notations getNotationProperty(){ return (Notations)getNotation(); }
+    Q_ENUMS(Notations)
+    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
+
+    enum ArrayActions { Append = QCaStringFormatting::APPEND,
+                        Ascii  = QCaStringFormatting::ASCII,
+                        Index  = QCaStringFormatting::INDEX };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }
+    ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }
+    Q_ENUMS(ArrayActions)
+    Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
+
+    Q_ENUMS(UpdateOptions)
+    Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
+    enum UpdateOptions { Text     = QELabel::UPDATE_TEXT,
+                         Picture  = QELabel::UPDATE_PIXMAP };
+    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QELabel::updateOptions)updateOption ); }
+    UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
+
 };
 
 #endif // QCALABELPLUGIN_H

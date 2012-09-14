@@ -27,12 +27,26 @@
 
 #include <QELink.h>
 
+/// QCaLineEditPlugin IS deprecated - use QELineEdit.
 class LinkPlugin : public QELink {
     Q_OBJECT
 
   public:
     LinkPlugin( QWidget *parent = 0 ) : QELink( parent ) {}
 
+    // This deprecated widget is now just a shell around its replacement.
+    // Its replacement does not recognise any properties defined in using a Q_ENUM in the original widget,
+    // so these properties must still be implemented in the deprecated widget
+    Q_ENUMS(ConditionNames)
+    Q_PROPERTY(ConditionNames condition READ getConditionProperty WRITE setConditionProperty)
+    enum ConditionNames { Equal              = QELink::CONDITION_EQ,
+                          NotEqual           = QELink::CONDITION_NE,
+                          GreaterThan        = QELink::CONDITION_GT,
+                          GreaterThanOrEqual = QELink::CONDITION_GE,
+                          LessThan           = QELink::CONDITION_LT,
+                          LessThanOrEqual    = QELink::CONDITION_LE };
+    void setConditionProperty( ConditionNames condition ){ setCondition( (QELink::conditions)condition ); }
+    ConditionNames getConditionProperty(){ return (ConditionNames)getCondition(); }
 };
 
 #endif /// LINKPLUGIN_H
