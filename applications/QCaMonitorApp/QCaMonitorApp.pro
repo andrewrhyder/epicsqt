@@ -40,7 +40,7 @@ INCLUDEPATH += \
     ./include \
     ../../framework/api/include \
     ../../framework/data/include \
-    ../../framework/plugins/include
+    ../../framework/widgets/include
 
 # Uncomment if linking agains QCa library in Qt Designer plugin directory
 #LIBS += -L$$(QTDIR)/plugins/designer -lQCaPlugin

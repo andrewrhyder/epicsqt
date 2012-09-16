@@ -34,18 +34,19 @@
  */
 
 
-#ifndef QSUBSTITUTEDLABEL_H
-#define QSUBSTITUTEDLABEL_H
+#ifndef QESUBSTITUTEDLABEL_H
+#define QESUBSTITUTEDLABEL_H
 
 #include <QLabel>
 #include <QCaWidget.h>
+#include <QCaVariableNamePropertyManager.h>
 #include <QCaPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QSubstitutedLabel : public QLabel, public QCaWidget {
+class QCAPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabel : public QLabel, public QCaWidget {
     Q_OBJECT
 
   public:
-    QSubstitutedLabel( QWidget *parent = 0 );
+    QESubstitutedLabel( QWidget *parent = 0 );
 
     void establishConnection( unsigned int variableIndex ); // Used, but not to connect to data, just used to trigger substitution of the QLabel text
 
@@ -67,6 +68,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QSubstitutedLabel : public QLabel, public QC
     QString labelText;                                                 // Fixed text to which substitutions will be applied
 
 private slots:
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    {
+        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+    }
 
   public slots:
 
@@ -74,10 +79,27 @@ private slots:
 
   private:
     void setup();
-    qcaobject::QCaObject* createQcaItem( unsigned int ){ return NULL; }; // Not used as this widget does not connect to any data source
-    void updateToolTip( const QString& ){};                              // Not used as this widget does not connect to any data source
+    qcaobject::QCaObject* createQcaItem( unsigned int ){ return NULL; } // Not used as this widget does not connect to any data source
+    void updateToolTip( const QString& ){}                              // Not used as this widget does not connect to any data source
 
+public:
+    //=================================================================================
+    // NOTE, this plugin uses the variable-name-and-substitutions mechanism normally used to manage variable names
+    //       to manage text displayed in the label.
+    //       If you are reading this because you searched for SINGLEVARIABLEPROPERTIES, this section is not the standard set normally
+    //       used for all widgets with a single variable, but some changes may be needed here as well
 
+    // Label text to be substituted.
+    Q_PROPERTY(QString labelText READ getLabelTextPropertyFormat WRITE setLabelTextPropertyFormat)
+
+    // Text substitutions.
+    Q_PROPERTY(QString textSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
+
+  private:
+    QCaVariableNamePropertyManager variableNamePropertyManager;
+    //=================================================================================
 };
 
-#endif /// QSUBSTITUTEDLABEL_H
+#endif // QESUBSTITUTEDLABEL_H

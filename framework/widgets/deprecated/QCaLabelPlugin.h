@@ -27,7 +27,7 @@
 
 #include <QELabel.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+/// QCaLabelPlugin IS deprecated - use QELabel.
 class QCaLabelPlugin : public QELabel {
     Q_OBJECT
 

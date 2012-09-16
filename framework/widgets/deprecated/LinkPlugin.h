@@ -27,7 +27,7 @@
 
 #include <QELink.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+/// LinkPlugin IS deprecated - use QELink.
 class LinkPlugin : public QELink {
     Q_OBJECT
 

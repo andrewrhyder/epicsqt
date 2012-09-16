@@ -236,19 +236,21 @@ bool QEForm::readUiFile()
 
             // Set the form's size related properties to match the top ui widget
             // This will ensure the form behaves in the same way as the ui was designed to when loaded within another ui
-            setGeometry(0, 0, ui->width(), ui->height() );
+
+            QRect formRect = geometry();
+            setGeometry( formRect.x(), formRect.y(), ui->width(), ui->height() );
             setSizePolicy( ui->sizePolicy() );
             setMinimumSize( ui->minimumSize() );
             setMaximumSize( ui->maximumSize() );
-            setSizeIncrement( this->sizeIncrement() );
+            setSizeIncrement( ui->sizeIncrement() );
             setBaseSize( ui->baseSize() );
             setContentsMargins( ui->contentsMargins() );
 
             // Reset the user interface's position.
             // Not sure why, but the loaded user interface does not always have a position of 0,0
             // When debugged, the particular example was a QDialog with a position of 0,0 when viewed in designer.
-            QRect rect = ui->geometry();
-            ui->setGeometry(0, 0, rect.width(), rect.height());
+            QRect uiRect = ui->geometry();
+            ui->setGeometry(0, 0, uiRect.width(), uiRect.height());
 
             // Load the user interface into the QEForm widget
             ui->setParent( this );

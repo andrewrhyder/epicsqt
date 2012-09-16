@@ -35,7 +35,6 @@ CONFIG += plugin \
 DEFINES += QCAPLUGIN_LIBRARY
 TARGET = QCaPlugin
 OTHER_FILES += \
-    src/QSubstitutedLabel.png \
     src/record_field_list.txt \
     src/cameraROI.png \
     src/cameraROIreset.png \
@@ -48,9 +47,6 @@ OTHER_FILES += \
 
 
 HEADERS += \
-    include/QCaPluginLibrary_global.h \
-    include/QCaDesignerPlugin.h \
-    include/ContainerProfile.h \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
     ../api/include/CaObject.h \
@@ -82,14 +78,13 @@ HEADERS += \
     ../widgets/include/styleManager.h \
     ../widgets/include/standardProperties.h \
     ../widgets/include/QCaStringFormattingMethods.h \
-    ../widgets/include/QSubstitutedLabel.h \
     ../widgets/include/QCaToolTip.h \
+    ../widgets/include/QCaDesignerPlugin.h \
+    ../widgets/include/ContainerProfile.h \
+    ../widgets/include/QCaPluginLibrary_global.h \
 
 
 SOURCES += \
-    src/QSubstitutedLabelPlugin.cpp \
-    src/QCaDesignerPlugin.cpp \
-    src/ContainerProfile.cpp \
     ../api/src/Generic.cpp \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
@@ -119,15 +114,13 @@ SOURCES += \
     ../widgets/src/styleManager.cpp \
     ../widgets/src/standardProperties.cpp \
     ../widgets/src/QCaStringFormattingMethods.cpp \
-    ../widgets/src/QSubstitutedLabel.cpp \
-    ../widgets/src/QCaToolTip.cpp
+    ../widgets/src/QCaToolTip.cpp \
+    ../widgets/src/QCaDesignerPlugin.cpp \
+    ../widgets/src/ContainerProfile.cpp \
 
 
 # Include the following gdbmacros line for debugging only
 #SOURCES += $$(QCAQTDIR)/share/qtcreator/gdbmacros/gdbmacros.cpp
-RESOURCES += src/QCaResources.qrc
-
-
 
 _EPICS_BASE = $$(EPICS_BASE)
 isEmpty( _EPICS_BASE ) {
@@ -140,7 +133,6 @@ isEmpty( _EPICS_HOST_ARCH ) {
 }
 
 INCLUDEPATH += \
-    ../plugins/include \
     ../api/include \
     ../data/include \
     ../widgets/include \
@@ -155,28 +147,12 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
     -lCom
 
 #===========================================================
-# BitStatus
-#
-OTHER_FILES += \
-    src/QBitStatus.png 
-
-HEADERS += \
-    ../widgets/include/QBitStatus.h \
-    include/QBitStatusPluginManager.h
-
-SOURCES += \
-    ../widgets/src/QBitStatus.cpp \
-    src/QBitStatusPluginManager.cpp
-
-
-#===========================================================
 # Included .pri (project include) files for each widget
 #
 include (../archive/QEArchive.pri)
 include (../widgets/QEAnalogIndicator/QEAnalogIndicator.pri)
 include (../widgets/QEAnalogProgressBar/QEAnalogProgressBar.pri)
 include (../widgets/QEBitStatus/QEBitStatus.pri)
-#include (../widgets/bitStatus/bitStatus.pri)
 include (../widgets/QEConfiguredLayout/QEConfiguredLayout.pri)
 include (../widgets/QEFrame/QEFrame.pri)
 include (../widgets/QEGroupBox/QEGroupBox.pri)
@@ -197,7 +173,7 @@ include (../widgets/QEButton/QEButton.pri)
 include (../widgets/QEShape/QEShape.pri)
 include (../widgets/QESlider/QESlider.pri)
 include (../widgets/QESpinBox/QESpinBox.pri)
-#include (../widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
+include (../widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
 include (../widgets/QELink/QELink.pri)
 include (../widgets/QEPlot/QEPlot.pri)
 include (../widgets/deprecated/deprecated.pri)

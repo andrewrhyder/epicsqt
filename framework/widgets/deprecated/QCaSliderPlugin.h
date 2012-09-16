@@ -26,7 +26,7 @@
 #define QCASLIDERPLUGIN_H
 #include <QESlider.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+/// QCaSliderPlugin IS deprecated - use QESlider.
 class QCaSliderPlugin : public QESlider {
     Q_OBJECT
 

@@ -27,7 +27,7 @@
 
 #include <QERadioButton.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+/// QCaRadioButtonPlugin IS deprecated - use QERadioButton.
 class QCaRadioButtonPlugin : public QERadioButton {
     Q_OBJECT
 

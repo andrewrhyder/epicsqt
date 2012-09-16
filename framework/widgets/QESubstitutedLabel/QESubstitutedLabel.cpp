@@ -27,19 +27,19 @@
   It is intended to enable unique titles and text in sub forms.
  */
 
-#include <QSubstitutedLabel.h>
+#include <QESubstitutedLabel.h>
 
 /*!
     Constructor with no initialisation
 */
-QSubstitutedLabel::QSubstitutedLabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
+QESubstitutedLabel::QESubstitutedLabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
     setup();
 }
 
 /*!
     Setup common to all constructors
 */
-void QSubstitutedLabel::setup() {
+void QESubstitutedLabel::setup() {
 
     // Set up the number of variables managed by the variable name manager
     // NOTE: there is no data associated with this widget, but it uses the same substitution mechanism as other data widgets.
@@ -58,7 +58,7 @@ void QSubstitutedLabel::setup() {
 
 
 // label text (prior to substitution)
-void QSubstitutedLabel::setLabelTextProperty( QString labelTextIn )
+void QESubstitutedLabel::setLabelTextProperty( QString labelTextIn )
 {
     bool wasBlank = labelText.isEmpty();
     labelText = labelTextIn;
@@ -74,14 +74,14 @@ void QSubstitutedLabel::setLabelTextProperty( QString labelTextIn )
     }
 }
 
-QString QSubstitutedLabel::getLabelTextProperty()
+QString QESubstitutedLabel::getLabelTextProperty()
 {
     return labelText;
 }
 
 // Get the label text with line feeds replaced with C style line feed characters.
 // This is to allow line feed to be entered in the property in designer, like the QLabel text property
-QString QSubstitutedLabel::getLabelTextPropertyFormat()
+QString QESubstitutedLabel::getLabelTextPropertyFormat()
 {
     return getLabelTextProperty().replace( "\n", "\\n" );
 
@@ -89,7 +89,7 @@ QString QSubstitutedLabel::getLabelTextPropertyFormat()
 
 // Set the label text with C style line feed characters replaced with line feeds.
 // This is to allow line feed to be entered in the property in designer, like the QLabel text property
-void QSubstitutedLabel::setLabelTextPropertyFormat( QString labelTextIn )
+void QESubstitutedLabel::setLabelTextPropertyFormat( QString labelTextIn )
 {
     setLabelTextProperty( labelTextIn.replace( "\\n", "\n" ));
 }
@@ -101,7 +101,7 @@ void QSubstitutedLabel::setLabelTextPropertyFormat( QString labelTextIn )
     NOTE, In this usage, the variable name manager is used to manage substitutions in the text displayed in the label, so the
     'Variable Name' is not used by this widget (as for most other widgets), rather the substitutions are applied to fixed text.
 */
-void QSubstitutedLabel::establishConnection( unsigned int ) {
+void QESubstitutedLabel::establishConnection( unsigned int ) {
 
     setText( substituteThis( labelText ));
 }

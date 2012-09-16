@@ -27,7 +27,7 @@
 
 #include <QEComboBox.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+/// QCaComboBoxPlugin IS deprecated - use QEComboBox.
 class QCaComboBoxPlugin : public QEComboBox {
     Q_OBJECT
 

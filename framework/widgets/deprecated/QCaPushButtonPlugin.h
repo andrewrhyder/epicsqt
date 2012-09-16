@@ -27,7 +27,7 @@
 
 #include <QEPushButton.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+/// QCaPushButtonPlugin IS deprecated - use QEPushButton.
 class QCaPushButtonPlugin : public QEPushButton {
     Q_OBJECT
 

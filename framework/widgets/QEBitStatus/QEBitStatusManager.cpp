@@ -86,7 +86,7 @@ QString QEBitStatusManager::group () const
 */
 QIcon QEBitStatusManager::icon () const
 {
-   return QIcon (":/qe/bitstatus/icon.png");
+   return QIcon (":/qe/bitstatus/QEBitStatus.png");
 }
 
 /*!

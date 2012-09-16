@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <QSubstitutedLabelPluginManager.h>
-#include <QSubstitutedLabelPlugin.h>
+#include <QESubstitutedLabelManager.h>
+#include <QESubstitutedLabel.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-QSubstitutedLabelPluginManager::QSubstitutedLabelPluginManager( QObject *parent ) : QObject( parent ) {
+QESubstitutedLabelManager::QESubstitutedLabelManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void QSubstitutedLabelPluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QESubstitutedLabelManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -46,64 +46,64 @@ void QSubstitutedLabelPluginManager::initialize( QDesignerFormEditorInterface * 
 /*!
     ???
 */
-bool QSubstitutedLabelPluginManager::isInitialized() const {
+bool QESubstitutedLabelManager::isInitialized() const {
     return initialized;
 }
 
 /*!
     Widget factory. Creates a QSubstitutedLabel widget.
 */
-QWidget *QSubstitutedLabelPluginManager::createWidget ( QWidget *parent ) {
-    return new QSubstitutedLabelPlugin(parent);
+QWidget *QESubstitutedLabelManager::createWidget ( QWidget *parent ) {
+    return new QESubstitutedLabel(parent);
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString QSubstitutedLabelPluginManager::name() const {
-    return "QSubstitutedLabelPlugin";
+QString QESubstitutedLabelManager::name() const {
+    return "QESubstitutedLabel";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString QSubstitutedLabelPluginManager::group() const {
-    return "EPICS Deprecated Widgets";
+QString QESubstitutedLabelManager::group() const {
+    return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon QSubstitutedLabelPluginManager::icon() const {
+QIcon QESubstitutedLabelManager::icon() const {
     return QIcon(":/qe/substitutedlabel/QESubstitutedLabel.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString QSubstitutedLabelPluginManager::toolTip() const {
+QString QESubstitutedLabelManager::toolTip() const {
     return "EPICS Label";
 }
 
 /*!
     ???
 */
-QString QSubstitutedLabelPluginManager::whatsThis() const {
+QString QESubstitutedLabelManager::whatsThis() const {
     return "EPICS Label";
 }
 
 /*!
     ???
 */
-bool QSubstitutedLabelPluginManager::isContainer() const {
+bool QESubstitutedLabelManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString QSubstitutedLabelPluginManager::domXml() const {
-    return "<widget class=\"QSubstitutedLabel\" name=\"qSubstitutedLabel\">\n"
+/*QString QESubstitutedLabelManager::domXml() const {
+    return "<widget class=\"QESubstitutedLabel\" name=\"qESubstitutedLabel\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"
@@ -125,6 +125,6 @@ bool QSubstitutedLabelPluginManager::isContainer() const {
 /*!
     ???
 */
-QString QSubstitutedLabelPluginManager::includeFile() const {
-    return "QSubstitutedLabelPlugin.h";
+QString QESubstitutedLabelManager::includeFile() const {
+    return "QESubstitutedLabel.h";
 }

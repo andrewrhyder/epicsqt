@@ -27,7 +27,7 @@
 
 #include <QEPlot.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+/// QCaPlotPlugin IS deprecated - use QEPlot.
 class QCaPlotPlugin : public QEPlot {
     Q_OBJECT
 

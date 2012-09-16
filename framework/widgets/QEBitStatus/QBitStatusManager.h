@@ -23,10 +23,10 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-// CA ProgressBar Widget Plugin Manager for designer.
+// Bit status Widget Plugin Manager for designer.
 
-#ifndef QBITSTATUSPLUGINMANAGER_H
-#define QBITSTATUSPLUGINMANAGER_H
+#ifndef QBITSTATUSMANAGER_H
+#define QBITSTATUSMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
@@ -35,14 +35,14 @@
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT
-      QBitStatusPluginManager : public QObject,
+      QBitStatusManager : public QObject,
                                 public QDesignerCustomWidgetInterface {
 
       Q_OBJECT
       Q_INTERFACES (QDesignerCustomWidgetInterface)
 
    public:
-      QBitStatusPluginManager (QObject *parent = 0);
+      QBitStatusManager (QObject *parent = 0);
 
       bool isContainer () const;
       bool isInitialized () const;
@@ -60,4 +60,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT
       bool initialized;
 };
 
-#endif /// QBITSTATUSPLUGINMANAGER_H
+#endif // QBITSTATUSMANAGER_H

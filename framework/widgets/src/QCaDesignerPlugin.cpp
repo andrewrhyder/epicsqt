@@ -37,7 +37,7 @@
 #include <QEAnalogProgressBarManager.h>
 #include <QEAnalogIndicatorManager.h>
 #include <QEBitStatusManager.h>
-#include <QBitStatusPluginManager.h>
+#include <QBitStatusManager.h>
 #include <QEImageManager.h>
 #include <QEPvPropertiesManager.h>
 #include <QEStripChartManager.h>
@@ -107,7 +107,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
 
     // Non-EPICS aware framework widgets
     widgets.append(new QEAnalogIndicatorManager(this));
-    widgets.append(new QBitStatusPluginManager(this));
+    widgets.append(new QBitStatusManager(this));
     widgets.append(new QEFrameManager(this));
     widgets.append(new QEGroupBoxManager(this));
     widgets.append(new QELinkManager(this));

@@ -22,17 +22,36 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QSUBSTITUTEDLABELPLUGIN_H
-#define QSUBSTITUTEDLABELPLUGIN_H
+#ifndef QESUBSTITUTEDLABELMANAGER_H
+#define QESUBSTITUTEDLABELMANAGER_H
 
-#include <QESubstitutedLabel.h>
+#include <QDesignerCustomWidgetInterface>
+#include <QCaPluginLibrary_global.h>
 
-/// QSubstitutedLabelPlugin IS deprecated - use QESubstitutedLabel.
-class QSubstitutedLabelPlugin : public QESubstitutedLabel {
-    Q_OBJECT
+/*!
+    ???
+*/
+class QCAPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabelManager : public QObject, public QDesignerCustomWidgetInterface {
+     Q_OBJECT
+     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
   public:
-    QSubstitutedLabelPlugin( QWidget *parent = 0 ) : QESubstitutedLabel (parent) {}
+    QESubstitutedLabelManager( QObject *parent = 0 );
+
+    bool isContainer() const;
+    bool isInitialized() const;
+    QIcon icon() const;
+    //QString domXml() const;
+    QString group() const;
+    QString includeFile() const;
+    QString name() const;
+    QString toolTip() const;
+    QString whatsThis() const;
+    QWidget *createWidget( QWidget *parent );
+    void initialize( QDesignerFormEditorInterface *core );
+
+  private:
+    bool initialized;
 };
 
-#endif // QSUBSTITUTEDLABELPLUGIN_H
+#endif /// QESUBSTITUTEDLABELMANAGER_H

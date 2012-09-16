@@ -27,7 +27,7 @@
 
 #include <QEShape.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+/// QCaShapePlugin IS deprecated - use QEShape.
 class QCaShapePlugin : public QEShape {
     Q_OBJECT
 

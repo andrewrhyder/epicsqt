@@ -24,21 +24,21 @@
 
 // BitStatus Widget Plugin Manager for designer.
 
-#include <QBitStatusPluginManager.h>
+#include <QBitStatusManager.h>
 #include <QBitStatus.h>
 #include <QtPlugin>
 
 /*!
     ???
 */
-QBitStatusPluginManager::QBitStatusPluginManager( QObject *parent ) : QObject( parent ) {
+QBitStatusManager::QBitStatusManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
 /*!
     ???
 */
-void QBitStatusPluginManager::initialize( QDesignerFormEditorInterface * ) {
+void QBitStatusManager::initialize( QDesignerFormEditorInterface * ) {
     if( initialized ) {
         return;
     }
@@ -48,63 +48,63 @@ void QBitStatusPluginManager::initialize( QDesignerFormEditorInterface * ) {
 /*!
     ???
 */
-bool QBitStatusPluginManager::isInitialized() const {
+bool QBitStatusManager::isInitialized() const {
     return initialized;
 }
 
 /*!
     Widget factory. Creates a QBitStatus widget.
 */
-QWidget *QBitStatusPluginManager::createWidget ( QWidget *parent ) {
+QWidget *QBitStatusManager::createWidget ( QWidget *parent ) {
     return new QBitStatus( parent );
 }
 
 /*!
     Name for widget. Used by Qt Designer in widget list.
 */
-QString QBitStatusPluginManager::name() const {
+QString QBitStatusManager::name() const {
     return "QBitStatus";
 }
 
 /*!
     Name of group Qt Designer will add widget to.
 */
-QString QBitStatusPluginManager::group() const {
+QString QBitStatusManager::group() const {
     return "EPICS Widgets";
 }
 
 /*!
     Icon for widget. Used by Qt Designer in widget list.
 */
-QIcon QBitStatusPluginManager::icon() const {
-    return QIcon(":/icons/QBitStatus.png");
+QIcon QBitStatusManager::icon() const {
+    return QIcon(":/qe/bitstatus/QBitStatus.png");
 }
 
 /*!
     Tool tip for widget. Used by Qt Designer in widget list.
 */
-QString QBitStatusPluginManager::toolTip() const {
+QString QBitStatusManager::toolTip() const {
     return "Bit Status";
 }
 
 /*!
     ???
 */
-QString QBitStatusPluginManager::whatsThis() const {
+QString QBitStatusManager::whatsThis() const {
     return "Bit Status";
 }
 
 /*!
     ???
 */
-bool QBitStatusPluginManager::isContainer() const {
+bool QBitStatusManager::isContainer() const {
     return false;
 }
 
 /*!
     ???
 */
-/*QString QBitStatusPluginManager::domXml() const {
+/*QString QBitStatusManager::domXml() const {
     return "<widget class=\"QBitStatus\" name=\"qBitStatus\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
@@ -127,7 +127,7 @@ bool QBitStatusPluginManager::isContainer() const {
 /*!
     ???
 */
-QString QBitStatusPluginManager::includeFile() const {
+QString QBitStatusManager::includeFile() const {
     return "QBitStatus.h";
 }
 
