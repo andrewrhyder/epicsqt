@@ -91,6 +91,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
 
         void newMessage( QString msg, message_types type );
         void resizeEvent ( QResizeEvent * event );
+        unsigned int childMessageFormId;
 
 
 

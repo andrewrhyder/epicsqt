@@ -72,6 +72,8 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
     // Set up the UserMessage class
     setFormFilter( MESSAGE_FILTER_MATCH );
     setSourceFilter( MESSAGE_FILTER_NONE );
+    childMessageFormId = getNextMessageFormId();
+    setChildFormId( childMessageFormId );
 
     // Setup a valid local profile if no profile was published
     if( !isProfileDefined() )
@@ -196,9 +198,7 @@ bool QEForm::readUiFile()
             // This new message form ID will also be used when matching the
             // form ID of received messages
             unsigned int parentMessageFormId = getPublishedMessageFormId();
-            unsigned int childMessageFormId = getNextMessageFormId();
             setPublishedMessageFormId( childMessageFormId );
-            setChildFormId( childMessageFormId );
 
             // Load the gui
             QUiLoader loader;
@@ -371,8 +371,10 @@ void QEForm::requestEnabled( const bool& state )
 // This widget doesn't do anything itself with messages, but it can regenerate the message as if it came from itself.
 void QEForm::newMessage( QString msg, message_types type )
 {
-    // An QEForm deals with any message it receives by resending it with its own form and source ids.
-    // This way messages from widgets in sibling QEForm widgets filtered as if they came from sibling widgets
+    // A QEForm deals with any message it receives from widgets it contains by resending it with its own form and source ids.
+    // This way messages from widgets in QEForm widgets will be filtered as if they came from the form. This means a widget can
+    // treat a sibling QEForm as a single message generating entity (and set up filters accordingly) and not worry about
+    // exactly what widget within the form generated the message.
     sendMessage( msg, type );
 }
 

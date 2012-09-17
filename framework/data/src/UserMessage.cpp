@@ -38,7 +38,8 @@
  * The derived widget is free to set the source ID to any value
  *
  * Derived form widgets (QEForm) get a unique form ID using getNextMessageFormId()
- * and pass this to all widgets within the form using the ContainerProfile class
+ * (as well as being able to set a source ID like any other QE widget) and pass
+ * this unique form ID to all widgets within the form using the ContainerProfile class.
  *
  * Messages sent by a widget are received by all widgets and can filter the messages
  * required by form id and source id.
@@ -48,7 +49,7 @@
  * The QEForm widget does not display messages, but re-send them using its own
  * form ID. Read on to see how this can be used.
  *
- * Widgets that generate messages and widgets (or applicatino code) that uses messages
+ * Widgets that generate messages, and widgets (or application code) that uses messages
  * can be set up as follows:
  *
  * - Application wide logging:
@@ -62,7 +63,7 @@
  *   A logging widget can be set to filter matching on the current form and so will pick up
  *   messages from any sibling widget. This includes messages from an sibling widget which is
  *   a nested QEForm. Whatever messages that nested form is set to receive, it will resend
- *   to it's siblings. For example, if it is set to receive messages from the widgets it
+ *   to its siblings. For example, if it is set to receive messages from the widgets it
  *   contains, these are resent up one level to the main form.
  *   If messages are dealt with within the nested QEForm (for example, it may have its own
  *   logging widget) then the nested QEForm could be set up not to filter and resend any messages.
@@ -152,13 +153,13 @@ UserMessage::message_filter_options UserMessage::getSourceFilter()
     return sourceFilter;
 }
 
-// Set the for ID of all widgets that are children of this widget
+// Set the ID for of all widgets that are children of this widget
 void UserMessage::setChildFormId( unsigned int childFormIdIn )
 {
     childFormId = childFormIdIn;
 }
 
-// Get the for ID of all widgets that are children of this widget
+// Get the ID for of all widgets that are children of this widget
 unsigned int UserMessage::getChildFormId()
 {
     return childFormId;
@@ -227,11 +228,11 @@ void UserMessageSlot::message( QString msg,
         return;
     }
 
-    // If filter matches, use it
-    if(( owner->formFilter == UserMessage::MESSAGE_FILTER_ANY ) ||
-       ( owner->formFilter == UserMessage::MESSAGE_FILTER_MATCH && owner->childFormId == messageFormId ) ||
-       ( owner->sourceFilter == UserMessage::MESSAGE_FILTER_ANY ) ||
-       ( owner->sourceFilter == UserMessage::MESSAGE_FILTER_MATCH && owner->getSourceId() == messageSourceId ))
+    // If filter matches, use it.
+    if(( owner->formFilter == UserMessage::MESSAGE_FILTER_ANY ) ||                                              // Always match on any form ID
+       ( owner->formFilter == UserMessage::MESSAGE_FILTER_MATCH && owner->childFormId == messageFormId ) ||     // Match only on specific form ID
+       ( owner->sourceFilter == UserMessage::MESSAGE_FILTER_ANY ) ||                                            // Always match on any source ID
+       ( owner->sourceFilter == UserMessage::MESSAGE_FILTER_MATCH && owner->getSourceId() == messageSourceId )) // Match only on specific source ID
     {
         owner->newMessage( msg, type );
     }
