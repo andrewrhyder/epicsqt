@@ -436,10 +436,10 @@ void QEConfiguredLayout::refreshFields()
     QWidget *qWidget;
     QLabel *qLabel;
     QString userType;
-    QCaWidget *qCaWidget;
+    QCaWidget *qCaWidget = NULL;
     _QPushButtonGroup *qPushButtonGroup;
     _Item *item;
-    _Field *field;
+    _Field *field = NULL;
     _Field *fieldInfo;
     bool flag;
     int i;
