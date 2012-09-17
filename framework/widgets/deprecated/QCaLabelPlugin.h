@@ -37,6 +37,14 @@ class QCaLabelPlugin : public QELabel {
     // This deprecated widget is now just a shell around its replacement.
     // Its replacement does not recognise any properties defined in using a Q_ENUM in the original widget,
     // so these properties must still be implemented in the deprecated widget
+    enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
+                   Floating         = QCaStringFormatting::FORMAT_FLOATING,
+                   Integer          = QCaStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time             = QCaStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    Formats getFormatProperty(){ return (Formats)getFormat(); }
     Q_ENUMS(Formats)
     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
 
