@@ -62,6 +62,10 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
         void setHandleGuiLaunchRequests( bool handleGuiLaunchRequests );
         bool getHandleGuiLaunchRequests();
 
+        // Flag indicating form should resize contents to match form size (otherwise resize form to match contents)
+        void setResizeContents( bool resizeContentsIn );
+        bool getResizeContents();
+
     public slots:
         void requestEnabled( const bool& state );
         bool readUiFile();
@@ -80,6 +84,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
         QString uiFileName;
         void setVariableNameSubstitutions( QString variableNameSubstitutionsIn );
         bool handleGuiLaunchRequests;
+        bool resizeContents;
 
     private:
         QString title;
@@ -105,6 +110,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
         QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
         Q_PROPERTY(bool handleGuiLaunchRequests READ getHandleGuiLaunchRequests WRITE setHandleGuiLaunchRequests)
+
+        Q_PROPERTY(bool resizeContents READ getResizeContents WRITE setResizeContents)
 
         Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
 

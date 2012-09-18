@@ -91,7 +91,7 @@ void standardProperties::setApplicationEnabled( bool state )
 // and it is can be disabled if not connected or not the appropriate user level
 void standardProperties::setSuperEnabled()
 {
-    owner->setEnabled( !(dataDisabled || (currentLevel < enabledLevel) || !applicationEnabled) );
+    owner->setEnabled( applicationEnabled && !dataDisabled && (currentLevel >= enabledLevel) );
 }
 
 // Set the visibility of the widget.

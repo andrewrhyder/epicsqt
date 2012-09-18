@@ -68,6 +68,7 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
     ui = NULL;
     alertIfUINoFound = alertIfUINoFoundIn;
     handleGuiLaunchRequests = false;
+    resizeContents = true;
 
     // Set up the UserMessage class
     setFormFilter( MESSAGE_FILTER_MATCH );
@@ -234,18 +235,32 @@ bool QEForm::readUiFile()
                 releaseProfile();
             }
 
-            // Set the form's size related properties to match the top ui widget
-            // This will ensure the form behaves in the same way as the ui was designed to when loaded within another ui
-
-            QRect formRect = geometry();
-            setGeometry( formRect.x(), formRect.y(), ui->width(), ui->height() );
-            setSizePolicy( ui->sizePolicy() );
-            setMinimumSize( ui->minimumSize() );
-            setMaximumSize( ui->maximumSize() );
-            setSizeIncrement( ui->sizeIncrement() );
-            setBaseSize( ui->baseSize() );
-            setContentsMargins( ui->contentsMargins() );
-
+            // If the form contents should take all its sizing clues from the form, then set the top ui widget to match
+            // the form's size related properties.
+            if( resizeContents )
+            {
+                QRect formRect = ui->geometry();
+                ui->setGeometry( formRect.x(), formRect.y(), width(), height() );
+                ui->setSizePolicy( sizePolicy() );
+                ui->setMinimumSize( minimumSize() );
+                ui->setMaximumSize( maximumSize() );
+                ui->setSizeIncrement( sizeIncrement() );
+                ui->setBaseSize( baseSize() );
+                ui->setContentsMargins( contentsMargins() );
+            }
+            // If the form should take all its sizing clues from the form's contents, then set the form to match
+            // the top ui widget's size related properties.
+            else
+            {
+                QRect formRect = geometry();
+                setGeometry( formRect.x(), formRect.y(), ui->width(), ui->height() );
+                setSizePolicy( ui->sizePolicy() );
+                setMinimumSize( ui->minimumSize() );
+                setMaximumSize( ui->maximumSize() );
+                setSizeIncrement( ui->sizeIncrement() );
+                setBaseSize( ui->baseSize() );
+                setContentsMargins( ui->contentsMargins() );
+            }
             // Reset the user interface's position.
             // Not sure why, but the loaded user interface does not always have a position of 0,0
             // When debugged, the particular example was a QDialog with a position of 0,0 when viewed in designer.
@@ -422,4 +437,14 @@ void QEForm::setHandleGuiLaunchRequests( bool handleGuiLaunchRequestsIn )
 bool QEForm::getHandleGuiLaunchRequests()
 {
     return handleGuiLaunchRequests;
+}
+
+// Flag indicating form should resize contents to match form size (otherwise resize form to match contents)
+void QEForm::setResizeContents( bool resizeContentsIn )
+{
+    resizeContents = resizeContentsIn;
+}
+bool QEForm::getResizeContents()
+{
+    return resizeContents;
 }

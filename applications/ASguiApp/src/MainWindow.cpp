@@ -745,6 +745,7 @@ QEForm* MainWindow::createGui( QString fileName )
 
     // Build the gui
     QEForm* gui = new QEForm( fileName );
+    gui->setResizeContents( false );
 
     // If built ok, read the ui file
     if( gui )
