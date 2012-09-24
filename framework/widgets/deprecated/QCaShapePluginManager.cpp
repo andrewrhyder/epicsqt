@@ -83,14 +83,14 @@ QIcon QCaShapePluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaShapePluginManager::toolTip() const {
-    return "EPICS Shape";
+    return "Deprecated EPICS Shape";
 }
 
 /*!
     ???
 */
 QString QCaShapePluginManager::whatsThis() const {
-    return "EPICS Shape";
+    return "Deprecated EPICS Shape";
 }
 
 /*!

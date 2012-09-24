@@ -82,14 +82,14 @@ QIcon QCaComboBoxPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaComboBoxPluginManager::toolTip() const {
-    return "EPICS ComboBox";
+    return "Deprecated EPICS ComboBox";
 }
 
 /*!
     ???
 */
 QString QCaComboBoxPluginManager::whatsThis() const {
-    return "EPICS ComboBox";
+    return "Deprecated EPICS ComboBox";
 }
 
 /*!

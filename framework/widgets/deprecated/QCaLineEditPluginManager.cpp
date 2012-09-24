@@ -82,14 +82,14 @@ QIcon QCaLineEditPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaLineEditPluginManager::toolTip() const {
-    return "EPICS Line Edit";
+    return "Deprecated EPICS Line Edit";
 }
 
 /*!
     ???
 */
 QString QCaLineEditPluginManager::whatsThis() const {
-    return "EPICS Line Edit";
+    return "Deprecated EPICS Line Edit";
 }
 
 /*!

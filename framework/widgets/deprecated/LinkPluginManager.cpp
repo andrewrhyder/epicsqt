@@ -82,14 +82,14 @@ QIcon LinkPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString LinkPluginManager::toolTip() const {
-    return "Link";
+    return "Deprecated Link";
 }
 
 /*!
     ???
 */
 QString LinkPluginManager::whatsThis() const {
-    return "Link";
+    return "Deprecated Link";
 }
 
 /*!

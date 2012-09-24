@@ -82,14 +82,14 @@ QIcon QCaLabelPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaLabelPluginManager::toolTip() const {
-    return "EPICS Label";
+    return "Deprecated EPICS Label";
 }
 
 /*!
     ???
 */
 QString QCaLabelPluginManager::whatsThis() const {
-    return "EPICS Label";
+    return "Deprecated EPICS Label";
 }
 
 /*!

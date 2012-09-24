@@ -82,14 +82,14 @@ QIcon QCaRadioButtonPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaRadioButtonPluginManager::toolTip() const {
-    return "EPICS Radio Button";
+    return "Deprecated EPICS Radio Button";
 }
 
 /*!
     ???
 */
 QString QCaRadioButtonPluginManager::whatsThis() const {
-    return "EPICS Radio Button";
+    return "Deprecated EPICS Radio Button";
 }
 
 /*!

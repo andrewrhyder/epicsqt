@@ -82,14 +82,14 @@ QIcon QCaPushButtonPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaPushButtonPluginManager::toolTip() const {
-    return "EPICS Push Button";
+    return "Deprecated EPICS Push Button";
 }
 
 /*!
     ???
 */
 QString QCaPushButtonPluginManager::whatsThis() const {
-    return "EPICS Push Button";
+    return "Deprecated EPICS Push Button";
 }
 
 /*!

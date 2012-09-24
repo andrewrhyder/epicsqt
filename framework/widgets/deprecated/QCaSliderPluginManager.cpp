@@ -82,14 +82,14 @@ QIcon QCaSliderPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaSliderPluginManager::toolTip() const {
-    return "EPICS Slider";
+    return "Deprecated EPICS Slider";
 }
 
 /*!
     ???
 */
 QString QCaSliderPluginManager::whatsThis() const {
-    return "EPICS Slider";
+    return "Deprecated EPICS Slider";
 }
 
 /*!

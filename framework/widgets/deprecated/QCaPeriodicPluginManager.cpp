@@ -92,14 +92,14 @@ QIcon QCaPeriodicPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaPeriodicPluginManager::toolTip() const {
-    return "EPICS Elemental Selection";
+    return "Deprecated EPICS Elemental Selection";
 }
 
 /*!
     ???
 */
 QString QCaPeriodicPluginManager::whatsThis() const {
-    return "EPICS Elemental Selection";
+    return "Deprecated EPICS Elemental Selection";
 }
 
 /*!

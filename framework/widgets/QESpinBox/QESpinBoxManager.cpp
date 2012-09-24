@@ -82,14 +82,14 @@ QIcon QESpinBoxManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QESpinBoxManager::toolTip() const {
-    return "EPICS SpinBox";
+    return "EPICS Spin Box";
 }
 
 /*!
     ???
 */
 QString QESpinBoxManager::whatsThis() const {
-    return "EPICS SpinBox";
+    return "EPICS Spin Box";
 }
 
 /*!

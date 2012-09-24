@@ -82,14 +82,14 @@ QIcon QEFormManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEFormManager::toolTip() const {
-    return "GUI form";
+    return "GUI Form";
 }
 
 /*!
     ???
 */
 QString QEFormManager::whatsThis() const {
-    return "GUI form";
+    return "GUI Form";
 }
 
 /*!

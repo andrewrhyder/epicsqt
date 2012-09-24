@@ -82,14 +82,14 @@ QIcon QCaSpinBoxPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaSpinBoxPluginManager::toolTip() const {
-    return "EPICS SpinBox";
+    return "Deprecated EPICS SpinBox";
 }
 
 /*!
     ???
 */
 QString QCaSpinBoxPluginManager::whatsThis() const {
-    return "EPICS SpinBox";
+    return "Deprecated EPICS SpinBox";
 }
 
 /*!

@@ -67,6 +67,8 @@ void QEImage::setup() {
     setNumVariables( QEIMAGE_NUM_VARIABLES );
 
     // Set up default properties
+    setVariableAsToolTip( false );
+
     setAllowDrop( false );
     resizeOption = RESIZE_OPTION_ZOOM;
     zoom = 100;

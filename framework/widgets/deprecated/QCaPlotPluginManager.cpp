@@ -84,14 +84,14 @@ QIcon QCaPlotPluginManager::icon() const {
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaPlotPluginManager::toolTip() const {
-    return "EPICS Plot";
+    return "Deprecated EPICS Plot";
 }
 
 /*!
     ???
 */
 QString QCaPlotPluginManager::whatsThis() const {
-    return "EPICS Plot";
+    return "Deprecated EPICS Plot";
 }
 
 /*!

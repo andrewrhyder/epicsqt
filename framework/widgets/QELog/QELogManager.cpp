@@ -95,7 +95,7 @@ QIcon QELogManager::icon() const
 QString QELogManager::toolTip() const
 {
 
-    return "EPICS Log";
+    return "Message Log";
 
 }
 
@@ -104,7 +104,7 @@ QString QELogManager::toolTip() const
 QString QELogManager::whatsThis() const
 {
 
-    return "EPICS Log";
+    return "Message Log";
 
 }
 

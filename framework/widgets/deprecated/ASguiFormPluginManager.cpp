@@ -64,12 +64,12 @@ QIcon ASguiFormPluginManager::icon() const {
 
 /// Tool tip for widget. Used by Qt Designer in widget list
 QString ASguiFormPluginManager::toolTip() const {
-    return "ASgui form";
+    return "Deprecated ASgui form";
 }
 
 ///
 QString ASguiFormPluginManager::whatsThis() const {
-    return "ASgui form";
+    return "Deprecated ASgui form";
 }
 
 ///
