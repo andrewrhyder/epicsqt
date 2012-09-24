@@ -23,7 +23,7 @@
  */
  
 #include <QELabelManager.h>
-#include <QSubstitutedLabelPluginManager.h>
+#include <QESubstitutedLabelManager.h>
 #include <QELineEditManager.h>
 #include <QEPushButtonManager.h>
 #include <QERadioButtonManager.h>
@@ -69,6 +69,7 @@
 #include <QCaComboBoxPluginManager.h>
 #include <QCaPlotPluginManager.h>
 #include <QCaShapePluginManager.h>
+#include <QSubstitutedLabelPluginManager.h>
 //======================================================
 
 
@@ -93,7 +94,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEStripChartManager(this));
     widgets.append(new QEPeriodicManager(this));
 
-    widgets.append(new QSubstitutedLabelPluginManager(this));
+    widgets.append(new QESubstitutedLabelManager(this));
     widgets.append(new QELineEditManager(this));
     widgets.append(new QEPushButtonManager(this));
     widgets.append(new QERadioButtonManager(this));
@@ -130,6 +131,7 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QCaComboBoxPluginManager(this));
     widgets.append(new QCaPlotPluginManager(this));
     widgets.append(new QCaShapePluginManager(this));
+    widgets.append(new QSubstitutedLabelPluginManager(this));
 //======================================================
 
 }

@@ -118,6 +118,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELink : public QLabel, QCaWidget {
     Q_PROPERTY(bool signalFalse READ getSignalFalse WRITE setSignalFalse)
     Q_PROPERTY(QString outTrueValue READ getOutTrueValue WRITE setOutTrueValue)
     Q_PROPERTY(QString outFalseValue READ getOutFalseValue WRITE setOutFalseValue)
+    Q_PROPERTY(bool runVisible READ getRunVisible WRITE setRunVisible)
 
 };
 

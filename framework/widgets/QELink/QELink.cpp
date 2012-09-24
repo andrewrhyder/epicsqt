@@ -37,7 +37,13 @@ QELink::QELink( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
     // should be displayed all the time, not visible according to the visible property.
     visible = false;
     if( inDesigner() )
+    {
         setVisible( true );
+    }
+    else
+    {
+            setVisible( visible );
+    }
 
     // Set default properties
     setText( "Link" );

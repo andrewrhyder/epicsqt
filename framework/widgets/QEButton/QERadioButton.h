@@ -126,6 +126,8 @@ private:
 public:
     //=================================================================================
 
+    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+
     //=================================================================================
     // Standard properties
     // These properties should be identical for every widget using them.
