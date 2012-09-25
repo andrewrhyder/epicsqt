@@ -154,10 +154,12 @@ bool QEForm::readUiFile()
                 delete ui;
                 ui = NULL;
             }
-            QDir uiDir;
 
-            // Load the UI file if opened
-            /// Ensure no other files are being monitored (belt and braces)
+            // Note the full file path
+            QDir uiDir;
+            fullUiFileName = uiDir.cleanPath( uiDir.absoluteFilePath( uiFile->fileName() ) );
+
+            // Ensure no other files are being monitored (belt and braces)
             QStringList monitoredPaths = fileMon.files();
             if( monitoredPaths.count())
             {
@@ -165,7 +167,7 @@ bool QEForm::readUiFile()
             }
 
             /// Monitor the opened file
-            fileMon.addPath( uiDir.absoluteFilePath( uiFile->fileName()) );
+            fileMon.addPath( fullUiFileName );
 
             /// Extract the file name part used for the window title
             QFileInfo fileInfo( uiFile->fileName() );
@@ -302,9 +304,10 @@ QString QEForm::getASGuiTitle(){
     return title;
 }
 
-// Get the UI file name used to build the gui
-QString QEForm::getGuiFileName(){
-    return uiFileName;
+// Get the standard, absolute UI file name
+QString QEForm::getFullFileName()
+{
+    return fullUiFileName;
 }
 
 /// Set the variable name substitutions used by all QCa widgets within the form

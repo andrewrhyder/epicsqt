@@ -353,7 +353,7 @@ void MainWindow::startDesignerCore( QString command )
         QEForm* gui = getCurrentGui();
         if( gui )
         {
-            guiFileName.append( gui->getGuiFileName() );
+            guiFileName.append( gui->getUiFileName() );
         }
 
         // Start designer
@@ -410,7 +410,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     QString guiPath;
     if( currentGui )
     {
-        guiFileName = currentGui->getGuiFileName();
+        guiFileName = currentGui->getUiFileName();
         QDir directory( profile.getPath() );
         guiPath = directory.filePath( guiFileName );
     }
@@ -614,6 +614,49 @@ void MainWindow::resizeToFitGui()
 // Slot for launching a new gui from a contained object.
 void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOption )
 {
+    // Get a standard absolute path for the file name
+    QDir uiDir;
+    QString fullGuiName = uiDir.cleanPath( uiDir.absoluteFilePath( guiName ) );
+
+    // If the form already exists (with the same substitutions), just display that one.
+    // Note, even if the gui is found, if the main window is not located and raised, then a new gui will be launched.
+    for( int i = 0; i < guiList.size(); i++ )
+    {
+        if( !guiList[i]->getFullFileName().compare( fullGuiName ) && !guiList[i]->getMacroSubstitutions().trimmed().compare( profile.getMacroSubstitutions().trimmed() ) )
+        {
+            // GUI found. Roll back up the widget hierarchy.
+            // If a parent tab widget is found, set the child as the active tab, when the main window is found, display it.
+            QWidget* c = guiList[i];
+            QWidget* w = c->parentWidget();
+            while( w )
+            {
+                // Ensure the correct tab is selected
+                if( QString::compare( w->metaObject()->className(), "QTabWidget" ) == 0 )
+                {
+                    qDebug() << "found tab widget";
+                    QTabWidget* tw = (QTabWidget*)w;
+                    tw->setCurrentWidget( c );
+                }
+
+                // Display the main window
+                if( QString::compare( w->metaObject()->className(), "MainWindow" ) == 0 )
+                {
+                    qDebug() << "found main window";
+                    w->show();
+                    w->raise();
+                    w->activateWindow();
+                    return;
+                }
+
+                // Move up a generation
+                w = w->parentWidget();
+            }
+
+            // Sanity check. If gui was found, should always have found it in a main window
+            break;
+        }
+    }
+
     // Load the new gui as required
     switch( createOption )
     {
@@ -781,6 +824,7 @@ QEForm* MainWindow::createGui( QString fileName )
             profile.releaseProfile();
         }
 
+        // Add the new gui to the list of windows
         addGuiToWindowsMenu( gui );
     }
     // Return the created gui if any

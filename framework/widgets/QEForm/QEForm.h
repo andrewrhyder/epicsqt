@@ -44,8 +44,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
 
         virtual ~QEForm();
 
-        QString getASGuiTitle();        // Get the title to be used as the window or form title.
-        QString getGuiFileName();       // Get the UI file name used to build the gui
+        QString getASGuiTitle();     // Get the title to be used as the window or form title.
+        QString getFullFileName();   // Get the standard, absolute UI file name
 
         enum creationOptions { CREATION_OPTION_OPEN, CREATION_OPTION_NEW_TAB, CREATION_OPTION_NEW_WINDOW };
 
@@ -81,7 +81,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
         }
 
     protected:
-        QString uiFileName;
+        QString uiFileName; // As specified on creation
+        QString fullUiFileName; // Full standard path
         void setVariableNameSubstitutions( QString variableNameSubstitutionsIn );
         bool handleGuiLaunchRequests;
         bool resizeContents;
