@@ -137,14 +137,12 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
 
     animationOptions animations[6];
 
-    bool fill;
-    bool border;
-
     double startAngle;
     double arcLength;
     QString text;
     double rotation;
     unsigned int lineWidth;
+    bool fill;
     bool drawBorder;
 
     void colorChange( unsigned int index );                     /// Act on a color property change. (will update shape if using the color)
@@ -352,9 +350,6 @@ public:
     void setOffset6Property( double offset ){ setOffset( offset, 5 ); }
     double getOffset6Property(){ return getOffset( 5 ); }
 
-    Q_PROPERTY(bool border READ getBorder WRITE setBorder)
-    Q_PROPERTY(bool fill READ getFill WRITE setFill)
-
     Q_ENUMS(shapeOptions)
     Q_PROPERTY(shapeOptions shape READ getShapeProperty WRITE setShapeProperty)
     void setShapeProperty( shapeOptions shape ){ setShape(shape); }
@@ -445,8 +440,8 @@ public:
     void setColor10Property( QColor color ){ setColor( color, 9 ); }
     QColor getColor10Property(){ return getColor( 9 ); }
 
-
     Q_PROPERTY(bool drawBorder READ getDrawBorder WRITE setDrawBorder)
+    Q_PROPERTY(bool fill READ getFill WRITE setFill)
     Q_PROPERTY(unsigned int lineWidth READ getLineWidth WRITE setLineWidth)
     Q_PROPERTY(double startAngle READ getStartAngle WRITE setStartAngle)
     Q_PROPERTY(double rotation READ getRotation WRITE setRotation)

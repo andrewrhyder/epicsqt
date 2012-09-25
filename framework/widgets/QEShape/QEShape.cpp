@@ -106,7 +106,7 @@ void QEShape::setup() {
     painterCurrentTranslateY = 0;
     rotation = 0.0;
 
-    drawBorder = 1;
+    drawBorder = true;
 
     lineWidth = 1;
     pen.setWidth( lineWidth );
@@ -368,7 +368,8 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
     system decides the object requires drawing, such as when the window
     containing the shape widget is scrolled into view.
 */
-void QEShape::paintEvent(QPaintEvent * /* event */) {
+void QEShape::paintEvent(QPaintEvent * /* event */)
+{
     QPainter painter( this );
 
     /// Set up the pen and brush (color, thickness, etc)
@@ -411,6 +412,8 @@ void QEShape::paintEvent(QPaintEvent * /* event */) {
         case Rect :
             if( !drawBorder )
                 painter.setPen( Qt::NoPen );
+            if( !fill )
+                painter.setBrush( Qt::NoBrush );
             painter.drawRect( points[0].x(), points[0].y(), points[1].x(), points[1].y() );
             break;
         case RoundedRect :
@@ -529,6 +532,11 @@ QEShape::animationOptions QEShape::getAnimation( const int index )
 void QEShape::setScale( const double scale, const int index )
 {
     scales[index] = scale;
+    qcaobject::QCaObject* qca = this->getQcaItem( index );
+    if( qca )
+    {
+        qca->resendLastData();
+    }
 }
 double QEShape::getScale( const int index )
 {
@@ -540,30 +548,15 @@ double QEShape::getScale( const int index )
 void QEShape::setOffset( const double offset, const int index )
 {
     offsets[index] = offset;
+    qcaobject::QCaObject* qca = this->getQcaItem( index );
+    if( qca )
+    {
+        qca->resendLastData();
+    }
 }
 double QEShape::getOffset( const int index )
 {
     return offsets[index];
-}
-
-// border
-void QEShape::setBorder( bool borderIn )
-{
-    border = borderIn;
-}
-bool QEShape::getBorder()
-{
-    return border;
-}
-
-// fill
-void QEShape::setFill( bool fillIn )
-{
-    fill = fillIn;
-}
-bool QEShape::getFill()
-{
-    return fill;
 }
 
 // shape
@@ -631,6 +624,17 @@ void QEShape::setDrawBorder( bool drawBorderIn )
 bool QEShape::getDrawBorder()
 {
     return drawBorder;
+}
+
+// fill
+void QEShape::setFill( bool fillIn )
+{
+    fill = fillIn;
+    update();
+}
+bool QEShape::getFill()
+{
+    return fill;
 }
 
 // line width
