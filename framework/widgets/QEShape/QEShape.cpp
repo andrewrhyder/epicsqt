@@ -112,7 +112,6 @@ void QEShape::setup() {
     pen.setWidth( lineWidth );
 
     fill = true;
-    border = true;
 
     brush.setStyle( Qt::SolidPattern );
     currentColor = 0;
