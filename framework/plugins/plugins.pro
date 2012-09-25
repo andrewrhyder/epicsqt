@@ -52,11 +52,7 @@ HEADERS += \
     ../api/include/CaObject.h \
     ../api/include/CaConnection.h \
     ../api/include/CaObjectPrivate.h \
-    ../data/include/VariableNameManager.h \
-    ../data/include/UserMessage.h \
     ../data/include/QCaDataPoint.h \
-    ../data/include/QCaWidget.h \
-    ../data/include/contextMenu.h \
     ../data/include/QCaVariableNamePropertyManager.h \
     ../data/include/QCaStringFormatting.h \
     ../data/include/QCaString.h \
@@ -73,6 +69,10 @@ HEADERS += \
     ../data/include/QCaAlarmInfo.h \
     ../data/include/QCaConnectionInfo.h \
     ../data/include/qepicspv.h \
+    ../widgets/include/VariableNameManager.h \
+    ../widgets/include/UserMessage.h \
+    ../widgets/include/contextMenu.h \
+    ../widgets/include/QCaWidget.h \
     ../widgets/include/managePixmaps.h \
     ../widgets/include/QCaDragDrop.h \
     ../widgets/include/styleManager.h \
@@ -89,10 +89,6 @@ SOURCES += \
     ../api/src/CaRecord.cpp \
     ../api/src/CaObject.cpp \
     ../api/src/CaConnection.cpp \
-    ../data/src/VariableNameManager.cpp \
-    ../data/src/UserMessage.cpp \
-    ../data/src/QCaWidget.cpp \
-    ../data/src/contextMenu.cpp \
     ../data/src/QCaVariableNamePropertyManager.cpp \
     ../data/src/QCaStringFormatting.cpp \
     ../data/src/QCaString.cpp \
@@ -109,6 +105,10 @@ SOURCES += \
     ../data/src/QCaAlarmInfo.cpp \
     ../data/src/QCaConnectionInfo.cpp \
     ../data/src/qepicspv.cpp \
+    ../widgets/src/VariableNameManager.cpp \
+    ../widgets/src/UserMessage.cpp \
+    ../widgets/src/contextMenu.cpp \
+    ../widgets/src/QCaWidget.cpp \
     ../widgets/src/managePixmaps.cpp \
     ../widgets/src/QCaDragDrop.cpp \
     ../widgets/src/styleManager.cpp \

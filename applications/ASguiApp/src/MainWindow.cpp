@@ -292,7 +292,7 @@ void MainWindow::tabCloseRequest( int index )
 
     // Get a reference to the scroll area for the tab being deleted
     tabs->setCurrentIndex( index );
-    QEForm* gui = (QEForm*)(tabs->currentWidget() );
+    QEForm* gui = extractGui( tabs->currentWidget() );
 
     // Remove the gui from the 'windows' menus
     removeGuiFromWindowsMenu( gui );
@@ -468,7 +468,7 @@ QEForm* MainWindow::extractGui( QWidget* rGui )
         w = sa->widget();
     }
 
-    // We should now have the QEform. Return it
+    // We should now have the QEForm. Return it
     if ( QString::compare( w->metaObject()->className(), "QEForm" ) == 0 )
     {
         return (QEForm*)w;
@@ -626,22 +626,32 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
         {
             // GUI found. Roll back up the widget hierarchy.
             // If a parent tab widget is found, set the child as the active tab, when the main window is found, display it.
-            QWidget* c = guiList[i];
-            QWidget* w = c->parentWidget();
+            QWidget* w = guiList[i]->parentWidget();
             while( w )
             {
                 // Ensure the correct tab is selected
                 if( QString::compare( w->metaObject()->className(), "QTabWidget" ) == 0 )
                 {
-                    qDebug() << "found tab widget";
                     QTabWidget* tw = (QTabWidget*)w;
-                    tw->setCurrentWidget( c );
+                    int j;
+                    j = tw->indexOf( guiList[i] ) ;
+                    if( j < 0 )
+                    {
+                        j = tw->indexOf( guiList[i]->parentWidget() ) ;
+                        if( j < 0 )
+                        {
+                            j = tw->indexOf( guiList[i]->parentWidget()->parentWidget() ) ;
+                        }
+                    }
+                    if( j >= 0 )
+                    {
+                        tw->setCurrentIndex( j );
+                    }
                 }
 
                 // Display the main window
                 if( QString::compare( w->metaObject()->className(), "MainWindow" ) == 0 )
                 {
-                    qDebug() << "found main window";
                     w->show();
                     w->raise();
                     w->activateWindow();
@@ -960,11 +970,11 @@ void MainWindow::removeAllGuisFromWindowsMenu()
         QTabWidget* tabs = getCentralTabs();
         if( tabs )
         {
-            QList<QObject*> children = tabs->children();
-            for( int i = 0; i < children.size(); i++ )
+            while( tabs->widget( 0 ) )
             {
-                QEForm* gui = (QEForm*)children[i];
+                QEForm* gui = extractGui( tabs->widget( 0 ) );
                 removeGuiFromWindowsMenu( gui );
+                tabs->removeTab( 0 );
             }
         }
     }
