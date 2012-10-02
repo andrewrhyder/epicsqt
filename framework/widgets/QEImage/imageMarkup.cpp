@@ -173,11 +173,6 @@ QPoint markupTarget::getPoint2()
     return QPoint();
 }
 
-void markupTarget::tidy()
-{
-    // Nothing to do
-}
-
 QCursor markupTarget::defaultCursor()
 {
     return owner->getTargetCursor();
@@ -255,11 +250,6 @@ QPoint markupBeam::getPoint2()
     return QPoint();
 }
 
-void markupBeam::tidy()
-{
-    // Nothing to do
-}
-
 QCursor markupBeam::defaultCursor()
 {
     return owner->getTargetCursor();
@@ -330,11 +320,6 @@ QPoint markupVLine::getPoint2()
     return QPoint();
 }
 
-void markupVLine::tidy()
-{
-    // Nothing to do
-}
-
 QCursor markupVLine::defaultCursor()
 {
     return Qt::CrossCursor;
@@ -403,11 +388,6 @@ QPoint markupHLine::getPoint1()
 QPoint markupHLine::getPoint2()
 {
     return QPoint();
-}
-
-void markupHLine::tidy()
-{
-    // Nothing to do
 }
 
 QCursor markupHLine::defaultCursor()
@@ -583,11 +563,6 @@ QPoint markupLine::getPoint2()
     return end;
 }
 
-void markupLine::tidy()
-{
-    // Nothing to do
-}
-
 QCursor markupLine::defaultCursor()
 {
     return Qt::CrossCursor;
@@ -598,7 +573,6 @@ QCursor markupLine::defaultCursor()
 
 markupRegion::markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn )
 {
-
 }
 
 void markupRegion::drawMarkup( QPainter& p )
@@ -640,6 +614,12 @@ void markupRegion::drawMarkup( QPainter& p )
 void markupRegion::setArea()
 {
     area = rect.normalized();
+
+    if( rect.width() < 0 || rect.height() << 0 )
+    {
+        qDebug() << "Error, markupRegion::setArea() rect has negative dimensions" << rect;
+    }
+
     area.adjust( -HANDLE_SIZE, -HANDLE_SIZE, HANDLE_SIZE+1, HANDLE_SIZE+1 );
 
     if( highlighted )
@@ -678,8 +658,76 @@ void markupRegion::moveTo( QPoint pos )
         default: break;
     }
 
-    // Update the area the region now ocupies
+    // If the object is now mirrored, normailze it
+    // (if the user has dragged the bottom above the top, or the left tot he right of the right)
+    bool swapped = false;
+    if( rect.width() < 0 )
+    {
+        int left = rect.right();
+        rect.setRight( rect.left() );
+        rect.setLeft( left );
+
+        switch( activeHandle )
+        {
+            case MARKUP_HANDLE_TL: activeHandle = MARKUP_HANDLE_TR; break;
+            case MARKUP_HANDLE_TR: activeHandle = MARKUP_HANDLE_TL; break;
+            case MARKUP_HANDLE_BL: activeHandle = MARKUP_HANDLE_BR; break;
+            case MARKUP_HANDLE_BR: activeHandle = MARKUP_HANDLE_BL; break;
+            case MARKUP_HANDLE_L:  activeHandle = MARKUP_HANDLE_R;  break;
+            case MARKUP_HANDLE_R:  activeHandle = MARKUP_HANDLE_L;  break;
+            default: break;
+        }
+        swapped = true;
+    }
+
+    if( rect.height() < 0 )
+    {
+        int top = rect.bottom();
+        rect.setBottom( rect.top() );
+        rect.setTop( top );
+        switch( activeHandle )
+        {
+            case MARKUP_HANDLE_TL: activeHandle = MARKUP_HANDLE_BL; break;
+            case MARKUP_HANDLE_TR: activeHandle = MARKUP_HANDLE_BR; break;
+            case MARKUP_HANDLE_BL: activeHandle = MARKUP_HANDLE_TL; break;
+            case MARKUP_HANDLE_BR: activeHandle = MARKUP_HANDLE_TR; break;
+            case MARKUP_HANDLE_B:  activeHandle = MARKUP_HANDLE_T;  break;
+            case MARKUP_HANDLE_T:  activeHandle = MARKUP_HANDLE_B;  break;
+            default: break;
+        }
+        swapped = true;
+    }
+
+
+    // Set the cursor according to the bit we are over after manipulation
+    if( swapped )
+    {
+        QCursor cursor = cursorForHandle( activeHandle );
+        owner->markupSetCursor( cursor );
+    }
+
+    // Update the area the region now occupies
     setArea();
+}
+
+// Return the cursor for each handle
+//!!! MOVE INTO MARKUP ITEM, EXTEND FOR ALL HANDLES, AND USE FOR ALL MARKUP ITEMS???
+QCursor markupRegion::cursorForHandle( markupHandles handle )
+{
+    switch( handle )
+    {
+        case MARKUP_HANDLE_TL:   return Qt::SizeFDiagCursor;
+        case MARKUP_HANDLE_BL:   return Qt::SizeBDiagCursor;
+        case MARKUP_HANDLE_TR:   return Qt::SizeBDiagCursor;
+        case MARKUP_HANDLE_BR:   return Qt::SizeFDiagCursor;
+        case MARKUP_HANDLE_L:    return Qt::SizeHorCursor;
+        case MARKUP_HANDLE_R:    return Qt::SizeHorCursor;
+        case MARKUP_HANDLE_T:    return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_B:    return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_NONE: return Qt::OpenHandCursor;
+        default: return Qt::SizeAllCursor;
+    }
+
 }
 
 bool markupRegion::isOver( QPoint point, QCursor* cursor )
@@ -692,23 +740,20 @@ bool markupRegion::isOver( QPoint point, QCursor* cursor )
         if( pointIsNear( point, rect.topLeft() ) )
         {
             activeHandle = MARKUP_HANDLE_TL;
-            *cursor = Qt::SizeFDiagCursor;
         }
         else if( pointIsNear( point, rect.bottomLeft() ) )
         {
             activeHandle = MARKUP_HANDLE_BL;
-            *cursor = Qt::SizeBDiagCursor;
         }
         else if( pointIsNear( point, QPoint( rect.left(), rect.top()+(rect.height()/2) )))
         {
             activeHandle = MARKUP_HANDLE_L;
-            *cursor = Qt::SizeHorCursor;
         }
         else
         {
             activeHandle = MARKUP_HANDLE_NONE;
-            *cursor = Qt::OpenHandCursor;
         }
+        *cursor = cursorForHandle( activeHandle );
         return true;
     }
 
@@ -720,23 +765,20 @@ bool markupRegion::isOver( QPoint point, QCursor* cursor )
         if( pointIsNear( point, rect.topRight() ) )
         {
             activeHandle = MARKUP_HANDLE_TR;
-            *cursor = Qt::SizeBDiagCursor;
         }
         else if( pointIsNear( point, rect.bottomRight() ) )
         {
             activeHandle = MARKUP_HANDLE_BR;
-            *cursor = Qt::SizeFDiagCursor;
         }
         else if( pointIsNear( point, QPoint( rect.right(), rect.top()+(rect.height()/2) )))
         {
             activeHandle = MARKUP_HANDLE_R;
-            *cursor = Qt::SizeHorCursor;
         }
         else
         {
             activeHandle = MARKUP_HANDLE_NONE;
-            *cursor = Qt::OpenHandCursor;
         }
+        *cursor = cursorForHandle( activeHandle );
         return true;
     }
 
@@ -748,23 +790,20 @@ bool markupRegion::isOver( QPoint point, QCursor* cursor )
         if( pointIsNear( point, rect.topLeft() ) )
         {
             activeHandle = MARKUP_HANDLE_TL;
-            *cursor = Qt::SizeFDiagCursor;
         }
         else if( pointIsNear( point, rect.topRight() ) )
         {
             activeHandle = MARKUP_HANDLE_TR;
-            *cursor = Qt::SizeBDiagCursor;
         }
         else if( pointIsNear( point, QPoint( rect.left()+(rect.width()/2), rect.top() )))
         {
             activeHandle = MARKUP_HANDLE_T;
-            *cursor = Qt::SizeVerCursor;
         }
         else
         {
             activeHandle = MARKUP_HANDLE_NONE;
-            *cursor = Qt::OpenHandCursor;
         }
+        *cursor = cursorForHandle( activeHandle );
         return true;
     }
 
@@ -776,23 +815,20 @@ bool markupRegion::isOver( QPoint point, QCursor* cursor )
         if( pointIsNear( point, rect.bottomLeft() ) )
         {
             activeHandle = MARKUP_HANDLE_BL;
-            *cursor = Qt::SizeBDiagCursor;
         }
         else if( pointIsNear( point, rect.bottomRight() ) )
         {
             activeHandle = MARKUP_HANDLE_BR;
-            *cursor = Qt::SizeFDiagCursor;
         }
         else if( pointIsNear( point, QPoint( rect.left()+(rect.width()/2), rect.bottom() )))
         {
             activeHandle = MARKUP_HANDLE_B;
-            *cursor = Qt::SizeVerCursor;
         }
         else
         {
             activeHandle = MARKUP_HANDLE_NONE;
-            *cursor = Qt::OpenHandCursor;
         }
+        *cursor = cursorForHandle( activeHandle );
         return true;
     }
 
@@ -803,23 +839,17 @@ bool markupRegion::isOver( QPoint point, QCursor* cursor )
 
 QPoint markupRegion::origin()
 {
-    rect = rect.normalized();
     return rect.topLeft();
 }
 
 QPoint markupRegion::getPoint1()
 {
-    return rect.normalized().topLeft();
+    return rect.topLeft();
 }
 
 QPoint markupRegion::getPoint2()
 {
-    return rect.normalized().bottomRight();
-}
-
-void markupRegion::tidy()
-{
-    rect = rect.normalized();
+    return rect.bottomRight();
 }
 
 QCursor markupRegion::defaultCursor()
@@ -900,11 +930,6 @@ QPoint markupText::getPoint1()
 QPoint markupText::getPoint2()
 {
     return rect.bottomRight();
-}
-
-void markupText::tidy()
-{
-    // Nothing to do
 }
 
 QCursor markupText::defaultCursor()
@@ -1163,17 +1188,9 @@ void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )//event )
         markupAction( getActionMode(), items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
     }
 
-    // Tidy up the item.
-    // In particular, normalise any rectangles
-    if( activeItem != MARKUP_ID_NONE )
-    {
-        items[activeItem]->tidy();
-    }
-
     // Flag there is no longer an active item
     activeItem = MARKUP_ID_NONE;
     buttonDown = false;
-
 }
 
 void imageMarkup::redrawActiveItemHere( QPoint pos )

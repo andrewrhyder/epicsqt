@@ -77,7 +77,6 @@ public:
     virtual bool isOver( QPoint point, QCursor* cursor )=0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
-    virtual void tidy()=0;
     virtual QCursor defaultCursor()=0;
 
     bool pointIsNear( QPoint p1, QPoint p );
@@ -113,7 +112,6 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
-    void tidy();
     QCursor defaultCursor();
 
 private:
@@ -134,7 +132,6 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
-    void tidy();
     QCursor defaultCursor();
 
 private:
@@ -156,7 +153,6 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
-    void tidy();
     QCursor defaultCursor();
 
 private:
@@ -177,7 +173,6 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
-    void tidy();
     QCursor defaultCursor();
 
 private:
@@ -197,7 +192,6 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
-    void tidy();
     QCursor defaultCursor();
 
 private:
@@ -219,10 +213,10 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
-    void tidy();
     QCursor defaultCursor();
 
 private:
+    QCursor cursorForHandle( markupHandles handle );
     QRect rect;
 };
 
@@ -242,7 +236,6 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
-    void tidy();
     QCursor defaultCursor();
 
 private:
@@ -288,12 +281,12 @@ public:
     QCursor getCircleCursor();
     QCursor getTargetCursor();
 
+    virtual void markupSetCursor( QCursor cursor )=0;
 
 protected:
     void markupResize( QSize newSize );   // The viewport size has changed
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
-    virtual void markupSetCursor( QCursor cursor )=0;
     virtual void markupAction( markupIds mode, QPoint point1, QPoint point2 )=0;
 
 

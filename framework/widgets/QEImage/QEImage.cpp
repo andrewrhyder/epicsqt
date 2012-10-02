@@ -538,7 +538,7 @@ void QEImage::displayImage()
     if( initScrollPosSet == false )
     {
         scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
-        scrollArea->horizontalScrollBar()->setValue( 0 );//initialHozScrollPos );
+        scrollArea->horizontalScrollBar()->setValue( 0 );//!!!initialHozScrollPos );
         initScrollPosSet = true;
     }
 

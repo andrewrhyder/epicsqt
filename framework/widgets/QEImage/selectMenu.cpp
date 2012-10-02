@@ -4,12 +4,18 @@
 
 selectMenu::selectMenu( QWidget *parent) : QMenu(parent)
 {
+    // All selection modes are mutually exclusive, so add to a group
+    QActionGroup* selectionGroup = new QActionGroup(this);
+
+    // Macro to create the buttons
 #define NEW_SELECT_MENU_BUTTON( TITLE, ID, ACTION ) \
     ACTION = new QAction( TITLE, this );            \
     ACTION->setCheckable( true );                   \
-    ACTION ->setData( imageContextMenu::ID );            \
+    ACTION ->setData( imageContextMenu::ID );       \
+    selectionGroup->addAction( ACTION );            \
     addAction( ACTION );
 
+    // Create the buttons
     NEW_SELECT_MENU_BUTTON( "Pan",              ICM_SELECT_PAN,     actionPan     )
     NEW_SELECT_MENU_BUTTON( "Horizontal slice", ICM_SELECT_HSLICE,  actionHSlice  )
     NEW_SELECT_MENU_BUTTON( "Vertical slice",   ICM_SELECT_VSLICE,  actionVSlice  )
@@ -18,6 +24,7 @@ selectMenu::selectMenu( QWidget *parent) : QMenu(parent)
     NEW_SELECT_MENU_BUTTON( "Target",           ICM_SELECT_TARGET,  actionTarget  )
     NEW_SELECT_MENU_BUTTON( "Beam",             ICM_SELECT_BEAM,    actionBeam    )
 
+    // Set the title
     setTitle( "Select" );
 }
 
@@ -38,13 +45,18 @@ imageContextMenu::imageContextMenuOptions selectMenu::getSelectOption( const QPo
 
 void selectMenu::setChecked( const int mode )
 {
-    actionPan    ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_PANNING );
-    actionHSlice ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_HSLICE );
-    actionVSlice ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_VSLICE );
-    actionArea   ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_AREA );
-    actionProfile->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_PROFILE );
-    actionTarget ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_TARGET );
-    actionTarget ->setChecked( (QEImage::selectOptions)(mode) == QEImage::SO_BEAM );
+    // Check the appropriate selection option
+    switch( (QEImage::selectOptions)(mode) )
+    {
+        case QEImage::SO_PANNING : actionPan    ->setChecked( true ); break;
+        case QEImage::SO_HSLICE:   actionHSlice ->setChecked( true ); break;
+        case QEImage::SO_VSLICE:   actionVSlice ->setChecked( true ); break;
+        case QEImage::SO_AREA:     actionArea   ->setChecked( true ); break;
+        case QEImage::SO_PROFILE:  actionProfile->setChecked( true ); break;
+        case QEImage::SO_TARGET:   actionTarget ->setChecked( true ); break;
+        case QEImage::SO_BEAM:     actionTarget ->setChecked( true ); break;
+        default:  break;
+    }
 }
 
 void selectMenu::setPanEnabled( bool enablePan )

@@ -262,16 +262,16 @@ void VideoWidget::mouseMoveEvent( QMouseEvent* event )
             QPoint newPos = pos() - ( panStart - event->pos() ) ;
 
             // Limit panning. Don't pan beyond the image
-            if( newPos.x() > 0 )
-                newPos.setX( 0 );
-            if( newPos.y() > 0 )
-                newPos.setY( 0 );
-
             QWidget* p = this->parentWidget();
             if( newPos.x() <  p->width() - width() )
                 newPos.setX( p->width() - width());
             if( newPos.y() < p->height() - height() )
                 newPos.setY( p->height() - height() );
+
+            if( newPos.x() > 0 )
+                newPos.setX( 0 );
+            if( newPos.y() > 0 )
+                newPos.setY( 0 );
 
             // Do the pan
             move( newPos );
