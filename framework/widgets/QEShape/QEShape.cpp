@@ -105,6 +105,7 @@ void QEShape::setup() {
     painterCurrentTranslateX = 0;
     painterCurrentTranslateY = 0;
     rotation = 0.0;
+    startAngle = 0.0;
 
     drawBorder = true;
 
@@ -513,6 +514,15 @@ QVariant QEShape::getDrop()
     return QVariant( text );
 }
 
+void QEShape::refreshData( const int index )
+{
+    qcaobject::QCaObject* qca = getQcaItem( index );
+    if( qca )
+    {
+        qca->resendLastData();
+    }
+}
+
 //==============================================================================
 // Property convenience functions
 
@@ -531,11 +541,7 @@ QEShape::animationOptions QEShape::getAnimation( const int index )
 void QEShape::setScale( const double scale, const int index )
 {
     scales[index] = scale;
-    qcaobject::QCaObject* qca = this->getQcaItem( index );
-    if( qca )
-    {
-        qca->resendLastData();
-    }
+    refreshData( index );
 }
 double QEShape::getScale( const int index )
 {
@@ -547,11 +553,7 @@ double QEShape::getScale( const int index )
 void QEShape::setOffset( const double offset, const int index )
 {
     offsets[index] = offset;
-    qcaobject::QCaObject* qca = this->getQcaItem( index );
-    if( qca )
-    {
-        qca->resendLastData();
-    }
+    refreshData( index );
 }
 double QEShape::getOffset( const int index )
 {
@@ -562,7 +564,10 @@ double QEShape::getOffset( const int index )
 void QEShape::setShape( QEShape::shapeOptions shapeIn )
 {
     shape = shapeIn;
-    update();
+    for( int i = 0; i < QESHAPE_NUM_VARIABLES; i++ )
+    {
+        refreshData( i );
+    }
 }
 QEShape::shapeOptions QEShape::getShape()
 {

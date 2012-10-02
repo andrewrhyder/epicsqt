@@ -175,6 +175,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
     void setup();                                               /// Initialisation common to all constructors
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
+    void refreshData( const int index );
+
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
