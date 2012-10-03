@@ -496,8 +496,9 @@ bool markupLine::isOver( QPoint point, QCursor* cursor )
     int pointB;
 
     // Determine what the arbitrary orientations A and B actually are
-    if( ( end.y() - start.y() ) < ( end.x() - start.x() ) )
+    if( abs( end.y() - start.y() ) < abs( end.x() - start.x() ) )
     {
+        // Mostly horizontal
         startA = start.x();
         startB = start.y();
         endA = end.x();
@@ -507,6 +508,7 @@ bool markupLine::isOver( QPoint point, QCursor* cursor )
     }
     else
     {
+        // Mostly vertical
         startA = start.y();
         startB = start.x();
         endA = end.y();
@@ -613,9 +615,11 @@ void markupRegion::drawMarkup( QPainter& p )
 
 void markupRegion::setArea()
 {
-    area = rect.normalized();
+    area = rect;
 
-    if( rect.width() < 0 || rect.height() << 0 )
+    // Sanity check - rect should never be non-normallized.
+    // Note, drawing a non normalized QRect and a normalized QRect will not draw the same pixels!
+    if( rect.width() < 0 || rect.height() < 0 )
     {
         qDebug() << "Error, markupRegion::setArea() rect has negative dimensions" << rect;
     }
@@ -659,7 +663,7 @@ void markupRegion::moveTo( QPoint pos )
     }
 
     // If the object is now mirrored, normailze it
-    // (if the user has dragged the bottom above the top, or the left tot he right of the right)
+    // (if the user has dragged the bottom above the top, or the left to the right of the right)
     bool swapped = false;
     if( rect.width() < 0 )
     {
@@ -1102,8 +1106,10 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
 
                 // Set the cursor according to the bit we are over after creation
                 QCursor cursor;
-                items[activeItem]->isOver( event->pos(), &cursor ) ;
-                markupSetCursor( cursor );
+                if( items[activeItem]->isOver( event->pos(), &cursor ) )
+                {
+                    markupSetCursor( cursor );
+                }
             }
         }
     }

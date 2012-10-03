@@ -582,7 +582,7 @@ void QEImage::displayImage()
     int scanOption = getScanOption();
 
     // Drawing is performed in two nested loops, one for height and one for width.
-    // Depenting on the scan option, however, the outer may be height or width.
+    // Depending on the scan option, however, the outer may be height or width.
     // The input buffer is read consecutivly from first pixel to last and written to the
     // output buffer, which is moved to the next pixel by both the inner and outer
     // loops to where ever that next pixel is according to the rotation and flipping.
@@ -637,53 +637,65 @@ void QEImage::displayImage()
     // output buffer, which is moved to the next pixel by both the inner and outer
     // loops to where ever that next pixel is according to the rotation and flipping.
     dataIndex = start;
-    //!!! this code needs to go FAST. Put the switch in the inner loop outside both and reproduce both loops within each case
-    for( int i = 0; i < outCount; i++ )
-    {
-        for( int j = 0; j < inCount; j++ )
+
+    // For speed, the format switch statement is outside the pixel loop.
+    // An identical loop is used for each format
+#define LOOP_START                          \
+    for( int i = 0; i < outCount; i++ )     \
+    {                                       \
+        for( int j = 0; j < inCount; j++ )  \
         {
-            // Format the pixel ready for use in an RGB32 QImage
-            switch( formatOption )
-            {
-                case GREY8:
-                {
-                    // Duplicate 8 bits of the grey scale into each color
-                    unsigned long inPixel = dataIn[dataIndex*imageDataSize];
-                    dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
-                    break;
-                }
 
-                case GREY16:
-                {
-                    // Duplicate top 8 bits of the grey scale into each color
-                    unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
-                    inPixel = inPixel>>8;
-                    dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
-                    break;
-                }
+#define LOOP_END                            \
+            dataIndex += inInc;             \
+            buffIndex++;                    \
+        }                                   \
+        dataIndex += outInc;                \
+    }
 
-                case GREY12:
-                {
-                    // Duplicate top 8 bits of the grey scale into each color
-                    unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
-                    inPixel = (inPixel>>4)&0xff;
-                    dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
-                    break;
-                }
-
-                case RGB_888:
-                {
-                    unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*imageDataSize]);
-                    dataOut[buffIndex] = 0xff000000+(inPixel[2]<<16)+(inPixel[1]<<8)+inPixel[0];
-                    break;
-                }
-            }
-
-            // Step on to the next pixel
-            dataIndex += inInc;
-            buffIndex++;
+    // Format each pixel ready for use in an RGB32 QImage
+    switch( formatOption )
+    {
+        case GREY8:
+        {
+            LOOP_START
+            // Duplicate 8 bits of the grey scale into each color
+            unsigned long inPixel = dataIn[dataIndex*imageDataSize];
+            dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
+            LOOP_END
+            break;
         }
-        dataIndex += outInc;
+
+        case GREY16:
+        {
+            LOOP_START
+            // Duplicate top 8 bits of the grey scale into each color
+            unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
+            inPixel = inPixel>>8;
+            dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
+            LOOP_END
+            break;
+        }
+
+        case GREY12:
+        {
+            LOOP_START
+            // Duplicate top 8 bits of the grey scale into each color
+            unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
+            inPixel = (inPixel>>4)&0xff;
+            dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
+            LOOP_END
+            break;
+        }
+
+        case RGB_888:
+        {
+            LOOP_START
+            unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*imageDataSize]);
+            dataOut[buffIndex] = 0xff000000+(inPixel[2]<<16)+(inPixel[1]<<8)+inPixel[0];
+            LOOP_END
+            break;
+        }
     }
 
     // Generate a frame from the data

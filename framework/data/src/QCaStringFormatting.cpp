@@ -250,16 +250,27 @@ QString QCaStringFormatting::formatString( const QVariant &value ) {
                                             break;
 
                                         case ASCII:
-                                            for( int i = 0; i < valueArray.count(); i++ )
                                             {
-
-                                                if( valueArray[i].toInt() < ' ' || valueArray[i].toInt() > '~' )
+                                                // Translate all non printing characters to '?' except for trailing zeros (ignore them)
+                                                int nonZeroLen = 0;  // Length before trailing zeros
+                                                int len = valueArray.count();
+                                                for( int i = 0; i < len; i++ )
                                                 {
-                                                    stream << "?";
+                                                    if( valueArray[i].toInt() != 0 )
+                                                    {
+                                                        nonZeroLen = i;
+                                                    }
                                                 }
-                                                else
+                                                for( int i = 0; i <= nonZeroLen; i++ )
                                                 {
-                                                    stream << valueArray[i].toChar();
+                                                    if( valueArray[i].toInt() < ' ' || valueArray[i].toInt() > '~' )
+                                                    {
+                                                        stream << "?";
+                                                    }
+                                                    else
+                                                    {
+                                                        stream << valueArray[i].toChar();
+                                                    }
                                                 }
                                             }
                                             break;

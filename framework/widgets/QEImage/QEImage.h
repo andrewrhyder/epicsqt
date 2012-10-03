@@ -29,7 +29,7 @@
 #include <QCaWidget.h>
 #include <QCaInteger.h>
 #include <videowidget.h>
-#include <QELabel.h>
+//#include <QELabel.h>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <profilePlot.h>
