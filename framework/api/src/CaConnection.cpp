@@ -38,6 +38,10 @@ int CaConnection::CA_UNIQUE_CONNECTION_ID = 0;
     occur contain the context of the parent that created this CaConnection.
 */
 CaConnection::CaConnection( void* newParent ) {
+
+    // Construct a durable object that can be passed to CA and used as a callback argument
+    myRef = new CaRef( this );
+
     parent = newParent;
     initialise();
     reset();
@@ -47,6 +51,9 @@ CaConnection::CaConnection( void* newParent ) {
     Shutdown EPICS library and reset internal data to defaults.
 */
 CaConnection::~CaConnection() {
+
+    myRef->setDiscarded();
+
     shutdown();
     reset();
 }
@@ -84,7 +91,7 @@ ca_responses CaConnection::establishContext( void (*exceptionHandler)(struct exc
 */
 ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName ) {
     if( context.activated == true && channel.activated == false ) {
-        channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, this, CA_PRIORITY_DEFAULT, &channel.id );
+        channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, CA_PRIORITY_DEFAULT, &channel.id );
         ca_pend_io( link.searchTimeout );
         channel.activated = true;
         switch( channel.creation ) {
@@ -134,7 +141,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
     subscriptionDbrStructType = dbrStructType;
 
     if( channel.activated == true && subscription.activated == false ) {
-        subscription.creation = ca_array_get_callback( dbrStructType, channel.elementCount, channel.id, subscriptionInitialHandler, this );
+        subscription.creation = ca_array_get_callback( dbrStructType, channel.elementCount, channel.id, subscriptionInitialHandler, myRef );
         ca_flush_io();
         subscription.activated = true;
         switch( subscription.creation ) {
@@ -161,7 +168,11 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
 void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
 {
     // As this is a static function, recover the CaConnection class instance
-    CaConnection* me = (CaConnection*)args.usr;
+    CaConnection* me = (CaConnection*)(((CaRef*)(args.usr))->getRef( args.chid ));
+    if( !me )
+    {
+        return;
+    }
 
     // Modify the callback argument to hold the data that the caller to CaConnection::establishSubscription() wanted
     args.usr = me->subscriptionArgs;
@@ -318,6 +329,12 @@ channel_states CaConnection::getChannelState() {
 short CaConnection::getChannelType() {
     channel.type = ca_field_type( channel.id );
     return channel.type;
+}
+
+// Retrieve the channel id
+chid CaConnection::getChannelId()
+{
+    return channel.id;
 }
 
 /*!

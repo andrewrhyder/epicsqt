@@ -49,6 +49,7 @@ OTHER_FILES += \
 HEADERS += \
     ../api/include/Generic.h \
     ../api/include/CaRecord.h \
+    ../api/include/CaRef.h \
     ../api/include/CaObject.h \
     ../api/include/CaConnection.h \
     ../api/include/CaObjectPrivate.h \

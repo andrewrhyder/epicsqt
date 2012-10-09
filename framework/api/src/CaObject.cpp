@@ -31,6 +31,7 @@
 #include <epicsMutex.h>
 #include <alarm.h>
 #include <string.h>
+#include <stdio.h>
 
 
 static epicsEventId monitorEvent = NULL;
@@ -50,6 +51,9 @@ int CaObject::CA_UNIQUE_OBJECT_ID = 0;
     Initialisation
 */
 CaObject::CaObject() {
+    // Construct a durable object that can be passed to CA and used as a callback argument
+    myRef = new CaRef( this );
+
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = new CaObjectPrivate( this );
     priPtr = p;
@@ -62,6 +66,9 @@ CaObject::CaObject() {
     Shutdown
 */
 CaObject::~CaObject() {
+    // Flag in the durable object reference that this object has been deleted
+    myRef->setDiscarded();
+
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
 
@@ -77,7 +84,7 @@ void CaObject::initialise() {
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
 
-    p->caConnection->establishContext( p->exceptionHandler, this);
+    p->caConnection->establishContext( p->exceptionHandler, myRef );
     CA_UNIQUE_OBJECT_ID++;
     if( CA_UNIQUE_OBJECT_ID <= 1) {
         monitorEvent = epicsEventCreate( epicsEventEmpty );
@@ -111,9 +118,15 @@ void CaObject::shutdown() {
     Establishes client side channel setup.
 */
 caconnection::ca_responses CaObjectPrivate::setChannel( std::string channelName ) {
+    owner->myRef->setPV( channelName );
     caRecord.setName( channelName );
     caRecord.setValid( false );
-    return caConnection->establishChannel( connectionHandler, channelName );
+    caconnection::ca_responses ret = caConnection->establishChannel( connectionHandler, channelName );
+    if( ret == caconnection::REQUEST_SUCCESSFUL )
+    {
+        owner->myRef->setChannelId( caConnection->getChannelId() );
+    }
+    return ret;
 }
 
 /*!
@@ -124,7 +137,7 @@ caconnection::ca_responses CaObjectPrivate::startSubscription() {
     if( caRecord.getDbrType() == -1 ) {
         return caconnection::REQUEST_FAILED;
     }
-    return caConnection->establishSubscription( subscriptionHandler, owner, caRecord.getDbrType() );
+    return caConnection->establishSubscription( subscriptionHandler, owner->myRef, caRecord.getDbrType() );
 }
 
 /*!
@@ -156,7 +169,7 @@ caconnection::ca_responses CaObjectPrivate::readChannel() {
     if( caRecord.getDbrType() == -1 ) {
         return caconnection::REQUEST_FAILED;
     }
-    return caConnection->readChannel( readHandler, owner, caRecord.getDbrType() );
+    return caConnection->readChannel( readHandler, owner->myRef, caRecord.getDbrType() );
 }
 
 /*!
@@ -168,43 +181,43 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
         case generic::STRING :
         {
             std::string outValue = newValue->getString();
-            return caConnection->writeChannel( writeHandler, owner, DBR_STRING, outValue.c_str() );
+            return caConnection->writeChannel( writeHandler, owner->myRef, DBR_STRING, outValue.c_str() );
             break;
         }
         case generic::SHORT :
         {
             short outValue = newValue->getShort();
-            return caConnection->writeChannel( writeHandler, owner, DBR_SHORT, &outValue );
+            return caConnection->writeChannel( writeHandler, owner->myRef, DBR_SHORT, &outValue );
             break;
         }
         case generic::UNSIGNED_SHORT :
         {
             unsigned short outValue = newValue->getUnsignedShort();
-            return caConnection->writeChannel( writeHandler, owner, DBR_ENUM, &outValue );
+            return caConnection->writeChannel( writeHandler, owner->myRef, DBR_ENUM, &outValue );
             break;
         }
         case generic::UNSIGNED_CHAR :
         {
             char outValue = newValue->getUnsignedChar();
-            return caConnection->writeChannel( writeHandler, owner, DBR_CHAR, &outValue );
+            return caConnection->writeChannel( writeHandler, owner->myRef, DBR_CHAR, &outValue );
             break;
         }
         case generic::UNSIGNED_LONG :
         {
             unsigned long outValue = newValue->getUnsignedLong();
-            return caConnection->writeChannel( writeHandler, owner, DBR_LONG, &outValue );
+            return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, &outValue );
             break;
         }
         case generic::FLOAT :
         {
             float outValue = newValue->getFloat();
-            return caConnection->writeChannel( writeHandler, owner, DBR_FLOAT, &outValue );
+            return caConnection->writeChannel( writeHandler, owner->myRef, DBR_FLOAT, &outValue );
             break;
         }
         case generic::DOUBLE :
         {
             double outValue = newValue->getDouble();
-            return caConnection->writeChannel( writeHandler, owner, DBR_DOUBLE, &outValue );
+            return caConnection->writeChannel( writeHandler, owner->myRef, DBR_DOUBLE, &outValue );
             break;
         }
         default :
@@ -676,15 +689,23 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
     return 0;
 }
 
+CaObject* CaObjectPrivate::contextFromCaUsr( void* usr, void* id )
+{
+    CaRef* ref = (CaRef*)(usr);
+    return (CaObject*)(ref->getRef( id ));
+}
+
 /*!
     Subscription handler callback.
 */
 void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
-
-    //!!!??? WARNING callbacks can occur AFTER a connection has been closed. Handle this! AJR
-
     epicsMutexLock( accessMutex );
-    CaObject* context = (CaObject*)args.usr;
+    CaObject* context = contextFromCaUsr( args.usr, args.chid );
+    if( !context )
+    {
+        epicsMutexUnlock( accessMutex );
+        return;
+    }
 
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = (CaObjectPrivate*)(context->priPtr);
@@ -706,11 +727,13 @@ void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
     Read data handler callback.
 */
 void CaObjectPrivate::readHandler( struct event_handler_args args ) {
-
-    //!!!??? WARNING callbacks can occur AFTER a connection has been closed. Handle this! AJR
-
     epicsMutexLock( accessMutex );
-    CaObject* context = (CaObject*)args.usr;
+    CaObject* context = contextFromCaUsr( args.usr, args.chid );
+    if( !context )
+    {
+        epicsMutexUnlock( accessMutex );
+        return;
+    }
 
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = (CaObjectPrivate*)(context->priPtr);
@@ -732,11 +755,13 @@ void CaObjectPrivate::readHandler( struct event_handler_args args ) {
     Write data handler callback.
 */
 void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
-
-    //!!!??? WARNING callbacks can occur AFTER a connection has been closed. Handle this! AJR
-
     epicsMutexLock( accessMutex );
-    CaObject* context = (CaObject*)args.usr;
+    CaObject* context = contextFromCaUsr( args.usr, args.chid );
+    if( !context )
+    {
+        epicsMutexUnlock( accessMutex );
+        return;
+    }
 
     switch( args.status ) {
         case ECA_NORMAL :
@@ -753,20 +778,20 @@ void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
     EPICS Exception handler callback.
 */
 void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
-
-    //!!!??? WARNING callbacks can occur AFTER a connection has been closed. Handle this! AJR
-
     epicsMutexLock( accessMutex );
-    CaObject* context = (CaObject*)args.usr;
+    CaObject* context = contextFromCaUsr( args.usr, args.chid );
+    if( !context )
+    {
+        epicsMutexUnlock( accessMutex );
+        return;
+    }
 
     switch( args.stat ) {
         case ECA_NORMAL :
             context->signalCallback( EXCEPTION );
         break;
         default :
-//!!!??? crash occurs here on occasion when opening new GUI, perhaps because callbacks can occur AFTER a connection has been closed. See warning above
-//       Also crash here when ioc is shutdown.
-//            context->signalCallback( EXCEPTION );
+            context->signalCallback( EXCEPTION );
         break;
     }
     epicsMutexUnlock( accessMutex );
@@ -778,11 +803,14 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
     "args" -> "parent" -> "grandParent".
 */
 void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
-
-    //!!!??? WARNING callbacks can occur AFTER a connection has been closed. Handle this! AJR
-
     epicsMutexLock( accessMutex );
-    caconnection::CaConnection* parent = (caconnection::CaConnection*)ca_puser( args.chid );
+    CaRef* ref = (CaRef*)(ca_puser( args.chid ));
+    caconnection::CaConnection* parent = (caconnection::CaConnection*)(ref->getRef( args.chid ));
+    if( !parent )
+    {
+        epicsMutexUnlock( accessMutex );
+        return;
+    }
 
     CaObject* grandParent = (CaObject*)parent->getParent();
     switch( args.op ) {
@@ -838,3 +866,63 @@ bool CaObject::getWriteWithCallback()
     return p->caConnection->getWriteWithCallback();
 }
 
+//===========================================================
+// CaRef methods
+
+// Construction
+CaRef::CaRef( void* ownerIn )
+{
+    magic = CAREF_MAGIC;
+    owner = ownerIn;
+    discarded = false;
+    channel = NULL;
+}
+
+// Mark as discarded when no further CA callbacks are expected
+void CaRef::setDiscarded()
+{
+    discarded = true;
+}
+
+// Return the object referenced, if it is still around.
+// Returns NULL if the object is no longer in use.
+void* CaRef::getRef( void* channelIn )
+{
+    // Sanity check - was the CA user data really a CaRef pointer
+    if( magic != CAREF_MAGIC )
+    {
+        printf( "CaRef::getRef() called the CA user data was not really a CaRef pointer. (magic number is bad).  CA user data: %ld\n", (long)this );
+        return NULL;
+    }
+
+    // If discarded, then a late callback has occured
+    if( discarded )
+    {
+        printf( "Late CA callback. CaRef::getRef() called after associated object has been discarded.  object reference: %ld  variable: %s  expected channel: %ld received channel %ld\n",
+                (long)owner, variable.c_str(), (long)channel, (long)channelIn );
+        return NULL;
+    }
+
+    // If a channel has been recorded, but the current channel doesn't match, it is likely due to a late callback calling with a reference to a now re-used CaRef
+    if( channel && (channel != channelIn) )
+    {
+        printf( "Very late CA callback. CaRef::getRef() called with incorrect channel ID.  object reference: %ld  variable: %s  expected channel: %ld received channel %ld\n",
+                (long)owner, variable.c_str(), (long)channel, (long)channelIn );
+        return NULL;
+    }
+
+    // Return the referenced object
+    return owner;
+}
+
+// set the variable - for logging only
+void CaRef::setPV( std::string variableIn )
+{
+    variable = variableIn;
+}
+
+// set the channel - for checking and logging
+void CaRef::setChannelId ( void* channelIn )
+{
+    channel = channelIn;
+}

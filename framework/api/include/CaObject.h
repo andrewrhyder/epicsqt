@@ -27,15 +27,18 @@
 
 #include <string>
 #include <Generic.h>
+#include <CaRef.h>
+
 using namespace generic;
 
 namespace caobject {
 
-  enum callback_reasons { SUBSCRIPTION_SUCCESS, SUBSCRIPTION_FAIL,
-                          READ_SUCCESS, READ_FAIL,
-                          WRITE_SUCCESS, WRITE_FAIL,
-                          EXCEPTION,
-                          CONNECTION_UP, CONNECTION_DOWN, CONNECTION_UNKNOWN };
+
+    enum callback_reasons { SUBSCRIPTION_SUCCESS, SUBSCRIPTION_FAIL,
+                            READ_SUCCESS, READ_FAIL,
+                            WRITE_SUCCESS, WRITE_FAIL,
+                            EXCEPTION,
+                            CONNECTION_UP, CONNECTION_DOWN, CONNECTION_UNKNOWN };
 
     class CaObject {
 
@@ -75,6 +78,7 @@ namespace caobject {
 
         public:
             virtual void  signalCallback( callback_reasons ) = 0;
+            CaRef* myRef;
 
             // CA specific data private to the CaObject code
             // To allow application to include the QCaFramework without requiring

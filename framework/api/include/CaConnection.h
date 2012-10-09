@@ -27,6 +27,7 @@
 
 #include <string>
 #include <cadef.h>
+#include <CaRef.h>
 
 
 namespace caconnection {
@@ -89,6 +90,7 @@ namespace caconnection {
 
       channel_states getChannelState();
       short getChannelType();
+      chid getChannelId();
 
       void* getParent() { return parent; }
 
@@ -101,6 +103,7 @@ namespace caconnection {
       bool getWriteWithCallback();
 
     private:
+      CaRef* myRef;
       caLink link;
       caContext context;
       caChannel channel;
