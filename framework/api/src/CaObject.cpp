@@ -37,6 +37,9 @@
 static epicsEventId monitorEvent = NULL;
 static epicsMutexId accessMutex = NULL;
 
+static CaRef* carefListHead = NULL;
+static CaRef* carefListTail = NULL;
+
 
 //===============================================================================
 // Initialisation and deletion
@@ -51,8 +54,8 @@ int CaObject::CA_UNIQUE_OBJECT_ID = 0;
     Initialisation
 */
 CaObject::CaObject() {
-    // Construct a durable object that can be passed to CA and used as a callback argument
-    myRef = new CaRef( this );
+    // Construct or reuse a durable object that can be passed to CA and used as a callback argument
+    myRef = CaRef::getCaRef( this );
 
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = new CaObjectPrivate( this );
@@ -67,7 +70,8 @@ CaObject::CaObject() {
 */
 CaObject::~CaObject() {
     // Flag in the durable object reference that this object has been deleted
-    myRef->setDiscarded();
+    myRef->discard();
+    myRef = NULL;
 
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
@@ -869,19 +873,83 @@ bool CaObject::getWriteWithCallback()
 //===========================================================
 // CaRef methods
 
-// Construction
+// Provide a new or reused instance. Call instead of constructor.
+CaRef* CaRef::getCaRef( void* ownerIn )
+{
+    // If there is any previous CaRef  instances discarded over 5 seconds ago, return the first.
+    if( carefListHead )
+    {
+        CaRef* firstRef = carefListHead;
+        if( difftime( time( NULL ), firstRef->idleTime ) > 5.0 )
+        {
+            // Move the list head to the next (possibly NULL) object
+            carefListHead = firstRef->next;
+
+            // If end of queue reached, clear the end of list reference.
+            if( firstRef == carefListTail )
+            {
+                carefListTail = NULL;
+            }
+
+            // Re-initialise and return the recycled object
+            firstRef->init( ownerIn );
+//            printf("reuse\n");
+            return firstRef;
+        }
+    }
+
+    // There are no old instances to reuse - create a new one
+//    printf("create\n");
+    return new CaRef( ownerIn );
+}
+
+// Construction.
+// Don't use directly. Called by getCaRef() if none available for reuse
 CaRef::CaRef( void* ownerIn )
+{
+    init( ownerIn );
+}
+
+// Initialisation. Used for construction and reuse
+void CaRef::init( void* ownerIn )
 {
     magic = CAREF_MAGIC;
     owner = ownerIn;
     discarded = false;
     channel = NULL;
+    next = NULL;
+    idleTime = 0;
+//    dumpList();
 }
 
-// Mark as discarded when no further CA callbacks are expected
-void CaRef::setDiscarded()
+// Destrution
+// This should never be called. Present just to log an error
+CaRef::~CaRef()
 {
+    printf( "CaRef destructor called. This should never occur.");
+}
+
+// Mark as discarded and queue for reuse when no further CA callbacks are expected
+void CaRef::discard()
+{
+    // Flag no longer in use
     discarded = true;
+
+    // Note the time discarded
+    idleTime = time( NULL );
+
+    // Place the disused item on the discarded queue
+    if( !carefListHead )
+    {
+        carefListHead = this;
+    }
+
+    if( carefListTail )
+    {
+        carefListTail->next = this;
+    }
+    carefListTail = this;
+//    dumpList();
 }
 
 // Return the object referenced, if it is still around.
@@ -926,3 +994,21 @@ void CaRef::setChannelId ( void* channelIn )
 {
     channel = channelIn;
 }
+
+// Dump the current list - for debugging only
+//void CaRef::dumpList()
+//{
+//    printf( "head: %lu\n", (unsigned long)carefListHead );
+//    CaRef* obj = carefListHead;
+//    int count = 0;
+//    while( obj )
+//    {
+//        count++;
+//// Include the following line if full dump of current list is required
+////        printf("   obj: %lu next: %lu PV: %s\n", (unsigned long)obj, (unsigned long)(obj->next), obj->variable.c_str() );
+//        obj = obj->next;
+//    }
+//    printf( "count: %d\n", count );
+//    printf( "tail: %lu\n", (unsigned long)carefListTail );
+//    fflush(stdout);
+//}

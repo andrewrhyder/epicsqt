@@ -39,8 +39,8 @@ int CaConnection::CA_UNIQUE_CONNECTION_ID = 0;
 */
 CaConnection::CaConnection( void* newParent ) {
 
-    // Construct a durable object that can be passed to CA and used as a callback argument
-    myRef = new CaRef( this );
+    // Construct or reuse a durable object that can be passed to CA and used as a callback argument
+    myRef = CaRef::getCaRef( this );
 
     parent = newParent;
     initialise();
@@ -52,7 +52,7 @@ CaConnection::CaConnection( void* newParent ) {
 */
 CaConnection::~CaConnection() {
 
-    myRef->setDiscarded();
+    myRef->discard();
 
     shutdown();
     reset();
