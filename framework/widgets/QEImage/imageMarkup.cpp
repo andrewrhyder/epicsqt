@@ -1115,6 +1115,7 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
     }
 }
 
+// Manage the markups as the mouse moves
 void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
 {
     // If the user has the button down, redraw the item in its new position or shape.

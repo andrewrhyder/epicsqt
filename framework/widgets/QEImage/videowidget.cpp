@@ -243,17 +243,23 @@ void VideoWidget::wheelEvent( QWheelEvent* event )
 
 }
 
+//Manage a mouse move event
 void VideoWidget::mouseMoveEvent( QMouseEvent* event )
 {
+    // Report position for pixel info logging
+    QPoint pixelInfoPos;
+
+    pixelInfoPos.setX( int ( (double)(event->pos().x()) / getScale() ) );
+    pixelInfoPos.setY( int ( (double)(event->pos().y()) / getScale() ) );
+    emit currentPixelInfo( pixelInfoPos );
+
+    // If not panning, manage markups
     if( !panning )
     {
         markupMouseMoveEvent( event );
-        QPoint pos;
-
-        pos.setX( int ( (double)(event->pos().x()) / getScale() ) );
-        pos.setY( int ( (double)(event->pos().y()) / getScale() ) );
-        emit currentPixelInfo( pos );
     }
+
+    // Panning, so pan the image
     else
     {
         if( event->buttons()&Qt::LeftButton)

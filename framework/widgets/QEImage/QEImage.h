@@ -150,7 +150,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
 
     void establishConnection( unsigned int variableIndex );
 
-    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, TARGET_X_VARIABLE, TARGET_Y_VARIABLE, BEAM_X_VARIABLE, BEAM_Y_VARIABLE, TARGET_TRIGGER_VARIABLE, QEIMAGE_NUM_VARIABLES };
+    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, TARGET_X_VARIABLE, TARGET_Y_VARIABLE, BEAM_X_VARIABLE, BEAM_Y_VARIABLE, TARGET_TRIGGER_VARIABLE, CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE, QEIMAGE_NUM_VARIABLES };
 
     resizeOptions resizeOption;
     int zoom;
@@ -167,15 +167,7 @@ private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
-
-    void pauseClicked();
-
-    void saveClicked();
-
-    void roiClicked();
-    void resetRoiClicked();
-
-    void targetClicked();
+    void setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
     void vSliceSelectModeClicked();
     void hSliceSelectModeClicked();
@@ -193,9 +185,6 @@ private slots:
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
-
-
-  public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
     void userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
@@ -206,6 +195,27 @@ private slots:
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
     void setImageFile( QString name );
+
+public slots:
+    // Slots to allow external setting of selection menu options
+    void setSelectPanMode()     { sMenu->setChecked(  QEImage::SO_PANNING ); panModeClicked(); }
+    void setSelectVSliceMode()  { sMenu->setChecked(  QEImage::SO_VSLICE );  vSliceSelectModeClicked(); }
+    void setSelectHSliceMode()  { sMenu->setChecked(  QEImage::SO_HSLICE );  hSliceSelectModeClicked(); }
+    void setSelectAreaMode()    { sMenu->setChecked(  QEImage::SO_AREA );    areaSelectModeClicked(); }
+    void setSelectProfileMode() { sMenu->setChecked(  QEImage::SO_PROFILE ); profileSelectModeClicked(); }
+    void setSelectTargetMode()  { sMenu->setChecked(  QEImage::SO_TARGET );  targetSelectModeClicked(); }
+    void setSelectBeamMode()    { sMenu->setChecked(  QEImage::SO_BEAM );    beamSelectModeClicked(); }
+
+    // Slots to allow external operation of control buttons
+    void pauseClicked();
+
+    void saveClicked();
+
+    void roiClicked();
+    void resetRoiClicked();
+
+    void targetClicked();
+
 
   signals:
     void dbValueChanged( const QString& out );
@@ -335,6 +345,12 @@ private slots:
     QIcon* pauseButtonIcon;
     QIcon* playButtonIcon;
 
+
+    bool clippingOn;
+    unsigned int clippingLow;
+    unsigned int clippingHigh;
+
+
     // Drag and Drop
 protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
@@ -398,6 +414,15 @@ protected:
 
     VARIABLE_PROPERTY_ACCESS(11)
     Q_PROPERTY(QString targetTriggerVariable READ getVariableName11Property WRITE setVariableName11Property)
+
+    VARIABLE_PROPERTY_ACCESS(12)
+    Q_PROPERTY(QString clippingOnOffVariable READ getVariableName12Property WRITE setVariableName12Property)
+
+    VARIABLE_PROPERTY_ACCESS(13)
+    Q_PROPERTY(QString clippingLowVariable READ getVariableName13Property WRITE setVariableName13Property)
+
+    VARIABLE_PROPERTY_ACCESS(14)
+    Q_PROPERTY(QString clippingHighVariable READ getVariableName14Property WRITE setVariableName14Property)
 
 
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)

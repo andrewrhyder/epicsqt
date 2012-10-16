@@ -108,6 +108,10 @@ void QEImage::setup() {
 
     imageDataSize = 0;
 
+    clippingOn = false;
+    clippingLow = 0;
+    clippingHigh = 0;
+
     // Use frame signals
     // --Currently none--
 
@@ -142,7 +146,6 @@ void QEImage::setup() {
     QObject::connect( frMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( flipRotateMenuTriggered( QAction* )) );
 
     sMenu = new selectMenu();
-    sMenu->setChecked( getSelectionOption() );
     sMenu->setPanEnabled( enablePan );
     sMenu->setVSliceEnabled( enableVSliceSelection );
     sMenu->setHSlicetEnabled( enableHSliceSelection );
@@ -324,7 +327,9 @@ void QEImage::setup() {
 
     setDisplayCursorPixelInfo( displayCursorPixelInfo );
 
+    // Simulate pan mode being selected
     panModeClicked();
+    sMenu->setChecked( QEImage::SO_PANNING );
 
     //!! move this functionality into QCaWidget???
     //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -355,7 +360,7 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case IMAGE_VARIABLE:
             return new QCaByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
 
-        // Create the width, height, target and beam items as a QCaInteger
+        // Create the width, height, target and beam, and clipping items as a QCaInteger
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
         case ROI_X_VARIABLE:
@@ -367,6 +372,9 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case BEAM_X_VARIABLE:
         case BEAM_Y_VARIABLE:
         case TARGET_TRIGGER_VARIABLE:
+        case CLIPPING_ONOFF_VARIABLE:
+        case CLIPPING_LOW_VARIABLE:
+        case CLIPPING_HIGH_VARIABLE:
             return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
         default:
@@ -407,6 +415,21 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             {
                 QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                                   this, SLOT( setDimension( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+
+        // Connect the clipping variables
+        case CLIPPING_ONOFF_VARIABLE:
+        case CLIPPING_LOW_VARIABLE:
+        case CLIPPING_HIGH_VARIABLE:
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setClipping( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
                 QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                                   this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
                 QObject::connect( this, SIGNAL( requestResend() ),
@@ -491,6 +514,39 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
 }
 
 /*!
+    Update the clipping info
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+{
+    // Update image size variable
+    switch( variableIndex )
+    {
+        case CLIPPING_ONOFF_VARIABLE:
+            clippingOn = (value>0)?true:false;
+            break;
+
+        case CLIPPING_LOW_VARIABLE:
+            clippingLow = value;
+            break;
+
+        case CLIPPING_HIGH_VARIABLE:
+            clippingHigh = value;
+            break;
+        }
+
+    // Update the image buffer according to the new size
+    setImageBuff();
+
+    // Display invalid if invalid
+    if( alarmInfo.isInvalid() )
+    {
+        //setImageInvalid()
+        //!!! not done
+    }
+}
+
+/*!
     Update the image
     This is the slot used to recieve data updates from a QCaObject based class.
     Note the following comments from the Qt help:
@@ -524,6 +580,7 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 }
 
+// Display a new image.
 void QEImage::displayImage()
 {
     // Do nothing if there are no image dimensions yet
@@ -638,8 +695,8 @@ void QEImage::displayImage()
     // loops to where ever that next pixel is according to the rotation and flipping.
     dataIndex = start;
 
-    // For speed, the format switch statement is outside the pixel loop.
-    // An identical loop is used for each format
+// For speed, the format switch statement is outside the pixel loop.
+// An identical loop is used for each format
 #define LOOP_START                          \
     for( int i = 0; i < outCount; i++ )     \
     {                                       \
@@ -653,53 +710,148 @@ void QEImage::displayImage()
         dataIndex += outInc;                \
     }
 
+// Define the clipping logic
+#define CLIPPING(PIXEL)                                     \
+    if( clippingHigh > 0 && PIXEL >= clippingHigh )         \
+    {                                                       \
+        dataOut[buffIndex] = 0xffff8080;                    \
+    }                                                       \
+    else if( clippingLow > 0 && PIXEL <= clippingLow )      \
+    {                                                       \
+        dataOut[buffIndex] = 0xff8080ff;                    \
+    }                                                       \
+    else
+
+// Define the input pixel selection for each format
+#define PIXEL_GREY8   unsigned long inPixel = dataIn[dataIndex*imageDataSize];
+#define PIXEL_GREY16  unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
+#define PIXEL_GREY12  unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
+#define PIXEL_RGB_888 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*imageDataSize]);
+
+
+// Define the conversion to RGB for each format (Keep each in braces so each macro can be used as an 'else' statement)
+
+// Duplicate 8 bits of the grey scale into each color
+#define FORMAT_GREY8                                                        \
+    {                                                                       \
+        dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel; \
+    }
+
+// Duplicate top 8 bits of the grey scale into each color
+#define FORMAT_GREY16                                                                   \
+    {                                                                                   \
+        inPixel = inPixel>>8;                                                           \
+        dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;             \
+    }
+
+
+// Duplicate top 8 bits of the grey scale into each color
+#define FORMAT_GREY12                                                                   \
+    {                                                                                   \
+        inPixel = (inPixel>>4)&0xff;                                                    \
+        dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;             \
+    }
+
+// Copy RGB values
+#define FORMAT_RGB_888                                                                  \
+    {                                                                                   \
+        dataOut[buffIndex] = 0xff000000+(inPixel[2]<<16)+(inPixel[1]<<8)+inPixel[0];    \
+    }
+
+#define CLIPPING_TEST ( clippingOn && (clippingHigh > 0 || clippingLow > 0 ))
+
     // Format each pixel ready for use in an RGB32 QImage
+    // Note, for speed, the conditional code related to clipping has been extracted from the pixel loop
+    // Macros have been used to ensure the same code is used within the clipping an dnon clipping loops.
     switch( formatOption )
     {
         case GREY8:
         {
-            LOOP_START
-            // Duplicate 8 bits of the grey scale into each color
-            unsigned long inPixel = dataIn[dataIndex*imageDataSize];
-            dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
-            LOOP_END
+            if( CLIPPING_TEST )
+            {
+                LOOP_START
+                PIXEL_GREY8
+                CLIPPING(inPixel)
+                // else
+                FORMAT_GREY8
+                LOOP_END
+            }
+            else
+            {
+                LOOP_START
+                PIXEL_GREY8
+                FORMAT_GREY8
+                LOOP_END
+            }
             break;
         }
 
         case GREY16:
         {
-            LOOP_START
-            // Duplicate top 8 bits of the grey scale into each color
-            unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
-            inPixel = inPixel>>8;
-            dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
-            LOOP_END
+            if( CLIPPING_TEST )
+            {
+                LOOP_START
+                PIXEL_GREY16
+                CLIPPING(inPixel)
+                // else
+                FORMAT_GREY16
+                LOOP_END
+            }
+            else
+            {
+                LOOP_START
+                PIXEL_GREY16
+                FORMAT_GREY16
+                LOOP_END
+            }
             break;
         }
 
         case GREY12:
         {
-            LOOP_START
-            // Duplicate top 8 bits of the grey scale into each color
-            unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
-            inPixel = (inPixel>>4)&0xff;
-            dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;
-            LOOP_END
+            if( CLIPPING_TEST )
+            {
+                LOOP_START
+                PIXEL_GREY12
+                CLIPPING(inPixel)
+                // else
+                FORMAT_GREY12
+                LOOP_END
+            }
+            else
+            {
+                LOOP_START
+                PIXEL_GREY12
+                FORMAT_GREY12
+                LOOP_END
+            }
             break;
         }
 
         case RGB_888:
         {
-            LOOP_START
-            unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*imageDataSize]);
-            dataOut[buffIndex] = 0xff000000+(inPixel[2]<<16)+(inPixel[1]<<8)+inPixel[0];
-            LOOP_END
+            if( CLIPPING_TEST )
+            {
+                LOOP_START
+                PIXEL_RGB_888
+                CLIPPING(((inPixel[0]+inPixel[1]+inPixel[2])/3))
+                // else
+                FORMAT_RGB_888
+                LOOP_END
+            }
+            else
+            {
+                LOOP_START
+                PIXEL_RGB_888
+                FORMAT_RGB_888
+                LOOP_END
+            }
             break;
         }
     }
 
     // Generate a frame from the data
-    //!! don't create new image!!!
+    //!!! don't create new image???
     QImage frameImage( (uchar*)(imageBuff.constData()), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32 );
 
     // Display the new image
@@ -752,6 +904,7 @@ void QEImage::setImageFile( QString name )
 
 
 // Update markups if required
+// This is called after displaying the image
 void QEImage::updateMarkups()
 {
     if( haveVSliceX )
@@ -837,8 +990,6 @@ void QEImage::manageButtonBar()
 // Add or remove the pixel information layout
 void QEImage::manageInfoLayout()
 {
-    //!!! does nothing as infoLayout has no children
-    //!!! show and hide all widgets in infoLayout directly
     if( displayCursorPixelInfo )
     {
         currentCursorPixelLabel->show();
@@ -859,24 +1010,6 @@ void QEImage::manageInfoLayout()
         currentTargetLabel->hide();
         currentBeamLabel->hide();
     }
-
-
-//    QObjectList ol = infoLayout->children();
-//    for( int i = 0; i < ol.count(); i++ )
-//    {
-//        if( ol.at(i)->isWidgetType() )
-//        {
-//            QWidget* w = (QWidget*)(ol.at(i));
-//            if( displayCursorPixelInfo )
-//            {
-//                w->show();
-//            }
-//            else
-//            {
-//                w->hide();
-//            }
-//        }
-//    }
 }
 
 // Zoom to the area selected on the image
