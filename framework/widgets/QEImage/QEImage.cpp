@@ -98,6 +98,7 @@ void QEImage::setup() {
     enableTargetSelection = false;
 
     displayCursorPixelInfo = false;
+    contrastReversal = false;
 
 //!!!all property variables initialised?
 
@@ -1475,6 +1476,16 @@ bool QEImage::getDisplayCursorPixelInfo(){
     return displayCursorPixelInfo;
 }
 
+// Show contrast reversal
+void QEImage::setContrastReversal( bool contrastReversalIn )
+{
+    contrastReversal = contrastReversalIn;
+}
+
+bool QEImage::getContrastReversal(){
+    return displayCursorPixelInfo;
+}
+
 // Enable vertical slice selection
 void QEImage::setEnableVertSliceSelection( bool enableVSliceSelectionIn )
 {
@@ -2299,17 +2310,18 @@ void QEImage::showContextMenu( const QPoint& pos )
     sMenu->setChecked( getSelectionOption() );
     menu.addMenu( sMenu );
 
-    menu.addMenuItem(       "Save...",                       false, false,                  imageContextMenu::ICM_SAVE                );
-    menu.addMenuItem(       paused?"Resume":"Pause",         true,  paused,                 imageContextMenu::ICM_PAUSE               );
-    menu.addMenuItem(       "Show time",                     true,  showTimeEnabled,        imageContextMenu::ICM_ENABLE_TIME         );
-    menu.addMenuItem(       "Show cursor pixel info",        true,  displayCursorPixelInfo, imageContextMenu::ICM_ENABLE_CURSOR_PIXEL );
-    menu.addOptionMenuItem( "Enable panning",                true,  enablePan,              imageContextMenu::ICM_ENABLE_PAN          );
-    menu.addOptionMenuItem( "Enable vertical selection",     true,  enableVSliceSelection,  imageContextMenu::ICM_ENABLE_VERT         );
-    menu.addOptionMenuItem( "Enable horizontal selection",   true,  enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ          );
-    menu.addOptionMenuItem( "Enable area selection",         true,  enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA         );
-    menu.addOptionMenuItem( "Enable profile selection",      true,  enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE         );
-    menu.addOptionMenuItem( "Enable target selection",       true,  enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET       );
-    menu.addOptionMenuItem( "Display button bar",            true,  displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR  );
+    menu.addMenuItem(       "Save...",                       false, false,                  imageContextMenu::ICM_SAVE                     );
+    menu.addMenuItem(       paused?"Resume":"Pause",         true,  paused,                 imageContextMenu::ICM_PAUSE                    );
+    menu.addMenuItem(       "Show time",                     true,  showTimeEnabled,        imageContextMenu::ICM_ENABLE_TIME              );
+    menu.addMenuItem(       "Show cursor pixel info",        true,  displayCursorPixelInfo, imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
+    menu.addMenuItem(       "Contrast reversal",             true,  contrastReversal,       imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
+    menu.addOptionMenuItem( "Enable panning",                true,  enablePan,              imageContextMenu::ICM_ENABLE_PAN               );
+    menu.addOptionMenuItem( "Enable vertical selection",     true,  enableVSliceSelection,  imageContextMenu::ICM_ENABLE_VERT              );
+    menu.addOptionMenuItem( "Enable horizontal selection",   true,  enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ               );
+    menu.addOptionMenuItem( "Enable area selection",         true,  enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA              );
+    menu.addOptionMenuItem( "Enable profile selection",      true,  enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE              );
+    menu.addOptionMenuItem( "Enable target selection",       true,  enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET            );
+    menu.addOptionMenuItem( "Display button bar",            true,  displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR       );
 
     zMenu->enableAreaSelected( haveSelectedArea );
     menu.addMenu( zMenu );

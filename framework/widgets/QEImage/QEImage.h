@@ -126,6 +126,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
     void setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn );
     bool getDisplayCursorPixelInfo();
 
+    void setContrastReversal( bool contrastReversalIn );
+    bool getContrastReversal();
+
     void setEnablePan( bool enablePanIn );
     bool getEnablePan();
 
@@ -280,6 +283,7 @@ public slots:
     bool enableTargetSelection;
 
     bool displayCursorPixelInfo;
+    bool contrastReversal;
 
 
 
@@ -491,6 +495,7 @@ public:
     Q_PROPERTY(bool enableTargetSelection READ getEnableTargetSelection WRITE setEnableTargetSelection)
 
     Q_PROPERTY(bool displayCursorPixelInfo READ getDisplayCursorPixelInfo WRITE setDisplayCursorPixelInfo)
+    Q_PROPERTY(bool contrastReversal READ getContrastReversal WRITE setContrastReversal)
 
     Q_PROPERTY(bool displayButtonBar READ getDisplayButtonBar WRITE setDisplayButtonBar)
 
