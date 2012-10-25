@@ -31,21 +31,21 @@ modify
 */
 
 /*!
-  \mainpage QCa - EPICS aware Qt Widgets
+  \mainpage QE framework - EPICS aware Qt Widgets and data access classes
 
- - QCa is a layered software framework for accessing EPICS data using Channel Access on a range of platforms.\n\n
+ - QE is a layered software framework for accessing EPICS data using Channel Access on a range of platforms.\n\n
 
- - The QCa framework provides object oriented C++ access to control systems using EPICS (Experimental Physics and
+ - The QE framework provides object oriented C++ access to control systems using EPICS (Experimental Physics and
 Industrial Control System). It is based on Qt, a widely used cross-platform application development framework.\n\n
 
- - GUI or console based applications can be written that use QCa at several levels. QCa includes Qt plugin libraries,
+ - GUI or console based applications can be written that use QE at several levels. QE includes Qt plugin libraries,
 EPICS aware widgets, data formatting classes, and classes for accessing raw EPICS data in a Qt friendly way.\n\n
 
- - QCa also includes an application - ASgui - for displaying forms produced by the Qt development tool ‘Designer’. Using this
+ - QE also includes an application - QEgui - for displaying forms produced by the Qt development tool ‘Designer’. Using this
 application a complete EPICS GUI system can be generated without writing any code. A GUI system produced in this way can
 interact with existing EPICS display tools such as EDM.\n\n
 
- - QCa handles much of the complexities of Channel Access including initiating and managing a channel. Applications using QCa
+ - QE handles much of the complexities of Channel Access including initiating and managing a channel. Applications using QE
 can interact with Channel Access using Qt based classes and data types. Channel Access updates are delivered using Qt’s signals and slots mechanism.
 
   \image html ASguiExample5.png
@@ -88,9 +88,9 @@ can interact with Channel Access using Qt based classes and data types. Channel 
 
   \section installonmainpage Installation
  
-  Read <a href="http://sourceforge.net/projects/epicsqt/files/documentation/QCa_GettingStarted.pdf/download"> QCa_GettingStarted.pdf</a> in the documentation for setting up an enviroment for building or using the epicsqt framework.\n
+  Read <a href="http://sourceforge.net/projects/epicsqt/files/documentation/QE_GettingStarted.pdf/download"> QE_GettingStarted.pdf</a> in the documentation for setting up an enviroment for building or using the epicsqt framework.\n
   To build the framework, open epicsqt.pro in QtCreator, ensure shaddow build is turned off, and hit build.\n
-  Symbolic links to the resultant library libQCaPlugin.so will need to set up according to how it is to be used - see QCa_GettingStarted.pdf for details.\n
+  Symbolic links to the resultant library libQEPlugin.so will need to set up according to how it is to be used - see QE_GettingStarted.pdf for details.\n
   Any Qt specific queries? start at <a href="http://www.trolltech.com/developer/documentation/index.html">Qt developer documentation</a>
 
   \section support Support
