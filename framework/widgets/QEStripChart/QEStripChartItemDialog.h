@@ -36,7 +36,7 @@ namespace Ui {
     class QEStripChartItemDialog;
 }
 
-/*!
+/*
  * Manager class for the QEStripChartItemDialog.ui compiled form.
  */
 class QEStripChartItemDialog : public QDialog

@@ -42,42 +42,42 @@ bool ASguiFormPluginManager::isInitialized() const {
     return initialized;
 }
 
-/// Widget factory. Creates a ASguiForm widget.
+// Widget factory. Creates a ASguiForm widget.
 QWidget *ASguiFormPluginManager::createWidget ( QWidget *parent ) {
     return new ASguiFormPlugin(parent);
 }
 
-/// Name for widget. Used by Qt Designer in widget list
+// Name for widget. Used by Qt Designer in widget list
 QString ASguiFormPluginManager::name() const {
     return "ASguiFormPlugin";
 }
 
-/// Name of group Qt Designer will add widget to
+// Name of group Qt Designer will add widget to
 QString ASguiFormPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/// Icon for widget. Used by Qt Designer in widget list
+// Icon for widget. Used by Qt Designer in widget list
 QIcon ASguiFormPluginManager::icon() const {
     return QIcon(":/qe/form/QEForm.png");
 }
 
-/// Tool tip for widget. Used by Qt Designer in widget list
+// Tool tip for widget. Used by Qt Designer in widget list
 QString ASguiFormPluginManager::toolTip() const {
     return "Deprecated ASgui form";
 }
 
-///
+//
 QString ASguiFormPluginManager::whatsThis() const {
     return "Deprecated ASgui form";
 }
 
-///
+//
 bool ASguiFormPluginManager::isContainer() const {
     return false;
 }
 
-///
+//
 /*QString ASguiFormPluginManager::domXml() const {
     return "<widget class=\"ASguiForm\" name=\"ASguiForm\">\n"
            " <property name=\"geometry\">\n"
@@ -98,7 +98,7 @@ bool ASguiFormPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-///
+//
 QString ASguiFormPluginManager::includeFile() const {
     return "ASguiFormPlugin.h";
 }

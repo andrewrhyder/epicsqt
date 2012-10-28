@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware image widget based on the Qt frame widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details.
 
@@ -39,14 +39,14 @@
 #include <imageContextMenu.h>
 #include <QIcon>
 
-/*!
+/*
     Constructor with no initialisation
 */
 QEImage::QEImage( QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
     setup();
 }
 
-/*!
+/*
     Constructor with known variable
 */
 QEImage::QEImage( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QCaWidget( this )  {
@@ -54,7 +54,7 @@ QEImage::QEImage( const QString &variableNameIn, QWidget *parent ) : QFrame( par
     setVariableName( variableNameIn, 0 );
 }
 
-/*!
+/*
     Setup common to all constructors
 */
 void QEImage::setup() {
@@ -100,7 +100,7 @@ void QEImage::setup() {
     displayCursorPixelInfo = false;
     contrastReversal = false;
 
-//!!!all property variables initialised?
+// !!!all property variables initialised?
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -332,8 +332,8 @@ void QEImage::setup() {
     panModeClicked();
     sMenu->setChecked( QEImage::SO_PANNING );
 
-    //!! move this functionality into QCaWidget???
-    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    // !! move this functionality into QCaWidget???
+    // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing
@@ -350,7 +350,7 @@ QEImage::~QEImage()
 
 }
 
-/*!
+/*
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
 */
 qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
@@ -383,7 +383,7 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
     }
 }
 
-/*!
+/*
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
@@ -451,7 +451,7 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
      }
 }
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QEImage::updateToolTip( const QString& tip )
@@ -459,14 +459,14 @@ void QEImage::updateToolTip( const QString& tip )
     setToolTip( tip );
 }
 
-/*!
+/*
     Act on a connection change.
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    /// If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -475,7 +475,7 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
         setDataDisabled( false );
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -485,7 +485,7 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*!
+/*
     Update the image dimensions
     This is the slot used to recieve data updates from a QCaObject based class.
  */
@@ -510,11 +510,11 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     if( alarmInfo.isInvalid() )
     {
         //setImageInvalid()
-        //!!! not done
+        // !!! not done
     }
 }
 
-/*!
+/*
     Update the clipping info
     This is the slot used to recieve data updates from a QCaObject based class.
  */
@@ -543,11 +543,11 @@ void QEImage::setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTi
     if( alarmInfo.isInvalid() )
     {
         //setImageInvalid()
-        //!!! not done
+        // !!! not done
     }
 }
 
-/*!
+/*
     Update the image
     This is the slot used to recieve data updates from a QCaObject based class.
     Note the following comments from the Qt help:
@@ -577,7 +577,7 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     if( alarmInfo.isInvalid() )
     {
         //setImageInvalid()
-        //!!! not done
+        // !!! not done
     }
 }
 
@@ -596,7 +596,7 @@ void QEImage::displayImage()
     if( initScrollPosSet == false )
     {
         scrollArea->verticalScrollBar()->setValue( initialVertScrollPos );
-        scrollArea->horizontalScrollBar()->setValue( 0 );//!!!initialHozScrollPos );
+        scrollArea->horizontalScrollBar()->setValue( 0 );// !!!initialHozScrollPos );
         initScrollPosSet = true;
     }
 
@@ -852,7 +852,7 @@ void QEImage::displayImage()
     }
 
     // Generate a frame from the data
-    //!!! don't create new image???
+    // !!! don't create new image???
     QImage frameImage( (uchar*)(imageBuff.constData()), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32 );
 
     // Display the new image
@@ -892,7 +892,7 @@ void QEImage::setImageFile( QString name )
     QCaDateTime time = fi.lastModified();
 
     // Setup the widget in the same way receiving valid image, width and height data would
-    //!! make this common to the actual data update functions
+    // !! make this common to the actual data update functions
     scrollArea->setEnabled( true );
     imageBuffWidth = stdImage.width();
     imageBuffHeight = stdImage.height();
@@ -1102,7 +1102,7 @@ void QEImage::roiClicked()
     qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint2.y() ) - videoWidget->scaleOrdinate( selectedAreaPoint1.y() ));
 
-    //!!! should do the above whenever ROI changes?. This function should write to a trigger PV?
+    // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
 
     return;
 }
@@ -1237,7 +1237,7 @@ void QEImage::setFormatOption( formatOptions formatOptionIn )
     formatOption = formatOptionIn;
 
     // Resize and rescale
-    //!!! why is this needed??? is formatOption used by the video widget?
+    // !!! why is this needed??? is formatOption used by the video widget?
     setImageBuff();
 }
 
@@ -1249,7 +1249,7 @@ QEImage::formatOptions QEImage::getFormatOption()
 void QEImage::setResizeOptionAndZoom( int zoomIn )
 {
 
-    //!!! do each of the following two lines call setImageBuff()???
+    // !!! do each of the following two lines call setImageBuff()???
     setResizeOption( RESIZE_OPTION_ZOOM );
     setZoom( zoomIn );
 }
@@ -1631,7 +1631,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint 
 {
     switch( mode )
     {
-        //!!! the calculations and display of pixel position (here and below) will need to be done when the window is zoomed
+        // !!! the calculations and display of pixel position (here and below) will need to be done when the window is zoomed
         case imageMarkup::MARKUP_ID_V_SLICE:
             vSliceX = point1.x();
             haveVSliceX = true;

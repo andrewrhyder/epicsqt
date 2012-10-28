@@ -43,7 +43,7 @@
 
 #include <maiaXmlRpcClient.h>
 
-/*!
+/*
  *  This class provides a thin wrapper around the maiaXmlRpcClient specifically
  *  for handling the EPICS Channel Access Archive XML RPC procedure calls.
  *  While functionaly thin, it does provide the conversion between the types

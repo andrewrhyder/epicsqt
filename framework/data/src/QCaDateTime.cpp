@@ -27,21 +27,21 @@
 #include <QCaDateTime.h>
 #include <QDebug>
 
-/*!
+/*
   Construct an empty QCa date time
  */
 QCaDateTime::QCaDateTime() {
     nSec = 0;
 }
 
-/*!
+/*
   Construct a QCa date time set to the same date/time as a conventional QDateTime
  */
 QCaDateTime::QCaDateTime( QDateTime dt ) : QDateTime( dt ) {
     nSec = 0;
 }
 
-/*!
+/*
   Construct a QCa date time set to the same date/time as an EPICS time stamp
  */
 QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds ) {
@@ -60,7 +60,7 @@ QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds ) {
     nSec = nanoseconds % 1000000;
 }
 
-/*!
+/*
   Copy a QCaDateTime from another
  */
 void QCaDateTime::operator=( const QCaDateTime& other )
@@ -70,7 +70,7 @@ void QCaDateTime::operator=( const QCaDateTime& other )
     nSec = other.nSec;
 }
 
-/*!
+/*
   Returns a string which represents the date and time
  */
 QString QCaDateTime::text() {
@@ -89,7 +89,7 @@ QString QCaDateTime::text() {
     return out;
 }
 
-/*!
+/*
   Returns a double which represents the date and time in seconds (to mS resolution) from the base time
  */
 double QCaDateTime::floating( QDateTime base ) {

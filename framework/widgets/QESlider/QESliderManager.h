@@ -51,4 +51,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESliderManager : public QObject, public QDe
     bool initialized;
 };
 
-#endif /// QESLIDERMANAGER_H
+#endif // QESLIDERMANAGER_H

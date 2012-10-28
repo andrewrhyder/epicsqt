@@ -35,7 +35,7 @@
 #include <QStringList>
 #include <QtDebug>
 
-/*!
+/*
     Assume one variable name.
 */
 VariableNameManager::VariableNameManager() {
@@ -44,7 +44,7 @@ VariableNameManager::VariableNameManager() {
     variableNameManagerInitialise( 1 );
 }
 
-/*!
+/*
     Define the required number of variables to manage.
     The list of variable names is initially conatins a single variable name so this
     need only be called if more than one variable name is required.
@@ -55,7 +55,7 @@ void VariableNameManager::variableNameManagerInitialise( unsigned int numVariabl
     if( numVariables < 1 )
         return;
 
-    /// Clear out any existing variables
+    // Clear out any existing variables
     variableNames.clear();
 
     // Create the required number of variables
@@ -64,7 +64,7 @@ void VariableNameManager::variableNameManagerInitialise( unsigned int numVariabl
     }
 }
 
-/*!
+/*
     Get the current variable name.
     Supply a variable index if this class is managing more than one variable
     name.
@@ -79,7 +79,7 @@ QString VariableNameManager::getOriginalVariableName( unsigned int variableIndex
     return variableNames[variableIndex];
 }
 
-/*!
+/*
     Get the current variable name substitutions.
     Note the substitutions for the first variable are always returned as
     the same substitutions are used for every entry in the variableNames list.
@@ -89,7 +89,7 @@ QString VariableNameManager::getVariableNameSubstitutions() {
     return macroSubstitutions;
 }
 
-/*!
+/*
     Get the current variable name with substitutions applied.
 */
 QString VariableNameManager::getSubstitutedVariableName( unsigned int variableIndex ) {
@@ -102,7 +102,7 @@ QString VariableNameManager::getSubstitutedVariableName( unsigned int variableIn
     return doSubstitution( variableIndex );
 }
 
-/*!
+/*
     Override variable name substitutions.
     This is called when any macro substitutions set by default are overridden by the creator.
 */
@@ -111,7 +111,7 @@ void VariableNameManager::setVariableNameSubstitutionsOverride( const QString& m
     macroSubstitutionsOverride = macroSubstitutionsOverrideIn;
 }
 
-/*!
+/*
     Set the variable name.
     Macro substitution will be performed.
     A new connection is established.
@@ -122,11 +122,11 @@ void VariableNameManager::setVariableName( const QString& variableNameIn, unsign
     if( variableIndex >= (unsigned int )variableNames.size() )
         return;
 
-    /// Save the variable name and request the variableName data if updates are required
+    // Save the variable name and request the variableName data if updates are required
     variableNames[variableIndex] = variableNameIn;
 }
 
-/*!
+/*
     Set the variable name substitutions.
     Note, if there is more than one variable name in the list, the same
     substitutions are used for every entry in the variableNames list.
@@ -138,7 +138,7 @@ void VariableNameManager::setVariableNameSubstitutions( const QString& macroSubs
     macroSubstitutions = macroSubstitutionsIn;
 }
 
-/*!
+/*
     Perform a set of substitutions throughout a variable name.
     Replace $MACRO1 with VALUE1, $MACRO2 with VALUE2, etc wherever they appear in the string.
 */
@@ -148,34 +148,34 @@ QString VariableNameManager::doSubstitution( unsigned int variableIndex ) {
     if( variableIndex >= (unsigned int )variableNames.size() )
         return "";
 
-    /// Start with the initial string
+    // Start with the initial string
     QString result = variableNames[variableIndex];
 
-    /// Perform the required substitutions on the variable name
+    // Perform the required substitutions on the variable name
     return substituteThis( result );
 }
 
-/*!
+/*
     Perform a set of substitutions throughout a string.
     Replace $MACRO1 with VALUE1, $MACRO2 with VALUE2, etc wherever they appear in the string.
 */
 QString VariableNameManager::substituteThis( const QString string ) {
 
-    /// Start with the initial string
+    // Start with the initial string
     QString result = string;
 
-    /// Generate a list where each item in the list is a single substitution in the form MACRO1=VALUE1
+    // Generate a list where each item in the list is a single substitution in the form MACRO1=VALUE1
     QString subs;
     subs.append( macroSubstitutionsOverride ).append( " " ).append( macroSubstitutions );
     subs = standardizeSubs( subs );
     QStringList subList = subs.split( "," );
 
-    /// Perform all substitutions
+    // Perform all substitutions
     QStringList::const_iterator subsIndex;
     for ( subsIndex = subList.constBegin(); subsIndex != subList.constEnd(); ++subsIndex ) {
-        /// Get the key to search for and the value to replace it with.
-        /// If both a key and value are present (and nothing more) perform the substitution.
-        /// Note, the key will only be replaced if it is prefixed with a $.
+        // Get the key to search for and the value to replace it with.
+        // If both a key and value are present (and nothing more) perform the substitution.
+        // Note, the key will only be replaced if it is prefixed with a $.
         QStringList subList = ( *subsIndex ).split( "=" );
         if( subList.size() == 2 ) {
             QString before( "$(" );
@@ -189,19 +189,19 @@ QString VariableNameManager::substituteThis( const QString string ) {
     return result;
 }
 
-/*!
+/*
     Standardize the substitution string to make parsing it easier.
     Remove all white space except white space seperating key/value pairs.
     Replace any white space between white space seperating key/value pairs with a comma.
 */
 QString VariableNameManager::standardizeSubs( const QString &subsIn ) {
-    /// Standardise the string to the form $MACRO1=VALUE1,$MACRO2=VALUE2
-    /// (no spaces, each substitution seperated by a comma)
-    /// This allows the following forms:
-    ///     $MACRO1=VALUE1,$MACRO2=VALUE2
-    ///     $MACRO1=VALUE1 $MACRO2=VALUE2
-    ///     $MACRO1=VALUE1 , $MACRO2=VALUE2
-    ///     $MACRO1 = VALUE1,$MACRO2 = VALUE2
+    // Standardise the string to the form $MACRO1=VALUE1,$MACRO2=VALUE2
+    // (no spaces, each substitution seperated by a comma)
+    // This allows the following forms:
+    //     $MACRO1=VALUE1,$MACRO2=VALUE2
+    //     $MACRO1=VALUE1 $MACRO2=VALUE2
+    //     $MACRO1=VALUE1 , $MACRO2=VALUE2
+    //     $MACRO1 = VALUE1,$MACRO2 = VALUE2
     QString std = subsIn.simplified();
     std = std.replace( " =", "=" );
     std = std.replace( "= ", "=" );

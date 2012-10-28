@@ -27,7 +27,7 @@
 
 #include <QEPlot.h>
 
-/// QCaPlotPlugin IS deprecated - use QEPlot.
+// QCaPlotPlugin IS deprecated - use QEPlot.
 class QCaPlotPlugin : public QEPlot {
     Q_OBJECT
 

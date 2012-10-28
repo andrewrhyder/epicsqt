@@ -68,7 +68,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
 
 
     // Functions to set up formatting information from the database
-    void setDbEgu( QString egu );      /// Units to be added (or removed) from the formatted string if 'addUnits' flag is set
+    void setDbEgu( QString egu );      // Units to be added (or removed) from the formatted string if 'addUnits' flag is set
     void setDbEnumerations( QStringList enumerations );
     void setDbPrecision( unsigned int dbPrecisionIn );
     void setDbVariableIsStatField( bool isStatField );
@@ -121,16 +121,16 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     bool dbVariableIsStatField;
 
     // Formatting configuration
-    bool useDbPrecision;             /// Use the number of decimal places displayed as defined in the database.
-    bool leadingZero;                /// Add a leading zero when required.
-    bool trailingZeros;              /// Add trailing zeros when required (up to the precision).
-    formats format;                  /// Presentation required (Floating, integer, etc).
-    bool addUnits;                   /// Flag use engineering units from database
-    int precision;                   /// Floating point precision. Used if 'useDbPrecision' is false.
-    QList<localEnumerationItem> localEnumeration; /// Local enumerations (example: 0="Not referencing",1=Referencing)
-    QString localEnumerationString; /// Original local enumerations string
-    arrayActions arrayAction;       /// Action to take when processing array or waveform data
-    unsigned int arrayIndex;        /// Index into array or waveform to use when into arrayAction is 'INDEX'
+    bool useDbPrecision;             // Use the number of decimal places displayed as defined in the database.
+    bool leadingZero;                // Add a leading zero when required.
+    bool trailingZeros;              // Add trailing zeros when required (up to the precision).
+    formats format;                  // Presentation required (Floating, integer, etc).
+    bool addUnits;                   // Flag use engineering units from database
+    int precision;                   // Floating point precision. Used if 'useDbPrecision' is false.
+    QList<localEnumerationItem> localEnumeration; // Local enumerations (example: 0="Not referencing",1=Referencing)
+    QString localEnumerationString; // Original local enumerations string
+    arrayActions arrayAction;       // Action to take when processing array or waveform data
+    unsigned int arrayIndex;        // Index into array or waveform to use when into arrayAction is 'INDEX'
 };
 
-#endif /// QCASTRINGFORMATTING_H
+#endif // QCASTRINGFORMATTING_H

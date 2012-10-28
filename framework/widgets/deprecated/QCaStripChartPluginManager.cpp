@@ -28,7 +28,7 @@
 #include <QCaStripChart.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 
@@ -37,7 +37,7 @@ QCaStripChartPluginManager::QCaStripChartPluginManager (QObject * parent) : QObj
    initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaStripChartPluginManager::initialize (QDesignerFormEditorInterface *)
@@ -48,7 +48,7 @@ void QCaStripChartPluginManager::initialize (QDesignerFormEditorInterface *)
    initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaStripChartPluginManager::isInitialized () const
@@ -56,7 +56,7 @@ bool QCaStripChartPluginManager::isInitialized () const
    return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEStripChart widget.
 */
 QWidget *QCaStripChartPluginManager::createWidget (QWidget * parent)
@@ -64,7 +64,7 @@ QWidget *QCaStripChartPluginManager::createWidget (QWidget * parent)
    return new QCaStripChart (parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaStripChartPluginManager::name () const
@@ -72,7 +72,7 @@ QString QCaStripChartPluginManager::name () const
    return "QCaStripChart";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaStripChartPluginManager::group () const
@@ -80,7 +80,7 @@ QString QCaStripChartPluginManager::group () const
    return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaStripChartPluginManager::icon () const
@@ -88,7 +88,7 @@ QIcon QCaStripChartPluginManager::icon () const
    return QIcon (":/qe/stripchart/icon.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaStripChartPluginManager::toolTip () const
@@ -96,7 +96,7 @@ QString QCaStripChartPluginManager::toolTip () const
    return "Deprecated PV/Archive Strip Chart";
 }
 
-/*!
+/*
     ???
 */
 QString QCaStripChartPluginManager::whatsThis () const
@@ -104,7 +104,7 @@ QString QCaStripChartPluginManager::whatsThis () const
    return "Deprecated PV/Archive Strip Chart";
 }
 
-/*!
+/*
     ???
 */
 bool QCaStripChartPluginManager::isContainer () const
@@ -112,7 +112,7 @@ bool QCaStripChartPluginManager::isContainer () const
    return false;  //???? true
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaStripChartPluginManager::domXml() const {
@@ -135,7 +135,7 @@ bool QCaStripChartPluginManager::isContainer () const
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaStripChartPluginManager::includeFile () const

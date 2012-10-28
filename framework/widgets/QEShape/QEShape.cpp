@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware shape widget based on QWidget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
@@ -32,25 +32,25 @@
 #include <QtGui>
 #include <QDebug>
 
-/*!
+/*
     Create without a known variable. Just manage parental hirarchy.
 */
 QEShape::QEShape( QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
     setup();
 }
 
-/*!
+/*
     Create with a known variable. Subscription occurs immedietly.
 */
 QEShape::QEShape( const QString &variableNameIn, QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
-    /// Call common setup code.
+    // Call common setup code.
     setup();
 
-    /// Use the variable name as the first variable
+    // Use the variable name as the first variable
     setVariableName( variableNameIn, 0 );
 }
 
-/*!
+/*
     Common setup code.
 */
 void QEShape::setup() {
@@ -124,8 +124,8 @@ void QEShape::setup() {
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     // Use widget signals
-    //!! move this functionality into QCaWidget???
-    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    // !! move this functionality into QCaWidget???
+    // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing
@@ -136,7 +136,7 @@ void QEShape::setup() {
     }
 }
 
-/*!
+/*
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a shape a QCaObject that streams integers is required.
 */
@@ -146,7 +146,7 @@ qcaobject::QCaObject* QEShape::createQcaItem( unsigned int variableIndex ) {
     return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 }
 
-/*!
+/*
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
@@ -167,21 +167,21 @@ void QEShape::establishConnection( unsigned int variableIndex ) {
     }
 }
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QEShape::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
-/*!
+/*
     Act on a connection change.
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    /// If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -190,7 +190,7 @@ void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo )
         setDataDisabled( false );
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -200,7 +200,7 @@ void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*!
+/*
     Use a data update to alter the shape's attributes.
     The name setValue is less appropriate for this QCa widget than for others
     such as QELabel where setValue() sets the value displayed. For this
@@ -210,7 +210,7 @@ void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo )
 */
 void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex ) {
 
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     switch( variableIndex )
     {
         case 0: emit dbValueChanged1( value ); break;
@@ -222,12 +222,12 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
         default: sendMessage( "Application error: Unexpected variable index", "QEShape.cpp QEShape::setValue()", MESSAGE_TYPE_ERROR );
     }
 
-    /// Scale the data.
-    /// For example, a flow of 0 to 10 l/m may adjust a shape size 0 to 200 pixels
+    // Scale the data.
+    // For example, a flow of 0 to 10 l/m may adjust a shape size 0 to 200 pixels
     double scaledValue = (double)(value)*scales[variableIndex] + offsets[variableIndex];
 
-    /// Animate the object.
-    /// Apply the data to the appropriate attribute of the shape
+    // Animate the object.
+    // Apply the data to the appropriate attribute of the shape
     switch( animations[variableIndex] ) {
         case Width :
         {
@@ -349,7 +349,7 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
         }
     }
 
-    /// If in alarm, display as an alarm
+    // If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
     {
             updateToolTipAlarm( alarmInfo.severityName() );
@@ -357,11 +357,11 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
             lastSeverity = alarmInfo.getSeverity();
     }
 
-    /// Force the shape to be redrawn
+    // Force the shape to be redrawn
     update();
 }
 
-/*!
+/*
     Draw the shape.
     This is called whenever the applications forces a redraw using update()
     after data modifies some attribute of the shape, or whenever the windowing
@@ -372,30 +372,30 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
 {
     QPainter painter( this );
 
-    /// Set up the pen and brush (color, thickness, etc)
+    // Set up the pen and brush (color, thickness, etc)
     pen.setWidth( lineWidth );
     painter.setPen( pen );
     painter.setBrush( brush );
 
-    /// Draw everything with antialiasing
+    // Draw everything with antialiasing
     painter.setRenderHint( QPainter::Antialiasing, true );
 
-    /// Alter the viewport according to the origin translation properties
-    /// ???Origin translation was added so 0,0 could be some where other than top left as scaling appeared
-    /// to be after translation. This causes the translation to also be scaled which was inappropriate.
-    /// This may not be the case, in which case the origin translation could be removed and the same effect
-    /// could be achieved by giving variables associated with X and Y a negative offset.
+    // Alter the viewport according to the origin translation properties
+    // ???Origin translation was added so 0,0 could be some where other than top left as scaling appeared
+    // to be after translation. This causes the translation to also be scaled which was inappropriate.
+    // This may not be the case, in which case the origin translation could be removed and the same effect
+    // could be achieved by giving variables associated with X and Y a negative offset.
     QRect viewportRect = painter.viewport();
     viewportRect.moveLeft( originTranslation.x() );
     viewportRect.moveTop( originTranslation.y() );
     painter.setWindow( viewportRect );
 
-    /// Apply the current translation, scaling and rotation
+    // Apply the current translation, scaling and rotation
     painter.translate( painterCurrentTranslateX+0.5, painterCurrentTranslateY+0.5 );
     painter.scale( painterCurrentScaleX, painterCurrentScaleY );
     painter.rotate( rotation );
 
-    /// Draw the shape
+    // Draw the shape
     switch( shape ) {
         case Line :
             painter.drawLine( points[0], points[1] );
@@ -468,7 +468,7 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
     }
 }
 
-/*!
+/*
    Reset the brush color if the color the brush is using is changing
  */
 void QEShape::colorChange( unsigned int index )

@@ -26,14 +26,14 @@
 #include <QELabel.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QELabelManager::QELabelManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QELabelManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QELabelManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QELabelManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QELabel widget.
 */
 QWidget *QELabelManager::createWidget ( QWidget *parent ) {
     return new QELabel(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QELabelManager::name() const {
     return "QELabel";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QELabelManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QELabelManager::icon() const {
     return QIcon(":/qe/label/QELabel.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QELabelManager::toolTip() const {
     return "EPICS Label";
 }
 
-/*!
+/*
     ???
 */
 QString QELabelManager::whatsThis() const {
     return "EPICS Label";
 }
 
-/*!
+/*
     ???
 */
 bool QELabelManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QELabelManager::domXml() const {
@@ -122,7 +122,7 @@ bool QELabelManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QELabelManager::includeFile() const {

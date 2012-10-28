@@ -28,14 +28,14 @@
 #include <QEPeriodicTaskMenu.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaPeriodicPluginManager::QCaPeriodicPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaPeriodicPluginManager::initialize( QDesignerFormEditorInterface * formEditor ) {
@@ -53,63 +53,63 @@ void QCaPeriodicPluginManager::initialize( QDesignerFormEditorInterface * formEd
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaPeriodicPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaPeriodicPlugin widget.
 */
 QWidget *QCaPeriodicPluginManager::createWidget ( QWidget *parent ) {
     return new QCaPeriodicPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaPeriodicPluginManager::name() const {
     return "QCaPeriodicPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaPeriodicPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaPeriodicPluginManager::icon() const {
     return QIcon(":/qe/periodic/QEPeriodic.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaPeriodicPluginManager::toolTip() const {
     return "Deprecated EPICS Elemental Selection";
 }
 
-/*!
+/*
     ???
 */
 QString QCaPeriodicPluginManager::whatsThis() const {
     return "Deprecated EPICS Elemental Selection";
 }
 
-/*!
+/*
     ???
 */
 bool QCaPeriodicPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaPeriodicPluginManager::domXml() const {
@@ -132,7 +132,7 @@ bool QCaPeriodicPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaPeriodicPluginManager::includeFile() const {

@@ -28,7 +28,7 @@
 #include <QCaPvProperties.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaPvPropertiesPluginManager::QCaPvPropertiesPluginManager (QObject * parent) : QObject (parent)
@@ -36,7 +36,7 @@ QCaPvPropertiesPluginManager::QCaPvPropertiesPluginManager (QObject * parent) : 
    initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaPvPropertiesPluginManager::initialize (QDesignerFormEditorInterface *)
@@ -47,7 +47,7 @@ void QCaPvPropertiesPluginManager::initialize (QDesignerFormEditorInterface *)
    initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaPvPropertiesPluginManager::isInitialized () const
@@ -55,7 +55,7 @@ bool QCaPvPropertiesPluginManager::isInitialized () const
    return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaPvProperties widget.
 */
 QWidget *QCaPvPropertiesPluginManager::createWidget (QWidget * parent)
@@ -63,7 +63,7 @@ QWidget *QCaPvPropertiesPluginManager::createWidget (QWidget * parent)
    return new QCaPvProperties (parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaPvPropertiesPluginManager::name () const
@@ -71,7 +71,7 @@ QString QCaPvPropertiesPluginManager::name () const
    return "QCaPvProperties";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaPvPropertiesPluginManager::group () const
@@ -79,7 +79,7 @@ QString QCaPvPropertiesPluginManager::group () const
    return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaPvPropertiesPluginManager::icon () const
@@ -87,7 +87,7 @@ QIcon QCaPvPropertiesPluginManager::icon () const
    return QIcon (":/qe/pvproperties/icon.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaPvPropertiesPluginManager::toolTip () const
@@ -95,7 +95,7 @@ QString QCaPvPropertiesPluginManager::toolTip () const
    return "Deprecated EPICS IOC record fields";
 }
 
-/*!
+/*
     ???
 */
 QString QCaPvPropertiesPluginManager::whatsThis () const
@@ -103,7 +103,7 @@ QString QCaPvPropertiesPluginManager::whatsThis () const
    return "Deprecated EPICS IOC record fields";
 }
 
-/*!
+/*
     ???
 */
 bool QCaPvPropertiesPluginManager::isContainer () const
@@ -111,7 +111,7 @@ bool QCaPvPropertiesPluginManager::isContainer () const
    return false;  //???? true
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaPvPropertiesPluginManager::domXml() const {
@@ -134,7 +134,7 @@ bool QCaPvPropertiesPluginManager::isContainer () const
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaPvPropertiesPluginManager::includeFile () const

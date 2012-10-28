@@ -27,7 +27,7 @@
 #include <alarm.h>
 #include <QCaAlarmInfo.h>
 
-/*!
+/*
   Construct an empty instance.
   By default there is no alarm present.
  */
@@ -37,7 +37,7 @@ QCaAlarmInfo::QCaAlarmInfo()
     severity = NO_ALARM;
 }
 
-/*!
+/*
   Construct an instance given an alarm state and severity
  */
 QCaAlarmInfo::QCaAlarmInfo( unsigned short statusIn, unsigned short severityIn ) {
@@ -45,7 +45,7 @@ QCaAlarmInfo::QCaAlarmInfo( unsigned short statusIn, unsigned short severityIn )
     severity = severityIn;
 }
 
-/*!
+/*
   Return a string identifying the alarm state
  */
 QString QCaAlarmInfo::statusName() {
@@ -56,7 +56,7 @@ QString QCaAlarmInfo::statusName() {
         return QString( "" );
 }
 
-/*!
+/*
   Return a string identifying the alarm severity
  */
 QString QCaAlarmInfo::severityName() {
@@ -67,35 +67,35 @@ QString QCaAlarmInfo::severityName() {
         return QString( "" );
 }
 
-/*!
+/*
   Return true if there is an alarm
  */
 bool QCaAlarmInfo::isInAlarm() {
     return( status != NO_ALARM );
 }
 
-/*!
+/*
   Return true if there is a minor alarm
  */
 bool QCaAlarmInfo::isMinor() {
     return( severity == MINOR_ALARM );
 }
 
-/*!
+/*
   Return true if there is a major alarm
  */
 bool QCaAlarmInfo::isMajor() {
     return( severity == MAJOR_ALARM );
 }
 
-/*!
+/*
   Return true if there is an invalid alarm
  */
 bool QCaAlarmInfo::isInvalid() {
     return( severity == INVALID_ALARM );
 }
 
-/*!
+/*
   Return a style string to update the widget's look to reflect the current alarm state
  */
 QString QCaAlarmInfo::style()
@@ -110,7 +110,7 @@ QString QCaAlarmInfo::style()
     }
 }
 
-/*!
+/*
   Return the color name for the alarm state
  */
 QString QCaAlarmInfo::getColorName()
@@ -126,7 +126,7 @@ QString QCaAlarmInfo::getColorName()
 }
 
 
-/*!
+/*
   Return a severity that will not match any valid severity
  */
 QCAALARMINFO_SEVERITY QCaAlarmInfo::getInvalidSeverity()
@@ -134,7 +134,7 @@ QCAALARMINFO_SEVERITY QCaAlarmInfo::getInvalidSeverity()
     return ALARM_NSEV;
 }
 
-/*!
+/*
   Return the severity
   The caller is only expected to compare this to
  */

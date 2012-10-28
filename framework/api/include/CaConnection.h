@@ -36,7 +36,7 @@ namespace caconnection {
   enum channel_states { NEVER_CONNECTED, PREVIOUSLY_CONNECTED, CONNECTED, CLOSED, CHANNEL_UNKNOWN };
   enum ca_responses { REQUEST_SUCCESSFUL, CHANNEL_DISCONNECTED, REQUEST_FAILED };
 
-  //! Connection link state and properties.
+  // Connection link state and properties.
   struct caLink {
       double searchTimeout;
       double readTimeout;
@@ -44,14 +44,14 @@ namespace caconnection {
       link_states state;
   };
 
-  //! EPICS context state information.
+  // EPICS context state information.
   struct caContext {
       bool activated;
       int creation;
       int exception;
   };
 
-  //! Channel state and properties.
+  // Channel state and properties.
   struct caChannel {
       bool activated;
       int creation;
@@ -64,7 +64,7 @@ namespace caconnection {
       bool writeWithCallback;
   };
 
-  //! Subscription state and properties.
+  // Subscription state and properties.
   struct caSubscription {
       bool activated;
       int creation;
@@ -109,7 +109,7 @@ namespace caconnection {
       caChannel channel;
       caSubscription subscription;
 
-      //! Unique ID assigned to each instance.
+      // Unique ID assigned to each instance.
       static int CA_UNIQUE_CONNECTION_ID;
       void* parent;
 

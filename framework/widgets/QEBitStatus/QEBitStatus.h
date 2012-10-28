@@ -36,7 +36,7 @@
 class QCAPLUGINLIBRARYSHARED_EXPORT QEBitStatus : public QBitStatus, public QCaWidget {
    Q_OBJECT
 
-/// #ifdef PLUGIN_APP
+// #ifdef PLUGIN_APP
 
 public:
     //=================================================================================
@@ -88,7 +88,7 @@ public:
     Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
     //=================================================================================
 
-/// #endif
+// #endif
 
 public:
    QEBitStatus (QWidget * parent = 0);
@@ -101,7 +101,7 @@ public:
                                          unsigned int variableIndex);
 
 public slots:
-   void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }  //!! move into Standard Properties section??
+   void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }  // !! move into Standard Properties section??
 
 
 protected:
@@ -125,7 +125,7 @@ private slots:
    void setBitStatusValue (const long &value, QCaAlarmInfo &,
                            QCaDateTime &, const unsigned int &);
 
-   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) //!! move into Standard Properties section??
+   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) // !! move into Standard Properties section??
    {
        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
    }
@@ -147,4 +147,4 @@ protected:
 
 };
 
-#endif                          /// QEBITSTATUS_H
+#endif                          // QEBITSTATUS_H

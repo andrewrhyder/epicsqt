@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is based on the Qt label widget. It is NOT a CA aware widget.
   It does, however, use the QCaWidget and its VariableNameManager base class to manage substituting
   the label's text in the same way most other widgets manage substitutions in variable names.
@@ -68,7 +68,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabel : public QLabel, public Q
     QString labelText;                                                 // Fixed text to which substitutions will be applied
 
 private slots:
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }

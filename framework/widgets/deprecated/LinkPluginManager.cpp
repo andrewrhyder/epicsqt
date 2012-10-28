@@ -26,14 +26,14 @@
 #include <LinkPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 LinkPluginManager::LinkPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void LinkPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void LinkPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool LinkPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a Link widget.
 */
 QWidget *LinkPluginManager::createWidget ( QWidget *parent ) {
     return new LinkPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString LinkPluginManager::name() const {
     return "LinkPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString LinkPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon LinkPluginManager::icon() const {
     return QIcon(":/qe/link/QELink.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString LinkPluginManager::toolTip() const {
     return "Deprecated Link";
 }
 
-/*!
+/*
     ???
 */
 QString LinkPluginManager::whatsThis() const {
     return "Deprecated Link";
 }
 
-/*!
+/*
     ???
 */
 bool LinkPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString LinkPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool LinkPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString LinkPluginManager::includeFile() const {

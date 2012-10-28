@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBarManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -54,4 +54,4 @@ private:
     bool initialized;
 };
 
-#endif /// QEANALOGPROGRESSBARMANAGER_H
+#endif // QEANALOGPROGRESSBARMANAGER_H

@@ -109,4 +109,4 @@ private slots:
     void startDesignerAlternate();                  // Timer signal used to attempt restarting designer from outside a QProcess error signal
 };
 
-#endif /// MAINWINDOW_H
+#endif // MAINWINDOW_H

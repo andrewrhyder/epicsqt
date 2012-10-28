@@ -64,7 +64,7 @@ namespace qcaobject {
 
       bool dataTypeKnown();
 
-      /// State machine access functions
+      // State machine access functions
       bool createChannel();
       void deleteChannel();
       bool createSubscription();
@@ -105,17 +105,17 @@ namespace qcaobject {
     private:
       void initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn );
 
-      long lastEventChannelState; /// Channel state from most recent update event. This is actually of type caconnection::channel_states
-      long lastEventLinkState;    /// Link state from most recent update event. This is actually of type aconnection::link_states
+      long lastEventChannelState; // Channel state from most recent update event. This is actually of type caconnection::channel_states
+      long lastEventLinkState;    // Link state from most recent update event. This is actually of type aconnection::link_states
 
       QString recordName;
       QVariant writingData;
 
-      QObject* eventHandler;                  /// Event handler
-      static QMutex pendingEventsLock;        /// Used to protect access to pendingEvents list
-      static QCaEventFilter eventFilter;      /// Event filter to filter in own events
-      QList<QCaEventItem> pendingEvents;      /// List of pending data events
-      QCaEventItem* lastDataEvent;            /// Outstanding data event
+      QObject* eventHandler;                  // Event handler
+      static QMutex pendingEventsLock;        // Used to protect access to pendingEvents list
+      static QCaEventFilter eventFilter;      // Event filter to filter in own events
+      QList<QCaEventItem> pendingEvents;      // List of pending data events
+      QCaEventItem* lastDataEvent;            // Outstanding data event
       QTimer setChannelTimer;
 
       bool removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent );
@@ -125,9 +125,9 @@ namespace qcaobject {
       qcastatemachine::ReadQCaStateMachine *readMachine;
       qcastatemachine::WriteQCaStateMachine *writeMachine;
 
-      void signalCallback( caobject::callback_reasons reason );  /// CA callback function processed within an EPICS thread
-      void processEvent( QCaEventUpdate* dataUpdateEvent );      /// Continue processing CA callback but within the contect of a Qt event
-      void processData( void* newData );                         /// Process new CA data. newData is actually of type carecord::CaRecord*
+      void signalCallback( caobject::callback_reasons reason );  // CA callback function processed within an EPICS thread
+      void processEvent( QCaEventUpdate* dataUpdateEvent );      // Continue processing CA callback but within the contect of a Qt event
+      void processData( void* newData );                         // Process new CA data. newData is actually of type carecord::CaRecord*
 
       UserMessage* userMessage;
 
@@ -169,4 +169,4 @@ namespace qcaobject {
 
 }
 
-#endif /// QCAOBJECT_H
+#endif // QCAOBJECT_H

@@ -30,7 +30,7 @@
 #include <QEBitStatus.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEBitStatusManager::QEBitStatusManager (QObject * parent) : QObject (parent)
@@ -38,7 +38,7 @@ QEBitStatusManager::QEBitStatusManager (QObject * parent) : QObject (parent)
    initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEBitStatusManager::initialize (QDesignerFormEditorInterface *)
@@ -49,7 +49,7 @@ void QEBitStatusManager::initialize (QDesignerFormEditorInterface *)
    initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEBitStatusManager::isInitialized () const
@@ -57,7 +57,7 @@ bool QEBitStatusManager::isInitialized () const
    return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEBitStatus widget.
 */
 QWidget *QEBitStatusManager::createWidget (QWidget * parent)
@@ -65,7 +65,7 @@ QWidget *QEBitStatusManager::createWidget (QWidget * parent)
    return new QEBitStatus (parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEBitStatusManager::name () const
@@ -73,7 +73,7 @@ QString QEBitStatusManager::name () const
    return "QEBitStatus";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEBitStatusManager::group () const
@@ -81,7 +81,7 @@ QString QEBitStatusManager::group () const
    return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEBitStatusManager::icon () const
@@ -89,7 +89,7 @@ QIcon QEBitStatusManager::icon () const
    return QIcon (":/qe/bitstatus/QEBitStatus.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEBitStatusManager::toolTip () const
@@ -97,7 +97,7 @@ QString QEBitStatusManager::toolTip () const
    return "EPICS Bit Status";
 }
 
-/*!
+/*
     ???
 */
 QString QEBitStatusManager::whatsThis () const
@@ -105,7 +105,7 @@ QString QEBitStatusManager::whatsThis () const
    return "EPICS Bit Status";
 }
 
-/*!
+/*
     ???
 */
 bool QEBitStatusManager::isContainer () const
@@ -113,7 +113,7 @@ bool QEBitStatusManager::isContainer () const
    return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEBitStatusManager::domXml() const {
@@ -136,7 +136,7 @@ bool QEBitStatusManager::isContainer () const
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEBitStatusManager::includeFile () const

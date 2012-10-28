@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaRadioButtonPluginManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaRadioButtonPluginManager : public QObject
     bool initialized;
 };
 
-#endif /// QCARADIOBUTTONPLUGINMANAGER_H
+#endif // QCARADIOBUTTONPLUGINMANAGER_H

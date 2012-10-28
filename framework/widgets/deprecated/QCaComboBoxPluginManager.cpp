@@ -26,14 +26,14 @@
 #include <QCaComboBoxPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaComboBoxPluginManager::QCaComboBoxPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaComboBoxPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QCaComboBoxPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaComboBoxPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaComboBoxPlugin widget.
 */
 QWidget *QCaComboBoxPluginManager::createWidget ( QWidget *parent ) {
     return new QCaComboBoxPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaComboBoxPluginManager::name() const {
     return "QCaComboBoxPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaComboBoxPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaComboBoxPluginManager::icon() const {
     return QIcon(":/qe/combobox/QEComboBox.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaComboBoxPluginManager::toolTip() const {
     return "Deprecated EPICS ComboBox";
 }
 
-/*!
+/*
     ???
 */
 QString QCaComboBoxPluginManager::whatsThis() const {
     return "Deprecated EPICS ComboBox";
 }
 
-/*!
+/*
     ???
 */
 bool QCaComboBoxPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaComboBoxPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QCaComboBoxPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaComboBoxPluginManager::includeFile() const {

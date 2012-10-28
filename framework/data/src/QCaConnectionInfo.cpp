@@ -27,7 +27,7 @@
 #include <CaConnection.h>
 #include <QCaConnectionInfo.h>
 
-/*!
+/*
   Construct an empty instance.
   By default the channel and link states are unknown
  */
@@ -37,7 +37,7 @@ QCaConnectionInfo::QCaConnectionInfo()
     linkState = caconnection::LINK_UNKNOWN;
 }
 
-/*!
+/*
   Construct an instance given a channel and link state
  */
 QCaConnectionInfo::QCaConnectionInfo( unsigned short channelStateIn, unsigned short linkStateIn ) {
@@ -45,14 +45,14 @@ QCaConnectionInfo::QCaConnectionInfo( unsigned short channelStateIn, unsigned sh
     linkState = linkStateIn;
 }
 
-/*!
+/*
   Return true if the channel is connected
  */
 bool QCaConnectionInfo::isChannelConnected() {
     return( channelState == caconnection::CONNECTED );
 }
 
-/*!
+/*
   Return true if the link is up
  */
 bool QCaConnectionInfo::isLinkUp() {

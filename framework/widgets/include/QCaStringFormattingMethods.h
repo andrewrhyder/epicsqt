@@ -84,4 +84,4 @@ class QCaStringFormattingMethods {
     QCaStringFormatting stringFormatting;
 };
 
-#endif /// QCASTRINGFORMATTINGMETHODS_H
+#endif // QCASTRINGFORMATTINGMETHODS_H

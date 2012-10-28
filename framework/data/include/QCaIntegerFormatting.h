@@ -69,7 +69,7 @@ public:
     long formatFailure( QString message );
 
     // Formatting configuration
-    int radix; /// Positional base system to display data.
+    int radix; // Positional base system to display data.
 };
 
 #endif // QCAINTEGERFORMATTING_H

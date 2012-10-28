@@ -26,14 +26,14 @@
 #include <QCaSliderPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaSliderPluginManager::QCaSliderPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaSliderPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QCaSliderPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaSliderPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaSliderPlugin widget.
 */
 QWidget *QCaSliderPluginManager::createWidget ( QWidget *parent ) {
     return new QCaSliderPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaSliderPluginManager::name() const {
     return "QCaSliderPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaSliderPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaSliderPluginManager::icon() const {
     return QIcon(":/qe/slider/QESlider.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaSliderPluginManager::toolTip() const {
     return "Deprecated EPICS Slider";
 }
 
-/*!
+/*
     ???
 */
 QString QCaSliderPluginManager::whatsThis() const {
     return "Deprecated EPICS Slider";
 }
 
-/*!
+/*
     ???
 */
 bool QCaSliderPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaSliderPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QCaSliderPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaSliderPluginManager::includeFile() const {

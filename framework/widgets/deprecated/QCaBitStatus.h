@@ -28,7 +28,7 @@
 
 #include <QEBitStatus.h>
 
-/// QCaBitStatus IS deprecated - use QEBitStatus.
+// QCaBitStatus IS deprecated - use QEBitStatus.
 //
 class QCaBitStatus : public QEBitStatus {
     Q_OBJECT
@@ -37,4 +37,4 @@ class QCaBitStatus : public QEBitStatus {
   QCaBitStatus (QWidget *parent = 0) : QEBitStatus (parent) {}
 };
 
-#endif /// QCABITSTATUS_H
+#endif // QCABITSTATUS_H

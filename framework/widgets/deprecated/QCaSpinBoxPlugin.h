@@ -27,7 +27,7 @@
 
 #include <QESpinBox.h>
 
-/// QCaSpinBoxPlugin IS deprecated - use QESpinBox.
+// QCaSpinBoxPlugin IS deprecated - use QESpinBox.
 class QCaSpinBoxPlugin : public QESpinBox {
     Q_OBJECT
 

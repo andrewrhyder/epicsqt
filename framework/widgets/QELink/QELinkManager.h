@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QELinkManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELinkManager : public QObject, public QDesi
     bool initialized;
 };
 
-#endif /// QELINKMANAGER_H
+#endif // QELINKMANAGER_H

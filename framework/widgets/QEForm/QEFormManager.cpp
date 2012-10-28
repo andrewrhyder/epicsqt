@@ -26,14 +26,14 @@
 #include <QEForm.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEFormManager::QEFormManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEFormManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QEFormManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEFormManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEForm widget.
 */
 QWidget *QEFormManager::createWidget ( QWidget *parent ) {
     return new QEForm(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEFormManager::name() const {
     return "QEForm";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEFormManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEFormManager::icon() const {
     return QIcon(":/qe/form/QEForm.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEFormManager::toolTip() const {
     return "GUI Form";
 }
 
-/*!
+/*
     ???
 */
 QString QEFormManager::whatsThis() const {
     return "GUI Form";
 }
 
-/*!
+/*
     ???
 */
 bool QEFormManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEFormManager::domXml() const {
@@ -122,7 +122,7 @@ bool QEFormManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEFormManager::includeFile() const {

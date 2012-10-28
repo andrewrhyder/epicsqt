@@ -211,5 +211,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
 
 
 
-#endif /// QERECIPE_H
+#endif // QERECIPE_H
 

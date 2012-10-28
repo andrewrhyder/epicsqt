@@ -26,14 +26,14 @@
 #include <QEPushButton.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEPushButtonManager::QEPushButtonManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEPushButtonManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QEPushButtonManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEPushButtonManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaLabel widget.
 */
 QWidget *QEPushButtonManager::createWidget ( QWidget *parent ) {
     return new QEPushButton(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEPushButtonManager::name() const {
     return "QEPushButton";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEPushButtonManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEPushButtonManager::icon() const {
     return QIcon(":/qe/button/QEPushButton.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEPushButtonManager::toolTip() const {
     return "EPICS Push Button";
 }
 
-/*!
+/*
     ???
 */
 QString QEPushButtonManager::whatsThis() const {
     return "EPICS Push Button";
 }
 
-/*!
+/*
     ???
 */
 bool QEPushButtonManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEPushButtonManager::domXml() const {
@@ -122,7 +122,7 @@ bool QEPushButtonManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEPushButtonManager::includeFile() const {

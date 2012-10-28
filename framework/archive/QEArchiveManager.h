@@ -24,7 +24,7 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-/*!
+/*
  * Archive Manager manages access to the archives, and provides a thick binding
  * around the Archive Interface class. It's main function is to provide a PV Name
  * to interface/archive mapping.
@@ -40,7 +40,7 @@
 #include <QEArchiveInterface.h>
 #include <UserMessage.h>
 
-/*! This is a singleton class - the single instance is declared in the .cpp file.
+/* This is a singleton class - the single instance is declared in the .cpp file.
  *  It's only exposed in a header because the Qt framework demand that signals/slots
  *  are in headers.
  */
@@ -50,7 +50,7 @@ public:
     QEArchiveManager();
 
 private:
-   /*! This function connects the specified the archive(s). The format of the string is
+   /* This function connects the specified the archive(s). The format of the string is
     *  space separated set of one or more hostname:port/endpoint triplets, e.g.
     *
     *  "CR01ARC01:80/cgi-bin/ArchiveDataServer.cgi CR01ARC02:80/cgi-bin/ArchiveDataServer.cgi"
@@ -64,7 +64,7 @@ private:
     */
    void initialise (QString archives, QString patternIn = ".*");
 
-   /*! As above, but uses the environment variables QE_ARCHIVE_LIST and QE_ARCHIVE_PATTERN.
+   /* As above, but uses the environment variables QE_ARCHIVE_LIST and QE_ARCHIVE_PATTERN.
     *  If QE_ARCHIVE_PATTERN is undefined then ".*" is used.
     */
    void initialise ();
@@ -77,7 +77,7 @@ private slots:
 };
 
 
-/*!
+/*
  * This class provides user access to the archives.
  * Currently only handles scaler values but can/will be extended to to
  * provide array data retrival.
@@ -92,7 +92,7 @@ public:
    static QString getPattern ();
    static int getNumberPVs ();
 
-   /*! Simple archive request - single scaler PV, or one arbitary element from
+   /* Simple archive request - single scaler PV, or one arbitary element from
     *  a single array PV.  No extended meta data, just values + timestamp + alarm info.
     *  The data, if any, is sent via the setArchiveData signal.
     */

@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT LinkPluginManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT LinkPluginManager : public QObject, public Q
     bool initialized;
 };
 
-#endif /// LINKPLUGINMANAGER_H
+#endif // LINKPLUGINMANAGER_H

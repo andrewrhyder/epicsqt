@@ -26,14 +26,14 @@
 #include <QCaLabelPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaLabelPluginManager::QCaLabelPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaLabelPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QCaLabelPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaLabelPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaLabelPlugin widget.
 */
 QWidget *QCaLabelPluginManager::createWidget ( QWidget *parent ) {
     return new QCaLabelPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaLabelPluginManager::name() const {
     return "QCaLabelPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaLabelPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaLabelPluginManager::icon() const {
     return QIcon(":/qe/label/QELabel.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaLabelPluginManager::toolTip() const {
     return "Deprecated EPICS Label";
 }
 
-/*!
+/*
     ???
 */
 QString QCaLabelPluginManager::whatsThis() const {
     return "Deprecated EPICS Label";
 }
 
-/*!
+/*
     ???
 */
 bool QCaLabelPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaLabelPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QCaLabelPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaLabelPluginManager::includeFile() const {

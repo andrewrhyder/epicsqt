@@ -352,5 +352,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QC
 
 
 
-#endif /// QECONFIGUREDLAYOUT_H
+#endif // QECONFIGUREDLAYOUT_H
 

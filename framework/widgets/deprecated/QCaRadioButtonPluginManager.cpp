@@ -26,14 +26,14 @@
 #include <QCaRadioButtonPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaRadioButtonPluginManager::QCaRadioButtonPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaRadioButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QCaRadioButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaRadioButtonPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaRadioButton widget.
 */
 QWidget *QCaRadioButtonPluginManager::createWidget ( QWidget *parent ) {
     return new QCaRadioButtonPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaRadioButtonPluginManager::name() const {
     return "QCaRadioButtonPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaRadioButtonPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaRadioButtonPluginManager::icon() const {
     return QIcon(":/qe/button/QERadioButton.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaRadioButtonPluginManager::toolTip() const {
     return "Deprecated EPICS Radio Button";
 }
 
-/*!
+/*
     ???
 */
 QString QCaRadioButtonPluginManager::whatsThis() const {
     return "Deprecated EPICS Radio Button";
 }
 
-/*!
+/*
     ???
 */
 bool QCaRadioButtonPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaRadioButtonPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QCaRadioButtonPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaRadioButtonPluginManager::includeFile() const {

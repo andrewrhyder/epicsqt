@@ -38,13 +38,13 @@ using namespace qcaobject;
 using namespace generic;
 using namespace caconnection;
 
-//! Used to protect access to outstandingEvents list
+// Used to protect access to outstandingEvents list
 QMutex QCaObject::pendingEventsLock;
 
-//! An event filter for processing data updates in a Qt thread.
+// An event filter for processing data updates in a Qt thread.
 QCaEventFilter QCaObject::eventFilter;
 
-/*!
+/*
    The event object can be any Qt object with an event queue.
    A filter will be inserted (and removed) by this class to catch
    events from this class and pass them back to this class for processing.
@@ -125,7 +125,7 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     eventHandler->setProperty( "dragText", dragText );
 }
 
-/*!
+/*
     Destructor. Remove the channel and ensure that any unprocessed events posted by this obect will be ignored when
     they pop out of the event queue. Also, remove the event filter if this is the last QCaObject.
 */
@@ -181,7 +181,7 @@ QCaObject::~QCaObject() {
 
 }
 
-/*!
+/*
     Subcribe
 */
 bool QCaObject::subscribe() {
@@ -189,7 +189,7 @@ bool QCaObject::subscribe() {
     return subscriptionMachine->process( qcastatemachine::SUBSCRIBED );
 }
 
-/*!
+/*
     Initiate a single shot read
 */
 bool QCaObject::singleShotRead() {
@@ -197,7 +197,7 @@ bool QCaObject::singleShotRead() {
     return readMachine->process( qcastatemachine::READING );
 }
 
-/*!
+/*
    Process self generated events and only accept them if the
    originating QCaObject still exists.
    Note, this is a static method
@@ -228,7 +228,7 @@ void QCaObject::processEventStatic( QCaEventUpdate* dataUpdateEvent )
     }
 }
 
-/**
+/*
    Remove an event from the pending event list.
    If the event can't be found log an error and return false indicating 'the event is suspect - don't use it'.
    The list must be locked (using pendingEventsLock) prior to calling this method
@@ -264,7 +264,7 @@ bool QCaObject::removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent )
     return true;
 }
 
-/*!
+/*
     Returns true if the type of data being read or to be written is known.
     The data type will be unknown until a connection is established
 */
@@ -272,7 +272,7 @@ bool QCaObject::dataTypeKnown() {
     return( ( getType() != generic::UNKNOWN ) ? true:false );
 }
 
-/*!
+/*
     Create a channel
 */
 bool QCaObject::createChannel() {
@@ -302,7 +302,7 @@ bool QCaObject::createChannel() {
     return false;
 }
 
-/*!
+/*
     Delete a channel
 */
 void QCaObject::deleteChannel() {
@@ -314,7 +314,7 @@ void QCaObject::deleteChannel() {
     p->removeChannel();
 }
 
-/*!
+/*
     Create a subscription
 */
 bool QCaObject::createSubscription() {
@@ -344,7 +344,7 @@ bool QCaObject::createSubscription() {
     return false;
 }
 
-/*!
+/*
     Read from a PV
 */
 bool QCaObject::getChannel() {
@@ -374,7 +374,7 @@ bool QCaObject::getChannel() {
     return false;
 }
 
-/*!
+/*
     Write to a PV
 */
 bool QCaObject::putChannel() {
@@ -425,28 +425,28 @@ bool QCaObject::putChannel() {
     return false;
 }
 
-/*!
+/*
     Determine if the channel is currently connected
 */
 bool QCaObject::isChannelConnected() {
     return ( connectionMachine->currentState == qcastatemachine::CONNECTED );
 }
 
-/*!
+/*
     Wait one minute for a connection, then re-attempt the connection
  */
 void QCaObject::startConnectionTimer() {
     setChannelTimer.start( 60000 );
 }
 
-/*!
+/*
     Connection has been achieved within the expected time, stop the timer used to wait for a connection
  */
 void QCaObject::stopConnectionTimer() {
     setChannelTimer.stop();
 }
 
-/*!
+/*
     Returns the type of data being read or to be written.
     This will be Type::UNKNOWN if a connection has never been established.
 */
@@ -454,7 +454,7 @@ generic::generic_types QCaObject::getDataType() {
     return getType();
 }
 
-/*!
+/*
     Write a data out to channel
 */
 bool QCaObject::writeData( const QVariant& newData ) {
@@ -462,7 +462,7 @@ bool QCaObject::writeData( const QVariant& newData ) {
     return writeMachine->process( qcastatemachine::WRITING );
 }
 
-/*!
+/*
     Implemetation of virtual CA callback function.
     This code is executed by an EPICS library thread. It packages data and
     posts via an event.
@@ -529,7 +529,7 @@ void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
     // Processing will continue within the context of a Qt thread in QCaObject::processEvent() below.
 }
 
-/*!
+/*
     Process events posted from the EPICS library thread. The event is expected
     to provide snapshot of data.
     This method completes the processing of a CA callback, started in QCaObject::signalCallback() above,
@@ -678,7 +678,7 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
 
 }
 
-/*!
+/*
     Process new data arrivals.
     This is called when appropriate while processing an event containing CA data
 */
@@ -954,7 +954,7 @@ void QCaObject::processData( void* newDataPtr ) {
 
 }
 
-/*!
+/*
     Connecting timeout.
     Generally, we could just wait forever for a connection to complete, but due to
     rumours of gateways not honouring an old request when an IOC serving the requested
@@ -985,7 +985,7 @@ void QCaObject::setChannelExpired() {
     subscribe();
 }
 
-/*!
+/*
   Setup the user message mechanism.
   After calling this method the QCaObject can report errors to the user.
   */
@@ -994,7 +994,7 @@ void QCaObject::setUserMessage( UserMessage* userMessageIn )
     userMessage = userMessageIn;
 }
 
-/*!
+/*
   Re-emit the last data emited, if any
   This can be used after a property of a widget using this QCaObject has changed to
   force an update of the data and a re-presentation of the data in the widget to reflect the new property
@@ -1013,21 +1013,21 @@ void QCaObject::resendLastData()
     }
 }
 
-/*!
+/*
  Return the engineering units, if any
 */
 QString QCaObject::getEgu() {
     return egu;
 }
 
-/*!
+/*
  Return the enumerations strings, if any
 */
 QStringList QCaObject::getEnumerations() {
     return enumerations;
 }
 
-/*!
+/*
  Return the precision, if any
 */
 unsigned int QCaObject::getPrecision()
@@ -1035,7 +1035,7 @@ unsigned int QCaObject::getPrecision()
     return precision;
 }
 
-/*!
+/*
  Return the display upper limit, if any
 */
 double QCaObject::getDisplayLimitUpper()
@@ -1043,7 +1043,7 @@ double QCaObject::getDisplayLimitUpper()
     return displayLimitUpper;
 }
 
-/*!
+/*
  Return the display lower limit, if any
 */
 double QCaObject::getDisplayLimitLower()
@@ -1051,7 +1051,7 @@ double QCaObject::getDisplayLimitLower()
     return displayLimitLower;
 }
 
-/*!
+/*
  Return the alarm upper limit, if any
 */
 double QCaObject::getAlarmLimitUpper()
@@ -1059,7 +1059,7 @@ double QCaObject::getAlarmLimitUpper()
     return alarmLimitUpper;
 }
 
-/*!
+/*
  Return the alarm lower limit, if any
 */
 double QCaObject::getAlarmLimitLower()
@@ -1067,7 +1067,7 @@ double QCaObject::getAlarmLimitLower()
     return alarmLimitLower;
 }
 
-/*!
+/*
  Return the warning upper limit, if any
 */
 double QCaObject::getWarningLimitUpper()
@@ -1075,7 +1075,7 @@ double QCaObject::getWarningLimitUpper()
     return warningLimitUpper;
 }
 
-/*!
+/*
  Return the warning lower limit, if any
 */
 double QCaObject::getWarningLimitLower()
@@ -1083,7 +1083,7 @@ double QCaObject::getWarningLimitLower()
     return warningLimitLower;
 }
 
-/*!
+/*
  Return the control upper limit, if any
 */
 double QCaObject::getControlLimitUpper()
@@ -1091,7 +1091,7 @@ double QCaObject::getControlLimitUpper()
     return controlLimitUpper;
 }
 
-/*!
+/*
  Return the control lower limit, if any
 */
 double QCaObject::getControlLimitLower()
@@ -1099,7 +1099,7 @@ double QCaObject::getControlLimitLower()
     return controlLimitLower;
 }
 
-/*!
+/*
   Set if callbacks are required on write completion. (default is write with no callback)
   Note, this is not just for better write status, if affects the behaviour of the write as follows:
   When using write with callback, then record will finish processing before accepting next write.
@@ -1114,7 +1114,7 @@ void QCaObject::enableWriteCallbacks( bool enable )
     setWriteWithCallback( enable );
 }
 
-/*!
+/*
   Determine if callbacks are required on write completion.
 */
 bool QCaObject::isWriteCallbacksEnabled()

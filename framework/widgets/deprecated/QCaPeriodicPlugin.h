@@ -28,7 +28,7 @@
 #include <QEPeriodic.h>
 
 
-/// QCaPeriodicPlugin IS deprecated - use QEPeriodic.
+// QCaPeriodicPlugin IS deprecated - use QEPeriodic.
 //
 class QCaPeriodicPlugin : public QEPeriodic {
     Q_OBJECT
@@ -68,4 +68,4 @@ class QCaPeriodicPlugin : public QEPeriodic {
 
 };
 
-#endif /// QCAPERIODICPLUGIN_H
+#endif // QCAPERIODICPLUGIN_H

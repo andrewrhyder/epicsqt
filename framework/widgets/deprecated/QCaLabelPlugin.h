@@ -27,7 +27,7 @@
 
 #include <QELabel.h>
 
-/// QCaLabelPlugin IS deprecated - use QELabel.
+// QCaLabelPlugin IS deprecated - use QELabel.
 class QCaLabelPlugin : public QELabel {
     Q_OBJECT
 

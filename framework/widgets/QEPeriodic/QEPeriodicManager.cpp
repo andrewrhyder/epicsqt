@@ -28,14 +28,14 @@
 #include <QEPeriodicTaskMenu.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEPeriodicManager::QEPeriodicManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEPeriodicManager::initialize( QDesignerFormEditorInterface * formEditor ) {
@@ -53,63 +53,63 @@ void QEPeriodicManager::initialize( QDesignerFormEditorInterface * formEditor ) 
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEPeriodicManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEPeriodic widget.
 */
 QWidget *QEPeriodicManager::createWidget ( QWidget *parent ) {
     return new QEPeriodic(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEPeriodicManager::name() const {
     return "QEPeriodic";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEPeriodicManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEPeriodicManager::icon() const {
     return QIcon(":/qe/periodic/QEPeriodic.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEPeriodicManager::toolTip() const {
     return "EPICS Elemental Selection";
 }
 
-/*!
+/*
     ???
 */
 QString QEPeriodicManager::whatsThis() const {
     return "EPICS Elemental Selection";
 }
 
-/*!
+/*
     ???
 */
 bool QEPeriodicManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEPeriodicManager::domXml() const {
@@ -132,7 +132,7 @@ bool QEPeriodicManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEPeriodicManager::includeFile() const {

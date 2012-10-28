@@ -28,14 +28,14 @@
 #include <QBitStatus.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QBitStatusManager::QBitStatusManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QBitStatusManager::initialize( QDesignerFormEditorInterface * ) {
@@ -45,63 +45,63 @@ void QBitStatusManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QBitStatusManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QBitStatus widget.
 */
 QWidget *QBitStatusManager::createWidget ( QWidget *parent ) {
     return new QBitStatus( parent );
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QBitStatusManager::name() const {
     return "QBitStatus";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QBitStatusManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QBitStatusManager::icon() const {
     return QIcon(":/qe/bitstatus/QBitStatus.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QBitStatusManager::toolTip() const {
     return "Bit Status";
 }
 
-/*!
+/*
     ???
 */
 QString QBitStatusManager::whatsThis() const {
     return "Bit Status";
 }
 
-/*!
+/*
     ???
 */
 bool QBitStatusManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QBitStatusManager::domXml() const {
@@ -124,7 +124,7 @@ bool QBitStatusManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QBitStatusManager::includeFile() const {

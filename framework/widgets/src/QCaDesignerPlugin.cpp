@@ -77,7 +77,7 @@
 
 #include <QCaDesignerPlugin.h>
 
-/*!
+/*
     Add all plugins that will be provided in QT Designer.
 */
 QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
@@ -135,13 +135,13 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
 //======================================================
 
 }
-/*!
+/*
     Multiplugin interface.
 */
 QList<QDesignerCustomWidgetInterface*> QCaWidgets::customWidgets() const {
     return widgets;
 }
 
-//! Publish plugins through to QT designer.
+// Publish plugins through to QT designer.
 Q_EXPORT_PLUGIN2(QCaWidgetsPlugin, QCaWidgets)
 

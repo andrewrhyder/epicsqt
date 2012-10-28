@@ -30,7 +30,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/// ASgui form Plugin for Qt Designer.
+// ASgui form Plugin for Qt Designer.
 class QCAPLUGINLIBRARYSHARED_EXPORT ASguiFormPluginManager : public QObject, public QDesignerCustomWidgetInterface {
      Q_OBJECT
      Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -54,4 +54,4 @@ public:
     bool initialized;
 };
 
-#endif /// ASGUIFORMPLUGINMANAGER_H
+#endif // ASGUIFORMPLUGINMANAGER_H

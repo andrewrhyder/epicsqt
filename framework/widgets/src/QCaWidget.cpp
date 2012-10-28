@@ -22,7 +22,7 @@
  *    anthony.owen@gmail.com
  */
 
-/*!
+/*
   This class is used as a base for all CA aware wigets, such as QELabel, QESpinBox, etc.
   It manages common issues including creating a source of CA data updates, handling error,
   warning and status messages, and setting tool tips based on variable names.
@@ -79,17 +79,17 @@
 #include <QDebug>
 #include <QCaWidget.h>
 
-/*!
+/*
     Constructor
 */
 QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( owner ), standardProperties( owner ) {
 
-    /// Initially flag no variables array is defined.
-    /// This will be corrected when the first variable is declared
+    // Initially flag no variables array is defined.
+    // This will be corrected when the first variable is declared
     numVariables = 0;
     qcaItem = 0;
 
-    /// Default properties
+    // Default properties
     subscribe = true;
     variableAsToolTip = true;
     setSourceId( 0 );
@@ -113,7 +113,7 @@ QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( own
     }
 }
 
-/*!
+/*
     Destruction:
     Delete all variable sources for the widgeet
 */
@@ -135,32 +135,32 @@ QCaWidget::~QCaWidget() {
     qcaItem = NULL;
 }
 
-/*!
+/*
     Set the number of variables that will be used for this widget.
     Create an array of QCaObject based objects to suit.
     This is called by the CA aware widgets based on this class, such as a QELabel.
 */
 void QCaWidget::setNumVariables( unsigned int numVariablesIn ) {
 
-    /// Get the number of variables that will be used by this widget
-    /// Don't accept zero or the qca array will be invalid
+    // Get the number of variables that will be used by this widget
+    // Don't accept zero or the qca array will be invalid
     if( numVariablesIn ) {
         numVariables = numVariablesIn;
     } else {
         numVariables = 1;
     }
 
-    /// Set up the number of variables managed by the variable name manager
+    // Set up the number of variables managed by the variable name manager
     variableNameManagerInitialise( numVariables );
 
-    /// Allocate the array of QCa objects
+    // Allocate the array of QCa objects
     qcaItem = new qcaobject::QCaObject* [numVariables];
     for( unsigned int i = 0; i < numVariables; i++ ) {
         qcaItem[i] = NULL;
     }
 }
 
-/*!
+/*
    Initiate updates.
    This is only required when QCa widgets are loaded within a form and not directly by 'designer'.
    When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
@@ -177,15 +177,15 @@ void QCaWidget::activate()
 }
 
 
-/*!
+/*
     Create a CA connection and initiates updates if required.
     This is called by the establishConnection function of CA aware widgets based on this class, such as a QELabel.
     If successfull it will return the QCaObject based object supplying data update signals
 */
 qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) {
 
-    /// If the index is invalid do nothing
-    /// This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
+    // If the index is invalid do nothing
+    // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
     if( variableIndex >= numVariables ) {
         return NULL;
     }
@@ -193,14 +193,14 @@ qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) 
     // Update the variable names in the tooltip if required
     setToolTipFromVariableNames();
 
-    /// Remove any existing QCa connection
+    // Remove any existing QCa connection
     deleteQcaItem( variableIndex );
 
-    /// Connect to new variable.
-    /// If a new variable name is present, ask the CA aware widget based on this class to create an
-    /// appropriate object based on a QCaObject (by calling its createQcaItem() function).
-    /// If that is successfull, supply it with a mechanism for handling errors and subscribe
-    /// to the new variable if required.
+    // Connect to new variable.
+    // If a new variable name is present, ask the CA aware widget based on this class to create an
+    // appropriate object based on a QCaObject (by calling its createQcaItem() function).
+    // If that is successfull, supply it with a mechanism for handling errors and subscribe
+    // to the new variable if required.
     if( getSubstitutedVariableName( variableIndex ).length() > 0 ) {
         qcaItem[variableIndex] = createQcaItem( variableIndex );
         if( qcaItem[variableIndex] ) {
@@ -238,14 +238,14 @@ void QCaWidget::establishConnection( unsigned int )
 }
 
 
-/*!
+/*
     Return a reference to one of the qCaObjects used to stream CA data updates to the widget
     This is called by CA aware widgets based on this class, such as a QELabel, mainly when they
     want to connect to its signals to recieve data updates.
 */
 qcaobject::QCaObject* QCaWidget::getQcaItem( unsigned int variableIndex ) {
-    /// If the index is invalid return NULL.
-    /// This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
+    // If the index is invalid return NULL.
+    // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
     if( variableIndex >= numVariables )
         return NULL;
 
@@ -253,12 +253,12 @@ qcaobject::QCaObject* QCaWidget::getQcaItem( unsigned int variableIndex ) {
     return qcaItem[variableIndex];
 }
 
-/*!
+/*
     Remove any previous QCaObject created to supply CA data updates for a variable name
 */
 void QCaWidget::deleteQcaItem( unsigned int variableIndex ) {
-    /// If the index is invalid do nothing.
-    /// This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
+    // If the index is invalid do nothing.
+    // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
     if( variableIndex >= numVariables )
         return;
 
@@ -277,7 +277,7 @@ void QCaWidget::setupContextMenu( QWidget* w )
     addContextMenuToWidget( w );
 }
 
-/*!
+/*
   Return a colour to update the widget's look to reflect the current alarm state
   Note, the color is determined by the alarmInfo class, but since that class is used in non
   gui applications, it can't return a QColor
@@ -323,14 +323,14 @@ void QCaWidget::setToolTipFromVariableNames()
         // Build tip
         QString tip;
         for( unsigned int i = 0; i < numVariables; i++ ) {
-            /// If a variable name is present, add it to the tip
+            // If a variable name is present, add it to the tip
             QString variableName = getSubstitutedVariableName( i );
             if( variableName.size() ) {
-                /// Add a seperator between variable names
+                // Add a seperator between variable names
                 if( tip.size() > 0 ) {
                     tip.append( seperator );
                 }
-                /// Add the variable name to the tip
+                // Add the variable name to the tip
                 tip.append( variableName );
             }
         }

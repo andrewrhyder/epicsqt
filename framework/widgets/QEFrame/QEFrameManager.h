@@ -29,7 +29,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     Plugin manager for QEFrame widget
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QEFrameManager : 
@@ -58,4 +58,4 @@ private:
     bool initialized;
 };
 
-#endif                          /// QEFRAMEMANAGER_H
+#endif                          // QEFRAMEMANAGER_H

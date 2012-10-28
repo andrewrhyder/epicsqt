@@ -28,14 +28,14 @@
 #include <QEPlot.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEPlotManager::QEPlotManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEPlotManager::initialize( QDesignerFormEditorInterface * ) {
@@ -45,63 +45,63 @@ void QEPlotManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEPlotManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEPlot widget.
 */
 QWidget *QEPlotManager::createWidget ( QWidget *parent ) {
     return new QEPlot(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEPlotManager::name() const {
     return "QEPlot";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEPlotManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEPlotManager::icon() const {
     return QIcon(":/qe/plot/QEPlot.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEPlotManager::toolTip() const {
     return "EPICS Strip Chart";
 }
 
-/*!
+/*
     ???
 */
 QString QEPlotManager::whatsThis() const {
     return "EPICS Strip Chart";
 }
 
-/*!
+/*
     ???
 */
 bool QEPlotManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEPlotManager::domXml() const {
@@ -124,7 +124,7 @@ bool QEPlotManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEPlotManager::includeFile() const {

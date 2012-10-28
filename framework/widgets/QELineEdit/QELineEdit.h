@@ -162,21 +162,21 @@ public:
     bool getConfirmWrite();
 
 protected:
-    bool writeOnLoseFocus;        /// Write changed value to database when widget object loses focus (user moves from widget)
-    bool writeOnEnter;            /// Write changed value to database when enter is pressed with focus on the widget
-    bool writeOnFinish;           /// Write changed value to database when user finishes editing (leaves a widget)
-    bool localEnabled;            /// Override the default widget setEnabled to allow alarm states to override current enabled state
-    bool confirmWrite;            /// Request confirmation before writing a value
+    bool writeOnLoseFocus;        // Write changed value to database when widget object loses focus (user moves from widget)
+    bool writeOnEnter;            // Write changed value to database when enter is pressed with focus on the widget
+    bool writeOnFinish;           // Write changed value to database when user finishes editing (leaves a widget)
+    bool localEnabled;            // Override the default widget setEnabled to allow alarm states to override current enabled state
+    bool confirmWrite;            // Request confirmation before writing a value
     bool allowDrop;
 
     void establishConnection( unsigned int variableIndex );
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
-    void setTextIfNoFocus( const QString& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );  /// Update the text in the widget as long as the user is not entering data in it
+    void setTextIfNoFocus( const QString& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );  // Update the text in the widget as long as the user is not entering data in it
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-    void userReturnPressed();                       /// Act on the user pressing return in the widget
-    void userEditingFinished();                     /// Act on the user signaling text editing is complete (pressing return)
+    void userReturnPressed();                       // Act on the user pressing return in the widget
+    void userEditingFinished();                     // Act on the user signaling text editing is complete (pressing return)
 
 public slots:
     void requestEnabled( const bool& state );
@@ -184,7 +184,7 @@ public slots:
 
 signals:
     void dbValueChanged( const QString& out );
-    void userChange( const QString& oldValue, const QString& newValue, const QString& lastValue );    /// Signal a user attempt to change a value. Values are strings as the user sees them
+    void userChange( const QString& oldValue, const QString& newValue, const QString& lastValue );    // Signal a user attempt to change a value. Values are strings as the user sees them
     void requestResend();
 
 private:
@@ -192,9 +192,9 @@ private:
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
     void writeValue( QCaString *qca, QString newValue );
-    QString lastValue;                      /// Last updated value (may have arrived while user is editing field)
-    QString lastUserValue;                  /// Last updated value seen by the user (same as lastValue unless the user is editing the text)
-    bool writeConfirmDialogPresent;         /// True if write confirm dialog box is present. When this dialog box is present the line edit no longer have focus, but the user is still effectivly interacting with it
+    QString lastValue;                      // Last updated value (may have arrived while user is editing field)
+    QString lastUserValue;                  // Last updated value seen by the user (same as lastValue unless the user is editing the text)
+    bool writeConfirmDialogPresent;         // True if write confirm dialog box is present. When this dialog box is present the line edit no longer have focus, but the user is still effectivly interacting with it
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
@@ -209,4 +209,4 @@ protected:
     QVariant getDrop();
 };
 
-#endif /// QELINEEDIT_H
+#endif // QELINEEDIT_H

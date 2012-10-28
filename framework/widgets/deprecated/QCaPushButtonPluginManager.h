@@ -30,7 +30,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButtonPluginManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -56,4 +56,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPushButtonPluginManager : public QObject,
     bool initialized;
 };
 
-#endif /// QCAPUSHBUTTONPLUGINMANAGER_H
+#endif // QCAPUSHBUTTONPLUGINMANAGER_H

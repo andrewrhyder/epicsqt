@@ -27,7 +27,7 @@
 #include <QCaFloating.h>
 #include <QtDebug>
 
-/*!
+/*
     ???
 */
 QCaFloating::QCaFloating( QString recordName, QObject *eventObject,
@@ -41,7 +41,7 @@ QCaFloating::QCaFloating( QString recordName, QObject *eventObject,
     initialise( floatingFormattingIn, variableIndexIn );
 }
 
-/*!
+/*
     Stream the QCaObject data through this class to generate floating data updates
 */
 void QCaFloating::initialise( QCaFloatingFormatting* floatingFormattingIn,
@@ -56,7 +56,7 @@ void QCaFloating::initialise( QCaFloatingFormatting* floatingFormattingIn,
                       this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
 }
 
-/*!
+/*
     Take a new floating value and write it to the database.
     The type of data formatted (text, floating, integer, etc) will be determined by the record data type,
     How the floating is parsed will be determined by the floating formatting. For example, floating to string may require always including a sign.
@@ -65,7 +65,7 @@ void QCaFloating::writeFloating( const double &data ) {
     writeData( floatingFormat->formatValue( data, getDataType() ) );
 }
 
-/*!
+/*
     Slot to recieve data updates from the base QCaObject and generate floating updates.
 */
 void QCaFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
@@ -80,7 +80,7 @@ void QCaFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo
     }
 }
 
-/*!
+/*
     Take a basic connection change and append variableIndex
 */
 void QCaFloating::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {

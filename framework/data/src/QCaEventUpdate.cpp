@@ -35,14 +35,14 @@
 #include <CaObject.h>
 #include <QCaEventUpdate.h>
 
-//! The Qt event type for update events. This is allocated by Qt once at application startup.
+// The Qt event type for update events. This is allocated by Qt once at application startup.
 #if QT_VERSION >= 0x040400
     QEvent::Type QCaEventUpdate::EVENT_UPDATE_TYPE = (QEvent::Type)QEvent::registerEventType();
 #else
     QEvent::Type QCaEventUpdate::EVENT_UPDATE_TYPE = QEvent::User;
 #endif
 
-/*!
+/*
    Create an event holding a CA update
 */
 QCaEventUpdate::QCaEventUpdate( qcaobject::QCaObject *emitterObjectIn, // The object that emited the event
@@ -55,10 +55,10 @@ QCaEventUpdate::QCaEventUpdate( qcaobject::QCaObject *emitterObjectIn, // The ob
     // This flag can be cleared while the event is in the event queue.
     acceptThisEvent = true;
 
-    /// Set up the event mechanism
+    // Set up the event mechanism
     emitterObject = emitterObjectIn;
 
-    /// Populate the update
+    // Populate the update
     reason = newReason;
     dataPtr = newDataPtr;
 }

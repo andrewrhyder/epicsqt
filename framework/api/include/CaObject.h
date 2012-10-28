@@ -86,7 +86,7 @@ namespace caobject {
         public:
             void*        priPtr;     // Actually of type CaObjectPrivate*
         protected:
-            static int CA_UNIQUE_OBJECT_ID;            //! Unique ID assigned to each instance.
+            static int CA_UNIQUE_OBJECT_ID;            // Unique ID assigned to each instance.
 
     };
 

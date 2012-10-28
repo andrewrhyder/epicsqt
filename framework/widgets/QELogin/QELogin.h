@@ -204,6 +204,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QCaWidget
 
 
 
-#endif /// QELOGIN_H
+#endif // QELOGIN_H
 
 

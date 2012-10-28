@@ -56,7 +56,7 @@ public:
    void clear ();
    void merge (const double d);
    void merge (const TrackRange that);
-   /*! returns true if range is defined together with min and max.
+   /* returns true if range is defined together with min and max.
     */
    bool getMinMax (double & min, double& max);
 private:
@@ -66,9 +66,9 @@ private:
 };
 
 
-/// This is essentially a private classes used soley by the QEStripChart widget.
-/// We have to make is public so that it can be a pukka Q_OBJECT and as such receive
-/// signals.
+// This is essentially a private classes used soley by the QEStripChart widget.
+// We have to make is public so that it can be a pukka Q_OBJECT and as such receive
+// signals.
 //
 class QEStripChartItem : public QObject {
    Q_OBJECT

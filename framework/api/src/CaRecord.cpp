@@ -28,21 +28,21 @@ using namespace std;
 using namespace generic;
 using namespace carecord;
 
-/*!
+/*
     Starts up disconnected.
 */
 CaRecord::CaRecord() {
     reset();
 }
 
-/*!
+/*
     Cleans out object.
 */
 CaRecord::~CaRecord() {
     reset();
 }
 
-/*!
+/*
     Provides creation based on an existing CaRecord.
 */
 CaRecord::CaRecord( CaRecord &param ) : Generic() {
@@ -52,7 +52,7 @@ CaRecord::CaRecord( CaRecord &param ) : Generic() {
     processState = param.processState;
 }
 
-/*!
+/*
     Provides = operator for assignment.
 */
 CaRecord& CaRecord::operator= ( CaRecord &param ) {
@@ -64,35 +64,35 @@ CaRecord& CaRecord::operator= ( CaRecord &param ) {
     return *this;
 }
 
-/*!
+/*
     Set the Record name.
 */
 void CaRecord::setName( string newName ) {
     name = newName;
 }
 
-/*!
+/*
     Set the translated database type for this record.
 */
 void CaRecord::setDbrType( short newDbrType ) {
     dbrType = newDbrType;
 }
 
-/*!
+/*
     Set database record structure type.
 */
 void CaRecord::setDbrTranslation( dbr_translation_type newType ) {
     dbrStruct = newType;
 }
 
-/*!
+/*
     Set record to be in a valid or invalid state.
 */
 void CaRecord::setValid( bool newValid ) {
     valid = newValid;
 }
 
-/*!
+/*
     Flag record as processed first time.
 */
 void CaRecord::updateProcessState() {
@@ -109,21 +109,21 @@ void CaRecord::updateProcessState() {
     }
 }
 
-/*!
+/*
     Set the connection link status for the record.
 */
 void CaRecord::setStatus( short newStatus ) {
     status = newStatus;
 }
 
-/*!
+/*
     Set the alarm severity for the record.
 */
 void CaRecord::setAlarmSeverity( short newSeverity ) {
     alarmSeverity = newSeverity;
 }
 
-/*!
+/*
     Set the precision for the record.
     The test is for protection against EPICS library. The library returns the
     precision the first time around then 0 for every other callback. (note, it's not always in the first callback)
@@ -133,7 +133,7 @@ void CaRecord::setPrecision( short newPrecision ) {
         precision = newPrecision;
 }
 
-/*!
+/*
     Set the units for the record.
     The test is for protection against EPICS library. The library returns the
     units the first time around then "" for every other callback.
@@ -143,7 +143,7 @@ void CaRecord::setUnits( string newUnits ) {
         units = newUnits;
 }
 
-/*!
+/*
     Set the timestamp for the record.
 */
 void CaRecord::setTimeStamp(  unsigned long timeStampSecondsIn, unsigned long timeStampNanosecondsIn ) {
@@ -151,21 +151,21 @@ void CaRecord::setTimeStamp(  unsigned long timeStampSecondsIn, unsigned long ti
     timeStampNanoseconds = timeStampNanosecondsIn;
 }
 
-/*!
+/*
     Set the RISC alignment for the record.
 */
 void CaRecord::setRiscAlignment( double newRiscAlignment ) {
     riscAlignment = newRiscAlignment;
 }
 
-/*!
+/*
     Set the enumeration string states for the record.
 */
 void CaRecord::addEnumState( string newEnumState ) {
     enumStates.push_back( newEnumState );
 }
 
-/*!
+/*
     Set the display limits for the record.
 */
 void CaRecord::setDisplayLimit( double newUpper, double newLower ) {
@@ -173,7 +173,7 @@ void CaRecord::setDisplayLimit( double newUpper, double newLower ) {
     display.lower = newLower;
 }
 
-/*!
+/*
     Set the alarm limits for the record.
 */
 void CaRecord::setAlarmLimit( double newUpper, double newLower ) {
@@ -181,7 +181,7 @@ void CaRecord::setAlarmLimit( double newUpper, double newLower ) {
     alarm.lower = newLower;
 }
 
-/*!
+/*
     Set the warning limits for the record.
 */
 void CaRecord::setWarningLimit( double newUpper, double newLower ) {
@@ -189,7 +189,7 @@ void CaRecord::setWarningLimit( double newUpper, double newLower ) {
     warning.lower = newLower;
 }
 
-/*!
+/*
     Set the control limits for the record.
 */
 void CaRecord::setControlLimit( double newUpper, double newLower ) {
@@ -197,7 +197,7 @@ void CaRecord::setControlLimit( double newUpper, double newLower ) {
     control.lower = newLower;
 }
 
-/*!
+/*
     .
 */
 bool CaRecord::isFirstUpdate() {
@@ -208,7 +208,7 @@ bool CaRecord::isFirstUpdate() {
     }
 }
 
-/*!
+/*
     Gets the database structure type based on the information mode of the
     CaRecord.
 */
@@ -233,7 +233,7 @@ short CaRecord::getDbrType() {
     return -1;
 }
 
-/*!
+/*
     Get the matrix translated database structure type for the record.
 */
 short CaRecord::getDbrTranslation( const short translationMatrix[TYPE_COUNT][2], short type ) {
@@ -245,7 +245,7 @@ short CaRecord::getDbrTranslation( const short translationMatrix[TYPE_COUNT][2],
     return -1;
 }
 
-/*!
+/*
     Reset configurational data
 */
 void CaRecord::reset() {

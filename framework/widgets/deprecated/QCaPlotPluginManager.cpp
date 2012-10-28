@@ -28,14 +28,14 @@
 #include <QCaPlotPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaPlotPluginManager::QCaPlotPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaPlotPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -45,63 +45,63 @@ void QCaPlotPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaPlotPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaPlot widget.
 */
 QWidget *QCaPlotPluginManager::createWidget ( QWidget *parent ) {
     return new QCaPlotPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaPlotPluginManager::name() const {
     return "QCaPlotPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaPlotPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaPlotPluginManager::icon() const {
     return QIcon(":/qe/plot/QEPlot.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaPlotPluginManager::toolTip() const {
     return "Deprecated EPICS Plot";
 }
 
-/*!
+/*
     ???
 */
 QString QCaPlotPluginManager::whatsThis() const {
     return "Deprecated EPICS Plot";
 }
 
-/*!
+/*
     ???
 */
 bool QCaPlotPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaPlotPluginManager::domXml() const {
@@ -124,7 +124,7 @@ bool QCaPlotPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaPlotPluginManager::includeFile() const {

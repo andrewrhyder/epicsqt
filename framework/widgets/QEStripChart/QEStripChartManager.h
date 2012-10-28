@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QEStripChartManager :
@@ -57,4 +57,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEStripChartManager :
     bool initialized;
 };
 
-#endif                          /// QESTRIPCHARTMANAGER_H
+#endif                          // QESTRIPCHARTMANAGER_H

@@ -53,4 +53,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLineEditPluginManager : public QObject, p
     bool initialized;
 };
 
-#endif /// QCALINEEDITPLUGINMANAGER_H
+#endif // QCALINEEDITPLUGINMANAGER_H

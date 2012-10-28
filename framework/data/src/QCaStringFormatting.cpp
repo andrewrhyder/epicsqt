@@ -26,7 +26,7 @@
 #include <QtDebug>
 #include <QCaStringFormatting.h>
 
-/*!
+/*
     Construction
 */
 QCaStringFormatting::QCaStringFormatting() {
@@ -50,7 +50,7 @@ QCaStringFormatting::QCaStringFormatting() {
     dbVariableIsStatField = false;
 }
 
-/*!
+/*
     Set up the precision specified by the database.
     This precision is used when formatting floating point numbers if 'useDbPrecision' is set
 */
@@ -59,7 +59,7 @@ void QCaStringFormatting::setDbPrecision( unsigned int dbPrecisionIn )
     dbPrecision = dbPrecisionIn;
 }
 
-/*!
+/*
     Set up the engineering units that will be added to or removed from strings if 'addUnits' flag is set
 */
 void QCaStringFormatting::setDbEgu( QString egu )
@@ -67,7 +67,7 @@ void QCaStringFormatting::setDbEgu( QString egu )
     dbEgu = egu;
 }
 
-/*!
+/*
     Set up the enumeration values. Thses are used if avaiable if the formatting is FORMAT_DEFAULT
 */
 void QCaStringFormatting::setDbEnumerations( QStringList enumerations )
@@ -75,7 +75,7 @@ void QCaStringFormatting::setDbEnumerations( QStringList enumerations )
     dbEnumerations = enumerations;
 }
 
-/*!
+/*
     Set up a flag indicating the variable represents a STAT field.
     This is required as formatting enumerated strings for the STAT field is a special case.
 */
@@ -85,7 +85,7 @@ void QCaStringFormatting::setDbVariableIsStatField( bool isStatField )
 }
 
 
-/*!
+/*
     Generate a value given a string, using formatting defined within this
     class.
 */
@@ -105,13 +105,13 @@ QVariant QCaStringFormatting::formatValue( const QString &text ) {
     //??? negative, text, etc.
     //??? then convert to the record type and return
 
-    /// ??? Temporarily use the variants text convertion.
+    // ??? Temporarily use the variants text convertion.
     QVariant value( unitlessText );
 
     return value;
 }
 
-/*!
+/*
     Generate a string given a value, using formatting defined within this class.
 */
 QString QCaStringFormatting::formatString( const QVariant &value ) {
@@ -342,7 +342,7 @@ QString QCaStringFormatting::formatString( const QVariant &value ) {
     return outStr;
 }
 
-/*!
+/*
     Format a variant value as a string representation of a floating point
     number.
     First convert the variant value to a double. It may or may not be a
@@ -390,7 +390,7 @@ void QCaStringFormatting::formatFromFloating( const QVariant &value ) {
     }
 }
 
-/*!
+/*
     Format a variant value as a string representation of a signed integer.
     This method was written to convert a QVariant of type LongLong, but should cope with a variant of any type.
     First convert the variant value to a long. It may or may not be a longlong type variant. If it is - good,
@@ -420,7 +420,7 @@ void QCaStringFormatting::formatFromInteger( const QVariant &value ) {
     stream << lValue;
 }
 
-/*!
+/*
     Format a variant value as a string representation of an unsigned integer.
     This method was written to convert a QVariant of type ULongLong, but should cope with a variant of any type.
     First convert the variant value to an unsigned long. It may or may not be a ulonglong type variant. If it is - good,
@@ -450,7 +450,7 @@ void QCaStringFormatting::formatFromUnsignedInteger( const QVariant &value ) {
     stream << ulValue;
 }
 
-/*!
+/*
     Format a variant value using local enumeration list.
     If the value is numeric, then the value is compared to the numeric interpretation of the enumeration values,
     if the value is textual, then the value is compared to the textual enumeration values.
@@ -540,7 +540,7 @@ void QCaStringFormatting::formatFromEnumeration( const QVariant &value ) {
     }
 }
 
-/*!
+/*
     Format a variant value as a string representation of time.
     This method was written to convert a QVariant of type ??? (the type used to represent times in CA),
     but should cope with a variant of any type.
@@ -605,7 +605,7 @@ void QCaStringFormatting::formatFromTime( const QVariant &value ) {
     }
 }
 
-/*!
+/*
     Do something with the fact that the value could not be formatted as
     requested.
 */
@@ -621,7 +621,7 @@ void QCaStringFormatting::formatFailure( QString message ) {
 //========================================================================================
 // 'Set' formatting configuration methods
 
-/*!
+/*
     Set the precision - the number of significant digits displayed when
     formatting a floating point number.
     Relevent when formatting the string as a floating point number.
@@ -635,7 +635,7 @@ void QCaStringFormatting::setPrecision( int precisionIn ) {
     if (precision > 18) precision = 18;
 }
 
-/*!
+/*
     Set or clear a flag to ignore the precision held by this class and use the
     precision read from the database record.
     The precision is the number of significant digits displayed when formatting
@@ -646,7 +646,7 @@ void QCaStringFormatting::setUseDbPrecision( bool useDbPrecisionIn ) {
     useDbPrecision = useDbPrecisionIn;
 }
 
-/*!
+/*
     Set or clear a flag to display a leading zero before a decimal point for
     floating point numbers between 1 and -1
     Relevent when formatting the string as a floating point number.
@@ -655,7 +655,7 @@ void QCaStringFormatting::setLeadingZero( bool leadingZeroIn ) {
     leadingZero = leadingZeroIn;
 }
 
-/*!
+/*
     Set or clear a flag to display trailing zeros at the end up the precision for
     floating point
     Relevent when formatting the string as a floating point number.
@@ -664,7 +664,7 @@ void QCaStringFormatting::setTrailingZeros( bool trailingZerosIn ) {
     trailingZeros = trailingZerosIn;
 }
 
-/*!
+/*
     Set the type of information being displayed (floating point number,
     date/time, etc).
 */
@@ -672,7 +672,7 @@ void QCaStringFormatting::setFormat( formats formatIn ) {
     format = formatIn;
 }
 
-/*!
+/*
     Set the numer system base.
     Relevent when formatting the string as an interger of floating point
     number.
@@ -687,7 +687,7 @@ void QCaStringFormatting::setRadix( unsigned int radix ) {
         stream.setIntegerBase( radix );
 }
 
-/*!
+/*
     Set the notation (floating, scientific, or automatic)
     Note, the notation enumerations match the QTextStream RealNumberNotation values
 */
@@ -695,28 +695,28 @@ void QCaStringFormatting::setNotation( notations notation ) {
     stream.setRealNumberNotation( (QTextStream::RealNumberNotation)notation );
 }
 
-/*!
+/*
     Set how arrays are converted to text (Treates as an array of ascii characters, an array of values, etc)
 */
 void QCaStringFormatting::setArrayAction( arrayActions arrayActionIn ) {
     arrayAction = arrayActionIn;
 }
 
-/*!
+/*
     Set which value from an array is formatted (not relevent when the array is processed as ascii)
 */
 void QCaStringFormatting::setArrayIndex( unsigned int arrayIndexIn ) {
     arrayIndex = arrayIndexIn;
 }
 
-/*!
+/*
     Set or clear a flag to include the engineering units in a string
 */
 void QCaStringFormatting::setAddUnits( bool AddUnitsIn ) {
     addUnits = AddUnitsIn;
 }
 
-/*!
+/*
     Set the string used to specify local enumeration.
     This is used when a value is to be enumerated and the value is either not the VAL field,
     or the database does not provide any enumeration, or the database enumeration is not appropriate
@@ -1195,14 +1195,14 @@ void QCaStringFormatting::setLocalEnumeration( QString/*localEnumerationList*/ l
 //========================================================================================
 // 'Get' formatting configuration methods
 
-/*!
+/*
     Get the precision. See setPrecision() for the use of 'precision'.
 */
 int QCaStringFormatting::getPrecision() {
     return precision;
 }
 
-/*!
+/*
     Get the 'use DB precision' flag. See setUseDbPrecision() for the use of the
     'use DB precision' flag.
 */
@@ -1210,7 +1210,7 @@ bool QCaStringFormatting::getUseDbPrecision() {
     return useDbPrecision;
 }
 
-/*!
+/*
     Get the 'leading zero' flag. See setLeadingZero() for the use of the
     'leading zero' flag.
 */
@@ -1218,7 +1218,7 @@ bool QCaStringFormatting::getLeadingZero() {
     return leadingZero;
 }
 
-/*!
+/*
     Get the 'trailing zeros' flag. See setTrailingZeros() for the use of the
     'trailing zeros' flag.
 */
@@ -1226,7 +1226,7 @@ bool QCaStringFormatting::getTrailingZeros() {
     return trailingZeros;
 }
 
-/*!
+/*
     Get the type of information being formatted. See setFormat() for the use of
     the format type.
 */
@@ -1234,42 +1234,42 @@ QCaStringFormatting::formats QCaStringFormatting::getFormat() {
     return format;
 }
 
-/*!
+/*
     Get the numerical base. See setRadix() for the use of 'radix'.
 */
 unsigned int QCaStringFormatting::getRadix() {
     return stream.integerBase();
 }
 
-/*!
+/*
     Return the floating point notation
 */
 QCaStringFormatting::notations QCaStringFormatting::getNotation() {
     return (QCaStringFormatting::notations)stream.realNumberNotation();
 }
 
-/*!
+/*
     Return the action to take when formatting an array (treat as ascii characters, a series of numbers, etc)
 */
 QCaStringFormatting::arrayActions QCaStringFormatting::getArrayAction() {
     return arrayAction;
 }
 
-/*!
+/*
     Return the index to select a value from array of values (not relevent when the array is treated as ascii)
 */
 unsigned int QCaStringFormatting::getArrayIndex() {
     return arrayIndex;
 }
 
-/*!
+/*
     Get the 'include engineering units' flag.
 */
 bool QCaStringFormatting::getAddUnits() {
     return addUnits;
 }
 
-/*!
+/*
     Get the local enumeration strings. See setLocalEnumeration() for the use of 'localEnumeration'.
 */
 QString/*localEnumerationList*/ QCaStringFormatting::getLocalEnumeration() {

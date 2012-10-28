@@ -46,7 +46,7 @@ private slots:
     void userPressed() { QEGenericButton::userPressed(); }
     void userReleased() { QEGenericButton::userReleased(); }
     void userClicked( bool checked ) { QEGenericButton::userClicked( checked ); }
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
@@ -54,7 +54,7 @@ private slots:
 
 public slots:
     void launchGui( QString guiName, QEForm::creationOptions creationOption ){ QEGenericButton::launchGui( guiName, creationOption); }
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
     void onGeneralMessage( QString message ){ QEGenericButton::onGeneralMessage( message ); }
 
 
@@ -168,7 +168,7 @@ public:
     void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QERadioButton::updateOptions)updateOption ); }
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 
-    /// Pixmaps
+    // Pixmaps
     Q_PROPERTY(QPixmap pixmap0 READ getPixmap0Property WRITE setPixmap0Property)
     Q_PROPERTY(QPixmap pixmap1 READ getPixmap1Property WRITE setPixmap1Property)
     Q_PROPERTY(QPixmap pixmap2 READ getPixmap2Property WRITE setPixmap2Property)
@@ -196,7 +196,7 @@ public:
     QPixmap getPixmap6Property(){ return getDataPixmap( 6 ); }
     QPixmap getPixmap7Property(){ return getDataPixmap( 7 ); }
 
-    /// String formatting properties
+    // String formatting properties
     Q_PROPERTY(unsigned int precision READ getPrecision WRITE setPrecision)
     Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
     Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)

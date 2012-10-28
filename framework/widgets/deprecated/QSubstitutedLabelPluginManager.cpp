@@ -26,14 +26,14 @@
 #include <QSubstitutedLabelPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QSubstitutedLabelPluginManager::QSubstitutedLabelPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QSubstitutedLabelPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QSubstitutedLabelPluginManager::initialize( QDesignerFormEditorInterface * 
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QSubstitutedLabelPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QSubstitutedLabel widget.
 */
 QWidget *QSubstitutedLabelPluginManager::createWidget ( QWidget *parent ) {
     return new QSubstitutedLabelPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QSubstitutedLabelPluginManager::name() const {
     return "QSubstitutedLabelPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QSubstitutedLabelPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QSubstitutedLabelPluginManager::icon() const {
     return QIcon(":/qe/substitutedlabel/QESubstitutedLabel.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QSubstitutedLabelPluginManager::toolTip() const {
     return "Deprecated EPICS Substituted Label";
 }
 
-/*!
+/*
     ???
 */
 QString QSubstitutedLabelPluginManager::whatsThis() const {
     return "Deprecated EPICS Substituted Label";
 }
 
-/*!
+/*
     ???
 */
 bool QSubstitutedLabelPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QSubstitutedLabelPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QSubstitutedLabelPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QSubstitutedLabelPluginManager::includeFile() const {

@@ -30,7 +30,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QEPlotManager : public QObject, public QDesignerCustomWidgetInterface {

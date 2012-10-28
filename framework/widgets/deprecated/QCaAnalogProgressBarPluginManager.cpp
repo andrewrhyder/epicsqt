@@ -26,14 +26,14 @@
 #include <QCaAnalogProgressBar.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaAnalogProgressBarPluginManager::QCaAnalogProgressBarPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaAnalogProgressBarPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QCaAnalogProgressBarPluginManager::initialize( QDesignerFormEditorInterface
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaAnalogProgressBarPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaAnalogProgressBar widget.
 */
 QWidget *QCaAnalogProgressBarPluginManager::createWidget ( QWidget *parent ) {
     return new QCaAnalogProgressBar( parent );
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaAnalogProgressBarPluginManager::name() const {
     return "QCaAnalogProgressBar";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaAnalogProgressBarPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaAnalogProgressBarPluginManager::icon() const {
     return QIcon(":/qe/analogprogressbar/icon.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaAnalogProgressBarPluginManager::toolTip() const {
     return "Deprecated EPICS Analog ProgressBar";
 }
 
-/*!
+/*
     ???
 */
 QString QCaAnalogProgressBarPluginManager::whatsThis() const {
     return "Deprecated EPICS Analog ProgressBar";
 }
 
-/*!
+/*
     ???
 */
 bool QCaAnalogProgressBarPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaAnalogProgressBarPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QCaAnalogProgressBarPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaAnalogProgressBarPluginManager::includeFile() const {

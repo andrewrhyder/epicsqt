@@ -23,7 +23,7 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware analog progress bar widget based on the analog progress bar widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
@@ -39,7 +39,7 @@
 #define NO_ALARM_SATURATION    32
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Constructor with no initialisation
 */
 QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) :
@@ -49,7 +49,7 @@ QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) :
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Constructor with known variable
 */
 QEAnalogProgressBar::QEAnalogProgressBar( const QString &variableNameIn,
@@ -62,7 +62,7 @@ QEAnalogProgressBar::QEAnalogProgressBar( const QString &variableNameIn,
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Setup common to all constructors
 */
 void QEAnalogProgressBar::setup() {
@@ -98,7 +98,7 @@ void QEAnalogProgressBar::setup() {
 
 }
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a progress bar a QCaObject that streams integers is required.
 */
@@ -116,7 +116,7 @@ qcaobject::QCaObject* QEAnalogProgressBar::createQcaItem( unsigned int variableI
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a
     connection to a PV as the variable name has changed.
@@ -142,7 +142,7 @@ void QEAnalogProgressBar::establishConnection( unsigned int variableIndex )
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Update the tool tip as requested by QCaToolTip.
 */
 void QEAnalogProgressBar::updateToolTip( const QString& tip )
@@ -151,14 +151,14 @@ void QEAnalogProgressBar::updateToolTip( const QString& tip )
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Act on a connection change.
     Change how the progress bar looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    /// If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -169,7 +169,7 @@ void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
         isFirstUpdate = true;
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -179,7 +179,7 @@ void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Provide image, e.g. with EGU if appropriate
  */
 QString QEAnalogProgressBar::getTextImage ()
@@ -188,7 +188,7 @@ QString QEAnalogProgressBar::getTextImage ()
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Create a single thresholds and colour band item.
  */
 QEAnalogIndicator::Band QEAnalogProgressBar::createBand (const double lower,
@@ -208,7 +208,7 @@ QEAnalogIndicator::Band QEAnalogProgressBar::createBand (const double lower,
    return result;
 }
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Create a list of alarm thresholds and colours.
  */
 QEAnalogIndicator::BandList QEAnalogProgressBar::getBandList ()
@@ -273,7 +273,7 @@ QEAnalogIndicator::BandList QEAnalogProgressBar::getBandList ()
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Update the progress bar value
     This is the slot used to recieve data updates from a QCaObject based class.
  */
@@ -322,11 +322,11 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
        }
     }
 
-    /// Form and save the image - mut do before call to setValue.
+    // Form and save the image - mut do before call to setValue.
     //
     this->theImage = this->stringFormatting.formatString( value );
 
-    /// Update the progress bar
+    // Update the progress bar
     //
     this->setValue( value );
 
@@ -349,7 +349,7 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
           break;
     }
 
-    /// If in alarm, display as an alarm
+    // If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
     {
         updateToolTipAlarm( alarmInfo.severityName() );
@@ -357,15 +357,15 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
         lastSeverity = alarmInfo.getSeverity();
     }
 
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     emit dbValueChanged( value );
 
-    /// This update is over, clear first update flag.
+    // This update is over, clear first update flag.
     isFirstUpdate = false;
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Update variable name etc.
  */
 void QEAnalogProgressBar::useNewVariableNameProperty( QString variableNameIn,
@@ -413,7 +413,7 @@ void QEAnalogProgressBar::setVariableNameAndSubstitutions( QString variableNameI
 {
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
 
-    /// TODO a WTF comment
+    // TODO a WTF comment
     setVariableName( variableNameIn, variableIndex );
     establishConnection( variableIndex );
 

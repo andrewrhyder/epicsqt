@@ -34,7 +34,7 @@
 #include <QCaByteArray.h>
 #include <QtDebug>
 
-/*!
+/*
     ???
 */
 QCaByteArray::QCaByteArray( QString recordName, QObject *eventObject,
@@ -46,7 +46,7 @@ QCaByteArray::QCaByteArray( QString recordName, QObject *eventObject,
     initialise( variableIndexIn );
 }
 
-/*!
+/*
     Stream the QCaObject data through this class to generate byte array data updates
 */
 void QCaByteArray::initialise( unsigned int variableIndexIn ) {
@@ -59,21 +59,21 @@ void QCaByteArray::initialise( unsigned int variableIndexIn ) {
                       this, SLOT( forwardDataChanged( const QByteArray&, unsigned long, QCaAlarmInfo&, QCaDateTime& ) ) );
 }
 
-/*!
+/*
     Take a new byte array value and write it to the database.
 */
 void QCaByteArray::writeByteArray( const QByteArray &data ) {
     writeData( QVariant( data ));
 }
 
-/*!
+/*
     Slot to recieve data updates from the base QCaObject and generate byte array updates.
 */
 void QCaByteArray::forwardDataChanged( const QByteArray &value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
     emit byteArrayChanged( value, dataSize, alarmInfo, timeStamp, variableIndex );
 }
 
-/*!
+/*
     Take a basic connection change and append variableIndex
 */
 void QCaByteArray::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {

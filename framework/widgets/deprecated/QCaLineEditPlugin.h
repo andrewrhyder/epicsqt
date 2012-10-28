@@ -27,7 +27,7 @@
 
 #include <QELineEdit.h>
 
-/// QCaLineEditPlugin IS deprecated - use QELineEdit.
+// QCaLineEditPlugin IS deprecated - use QELineEdit.
 //
 class QCaLineEditPlugin : public QELineEdit {
     Q_OBJECT
@@ -67,4 +67,4 @@ public:
 
 };
 
-#endif /// QCALINEEDITPLUGIN_H
+#endif // QCALINEEDITPLUGIN_H

@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QEImageManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImageManager : public QObject, public QDes
     bool initialized;
 };
 
-#endif /// QEIMAGEMANAGER_H
+#endif // QEIMAGEMANAGER_H

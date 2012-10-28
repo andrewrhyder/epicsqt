@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodicPluginManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPeriodicPluginManager : public QObject, p
     bool initialized;
 };
 
-#endif /// QCAPERIODICPLUGINMANAGER_H
+#endif // QCAPERIODICPLUGINMANAGER_H

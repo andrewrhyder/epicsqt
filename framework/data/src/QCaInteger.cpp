@@ -27,7 +27,7 @@
 #include <QCaInteger.h>
 #include <QtDebug>
 
-/*!
+/*
     ???
 */
 QCaInteger::QCaInteger( QString recordName, QObject *eventObject,
@@ -41,7 +41,7 @@ QCaInteger::QCaInteger( QString recordName, QObject *eventObject,
     initialise( integerFormattingIn, variableIndexIn );
 }
 
-/*!
+/*
     Stream the QCaObject data through this class to generate integer data updates
 */
 void QCaInteger::initialise( QCaIntegerFormatting* integerFormattingIn,
@@ -56,7 +56,7 @@ void QCaInteger::initialise( QCaIntegerFormatting* integerFormattingIn,
                       this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
 }
 
-/*!
+/*
     Take a new integer value and write it to the database.
     The type of data formatted (text, floating, integer, etc) will be determined by the record data type,
     How the integer is parsed will be determined by the integer formatting. For example, integer to string may require always including a sign.
@@ -65,7 +65,7 @@ void QCaInteger::writeInteger( const long &data ) {
     writeData( integerFormat->formatValue( data, getDataType() ) );
 }
 
-/*!
+/*
     Slot to recieve data updates from the base QCaObject and generate integer updates.
 */
 void QCaInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
@@ -79,7 +79,7 @@ void QCaInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo,
     }
 }
 
-/*!
+/*
     Take a basic connection change and append variableIndex
 */
 void QCaInteger::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {

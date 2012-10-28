@@ -27,14 +27,14 @@
 #include <QELineEdit.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QELineEditManager::QELineEditManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QELineEditManager::initialize( QDesignerFormEditorInterface * ) {
@@ -44,63 +44,63 @@ void QELineEditManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QELineEditManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QELineEditPlugin widget.
 */
 QWidget *QELineEditManager::createWidget ( QWidget *parent ) {
     return new QELineEdit( parent );
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QELineEditManager::name() const {
     return "QELineEdit";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QELineEditManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QELineEditManager::icon() const {
     return QIcon(":/qe/lineedit/QELineEdit.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QELineEditManager::toolTip() const {
     return "EPICS Line Edit";
 }
 
-/*!
+/*
     ???
 */
 QString QELineEditManager::whatsThis() const {
     return "EPICS Line Edit";
 }
 
-/*!
+/*
     ???
 */
 bool QELineEditManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QELineEditManager::domXml() const {
@@ -123,7 +123,7 @@ bool QELineEditManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QELineEditManager::includeFile() const {

@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabelManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabelManager : public QObject, 
     bool initialized;
 };
 
-#endif /// QESUBSTITUTEDLABELMANAGER_H
+#endif // QESUBSTITUTEDLABELMANAGER_H

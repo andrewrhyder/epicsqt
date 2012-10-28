@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class manages markups over an image, such as region of interest, line, graticule, etc, and user interaction with same.
 
 */
@@ -715,7 +715,7 @@ void markupRegion::moveTo( QPoint pos )
 }
 
 // Return the cursor for each handle
-//!!! MOVE INTO MARKUP ITEM, EXTEND FOR ALL HANDLES, AND USE FOR ALL MARKUP ITEMS???
+// !!! MOVE INTO MARKUP ITEM, EXTEND FOR ALL HANDLES, AND USE FOR ALL MARKUP ITEMS???
 QCursor markupRegion::cursorForHandle( markupHandles handle )
 {
     switch( handle )
@@ -1207,10 +1207,10 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
         return;
 
     // Area to update
-    //!!! This is currently just one rectangle that encloses the erased and redrawn object.
-    //!!! It could (should?) be a region that includes a single rect for mostly hoz and vert lines,
-    //!!! four rects for the four sides of an area, and a number of rectangles that efficiently
-    //!!! allows redrawing of diagonal lines
+    // !!! This is currently just one rectangle that encloses the erased and redrawn object.
+    // !!! It could (should?) be a region that includes a single rect for mostly hoz and vert lines,
+    // !!! four rects for the four sides of an area, and a number of rectangles that efficiently
+    // !!! allows redrawing of diagonal lines
     QVector<QRect> changedAreas;
 
     // Erase if visible, move, then redraw the item
@@ -1223,7 +1223,7 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
     items[activeItem]->drawMarkupIn();
 
     // Extend the changed area to include the item's new area and notify markups require redrawing
-    //!!! if the two areas overlap by much, perhaps smarter to join the two into one, or generate the required four?
+    // !!! if the two areas overlap by much, perhaps smarter to join the two into one, or generate the required four?
     changedAreas.append( items[activeItem]->area );
     markupChange( *markupImage, changedAreas );
 }

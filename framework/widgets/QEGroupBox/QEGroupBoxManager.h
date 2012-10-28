@@ -29,7 +29,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     Plugin manager for QEGroupBox widget
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QEGroupBoxManager : 
@@ -58,4 +58,4 @@ private:
     bool initialized;
 };
 
-#endif                          /// QEGROUPBOXMANAGER_H
+#endif                          // QEGROUPBOXMANAGER_H

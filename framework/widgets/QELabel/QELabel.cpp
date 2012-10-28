@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware label widget based on the Qt label widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
 #include <QELabel.h>
 
-/*!
+/*
     Constructor with no initialisation
 */
 QELabel::QELabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
     setup();
 }
 
-/*!
+/*
     Constructor with known variable
 */
 QELabel::QELabel( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget( this )  {
@@ -44,7 +44,7 @@ QELabel::QELabel( const QString &variableNameIn, QWidget *parent ) : QLabel( par
     setVariableName( variableNameIn, 0 );
 }
 
-/*!
+/*
     Setup common to all constructors
 */
 void QELabel::setup() {
@@ -76,7 +76,7 @@ void QELabel::setup() {
 
 }
 
-/*!
+/*
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a label a QCaObject that streams strings is required.
 */
@@ -85,7 +85,7 @@ qcaobject::QCaObject* QELabel::createQcaItem( unsigned int variableIndex ) {
    return new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 }
 
-/*!
+/*
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
@@ -108,7 +108,7 @@ void QELabel::establishConnection( unsigned int variableIndex ) {
 }
 
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QELabel::updateToolTip( const QString& tip )
@@ -116,14 +116,14 @@ void QELabel::updateToolTip( const QString& tip )
     setToolTip( tip );
 }
 
-/*!
+/*
     Act on a connection change.
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QELabel::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    /// If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -132,7 +132,7 @@ void QELabel::connectionChanged( QCaConnectionInfo& connectionInfo )
         setDataDisabled( false );
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -142,7 +142,7 @@ void QELabel::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*!
+/*
     Update the label text
     This is the slot used to recieve data updates from a QCaObject based class.
  */
@@ -177,23 +177,23 @@ void QELabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaD
         lastTextStyle = textStyle;
     }
 
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     emit dbValueChanged( currentText );
 
     switch( updateOption )
     {
-        /// Update the text if required
+        // Update the text if required
         case UPDATE_TEXT:
             setText( currentText );
             break;
 
-        /// Update the pixmap if required
+        // Update the pixmap if required
         case UPDATE_PIXMAP:
             setPixmap( getDataPixmap( currentText ).scaled( size() ) );
             break;
     }
 
-    /// If in alarm, display as an alarm
+    // If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
     {
         updateToolTipAlarm( alarmInfo.severityName() );

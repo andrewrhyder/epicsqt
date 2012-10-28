@@ -26,14 +26,14 @@
 #include <QEAnalogProgressBar.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEAnalogProgressBarManager::QEAnalogProgressBarManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEAnalogProgressBarManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QEAnalogProgressBarManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEAnalogProgressBarManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaAnalogProgressBar widget.
 */
 QWidget *QEAnalogProgressBarManager::createWidget ( QWidget *parent ) {
     return new QEAnalogProgressBar( parent );
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEAnalogProgressBarManager::name() const {
     return "QEAnalogProgressBar";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEAnalogProgressBarManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEAnalogProgressBarManager::icon() const {
     return QIcon(":/qe/analogprogressbar/icon.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEAnalogProgressBarManager::toolTip() const {
     return "EPICS Analog ProgressBar";
 }
 
-/*!
+/*
     ???
 */
 QString QEAnalogProgressBarManager::whatsThis() const {
     return "EPICS Analog ProgressBar";
 }
 
-/*!
+/*
     ???
 */
 bool QEAnalogProgressBarManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEAnalogProgressBarManager::domXml() const {
@@ -122,7 +122,7 @@ bool QEAnalogProgressBarManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEAnalogProgressBarManager::includeFile() const {

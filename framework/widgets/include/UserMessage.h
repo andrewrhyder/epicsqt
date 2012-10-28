@@ -88,7 +88,7 @@ private:
     UserMessage* owner;                                         // UserMessage class that this instance is a part of
 };
 
-//!!! No need to export this once it is within the QCaWidget core class???
+// !!! No need to export this once it is within the QCaWidget core class???
 class QCAPLUGINLIBRARYSHARED_EXPORT UserMessage
 {
 public:

@@ -27,7 +27,7 @@
 
 #include <QEShape.h>
 
-/// QCaShapePlugin IS deprecated - use QEShape.
+// QCaShapePlugin IS deprecated - use QEShape.
 class QCaShapePlugin : public QEShape {
     Q_OBJECT
 

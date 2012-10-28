@@ -26,14 +26,14 @@
 #include <QCaLineEditPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaLineEditPluginManager::QCaLineEditPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaLineEditPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QCaLineEditPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaLineEditPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaLineEditPlugin widget.
 */
 QWidget *QCaLineEditPluginManager::createWidget ( QWidget *parent ) {
     return new QCaLineEditPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaLineEditPluginManager::name() const {
     return "QCaLineEditPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaLineEditPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaLineEditPluginManager::icon() const {
     return QIcon(":/qe/lineedit/QELineEdit.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaLineEditPluginManager::toolTip() const {
     return "Deprecated EPICS Line Edit";
 }
 
-/*!
+/*
     ???
 */
 QString QCaLineEditPluginManager::whatsThis() const {
     return "Deprecated EPICS Line Edit";
 }
 
-/*!
+/*
     ???
 */
 bool QCaLineEditPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaLineEditPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QCaLineEditPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaLineEditPluginManager::includeFile() const {

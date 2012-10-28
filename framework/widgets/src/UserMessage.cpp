@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/** Description:
+/* Description:
  *
  * A class to manage user messages.
  *
@@ -76,7 +76,7 @@ UserMessageSignal UserMessage::userMessageSignal;
 unsigned int UserMessage::nextMessageFormId = 1;
 
 
-/// Construction
+// Construction
 UserMessage::UserMessage()
 {
     // Initialise
@@ -99,7 +99,7 @@ UserMessage::UserMessage()
                       &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );
 }
 
-/// Destruction
+// Destruction
 UserMessage::~UserMessage()
 {
 }

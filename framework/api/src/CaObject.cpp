@@ -45,12 +45,12 @@ static CaRef* carefListTail = NULL;
 // Initialisation and deletion
 //===============================================================================
 
-/*!
+/*
     Initialise the unique ID.
 */
 int CaObject::CA_UNIQUE_OBJECT_ID = 0;
 
-/*!
+/*
     Initialisation
 */
 CaObject::CaObject() {
@@ -65,7 +65,7 @@ CaObject::CaObject() {
     initialise();
 }
 
-/*!
+/*
     Shutdown
 */
 CaObject::~CaObject() {
@@ -81,7 +81,7 @@ CaObject::~CaObject() {
     delete p;
 }
 
-/*!
+/*
     Initialise the EPICS library by creating or attaching to a context.
 */
 void CaObject::initialise() {
@@ -98,7 +98,7 @@ void CaObject::initialise() {
     p->caRecord.setValid( false );
 }
 
-/*!
+/*
     Shutdown the EPICS library.
 */
 void CaObject::shutdown() {
@@ -118,7 +118,7 @@ void CaObject::shutdown() {
 // Manage connections
 //===============================================================================
 
-/*!
+/*
     Establishes client side channel setup.
 */
 caconnection::ca_responses CaObjectPrivate::setChannel( std::string channelName ) {
@@ -133,7 +133,7 @@ caconnection::ca_responses CaObjectPrivate::setChannel( std::string channelName 
     return ret;
 }
 
-/*!
+/*
     Begins a callback subscription with the established client side channel
     setup.
 */
@@ -144,7 +144,7 @@ caconnection::ca_responses CaObjectPrivate::startSubscription() {
     return caConnection->establishSubscription( subscriptionHandler, owner->myRef, caRecord.getDbrType() );
 }
 
-/*!
+/*
     Removes any client side channel setup and accociated subscriptions.
 */
 void CaObjectPrivate::removeChannel() {
@@ -153,7 +153,7 @@ void CaObjectPrivate::removeChannel() {
     caConnection->removeChannel();
 }
 
-/*!
+/*
     Cancels active subscription but does not flush callbacks.
 */
 void CaObjectPrivate::cancelSubscription() {
@@ -166,7 +166,7 @@ void CaObjectPrivate::cancelSubscription() {
 // Read and write data
 //===============================================================================
 
-/*!
+/*
     Request one shot read callback for the channel.
 */
 caconnection::ca_responses CaObjectPrivate::readChannel() {
@@ -176,7 +176,7 @@ caconnection::ca_responses CaObjectPrivate::readChannel() {
     return caConnection->readChannel( readHandler, owner->myRef, caRecord.getDbrType() );
 }
 
-/*!
+/*
     Request one shot write for the channel (Generates callback).
 */
 caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newValue ) {
@@ -236,7 +236,7 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
 // Data record interrogation
 //===============================================================================
 
-/*!
+/*
   Return true if the current data record is from the first update after connecting
  */
 bool CaObject::isFirstUpdate()
@@ -247,7 +247,7 @@ bool CaObject::isFirstUpdate()
     return p->caRecord.isFirstUpdate();
 }
 
-/*!
+/*
   Return a copy of the data record.
   A void* is returned although the actual data type is carecord::CaRecord*
   NOTE: The caller is responsible for deleting the record returned.
@@ -260,7 +260,7 @@ void* CaObject::getRecordCopyPtr()
     return (void*)(new carecord::CaRecord( p->caRecord ));
 }
 
-/*!
+/*
   Get count of enuerated strings from the current data record
  */
 int CaObject::getEnumStateCount()
@@ -271,7 +271,7 @@ int CaObject::getEnumStateCount()
     return p->caRecord.getEnumStateCount();
 }
 
-/*!
+/*
   Get an enuerated string from the current data record
  */
 std::string CaObject::getEnumState( int position )
@@ -282,7 +282,7 @@ std::string CaObject::getEnumState( int position )
     return p->caRecord.getEnumState( position );
 }
 
-/*!
+/*
   Get floating point precision from the current data record
  */
 int CaObject::getPrecision()
@@ -293,7 +293,7 @@ int CaObject::getPrecision()
     return p->caRecord.getPrecision();
 }
 
-/*!
+/*
   Get the engineering units from the current data record
  */
 std::string CaObject::getUnits()
@@ -304,7 +304,7 @@ std::string CaObject::getUnits()
     return p->caRecord.getUnits();
 }
 
-/*!
+/*
   Get the data type from the current data record
  */
 generic_types CaObject::getType()
@@ -315,7 +315,7 @@ generic_types CaObject::getType()
     return p->caRecord.getType();
 }
 
-/*!
+/*
   Get the seconds part of the EPICS timestamp from the current record
  */
 unsigned long CaObject::getTimeStampSeconds()
@@ -326,7 +326,7 @@ unsigned long CaObject::getTimeStampSeconds()
     return p->caRecord.getTimeStampSeconds();
 }
 
-/*!
+/*
   Get the nanoseconds part of the EPICS timestamp from the current record
  */
 unsigned long CaObject::getTimeStampNanoseconds()
@@ -337,7 +337,7 @@ unsigned long CaObject::getTimeStampNanoseconds()
     return p->caRecord.getTimeStampNanoseconds();
 }
 
-/*!
+/*
     Returns the alarm status from the current record
 */
 short CaObject::getAlarmStatus()
@@ -348,7 +348,7 @@ short CaObject::getAlarmStatus()
     return p->caRecord.getStatus();
 }
 
-/*!
+/*
     Returns the alarm severity from the current record
 */
 short CaObject::getAlarmSeverity()
@@ -359,7 +359,7 @@ short CaObject::getAlarmSeverity()
     return p->caRecord.getAlarmSeverity();
 }
 
-/*!
+/*
     Returns the display upper limit
 */
 double CaObject::getDisplayUpper()
@@ -371,7 +371,7 @@ double CaObject::getDisplayUpper()
     return limit.upper;
 }
 
-/*!
+/*
     Returns the display lower limit
 */
 double CaObject::getDisplayLower()
@@ -383,7 +383,7 @@ double CaObject::getDisplayLower()
     return limit.lower;
 }
 
-/*!
+/*
     Returns the alarm upper limit
 */
 double CaObject::getAlarmUpper()
@@ -395,7 +395,7 @@ double CaObject::getAlarmUpper()
     return limit.upper;
 }
 
-/*!
+/*
     Returns the alarm lower limit
 */
 double CaObject::getAlarmLower()
@@ -407,7 +407,7 @@ double CaObject::getAlarmLower()
     return limit.lower;
 }
 
-/*!
+/*
     Returns the warning upper limit
 */
 double CaObject::getWarningUpper()
@@ -419,7 +419,7 @@ double CaObject::getWarningUpper()
     return limit.upper;
 }
 
-/*!
+/*
     Returns the warning lower limit
 */
 double CaObject::getWarningLower()
@@ -431,7 +431,7 @@ double CaObject::getWarningLower()
     return limit.lower;
 }
 
-/*!
+/*
     Returns the control upper limit
 */
 double CaObject::getControlUpper()
@@ -443,7 +443,7 @@ double CaObject::getControlUpper()
     return limit.upper;
 }
 
-/*!
+/*
     Returns the control lower limit
 */
 double CaObject::getControlLower()
@@ -455,14 +455,14 @@ double CaObject::getControlLower()
     return limit.lower;
 }
 
-/*!
+/*
     Returns the link status for the connection for the current record
 */
 caconnection::link_states CaObjectPrivate::getLinkState() {
     return caConnection->getLinkState();
 }
 
-/*!
+/*
     Returns the link state of the channel for the current record
     The only 'good' state is channel_states::CONNECTED.
     Reads and writes should not be attempted until the channel is connected.
@@ -475,7 +475,7 @@ caconnection::channel_states CaObjectPrivate::getChannelState() {
 // CA callback handlers
 //===============================================================================
 
-/*!
+/*
     Processes EPICS callbacks, rebuilds returned data into a CaRecord.
     Database types that EPICS can return, fall into the groups:
     Basic, Status, Time, Graphic and Control.
@@ -699,7 +699,7 @@ CaObject* CaObjectPrivate::contextFromCaUsr( void* usr, void* id )
     return (CaObject*)(ref->getRef( id ));
 }
 
-/*!
+/*
     Subscription handler callback.
 */
 void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
@@ -727,7 +727,7 @@ void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
     epicsMutexUnlock( accessMutex );
 }
 
-/*!
+/*
     Read data handler callback.
 */
 void CaObjectPrivate::readHandler( struct event_handler_args args ) {
@@ -755,7 +755,7 @@ void CaObjectPrivate::readHandler( struct event_handler_args args ) {
     epicsMutexUnlock( accessMutex );
 }
 
-/*!
+/*
     Write data handler callback.
 */
 void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
@@ -778,7 +778,7 @@ void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
     epicsMutexUnlock( accessMutex );
 }
 
-/*!
+/*
     EPICS Exception handler callback.
 */
 void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
@@ -801,7 +801,7 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
     epicsMutexUnlock( accessMutex );
 }
 
-/*!
+/*
     Connection handler callback.
     This is called with CaObject out of context, it is recovered in:
     "args" -> "parent" -> "grandParent".
@@ -839,7 +839,7 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
     epicsMutexUnlock( accessMutex );
 }
 
-/*!
+/*
   Set if callbacks are required on write completion. (default is write with no callback)
   Note, this is not just for better write status, if affects the behaviour of the write as follows:
   When using write with callback, then record will finish processing before accepting next write.
@@ -858,7 +858,7 @@ void CaObject::setWriteWithCallback( bool writeWithCallbackIn )
     p->caConnection->setWriteWithCallback( writeWithCallbackIn );
 }
 
-/*!
+/*
   Determine if callbacks are delivered on write completion.
   */
 bool CaObject::getWriteWithCallback()

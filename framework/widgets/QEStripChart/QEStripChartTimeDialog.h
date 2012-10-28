@@ -36,7 +36,7 @@ namespace Ui {
     class QEStripChartTimeDialog;
 }
 
-/*!
+/*
  * Manager class for the QEStripChartTimeDialog.ui compiled form.
  *
  * This dialog form allows the user to select a start datetime and

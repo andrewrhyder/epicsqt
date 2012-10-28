@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*! This class is used as a container for QCa widgets.
+/* This class is used as a container for QCa widgets.
 
     It adds any variable name macro substitutions to the current environment profile, creates a form widget and
     reads a UI file which can contain QCa widgets.
@@ -47,20 +47,20 @@
 #include <ContainerProfile.h>
 #include <QCaWidget.h>
 
-/// Constructor.
-/// No UI file is read. uiFileName must be set and then readUiFile() called after construction
+// Constructor.
+// No UI file is read. uiFileName must be set and then readUiFile() called after construction
 QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QCaWidget( this ) {
     commonInit( false );
 }
 
-/// Constructor.
-/// UI filename is supplied and UI file is read as part of construction.
+// Constructor.
+// UI filename is supplied and UI file is read as part of construction.
 QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QCaWidget( this ) {
     commonInit( true );
     uiFileName = uiFileNameIn;
 }
 
-/// Common construction
+// Common construction
 void QEForm::commonInit( const bool alertIfUINoFoundIn )
 {
     setAcceptDrops(true);
@@ -90,7 +90,7 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
                       this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
-/// Destructor.
+// Destructor.
 QEForm::~QEForm()
 {
     // Close any existing form
@@ -166,10 +166,10 @@ bool QEForm::readUiFile()
                 fileMon.removePaths( monitoredPaths );
             }
 
-            /// Monitor the opened file
+            // Monitor the opened file
             fileMon.addPath( fullUiFileName );
 
-            /// Extract the file name part used for the window title
+            // Extract the file name part used for the window title
             QFileInfo fileInfo( uiFile->fileName() );
             title = fileInfo.fileName();
             if( title.endsWith( ".ui" ) )
@@ -223,10 +223,10 @@ bool QEForm::readUiFile()
             if ( handleGuiLaunchRequests )
                  replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
 
-            /// Any QCa widgets that have just been created need to be activated.
-            /// Note, this is only required when QCa widgets are not loaded within a form and not directly by 'designer'.
-            /// When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
-            /// the variable name or variable name substitution properties are set
+            // Any QCa widgets that have just been created need to be activated.
+            // Note, this is only required when QCa widgets are not loaded within a form and not directly by 'designer'.
+            // When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
+            // the variable name or variable name substitution properties are set
             QCaWidget* containedWidget;
             while( (containedWidget = getNextContainedWidget()) )
                 containedWidget->activate();
@@ -310,7 +310,7 @@ QString QEForm::getFullFileName()
     return fullUiFileName;
 }
 
-/// Set the variable name substitutions used by all QCa widgets within the form
+// Set the variable name substitutions used by all QCa widgets within the form
 void QEForm::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
 {
     variableNameSubstitutions = variableNameSubstitutionsIn;
@@ -417,7 +417,7 @@ void QEForm::resizeEvent ( QResizeEvent * event )
 // variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
 void QEForm::setVariableNameAndSubstitutions( QString, QString variableNameSubstitutionsIn, unsigned int ) {
 
-    /// Set new variable name substitutions
+    // Set new variable name substitutions
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
 }
 

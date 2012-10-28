@@ -74,7 +74,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
 
     private slots:
         void fileChanged ( const QString & path );
-        void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) //!! move into Standard Properties section??
+        void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) // !! move into Standard Properties section??
         {
             // Note, for a form, variable name is not used. Substitutions still are
             setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
@@ -102,8 +102,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
 
 
     public:
-        /// Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.
-        /// A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+        // Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.
+        // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
         Q_PROPERTY(QString uiFile READ getUiFileName WRITE setUiFileName);
 
         Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)

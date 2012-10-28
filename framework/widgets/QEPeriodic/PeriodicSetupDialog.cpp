@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class manages a dialog for setting up a QEPeriodic in Qt designer.
  */
 

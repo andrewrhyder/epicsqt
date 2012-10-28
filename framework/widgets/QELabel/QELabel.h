@@ -34,6 +34,10 @@
 #include <QCaStringFormattingMethods.h>
 #include <QCaVariableNamePropertyManager.h>
 
+/*!
+  This class is a CA aware label widget based on the Qt label widget.
+  It is tighly integrated with the base class QCaWidget.
+ */
 class QCAPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
     Q_OBJECT
 
@@ -57,13 +61,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QCaWidget, p
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setLabelText( const QString& text, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
 public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
 
   signals:
     void dbValueChanged( const QString& out );
@@ -106,6 +110,7 @@ public:
     //
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+    //! EPICS variable name (CA PV)
     Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty)
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
 
@@ -188,7 +193,7 @@ public:
     // Widget specific properties
 
 public:
-    /// Update options (text, pixmap, or both)
+    // Update options (text, pixmap, or both)
     Q_ENUMS(UpdateOptions)
     Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
     enum UpdateOptions { Text     = QELabel::UPDATE_TEXT,
@@ -196,7 +201,7 @@ public:
     void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QELabel::updateOptions)updateOption ); }
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 
-    /// Pixmaps
+    // Pixmaps
     Q_PROPERTY(QPixmap pixmap0 READ getPixmap0Property WRITE setPixmap0Property)
     Q_PROPERTY(QPixmap pixmap1 READ getPixmap1Property WRITE setPixmap1Property)
     Q_PROPERTY(QPixmap pixmap2 READ getPixmap2Property WRITE setPixmap2Property)
@@ -227,4 +232,4 @@ public:
 
 };
 
-#endif /// QELABEL_H
+#endif // QELABEL_H

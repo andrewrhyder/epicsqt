@@ -37,7 +37,7 @@
 #include <contextMenu.h>
 #include <standardProperties.h>
 
-//!!! since this class is only ever used as a base class, it doesn't need to be exported
+// !!! since this class is only ever used as a base class, it doesn't need to be exported
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager,
                                                 public QCaToolTip,
                                                 public ContainerProfile,
@@ -48,14 +48,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager,
                                                 public standardProperties
 {
 public:
-    QCaWidget( QWidget* ownerIn );          /// Constructor
-    virtual ~QCaWidget();                   /// Destructor
-    void activate();                        /// Initiate updates.
+    QCaWidget( QWidget* ownerIn );          // Constructor
+    virtual ~QCaWidget();                   // Destructor
+    void activate();                        // Initiate updates.
 
     unsigned int getMessageSourceId(){ return getSourceId(); }
     void setMessageSourceId( unsigned int messageSourceId ){ setSourceId( messageSourceId ); }
 
-    qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         /// Return a reference to one of the qCaObjects used to stream CA updates
+    qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );         // Return a reference to one of the qCaObjects used to stream CA updates
 
     void setupContextMenu( QWidget* w );
     QColor getColor( QCaAlarmInfo& alarmInfo, const int saturation );
@@ -68,24 +68,24 @@ public:
     QString defaultFileLocation();
 
 protected:
-    void setNumVariables( unsigned int numVariablesIn );    /// Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
+    void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
 
-    bool subscribe;                 /// Flag if data updates should be requested
-    bool variableAsToolTip;         /// Flag the tool tip should be set to the variable name
+    bool subscribe;                 // Flag if data updates should be requested
+    bool variableAsToolTip;         // Flag the tool tip should be set to the variable name
 
-    qcaobject::QCaObject* createConnection( unsigned int variableIndex );    /// Create a CA connection. Return a QCaObject if successfull
+    qcaobject::QCaObject* createConnection( unsigned int variableIndex );    // Create a CA connection. Return a QCaObject if successfull
 
-    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ); /// Function to create a appropriate superclass of QCaObject to stream data updates
-    virtual void establishConnection( unsigned int variableIndex );     /// Create a CA connection and initiates updates if required
+    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ); // Function to create a appropriate superclass of QCaObject to stream data updates
+    virtual void establishConnection( unsigned int variableIndex );     // Create a CA connection and initiates updates if required
 
     // variable as tool tip
     void setVariableAsToolTip( bool variableAsToolTip );
     bool getVariableAsToolTip();
 
 private:
-    void deleteQcaItem( unsigned int variableIndex );       /// Delete a stream of CA updates
-    unsigned int numVariables;              /// The number of process variables that will be managed for the QCa widget.
-    qcaobject::QCaObject** qcaItem;          /// CA access - provides a stream of updates. One for each variable name used by the QCa widget
+    void deleteQcaItem( unsigned int variableIndex );       // Delete a stream of CA updates
+    unsigned int numVariables;              // The number of process variables that will be managed for the QCa widget.
+    qcaobject::QCaObject** qcaItem;          // CA access - provides a stream of updates. One for each variable name used by the QCa widget
 
     void userLevelChanged( userLevels level );
     void setToolTipFromVariableNames();

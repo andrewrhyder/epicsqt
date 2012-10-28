@@ -53,4 +53,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELineEditManager : public QObject, public Q
     bool initialized;
 };
 
-#endif /// QELINEEDITMANAGER_H
+#endif // QELINEEDITMANAGER_H

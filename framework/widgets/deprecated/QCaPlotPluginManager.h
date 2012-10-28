@@ -30,7 +30,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlotPluginManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -56,4 +56,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPlotPluginManager : public QObject, publi
     bool initialized;
 };
 
-#endif /// QCAPLOTPLUGINMANAGER_H
+#endif // QCAPLOTPLUGINMANAGER_H

@@ -154,9 +154,9 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QCaWidget {
     void setPlotData( const QVector<double>& values, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setPlotData( const double value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void tickTimeout();
-    //!! move this functionality into QCaWidget???
-    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    // !! move this functionality into QCaWidget???
+    // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }

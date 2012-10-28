@@ -26,14 +26,14 @@
 #include <QELink.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QELinkManager::QELinkManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QELinkManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QELinkManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QELinkManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a Link widget.
 */
 QWidget *QELinkManager::createWidget ( QWidget *parent ) {
     return new QELink(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QELinkManager::name() const {
     return "QELink";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QELinkManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QELinkManager::icon() const {
     return QIcon(":/qe/link/QELink.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QELinkManager::toolTip() const {
     return "Link";
 }
 
-/*!
+/*
     ???
 */
 QString QELinkManager::whatsThis() const {
     return "Link";
 }
 
-/*!
+/*
     ???
 */
 bool QELinkManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QELinkManager::domXml() const {
@@ -122,7 +122,7 @@ bool QELinkManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QELinkManager::includeFile() const {

@@ -71,14 +71,14 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESpinBox : public QDoubleSpinBox, public QC
     void setValueIfNoFocus( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void userValueChanged( double value );
   private slots:
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
 
   public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
     void writeNow();
 
   signals:
@@ -180,4 +180,4 @@ public:
 
 };
 
-#endif ///QESPINBOX_H
+#endif //QESPINBOX_H

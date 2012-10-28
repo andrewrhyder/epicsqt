@@ -27,7 +27,7 @@
 
 #include <QESubstitutedLabel.h>
 
-/// QSubstitutedLabelPlugin IS deprecated - use QESubstitutedLabel.
+// QSubstitutedLabelPlugin IS deprecated - use QESubstitutedLabel.
 class QSubstitutedLabelPlugin : public QESubstitutedLabel {
     Q_OBJECT
 

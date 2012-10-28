@@ -28,7 +28,7 @@
 #include <QEPvProperties.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEPvPropertiesManager::QEPvPropertiesManager (QObject * parent) : QObject (parent)
@@ -36,7 +36,7 @@ QEPvPropertiesManager::QEPvPropertiesManager (QObject * parent) : QObject (paren
    initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEPvPropertiesManager::initialize (QDesignerFormEditorInterface *)
@@ -47,7 +47,7 @@ void QEPvPropertiesManager::initialize (QDesignerFormEditorInterface *)
    initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEPvPropertiesManager::isInitialized () const
@@ -55,7 +55,7 @@ bool QEPvPropertiesManager::isInitialized () const
    return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEPvProperties widget.
 */
 QWidget *QEPvPropertiesManager::createWidget (QWidget * parent)
@@ -63,7 +63,7 @@ QWidget *QEPvPropertiesManager::createWidget (QWidget * parent)
    return new QEPvProperties (parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEPvPropertiesManager::name () const
@@ -71,7 +71,7 @@ QString QEPvPropertiesManager::name () const
    return "QEPvProperties";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEPvPropertiesManager::group () const
@@ -79,7 +79,7 @@ QString QEPvPropertiesManager::group () const
    return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEPvPropertiesManager::icon () const
@@ -87,7 +87,7 @@ QIcon QEPvPropertiesManager::icon () const
    return QIcon (":/qe/pvproperties/icon.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEPvPropertiesManager::toolTip () const
@@ -95,7 +95,7 @@ QString QEPvPropertiesManager::toolTip () const
    return "Shows EPICS IOC record fields";
 }
 
-/*!
+/*
     ???
 */
 QString QEPvPropertiesManager::whatsThis () const
@@ -103,7 +103,7 @@ QString QEPvPropertiesManager::whatsThis () const
    return "Shows EPICS IOC record fields";
 }
 
-/*!
+/*
     ???
 */
 bool QEPvPropertiesManager::isContainer () const
@@ -111,7 +111,7 @@ bool QEPvPropertiesManager::isContainer () const
    return false;  //???? true
 }
 
-/*!
+/*
     ???
 */
 /*QString QEPvPropertiesManager::domXml() const {
@@ -134,7 +134,7 @@ bool QEPvPropertiesManager::isContainer () const
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEPvPropertiesManager::includeFile () const

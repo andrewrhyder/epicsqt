@@ -56,7 +56,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QERecipeManager:public QObject, public QDesi
 
 };
 
-#endif /// QERECIPEPLUGINMANAGER_H
+#endif // QERECIPEPLUGINMANAGER_H
 
 
 

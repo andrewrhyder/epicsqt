@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware push button widget based on the Qt push button widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
@@ -33,7 +33,7 @@
 #include <QMainWindow>
 #include <QIcon>
 
-/*!
+/*
     Constructor with no initialisation
 */
 QEPushButton::QEPushButton( QWidget *parent ) : QPushButton( parent ), QEGenericButton( this ) {
@@ -41,7 +41,7 @@ QEPushButton::QEPushButton( QWidget *parent ) : QPushButton( parent ), QEGeneric
     setup();
 }
 
-/*!
+/*
     Constructor with known variable
 */
 QEPushButton::QEPushButton( const QString &variableNameIn, QWidget *parent ) : QPushButton( parent ), QEGenericButton( this ) {
@@ -52,7 +52,7 @@ QEPushButton::QEPushButton( const QString &variableNameIn, QWidget *parent ) : Q
 
 }
 
-/*!
+/*
     Setup common to all constructors
 */
 void QEPushButton::setup() {
@@ -67,7 +67,7 @@ void QEPushButton::setup() {
     }
 }
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QEPushButton::updateToolTip ( const QString & toolTip ) {

@@ -16,7 +16,7 @@ contextMenuObject::contextMenuObject()
     menu = NULL;
     owner = NULL;
 
-    //!!! Should all menus be able to share the same actions???
+    // !!! Should all menus be able to share the same actions???
 
     QAction* a;
     a = new QAction( "Copy variable name", this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_VARIABLE );  addAction( a );
@@ -146,7 +146,7 @@ void contextMenu::doCopyData()
 //void contextMenu::copyToClipboard( QString text )
 //{
 //    qDebug() << "contextMenu::copyToClipboard()" << text;
-//    //!! copy text to clipboard
+//    // !! copy text to clipboard
 //}
 
 void contextMenu::doPaste()

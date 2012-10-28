@@ -24,7 +24,7 @@
 
 //  Bit wise display of integer values.
 
-/*!
+/*
   This class is a BitStatus widget based on directly QWidget.
   It provides similar functionality to that provided by the edm/medm/dephi
   widgets of the same name.
@@ -42,7 +42,7 @@
 #define LIMIT(x,low,high)   (MAX(low, MIN(x, high)))
 
 
-/*! ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  *
  */
 QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
@@ -74,7 +74,7 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
 }
 
 
-/*! ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  *  Define default size for this widget class.
  */
 QSize QBitStatus::sizeHint () const {
@@ -162,7 +162,7 @@ void QBitStatus::drawItem (QPainter & painter, const QRect & rect)
 
 }
 
-/*! ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  *  Draw the bit status.
  */
 void QBitStatus::paintEvent (QPaintEvent *)
@@ -449,7 +449,7 @@ QString QBitStatus::getReversePolarityMask ()
 // Private static functions
 //=============================================================================
 //
-/*! ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  *  Converts integer to a binary mask of hexadecimal characters.
  */
 QString QBitStatus::intToMask (int n)
@@ -459,7 +459,7 @@ QString QBitStatus::intToMask (int n)
    return result;
 }
 
-/*! ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  *  Converts a hexadecimal character mask to an integer;
  */
 int QBitStatus::maskToInt (const QString mask)

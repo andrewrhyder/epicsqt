@@ -27,14 +27,14 @@
 
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEShapeManager::QEShapeManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEShapeManager::initialize( QDesignerFormEditorInterface * ) {
@@ -44,63 +44,63 @@ void QEShapeManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEShapeManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEShape widget.
 */
 QWidget *QEShapeManager::createWidget ( QWidget *parent ) {
     return new QEShape(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEShapeManager::name() const {
     return "QEShape";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEShapeManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEShapeManager::icon() const {
     return QIcon(":/qe/shape/QEShape.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEShapeManager::toolTip() const {
     return "EPICS Shape";
 }
 
-/*!
+/*
     ???
 */
 QString QEShapeManager::whatsThis() const {
     return "EPICS Shape";
 }
 
-/*!
+/*
     ???
 */
 bool QEShapeManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEShapeManager::domXml() const {
@@ -123,7 +123,7 @@ bool QEShapeManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEShapeManager::includeFile() const {

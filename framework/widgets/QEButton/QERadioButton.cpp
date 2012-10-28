@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware push button widget based on the Qt push button widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
@@ -33,7 +33,7 @@
 #include <QMainWindow>
 #include <QIcon>
 
-/*!
+/*
     Constructor with no initialisation
 */
 QERadioButton::QERadioButton( QWidget *parent ) : QRadioButton( parent ), QEGenericButton( this ) {
@@ -41,7 +41,7 @@ QERadioButton::QERadioButton( QWidget *parent ) : QRadioButton( parent ), QEGene
     setup();
 }
 
-/*!
+/*
     Constructor with known variable
 */
 QERadioButton::QERadioButton( const QString &variableNameIn, QWidget *parent ) : QRadioButton( parent ), QEGenericButton( this ) {
@@ -52,7 +52,7 @@ QERadioButton::QERadioButton( const QString &variableNameIn, QWidget *parent ) :
 
 }
 
-/*!
+/*
     Setup common to all constructors
 */
 void QERadioButton::setup() {
@@ -63,7 +63,7 @@ void QERadioButton::setup() {
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QERadioButton::updateToolTip ( const QString & toolTip ) {

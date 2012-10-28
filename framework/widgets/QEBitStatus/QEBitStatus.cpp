@@ -22,7 +22,7 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware Bit Status widget based on the BitStatus widget.
   It is tighly integrated with the base class QCaWidget.
   Refer to QCaWidget.cpp for details
@@ -34,7 +34,7 @@
 #include <QCaObject.h>
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Constructor with no initialisation
 */
 QEBitStatus::QEBitStatus (QWidget * parent):QBitStatus (parent), QCaWidget ( this )
@@ -43,7 +43,7 @@ QEBitStatus::QEBitStatus (QWidget * parent):QBitStatus (parent), QCaWidget ( thi
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Constructor with known variable
 */
 QEBitStatus::QEBitStatus (const QString & variableNameIn,
@@ -54,7 +54,7 @@ QEBitStatus::QEBitStatus (const QString & variableNameIn,
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Setup common to all constructors
 */
 void QEBitStatus::setup ()
@@ -97,7 +97,7 @@ void QEBitStatus::setup ()
 
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Implementation of QCaWidget's virtual funtion to create the specific type
     of QCaObject required. For a Bit Status widget a QCaObject that streams
     integers is required.
@@ -115,7 +115,7 @@ qcaobject::QCaObject *
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a
     connection to a PV as the variable name has changed.
@@ -141,7 +141,7 @@ void QEBitStatus::establishConnection (unsigned int variableIndex)
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Update the tool tip as requested by QCaToolTip.
 */
 void QEBitStatus::updateToolTip (const QString & tip)
@@ -150,7 +150,7 @@ void QEBitStatus::updateToolTip (const QString & tip)
 }
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Act on a connection change.
     Change how the progress bar looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
@@ -176,7 +176,7 @@ void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
 
 
 
-/*! ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
     Update the progress bar value
     This is the slot used to recieve data updates from a QCaObject based class.
  */
@@ -244,7 +244,7 @@ void QEBitStatus::setVariableNameAndSubstitutions (QString variableNameIn,
 {
    setVariableNameSubstitutions (variableNameSubstitutionsIn);
 
-   /// TODO a WTF comment
+   // TODO a WTF comment
    setVariableName (variableNameIn, variableIndex);
    establishConnection (variableIndex);
 

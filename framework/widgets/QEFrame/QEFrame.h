@@ -31,12 +31,12 @@
 #include <QCaPluginLibrary_global.h>
 
 
-/// The QEFrame class provides a minimalist extention to the QFrame class
-/// in that it provides user level enabled and user level visibility control to
-/// the frame but more significantly to all the widgets enclosed within the
-/// QEFrame container also.
-/// See QEGroupBox as well.
-///
+// The QEFrame class provides a minimalist extention to the QFrame class
+// in that it provides user level enabled and user level visibility control to
+// the frame but more significantly to all the widgets enclosed within the
+// QEFrame container also.
+// See QEGroupBox as well.
+//
 class QCAPLUGINLIBRARYSHARED_EXPORT QEFrame :
       public QFrame, public QCaWidget {
 
@@ -76,4 +76,4 @@ Q_OBJECT
 
 };
 
-#endif     /// QEFRAME_H
+#endif     // QEFRAME_H

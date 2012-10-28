@@ -26,14 +26,14 @@
 #include <QEComboBox.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEComboBoxManager::QEComboBoxManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEComboBoxManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QEComboBoxManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEComboBoxManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEComboBox widget.
 */
 QWidget *QEComboBoxManager::createWidget ( QWidget *parent ) {
     return new QEComboBox(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEComboBoxManager::name() const {
     return "QEComboBox";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEComboBoxManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEComboBoxManager::icon() const {
     return QIcon(":/qe/combobox/QEComboBox.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEComboBoxManager::toolTip() const {
     return "EPICS Combo Box";
 }
 
-/*!
+/*
     ???
 */
 QString QEComboBoxManager::whatsThis() const {
     return "EPICS Combo Box";
 }
 
-/*!
+/*
     ???
 */
 bool QEComboBoxManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEComboBoxManager::domXml() const {
@@ -122,7 +122,7 @@ bool QEComboBoxManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEComboBoxManager::includeFile() const {

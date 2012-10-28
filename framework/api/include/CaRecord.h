@@ -38,10 +38,10 @@ namespace carecord {
   enum dbr_translation_type { BASIC, STATUS, TIME, GRAPHIC, CONTROL };
   enum process_state { NO_UPDATE, FIRST_UPDATE, UPDATE };
 
-  //! Total number of different basic EPICS types
+  // Total number of different basic EPICS types
   const short TYPE_COUNT = 7;
 
-  //! CA property for bound limits
+  // CA property for bound limits
   struct ca_limit {
       double upper;
       double lower;
@@ -121,7 +121,7 @@ namespace carecord {
       void reset();
   };
   
-  //! Translation matrix for EPICS basic to EPICS status type
+  // Translation matrix for EPICS basic to EPICS status type
   const short statusTranslationMatrix[TYPE_COUNT][2] = {
       { DBR_STRING, DBR_STS_STRING },
       { DBR_INT, DBR_STS_INT },
@@ -132,7 +132,7 @@ namespace carecord {
       { DBR_DOUBLE, DBR_STS_DOUBLE }
   };
 
-  //! Translation matrix for EPICS basic to EPICS control type
+  // Translation matrix for EPICS basic to EPICS control type
   const short controlTranslationMatrix[TYPE_COUNT][2] = {
       { DBR_STRING, DBR_CTRL_STRING },
       { DBR_INT, DBR_CTRL_INT },
@@ -143,7 +143,7 @@ namespace carecord {
       { DBR_DOUBLE, DBR_CTRL_DOUBLE }
   };
 
-  //! Translation matrix for EPICS basic to EPICS time type
+  // Translation matrix for EPICS basic to EPICS time type
   const short timeTranslationMatrix[TYPE_COUNT][2] = {
       { DBR_STRING, DBR_TIME_STRING },
       { DBR_INT, DBR_TIME_INT },
@@ -154,7 +154,7 @@ namespace carecord {
       { DBR_DOUBLE, DBR_TIME_DOUBLE }
   };
 
-  //! Translation matrix for EPICS basic to EPICS graphic type
+  // Translation matrix for EPICS basic to EPICS graphic type
   const short graphicTranslationMatrix[TYPE_COUNT][2] = {
       { DBR_STRING, DBR_GR_STRING },
       { DBR_INT, DBR_GR_INT },

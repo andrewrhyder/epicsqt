@@ -158,7 +158,7 @@ public:
     AlarmSeverityDisplayModes getAlarmSeverityDisplayMode ();
 
 public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }  //!! move into Standard Properties section??
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }  // !! move into Standard Properties section??
 
 
 protected:
@@ -190,7 +190,7 @@ private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
 
     void setProgressBarValue( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );  //!! move into Standard Properties section??
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );  // !! move into Standard Properties section??
 
 signals:
     void dbValueChanged( const double& out );
@@ -210,4 +210,4 @@ protected:
 
 };
 
-#endif /// QEANALOGPROGRESSBAR_H
+#endif // QEANALOGPROGRESSBAR_H

@@ -57,4 +57,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaString : public qcaobject::QCaObject {
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
-#endif /// QCASTRING_H
+#endif // QCASTRING_H

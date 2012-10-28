@@ -122,4 +122,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELink : public QLabel, QCaWidget {
 
 };
 
-#endif /// QELINK_H
+#endif // QELINK_H

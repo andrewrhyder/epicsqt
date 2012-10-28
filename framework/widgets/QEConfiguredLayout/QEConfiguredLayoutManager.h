@@ -56,5 +56,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayoutManager:public QObject, pu
 
 };
 
-#endif /// QECONFIGUREDLAYOUTMANAGER_H
+#endif // QECONFIGUREDLAYOUTMANAGER_H
 

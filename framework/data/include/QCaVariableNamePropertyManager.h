@@ -59,4 +59,4 @@ private:
     bool interactive;   // If set, there is a user typing new variable names and macro substitutions. Use timers to wait for typing to finish.
 };
 
-#endif /// QCAVARIABLENAMEPROPERTYMANAGER_H
+#endif // QCAVARIABLENAMEPROPERTYMANAGER_H

@@ -28,7 +28,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabelPluginManager : public QObject, public QDesignerCustomWidgetInterface {
@@ -54,4 +54,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaLabelPluginManager : public QObject, publ
     bool initialized;
 };
 
-#endif /// QCALABELPLUGINMANAGER_H
+#endif // QCALABELPLUGINMANAGER_H

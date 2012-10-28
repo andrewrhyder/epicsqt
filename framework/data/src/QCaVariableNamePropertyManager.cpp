@@ -56,7 +56,7 @@
 
 #define WAIT_FOR_TYPING_TO_FINISH 1000  // One Second
 
-/*!
+/*
     Construction
 */
 QCaVariableNamePropertyManager::QCaVariableNamePropertyManager() {
@@ -67,22 +67,22 @@ QCaVariableNamePropertyManager::QCaVariableNamePropertyManager() {
     // the variable name property name manager to wait for a user to finish typing before using a variable name.
     interactive = QCaWidget::inDesigner();
 
-    /// Setup a timer so rapid changes to the variable name property are ignored.
-    /// Only after the user has stopped typing for a while will the entry be used.
-    /// The timer will be set on the first keystroke and reset with each subsequent keystroke
-    /// untill the keystrokes stop for longer than the timeout period.
-    /// Note, timers are not required if there is no user entering variable names of macro substitutions.
+    // Setup a timer so rapid changes to the variable name property are ignored.
+    // Only after the user has stopped typing for a while will the entry be used.
+    // The timer will be set on the first keystroke and reset with each subsequent keystroke
+    // untill the keystrokes stop for longer than the timeout period.
+    // Note, timers are not required if there is no user entering variable names of macro substitutions.
     if( interactive )
     {
         setSingleShot( true );
         QObject::connect( this, SIGNAL( timeout() ), this, SLOT( subscribeDelayExpired() ) );
     }
 
-    /// Default to first (and only) variable
+    // Default to first (and only) variable
     variableIndex = 0;
 }
 
-/*!
+/*
     Set the variable index.
     Used when multiple variables can affect an object.
 */
@@ -90,7 +90,7 @@ void QCaVariableNamePropertyManager::setVariableIndex( unsigned int variableInde
     variableIndex = variableIndexIn;
 }
 
-/*!
+/*
     Set the Variable Name property
     This changes with every keystroke.
     Store the new value but don't subscribe yet.
@@ -99,10 +99,10 @@ void QCaVariableNamePropertyManager::setVariableIndex( unsigned int variableInde
 */
 void QCaVariableNamePropertyManager::setVariableNameProperty( QString variableNamePropertyIn ) {
 
-    /// If the variable name has changed as a result of a user typing, save it and
-    /// set (or reset) a timer to complete when changes stop occuring.
-    /// The timer will signal subscribeDelayExpired()
-    /// If the change was not interactive, use the change immedietly.
+    // If the variable name has changed as a result of a user typing, save it and
+    // set (or reset) a timer to complete when changes stop occuring.
+    // The timer will signal subscribeDelayExpired()
+    // If the change was not interactive, use the change immedietly.
     if( variableNameProperty != variableNamePropertyIn ) {
         variableNameProperty = variableNamePropertyIn;
         if( interactive )
@@ -112,7 +112,7 @@ void QCaVariableNamePropertyManager::setVariableNameProperty( QString variableNa
     }
 }
 
-/*!
+/*
     Set the Variable Name Substitutions property.
     This changes with every keystroke.
     Store the new value but don't subscribe yet.
@@ -120,10 +120,10 @@ void QCaVariableNamePropertyManager::setVariableNameProperty( QString variableNa
     a while.
 */
 void QCaVariableNamePropertyManager::setSubstitutionsProperty( QString substitutionsPropertyIn ) {
-    /// If the substitutions have changed as a result of a user typing, save them and
-    /// set (or reset) a timer to complete when changes stop occuring.
-    /// The timer will signal subscribeDelayExpired()
-    /// If the change was not interactive, use the change immedietly.
+    // If the substitutions have changed as a result of a user typing, save them and
+    // set (or reset) a timer to complete when changes stop occuring.
+    // The timer will signal subscribeDelayExpired()
+    // If the change was not interactive, use the change immedietly.
     if( substitutionsProperty != substitutionsPropertyIn ) {
         substitutionsProperty = substitutionsPropertyIn;
         if( interactive )
@@ -133,21 +133,21 @@ void QCaVariableNamePropertyManager::setSubstitutionsProperty( QString substitut
     }
 }
 
-/*!
+/*
     Return the Variable Name property.
 */
 QString QCaVariableNamePropertyManager::getVariableNameProperty() {
     return variableNameProperty;
 }
 
-/*!
+/*
     Return the Variable Name Substitutions property.
 */
 QString QCaVariableNamePropertyManager::getSubstitutionsProperty() {
     return substitutionsProperty;
 }
 
-/*!
+/*
     Subscribe to an an updated variable name.
     The variable name property is changed by the user with every keystroke.
     A timer expires (and this method is called) if keystrokes have not

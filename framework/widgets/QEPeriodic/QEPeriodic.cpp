@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware element selection widget based on the Qt push button widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
 
@@ -170,14 +170,14 @@ QEPeriodic::elementInfoStruct QEPeriodic::elementInfo[NUM_ELEMENTS] = {
 };
 
 
-/*!
+/*
     Constructor with no initialisation
 */
 QEPeriodic::QEPeriodic( QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
     setup();
 }
 
-/*!
+/*
     Constructor with known variable
 */
 QEPeriodic::QEPeriodic( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
@@ -187,7 +187,7 @@ QEPeriodic::QEPeriodic( const QString &variableNameIn, QWidget *parent ) : QFram
 
 }
 
-/*!
+/*
     Setup common to all constructors
 */
 void QEPeriodic::setup() {
@@ -233,8 +233,8 @@ void QEPeriodic::setup() {
     variableType1 = VARIABLE_TYPE_USER_VALUE_1;
     variableType2 = VARIABLE_TYPE_USER_VALUE_2;
 
-    //!! move this functionality into QCaWidget???
-    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    // !! move this functionality into QCaWidget???
+    // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing
@@ -245,7 +245,7 @@ void QEPeriodic::setup() {
     }
 }
 
-/*!
+/*
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a push button a QCaObject that streams strings is required.
 */
@@ -255,7 +255,7 @@ qcaobject::QCaObject* QEPeriodic::createQcaItem( unsigned int variableIndex ) {
     return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 }
 
-/*!
+/*
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
@@ -280,7 +280,7 @@ void QEPeriodic::establishConnection( unsigned int variableIndex ) {
     }
 }
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QEPeriodic::updateToolTip ( const QString & toolTip ) {
@@ -292,14 +292,14 @@ void QEPeriodic::updateToolTip ( const QString & toolTip ) {
         readbackLabel->setToolTip( toolTip );
 }
 
-/*!
+/*
     Act on a connection change.
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QEPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    /// If connected enabled the widget if required.
+    // If connected enabled the widget if required.
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -315,7 +315,7 @@ void QEPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
         }
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -329,7 +329,7 @@ void QEPeriodic::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*!
+/*
   Implement a slot to set the current text of the push button
   This is the slot used to recieve data updates from a QCaObject based class.
 */
@@ -591,20 +591,20 @@ float QEPeriodic::elementMatch( int i,
     }
 }
 
-/*!
+/*
     Button click event.
     Present the element selection dialog.
 */
 void QEPeriodic::userClicked() {
 
-    /// Get the variables to write to
-    /// The write button uses the first two variables
+    // Get the variables to write to
+    // The write button uses the first two variables
     QCaFloating *qca1 = (QCaFloating*)getQcaItem(0);
     QCaFloating *qca2 = (QCaFloating*)getQcaItem(1);
 
-    /// If a QCa object is present (if there is a variable to write to)
-    /// Present the element selection dialog
-    /// then write the value
+    // If a QCa object is present (if there is a variable to write to)
+    // Present the element selection dialog
+    // then write the value
     if( qca1 || qca2 )
     {
         // Build a list of what buttons should be enabled
@@ -676,7 +676,7 @@ void QEPeriodic::userClicked() {
     }
 }
 
-/*!
+/*
    Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
  */
 void QEPeriodic::requestEnabled( const bool& state )
@@ -685,7 +685,7 @@ void QEPeriodic::requestEnabled( const bool& state )
 }
 
 
-/*!
+/*
   Update what is presented to the user. Either an element select button, a 'current element' label, or both
   */
 void QEPeriodic::updatePresentationOptions()

@@ -56,7 +56,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEScriptManager:public QObject, public QDesi
 
 };
 
-#endif /// QESCRIPTPLUGINMANAGER_H
+#endif // QESCRIPTPLUGINMANAGER_H
 
 
 

@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org
  */
 
-/*!
+/*
   This class is a CA aware combo box widget based on the Qt combo box widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
 
 #include <QEComboBox.h>
 
-/*!
+/*
     Construct a combo box with no variable specified yet
 */
 QEComboBox::QEComboBox( QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
     setup();
 }
 
-/*!
+/*
     Construct a combo box with a variable specified
 */
 QEComboBox::QEComboBox( const QString &variableNameIn, QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
@@ -46,7 +46,7 @@ QEComboBox::QEComboBox( const QString &variableNameIn, QWidget *parent ) : QComb
 
 }
 
-/*!
+/*
     Common construction
 */
 void QEComboBox::setup() {
@@ -77,7 +77,7 @@ void QEComboBox::setup() {
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
-/*!
+/*
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a Combo box a QCaObject that streams integers is required.
 */
@@ -87,7 +87,7 @@ qcaobject::QCaObject* QEComboBox::createQcaItem( unsigned int variableIndex ) {
     return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 }
 
-/*!
+/*
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
@@ -108,7 +108,7 @@ void QEComboBox::establishConnection( unsigned int variableIndex ) {
     }
 }
 
-/*!
+/*
    Act on a connection change.
    Change how the label looks and change the tool tip.
    This is the slot used to recieve connection updates from a QCaObject based class.
@@ -120,7 +120,7 @@ void QEComboBox::establishConnection( unsigned int variableIndex ) {
 */
 void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    /// If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -129,7 +129,7 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         setDataDisabled( false );
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -138,11 +138,11 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         setDataDisabled( true );
     }
 
-    /// Start a single shot read if the channel is up (ignore channel down),
-    /// This will allow initialisation of the widget using info from the database.
-    /// If the combo box is already populated, then it has been set up at design time, or this is a subsequent 'channel up'
-    /// If subscribing, then an update will occur without having to initiated one here.
-    /// Note, channel up implies link up
+    // Start a single shot read if the channel is up (ignore channel down),
+    // This will allow initialisation of the widget using info from the database.
+    // If the combo box is already populated, then it has been set up at design time, or this is a subsequent 'channel up'
+    // If subscribing, then an update will occur without having to initiated one here.
+    // Note, channel up implies link up
     if( connectionInfo.isChannelConnected() && count() == 0 && !subscribe )
     {
         QCaInteger* qca = (QCaInteger*)getQcaItem(0);
@@ -151,14 +151,14 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QEComboBox::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
-/*!
+/*
     Pass the update straight on to the ComboBox unless the user is changing it.
     Note, it would not be common to have a user editing a regularly updating
     value. However, this scenario should be allowed for. A reasonable reason
@@ -196,8 +196,8 @@ void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
     // Save the last database value
     lastValue = value;
 
-    /// Update the text if appropriate
-    /// If the user is editing the object then updates will be inapropriate
+    // Update the text if appropriate
+    // If the user is editing the object then updates will be inapropriate
     if( hasFocus() == false )
     {
         // Update the combo box
@@ -207,7 +207,7 @@ void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
         lastUserValue = currentText();
     }
 
-    /// If in alarm, display as an alarm
+    // If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
     {
             updateToolTipAlarm( alarmInfo.severityName() );
@@ -216,7 +216,7 @@ void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
     }
 }
 
-/*!
+/*
     The user has changed the Combo box.
 */
 void QEComboBox::userValueChanged( int value ) {
@@ -225,11 +225,11 @@ void QEComboBox::userValueChanged( int value ) {
     if( !writeOnChange )
         return;
 
-    /// Get the variable to write to
+    // Get the variable to write to
     QCaInteger* qca = (QCaInteger*)getQcaItem(0);
 
-    /// If a QCa object is present (if there is a variable to write to)
-    /// then write the value
+    // If a QCa object is present (if there is a variable to write to)
+    // then write the value
     if( qca )
     {
         // Write the value

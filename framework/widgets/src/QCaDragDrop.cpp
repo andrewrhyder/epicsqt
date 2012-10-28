@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class adds common drag/drop support to all QCa widgets if required.
 
   This class manages the common drag and drop functions leaving the actual QCa widget class

@@ -64,13 +64,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEComboBox : public QComboBox, public QCaWid
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void userValueChanged( int value );
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
   public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
     void writeNow();
 
 signals:

@@ -27,7 +27,7 @@
 
 #include <QEPushButton.h>
 
-/// QCaPushButtonPlugin IS deprecated - use QEPushButton.
+// QCaPushButtonPlugin IS deprecated - use QEPushButton.
 class QCaPushButtonPlugin : public QEPushButton {
     Q_OBJECT
 

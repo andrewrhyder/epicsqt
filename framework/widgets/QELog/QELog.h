@@ -222,6 +222,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QCaWidget
 
 
 
-#endif /// QELOG_H
+#endif // QELOG_H
 
 

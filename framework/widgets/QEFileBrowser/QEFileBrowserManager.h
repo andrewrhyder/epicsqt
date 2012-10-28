@@ -56,7 +56,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEFileBrowserManager:public QObject, public 
 
 };
 
-#endif /// QEFILEBROWSERPLUGINMANAGER_H
+#endif // QEFILEBROWSERPLUGINMANAGER_H
 
 
 

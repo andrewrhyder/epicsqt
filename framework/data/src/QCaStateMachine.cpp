@@ -29,7 +29,7 @@
 
 using namespace qcastatemachine;
 
-/*!
+/*
     Startup default attributes.
 */
 QCaStateMachine::QCaStateMachine( void *parent ) {
@@ -39,7 +39,7 @@ QCaStateMachine::QCaStateMachine( void *parent ) {
     expired = false;
 }
 
-/*!
+/*
     Startup for the Connection statemachine.
 */
 ConnectionQCaStateMachine::ConnectionQCaStateMachine( void *parent ) : QCaStateMachine( parent ) {
@@ -47,7 +47,7 @@ ConnectionQCaStateMachine::ConnectionQCaStateMachine( void *parent ) : QCaStateM
     requestState = DISCONNECTED;
 }
 
-/*!
+/*
     Process the Connection statemachine.
 */
 bool ConnectionQCaStateMachine::process( int requestedState) {
@@ -112,7 +112,7 @@ bool ConnectionQCaStateMachine::process( int requestedState) {
     return true;
 }
 
-/*!
+/*
     Startup for the Subscription statemachine.
 */
 SubscriptionQCaStateMachine::SubscriptionQCaStateMachine( void *parent ) : QCaStateMachine( parent ) {
@@ -120,7 +120,7 @@ SubscriptionQCaStateMachine::SubscriptionQCaStateMachine( void *parent ) : QCaSt
     requestState = UNSUBSCRIBED;
 }
 
-/*!
+/*
     Process the Subscription statemachine.
 */
 bool SubscriptionQCaStateMachine::process( int requestedState ) {
@@ -172,7 +172,7 @@ bool SubscriptionQCaStateMachine::process( int requestedState ) {
     return true;
 }
 
-/*!
+/*
     Startup for the Reading statemachine.
 */
 ReadQCaStateMachine::ReadQCaStateMachine( void *parent ) : QCaStateMachine( parent ) {
@@ -180,7 +180,7 @@ ReadQCaStateMachine::ReadQCaStateMachine( void *parent ) : QCaStateMachine( pare
     requestState = READ_IDLE;
 }
 
-/*!
+/*
     Process the Reading statemachine.
 */
 bool ReadQCaStateMachine::process( int requestedState ) {
@@ -225,7 +225,7 @@ bool ReadQCaStateMachine::process( int requestedState ) {
     return true;
 }
 
-/*!
+/*
     Startup for the Writing statemachine.
 */
 WriteQCaStateMachine::WriteQCaStateMachine( void *parent ) : QCaStateMachine( parent ) {
@@ -233,7 +233,7 @@ WriteQCaStateMachine::WriteQCaStateMachine( void *parent ) : QCaStateMachine( pa
     requestState = WRITE_IDLE;
 }
 
-/*!
+/*
     Process the Writing statemachine.
 */
 bool WriteQCaStateMachine::process( int requestedState ) {

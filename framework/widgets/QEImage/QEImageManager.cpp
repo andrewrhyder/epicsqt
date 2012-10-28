@@ -26,14 +26,14 @@
 #include <QEImage.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEImageManager::QEImageManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEImageManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QEImageManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEImageManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEImage widget.
 */
 QWidget *QEImageManager::createWidget ( QWidget *parent ) {
     return new QEImage(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEImageManager::name() const {
     return "QEImage";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEImageManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEImageManager::icon() const {
     return QIcon(":/qe/image/QEImage.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEImageManager::toolTip() const {
     return "EPICS Image";
 }
 
-/*!
+/*
     ???
 */
 QString QEImageManager::whatsThis() const {
     return "EPICS Image";
 }
 
-/*!
+/*
     ???
 */
 bool QEImageManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEImageManager::domXml() const {
@@ -122,7 +122,7 @@ bool QEImageManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEImageManager::includeFile() const {

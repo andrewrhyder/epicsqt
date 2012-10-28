@@ -48,4 +48,4 @@ class managePixmaps {
 
 };
 
-#endif /// MANAGEPIXMAP_H
+#endif // MANAGEPIXMAP_H

@@ -26,14 +26,14 @@
 #include <QESlider.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QESliderManager::QESliderManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QESliderManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QESliderManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QESliderManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QESlider widget.
 */
 QWidget *QESliderManager::createWidget ( QWidget *parent ) {
     return new QESlider(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QESliderManager::name() const {
     return "QESlider";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QESliderManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QESliderManager::icon() const {
     return QIcon(":/qe/slider/QESlider.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QESliderManager::toolTip() const {
     return "EPICS Slider";
 }
 
-/*!
+/*
     ???
 */
 QString QESliderManager::whatsThis() const {
     return "EPICS Slider";
 }
 
-/*!
+/*
     ???
 */
 bool QESliderManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QESliderManager::domXml() const {
@@ -122,7 +122,7 @@ bool QESliderManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QESliderManager::includeFile() const {

@@ -27,15 +27,15 @@
 #include <QCaIntegerFormatting.h>
 #include <QtDebug>
 
-/*!
+/*
     ???
 */
 QCaIntegerFormatting::QCaIntegerFormatting() {
-    /// Default formatting properties.
+    // Default formatting properties.
     radix = 10;
 }
 
-/*!
+/*
     Generate a value given an integer, using formatting defined within this class.
     The formatting mainly applies if formatting as a string. For example, was is
     the number base? should a sign always be included? are leading zeros requried?
@@ -84,7 +84,7 @@ QVariant QCaIntegerFormatting::formatValue( const long &integerValue, generic::g
     return unknown;
 }
 
-/*!
+/*
     Generate an integer given a value, using formatting defined within this class.
     The value may be an array of variants or a single variant
 */
@@ -102,7 +102,7 @@ long QCaIntegerFormatting::formatInteger( const QVariant &value ) {
     }
 }
 
-/*!
+/*
     Generate an integer array given a value, using formatting defined within this class.
 */
 QVector<long> QCaIntegerFormatting::formatIntegerArray( const QVariant &value ) {
@@ -128,7 +128,7 @@ QVector<long> QCaIntegerFormatting::formatIntegerArray( const QVariant &value ) 
     return returnValue;
 }
 
-/*!
+/*
     Generate an integer given a value, using formatting defined within this class.
 */
 long QCaIntegerFormatting::formatIntegerNonArray( const QVariant &value ) {
@@ -158,7 +158,7 @@ long QCaIntegerFormatting::formatIntegerNonArray( const QVariant &value ) {
     }
 }
 
-/*!
+/*
     Format a variant value as an integer representation of a floating point number.
     Convert the variant value to a long. It may or may not be a longlong type variant. If it is - good,
     there will be no conversion problems.
@@ -182,7 +182,7 @@ long QCaIntegerFormatting::formatFromFloating( const QVariant &value ) {
     return iValue;
 }
 
-/*!
+/*
     Format a variant value as a (signed) integer representation of an unsigned integer.
     This method was written to convert a QVariant of type ULongLong, but should cope with a variant of any type.
     Convert the variant value to a long. It may or may not be a longlong type variant. If it is - good,
@@ -207,7 +207,7 @@ long QCaIntegerFormatting::formatFromUnsignedInteger( const QVariant &value ) {
     return lValue;
 }
 
-/*!
+/*
     Format a variant value as an integer representation of a string.
     This method was written to convert a QVariant of type String, but should cope with a variant of any type.
     Convert the variant value to an unsigned long. It may or may not be a ulonglong type variant. If it is - good,
@@ -241,7 +241,7 @@ long QCaIntegerFormatting::formatFromString( const QVariant &value ) {
 
 }
 
-/*!
+/*
     Format a variant value as an integer representation of time.
     This method was written to convert a QVariant of type ??? (the type used to represent times in CA),
     but should cope with a variant of any type.
@@ -253,7 +253,7 @@ long QCaIntegerFormatting::formatFromTime( const QVariant &value ) {
     return value.toLongLong();
 }
 
-/*!
+/*
     Do something with the fact that the value could not be formatted as requested.
 */
 long QCaIntegerFormatting::formatFailure( QString message ) {
@@ -264,7 +264,7 @@ long QCaIntegerFormatting::formatFailure( QString message ) {
     return 0;
 }
 
-/*!
+/*
     Set the numer system base.
     Relevent when formatting the string as an interger.
     Any radix of 2 or more is accepted. Check the conversion code that uses this number to see what values are expected.
@@ -277,7 +277,7 @@ void QCaIntegerFormatting::setRadix( unsigned int radixIn ) {
         radix = radixIn;
 }
 
-/*!
+/*
     Get the numerical base. See setRadix() for the use of 'radix'.
 */
 unsigned int QCaIntegerFormatting::getRadix() {

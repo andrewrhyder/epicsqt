@@ -58,4 +58,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFloating : public qcaobject::QCaObject {
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
-#endif /// QCAFLOATING_H
+#endif // QCAFLOATING_H

@@ -26,14 +26,14 @@
 #include <QCaSpinBoxPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaSpinBoxPluginManager::QCaSpinBoxPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaSpinBoxPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QCaSpinBoxPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaSpinBoxPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaSpinBoxPlugin widget.
 */
 QWidget *QCaSpinBoxPluginManager::createWidget ( QWidget *parent ) {
     return new QCaSpinBoxPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaSpinBoxPluginManager::name() const {
     return "QCaSpinBoxPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaSpinBoxPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaSpinBoxPluginManager::icon() const {
     return QIcon(":/qe/spinbox/QESpinBox.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaSpinBoxPluginManager::toolTip() const {
     return "Deprecated EPICS SpinBox";
 }
 
-/*!
+/*
     ???
 */
 QString QCaSpinBoxPluginManager::whatsThis() const {
     return "Deprecated EPICS SpinBox";
 }
 
-/*!
+/*
     ???
 */
 bool QCaSpinBoxPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaSpinBoxPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QCaSpinBoxPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaSpinBoxPluginManager::includeFile() const {

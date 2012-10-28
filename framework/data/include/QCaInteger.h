@@ -58,4 +58,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaInteger : public qcaobject::QCaObject {
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
-#endif /// QCAINTEGER_H
+#endif // QCAINTEGER_H

@@ -28,7 +28,7 @@
 #include <QEStripChart.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 
@@ -37,7 +37,7 @@ QEStripChartManager::QEStripChartManager (QObject * parent) : QObject (parent)
    initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEStripChartManager::initialize (QDesignerFormEditorInterface *)
@@ -48,7 +48,7 @@ void QEStripChartManager::initialize (QDesignerFormEditorInterface *)
    initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEStripChartManager::isInitialized () const
@@ -56,7 +56,7 @@ bool QEStripChartManager::isInitialized () const
    return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEStripChart widget.
 */
 QWidget *QEStripChartManager::createWidget (QWidget * parent)
@@ -64,7 +64,7 @@ QWidget *QEStripChartManager::createWidget (QWidget * parent)
    return new QEStripChart (parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEStripChartManager::name () const
@@ -72,7 +72,7 @@ QString QEStripChartManager::name () const
    return "QEStripChart";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEStripChartManager::group () const
@@ -80,7 +80,7 @@ QString QEStripChartManager::group () const
    return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEStripChartManager::icon () const
@@ -88,7 +88,7 @@ QIcon QEStripChartManager::icon () const
    return QIcon (":/qe/stripchart/icon.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEStripChartManager::toolTip () const
@@ -96,7 +96,7 @@ QString QEStripChartManager::toolTip () const
    return "EPICS PV/Archive Strip Chart Viewer";
 }
 
-/*!
+/*
     ???
 */
 QString QEStripChartManager::whatsThis () const
@@ -104,7 +104,7 @@ QString QEStripChartManager::whatsThis () const
    return "PV/Archive Strip Chart Viewer";
 }
 
-/*!
+/*
     ???
 */
 bool QEStripChartManager::isContainer () const
@@ -112,7 +112,7 @@ bool QEStripChartManager::isContainer () const
    return false;  //???? true
 }
 
-/*!
+/*
     ???
 */
 /*QString QEStripChartManager::domXml() const {
@@ -135,7 +135,7 @@ bool QEStripChartManager::isContainer () const
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEStripChartManager::includeFile () const

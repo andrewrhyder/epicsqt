@@ -37,7 +37,7 @@
 #define DESIGNER_COMMAND_1 "designer-qt4"
 #define DESIGNER_COMMAND_2 "designer"
 
-/// Shared list of all main windows
+// Shared list of all main windows
 QList<MainWindow*> MainWindow::mainWindowList;
 
 // Shared list of all GUIs being displayed in all main windows
@@ -49,7 +49,7 @@ Q_DECLARE_METATYPE( QEForm* )
 // Methods for construction, destruction, initialisation
 //=================================================================================
 
-/// Constructor
+// Constructor
 MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn, QWidget *parent )  : QMainWindow( parent )
 {
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
@@ -117,7 +117,7 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     setAttribute ( Qt::WA_DeleteOnClose );
 }
 
-/// Destructor
+// Destructor
 MainWindow::~MainWindow()
 {
     // Remove the GUIs shown in this main window from the GUIs listed in the 'Windows' menus of all other main windows
@@ -138,8 +138,8 @@ MainWindow::~MainWindow()
 // Methods for responding to user actions
 //=================================================================================
 
-/// Open a gui in a new window.
-/// Present a file open dialog box and after generate the gui based on the ui file the user selects
+// Open a gui in a new window.
+// Present a file open dialog box and after generate the gui based on the ui file the user selects
 void MainWindow::on_actionNew_Window_triggered()
 {
     profile.publishOwnProfile();
@@ -148,8 +148,8 @@ void MainWindow::on_actionNew_Window_triggered()
     w->show();
 }
 
-/// Open a gui in a new tab.
-/// Present a file open dialog box and after generate the gui based on the ui file the user selects
+// Open a gui in a new tab.
+// Present a file open dialog box and after generate the gui based on the ui file the user selects
 void MainWindow::on_actionNew_Tab_triggered()
 {
     // If not using tabs, start tabs and migrate any single gui to the first tab
@@ -161,8 +161,8 @@ void MainWindow::on_actionNew_Tab_triggered()
     loadGuiIntoNewTab( gui );
 }
 
-/// User requested a new gui to be opened
-/// Present a file open dialog box and after generate the gui based on the ui file the user selects
+// User requested a new gui to be opened
+// Present a file open dialog box and after generate the gui based on the ui file the user selects
 void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
@@ -170,7 +170,7 @@ void MainWindow::on_actionOpen_triggered()
     loadGuiIntoCurrentWindow( gui );
 }
 
-/// Close a gui
+// Close a gui
 void MainWindow::on_actionClose_triggered()
 {
     // If using tabs, delete the currenttly selected tab
@@ -263,7 +263,7 @@ void MainWindow::onWindowMenuSelection( QAction* action )
     }
 }
 
-/// Present the 'About' dialog
+// Present the 'About' dialog
 void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, "About ASgui", "<b>ASgui</b> version 0.1");
@@ -479,8 +479,8 @@ QEForm* MainWindow::extractGui( QWidget* rGui )
     }
 }
 
-/// Open a gui in a new tab
-/// Either as a result of the gui user requesting a new tab, or a contained object (gui push button) requesting a new tab
+// Open a gui in a new tab
+// Either as a result of the gui user requesting a new tab, or a contained object (gui push button) requesting a new tab
 void MainWindow::loadGuiIntoNewTab( QEForm* gui )
 {
     // Do nothing if couldn't create gui
@@ -499,8 +499,8 @@ void MainWindow::loadGuiIntoNewTab( QEForm* gui )
     }
 }
 
-/// Open a gui in the current window
-/// Either as a result of the gui user requesting a new window, or a contained object (gui push button) requesting a new window
+// Open a gui in the current window
+// Either as a result of the gui user requesting a new window, or a contained object (gui push button) requesting a new window
 void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
 {
     // Do nothing if couldn't create gui

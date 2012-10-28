@@ -27,7 +27,7 @@
 #include <QEAnalogIndicator.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QEAnalogIndicatorManager::QEAnalogIndicatorManager( QObject *parent ) : QObject( parent )
@@ -35,7 +35,7 @@ QEAnalogIndicatorManager::QEAnalogIndicatorManager( QObject *parent ) : QObject(
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QEAnalogIndicatorManager::initialize( QDesignerFormEditorInterface * )
@@ -46,7 +46,7 @@ void QEAnalogIndicatorManager::initialize( QDesignerFormEditorInterface * )
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QEAnalogIndicatorManager::isInitialized() const
@@ -54,7 +54,7 @@ bool QEAnalogIndicatorManager::isInitialized() const
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QEAnalogIndicator widget.
 */
 QWidget *QEAnalogIndicatorManager::createWidget ( QWidget *parent )
@@ -62,7 +62,7 @@ QWidget *QEAnalogIndicatorManager::createWidget ( QWidget *parent )
     return new QEAnalogIndicator( parent );
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QEAnalogIndicatorManager::name() const
@@ -70,7 +70,7 @@ QString QEAnalogIndicatorManager::name() const
     return "QEAnalogIndicator";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QEAnalogIndicatorManager::group() const
@@ -78,7 +78,7 @@ QString QEAnalogIndicatorManager::group() const
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QEAnalogIndicatorManager::icon() const
@@ -86,7 +86,7 @@ QIcon QEAnalogIndicatorManager::icon() const
     return QIcon(":/qe/analogindicator/QEAnalogIndicator.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QEAnalogIndicatorManager::toolTip() const
@@ -94,7 +94,7 @@ QString QEAnalogIndicatorManager::toolTip() const
     return "Analog Indicator";
 }
 
-/*!
+/*
     ???
 */
 QString QEAnalogIndicatorManager::whatsThis() const
@@ -102,7 +102,7 @@ QString QEAnalogIndicatorManager::whatsThis() const
     return "Analog Indicator";
 }
 
-/*!
+/*
     ???
 */
 bool QEAnalogIndicatorManager::isContainer() const
@@ -110,7 +110,7 @@ bool QEAnalogIndicatorManager::isContainer() const
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QEAnalogIndicatorManager::domXml() const {
@@ -133,7 +133,7 @@ bool QEAnalogIndicatorManager::isContainer() const
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QEAnalogIndicatorManager::includeFile() const

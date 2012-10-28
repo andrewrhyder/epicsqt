@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class adds common property support to all QCa widgets where the support involves interaction with the QWidget.
   Any common property support that requires a greater scope than the QWidget is managed in QCaWidget.
 */
@@ -48,7 +48,7 @@ standardProperties::standardProperties( QWidget* ownerIn )
     applicationVisibility = true;
 }
 
-//!!
+// !!
 userLevels standardProperties::getUserLevelVisibility()
 {
     return visibilityLevel;

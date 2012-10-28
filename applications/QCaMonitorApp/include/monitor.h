@@ -29,7 +29,7 @@
 #include <QCaString.h>
 #include <UserMessage.h>
 
-/*!
+/*
   Class to monitor a PV. All data updats and messages are timestamped and written to std out
   */
 class monitor : public QObject, public UserMessage

@@ -23,7 +23,7 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-/*!
+/*
    This class provides a non CA aware graphical analog indicator base class.
    It supports a number of display modes including Bar, Scale and Meter.
 
@@ -160,7 +160,7 @@ protected:
     virtual BandList getBandList ();
 
 public:
-    /// Constructor
+    // Constructor
     QEAnalogIndicator (QWidget * parent = 0);
     virtual ~QEAnalogIndicator() {}
     virtual QSize sizeHint () const;
@@ -222,4 +222,4 @@ public slots:
     void setValue   (const double ValueIn);
 };
 
-#endif /// QEANALOGINDICATOR_H
+#endif // QEANALOGINDICATOR_H

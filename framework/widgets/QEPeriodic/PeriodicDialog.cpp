@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class manages the presenation of a periodic table and the selection of an
   element in the table by a user.
   It is used by the QCaPeriodic widget.

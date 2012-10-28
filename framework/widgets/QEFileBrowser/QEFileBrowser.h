@@ -184,6 +184,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QCaWidg
 
 
 
-#endif /// QEFILEBROWSER_H
+#endif // QEFILEBROWSER_H
 
 

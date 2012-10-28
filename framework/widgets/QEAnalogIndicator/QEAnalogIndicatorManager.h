@@ -29,7 +29,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogIndicatorManager : 
@@ -57,4 +57,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogIndicatorManager :
     bool initialized;
 };
 
-#endif /// QEANALOGINDICATORMANAGER_H
+#endif // QEANALOGINDICATORMANAGER_H

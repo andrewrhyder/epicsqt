@@ -31,7 +31,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QEBitStatusManager :
@@ -58,4 +58,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEBitStatusManager :
     bool initialized;
 };
 
-#endif                          /// QEBITSTATUSMANAGER_H
+#endif                          // QEBITSTATUSMANAGER_H

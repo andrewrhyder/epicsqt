@@ -56,5 +56,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELoginManager:public QObject, public QDesig
 
 };
 
-#endif /// QELOGINPLUGINMANAGER_H
+#endif // QELOGINPLUGINMANAGER_H
 

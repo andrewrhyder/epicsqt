@@ -26,7 +26,7 @@
 #define QCASLIDERPLUGIN_H
 #include <QESlider.h>
 
-/// QCaSliderPlugin IS deprecated - use QESlider.
+// QCaSliderPlugin IS deprecated - use QESlider.
 class QCaSliderPlugin : public QESlider {
     Q_OBJECT
 

@@ -28,7 +28,7 @@
 
 #include <QEStripChart.h>
 
-/// QCaStripChart IS deprecated - use QEStripChart.
+// QCaStripChart IS deprecated - use QEStripChart.
 //
 class QCaStripChart : public QEStripChart {
     Q_OBJECT
@@ -37,4 +37,4 @@ class QCaStripChart : public QEStripChart {
   QCaStripChart (QWidget *parent = 0) : QEStripChart (parent) {}
 };
 
-#endif /// QCASTRIPCHART_H
+#endif // QCASTRIPCHART_H

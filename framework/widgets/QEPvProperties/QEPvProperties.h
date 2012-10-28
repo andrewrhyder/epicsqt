@@ -23,7 +23,7 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-/*! The QEPvProperties class allows user to view all the displayalbe fields
+/* The QEPvProperties class allows user to view all the displayalbe fields
      of the associated IOC record.
 */
 
@@ -183,7 +183,7 @@ protected:
    void setup();
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
 
-   /// Drag and Drop
+   // Drag and Drop
    //
    // Override QWidget functions - call up standard handlers.
    //
@@ -203,7 +203,7 @@ protected:
    QVariant getDrop ();
 
 public:
-   /// Constructors
+   // Constructors
    //
    QEPvProperties (QWidget * parent = 0);
    QEPvProperties (const QString & variableName, QWidget * parent = 0);

@@ -30,7 +30,7 @@
 #include <QCaBitStatus.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaBitStatusPluginManager::QCaBitStatusPluginManager (QObject * parent) : QObject (parent)
@@ -38,7 +38,7 @@ QCaBitStatusPluginManager::QCaBitStatusPluginManager (QObject * parent) : QObjec
    initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaBitStatusPluginManager::initialize (QDesignerFormEditorInterface *)
@@ -49,7 +49,7 @@ void QCaBitStatusPluginManager::initialize (QDesignerFormEditorInterface *)
    initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaBitStatusPluginManager::isInitialized () const
@@ -57,7 +57,7 @@ bool QCaBitStatusPluginManager::isInitialized () const
    return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaBitStatus widget.
 */
 QWidget *QCaBitStatusPluginManager::createWidget (QWidget * parent)
@@ -65,7 +65,7 @@ QWidget *QCaBitStatusPluginManager::createWidget (QWidget * parent)
    return new QCaBitStatus (parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaBitStatusPluginManager::name () const
@@ -73,7 +73,7 @@ QString QCaBitStatusPluginManager::name () const
    return "QCaBitStatus";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaBitStatusPluginManager::group () const
@@ -81,7 +81,7 @@ QString QCaBitStatusPluginManager::group () const
    return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaBitStatusPluginManager::icon () const
@@ -89,7 +89,7 @@ QIcon QCaBitStatusPluginManager::icon () const
    return QIcon (":/qe/bitstatus/QEBitStatus.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaBitStatusPluginManager::toolTip () const
@@ -97,7 +97,7 @@ QString QCaBitStatusPluginManager::toolTip () const
    return "Deprecated EPICS Bit Status";
 }
 
-/*!
+/*
     ???
 */
 QString QCaBitStatusPluginManager::whatsThis () const
@@ -105,7 +105,7 @@ QString QCaBitStatusPluginManager::whatsThis () const
    return "Deprecated EPICS Bit Status";
 }
 
-/*!
+/*
     ???
 */
 bool QCaBitStatusPluginManager::isContainer () const
@@ -113,7 +113,7 @@ bool QCaBitStatusPluginManager::isContainer () const
    return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaBitStatusPluginManager::domXml() const {
@@ -136,7 +136,7 @@ bool QCaBitStatusPluginManager::isContainer () const
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaBitStatusPluginManager::includeFile () const

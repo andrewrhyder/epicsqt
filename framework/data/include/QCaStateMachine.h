@@ -85,4 +85,4 @@ namespace qcastatemachine {
 
 }
 
-#endif /// QCASTATEMACHINE_H_
+#endif // QCASTATEMACHINE_H_

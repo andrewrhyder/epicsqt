@@ -168,7 +168,7 @@ private:
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
-    //!! Any of these that are accessing the QWidget don't have to call back up to the specific push button
+    // !! Any of these that are accessing the QWidget don't have to call back up to the specific push button
     virtual void setButtonState( bool checked ) = 0;
     virtual void setButtonText( QString text ) = 0;
     virtual QString getButtonText() = 0;

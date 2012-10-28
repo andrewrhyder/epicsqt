@@ -38,13 +38,13 @@
 class QCaInstalledFiltersListItem {
   public:
     QCaInstalledFiltersListItem( QObject* eventObjectIn ) { eventObject = eventObjectIn; referenceCount = 1; }
-    /// QObject that an event filter has been added to
+    // QObject that an event filter has been added to
     QObject* eventObject;
-    /// Count of how many QCaObjects expect the event filter to be on the QObject
+    // Count of how many QCaObjects expect the event filter to be on the QObject
     long referenceCount;
 };
 
-/*!
+/*
     This class allows instances of QCaObject to recieve events posted to them by foriegn CA threads.
     Each event recipient creates an instance of this class. This class, however, manages only a single
     event filter for all instances of itself.
@@ -52,18 +52,18 @@ class QCaInstalledFiltersListItem {
 class QCaEventFilter : public QObject {
     Q_OBJECT
   public:
-    /// Add a fitler to an object
+    // Add a fitler to an object
     void addFilter( QObject* objectIn );
-    /// Remove an event filter from an object
+    // Remove an event filter from an object
     void deleteFilter( QObject* objectIn );
-    /// Event filter added to a QObject
+    // Event filter added to a QObject
     bool eventFilter( QObject *watched, QEvent *e );
 
   private:
-    /// Used to protect access to installedFilters
+    // Used to protect access to installedFilters
     QMutex installedFiltersLock;
-    /// List of QObjects the event filter is added to
+    // List of QObjects the event filter is added to
     QList<QCaInstalledFiltersListItem> installedFilters;
 };
 
-#endif /// QCAEVENTFILTER_H
+#endif // QCAEVENTFILTER_H

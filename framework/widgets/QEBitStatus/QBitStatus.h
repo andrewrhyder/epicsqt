@@ -62,11 +62,11 @@ public:
    //
    Q_PROPERTY (int     gap                 READ getGap                  WRITE setGap)
 
-   /*! The revserve polarity mask applies to value AFTER the shift.
+   /* The revserve polarity mask applies to value AFTER the shift.
     */
    Q_PROPERTY (QString reversePolarityMask READ getReversePolarityMask  WRITE setReversePolarityMask)
 
-   /*! The clear (aka inhibit aka not applicable) masks apply to value AFTER reversePolarityMask.
+   /* The clear (aka inhibit aka not applicable) masks apply to value AFTER reversePolarityMask.
     */
    Q_PROPERTY (QString onClearMask         READ getOnClearMask          WRITE setOnClearMask)
    Q_PROPERTY (QString offClearMask        READ getOffClearMask         WRITE setOffClearMask)
@@ -114,7 +114,7 @@ private:
    QColor getOnPaintColour ();
    QColor getInvalidPaintColour ();
 
-   /// Like painter drawRect or drawEllipse, but bounded by rect, i.e.sensible.
+   // Like painter drawRect or drawEllipse, but bounded by rect, i.e.sensible.
    //
    void drawItem  (QPainter & painter, const QRect & rect);
 
@@ -188,4 +188,4 @@ public:
 
 };
 
-#endif /// QBITSTATUS_H
+#endif // QBITSTATUS_H

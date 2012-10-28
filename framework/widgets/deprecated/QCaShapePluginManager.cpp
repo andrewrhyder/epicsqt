@@ -27,14 +27,14 @@
 
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaShapePluginManager::QCaShapePluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaShapePluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -44,63 +44,63 @@ void QCaShapePluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaShapePluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaShapePlugin widget.
 */
 QWidget *QCaShapePluginManager::createWidget ( QWidget *parent ) {
     return new QCaShapePlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaShapePluginManager::name() const {
     return "QCaShapePlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaShapePluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaShapePluginManager::icon() const {
     return QIcon(":/qe/shape/QEShape.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaShapePluginManager::toolTip() const {
     return "Deprecated EPICS Shape";
 }
 
-/*!
+/*
     ???
 */
 QString QCaShapePluginManager::whatsThis() const {
     return "Deprecated EPICS Shape";
 }
 
-/*!
+/*
     ???
 */
 bool QCaShapePluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaShapePluginManager::domXml() const {
@@ -123,7 +123,7 @@ bool QCaShapePluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaShapePluginManager::includeFile() const {

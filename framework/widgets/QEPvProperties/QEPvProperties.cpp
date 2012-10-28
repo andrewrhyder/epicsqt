@@ -766,7 +766,7 @@ QVariant QEPvProperties::copyData()
     }
 
 
-    //!! built a list of field/values
+    // !! built a list of field/values
     QString fieldValues;
     return QVariant( fieldValues );
 }

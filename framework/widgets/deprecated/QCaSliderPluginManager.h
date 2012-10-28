@@ -53,4 +53,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSliderPluginManager : public QObject, pub
     bool initialized;
 };
 
-#endif /// QCASLIDERPLUGINMANAGER_H
+#endif // QCASLIDERPLUGINMANAGER_H

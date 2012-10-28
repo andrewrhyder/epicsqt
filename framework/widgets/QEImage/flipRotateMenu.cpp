@@ -36,7 +36,7 @@ imageContextMenu::imageContextMenuOptions flipRotateMenu::getFlipRotate( const Q
     QAction* selectedItem = exec( pos );
     if( selectedItem )
     {
-        //!!! Doesn't return fliped state
+        // !!! Doesn't return fliped state
         qDebug() << (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt());
         return (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt());
     }

@@ -64,15 +64,15 @@
 #include <QCaEventUpdate.h>
 #include <QCaObject.h>
 
-/*!
+/*
     Add the event filter to an object.
 */
 void QCaEventFilter::addFilter( QObject *eventObject ) {
 
-    /// Protect access to the list of objects
+    // Protect access to the list of objects
     QMutexLocker locker( &installedFiltersLock );
 
-    /// Check if the filter is already present. If so, just increase the reference count
+    // Check if the filter is already present. If so, just increase the reference count
     int i;
     for( i = 0; i < installedFilters.size(); i++ ) {
         QCaInstalledFiltersListItem* item = &(installedFilters[i]);
@@ -82,37 +82,37 @@ void QCaEventFilter::addFilter( QObject *eventObject ) {
         }
     }
 
-    /// If the filter was not present (known because the search reached the end of the list) then
-    /// add the object to the list of objects using the filter and add the filter to the object.
+    // If the filter was not present (known because the search reached the end of the list) then
+    // add the object to the list of objects using the filter and add the filter to the object.
     if( i >= installedFilters.size() ) {
-        /// Add the object to the list
+        // Add the object to the list
         QCaInstalledFiltersListItem item( eventObject );
         installedFilters.append( item );
 
-        /// Add the filter
+        // Add the filter
         eventObject->installEventFilter( this );
     }
 }
 
-/*!
+/*
     Remove the event filter from an object.
 */
 void QCaEventFilter::deleteFilter( QObject *eventObject ) {
 
-    /// Protect access to the list of objects
+    // Protect access to the list of objects
     QMutexLocker locker( &installedFiltersLock );
 
-    /// Search for the QObject the filter is to be removed from.
+    // Search for the QObject the filter is to be removed from.
     bool itemFound = false;
     int i;
     for( i = 0; i < installedFilters.size(); i++ ) {
 
-        /// Get the next item and check for a match
+        // Get the next item and check for a match
         QCaInstalledFiltersListItem* item = &(installedFilters[i]);
         if( item->eventObject == eventObject ) {
-            /// Item matched. Reduce the count of QCaObjects relying on
-            /// this filter and remove the filter if there are no more
-            /// QCaObject requiring the filter
+            // Item matched. Reduce the count of QCaObjects relying on
+            // this filter and remove the filter if there are no more
+            // QCaObject requiring the filter
             item->referenceCount--;
 
             if( item->referenceCount == 0 ) {
@@ -124,14 +124,14 @@ void QCaEventFilter::deleteFilter( QObject *eventObject ) {
         }
     }
 
-    /// If the item containing the object was not found, log an error
+    // If the item containing the object was not found, log an error
     if( !itemFound ) {
-        /// ??? log an error better than this
+        // ??? log an error better than this
         qDebug() << "QCaEventFilter::deleteFilter() Error locating object";
     }
 }
 
-/*!
+/*
     Filter events for a QObject, processing events posted by a QCaObject.
     This is an overloaded function of QObject
     As the originating QCaObject is referenced in the event, events can be processed
@@ -139,12 +139,12 @@ void QCaEventFilter::deleteFilter( QObject *eventObject ) {
 */
 bool QCaEventFilter::eventFilter( QObject *watched, QEvent *e ) {
     if( e->type() == QCaEventUpdate::EVENT_UPDATE_TYPE ) {
-        /// The event is our update event.
-        /// Pass it back to the originating QCaObject for processing if still required
+        // The event is our update event.
+        // Pass it back to the originating QCaObject for processing if still required
         QCaEventUpdate *dataUpdateEvent = static_cast<QCaEventUpdate*>( e );
         qcaobject::QCaObject::processEventStatic( dataUpdateEvent );
 
-        /// The event has been dealt with. Indicate it requires no further processing (return true)
+        // The event has been dealt with. Indicate it requires no further processing (return true)
         return true;
     }
     return QObject::eventFilter( watched, e );

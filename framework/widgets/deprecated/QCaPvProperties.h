@@ -28,7 +28,7 @@
 
 #include <QEPvProperties.h>
 
-/// QCaPvProperties IS deprecated - use QEPvProperties.
+// QCaPvProperties IS deprecated - use QEPvProperties.
 //
 class QCaPvProperties : public QEPvProperties {
     Q_OBJECT
@@ -37,4 +37,4 @@ class QCaPvProperties : public QEPvProperties {
   QCaPvProperties (QWidget *parent = 0) : QEPvProperties (parent) {}
 };
 
-#endif /// QCAPVPROPERTIES_H
+#endif // QCAPVPROPERTIES_H

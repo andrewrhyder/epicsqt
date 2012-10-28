@@ -27,7 +27,7 @@
 
 #include <QELink.h>
 
-/// LinkPlugin IS deprecated - use QELink.
+// LinkPlugin IS deprecated - use QELink.
 class LinkPlugin : public QELink {
     Q_OBJECT
 
@@ -49,4 +49,4 @@ class LinkPlugin : public QELink {
     ConditionNames getConditionProperty(){ return (ConditionNames)getCondition(); }
 };
 
-#endif /// LINKPLUGIN_H
+#endif // LINKPLUGIN_H

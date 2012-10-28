@@ -29,7 +29,7 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QCaPluginLibrary_global.h>
 
-/*!
+/*
     ???
 */
 class QCAPLUGINLIBRARYSHARED_EXPORT QCaPvPropertiesPluginManager :
@@ -58,4 +58,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaPvPropertiesPluginManager :
     bool initialized;
 };
 
-#endif                          /// QCAPVPROPERTIESPLUGINMANAGER_H
+#endif                          // QCAPVPROPERTIESPLUGINMANAGER_H

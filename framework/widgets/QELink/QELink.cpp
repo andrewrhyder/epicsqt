@@ -28,7 +28,7 @@
 #include <QString>
 #include <QDebug>
 
-/*!
+/*
     Constructor with no initialisation
 */
 QELink::QELink( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {

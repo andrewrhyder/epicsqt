@@ -34,7 +34,7 @@
 #include <QCaPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
 
-//! Maximum number of variables.
+// Maximum number of variables.
 #define QESHAPE_NUM_VARIABLES 6
 
 class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
@@ -117,7 +117,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
 
 
   protected:
-    QCaIntegerFormatting integerFormatting;                     /// Integer formatting options
+    QCaIntegerFormatting integerFormatting;                     // Integer formatting options
 
   #define OFFSETS_SIZE QESHAPE_NUM_VARIABLES
     double offsets[OFFSETS_SIZE];
@@ -145,23 +145,23 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
     bool fill;
     bool drawBorder;
 
-    void colorChange( unsigned int index );                     /// Act on a color property change. (will update shape if using the color)
-    unsigned int currentColor;                                  /// Index into colorsProperty last used when setting brush color
+    void colorChange( unsigned int index );                     // Act on a color property change. (will update shape if using the color)
+    unsigned int currentColor;                                  // Index into colorsProperty last used when setting brush color
 
-    void establishConnection( unsigned int variableIndex );     /// Create a CA connection and initiates updates if required
+    void establishConnection( unsigned int variableIndex );     // Create a CA connection and initiates updates if required
 
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
-    //!! move this functionality into QCaWidget???
-    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    // !! move this functionality into QCaWidget???
+    // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
   public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
 
   signals:
     void dbValueChanged1( const qlonglong& out );
@@ -172,7 +172,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
     void dbValueChanged6( const qlonglong& out );
 
   private:
-    void setup();                                               /// Initialisation common to all constructors
+    void setup();                                               // Initialisation common to all constructors
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
     void refreshData( const int index );

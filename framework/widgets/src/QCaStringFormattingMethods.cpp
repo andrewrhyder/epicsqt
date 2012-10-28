@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is used by QCaWidgets when setting properties managed by the QCaStringformatting class.
   This class calls matching set and get methods from the QCaStringformatting class but also calls back
   the QCawidget when setting properties so the widget can update itself based on the changes.

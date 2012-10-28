@@ -93,7 +93,7 @@ public:
       NUMBER_OF_PVS = 12
    };
 
-   /// Constructors
+   // Constructors
    //
    explicit QEStripChart (QWidget * parent = 0);
    ~QEStripChart ();
@@ -121,12 +121,12 @@ public:
    double getYMaximum ();
    void setYMaximum (double yMaximumIn);
 
-   /*! Replots chart data
+   /* Replots chart data
     */
    void plotData ();
 
 protected:
-   /// Drag and Drop
+   // Drag and Drop
    //
    // Override QWidget functions - call up standard handlers defined in QCaDragDrop.
    //

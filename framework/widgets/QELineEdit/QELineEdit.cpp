@@ -23,7 +23,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware line edit widget based on the Qt line edit widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
@@ -32,14 +32,14 @@
 #include <QMessageBox>
 
 
-/*!
+/*
     Constructor with no initialisation
 */
 QELineEdit::QELineEdit( QWidget *parent ) : QLineEdit( parent ), QCaWidget( this ) {
     setup();
 }
 
-/*!
+/*
     Constructor with known variable
 */
 QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QLineEdit( parent ), QCaWidget( this ) {
@@ -47,7 +47,7 @@ QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QLine
     setVariableName( variableNameIn, 0 );
 }
 
-/*!
+/*
     Setup common to all constructors
 */
 void QELineEdit::setup() {
@@ -86,7 +86,7 @@ void QELineEdit::setup() {
  }
 
 
-/*!
+/*
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a line edit a QCaObject that streams strings is required.
 */
@@ -96,7 +96,7 @@ qcaobject::QCaObject* QELineEdit::createQcaItem( unsigned int variableIndex ) {
     return new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 }
 
-/*!
+/*
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
@@ -118,14 +118,14 @@ void QELineEdit::establishConnection( unsigned int variableIndex ) {
     }
 }
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QELineEdit::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
 }
 
-/*!
+/*
     Act on a connection change.
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
@@ -133,7 +133,7 @@ void QELineEdit::updateToolTip ( const QString & toolTip ) {
 void QELineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
 
-    /// If connected enabled the widget if required.
+    // If connected enabled the widget if required.
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -143,7 +143,7 @@ void QELineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
             QWidget::setEnabled( true );
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -153,7 +153,7 @@ void QELineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*!
+/*
     Pass the text update straight on to the QLineEdit unless the user is
     editing the text.
     Note, it would not be common to have a user editing a regularly updating
@@ -170,18 +170,18 @@ void QELineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo
     // This last value is also used to manage notifying user changes (save what the user will be changing from)
     lastValue = value;
 
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     emit dbValueChanged( value );
 
-    /// Update the text if appropriate
-    /// If the user is editing the object then updates will be inapropriate
+    // Update the text if appropriate
+    // If the user is editing the object then updates will be inapropriate
     if( hasFocus() == false && !writeConfirmDialogPresent )
     {
         setText( value );
         lastUserValue = value;
     }
 
-    /// If in alarm, display as an alarm
+    // If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
     {
             updateToolTipAlarm( alarmInfo.severityName() );
@@ -190,7 +190,7 @@ void QELineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo
     }
 }
 
-/*!
+/*
     The user has pressed return/enter. (Not write when user enters the widget)
     Note, it doesn't matter if the user presses return and both this function
     AND userReturnPressed() is called since setText is called in each to clear
@@ -199,13 +199,13 @@ void QELineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo
 */
 void QELineEdit::userReturnPressed() {
 
-    /// Get the variable to write to
+    // Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
-    /// If a QCa object is present (if there is a variable to write to)
-    /// and the object is set up to write when the user presses return
-    /// then write the value.
-    /// Note, write even if the value has not changed (isModified() is not checked)
+    // If a QCa object is present (if there is a variable to write to)
+    // and the object is set up to write when the user presses return
+    // then write the value.
+    // Note, write even if the value has not changed (isModified() is not checked)
 
     if( qca && writeOnEnter )
     {
@@ -213,7 +213,7 @@ void QELineEdit::userReturnPressed() {
     }
 }
 
-/*!
+/*
     The user has 'finished editing' such as pressed return/enter or moved
     focus from the object.
     Note, it doesn't matter if the user presses return and both this function
@@ -223,24 +223,24 @@ void QELineEdit::userReturnPressed() {
 */
 void QELineEdit::userEditingFinished() {
 
-    /// If no changes were made by the user, do nothing
+    // If no changes were made by the user, do nothing
     if( !isModified() || !writeOnFinish )
         return;
 
-    /// Get the variable to write to
+    // Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
-    /// If a QCa object is present (if there is a variable to write to)
-    /// and the object is set up to write when the user changes focus away from the object
-    /// and the text has actually changed
-    /// then write the value
+    // If a QCa object is present (if there is a variable to write to)
+    // and the object is set up to write when the user changes focus away from the object
+    // and the text has actually changed
+    // then write the value
     if( qca && writeOnLoseFocus )
     {
         writeValue( qca, text() );
     }
 
-    /// If, for what ever reason, the value has been changed by the user but not but not written
-    /// check with the user what to do about it.
+    // If, for what ever reason, the value has been changed by the user but not but not written
+    // check with the user what to do about it.
     else
     {
         writeConfirmDialogPresent = true;
@@ -250,18 +250,18 @@ void QELineEdit::userEditingFinished() {
 
         switch( confirm )
         {
-            /// Write the value
+            // Write the value
             case QMessageBox::Yes:
                 if( qca )
                     writeValue( qca, text() );
                 break;
 
-            /// Abort the write, revert to latest value
+            // Abort the write, revert to latest value
             case QMessageBox::No:
-                setText( lastValue );       /// Note, also clears 'isModified' flag
+                setText( lastValue );       // Note, also clears 'isModified' flag
                 break;
 
-            /// Don't write the value, move back to the field being edited
+            // Don't write the value, move back to the field being edited
             case QMessageBox::Cancel:
                 setFocus();
                 break;
@@ -285,11 +285,11 @@ void QELineEdit::writeNow()
     }
 }
 
-/// Write a value in response to user editing the widget
-/// Request confirmation if required
+// Write a value in response to user editing the widget
+// Request confirmation if required
 void QELineEdit::writeValue( QCaString *qca, QString newValue )
 {
-    /// If required, get confirmation from the user as to what to do
+    // If required, get confirmation from the user as to what to do
     int confirm = QMessageBox::Yes;
     if( confirmWrite )
     {
@@ -297,10 +297,10 @@ void QELineEdit::writeValue( QCaString *qca, QString newValue )
                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes );
     }
 
-    /// Perform the required action. Either write the value (the default) or what ever the user requested
+    // Perform the required action. Either write the value (the default) or what ever the user requested
     switch( confirm )
     {
-        /// Write the value and inform any derived class
+        // Write the value and inform any derived class
         case QMessageBox::Yes:
             // Write the value
             qca->writeString( newValue );
@@ -312,21 +312,21 @@ void QELineEdit::writeValue( QCaString *qca, QString newValue )
             setText( text() );
             break;
 
-        /// Abort the write, revert to latest value
+        // Abort the write, revert to latest value
         case QMessageBox::No:
             // Revert the text. Note, also clears 'isModified' flag
             setText( lastValue );
             break;
 
-        /// Don't write the value, keep editing the field
+        // Don't write the value, keep editing the field
         case QMessageBox::Cancel:
-            /// Do nothing
+            // Do nothing
             break;
     }
 }
 
 
-/*!
+/*
    Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
  */
 void QELineEdit::requestEnabled( const bool& state )
@@ -334,7 +334,7 @@ void QELineEdit::requestEnabled( const bool& state )
     setEnabled(state);
 }
 
-/*!
+/*
     Update variable name etc.
 */
 void QELineEdit::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )

@@ -27,16 +27,16 @@
 #include <QCaFloatingFormatting.h>
 #include <QtDebug>
 
-/*!
+/*
     ???
 */
 QCaFloatingFormatting::QCaFloatingFormatting() {
-    /// Default formatting properties.
+    // Default formatting properties.
     format = FORMAT_g;
     precision = 6;
 }
 
-/*!
+/*
     Generate a value given a floating point number, using formatting defined within this class.
     The formatting mainly applies if formatting as a string. For example, was is
     the number base? should a sign always be included? are leading zeros requried?
@@ -137,7 +137,7 @@ QVariant QCaFloatingFormatting::formatValue( const double &floatingValue, generi
     return unknown;
 }
 
-/*!
+/*
     Generate an floating point number given a value, using formatting defined within this class.
     The value may be an array of variants or a single variant
 */
@@ -155,7 +155,7 @@ double QCaFloatingFormatting::formatFloating( const QVariant &value ) {
     }
 }
 
-/*!
+/*
     Generate an floating point number array given a value, using formatting defined within this class.
 */
 QVector<double> QCaFloatingFormatting::formatFloatingArray( const QVariant &value ) {
@@ -181,7 +181,7 @@ QVector<double> QCaFloatingFormatting::formatFloatingArray( const QVariant &valu
     return returnValue;
 }
 
-/*!
+/*
     Generate an floating point number given a value, using formatting defined within this class.
     The value must be a single variant.
     This is used when formatting a single value, or for each value in an array of values.
@@ -214,7 +214,7 @@ double QCaFloatingFormatting::formatFloatingNonArray( const QVariant &value ) {
     }
 }
 
-/*!
+/*
     Format a variant value as a floating point representation of a signed integer.
     This method was written to convert a QVariant of type LongLong, but should cope with a variant of any type.
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
@@ -239,7 +239,7 @@ double QCaFloatingFormatting::formatFromInteger( const QVariant &value ) {
     return dValue;
 }
 
-/*!
+/*
     Format a variant value as a floating point representation of an unsigned integer.
     This method was written to convert a QVariant of type ULongLong, but should cope with a variant of any type.
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
@@ -264,7 +264,7 @@ double QCaFloatingFormatting::formatFromUnsignedInteger( const QVariant &value )
     return dValue;
 }
 
-/*!
+/*
     Format a variant value as a floating point representation of a string.
     This method was written to convert a QVariant of type String, but should cope with a variant of any type.
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
@@ -289,7 +289,7 @@ double QCaFloatingFormatting::formatFromString( const QVariant &value ) {
     return dValue;
 }
 
-/*!
+/*
     Format a variant value as a floating point representation of time.
     This method was written to convert a QVariant of type ??? (the type used to represent times in CA),
     but should cope with a variant of any type.
@@ -301,7 +301,7 @@ double QCaFloatingFormatting::formatFromTime( const QVariant &value ) {
     return value.toDouble();
 }
 
-/*!
+/*
     Do something with the fact that the value could not be formatted as requested.
 */
 double QCaFloatingFormatting::formatFailure( QString message ) {
@@ -312,7 +312,7 @@ double QCaFloatingFormatting::formatFailure( QString message ) {
     return 0.0;
 }
 
-/*!
+/*
     Set the precision.
     Relevent when formatting the floating point number as a string.
 */
@@ -320,7 +320,7 @@ void QCaFloatingFormatting::setPrecision( unsigned int precisionIn ) {
         precision = precisionIn;
 }
 
-/*!
+/*
     Get the precision.
     Relevent when formatting the floating point number as a string.
 */
@@ -328,7 +328,7 @@ unsigned int QCaFloatingFormatting::getPrecision() {
     return precision;
 }
 
-/*!
+/*
     Set the format.
     Relevent when formatting the floating point number as a string.
 */
@@ -336,7 +336,7 @@ void QCaFloatingFormatting::setFormat( formats formatIn ) {
         format = formatIn;
 }
 
-/*!
+/*
     Get the format.
     Relevent when formatting the floating point number as a string.
 */
@@ -344,7 +344,7 @@ int QCaFloatingFormatting::getFormat() {
     return format;
 }
 
-/*!
+/*
     Get the format character required for the QString::number function.
     Relevent when formatting the floating point number as a string.
 */

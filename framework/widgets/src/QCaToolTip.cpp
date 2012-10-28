@@ -29,7 +29,7 @@ QCaToolTip::QCaToolTip()
     isConnected = false;
 }
 
-/*!
+/*
     Update the tool tip as requested by QCaWidget.
 */
 void QCaToolTip::updateToolTipVariable ( const QString& variable ) {
@@ -49,7 +49,7 @@ void QCaToolTip::updateToolTipConnection ( bool isConnectedIn )
     displayToolTip();
 }
 
-/*!
+/*
    Build and display the tool tip from the name and state
 */
 void QCaToolTip::displayToolTip() {

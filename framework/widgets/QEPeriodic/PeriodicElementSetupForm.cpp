@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class manages a each of the element sub forms in the dialog for setting up a QEPeriodic in Qt designer.
  */
 

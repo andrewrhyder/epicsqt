@@ -27,7 +27,7 @@
 
 #include <QEComboBox.h>
 
-/// QCaComboBoxPlugin IS deprecated - use QEComboBox.
+// QCaComboBoxPlugin IS deprecated - use QEComboBox.
 class QCaComboBoxPlugin : public QEComboBox {
     Q_OBJECT
 

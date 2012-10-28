@@ -25,7 +25,7 @@ VideoWidget::VideoWidget(QWidget *parent)
     setCursor( getDefaultMarkupCursor() );
 
     setAttribute( Qt::WA_OpaquePaintEvent, true );
-    update();//!!!required???
+    update();// !!!required???
 }
 
 VideoWidget::~VideoWidget()
@@ -51,7 +51,7 @@ void VideoWidget::setNewImage( const QImage image, QCaDateTime& time )
 }
 
 // The markup overlay has changed, redraw part of it
-//!! Call this with a null markups image if no markups
+// !! Call this with a null markups image if no markups
 void VideoWidget::markupChange( QImage& markups,  QVector<QRect>& changedAreas )
 {
     // Save the current markups. The markups image is null if no markups
@@ -239,7 +239,7 @@ void VideoWidget::wheelEvent( QWheelEvent* event )
     int zoomAmount = event->delta() / 12;
     emit zoomInOut( zoomAmount );
 
-//!! what if draging image (with mouse button down) when wheel event occurs???
+// !! what if draging image (with mouse button down) when wheel event occurs???
 
 }
 

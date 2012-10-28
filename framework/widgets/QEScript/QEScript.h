@@ -184,6 +184,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QCaWidget
 
 
 
-#endif /// QESCRIPT_H
+#endif // QESCRIPT_H
 
 

@@ -51,4 +51,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESpinBoxManager : public QObject, public QD
     bool initialized;
 };
 
-#endif /// QESPINBOXMANAGER_H
+#endif // QESPINBOXMANAGER_H

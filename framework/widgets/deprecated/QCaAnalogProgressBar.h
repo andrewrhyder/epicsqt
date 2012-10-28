@@ -28,7 +28,7 @@
 
 #include <QEAnalogProgressBar.h>
 
-/// QCaAnalogProgressBar IS deprecated - use QEAnalogProgressBar.
+// QCaAnalogProgressBar IS deprecated - use QEAnalogProgressBar.
 //
 class QCaAnalogProgressBar : public QEAnalogProgressBar {
     Q_OBJECT
@@ -37,4 +37,4 @@ class QCaAnalogProgressBar : public QEAnalogProgressBar {
   QCaAnalogProgressBar (QWidget *parent = 0) : QEAnalogProgressBar (parent) {}
 };
 
-#endif /// QCAANALOGPROGRESSBAR_H
+#endif // QCAANALOGPROGRESSBAR_H

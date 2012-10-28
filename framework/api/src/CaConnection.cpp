@@ -27,12 +27,12 @@
 
 using namespace caconnection;
 
-/*!
+/*
     Initialise the unique ID.
 */
 int CaConnection::CA_UNIQUE_CONNECTION_ID = 0;
 
-/*!
+/*
     Initialise EPICS library and setup working parent. The pointer to the
     working parent is given to the EPICS thread so that any callbacks that
     occur contain the context of the parent that created this CaConnection.
@@ -47,7 +47,7 @@ CaConnection::CaConnection( void* newParent ) {
     reset();
 }
 
-/*!
+/*
     Shutdown EPICS library and reset internal data to defaults.
 */
 CaConnection::~CaConnection() {
@@ -58,7 +58,7 @@ CaConnection::~CaConnection() {
     reset();
 }
 
-/*!
+/*
     Creates only one EPICS context and registers an exception callback.
     Use hasContext() for feedback.
     Returns: REQUEST_SUCCESSFUL or REQUEST_FAILED
@@ -83,7 +83,7 @@ ca_responses CaConnection::establishContext( void (*exceptionHandler)(struct exc
     }
 }
 
-/*!
+/*
     Establishes client side channel and registers a connection state change
     callback.
     Use activeChannel() for feedback.
@@ -123,7 +123,7 @@ void CaConnection::setChannelElementCount()
     }
 }
 
-/*!
+/*
     Subscribes to the established channel and registers for data callbacks
     Use isSubscribed() for feedback.
 
@@ -157,7 +157,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
         return REQUEST_FAILED;
     }
 }
-/*!
+/*
   Internal handler (to this class) used by CaConnection::establishSubscription() to catch the first
   subscription callback (actually a ca_get callback).
   Deliver the callback to the real subscription callback, then establish a real subscription.
@@ -190,7 +190,7 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
     ca_flush_io();
 }
 
-/*!
+/*
     Removes channel and associated subscription
     Use activeChannel() for feedback.
 */
@@ -202,7 +202,7 @@ void CaConnection::removeChannel() {
     }
 }
 
-/*!
+/*
     Cancels channel subscription.
 */
 void CaConnection::removeSubscription() {
@@ -210,7 +210,7 @@ void CaConnection::removeSubscription() {
     //ca_clear_subscription( channelId );
 }
 
-/*!
+/*
     Read channel once and register an event handler.
 */
 ca_responses CaConnection::readChannel( void (*readHandler)(struct event_handler_args), void* args, short dbrStructType ) {
@@ -233,7 +233,7 @@ ca_responses CaConnection::readChannel( void (*readHandler)(struct event_handler
     }
 }
 
-/*!
+/*
     Write to channel once and register a write handler.
 */
 ca_responses CaConnection::writeChannel( void (*writeHandler)(struct event_handler_args), void* args, short dbrStructType, const void* newDbrValue ) {
@@ -260,7 +260,7 @@ ca_responses CaConnection::writeChannel( void (*writeHandler)(struct event_handl
     }
 }
 
-/*!
+/*
     Set the write callback mode.
     Write with no callback using ca_put() (default)
     or write with callback using ca_put_callback()
@@ -276,7 +276,7 @@ void CaConnection::setWriteWithCallback( bool writeWithCallbackIn )
     channel.writeWithCallback = writeWithCallbackIn;
 }
 
-/*!
+/*
     Get the write callback mode.
 */
 bool CaConnection::getWriteWithCallback()
@@ -284,21 +284,21 @@ bool CaConnection::getWriteWithCallback()
     return channel.writeWithCallback;
 }
 
-/*!
+/*
     Record the connection link status.
 */
 void CaConnection::setLinkState( link_states newLinkState ) {
     link.state = newLinkState;
 }
 
-/*!
+/*
     Retrieve the connection status.
 */
 link_states CaConnection::getLinkState() {
     return link.state;
 }
 
-/*!
+/*
     Retrieve the channel connection state. There is no set connection state
     because this is handled by the EPICS library.
 */
@@ -323,7 +323,7 @@ channel_states CaConnection::getChannelState() {
     }
 }
 
-/*!
+/*
     Retrieve the channel's database type.
 */
 short CaConnection::getChannelType() {
@@ -337,14 +337,14 @@ chid CaConnection::getChannelId()
     return channel.id;
 }
 
-/*!
+/*
     Initialise with unique ID and state information
 */
 void CaConnection::initialise() {
     CA_UNIQUE_CONNECTION_ID++;
 }
 
-/*!
+/*
     Shutdown and free context if last.
 */
 void CaConnection::shutdown() {
@@ -360,7 +360,7 @@ void CaConnection::shutdown() {
     }
 }
 
-/*!
+/*
     Set internal data to startup conditions
 */
 void CaConnection::reset() {

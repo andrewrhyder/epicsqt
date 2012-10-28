@@ -53,4 +53,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaByteArray : public qcaobject::QCaObject {
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
-#endif /// QCABYTEARRAY_H
+#endif // QCABYTEARRAY_H

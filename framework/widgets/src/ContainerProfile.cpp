@@ -79,7 +79,7 @@
 #include <QtDebug>
 
 
-/// Static variables used to pass information from the creator of QCa widgets to the QCa widgets themselves.
+// Static variables used to pass information from the creator of QCa widgets to the QCa widgets themselves.
 QObject* ContainerProfile::publishedGuiLaunchConsumer = NULL;
 
 QList<QString>   ContainerProfile::publishedMacroSubstitutions;
@@ -117,7 +117,7 @@ ContainerProfile::~ContainerProfile()
 {
 }
 
-/**
+/*
   Setup the environmental profile prior to creating some QCa widgets.
   The new widgets will use this profile to determine their external environment.
 
@@ -139,7 +139,7 @@ void ContainerProfile::setupProfile( QObject* guiLaunchConsumerIn,
     takeLocalCopy();
 }
 
-/**
+/*
   Update published signal consumer objects.
   This is used if the signal consumer objects were not available when the profile was
   first set up, or if the objects are changing
@@ -159,7 +159,7 @@ void ContainerProfile::updateConsumers( QObject* guiLaunchConsumerIn )
     takeLocalCopy();
 }
 
-/**
+/*
   Update just the published signal consumer object that is used to launch new GUIs.
   The previous object is returned so it can be reinstated later.
   */
@@ -224,7 +224,7 @@ void ContainerProfile::takeLocalCopy()
     messageFormId = publishedMessageFormId;
 }
 
-/**
+/*
   Set up the local profile only (don't refer to any published profile)
   This is used when a QCa widget needs a profile, but none has been published.
   A default local profile can be set up using this method.
@@ -248,7 +248,7 @@ void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
     messageFormId = 0;
 }
 
-/**
+/*
   Extend the macro substitutions currently being used by all new QCaWidgets.
   This is used when a form is created. This allow a form to pass on macro substitutions to the QCa widgets it contains.
   Since it adds to the end of the existing macro substitutions, any substitutions already added by the originating
@@ -260,7 +260,7 @@ void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
         publishedMacroSubstitutions.append( macroSubstitutionsIn );
 }
 
-/**
+/*
   Reduce the macro substitutions currently being used by all new QCaWidgets.
   This is used after a form is created. Any macro substitutions passed on by the form being created are no longer relevent.
   */
@@ -270,7 +270,7 @@ void ContainerProfile::removeMacroSubstitutions()
         publishedMacroSubstitutions.removeLast();
 }
 
-/**
+/*
   Set the published profile to whatever is saved in our local copy
   */
 void ContainerProfile::publishOwnProfile()
@@ -281,7 +281,7 @@ void ContainerProfile::publishOwnProfile()
                     macroSubstitutions );
 }
 
-/**
+/*
   Clears any profile context. Must be called by any code that calls setupProfile() once the profile should no longer be used
   */
 void ContainerProfile::releaseProfile()
@@ -300,7 +300,7 @@ void ContainerProfile::releaseProfile()
     profileDefined = false;
 }
 
-/**
+/*
   Return the object to emit GUI launch request signals to.
   If NULL, there is no object available.
   */
@@ -309,7 +309,7 @@ QObject* ContainerProfile::getGuiLaunchConsumer()
     return guiLaunchConsumer;
 }
 
-/**
+/*
   Return the application path to use for file operations.
   */
 QString ContainerProfile::getPath()
@@ -317,7 +317,7 @@ QString ContainerProfile::getPath()
     return path;
 }
 
-/**
+/*
   Return the current object path to use for file operations.
   */
 QString ContainerProfile::getParentPath()
@@ -325,7 +325,7 @@ QString ContainerProfile::getParentPath()
     return parentPath;
 }
 
-/**
+/*
   Set the current object path to use for file operations.
   */
 void ContainerProfile::setPublishedParentPath( QString publishedParentPathIn )
@@ -333,7 +333,7 @@ void ContainerProfile::setPublishedParentPath( QString publishedParentPathIn )
     publishedParentPath = publishedParentPathIn;
 }
 
-/**
+/*
   Return the object to emit warning message signals to.
   If NULL, there is no object available.
   */
@@ -342,7 +342,7 @@ QString ContainerProfile::getMacroSubstitutions()
     return macroSubstitutions;
 }
 
-/**
+/*
   Return the message form ID
   */
 unsigned int ContainerProfile::getMessageFormId()
@@ -361,7 +361,7 @@ void ContainerProfile::setPublishedMessageFormId( unsigned int publishedMessageF
 }
 
 
-/**
+/*
   Return the flag indicating true if a profile is currently being published.
   */
 bool ContainerProfile::isProfileDefined()
@@ -369,7 +369,7 @@ bool ContainerProfile::isProfileDefined()
     return profileDefined;
 }
 
-/**
+/*
   Add a QCa widget to the list of QCa widgets created under the currently published profile.
   This provides the application with a list of its QCa widgets without having to trawl through
   the widget hierarchy looking for them. Note, in some applications the application may know
@@ -382,7 +382,7 @@ void ContainerProfile::addContainedWidget( QCaWidget* containedWidget )
     containedWidgets.append( WidgetRef( containedWidget ) );
 }
 
-/**
+/*
   Remove a QCa widget to the list of QCa widgets created under the currently published profile.
   This list provides the application with a list of its QCa widgets without having to trawl through
   the widget hierarchy looking for them. Generally the entire list is discarded after it has
@@ -409,7 +409,7 @@ void ContainerProfile::removeContainedWidget( QCaWidget* containedWidget )
     }
 }
 
-/**
+/*
   Return the next QCa widget from the list of QCa widgets built using addContainedWidget().
   Note, this is destructive to the list. It is fine if the application only needs to get the
   widgets from the list once, such as when activating QCa widgets after creating a form.
@@ -423,7 +423,7 @@ QCaWidget* ContainerProfile::getNextContainedWidget()
         return NULL;
 }
 
-/**
+/*
   Set the application user type (user/scientist/engineer)
   */
 void ContainerProfile::setUserLevel( userLevels level )
@@ -441,7 +441,7 @@ void userLevelSignal::setLevel( userLevels levelIn )
     emit userChanged( level );
 }
 
-/**
+/*
   Get the application user type (user/scientist/engineer)
   */
 userLevels ContainerProfile::getUserLevel()

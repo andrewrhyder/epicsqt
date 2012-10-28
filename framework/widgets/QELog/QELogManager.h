@@ -56,5 +56,5 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QELogManager:public QObject, public QDesigne
 
 };
 
-#endif /// QELOGMANAGER_H
+#endif // QELOGMANAGER_H
 

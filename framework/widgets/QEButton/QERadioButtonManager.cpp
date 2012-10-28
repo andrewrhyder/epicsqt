@@ -26,14 +26,14 @@
 #include <QERadioButton.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QERadioButtonManager::QERadioButtonManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QERadioButtonManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QERadioButtonManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QERadioButtonManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaRadioButton widget.
 */
 QWidget *QERadioButtonManager::createWidget ( QWidget *parent ) {
     return new QERadioButton(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QERadioButtonManager::name() const {
     return "QERadioButton";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QERadioButtonManager::group() const {
     return "EPICS Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QERadioButtonManager::icon() const {
     return QIcon(":/qe/button/QERadioButton.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QERadioButtonManager::toolTip() const {
     return "EPICS Radio Button";
 }
 
-/*!
+/*
     ???
 */
 QString QERadioButtonManager::whatsThis() const {
     return "EPICS Radio Button";
 }
 
-/*!
+/*
     ???
 */
 bool QERadioButtonManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QERadioButtonManager::domXml() const {
@@ -122,7 +122,7 @@ bool QERadioButtonManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QERadioButtonManager::includeFile() const {

@@ -51,4 +51,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaSpinBoxPluginManager : public QObject, pu
     bool initialized;
 };
 
-#endif /// QCASPINBOXPLUGINMANAGER_H
+#endif // QCASPINBOXPLUGINMANAGER_H

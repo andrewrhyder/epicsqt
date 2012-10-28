@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a label that uses the same macro substitution mechanisms as other CA aware label widgets.
   It is intended to enable unique titles and text in sub forms.
  */
 
 #include <QESubstitutedLabel.h>
 
-/*!
+/*
     Constructor with no initialisation
 */
 QESubstitutedLabel::QESubstitutedLabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
     setup();
 }
 
-/*!
+/*
     Setup common to all constructors
 */
 void QESubstitutedLabel::setup() {
@@ -95,7 +95,7 @@ void QESubstitutedLabel::setLabelTextPropertyFormat( QString labelTextIn )
 }
 
 
-/*!
+/*
     Update the label text with the required substitutions.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     NOTE, In this usage, the variable name manager is used to manage substitutions in the text displayed in the label, so the

@@ -26,14 +26,14 @@
 #include <QCaPushButtonPlugin.h>
 #include <QtPlugin>
 
-/*!
+/*
     ???
 */
 QCaPushButtonPluginManager::QCaPushButtonPluginManager( QObject *parent ) : QObject( parent ) {
     initialized = false;
 }
 
-/*!
+/*
     ???
 */
 void QCaPushButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
@@ -43,63 +43,63 @@ void QCaPushButtonPluginManager::initialize( QDesignerFormEditorInterface * ) {
     initialized = true;
 }
 
-/*!
+/*
     ???
 */
 bool QCaPushButtonPluginManager::isInitialized() const {
     return initialized;
 }
 
-/*!
+/*
     Widget factory. Creates a QCaLabel widget.
 */
 QWidget *QCaPushButtonPluginManager::createWidget ( QWidget *parent ) {
     return new QCaPushButtonPlugin(parent);
 }
 
-/*!
+/*
     Name for widget. Used by Qt Designer in widget list.
 */
 QString QCaPushButtonPluginManager::name() const {
     return "QCaPushButtonPlugin";
 }
 
-/*!
+/*
     Name of group Qt Designer will add widget to.
 */
 QString QCaPushButtonPluginManager::group() const {
     return "EPICS Deprecated Widgets";
 }
 
-/*!
+/*
     Icon for widget. Used by Qt Designer in widget list.
 */
 QIcon QCaPushButtonPluginManager::icon() const {
     return QIcon(":/qe/button/QEPushButton.png");
 }
 
-/*!
+/*
     Tool tip for widget. Used by Qt Designer in widget list.
 */
 QString QCaPushButtonPluginManager::toolTip() const {
     return "Deprecated EPICS Push Button";
 }
 
-/*!
+/*
     ???
 */
 QString QCaPushButtonPluginManager::whatsThis() const {
     return "Deprecated EPICS Push Button";
 }
 
-/*!
+/*
     ???
 */
 bool QCaPushButtonPluginManager::isContainer() const {
     return false;
 }
 
-/*!
+/*
     ???
 */
 /*QString QCaPushButtonPluginManager::domXml() const {
@@ -122,7 +122,7 @@ bool QCaPushButtonPluginManager::isContainer() const {
            "</widget>\n";
 }*/
 
-/*!
+/*
     ???
 */
 QString QCaPushButtonPluginManager::includeFile() const {

@@ -21,7 +21,7 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
-/*! This class is used to manage maintaining only a single instance of ASgui when required.
+/* This class is used to manage maintaining only a single instance of ASgui when required.
 
     On creation it attempts to connect to a server on an already running ASgui.
     If it can't connect, it assumes it is the only version of ASgui and starts the server itself.

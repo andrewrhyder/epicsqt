@@ -326,4 +326,4 @@ public:
 
 Q_DECLARE_METATYPE(QEPeriodic::userInfoStructArray)
 
-#endif /// QEPeriodic_H
+#endif // QEPeriodic_H

@@ -53,4 +53,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaShapePluginManager : public QObject, publ
     bool initialized;
 };
 
-#endif /// QCASHAPEPLUGINMANAGER_H
+#endif // QCASHAPEPLUGINMANAGER_H

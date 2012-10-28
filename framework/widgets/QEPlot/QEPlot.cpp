@@ -22,7 +22,7 @@
  *    glenn.jackson@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware Plot widget based on the Qwt QwtPlot widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
@@ -30,14 +30,14 @@
 #include <qwt_legend.h>
 #include <QEPlot.h>
 
-/*!
+/*
     Constructor with no initialisation
 */
 QEPlot::QEPlot( QWidget *parent ) : QwtPlot( parent ), QCaWidget( this ) {
     setup();
 }
 
-/*!
+/*
     Constructor with known variable
 */
 QEPlot::QEPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( parent ), QCaWidget( this ) {
@@ -45,7 +45,7 @@ QEPlot::QEPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( pare
     setVariableName( variableNameIn, 0 );
 }
 
-/*!
+/*
     Setup common to all constructors
 */
 void QEPlot::setup() {
@@ -107,8 +107,8 @@ void QEPlot::setup() {
     timeSpan = 59;
 
     // Use QwtPlot signals
-    //!! move this functionality into QCaWidget???
-    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    // !! move this functionality into QCaWidget???
+    // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing
@@ -142,7 +142,7 @@ QEPlot::~QEPlot()
     }
 }
 
-/*!
+/*
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a strip chart a QCaObject that streams floating point data is required.
 */
@@ -152,7 +152,7 @@ qcaobject::QCaObject* QEPlot::createQcaItem( unsigned int variableIndex ) {
    return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 }
 
-/*!
+/*
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
@@ -175,7 +175,7 @@ void QEPlot::establishConnection( unsigned int variableIndex ) {
 }
 
 
-/*!
+/*
     Update the tool tip as requested by QCaToolTip.
 */
 void QEPlot::updateToolTip( const QString& tip )
@@ -183,21 +183,21 @@ void QEPlot::updateToolTip( const QString& tip )
     setToolTip( tip );
 }
 
-/*!
+/*
     Act on a connection change.
     Change how the strip chart looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
  */
 void QEPlot::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    /// If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QCa enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
         updateToolTipConnection( isConnected );
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -205,14 +205,14 @@ void QEPlot::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*!
+/*
     Update the plotted data with a new single value
     This is a slot used to recieve data updates from a QCaObject based class.
  */
 
 void QEPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) {
 
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     emit dbValueChanged( value );
 
     // Select the curve information for this variable
@@ -252,13 +252,13 @@ void QEPlot::setPlotData( const double value, QCaAlarmInfo& alarmInfo, QCaDateTi
     setalarmInfoCommon( alarmInfo );
 }
 
-/*!
+/*
     Update the plotted data with a new array of values
     This is a slot used to recieve data updates from a QCaObject based class.
  */
 void QEPlot::setPlotData( const QVector<double>& values, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex ) {
 
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     emit dbValueChanged( values );
 
     // Select the curve information for this variable
@@ -321,7 +321,7 @@ void QEPlot::setPlotDataCommon( const unsigned int variableIndex )
 
 void QEPlot::setalarmInfoCommon( QCaAlarmInfo& alarmInfo )
 {
-/// If in alarm, display as an alarm
+// If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
     {
             updateToolTipAlarm( alarmInfo.severityName() );
@@ -330,7 +330,7 @@ void QEPlot::setalarmInfoCommon( QCaAlarmInfo& alarmInfo )
     }
 }
 
-/*!
+/*
   For strip chart functionality
   Recalculate the x value as time goes by
  */
@@ -359,7 +359,7 @@ void QEPlot::tickTimeout()
     }
 }
 
-/*!
+/*
    Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
  */
 void QEPlot::requestEnabled( const bool& state )

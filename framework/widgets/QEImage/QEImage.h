@@ -181,14 +181,14 @@ private slots:
 
     void panModeClicked();
 
-    //!! move this functionality into QCaWidget???
-    //!! needs one for single variables and one for multiple variables, or just the multiple variable one for all
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    // !! move this functionality into QCaWidget???
+    // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
     void userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
@@ -313,8 +313,8 @@ public slots:
     bool haveHSliceY;
     bool haveProfileLine;
     bool haveSelectedArea;
-    bool haveTarget; //!!! not used??
-    bool haveBeam; //!!! not used??
+    bool haveTarget; // !!! not used??
+    bool haveBeam; // !!! not used??
 
     void generateVSlice( int x );
     void generateHSlice( int y );
@@ -475,7 +475,7 @@ protected:
 // Widget specific properties
 public:
 
-    /// Format options (8 bit grey scale, 32 bit color, etc)
+    // Format options (8 bit grey scale, 32 bit color, etc)
     Q_ENUMS(FormatOptions)
     Q_PROPERTY(FormatOptions formatOption READ getFormatOptionProperty WRITE setFormatOptionProperty)
     enum FormatOptions { Grey_8   = QEImage::GREY8,

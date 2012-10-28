@@ -26,7 +26,7 @@
 
 #include <QCaString.h>
 
-/*!
+/*
 
 */
 QCaString::QCaString( QString recordName, QObject* eventObject,
@@ -40,7 +40,7 @@ QCaString::QCaString( QString recordName, QObject* eventObject,
                       unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn ) {
     initialise( newStringFormat, variableIndexIn );
 }
-/*!
+/*
     Stream the QCaObject data through this class to generate textual data
     updates.
 */
@@ -55,7 +55,7 @@ void QCaString::initialise( QCaStringFormatting* newStringFormat, unsigned int v
                       this, SLOT( convertVariant( const QVariant&, QCaAlarmInfo&, QCaDateTime& ) ) );
 }
 
-/*!
+/*
     Take a new text value and write it to the database.
     The type of data formatted (text, floating, integer, etc) will be determined by the record data type,
     How the text is parsed will be determined by the string formatting.
@@ -68,7 +68,7 @@ void QCaString::writeString( const QString &data ) {
     writeData( stringFormat->formatValue( data ) );
 }
 
-/*!
+/*
     Take a new value from the database and emit a string,formatted
     as directed by the set of formatting information held by this class
 */
@@ -83,7 +83,7 @@ void QCaString::convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, 
     emit stringChanged( stringFormat->formatString( value ), alarmInfo, timeStamp, variableIndex );
 }
 
-/*!
+/*
     Take a basic connection change and append variableIndex
 */
 void QCaString::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {

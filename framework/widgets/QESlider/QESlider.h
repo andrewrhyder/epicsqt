@@ -56,8 +56,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QCaWidget 
     double getOffset();
 
   protected:
-    QCaFloatingFormatting floatingFormatting; /// Floating formatting options.
-    bool writeOnChange;             /// Write changed value to database when ever the position changes.
+    QCaFloatingFormatting floatingFormatting; // Floating formatting options.
+    bool writeOnChange;             // Write changed value to database when ever the position changes.
 
     void establishConnection( unsigned int variableIndex );
 
@@ -65,13 +65,13 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QCaWidget 
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setValueIfNoFocus( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void userValueChanged( const int& newValue );
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )//!! move into Standard Properties section??
+    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
   public slots:
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } //!! move into Standard Properties section??
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
     void writeNow();
 
   signals:
@@ -82,7 +82,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QCaWidget 
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
 
-    bool updateInProgress;                  /// Ignore changes during updates, it isn't the user changing the slider.
+    bool updateInProgress;                  // Ignore changes during updates, it isn't the user changing the slider.
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
@@ -122,8 +122,8 @@ private:
 public:
     //=================================================================================
 
-    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe) //!! subscribe is in enough widgets to make common
-    Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange) //!! writeOnChange is in enough widgets to make common
+    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe) // !! subscribe is in enough widgets to make common
+    Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange) // !! writeOnChange is in enough widgets to make common
 
     //=================================================================================
     // Standard properties

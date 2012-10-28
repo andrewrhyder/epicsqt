@@ -23,7 +23,7 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a analog version of the Qt progress bar widget.
  */
 
@@ -80,7 +80,7 @@ QEAnalogIndicator::QEAnalogIndicator (QWidget *parent) : QWidget (parent)
 }
 
 
-/*! ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  *  Define default size for this widget class.
  */
 QSize QEAnalogIndicator::sizeHint () const

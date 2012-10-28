@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*!
+/*
   This class is a CA aware push button widget based on the Qt push button widget.
   It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
  */
@@ -38,7 +38,7 @@ QEGenericButton::QEGenericButton( QWidget *owner ) : QCaWidget( owner )
 {
 }
 
-/*!
+/*
     Setup common to all button constructors
 */
 void QEGenericButton::setup() {
@@ -52,7 +52,7 @@ void QEGenericButton::setup() {
     QObject::connect( getButtonQObject(), SIGNAL( clicked( bool ) ), getButtonQObject(), SLOT( userClicked( bool ) ) );
 }
 
-/*!
+/*
     Setup for reading and writing data
 */
 void QEGenericButton::dataSetup() {
@@ -85,13 +85,13 @@ void QEGenericButton::dataSetup() {
     updateOption = getDefaultUpdateOption();
 }
 
-/*!
+/*
     Setup for running commands
 */
 void QEGenericButton::commandSetup() {
 }
 
-/*!
+/*
     Setup for starting new GUIs
 */
 void QEGenericButton::guiSetup() {
@@ -117,7 +117,7 @@ void QEGenericButton::guiSetup() {
     }
 }
 
-/*!
+/*
     Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
     For a push button a QCaObject that streams strings is required.
 */
@@ -127,7 +127,7 @@ qcaobject::QCaObject* QEGenericButton::createQcaItem( unsigned int variableIndex
     return new QCaString( getSubstitutedVariableName( variableIndex ), getButtonQObject(), &stringFormatting, variableIndex );
 }
 
-/*!
+/*
     Start updating.
     Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
     This function may also be used to initiate updates when loaded as a plugin.
@@ -161,7 +161,7 @@ void QEGenericButton::establishConnection( unsigned int variableIndex ) {
     }
 }
 
-/*!
+/*
     Act on a connection change.
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.
@@ -174,7 +174,7 @@ void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
     if( getSubstitutedVariableName( 0 ).isEmpty() )
         return;
 
-    /// If connected enabled the widget if required.
+    // If connected enabled the widget if required.
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -183,7 +183,7 @@ void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
         setDataDisabled( false );
     }
 
-    /// If disconnected always disable the widget.
+    // If disconnected always disable the widget.
     else
     {
         isConnected = false;
@@ -193,7 +193,7 @@ void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
     }
 }
 
-/*!
+/*
   Implement a slot to set the current text of the push button
   This is the slot used to recieve data updates from a QCaObject based class.
 */
@@ -211,23 +211,23 @@ void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& a
         return;
     }
 
-    /// Signal a database value change to any Link widgets
+    // Signal a database value change to any Link widgets
     emitDbValueChanged( text );
 
-    /// Update the button state if required
-    /// Display checked if text matches what is written when checked
+    // Update the button state if required
+    // Display checked if text matches what is written when checked
     if( updateOption == UPDATE_STATE )
     {
         setButtonState( !text.compare( clickCheckedText ) );
     }
 
-    /// Update the text if required
+    // Update the text if required
     if( updateOption == UPDATE_TEXT || updateOption == UPDATE_TEXT_AND_ICON )
     {
         setButtonText( text );
     }
 
-    /// Update the icon if required
+    // Update the icon if required
     if( updateOption == UPDATE_ICON || updateOption == UPDATE_TEXT_AND_ICON )
     {
         QIcon icon;
@@ -235,7 +235,7 @@ void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& a
         setButtonIcon( icon );
     }
 
-    /// If in alarm, display as an alarm
+    // If in alarm, display as an alarm
     if( alarmInfo.getSeverity() != lastSeverity )
     {
             updateToolTipAlarm( alarmInfo.severityName() );
@@ -244,51 +244,51 @@ void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& a
     }
 }
 
-/*!
+/*
     Button press event.
 */
 void QEGenericButton::userPressed() {
-    /// Get the variable to write to
+    // Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
-    /// If a QCa object is present (if there is a variable to write to)
-    /// and the object is set up to write when the user presses the button
-    /// then write the value
+    // If a QCa object is present (if there is a variable to write to)
+    // and the object is set up to write when the user presses the button
+    // then write the value
     if( qca && writeOnPress && checkPassword() ) {
         qca->writeString( substituteThis( pressText ));
     }
 }
 
-/*!
+/*
     Button release event.
 */
 
 void QEGenericButton::userReleased() {
-    /// Get the variable to write to
+    // Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
-    /// If a QCa object is present (if there is a variable to write to)
-    /// and the object is set up to write when the user releases the button
-    /// then write the value
+    // If a QCa object is present (if there is a variable to write to)
+    // and the object is set up to write when the user releases the button
+    // then write the value
     if( qca && writeOnRelease && checkPassword() ) {
         qca->writeString( substituteThis( releaseText ));
     }
 }
 
-/*!
+/*
     Button click event.
 */
 void QEGenericButton::userClicked( bool checked ) {
-    /// Get the variable to write to
+    // Get the variable to write to
     QCaString *qca = (QCaString*)getQcaItem(0);
 
     // Do nothing if some action is due to be taken, but user does not anter any required password correctly
     if( ( writeOnClick || !program.isEmpty() || !guiName.isEmpty() ) && !checkPassword() )
         return;
 
-    /// If a QCa object is present (if there is a variable to write to)
-    /// and the object is set up to write when the user clicks the button
-    /// then write the value
+    // If a QCa object is present (if there is a variable to write to)
+    // and the object is set up to write when the user clicks the button
+    // then write the value
     if( qca && writeOnClick ) {
         if( !checked )
         {
@@ -352,7 +352,7 @@ void QEGenericButton::userClicked( bool checked ) {
 
 }
 
-/*!
+/*
   Check the password.
   Return true if there is no password, or if the user enters it correctly.
   Return false if the user cancels, or enteres an incorrect password.
