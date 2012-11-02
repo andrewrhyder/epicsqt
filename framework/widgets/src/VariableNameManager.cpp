@@ -195,13 +195,13 @@ QString VariableNameManager::substituteThis( const QString string ) {
     Replace any white space between white space seperating key/value pairs with a comma.
 */
 QString VariableNameManager::standardizeSubs( const QString &subsIn ) {
-    // Standardise the string to the form $MACRO1=VALUE1,$MACRO2=VALUE2
+    // Standardise the string to the form MACRO1=VALUE1,MACRO2=VALUE2
     // (no spaces, each substitution seperated by a comma)
     // This allows the following forms:
-    //     $MACRO1=VALUE1,$MACRO2=VALUE2
-    //     $MACRO1=VALUE1 $MACRO2=VALUE2
-    //     $MACRO1=VALUE1 , $MACRO2=VALUE2
-    //     $MACRO1 = VALUE1,$MACRO2 = VALUE2
+    //     MACRO1=VALUE1,MACRO2=VALUE2
+    //     MACRO1=VALUE1 MACRO2=VALUE2
+    //     MACRO1=VALUE1 , MACRO2=VALUE2
+    //     MACRO1 = VALUE1,MACRO2 = VALUE2
     QString std = subsIn.simplified();
     std = std.replace( " =", "=" );
     std = std.replace( "= ", "=" );

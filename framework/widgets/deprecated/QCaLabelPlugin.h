@@ -68,8 +68,8 @@ class QCaLabelPlugin : public QELabel {
     Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
     enum UpdateOptions { Text     = QELabel::UPDATE_TEXT,
                          Picture  = QELabel::UPDATE_PIXMAP };
-    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QELabel::updateOptions)updateOption ); }
-    UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
+    void setUpdateOptionProperty( UpdateOptions updateOption ){ QELabel::setUpdateOptionProperty( (QELabel::UpdateOptions)updateOption ); }
+    UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)QELabel::getUpdateOptionProperty(); }
 
 };
 

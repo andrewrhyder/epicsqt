@@ -22,26 +22,6 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*
-  This class adds common style support to all QCa widgets if required.
-
-  Standard properties for all QCa widgets specify a style to be applied for user, scientist, and engineer mode.
-  Also QCa widgets can specify data or status related style changes.
-
-  All QCa widgets (eg, QELabel, QELineEdit) have an instance of this class as they based on
-  QCaWidget which itself uses this class as a base class.
-
-  To enable user level related properties to affect style, the QCa widget must include the following:
-        !!! document
-
-  To use this class to manage style changes related to data and status the QCa widget must include the following:
-        !!! document
-
-  Note, this class notes the initial style when instantiated and uses that style as the base style for
-  all style changes. This means any style changes not performed through this class will be lost the next
-  time this class changes the style.
-
-*/
 
 #include <styleManager.h>
 
@@ -54,62 +34,65 @@ styleManager::styleManager( QWidget* ownerIn )
     level = USERLEVEL_USER;
 }
 
-
-// !!
+// Set the Style Sheet string to be applied when the widget is displayed in 'User' mode.
+// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
 void styleManager::setStyleUser( QString style )
 {
     userUserStyle = style;
-
 }
 
-// !!
+// Get the Style Sheet string to be applied when the widget is displayed in 'User' mode.
 QString styleManager::getStyleUser()
 {
     return userUserStyle;
 }
 
-// !!
+// Set the Style Sheet string to be applied when the widget is displayed in 'Scientist' mode.
+// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
 void styleManager::setStyleScientist( QString style )
 {
     userScientistStyle = style;
 }
 
-// !!
+// Get the Style Sheet string to be applied when the widget is displayed in 'Scientist' mode.
 QString styleManager::getStyleScientist()
 {
     return userScientistStyle;
 }
 
-// !!
+// Set the Style Sheet string to be applied when the widget is displayed in 'Engineer' mode.
+// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
 void styleManager::setStyleEngineer( QString style )
 {
     userEngineerStyle = style;
 }
 
-// !!
+// Get the Style Sheet string to be applied when the widget is displayed in 'Engineer' mode.
 QString styleManager::getStyleEngineer()
 {
     return userEngineerStyle;
 }
 
-// !!
+// Set the Style Sheet string to be applied to reflect an aspect of the current data.
+// For example, a value over a high limit may be displayed in red.
 void styleManager::updateDataStyle( QString style )
 {
     dataStyleSheet = style;
     updateStyleSheet();
 }
 
-// !!
+// Set the Style Sheet string to be applied to reflect an aspect of the current status.
+// For example, invalid data may be displayed with a white background.
 void styleManager::updateStatusStyle( QString style )
 {
     statusStyleSheet = style;
     updateStyleSheet();
 }
 
-
-// !!! Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
+// Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
 void styleManager::updateStyleSheet()
 {
+    // Select the appropriate user level style
     QString levelStyle;
     switch( level )
     {
@@ -126,14 +109,16 @@ void styleManager::updateStyleSheet()
             break;
     }
 
+    // Compile and apply the entire style string
     QString newStyleSheet;
     newStyleSheet.append( defaultStyleSheet ).append( statusStyleSheet ).append( dataStyleSheet ).append(levelStyle);
     owner->setStyleSheet( newStyleSheet );
 }
 
-// !!
+// Set the current user level.
 void styleManager::styleUserLevelChanged( userLevels levelIn )
 {
+    // Note the new style and update the style string if changed
     bool newLevel = level != levelIn;
     level = levelIn;
     if( newLevel )

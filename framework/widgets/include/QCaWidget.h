@@ -37,8 +37,7 @@
 #include <contextMenu.h>
 #include <standardProperties.h>
 
-// !!! since this class is only ever used as a base class, it doesn't need to be exported
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaWidget : public VariableNameManager,
+class QCaWidget : public VariableNameManager,
                                                 public QCaToolTip,
                                                 public ContainerProfile,
                                                 public QCaDragDrop,

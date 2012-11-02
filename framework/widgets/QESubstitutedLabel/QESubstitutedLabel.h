@@ -89,15 +89,17 @@ public:
     //       If you are reading this because you searched for SINGLEVARIABLEPROPERTIES, this section is not the standard set normally
     //       used for all widgets with a single variable, but some changes may be needed here as well
 
-    // Label text to be substituted.
+    /// Label text to be substituted.
+    /// This text will be copied to the label text after applying any macro substitutions from the textSubstitutions property
     Q_PROPERTY(QString labelText READ getLabelTextPropertyFormat WRITE setLabelTextPropertyFormat)
 
-    // Text substitutions.
+    /// Text substitutions.
+    /// These substitutions are applied to the 'labelText' property prior to copying it to the label text.
     Q_PROPERTY(QString textSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+
+private:
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
-
-  private:
     QCaVariableNamePropertyManager variableNamePropertyManager;
     //=================================================================================
 };
