@@ -111,7 +111,6 @@ private:
     QVariant copyData();
     void paste( QVariant s );
 
-public:
     //=================================================================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
@@ -119,6 +118,7 @@ public:
     //
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+public:
     /// EPICS variable name (CA PV)
     ///
     Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty)

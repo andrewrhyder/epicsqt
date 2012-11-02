@@ -98,7 +98,6 @@ protected:
     void setDrop( QVariant drop );
     QVariant getDrop();
 
-public:
     //=================================================================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
@@ -106,16 +105,21 @@ public:
     //
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+public:
+    /// EPICS variable name (CA PV)
+    ///
     Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty)
+    /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
+    /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
 
+private:
     void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
     QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
 
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
 
-private:
     QCaVariableNamePropertyManager variableNamePropertyManager;
 public:
     //=================================================================================
