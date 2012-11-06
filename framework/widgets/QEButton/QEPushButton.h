@@ -54,7 +54,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEPushButton : public QPushButton, public QE
 
 public slots:
     void launchGui( QString guiName, QEForm::creationOptions creationOption ){ QEGenericButton::launchGui( guiName, creationOption); }
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
     void onGeneralMessage( QString message ){ QEGenericButton::onGeneralMessage( message ); }
 
 
@@ -109,7 +108,7 @@ public:
 
     //=================================================================================
     // Multiple Variable properties
-    // These properties should be identical for every widget using multiple variables (The number of variables may vary).
+    // These properties should be similar for every widget using multiple variables (The number of variables may vary).
     // WHEN MAKING CHANGES: search for MULTIPLEVARIABLEPROPERTIESBASE and change all occurances.
     private:
         QCaVariableNamePropertyManager variableNamePropertyManagers[QEGENERICBUTTON_NUM_VARIABLES];
@@ -122,9 +121,13 @@ public:
     QString getVariableName##VAR_INDEX##Property(){ return variableNamePropertyManagers[VAR_INDEX].getVariableNameProperty(); }
 
     VARIABLE_PROPERTY_ACCESS(0)
+    /// EPICS variable name (CA PV).
+    /// This variable is used for both writing (on button press), and reading if subscribed and no alternate readback variable is provided.
     Q_PROPERTY(QString variable READ getVariableName0Property WRITE setVariableName0Property)
 
     VARIABLE_PROPERTY_ACCESS(1)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to provide a readback value when different to the variable written to by a button press.
     Q_PROPERTY(QString altReadbackVariable READ getVariableName1Property WRITE setVariableName1Property)
 
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
@@ -151,32 +154,96 @@ public:
 
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
 
-    //=================================================================================
-    // Standard properties
-    // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
-    bool isEnabled() const { return getApplicationEnabled(); }
-    void setEnabled( bool state ){ setApplicationEnabled( state ); }
-    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
-    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
-    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
-    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
-    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
-    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
-    enum UserLevels { User      = USERLEVEL_USER,
-                      Scientist = USERLEVEL_SCIENTIST,
-                      Engineer  = USERLEVEL_ENGINEER };
-    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }
-    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }
+  //=================================================================================
+  // Standard properties
+  // These properties should be identical for every widget using them.
+  // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+public:
+  /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
+  ///
+  Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
 
-    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }
-    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }
-    Q_ENUMS(UserLevels)
-    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty)
-    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
-    //=================================================================================
+  /// Set the prefered 'enabled' state. Default is true.
+  /// This property is copied to the standard Qt 'enabled' property if the data being displayed is valid.
+  /// If the data being displayed is invalid the standard Qt 'enabled' property will always be set to false to indicate invalid data.
+  /// The value of this property will only be copied to the standard Qt 'enabled' property once data is valid.
+  Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+
+  /// Access function for 'enabled' property - refer to 'enabled' property for details
+  bool isEnabled() const { return getApplicationEnabled(); }
+
+  /// Access function for 'enabled' property - refer to 'enabled' property for details
+  void setEnabled( bool state ){ setApplicationEnabled( state ); }
+
+  /// Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name.
+  ///
+  Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
+
+  /// Display the widget. Default is true.
+  /// Setting this property false is usefull if widget is only used to provide a signal - for example, when supplying data to a QELink widget.
+  /// Note, when false the widget will still be visible in Qt Designer.
+  Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
+
+  /// Set the ID used by the message filtering system. Default is zero.
+  /// Widgets or applications that use messages from the framework have the option of filtering on this ID.
+  /// For example, by using a unique message source ID a QELog widget may be set up to only log messages from a select set of widgets.
+  Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+
+  /// Style Sheet string to be applied when the widget is displayed in 'User' mode. Default is an empty string.
+  /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
+  /// This Style Sheet string will be applied by the styleManager class.
+  /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
+  /// and any Style Sheet strings generated during the display of data.
+  Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
+
+  /// Style Sheet string to be applied when the widget is displayed in 'Scientist' mode. Default is an empty string.
+  /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
+  /// This Style Sheet string will be applied by the styleManager class.
+  /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
+  /// and any Style Sheet strings generated during the display of data.
+  Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
+
+  /// Style Sheet string to be applied when the widget is displayed in 'Engineer' mode. Default is an empty string.
+  /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
+  /// This Style Sheet string will be applied by the styleManager class.
+  /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
+  /// and any Style Sheet strings generated during the display of data.
+  Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
+
+  /// User friendly enumerations for userLevelVisibility and userLevelEnabled properties - refer to userLevelVisibility and userLevelEnabled properties and userLevel enumeration for details.
+  enum UserLevels { User      = USERLEVEL_USER,
+                    Scientist = USERLEVEL_SCIENTIST,
+                    Engineer  = USERLEVEL_ENGINEER };
+  Q_ENUMS(UserLevels)
+
+  /// Lowest user level at which the widget is visible. Default is 'User'.
+  /// Used when designing GUIs that display more and more detail according to the user mode.
+  /// The user mode is set application through the QELogin widget, or programatically through setUserLevel()
+  /// Widgets that are always visible should be visible at 'User'.
+  /// Widgets that are only used by scientists managing the facility should be visible at 'Scientist'.
+  /// Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'.
+  Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty)
+
+  /// Lowest user level at which the widget is enabled. Default is 'User'.
+  /// Used when designing GUIs that allow access to more and more detail according to the user mode.
+  /// The user mode is set application through the QELogin widget, or programatically through setUserLevel()
+  /// Widgets that are always accessable should be visible at 'User'.
+  /// Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'.
+  /// Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'.
+  Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
+
+  UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }            ///< Access function for 'userLevelVisibility' property - refer to 'userLevelVisibility' property for details
+  void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }///< Access function for 'userLevelVisibility' property - refer to 'userLevelVisibility' property for details
+  UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for 'userLevelEnabled' property - refer to 'userLevelEnabled' property for details
+  void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }      ///< Access function for 'userLevelEnabled' property - refer to 'userLevelEnabled' property for details
+
+public slots:
+  /// Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data.
+  /// If disabled due to invalid data, a request to enable the widget will be honoured when the data is no longer invalid.
+  void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }
+
+public:
+  //=================================================================================
 
 
     // Widget specific properties

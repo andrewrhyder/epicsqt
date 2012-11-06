@@ -188,7 +188,6 @@ private slots:
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); } // !! move into Standard Properties section??
     void userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
@@ -371,7 +370,7 @@ protected:
 
     //=================================================================================
     // Multiple Variable properties
-    // These properties should be identical for every widget using multiple variables (The number of variables may vary).
+    // These properties should be similar for every widget using multiple variables (The number of variables may vary).
     // WHEN MAKING CHANGES: search for MULTIPLEVARIABLEPROPERTIESBASE and change all occurances.
     private:
         QCaVariableNamePropertyManager variableNamePropertyManagers[QEIMAGE_NUM_VARIABLES];
@@ -384,51 +383,83 @@ protected:
     QString getVariableName##VAR_INDEX##Property(){ return variableNamePropertyManagers[VAR_INDEX].getVariableNameProperty(); }
 
     VARIABLE_PROPERTY_ACCESS(0)
+    /// EPICS variable name (CA PV).
+    /// This variable is used as the source the image waveform.
     Q_PROPERTY(QString imageVariable READ getVariableName0Property WRITE setVariableName0Property)
 
     VARIABLE_PROPERTY_ACCESS(1)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read the width of the image.
     Q_PROPERTY(QString widthVariable READ getVariableName1Property WRITE setVariableName1Property)
 
     VARIABLE_PROPERTY_ACCESS(2)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read the height of the image.
     Q_PROPERTY(QString heightVariable READ getVariableName2Property WRITE setVariableName2Property)
 
     VARIABLE_PROPERTY_ACCESS(3)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the region of interest X position.
     Q_PROPERTY(QString regionOfInterestXVariable READ getVariableName3Property WRITE setVariableName3Property)
 
     VARIABLE_PROPERTY_ACCESS(4)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the region of interest Y position.
     Q_PROPERTY(QString regionOfInterestYVariable READ getVariableName4Property WRITE setVariableName4Property)
 
     VARIABLE_PROPERTY_ACCESS(5)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the region of interest width.
     Q_PROPERTY(QString regionOfInterestWVariable READ getVariableName5Property WRITE setVariableName5Property)
 
     VARIABLE_PROPERTY_ACCESS(6)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the region of interest height.
     Q_PROPERTY(QString regionOfInterestHVariable READ getVariableName6Property WRITE setVariableName6Property)
 
     VARIABLE_PROPERTY_ACCESS(7)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the selected target X position.
     Q_PROPERTY(QString targetXVariable READ getVariableName7Property WRITE setVariableName7Property)
 
     VARIABLE_PROPERTY_ACCESS(8)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the selected target Y position.
     Q_PROPERTY(QString targetYVariable READ getVariableName8Property WRITE setVariableName8Property)
 
     VARIABLE_PROPERTY_ACCESS(9)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the selected beam X position.
     Q_PROPERTY(QString beamXVariable READ getVariableName9Property WRITE setVariableName9Property)
 
     VARIABLE_PROPERTY_ACCESS(10)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the selected beam Y position.
     Q_PROPERTY(QString beamYVariable READ getVariableName10Property WRITE setVariableName10Property)
 
     VARIABLE_PROPERTY_ACCESS(11)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write a 'trigger' to initiate movement of the target into the beam as defined by the target and beam X and Y positions.
     Q_PROPERTY(QString targetTriggerVariable READ getVariableName11Property WRITE setVariableName11Property)
 
     VARIABLE_PROPERTY_ACCESS(12)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector clipping on/off command.
     Q_PROPERTY(QString clippingOnOffVariable READ getVariableName12Property WRITE setVariableName12Property)
 
     VARIABLE_PROPERTY_ACCESS(13)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector clipping low level.
     Q_PROPERTY(QString clippingLowVariable READ getVariableName13Property WRITE setVariableName13Property)
 
     VARIABLE_PROPERTY_ACCESS(14)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector clipping high level.
     Q_PROPERTY(QString clippingHighVariable READ getVariableName14Property WRITE setVariableName14Property)
 
-
+    /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
+    /// These substitutions are applied to all the variable names.
+    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
     {
@@ -448,27 +479,91 @@ protected:
     // Standard properties
     // These properties should be identical for every widget using them.
     // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
-    bool isEnabled() const { return getApplicationEnabled(); }
-    void setEnabled( bool state ){ setApplicationEnabled( state ); }
+public:
+    /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
+    ///
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
+
+    /// Set the prefered 'enabled' state. Default is true.
+    /// This property is copied to the standard Qt 'enabled' property if the data being displayed is valid.
+    /// If the data being displayed is invalid the standard Qt 'enabled' property will always be set to false to indicate invalid data.
+    /// The value of this property will only be copied to the standard Qt 'enabled' property once data is valid.
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+
+    /// Access function for 'enabled' property - refer to 'enabled' property for details
+    bool isEnabled() const { return getApplicationEnabled(); }
+
+    /// Access function for 'enabled' property - refer to 'enabled' property for details
+    void setEnabled( bool state ){ setApplicationEnabled( state ); }
+
+    /// Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name.
+    ///
     Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
+
+    /// Display the widget. Default is true.
+    /// Setting this property false is usefull if widget is only used to provide a signal - for example, when supplying data to a QELink widget.
+    /// Note, when false the widget will still be visible in Qt Designer.
     Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
+
+    /// Set the ID used by the message filtering system. Default is zero.
+    /// Widgets or applications that use messages from the framework have the option of filtering on this ID.
+    /// For example, by using a unique message source ID a QELog widget may be set up to only log messages from a select set of widgets.
     Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+
+    /// Style Sheet string to be applied when the widget is displayed in 'User' mode. Default is an empty string.
+    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
+    /// This Style Sheet string will be applied by the styleManager class.
+    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
+    /// and any Style Sheet strings generated during the display of data.
     Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
+
+    /// Style Sheet string to be applied when the widget is displayed in 'Scientist' mode. Default is an empty string.
+    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
+    /// This Style Sheet string will be applied by the styleManager class.
+    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
+    /// and any Style Sheet strings generated during the display of data.
     Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
+
+    /// Style Sheet string to be applied when the widget is displayed in 'Engineer' mode. Default is an empty string.
+    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
+    /// This Style Sheet string will be applied by the styleManager class.
+    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
+    /// and any Style Sheet strings generated during the display of data.
     Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
+
+    /// User friendly enumerations for userLevelVisibility and userLevelEnabled properties - refer to userLevelVisibility and userLevelEnabled properties and userLevel enumeration for details.
     enum UserLevels { User      = USERLEVEL_USER,
                       Scientist = USERLEVEL_SCIENTIST,
                       Engineer  = USERLEVEL_ENGINEER };
-    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }
-    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }
-
-    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }
-    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }
     Q_ENUMS(UserLevels)
+
+    /// Lowest user level at which the widget is visible. Default is 'User'.
+    /// Used when designing GUIs that display more and more detail according to the user mode.
+    /// The user mode is set application through the QELogin widget, or programatically through setUserLevel()
+    /// Widgets that are always visible should be visible at 'User'.
+    /// Widgets that are only used by scientists managing the facility should be visible at 'Scientist'.
+    /// Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'.
     Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty)
+
+    /// Lowest user level at which the widget is enabled. Default is 'User'.
+    /// Used when designing GUIs that allow access to more and more detail according to the user mode.
+    /// The user mode is set application through the QELogin widget, or programatically through setUserLevel()
+    /// Widgets that are always accessable should be visible at 'User'.
+    /// Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'.
+    /// Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'.
     Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
+
+    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }            ///< Access function for 'userLevelVisibility' property - refer to 'userLevelVisibility' property for details
+    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }///< Access function for 'userLevelVisibility' property - refer to 'userLevelVisibility' property for details
+    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for 'userLevelEnabled' property - refer to 'userLevelEnabled' property for details
+    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }      ///< Access function for 'userLevelEnabled' property - refer to 'userLevelEnabled' property for details
+
+public slots:
+    /// Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data.
+    /// If disabled due to invalid data, a request to enable the widget will be honoured when the data is no longer invalid.
+    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }
+
+public:
     //=================================================================================
 
 //==========================================================================

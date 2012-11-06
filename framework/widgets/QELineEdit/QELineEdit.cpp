@@ -327,14 +327,6 @@ void QELineEdit::writeValue( QCaString *qca, QString newValue )
 
 
 /*
-   Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QELineEdit::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
-/*
     Update variable name etc.
 */
 void QELineEdit::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )

@@ -141,6 +141,7 @@ public:
     // Standard properties
     // These properties should be identical for every widget using them.
     // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+public:
     /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
     ///
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
@@ -231,6 +232,7 @@ public:
     // String formatting properties
     // These properties should be identical for every widget managing strings.
     // WHEN MAKING CHANGES: search for STRINGPROPERTIES and change all occurances.
+public:
     /// Precision used when formatting floating point numbers. The default is 4.
     /// This is only used if useDbPrecision is false.
     Q_PROPERTY(int  precision READ getPrecision WRITE setPrecision)
@@ -302,6 +304,7 @@ public:
     /// Index used to select a single item of data for formatting from an array of data. Default is 0.
     /// Only used when the arrayAction property is INDEX. Refer to the arrayAction property for more details.
     Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
+public:
     //=================================================================================
 
     // Widget specific properties

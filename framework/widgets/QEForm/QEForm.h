@@ -67,7 +67,6 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
         bool getResizeContents();
 
     public slots:
-        void requestEnabled( const bool& state );
         bool readUiFile();
 
         void launchGui( QString guiName, QEForm::creationOptions createOption );

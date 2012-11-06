@@ -693,10 +693,11 @@ void QEPvProperties::setFieldValue (const QString &value,
 
 
 //------------------------------------------------------------------------------
-// Unlike most widgets, the freme is not disabled if/when PVs disconnet
-// Normally, setApplicationEnabled() is called
+// Unlike most widgets, the frame is not disabled if/when PVs disconnet
+// Normally, standardProperties::setApplicationEnabled() is called
+// For this widget our own version which just calls the widget's setEnabled is called.
 //
-void QEPvProperties::requestEnabled (const bool & state)
+void QEPvProperties::setApplicationEnabled (const bool & state)
 {
     QWidget::setEnabled (state);
 }

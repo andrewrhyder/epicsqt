@@ -359,15 +359,6 @@ void QEPlot::tickTimeout()
     }
 }
 
-/*
-   Slot similar to default widget setEnabled, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QEPlot::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
-
 // Update the color of the trace
 void QEPlot::setCurveColor( const QColor color, const unsigned int variableIndex )
 {

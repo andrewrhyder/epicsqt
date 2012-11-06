@@ -378,13 +378,6 @@ void QEForm::fileChanged ( const QString & /*path*/ )
      }
 }
 
-// Slot same as default widget setEnabled slot, but renamed to match other QCa widgets where requestEnabled() will use our own setEnabled
-// which will allow alarm states to override current enabled state
-void QEForm::requestEnabled( const bool& state )
-{
-    setEnabled(state);
-}
-
 // Receive new log messages.
 // This widget doesn't do anything itself with messages, but it can regenerate the message as if it came from itself.
 void QEForm::newMessage( QString msg, message_types type )

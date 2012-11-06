@@ -356,7 +356,7 @@ void QEPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaDa
         case 3:
             if( readbackLabel )
             {
-                // When checking if an element matched the current text, use the button text in preference to the lreadback label.
+                // When checking if an element matched the current text, use the button text in preference to the readback label.
                 // This is required if several elements have the same values.
                 QString currentText;
                 if( writeButton )
@@ -675,15 +675,6 @@ void QEPeriodic::userClicked() {
         }
     }
 }
-
-/*
-   Slot similar to default widget setEnabled slot, but will use our own setEnabled which will allow alarm states to override current enabled state
- */
-void QEPeriodic::requestEnabled( const bool& state )
-{
-    QEPeriodic::setEnabled(state);
-}
-
 
 /*
   Update what is presented to the user. Either an element select button, a 'current element' label, or both
