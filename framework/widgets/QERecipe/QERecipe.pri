@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QERecipe/QERecipe.png
+    widgets/QERecipe/QERecipe.png
 
 RESOURCES += \
-    ../widgets/QERecipe/QERecipe.qrc
+    widgets/QERecipe/QERecipe.qrc
 
 HEADERS += \
-    ../widgets/QERecipe/QERecipe.h \
-    ../widgets/QERecipe/QERecipeManager.h
+    widgets/QERecipe/QERecipe.h \
+    widgets/QERecipe/QERecipeManager.h
 
 SOURCES += \
-    ../widgets/QERecipe/QERecipe.cpp \
-    ../widgets/QERecipe/QERecipeManager.cpp
+    widgets/QERecipe/QERecipe.cpp \
+    widgets/QERecipe/QERecipeManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QERecipe
+    widgets/QERecipe
 
 # end

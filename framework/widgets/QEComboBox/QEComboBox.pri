@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEComboBox.png
+    widgets/QEComboBox.png
 
 RESOURCES += \
-    ../widgets/QEComboBox/QEComboBox.qrc
+    widgets/QEComboBox/QEComboBox.qrc
 
 HEADERS += \
-    ../widgets/QEComboBox/QEComboBox.h \
-    ../widgets/QEComboBox/QEComboBoxManager.h
+    widgets/QEComboBox/QEComboBox.h \
+    widgets/QEComboBox/QEComboBoxManager.h
 
 SOURCES += \
-    ../widgets/QEComboBox/QEComboBox.cpp \
-    ../widgets/QEComboBox/QEComboBoxManager.cpp
+    widgets/QEComboBox/QEComboBox.cpp \
+    widgets/QEComboBox/QEComboBoxManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEComboBox
+    widgets/QEComboBox
 
 # end

@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEAnalogProgressBar/icon.png
+    widgets/QEAnalogProgressBar/icon.png
 
 RESOURCES += \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.qrc
+    widgets/QEAnalogProgressBar/QEAnalogProgressBar.qrc
 
 HEADERS += \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.h \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.h
+    widgets/QEAnalogProgressBar/QEAnalogProgressBar.h \
+    widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.h
 
 SOURCES += \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBar.cpp \
-    ../widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.cpp
+    widgets/QEAnalogProgressBar/QEAnalogProgressBar.cpp \
+    widgets/QEAnalogProgressBar/QEAnalogProgressBarManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEAnalogProgressBar
+    widgets/QEAnalogProgressBar
 
 # end

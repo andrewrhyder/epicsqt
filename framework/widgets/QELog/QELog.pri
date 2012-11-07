@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QELog/QELog.png
+    widgets/QELog/QELog.png
 
 RESOURCES += \
-    ../widgets/QELog/QELog.qrc
+    widgets/QELog/QELog.qrc
 
 HEADERS += \
-    ../widgets/QELog/QELog.h \
-    ../widgets/QELog/QELogManager.h
+    widgets/QELog/QELog.h \
+    widgets/QELog/QELogManager.h
 
 SOURCES += \
-    ../widgets/QELog/QELog.cpp \
-    ../widgets/QELog/QELogManager.cpp
+    widgets/QELog/QELog.cpp \
+    widgets/QELog/QELogManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QELog
+    widgets/QELog
 
 # end

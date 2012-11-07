@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEGroupBox/QEGroupBox.png
+    widgets/QEGroupBox/QEGroupBox.png
 
 RESOURCES += \
-    ../widgets/QEGroupBox/QEGroupBox.qrc
+    widgets/QEGroupBox/QEGroupBox.qrc
 
 HEADERS += \
-    ../widgets/QEGroupBox/QEGroupBox.h \
-    ../widgets/QEGroupBox/QEGroupBoxManager.h
+    widgets/QEGroupBox/QEGroupBox.h \
+    widgets/QEGroupBox/QEGroupBoxManager.h
 
 SOURCES += \
-    ../widgets/QEGroupBox/QEGroupBox.cpp \
-    ../widgets/QEGroupBox/QEGroupBoxManager.cpp
+    widgets/QEGroupBox/QEGroupBox.cpp \
+    widgets/QEGroupBox/QEGroupBoxManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEGroupBox
+    widgets/QEGroupBox
 
 # end

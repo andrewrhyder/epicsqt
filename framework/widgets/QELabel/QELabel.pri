@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QELabel.png
+    widgets/QELabel.png
 
 RESOURCES += \
-    ../widgets/QELabel/QELabel.qrc
+    widgets/QELabel/QELabel.qrc
 
 HEADERS += \
-    ../widgets/QELabel/QELabel.h \
-    ../widgets/QELabel/QELabelManager.h
+    widgets/QELabel/QELabel.h \
+    widgets/QELabel/QELabelManager.h
 
 SOURCES += \
-    ../widgets/QELabel/QELabel.cpp \
-    ../widgets/QELabel/QELabelManager.cpp
+    widgets/QELabel/QELabel.cpp \
+    widgets/QELabel/QELabelManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QELabel
+    widgets/QELabel
 
 # end

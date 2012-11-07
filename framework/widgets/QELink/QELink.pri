@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QELink.png
+    widgets/QELink.png
 
 RESOURCES += \
-    ../widgets/QELink/QELink.qrc
+    widgets/QELink/QELink.qrc
 
 HEADERS += \
-    ../widgets/QELink/QELink.h \
-    ../widgets/QELink/QELinkManager.h
+    widgets/QELink/QELink.h \
+    widgets/QELink/QELinkManager.h
 
 SOURCES += \
-    ../widgets/QELink/QELink.cpp \
-    ../widgets/QELink/QELinkManager.cpp
+    widgets/QELink/QELink.cpp \
+    widgets/QELink/QELinkManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QELink
+    widgets/QELink
 
 # end

@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayout.png
+    widgets/QEConfiguredLayout/QEConfiguredLayout.png
 
 RESOURCES += \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayout.qrc
+    widgets/QEConfiguredLayout/QEConfiguredLayout.qrc
 
 HEADERS += \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayout.h \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayoutManager.h
+    widgets/QEConfiguredLayout/QEConfiguredLayout.h \
+    widgets/QEConfiguredLayout/QEConfiguredLayoutManager.h
 
 SOURCES += \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayout.cpp \
-    ../widgets/QEConfiguredLayout/QEConfiguredLayoutManager.cpp
+    widgets/QEConfiguredLayout/QEConfiguredLayout.cpp \
+    widgets/QEConfiguredLayout/QEConfiguredLayoutManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEConfiguredLayout
+    widgets/QEConfiguredLayout
 
 # end

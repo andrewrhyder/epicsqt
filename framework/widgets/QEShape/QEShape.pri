@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEShape.png
+    widgets/QEShape.png
 
 RESOURCES += \
-    ../widgets/QEShape/QEShape.qrc
+    widgets/QEShape/QEShape.qrc
 
 HEADERS += \
-    ../widgets/QEShape/QEShape.h \
-    ../widgets/QEShape/QEShapeManager.h
+    widgets/QEShape/QEShape.h \
+    widgets/QEShape/QEShapeManager.h
 
 SOURCES += \
-    ../widgets/QEShape/QEShape.cpp \
-    ../widgets/QEShape/QEShapeManager.cpp
+    widgets/QEShape/QEShape.cpp \
+    widgets/QEShape/QEShapeManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEShape
+    widgets/QEShape
 
 # end

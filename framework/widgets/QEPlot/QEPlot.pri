@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEPlot.png
+    widgets/QEPlot.png
 
 RESOURCES += \
-    ../widgets/QEPlot/QEPlot.qrc
+    widgets/QEPlot/QEPlot.qrc
 
 HEADERS += \
-    ../widgets/QEPlot/QEPlot.h \
-    ../widgets/QEPlot/QEPlotManager.h
+    widgets/QEPlot/QEPlot.h \
+    widgets/QEPlot/QEPlotManager.h
 
 SOURCES += \
-    ../widgets/QEPlot/QEPlot.cpp \
-    ../widgets/QEPlot/QEPlotManager.cpp
+    widgets/QEPlot/QEPlot.cpp \
+    widgets/QEPlot/QEPlotManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEPlot
+    widgets/QEPlot
 
 # end

@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEFrame/QEFrame.png
+    widgets/QEFrame/QEFrame.png
 
 RESOURCES += \
-    ../widgets/QEFrame/QEFrame.qrc
+    widgets/QEFrame/QEFrame.qrc
 
 HEADERS += \
-    ../widgets/QEFrame/QEFrame.h \
-    ../widgets/QEFrame/QEFrameManager.h
+    widgets/QEFrame/QEFrame.h \
+    widgets/QEFrame/QEFrameManager.h
 
 SOURCES += \
-    ../widgets/QEFrame/QEFrame.cpp \
-    ../widgets/QEFrame/QEFrameManager.cpp
+    widgets/QEFrame/QEFrame.cpp \
+    widgets/QEFrame/QEFrameManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEFrame
+    widgets/QEFrame
 
 # end

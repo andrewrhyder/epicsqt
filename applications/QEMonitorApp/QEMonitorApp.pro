@@ -23,15 +23,16 @@
 #
 
 QT -= gui
-TARGET = QCaMonitor
+TARGET = QEMonitor
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += \
     ./src/main.cpp \
     ./src/monitor.cpp
+
 # Include the following gdbmacros line for debugging only
-#SOURCES +=     $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+#SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
 
 HEADERS += \
     include/monitor.h
@@ -42,8 +43,4 @@ INCLUDEPATH += \
     ../../framework/data/include \
     ../../framework/widgets/include
 
-# Uncomment if linking agains QCa library in Qt Designer plugin directory
-#LIBS += -L$$(QTDIR)/plugins/designer -lQCaPlugin
-
-# Uncomment if linking agains QCa library in epicsQt release build directory
-LIBS += -L../../framework/plugins -lQCaPlugin
+LIBS += -L../../framework/designer -lQEPlugin

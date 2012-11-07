@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEForm/QEForm.png
+    widgets/QEForm/QEForm.png
 
 RESOURCES += \
-    ../widgets/QEForm/QEForm.qrc
+    widgets/QEForm/QEForm.qrc
 
 HEADERS += \
-    ../widgets/QEForm/QEForm.h \
-    ../widgets/QEForm/QEFormManager.h
+    widgets/QEForm/QEForm.h \
+    widgets/QEForm/QEFormManager.h
 
 SOURCES += \
-    ../widgets/QEForm/QEForm.cpp \
-    ../widgets/QEForm/QEFormManager.cpp
+    widgets/QEForm/QEForm.cpp \
+    widgets/QEForm/QEFormManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEForm
+    widgets/QEForm
 
 # end

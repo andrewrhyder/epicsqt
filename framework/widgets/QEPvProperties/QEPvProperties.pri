@@ -4,21 +4,21 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QEPvProperties/icon.png \
-    ../widgets/QEPvProperties/record_field_list.txt
+    widgets/QEPvProperties/icon.png \
+    widgets/QEPvProperties/record_field_list.txt
 
 RESOURCES += \
-    ../widgets/QEPvProperties/QEPvProperties.qrc
+    widgets/QEPvProperties/QEPvProperties.qrc
 
 HEADERS += \
-    ../widgets/QEPvProperties/QEPvProperties.h \
-    ../widgets/QEPvProperties/QEPvPropertiesManager.h \
+    widgets/QEPvProperties/QEPvProperties.h \
+    widgets/QEPvProperties/QEPvPropertiesManager.h \
 
 SOURCES += \
-    ../widgets/QEPvProperties/QEPvProperties.cpp \
-    ../widgets/QEPvProperties/QEPvPropertiesManager.cpp
+    widgets/QEPvProperties/QEPvProperties.cpp \
+    widgets/QEPvProperties/QEPvPropertiesManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QEPvProperties
+    widgets/QEPvProperties
 
 # end

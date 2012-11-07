@@ -11,20 +11,20 @@ isEmpty( _QE_ARCHIVE_LIST ) {
     warning( "For example, archiver.synchrotron.org.au:80/cgi-bin/ArchiveDataServer1.cgi archiver.synchrotron.org.au:80/cgi-bin/ArchiveDataServer2.cgi" )
 }
 HEADERS += \
-    ../archive/QEArchiveInterface.h \
-    ../archive/QEArchiveManager.h \
-    ../archive/maiaFault.h \
-    ../archive/maiaObject.h \
-    ../archive/maiaXmlRpcClient.h
+    archive/QEArchiveInterface.h \
+    archive/QEArchiveManager.h \
+    archive/maiaFault.h \
+    archive/maiaObject.h \
+    archive/maiaXmlRpcClient.h
 
 SOURCES += \
-    ../archive/QEArchiveInterface.cpp \
-    ../archive/QEArchiveManager.cpp \
-    ../archive/maiaFault.cpp \
-    ../archive/maiaObject.cpp \
-    ../archive/maiaXmlRpcClient.cpp
+    archive/QEArchiveInterface.cpp \
+    archive/QEArchiveManager.cpp \
+    archive/maiaFault.cpp \
+    archive/maiaObject.cpp \
+    archive/maiaXmlRpcClient.cpp
 
 INCLUDEPATH += \
-    ../archive
+    archive
 
 # end

@@ -4,20 +4,20 @@
 # and as part of the overall framework plugins.pro project file.
 #
 OTHER_FILES += \
-    ../widgets/QESpinBox.png
+    widgets/QESpinBox.png
 
 RESOURCES += \
-    ../widgets/QESpinBox/QESpinBox.qrc
+    widgets/QESpinBox/QESpinBox.qrc
 
 HEADERS += \
-    ../widgets/QESpinBox/QESpinBox.h \
-    ../widgets/QESpinBox/QESpinBoxManager.h
+    widgets/QESpinBox/QESpinBox.h \
+    widgets/QESpinBox/QESpinBoxManager.h
 
 SOURCES += \
-    ../widgets/QESpinBox/QESpinBox.cpp \
-    ../widgets/QESpinBox/QESpinBoxManager.cpp
+    widgets/QESpinBox/QESpinBox.cpp \
+    widgets/QESpinBox/QESpinBoxManager.cpp
 
 INCLUDEPATH += \
-    ../widgets/QESpinBox
+    widgets/QESpinBox
 
 # end
