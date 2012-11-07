@@ -24,7 +24,7 @@
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
 QT += network
-TARGET = ASgui
+TARGET = QEGui
 TEMPLATE = app
 CONFIG += uitools \
     debug_and_release
@@ -32,8 +32,9 @@ SOURCES += ./src/main.cpp \
     ./src/MainWindow.cpp \
     ./src/StartupParams.cpp \
     ./src/InstanceManager.cpp
+
 # Include the following gdbmacros line for debugging only
-#SOURCES +=     $$(QTCREATOR)/gdbmacros/gdbmacros.cpp
+#SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
 
 HEADERS += include/MainWindow.h \
     include/StartupParams.h \
@@ -47,6 +48,5 @@ INCLUDEPATH += . \
     ../../framework/widgets/QEForm \
     ../../framework/plugins/include
 
-LIBS += -L../../framework/plugins \
-    -lQCaPlugin
+LIBS += -L../../framework/designer -lQEPlugin
 FORMS += ./src/MainWindow.ui
