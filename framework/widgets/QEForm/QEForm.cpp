@@ -186,7 +186,8 @@ bool QEForm::readUiFile()
             }
 
             // Add this form's macro substitutions for all it's children to use
-            addMacroSubstitutions( variableNameSubstitutions );
+            // Note, any macros in the substitutions are themselves substituted before applying the substitutions to the form
+            addMacroSubstitutions( substituteThis( variableNameSubstitutions ) );
 
             // Temporarily update the published current object's path to the path of the form being created.
             // Any objects created within the form (for example sub forms) can then know where their parent form is located.
