@@ -37,29 +37,29 @@ class QCaLabelPlugin : public QELabel {
     // This deprecated widget is now just a shell around its replacement.
     // Its replacement does not recognise any properties defined in using a Q_ENUM in the original widget,
     // so these properties must still be implemented in the deprecated widget
-    enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
-                   Floating         = QCaStringFormatting::FORMAT_FLOATING,
-                   Integer          = QCaStringFormatting::FORMAT_INTEGER,
-                   UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time             = QCaStringFormatting::FORMAT_TIME,
-                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
-    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,
+                   Floating         = QEStringFormatting::FORMAT_FLOATING,
+                   Integer          = QEStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time             = QEStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }
     Formats getFormatProperty(){ return (Formats)getFormat(); }
     Q_ENUMS(Formats)
     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
 
-    enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
-                     Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
-                     Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
-    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    enum Notations { Fixed = QEStringFormatting::NOTATION_FIXED,
+                     Scientific   = QEStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic      = QEStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }
     Notations getNotationProperty(){ return (Notations)getNotation(); }
     Q_ENUMS(Notations)
     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
 
-    enum ArrayActions { Append = QCaStringFormatting::APPEND,
-                        Ascii  = QCaStringFormatting::ASCII,
-                        Index  = QCaStringFormatting::INDEX };
-    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }
+    enum ArrayActions { Append = QEStringFormatting::APPEND,
+                        Ascii  = QEStringFormatting::ASCII,
+                        Index  = QEStringFormatting::INDEX };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QEStringFormatting::arrayActions)arrayAction ); }
     ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }
     Q_ENUMS(ArrayActions)
     Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)

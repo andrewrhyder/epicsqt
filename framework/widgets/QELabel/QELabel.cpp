@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware label widget based on the Qt label widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <QELabel.h>
@@ -32,14 +32,14 @@
 /*
     Constructor with no initialisation
 */
-QELabel::QELabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
+QELabel::QELabel( QWidget *parent ) : QLabel( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Constructor with known variable
 */
-QELabel::QELabel( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QCaWidget( this )  {
+QELabel::QELabel( const QString &variableNameIn, QWidget *parent ) : QLabel( parent ), QEWidget( this )  {
     setup();
     setVariableName( variableNameIn, 0 );
 }
@@ -77,12 +77,12 @@ void QELabel::setup() {
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a label a QCaObject that streams strings is required.
 */
 qcaobject::QCaObject* QELabel::createQcaItem( unsigned int variableIndex ) {
-    // Create the item as a QCaString
-   return new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
+    // Create the item as a QEString
+   return new QEString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 }
 
 /*
@@ -109,7 +109,7 @@ void QELabel::establishConnection( unsigned int variableIndex ) {
 
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QELabel::updateToolTip( const QString& tip )
 {
@@ -123,7 +123,7 @@ void QELabel::updateToolTip( const QString& tip )
  */
 void QELabel::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QE enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;

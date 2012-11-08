@@ -40,15 +40,15 @@
 #include <qwt_plot_curve.h>
 
 #include <QCaAlarmInfo.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 #include <QCaDateTime.h>
 #include <QCaConnectionInfo.h>
-#include <QCaDragDrop.h>
-#include <QCaWidget.h>
+#include <QEDragDrop.h>
+#include <QEWidget.h>
 
 #include <QEStripChartTimeDialog.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QEWidget {
    Q_OBJECT
 
    Q_PROPERTY (int     duration   READ getDuration               WRITE setDuration)
@@ -128,7 +128,7 @@ public:
 protected:
    // Drag and Drop
    //
-   // Override QWidget functions - call up standard handlers defined in QCaDragDrop.
+   // Override QWidget functions - call up standard handlers defined in QEDragDrop.
    //
    void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
    void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }

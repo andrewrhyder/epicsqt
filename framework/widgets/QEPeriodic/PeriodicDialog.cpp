@@ -25,12 +25,12 @@
 /*
   This class manages the presenation of a periodic table and the selection of an
   element in the table by a user.
-  It is used by the QCaPeriodic widget.
-  The QCaPeriodic widget appears as a push button displaying an element name.
-  When the QCaPeriodic widget is pressed this dialog is presented with the focus on the
+  It is used by the QEPeriodic widget.
+  The QEPeriodic widget appears as a push button displaying an element name.
+  When the QEPeriodic widget is pressed this dialog is presented with the focus on the
   button in the periodic table for the current element.
   When a button for an element in the periodic table is pressed the element symbol is
-  saved ready for recall by the QCaPeriodic widget.
+  saved ready for recall by the QEPeriodic widget.
  */
 
 #include "PeriodicDialog.h"

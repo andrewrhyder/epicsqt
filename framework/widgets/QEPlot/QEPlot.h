@@ -28,13 +28,13 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
-#include <QCaWidget.h>
-#include <QCaFloating.h>
-#include <QCaFloatingFormatting.h>
+#include <QEWidget.h>
+#include <QEFloating.h>
+#include <QEFloatingFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QVector>
 #include <QTimer>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 // Maximum number of variables.
 #define QEPLOT_NUM_VARIABLES 4
@@ -54,7 +54,7 @@ class trace {
     QwtPlotCurve::CurveStyle style;
 };
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QEWidget {
     Q_OBJECT
 
   public:
@@ -143,7 +143,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QCaWidget {
     unsigned int getTickRate();
 
   protected:
-    QCaFloatingFormatting floatingFormatting;
+    QEFloatingFormatting floatingFormatting;
     bool localEnabled;
     bool allowDrop;
 
@@ -154,7 +154,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QCaWidget {
     void setPlotData( const QVector<double>& values, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setPlotData( const double value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void tickTimeout();
-    // !! move this functionality into QCaWidget???
+    // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
@@ -196,7 +196,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QCaWidget {
     double xStart;
     double xIncrement;
 
-    // Functions common to most QCa widgets
+    // Functions common to most QE widgetss
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip( const QString& tip );
 

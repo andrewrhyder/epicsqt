@@ -29,7 +29,7 @@
 // ============================================================
 //  QELOG METHODS
 // ============================================================
-QELog::QELog(QWidget *pParent):QWidget(pParent), QCaWidget(this)
+QELog::QELog(QWidget *pParent):QWidget(pParent), QEWidget(this)
 {
 
     QFont qFont;
@@ -613,7 +613,7 @@ void QELog::refreshLog()
 
 
 
-// Receive new log messages from other QCaWidgets.
+// Receive new log messages from other QEWidgets.
 void QELog::newMessage( QString msg, message_types type )
 {
     // Add the message to the log

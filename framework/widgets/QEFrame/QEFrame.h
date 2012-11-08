@@ -27,8 +27,8 @@
 #define QEFRAME_H
 
 #include <QFrame>
-#include <QCaWidget.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEWidget.h>
+#include <QEPluginLibrary_global.h>
 
 
 // The QEFrame class provides a minimalist extention to the QFrame class
@@ -37,8 +37,8 @@
 // QEFrame container also.
 // See QEGroupBox as well.
 //
-class QCAPLUGINLIBRARYSHARED_EXPORT QEFrame :
-      public QFrame, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEFrame :
+      public QFrame, public QEWidget {
 
 Q_OBJECT
 

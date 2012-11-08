@@ -26,14 +26,14 @@
 #define QERADIOBUTTON_H
 
 #include <QRadioButton>
-#include <QCaWidget.h>
-#include <QCaString.h>
-#include <QCaStringFormatting.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEWidget.h>
+#include <QEString.h>
+#include <QEStringFormatting.h>
+#include <QEPluginLibrary_global.h>
 #include <managePixmaps.h>
 #include <QEGenericButton.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QERadioButton : public QRadioButton, public QEGenericButton {
+class QEPLUGINLIBRARYSHARED_EXPORT QERadioButton : public QRadioButton, public QEGenericButton {
     Q_OBJECT
 
   public:
@@ -273,20 +273,20 @@ public:
 
     Q_ENUMS(Formats)
     Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
-    enum Formats { Default         = QCaStringFormatting::FORMAT_DEFAULT,
-                   Floating        = QCaStringFormatting::FORMAT_FLOATING,
-                   Integer         = QCaStringFormatting::FORMAT_INTEGER,
-                   UnsignedInteger = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time            = QCaStringFormatting::FORMAT_TIME };
-    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }
+    enum Formats { Default         = QEStringFormatting::FORMAT_DEFAULT,
+                   Floating        = QEStringFormatting::FORMAT_FLOATING,
+                   Integer         = QEStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time            = QEStringFormatting::FORMAT_TIME };
+    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }
     Formats getFormatProperty(){ return (Formats)getFormat(); }
 
     Q_ENUMS(Notations)
     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
-    enum Notations { Fixed      = QCaStringFormatting::NOTATION_FIXED,
-                     Scientific = QCaStringFormatting::NOTATION_SCIENTIFIC,
-                     Automatic  = QCaStringFormatting::NOTATION_AUTOMATIC };
-    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }
+    enum Notations { Fixed      = QEStringFormatting::NOTATION_FIXED,
+                     Scientific = QEStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic  = QEStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }
     Notations getNotationProperty(){ return (Notations)getNotation(); }
 
     Q_PROPERTY(QString password READ getPassword WRITE setPassword)

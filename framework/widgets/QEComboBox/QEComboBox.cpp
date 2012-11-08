@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware combo box widget based on the Qt combo box widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <QEComboBox.h>
@@ -32,14 +32,14 @@
 /*
     Construct a combo box with no variable specified yet
 */
-QEComboBox::QEComboBox( QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
+QEComboBox::QEComboBox( QWidget *parent ) : QComboBox( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Construct a combo box with a variable specified
 */
-QEComboBox::QEComboBox( const QString &variableNameIn, QWidget *parent ) : QComboBox( parent ), QCaWidget( this ) {
+QEComboBox::QEComboBox( const QString &variableNameIn, QWidget *parent ) : QComboBox( parent ), QEWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -78,13 +78,13 @@ void QEComboBox::setup() {
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a Combo box a QCaObject that streams integers is required.
 */
 qcaobject::QCaObject* QEComboBox::createQcaItem( unsigned int variableIndex ) {
 
-    // Create the item as a QCaInteger
-    return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+    // Create the item as a QEInteger
+    return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 }
 
 /*
@@ -120,7 +120,7 @@ void QEComboBox::establishConnection( unsigned int variableIndex ) {
 */
 void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QE enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -145,14 +145,14 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     // Note, channel up implies link up
     if( connectionInfo.isChannelConnected() && count() == 0 && !subscribe )
     {
-        QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+        QEInteger* qca = (QEInteger*)getQcaItem(0);
         qca->singleShotRead();
         ignoreSingleShotRead = true;
     }
 }
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QEComboBox::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
@@ -175,7 +175,7 @@ void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
     // If not subscribing, there will still be an initial update to get enumeration values.
     if( count() == 0 )
     {
-        QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+        QEInteger* qca = (QEInteger*)getQcaItem(0);
         QStringList enumerations = qca->getEnumerations();
         if( useDbEnumerations && enumerations.size() )
         {
@@ -226,7 +226,7 @@ void QEComboBox::userValueChanged( int value ) {
         return;
 
     // Get the variable to write to
-    QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+    QEInteger* qca = (QEInteger*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // then write the value
@@ -236,7 +236,7 @@ void QEComboBox::userValueChanged( int value ) {
         qca->writeInteger( (long)value );
 
         // Notify user changes
-        QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+        QEInteger* qca = (QEInteger*)getQcaItem(0);
         QStringList enumerations = qca->getEnumerations();
         QString lastValueString;
         if( lastValue >= 0 && lastValue < enumerations.size() )
@@ -256,7 +256,7 @@ void QEComboBox::userValueChanged( int value ) {
 void QEComboBox::writeNow()
 {
     // Get the variable to write to
-    QCaInteger* qca = (QCaInteger*)getQcaItem(0);
+    QEInteger* qca = (QEInteger*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // then write the value

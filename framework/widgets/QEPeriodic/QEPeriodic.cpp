@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware element selection widget based on the Qt push button widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
 
   This control and display widget associates one or two values with an element.
   A typical use of this widget is to move a one or two axis element reference foil stage
@@ -173,14 +173,14 @@ QEPeriodic::elementInfoStruct QEPeriodic::elementInfo[NUM_ELEMENTS] = {
 /*
     Constructor with no initialisation
 */
-QEPeriodic::QEPeriodic( QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
+QEPeriodic::QEPeriodic( QWidget *parent ) : QFrame( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Constructor with known variable
 */
-QEPeriodic::QEPeriodic( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
+QEPeriodic::QEPeriodic( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QEWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -217,7 +217,7 @@ void QEPeriodic::setup() {
     // A pair of values to read 'element' readback
     setNumVariables(4);
 
-    // Override default QCaWidget and QPushButton properties
+    // Override default QEWidget and QPushButton properties
     subscribe = false;
 
     // Set up default properties
@@ -233,7 +233,7 @@ void QEPeriodic::setup() {
     variableType1 = VARIABLE_TYPE_USER_VALUE_1;
     variableType2 = VARIABLE_TYPE_USER_VALUE_2;
 
-    // !! move this functionality into QCaWidget???
+    // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
@@ -246,13 +246,13 @@ void QEPeriodic::setup() {
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a push button a QCaObject that streams strings is required.
 */
 qcaobject::QCaObject* QEPeriodic::createQcaItem( unsigned int variableIndex ) {
 
-    // Create the items as a QCaFloating
-    return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
+    // Create the items as a QEFloating
+    return new QEFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 }
 
 /*
@@ -281,7 +281,7 @@ void QEPeriodic::establishConnection( unsigned int variableIndex ) {
 }
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QEPeriodic::updateToolTip ( const QString & toolTip ) {
 
@@ -411,8 +411,8 @@ bool QEPeriodic::getElementTextForValue( const double& value, const unsigned int
 
     // Get the related QCa data objects.
     // We won't be using them for much - their presence (or absense) just tells us what data to expect.
-    QCaString* qca1 = (QCaString*)getQcaItem(componentData.variableIndex1);
-    QCaString* qca2 = (QCaString*)getQcaItem(componentData.variableIndex2);
+    QEString* qca1 = (QEString*)getQcaItem(componentData.variableIndex1);
+    QEString* qca2 = (QEString*)getQcaItem(componentData.variableIndex2);
 
     // If all required data is available...
     if( ( qca1 && componentData.haveLastData1 && qca2 && componentData.haveLastData2 ) ||   // If both inputs are required and are present
@@ -599,8 +599,8 @@ void QEPeriodic::userClicked() {
 
     // Get the variables to write to
     // The write button uses the first two variables
-    QCaFloating *qca1 = (QCaFloating*)getQcaItem(0);
-    QCaFloating *qca2 = (QCaFloating*)getQcaItem(1);
+    QEFloating *qca1 = (QEFloating*)getQcaItem(0);
+    QEFloating *qca2 = (QEFloating*)getQcaItem(1);
 
     // If a QCa object is present (if there is a variable to write to)
     // Present the element selection dialog

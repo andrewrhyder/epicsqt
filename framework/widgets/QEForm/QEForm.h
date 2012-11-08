@@ -26,14 +26,14 @@
 #define QEFORM_H
 
 #include <QScrollArea>
-#include <QCaWidget.h>
+#include <QEWidget.h>
 #include <QWidget>
 #include <QString>
 #include <QFileSystemWatcher>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
+class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 {
     Q_OBJECT
     public:
@@ -127,7 +127,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QCaWidget
         void setMessageSourceFilter( MessageFilterOptions messageSourceFilter ){ setSourceFilter( (message_filter_options)messageSourceFilter ); }
 
       private:
-        QCaVariableNamePropertyManager variableNamePropertyManager; // Note, this is only used to manage the macro substitutions that will be passed down to the form's QCa widgets. The form has no varialbe name
+        QCaVariableNamePropertyManager variableNamePropertyManager; // Note, this is only used to manage the macro substitutions that will be passed down to the form's QE widgets. The form has no varialbe name
 
 };
 

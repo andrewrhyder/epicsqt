@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware shape widget based on QWidget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <QEShape.h>
@@ -35,14 +35,14 @@
 /*
     Create without a known variable. Just manage parental hirarchy.
 */
-QEShape::QEShape( QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
+QEShape::QEShape( QWidget *parent ) : QWidget( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Create with a known variable. Subscription occurs immedietly.
 */
-QEShape::QEShape( const QString &variableNameIn, QWidget *parent ) : QWidget( parent ), QCaWidget( this ) {
+QEShape::QEShape( const QString &variableNameIn, QWidget *parent ) : QWidget( parent ), QEWidget( this ) {
     // Call common setup code.
     setup();
 
@@ -124,7 +124,7 @@ void QEShape::setup() {
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     // Use widget signals
-    // !! move this functionality into QCaWidget???
+    // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
@@ -137,13 +137,13 @@ void QEShape::setup() {
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a shape a QCaObject that streams integers is required.
 */
 qcaobject::QCaObject* QEShape::createQcaItem( unsigned int variableIndex ) {
 
-    // Create the item as a QCaInteger
-    return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+    // Create the item as a QEInteger
+    return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 }
 
 /*
@@ -168,7 +168,7 @@ void QEShape::establishConnection( unsigned int variableIndex ) {
 }
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QEShape::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
@@ -181,7 +181,7 @@ void QEShape::updateToolTip ( const QString & toolTip ) {
  */
 void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QE enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -202,7 +202,7 @@ void QEShape::connectionChanged( QCaConnectionInfo& connectionInfo )
 
 /*
     Use a data update to alter the shape's attributes.
-    The name setValue is less appropriate for this QCa widget than for others
+    The name setValue is less appropriate for this QE widgets than for others
     such as QELabel where setValue() sets the value displayed. For this
     widget setting the value means modifying one attribute such as position or
     color.

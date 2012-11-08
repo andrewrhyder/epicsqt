@@ -27,10 +27,10 @@
 #define QELOGINPLUGINMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QELoginManager:public QObject, public QDesignerCustomWidgetInterface
+class QEPLUGINLIBRARYSHARED_EXPORT QELoginManager:public QObject, public QDesignerCustomWidgetInterface
 {
 
     Q_OBJECT

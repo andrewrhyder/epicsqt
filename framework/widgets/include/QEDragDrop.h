@@ -22,46 +22,39 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include "QCaToolTip.h"
+#ifndef QEDragDrop_H
+#define QEDragDrop_H
 
-QCaToolTip::QCaToolTip()
-{
-    isConnected = false;
-}
+#include <QtGui>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
-/*
-    Update the tool tip as requested by QCaWidget.
-*/
-void QCaToolTip::updateToolTipVariable ( const QString& variable ) {
-    toolTipVariable = variable;
-    displayToolTip();
-}
+class QEDragDrop {
 
-void QCaToolTip::updateToolTipAlarm ( const QString& alarm )
-{
-    toolTipAlarm = alarm;
-    displayToolTip();
-}
+public:
+    QEDragDrop( QWidget* ownerIn );
+    virtual ~QEDragDrop(){}
+  protected:
 
-void QCaToolTip::updateToolTipConnection ( bool isConnectedIn )
-{
-    isConnected = isConnectedIn;
-    displayToolTip();
-}
+    // Drag and Drop
 
-/*
-   Build and display the tool tip from the name and state
-*/
-void QCaToolTip::displayToolTip() {
+    // Called by the QE widgets in the QE widgets's drag/drop implementation
+    void qcaDragEnterEvent(QDragEnterEvent *event);
+    void qcaDropEvent(QDropEvent *event);
+    void qcaMousePressEvent(QMouseEvent *event);
 
-    QString toolTip( toolTipVariable );
+    // Virtual functions to allow this class to get and set the QE widgetss drag/drop text
+    // They are not defined as pure virtual as the QE widgets does not have to use this class's drag drop.
+    virtual void setDrop( QVariant ) {}
+    virtual QVariant getDrop() { return QVariant(); }
 
-    if( toolTipAlarm.size() )
-        toolTip.append( " - " ).append( toolTipAlarm );
+    void setAllowDrop( bool allowDropIn );
+    bool getAllowDrop();
 
-    if( !isConnected )
-        toolTip.append( " - Disconnected" );
+private:
+    QWidget* owner;
+    bool allowDrop;
 
-    updateToolTip( toolTip );
-}
+};
 
+#endif // QEDragDrop_H

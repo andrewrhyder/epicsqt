@@ -81,7 +81,7 @@ namespace caobject {
             CaRef* myRef;
 
             // CA specific data private to the CaObject code
-            // To allow application to include the QCaFramework without requiring
+            // To allow application to include the QEFramework without requiring
             // EPICS include files, this is obscured by casting the CA specific data as a void*
         public:
             void*        priPtr;     // Actually of type CaObjectPrivate*

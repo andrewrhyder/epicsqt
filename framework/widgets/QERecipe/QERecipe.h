@@ -33,7 +33,7 @@
 // ============================================================
 //  QERECIPE METHODS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QCaWidget
+class QEPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QEWidget
 {
 
     Q_OBJECT

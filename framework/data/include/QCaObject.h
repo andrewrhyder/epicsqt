@@ -40,14 +40,14 @@
 #include <QCaAlarmInfo.h>
 #include <QCaDateTime.h>
 #include <QCaConnectionInfo.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 namespace qcaobject {
 
 #define SIG_VARIANT   1
 #define SIG_BYTEARRAY 2
 
-  class QCAPLUGINLIBRARYSHARED_EXPORT QCaObject : public QObject, caobject::CaObject {
+  class QEPLUGINLIBRARYSHARED_EXPORT QCaObject : public QObject, caobject::CaObject {
       Q_OBJECT
 
     public:

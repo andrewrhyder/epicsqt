@@ -25,19 +25,19 @@
 #ifndef QESHAPE_H
 #define QESHAPE_H
 
-#include <QCaInteger.h>
-#include <QCaWidget.h>
+#include <QEInteger.h>
+#include <QEWidget.h>
 #include <QBrush>
 #include <QPen>
 #include <QPixmap>
 #include <QWidget>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
 
 // Maximum number of variables.
 #define QESHAPE_NUM_VARIABLES 6
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     Q_OBJECT
 
   public:
@@ -117,7 +117,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
 
 
   protected:
-    QCaIntegerFormatting integerFormatting;                     // Integer formatting options
+    QEIntegerFormatting integerFormatting;                     // Integer formatting options
 
   #define OFFSETS_SIZE QESHAPE_NUM_VARIABLES
     double offsets[OFFSETS_SIZE];
@@ -153,7 +153,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QCaWidget {
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
-    // !! move this functionality into QCaWidget???
+    // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {

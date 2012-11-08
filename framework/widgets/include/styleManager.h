@@ -49,7 +49,7 @@
   Without carefull consideration they should only be used for simple visualisation effects such as altering the backgrouond color.
 
   All QE widgets (eg, QELabel, QELineEdit) have an instance of this class as they based on
-  QCaWidget which itself uses this class as a base class.
+  QEWidget which itself uses this class as a base class.
 
   To use the functionality provided by this class, QE widgets must include the following:
 

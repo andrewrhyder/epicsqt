@@ -22,16 +22,16 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/* This class is used as a container for QCa widgets.
+/* This class is used as a container for QE widgetss.
 
     It adds any variable name macro substitutions to the current environment profile, creates a form widget and
-    reads a UI file which can contain QCa widgets.
+    reads a UI file which can contain QE widgetss.
 
-    As QCa widgets are created, they note the current environment profile, including variable name substitutions.
-    QCa widgets also register themselves with this class so this class can activate them once they are fully created.
-    QCa widgets can't activate themselves. The Qt form loader creates each widget and calls the appropriate property
+    As QE widgetss are created, they note the current environment profile, including variable name substitutions.
+    QE widgetss also register themselves with this class so this class can activate them once they are fully created.
+    QE widgetss can't activate themselves. The Qt form loader creates each widget and calls the appropriate property
     functions to set it up. The widget itself does not know what properties are going to be set and when they have
-    all been set. For this reason the QCa widgets don't know when to request CA data. Both variable name properties
+    all been set. For this reason the QE widgetss don't know when to request CA data. Both variable name properties
     and variable name substitution properties must be set up to request data and other properties may need to be set
     up before udates can be used.
 
@@ -45,17 +45,17 @@
 #include <QtDebug>
 #include <QEForm.h>
 #include <ContainerProfile.h>
-#include <QCaWidget.h>
+#include <QEWidget.h>
 
 // Constructor.
 // No UI file is read. uiFileName must be set and then readUiFile() called after construction
-QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QCaWidget( this ) {
+QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this ) {
     commonInit( false );
 }
 
 // Constructor.
 // UI filename is supplied and UI file is read as part of construction.
-QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QCaWidget( this ) {
+QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QEWidget( this ) {
     commonInit( true );
     uiFileName = uiFileNameIn;
 }
@@ -128,7 +128,7 @@ bool QEForm::readUiFile()
     // If any name has been provided...
     if (!uiFileName.isEmpty()) {
 
-        // Set up the environment profile for any QCa widgets created by the form
+        // Set up the environment profile for any QE widgetss created by the form
         QObject* savedGuiLaunchConsumer = NULL;
 
         // Try to open the UI file
@@ -224,11 +224,11 @@ bool QEForm::readUiFile()
             if ( handleGuiLaunchRequests )
                  replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
 
-            // Any QCa widgets that have just been created need to be activated.
-            // Note, this is only required when QCa widgets are not loaded within a form and not directly by 'designer'.
+            // Any QE widgetss that have just been created need to be activated.
+            // Note, this is only required when QE widgetss are not loaded within a form and not directly by 'designer'.
             // When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
             // the variable name or variable name substitution properties are set
-            QCaWidget* containedWidget;
+            QEWidget* containedWidget;
             while( (containedWidget = getNextContainedWidget()) )
                 containedWidget->activate();
 
@@ -311,13 +311,13 @@ QString QEForm::getFullFileName()
     return fullUiFileName;
 }
 
-// Set the variable name substitutions used by all QCa widgets within the form
+// Set the variable name substitutions used by all QE widgetss within the form
 void QEForm::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
 {
     variableNameSubstitutions = variableNameSubstitutionsIn;
 
     // The macro substitutions have changed. Reload the form to pick up new substitutions.
-    // NOTE an alternative to this would be to find all QCa widgets contained in the form and it's descentand forms, modify the macro substitutions and reconnect.
+    // NOTE an alternative to this would be to find all QE widgetss contained in the form and it's descentand forms, modify the macro substitutions and reconnect.
     // This is a realistic option since contained widgets now register themselves with the form on creation so the fomr can activate them once all properties have been set up
     if( ui )
     {

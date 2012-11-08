@@ -256,7 +256,7 @@ static QString rtype_pv_name (const QString pvName)
 //
 QEPvProperties::QEPvProperties (QWidget * parent) :
       QFrame (parent),
-      QCaWidget (this)
+      QEWidget (this)
 {
    this->recordBaseName = "";
    this->common_setup ();
@@ -266,7 +266,7 @@ QEPvProperties::QEPvProperties (QWidget * parent) :
 //
 QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) :
       QFrame (parent),
-      QCaWidget (this)
+      QEWidget (this)
 {
    this->recordBaseName = record_name (variableName);
    this->common_setup ();
@@ -277,9 +277,9 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
 //
 QEPvProperties::~QEPvProperties ()
 {
-   QCaString *qca;
+   QEString *qca;
 
-   // Free up all allocated QCaString objects.
+   // Free up all allocated QEString objects.
    //
    while (!this->fieldChannels.isEmpty ()) {
       qca = this->fieldChannels.takeFirst ();
@@ -373,7 +373,7 @@ void QEPvProperties::common_setup ()
    this->fieldStringFormatting.setAddUnits (false);
    this->fieldStringFormatting.setUseDbPrecision (false);
    this->fieldStringFormatting.setPrecision (12);
-   this->fieldStringFormatting.setNotation (QCaStringFormatting::NOTATION_AUTOMATIC);
+   this->fieldStringFormatting.setNotation (QEStringFormatting::NOTATION_AUTOMATIC);
 
    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    // Framework boiler-plate stuff.
@@ -408,7 +408,7 @@ void QEPvProperties::common_setup ()
 }
 
 //------------------------------------------------------------------------------
-// Update the tool tip as requested by QCaToolTip.
+// Update the tool tip as requested by QEToolTip.
 //
 void QEPvProperties::updateToolTip (const QString& tip)
 {
@@ -421,7 +421,7 @@ void QEPvProperties::updateToolTip (const QString& tip)
 void QEPvProperties::clearFieldChannels ()
 {
    QTableWidget *table = this->ownWidgets.table;
-   QCaString *qca;
+   QEString *qca;
    QTableWidgetItem *item;
    QString gap ("           ");  // empirically found to be quivilent width of " DESC "
    int j;
@@ -498,7 +498,7 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
    // Regardless of the actual PV, we need to connect to the RTYP pseudo field
    // of the associated record.
    //
-   return new QCaString (rtype_pv_name (pv_name), this, &stringFormatting, 0);
+   return new QEString (rtype_pv_name (pv_name), this, &stringFormatting, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -555,7 +555,7 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
    QString fieldName;
    QTableWidgetItem *item;
    QString pvName;
-   QCaString *qca;
+   QEString *qca;
 
    // Look for the record spec for the given record type if it exists.
    //
@@ -613,7 +613,7 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
       //
       pvName = this->recordBaseName + "." + fieldName;
 
-      qca = new QCaString (pvName, this, &this->fieldStringFormatting, j);
+      qca = new QEString (pvName, this, &this->fieldStringFormatting, j);
 
       QObject::connect (qca, SIGNAL (stringConnectionChanged (QCaConnectionInfo&, const unsigned int& )),
                         this,  SLOT (setFieldConnection (QCaConnectionInfo&, const unsigned int& )));

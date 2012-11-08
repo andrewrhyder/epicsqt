@@ -28,7 +28,7 @@
 // Construction.
 styleManager::styleManager( QWidget* ownerIn )
 {
-    // Keep a handle on the underlying QWidget of the QCa widget
+    // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
     defaultStyleSheet = owner->styleSheet();
     level = USERLEVEL_USER;

@@ -22,23 +22,46 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCADESIGNERPLUGIN_H
-#define QCADESIGNERPLUGIN_H
+#include "QEToolTip.h"
 
-#include <QtDesigner/QtDesigner>
+QEToolTip::QEToolTip()
+{
+    isConnected = false;
+}
 
-class QCaWidgets: public QObject, public QDesignerCustomWidgetCollectionInterface {
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
+/*
+    Update the tool tip as requested by QEWidget.
+*/
+void QEToolTip::updateToolTipVariable ( const QString& variable ) {
+    toolTipVariable = variable;
+    displayToolTip();
+}
 
-  public:
-    QCaWidgets(QObject *parent = 0);
-    virtual ~QCaWidgets(){}
+void QEToolTip::updateToolTipAlarm ( const QString& alarm )
+{
+    toolTipAlarm = alarm;
+    displayToolTip();
+}
 
-    virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
+void QEToolTip::updateToolTipConnection ( bool isConnectedIn )
+{
+    isConnected = isConnectedIn;
+    displayToolTip();
+}
 
-  private:
-    QList<QDesignerCustomWidgetInterface*> widgets;
-};
+/*
+   Build and display the tool tip from the name and state
+*/
+void QEToolTip::displayToolTip() {
 
-#endif // QCADESIGNERPLUGIN_H
+    QString toolTip( toolTipVariable );
+
+    if( toolTipAlarm.size() )
+        toolTip.append( " - " ).append( toolTipAlarm );
+
+    if( !isConnected )
+        toolTip.append( " - Disconnected" );
+
+    updateToolTip( toolTip );
+}
+

@@ -29,7 +29,7 @@
 // ============================================================
 //  QESCRIPT METHODS
 // ============================================================
-QEScript::QEScript(QWidget *pParent):QWidget(pParent), QCaWidget( this )
+QEScript::QEScript(QWidget *pParent):QWidget(pParent), QEWidget( this )
 {
 
     QFont qFont;

@@ -22,15 +22,15 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-// Provides textual formatting for QCaFloating data.
+// Provides textual formatting for QEFloating data.
 
-#include <QCaFloatingFormatting.h>
+#include <QEFloatingFormatting.h>
 #include <QtDebug>
 
 /*
     ???
 */
-QCaFloatingFormatting::QCaFloatingFormatting() {
+QEFloatingFormatting::QEFloatingFormatting() {
     // Default formatting properties.
     format = FORMAT_g;
     precision = 6;
@@ -43,7 +43,7 @@ QCaFloatingFormatting::QCaFloatingFormatting() {
     The formatting could include properties related to other types. For example, generate
     an error if attempting to convert a negative floating point number to an unsigned integer.
 */
-QVariant QCaFloatingFormatting::formatValue( const double &floatingValue, generic::generic_types valueType ) {
+QVariant QEFloatingFormatting::formatValue( const double &floatingValue, generic::generic_types valueType ) {
     switch( valueType ) {
         case generic::DOUBLE :
         case generic::FLOAT :
@@ -127,12 +127,12 @@ QVariant QCaFloatingFormatting::formatValue( const double &floatingValue, generi
         }
         default :
         {
-            //qDebug() << "QCaFloatingFormatting::formatValue() Unknown value 'Generic' type: " << valueType;
+            //qDebug() << "QEFloatingFormatting::formatValue() Unknown value 'Generic' type: " << valueType;
             QVariant unknown;
             return unknown;
         }
     }
-    //qDebug() << "QCaFloatingFormatting::formatValue() Unknown value 'Generic' type: " << valueType;
+    //qDebug() << "QEFloatingFormatting::formatValue() Unknown value 'Generic' type: " << valueType;
     QVariant unknown;
     return unknown;
 }
@@ -141,7 +141,7 @@ QVariant QCaFloatingFormatting::formatValue( const double &floatingValue, generi
     Generate an floating point number given a value, using formatting defined within this class.
     The value may be an array of variants or a single variant
 */
-double QCaFloatingFormatting::formatFloating( const QVariant &value ) {
+double QEFloatingFormatting::formatFloating( const QVariant &value ) {
 
     // If the value is a list, get the first item from the list.
     // Otherwise, just use the value as is
@@ -158,7 +158,7 @@ double QCaFloatingFormatting::formatFloating( const QVariant &value ) {
 /*
     Generate an floating point number array given a value, using formatting defined within this class.
 */
-QVector<double> QCaFloatingFormatting::formatFloatingArray( const QVariant &value ) {
+QVector<double> QEFloatingFormatting::formatFloatingArray( const QVariant &value ) {
 
     QVector<double> returnValue;
 
@@ -186,7 +186,7 @@ QVector<double> QCaFloatingFormatting::formatFloatingArray( const QVariant &valu
     The value must be a single variant.
     This is used when formatting a single value, or for each value in an array of values.
 */
-double QCaFloatingFormatting::formatFloatingNonArray( const QVariant &value ) {
+double QEFloatingFormatting::formatFloatingNonArray( const QVariant &value ) {
 
     // Determine the format from the variant type.
     // Only the types used to store ca data are used. any other type is considered a failure.
@@ -209,7 +209,7 @@ double QCaFloatingFormatting::formatFloatingNonArray( const QVariant &value ) {
         }
         default :
         {
-            return formatFailure( QString( "Bug in QCaFloatingFormatting::formatFloating(). The QVariant type was not expected" ) );
+            return formatFailure( QString( "Bug in QEFloatingFormatting::formatFloating(). The QVariant type was not expected" ) );
         }
     }
 }
@@ -220,7 +220,7 @@ double QCaFloatingFormatting::formatFloatingNonArray( const QVariant &value ) {
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
     there will be no conversion problems.
 */
-double QCaFloatingFormatting::formatFromInteger( const QVariant &value ) {
+double QEFloatingFormatting::formatFromInteger( const QVariant &value ) {
     // Extract the value as a double using whatever conversion the QVariant uses.
     //
     // Note, this will not pick up if the QVariant type is not one of the types used to represent CA data.
@@ -234,7 +234,7 @@ double QCaFloatingFormatting::formatFromInteger( const QVariant &value ) {
     double dValue = value.toDouble( &convertOk );
 
     if( !convertOk )
-        return formatFailure( QString( "Warning from QCaFloatingFormatting::formatFromFloating(). A variant could not be converted to a double." ) );
+        return formatFailure( QString( "Warning from QEFloatingFormatting::formatFromFloating(). A variant could not be converted to a double." ) );
 
     return dValue;
 }
@@ -245,7 +245,7 @@ double QCaFloatingFormatting::formatFromInteger( const QVariant &value ) {
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
     there will be no conversion problems.
 */
-double QCaFloatingFormatting::formatFromUnsignedInteger( const QVariant &value ) {
+double QEFloatingFormatting::formatFromUnsignedInteger( const QVariant &value ) {
     // Extract the value as a double using whatever conversion the QVariant uses.
     //
     // Note, this will not pick up if the QVariant type is not one of the types used to represent CA data.
@@ -259,7 +259,7 @@ double QCaFloatingFormatting::formatFromUnsignedInteger( const QVariant &value )
     double dValue = value.toDouble( &convertOk );
 
     if( !convertOk )
-        return formatFailure( QString( "Warning from QCaFloatingFormatting::formatFromUnsignedInteger(). A variant could not be converted to a double." ) );
+        return formatFailure( QString( "Warning from QEFloatingFormatting::formatFromUnsignedInteger(). A variant could not be converted to a double." ) );
 
     return dValue;
 }
@@ -270,7 +270,7 @@ double QCaFloatingFormatting::formatFromUnsignedInteger( const QVariant &value )
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
     there will be no conversion problems.
 */
-double QCaFloatingFormatting::formatFromString( const QVariant &value ) {
+double QEFloatingFormatting::formatFromString( const QVariant &value ) {
     // Extract the value as a long using whatever conversion the QVariant uses.
     //
     // Note, this will not pick up if the QVariant type is not one of the types used to represent CA data.
@@ -284,7 +284,7 @@ double QCaFloatingFormatting::formatFromString( const QVariant &value ) {
     double dValue = value.toDouble( &convertOk );
 
     if( !convertOk )
-        return formatFailure( QString( "Warning from QCaFloatingFormatting::formatFromString(). A variant could not be converted to an double." ) );
+        return formatFailure( QString( "Warning from QEFloatingFormatting::formatFromString(). A variant could not be converted to an double." ) );
 
     return dValue;
 }
@@ -296,7 +296,7 @@ double QCaFloatingFormatting::formatFromString( const QVariant &value ) {
     Convert the variant value to a double. It may or may not be a double type variant. If it is - good,
     there will be no conversion problems.
 */
-double QCaFloatingFormatting::formatFromTime( const QVariant &value ) {
+double QEFloatingFormatting::formatFromTime( const QVariant &value ) {
     //??? what is the ca time format and how do you convert it to an double? Should there be conversion properties such as 'convert to minutes', 'convert to hours'.
     return value.toDouble();
 }
@@ -304,7 +304,7 @@ double QCaFloatingFormatting::formatFromTime( const QVariant &value ) {
 /*
     Do something with the fact that the value could not be formatted as requested.
 */
-double QCaFloatingFormatting::formatFailure( QString message ) {
+double QEFloatingFormatting::formatFailure( QString message ) {
     // Log the format failure if required.
     qDebug() << message;
 
@@ -316,7 +316,7 @@ double QCaFloatingFormatting::formatFailure( QString message ) {
     Set the precision.
     Relevent when formatting the floating point number as a string.
 */
-void QCaFloatingFormatting::setPrecision( unsigned int precisionIn ) {
+void QEFloatingFormatting::setPrecision( unsigned int precisionIn ) {
         precision = precisionIn;
 }
 
@@ -324,7 +324,7 @@ void QCaFloatingFormatting::setPrecision( unsigned int precisionIn ) {
     Get the precision.
     Relevent when formatting the floating point number as a string.
 */
-unsigned int QCaFloatingFormatting::getPrecision() {
+unsigned int QEFloatingFormatting::getPrecision() {
     return precision;
 }
 
@@ -332,7 +332,7 @@ unsigned int QCaFloatingFormatting::getPrecision() {
     Set the format.
     Relevent when formatting the floating point number as a string.
 */
-void QCaFloatingFormatting::setFormat( formats formatIn ) {
+void QEFloatingFormatting::setFormat( formats formatIn ) {
         format = formatIn;
 }
 
@@ -340,7 +340,7 @@ void QCaFloatingFormatting::setFormat( formats formatIn ) {
     Get the format.
     Relevent when formatting the floating point number as a string.
 */
-int QCaFloatingFormatting::getFormat() {
+int QEFloatingFormatting::getFormat() {
     return format;
 }
 
@@ -348,7 +348,7 @@ int QCaFloatingFormatting::getFormat() {
     Get the format character required for the QString::number function.
     Relevent when formatting the floating point number as a string.
 */
-char QCaFloatingFormatting::getFormatChar() {
+char QEFloatingFormatting::getFormatChar() {
     switch( format )
     {
         case FORMAT_e: return 'e'; break;

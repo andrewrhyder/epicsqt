@@ -29,12 +29,12 @@
 #define QCABITSTATUSPLUGINMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 /*
     ???
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaBitStatusPluginManager :
+class QEPLUGINLIBRARYSHARED_EXPORT QCaBitStatusPluginManager :
    public QObject, public QDesignerCustomWidgetInterface {
    Q_OBJECT
    Q_INTERFACES (QDesignerCustomWidgetInterface)

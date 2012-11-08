@@ -22,20 +22,20 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCABYTEARRAY_H
-#define QCABYTEARRAY_H
+#ifndef QEBYTEARRAY_H
+#define QEBYTEARRAY_H
 
 #include <QtDebug>
 #include <QVariant>
 #include <QCaObject.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaByteArray : public qcaobject::QCaObject {
+class QEPLUGINLIBRARYSHARED_EXPORT QEByteArray : public qcaobject::QCaObject {
     Q_OBJECT
 
   public:
-    QCaByteArray( QString recordName, QObject *eventObject, unsigned int variableIndexIn );
-    QCaByteArray( QString recordName, QObject *eventObject, unsigned int variableIndexIn, UserMessage* userMessageIn );
+    QEByteArray( QString recordName, QObject *eventObject, unsigned int variableIndexIn );
+    QEByteArray( QString recordName, QObject *eventObject, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
     void byteArrayConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
@@ -53,4 +53,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaByteArray : public qcaobject::QCaObject {
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
-#endif // QCABYTEARRAY_H
+#endif // QEBYTEARRAY_H

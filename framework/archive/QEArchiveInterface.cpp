@@ -577,7 +577,7 @@ QCaDateTime QEArchiveInterface::convertArchiveToEpics (const int seconds, const 
    QCaDateTime result;
 
    // Down to the millisecond goes in the Qt base class,
-   // the remaining nanoseconds are saved in this QCa class.
+   // the remaining nanoseconds are saved in this QE class.
    //
    result = archiveEpoch.addSecs (seconds).addMSecs (nanoSecs / 1000000);
    result.nSec = nanoSecs % 1000000;

@@ -27,12 +27,12 @@
 #define QEGROUPBOXMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 /*
     Plugin manager for QEGroupBox widget
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QEGroupBoxManager : 
+class QEPLUGINLIBRARYSHARED_EXPORT QEGroupBoxManager : 
       public QObject,
       public QDesignerCustomWidgetInterface {
 

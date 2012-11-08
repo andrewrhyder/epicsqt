@@ -75,12 +75,12 @@
 
 #include <QtCore/qplugin.h>
 
-#include <QCaDesignerPlugin.h>
+#include <QEDesignerPlugin.h>
 
 /*
     Add all plugins that will be provided in QT Designer.
 */
-QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
+QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEAnalogProgressBarManager(this));
     widgets.append(new QEBitStatusManager(this));
     widgets.append(new QEConfiguredLayoutManager(this));
@@ -138,10 +138,10 @@ QCaWidgets::QCaWidgets(QObject *parent) : QObject(parent) {
 /*
     Multiplugin interface.
 */
-QList<QDesignerCustomWidgetInterface*> QCaWidgets::customWidgets() const {
+QList<QDesignerCustomWidgetInterface*> QEWidgets::customWidgets() const {
     return widgets;
 }
 
 // Publish plugins through to QT designer.
-Q_EXPORT_PLUGIN2(QCaWidgetsPlugin, QCaWidgets)
+Q_EXPORT_PLUGIN2(QEWidgetsPlugin, QEWidgets)
 

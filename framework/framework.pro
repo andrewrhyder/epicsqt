@@ -56,34 +56,34 @@ HEADERS += \
     api/include/CaObjectPrivate.h \
     data/include/QCaDataPoint.h \
     data/include/QCaVariableNamePropertyManager.h \
-    data/include/QCaStringFormatting.h \
-    data/include/QCaString.h \
     data/include/QCaStateMachine.h \
     data/include/QCaObject.h \
-    data/include/QCaIntegerFormatting.h \
-    data/include/QCaInteger.h \
-    data/include/QCaFloatingFormatting.h \
-    data/include/QCaFloating.h \
-    data/include/QCaByteArray.h \
     data/include/QCaEventUpdate.h \
     data/include/QCaEventFilter.h \
     data/include/QCaDateTime.h \
     data/include/QCaAlarmInfo.h \
     data/include/QCaConnectionInfo.h \
+    data/include/QEStringFormatting.h \
+    data/include/QEString.h \
+    data/include/QEIntegerFormatting.h \
+    data/include/QEInteger.h \
+    data/include/QEFloatingFormatting.h \
+    data/include/QEFloating.h \
+    data/include/QEByteArray.h \
     data/include/qepicspv.h \
     widgets/include/VariableNameManager.h \
     widgets/include/UserMessage.h \
     widgets/include/contextMenu.h \
-    widgets/include/QCaWidget.h \
+    widgets/include/QEWidget.h \
     widgets/include/managePixmaps.h \
-    widgets/include/QCaDragDrop.h \
+    widgets/include/QEDragDrop.h \
     widgets/include/styleManager.h \
     widgets/include/standardProperties.h \
-    widgets/include/QCaStringFormattingMethods.h \
-    widgets/include/QCaToolTip.h \
-    widgets/include/QCaDesignerPlugin.h \
+    widgets/include/QEStringFormattingMethods.h \
+    widgets/include/QEToolTip.h \
+    widgets/include/QEDesignerPlugin.h \
     widgets/include/ContainerProfile.h \
-    widgets/include/QCaPluginLibrary_global.h \
+    widgets/include/QEPluginLibrary_global.h \
 
 
 SOURCES += \
@@ -92,32 +92,32 @@ SOURCES += \
     api/src/CaObject.cpp \
     api/src/CaConnection.cpp \
     data/src/QCaVariableNamePropertyManager.cpp \
-    data/src/QCaStringFormatting.cpp \
-    data/src/QCaString.cpp \
     data/src/QCaStateMachine.cpp \
     data/src/QCaObject.cpp \
-    data/src/QCaIntegerFormatting.cpp \
-    data/src/QCaInteger.cpp \
-    data/src/QCaFloatingFormatting.cpp \
-    data/src/QCaFloating.cpp \
-    data/src/QCaByteArray.cpp \
     data/src/QCaEventUpdate.cpp \
     data/src/QCaEventFilter.cpp \
     data/src/QCaDateTime.cpp \
     data/src/QCaAlarmInfo.cpp \
     data/src/QCaConnectionInfo.cpp \
+    data/src/QEStringFormatting.cpp \
+    data/src/QEString.cpp \
+    data/src/QEIntegerFormatting.cpp \
+    data/src/QEInteger.cpp \
+    data/src/QEFloatingFormatting.cpp \
+    data/src/QEFloating.cpp \
+    data/src/QEByteArray.cpp \
     data/src/qepicspv.cpp \
     widgets/src/VariableNameManager.cpp \
     widgets/src/UserMessage.cpp \
     widgets/src/contextMenu.cpp \
-    widgets/src/QCaWidget.cpp \
+    widgets/src/QEWidget.cpp \
     widgets/src/managePixmaps.cpp \
-    widgets/src/QCaDragDrop.cpp \
+    widgets/src/QEDragDrop.cpp \
     widgets/src/styleManager.cpp \
     widgets/src/standardProperties.cpp \
-    widgets/src/QCaStringFormattingMethods.cpp \
-    widgets/src/QCaToolTip.cpp \
-    widgets/src/QCaDesignerPlugin.cpp \
+    widgets/src/QEStringFormattingMethods.cpp \
+    widgets/src/QEToolTip.cpp \
+    widgets/src/QEDesignerPlugin.cpp \
     widgets/src/ContainerProfile.cpp \
 
 

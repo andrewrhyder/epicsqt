@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware image widget based on the Qt frame widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details.
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details.
 
   This class displays images from byte array (originating from a EPICS waveform record)
   It determines the width and height from other EPICS variables.
@@ -34,22 +34,22 @@
  */
 
 #include <QEImage.h>
-#include <QCaByteArray.h>
-#include <QCaInteger.h>
+#include <QEByteArray.h>
+#include <QEInteger.h>
 #include <imageContextMenu.h>
 #include <QIcon>
 
 /*
     Constructor with no initialisation
 */
-QEImage::QEImage( QWidget *parent ) : QFrame( parent ), QCaWidget( this ) {
+QEImage::QEImage( QWidget *parent ) : QFrame( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Constructor with known variable
 */
-QEImage::QEImage( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QCaWidget( this )  {
+QEImage::QEImage( const QString &variableNameIn, QWidget *parent ) : QFrame( parent ), QEWidget( this )  {
     setup();
     setVariableName( variableNameIn, 0 );
 }
@@ -332,7 +332,7 @@ void QEImage::setup() {
     panModeClicked();
     sMenu->setChecked( QEImage::SO_PANNING );
 
-    // !! move this functionality into QCaWidget???
+    // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
@@ -351,17 +351,17 @@ QEImage::~QEImage()
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
 */
 qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
 
     switch( variableIndex )
     {
-        // Create the image item as a QCaByteArray
+        // Create the image item as a QEByteArray
         case IMAGE_VARIABLE:
-            return new QCaByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
+            return new QEByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
 
-        // Create the width, height, target and beam, and clipping items as a QCaInteger
+        // Create the width, height, target and beam, and clipping items as a QEInteger
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
         case ROI_X_VARIABLE:
@@ -376,7 +376,7 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case CLIPPING_ONOFF_VARIABLE:
         case CLIPPING_LOW_VARIABLE:
         case CLIPPING_HIGH_VARIABLE:
-            return new QCaInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+            return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
         default:
             return NULL;
@@ -452,7 +452,7 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
 }
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QEImage::updateToolTip( const QString& tip )
 {
@@ -466,7 +466,7 @@ void QEImage::updateToolTip( const QString& tip )
  */
 void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QE enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -1065,17 +1065,17 @@ void QEImage::zoomToArea()
 void QEImage::resetRoiClicked()
 {
     // Write the ROI variables, setting them to the limits of the image.
-    QCaInteger* qca;
-    qca = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
+    QEInteger* qca;
+    qca = (QEInteger*)getQcaItem( ROI_X_VARIABLE );
     if( qca ) qca->writeInteger( 0 );
 
-    qca = (QCaInteger*)getQcaItem( ROI_Y_VARIABLE );
+    qca = (QEInteger*)getQcaItem( ROI_Y_VARIABLE );
     if( qca ) qca->writeInteger(  0 );
 
-    qca = (QCaInteger*)getQcaItem( ROI_W_VARIABLE );
+    qca = (QEInteger*)getQcaItem( ROI_W_VARIABLE );
     if( qca ) qca->writeInteger( imageBuffWidth );
 
-    qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
+    qca = (QEInteger*)getQcaItem( ROI_H_VARIABLE );
     if( qca ) qca->writeInteger( imageBuffHeight );
 
     return;
@@ -1089,17 +1089,17 @@ void QEImage::roiClicked()
     roiButton->setEnabled( false );
 
     // Write the ROI variables.
-    QCaInteger *qca;
-    qca = (QCaInteger*)getQcaItem( ROI_X_VARIABLE );
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( ROI_X_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint1.x() ));
 
-    qca = (QCaInteger*)getQcaItem( ROI_Y_VARIABLE );
+    qca = (QEInteger*)getQcaItem( ROI_Y_VARIABLE );
     if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedAreaPoint1.y() ));
 
-    qca = (QCaInteger*)getQcaItem( ROI_W_VARIABLE );
+    qca = (QEInteger*)getQcaItem( ROI_W_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint2.x() ) - videoWidget->scaleOrdinate( selectedAreaPoint1.x() ));
 
-    qca = (QCaInteger*)getQcaItem( ROI_H_VARIABLE );
+    qca = (QEInteger*)getQcaItem( ROI_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint2.y() ) - videoWidget->scaleOrdinate( selectedAreaPoint1.y() ));
 
     // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
@@ -1111,8 +1111,8 @@ void QEImage::roiClicked()
 void QEImage::targetClicked()
 {
     // Write to the target trigger variable.
-    QCaInteger *qca;
-    qca = (QCaInteger*)getQcaItem( TARGET_TRIGGER_VARIABLE );
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( TARGET_TRIGGER_VARIABLE );
     if( qca ) qca->writeInteger( 1 );
 
     return;
@@ -1667,11 +1667,11 @@ void QEImage::userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint 
                 target = point1;
 
                 // Write the target variables.
-                QCaInteger *qca;
-                qca = (QCaInteger*)getQcaItem( TARGET_X_VARIABLE );
+                QEInteger *qca;
+                qca = (QEInteger*)getQcaItem( TARGET_X_VARIABLE );
                 if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( target.x() ));
 
-                qca = (QCaInteger*)getQcaItem( TARGET_Y_VARIABLE );
+                qca = (QEInteger*)getQcaItem( TARGET_Y_VARIABLE );
                 if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
             }
             break;
@@ -1681,11 +1681,11 @@ void QEImage::userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint 
                 beam = point1;
 
                 // Write the beam variables.
-                QCaInteger *qca;
-                qca = (QCaInteger*)getQcaItem( BEAM_X_VARIABLE );
+                QEInteger *qca;
+                qca = (QEInteger*)getQcaItem( BEAM_X_VARIABLE );
                 if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beam.x() ));
 
-                qca = (QCaInteger*)getQcaItem( BEAM_Y_VARIABLE );
+                qca = (QEInteger*)getQcaItem( BEAM_Y_VARIABLE );
                 if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beam.y() ));
             }
             break;

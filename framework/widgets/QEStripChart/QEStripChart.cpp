@@ -582,7 +582,7 @@ bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
 // QEStripChart class functions
 //==============================================================================
 //
-QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QCaWidget (this)
+QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
 {
    // Configure the panel and create contents
    //

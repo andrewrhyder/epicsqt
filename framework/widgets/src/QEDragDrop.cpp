@@ -23,27 +23,27 @@
  */
 
 /*
-  This class adds common drag/drop support to all QCa widgets if required.
+  This class adds common drag/drop support to all QE widgetss if required.
 
-  This class manages the common drag and drop functions leaving the actual QCa widget class
+  This class manages the common drag and drop functions leaving the actual QE widgets class
   to supply and accept the data transfered (typically a PV name).
 
-  All QCa widgets (eg, QELabel, QELineEdit) have an instance of this class as they based on
-  QCaWidget which itself uses this class as a base class.
+  All QE widgetss (eg, QELabel, QELineEdit) have an instance of this class as they based on
+  QEWidget which itself uses this class as a base class.
 
-  To implement any sort of drag/drop a QCa widget (like any other widget) must implement the following
+  To implement any sort of drag/drop a QE widgets (like any other widget) must implement the following
   virtual functions of its base QWidget:
         dragEnterEvent()
         dropEvent()
         mousePressEvent()
 
-  To make use of the common QCa drag drop support provided by this class, the above functions can be
+  To make use of the common QE drag drop support provided by this class, the above functions can be
   defined to simply call the equivelent drag/drop functions defined in this class as follows:
         void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
         void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
         void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
 
-  To allow this class to obtain text for dragging, or deliver text dropped, the QCa widget also needs to
+  To allow this class to obtain text for dragging, or deliver text dropped, the QE widgets also needs to
   implement the following functions defined in this class:
         setDrop()
         getDrop()
@@ -53,19 +53,19 @@
  */
 
 #include <QtGui>
-#include <QCaDragDrop.h>
+#include <QEDragDrop.h>
 #include <QGraphicsOpacityEffect>
 #include <QLinearGradient>
 
 // Construction.
-QCaDragDrop::QCaDragDrop( QWidget* ownerIn )
+QEDragDrop::QEDragDrop( QWidget* ownerIn )
 {
-    // Keep a handle on the underlying QWidget of the QCa widget
+    // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 }
 
 // Start a 'drag'
-void QCaDragDrop::qcaDragEnterEvent(QDragEnterEvent *event)
+void QEDragDrop::qcaDragEnterEvent(QDragEnterEvent *event)
 {
     // Flag a move is starting (never a copy)
     if (event->mimeData()->hasText())
@@ -83,7 +83,7 @@ void QCaDragDrop::qcaDragEnterEvent(QDragEnterEvent *event)
 }
 
 // Perform a 'drop'
-void QCaDragDrop::qcaDropEvent(QDropEvent *event)
+void QEDragDrop::qcaDropEvent(QDropEvent *event)
 {
     // If no text available, do nothing
     if( !event->mimeData()->hasText())
@@ -127,7 +127,7 @@ void QCaDragDrop::qcaDropEvent(QDropEvent *event)
 }
 
 // Prepare to drag
-void QCaDragDrop::qcaMousePressEvent(QMouseEvent *event)
+void QEDragDrop::qcaMousePressEvent(QMouseEvent *event)
 {
     // Use only left button presses
     if( event->button() == Qt::LeftButton )
@@ -190,13 +190,13 @@ void QCaDragDrop::qcaMousePressEvent(QMouseEvent *event)
 }
 
 // allow drop (Enable/disable as a drop site for drag and drop)
-void QCaDragDrop::setAllowDrop( bool allowDropIn )
+void QEDragDrop::setAllowDrop( bool allowDropIn )
 {
     allowDrop = allowDropIn;
     owner->setAcceptDrops( allowDrop );
 }
 
-bool QCaDragDrop::getAllowDrop()
+bool QEDragDrop::getAllowDrop()
 {
     return allowDrop;
 }

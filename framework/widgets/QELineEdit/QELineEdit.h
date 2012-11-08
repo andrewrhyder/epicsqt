@@ -27,15 +27,15 @@
 #define QELINEEDIT_H
 
 #include <QLineEdit>
-#include <QCaWidget.h>
-#include <QCaString.h>
-#include <QCaStringFormatting.h>
-#include <QCaPluginLibrary_global.h>
-#include <QCaStringFormattingMethods.h>
+#include <QEWidget.h>
+#include <QEString.h>
+#include <QEStringFormatting.h>
+#include <QEPluginLibrary_global.h>
+#include <QEStringFormattingMethods.h>
 #include <QCaVariableNamePropertyManager.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QELineEdit :
-      public QLineEdit, public QCaWidget, public QCaStringFormattingMethods {
+class QEPLUGINLIBRARYSHARED_EXPORT QELineEdit :
+      public QLineEdit, public QEWidget, public QEStringFormattingMethods {
 
     Q_OBJECT
 
@@ -187,14 +187,14 @@ public:
     /// Value is converted to an integer and used to select a string from this list.
     Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
 
-    /// User friendly enumerations for format property - refer to QCaStringFormatting::formats for details.
-    enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
-                   Floating         = QCaStringFormatting::FORMAT_FLOATING,
-                   Integer          = QCaStringFormatting::FORMAT_INTEGER,
-                   UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time             = QCaStringFormatting::FORMAT_TIME,
-                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
-    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }  ///< Access function for 'format' property - refer to 'format' property for details
+    /// User friendly enumerations for format property - refer to QEStringFormatting::formats for details.
+    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,
+                   Floating         = QEStringFormatting::FORMAT_FLOATING,
+                   Integer          = QEStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time             = QEStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }  ///< Access function for 'format' property - refer to 'format' property for details
     Formats getFormatProperty(){ return (Formats)getFormat(); }                                     ///< Access function for 'format' property - refer to 'format' property for details
     Q_ENUMS(Formats)
 
@@ -206,22 +206,22 @@ public:
     ///
     Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
 
-    /// User friendly enumerations for notation property - refer to QCaStringFormatting::notations for details.
-    enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
-                     Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
-                     Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
-    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }  ///< Access function for 'notation' property - refer to 'notation' property for details
+    /// User friendly enumerations for notation property - refer to QEStringFormatting::notations for details.
+    enum Notations { Fixed = QEStringFormatting::NOTATION_FIXED,
+                     Scientific   = QEStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic      = QEStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }  ///< Access function for 'notation' property - refer to 'notation' property for details
     Notations getNotationProperty(){ return (Notations)getNotation(); }                                         ///< Access function for 'notation' property - refer to 'notation' property for details
     Q_ENUMS(Notations)
     /// Notation used for numerical formatting. Default is fixed.
     ///
     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
 
-    /// User friendly enumerations for arrayAction property - refer to QCaStringFormatting::arrayActions for details.
-    enum ArrayActions { Append = QCaStringFormatting::APPEND,
-                        Ascii  = QCaStringFormatting::ASCII,
-                        Index  = QCaStringFormatting::INDEX };
-    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }    ///< Access function for 'arrayAction' property - refer to 'arrayAction' property for details
+    /// User friendly enumerations for arrayAction property - refer to QEStringFormatting::arrayActions for details.
+    enum ArrayActions { Append = QEStringFormatting::APPEND,
+                        Ascii  = QEStringFormatting::ASCII,
+                        Index  = QEStringFormatting::INDEX };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QEStringFormatting::arrayActions)arrayAction ); }    ///< Access function for 'arrayAction' property - refer to 'arrayAction' property for details
     ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }                                                 ///< Access function for 'arrayAction' property - refer to 'arrayAction' property for details
     Q_ENUMS(ArrayActions)
 
@@ -299,7 +299,7 @@ private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void updateToolTip ( const QString & toolTip );
-    void writeValue( QCaString *qca, QString newValue );
+    void writeValue( QEString *qca, QString newValue );
     QString lastValue;                      // Last updated value (may have arrived while user is editing field)
     QString lastUserValue;                  // Last updated value seen by the user (same as lastValue unless the user is editing the text)
     bool writeConfirmDialogPresent;         // True if write confirm dialog box is present. When this dialog box is present the line edit no longer have focus, but the user is still effectivly interacting with it

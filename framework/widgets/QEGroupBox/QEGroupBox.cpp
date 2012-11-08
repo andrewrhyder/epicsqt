@@ -27,7 +27,7 @@
 
 //------------------------------------------------------------------------------
 //
-QEGroupBox::QEGroupBox (QWidget *parent) : QGroupBox (parent), QCaWidget (this)
+QEGroupBox::QEGroupBox (QWidget *parent) : QGroupBox (parent), QEWidget (this)
 {
    this->setTitle ("QEGroupBox");
 }

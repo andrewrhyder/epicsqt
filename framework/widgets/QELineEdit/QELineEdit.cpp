@@ -25,7 +25,7 @@
 
 /*
   This class is a CA aware line edit widget based on the Qt line edit widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <QELineEdit.h>
@@ -35,14 +35,14 @@
 /*
     Constructor with no initialisation
 */
-QELineEdit::QELineEdit( QWidget *parent ) : QLineEdit( parent ), QCaWidget( this ) {
+QELineEdit::QELineEdit( QWidget *parent ) : QLineEdit( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Constructor with known variable
 */
-QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QLineEdit( parent ), QCaWidget( this ) {
+QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QLineEdit( parent ), QEWidget( this ) {
     setup();
     setVariableName( variableNameIn, 0 );
 }
@@ -87,13 +87,13 @@ void QELineEdit::setup() {
 
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a line edit a QCaObject that streams strings is required.
 */
 qcaobject::QCaObject* QELineEdit::createQcaItem( unsigned int variableIndex ) {
 
-    // Create the item as a QCaString
-    return new QCaString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
+    // Create the item as a QEString
+    return new QEString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 }
 
 /*
@@ -119,7 +119,7 @@ void QELineEdit::establishConnection( unsigned int variableIndex ) {
 }
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QELineEdit::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
@@ -200,7 +200,7 @@ void QELineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo
 void QELineEdit::userReturnPressed() {
 
     // Get the variable to write to
-    QCaString *qca = (QCaString*)getQcaItem(0);
+    QEString *qca = (QEString*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // and the object is set up to write when the user presses return
@@ -228,7 +228,7 @@ void QELineEdit::userEditingFinished() {
         return;
 
     // Get the variable to write to
-    QCaString *qca = (QCaString*)getQcaItem(0);
+    QEString *qca = (QEString*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // and the object is set up to write when the user changes focus away from the object
@@ -275,7 +275,7 @@ void QELineEdit::userEditingFinished() {
 void QELineEdit::writeNow()
 {
     // Get the variable to write to
-    QCaString *qca = (QCaString*)getQcaItem(0);
+    QEString *qca = (QEString*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // then write the value.
@@ -287,7 +287,7 @@ void QELineEdit::writeNow()
 
 // Write a value in response to user editing the widget
 // Request confirmation if required
-void QELineEdit::writeValue( QCaString *qca, QString newValue )
+void QELineEdit::writeValue( QEString *qca, QString newValue )
 {
     // If required, get confirmation from the user as to what to do
     int confirm = QMessageBox::Yes;

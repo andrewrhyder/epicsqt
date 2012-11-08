@@ -27,12 +27,12 @@
 #define QEFRAMEMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 /*
     Plugin manager for QEFrame widget
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QEFrameManager : 
+class QEPLUGINLIBRARYSHARED_EXPORT QEFrameManager : 
       public QObject,
       public QDesignerCustomWidgetInterface {
 

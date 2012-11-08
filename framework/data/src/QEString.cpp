@@ -24,19 +24,19 @@
 
 // String wrapper for QCaObject variant data.
 
-#include <QCaString.h>
+#include <QEString.h>
 
 /*
 
 */
-QCaString::QCaString( QString recordName, QObject* eventObject,
-                      QCaStringFormatting* newStringFormat,
+QEString::QEString( QString recordName, QObject* eventObject,
+                      QEStringFormatting* newStringFormat,
                       unsigned int variableIndexIn ) : QCaObject( recordName, eventObject ) {
     initialise( newStringFormat, variableIndexIn );
 }
 
-QCaString::QCaString( QString recordName, QObject* eventObject,
-                      QCaStringFormatting* newStringFormat,
+QEString::QEString( QString recordName, QObject* eventObject,
+                      QEStringFormatting* newStringFormat,
                       unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn ) {
     initialise( newStringFormat, variableIndexIn );
 }
@@ -44,7 +44,7 @@ QCaString::QCaString( QString recordName, QObject* eventObject,
     Stream the QCaObject data through this class to generate textual data
     updates.
 */
-void QCaString::initialise( QCaStringFormatting* newStringFormat, unsigned int variableIndexIn ) {
+void QEString::initialise( QEStringFormatting* newStringFormat, unsigned int variableIndexIn ) {
     stringFormat = newStringFormat;
     variableIndex = variableIndexIn;
 
@@ -64,7 +64,7 @@ void QCaString::initialise( QCaStringFormatting* newStringFormat, unsigned int v
     The above example is pedantic
     if the string formatting
 */
-void QCaString::writeString( const QString &data ) {
+void QEString::writeString( const QString &data ) {
     writeData( stringFormat->formatValue( data ) );
 }
 
@@ -72,7 +72,7 @@ void QCaString::writeString( const QString &data ) {
     Take a new value from the database and emit a string,formatted
     as directed by the set of formatting information held by this class
 */
-void QCaString::convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
+void QEString::convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
 
     // Set up variable details used by some formatting options
     stringFormat->setDbEgu( getEgu() );
@@ -86,7 +86,7 @@ void QCaString::convertVariant( const QVariant& value, QCaAlarmInfo& alarmInfo, 
 /*
     Take a basic connection change and append variableIndex
 */
-void QCaString::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+void QEString::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
     emit stringConnectionChanged( connectionInfo, variableIndex );
 }
 

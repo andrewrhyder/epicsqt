@@ -31,7 +31,7 @@
 /*
     Constructor with no initialisation
 */
-QELink::QELink( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
+QELink::QELink( QWidget *parent ) : QLabel( parent ), QEWidget( this ) {
 
     // If this widget is not being used in a real GUI (it is in Designer) then it
     // should be displayed all the time, not visible according to the visible property.

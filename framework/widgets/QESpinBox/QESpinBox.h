@@ -26,13 +26,13 @@
 #define QESPINBOX_H
 
 #include <QDoubleSpinBox>
-#include <QCaWidget.h>
-#include <QCaFloating.h>
-#include <QCaFloatingFormatting.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEWidget.h>
+#include <QEFloating.h>
+#include <QEFloatingFormatting.h>
+#include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QESpinBox : public QDoubleSpinBox, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QESpinBox : public QDoubleSpinBox, public QEWidget {
     Q_OBJECT
 
   public:
@@ -59,7 +59,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESpinBox : public QDoubleSpinBox, public QC
 
 
   protected:
-    QCaFloatingFormatting floatingFormatting;
+    QEFloatingFormatting floatingFormatting;
     bool writeOnChange;                     // Write changed value to database when user changes a value
     bool addUnitsAsSuffix;
     bool useDbPrecisionForDecimal;
@@ -235,12 +235,12 @@ public:
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
 
     // Note, this useDbPrecision property is normally part of the standard 'string properties' set.
-    //       The normal get and set methods are QCaStringFormatting::getUseDbPrecision() and QCaStringFormatting::setUseDbPrecision().
+    //       The normal get and set methods are QEStringFormatting::getUseDbPrecision() and QEStringFormatting::setUseDbPrecision().
     //       In this case, the flag is used to determine the QSpinBox 'decimals' property.
     Q_PROPERTY(bool useDbPrecision READ getUseDbPrecisionForDecimals WRITE setUseDbPrecisionForDecimals)
 
     // Note, this addUnits property is normally part of the standard 'string properties' set.
-    //       The normal get and set methods are QCaStringFormatting::getAddUnits() and QCaStringFormatting::setAddUnits().
+    //       The normal get and set methods are QEStringFormatting::getAddUnits() and QEStringFormatting::setAddUnits().
     //       In this case, the units are added as the QSpinBox suffix, and not as part of a string.
     Q_PROPERTY(bool addUnits READ getAddUnitsAsSuffix WRITE setAddUnitsAsSuffix)
 

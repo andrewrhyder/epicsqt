@@ -51,7 +51,7 @@ bool QERadioButtonManager::isInitialized() const {
 }
 
 /*
-    Widget factory. Creates a QCaRadioButton widget.
+    Widget factory. Creates a QERadioButton widget.
 */
 QWidget *QERadioButtonManager::createWidget ( QWidget *parent ) {
     return new QERadioButton(parent);

@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware push button widget based on the Qt push button widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <QEGenericButton.h>
@@ -34,7 +34,7 @@
 #include <QIcon>
 #include <QInputDialog>
 
-QEGenericButton::QEGenericButton( QWidget *owner ) : QCaWidget( owner )
+QEGenericButton::QEGenericButton( QWidget *owner ) : QEWidget( owner )
 {
 }
 
@@ -76,7 +76,7 @@ void QEGenericButton::dataSetup() {
     clickText = "1";
     clickCheckedText = "0";
 
-    // Override default QCaWidget properties
+    // Override default QEWidget properties
     subscribe = false;
 
     // Set the initial state
@@ -118,13 +118,13 @@ void QEGenericButton::guiSetup() {
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a push button a QCaObject that streams strings is required.
 */
 qcaobject::QCaObject* QEGenericButton::createQcaItem( unsigned int variableIndex ) {
 
-    // Create the item as a QCaString
-    return new QCaString( getSubstitutedVariableName( variableIndex ), getButtonQObject(), &stringFormatting, variableIndex );
+    // Create the item as a QEString
+    return new QEString( getSubstitutedVariableName( variableIndex ), getButtonQObject(), &stringFormatting, variableIndex );
 }
 
 /*
@@ -249,7 +249,7 @@ void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& a
 */
 void QEGenericButton::userPressed() {
     // Get the variable to write to
-    QCaString *qca = (QCaString*)getQcaItem(0);
+    QEString *qca = (QEString*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // and the object is set up to write when the user presses the button
@@ -265,7 +265,7 @@ void QEGenericButton::userPressed() {
 
 void QEGenericButton::userReleased() {
     // Get the variable to write to
-    QCaString *qca = (QCaString*)getQcaItem(0);
+    QEString *qca = (QEString*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // and the object is set up to write when the user releases the button
@@ -280,7 +280,7 @@ void QEGenericButton::userReleased() {
 */
 void QEGenericButton::userClicked( bool checked ) {
     // Get the variable to write to
-    QCaString *qca = (QCaString*)getQcaItem(0);
+    QEString *qca = (QEString*)getQcaItem(0);
 
     // Do nothing if some action is due to be taken, but user does not anter any required password correctly
     if( ( writeOnClick || !program.isEmpty() || !guiName.isEmpty() ) && !checkPassword() )
@@ -345,7 +345,7 @@ void QEGenericButton::userClicked( bool checked ) {
         // Remove this form's macro substitutions now all it's children are created
         removeMacroSubstitutions();
 
-        // Release the profile now all QCa widgets have been created
+        // Release the profile now all QE widgetss have been created
         releaseProfile();
     }
 

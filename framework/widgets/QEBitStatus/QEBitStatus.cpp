@@ -24,8 +24,8 @@
 
 /*
   This class is a CA aware Bit Status widget based on the BitStatus widget.
-  It is tighly integrated with the base class QCaWidget.
-  Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget.
+  Refer to QEWidget.cpp for details
  */
 
 #include <alarm.h>
@@ -37,7 +37,7 @@
 /* ----------------------------------------------------------------------------
     Constructor with no initialisation
 */
-QEBitStatus::QEBitStatus (QWidget * parent):QBitStatus (parent), QCaWidget ( this )
+QEBitStatus::QEBitStatus (QWidget * parent):QBitStatus (parent), QEWidget ( this )
 {
    setup ();
 }
@@ -47,7 +47,7 @@ QEBitStatus::QEBitStatus (QWidget * parent):QBitStatus (parent), QCaWidget ( thi
     Constructor with known variable
 */
 QEBitStatus::QEBitStatus (const QString & variableNameIn,
-                            QWidget * parent):QBitStatus (parent), QCaWidget ( this )
+                            QWidget * parent):QBitStatus (parent), QEWidget ( this )
 {
    setup ();
    setVariableName (variableNameIn, 0);
@@ -98,7 +98,7 @@ void QEBitStatus::setup ()
 
 
 /* ----------------------------------------------------------------------------
-    Implementation of QCaWidget's virtual funtion to create the specific type
+    Implementation of QEWidget's virtual funtion to create the specific type
     of QCaObject required. For a Bit Status widget a QCaObject that streams
     integers is required.
 */
@@ -109,7 +109,7 @@ qcaobject::QCaObject *
 
    // assert variableIndex == 0 ??
 
-   result = new QCaInteger (getSubstitutedVariableName (variableIndex),
+   result = new QEInteger (getSubstitutedVariableName (variableIndex),
                             this, &integerFormatting, variableIndex);
    return result;
 }
@@ -142,7 +142,7 @@ void QEBitStatus::establishConnection (unsigned int variableIndex)
 
 
 /* ----------------------------------------------------------------------------
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QEBitStatus::updateToolTip (const QString & tip)
 {
@@ -157,7 +157,7 @@ void QEBitStatus::updateToolTip (const QString & tip)
  */
 void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
 {
-   // If connected, enable the widget if the QCa enabled property is true
+   // If connected, enable the widget if the QE enabled property is true
    //
    if (connectionInfo.isChannelConnected ()) {
       isConnected = true;

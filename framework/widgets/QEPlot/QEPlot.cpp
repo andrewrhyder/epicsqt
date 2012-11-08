@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware Plot widget based on the Qwt QwtPlot widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <qwt_legend.h>
@@ -33,14 +33,14 @@
 /*
     Constructor with no initialisation
 */
-QEPlot::QEPlot( QWidget *parent ) : QwtPlot( parent ), QCaWidget( this ) {
+QEPlot::QEPlot( QWidget *parent ) : QwtPlot( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Constructor with known variable
 */
-QEPlot::QEPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( parent ), QCaWidget( this ) {
+QEPlot::QEPlot( const QString &variableNameIn, QWidget *parent ) : QwtPlot( parent ), QEWidget( this ) {
     setup();
     setVariableName( variableNameIn, 0 );
 }
@@ -107,7 +107,7 @@ void QEPlot::setup() {
     timeSpan = 59;
 
     // Use QwtPlot signals
-    // !! move this functionality into QCaWidget???
+    // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
@@ -143,13 +143,13 @@ QEPlot::~QEPlot()
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a strip chart a QCaObject that streams floating point data is required.
 */
 qcaobject::QCaObject* QEPlot::createQcaItem( unsigned int variableIndex ) {
 
-   // Create the item as a QCaFloating
-   return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
+   // Create the item as a QEFloating
+   return new QEFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 }
 
 /*
@@ -176,7 +176,7 @@ void QEPlot::establishConnection( unsigned int variableIndex ) {
 
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QEPlot::updateToolTip( const QString& tip )
 {
@@ -190,7 +190,7 @@ void QEPlot::updateToolTip( const QString& tip )
  */
 void QEPlot::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QE enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;

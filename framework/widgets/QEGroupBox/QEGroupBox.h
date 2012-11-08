@@ -27,8 +27,8 @@
 #define QEGROUPBOX_H
 
 #include <QGroupBox>
-#include <QCaWidget.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEWidget.h>
+#include <QEPluginLibrary_global.h>
 
 // The QEGroupBox class provides a minimalist extention to the QGroupBox class
 // in that it provides user level enabled and user level visibility control to
@@ -36,8 +36,8 @@
 // QEGroupBox container also.
 // See QEFrame as well.
 //
-class QCAPLUGINLIBRARYSHARED_EXPORT QEGroupBox :
-      public QGroupBox, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEGroupBox :
+      public QGroupBox, public QEWidget {
 
 Q_OBJECT
 

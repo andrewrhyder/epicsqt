@@ -22,16 +22,16 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-// Provides textual formatting for QCaFloating data.
+// Provides textual formatting for QEFloating data.
 
-#ifndef QCAFLOATINGFORMATTING_H
-#define QCAFLOATINGFORMATTING_H
+#ifndef QEFLOATINGFORMATTING_H
+#define QEFLOATINGFORMATTING_H
 
 #include <QString>
 #include <QVariant>
 #include <Generic.h>
 
-class QCaFloatingFormatting {
+class QEFloatingFormatting {
   public:
 
     // Formatting enumerations
@@ -43,7 +43,7 @@ class QCaFloatingFormatting {
 
 
     // Construction
-    QCaFloatingFormatting();
+    QEFloatingFormatting();
 
     //===============================================
     // Main functions of this class:
@@ -84,4 +84,4 @@ class QCaFloatingFormatting {
     formats format;
 };
 
-#endif // QCAFLOATINGFORMATTING_H
+#endif // QEFLOATINGFORMATTING_H

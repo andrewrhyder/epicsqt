@@ -28,9 +28,9 @@
 #define QCACOMBOBOXPLUGINMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaComboBoxPluginManager : public QObject, public QDesignerCustomWidgetInterface {
+class QEPLUGINLIBRARYSHARED_EXPORT QCaComboBoxPluginManager : public QObject, public QDesignerCustomWidgetInterface {
      Q_OBJECT
      Q_INTERFACES(QDesignerCustomWidgetInterface)
 

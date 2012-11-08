@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware spin box widget based on the Qt spin box widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include "QESpinBox.h"
@@ -32,14 +32,14 @@
 /*
     Create a CA aware spin box with no variable name yet
 */
-QESpinBox::QESpinBox( QWidget *parent ) : QDoubleSpinBox( parent ), QCaWidget( this ) {
+QESpinBox::QESpinBox( QWidget *parent ) : QDoubleSpinBox( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Create a CA aware spin box with a variable name already known
 */
-QESpinBox::QESpinBox( const QString &variableNameIn, QWidget *parent ) : QDoubleSpinBox( parent ), QCaWidget( this ) {
+QESpinBox::QESpinBox( const QString &variableNameIn, QWidget *parent ) : QDoubleSpinBox( parent ), QEWidget( this ) {
     setVariableName( variableNameIn, 0 );
 
     setup();
@@ -81,13 +81,13 @@ void QESpinBox::setup() {
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a spin box a QCaObject that streams integers is required.
 */
 qcaobject::QCaObject* QESpinBox::createQcaItem( unsigned int variableIndex ) {
 
-    // Create the item as a QCaInteger
-    return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
+    // Create the item as a QEInteger
+    return new QEFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 }
 
 /*
@@ -112,7 +112,7 @@ void QESpinBox::establishConnection( unsigned int variableIndex ) {
 }
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QESpinBox::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
@@ -125,7 +125,7 @@ void QESpinBox::updateToolTip ( const QString & toolTip ) {
  */
 void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QE enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;
@@ -153,7 +153,7 @@ void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     // variable when it is time to do a write.
     if( connectionInfo.isChannelConnected() && !subscribe )
     {
-        QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+        QEFloating* qca = (QEFloating*)getQcaItem(0);
         qca->singleShotRead();
         ignoreSingleShotRead = true;
     }
@@ -171,7 +171,7 @@ void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 void QESpinBox::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
     // Set the limits and step size
-    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+    QEFloating* qca = (QEFloating*)getQcaItem(0);
     double upper = qca->getControlLimitUpper();
     double lower = qca->getControlLimitLower();
     if( upper != lower)
@@ -227,7 +227,7 @@ void QESpinBox::userValueChanged( double value )
     }
 
     // Get the variable to write to
-    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+    QEFloating* qca = (QEFloating*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // then write the value
@@ -246,7 +246,7 @@ void QESpinBox::userValueChanged( double value )
 void QESpinBox::writeNow()
 {
     // Get the variable to write to
-    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+    QEFloating* qca = (QEFloating*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // then write the value
@@ -320,7 +320,7 @@ bool QESpinBox::getSubscribe()
 
 // Add units (as suffix).
 // Note, for most widgets with an 'addUnits' property, the property is passed to a
-//       QCaStringFormatting class where the units are added to the displayed string.
+//       QEStringFormatting class where the units are added to the displayed string.
 //       In this case, the units are added as the spin box suffix.
 bool QESpinBox::getAddUnitsAsSuffix()
 {
@@ -330,18 +330,18 @@ bool QESpinBox::getAddUnitsAsSuffix()
 void QESpinBox::setAddUnitsAsSuffix( bool addUnitsAsSuffixIn )
 {
     addUnitsAsSuffix = addUnitsAsSuffixIn;
-    qcaobject::QCaObject* qca = (QCaFloating*)getQcaItem(0);
+    qcaobject::QCaObject* qca = (QEFloating*)getQcaItem(0);
     setSuffixEgu( qca );
 }
 
 // useDbPrecision
 // Note, for most widgets with an 'useDbPrecision' property, the property is passed to a
-//       QCaStringFormatting class where it is used to determine the precision when formatting numbers as a string.
+//       QEStringFormatting class where it is used to determine the precision when formatting numbers as a string.
 //       In this case, it is used to determine the spin box number-of-decimals property.
 void QESpinBox::setUseDbPrecisionForDecimals( bool useDbPrecisionForDecimalIn )
 {
     useDbPrecisionForDecimal = useDbPrecisionForDecimalIn;
-    qcaobject::QCaObject* qca = (QCaFloating*)getQcaItem(0);
+    qcaobject::QCaObject* qca = (QEFloating*)getQcaItem(0);
     setDecimalsFromPrecision( qca );
 }
 

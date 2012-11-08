@@ -24,21 +24,21 @@
 
 // String wrapper for QCaObject variant data.
 
-#ifndef QCASTRING_H
-#define QCASTRING_H
+#ifndef QESTRING_H
+#define QESTRING_H
 
 #include <QtDebug>
 #include <QVariant>
 #include <QCaObject.h>
-#include <QCaStringFormatting.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEStringFormatting.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaString : public qcaobject::QCaObject {
+class QEPLUGINLIBRARYSHARED_EXPORT QEString : public qcaobject::QCaObject {
     Q_OBJECT
 
   public:
-    QCaString( QString recordName, QObject *eventObject, QCaStringFormatting *stringFormattingIn, unsigned int variableIndexIn );
-    QCaString( QString recordName, QObject *eventObject, QCaStringFormatting *stringFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
+    QEString( QString recordName, QObject *eventObject, QEStringFormatting *stringFormattingIn, unsigned int variableIndexIn );
+    QEString( QString recordName, QObject *eventObject, QEStringFormatting *stringFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
     void stringConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
@@ -48,8 +48,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaString : public qcaobject::QCaObject {
     void writeString( const QString &data );
 
   private:
-    void initialise( QCaStringFormatting* newStringFormat, unsigned int variableIndexIn );
-    QCaStringFormatting *stringFormat;
+    void initialise( QEStringFormatting* newStringFormat, unsigned int variableIndexIn );
+    QEStringFormatting *stringFormat;
     unsigned int variableIndex;
 
   private slots:
@@ -57,4 +57,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaString : public qcaobject::QCaObject {
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
-#endif // QCASTRING_H
+#endif // QESTRING_H

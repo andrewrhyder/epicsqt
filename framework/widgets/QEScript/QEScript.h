@@ -25,7 +25,7 @@
 #ifndef QESCRIPT_H
 #define QESCRIPT_H
 
-#include <QCaWidget.h>
+#include <QEWidget.h>
 
 
 enum details
@@ -71,7 +71,7 @@ class _QTableWidgetScript:public QTableWidget
 // ============================================================
 //  QESCRIPT METHODS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QCaWidget
+class QEPLUGINLIBRARYSHARED_EXPORT QEScript:public QWidget, public QEWidget
 {
 
     Q_OBJECT

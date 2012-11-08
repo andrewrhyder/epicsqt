@@ -27,10 +27,10 @@
 #define QERECIPEPLUGINMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QERecipeManager:public QObject, public QDesignerCustomWidgetInterface
+class QEPLUGINLIBRARYSHARED_EXPORT QERecipeManager:public QObject, public QDesignerCustomWidgetInterface
 {
 
     Q_OBJECT

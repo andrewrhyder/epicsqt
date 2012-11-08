@@ -51,7 +51,7 @@ bool QEAnalogProgressBarManager::isInitialized() const {
 }
 
 /*
-    Widget factory. Creates a QCaAnalogProgressBar widget.
+    Widget factory. Creates a QEAnalogProgressBar widget.
 */
 QWidget *QEAnalogProgressBarManager::createWidget ( QWidget *parent ) {
     return new QEAnalogProgressBar( parent );
@@ -103,7 +103,7 @@ bool QEAnalogProgressBarManager::isContainer() const {
     ???
 */
 /*QString QEAnalogProgressBarManager::domXml() const {
-    return "<widget class=\"QCaAnalogProgressBar\" name=\"qCaAnalogProgressBar\">\n"
+    return "<widget class=\"QEAnalogProgressBar\" name=\"qEAnalogProgressBar\">\n"
            " <property name=\"geometry\">\n"
            "  <rect>\n"
            "   <x>0</x>\n"

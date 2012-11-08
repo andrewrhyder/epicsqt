@@ -25,7 +25,7 @@
 #ifndef QELOGIN_H
 #define QELOGIN_H
 
-#include <QCaWidget.h>
+#include <QEWidget.h>
 
 
 enum details
@@ -88,7 +88,7 @@ class _QDialogLogin:public QDialog
 // ============================================================
 //  QELOGIN CLASS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QCaWidget
+class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QEWidget
 {
 
     Q_OBJECT

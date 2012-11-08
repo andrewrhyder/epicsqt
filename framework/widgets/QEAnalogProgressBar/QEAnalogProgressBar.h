@@ -28,16 +28,16 @@
 
 #include <QString>
 #include <QEAnalogIndicator.h>
-#include <QCaWidget.h>
-#include <QCaFloating.h>
-#include <QCaFloatingFormatting.h>
+#include <QEWidget.h>
+#include <QEFloating.h>
+#include <QEFloatingFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
-#include <QCaPluginLibrary_global.h>
-#include <QCaStringFormattingMethods.h>
+#include <QEPluginLibrary_global.h>
+#include <QEStringFormattingMethods.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar :
-      public QEAnalogIndicator, public QCaWidget, public QCaStringFormattingMethods  {
+class QEPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar :
+      public QEAnalogIndicator, public QEWidget, public QEStringFormattingMethods  {
 
 Q_OBJECT
 
@@ -187,14 +187,14 @@ public:
     /// Value is converted to an integer and used to select a string from this list.
     Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
 
-    /// User friendly enumerations for format property - refer to QCaStringFormatting::formats for details.
-    enum Formats { Default          = QCaStringFormatting::FORMAT_DEFAULT,
-                   Floating         = QCaStringFormatting::FORMAT_FLOATING,
-                   Integer          = QCaStringFormatting::FORMAT_INTEGER,
-                   UnsignedInteger  = QCaStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time             = QCaStringFormatting::FORMAT_TIME,
-                   LocalEnumeration = QCaStringFormatting::FORMAT_LOCAL_ENUMERATE };
-    void setFormatProperty( Formats format ){ setFormat( (QCaStringFormatting::formats)format ); }  ///< Access function for 'format' property - refer to 'format' property for details
+    /// User friendly enumerations for format property - refer to QEStringFormatting::formats for details.
+    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,
+                   Floating         = QEStringFormatting::FORMAT_FLOATING,
+                   Integer          = QEStringFormatting::FORMAT_INTEGER,
+                   UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,
+                   Time             = QEStringFormatting::FORMAT_TIME,
+                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }  ///< Access function for 'format' property - refer to 'format' property for details
     Formats getFormatProperty(){ return (Formats)getFormat(); }                                     ///< Access function for 'format' property - refer to 'format' property for details
     Q_ENUMS(Formats)
 
@@ -206,22 +206,22 @@ public:
     ///
     Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
 
-    /// User friendly enumerations for notation property - refer to QCaStringFormatting::notations for details.
-    enum Notations { Fixed = QCaStringFormatting::NOTATION_FIXED,
-                     Scientific   = QCaStringFormatting::NOTATION_SCIENTIFIC,
-                     Automatic      = QCaStringFormatting::NOTATION_AUTOMATIC };
-    void setNotationProperty( Notations notation ){ setNotation( (QCaStringFormatting::notations)notation ); }  ///< Access function for 'notation' property - refer to 'notation' property for details
+    /// User friendly enumerations for notation property - refer to QEStringFormatting::notations for details.
+    enum Notations { Fixed = QEStringFormatting::NOTATION_FIXED,
+                     Scientific   = QEStringFormatting::NOTATION_SCIENTIFIC,
+                     Automatic      = QEStringFormatting::NOTATION_AUTOMATIC };
+    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }  ///< Access function for 'notation' property - refer to 'notation' property for details
     Notations getNotationProperty(){ return (Notations)getNotation(); }                                         ///< Access function for 'notation' property - refer to 'notation' property for details
     Q_ENUMS(Notations)
     /// Notation used for numerical formatting. Default is fixed.
     ///
     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
 
-    /// User friendly enumerations for arrayAction property - refer to QCaStringFormatting::arrayActions for details.
-    enum ArrayActions { Append = QCaStringFormatting::APPEND,
-                        Ascii  = QCaStringFormatting::ASCII,
-                        Index  = QCaStringFormatting::INDEX };
-    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QCaStringFormatting::arrayActions)arrayAction ); }    ///< Access function for 'arrayAction' property - refer to 'arrayAction' property for details
+    /// User friendly enumerations for arrayAction property - refer to QEStringFormatting::arrayActions for details.
+    enum ArrayActions { Append = QEStringFormatting::APPEND,
+                        Ascii  = QEStringFormatting::ASCII,
+                        Index  = QEStringFormatting::INDEX };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QEStringFormatting::arrayActions)arrayAction ); }    ///< Access function for 'arrayAction' property - refer to 'arrayAction' property for details
     ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }                                                 ///< Access function for 'arrayAction' property - refer to 'arrayAction' property for details
     Q_ENUMS(ArrayActions)
 
@@ -271,7 +271,7 @@ protected:
     QString getTextImage ();
     BandList getBandList ();
 
-    QCaFloatingFormatting floatingFormatting;
+    QEFloatingFormatting floatingFormatting;
 
     void establishConnection( unsigned int variableIndex );
     void stringFormattingChange() { emit requestResend();  }

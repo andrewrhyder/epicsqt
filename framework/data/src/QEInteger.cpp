@@ -24,19 +24,19 @@
 
 // Integer specific wrapper for QCaObject.
 
-#include <QCaInteger.h>
+#include <QEInteger.h>
 #include <QtDebug>
 
 /*
     ???
 */
-QCaInteger::QCaInteger( QString recordName, QObject *eventObject,
-                        QCaIntegerFormatting *integerFormattingIn,
+QEInteger::QEInteger( QString recordName, QObject *eventObject,
+                        QEIntegerFormatting *integerFormattingIn,
                         unsigned int variableIndexIn ) : QCaObject( recordName, eventObject ) {
     initialise( integerFormattingIn, variableIndexIn );
 }
-QCaInteger::QCaInteger( QString recordName, QObject *eventObject,
-                        QCaIntegerFormatting *integerFormattingIn,
+QEInteger::QEInteger( QString recordName, QObject *eventObject,
+                        QEIntegerFormatting *integerFormattingIn,
                         unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn ) {
     initialise( integerFormattingIn, variableIndexIn );
 }
@@ -44,7 +44,7 @@ QCaInteger::QCaInteger( QString recordName, QObject *eventObject,
 /*
     Stream the QCaObject data through this class to generate integer data updates
 */
-void QCaInteger::initialise( QCaIntegerFormatting* integerFormattingIn,
+void QEInteger::initialise( QEIntegerFormatting* integerFormattingIn,
                              unsigned int variableIndexIn ) {
     integerFormat = integerFormattingIn;
     variableIndex = variableIndexIn;
@@ -61,14 +61,14 @@ void QCaInteger::initialise( QCaIntegerFormatting* integerFormattingIn,
     The type of data formatted (text, floating, integer, etc) will be determined by the record data type,
     How the integer is parsed will be determined by the integer formatting. For example, integer to string may require always including a sign.
 */
-void QCaInteger::writeInteger( const long &data ) {
+void QEInteger::writeInteger( const long &data ) {
     writeData( integerFormat->formatValue( data, getDataType() ) );
 }
 
 /*
     Slot to recieve data updates from the base QCaObject and generate integer updates.
 */
-void QCaInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
+void QEInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
     if( value.type() == QVariant::List )
     {
         emit integerArrayChanged( integerFormat->formatIntegerArray( value ), alarmInfo, timeStamp, variableIndex );
@@ -82,7 +82,7 @@ void QCaInteger::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo,
 /*
     Take a basic connection change and append variableIndex
 */
-void QCaInteger::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+void QEInteger::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
     emit integerConnectionChanged( connectionInfo, variableIndex );
 }
 

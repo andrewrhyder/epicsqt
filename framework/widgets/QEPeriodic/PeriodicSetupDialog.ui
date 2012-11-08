@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>QCaPeriodic - Element configuration</string>
+   <string>QEPeriodic - Element configuration</string>
   </property>
   <property name="toolTip">
    <string>Element configuration</string>

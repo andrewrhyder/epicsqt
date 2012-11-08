@@ -24,19 +24,19 @@
 
 // Floating specific wrapper for QCaObject.
 
-#include <QCaFloating.h>
+#include <QEFloating.h>
 #include <QtDebug>
 
 /*
     ???
 */
-QCaFloating::QCaFloating( QString recordName, QObject *eventObject,
-                        QCaFloatingFormatting *floatingFormattingIn,
+QEFloating::QEFloating( QString recordName, QObject *eventObject,
+                        QEFloatingFormatting *floatingFormattingIn,
                         unsigned int variableIndexIn ) : QCaObject( recordName, eventObject ) {
     initialise( floatingFormattingIn, variableIndexIn );
 }
-QCaFloating::QCaFloating( QString recordName, QObject *eventObject,
-                        QCaFloatingFormatting *floatingFormattingIn,
+QEFloating::QEFloating( QString recordName, QObject *eventObject,
+                        QEFloatingFormatting *floatingFormattingIn,
                         unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn ) {
     initialise( floatingFormattingIn, variableIndexIn );
 }
@@ -44,7 +44,7 @@ QCaFloating::QCaFloating( QString recordName, QObject *eventObject,
 /*
     Stream the QCaObject data through this class to generate floating data updates
 */
-void QCaFloating::initialise( QCaFloatingFormatting* floatingFormattingIn,
+void QEFloating::initialise( QEFloatingFormatting* floatingFormattingIn,
                              unsigned int variableIndexIn ) {
     floatingFormat = floatingFormattingIn;
     variableIndex = variableIndexIn;
@@ -61,14 +61,14 @@ void QCaFloating::initialise( QCaFloatingFormatting* floatingFormattingIn,
     The type of data formatted (text, floating, integer, etc) will be determined by the record data type,
     How the floating is parsed will be determined by the floating formatting. For example, floating to string may require always including a sign.
 */
-void QCaFloating::writeFloating( const double &data ) {
+void QEFloating::writeFloating( const double &data ) {
     writeData( floatingFormat->formatValue( data, getDataType() ) );
 }
 
 /*
     Slot to recieve data updates from the base QCaObject and generate floating updates.
 */
-void QCaFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
+void QEFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {
 
     if( value.type() == QVariant::List )
     {
@@ -83,7 +83,7 @@ void QCaFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo
 /*
     Take a basic connection change and append variableIndex
 */
-void QCaFloating::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
+void QEFloating::forwardConnectionChanged( QCaConnectionInfo& connectionInfo) {
     emit floatingConnectionChanged( connectionInfo, variableIndex );
 }
 

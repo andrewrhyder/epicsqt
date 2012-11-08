@@ -25,7 +25,7 @@
 #ifndef QEFILEBROWSER_H
 #define QEFILEBROWSER_H
 
-#include <QCaWidget.h>
+#include <QEWidget.h>
 
 
 enum details
@@ -71,7 +71,7 @@ class _QTableWidgetFileBrowser:public QTableWidget
 // ============================================================
 //  QEFILEBROWSER METHODS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QCaWidget
+class QEPLUGINLIBRARYSHARED_EXPORT QEFileBrowser:public QWidget, public QEWidget
 {
 
     Q_OBJECT

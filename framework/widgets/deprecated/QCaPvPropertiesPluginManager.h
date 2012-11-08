@@ -27,12 +27,12 @@
 #define QCAPVPROPERTIESPLUGINMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 /*
     ???
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaPvPropertiesPluginManager :
+class QEPLUGINLIBRARYSHARED_EXPORT QCaPvPropertiesPluginManager :
    public QObject, 
    public QDesignerCustomWidgetInterface 
 {

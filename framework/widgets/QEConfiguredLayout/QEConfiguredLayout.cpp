@@ -30,7 +30,7 @@
 // ============================================================
 //  QECONFIGUREDLAYOUT METHODS
 // ============================================================
-QEConfiguredLayout::QEConfiguredLayout(QWidget *pParent, bool pSubscription):QWidget(pParent), QCaWidget(this)
+QEConfiguredLayout::QEConfiguredLayout(QWidget *pParent, bool pSubscription):QWidget(pParent), QEWidget(this)
 {
 
     subscription = pSubscription;
@@ -436,7 +436,7 @@ void QEConfiguredLayout::refreshFields()
     QWidget *qWidget;
     QLabel *qLabel;
     QString userType;
-    QCaWidget *qCaWidget = NULL;
+    QEWidget *qCaWidget = NULL;
     _QPushButtonGroup *qPushButtonGroup;
     _Item *item;
     _Field *field = NULL;
@@ -527,7 +527,7 @@ void QEConfiguredLayout::refreshFields()
                     qCaWidget = new QELineEdit();
                     ((QELineEdit *) qCaWidget)->setText(field->getName());
                     ((QELineEdit *) qCaWidget)->setSubscribe(subscription);
-                    ((QELineEdit *) qCaWidget)->setNotation(QCaStringFormatting::NOTATION_AUTOMATIC);
+                    ((QELineEdit *) qCaWidget)->setNotation(QEStringFormatting::NOTATION_AUTOMATIC);
                     ((QELineEdit *) qCaWidget)->setEnabled(field->getEditable().isEmpty() || field->getEditable().split(",").contains(userType, Qt::CaseInsensitive));
                     ((QELineEdit *) qCaWidget)->setWriteOnFinish(false);
                     ((QELineEdit *) qCaWidget)->setConfirmWrite(false);
@@ -733,7 +733,7 @@ _Field::_Field()
 
 
 
-//QCaWidget _Field::getWidget()
+//QEWidget _Field::getWidget()
 //{
 
 //    return qCaWidget;
@@ -742,7 +742,7 @@ _Field::_Field()
 
 
 
-//void _Field::setWidget(QCaWidget &pValue)
+//void _Field::setWidget(QEWidget &pValue)
 //{
 
 //    qCaWidget = pValue;

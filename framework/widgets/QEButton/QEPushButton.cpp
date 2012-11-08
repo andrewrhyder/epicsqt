@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware push button widget based on the Qt push button widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <QEPushButton.h>
@@ -68,7 +68,7 @@ void QEPushButton::setup() {
 }
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QEPushButton::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );

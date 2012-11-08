@@ -22,7 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-// QCa based version of CA Monitor
+// QE based version of CA Monitor
 
 #include <QTime>
 #include <QString>
@@ -36,7 +36,7 @@ monitor::monitor( QString pvIn )
     pv = pvIn;
 
     // Create the data source, connect to data update and message signals, then subscribe to updates.
-    source = new QCaString( pv, this, &formatting, 1, &messages );
+    source = new QEString( pv, this, &formatting, 1, &messages );
     QObject::connect( source, SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ),
                       this, SLOT( log( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int & ) ) );
 

@@ -70,7 +70,7 @@ private:
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
 
     QString GuiFileNameDialog( QString caption );           // Get a gui filename from the user
-    ContainerProfile profile;                               // Environment profile for new QCa wigets
+    ContainerProfile profile;                               // Environment profile for new QE widgets
 
     QProcess process;                                       // Process used to start designer
     QTimer processTimer;                                    // Timer used to attempt restarting designer from outside a QProcess error signal

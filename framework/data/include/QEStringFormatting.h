@@ -22,20 +22,20 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-// Formats the string for QCaString data.
+// Formats the string for QEString data.
 
-#ifndef QCASTRINGFORMATTING_H
-#define QCASTRINGFORMATTING_H
+#ifndef QESTRINGFORMATTING_H
+#define QESTRINGFORMATTING_H
 
 #include <QVariant>
 #include <QString>
 #include <QStringList>
 #include <QDataStream>
 #include <QTextStream>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 
-// Support class used to build the localEnumeration list in the QCaStringFormatting class
+// Support class used to build the localEnumeration list in the QEStringFormatting class
 class localEnumerationItem {
     public:
     enum operations { LESS, LESS_EQUAL, EQUAL, NOT_EQUAL, GREATER_EQUAL, GREATER, ALWAYS, UNKNOWN };
@@ -45,7 +45,7 @@ class localEnumerationItem {
     QString text;               // Text used if the data value matches
 };
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
+class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
   public:
 
     // Formatting enumerations
@@ -56,7 +56,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     enum arrayActions { APPEND, ASCII, INDEX };
 
     // Construction
-    QCaStringFormatting();
+    QEStringFormatting();
 
     //===============================================
     // Main functions of this class:
@@ -133,4 +133,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaStringFormatting {
     unsigned int arrayIndex;        // Index into array or waveform to use when into arrayAction is 'INDEX'
 };
 
-#endif // QCASTRINGFORMATTING_H
+#endif // QESTRINGFORMATTING_H

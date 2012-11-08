@@ -29,7 +29,7 @@
 // ============================================================
 //  QEFILEBROWSER METHODS
 // ============================================================
-QEFileBrowser::QEFileBrowser(QWidget *pParent):QWidget(pParent), QCaWidget( this )
+QEFileBrowser::QEFileBrowser(QWidget *pParent):QWidget(pParent), QEWidget( this )
 {
 
     QFont qFont;

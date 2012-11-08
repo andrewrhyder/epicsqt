@@ -26,13 +26,13 @@
 #define QESLIDER_H
 
 #include <QSlider>
-#include <QCaWidget.h>
-#include <QCaFloating.h>
-#include <QCaFloatingFormatting.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEWidget.h>
+#include <QEFloating.h>
+#include <QEFloatingFormatting.h>
+#include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QEWidget {
     Q_OBJECT
 
   public:
@@ -56,7 +56,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QCaWidget 
     double getOffset();
 
   protected:
-    QCaFloatingFormatting floatingFormatting; // Floating formatting options.
+    QEFloatingFormatting floatingFormatting; // Floating formatting options.
     bool writeOnChange;             // Write changed value to database when ever the position changes.
 
     void establishConnection( unsigned int variableIndex );

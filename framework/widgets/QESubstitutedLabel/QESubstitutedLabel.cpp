@@ -32,7 +32,7 @@
 /*
     Constructor with no initialisation
 */
-QESubstitutedLabel::QESubstitutedLabel( QWidget *parent ) : QLabel( parent ), QCaWidget( this ) {
+QESubstitutedLabel::QESubstitutedLabel( QWidget *parent ) : QLabel( parent ), QEWidget( this ) {
     setup();
 }
 

@@ -26,8 +26,8 @@
 #define QEIMAGE_H
 
 #include <QScrollArea>
-#include <QCaWidget.h>
-#include <QCaInteger.h>
+#include <QEWidget.h>
+#include <QEInteger.h>
 #include <videowidget.h>
 //#include <QELabel.h>
 #include <QVBoxLayout>
@@ -39,11 +39,11 @@
 #include <QCaVariableNamePropertyManager.h>
 
 
-#include <QCaPluginLibrary_global.h>
-#include <QCaIntegerFormatting.h>
+#include <QEPluginLibrary_global.h>
+#include <QEIntegerFormatting.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget {
     Q_OBJECT
 
   public:
@@ -149,7 +149,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QCaWidget {
 
 
   protected:
-    QCaIntegerFormatting integerFormatting; // Integer formatting options.
+    QEIntegerFormatting integerFormatting; // Integer formatting options.
 
     void establishConnection( unsigned int variableIndex );
 
@@ -181,7 +181,7 @@ private slots:
 
     void panModeClicked();
 
-    // !! move this functionality into QCaWidget???
+    // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {

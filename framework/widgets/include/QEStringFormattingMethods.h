@@ -22,15 +22,15 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCASTRINGFORMATTINGMETHODS_H
-#define QCASTRINGFORMATTINGMETHODS_H
+#ifndef QEStringFORMATTINGMETHODS_H
+#define QEStringFORMATTINGMETHODS_H
 
-#include <QCaStringFormatting.h>
+#include <QEStringFormatting.h>
 
-class QCaStringFormattingMethods {
+class QEStringFormattingMethods {
 
   public:
-    virtual ~QCaStringFormattingMethods(){}
+    virtual ~QEStringFormattingMethods(){}
 
     virtual void stringFormattingChange() = 0;
 
@@ -61,27 +61,27 @@ class QCaStringFormattingMethods {
     QString getLocalEnumeration();
 
     // format
-    void setFormat( QCaStringFormatting::formats format );
-    QCaStringFormatting::formats getFormat();
+    void setFormat( QEStringFormatting::formats format );
+    QEStringFormatting::formats getFormat();
 
     // radix
     void setRadix( unsigned int radix );
     unsigned int getRadix();
 
     // notation
-    void setNotation( QCaStringFormatting::notations notation );
-    QCaStringFormatting::notations getNotation();
+    void setNotation( QEStringFormatting::notations notation );
+    QEStringFormatting::notations getNotation();
 
     // arrayAction
-    void setArrayAction( QCaStringFormatting::arrayActions arrayAction );
-    QCaStringFormatting::arrayActions getArrayAction();
+    void setArrayAction( QEStringFormatting::arrayActions arrayAction );
+    QEStringFormatting::arrayActions getArrayAction();
 
     // arrayIndex
     void setArrayIndex( unsigned int arrayIndex );
     unsigned int getArrayIndex();
 
   protected:
-    QCaStringFormatting stringFormatting;
+    QEStringFormatting stringFormatting;
 };
 
-#endif // QCASTRINGFORMATTINGMETHODS_H
+#endif // QEStringFORMATTINGMETHODS_H

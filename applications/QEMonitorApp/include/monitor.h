@@ -26,7 +26,7 @@
 #define MONITOR_H
 
 #include <QObject>
-#include <QCaString.h>
+#include <QEString.h>
 #include <UserMessage.h>
 
 /*
@@ -40,9 +40,9 @@ public:
     monitor( QString pvIn );
 
 private:
-    QCaString* source;
+    QEString* source;
     UserMessage messages;
-    QCaStringFormatting formatting;
+    QEStringFormatting formatting;
     QString pv;
     QTextStream* stream;
     void newMessage( QString msg, message_types type );

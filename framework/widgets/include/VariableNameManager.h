@@ -27,9 +27,9 @@
 
 #include <QString>
 #include <QList>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT VariableNameManager {
+class QEPLUGINLIBRARYSHARED_EXPORT VariableNameManager {
 
 public:
     VariableNameManager();

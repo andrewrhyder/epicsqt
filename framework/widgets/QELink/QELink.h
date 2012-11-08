@@ -26,12 +26,12 @@
 #define QELINK_H
 
 #include <QLabel>
-#include <QCaWidget.h>
+#include <QEWidget.h>
 #include <QVariant>
 #include <QString>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QELink : public QLabel, QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QELink : public QLabel, QEWidget {
    Q_OBJECT
 
   public:

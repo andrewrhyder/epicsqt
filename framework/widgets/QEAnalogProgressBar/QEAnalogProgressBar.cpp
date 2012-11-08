@@ -25,14 +25,14 @@
 
 /*
   This class is a CA aware analog progress bar widget based on the analog progress bar widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <alarm.h>
 
 #include <QEAnalogProgressBar.h>
 #include <QCaObject.h>
-#include <QCaStringFormatting.h>
+#include <QEStringFormatting.h>
 
 
 #define ALARM_SATURATION      128
@@ -43,7 +43,7 @@
     Constructor with no initialisation
 */
 QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) :
-   QEAnalogIndicator( parent ), QCaWidget( this ), QCaStringFormattingMethods ()
+   QEAnalogIndicator( parent ), QEWidget( this ), QEStringFormattingMethods ()
 {
     setup();
 }
@@ -54,7 +54,7 @@ QEAnalogProgressBar::QEAnalogProgressBar( QWidget *parent ) :
 */
 QEAnalogProgressBar::QEAnalogProgressBar( const QString &variableNameIn,
                                           QWidget *parent ) :
-   QEAnalogIndicator( parent ), QCaWidget( this ), QCaStringFormattingMethods ()
+   QEAnalogIndicator( parent ), QEWidget( this ), QEStringFormattingMethods ()
 {
 
     setup();
@@ -99,7 +99,7 @@ void QEAnalogProgressBar::setup() {
 }
 
 /* ----------------------------------------------------------------------------
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a progress bar a QCaObject that streams integers is required.
 */
 qcaobject::QCaObject* QEAnalogProgressBar::createQcaItem( unsigned int variableIndex ) {
@@ -107,7 +107,7 @@ qcaobject::QCaObject* QEAnalogProgressBar::createQcaItem( unsigned int variableI
     qcaobject::QCaObject* result;
 
     if (variableIndex == 0) {
-        result = new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
+        result = new QEFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
     } else {
         result = NULL;  // Unexpected
     }
@@ -143,7 +143,7 @@ void QEAnalogProgressBar::establishConnection( unsigned int variableIndex )
 
 
 /* ----------------------------------------------------------------------------
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QEAnalogProgressBar::updateToolTip( const QString& tip )
 {
@@ -158,7 +158,7 @@ void QEAnalogProgressBar::updateToolTip( const QString& tip )
  */
 void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QCa enabled property is true
+    // If connected, enable the widget if the QE enabled property is true
     if( connectionInfo.isChannelConnected() )
     {
         isConnected = true;

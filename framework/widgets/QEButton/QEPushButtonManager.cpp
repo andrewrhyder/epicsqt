@@ -51,7 +51,7 @@ bool QEPushButtonManager::isInitialized() const {
 }
 
 /*
-    Widget factory. Creates a QCaLabel widget.
+    Widget factory. Creates a QEPushButton widget.
 */
 QWidget *QEPushButtonManager::createWidget ( QWidget *parent ) {
     return new QEPushButton(parent);

@@ -23,132 +23,132 @@
  */
 
 /*
-  This class is used by QCaWidgets when setting properties managed by the QCaStringformatting class.
-  This class calls matching set and get methods from the QCaStringformatting class but also calls back
-  the QCawidget when setting properties so the widget can update itself based on the changes.
+  This class is used by QEWidgets when setting properties managed by the QEStringformatting class.
+  This class calls matching set and get methods from the QEStringformatting class but also calls back
+  the QEWidget when setting properties so the widget can update itself based on the changes.
  */
 
-#include <QCaStringFormattingMethods.h>
+#include <QEStringFormattingMethods.h>
 
 // String formatting properties
 
 // precision
-void QCaStringFormattingMethods::setPrecision( int precision )
+void QEStringFormattingMethods::setPrecision( int precision )
 {
     stringFormatting.setPrecision( precision );
     stringFormattingChange();
 }
-int QCaStringFormattingMethods::getPrecision()
+int QEStringFormattingMethods::getPrecision()
 {
     return stringFormatting.getPrecision();
 }
 
 // useDbPrecision
-void QCaStringFormattingMethods::setUseDbPrecision( bool useDbPrecision )
+void QEStringFormattingMethods::setUseDbPrecision( bool useDbPrecision )
 {
     stringFormatting.setUseDbPrecision( useDbPrecision);
     stringFormattingChange();
 }
-bool QCaStringFormattingMethods::getUseDbPrecision()
+bool QEStringFormattingMethods::getUseDbPrecision()
 {
     return stringFormatting.getUseDbPrecision();
 }
 
 // leadingZero
-void QCaStringFormattingMethods::setLeadingZero( bool leadingZero )
+void QEStringFormattingMethods::setLeadingZero( bool leadingZero )
 {
     stringFormatting.setLeadingZero( leadingZero );
     stringFormattingChange();
 }
-bool QCaStringFormattingMethods::getLeadingZero()
+bool QEStringFormattingMethods::getLeadingZero()
 {
     return stringFormatting.getLeadingZero();
 }
 
 // trailingZeros
-void QCaStringFormattingMethods::setTrailingZeros( bool trailingZeros )
+void QEStringFormattingMethods::setTrailingZeros( bool trailingZeros )
 {
     stringFormatting.setTrailingZeros( trailingZeros );
     stringFormattingChange();
 }
-bool QCaStringFormattingMethods::getTrailingZeros()
+bool QEStringFormattingMethods::getTrailingZeros()
 {
     return stringFormatting.getTrailingZeros();
 }
 
 // addUnits
-void QCaStringFormattingMethods::setAddUnits( bool addUnits )
+void QEStringFormattingMethods::setAddUnits( bool addUnits )
 {
     stringFormatting.setAddUnits( addUnits );
     stringFormattingChange();
 }
-bool QCaStringFormattingMethods::getAddUnits()
+bool QEStringFormattingMethods::getAddUnits()
 {
     return stringFormatting.getAddUnits();
 }
 
 // localEnumeration
-void QCaStringFormattingMethods::setLocalEnumeration( QString localEnumeration )
+void QEStringFormattingMethods::setLocalEnumeration( QString localEnumeration )
 {
     stringFormatting.setLocalEnumeration( localEnumeration );
     stringFormattingChange();
 }
-QString QCaStringFormattingMethods::getLocalEnumeration()
+QString QEStringFormattingMethods::getLocalEnumeration()
 {
     return stringFormatting.getLocalEnumeration();
 }
 
 // format
-void QCaStringFormattingMethods::setFormat( QCaStringFormatting::formats format )
+void QEStringFormattingMethods::setFormat( QEStringFormatting::formats format )
 {
     stringFormatting.setFormat( format );
     stringFormattingChange();
 }
-QCaStringFormatting::formats QCaStringFormattingMethods::getFormat()
+QEStringFormatting::formats QEStringFormattingMethods::getFormat()
 {
     return stringFormatting.getFormat();
 }
 
 // radix
-void QCaStringFormattingMethods::setRadix( unsigned int radix )
+void QEStringFormattingMethods::setRadix( unsigned int radix )
 {
     stringFormatting.setRadix( radix);
     stringFormattingChange();
 }
-unsigned int QCaStringFormattingMethods::getRadix()
+unsigned int QEStringFormattingMethods::getRadix()
 {
     return stringFormatting.getRadix();
 }
 
 // notation
-void QCaStringFormattingMethods::setNotation( QCaStringFormatting::notations notation )
+void QEStringFormattingMethods::setNotation( QEStringFormatting::notations notation )
 {
     stringFormatting.setNotation( notation );
     stringFormattingChange();
 }
-QCaStringFormatting::notations QCaStringFormattingMethods::getNotation()
+QEStringFormatting::notations QEStringFormattingMethods::getNotation()
 {
     return stringFormatting.getNotation();
 }
 
 // arrayAction
-void QCaStringFormattingMethods::setArrayAction( QCaStringFormatting::arrayActions arrayAction )
+void QEStringFormattingMethods::setArrayAction( QEStringFormatting::arrayActions arrayAction )
 {
     stringFormatting.setArrayAction( arrayAction );
     stringFormattingChange();
 }
-QCaStringFormatting::arrayActions QCaStringFormattingMethods::getArrayAction()
+QEStringFormatting::arrayActions QEStringFormattingMethods::getArrayAction()
 {
     return stringFormatting.getArrayAction();
 }
 
 // arrayIndex
-void QCaStringFormattingMethods::setArrayIndex( unsigned int arrayIndex )
+void QEStringFormattingMethods::setArrayIndex( unsigned int arrayIndex )
 {
     stringFormatting.setArrayIndex( arrayIndex );
     stringFormattingChange();
 }
-unsigned int QCaStringFormattingMethods::getArrayIndex()
+unsigned int QEStringFormattingMethods::getArrayIndex()
 {
     return stringFormatting.getArrayIndex();
 }

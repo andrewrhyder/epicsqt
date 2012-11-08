@@ -28,21 +28,21 @@
   warning and status messages, and setting tool tips based on variable names.
 
   Note, there is tight integration between the CA aware widget classes, this class, and its
-  base classes, especially VariableNameManager and QCaToolTip.
+  base classes, especially VariableNameManager and QEToolTip.
 
   In particular, this class manages QCaObject classes that stream updates to the
   CA aware widget class. But this class, however, doesn't know how to format the data,
   or how the updates will be used.
   To resolve this, this class asks its parent class (such as QELabel) to create the
   QCaObject class in what ever flavour it wants, by calling the virtual function createQcaItem.
-  A QELabel, for example, wants string updates so it creates a QCaString which is based on a
+  A QELabel, for example, wants string updates so it creates a QEString which is based on a
   QCaObject class and formats all updates as strings.
 
   The CA aware parent class (such as QELabel) defines a variable by calling VariableNameManager::setVariableName().
   The VariableNamePropertyManager class calls the establishConnection function of the CA aware parent class, such as QELabel
   when it has a new variable name.
 
-  This class uses its base QCaToolTip class to format tool tips. that class in turn calls the CA aware parent class
+  This class uses its base QEToolTip class to format tool tips. that class in turn calls the CA aware parent class
   (such as QELabel) directly to make use of a new tool tip.
 
 
@@ -57,32 +57,32 @@
 
    2) When an QEForm widget is created, resulting in a set of CA aware widgets being created by loading a UI file
       contining plugin definitions.
-      After loading the plugin widgets, code in the QEForm class calls the activate() function in this class (QCaWiget).
+      After loading the plugin widgets, code in the QEForm class calls the activate() function in this class (QEWiget).
       the activate() function calls  establishConnection() in the CA aware widget for each variable. This simulates
       what the VariableNamePropertyManager does as each variable name is entered (see 1, above, for details)
 
   No matter which way a CA aware widget is activated, the establishConnection() function in the CA aware widget is called
-  for each variable. The establishConnection() function asks this QCaWidget base class, by calling the createConnection()
+  for each variable. The establishConnection() function asks this QEWidget base class, by calling the createConnection()
   function, to perform the tasks common to all CA aware widgets for establishing a stream of CA data.
 
   The createConnection() function sets up the widget 'tool tip', then immedietly calls the CA aware widget back asking it to create
   an object based on QCaObject. This object will supply a stream of CA update signals to the CA aware object in a form that
-  it needs. For example a QELabel creates a QCaString object. The QCaString class is based on the QCaObject class and converts
+  it needs. For example a QELabel creates a QEString object. The QEString class is based on the QCaObject class and converts
   all update data to a strings which is required for updating a Qt label widget. This class stores the QCaObject based class.
 
   After the establishConnection() function in the CA aware widget has called createConnection(), the remaining task of the
   establishConnection() function is to connect the signals of the newly created QCaObject based classes to its own slots
   so that data updates can be used. For example, a QELabel connects the 'stringChanged' signal
-  fromthe QCaString object to its setLabelText slot.
+  fromthe QEString object to its setLabelText slot.
  */
 
 #include <QDebug>
-#include <QCaWidget.h>
+#include <QEWidget.h>
 
 /*
     Constructor
 */
-QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( owner ), standardProperties( owner ) {
+QEWidget::QEWidget( QWidget *owner ) : QEDragDrop( owner ), styleManager( owner ), standardProperties( owner ) {
 
     // Initially flag no variables array is defined.
     // This will be corrected when the first variable is declared
@@ -101,8 +101,8 @@ QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( own
     // list of contained widgets so whatever is managing the container can activate this widget.
     //
     // Although a widget is self contained, whatever is creating the widget has the option of providing
-    // a list of services and other information through a containerProfile that QCaWidgets can use.
-    // For example, an application creating QCaWidgets can provide a mechanism to display error
+    // a list of services and other information through a containerProfile that QEWidgets can use.
+    // For example, an application creating QEWidgets can provide a mechanism to display error
     // messages in a manner appropriate for the application.
     // In this case, the widget is taking the oppertunity to tell its creator it exists, and also to
     // get any variable name macro substitutions offered by its creator.
@@ -117,10 +117,10 @@ QCaWidget::QCaWidget( QWidget *owner ) : QCaDragDrop( owner ), styleManager( own
     Destruction:
     Delete all variable sources for the widgeet
 */
-QCaWidget::~QCaWidget() {
+QEWidget::~QEWidget() {
     // Remove this widget remove this widget from the list of contained widgets if it is there.
     // The list is only used during form construction and generally widgets are not destroyed during form
-    // construction, but there are exceptions. A typical exception is QCaMotor, which creates and sometimes
+    // construction, but there are exceptions. A typical exception is QEMotor, which creates and sometimes
     // destroys QELabels during contruction. These QELabels get added to the contained widgets list
     // but are then destroyed. Unless they are removed from the list, the form will attempt to activate them.
     removeContainedWidget( this );
@@ -140,7 +140,7 @@ QCaWidget::~QCaWidget() {
     Create an array of QCaObject based objects to suit.
     This is called by the CA aware widgets based on this class, such as a QELabel.
 */
-void QCaWidget::setNumVariables( unsigned int numVariablesIn ) {
+void QEWidget::setNumVariables( unsigned int numVariablesIn ) {
 
     // Get the number of variables that will be used by this widget
     // Don't accept zero or the qca array will be invalid
@@ -162,11 +162,11 @@ void QCaWidget::setNumVariables( unsigned int numVariablesIn ) {
 
 /*
    Initiate updates.
-   This is only required when QCa widgets are loaded within a form and not directly by 'designer'.
+   This is only required when QE widgetss are loaded within a form and not directly by 'designer'.
    When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
    the variable name or variable name substitution properties are set
  */
-void QCaWidget::activate()
+void QEWidget::activate()
 {
     // For each variable, ask the CA aware widget based on this class to initiate updates and to set up
     // whatever signal/slot connections are required to make use of data updates.
@@ -182,7 +182,7 @@ void QCaWidget::activate()
     This is called by the establishConnection function of CA aware widgets based on this class, such as a QELabel.
     If successfull it will return the QCaObject based object supplying data update signals
 */
-qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) {
+qcaobject::QCaObject* QEWidget::createConnection( unsigned int variableIndex ) {
 
     // If the index is invalid do nothing
     // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
@@ -217,23 +217,23 @@ qcaobject::QCaObject* QCaWidget::createConnection( unsigned int variableIndex ) 
 }
 
 // Default implementation of createQcaItem().
-// Usually a QCa widget will request a connection be established by this class and this class will
-// call back the QCa widget for it to create the specific flavour of QCaObject required using this function.
+// Usually a QE widgets will request a connection be established by this class and this class will
+// call back the QE widgets for it to create the specific flavour of QCaObject required using this function.
 // Since this class can also be used as a base class for widgets that don't establish any CA connection,
 // this default implementation is here to always return NULL when asked to create a QCaObject
 //
-qcaobject::QCaObject* QCaWidget::createQcaItem( unsigned int )
+qcaobject::QCaObject* QEWidget::createQcaItem( unsigned int )
 {
     return NULL;
 }
 
 // Default implementation of establishConnection().
-// Usually a QCa widget will request a connection be established by this class and this class will
-// call back the QCa widget for it to establish a connection on a newly created QCaObject using this function.
+// Usually a QE widgets will request a connection be established by this class and this class will
+// call back the QE widgets for it to establish a connection on a newly created QCaObject using this function.
 // Since this class can also be used as a base class for widgets that don't establish any CA connection,
 // this default implementation is here as a default when not implemented
 //
-void QCaWidget::establishConnection( unsigned int )
+void QEWidget::establishConnection( unsigned int )
 {
 }
 
@@ -243,7 +243,7 @@ void QCaWidget::establishConnection( unsigned int )
     This is called by CA aware widgets based on this class, such as a QELabel, mainly when they
     want to connect to its signals to recieve data updates.
 */
-qcaobject::QCaObject* QCaWidget::getQcaItem( unsigned int variableIndex ) {
+qcaobject::QCaObject* QEWidget::getQcaItem( unsigned int variableIndex ) {
     // If the index is invalid return NULL.
     // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
     if( variableIndex >= numVariables )
@@ -256,7 +256,7 @@ qcaobject::QCaObject* QCaWidget::getQcaItem( unsigned int variableIndex ) {
 /*
     Remove any previous QCaObject created to supply CA data updates for a variable name
 */
-void QCaWidget::deleteQcaItem( unsigned int variableIndex ) {
+void QEWidget::deleteQcaItem( unsigned int variableIndex ) {
     // If the index is invalid do nothing.
     // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
     if( variableIndex >= numVariables )
@@ -271,7 +271,7 @@ void QCaWidget::deleteQcaItem( unsigned int variableIndex ) {
 }
 
 
-void QCaWidget::setupContextMenu( QWidget* w )
+void QEWidget::setupContextMenu( QWidget* w )
 {
     // Set up context sensitive menu (right click menu)
     addContextMenuToWidget( w );
@@ -282,7 +282,7 @@ void QCaWidget::setupContextMenu( QWidget* w )
   Note, the color is determined by the alarmInfo class, but since that class is used in non
   gui applications, it can't return a QColor
  */
-QColor QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
+QColor QEWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
 {
     QColor result(alarmInfo.getColorName());
 
@@ -293,19 +293,19 @@ QColor QCaWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
 }
 
 // variable as tool tip
-void QCaWidget::setVariableAsToolTip( bool variableAsToolTipIn )
+void QEWidget::setVariableAsToolTip( bool variableAsToolTipIn )
 {
     variableAsToolTip = variableAsToolTipIn;
     setToolTipFromVariableNames();
 }
 
-bool QCaWidget::getVariableAsToolTip()
+bool QEWidget::getVariableAsToolTip()
 {
     return variableAsToolTip;
 }
 
 // Update the variable name list used in tool tips if requried
-void QCaWidget::setToolTipFromVariableNames()
+void QEWidget::setToolTipFromVariableNames()
 {
     // Set the tool tip to the variable names if required
     if( variableAsToolTip ) {
@@ -346,7 +346,7 @@ void QCaWidget::setToolTipFromVariableNames()
 // Returns true if running within the Qt Designer application.
 // used when the behaviour needs to be different in designer.
 // For example, a run-time-visible property - always visible in designer, visible at run time dependant on the property.
-bool QCaWidget::inDesigner()
+bool QEWidget::inDesigner()
 {
     // check if the current executable has 'designer' in the name
     // Note, depending on Qt version, (and installation?) designer image may be 'designer' or 'designer-qt4'
@@ -360,7 +360,7 @@ bool QCaWidget::inDesigner()
 
 // The user level has changed
 // Modify the label properties accordingly
-void QCaWidget::userLevelChanged( userLevels level )
+void QEWidget::userLevelChanged( userLevels level )
 {
     styleUserLevelChanged( level );
     checkVisibilityEnabledLevel( level );
@@ -370,7 +370,7 @@ void QCaWidget::userLevelChanged( userLevels level )
 // Widgets may be write only and do not need to subscribe (subscribe property is false).
 // When not subscribing it may still be usefull to do a single shot read to get initial
 // values, or perhaps confirm a write.
-void QCaWidget::readNow()
+void QEWidget::readNow()
 {
     // Perform a single shot read on all variables.
     qcaobject::QCaObject* qca;
@@ -386,7 +386,7 @@ void QCaWidget::readNow()
 
 // Access functions for variableName and variableNameSubstitutions
 // variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void QCaWidget::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
+void QEWidget::setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
 {
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
@@ -395,7 +395,7 @@ void QCaWidget::setVariableNameAndSubstitutions( QString variableNameIn, QString
 
 // Returns the default location to create files.
 // Use this to create files in a consistant location
-QString QCaWidget::defaultFileLocation()
+QString QEWidget::defaultFileLocation()
 {
     QString path = getParentPath();
     if( !path.isEmpty() )
@@ -425,7 +425,7 @@ QString QCaWidget::defaultFileLocation()
 //  - The application's path (set up in the application profile) (the -p switch for ASgui)
 //  - The current directory
 
-QFile* QCaWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
+QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
 {
         // Build a list of all the places we expect to find the file
         // Use a single location if an absolute path was specified.

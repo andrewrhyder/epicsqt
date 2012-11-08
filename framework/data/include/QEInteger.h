@@ -24,21 +24,21 @@
 
 // Integer specific wrapper for QCaObject.
 
-#ifndef QCAINTEGER_H
-#define QCAINTEGER_H
+#ifndef QEINTEGER_H
+#define QEINTEGER_H
 
 #include <QtDebug>
 #include <QVariant>
 #include <QCaObject.h>
-#include <QCaIntegerFormatting.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEIntegerFormatting.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaInteger : public qcaobject::QCaObject {
+class QEPLUGINLIBRARYSHARED_EXPORT QEInteger : public qcaobject::QCaObject {
     Q_OBJECT
 
   public:
-    QCaInteger( QString recordName, QObject *eventObject, QCaIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn );
-    QCaInteger( QString recordName, QObject *eventObject, QCaIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
+    QEInteger( QString recordName, QObject *eventObject, QEIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn );
+    QEInteger( QString recordName, QObject *eventObject, QEIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
     void integerConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
@@ -49,8 +49,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaInteger : public qcaobject::QCaObject {
     void writeInteger( const long &data );
 
   private:
-    void initialise( QCaIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn );
-    QCaIntegerFormatting *integerFormat;
+    void initialise( QEIntegerFormatting *integerFormattingIn, unsigned int variableIndexIn );
+    QEIntegerFormatting *integerFormat;
     unsigned int variableIndex;
 
   private slots:
@@ -58,4 +58,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaInteger : public qcaobject::QCaObject {
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
-#endif // QCAINTEGER_H
+#endif // QEINTEGER_H

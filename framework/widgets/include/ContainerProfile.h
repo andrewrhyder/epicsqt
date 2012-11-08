@@ -29,9 +29,9 @@
 #include <QMutex>
 #include <QList>
 #include <QDebug>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
-class QCaWidget;
+class QEWidget;
 class ContainerProfile;
 
 // Define the user levels
@@ -103,23 +103,23 @@ private:
     ContainerProfile* owner;                                // ContainerProfile class that this instance is a part of
 };
 
-// Class to allow construction of a QCa widget list
-// The class simply holds a reference to a class based on a QCaWidget
+// Class to allow construction of a QE widgets list
+// The class simply holds a reference to a class based on a QEWidget
 // Usage QList<WidgetRef> myWidgetList
 class WidgetRef
 {
     public:
-        WidgetRef( QCaWidget* refIn ) { ref = refIn; }
+        WidgetRef( QEWidget* refIn ) { ref = refIn; }
         ~WidgetRef() {}
-        QCaWidget* getRef() { return ref; }
+        QEWidget* getRef() { return ref; }
 
     private:
-        QCaWidget* ref;
+        QEWidget* ref;
 };
 
-// Class to provide a communication mechanism from the code creating QCa widgets to the QCa widgets.
+// Class to provide a communication mechanism from the code creating QE widgetss to the QE widgetss.
 // See ContainerProfile.cpp for details
-class QCAPLUGINLIBRARYSHARED_EXPORT ContainerProfile
+class QEPLUGINLIBRARYSHARED_EXPORT ContainerProfile
 {
 public:
     ContainerProfile();    // Construction. Sets up local copies of any profile defined by setupProfile() in an earlier instance
@@ -129,7 +129,7 @@ public:
     void setupProfile( QObject* guiLaunchConsumerIn,
                        QString pathIn,
                        QString parentPathIn,
-                       QString macroSubstitutionsIn );     // Setup a local and published environmental profile for all QcaWidgets to use on creation
+                       QString macroSubstitutionsIn );     // Setup a local and published environmental profile for all QEWidgets to use on creation
     void setupLocalProfile( QObject* guiLaunchConsumerIn,
                             QString pathIn,
                             QString parentPathIn,
@@ -147,9 +147,9 @@ public:
     QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
     bool isProfileDefined();                  // Returns true if a profile has been setup by setupProfile()
 
-    void addContainedWidget( QCaWidget* containedWidget );    // Adds a reference to the list of QCa widgets created with this profile
-    QCaWidget* getNextContainedWidget();                      // Returns a reference to the next QCa widgets in the list of QCa widgets created with this profile
-    void removeContainedWidget( QCaWidget* containedWidget ); // Remove a reference from the list of QCa widgets created with this profile
+    void addContainedWidget( QEWidget* containedWidget );    // Adds a reference to the list of QE widgetss created with this profile
+    QEWidget* getNextContainedWidget();                      // Returns a reference to the next QE widgetss in the list of QE widgetss created with this profile
+    void removeContainedWidget( QEWidget* containedWidget ); // Remove a reference from the list of QE widgetss created with this profile
 
     unsigned int getMessageFormId();                    // Get the local copy of the message form ID
     unsigned int getPublishedMessageFormId();           // Get the currently published message form ID
@@ -162,13 +162,13 @@ public:
     void setUserLevel( userLevels level );              // Set the current user level
     userLevels getUserLevel();                          // Return the current user level
 
-    virtual void userLevelChanged( userLevels ){}       // Virtual function implemented by widgets based on QCaWidget to allow them to be notified of changes in user level
+    virtual void userLevelChanged( userLevels ){}       // Virtual function implemented by widgets based on QEWidget to allow them to be notified of changes in user level
 
 private:
     void publishProfile( QObject* guiLaunchConsumerIn,
                          QString pathIn,
                          QString publishedParentPathIn,
-                         QString macroSubstitutionsIn );// Publish an environmental profile for all QcaWidgets to use on creation
+                         QString macroSubstitutionsIn );// Publish an environmental profile for all QEWidgets to use on creation
 
     static QObject* publishedGuiLaunchConsumer;         // Object to send GUI launch requests to
     static QString publishedPath;                       // Path used for file operations (scope: application wide)
@@ -176,9 +176,9 @@ private:
     static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
     static unsigned int publishedMessageFormId;         // Current form ID. Used to group forms with their widgets for messaging
 
-    static QList<WidgetRef> containedWidgets;           // List of QCa widgets created with this profile
+    static QList<WidgetRef> containedWidgets;           // List of QE widgetss created with this profile
 
-    static userLevelSignal userSignal;                  // Current user level signal object. One instance to signal all QCa Widgets
+    static userLevelSignal userSignal;                  // Current user level signal object. One instance to signal all QE Widgets
     userLevelSlot userSlot;                             // Current user level slot object. An instance per ContainerProfile to recieve level changes
 
     static bool profileDefined;                         // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()

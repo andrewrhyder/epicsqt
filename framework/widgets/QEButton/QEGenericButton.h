@@ -25,17 +25,17 @@
 #ifndef QEGENERICBUTTON_H
 #define QEGENERICBUTTON_H
 
-#include <QCaWidget.h>
+#include <QEWidget.h>
 #include <QEForm.h>
-#include <QCaString.h>
-#include <QCaStringFormatting.h>
+#include <QEString.h>
+#include <QEStringFormatting.h>
 #include <managePixmaps.h>
-#include <QCaStringFormattingMethods.h>
+#include <QEStringFormattingMethods.h>
 
 // Maximum number of variables.
 #define QEGENERICBUTTON_NUM_VARIABLES 2
 
-class QEGenericButton : public QCaWidget, public managePixmaps, public QCaStringFormattingMethods {
+class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFormattingMethods {
 
   public:
     QEGenericButton( QWidget *owner );

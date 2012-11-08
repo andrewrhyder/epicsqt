@@ -29,7 +29,7 @@
 // ============================================================
 //  QERECIPE METHODS
 // ============================================================
-QERecipe::QERecipe(QWidget *pParent):QWidget(pParent), QCaWidget(this)
+QERecipe::QERecipe(QWidget *pParent):QWidget(pParent), QEWidget(this)
 {
 
     qLabelRecipeDescription = new QLabel(this);

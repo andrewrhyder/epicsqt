@@ -22,33 +22,33 @@
  *    anthony.owen@gmail.com
  */
 
-#ifndef QCAWIDGET_H
-#define QCAWIDGET_H
+#ifndef QEWIDGET_H
+#define QEWIDGET_H
 
 #include <QObject>
 #include <QCaObject.h>
 #include <VariableNameManager.h>
 #include <UserMessage.h>
 #include <ContainerProfile.h>
-#include <QCaToolTip.h>
-#include <QCaPluginLibrary_global.h>
-#include <QCaDragDrop.h>
+#include <QEToolTip.h>
+#include <QEPluginLibrary_global.h>
+#include <QEDragDrop.h>
 #include <styleManager.h>
 #include <contextMenu.h>
 #include <standardProperties.h>
 
-class QCaWidget : public VariableNameManager,
-                                                public QCaToolTip,
+class QEWidget : public VariableNameManager,
+                                                public QEToolTip,
                                                 public ContainerProfile,
-                                                public QCaDragDrop,
+                                                public QEDragDrop,
                                                 public styleManager,
                                                 public UserMessage,
                                                 public contextMenu,
                                                 public standardProperties
 {
 public:
-    QCaWidget( QWidget* ownerIn );          // Constructor
-    virtual ~QCaWidget();                   // Destructor
+    QEWidget( QWidget* ownerIn );          // Constructor
+    virtual ~QEWidget();                   // Destructor
     void activate();                        // Initiate updates.
 
     unsigned int getMessageSourceId(){ return getSourceId(); }
@@ -83,8 +83,8 @@ protected:
 
 private:
     void deleteQcaItem( unsigned int variableIndex );       // Delete a stream of CA updates
-    unsigned int numVariables;              // The number of process variables that will be managed for the QCa widget.
-    qcaobject::QCaObject** qcaItem;          // CA access - provides a stream of updates. One for each variable name used by the QCa widget
+    unsigned int numVariables;              // The number of process variables that will be managed for the QE widgets.
+    qcaobject::QCaObject** qcaItem;          // CA access - provides a stream of updates. One for each variable name used by the QE widgets
 
     void userLevelChanged( userLevels level );
     void setToolTipFromVariableNames();
@@ -93,4 +93,4 @@ public:
     static bool inDesigner();
 };
 
-#endif // QCAWIDGET_H
+#endif // QEWIDGET_H

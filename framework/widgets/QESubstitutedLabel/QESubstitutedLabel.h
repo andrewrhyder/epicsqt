@@ -24,12 +24,12 @@
 
 /*
   This class is based on the Qt label widget. It is NOT a CA aware widget.
-  It does, however, use the QCaWidget and its VariableNameManager base class to manage substituting
+  It does, however, use the QEWidget and its VariableNameManager base class to manage substituting
   the label's text in the same way most other widgets manage substitutions in variable names.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details, but watch
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details, but watch
   out for references to varable names when it is actually just talking about the text that will be
   displayed in the QLabel widget.
-  This widget is required to implement some virtual functions required by QCaWidget for
+  This widget is required to implement some virtual functions required by QEWidget for
   managing data connections. These functions are just stubs.
  */
 
@@ -38,11 +38,11 @@
 #define QESUBSTITUTEDLABEL_H
 
 #include <QLabel>
-#include <QCaWidget.h>
+#include <QEWidget.h>
 #include <QCaVariableNamePropertyManager.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabel : public QLabel, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabel : public QLabel, public QEWidget {
     Q_OBJECT
 
   public:

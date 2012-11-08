@@ -26,14 +26,14 @@
 #define QECOMBOBOX_H
 
 #include <QComboBox>
-#include <QCaWidget.h>
-#include <QCaInteger.h>
-#include <QCaIntegerFormatting.h>
+#include <QEWidget.h>
+#include <QEInteger.h>
+#include <QEIntegerFormatting.h>
 #include <QCaConnectionInfo.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEComboBox : public QComboBox, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEComboBox : public QComboBox, public QEWidget {
     Q_OBJECT
 
   public:
@@ -54,7 +54,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEComboBox : public QComboBox, public QCaWid
 
 
   protected:
-    QCaIntegerFormatting integerFormatting;
+    QEIntegerFormatting integerFormatting;
     bool useDbEnumerations;
     bool writeOnChange;                     // Write changed value to database when user changes a value
 

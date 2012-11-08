@@ -63,17 +63,17 @@
 #include <QWidget>
 
 #include <QCaAlarmInfo.h>
-#include <QCaDragDrop.h>
+#include <QEDragDrop.h>
 #include <QCaObject.h>
-#include <QCaPluginLibrary_global.h>
-#include <QCaString.h>
-#include <QCaStringFormatting.h>
+#include <QEPluginLibrary_global.h>
+#include <QEString.h>
+#include <QEStringFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
-#include <QCaWidget.h>
+#include <QEWidget.h>
 
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEPvProperties : public QFrame,
-                                                     public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEPvProperties : public QFrame,
+                                                     public QEWidget {
    Q_OBJECT
 
     //=================================================================================
@@ -195,7 +195,7 @@ public:
 
 private:
    QCAALARMINFO_SEVERITY lastSeverity;
-   QCaStringFormatting stringFormatting;
+   QEStringFormatting stringFormatting;
    bool isFirstUpdate;
    int valFieldIndex;
 
@@ -210,8 +210,8 @@ private:
    struct WidgetHolder ownWidgets;
 
    QString recordBaseName;
-   QCaStringFormatting fieldStringFormatting;
-   QList<QCaString *> fieldChannels;
+   QEStringFormatting fieldStringFormatting;
+   QList<QEString *> fieldChannels;
 
    // common constructor function.
    void common_setup ();
@@ -249,7 +249,7 @@ signals:
    void setCurrentBoxIndex (int index);
 
 protected:
-   // Override QCaObject/QCaWidget functions.
+   // Override QCaObject/QEWidget functions.
    //
    void setup();
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
@@ -268,7 +268,7 @@ protected:
    void paste( QVariant s );
 
 
-   // Override QCaDragDrop functions.
+   // Override QEDragDrop functions.
    //
    void setDrop (QVariant drop);
    QVariant getDrop ();

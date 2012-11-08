@@ -28,10 +28,10 @@
 #include <QObject>
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 // ASgui form Plugin for Qt Designer.
-class QCAPLUGINLIBRARYSHARED_EXPORT ASguiFormPluginManager : public QObject, public QDesignerCustomWidgetInterface {
+class QEPLUGINLIBRARYSHARED_EXPORT ASguiFormPluginManager : public QObject, public QDesignerCustomWidgetInterface {
      Q_OBJECT
      Q_INTERFACES(QDesignerCustomWidgetInterface)
 

@@ -22,16 +22,16 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCATOOLTIP_H
-#define QCATOOLTIP_H
+#ifndef QEToolTip_H
+#define QEToolTip_H
 
-#include <QCaString.h>
+#include <QEString.h>
 
-class QCaToolTip
+class QEToolTip
 {
     public:
-        QCaToolTip();
-        virtual ~QCaToolTip(){}
+        QEToolTip();
+        virtual ~QEToolTip(){}
         void updateToolTipVariable ( const QString& variable );
         void updateToolTipAlarm ( const QString& alarm );
         void updateToolTipConnection ( bool connection );
@@ -44,4 +44,4 @@ class QCaToolTip
         bool isConnected;
 };
 
-#endif // QCATOOLTIP_H
+#endif // QEToolTip_H

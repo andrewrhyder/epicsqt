@@ -26,7 +26,7 @@
 #define UserMessage_H
 
 #include <QObject>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 #include <QtDebug>
 
 enum message_types {MESSAGE_TYPE_INFO, MESSAGE_TYPE_WARNING, MESSAGE_TYPE_ERROR };
@@ -88,8 +88,8 @@ private:
     UserMessage* owner;                                         // UserMessage class that this instance is a part of
 };
 
-// !!! No need to export this once it is within the QCaWidget core class???
-class QCAPLUGINLIBRARYSHARED_EXPORT UserMessage
+// !!! No need to export this once it is within the QEWidget core class???
+class QEPLUGINLIBRARYSHARED_EXPORT UserMessage
 {
 public:
     friend class UserMessageSlot;

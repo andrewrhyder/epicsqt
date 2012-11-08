@@ -29,11 +29,11 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QCaWidget.h>
-#include <QCaFloating.h>
-#include <QCaFloatingFormatting.h>
+#include <QEWidget.h>
+#include <QEFloating.h>
+#include <QEFloatingFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 #define NUM_ELEMENTS 118
 
@@ -72,7 +72,7 @@ public:
     QString elementText;    // User text associated with element (emitted on element change)
 };
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEPeriodic : public QFrame, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEPeriodic : public QFrame, public QEWidget {
     Q_OBJECT
 
   public:
@@ -160,7 +160,7 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QEPeriodic : public QFrame, public QCaWidget
     void requestResend();
 
   protected:
-    QCaFloatingFormatting floatingFormatting;
+    QEFloatingFormatting floatingFormatting;
     bool localEnabled;
     bool allowDrop;
 

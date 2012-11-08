@@ -55,7 +55,7 @@ private:
     QString variableNameProperty;
     QString substitutionsProperty;
 
-    unsigned int variableIndex;     // Index into the list of variable names maintained by a QCa widget
+    unsigned int variableIndex;     // Index into the list of variable names maintained by a QE widgets
     bool interactive;   // If set, there is a user typing new variable names and macro substitutions. Use timers to wait for typing to finish.
 };
 

@@ -24,7 +24,7 @@
 
 /*
   This class is a CA aware slider widget based on the Qt slider widget.
-  It is tighly integrated with the base class QCaWidget. Refer to QCaWidget.cpp for details
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
 #include <QESlider.h>
@@ -32,14 +32,14 @@
 /*
     Constructor with no initialisation
 */
-QESlider::QESlider( QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
+QESlider::QESlider( QWidget *parent ) : QSlider( parent ), QEWidget( this ) {
     setup();
 }
 
 /*
     Constructor with known variable
 */
-QESlider::QESlider( const QString &variableNameIn, QWidget *parent ) : QSlider( parent ), QCaWidget( this ) {
+QESlider::QESlider( const QString &variableNameIn, QWidget *parent ) : QSlider( parent ), QEWidget( this ) {
 
     setup();
     setVariableName( variableNameIn, 0 );
@@ -78,13 +78,13 @@ void QESlider::setup() {
 }
 
 /*
-    Implementation of QCaWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
     For a slider a QCaObject that streams integers is required.
 */
 qcaobject::QCaObject* QESlider::createQcaItem( unsigned int variableIndex ) {
 
-    // Create the item as a QCaFloating
-    return new QCaFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
+    // Create the item as a QEFloating
+    return new QEFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 }
 
 /*
@@ -109,7 +109,7 @@ void QESlider::establishConnection( unsigned int variableIndex ) {
 }
 
 /*
-    Update the tool tip as requested by QCaToolTip.
+    Update the tool tip as requested by QEToolTip.
 */
 void QESlider::updateToolTip ( const QString & toolTip ) {
     setToolTip( toolTip );
@@ -150,7 +150,7 @@ void QESlider::connectionChanged( QCaConnectionInfo& connectionInfo )
     // variable when it is time to do a write.
     if( connectionInfo.isChannelConnected() && !subscribe )
     {
-        QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+        QEFloating* qca = (QEFloating*)getQcaItem(0);
         qca->singleShotRead();
         ignoreSingleShotRead = true;
     }
@@ -207,7 +207,7 @@ void QESlider::userValueChanged( const int &value) {
     }
 
     // Get the variable to write to
-    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+    QEFloating* qca = (QEFloating*)getQcaItem(0);
 
     /* If a QCa object is present (if there is a variable to write to)
      * then write the value
@@ -238,7 +238,7 @@ void QESlider::userValueChanged( const int &value) {
 void QESlider::writeNow()
 {
     // Get the variable to write to
-    QCaFloating* qca = (QCaFloating*)getQcaItem(0);
+    QEFloating* qca = (QEFloating*)getQcaItem(0);
 
     // If a QCa object is present (if there is a variable to write to)
     // then write the value

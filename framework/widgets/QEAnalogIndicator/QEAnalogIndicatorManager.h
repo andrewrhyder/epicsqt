@@ -27,12 +27,12 @@
 #define QEANALOGINDICATORMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 /*
     ???
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogIndicatorManager : 
+class QEPLUGINLIBRARYSHARED_EXPORT QEAnalogIndicatorManager : 
       public QObject, public QDesignerCustomWidgetInterface
 {
      Q_OBJECT

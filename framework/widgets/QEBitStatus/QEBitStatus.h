@@ -27,13 +27,13 @@
 
 #include <QString>
 #include <QBitStatus.h>
-#include <QCaWidget.h>
-#include <QCaInteger.h>
-#include <QCaIntegerFormatting.h>
+#include <QEWidget.h>
+#include <QEInteger.h>
+#include <QEIntegerFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEBitStatus : public QBitStatus, public QCaWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEBitStatus : public QBitStatus, public QEWidget {
    Q_OBJECT
 
 // #ifdef PLUGIN_APP
@@ -168,7 +168,7 @@ public:
                                          unsigned int variableIndex);
 
 protected:
-   QCaIntegerFormatting integerFormatting;
+   QEIntegerFormatting integerFormatting;
 
    void establishConnection (unsigned int variableIndex);
 

@@ -22,21 +22,21 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-// Provides textual formatting for QCaInteger data.
+// Provides textual formatting for QEInteger data.
 
-#ifndef QCAINTEGERFORMATTING_H
-#define QCAINTEGERFORMATTING_H
+#ifndef QEINTEGERFORMATTING_H
+#define QEINTEGERFORMATTING_H
 
 #include <QString>
 #include <QVariant>
 #include <Generic.h>
 
-class QCaIntegerFormatting {
+class QEIntegerFormatting {
 
 public:
 
     // Construction
-    QCaIntegerFormatting();
+    QEIntegerFormatting();
 
     //===============================================
     // Main functions of this class:
@@ -72,4 +72,4 @@ public:
     int radix; // Positional base system to display data.
 };
 
-#endif // QCAINTEGERFORMATTING_H
+#endif // QEINTEGERFORMATTING_H

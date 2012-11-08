@@ -29,7 +29,7 @@
 // ============================================================
 //  QELOGIN METHODS
 // ============================================================
-QELogin::QELogin(QWidget *pParent):QWidget(pParent), QCaWidget( this )
+QELogin::QELogin(QWidget *pParent):QWidget(pParent), QEWidget( this )
 {
 
     qLabelUserType = new QLabel(this);

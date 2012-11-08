@@ -26,12 +26,12 @@
 #define QESTRIPCHARTMANAGER_H
 
 #include <QDesignerCustomWidgetInterface>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
 /*
     ???
 */
-class QCAPLUGINLIBRARYSHARED_EXPORT QEStripChartManager :
+class QEPLUGINLIBRARYSHARED_EXPORT QEStripChartManager :
    public QObject, 
    public QDesignerCustomWidgetInterface 
 {

@@ -41,9 +41,9 @@
 #include <QPainter>
 #include <QPoint>
 #include <QList>
-#include <QCaPluginLibrary_global.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QEAnalogIndicator : public QWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEAnalogIndicator : public QWidget {
     Q_OBJECT
 
 public:

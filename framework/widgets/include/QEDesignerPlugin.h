@@ -22,39 +22,23 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QCADRAGDROP_H
-#define QCADRAGDROP_H
+#ifndef QCADESIGNERPLUGIN_H
+#define QCADESIGNERPLUGIN_H
 
-#include <QtGui>
-#include <QDragEnterEvent>
-#include <QDropEvent>
+#include <QtDesigner/QtDesigner>
 
-class QCaDragDrop {
+class QEWidgets: public QObject, public QDesignerCustomWidgetCollectionInterface {
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
 
-public:
-    QCaDragDrop( QWidget* ownerIn );
-    virtual ~QCaDragDrop(){}
-  protected:
+  public:
+    QEWidgets(QObject *parent = 0);
+    virtual ~QEWidgets(){}
 
-    // Drag and Drop
+    virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
 
-    // Called by the QCa widget in the QCa widget's drag/drop implementation
-    void qcaDragEnterEvent(QDragEnterEvent *event);
-    void qcaDropEvent(QDropEvent *event);
-    void qcaMousePressEvent(QMouseEvent *event);
-
-    // Virtual functions to allow this class to get and set the QCa widgets drag/drop text
-    // They are not defined as pure virtual as the QCa widget does not have to use this class's drag drop.
-    virtual void setDrop( QVariant ) {}
-    virtual QVariant getDrop() { return QVariant(); }
-
-    void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
-
-private:
-    QWidget* owner;
-    bool allowDrop;
-
+  private:
+    QList<QDesignerCustomWidgetInterface*> widgets;
 };
 
-#endif // QCADRAGDROP_H
+#endif // QCADESIGNERPLUGIN_H

@@ -24,21 +24,21 @@
 
 // Floating specific wrapper for QCaObject.
 
-#ifndef QCAFLOATING_H
-#define QCAFLOATING_H
+#ifndef QEFLOATING_H
+#define QEFLOATING_H
 
 #include <QtDebug>
 #include <QVariant>
 #include <QCaObject.h>
-#include <QCaFloatingFormatting.h>
-#include <QCaPluginLibrary_global.h>
+#include <QEFloatingFormatting.h>
+#include <QEPluginLibrary_global.h>
 
-class QCAPLUGINLIBRARYSHARED_EXPORT QCaFloating : public qcaobject::QCaObject {
+class QEPLUGINLIBRARYSHARED_EXPORT QEFloating : public qcaobject::QCaObject {
     Q_OBJECT
 
   public:
-    QCaFloating( QString recordName, QObject *eventObject, QCaFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn );
-    QCaFloating( QString recordName, QObject *eventObject, QCaFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
+    QEFloating( QString recordName, QObject *eventObject, QEFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn );
+    QEFloating( QString recordName, QObject *eventObject, QEFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
 
   signals:
     void floatingConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );
@@ -49,8 +49,8 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFloating : public qcaobject::QCaObject {
     void writeFloating( const double &data );
 
   private:
-    void initialise( QCaFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn );
-    QCaFloatingFormatting *floatingFormat;
+    void initialise( QEFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn );
+    QEFloatingFormatting *floatingFormat;
     unsigned int variableIndex;
 
   private slots:
@@ -58,4 +58,4 @@ class QCAPLUGINLIBRARYSHARED_EXPORT QCaFloating : public qcaobject::QCaObject {
     void forwardConnectionChanged( QCaConnectionInfo& connectionInfo);
 };
 
-#endif // QCAFLOATING_H
+#endif // QEFLOATING_H

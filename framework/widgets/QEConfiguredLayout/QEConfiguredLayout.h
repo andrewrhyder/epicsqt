@@ -88,7 +88,7 @@ class _Field
     public:
         _Field();
 
-        QCaWidget *getWidget();
+        QEWidget *getWidget();
         void setWidget(QString *pValue);
 
         QString getName();
@@ -115,7 +115,7 @@ class _Field
         bool getVisibility();
         void setVisibility(bool pValue);
 
-        QCaWidget *qCaWidget;  // TODO: this attribute should be private
+        QEWidget *qCaWidget;  // TODO: this attribute should be private
 
 };
 
@@ -222,7 +222,7 @@ class _QDialogItem:public QDialog
 // ============================================================
 //  QECONFIGUREDLAYOUT CLASS
 // ============================================================
-class QCAPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QCaWidget
+class QEPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QEWidget
 {
 
     Q_OBJECT

@@ -24,7 +24,7 @@
 
 /* Description:
  *
- * When QCaWidgets are used within 'designer' they need to request CA data whenever a
+ * When QEWidgets are used within 'designer' they need to request CA data whenever a
  * variable name or macro substitution changes.
  * This may be when a user is typing into the variable name or macro substitution fields.
  * In these cases the appropriate 'set property' function is called with every key stoke
@@ -34,7 +34,7 @@
  * The result is a user can type a variable name, and once they stop typing the data for the completed
  * variable name is requested.
  *
- * NOTE, if the QCa widget plugin has been loaded by an application other than 'designer', such as a gui application,
+ * NOTE, if the QE widgets plugin has been loaded by an application other than 'designer', such as a gui application,
  * then the properties will all be set once by the UI file loader. In this case data should be requested
  * once all properties have been set. As there is no way to know within a single 'properties set' function
  * if there are more 'property set' functions still to be called by the UI loader, a request for data should be
@@ -52,7 +52,7 @@
 
 #include <QCaVariableNamePropertyManager.h>
 #include <QDebug>
-#include <QCaWidget.h>
+#include <QEWidget.h>
 
 #define WAIT_FOR_TYPING_TO_FINISH 1000  // One Second
 
@@ -65,7 +65,7 @@ QCaVariableNamePropertyManager::QCaVariableNamePropertyManager() {
     // so flag the variable name and substitutions are not being modified interactively.
     // If a user is not modifying the variable name or macro substitutions there is no need for
     // the variable name property name manager to wait for a user to finish typing before using a variable name.
-    interactive = QCaWidget::inDesigner();
+    interactive = QEWidget::inDesigner();
 
     // Setup a timer so rapid changes to the variable name property are ignored.
     // Only after the user has stopped typing for a while will the entry be used.

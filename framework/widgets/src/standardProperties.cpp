@@ -23,8 +23,8 @@
  */
 
 /*
-  This class adds common property support to all QCa widgets where the support involves interaction with the QWidget.
-  Any common property support that requires a greater scope than the QWidget is managed in QCaWidget.
+  This class adds common property support to all QE widgetss where the support involves interaction with the QWidget.
+  Any common property support that requires a greater scope than the QWidget is managed in QEWidget.
 */
 
 #include <standardProperties.h>
@@ -35,7 +35,7 @@
 // Construction.
 standardProperties::standardProperties( QWidget* ownerIn )
 {
-    // Keep a handle on the underlying QWidget of the QCa widget
+    // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 
     visibilityLevel = USERLEVEL_USER;
