@@ -119,21 +119,21 @@ endif
 	@echo "Packaging framework to '"$(PACKAGE_DIRECTORY)"'..."
 	@mkdir -p $(PACKAGE_DIRECTORY)/lib
 	@cp -r /usr/lib/qt4/plugins $(PACKAGE_DIRECTORY)/lib/.
-	@cp $(FRAMEWORK_DIRECTORY)/applications/ASguiApp/ASgui $(PACKAGE_DIRECTORY)/.
-	@cp $(FRAMEWORK_DIRECTORY)/framework/plugins/libQCaPlugin.so $(PACKAGE_DIRECTORY)/lib/.
+        @cp $(FRAMEWORK_DIRECTORY)/applications/QEGuiApp/QEGui $(PACKAGE_DIRECTORY)/.
+        @cp $(FRAMEWORK_DIRECTORY)/framework/designer/libQEPlugin.so $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libca.so* $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libCom.so* $(PACKAGE_DIRECTORY)/lib/.
-	@cd $(PACKAGE_DIRECTORY)/lib/plugins/designer ; ln -s -f ../../libQCaPlugin.so
-	@chmod u+x $(PACKAGE_DIRECTORY)/ASgui
+        @cd $(PACKAGE_DIRECTORY)/lib/plugins/designer ; ln -s -f ../../libQEPlugin.so
+        @chmod u+x $(PACKAGE_DIRECTORY)/QEGui
 	@echo "#!/bin/bash" > script.tmp
-	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/ASgui | $(GREP) 'libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
+        @echo "`$(LDD) $(PACKAGE_DIRECTORY)/QEGui | $(GREP) 'libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
 	@chmod u+x script.tmp
 	@./script.tmp
 	@rm -f script.tmp
 	@echo "#!/bin/bash" > $(PACKAGE_DIRECTORY)/execute
 	@echo "export LD_LIBRARY_PATH=\$$LD_LIBRARY_PATH:./lib:./lib/plugins/designer/" >> $(PACKAGE_DIRECTORY)/execute
 	@echo "export QT_PLUGIN_PATH=./lib/plugins" >> $(PACKAGE_DIRECTORY)/execute
-	@echo "./ASgui -m \$$1" >> $(PACKAGE_DIRECTORY)/execute
+        @echo "./QEGui -m \$$1" >> $(PACKAGE_DIRECTORY)/execute
 	@chmod u+x $(PACKAGE_DIRECTORY)/execute
 	@echo "Please note that a file called 'execute' (located in '"$(PACKAGE_DIRECTORY)"') was created in order to facilitate the launching of ui files. To use it, do the following in a terminal: ./execute XXX (where XXX is the ui file to be launched)."
 	@echo "...done packaging framework!"
