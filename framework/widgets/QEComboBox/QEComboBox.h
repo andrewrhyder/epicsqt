@@ -69,11 +69,14 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEComboBox : public QComboBox, public QEWidge
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
-  public slots:
-    void writeNow();
-
 signals:
+    // Note, the following signals are common to many QE widgets,
+    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
+    /// Sent when the widget is updated following a data change
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged( const qlonglong& out );
+    /// Internal use only. Used by QEConfiguredLayout to be notified when one of its widgets has written something
     void userChange( const QString& oldValue, const QString& newValue, const QString& lastValue );    // Signal a user attempt to change a value. Values are strings as the user sees them
 
   private:
@@ -88,6 +91,8 @@ signals:
     QString lastUserValue;
 
     bool ignoreSingleShotRead;
+
+    void writeNow();
 
     // Drag and Drop
 protected:
@@ -123,8 +128,19 @@ private:
 public:
     //=================================================================================
 
+    //=================================================================================
+    // Control widget properties
+    // These properties should be similar for all widgets with control functionality (writing to variables, not just displaying).
+    // WHEN MAKING CHANGES: search for CONTROLVARIABLEPROPERTIES and change all relevent occurances.
+public:
+    /// Sets if this widget subscribes for data updates and displays current data.
+    /// Default is 'true' (subscribes for and displays data updates)
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+    /// Sets if this widget writes any changes as the user selects values (the QComboBox 'activated' signal is emitted).
+    /// Default is 'true' (writes any changes when the QComboBox 'activated' signal is emitted).
     Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange)
+public:
+    //=================================================================================
 
     //=================================================================================
     // Standard properties

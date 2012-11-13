@@ -194,6 +194,11 @@ private slots:
    }
 
 signals:
+   // Note, the following signals are common to many QE widgets,
+   // if changing the doxygen comments, ensure relevent changes are migrated to all instances
+   /// Sent when the widget is updated following a data change
+   /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+   /// For example a QList widget could log updates from this widget.
    void dbValueChanged (const long &out);
 
 protected:

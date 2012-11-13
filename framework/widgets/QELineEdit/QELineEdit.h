@@ -65,7 +65,30 @@ private:
 public:
     //=================================================================================
 
-      Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+    //=================================================================================
+    // Control widget properties
+    // These properties should be similar for all widgets with control functionality (writing to variables, not just displaying).
+    // WHEN MAKING CHANGES: search for CONTROLVARIABLEPROPERTIES and change all relevent occurances.
+public:
+    /// Sets if this widget subscribes for data updates and displays current data.
+    /// Default is 'true' (subscribes for and displays data updates)
+    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+    /// Sets if this widget automatically writes any changes when it loses focus.
+    /// Default is 'false' (does not write any changes when it loses focus).
+    Q_PROPERTY(bool writeOnLoseFocus READ getWriteOnLoseFocus WRITE setWriteOnLoseFocus)
+    /// Sets if this widget writes any changes when the user presses 'enter'.
+    /// Note, the current value will be written even if the user has not changed it.
+    /// Default is 'true' (writes any changes when the user presses 'enter').
+    Q_PROPERTY(bool writeOnEnter READ getWriteOnEnter WRITE setWriteOnEnter)
+    /// Sets if this widget writes any changes when the user finished editing (the QLineEdit 'editingFinished' signal is emitted).
+    /// No writing occurs if no changes were made.
+    /// Default is 'true' (writes any changes when the QLineEdit 'editingFinished' signal is emitted).
+    Q_PROPERTY(bool writeOnFinish READ getWriteOnFinish WRITE setWriteOnFinish)
+    /// Sets if this widget will ask for confirmation (using a dialog box) prior to writing data.
+    /// Default is 'false' (will not ask for confirmation (using a dialog box) prior to writing data).
+    Q_PROPERTY(bool confirmWrite READ getConfirmWrite WRITE setConfirmWrite)
+public:
+    //=================================================================================
 
     //=================================================================================
     // Standard properties
@@ -237,40 +260,61 @@ public:
 public:
     //=================================================================================
 
-    // widget specific properties
-    //
-    Q_PROPERTY(bool writeOnLoseFocus READ getWriteOnLoseFocus WRITE setWriteOnLoseFocus)
-    Q_PROPERTY(bool writeOnEnter READ getWriteOnEnter WRITE setWriteOnEnter)
-    Q_PROPERTY(bool writeOnFinish READ getWriteOnFinish WRITE setWriteOnFinish)
-    Q_PROPERTY(bool confirmWrite READ getConfirmWrite WRITE setConfirmWrite)
-
 public:
+    /// Create without a variable.
+    /// Use setVariableNameProperty() and setSubstitutionsProperty() to define a variable and, optionally, macro substitutions later.
     QELineEdit( QWidget *parent = 0 );
+
+    /// Create with a variable.
+    /// A connection is automatically established.
+    /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
     QELineEdit( const QString &variableName, QWidget *parent = 0 );
 
     // Property convenience functions
 
     // write on lose focus
+    /// Sets if this widget automatically writes any changes when it loses focus.
+    /// Default is 'false' (does not write any changes when it loses focus).
     void setWriteOnLoseFocus( bool writeOnLoseFocus );
+    /// Returns 'true' if this widget automatically writes any changes when it loses focus.
+    ///
     bool getWriteOnLoseFocus();
 
     // write on enter
+    /// Sets if this widget writes any changes when the user presses 'enter'.
+    /// Note, the current value will be written even if the user has not changed it.
+    /// Default is 'true' (writes any changes when the user presses 'enter').
     void setWriteOnEnter( bool writeOnEnter );
+    /// Returns 'true' if this widget writes any changes when the user presses 'enter'.
+    ///
     bool getWriteOnEnter();
 
     // write on finish
+    /// Sets if this widget writes any changes when the user finished editing (the QLineEdit 'editingFinished' signal is emitted).
+    /// No writing occurs if no changes were made.
+    /// Default is 'true' (writes any changes when the QLineEdit 'editingFinished' signal is emitted).
     void setWriteOnFinish( bool writeOnFinish );
+    /// Returns 'true' if this widget writes any changes when the user finished editing (the QLineEdit 'editingFinished' signal is emitted).
+    ///
     bool getWriteOnFinish();
 
-    // subscribe
-    void setSubscribe( bool subscribe );
-    bool getSubscribe();
-
     // confirm write
+    /// Sets if this widget will ask for confirmation (using a dialog box) prior to writing data.
+    /// Default is 'false' (will not ask for confirmation (using a dialog box) prior to writing data).
     void setConfirmWrite( bool confirmWrite );
+    /// Returns 'true' if this widget will ask for confirmation (using a dialog box) prior to writing data.
+    ///
     bool getConfirmWrite();
 
-protected:
+    // subscribe
+    /// Sets if this widget subscribes for data updates and displays current data.
+    /// Default is 'true' (subscribes for and displays data updates)
+    void setSubscribe( bool subscribe );
+    /// Returns 'true' if this widget subscribes for data updates and displays current data.
+    ///
+    bool getSubscribe();
+
+private:
     bool writeOnLoseFocus;        // Write changed value to database when widget object loses focus (user moves from widget)
     bool writeOnEnter;            // Write changed value to database when enter is pressed with focus on the widget
     bool writeOnFinish;           // Write changed value to database when user finishes editing (leaves a widget)
@@ -287,12 +331,16 @@ private slots:
     void userReturnPressed();                       // Act on the user pressing return in the widget
     void userEditingFinished();                     // Act on the user signaling text editing is complete (pressing return)
 
-public slots:
-    void writeNow();
-
 signals:
+    // Note, the following signals are common to many QE widgets,
+    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
+    /// Sent when the widget is updated following a data change
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged( const QString& out );
+    /// Internal use only. Used by QEConfiguredLayout to be notified when one of its widgets has written something
     void userChange( const QString& oldValue, const QString& newValue, const QString& lastValue );    // Signal a user attempt to change a value. Values are strings as the user sees them
+    /// Internal use only. Used when changing a property value to force a re-display to reflect the new property value.
     void requestResend();
 
 private:
@@ -308,8 +356,10 @@ private:
 
     void stringFormattingChange(){ requestResend(); }
 
+    void writeNow();
+
     // Drag and Drop
-protected:
+private:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }

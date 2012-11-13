@@ -39,7 +39,7 @@
   When a variable is defined, the label text (or optionally the background pixmap) will be updated. The label will be disabled if the variable is invalid.
   It is tighly integrated with the base class QEWidget which provides generic support such as macro substitutions, drag/drop, and standard properties.
  */
-class QEPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QEWidget, private managePixmaps, protected QEStringFormattingMethods {
+class QEPLUGINLIBRARYSHARED_EXPORT QELabel : public QLabel, public QEWidget, private managePixmaps, public QEStringFormattingMethods {
     Q_OBJECT
 
   public:
@@ -76,11 +76,13 @@ private slots:
     }
 
   signals:
-    /// Signal a data update has occured and supply the new formatted text.
-    /// Note, the formatted text is still signaled even when it is being used to select a pixmap for the label.
+    // Note, the following signals are common to many QE widgets,
+    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
+    /// Sent when the widget is updated following a data change
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged( const QString& out );
-
-    /// Internal use only - Used when a property changes to force a redisplay of the current data.
+    /// Internal use only. Used when changing a property value to force a re-display to reflect the new property value.
     void requestResend();
 
   private:

@@ -58,11 +58,17 @@ public slots:
 
 
   signals:
+    // Note, the following signals are common to many QE widgets,
+    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
+    /// Sent when the widget is updated following a data change
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged( const QString& out );
-
-    void newGui( QString guiName, QEForm::creationOptions creationOption );
-
+    /// Internal use only. Used when changing a property value to force a re-display to reflect the new property value.
     void requestResend();
+
+    /// Internal use only. Request a new GUI is created. Typically, this is caught by the QEGui application.
+    void newGui( QString guiName, QEForm::creationOptions creationOption );
 
   protected:
 
@@ -152,7 +158,16 @@ private slots:
 public:
     //=================================================================================
 
-    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+  //=================================================================================
+  // Control widget properties
+  // These properties should be similar for all widgets with control functionality (writing to variables, not just displaying).
+  // WHEN MAKING CHANGES: search for CONTROLVARIABLEPROPERTIES and change all relevent occurances.
+public:
+  /// Sets if this widget subscribes for data updates and displays current data.
+  /// Default is 'true' (subscribes for and displays data updates)
+  Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+public:
+  //=================================================================================
 
   //=================================================================================
   // Standard properties

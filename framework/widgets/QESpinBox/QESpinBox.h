@@ -76,12 +76,14 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESpinBox : public QDoubleSpinBox, public QEW
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
-
-  public slots:
-    void writeNow();
-
   signals:
+    // Note, the following signals are common to many QE widgets,
+    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
+    /// Sent when the widget is updated following a data change
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged( const double& out );
+    /// Internal use only. Used by QEConfiguredLayout to be notified when one of its widgets has written something
     void userChange( const QString& oldValue, const QString& newValue, const QString& lastValue );    // Signal a user attempt to change a value. Values are strings as the user sees them
 
 private:
@@ -101,6 +103,7 @@ private:
     void setSuffixEgu( qcaobject::QCaObject* qca );
     void setDecimalsFromPrecision( qcaobject::QCaObject* qca );
 
+    void writeNow();
 
 
     // Drag and Drop
@@ -231,8 +234,17 @@ public:
     //=================================================================================
 
 
-    Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange)
+    //=================================================================================
+    // Control widget properties
+    // These properties should be similar for all widgets with control functionality (writing to variables, not just displaying).
+    // WHEN MAKING CHANGES: search for CONTROLVARIABLEPROPERTIES and change all relevent occurances.
+public:
+    /// Sets if this widget subscribes for data updates and displays current data.
+    /// Default is 'true' (subscribes for and displays data updates)
     Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
+public:
+    //=================================================================================
+    Q_PROPERTY(bool writeOnChange READ getWriteOnChange WRITE setWriteOnChange)
 
     // Note, this useDbPrecision property is normally part of the standard 'string properties' set.
     //       The normal get and set methods are QEStringFormatting::getUseDbPrecision() and QEStringFormatting::setUseDbPrecision().

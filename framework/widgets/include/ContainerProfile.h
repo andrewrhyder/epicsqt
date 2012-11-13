@@ -69,6 +69,7 @@ public:
     userLevels getLevel();
 
   signals:
+    /// Internal use only. Send when the user level has changed
     void userChanged( userLevels level );   // User level change signal
 
   private:

@@ -161,11 +161,31 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     }
 
   signals:
+    // Note, the following signals are common to many QE widgets,
+    // if changing the doxygen comments, ensure relevent changes are migrated to all instances
+    /// Sent when the widget is updated following a data change for the first variable
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged1( const qlonglong& out );
+    /// Sent when the widget is updated following a data change for the second variable
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged2( const qlonglong& out );
+    /// Sent when the widget is updated following a data change for the third variable
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged3( const qlonglong& out );
+    /// Sent when the widget is updated following a data change for the fourth variable
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged4( const qlonglong& out );
+    /// Sent when the widget is updated following a data change for the fifth variable
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged5( const qlonglong& out );
+    /// Sent when the widget is updated following a data change for the sixth variable
+    /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
+    /// For example a QList widget could log updates from this widget.
     void dbValueChanged6( const qlonglong& out );
 
   private:

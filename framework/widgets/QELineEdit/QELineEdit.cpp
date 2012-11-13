@@ -274,6 +274,7 @@ void QELineEdit::userEditingFinished() {
 // (widget will never write due to the user pressing return or leaving the widget)
 void QELineEdit::writeNow()
 {
+    qDebug()<<"QELineEdit writeNow";
     // Get the variable to write to
     QEString *qca = (QEString*)getQcaItem(0);
 
