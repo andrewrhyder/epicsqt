@@ -431,7 +431,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
         // Use a single location if an absolute path was specified.
         // Use the following list of locations if a relative path was specified:
         //  - The directory where the parent object (form) was read from (set up in the application profile)
-        //  - The application's path (set up in the application profile) (the -p switch for ASgui)
+        //  - The application's path list (set up in the application profile) (the -p switch for ASgui)
         //  - The current directory
         QStringList searchList;
         if(  QDir::isAbsolutePath( name ) )
@@ -449,10 +449,10 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
                 searchList.append( fileInfo.filePath() );
             }
 
-            QString path = getPath();
-            if( !path.isEmpty() )
+            QStringList pathList = getPathList();
+            for( int i = 0; i < pathList.count(); i++ )
             {
-                fileInfo.setFile( path, name );
+                fileInfo.setFile( pathList[i], name );
                 searchList.append(  fileInfo.filePath() );
             }
 

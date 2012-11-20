@@ -42,7 +42,7 @@ void startupParams::getSharedParams( const QByteArray& in )
 {
     // Initialise parameters
     filename.clear();
-    path.clear();
+    pathList.clear();
     substitutions.clear();
 
     // Extract parameters from a stream of bytes.
@@ -53,7 +53,11 @@ void startupParams::getSharedParams( const QByteArray& in )
     disableMenu   = (bool)(d[len]);    len += 1;
     singleApp     = (bool)(d[len]);    len += 1;
     filename.append( &(d[len]) );      len += filename.size()+1;
-    path.append( &(d[len]) );          len += path.size()+1;
+    int pathCount = d[len];            len += 1;
+    for( int i = 0; i < pathCount; i++ )
+    {
+        pathList.append( &(d[len]) );          len += pathList[i].size()+1;
+    }
     substitutions.append( &(d[len]) ); len += substitutions.size()+1;
 }
 
@@ -68,8 +72,12 @@ void startupParams::setSharedParams( QByteArray& out )
     out[len++] = disableMenu;
     out[len++] = singleApp;
     out.insert( len, filename.toAscii() );       len += filename.size();        out[len++] = '\0';
-    out.insert( len, path.toAscii() );           len += path.size()+1;          out[len++] = '\0';
-    out.insert( len, substitutions.toAscii() );  len += substitutions.size()+1; out[len++] = '\0';
+    out[len++] = pathList.count();
+    for( int i = 0; i < pathList.count(); i++ )
+    {
+        out.insert( len, pathList[i].toAscii() );len += pathList[i].size();   out[len++] = '\0';
+    }
+    out.insert( len, substitutions.toAscii() );  len += substitutions.size(); out[len++] = '\0';
 }
 
 
@@ -118,8 +126,11 @@ void startupParams::getStartupParams( QStringList args )
                 case 'p':
                 case 'P':
                     // Get the path (everthing after the 'p')
-                    path = arg.remove(0,1);
-                    arg.clear();
+                    {
+                        QString pathParam = arg.remove(0,1);
+                        pathList = pathParam.split(QRegExp("\\s+"));
+                        arg.clear();
+                    }
                     break;
 
                 default:

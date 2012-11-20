@@ -28,6 +28,7 @@
 #include <QObject>
 #include <QMutex>
 #include <QList>
+#include <QStringList>
 #include <QDebug>
 #include <QEPluginLibrary_global.h>
 
@@ -128,11 +129,11 @@ public:
     void takeLocalCopy();
 
     void setupProfile( QObject* guiLaunchConsumerIn,
-                       QString pathIn,
+                       QStringList pathListIn,
                        QString parentPathIn,
                        QString macroSubstitutionsIn );     // Setup a local and published environmental profile for all QEWidgets to use on creation
     void setupLocalProfile( QObject* guiLaunchConsumerIn,
-                            QString pathIn,
+                            QStringList pathListIn,
                             QString parentPathIn,
                             QString macroSubstitutionsIn );// Setup the local environmental profile for this instance only
     void updateConsumers( QObject* guiLaunchConsumerIn );  // Update the local and published signal consumer objects
@@ -142,7 +143,8 @@ public:
     void removeMacroSubstitutions();                            // Remove the last set of macro substitutions added by addMacroSubstitutions(). Used after sub forms are created
 
     QObject* getGuiLaunchConsumer();          // Get the local copy of the object that will recieve GUI launch requests
-    QString getPath();                        // Get the local copy of the application path used for file operations
+    QString getPath();                        // Get the local copy of the first entry in the application path list used for file operations
+    QStringList getPathList();                // Get the local copy of the application path list used for file operations
     QString getParentPath();                  // Get the local copy of the current object path used for file operations
     void setPublishedParentPath( QString publishedParentPathIn ); // Set the published current object path used for file operations
     QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
@@ -167,12 +169,12 @@ public:
 
 private:
     void publishProfile( QObject* guiLaunchConsumerIn,
-                         QString pathIn,
+                         QStringList pathListIn,
                          QString publishedParentPathIn,
                          QString macroSubstitutionsIn );// Publish an environmental profile for all QEWidgets to use on creation
 
     static QObject* publishedGuiLaunchConsumer;         // Object to send GUI launch requests to
-    static QString publishedPath;                       // Path used for file operations (scope: application wide)
+    static QStringList publishedPathList;               // Path list used for file operations (scope: application wide)
     static QString publishedParentPath;                 // Path used for file operations (scope: Parent object, if any. This is set up by the application, but is temporarily overwritten and then reset by each level of sub object (sub form)
     static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
     static unsigned int publishedMessageFormId;         // Current form ID. Used to group forms with their widgets for messaging
@@ -185,7 +187,7 @@ private:
     static bool profileDefined;                         // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()
 
     QObject* guiLaunchConsumer;      // Local copy of GUI launch consumer. Still valid after the profile has been released by releaseProfile()
-    QString path;                    // Local copy of application path used for file operations
+    QStringList pathList;            // Local copy of application path list used for file operations
     QString parentPath;              // Local copy of parent object path used for file operations
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
 

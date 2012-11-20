@@ -79,7 +79,9 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
     // Setup a valid local profile if no profile was published
     if( !isProfileDefined() )
     {
-        setupLocalProfile( this, QDir::currentPath(), "", "" );
+        QStringList tempPathList;
+        tempPathList.append( QDir::currentPath() );
+        setupLocalProfile( this, tempPathList, "", "" );
     }
 
     // Prepare to recieve notification that the ui file being displayed has changed

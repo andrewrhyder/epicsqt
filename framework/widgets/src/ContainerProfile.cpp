@@ -84,7 +84,7 @@ QObject* ContainerProfile::publishedGuiLaunchConsumer = NULL;
 
 QList<QString>   ContainerProfile::publishedMacroSubstitutions;
 QList<WidgetRef> ContainerProfile::containedWidgets;
-QString          ContainerProfile::publishedPath;
+QStringList      ContainerProfile::publishedPathList;
 QString          ContainerProfile::publishedParentPath;
 unsigned int     ContainerProfile::publishedMessageFormId;
 
@@ -125,13 +125,13 @@ ContainerProfile::~ContainerProfile()
   called to release the lock once all QE widgetss have been created.
   */
 void ContainerProfile::setupProfile( QObject* guiLaunchConsumerIn,
-                                             QString pathIn,
+                                             QStringList pathListIn,
                                              QString parentPathIn,
                                              QString macroSubstitutionsIn )
 {
     // Publish the profile supplied
     publishProfile(guiLaunchConsumerIn,
-                   pathIn,
+                   pathListIn,
                    parentPathIn,
                    macroSubstitutionsIn );
 
@@ -177,7 +177,7 @@ QObject* ContainerProfile::replaceGuiLaunchConsumer( QObject* newGuiLaunchConsum
   All instances of ContainerProfile will be able to see the published profile.
   */
 void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
-                                       QString pathIn,
+                                       QStringList pathListIn,
                                        QString parentPathIn,
                                        QString macroSubstitutionsIn )
 {
@@ -191,7 +191,7 @@ void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
     // Publish the profile
     publishedGuiLaunchConsumer = guiLaunchConsumerIn;
 
-    publishedPath = pathIn;
+    publishedPathList = pathListIn;
     publishedParentPath = parentPathIn;
 
     publishedMacroSubstitutions.clear();
@@ -217,7 +217,7 @@ void ContainerProfile::takeLocalCopy()
     }
 
     setupLocalProfile( publishedGuiLaunchConsumer,
-                       publishedPath,
+                       publishedPathList,
                        publishedParentPath,
                        subs );
 
@@ -231,9 +231,9 @@ void ContainerProfile::takeLocalCopy()
   The local profile can then be made public if required by calling publishOwnProfile()
   */
 void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
-                                                  QString pathIn,
-                                                  QString parentPathIn,
-                                                  QString macroSubstitutionsIn )
+                                          QStringList pathListIn,
+                                          QString parentPathIn,
+                                          QString macroSubstitutionsIn )
 {
     // Set up the local profile as specified
     guiLaunchConsumer = guiLaunchConsumerIn;
@@ -242,7 +242,7 @@ void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
 
     macroSubstitutions = macroSubstitutionsIn;
 
-    path = pathIn;
+    pathList = pathListIn;
     parentPath = parentPathIn;
 
     messageFormId = 0;
@@ -276,7 +276,7 @@ void ContainerProfile::removeMacroSubstitutions()
 void ContainerProfile::publishOwnProfile()
 {
     publishProfile( guiLaunchConsumer,
-                    path,
+                    pathList,
                     parentPath,
                     macroSubstitutions );
 }
@@ -289,7 +289,7 @@ void ContainerProfile::releaseProfile()
     // Clear the profile
     publishedGuiLaunchConsumer = NULL;
 
-    publishedPath.clear();
+    publishedPathList.clear();
     publishedParentPath.clear();
 
     publishedMacroSubstitutions.clear();
@@ -310,11 +310,27 @@ QObject* ContainerProfile::getGuiLaunchConsumer()
 }
 
 /*
-  Return the application path to use for file operations.
+  Return the application path list to use for file operations.
+  */
+QStringList ContainerProfile::getPathList()
+{
+    return pathList;
+}
+
+/*
+  Return the first entry from the application path list to use for file operations.
   */
 QString ContainerProfile::getPath()
 {
-    return path;
+    if( pathList.count() )
+    {
+        return pathList[0];
+    }
+    else
+    {
+        QString emptyString;
+        return emptyString;
+    }
 }
 
 /*

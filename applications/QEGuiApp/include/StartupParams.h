@@ -30,6 +30,7 @@
 
 #include <QByteArray>
 #include <QSharedMemory>
+#include <QStringList>
 
 #define STARTUPPARAMSSERIALLEN 1000
 
@@ -50,7 +51,7 @@ class startupParams
     bool disableMenu;                               // Flag true if menu bar should be disabled
     bool singleApp;                                 // True if only a single instance of this application should be started
     QString filename;                               // Default gui file name
-    QString path;                                   // Default gui file path
+    QStringList pathList;                                   // Default gui file path
     QString substitutions;                          // Substitutions. For example, "SECTOR=01,PUMP=03"
 };
 
