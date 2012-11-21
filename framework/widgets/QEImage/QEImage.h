@@ -466,7 +466,7 @@ protected:
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
     /// These substitutions are applied to all the variable names.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+private:
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
     {
         for( int i = 0; i < QEIMAGE_NUM_VARIABLES; i++ )
@@ -478,6 +478,7 @@ protected:
     {
         return variableNamePropertyManagers[0].getSubstitutionsProperty();
     }
+public:
     //=================================================================================
 
 

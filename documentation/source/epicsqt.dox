@@ -90,8 +90,8 @@ can interact with Channel Access using Qt based classes and data types. Channel 
  
   Read <a href="http://sourceforge.net/projects/epicsqt/files/documentation/QE_GettingStarted.pdf/download"> QE_GettingStarted.pdf</a> in the documentation for setting up an enviroment for building or using the epicsqt framework.\n
   To build the framework, open epicsqt.pro in QtCreator, ensure shaddow build is turned off, and hit build.\n
-  Symbolic links to the resultant library libQEPlugin.so will need to set up according to how it is to be used - see QE_GettingStarted.pdf for details.\n
-  Any Qt specific queries? start at <a href="http://www.trolltech.com/developer/documentation/index.html">Qt developer documentation</a>
+  The resultant library libQEPlugin.so will need to be installed or referenced up according to how it is to be used - see QE_GettingStarted.pdf for details.\n
+  Any Qt specific queries? start at <a href="http://qt-project.org">the Qt Project</a>
 
   \section support Support
   Visit the sourceforge epicsqt <a href="http://sourceforge.net/projects/epicsqt/support"> support page</a> for assistance.
@@ -117,10 +117,6 @@ You should have received a copy of the GNU General Public License along with the
 If not, see <a href="http://www.gnu.org/licenses/">"http://www.gnu.org/licenses/</a>
 */
 
-/*!
-  \page qwtinstall INSTALL
-  \include "INSTALL"
-*/
 
 /*!
   \page ASguiscreenshots ASgui screen shots

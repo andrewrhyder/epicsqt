@@ -37,88 +37,132 @@
 // Maximum number of variables.
 #define QESHAPE_NUM_VARIABLES 6
 
+/*!
+  This class is a EPICS aware shape widget based on the Qt widget.
+  One of several shapes can be drawn within the widget, and up to 6 variables can be used to animate various attributes of the shape.
+  For example to represent beam positino and size, an elipse can be drawn with four variables animating its vertcal and horizontal size and position.
+  It is tighly integrated with the base class QEWidget which provides generic support such as macro substitutions, drag/drop, and standard properties.
+ */
 class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     Q_OBJECT
 
   public:
+    /// Create without a variable.
+    /// Use setVariableNameProperty() and setSubstitutionsProperty() to define a variable and, optionally, macro substitutions later.
     QEShape( QWidget *parent = 0 );
+    /// Create with a single variable. (Note, the QEShape widget can use up to 6 variables)
+    /// A connection is automatically established.
+    /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
     QEShape( const QString& variableName, QWidget *parent = 0 );
 
+    /// Options for the type of shape.
+    ///
     enum shapeOptions { Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc, Chord, Pie, Path, Text, Pixmap };
+    /// Options for how a variable will animate the shape.
+    ///
     enum animationOptions {Width, Height, X, Y, Transperency, Rotation, ColourHue, ColourSaturation, ColourValue, ColourIndex, Penwidth};
 
 
     // Property convenience functions
 
     // variable animations
+    /// Access function for 'animation' properties - refer to 'animation' properties for details
     void setAnimation( animationOptions animation, const int index );
+    /// Access function for 'animation' properties - refer to 'animation' properties for details
     animationOptions getAnimation( const int index );
 
     // scales
+    /// Access function for 'scale' properties - refer to 'scale' properties for details
     void setScale( const double scale, const int index );
+    /// Access function for 'scale' properties - refer to 'scale' properties for details
     double getScale( const int index );
 
     // offsets
+    /// Access function for 'offset' properties - refer to 'offset' properties for details
     void setOffset( const double offset, const int index );
+    /// Access function for 'offset' properties - refer to 'offset' properties for details
     double getOffset( const int index );
 
     // border
+    /// Access function for 'border' properties - refer to 'border' properties for details
     void setBorder( const bool border );
+    /// Access function for 'border' properties - refer to 'border' properties for details
     bool getBorder();
 
     // fill
+    /// Access function for 'fill' properties - refer to 'fill' properties for details
     void setFill( const bool fill );
+    /// Access function for 'fill' properties - refer to 'fill' properties for details
     bool getFill();
 
     // shape
+    /// Access function for 'shape' properties - refer to 'shape' properties for details
     void setShape( shapeOptions shape );
+    /// Access function for 'shape' properties - refer to 'shape' properties for details
     shapeOptions getShape();
 
     // number of points
+    /// Access function for 'number of points' properties - refer to 'number of points' properties for details
     void setNumPoints( const unsigned int numPoints );
+    /// Access function for 'number of points' properties - refer to 'number of points' properties for details
     unsigned int getNumPoints();
 
     // Origin translation
+    /// Access function for 'origin translation' properties - refer to 'origin translation' properties for details
     void setOriginTranslation( const QPoint originTranslation );
+    /// Access function for 'origin translation' properties - refer to 'origin translation' properties for details
     QPoint getOriginTranslation();
 
     // points
+    /// Access function for 'point' properties - refer to 'point' properties for details
     void setPoint( const QPoint point, const int index );
+    /// Access function for 'point' properties - refer to 'point' properties for details
     QPoint getPoint(const int index);
 
     // colors
+    /// Access function for 'colour' properties - refer to 'colour' properties for details
     void setColor( const QColor color, const int index );
+    /// Access function for 'colour' properties - refer to 'colour' properties for details
     QColor getColor( const int index );
 
     // draw border
+    /// Access function for 'draw border' properties - refer to 'draw border' properties for details
     void setDrawBorder( const bool drawBorder );
+    /// Access function for 'draw border' properties - refer to 'draw border' properties for details
     bool getDrawBorder();
 
     // line width
+    /// Access function for 'line width' properties - refer to 'line width' properties for details
     void setLineWidth( const unsigned int lineWidth );
+    /// Access function for 'line width' properties - refer to 'line width' properties for details
     unsigned int getLineWidth();
 
     // start angle
+    /// Access function for 'start angle' properties - refer to 'start angle' properties for details
     void setStartAngle( const double startAngle );
+    /// Access function for 'start angle' properties - refer to 'start angle' properties for details
     double getStartAngle();
 
     // rotation
+    /// Access function for 'rotation' properties - refer to 'rotation' properties for details
     void setRotation( const double rotation );
+    /// Access function for 'rotation' properties - refer to 'rotation' properties for details
     double getRotation();
 
     // arc length
+    /// Access function for 'arc length' properties - refer to 'arc length' properties for details
     void setArcLength( const double arcLength );
+    /// Access function for 'arc length' properties - refer to 'arc length' properties for details
     double getArcLength();
 
     // text
+    /// Access function for 'text' properties - refer to 'text' properties for details
     void setText( const QString text );
+    /// Access function for 'text' properties - refer to 'text' properties for details
     QString getText();
 
-
-
-  protected:
+  private:
     QEIntegerFormatting integerFormatting;                     // Integer formatting options
-
   #define OFFSETS_SIZE QESHAPE_NUM_VARIABLES
     double offsets[OFFSETS_SIZE];
 
@@ -212,7 +256,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     QPoint scaledOriginTranslation;
 
     // Drag and Drop
-protected:
+private:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
@@ -273,6 +317,7 @@ public:
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'SAMPLE=SAM1, NAME = "Ref foil"'
     /// These substitutions are applied to all the variable names.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+private:
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
     {
         for( int i = 0; i < QESHAPE_NUM_VARIABLES; i++ )
@@ -284,6 +329,7 @@ public:
     {
         return variableNamePropertyManagers[0].getSubstitutionsProperty();
     }
+public:
     //=================================================================================
 
     //=================================================================================
@@ -380,176 +426,288 @@ public:
     // Widget specific properties
 
     Q_ENUMS(animationOptions)
+    /// Animation to be effected by the 1st variable.
+    /// This is used to select what the effect changing data for the 1st variable will have on the shape.
     Q_PROPERTY(animationOptions animation1 READ getAnimation1Property WRITE setAnimation1Property)
+    /// Animation to be effected by the 2nd variable.
+    /// This is used to select what the effect changing data for the 2nd variable will have on the shape.
+    Q_PROPERTY(animationOptions animation2 READ getAnimation2Property WRITE setAnimation2Property)
+    /// Animation to be effected by the 3rd variable.
+    /// This is used to select what the effect changing data for the 3rd variable will have on the shape.
+    Q_PROPERTY(animationOptions animation3 READ getAnimation3Property WRITE setAnimation3Property)
+    /// Animation to be effected by the 4th variable.
+    /// This is used to select what the effect changing data for the 4th variable will have on the shape.
+    Q_PROPERTY(animationOptions animation4 READ getAnimation4Property WRITE setAnimation4Property)
+    /// Animation to be effected by the 5th variable.
+    /// This is used to select what the effect changing data for the 5th variable will have on the shape.
+    Q_PROPERTY(animationOptions animation5 READ getAnimation5Property WRITE setAnimation5Property)
+    /// Animation to be effected by the 6th variable.
+    /// This is used to select what the effect changing data for the 6th variable will have on the shape.
+    Q_PROPERTY(animationOptions animation6 READ getAnimation6Property WRITE setAnimation6Property)
+
+    /// Scale factor applied to data from the 1st variable before it is used to animate the shape
+    Q_PROPERTY(double scale1 READ getScale1Property WRITE setScale1Property)
+    /// Scale factor applied to data from the 2nd variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double scale2 READ getScale2Property WRITE setScale2Property)
+    /// Scale factor applied to data from the 3rd variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double scale3 READ getScale3Property WRITE setScale3Property)
+    /// Scale factor applied to data from the 4th variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double scale4 READ getScale4Property WRITE setScale4Property)
+    /// Scale factor applied to data from the 5th variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double scale5 READ getScale5Property WRITE setScale5Property)
+    /// Scale factor applied to data from the 6th variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double scale6 READ getScale6Property WRITE setScale6Property)
+
+    /// Offset applied to data from the 1st variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double offset1 READ getOffset1Property WRITE setOffset1Property)
+    /// Offset applied to data from the 2nd variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double offset2 READ getOffset2Property WRITE setOffset2Property)
+    /// Offset applied to data from the 3rd variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double offset3 READ getOffset3Property WRITE setOffset3Property)
+    /// Offset applied to data from the 4th variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double offset4 READ getOffset4Property WRITE setOffset4Property)
+    /// Offset applied to data from the 5th variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double offset5 READ getOffset5Property WRITE setOffset5Property)
+    /// Offset applied to data from the 6th variable before it is used to animate the shape
+    ///
+    Q_PROPERTY(double offset6 READ getOffset6Property WRITE setOffset6Property)
+
+    Q_ENUMS(shapeOptions)
+
+    /// Particular shape implemented by this widget.
+    /// For example: line, rectangle, elipse. The coordinates used to draw the shape are taken from properties 'point1' to 'point10' as appropriate.
+    Q_PROPERTY(shapeOptions shape READ getShapeProperty WRITE setShapeProperty)
+
+    /// The number of points to use when drawing shapes that are defined by a variable number of points, such as polyline, polygon, path, and series of points.
+    ///
+    Q_PROPERTY(unsigned int numPoints READ getNumPoints WRITE setNumPoints )
+
+    /// Moves the origin (where 0,0 is) when drawing the shape.
+    /// This is usefull when the top left of the widget is not the natural origin for the shape.
+    /// For example, if a rectangular shape was used to represent the opening of a set of slits,
+    /// the origin is in the center of the widget. While the correct effect may be achieved with
+    /// appropriate initial coordinates and data offsets, it can be easier to set up correct operation
+    /// if this property is set to the natural origin of the object being represented.
+    Q_PROPERTY(QPoint originTranslation READ getOriginTranslation WRITE setOriginTranslation)
+
+    /// 1st coordinate used when drawing the shape. Used for the following shapes: Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc, Chord, Pie, Path, Text, Pixmap
+    ///
+    Q_PROPERTY(QPoint point1 READ getPoint1Property WRITE setPoint1Property)
+    /// 2nd coordinate used when drawing the shape. Used for the following shapes: Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc, Chord, Pie, Path, Pixmap
+    ///
+    Q_PROPERTY(QPoint point2 READ getPoint2Property WRITE setPoint2Property)
+    /// 3rd coordinate used when drawing the shape. Used for the following shapes: Points, Polyline, Polygon, Path
+    ///
+    Q_PROPERTY(QPoint point3 READ getPoint3Property WRITE setPoint3Property)
+    /// 4th coordinate used when drawing the shape. Used for the following shapes: Points, Polyline, Polygon, Path
+    ///
+    Q_PROPERTY(QPoint point4 READ getPoint4Property WRITE setPoint4Property)
+    /// 5th coordinate used when drawing the shape. Used for the following shapes: Points, Polyline, Polygon, Path
+    ///
+    Q_PROPERTY(QPoint point5 READ getPoint5Property WRITE setPoint5Property)
+    /// 6th coordinate used when drawing the shape. Used for the following shapes: Points, Polyline, Polygon, Path
+    ///
+    Q_PROPERTY(QPoint point6 READ getPoint6Property WRITE setPoint6Property)
+    /// 7th coordinate used when drawing the shape. Used for the following shapes: Points, Polyline, Polygon, Path
+    ///
+    Q_PROPERTY(QPoint point7 READ getPoint7Property WRITE setPoint7Property)
+    /// 8th coordinate used when drawing the shape. Used for the following shapes: Points, Polyline, Polygon, Path
+    ///
+    Q_PROPERTY(QPoint point8 READ getPoint8Property WRITE setPoint8Property)
+    /// 9th coordinate used when drawing the shape. Used for the following shapes: Points, Polyline, Polygon, Path
+    ///
+    Q_PROPERTY(QPoint point9 READ getPoint9Property WRITE setPoint9Property)
+    /// 10th coordinate used when drawing the shape. Used for the following shapes: Points, Polyline, Polygon, Path
+    ///
+    Q_PROPERTY(QPoint point10 READ getPoint10Property WRITE setPoint10Property)
+
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color1 READ getColor1Property WRITE setColor1Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color2 READ getColor2Property WRITE setColor2Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color3 READ getColor3Property WRITE setColor3Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color4 READ getColor4Property WRITE setColor4Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color5 READ getColor5Property WRITE setColor5Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color6 READ getColor6Property WRITE setColor6Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color7 READ getColor7Property WRITE setColor7Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color8 READ getColor8Property WRITE setColor8Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color9 READ getColor9Property WRITE setColor9Property)
+    /// Used by the color animation to determine the color based on a data value. The scaled and offset data is used as an index to select color properties 'color1' to 'color10'.
+    ///
+    Q_PROPERTY(QColor color10 READ getColor10Property WRITE setColor10Property)
+
+
+    /// Draw a border on the shape. Used for the following shapes: Polygon, Rect, RoundedRect, Ellipse, Pie
+    /// Note, if both 'border' and 'fill' properties are false, then nothing will be drawn
+    Q_PROPERTY(bool drawBorder READ getDrawBorder WRITE setDrawBorder)
+
+    /// Fill the shape. Used for the following shapes: Polygon, Rect, RoundedRect, Ellipse, Pie
+    /// Note, if both 'border' and 'fill' properties are false, then nothing will be drawn
+    Q_PROPERTY(bool fill READ getFill WRITE setFill)
+
+    /// Sets the width of the pen. Used for the following shapes: Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc, Chord, Pie, Path
+    ///
+    Q_PROPERTY(unsigned int lineWidth READ getLineWidth WRITE setLineWidth)
+
+    /// Sets the start angle when drawing the following shapes: Ellipse, Arc, Chord
+    ///
+    Q_PROPERTY(double startAngle READ getStartAngle WRITE setStartAngle)
+
+    /// Rotates the shape around the origin (top left corner unless modified with the 'origin translation' property. Units are degrees clockwise.
+    /// Applies to all shapes.
+    Q_PROPERTY(double rotation READ getRotation WRITE setRotation)
+
+    /// Sector span of all arc related shapes, including Arc, Chord, Pie.
+    ///
+    Q_PROPERTY(double arcLength READ getArcLength WRITE setArcLength)
+
+    /// Text for Text shape only.
+    ///
+    Q_PROPERTY(QString text READ getText WRITE setText)
+
+private:
     void setAnimation1Property( animationOptions animation ){ setAnimation( animation, 0 ); }
     animationOptions getAnimation1Property(){ return getAnimation( 0 ); }
 
-    Q_PROPERTY(animationOptions animation2 READ getAnimation2Property WRITE setAnimation2Property)
     void setAnimation2Property( animationOptions animation ){ setAnimation( animation, 1 ); }
     animationOptions getAnimation2Property(){ return getAnimation( 1 ); }
 
-    Q_PROPERTY(animationOptions animation3 READ getAnimation3Property WRITE setAnimation3Property)
     void setAnimation3Property( animationOptions animation ){ setAnimation( animation, 2 ); }
     animationOptions getAnimation3Property(){ return getAnimation( 2 ); }
 
-    Q_PROPERTY(animationOptions animation4 READ getAnimation4Property WRITE setAnimation4Property)
     void setAnimation4Property( animationOptions animation ){ setAnimation( animation, 3 ); }
     animationOptions getAnimation4Property(){ return getAnimation( 3 ); }
 
-    Q_PROPERTY(animationOptions animation5 READ getAnimation5Property WRITE setAnimation5Property)
     void setAnimation5Property( animationOptions animation ){ setAnimation( animation, 4 ); }
     animationOptions getAnimation5Property(){ return getAnimation( 4 ); }
 
-    Q_PROPERTY(animationOptions animation6 READ getAnimation6Property WRITE setAnimation6Property)
     void setAnimation6Property( animationOptions animation ){ setAnimation( animation, 5 ); }
     animationOptions getAnimation6Property(){ return getAnimation( 5 ); }
 
-    Q_PROPERTY(double scale1 READ getScale1Property WRITE setScale1Property)
     void setScale1Property( double scale ){ setScale( scale, 0 ); }
     double getScale1Property(){ return getScale( 0 ); }
 
-    Q_PROPERTY(double scale2 READ getScale2Property WRITE setScale2Property)
     void setScale2Property( double scale ){ setScale( scale, 1 ); }
     double getScale2Property(){ return getScale( 1 ); }
 
-    Q_PROPERTY(double scale3 READ getScale3Property WRITE setScale3Property)
     void setScale3Property( double scale ){ setScale( scale, 2 ); }
     double getScale3Property(){ return getScale( 2 ); }
 
-    Q_PROPERTY(double scale4 READ getScale4Property WRITE setScale4Property)
     void setScale4Property( double scale ){ setScale( scale, 3 ); }
     double getScale4Property(){ return getScale( 3 ); }
 
-    Q_PROPERTY(double scale5 READ getScale5Property WRITE setScale5Property)
     void setScale5Property( double scale ){ setScale( scale, 4 ); }
     double getScale5Property(){ return getScale( 4 ); }
 
-    Q_PROPERTY(double scale6 READ getScale6Property WRITE setScale6Property)
     void setScale6Property( double scale ){ setScale( scale, 5 ); }
     double getScale6Property(){ return getScale( 5 ); }
 
-
-    Q_PROPERTY(double offset1 READ getOffset1Property WRITE setOffset1Property)
     void setOffset1Property( double offset ){ setOffset( offset, 0 ); }
     double getOffset1Property(){ return getOffset( 0 ); }
 
-    Q_PROPERTY(double offset2 READ getOffset2Property WRITE setOffset2Property)
     void setOffset2Property( double offset ){ setOffset( offset, 1 ); }
     double getOffset2Property(){ return getOffset( 1 ); }
 
-    Q_PROPERTY(double offset3 READ getOffset3Property WRITE setOffset3Property)
     void setOffset3Property( double offset ){ setOffset( offset, 2 ); }
     double getOffset3Property(){ return getOffset( 2 ); }
 
-    Q_PROPERTY(double offset4 READ getOffset4Property WRITE setOffset4Property)
     void setOffset4Property( double offset ){ setOffset( offset, 3 ); }
     double getOffset4Property(){ return getOffset( 3 ); }
 
-    Q_PROPERTY(double offset5 READ getOffset5Property WRITE setOffset5Property)
     void setOffset5Property( double offset ){ setOffset( offset, 4 ); }
     double getOffset5Property(){ return getOffset( 4 ); }
 
-    Q_PROPERTY(double offset6 READ getOffset6Property WRITE setOffset6Property)
     void setOffset6Property( double offset ){ setOffset( offset, 5 ); }
     double getOffset6Property(){ return getOffset( 5 ); }
 
-    Q_ENUMS(shapeOptions)
-    Q_PROPERTY(shapeOptions shape READ getShapeProperty WRITE setShapeProperty)
     void setShapeProperty( shapeOptions shape ){ setShape(shape); }
     shapeOptions getShapeProperty(){ return getShape(); }
 
-
-    Q_PROPERTY(unsigned int numPoints READ getNumPoints WRITE setNumPoints )
-    Q_PROPERTY(QPoint originTranslation READ getOriginTranslation WRITE setOriginTranslation)
-
-    Q_PROPERTY(QPoint point1 READ getPoint1Property WRITE setPoint1Property)
     void setPoint1Property( QPoint point ){ setPoint( point, 0 ); }
     QPoint getPoint1Property(){ return getPoint( 0 ); }
 
-    Q_PROPERTY(QPoint point2 READ getPoint2Property WRITE setPoint2Property)
     void setPoint2Property( QPoint point ){ setPoint( point, 1 ); }
     QPoint getPoint2Property(){ return getPoint( 1 ); }
 
-    Q_PROPERTY(QPoint point3 READ getPoint3Property WRITE setPoint3Property)
     void setPoint3Property( QPoint point ){ setPoint( point, 2 ); }
     QPoint getPoint3Property(){ return getPoint( 2 ); }
 
-    Q_PROPERTY(QPoint point4 READ getPoint4Property WRITE setPoint4Property)
     void setPoint4Property( QPoint point ){ setPoint( point, 3 ); }
     QPoint getPoint4Property(){ return getPoint( 3 ); }
 
-    Q_PROPERTY(QPoint point5 READ getPoint5Property WRITE setPoint5Property)
     void setPoint5Property( QPoint point ){ setPoint( point, 4 ); }
     QPoint getPoint5Property(){ return getPoint( 4 ); }
 
-    Q_PROPERTY(QPoint point6 READ getPoint6Property WRITE setPoint6Property)
     void setPoint6Property( QPoint point ){ setPoint( point, 5 ); }
     QPoint getPoint6Property(){ return getPoint( 5 ); }
 
-    Q_PROPERTY(QPoint point7 READ getPoint7Property WRITE setPoint7Property)
     void setPoint7Property( QPoint point ){ setPoint( point, 6 ); }
     QPoint getPoint7Property(){ return getPoint( 6 ); }
 
-    Q_PROPERTY(QPoint point8 READ getPoint8Property WRITE setPoint8Property)
     void setPoint8Property( QPoint point ){ setPoint( point, 7 ); }
     QPoint getPoint8Property(){ return getPoint( 7 ); }
 
-    Q_PROPERTY(QPoint point9 READ getPoint9Property WRITE setPoint9Property)
     void setPoint9Property( QPoint point ){ setPoint( point, 8 ); }
     QPoint getPoint9Property(){ return getPoint( 8 ); }
 
-    Q_PROPERTY(QPoint point10 READ getPoint10Property WRITE setPoint10Property)
     void setPoint10Property( QPoint point ){ setPoint( point, 9 ); }
     QPoint getPoint10Property(){ return getPoint( 9 ); }
 
-
-    Q_PROPERTY(QColor color1 READ getColor1Property WRITE setColor1Property)
     void setColor1Property( QColor color ){ setColor( color, 0 ); }
     QColor getColor1Property(){ return getColor( 0 ); }
 
-    Q_PROPERTY(QColor color2 READ getColor2Property WRITE setColor2Property)
     void setColor2Property( QColor color ){ setColor( color, 1 ); }
     QColor getColor2Property(){ return getColor( 1 ); }
 
-    Q_PROPERTY(QColor color3 READ getColor3Property WRITE setColor3Property)
     void setColor3Property( QColor color ){ setColor( color, 2 ); }
     QColor getColor3Property(){ return getColor( 2 ); }
 
-    Q_PROPERTY(QColor color4 READ getColor4Property WRITE setColor4Property)
     void setColor4Property( QColor color ){ setColor( color, 3 ); }
     QColor getColor4Property(){ return getColor( 3 ); }
 
-    Q_PROPERTY(QColor color5 READ getColor5Property WRITE setColor5Property)
     void setColor5Property( QColor color ){ setColor( color, 4 ); }
     QColor getColor5Property(){ return getColor( 4 ); }
 
-    Q_PROPERTY(QColor color6 READ getColor6Property WRITE setColor6Property)
     void setColor6Property( QColor color ){ setColor( color, 5 ); }
     QColor getColor6Property(){ return getColor( 5 ); }
 
-    Q_PROPERTY(QColor color7 READ getColor7Property WRITE setColor7Property)
     void setColor7Property( QColor color ){ setColor( color, 6 ); }
     QColor getColor7Property(){ return getColor( 6 ); }
 
-    Q_PROPERTY(QColor color8 READ getColor8Property WRITE setColor8Property)
     void setColor8Property( QColor color ){ setColor( color, 7 ); }
     QColor getColor8Property(){ return getColor( 7 ); }
 
-    Q_PROPERTY(QColor color9 READ getColor9Property WRITE setColor9Property)
     void setColor9Property( QColor color ){ setColor( color, 8 ); }
     QColor getColor9Property(){ return getColor( 8 ); }
 
-    Q_PROPERTY(QColor color10 READ getColor10Property WRITE setColor10Property)
     void setColor10Property( QColor color ){ setColor( color, 9 ); }
     QColor getColor10Property(){ return getColor( 9 ); }
-
-    Q_PROPERTY(bool drawBorder READ getDrawBorder WRITE setDrawBorder)
-    Q_PROPERTY(bool fill READ getFill WRITE setFill)
-    Q_PROPERTY(unsigned int lineWidth READ getLineWidth WRITE setLineWidth)
-    Q_PROPERTY(double startAngle READ getStartAngle WRITE setStartAngle)
-    Q_PROPERTY(double rotation READ getRotation WRITE setRotation)
-    Q_PROPERTY(double arcLength READ getArcLength WRITE setArcLength)
-    Q_PROPERTY(QString text READ getText WRITE setText)
 };
 
 #endif // QESHAPE_H

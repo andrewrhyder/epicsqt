@@ -563,12 +563,18 @@ double QEShape::getOffset( const int index )
 // shape
 void QEShape::setShape( QEShape::shapeOptions shapeIn )
 {
+    // Refresh the data so the new shape can be redrawn
     shape = shapeIn;
     for( int i = 0; i < QESHAPE_NUM_VARIABLES; i++ )
     {
         refreshData( i );
     }
+
+    // Force an update.
+    // Note, this is not needed if new data arrives following the refresh requested above, but is usefull if there is no (valid) data set up yet
+    update();
 }
+
 QEShape::shapeOptions QEShape::getShape()
 {
     return shape;

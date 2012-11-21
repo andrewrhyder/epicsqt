@@ -137,6 +137,7 @@ public:
     Q_PROPERTY(QString altReadbackVariable READ getVariableName1Property WRITE setVariableName1Property)
 
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+private:
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
     {
         for( int i = 0; i < QEGENERICBUTTON_NUM_VARIABLES; i++ )
@@ -148,6 +149,7 @@ public:
     {
         return variableNamePropertyManagers[0].getSubstitutionsProperty();
     }
+public:
 
 private slots:
   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
