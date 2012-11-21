@@ -322,7 +322,7 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
        }
     }
 
-    // Form and save the image - mut do before call to setValue.
+    // Form and save the image - must do before call to setValue.
     //
     this->theImage = this->stringFormatting.formatString( value );
 
