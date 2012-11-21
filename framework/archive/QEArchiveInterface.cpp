@@ -40,6 +40,8 @@ QEArchiveInterface::QEArchiveInterface (QUrl url, QObject *parent) : QObject (pa
 {
    QSslConfiguration config;
 
+   this->registerMetaTypes ();
+
    // the maia client does not have a getUrl function - we need to cache value.
    this->mUrl = url;
    this->client = new MaiaXmlRpcClient (url, this);
@@ -55,6 +57,17 @@ QEArchiveInterface::~QEArchiveInterface ()
 {
    // this->client owned by this so should be automatically deleted.
 }
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveInterface::registerMetaTypes ()
+{
+   qRegisterMetaType<QEArchiveInterface::ArchiveList> ("QEArchiveInterface::ArchiveList");
+   qRegisterMetaType<QEArchiveInterface::PVNameList> ("QEArchiveInterface::PVNameList");
+   qRegisterMetaType<QEArchiveInterface::ResponseValueList> ("QEArchiveInterface::ResponseValueList");
+   qRegisterMetaType<QEArchiveInterface::Context> ("QEArchiveInterface::Context");
+}
+
 
 //------------------------------------------------------------------------------
 //
@@ -229,7 +242,7 @@ void QEArchiveInterface::processInfo (const QObject *userData, QVariant & respon
 //
 void QEArchiveInterface::processArchives (const QObject *userData, QVariant & response)
 {
-   QList<Archive> PvArchives;
+   ArchiveList PvArchives;
    QVariantList list;
    QVariant element;
    QMap<QString, QVariant> map;
@@ -266,7 +279,7 @@ void QEArchiveInterface::processArchives (const QObject *userData, QVariant & re
 //
 void QEArchiveInterface::processPvNames  (const QObject *userData, QVariant & response)
 {
-   QList<PVName> PvNames;
+   PVNameList PvNames;
    QVariantList list;
    QVariant element;
    QMap<QString, QVariant> map;
@@ -429,7 +442,7 @@ void QEArchiveInterface::processOnePV (QMap<QString, QVariant> map,
 //
 void QEArchiveInterface::processValues (const QObject *userData, QVariant & response, const unsigned int requested_element)
 {
-   QList<ResponseValues> PvValues;
+   ResponseValueList PvValues;
    QVariantList list;
    QVariant element;
    int j;
@@ -492,9 +505,9 @@ void QEArchiveInterface::xmlRpcResponse (const QEArchiveInterface::Context & con
 //
 void QEArchiveInterface::xmlRpcFault (const QEArchiveInterface::Context & context, int error, const QString & response)
 {
-   QList<Archive> nullPvArchives;
-   QList<PVName> nullPvNames;
-   QList<ResponseValues> nullPvValues;
+   ArchiveList nullPvArchives;
+   PVNameList nullPvNames;
+   ResponseValueList nullPvValues;
 
    switch (context.method) {
 
@@ -577,7 +590,7 @@ QCaDateTime QEArchiveInterface::convertArchiveToEpics (const int seconds, const 
    QCaDateTime result;
 
    // Down to the millisecond goes in the Qt base class,
-   // the remaining nanoseconds are saved in this QE class.
+   // the remaining nanoseconds are saved in this QCaDateTime class.
    //
    result = archiveEpoch.addSecs (seconds).addMSecs (nanoSecs / 1000000);
    result.nSec = nanoSecs % 1000000;
@@ -622,7 +635,7 @@ void  QEArchiveInterface::convertEpicsToArchive (const QCaDateTime datetime, int
 //==============================================================================
 //
 QEArchiveInterfaceAgent::QEArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
-                                                    QEArchiveInterface *parent) : QObject (parent)
+                                                  QEArchiveInterface *parent) : QObject (parent)
 {
    this->client = clientIn;
 
@@ -637,8 +650,8 @@ QEArchiveInterfaceAgent::QEArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
 //------------------------------------------------------------------------------
 //
 QNetworkReply* QEArchiveInterfaceAgent::call (QEArchiveInterface::Context & contextIn,
-                                               QString procedure,
-                                               QList<QVariant> args)
+                                              QString procedure,
+                                              QList<QVariant> args)
 {
    this->context = contextIn;
    return this->client->call (procedure, args,

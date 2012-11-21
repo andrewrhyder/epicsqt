@@ -46,7 +46,7 @@
 /*
  *  This class provides a thin wrapper around the maiaXmlRpcClient specifically
  *  for handling the EPICS Channel Access Archive XML RPC procedure calls.
- *  While functionaly thin, it does provide the conversion between the types
+ *  While functionally thin, it does provide the conversion between the types
  *  used by the XmlRpcClient (nested structure of QVarients) the types specific
  *  archive EpicsQt, e.g. time to/from QCaDateTime and QCaDataPoint.
  *
@@ -57,7 +57,7 @@ class QEArchiveInterface : public QObject {
    Q_OBJECT
 
 public:
-   // Extends the EPICS alarm severity with archive sepcials
+   // Extends the EPICS alarm severity with archive specials
    //
    enum archiveAlarmSeverity {
        archSevNone       = epicsSevNone,
@@ -113,14 +113,36 @@ public:
       QCaDataPointList dataPoints;
    };
 
+   // Essentially private - needs to be public for meta data type declaration.
+   //
+   enum Methods {
+      Information,
+      Archives,
+      Names,
+      Values
+   };
+
+   struct Context {
+      QEArchiveInterface::Methods method;
+      QObject *userData;
+      unsigned int requested_element;
+   };
+
+   typedef QList <QEArchiveInterface::Archive> ArchiveList;
+   typedef QList<QEArchiveInterface::PVName> PVNameList ;
+   typedef QList<QEArchiveInterface::ResponseValues> ResponseValueList ;
+
 
    //---------------------------------------------------------------------------
    //
-   QEArchiveInterface (QUrl url, QObject *parent = 0);
-   ~QEArchiveInterface ();
+   explicit QEArchiveInterface (QUrl url, QObject *parent = 0);
+   virtual ~QEArchiveInterface ();
 
    void setUrl (QUrl url);
    QUrl getUrl ();
+
+   // Returns string image of the url
+   //
    QString getName ();
 
    // Each of the xxxxRequest functions result in a xxxxResponse signal
@@ -137,8 +159,8 @@ public:
    /* The requested_element parameter specfies the (waveform) array element required.
     * This parameter applies to all the PVs requested. If different array elements
     * are needed for different PVs the separate calls to valuesRequest are required.
-    * Note: element numbers start from 0. The default default value of 0 is applies
-    * to scalar PVs.
+    * Note: element numbers start from 0. The default default value of 0 is suitable
+    * for scalar PVs.
     */
    void valuesRequest (QObject *userData,
                        const int key,
@@ -149,31 +171,25 @@ public:
                        const QStringList pvNames,
                        const unsigned int requested_element = 0);
 
+   // House keeping.
+   //
+   static void registerMetaTypes ();
+
 signals:
+   // The QObject* (1st) parameter is the userData supplied to the corresponding
+   // xxxRequest functions.
+   //
    // The boolean (2nd) parameter is a wasSuccessfull parameter, i.e. when true
    // this indicates a successfull response, and when false indicates a fault
    // condition. For the later case, the actual value parameters are undefined.
    //
    void infoResponse     (const QObject *, const bool, const int, const QString&);
-   void archivesResponse (const QObject *, const bool, const QList<QEArchiveInterface::Archive>&);
-   void pvNamesResponse  (const QObject *, const bool, const QList<QEArchiveInterface::PVName>&);
-   void valuesResponse   (const QObject *, const bool, const QList<QEArchiveInterface::ResponseValues>&);
+   void archivesResponse (const QObject *, const bool, const QEArchiveInterface::ArchiveList&);
+   void pvNamesResponse  (const QObject *, const bool, const QEArchiveInterface::PVNameList&);
+   void valuesResponse   (const QObject *, const bool, const QEArchiveInterface::ResponseValueList&);
 
 private:
    friend class QEArchiveInterfaceAgent;
-
-   enum Methods {
-      Information,
-      Archives,
-      Names,
-      Values
-   };
-
-   struct Context {
-      QEArchiveInterface::Methods method;
-      QObject *userData;
-      unsigned int requested_element;
-   };
 
    enum MetaType {
       mtEnumeration = 0,
@@ -215,7 +231,13 @@ private slots:
    void xmlRpcFault    (const QEArchiveInterface::Context & context, int error, const QString & response);
 };
 
+Q_DECLARE_METATYPE (QEArchiveInterface::ArchiveList)
+Q_DECLARE_METATYPE (QEArchiveInterface::PVNameList)
+Q_DECLARE_METATYPE (QEArchiveInterface::ResponseValueList)
+Q_DECLARE_METATYPE (QEArchiveInterface::Context)
 
+
+//------------------------------------------------------------------------------
 // Essentially a private class. It provides a means to add context (method and
 // original user data) to the signal callbacks from the MaiaXmlRpcClient object.
 //
@@ -230,7 +252,7 @@ private:
    friend class QEArchiveInterface;
 
    QEArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
-                             QEArchiveInterface *parent);
+                            QEArchiveInterface *parent);
 
    QNetworkReply* call (QEArchiveInterface::Context & contextIn,
                         QString procedure,

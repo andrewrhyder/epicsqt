@@ -167,14 +167,14 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
       interface = new QEArchiveInterface (url, &singleton);
       archiveInterfaceList.append (interface);
 
-      connect (interface, SIGNAL (archivesResponse (const QObject *, const bool, const QList <QEArchiveInterface::Archive> &)),
-               this,      SLOT   (archivesResponse (const QObject *, const bool, const QList <QEArchiveInterface::Archive> &)));
+      connect (interface, SIGNAL (archivesResponse (const QObject *, const bool, const QEArchiveInterface::ArchiveList &)),
+               this,      SLOT   (archivesResponse (const QObject *, const bool, const QEArchiveInterface::ArchiveList &)));
 
-      connect (interface, SIGNAL (pvNamesResponse (const QObject *, const bool, const QList <QEArchiveInterface::PVName> &)),
-               this,      SLOT   (pvNamesResponse (const QObject *, const bool, const QList <QEArchiveInterface::PVName> &)));
+      connect (interface, SIGNAL (pvNamesResponse (const QObject *, const bool, const QEArchiveInterface::PVNameList &)),
+               this,      SLOT   (pvNamesResponse (const QObject *, const bool, const QEArchiveInterface::PVNameList &)));
 
-      connect (interface, SIGNAL (valuesResponse (const QObject *, const bool, const QList <QEArchiveInterface::ResponseValues> &)),
-               this,      SLOT   (valuesResponse (const QObject *, const bool, const QList <QEArchiveInterface::ResponseValues> &)));
+      connect (interface, SIGNAL (valuesResponse (const QObject *, const bool, const QEArchiveInterface::ResponseValueList &)),
+               this,      SLOT   (valuesResponse (const QObject *, const bool, const QEArchiveInterface::ResponseValueList &)));
 
       interface->archivesRequest (interface);
 
@@ -248,9 +248,7 @@ public:
 //
 void QEArchiveManager::archivesResponse (const QObject * userData,
                                          const bool isSuccess,
-                                         const QList <
-                                         QEArchiveInterface::Archive >
-                                         &archiveList)
+                                         const QEArchiveInterface::ArchiveList & archiveList)
 {
    QMutexLocker locker (archiveDataMutex);
 
@@ -282,9 +280,7 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
 //
 void QEArchiveManager::pvNamesResponse (const QObject * userData,
                                         const bool isSuccess,
-                                        const QList <
-                                        QEArchiveInterface::PVName >
-                                        &pvNameList)
+                                        const QEArchiveInterface::PVNameList &pvNameList)
 {
    QMutexLocker locker (archiveDataMutex);
 
@@ -382,7 +378,7 @@ public:
 //
 void QEArchiveManager::valuesResponse (const QObject * userData,
                                        const bool isSuccess,
-                                       const QList <QEArchiveInterface::ResponseValues>& valuesList)
+                                       const QEArchiveInterface::ResponseValueList& valuesList)
 {
    ValuesResponseContext *context = (ValuesResponseContext *) userData;
 

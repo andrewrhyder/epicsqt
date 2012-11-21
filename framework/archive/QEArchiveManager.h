@@ -71,9 +71,9 @@ private:
    void clear ();
 
 private slots:
-   void archivesResponse (const QObject * userData, const bool isSuccess, const QList<QEArchiveInterface::Archive>& archiveList);
-   void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QList<QEArchiveInterface::PVName>& pvNameList);
-   void valuesResponse   (const QObject * userData, const bool isSuccess, const QList<QEArchiveInterface::ResponseValues>& valuesList);
+   void archivesResponse (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);
+   void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QEArchiveInterface::PVNameList& pvNameList);
+   void valuesResponse   (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ResponseValueList& valuesList);
 };
 
 
