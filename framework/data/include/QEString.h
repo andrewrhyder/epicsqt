@@ -39,6 +39,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEString : public qcaobject::QCaObject {
   public:
     QEString( QString recordName, QObject *eventObject, QEStringFormatting *stringFormattingIn, unsigned int variableIndexIn );
     QEString( QString recordName, QObject *eventObject, QEStringFormatting *stringFormattingIn, unsigned int variableIndexIn, UserMessage* userMessageIn );
+    bool writeString( const QString &data, QString& message );
 
   signals:
     void stringConnectionChanged( QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex );

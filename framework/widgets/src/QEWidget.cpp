@@ -422,7 +422,7 @@ QString QEWidget::defaultFileLocation()
 // If the file name contains an absolute path, then no options, just try to open it
 // If the file name contains a relative path (including no path) look in the following locations:
 //  - The directory where the parent object (form) was read from (set up in the application profile)
-//  - The application's path (set up in the application profile) (the -p switch for ASgui)
+//  - The application's path (set up in the application profile) (the -p switch for QEGui)
 //  - The current directory
 
 QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
@@ -431,7 +431,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
         // Use a single location if an absolute path was specified.
         // Use the following list of locations if a relative path was specified:
         //  - The directory where the parent object (form) was read from (set up in the application profile)
-        //  - The application's path list (set up in the application profile) (the -p switch for ASgui)
+        //  - The application's path list (set up in the application profile) (the -p switch for QEGui)
         //  - The current directory
         QStringList searchList;
         if(  QDir::isAbsolutePath( name ) )

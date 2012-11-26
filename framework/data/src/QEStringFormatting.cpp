@@ -39,6 +39,7 @@ QEStringFormatting::QEStringFormatting() {
     leadingZero = true;
     trailingZeros = true;
     format = FORMAT_DEFAULT;
+    dbFormat = FORMAT_DEFAULT;
     stream.setIntegerBase( 10 );
     stream.setRealNumberNotation( QTextStream::FixedNotation );
     addUnits = true;
@@ -89,8 +90,11 @@ void QEStringFormatting::setDbVariableIsStatField( bool isStatField )
     Generate a value given a string, using formatting defined within this
     class.
 */
-QVariant QEStringFormatting::formatValue( const QString &text ) {
-    //??? should know the record type (passed in to QEStringFormatting::formatValue() )
+QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
+{
+    // Init
+    ok = false;
+    QVariant value;
 
     // Strip unit if present
     QString unitlessText = text;
@@ -100,21 +104,161 @@ QVariant QEStringFormatting::formatValue( const QString &text ) {
           unitlessText.chop( dbEgu.length() );
     }
 
-    //??? interpret the string according to the formatting. for example, if
-    //??? formatting says unsigned integer, fail if it looks like a floating,
-    //??? negative, text, etc.
-    //??? then convert to the record type and return
+    // Use the requested format, unless the requested format is 'default' in which case use the format determined from any value read.
+    formats f = format;
+    if( f == FORMAT_DEFAULT )
+    {
+        f = dbFormat;
+    }
 
-    // ??? Temporarily use the variants text convertion.
-    QVariant value( unitlessText );
+    // Format the value if an enumerated list
+    if(( format == FORMAT_DEFAULT || format == FORMAT_LOCAL_ENUMERATE ) && dbEnumerations.size() )
+    {
+        // If value matched an enumeration, use it
+        for( int i = 0; i < dbEnumerations.size(); i++ )
+        {
+            if( unitlessText.compare( dbEnumerations[i] ) == 0 )
+            {
+                qulonglong ul = i;
+                value = QVariant( ul );
+                ok = true;
+                return value;
+            }
+        }
+        // Value does not match an enumeration
+        ok = false;
+        return QVariant();
+    }
+
+    // Format the value if not enumerated
+    switch( f )
+    {
+        case FORMAT_DEFAULT:
+            {
+                value = QVariant( unitlessText );
+                ok = true;
+            }
+            break;
+
+        case FORMAT_FLOATING:
+            {
+                double d = unitlessText.toDouble( &ok );
+                if( ok )
+                {
+                    value = QVariant( d );
+                }
+            }
+            break;
+
+        case FORMAT_INTEGER:
+            {
+                qlonglong ll = unitlessText.toLongLong( &ok );
+                if( ok )
+                {
+                    value = QVariant( ll );
+                }
+            }
+            break;
+
+        case FORMAT_UNSIGNEDINTEGER:
+            {
+                qulonglong ul = unitlessText.toULongLong( &ok );
+                if( ok )
+                {
+                    value = QVariant( ul );
+                }
+            }
+            break;
+
+        case FORMAT_TIME:
+            //??? to do
+            value = QVariant( unitlessText );
+            ok = true;
+            break;
+
+        case FORMAT_LOCAL_ENUMERATE:
+            {
+                //??? to do
+                value = QVariant( unitlessText );
+                ok = true;
+            }
+            break;
+
+        case FORMAT_STRING:
+            {
+                value = QVariant( unitlessText );
+                ok = true;
+            }
+            break;
+
+    };
 
     return value;
+}
+
+
+// Determine the format that will be used when interpreting a value to write,
+// or when presenting a value for which default formatting has been requested.
+void QEStringFormatting::determineDbFormat( const QVariant &value )
+{
+    // Assume default formatting
+    dbFormat = FORMAT_DEFAULT;
+
+    // Get the value type
+    QVariant::Type t = value.type();
+
+    // If the value is a list, get the type of the first element in the list
+    if( t == QVariant::List )
+    {
+        // Get the list
+        const QVariantList valueArray = value.toList();
+
+        // If the list has anything in it, get the type of the first
+        if( valueArray.count() )
+        {
+            t = valueArray[0].type();
+        }
+        else
+        {
+            formatFailure( QString( "Bug in QEStringFormatting::determineDefaultFormatting(). Empty array" ) );
+            return;
+        }
+    }
+
+    // Determine the formatting type from the variant type
+    switch( t )
+    {
+        case QVariant::Double:
+            dbFormat = FORMAT_FLOATING;
+            break;
+
+        case QVariant::LongLong:
+        case QVariant::Int:
+            dbFormat = FORMAT_INTEGER;
+            break;
+
+        case QVariant::ULongLong:
+        case QVariant::UInt:
+            dbFormat = FORMAT_UNSIGNEDINTEGER;
+            break;
+
+        case QVariant::String:
+            dbFormat = FORMAT_STRING;
+            break;
+
+        default:
+            formatFailure( QString( "Bug in QEStringFormatting::determineDbFormatting(). The QVariant type was not expected" ) );
+            break;
+        }
 }
 
 /*
     Generate a string given a value, using formatting defined within this class.
 */
 QString QEStringFormatting::formatString( const QVariant &value ) {
+    // Examine the value and note the matching format
+    determineDbFormat( value );
+
     // Initialise
     bool errorMessage = false;      // Set if an error message is the result
     outStr.clear();
@@ -194,111 +338,113 @@ QString QEStringFormatting::formatString( const QVariant &value ) {
             // convert the value based on it's type.
             if( !haveEnumeratedString )
             {
-                switch( value.type() ) {
-                    case QVariant::Double:
-                        formatFromFloating( value );
+                // If value is not a list...
+                if( value.type() != QVariant::List )
+                {
+                    switch( dbFormat )
+                    {
+                        case FORMAT_FLOATING:
+                            formatFromFloating( value );
+                            break;
+
+                        case FORMAT_INTEGER:
+                            formatFromInteger( value );
+                            break;
+
+                        case FORMAT_UNSIGNEDINTEGER:
+                            formatFromUnsignedInteger( value );
+                            break;
+
+                        case FORMAT_STRING:
+                            formatFromString( value );
+                            break;
+
+                        default:
+                            formatFailure( QString( "Bug in QEStringFormatting::formatString(). The QVariant type was not expected" ) );
+                            errorMessage = true;
+                            break;
+                    }
+                }
+
+                // If value is a list...
+                else
+                {
+                    // Get the list
+                    const QVariantList valueArray = value.toList();
+
+                    // Add nothing to the stream if a value beyond the end of the list has been requested
+                    if( arrayAction == INDEX && arrayIndex >= (unsigned int)(valueArray.count()) )
+                    {
                         break;
+                    }
 
-                    case QVariant::LongLong:
-                    case QVariant::Int:
-                        formatFromInteger( value );
-                        break;
+                    switch( dbFormat )
+                    {
+                        case FORMAT_FLOATING:
+                            //???!!! ignores arrayAction and arrayIndex See uint and ulonglong below
+                            formatFromFloating( valueArray[0].toDouble() );
+                            break;
 
-                    case QVariant::ULongLong:
-                    case QVariant::UInt:
-                        formatFromUnsignedInteger( value );
-                        break;
+                        case FORMAT_INTEGER:
+                            //???!!! ignores arrayAction and arrayIndex See uint and ulonglong below
+                            formatFromInteger( valueArray[0] );
+                            break;
 
-                    case QVariant::String:
-                        stream << value.toString(); // No conversion requried. Stored in variant as required type
-                        break;
-
-                    case QVariant::List :
-                        {
-                            // Get the list
-                            const QVariantList valueArray = value.toList();
-
-                            // Add nothing to the stream if a value beyond the end of the list has been requested
-                            if( arrayAction == INDEX && arrayIndex >= (unsigned int)(valueArray.count()) )
+                        case FORMAT_UNSIGNEDINTEGER:
+                            switch( arrayAction )
                             {
-                                break;
-                            }
-
-                            switch( valueArray[0].type() )
-                            {
-                                case QVariant::Double:
-                                    //???!!! ignores arrayAction and arrayIndex See uint and ulonglong below
-                                    formatFromFloating( valueArray[0].toDouble() );
-                                    break;
-
-                                case QVariant::LongLong:
-                                case QVariant::Int:
-                                    //???!!! ignores arrayAction and arrayIndex See uint and ulonglong below
-                                    formatFromInteger( valueArray[0] );
-                                    break;
-
-                                case QVariant::ULongLong:
-                                case QVariant::UInt:
-                                    switch( arrayAction )
+                                case APPEND:
+                                    for( int i = 0; i < valueArray.count(); i++ )
                                     {
-                                        case APPEND:
-                                            for( int i = 0; i < valueArray.count(); i++ )
-                                            {
-                                                formatFromUnsignedInteger( valueArray[i] );
-                                                stream << " ";
-                                            }
-                                            break;
-
-                                        case ASCII:
-                                            {
-                                                // Translate all non printing characters to '?' except for trailing zeros (ignore them)
-                                                int nonZeroLen = 0;  // Length before trailing zeros
-                                                int len = valueArray.count();
-                                                for( int i = 0; i < len; i++ )
-                                                {
-                                                    if( valueArray[i].toInt() != 0 )
-                                                    {
-                                                        nonZeroLen = i;
-                                                    }
-                                                }
-                                                for( int i = 0; i <= nonZeroLen; i++ )
-                                                {
-                                                    if( valueArray[i].toInt() < ' ' || valueArray[i].toInt() > '~' )
-                                                    {
-                                                        stream << "?";
-                                                    }
-                                                    else
-                                                    {
-                                                        stream << valueArray[i].toChar();
-                                                    }
-                                                }
-                                            }
-                                            break;
-
-                                        case INDEX:
-                                            formatFromUnsignedInteger( valueArray[arrayIndex] );
-                                            break;
+                                        formatFromUnsignedInteger( valueArray[i] );
+                                        stream << " ";
                                     }
                                     break;
 
-                                case QVariant::String:
-                                    //???!!! ignores arrayAction and arrayIndex See uint and ulonglong above
-                                    stream << valueArray[0].toString(); // No conversion requried. Stored in variant as required type
+                                case ASCII:
+                                    {
+                                        // Translate all non printing characters to '?' except for trailing zeros (ignore them)
+                                        int nonZeroLen = 0;  // Length before trailing zeros
+                                        int len = valueArray.count();
+                                        for( int i = 0; i < len; i++ )
+                                        {
+                                            if( valueArray[i].toInt() != 0 )
+                                            {
+                                                nonZeroLen = i;
+                                            }
+                                        }
+                                        for( int i = 0; i <= nonZeroLen; i++ )
+                                        {
+                                            if( valueArray[i].toInt() < ' ' || valueArray[i].toInt() > '~' )
+                                            {
+                                                stream << "?";
+                                            }
+                                            else
+                                            {
+                                                stream << valueArray[i].toChar();
+                                            }
+                                        }
+                                    }
                                     break;
 
-                                default:
-                                    formatFailure( QString( "Bug in QEStringFormatting::formatString(). The QVariant type was not expected" ) );
-                                    errorMessage = true;
+                                case INDEX:
+                                    formatFromUnsignedInteger( valueArray[arrayIndex] );
                                     break;
-
                             }
-                        }
-                        break;
+                            break;
 
-                    default:
-                        formatFailure( QString( "Bug in QEStringFormatting::formatString(). The QVariant type was not expected" ) );
-                        errorMessage = true;
-                        break;
+                        case FORMAT_STRING:
+                            //???!!! ignores arrayAction and arrayIndex See uint and ulonglong above
+                            formatFromString( valueArray[0] );
+                            break;
+
+                        default:
+                            formatFailure( QString( "Bug in QEStringFormatting::formatString(). The QVariant type was not expected" ) );
+                            errorMessage = true;
+                            break;
+
+                    }
+
                 }
             }
             break;
@@ -325,6 +471,9 @@ QString QEStringFormatting::formatString( const QVariant &value ) {
             formatFromTime( value );
             break;
 
+        case FORMAT_STRING:
+            formatFromString( value );
+            break;
 
         // Don't know how to format.
         // This is a code error. All cases in QEStringFormatting::formats should be catered for
@@ -408,8 +557,24 @@ void QEStringFormatting::formatFromInteger( const QVariant &value ) {
     // If QVariant::toLongLong() does not do exactly what is required, a switch statement for each of the types used to hold CA data
     // will need to be added and the conversions done  manually or using QVariant::toLongLong() as required.
     bool convertOk;
-    long lValue = value.toLongLong( &convertOk );
+    qlonglong lValue;
 
+    // Use QString conversions is variant is a string.
+    // (QVariant toLongLong can't convert strings like "2.000"!)
+    if( value.type() == QVariant::String )
+    {
+        QString str = value.toString();
+        double dd = str.toDouble( &convertOk );
+        lValue = dd;
+    }
+
+    // Use QVariant conversions otherwise
+    else
+    {
+        lValue = value.toLongLong( &convertOk );
+    }
+
+    // Error if cant convert
     if( !convertOk )
     {
         formatFailure( QString( "Warning from QEStringFormatting::formatFromInteger(). A variant could not be converted to a long." ) );
@@ -603,6 +768,14 @@ void QEStringFormatting::formatFromTime( const QVariant &value ) {
             stream << QString( "not a valid numeric" );
         }
     }
+}
+
+/*
+    Format a variant value as a string representation of a string. (Not a big ask!)
+*/
+void QEStringFormatting::formatFromString( const QVariant &value ) {
+    // Generate the text
+    stream << value.toString(); // No conversion requried. Stored in variant as required type
 }
 
 /*

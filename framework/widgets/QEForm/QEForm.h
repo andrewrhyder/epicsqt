@@ -44,7 +44,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
         virtual ~QEForm();
 
-        QString getASGuiTitle();     // Get the title to be used as the window or form title.
+        QString getQEGuiTitle();     // Get the title to be used as the window or form title.
         QString getFullFileName();   // Get the standard, absolute UI file name
 
         enum creationOptions { CREATION_OPTION_OPEN, CREATION_OPTION_NEW_TAB, CREATION_OPTION_NEW_WINDOW };

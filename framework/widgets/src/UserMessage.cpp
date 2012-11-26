@@ -56,7 +56,7 @@
  *   An application with a single log window can can base a class on the UserMessage class
  *   and set up filtering to receive all messages.
  *   An application with log messages for seperate windows containing QEForm
- *   widgets (such as ASgui) can base each window class on the UserMessage class, then
+ *   widgets (such as QEGui) can base each window class on the UserMessage class, then
  *   set up filtering for the appropriate form ID.
  *
  * - Logging within an QEForm.

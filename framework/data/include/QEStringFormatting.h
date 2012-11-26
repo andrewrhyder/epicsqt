@@ -49,7 +49,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
   public:
 
     // Formatting enumerations
-    enum formats { FORMAT_DEFAULT, FORMAT_FLOATING, FORMAT_INTEGER, FORMAT_UNSIGNEDINTEGER, FORMAT_TIME, FORMAT_LOCAL_ENUMERATE };
+    enum formats { FORMAT_DEFAULT, FORMAT_FLOATING, FORMAT_INTEGER, FORMAT_UNSIGNEDINTEGER, FORMAT_TIME, FORMAT_LOCAL_ENUMERATE, FORMAT_STRING };
     enum notations { NOTATION_FIXED = QTextStream::FixedNotation,
                      NOTATION_SCIENTIFIC = QTextStream::ScientificNotation,
                      NOTATION_AUTOMATIC = QTextStream::SmartNotation };    // WARNING keep these enumerations the same as QTextStream
@@ -64,7 +64,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     //   - Translate a string and generate a value
     //===============================================
     QString formatString( const QVariant& value );
-    QVariant formatValue( const QString& text );
+    QVariant formatValue( const QString& text, bool& ok );
 
 
     // Functions to set up formatting information from the database
@@ -106,6 +106,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     void formatFromUnsignedInteger( const QVariant& value );
     void formatFromTime( const QVariant& value );
     void formatFromEnumeration( const QVariant& value );
+    void formatFromString( const QVariant &value );
+
+
+    // Utility functions
+    void determineDbFormat( const QVariant &value );
 
     // Error reporting
     void formatFailure( QString message );
@@ -125,6 +130,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     bool leadingZero;                // Add a leading zero when required.
     bool trailingZeros;              // Add trailing zeros when required (up to the precision).
     formats format;                  // Presentation required (Floating, integer, etc).
+    formats dbFormat;                // Format determined from read value (Floating, integer, etc).
     bool addUnits;                   // Flag use engineering units from database
     int precision;                   // Floating point precision. Used if 'useDbPrecision' is false.
     QList<localEnumerationItem> localEnumeration; // Local enumerations (example: 0="Not referencing",1=Referencing)

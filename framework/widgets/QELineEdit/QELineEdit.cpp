@@ -69,7 +69,9 @@ void QELineEdit::setup() {
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
-    writeConfirmDialogPresent = false;
+    messageDialogPresent = false;
+    writeFailMessageDialogPresent = false;
+
 
     // Use line edit signals
     QObject::connect( this, SIGNAL( returnPressed() ), this, SLOT( userReturnPressed() ) );
@@ -175,7 +177,7 @@ void QELineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo
 
     // Update the text if appropriate
     // If the user is editing the object then updates will be inapropriate
-    if( hasFocus() == false && !writeConfirmDialogPresent )
+    if( hasFocus() == false && !messageDialogPresent )
     {
         setText( value );
         lastUserValue = value;
@@ -223,9 +225,25 @@ void QELineEdit::userReturnPressed() {
 */
 void QELineEdit::userEditingFinished() {
 
+    // Do nothing if the user is still effectivly working with the widget (just moved to a dialog box)
+    // Any signals received while messageDialogPresent is true should be ignored.
+    // A signal occurs after the 'write failed' dialog closes, so a it sets writeFailMessageDialogPresent to allow this code to ignore the signal.
+    if( messageDialogPresent || writeFailMessageDialogPresent )
+    {
+        if( !messageDialogPresent )
+        {
+            writeFailMessageDialogPresent = false;
+            setFocus();
+        }
+        return;
+    }
+
     // If no changes were made by the user, do nothing
     if( !isModified() || !writeOnFinish )
+    {
+        qDebug() << "leaving QELineEdit::userEditingFinished() 2";
         return;
+    }
 
     // Get the variable to write to
     QEString *qca = (QEString*)getQcaItem(0);
@@ -243,10 +261,10 @@ void QELineEdit::userEditingFinished() {
     // check with the user what to do about it.
     else
     {
-        writeConfirmDialogPresent = true;
+        messageDialogPresent = true;
         int confirm = QMessageBox::warning( this, "Value changed", "You altered a value but didn't write it.\nDo you want to write this value?",
                                             QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No );
-        writeConfirmDialogPresent = false;
+        messageDialogPresent = false;
 
         switch( confirm )
         {
@@ -267,6 +285,7 @@ void QELineEdit::userEditingFinished() {
                 break;
         }
     }
+    qDebug() << "leaving QELineEdit::userEditingFinished() 3";
 }
 
 // Write a value immedietly.
@@ -294,8 +313,12 @@ void QELineEdit::writeValue( QEString *qca, QString newValue )
     int confirm = QMessageBox::Yes;
     if( confirmWrite )
     {
+        messageDialogPresent = true;
+        qDebug() << "before Confirm write";
         confirm = QMessageBox::warning( this, "Confirm write", "Do you want to write this value?",
                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes );
+        qDebug() << "after Confirm write";
+        messageDialogPresent = false;
     }
 
     // Perform the required action. Either write the value (the default) or what ever the user requested
@@ -304,13 +327,34 @@ void QELineEdit::writeValue( QEString *qca, QString newValue )
         // Write the value and inform any derived class
         case QMessageBox::Yes:
             // Write the value
-            qca->writeString( newValue );
+            {
+                QString error;
+                // Write the value
+                if( !qca->writeString( newValue, error ) )
+                {
+                    // write failed
+                    // Flag what dialog activity is going on so spurious 'editing finished' signals can be ignored
+                    messageDialogPresent = true;
+                    writeFailMessageDialogPresent = true;
+                    qDebug() << "before write failed";
+                    // warn user
+                    QMessageBox::warning( this, QString( "Write failed" ), error, QMessageBox::Cancel );
+                    qDebug() << "after write failed";
+                    setFocus();
+                    // Clear flag indicating 'editing finished' signals are due to message dialog
+                    messageDialogPresent = false;
+                }
 
-            // Manage notifying user changes
-            emit userChange( newValue, lastUserValue, lastValue );
+                // Write ok
+                else
+                {
+                    // Manage notifying user changes
+                    emit userChange( newValue, lastUserValue, lastValue );
 
-            // Clear 'isModified' flag
-            setText( text() );
+                    // Clear 'isModified' flag
+                    setText( text() );
+                }
+            }
             break;
 
         // Abort the write, revert to latest value

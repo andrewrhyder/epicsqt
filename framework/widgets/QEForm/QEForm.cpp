@@ -303,7 +303,7 @@ bool QEForm::readUiFile()
 
 
 // Get the form title
-QString QEForm::getASGuiTitle(){
+QString QEForm::getQEGuiTitle(){
     return title;
 }
 

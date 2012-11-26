@@ -64,10 +64,30 @@ void QEString::initialise( QEStringFormatting* newStringFormat, unsigned int var
     The above example is pedantic
     if the string formatting
 */
-void QEString::writeString( const QString &data ) {
-    writeData( stringFormat->formatValue( data ) );
+bool QEString::writeString( const QString &data, QString& message )
+{
+    bool ok = false;
+    QVariant formattedData = stringFormat->formatValue( data, ok );
+    if( ok )
+    {
+        writeData( formattedData );
+    }
+    else
+    {
+        message = QString( "Write failed. String not written was '" ).append( data ).append( "'" );
+    }
+    return ok;
 }
 
+void QEString::writeString( const QString &data )
+{
+    QString message;
+    bool ok = writeString( data, message );
+    if( !ok )
+    {
+        qDebug() << message;
+    }
+}
 /*
     Take a new value from the database and emit a string,formatted
     as directed by the set of formatting information held by this class

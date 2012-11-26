@@ -21,25 +21,25 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
-/* This class is used to manage maintaining only a single instance of ASgui when required.
+/* This class is used to manage maintaining only a single instance of QEGui when required.
 
-    On creation it attempts to connect to a server on an already running ASgui.
-    If it can't connect, it assumes it is the only version of ASgui and starts the server itself.
+    On creation it attempts to connect to a server on an already running QEGui.
+    If it can't connect, it assumes it is the only version of QEGui and starts the server itself.
 
-    When ASgui starts with a -s parameter, indicating that only a single instance of the application is required,
+    When QEGui starts with a -s parameter, indicating that only a single instance of the application is required,
     It passes all the startup parameters to the handball() method of this class.
 
-    If this class has connected to a server, it passes the startup parameters to the server and then stops. The ASgui
+    If this class has connected to a server, it passes the startup parameters to the server and then stops. The QEGui
     application running the server then starts a new main window based on the handballed parameters.
     If this class is not connected to a server, the handball() method returns indicating that it was unable to handball
-    the parameters and this instance of ASgui should start a new window regardless of the -s parameter.
+    the parameters and this instance of QEGui should start a new window regardless of the -s parameter.
 */
 
 #include <InstanceManager.h>
 #include <MainWindow.h>
 #include <ContainerProfile.h>
 
-#define ASGUISERVERNAME "ASguiInstance"
+#define QEGUISERVERNAME "QEGuiInstance"
 
 // Construction
 // Look for an instance server, and if can't find one, then start one
@@ -47,7 +47,7 @@ instanceManager::instanceManager( QObject *parent ) : QObject( parent )
 {
     // Create a socket
     socket = new QLocalSocket(this);
-    socket->connectToServer( ASGUISERVERNAME, QIODevice::WriteOnly );
+    socket->connectToServer( QEGUISERVERNAME, QIODevice::WriteOnly );
 
     // Assume no server
     server = NULL;
@@ -61,12 +61,12 @@ instanceManager::instanceManager( QObject *parent ) : QObject( parent )
 
         // Kill any other server.
         // This is required if an eariler instance has crashed
-        QLocalServer::removeServer( ASGUISERVERNAME );
+        QLocalServer::removeServer( QEGUISERVERNAME );
 
-        // Start a server to listen for other instances of ASgui starting
+        // Start a server to listen for other instances of QEGui starting
         server = new QLocalServer( this );
         connect( server, SIGNAL(newConnection()), this, SLOT(connected()));
-        if( !server->listen( ASGUISERVERNAME ))
+        if( !server->listen( QEGUISERVERNAME ))
         {
             qDebug() << "Couldn't start server";
             delete server;
@@ -102,7 +102,7 @@ bool instanceManager::handball( startupParams* params )
     // wait here it doesn't get written
     socket->waitForBytesWritten ( 10000 );
 
-    // Return indicating startup request has been hand-balled to another instance of ASgui
+    // Return indicating startup request has been hand-balled to another instance of QEGui
     return true;
 }
 

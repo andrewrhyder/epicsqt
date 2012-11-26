@@ -53,7 +53,7 @@ Q_DECLARE_METATYPE( QEForm* )
 MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn, QWidget *parent )  : QMainWindow( parent )
 {
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
-    // profile was set up by the ASgui application) or objects in another main window (if the profile was published by a button in a gui)
+    // profile was set up by the QEGui application) or objects in another main window (if the profile was published by a button in a gui)
     // Replace the signal consuming objects
     profile.updateConsumers( this );
 
@@ -266,7 +266,7 @@ void MainWindow::onWindowMenuSelection( QAction* action )
 // Present the 'About' dialog
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "About ASgui", "<b>ASgui</b> version 0.1");
+    QMessageBox::about(this, "About QEGui", "<b>QEGui</b> version 0.1");
 
 }
 
@@ -337,7 +337,7 @@ void MainWindow::startDesigner()
     // If already running, tell the user
     else
     {
-        QMessageBox::about(this, "ASgui", "Designer (started by ASgui) is already running.");
+        QMessageBox::about(this, "QEGui", "Designer (started by QEGui) is already running.");
     }
 }
 
@@ -380,7 +380,7 @@ void MainWindow::processError( QProcess::ProcessError error )
         // Do nothing if this was the second attempt using an alternate command
         if( processSecondAttempt )
         {
-            QMessageBox::about(this, "ASgui", "Sorry, an error occured starting designer.");
+            QMessageBox::about(this, "QEGui", "Sorry, an error occured starting designer.");
             return;
         }
 
@@ -494,7 +494,7 @@ void MainWindow::loadGuiIntoNewTab( QEForm* gui )
     QTabWidget* tabs = getCentralTabs();
     if( tabs )
     {
-        int index = tabs->addTab( rGui, gui->getASGuiTitle() );
+        int index = tabs->addTab( rGui, gui->getQEGuiTitle() );
         tabs->setCurrentIndex( index );
     }
 }
@@ -531,7 +531,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
             tabs->removeTab( i );
 
             // Replace the tab
-            tabs->insertTab( i, rGui, gui->getASGuiTitle() );
+            tabs->insertTab( i, rGui, gui->getQEGuiTitle() );
             tabs->setCurrentWidget( rGui );
         }
     }
@@ -551,7 +551,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
     }
 
     // Set the title
-    setTitle( gui->getASGuiTitle() );
+    setTitle( gui->getQEGuiTitle() );
 }
 
 //=================================================================================
@@ -764,7 +764,7 @@ void MainWindow::setTabMode()
     // If there was a single gui present, move it to the first tab
     QEForm* gui = getCentralGui();
     if( gui )
-        tabs->addTab( resizeableGui( gui ), gui->getASGuiTitle() );
+        tabs->addTab( resizeableGui( gui ), gui->getQEGuiTitle() );
 
     // Start using tabs as the main area of the main window
     setCentralWidget( tabs );
@@ -927,7 +927,7 @@ void MainWindow::buildWindowsMenu()
 void MainWindow::addWindowMenuAction( QMenu* menu, QEForm* gui )
 {
     // Create the action and add it to the window menu, setting the action data to be the gui
-    QAction* action = new QAction( gui->getASGuiTitle(), menu );
+    QAction* action = new QAction( gui->getQEGuiTitle(), menu );
     action->setData( qVariantFromValue( gui ) );
     menu->addAction( action );
 }

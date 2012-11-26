@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     params.getStartupParams( args );
 
     // If only a single instance has been requested,
-    // and if there is already another instance of ASgui
+    // and if there is already another instance of QEGui
     // and it takes the parameters, do no more
     instanceManager instance( &app );
     if( params.singleApp && instance.handball( &params ) )

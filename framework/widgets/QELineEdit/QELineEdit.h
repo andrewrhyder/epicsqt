@@ -350,7 +350,8 @@ private:
     void writeValue( QEString *qca, QString newValue );
     QString lastValue;                      // Last updated value (may have arrived while user is editing field)
     QString lastUserValue;                  // Last updated value seen by the user (same as lastValue unless the user is editing the text)
-    bool writeConfirmDialogPresent;         // True if write confirm dialog box is present. When this dialog box is present the line edit no longer have focus, but the user is still effectivly interacting with it
+    bool messageDialogPresent;              // True if dialog box for the widget is present. When this dialog box is present the line edit no longer have focus, but the user is still effectivly interacting with it
+    bool writeFailMessageDialogPresent;     // True if the write faile message dialog has been created. Cleared in spurious 'editing finished' callback caused by the 'write failed' dialog
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
