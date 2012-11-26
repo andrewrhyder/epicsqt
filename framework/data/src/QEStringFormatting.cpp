@@ -112,7 +112,7 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
     }
 
     // Format the value if an enumerated list
-    if(( format == FORMAT_DEFAULT || format == FORMAT_LOCAL_ENUMERATE ) && dbEnumerations.size() )
+    if( format == FORMAT_DEFAULT && dbEnumerations.size() )
     {
         // If value matched an enumeration, use it
         for( int i = 0; i < dbEnumerations.size(); i++ )
@@ -120,6 +120,25 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
             if( unitlessText.compare( dbEnumerations[i] ) == 0 )
             {
                 qulonglong ul = i;
+                value = QVariant( ul );
+                ok = true;
+                return value;
+            }
+        }
+        // Value does not match an enumeration
+        ok = false;
+        return QVariant();
+    }
+
+    // Format the value if a local enumerated list
+    if( format == FORMAT_LOCAL_ENUMERATE && localEnumeration.size() )
+    {
+        // If value matched a local enumeration, use it
+        for( int i = 0; i < localEnumeration.size(); i++ )
+        {
+            if( unitlessText.compare( localEnumeration[i].text ) == 0 )
+            {
+                qulonglong ul = localEnumeration[i].dValue;
                 value = QVariant( ul );
                 ok = true;
                 return value;
@@ -602,8 +621,25 @@ void QEStringFormatting::formatFromUnsignedInteger( const QVariant &value ) {
     // work if the value it holds is the string 1.000 and should it?
     // If QVariant::toULongLong() does not do exactly what is required, a switch statement for each of the types used to hold CA data
     // will need to be added and the conversions done  manually or using QVariant::toULongLong() as required.
+
+
+
+    // Use QString conversions is variant is a string.
+    // (QVariant toLongLong can't convert strings like "2.000"!)
     bool convertOk;
-    unsigned long ulValue = value.toULongLong( &convertOk );
+    unsigned long ulValue;
+    if( value.type() == QVariant::String )
+    {
+        QString str = value.toString();
+        double dd = str.toDouble( &convertOk );
+        ulValue = dd;
+    }
+
+    // Use QVariant conversions otherwise
+    else
+    {
+        ulValue = value.toULongLong( &convertOk );
+    }
 
     if( !convertOk )
     {
