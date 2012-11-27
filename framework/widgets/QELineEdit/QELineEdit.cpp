@@ -314,10 +314,8 @@ void QELineEdit::writeValue( QEString *qca, QString newValue )
     if( confirmWrite )
     {
         messageDialogPresent = true;
-        qDebug() << "before Confirm write";
         confirm = QMessageBox::warning( this, "Confirm write", "Do you want to write this value?",
                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes );
-        qDebug() << "after Confirm write";
         messageDialogPresent = false;
     }
 
@@ -336,10 +334,8 @@ void QELineEdit::writeValue( QEString *qca, QString newValue )
                     // Flag what dialog activity is going on so spurious 'editing finished' signals can be ignored
                     messageDialogPresent = true;
                     writeFailMessageDialogPresent = true;
-                    qDebug() << "before write failed";
                     // warn user
                     QMessageBox::warning( this, QString( "Write failed" ), error, QMessageBox::Cancel );
-                    qDebug() << "after write failed";
                     setFocus();
                     // Clear flag indicating 'editing finished' signals are due to message dialog
                     messageDialogPresent = false;

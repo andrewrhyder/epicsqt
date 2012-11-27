@@ -119,7 +119,7 @@ class WidgetRef
         QEWidget* ref;
 };
 
-// Class to provide a communication mechanism from the code creating QE widgetss to the QE widgetss.
+// Class to provide a communication mechanism from the code creating QE widgets to the QE widgets.
 // See ContainerProfile.cpp for details
 class QEPLUGINLIBRARYSHARED_EXPORT ContainerProfile
 {
@@ -150,9 +150,9 @@ public:
     QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
     bool isProfileDefined();                  // Returns true if a profile has been setup by setupProfile()
 
-    void addContainedWidget( QEWidget* containedWidget );    // Adds a reference to the list of QE widgetss created with this profile
-    QEWidget* getNextContainedWidget();                      // Returns a reference to the next QE widgetss in the list of QE widgetss created with this profile
-    void removeContainedWidget( QEWidget* containedWidget ); // Remove a reference from the list of QE widgetss created with this profile
+    void addContainedWidget( QEWidget* containedWidget );    // Adds a reference to the list of QE widgets created with this profile
+    QEWidget* getNextContainedWidget();                      // Returns a reference to the next QE widgets in the list of QE widgets created with this profile
+    void removeContainedWidget( QEWidget* containedWidget ); // Remove a reference from the list of QE widgets created with this profile
 
     unsigned int getMessageFormId();                    // Get the local copy of the message form ID
     unsigned int getPublishedMessageFormId();           // Get the currently published message form ID
@@ -179,7 +179,7 @@ private:
     static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
     static unsigned int publishedMessageFormId;         // Current form ID. Used to group forms with their widgets for messaging
 
-    static QList<WidgetRef> containedWidgets;           // List of QE widgetss created with this profile
+    static QList<WidgetRef> containedWidgets;           // List of QE widgets created with this profile
 
     static userLevelSignal userSignal;                  // Current user level signal object. One instance to signal all QE Widgets
     userLevelSlot userSlot;                             // Current user level slot object. An instance per ContainerProfile to recieve level changes

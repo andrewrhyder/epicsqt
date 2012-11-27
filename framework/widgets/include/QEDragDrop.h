@@ -43,7 +43,7 @@ public:
     void qcaDropEvent(QDropEvent *event);
     void qcaMousePressEvent(QMouseEvent *event);
 
-    // Virtual functions to allow this class to get and set the QE widgetss drag/drop text
+    // Virtual functions to allow this class to get and set the QE widgets drag/drop text
     // They are not defined as pure virtual as the QE widgets does not have to use this class's drag drop.
     virtual void setDrop( QVariant ) {}
     virtual QVariant getDrop() { return QVariant(); }

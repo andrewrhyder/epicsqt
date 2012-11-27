@@ -23,7 +23,7 @@
  */
 
 /*
-  This class adds common property support to all QE widgetss where the support involves interaction with the QWidget.
+  This class adds common property support to all QE widgets where the support involves interaction with the QWidget.
   Any common property support that requires a greater scope than the QWidget is managed in QEWidget.
 */
 

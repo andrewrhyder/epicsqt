@@ -247,8 +247,6 @@ public:
                          Icon        = QERadioButton::UPDATE_ICON,
                          TextAndIcon = QERadioButton::UPDATE_TEXT_AND_ICON,
                          State       = QERadioButton::UPDATE_STATE };
-    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QERadioButton::updateOptions)updateOption ); }
-    UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 
     // Pixmaps
     Q_PROPERTY(QPixmap pixmap0 READ getPixmap0Property WRITE setPixmap0Property)
@@ -259,24 +257,6 @@ public:
     Q_PROPERTY(QPixmap pixmap5 READ getPixmap5Property WRITE setPixmap5Property)
     Q_PROPERTY(QPixmap pixmap6 READ getPixmap6Property WRITE setPixmap6Property)
     Q_PROPERTY(QPixmap pixmap7 READ getPixmap7Property WRITE setPixmap7Property)
-
-    void setPixmap0Property( QPixmap pixmap ){ setDataPixmap( pixmap, 0 ); }
-    void setPixmap1Property( QPixmap pixmap ){ setDataPixmap( pixmap, 1 ); }
-    void setPixmap2Property( QPixmap pixmap ){ setDataPixmap( pixmap, 2 ); }
-    void setPixmap3Property( QPixmap pixmap ){ setDataPixmap( pixmap, 3 ); }
-    void setPixmap4Property( QPixmap pixmap ){ setDataPixmap( pixmap, 4 ); }
-    void setPixmap5Property( QPixmap pixmap ){ setDataPixmap( pixmap, 5 ); }
-    void setPixmap6Property( QPixmap pixmap ){ setDataPixmap( pixmap, 6 ); }
-    void setPixmap7Property( QPixmap pixmap ){ setDataPixmap( pixmap, 7 ); }
-
-    QPixmap getPixmap0Property(){ return getDataPixmap( 0 ); }
-    QPixmap getPixmap1Property(){ return getDataPixmap( 1 ); }
-    QPixmap getPixmap2Property(){ return getDataPixmap( 2 ); }
-    QPixmap getPixmap3Property(){ return getDataPixmap( 3 ); }
-    QPixmap getPixmap4Property(){ return getDataPixmap( 4 ); }
-    QPixmap getPixmap5Property(){ return getDataPixmap( 5 ); }
-    QPixmap getPixmap6Property(){ return getDataPixmap( 6 ); }
-    QPixmap getPixmap7Property(){ return getDataPixmap( 7 ); }
 
     // String formatting properties
     Q_PROPERTY(unsigned int precision READ getPrecision WRITE setPrecision)
@@ -293,18 +273,15 @@ public:
                    Integer         = QEStringFormatting::FORMAT_INTEGER,
                    UnsignedInteger = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,
                    Time            = QEStringFormatting::FORMAT_TIME };
-    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }
-    Formats getFormatProperty(){ return (Formats)getFormat(); }
 
     Q_ENUMS(Notations)
     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
     enum Notations { Fixed      = QEStringFormatting::NOTATION_FIXED,
                      Scientific = QEStringFormatting::NOTATION_SCIENTIFIC,
                      Automatic  = QEStringFormatting::NOTATION_AUTOMATIC };
-    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }
-    Notations getNotationProperty(){ return (Notations)getNotation(); }
 
     Q_PROPERTY(QString password READ getPassword WRITE setPassword)
+    Q_PROPERTY(bool confirmAction READ getConfirmAction WRITE setConfirmAction)
 
     Q_PROPERTY(bool writeOnPress READ getWriteOnPress WRITE setWriteOnPress)
     Q_PROPERTY(bool writeOnRelease READ getWriteOnRelease WRITE setWriteOnRelease)
@@ -332,8 +309,38 @@ public:
     enum CreationOptionNames { Open = QEForm::CREATION_OPTION_OPEN,
                                NewTab = QEForm::CREATION_OPTION_NEW_TAB,
                                NewWindow = QEForm::CREATION_OPTION_NEW_WINDOW };
+
+private:
+    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QERadioButton::updateOptions)updateOption ); }
+    UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
+
+    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }
+    Formats getFormatProperty(){ return (Formats)getFormat(); }
+
+    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }
+    Notations getNotationProperty(){ return (Notations)getNotation(); }
+
     void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEForm::creationOptions)creationOptionIn ); }
     CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
+
+    void setPixmap0Property( QPixmap pixmap ){ setDataPixmap( pixmap, 0 ); }
+    void setPixmap1Property( QPixmap pixmap ){ setDataPixmap( pixmap, 1 ); }
+    void setPixmap2Property( QPixmap pixmap ){ setDataPixmap( pixmap, 2 ); }
+    void setPixmap3Property( QPixmap pixmap ){ setDataPixmap( pixmap, 3 ); }
+    void setPixmap4Property( QPixmap pixmap ){ setDataPixmap( pixmap, 4 ); }
+    void setPixmap5Property( QPixmap pixmap ){ setDataPixmap( pixmap, 5 ); }
+    void setPixmap6Property( QPixmap pixmap ){ setDataPixmap( pixmap, 6 ); }
+    void setPixmap7Property( QPixmap pixmap ){ setDataPixmap( pixmap, 7 ); }
+
+    QPixmap getPixmap0Property(){ return getDataPixmap( 0 ); }
+    QPixmap getPixmap1Property(){ return getDataPixmap( 1 ); }
+    QPixmap getPixmap2Property(){ return getDataPixmap( 2 ); }
+    QPixmap getPixmap3Property(){ return getDataPixmap( 3 ); }
+    QPixmap getPixmap4Property(){ return getDataPixmap( 4 ); }
+    QPixmap getPixmap5Property(){ return getDataPixmap( 5 ); }
+    QPixmap getPixmap6Property(){ return getDataPixmap( 6 ); }
+    QPixmap getPixmap7Property(){ return getDataPixmap( 7 ); }
+
 };
 
 #endif // QERADIOBUTTON_H

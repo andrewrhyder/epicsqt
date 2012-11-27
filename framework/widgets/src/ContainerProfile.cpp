@@ -25,30 +25,30 @@
 /*
  * Description:
  *
- * This class provides a communication mechanism from the code creating QE widgetss to the QE widgetss.
+ * This class provides a communication mechanism from the code creating QE widgets to the QE widgets.
  *
- * When QE widgetss, such as QELabel, are created, they need to know environmental
+ * When QE widgets, such as QELabel, are created, they need to know environmental
  * information such as what macro substitutions to apply, or where to signal error messages.
- * Also, the code creating the QE widgetss may require a reference to all the created QE widgetss.
+ * Also, the code creating the QE widgets may require a reference to all the created QE widgets.
  * In some cases this information cannot be passed during construction or set up post construction
  * via a method. For example, when the object is being created from a UI file by Qt. In this case
  * the application code asks Qt to generate objects from a UI file and has no idea what
- * QE widgetss if any have been created.
+ * QE widgets if any have been created.
  *
- * To use this class, an instance of this class is instantiated prior to creating the QE widgetss.
+ * To use this class, an instance of this class is instantiated prior to creating the QE widgets.
  * Information to be communicated such as message handlers and macro substitutions is set up within this class.
- * Then the QE widgetss are created using a mechanism such as the QUiLoader class.
+ * Then the QE widgets are created using a mechanism such as the QUiLoader class.
  *
  * As each QE widgets is created it also instantiates an instance of the ContainerProfile class.
  * If any information has been provided, it can then be used.
  *
  * Note, a local copy of the environment profile is saved per instance, so an application
- * creating QE widgetss (the container) can define a profile, create QE widgetss, then release the profile.
+ * creating QE widgets (the container) can define a profile, create QE widgets, then release the profile.
  *
  * To use this class
  *         - Instantiate a ContainerProfile class
  *         - Call setupProfile()
- *         - Create QE widgetss
+ *         - Create QE widgets
  *         - Call releaseProfile()
  *
  * This class also communicates the current user level between the application and contained widgets.
@@ -79,7 +79,7 @@
 #include <QtDebug>
 
 
-// Static variables used to pass information from the creator of QE widgetss to the QE widgetss themselves.
+// Static variables used to pass information from the creator of QE widgets to the QE widgets themselves.
 QObject* ContainerProfile::publishedGuiLaunchConsumer = NULL;
 
 QList<QString>   ContainerProfile::publishedMacroSubstitutions;
@@ -118,11 +118,11 @@ ContainerProfile::~ContainerProfile()
 }
 
 /*
-  Setup the environmental profile prior to creating some QE widgetss.
+  Setup the environmental profile prior to creating some QE widgets.
   The new widgets will use this profile to determine their external environment.
 
   This method locks access to the envionmental profile. ReleaseProfile() must be
-  called to release the lock once all QE widgetss have been created.
+  called to release the lock once all QE widgets have been created.
   */
 void ContainerProfile::setupProfile( QObject* guiLaunchConsumerIn,
                                              QStringList pathListIn,
@@ -250,7 +250,7 @@ void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
 
 /*
   Extend the macro substitutions currently being used by all new QEWidgets.
-  This is used when a form is created. This allow a form to pass on macro substitutions to the QE widgetss it contains.
+  This is used when a form is created. This allow a form to pass on macro substitutions to the QE widgets it contains.
   Since it adds to the end of the existing macro substitutions, any substitutions already added by the originating
   container or higher forms take precedence.
   */
@@ -386,12 +386,12 @@ bool ContainerProfile::isProfileDefined()
 }
 
 /*
-  Add a QE widgets to the list of QE widgetss created under the currently published profile.
-  This provides the application with a list of its QE widgetss without having to trawl through
+  Add a QE widgets to the list of QE widgets created under the currently published profile.
+  This provides the application with a list of its QE widgets without having to trawl through
   the widget hierarchy looking for them. Note, in some applications the application may know
-  exactly what QE widgetss have been created, but if the application has loaded a .ui file
+  exactly what QE widgets have been created, but if the application has loaded a .ui file
   unrelated to the application development (for example, a user created control GUI), then the
-  application will not know how many, if any, QE widgetss it owns.
+  application will not know how many, if any, QE widgets it owns.
   */
 void ContainerProfile::addContainedWidget( QEWidget* containedWidget )
 {
@@ -399,8 +399,8 @@ void ContainerProfile::addContainedWidget( QEWidget* containedWidget )
 }
 
 /*
-  Remove a QE widgets to the list of QE widgetss created under the currently published profile.
-  This list provides the application with a list of its QE widgetss without having to trawl through
+  Remove a QE widgets to the list of QE widgets created under the currently published profile.
+  This list provides the application with a list of its QE widgets without having to trawl through
   the widget hierarchy looking for them. Generally the entire list is discarded after it has
   been used and is no longer relevent when the widgets are deleted. Some QEWidgets can be
   destroyed, however, while a form is being created (for example, QELabel widgets are used
@@ -426,9 +426,9 @@ void ContainerProfile::removeContainedWidget( QEWidget* containedWidget )
 }
 
 /*
-  Return the next QE widgets from the list of QE widgetss built using addContainedWidget().
+  Return the next QE widgets from the list of QE widgets built using addContainedWidget().
   Note, this is destructive to the list. It is fine if the application only needs to get the
-  widgets from the list once, such as when activating QE widgetss after creating a form.
+  widgets from the list once, such as when activating QE widgets after creating a form.
   */
 QEWidget* ContainerProfile::getNextContainedWidget()
 {

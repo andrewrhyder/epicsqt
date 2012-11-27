@@ -65,6 +65,7 @@ void QEGenericButton::dataSetup() {
     writeOnRelease = false;
     writeOnClick = true;
     setAllowDrop( false );
+    confirmRequired = false;
 
     // Set text alignment to the default for a push button
     // This will make no visual difference unless the style has been changed from the default
@@ -245,17 +246,49 @@ void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& a
 }
 
 /*
+ Returns true if no user confirmation required, or if user confirms a button press acion
+ */
+bool QEGenericButton::confirmAction()
+{
+    // Return OK if no confirmation required
+    if( !confirmRequired )
+        return true;
+
+    // Get confirmation from the user as to what to do
+    int confirm = QMessageBox::Yes;
+    confirm = QMessageBox::warning( (QWidget*)getButtonQObject(), "Confirm write", "Do you want to perform this action ?",
+                                    QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes );
+
+    // Return yes/no
+    switch( confirm )
+    {
+        case QMessageBox::Yes:  return true;
+        case QMessageBox::No:   return false;
+        default:                return false;   // Sanity check
+    }
+
+}
+
+/*
     Button press event.
 */
-void QEGenericButton::userPressed() {
+void QEGenericButton::userPressed()
+{
+    // Do nothing if not acting on button press, or user confirmation required but not given, or password required but not given
+    if( !writeOnPress ||  !confirmAction() || !checkPassword() )
+        return;
+
     // Get the variable to write to
     QEString *qca = (QEString*)getQcaItem(0);
 
-    // If a QCa object is present (if there is a variable to write to)
-    // and the object is set up to write when the user presses the button
-    // then write the value
-    if( qca && writeOnPress && checkPassword() ) {
-        qca->writeString( substituteThis( pressText ));
+    // If a QCa object is present (if there is a variable to write to) then write the value
+    if( qca )
+    {
+        QString error;
+        if( !qca->writeString( substituteThis( pressText ), error ) )
+        {
+            QMessageBox::warning( (QWidget*)getButtonQObject(), QString( "Write failed" ), error, QMessageBox::Cancel );
+        }
     }
 }
 
@@ -263,40 +296,57 @@ void QEGenericButton::userPressed() {
     Button release event.
 */
 
-void QEGenericButton::userReleased() {
+void QEGenericButton::userReleased()
+{
+    // Do nothing if not acting on button release, or user confirmation required but not given, or password required but not given
+    if( !writeOnRelease ||  !confirmAction() || !checkPassword() )
+        return;
+
     // Get the variable to write to
     QEString *qca = (QEString*)getQcaItem(0);
 
-    // If a QCa object is present (if there is a variable to write to)
-    // and the object is set up to write when the user releases the button
-    // then write the value
-    if( qca && writeOnRelease && checkPassword() ) {
-        qca->writeString( substituteThis( releaseText ));
+    // If a QCa object is present (if there is a variable to write to) then write the value
+    if( qca )
+    {
+        QString error;
+        if( !qca->writeString( substituteThis( releaseText ), error ) )
+        {
+            QMessageBox::warning( (QWidget*)getButtonQObject(), QString( "Write failed" ), error, QMessageBox::Cancel );
+        }
     }
 }
 
 /*
     Button click event.
 */
-void QEGenericButton::userClicked( bool checked ) {
+void QEGenericButton::userClicked( bool checked )
+{
+    // Do nothing if nothing to do. (no point asking for confirmation or password)
+    // Then keep doing nothing if user confirmation required but not given, or password required but not given
+    if(( !writeOnClick && program.isEmpty() && guiName.isEmpty() ) ||  !confirmAction() || !checkPassword() )
+        return;
+
     // Get the variable to write to
     QEString *qca = (QEString*)getQcaItem(0);
-
-    // Do nothing if some action is due to be taken, but user does not anter any required password correctly
-    if( ( writeOnClick || !program.isEmpty() || !guiName.isEmpty() ) && !checkPassword() )
-        return;
 
     // If a QCa object is present (if there is a variable to write to)
     // and the object is set up to write when the user clicks the button
     // then write the value
-    if( qca && writeOnClick ) {
+    if( qca && writeOnClick )
+    {
+        QString writeText;
         if( !checked )
         {
-            qca->writeString( substituteThis( substituteThis( clickText )));
+            writeText = clickText;
         }
         else
         {
-            qca->writeString( substituteThis( substituteThis( clickCheckedText )));
+            writeText = clickCheckedText;
+        }
+        QString error;
+        if( !qca->writeString( substituteThis( writeText ), error ) )
+        {
+            QMessageBox::warning( (QWidget*)getButtonQObject(), QString( "Write failed" ), error, QMessageBox::Cancel );
         }
     }
 
@@ -345,7 +395,7 @@ void QEGenericButton::userClicked( bool checked ) {
         // Remove this form's macro substitutions now all it's children are created
         removeMacroSubstitutions();
 
-        // Release the profile now all QE widgetss have been created
+        // Release the profile now all QE widgets have been created
         releaseProfile();
     }
 
@@ -444,6 +494,16 @@ void QEGenericButton::setPassword( QString password )
 QString QEGenericButton::getPassword()
 {
     return QEGenericButton::password;
+}
+
+// confirm action
+void QEGenericButton::setConfirmAction( bool confirmRequiredIn )
+{
+    confirmRequired = confirmRequiredIn;
+}
+bool QEGenericButton::getConfirmAction()
+{
+    return confirmRequired;
 }
 
 // write on press

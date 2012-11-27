@@ -266,7 +266,7 @@ void MainWindow::onWindowMenuSelection( QAction* action )
 // Present the 'About' dialog
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "About QEGui", "<b>QEGui</b> version 0.1");
+    QMessageBox::about(this, "About QEGui", "<b>QEGui</b> version 1.0");
 
 }
 

@@ -23,12 +23,12 @@
  */
 
 /*
-  This class adds common drag/drop support to all QE widgetss if required.
+  This class adds common drag/drop support to all QE widgets if required.
 
   This class manages the common drag and drop functions leaving the actual QE widgets class
   to supply and accept the data transfered (typically a PV name).
 
-  All QE widgetss (eg, QELabel, QELineEdit) have an instance of this class as they based on
+  All QE widgets (eg, QELabel, QELineEdit) have an instance of this class as they based on
   QEWidget which itself uses this class as a base class.
 
   To implement any sort of drag/drop a QE widgets (like any other widget) must implement the following

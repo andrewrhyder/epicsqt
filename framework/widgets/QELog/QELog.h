@@ -191,7 +191,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QEWidget
         Q_PROPERTY(QColor errorColor READ getErrorColor WRITE setErrorColor)
 
         // Message properties !!!Include these by a common definition (QCA_MESSAGE_PROPERTIES for example)
-        // Not all QE widgetss need these properties (only those that do something with messages - like the logging widget)
+        // Not all QE widgets need these properties (only those that do something with messages - like the logging widget)
         Q_ENUMS(MessageFilterOptions)
         Q_PROPERTY(MessageFilterOptions messageFormFilter READ getMessageFormFilter WRITE setMessageFormFilter )
         Q_PROPERTY(MessageFilterOptions messageSourceFilter READ getMessageSourceFilter WRITE setMessageSourceFilter )

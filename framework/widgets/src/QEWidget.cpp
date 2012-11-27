@@ -162,7 +162,7 @@ void QEWidget::setNumVariables( unsigned int numVariablesIn ) {
 
 /*
    Initiate updates.
-   This is only required when QE widgetss are loaded within a form and not directly by 'designer'.
+   This is only required when QE widgets are loaded within a form and not directly by 'designer'.
    When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
    the variable name or variable name substitution properties are set
  */

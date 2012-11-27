@@ -61,6 +61,10 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     void setPassword( QString password );
     QString getPassword();
 
+    // confirm
+    void setConfirmAction( bool confirmRequiredIn );
+    bool getConfirmAction();
+
     // write on press
     void setWriteOnPress( bool writeOnPress );
     bool getWriteOnPress();
@@ -128,7 +132,7 @@ protected:
 public:
     void onGeneralMessage( QString message );
 
-  protected:
+private:
     Qt::Alignment textAlignment;
 
     QString password; // Text to be entered in a dialog before any action
@@ -136,6 +140,7 @@ public:
     bool writeOnPress;
     bool writeOnRelease;
     bool writeOnClick;
+    bool confirmRequired;     // Request confirmation before acting on a button event
     QString releaseText;      // Text to write on a button release
     QString pressText;        // Text to write on a button press
     QString clickText;        // Text to write on a button click
@@ -149,16 +154,19 @@ public:
 
     bool localEnabled;
 
-    void establishConnection( unsigned int variableIndex );
 
     updateOptions updateOption;
 
     QString labelText;                                                 // Fixed label text to which substitutions will be applied
 
     bool getIsConnected(){ return isConnected; }
+    bool confirmAction();
+
 
 protected:
     void setup();
+    void establishConnection( unsigned int variableIndex );
+
 private:
     void dataSetup();
     void commandSetup();
