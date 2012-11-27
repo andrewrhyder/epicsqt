@@ -1,4 +1,5 @@
-/*
+/*  StartupParams.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -22,7 +23,8 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-// Manage startup parameters. Parse the startup parameters in a command line, serialize and unserialize parameters when passing them to another application instance.
+// Manage startup parameters. Parse the startup parameters in a command line, serialize
+// and unserialize parameters when passing them to another application instance.
 
 #include <QStringList>
 #include "StartupParams.h"
@@ -34,6 +36,7 @@ startupParams::startupParams()
     enableEdit = false;
     disableMenu = false;
     singleApp = false;
+    printHelp = false;    // not serialized
 }
 
 // Unserialize application startup parameters
@@ -114,6 +117,13 @@ void startupParams::getStartupParams( QStringList args )
                 case 's':
                 case 'S':
                     singleApp = true;
+                    break;
+
+                // Help flag
+                //
+                case 'h':
+                case 'H':
+                    printHelp = true;
                     break;
 
                         // 'Menu disabled' flag
