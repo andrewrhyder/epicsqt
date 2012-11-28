@@ -113,8 +113,8 @@ static QList <QEArchiveInterface *>archiveInterfaceList;
 static QString pattern;
 static QHash <QString, SourceSpec> pvNameHash;
 
-static bool alreadyConstructed = false;
 static QEArchiveManager singleton;
+static QMutex *initialiseMutex = new QMutex ();
 
 
 //==============================================================================
@@ -123,14 +123,16 @@ static QEArchiveManager singleton;
 //
 QEArchiveManager::QEArchiveManager ()
 {
-   if (alreadyConstructed) {
-       bufferMessage ("Duplicate QEArchiveManager object - not used");
-       return;
+   if (this != &singleton) {
+      // This is NOT the singleton object.
+      //
+      bufferMessage ("Duplicate QEArchiveManager object - not used");
+      throw "Duplicate QEArchiveManager object - not used";
+      return;
    }
 
-   alreadyConstructed = true;
+   this->isInitialised = false;
    bufferedUserMessages.clear ();
-   initialise ();
 }
 
 //------------------------------------------------------------------------------
@@ -187,6 +189,21 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
 //
 void QEArchiveManager::initialise ()
 {
+   if (this != &singleton) {
+      // This is NOT the singleton object
+      throw "QEArchiveManager::initialise - attempt to use non singleton object";
+      return;
+   }
+
+   {
+      QMutexLocker locker (initialiseMutex);
+
+      if (this->isInitialised) {
+         return;
+      }
+      this->isInitialised = true;
+   }
+
    QString archives = getenv ("QE_ARCHIVE_LIST");
    QString pattern = getenv ("QE_ARCHIVE_PATTERN");
 
@@ -398,6 +415,9 @@ void QEArchiveManager::valuesResponse (const QObject * userData,
 //
 QEArchiveAccess::QEArchiveAccess (QObject * parent):QObject (parent)
 {
+   // This function is essentially idempotent.
+   //
+   singleton.initialise ();
 }
 
 //------------------------------------------------------------------------------
@@ -496,6 +516,11 @@ bool QEArchiveAccess::readArchive (QObject * userData,
          //
          context = new ValuesResponseContext (this, userData);
          pvNames.append (pvName);
+
+         // The interface signals return data to the valuesResponse slot in the QEArchiveManager
+         // object which (using supplied context) emits QEArchiveAccess setArchiveData signal on behalf
+         // of this object.
+         //
          sourceSpec.interface->valuesRequest (context, key, startTime, endTime, count, how, pvNames, element);
 
       } else {

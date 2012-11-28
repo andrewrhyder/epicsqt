@@ -50,6 +50,11 @@ public:
     QEArchiveManager();
 
 private:
+    // Object has delayed initialisation.
+    // This ensure object initialised once only.
+    //
+    bool isInitialised;
+
    /* This function connects the specified the archive(s). The format of the string is
     *  space separated set of one or more hostname:port/endpoint triplets, e.g.
     *
@@ -70,6 +75,8 @@ private:
    void initialise ();
    void clear ();
 
+   friend class QEArchiveAccess;
+
 private slots:
    void archivesResponse (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);
    void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QEArchiveInterface::PVNameList& pvNameList);
@@ -85,8 +92,8 @@ private slots:
 class QEArchiveAccess : public QObject, UserMessage {
    Q_OBJECT
 public:
-   QEArchiveAccess (QObject * parent = 0);
-   ~QEArchiveAccess ();
+   explicit QEArchiveAccess (QObject * parent = 0);
+   virtual ~QEArchiveAccess ();
 
    static int getNumberInterfaces ();
    static QString getPattern ();
@@ -106,6 +113,7 @@ public:
 
 signals:
    void setArchiveData (const QObject *, const bool, const QCaDataPointList &);
+
    friend class QEArchiveManager;
 };
 
