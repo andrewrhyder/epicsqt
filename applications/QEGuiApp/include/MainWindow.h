@@ -56,7 +56,7 @@ private:
     void loadGuiIntoCurrentWindow( QEForm* newGui );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );               // Load a new gui into a new tab
 
-    void setTitle( QString fileName );                      // Set the main window title to 'AS GUI - filename'
+    void setTitle( QString title );                      // Set the main window title
 
     QTabWidget* getCentralTabs();                           // Return the central widget if it is the tab widget
     QEForm* getCentralGui();                             // Return the central widget if it is a single gui, else return NULL

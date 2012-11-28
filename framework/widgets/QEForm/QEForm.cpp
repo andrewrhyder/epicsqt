@@ -157,6 +157,9 @@ bool QEForm::readUiFile()
                 ui = NULL;
             }
 
+            // Get filename info
+            QFileInfo fileInfo( uiFile->fileName() );
+
             // Note the full file path
             QDir uiDir;
             fullUiFileName = uiDir.cleanPath( uiDir.absoluteFilePath( uiFile->fileName() ) );
@@ -170,12 +173,6 @@ bool QEForm::readUiFile()
 
             // Monitor the opened file
             fileMon.addPath( fullUiFileName );
-
-            // Extract the file name part used for the window title
-            QFileInfo fileInfo( uiFile->fileName() );
-            title = fileInfo.fileName();
-            if( title.endsWith( ".ui" ) )
-                title.chop( 3 );
 
             // If profile has been published (for example by an application creating this form), then publish our own local profile
             bool localProfile = false;
@@ -272,8 +269,27 @@ bool QEForm::readUiFile()
             QRect uiRect = ui->geometry();
             ui->setGeometry(0, 0, uiRect.width(), uiRect.height());
 
-            // Update the title from the file name to the top level widget title, if it has one
-            qDebug() << "Title???" << ui->property( "Title" );
+            // Set the title to the name of the top level widget title, if it has one
+            title.clear();
+            QVariant windowTitleV = ui->property( "windowTitle" );
+            if( windowTitleV.isValid() && windowTitleV.type() == QVariant::String )
+            {
+                QString windowTitle = windowTitleV.toString();
+                if( !windowTitle.isEmpty() )
+                {
+                    title = substituteThis( windowTitle );
+                }
+            }
+
+            // If no title was obtained from the ui, use the file name
+            if( title.isEmpty() )
+            {
+                // Extract the file name part used for the window title
+                QFileInfo fileInfo( uiFile->fileName() );
+                title = QString( "QEGui " ).append( fileInfo.fileName() );
+                if( title.endsWith( ".ui" ) )
+                    title.chop( 3 );
+            }
 
             // Load the user interface into the QEForm widget
             ui->setParent( this );

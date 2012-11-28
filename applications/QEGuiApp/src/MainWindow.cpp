@@ -418,8 +418,10 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     // Recreate the gui and load it in place of the current window
     if( guiFileName.size() )
     {
+        profile.publishOwnProfile();
         QEForm* newGui = createGui( guiPath );
         loadGuiIntoCurrentWindow( newGui );
+        profile.releaseProfile();
     }
 }
 
@@ -841,13 +843,17 @@ QEForm* MainWindow::createGui( QString fileName )
     return gui;
  }
 
-// Set the main window title to 'AS GUI - filename'
-void MainWindow::setTitle( QString fileName )
+// Set the main window title (default to 'QEGui' if no title supplied)
+void MainWindow::setTitle( QString title )
 {
-    QString title( "AS GUI" );
-    if( !fileName.isEmpty() )
-        title.append(  " - ").append( fileName );
-    setWindowTitle( title );
+    if( title.isEmpty() )
+    {
+        setWindowTitle( "QEGui" );
+    }
+    else
+    {
+        setWindowTitle( title );
+    }
 }
 
 // Return the central widget if it is the tab widget, else return NULL
