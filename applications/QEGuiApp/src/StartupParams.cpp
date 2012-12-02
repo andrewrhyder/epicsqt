@@ -126,9 +126,9 @@ void startupParams::getStartupParams( QStringList args )
                     printHelp = true;
                     break;
 
-                        // 'Menu disabled' flag
-                case 'm':
-                case 'M':
+                // 'menu Bar disabled' flag
+                case 'b':
+                case 'B':
                     disableMenu = true;
                     break;
 
@@ -142,6 +142,17 @@ void startupParams::getStartupParams( QStringList args )
                         arg.clear();
                     }
                     break;
+
+                    // 'macros' flag (Remainder of argument is the macros)
+                    // Macros after any file argument override these, but this is usefull if there is no file argument, (so no option of second macros argument)
+                    case 'm':
+                    case 'M':
+                        // Get the macros (everthing after the '-m')
+                        {
+                            substitutions = arg.remove(0,1);
+                            arg.clear();
+                        }
+                        break;
 
                 default:
                     // Unrecognised switch
@@ -158,6 +169,7 @@ void startupParams::getStartupParams( QStringList args )
     }
 
     // Get substitutions if any
+    // These will override any in '-m' switch
     if( args.size() )
     {
         substitutions = args[0];
