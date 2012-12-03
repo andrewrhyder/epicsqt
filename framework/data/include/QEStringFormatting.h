@@ -131,6 +131,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     bool trailingZeros;              // Add trailing zeros when required (up to the precision).
     formats format;                  // Presentation required (Floating, integer, etc).
     formats dbFormat;                // Format determined from read value (Floating, integer, etc).
+    bool dbFormatArray;              // True if read value is an array
     bool addUnits;                   // Flag use engineering units from database
     int precision;                   // Floating point precision. Used if 'useDbPrecision' is false.
     QList<localEnumerationItem> localEnumeration; // Local enumerations (example: 0="Not referencing",1=Referencing)

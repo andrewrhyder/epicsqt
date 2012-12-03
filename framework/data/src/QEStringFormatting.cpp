@@ -40,6 +40,7 @@ QEStringFormatting::QEStringFormatting() {
     trailingZeros = true;
     format = FORMAT_DEFAULT;
     dbFormat = FORMAT_DEFAULT;
+    dbFormatArray = false;
     stream.setIntegerBase( 10 );
     stream.setRealNumberNotation( QTextStream::FixedNotation );
     addUnits = true;
@@ -149,69 +150,81 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
         return QVariant();
     }
 
-    // Format the value if not enumerated
-    switch( f )
+    // If formating as a single value...
+    if( !dbFormatArray )
     {
-        case FORMAT_DEFAULT:
-            {
-                value = QVariant( unitlessText );
-                ok = true;
-            }
-            break;
-
-        case FORMAT_FLOATING:
-            {
-                double d = unitlessText.toDouble( &ok );
-                if( ok )
+        // Format the value if not enumerated
+        switch( f )
+        {
+            case FORMAT_DEFAULT:
                 {
-                    value = QVariant( d );
+                    value = QVariant( unitlessText );
+                    ok = true;
                 }
-            }
-            break;
+                break;
 
-        case FORMAT_INTEGER:
-            {
-                qlonglong ll = unitlessText.toLongLong( &ok );
-                if( ok )
+            case FORMAT_FLOATING:
                 {
-                    value = QVariant( ll );
+                    double d = unitlessText.toDouble( &ok );
+                    if( ok )
+                    {
+                        value = QVariant( d );
+                    }
                 }
-            }
-            break;
+                break;
 
-        case FORMAT_UNSIGNEDINTEGER:
-            {
-                qulonglong ul = unitlessText.toULongLong( &ok );
-                if( ok )
+            case FORMAT_INTEGER:
                 {
-                    value = QVariant( ul );
+                    qlonglong ll = unitlessText.toLongLong( &ok );
+                    if( ok )
+                    {
+                        value = QVariant( ll );
+                    }
                 }
-            }
-            break;
+                break;
 
-        case FORMAT_TIME:
-            //??? to do
-            value = QVariant( unitlessText );
-            ok = true;
-            break;
+            case FORMAT_UNSIGNEDINTEGER:
+                {
+                    qulonglong ul = unitlessText.toULongLong( &ok );
+                    if( ok )
+                    {
+                        value = QVariant( ul );
+                    }
+                }
+                break;
 
-        case FORMAT_LOCAL_ENUMERATE:
-            {
+            case FORMAT_TIME:
                 //??? to do
                 value = QVariant( unitlessText );
                 ok = true;
-            }
-            break;
+                break;
 
-        case FORMAT_STRING:
-            {
-                value = QVariant( unitlessText );
-                ok = true;
-            }
-            break;
+            case FORMAT_LOCAL_ENUMERATE:
+                {
+                    //??? to do
+                    value = QVariant( unitlessText );
+                    ok = true;
+                }
+                break;
 
-    };
+            case FORMAT_STRING:
+                {
+                    value = QVariant( unitlessText );
+                    ok = true;
+                }
+                break;
 
+        };
+    }
+
+    // Formating as an array...
+    // Let the lower level code format the characters as an array
+    else
+    {
+        // Format the value if not enumerated
+        value = QVariant( unitlessText );
+        ok = true;
+    }
     return value;
 }
 
@@ -220,8 +233,9 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
 // or when presenting a value for which default formatting has been requested.
 void QEStringFormatting::determineDbFormat( const QVariant &value )
 {
-    // Assume default formatting
+    // Assume default formatting, and only a single value
     dbFormat = FORMAT_DEFAULT;
+    dbFormatArray = false;
 
     // Get the value type
     QVariant::Type t = value.type();
@@ -229,6 +243,9 @@ void QEStringFormatting::determineDbFormat( const QVariant &value )
     // If the value is a list, get the type of the first element in the list
     if( t == QVariant::List )
     {
+        // Note that whatever the format, we have an array of them
+        dbFormatArray = true;
+
         // Get the list
         const QVariantList valueArray = value.toList();
 
