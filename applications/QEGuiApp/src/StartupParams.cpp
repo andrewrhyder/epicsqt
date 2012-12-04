@@ -91,10 +91,11 @@ void startupParams::getStartupParams( QStringList args )
     args.removeFirst();
 
     // Get switches
-    // Switches may be seperate or grouped with the exception that a switch parameter will extend to the end of the argument
+    // Switches may be separate or grouped.
+    // Switches that precede a parameter (-p, -m) may be grouped. Associated parameters are then expected in the order the switches were specified,
     // Examples:
-    // -e -p/home
-    // -ep/home
+    // -e -p /home
+    // -epm /home PUMP=02
     while( args.size() && args[0].left(1) == QString( "-" ) )
     {
         // Get the next argument
@@ -109,50 +110,47 @@ void startupParams::getStartupParams( QStringList args )
             {
                 // 'Editable' flag
                 case 'e':
-                case 'E':
                     enableEdit = true;
                     break;
 
                 // 'Single App' flag
                 case 's':
-                case 'S':
                     singleApp = true;
                     break;
 
                 // Help flag
                 //
                 case 'h':
-                case 'H':
                     printHelp = true;
                     break;
 
                 // 'menu Bar disabled' flag
                 case 'b':
-                case 'B':
                     disableMenu = true;
                     break;
 
-                // 'path' flag (Remainder of argument is the path)
+                // 'paths' flag
+                // Take next non switch parameter as path list
                 case 'p':
-                case 'P':
-                    // Get the path (everthing after the 'p')
+                    // Get the path list (next parameter as long as it isn't a switch)
+                    if( args.count() >= 1 && args[1].left(1) != QString( "-" ) )
                     {
-                        QString pathParam = arg.remove(0,1);
+                        QString pathParam = args[0];
                         pathList = pathParam.split(QRegExp("\\s+"));
-                        arg.clear();
+                        args.removeFirst();
                     }
                     break;
 
-                    // 'macros' flag (Remainder of argument is the macros)
-                    // Macros after any file argument override these, but this is usefull if there is no file argument, (so no option of second macros argument)
-                    case 'm':
-                    case 'M':
-                        // Get the macros (everthing after the '-m')
-                        {
-                            substitutions = arg.remove(0,1);
-                            arg.clear();
-                        }
-                        break;
+                // 'macros' flag
+                // Take next non switch parameter as macro substitutions
+                case 'm':
+                    // Get the macros (next parameter as long as it isn't a switch)
+                    if( args.count() >= 1 && args[1].left(1) != QString( "-" ) )
+                    {
+                        substitutions = args[0];
+                        args.removeFirst();
+                    }
+                    break;
 
                 default:
                     // Unrecognised switch
@@ -165,14 +163,6 @@ void startupParams::getStartupParams( QStringList args )
     if( args.size() )
     {
         filename = args[0];
-        args.removeFirst();
-    }
-
-    // Get substitutions if any
-    // These will override any in '-m' switch
-    if( args.size() )
-    {
-        substitutions = args[0];
         args.removeFirst();
     }
 }
