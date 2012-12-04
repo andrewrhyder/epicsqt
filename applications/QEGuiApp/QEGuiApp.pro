@@ -42,6 +42,7 @@ HEADERS += include/MainWindow.h \
 
 INCLUDEPATH += . \
     ./include \
+    ../../framework/include \
     ../../framework/api/include \
     ../../framework/data/include \
     ../../framework/widgets/include \

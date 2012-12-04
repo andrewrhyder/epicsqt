@@ -48,6 +48,7 @@ OTHER_FILES += \
 
 
 HEADERS += \
+    include/QEFrameworkVersion.h \
     api/include/Generic.h \
     api/include/CaRecord.h \
     api/include/CaRef.h \

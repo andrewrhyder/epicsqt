@@ -1,4 +1,5 @@
-/*
+/*  MainWindow.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -27,6 +28,7 @@
 
 #include <MainWindow.h>
 #include <QEForm.h>
+#include <QEFrameworkVersion.h>
 #include <QMessageBox>
 #include <ContainerProfile.h>
 #include <QVariant>
@@ -266,8 +268,7 @@ void MainWindow::onWindowMenuSelection( QAction* action )
 // Present the 'About' dialog
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "About QEGui", "<b>QEGui</b> version 1.0");
-
+    QMessageBox::about(this, "About QEGui", QString ("<b>QEGui</b> version ").append(QE_VERSION_STRING));
 }
 
 // Change the current tab
