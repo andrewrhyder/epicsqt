@@ -8,7 +8,7 @@ pdflatex available in lexlive "yum install texlive-latex.x86_64")
   doxygen Doxyfile
   cd ~/epicsqt/documentation/latex
   make pdf
-  cp refman.pdf ~/epicsqt/documentation/QEReferenceManual.pdf
+  cp refman.pdf ~/epicsqt/documentation/QE_ReferenceManual.pdf
 
 Ensure repository is up to date:
   cd ~/epicsqt
