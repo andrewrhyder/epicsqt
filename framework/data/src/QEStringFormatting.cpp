@@ -200,30 +200,89 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
                 break;
 
             case FORMAT_LOCAL_ENUMERATE:
-                {
-                    //??? to do
-                    value = QVariant( unitlessText );
-                    ok = true;
-                }
+                //??? to do
+                value = QVariant( unitlessText );
+                ok = true;
                 break;
 
             case FORMAT_STRING:
-                {
-                    value = QVariant( unitlessText );
-                    ok = true;
-                }
+                value = QVariant( unitlessText );
+                ok = true;
                 break;
 
         };
     }
 
     // Formating as an array...
-    // Let the lower level code format the characters as an array
+    // Generally, just interpret the text as a single value and produce an array with a single value in it
+    // For unsigned int, however, use each character as a value as EPICS records of arrays of unsigned ints are often used for strings
+    // Some options don't make a lot of sense (an array of strings?)
     else
     {
-        // Format the value if not enumerated
-        value = QVariant( unitlessText );
-        ok = true;
+        QVariantList list;
+        int len = unitlessText.size();
+
+        switch( f )
+        {
+            case FORMAT_DEFAULT:
+                {
+                    for( int i = 0; i < len; i++ )
+                    {
+                        list.append( QVariant( unitlessText[i] ));
+                    }
+                    ok = true;
+                }
+                break;
+
+            case FORMAT_FLOATING:
+                {
+                    double d = unitlessText.toDouble( &ok );
+                    if( ok )
+                    {
+                        list.append( QVariant( d ));
+                    }
+                }
+                break;
+
+            case FORMAT_INTEGER:
+                {
+                    qlonglong ll = unitlessText.toLongLong( &ok );
+                    if( ok )
+                    {
+                        list.append( QVariant( ll ));
+                    }
+                }
+                break;
+
+            case FORMAT_UNSIGNEDINTEGER:
+                {
+                    for( int i = 0; i < len; i++ )
+                    {
+                        qulonglong ul = unitlessText[i].toAscii();
+                        list.append( QVariant( ul ));
+                    }
+                    ok = true;
+                }
+                break;
+
+            case FORMAT_TIME:
+                //??? to do
+                list.append( QVariant( unitlessText ));
+                ok = true;
+                break;
+
+            case FORMAT_LOCAL_ENUMERATE:
+                //??? to do
+                list.append( QVariant( unitlessText ));
+                ok = true;
+                break;
+
+            case FORMAT_STRING:
+                list.append( QVariant( unitlessText ));
+                ok = true;
+                break;
+        }
+        value = list;
     }
     return value;
 }

@@ -83,7 +83,7 @@ namespace caconnection {
       void removeSubscription(); //< NOT IMPLEMENTED
 
       ca_responses readChannel( void (*readHandler)(struct event_handler_args), void* args, short dbrStructType );
-      ca_responses writeChannel( void (*writeHandler)(struct event_handler_args), void* args, short dbrStructType, const void* dbrValue );
+      ca_responses writeChannel( void (*writeHandler)(struct event_handler_args), void* args, short dbrStructType, int count, const void* dbrValue );
 
       void setLinkState( link_states newLinkState );
       link_states getLinkState();

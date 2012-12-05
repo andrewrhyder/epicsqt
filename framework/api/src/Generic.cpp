@@ -197,9 +197,20 @@ void Generic::setShort( short newValue ) {
 void Generic::setShort( short* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
     value = new short[arrayCountIn];
-    memcpy( value, newValueArray, sizeof(short)*arrayCountIn );
+    if( newValueArray )
+    {
+        memcpy( value, newValueArray, sizeof(short)*arrayCountIn );
+    }
     arrayCount = arrayCountIn;
     type = SHORT;
+}
+
+void Generic::updateShort( short newValue, unsigned long arrayIndex ) {
+    if( arrayIndex >= arrayCount )
+        return;
+
+    short* valueArray = (short*)value;
+    valueArray[arrayIndex] = newValue;
 }
 
 /*
@@ -215,9 +226,20 @@ void Generic::setUnsignedShort( unsigned short newValue ) {
 void Generic::setUnsignedShort( unsigned short* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
     value = new unsigned short[arrayCountIn];
-    memcpy( value, newValueArray, sizeof(unsigned short)*arrayCountIn );
+    if( newValueArray )
+    {
+        memcpy( value, newValueArray, sizeof(unsigned short)*arrayCountIn );
+    }
     arrayCount = arrayCountIn;
     type = UNSIGNED_SHORT;
+}
+
+void Generic::updateUnsignedShort( unsigned short newValue, unsigned long arrayIndex ) {
+    if( arrayIndex >= arrayCount )
+        return;
+
+    unsigned short* valueArray = (unsigned short*)value;
+    valueArray[arrayIndex] = newValue;
 }
 
 /*
@@ -233,9 +255,20 @@ void Generic::setUnsignedChar( unsigned char newValue ) {
 void Generic::setUnsignedChar( unsigned char* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
     value = new unsigned char[arrayCountIn];
-    memcpy( value, newValueArray, sizeof(unsigned char)*arrayCountIn );
+    if( newValueArray )
+    {
+        memcpy( value, newValueArray, sizeof(unsigned char)*arrayCountIn );
+    }
     arrayCount = arrayCountIn;
     type = UNSIGNED_CHAR;
+}
+
+void Generic::updateUnsignedChar( unsigned char newValue, unsigned long arrayIndex ) {
+    if( arrayIndex >= arrayCount )
+        return;
+
+    unsigned char* valueArray = (unsigned char*)value;
+    valueArray[arrayIndex] = newValue;
 }
 
 /*
@@ -251,9 +284,20 @@ void Generic::setLong( long newValue ) {
 void Generic::setLong( long* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
     value = new long[arrayCountIn];
-    memcpy( value, newValueArray, sizeof(long)*arrayCountIn );
+    if( newValueArray )
+    {
+        memcpy( value, newValueArray, sizeof(long)*arrayCountIn );
+    }
     arrayCount = arrayCountIn;
     type = LONG;
+}
+
+void Generic::updateLong( long newValue, unsigned long arrayIndex ) {
+    if( arrayIndex >= arrayCount )
+        return;
+
+    long* valueArray = (long*)value;
+    valueArray[arrayIndex] = newValue;
 }
 
 /*
@@ -269,11 +313,21 @@ void Generic::setUnsignedLong( unsigned long newValue ) {
 void Generic::setUnsignedLong( unsigned long* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
     value = new unsigned long[arrayCountIn];
-    memcpy( value, newValueArray, sizeof(unsigned long)*arrayCountIn );
+    if( newValueArray )
+    {
+        memcpy( value, newValueArray, sizeof(unsigned long)*arrayCountIn );
+    }
     arrayCount = arrayCountIn;
     type = UNSIGNED_LONG;
 }
 
+void Generic::updateUnsignedLong( unsigned long newValue, unsigned long arrayIndex ) {
+    if( arrayIndex >= arrayCount )
+        return;
+
+    unsigned long* valueArray = (unsigned long*)value;
+    valueArray[arrayIndex] = newValue;
+}
 /*
     Creates and records new type float
 */
@@ -287,9 +341,20 @@ void Generic::setFloat( float newValue ) {
 void Generic::setFloat( float* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
     value = new float[arrayCountIn];
-    memcpy( value, newValueArray, sizeof(float)*arrayCountIn );
+    if( newValueArray )
+    {
+        memcpy( value, newValueArray, sizeof(float)*arrayCountIn );
+    }
     arrayCount = arrayCountIn;
     type = FLOAT;
+}
+
+void Generic::updateFloat( float newValue, unsigned long arrayIndex ) {
+    if( arrayIndex >= arrayCount )
+        return;
+
+    float* valueArray = (float*)value;
+    valueArray[arrayIndex] = newValue;
 }
 
 /*
@@ -305,9 +370,20 @@ void Generic::setDouble( double newValue ) {
 void Generic::setDouble( double* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
     value = new double[arrayCountIn];
-    memcpy( value, newValueArray, sizeof(double)*arrayCountIn );
+    if( newValueArray )
+    {
+        memcpy( value, newValueArray, sizeof(double)*arrayCountIn );
+    }
     arrayCount = arrayCountIn;
     type = DOUBLE;
+}
+
+void Generic::updateDouble( double newValue, unsigned long arrayIndex ) {
+    if( arrayIndex >= arrayCount )
+        return;
+
+    double* valueArray = (double*)value;
+    valueArray[arrayIndex] = newValue;
 }
 
 /*

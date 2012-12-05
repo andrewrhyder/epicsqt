@@ -58,18 +58,25 @@ namespace generic {
       void setString( std::string newValue );
       void setShort( short newValue );
       void setShort( short* newValueArray, unsigned long countIn );
+      void updateShort( short newValue, unsigned long arrayIndex );
       void setUnsignedShort( unsigned short newValue );
       void setUnsignedShort( unsigned short* newValueArray, unsigned long countIn );
+      void updateUnsignedShort( unsigned short newValue, unsigned long arrayIndex );
       void setUnsignedChar( unsigned char newValue );
       void setUnsignedChar( unsigned char* newValueArray, unsigned long countIn );
+      void updateUnsignedChar( unsigned char newValue, unsigned long arrayIndex );
       void setLong( long newValue );
       void setLong( long* newValueArray, unsigned long countIn );
+      void updateLong( long newValue, unsigned long arrayIndex );
       void setUnsignedLong( unsigned long newValue );
       void setUnsignedLong( unsigned long* newValueArray, unsigned long countIn );
+      void updateUnsignedLong( unsigned long newValue, unsigned long arrayIndex );
       void setFloat( float newValue );
       void setFloat( float* newValueArray, unsigned long countIn );
+      void updateFloat( float newValue, unsigned long arrayIndex );
       void setDouble( double newValue );
       void setDouble( double* newValueArray, unsigned long countIn );
+      void updateDouble( double newValue, unsigned long arrayIndex );
 
       std::string getString();
       void getString( char** valueArray, unsigned long* countOut = NULL );

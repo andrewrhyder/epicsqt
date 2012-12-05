@@ -2,7 +2,7 @@ Package generation:
 
 Rebuild documentation:
 (note, preparation of pdf help from latex source requires
-pdflatex available in lexlive "yum install texlive-latex.x86_64")
+pdflatex available in lexlive "yum install texlive-latex")
   update PROJECT_NUMBER in ~/epicsqt/documentation/source/Doxyfile
   cd ~/epicsqt/documentation/source
   doxygen Doxyfile
@@ -32,30 +32,30 @@ Recover repository and remove svn files:
   svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
   find epicsqt -name *.svn -exec rm -rfv {} \;
 
-Package project (version example below is 1.1.5 - change as required)
+Package project (version example below is 2.0.0 - change as required)
   cd ~
-  tar -z -cvf epicsqt-1.1.5-src.tar.gz epicsqt
-  check epicsqt-1.1.5-src.tar.gz is a sensible size compared to last package
+  tar -z -cvf epicsqt-2.0.0-src.tar.gz epicsqt
+  check epicsqt-2.0.0-src.tar.gz is a sensible size compared to last package
 
   go to https://sourceforge.net/projects/epicsqt/
   select 'files' (https://sourceforge.net/projects/epicsqt/files/)
   Press 'Add' button - only available when logged in
                        (and perhaps only available in firefox?
-  browse, select ~/epicsqt-1.1.5-src.tar.gz and upload
+  browse, select ~/epicsqt-2.0.0-src.tar.gz and upload
   revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
 
 Verify package:
   cd ~
   rm -rf epicsqt
   goto https://sourceforge.net/projects/epicsqt/ and press 'Download'
-  tar -xf <downloadLocation>/epicsqt-1.1.5-src.tar.gz
+  tar -xf <downloadLocation>/epicsqt-2.0.0-src.tar.gz
   cd epicsqt
   qtcreator
   open ~/epicsqt/epicsqt.pro
   turn off shaddow build and build it
-  run ASgui
+  run QEGui
 
-  check ~/epicsqt/documentation/QCaReferenceManual.pdf
+  check ~/epicsqt/documentation/QE_ReferenceManual.pdf
 
 Prior to ongoing development:
 Restore svn copy

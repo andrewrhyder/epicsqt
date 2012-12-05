@@ -381,23 +381,70 @@ bool QCaObject::putChannel() {
 
     // Generate the output data based on the type
     Generic outputData;
-    switch( writingData.type() ) {
-        case QVariant::Double :
-            outputData.setDouble( writingData.toDouble() );
-        break;
-        case QVariant::LongLong :
-            outputData.setUnsignedLong( writingData.toLongLong() );
-        break;
-        case QVariant::UInt :
-        case QVariant::ULongLong :
-            outputData.setUnsignedLong( writingData.toULongLong() );
-        break;
-        case QVariant::String :
-            outputData.setString( writingData.toString().toStdString() );
-        break;
-        default:
+    if( writingData.type() != QVariant::List )
+    {
+        // Generate the output data based on the single value types
+        switch( writingData.type() )
+        {
+            case QVariant::Double :
+                outputData.setDouble( writingData.toDouble() );
+            break;
+            case QVariant::LongLong :
+                outputData.setUnsignedLong( writingData.toLongLong() );
+            break;
+            case QVariant::UInt :
+            case QVariant::ULongLong :
+                outputData.setUnsignedLong( writingData.toULongLong() );
+            break;
+            case QVariant::String :
+                outputData.setString( writingData.toString().toStdString() );
+            break;
+            default:
+                return false;
+            break;
+        }
+    }
+    else
+    {
+        // Generate the output data based on the array value types
+        QVariantList list = writingData.toList();
+        if( !list.count() )
+        {
             return false;
-        break;
+        }
+        switch( list[0].type() )
+        {
+            case QVariant::Double :
+                outputData.setDouble( NULL, list.count() );
+                for( int i = 0; i < list.count(); i++ )
+                {
+                    outputData.updateDouble( list[i].toDouble(), i );
+                }
+            break;
+            case QVariant::LongLong :
+                outputData.setUnsignedLong( NULL, list.count() );
+                for( int i = 0; i < list.count(); i++ )
+                {
+                    outputData.updateUnsignedLong( list[i].toLongLong(), i );
+                }
+            break;
+            case QVariant::UInt :
+            case QVariant::ULongLong :
+                outputData.setUnsignedLong( NULL, list.count() );
+                for( int i = 0; i < list.count(); i++ )
+                {
+                    outputData.updateUnsignedLong( list[i].toLongLong(), i );
+                }
+            break;
+            case QVariant::String :
+                //??? Don't do arrays of strings
+                outputData.setString( writingData.toString().toStdString() );
+            break;
+            default:
+                return false;
+            break;
+        }
+
     }
 
     // Get the CA specific part
