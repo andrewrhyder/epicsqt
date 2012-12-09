@@ -50,6 +50,7 @@
 #include <QEFormManager.h>
 #include <QEFrameManager.h>
 #include <QEGroupBoxManager.h>
+#include <QEFileImageManager.h>
 
 //======================================================
 // Deprecated widgets
@@ -105,6 +106,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEFormManager(this));
     widgets.append(new QEPlotManager(this));
     widgets.append(new QEImageManager(this));
+    widgets.append(new QEFileImageManager(this));
 
     // Non-EPICS aware framework widgets
     widgets.append(new QEAnalogIndicatorManager(this));
