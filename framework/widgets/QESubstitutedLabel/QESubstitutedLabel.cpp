@@ -41,6 +41,8 @@ QESubstitutedLabel::QESubstitutedLabel( QWidget *parent ) : QLabel( parent ), QE
 */
 void QESubstitutedLabel::setup() {
 
+    setVariableAsToolTip( false ); // Not used as this widget does not connect to any data source
+
     // Set up the number of variables managed by the variable name manager
     // NOTE: there is no data associated with this widget, but it uses the same substitution mechanism as other data widgets.
     variableNameManagerInitialise( 1 );

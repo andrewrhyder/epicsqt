@@ -67,13 +67,6 @@ void QEPushButton::setup() {
     }
 }
 
-/*
-    Update the tool tip as requested by QEToolTip.
-*/
-void QEPushButton::updateToolTip ( const QString & toolTip ) {
-    setToolTip( toolTip );
-}
-
 //==============================================================================
 // Drag drop
 void QEPushButton::setDrop( QVariant drop )

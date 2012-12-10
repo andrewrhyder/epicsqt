@@ -721,13 +721,6 @@ void QEStripChart::addPvNameSet (QString pvNameSet)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::updateToolTip (const QString& tip)
-{
-   this->setToolTip (tip);
-}
-
-//------------------------------------------------------------------------------
-//
 void QEStripChart::tickTimeout ()
 {
    if (this->privateData->chartTimeMode == tmRealTime) {

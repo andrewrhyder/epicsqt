@@ -70,16 +70,11 @@ protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
 
     bool subscribe;                 // Flag if data updates should be requested
-    bool variableAsToolTip;         // Flag the tool tip should be set to the variable name
 
     qcaobject::QCaObject* createConnection( unsigned int variableIndex );    // Create a CA connection. Return a QCaObject if successfull
 
     virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ); // Function to create a appropriate superclass of QCaObject to stream data updates
     virtual void establishConnection( unsigned int variableIndex );     // Create a CA connection and initiates updates if required
-
-    // variable as tool tip
-    void setVariableAsToolTip( bool variableAsToolTip );
-    bool getVariableAsToolTip();
 
 private:
     void deleteQcaItem( unsigned int variableIndex );       // Delete a stream of CA updates

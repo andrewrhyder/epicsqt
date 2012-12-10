@@ -185,7 +185,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPeriodic : public QFrame, public QEWidget {
   private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex  );
-    void updateToolTip ( const QString & toolTip );
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;

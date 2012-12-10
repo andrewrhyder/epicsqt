@@ -82,8 +82,8 @@
 /*
     Constructor
 */
-QEWidget::QEWidget( QWidget *owner ) : QEDragDrop( owner ), styleManager( owner ), standardProperties( owner ) {
-
+QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( ownerIn ), styleManager( ownerIn ), standardProperties( ownerIn )
+{
     // Initially flag no variables array is defined.
     // This will be corrected when the first variable is declared
     numVariables = 0;
@@ -91,7 +91,6 @@ QEWidget::QEWidget( QWidget *owner ) : QEDragDrop( owner ), styleManager( owner 
 
     // Default properties
     subscribe = true;
-    variableAsToolTip = true;
     setSourceId( 0 );
 
     // Set the UserMessage form ID to be whatever has been published in the ContainerProfile
@@ -292,55 +291,43 @@ QColor QEWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
     return result;
 }
 
-// variable as tool tip
-void QEWidget::setVariableAsToolTip( bool variableAsToolTipIn )
-{
-    variableAsToolTip = variableAsToolTipIn;
-    setToolTipFromVariableNames();
-}
-
-bool QEWidget::getVariableAsToolTip()
-{
-    return variableAsToolTip;
-}
-
 // Update the variable name list used in tool tips if requried
 void QEWidget::setToolTipFromVariableNames()
 {
-    // Set the tool tip to the variable names if required
-    if( variableAsToolTip ) {
-        // Determine what seperator to place between variable names. To avoid long tool tips, use line breaks if over two variables
-        QString seperator;
-        if( numVariables > 2 )
-        {
-            seperator = "\n";
-        }
-        else
-        {
-            seperator = " ";
-        }
-
-        // Build tip
-        QString tip;
-        for( unsigned int i = 0; i < numVariables; i++ ) {
-            // If a variable name is present, add it to the tip
-            QString variableName = getSubstitutedVariableName( i );
-            if( variableName.size() ) {
-                // Add a seperator between variable names
-                if( tip.size() > 0 ) {
-                    tip.append( seperator );
-                }
-                // Add the variable name to the tip
-                tip.append( variableName );
-            }
-        }
-
-        // If no variables, not that fact in the tip
-        if( tip.size() == 0 ) {
-            tip = "No variables defined";
-        }
-        updateToolTipVariable( tip );
+    // Set the variable name that will be used as the tool tip if required
+    // Determine what seperator to place between variable names. To avoid long tool tips, use line breaks if over two variables
+    QString seperator;
+    if( numVariables > 2 )
+    {
+        seperator = "\n";
     }
+    else
+    {
+        seperator = " ";
+    }
+
+    // Build tip
+    QString tip;
+    for( unsigned int i = 0; i < numVariables; i++ ) {
+        // If a variable name is present, add it to the tip
+        QString variableName = getSubstitutedVariableName( i );
+        if( variableName.size() ) {
+            // Add a seperator between variable names
+            if( tip.size() > 0 ) {
+                tip.append( seperator );
+            }
+            // Add the variable name to the tip
+            tip.append( variableName );
+        }
+    }
+
+    // If no variables, note that fact in the tip
+    if( tip.size() == 0 ) {
+        tip = "No variables defined";
+    }
+
+    // Update the top variable names (will only take effect if variable names are actually being used as the tool tip.
+    updateToolTipVariable( tip );
 }
 
 // Returns true if running within the Qt Designer application.

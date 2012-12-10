@@ -24,44 +24,71 @@
 
 #include "QEToolTip.h"
 
-QEToolTip::QEToolTip()
+QEToolTip::QEToolTip(  QWidget* ownerIn )
 {
+    // Keep a handle on the underlying QWidget of the QE widgets
+    owner = ownerIn;
+
     isConnected = false;
+
+    variableAsToolTip = true;
 }
 
-/*
-    Update the tool tip as requested by QEWidget.
-*/
+// Property set: variable as tool tip
+void QEToolTip::setVariableAsToolTip( bool variableAsToolTipIn )
+{
+
+    // Set the new tool tip type
+    variableAsToolTip = variableAsToolTipIn;
+
+    // Update the tool tip to match the new state
+    displayToolTip();
+}
+
+// Property get: variable as tool tip
+bool QEToolTip::getVariableAsToolTip()
+{
+    return variableAsToolTip;
+}
+
+// Update the variable used in the tool tip
+// (Used when displaying a dynamic tool tip only)
 void QEToolTip::updateToolTipVariable ( const QString& variable ) {
     toolTipVariable = variable;
     displayToolTip();
 }
 
+// Update the variable alarm status used in the tool tip
+// (Used when displaying a dynamic tool tip only)
 void QEToolTip::updateToolTipAlarm ( const QString& alarm )
 {
     toolTipAlarm = alarm;
     displayToolTip();
 }
 
+// Update the variable connection status used in the tool tip
+// (Used when displaying a dynamic tool tip only)
 void QEToolTip::updateToolTipConnection ( bool isConnectedIn )
 {
     isConnected = isConnectedIn;
     displayToolTip();
 }
 
-/*
-   Build and display the tool tip from the name and state
-*/
-void QEToolTip::displayToolTip() {
+// Build and display the tool tip from the name and state if dynamic
+void QEToolTip::displayToolTip()
+{
+    // If using the variable name as the tool tip, build the tool tip
+    if( variableAsToolTip )
+    {
+        QString toolTip( toolTipVariable );
 
-    QString toolTip( toolTipVariable );
+        if( toolTipAlarm.size() )
+            toolTip.append( " - " ).append( toolTipAlarm );
 
-    if( toolTipAlarm.size() )
-        toolTip.append( " - " ).append( toolTipAlarm );
+        if( !isConnected )
+            toolTip.append( " - Disconnected" );
 
-    if( !isConnected )
-        toolTip.append( " - Disconnected" );
-
-    updateToolTip( toolTip );
+        owner->setToolTip( toolTip );
+    }
 }
 

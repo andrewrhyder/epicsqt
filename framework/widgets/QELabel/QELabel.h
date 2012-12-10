@@ -88,7 +88,6 @@ private slots:
   private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void updateToolTip( const QString& tip );
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;

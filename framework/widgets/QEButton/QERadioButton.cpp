@@ -63,13 +63,6 @@ void QERadioButton::setup() {
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 }
 
-/*
-    Update the tool tip as requested by QEToolTip.
-*/
-void QERadioButton::updateToolTip ( const QString & toolTip ) {
-    setToolTip( toolTip );
-}
-
 //==============================================================================
 // Drag drop
 void QERadioButton::setDrop( QVariant drop )

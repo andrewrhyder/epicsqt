@@ -74,7 +74,6 @@ public slots:
 
 private:
     void setup();
-    void updateToolTip ( const QString & toolTip );
 
     void setButtonState( bool checked ){ QRadioButton::setChecked( checked ); }
     void setButtonText( QString text ){ QRadioButton::setText( text ); }

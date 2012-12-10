@@ -25,23 +25,30 @@
 #ifndef QEToolTip_H
 #define QEToolTip_H
 
+#include <QWidget>
 #include <QEString.h>
 
 class QEToolTip
 {
     public:
-        QEToolTip();
+        QEToolTip( QWidget* ownerIn );
         virtual ~QEToolTip(){}
         void updateToolTipVariable ( const QString& variable );
         void updateToolTipAlarm ( const QString& alarm );
         void updateToolTipConnection ( bool connection );
-        virtual void updateToolTip( const QString&  ){}
+
+    protected:
+        // variable as tool tip
+        void setVariableAsToolTip( bool variableAsToolTip );
+        bool getVariableAsToolTip();
 
     private:
+        bool variableAsToolTip;         // Flag the tool tip should be set to the variable name
         void displayToolTip();
         QString toolTipVariable;
         QString toolTipAlarm;
         bool isConnected;
+        QWidget* owner;
 };
 
 #endif // QEToolTip_H

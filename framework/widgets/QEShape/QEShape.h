@@ -235,7 +235,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
   private:
     void setup();                                               // Initialisation common to all constructors
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void updateToolTip ( const QString & toolTip );
     void refreshData( const int index );
 
 

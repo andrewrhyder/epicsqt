@@ -346,7 +346,6 @@ signals:
 private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void updateToolTip ( const QString & toolTip );
     void writeValue( QEString *qca, QString newValue );
     QString lastValue;                      // Last updated value (may have arrived while user is editing field)
     QString lastUserValue;                  // Last updated value seen by the user (same as lastValue unless the user is editing the text)

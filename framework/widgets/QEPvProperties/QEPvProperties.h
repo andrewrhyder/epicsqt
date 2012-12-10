@@ -283,7 +283,6 @@ public:
    QSize sizeHint () const;
 
    void establishConnection (unsigned int variableIndex);
-   void updateToolTip (const QString& tip);
 
 };
 

@@ -74,7 +74,6 @@ public slots:
 
 private:
     void setup();
-    void updateToolTip ( const QString & toolTip );
 
     void setButtonState( bool checked ){ QPushButton::setChecked( checked ); }
     void setButtonText( QString text ){ QPushButton::setText( text ); }

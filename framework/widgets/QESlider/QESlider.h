@@ -81,7 +81,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QEWidget {
   private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void updateToolTip ( const QString & toolTip );
 
     bool updateInProgress;                  // Ignore changes during updates, it isn't the user changing the slider.
 

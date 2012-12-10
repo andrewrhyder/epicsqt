@@ -80,7 +80,6 @@ private slots:
   private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int ){ return NULL; } // Not used as this widget does not connect to any data source
-    void updateToolTip( const QString& ){}                              // Not used as this widget does not connect to any data source
 
 public:
     //=================================================================================

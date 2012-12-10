@@ -152,13 +152,6 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 }
 
 /*
-    Update the tool tip as requested by QEToolTip.
-*/
-void QEComboBox::updateToolTip ( const QString & toolTip ) {
-    setToolTip( toolTip );
-}
-
-/*
     Pass the update straight on to the ComboBox unless the user is changing it.
     Note, it would not be common to have a user editing a regularly updating
     value. However, this scenario should be allowed for. A reasonable reason

@@ -148,7 +148,6 @@ protected:
    void setup ();
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void establishConnection (unsigned int variableIndex);
-   void updateToolTip (const QString& tip);
 
 private:
    // Internal widgets and associated support data. These are declared in

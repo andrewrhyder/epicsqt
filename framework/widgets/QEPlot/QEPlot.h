@@ -206,7 +206,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlot : public QwtPlot, public QEWidget {
 
     // Functions common to most QE widgets
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void updateToolTip( const QString& tip );
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;

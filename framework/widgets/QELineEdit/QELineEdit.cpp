@@ -121,13 +121,6 @@ void QELineEdit::establishConnection( unsigned int variableIndex ) {
 }
 
 /*
-    Update the tool tip as requested by QEToolTip.
-*/
-void QELineEdit::updateToolTip ( const QString & toolTip ) {
-    setToolTip( toolTip );
-}
-
-/*
     Act on a connection change.
     Change how the label looks and change the tool tip
     This is the slot used to recieve connection updates from a QCaObject based class.

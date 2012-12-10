@@ -279,7 +279,6 @@ protected:
 private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void updateToolTip( const QString& tip );
     Band createBand (const double lower, const double upper,  unsigned short severity);
 
     QCAALARMINFO_SEVERITY lastSeverity;

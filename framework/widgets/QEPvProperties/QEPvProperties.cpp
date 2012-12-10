@@ -408,14 +408,6 @@ void QEPvProperties::common_setup ()
 }
 
 //------------------------------------------------------------------------------
-// Update the tool tip as requested by QEToolTip.
-//
-void QEPvProperties::updateToolTip (const QString& tip)
-{
-   setToolTip (tip);
-}
-
-//------------------------------------------------------------------------------
 // NB. Need to do a deep clear to avoid memory loss.
 //
 void QEPvProperties::clearFieldChannels ()
