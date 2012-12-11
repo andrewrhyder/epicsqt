@@ -22,10 +22,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*
-  This class manages markups over an image, such as region of interest, line, graticule, etc, and user interaction with same.
-
-*/
+// Refer to imageMarkup.h for general module description
 
 #include <QPainter>
 #include <QDateTime>
@@ -118,6 +115,17 @@ void markupItem::erase()
     }
 }
 
+
+// Scale the geometry related to the viewport
+void markupItem::scale( double xScale, double yScale )
+{
+    // Do type specific scaling
+    scaleSpecific( xScale, yScale );
+
+    // Update the generic item area
+    setArea();
+}
+
 //===========================================================================
 // Target markup
 
@@ -176,6 +184,12 @@ QPoint markupTarget::getPoint2()
 QCursor markupTarget::defaultCursor()
 {
     return owner->getTargetCursor();
+}
+
+void markupTarget::scaleSpecific( double xScale, double yScale )
+{
+    pos.setX( pos.x() * xScale );
+    pos.setY( pos.y() * yScale );
 }
 
 
@@ -255,6 +269,12 @@ QCursor markupBeam::defaultCursor()
     return owner->getTargetCursor();
 }
 
+void markupBeam::scaleSpecific( double xScale, double yScale )
+{
+    pos.setX( pos.x() * xScale );
+    pos.setY( pos.y() * yScale );
+}
+
 //===========================================================================
 // Vertical line markup
 
@@ -325,6 +345,11 @@ QCursor markupVLine::defaultCursor()
     return Qt::CrossCursor;
 }
 
+void markupVLine::scaleSpecific( double xScale, double )
+{
+    x *= xScale;
+}
+
 //===========================================================================
 // Horizontal line markup
 
@@ -393,6 +418,11 @@ QPoint markupHLine::getPoint2()
 QCursor markupHLine::defaultCursor()
 {
     return Qt::CrossCursor;
+}
+
+void markupHLine::scaleSpecific( double, double yScale )
+{
+    y *= yScale;
 }
 
 //===========================================================================
@@ -568,6 +598,14 @@ QPoint markupLine::getPoint2()
 QCursor markupLine::defaultCursor()
 {
     return Qt::CrossCursor;
+}
+
+void markupLine::scaleSpecific( double xScale, double yScale )
+{
+    start.setX( start.x() * xScale );
+    start.setY( start.y() * yScale );
+    end.setX( end.x() * xScale );
+    end.setY( end.y() * yScale );
 }
 
 //===========================================================================
@@ -861,6 +899,14 @@ QCursor markupRegion::defaultCursor()
     return Qt::CrossCursor;
 }
 
+void markupRegion::scaleSpecific( double xScale, double yScale )
+{
+    rect.moveTo( rect.x() * xScale, rect.y() * yScale );
+
+    rect.setWidth( rect.width() * xScale );
+    rect.setHeight( rect.height() * yScale );
+}
+
 //===========================================================================
 // Text markup
 
@@ -941,6 +987,11 @@ QCursor markupText::defaultCursor()
     return Qt::CrossCursor;
 }
 
+void markupText::scaleSpecific( double xScale, double yScale )
+{
+    rect.moveTo( rect.x() * xScale, rect.y() * yScale );
+}
+
 //===========================================================================
 // imageMarkup
 
@@ -978,6 +1029,7 @@ imageMarkup::~imageMarkup()
 {
 }
 
+// Get the current markup mode - (what is the user doing? selecting an area? drawing a line?)
 imageMarkup::markupIds imageMarkup::getMode()
 {
     return mode;
@@ -1004,6 +1056,8 @@ void imageMarkup::setMarkupTime( QCaDateTime& time )
     }
 }
 
+// Set if time should be shown.
+// time is a markup that the user doesn;t interact with. It is just displayed, or not
 void imageMarkup::setShowTime( bool showTimeIn )
 {
     showTime = showTimeIn;
@@ -1023,6 +1077,7 @@ void imageMarkup::setShowTime( bool showTimeIn )
     markupChange( *markupImage, changedAreas );
 }
 
+// Get if the time is currently being displayed
 bool imageMarkup::getShowTime()
 {
     return showTime;
@@ -1037,6 +1092,7 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
     if( !(event->buttons()&Qt::LeftButton ))
         return;
 
+    // Keep track of button state
     buttonDown = true;
 
     // Determine if the user clicked over an interactive, visible item,
@@ -1200,6 +1256,7 @@ void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )//event )
     buttonDown = false;
 }
 
+// The active item has moved to a new position. Redraw it.
 void imageMarkup::redrawActiveItemHere( QPoint pos )
 {
     // Do nothing if no active item
@@ -1231,6 +1288,22 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
 // The viewport size has changed
 void imageMarkup::markupResize( QSize newSize )
 {
+    // Determine scaling that will be applied
+    // Note, X and Y factors will be close, but may not be exactly the same
+    bool rescale;
+    double xScale;
+    double yScale;
+    if( markupImage->isNull() )
+    {
+        rescale = false;
+    }
+    else
+    {
+        rescale = true;
+        xScale = (double)(newSize.width())  / (double)(markupImage->size().width());
+        yScale = (double)(newSize.height()) / (double)(markupImage->size().height());
+    }
+
     // If the markup image is not the right size, create one that is
     if( markupImage->size() != newSize )
     {
@@ -1241,13 +1314,22 @@ void imageMarkup::markupResize( QSize newSize )
         markupImage->fill( 0 );
     }
 
-    // Redraw any visible markups
+    // Rescale and redraw any visible markups
+    // Also act on all visible markups. This is required as the new viewport coordinates will need to be retranslated according to the new viewport size.
+    // Note, the results will often be identical, but not always, as the new viewport coordinates may not translate to the same pixels in the original image.
     int n = items.count();
     for( int i = 0; i < n; i ++ )
     {
+        // If rescaling is possible (if we have a previous image), then rescale
+        if( rescale )
+        {
+            items[i]->scale( xScale, yScale );
+        }
+        // If the markup is being displayed, redraw it, and act on it's 'new' position
         if( items[i]->visible )
         {
             items[i]->drawMarkupIn();
+            markupAction( (markupIds)i, items[i]->getPoint1(), items[i]->getPoint2() );
         }
     }
 
@@ -1286,6 +1368,8 @@ bool imageMarkup::anyVisibleMarkups()
     return false;
 }
 
+// Set the color for a given mode.
+// For example, please draw area selection rectangles in green.
 void imageMarkup::setMarkupColor( markupIds mode, QColor markupColorIn )
 {
     // Do nothing if mode is invalid

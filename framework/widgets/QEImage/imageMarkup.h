@@ -23,11 +23,42 @@
  */
 
 /*
- This class manages the markups that are overlayed of an image, such as region of interest and time and date.
+ This class manages the markups that are overlayed of an image, such as region of interest, line, graticule, time and date, etc.
  The class also handles user interaction with the markups, such as creation and draging.
  The class works at the display resolution of the image, but also understands the actual resolution of
  the underlying image and can describe markups in terms of the underlying image.
- */
+
+ There are several markup classes used by imageMarkup, all based on the markupItem class. They are:
+    markupTarget
+    markupBeam
+    markupHLine
+    markupVLine
+    markupLine
+    markupRegion
+    markupText
+ All these classes are are included in this module
+
+ This module draws markups when interacting with the user, and also when the image changes.
+
+ Interaction with user is as follows:
+        On mouse events VideoWidget calls  imageMarkup::markupMousePressEvent(),
+                                           imageMarkup::markupMouseReleaseEvent()
+                                           imageMarkup::markupMouseMoveEvent()
+
+        imageMarkup then calls VideoWidget back with any image changes required through virtual method markupChange(),
+        and calls VideoWidget back with any action to take through virtual method markupAction(),
+        and calls VideoWidget back with the appropriate cursor through
+        In other words, markupChange() is used to signal rendering requirements, markupAction() is used to signal when a task needs to be performed.
+        For example, when a user selects an area, markupChange() is called as the selected area moves following the pointer. markupAction() is
+        called when selection is over and the application should do something.
+
+ The following exchanges occur when the image changes (generating a paint event), or is resized, or panned:
+        When the displayed size of the image changesVideoWidget calls imageMarkup::markupResize()
+        When a paint event occurs, VideoWidget calls imageMarkup::anyVisibleMarkups() to determine if any markups need to be displayed.
+        When a paint event occurs, VideoWidget calls imageMarkup::getMarkupAreas() to determine what parts of the image need overlaying with markups.
+        VideoWidget calls imageMarkup::getDefaultMarkupCursor() to determine what the current cursor should be
+        VideoWidget calls imageMarkup::setMarkupTime() to note the time a new image has been presented
+*/
 
 #ifndef IMAGEMARKUP_H
 #define IMAGEMARKUP_H
@@ -46,56 +77,55 @@
 
 class imageMarkup;
 
+// Generic markup item.
+// Each type of markup (line, area, etc) is based on this class.
 class markupItem
 {
-public:
+protected:
     enum isOverOptions{ OVER_LINE, OVER_BORDER, OVER_AREA }; // test required to determine if pointer is over the object
     markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn );
     virtual ~markupItem();
 
+public:
+    void erase();                // Erase and item and redraw any items that it was over (note, this does not change its status. For example, it is used if hiding an item, but also when moving an item)
+    void drawMarkupIn();
+    void drawMarkupOut();
+    void setColor( QColor colorIn );
+    void scale( double xScale, double yScale );
 
+    virtual QPoint origin()=0;
+    virtual void moveTo( QPoint pos )=0;  // Move an item (always make it visible and highlighed)
+    virtual void startDrawing( QPoint pos ) = 0;
+    virtual bool isOver( QPoint point, QCursor* cursor )=0;
+    virtual QPoint getPoint1()=0;
+    virtual QPoint getPoint2()=0;
+    virtual QCursor defaultCursor()=0;
+
+    QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
+    bool          visible;      // Object is visible to the user
+    bool          interactive;  // Object can be moved by the user
+    bool          reportOnMove; // Movements reported (not just on move completion)
+    QColor        color;            // Color markup is drawn in
+
+protected:
     enum markupHandles { MARKUP_HANDLE_NONE, // Over a markup, but not over any specific handle of the markup
                          MARKUP_HANDLE_START, MARKUP_HANDLE_END,  // Lines
                          MARKUP_HANDLE_TL, MARKUP_HANDLE_TR, MARKUP_HANDLE_BL, MARKUP_HANDLE_BR, // Area corners
                          MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
 
     markupHandles activeHandle;
-
-
     virtual void setArea()=0;
-    virtual QPoint origin()=0;
-
-    virtual void moveTo( QPoint pos )=0;  // Move an item (always make it visible and highlighed)
-
-    void erase();                // Erase and item and redraw any items that it was over (note, this does not change its status. For example, it is used if hiding an item, but also when moving an item)
-
-
-
     virtual void drawMarkup( QPainter& p )=0;
-    virtual void startDrawing( QPoint pos ) = 0;
-
-    virtual bool isOver( QPoint point, QCursor* cursor )=0;
-    virtual QPoint getPoint1()=0;
-    virtual QPoint getPoint2()=0;
-    virtual QCursor defaultCursor()=0;
-
     bool pointIsNear( QPoint p1, QPoint p );
-
-
     isOverOptions isOverType;
-    QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
-    bool          visible;      // Object is visible to the user
-    bool          interactive;  // Object can be moved by the user
-    bool          reportOnMove; // Movements reported (not just on move completion)
+    QColor getColor();
+
     bool          highlighted;  // Object is highlighted
     int           highlightMargin; // Extra margin required for highlighting
-    QColor        color;            // Color markup is drawn in
     imageMarkup*  owner;
 
-    void drawMarkupIn();
-    void drawMarkupOut();
-    void setColor( QColor colorIn );
-    QColor getColor();
+private:
+    virtual void scaleSpecific( double xScale, double yScale )=0;
 };
 
 class markupTarget : public markupItem
@@ -113,6 +143,7 @@ public:
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
+    void scaleSpecific( double xScale, double yScale );
 
 private:
     QPoint pos;
@@ -133,6 +164,7 @@ public:
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
+    void scaleSpecific( double xScale, double yScale );
 
 private:
     QPoint pos;
@@ -154,6 +186,7 @@ public:
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
+    void scaleSpecific( double xScale, double yScale );
 
 private:
     int y;
@@ -174,6 +207,7 @@ public:
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
+    void scaleSpecific( double xScale, double yScale );
 
 private:
     int x;
@@ -193,6 +227,7 @@ public:
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
+    void scaleSpecific( double xScale, double yScale );
 
 private:
     QPoint start;
@@ -214,6 +249,7 @@ public:
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
+    void scaleSpecific( double xScale, double yScale );
 
 private:
     QCursor cursorForHandle( markupHandles handle );
@@ -237,6 +273,7 @@ public:
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
+    void scaleSpecific( double xScale, double yScale );
 
 private:
     QString text;
@@ -248,6 +285,7 @@ public:
     imageMarkup();
     virtual ~imageMarkup();
 
+    // IDs to indicate what mode the markup system is in (for example, marking out an area), and to identify each of the markup items.
     enum markupIds { MARKUP_ID_REGION,
                      MARKUP_ID_H_SLICE,
                      MARKUP_ID_V_SLICE,
@@ -258,53 +296,55 @@ public:
                      MARKUP_ID_COUNT,  // must be second last
                      MARKUP_ID_NONE }; // must be last
 
-    void markupMousePressEvent(QMouseEvent *event);
-    void markupMouseReleaseEvent ( QMouseEvent* event );
-    void markupMouseMoveEvent( QMouseEvent* event );
-
     void setShowTime( bool visibleIn );     // Display timestamp markup if true
-    bool getShowTime();                     // Rturn true if displaying timestamp markup
+    bool getShowTime();                     // Return true if displaying timestamp markup
 
-    markupIds getMode();
-    void setMode( markupIds modeIn );
-    QImage* markupImage;
-    QVector<markupItem*> items;
-    QPoint grabOffset;
-    QVector<QRect>& getMarkupAreas();
-    bool anyVisibleMarkups();
-    bool markupAreasStale;
-    QCursor getDefaultMarkupCursor();
+    markupIds getMode();                    // Return the current markup mode - (what is the user doing? selecting an area? drawing a line?)
+    void setMode( markupIds modeIn );       // Set the current markup mode - (what is the user doing? selecting an area? drawing a line?)
 
-    void setMarkupTime( QCaDateTime& time );                   // A new image has arrived, note it's time
-    void setMarkupColor( markupIds mode, QColor markupColorIn );
-    QColor getMarkupColor( markupIds mode );
-    QCursor getCircleCursor();
-    QCursor getTargetCursor();
+    void setMarkupColor( markupIds mode, QColor markupColorIn );    // Set the color for a given markup.
+    QColor getMarkupColor( markupIds mode );                        // Get the color for a given markup.
 
-    virtual void markupSetCursor( QCursor cursor )=0;
+
+    // The following are only public so they may be accessed by (internal) markup items.
+    QImage* markupImage;                                        // Image used to draw markups in. Relevent areas will be copied over updating image
+    QVector<markupItem*> items;                                 // List of markup items
+    QPoint grabOffset;                                          // Offset between a markup item origin, and where the user grabbed it
+    bool markupAreasStale;                                      // True if 'markupAreas' is no longer up to date
+    QCursor getCircleCursor();                                  // Returns a circular cursor
+    QCursor getTargetCursor();                                  // Returns a target cursor
+    virtual void markupSetCursor( QCursor cursor )=0;           // Inform the VideoWidget that that the cursor should change
 
 protected:
-    void markupResize( QSize newSize );   // The viewport size has changed
+    bool anyVisibleMarkups();                                   // Are there any markups visible
+    QVector<QRect>& getMarkupAreas();                           // Get the visible areas contining markups
+    QCursor getDefaultMarkupCursor();                           // Get the cursor appropriate for the current markup
+
+    void setMarkupTime( QCaDateTime& time );                    // A new image has arrived, note it's time
+
+    void markupMousePressEvent(QMouseEvent *event);             // User has pressed a button
+    void markupMouseReleaseEvent ( QMouseEvent* event );        // User has released a button
+    void markupMouseMoveEvent( QMouseEvent* event );            // User has moved the mouse
+
+    void markupResize( QSize newSize );                         // The viewport size has changed
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
-    virtual void markupAction( markupIds mode, QPoint point1, QPoint point2 )=0;
+    virtual void markupAction( markupIds mode, QPoint point1, QPoint point2 )=0;     // There is an application task to do in response to user interaction with the markups
 
 
 private:
 
-    markupIds activeItem;
+    markupIds activeItem;                       // Current markup being interacted with
+    markupIds mode;                             // Current operation
+    void redrawActiveItemHere( QPoint pos );    // The active item has moved to a new position. Redraw it.
+    QVector<QRect> markupAreas;                 // Areas occupied by markups. Each markup may occupy one or more areas.
 
-    markupIds mode;
+    bool buttonDown;                            // True while left button is pressed
+    markupIds getActionMode();                  // Return the mode according to the active item.
 
-    void redrawActiveItemHere( QPoint pos );
-    QVector<QRect> markupAreas;
-
-    bool buttonDown;
-    markupIds getActionMode();
-
-    bool showTime;
-    QCursor circleCursor;   // Used as cursoe when over a target or beam markup
-    QCursor targetCursor;   // Used as default cursor when in target or beam mode
+    bool showTime;                              // True if the time is being displayed
+    QCursor circleCursor;                       // Used as default cursor when over a target or beam markup
+    QCursor targetCursor;                       // Used as default cursor when in target or beam mode
 };
 
 #endif // IMAGEMARKUP_H
