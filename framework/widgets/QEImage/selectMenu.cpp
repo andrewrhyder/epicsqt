@@ -16,16 +16,16 @@ selectMenu::selectMenu( QWidget *parent) : QMenu(parent)
     addAction( ACTION );
 
     // Create the buttons
-    NEW_SELECT_MENU_BUTTON( "Pan",              ICM_SELECT_PAN,     actionPan     )
-    NEW_SELECT_MENU_BUTTON( "Horizontal slice", ICM_SELECT_HSLICE,  actionHSlice  )
-    NEW_SELECT_MENU_BUTTON( "Vertical slice",   ICM_SELECT_VSLICE,  actionVSlice  )
-    NEW_SELECT_MENU_BUTTON( "Area",             ICM_SELECT_AREA,    actionArea    )
-    NEW_SELECT_MENU_BUTTON( "Line profile",     ICM_SELECT_PROFILE, actionProfile )
-    NEW_SELECT_MENU_BUTTON( "Target",           ICM_SELECT_TARGET,  actionTarget  )
-    NEW_SELECT_MENU_BUTTON( "Beam",             ICM_SELECT_BEAM,    actionBeam    )
+    NEW_SELECT_MENU_BUTTON( "Pan",                      ICM_SELECT_PAN,     actionPan     )
+    NEW_SELECT_MENU_BUTTON( "Horizontal Slice Profile", ICM_SELECT_HSLICE,  actionHSlice  )
+    NEW_SELECT_MENU_BUTTON( "Vertical Slice Profile",   ICM_SELECT_VSLICE,  actionVSlice  )
+    NEW_SELECT_MENU_BUTTON( "Line Profile",             ICM_SELECT_PROFILE, actionProfile )
+    NEW_SELECT_MENU_BUTTON( "Select an Area",           ICM_SELECT_AREA,    actionArea    )
+    NEW_SELECT_MENU_BUTTON( "Mark Target",              ICM_SELECT_TARGET,  actionTarget  )
+    NEW_SELECT_MENU_BUTTON( "Mark Beam",                ICM_SELECT_BEAM,    actionBeam    )
 
     // Set the title
-    setTitle( "Select" );
+    setTitle( "Mode" );
 }
 
 // Get a selection option from the user.
@@ -61,32 +61,32 @@ void selectMenu::setChecked( const int mode )
 
 void selectMenu::setPanEnabled( bool enablePan )
 {
-    actionPan->setEnabled( enablePan );
+    actionPan->setVisible( enablePan );
 }
 
 void selectMenu::setVSliceEnabled( bool enableVSliceSelection )
 {
-    actionVSlice->setEnabled( enableVSliceSelection );
+    actionVSlice->setVisible( enableVSliceSelection );
 }
 
 void selectMenu::setHSlicetEnabled( bool enableHSliceSelection )
 {
-    actionHSlice->setEnabled( enableHSliceSelection );
+    actionHSlice->setVisible( enableHSliceSelection );
 }
 
 void selectMenu::setAreaEnabled( bool enableAreaSelection )
 {
-    actionArea->setEnabled( enableAreaSelection );
+    actionArea->setVisible( enableAreaSelection );
 }
 
 void selectMenu::setProfileEnabled( bool enableProfileSelection )
 {
-    actionProfile->setEnabled( enableProfileSelection );
+    actionProfile->setVisible( enableProfileSelection );
 }
 
 void selectMenu::setTargetEnabled( bool enableTargetSelection )
 {
-    actionTarget->setEnabled( enableTargetSelection );
-    actionBeam->setEnabled( enableTargetSelection );
+    actionTarget->setVisible( enableTargetSelection );
+    actionBeam->setVisible( enableTargetSelection );
 }
 

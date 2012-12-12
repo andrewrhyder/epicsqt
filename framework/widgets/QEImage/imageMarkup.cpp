@@ -29,6 +29,7 @@
 #include <QCursor>
 
 #include <imageMarkup.h>
+#include <imageContextMenu.h>
 
 // Allowable distance in pixels from object which will still be considered 'over'
 #define OVER_TOLERANCE 6
@@ -67,7 +68,9 @@ bool markupItem::pointIsNear( QPoint p1, QPoint p2 )
 void markupItem::drawMarkupIn()
 {
     QPainter p( owner->markupImage );
-    p.setPen( color );
+    QPen pen( color );
+    pen.setStyle( Qt::SolidLine );
+    p.setPen( pen );
     drawMarkup( p );
     visible = true;
 }
@@ -136,6 +139,9 @@ markupTarget::markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool repor
 
 void markupTarget::drawMarkup( QPainter& p )
 {
+    QPen pen = p.pen();
+    pen.setStyle( Qt::DashLine );
+    p.setPen( pen );
     p.drawLine( pos.x(), 0, pos.x(), owner->markupImage->rect().height() );
     p.drawLine( 0, pos.y(), owner->markupImage->rect().width(), pos.y() );
 }
@@ -159,7 +165,7 @@ void markupTarget::moveTo( QPoint posIn )
     setArea();
 }
 
-bool markupTarget::isOver( QPoint point, QCursor* cursor )
+bool markupTarget::isOver( const QPoint point, QCursor* cursor )
 {
     *cursor = owner->getCircleCursor();
     activeHandle = MARKUP_HANDLE_NONE;
@@ -239,7 +245,7 @@ void markupBeam::moveTo( QPoint posIn )
     setArea();
 }
 
-bool markupBeam::isOver( QPoint point, QCursor* cursor )
+bool markupBeam::isOver( const QPoint point, QCursor* cursor )
 {
     *cursor = owner->getCircleCursor();
     activeHandle = MARKUP_HANDLE_NONE;
@@ -318,7 +324,7 @@ void markupVLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupVLine::isOver( QPoint point, QCursor* cursor )
+bool markupVLine::isOver( const QPoint point, QCursor* cursor )
 {
     *cursor = Qt::OpenHandCursor;
     activeHandle = MARKUP_HANDLE_NONE;
@@ -393,7 +399,7 @@ void markupHLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupHLine::isOver( QPoint point, QCursor* cursor )
+bool markupHLine::isOver( const QPoint point, QCursor* cursor )
 {
     *cursor = Qt::OpenHandCursor;
     activeHandle = MARKUP_HANDLE_NONE;
@@ -502,7 +508,7 @@ void markupLine::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupLine::isOver( QPoint point, QCursor* cursor )
+bool markupLine::isOver( const QPoint point, QCursor* cursor )
 {
     // Not over the line if outside the drawing rectangle more than the tolerance
     QRect tolArea = area;
@@ -772,7 +778,7 @@ QCursor markupRegion::cursorForHandle( markupHandles handle )
 
 }
 
-bool markupRegion::isOver( QPoint point, QCursor* cursor )
+bool markupRegion::isOver( const QPoint point, QCursor* cursor )
 {
     // If the point is over the left side, return 'is over' after checking the left handles
     QRect l( rect.topLeft(), QSize( 0, rect.height()) );
@@ -960,7 +966,7 @@ void markupText::moveTo( QPoint pos )
     setArea();
 }
 
-bool markupText::isOver( QPoint point, QCursor* cursor )
+bool markupText::isOver( const QPoint point, QCursor* cursor )
 {
     *cursor = Qt::OpenHandCursor;
     activeHandle = MARKUP_HANDLE_NONE;
@@ -1018,7 +1024,7 @@ imageMarkup::imageMarkup()
     QPixmap circlePixmap = QPixmap( ":/qe/image/circleCursor.png" );
     circleCursor = QCursor( circlePixmap );
 
-    // Create target cursoe used for target and beam
+    // Create target cursor used for target and beam
     QPixmap targetPixmap = QPixmap( ":/qe/image/targetCursor.png" );
     targetCursor = QCursor( targetPixmap );
 
@@ -1086,29 +1092,26 @@ bool imageMarkup::getShowTime()
 //===========================================================================
 
 // User pressed a mouse button
-void imageMarkup::markupMousePressEvent(QMouseEvent *event)
+bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
 {
     // Only act on left mouse button press
     if( !(event->buttons()&Qt::LeftButton ))
-        return;
-
-    // Keep track of button state
-    buttonDown = true;
+        return false;
 
     // Determine if the user clicked over an interactive, visible item,
     // and if so, make the first item found the active item
-    activeItem = MARKUP_ID_NONE;
-    int n = items.count();
-    for( int i = 0; i < n; i++ )
+    setActiveItem( event->pos() );
+
+    // If in panning mode, then we will not take over the event unless we are over an active item
+    // Note, buttonDown is cleared so there is no context of any sort of markup action in progress
+    if( panning && activeItem == MARKUP_ID_NONE )
     {
-        QCursor cursor;
-        if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &cursor ) )
-        {
-            activeItem = (markupIds)i;
-            grabOffset = event->pos() - items[i]->origin();
-            break;
-        }
+        buttonDown = false;
+        return false;
     }
+
+    // Keep track of button state
+    buttonDown = true;
 
     // If not over an item, start creating a new item
     // move the appropriate item to the point clicked on
@@ -1169,11 +1172,21 @@ void imageMarkup::markupMousePressEvent(QMouseEvent *event)
             }
         }
     }
+
+    // Return indicating the event was dealt with
+    return true;
 }
 
 // Manage the markups as the mouse moves
-void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
+bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
 {
+    // If panning, and we havn't noted a button down for the purposes of image markup, then don't take over this move event
+    // (If buttonDown is true then we have already appropriated the button down/move/release for markup purposes)
+    if( panning && !buttonDown )
+    {
+        return false;
+    }
+
     // If the user has the button down, redraw the item in its new position or shape.
     if( buttonDown )
     {
@@ -1201,9 +1214,11 @@ void imageMarkup::markupMouseMoveEvent( QMouseEvent* event )
     // If there is an active item and action is required on move, then report the move
     if( activeItem != MARKUP_ID_NONE && items[activeItem]->reportOnMove )
     {
-        markupAction( getActionMode(), items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
+        markupAction( getActionMode(), false, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
     }
 
+    // Return indicating the event was appropriated for markup purposes
+    return true;
 }
 
 // Return the mode according to the active item.
@@ -1243,17 +1258,27 @@ QCursor imageMarkup::getDefaultMarkupCursor()
     }
 }
 
-void imageMarkup::markupMouseReleaseEvent ( QMouseEvent* )//event )
+bool imageMarkup::markupMouseReleaseEvent ( QMouseEvent*, bool panning  )
 {
+    // If panning, and we havn't noted a button down for the purposes of image markup, then don't take over this release event
+    // (If buttonDown is true then we have already appropriated the button down/move/release for markup purposes)
+    if( panning && !buttonDown )
+    {
+        return false;
+    }
+
     // If there is an active item, take action
     if( activeItem != MARKUP_ID_NONE )
     {
-        markupAction( getActionMode(), items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
+        markupAction( getActionMode(), false, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
     }
 
     // Flag there is no longer an active item
     activeItem = MARKUP_ID_NONE;
     buttonDown = false;
+
+    // Return indicating the event was appropriated for markup purposes
+    return true;
 }
 
 // The active item has moved to a new position. Redraw it.
@@ -1329,7 +1354,7 @@ void imageMarkup::markupResize( QSize newSize )
         if( items[i]->visible )
         {
             items[i]->drawMarkupIn();
-            markupAction( (markupIds)i, items[i]->getPoint1(), items[i]->getPoint2() );
+            markupAction( (markupIds)i, false, items[i]->getPoint1(), items[i]->getPoint2() );
         }
     }
 
@@ -1416,4 +1441,72 @@ QCursor imageMarkup::getCircleCursor()
 QCursor imageMarkup::getTargetCursor()
 {
     return targetCursor;
+}
+
+// Show the markup context menu if required.
+// Do nothing and return false if nothing to do , for example, the position is not over a markup item
+// If required, present the menu, act on the user selectino, then return true
+//
+// This method currently populates a imageContextMenu with one 'clear' option.
+// Refer to  QEImage::showContextMenu() to see how imageContextMenu can be populated with checkable, and non checkable items, and sub menus
+bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
+{
+    // Determine if the user clicked over an interactive, visible item,
+    // and if so, make the first item found the active item
+    setActiveItem( pos );
+
+    // If not over an item, do nothing.
+    if( activeItem == MARKUP_ID_NONE )
+        return false;
+
+    imageContextMenu menu;
+
+    //                      Title                            checkable  checked                 option
+    menu.addMenuItem(       "Clear",                         false,     false,                  imageContextMenu::ICM_CLEAR_MARKUP             );
+
+
+    // Present the menu
+    imageContextMenu::imageContextMenuOptions option;
+    bool checked;
+    menu.getContextMenuOption( globalPos, &option, &checked );
+
+    // Act on the menu selection
+    switch( option )
+    {
+        default:
+        case imageContextMenu::ICM_NONE:
+            break;
+
+        case imageContextMenu::ICM_CLEAR_MARKUP:
+            items[activeItem]->erase();
+            QVector<QRect> changedAreas;
+            changedAreas.append( items[activeItem]->area );
+            markupChange( *markupImage, changedAreas );
+
+            markupAction( activeItem, true, QPoint(), QPoint() );
+
+            activeItem = MARKUP_ID_NONE;
+            break;
+    }
+
+    // Indicate markup menu has been presented
+    return true;
+}
+
+// Determine if the user clicked over an interactive, visible item,
+// and if so, make the first item found the active item
+void imageMarkup::setActiveItem( const QPoint& pos )
+{
+    activeItem = MARKUP_ID_NONE;
+    int n = items.count();
+    for( int i = 0; i < n; i++ )
+    {
+        QCursor cursor;
+        if( items[i]->interactive && items[i]->visible && items[i]->isOver( pos, &cursor ) )
+        {
+            activeItem = (markupIds)i;
+            grabOffset = pos - items[i]->origin();
+            break;
+        }
+    }
 }

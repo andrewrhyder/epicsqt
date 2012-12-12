@@ -96,7 +96,7 @@ public:
     virtual QPoint origin()=0;
     virtual void moveTo( QPoint pos )=0;  // Move an item (always make it visible and highlighed)
     virtual void startDrawing( QPoint pos ) = 0;
-    virtual bool isOver( QPoint point, QCursor* cursor )=0;
+    virtual bool isOver( const QPoint point, QCursor* cursor )=0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
     virtual QCursor defaultCursor()=0;
@@ -305,6 +305,8 @@ public:
     void setMarkupColor( markupIds mode, QColor markupColorIn );    // Set the color for a given markup.
     QColor getMarkupColor( markupIds mode );                        // Get the color for a given markup.
 
+    bool showMarkupMenu( const QPoint& pos, const QPoint& globalPos );// Show the markup menu if required
+
 
     // The following are only public so they may be accessed by (internal) markup items.
     QImage* markupImage;                                        // Image used to draw markups in. Relevent areas will be copied over updating image
@@ -322,18 +324,18 @@ protected:
 
     void setMarkupTime( QCaDateTime& time );                    // A new image has arrived, note it's time
 
-    void markupMousePressEvent(QMouseEvent *event);             // User has pressed a button
-    void markupMouseReleaseEvent ( QMouseEvent* event );        // User has released a button
-    void markupMouseMoveEvent( QMouseEvent* event );            // User has moved the mouse
+    bool markupMousePressEvent(QMouseEvent *event, bool panning);      // User has pressed a button
+    bool markupMouseReleaseEvent ( QMouseEvent* event, bool panning ); // User has released a button
+    bool markupMouseMoveEvent( QMouseEvent* event, bool panning );     // User has moved the mouse
 
     void markupResize( QSize newSize );                         // The viewport size has changed
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
-    virtual void markupAction( markupIds mode, QPoint point1, QPoint point2 )=0;     // There is an application task to do in response to user interaction with the markups
+    virtual void markupAction( markupIds mode, bool clearing, QPoint point1, QPoint point2 )=0;     // There is an application task to do in response to user interaction with the markups
 
 
 private:
-
+    void setActiveItem( const QPoint& pos );    // // Determine if the user clicked over an interactive, visible item
     markupIds activeItem;                       // Current markup being interacted with
     markupIds mode;                             // Current operation
     void redrawActiveItemHere( QPoint pos );    // The active item has moved to a new position. Redraw it.

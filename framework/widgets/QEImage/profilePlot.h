@@ -22,6 +22,12 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+/*
+ This class manages the simple line profile plotting performed within the QEImage widget
+ A user can select horizontal or vertical slice at a given point in the image, or an arbitrary
+ line through the image and a plot of the pixel values on the line will be shown beside the image.
+ */
+
 #ifndef PROFILEPLOT_H
 #define PROFILEPLOT_H
 
@@ -35,9 +41,7 @@ public:
     profilePlot(QWidget *parent = 0);
     ~profilePlot();
 
-    void setScale( int scaleIn );
-    void setProfile( QVector<QPointF>& profile, double minX, double maxX, double minY, double maxY );
-    void setCursor( int cursorIn );
+    void setProfile( QVector<QPointF>& profile, double minX, double maxX, double minY, double maxY );  // Set the profile data
 
 protected:
 

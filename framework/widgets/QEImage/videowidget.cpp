@@ -173,9 +173,9 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
     markupResize( event->size() );
 }
 
-void VideoWidget::markupAction( markupIds mode, QPoint point1, QPoint point2 )
+void VideoWidget::markupAction( markupIds mode, bool clearing, QPoint point1, QPoint point2 )
 {
-    emit userSelection( mode, point1, point2 );
+    emit userSelection( mode, clearing, point1, point2 );
 }
 
 // Return an ordinate from the displayed image as an ordinate in the original image
@@ -210,11 +210,11 @@ void VideoWidget::mousePressEvent( QMouseEvent* event)
     if( !(event->buttons()&Qt::LeftButton) )
         return;
 
-    if( !panning )
-    {
-        markupMousePressEvent( event );
-    }
-    else
+    // Pass the event to the markup system. It will use it if appropriate.
+    // If it doesn't use it, then start a pan if panning
+    // Note, the markup system will take into account if panning.
+    // When panning, the markup system will not use the event unless actually over a markup.
+    if( !markupMousePressEvent( event, panning ) && panning )
     {
         setCursor( Qt::ClosedHandCursor );
         panStart = event->pos();
@@ -223,11 +223,11 @@ void VideoWidget::mousePressEvent( QMouseEvent* event)
 
 void VideoWidget::mouseReleaseEvent ( QMouseEvent* event )
 {
-    if( !panning )
-    {
-        markupMouseReleaseEvent( event );
-    }
-    else
+    // Pass the event to the markup system. It will use it if appropriate.
+    // If it doesn't use it, then complete panning.
+    // Note, the markup system will take into account if panning.
+    // When panning, the markup system will not use the event unless moving a markup.
+    if( !markupMouseReleaseEvent( event, panning ) && panning )
     {
         setCursor( Qt::OpenHandCursor );
         emit pan( pos() );
@@ -253,14 +253,11 @@ void VideoWidget::mouseMoveEvent( QMouseEvent* event )
     pixelInfoPos.setY( int ( (double)(event->pos().y()) / getScale() ) );
     emit currentPixelInfo( pixelInfoPos );
 
-    // If not panning, manage markups
-    if( !panning )
-    {
-        markupMouseMoveEvent( event );
-    }
-
-    // Panning, so pan the image
-    else
+    // Pass the event to the markup system. It will use it if appropriate.
+    // If it doesn't use it, then pan if panning.
+    // Note, the markup system will take into account if panning.
+    // When panning, the markup system will not use the event unless moving a markup.
+    if( !markupMouseMoveEvent( event, panning ) && panning )
     {
         if( event->buttons()&Qt::LeftButton)
         {

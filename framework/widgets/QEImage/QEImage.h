@@ -188,7 +188,7 @@ private slots:
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
-    void userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint point2 );
+    void userSelection( imageMarkup::markupIds mode, bool clearing, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
@@ -278,7 +278,6 @@ public slots:
     bool paused;
     bool showTimeEnabled;
 
-    bool enablePan;
     bool enableAreaSelection;
     bool enableVSliceSelection;
     bool enableHSliceSelection;
@@ -287,7 +286,6 @@ public slots:
 
     bool displayCursorPixelInfo;
     bool contrastReversal;
-
 
 
     void manageButtonBar();
@@ -584,8 +582,6 @@ public:
                          RGB      = QEImage::RGB_888 };
     void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QEImage::formatOptions)formatOption ); }
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
-
-    Q_PROPERTY(bool enablePan READ getEnablePan WRITE setEnablePan)
 
     Q_PROPERTY(bool enableVertSliceSelection READ getEnableVertSliceSelection WRITE setEnableVertSliceSelection)
     Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSliceSelection WRITE setEnableHozSliceSelection)

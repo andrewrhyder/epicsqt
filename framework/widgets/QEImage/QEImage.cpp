@@ -90,7 +90,6 @@ void QEImage::setup() {
 
     showTimeEnabled = false;
 
-    enablePan = true;
     enableAreaSelection = true;
     enableVSliceSelection = false;
     enableHSliceSelection = false;
@@ -127,8 +126,8 @@ void QEImage::setup() {
     setTargetMarkupColor(    QColor(  0, 255,   0));
     setTimeMarkupColor(      QColor(255, 255, 255));
 
-    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, QPoint, QPoint ) ),
-                      this,        SLOT  ( userSelection( imageMarkup::markupIds, QPoint, QPoint )) );
+    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, bool, QPoint, QPoint ) ),
+                      this,        SLOT  ( userSelection( imageMarkup::markupIds, bool, QPoint, QPoint )) );
     QObject::connect( videoWidget, SIGNAL( zoomInOut( int ) ),
                       this,        SLOT  ( zoomInOut( int ) ) );
     QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint ) ),
@@ -147,7 +146,6 @@ void QEImage::setup() {
     QObject::connect( frMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( flipRotateMenuTriggered( QAction* )) );
 
     sMenu = new selectMenu();
-    sMenu->setPanEnabled( enablePan );
     sMenu->setVSliceEnabled( enableVSliceSelection );
     sMenu->setHSlicetEnabled( enableHSliceSelection );
     sMenu->setAreaEnabled( enableAreaSelection );
@@ -183,12 +181,15 @@ void QEImage::setup() {
     // Create vertical, horizontal, and general profile plots
     vSliceDisplay = new profilePlot();
     vSliceDisplay->setMinimumWidth( 100 );
+    vSliceDisplay->setVisible( false );
 
     hSliceDisplay = new profilePlot();
     hSliceDisplay->setMinimumHeight( 100 );
+    hSliceDisplay->setVisible( false );
 
     profileDisplay = new profilePlot();
     profileDisplay->setMinimumHeight( 100 );
+    profileDisplay->setVisible( false );
 
 
     QGridLayout* graphicsLayout = new QGridLayout();
@@ -319,7 +320,6 @@ void QEImage::setup() {
 
     setShowTime( showTimeEnabled );
 
-    setEnablePan( enablePan );
     setEnableAreaSelection( enableAreaSelection );
     setEnableVertSliceSelection( enableVSliceSelection );
     setEnableHozSliceSelection( enableHSliceSelection );
@@ -753,6 +753,14 @@ void QEImage::displayImage()
 
 #define CLIPPING_TEST ( clippingOn && (clippingHigh > 0 || clippingLow > 0 ))
 
+#define CONTRAST_REVERSAL(PIXEL)                                                        \
+    {                                                                                   \
+        if( contrastReversal )                                                          \
+        {                                                                               \
+            *PIXEL=255-*PIXEL;                                                          \
+        }                                                                               \
+    }
+
     // Format each pixel ready for use in an RGB32 QImage
     // Note, for speed, the conditional code related to clipping has been extracted from the pixel loop
     // Macros have been used to ensure the same code is used within the clipping an dnon clipping loops.
@@ -764,6 +772,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY8
+                CONTRAST_REVERSAL(&inPixel)
                 CLIPPING(inPixel)
                 // else
                 FORMAT_GREY8
@@ -773,6 +782,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY8
+                CONTRAST_REVERSAL(&inPixel)
                 FORMAT_GREY8
                 LOOP_END
             }
@@ -785,6 +795,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY16
+                CONTRAST_REVERSAL(&inPixel)
                 CLIPPING(inPixel)
                 // else
                 FORMAT_GREY16
@@ -794,6 +805,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY16
+                CONTRAST_REVERSAL(&inPixel)
                 FORMAT_GREY16
                 LOOP_END
             }
@@ -806,6 +818,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY12
+                CONTRAST_REVERSAL(&inPixel)
                 CLIPPING(inPixel)
                 // else
                 FORMAT_GREY12
@@ -815,6 +828,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY12
+                CONTRAST_REVERSAL(&inPixel)
                 FORMAT_GREY12
                 LOOP_END
             }
@@ -827,6 +841,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_RGB_888
+                CONTRAST_REVERSAL(inPixel)
                 CLIPPING(((inPixel[0]+inPixel[1]+inPixel[2])/3))
                 // else
                 FORMAT_RGB_888
@@ -836,6 +851,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_RGB_888
+                CONTRAST_REVERSAL(inPixel)
                 FORMAT_RGB_888
                 LOOP_END
             }
@@ -1472,10 +1488,16 @@ bool QEImage::getDisplayCursorPixelInfo(){
 void QEImage::setContrastReversal( bool contrastReversalIn )
 {
     contrastReversal = contrastReversalIn;
+
+    qcaobject::QCaObject* qca = getQcaItem( IMAGE_VARIABLE );
+    if( qca )
+    {
+        qca->resendLastData();
+    }
 }
 
 bool QEImage::getContrastReversal(){
-    return displayCursorPixelInfo;
+    return contrastReversal;
 }
 
 // Enable vertical slice selection
@@ -1483,7 +1505,13 @@ void QEImage::setEnableVertSliceSelection( bool enableVSliceSelectionIn )
 {
     enableVSliceSelection = enableVSliceSelectionIn;
     sMenu->setVSliceEnabled( enableVSliceSelection );
-    vSliceDisplay->setVisible( enableVSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableVSliceSelection && getSelectionOption() == SO_VSLICE )
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableVertSliceSelection()
@@ -1496,7 +1524,13 @@ void QEImage::setEnableHozSliceSelection( bool enableHSliceSelectionIn )
 {
     enableHSliceSelection = enableHSliceSelectionIn;
     sMenu->setHSlicetEnabled( enableHSliceSelection );
-    hSliceDisplay->setVisible(enableHSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableHSliceSelection && getSelectionOption() == SO_HSLICE )
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableHozSliceSelection()
@@ -1504,24 +1538,18 @@ bool QEImage::getEnableHozSliceSelection()
     return enableHSliceSelection;
 }
 
-// Enable panning
-void QEImage::setEnablePan( bool enablePanIn )
-{
-    enablePan = enablePanIn;
-    sMenu->setPanEnabled( enablePan );
-
-}
-
-bool QEImage::getEnablePan()
-{
-    return enablePan;
-}
-
 // Enable area selection (used for ROI and zoom)
 void QEImage::setEnableAreaSelection( bool enableAreaSelectionIn )
 {
     enableAreaSelection = enableAreaSelectionIn;
     sMenu->setAreaEnabled( enableAreaSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableAreaSelection && getSelectionOption() == SO_AREA )
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableAreaSelection()
@@ -1534,7 +1562,13 @@ void QEImage::setEnableProfileSelection( bool enableProfileSelectionIn )
 {
     enableProfileSelection = enableProfileSelectionIn;
     sMenu->setProfileEnabled( enableProfileSelection );
-    profileDisplay->setVisible( enableProfileSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableProfileSelection && getSelectionOption() == SO_PROFILE )
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableProfileSelection()
@@ -1547,6 +1581,13 @@ void QEImage::setEnableTargetSelection( bool enableTargetSelectionIn )
 {
     enableTargetSelection = enableTargetSelectionIn;
     sMenu->setTargetEnabled( enableTargetSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableTargetSelection && ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableTargetSelection()
@@ -1614,79 +1655,145 @@ void QEImage::zoomInOut( int zoomAmount )
 
     scrollArea->horizontalScrollBar()->setValue( int( newScrollPosX ) );
     scrollArea->verticalScrollBar()->setValue( int( newScrollPosY ) );
-
 }
 
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
-void QEImage::userSelection( imageMarkup::markupIds mode, QPoint point1, QPoint point2 )
+void QEImage::userSelection( imageMarkup::markupIds mode, bool clearing, QPoint point1, QPoint point2 )
 {
-    switch( mode )
+    // If creating or moving a markup...
+    if( !clearing )
     {
-        // !!! the calculations and display of pixel position (here and below) will need to be done when the window is zoomed
-        case imageMarkup::MARKUP_ID_V_SLICE:
-            vSliceX = point1.x();
-            haveVSliceX = true;
-            generateVSlice(  vSliceX );
-            break;
+        switch( mode )
+        {
+            case imageMarkup::MARKUP_ID_V_SLICE:
+                vSliceX = point1.x();
+                haveVSliceX = true;
+                vSliceDisplay->setVisible( true );
+                generateVSlice(  vSliceX );
+                break;
 
-        case imageMarkup::MARKUP_ID_H_SLICE:
-            hSliceY = point1.y();
-            haveHSliceY = true;
-            generateHSlice( hSliceY );
-            break;
+            case imageMarkup::MARKUP_ID_H_SLICE:
+                hSliceY = point1.y();
+                haveHSliceY = true;
+                hSliceDisplay->setVisible( true );
+                generateHSlice( hSliceY );
+                break;
 
-        case imageMarkup::MARKUP_ID_REGION:
-            selectedAreaPoint1 = point1;
-            selectedAreaPoint2 = point2;
-            haveSelectedArea = true;
+            case imageMarkup::MARKUP_ID_REGION:
+                selectedAreaPoint1 = point1;
+                selectedAreaPoint2 = point2;
+                haveSelectedArea = true;
 
-            roiButton->setEnabled( true );
-            zMenu->enableAreaSelected( haveSelectedArea );
+                roiButton->setEnabled( true );
+                zMenu->enableAreaSelected( haveSelectedArea );
 
-            displaySelectedAreaInfo( selectedAreaPoint1, selectedAreaPoint2 );
-            break;
+                displaySelectedAreaInfo( selectedAreaPoint1, selectedAreaPoint2 );
+                break;
 
-        case imageMarkup::MARKUP_ID_LINE:
-            profileLineStart = point1;
-            profileLineEnd = point2;
-            haveProfileLine = true;
-            generateProfile( profileLineStart, profileLineEnd );
-            break;
+            case imageMarkup::MARKUP_ID_LINE:
+                profileLineStart = point1;
+                profileLineEnd = point2;
+                haveProfileLine = true;
+                profileDisplay->setVisible( true );
+                generateProfile( profileLineStart, profileLineEnd );
+                break;
 
-        case imageMarkup::MARKUP_ID_TARGET:
-            {
-                target = point1;
+            case imageMarkup::MARKUP_ID_TARGET:
+                {
+                    target = point1;
 
-                // Write the target variables.
-                QEInteger *qca;
-                qca = (QEInteger*)getQcaItem( TARGET_X_VARIABLE );
-                if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( target.x() ));
+                    // Write the target variables.
+                    QEInteger *qca;
+                    qca = (QEInteger*)getQcaItem( TARGET_X_VARIABLE );
+                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( target.x() ));
 
-                qca = (QEInteger*)getQcaItem( TARGET_Y_VARIABLE );
-                if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
-            }
-            break;
+                    qca = (QEInteger*)getQcaItem( TARGET_Y_VARIABLE );
+                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
 
-        case imageMarkup::MARKUP_ID_BEAM:
-            {
-                beam = point1;
+                    // Display textual info
+                    QString s;
+                    s.sprintf( "T: (%d,%d)", target.x(), target.y() );
+                    currentTargetLabel->setText( s );
 
-                // Write the beam variables.
-                QEInteger *qca;
-                qca = (QEInteger*)getQcaItem( BEAM_X_VARIABLE );
-                if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beam.x() ));
+                }
+                break;
 
-                qca = (QEInteger*)getQcaItem( BEAM_Y_VARIABLE );
-                if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beam.y() ));
-            }
-            break;
+            case imageMarkup::MARKUP_ID_BEAM:
+                {
+                    beam = point1;
 
-        default:
-            break;
+                    // Write the beam variables.
+                    QEInteger *qca;
+                    qca = (QEInteger*)getQcaItem( BEAM_X_VARIABLE );
+                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beam.x() ));
 
+                    qca = (QEInteger*)getQcaItem( BEAM_Y_VARIABLE );
+                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beam.y() ));
+
+                    // Display textual info
+                    QString s;
+                    s.sprintf( "B: (%d,%d)", beam.x(), beam.y() );
+                    currentBeamLabel->setText( s );
+                }
+                break;
+
+            default:
+                break;
+
+        }
     }
 
+    // If clearing a markup...
+    else
+    {
+        switch( mode )
+        {
+            case imageMarkup::MARKUP_ID_V_SLICE:
+                vSliceX = 0;
+                haveVSliceX = false;
+                vSliceDisplay->setVisible( false );
+                currentVertPixelLabel->clear();
+                break;
+
+            case imageMarkup::MARKUP_ID_H_SLICE:
+                hSliceY = 0;
+                haveHSliceY = false;
+                hSliceDisplay->setVisible( false );
+                currentHozPixelLabel->clear();
+                break;
+
+            case imageMarkup::MARKUP_ID_REGION:
+                selectedAreaPoint1 = QPoint();
+                selectedAreaPoint2 = QPoint();
+                haveSelectedArea = false;
+                currentAreaLabel->clear();
+
+                roiButton->setEnabled( false );
+                zMenu->enableAreaSelected( haveSelectedArea );
+                break;
+
+            case imageMarkup::MARKUP_ID_LINE:
+                profileLineStart = QPoint();
+                profileLineEnd = QPoint();
+                haveProfileLine = false;
+                profileDisplay->setVisible( false );
+                currentLineLabel->clear();
+                break;
+
+            case imageMarkup::MARKUP_ID_TARGET:
+                currentTargetLabel->clear();
+                break;
+
+            case imageMarkup::MARKUP_ID_BEAM:
+                currentBeamLabel->clear();
+                break;
+
+            default:
+                break;
+
+        }
+    }
 }
 
 // Generate a profile along a line down an image at a given X position
@@ -1769,9 +1876,6 @@ void QEImage::displaySelectedAreaInfo( QPoint point1, QPoint point2 )
                                     videoWidget->scaleOrdinate( point2.x() ),
                                     videoWidget->scaleOrdinate( point2.y() ));
     currentAreaLabel->setText( s );
-
-    // No graphical info as for V slice, H slice and profile line
-    //...
 }
 
 // Generate a profile along a line across an image at a given Y position
@@ -2290,57 +2394,73 @@ void QEImage::pan( QPoint origin )
 
 void QEImage::showContextMenu( const QPoint& pos )
 {
-    // for most widgets
+    // Get the overall position on the display
     QPoint globalPos = mapToGlobal( pos );
-    // for QAbstractScrollArea and derived classes you would use:
-    // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
 
+    // If the markup system wants to put up a menu, let it do so
+    // For example, if the user has clicked over a markup, it may offer the user a menu
+    if( videoWidget->showMarkupMenu( videoWidget->mapFrom( this, pos ), globalPos ) )
+    {
+        return;
+    }
+
+    // Create the image context menu
     imageContextMenu menu;
 
+    // add the standard context menu as a sub menu
     menu.addMenu( getContextMenu() );
 
+    // Add the Selection menu
     sMenu->setChecked( getSelectionOption() );
     menu.addMenu( sMenu );
 
-    menu.addMenuItem(       "Save...",                       false, false,                  imageContextMenu::ICM_SAVE                     );
-    menu.addMenuItem(       paused?"Resume":"Pause",         true,  paused,                 imageContextMenu::ICM_PAUSE                    );
-    menu.addMenuItem(       "Show time",                     true,  showTimeEnabled,        imageContextMenu::ICM_ENABLE_TIME              );
-    menu.addMenuItem(       "Show cursor pixel info",        true,  displayCursorPixelInfo, imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
-    menu.addMenuItem(       "Contrast reversal",             true,  contrastReversal,       imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
-    menu.addOptionMenuItem( "Enable panning",                true,  enablePan,              imageContextMenu::ICM_ENABLE_PAN               );
-    menu.addOptionMenuItem( "Enable vertical selection",     true,  enableVSliceSelection,  imageContextMenu::ICM_ENABLE_VERT              );
-    menu.addOptionMenuItem( "Enable horizontal selection",   true,  enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ               );
-    menu.addOptionMenuItem( "Enable area selection",         true,  enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA              );
-    menu.addOptionMenuItem( "Enable profile selection",      true,  enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE              );
-    menu.addOptionMenuItem( "Enable target selection",       true,  enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET            );
-    menu.addOptionMenuItem( "Display button bar",            true,  displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR       );
+    // Add menu items
 
+    //                      Title                            checkable  checked                 option
+    menu.addMenuItem(       "Save...",                       false,     false,                  imageContextMenu::ICM_SAVE                     );
+    menu.addMenuItem(       paused?"Resume":"Pause",         true,      paused,                 imageContextMenu::ICM_PAUSE                    );
+    menu.addMenuItem(       "Show time",                     true,      showTimeEnabled,        imageContextMenu::ICM_ENABLE_TIME              );
+    menu.addMenuItem(       "Show cursor pixel info",        true,      displayCursorPixelInfo, imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
+    menu.addMenuItem(       "Contrast reversal",             true,      contrastReversal,       imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
+
+    // Add the zoom menu
     zMenu->enableAreaSelected( haveSelectedArea );
     menu.addMenu( zMenu );
 
+    // Add the flip/rotate menu
     frMenu->setChecked( rotation, flipHoz, flipVert );
     menu.addMenu( frMenu );
 
+    // Add option menu items
+    menu.addOptionMenuItem( "Enable vertical selection",     true,      enableVSliceSelection,  imageContextMenu::ICM_ENABLE_VERT              );
+    menu.addOptionMenuItem( "Enable horizontal selection",   true,      enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ               );
+    menu.addOptionMenuItem( "Enable area selection",         true,      enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA              );
+    menu.addOptionMenuItem( "Enable profile selection",      true,      enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE              );
+    menu.addOptionMenuItem( "Enable target selection",       true,      enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET            );
+    menu.addOptionMenuItem( "Display button bar",            true,      displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR       );
 
+    // Present the menu
     imageContextMenu::imageContextMenuOptions option;
     bool checked;
     menu.getContextMenuOption( globalPos, &option, &checked );
+
+    // Act on the menu selection
     switch( option )
     {
         default:
         case imageContextMenu::ICM_NONE: break;
 
-        case imageContextMenu::ICM_SAVE:                saveClicked();                          break;
-        case imageContextMenu::ICM_PAUSE:               pauseClicked();                         break;
-        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL: setDisplayCursorPixelInfo  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_TIME:         setShowTime                ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_PAN:          setEnablePan               ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_VERT:         setEnableVertSliceSelection( checked ); break;
-        case imageContextMenu::ICM_ENABLE_HOZ:          setEnableHozSliceSelection ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA:         setEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_LINE:         setEnableProfileSelection  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_TARGET:       setEnableTargetSelection   ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:  setDisplayButtonBar        ( checked ); break;
+        case imageContextMenu::ICM_SAVE:                     saveClicked();                          break;
+        case imageContextMenu::ICM_PAUSE:                    pauseClicked();                         break;
+        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:      setDisplayCursorPixelInfo  ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL: setContrastReversal        ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_TIME:              setShowTime                ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_VERT:              setEnableVertSliceSelection( checked ); break;
+        case imageContextMenu::ICM_ENABLE_HOZ:               setEnableHozSliceSelection ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA:              setEnableAreaSelection     ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_LINE:              setEnableProfileSelection  ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_TARGET:            setEnableTargetSelection   ( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:       setDisplayButtonBar        ( checked ); break;
 
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal
