@@ -1,4 +1,6 @@
-/*  This file is part of the EPICS QT Framework, initially developed at the
+/*  QEPvProperties.cpp
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or
@@ -75,6 +77,7 @@ private:
 
 public:
     RecordSpec *find (const QString recordType);
+    void appendOrReplace ( RecordSpec *pRecordSpec);
 };
 
 
@@ -108,6 +111,30 @@ RecordSpec * RecordSpecList::find (const QString recordType) {
       result = this->at (slot);
    }
    return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void RecordSpecList::appendOrReplace ( RecordSpec *pRecordSpec)
+{
+   int slot;
+
+   if (pRecordSpec) {
+      slot = this->findSlot (pRecordSpec->getRecordType());
+      if (slot >= 0) {
+         RecordSpec *pPrevious;
+
+         pPrevious = this->at (slot);
+         this->replace (slot, pRecordSpec);
+         delete pPrevious;
+
+      } else {
+
+         // Just append this ite.
+         //
+         this->append (pRecordSpec);
+      }
+   }
 }
 
 
@@ -159,7 +186,7 @@ static bool process_record_spec_file (const QString& filename)
 
          recordType = line.mid (2, line.length() - 4).trimmed ();
          pRecordSpec = new RecordSpec (recordType);
-         recordSpecList.append (pRecordSpec);
+         recordSpecList.appendOrReplace (pRecordSpec);
 
       } else {
          // Just a regular field.
@@ -180,8 +207,6 @@ static bool process_record_spec_file (const QString& filename)
 //
 static void initialise_record_specs ()
 {
-   QStringList fileList;
-   int j;
    bool okay;
 
    // If already setup then exit.
@@ -191,8 +216,8 @@ static void initialise_record_specs ()
 
    recordSpecList.clear ();
 
-   // Create a record spec to be used as default if we giveb an unknown record type.
-   // All the common fields plus VAL.
+   // Create a record spec to be used as default if we given an unknown record type.
+   // All the common fields plus meta field RTYP plus VAL.
    //
    pDefaultRecordSpec = new RecordSpec ("_default_");
    (*pDefaultRecordSpec)
@@ -202,20 +227,20 @@ static void initialise_record_specs ()
          << "ACKT" << "DISS" << "LCNT" << "PACT" << "PUTF" << "RPRO" << "PRIO"
          << "TPRO" << "UDF"  << "FLNK" << "VAL";
 
-   // Create a priority ordered list of files record type field name
-   // definitions file names.
-   //
-   fileList.clear ();
-   fileList << getenv ("QCA_RECORD_FIELD_LIST");
-   fileList << "./record_field_list.txt";
-   fileList << ":/qe/pvproperties/record_field_list.txt";
-
    okay = false;
-   for (j = 0; j < fileList.size (); j++) {
-       okay = process_record_spec_file (fileList [j] );
-       if (okay) break;
-   }
 
+   // First process the internal file list (from resource file).
+   //
+   okay |= process_record_spec_file (":/qe/pvproperties/record_field_list.txt");
+
+   // Next agument from any file specified using the environment variable.
+   //
+   okay |= process_record_spec_file (getenv ("QE_RECORD_FIELD_LIST"));
+
+   // Lastly augment used file in current (startup) directory.
+   //
+   okay |= process_record_spec_file ("./record_field_list.txt");
+   
    if (okay == false) {
       qDebug () << __FUNCTION__ << __LINE__ << "unable to read any record field files";
    }
