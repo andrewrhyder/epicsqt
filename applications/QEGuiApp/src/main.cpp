@@ -73,7 +73,7 @@ static void printHelp ()
       "Environment variables\n"
       "\n"
       "As well as the standard Channel Access (client) environment variables, the QE framework\n"
-      "and hence the QEGui program's behaviour may be modified by setting a numbetr of QE\n"
+      "and hence the QEGui program's behaviour may be modified by setting a number of QE\n"
       "environment variables.\n"
       "\n"
       "\n"
