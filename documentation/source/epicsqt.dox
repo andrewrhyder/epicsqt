@@ -84,7 +84,9 @@ can interact with Channel Access using Qt based classes and data types. Channel 
 
   For getting a development snapshot from the SVN repository:
   \code svn svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
-\endcode
+  \endcode
+
+  Alternativly, get a packaged file (epicsqt.tar.gz) from the <a href="http://epicsqt.svn.sourceforge.net/viewvc/epicsqt/?view=tar">epicsqt repository site</a>.
 
   \section installonmainpage Installation
  

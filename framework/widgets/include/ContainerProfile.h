@@ -37,8 +37,13 @@ class ContainerProfile;
 
 // Define the user levels
 // NOTE: order must remain least privileged to most privileged
+/// \public
+/// \enum userLevels
 /// User levels set by widgets such as QELogin and used by many widgets to determine visibility, enabled state, and style.
-enum userLevels { USERLEVEL_USER, USERLEVEL_SCIENTIST, USERLEVEL_ENGINEER };
+enum userLevels { USERLEVEL_USER,       ///< User level - least privilaged
+                  USERLEVEL_SCIENTIST,  ///< User level - more privilaged than user, less than engineer
+                  USERLEVEL_ENGINEER    ///< User level - most privilaged
+              };
 
 // Class used to generate signals that the user level has changed.
 // A single instance of this class is shared by all instances of

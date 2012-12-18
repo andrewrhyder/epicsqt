@@ -38,7 +38,15 @@
 // Support class used to build the localEnumeration list in the QEStringFormatting class
 class localEnumerationItem {
     public:
-    enum operations { LESS, LESS_EQUAL, EQUAL, NOT_EQUAL, GREATER_EQUAL, GREATER, ALWAYS, UNKNOWN };
+    enum operations { LESS,
+                      LESS_EQUAL,
+                      EQUAL,
+                      NOT_EQUAL,
+                      GREATER_EQUAL,
+                      GREATER,
+                      ALWAYS,
+                      UNKNOWN
+                  };
     double dValue;              // Numeric value that numeric data is compared to (derived from sValue if possible)
     QString sValue;             // Text value that textual data is compared with
     operations op;              // Operator used for comparison used between data and value (=,<,>)
@@ -48,12 +56,29 @@ class localEnumerationItem {
 class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
   public:
 
-    // Formatting enumerations
-    enum formats { FORMAT_DEFAULT, FORMAT_FLOATING, FORMAT_INTEGER, FORMAT_UNSIGNEDINTEGER, FORMAT_TIME, FORMAT_LOCAL_ENUMERATE, FORMAT_STRING };
-    enum notations { NOTATION_FIXED = QTextStream::FixedNotation,
-                     NOTATION_SCIENTIFIC = QTextStream::ScientificNotation,
-                     NOTATION_AUTOMATIC = QTextStream::SmartNotation };    // WARNING keep these enumerations the same as QTextStream
-    enum arrayActions { APPEND, ASCII, INDEX };
+    /// \enum formats
+    /// Formatting options
+    enum formats { FORMAT_DEFAULT,              ///< Format according to the EPICS database record type
+                   FORMAT_FLOATING,             ///< Format as a floating point number
+                   FORMAT_INTEGER,              ///< Format as an integer
+                   FORMAT_UNSIGNEDINTEGER,      ///< Format as an unsigned integer
+                   FORMAT_TIME,                 ///< Format as a time
+                   FORMAT_LOCAL_ENUMERATE,      ///< Format as a selection from the local enumerations set by setLocalEnumeration()
+                   FORMAT_STRING                ///< Format as a string
+               };
+
+    /// \enum notations
+    /// Notations when formatting a floating point number
+    enum notations { NOTATION_FIXED      = QTextStream::FixedNotation,        ///< Standard floating point 123456.789
+                     NOTATION_SCIENTIFIC = QTextStream::ScientificNotation,   ///< Scientific representation 1.23456789e6
+                     NOTATION_AUTOMATIC  = QTextStream::SmartNotation         ///< Automatic choise of standard or scientific notation
+                };    // WARNING keep these enumerations the same as QTextStream
+    /// \enum arrayActions
+    /// What action to take when formatting array data
+    enum arrayActions { APPEND, ///< Interpret each element in the array as an unsigned integer and append string representations of each element from the array with a space in between each.
+                        ASCII,  ///< Interpret each element from the array as a character in a string. Translate all non printing characters to '?' except for trailing zeros (ignore them)
+                        INDEX   ///< Interpret the element selected by setArrayIndex() as an unsigned integer
+                    };
 
     // Construction
     QEStringFormatting();

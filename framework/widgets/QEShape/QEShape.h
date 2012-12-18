@@ -66,99 +66,99 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     // Property convenience functions
 
     // variable animations
-    /// Access function for 'animation' properties - refer to 'animation' properties for details
+    /// Access function for #animation' properties - refer to animation' properties for details
     void setAnimation( animationOptions animation, const int index );
-    /// Access function for 'animation' properties - refer to 'animation' properties for details
+    /// Access function for #animation' properties - refer to animation' properties for details
     animationOptions getAnimation( const int index );
 
     // scales
-    /// Access function for 'scale' properties - refer to 'scale' properties for details
+    /// Access function for #scale' properties - refer to scale' properties for details
     void setScale( const double scale, const int index );
-    /// Access function for 'scale' properties - refer to 'scale' properties for details
+    /// Access function for #scale' properties - refer to scale' properties for details
     double getScale( const int index );
 
     // offsets
-    /// Access function for 'offset' properties - refer to 'offset' properties for details
+    /// Access function for #offset' properties - refer to offset' properties for details
     void setOffset( const double offset, const int index );
-    /// Access function for 'offset' properties - refer to 'offset' properties for details
+    /// Access function for #offset' properties - refer to offset' properties for details
     double getOffset( const int index );
 
     // border
-    /// Access function for 'border' properties - refer to 'border' properties for details
+    /// Access function for #border' properties - refer to border' properties for details
     void setBorder( const bool border );
-    /// Access function for 'border' properties - refer to 'border' properties for details
+    /// Access function for #border' properties - refer to border' properties for details
     bool getBorder();
 
     // fill
-    /// Access function for 'fill' properties - refer to 'fill' properties for details
+    /// Access function for #fill' properties - refer to fill' properties for details
     void setFill( const bool fill );
-    /// Access function for 'fill' properties - refer to 'fill' properties for details
+    /// Access function for #fill' properties - refer to fill' properties for details
     bool getFill();
 
     // shape
-    /// Access function for 'shape' properties - refer to 'shape' properties for details
+    /// Access function for #shape' properties - refer to shape' properties for details
     void setShape( shapeOptions shape );
-    /// Access function for 'shape' properties - refer to 'shape' properties for details
+    /// Access function for #shape' properties - refer to shape' properties for details
     shapeOptions getShape();
 
     // number of points
-    /// Access function for 'number of points' properties - refer to 'number of points' properties for details
+    /// Access function for #number of points' properties - refer to number of points' properties for details
     void setNumPoints( const unsigned int numPoints );
-    /// Access function for 'number of points' properties - refer to 'number of points' properties for details
+    /// Access function for #number of points' properties - refer to number of points' properties for details
     unsigned int getNumPoints();
 
     // Origin translation
-    /// Access function for 'origin translation' properties - refer to 'origin translation' properties for details
+    /// Access function for #origin translation' properties - refer to origin translation' properties for details
     void setOriginTranslation( const QPoint originTranslation );
-    /// Access function for 'origin translation' properties - refer to 'origin translation' properties for details
+    /// Access function for #origin translation' properties - refer to origin translation' properties for details
     QPoint getOriginTranslation();
 
     // points
-    /// Access function for 'point' properties - refer to 'point' properties for details
+    /// Access function for #point' properties - refer to point' properties for details
     void setPoint( const QPoint point, const int index );
-    /// Access function for 'point' properties - refer to 'point' properties for details
+    /// Access function for #point' properties - refer to point' properties for details
     QPoint getPoint(const int index);
 
     // colors
-    /// Access function for 'colour' properties - refer to 'colour' properties for details
+    /// Access function for #colour' properties - refer to colour' properties for details
     void setColor( const QColor color, const int index );
-    /// Access function for 'colour' properties - refer to 'colour' properties for details
+    /// Access function for #colour' properties - refer to colour' properties for details
     QColor getColor( const int index );
 
     // draw border
-    /// Access function for 'draw border' properties - refer to 'draw border' properties for details
+    /// Access function for #draw border' properties - refer to draw border' properties for details
     void setDrawBorder( const bool drawBorder );
-    /// Access function for 'draw border' properties - refer to 'draw border' properties for details
+    /// Access function for #draw border' properties - refer to draw border' properties for details
     bool getDrawBorder();
 
     // line width
-    /// Access function for 'line width' properties - refer to 'line width' properties for details
+    /// Access function for #line width' properties - refer to line width' properties for details
     void setLineWidth( const unsigned int lineWidth );
-    /// Access function for 'line width' properties - refer to 'line width' properties for details
+    /// Access function for #line width' properties - refer to line width' properties for details
     unsigned int getLineWidth();
 
     // start angle
-    /// Access function for 'start angle' properties - refer to 'start angle' properties for details
+    /// Access function for #start angle' properties - refer to start angle' properties for details
     void setStartAngle( const double startAngle );
-    /// Access function for 'start angle' properties - refer to 'start angle' properties for details
+    /// Access function for #start angle' properties - refer to start angle' properties for details
     double getStartAngle();
 
     // rotation
-    /// Access function for 'rotation' properties - refer to 'rotation' properties for details
+    /// Access function for #rotation' properties - refer to rotation' properties for details
     void setRotation( const double rotation );
-    /// Access function for 'rotation' properties - refer to 'rotation' properties for details
+    /// Access function for #rotation' properties - refer to rotation' properties for details
     double getRotation();
 
     // arc length
-    /// Access function for 'arc length' properties - refer to 'arc length' properties for details
+    /// Access function for #arc length' properties - refer to arc length' properties for details
     void setArcLength( const double arcLength );
-    /// Access function for 'arc length' properties - refer to 'arc length' properties for details
+    /// Access function for #arc length' properties - refer to arc length' properties for details
     double getArcLength();
 
     // text
-    /// Access function for 'text' properties - refer to 'text' properties for details
+    /// Access function for #text' properties - refer to text' properties for details
     void setText( const QString text );
-    /// Access function for 'text' properties - refer to 'text' properties for details
+    /// Access function for #text' properties - refer to text' properties for details
     QString getText();
 
   private:
@@ -346,10 +346,10 @@ public:
     /// The value of this property will only be copied to the standard Qt 'enabled' property once data is valid.
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
 
-    /// Access function for 'enabled' property - refer to 'enabled' property for details
+    /// Access function for #enabled property - refer to #enabled property for details
     bool isEnabled() const { return getApplicationEnabled(); }
 
-    /// Access function for 'enabled' property - refer to 'enabled' property for details
+    /// Access function for #enabled property - refer to #enabled property for details
     void setEnabled( bool state ){ setApplicationEnabled( state ); }
 
     /// Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name.
@@ -387,15 +387,17 @@ public:
     /// and any Style Sheet strings generated during the display of data.
     Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
 
-    /// User friendly enumerations for userLevelVisibility and userLevelEnabled properties - refer to userLevelVisibility and userLevelEnabled properties and userLevel enumeration for details.
-    enum UserLevels { User      = USERLEVEL_USER,
-                      Scientist = USERLEVEL_SCIENTIST,
-                      Engineer  = USERLEVEL_ENGINEER };
+    /// \enum UserLevels
+    /// User friendly enumerations for #userLevelVisibility and #userLevelEnabled properties - refer to #userLevelVisibility and #userLevelEnabled properties and userLevel enumeration for details.
+    enum UserLevels { User      = USERLEVEL_USER,          ///< Refer to USERLEVEL_USER for details
+                      Scientist = USERLEVEL_SCIENTIST,     ///< Refer to USERLEVEL_SCIENTIST for details
+                      Engineer  = USERLEVEL_ENGINEER       ///< Refer to USERLEVEL_ENGINEER for details
+                              };
     Q_ENUMS(UserLevels)
 
     /// Lowest user level at which the widget is visible. Default is 'User'.
     /// Used when designing GUIs that display more and more detail according to the user mode.
-    /// The user mode is set application through the QELogin widget, or programatically through setUserLevel()
+    /// The user mode is set application wide through the QELogin widget, or programatically through setUserLevel()
     /// Widgets that are always visible should be visible at 'User'.
     /// Widgets that are only used by scientists managing the facility should be visible at 'Scientist'.
     /// Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'.
@@ -403,16 +405,16 @@ public:
 
     /// Lowest user level at which the widget is enabled. Default is 'User'.
     /// Used when designing GUIs that allow access to more and more detail according to the user mode.
-    /// The user mode is set application through the QELogin widget, or programatically through setUserLevel()
+    /// The user mode is set application wide through the QELogin widget, or programatically through setUserLevel()
     /// Widgets that are always accessable should be visible at 'User'.
     /// Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'.
     /// Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'.
     Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
 
-    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }            ///< Access function for 'userLevelVisibility' property - refer to 'userLevelVisibility' property for details
-    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }///< Access function for 'userLevelVisibility' property - refer to 'userLevelVisibility' property for details
-    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for 'userLevelEnabled' property - refer to 'userLevelEnabled' property for details
-    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }      ///< Access function for 'userLevelEnabled' property - refer to 'userLevelEnabled' property for details
+    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }            ///< Access function for #userLevelVisibility property - refer to #userLevelVisibility property for details
+    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }///< Access function for #userLevelVisibility property - refer to #userLevelVisibility property for details
+    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
+    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }      ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
 
 public slots:
     /// Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data.

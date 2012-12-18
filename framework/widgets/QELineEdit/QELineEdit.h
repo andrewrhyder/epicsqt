@@ -105,10 +105,10 @@ public:
     /// The value of this property will only be copied to the standard Qt 'enabled' property once data is valid.
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
 
-    /// Access function for 'enabled' property - refer to 'enabled' property for details
+    /// Access function for #enabled property - refer to #enabled property for details
     bool isEnabled() const { return getApplicationEnabled(); }
 
-    /// Access function for 'enabled' property - refer to 'enabled' property for details
+    /// Access function for #enabled property - refer to #enabled property for details
     void setEnabled( bool state ){ setApplicationEnabled( state ); }
 
     /// Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name.
@@ -146,15 +146,17 @@ public:
     /// and any Style Sheet strings generated during the display of data.
     Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
 
-    /// User friendly enumerations for userLevelVisibility and userLevelEnabled properties - refer to userLevelVisibility and userLevelEnabled properties and userLevel enumeration for details.
-    enum UserLevels { User      = USERLEVEL_USER,
-                      Scientist = USERLEVEL_SCIENTIST,
-                      Engineer  = USERLEVEL_ENGINEER };
+    /// \enum UserLevels
+    /// User friendly enumerations for #userLevelVisibility and #userLevelEnabled properties - refer to #userLevelVisibility and #userLevelEnabled properties and ::userLevel enumeration for details.
+    enum UserLevels { User      = USERLEVEL_USER,          ///< Refer to ::USERLEVEL_USER for details
+                      Scientist = USERLEVEL_SCIENTIST,     ///< Refer to ::USERLEVEL_SCIENTIST for details
+                      Engineer  = USERLEVEL_ENGINEER       ///< Refer to ::USERLEVEL_ENGINEER for details
+                              };
     Q_ENUMS(UserLevels)
 
     /// Lowest user level at which the widget is visible. Default is 'User'.
     /// Used when designing GUIs that display more and more detail according to the user mode.
-    /// The user mode is set application through the QELogin widget, or programatically through setUserLevel()
+    /// The user mode is set application wide through the QELogin widget, or programatically through setUserLevel()
     /// Widgets that are always visible should be visible at 'User'.
     /// Widgets that are only used by scientists managing the facility should be visible at 'Scientist'.
     /// Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'.
@@ -162,16 +164,16 @@ public:
 
     /// Lowest user level at which the widget is enabled. Default is 'User'.
     /// Used when designing GUIs that allow access to more and more detail according to the user mode.
-    /// The user mode is set application through the QELogin widget, or programatically through setUserLevel()
+    /// The user mode is set application wide through the QELogin widget, or programatically through setUserLevel()
     /// Widgets that are always accessable should be visible at 'User'.
     /// Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'.
     /// Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'.
     Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
 
-    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }            ///< Access function for 'userLevelVisibility' property - refer to 'userLevelVisibility' property for details
-    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }///< Access function for 'userLevelVisibility' property - refer to 'userLevelVisibility' property for details
-    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for 'userLevelEnabled' property - refer to 'userLevelEnabled' property for details
-    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }      ///< Access function for 'userLevelEnabled' property - refer to 'userLevelEnabled' property for details
+    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }            ///< Access function for #userLevelVisibility property - refer to #userLevelVisibility property for details
+    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }///< Access function for #userLevelVisibility property - refer to #userLevelVisibility property for details
+    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
+    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }      ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
 
 public slots:
     /// Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data.
@@ -210,15 +212,17 @@ public:
     /// Value is converted to an integer and used to select a string from this list.
     Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
 
+    /// \enum    Formats
     /// User friendly enumerations for format property - refer to QEStringFormatting::formats for details.
-    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,
-                   Floating         = QEStringFormatting::FORMAT_FLOATING,
-                   Integer          = QEStringFormatting::FORMAT_INTEGER,
-                   UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time             = QEStringFormatting::FORMAT_TIME,
-                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE };
-    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }  ///< Access function for 'format' property - refer to 'format' property for details
-    Formats getFormatProperty(){ return (Formats)getFormat(); }                                     ///< Access function for 'format' property - refer to 'format' property for details
+    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,            ///< Refer to QEStringFormatting::FORMAT_DEFAULT for details
+                   Floating         = QEStringFormatting::FORMAT_FLOATING,           ///< Refer to QEStringFormatting::FORMAT_FLOATING for details
+                   Integer          = QEStringFormatting::FORMAT_INTEGER,            ///< Refer to QEStringFormatting::FORMAT_INTEGER for details
+                   UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,    ///< Refer to QEStringFormatting::FORMAT_UNSIGNEDINTEGER for details
+                   Time             = QEStringFormatting::FORMAT_TIME,               ///< Refer to QEStringFormatting::FORMAT_TIME for details
+                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE     ///< Refer to QEStringFormatting::FORMAT_LOCAL_ENUMERATE  for details (and the #localEnumeration property)
+                };
+    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }  ///< Access function for #format property - refer to #format property for details
+    Formats getFormatProperty(){ return (Formats)getFormat(); }                                    ///< Access function for #format property - refer to #format property for details
     Q_ENUMS(Formats)
 
     /// Format to apply to data. Default is 'Default' in which case the data type supplied with the data determines how the data is formatted.
@@ -229,23 +233,27 @@ public:
     ///
     Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
 
+    /// \enum Notations
     /// User friendly enumerations for notation property - refer to QEStringFormatting::notations for details.
-    enum Notations { Fixed = QEStringFormatting::NOTATION_FIXED,
-                     Scientific   = QEStringFormatting::NOTATION_SCIENTIFIC,
-                     Automatic      = QEStringFormatting::NOTATION_AUTOMATIC };
-    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }  ///< Access function for 'notation' property - refer to 'notation' property for details
-    Notations getNotationProperty(){ return (Notations)getNotation(); }                                         ///< Access function for 'notation' property - refer to 'notation' property for details
+    enum Notations { Fixed       = QEStringFormatting::NOTATION_FIXED,              ///< Refer to QEStringFormatting::NOTATION_FIXED for details
+                     Scientific  = QEStringFormatting::NOTATION_SCIENTIFIC,         ///< Refer to QEStringFormatting::NOTATION_SCIENTIFIC for details
+                     Automatic   = QEStringFormatting::NOTATION_AUTOMATIC           ///< Refer to QEStringFormatting::NOTATION_AUTOMATIC for details
+                };
+    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }  ///< Access function for #notation property - refer to #notation property for details
+    Notations getNotationProperty(){ return (Notations)getNotation(); }                                        ///< Access function for #notation property - refer to #notation property for details
     Q_ENUMS(Notations)
     /// Notation used for numerical formatting. Default is fixed.
     ///
     Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
 
+    /// \enum ArrayActions
     /// User friendly enumerations for arrayAction property - refer to QEStringFormatting::arrayActions for details.
-    enum ArrayActions { Append = QEStringFormatting::APPEND,
-                        Ascii  = QEStringFormatting::ASCII,
-                        Index  = QEStringFormatting::INDEX };
-    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QEStringFormatting::arrayActions)arrayAction ); }    ///< Access function for 'arrayAction' property - refer to 'arrayAction' property for details
-    ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }                                                 ///< Access function for 'arrayAction' property - refer to 'arrayAction' property for details
+    enum ArrayActions { Append = QEStringFormatting::APPEND,            ///< Refer to QEStringFormatting::APPEND for details
+                        Ascii  = QEStringFormatting::ASCII,             ///< Refer to QEStringFormatting::ASCII for details
+                        Index  = QEStringFormatting::INDEX              ///< Refer to QEStringFormatting::INDEX for details
+                    };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QEStringFormatting::arrayActions)arrayAction ); }    ///< Access function for #arrayAction property - refer to #arrayAction property for details
+    ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }                                                ///< Access function for #arrayAction property - refer to #arrayAction property for details
     Q_ENUMS(ArrayActions)
 
     /// Text formatting option for array data. Default is ASCII. Options are:

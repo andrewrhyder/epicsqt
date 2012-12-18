@@ -10,38 +10,27 @@ pdflatex available in lexlive "yum install texlive-latex")
   make pdf
   cp refman.pdf ~/epicsqt/documentation/QE_ReferenceManual.pdf
 
-Ensure repository is up to date:
-  cd ~/epicsqt
-  svn commit -m "reason for any changes"
-
 Save current version just in case:
 For example, if a new file was not added to svn
   cd ~
   mv epicsqt epicsqtSaveNN
 
-Recover and rebuild repository.
-This ensures the package will really contain what is in the
-repository and will build.
-  svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
-  qtcreator epicsqt/epicsqt.pro
-  (turn off shaddow build and build it)
-
-Recover repository and remove svn files:
-  cd ~
-  rm -rf epicsqt
-  svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
-  find epicsqt -name *.svn -exec rm -rfv {} \;
+Ensure repository is up to date:
+  cd ~/epicsqt
+  svn commit -m "reason for any changes"
 
 Package project (version example below is 2.0.0 - change as required)
-  cd ~
-  tar -z -cvf epicsqt-2.0.0-src.tar.gz epicsqt
+  firefox http://epicsqt.svn.sourceforge.net/viewvc/epicsqt/
+  'Download GNU tarball'
+  Save File
+  mv ~/Downloads/epicsqt.tar.gz ~/Downloads/epicsqt-2.0.0-src.tar.gz
   check epicsqt-2.0.0-src.tar.gz is a sensible size compared to last package
 
   go to https://sourceforge.net/projects/epicsqt/
   select 'files' (https://sourceforge.net/projects/epicsqt/files/)
   Press 'Add' button - only available when logged in
                        (and perhaps only available in firefox?
-  browse, select ~/epicsqt-2.0.0-src.tar.gz and upload
+  browse, select ~/Downloads/epicsqt-2.0.0-src.tar.gz and upload
   revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
 
 Verify package:

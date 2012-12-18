@@ -23,7 +23,7 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-/*
+/*!
    This class provides a non CA aware graphical analog indicator base class.
    It supports a number of display modes including Bar, Scale and Meter.
 
@@ -47,38 +47,77 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEAnalogIndicator : public QWidget {
     Q_OBJECT
 
 public:
-    enum Orientations { Left_To_Right, Top_To_Bottom, Right_To_Left, Bottom_To_Top };
+    /// \enum    Orientations
+    /// The orientation of Bar and Scale indicators
+    enum Orientations { Left_To_Right,      ///< Left to right
+                        Top_To_Bottom,      ///< Top to bottom
+                        Right_To_Left,      ///< Right to left
+                        Bottom_To_Top       ///< Bottom to top
+                    };
     Q_ENUMS (Orientations)
 
-    enum Modes { Bar, Scale, Meter };
+    /// \enum    Modes
+    /// The type of analog indicator used to represent the value
+    enum Modes { Bar,       ///< Bar (solid bar from minimum up to current value)
+                 Scale,     ///< Scale (diamond marker tracks current value)
+                 Meter      ///< Meter (Needle moving across an arc scale)
+             };
     Q_ENUMS (Modes)
 
+    /// Current indicated value.
+    ///
     Q_PROPERTY (double value             READ getValue               WRITE setValue)
+    /// Minimum indicated value.
+    ///
     Q_PROPERTY (double minimum           READ getMinimum             WRITE setMinimum)
+    /// Maximum indicated value.
+    ///
     Q_PROPERTY (double maximum           READ getMaximum             WRITE setMaximum)
 
-    // Applies when logScale false
-    //
+    /// Minor scale interval.
+    /// Only applies for linear scale (not log scale)
     Q_PROPERTY (double minorInterval     READ getMinorInterval       WRITE setMinorInterval)
+    /// Minor scale interval.
+    /// Only applies for linear scale (not log scale)
     Q_PROPERTY (double majorInterval     READ getMajorInterval       WRITE setMajorInterval)
 
-    // Applies when logScale true
-    //
+    /// Log scale interval.
+    ///
     Q_PROPERTY (int    logScaleInterval  READ getLogScaleInterval    WRITE setLogScaleInterval)
 
+    /// If set, show textual representation of value on the indicator
+    ///
     Q_PROPERTY (bool   showText          READ getShowText            WRITE setShowText)
+    /// If set, show the scale
+    ///
     Q_PROPERTY (bool   showScale         READ getShowScale           WRITE setShowScale)
+    /// If set, use a logarithmic scale. If clear, use a linear scale
+    ///
     Q_PROPERTY (bool   logScale          READ getLogScale            WRITE setLogScale)
+    /// Selects what type of indicator is used
+    /// (refer to Modes)
     Q_PROPERTY (Modes  mode              READ getMode                WRITE setMode)
+    /// The orientation of Bar and Scale indicators
+    /// (refer to Orientations)
     Q_PROPERTY (Orientations orientation READ getOrientation         WRITE setOrientation)
+    /// The angle in degreed of the line that Meter indicators are centered around.
+    /// Zero represents a vertical centerline and angles increment clockwise.
     Q_PROPERTY (int    centreAngle       READ getCentreAngle         WRITE setCentreAngle)
+    /// The span of the Meter scale arc in degrees
+    /// Typical meters are 180 deg and 270 deg
     Q_PROPERTY (int    spanAngle         READ getSpanAngle           WRITE setSpanAngle)
 
-    // NOTE: Where possible I spell colour properly.
-    //
+    /// Border colour
+    ///
     Q_PROPERTY (QColor borderColour      READ getBorderColour        WRITE setBorderColour)
+    /// Background colour
+    ///
     Q_PROPERTY (QColor backgroundColour  READ getBackgroundColour    WRITE setBackgroundColour)
+    /// Foreground colour
+    ///
     Q_PROPERTY (QColor foregroundColour  READ getForegroundColour    WRITE setForegroundColour)
+    /// Font colour
+    ///
     Q_PROPERTY (QColor fontColour        READ getFontColour          WRITE setFontColour)
 
 private:
@@ -160,62 +199,65 @@ protected:
     virtual BandList getBandList ();
 
 public:
-    // Constructor
+    /// Constructor
     QEAnalogIndicator (QWidget * parent = 0);
+    /// Destructor
     virtual ~QEAnalogIndicator() {}
+
+    /// Size hint
     virtual QSize sizeHint () const;
 
     // property access functions.
     //
-    double getValue ();
+    double getValue ();                                         ///< Access function for #value property - refer to #value property for details
 
-    void setMinimum (const double value);
-    double getMinimum ();
+    void setMinimum (const double value);                       ///< Access function for #minimum - refer to minimum property for details
+    double getMinimum ();                                       ///< Access function for #minimum - refer to minimum property for details
 
-    void setMaximum (const double value);
-    double getMaximum ();
+    void setMaximum (const double value);                       ///< Access function for #maximum - refer to maximum property for details
+    double getMaximum ();                                       ///< Access function for #maximum - refer to maximum property for details
 
-    void setOrientation   (const enum Orientations value);
-    enum Orientations getOrientation ();
+    void setOrientation   (const enum Orientations value);      ///< Access function for #orientation - refer to orientation property for details
+    enum Orientations getOrientation ();                        ///< Access function for #orientation - refer to orientation property for details
 
-    void setMode          (const enum Modes value);
-    enum Modes getMode ();
+    void setMode          (const enum Modes value);             ///< Access function for #mode - refer to mode property for details
+    enum Modes getMode ();                                      ///< Access function for #mode - refer to mode property for details
 
-    void setCentreAngle (const int value);
-    int getCentreAngle ();
+    void setCentreAngle (const int value);                      ///< Access function for #centreAngle - refer to centreAngle property for details
+    int getCentreAngle ();                                      ///< Access function for #centreAngle - refer to centreAngle property for details
 
-    void setSpanAngle (const int value);
-    int getSpanAngle ();
+    void setSpanAngle (const int value);                        ///< Access function for #spanAngle - refer to spanAngle property for details
+    int getSpanAngle ();                                        ///< Access function for #spanAngle - refer to spanAngle property for details
 
-    void setMinorInterval (const double value);
-    double getMinorInterval ();
+    void setMinorInterval (const double value);                 ///< Access function for #minorInterval - refer to minorInterval property for details
+    double getMinorInterval ();                                 ///< Access function for #minorInterval - refer to minorInterval property for details
 
-    void setMajorInterval (const double value);
-    double getMajorInterval ();
+    void setMajorInterval (const double value);                 ///< Access function for #majorInterval - refer to majorInterval property for details
+    double getMajorInterval ();                                 ///< Access function for #majorInterval - refer to majorInterval property for details
 
-    void setLogScaleInterval (const int value);
-    int getLogScaleInterval ();
+    void setLogScaleInterval (const int value);                 ///< Access function for #logScaleInterval - refer to logScaleInterval property for details
+    int getLogScaleInterval ();                                 ///< Access function for #logScaleInterval - refer to logScaleInterval property for details
 
-    void setBorderColour (const QColor value);
-    QColor getBorderColour ();
+    void setBorderColour (const QColor value);                  ///< Access function for #borderColour - refer to borderColour property for details
+    QColor getBorderColour ();                                  ///< Access function for #borderColour - refer to borderColour property for details
 
-    void setForegroundColour (const QColor value);
-    QColor getForegroundColour ();
+    void setForegroundColour (const QColor value);              ///< Access function for #foregroundColour - refer to foregroundColour property for details
+    QColor getForegroundColour ();                              ///< Access function for #foregroundColour - refer to foregroundColour property for details
 
-    void setBackgroundColour (const QColor value);
-    QColor getBackgroundColour ();
+    void setBackgroundColour (const QColor value);              ///< Access function for #backgroundColour - refer to backgroundColour property for details
+    QColor getBackgroundColour ();                              ///< Access function for #backgroundColour - refer to backgroundColour property for details
 
-    void setFontColour (const QColor value);
-    QColor getFontColour ();
+    void setFontColour (const QColor value);                    ///< Access function for #fontColour - refer to fontColour property for details
+    QColor getFontColour ();                                    ///< Access function for #fontColour - refer to fontColour property for details
 
-    void setShowText (const bool value);
-    bool getShowText ();
+    void setShowText (const bool value);                        ///< Access function for #showText - refer to showText property for details
+    bool getShowText ();                                        ///< Access function for #showText - refer to showText property for details
 
-    void setShowScale (const bool value);
-    bool getShowScale ();
+    void setShowScale (const bool value);                       ///< Access function for #showScale - refer to showScale property for details
+    bool getShowScale ();                                       ///< Access function for #showScale - refer to showScale property for details
 
-    void setLogScale (const bool value);
-    bool getLogScale ();
+    void setLogScale (const bool value);                        ///< Access function for #logScale - refer to logScale property for details
+    bool getLogScale ();                                        ///< Access function for #logScale - refer to logScale property for details
 
 public slots:
     void setRange   (const double MinimumIn, const double MaximumIn);
