@@ -26,6 +26,13 @@
 
 QEToolTip::QEToolTip(  QWidget* ownerIn )
 {
+    // Sanity check.
+    if( ownerIn == NULL )
+    {
+        qWarning( "QEToolTip constructor called with a null 'owner'" );
+        exit( EXIT_FAILURE );
+    }
+
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 

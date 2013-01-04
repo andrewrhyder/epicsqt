@@ -60,6 +60,13 @@
 // Construction.
 QEDragDrop::QEDragDrop( QWidget* ownerIn )
 {
+    // Sanity check.
+    if( ownerIn == NULL )
+    {
+        qWarning( "QEDragDrop constructor called with a null 'owner'" );
+        exit( EXIT_FAILURE );
+    }
+
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 }
