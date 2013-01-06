@@ -203,6 +203,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QEWidget
         MessageFilterOptions getMessageSourceFilter(){ return (MessageFilterOptions)getSourceFilter(); }
         void setMessageSourceFilter( MessageFilterOptions messageSourceFilter ){ setSourceFilter( (message_filter_options)messageSourceFilter ); }
 
+        Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
 
     private slots:
         void checkBoxInfoToggled(bool);
