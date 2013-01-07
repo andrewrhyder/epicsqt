@@ -1,15 +1,16 @@
-QCa Framework - Qt based access to EPICS data using Channel Access
+QE Framework - Qt based access to EPICS data using Channel Access
 
 
 Key documentation:
-  Framework overview:              ./documentation/QCa_FrameworkOverview.pdf
-  Setting up for development:      ./documentation/QCa_GettingStarted.pdf
+  Release notes:                               releasenotes.txt
+  Framework overview:                          ./documentation/QE_FrameworkOverview.pdf
+  Setting up for development:                  ./documentation/QE_GettingStarted.pdf
+  Developing user interfaces and applications: ./documentation/QE_QEGuiAndUserInterfaceDesign.pdf
 
 
 Key Qt project files:
-  QCa Framework:                   ./ca_framework/plugins/QCaDesignerPlugin.pro
-  qwt (graphing subsystem)         ./ca_framework/qwt-5.2.1/qwt.pro
-  ASgui (control GUI application)  ./applications/ASguiApp/ASgui.pro
+  QE Framework:                    ./framework/framework.pro
+  ASgui (control GUI application)  ./applications/QEGuiApp/QEGui.pro
 
 
 Dowload from:

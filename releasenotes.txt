@@ -1,0 +1,104 @@
+epicsqt 2.1 Release Notes
+
+==================================================================================================
+Changes between 2.1 and 2.0
+
+SUMMARY:
+
+QEImage interaction more user friendly.
+Documentation updates.
+Writing of array data.
+
+New widgets added:
+- QEFileImage
+
+DETAIL:
+
+504:
+Add missing property to QELog widget.
+Document user messages and logging. In particular, using QELog widget to
+display messages
+
+503:
+Add check to QEWidget constructor (and its base classes) to ensure the owner widget parameter is not null.
+Also add a bit more doxygen commenting.
+
+502:
+Macro Substitution documentation
+
+501:
+Doxygen documentation updates
+
+500:
+Add example images and doco for QEBitStatus and QEAnalogProgressBar.
+Fix typo in QEGui help
+
+499:
+Update help info, describe environment variables
+
+498:
+Change QCA_RECORD_FIELD_LIST to QE_RECORD_FIELD_LIST, make user specified record fields augment internally specified info, and update concat recod fields
+
+497:
+QEImage changes:
+Scale markups when image is resized.
+Add markup right click menu (to clear markups).
+Profile plots appear only when markups are present and disapear when markup is cleared.
+Various menu changes.
+
+496:
+Scale markups when image is resized
+
+495:
+Tidy ' variable as tool tip' function. Now no longer requires any widget specific code.
+
+494:
+a couple more missing files for QEFileImage widget
+
+493:
+Sorry, put QEFileImage files in the wrong directory
+
+492:
+Integrate QFileImage widget into framework
+
+491:
+added QFileImage widget to display an image from a file, where the filename given by variable data and file is re-read on variable update
+
+
+490:
+Add writing of array data
+
+==================================================================================================
+
+Changes between 2.0 and 1.1.8
+
+SUMMARY:
+
+New widgets added:
+  - QEAnalogIndicator
+  - QEAnalogProgressBar
+  - QEArchive
+  - QEBitStatus
+  - QEConfiguredLayout
+  - QEFileBrowser
+  - QEGroupBox
+  - QEImage
+  - QELog
+  - QELogin
+  - QEPvProperties
+  - QERecipe (incomplete)
+  - QEScript (incomplete)
+  - QEStripChart
+  - QESubstitutedLabel
+
+Significant refactoring. All classes begining QCa renamed to begin with QE unless specificly CA related. Library name changed from QCaPlugin to QEplugin. GUI display application name changed from ASgui to QEGui.
+
+Widget and plugin classes merged. Previously, each widget had a plugin wrapper class.
+
+To assist migration, all original QCa widget classes are still available as deprecated classes, but are light wrappers around the QE equivilent.
+
+Ad hoc doxygen comments removed and consistant Doxygen commenting started.
+
+Design guide started.
+
+Remove qwt from package. qwt is now an external dependancy

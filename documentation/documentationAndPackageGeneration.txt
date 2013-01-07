@@ -1,4 +1,6 @@
 Package generation:
+Update release notes:
+  Add summary and svn change logs to ~/epicsqt/releasenotes.txt
 
 Rebuild documentation:
 (note, preparation of pdf help from latex source requires
@@ -19,25 +21,18 @@ Ensure repository is up to date:
   cd ~/epicsqt
   svn commit -m "reason for any changes"
 
-Package project (version example below is 2.0.0 - change as required)
+Package project (version example below is 2.1 - change as required)
   firefox http://epicsqt.svn.sourceforge.net/viewvc/epicsqt/
   'Download GNU tarball'
   Save File
-  mv ~/Downloads/epicsqt.tar.gz ~/Downloads/epicsqt-2.0.0-src.tar.gz
-  check epicsqt-2.0.0-src.tar.gz is a sensible size compared to last package
-
-  go to https://sourceforge.net/projects/epicsqt/
-  select 'files' (https://sourceforge.net/projects/epicsqt/files/)
-  Press 'Add' button - only available when logged in
-                       (and perhaps only available in firefox?
-  browse, select ~/Downloads/epicsqt-2.0.0-src.tar.gz and upload
-  revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
+  mv ~/Downloads/epicsqt.tar.gz ~/Downloads/epicsqt-2.1-src.tar.gz
+  check epicsqt-2.1-src.tar.gz is a sensible size compared to last package
 
 Verify package:
   cd ~
   rm -rf epicsqt
   goto https://sourceforge.net/projects/epicsqt/ and press 'Download'
-  tar -xf <downloadLocation>/epicsqt-2.0.0-src.tar.gz
+  tar -xf <downloadLocation>/epicsqt-2.1-src.tar.gz
   cd epicsqt
   qtcreator
   open ~/epicsqt/epicsqt.pro
@@ -45,6 +40,14 @@ Verify package:
   run QEGui
 
   check ~/epicsqt/documentation/QE_ReferenceManual.pdf
+
+Upload package:
+  go to https://sourceforge.net/projects/epicsqt/
+  select 'files' (https://sourceforge.net/projects/epicsqt/files/)
+  Press 'Add' button - only available when logged in
+                       (and perhaps only available in firefox?
+  browse, select ~/Downloads/epicsqt-2.1-src.tar.gz and upload
+  revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
 
 Prior to ongoing development:
 Restore svn copy
