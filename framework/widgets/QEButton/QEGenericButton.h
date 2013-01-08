@@ -129,9 +129,6 @@ protected:
 
     virtual updateOptions getDefaultUpdateOption() = 0;
 
-public:
-    void onGeneralMessage( QString message );
-
 private:
     Qt::Alignment textAlignment;
 

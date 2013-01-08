@@ -635,18 +635,6 @@ QString QEGenericButton::getLabelTextProperty()
 //==============================================================================
 // 'Start new GUI' slots
 
-// Slot for presenting messages to the user.
-// Normally a gui will have provided it's own message and error handling.
-// This is only used if no environment profile has been set up when a form is created. This is the case if created within 'designer'
-// Use a general message
-void QEGenericButton::onGeneralMessage( QString message )
-{
-    QMessageBox msgBox;
-    msgBox.setText( "Message" );
-    msgBox.setInformativeText( message );
-    msgBox.exec();
-}
-
 // Slot for launching a new gui.
 // This is the button's default action for launching a gui.
 // Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.

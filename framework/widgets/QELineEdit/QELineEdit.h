@@ -208,8 +208,45 @@ public:
     ///
     Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
 
+    // NOTE, keep in sync. The documentation below is repeated in QEStringFormatting::setLocalEnumeration() (in QEStringformatting.cpp)
     /// An enumeration list used to data values. Used only when the formatting option is 'local enumeration'.
     /// Value is converted to an integer and used to select a string from this list.
+    ///
+    /// Format is:
+    ///
+    ///   [[<|<=|=|!=|>=|>]value1|*] : string1 , [[<|<=|=|!=|>=|>]value2|*] : string2 , [[<|<=|=|!=|>=|>]value3|*] : string3 , ...
+    ///
+    /// Where:
+    ///   <  Less than
+    ///   <= Less than or equal
+    ///   =  Equal (default if no operator specified)
+    ///   >= Greather than or equal
+    ///   >  Greater than
+    ///   *  Always match (used to specify default text)
+    ///
+    /// Values may be numeric or textual
+    /// Values do not have to be in any order, but first match wins
+    /// Values may be quoted
+    /// Strings may be quoted
+    /// Consecutive values do not have to be present.
+    /// Operator is assumed to be equality if not present.
+    /// White space is ignored except within quoted strings.
+    /// \n may be included in a string to indicate a line break
+    ///
+    /// Examples are:
+    ///
+    /// 0:Off,1:On
+    /// 0 : "Pump Running", 1 : "Pump not running"
+    /// 0:"", 1:"Warning!\nAlarm"
+    /// <2:"Value is less than two", =2:"Value is equal to two", >2:"Value is grater than 2"
+    /// 3:"Beamline Available", *:""
+    /// "Pump Off":"OH NO!, the pump is OFF!","Pump On":"It's OK, the pump is on"
+    ///
+    /// The data value is converted to a string if no enumeration for that value is available.
+    /// For example, if the local enumeration is '0:off,1:on', and a value of 10 is processed, the text generated is '10'.
+    /// If a blank string is required, this should be explicit. for example, '0:off,1:on,10:""'
+    ///
+    /// A range of numbers can be covered by a pair of values as in the following example: >=4:"Between 4 and 8",<=8:"Between 4 and 8"
     Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
 
     /// \enum    Formats

@@ -49,6 +49,10 @@ Upload package:
   browse, select ~/Downloads/epicsqt-2.1-src.tar.gz and upload
   revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
 
+Update any changed files in sourceforge documentation
+  go to https://sourceforge.net/projects/epicsqt/files/documentation/
+  add updated files
+
 Prior to ongoing development:
 Restore svn copy
   cd ~

@@ -71,7 +71,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     /// Notations when formatting a floating point number
     enum notations { NOTATION_FIXED      = QTextStream::FixedNotation,        ///< Standard floating point 123456.789
                      NOTATION_SCIENTIFIC = QTextStream::ScientificNotation,   ///< Scientific representation 1.23456789e6
-                     NOTATION_AUTOMATIC  = QTextStream::SmartNotation         ///< Automatic choise of standard or scientific notation
+                     NOTATION_AUTOMATIC  = QTextStream::SmartNotation         ///< Automatic choice of standard or scientific notation
                 };    // WARNING keep these enumerations the same as QTextStream
     /// \enum arrayActions
     /// What action to take when formatting array data

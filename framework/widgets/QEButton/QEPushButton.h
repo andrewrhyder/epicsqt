@@ -42,7 +42,13 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPushButton : public QPushButton, public QEG
     Q_OBJECT
 
   public:
+    /// Create without a variable.
+    /// Use setVariableNameProperty() and setSubstitutionsProperty() to define a variable and, optionally, macro substitutions later.
     QEPushButton( QWidget *parent = 0 );
+
+    /// Create with a variable.
+    /// A connection is automatically established.
+    /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
     QEPushButton( const QString& variableName, QWidget *parent = 0 );
 
   private slots:
@@ -53,9 +59,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPushButton : public QPushButton, public QEG
     void userClicked( bool checked ) { QEGenericButton::userClicked( checked ); }
 
 public slots:
+    // Note, keep in sync. The text below is repeated in QERadioButton.h
+    /// Default slot used to create a new GUI if there is no slot indicated in the ContainerProfile class.
+    /// This slot is typically used when the button is pressed within the Designer preview window to allow the operation of the button to be tested.
+    /// If an application does not specify a slot to use for creating new windows (through the ContainerProfile class) a window will still be created through this slot, but it will not respect the window creation options or any other window related application constraints.
+    /// For example, the QEGui application does provide a slot for creating new GUIs in the ContainerProfile class which respects the creation options, knows how to add tabs in the application, and extend the application's window menu in the menu bar.
     void launchGui( QString guiName, QEForm::creationOptions creationOption ){ QEGenericButton::launchGui( guiName, creationOption); }
-    void onGeneralMessage( QString message ){ QEGenericButton::onGeneralMessage( message ); }
-
 
   signals:
     // Note, the following signals are common to many QE widgets,
@@ -64,6 +73,7 @@ public slots:
     /// Can be used to pass on EPICS data (as presented in this widget) to other widgets.
     /// For example a QList widget could log updates from this widget.
     void dbValueChanged( const QString& out );
+
     /// Internal use only. Used when changing a property value to force a re-display to reflect the new property value.
     void requestResend();
 
@@ -101,7 +111,7 @@ private:
     QEGenericButton::updateOptions getDefaultUpdateOption() { return QEGenericButton::UPDATE_TEXT; }
 
     // Drag and Drop
-protected:
+private:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
@@ -135,6 +145,8 @@ public:
     /// This variable is used to provide a readback value when different to the variable written to by a button press.
     Q_PROPERTY(QString altReadbackVariable READ getVariableName1Property WRITE setVariableName1Property)
 
+    /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
+    /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
 private:
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions )
@@ -264,96 +276,280 @@ public:
   //=================================================================================
 
 
-    // Widget specific properties
-
-    // Update options (text, pixmap, or both)
-    Q_ENUMS(UpdateOptions)
-    Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
-    enum UpdateOptions { Text        = QEPushButton::UPDATE_TEXT,
-                         Icon        = QEPushButton::UPDATE_ICON,
-                         TextAndIcon = QEPushButton::UPDATE_TEXT_AND_ICON,
-                         State       = QEPushButton::UPDATE_STATE };
-
-    // Pixmaps
-    Q_PROPERTY(QPixmap pixmap0 READ getPixmap0Property WRITE setPixmap0Property)
-    Q_PROPERTY(QPixmap pixmap1 READ getPixmap1Property WRITE setPixmap1Property)
-    Q_PROPERTY(QPixmap pixmap2 READ getPixmap2Property WRITE setPixmap2Property)
-    Q_PROPERTY(QPixmap pixmap3 READ getPixmap3Property WRITE setPixmap3Property)
-    Q_PROPERTY(QPixmap pixmap4 READ getPixmap4Property WRITE setPixmap4Property)
-    Q_PROPERTY(QPixmap pixmap5 READ getPixmap5Property WRITE setPixmap5Property)
-    Q_PROPERTY(QPixmap pixmap6 READ getPixmap6Property WRITE setPixmap6Property)
-    Q_PROPERTY(QPixmap pixmap7 READ getPixmap7Property WRITE setPixmap7Property)
-
+    //=================================================================================
     // String formatting properties
-    Q_PROPERTY(unsigned int precision READ getPrecision WRITE setPrecision)
+    // These properties should be identical for every widget managing strings.
+    // WHEN MAKING CHANGES: search for STRINGPROPERTIES and change all occurances.
+public:
+    /// Precision used when formatting floating point numbers. The default is 4.
+    /// This is only used if useDbPrecision is false.
+    Q_PROPERTY(int  precision READ getPrecision WRITE setPrecision)
+
+    /// If true (default), format floating point numbers using the precision supplied with the data.
+    /// If false, the precision property is used.
     Q_PROPERTY(bool useDbPrecision READ getUseDbPrecision WRITE setUseDbPrecision)
+
+    /// If true (default), always add a leading zero when formatting numbers.
+    ///
     Q_PROPERTY(bool leadingZero READ getLeadingZero WRITE setLeadingZero)
+
+    /// If true (default), always remove any trailing zeros when formatting numbers.
+    ///
     Q_PROPERTY(bool trailingZeros READ getTrailingZeros WRITE setTrailingZeros)
+
+    /// If true (default), add engineering units supplied with the data.
+    ///
     Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
+
+    // NOTE, keep in sync. The documentation below is repeated in QEStringFormatting::setLocalEnumeration() (in QEStringformatting.cpp)
+    /// An enumeration list used to data values. Used only when the formatting option is 'local enumeration'.
+    /// Value is converted to an integer and used to select a string from this list.
+    ///
+    /// Format is:
+    ///
+    ///   [[<|<=|=|!=|>=|>]value1|*] : string1 , [[<|<=|=|!=|>=|>]value2|*] : string2 , [[<|<=|=|!=|>=|>]value3|*] : string3 , ...
+    ///
+    /// Where:
+    ///   <  Less than
+    ///   <= Less than or equal
+    ///   =  Equal (default if no operator specified)
+    ///   >= Greather than or equal
+    ///   >  Greater than
+    ///   *  Always match (used to specify default text)
+    ///
+    /// Values may be numeric or textual
+    /// Values do not have to be in any order, but first match wins
+    /// Values may be quoted
+    /// Strings may be quoted
+    /// Consecutive values do not have to be present.
+    /// Operator is assumed to be equality if not present.
+    /// White space is ignored except within quoted strings.
+    /// \n may be included in a string to indicate a line break
+    ///
+    /// Examples are:
+    ///
+    /// 0:Off,1:On
+    /// 0 : "Pump Running", 1 : "Pump not running"
+    /// 0:"", 1:"Warning!\nAlarm"
+    /// <2:"Value is less than two", =2:"Value is equal to two", >2:"Value is grater than 2"
+    /// 3:"Beamline Available", *:""
+    /// "Pump Off":"OH NO!, the pump is OFF!","Pump On":"It's OK, the pump is on"
+    ///
+    /// The data value is converted to a string if no enumeration for that value is available.
+    /// For example, if the local enumeration is '0:off,1:on', and a value of 10 is processed, the text generated is '10'.
+    /// If a blank string is required, this should be explicit. for example, '0:off,1:on,10:""'
+    ///
+    /// A range of numbers can be covered by a pair of values as in the following example: >=4:"Between 4 and 8",<=8:"Between 4 and 8"
     Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
+
+    /// \enum    Formats
+    /// User friendly enumerations for format property - refer to QEStringFormatting::formats for details.
+    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,            ///< Format as best appropriate for the data type
+                   Floating         = QEStringFormatting::FORMAT_FLOATING,           ///< Format as a floating point number
+                   Integer          = QEStringFormatting::FORMAT_INTEGER,            ///< Format as an integer
+                   UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,    ///< Format as an unsigned integer
+                   Time             = QEStringFormatting::FORMAT_TIME,               ///< Format as a time
+                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE     ///< Format as a selection from the #localEnumeration property
+                };
+    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }  ///< Access function for #format property - refer to #format property for details
+    Formats getFormatProperty(){ return (Formats)getFormat(); }                                    ///< Access function for #format property - refer to #format property for details
+    Q_ENUMS(Formats)
+
+    /// Format to apply to data. Default is 'Default' in which case the data type supplied with the data determines how the data is formatted.
+    /// For all other options, an attempt is made to format the data as requested (whatever its native form).
+    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
+
+    /// Base used for when formatting integers. Default is 10 (duh!)
+    ///
+    Q_PROPERTY(unsigned int radix READ getRadix WRITE setRadix)
+
+    /// \enum Notations
+    /// User friendly enumerations for notation property - refer to QEStringFormatting::notations for details.
+    enum Notations { Fixed       = QEStringFormatting::NOTATION_FIXED,              ///< Refer to QEStringFormatting::NOTATION_FIXED for details
+                     Scientific  = QEStringFormatting::NOTATION_SCIENTIFIC,         ///< Refer to QEStringFormatting::NOTATION_SCIENTIFIC for details
+                     Automatic   = QEStringFormatting::NOTATION_AUTOMATIC           ///< Refer to QEStringFormatting::NOTATION_AUTOMATIC for details
+                };
+    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }  ///< Access function for #notation property - refer to #notation property for details
+    Notations getNotationProperty(){ return (Notations)getNotation(); }                                        ///< Access function for #notation property - refer to #notation property for details
+    Q_ENUMS(Notations)
+    /// Notation used for numerical formatting. Default is fixed.
+    ///
+    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
+
+    /// \enum ArrayActions
+    /// User friendly enumerations for arrayAction property - refer to QEStringFormatting::arrayActions for details.
+    enum ArrayActions { Append = QEStringFormatting::APPEND,            ///< Refer to QEStringFormatting::APPEND for details
+                        Ascii  = QEStringFormatting::ASCII,             ///< Refer to QEStringFormatting::ASCII for details
+                        Index  = QEStringFormatting::INDEX              ///< Refer to QEStringFormatting::INDEX for details
+                    };
+    void setArrayActionProperty( ArrayActions arrayAction ){ setArrayAction( (QEStringFormatting::arrayActions)arrayAction ); }    ///< Access function for #arrayAction property - refer to #arrayAction property for details
+    ArrayActions getArrayActionProperty(){ return (ArrayActions)getArrayAction(); }                                                ///< Access function for #arrayAction property - refer to #arrayAction property for details
+    Q_ENUMS(ArrayActions)
+
+    /// Text formatting option for array data. Default is ASCII. Options are:
+    /// \li ASCII - treat array as a single text string. For example an array of three characters 'a' 'b' 'c' will be formatted as 'abc'.
+    /// \li APPEND - treat array as an array of numbers and format a string containing them all with a space between each. For example, an array of three numbers 10, 11 and 12 will be formatted as '10 11 12'.
+    /// \li INDEX - Extract a single item from the array. The item is then formatted as any other non array data would be. The item selected is determined by the arrayIndex property. For example, if arrayIndex property is 1, an array of three numbers 10, 11 and 12 will be formatted as '11'.
+    Q_PROPERTY(ArrayActions arrayAction READ getArrayActionProperty WRITE setArrayActionProperty)
+
+    /// Index used to select a single item of data for formatting from an array of data. Default is 0.
+    /// Only used when the arrayAction property is INDEX. Refer to the arrayAction property for more details.
+    Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
+public:
+    //=================================================================================
+
+    //=================================================================================
+    // Generic button properties
+    // These properties should be identical for specif button wigets (QEPushButton and QERadioButton
+    // WHEN MAKING CHANGES: search for BUTTONPROPERTIES and change all occurances.
+public:
+
+    /// Set the buttons text alignment.
+    /// Left justification is particularly useful when displaying quickly changing numeric data updates.
     Q_PROPERTY(Qt::Alignment alignment READ getTextAlignment WRITE setTextAlignment )
 
-    Q_ENUMS(Formats)
-    Q_PROPERTY(Formats format READ getFormatProperty WRITE setFormatProperty)
-    enum Formats { Default         = QEStringFormatting::FORMAT_DEFAULT,
-                   Floating        = QEStringFormatting::FORMAT_FLOATING,
-                   Integer         = QEStringFormatting::FORMAT_INTEGER,
-                   UnsignedInteger = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,
-                   Time            = QEStringFormatting::FORMAT_TIME,
-                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE };
+    Q_ENUMS(UpdateOptions)
 
-    Q_ENUMS(Notations)
-    Q_PROPERTY(Notations notation READ getNotationProperty WRITE setNotationProperty)
-    enum Notations { Fixed      = QEStringFormatting::NOTATION_FIXED,
-                     Scientific = QEStringFormatting::NOTATION_SCIENTIFIC,
-                     Automatic  = QEStringFormatting::NOTATION_AUTOMATIC };
+    /// Update options (text, pixmap, both, or state (checked or unchecked)
+    ///
+    Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
 
+    /// User friendly enumerations for updateOption property - refer to QEGenericButton::updateOptions for details.
+    enum UpdateOptions { Text        = QEGenericButton::UPDATE_TEXT,           ///< Data updates will update the button text
+                         Icon        = QEGenericButton::UPDATE_ICON,           ///< Data updates will update the button icon
+                         TextAndIcon = QEGenericButton::UPDATE_TEXT_AND_ICON,  ///< Data updates will update the button text and icon
+                         State       = QEGenericButton::UPDATE_STATE           ///< Data updates will update the button state (checked or unchecked)
+                       };
+
+    /// Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 0
+    ///
+    Q_PROPERTY(QPixmap pixmap0 READ getPixmap0Property WRITE setPixmap0Property)
+
+    /// Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 1
+    ///
+    Q_PROPERTY(QPixmap pixmap1 READ getPixmap1Property WRITE setPixmap1Property)
+
+    /// Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 2
+    ///
+    Q_PROPERTY(QPixmap pixmap2 READ getPixmap2Property WRITE setPixmap2Property)
+
+    /// Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 3
+    ///
+    Q_PROPERTY(QPixmap pixmap3 READ getPixmap3Property WRITE setPixmap3Property)
+
+    /// Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 4
+    ///
+    Q_PROPERTY(QPixmap pixmap4 READ getPixmap4Property WRITE setPixmap4Property)
+
+    /// Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 5
+    ///
+    Q_PROPERTY(QPixmap pixmap5 READ getPixmap5Property WRITE setPixmap5Property)
+
+    /// Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 6
+    ///
+    Q_PROPERTY(QPixmap pixmap6 READ getPixmap6Property WRITE setPixmap6Property)
+
+    /// Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 7
+    ///
+    Q_PROPERTY(QPixmap pixmap7 READ getPixmap7Property WRITE setPixmap7Property)
+
+    /// Password user will need to enter before any action is taken
+    ///
     Q_PROPERTY(QString password READ getPassword WRITE setPassword)
+
+    /// If true, a dialog will be presented asking the user to confirm if the button action should be carried out
+    ///
     Q_PROPERTY(bool confirmAction READ getConfirmAction WRITE setConfirmAction)
 
+    /// If true, the 'pressText' property is written when the button is pressed. Default is false
+    ///
     Q_PROPERTY(bool writeOnPress READ getWriteOnPress WRITE setWriteOnPress)
+
+    /// If true, the 'releaseText' property is written when the button is released. Default is false
+    ///
     Q_PROPERTY(bool writeOnRelease READ getWriteOnRelease WRITE setWriteOnRelease)
+
+    /// If true, the 'clickText' property is written when the button is clicked. Default is true
+    ///
     Q_PROPERTY(bool writeOnClick READ getWriteOnClick WRITE setWriteOnClick)
 
+    /// Value written when user presses button if 'writeOnPress' property is true
+    ///
     Q_PROPERTY(QString pressText READ getPressText WRITE setPressText)
+
+    /// Value written when user releases button if 'writeOnRelease' property is true
+    ///
     Q_PROPERTY(QString releaseText READ getReleaseText WRITE setReleaseText)
+
+    /// Value written when user clicks button if 'writeOnClick' property is true
+    ///
     Q_PROPERTY(QString clickText READ getClickText WRITE setClickText)
+
+    /// Text used to compare with text written or read to determine if push button should be marked as checked.
+    /// Note, must be an exact match following formatting of data updates.
+    /// When writing values, the 'pressText', 'ReleaseText', or 'clickedtext' must match this property to cause the button to be checked when the write occurs.
+    ///
+    /// Good example: formatting set to diaplay a data value of '1' as 'On', clickCheckedText is 'On', clickText is 'On'. In this example, the push button will be checked when a data update occurs with a value of 1 or when the button is clicked.
+    ///
+    /// Bad example: formatting set to diaplay a data value of '1' as 'On', clickCheckedText is 'On', clickText is '1'. In this example, the push button will be checked when a data update occurs with a value of 1 but, although a valid value will be written when clicked, the button will not be checked when clicked as '1' is not the same as 'On'.
     Q_PROPERTY(QString clickCheckedText READ getClickCheckedText WRITE setClickCheckedText)
 
+    /// Button label text (prior to substitution).
+    /// Macro substitutions will be applied to this text and the result will be set as the button text.
+    /// Used when data updates are not being represented in the button text.
+    /// For example, a button in a sub form may have a 'labelText' property of 'Turn Pump $(PUMPNUM) On'.
+    /// When the sub form is used twice in a main form with substitutions PUMPNUM=1 and PUMPNUM=2 respectively,
+    /// the two identical buttons in the sub forms will have the labels 'Turn Pump 1 On' and 'Turn Pump 2 On' respectively.
     Q_PROPERTY(QString labelText READ getLabelTextProperty WRITE setLabelTextProperty);
 
+    /// Program to run when the button is clicked.
+    /// No attempt to run a program is made if this property is empty.
+    /// Example: firefox
     Q_PROPERTY(QString program READ getProgram WRITE setProgram)
+
+    /// Arguments for program specified in the 'program' property.
+    ///
     Q_PROPERTY(QStringList arguments READ getArguments WRITE setArguments)
-
-
 
     // Note, a property macro in the form 'Q_PROPERTY(QString guiName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+    /// File name of GUI to be presented on button click.
+    /// File name can be absolute, relative to the path of the QEform in which the QEPushButton is located,
+    /// relative to the any path in the path list published in the ContainerProfile class, or relative to the current path.
+    /// See QEWidget::openQEFile() in QEWidget.cpp for details.
     Q_PROPERTY(QString guiFile READ getGuiName WRITE setGuiName)
 
     // Creation options
     Q_ENUMS(CreationOptionNames)
+
+    /// Creation options when opening a new GUI. Open a new window, open a new tab, or replace the current window.
+    /// the creation option is supplied when the button generates a newGui signal.
+    /// Application code connected to this signal should honour this request if possible.
+    /// When used within the QEGui application, the QEGui application creates a new window, new tab, or replaces the current window as appropriate.
     Q_PROPERTY(CreationOptionNames creationOption READ getCreationOptionProperty WRITE setCreationOptionProperty)
 
-    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
+    /// Creation options. Used to indicate how to present a GUI when requesting a new GUI be created. Open a new window, open a new tab, or replace the current window.
+    enum CreationOptionNames { Open = QEForm::CREATION_OPTION_OPEN,             ///< Replace the current GUI with the new GUI
+                               NewTab = QEForm::CREATION_OPTION_NEW_TAB,        ///< Open new GUI in a new tab
+                               NewWindow = QEForm::CREATION_OPTION_NEW_WINDOW   ///< Open new GUI in a new window
+                             };
 
-    enum CreationOptionNames { Open = QEForm::CREATION_OPTION_OPEN,
-                               NewTab = QEForm::CREATION_OPTION_NEW_TAB,
-                               NewWindow = QEForm::CREATION_OPTION_NEW_WINDOW };
+public:
+    //=================================================================================
+
+    // Widget specific properties
+    // ----none----
 
 private:
+    // Access function for updateOption property
     void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QEPushButton::updateOptions)updateOption ); }
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 
-    void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }
-    Formats getFormatProperty(){ return (Formats)getFormat(); }
-
-    void setNotationProperty( Notations notation ){ setNotation( (QEStringFormatting::notations)notation ); }
-    Notations getNotationProperty(){ return (Notations)getNotation(); }
-
+    // Access function for creationOption property
     void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEForm::creationOptions)creationOptionIn ); }
     CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
 
+    // Access function for pixmap properties
     void setPixmap0Property( QPixmap pixmap ){ setDataPixmap( pixmap, 0 ); }
     void setPixmap1Property( QPixmap pixmap ){ setDataPixmap( pixmap, 1 ); }
     void setPixmap2Property( QPixmap pixmap ){ setDataPixmap( pixmap, 2 ); }
@@ -363,6 +559,7 @@ private:
     void setPixmap6Property( QPixmap pixmap ){ setDataPixmap( pixmap, 6 ); }
     void setPixmap7Property( QPixmap pixmap ){ setDataPixmap( pixmap, 7 ); }
 
+    // Access function for pixmap properties
     QPixmap getPixmap0Property(){ return getDataPixmap( 0 ); }
     QPixmap getPixmap1Property(){ return getDataPixmap( 1 ); }
     QPixmap getPixmap2Property(){ return getDataPixmap( 2 ); }

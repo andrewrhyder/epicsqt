@@ -256,8 +256,45 @@ public:
     ///
     Q_PROPERTY(bool addUnits READ getAddUnits WRITE setAddUnits)
 
+    // NOTE, keep in sync. The documentation below is repeated in QEStringFormatting::setLocalEnumeration() (in QEStringformatting.cpp)
     /// An enumeration list used to data values. Used only when the formatting option is 'local enumeration'.
     /// Value is converted to an integer and used to select a string from this list.
+    ///
+    /// Format is:
+    ///
+    ///   [[<|<=|=|!=|>=|>]value1|*] : string1 , [[<|<=|=|!=|>=|>]value2|*] : string2 , [[<|<=|=|!=|>=|>]value3|*] : string3 , ...
+    ///
+    /// Where:
+    ///   <  Less than
+    ///   <= Less than or equal
+    ///   =  Equal (default if no operator specified)
+    ///   >= Greather than or equal
+    ///   >  Greater than
+    ///   *  Always match (used to specify default text)
+    ///
+    /// Values may be numeric or textual
+    /// Values do not have to be in any order, but first match wins
+    /// Values may be quoted
+    /// Strings may be quoted
+    /// Consecutive values do not have to be present.
+    /// Operator is assumed to be equality if not present.
+    /// White space is ignored except within quoted strings.
+    /// \n may be included in a string to indicate a line break
+    ///
+    /// Examples are:
+    ///
+    /// 0:Off,1:On
+    /// 0 : "Pump Running", 1 : "Pump not running"
+    /// 0:"", 1:"Warning!\nAlarm"
+    /// <2:"Value is less than two", =2:"Value is equal to two", >2:"Value is grater than 2"
+    /// 3:"Beamline Available", *:""
+    /// "Pump Off":"OH NO!, the pump is OFF!","Pump On":"It's OK, the pump is on"
+    ///
+    /// The data value is converted to a string if no enumeration for that value is available.
+    /// For example, if the local enumeration is '0:off,1:on', and a value of 10 is processed, the text generated is '10'.
+    /// If a blank string is required, this should be explicit. for example, '0:off,1:on,10:""'
+    ///
+    /// A range of numbers can be covered by a pair of values as in the following example: >=4:"Between 4 and 8",<=8:"Between 4 and 8"
     Q_PROPERTY(QString/*localEnumerationList*/ localEnumeration READ getLocalEnumeration WRITE setLocalEnumeration)
 
     /// \enum    Formats
@@ -325,9 +362,11 @@ public:
     /// For both options all normal string formatting is applied. If Text, the formatted text is simply presented as the label text.
     /// If Picture, the FORMATTED text is then interpreted as an integer and used to select one of the pixmaps specified by properties pixmap0 through to pixmap7.
     Q_PROPERTY(UpdateOptions updateOption READ getUpdateOptionProperty WRITE setUpdateOptionProperty)
+
     /// User friendly enumerations for updateOption property - refer to QELabel::updateOptions for details.
-    enum UpdateOptions { Text     = QELabel::UPDATE_TEXT,
-                         Picture  = QELabel::UPDATE_PIXMAP };
+    enum UpdateOptions { Text     = QELabel::UPDATE_TEXT,    ///< Data updates will update the label text
+                         Picture  = QELabel::UPDATE_PIXMAP   ///< Data updates will update the label icon
+                       };
     void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QELabel::updateOptions)updateOption ); }  ///< Access function for #updateOption property - refer to #updateOption property for details
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }                                     ///< Access function for #updateOption property - refer to #updateOption property for details
 
@@ -357,25 +396,26 @@ public:
     ///
     Q_PROPERTY(QPixmap pixmap7 READ getPixmap7Property WRITE setPixmap7Property)
 
-    void setPixmap0Property( QPixmap pixmap ){ setDataPixmap( pixmap, 0 ); }     ///< Access function for #pixmap0 property - refer to #pixmap0 property for details
-    void setPixmap1Property( QPixmap pixmap ){ setDataPixmap( pixmap, 1 ); }     ///< Access function for #pixmap1 property - refer to #pixmap1 property for details
-    void setPixmap2Property( QPixmap pixmap ){ setDataPixmap( pixmap, 2 ); }     ///< Access function for #pixmap2 property - refer to #pixmap2 property for details
-    void setPixmap3Property( QPixmap pixmap ){ setDataPixmap( pixmap, 3 ); }     ///< Access function for #pixmap3 property - refer to #pixmap3 property for details
-    void setPixmap4Property( QPixmap pixmap ){ setDataPixmap( pixmap, 4 ); }     ///< Access function for #pixmap4 property - refer to #pixmap4 property for details
-    void setPixmap5Property( QPixmap pixmap ){ setDataPixmap( pixmap, 5 ); }     ///< Access function for #pixmap5 property - refer to #pixmap5 property for details
-    void setPixmap6Property( QPixmap pixmap ){ setDataPixmap( pixmap, 6 ); }     ///< Access function for #pixmap6 property - refer to #pixmap6 property for details
-    void setPixmap7Property( QPixmap pixmap ){ setDataPixmap( pixmap, 7 ); }     ///< Access function for #pixmap7 property - refer to #pixmap7 property for details
+private:
+    // Access function for pixmap properties
+    void setPixmap0Property( QPixmap pixmap ){ setDataPixmap( pixmap, 0 ); }
+    void setPixmap1Property( QPixmap pixmap ){ setDataPixmap( pixmap, 1 ); }
+    void setPixmap2Property( QPixmap pixmap ){ setDataPixmap( pixmap, 2 ); }
+    void setPixmap3Property( QPixmap pixmap ){ setDataPixmap( pixmap, 3 ); }
+    void setPixmap4Property( QPixmap pixmap ){ setDataPixmap( pixmap, 4 ); }
+    void setPixmap5Property( QPixmap pixmap ){ setDataPixmap( pixmap, 5 ); }
+    void setPixmap6Property( QPixmap pixmap ){ setDataPixmap( pixmap, 6 ); }
+    void setPixmap7Property( QPixmap pixmap ){ setDataPixmap( pixmap, 7 ); }
 
-    QPixmap getPixmap0Property(){ return getDataPixmap( 0 ); }     ///< Access function for #pixmap0 property - refer to #pixmap0 property for details
-    QPixmap getPixmap1Property(){ return getDataPixmap( 1 ); }     ///< Access function for #pixmap1 property - refer to #pixmap1 property for details
-    QPixmap getPixmap2Property(){ return getDataPixmap( 2 ); }     ///< Access function for #pixmap2 property - refer to #pixmap2 property for details
-    QPixmap getPixmap3Property(){ return getDataPixmap( 3 ); }     ///< Access function for #pixmap3 property - refer to #pixmap3 property for details
-    QPixmap getPixmap4Property(){ return getDataPixmap( 4 ); }     ///< Access function for #pixmap4 property - refer to #pixmap4 property for details
-    QPixmap getPixmap5Property(){ return getDataPixmap( 5 ); }     ///< Access function for #pixmap5 property - refer to #pixmap5 property for details
-    QPixmap getPixmap6Property(){ return getDataPixmap( 6 ); }     ///< Access function for #pixmap6 property - refer to #pixmap6 property for details
-    QPixmap getPixmap7Property(){ return getDataPixmap( 7 ); }     ///< Access function for #pixmap7 property - refer to #pixmap7 property for details
-
-
+    // Access function for pixmap properties
+    QPixmap getPixmap0Property(){ return getDataPixmap( 0 ); }
+    QPixmap getPixmap1Property(){ return getDataPixmap( 1 ); }
+    QPixmap getPixmap2Property(){ return getDataPixmap( 2 ); }
+    QPixmap getPixmap3Property(){ return getDataPixmap( 3 ); }
+    QPixmap getPixmap4Property(){ return getDataPixmap( 4 ); }
+    QPixmap getPixmap5Property(){ return getDataPixmap( 5 ); }
+    QPixmap getPixmap6Property(){ return getDataPixmap( 6 ); }
+    QPixmap getPixmap7Property(){ return getDataPixmap( 7 ); }
 };
 
 #endif // QELABEL_H
