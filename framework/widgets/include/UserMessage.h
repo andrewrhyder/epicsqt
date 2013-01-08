@@ -134,7 +134,7 @@ private:
  *   logging QE widget) then the nested QEForm could be set up not to filter and resend any messages.
  */
 
-class UserMessage
+class QEPLUGINLIBRARYSHARED_EXPORT UserMessage
 {
 public:
     friend class UserMessageSlot;
