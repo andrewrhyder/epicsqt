@@ -42,7 +42,7 @@
 // Construct a markup item
 // All markup items share the same markup image
 
-markupItem::markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn )
+markupItem::markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn, const QString legendIn )
 {
     isOverType = over;
     interactive = interactiveIn;
@@ -53,6 +53,8 @@ markupItem::markupItem( imageMarkup* ownerIn, isOverOptions over, bool interacti
     highlightMargin = 2;
     owner = ownerIn;
     color = QColor( 0, 255, 0 ); // green
+
+    setLegend( legendIn );
 }
 
 markupItem::~markupItem()
@@ -129,26 +131,108 @@ void markupItem::scale( double xScale, double yScale )
     setArea();
 }
 
+
+// Set the string used to notate the markup (and the calculate its size)
+void markupItem::setLegend( const QString legendIn )
+{
+    legend = legendIn;
+    legendSize = owner->legendFontMetrics->size( Qt::TextSingleLine, legend );
+}
+
+// Return the string used to notate the markup
+const QString markupItem::getLegend()
+{
+    return legend;
+}
+
+// Return the size of the string used to notate the markup
+const QSize markupItem:: getLegendSize()
+{
+    return legendSize;
+}
+
+// Returns true if legend text is present
+bool markupItem::hasLegend()
+{
+    return !(legend.isEmpty());
+}
+
+void markupItem::addLegendArea()
+{
+    if( hasLegend() )
+    {
+        QRect legendArea;
+        legendArea.setSize( getLegendSize() );
+        legendArea.moveTo( getLegendPos() );
+        area = area.united( legendArea );
+    }
+}
+
+// Sets the top left position of the rectangle enclosing the legend and returns the text drawing origin within that area
+const QPoint markupItem::setLegendPos( QPoint pos, legendJustification just )
+{
+    legendPos = pos;
+
+    // Position the legend around the position requested according to the justification
+    switch( just )
+    {
+        case ABOVE_RIGHT:
+        default:
+            legendPos.setY( legendPos.y() - owner->legendFontMetrics->height() );
+            break;
+
+        case BELOW_LEFT:
+            legendPos.setX( legendPos.x() - legendSize.width() );
+
+        case BELOW_RIGHT:
+            // legendPos is correct as is
+            break;
+    }
+
+    QPoint textOrigin = legendPos;
+    textOrigin.setY( textOrigin.y() + owner->legendFontMetrics->ascent() );
+
+    return textOrigin;
+}
+
+// Returns the last drawn legend position
+const QPoint markupItem::getLegendPos()
+{
+    return legendPos;
+}
+
+void markupItem::drawLegend( QPainter& p, QPoint pos, legendJustification just )
+{
+    p.setFont( owner->legendFont );
+    p.drawText( setLegendPos( pos, just ), getLegend() );
+}
+
+
 //===========================================================================
 // Target markup
 
-markupTarget::markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
+markupTarget::markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-
 }
 
 void markupTarget::drawMarkup( QPainter& p )
 {
+    // Draw markup
     QPen pen = p.pen();
     pen.setStyle( Qt::DashLine );
     p.setPen( pen );
     p.drawLine( pos.x(), 0, pos.x(), owner->markupImage->rect().height() );
     p.drawLine( 0, pos.y(), owner->markupImage->rect().width(), pos.y() );
+
+    // Draw markup legend
+    drawLegend( p, pos, ABOVE_RIGHT );
 }
 
 void markupTarget::setArea()
 {
     area = owner->markupImage->rect();
+
+    addLegendArea();
 
     owner->markupAreasStale = true;
 }
@@ -202,7 +286,7 @@ void markupTarget::scaleSpecific( double xScale, double yScale )
 //===========================================================================
 // Beam markup
 
-markupBeam::markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
+markupBeam::markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     // Size of cross hair
     armSize = 20;
@@ -210,6 +294,7 @@ markupBeam::markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnM
 
 void markupBeam::drawMarkup( QPainter& p )
 {
+    // Draw markup
     p.drawLine( pos.x()-1, pos.y()+1, pos.x()-1, pos.y()+armSize );
     p.drawLine( pos.x()+1, pos.y()+1, pos.x()+1, pos.y()+armSize );
 
@@ -221,6 +306,9 @@ void markupBeam::drawMarkup( QPainter& p )
 
     p.drawLine( pos.x()-1, pos.y()-1, pos.x()-armSize, pos.y()-1 );
     p.drawLine( pos.x()-1, pos.y()+1, pos.x()-armSize, pos.y()+1 );
+
+    // Draw markup legend
+    drawLegend( p, pos, BELOW_LEFT );
 }
 
 void markupBeam::setArea()
@@ -229,6 +317,8 @@ void markupBeam::setArea()
     area.setRight ( pos.x()+armSize );
     area.setTop   ( pos.y()-armSize );
     area.setBottom( pos.y()+armSize );
+
+    addLegendArea();
 
     owner->markupAreasStale = true;
 }
@@ -284,14 +374,17 @@ void markupBeam::scaleSpecific( double xScale, double yScale )
 //===========================================================================
 // Vertical line markup
 
-markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
+markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-
 }
 
 void markupVLine::drawMarkup( QPainter& p )
 {
+    // Draw markup
     p.drawLine( x, 0, x, owner->markupImage->rect().height() );
+
+    // Draw markup legend
+    drawLegend( p, QPoint(x, owner->markupImage->rect().height()/2), ABOVE_RIGHT );
 }
 
 void markupVLine::setArea()
@@ -308,6 +401,8 @@ void markupVLine::setArea()
     }
     area.setTop( 0 );
     area.setBottom( owner->markupImage->rect().bottom());
+
+    addLegendArea();
 
     owner->markupAreasStale = true;
 }
@@ -359,14 +454,17 @@ void markupVLine::scaleSpecific( double xScale, double )
 //===========================================================================
 // Horizontal line markup
 
-markupHLine::markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
+markupHLine::markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-
 }
 
 void markupHLine::drawMarkup( QPainter& p )
 {
+    // Draw markup
     p.drawLine( 0, y, owner->markupImage->rect().width(), y );
+
+    // Draw markup legend
+    drawLegend( p, QPoint( owner->markupImage->rect().width()/2, y ), ABOVE_RIGHT );
 }
 
 void markupHLine::setArea()
@@ -383,6 +481,8 @@ void markupHLine::setArea()
     }
     area.setLeft( 0 );
     area.setRight( owner->markupImage->rect().right());
+
+    addLegendArea();
 
     owner->markupAreasStale = true;
 }
@@ -434,13 +534,13 @@ void markupHLine::scaleSpecific( double, double yScale )
 //===========================================================================
 // Profile line markup
 
-markupLine::markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn )
+markupLine::markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-
 }
 
 void markupLine::drawMarkup( QPainter& p )
 {
+    // Draw markup
     p.drawLine( start, end );
 
     if(( abs(QPoint( end-start ).x()) > (HANDLE_SIZE + 2) ) ||
@@ -454,8 +554,12 @@ void markupLine::drawMarkup( QPainter& p )
 
         handle.moveTo( end - halfHandle );
         p.drawRect( handle );
-
     }
+
+    // Draw markup legend
+    legendJustification just;
+    (( start.x() < end.x() && start.y() < end.y() ) || ( start.x() > end.x() && start.y() > end.y() ) ) ? just = ABOVE_RIGHT : just = BELOW_RIGHT;
+    drawLegend( p, (end-start)/2+start, just );
 }
 
 void markupLine::setArea()
@@ -471,6 +575,8 @@ void markupLine::setArea()
     {
         area.adjust( -highlightMargin, -highlightMargin, highlightMargin, highlightMargin );
     }
+
+    addLegendArea();
 
     owner->markupAreasStale = true;
 
@@ -617,12 +723,13 @@ void markupLine::scaleSpecific( double xScale, double yScale )
 //===========================================================================
 // Region markup
 
-markupRegion::markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn )
+markupRegion::markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn, legendIn )
 {
 }
 
 void markupRegion::drawMarkup( QPainter& p )
 {
+    // Draw markup
     p.drawRect( rect );
 
     if(( abs(rect.size().width())  > (HANDLE_SIZE + 2) ) ||
@@ -655,6 +762,9 @@ void markupRegion::drawMarkup( QPainter& p )
         handle.moveTo( QPoint( rect.left()+rect.width()/2, rect.bottom() ) - halfHandle );
         p.drawRect( handle );
     }
+
+    // Draw markup legend
+    drawLegend( p, rect.topLeft(), ABOVE_RIGHT );
 }
 
 void markupRegion::setArea()
@@ -677,6 +787,8 @@ void markupRegion::setArea()
         area.setTop(    area.top()    - highlightMargin );
         area.setBottom( area.bottom() + highlightMargin );
     }
+
+    addLegendArea();
 
     owner->markupAreasStale = true;
 }
@@ -916,20 +1028,27 @@ void markupRegion::scaleSpecific( double xScale, double yScale )
 //===========================================================================
 // Text markup
 
-markupText::markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn )
+markupText::markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn, legendIn )
 {
 
 }
 
 void markupText::drawMarkup( QPainter& p )
 {
+    // Draw markup
+
     // Set the area to more than enough.
     // This will be trimmed to the bounding retangle of the text
-    rect = QRect( 0, 0, 300, 20 );
+    QSize textSize = owner->legendFontMetrics->size( Qt::TextSingleLine, text );
+
+    rect = QRect( QPoint( 0, 0 ), textSize );
 
     // Draw the text
-    p.setFont(QFont("Courier", 12));
+    p.setFont( owner->legendFont );
     p.drawText( rect, Qt::AlignLeft, text, &rect );
+
+    // Draw markup legend
+    // never a legend for text drawLegend( p, ???, ABOVE_RIGHT );
 
     setArea();
 }
@@ -948,6 +1067,8 @@ void markupText::setText( QString textIn, bool draw )
 void markupText::setArea()
 {
     area = rect;
+
+    addLegendArea();
 
     owner->markupAreasStale = true;
 
@@ -1007,16 +1128,20 @@ imageMarkup::imageMarkup()
     mode = MARKUP_ID_NONE;
     activeItem = MARKUP_ID_NONE;
 
+    // set up the font used for notations (and time)
+    legendFont = QFont("Courier", 12);
+    legendFontMetrics = new QFontMetrics( legendFont );
+
     markupImage = new QImage();
 
     items.resize(MARKUP_ID_COUNT );
-    items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true,  true );
-    items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true,  true );
-    items[MARKUP_ID_LINE]      = new markupLine(   this, true,  true );
-    items[MARKUP_ID_REGION]    = new markupRegion( this, true,  true );
-    items[MARKUP_ID_TARGET]    = new markupTarget( this, true,  true );
-    items[MARKUP_ID_BEAM]      = new markupBeam(   this, true,  true );
-    items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false );
+    items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true,  true, "slice" );
+    items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true,  true, "slice" );
+    items[MARKUP_ID_LINE]      = new markupLine(   this, true,  true, "profile" );
+    items[MARKUP_ID_REGION]    = new markupRegion( this, true,  true, "region" );
+    items[MARKUP_ID_TARGET]    = new markupTarget( this, true,  true, "target" );
+    items[MARKUP_ID_BEAM]      = new markupBeam(   this, true,  true, "beam" );
+    items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false, "" );
 
     markupAreasStale = true;
 
@@ -1350,7 +1475,7 @@ void imageMarkup::markupResize( QSize newSize )
         {
             items[i]->scale( xScale, yScale );
         }
-        // If the markup is being displayed, redraw it, and act on it's 'new' position
+        // If the markup is being displayed, redraw it, and act on its 'new' position
         if( items[i]->visible )
         {
             items[i]->drawMarkupIn();

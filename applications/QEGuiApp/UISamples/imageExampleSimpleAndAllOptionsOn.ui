@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>666</width>
+    <height>547</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QEImage" name="qeimage">
+     <property name="imageVariable" stdset="0">
+      <string>IMG:image1:ArrayData</string>
+     </property>
+     <property name="widthVariable" stdset="0">
+      <string>IMG:cam1:ArraySizeX_RBV</string>
+     </property>
+     <property name="heightVariable" stdset="0">
+      <string>IMG:cam1:ArraySizeY_RBV</string>
+     </property>
+     <property name="enableVertSliceSelection">
+      <bool>true</bool>
+     </property>
+     <property name="enableHozSliceSelection">
+      <bool>true</bool>
+     </property>
+     <property name="enableProfileSelection">
+      <bool>true</bool>
+     </property>
+     <property name="enableTargetSelection">
+      <bool>true</bool>
+     </property>
+     <property name="displayCursorPixelInfo">
+      <bool>true</bool>
+     </property>
+     <property name="contrastReversal">
+      <bool>false</bool>
+     </property>
+     <property name="displayButtonBar">
+      <bool>true</bool>
+     </property>
+     <property name="showTime">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QEImage</class>
+   <extends>QFrame</extends>
+   <header>QEImage.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -70,6 +70,8 @@
 #include <QMouseEvent>
 #include <QImage>
 #include <QColor>
+#include <QFontMetrics>
+#include <QFont>
 #include <QCaDateTime.h>
 
 
@@ -83,7 +85,7 @@ class markupItem
 {
 protected:
     enum isOverOptions{ OVER_LINE, OVER_BORDER, OVER_AREA }; // test required to determine if pointer is over the object
-    markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn );
+    markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
     virtual ~markupItem();
 
 public:
@@ -124,15 +126,28 @@ protected:
     int           highlightMargin; // Extra margin required for highlighting
     imageMarkup*  owner;
 
+    const QString getLegend();                    // Return the string used to notate the markup
+    const QSize getLegendSize();                  // Return the size of the string used to notate the markup
+    void addLegendArea();                         // Add the legend area to the markup area
+    enum legendJustification{ ABOVE_RIGHT, BELOW_LEFT, BELOW_RIGHT };          // Options for positioning the legend
+    const QPoint setLegendPos( QPoint pos, legendJustification just );          // Sets (and returns) the position of the legend (top left of text) given the justificaiton
+    const QPoint getLegendPos();                  // Returns the last drawn legend position
+    void drawLegend( QPainter& p, QPoint pos, legendJustification just );
+
 private:
     virtual void scaleSpecific( double xScale, double yScale )=0;
+    QString legend;                               // Text displayed beside markup
+    QSize legendSize;                             // Size of legend (according to legend font)
+    bool hasLegend();                             // Returns true if legend text is present
+    void setLegend( const QString legendIn );     // Set the string used to notate the markup (and the calculate its size)
+    QPoint legendPos;                             // Last drawn legend position
 };
 
 class markupTarget : public markupItem
 {
 public:
 
-    markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+    markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -153,7 +168,7 @@ class markupBeam : public markupItem
 {
 public:
 
-    markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+    markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -175,7 +190,7 @@ class markupHLine : public markupItem
 {
 public:
 
-    markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+    markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -196,7 +211,7 @@ class markupVLine : public markupItem
 {
 public:
 
-    markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+    markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -216,7 +231,7 @@ private:
 class markupLine : public markupItem
 {
 public:
-    markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+    markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -238,7 +253,7 @@ class markupRegion : public markupItem
 {
 public:
 
-    markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+    markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
 
     void startDrawing( QPoint pos );
     void setArea();
@@ -260,7 +275,7 @@ class markupText : public markupItem
 {
 public:
 
-    markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn );
+    markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
 
     void setText( QString textIn, bool draw );
 
@@ -316,6 +331,8 @@ public:
     QCursor getCircleCursor();                                  // Returns a circular cursor
     QCursor getTargetCursor();                                  // Returns a target cursor
     virtual void markupSetCursor( QCursor cursor )=0;           // Inform the VideoWidget that that the cursor should change
+    QFont legendFont;                                           // Font used to notate markups (and for time)
+    QFontMetrics* legendFontMetrics;                            // Size info about legendFont;
 
 protected:
     bool anyVisibleMarkups();                                   // Are there any markups visible
@@ -332,7 +349,6 @@ protected:
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
     virtual void markupAction( markupIds mode, bool clearing, QPoint point1, QPoint point2 )=0;     // There is an application task to do in response to user interaction with the markups
-
 
 private:
     void setActiveItem( const QPoint& pos );    // // Determine if the user clicked over an interactive, visible item
