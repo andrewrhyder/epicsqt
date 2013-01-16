@@ -16,6 +16,7 @@
 # anthony.owen@gmail.com
 
 
+#===========================================================
 # To alanyse code performance using the GNU gprof profiling tool:
 # - Include the following two lines
 # - Clean all
@@ -26,26 +27,34 @@
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
 
+#===========================================================
+# Include the following gdbmacros line for debugging only
+#SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
+
+#===========================================================
+# Since Qt 4.7.4, enable-auto-import is required to avoid a crash on windows when the qwt dll is loaded
+win32:QMAKE_LFLAGS += -enable-auto-import
+
+#===========================================================
+# Project configuration
 QT += core gui xml network
 TEMPLATE = lib
 CONFIG += plugin \
     uitools \
     designer \
-    debug_and_release
+    debug_and_release \
+    qwt
 DEFINES += QEPLUGIN_LIBRARY
 DESTDIR = designer
 TARGET = QEPlugin
-OTHER_FILES += \
-    src/record_field_list.txt \
-    src/cameraROI.png \
-    src/cameraROIreset.png \
-    src/flipRotate.png \
-    src/pause.png \
-    src/play.png \
-    src/save.png \
-    src/select.png \
-    src/zoom.png
 
+#===========================================================
+# Project files
+
+INCLUDEPATH += \
+    api/include \
+    data/include \
+    widgets/include
 
 HEADERS += \
     include/QEFrameworkVersion.h \
@@ -121,35 +130,20 @@ SOURCES += \
     widgets/src/QEDesignerPlugin.cpp \
     widgets/src/ContainerProfile.cpp \
 
+OTHER_FILES += \
+    src/record_field_list.txt \
+    src/cameraROI.png \
+    src/cameraROIreset.png \
+    src/flipRotate.png \
+    src/pause.png \
+    src/play.png \
+    src/save.png \
+    src/select.png \
+    src/zoom.png
 
-# Include the following gdbmacros line for debugging only
-#SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
-
-_EPICS_BASE = $$(EPICS_BASE)
-isEmpty( _EPICS_BASE ) {
-    error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up" )
-}
-
-_EPICS_HOST_ARCH = $$(EPICS_HOST_ARCH)
-isEmpty( _EPICS_HOST_ARCH ) {
-    error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up" )
-}
-
-INCLUDEPATH += \
-    api/include \
-    data/include \
-    widgets/include \
-    $$(EPICS_BASE)/include
-
-unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
-win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
-INCLUDEPATH += $$(EPICS_BASE)/include
-# Depending on build, the qwt library below may need to be -lqwt or -lqwt6
-LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
-    -lca \
-    -lCom
 
 #===========================================================
+# Widget sub projects
 # Included .pri (project include) files for each widget
 #
 include (archive/QEArchive.pri)
@@ -183,14 +177,48 @@ include (widgets/QEPlot/QEPlot.pri)
 include (widgets/deprecated/deprecated.pri)
 
 #===========================================================
+# EPICS
 #
-_QWT_INCLUDE_PATH = $$(QWT_INCLUDE_PATH)
-isEmpty( _QWT_INCLUDE_PATH ) {
-    error( "QWT_INCLUDE_PATH must be defined. Ensure Qwt is installed for development and QWT_INCLUDE_PATH is set up" )
+# Check EPICS appears to be present
+_EPICS_BASE = $$(EPICS_BASE)
+isEmpty( _EPICS_BASE ) {
+    error( "EPICS_BASE must be defined. Ensure EPICS is installed and EPICS_BASE is set up" )
+}
+_EPICS_HOST_ARCH = $$(EPICS_HOST_ARCH)
+isEmpty( _EPICS_HOST_ARCH ) {
+    error( "EPICS_HOST_ARCH must be defined. Ensure EPICS is installed and EPICS_HOST_ARCH is set up" )
 }
 
-INCLUDEPATH += \
-    $$(QWT_INCLUDE_PATH)
+# Set up EPICS
+unix:INCLUDEPATH += $$(EPICS_BASE)/include/os/Linux
+win32:INCLUDEPATH += $$(EPICS_BASE)/include/os/WIN32
+INCLUDEPATH += $$(EPICS_BASE)/include
+
+LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
+    -lca \
+    -lCom
+
+#===========================================================
+# QWT
+#
+# Check QWT is accessable. Check there is a chance QMAKEFEATURES includes a path to
+# the qwt features directory, or that QWT_INCLUDE_PATH is defined.
+# Note, qwt install may set up QMAKEFEATURES to point to the product featuers file, rather than
+# the directory. Not sure if this is wrong, but changing it to the directory works (C:\Qwt-6.0.1\features\qwt.prf  to  C:\Qwt-6.0.1\features)
+_QWT_INCLUDE_PATH = $$(QWT_INCLUDE_PATH)
+isEmpty( _QWT_INCLUDE_PATH ) {
+    _QMAKEFEATURES = $$(QMAKEFEATURES)
+    _QWT_FEATURE = $$find( _QMAKEFEATURES, [Q|q][W|w][T|t] )
+    isEmpty( _QWT_FEATURE ) {
+        error( "Qwt does not appear to be available. I've checked if 'qwt' is in QMAKEFEATURES or if QWT_INCLUDE_PATH is defiend" )
+    }
+}
+
+# The following QWT include path and library path are only required if
+# qwt was not installed fully, with qwt available as a Qt 'feature'.
+# When installed as a Qt 'feature' all that is needed is CONFIG += qwt (above)
+INCLUDEPATH += $$(QWT_INCLUDE_PATH)
+#LIBS += -LC:\Qwt-6.0.1\lib
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 LIBS += -lqwt
