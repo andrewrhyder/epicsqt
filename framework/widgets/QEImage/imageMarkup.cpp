@@ -1131,6 +1131,7 @@ imageMarkup::imageMarkup()
     // set up the font used for notations (and time)
     legendFont = QFont("Courier", 12);
     legendFontMetrics = new QFontMetrics( legendFont );
+    legendFont.setStyleStrategy( QFont::NoAntialias );  // drawMarkupOut() leaves artifacts if text is drawn antialias
 
     markupImage = new QImage();
 
