@@ -32,6 +32,10 @@
 #include <QStringList>
 #include <QTableWidgetItem>
 #include <QTextStream>
+#include <QComboBox>
+#include <QFrame>
+#include <QLabel>
+#include <QELabel.h>
 
 #include <QEPvProperties.h>
 
@@ -276,6 +280,45 @@ static QString rtype_pv_name (const QString pvName)
 
 
 //==============================================================================
+// WidgetHolder class functions
+//==============================================================================
+//
+class QEPvProperties::PrivateWidgetHolder {
+public:
+   PrivateWidgetHolder (QWidget *parent = 0);
+   ~PrivateWidgetHolder ();
+
+   QVBoxLayout *layout;
+   QComboBox *box;
+   QELabel *value;
+   QLabel *hostName;
+   QLabel *fieldType;
+   QLabel *requestType;
+   QLabel *timeStamp;
+   QTableWidget *table;
+};
+
+//------------------------------------------------------------------------------
+//
+QEPvProperties::PrivateWidgetHolder::PrivateWidgetHolder (QWidget * parent)
+{
+   this->box = new QComboBox (parent);
+   this->timeStamp = new QLabel (parent);
+   this->table = new QTableWidget (40, 1, parent);
+   this->layout = new QVBoxLayout (parent);
+}
+
+
+//------------------------------------------------------------------------------
+//
+QEPvProperties::PrivateWidgetHolder::~PrivateWidgetHolder ()
+{
+   // Do we need to explicitly delete QTableWidgetItems associated with the
+   // table? or does that happen as part of the table delete?
+}
+
+
+//==============================================================================
 // QEPvProperties class functions
 //==============================================================================
 //
@@ -310,14 +353,6 @@ QEPvProperties::~QEPvProperties ()
       qca = this->fieldChannels.takeFirst ();
       delete qca;
    }
-
-   // Do we need to explicitly delete QTableWidgetItems associated with the
-   // table? or does that happen as part of the table delete?
-   //
-   if (this->ownWidgets.table)  delete this->ownWidgets.table;
-   if (this->ownWidgets.table)  delete this->ownWidgets.timeStamp;
-   if (this->ownWidgets.box)    delete this->ownWidgets.box;
-   if (this->ownWidgets.layout) delete this->ownWidgets.layout;
 }
 
 //------------------------------------------------------------------------------
@@ -355,7 +390,9 @@ void QEPvProperties::common_setup ()
 
    // allocate and configure own widgets
    //
-   box = this->ownWidgets.box = new QComboBox (this);
+   this->ownWidgets = new PrivateWidgetHolder (this);
+
+   box = this->ownWidgets->box;  // alias
    box->setEditable (true);
    box->setMaxCount (36);
    box->setMaxVisibleItems(20);
@@ -376,11 +413,11 @@ void QEPvProperties::common_setup ()
                      box,  SLOT   (setCurrentIndex    (int)));
 
 
-   timeStamp = this->ownWidgets.timeStamp = new QLabel (this);
+   timeStamp = this->ownWidgets->timeStamp;  //alias
    timeStamp->setIndent (8);
    timeStamp->setFrameShape (Panel);
 
-   table = this->ownWidgets.table = new QTableWidget (40, 1, this);
+   table = this->ownWidgets->table;  // alias
 
    item = new QTableWidgetItem (" Value ");
    table->setHorizontalHeaderItem (0, item);
@@ -389,7 +426,7 @@ void QEPvProperties::common_setup ()
 
    // Setup layout of widgets with the QEPvProperties Qframe
    //
-   layout = this->ownWidgets.layout = new QVBoxLayout (this);
+   layout = this->ownWidgets->layout;   // alias
    layout->addWidget (box);
    layout->addWidget (timeStamp);
    layout->addWidget (table);
@@ -437,7 +474,7 @@ void QEPvProperties::common_setup ()
 //
 void QEPvProperties::clearFieldChannels ()
 {
-   QTableWidget *table = this->ownWidgets.table;
+   QTableWidget *table = this->ownWidgets->table;
    QEString *qca;
    QTableWidgetItem *item;
    QString gap ("           ");  // empirically found to be quivilent width of " DESC "
@@ -467,7 +504,7 @@ void QEPvProperties::clearFieldChannels ()
 //
 qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
 {
-   QComboBox *box = this->ownWidgets.box;
+   QComboBox *box = this->ownWidgets->box;
    QString pv_name;
    int slot;
 
@@ -564,7 +601,7 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
                                           QCaDateTime&,
                                           const unsigned int&)
 {
-   QTableWidget *table = this->ownWidgets.table;
+   QTableWidget *table = this->ownWidgets->table;
 
    int j;
    RecordSpec *pRecordSpec;
@@ -652,7 +689,7 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
 void QEPvProperties::setFieldConnection (QCaConnectionInfo& connectionInfo,
                                           const unsigned int &variableIndex)
 {
-   QTableWidget *table = this->ownWidgets.table;
+   QTableWidget *table = this->ownWidgets->table;
    int numberOfRows;
    QTableWidgetItem *item;
 
@@ -681,7 +718,7 @@ void QEPvProperties::setFieldValue (const QString &value,
                                      QCaDateTime & dateTime,
                                      const unsigned int & variableIndex)
 {
-   QTableWidget *table = this->ownWidgets.table;
+   QTableWidget *table = this->ownWidgets->table;
    int numberOfRows;
    QTableWidgetItem *item;
 
@@ -692,7 +729,7 @@ void QEPvProperties::setFieldValue (const QString &value,
       item->setText  (" " + value);
 
       if ((int) variableIndex == this->valFieldIndex) {
-         QLabel *timeStamp = this->ownWidgets.timeStamp;
+         QLabel *timeStamp = this->ownWidgets->timeStamp;
 
          timeStamp->setText (dateTime.text ());
 
@@ -724,7 +761,7 @@ void QEPvProperties::setApplicationEnabled (const bool & state)
 //
 void QEPvProperties::boxCurrentIndexChanged (int index)
 {
-   QComboBox *box = this->ownWidgets.box;
+   QComboBox *box = this->ownWidgets->box;
    QString newPvName;
    QString oldPvName;
 
@@ -766,16 +803,18 @@ QVariant QEPvProperties::getDrop ()
 
 //==============================================================================
 // Copy / Paste
-QString QEPvProperties::copyVariable()
+QString QEPvProperties::copyVariable ()
 {
     // Note: we return the record name, as opposed to the selected PV name.
     //
     return recordBaseName;
 }
 
-QVariant QEPvProperties::copyData()
+//------------------------------------------------------------------------------
+//
+QVariant QEPvProperties::copyData ()
 {
-    QTableWidget *table = ownWidgets.table;
+    QTableWidget *table = ownWidgets->table;
    for( int i = 0; i < table->rowCount(); i++ )
     {
         QTableWidgetItem *item = table->item( i, 0 );
@@ -783,12 +822,13 @@ QVariant QEPvProperties::copyData()
 
     }
 
-
     // !! built a list of field/values
     QString fieldValues;
     return QVariant( fieldValues );
 }
 
+//------------------------------------------------------------------------------
+//
 void QEPvProperties::paste( QVariant v )
 {
     if( getAllowDrop() )
@@ -796,4 +836,5 @@ void QEPvProperties::paste( QVariant v )
         setDrop( v );
     }
 }
+
 // end

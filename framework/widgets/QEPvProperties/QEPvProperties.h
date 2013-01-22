@@ -30,9 +30,6 @@
 #ifndef QEPVPROPERTIES_H
 #define QEPVPROPERTIES_H
 
-#include <QComboBox>
-#include <QFrame>
-#include <QLabel>
 #include <QList>
 #include <QString>
 #include <QTableWidget>
@@ -179,13 +176,8 @@ private:
 
    // If these items declared at class level, there is a run time exception.
    //
-   struct WidgetHolder {
-     QVBoxLayout *layout;
-     QComboBox *box;
-     QLabel *timeStamp;
-     QTableWidget *table;
-   };
-   struct WidgetHolder ownWidgets;
+   class PrivateWidgetHolder;
+   PrivateWidgetHolder *ownWidgets;
 
    QString recordBaseName;
    QEStringFormatting fieldStringFormatting;
