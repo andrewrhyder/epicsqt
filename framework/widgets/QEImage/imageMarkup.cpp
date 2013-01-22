@@ -1139,7 +1139,10 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true,  true, "slice" );
     items[MARKUP_ID_V_SLICE]   = new markupVLine(  this, true,  true, "slice" );
     items[MARKUP_ID_LINE]      = new markupLine(   this, true,  true, "profile" );
-    items[MARKUP_ID_REGION]    = new markupRegion( this, true,  true, "region" );
+    items[MARKUP_ID_REGION1]   = new markupRegion( this, true,  true, "region 1" );
+    items[MARKUP_ID_REGION2]   = new markupRegion( this, true,  true, "region 2" );
+    items[MARKUP_ID_REGION3]   = new markupRegion( this, true,  true, "region 3" );
+    items[MARKUP_ID_REGION4]   = new markupRegion( this, true,  true, "region 4" );
     items[MARKUP_ID_TARGET]    = new markupTarget( this, true,  true, "target" );
     items[MARKUP_ID_BEAM]      = new markupBeam(   this, true,  true, "beam" );
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false, "" );
@@ -1259,7 +1262,10 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
                 break;
 
             case MARKUP_ID_LINE:
-            case MARKUP_ID_REGION:
+            case MARKUP_ID_REGION1:
+            case MARKUP_ID_REGION2:
+            case MARKUP_ID_REGION3:
+            case MARKUP_ID_REGION4:
                 activeItem = mode;
                 pointAndClick = false;
                 break;
@@ -1340,7 +1346,7 @@ bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
     // If there is an active item and action is required on move, then report the move
     if( activeItem != MARKUP_ID_NONE && items[activeItem]->reportOnMove )
     {
-        markupAction( getActionMode(), false, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
+        markupAction( getActionMode(), false, false, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
     }
 
     // Return indicating the event was appropriated for markup purposes
@@ -1362,7 +1368,10 @@ imageMarkup::markupIds imageMarkup::getActionMode()
         case MARKUP_ID_H_SLICE:
         case MARKUP_ID_V_SLICE:
         case MARKUP_ID_LINE:
-        case MARKUP_ID_REGION:
+        case MARKUP_ID_REGION1:
+        case MARKUP_ID_REGION2:
+        case MARKUP_ID_REGION3:
+        case MARKUP_ID_REGION4:
         case MARKUP_ID_TARGET:
         case MARKUP_ID_BEAM:
             return activeItem;
@@ -1393,10 +1402,26 @@ bool imageMarkup::markupMouseReleaseEvent ( QMouseEvent*, bool panning  )
         return false;
     }
 
+    // Determine if an action is now complete
+    bool complete;
+    switch( activeItem )
+    {
+        case MARKUP_ID_REGION1:
+        case MARKUP_ID_REGION2:
+        case MARKUP_ID_REGION3:
+        case MARKUP_ID_REGION4:
+            complete = true;
+            break;
+
+        default:
+            complete = false;
+            break;
+    }
+
     // If there is an active item, take action
     if( activeItem != MARKUP_ID_NONE )
     {
-        markupAction( getActionMode(), false, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
+        markupAction( getActionMode(), complete, false, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
     }
 
     // Flag there is no longer an active item
@@ -1447,6 +1472,8 @@ void imageMarkup::markupResize( QSize newSize )
     if( markupImage->isNull() )
     {
         rescale = false;
+        xScale = 1.0;   // Not used when rescale is false, but set to avoid compilation warning on windows
+        yScale = 1.0;   // Not used when rescale is false, but set to avoid compilation warning on windows
     }
     else
     {
@@ -1480,7 +1507,7 @@ void imageMarkup::markupResize( QSize newSize )
         if( items[i]->visible )
         {
             items[i]->drawMarkupIn();
-            markupAction( (markupIds)i, false, items[i]->getPoint1(), items[i]->getPoint2() );
+            markupAction( (markupIds)i, false, false, items[i]->getPoint1(), items[i]->getPoint2() );
         }
     }
 
@@ -1570,8 +1597,8 @@ QCursor imageMarkup::getTargetCursor()
 }
 
 // Show the markup context menu if required.
-// Do nothing and return false if nothing to do , for example, the position is not over a markup item
-// If required, present the menu, act on the user selectino, then return true
+// Do nothing and return false if nothing to do, for example, the position is not over a markup item
+// If required, present the menu, act on the user selection, then return true
 //
 // This method currently populates a imageContextMenu with one 'clear' option.
 // Refer to  QEImage::showContextMenu() to see how imageContextMenu can be populated with checkable, and non checkable items, and sub menus
@@ -1609,7 +1636,7 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
             changedAreas.append( items[activeItem]->area );
             markupChange( *markupImage, changedAreas );
 
-            markupAction( activeItem, true, QPoint(), QPoint() );
+            markupAction( activeItem, false, true, QPoint(), QPoint() );
 
             activeItem = MARKUP_ID_NONE;
             break;

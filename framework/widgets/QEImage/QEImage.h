@@ -52,7 +52,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget {
     QEImage( const QString &variableName, QWidget *parent = 0 );
     ~QEImage();
 
-    enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA, SO_PROFILE, SO_TARGET, SO_BEAM };
+    enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA1, SO_AREA2, SO_AREA3, SO_AREA4, SO_PROFILE, SO_TARGET, SO_BEAM };
     selectOptions getSelectionOption();
 
     // Property convenience functions
@@ -153,7 +153,17 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget {
 
     void establishConnection( unsigned int variableIndex );
 
-    enum variableIndexes{ IMAGE_VARIABLE, WIDTH_VARIABLE, HEIGHT_VARIABLE, ROI_X_VARIABLE, ROI_Y_VARIABLE, ROI_W_VARIABLE, ROI_H_VARIABLE, TARGET_X_VARIABLE, TARGET_Y_VARIABLE, BEAM_X_VARIABLE, BEAM_Y_VARIABLE, TARGET_TRIGGER_VARIABLE, CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE, QEIMAGE_NUM_VARIABLES };
+    enum variableIndexes{ IMAGE_VARIABLE,
+                          WIDTH_VARIABLE, HEIGHT_VARIABLE,
+                          ROI1_X_VARIABLE, ROI1_Y_VARIABLE, ROI1_W_VARIABLE, ROI1_H_VARIABLE,
+                          ROI2_X_VARIABLE, ROI2_Y_VARIABLE, ROI2_W_VARIABLE, ROI2_H_VARIABLE,
+                          ROI3_X_VARIABLE, ROI3_Y_VARIABLE, ROI3_W_VARIABLE, ROI3_H_VARIABLE,
+                          ROI4_X_VARIABLE, ROI4_Y_VARIABLE, ROI4_W_VARIABLE, ROI4_H_VARIABLE,
+                          TARGET_X_VARIABLE, TARGET_Y_VARIABLE,
+                          BEAM_X_VARIABLE, BEAM_Y_VARIABLE,
+                          TARGET_TRIGGER_VARIABLE,
+                          CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE,
+                          QEIMAGE_NUM_VARIABLES /*Must be last*/ };
 
     resizeOptions resizeOption;
     int zoom;
@@ -171,10 +181,14 @@ private slots:
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
+    void setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
     void vSliceSelectModeClicked();
     void hSliceSelectModeClicked();
-    void areaSelectModeClicked();
+    void area1SelectModeClicked();
+    void area2SelectModeClicked();
+    void area3SelectModeClicked();
+    void area4SelectModeClicked();
     void profileSelectModeClicked();
     void targetSelectModeClicked();
     void beamSelectModeClicked();
@@ -188,7 +202,7 @@ private slots:
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
-    void userSelection( imageMarkup::markupIds mode, bool clearing, QPoint point1, QPoint point2 );
+    void userSelection( imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
@@ -203,7 +217,10 @@ public slots:
     void setSelectPanMode()     { sMenu->setChecked(  QEImage::SO_PANNING ); panModeClicked(); }
     void setSelectVSliceMode()  { sMenu->setChecked(  QEImage::SO_VSLICE );  vSliceSelectModeClicked(); }
     void setSelectHSliceMode()  { sMenu->setChecked(  QEImage::SO_HSLICE );  hSliceSelectModeClicked(); }
-    void setSelectAreaMode()    { sMenu->setChecked(  QEImage::SO_AREA );    areaSelectModeClicked(); }
+    void setSelectArea1Mode()   { sMenu->setChecked(  QEImage::SO_AREA1 );   area1SelectModeClicked(); }
+    void setSelectArea2Mode()   { sMenu->setChecked(  QEImage::SO_AREA2 );   area2SelectModeClicked(); }
+    void setSelectArea3Mode()   { sMenu->setChecked(  QEImage::SO_AREA3 );   area3SelectModeClicked(); }
+    void setSelectArea4Mode()   { sMenu->setChecked(  QEImage::SO_AREA4 );   area4SelectModeClicked(); }
     void setSelectProfileMode() { sMenu->setChecked(  QEImage::SO_PROFILE ); profileSelectModeClicked(); }
     void setSelectTargetMode()  { sMenu->setChecked(  QEImage::SO_TARGET );  targetSelectModeClicked(); }
     void setSelectBeamMode()    { sMenu->setChecked(  QEImage::SO_BEAM );    beamSelectModeClicked(); }
@@ -213,8 +230,10 @@ public slots:
 
     void saveClicked();
 
-    void roiClicked();
-    void resetRoiClicked();
+    void roi1Changed();
+    void roi2Changed();
+    void roi3Changed();
+    void roi4Changed();
 
     void targetClicked();
 
@@ -247,20 +266,21 @@ public slots:
 
     VideoWidget* videoWidget;
 
-    QHBoxLayout* infoLayout;
+    QGridLayout* infoLayout;
     QLabel* currentCursorPixelLabel;
     QLabel* currentVertPixelLabel;
     QLabel* currentHozPixelLabel;
     QLabel* currentLineLabel;
-    QLabel* currentAreaLabel;
+    QLabel* currentArea1Label;
+    QLabel* currentArea2Label;
+    QLabel* currentArea3Label;
+    QLabel* currentArea4Label;
     QLabel* currentTargetLabel;
     QLabel* currentBeamLabel;
 
 
     QPushButton* pauseButton;
     QPushButton* saveButton;
-    QPushButton* roiButton;
-    QPushButton* resetRoiButton;
     QPushButton* targetButton;
     QPushButton* selectModeButton;
     QPushButton* zoomButton;
@@ -305,22 +325,34 @@ public slots:
     int hSliceY;
     QPoint profileLineStart;
     QPoint profileLineEnd;
-    QPoint selectedAreaPoint1;
-    QPoint selectedAreaPoint2;
+    QPoint selectedArea1Point1;
+    QPoint selectedArea1Point2;
+    QPoint selectedArea2Point1;
+    QPoint selectedArea2Point2;
+    QPoint selectedArea3Point1;
+    QPoint selectedArea3Point2;
+    QPoint selectedArea4Point1;
+    QPoint selectedArea4Point2;
     QPoint target;
     QPoint beam;
 
     bool haveVSliceX;
     bool haveHSliceY;
     bool haveProfileLine;
-    bool haveSelectedArea;
+    bool haveSelectedArea1;
+    bool haveSelectedArea2;
+    bool haveSelectedArea3;
+    bool haveSelectedArea4;
     bool haveTarget; // !!! not used??
     bool haveBeam; // !!! not used??
 
     void generateVSlice( int x );
     void generateHSlice( int y );
     void generateProfile( QPoint point1, QPoint point2 );
-    void displaySelectedAreaInfo( QPoint point1, QPoint point2 );
+    void displaySelectedArea1Info( QPoint point1, QPoint point2 );
+    void displaySelectedArea2Info( QPoint point1, QPoint point2 );
+    void displaySelectedArea3Info( QPoint point1, QPoint point2 );
+    void displaySelectedArea4Info( QPoint point1, QPoint point2 );
 
     void updateMarkups();
 
@@ -401,63 +433,123 @@ protected:
 
     VARIABLE_PROPERTY_ACCESS(3)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the region of interest X position.
-    Q_PROPERTY(QString regionOfInterestXVariable READ getVariableName3Property WRITE setVariableName3Property)
+    /// This variable is used to write the first region of interest X position.
+    Q_PROPERTY(QString regionOfInterest1XVariable READ getVariableName3Property WRITE setVariableName3Property)
 
     VARIABLE_PROPERTY_ACCESS(4)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the region of interest Y position.
-    Q_PROPERTY(QString regionOfInterestYVariable READ getVariableName4Property WRITE setVariableName4Property)
+    /// This variable is used to write the first region of interest Y position.
+    Q_PROPERTY(QString regionOfInterest1YVariable READ getVariableName4Property WRITE setVariableName4Property)
 
     VARIABLE_PROPERTY_ACCESS(5)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the region of interest width.
-    Q_PROPERTY(QString regionOfInterestWVariable READ getVariableName5Property WRITE setVariableName5Property)
+    /// This variable is used to write the first region of interest width.
+    Q_PROPERTY(QString regionOfInterest1WVariable READ getVariableName5Property WRITE setVariableName5Property)
 
     VARIABLE_PROPERTY_ACCESS(6)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the region of interest height.
-    Q_PROPERTY(QString regionOfInterestHVariable READ getVariableName6Property WRITE setVariableName6Property)
+    /// This variable is used to write the first region of interest height.
+    Q_PROPERTY(QString regionOfInterest1HVariable READ getVariableName6Property WRITE setVariableName6Property)
 
     VARIABLE_PROPERTY_ACCESS(7)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the selected target X position.
-    Q_PROPERTY(QString targetXVariable READ getVariableName7Property WRITE setVariableName7Property)
+    /// This variable is used to write the second region of interest X position.
+    Q_PROPERTY(QString regionOfInterest2XVariable READ getVariableName7Property WRITE setVariableName7Property)
 
     VARIABLE_PROPERTY_ACCESS(8)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the selected target Y position.
-    Q_PROPERTY(QString targetYVariable READ getVariableName8Property WRITE setVariableName8Property)
+    /// This variable is used to write the second region of interest Y position.
+    Q_PROPERTY(QString regionOfInterest2YVariable READ getVariableName8Property WRITE setVariableName8Property)
 
     VARIABLE_PROPERTY_ACCESS(9)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the selected beam X position.
-    Q_PROPERTY(QString beamXVariable READ getVariableName9Property WRITE setVariableName9Property)
+    /// This variable is used to write the second region of interest width.
+    Q_PROPERTY(QString regionOfInterest2WVariable READ getVariableName9Property WRITE setVariableName9Property)
 
     VARIABLE_PROPERTY_ACCESS(10)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the selected beam Y position.
-    Q_PROPERTY(QString beamYVariable READ getVariableName10Property WRITE setVariableName10Property)
+    /// This variable is used to write the second region of interest height.
+    Q_PROPERTY(QString regionOfInterest2HVariable READ getVariableName10Property WRITE setVariableName10Property)
 
     VARIABLE_PROPERTY_ACCESS(11)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write a 'trigger' to initiate movement of the target into the beam as defined by the target and beam X and Y positions.
-    Q_PROPERTY(QString targetTriggerVariable READ getVariableName11Property WRITE setVariableName11Property)
+    /// This variable is used to write the third region of interest X position.
+    Q_PROPERTY(QString regionOfInterest3XVariable READ getVariableName11Property WRITE setVariableName11Property)
 
     VARIABLE_PROPERTY_ACCESS(12)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector clipping on/off command.
-    Q_PROPERTY(QString clippingOnOffVariable READ getVariableName12Property WRITE setVariableName12Property)
+    /// This variable is used to write the third region of interest Y position.
+    Q_PROPERTY(QString regionOfInterest3YVariable READ getVariableName12Property WRITE setVariableName12Property)
 
     VARIABLE_PROPERTY_ACCESS(13)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector clipping low level.
-    Q_PROPERTY(QString clippingLowVariable READ getVariableName13Property WRITE setVariableName13Property)
+    /// This variable is used to write the third region of interest width.
+    Q_PROPERTY(QString regionOfInterest3WVariable READ getVariableName13Property WRITE setVariableName13Property)
 
     VARIABLE_PROPERTY_ACCESS(14)
     /// EPICS variable name (CA PV).
+    /// This variable is used to write the third region of interest height.
+    Q_PROPERTY(QString regionOfInterest3HVariable READ getVariableName14Property WRITE setVariableName14Property)
+
+    VARIABLE_PROPERTY_ACCESS(15)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the fourth region of interest X position.
+    Q_PROPERTY(QString regionOfInterest4XVariable READ getVariableName15Property WRITE setVariableName15Property)
+
+    VARIABLE_PROPERTY_ACCESS(16)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the fourth region of interest Y position.
+    Q_PROPERTY(QString regionOfInterest4YVariable READ getVariableName16Property WRITE setVariableName16Property)
+
+    VARIABLE_PROPERTY_ACCESS(17)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the fourth region of interest width.
+    Q_PROPERTY(QString regionOfInterest4WVariable READ getVariableName17Property WRITE setVariableName17Property)
+
+    VARIABLE_PROPERTY_ACCESS(18)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the fourth region of interest height.
+    Q_PROPERTY(QString regionOfInterest4HVariable READ getVariableName18Property WRITE setVariableName18Property)
+
+    VARIABLE_PROPERTY_ACCESS(19)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the selected target X position.
+    Q_PROPERTY(QString targetXVariable READ getVariableName19Property WRITE setVariableName19Property)
+
+    VARIABLE_PROPERTY_ACCESS(20)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the selected target Y position.
+    Q_PROPERTY(QString targetYVariable READ getVariableName20Property WRITE setVariableName20Property)
+
+    VARIABLE_PROPERTY_ACCESS(21)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the selected beam X position.
+    Q_PROPERTY(QString beamXVariable READ getVariableName21Property WRITE setVariableName21Property)
+
+    VARIABLE_PROPERTY_ACCESS(22)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the selected beam Y position.
+    Q_PROPERTY(QString beamYVariable READ getVariableName22Property WRITE setVariableName22Property)
+
+    VARIABLE_PROPERTY_ACCESS(23)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write a 'trigger' to initiate movement of the target into the beam as defined by the target and beam X and Y positions.
+    Q_PROPERTY(QString targetTriggerVariable READ getVariableName23Property WRITE setVariableName23Property)
+
+    VARIABLE_PROPERTY_ACCESS(24)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector clipping on/off command.
+    Q_PROPERTY(QString clippingOnOffVariable READ getVariableName24Property WRITE setVariableName24Property)
+
+    VARIABLE_PROPERTY_ACCESS(25)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector clipping low level.
+    Q_PROPERTY(QString clippingLowVariable READ getVariableName25Property WRITE setVariableName25Property)
+
+    VARIABLE_PROPERTY_ACCESS(26)
+    /// EPICS variable name (CA PV).
     /// This variable is used to write the areadetector clipping high level.
-    Q_PROPERTY(QString clippingHighVariable READ getVariableName14Property WRITE setVariableName14Property)
+    Q_PROPERTY(QString clippingHighVariable READ getVariableName26Property WRITE setVariableName26Property)
 
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
     /// These substitutions are applied to all the variable names.

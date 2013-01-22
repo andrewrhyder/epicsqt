@@ -86,7 +86,10 @@ void QEImage::setup() {
     haveVSliceX = false;
     haveHSliceY = false;
     haveProfileLine = false;
-    haveSelectedArea = false;
+    haveSelectedArea1 = false;
+    haveSelectedArea2 = false;
+    haveSelectedArea3 = false;
+    haveSelectedArea4 = false;
 
     showTimeEnabled = false;
 
@@ -126,8 +129,8 @@ void QEImage::setup() {
     setTargetMarkupColor(    QColor(  0, 255,   0));
     setTimeMarkupColor(      QColor(255, 255, 255));
 
-    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, bool, QPoint, QPoint ) ),
-                      this,        SLOT  ( userSelection( imageMarkup::markupIds, bool, QPoint, QPoint )) );
+    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint ) ),
+                      this,        SLOT  ( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint )) );
     QObject::connect( videoWidget, SIGNAL( zoomInOut( int ) ),
                       this,        SLOT  ( zoomInOut( int ) ) );
     QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint ) ),
@@ -138,7 +141,7 @@ void QEImage::setup() {
 
     // Create sub menus
     zMenu = new zoomMenu();
-    zMenu->enableAreaSelected( haveSelectedArea );
+    zMenu->enableAreaSelected( haveSelectedArea1 );
     QObject::connect( zMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( zoomMenuTriggered( QAction* )) );
 
     frMenu = new flipRotateMenu();
@@ -164,18 +167,24 @@ void QEImage::setup() {
     currentVertPixelLabel = new QLabel();
     currentHozPixelLabel = new QLabel();
     currentLineLabel = new QLabel();
-    currentAreaLabel = new QLabel();
+    currentArea1Label = new QLabel();
+    currentArea2Label = new QLabel();
+    currentArea3Label = new QLabel();
+    currentArea4Label = new QLabel();
     currentTargetLabel = new QLabel();
     currentBeamLabel = new QLabel();
 
-    infoLayout = new QHBoxLayout();
-    infoLayout->addWidget( currentCursorPixelLabel );
-    infoLayout->addWidget( currentVertPixelLabel );
-    infoLayout->addWidget( currentHozPixelLabel );
-    infoLayout->addWidget( currentLineLabel );
-    infoLayout->addWidget( currentAreaLabel );
-    infoLayout->addWidget( currentTargetLabel );
-    infoLayout->addWidget( currentBeamLabel, 1 );
+    infoLayout = new QGridLayout();
+    infoLayout->addWidget( currentCursorPixelLabel, 0, 0 );
+    infoLayout->addWidget( currentVertPixelLabel, 0, 1 );
+    infoLayout->addWidget( currentHozPixelLabel, 0, 2 );
+    infoLayout->addWidget( currentLineLabel, 0, 3 );
+    infoLayout->addWidget( currentArea1Label, 1, 0 );
+    infoLayout->addWidget( currentArea2Label, 1, 1 );
+    infoLayout->addWidget( currentArea3Label, 1, 2 );
+    infoLayout->addWidget( currentArea4Label, 1, 3 );
+    infoLayout->addWidget( currentTargetLabel, 2, 0 );
+    infoLayout->addWidget( currentBeamLabel, 2, 1 );
 
 
     // Create vertical, horizontal, and general profile plots
@@ -227,22 +236,6 @@ void QEImage::setup() {
     saveButton->setToolTip("Save displayed image");
     QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
 
-    roiButton = new QPushButton(buttonGroup);
-    roiButton->setMinimumWidth( buttonWidth );
-    QIcon roiButtonIcon( ":/qe/image/cameraROI.png" );
-    roiButton->setIcon( roiButtonIcon );
-    roiButton->setToolTip("Apply selected area to Region Of Interest");
-    roiButton->setEnabled( false );
-    QObject::connect(roiButton, SIGNAL(clicked()), this, SLOT(roiClicked()));
-
-    resetRoiButton = new QPushButton(buttonGroup);
-    resetRoiButton->setMinimumWidth( buttonWidth );
-    QIcon resetRoiButtonIcon( ":/qe/image/cameraROIreset.png" );
-    resetRoiButton->setIcon( resetRoiButtonIcon );
-    resetRoiButton->setToolTip("Reset Region Of Interest");
-    resetRoiButton->setEnabled( true );
-    QObject::connect(resetRoiButton, SIGNAL(clicked()), this, SLOT(resetRoiClicked()));
-
     targetButton = new QPushButton(buttonGroup);
     targetButton->setMinimumWidth( buttonWidth );
     QIcon targetButtonIcon( ":/qe/image/target.png" );
@@ -274,12 +267,10 @@ void QEImage::setup() {
 
     buttonLayout->addWidget( pauseButton,      0);
     buttonLayout->addWidget( saveButton,       1);
-    buttonLayout->addWidget( roiButton,        2);
-    buttonLayout->addWidget( resetRoiButton,   3);
-    buttonLayout->addWidget( targetButton,     4);
-    buttonLayout->addWidget( selectModeButton, 5);
-    buttonLayout->addWidget( zoomButton,       6);
-    buttonLayout->addWidget( flipRotateButton, 7);
+    buttonLayout->addWidget( targetButton,     2);
+    buttonLayout->addWidget( selectModeButton, 3);
+    buttonLayout->addWidget( zoomButton,       4);
+    buttonLayout->addWidget( flipRotateButton, 5);
     buttonLayout->addStretch();
 
 
@@ -364,15 +355,34 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         // Create the width, height, target and beam, and clipping items as a QEInteger
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
-        case ROI_X_VARIABLE:
-        case ROI_Y_VARIABLE:
-        case ROI_W_VARIABLE:
-        case ROI_H_VARIABLE:
+
+        case ROI1_X_VARIABLE:
+        case ROI1_Y_VARIABLE:
+        case ROI1_W_VARIABLE:
+        case ROI1_H_VARIABLE:
+
+        case ROI2_X_VARIABLE:
+        case ROI2_Y_VARIABLE:
+        case ROI2_W_VARIABLE:
+        case ROI2_H_VARIABLE:
+
+        case ROI3_X_VARIABLE:
+        case ROI3_Y_VARIABLE:
+        case ROI3_W_VARIABLE:
+        case ROI3_H_VARIABLE:
+
+        case ROI4_X_VARIABLE:
+        case ROI4_Y_VARIABLE:
+        case ROI4_W_VARIABLE:
+        case ROI4_H_VARIABLE:
+
         case TARGET_X_VARIABLE:
         case TARGET_Y_VARIABLE:
+
         case BEAM_X_VARIABLE:
         case BEAM_Y_VARIABLE:
         case TARGET_TRIGGER_VARIABLE:
+
         case CLIPPING_ONOFF_VARIABLE:
         case CLIPPING_LOW_VARIABLE:
         case CLIPPING_HIGH_VARIABLE:
@@ -438,13 +448,42 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
+        // Conntect to the ROI variables
+        case ROI1_X_VARIABLE:
+        case ROI1_Y_VARIABLE:
+        case ROI1_W_VARIABLE:
+        case ROI1_H_VARIABLE:
+
+        case ROI2_X_VARIABLE:
+        case ROI2_Y_VARIABLE:
+        case ROI2_W_VARIABLE:
+        case ROI2_H_VARIABLE:
+
+        case ROI3_X_VARIABLE:
+        case ROI3_Y_VARIABLE:
+        case ROI3_W_VARIABLE:
+        case ROI3_H_VARIABLE:
+
+        case ROI4_X_VARIABLE:
+        case ROI4_Y_VARIABLE:
+        case ROI4_W_VARIABLE:
+        case ROI4_H_VARIABLE:
+
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setROI( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+
         // QCa creation occured, but no connection for display is required here.
-        case ROI_X_VARIABLE:
-        case ROI_Y_VARIABLE:
-        case ROI_W_VARIABLE:
-        case ROI_H_VARIABLE:
         case TARGET_X_VARIABLE:
         case TARGET_Y_VARIABLE:
+
         case BEAM_X_VARIABLE:
         case BEAM_Y_VARIABLE:
             break;
@@ -530,6 +569,92 @@ void QEImage::setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTi
 
     // Update the image buffer according to the new size
     setImageBuff();
+
+    // Display invalid if invalid
+    if( alarmInfo.isInvalid() )
+    {
+        //setImageInvalid()
+        // !!! not done
+    }
+}
+
+/*
+    Update the ROI displays if any
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+{
+    qDebug() << "QEImage::setROI()" << value;
+    // Update image size variable
+    switch( variableIndex )
+    {
+        case ROI1_X_VARIABLE:
+            // ???
+            break;
+
+        case ROI1_Y_VARIABLE:
+            // ???
+            break;
+
+        case ROI1_W_VARIABLE:
+            // ???
+            break;
+
+        case ROI1_H_VARIABLE:
+            // ???
+            break;
+
+        case ROI2_X_VARIABLE:
+            // ???
+            break;
+
+        case ROI2_Y_VARIABLE:
+            // ???
+            break;
+
+        case ROI2_W_VARIABLE:
+            // ???
+            break;
+
+        case ROI2_H_VARIABLE:
+            // ???
+            break;
+
+        case ROI3_X_VARIABLE:
+            // ???
+            break;
+
+        case ROI3_Y_VARIABLE:
+            // ???
+            break;
+
+        case ROI3_W_VARIABLE:
+            // ???
+            break;
+
+        case ROI3_H_VARIABLE:
+            // ???
+            break;
+
+        case ROI4_X_VARIABLE:
+            // ???
+            break;
+
+        case ROI4_Y_VARIABLE:
+            // ???
+            break;
+
+        case ROI4_W_VARIABLE:
+            // ???
+            break;
+
+        case ROI4_H_VARIABLE:
+            // ???
+            break;
+
+        }
+
+    // ???
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -928,9 +1053,21 @@ void QEImage::updateMarkups()
     {
         generateProfile( profileLineStart, profileLineEnd );
     }
-    if( haveSelectedArea )
+    if( haveSelectedArea1 )
     {
-        displaySelectedAreaInfo( selectedAreaPoint1, selectedAreaPoint2 );
+        displaySelectedArea1Info( selectedArea1Point1, selectedArea1Point2 );
+    }
+    if( haveSelectedArea2 )
+    {
+        displaySelectedArea2Info( selectedArea2Point1, selectedArea2Point2 );
+    }
+    if( haveSelectedArea3 )
+    {
+        displaySelectedArea3Info( selectedArea3Point1, selectedArea3Point2 );
+    }
+    if( haveSelectedArea4 )
+    {
+        displaySelectedArea4Info( selectedArea4Point1, selectedArea4Point2 );
     }
 }
 
@@ -1005,7 +1142,10 @@ void QEImage::manageInfoLayout()
         currentVertPixelLabel->show();
         currentHozPixelLabel->show();
         currentLineLabel->show();
-        currentAreaLabel->show();
+        currentArea1Label->show();
+        currentArea2Label->show();
+        currentArea3Label->show();
+        currentArea4Label->show();
         currentTargetLabel->show();
         currentBeamLabel->show();
     }
@@ -1015,7 +1155,10 @@ void QEImage::manageInfoLayout()
         currentVertPixelLabel->hide();
         currentHozPixelLabel->hide();
         currentLineLabel->hide();
-        currentAreaLabel->hide();
+        currentArea1Label->hide();
+        currentArea2Label->hide();
+        currentArea3Label->hide();
+        currentArea4Label->hide();
         currentTargetLabel->hide();
         currentBeamLabel->hide();
     }
@@ -1029,8 +1172,8 @@ void QEImage::zoomToArea()
     // aspect ratio that does not match the current viewport)
     // Note, these zoom factors are the multiple the current zoom
     // must be changed by, not the actual zoom required
-    int sizeX = selectedAreaPoint2.x()-selectedAreaPoint1.x();
-    int sizeY = selectedAreaPoint2.y()-selectedAreaPoint1.y();
+    int sizeX = selectedArea1Point2.x()-selectedArea1Point1.x();
+    int sizeY = selectedArea1Point2.y()-selectedArea1Point1.y();
     double zoomFactorX = (double)(scrollArea->viewport()->width()) / (double)sizeX;
     double zoomFactorY = (double)(scrollArea->viewport()->height()) / (double)sizeY;
 
@@ -1053,7 +1196,7 @@ void QEImage::zoomToArea()
 
     // Note the pixel position of the top left of the selected area in the original image
     // This will be the position that should be at the top left in the scroll area.
-    QPoint newOrigin = videoWidget->scalePoint( selectedAreaPoint1 );
+    QPoint newOrigin = videoWidget->scalePoint( selectedArea1Point1 );
 
     // Resize the display widget
     int newSizeX = int( (double)(imageBuffWidth) * newZoom );
@@ -1069,46 +1212,88 @@ void QEImage::zoomToArea()
     zoom = int( newZoom*100.0 );
 }
 
-// Reset ROI apply button pressed
-void QEImage::resetRoiClicked()
+// ROI area 1 changed
+void QEImage::roi1Changed()
 {
-    // Write the ROI variables, setting them to the limits of the image.
-    QEInteger* qca;
-    qca = (QEInteger*)getQcaItem( ROI_X_VARIABLE );
-    if( qca ) qca->writeInteger( 0 );
+    // Write the ROI variables.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( ROI1_X_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point1.x() ));
 
-    qca = (QEInteger*)getQcaItem( ROI_Y_VARIABLE );
-    if( qca ) qca->writeInteger(  0 );
+    qca = (QEInteger*)getQcaItem( ROI1_Y_VARIABLE );
+    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea1Point1.y() ));
 
-    qca = (QEInteger*)getQcaItem( ROI_W_VARIABLE );
-    if( qca ) qca->writeInteger( imageBuffWidth );
+    qca = (QEInteger*)getQcaItem( ROI1_W_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point2.x() ) - videoWidget->scaleOrdinate( selectedArea1Point1.x() ));
 
-    qca = (QEInteger*)getQcaItem( ROI_H_VARIABLE );
-    if( qca ) qca->writeInteger( imageBuffHeight );
+    qca = (QEInteger*)getQcaItem( ROI1_H_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point2.y() ) - videoWidget->scaleOrdinate( selectedArea1Point1.y() ));
+
+    // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
 
     return;
 }
 
-// ROI apply button pressed
-void QEImage::roiClicked()
+// ROI area 2 changed
+void QEImage::roi2Changed()
 {
-    // Disable the ROI button now it has been applied
-    // !!! should be disabled when the area stops being selected. It's OK for the zoom to be disabled when pressed, but there is no reason why the current ROI can't be reapplied
-    roiButton->setEnabled( false );
-
     // Write the ROI variables.
     QEInteger *qca;
-    qca = (QEInteger*)getQcaItem( ROI_X_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint1.x() ));
+    qca = (QEInteger*)getQcaItem( ROI2_X_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea2Point1.x() ));
 
-    qca = (QEInteger*)getQcaItem( ROI_Y_VARIABLE );
-    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedAreaPoint1.y() ));
+    qca = (QEInteger*)getQcaItem( ROI2_Y_VARIABLE );
+    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea2Point1.y() ));
 
-    qca = (QEInteger*)getQcaItem( ROI_W_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint2.x() ) - videoWidget->scaleOrdinate( selectedAreaPoint1.x() ));
+    qca = (QEInteger*)getQcaItem( ROI2_W_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea2Point2.x() ) - videoWidget->scaleOrdinate( selectedArea2Point1.x() ));
 
-    qca = (QEInteger*)getQcaItem( ROI_H_VARIABLE );
-    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedAreaPoint2.y() ) - videoWidget->scaleOrdinate( selectedAreaPoint1.y() ));
+    qca = (QEInteger*)getQcaItem( ROI2_H_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea2Point2.y() ) - videoWidget->scaleOrdinate( selectedArea2Point1.y() ));
+
+    // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
+
+    return;
+}
+
+// ROI area 3 changed
+void QEImage::roi3Changed()
+{
+    // Write the ROI variables.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( ROI3_X_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea3Point1.x() ));
+
+    qca = (QEInteger*)getQcaItem( ROI3_Y_VARIABLE );
+    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea3Point1.y() ));
+
+    qca = (QEInteger*)getQcaItem( ROI3_W_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea3Point2.x() ) - videoWidget->scaleOrdinate( selectedArea3Point1.x() ));
+
+    qca = (QEInteger*)getQcaItem( ROI3_H_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea3Point2.y() ) - videoWidget->scaleOrdinate( selectedArea3Point1.y() ));
+
+    // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
+
+    return;
+}
+
+// ROI area 4 changed
+void QEImage::roi4Changed()
+{
+    // Write the ROI variables.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( ROI4_X_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea4Point1.x() ));
+
+    qca = (QEInteger*)getQcaItem( ROI4_Y_VARIABLE );
+    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( selectedArea4Point1.y() ));
+
+    qca = (QEInteger*)getQcaItem( ROI4_W_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea4Point2.x() ) - videoWidget->scaleOrdinate( selectedArea4Point1.x() ));
+
+    qca = (QEInteger*)getQcaItem( ROI4_H_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea4Point2.y() ) - videoWidget->scaleOrdinate( selectedArea4Point1.y() ));
 
     // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
 
@@ -1432,12 +1617,15 @@ QColor QEImage::getProfileMarkupColor()
 // Area markup colour
 void QEImage::setAreaMarkupColor(QColor markupColor )
 {
-    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_REGION, markupColor );
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_REGION1, markupColor );
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_REGION2, markupColor );
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_REGION3, markupColor );
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_REGION4, markupColor );
 }
 
 QColor QEImage::getAreaMarkupColor()
 {
-    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_REGION );
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_REGION1 ); // same as MARKUP_ID_REGION2, MARKUP_ID_REGION3 and MARKUP_ID_REGION4
 }
 
 // Area markup colour
@@ -1545,7 +1733,11 @@ void QEImage::setEnableAreaSelection( bool enableAreaSelectionIn )
     sMenu->setAreaEnabled( enableAreaSelection );
 
     // If disabling, and it is the current mode, then default to panning
-    if( !enableAreaSelection && getSelectionOption() == SO_AREA )
+    if( !enableAreaSelection &&
+        ( ( getSelectionOption() == SO_AREA1 ) ||
+          ( getSelectionOption() == SO_AREA2 ) ||
+          ( getSelectionOption() == SO_AREA3 ) ||
+          ( getSelectionOption() == SO_AREA4 )))
     {
         sMenu->setChecked( QEImage::SO_PANNING );
         panModeClicked();
@@ -1616,10 +1808,28 @@ void QEImage::hSliceSelectModeClicked()
     videoWidget->setMode(  imageMarkup::MARKUP_ID_H_SLICE );
 }
 
-void QEImage::areaSelectModeClicked()
+void QEImage::area1SelectModeClicked()
 {
     videoWidget->setPanning( false );
-    videoWidget->setMode(  imageMarkup::MARKUP_ID_REGION );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_REGION1 );
+}
+
+void QEImage::area2SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_REGION2 );
+}
+
+void QEImage::area3SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_REGION3 );
+}
+
+void QEImage::area4SelectModeClicked()
+{
+    videoWidget->setPanning( false );
+    videoWidget->setMode(  imageMarkup::MARKUP_ID_REGION4 );
 }
 
 void QEImage::profileSelectModeClicked()
@@ -1659,7 +1869,7 @@ void QEImage::zoomInOut( int zoomAmount )
 
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
-void QEImage::userSelection( imageMarkup::markupIds mode, bool clearing, QPoint point1, QPoint point2 )
+void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 )
 {
     // If creating or moving a markup...
     if( !clearing )
@@ -1680,15 +1890,58 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool clearing, QPoint 
                 generateHSlice( hSliceY );
                 break;
 
-            case imageMarkup::MARKUP_ID_REGION:
-                selectedAreaPoint1 = point1;
-                selectedAreaPoint2 = point2;
-                haveSelectedArea = true;
+            case imageMarkup::MARKUP_ID_REGION1:
+                selectedArea1Point1 = point1;
+                selectedArea1Point2 = point2;
+                haveSelectedArea1 = true;
 
-                roiButton->setEnabled( true );
-                zMenu->enableAreaSelected( haveSelectedArea );
+                zMenu->enableAreaSelected( haveSelectedArea1 );
 
-                displaySelectedAreaInfo( selectedAreaPoint1, selectedAreaPoint2 );
+                displaySelectedArea1Info( point1, point2 );
+
+                if( complete )
+                {
+                    roi1Changed();
+                }
+                break;
+
+            case imageMarkup::MARKUP_ID_REGION2:
+                selectedArea2Point1 = point1;
+                selectedArea2Point2 = point2;
+                haveSelectedArea2 = true;
+
+                displaySelectedArea2Info( point1, point2 );
+
+                if( complete )
+                {
+                    roi2Changed();
+                }
+                break;
+
+            case imageMarkup::MARKUP_ID_REGION3:
+                selectedArea3Point1 = point1;
+                selectedArea3Point2 = point2;
+                haveSelectedArea3 = true;
+
+                displaySelectedArea3Info( point1, point2 );
+
+                if( complete )
+                {
+                    roi3Changed();
+                }
+                break;
+
+            case imageMarkup::MARKUP_ID_REGION4:
+                selectedArea4Point1 = point1;
+                selectedArea4Point2 = point2;
+                haveSelectedArea4 = true;
+
+                displaySelectedArea4Info( point1, point2 );
+
+                if( complete )
+                {
+                    roi4Changed();
+                }
                 break;
 
             case imageMarkup::MARKUP_ID_LINE:
@@ -1763,14 +2016,34 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool clearing, QPoint 
                 currentHozPixelLabel->clear();
                 break;
 
-            case imageMarkup::MARKUP_ID_REGION:
-                selectedAreaPoint1 = QPoint();
-                selectedAreaPoint2 = QPoint();
-                haveSelectedArea = false;
-                currentAreaLabel->clear();
+            case imageMarkup::MARKUP_ID_REGION1:
+                selectedArea1Point1 = QPoint();
+                selectedArea1Point2 = QPoint();
+                haveSelectedArea1 = false;
+                currentArea1Label->clear();
 
-                roiButton->setEnabled( false );
-                zMenu->enableAreaSelected( haveSelectedArea );
+                zMenu->enableAreaSelected( haveSelectedArea1 );
+                break;
+
+            case imageMarkup::MARKUP_ID_REGION2:
+                selectedArea2Point1 = QPoint();
+                selectedArea2Point2 = QPoint();
+                haveSelectedArea2 = false;
+                currentArea2Label->clear();
+                break;
+
+            case imageMarkup::MARKUP_ID_REGION3:
+                selectedArea3Point1 = QPoint();
+                selectedArea3Point2 = QPoint();
+                haveSelectedArea3 = false;
+                currentArea3Label->clear();
+                break;
+
+            case imageMarkup::MARKUP_ID_REGION4:
+                selectedArea4Point1 = QPoint();
+                selectedArea4Point2 = QPoint();
+                haveSelectedArea4 = false;
+                currentArea4Label->clear();
                 break;
 
             case imageMarkup::MARKUP_ID_LINE:
@@ -1867,15 +2140,48 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
     return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*imageDataSize]);
 }
 
-void QEImage::displaySelectedAreaInfo( QPoint point1, QPoint point2 )
+void QEImage::displaySelectedArea1Info( QPoint point1, QPoint point2 )
 {
     // Display textual info
     QString s;
-    s.sprintf( "A: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
-                                    videoWidget->scaleOrdinate( point1.y() ),
-                                    videoWidget->scaleOrdinate( point2.x() ),
-                                    videoWidget->scaleOrdinate( point2.y() ));
-    currentAreaLabel->setText( s );
+    s.sprintf( "R1: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
+                                     videoWidget->scaleOrdinate( point1.y() ),
+                                     videoWidget->scaleOrdinate( point2.x() ),
+                                     videoWidget->scaleOrdinate( point2.y() ));
+    currentArea1Label->setText( s );
+}
+
+void QEImage::displaySelectedArea2Info( QPoint point1, QPoint point2 )
+{
+    // Display textual info
+    QString s;
+    s.sprintf( "R2: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
+                                     videoWidget->scaleOrdinate( point1.y() ),
+                                     videoWidget->scaleOrdinate( point2.x() ),
+                                     videoWidget->scaleOrdinate( point2.y() ));
+    currentArea2Label->setText( s );
+}
+
+void QEImage::displaySelectedArea3Info( QPoint point1, QPoint point2 )
+{
+    // Display textual info
+    QString s;
+    s.sprintf( "R3: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
+                                     videoWidget->scaleOrdinate( point1.y() ),
+                                     videoWidget->scaleOrdinate( point2.x() ),
+                                     videoWidget->scaleOrdinate( point2.y() ));
+    currentArea3Label->setText( s );
+}
+
+void QEImage::displaySelectedArea4Info( QPoint point1, QPoint point2 )
+{
+    // Display textual info
+    QString s;
+    s.sprintf( "R4: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
+                                     videoWidget->scaleOrdinate( point1.y() ),
+                                     videoWidget->scaleOrdinate( point2.x() ),
+                                     videoWidget->scaleOrdinate( point2.y() ));
+    currentArea4Label->setText( s );
 }
 
 // Generate a profile along a line across an image at a given Y position
@@ -2424,7 +2730,7 @@ void QEImage::showContextMenu( const QPoint& pos )
     menu.addMenuItem(       "Contrast reversal",             true,      contrastReversal,       imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
 
     // Add the zoom menu
-    zMenu->enableAreaSelected( haveSelectedArea );
+    zMenu->enableAreaSelected( haveSelectedArea1 );
     menu.addMenu( zMenu );
 
     // Add the flip/rotate menu
@@ -2432,12 +2738,12 @@ void QEImage::showContextMenu( const QPoint& pos )
     menu.addMenu( frMenu );
 
     // Add option menu items
-    menu.addOptionMenuItem( "Enable vertical selection",     true,      enableVSliceSelection,  imageContextMenu::ICM_ENABLE_VERT              );
-    menu.addOptionMenuItem( "Enable horizontal selection",   true,      enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ               );
-    menu.addOptionMenuItem( "Enable area selection",         true,      enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA              );
-    menu.addOptionMenuItem( "Enable profile selection",      true,      enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE              );
-    menu.addOptionMenuItem( "Enable target selection",       true,      enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET            );
-    menu.addOptionMenuItem( "Display button bar",            true,      displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR       );
+    menu.addOptionMenuItem( "Enable vertical profile selection",                      true,      enableVSliceSelection,  imageContextMenu::ICM_ENABLE_VERT              );
+    menu.addOptionMenuItem( "Enable horizontal profile selection",                    true,      enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ               );
+    menu.addOptionMenuItem( "Enable region selection (required for 'zoom to area'')", true,      enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA              );
+    menu.addOptionMenuItem( "Enable arbitrary profile selection",                     true,      enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE              );
+    menu.addOptionMenuItem( "Enable target selection",                                true,      enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET            );
+    menu.addOptionMenuItem( "Display button bar",                                     true,      displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR       );
 
     // Present the menu
     imageContextMenu::imageContextMenuOptions option;
@@ -2519,7 +2825,10 @@ void QEImage::selectMenuTriggered( QAction* selectedItem )
         case imageContextMenu::ICM_SELECT_PAN:          panModeClicked();           break;
         case imageContextMenu::ICM_SELECT_VSLICE:       vSliceSelectModeClicked();  break;
         case imageContextMenu::ICM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
-        case imageContextMenu::ICM_SELECT_AREA:         areaSelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_AREA1:        area1SelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_AREA2:        area2SelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_AREA3:        area3SelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_AREA4:        area4SelectModeClicked();    break;
         case imageContextMenu::ICM_SELECT_PROFILE:      profileSelectModeClicked(); break;
         case imageContextMenu::ICM_SELECT_TARGET:       targetSelectModeClicked();  break;
         case imageContextMenu::ICM_SELECT_BEAM:         beamSelectModeClicked();    break;
@@ -2536,12 +2845,15 @@ QEImage::selectOptions QEImage::getSelectionOption()
     {
         switch( videoWidget->getMode() )
         {
-        case imageMarkup::MARKUP_ID_V_SLICE: return SO_VSLICE;
-        case imageMarkup::MARKUP_ID_H_SLICE: return SO_HSLICE;
-        case imageMarkup::MARKUP_ID_REGION:  return SO_AREA;
-        case imageMarkup::MARKUP_ID_LINE:    return SO_PROFILE;
-        case imageMarkup::MARKUP_ID_TARGET:  return SO_TARGET;
-        case imageMarkup::MARKUP_ID_BEAM:    return SO_BEAM;
+        case imageMarkup::MARKUP_ID_V_SLICE:  return SO_VSLICE;
+        case imageMarkup::MARKUP_ID_H_SLICE:  return SO_HSLICE;
+        case imageMarkup::MARKUP_ID_REGION1:  return SO_AREA1;
+        case imageMarkup::MARKUP_ID_REGION2:  return SO_AREA2;
+        case imageMarkup::MARKUP_ID_REGION3:  return SO_AREA3;
+        case imageMarkup::MARKUP_ID_REGION4:  return SO_AREA4;
+        case imageMarkup::MARKUP_ID_LINE:     return SO_PROFILE;
+        case imageMarkup::MARKUP_ID_TARGET:   return SO_TARGET;
+        case imageMarkup::MARKUP_ID_BEAM:     return SO_BEAM;
 
         default:
         case imageMarkup::MARKUP_ID_NONE:    return SO_NONE;

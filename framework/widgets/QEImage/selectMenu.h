@@ -30,7 +30,10 @@ private:
     QAction* actionPan;
     QAction* actionHSlice;
     QAction* actionVSlice;
-    QAction* actionArea;
+    QAction* actionArea1;
+    QAction* actionArea2;
+    QAction* actionArea3;
+    QAction* actionArea4;
     QAction* actionProfile;
     QAction* actionTarget;
     QAction* actionBeam;

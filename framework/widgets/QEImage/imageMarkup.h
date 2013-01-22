@@ -132,7 +132,7 @@ protected:
     enum legendJustification{ ABOVE_RIGHT, BELOW_LEFT, BELOW_RIGHT };          // Options for positioning the legend
     const QPoint setLegendPos( QPoint pos, legendJustification just );          // Sets (and returns) the position of the legend (top left of text) given the justificaiton
     const QPoint getLegendPos();                  // Returns the last drawn legend position
-    void drawLegend( QPainter& p, QPoint pos, legendJustification just );
+    void drawLegend( QPainter& p, QPoint pos, legendJustification just );   // Draw the legend beside the markup
 
 private:
     virtual void scaleSpecific( double xScale, double yScale )=0;
@@ -301,7 +301,10 @@ public:
     virtual ~imageMarkup();
 
     // IDs to indicate what mode the markup system is in (for example, marking out an area), and to identify each of the markup items.
-    enum markupIds { MARKUP_ID_REGION,
+    enum markupIds { MARKUP_ID_REGION1,
+                     MARKUP_ID_REGION2,
+                     MARKUP_ID_REGION3,
+                     MARKUP_ID_REGION4,
                      MARKUP_ID_H_SLICE,
                      MARKUP_ID_V_SLICE,
                      MARKUP_ID_LINE,
@@ -348,7 +351,7 @@ protected:
     void markupResize( QSize newSize );                         // The viewport size has changed
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
-    virtual void markupAction( markupIds mode, bool clearing, QPoint point1, QPoint point2 )=0;     // There is an application task to do in response to user interaction with the markups
+    virtual void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 )=0;     // There is an application task to do in response to user interaction with the markups
 
 private:
     void setActiveItem( const QPoint& pos );    // // Determine if the user clicked over an interactive, visible item

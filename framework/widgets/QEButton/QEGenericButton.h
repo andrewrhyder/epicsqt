@@ -188,6 +188,10 @@ private:
 
     virtual QObject* getButtonQObject() = 0;
     bool checkPassword();
+
+    virtual void emitPressed( int pressValue ) = 0;
+    virtual void emitReleased( int releaseValue ) = 0;
+    virtual void emitClicked( int clickValue ) = 0;
 };
 
 #endif // QEGENERICBUTTON_H

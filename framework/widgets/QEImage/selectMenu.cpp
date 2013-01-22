@@ -20,7 +20,10 @@ selectMenu::selectMenu( QWidget *parent) : QMenu(parent)
     NEW_SELECT_MENU_BUTTON( "Horizontal Slice Profile", ICM_SELECT_HSLICE,  actionHSlice  )
     NEW_SELECT_MENU_BUTTON( "Vertical Slice Profile",   ICM_SELECT_VSLICE,  actionVSlice  )
     NEW_SELECT_MENU_BUTTON( "Line Profile",             ICM_SELECT_PROFILE, actionProfile )
-    NEW_SELECT_MENU_BUTTON( "Select an Area",           ICM_SELECT_AREA,    actionArea    )
+    NEW_SELECT_MENU_BUTTON( "Select Area 1",            ICM_SELECT_AREA1,   actionArea1    )
+    NEW_SELECT_MENU_BUTTON( "Select Area 2",            ICM_SELECT_AREA2,   actionArea2    )
+    NEW_SELECT_MENU_BUTTON( "Select Area 3",            ICM_SELECT_AREA3,   actionArea3    )
+    NEW_SELECT_MENU_BUTTON( "Select Area 4",            ICM_SELECT_AREA4,   actionArea4    )
     NEW_SELECT_MENU_BUTTON( "Mark Target",              ICM_SELECT_TARGET,  actionTarget  )
     NEW_SELECT_MENU_BUTTON( "Mark Beam",                ICM_SELECT_BEAM,    actionBeam    )
 
@@ -51,7 +54,10 @@ void selectMenu::setChecked( const int mode )
         case QEImage::SO_PANNING : actionPan    ->setChecked( true ); break;
         case QEImage::SO_HSLICE:   actionHSlice ->setChecked( true ); break;
         case QEImage::SO_VSLICE:   actionVSlice ->setChecked( true ); break;
-        case QEImage::SO_AREA:     actionArea   ->setChecked( true ); break;
+        case QEImage::SO_AREA1:    actionArea1  ->setChecked( true ); break;
+        case QEImage::SO_AREA2:    actionArea2  ->setChecked( true ); break;
+        case QEImage::SO_AREA3:    actionArea3  ->setChecked( true ); break;
+        case QEImage::SO_AREA4:    actionArea4  ->setChecked( true ); break;
         case QEImage::SO_PROFILE:  actionProfile->setChecked( true ); break;
         case QEImage::SO_TARGET:   actionTarget ->setChecked( true ); break;
         case QEImage::SO_BEAM:     actionTarget ->setChecked( true ); break;
@@ -76,7 +82,10 @@ void selectMenu::setHSlicetEnabled( bool enableHSliceSelection )
 
 void selectMenu::setAreaEnabled( bool enableAreaSelection )
 {
-    actionArea->setVisible( enableAreaSelection );
+    actionArea1->setVisible( enableAreaSelection );
+    actionArea2->setVisible( enableAreaSelection );
+    actionArea3->setVisible( enableAreaSelection );
+    actionArea4->setVisible( enableAreaSelection );
 }
 
 void selectMenu::setProfileEnabled( bool enableProfileSelection )

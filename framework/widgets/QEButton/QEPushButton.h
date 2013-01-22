@@ -80,7 +80,19 @@ public slots:
     /// Internal use only. Request a new GUI is created. Typically, this is caught by the QEGui application.
     void newGui( QString guiName, QEForm::creationOptions creationOption );
 
-  protected:
+    /// Button has been Pressed.
+    /// The value emitted is the integer interpretation of the pressText property
+    void pressed( int value );
+
+    /// Button has been Released
+    /// The value emitted is the integer interpretation of the releaseText property
+    void released( int value );
+
+    /// Button has been Clicked.
+    /// The value emitted is the integer interpretation of the clickText property (or the clickCheckedText property if the button was checked)
+    void clicked( int value );
+
+protected:
 
 private:
     void setup();
@@ -109,6 +121,10 @@ private:
     void stringFormattingChange(){ requestResend(); }
 
     QEGenericButton::updateOptions getDefaultUpdateOption() { return QEGenericButton::UPDATE_TEXT; }
+
+    void emitPressed( int value ){ emit pressed( value ); }
+    void emitReleased( int value ){ emit released( value ); }
+    void emitClicked( int value ){ emit clicked( value ); }
 
     // Drag and Drop
 private:

@@ -2,7 +2,7 @@
 
 zoomMenu::zoomMenu( QWidget *parent) : QMenu(parent)
 {
-    areaSelectedAction = new QAction( "Selected area", this );
+    areaSelectedAction = new QAction( "Selected area (Region 1)", this );
     areaSelectedAction->setData( imageContextMenu::ICM_ZOOM_SELECTED );
     addAction( areaSelectedAction );
 

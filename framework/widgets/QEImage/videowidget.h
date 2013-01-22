@@ -56,11 +56,11 @@ protected:
 
     void resizeEvent( QResizeEvent *event );
     void markupSetCursor( QCursor cursor );
-    void markupAction( markupIds mode, bool clearing, QPoint point1, QPoint point2 );
+    void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 );
 
 
 signals:
-    void userSelection( imageMarkup::markupIds mode, bool clearing, QPoint point1, QPoint point2 );
+    void userSelection( imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );

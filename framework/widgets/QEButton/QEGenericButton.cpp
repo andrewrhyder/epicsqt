@@ -278,6 +278,12 @@ void QEGenericButton::userPressed()
     if( !writeOnPress ||  !confirmAction() || !checkPassword() )
         return;
 
+    // Determine the string to write
+    QString writeText = substituteThis( pressText );
+
+    // Emit a 'released' signal
+    emitPressed( writeText.toInt() );
+
     // Get the variable to write to
     QEString *qca = (QEString*)getQcaItem(0);
 
@@ -285,7 +291,7 @@ void QEGenericButton::userPressed()
     if( qca )
     {
         QString error;
-        if( !qca->writeString( substituteThis( pressText ), error ) )
+        if( !qca->writeString( writeText, error ) )
         {
             QMessageBox::warning( (QWidget*)getButtonQObject(), QString( "Write failed" ), error, QMessageBox::Cancel );
         }
@@ -302,6 +308,12 @@ void QEGenericButton::userReleased()
     if( !writeOnRelease ||  !confirmAction() || !checkPassword() )
         return;
 
+    // Determine the string to write
+    QString writeText = substituteThis( releaseText );
+
+    // Emit a 'released' signal
+    emitReleased( writeText.toInt() );
+
     // Get the variable to write to
     QEString *qca = (QEString*)getQcaItem(0);
 
@@ -309,7 +321,7 @@ void QEGenericButton::userReleased()
     if( qca )
     {
         QString error;
-        if( !qca->writeString( substituteThis( releaseText ), error ) )
+        if( !qca->writeString( writeText, error ) )
         {
             QMessageBox::warning( (QWidget*)getButtonQObject(), QString( "Write failed" ), error, QMessageBox::Cancel );
         }
@@ -329,11 +341,13 @@ void QEGenericButton::userClicked( bool checked )
     // Get the variable to write to
     QEString *qca = (QEString*)getQcaItem(0);
 
-    // If a QCa object is present (if there is a variable to write to)
-    // and the object is set up to write when the user clicks the button
+    // If the object is set up to write when the user clicks the button
+    // emit a signal
+    // Also, if a QCa object is present (if there is a variable to write to)
     // then write the value
-    if( qca && writeOnClick )
+    if( writeOnClick )
     {
+        // Determine the string to write
         QString writeText;
         if( !checked )
         {
@@ -343,10 +357,20 @@ void QEGenericButton::userClicked( bool checked )
         {
             writeText = clickCheckedText;
         }
-        QString error;
-        if( !qca->writeString( substituteThis( writeText ), error ) )
+
+        writeText = substituteThis( writeText );
+
+        // Emit a 'released' signal
+        emitClicked( writeText.toInt() );
+
+        // Write to the variable if present
+        if( qca )
         {
-            QMessageBox::warning( (QWidget*)getButtonQObject(), QString( "Write failed" ), error, QMessageBox::Cancel );
+            QString error;
+            if( !qca->writeString( writeText, error ) )
+            {
+                QMessageBox::warning( (QWidget*)getButtonQObject(), QString( "Write failed" ), error, QMessageBox::Cancel );
+            }
         }
     }
 

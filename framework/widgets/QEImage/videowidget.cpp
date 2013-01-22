@@ -173,9 +173,10 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
     markupResize( event->size() );
 }
 
-void VideoWidget::markupAction( markupIds mode, bool clearing, QPoint point1, QPoint point2 )
+// Act on a markup change
+void VideoWidget::markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 )
 {
-    emit userSelection( mode, clearing, point1, point2 );
+    emit userSelection( mode, complete, clearing, point1, point2 );
 }
 
 // Return an ordinate from the displayed image as an ordinate in the original image
