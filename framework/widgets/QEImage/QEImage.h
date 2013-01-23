@@ -90,8 +90,8 @@ public:
                         GREY16,         ///< 16 bit grey scale
                         RGB_888         ///< 24 bit RGB
                       };
-    void setFormatOption( formatOptions formatOption );                 ///< Access function for #format property - refer to #format property for details
-    formatOptions getFormatOption();                                    ///< Access function for #format property - refer to #format property for details
+    void setFormatOption( formatOptions formatOption );                 ///< Access function for #formatOption property - refer to #formatOption property for details
+    formatOptions getFormatOption();                                    ///< Access function for #formatOption property - refer to #formatOption property for details
 
     // Size options
     /// \enum resizeOptions
@@ -247,28 +247,27 @@ private slots:
 
 public slots:
     // Slots to allow external setting of selection menu options
-    void setSelectPanMode()     { sMenu->setChecked(  QEImage::SO_PANNING ); panModeClicked(); }
-    void setSelectVSliceMode()  { sMenu->setChecked(  QEImage::SO_VSLICE );  vSliceSelectModeClicked(); }
-    void setSelectHSliceMode()  { sMenu->setChecked(  QEImage::SO_HSLICE );  hSliceSelectModeClicked(); }
-    void setSelectArea1Mode()   { sMenu->setChecked(  QEImage::SO_AREA1 );   area1SelectModeClicked(); }
-    void setSelectArea2Mode()   { sMenu->setChecked(  QEImage::SO_AREA2 );   area2SelectModeClicked(); }
-    void setSelectArea3Mode()   { sMenu->setChecked(  QEImage::SO_AREA3 );   area3SelectModeClicked(); }
-    void setSelectArea4Mode()   { sMenu->setChecked(  QEImage::SO_AREA4 );   area4SelectModeClicked(); }
-    void setSelectProfileMode() { sMenu->setChecked(  QEImage::SO_PROFILE ); profileSelectModeClicked(); }
-    void setSelectTargetMode()  { sMenu->setChecked(  QEImage::SO_TARGET );  targetSelectModeClicked(); }
-    void setSelectBeamMode()    { sMenu->setChecked(  QEImage::SO_BEAM );    beamSelectModeClicked(); }
+    void setSelectPanMode()     { sMenu->setChecked(  QEImage::SO_PANNING ); panModeClicked(); }            ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectVSliceMode()  { sMenu->setChecked(  QEImage::SO_VSLICE );  vSliceSelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectHSliceMode()  { sMenu->setChecked(  QEImage::SO_HSLICE );  hSliceSelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectArea1Mode()   { sMenu->setChecked(  QEImage::SO_AREA1 );   area1SelectModeClicked(); }    ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectArea2Mode()   { sMenu->setChecked(  QEImage::SO_AREA2 );   area2SelectModeClicked(); }    ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectArea3Mode()   { sMenu->setChecked(  QEImage::SO_AREA3 );   area3SelectModeClicked(); }    ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectArea4Mode()   { sMenu->setChecked(  QEImage::SO_AREA4 );   area4SelectModeClicked(); }    ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectProfileMode() { sMenu->setChecked(  QEImage::SO_PROFILE ); profileSelectModeClicked(); }  ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectTargetMode()  { sMenu->setChecked(  QEImage::SO_TARGET );  targetSelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
+    void setSelectBeamMode()    { sMenu->setChecked(  QEImage::SO_BEAM );    beamSelectModeClicked(); }     ///< Framework use only. Slot to allow external setting of selection menu options
 
     // Slots to allow external operation of control buttons
-    void pauseClicked();
+    void pauseClicked();       ///< Framework use only. Slot to allow external setting of selection menu options
+    void saveClicked();        ///< Framework use only. Slot to allow external setting of selection menu options
 
-    void saveClicked();
+    void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
+    void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
+    void roi3Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
+    void roi4Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
 
-    void roi1Changed();
-    void roi2Changed();
-    void roi3Changed();
-    void roi4Changed();
-
-    void targetClicked();
+    void targetClicked();      ///< Framework use only. Slot to allow external setting of selection menu options
 
 
   signals:
