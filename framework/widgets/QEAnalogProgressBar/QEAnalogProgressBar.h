@@ -306,22 +306,16 @@ public:
     /// Destruction
     virtual ~QEAnalogProgressBar(){}
 
-    // Variable Name and substitution
-    //
-    void setVariableNameAndSubstitutions( QString variableNameIn,
-                                          QString variableNameSubstitutionsIn,
-                                          unsigned int variableIndex );
-
     // Property convenience functions
 
     // useDbDisplayLimits, e.g. as specified by LOPR and HOPR fields for ai, ao, longin
     // and longout record types, to call setAnalogMinimum and setAnalogMaximum.
     //
-    void setUseDbDisplayLimits( bool useDbDisplayLimitsIn );                ///< Access function for useDbDisplayLimits property - refer to useDbDisplayLimits property for details
-    bool getUseDbDisplayLimits();                                           ///< Access function for useDbDisplayLimits property - refer to useDbDisplayLimits property for details
+    void setUseDbDisplayLimits( bool useDbDisplayLimitsIn );                ///< Access function for #useDbDisplayLimits property - refer to #useDbDisplayLimits property for details
+    bool getUseDbDisplayLimits();                                           ///< Access function for #useDbDisplayLimits property - refer to #useDbDisplayLimits property for details
 
-    void setAlarmSeverityDisplayMode( AlarmSeverityDisplayModes value );    ///< Access function for AlarmSeverityDisplayModes property - refer to AlarmSeverityDisplayModes property for details
-    AlarmSeverityDisplayModes getAlarmSeverityDisplayMode ();               ///< Access function for AlarmSeverityDisplayModes property - refer to AlarmSeverityDisplayModes property for details
+    void setAlarmSeverityDisplayMode( AlarmSeverityDisplayModes value );    ///< Access function for #AlarmSeverityDisplayModes property - refer to #AlarmSeverityDisplayModes property for details
+    AlarmSeverityDisplayModes getAlarmSeverityDisplayMode ();               ///< Access function for #AlarmSeverityDisplayModes property - refer to #AlarmSeverityDisplayModes property for details
 
 protected:
     QString getTextImage ();

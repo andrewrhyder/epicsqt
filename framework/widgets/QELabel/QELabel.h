@@ -396,25 +396,39 @@ public:
     ///
     Q_PROPERTY(QPixmap pixmap7 READ getPixmap7Property WRITE setPixmap7Property)
 
-private:
-    // Access function for pixmap properties
+
+    /// 'Set' access function for #pixmap0 properties. Refer to #pixmap0 property for details
     void setPixmap0Property( QPixmap pixmap ){ setDataPixmap( pixmap, 0 ); }
+    /// 'Set' access function for #pixmap1 properties. Refer to #pixmap1 property for details
     void setPixmap1Property( QPixmap pixmap ){ setDataPixmap( pixmap, 1 ); }
+    /// 'Set' access function for #pixmap2 properties. Refer to #pixmap2 property for details
     void setPixmap2Property( QPixmap pixmap ){ setDataPixmap( pixmap, 2 ); }
+    /// 'Set' access function for #pixmap3 properties. Refer to #pixmap3 property for details
     void setPixmap3Property( QPixmap pixmap ){ setDataPixmap( pixmap, 3 ); }
+    /// 'Set' access function for #pixmap4 properties. Refer to #pixmap4 property for details
     void setPixmap4Property( QPixmap pixmap ){ setDataPixmap( pixmap, 4 ); }
+    /// 'Set' access function for #pixmap5 properties. Refer to #pixmap5 property for details
     void setPixmap5Property( QPixmap pixmap ){ setDataPixmap( pixmap, 5 ); }
+    /// 'Set' access function for #pixmap6 properties. Refer to #pixmap6 property for details
     void setPixmap6Property( QPixmap pixmap ){ setDataPixmap( pixmap, 6 ); }
+    /// 'Set' access function for #pixmap7 properties. Refer to #pixmap7 property for details
     void setPixmap7Property( QPixmap pixmap ){ setDataPixmap( pixmap, 7 ); }
 
-    // Access function for pixmap properties
+    /// 'Get' access function for #pixmap0 properties. Refer to #pixmap0 property for details
     QPixmap getPixmap0Property(){ return getDataPixmap( 0 ); }
+    /// 'Get' access function for #pixmap1 properties. Refer to #pixmap1 property for details
     QPixmap getPixmap1Property(){ return getDataPixmap( 1 ); }
+    /// 'Get' access function for #pixmap2 properties. Refer to #pixmap2 property for details
     QPixmap getPixmap2Property(){ return getDataPixmap( 2 ); }
+    /// 'Get' access function for #pixmap3 properties. Refer to #pixmap3 property for details
     QPixmap getPixmap3Property(){ return getDataPixmap( 3 ); }
+    /// 'Get' access function for #pixmap4 properties. Refer to #pixmap4 property for details
     QPixmap getPixmap4Property(){ return getDataPixmap( 4 ); }
+    /// 'Get' access function for #pixmap5 properties. Refer to #pixmap5 property for details
     QPixmap getPixmap5Property(){ return getDataPixmap( 5 ); }
+    /// 'Get' access function for #pixmap6 properties. Refer to #pixmap6 property for details
     QPixmap getPixmap6Property(){ return getDataPixmap( 6 ); }
+    /// 'Get' access function for #pixmap7 properties. Refer to #pixmap7 property for details
     QPixmap getPixmap7Property(){ return getDataPixmap( 7 ); }
 };
 

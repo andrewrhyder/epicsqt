@@ -584,7 +584,7 @@ void QEImage::setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTi
  */
 void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
 {
-    qDebug() << "QEImage::setROI()" << value;
+//    qDebug() << "QEImage::setROI()" << value;
     // Update image size variable
     switch( variableIndex )
     {
@@ -1037,8 +1037,8 @@ void QEImage::setImageFile( QString name )
 }
 
 
-// Update markups if required
-// This is called after displaying the image
+// Update markups if required.
+// This is called after displaying the image.
 void QEImage::updateMarkups()
 {
     if( haveVSliceX )
@@ -1439,6 +1439,7 @@ QEImage::formatOptions QEImage::getFormatOption()
     return formatOption;
 }
 
+// Set the zoom percentage (and force zoom mode)
 void QEImage::setResizeOptionAndZoom( int zoomIn )
 {
 
@@ -1571,9 +1572,10 @@ bool QEImage::getDisplayButtonBar()
 }
 
 // Show time
-void QEImage::setShowTime(bool pValue)
+void QEImage::setShowTime(bool value)
 {
-    videoWidget->setShowTime( pValue );
+    qDebug() << "QEImage::setShowTime()" << value;
+    videoWidget->setShowTime( value );
 }
 
 bool QEImage::getShowTime()
@@ -2114,9 +2116,9 @@ void QEImage::generateVSlice( int xUnscaled )
     vSliceDisplay->setProfile( vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0 );
 }
 
+// Determine the maximum pixel value for the current format
 double QEImage::maxPixelValue()
 {
-    // Determine the maximum pixel value for the current format
     switch( formatOption )
     {
         default:
@@ -2126,6 +2128,7 @@ double QEImage::maxPixelValue()
         case RGB_888:return (1<<8)-1;
     }
 }
+
 // Return a pointer to pixel data in the original image data.
 // The position parameter is scaled to the original image size but reflects
 // the displayed rotation and flip options, so it must be transformed first.
@@ -2140,6 +2143,7 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
     return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*imageDataSize]);
 }
 
+// Display textual info about the first selected area
 void QEImage::displaySelectedArea1Info( QPoint point1, QPoint point2 )
 {
     // Display textual info
@@ -2151,6 +2155,7 @@ void QEImage::displaySelectedArea1Info( QPoint point1, QPoint point2 )
     currentArea1Label->setText( s );
 }
 
+// Display textual info about the second selected area
 void QEImage::displaySelectedArea2Info( QPoint point1, QPoint point2 )
 {
     // Display textual info
@@ -2162,6 +2167,7 @@ void QEImage::displaySelectedArea2Info( QPoint point1, QPoint point2 )
     currentArea2Label->setText( s );
 }
 
+// Display textual info about the third selected area
 void QEImage::displaySelectedArea3Info( QPoint point1, QPoint point2 )
 {
     // Display textual info
@@ -2173,6 +2179,7 @@ void QEImage::displaySelectedArea3Info( QPoint point1, QPoint point2 )
     currentArea3Label->setText( s );
 }
 
+// Display textual info about the fourth selected area
 void QEImage::displaySelectedArea4Info( QPoint point1, QPoint point2 )
 {
     // Display textual info
@@ -2228,7 +2235,7 @@ void QEImage::generateHSlice( int yUnscaled )
     hSliceDisplay->setProfile( hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue() );
 }
 
-// Generate a profile along an arbitrary line through an image
+// Generate a profile along an arbitrary line through an image.
 // The profile contains values one pixel length along the line.
 // Except where the line is vertical or horizontal points one pixel
 // length along the line will not line up with actual pixels.
@@ -2495,6 +2502,7 @@ double QEImage::getFloatingPixelValueFromData( const unsigned char* ptr )
     return getPixelValueFromData( ptr );
 }
 
+// Transform the point according to current rotation and flip options.
 QPoint QEImage::rotateFLipPoint( QPoint& pos )
 {
     // Transform the point according to current rotation and flip options.
@@ -2835,6 +2843,7 @@ void QEImage::selectMenuTriggered( QAction* selectedItem )
     }
 }
 
+// Get the current selection option
 QEImage::selectOptions QEImage::getSelectionOption()
 {
     if( videoWidget->getPanning() )

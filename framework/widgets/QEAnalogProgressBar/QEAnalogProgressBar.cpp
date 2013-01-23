@@ -394,25 +394,6 @@ QVariant QEAnalogProgressBar::copyData()
 }
 
 //------------------------------------------------------------------------------
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=01 will result in any occurance
-// of $(SECTOR) in variable name being replaced with 01.
-//
-void QEAnalogProgressBar::setVariableNameAndSubstitutions( QString variableNameIn,
-                                                           QString variableNameSubstitutionsIn,
-                                                           unsigned int variableIndex )
-{
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-
-    // TODO a WTF comment
-    setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
-
-    setVariableName( variableNameIn, variableIndex + 1 );
-    establishConnection( variableIndex + 1 );
-}
-
-//------------------------------------------------------------------------------
 // useDbDisplayLimits
 void QEAnalogProgressBar::setUseDbDisplayLimits( bool useDbDisplayLimitsIn )
 {

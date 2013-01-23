@@ -255,7 +255,7 @@ public:
   Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
 
   /// \enum UserLevels
-  /// User friendly enumerations for #userLevelVisibility and #userLevelEnabled properties - refer to #userLevelVisibility and #userLevelEnabled properties and userLevel enumeration for details.
+  /// User friendly enumerations for #userLevelVisibility and #userLevelEnabled properties - refer to #userLevelVisibility and #userLevelEnabled properties and #userLevel enumeration for details.
   enum UserLevels { User      = USERLEVEL_USER,          ///< Refer to USERLEVEL_USER for details
                     Scientist = USERLEVEL_SCIENTIST,     ///< Refer to USERLEVEL_SCIENTIST for details
                     Engineer  = USERLEVEL_ENGINEER       ///< Refer to USERLEVEL_ENGINEER for details

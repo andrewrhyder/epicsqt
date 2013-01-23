@@ -211,53 +211,53 @@ public:
     //
     double getValue ();                                         ///< Access function for #value property - refer to #value property for details
 
-    void setMinimum (const double value);                       ///< Access function for #minimum - refer to minimum property for details
-    double getMinimum ();                                       ///< Access function for #minimum - refer to minimum property for details
+    void setMinimum (const double value);                       ///< Access function for #minimum - refer to #minimum property for details
+    double getMinimum ();                                       ///< Access function for #minimum - refer to #minimum property for details
 
-    void setMaximum (const double value);                       ///< Access function for #maximum - refer to maximum property for details
-    double getMaximum ();                                       ///< Access function for #maximum - refer to maximum property for details
+    void setMaximum (const double value);                       ///< Access function for #maximum - refer to #maximum property for details
+    double getMaximum ();                                       ///< Access function for #maximum - refer to #maximum property for details
 
-    void setOrientation   (const enum Orientations value);      ///< Access function for #orientation - refer to orientation property for details
-    enum Orientations getOrientation ();                        ///< Access function for #orientation - refer to orientation property for details
+    void setOrientation   (const enum Orientations value);      ///< Access function for #orientation - refer to #orientation property for details
+    enum Orientations getOrientation ();                        ///< Access function for #orientation - refer to #orientation property for details
 
-    void setMode          (const enum Modes value);             ///< Access function for #mode - refer to mode property for details
-    enum Modes getMode ();                                      ///< Access function for #mode - refer to mode property for details
+    void setMode          (const enum Modes value);             ///< Access function for #mode - refer to #mode property for details
+    enum Modes getMode ();                                      ///< Access function for #mode - refer to #mode property for details
 
-    void setCentreAngle (const int value);                      ///< Access function for #centreAngle - refer to centreAngle property for details
-    int getCentreAngle ();                                      ///< Access function for #centreAngle - refer to centreAngle property for details
+    void setCentreAngle (const int value);                      ///< Access function for #centreAngle - refer to #centreAngle property for details
+    int getCentreAngle ();                                      ///< Access function for #centreAngle - refer to #centreAngle property for details
 
-    void setSpanAngle (const int value);                        ///< Access function for #spanAngle - refer to spanAngle property for details
-    int getSpanAngle ();                                        ///< Access function for #spanAngle - refer to spanAngle property for details
+    void setSpanAngle (const int value);                        ///< Access function for #spanAngle - refer to #spanAngle property for details
+    int getSpanAngle ();                                        ///< Access function for #spanAngle - refer to #spanAngle property for details
 
-    void setMinorInterval (const double value);                 ///< Access function for #minorInterval - refer to minorInterval property for details
-    double getMinorInterval ();                                 ///< Access function for #minorInterval - refer to minorInterval property for details
+    void setMinorInterval (const double value);                 ///< Access function for #minorInterval - refer to #minorInterval property for details
+    double getMinorInterval ();                                 ///< Access function for #minorInterval - refer to #minorInterval property for details
 
-    void setMajorInterval (const double value);                 ///< Access function for #majorInterval - refer to majorInterval property for details
-    double getMajorInterval ();                                 ///< Access function for #majorInterval - refer to majorInterval property for details
+    void setMajorInterval (const double value);                 ///< Access function for #majorInterval - refer to #majorInterval property for details
+    double getMajorInterval ();                                 ///< Access function for #majorInterval - refer to #majorInterval property for details
 
-    void setLogScaleInterval (const int value);                 ///< Access function for #logScaleInterval - refer to logScaleInterval property for details
-    int getLogScaleInterval ();                                 ///< Access function for #logScaleInterval - refer to logScaleInterval property for details
+    void setLogScaleInterval (const int value);                 ///< Access function for #logScaleInterval - refer to #logScaleInterval property for details
+    int getLogScaleInterval ();                                 ///< Access function for #logScaleInterval - refer to #logScaleInterval property for details
 
-    void setBorderColour (const QColor value);                  ///< Access function for #borderColour - refer to borderColour property for details
-    QColor getBorderColour ();                                  ///< Access function for #borderColour - refer to borderColour property for details
+    void setBorderColour (const QColor value);                  ///< Access function for #borderColour - refer to #borderColour property for details
+    QColor getBorderColour ();                                  ///< Access function for #borderColour - refer to #borderColour property for details
 
-    void setForegroundColour (const QColor value);              ///< Access function for #foregroundColour - refer to foregroundColour property for details
-    QColor getForegroundColour ();                              ///< Access function for #foregroundColour - refer to foregroundColour property for details
+    void setForegroundColour (const QColor value);              ///< Access function for #foregroundColour - refer to #foregroundColour property for details
+    QColor getForegroundColour ();                              ///< Access function for #foregroundColour - refer to #foregroundColour property for details
 
-    void setBackgroundColour (const QColor value);              ///< Access function for #backgroundColour - refer to backgroundColour property for details
-    QColor getBackgroundColour ();                              ///< Access function for #backgroundColour - refer to backgroundColour property for details
+    void setBackgroundColour (const QColor value);              ///< Access function for #backgroundColour - refer to #backgroundColour property for details
+    QColor getBackgroundColour ();                              ///< Access function for #backgroundColour - refer to #backgroundColour property for details
 
-    void setFontColour (const QColor value);                    ///< Access function for #fontColour - refer to fontColour property for details
-    QColor getFontColour ();                                    ///< Access function for #fontColour - refer to fontColour property for details
+    void setFontColour (const QColor value);                    ///< Access function for #fontColour - refer to #fontColour property for details
+    QColor getFontColour ();                                    ///< Access function for #fontColour - refer to #fontColour property for details
 
-    void setShowText (const bool value);                        ///< Access function for #showText - refer to showText property for details
-    bool getShowText ();                                        ///< Access function for #showText - refer to showText property for details
+    void setShowText (const bool value);                        ///< Access function for #showText - refer to #showText property for details
+    bool getShowText ();                                        ///< Access function for #showText - refer to #showText property for details
 
-    void setShowScale (const bool value);                       ///< Access function for #showScale - refer to showScale property for details
-    bool getShowScale ();                                       ///< Access function for #showScale - refer to showScale property for details
+    void setShowScale (const bool value);                       ///< Access function for #showScale - refer to #showScale property for details
+    bool getShowScale ();                                       ///< Access function for #showScale - refer to #showScale property for details
 
-    void setLogScale (const bool value);                        ///< Access function for #logScale - refer to logScale property for details
-    bool getLogScale ();                                        ///< Access function for #logScale - refer to logScale property for details
+    void setLogScale (const bool value);                        ///< Access function for #logScale - refer to #logScale property for details
+    bool getLogScale ();                                        ///< Access function for #logScale - refer to #logScale property for details
 
 public slots:
     void setRange   (const double MinimumIn, const double MaximumIn);

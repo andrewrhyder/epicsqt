@@ -48,104 +48,134 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget {
 
   public:
 
+    /// Create without a variable.
+    /// Use setVariableName'n'Property() - where 'n' is a number from 0 to 26 - and setSubstitutionsProperty() to define variables and, optionally, macro substitutions later.
+    /// Note, each variable property is named by function (such as imageVariable and widthVariable) but given
+    /// a numeric get and set property access function such as setVariableName22Property(). Refer to the
+    /// property definitions to determine what 'set' and 'get' function is used for each varible, or use Qt library functions to set or get the variable names by name.
     QEImage( QWidget *parent = 0 );
+
+    /// Create with a variable.
+    /// A connection is automatically established.
+    /// The variable is set up as the first variable.
+    /// This is consistant with other widgets, but will not result in an updating image as the width and height variables are required as a minimum.
     QEImage( const QString &variableName, QWidget *parent = 0 );
+
+    /// Destructor
     ~QEImage();
 
-    enum selectOptions{ SO_NONE, SO_PANNING, SO_VSLICE, SO_HSLICE, SO_AREA1, SO_AREA2, SO_AREA3, SO_AREA4, SO_PROFILE, SO_TARGET, SO_BEAM };
-    selectOptions getSelectionOption();
+public:
+    ///  \enum selectOptions.
+    /// Internal use only. Selection options. What will happen when the user interacts with the image area
+    enum selectOptions{ SO_NONE,                                ///< Do nothing
+                        SO_PANNING,                             ///< User is panning
+                        SO_VSLICE,                              ///< Select the vertical slice point
+                        SO_HSLICE,                              ///< Select the horizontal slice point
+                        SO_AREA1, SO_AREA2, SO_AREA3, SO_AREA4, ///< User is selecting an area (for region of interest)
+                        SO_PROFILE,                             ///< Select an arbitrary line across the image (to determine a profile)
+                        SO_TARGET,                              ///< Mark the target point
+                        SO_BEAM                                 ///< Mark the current beam location
+                       };
 
+    selectOptions getSelectionOption();    // Get the current selection option
+
+public:
     // Property convenience functions
 
-    // Allow user to set the video format
-    enum formatOptions{ GREY8, GREY12, GREY16, RGB_888 };
-    void setFormatOption( formatOptions formatOption );
-    formatOptions getFormatOption();
+    // Video format options
+    /// \enum formatOptions
+    /// Video format options
+    enum formatOptions{ GREY8,          ///< 8 bit grey scale
+                        GREY12,         ///< 12 bit grey scale
+                        GREY16,         ///< 16 bit grey scale
+                        RGB_888         ///< 24 bit RGB
+                      };
+    void setFormatOption( formatOptions formatOption );                 ///< Access function for #format property - refer to #format property for details
+    formatOptions getFormatOption();                                    ///< Access function for #format property - refer to #format property for details
 
     // Size options
-    enum resizeOptions { RESIZE_OPTION_ZOOM, RESIZE_OPTION_FIT };
-    void setResizeOption( resizeOptions resizeOptionIn );
-    resizeOptions getResizeOption();
+    /// \enum resizeOptions
+    /// Image resize options
+    enum resizeOptions { RESIZE_OPTION_ZOOM,    ///< Zoom to selected percentage
+                         RESIZE_OPTION_FIT      ///< Zoom to fit the current window size
+                       };
+    void setResizeOption( resizeOptions resizeOptionIn );               ///< Access function for #resizeOption property - refer to #resizeOption property for details
+    resizeOptions getResizeOption();                                    ///< Access function for #resizeOption property - refer to #resizeOption property for details
 
     // Zoom
-    void setZoom( int zoomIn );
-    int getZoom();
+    void setZoom( int zoomIn );                                         ///< Access function for #zoom property - refer to #zoom property for details
+    int getZoom();                                                      ///< Access function for #zoom property - refer to #zoom property for details
 
     // Rotation
-    enum rotationOptions { ROTATION_0, ROTATION_90_RIGHT, ROTATION_90_LEFT, ROTATION_180 };
-    void setRotation( rotationOptions rotationIn );
-    rotationOptions getRotation();
+    /// \enum rotationOptions
+    /// Image rotation options
+    enum rotationOptions { ROTATION_0,          ///< No image rotation
+                           ROTATION_90_RIGHT,   ///< Rotate image 90 degrees clockwise
+                           ROTATION_90_LEFT,    ///< Rotate image 90 degrees anticlockwise
+                           ROTATION_180         ///< Rotate image 180 degrees
+                         };
+    void setRotation( rotationOptions rotationIn );                     ///< Access function for #rotation property - refer to #rotation property for details
+    rotationOptions getRotation();                                      ///< Access function for #rotation property - refer to #rotation property for details
 
-    void setHorizontalFlip( bool flipHozIn );
-    bool getHorizontalFlip();
+    void setHorizontalFlip( bool flipHozIn );                           ///< Access function for #horizontalFlip property - refer to #horizontalFlip property for details
+    bool getHorizontalFlip();                                           ///< Access function for #horizontalFlip property - refer to #horizontalFlip property for details
 
-    void setVerticalFlip( bool flipVertIn );
-    bool getVerticalFlip();
+    void setVerticalFlip( bool flipVertIn );                            ///< Access function for #verticalFlip property - refer to #verticalFlip property for details
+    bool getVerticalFlip();                                             ///< Access function for #verticalFlip property - refer to #verticalFlip property for details
 
-    void setInitialHozScrollPos( int initialHosScrollPosIn );
-    int getInitialHozScrollPos();
+    void setInitialHozScrollPos( int initialHosScrollPosIn );           ///< Access function for #initialHosScrollPos property - refer to #initialHosScrollPos property for details
+    int getInitialHozScrollPos();                                       ///< Access function for #initialHosScrollPos property - refer to #initialHosScrollPos property for details
 
-    void setInitialVertScrollPos( int initialVertScrollPosIn );
-    int getInitialVertScrollPos();
+    void setInitialVertScrollPos( int initialVertScrollPosIn );         ///< Access function for #initialVertScrollPos property - refer to #initialVertScrollPos property for details
+    int getInitialVertScrollPos();                                      ///< Access function for #initialVertScrollPos property - refer to #initialVertScrollPos property for details
 
-    // Display the acquire period
-    void setDisplayAcquirePeriod( bool displayAcquirePeriodIn );
-    bool getDisplayAcquirePeriod();
+    void setDisplayButtonBar( bool displayButtonBarIn );                ///< Access function for #displayButtonBar property - refer to #displayButtonBar property for details
+    bool getDisplayButtonBar();                                         ///< Access function for #displayButtonBar property - refer to #displayButtonBar property for details
 
-    // Display the exposure time
-    void setDisplayExposureTime( bool displayExposureTimeIn );
-    bool getDisplayExposureTime();
+    void setShowTime(bool pValue);                                      ///< Access function for #showTime property - refer to #showTime property for details
+    bool getShowTime();                                                 ///< Access function for #showTime property - refer to #showTime property for details
 
-    void setDisplayButtonBar( bool displayButtonBarIn );
-    bool getDisplayButtonBar();
+    void setVertSliceMarkupColor(QColor pValue);                        ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
+    QColor getVertSliceMarkupColor();                                   ///< Access function for #vertSliceColor property - refer to #vertSliceColor property for details
 
-    void setShowTime(bool pValue);
-    bool getShowTime();
+    void setHozSliceMarkupColor(QColor pValue);                         ///< Access function for #hozSliceColor property - refer to #hozSliceColor property for details
+    QColor getHozSliceMarkupColor();                                    ///< Access function for #hozSliceColor property - refer to #hozSliceColor property for details
 
-    void setVertSliceMarkupColor(QColor pValue);
-    QColor getVertSliceMarkupColor();
+    void setProfileMarkupColor(QColor pValue);                          ///< Access function for #profileColor property - refer to #profileColor property for details
+    QColor getProfileMarkupColor();                                     ///< Access function for #profileColor property - refer to #profileColor property for details
 
-    void setHozSliceMarkupColor(QColor pValue);
-    QColor getHozSliceMarkupColor();
+    void setAreaMarkupColor(QColor pValue);                             ///< Access function for #areaColor property - refer to #areaColor property for details
+    QColor getAreaMarkupColor();                                        ///< Access function for #areaColor property - refer to #areaColor property for details
 
-    void setProfileMarkupColor(QColor pValue);
-    QColor getProfileMarkupColor();
+    void setTargetMarkupColor(QColor pValue);                           ///< Access function for #targetColor property - refer to #targetColor property for details
+    QColor getTargetMarkupColor();                                      ///< Access function for #targetColor property - refer to #targetColor property for details
 
-    void setAreaMarkupColor(QColor pValue);
-    QColor getAreaMarkupColor();
+    void setBeamMarkupColor(QColor pValue);                             ///< Access function for #beamColor property - refer to #beamColor property for details
+    QColor getBeamMarkupColor();                                        ///< Access function for #beamColor property - refer to #beamColor property for details
 
-    void setTargetMarkupColor(QColor pValue);
-    QColor getTargetMarkupColor();
+    void setTimeMarkupColor(QColor pValue);                             ///< Access function for #timeColor property - refer to #timeColor property for details
+    QColor getTimeMarkupColor();                                        ///< Access function for #timeColor property - refer to #timeColor property for details
 
-    void setBeamMarkupColor(QColor pValue);
-    QColor getBeamMarkupColor();
+    void setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn );    ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
+    bool getDisplayCursorPixelInfo();                                   ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
 
-    void setTimeMarkupColor(QColor pValue);
-    QColor getTimeMarkupColor();
+    void setContrastReversal( bool contrastReversalIn );                ///< Access function for #contrastReversal property - refer to #contrastReversal property for details
+    bool getContrastReversal();                                         ///< Access function for #contrastReversal property - refer to #contrastReversal property for details
 
-    void setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn );
-    bool getDisplayCursorPixelInfo();
+    void setEnableVertSliceSelection( bool enableVSliceSelectionIn );   ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
+    bool getEnableVertSliceSelection();                                 ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
 
-    void setContrastReversal( bool contrastReversalIn );
-    bool getContrastReversal();
+    void setEnableHozSliceSelection( bool enableHSliceSelectionIn );    ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
+    bool getEnableHozSliceSelection();                                  ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
 
-    void setEnablePan( bool enablePanIn );
-    bool getEnablePan();
+    void setEnableAreaSelection( bool enableAreaSelectionIn );          ///< Access function for #enableAreaSelection property - refer to #enableAreaSelection property for details
+    bool getEnableAreaSelection();                                      ///< Access function for #enableAreaSelection property - refer to #enableAreaSelection property for details
 
-    void setEnableVertSliceSelection( bool enableVSliceSelectionIn );
-    bool getEnableVertSliceSelection();
+    void setEnableProfileSelection( bool enableProfileSelectionIn );    ///< Access function for #enableProfileSelection property - refer to #enableProfileSelection property for details
+    bool getEnableProfileSelection();                                   ///< Access function for #enableProfileSelection property - refer to #enableProfileSelection property for details
 
-    void setEnableHozSliceSelection( bool enableHSliceSelectionIn );
-    bool getEnableHozSliceSelection();
-
-    void setEnableAreaSelection( bool enableAreaSelectionIn );
-    bool getEnableAreaSelection();
-
-    void setEnableProfileSelection( bool enableProfileSelectionIn );
-    bool getEnableProfileSelection();
-
-    void setEnableTargetSelection( bool enableTargetSelectionIn );
-    bool getEnableTargetSelection();
+    void setEnableTargetSelection( bool enableTargetSelectionIn );      ///< Access function for #enableTargetSelection property - refer to #enableTargetSelection property for details
+    bool getEnableTargetSelection();                                    ///< Access function for #enableTargetSelection property - refer to #enableTargetSelection property for details
 
 
   protected:
@@ -153,6 +183,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget {
 
     void establishConnection( unsigned int variableIndex );
 
+    // Index for access to registered variables
     enum variableIndexes{ IMAGE_VARIABLE,
                           WIDTH_VARIABLE, HEIGHT_VARIABLE,
                           ROI1_X_VARIABLE, ROI1_Y_VARIABLE, ROI1_W_VARIABLE, ROI1_H_VARIABLE,
@@ -165,24 +196,26 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget {
                           CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE,
                           QEIMAGE_NUM_VARIABLES /*Must be last*/ };
 
-    resizeOptions resizeOption;
-    int zoom;
-    rotationOptions rotation;
-    bool flipVert;
-    bool flipHoz;
+    resizeOptions resizeOption; // Resize option. (zoom or fit)
+    int zoom;                   // Zoom percentage
+    rotationOptions rotation;   // Rotation option
+    bool flipVert;              // True if vertical flip option set
+    bool flipHoz;               // True if horizontal flip option set
 
-    int initialHozScrollPos;
-    int initialVertScrollPos;
+    int initialHozScrollPos;    // Initial horizontal scroll bar position (for when starting zoomed)
+    int initialVertScrollPos;   // Initial vertical scroll bar position (for when starting zoomed)
 
-    bool displayButtonBar;
+    bool displayButtonBar;      // True if button bar should be displayed
 
 private slots:
+    // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
+    // Menu choice slots
     void vSliceSelectModeClicked();
     void hSliceSelectModeClicked();
     void area1SelectModeClicked();
@@ -266,6 +299,7 @@ public slots:
 
     VideoWidget* videoWidget;
 
+    // Current pixel and other informational widgets
     QGridLayout* infoLayout;
     QLabel* currentCursorPixelLabel;
     QLabel* currentVertPixelLabel;
@@ -279,6 +313,7 @@ public slots:
     QLabel* currentBeamLabel;
 
 
+    // Button bar widgets
     QPushButton* pauseButton;
     QPushButton* saveButton;
     QPushButton* targetButton;
@@ -286,15 +321,18 @@ public slots:
     QPushButton* zoomButton;
     QPushButton* flipRotateButton;
 
+    // Profile graphic widgets
     profilePlot* vSliceDisplay;
     profilePlot* hSliceDisplay;
     profilePlot* profileDisplay;
 
 
+    // Menus
     zoomMenu*       zMenu;
     flipRotateMenu* frMenu;
     selectMenu*     sMenu;
 
+    // Options
     bool paused;
     bool showTimeEnabled;
 
@@ -307,10 +345,9 @@ public slots:
     bool displayCursorPixelInfo;
     bool contrastReversal;
 
+    formatOptions formatOption;
 
-    void manageButtonBar();
-    void manageInfoLayout();
-
+    // Image and related information
     QCaDateTime imageTime;
     unsigned long imageDataSize;
     QByteArray image;       // Buffer to hold original image data.
@@ -319,8 +356,8 @@ public slots:
     unsigned long imageBuffWidth;   // Original image width
     unsigned long imageBuffHeight;  // Original image height
 
-    formatOptions formatOption;
 
+    // User selected information
     int vSliceX;
     int hSliceY;
     QPoint profileLineStart;
@@ -343,50 +380,51 @@ public slots:
     bool haveSelectedArea2;
     bool haveSelectedArea3;
     bool haveSelectedArea4;
-    bool haveTarget; // !!! not used??
-    bool haveBeam; // !!! not used??
 
-    void generateVSlice( int x );
-    void generateHSlice( int y );
-    void generateProfile( QPoint point1, QPoint point2 );
-    void displaySelectedArea1Info( QPoint point1, QPoint point2 );
-    void displaySelectedArea2Info( QPoint point1, QPoint point2 );
-    void displaySelectedArea3Info( QPoint point1, QPoint point2 );
-    void displaySelectedArea4Info( QPoint point1, QPoint point2 );
 
-    void updateMarkups();
+    // Private methods
+    void manageButtonBar();                                 // Add or remove the button bar
+    void manageInfoLayout();                                // Add or remove the pixel information layout
 
+    void generateVSlice( int x );                           // Generate a profile along a line down an image at a given X position
+    void generateHSlice( int y );                           // Generate a profile along a line across an image at a given Y position
+    void generateProfile( QPoint point1, QPoint point2 );   // Generate a profile along an arbitrary line through an image.
+    void displaySelectedArea1Info( QPoint point1, QPoint point2 );  // Display textual info about the first selected area
+    void displaySelectedArea2Info( QPoint point1, QPoint point2 );  // Display textual info about the second selected area
+    void displaySelectedArea3Info( QPoint point1, QPoint point2 );  // Display textual info about the third selected area
+    void displaySelectedArea4Info( QPoint point1, QPoint point2 );  // Display textual info about the fourth selected area
+
+    void updateMarkups();                                               // Update markups if required. (For example, after image update)
+
+    int getPixelValueFromData( const unsigned char* ptr );              // Return a floating point number given a pointer into an image data buffer.
+    double getFloatingPixelValueFromData( const unsigned char* ptr );   // Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
+
+    unsigned int rotatedImageBuffWidth();                   // Return the image width following any rotation
+    unsigned int rotatedImageBuffHeight();                  // Return the image height following any rotation
+
+    void displayImage();                                    // Display a new image.
+    int getScanOption();                                    // Determine the way the input pixel data must be scanned to accommodate the required rotate and flip options.
+    QPoint rotateFLipPoint( QPoint& pos );                  // Transform the point according to current rotation and flip options.
+    const unsigned char* getImageDataPtr( QPoint& pos );    // Return a pointer to pixel data in the original image data.
+
+    void zoomToArea();                                      // Zoom to the area selected on the image
+    void setResizeOptionAndZoom( int zoomIn );              // Set the zoom percentage (and force zoom mode)
+
+    double maxPixelValue();                                 // Determine the maximum pixel value for the current format
+
+    // Data generated from pixel profiles
     QVector<QPointF> vSliceData;
     QVector<QPointF> hSliceData;
     QVector<QPointF> profileData;
 
-    int getPixelValueFromData( const unsigned char* ptr );
-    double getFloatingPixelValueFromData( const unsigned char* ptr );
-
-
-    unsigned int rotatedImageBuffWidth();
-    unsigned int rotatedImageBuffHeight();
-
-
-    void displayImage();
-    int getScanOption();
-    QPoint rotateFLipPoint( QPoint& pos );
-    const unsigned char* getImageDataPtr( QPoint& pos );
-
-
-    void zoomToArea();
-    void setResizeOptionAndZoom( int zoomIn );
-
-    double maxPixelValue();
-
+    // Icons
     QIcon* pauseButtonIcon;
     QIcon* playButtonIcon;
 
-
+    // Clipping info (determined from cliping variable data)
     bool clippingOn;
     unsigned int clippingLow;
     unsigned int clippingHigh;
-
 
     // Drag and Drop
 protected:
@@ -669,63 +707,130 @@ public:
 
     // Format options (8 bit grey scale, 32 bit color, etc)
     Q_ENUMS(FormatOptions)
+    /// Video format.
+    /// EPICS data type size will typically be adequate for the number of bits required (one byte for 8 bits, 2 bytes for 12 and 16 bits), but can be larger (4 bytes for 24 bits.)
     Q_PROPERTY(FormatOptions formatOption READ getFormatOptionProperty WRITE setFormatOptionProperty)
-    enum FormatOptions { Grey_8   = QEImage::GREY8,
-                         Grey_12  = QEImage::GREY12,
-                         Grey_16  = QEImage::GREY16,
-                         RGB      = QEImage::RGB_888 };
-    void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QEImage::formatOptions)formatOption ); }
-    FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }
 
+    /// \enum FormatOptions
+    /// User friendly enumerations for #formatOption property - refer to #formatOption property and #formatOptions enumeration for details.
+    enum FormatOptions { Grey_8   = QEImage::GREY8,     ///< 8 bit grey scale
+                         Grey_12  = QEImage::GREY12,    ///< 12 bit grey scale
+                         Grey_16  = QEImage::GREY16,    ///< 16 bit grey scale
+                         RGB      = QEImage::RGB_888 }; ///< 24 bit RGB
+
+    void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QEImage::formatOptions)formatOption ); }  ///< Access function for #formatOption property - refer to #formatOption property for details
+    FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }                                     ///< Access function for #formatOption property - refer to #formatOption property for details
+
+    /// If true, the option to select a vertical slice through the image will be available to the user.
+    /// This will be used to generate a vertical pixel profile.
     Q_PROPERTY(bool enableVertSliceSelection READ getEnableVertSliceSelection WRITE setEnableVertSliceSelection)
+
+    /// If true, the option to select a horizontal slice through the image will be available to the user.
+    /// This will be used to generate a horizontal pixel profile.
     Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSliceSelection WRITE setEnableHozSliceSelection)
+
+    /// If true, the option to select an arbitrary line through any part of the image will be available to the user.
+    /// This will be used to generate a pixel profile.
     Q_PROPERTY(bool enableProfileSelection READ getEnableProfileSelection WRITE setEnableProfileSelection)
 
+    /// If true, the user will be able to select areas. These are used for selection of Region of Interests,
+    /// and for zooming to a particular area
     Q_PROPERTY(bool enableAreaSelection READ getEnableAreaSelection WRITE setEnableAreaSelection)
+
+    /// If true, the user will be able to select points on the image to mark a target position and the
+    /// current beam position. This can be used for automatic beam positioning.
     Q_PROPERTY(bool enableTargetSelection READ getEnableTargetSelection WRITE setEnableTargetSelection)
 
+    /// If true, an area will be presented under the image with textual information about the pixel under
+    /// the cursor, and for other selections such as selected areas.
     Q_PROPERTY(bool displayCursorPixelInfo READ getDisplayCursorPixelInfo WRITE setDisplayCursorPixelInfo)
+
+    /// If true, the image will undergo contrast reversal.
+    ///
     Q_PROPERTY(bool contrastReversal READ getContrastReversal WRITE setContrastReversal)
 
+    /// If true, a button bar will be displayed above the image.
+    /// If not displayed, all buttons in the button bar are still available in the right click menu.
     Q_PROPERTY(bool displayButtonBar READ getDisplayButtonBar WRITE setDisplayButtonBar)
 
+    /// If true, the image timestamp will be written in the top left of the image.
+    ///
     Q_PROPERTY(bool showTime READ getShowTime WRITE setShowTime)
 
+    /// Used to select the color of the vertical slice markup.
+    ///
     Q_PROPERTY(QColor vertSliceColor READ getVertSliceMarkupColor WRITE setVertSliceMarkupColor)
+
+    /// Used to select the color of the horizontal slice markup.
+    ///
     Q_PROPERTY(QColor hozSliceColor READ getHozSliceMarkupColor WRITE setHozSliceMarkupColor)
+
+    /// Used to select the color of the arbitrarty profile line markup.
+    ///
     Q_PROPERTY(QColor profileColor READ getProfileMarkupColor WRITE setProfileMarkupColor)
+
+    /// Used to select the color of the area selection markups.
+    ///
     Q_PROPERTY(QColor areaColor READ getAreaMarkupColor WRITE setAreaMarkupColor)
+
+    /// Used to select the color of the beam marker.
+    ///
     Q_PROPERTY(QColor beamColor READ getBeamMarkupColor WRITE setBeamMarkupColor)
+
+    /// Used to select the color of the target marker.
+    ///
     Q_PROPERTY(QColor targetColor READ getTargetMarkupColor WRITE setTargetMarkupColor)
+
+    /// Used to select the color of the timestamp.
+    ///
     Q_PROPERTY(QColor timeColor READ getTimeMarkupColor WRITE setTimeMarkupColor)
 
 
     Q_ENUMS(ResizeOptions)
+    /// Resize option. Zoom to zoom to the percentage given by the #zoom property, or fit to the window size.
+    ///
     Q_PROPERTY(ResizeOptions resizeOption READ getResizeOptionProperty WRITE setResizeOptionProperty)
-    enum ResizeOptions { Zoom   = QEImage::RESIZE_OPTION_ZOOM,
-                         Fit    = QEImage::RESIZE_OPTION_FIT };
-    void setResizeOptionProperty( ResizeOptions resizeOption ){ setResizeOption( (QEImage::resizeOptions)resizeOption ); }
-    ResizeOptions getResizeOptionProperty(){ return (ResizeOptions)getResizeOption(); }
+    /// \enum ResizeOptions
+    /// User friendly enumerations for #resizeOption property
+    enum ResizeOptions { Zoom   = QEImage::RESIZE_OPTION_ZOOM,  ///< Zoom to selected percentage
+                         Fit    = QEImage::RESIZE_OPTION_FIT    ///< Zoom to fit the current window size
+                              };
+    void setResizeOptionProperty( ResizeOptions resizeOption ){ setResizeOption( (QEImage::resizeOptions)resizeOption ); }  ///< Access function for #resizeOption property - refer to #resizeOption property for details
+    ResizeOptions getResizeOptionProperty(){ return (ResizeOptions)getResizeOption(); }                                     ///< Access function for #resizeOption property - refer to #resizeOption property for details
 
+    /// Zoom percentage. Used when #resizeOption is #Zoom
     Q_PROPERTY(int zoom READ getZoom WRITE setZoom)
 
-
     Q_ENUMS(RotationOptions)
-    Q_PROPERTY(RotationOptions rotation READ getRotationProperty WRITE setRotationProperty)
-    enum RotationOptions { NoRotation    = QEImage::ROTATION_0,
-                           Rotate90Right = QEImage::ROTATION_90_RIGHT,
-                           Rotate90Left  = QEImage::ROTATION_90_LEFT,
-                           Rotate180     = QEImage::ROTATION_180 };
-    void setRotationProperty( RotationOptions rotation ){ setRotation( (QEImage::rotationOptions)rotation ); }
-    RotationOptions getRotationProperty(){ return (RotationOptions)getRotation(); }
 
+    /// Image rotation option.
+    ///
+    Q_PROPERTY(RotationOptions rotation READ getRotationProperty WRITE setRotationProperty)
+    /// \enum RotationOptions
+    /// User friendly enumerations for #rotation property
+    enum RotationOptions { NoRotation    = QEImage::ROTATION_0,         ///< No image rotation
+                           Rotate90Right = QEImage::ROTATION_90_RIGHT,  ///< Rotate image 90 degrees clockwise
+                           Rotate90Left  = QEImage::ROTATION_90_LEFT,   ///< Rotate image 90 degrees anticlockwise
+                           Rotate180     = QEImage::ROTATION_180        ///< Rotate image 180 degrees
+                          };
+    void setRotationProperty( RotationOptions rotation ){ setRotation( (QEImage::rotationOptions)rotation ); }          ///< Access function for #rotation property - refer to #rotation property for details
+    RotationOptions getRotationProperty(){ return (RotationOptions)getRotation(); }                                     ///< Access function for #rotation property - refer to #rotation property for details
+
+    /// If true, flip image vertically.
+    ///
     Q_PROPERTY(bool verticalFlip READ getVerticalFlip WRITE setVerticalFlip)
+
+    /// If true, flip image horizontally.
+    ///
     Q_PROPERTY(bool horizontalFlip READ getHorizontalFlip WRITE setHorizontalFlip)
 
+    /// Sets the initial position of the horizontal scroll bar, if pressent.
+    /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialHosScrollPos READ getInitialHozScrollPos WRITE setInitialHozScrollPos)
+
+    /// Sets the initial position of the vertical scroll bar, if pressent.
+    /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)
-
-
 };
 
 #endif // QEIMAGE_H
