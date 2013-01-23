@@ -1,5 +1,88 @@
-epicsqt 2.1 Release Notes
+epicsqt 2.2 Release Notes
 
+==================================================================================================
+Changes between 2.2 and 2.1
+
+SUMMARY:
+
+QEButton emits signals containing the write value (even when no variable) to allow selection of tabs in tab wigets
+QEImage now has markup legends, and some artifacts fixed.
+QEImage now writes to four areaDetector region of interest plugins.
+Additional Doxygen content.
+Additional guide content
+
+DETAIL:
+
+519
+Minor type, and backout Windows specific change to project file
+
+518:
+Minor update to design doco and gnerate PDF
+
+517:
+Update version to 2.1 in preparation of package. Update design doco with
+notes on QEForm and sub form resizing. Rebuild doxygen doco.
+
+516:
+Mainly doxygen comments in QEImage, but a few code tidy-ups. Make public
+a couple of functions in QELabel. Document QEImage in the QEGui and User
+Interface Design document.
+
+515:
+user private data class
+
+514:
+QEButtons - on click, press, or release, still write a to variable if
+defined, but also emit an integer signal of the same value (if variable
+is defined or not). This is useful for selecting a tab in a tab widget
+on the same form. (user interface design pdf not generated)
+QEImage. Extend to 4 region of interest selections.
+
+513:
+Don't antialias markup text. Artifacts were left when removing markup
+text on Linux. (Because antialias resulted in some pixels drawn blended
+with original image when drawn in and blended again when drawn out? Or
+perhaps not antialiased when when drawn out since composition mode is
+then set to 'clear' which implies no blending, so no antialiasing? )
+
+512:
+Add markup legends to QEImage. Still need to add properties to name and
+enable the legends. Currently always enabled with default names. There
+is still a bug where draging markup items (and the legends) leaves an
+artifact from the legend over the image.
+
+511:
+add qwt configuration to project file for Windows buyilds. Tidy framework project file. Alter getting started to reflect qwt changes. (pdf not updated yet)
+
+510:
+Add QEForm documentation to QEGui and user interface design.
+QEForm doxyden comments still to add.
+pdf still to generate
+
+509:
+UserMessage needs to be exported as it is ued by applications to recieve
+messages from QE widgets.
+
+508:
+Update reference manual PDF
+
+507
+Update QEGui and User interface designer pdf to match current source .docx
+
+506:
+Document QEPushButton and QERadioButton (doxygen and user guide)
+Add user level doco and general properties doco to user guide.
+Standardize properties in QEPushButton and QERadioButton. (A couple were
+common to both but only declared in one of the other)
+Update the notes on generating a package.
+Remove QEGenericButton::onGeneralMessage() this was left over from
+before the current message logging was introduced.
+Drag and Drop variables and methods were changed from protected to
+private in some widgets.
+User guide PDF still to be generated.
+
+505:
+Update doco prior to packaging
 ==================================================================================================
 Changes between 2.1 and 2.0
 
