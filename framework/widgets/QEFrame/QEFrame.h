@@ -31,7 +31,7 @@
 #include <QEPluginLibrary_global.h>
 
 
-// The QEFrame class provides a minimalist extention to the QFrame class
+// The QEFrame class provides a minimalist extension to the QFrame class
 // in that it provides user level enabled and user level visibility control to
 // the frame but more significantly to all the widgets enclosed within the
 // QEFrame container also.
