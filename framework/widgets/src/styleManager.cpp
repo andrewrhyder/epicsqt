@@ -116,10 +116,13 @@ void styleManager::updateStyleSheet()
             break;
     }
 
-    // Compile and apply the entire style string
-    QString newStyleSheet;
-    newStyleSheet.append( defaultStyleSheet ).append( statusStyleSheet ).append( dataStyleSheet ).append(levelStyle);
-    owner->setStyleSheet( newStyleSheet );
+    if (levelStyle.size() > 0)
+    {
+        // Compile and apply the entire style string
+        QString newStyleSheet;
+        newStyleSheet.append( defaultStyleSheet ).append( statusStyleSheet ).append( dataStyleSheet ).append(levelStyle);
+        owner->setStyleSheet( newStyleSheet );
+    }
 }
 
 // Set the current user level.
