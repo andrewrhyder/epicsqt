@@ -56,7 +56,9 @@ QEPushButton::QEPushButton( const QString &variableNameIn, QWidget *parent ) : Q
     Setup common to all constructors
 */
 void QEPushButton::setup() {
-    setText( "QEPushButton" );
+    //setText( "QEPushButton" );
+
+    //setTextSubstitution("QEPushButton");
 
     // For each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.
@@ -79,4 +81,26 @@ QVariant QEPushButton::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
 }
+
+
+
+
+void QEPushButton::setTextSubstitution(QString text)
+{
+
+    textSubstitution = text;
+
+    setText(substituteThis(textSubstitution));
+
+}
+
+
+
+QString QEPushButton::getTextSubstitution()
+{
+
+    return textSubstitution;
+
+}
+
 

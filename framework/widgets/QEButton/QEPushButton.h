@@ -51,6 +51,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPushButton : public QPushButton, public QEG
     /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
     QEPushButton( const QString& variableName, QWidget *parent = 0 );
 
+
+    void setTextSubstitution(QString text);
+
+    QString getTextSubstitution();
+
+
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo ) { QEGenericButton::connectionChanged( connectionInfo ); }
     void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) { setGenericButtonText( text, alarmInfo, timestamp, variableIndex); }
@@ -125,6 +131,8 @@ private:
     void emitPressed( int value ){ emit pressed( value ); }
     void emitReleased( int value ){ emit released( value ); }
     void emitClicked( int value ){ emit clicked( value ); }
+
+    QString textSubstitution;
 
     // Drag and Drop
 private:
@@ -419,6 +427,8 @@ public:
     // These properties should be identical for specif button wigets (QEPushButton and QERadioButton
     // WHEN MAKING CHANGES: search for BUTTONPROPERTIES and change all occurances.
 public:
+
+    Q_PROPERTY(QString textSubstitution READ getTextSubstitution WRITE setTextSubstitution)
 
     /// Set the buttons text alignment.
     /// Left justification is particularly useful when displaying quickly changing numeric data updates.
