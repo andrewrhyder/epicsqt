@@ -877,6 +877,16 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
     "args" -> "parent" -> "grandParent".
 */
 void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
+
+
+    // Since "connectionHandler" is a callback method (and, therefore, called in an asynchronous way), sometimes, it
+    // generates a SEGFAULT. Therefore, a workaround based on a 1 second delay was introduced in order to give time
+    // for "things" to complete before continuing executing this method (thus avoiding a SEGFAULT).
+    // NOTE 1: a more solid solution should be implemented but this requires a deep understanding of the QE core
+    // NOTE 2: without this workaround, a SEGFAULT appears ~4 out of 10 executions; with this workaround, there is no SEGFAULT
+    usleep(1000);
+
+
     epicsMutexLock( accessMutex );
     CaRef* ref = (CaRef*)(ca_puser( args.chid ));
     caconnection::CaConnection* parent = (caconnection::CaConnection*)(ref->getRef( args.chid ));
@@ -885,6 +895,9 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
         epicsMutexUnlock( accessMutex );
         return;
     }
+
+
+
 
     CaObject* grandParent = (CaObject*)parent->getParent();
     switch( args.op ) {
@@ -905,7 +918,7 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
             parent->setLinkState( caconnection::LINK_UNKNOWN );
             grandParent->signalCallback( CONNECTION_UNKNOWN );
         break;
-    }   
+    }
     epicsMutexUnlock( accessMutex );
 }
 
