@@ -135,13 +135,13 @@ QEStripChartItem::PrivateData::PrivateData ()
 //==============================================================================
 //
 QEStripChartItem::QEStripChartItem (QEStripChart *chart,
-                                      QLabel *pvName,
-                                      QELabel *caLabel,
-                                      unsigned int slot) : QObject (chart)
+                                    QLabel *pvName,
+                                    QELabel *caLabel,
+                                    unsigned int slot) : QObject (chart)
 {
    QColor defaultColour;
 
-   // construct private data for this chart.
+   // construct private data for this chart item.
    //
    this->privateData = new QEStripChartItem::PrivateData ();
 
