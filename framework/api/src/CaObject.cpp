@@ -30,6 +30,7 @@
 #include <epicsEvent.h>
 #include <epicsMutex.h>
 #include <alarm.h>
+#include <db_access.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -673,6 +674,97 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.setDouble( incommingData.value );
             break;
         }
+
+        // TIME formats - likes status but with the time, which is nice.
+        //
+        case DBR_TIME_STRING :
+        {
+            struct dbr_time_string *incommingData = (struct dbr_time_string*) (args.dbr);
+            caRecord.setName( ca_name( args.chid ) );
+            caRecord.setValid( true );
+            caRecord.updateProcessState();
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setString( incommingData->value );
+            caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
+            break;
+        }
+        case DBR_TIME_SHORT :
+        {
+            struct dbr_time_short *incommingData = (struct dbr_time_short *) (args.dbr);
+            caRecord.setName( ca_name( args.chid ) );
+            caRecord.setValid( true );
+            caRecord.updateProcessState();
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setShort( incommingData->value );
+            caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
+            break;
+        }
+        case DBR_TIME_FLOAT :
+        {
+            struct dbr_time_float *incommingData = (struct dbr_time_float *) (args.dbr);
+            caRecord.setName( ca_name( args.chid ) );
+            caRecord.setValid( true );
+            caRecord.updateProcessState();
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setFloat( incommingData->value );
+            caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
+            break;
+        }
+        case DBR_TIME_ENUM :
+        {
+            struct dbr_time_enum *incommingData = (struct dbr_time_enum *) (args.dbr);
+            caRecord.setName( ca_name( args.chid ) );
+            caRecord.setValid( true );
+            caRecord.updateProcessState();
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setUnsignedShort( incommingData->value );
+            caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
+            break;
+        }
+        case DBR_TIME_CHAR :
+        {
+            struct dbr_time_char *incommingData = (struct dbr_time_char *) (args.dbr);
+            caRecord.setName( ca_name( args.chid ) );
+            caRecord.setValid( true );
+            caRecord.updateProcessState();
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setUnsignedChar( incommingData->value );
+            caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
+            break;
+        }
+        case DBR_TIME_LONG :
+        {
+            struct dbr_time_long *incommingData = (struct dbr_time_long *) (args.dbr);
+            caRecord.setName( ca_name( args.chid ) );
+            caRecord.setValid( true );
+            caRecord.updateProcessState();
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            // caRecord.setLong( &incommingData->value,  args.count );
+            caRecord.setLong( incommingData->value );  // handle as scaler for now
+            caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
+            break;
+        }
+        case DBR_TIME_DOUBLE :
+        {
+            struct dbr_time_double * incommingData = (struct dbr_time_double *) (args.dbr);
+            caRecord.setName( ca_name( args.chid ) );
+            caRecord.setValid( true );
+            caRecord.updateProcessState();
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setDouble( &incommingData->value, args.count );
+            caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
+            break;
+        }
+
+        // CTRL (control) formats
+        //
         case DBR_CTRL_STRING : //< Same as dbr_sts_string
         {
             struct dbr_sts_string incommingData;
