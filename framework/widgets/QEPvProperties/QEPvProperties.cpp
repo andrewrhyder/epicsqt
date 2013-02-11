@@ -36,6 +36,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QELabel.h>
+#include <QEStringFormatting.h>
 
 #include <QEPvProperties.h>
 
@@ -364,6 +365,10 @@ QEPvProperties::PrivateWidgetHolder::~PrivateWidgetHolder ()
 // QEPvProperties class functions
 //==============================================================================
 //
+#define WIDGET_WIDTH           448
+#define WIDGET_DEFAULT_HEIGHT  290
+#define WIDGET_MIN_HEIGHT      246
+
 QEPvProperties::QEPvProperties (QWidget * parent) :
       QFrame (parent),
       QEWidget (this)
@@ -408,7 +413,7 @@ void QEPvProperties::setup ()
 //------------------------------------------------------------------------------
 //
 QSize QEPvProperties::sizeHint () const {
-   return QSize (400, 290);
+   return QSize (WIDGET_WIDTH, WIDGET_DEFAULT_HEIGHT);
 }
 
 //------------------------------------------------------------------------------
@@ -466,6 +471,10 @@ void QEPvProperties::common_setup ()
 
    own->value->setIndent (4);
    own->value->setStyleSheet (style);
+   // We have to be general here
+   own->value->setPrecision (9);
+   own->value->setUseDbPrecision (false);
+   own->value->setNotationProperty (QELabel::Automatic);
 
    own->hostName->setIndent (4);
    own->hostName->setStyleSheet (style);
@@ -487,14 +496,14 @@ void QEPvProperties::common_setup ()
 
    // Setup layout of widgets with the QEPvProperties QFrame
    //
-   pw = 400;
-   ph = 290;
+   this->setMinimumWidth (WIDGET_WIDTH);
+   this->setMaximumWidth (WIDGET_WIDTH);
+   this->setMinimumHeight(WIDGET_MIN_HEIGHT);
 
-   this->setMinimumWidth (pw);
-   this->setMinimumHeight(246);
-   this->setMaximumWidth (pw);
+   pw = WIDGET_WIDTH;
+   ph = WIDGET_DEFAULT_HEIGHT;
 
-   lw = 44;
+   lw = 48;
    fw = pw - lw - 18;
    wh = 18;
    x = 6;
@@ -507,7 +516,8 @@ void QEPvProperties::common_setup ()
    own->hostName->setGeometry  (lw + 12,  y, fw, wh); y += 22;
    own->label4->setGeometry    (x,        y, lw, wh);
    own->timeStamp->setGeometry (lw + 12,  y, fw, wh); y += 22;
-   fw = 132;
+
+   fw = (pw - (48 + 2*lw)) / 2;
    own->label5->setGeometry    (x, y, lw, wh); x += lw + 6;
    own->fieldType->setGeometry (x, y, fw, wh); x += fw + 24;
    own->label6->setGeometry    (x, y, lw, wh); x += lw + 6;
