@@ -55,7 +55,7 @@ class CaObjectPrivate {
         caconnection::channel_states getChannelState();                           // Return type actually caconnection::channel_states
 //        bool                         isChannelConnected(); // < NOT IMPLEMENTED
 
-        // CA callback handlers
+        // CA callback handlers - there is no CaObjectPrivate.cpp - these functions located in CaObject.cpp
         bool        processChannel( struct event_handler_args args );
         static void subscriptionHandler( struct event_handler_args args );
         static void readHandler( struct event_handler_args args );
