@@ -45,6 +45,7 @@
 //==============================================================================
 // This class provides a named (by record type: ai, bo, calc etc) list of
 // record field names.
+// No other info about the field (DBF_INLINK, DBF_DOUBLE, DBF_MENU etc.) provided.
 //
 class RecordSpec : public QStringList {
 private:
@@ -73,7 +74,7 @@ public:
 };
 
 //------------------------------------------------------------------------------
-// This class provides a list of RecordSpec spec, with additional find functions.
+// This class provides a list of RecordSpec specs, with additional find functions.
 //
 class RecordSpecList : public QList<RecordSpec *> {
 private:
@@ -271,6 +272,29 @@ static QString record_name (const QString pvName)
 }
 
 //------------------------------------------------------------------------------
+// Converts PV name to field name, e.g.:
+//
+// SR11BCM01:CURRENT_MONITOR.PREC => PREC
+// SR11BCM01:CURRENT_MONITOR.VAL  => VAL
+// SR11BCM01:CURRENT_MONITOR      => VAL (it's the default)
+//
+static QString field_name (const QString pvName)
+{
+   QString result = "VAL";
+   int dot_posn;
+   int fs;
+
+   dot_posn = pvName.indexOf (".", 0);
+   if (dot_posn >= 0) {
+      fs = pvName.length() - dot_posn - 1;
+      if (fs > 0) {
+         result = pvName.right (fs);
+      }
+   }
+   return result;
+}
+
+//------------------------------------------------------------------------------
 // Form pseudo field record type PV name
 //
 static QString rtype_pv_name (const QString pvName)
@@ -288,13 +312,18 @@ public:
    PrivateWidgetHolder (QWidget *parent = 0);
    ~PrivateWidgetHolder ();
 
-   QVBoxLayout *layout;
+   QLabel *label1;
+   QLabel *label2;
+   QLabel *label3;
+   QLabel *label4;
+   QLabel *label5;
+   QLabel *label6;
    QComboBox *box;
    QELabel *value;
    QLabel *hostName;
    QLabel *fieldType;
-   QLabel *requestType;
    QLabel *timeStamp;
+   QLabel *indexInfo;
    QTableWidget *table;
 };
 
@@ -302,10 +331,23 @@ public:
 //
 QEPvProperties::PrivateWidgetHolder::PrivateWidgetHolder (QWidget * parent)
 {
+   // Creates all the internal widgets, and apart from static labels, does no
+   // other configuration or setup per se.
+   //
+   this->label1 = new QLabel ("NAME", parent);
+   this->label2 = new QLabel ("VAL", parent);
+   this->label3 = new QLabel ("HOST", parent);
+   this->label4 = new QLabel ("TIME", parent);
+   this->label5 = new QLabel ("DBF", parent);
+   this->label6 = new QLabel ("INDEX", parent);
+
    this->box = new QComboBox (parent);
+   this->value = new QELabel (parent);
+   this->hostName = new QLabel (parent);
+   this->fieldType = new QLabel (parent);
    this->timeStamp = new QLabel (parent);
+   this->indexInfo = new QLabel (parent);
    this->table = new QTableWidget (40, 1, parent);
-   this->layout = new QVBoxLayout (parent);
 }
 
 
@@ -313,8 +355,8 @@ QEPvProperties::PrivateWidgetHolder::PrivateWidgetHolder (QWidget * parent)
 //
 QEPvProperties::PrivateWidgetHolder::~PrivateWidgetHolder ()
 {
-   // Do we need to explicitly delete QTableWidgetItems associated with the
-   // table? or does that happen as part of the table delete?
+   // TODO: Find ou if we need to explicitly delete QTableWidgetItems associated
+   // with the table? or does that happen as part of the table delete?
 }
 
 
@@ -339,6 +381,7 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
    this->recordBaseName = record_name (variableName);
    this->common_setup ();
    setVariableName (variableName, 0);
+   this->ownWidgets->value->setVariableName (variableName, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -365,18 +408,23 @@ void QEPvProperties::setup ()
 //------------------------------------------------------------------------------
 //
 QSize QEPvProperties::sizeHint () const {
-   return QSize (300, 208);
+   return QSize (400, 290);
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPvProperties::common_setup ()
 {
-   QComboBox *box;
-   QLabel *timeStamp;
-   QTableWidget *table;
+   PrivateWidgetHolder *own;
    QTableWidgetItem * item;
-   QVBoxLayout *layout;
+   QString style;
+   int pw;
+   int ph;
+   int y;
+   int wh;
+   int lw;
+   int fw;
+   int x;
 
    // This function only perform required actions on first call.
    //
@@ -389,49 +437,84 @@ void QEPvProperties::common_setup ()
    this->setFrameShape (Panel);
 
    // allocate and configure own widgets
+   // ...and setup an alias
    //
-   this->ownWidgets = new PrivateWidgetHolder (this);
+   own = this->ownWidgets = new PrivateWidgetHolder (this);
 
-   box = this->ownWidgets->box;  // alias
-   box->setEditable (true);
-   box->setMaxCount (36);
-   box->setMaxVisibleItems(20);
-   box->setEnabled (true);
+   // Configure widgets
+   //
+   own->box->setEditable (true);
+   own->box->setMaxCount (36);
+   own->box->setMaxVisibleItems(20);
+   own->box->setEnabled (true);
    // These two don't seem to enforce what one might sensibly expect.
-   box->setInsertPolicy (QComboBox::InsertAtTop);
-   box->setDuplicatesEnabled (false);
+   own->box->setInsertPolicy (QComboBox::InsertAtTop);
+   own->box->setDuplicatesEnabled (false);
 
    // We use the activated signal (as opposed to currentIndexChanged) as it
    // is only emmited on User change.
    //
-   QObject::connect (box,  SIGNAL (activated              (int)),
-                     this, SLOT   (boxCurrentIndexChanged (int)));
+   QObject::connect (own->box, SIGNAL (activated              (int)),
+                     this,     SLOT   (boxCurrentIndexChanged (int)));
 
    // We allow ourselves to select the index programatically.
    //
-   QObject::connect (this, SIGNAL (setCurrentBoxIndex (int)),
-                     box,  SLOT   (setCurrentIndex    (int)));
+   QObject::connect (this,     SIGNAL (setCurrentBoxIndex (int)),
+                     own->box, SLOT   (setCurrentIndex    (int)));
 
+   style = "QWidget { background-color: #F0F0F0; }";
 
-   timeStamp = this->ownWidgets->timeStamp;  //alias
-   timeStamp->setIndent (8);
-   timeStamp->setFrameShape (Panel);
+   own->value->setIndent (4);
+   own->value->setStyleSheet (style);
 
-   table = this->ownWidgets->table;  // alias
+   own->hostName->setIndent (4);
+   own->hostName->setStyleSheet (style);
+
+   own->timeStamp->setIndent (4);
+   own->timeStamp->setStyleSheet (style);
+
+   own->fieldType->setAlignment(Qt::AlignHCenter);
+   own->fieldType->setStyleSheet (style);
+
+   own->indexInfo->setAlignment(Qt::AlignRight);
+   own->indexInfo->setIndent (4);
+   own->indexInfo->setStyleSheet (style);
 
    item = new QTableWidgetItem (" Value ");
-   table->setHorizontalHeaderItem (0, item);
-   table->horizontalHeader ()->setStretchLastSection (true);
-   table->verticalHeader ()->setDefaultSectionSize (22);
+   own->table->setHorizontalHeaderItem (0, item);
+   own->table->horizontalHeader ()->setStretchLastSection (true);
+   own->table->verticalHeader ()->setDefaultSectionSize (22);
 
-   // Setup layout of widgets with the QEPvProperties Qframe
+   // Setup layout of widgets with the QEPvProperties QFrame
    //
-   layout = this->ownWidgets->layout;   // alias
-   layout->addWidget (box);
-   layout->addWidget (timeStamp);
-   layout->addWidget (table);
+   pw = 400;
+   ph = 290;
 
-   //
+   this->setMinimumWidth (pw);
+   this->setMinimumHeight(246);
+   this->setMaximumWidth (pw);
+
+   lw = 44;
+   fw = pw - lw - 18;
+   wh = 18;
+   x = 6;
+   y = 4;
+   own->label1->setGeometry    (x,    y + 6, lw, wh);
+   own->box->setGeometry       (lw + 12,  y, fw, 27); y += 30;
+   own->label2->setGeometry    (x,        y, lw, wh);
+   own->value->setGeometry     (lw + 12,  y, fw, wh); y += 22;
+   own->label3->setGeometry    (x,        y, lw, wh);
+   own->hostName->setGeometry  (lw + 12,  y, fw, wh); y += 22;
+   own->label4->setGeometry    (x,        y, lw, wh);
+   own->timeStamp->setGeometry (lw + 12,  y, fw, wh); y += 22;
+   fw = 132;
+   own->label5->setGeometry    (x, y, lw, wh); x += lw + 6;
+   own->fieldType->setGeometry (x, y, fw, wh); x += fw + 24;
+   own->label6->setGeometry    (x, y, lw, wh); x += lw + 6;
+   own->indexInfo->setGeometry (x, y, fw, wh); y += 22;
+   x = 6;
+   own->table->setGeometry     (x, y, pw - 12, ph - y - 6);
+
    this->fieldStringFormatting.setAddUnits (false);
    this->fieldStringFormatting.setUseDbPrecision (false);
    this->fieldStringFormatting.setPrecision (12);
@@ -472,6 +555,20 @@ void QEPvProperties::common_setup ()
 //------------------------------------------------------------------------------
 // NB. Need to do a deep clear to avoid memory loss.
 //
+void  QEPvProperties::resizeEvent ( QResizeEvent * )
+{
+   QTableWidget *table = this->ownWidgets->table;
+   QRect tg;
+
+   tg = table->geometry ();
+   tg.setHeight (this->height () - tg.top () -6);
+   table->setGeometry  (tg);
+}
+
+
+//------------------------------------------------------------------------------
+// NB. Need to do a deep clear to avoid memory loss.
+//
 void QEPvProperties::clearFieldChannels ()
 {
    QTableWidget *table = this->ownWidgets->table;
@@ -479,8 +576,6 @@ void QEPvProperties::clearFieldChannels ()
    QTableWidgetItem *item;
    QString gap ("           ");  // empirically found to be quivilent width of " DESC "
    int j;
-
-   this->valFieldIndex = -1;
 
    while (!this->fieldChannels.isEmpty ()) {
       qca = this->fieldChannels.takeFirst ();
@@ -504,6 +599,7 @@ void QEPvProperties::clearFieldChannels ()
 //
 qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
 {
+   qcaobject::QCaObject *qca;
    QComboBox *box = this->ownWidgets->box;
    QString pv_name;
    int slot;
@@ -516,6 +612,33 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
    pv_name = getSubstitutedVariableName (0);
    pv_name = pv_name.trimmed ();
    this->recordBaseName = record_name (pv_name);
+
+   // Clear associated data fields.
+   //
+   this->ownWidgets->label2->setText (field_name (pv_name));
+   this->ownWidgets->hostName->setText ("");
+   this->ownWidgets->timeStamp->setText ("");
+   this->ownWidgets->fieldType->setText ("");
+   this->ownWidgets->indexInfo->setText ("");
+   this->ownWidgets->value->setText("");
+
+   // Set PV name of internal QELabel.
+   //
+   this->ownWidgets->value->setVariableNameAndSubstitutions (pv_name, "", 0);
+
+   // We know that QELabels use slot zero for the connection.
+   //
+   qca = this->ownWidgets->value->getQcaItem (0);
+   if (qca) {
+      QObject::connect (qca, SIGNAL (connectionChanged  (QCaConnectionInfo&) ),
+                        this,  SLOT (setValueConnection (QCaConnectionInfo&) ) );
+
+      QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                        this,  SLOT (setValueValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+
+   } else {
+      qDebug () << __FUNCTION__ << " no qca object";
+   }
 
 
    //-----start--do--this---------------------------------
@@ -533,7 +656,7 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
       }
    }
 
-   // Maksure at leeat 2 free slots - one for this PV and one
+   // Maksure at least 2 free slots - one for this PV and one
    // for the user to type.
    //
    while (box->count() >= box->maxCount () - 2) {
@@ -597,9 +720,9 @@ void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo)
 // Called when notified of the (new) record type value.
 //
 void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
-                                          QCaAlarmInfo&,
-                                          QCaDateTime&,
-                                          const unsigned int&)
+                                         QCaAlarmInfo&,
+                                         QCaDateTime&,
+                                         const unsigned int&)
 {
    QTableWidget *table = this->ownWidgets->table;
 
@@ -630,7 +753,7 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
    }
 
    // It is possible that a record may change RTYP (e.g. calc to calcout while IOC is off line)
-   // Cannot rely soly on the clear called in createQcaItem / establish connection.
+   // Cannot rely soley on the clear called in createQcaItem / establish connection.
    //
    this->clearFieldChannels ();
 
@@ -639,10 +762,6 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
    table->setRowCount (numberOfFields);
    for (j = 0; j < numberOfFields; j++) {
       fieldName = pRecordSpec->getFieldName (j);
-
-      if (fieldName == "VAL") {
-         this->valFieldIndex = j;
-      }
 
       // Ensure vertical header exists and set it.
       //
@@ -686,8 +805,52 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
 
 //------------------------------------------------------------------------------
 //
+void QEPvProperties::setValueConnection (QCaConnectionInfo& connectionInfo)
+{
+   qcaobject::QCaObject *qca;
+   QString s;
+
+   // These are not QELabels - so gotta do manually.
+   //
+   this->ownWidgets->hostName->setEnabled  (connectionInfo.isChannelConnected ());
+   this->ownWidgets->timeStamp->setEnabled (connectionInfo.isChannelConnected ());
+   this->ownWidgets->fieldType->setEnabled (connectionInfo.isChannelConnected ());
+   this->ownWidgets->indexInfo->setEnabled (connectionInfo.isChannelConnected ());
+
+   if (connectionInfo.isChannelConnected ()) {
+      // We "know" that the only/main channel is the 1st (slot 0) channel.
+      //
+      qca = this->ownWidgets->value->getQcaItem (0);
+      this->ownWidgets->hostName->setText (qca->getHostName());
+      this->ownWidgets->fieldType->setText (qca->getFieldType());
+
+      // Assume we are looking at 1st/only element for now.
+      //
+      s.sprintf ("%d / %ld", 1,  qca->getElementCount());
+      this->ownWidgets->indexInfo->setText (s);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvProperties::setValueValue (const QString &,
+                                    QCaAlarmInfo& alarmInfo,
+                                    QCaDateTime& dateTime,
+                                    const unsigned int&)
+{
+    this->ownWidgets->timeStamp->setText (dateTime.text ());
+
+    if (this->lastSeverity != alarmInfo.getSeverity ()) {
+       this->lastSeverity = alarmInfo.getSeverity ();
+       this->updateToolTipAlarm (alarmInfo.severityName ());
+       // setStyleSheet (alarmInfo.style ());
+    }
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPvProperties::setFieldConnection (QCaConnectionInfo& connectionInfo,
-                                          const unsigned int &variableIndex)
+                                         const unsigned int &variableIndex)
 {
    QTableWidget *table = this->ownWidgets->table;
    int numberOfRows;
@@ -714,9 +877,9 @@ void QEPvProperties::setFieldConnection (QCaConnectionInfo& connectionInfo,
 //------------------------------------------------------------------------------
 //
 void QEPvProperties::setFieldValue (const QString &value,
-                                     QCaAlarmInfo & alarmInfo,
-                                     QCaDateTime & dateTime,
-                                     const unsigned int & variableIndex)
+                                    QCaAlarmInfo &,
+                                    QCaDateTime &,
+                                    const unsigned int & variableIndex)
 {
    QTableWidget *table = this->ownWidgets->table;
    int numberOfRows;
@@ -728,17 +891,6 @@ void QEPvProperties::setFieldValue (const QString &value,
 
       item->setText  (" " + value);
 
-      if ((int) variableIndex == this->valFieldIndex) {
-         QLabel *timeStamp = this->ownWidgets->timeStamp;
-
-         timeStamp->setText (dateTime.text ());
-
-         if (this->lastSeverity != alarmInfo.getSeverity ()) {
-            this->lastSeverity = alarmInfo.getSeverity ();
-            updateToolTipAlarm (alarmInfo.severityName ());
-            // setStyleSheet (alarmInfo.style ());
-         }
-      }
    } else {
       qDebug () << __FUNCTION__ << __LINE__ << "variableIndex" << variableIndex
                 << "out of range - must be <" << numberOfRows;
@@ -747,7 +899,7 @@ void QEPvProperties::setFieldValue (const QString &value,
 
 
 //------------------------------------------------------------------------------
-// Unlike most widgets, the frame is not disabled if/when PVs disconnet
+// Unlike most widgets, the frame is not disabled if/when PVs disconnect
 // Normally, standardProperties::setApplicationEnabled() is called
 // For this widget our own version which just calls the widget's setEnabled is called.
 //
@@ -776,8 +928,7 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
          this->establishConnection (0);
       } else {
           qDebug () << __FUNCTION__ << __LINE__ << "BnB" <<  index << oldPvName << newPvName;
-
-       }
+      }
    }
 }
 

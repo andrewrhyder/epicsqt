@@ -172,9 +172,9 @@ private:
    QCAALARMINFO_SEVERITY lastSeverity;
    QEStringFormatting stringFormatting;
    bool isFirstUpdate;
-   int valFieldIndex;
 
-   // If these items declared at class level, there is a run time exception.
+   // If these items are declared at class level, there is a run time exception,
+   // so we place then in separate and private class.
    //
    class PrivateWidgetHolder;
    PrivateWidgetHolder *ownWidgets;
@@ -196,10 +196,15 @@ private slots:
        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
    }
 
-   // Basic PV relates slots (used for RTYP pseudo field).
+   // Basic widgit PV related slots (used for RTYP pseudo field).
    //
    void setRecordTypeConnection (QCaConnectionInfo& connectionInfo);
    void setRecordTypeValue (const QString & rtypeValue, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+
+   // The value item slots.
+   //
+   void setValueConnection (QCaConnectionInfo& connectionInfo);
+   void setValueValue (const QString & rtypeValue, QCaAlarmInfo&, QCaDateTime&, const unsigned int&);
 
    // Field related slots
    //
@@ -219,6 +224,8 @@ signals:
    void setCurrentBoxIndex (int index);
 
 protected:
+   void resizeEvent ( QResizeEvent * event );
+
    // Override QCaObject/QEWidget functions.
    //
    void setup();
