@@ -51,12 +51,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPushButton : public QPushButton, public QEG
     /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
     QEPushButton( const QString& variableName, QWidget *parent = 0 );
 
-
-    void setTextSubstitution(QString text);
-
-    QString getTextSubstitution();
-
-
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo ) { QEGenericButton::connectionChanged( connectionInfo ); }
     void setButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime& timestamp, const unsigned int& variableIndex ) { setGenericButtonText( text, alarmInfo, timestamp, variableIndex); }
@@ -132,8 +126,6 @@ private:
     void emitReleased( int value ){ emit released( value ); }
     void emitClicked( int value ){ emit clicked( value ); }
 
-    QString textSubstitution;
-
     // Drag and Drop
 private:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
@@ -190,6 +182,10 @@ private slots:
   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
   {
       setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+
+      // Update the labelText property with itself.
+      // This will apply any macro substitutions changes since the labelText property was last changed
+      setLabelTextProperty( getLabelTextProperty() );
   }
 
 public:
@@ -428,8 +424,6 @@ public:
     // WHEN MAKING CHANGES: search for BUTTONPROPERTIES and change all occurances.
 public:
 
-    Q_PROPERTY(QString textSubstitution READ getTextSubstitution WRITE setTextSubstitution)
-
     /// Set the buttons text alignment.
     /// Left justification is particularly useful when displaying quickly changing numeric data updates.
     Q_PROPERTY(Qt::Alignment alignment READ getTextAlignment WRITE setTextAlignment )
@@ -523,6 +517,7 @@ public:
     /// Button label text (prior to substitution).
     /// Macro substitutions will be applied to this text and the result will be set as the button text.
     /// Used when data updates are not being represented in the button text.
+    /// IF NOT LEFT EMPTY, THIS TEXT WILL TAKE PRIORITY OVER THE PUSH BUTTON 'text' PROPERTY!
     /// For example, a button in a sub form may have a 'labelText' property of 'Turn Pump $(PUMPNUM) On'.
     /// When the sub form is used twice in a main form with substitutions PUMPNUM=1 and PUMPNUM=2 respectively,
     /// the two identical buttons in the sub forms will have the labels 'Turn Pump 1 On' and 'Turn Pump 2 On' respectively.

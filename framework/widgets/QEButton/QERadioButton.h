@@ -55,6 +55,10 @@ private slots:
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
     {
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+
+        // Update the labelText property with itself.
+        // This will apply any macro substitutions changes since the labelText property was last changed
+        setLabelTextProperty( getLabelTextProperty() );
     }
 
 
@@ -484,6 +488,7 @@ public:
     /// Button label text (prior to substitution).
     /// Macro substitutions will be applied to this text and the result will be set as the button text.
     /// Used when data updates are not being represented in the button text.
+    /// IF NOT LEFT EMPTY, THIS TEXT WILL TAKE PRIORITY OVER THE PUSH BUTTON 'text' PROPERTY!
     /// For example, a button in a sub form may have a 'labelText' property of 'Turn Pump $(PUMPNUM) On'.
     /// When the sub form is used twice in a main form with substitutions PUMPNUM=1 and PUMPNUM=2 respectively,
     /// the two identical buttons in the sub forms will have the labels 'Turn Pump 1 On' and 'Turn Pump 2 On' respectively.

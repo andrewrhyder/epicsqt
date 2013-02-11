@@ -884,8 +884,11 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
     // for "things" to complete before continuing executing this method (thus avoiding a SEGFAULT).
     // NOTE 1: a more solid solution should be implemented but this requires a deep understanding of the QE core
     // NOTE 2: without this workaround, a SEGFAULT appears ~4 out of 10 executions; with this workaround, there is no SEGFAULT
-    usleep(1000);
-
+    //     usleep(1000);
+    // A. R. Above workaround removed from repository as it is only for one specific GUI on one IOC, and this work around won't build on Windows.
+    // Note, the use of getRef() below, which checks for three error conditions where a callback occurs after a connection has been closed.
+    // With a bit of luck, this problem relates to a fourth error condition which can be added to getRef()(or perhaps will shed light on why CA callbacks
+    // can occur after a channel is closed at all).
 
     epicsMutexLock( accessMutex );
     CaRef* ref = (CaRef*)(ca_puser( args.chid ));

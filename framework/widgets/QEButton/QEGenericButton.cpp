@@ -641,11 +641,10 @@ void QEGenericButton::setLabelTextProperty( QString labelTextIn )
     labelText = labelTextIn;
 
     // Update the button's text.
-    // But don't do it if the label was already displaying something and the
-    // text-to-be-substituted is just being re-set to blank). This behaviour will
+    // But don't do it if the labelText property is just changing from blank to blank. This behaviour will
     // mean the normal label 'text' property can be used if text substitution is
     // not required. Without this the user would always have to use the labelText property.
-    if( !getButtonText().isEmpty() && !(wasBlank && labelText.isEmpty() ))
+    if( !(wasBlank && labelText.isEmpty() ))
     {
         setButtonText( substituteThis( labelText ));
     }
