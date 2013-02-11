@@ -292,6 +292,26 @@ void Generic::setLong( long* newValueArray, unsigned long arrayCountIn ) {
     type = LONG;
 }
 
+/*
+    Creates and records new type long (an array larger than 1) based on dbr_long_t
+*/
+void Generic::setLong( dbr_long_t* newValueArray, unsigned long arrayCountIn )
+{
+   deleteValue();
+   value = new long[arrayCountIn];
+   if( newValueArray )
+   {
+       // can't just memcpy - ling is a differnent size to dbr_long_t (as used by CA)
+       unsigned long j;
+       long *longArray = (long *)value;
+       for (j = 0; j < arrayCountIn; j++) {
+          longArray [j] = (long) newValueArray [j];
+       }
+   }
+   arrayCount = arrayCountIn;
+   type = LONG;
+}
+
 void Generic::updateLong( long newValue, unsigned long arrayIndex ) {
     if( arrayIndex >= arrayCount )
         return;

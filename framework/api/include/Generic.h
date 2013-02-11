@@ -26,7 +26,7 @@
 #define GENERIC_H_
 
 #include <string>
-
+#include <db_access.h>
 
 namespace generic {
 
@@ -67,6 +67,11 @@ namespace generic {
       void updateUnsignedChar( unsigned char newValue, unsigned long arrayIndex );
       void setLong( long newValue );
       void setLong( long* newValueArray, unsigned long countIn );
+      // Most of the array set set functions can just memcpy the data.
+      // processChannel (out of CaObject "long" type is infact a 32 bit type, so
+      // we need to copy (and cast) element by element.
+      //
+      void setLong( dbr_long_t* newValueArray, unsigned long countIn );
       void updateLong( long newValue, unsigned long arrayIndex );
       void setUnsignedLong( unsigned long newValue );
       void setUnsignedLong( unsigned long* newValueArray, unsigned long countIn );
