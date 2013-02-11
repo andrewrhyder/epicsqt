@@ -588,90 +588,81 @@ unsigned long CaObject::getElementCount()
 */
 bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
 
+    // NOTE: The caRecord type dos not handle arrays of String (yet).
+    //       So we use the single value instance of setString.
+    //
     switch( args.type ) {
+        // STS (status) formats - pprivides values and alarm severity/status.
+        // Not currentl;y used - but remains included for completeness
+        //
         case DBR_STS_STRING :
         {
-            struct dbr_sts_string incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
-            caRecord.setName( ca_name( args.chid ) );
+            struct dbr_sts_string *incommingData = (struct dbr_sts_string *) (args.dbr);
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setString( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setString( incommingData->value );
             break;
         }
         case DBR_STS_SHORT :
         {
-            struct dbr_sts_short incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
-            caRecord.setName( ca_name( args.chid ) );
+            struct dbr_sts_short *incommingData = (struct dbr_sts_short *) (args.dbr);
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setShort( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setShort( &incommingData->value, args.count );
             break;
         }
         case DBR_STS_FLOAT :
         {
-            struct dbr_sts_float incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
-            caRecord.setName( ca_name( args.chid ) );
+            struct dbr_sts_float *incommingData = (struct dbr_sts_float *) (args.dbr);
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setFloat( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setFloat( &incommingData->value, args.count );
             break;
         }
         case DBR_STS_ENUM :
         {
-            struct dbr_sts_enum incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
-            caRecord.setName( ca_name( args.chid ) );
+            struct dbr_sts_enum *incommingData = (struct dbr_sts_enum *) (args.dbr);
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setUnsignedShort( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setUnsignedShort( &incommingData->value, args.count );
             break;
         }
         case DBR_STS_CHAR :
         {
-            struct dbr_sts_char incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
-            caRecord.setName( ca_name( args.chid ) );
+            struct dbr_sts_char *incommingData = (struct dbr_sts_char *) (args.dbr);
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setRiscAlignment( incommingData.RISC_pad );
-            caRecord.setUnsignedChar( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setUnsignedChar( &incommingData->value, args.count );
             break;
         }
         case DBR_STS_LONG :
         {
-            struct dbr_sts_long incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
-            caRecord.setName( ca_name( args.chid ) );
+            struct dbr_sts_long *incommingData = (struct dbr_sts_long *) (args.dbr);
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setUnsignedLong( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setLong( &incommingData->value, args.count );
             break;
         }
         case DBR_STS_DOUBLE :
         {
-            struct dbr_sts_double incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
-            caRecord.setName( ca_name( args.chid ) );
+            struct dbr_sts_double *incommingData = (struct dbr_sts_double *) (args.dbr);
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setDouble( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setDouble( &incommingData->value, args.count);
             break;
         }
 
@@ -680,7 +671,6 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         case DBR_TIME_STRING :
         {
             struct dbr_time_string *incommingData = (struct dbr_time_string*) (args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
@@ -692,68 +682,61 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         case DBR_TIME_SHORT :
         {
             struct dbr_time_short *incommingData = (struct dbr_time_short *) (args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
-            caRecord.setShort( incommingData->value );
+            caRecord.setShort( &incommingData->value, args.count );
             caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
             break;
         }
         case DBR_TIME_FLOAT :
         {
             struct dbr_time_float *incommingData = (struct dbr_time_float *) (args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
-            caRecord.setFloat( incommingData->value );
+            caRecord.setFloat( &incommingData->value, args.count );
             caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
             break;
         }
         case DBR_TIME_ENUM :
         {
             struct dbr_time_enum *incommingData = (struct dbr_time_enum *) (args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
-            caRecord.setUnsignedShort( incommingData->value );
+            caRecord.setUnsignedShort( &incommingData->value, args.count );
             caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
             break;
         }
         case DBR_TIME_CHAR :
         {
             struct dbr_time_char *incommingData = (struct dbr_time_char *) (args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
-            caRecord.setUnsignedChar( incommingData->value );
+            caRecord.setUnsignedChar( &incommingData->value, args.count );
             caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
             break;
         }
         case DBR_TIME_LONG :
         {
             struct dbr_time_long *incommingData = (struct dbr_time_long *) (args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
-            // caRecord.setLong( &incommingData->value,  args.count );
-            caRecord.setLong( incommingData->value );  // handle as scaler for now
+            caRecord.setLong( &incommingData->value, args.count );
             caRecord.setTimeStamp( incommingData->stamp.secPastEpoch, incommingData->stamp.nsec );
             break;
         }
         case DBR_TIME_DOUBLE :
         {
             struct dbr_time_double * incommingData = (struct dbr_time_double *) (args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
@@ -767,20 +750,19 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         //
         case DBR_CTRL_STRING : //< Same as dbr_sts_string
         {
-            struct dbr_sts_string incommingData;
-            memcpy( &incommingData, args.dbr, dbr_size_n(args.type, args.count) );
-            caRecord.setName( ca_name( args.chid ) );
+            struct dbr_sts_string *incommingData = (struct dbr_sts_string *) (args.dbr);
+//          caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
-            caRecord.setStatus( incommingData.status );
-            caRecord.setAlarmSeverity( incommingData.severity );
-            caRecord.setString( incommingData.value );
+            caRecord.setStatus( incommingData->status );
+            caRecord.setAlarmSeverity( incommingData->severity );
+            caRecord.setString( incommingData->value );
             break;
         }
         case DBR_CTRL_SHORT :
         {
             struct dbr_ctrl_int* incommingData = (dbr_ctrl_int*)(args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
+//          caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
@@ -796,14 +778,13 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         case DBR_CTRL_FLOAT :
         {
             struct dbr_ctrl_float* incommingData = (dbr_ctrl_float*)(args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
+//          caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
             caRecord.setPrecision( incommingData->precision );
             caRecord.setUnits( std::string( incommingData->units ) );
-            caRecord.setRiscAlignment( incommingData->RISC_pad );
             caRecord.setDisplayLimit( incommingData->upper_disp_limit, incommingData->lower_disp_limit );
             caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
             caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
@@ -815,7 +796,7 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         {
             struct dbr_ctrl_enum* incommingData = (dbr_ctrl_enum*)(args.dbr);
             caRecord.setName( ca_name( args.chid ) );
-            caRecord.setValid( true );
+//          caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
@@ -832,12 +813,11 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         case DBR_CTRL_CHAR :
         {
             struct dbr_ctrl_char* incommingData = (dbr_ctrl_char*)(args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
+//          caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
-            caRecord.setRiscAlignment( incommingData->RISC_pad );
             caRecord.setDisplayLimit( incommingData->upper_disp_limit, incommingData->lower_disp_limit );
             caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
             caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
@@ -848,7 +828,7 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
         case DBR_CTRL_LONG :
         {
             struct dbr_ctrl_long* incommingData = (dbr_ctrl_long*)(args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
+//          caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
@@ -858,21 +838,19 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
             caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
             caRecord.setControlLimit( incommingData->upper_ctrl_limit, incommingData->lower_ctrl_limit );
-            long value = incommingData->value;
-            caRecord.setLong( &value, args.count );
+            caRecord.setLong( &incommingData->value, args.count );
             break;
         }
         case DBR_CTRL_DOUBLE :
         {
             struct dbr_ctrl_double* incommingData = (dbr_ctrl_double*)(args.dbr);
-            caRecord.setName( ca_name( args.chid ) );
+//          caRecord.setName( ca_name( args.chid ) );
             caRecord.setValid( true );
             caRecord.updateProcessState();
             caRecord.setStatus( incommingData->status );
             caRecord.setAlarmSeverity( incommingData->severity );
             caRecord.setPrecision( incommingData->precision );
             caRecord.setUnits( std::string( incommingData->units ) );
-            caRecord.setRiscAlignment( incommingData->RISC_pad0 );
             caRecord.setDisplayLimit( incommingData->upper_disp_limit, incommingData->lower_disp_limit );
             caRecord.setAlarmLimit( incommingData->upper_alarm_limit, incommingData->lower_alarm_limit );
             caRecord.setWarningLimit( incommingData->upper_warning_limit, incommingData->lower_warning_limit );
