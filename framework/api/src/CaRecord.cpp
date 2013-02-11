@@ -151,12 +151,6 @@ void CaRecord::setTimeStamp(  unsigned long timeStampSecondsIn, unsigned long ti
     timeStampNanoseconds = timeStampNanosecondsIn;
 }
 
-/*
-    Set the RISC alignment for the record.
-*/
-void CaRecord::setRiscAlignment( double newRiscAlignment ) {
-    riscAlignment = newRiscAlignment;
-}
 
 /*
     Set the enumeration string states for the record.
@@ -261,8 +255,6 @@ void CaRecord::reset() {
 
     timeStampSeconds = 0;
     timeStampNanoseconds = 0;
-
-    riscAlignment = 0;
 
     display.upper = 0;
     display.lower = 0;

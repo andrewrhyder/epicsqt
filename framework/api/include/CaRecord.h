@@ -67,7 +67,6 @@ namespace carecord {
       void setUnits( std::string newUnits );
 
       void setTimeStamp( unsigned long timeStampSecondsIn, unsigned long timeStampNanosecondsIn );
-      void setRiscAlignment( double newRiscAlignment );
       void addEnumState( std::string newEnumStates );
 
       void setDisplayLimit( double newUpper, double newLower );
@@ -89,7 +88,6 @@ namespace carecord {
 
       unsigned long getTimeStampSeconds() { return timeStampSeconds; }
       unsigned long getTimeStampNanoseconds() { return timeStampNanoseconds; }
-      double getRiscAlignment() { return riscAlignment; }
       std::string getEnumState( int position ) { return enumStates[position]; }
       int getEnumStateCount() { return enumStates.size(); }
 
@@ -111,7 +109,6 @@ namespace carecord {
       std::string units;
       unsigned long timeStampSeconds;
       unsigned long timeStampNanoseconds;
-      double riscAlignment;
       std::vector<std::string> enumStates;
       ca_limit display;
       ca_limit alarm;
