@@ -541,6 +541,40 @@ caconnection::channel_states CaObjectPrivate::getChannelState() {
     return caConnection->getChannelState();
 }
 
+/*
+  Get the the host name of the current connection.
+ */
+std::string CaObject::getHostName()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    return p->caConnection->getHostName();
+}
+
+/*
+  Get the the field type of the current connection.
+*/
+std::string  CaObject::getFieldType ()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    return p->caConnection->getFieldType();
+}
+
+/*
+   Get number of elemenst served for the current connection.
+*/
+unsigned long CaObject::getElementCount()
+{
+    // Get the parts not shared with the non CA world
+    CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    return p->caConnection->getElementCount();
+}
+
+
 //===============================================================================
 // CA callback handlers
 //===============================================================================

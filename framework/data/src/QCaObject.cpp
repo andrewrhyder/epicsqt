@@ -1068,6 +1068,30 @@ QString QCaObject::getEgu() {
 }
 
 /*
+ Return the PV hostname
+*/
+QString QCaObject::getHostName()
+{
+    return  QString (caobject::CaObject::getHostName ().c_str());
+}
+
+/*
+ Return the PV native field type
+*/
+QString QCaObject::getFieldType()
+{
+    return  QString (caobject::CaObject::getFieldType ().c_str());
+}
+
+/*
+ Return the PV native element count
+*/
+unsigned long QCaObject::getElementCount()
+{
+    return caobject::CaObject::getElementCount ();
+}
+
+/*
  Return the enumerations strings, if any
 */
 QStringList QCaObject::getEnumerations() {

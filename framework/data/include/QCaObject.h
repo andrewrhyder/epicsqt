@@ -92,6 +92,9 @@ namespace qcaobject {
       double getControlLimitUpper();
       double getControlLimitLower();
       generic::generic_types getDataType();
+      QString getHostName();
+      QString getFieldType();
+      unsigned long getElementCount();  // num elements available on server as oppsoed to num elements actually subscribed for.
 
     signals:
       void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );

@@ -75,6 +75,10 @@ namespace caobject {
             unsigned long getTimeStampNanoseconds();
             short         getAlarmStatus();
             short         getAlarmSeverity();
+            // connection related attributes
+            std::string   getHostName();
+            std::string   getFieldType();
+            unsigned long getElementCount();
 
         public:
             virtual void  signalCallback( callback_reasons ) = 0;

@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2009, 2010, 2013
  *
  *  Author:
  *    Glenn Jackson
@@ -89,8 +89,11 @@ namespace caconnection {
       link_states getLinkState();
 
       channel_states getChannelState();
-      short getChannelType();
+      short getChannelType();    // field type as int
       chid getChannelId();
+      std::string   getHostName();
+      std::string   getFieldType();      // field type as string
+      unsigned long getElementCount();   // number on server, as opposed to number subscribed for.
 
       void* getParent() { return parent; }
 
@@ -101,6 +104,7 @@ namespace caconnection {
 
       void setWriteWithCallback( bool writeWithCallbackIn );
       bool getWriteWithCallback();
+
 
     private:
       CaRef* myRef;

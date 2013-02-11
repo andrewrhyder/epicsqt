@@ -22,6 +22,7 @@
  *    anthony.owen@gmail.com
  */
 
+#include <db_access.h>
 #include <CaConnection.h>
 #include <QDebug>
 
@@ -180,7 +181,76 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
     // Call the 'real' subscription callback
     me->subscriptionSubscriptionHandler( args );
 
-    // Establish a real subscription now the initial read is complete
+    // Establish a real subscription now that the initial read is complete.
+    // Convert initial read type (that requested all the meta data into a
+    // "time" update type that provides value(s), status and time.
+    //
+    short subType;
+    switch (me->subscriptionDbrStructType) {
+
+        case DBR_STRING:
+        case DBR_STS_STRING:
+        case DBR_TIME_STRING:
+        case DBR_GR_STRING:
+        case DBR_CTRL_STRING:
+            subType = DBR_TIME_STRING;
+            break;
+
+        case DBR_SHORT:
+        case DBR_STS_SHORT:
+        case DBR_TIME_SHORT:
+        case DBR_GR_SHORT:
+        case DBR_CTRL_SHORT:
+            subType = DBR_TIME_SHORT;
+            break;
+
+        case DBR_FLOAT:
+        case DBR_STS_FLOAT:
+        case DBR_TIME_FLOAT:
+        case DBR_GR_FLOAT:
+        case DBR_CTRL_FLOAT:
+            subType = DBR_TIME_FLOAT;
+            break;
+
+        case DBR_ENUM:
+        case DBR_STS_ENUM:
+        case DBR_TIME_ENUM:
+        case DBR_GR_ENUM:
+        case DBR_CTRL_ENUM:
+            subType = DBR_TIME_ENUM;
+            break;
+
+        case DBR_CHAR:
+        case DBR_STS_CHAR:
+        case DBR_TIME_CHAR:
+        case DBR_GR_CHAR:
+        case DBR_CTRL_CHAR:
+            subType = DBR_TIME_CHAR;
+            break;
+
+        case DBR_LONG:
+        case DBR_STS_LONG:
+        case DBR_TIME_LONG:
+        case DBR_GR_LONG:
+        case DBR_CTRL_LONG:
+            subType = DBR_TIME_LONG;
+            break;
+
+        case  DBR_DOUBLE:
+        case  DBR_STS_DOUBLE:
+        case  DBR_TIME_DOUBLE:
+        case  DBR_GR_DOUBLE:
+        case  DBR_CTRL_DOUBLE:
+            subType = DBR_TIME_DOUBLE;
+            break;
+
+        default:
+           // Some what unexpect - so leave it alone.
+            subType = me->subscriptionDbrStructType;
+            break;
+    }
+    me->subscriptionDbrStructType = subType;
+
     me->subscription.creation = ca_create_subscription( me->subscriptionDbrStructType,
                                                         me->channel.elementCount,
                                                         me->channel.id,
@@ -354,6 +424,44 @@ chid CaConnection::getChannelId()
 {
     return channel.id;
 }
+
+/*
+  Get the the host name from the current data record
+ */
+std::string CaConnection::getHostName ()
+{
+    chid ChannelId = getChannelId ();
+
+    if (!ChannelId) return "";    // belts and braces check
+    return ca_host_name (ChannelId);
+}
+
+/*
+  Get the the field type from the current data record
+ */
+std::string CaConnection::getFieldType ()
+{
+    chid ChannelId = getChannelId ();
+    int ft;
+
+    if (!ChannelId) return "";    // belts and braces check
+
+    ft = ca_field_type (ChannelId);
+    if (INVALID_DB_FIELD (ft)) ft = DBF_NO_ACCESS;
+    return dbf_text [ft + 1];  // YES - that's + 1
+}
+
+/*
+  Get the number of elements available from CA server.
+ */
+unsigned long CaConnection::getElementCount()
+{
+    chid ChannelId = getChannelId ();
+
+    if (!ChannelId) return 0;    // belts and braces check
+    return ca_element_count (ChannelId);
+}
+
 
 /*
     Initialise with unique ID and state information
