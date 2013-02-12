@@ -295,7 +295,7 @@ void Generic::setLong( long* newValueArray, unsigned long arrayCountIn ) {
 /*
     Creates and records new type long (an array larger than 1) based on dbr_long_t
 */
-void Generic::setLong( dbr_long_t* newValueArray, unsigned long arrayCountIn )
+void Generic::setLong( qeInt32* newValueArray, unsigned long arrayCountIn )
 {
    deleteValue();
    value = new long[arrayCountIn];
