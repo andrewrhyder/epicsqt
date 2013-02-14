@@ -132,8 +132,8 @@ void startupParams::getStartupParams( QStringList args )
                 // 'paths' flag
                 // Take next non switch parameter as path list
                 case 'p':
-                    // Get the path list (next parameter as long as it isn't a switch)
-                    if( args.count() >= 1 && args[1].left(1) != QString( "-" ) )
+                    // Get the path list (next parameter, if present, and as long as it isn't a switch)
+                    if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
                     {
                         QString pathParam = args[0];
                         pathList = pathParam.split(QRegExp("\\s+"));
@@ -144,8 +144,8 @@ void startupParams::getStartupParams( QStringList args )
                 // 'macros' flag
                 // Take next non switch parameter as macro substitutions
                 case 'm':
-                    // Get the macros (next parameter as long as it isn't a switch)
-                    if( args.count() >= 1 && args[1].left(1) != QString( "-" ) )
+                    // Get the macros (next parameter, if present, and as long as it isn't a switch)
+                    if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
                     {
                         substitutions = args[0];
                         args.removeFirst();
