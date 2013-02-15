@@ -133,16 +133,19 @@ void CaConnection::setChannelElementCount()
     This is a work around to solve the problem that the 'first' subscription callback with static info
     such as units and precision does not always come first
 */
-ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType ) {
+ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(struct event_handler_args),
+                                                  void* args, short initialDbrStructTypeIn,
+                                                  short updateDbrStructTypeIn) {
 
     // Save the callers callback information
     // This will be used when a subscription is really established
     subscriptionSubscriptionHandler = subscriptionHandler;
     subscriptionArgs = args;
-    subscriptionDbrStructType = dbrStructType;
+    initialDbrStructType = initialDbrStructTypeIn;
+    updateDbrStructType = updateDbrStructTypeIn;
 
     if( channel.activated == true && subscription.activated == false ) {
-        subscription.creation = ca_array_get_callback( dbrStructType, channel.elementCount, channel.id, subscriptionInitialHandler, myRef );
+        subscription.creation = ca_array_get_callback( initialDbrStructType, channel.elementCount, channel.id, subscriptionInitialHandler, myRef );
         ca_flush_io();
         subscription.activated = true;
         switch( subscription.creation ) {
@@ -182,76 +185,10 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
     me->subscriptionSubscriptionHandler( args );
 
     // Establish a real subscription now that the initial read is complete.
-    // Convert initial read type (that requested all the meta data into a
-    // "time" update type that provides value(s), status and time.
+    // The initial request type requested value(s) together with all the meta data.
+    // Now switch to the "time" update type that provides value(s), status and time.
     //
-    short subType;
-    switch (me->subscriptionDbrStructType) {
-
-        case DBR_STRING:
-        case DBR_STS_STRING:
-        case DBR_TIME_STRING:
-        case DBR_GR_STRING:
-        case DBR_CTRL_STRING:
-            subType = DBR_TIME_STRING;
-            break;
-
-        case DBR_SHORT:
-        case DBR_STS_SHORT:
-        case DBR_TIME_SHORT:
-        case DBR_GR_SHORT:
-        case DBR_CTRL_SHORT:
-            subType = DBR_TIME_SHORT;
-            break;
-
-        case DBR_FLOAT:
-        case DBR_STS_FLOAT:
-        case DBR_TIME_FLOAT:
-        case DBR_GR_FLOAT:
-        case DBR_CTRL_FLOAT:
-            subType = DBR_TIME_FLOAT;
-            break;
-
-        case DBR_ENUM:
-        case DBR_STS_ENUM:
-        case DBR_TIME_ENUM:
-        case DBR_GR_ENUM:
-        case DBR_CTRL_ENUM:
-            subType = DBR_TIME_ENUM;
-            break;
-
-        case DBR_CHAR:
-        case DBR_STS_CHAR:
-        case DBR_TIME_CHAR:
-        case DBR_GR_CHAR:
-        case DBR_CTRL_CHAR:
-            subType = DBR_TIME_CHAR;
-            break;
-
-        case DBR_LONG:
-        case DBR_STS_LONG:
-        case DBR_TIME_LONG:
-        case DBR_GR_LONG:
-        case DBR_CTRL_LONG:
-            subType = DBR_TIME_LONG;
-            break;
-
-        case  DBR_DOUBLE:
-        case  DBR_STS_DOUBLE:
-        case  DBR_TIME_DOUBLE:
-        case  DBR_GR_DOUBLE:
-        case  DBR_CTRL_DOUBLE:
-            subType = DBR_TIME_DOUBLE;
-            break;
-
-        default:
-           // Some what unexpect - so leave it alone.
-            subType = me->subscriptionDbrStructType;
-            break;
-    }
-    me->subscriptionDbrStructType = subType;
-
-    me->subscription.creation = ca_create_subscription( me->subscriptionDbrStructType,
+    me->subscription.creation = ca_create_subscription( me->updateDbrStructType,
                                                         me->channel.elementCount,
                                                         me->channel.id,
                                                         DBE_VALUE|DBE_ALARM,

@@ -79,13 +79,6 @@ void CaRecord::setDbrType( short newDbrType ) {
 }
 
 /*
-    Set database record structure type.
-*/
-void CaRecord::setDbrTranslation( dbr_translation_type newType ) {
-    dbrStruct = newType;
-}
-
-/*
     Set record to be in a valid or invalid state.
 */
 void CaRecord::setValid( bool newValid ) {
@@ -127,6 +120,9 @@ void CaRecord::setAlarmSeverity( short newSeverity ) {
     Set the precision for the record.
     The test is for protection against EPICS library. The library returns the
     precision the first time around then 0 for every other callback. (note, it's not always in the first callback)
+    Note:
+    This is actally a gateway issue - and now some-what moot as we are now doing DBR_TIME_XXXX subscriptions,
+    and the responses do not contain precison (units etc.) meta data.
 */
 void CaRecord::setPrecision( short newPrecision ) {
     if( newPrecision != 0 )
@@ -206,23 +202,23 @@ bool CaRecord::isFirstUpdate() {
     Gets the database structure type based on the information mode of the
     CaRecord.
 */
-short CaRecord::getDbrType() {
-    switch( dbrStruct ) {
+short CaRecord::getDbrType( const dbr_translation_type type ) {
+    switch( type ) {
         case BASIC :
             return dbrType;
-        break;
+            break;
         case STATUS :
             return getDbrTranslation( statusTranslationMatrix, dbrType );
-        break;
+            break;
         case TIME :
             return getDbrTranslation( timeTranslationMatrix, dbrType );
-        break;
+            break;
         case GRAPHIC :
             return getDbrTranslation( graphicTranslationMatrix, dbrType );
-        break;
+            break;
         case CONTROL :
             return getDbrTranslation( controlTranslationMatrix, dbrType );
-        break;
+            break;
     }
     return -1;
 }
@@ -245,7 +241,6 @@ short CaRecord::getDbrTranslation( const short translationMatrix[TYPE_COUNT][2],
 void CaRecord::reset() {
     name = "";
     dbrType = -1;
-    dbrStruct = CONTROL;
     valid = false;
     processState = NO_UPDATE;
     status = 0;
@@ -265,3 +260,5 @@ void CaRecord::reset() {
     control.upper = 0;
     control.lower = 0;
 }
+
+// end

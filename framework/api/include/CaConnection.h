@@ -77,7 +77,11 @@ namespace caconnection {
 
       ca_responses establishContext( void (*exceptionHandler)(struct exception_handler_args), void* args );
       ca_responses establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName );
-      ca_responses establishSubscription( void (*subscriptionHandler)(struct event_handler_args), void* args, short dbrStructType );
+
+      // initialDbrStructType is for the initial read - provides values and all all meta data, e.g. DBR_CTRL_LONG
+      // updateDbrStructType is for on going updates -provides value(s), status and timestamp, e.g. DBR_TIME_LONG
+      ca_responses establishSubscription( void (*subscriptionHandler)(struct event_handler_args), void* args,
+                                          short initialDbrStructType, short updateDbrStructType );
 
       void removeChannel();
       void removeSubscription(); //< NOT IMPLEMENTED
@@ -123,7 +127,8 @@ namespace caconnection {
 
       void (*subscriptionSubscriptionHandler)(struct event_handler_args);       // Subscription callback handler
       void* subscriptionArgs;                                                   // Data to be passed to subscription callback
-      short subscriptionDbrStructType;                                          // Data type to be used for subscription
+      short initialDbrStructType;                                               // Data type to be used for read
+      short updateDbrStructType;                                                // Data type to be used for update subscription
       static void subscriptionInitialHandler( struct event_handler_args args ); // Internal callback handler for initial subscription callback (actually a ca_get callback)
 
   };

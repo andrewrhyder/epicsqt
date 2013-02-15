@@ -57,7 +57,6 @@ namespace carecord {
 
       void setName( std::string nameIn );
       void setDbrType( short dbrType );
-      void setDbrTranslation( dbr_translation_type newType );
       void setValid( bool newValid );
       void updateProcessState();
 
@@ -75,7 +74,7 @@ namespace carecord {
       void setControlLimit( double newUpper, double newLower );
 
       std::string getName() { return name; }
-      short getDbrType();
+      short getDbrType( const dbr_translation_type type );
       short getDbrTranslation( const short translationMatrix[TYPE_COUNT][2], short type );
       bool isValid() { return valid; }
       process_state getProcessState() { return processState; }
@@ -98,8 +97,7 @@ namespace carecord {
 
     private:
       std::string name;
-      short dbrType;
-      dbr_translation_type dbrStruct;
+      short dbrType;     // essentially the field type
       bool valid;
       process_state processState;
 

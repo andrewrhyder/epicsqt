@@ -139,10 +139,18 @@ caconnection::ca_responses CaObjectPrivate::setChannel( std::string channelName 
     setup.
 */
 caconnection::ca_responses CaObjectPrivate::startSubscription() {
-    if( caRecord.getDbrType() == -1 ) {
-        return caconnection::REQUEST_FAILED;
+    short initialDbrType = caRecord.getDbrType( carecord::CONTROL );
+    short updateDbrType  = caRecord.getDbrType( carecord::TIME );
+    caconnection::ca_responses status;
+
+    if( ( initialDbrType == -1 ) || ( updateDbrType == -1 ) ) {
+        status = caconnection::REQUEST_FAILED;
+    } else {
+        status = caConnection->establishSubscription( subscriptionHandler, owner->myRef,
+                                                      initialDbrType, updateDbrType );
+
     }
-    return caConnection->establishSubscription( subscriptionHandler, owner->myRef, caRecord.getDbrType() );
+    return status;
 }
 
 /*
@@ -171,10 +179,15 @@ void CaObjectPrivate::cancelSubscription() {
     Request one shot read callback for the channel.
 */
 caconnection::ca_responses CaObjectPrivate::readChannel() {
-    if( caRecord.getDbrType() == -1 ) {
-        return caconnection::REQUEST_FAILED;
+    short readDbrType = caRecord.getDbrType( carecord::CONTROL );
+    caconnection::ca_responses status;
+
+    if(readDbrType  == -1 ) {
+        status = caconnection::REQUEST_FAILED;
+    } else {
+        status = caConnection->readChannel( readHandler, owner->myRef, readDbrType );
     }
-    return caConnection->readChannel( readHandler, owner->myRef, caRecord.getDbrType() );
+    return status;
 }
 
 /*
