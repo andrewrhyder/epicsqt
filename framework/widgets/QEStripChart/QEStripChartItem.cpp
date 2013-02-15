@@ -1,4 +1,4 @@
-/*  $Id: QEStripChartItem.cpp $
+/*  QEStripChartItem.cpp
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.

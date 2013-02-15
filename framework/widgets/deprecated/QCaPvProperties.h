@@ -1,4 +1,4 @@
-/* $Id: QCaPvProperties.h $
+/*  QCaPvProperties.h
  *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
