@@ -135,6 +135,10 @@ void QEBitStatus::establishConnection (unsigned int variableIndex)
    if ((qca) && (variableIndex == 0)) {
       QObject::connect (qca,  SIGNAL (integerChanged  (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)),
                         this, SLOT (setBitStatusValue (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)));
+
+      QObject::connect (qca,  SIGNAL (integerArrayChanged  (const QVector<long>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)),
+                        this, SLOT (setBitStatusValues     (const QVector<long>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)));
+
       QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&)),
                         this, SLOT (connectionChanged   (QCaConnectionInfo&)));
    }
@@ -194,6 +198,19 @@ void QEBitStatus::setBitStatusValue (const long &value,
    // Signal a database value change to any Link widgets
    //
    emit dbValueChanged (value);
+}
+
+
+
+/* ----------------------------------------------------------------------------
+    If/when array PV extracxt first value.
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEBitStatus::setBitStatusValues (const QVector<long>& values, QCaAlarmInfo &alarmInfo,
+                                      QCaDateTime &dateTime, const unsigned int & variableIndex)
+{
+   int slot = 0;
+   this->setBitStatusValue (values.value (slot), alarmInfo, dateTime, variableIndex);
 }
 
 

@@ -26,6 +26,7 @@
 #define QEBITSTATUS_H
 
 #include <QString>
+#include <QVector>
 #include <QBitStatus.h>
 #include <QEWidget.h>
 #include <QEInteger.h>
@@ -188,6 +189,9 @@ private slots:
 
    void setBitStatusValue (const long &value, QCaAlarmInfo &,
                            QCaDateTime &, const unsigned int &);
+    // Just in case hooked up to an array PV.
+   void setBitStatusValues (const QVector<long>&values, QCaAlarmInfo &,
+                            QCaDateTime &, const unsigned int &);
 
    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) // !! move into Standard Properties section??
    {

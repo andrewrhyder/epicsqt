@@ -130,14 +130,20 @@ void QEAnalogProgressBar::establishConnection( unsigned int variableIndex )
     //
     qcaobject::QCaObject* qca = createConnection( variableIndex );
 
-    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
+    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots.
+    //
     if ((  qca ) && (variableIndex == 0)) {
-        QObject::connect( qca,  SIGNAL( floatingChanged( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+        QObject::connect( qca,  SIGNAL( floatingChanged(   const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setProgressBarValue( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+
+        QObject::connect( qca,  SIGNAL( floatingArrayChanged( const QVector<double>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                          this, SLOT( setProgressBarValues(   const QVector<double>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
-                          this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                          this, SLOT( connectionChanged(   QCaConnectionInfo& ) ) );
+
         QObject::connect( this, SIGNAL( requestResend() ),
-                          qca,  SLOT( resendLastData() ) );
+                          qca,  SLOT( resendLastData () ) );
     }
 }
 
@@ -355,6 +361,18 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
     isFirstUpdate = false;
 }
 
+
+/* ----------------------------------------------------------------------------
+    Extract first element (0 index) and use this value.
+ */
+void QEAnalogProgressBar::setProgressBarValues (const QVector<double>& values,
+                                                QCaAlarmInfo& alarmInfo,
+                                                QCaDateTime& dateTime,
+                                                const unsigned int& variableIndex)
+{
+   int slot = 0;
+   this->setProgressBarValue (values.value (slot), alarmInfo, dateTime, variableIndex);
+}
 
 /* ----------------------------------------------------------------------------
     Update variable name etc.

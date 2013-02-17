@@ -27,6 +27,7 @@
 #define QEANALOGPROGRESSBAR_H
 
 #include <QString>
+#include <QVector>
 #include <QEAnalogIndicator.h>
 #include <QEWidget.h>
 #include <QEFloating.h>
@@ -345,6 +346,9 @@ private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
 
     void setProgressBarValue( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    // Just in case hooked up to an array PV.
+    void setProgressBarValues( const QVector<double>& values, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );  // !! move into Standard Properties section??
 
 signals:
