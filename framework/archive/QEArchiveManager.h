@@ -40,69 +40,36 @@
 #include <QEArchiveInterface.h>
 #include <UserMessage.h>
 
-/* This is a singleton class - the single instance is declared in the .cpp file.
- *  It's only exposed in a header because the Qt framework demand that signals/slots
- *  are in headers.
- */
-class QEArchiveManager : public QObject {
-   Q_OBJECT
-public:
-    QEArchiveManager();
-
-private:
-    // Object has delayed initialisation.
-    // This ensure object initialised once only.
-    //
-    bool isInitialised;
-
-   /* This function connects the specified the archive(s). The format of the string is
-    *  space separated set of one or more hostname:port/endpoint triplets, e.g.
-    *
-    *  "CR01ARC01:80/cgi-bin/ArchiveDataServer.cgi CR01ARC02:80/cgi-bin/ArchiveDataServer.cgi"
-    *
-    *  A leading http:// is neither required nor permitted.
-    *
-    *  Once connected, it creates a map pf PV names to host/archive key/availalbe times
-    *
-    *  The pattern parameter can be used to restrict the set of extracted PVs. The same
-    *  pattern applies of all archives. The pattern is a regular expression.
-    */
-   void initialise (QString archives, QString patternIn = ".*");
-
-   /* As above, but uses the environment variables QE_ARCHIVE_LIST and QE_ARCHIVE_PATTERN.
-    *  If QE_ARCHIVE_PATTERN is undefined then ".*" is used.
-    */
-   void initialise ();
-   void clear ();
-
-   friend class QEArchiveAccess;
-
-private slots:
-   void archivesResponse (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);
-   void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QEArchiveInterface::PVNameList& pvNameList);
-   void valuesResponse   (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ResponseValueList& valuesList);
-};
-
-
-/*
- * This class provides user access to the archives.
- * Currently only handles scaler values but can/will be extended to to
- * provide array data retrival.
- */
+// This class provides user access to the archives and indirect management
+// of the underlying QEArchiveManager.
+//
+// Currently only handles scaler values but can/will be extended to
+// provide array data retrival.
+//
+// NOTE: It is the creation of the first object of this class will cause the
+// QEArchiveManager to initialised if not already done so. The QEArchiveManager
+// may also be explicitly initialised prior to that by invoking one of the
+// initialise functions.
+//
 class QEArchiveAccess : public QObject, UserMessage {
    Q_OBJECT
 public:
    explicit QEArchiveAccess (QObject * parent = 0);
    virtual ~QEArchiveAccess ();
 
+   static void initialise (QString archives, QString pattern);
+   static void initialise ();
+   static bool isReady ();
    static int getNumberInterfaces ();
    static QString getPattern ();
    static int getNumberPVs ();
 
-   /* Simple archive request - single scaler PV, or one arbitary element from
-    *  a single array PV.  No extended meta data, just values + timestamp + alarm info.
-    *  The data, if any, is sent via the setArchiveData signal.
-    */
+   void reportBufferedMessages ();
+
+   // Simple archive request - single scaler PV, or one arbitary element from
+   // a single array PV.  No extended meta data, just values + timestamp + alarm info.
+   // The data, if any, is sent via the setArchiveData signal.
+   //
    bool readArchive (QObject * userData,        // provides call back signal context
                      const QString pvName,
                      const QCaDateTime startTime,
@@ -115,6 +82,51 @@ signals:
    void setArchiveData (const QObject *, const bool, const QCaDataPointList &);
 
    friend class QEArchiveManager;
+};
+
+
+// This is a singleton class - the single instance is declared in the .cpp file.
+// It's only exposed in a header because the Qt SDK framework requires that signals
+// and slots are declared in header files. Clients should use the QEArchiveAccess
+// specified above.
+//
+class QEArchiveManager : public QObject {
+   Q_OBJECT
+public:
+   QEArchiveManager();
+
+private:
+   // Object has delayed initialisation, i.e. it does not dself initialise when the
+   // constructor is invoked. This bool ensures object initialised once only.
+   //
+   bool isInitialised;
+
+   // This function connects the specified the archive(s). The format of the string is
+   // space separated set of one or more hostname:port/endpoint triplets, e.g.
+   //
+   // "CR01ARC01:80/cgi-bin/ArchiveDataServer.cgi CR01ARC02:80/cgi-bin/ArchiveDataServer.cgi"
+   //
+   // A leading http:// is neither required nor permitted.
+   //
+   // Once connected, it creates a map pf PV names to host/archive key/available times.
+   //
+   // The pattern parameter can be used to restrict the set of extracted PVs. The same
+   // pattern applies of all archives. The pattern is a regular expression.
+   //
+   void initialise (QString archives, QString patternIn);
+
+   // As above, but uses the environment variables QE_ARCHIVE_LIST and QE_ARCHIVE_PATTERN.
+   // If QE_ARCHIVE_PATTERN is undefined then ".*" is used.
+   //
+   void initialise ();
+   void clear ();
+
+   friend class QEArchiveAccess;
+
+private slots:
+   void archivesResponse (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);
+   void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QEArchiveInterface::PVNameList& pvNameList);
+   void valuesResponse   (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ResponseValueList& valuesList);
 };
 
 #endif  // QEARCHIVEMANAGER_H

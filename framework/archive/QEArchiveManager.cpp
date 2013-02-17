@@ -106,12 +106,16 @@ public:
 //==============================================================================
 // We declare these items here as opposed as static members of the class because
 // the later made all the EPICS plugin widgets "go away" in designer.
+// I think the are issues when QObjects declared in header files.
 //
 static QMutex *archiveDataMutex = new QMutex ();
 
 static QList <QEArchiveInterface *>archiveInterfaceList;
 static QString pattern;
 static QHash <QString, SourceSpec> pvNameHash;
+static bool allArchivesRead = false;
+static int numberArchivesRead = 0;
+static bool environmentErrorReported = false;
 
 static QEArchiveManager singleton;
 static QMutex *initialiseMutex = new QMutex ();
@@ -145,6 +149,26 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
    QEArchiveInterface *interface;
    int j;
 
+   // First check we are the one and only ....
+   //
+   if (this != &singleton) {
+      // This is NOT the singleton object
+      throw "QEArchiveManager::initialise - attempt to use non singleton object";
+      return;
+   }
+
+   // Have we already been initialised?
+   // Use mutex to ensure thread safe.
+   {
+      QMutexLocker locker (initialiseMutex);
+      if (this->isInitialised) {
+         return;
+      }
+      this->isInitialised = true;
+   }
+
+   // All okay to go, let get started.
+   //
    pattern = patternIn;
 
    // Split input string using space as delimiter.
@@ -189,27 +213,27 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
 //
 void QEArchiveManager::initialise ()
 {
+   // First check we are the one and only ....
+   //
    if (this != &singleton) {
       // This is NOT the singleton object
       throw "QEArchiveManager::initialise - attempt to use non singleton object";
       return;
    }
 
-   {
-      QMutexLocker locker (initialiseMutex);
-
-      if (this->isInitialised) {
-         return;
-      }
-      this->isInitialised = true;
+   // Have we already been initialised?
+   //
+   if (this->isInitialised) {
+      return;
    }
+
 
    QString archives = getenv ("QE_ARCHIVE_LIST");
    QString pattern = getenv ("QE_ARCHIVE_PATTERN");
 
    if (archives != "") {
       if (pattern == "") {
-         // Pattern environment variable undefined use "get all" by default.
+         // Pattern environment variable undefined, use "get all" by default.
          //
          pattern = ".*";
       }
@@ -217,8 +241,12 @@ void QEArchiveManager::initialise ()
 
    } else {
       // Cannot use user message paradigm during static initialisation.
+      // Has this error already been reported??
       //
-      bufferMessage ("QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs");
+      if (!environmentErrorReported) {
+         environmentErrorReported = true;
+         bufferMessage ("QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs");
+      }
    }
 }
 
@@ -228,6 +256,8 @@ void QEArchiveManager::clear ()
 {
    int j;
 
+   allArchivesRead = false;
+   numberArchivesRead = 0;
    pvNameHash.clear ();
 
    // Do a deep clear of the archive interface list.
@@ -252,7 +282,8 @@ public:
    NamesResponseContext (QEArchiveInterface * interfaceIn,
                          QEArchiveInterface::Archive archiveIn,
                          int i,
-                         int n) {
+                         int n)
+   {
       this->interface = interfaceIn;
       this->archive = archiveIn;
       this->instance = i;
@@ -368,6 +399,9 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
       message.append (context->interface->getName ());
       message.append (" complete");
       bufferMessage (message);
+
+      numberArchivesRead++;
+      allArchivesRead = (numberArchivesRead = archiveInterfaceList.count ());
    }
 
    delete context;
@@ -413,7 +447,7 @@ void QEArchiveManager::valuesResponse (const QObject * userData,
 
 //==============================================================================
 //
-QEArchiveAccess::QEArchiveAccess (QObject * parent):QObject (parent)
+QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
 {
    // This function is essentially idempotent.
    //
@@ -424,6 +458,16 @@ QEArchiveAccess::QEArchiveAccess (QObject * parent):QObject (parent)
 //
 QEArchiveAccess::~QEArchiveAccess ()
 {
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::reportBufferedMessages ()
+{
+   // This is a user call, hopefully not part of static initialisation.
+   // Send any buffered messages.
+   //
+   sendBufferedMessages (this);
 }
 
 //------------------------------------------------------------------------------
@@ -538,6 +582,32 @@ bool QEArchiveAccess::readArchive (QObject * userData,
    }
 
    return result;
+}
+
+//------------------------------------------------------------------------------
+// static functions
+//
+void QEArchiveAccess::initialise (QString archives, QString pattern)
+{
+   // This function is essentially idempotent.
+   //
+   singleton.initialise (archives, pattern);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::initialise ()
+{
+   // This function is essentially idempotent.
+   //
+   singleton.initialise ();
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEArchiveAccess::isReady ()
+{
+   return allArchivesRead;
 }
 
 //------------------------------------------------------------------------------
