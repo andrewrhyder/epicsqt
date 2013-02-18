@@ -102,6 +102,7 @@ public:
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
     virtual QCursor defaultCursor()=0;
+    virtual void nonInteractiveUpdate( QRect ) {} // Only implemented by those objects that are updated by data such as region of interest
 
     QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
     bool          visible;      // Object is visible to the user
@@ -266,6 +267,9 @@ public:
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
+    void nonInteractiveUpdate( QRect );
+
+
 private:
     QCursor cursorForHandle( markupHandles handle );
     QRect rect;
@@ -325,6 +329,7 @@ public:
 
     bool showMarkupMenu( const QPoint& pos, const QPoint& globalPos );// Show the markup menu if required
 
+    void markupRegionValueChange( int areaIndex, QRect area ); // Region of interest data has changed. Change region areas to match
 
     // The following are only public so they may be accessed by (internal) markup items.
     QImage* markupImage;                                        // Image used to draw markups in. Relevent areas will be copied over updating image
@@ -349,6 +354,7 @@ protected:
     bool markupMouseMoveEvent( QMouseEvent* event, bool panning );     // User has moved the mouse
 
     void markupResize( QSize newSize );                         // The viewport size has changed
+
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
     virtual void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 )=0;     // There is an application task to do in response to user interaction with the markups

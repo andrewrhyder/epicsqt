@@ -205,6 +205,7 @@ double VideoWidget::getScale()
     return (double)width() / (double)currentImage.width();
 }
 
+// The mouse has been pressed over the image
 void VideoWidget::mousePressEvent( QMouseEvent* event)
 {
     // Only act on left mouse button press
@@ -222,6 +223,7 @@ void VideoWidget::mousePressEvent( QMouseEvent* event)
     }
 }
 
+// The mouse has been released over the image
 void VideoWidget::mouseReleaseEvent ( QMouseEvent* event )
 {
     // Pass the event to the markup system. It will use it if appropriate.
@@ -235,6 +237,7 @@ void VideoWidget::mouseReleaseEvent ( QMouseEvent* event )
     }
 }
 
+// The wheel has been moved over the image
 void VideoWidget::wheelEvent( QWheelEvent* event )
 {
     int zoomAmount = event->delta() / 12;

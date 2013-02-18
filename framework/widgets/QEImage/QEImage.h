@@ -42,6 +42,39 @@
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
 
+// Class to keep track of region of interest information
+// As ROI data arrives, this class us used to record it.
+class ROIinfo
+{
+    public:
+        // Construction
+        ROIinfo() { haveX = false; haveY = false; haveW = false; haveH = false; }
+
+        // Set elements
+        void setX( long x ) { rect.moveLeft( x );  haveX = true; }
+        void setY( long y ) { rect.moveTop( y );   haveY = true; }
+        void setW( long w ) { rect.setWidth( w );  haveW = true; }
+        void setH( long h ) { rect.setHeight( h ); haveH = true; }
+
+        // Clear elements (invalid data)
+        void clearX() { haveX = false; }
+        void clearY() { haveY = false; }
+        void clearW() { haveW = false; }
+        void clearH() { haveH = false; }
+
+        // Get ROI info
+        bool getStatus() { return haveX && haveY && haveW && haveH; }
+        QRect getArea() { return rect; }
+
+    private:
+        QRect rect;
+        bool haveX;
+        bool haveY;
+        bool haveW;
+        bool haveH;
+};
+
+
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget {
     Q_OBJECT
@@ -355,6 +388,8 @@ public slots:
     unsigned long imageBuffWidth;   // Original image width
     unsigned long imageBuffHeight;  // Original image height
 
+    // Region of interest information
+    ROIinfo roiInfo[4];
 
     // User selected information
     int vSliceX;

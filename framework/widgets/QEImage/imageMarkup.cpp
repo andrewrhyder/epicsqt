@@ -1025,6 +1025,12 @@ void markupRegion::scaleSpecific( double xScale, double yScale )
     rect.setHeight( rect.height() * yScale );
 }
 
+void markupRegion::nonInteractiveUpdate( QRect rectIn )
+{
+    rect = rectIn;
+    setArea();
+}
+
 //===========================================================================
 // Text markup
 
@@ -1353,6 +1359,34 @@ bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
     return true;
 }
 
+// A region of interest value has changed.
+// Update any region markup if required
+void imageMarkup::markupRegionValueChange( int areaIndex, QRect area )
+{
+    int region;
+    switch( areaIndex )
+    {
+        case 0:
+        default: region = MARKUP_ID_REGION1; break;
+        case 1:  region = MARKUP_ID_REGION2; break;
+        case 2:  region = MARKUP_ID_REGION3; break;
+        case 3:  region = MARKUP_ID_REGION4; break;
+    }
+
+    bool isVisible =  items[region]->visible;
+    if( isVisible )
+    {
+        items[region]->drawMarkupOut();
+    }
+
+    items[region]->nonInteractiveUpdate( area );
+
+    if( isVisible )
+    {
+        items[region]->drawMarkupIn();
+    }
+}
+
 // Return the mode according to the active item.
 // Note, this is not the mode as set by setMode(). The mode as set by setMode()
 // is what happens when a user initiates action in a part of the display not
@@ -1381,6 +1415,7 @@ imageMarkup::markupIds imageMarkup::getActionMode()
     }
 }
 
+// Return the default markup cursor (to be displayed when not over any particular markup)
 QCursor imageMarkup::getDefaultMarkupCursor()
 {
     if( mode < MARKUP_ID_COUNT )
@@ -1393,6 +1428,7 @@ QCursor imageMarkup::getDefaultMarkupCursor()
     }
 }
 
+// The mouse has been released over the image
 bool imageMarkup::markupMouseReleaseEvent ( QMouseEvent*, bool panning  )
 {
     // If panning, and we havn't noted a button down for the purposes of image markup, then don't take over this release event
@@ -1515,6 +1551,8 @@ void imageMarkup::markupResize( QSize newSize )
     markupChange( *markupImage, getMarkupAreas() );
 }
 
+// Return areas of the image where markups are currently drawn
+// Used when redrawing current markups on a new image.
 QVector<QRect>& imageMarkup::getMarkupAreas()
 {
     if( markupAreasStale )
@@ -1533,6 +1571,8 @@ QVector<QRect>& imageMarkup::getMarkupAreas()
     return markupAreas;
 }
 
+// Return true if there are any markups visible.
+// Used for more efficiency when updating the image.
 bool imageMarkup::anyVisibleMarkups()
 {
     int n = items.count();
@@ -1586,11 +1626,13 @@ QColor imageMarkup::getMarkupColor( markupIds mode )
     return items[mode]->color;
 }
 
+// Return the circle cursor use by the image markup system
 QCursor imageMarkup::getCircleCursor()
 {
     return circleCursor;
 }
 
+// Return the target cursor use by the image markup system
 QCursor imageMarkup::getTargetCursor()
 {
     return targetCursor;

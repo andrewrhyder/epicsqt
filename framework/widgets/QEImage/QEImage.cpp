@@ -584,83 +584,54 @@ void QEImage::setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTi
  */
 void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
 {
-//    qDebug() << "QEImage::setROI()" << value;
-    // Update image size variable
-    switch( variableIndex )
-    {
-        case ROI1_X_VARIABLE:
-            // ???
-            break;
-
-        case ROI1_Y_VARIABLE:
-            // ???
-            break;
-
-        case ROI1_W_VARIABLE:
-            // ???
-            break;
-
-        case ROI1_H_VARIABLE:
-            // ???
-            break;
-
-        case ROI2_X_VARIABLE:
-            // ???
-            break;
-
-        case ROI2_Y_VARIABLE:
-            // ???
-            break;
-
-        case ROI2_W_VARIABLE:
-            // ???
-            break;
-
-        case ROI2_H_VARIABLE:
-            // ???
-            break;
-
-        case ROI3_X_VARIABLE:
-            // ???
-            break;
-
-        case ROI3_Y_VARIABLE:
-            // ???
-            break;
-
-        case ROI3_W_VARIABLE:
-            // ???
-            break;
-
-        case ROI3_H_VARIABLE:
-            // ???
-            break;
-
-        case ROI4_X_VARIABLE:
-            // ???
-            break;
-
-        case ROI4_Y_VARIABLE:
-            // ???
-            break;
-
-        case ROI4_W_VARIABLE:
-            // ???
-            break;
-
-        case ROI4_H_VARIABLE:
-            // ???
-            break;
-
-        }
-
-    // ???
-
-    // Display invalid if invalid
+    // If invalid, mark the appropriate ROI info as not present
     if( alarmInfo.isInvalid() )
     {
-        //setImageInvalid()
-        // !!! not done
+        switch( variableIndex )
+        {
+            case ROI1_X_VARIABLE: roiInfo[0].clearX(); break;
+            case ROI1_Y_VARIABLE: roiInfo[0].clearY(); break;
+            case ROI1_W_VARIABLE: roiInfo[0].clearW(); break;
+            case ROI1_H_VARIABLE: roiInfo[0].clearH(); break;
+            case ROI2_X_VARIABLE: roiInfo[1].clearX(); break;
+            case ROI2_Y_VARIABLE: roiInfo[1].clearY(); break;
+            case ROI2_W_VARIABLE: roiInfo[1].clearW(); break;
+            case ROI2_H_VARIABLE: roiInfo[1].clearH(); break;
+            case ROI3_X_VARIABLE: roiInfo[2].clearX(); break;
+            case ROI3_Y_VARIABLE: roiInfo[2].clearY(); break;
+            case ROI3_W_VARIABLE: roiInfo[2].clearW(); break;
+            case ROI3_H_VARIABLE: roiInfo[2].clearH(); break;
+            case ROI4_X_VARIABLE: roiInfo[3].clearX(); break;
+            case ROI4_Y_VARIABLE: roiInfo[3].clearY(); break;
+            case ROI4_W_VARIABLE: roiInfo[3].clearW(); break;
+            case ROI4_H_VARIABLE: roiInfo[3].clearH(); break;
+            }
+    }
+
+    // Good data. Save the ROI data (and note it is present) then if the
+    // markup is visible, update it
+    else
+    {
+#define USE_ROI_DATA( N, SET_NAME ) roiInfo[N].SET_NAME( value ); if( roiInfo[N].getStatus() ) videoWidget->markupRegionValueChange( N, roiInfo[N].getArea() ); break;
+        switch( variableIndex )
+        {
+            case ROI1_X_VARIABLE:  USE_ROI_DATA( 0, setX )
+            case ROI1_Y_VARIABLE:  USE_ROI_DATA( 0, setY )
+            case ROI1_W_VARIABLE:  USE_ROI_DATA( 0, setW )
+            case ROI1_H_VARIABLE:  USE_ROI_DATA( 0, setH )
+            case ROI2_X_VARIABLE:  USE_ROI_DATA( 1, setX )
+            case ROI2_Y_VARIABLE:  USE_ROI_DATA( 1, setY )
+            case ROI2_W_VARIABLE:  USE_ROI_DATA( 1, setW )
+            case ROI2_H_VARIABLE:  USE_ROI_DATA( 1, setH )
+            case ROI3_X_VARIABLE:  USE_ROI_DATA( 2, setX )
+            case ROI3_Y_VARIABLE:  USE_ROI_DATA( 2, setY )
+            case ROI3_W_VARIABLE:  USE_ROI_DATA( 2, setW )
+            case ROI3_H_VARIABLE:  USE_ROI_DATA( 2, setH )
+            case ROI4_X_VARIABLE:  USE_ROI_DATA( 3, setX )
+            case ROI4_Y_VARIABLE:  USE_ROI_DATA( 3, setY )
+            case ROI4_W_VARIABLE:  USE_ROI_DATA( 3, setW )
+            case ROI4_H_VARIABLE:  USE_ROI_DATA( 3, setH )
+        }
     }
 }
 
