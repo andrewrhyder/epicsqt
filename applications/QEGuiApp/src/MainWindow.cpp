@@ -626,11 +626,17 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
     QDir uiDir;
     QString fullGuiName = uiDir.cleanPath( uiDir.absoluteFilePath( guiName ) );
 
+    // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
+    ContainerProfile publishedProfile;
+
+    //!!! Note, repeated substitutions should be removed leaving only the first
+    //!!! If a button re-launches the form it is in (with different macro substitutions) the list just grows
+
     // If the form already exists (with the same substitutions), just display that one.
     // Note, even if the gui is found, if the main window is not located and raised, then a new gui will be launched.
     for( int i = 0; i < guiList.size(); i++ )
     {
-        if( !guiList[i]->getFullFileName().compare( fullGuiName ) && !guiList[i]->getMacroSubstitutions().trimmed().compare( profile.getMacroSubstitutions().trimmed() ) )
+        if( !guiList[i]->getFullFileName().compare( fullGuiName ) && !guiList[i]->getMacroSubstitutions().trimmed().compare( publishedProfile.getMacroSubstitutions().trimmed() ) )
         {
             // GUI found. Roll back up the widget hierarchy.
             // If a parent tab widget is found, set the child as the active tab, when the main window is found, display it.
