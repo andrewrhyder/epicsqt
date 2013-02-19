@@ -34,13 +34,8 @@
 #include <string.h>
 #include <stdio.h>
 
-
 static epicsEventId monitorEvent = NULL;
 static epicsMutexId accessMutex = NULL;
-
-static CaRef* carefListHead = NULL;
-static CaRef* carefListTail = NULL;
-
 
 //===============================================================================
 // Initialisation and deletion
@@ -56,7 +51,7 @@ int CaObject::CA_UNIQUE_OBJECT_ID = 0;
 */
 CaObject::CaObject() {
     // Construct or reuse a durable object that can be passed to CA and used as a callback argument
-    myRef = CaRef::getCaRef( this );
+    myRef = CaRef::getCaRef( this, true );
 
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = new CaObjectPrivate( this );
@@ -70,12 +65,19 @@ CaObject::CaObject() {
     Shutdown
 */
 CaObject::~CaObject() {
+
+    // Ensure we are not in CA callback code with a risk of accessing this object
+    // (Callback code will check the discard flag only while holding the lock)
+    epicsMutexLock( accessMutex );
+
     // Flag in the durable object reference that this object has been deleted
     myRef->discard();
     myRef = NULL;
 
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
+    epicsMutexUnlock( accessMutex );
 
     shutdown();
     delete p->caConnection;
@@ -109,6 +111,7 @@ void CaObject::shutdown() {
     CA_UNIQUE_OBJECT_ID--;
     if( CA_UNIQUE_OBJECT_ID <= 0 ) {
         epicsMutexDestroy( accessMutex );
+        accessMutex = NULL;
         epicsEventDestroy( monitorEvent );
     }
     p->caRecord.setName( "" );
@@ -995,29 +998,33 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
 */
 void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
 
-
-    // Since "connectionHandler" is a callback method (and, therefore, called in an asynchronous way), sometimes, it
-    // generates a SEGFAULT. Therefore, a workaround based on a 1 second delay was introduced in order to give time
-    // for "things" to complete before continuing executing this method (thus avoiding a SEGFAULT).
-    // NOTE 1: a more solid solution should be implemented but this requires a deep understanding of the QE core
-    // NOTE 2: without this workaround, a SEGFAULT appears ~4 out of 10 executions; with this workaround, there is no SEGFAULT
-    //     usleep(1000);
-    // A. R. Above workaround removed from repository as it is only for one specific GUI on one IOC, and this work around won't build on Windows.
-    // Note, the use of getRef() below, which checks for three error conditions where a callback occurs after a connection has been closed.
-    // With a bit of luck, this problem relates to a fourth error condition which can be added to getRef()(or perhaps will shed light on why CA callbacks
-    // can occur after a channel is closed at all).
-
     epicsMutexLock( accessMutex );
+
+    // Sanity check. The CaRef extracted from args.chid will be checked later, but can we even get to extracting the CaRef safley?
+    if( args.chid == 0 )
+    {
+        printf( "CaObjectPrivate::connectionHandler() args.chid in connection_handler_args is zero" );
+        epicsMutexUnlock( accessMutex );
+        return;
+    }
+
     CaRef* ref = (CaRef*)(ca_puser( args.chid ));
+
+    // Sanity check. Did ca_puser() extract the CaRef extracted from args.chid?
+    if( ref == NULL )
+    {
+        printf( "CaObjectPrivate::connectionHandler() CaRef extracted from connection_handler_args is NULL" );
+        epicsMutexUnlock( accessMutex );
+        return;
+    }
+
+    // Extract the connection (Returns zero if checks fail)
     caconnection::CaConnection* parent = (caconnection::CaConnection*)(ref->getRef( args.chid ));
     if( !parent )
     {
         epicsMutexUnlock( accessMutex );
         return;
     }
-
-
-
 
     CaObject* grandParent = (CaObject*)parent->getParent();
     switch( args.op ) {
@@ -1072,146 +1079,3 @@ bool CaObject::getWriteWithCallback()
     // return the write callback requirements
     return p->caConnection->getWriteWithCallback();
 }
-
-//===========================================================
-// CaRef methods
-
-// Provide a new or reused instance. Call instead of constructor.
-CaRef* CaRef::getCaRef( void* ownerIn )
-{
-    // If there is any previous CaRef  instances discarded over 5 seconds ago, return the first.
-    if( carefListHead )
-    {
-        CaRef* firstRef = carefListHead;
-        if( difftime( time( NULL ), firstRef->idleTime ) > 5.0 )
-        {
-            // Move the list head to the next (possibly NULL) object
-            carefListHead = firstRef->next;
-
-            // If end of queue reached, clear the end of list reference.
-            if( firstRef == carefListTail )
-            {
-                carefListTail = NULL;
-            }
-
-            // Re-initialise and return the recycled object
-            firstRef->init( ownerIn );
-//            printf("reuse\n");
-            return firstRef;
-        }
-    }
-
-    // There are no old instances to reuse - create a new one
-//    printf("create\n");
-    return new CaRef( ownerIn );
-}
-
-// Construction.
-// Don't use directly. Called by getCaRef() if none available for reuse
-CaRef::CaRef( void* ownerIn )
-{
-    init( ownerIn );
-}
-
-// Initialisation. Used for construction and reuse
-void CaRef::init( void* ownerIn )
-{
-    magic = CAREF_MAGIC;
-    owner = ownerIn;
-    discarded = false;
-    channel = NULL;
-    next = NULL;
-    idleTime = 0;
-//    dumpList();
-}
-
-// Destrution
-// This should never be called. Present just to log an error
-CaRef::~CaRef()
-{
-    printf( "CaRef destructor called. This should never occur.");
-}
-
-// Mark as discarded and queue for reuse when no further CA callbacks are expected
-void CaRef::discard()
-{
-    // Flag no longer in use
-    discarded = true;
-
-    // Note the time discarded
-    idleTime = time( NULL );
-
-    // Place the disused item on the discarded queue
-    if( !carefListHead )
-    {
-        carefListHead = this;
-    }
-
-    if( carefListTail )
-    {
-        carefListTail->next = this;
-    }
-    carefListTail = this;
-//    dumpList();
-}
-
-// Return the object referenced, if it is still around.
-// Returns NULL if the object is no longer in use.
-void* CaRef::getRef( void* channelIn )
-{
-    // Sanity check - was the CA user data really a CaRef pointer
-    if( magic != CAREF_MAGIC )
-    {
-        printf( "CaRef::getRef() called the CA user data was not really a CaRef pointer. (magic number is bad).  CA user data: %ld\n", (long)this );
-        return NULL;
-    }
-
-    // If discarded, then a late callback has occured
-    if( discarded )
-    {
-        printf( "Late CA callback. CaRef::getRef() called after associated object has been discarded.  object reference: %ld  variable: %s  expected channel: %ld received channel %ld\n",
-                (long)owner, variable.c_str(), (long)channel, (long)channelIn );
-        return NULL;
-    }
-
-    // If a channel has been recorded, but the current channel doesn't match, it is likely due to a late callback calling with a reference to a now re-used CaRef
-    if( channel && (channel != channelIn) )
-    {
-        printf( "Very late CA callback. CaRef::getRef() called with incorrect channel ID.  object reference: %ld  variable: %s  expected channel: %ld received channel %ld\n",
-                (long)owner, variable.c_str(), (long)channel, (long)channelIn );
-        return NULL;
-    }
-
-    // Return the referenced object
-    return owner;
-}
-
-// set the variable - for logging only
-void CaRef::setPV( std::string variableIn )
-{
-    variable = variableIn;
-}
-
-// set the channel - for checking and logging
-void CaRef::setChannelId ( void* channelIn )
-{
-    channel = channelIn;
-}
-
-// Dump the current list - for debugging only
-//void CaRef::dumpList()
-//{
-//    printf( "head: %lu\n", (unsigned long)carefListHead );
-//    CaRef* obj = carefListHead;
-//    int count = 0;
-//    while( obj )
-//    {
-//        count++;
-//// Include the following line if full dump of current list is required
-////        printf("   obj: %lu next: %lu PV: %s\n", (unsigned long)obj, (unsigned long)(obj->next), obj->variable.c_str() );
-//        obj = obj->next;
-//    }
-//    printf( "count: %d\n", count );
-//    printf( "tail: %lu\n", (unsigned long)carefListTail );
-//    fflush(stdout);
-//}

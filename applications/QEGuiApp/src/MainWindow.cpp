@@ -52,6 +52,7 @@ Q_DECLARE_METATYPE( QEForm* )
 //=================================================================================
 
 // Constructor
+// A profile should have been defined before calling this constructor
 MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn, QWidget *parent )  : QMainWindow( parent )
 {
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
@@ -107,7 +108,7 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     // If a filename was supplied, load it
     else
     {
-        QEForm* gui = createGui( fileName );
+        QEForm* gui = createGui( fileName ); // A profile should have been published before calling this constructor.
         loadGuiIntoCurrentWindow( gui );
     }
 
@@ -159,7 +160,9 @@ void MainWindow::on_actionNew_Tab_triggered()
         setTabMode();
 
     // Create the GUI
+    profile.publishOwnProfile();
     QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
+    profile.releaseProfile();
     loadGuiIntoNewTab( gui );
 }
 
@@ -168,7 +171,9 @@ void MainWindow::on_actionNew_Tab_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
+    profile.publishOwnProfile();
     QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
+    profile.releaseProfile();
     loadGuiIntoCurrentWindow( gui );
 }
 
@@ -676,7 +681,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
         // Open the specified gui in the current window
         case QEForm::CREATION_OPTION_OPEN:
             {
-                QEForm* gui = createGui( guiName );
+                QEForm* gui = createGui( guiName );  // Note, profile should have been published by signal code
                 loadGuiIntoCurrentWindow( gui );
             }
             break;
@@ -689,7 +694,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
                     setTabMode();
 
                 // Create the gui and load it into a new tab
-                QEForm* gui = createGui( guiName );
+                QEForm* gui = createGui( guiName );  // Note, profile should have been published by signal code
                 loadGuiIntoNewTab( gui );
             }
             break;
@@ -697,7 +702,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
         // Open the specified gui in a new window
         case QEForm::CREATION_OPTION_NEW_WINDOW:
             {
-                MainWindow* w = new MainWindow( guiName, enableEdit, disableMenu );
+                MainWindow* w = new MainWindow( guiName, enableEdit, disableMenu ); // Note, profile should have been published by signal code
                 w->show();
             }
             break;
@@ -786,6 +791,7 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 // Performs gui opening tasks generic to new guis, including opening a new tab,
 // replacing a gui in a tab, replacing a single gui in the main window,
 // or creating a gui in a new main window.
+// A profile should have been published before calling this method.
 QEForm* MainWindow::createGui( QString fileName )
 {
     // Don't do anything if no filename was supplied

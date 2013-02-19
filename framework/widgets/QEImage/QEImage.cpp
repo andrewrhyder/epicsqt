@@ -1545,7 +1545,6 @@ bool QEImage::getDisplayButtonBar()
 // Show time
 void QEImage::setShowTime(bool value)
 {
-    qDebug() << "QEImage::setShowTime()" << value;
     videoWidget->setShowTime( value );
 }
 
@@ -1746,6 +1745,7 @@ void QEImage::setEnableTargetSelection( bool enableTargetSelectionIn )
 {
     enableTargetSelection = enableTargetSelectionIn;
     sMenu->setTargetEnabled( enableTargetSelection );
+    targetButton->setVisible( enableTargetSelection );
 
     // If disabling, and it is the current mode, then default to panning
     if( !enableTargetSelection && ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))

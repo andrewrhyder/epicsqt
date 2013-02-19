@@ -29,7 +29,6 @@
 #include <cadef.h>
 #include <CaRef.h>
 
-
 namespace caconnection {
 
   enum link_states { LINK_UP, LINK_DOWN, LINK_UNKNOWN };
@@ -72,7 +71,7 @@ namespace caconnection {
 
   class CaConnection {
     public:      
-      CaConnection( void* newParent = 0 );
+      CaConnection( void* newParent );
       ~CaConnection();
 
       ca_responses establishContext( void (*exceptionHandler)(struct exception_handler_args), void* args );
@@ -109,7 +108,6 @@ namespace caconnection {
       void setWriteWithCallback( bool writeWithCallbackIn );
       bool getWriteWithCallback();
 
-
     private:
       CaRef* myRef;
       caLink link;
@@ -130,7 +128,6 @@ namespace caconnection {
       short initialDbrStructType;                                               // Data type to be used for read
       short updateDbrStructType;                                                // Data type to be used for update subscription
       static void subscriptionInitialHandler( struct event_handler_args args ); // Internal callback handler for initial subscription callback (actually a ca_get callback)
-
   };
 
 }

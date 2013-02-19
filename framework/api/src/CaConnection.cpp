@@ -38,10 +38,10 @@ int CaConnection::CA_UNIQUE_CONNECTION_ID = 0;
     working parent is given to the EPICS thread so that any callbacks that
     occur contain the context of the parent that created this CaConnection.
 */
-CaConnection::CaConnection( void* newParent ) {
-
+CaConnection::CaConnection( void* newParent )
+{
     // Construct or reuse a durable object that can be passed to CA and used as a callback argument
-    myRef = CaRef::getCaRef( this );
+    myRef = CaRef::getCaRef( this, false );
 
     parent = newParent;
     initialise();
@@ -53,7 +53,19 @@ CaConnection::CaConnection( void* newParent ) {
 */
 CaConnection::~CaConnection() {
 
+    // Ensure we are not in CA callback code with a risk of accessing this object
+    // (Callback code will check the discard flag only while holding the lock)
+//    if( accessMutex != NULL )
+//    {
+//        epicsMutexLock( accessMutex );
+//    }
+
     myRef->discard();
+
+//    if( accessMutex != NULL )
+//    {
+//        epicsMutexUnlock( accessMutex );
+//    }
 
     shutdown();
     reset();
@@ -93,6 +105,12 @@ ca_responses CaConnection::establishContext( void (*exceptionHandler)(struct exc
 ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName ) {
     if( context.activated == true && channel.activated == false ) {
         channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, CA_PRIORITY_DEFAULT, &channel.id );
+        // Sanity check
+        if( channel.id == 0 )
+        {
+            printf( "CaConnection::establishChannel() ca_create_channel returned a channel ID of zero" );
+        }
+
         ca_pend_io( link.searchTimeout );
         channel.activated = true;
         switch( channel.creation ) {

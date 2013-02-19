@@ -102,6 +102,7 @@ SOURCES += \
     api/src/CaRecord.cpp \
     api/src/CaObject.cpp \
     api/src/CaConnection.cpp \
+    api/src/CaRef.cpp \
     data/src/QCaVariableNamePropertyManager.cpp \
     data/src/QCaStateMachine.cpp \
     data/src/QCaObject.cpp \

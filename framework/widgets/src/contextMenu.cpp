@@ -119,7 +119,6 @@ void contextMenu::triggered( contextMenuOptions option )
 
 void contextMenu::doCopyVariable()
 {
-    qDebug() << "contextMenu::doCopyVariable()";
     QString s = copyVariable();
     QClipboard *cb = QApplication::clipboard();
     cb->setText( s );
@@ -127,7 +126,6 @@ void contextMenu::doCopyVariable()
 
 void contextMenu::doCopyData()
 {
-    qDebug() << "contextMenu::doCopyData()";
     QClipboard *cb = QApplication::clipboard();
     QVariant v = copyData();
     switch( v.type() )

@@ -48,9 +48,9 @@
 class CaRef
 {
 public:
-    static CaRef* getCaRef( void* ownerIn );// Provide a new or reused instance. Call instead of constructor.
-    CaRef( void* ownerIn );                 // Constructor. Don't use directly. Called by getCaRef() if none available for reuse
-    void init( void* ownerIn );             // Common initialisation. Used for construction and reuse
+    static CaRef* getCaRef( void* ownerIn, bool ownerIsCaObjectIn );// Provide a new or reused instance. Call instead of constructor.
+    CaRef( void* ownerIn, bool ownerIsCaObjectIn );                 // Constructor. Don't use directly. Called by getCaRef() if none available for reuse
+    void init( void* ownerIn, bool ownerIsCaObjectIn );             // Common initialisation. Used for construction and reuse
 
     ~CaRef();                               // Destructor should never be called. Call discard() instead.
     void discard();                         // Mark this as 'discarded' and queue for reuse. Owner no longer exists.
@@ -68,6 +68,7 @@ private:
     std::string variable;                   // CA PV name
     CaRef* next;                            // List link
     time_t idleTime;                        // Time discarded
+    bool ownerIsCaObject;                   // True if owner is a CaObject class (otherwise a CaConnection class)
 };
 
 #endif  // CAOBJECTREF_H_
