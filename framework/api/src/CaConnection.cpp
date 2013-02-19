@@ -23,7 +23,9 @@
  */
 
 #include <db_access.h>
+#include <epicsMutex.h>
 #include <CaConnection.h>
+
 #include <QDebug>
 
 using namespace caconnection;
@@ -55,17 +57,18 @@ CaConnection::~CaConnection() {
 
     // Ensure we are not in CA callback code with a risk of accessing this object
     // (Callback code will check the discard flag only while holding the lock)
-//    if( accessMutex != NULL )
-//    {
-//        epicsMutexLock( accessMutex );
-//    }
+    epicsMutexId accessMutex = (epicsMutexId)(CaRef::getAccessMutex());
+    if( accessMutex != NULL )
+    {
+        epicsMutexLock( accessMutex );
+    }
 
     myRef->discard();
 
-//    if( accessMutex != NULL )
-//    {
-//        epicsMutexUnlock( accessMutex );
-//    }
+    if( accessMutex != NULL )
+    {
+        epicsMutexUnlock( accessMutex );
+    }
 
     shutdown();
     reset();

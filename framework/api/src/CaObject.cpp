@@ -32,10 +32,11 @@
 #include <alarm.h>
 #include <db_access.h>
 #include <string.h>
+
 #include <stdio.h>
 
+
 static epicsEventId monitorEvent = NULL;
-static epicsMutexId accessMutex = NULL;
 
 //===============================================================================
 // Initialisation and deletion
@@ -68,7 +69,7 @@ CaObject::~CaObject() {
 
     // Ensure we are not in CA callback code with a risk of accessing this object
     // (Callback code will check the discard flag only while holding the lock)
-    epicsMutexLock( accessMutex );
+    epicsMutexLock( (epicsMutexId)(CaRef::getAccessMutex()) );
 
     // Flag in the durable object reference that this object has been deleted
     myRef->discard();
@@ -77,7 +78,7 @@ CaObject::~CaObject() {
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
 
-    epicsMutexUnlock( accessMutex );
+    epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
 
     shutdown();
     delete p->caConnection;
@@ -95,7 +96,7 @@ void CaObject::initialise() {
     CA_UNIQUE_OBJECT_ID++;
     if( CA_UNIQUE_OBJECT_ID <= 1) {
         monitorEvent = epicsEventCreate( epicsEventEmpty );
-        accessMutex = epicsMutexCreate();
+        CaRef::setAccessMutex( (void*)(epicsMutexCreate()) );
     }
     p->caRecord.setName( "" );
     p->caRecord.setValid( false );
@@ -110,9 +111,10 @@ void CaObject::shutdown() {
 
     CA_UNIQUE_OBJECT_ID--;
     if( CA_UNIQUE_OBJECT_ID <= 0 ) {
-        epicsMutexDestroy( accessMutex );
-        accessMutex = NULL;
+        epicsMutexDestroy( (epicsMutexId)(CaRef::getAccessMutex()) );
+        CaRef::setAccessMutex( NULL );
         epicsEventDestroy( monitorEvent );
+        monitorEvent = NULL;
     }
     p->caRecord.setName( "" );
     p->caRecord.setValid( false );
@@ -893,11 +895,11 @@ CaObject* CaObjectPrivate::contextFromCaUsr( void* usr, void* id )
     Subscription handler callback.
 */
 void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
-    epicsMutexLock( accessMutex );
+    epicsMutexLock( (epicsMutexId)(CaRef::getAccessMutex()) );
     CaObject* context = contextFromCaUsr( args.usr, args.chid );
     if( !context )
     {
-        epicsMutexUnlock( accessMutex );
+        epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
         return;
     }
 
@@ -914,18 +916,18 @@ void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
         break;
     }
     epicsEventSignal( monitorEvent );
-    epicsMutexUnlock( accessMutex );
+    epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
 }
 
 /*
     Read data handler callback.
 */
 void CaObjectPrivate::readHandler( struct event_handler_args args ) {
-    epicsMutexLock( accessMutex );
+    epicsMutexLock( (epicsMutexId)(CaRef::getAccessMutex()) );
     CaObject* context = contextFromCaUsr( args.usr, args.chid );
     if( !context )
     {
-        epicsMutexUnlock( accessMutex );
+        epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
         return;
     }
 
@@ -942,18 +944,18 @@ void CaObjectPrivate::readHandler( struct event_handler_args args ) {
         break;
     }
     epicsEventSignal( monitorEvent );
-    epicsMutexUnlock( accessMutex );
+    epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
 }
 
 /*
     Write data handler callback.
 */
 void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
-    epicsMutexLock( accessMutex );
+    epicsMutexLock( (epicsMutexId)(CaRef::getAccessMutex()) );
     CaObject* context = contextFromCaUsr( args.usr, args.chid );
     if( !context )
     {
-        epicsMutexUnlock( accessMutex );
+        epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
         return;
     }
 
@@ -965,18 +967,18 @@ void CaObjectPrivate::writeHandler( struct event_handler_args args ) {
             context->signalCallback( WRITE_FAIL );
         break;
     }
-    epicsMutexUnlock( accessMutex );
+    epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
 }
 
 /*
     EPICS Exception handler callback.
 */
 void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
-    epicsMutexLock( accessMutex );
+    epicsMutexLock( (epicsMutexId)(CaRef::getAccessMutex()) );
     CaObject* context = contextFromCaUsr( args.usr, args.chid );
     if( !context )
     {
-        epicsMutexUnlock( accessMutex );
+        epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
         return;
     }
 
@@ -988,7 +990,7 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
             context->signalCallback( EXCEPTION );
         break;
     }
-    epicsMutexUnlock( accessMutex );
+    epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
 }
 
 /*
@@ -998,13 +1000,13 @@ void CaObjectPrivate::exceptionHandler( struct exception_handler_args args ) {
 */
 void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
 
-    epicsMutexLock( accessMutex );
+    epicsMutexLock( (epicsMutexId)(CaRef::getAccessMutex()) );
 
     // Sanity check. The CaRef extracted from args.chid will be checked later, but can we even get to extracting the CaRef safley?
     if( args.chid == 0 )
     {
         printf( "CaObjectPrivate::connectionHandler() args.chid in connection_handler_args is zero" );
-        epicsMutexUnlock( accessMutex );
+        epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
         return;
     }
 
@@ -1014,7 +1016,7 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
     if( ref == NULL )
     {
         printf( "CaObjectPrivate::connectionHandler() CaRef extracted from connection_handler_args is NULL" );
-        epicsMutexUnlock( accessMutex );
+        epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
         return;
     }
 
@@ -1022,7 +1024,7 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
     caconnection::CaConnection* parent = (caconnection::CaConnection*)(ref->getRef( args.chid ));
     if( !parent )
     {
-        epicsMutexUnlock( accessMutex );
+        epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
         return;
     }
 
@@ -1046,7 +1048,7 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
             grandParent->signalCallback( CONNECTION_UNKNOWN );
         break;
     }
-    epicsMutexUnlock( accessMutex );
+    epicsMutexUnlock( (epicsMutexId)(CaRef::getAccessMutex()) );
 }
 
 /*

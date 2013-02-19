@@ -1,8 +1,22 @@
 #include <CaRef.h>
 #include <stdio.h>
+#include <epicsMutex.h>
+
+
+static epicsMutexId accessMutex = NULL;
 
 static CaRef* carefListHead = NULL;
 static CaRef* carefListTail = NULL;
+
+void* CaRef::getAccessMutex()
+{
+    return (void*)accessMutex;
+}
+
+void CaRef::setAccessMutex( void* accessMutexIn )
+{
+    accessMutex = (epicsMutexId)accessMutexIn;
+}
 
 // Provide a new or reused instance. Call instead of constructor.
 CaRef* CaRef::getCaRef( void* ownerIn, bool ownerIsCaObjectIn )

@@ -58,6 +58,11 @@ public:
     void setPV( std::string variableIn );   // Set variable name. Used for logging only
     void setChannelId ( void* channelIn );  // Set channel name. used for logging and also for validating callback
     void* getRef( void* channelIn );        // Get the owner (validating the channel if known)
+
+    static void* getAccessMutex();
+    static void setAccessMutex( void* accessMutexIn );
+
+
 //    void dumpList();                        // Diagnostics only
 
 private:
