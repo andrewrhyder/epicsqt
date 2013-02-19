@@ -412,11 +412,20 @@ void QEGenericButton::userClicked( bool checked )
         publishOwnProfile();
 
         // Extend any variable name substitutions with this button's substitutions
+        // Like most other macro substitutions, the substitutions already present take precedence.
         addMacroSubstitutions( getVariableNameSubstitutions() );
+
+        // Extend any variable name substitutions with this button's priority substitutions
+        // Unlike most other macro substitutions, these macro substitutions take precedence over
+        // substitutions already present.
+        addPriorityMacroSubstitutions( prioritySubstitutions );
 
         emitNewGui( substituteThis( guiName ), creationOption );
 
-        // Remove this form's macro substitutions now all it's children are created
+        // Remove this button's priority macro substitutions now all its children are created
+        removeMacroSubstitutions();
+
+        // Remove this button's normal macro substitutions now all its children are created
         removeMacroSubstitutions();
 
         // Release the profile now all QE widgets have been created
@@ -633,6 +642,20 @@ QEForm::creationOptions QEGenericButton::getCreationOption()
 {
     return creationOption;
 }
+
+
+// GUI name
+void QEGenericButton::setPrioritySubstitutions( QString prioritySubstitutionsIn )
+{
+    prioritySubstitutions = prioritySubstitutionsIn;
+}
+QString QEGenericButton::getPrioritySubstitutions()
+{
+    return prioritySubstitutions;
+}
+
+//==============================================================================
+
 
 // label text (prior to substitution)
 void QEGenericButton::setLabelTextProperty( QString labelTextIn )

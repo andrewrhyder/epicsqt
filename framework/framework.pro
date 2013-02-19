@@ -33,8 +33,9 @@
 
 #===========================================================
 # Since Qt 4.7.4, enable-auto-import is required to avoid a crash on windows when the qwt dll is loaded
-win32:QMAKE_LFLAGS += -enable-auto-import
-#win32QMAKE_LFLAGS += -Wl,-enable-auto-import
+# Depending on compiler the '-W1' may or may not be required. If an error relating to nable-auto-import occurs (missing leading -e) then use -W1 option
+#win32:QMAKE_LFLAGS += -enable-auto-import
+win32QMAKE_LFLAGS += -Wl,-enable-auto-import
 
 #===========================================================
 # Project configuration

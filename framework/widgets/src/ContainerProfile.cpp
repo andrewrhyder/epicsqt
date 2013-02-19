@@ -253,6 +253,7 @@ void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
   This is used when a form is created. This allow a form to pass on macro substitutions to the QE widgets it contains.
   Since it adds to the end of the existing macro substitutions, any substitutions already added by the originating
   container or higher forms take precedence.
+  Use removeMacroSubstitutions() to remove macro substitutions added by this method.
   */
 void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
 {
@@ -260,6 +261,18 @@ void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
         publishedMacroSubstitutions.append( macroSubstitutionsIn );
 }
 
+/*
+  Extend the macro substitutions currently being used by all new QEWidgets.
+  Same as addMacroSubstitutions, but these take precedence over existing macro substitutions.
+  This is used when a form is created by a button. In particular, this allow a button to
+  reload the same form but with different macro substitutions.
+  Use removePriorityMacroSubstitutions() to remove macro substitutions added by this method.
+  */
+void ContainerProfile::addPriorityMacroSubstitutions( QString macroSubstitutionsIn )
+{
+    if( profileDefined  )
+        publishedMacroSubstitutions.prepend( macroSubstitutionsIn );
+}
 /*
   Reduce the macro substitutions currently being used by all new QEWidgets.
   This is used after a form is created. Any macro substitutions passed on by the form being created are no longer relevent.
@@ -270,6 +283,16 @@ void ContainerProfile::removeMacroSubstitutions()
         publishedMacroSubstitutions.removeLast();
 }
 
+/*
+  Reduce the macro substitutions currently being used by all new QEWidgets.
+  Same as removeMacroSubstitutions(), but removes substitutions added by addPriorityMacroSubstitutions().
+  This is used after a form is created. Any macro substitutions passed on by the form being created are no longer relevent.
+  */
+void ContainerProfile::removePriorityMacroSubstitutions()
+{
+    if( profileDefined && !publishedMacroSubstitutions.isEmpty() )
+        publishedMacroSubstitutions.removeFirst();
+}
 /*
   Set the published profile to whatever is saved in our local copy
   */

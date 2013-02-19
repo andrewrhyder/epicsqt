@@ -492,7 +492,7 @@ public:
     /// For example, a button in a sub form may have a 'labelText' property of 'Turn Pump $(PUMPNUM) On'.
     /// When the sub form is used twice in a main form with substitutions PUMPNUM=1 and PUMPNUM=2 respectively,
     /// the two identical buttons in the sub forms will have the labels 'Turn Pump 1 On' and 'Turn Pump 2 On' respectively.
-    Q_PROPERTY(QString labelText READ getLabelTextProperty WRITE setLabelTextProperty);
+    Q_PROPERTY(QString labelText READ getLabelTextProperty WRITE setLabelTextProperty)
 
     /// Program to run when the button is clicked.
     /// No attempt to run a program is made if this property is empty.
@@ -525,6 +525,15 @@ public:
                                NewTab = QEForm::CREATION_OPTION_NEW_TAB,        ///< Open new GUI in a new tab
                                NewWindow = QEForm::CREATION_OPTION_NEW_WINDOW   ///< Open new GUI in a new window
                              };
+
+    /// Overriding macro substitutions. These macro substitions take precedence over any existing
+    /// macro substitutions defined by the variableSubstitutions property, any parent forms, or
+    /// the application containing the button. These macro substitutions are particularly usefull when
+    /// the button's function is to reload the same form but with different macro substitutions.
+    /// The variableSubstitutions property cannot be used for this since, although they are
+    /// added to the list of macro substittions applied to the new form, they are appended
+    /// to the list and the existing macro substitutions take precedence.
+    Q_PROPERTY(QString prioritySubstitutions READ getPrioritySubstitutions WRITE setPrioritySubstitutions)
 
 public:
     //=================================================================================

@@ -147,6 +147,9 @@ public:
     void addMacroSubstitutions( QString macroSubstitutionsIn ); // Add another set of macro substitutions to those setup by setupProfile(). Used as sub forms are created
     void removeMacroSubstitutions();                            // Remove the last set of macro substitutions added by addMacroSubstitutions(). Used after sub forms are created
 
+    void addPriorityMacroSubstitutions( QString macroSubstitutionsIn ); // Add another set of macro substitutions to those setup by setupProfile(). Used as sub forms are created. These macros take priority
+    void removePriorityMacroSubstitutions();                            // Remove the last set of macro substitutions added by addPriorityMacroSubstitutions(). Used after sub forms are created
+
     QObject* getGuiLaunchConsumer();          // Get the local copy of the object that will recieve GUI launch requests
     QString getPath();                        // Get the local copy of the first entry in the application path list used for file operations
     QStringList getPathList();                // Get the local copy of the application path list used for file operations

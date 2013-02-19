@@ -110,6 +110,10 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     void setGuiName( QString guiName );
     QString getGuiName();
 
+    // Priority macro substitutions
+    void setPrioritySubstitutions( QString prioritySubstitutionsIn );
+    QString getPrioritySubstitutions();
+
     // Qt Designer Properties Creation options
     void setCreationOption( QEForm::creationOptions creationOption );
     QEForm::creationOptions getCreationOption();
@@ -148,6 +152,7 @@ private:
 
     QString guiName;      // GUI file name to launch
     QEForm::creationOptions creationOption;
+    QString prioritySubstitutions;  // Macro substitutions that take precedence over existing substitutions when creating new guis
 
     bool localEnabled;
 
