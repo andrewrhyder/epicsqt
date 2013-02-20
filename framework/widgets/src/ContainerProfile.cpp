@@ -124,7 +124,6 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
     if( key.isEmpty() )
     {
         key.append( "QEFramework:" ).append( QString("%1").arg( pid ) );
-        qDebug() << "key" << key;
     }
 
     // Published profile, and the shared memory to reference it,
@@ -136,7 +135,6 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
     // If we have a published profile, it is a truly unique one created earlier - return it
     if( publishedProfile )
     {
-        qDebug() << "have publishedProfile" << publishedProfile;
         return publishedProfile;
     }
 
@@ -144,7 +142,6 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
     // If we don't have a shared memory yet, create it.
     if( !sharedMemory )
     {
-        qDebug() << "Creating shared memory";
         sharedMemory = new QSharedMemory ( key );
     }
 
@@ -154,17 +151,19 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
     // Get the shared memory data
     // If the shared memory data is there, it has also been set up to contain a reference
     // to the unique published profile, so extract and return it.
-    void* sharedMemoryData = sharedMemory->data();
-    if( sharedMemoryData )
+    void* sharedMemoryData = NULL;
+    if( sharedMemory->attach() )
     {
-        qDebug() << "Have shared memory data";
-        publishedProfile = *(PublishedProfile**)(sharedMemoryData);
-        sharedMemory->unlock();
-        qDebug() << "extracted publishedProfile" << publishedProfile;
-        return publishedProfile;
+        sharedMemoryData = sharedMemory->data();
+        if( sharedMemoryData )
+        {
+            publishedProfile = *(PublishedProfile**)(sharedMemoryData);
+            sharedMemory->unlock();
+            return publishedProfile;
+        }
     }
 
-    // There is no shared memory data.
+    // There is no shared memory data. (or we couldn't attach)
     // Create a unique published profile class, create the shared memory data (big enough to
     // hold a reference to the published profile), load the reference to the published profile
     // into the shared memory data, and return the newly created published profile.
@@ -174,7 +173,6 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
     *(PublishedProfile**)(sharedMemoryData) = publishedProfile;
 
     sharedMemory->unlock();
-    qDebug() << "new shared memory data and publishedProfile" << publishedProfile;
     return publishedProfile;
 }
 

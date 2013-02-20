@@ -801,11 +801,11 @@ void QEImage::displayImage()
 
 // Define the clipping logic
 #define CLIPPING(PIXEL)                                     \
-    if( clippingHigh > 0 && PIXEL >= clippingHigh )         \
+    if( clippingHigh > 0 && (unsigned int)(PIXEL) >= clippingHigh )         \
     {                                                       \
         dataOut[buffIndex] = 0xffff8080;                    \
     }                                                       \
-    else if( clippingLow > 0 && PIXEL <= clippingLow )      \
+    else if( clippingLow > 0 && (unsigned int)(PIXEL) <= clippingLow )      \
     {                                                       \
         dataOut[buffIndex] = 0xff8080ff;                    \
     }                                                       \
