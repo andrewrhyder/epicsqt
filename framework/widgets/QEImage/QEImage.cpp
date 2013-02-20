@@ -1308,7 +1308,7 @@ void QEImage::saveClicked()
     bool result;
 
     qFileDialog = new QFileDialog(this, "Save displayed image", QString());
-    filterList << "Portable Network Graphics (*.png)" << "Windows Bitmap (*.bmp)" << "Joint Photographics Experts Group (*.jpg)";
+    filterList << "Tagged Image File Format (*.tiff)" << "Portable Network Graphics (*.png)" << "Windows Bitmap (*.bmp)" << "Joint Photographics Experts Group (*.jpg)";
     qFileDialog->setFilters(filterList);
     qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
 
@@ -1320,18 +1320,19 @@ void QEImage::saveClicked()
 
         if (qFileDialog->selectedNameFilter() == filterList.at(0))
         {
+            result = qImage.save(filename, "TIFF");
+        }
+        else if (qFileDialog->selectedNameFilter() == filterList.at(0))
+        {
             result = qImage.save(filename, "PNG");
+        }
+        else if (qFileDialog->selectedNameFilter() == filterList.at(1))
+        {
+            result = qImage.save(filename, "BMP");
         }
         else
         {
-            if (qFileDialog->selectedNameFilter() == filterList.at(1))
-            {
-                result = qImage.save(filename, "BMP");
-            }
-            else
-            {
-                result = qImage.save(filename, "JPG");
-            }
+            result = qImage.save(filename, "JPG");
         }
 
         if (result)
@@ -1342,8 +1343,6 @@ void QEImage::saveClicked()
         {
             QMessageBox::critical(this, "Error", "Unable to save displayed image in file '" + filename + "'!");
         }
-
-
     }
 
 }
