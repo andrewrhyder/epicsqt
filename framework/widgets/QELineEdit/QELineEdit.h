@@ -39,10 +39,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELineEdit :
 
     Q_OBJECT
 
-    //=================================================================================
+    // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
-    // WHEN MAKING CHANGES: search for SINGLEVARIABLEPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
     //
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
@@ -63,7 +64,7 @@ private:
 
     QCaVariableNamePropertyManager variableNamePropertyManager;
 public:
-    //=================================================================================
+    // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
     //=================================================================================
     // Control widget properties
@@ -90,10 +91,11 @@ public:
 public:
     //=================================================================================
 
-    //=================================================================================
+    // BEGIN-STANDARD-PROPERTIES ======================================================
     // Standard properties
     // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
 public:
     /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
     ///
@@ -147,10 +149,10 @@ public:
     Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
 
     /// \enum UserLevels
-    /// User friendly enumerations for #userLevelVisibility and #userLevelEnabled properties - refer to #userLevelVisibility and #userLevelEnabled properties and ::userLevel enumeration for details.
-    enum UserLevels { User      = USERLEVEL_USER,          ///< Refer to ::USERLEVEL_USER for details
-                      Scientist = USERLEVEL_SCIENTIST,     ///< Refer to ::USERLEVEL_SCIENTIST for details
-                      Engineer  = USERLEVEL_ENGINEER       ///< Refer to ::USERLEVEL_ENGINEER for details
+    /// User friendly enumerations for #userLevelVisibility and #userLevelEnabled properties - refer to #userLevelVisibility and #userLevelEnabled properties and userLevel enumeration for details.
+    enum UserLevels { User      = USERLEVEL_USER,          ///< Refer to USERLEVEL_USER for details
+                      Scientist = USERLEVEL_SCIENTIST,     ///< Refer to USERLEVEL_SCIENTIST for details
+                      Engineer  = USERLEVEL_ENGINEER       ///< Refer to USERLEVEL_ENGINEER for details
                               };
     Q_ENUMS(UserLevels)
 
@@ -187,12 +189,13 @@ public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }
 
 public:
-    //=================================================================================
+    // END-STANDARD-PROPERTIES ========================================================
 
-    //=================================================================================
+    // BEGIN-STRING-FORMATTING-PROPERTIES =============================================
     // String formatting properties
     // These properties should be identical for every widget managing strings.
-    // WHEN MAKING CHANGES: search for STRINGPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
 public:
     /// Precision used when formatting floating point numbers. The default is 4.
     /// This is only used if useDbPrecision is false.
@@ -257,12 +260,12 @@ public:
 
     /// \enum    Formats
     /// User friendly enumerations for format property - refer to QEStringFormatting::formats for details.
-    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,            ///< Refer to QEStringFormatting::FORMAT_DEFAULT for details
-                   Floating         = QEStringFormatting::FORMAT_FLOATING,           ///< Refer to QEStringFormatting::FORMAT_FLOATING for details
-                   Integer          = QEStringFormatting::FORMAT_INTEGER,            ///< Refer to QEStringFormatting::FORMAT_INTEGER for details
-                   UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,    ///< Refer to QEStringFormatting::FORMAT_UNSIGNEDINTEGER for details
-                   Time             = QEStringFormatting::FORMAT_TIME,               ///< Refer to QEStringFormatting::FORMAT_TIME for details
-                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE     ///< Refer to QEStringFormatting::FORMAT_LOCAL_ENUMERATE  for details (and the #localEnumeration property)
+    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,            ///< Format as best appropriate for the data type
+                   Floating         = QEStringFormatting::FORMAT_FLOATING,           ///< Format as a floating point number
+                   Integer          = QEStringFormatting::FORMAT_INTEGER,            ///< Format as an integer
+                   UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,    ///< Format as an unsigned integer
+                   Time             = QEStringFormatting::FORMAT_TIME,               ///< Format as a time
+                   LocalEnumeration = QEStringFormatting::FORMAT_LOCAL_ENUMERATE     ///< Format as a selection from the #localEnumeration property
                 };
     void setFormatProperty( Formats format ){ setFormat( (QEStringFormatting::formats)format ); }  ///< Access function for #format property - refer to #format property for details
     Formats getFormatProperty(){ return (Formats)getFormat(); }                                    ///< Access function for #format property - refer to #format property for details
@@ -309,7 +312,7 @@ public:
     /// Only used when the arrayAction property is INDEX. Refer to the arrayAction property for more details.
     Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
 public:
-    //=================================================================================
+    // END-STRING-FORMATTING-PROPERTIES ===============================================
 
 public:
     /// Create without a variable.

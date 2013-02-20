@@ -112,10 +112,11 @@ private:
     QVariant copyData();
     void paste( QVariant s );
 
-    //=================================================================================
+    // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
-    // WHEN MAKING CHANGES: search for SINGLEVARIABLEPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
     //
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
@@ -136,12 +137,13 @@ private:
 
     QCaVariableNamePropertyManager variableNamePropertyManager;
 public:
-    //=================================================================================
+    // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
-    //=================================================================================
+    // BEGIN-STANDARD-PROPERTIES ======================================================
     // Standard properties
     // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
 public:
     /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
     ///
@@ -235,12 +237,13 @@ public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }
 
 public:
-    //=================================================================================
+    // END-STANDARD-PROPERTIES ========================================================
 
-    //=================================================================================
+    // BEGIN-STRING-FORMATTING-PROPERTIES =============================================
     // String formatting properties
     // These properties should be identical for every widget managing strings.
-    // WHEN MAKING CHANGES: search for STRINGPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
 public:
     /// Precision used when formatting floating point numbers. The default is 4.
     /// This is only used if useDbPrecision is false.
@@ -357,7 +360,7 @@ public:
     /// Only used when the arrayAction property is INDEX. Refer to the arrayAction property for more details.
     Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
 public:
-    //=================================================================================
+    // END-STRING-FORMATTING-PROPERTIES ===============================================
 
     // Widget specific properties
 

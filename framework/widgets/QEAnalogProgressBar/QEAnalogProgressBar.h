@@ -42,10 +42,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBar :
 
 Q_OBJECT
 
-    //=================================================================================
+    // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
-    // WHEN MAKING CHANGES: search for SINGLEVARIABLEPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
     //
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
@@ -66,12 +67,13 @@ private:
 
     QCaVariableNamePropertyManager variableNamePropertyManager;
 public:
-    //=================================================================================
+    // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
-    //=================================================================================
+    // BEGIN-STANDARD-PROPERTIES ======================================================
     // Standard properties
     // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
 public:
     /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
     ///
@@ -165,12 +167,13 @@ public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }
 
 public:
-    //=================================================================================
+    // END-STANDARD-PROPERTIES ========================================================
 
-    //=================================================================================
+    // BEGIN-STRING-FORMATTING-PROPERTIES =============================================
     // String formatting properties
     // These properties should be identical for every widget managing strings.
-    // WHEN MAKING CHANGES: search for STRINGPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
 public:
     /// Precision used when formatting floating point numbers. The default is 4.
     /// This is only used if useDbPrecision is false.
@@ -235,7 +238,7 @@ public:
 
     /// \enum    Formats
     /// User friendly enumerations for format property - refer to QEStringFormatting::formats for details.
-    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,            ///< Format according to the EPICS database record type
+    enum Formats { Default          = QEStringFormatting::FORMAT_DEFAULT,            ///< Format as best appropriate for the data type
                    Floating         = QEStringFormatting::FORMAT_FLOATING,           ///< Format as a floating point number
                    Integer          = QEStringFormatting::FORMAT_INTEGER,            ///< Format as an integer
                    UnsignedInteger  = QEStringFormatting::FORMAT_UNSIGNEDINTEGER,    ///< Format as an unsigned integer
@@ -287,7 +290,7 @@ public:
     /// Only used when the arrayAction property is INDEX. Refer to the arrayAction property for more details.
     Q_PROPERTY(unsigned int arrayIndex READ getArrayIndex WRITE setArrayIndex)
 public:
-    //=================================================================================
+    // END-STRING-FORMATTING-PROPERTIES ===============================================
 
     // Display properties
     /// Use the EPICS database display limits

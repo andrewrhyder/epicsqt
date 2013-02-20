@@ -49,10 +49,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPvProperties : public QFrame,
                                                     public QEWidget {
 Q_OBJECT
 
-    //=================================================================================
+    // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
     // These properties should be identical for every widget using a single variable.
-    // WHEN MAKING CHANGES: search for SINGLEVARIABLEPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
     //
     // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
@@ -73,12 +74,13 @@ private:
 
     QCaVariableNamePropertyManager variableNamePropertyManager;
 public:
-    //=================================================================================
+    // END-SINGLE-VARIABLE-PROPERTIES =================================================
 
-    //=================================================================================
+    // BEGIN-STANDARD-PROPERTIES ======================================================
     // Standard properties
     // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: search for STANDARDPROPERTIES and change all occurances.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
 public:
     /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
     ///
@@ -172,7 +174,7 @@ public slots:
     void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }
 
 public:
-    //=================================================================================
+    // END-STANDARD-PROPERTIES ========================================================
 
 private:
    QCAALARMINFO_SEVERITY lastSeverity;
