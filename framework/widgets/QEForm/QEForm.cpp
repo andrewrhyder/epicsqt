@@ -171,8 +171,11 @@ bool QEForm::readUiFile()
                 fileMon.removePaths( monitoredPaths );
             }
 
-            // Monitor the opened file
-            fileMon.addPath( fullUiFileName );
+            // Monitor the opened file (if not from the Qt resource database which can't be monitored)
+            if( fullUiFileName.left(1).compare( QString( ":" )) )
+            {
+                fileMon.addPath( fullUiFileName );
+            }
 
             // If profile has been published (for example by an application creating this form), then publish our own local profile
             bool localProfile = false;

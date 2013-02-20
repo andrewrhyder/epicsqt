@@ -203,6 +203,24 @@ void MainWindow::on_actionClose_triggered()
     }
  }
 
+// Create a PV PRoperties form
+void MainWindow::on_actionPVProperties_triggered()
+{
+    profile.publishOwnProfile();
+    MainWindow* w = new MainWindow( ":/forms/PVProperties.ui", enableEdit, disableMenu );
+    profile.releaseProfile();
+    w->show();
+}
+
+// Create a Strip Chart form
+void MainWindow::on_actionStrip_Chart_triggered()
+{
+    profile.publishOwnProfile();
+    MainWindow* w = new MainWindow( ":/forms/StripChart.ui", enableEdit, disableMenu );
+    profile.releaseProfile();
+    w->show();
+}
+
 // Raise the window selected in the 'Window' menu
 void MainWindow::onWindowMenuSelection( QAction* action )
 {
