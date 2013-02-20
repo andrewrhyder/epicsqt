@@ -50,4 +50,9 @@ INCLUDEPATH += . \
     ../../framework/plugins/include
 
 LIBS += -L../../framework/designer -lQEPlugin
-FORMS += ./src/MainWindow.ui
+FORMS += ./src/MainWindow.ui \
+         ./src/PVProperties.ui \
+         ./src/StripChart.ui
+
+RESOURCES += ./src/QEGui.qrc
+

@@ -430,7 +430,11 @@ void QEGenericButton::userClicked( bool checked )
         // substitutions already present.
         addPriorityMacroSubstitutions( prioritySubstitutions );
 
+        qDebug()<<"QEGenericButton::userClicked() before launch signal";
+
         emitNewGui( substituteThis( guiName ), creationOption );
+
+        qDebug()<<"QEGenericButton::userClicked() after launch signal";
 
         // Remove this button's priority macro substitutions now all its children are created
         removeMacroSubstitutions();

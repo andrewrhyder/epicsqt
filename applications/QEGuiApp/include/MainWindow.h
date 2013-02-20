@@ -107,6 +107,8 @@ private slots:
 
     void processError( QProcess::ProcessError error ); // An error occured starting designer process
     void startDesignerAlternate();                  // Timer signal used to attempt restarting designer from outside a QProcess error signal
+    void on_actionPVProperties_triggered();
+    void on_actionStrip_Chart_triggered();
 };
 
 #endif // MAINWINDOW_H
