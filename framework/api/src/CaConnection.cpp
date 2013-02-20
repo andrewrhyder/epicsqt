@@ -57,18 +57,11 @@ CaConnection::~CaConnection() {
 
     // Ensure we are not in CA callback code with a risk of accessing this object
     // (Callback code will check the discard flag only while holding the lock)
-    epicsMutexId accessMutex = (epicsMutexId)(CaRef::getAccessMutex());
-    if( accessMutex != NULL )
-    {
-        epicsMutexLock( accessMutex );
-    }
+    CaRef::accessLock();
 
     myRef->discard();
 
-    if( accessMutex != NULL )
-    {
-        epicsMutexUnlock( accessMutex );
-    }
+    CaRef::accessUnlock();
 
     shutdown();
     reset();

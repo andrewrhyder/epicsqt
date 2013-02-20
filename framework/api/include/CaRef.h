@@ -1,4 +1,5 @@
-/*
+/*  CaRef.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -36,14 +37,14 @@
 // deleted objects.
 // The CaRef objects are never deleted. Rather, they are added to a list and reused after some time
 // of inactivity.
+//
+// This unit also holds and manages the access lock used by both CaObject and CaConnection classess.
 
 #ifndef CAOBJECTREF_H_
 #define CAOBJECTREF_H_
 
 #include <string>
 #include <time.h>
-
-#define CAREF_MAGIC 123456789
 
 class CaRef
 {
@@ -57,10 +58,10 @@ public:
 
     void setPV( std::string variableIn );   // Set variable name. Used for logging only
     void setChannelId ( void* channelIn );  // Set channel name. used for logging and also for validating callback
-    void* getRef( void* channelIn );        // Get the owner (validating the channel if known)
+    void* getRef( void* channelIn );        // Get the owner (validating the channel if known) else NULL
 
-    static void* getAccessMutex();
-    static void setAccessMutex( void* accessMutexIn );
+    static void accessLock ();              //
+    static void accessUnlock ();            //
 
 
 //    void dumpList();                        // Diagnostics only
@@ -73,7 +74,7 @@ private:
     std::string variable;                   // CA PV name
     CaRef* next;                            // List link
     time_t idleTime;                        // Time discarded
-    bool ownerIsCaObject;                   // True if owner is a CaObject class (otherwise a CaConnection class)
+    bool ownerIsCaObject;                   // True if owner is a CaObject class (otherwise a CaConnection class) - diagnostic only
 };
 
 #endif  // CAOBJECTREF_H_

@@ -1,21 +1,64 @@
+/*  CaRef.cpp
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *
+ *  The EPICS QT Framework is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The EPICS QT Framework is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Copyright (c) 2013
+ *
+ *  Author:
+ *    Andrew Rhyder
+ *  Contact details:
+ *    andrew.rhyder@synchrotron.org.au
+ */
+
+#include <stdlib.h>
 #include <CaRef.h>
 #include <stdio.h>
 #include <epicsMutex.h>
 
 
-static epicsMutexId accessMutex = NULL;
+#define CAREF_MAGIC 123456789
+
+// Wrapper function around epicsMutexCreate so that we can catch and
+// handle error cases.
+//
+static epicsMutexId createMutex() {
+    epicsMutexId result;
+    result = epicsMutexCreate ();
+    if (result) {
+        fprintf (stderr, "%s:%s - failed to create mutux object.\n", __FILE__, __FUNCTION__);
+        _Exit (1);
+    }
+    return result;
+}
+
+static epicsMutexId accessMutex = createMutex();
 
 static CaRef* carefListHead = NULL;
 static CaRef* carefListTail = NULL;
 
-void* CaRef::getAccessMutex()
+// Get exclusive access
+void CaRef::accessLock()
 {
-    return (void*)accessMutex;
+    epicsMutexLock (accessMutex);
 }
 
-void CaRef::setAccessMutex( void* accessMutexIn )
+// Release exclusive access.
+void CaRef::accessUnlock()
 {
-    accessMutex = (epicsMutexId)accessMutexIn;
+    epicsMutexUnlock (accessMutex);
 }
 
 // Provide a new or reused instance. Call instead of constructor.
