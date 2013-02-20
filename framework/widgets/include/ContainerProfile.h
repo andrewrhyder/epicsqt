@@ -124,6 +124,32 @@ class WidgetRef
         QEWidget* ref;
 };
 
+// Class to allow a truly unique instance of the published profile.
+// On Windows, static variables are defined twice when the QE plugin library is loaded: once by QEGui and once by the Qt .ui loader when creating forms.
+class PublishedProfile
+{
+public:
+    PublishedProfile()                  // Construction
+    {
+        guiLaunchConsumer = NULL;
+        messageFormId = 0;
+        profileDefined = false;
+    }
+
+    QObject* guiLaunchConsumer;         // Object to send GUI launch requests to
+    QStringList pathList;               // Path list used for file operations (scope: application wide)
+    QString parentPath;                 // Path used for file operations (scope: Parent object, if any. This is set up by the application, but is temporarily overwritten and then reset by each level of sub object (sub form)
+    QList<QString> macroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
+    unsigned int messageFormId;         // Current form ID. Used to group forms with their widgets for messaging
+
+    QList<WidgetRef> containedWidgets;  // List of QE widgets created with this profile
+
+    userLevelSignal userSignal;         // Current user level signal object. One instance to signal all QE Widgets
+
+    bool profileDefined;                // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()
+};
+
+
 // Class to provide a communication mechanism from the code creating QE widgets to the QE widgets.
 // See ContainerProfile.cpp for details
 class QEPLUGINLIBRARYSHARED_EXPORT ContainerProfile
@@ -181,18 +207,9 @@ private:
                          QString publishedParentPathIn,
                          QString macroSubstitutionsIn );// Publish an environmental profile for all QEWidgets to use on creation
 
-    static QObject* publishedGuiLaunchConsumer;         // Object to send GUI launch requests to
-    static QStringList publishedPathList;               // Path list used for file operations (scope: application wide)
-    static QString publishedParentPath;                 // Path used for file operations (scope: Parent object, if any. This is set up by the application, but is temporarily overwritten and then reset by each level of sub object (sub form)
-    static QList<QString> publishedMacroSubstitutions;  // list of variable name macro substitution strings. Extended by each sub form created
-    static unsigned int publishedMessageFormId;         // Current form ID. Used to group forms with their widgets for messaging
+    PublishedProfile* getPublishedProfile();            // Get the single instance of the published profile
 
-    static QList<WidgetRef> containedWidgets;           // List of QE widgets created with this profile
-
-    static userLevelSignal userSignal;                  // Current user level signal object. One instance to signal all QE Widgets
     userLevelSlot userSlot;                             // Current user level slot object. An instance per ContainerProfile to recieve level changes
-
-    static bool profileDefined;                         // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()
 
     QObject* guiLaunchConsumer;      // Local copy of GUI launch consumer. Still valid after the profile has been released by releaseProfile()
     QStringList pathList;            // Local copy of application path list used for file operations

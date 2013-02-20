@@ -76,24 +76,8 @@
 
 #include <ContainerProfile.h>
 #include <QEWidget.h>
+#include <QCoreApplication>
 #include <QtDebug>
-
-
-// Static variables used to pass information from the creator of QE widgets to the QE widgets themselves.
-QObject* ContainerProfile::publishedGuiLaunchConsumer = NULL;
-
-QList<QString>   ContainerProfile::publishedMacroSubstitutions;
-QList<WidgetRef> ContainerProfile::containedWidgets;
-QStringList      ContainerProfile::publishedPathList;
-QString          ContainerProfile::publishedParentPath;
-unsigned int     ContainerProfile::publishedMessageFormId;
-
-
-userLevelSignal   ContainerProfile::userSignal;                  // Current user level signal object
-
-//bool ContainerProfile::publishedInteractive = false;
-
-bool ContainerProfile::profileDefined = false;
 
 // Constructor.
 // A local copy of the defined profile (if any) is made.
@@ -102,7 +86,7 @@ ContainerProfile::ContainerProfile()
 {
     // Set up the object that will recieve signals that the user level has changed
     userSlot.setOwner( this );
-    QObject::connect( &userSignal,  SIGNAL( userChanged( userLevels ) ),
+    QObject::connect( &(getPublishedProfile()->userSignal),  SIGNAL( userChanged( userLevels ) ),
                       &userSlot,    SLOT  ( userChanged( userLevels ) ) );
 
     // Take a local copy of the defined profile
@@ -115,6 +99,83 @@ ContainerProfile::ContainerProfile()
 // ContainerProfile::releaseProfile() is called.
 ContainerProfile::~ContainerProfile()
 {
+}
+
+// Get a unique instance of the published profile.
+// The details contained in the PublishedProfile class need to be shared across the application, but they can't
+// be just static since QE framework library QEPlugin may be loaded twice: Once as a run time loaded dll
+// for an application (example QEGui) and once when a QEForm is loaded by the Qt .ui loader. On Linux this
+// doesn't matter - the library is mapped once and the same mapping is returned in both cases. So any static
+// variables only exist once.
+// In windows, however, the library (QEPlugin.dll) is mapped twice and static variables are created twice.
+// This can be observed by printing out the address of a static variable. The 'same' static variable will
+// have different addresses depening on whether it is being referenced by the application or the Qt .ui form loader.
+//
+// This function uses shared memory to hold a reference to a single published profile. It is limited to the
+// current process by including the process ID in the shared memory key.
+// Note, the Qt objects in the single published profile class are all being access by the same thread, just through
+// different mappings of the same dll.
+PublishedProfile* ContainerProfile::getPublishedProfile()
+{
+    // Generate a shared memory key.
+    // Keep it unique to this process by including the pid
+    static qint64 pid = QCoreApplication::applicationPid();
+    static QString key;
+    if( key.isEmpty() )
+    {
+        key.append( "QEFramework:" ).append( QString("%1").arg( pid ) );
+        qDebug() << "key" << key;
+    }
+
+    // Published profile, and the shared memory to reference it,
+    // These static variables are instantiated twice on windows - once when this code is loaded by an application (QEGui)
+    // and once when the Qt .ui loaded loads this code to support creation of QE widgets.
+    static QSharedMemory* sharedMemory = NULL;
+    static PublishedProfile* publishedProfile = NULL;
+
+    // If we have a published profile, it is a truly unique one created earlier - return it
+    if( publishedProfile )
+    {
+        qDebug() << "have publishedProfile" << publishedProfile;
+        return publishedProfile;
+    }
+
+    // We don't have a published profile.
+    // If we don't have a shared memory yet, create it.
+    if( !sharedMemory )
+    {
+        qDebug() << "Creating shared memory";
+        sharedMemory = new QSharedMemory ( key );
+    }
+
+    // Lock the shared memory
+    sharedMemory->lock();
+
+    // Get the shared memory data
+    // If the shared memory data is there, it has also been set up to contain a reference
+    // to the unique published profile, so extract and return it.
+    void* sharedMemoryData = sharedMemory->data();
+    if( sharedMemoryData )
+    {
+        qDebug() << "Have shared memory data";
+        publishedProfile = *(PublishedProfile**)(sharedMemoryData);
+        sharedMemory->unlock();
+        qDebug() << "extracted publishedProfile" << publishedProfile;
+        return publishedProfile;
+    }
+
+    // There is no shared memory data.
+    // Create a unique published profile class, create the shared memory data (big enough to
+    // hold a reference to the published profile), load the reference to the published profile
+    // into the shared memory data, and return the newly created published profile.
+    publishedProfile = new PublishedProfile;
+    sharedMemory->create( sizeof( PublishedProfile* ) );
+    sharedMemoryData = sharedMemory->data();
+    *(PublishedProfile**)(sharedMemoryData) = publishedProfile;
+
+    sharedMemory->unlock();
+    qDebug() << "new shared memory data and publishedProfile" << publishedProfile;
+    return publishedProfile;
 }
 
 /*
@@ -153,7 +214,7 @@ void ContainerProfile::updateConsumers( QObject* guiLaunchConsumerIn )
     }
 
     // Update the published profile
-    publishedGuiLaunchConsumer = guiLaunchConsumerIn;
+    getPublishedProfile()->guiLaunchConsumer = guiLaunchConsumerIn;
 
     // Keep the local copy matching what has been published
     takeLocalCopy();
@@ -166,8 +227,11 @@ void ContainerProfile::updateConsumers( QObject* guiLaunchConsumerIn )
 QObject* ContainerProfile::replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn )
 {
     QObject* savedGuiLaunchConsumer = guiLaunchConsumer;
-    publishedGuiLaunchConsumer = newGuiLaunchConsumerIn;
-    guiLaunchConsumer = publishedGuiLaunchConsumer;
+
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
+    publishedProfile->guiLaunchConsumer = newGuiLaunchConsumerIn;
+    guiLaunchConsumer = publishedProfile->guiLaunchConsumer;
 
     return savedGuiLaunchConsumer;
 }
@@ -181,27 +245,29 @@ void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
                                        QString parentPathIn,
                                        QString macroSubstitutionsIn )
 {
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
     // Do nothing if a profile has already been published
-    if( profileDefined )
+    if( publishedProfile->profileDefined )
     {
         qDebug() << "Can't publish a profile as one is already published";
         return;
     }
 
     // Publish the profile
-    publishedGuiLaunchConsumer = guiLaunchConsumerIn;
+    publishedProfile->guiLaunchConsumer = guiLaunchConsumerIn;
 
-    publishedPathList = pathListIn;
-    publishedParentPath = parentPathIn;
+    publishedProfile->pathList = pathListIn;
+    publishedProfile->parentPath = parentPathIn;
 
-    publishedMacroSubstitutions.clear();
+    publishedProfile->macroSubstitutions.clear();
     if( !macroSubstitutionsIn.isEmpty() )
     {
-        publishedMacroSubstitutions.append( macroSubstitutionsIn );
+        publishedProfile->macroSubstitutions.append( macroSubstitutionsIn );
     }
 
     // flag a published profile now exists
-    profileDefined = true;
+    publishedProfile->profileDefined = true;
 }
 
 /*
@@ -209,19 +275,21 @@ void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
  */
 void ContainerProfile::takeLocalCopy()
 {
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
     QString subs;
-    for( int i = 0; i < publishedMacroSubstitutions.size(); i++ )
+    for( int i = 0; i < publishedProfile->macroSubstitutions.size(); i++ )
     {
         subs.append( " " );
-        subs.append( publishedMacroSubstitutions[i] );
+        subs.append( publishedProfile->macroSubstitutions[i] );
     }
 
-    setupLocalProfile( publishedGuiLaunchConsumer,
-                       publishedPathList,
-                       publishedParentPath,
+    setupLocalProfile( publishedProfile->guiLaunchConsumer,
+                       publishedProfile->pathList,
+                       publishedProfile->parentPath,
                        subs );
 
-    messageFormId = publishedMessageFormId;
+    messageFormId = publishedProfile->messageFormId;
 }
 
 /*
@@ -257,8 +325,10 @@ void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
   */
 void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
 {
-    if( profileDefined  )
-        publishedMacroSubstitutions.append( macroSubstitutionsIn );
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
+    if( publishedProfile->profileDefined  )
+        publishedProfile->macroSubstitutions.append( macroSubstitutionsIn );
 }
 
 /*
@@ -270,8 +340,10 @@ void ContainerProfile::addMacroSubstitutions( QString macroSubstitutionsIn )
   */
 void ContainerProfile::addPriorityMacroSubstitutions( QString macroSubstitutionsIn )
 {
-    if( profileDefined  )
-        publishedMacroSubstitutions.prepend( macroSubstitutionsIn );
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
+    if( publishedProfile->profileDefined  )
+        publishedProfile->macroSubstitutions.prepend( macroSubstitutionsIn );
 }
 /*
   Reduce the macro substitutions currently being used by all new QEWidgets.
@@ -279,8 +351,10 @@ void ContainerProfile::addPriorityMacroSubstitutions( QString macroSubstitutions
   */
 void ContainerProfile::removeMacroSubstitutions()
 {
-    if( profileDefined && !publishedMacroSubstitutions.isEmpty() )
-        publishedMacroSubstitutions.removeLast();
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
+    if( publishedProfile->profileDefined && !publishedProfile->macroSubstitutions.isEmpty() )
+        publishedProfile->macroSubstitutions.removeLast();
 }
 
 /*
@@ -290,8 +364,10 @@ void ContainerProfile::removeMacroSubstitutions()
   */
 void ContainerProfile::removePriorityMacroSubstitutions()
 {
-    if( profileDefined && !publishedMacroSubstitutions.isEmpty() )
-        publishedMacroSubstitutions.removeFirst();
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
+    if( publishedProfile->profileDefined && !publishedProfile->macroSubstitutions.isEmpty() )
+        publishedProfile->macroSubstitutions.removeFirst();
 }
 /*
   Set the published profile to whatever is saved in our local copy
@@ -309,18 +385,20 @@ void ContainerProfile::publishOwnProfile()
   */
 void ContainerProfile::releaseProfile()
 {
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
     // Clear the profile
-    publishedGuiLaunchConsumer = NULL;
+    publishedProfile->guiLaunchConsumer = NULL;
 
-    publishedPathList.clear();
-    publishedParentPath.clear();
+    publishedProfile->pathList.clear();
+    publishedProfile->parentPath.clear();
 
-    publishedMacroSubstitutions.clear();
+    publishedProfile->macroSubstitutions.clear();
 
-    containedWidgets.clear();
+    publishedProfile->containedWidgets.clear();
 
     // Indicate no profile is defined
-    profileDefined = false;
+    publishedProfile->profileDefined = false;
 }
 
 /*
@@ -369,7 +447,7 @@ QString ContainerProfile::getParentPath()
   */
 void ContainerProfile::setPublishedParentPath( QString publishedParentPathIn )
 {
-    publishedParentPath = publishedParentPathIn;
+    getPublishedProfile()->parentPath = publishedParentPathIn;
 }
 
 /*
@@ -391,12 +469,12 @@ unsigned int ContainerProfile::getMessageFormId()
 
 unsigned int ContainerProfile::getPublishedMessageFormId()
 {
-    return publishedMessageFormId;
+    return getPublishedProfile()->messageFormId;
 }
 
 void ContainerProfile::setPublishedMessageFormId( unsigned int publishedMessageFormIdIn )
 {
-    publishedMessageFormId = publishedMessageFormIdIn;
+    getPublishedProfile()->messageFormId = publishedMessageFormIdIn;
 }
 
 
@@ -405,7 +483,7 @@ void ContainerProfile::setPublishedMessageFormId( unsigned int publishedMessageF
   */
 bool ContainerProfile::isProfileDefined()
 {
-    return profileDefined;
+    return getPublishedProfile()->profileDefined;
 }
 
 /*
@@ -418,7 +496,7 @@ bool ContainerProfile::isProfileDefined()
   */
 void ContainerProfile::addContainedWidget( QEWidget* containedWidget )
 {
-    containedWidgets.append( WidgetRef( containedWidget ) );
+    getPublishedProfile()->containedWidgets.append( WidgetRef( containedWidget ) );
 }
 
 /*
@@ -435,14 +513,16 @@ void ContainerProfile::addContainedWidget( QEWidget* containedWidget )
   */
 void ContainerProfile::removeContainedWidget( QEWidget* containedWidget )
 {
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
     // Search for the widget in the list
-    int s = containedWidgets.size();
+    int s = publishedProfile->containedWidgets.size();
     for( int i = 0; i < s; i++ )
     {
         // If found, remove the widget and finish
-        if( containedWidgets[i].getRef() == containedWidget )
+        if( publishedProfile->containedWidgets[i].getRef() == containedWidget )
         {
-            containedWidgets.removeAt( i );
+            publishedProfile->containedWidgets.removeAt( i );
             break;
         }
     }
@@ -455,9 +535,11 @@ void ContainerProfile::removeContainedWidget( QEWidget* containedWidget )
   */
 QEWidget* ContainerProfile::getNextContainedWidget()
 {
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
     // Remove and return the first widget in the list, or return NULL if no more
-    if( !containedWidgets.isEmpty() )
-        return containedWidgets.takeFirst().getRef();
+    if( !publishedProfile->containedWidgets.isEmpty() )
+        return publishedProfile->containedWidgets.takeFirst().getRef();
     else
         return NULL;
 }
@@ -468,7 +550,7 @@ QEWidget* ContainerProfile::getNextContainedWidget()
 void ContainerProfile::setUserLevel( userLevels level )
 {
     // Update the user level (this will result in a signal being emited
-    userSignal.setLevel( level );
+    getPublishedProfile()->userSignal.setLevel( level );
 }
 
 
@@ -485,7 +567,7 @@ void userLevelSignal::setLevel( userLevels levelIn )
   */
 userLevels ContainerProfile::getUserLevel()
 {
-    return userSignal.getLevel();
+    return getPublishedProfile()->userSignal.getLevel();
 }
 
 
