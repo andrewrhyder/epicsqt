@@ -361,18 +361,28 @@ void QEPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaDa
             break;
     }
 
-    // If in alarm, display as an alarm
-    if( alarmInfo.getSeverity() != lastSeverity )
+    // Choose the alarm state to display.
+    // If not displaying the alarm state, use a default 'no alarm' structure. This is
+    // required so the any display of an alarm state is reverted if the displayAlarmState
+    // property changes while displaying an alarm.
+    QCaAlarmInfo ai;
+    if( getDisplayAlarmState() )
     {
-            updateToolTipAlarm( alarmInfo.severityName() );
+        ai = alarmInfo;
+    }
+
+    // If in alarm, display as an alarm
+    if( ai.getSeverity() != lastSeverity )
+    {
+            updateToolTipAlarm( ai.severityName() );
 
             if( writeButton )
-               writeButton->setStyleSheet( alarmInfo.style() );
+               writeButton->setStyleSheet( ai.style() );
 
             if( readbackLabel )
-                readbackLabel->setStyleSheet( alarmInfo.style() );
+                readbackLabel->setStyleSheet( ai.style() );
 
-            lastSeverity = alarmInfo.getSeverity();
+            lastSeverity = ai.getSeverity();
     }
 }
 

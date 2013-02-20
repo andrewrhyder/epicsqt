@@ -367,6 +367,12 @@ public:
     UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
     void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }      ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
 
+    /// If set (default) widget will indicate the alarm state of any variable data is displaying.
+    /// Typically the background colour is set to indicate the alarm state.
+    /// Note, this property is included in the set of standard properties as it applies to most widgets. It
+    /// will do nothing for widgets that don't display data.
+    Q_PROPERTY(bool displayAlarmState READ getDisplayAlarmState WRITE setDisplayAlarmState)
+
 public slots:
     /// Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data.
     /// If disabled due to invalid data, a request to enable the widget will be honoured when the data is no longer invalid.

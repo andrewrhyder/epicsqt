@@ -73,7 +73,7 @@ void QEAnalogProgressBar::setup() {
 
     // Set up default properties
     useDbDisplayLimits = false;
-    this->alarmSeverityDisplayMode = none;
+    this->alarmSeverityDisplayMode = background;
     setAllowDrop( false );
 
     // Set the initial state
@@ -327,31 +327,38 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
     //
     this->setValue( value );
 
-    switch (this->getAlarmSeverityDisplayMode()) {
-       case none:
-          break;
+    // Choose the alarm state to display.
+    // If not displaying the alarm state, use a default 'no alarm' structure. This is
+    // required so the any display of an alarm state is reverted if the displayAlarmState
+    // property changes while displaying an alarm.
+    QCaAlarmInfo ai;
+    if( getDisplayAlarmState() )
+    {
+        ai = alarmInfo;
+    }
 
+    switch (this->getAlarmSeverityDisplayMode()) {
        case foreground:
           // Use low saturation when no alarm, otherwise set a medium saturation level.
           //
           saturation = ALARM_SATURATION;
-          setForegroundColour( getColor( alarmInfo, saturation ) );
+          setForegroundColour( getColor( ai, saturation ) );
           break;
 
        case background:
           // Use low saturation when no alarm, otherwise set a medium saturation level.
           //
-          saturation = (alarmInfo.getSeverity() == NO_ALARM) ? NO_ALARM_SATURATION : ALARM_SATURATION;
-          setBackgroundColour( getColor( alarmInfo, saturation ) );
+          saturation = (ai.getSeverity() == NO_ALARM) ? NO_ALARM_SATURATION : ALARM_SATURATION;
+          setBackgroundColour( getColor( ai, saturation ) );
           break;
     }
 
     // If in alarm, display as an alarm
-    if( alarmInfo.getSeverity() != lastSeverity )
+    if( ai.getSeverity() != lastSeverity )
     {
-        updateToolTipAlarm( alarmInfo.severityName() );
-        setStyleSheet( alarmInfo.style() );
-        lastSeverity = alarmInfo.getSeverity();
+        updateToolTipAlarm( ai.severityName() );
+        setStyleSheet( ai.style() );
+        lastSeverity = ai.getSeverity();
     }
 
     // Signal a database value change to any Link widgets
@@ -433,9 +440,6 @@ void QEAnalogProgressBar::setAlarmSeverityDisplayMode( AlarmSeverityDisplayModes
         // case on old value and restore colour
         //
         switch (this->alarmSeverityDisplayMode) {
-            case none:
-                break;
-
             case foreground:
                 this->setForegroundColour (this->savedForegroundColour);
                 break;
@@ -452,9 +456,6 @@ void QEAnalogProgressBar::setAlarmSeverityDisplayMode( AlarmSeverityDisplayModes
         // case on new value and restore colour
         //
         switch (this->alarmSeverityDisplayMode) {
-            case none:
-                break;
-
             case foreground:
                 this->savedForegroundColour = this->getForegroundColour();
                 break;

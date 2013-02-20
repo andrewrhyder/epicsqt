@@ -28,8 +28,9 @@
 */
 
 #include <standardProperties.h>
-#include <QCoreApplication>
-#include <QFileInfo>
+#include <QEWidget.h>
+//#include <QCoreApplication>
+//#include <QFileInfo>
 
 
 // Construction.
@@ -53,6 +54,8 @@ standardProperties::standardProperties( QWidget* ownerIn )
 
     applicationEnabled = true;
     applicationVisibility = true;
+
+    displayAlarmState = true;
 }
 
 // !!
@@ -112,17 +115,15 @@ void standardProperties::setSuperVisibility()
     bool vis = applicationVisibility;
 
     // Make visible if running within designer
-    QString appPath = QCoreApplication::applicationFilePath();
-    QFileInfo fi( appPath );
-    if( fi.baseName().contains( "designer" ) )
+    if( QEWidget::inDesigner() )
     {
         vis = true;
     }
 
-    // Make invisible if not at a suitable user level
+    // If not in designer, make invisible if not at a suitable user level
     // Note, in designer, the user level will never cause visibility to be false unless in  preview
     // and the user level is changed in the preview window
-    if( profile.getUserLevel() < visibilityLevel )
+    else if( profile.getUserLevel() < visibilityLevel )
     {
         vis = false;
     }
@@ -156,4 +157,15 @@ void standardProperties::setRunVisible( bool visibleIn )
 bool standardProperties::getRunVisible()
 {
     return applicationVisibility;
+}
+
+// displayAlarmState. If set (default) widget will indicate the alarm state of any variable data is displaying.
+void standardProperties::setDisplayAlarmState( bool displayAlarmStateIn )
+{
+    displayAlarmState = displayAlarmStateIn;
+}
+
+bool standardProperties::getDisplayAlarmState()
+{
+    return displayAlarmState;
 }

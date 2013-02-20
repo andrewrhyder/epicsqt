@@ -53,6 +53,9 @@ protected:
 
     void checkVisibilityEnabledLevel( userLevels level );
 
+    void setDisplayAlarmState( bool displayAlarmStateIn );
+    bool getDisplayAlarmState();
+
 private:
     QWidget* owner;
 
@@ -67,6 +70,7 @@ private:
     bool applicationVisibility; // The 'visibility' state the widget would be in if it wasn't being held invisible due to inapropriate user level
     bool applicationEnabled;    // The 'enabled/disabled' state the widget would be in if it wasn't being held disabled by inapropriate user level or disconnected status
     bool dataDisabled;          // Flag the widget should be disabled due to disconnected status
+    bool displayAlarmState;     // Flag the widget should display alarm state
 };
 
 #endif // STANDARDPROPERTIES_H
