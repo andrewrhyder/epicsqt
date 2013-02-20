@@ -365,10 +365,15 @@ QEPvProperties::PrivateWidgetHolder::~PrivateWidgetHolder ()
 // QEPvProperties class functions
 //==============================================================================
 //
-#define WIDGET_WIDTH           448
-#define WIDGET_DEFAULT_HEIGHT  290
+#define WIDGET_MIN_WIDTH       340
 #define WIDGET_MIN_HEIGHT      246
 
+#define WIDGET_DEFAULT_WIDTH   448
+#define WIDGET_DEFAULT_HEIGHT  290
+
+
+//------------------------------------------------------------------------------
+//
 QEPvProperties::QEPvProperties (QWidget * parent) :
       QFrame (parent),
       QEWidget (this)
@@ -413,7 +418,7 @@ void QEPvProperties::setup ()
 //------------------------------------------------------------------------------
 //
 QSize QEPvProperties::sizeHint () const {
-   return QSize (WIDGET_WIDTH, WIDGET_DEFAULT_HEIGHT);
+   return QSize (WIDGET_DEFAULT_WIDTH, WIDGET_DEFAULT_HEIGHT);
 }
 
 //------------------------------------------------------------------------------
@@ -423,13 +428,6 @@ void QEPvProperties::common_setup ()
    PrivateWidgetHolder *own;
    QTableWidgetItem * item;
    QString style;
-   int pw;
-   int ph;
-   int y;
-   int wh;
-   int lw;
-   int fw;
-   int x;
 
    // This function only perform required actions on first call.
    //
@@ -496,34 +494,9 @@ void QEPvProperties::common_setup ()
 
    // Setup layout of widgets with the QEPvProperties QFrame
    //
-   this->setMinimumWidth (WIDGET_WIDTH);
-   this->setMaximumWidth (WIDGET_WIDTH);
+   this->setMinimumWidth (WIDGET_MIN_WIDTH);
    this->setMinimumHeight(WIDGET_MIN_HEIGHT);
 
-   pw = WIDGET_WIDTH;
-   ph = WIDGET_DEFAULT_HEIGHT;
-
-   lw = 48;
-   fw = pw - lw - 18;
-   wh = 18;
-   x = 6;
-   y = 4;
-   own->label1->setGeometry    (x,    y + 6, lw, wh);
-   own->box->setGeometry       (lw + 12,  y, fw, 27); y += 30;
-   own->label2->setGeometry    (x,        y, lw, wh);
-   own->value->setGeometry     (lw + 12,  y, fw, wh); y += 22;
-   own->label3->setGeometry    (x,        y, lw, wh);
-   own->hostName->setGeometry  (lw + 12,  y, fw, wh); y += 22;
-   own->label4->setGeometry    (x,        y, lw, wh);
-   own->timeStamp->setGeometry (lw + 12,  y, fw, wh); y += 22;
-
-   fw = (pw - (48 + 2*lw)) / 2;
-   own->label5->setGeometry    (x, y, lw, wh); x += lw + 6;
-   own->fieldType->setGeometry (x, y, fw, wh); x += fw + 24;
-   own->label6->setGeometry    (x, y, lw, wh); x += lw + 6;
-   own->indexInfo->setGeometry (x, y, fw, wh); y += 22;
-   x = 6;
-   own->table->setGeometry     (x, y, pw - 12, ph - y - 6);
 
    this->fieldStringFormatting.setAddUnits (false);
    this->fieldStringFormatting.setUseDbPrecision (false);
@@ -567,12 +540,39 @@ void QEPvProperties::common_setup ()
 //
 void  QEPvProperties::resizeEvent ( QResizeEvent * )
 {
-   QTableWidget *table = this->ownWidgets->table;
-   QRect tg;
+   PrivateWidgetHolder *own = this->ownWidgets;
+   int pw, ph;   //
+   int x, y;
+   int wh;       // widget height
+   int lw;       // label width
+   int fw;       // field width
 
-   tg = table->geometry ();
-   tg.setHeight (this->height () - tg.top () -6);
-   table->setGeometry  (tg);
+   // Get current width and height.
+   //
+   pw = this->width();
+   ph = this->height();
+
+   lw = 48;
+   fw = pw - lw - 18;
+   wh = 18;
+   x = 6;
+   y = 4;
+   own->label1->setGeometry    (x,    y + 6, lw, wh);
+   own->box->setGeometry       (lw + 12,  y, fw, 27); y += 30;
+   own->label2->setGeometry    (x,        y, lw, wh);
+   own->value->setGeometry     (lw + 12,  y, fw, wh); y += 22;
+   own->label3->setGeometry    (x,        y, lw, wh);
+   own->hostName->setGeometry  (lw + 12,  y, fw, wh); y += 22;
+   own->label4->setGeometry    (x,        y, lw, wh);
+   own->timeStamp->setGeometry (lw + 12,  y, fw, wh); y += 22;
+
+   fw = (pw - (48 + 2*lw)) / 2;
+   own->label5->setGeometry    (x, y, lw, wh); x += lw + 6;
+   own->fieldType->setGeometry (x, y, fw, wh); x += fw + 24;
+   own->label6->setGeometry    (x, y, lw, wh); x += lw + 6;
+   own->indexInfo->setGeometry (x, y, fw, wh); y += 22;
+   x = 6;
+   own->table->setGeometry     (x, y, pw - 12, ph - y - 6);
 }
 
 
