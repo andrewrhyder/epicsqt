@@ -29,7 +29,6 @@
 #include <QStringList>
 #include "StartupParams.h"
 
-
 // Construction
 startupParams::startupParams()
 {
@@ -37,6 +36,7 @@ startupParams::startupParams()
     disableMenu = false;
     singleApp = false;
     printHelp = false;    // not serialized
+    printVersion = false; // not serialized
 }
 
 // Unserialize application startup parameters
@@ -85,14 +85,15 @@ void startupParams::setSharedParams( QByteArray& out )
 
 
 // Extract required parameters from argv and argc
-void startupParams::getStartupParams( QStringList args )
+bool startupParams::getStartupParams( QStringList args )
 {
     // Discard application name
     args.removeFirst();
 
     // Get switches
     // Switches may be separate or grouped.
-    // Switches that precede a parameter (-p, -m) may be grouped. Associated parameters are then expected in the order the switches were specified,
+    // Switches that precede a parameter (-p, -m) may be grouped. Associated
+    // parameters are then expected in the order the switches were specified.
     // Examples:
     // -e -p /home
     // -epm /home PUMP=02
@@ -124,6 +125,12 @@ void startupParams::getStartupParams( QStringList args )
                     printHelp = true;
                     break;
 
+                // Version flag
+                //
+                case 'v':
+                    printVersion = true;
+                    break;
+
                 // 'menu Bar disabled' flag
                 case 'b':
                     disableMenu = true;
@@ -138,6 +145,8 @@ void startupParams::getStartupParams( QStringList args )
                         QString pathParam = args[0];
                         pathList = pathParam.split(QRegExp("\\s+"));
                         args.removeFirst();
+                    } else {
+                        return false;
                     }
                     break;
 
@@ -149,12 +158,14 @@ void startupParams::getStartupParams( QStringList args )
                     {
                         substitutions = args[0];
                         args.removeFirst();
+                    } else {
+                        return false;
                     }
                     break;
 
                 default:
                     // Unrecognised switch
-                    break;
+                    return false;
             }
         }
     }
@@ -165,4 +176,6 @@ void startupParams::getStartupParams( QStringList args )
         filename = args[0];
         args.removeFirst();
     }
+
+    return true;
 }

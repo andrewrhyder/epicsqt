@@ -45,13 +45,14 @@ class startupParams
     void setSharedParams( QByteArray& out );        // Serialise parameters as a serries of bytes
     void getSharedParams( const QByteArray& in );   // Extract parameters from a series of bytes
 
-    void getStartupParams( QStringList args );      // Extract startup parameters from command line arguments
+    bool getStartupParams( QStringList args );      // Extract startup parameters from command line arguments
 
     // Startup parameters
     bool enableEdit;                                // Flag true if 'Edit' menu should be available
     bool disableMenu;                               // Flag true if menu bar should be disabled
     bool singleApp;                                 // True if only a single instance of this application should be started
     bool printHelp;                                 // True if and only if user requests help (-h).
+    bool printVersion;                              // True if and only if user requests version (-v).
     QString filename;                               // Default gui file name
     QStringList pathList;                           // Default gui file path
     QString substitutions;                          // Substitutions. For example, "SECTOR=01,PUMP=03"

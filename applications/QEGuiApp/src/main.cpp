@@ -1,4 +1,5 @@
-/*
+/*  main.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -30,11 +31,28 @@
 #include <iostream>
 #include <QEFrameworkVersion.h>
 
+//------------------------------------------------------------------------------
+//
+static void printVersion ()
+{
+   std::cout  << "QEGui version  " << QE_VERSION_STRING << " ("<< QE_VERSION_DATE_TIME <<  ")\n";
+   std::cout  << "Plugin version "
+              << QEFrameworkVersion::getString().toAscii().data()  << " ("
+              << QEFrameworkVersion::getDateTime().toAscii().data() <<  ")\n";
+}
+
+//------------------------------------------------------------------------------
+//
+static void printUsage ()
+{
+    std::cout  << "usage: QEGui [-v] [-h] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name]\n";
+}
+
+//------------------------------------------------------------------------------
+//
 static void printHelp ()
 {
-  static const char * help_text = 
-      "usage: QEGui [-h] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name]\n"
-      "\n"
+   static const char * help_text =
       "Options\n"
       "\n"
       "-s      Single application.\n"
@@ -62,7 +80,9 @@ static void printHelp ()
       "        generic template forms. Substitutions are not limited to template forms, and some\n"
       "        QEWidgets use macro substitutions for purposes other than variable names.\n"
       "\n"
-      "-h      Display help text explaining these options.\n"
+      "-h      Display help text explaining these options and exit.\n"
+      "\n"
+      "-v      Display version info and exit.\n"
       "\n"
       "\n"
       "Parameter\n"
@@ -92,11 +112,11 @@ static void printHelp ()
       "\n"
       "\n"
       "QE_RECORD_FIELD_LIST - This variable specifies a file that defines the set of field\n"
-      "names associaed with each record type, as used by the PV Propeties widget. If specified,\n"
+      "names associated with each record type, as used by the PV Propeties widget. If specified,\n"
       "the data will be merged with the internal resoure file built into the framework.\n"
       "The format of the file is a simple ASCII file consisting of:\n"
       "\n"
-      "   # test                -- comment lines - ignored\n"
+      "   # example             -- comment lines - ignored\n"
       "                         -- blank lines - ignored\n"
       "   <<recordtype>>        -- introduce record type, e.g. <<ai>>\n"
       "   field_name            -- field name, e.g. DESC\n"
@@ -121,11 +141,16 @@ static void printHelp ()
       "extra fields for an existing record type.\n"
       "\n";
   
-   std::cout  << "QEGui version " << QE_VERSION_STRING << "\n\n";
+   printVersion ();
+   std::cout << "\n";
+   printUsage ();
+   std::cout << "\n";
    std::cout << help_text;
 }
 
 
+//------------------------------------------------------------------------------
+//
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -133,10 +158,20 @@ int main(int argc, char *argv[])
     // Get the startup parameters from the command line arguments
     startupParams params;
     QStringList args = QCoreApplication::arguments();
-    params.getStartupParams( args );
+    bool argsAreOkay = params.getStartupParams( args );
+
+    if (!argsAreOkay) {
+        printUsage ();
+        return 1;
+    }
 
     if (params.printHelp) {
        printHelp ();
+       return 0;
+    }
+
+    if (params.printVersion) {
+       printVersion ();
        return 0;
     }
 
