@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>337</width>
-    <height>42</height>
+    <height>59</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,14 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QELogin" name="qelogin"/>
+    <widget class="QELogin" name="qelogin">
+     <property name="scientistPassword">
+      <string>XKCD242</string>
+     </property>
+     <property name="engineerPassword">
+      <string>XKCD670</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

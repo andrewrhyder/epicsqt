@@ -776,7 +776,7 @@ void QEImage::displayImage()
         case 8: outCount = w; inCount = h; start = (w*h)-1; outInc =  w*h-1; inInc = -w; break;
     }
 
-    // Draw the input pixels into the image buffer .
+    // Draw the input pixels into the image buffer.
     // Drawing is performed in two nested loops, one for height and one for width.
     // Depenting on the scan option, however, the outer may be height or width.
     // The input buffer is read consecutivly from first pixel to last and written to the
@@ -859,7 +859,7 @@ void QEImage::displayImage()
 
     // Format each pixel ready for use in an RGB32 QImage
     // Note, for speed, the conditional code related to clipping has been extracted from the pixel loop
-    // Macros have been used to ensure the same code is used within the clipping an dnon clipping loops.
+    // Macros have been used to ensure the same code is used within the clipping and non clipping loops.
     switch( formatOption )
     {
         case GREY8:

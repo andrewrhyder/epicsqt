@@ -308,11 +308,23 @@ void MainWindow::onWindowMenuSelection( QAction* action )
 void MainWindow::on_actionAbout_triggered()
 {
 
+    // Add the version info and the build date/time at compile time of QEGui
     QString about = QString ("QEGui version:\n      ").append(QE_VERSION_STRING " " QE_VERSION_DATE_TIME);
+
+    // Add the version info and the build date/time at compile time of
+    // the copy of QEPlugin library loaded by QEGui
     about.append( "\n\n\nQE Framework version (loaded by QEGui):\n      " ).append( QEFrameworkVersion::getString() ).append(" ").append( QEFrameworkVersion::getDateTime() );
+
+
+    // Add the version info and the build date/time at compile time of
+    // the copy of QEPlugin library loaded by QUiLoader while creating QE widgets
     about.append( "\n\n\nQE Framework version (loaded by QUiLoader):\n      " ).append( UILoaderFrameworkVersion );
 
+    // Add Macro substitutions (-m parameter)
     about.append( "\n\n\nMacro Substitutions:\n      " ).append( profile.getMacroSubstitutions() );
+
+
+    // Add any path list (-p parameter)
     QStringList paths =  profile.getPathList();
     about.append( "\n\n\nPath List:" );
     for( int i = 0; i < paths.size(); i++ )
@@ -320,6 +332,8 @@ void MainWindow::on_actionAbout_triggered()
         about.append( "\n      " ).append( paths[i] );
     }
     about.append( "\n\n\nCurrent User Level:\n      " );
+
+    // Add the current user level
     userLevels level = profile.getUserLevel();
     switch( level )
     {
@@ -328,6 +342,7 @@ void MainWindow::on_actionAbout_triggered()
         case USERLEVEL_ENGINEER:  about.append( "Engineer" );  break;
     }
 
+    // Display the 'about' text
     QMessageBox::about(this, "About QEGui", about );
 }
 
