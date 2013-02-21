@@ -29,10 +29,14 @@
  */
 
 #include "profilePlot.h"
+#include <QClipboard>
+#include <QApplication>
 
 // Construction
 profilePlot::profilePlot(QWidget *parent) : QwtPlot(parent)
 {
+    data = NULL;
+
     enableAxis( xBottom, false );
     enableAxis( yLeft, false );
 
@@ -40,6 +44,9 @@ profilePlot::profilePlot(QWidget *parent) : QwtPlot(parent)
     curve->setRenderHint( QwtPlotItem::RenderAntialiased );
     curve->attach(this);
 
+    // Set up context sensitive menu (right click menu)
+    setContextMenuPolicy( Qt::CustomContextMenu );
+    connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showProfileContextMenu( const QPoint& )));
 }
 
 // Desctuction
@@ -49,17 +56,87 @@ profilePlot::~profilePlot()
 }
 
 // Set the profile data
-void profilePlot::setProfile( QVector<QPointF>& profile, double minX, double maxX, double minY, double maxY )
+void profilePlot::setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY )
+{
+    // Save a reference to the data for copying if required
+    data = profile;
+
+    // Update the plot
+    updateProfile( profile, minX, maxX, minY, maxY);
+}
+
+// Clear the profile data
+void profilePlot::clearProfile()
+{
+    // Invalidate reference to the data (used for copying)
+    data = NULL;
+
+    // Update the plot with 'nothing'
+    QVector<QPointF> empty;
+    updateProfile( &empty, 0.0, 1.0, 0.0, 1.0 );
+}
+
+// Update (set of clear) the profile data
+void profilePlot::updateProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY )
 {
     // Set the curve data
 #if QWT_VERSION >= 0x060000
-    curve->setSamples( profile );
+    curve->setSamples( *profile );
 #else
-    curve->setData( profile );
+    curve->setData( *profile );
 #endif
     setAxisScale( xBottom, minX, maxX );
     setAxisScale( yLeft, minY, maxY );
 
     // Update the plot
     replot();
+}
+
+// Show the profile plot context menu.
+//
+// This method currently populates a imageContextMenu with one 'copy plot data' option.
+// Refer to  QEImage::showContextMenu() to see how imageContextMenu can be populated with checkable, and non checkable items, and sub menus
+void profilePlot::showProfileContextMenu( const QPoint& pos )
+{
+    // Get the overall position on the display
+    QPoint globalPos = mapToGlobal( pos );
+
+    imageContextMenu menu;
+
+    //                      Title                            checkable  checked                 option
+    menu.addMenuItem(       "Copy Plot Data",                false,     false,                  imageContextMenu::ICM_COPY_PLOT_DATA             );
+
+    // Present the menu
+    imageContextMenu::imageContextMenuOptions option;
+    bool checked;
+    menu.getContextMenuOption( globalPos, &option, &checked );
+
+    // Act on the menu selection
+    switch( option )
+    {
+        default:
+        case imageContextMenu::ICM_NONE:
+            break;
+
+        case imageContextMenu::ICM_COPY_PLOT_DATA:
+            copy();
+            break;
+    }
+}
+
+// Copy plot data to clipboard
+void profilePlot::copy()
+{
+    // If no data, do nothing
+    if( !data )
+        return;
+
+    QClipboard *cb = QApplication::clipboard();
+    QString text;
+    int size = data->size();
+    for( int i = 0; i < size; i++ )
+    {
+        text.append( QString( "%1\n" ).arg((*data)[i].y()));
+    }
+    cb->setText( text );
 }

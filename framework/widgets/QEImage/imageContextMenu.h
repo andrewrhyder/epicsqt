@@ -84,7 +84,8 @@ public:
                                   ICM_SELECT_PROFILE,
                                   ICM_SELECT_TARGET,
                                   ICM_SELECT_BEAM,
-                                  ICM_CLEAR_MARKUP
+                                  ICM_CLEAR_MARKUP,
+                                  ICM_COPY_PLOT_DATA
                                 };
 
     // Present the context menu, and return whatever the user selects

@@ -33,6 +33,7 @@
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
+#include <imageContextMenu.h>
 
 class profilePlot : public QwtPlot
 {
@@ -41,16 +42,23 @@ public:
     profilePlot(QWidget *parent = 0);
     ~profilePlot();
 
-    void setProfile( QVector<QPointF>& profile, double minX, double maxX, double minY, double maxY );  // Set the profile data
+    void setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY );  // Set the profile data
+    void clearProfile();  // Clear the profile data
 
 protected:
 
+private slots:
+    void showProfileContextMenu( const QPoint& pos );
+
 private:
+    void copy();    // Copy plot data to clipboard
+    void updateProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY );
 
     int scale;
     int cursor;
 
     QwtPlotCurve* curve;
+    QVector<QPointF>* data; // Pointer to original data (NULL if not set up)
 };
 
 #endif // PROFILEPLOT_H

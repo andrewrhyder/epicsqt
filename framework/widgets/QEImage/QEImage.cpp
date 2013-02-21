@@ -2056,8 +2056,7 @@ void QEImage::generateVSlice( int xUnscaled )
     // If not over the image, remove the profile
     if( x < 0 || x >= (int)rotatedImageBuffWidth() )
     {
-        QVector<QPointF> empty;
-        vSliceDisplay->setProfile( empty, 0.0, 1.0, 0.0, 1.0 );
+        vSliceDisplay->clearProfile();
         return;
     }
 
@@ -2083,7 +2082,7 @@ void QEImage::generateVSlice( int xUnscaled )
     }
 
     // Display the profile
-    vSliceDisplay->setProfile( vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0 );
+    vSliceDisplay->setProfile( &vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0 );
 }
 
 // Determine the maximum pixel value for the current format
@@ -2176,8 +2175,7 @@ void QEImage::generateHSlice( int yUnscaled )
     // If not over the image, remove the profile
     if( y < 0 || y >= (int)rotatedImageBuffHeight() )
     {
-        QVector<QPointF> empty;
-        hSliceDisplay->setProfile( empty, 0.0, 1.0, 0.0, 1.0 );
+        hSliceDisplay->clearProfile();
         return;
     }
 
@@ -2202,7 +2200,7 @@ void QEImage::generateHSlice( int yUnscaled )
     }
 
     // Display the profile
-    hSliceDisplay->setProfile( hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue() );
+    hSliceDisplay->setProfile( &hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue() );
 }
 
 // Generate a profile along an arbitrary line through an image.
@@ -2295,8 +2293,7 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
     // Do nothing if no line
     if( dX == 0 && dY == 0 )
     {
-        QVector<QPointF> empty;
-        profileDisplay->setProfile( empty, 0.0, 1.0, 0.0, 1.0 );
+        profileDisplay->clearProfile();
         return;
     }
 
@@ -2436,7 +2433,7 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
     }
 
     // Update the profile display
-    profileDisplay->setProfile( profileData, 0.0, (double)(profileData.size()), 0.0,  maxPixelValue() );
+    profileDisplay->setProfile( &profileData, 0.0, (double)(profileData.size()), 0.0,  maxPixelValue() );
 }
 
 //=================================================================================================
