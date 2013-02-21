@@ -35,17 +35,17 @@
 //
 static void printVersion ()
 {
-   std::cout  << "QEGui version  " << QE_VERSION_STRING << " ("<< QE_VERSION_DATE_TIME <<  ")\n";
-   std::cout  << "Plugin version "
-              << QEFrameworkVersion::getString().toAscii().data()  << " ("
-              << QEFrameworkVersion::getDateTime().toAscii().data() <<  ")\n";
+   std::cout  << "QEGui version:     " << QE_VERSION_STRING << "  "<< QE_VERSION_DATE_TIME <<  "\n";
+   std::cout  << "Framework version: "
+              << QEFrameworkVersion::getString().toAscii().data()   << "  "
+              << QEFrameworkVersion::getDateTime().toAscii().data() <<  "\n";
 }
 
 //------------------------------------------------------------------------------
 //
-static void printUsage ()
+static void printUsage (std::ostream & stream)
 {
-    std::cout  << "usage: QEGui [-v] [-h] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name]\n";
+    stream  << "usage: QEGui [-v] [-h] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name]\n";
 }
 
 //------------------------------------------------------------------------------
@@ -124,26 +124,28 @@ static void printHelp ()
       "\n"
       "All field names are associated with the preceeding record type.\n"
       "\n"
-      "The internal resoure file defines fields for the following record types:\n"
+      "The internal resource file defines fields for all the records from base-3-14-11, most of\n"
+      "the records from the synApps distribution, together with the AS developed concat record,\n"
+      "i.e. the following record types:\n"
       "   ai          ao          aSub        asyn        bi          \n"
       "   bo          busy        calc        calcout     camac       \n"
       "   compress    concat      dfanout     dxp         epid        \n"
-      "   er          erevent     event       fanout      filter      \n"
-      "   genSub      histogram   longin      longout     mbbiDirect  \n"
-      "   mbbi        mbboDirect  mbbo        mca         motor       \n"
-      "   permissive  sCalcout    scaler      scanparm    sel         \n"
-      "   seq         sscan       sseq        state       status      \n"
-      "   stringin    stringout   subArray    sub         swait       \n"
-      "   table       timestamp   transform   vme         waveform    \n"
+      "   er          erevent     event       fanout      genSub      \n"
+      "   histogram   longin      longout     mbbi        mbbiDirect  \n"
+      "   mbbo        mbboDirect  mca         motor       permissive  \n"
+      "   sCalcout    scaler      scanparm    sel         seq         \n"
+      "   sscan       sseq        state       status      stringin    \n"
+      "   stringout   subArray    sub         swait       table       \n"
+      "   timestamp   transform   vme         waveform    \n"
       "\n"
       "The file specified by the QE_RECORD_FIELD_LIST variable can be used to define additional\n"
-      "record types and/or completely replace exiting record types. It cannot be used to define\n"
-      "extra fields for an existing record type.\n"
+      "record types and/or completely replace the specification of a specified record type. It \n"
+      "cannot be used to define extra fields for an existing record type.\n"
       "\n";
   
    printVersion ();
    std::cout << "\n";
-   printUsage ();
+   printUsage (std::cout);
    std::cout << "\n";
    std::cout << help_text;
 }
@@ -161,7 +163,7 @@ int main(int argc, char *argv[])
     bool argsAreOkay = params.getStartupParams( args );
 
     if (!argsAreOkay) {
-        printUsage ();
+        printUsage (std::cerr);
         return 1;
     }
 
