@@ -72,7 +72,18 @@ QString QEStripChartItemDialog::getPvName ()
 //
 void QEStripChartItemDialog::setColour (QColor colourIn)
 {
+   int r, g, b;
+   QString style;
+
    this->colour = colourIn;
+   r = this->colour.red ();
+   g = this->colour.green ();
+   b = this->colour.blue ();
+
+   style.sprintf ("QWidget { background-color: #%02x%02x%02x; }", r, g, b);
+
+   this->ui->colourIndicator->setStyleSheet (style);
+
 }
 
 //------------------------------------------------------------------------------
@@ -102,7 +113,7 @@ void QEStripChartItemDialog::colourButtonClicked (bool)
 //
 void QEStripChartItemDialog::colourSelected (const QColor & colourIn)
 {
-   this->colour = colourIn;
+   this->setColour(colourIn);
 }
 
 //------------------------------------------------------------------------------

@@ -762,8 +762,15 @@ void QEStripChart::menuSetYScale (QAction *action)
 
    switch (ys) {
    case ysManual:
-      this->privateData->chartYScale = ys;
-      DEBUG << "TBD manual mode";
+      this->yRangeDialog.setRange (this->getYMinimum (), this->getYMaximum ());
+      n = this->yRangeDialog.exec ();
+      if (n == 1) {
+         this->privateData->chartYScale = ys;
+         // User has selected okay.
+         //
+         this->setYRange (this->yRangeDialog.getMinimum (),
+                          this->yRangeDialog.getMaximum ());
+      }
       break;
 
    case ysLoprHopr:
@@ -929,7 +936,7 @@ double QEStripChart::getYMinimum ()
 
 //----------------------------------------------------------------------------
 //
-void QEStripChart::setYMinimum (double yMinimumIn)
+void QEStripChart::setYMinimum (const double yMinimumIn)
 {
    this->yMinimum = yMinimumIn;
    this->yMaximum = MAX (this->yMaximum, this->yMinimum + 1.0E-3);
@@ -946,13 +953,24 @@ double QEStripChart::getYMaximum ()
 
 //----------------------------------------------------------------------------
 //
-void QEStripChart::setYMaximum (double yMaximumIn)
+void QEStripChart::setYMaximum (const double yMaximumIn)
 {
    this->yMaximum = yMaximumIn;
    this->yMinimum = MIN (this->yMinimum, this->yMaximum - 1.0E-3);
    this->privateData->chartYScale = ysManual;
    this->privateData->plotData ();
 }
+
+//----------------------------------------------------------------------------
+//
+void QEStripChart::setYRange (const double yMinimumIn, const double yMaximumIn)
+{
+    this->yMinimum = yMinimumIn;
+    this->yMaximum = MAX (yMaximumIn, this->yMinimum + 1.0E-3);
+    this->privateData->chartYScale = ysManual;
+    this->privateData->plotData ();
+}
+
 
 //----------------------------------------------------------------------------
 //

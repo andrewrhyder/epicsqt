@@ -46,6 +46,7 @@
 #include <QEDragDrop.h>
 #include <QEWidget.h>
 
+#include <QEStripChartRangeDialog.h>
 #include <QEStripChartTimeDialog.h>
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QEWidget {
@@ -116,10 +117,14 @@ public:
    void setDuration (int durationIn);
 
    double getYMinimum ();
-   void setYMinimum (double yMinimumIn);
+   void setYMinimum (const double yMinimumIn);
 
    double getYMaximum ();
-   void setYMaximum (double yMaximumIn);
+   void setYMaximum (const double yMaximumIn);
+
+   // Combine setYMinimum and setYMaximum.
+   //
+   void setYRange (const double yMinimumIn, const double yMaximumIn);
 
    /* Replots chart data
     */
@@ -173,6 +178,7 @@ private:
    //
    double yMinimum;
    double yMaximum;
+   QEStripChartRangeDialog yRangeDialog;
 
    void addPvName (QString pvName);
 
@@ -196,7 +202,7 @@ private:
 
    // Property access READ and WRITE functions.
    // We can define the access functions using a macro.
-   // Alas we cannot embedded the property definition itself in a macro.
+   // Alas, due to SDK limitation, we cannot embedded the property definition itself in a macro.
    //
    #define PROPERTY_ACCESS(slot)  \
       void    setPropertyVariableName##slot (QString name) { this->setVariableNameProperty (slot - 1, name); }   \
