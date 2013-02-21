@@ -52,7 +52,9 @@ INCLUDEPATH += . \
 LIBS += -L../../framework/designer -lQEPlugin
 FORMS += ./src/MainWindow.ui \
          ./src/PVProperties.ui \
-         ./src/StripChart.ui
+         ./src/StripChart.ui \
+         ./src/UserLevel.ui \
+         ./src/MessageLog.ui
 
 RESOURCES += ./src/QEGui.qrc
 

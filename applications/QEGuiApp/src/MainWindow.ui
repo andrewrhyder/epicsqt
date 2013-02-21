@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>548</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -31,8 +31,11 @@
     <addaction name="actionNew_Tab"/>
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
+    <addaction name="separator"/>
     <addaction name="actionPVProperties"/>
     <addaction name="actionStrip_Chart"/>
+    <addaction name="actionUser_Level"/>
+    <addaction name="actionMessage_Log"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -120,12 +123,22 @@
   </action>
   <action name="actionPVProperties">
    <property name="text">
-    <string>PVProperties</string>
+    <string>PV Properties</string>
    </property>
   </action>
   <action name="actionStrip_Chart">
    <property name="text">
     <string>Strip Chart</string>
+   </property>
+  </action>
+  <action name="actionUser_Level">
+   <property name="text">
+    <string>User Level</string>
+   </property>
+  </action>
+  <action name="actionMessage_Log">
+   <property name="text">
+    <string>Message Log</string>
    </property>
   </action>
  </widget>

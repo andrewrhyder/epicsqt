@@ -35,6 +35,7 @@
 
 #include <QDebug>
 #include <QEWidget.h>
+#include <QEFrameworkVersion.h>
 
 /*
     Constructor
@@ -424,4 +425,10 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
             uiFile = NULL;
         }
         return uiFile;
+}
+
+// Returns the QE framework that built this instance of the widget.
+QString QEWidget::getFrameworkVersion()
+{
+    return QE_VERSION_STRING " " QE_VERSION_DATE_TIME;
 }

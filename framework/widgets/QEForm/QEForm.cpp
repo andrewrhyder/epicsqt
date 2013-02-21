@@ -232,7 +232,13 @@ bool QEForm::readUiFile()
             // the variable name or variable name substitution properties are set
             QEWidget* containedWidget;
             while( (containedWidget = getNextContainedWidget()) )
+            {
+                if( containedFrameworkVersion.isEmpty() )
+                {
+                    containedFrameworkVersion = containedWidget->getFrameworkVersion();
+                }
                 containedWidget->activate();
+            }
 
             // If the published profile was published within this method, release it so nothing created later tries to use this object's services
             if( localProfile )
@@ -426,6 +432,12 @@ void QEForm::resizeEvent ( QResizeEvent * event )
     {
         ui->resize( event->size() );
     }
+}
+
+
+QString QEForm::getContainedFrameworkVersion()
+{
+    return containedFrameworkVersion;
 }
 
 //==============================================================================

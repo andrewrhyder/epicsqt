@@ -66,6 +66,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         void setResizeContents( bool resizeContentsIn );
         bool getResizeContents();
 
+        QString getContainedFrameworkVersion(); // Get the versino of the first QE widget (if any) of QE widgets by QUILoader
+
     public slots:
         bool readUiFile();
 
@@ -97,6 +99,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         void newMessage( QString msg, message_types type );
         void resizeEvent ( QResizeEvent * event );
         unsigned int childMessageFormId;
+
+        QString containedFrameworkVersion;
 
 
 

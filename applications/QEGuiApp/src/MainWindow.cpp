@@ -79,6 +79,7 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     // Save this instance of a main window in the global list of main windows
     mainWindowList.append( this );
 
+//    ui.menuUser_Level->add
     // Set the default title
     setTitle( "" );
 
@@ -206,17 +207,32 @@ void MainWindow::on_actionClose_triggered()
 // Create a PV PRoperties form
 void MainWindow::on_actionPVProperties_triggered()
 {
-    profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( ":/forms/PVProperties.ui", enableEdit, disableMenu );
-    profile.releaseProfile();
-    w->show();
+    launchLocalGui( ":/forms/PVProperties.ui" );
 }
 
 // Create a Strip Chart form
 void MainWindow::on_actionStrip_Chart_triggered()
 {
+    launchLocalGui( ":/forms/StripChart.ui" );
+}
+
+// Create a User Level form
+void MainWindow::on_actionUser_Level_triggered()
+{
+    launchLocalGui( ":/forms/UserLevel.ui" );
+}
+
+// Create a Message Log form
+void MainWindow::on_actionMessage_Log_triggered()
+{
+    launchLocalGui( ":/forms/MessageLog.ui" );
+}
+
+// Launch a new gui from the 'File' menu
+void MainWindow::launchLocalGui( QString filename )
+{
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( ":/forms/StripChart.ui", enableEdit, disableMenu );
+    MainWindow* w = new MainWindow( filename, enableEdit, disableMenu );
     profile.releaseProfile();
     w->show();
 }
@@ -291,7 +307,28 @@ void MainWindow::onWindowMenuSelection( QAction* action )
 // Present the 'About' dialog
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "About QEGui", QString ("<b>QEGui</b> version ").append(QE_VERSION_STRING));
+
+    QString about = QString ("QEGui version:\n      ").append(QE_VERSION_STRING " " QE_VERSION_DATE_TIME);
+    about.append( "\n\n\nQE Framework version (loaded by QEGui):\n      " ).append( QEFrameworkVersion::getString() ).append(" ").append( QEFrameworkVersion::getDateTime() );
+    about.append( "\n\n\nQE Framework version (loaded by QUiLoader):\n      " ).append( UILoaderFrameworkVersion );
+
+    about.append( "\n\n\nMacro Substitutions:\n      " ).append( profile.getMacroSubstitutions() );
+    QStringList paths =  profile.getPathList();
+    about.append( "\n\n\nPath List:" );
+    for( int i = 0; i < paths.size(); i++ )
+    {
+        about.append( "\n      " ).append( paths[i] );
+    }
+    about.append( "\n\n\nCurrent User Level:\n      " );
+    userLevels level = profile.getUserLevel();
+    switch( level )
+    {
+        case USERLEVEL_USER:      about.append( "User" );      break;
+        case USERLEVEL_SCIENTIST: about.append( "Scientist" ); break;
+        case USERLEVEL_ENGINEER:  about.append( "Engineer" );  break;
+    }
+
+    QMessageBox::about(this, "About QEGui", about );
 }
 
 // Change the current tab
@@ -861,6 +898,8 @@ QEForm* MainWindow::createGui( QString fileName )
         // Load the .ui file into the GUI
         gui->readUiFile();
 
+        UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
+
         // If a profile was defined in this method, release it now.
         if( profileDefinedHere )
         {
@@ -1026,3 +1065,4 @@ void MainWindow::removeAllGuisFromWindowsMenu()
         }
     }
 }
+

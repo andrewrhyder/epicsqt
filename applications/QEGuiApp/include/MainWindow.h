@@ -55,6 +55,7 @@ private:
     QEForm* createGui( QString filename );               // Create a gui
     void loadGuiIntoCurrentWindow( QEForm* newGui );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );               // Load a new gui into a new tab
+    void launchLocalGui( QString filename );             // Launch a new gui from the 'File' menu
 
     void setTitle( QString title );                      // Set the main window title
 
@@ -85,10 +86,14 @@ private:
 
     QSize nativeSize;                                       // Size of gui as defined in .ui file (prior to any resizing)
 
+    QString UILoaderFrameworkVersion;                       // QE framework version used by QUILoader when creating widgets in a form
+
 private:
     void newMessage( QString msg, message_types type );
 
 private slots:
+    void on_actionMessage_Log_triggered();
+    void on_actionUser_Level_triggered();
     void on_actionRefresh_Current_Form_triggered();             // Slot to perform 'Refresh Current Form' action
     void on_actionOpen_Current_Form_In_Designer_triggered();    // Slot to perform 'Open Current Form In Designer' action
     void on_actionDesigner_triggered();                         // Slot to perform Open Designer' action

@@ -156,6 +156,10 @@ public:
     /// Use this to create files in a consistant location
     QString defaultFileLocation();
 
+    /// Returns the QE framework that built this instance of the widget.
+    /// On windows, the QEFramework DLL may be loaded twice with potentially different versions of it.
+    QString getFrameworkVersion();
+
 protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
 
