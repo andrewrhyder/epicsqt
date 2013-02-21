@@ -54,6 +54,7 @@ TARGET = QEPlugin
 # Project files
 
 INCLUDEPATH += \
+    include \
     api/include \
     data/include \
     widgets/include
@@ -99,6 +100,7 @@ HEADERS += \
 
 
 SOURCES += \
+    src/QEFrameworkVersion.cpp \
     api/src/Generic.cpp \
     api/src/CaRecord.cpp \
     api/src/CaObject.cpp \
