@@ -188,15 +188,15 @@ void QEImage::setup() {
 
 
     // Create vertical, horizontal, and general profile plots
-    vSliceDisplay = new profilePlot();
+    vSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_BT );
     vSliceDisplay->setMinimumWidth( 100 );
     vSliceDisplay->setVisible( false );
 
-    hSliceDisplay = new profilePlot();
+    hSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR );
     hSliceDisplay->setMinimumHeight( 100 );
     hSliceDisplay->setVisible( false );
 
-    profileDisplay = new profilePlot();
+    profileDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR);
     profileDisplay->setMinimumHeight( 100 );
     profileDisplay->setVisible( false );
 
@@ -2082,7 +2082,9 @@ void QEImage::generateVSlice( int xUnscaled )
     }
 
     // Display the profile
-    vSliceDisplay->setProfile( &vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0 );
+    QDateTime dt = QDateTime::currentDateTime();
+    QString title = QString( "Vertical profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
+    vSliceDisplay->setProfile( &vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0, title, QPoint( x, 0 ), QPoint( x, rotatedImageBuffHeight()-1 ) );
 }
 
 // Determine the maximum pixel value for the current format
@@ -2200,7 +2202,9 @@ void QEImage::generateHSlice( int yUnscaled )
     }
 
     // Display the profile
-    hSliceDisplay->setProfile( &hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue() );
+    QDateTime dt = QDateTime::currentDateTime();
+    QString title = QString( "Horizontal profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
+    hSliceDisplay->setProfile( &hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue(), title, QPoint( y, 0 ), QPoint( y, rotatedImageBuffWidth()-1 ) );
 }
 
 // Generate a profile along an arbitrary line through an image.
@@ -2433,7 +2437,9 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
     }
 
     // Update the profile display
-    profileDisplay->setProfile( &profileData, 0.0, (double)(profileData.size()), 0.0,  maxPixelValue() );
+    QDateTime dt = QDateTime::currentDateTime();
+    QString title = QString( "Line profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
+    profileDisplay->setProfile( &profileData, 0.0, (double)(profileData.size()), 0.0,  maxPixelValue(), title, point1, point2  );
 }
 
 //=================================================================================================

@@ -39,10 +39,12 @@ class profilePlot : public QwtPlot
 {
     Q_OBJECT
 public:
-    profilePlot(QWidget *parent = 0);
+
+    enum plotDirections{ PROFILEPLOT_LR, PROFILEPLOT_RL, PROFILEPLOT_TB, PROFILEPLOT_BT };
+    profilePlot( plotDirections plotDirectionIn );
     ~profilePlot();
 
-    void setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY );  // Set the profile data
+    void setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY, QString title, QPoint start, QPoint end );  // Set the profile data
     void clearProfile();  // Clear the profile data
 
 protected:
@@ -57,8 +59,14 @@ private:
     int scale;
     int cursor;
 
+     plotDirections plotDirection;
+
     QwtPlotCurve* curve;
     QVector<QPointF>* data; // Pointer to original data (NULL if not set up)
+    QString title;
+    QPoint start;
+    QPoint end;
+
 };
 
 #endif // PROFILEPLOT_H

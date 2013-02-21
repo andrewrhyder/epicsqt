@@ -33,9 +33,11 @@
 #include <QApplication>
 
 // Construction
-profilePlot::profilePlot(QWidget *parent) : QwtPlot(parent)
+profilePlot::profilePlot( plotDirections plotDirectionIn ) : QwtPlot( 0 )
 {
     data = NULL;
+
+    plotDirection = plotDirectionIn;
 
     enableAxis( xBottom, false );
     enableAxis( yLeft, false );
@@ -56,10 +58,13 @@ profilePlot::~profilePlot()
 }
 
 // Set the profile data
-void profilePlot::setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY )
+void profilePlot::setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY, QString titleIn, QPoint startIn, QPoint endIn )
 {
     // Save a reference to the data for copying if required
     data = profile;
+    title = titleIn;
+    start = startIn;
+    end = endIn;
 
     // Update the plot
     updateProfile( profile, minX, maxX, minY, maxY);
@@ -133,10 +138,15 @@ void profilePlot::copy()
 
     QClipboard *cb = QApplication::clipboard();
     QString text;
+    text.append( title ).append( QString( " - Start: %1,%2  End: %3,%4\n" ).arg( start.x() ).arg( start.y() ).arg( end.x() ).arg( end.y() ) );
     int size = data->size();
-    for( int i = 0; i < size; i++ )
+    switch( plotDirection )
     {
-        text.append( QString( "%1\n" ).arg((*data)[i].y()));
+        case PROFILEPLOT_LR: for( int i = 0; i < size; i++ )    text.append( QString( "%1\n" ).arg((*data)[i].y())); break;
+        case PROFILEPLOT_RL: for( int i = size-1; i >= 0; i-- ) text.append( QString( "%1\n" ).arg((*data)[i].y())); break;
+        case PROFILEPLOT_TB: for( int i = 0; i < size; i++ )    text.append( QString( "%1\n" ).arg((*data)[i].x())); break;
+        case PROFILEPLOT_BT: for( int i = size-1; i >= 0; i-- ) text.append( QString( "%1\n" ).arg((*data)[i].x())); break;
     }
+
     cb->setText( text );
 }
