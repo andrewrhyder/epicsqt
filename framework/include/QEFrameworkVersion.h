@@ -30,16 +30,17 @@
 #include <QString>
 #include <QEPluginLibrary_global.h>
 
-#define STRINGIFY2(s)     #s
-#define STRINGIFY(s)      STRINGIFY2(s)
+#define STRINGIFY2(s)         #s
+#define STRINGIFY(s)          STRINGIFY2(s)
 
-#define QE_VERSION_MAJOR     2
-#define QE_VERSION_MINOR     2
-#define QE_VERSION_RELEASE   33
+#define QE_VERSION_MAJOR      2
+#define QE_VERSION_MINOR      2
+#define QE_VERSION_RELEASE    34
 
-#define QE_VERSION_STRING    STRINGIFY(QE_VERSION_MAJOR) "." \
-                             STRINGIFY(QE_VERSION_MINOR) "." \
-                             STRINGIFY(QE_VERSION_RELEASE)
+#define QE_VERSION_STRING     STRINGIFY(QE_VERSION_MAJOR) "." \
+                              STRINGIFY(QE_VERSION_MINOR) "." \
+                              STRINGIFY(QE_VERSION_RELEASE)
+
 #define QE_VERSION_DATE_TIME  __DATE__ " " __TIME__
 
 // Provides values used to build shared library.
