@@ -231,6 +231,13 @@ private slots:
    void menuSetYScale (QAction *action);
    void menuSetDuration (QAction *action);
 
+   void prevStateClicked (bool checked = false);
+   void nextStateClicked (bool checked = false);
+   void normalVideoClicked (bool checked = false);
+   void reverseVideoClicked (bool checked = false);
+   void linearScaleClicked (bool checked = false);
+   void logScaleClicked (bool checked = false);
+
    void playClicked (bool checked = false);
    void pauseClicked (bool checked = false);
    void forwardClicked (bool checked = false);

@@ -88,7 +88,7 @@ private:
    QString getPvName ();
    void clear ();
    bool isInUse ();
-   void plotData ();
+   void plotData (const bool isLinearScale);
 
    // NOTE: Where ever possible I spell colour properly.
    //
@@ -98,7 +98,10 @@ private:
    QPen getPen ();
    QwtPlotCurve *allocateCurve ();
    void readArchive ();
-   void plotDataPoints (const QCaDataPointList & dataPoints, const bool isRealTime, TrackRange & plottedTrackRange);
+   void plotDataPoints (const QCaDataPointList & dataPoints,
+                        const bool isLinearScale,
+                        const bool isRealTime,
+                        TrackRange & plottedTrackRange);
    static bool isDisplayable (QCaDataPoint & point);
 
    TrackRange getLoprHopr ();

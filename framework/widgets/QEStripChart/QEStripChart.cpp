@@ -58,6 +58,7 @@
 
 
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
+static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
 // Chart scale options and associated menu names.
 //
@@ -78,7 +79,7 @@ static const QString chartScaleNames [YSMAXIMUM] = {
    "Dynamic "
 };
 
-// Chart time mode options and associated menu names.
+// Chart time mode options.
 //
 enum ChartTimeMode {
    tmRealTime,
@@ -87,6 +88,7 @@ enum ChartTimeMode {
 };
 
 struct PushButtonSpecifications {
+   int gap;
    int width;
    const QString caption;
    const QString iconName;
@@ -94,17 +96,31 @@ struct PushButtonSpecifications {
    const char * member;
 };
 
-#define NUMBER_OF_BUTTONS  8
+#define NUMBER_OF_BUTTONS  14
+#define ICW                26         // icon width
+#define YSCALE_SLOT        6
+#define TSCALE_SLOT        7
+
 
 static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
-   { 92,  QString ("Scale To"),     QString (""),                  QString ("Scale chart Y axis"),           NULL                             },
-   { 96,  QString ("Duration"),     QString (""),                  QString ("Select chart T axis"),          NULL                             },
-   { 24,  QString (""),             QString ("archive.png"),       QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool)) },
-   { 104, QString ("Select Times"), QString (""),                  QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))  },
-   { 24,  QString (""),             QString ("play.png"),          QString ("Play - Real time"),             SLOT (playClicked (bool))        },
-   { 24,  QString (""),             QString ("pause.png"),         QString ("Pause"),                        SLOT (pauseClicked (bool))       },
-   { 24,  QString (""),             QString ("page_backward.png"), QString ("Back one page"),                SLOT (backwardClicked (bool))    },
-   { 24,  QString (""),             QString ("page_forward.png"),  QString ("Forward one page"),             SLOT (forwardClicked (bool))     }
+   { 0, ICW,  QString (""),         QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))    },
+   { 0, ICW,  QString (""),         QString ("go_fwd.png"),            QString ("Next state"),                   SLOT (nextStateClicked (bool))    },
+
+   { 2, ICW,  QString (""),         QString ("normal_video.png"),      QString ("White background"),             SLOT (normalVideoClicked (bool))  },
+   { 0, ICW,  QString (""),         QString ("reverse_video.png"),     QString ("Black background"),             SLOT (reverseVideoClicked (bool)) },
+
+   { 2, ICW,  QString (""),         QString ("linear_scale.png"),      QString ("Linear scale"),                 SLOT (linearScaleClicked (bool)) },
+   { 0, ICW,  QString (""),         QString ("log_scale.png"),         QString ("Log Scale"),                    SLOT (logScaleClicked (bool))    },
+
+   { 2, 92,   QString ("Scale To"), QString (""),                      QString ("Scale chart Y axis"),           NULL                             },
+   { 0, 96,   QString ("Duration"), QString (""),                      QString ("Select chart T axis"),          NULL                             },
+
+   { 2, ICW,  QString (""),         QString ("archive.png"),           QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool)) },
+   { 0, ICW,  QString (""),         QString ("select_date_times.png"), QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))  },
+   { 0, ICW,  QString (""),         QString ("play.png"),              QString ("Play - Real time"),             SLOT (playClicked (bool))        },
+   { 0, ICW,  QString (""),         QString ("pause.png"),             QString ("Pause"),                        SLOT (pauseClicked (bool))       },
+   { 0, ICW,  QString (""),         QString ("page_backward.png"),     QString ("Back one page"),                SLOT (backwardClicked (bool))    },
+   { 0, ICW,  QString (""),         QString ("page_forward.png"),      QString ("Forward one page"),             SLOT (forwardClicked (bool))     }
 };
 
 
@@ -112,10 +128,10 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
 // Local support classes.
 //==============================================================================
 //
-// The imperitive to create this class is to hold references to created QWidgets.
+// The imperative to create this class is to hold references to created QWidgets.
 // If this are declared directly in the header, either none of the widget defined
 // in the plugin are visible in designer or designer seg faults. I think the moc
-// file generation and other Qt stuff gets very confused.
+// file generation and other Qt SDK stuff gets very confused.
 //
 // But given that the class does it exist it is a convient place holder for
 // some additional data and associated functions. The placement of there artefacts
@@ -132,8 +148,10 @@ public:
    void calcDisplayMinMax ();
    void plotData ();
    void setReadOut (QString text);
+   void setNormalBackground (bool state);
    enum ChartYScale chartYScale;
    enum ChartTimeMode chartTimeMode;
+   bool isLinearScale;
 
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
@@ -167,6 +185,8 @@ private:
    QELabel *caLabels [NUMBER_OF_PVS];
    QEStripChartItem *items [NUMBER_OF_PVS];
 
+   bool isNormalVideo;
+
    QVector<QwtPlotCurve *> curve_list;
    void releaseCurves ();
    void onCanvasMouseMove (QMouseEvent * event);
@@ -185,6 +205,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    int j;
    unsigned int slot;
    int left;
+   int gap;
    QString iconPathName;
    QPushButton *button;
 
@@ -204,12 +225,13 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
       button = new QPushButton (buttonSpecs[j].caption, this->toolFrame);
       if ( ! buttonSpecs[j].iconName.isEmpty () ) {
          iconPathName = ":/qe/stripchart/";
-          iconPathName.append (buttonSpecs[j].iconName);
-          button->setIcon (QIcon (iconPathName));
+         iconPathName.append (buttonSpecs[j].iconName);
+         button->setIcon (QIcon (iconPathName));
       }
       button->setToolTip(buttonSpecs[j].toolTip);
-      button->setGeometry (left, 4, buttonSpecs[j].width, 24);
-      left += 4 + buttonSpecs[j].width;
+      gap = buttonSpecs[j].gap;
+      button->setGeometry (left + gap, 2, buttonSpecs[j].width, 26);
+      left += gap + buttonSpecs[j].width + 2;
       if (buttonSpecs[j].member != NULL) {
          QObject::connect (button,  SIGNAL (clicked (bool)), this->chart, buttonSpecs[j].member);
       }
@@ -225,7 +247,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    QObject::connect (this->m1,  SIGNAL (triggered     (QAction *)),
                      this->chart, SLOT (menuSetYScale (QAction *)));
 
-   this->pushButtons [0]->setMenu (this->m1);
+   this->pushButtons [YSCALE_SLOT]->setMenu (this->m1);
 
    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    this->m2 = new QMenu (this->toolFrame);
@@ -277,7 +299,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    QObject::connect (this->m2,  SIGNAL (triggered       (QAction *)),
                      this->chart, SLOT (menuSetDuration (QAction *)));
 
-   this->pushButtons [1]->setMenu (this->m2);
+   this->pushButtons [TSCALE_SLOT]->setMenu (this->m2);
 
 
    // Create PV frame and PV name labels and associated CA labels.
@@ -301,9 +323,9 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
       this->caLabels [slot]->setGeometry          (x, y, 120, 15); x += 124;
 
       this->items [slot] = new QEStripChartItem (this->chart,
-                                                  this->pvNames [slot],
-                                                  this->caLabels [slot],
-                                                  slot);
+                                                 this->pvNames [slot],
+                                                 this->caLabels [slot],
+                                                 slot);
 
       this->channelProperties [slot]->setToolTip ("Modify PV attributes");
 
@@ -318,11 +340,6 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->plotFrame->setFrameShape (QFrame::Panel);
 
    this->plot = new QwtPlot (this->plotFrame);
-#if QWT_VERSION >= 0x060000
-   this->plot->setCanvasBackground (QBrush (clWhite));
-#else
-   this->plot->setCanvasBackground (clWhite);
-#endif
    this->plot->setCanvasLineWidth (1);
    this->plot->setLineWidth (1);
 
@@ -359,12 +376,15 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->layout2->setSpacing (4);
    this->layout2->addWidget (this->plot);
 
-   // Clear / initaialise plot.
+   // Clear / initialise plot.
    //
    this->chartYScale = ysManual;
    this->chartTimeMode = tmRealTime;
+   this->isLinearScale = true;
 
-   this->plotData ();
+   // Force a replot.
+   this->isNormalVideo = false;
+   setNormalBackground (true);
 }
 
 //------------------------------------------------------------------------------
@@ -382,6 +402,23 @@ QEStripChart::PrivateData::~PrivateData ()
 QEStripChartItem * QEStripChart::PrivateData::getItem (unsigned int slot)
 {
    return (slot < NUMBER_OF_PVS) ? this->items [slot] : NULL;
+}
+
+void QEStripChart::PrivateData::setNormalBackground (bool state)
+{
+   QColor background;
+
+   if (this->isNormalVideo != state) {
+      this->isNormalVideo = state;
+
+      background = state ? clWhite : clBlack;
+#if QWT_VERSION >= 0x060000
+   this->plot->setCanvasBackground (QBrush (background));
+#else
+   this->plot->setCanvasBackground (background);
+#endif
+      this->plotData ();
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -495,7 +532,7 @@ void QEStripChart::PrivateData::plotData ()
    this->releaseCurves ();
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       if (this->getItem (slot)->isInUse ()) {
-          this->getItem (slot)->plotData ();
+          this->getItem (slot)->plotData (this->isLinearScale);
       }
    }
 
@@ -787,6 +824,50 @@ void QEStripChart::menuSetYScale (QAction *action)
       DEBUG "Well this is unexpected, action tag = " << n;
       break;
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::prevStateClicked (bool)
+{
+   this->privateData->plotData ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::nextStateClicked (bool)
+{
+   this->privateData->plotData ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::normalVideoClicked (bool)
+{
+   this->privateData->setNormalBackground (true);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::reverseVideoClicked (bool)
+{
+   this->privateData->setNormalBackground (false);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::linearScaleClicked (bool)
+{
+   this->privateData->isLinearScale = true;
+   this->privateData->plotData ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::logScaleClicked (bool)
+{
+   this->privateData->isLinearScale = false;
+   this->privateData->plotData ();
 }
 
 //------------------------------------------------------------------------------

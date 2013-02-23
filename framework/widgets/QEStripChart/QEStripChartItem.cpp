@@ -373,9 +373,15 @@ bool QEStripChartItem::isDisplayable (QCaDataPoint & point)
 //------------------------------------------------------------------------------
 //
 void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
-                                        const bool isRealTime,
-                                        TrackRange & plottedTrackRange)
+                                       const bool isLinearScale,
+                                       const bool isRealTime,
+                                       TrackRange & plottedTrackRange)
 {
+
+// macro function to convert value to a plot value, sfely doing log comversion if required.
+//
+#define PLOTVAL(x) ( isLinearScale ? (x) : ( (x) >=  1.0e-20 ? log10 (x) : -20.0 ) )
+
    const QDateTime end_time   = this->privateData->chart->getEndDateTime ();
    const double duration = this->privateData->chart->getDuration ();
 
@@ -426,7 +432,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
             if (isFirstPoint && doesPreviousExist) {
                 t = -duration;
                 tdata.append (t);
-                ydata.append (previous.value);
+                ydata.append (PLOTVAL (previous.value));
                 plottedTrackRange.merge (previous.value);
             }
 
@@ -434,11 +440,11 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
             //
             if (ydata.count () >= 1) {
                tdata.append (t);
-               ydata.append (ydata.last ());
+               ydata.append (ydata.last ());   // copy don't need PLOTVAL
             }
 
             tdata.append (t);
-            ydata.append (point.value);
+            ydata.append (PLOTVAL (point.value));
             plottedTrackRange.merge (point.value);
 
          } else {
@@ -474,7 +480,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
    if (isFirstPoint && doesPreviousExist) {
        t = -duration;
        tdata.append (t);
-       ydata.append (previous.value);
+       ydata.append (PLOTVAL (previous.value));
        plottedTrackRange.merge (previous.value);
    }
 
@@ -497,21 +503,23 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
       curve->setData (tdata, ydata);
 #endif
    }
+
+#undef PLOTVAL
 }   // plotDataPoints
 
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartItem::plotData ()
+void QEStripChartItem::plotData (const bool isLinearScale)
 {
    TrackRange temp;
 
    this->displayedMinMax.clear ();
 
-   this->plotDataPoints (this->historicalTimeDataPoints, false, temp);
+   this->plotDataPoints (this->historicalTimeDataPoints, isLinearScale,false, temp);
    this->displayedMinMax.merge (temp);
 
-   this->plotDataPoints (this->realTimeDataPoints, true, temp);
+   this->plotDataPoints (this->realTimeDataPoints, isLinearScale, true, temp);
    this->displayedMinMax.merge (temp);
 }
 
