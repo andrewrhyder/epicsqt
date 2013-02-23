@@ -169,6 +169,27 @@ public slots:
 public:
     // END-STANDARD-PROPERTIES ========================================================
 
+
+    // Analog Progress Bar specific properties ========================================
+    // We want to colocate displayAlarmState and AlarmSeverityDisplayMode within
+    // designer.
+    //
+public:
+    enum AlarmSeverityDisplayModes { foreground, background };
+    Q_ENUMS (AlarmSeverityDisplayModes)
+
+    /// Visualise the EPICS alarm severity
+    ///
+    Q_PROPERTY( AlarmSeverityDisplayModes alarmSeverityDisplayMode READ getAlarmSeverityDisplayMode WRITE setAlarmSeverityDisplayMode )
+
+    // Display properties
+    /// Use the EPICS database display limits
+    ///
+    Q_PROPERTY( bool useDbDisplayLimits READ getUseDbDisplayLimits WRITE setUseDbDisplayLimits )
+    //
+    // End of Analog Progress Bar specific properties =================================
+
+
     // BEGIN-STRING-FORMATTING-PROPERTIES =============================================
     // String formatting properties
     // These properties should be identical for every widget managing strings.
@@ -292,17 +313,6 @@ public:
 public:
     // END-STRING-FORMATTING-PROPERTIES ===============================================
 
-    // Display properties
-    /// Use the EPICS database display limits
-    ///
-    Q_PROPERTY( bool useDbDisplayLimits READ getUseDbDisplayLimits WRITE setUseDbDisplayLimits )
-
-    enum AlarmSeverityDisplayModes { foreground, background };
-    Q_ENUMS (AlarmSeverityDisplayModes)
-
-    /// Visualise the EPICS alarm severity
-    ///
-    Q_PROPERTY( AlarmSeverityDisplayModes alarmSeverityDisplayMode READ getAlarmSeverityDisplayMode WRITE setAlarmSeverityDisplayMode )
 
 public:
     /// Create without a variable.
