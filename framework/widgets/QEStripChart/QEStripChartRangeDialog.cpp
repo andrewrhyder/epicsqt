@@ -25,12 +25,11 @@
  *
  */
 
-#include <QDebug>
+#include <QVariant>
 #include <QEStripChartRangeDialog.h>
 #include <ui_QEStripChartRangeDialog.h>
 
-
-static const QTime zero (0, 0, 0, 0);
+#include <QDebug>
 
 //------------------------------------------------------------------------------
 //
@@ -40,10 +39,15 @@ QEStripChartRangeDialog::QEStripChartRangeDialog (QWidget *parent) :
 {
    this->ui->setupUi (this);
 
+   this->minimum = 0.0;
+   this->maximum = 0.0;
+   this->returnIsMasked = false;
 
-//  QObject::connect (this->ui->startTimeEdit, SIGNAL (timeChanged      (const QTime &)),
-//                    this,                    SLOT   (startTimeChanged (const QTime &)));
+   QObject::connect (this->ui->minimumEdit, SIGNAL  (returnPressed ()),
+                     this,                  SLOT (minReturnPressed ()));
 
+   QObject::connect (this->ui->maximumEdit, SIGNAL  (returnPressed ()),
+                     this,                  SLOT (maxReturnPressed ()));
 }
 
 //------------------------------------------------------------------------------
@@ -58,31 +62,49 @@ QEStripChartRangeDialog::~QEStripChartRangeDialog ()
 //
 void QEStripChartRangeDialog::setRange (const double minIn, const double maxIn)
 {
-    this->ui->minimumSpinBox->setValue (minIn);
-    this->ui->maximumSpinBox->setValue (maxIn);
-}
+   QString text;
+
+   this->minimum = minIn;
+   this->maximum = maxIn;
+
+   text.sprintf (" %g", this->minimum);
+   this->ui->minimumEdit->setText(text);
+
+   text.sprintf (" %g", this->maximum);
+   this->ui->maximumEdit->setText(text);
+
+   this->ui->minimumEdit->setFocus ();
+   }
 
 //------------------------------------------------------------------------------
 //
 double QEStripChartRangeDialog::getMinimum ()
 {
-    return this->ui->minimumSpinBox->value();
+   return this->minimum;
 }
 
 //------------------------------------------------------------------------------
 //
 double QEStripChartRangeDialog::getMaximum ()
 {
-    return this->ui->maximumSpinBox->value();
+   return this->maximum;
 }
 
-
-//==============================================================================
-// Slots.
-//==============================================================================
+//------------------------------------------------------------------------------
 //
-// Detctect changes on the fly - ensure max > min ???
+void QEStripChartRangeDialog::minReturnPressed ()
+{
+   this->returnIsMasked = true;
+   this->ui->maximumEdit->setFocus ();
+}
 
+//------------------------------------------------------------------------------
+//
+void QEStripChartRangeDialog::maxReturnPressed ()
+{
+   this->returnIsMasked = true;
+   this->ui->buttonBox->setFocus();
+}
 
 
 //------------------------------------------------------------------------------
@@ -90,7 +112,34 @@ double QEStripChartRangeDialog::getMaximum ()
 //
 void QEStripChartRangeDialog::on_buttonBox_accepted ()
 {
-   this->accept ();
+   QVariant varMin (QVariant::String);
+   QVariant varMax (QVariant::String);
+   double valMin, valMax;
+   bool ok1, ok2;
+
+   if (this->returnIsMasked) {
+      this->returnIsMasked = false;
+      return;
+   }
+
+   // Extract and validate user entry.
+   //
+   varMin = this->ui->minimumEdit->text ();
+   valMin = varMin.toDouble (&ok1);
+
+   varMax = this->ui->maximumEdit->text ();
+   valMax = varMax.toDouble (&ok2);
+
+   if (ok1 && ok2 && (valMax > valMin)) {
+      // All okay - assign values to object.
+      //
+      this->minimum = valMin;
+      this->maximum = valMax;
+
+      // Proceed with 'good' dialog exit
+      //
+      QDialog::accept();
+   }
 }
 
 //------------------------------------------------------------------------------

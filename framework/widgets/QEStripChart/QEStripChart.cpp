@@ -24,6 +24,7 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <math.h>
 #include <QDebug>
 #include <QBoxLayout>
 #include <QLabel>
@@ -35,7 +36,7 @@
 #include <QMenu>
 #include <QToolButton>
 #include <QStringList>
-
+#include <QList>
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
@@ -98,6 +99,8 @@ struct PushButtonSpecifications {
 
 #define NUMBER_OF_BUTTONS  14
 #define ICW                26         // icon width
+#define PREV_SLOT          0
+#define NEXT_SLOT          1
 #define YSCALE_SLOT        6
 #define TSCALE_SLOT        7
 
@@ -124,6 +127,22 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
 };
 
 
+struct ChartState {
+   bool isNormalVideo;
+   bool isLinearScale;
+   ChartYScale chartYScale;
+   double yMinimum;
+   double yMaximum;
+
+   ChartTimeMode chartTimeMode;
+   int duration;
+   QDateTime endDateTime;
+};
+
+#define MAXIMUM_CHART_STATES   40
+
+typedef QList<ChartState>  ChartStateList;
+
 //==============================================================================
 // Local support classes.
 //==============================================================================
@@ -136,6 +155,9 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
 // But given that the class does it exist it is a convient place holder for
 // some additional data and associated functions. The placement of there artefacts
 // here (PrivateData) or in the main widget (QEStripChart) is somewhat arbitary.
+//
+// Even though this is a friend class of QEStripChart, so effectively all members are
+// public we try to maintain the spirit of data encapusation.
 //
 class QEStripChart::PrivateData : public QObject {
 public:
@@ -151,7 +173,13 @@ public:
    void setNormalBackground (bool state);
    enum ChartYScale chartYScale;
    enum ChartTimeMode chartTimeMode;
-   bool isLinearScale;
+   bool isLinearScale;              // false implies isLogScale
+   double timeScale;                // 1 => units are seconds, 60 => x units are minutes, etc.
+   QString timeUnits;
+
+   void pushState ();
+   void prevState ();
+   void nextState ();
 
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
@@ -185,8 +213,11 @@ private:
    QELabel *caLabels [NUMBER_OF_PVS];
    QEStripChartItem *items [NUMBER_OF_PVS];
 
-   bool isNormalVideo;
+   ChartStateList chartStateList;
+   int chartStatePointer;
+   void applyState (const ChartState & chartState);
 
+   bool isNormalVideo;
    QVector<QwtPlotCurve *> curve_list;
    void releaseCurves ();
    void onCanvasMouseMove (QMouseEvent * event);
@@ -381,10 +412,13 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->chartYScale = ysManual;
    this->chartTimeMode = tmRealTime;
    this->isLinearScale = true;
+   this->timeScale = 1.0;
+   this->timeUnits = "secs";
 
-   // Force a replot.
-   this->isNormalVideo = false;
+   this->chartStateList.clear ();
+   this->chartStatePointer = 0;
    setNormalBackground (true);
+   this->pushState ();        // baseline state - there is always at leasts one.
 }
 
 //------------------------------------------------------------------------------
@@ -404,21 +438,19 @@ QEStripChartItem * QEStripChart::PrivateData::getItem (unsigned int slot)
    return (slot < NUMBER_OF_PVS) ? this->items [slot] : NULL;
 }
 
-void QEStripChart::PrivateData::setNormalBackground (bool state)
+void QEStripChart::PrivateData::setNormalBackground (bool isNormalVideoIn)
 {
    QColor background;
 
-   if (this->isNormalVideo != state) {
-      this->isNormalVideo = state;
+   this->isNormalVideo = isNormalVideoIn;
 
-      background = state ? clWhite : clBlack;
+   background = this->isNormalVideo ? clWhite : clBlack;
 #if QWT_VERSION >= 0x060000
    this->plot->setCanvasBackground (QBrush (background));
 #else
    this->plot->setCanvasBackground (background);
 #endif
-      this->plotData ();
-   }
+   this->plotData ();
 }
 
 //------------------------------------------------------------------------------
@@ -487,8 +519,8 @@ void QEStripChart::PrivateData::calcDisplayMinMax ()
 //
 double QEStripChart::PrivateData::selectStep (const double step)
 {
-   static const double min_step = 1.0E-4;
-   static const double max_step = 1.0E+10;
+   static const double min_step = 1.0E-10;
+   static const double max_step = 1.0E+20;
    double result;
    double im;
    double m;
@@ -520,19 +552,38 @@ void QEStripChart::PrivateData::plotData ()
 {
    unsigned int slot;
    double d;
+   double ylo, yhi;
    double step;
    QString format;
    QString times;
 
    d = this->chart->getDuration ();
-   this->plot->setAxisScale (QwtPlot::xBottom, -d, 0.0, d/5.0);
+   if (d <= 1.0) {
+      this->timeScale = 0.001;
+      this->timeUnits = "mS";
+   } else if (d <= 60.0) {
+      this->timeScale = 1.0;
+      this->timeUnits = "secs";
+   } else if (d <= 3600.0) {
+      this->timeScale = 60.0;
+      this->timeUnits = "mins";
+   } else if (d <= 86400.0) {
+      this->timeScale = 3600.0;
+      this->timeUnits = "hrs";
+   } else {
+      this->timeScale = 86400.0;
+      this->timeUnits = "days";
+   }
+
+   this->plot->setAxisScale (QwtPlot::xBottom, -d/this->timeScale, 0.0, (d/this->timeScale)/5.0);
 
    // Update the plot
+   // Allocate curve and call curve-setSample/setData.
    //
    this->releaseCurves ();
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       if (this->getItem (slot)->isInUse ()) {
-          this->getItem (slot)->plotData (this->isLinearScale);
+          this->getItem (slot)->plotData (this->timeScale, this->isLinearScale);
       }
    }
 
@@ -542,12 +593,18 @@ void QEStripChart::PrivateData::plotData ()
       this->calcDisplayMinMax ();
    }
 
-   step = (this->chart->getYMaximum () - this->chart->getYMinimum ())/5.0;
-   step = this->selectStep (step);
-   this->plot->setAxisScale (QwtPlot::yLeft,
-                             this->chart->getYMinimum (),
-                             this->chart->getYMaximum (), step);
-
+   if (this->isLinearScale) {
+      step = (this->chart->getYMaximum () - this->chart->getYMinimum ())/5.0;
+      step = this->selectStep (step);
+      ylo = this->chart->getYMinimum ();
+      yhi =this->chart->getYMaximum ();
+   } else {
+      // therefore log scale
+      step = 1.0;
+      ylo = floor (SAFE_LOG (this->chart->getYMinimum ()));
+      yhi = ceil  (SAFE_LOG (this->chart->getYMaximum ()));
+   }
+   this->plot->setAxisScale (QwtPlot::yLeft, ylo, yhi, step);
    this->plot->replot ();
 
    format = "yyyy-MM-dd hh:mm:ss";
@@ -578,16 +635,21 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    QString mouseReadOut;
    QString f;
 
-   // Convert pixel (x, y) to real world value (x, y)
+   // Convert pixel (x, y) to plot values (x, y)
    //
    x = this->plot->invTransform(QwtPlot::xBottom, event->x ());
    y = this->plot->invTransform(QwtPlot::yLeft,   event->y ());
 
    // Convert cursor x to absolute cursor time.
-   // x is the time (in seconds) relative to the chart end time.
+   // x is the time (in seconds/minutes/hours) relative to the chart end time.
    //
-   t = this->chart->getEndDateTime ().toUTC ().addMSecs ((qint64)(1000.0 * x));
+   t = this->chart->getEndDateTime ().toUTC ().addMSecs ((qint64)(1000.0 * x * this->timeScale));
 
+   // Raise 10^y if needs be
+   //
+   if (this->isLinearScale == false) {
+       y = exp10 (y);
+   }
    // Keep only most significant digit of the milli-seconds,
    // i.e. tenths of a second.
    //
@@ -595,7 +657,11 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    mouseReadOut = t.toString (format).left (format.length() - 2);
    mouseReadOut.append (" UTC");
 
-   f.sprintf (" %12.1f secs    %+.10g", x, y);
+   f.sprintf (" %12.1f ", x);
+   mouseReadOut.append (f);
+   mouseReadOut.append (this->timeUnits);
+
+   f.sprintf ("    %+.10g", y);
    mouseReadOut.append (f);
 
    this->setReadOut (mouseReadOut);
@@ -612,6 +678,106 @@ bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
       // standard event processing
       return QObject::eventFilter (obj, event);
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::applyState (const ChartState & chartState)
+{
+    this->setNormalBackground (chartState.isNormalVideo);
+    this->isLinearScale = chartState.isLinearScale;
+    this->chartYScale = chartState.chartYScale;
+    this->chart->setYRange (chartState.yMinimum, chartState.yMaximum);
+    this->chartTimeMode =  chartState.chartTimeMode;
+    this->chart->setEndDateTime (chartState.endDateTime);
+    this->chart->setDuration (chartState.duration);
+    this->plotData ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::pushState ()
+{
+   ChartState chartState;
+
+   // Capture current state.
+   //
+   chartState.isNormalVideo = this->isNormalVideo;
+   chartState.isLinearScale = this->isLinearScale;
+   chartState.chartYScale = this->chartYScale;
+   chartState.yMinimum = this->chart->getYMinimum ();
+   chartState.yMaximum = this->chart->getYMaximum ();
+   chartState.chartTimeMode = this->chartTimeMode;
+   chartState.duration = this->chart->getDuration ();
+   chartState.endDateTime = this->chart->getEndDateTime ();
+
+   // New state - all potential next states are lost.
+   //
+   while (this->chartStateList.count () > this->chartStatePointer) {
+      this->chartStateList.removeLast ();
+   }
+
+   this->chartStateList.append (chartState);
+
+   // Don't let this list get tooo big.
+   //
+   if (this->chartStateList.count () > MAXIMUM_CHART_STATES) {
+       this->chartStateList.removeFirst ();  // remove oldest
+   }
+   this->chartStatePointer = this->chartStateList.count ();
+
+   // Enable/disble buttons according to availability.
+   //
+   this->pushButtons [PREV_SLOT]->setEnabled (this->chartStatePointer > 1);
+   this->pushButtons [NEXT_SLOT]->setEnabled (this->chartStatePointer < this->chartStateList.count ());
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::prevState ()
+{
+   ChartState chartState;
+
+   if (this->chartStateList.count () < 1) return;    // sanity check.
+
+   // Ensure in range.
+   //
+   this->chartStatePointer = LIMIT (this->chartStatePointer, 1, this->chartStateList.count ());
+
+   if (this->chartStatePointer > 1) {
+      this->chartStatePointer--;
+      chartState = this->chartStateList.value (this->chartStatePointer - 1);  // zero indexed
+      this->applyState (chartState);
+   }
+
+   // Enable/disble buttons according to availability.
+   //
+   this->pushButtons [PREV_SLOT]->setEnabled (this->chartStatePointer > 1);
+   this->pushButtons [NEXT_SLOT]->setEnabled (this->chartStatePointer < this->chartStateList.count ());
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::nextState ()
+{
+   ChartState chartState;
+
+   if (this->chartStateList.count () < 1) return; // sanity check.
+
+   // Ensure in range.
+   //
+   this->chartStatePointer = LIMIT (this->chartStatePointer, 1, this->chartStateList.count ());
+
+   if (this->chartStatePointer < this->chartStateList.count ()) {
+      this->chartStatePointer++;
+      chartState = this->chartStateList.value (this->chartStatePointer - 1);  // zero indexed
+      this->applyState (chartState);
+   }
+
+   // Enable/disble buttons according to availability.
+   //
+   this->pushButtons [PREV_SLOT]->setEnabled (this->chartStatePointer > 1);
+   this->pushButtons [NEXT_SLOT]->setEnabled (this->chartStatePointer < this->chartStateList.count ());
 }
 
 
@@ -778,6 +944,7 @@ void QEStripChart::menuSetDuration (QAction *action)
    d = action->data().toInt (&okay);
    if (okay) {
       this->setDuration (d);
+      this->privateData->pushState ();
    }
 }
 
@@ -795,6 +962,7 @@ void QEStripChart::menuSetYScale (QAction *action)
       return;
    }
 
+   // Convert action number into sensible enumeration value.
    ys = (ChartYScale) n;
 
    switch (ys) {
@@ -808,6 +976,7 @@ void QEStripChart::menuSetYScale (QAction *action)
          this->setYRange (this->yRangeDialog.getMinimum (),
                           this->yRangeDialog.getMaximum ());
       }
+      this->privateData->pushState ();
       break;
 
    case ysLoprHopr:
@@ -818,6 +987,7 @@ void QEStripChart::menuSetYScale (QAction *action)
 
       this->privateData->calcDisplayMinMax ();
       this->privateData->plotData ();
+       this->privateData->pushState ();
       break;
 
    default:
@@ -830,6 +1000,7 @@ void QEStripChart::menuSetYScale (QAction *action)
 //
 void QEStripChart::prevStateClicked (bool)
 {
+   this->privateData->prevState ();
    this->privateData->plotData ();
 }
 
@@ -837,6 +1008,7 @@ void QEStripChart::prevStateClicked (bool)
 //
 void QEStripChart::nextStateClicked (bool)
 {
+   this->privateData->nextState ();
    this->privateData->plotData ();
 }
 
@@ -845,6 +1017,7 @@ void QEStripChart::nextStateClicked (bool)
 void QEStripChart::normalVideoClicked (bool)
 {
    this->privateData->setNormalBackground (true);
+   this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
@@ -852,6 +1025,7 @@ void QEStripChart::normalVideoClicked (bool)
 void QEStripChart::reverseVideoClicked (bool)
 {
    this->privateData->setNormalBackground (false);
+   this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
@@ -860,6 +1034,7 @@ void QEStripChart::linearScaleClicked (bool)
 {
    this->privateData->isLinearScale = true;
    this->privateData->plotData ();
+   this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
@@ -868,6 +1043,7 @@ void QEStripChart::logScaleClicked (bool)
 {
    this->privateData->isLinearScale = false;
    this->privateData->plotData ();
+   this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
@@ -877,6 +1053,7 @@ void QEStripChart::playClicked (bool)
    this->privateData->chartTimeMode = tmRealTime;
    // Note: using setEndTime causes a replot.
    this->setEndDateTime (QDateTime::currentDateTime ());
+   this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
@@ -884,6 +1061,7 @@ void QEStripChart::playClicked (bool)
 void QEStripChart::pauseClicked (bool)
 {
    this->privateData->chartTimeMode = tmPaused;
+   this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
@@ -892,6 +1070,7 @@ void QEStripChart::forwardClicked (bool)
 {
    this->privateData->chartTimeMode = tmPaused;
    this->setEndDateTime (this->getEndDateTime ().addSecs (+this->duration));
+   this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
@@ -900,6 +1079,7 @@ void QEStripChart::backwardClicked (bool)
 {
    this->privateData->chartTimeMode = tmPaused;
    this->setEndDateTime (this->getEndDateTime ().addSecs (-this->duration));
+   this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
@@ -925,6 +1105,7 @@ void QEStripChart::selectTimeClicked (bool)
       //
       d = this->timeDialog.getStartDateTime ().secsTo (this->getEndDateTime());
       this->setDuration (d);
+      this->privateData->pushState ();
    }
 }
 

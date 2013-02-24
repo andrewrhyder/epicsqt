@@ -35,7 +35,7 @@
 
 #define QE_VERSION_MAJOR      2
 #define QE_VERSION_MINOR      2
-#define QE_VERSION_RELEASE    34
+#define QE_VERSION_RELEASE    35
 
 #define QE_VERSION_STRING     STRINGIFY(QE_VERSION_MAJOR) "." \
                               STRINGIFY(QE_VERSION_MINOR) "." \

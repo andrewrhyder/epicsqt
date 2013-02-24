@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>480</width>
-    <height>276</height>
+    <height>280</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>242</y>
+     <y>246</y>
      <width>171</width>
      <height>26</height>
     </rect>
@@ -136,7 +136,7 @@
      <x>12</x>
      <y>192</y>
      <width>220</width>
-     <height>16</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="maximum">
@@ -152,7 +152,7 @@
      <x>248</x>
      <y>192</y>
      <width>220</width>
-     <height>16</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="maximum">
@@ -165,20 +165,20 @@
   <widget class="QTimeEdit" name="startTimeEdit">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>212</y>
+     <x>62</x>
+     <y>218</y>
      <width>120</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>
   <widget class="QTimeEdit" name="endTimeEdit">
    <property name="geometry">
     <rect>
-     <x>300</x>
-     <y>212</y>
+     <x>298</x>
+     <y>218</y>
      <width>120</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>

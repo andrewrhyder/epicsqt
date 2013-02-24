@@ -373,14 +373,17 @@ bool QEStripChartItem::isDisplayable (QCaDataPoint & point)
 //------------------------------------------------------------------------------
 //
 void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
+                                       const double timeScale,
                                        const bool isLinearScale,
                                        const bool isRealTime,
                                        TrackRange & plottedTrackRange)
 {
 
-// macro function to convert value to a plot value, sfely doing log comversion if required.
+
+// macro function to convert value to a plot value, safely doing log comversion if required.
 //
-#define PLOTVAL(x) ( isLinearScale ? (x) : ( (x) >=  1.0e-20 ? log10 (x) : -20.0 ) )
+#define PLOT_T(t) ((t) / timeScale)
+#define PLOT_Y(y) (isLinearScale ? (y) : SAFE_LOG (y))
 
    const QDateTime end_time   = this->privateData->chart->getEndDateTime ();
    const double duration = this->privateData->chart->getDuration ();
@@ -430,21 +433,20 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
             // start edge effect required?
             //
             if (isFirstPoint && doesPreviousExist) {
-                t = -duration;
-                tdata.append (t);
-                ydata.append (PLOTVAL (previous.value));
+                tdata.append (PLOT_T (-duration));
+                ydata.append (PLOT_Y (previous.value));
                 plottedTrackRange.merge (previous.value);
             }
 
             // Do steps - do it like this as using qwt Step mode is not quite what I want.
             //
             if (ydata.count () >= 1) {
-               tdata.append (t);
-               ydata.append (ydata.last ());   // copy don't need PLOTVAL
+               tdata.append (PLOT_T (t));
+               ydata.append (ydata.last ());   // copy don't need PLOT_Y
             }
 
-            tdata.append (t);
-            ydata.append (PLOTVAL (point.value));
+            tdata.append (PLOT_T (t));
+            ydata.append (PLOT_Y (point.value));
             plottedTrackRange.merge (point.value);
 
          } else {
@@ -478,9 +480,8 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
    // Start edge special required?
    //
    if (isFirstPoint && doesPreviousExist) {
-       t = -duration;
-       tdata.append (t);
-       ydata.append (PLOTVAL (previous.value));
+       tdata.append (PLOT_T (-duration));
+       ydata.append (PLOT_Y (previous.value));
        plottedTrackRange.merge (previous.value);
    }
 
@@ -492,7 +493,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
       if (isRealTime) {
          // Replicate last value upto end of chart.
          //
-         tdata.append (0.0);
+         tdata.append (PLOT_T (0.0));
          ydata.append (ydata.last ());
          plottedTrackRange.merge (ydata.last ());
       }
@@ -504,22 +505,23 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 #endif
    }
 
-#undef PLOTVAL
+#undef PLOT_T
+#undef PLOT_Y
 }   // plotDataPoints
 
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartItem::plotData (const bool isLinearScale)
+void QEStripChartItem::plotData (const double timeScale, const bool isLinearScale)
 {
    TrackRange temp;
 
    this->displayedMinMax.clear ();
 
-   this->plotDataPoints (this->historicalTimeDataPoints, isLinearScale,false, temp);
+   this->plotDataPoints (this->historicalTimeDataPoints, timeScale, isLinearScale, false, temp);
    this->displayedMinMax.merge (temp);
 
-   this->plotDataPoints (this->realTimeDataPoints, isLinearScale, true, temp);
+   this->plotDataPoints (this->realTimeDataPoints,timeScale,  isLinearScale, true, temp);
    this->displayedMinMax.merge (temp);
 }
 

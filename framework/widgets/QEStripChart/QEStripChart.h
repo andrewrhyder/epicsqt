@@ -126,8 +126,8 @@ public:
    //
    void setYRange (const double yMinimumIn, const double yMaximumIn);
 
-   /* Replots chart data
-    */
+   // Replots chart data
+   //
    void plotData ();
 
 protected:
@@ -156,7 +156,7 @@ protected:
 
 private:
    // Internal widgets and associated support data. These are declared in
-   // PrivateData If these items are declared at class level, there is a run
+   // PrivateData. If these items are declared at class level, there is a run
    // time exception. PrivateData also allows, what is essentially private,
    // to be actually private, well at least declared in QEStripChart.cpp
    //
@@ -204,7 +204,7 @@ private:
    // We can define the access functions using a macro.
    // Alas, due to SDK limitation, we cannot embedded the property definition itself in a macro.
    //
-   #define PROPERTY_ACCESS(slot)  \
+   #define PROPERTY_ACCESS(slot)                                                                                 \
       void    setPropertyVariableName##slot (QString name) { this->setVariableNameProperty (slot - 1, name); }   \
       QString getPropertyVariableName##slot ()      { return this->getVariableNameProperty (slot - 1); }         \
                                                                                                                  \

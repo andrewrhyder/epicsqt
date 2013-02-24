@@ -46,6 +46,10 @@
 #include <QEStripChart.h>
 #include <QEStripChartItemDialog.h>
 
+// Avoid log of negative / zero values. The 1.0e-20 limit is somewhat arbitary,
+// but in practice is good for most numbers encountered at the sychrotron.
+//
+#define SAFE_LOG(x) ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
 
 // Utility class - move to a separate unit??
 // Tracks the minimum and maximum range of a value.
@@ -56,8 +60,8 @@ public:
    void clear ();
    void merge (const double d);
    void merge (const TrackRange that);
-   /* returns true if range is defined together with min and max.
-    */
+   // returns true if range is defined together with min and max.
+   //
    bool getMinMax (double & min, double& max);
 private:
    double minimum;
@@ -72,41 +76,46 @@ private:
 //
 class QEStripChartItem : public QObject {
    Q_OBJECT
+public:
+   explicit QEStripChartItem (QEStripChart *chart,
+                              QLabel *pvName,
+                              QELabel *caLabel,
+                              unsigned int slot);
+   virtual ~QEStripChartItem ();
 
-private:
-   friend class QEStripChart;
+   bool isInUse ();
 
-   QEStripChartItem (QEStripChart *chart,
-                      QLabel *pvName,
-                      QELabel *caLabel,
-                      unsigned int slot);
-   ~QEStripChartItem ();
-
-   qcaobject::QCaObject* getQcaItem ();   // Return reference to QELabel used to stream CA updates
-   QCaVariableNamePropertyManager pvNameProperyManager;
    void setPvName (QString pvName, QString substitutions);
    QString getPvName ();
-   void clear ();
-   bool isInUse ();
-   void plotData (const bool isLinearScale);
 
    // NOTE: Where ever possible I spell colour properly.
    //
    void setColour (QColor colourIn);
    QColor getColour ();
 
+   TrackRange getLoprHopr ();                  // returns CA specified operating range
+   TrackRange getDisplayedMinMax ();           // retruns range of values currently plotted
+   TrackRange getBufferedMinMax ();            // retruns range of values that coulb be plotted
+
+   void readArchive ();
+
+   void plotData (const double timeScale,      // x scale modifier
+                  const bool isLinearScale);   // y scale modifier
+
+   QCaVariableNamePropertyManager pvNameProperyManager;
+
+private:
+   qcaobject::QCaObject* getQcaItem ();   // Return reference to QELabel used to stream CA updates
+   void clear ();
+
    QPen getPen ();
    QwtPlotCurve *allocateCurve ();
-   void readArchive ();
    void plotDataPoints (const QCaDataPointList & dataPoints,
+                        const double timeScale,
                         const bool isLinearScale,
                         const bool isRealTime,
                         TrackRange & plottedTrackRange);
    static bool isDisplayable (QCaDataPoint & point);
-
-   TrackRange getLoprHopr ();
-   TrackRange getDisplayedMinMax ();
-   TrackRange getBufferedMinMax ();
 
    // data members
    //

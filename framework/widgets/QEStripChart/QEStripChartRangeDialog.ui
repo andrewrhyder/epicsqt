@@ -41,37 +41,16 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QDoubleSpinBox" name="minimumSpinBox">
-       <property name="decimals">
-        <number>4</number>
-       </property>
-       <property name="minimum">
-        <double>-1000000000.000000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>1000000000.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>1.000000000000000</double>
-       </property>
-       <property name="value">
-        <double>1000000000.000000000000000</double>
+      <widget class="QLineEdit" name="minimumEdit">
+       <property name="maxLength">
+        <number>22</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="maximumSpinBox">
-       <property name="decimals">
-        <number>4</number>
-       </property>
-       <property name="minimum">
-        <double>-1000000000.000000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>1000000000.000000000000000</double>
-       </property>
-       <property name="value">
-        <double>1000000000.000000000000000</double>
+      <widget class="QLineEdit" name="maximumEdit">
+       <property name="maxLength">
+        <number>22</number>
        </property>
       </widget>
      </item>

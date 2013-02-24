@@ -56,8 +56,16 @@ public:
 
 private:
    Ui::QEStripChartRangeDialog *ui;
+   double minimum;
+   double maximum;
+   bool returnIsMasked;
 
 private slots:
+   void minReturnPressed ();
+   void maxReturnPressed ();
+
+   // These conection are made by QDialog and associates.
+   //
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();
 };
