@@ -1380,11 +1380,7 @@ void imageMarkup::markupRegionValueChange( int areaIndex, QRect area )
     }
 
     items[region]->nonInteractiveUpdate( area );
-
-    if( isVisible )
-    {
-        items[region]->drawMarkupIn();
-    }
+    items[region]->drawMarkupIn();
 }
 
 // Return the mode according to the active item.

@@ -210,6 +210,11 @@ public:
     void setEnableTargetSelection( bool enableTargetSelectionIn );      ///< Access function for #enableTargetSelection property - refer to #enableTargetSelection property for details
     bool getEnableTargetSelection();                                    ///< Access function for #enableTargetSelection property - refer to #enableTargetSelection property for details
 
+    void setEnableBrightnessContrast( bool enableBrightnessContrastIn );///< Access function for #enableBrightnessContrast property - refer to #enableBrightnessContrast property for details
+    bool getEnableBrightnessContrast();                                 ///< Access function for #enableBrightnessContrast property - refer to #enableBrightnessContrast property for details
+
+    void setAutoBrightnessContrast( bool autoBrightnessContrastIn );    ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
+    bool getAutoBrightnessContrast();                                   ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
 
   protected:
     QEIntegerFormatting integerFormatting; // Integer formatting options.
@@ -240,6 +245,9 @@ public:
 
     bool displayButtonBar;      // True if button bar should be displayed
 
+    bool enableBrightnessContrast;// True if local brightness and contrast controls are presented
+    bool autoBrightnessContrast;  // True if automatically setting local brightness and contrast when selecting a region
+
 private slots:
     // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
@@ -260,6 +268,9 @@ private slots:
     void beamSelectModeClicked();
 
     void panModeClicked();
+
+    void brightnessSliderValueChanged( int value );
+    void contrastSliderValueChanged( int value );
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -357,6 +368,14 @@ public slots:
     profilePlot* vSliceDisplay;
     profilePlot* hSliceDisplay;
     profilePlot* profileDisplay;
+
+    // Local brightness and contrast controls
+    QCheckBox* autoBrightnessCheckBox;
+    QSlider* brightnessSlider;
+    QSlider* contrastSlider;
+    QFrame* brightnessContrastFrame;
+    double localBrightness;
+    double localContrast;
 
 
     // Menus
@@ -871,6 +890,14 @@ public:
     /// Sets the initial position of the vertical scroll bar, if pressent.
     /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)
+
+    /// If true, auto set local brightness and contrast when any area is selected.
+    /// The brightness and contrast is set to use the full range of pixels in the selected area.
+    Q_PROPERTY(bool enableBrightnessContrast READ getEnableBrightnessContrast WRITE setEnableBrightnessContrast)
+
+    /// If true, local brightness and contrast controls are displayed.
+    /// The brightness and contrast is set to use the full range of pixels in the selected area.
+    Q_PROPERTY(bool autoBrightnessContrast READ getAutoBrightnessContrast WRITE setAutoBrightnessContrast)
 };
 
 #endif // QEIMAGE_H

@@ -102,7 +102,8 @@ void QEImage::setup() {
     displayCursorPixelInfo = false;
     contrastReversal = false;
 
-// !!!all property variables initialised?
+    enableBrightnessContrast = true;
+    autoBrightnessContrast = false;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -186,6 +187,31 @@ void QEImage::setup() {
     infoLayout->addWidget( currentTargetLabel, 2, 0 );
     infoLayout->addWidget( currentBeamLabel, 2, 1 );
 
+    // Local brightness and contrast controls
+    brightnessContrastFrame = new QFrame;
+    QGridLayout* brightnessContrastLayout = new QGridLayout();
+    brightnessContrastLayout->setMargin( 0 );
+    brightnessContrastFrame->setLayout( brightnessContrastLayout );
+
+    QLabel* brightnessLabel = new QLabel( "Brightnes:",brightnessContrastFrame );
+    QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastFrame );
+    autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", brightnessContrastFrame );
+
+    brightnessSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
+    QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
+
+    contrastSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
+    QObject::connect( contrastSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( contrastSliderValueChanged( int )) );
+
+    brightnessContrastLayout->addWidget( autoBrightnessCheckBox, 0, 0 );
+    brightnessContrastLayout->addWidget( brightnessLabel, 1, 0 );
+    brightnessContrastLayout->addWidget( brightnessSlider, 1, 1 );
+    brightnessContrastLayout->addWidget( contrastLabel, 2, 0 );
+    brightnessContrastLayout->addWidget( contrastSlider, 2, 1 );
+
+    localBrightness = 0.5;
+    localContrast = 0.5;
+
 
     // Create vertical, horizontal, and general profile plots
     vSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_BT );
@@ -196,7 +222,7 @@ void QEImage::setup() {
     hSliceDisplay->setMinimumHeight( 100 );
     hSliceDisplay->setVisible( false );
 
-    profileDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR);
+    profileDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR );
     profileDisplay->setMinimumHeight( 100 );
     profileDisplay->setVisible( false );
 
@@ -279,6 +305,7 @@ void QEImage::setup() {
     mainLayout->setMargin( 0 );
 
     mainLayout->addWidget( buttonGroup, 0, 0 );
+    mainLayout->addWidget( brightnessContrastFrame, 0, 1 );
     mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
 
     // Set graphics to take all spare room
@@ -1485,7 +1512,28 @@ bool QEImage::getVerticalFlip()
     return flipVert;
 }
 
+// True if local brightness and contrast controls are presented
+void QEImage::setEnableBrightnessContrast( bool enableBrightnessContrastIn )
+{
+    enableBrightnessContrast = enableBrightnessContrastIn;
+    brightnessContrastFrame->setVisible( enableBrightnessContrast );
+}
 
+bool QEImage::getEnableBrightnessContrast()
+{
+    return enableBrightnessContrast;
+}
+
+// Automatic setting of brightness and contrast on region selection
+void QEImage::setAutoBrightnessContrast( bool autoBrightnessContrastIn )
+{
+    autoBrightnessContrast = autoBrightnessContrastIn;
+}
+
+bool QEImage::getAutoBrightnessContrast()
+{
+    return autoBrightnessContrast;
+}
 
 // Resize options
 void QEImage::setResizeOption( resizeOptions resizeOptionIn )
@@ -2162,6 +2210,18 @@ void QEImage::displaySelectedArea4Info( QPoint point1, QPoint point2 )
     currentArea4Label->setText( s );
 }
 
+// The local brightness slider has been moved
+void QEImage::brightnessSliderValueChanged( int localBrightnessIn )
+{
+    localBrightness = (double)(localBrightnessIn)/100.0;
+}
+
+// The local contrast slider has been moved
+void QEImage::contrastSliderValueChanged( int localContrastIn )
+{
+    localContrast =  (double)(localContrastIn)/100.0;
+}
+
 // Generate a profile along a line across an image at a given Y position
 // The profile contains values for each pixel intersected by the line.
 void QEImage::generateHSlice( int yUnscaled )
@@ -2719,12 +2779,13 @@ void QEImage::showContextMenu( const QPoint& pos )
     menu.addMenu( frMenu );
 
     // Add option menu items
-    menu.addOptionMenuItem( "Enable vertical profile selection",                      true,      enableVSliceSelection,  imageContextMenu::ICM_ENABLE_VERT              );
-    menu.addOptionMenuItem( "Enable horizontal profile selection",                    true,      enableHSliceSelection,  imageContextMenu::ICM_ENABLE_HOZ               );
-    menu.addOptionMenuItem( "Enable region selection (required for 'zoom to area'')", true,      enableAreaSelection,    imageContextMenu::ICM_ENABLE_AREA              );
-    menu.addOptionMenuItem( "Enable arbitrary profile selection",                     true,      enableProfileSelection, imageContextMenu::ICM_ENABLE_LINE              );
-    menu.addOptionMenuItem( "Enable target selection",                                true,      enableTargetSelection,  imageContextMenu::ICM_ENABLE_TARGET            );
-    menu.addOptionMenuItem( "Display button bar",                                     true,      displayButtonBar,       imageContextMenu::ICM_DISPLAY_BUTTON_BAR       );
+    menu.addOptionMenuItem( "Enable vertical profile selection",                      true,      enableVSliceSelection,    imageContextMenu::ICM_ENABLE_VERT                 );
+    menu.addOptionMenuItem( "Enable horizontal profile selection",                    true,      enableHSliceSelection,    imageContextMenu::ICM_ENABLE_HOZ                  );
+    menu.addOptionMenuItem( "Enable region selection (required for 'zoom to area'')", true,      enableAreaSelection,      imageContextMenu::ICM_ENABLE_AREA                 );
+    menu.addOptionMenuItem( "Enable arbitrary profile selection",                     true,      enableProfileSelection,   imageContextMenu::ICM_ENABLE_LINE                 );
+    menu.addOptionMenuItem( "Enable target selection",                                true,      enableTargetSelection,    imageContextMenu::ICM_ENABLE_TARGET               );
+    menu.addOptionMenuItem( "Display button bar",                                     true,      displayButtonBar,         imageContextMenu::ICM_DISPLAY_BUTTON_BAR          );
+    menu.addOptionMenuItem( "Display local brightness and contrast controls",         true,      enableBrightnessContrast, imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST );
 
     // Present the menu
     imageContextMenu::imageContextMenuOptions option;
@@ -2737,17 +2798,18 @@ void QEImage::showContextMenu( const QPoint& pos )
         default:
         case imageContextMenu::ICM_NONE: break;
 
-        case imageContextMenu::ICM_SAVE:                     saveClicked();                          break;
-        case imageContextMenu::ICM_PAUSE:                    pauseClicked();                         break;
-        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:      setDisplayCursorPixelInfo  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL: setContrastReversal        ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_TIME:              setShowTime                ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_VERT:              setEnableVertSliceSelection( checked ); break;
-        case imageContextMenu::ICM_ENABLE_HOZ:               setEnableHozSliceSelection ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA:              setEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_LINE:              setEnableProfileSelection  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_TARGET:            setEnableTargetSelection   ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:       setDisplayButtonBar        ( checked ); break;
+        case imageContextMenu::ICM_SAVE:                        saveClicked();                          break;
+        case imageContextMenu::ICM_PAUSE:                       pauseClicked();                         break;
+        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         setDisplayCursorPixelInfo  ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    setContrastReversal        ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime                ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_VERT:                 setEnableVertSliceSelection( checked ); break;
+        case imageContextMenu::ICM_ENABLE_HOZ:                  setEnableHozSliceSelection ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA:                 setEnableAreaSelection     ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_LINE:                 setEnableProfileSelection  ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_TARGET:               setEnableTargetSelection   ( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          setDisplayButtonBar        ( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: setEnableBrightnessContrast( checked ); break;
 
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal

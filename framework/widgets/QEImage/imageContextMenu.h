@@ -57,6 +57,7 @@ public:
                                   ICM_ENABLE_LINE,
                                   ICM_ENABLE_TARGET,
                                   ICM_DISPLAY_BUTTON_BAR,
+                                  ICM_DISPLAY_BRIGHTNESS_CONTRAST,
                                   ICM_ZOOM_SELECTED,
                                   ICM_ZOOM_FIT,
                                   ICM_ZOOM_10,
