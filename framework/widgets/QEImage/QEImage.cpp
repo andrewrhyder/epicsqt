@@ -102,6 +102,7 @@ void QEImage::setup() {
     displayCursorPixelInfo = false;
     contrastReversal = false;
 
+    autoBrightnessContrast = false;
     enableBrightnessContrast = true;
     autoBrightnessContrast = false;
 
@@ -189,13 +190,18 @@ void QEImage::setup() {
 
     // Local brightness and contrast controls
     brightnessContrastFrame = new QFrame;
+    brightnessContrastFrame->setFrameStyle( QFrame::StyledPanel|QFrame::Raised );
+
     QGridLayout* brightnessContrastLayout = new QGridLayout();
-    brightnessContrastLayout->setMargin( 0 );
+    brightnessContrastLayout->setVerticalSpacing( 0 );
     brightnessContrastFrame->setLayout( brightnessContrastLayout );
 
-    QLabel* brightnessLabel = new QLabel( "Brightnes:",brightnessContrastFrame );
+    QLabel* brightnessLabel = new QLabel( "Brightnes:", brightnessContrastFrame );
+
     QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastFrame );
+
     autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", brightnessContrastFrame );
+    QObject::connect( brightnessSlider, SIGNAL( changeEvent ( QEvent * ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( QEvent * )) );
 
     brightnessSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
@@ -203,11 +209,22 @@ void QEImage::setup() {
     contrastSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
     QObject::connect( contrastSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( contrastSliderValueChanged( int )) );
 
+    brightnessRBLabel = new QLabel( brightnessContrastFrame );
+
+    contrastRBLabel = new QLabel( brightnessContrastFrame );
+
+
     brightnessContrastLayout->addWidget( autoBrightnessCheckBox, 0, 0 );
+
     brightnessContrastLayout->addWidget( brightnessLabel, 1, 0 );
     brightnessContrastLayout->addWidget( brightnessSlider, 1, 1 );
+    brightnessContrastLayout->addWidget( brightnessRBLabel, 1, 2 );
+
     brightnessContrastLayout->addWidget( contrastLabel, 2, 0 );
     brightnessContrastLayout->addWidget( contrastSlider, 2, 1 );
+    brightnessContrastLayout->addWidget( contrastRBLabel, 2, 2 );
+
+    brightnessContrastLayout->setColumnStretch( 2, 1 );  // Read back labels to take all spare room
 
     localBrightness = 0.5;
     localContrast = 0.5;
@@ -2210,15 +2227,24 @@ void QEImage::displaySelectedArea4Info( QPoint point1, QPoint point2 )
     currentArea4Label->setText( s );
 }
 
+void QEImage::autoBrightnessCheckBoxChanged( QEvent * )
+{
+
+//    autoBrightnessContrast = get from event
+    qDebug() << "autoBrightnessCheckBoxChanged()";
+}
+
 // The local brightness slider has been moved
 void QEImage::brightnessSliderValueChanged( int localBrightnessIn )
 {
+    qDebug() << "brightnessSliderValueChanged()";
     localBrightness = (double)(localBrightnessIn)/100.0;
 }
 
 // The local contrast slider has been moved
 void QEImage::contrastSliderValueChanged( int localContrastIn )
 {
+    qDebug() << "contrastSliderValueChanged()";
     localContrast =  (double)(localContrastIn)/100.0;
 }
 

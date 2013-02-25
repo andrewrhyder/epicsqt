@@ -204,29 +204,11 @@ void MainWindow::on_actionClose_triggered()
     }
  }
 
-// Create a PV PRoperties form
-void MainWindow::on_actionPVProperties_triggered()
-{
-    launchLocalGui( ":/forms/PVProperties.ui" );
-}
-
-// Create a Strip Chart form
-void MainWindow::on_actionStrip_Chart_triggered()
-{
-    launchLocalGui( ":/forms/StripChart.ui" );
-}
-
-// Create a User Level form
-void MainWindow::on_actionUser_Level_triggered()
-{
-    launchLocalGui( ":/forms/UserLevel.ui" );
-}
-
-// Create a Message Log form
-void MainWindow::on_actionMessage_Log_triggered()
-{
-    launchLocalGui( ":/forms/MessageLog.ui" );
-}
+// Standard GUIs available from the 'File' menu
+void MainWindow::on_actionPVProperties_triggered(){ launchLocalGui( ":/forms/PVProperties.ui" ); }
+void MainWindow::on_actionStrip_Chart_triggered() { launchLocalGui( ":/forms/StripChart.ui"   ); }
+void MainWindow::on_actionUser_Level_triggered()  { launchLocalGui( ":/forms/UserLevel.ui"    ); }
+void MainWindow::on_actionMessage_Log_triggered() { launchLocalGui( ":/forms/MessageLog.ui"   ); }
 
 // Launch a new gui from the 'File' menu
 void MainWindow::launchLocalGui( QString filename )
