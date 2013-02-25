@@ -21,6 +21,7 @@ SVN = svn
 LDD = ldd
 GREP = grep
 SED = sed
+PRELINK = prelink
 RPM = rpmbuild
 RPM_DEPLOY_DIRECTORY = /usr/local/epicsqt_bin
 QMAKE = qmake-qt4
@@ -152,8 +153,8 @@ ifeq ($(shell which $(RPM) 2>/dev/null),)
 	@$(error The program '$(RPM)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install rpm-build' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
 endif
 
-ifeq ($(shell which $(SED) 2>/dev/null),)
-	@$(error The program '$(SED)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install sed' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
+ifeq ($(shell which $(PRELINK) 2>/dev/null),)
+	@$(error The program '$(PRELINK)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install prelink' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
 endif
 
 	@echo "...done checking conditions!"
@@ -182,17 +183,18 @@ endif
 	@echo "%prep" >> $(SPEC_FILE)
 	@echo "mkdir -p ./BUILDROOT/%{name}-%{version}-%{release}.i386$(RPM_DEPLOY_DIRECTORY)" >> $(SPEC_FILE)
 	@echo "cp -rf ../$(PACKAGE_DIRECTORY)/* ./BUILDROOT/%{name}-%{version}-%{release}.i386$(RPM_DEPLOY_DIRECTORY)" >> $(SPEC_FILE)
-	@echo "#find ./BUILDROOT/%{name}-%{version}-%{release}.i386/epicsqt_bin -iname '*.so*' | while read filename ; do mv \"\$${filename}\" \"\`echo \"\$${filename}\" | sed -e 's/\.so/\.s_/'\`\"; done" >> $(SPEC_FILE)
+	@echo "prelink --undo ./BUILDROOT/%{name}-%{version}-%{release}.i386$(RPM_DEPLOY_DIRECTORY)/lib/libQt*.so*" >> $(SPEC_FILE)
+	@echo "prelink --undo ./BUILDROOT/%{name}-%{version}-%{release}.i386$(RPM_DEPLOY_DIRECTORY)/lib/libncurses*.so*" >> $(SPEC_FILE)
+	@echo "prelink --undo ./BUILDROOT/%{name}-%{version}-%{release}.i386$(RPM_DEPLOY_DIRECTORY)/lib/libreadline*.so*" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@echo "%files" >> $(SPEC_FILE)
 	@echo "%attr(755, root, root) $(RPM_DEPLOY_DIRECTORY)/executeQEGui" >> $(SPEC_FILE)
 	@echo "/*" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@echo "%post" >> $(SPEC_FILE)
-	@echo "#find $(RPM_DEPLOY_DIRECTORY) -iname '*.s_*' | while read filename ; do mv \"\$${filename}\" \"\`echo \"\$${filename}\" | sed -e 's/\.s_/\.so/'\`\"; done" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@$(RPM) -bb $(SPEC_FILE)
-	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS/i386'. To install this RPM, perform 'rpm -i --nofiledigest xxx.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
+	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS/i386'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
 
 
 
