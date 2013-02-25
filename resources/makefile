@@ -134,7 +134,7 @@ endif
 	@./script.tmp
 	@rm -f script.tmp
 	@echo "#!/bin/bash" > $(EXECUTE_FILE)
-	@echo "export LD_LIBRARY_PATH=\$$LD_LIBRARY_PATH:./lib:./lib/plugins/designer/" >> $(EXECUTE_FILE)
+	@echo "export LD_LIBRARY_PATH=./lib:./lib/plugins/designer/:\$$LD_LIBRARY_PATH" >> $(EXECUTE_FILE)
 	@echo "export QT_PLUGIN_PATH=./lib/plugins" >> $(EXECUTE_FILE)
 	@echo "./bin/QEGui \"\$$@\"" >> $(EXECUTE_FILE)
 	@chmod u+x $(EXECUTE_FILE)
@@ -192,7 +192,7 @@ endif
 	@echo "#find $(RPM_DEPLOY_DIRECTORY) -iname '*.s_*' | while read filename ; do mv \"\$${filename}\" \"\`echo \"\$${filename}\" | sed -e 's/\.s_/\.so/'\`\"; done" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@$(RPM) -bb $(SPEC_FILE)
-	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS/i386'."
+	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS/i386'. To install this RPM, perform 'rpm -i --nofiledigest xxx.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
 
 
 
