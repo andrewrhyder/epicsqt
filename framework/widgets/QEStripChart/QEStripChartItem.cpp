@@ -383,7 +383,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 // macro function to convert value to a plot value, safely doing log comversion if required.
 //
 #define PLOT_T(t) ((t) / timeScale)
-#define PLOT_Y(y) (isLinearScale ? (y) : SAFE_LOG (y))
+#define PLOT_Y(y) (isLinearScale ? (y) : LOG10 (y))
 
    const QDateTime end_time   = this->privateData->chart->getEndDateTime ();
    const double duration = this->privateData->chart->getDuration ();

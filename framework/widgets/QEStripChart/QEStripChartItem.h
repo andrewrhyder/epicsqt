@@ -46,10 +46,16 @@
 #include <QEStripChart.h>
 #include <QEStripChartItemDialog.h>
 
-// Avoid log of negative / zero values. The 1.0e-20 limit is somewhat arbitary,
-// but in practice is good for most numbers encountered at the sychrotron.
+// Provide log and exp 10 macro functions.
 //
-#define SAFE_LOG(x) ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
+// Log is a safe log in that it avoids attempting to take the log of negative
+// or zero values. The 1.0e-20 limit is somewhat arbitary, but in practice is
+// good for most numbers encountered at the sychrotron.
+//
+// Not all platforms provide exp10.
+//
+#define LOG10(x)  ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
+#define EXP10(x)  exp (2.302585092994046 * (x))
 
 // Utility class - move to a separate unit??
 // Tracks the minimum and maximum range of a value.

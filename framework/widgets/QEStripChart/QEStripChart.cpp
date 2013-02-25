@@ -601,8 +601,8 @@ void QEStripChart::PrivateData::plotData ()
    } else {
       // therefore log scale
       step = 1.0;
-      ylo = floor (SAFE_LOG (this->chart->getYMinimum ()));
-      yhi = ceil  (SAFE_LOG (this->chart->getYMaximum ()));
+      ylo = floor (LOG10 (this->chart->getYMinimum ()));
+      yhi = ceil  (LOG10 (this->chart->getYMaximum ()));
    }
    this->plot->setAxisScale (QwtPlot::yLeft, ylo, yhi, step);
    this->plot->replot ();
@@ -648,7 +648,7 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    // Raise 10^y if needs be
    //
    if (this->isLinearScale == false) {
-       y = exp10 (y);
+       y = EXP10 (y);
    }
    // Keep only most significant digit of the milli-seconds,
    // i.e. tenths of a second.
