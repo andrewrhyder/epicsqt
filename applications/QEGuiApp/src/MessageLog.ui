@@ -15,7 +15,14 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QELog" name="qelog"/>
+    <widget class="QELog" name="qelog">
+     <property name="messageFormFilter">
+      <enum>QELog::Any</enum>
+     </property>
+     <property name="messageSourceFilter">
+      <enum>QELog::Any</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
