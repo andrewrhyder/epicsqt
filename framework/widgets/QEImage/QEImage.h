@@ -269,7 +269,7 @@ private slots:
 
     void panModeClicked();
 
-    void autoBrightnessCheckBoxChanged( QEvent * );
+    void autoBrightnessCheckBoxChanged(  int state );
     void brightnessSliderValueChanged( int value );
     void contrastSliderValueChanged( int value );
 
@@ -379,8 +379,8 @@ public slots:
     QLabel* contrastRBLabel;
 
     QFrame* brightnessContrastFrame;
-    double localBrightness;
-    double localContrast;
+    int localBrightness;
+    int localContrast;
 
 
     // Menus

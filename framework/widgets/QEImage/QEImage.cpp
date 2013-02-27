@@ -102,7 +102,6 @@ void QEImage::setup() {
     displayCursorPixelInfo = false;
     contrastReversal = false;
 
-    autoBrightnessContrast = false;
     enableBrightnessContrast = true;
     autoBrightnessContrast = false;
 
@@ -201,12 +200,16 @@ void QEImage::setup() {
     QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastFrame );
 
     autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", brightnessContrastFrame );
-    QObject::connect( autoBrightnessCheckBox, SIGNAL( changeEvent ( QEvent * ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( QEvent * )) );
+    QObject::connect( autoBrightnessCheckBox, SIGNAL( stateChanged ( int ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( int )) );
 
     brightnessSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
+    brightnessSlider->setMinimum( -100 );
+    brightnessSlider->setMaximum( 100 );
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
 
     contrastSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
+    contrastSlider->setMinimum( 0 );
+    contrastSlider->setMaximum( 1000 );
     QObject::connect( contrastSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( contrastSliderValueChanged( int )) );
 
     brightnessRBLabel = new QLabel( brightnessContrastFrame );
@@ -226,8 +229,8 @@ void QEImage::setup() {
 
     brightnessContrastLayout->setColumnStretch( 2, 1 );  // Read back labels to take all spare room
 
-    localBrightness = 0.5;
-    localContrast = 0.5;
+    localBrightness = 0;
+    localContrast = 100;
 
 
     // Create vertical, horizontal, and general profile plots
@@ -828,6 +831,9 @@ void QEImage::displayImage()
     // loops to where ever that next pixel is according to the rotation and flipping.
     dataIndex = start;
 
+//    unsigned char* pixelLookup = getPixelTranslation;
+
+
 // For speed, the format switch statement is outside the pixel loop.
 // An identical loop is used for each format
 #define LOOP_START                          \
@@ -901,6 +907,21 @@ void QEImage::displayImage()
         }                                                                               \
     }
 
+#define LOCAL_CONTRAST(PIXEL)                                                           \
+    {                                                                                   \
+        if( doLCB )                                                                     \
+        {                                                                               \
+            int p = ((int)(*PIXEL)*localContrast/100)+(255*localBrightness/100);        \
+            if ( p < 0 ) p = 0;                                                         \
+            else if( p > 255 ) p = 255;                                                 \
+            *PIXEL = p;                                                                 \
+        }                                                                               \
+    }
+
+    // Determine if local contrast and brightness applies
+    // Even if local brightness and contrast is enabled, no need to go through the pain if they are both neutral
+    bool doLCB = enableBrightnessContrast && (localContrast!=100 || localBrightness != 0);
+
     // Format each pixel ready for use in an RGB32 QImage
     // Note, for speed, the conditional code related to clipping has been extracted from the pixel loop
     // Macros have been used to ensure the same code is used within the clipping and non clipping loops.
@@ -912,6 +933,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY8
+                LOCAL_CONTRAST(&inPixel)
                 CONTRAST_REVERSAL(&inPixel)
                 CLIPPING(inPixel)
                 // else
@@ -922,6 +944,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY8
+                LOCAL_CONTRAST(&inPixel)
                 CONTRAST_REVERSAL(&inPixel)
                 FORMAT_GREY8
                 LOOP_END
@@ -935,6 +958,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY16
+                LOCAL_CONTRAST(&inPixel)
                 CONTRAST_REVERSAL(&inPixel)
                 CLIPPING(inPixel)
                 // else
@@ -945,6 +969,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY16
+                LOCAL_CONTRAST(&inPixel)
                 CONTRAST_REVERSAL(&inPixel)
                 FORMAT_GREY16
                 LOOP_END
@@ -958,6 +983,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY12
+                LOCAL_CONTRAST(&inPixel)
                 CONTRAST_REVERSAL(&inPixel)
                 CLIPPING(inPixel)
                 // else
@@ -968,6 +994,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_GREY12
+                LOCAL_CONTRAST(&inPixel)
                 CONTRAST_REVERSAL(&inPixel)
                 FORMAT_GREY12
                 LOOP_END
@@ -981,6 +1008,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_RGB_888
+                LOCAL_CONTRAST(inPixel)
                 CONTRAST_REVERSAL(inPixel)
                 CLIPPING(((inPixel[0]+inPixel[1]+inPixel[2])/3))
                 // else
@@ -991,6 +1019,7 @@ void QEImage::displayImage()
             {
                 LOOP_START
                 PIXEL_RGB_888
+                LOCAL_CONTRAST(inPixel)
                 CONTRAST_REVERSAL(inPixel)
                 FORMAT_RGB_888
                 LOOP_END
@@ -2172,7 +2201,7 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
 {
     QPoint posTr;
 
-    // Transform the position to reflect the original unrotated or flipped data
+    // Transform the position to reflect the original unrotated or flipautoBrightnessContrastped data
     posTr = rotateFLipPoint( pos );
 
     const unsigned char* data = (unsigned char*)image.constData();
@@ -2227,25 +2256,21 @@ void QEImage::displaySelectedArea4Info( QPoint point1, QPoint point2 )
     currentArea4Label->setText( s );
 }
 
-void QEImage::autoBrightnessCheckBoxChanged( QEvent * )
+void QEImage::autoBrightnessCheckBoxChanged( int state )
 {
-
-//    autoBrightnessContrast = get from event
-    qDebug() << "autoBrightnessCheckBoxChanged()";
+    autoBrightnessContrast = (state==Qt::Checked);
 }
 
 // The local brightness slider has been moved
 void QEImage::brightnessSliderValueChanged( int localBrightnessIn )
 {
-    qDebug() << "brightnessSliderValueChanged()";
-    localBrightness = (double)(localBrightnessIn)/100.0;
+    localBrightness = localBrightnessIn;
 }
 
 // The local contrast slider has been moved
 void QEImage::contrastSliderValueChanged( int localContrastIn )
 {
-    qDebug() << "contrastSliderValueChanged()";
-    localContrast =  (double)(localContrastIn)/100.0;
+    localContrast =  localContrastIn;
 }
 
 // Generate a profile along a line across an image at a given Y position
