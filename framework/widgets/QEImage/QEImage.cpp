@@ -201,7 +201,7 @@ void QEImage::setup() {
     QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastFrame );
 
     autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", brightnessContrastFrame );
-    QObject::connect( brightnessSlider, SIGNAL( changeEvent ( QEvent * ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( QEvent * )) );
+    QObject::connect( autoBrightnessCheckBox, SIGNAL( changeEvent ( QEvent * ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( QEvent * )) );
 
     brightnessSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );

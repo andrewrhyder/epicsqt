@@ -146,6 +146,10 @@ public:
 
     userLevelSignal userSignal;         // Current user level signal object. One instance to signal all QE Widgets
 
+    QString userLevelPassword;          // User Level password for 'user'
+    QString scientistLevelPassword;     // User Level password for 'scientist'
+    QString engineerLevelPassword;      // User Level password for 'engineer'
+
     bool profileDefined;                // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()
 };
 
@@ -162,11 +166,17 @@ public:
     void setupProfile( QObject* guiLaunchConsumerIn,
                        QStringList pathListIn,
                        QString parentPathIn,
-                       QString macroSubstitutionsIn );     // Setup a local and published environmental profile for all QEWidgets to use on creation
+                       QString macroSubstitutionsIn,
+                       QString userLevelPasswordIn,
+                       QString scientistLevelPasswordIn,
+                       QString engineerLevelPasswordIn );     // Setup a local and published environmental profile for all QEWidgets to use on creation
     void setupLocalProfile( QObject* guiLaunchConsumerIn,
                             QStringList pathListIn,
                             QString parentPathIn,
-                            QString macroSubstitutionsIn );// Setup the local environmental profile for this instance only
+                            QString macroSubstitutionsIn,
+                            QString userLevelPasswordIn,
+                            QString scientistLevelPasswordIn,
+                            QString engineerLevelPasswordIn );// Setup the local environmental profile for this instance only
     void updateConsumers( QObject* guiLaunchConsumerIn );  // Update the local and published signal consumer objects
     QObject* replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn );  // Override the current GUI launch consumer
 
@@ -183,6 +193,9 @@ public:
     void setPublishedParentPath( QString publishedParentPathIn ); // Set the published current object path used for file operations
     QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
     bool isProfileDefined();                  // Returns true if a profile has been setup by setupProfile()
+
+    QString getUserLevelPassword( userLevels level );  // Get the local copy of the user level password for the specified user level
+    void setUserLevelPassword( userLevels level, QString passwordIn );  // Set the local copy of the user level password for the specified user level
 
     void addContainedWidget( QEWidget* containedWidget );    // Adds a reference to the list of QE widgets created with this profile
     QEWidget* getNextContainedWidget();                      // Returns a reference to the next QE widgets in the list of QE widgets created with this profile
@@ -205,7 +218,10 @@ private:
     void publishProfile( QObject* guiLaunchConsumerIn,
                          QStringList pathListIn,
                          QString publishedParentPathIn,
-                         QString macroSubstitutionsIn );// Publish an environmental profile for all QEWidgets to use on creation
+                         QString macroSubstitutionsIn,
+                         QString userLevelPasswordIn,
+                         QString scientistLevelPasswordIn,
+                         QString engineerLevelPasswordIn );// Publish an environmental profile for all QEWidgets to use on creation
 
     PublishedProfile* getPublishedProfile();            // Get the single instance of the published profile
 
@@ -217,6 +233,10 @@ private:
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
 
     unsigned int messageFormId;      // Local copy of current form ID. Used to group forms with their widgets for messaging
+
+    QString userLevelPassword;                      // Password for 'user' user level
+    QString scientistLevelPassword;                 // Password for 'scientist' user level
+    QString engineerLevelPassword;                  // Password for 'engineer' user level
 };
 
 #endif // CONTAINERPROFILE_H

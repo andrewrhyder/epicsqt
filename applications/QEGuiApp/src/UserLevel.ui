@@ -7,22 +7,15 @@
     <x>0</x>
     <y>0</y>
     <width>337</width>
-    <height>59</height>
+    <height>63</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Strip Chart</string>
+   <string>User Level</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QELogin" name="qelogin">
-     <property name="scientistPassword">
-      <string>XKCD242</string>
-     </property>
-     <property name="engineerPassword">
-      <string>XKCD670</string>
-     </property>
-    </widget>
+    <widget class="QELogin" name="qelogin"/>
    </item>
   </layout>
  </widget>

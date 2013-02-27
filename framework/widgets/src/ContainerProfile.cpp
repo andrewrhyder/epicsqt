@@ -186,13 +186,19 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
 void ContainerProfile::setupProfile( QObject* guiLaunchConsumerIn,
                                              QStringList pathListIn,
                                              QString parentPathIn,
-                                             QString macroSubstitutionsIn )
+                                             QString macroSubstitutionsIn,
+                                             QString userLevelPasswordIn,
+                                             QString scientistLevelPasswordIn,
+                                             QString engineerLevelPasswordIn )
 {
     // Publish the profile supplied
     publishProfile(guiLaunchConsumerIn,
                    pathListIn,
                    parentPathIn,
-                   macroSubstitutionsIn );
+                   macroSubstitutionsIn,
+                   userLevelPasswordIn,
+                   scientistLevelPasswordIn,
+                   engineerLevelPasswordIn );
 
     // Save a local copy of what has been published
     takeLocalCopy();
@@ -241,7 +247,10 @@ QObject* ContainerProfile::replaceGuiLaunchConsumer( QObject* newGuiLaunchConsum
 void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
                                        QStringList pathListIn,
                                        QString parentPathIn,
-                                       QString macroSubstitutionsIn )
+                                       QString macroSubstitutionsIn,
+                                       QString userLevelPasswordIn,
+                                       QString scientistLevelPasswordIn,
+                                       QString engineerLevelPasswordIn )
 {
     PublishedProfile* publishedProfile = getPublishedProfile();
 
@@ -264,6 +273,10 @@ void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
         publishedProfile->macroSubstitutions.append( macroSubstitutionsIn );
     }
 
+    publishedProfile->userLevelPassword      = userLevelPasswordIn;
+    publishedProfile->scientistLevelPassword = scientistLevelPasswordIn;
+    publishedProfile->engineerLevelPassword  = engineerLevelPasswordIn;
+
     // flag a published profile now exists
     publishedProfile->profileDefined = true;
 }
@@ -285,7 +298,10 @@ void ContainerProfile::takeLocalCopy()
     setupLocalProfile( publishedProfile->guiLaunchConsumer,
                        publishedProfile->pathList,
                        publishedProfile->parentPath,
-                       subs );
+                       subs,
+                       publishedProfile->userLevelPassword,
+                       publishedProfile->scientistLevelPassword,
+                       publishedProfile->engineerLevelPassword );
 
     messageFormId = publishedProfile->messageFormId;
 }
@@ -299,14 +315,19 @@ void ContainerProfile::takeLocalCopy()
 void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
                                           QStringList pathListIn,
                                           QString parentPathIn,
-                                          QString macroSubstitutionsIn )
+                                          QString macroSubstitutionsIn,
+                                          QString userLevelPasswordIn,
+                                          QString scientistLevelPasswordIn,
+                                          QString engineerLevelPasswordIn )
 {
     // Set up the local profile as specified
     guiLaunchConsumer = guiLaunchConsumerIn;
 
     macroSubstitutions = macroSubstitutionsIn;
 
-    macroSubstitutions = macroSubstitutionsIn;
+    userLevelPassword      = userLevelPasswordIn;
+    scientistLevelPassword = scientistLevelPasswordIn;
+    engineerLevelPassword  = engineerLevelPasswordIn;
 
     pathList = pathListIn;
     parentPath = parentPathIn;
@@ -375,7 +396,10 @@ void ContainerProfile::publishOwnProfile()
     publishProfile( guiLaunchConsumer,
                     pathList,
                     parentPath,
-                    macroSubstitutions );
+                    macroSubstitutions,
+                    userLevelPassword,
+                    scientistLevelPassword,
+                    engineerLevelPassword );
 }
 
 /*
@@ -392,6 +416,10 @@ void ContainerProfile::releaseProfile()
     publishedProfile->parentPath.clear();
 
     publishedProfile->macroSubstitutions.clear();
+
+    publishedProfile->userLevelPassword.clear();
+    publishedProfile->scientistLevelPassword.clear();
+    publishedProfile->engineerLevelPassword.clear();
 
     publishedProfile->containedWidgets.clear();
 
@@ -541,6 +569,34 @@ QEWidget* ContainerProfile::getNextContainedWidget()
     else
         return NULL;
 }
+
+/*
+  Get the local copy of the user level password for the specified user level
+  */
+QString ContainerProfile::getUserLevelPassword( userLevels level )
+{
+    switch( level )
+    {
+        case USERLEVEL_USER:      return userLevelPassword;      break;
+        case USERLEVEL_SCIENTIST: return scientistLevelPassword; break;
+        case USERLEVEL_ENGINEER:  return engineerLevelPassword;  break;
+        default: return QString();
+    }
+}
+
+/*
+  Set the local copy of the user level password for the specified user level
+  */
+void ContainerProfile::setUserLevelPassword( userLevels level, QString passwordIn )
+{
+    switch( level )
+    {
+        case USERLEVEL_USER:      userLevelPassword      = passwordIn; break;
+        case USERLEVEL_SCIENTIST: scientistLevelPassword = passwordIn; break;
+        case USERLEVEL_ENGINEER:  engineerLevelPassword  = passwordIn; break;
+    }
+}
+
 
 /*
   Set the application user type (user/scientist/engineer)

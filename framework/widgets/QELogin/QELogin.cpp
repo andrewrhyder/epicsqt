@@ -53,9 +53,14 @@ QELogin::QELogin(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qLabelUserType->setText(getUserTypeName((userLevels) currentUserType));
     setUserLevel((userLevels) currentUserType);
 
-    setUserPassword("");
-    setScientistPassword("");
-    setEngineerPassword("");
+    // Setup passwords from profile if avaiable
+    if( !isProfileDefined() )
+    {
+        setUserPassword( getUserLevelPassword( USERLEVEL_USER ) );
+        setScientistPassword( getUserLevelPassword( USERLEVEL_SCIENTIST ) );
+        setEngineerPassword( getUserLevelPassword( USERLEVEL_ENGINEER ) );
+    }
+
     setDetailsLayout(RIGHT);
 
 }

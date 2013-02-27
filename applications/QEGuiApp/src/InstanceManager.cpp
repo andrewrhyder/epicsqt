@@ -128,7 +128,7 @@ void instanceManager::readParams()
 void instanceManager::newWindow( const startupParams& params )
 {
     ContainerProfile profile;
-    profile.setupProfile( NULL, params.pathList, "", params.substitutions );
+    profile.setupProfile( NULL, params.pathList, "", params.substitutions, params.userLevelPassword, params.scientistLevelPassword, params.engineerLevelPassword );
     MainWindow* mw = new MainWindow( params.filename, params.enableEdit, params.disableMenu );
     profile.releaseProfile();
     mw->show();
