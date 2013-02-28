@@ -1,4 +1,5 @@
-/*
+/*  Generic.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -295,7 +296,7 @@ void Generic::setLong( long* newValueArray, unsigned long arrayCountIn ) {
 /*
     Creates and records new type long (an array larger than 1) based on dbr_long_t
 */
-void Generic::setLong( qeInt32* newValueArray, unsigned long arrayCountIn )
+void Generic::setLong( qint32* newValueArray, unsigned long arrayCountIn )
 {
    deleteValue();
    value = new long[arrayCountIn];

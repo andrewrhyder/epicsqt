@@ -1,4 +1,5 @@
-/*
+/*  Generic.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -26,19 +27,7 @@
 #define GENERIC_H_
 
 #include <string>
-
-
-// Define a 32 bit int type - essentially the same as dbr_long_t
-// This snippet cribbed directly from epicsTypes.h
-// Consider exapnding to 8, 16 and 64, siigned and unsigned in seperate header file.
-//
-#if __STDC_VERSION__ >= 199901L
-#include <inttypes.h>
-    typedef int32_t   qeInt32;
-#else
-    typedef int       qeInt32;
-#endif
-
+#include <QtGlobal>
 
 namespace generic {
 
@@ -83,7 +72,7 @@ namespace generic {
       // processChannel (out of CaObject "long" type is infact a 32 bit type, so
       // we need to copy (and cast) element by element.
       //
-      void setLong( qeInt32* newValueArray, unsigned long countIn );
+      void setLong( qint32* newValueArray, unsigned long countIn );
       void updateLong( long newValue, unsigned long arrayIndex );
       void setUnsignedLong( unsigned long newValue );
       void setUnsignedLong( unsigned long* newValueArray, unsigned long countIn );
