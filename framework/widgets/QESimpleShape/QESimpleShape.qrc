@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qe/simpleshape">
+        <file>QESimpleShape.png</file>
+    </qresource>
+</RCC>
