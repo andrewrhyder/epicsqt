@@ -83,6 +83,8 @@ namespace qcaobject {
       QString getEgu();
       QStringList getEnumerations();
       unsigned int getPrecision();
+      QCaAlarmInfo getAlarmInfo();
+      QCaDateTime getDateTime ();
       double getDisplayLimitUpper();
       double getDisplayLimitLower();
       double getAlarmLimitUpper();

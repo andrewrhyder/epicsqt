@@ -1193,3 +1193,20 @@ bool QCaObject::isWriteCallbacksEnabled()
     return getWriteWithCallback();
 }
 
+/*
+    Return alarm state associated with last update
+ */
+QCaAlarmInfo QCaObject::getAlarmInfo()
+{
+    return this->lastAlarmInfo;
+}
+
+/*
+    Return date time associated with last update
+ */
+QCaDateTime QCaObject::getDateTime ()
+{
+    return this->lastTimeStamp;
+}
+
+// end
