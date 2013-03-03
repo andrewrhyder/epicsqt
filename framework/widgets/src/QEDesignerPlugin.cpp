@@ -21,7 +21,7 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
- 
+
 #include <QELabelManager.h>
 #include <QESubstitutedLabelManager.h>
 #include <QELineEditManager.h>
@@ -51,6 +51,7 @@
 #include <QEFrameManager.h>
 #include <QEGroupBoxManager.h>
 #include <QEFileImageManager.h>
+#include <QESimpleShapeManager.h>
 
 //======================================================
 // Deprecated widgets
@@ -84,29 +85,29 @@
 QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEAnalogProgressBarManager(this));
     widgets.append(new QEBitStatusManager(this));
+    widgets.append(new QEComboBoxManager(this));
     widgets.append(new QEConfiguredLayoutManager(this));
     widgets.append(new QEFileBrowserManager(this));
+    widgets.append(new QEFileImageManager(this));
+    widgets.append(new QEFormManager(this));
+    widgets.append(new QEImageManager(this));
     widgets.append(new QELabelManager(this));
-    widgets.append(new QELoginManager(this));
+    widgets.append(new QELineEditManager(this));
     widgets.append(new QELogManager(this));
+    widgets.append(new QELoginManager(this));
+    widgets.append(new QEPeriodicManager(this));
+    widgets.append(new QEPlotManager(this));
+    widgets.append(new QEPushButtonManager(this));
     widgets.append(new QEPvPropertiesManager(this));
+    widgets.append(new QERadioButtonManager(this));
     widgets.append(new QERecipeManager(this));
     widgets.append(new QEScriptManager(this));
-    widgets.append(new QEStripChartManager(this));
-    widgets.append(new QEPeriodicManager(this));
-
-    widgets.append(new QESubstitutedLabelManager(this));
-    widgets.append(new QELineEditManager(this));
-    widgets.append(new QEPushButtonManager(this));
-    widgets.append(new QERadioButtonManager(this));
     widgets.append(new QEShapeManager(this));
+    widgets.append(new QESimpleShapeManager(this));
     widgets.append(new QESliderManager(this));
     widgets.append(new QESpinBoxManager(this));
-    widgets.append(new QEComboBoxManager(this));
-    widgets.append(new QEFormManager(this));
-    widgets.append(new QEPlotManager(this));
-    widgets.append(new QEImageManager(this));
-    widgets.append(new QEFileImageManager(this));
+    widgets.append(new QEStripChartManager(this));
+    widgets.append(new QESubstitutedLabelManager(this));
 
     // Non-EPICS aware framework widgets
     widgets.append(new QEAnalogIndicatorManager(this));
