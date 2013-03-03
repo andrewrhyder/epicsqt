@@ -116,6 +116,8 @@ void QEImage::setup() {
     clippingLow = 0;
     clippingHigh = 0;
 
+    pixelLookupValid = false;
+
     // Use frame signals
     // --Currently none--
 
@@ -188,49 +190,57 @@ void QEImage::setup() {
     infoLayout->addWidget( currentBeamLabel, 2, 1 );
 
     // Local brightness and contrast controls
-    brightnessContrastFrame = new QFrame;
-    brightnessContrastFrame->setFrameStyle( QFrame::StyledPanel|QFrame::Raised );
+    brightnessContrastGroupBox = new QFrame;
+    brightnessContrastGroupBox->setFrameStyle( QFrame::StyledPanel|QFrame::Raised );
 
-    QGridLayout* brightnessContrastLayout = new QGridLayout();
-    brightnessContrastLayout->setVerticalSpacing( 0 );
-    brightnessContrastFrame->setLayout( brightnessContrastLayout );
+    QVBoxLayout* brightnessContrastMainLayout = new QVBoxLayout();
+    brightnessContrastMainLayout->setSpacing( 0 );
+    brightnessContrastGroupBox->setLayout( brightnessContrastMainLayout );
 
-    QLabel* brightnessLabel = new QLabel( "Brightnes:", brightnessContrastFrame );
+    QGridLayout* brightnessContrastSubLayout = new QGridLayout();
+    QLabel* brightnessLabel = new QLabel( "Brightnes:", brightnessContrastGroupBox );
 
-    QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastFrame );
+    QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastGroupBox );
 
-    autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", brightnessContrastFrame );
+    autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", brightnessContrastGroupBox );
     QObject::connect( autoBrightnessCheckBox, SIGNAL( stateChanged ( int ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( int )) );
 
-    brightnessSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
+    brightnessSlider = new QSlider( Qt::Horizontal, brightnessContrastGroupBox );
     brightnessSlider->setMinimum( -100 );
     brightnessSlider->setMaximum( 100 );
+    brightnessSlider->setValue( 0 );
     QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
 
-    contrastSlider = new QSlider( Qt::Horizontal, brightnessContrastFrame );
+    contrastSlider = new QSlider( Qt::Horizontal, brightnessContrastGroupBox );
     contrastSlider->setMinimum( 0 );
     contrastSlider->setMaximum( 1000 );
+    contrastSlider->setValue( 100 );
     QObject::connect( contrastSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( contrastSliderValueChanged( int )) );
 
-    brightnessRBLabel = new QLabel( brightnessContrastFrame );
+    brightnessRBLabel = new QLabel( brightnessContrastGroupBox );
+    brightnessRBLabel->setText( QString( "%1%" ).arg( brightnessSlider->value() ) );
 
-    contrastRBLabel = new QLabel( brightnessContrastFrame );
+    contrastRBLabel = new QLabel( brightnessContrastGroupBox );
+    contrastRBLabel->setText( QString( "%1%" ).arg( contrastSlider->value() ) );
 
 
-    brightnessContrastLayout->addWidget( autoBrightnessCheckBox, 0, 0 );
+    brightnessContrastMainLayout->addWidget( autoBrightnessCheckBox, 0, 0 );
 
-    brightnessContrastLayout->addWidget( brightnessLabel, 1, 0 );
-    brightnessContrastLayout->addWidget( brightnessSlider, 1, 1 );
-    brightnessContrastLayout->addWidget( brightnessRBLabel, 1, 2 );
+    brightnessContrastSubLayout->addWidget( brightnessLabel, 0, 0 );
+    brightnessContrastSubLayout->addWidget( brightnessSlider, 0, 1 );
+    brightnessContrastSubLayout->addWidget( brightnessRBLabel, 0, 2 );
 
-    brightnessContrastLayout->addWidget( contrastLabel, 2, 0 );
-    brightnessContrastLayout->addWidget( contrastSlider, 2, 1 );
-    brightnessContrastLayout->addWidget( contrastRBLabel, 2, 2 );
+    brightnessContrastSubLayout->addWidget( contrastLabel, 1, 0 );
+    brightnessContrastSubLayout->addWidget( contrastSlider, 1, 1 );
+    brightnessContrastSubLayout->addWidget( contrastRBLabel, 1, 2 );
 
-    brightnessContrastLayout->setColumnStretch( 2, 1 );  // Read back labels to take all spare room
+    brightnessContrastSubLayout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
 
-    localBrightness = 0;
-    localContrast = 100;
+    brightnessContrastMainLayout->addLayout( brightnessContrastSubLayout );
+
+
+    localBrightness = 0;    // Range -100% (black) to +100% (white)
+    localContrast = 100;    // Range 0% (no difference in any pixels) to 1000% (10 times normal contrast)
 
 
     // Create vertical, horizontal, and general profile plots
@@ -325,7 +335,7 @@ void QEImage::setup() {
     mainLayout->setMargin( 0 );
 
     mainLayout->addWidget( buttonGroup, 0, 0 );
-    mainLayout->addWidget( brightnessContrastFrame, 0, 1 );
+    mainLayout->addWidget( brightnessContrastGroupBox, 0, 1 );
     mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
 
     // Set graphics to take all spare room
@@ -602,14 +612,28 @@ void QEImage::setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTi
     switch( variableIndex )
     {
         case CLIPPING_ONOFF_VARIABLE:
-            clippingOn = (value>0)?true:false;
-            break;
-
+            {
+                bool newClippingOn = (value>0)?true:false;
+                if( clippingOn != newClippingOn )
+                {
+                    pixelLookupValid = false;
+                }
+                clippingOn = newClippingOn;
+                break;
+            }
         case CLIPPING_LOW_VARIABLE:
+            if( clippingLow != (unsigned int)value )
+            {
+                pixelLookupValid = false;
+            }
             clippingLow = value;
             break;
 
         case CLIPPING_HIGH_VARIABLE:
+            if( clippingHigh != (unsigned int)value )
+            {
+                pixelLookupValid = false;
+            }
             clippingHigh = value;
             break;
         }
@@ -716,6 +740,169 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 }
 
+// Generate a lookup table to convert raw pixel values to display pixel values taking into
+// account input pixel size, clipping, contrast reversal, and local brightness and contrast.
+//
+// The following example assumes:
+//  - a 12 bit image (range of 0 to 4095 )
+//  - a user set contrast of 150%
+//  - a user set brightness of -15%
+//
+//       (A)    (B)    (C)    (D)    (E)
+//
+//  6144         *
+//               *
+//               *
+//               *      *
+//               *      *
+//               *      *      *
+//  4096  *      *      *      *-
+//        *      *      *      * -
+//        *      *      *      *  -
+//        *      *      *      *   -
+//   255  *    --*--    *      *    --*-----
+//        *  --  *  --  *      *      *
+//      --*--    *    --*--    *      *
+//        *      *      *  --  *      *
+//        *      *      *    --*      *
+//        *      *      *      *      *
+//        *      *      *      *      *
+//     0  *------*------*------*------*------
+//                      *      *
+//                      *      *
+//                      *      *
+//                             *
+//                             *
+//
+// (A) Image has a range of values depending on bit size.
+//     In this example, a 12 bit image has values 4096 values ranging from 0 to 4095.
+//     Note central mid grey is marked.
+//
+// (B) Range of values is extended by contrast.
+//     In this example, 12 bits and 150% contrast results in 4096 values ranging from 0 to 6144.
+//     If left like this the top 2048 values would be lost in the white.
+//
+// (C) Range of values is offset so half of the extended range is lost in the white and half in the black.
+//     The values now range from -1024 to 5119.
+//
+// (D) Range of values is offset by a user set brightness.
+//     The brightness range of -100% to +100% is meant to bring the highest value down to 0 (black) or the lowest value up to white.
+//     The offset applied by the user brightness value must take into account the varying range of values caused by contrast changes.
+//     In the example, the brightness is lowered by 15%. -100% would bring 5119 down to 0. +100% would take -1024 up to 4095.
+//
+// (E) Values matching the original range of values (0 to 4095 in the example) are selected from the translated table and
+//     scaled down to 8 bits as all display is performed at 8 bit resolution.
+//
+const QEImage::rgbPixel* QEImage::getPixelTranslation()
+{
+    if( pixelLookupValid )
+    {
+        return (rgbPixel*)(pixelLookup.constData());
+    }
+
+    // Determine size of lookup, the number of bits to discard (to have 8 bits left), and the used bits in the pixel.
+    // Note, the table will be used for each colour in the RGB_888 format, so for the sake of this lookup table this format is 8 bits.
+    unsigned int size = 1<<8;
+    unsigned int insignificantBits = 0;
+    switch( formatOption )
+    {
+        case GREY8:   size = 1<<8;  insignificantBits = 0; break;
+        case GREY12:  size = 1<<12; insignificantBits = 4; break;
+        case GREY16:  size = 1<<16; insignificantBits = 8; break;
+        case RGB_888: size = 1<<8;  insignificantBits = 0; break;
+    }
+
+    // Determine table size
+    int maxValue = size-1;
+
+    // Allocate lookup if not already done or not the right size
+    if( pixelLookup.isNull() || (unsigned int)(pixelLookup.size()) != size*sizeof(rgbPixel) )
+    {
+        pixelLookup.resize( size*sizeof(rgbPixel) );
+    }
+
+    rgbPixel* lookupTable = (rgbPixel*)(pixelLookup.constData());
+
+    // Determine if local contrast and brightness applies
+    // Even if local brightness and contrast is enabled, no need to go through the pain if they are both neutral
+    bool doLCB = enableBrightnessContrast && (localContrast!=100 || localBrightness != 0);
+
+    // Range of values with contrast applied
+    int range = maxValue*localContrast/100;
+
+    // Offset to set black level with new range of values
+    int offset = (range-maxValue)/2;
+
+    // Loop populating table with pixel translations for every pixel value
+    unsigned int value = 0;
+    for( value = 0; value <= (unsigned int)maxValue; value++ )
+    {
+        // Alpha always 100%
+        lookupTable[value].p[3] = 0xff;
+
+        // Assume no clipping
+        bool clipped = false;
+        if( clippingOn && (clippingHigh > 0 || clippingLow > 0 ))
+        {
+            // If clipping high, set pixel to solid 'clip high' color
+            if( clippingHigh > 0 && value >= clippingHigh )
+            {
+                lookupTable[value].p[0] = 0x80;
+                lookupTable[value].p[1] = 0x80;
+                lookupTable[value].p[2] = 0xff;
+                clipped = true;
+            }
+            // If clipping low, set pixel to solid 'clip low' color
+            else if( clippingLow > 0 && value <= clippingLow )
+            {
+                lookupTable[value].p[0] = 0xff;
+                lookupTable[value].p[1] = 0x80;
+                lookupTable[value].p[2] = 0x80;
+                clipped = true;
+            }
+        }
+
+        // Translate pixel value if not clipped
+        if( !clipped )
+        {
+            // Start with initial pixel value
+            int translatedValue = value;
+
+            // Reverse contrast if required
+            if( contrastReversal )
+            {
+                translatedValue = maxValue - translatedValue;
+            }
+
+            // Apply local brightness and contrast if required
+            if( doLCB )
+            {
+                translatedValue = (translatedValue*localContrast/100)-offset+((range-offset)*localBrightness/100);
+                if( translatedValue < 0 )
+                {
+                    translatedValue = 0;
+                }
+                else if ( translatedValue > (int)maxValue )
+                {
+                    translatedValue = maxValue;
+                }
+            }
+
+            // Convert to 8 bits
+            translatedValue = translatedValue>>insignificantBits;
+
+            // Save translated pixel
+            lookupTable[value].p[0] = (unsigned char)translatedValue;
+            lookupTable[value].p[1] = (unsigned char)translatedValue;
+            lookupTable[value].p[2] = (unsigned char)translatedValue;
+
+        }
+    }
+
+    pixelLookupValid = true;
+    return lookupTable;
+}
+
 // Display a new image.
 void QEImage::displayImage()
 {
@@ -737,7 +924,7 @@ void QEImage::displayImage()
 
     // Set up input and output pointers and counters ready to process each pixel
     const unsigned char* dataIn = (unsigned char*)image.constData();
-    unsigned int* dataOut = (unsigned int*)(imageBuff.data());
+    rgbPixel* dataOut = (rgbPixel*)(imageBuff.data());
     unsigned long buffIndex = 0;
     unsigned long dataIndex = 0;
 
@@ -831,11 +1018,11 @@ void QEImage::displayImage()
     // loops to where ever that next pixel is according to the rotation and flipping.
     dataIndex = start;
 
-//    unsigned char* pixelLookup = getPixelTranslation;
+    const rgbPixel* pixelLookup = getPixelTranslation();
 
 
 // For speed, the format switch statement is outside the pixel loop.
-// An identical loop is used for each format
+// An identical(ish) loop is used for each format
 #define LOOP_START                          \
     for( int i = 0; i < outCount; i++ )     \
     {                                       \
@@ -849,79 +1036,6 @@ void QEImage::displayImage()
         dataIndex += outInc;                \
     }
 
-// Define the clipping logic
-#define CLIPPING(PIXEL)                                     \
-    if( clippingHigh > 0 && (unsigned int)(PIXEL) >= clippingHigh )         \
-    {                                                       \
-        dataOut[buffIndex] = 0xffff8080;                    \
-    }                                                       \
-    else if( clippingLow > 0 && (unsigned int)(PIXEL) <= clippingLow )      \
-    {                                                       \
-        dataOut[buffIndex] = 0xff8080ff;                    \
-    }                                                       \
-    else
-
-// Define the input pixel selection for each format
-#define PIXEL_GREY8   unsigned long inPixel = dataIn[dataIndex*imageDataSize];
-#define PIXEL_GREY16  unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
-#define PIXEL_GREY12  unsigned long inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
-#define PIXEL_RGB_888 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*imageDataSize]);
-
-
-// Define the conversion to RGB for each format (Keep each in braces so each macro can be used as an 'else' statement)
-
-// Duplicate 8 bits of the grey scale into each color
-#define FORMAT_GREY8                                                        \
-    {                                                                       \
-        dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel; \
-    }
-
-// Duplicate top 8 bits of the grey scale into each color
-#define FORMAT_GREY16                                                                   \
-    {                                                                                   \
-        inPixel = inPixel>>8;                                                           \
-        dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;             \
-    }
-
-
-// Duplicate top 8 bits of the grey scale into each color
-#define FORMAT_GREY12                                                                   \
-    {                                                                                   \
-        inPixel = (inPixel>>4)&0xff;                                                    \
-        dataOut[buffIndex] = 0xff000000+(inPixel<<16)+(inPixel<<8)+inPixel;             \
-    }
-
-// Copy RGB values
-#define FORMAT_RGB_888                                                                  \
-    {                                                                                   \
-        dataOut[buffIndex] = 0xff000000+(inPixel[2]<<16)+(inPixel[1]<<8)+inPixel[0];    \
-    }
-
-#define CLIPPING_TEST ( clippingOn && (clippingHigh > 0 || clippingLow > 0 ))
-
-#define CONTRAST_REVERSAL(PIXEL)                                                        \
-    {                                                                                   \
-        if( contrastReversal )                                                          \
-        {                                                                               \
-            *PIXEL=255-*PIXEL;                                                          \
-        }                                                                               \
-    }
-
-#define LOCAL_CONTRAST(PIXEL)                                                           \
-    {                                                                                   \
-        if( doLCB )                                                                     \
-        {                                                                               \
-            int p = ((int)(*PIXEL)*localContrast/100)+(255*localBrightness/100);        \
-            if ( p < 0 ) p = 0;                                                         \
-            else if( p > 255 ) p = 255;                                                 \
-            *PIXEL = p;                                                                 \
-        }                                                                               \
-    }
-
-    // Determine if local contrast and brightness applies
-    // Even if local brightness and contrast is enabled, no need to go through the pain if they are both neutral
-    bool doLCB = enableBrightnessContrast && (localContrast!=100 || localBrightness != 0);
-
     // Format each pixel ready for use in an RGB32 QImage
     // Note, for speed, the conditional code related to clipping has been extracted from the pixel loop
     // Macros have been used to ensure the same code is used within the clipping and non clipping loops.
@@ -929,102 +1043,40 @@ void QEImage::displayImage()
     {
         case GREY8:
         {
-            if( CLIPPING_TEST )
-            {
-                LOOP_START
-                PIXEL_GREY8
-                LOCAL_CONTRAST(&inPixel)
-                CONTRAST_REVERSAL(&inPixel)
-                CLIPPING(inPixel)
-                // else
-                FORMAT_GREY8
-                LOOP_END
-            }
-            else
-            {
-                LOOP_START
-                PIXEL_GREY8
-                LOCAL_CONTRAST(&inPixel)
-                CONTRAST_REVERSAL(&inPixel)
-                FORMAT_GREY8
-                LOOP_END
-            }
+            LOOP_START
+            unsigned char inPixel = dataIn[dataIndex*imageDataSize];
+            dataOut[buffIndex] = pixelLookup[inPixel];
+            LOOP_END
             break;
         }
 
         case GREY16:
         {
-            if( CLIPPING_TEST )
-            {
-                LOOP_START
-                PIXEL_GREY16
-                LOCAL_CONTRAST(&inPixel)
-                CONTRAST_REVERSAL(&inPixel)
-                CLIPPING(inPixel)
-                // else
-                FORMAT_GREY16
-                LOOP_END
-            }
-            else
-            {
-                LOOP_START
-                PIXEL_GREY16
-                LOCAL_CONTRAST(&inPixel)
-                CONTRAST_REVERSAL(&inPixel)
-                FORMAT_GREY16
-                LOOP_END
-            }
+            LOOP_START
+            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
+            dataOut[buffIndex] = pixelLookup[inPixel];
+            LOOP_END
             break;
         }
 
         case GREY12:
         {
-            if( CLIPPING_TEST )
-            {
-                LOOP_START
-                PIXEL_GREY12
-                LOCAL_CONTRAST(&inPixel)
-                CONTRAST_REVERSAL(&inPixel)
-                CLIPPING(inPixel)
-                // else
-                FORMAT_GREY12
-                LOOP_END
-            }
-            else
-            {
-                LOOP_START
-                PIXEL_GREY12
-                LOCAL_CONTRAST(&inPixel)
-                CONTRAST_REVERSAL(&inPixel)
-                FORMAT_GREY12
-                LOOP_END
-            }
+            LOOP_START
+            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
+            dataOut[buffIndex] = pixelLookup[inPixel&0xfff];
+            LOOP_END
             break;
         }
 
         case RGB_888:
         {
-            if( CLIPPING_TEST )
-            {
-                LOOP_START
-                PIXEL_RGB_888
-                LOCAL_CONTRAST(inPixel)
-                CONTRAST_REVERSAL(inPixel)
-                CLIPPING(((inPixel[0]+inPixel[1]+inPixel[2])/3))
-                // else
-                FORMAT_RGB_888
-                LOOP_END
-            }
-            else
-            {
-                LOOP_START
-                PIXEL_RGB_888
-                LOCAL_CONTRAST(inPixel)
-                CONTRAST_REVERSAL(inPixel)
-                FORMAT_RGB_888
-                LOOP_END
-            }
-            break;
+            LOOP_START
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*imageDataSize]);
+            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[0]].p[0];
+            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[2]].p[0];
+            dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
         }
     }
 
@@ -1469,6 +1521,11 @@ void QEImage::paste( QVariant v )
 // Allow user to set the video format
 void QEImage::setFormatOption( formatOptions formatOptionIn )
 {
+    if( formatOption != formatOptionIn )
+    {
+        pixelLookupValid = false;
+    }
+
     // Save the option
     formatOption = formatOptionIn;
 
@@ -1562,7 +1619,7 @@ bool QEImage::getVerticalFlip()
 void QEImage::setEnableBrightnessContrast( bool enableBrightnessContrastIn )
 {
     enableBrightnessContrast = enableBrightnessContrastIn;
-    brightnessContrastFrame->setVisible( enableBrightnessContrast );
+    brightnessContrastGroupBox->setVisible( enableBrightnessContrast );
 }
 
 bool QEImage::getEnableBrightnessContrast()
@@ -1740,6 +1797,11 @@ bool QEImage::getDisplayCursorPixelInfo(){
 // Show contrast reversal
 void QEImage::setContrastReversal( bool contrastReversalIn )
 {
+    if( contrastReversal != contrastReversalIn )
+    {
+        pixelLookupValid = false;
+    }
+
     contrastReversal = contrastReversalIn;
 
     qcaobject::QCaObject* qca = getQcaItem( IMAGE_VARIABLE );
@@ -2258,19 +2320,33 @@ void QEImage::displaySelectedArea4Info( QPoint point1, QPoint point2 )
 
 void QEImage::autoBrightnessCheckBoxChanged( int state )
 {
+    if( autoBrightnessContrast != (state==Qt::Checked) )
+    {
+        pixelLookupValid = false;
+    }
     autoBrightnessContrast = (state==Qt::Checked);
 }
 
 // The local brightness slider has been moved
 void QEImage::brightnessSliderValueChanged( int localBrightnessIn )
 {
+    if( localBrightness != localBrightnessIn )
+    {
+        pixelLookupValid = false;
+    }
     localBrightness = localBrightnessIn;
+    brightnessRBLabel->setText( QString( "%1%" ).arg( localBrightness ));
 }
 
 // The local contrast slider has been moved
 void QEImage::contrastSliderValueChanged( int localContrastIn )
 {
+    if( localContrast !=  localContrastIn )
+    {
+        pixelLookupValid = false;
+    }
     localContrast =  localContrastIn;
+    contrastRBLabel->setText( QString( "%1%" ).arg( localContrast ));
 }
 
 // Generate a profile along a line across an image at a given Y position

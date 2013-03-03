@@ -269,9 +269,9 @@ private slots:
 
     void panModeClicked();
 
-    void autoBrightnessCheckBoxChanged(  int state );
     void brightnessSliderValueChanged( int value );
     void contrastSliderValueChanged( int value );
+    void autoBrightnessCheckBoxChanged( int state );
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -374,13 +374,11 @@ public slots:
     QCheckBox* autoBrightnessCheckBox;
     QSlider* brightnessSlider;
     QSlider* contrastSlider;
-
     QLabel* brightnessRBLabel;
     QLabel* contrastRBLabel;
-
-    QFrame* brightnessContrastFrame;
-    int localBrightness;
-    int localContrast;
+    QFrame* brightnessContrastGroupBox;
+    double localBrightness;
+    double localContrast;
 
 
     // Menus
@@ -483,6 +481,15 @@ public slots:
     bool clippingOn;
     unsigned int clippingLow;
     unsigned int clippingHigh;
+
+    struct rgbPixel
+    {
+        unsigned char p[4]; // Alpha/R/G/B
+    };
+    const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
+
+    bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigtness, etc
+    QByteArray pixelLookup; // Table of translated pixel values (includig contrast reversal, local brightness and contrast, and clipping)
 
     // Drag and Drop
 protected:
