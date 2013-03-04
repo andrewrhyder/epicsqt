@@ -159,7 +159,7 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
       case circle:
          this->equaliseRect (rect);
          // fall through
-      case elipse:
+      case ellipse:
          painter.drawEllipse (rect);
          break;
 

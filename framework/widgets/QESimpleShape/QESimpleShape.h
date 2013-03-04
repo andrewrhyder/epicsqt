@@ -178,7 +178,7 @@ public:
     // QESimpleShape specific properties ==============================================
     //
 public:
-    enum Shapes { circle, elipse, rectangle, roundRectangle, roundSquare, square,
+    enum Shapes { circle, ellipse, rectangle, roundRectangle, roundSquare, square,
                   triangleUp, triangleDown, triangleLeft, triangleRight,
                   diamond, equalDiamond };
     Q_ENUMS (Shapes)
