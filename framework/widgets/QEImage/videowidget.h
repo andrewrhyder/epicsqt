@@ -81,6 +81,9 @@ private:
     bool panning;       // If true user is dragging image with mouse (rather than performing any markup)
     QPoint panStart;
 
+    QPoint pixelInfoPos;    // Current pixel under pointer
+
+
 };
 
 #endif // VIDEOWIDGET_H

@@ -272,6 +272,8 @@ private slots:
     void brightnessSliderValueChanged( int value );
     void contrastSliderValueChanged( int value );
     void autoBrightnessCheckBoxChanged( int state );
+    void brightnessContrastResetClicked( bool state );
+
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -388,7 +390,6 @@ public slots:
 
     // Options
     bool paused;
-    bool showTimeEnabled;
 
     bool enableAreaSelection;
     bool enableVSliceSelection;
@@ -490,6 +491,9 @@ public slots:
 
     bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigtness, etc
     QByteArray pixelLookup; // Table of translated pixel values (includig contrast reversal, local brightness and contrast, and clipping)
+
+    void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
+
 
     // Drag and Drop
 protected:

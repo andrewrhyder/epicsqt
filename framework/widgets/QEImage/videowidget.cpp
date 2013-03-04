@@ -160,6 +160,9 @@ void VideoWidget::paintEvent(QPaintEvent* event )
             // Apply the appropriate part of the composite image to the displayed image
             painter.drawImage( event->rect(), *compositeImage, event->rect() );
         }
+
+        // Report position for pixel info logging
+        emit currentPixelInfo( pixelInfoPos );
     }
 
     // Flag first update is over
@@ -251,8 +254,6 @@ void VideoWidget::wheelEvent( QWheelEvent* event )
 void VideoWidget::mouseMoveEvent( QMouseEvent* event )
 {
     // Report position for pixel info logging
-    QPoint pixelInfoPos;
-
     pixelInfoPos.setX( int ( (double)(event->pos().x()) / getScale() ) );
     pixelInfoPos.setY( int ( (double)(event->pos().y()) / getScale() ) );
     emit currentPixelInfo( pixelInfoPos );

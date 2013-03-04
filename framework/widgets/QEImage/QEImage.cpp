@@ -91,8 +91,6 @@ void QEImage::setup() {
     haveSelectedArea3 = false;
     haveSelectedArea4 = false;
 
-    showTimeEnabled = false;
-
     enableAreaSelection = true;
     enableVSliceSelection = false;
     enableHSliceSelection = false;
@@ -197,13 +195,20 @@ void QEImage::setup() {
     brightnessContrastMainLayout->setSpacing( 0 );
     brightnessContrastGroupBox->setLayout( brightnessContrastMainLayout );
 
-    QGridLayout* brightnessContrastSubLayout = new QGridLayout();
+    QHBoxLayout* brightnessContrastSub1Layout = new QHBoxLayout();
+    QGridLayout* brightnessContrastSub2Layout = new QGridLayout();
+
     QLabel* brightnessLabel = new QLabel( "Brightnes:", brightnessContrastGroupBox );
 
     QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastGroupBox );
 
     autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", brightnessContrastGroupBox );
+    autoBrightnessCheckBox->setEnabled( false); // !!! remove this line when functionality is completed
     QObject::connect( autoBrightnessCheckBox, SIGNAL( stateChanged ( int ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( int )) );
+
+    QPushButton* resetButton = new QPushButton( "Reset", brightnessContrastGroupBox );
+    QObject::connect( resetButton, SIGNAL( clicked ( bool ) ), this,  SLOT  ( brightnessContrastResetClicked( bool )) );
+
 
     brightnessSlider = new QSlider( Qt::Horizontal, brightnessContrastGroupBox );
     brightnessSlider->setMinimum( -100 );
@@ -224,19 +229,23 @@ void QEImage::setup() {
     contrastRBLabel->setText( QString( "%1%" ).arg( contrastSlider->value() ) );
 
 
-    brightnessContrastMainLayout->addWidget( autoBrightnessCheckBox, 0, 0 );
 
-    brightnessContrastSubLayout->addWidget( brightnessLabel, 0, 0 );
-    brightnessContrastSubLayout->addWidget( brightnessSlider, 0, 1 );
-    brightnessContrastSubLayout->addWidget( brightnessRBLabel, 0, 2 );
+    brightnessContrastSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
+    brightnessContrastSub1Layout->addWidget( resetButton, 1, Qt::AlignLeft );
 
-    brightnessContrastSubLayout->addWidget( contrastLabel, 1, 0 );
-    brightnessContrastSubLayout->addWidget( contrastSlider, 1, 1 );
-    brightnessContrastSubLayout->addWidget( contrastRBLabel, 1, 2 );
 
-    brightnessContrastSubLayout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
+    brightnessContrastSub2Layout->addWidget( brightnessLabel, 0, 0 );
+    brightnessContrastSub2Layout->addWidget( brightnessSlider, 0, 1 );
+    brightnessContrastSub2Layout->addWidget( brightnessRBLabel, 0, 2 );
 
-    brightnessContrastMainLayout->addLayout( brightnessContrastSubLayout );
+    brightnessContrastSub2Layout->addWidget( contrastLabel, 1, 0 );
+    brightnessContrastSub2Layout->addWidget( contrastSlider, 1, 1 );
+    brightnessContrastSub2Layout->addWidget( contrastRBLabel, 1, 2 );
+
+    brightnessContrastSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
+
+    brightnessContrastMainLayout->addLayout( brightnessContrastSub1Layout );
+    brightnessContrastMainLayout->addLayout( brightnessContrastSub2Layout );
 
 
     localBrightness = 0;    // Range -100% (black) to +100% (white)
@@ -364,9 +373,7 @@ void QEImage::setup() {
 
     // Act on default property values
     // Note, this resets them to their current value
-    showTimeEnabled = false;
-
-    setShowTime( showTimeEnabled );
+    setShowTime(false );
 
     setEnableAreaSelection( enableAreaSelection );
     setEnableVertSliceSelection( enableVSliceSelection );
@@ -2026,6 +2033,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 zMenu->enableAreaSelected( haveSelectedArea1 );
 
                 displaySelectedArea1Info( point1, point2 );
+                setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
                 {
@@ -2039,6 +2047,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea2 = true;
 
                 displaySelectedArea2Info( point1, point2 );
+                setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
                 {
@@ -2052,6 +2061,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea3 = true;
 
                 displaySelectedArea3Info( point1, point2 );
+                setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
                 {
@@ -2065,6 +2075,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea4 = true;
 
                 displaySelectedArea4Info( point1, point2 );
+                setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
                 {
@@ -2318,6 +2329,23 @@ void QEImage::displaySelectedArea4Info( QPoint point1, QPoint point2 )
     currentArea4Label->setText( s );
 }
 
+// Update the brightness and contrast, if in auto, to match the recently selected region
+void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
+{
+    qDebug() << "QEImage::setRegionAutoBrightnessContrast()" << point1 << point2;
+//    s.sprintf( "R4: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
+//                                     videoWidget->scaleOrdinate( point1.y() ),
+//                                     videoWidget->scaleOrdinate( point2.x() ),
+//                                     videoWidget->scaleOrdinate( point2.y() ));
+}
+
+// Reset the brightness and contrast to normal
+void QEImage::brightnessContrastResetClicked( bool )
+{
+    brightnessSlider->setValue( 0 );
+    contrastSlider->setValue( 100 );
+}
+
 void QEImage::autoBrightnessCheckBoxChanged( int state )
 {
     if( autoBrightnessContrast != (state==Qt::Checked) )
@@ -2325,6 +2353,9 @@ void QEImage::autoBrightnessCheckBoxChanged( int state )
         pixelLookupValid = false;
     }
     autoBrightnessContrast = (state==Qt::Checked);
+
+    // Present the updated image
+    displayImage();
 }
 
 // The local brightness slider has been moved
@@ -2336,6 +2367,9 @@ void QEImage::brightnessSliderValueChanged( int localBrightnessIn )
     }
     localBrightness = localBrightnessIn;
     brightnessRBLabel->setText( QString( "%1%" ).arg( localBrightness ));
+
+    // Present the updated image
+    displayImage();
 }
 
 // The local contrast slider has been moved
@@ -2347,6 +2381,9 @@ void QEImage::contrastSliderValueChanged( int localContrastIn )
     }
     localContrast =  localContrastIn;
     contrastRBLabel->setText( QString( "%1%" ).arg( localContrast ));
+
+    // Present the updated image
+    displayImage();
 }
 
 // Generate a profile along a line across an image at a given Y position
@@ -2890,12 +2927,12 @@ void QEImage::showContextMenu( const QPoint& pos )
 
     // Add menu items
 
-    //                      Title                            checkable  checked                 option
-    menu.addMenuItem(       "Save...",                       false,     false,                  imageContextMenu::ICM_SAVE                     );
-    menu.addMenuItem(       paused?"Resume":"Pause",         true,      paused,                 imageContextMenu::ICM_PAUSE                    );
-    menu.addMenuItem(       "Show time",                     true,      showTimeEnabled,        imageContextMenu::ICM_ENABLE_TIME              );
-    menu.addMenuItem(       "Show cursor pixel info",        true,      displayCursorPixelInfo, imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
-    menu.addMenuItem(       "Contrast reversal",             true,      contrastReversal,       imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
+    //                      Title                            checkable  checked                     option
+    menu.addMenuItem(       "Save...",                       false,     false,                      imageContextMenu::ICM_SAVE                     );
+    menu.addMenuItem(       paused?"Resume":"Pause",         true,      paused,                     imageContextMenu::ICM_PAUSE                    );
+    menu.addMenuItem(       "Show time",                     true,      videoWidget->getShowTime(), imageContextMenu::ICM_ENABLE_TIME              );
+    menu.addMenuItem(       "Show cursor pixel info",        true,      displayCursorPixelInfo,     imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
+    menu.addMenuItem(       "Contrast reversal",             true,      contrastReversal,           imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
 
     // Add the zoom menu
     zMenu->enableAreaSelected( haveSelectedArea1 );
@@ -2918,6 +2955,7 @@ void QEImage::showContextMenu( const QPoint& pos )
     imageContextMenu::imageContextMenuOptions option;
     bool checked;
     menu.getContextMenuOption( globalPos, &option, &checked );
+    qDebug() << checked;
 
     // Act on the menu selection
     switch( option )

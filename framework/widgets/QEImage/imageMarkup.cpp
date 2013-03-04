@@ -1163,6 +1163,8 @@ imageMarkup::imageMarkup()
     QPixmap targetPixmap = QPixmap( ":/qe/image/targetCursor.png" );
     targetCursor = QCursor( targetPixmap );
 
+    // Don't show time on image by default
+    showTime = false;
 }
 
 // Destructor
