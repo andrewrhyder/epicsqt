@@ -33,10 +33,6 @@ For example, if a new file was not added to svn
   cd ~
   mv epicsqt epicsqtSaveNN
 
-Ensure repository is up to date:
-  cd ~/epicsqt
-  svn commit -m "reason for any changes"
-
 Package project (version example below is 2.2 - change as required)
   firefox http://epicsqt.svn.sourceforge.net/viewvc/epicsqt/
   'Download GNU tarball'
@@ -66,7 +62,7 @@ Upload package:
 
 Update any changed files in sourceforge documentation
   go to https://sourceforge.net/projects/epicsqt/files/documentation/
-  add updated files
+  add updated files, typically releasenotes.txt and QE_*.pdf
 
 Verify package:
   cd ~
