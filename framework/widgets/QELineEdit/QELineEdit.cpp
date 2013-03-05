@@ -244,7 +244,6 @@ void QELineEdit::userEditingFinished() {
     // If no changes were made by the user, do nothing
     if( !isModified() || !writeOnFinish )
     {
-        qDebug() << "leaving QELineEdit::userEditingFinished() 2";
         return;
     }
 
@@ -288,7 +287,6 @@ void QELineEdit::userEditingFinished() {
                 break;
         }
     }
-    qDebug() << "leaving QELineEdit::userEditingFinished() 3";
 }
 
 // Write a value immedietly.

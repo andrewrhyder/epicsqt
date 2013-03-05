@@ -599,7 +599,15 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     }
 
     // Update the image buffer according to the new size
+    // This will do nothing unless both width and height are available
+    // Note, this is also called in displayImage() next, but only if the image buffer empty.
     setImageBuff();
+
+    // Update the image.
+    // This is required if image data for an enlarged image arrived before the width and height.
+    // The image data will be present, but will not have been used to update the image if the
+    // width and height were not suitable at the time of the image update
+    displayImage();
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -916,6 +924,12 @@ void QEImage::displayImage()
     // Do nothing if there are no image dimensions yet
     if( !imageBuffWidth || !imageBuffHeight )
         return;
+
+    // Do nothing if the image data is not enough for the expected size (or no image data)
+    if( imageBuffWidth*imageBuffHeight*imageDataSize > (unsigned int)(image.size()) )
+    {
+        return;
+    }
 
     // Set up the image buffer if not done already
     if( imageBuff.isEmpty() )
@@ -2274,7 +2288,7 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
 {
     QPoint posTr;
 
-    // Transform the position to reflect the original unrotated or flipautoBrightnessContrastped data
+    // Transform the position to reflect the original unrotated or flipped data
     posTr = rotateFLipPoint( pos );
 
     const unsigned char* data = (unsigned char*)image.constData();
