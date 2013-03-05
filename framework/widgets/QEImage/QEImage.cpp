@@ -2969,7 +2969,6 @@ void QEImage::showContextMenu( const QPoint& pos )
     imageContextMenu::imageContextMenuOptions option;
     bool checked;
     menu.getContextMenuOption( globalPos, &option, &checked );
-    qDebug() << checked;
 
     // Act on the menu selection
     switch( option )
