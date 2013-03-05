@@ -1,6 +1,18 @@
 Package generation:
+
 Update release notes:
-  Add summary and svn change logs to ~/epicsqt/releasenotes.txt
+  Generate a list of svn changes using with a revision range from revision after last releast to current revision
+    svn log . -r 520:596
+  Add summary and svn change logs to ~/epicsqt/releasenotes.txt in the form:
+          ==================================================================================================
+          Changes between 2.3 and 2.2
+
+          SUMMARY:
+          <Overall summary of changes>
+
+          DETAIL:
+          <svn log>
+
 
 Rebuild documentation:
 (note, preparation of pdf help from latex source requires
@@ -11,6 +23,10 @@ pdflatex available in lexlive "yum install texlive-latex")
   cd ~/epicsqt/documentation/latex
   make pdf
   cp refman.pdf ~/epicsqt/documentation/QE_ReferenceManual.pdf
+
+Commit documentation changes
+  cd ~/epicsqt
+  svn commit -m "Documentation changes prior to release"
 
 Save current version just in case:
 For example, if a new file was not added to svn
