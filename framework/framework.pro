@@ -141,16 +141,7 @@ SOURCES += \
     widgets/src/ContainerProfile.cpp \
 
 OTHER_FILES += \
-    src/record_field_list.txt \
-    src/cameraROI.png \
-    src/cameraROIreset.png \
-    src/flipRotate.png \
-    src/pause.png \
-    src/play.png \
-    src/save.png \
-    src/select.png \
-    src/zoom.png
-
+    src/record_field_list.txt
 
 #===========================================================
 # Widget sub projects

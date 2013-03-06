@@ -376,12 +376,36 @@ void markupBeam::scaleSpecific( double xScale, double yScale )
 
 markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
+    thickness = 0;
 }
 
 void markupVLine::drawMarkup( QPainter& p )
 {
     // Draw markup
     p.drawLine( x, 0, x, owner->markupImage->rect().height() );
+
+    // If no thickness, draw a single handle in the middle
+    if( thickness == 0 )
+    {
+        QRect handle( x-(HANDLE_SIZE/2), owner->markupImage->rect().height()-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
+        p.drawRect( handle );
+    }
+
+    // If thickness, draw the thickness borders (dotted lines either side of the main line)
+    // and draw two handles, one on each border
+    else
+    {
+        QPen pen = p.pen();
+        pen.setStyle( Qt::DotLine );
+        p.drawLine( x-thickness, 0, x-thickness, owner->markupImage->rect().height() );
+        p.drawLine( x+thickness, 0, x+thickness, owner->markupImage->rect().height() );
+        pen.setStyle( Qt::SolidLine );
+
+        QRect handle1( x-thickness-(HANDLE_SIZE/2), owner->markupImage->rect().height()-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
+        p.drawRect( handle1 );
+        QRect handle2( x+thickness-(HANDLE_SIZE/2), owner->markupImage->rect().height()-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
+        p.drawRect( handle2 );
+    }
 
     // Draw markup legend
     drawLegend( p, QPoint(x, owner->markupImage->rect().height()/2), ABOVE_RIGHT );
@@ -391,13 +415,13 @@ void markupVLine::setArea()
 {
     if( highlighted )
     {
-        area.setLeft( x - highlightMargin );
-        area.setRight( x + highlightMargin );
+        area.setLeft( x - thickness - highlightMargin );
+        area.setRight( x + thickness + highlightMargin );
     }
     else
     {
-        area.setLeft( x - HANDLE_SIZE/2 );
-        area.setRight( x + HANDLE_SIZE/2 );
+        area.setLeft( x - thickness - HANDLE_SIZE/2 );
+        area.setRight( x + thickness + HANDLE_SIZE/2 );
     }
     area.setTop( 0 );
     area.setBottom( owner->markupImage->rect().bottom());
@@ -443,7 +467,7 @@ QPoint markupVLine::getPoint2()
 
 QCursor markupVLine::defaultCursor()
 {
-    return Qt::CrossCursor;
+    return owner->getVLineCursor();
 }
 
 void markupVLine::scaleSpecific( double xScale, double )
@@ -456,6 +480,7 @@ void markupVLine::scaleSpecific( double xScale, double )
 
 markupHLine::markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
+    thickness = 0;
 }
 
 void markupHLine::drawMarkup( QPainter& p )
@@ -523,7 +548,7 @@ QPoint markupHLine::getPoint2()
 
 QCursor markupHLine::defaultCursor()
 {
-    return Qt::CrossCursor;
+    return owner->getHLineCursor();
 }
 
 void markupHLine::scaleSpecific( double, double yScale )
@@ -536,6 +561,7 @@ void markupHLine::scaleSpecific( double, double yScale )
 
 markupLine::markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
+    thickness = 0;
 }
 
 void markupLine::drawMarkup( QPainter& p )
@@ -709,7 +735,7 @@ QPoint markupLine::getPoint2()
 
 QCursor markupLine::defaultCursor()
 {
-    return Qt::CrossCursor;
+    return owner->getLineCursor();
 }
 
 void markupLine::scaleSpecific( double xScale, double yScale )
@@ -1014,7 +1040,7 @@ QPoint markupRegion::getPoint2()
 
 QCursor markupRegion::defaultCursor()
 {
-    return Qt::CrossCursor;
+    return owner->getRegionCursor();
 }
 
 void markupRegion::scaleSpecific( double xScale, double yScale )
@@ -1162,6 +1188,22 @@ imageMarkup::imageMarkup()
     // Create target cursor used for target and beam
     QPixmap targetPixmap = QPixmap( ":/qe/image/targetCursor.png" );
     targetCursor = QCursor( targetPixmap );
+
+    // Create red vertical line cursor used for vertical slice
+    QPixmap vSlicePixmap = QPixmap( ":/qe/image/vLineCursor.png" );
+    vLineCursor = QCursor( vSlicePixmap );
+
+    // Create green horizontal line cursor used for horizontal slice
+    QPixmap hSlicePixmap = QPixmap( ":/qe/image/hLineCursor.png" );
+    hLineCursor = QCursor( hSlicePixmap );
+
+    // Create yellow cross cursor used for line profile
+    QPixmap profilePixmap = QPixmap( ":/qe/image/lineCursor.png" );
+    lineCursor = QCursor( profilePixmap );
+
+    // Create purple cross cursor used for area selection
+    QPixmap areaPixmap = QPixmap( ":/qe/image/regionCursor.png" );
+    regionCursor = QCursor( areaPixmap );
 
     // Don't show time on image by default
     showTime = false;
@@ -1634,6 +1676,30 @@ QCursor imageMarkup::getCircleCursor()
 QCursor imageMarkup::getTargetCursor()
 {
     return targetCursor;
+}
+
+// Return the vertical slice cursor use by the image markup system
+QCursor imageMarkup::getVLineCursor()
+{
+    return vLineCursor;
+}
+
+// Return the horizontal slice cursor use by the image markup system
+QCursor imageMarkup::getHLineCursor()
+{
+    return hLineCursor;
+}
+
+// Return the line profile cursor use by the image markup system
+QCursor imageMarkup::getLineCursor()
+{
+    return lineCursor;
+}
+
+// Return the area selection cursor use by the image markup system
+QCursor imageMarkup::getRegionCursor()
+{
+    return regionCursor;
 }
 
 // Show the markup context menu if required.

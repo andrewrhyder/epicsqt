@@ -15,7 +15,11 @@ OTHER_FILES += \
     widgets/QEImage/zoom.png \
     widgets/QEImage/target.png \
     widgets/QEImage/circleCursor.png \
-    widgets/QEImage/targetCursor.png
+    widgets/QEImage/targetCursor.png \
+    widgets/QEImage/vLineCursor.png \
+    widgets/QEImage/hLineCursor.png \
+    widgets/QEImage/lineCursor.png \
+    widgets/QEImage/regionCursor.png
 
 RESOURCES += \
     widgets/QEImage/QEImage.qrc

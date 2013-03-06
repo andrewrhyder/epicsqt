@@ -12,5 +12,9 @@
         <file>target.png</file>
         <file>circleCursor.png</file>
         <file>targetCursor.png</file>
+        <file>regionCursor.png</file>
+        <file>vLineCursor.png</file>
+        <file>hLineCursor.png</file>
+        <file>lineCursor.png</file>
     </qresource>
 </RCC>

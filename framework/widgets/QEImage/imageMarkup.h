@@ -201,6 +201,7 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
+    unsigned int thickness;
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
@@ -222,6 +223,7 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
+    unsigned int thickness;
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
@@ -242,6 +244,7 @@ public:
     QPoint origin();
     QPoint getPoint1();
     QPoint getPoint2();
+    unsigned int thickness;
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
@@ -338,6 +341,11 @@ public:
     bool markupAreasStale;                                      // True if 'markupAreas' is no longer up to date
     QCursor getCircleCursor();                                  // Returns a circular cursor
     QCursor getTargetCursor();                                  // Returns a target cursor
+    QCursor getVLineCursor();                                  // Returns a vertical line cursor
+    QCursor getHLineCursor();                                  // Returns a horizontal line cursor
+    QCursor getLineCursor();                                 // Returns a profile line cursor
+    QCursor getRegionCursor();                                    // Returns a region cursor
+
     virtual void markupSetCursor( QCursor cursor )=0;           // Inform the VideoWidget that that the cursor should change
     QFont legendFont;                                           // Font used to notate markups (and for time)
     QFontMetrics* legendFontMetrics;                            // Size info about legendFont;
@@ -372,6 +380,11 @@ private:
     bool showTime;                              // True if the time is being displayed
     QCursor circleCursor;                       // Used as default cursor when over a target or beam markup
     QCursor targetCursor;                       // Used as default cursor when in target or beam mode
+    QCursor vLineCursor;                        // Used as default cursor when in vertical slice mode
+    QCursor hLineCursor;                        // Used as default cursor when in horizontal slicemode
+    QCursor lineCursor;                         // Used as default cursor when in line profile mode
+    QCursor regionCursor;                       // Used as default cursor when in area selection mode
+
 };
 
 #endif // IMAGEMARKUP_H

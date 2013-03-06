@@ -461,7 +461,9 @@ public slots:
 
     void displayImage();                                    // Display a new image.
     int getScanOption();                                    // Determine the way the input pixel data must be scanned to accommodate the required rotate and flip options.
-    QPoint rotateFLipPoint( QPoint& pos );                  // Transform the point according to current rotation and flip options.
+    QPoint rotateFlipPoint( QPoint& pos );                  // Transform the point according to current rotation and flip options.
+    QRect rotateFlipRectangle( QPoint& pos1, QPoint& pos2 );// Transform the rectangle according to current rotation and flip options
+
     const unsigned char* getImageDataPtr( QPoint& pos );    // Return a pointer to pixel data in the original image data.
 
     void zoomToArea();                                      // Zoom to the area selected on the image
@@ -483,6 +485,8 @@ public slots:
     unsigned int clippingLow;
     unsigned int clippingHigh;
 
+    bool nonInteractiveUpdate;                      // Set when updating a control from the code (not the user clicking, draging, etc. Used to ignore change signals.
+
     struct rgbPixel
     {
         unsigned char p[4]; // Alpha/R/G/B
@@ -493,7 +497,7 @@ public slots:
     QByteArray pixelLookup; // Table of translated pixel values (includig contrast reversal, local brightness and contrast, and clipping)
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
-
+    void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
 
     // Drag and Drop
 protected:
