@@ -170,8 +170,14 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
     publishedProfile = new PublishedProfile;
     sharedMemory->create( sizeof( PublishedProfile* ) );
     sharedMemoryData = sharedMemory->data();
-    *(PublishedProfile**)(sharedMemoryData) = publishedProfile;
-
+    if( sharedMemoryData == NULL )
+    {
+        qDebug() << "Error setting up ContainerProfile in shared memory." << sharedMemory->error() << sharedMemory->errorString();
+    }
+    else
+    {
+        *(PublishedProfile**)(sharedMemoryData) = publishedProfile;
+    }
     sharedMemory->unlock();
     return publishedProfile;
 }
