@@ -910,7 +910,6 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
             lookupTable[value].p[0] = (unsigned char)translatedValue;
             lookupTable[value].p[1] = (unsigned char)translatedValue;
             lookupTable[value].p[2] = (unsigned char)translatedValue;
-
         }
     }
 
@@ -2356,7 +2355,7 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 
     // Translate the corners to match the current flip and roate options
     QRect area = rotateFlipRectangle( corner1, corner2 );
-    qDebug() << "QEImage::setRegionAutoBrightnessContrast()" << area << point1 << point2;
+    // !!! This can end up with negative bits when markup is slid upwards
 
     // Determine the range of pixel values in the selected area
     unsigned int min, max;
@@ -2366,7 +2365,12 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     // to match the range of pixels in the area
     int range = (max>min)?max-min:1;
     int newContrast = 100*maxPixelValue()/range;
-    int newBrightness = 100*max/maxPixelValue();
+//    int newBrightness = 100*max/maxPixelValue();
+//!!! Brightness is not calculated correctly
+    int newBrightness = -100*(max+min-maxPixelValue())/maxPixelValue();
+//    int newBrightness = -(newContrast*(min+max)-(maxPixelValue()*100))/200;
+
+//    qDebug() << "min" << min << "max" << max << "newContrast" << newContrast << "newBrightness" << newBrightness << "range" << range << "maxPixelValue()" << maxPixelValue();
 
     // If the brightness and contrast have changed, update the values,
     // update the user interface and redisplay the image
@@ -2380,12 +2384,10 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
         localBrightness = newBrightness;
 
         // Update the user interface
-        qDebug() << "setting sliders";
         nonInteractiveUpdate = true;
         brightnessSlider->setValue( newBrightness );
         contrastSlider->setValue( newContrast );
         nonInteractiveUpdate = false;
-        qDebug() << "setting sliders done";
         contrastRBLabel->setText( QString( "%1%" ).arg( localContrast ));
         brightnessRBLabel->setText( QString( "%1%" ).arg( localBrightness ));
 
@@ -2433,22 +2435,27 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
     // Return results
     *min = minP;
     *max = maxP;
-    qDebug() << minP << maxP;
 }
 
 // Reset the brightness and contrast to normal
 void QEImage::brightnessContrastResetClicked( bool )
 {
+    // Reset brightness and contrast
     brightnessSlider->setValue( 0 );
     contrastSlider->setValue( 100 );
 }
 
+// Auto brightness and contrast check box has ben checked or unchecked
 void QEImage::autoBrightnessCheckBoxChanged( int state )
 {
-    if( autoBrightnessContrast != (state==Qt::Checked) )
-    {
-        pixelLookupValid = false;
-    }
+    // Do nothing if no change
+    if( autoBrightnessContrast == (state==Qt::Checked) )
+        return;
+
+    // Flag that the current pixel lookup table needs recalculating
+    pixelLookupValid = false;
+
+    // Note the new state
     autoBrightnessContrast = (state==Qt::Checked);
 
     // Present the updated image
@@ -2462,12 +2469,14 @@ void QEImage::brightnessSliderValueChanged( int localBrightnessIn )
     if( nonInteractiveUpdate )
         return;
 
-    qDebug() << "brightnessSliderValueChanged slot called";
+    // Do nothing if no change
     if( localBrightness == localBrightnessIn )
         return;
 
+    // Flag that the current pixel lookup table needs recalculating
     pixelLookupValid = false;
 
+    // Update the brightness
     localBrightness = localBrightnessIn;
     brightnessRBLabel->setText( QString( "%1%" ).arg( localBrightness ));
 
@@ -2482,11 +2491,14 @@ void QEImage::contrastSliderValueChanged( int localContrastIn )
     if( nonInteractiveUpdate )
         return;
 
-    qDebug() << "contrastSliderValueChanged slot called";
+    // Do nothing if no change
     if( localContrast ==  localContrastIn )
         return;
+
+    // Flag that the current pixel lookup table needs recalculating
     pixelLookupValid = false;
 
+    // Update the contrast
     localContrast =  localContrastIn;
     contrastRBLabel->setText( QString( "%1%" ).arg( localContrast ));
 
@@ -2815,7 +2827,7 @@ QRect QEImage::rotateFlipRectangle( QPoint& pos1, QPoint& pos2 )
 
     QRect trRect( trPos1, trPos2 );
     trRect = trRect.normalized();
-    qDebug() << pos1 << pos2 << trRect;
+
     return trRect;
 }
 
