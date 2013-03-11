@@ -261,6 +261,21 @@ QPoint markupTarget::origin()
     return pos;
 }
 
+// Return the cursor for each handle
+QCursor markupTarget::cursorForHandle( markupItem::markupHandles )
+{
+// No special cursors for different handles
+//    switch( handle )
+//    {
+//        case MARKUP_HANDLE_TL:   return Qt::SizeFDiagCursor;
+//        case MARKUP_HANDLE_BL:   return Qt::SizeBDiagCursor;
+//        ...
+//        default: return defaultCursor();
+//    }
+
+    return defaultCursor();
+}
+
 QPoint markupTarget::getPoint1()
 {
     return origin();
@@ -350,6 +365,21 @@ QPoint markupBeam::origin()
     return pos;
 }
 
+// Return the cursor for each handle
+QCursor markupBeam::cursorForHandle( markupItem::markupHandles )
+{
+// No special cursors for different handles
+//    switch( handle )
+//    {
+//        case MARKUP_HANDLE_TL:   return Qt::SizeFDiagCursor;
+//        case MARKUP_HANDLE_BL:   return Qt::SizeBDiagCursor;
+//        ...
+//        default: return defaultCursor();
+//    }
+
+    return defaultCursor();
+}
+
 QPoint markupBeam::getPoint1()
 {
     return origin();
@@ -387,7 +417,8 @@ void markupVLine::drawMarkup( QPainter& p )
     // If no thickness, draw a single handle in the middle
     if( thickness == 0 )
     {
-        QRect handle( x-(HANDLE_SIZE/2), owner->markupImage->rect().height()-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
+        //!!! draw the handle in the middle of the existing view, not the entire image
+        QRect handle( x-(HANDLE_SIZE/2), (owner->markupImage->rect().height()/2)-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
         p.drawRect( handle );
     }
 
@@ -397,14 +428,9 @@ void markupVLine::drawMarkup( QPainter& p )
     {
         QPen pen = p.pen();
         pen.setStyle( Qt::DotLine );
-        p.drawLine( x-thickness, 0, x-thickness, owner->markupImage->rect().height() );
-        p.drawLine( x+thickness, 0, x+thickness, owner->markupImage->rect().height() );
+        p.drawLine( x-(thickness/2), 0, x-(thickness/2), owner->markupImage->rect().height() );
+        p.drawLine( x+(thickness/2), 0, x+(thickness/2), owner->markupImage->rect().height() );
         pen.setStyle( Qt::SolidLine );
-
-        QRect handle1( x-thickness-(HANDLE_SIZE/2), owner->markupImage->rect().height()-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
-        p.drawRect( handle1 );
-        QRect handle2( x+thickness-(HANDLE_SIZE/2), owner->markupImage->rect().height()-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
-        p.drawRect( handle2 );
     }
 
     // Draw markup legend
@@ -415,13 +441,13 @@ void markupVLine::setArea()
 {
     if( highlighted )
     {
-        area.setLeft( x - thickness - highlightMargin );
-        area.setRight( x + thickness + highlightMargin );
+        area.setLeft(  x - (thickness/2) - highlightMargin );
+        area.setRight( x + (thickness/2) + highlightMargin );
     }
     else
     {
-        area.setLeft( x - thickness - HANDLE_SIZE/2 );
-        area.setRight( x + thickness + HANDLE_SIZE/2 );
+        area.setLeft(  x - (thickness/2) - HANDLE_SIZE/2 );
+        area.setRight( x + (thickness/2) + HANDLE_SIZE/2 );
     }
     area.setTop( 0 );
     area.setBottom( owner->markupImage->rect().bottom());
@@ -439,20 +465,94 @@ void markupVLine::startDrawing( QPoint pos )
 
 void markupVLine::moveTo( QPoint pos )
 {
-    x = pos.x();
+    // Move the appropriate part of the region, according to which bit the user has grabbed
+    switch( activeHandle )
+    {
+        case MARKUP_HANDLE_NONE:   x = pos.x();                    break;
+        case MARKUP_HANDLE_CENTER: thickness = abs( x-pos.x() )*2; break;
+        default: break;
+    }
+
+    // Update the area the region now occupies
     setArea();
 }
 
 bool markupVLine::isOver( const QPoint point, QCursor* cursor )
 {
-    *cursor = Qt::OpenHandCursor;
-    activeHandle = MARKUP_HANDLE_NONE;
-    return ( abs( point.x() - x ) <= OVER_TOLERANCE );
+
+    // If any thickness, look for pointer over the main line, or the thickness lines.
+    // Note, the thickness lines start life by grabbing the center handle, so the when
+    // over any part of the thickness lines, the current handle is the center handle
+    if( thickness )
+    {
+        //!!! OVER_TOLERANCE only applies when larger than the distance form the center line tothe thickness lines. In that case, the center line is found first, and is found in preference to the thickness lines up to the thickness lines
+        // If over left edge...
+        if( abs( point.x() - (x - (thickness/2) )) <= OVER_TOLERANCE )
+        {
+            activeHandle = MARKUP_HANDLE_CENTER;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+        // If over right edge...
+        else if( abs( point.x() - (x + (thickness/2) )) <= OVER_TOLERANCE )
+        {
+            activeHandle = MARKUP_HANDLE_CENTER;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+        // If over main line...
+        else if( abs( point.x() - x ) <= OVER_TOLERANCE )
+        {
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+    }
+
+    // If no thickness, look for pointer over the main line, or the thickness handle
+    else
+    {
+        QPoint handle( x,owner->markupImage->rect().height()/2 );
+
+        if( pointIsNear( point, handle ))
+        {
+            activeHandle = MARKUP_HANDLE_CENTER;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+        // If over any part of the line...
+        else if( abs( point.x() - x ) <= OVER_TOLERANCE )
+        {
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+    }
+
+    // Not over
+    return false;
 }
 
 QPoint markupVLine::origin()
 {
     return QPoint( x, 0 );
+}
+
+// Return the cursor for each handle
+QCursor markupVLine::cursorForHandle( markupItem::markupHandles handle )
+{
+    switch( handle )
+    {
+        case MARKUP_HANDLE_CENTER: return Qt::SizeHorCursor;
+        case MARKUP_HANDLE_NONE:   return defaultCursor();
+        default:                   return defaultCursor();
+    }
+
 }
 
 QPoint markupVLine::getPoint1()
@@ -534,6 +634,18 @@ bool markupHLine::isOver( const QPoint point, QCursor* cursor )
 QPoint markupHLine::origin()
 {
     return QPoint( 0, y );
+}
+
+// Return the cursor for each handle
+QCursor markupHLine::cursorForHandle( markupItem::markupHandles handle )
+{
+    switch( handle )
+    {
+        case MARKUP_HANDLE_T:    return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_B:    return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_NONE: return defaultCursor();
+        default:                 return defaultCursor();
+    }
 }
 
 QPoint markupHLine::getPoint1()
@@ -723,6 +835,20 @@ QPoint markupLine::origin()
     return start;
 }
 
+// Return the cursor for each handle
+QCursor markupLine::cursorForHandle( markupItem::markupHandles handle )
+{
+    switch( handle )
+    {
+        case MARKUP_HANDLE_L:    return Qt::SizeHorCursor;
+        case MARKUP_HANDLE_R:    return Qt::SizeHorCursor;
+        case MARKUP_HANDLE_T:    return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_B:    return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_NONE: return defaultCursor();
+        default:                 return defaultCursor();
+    }
+}
+
 QPoint markupLine::getPoint1()
 {
     return start;
@@ -896,26 +1022,6 @@ void markupRegion::moveTo( QPoint pos )
     setArea();
 }
 
-// Return the cursor for each handle
-// !!! MOVE INTO MARKUP ITEM, EXTEND FOR ALL HANDLES, AND USE FOR ALL MARKUP ITEMS???
-QCursor markupRegion::cursorForHandle( markupHandles handle )
-{
-    switch( handle )
-    {
-        case MARKUP_HANDLE_TL:   return Qt::SizeFDiagCursor;
-        case MARKUP_HANDLE_BL:   return Qt::SizeBDiagCursor;
-        case MARKUP_HANDLE_TR:   return Qt::SizeBDiagCursor;
-        case MARKUP_HANDLE_BR:   return Qt::SizeFDiagCursor;
-        case MARKUP_HANDLE_L:    return Qt::SizeHorCursor;
-        case MARKUP_HANDLE_R:    return Qt::SizeHorCursor;
-        case MARKUP_HANDLE_T:    return Qt::SizeVerCursor;
-        case MARKUP_HANDLE_B:    return Qt::SizeVerCursor;
-        case MARKUP_HANDLE_NONE: return Qt::OpenHandCursor;
-        default: return Qt::SizeAllCursor;
-    }
-
-}
-
 bool markupRegion::isOver( const QPoint point, QCursor* cursor )
 {
     // If the point is over the left side, return 'is over' after checking the left handles
@@ -1028,6 +1134,25 @@ QPoint markupRegion::origin()
     return rect.topLeft();
 }
 
+// Return the cursor for each handle
+QCursor markupRegion::cursorForHandle( markupItem::markupHandles handle )
+{
+    switch( handle )
+    {
+        case MARKUP_HANDLE_TL:   return Qt::SizeFDiagCursor;
+        case MARKUP_HANDLE_BL:   return Qt::SizeBDiagCursor;
+        case MARKUP_HANDLE_TR:   return Qt::SizeBDiagCursor;
+        case MARKUP_HANDLE_BR:   return Qt::SizeFDiagCursor;
+        case MARKUP_HANDLE_L:    return Qt::SizeHorCursor;
+        case MARKUP_HANDLE_R:    return Qt::SizeHorCursor;
+        case MARKUP_HANDLE_T:    return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_B:    return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_NONE: return Qt::OpenHandCursor;
+        default: return Qt::SizeAllCursor;
+    }
+
+}
+
 QPoint markupRegion::getPoint1()
 {
     return rect.topLeft();
@@ -1129,6 +1254,21 @@ bool markupText::isOver( const QPoint point, QCursor* cursor )
 QPoint markupText::origin()
 {
     return rect.topLeft();
+}
+
+// Return the cursor for each handle
+QCursor markupText::cursorForHandle( markupItem::markupHandles )
+{
+// No special cursors for different handles
+//    switch( handle )
+//    {
+//        case MARKUP_HANDLE_TL:   return Qt::SizeFDiagCursor;
+//        case MARKUP_HANDLE_BL:   return Qt::SizeBDiagCursor;
+//        ...
+//        default: return defaultCursor();
+//    }
+
+    return defaultCursor();
 }
 
 QPoint markupText::getPoint1()

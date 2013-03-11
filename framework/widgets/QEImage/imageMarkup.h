@@ -89,6 +89,10 @@ protected:
     virtual ~markupItem();
 
 public:
+    enum markupHandles { MARKUP_HANDLE_NONE, // Over a markup, but not over any specific handle of the markup
+                         MARKUP_HANDLE_START, MARKUP_HANDLE_END, MARKUP_HANDLE_CENTER,  // Lines
+                         MARKUP_HANDLE_TL, MARKUP_HANDLE_TR, MARKUP_HANDLE_BL, MARKUP_HANDLE_BR, // Area corners
+                         MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
     void erase();                // Erase and item and redraw any items that it was over (note, this does not change its status. For example, it is used if hiding an item, but also when moving an item)
     void drawMarkupIn();
     void drawMarkupOut();
@@ -99,6 +103,7 @@ public:
     virtual void moveTo( QPoint pos )=0;  // Move an item (always make it visible and highlighed)
     virtual void startDrawing( QPoint pos ) = 0;
     virtual bool isOver( const QPoint point, QCursor* cursor )=0;
+    virtual QCursor cursorForHandle( markupItem::markupHandles handle ) = 0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
     virtual QCursor defaultCursor()=0;
@@ -110,12 +115,8 @@ public:
     bool          reportOnMove; // Movements reported (not just on move completion)
     QColor        color;            // Color markup is drawn in
 
-protected:
-    enum markupHandles { MARKUP_HANDLE_NONE, // Over a markup, but not over any specific handle of the markup
-                         MARKUP_HANDLE_START, MARKUP_HANDLE_END,  // Lines
-                         MARKUP_HANDLE_TL, MARKUP_HANDLE_TR, MARKUP_HANDLE_BL, MARKUP_HANDLE_BR, // Area corners
-                         MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
 
+protected:
     markupHandles activeHandle;
     virtual void setArea()=0;
     virtual void drawMarkup( QPainter& p )=0;
@@ -156,6 +157,7 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
+    QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
@@ -177,6 +179,7 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
+    QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
@@ -199,6 +202,7 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
+    QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int thickness;
@@ -221,6 +225,7 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
+    QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int thickness;
@@ -242,6 +247,7 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
+    QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int thickness;
@@ -265,6 +271,7 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
+    QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
@@ -274,7 +281,6 @@ public:
 
 
 private:
-    QCursor cursorForHandle( markupHandles handle );
     QRect rect;
 };
 
@@ -292,6 +298,7 @@ public:
     void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
     bool isOver( QPoint point, QCursor* cursor );
     QPoint origin();
+    QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     QCursor defaultCursor();
