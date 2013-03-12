@@ -2710,7 +2710,6 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thickness )
 //
 void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thickness )
 {
-    thickness = 30;
     // Scale the coordinates to the original image data
     QPoint point1 = videoWidget->scalePoint( point1Unscaled );
     QPoint point2 = videoWidget->scalePoint( point2Unscaled );
