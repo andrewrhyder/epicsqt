@@ -2708,25 +2708,9 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thickness )
 //   |       |       |       |       |       |
 //   +-------+-------+-------+-------+-------+
 //
-//  Formulas for x and y values along the selected line:
-//
-//  d = line length
-//  x = x component
-//  y = y component
-//  s = slope
-//
-//  s = y / x
-//  y = sx
-
-//  d^2 = x^2 + y^2
-//  d^2 = x^2 + (sx)^2
-//  d^2 = x^2 + s^2 + x^2
-//  d^2 = x^2(1 + s^2)
-//  d^2 / (1 + s^2) = x^2
-//  sqrt( d^2 / (1 + s^2) ) = x
-//
 void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thickness )
 {
+    thickness = 30;
     // Scale the coordinates to the original image data
     QPoint point1 = videoWidget->scalePoint( point1Unscaled );
     QPoint point2 = videoWidget->scalePoint( point2Unscaled );
@@ -2750,28 +2734,9 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
     // Line length
     double len = sqrt( dX*dX+dY*dY );
 
-    // Line slope
-    // To handle infinite slope, switch slope between x/y or y/x as appropriate
-    // This is more accurate for otherwise very steep slopes, and does not need a
-    // special case for infinite slopes
-    double slopeY = 0.0; // Y/X
-    double slopeX = 0.0; // X/Y
-    bool useSlopeY;
-    if( dX != 0 )
-    {
-        slopeY = dY/dX;
-        useSlopeY = true;
-    }
-    else
-    {
-        slopeX = dX/dY;
-        useSlopeY = false;
-    }
-
-    // Determine the direction of the line relative the the start point
-    double dirX, dirY;
-    (dX<0)?dirX=-1.0:dirX=+1.0;
-    (dY<0)?dirY=-1.0:dirY=+1.0;
+    // Step on each axis to move one 'pixel' length
+    double xStep = dX/len;
+    double yStep = dY/len;
 
     // Starting point in center of start pixel
     double initX = point1.x()+0.5;
@@ -2782,105 +2747,141 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
        profileData.resize( int( len ) );
     }
 
-    // Calculate a value for each pixel length along the selected line
-    for( int i = 0; i < (int) len; i++ )
+    // Integer pixel length
+    int intLen = (int)len;
+
+    // Parrallel passes will be made one 'pixel' away from each other up to the thickness required.
+    // Determine the offset for the first pass.
+    // Note, this will not add an offset for a thickness of 1 pixel
+    initX -= yStep * (double)(thickness-1) / 2;
+    initY += xStep * (double)(thickness-1) / 2;
+
+    // Accumulate a set of values for each pixel width up to the thickness required
+    bool firstPass = true;
+    for( unsigned int j = 0; j < thickness; j++ )
     {
-        // Determine the next 'point' on the line
-        // Each point is one pixel length from the last.
-        double x, y;
-        if( useSlopeY)
+        // Starting point for this pass
+        double x = initX;
+        double y = initY;
+
+        // Calculate a value for each pixel length along the selected line
+        for( int i = 0; i < intLen; i++ )
         {
-            x = initX + dirX * sqrt((double)(i*i) / (1 + slopeY*slopeY));
-            y = initY + (x-initX) * slopeY;
-        }
-        else
-        {
-            y = initY + dirY * sqrt((double)(i*i) / (1 + slopeX*slopeX));
-            x = initX + (y-initY) * slopeX;
-        }
-
-        // Calculate the value if the point is within the image (user can drag outside the image)
-        double value;
-        if( x >= 0 && x < rotatedImageBuffWidth() && y >= 0 && y < rotatedImageBuffHeight() )
-        {
-
-            // Determine the top left of the notional pixel that will be measured
-            // The notional pixel is one pixel length both dimensions and will not
-            // nessesarily overlay a single real pixel
-            double xTL = x-0.5;
-            double yTL = y-0.5;
-
-            // Determine the top left actual pixel of the four actual pixels that
-            // the notional pixel overlays, and the fractional part of a pixel that
-            // the notional pixel is offset by.
-            double xTLi, xTLf; // i = integer part, f = fractional part
-            double yTLi, yTLf; // i = integer part, f = fractional part
-
-            xTLf = modf( xTL, & xTLi );
-            yTLf = modf( yTL, & yTLi );
-
-            // For each of the four actual pixels that the notional pixel overlays,
-            // determine the proportion of the actual pixel covered by the notional pixel
-            double propTL = (1.0-xTLf)*(1-yTLf);
-            double propTR = (xTLf)*(1-yTLf);
-            double propBL = (1.0-xTLf)*(yTLf);
-            double propBR = (xTLf)*(yTLf);
-
-            // Determine a pointer into the image data for each of the four actual pixels overlayed by the notional pixel
-            int actualXTL = (int)xTLi;
-            int actualYTL = (int)yTLi;
-            QPoint posTL( actualXTL,   actualYTL );
-            QPoint posTR( actualXTL+1, actualYTL );
-            QPoint posBL( actualXTL,   actualYTL+1 );
-            QPoint posBR( actualXTL+1, actualYTL+1 );
-
-            const unsigned char* dataPtrTL = getImageDataPtr( posTL );
-            const unsigned char* dataPtrTR = getImageDataPtr( posTR );
-            const unsigned char* dataPtrBL = getImageDataPtr( posBL );
-            const unsigned char* dataPtrBR = getImageDataPtr( posBR );
-
-            // Determine the value of the notional pixel from a weighted average of the four real pixels it overlays.
-            // The larger the proportion of the real picture overlayed, the greated the weight.
-            // (Ignore pixels outside the image)
-            int pixelsInValue = 0;
-            value = 0;
-            if( xTLi >= 0 && yTLi >= 0 )
-            {
-                value += propTL * getFloatingPixelValueFromData( dataPtrTL );
-                pixelsInValue++;
-            }
-
-            if( xTLi+1 < rotatedImageBuffWidth() && yTLi >= 0 )
-            {
-                value += propTR * getFloatingPixelValueFromData( dataPtrTR );
-                pixelsInValue++;
-            }
-
-            if( xTLi >= 0 && yTLi+1 < rotatedImageBuffHeight() )
+            // Calculate the value if the point is within the image (user can drag outside the image)
+            double value;
+            if( x >= 0 && x < rotatedImageBuffWidth() && y >= 0 && y < rotatedImageBuffHeight() )
             {
 
-                value += propBL * getFloatingPixelValueFromData( dataPtrBL );
-                pixelsInValue++;
+                // Determine the top left of the notional pixel that will be measured
+                // The notional pixel is one pixel length both dimensions and will not
+                // nessesarily overlay a single real pixel
+                double xTL = x-0.5;
+                double yTL = y-0.5;
+
+                // Determine the top left actual pixel of the four actual pixels that
+                // the notional pixel overlays, and the fractional part of a pixel that
+                // the notional pixel is offset by.
+                double xTLi, xTLf; // i = integer part, f = fractional part
+                double yTLi, yTLf; // i = integer part, f = fractional part
+
+                xTLf = modf( xTL, & xTLi );
+                yTLf = modf( yTL, & yTLi );
+
+                // For each of the four actual pixels that the notional pixel overlays,
+                // determine the proportion of the actual pixel covered by the notional pixel
+                double propTL = (1.0-xTLf)*(1-yTLf);
+                double propTR = (xTLf)*(1-yTLf);
+                double propBL = (1.0-xTLf)*(yTLf);
+                double propBR = (xTLf)*(yTLf);
+
+                // Determine a pointer into the image data for each of the four actual pixels overlayed by the notional pixel
+                int actualXTL = (int)xTLi;
+                int actualYTL = (int)yTLi;
+                QPoint posTL( actualXTL,   actualYTL );
+                QPoint posTR( actualXTL+1, actualYTL );
+                QPoint posBL( actualXTL,   actualYTL+1 );
+                QPoint posBR( actualXTL+1, actualYTL+1 );
+
+                const unsigned char* dataPtrTL = getImageDataPtr( posTL );
+                const unsigned char* dataPtrTR = getImageDataPtr( posTR );
+                const unsigned char* dataPtrBL = getImageDataPtr( posBL );
+                const unsigned char* dataPtrBR = getImageDataPtr( posBR );
+
+                // Determine the value of the notional pixel from a weighted average of the four real pixels it overlays.
+                // The larger the proportion of the real picture overlayed, the greated the weight.
+                // (Ignore pixels outside the image)
+                int pixelsInValue = 0;
+                value = 0;
+                if( xTLi >= 0 && yTLi >= 0 )
+                {
+                    value += propTL * getFloatingPixelValueFromData( dataPtrTL );
+                    pixelsInValue++;
+                }
+
+                if( xTLi+1 < rotatedImageBuffWidth() && yTLi >= 0 )
+                {
+                    value += propTR * getFloatingPixelValueFromData( dataPtrTR );
+                    pixelsInValue++;
+                }
+
+                if( xTLi >= 0 && yTLi+1 < rotatedImageBuffHeight() )
+                {
+
+                    value += propBL * getFloatingPixelValueFromData( dataPtrBL );
+                    pixelsInValue++;
+                }
+                if( xTLi+1 < rotatedImageBuffWidth() && yTLi+1 < rotatedImageBuffHeight() )
+                {
+                    value += propBR * getFloatingPixelValueFromData( dataPtrBR );
+                    pixelsInValue++;
+                }
+
+
+                // Calculate the weighted value
+                value = value / pixelsInValue * 4;
+
+                // Move on to the next 'point'
+                x+=xStep;
+                y+=yStep;
             }
-            if( xTLi+1 < rotatedImageBuffWidth() && yTLi+1 < rotatedImageBuffHeight() )
+
+            // Use a value of zero if the point is not within the image (user can drag outside the image)
+            else
             {
-                value += propBR * getFloatingPixelValueFromData( dataPtrBR );
-                pixelsInValue++;
+                value = 0.0;
             }
 
-            value = value / pixelsInValue * 4;
+            // Get a reference to the current data point
+            QPointF* data = &profileData[i];
+
+            // If the first pass, set the X axis and the initial data value
+            if( firstPass )
+            {
+                data->setX( i );
+                data->setY( value );
+            }
+
+            // On consequent passes, accumulate the data value
+            else
+            {
+                data->setY( data->y() + value );
+            }
         }
 
-        // Use a value of zero if the point is not within the image (user can drag outside the image)
-        else
-        {
-            value = 0.0;
-        }
+        initX += yStep;
+        initY -= xStep;
 
-        // Set the data value
-        profileData[i].setX( i );
-        profileData[i].setY( value );
+        firstPass = false;
+
     }
+
+    // Average the values
+    for( int i = 0; i < intLen; i++ )
+    {
+        QPointF* data = &profileData[i];
+        data->setY( data->y() / thickness );
+    }
+
 
     // Update the profile display
     QDateTime dt = QDateTime::currentDateTime();
