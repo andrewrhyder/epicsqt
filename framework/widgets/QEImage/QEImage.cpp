@@ -83,6 +83,13 @@ void QEImage::setup() {
 
     displayButtonBar = false;
 
+    vSliceThickness = 1;
+    hSliceThickness = 1;
+    profileThickness = 1;
+
+    vSliceX = 0;
+    hSliceY = 0;
+
     haveVSliceX = false;
     haveHSliceY = false;
     haveProfileLine = false;
@@ -131,8 +138,8 @@ void QEImage::setup() {
     setTargetMarkupColor(    QColor(  0, 255,   0));
     setTimeMarkupColor(      QColor(255, 255, 255));
 
-    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint ) ),
-                      this,        SLOT  ( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint )) );
+    QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint, unsigned int ) ),
+                      this,        SLOT  ( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint, unsigned int )) );
     QObject::connect( videoWidget, SIGNAL( zoomInOut( int ) ),
                       this,        SLOT  ( zoomInOut( int ) ) );
     QObject::connect( videoWidget, SIGNAL( currentPixelInfo( QPoint ) ),
@@ -1159,15 +1166,15 @@ void QEImage::updateMarkups()
 {
     if( haveVSliceX )
     {
-        generateVSlice( vSliceX );
+        generateVSlice( vSliceX, vSliceThickness );
     }
     if( haveHSliceY )
     {
-        generateHSlice( hSliceY );
+        generateHSlice( hSliceY, hSliceThickness );
     }
     if( haveProfileLine )
     {
-        generateProfile( profileLineStart, profileLineEnd );
+        generateProfile( profileLineStart, profileLineEnd, profileThickness );
     }
     if( haveSelectedArea1 )
     {
@@ -2017,7 +2024,7 @@ void QEImage::zoomInOut( int zoomAmount )
 
 // The user has made (or is making) a selection in the displayed image.
 // Act on the selelection
-void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 )
+void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness )
 {
     // If creating or moving a markup...
     if( !clearing )
@@ -2026,16 +2033,18 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
         {
             case imageMarkup::MARKUP_ID_V_SLICE:
                 vSliceX = point1.x();
+                vSliceThickness = thickness;
                 haveVSliceX = true;
                 vSliceDisplay->setVisible( true );
-                generateVSlice(  vSliceX );
+                generateVSlice(  vSliceX, vSliceThickness );
                 break;
 
             case imageMarkup::MARKUP_ID_H_SLICE:
                 hSliceY = point1.y();
+                hSliceThickness = thickness;
                 haveHSliceY = true;
                 hSliceDisplay->setVisible( true );
-                generateHSlice( hSliceY );
+                generateHSlice( hSliceY, hSliceThickness );
                 break;
 
             case imageMarkup::MARKUP_ID_REGION1:
@@ -2099,9 +2108,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
             case imageMarkup::MARKUP_ID_LINE:
                 profileLineStart = point1;
                 profileLineEnd = point2;
+                profileThickness = thickness;
                 haveProfileLine = true;
                 profileDisplay->setVisible( true );
-                generateProfile( profileLineStart, profileLineEnd );
+                generateProfile( profileLineStart, profileLineEnd, profileThickness );
                 break;
 
             case imageMarkup::MARKUP_ID_TARGET:
@@ -2223,7 +2233,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
 // Generate a profile along a line down an image at a given X position
 // The profile contains values for each pixel intersected by the line.
-void QEImage::generateVSlice( int xUnscaled )
+void QEImage::generateVSlice( int xUnscaled, unsigned int thickness )
 {
     // Scale the ordinate to the original image data
     int x = videoWidget->scaleOrdinate( xUnscaled );
@@ -2249,22 +2259,60 @@ void QEImage::generateVSlice( int xUnscaled )
     const unsigned char* dataPtr = &(data[x*imageDataSize]);
     int dataPtrStep = rotatedImageBuffWidth()*imageDataSize;
 
-    // Determine the image data value at each pixel
-    // The buffer is filled backwards so the plot, which sits on its side beside the image is drawn correctly
-    QPoint pos;
-    pos.setX( x );
-    for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
+    // Set up to step through the line thickness
+    unsigned int halfThickness = thickness/2;
+    int xMin = x-halfThickness;
+    if( xMin < 0 ) xMin = 0;
+    int xMax =  xMin+thickness;
+    if( xMax >= (int)rotatedImageBuffWidth() ) xMax = rotatedImageBuffWidth();
+
+    // Accumulate data for each pixel in the thickness
+    bool firstPass = true;
+    for( int nextX = xMin; nextX < xMax; nextX++ )
     {
-        pos.setY( i );
-        vSliceData[i].setY( i );
-        vSliceData[i].setX( getFloatingPixelValueFromData( getImageDataPtr( pos ) ) );
-        dataPtr += dataPtrStep;
+        // Accumulate the image data value at each pixel.
+        // The buffer is filled backwards so the plot, which sits on its side beside the image is drawn correctly
+        QPoint pos;
+        pos.setX( nextX );
+        for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
+        {
+            pos.setY( i );
+            QPointF* dataPoint = &vSliceData[i];
+            double value = getFloatingPixelValueFromData( getImageDataPtr( pos ) );
+
+            // On first pass, set up X and Y
+            if( firstPass )
+            {
+                dataPoint->setY( i );
+                dataPoint->setX( value );
+            }
+
+            // On subsequent passes (when thickness is greater than 1), accumulate X
+            else
+            {
+                dataPoint->setX( dataPoint->x() + value );
+            }
+
+            dataPtr += dataPtrStep;
+        }
+
+        firstPass = false;
+    }
+
+    // Calculate average pixel values if more than one pixel thick
+    if( thickness > 1 )
+    {
+        for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
+        {
+            QPointF* dataPoint = &vSliceData[i];
+            dataPoint->setX( dataPoint->x()/thickness );
+        }
     }
 
     // Display the profile
     QDateTime dt = QDateTime::currentDateTime();
     QString title = QString( "Vertical profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
-    vSliceDisplay->setProfile( &vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0, title, QPoint( x, 0 ), QPoint( x, rotatedImageBuffHeight()-1 ) );
+    vSliceDisplay->setProfile( &vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0, title, QPoint( x, 0 ), QPoint( x, rotatedImageBuffHeight()-1 ), thickness );
 }
 
 // Determine the maximum pixel value for the current format
@@ -2508,7 +2556,7 @@ void QEImage::contrastSliderValueChanged( int localContrastIn )
 
 // Generate a profile along a line across an image at a given Y position
 // The profile contains values for each pixel intersected by the line.
-void QEImage::generateHSlice( int yUnscaled )
+void QEImage::generateHSlice( int yUnscaled, unsigned int thickness )
 {
     // Scale the ordinate to the original image data
     int y = videoWidget->scaleOrdinate( yUnscaled );
@@ -2534,21 +2582,60 @@ void QEImage::generateHSlice( int yUnscaled )
     const unsigned char* dataPtr = &(data[y*rotatedImageBuffWidth()*imageDataSize]);
     int dataPtrStep = imageDataSize;
 
-    // Determine the image data value at each pixel
-    QPoint pos;
-    pos.setY( y );
-    for( unsigned int i = 0; i < rotatedImageBuffWidth(); i++ )
+    // Set up to step through the line thickness
+    unsigned int halfThickness = thickness/2;
+    int yMin = y-halfThickness;
+    if( yMin < 0 ) yMin = 0;
+    int yMax =  yMin+thickness;
+    if( yMax >= (int)rotatedImageBuffHeight() ) yMax = rotatedImageBuffHeight();
+
+    // Accumulate data for each pixel in the thickness
+    bool firstPass = true;
+    for( int nextY = yMin; nextY < yMax; nextY++ )
     {
-        pos.setX( i );
-        hSliceData[i].setX( i );
-        hSliceData[i].setY( getFloatingPixelValueFromData( getImageDataPtr( pos ) ) );
-        dataPtr += dataPtrStep;
+        // Accumulate the image data value at each pixel.
+        QPoint pos;
+        pos.setY( nextY );
+        for( unsigned int i = 0; i < rotatedImageBuffWidth(); i++ )
+        {
+            pos.setX( i );
+            QPointF* dataPoint = &hSliceData[i];
+            double value = getFloatingPixelValueFromData( getImageDataPtr( pos ) );
+
+            // On first pass, set up X and Y
+            if( firstPass )
+            {
+                dataPoint->setX( i );
+                dataPoint->setY( value );
+            }
+
+            // On subsequent passes (when thickness is greater than 1), accumulate X
+            else
+            {
+                dataPoint->setY( dataPoint->y() + value );
+            }
+
+            dataPtr += dataPtrStep;
+        }
+
+        firstPass = false;
+    }
+
+
+    // Calculate average pixel values if more than one pixel thick
+    if( thickness > 1 )
+    {
+        for( unsigned int i = 0; i < rotatedImageBuffWidth(); i++ )
+        {
+            QPointF* dataPoint = &hSliceData[i];
+            dataPoint->setY( dataPoint->y()/thickness );
+        }
     }
 
     // Display the profile
     QDateTime dt = QDateTime::currentDateTime();
     QString title = QString( "Horizontal profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
-    hSliceDisplay->setProfile( &hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue(), title, QPoint( y, 0 ), QPoint( y, rotatedImageBuffWidth()-1 ) );
+    hSliceDisplay->setProfile( &hSliceData, 0.0, (double)(hSliceData.size()), 0.0,  maxPixelValue(), title, QPoint( y, 0 ), QPoint( y, rotatedImageBuffWidth()-1 ), thickness );
 }
 
 // Generate a profile along an arbitrary line through an image.
@@ -2623,7 +2710,7 @@ void QEImage::generateHSlice( int yUnscaled )
 //  d^2 / (1 + s^2) = x^2
 //  sqrt( d^2 / (1 + s^2) ) = x
 //
-void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
+void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thickness )
 {
     // Scale the coordinates to the original image data
     QPoint point1 = videoWidget->scalePoint( point1Unscaled );
@@ -2783,7 +2870,7 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled )
     // Update the profile display
     QDateTime dt = QDateTime::currentDateTime();
     QString title = QString( "Line profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
-    profileDisplay->setProfile( &profileData, 0.0, (double)(profileData.size()), 0.0,  maxPixelValue(), title, point1, point2  );
+    profileDisplay->setProfile( &profileData, 0.0, (double)(profileData.size()), 0.0,  maxPixelValue(), title, point1, point2, thickness );
 }
 
 //=================================================================================================

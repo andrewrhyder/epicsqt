@@ -27,6 +27,7 @@
 #include <QPainter>
 #include <QDateTime>
 #include <QCursor>
+#include <algorithm>
 
 #include <imageMarkup.h>
 #include <imageContextMenu.h>
@@ -286,6 +287,16 @@ QPoint markupTarget::getPoint2()
     return QPoint();
 }
 
+unsigned int markupTarget::getThickness()
+{
+    return 0;
+}
+
+void markupTarget::setThickness( unsigned int  )
+{
+    // Do nothing
+}
+
 QCursor markupTarget::defaultCursor()
 {
     return owner->getTargetCursor();
@@ -395,6 +406,16 @@ QCursor markupBeam::defaultCursor()
     return owner->getTargetCursor();
 }
 
+unsigned int markupBeam::getThickness()
+{
+    return 0;
+}
+
+void markupBeam::setThickness( unsigned int  )
+{
+    // Do nothing
+}
+
 void markupBeam::scaleSpecific( double xScale, double yScale )
 {
     pos.setX( pos.x() * xScale );
@@ -406,7 +427,7 @@ void markupBeam::scaleSpecific( double xScale, double yScale )
 
 markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-    thickness = 0;
+    thickness = 1;
 }
 
 void markupVLine::drawMarkup( QPainter& p )
@@ -414,20 +435,21 @@ void markupVLine::drawMarkup( QPainter& p )
     // Draw markup
     p.drawLine( x, 0, x, owner->markupImage->rect().height() );
 
-    // If no thickness, draw a single handle in the middle
-    if( thickness == 0 )
+    // If single pixel thickness, draw a single handle in the middle
+    if( thickness == 1 )
     {
         //!!! draw the handle in the middle of the existing view, not the entire image
         QRect handle( x-(HANDLE_SIZE/2), (owner->markupImage->rect().height()/2)-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
         p.drawRect( handle );
     }
 
-    // If thickness, draw the thickness borders (dotted lines either side of the main line)
+    // If thickness more than one pixel, draw the thickness borders (dotted lines either side of the main line)
     // and draw two handles, one on each border
     else
     {
         QPen pen = p.pen();
-        pen.setStyle( Qt::DotLine );
+        pen.setStyle( Qt::DashLine );
+        p.setPen( pen );
         p.drawLine( x-(thickness/2), 0, x-(thickness/2), owner->markupImage->rect().height() );
         p.drawLine( x+(thickness/2), 0, x+(thickness/2), owner->markupImage->rect().height() );
         pen.setStyle( Qt::SolidLine );
@@ -465,11 +487,11 @@ void markupVLine::startDrawing( QPoint pos )
 
 void markupVLine::moveTo( QPoint pos )
 {
-    // Move the appropriate part of the region, according to which bit the user has grabbed
+    // Move the appropriate part of the line, according to which bit the user has grabbed
     switch( activeHandle )
     {
-        case MARKUP_HANDLE_NONE:   x = pos.x();                    break;
-        case MARKUP_HANDLE_CENTER: thickness = abs( x-pos.x() )*2; break;
+        case MARKUP_HANDLE_NONE:   x = pos.x();                      break;
+        case MARKUP_HANDLE_CENTER: thickness = abs( x-pos.x() )*2+1; break;
         default: break;
     }
 
@@ -479,15 +501,24 @@ void markupVLine::moveTo( QPoint pos )
 
 bool markupVLine::isOver( const QPoint point, QCursor* cursor )
 {
-
-    // If any thickness, look for pointer over the main line, or the thickness lines.
+    // If thickness more than one pixel, look for pointer over the main line, or the thickness lines.
     // Note, the thickness lines start life by grabbing the center handle, so the when
     // over any part of the thickness lines, the current handle is the center handle
-    if( thickness )
+    if( thickness > 1 )
     {
-        //!!! OVER_TOLERANCE only applies when larger than the distance form the center line tothe thickness lines. In that case, the center line is found first, and is found in preference to the thickness lines up to the thickness lines
+        // Check of over or near the main line up to the 'over' tolerance, but not past the thickness lines
+        int mainLineTolerance = std::min( (unsigned int)OVER_TOLERANCE, thickness/2+1 );
+
+        // If over main line...
+        if( abs( point.x() - x ) <= mainLineTolerance )
+        {
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
         // If over left edge...
-        if( abs( point.x() - (x - (thickness/2) )) <= OVER_TOLERANCE )
+        else if( abs( point.x() - (x - (thickness/2) )) <= OVER_TOLERANCE )
         {
             activeHandle = MARKUP_HANDLE_CENTER;
             *cursor = cursorForHandle( activeHandle );
@@ -501,18 +532,9 @@ bool markupVLine::isOver( const QPoint point, QCursor* cursor )
             *cursor = cursorForHandle( activeHandle );
             return true;
         }
-
-        // If over main line...
-        else if( abs( point.x() - x ) <= OVER_TOLERANCE )
-        {
-            activeHandle = MARKUP_HANDLE_NONE;
-            *cursor = cursorForHandle( activeHandle );
-            return true;
-        }
-
     }
 
-    // If no thickness, look for pointer over the main line, or the thickness handle
+    // If thickness of one pixel only, look for pointer over the main line, or the thickness handle
     else
     {
         QPoint handle( x,owner->markupImage->rect().height()/2 );
@@ -535,6 +557,7 @@ bool markupVLine::isOver( const QPoint point, QCursor* cursor )
     }
 
     // Not over
+    activeHandle = MARKUP_HANDLE_NONE;
     return false;
 }
 
@@ -552,7 +575,6 @@ QCursor markupVLine::cursorForHandle( markupItem::markupHandles handle )
         case MARKUP_HANDLE_NONE:   return defaultCursor();
         default:                   return defaultCursor();
     }
-
 }
 
 QPoint markupVLine::getPoint1()
@@ -563,6 +585,32 @@ QPoint markupVLine::getPoint1()
 QPoint markupVLine::getPoint2()
 {
     return QPoint();
+}
+
+unsigned int markupVLine::getThickness()
+{
+    return thickness;
+}
+
+void markupVLine::setThickness( unsigned int thicknessIn )
+{
+    // Not if the markup is currently visible
+    bool wasVisible = visible;
+
+    // If visible, erase it
+    if( visible )
+    {
+        erase();
+    }
+
+    // Update the thickness
+    thickness = thicknessIn;
+
+    // If visible before erasing, redraw it at its new thickness
+    if( wasVisible )
+    {
+        drawMarkupIn();
+    }
 }
 
 QCursor markupVLine::defaultCursor()
@@ -580,13 +628,33 @@ void markupVLine::scaleSpecific( double xScale, double )
 
 markupHLine::markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-    thickness = 0;
+    thickness = 1;
 }
 
 void markupHLine::drawMarkup( QPainter& p )
 {
     // Draw markup
     p.drawLine( 0, y, owner->markupImage->rect().width(), y );
+
+    // If single pixel thickness, draw a single handle in the middle
+    if( thickness == 1 )
+    {
+        //!!! draw the handle in the middle of the existing view, not the entire image
+        QRect handle( (owner->markupImage->rect().width()/2)-(HANDLE_SIZE/2), y-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
+        p.drawRect( handle );
+    }
+
+    // If thickness more than one pixel, draw the thickness borders (dotted lines either side of the main line)
+    // and draw two handles, one on each border
+    else
+    {
+        QPen pen = p.pen();
+        pen.setStyle( Qt::DashLine );
+        p.setPen( pen );
+        p.drawLine( 0, y-(thickness/2), owner->markupImage->rect().width(), y-(thickness/2) );
+        p.drawLine( 0, y+(thickness/2), owner->markupImage->rect().width(), y+(thickness/2) );
+        pen.setStyle( Qt::SolidLine );
+    }
 
     // Draw markup legend
     drawLegend( p, QPoint( owner->markupImage->rect().width()/2, y ), ABOVE_RIGHT );
@@ -596,13 +664,13 @@ void markupHLine::setArea()
 {
     if( highlighted )
     {
-        area.setTop( y - highlightMargin );
-        area.setBottom( y + highlightMargin );
+        area.setTop(    y - (thickness/2) - highlightMargin );
+        area.setBottom( y + (thickness/2) + highlightMargin );
     }
     else
     {
-        area.setTop( y );
-        area.setBottom( y );
+        area.setTop(    y - (thickness/2) - HANDLE_SIZE/2);
+        area.setBottom( y + (thickness/2) + HANDLE_SIZE/2 );
     }
     area.setLeft( 0 );
     area.setRight( owner->markupImage->rect().right());
@@ -620,15 +688,78 @@ void markupHLine::startDrawing( QPoint pos )
 
 void markupHLine::moveTo( QPoint pos )
 {
-    y = pos.y();
+    // Move the appropriate part of the line, according to which bit the user has grabbed
+    switch( activeHandle )
+    {
+        case MARKUP_HANDLE_NONE:   y = pos.y();                      break;
+        case MARKUP_HANDLE_CENTER: thickness = abs( y-pos.y() )*2+1; break;
+        default: break;
+    }
+
+    // Update the area the region now occupies
     setArea();
 }
 
 bool markupHLine::isOver( const QPoint point, QCursor* cursor )
 {
-    *cursor = Qt::OpenHandCursor;
+    // If thickness more than one pixel, look for pointer over the main line, or the thickness lines.
+    // Note, the thickness lines start life by grabbing the center handle, so the when
+    // over any part of the thickness lines, the current handle is the center handle
+    if( thickness > 1 )
+    {
+        // Check of over or near the main line up to the 'over' tolerance, but not past the thickness lines
+        int mainLineTolerance = std::min( (unsigned int)OVER_TOLERANCE, thickness/2+1 );
+
+        // If over main line...
+        if( abs( point.y() - y ) <= mainLineTolerance )
+        {
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+        // If over top edge...
+        else if( abs( point.y() - (y - (thickness/2) )) <= OVER_TOLERANCE )
+        {
+            activeHandle = MARKUP_HANDLE_CENTER;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+        // If over bottom edge...
+        else if( abs( point.y() - (y + (thickness/2) )) <= OVER_TOLERANCE )
+        {
+            activeHandle = MARKUP_HANDLE_CENTER;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+    }
+
+    // If thickness of one pixel only, look for pointer over the main line, or the thickness handle
+    else
+    {
+        QPoint handle( owner->markupImage->rect().width()/2, y );
+
+        if( pointIsNear( point, handle ))
+        {
+            activeHandle = MARKUP_HANDLE_CENTER;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+        // If over any part of the line...
+        else if( abs( point.y() - y ) <= OVER_TOLERANCE )
+        {
+            activeHandle = MARKUP_HANDLE_NONE;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+
+    }
+
+    // Not over
     activeHandle = MARKUP_HANDLE_NONE;
-    return ( abs( point.y() - y ) <= OVER_TOLERANCE );
+    return false;
 }
 
 QPoint markupHLine::origin()
@@ -641,10 +772,9 @@ QCursor markupHLine::cursorForHandle( markupItem::markupHandles handle )
 {
     switch( handle )
     {
-        case MARKUP_HANDLE_T:    return Qt::SizeVerCursor;
-        case MARKUP_HANDLE_B:    return Qt::SizeVerCursor;
-        case MARKUP_HANDLE_NONE: return defaultCursor();
-        default:                 return defaultCursor();
+        case MARKUP_HANDLE_CENTER: return Qt::SizeVerCursor;
+        case MARKUP_HANDLE_NONE:   return defaultCursor();
+        default:                   return defaultCursor();
     }
 }
 
@@ -656,6 +786,32 @@ QPoint markupHLine::getPoint1()
 QPoint markupHLine::getPoint2()
 {
     return QPoint();
+}
+
+unsigned int markupHLine::getThickness()
+{
+    return thickness;
+}
+
+void markupHLine::setThickness( unsigned int thicknessIn )
+{
+    // Not if the markup is currently visible
+    bool wasVisible = visible;
+
+    // If visible, erase it
+    if( visible )
+    {
+        erase();
+    }
+
+    // Update the thickness
+    thickness = thicknessIn;
+
+    // If visible before erasing, redraw it at its new thickness
+    if( wasVisible )
+    {
+        drawMarkupIn();
+    }
 }
 
 QCursor markupHLine::defaultCursor()
@@ -673,7 +829,7 @@ void markupHLine::scaleSpecific( double, double yScale )
 
 markupLine::markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-    thickness = 0;
+    thickness = 1;
 }
 
 void markupLine::drawMarkup( QPainter& p )
@@ -857,6 +1013,32 @@ QPoint markupLine::getPoint1()
 QPoint markupLine::getPoint2()
 {
     return end;
+}
+
+unsigned int markupLine::getThickness()
+{
+    return thickness;
+}
+
+void markupLine::setThickness( unsigned int thicknessIn )
+{
+    // Not if the markup is currently visible
+    bool wasVisible = visible;
+
+    // If visible, erase it
+    if( visible )
+    {
+        erase();
+    }
+
+    // Update the thickness
+    thickness = thicknessIn;
+
+    // If visible before erasing, redraw it at its new thickness
+    if( wasVisible )
+    {
+        drawMarkupIn();
+    }
 }
 
 QCursor markupLine::defaultCursor()
@@ -1163,6 +1345,16 @@ QPoint markupRegion::getPoint2()
     return rect.bottomRight();
 }
 
+unsigned int markupRegion::getThickness()
+{
+    return 0;
+}
+
+void markupRegion::setThickness( unsigned int )
+{
+    // Do nothing
+}
+
 QCursor markupRegion::defaultCursor()
 {
     return owner->getRegionCursor();
@@ -1279,6 +1471,16 @@ QPoint markupText::getPoint1()
 QPoint markupText::getPoint2()
 {
     return rect.bottomRight();
+}
+
+unsigned int markupText::getThickness()
+{
+    return 0;
+}
+
+void markupText::setThickness( unsigned int )
+{
+    // Do nothing
 }
 
 QCursor markupText::defaultCursor()
@@ -1536,7 +1738,8 @@ bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
     // If there is an active item and action is required on move, then report the move
     if( activeItem != MARKUP_ID_NONE && items[activeItem]->reportOnMove )
     {
-        markupAction( getActionMode(), false, false, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
+        markupItem* item = items[activeItem];
+        markupAction( getActionMode(), false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
     }
 
     // Return indicating the event was appropriated for markup purposes
@@ -1637,7 +1840,8 @@ bool imageMarkup::markupMouseReleaseEvent ( QMouseEvent*, bool panning  )
     // If there is an active item, take action
     if( activeItem != MARKUP_ID_NONE )
     {
-        markupAction( getActionMode(), complete, false, items[activeItem]->getPoint1(), items[activeItem]->getPoint2() );
+        markupItem* item = items[activeItem];
+        markupAction( getActionMode(), complete, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
     }
 
     // Flag there is no longer an active item
@@ -1722,8 +1926,10 @@ void imageMarkup::markupResize( QSize newSize )
         // If the markup is being displayed, redraw it, and act on its 'new' position
         if( items[i]->visible )
         {
-            items[i]->drawMarkupIn();
-            markupAction( (markupIds)i, false, false, items[i]->getPoint1(), items[i]->getPoint2() );
+            markupItem* item = items[i];
+
+            item->drawMarkupIn();
+            markupAction( (markupIds)i, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
         }
     }
 
@@ -1863,6 +2069,12 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
     //                      Title                            checkable  checked                 option
     menu.addMenuItem(       "Clear",                         false,     false,                  imageContextMenu::ICM_CLEAR_MARKUP             );
 
+    // If any thickness, add thickness options (zero means item has no concept of thickness)
+    if( items[activeItem]->getThickness() )
+    {
+        menu.addMenuItem(       "Single Pixel Line Thickness",   false,     false,                  imageContextMenu::ICM_THICKNESS_ONE_MARKUP     );
+        menu.addMenuItem(       "Select Line Thickness",         false,     false,                  imageContextMenu::ICM_THICKNESS_SELECT_MARKUP  );
+    }
 
     // Present the menu
     imageContextMenu::imageContextMenuOptions option;
@@ -1877,14 +2089,28 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
             break;
 
         case imageContextMenu::ICM_CLEAR_MARKUP:
+        {
             items[activeItem]->erase();
             QVector<QRect> changedAreas;
             changedAreas.append( items[activeItem]->area );
             markupChange( *markupImage, changedAreas );
 
-            markupAction( activeItem, false, true, QPoint(), QPoint() );
+            markupAction( activeItem, false, true, QPoint(), QPoint(), 0 );
 
             activeItem = MARKUP_ID_NONE;
+            break;
+        }
+
+
+        case imageContextMenu::ICM_THICKNESS_ONE_MARKUP:
+        {
+            markupItem* item = items[activeItem];
+            item->setThickness( 1 );
+            markupAction( activeItem, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+            break;
+        }
+
+        case imageContextMenu::ICM_THICKNESS_SELECT_MARKUP:
             break;
     }
 

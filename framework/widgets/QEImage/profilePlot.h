@@ -44,7 +44,7 @@ public:
     profilePlot( plotDirections plotDirectionIn );
     ~profilePlot();
 
-    void setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY, QString title, QPoint start, QPoint end );  // Set the profile data
+    void setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY, QString title, QPoint start, QPoint end, unsigned int thicknessIn );  // Set the profile data
     void clearProfile();  // Clear the profile data
 
 protected:
@@ -66,6 +66,7 @@ private:
     QString title;
     QPoint start;
     QPoint end;
+    unsigned int thickness;
 
 };
 

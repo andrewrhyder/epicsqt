@@ -106,6 +106,8 @@ public:
     virtual QCursor cursorForHandle( markupItem::markupHandles handle ) = 0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
+    virtual unsigned int getThickness()=0;
+    virtual void setThickness( unsigned int thicknessIn )=0;
     virtual QCursor defaultCursor()=0;
     virtual void nonInteractiveUpdate( QRect ) {} // Only implemented by those objects that are updated by data such as region of interest
 
@@ -160,6 +162,8 @@ public:
     QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
+    unsigned int getThickness();
+    void setThickness( unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
@@ -182,6 +186,8 @@ public:
     QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
+    unsigned int getThickness();
+    void setThickness( unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
@@ -205,12 +211,14 @@ public:
     QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
-    unsigned int thickness;
+    unsigned int getThickness();
+    void setThickness( unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
 private:
     int y;
+    unsigned int thickness;
 };
 
 class markupVLine : public markupItem
@@ -228,12 +236,14 @@ public:
     QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
-    unsigned int thickness;
+    unsigned int getThickness();
+    void setThickness( unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
 private:
     int x;
+    unsigned int thickness;
 };
 
 class markupLine : public markupItem
@@ -250,13 +260,15 @@ public:
     QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
-    unsigned int thickness;
+    unsigned int getThickness();
+    void setThickness( unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
 private:
     QPoint start;
     QPoint end;
+    unsigned int thickness;
 };
 
 class markupRegion : public markupItem
@@ -274,6 +286,8 @@ public:
     QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
+    unsigned int getThickness();
+    void setThickness( unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
@@ -301,6 +315,8 @@ public:
     QCursor cursorForHandle( markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
+    unsigned int getThickness();
+    void setThickness( unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( double xScale, double yScale );
 
@@ -372,7 +388,7 @@ protected:
 
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
-    virtual void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 )=0;     // There is an application task to do in response to user interaction with the markups
+    virtual void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness )=0;     // There is an application task to do in response to user interaction with the markups
 
 private:
     void setActiveItem( const QPoint& pos );    // // Determine if the user clicked over an interactive, visible item

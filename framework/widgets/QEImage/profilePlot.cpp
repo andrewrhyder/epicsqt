@@ -37,6 +37,8 @@ profilePlot::profilePlot( plotDirections plotDirectionIn ) : QwtPlot( 0 )
 {
     data = NULL;
 
+    thickness = 1;
+
     plotDirection = plotDirectionIn;
 
     enableAxis( xBottom, false );
@@ -58,13 +60,14 @@ profilePlot::~profilePlot()
 }
 
 // Set the profile data
-void profilePlot::setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY, QString titleIn, QPoint startIn, QPoint endIn )
+void profilePlot::setProfile( QVector<QPointF>* profile, double minX, double maxX, double minY, double maxY, QString titleIn, QPoint startIn, QPoint endIn, unsigned int thicknessIn )
 {
     // Save a reference to the data for copying if required
     data = profile;
     title = titleIn;
     start = startIn;
     end = endIn;
+    thickness = thicknessIn;
 
     // Update the plot
     updateProfile( profile, minX, maxX, minY, maxY);
@@ -138,7 +141,7 @@ void profilePlot::copy()
 
     QClipboard *cb = QApplication::clipboard();
     QString text;
-    text.append( title ).append( QString( " - Start: %1,%2  End: %3,%4\n" ).arg( start.x() ).arg( start.y() ).arg( end.x() ).arg( end.y() ) );
+    text.append( title ).append( QString( " - Start: %1,%2  End: %3,%4  Thickness: %5\n" ).arg( start.x() ).arg( start.y() ).arg( end.x() ).arg( end.y() ).arg( thickness ) );
     int size = data->size();
     switch( plotDirection )
     {

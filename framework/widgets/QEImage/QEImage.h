@@ -282,7 +282,7 @@ private slots:
         setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
     }
 
-    void userSelection( imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2 );
+    void userSelection( imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness );
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
@@ -416,9 +416,15 @@ public slots:
 
     // User selected information
     int vSliceX;
+    unsigned int vSliceThickness;
+
     int hSliceY;
+    unsigned int hSliceThickness;
+
     QPoint profileLineStart;
     QPoint profileLineEnd;
+    unsigned int profileThickness;
+
     QPoint selectedArea1Point1;
     QPoint selectedArea1Point2;
     QPoint selectedArea2Point1;
@@ -427,6 +433,7 @@ public slots:
     QPoint selectedArea3Point2;
     QPoint selectedArea4Point1;
     QPoint selectedArea4Point2;
+
     QPoint target;
     QPoint beam;
 
@@ -443,9 +450,9 @@ public slots:
     void manageButtonBar();                                 // Add or remove the button bar
     void manageInfoLayout();                                // Add or remove the pixel information layout
 
-    void generateVSlice( int x );                           // Generate a profile along a line down an image at a given X position
-    void generateHSlice( int y );                           // Generate a profile along a line across an image at a given Y position
-    void generateProfile( QPoint point1, QPoint point2 );   // Generate a profile along an arbitrary line through an image.
+    void generateVSlice( int x, unsigned int thickness );                           // Generate a profile along a line down an image at a given X position
+    void generateHSlice( int y, unsigned int thickness );                           // Generate a profile along a line across an image at a given Y position
+    void generateProfile( QPoint point1, QPoint point2, unsigned int thickness );   // Generate a profile along an arbitrary line through an image.
     void displaySelectedArea1Info( QPoint point1, QPoint point2 );  // Display textual info about the first selected area
     void displaySelectedArea2Info( QPoint point1, QPoint point2 );  // Display textual info about the second selected area
     void displaySelectedArea3Info( QPoint point1, QPoint point2 );  // Display textual info about the third selected area
