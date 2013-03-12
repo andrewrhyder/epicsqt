@@ -368,6 +368,9 @@ public slots:
     QPushButton* flipRotateButton;
 
     // Profile graphic widgets
+    QLabel* vSliceLabel;
+    QLabel* hSliceLabel;
+    QLabel* profileLabel;
     profilePlot* vSliceDisplay;
     profilePlot* hSliceDisplay;
     profilePlot* profileDisplay;

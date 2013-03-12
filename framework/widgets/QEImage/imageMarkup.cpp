@@ -224,6 +224,8 @@ void markupTarget::drawMarkup( QPainter& p )
     p.setPen( pen );
     p.drawLine( pos.x(), 0, pos.x(), owner->markupImage->rect().height() );
     p.drawLine( 0, pos.y(), owner->markupImage->rect().width(), pos.y() );
+    pen.setStyle( Qt::SolidLine );
+    p.setPen( pen );
 
     // Draw markup legend
     drawLegend( p, pos, ABOVE_RIGHT );
@@ -453,6 +455,7 @@ void markupVLine::drawMarkup( QPainter& p )
         p.drawLine( x-(thickness/2), 0, x-(thickness/2), owner->markupImage->rect().height() );
         p.drawLine( x+(thickness/2), 0, x+(thickness/2), owner->markupImage->rect().height() );
         pen.setStyle( Qt::SolidLine );
+        p.setPen( pen );
     }
 
     // Draw markup legend
@@ -654,6 +657,7 @@ void markupHLine::drawMarkup( QPainter& p )
         p.drawLine( 0, y-(thickness/2), owner->markupImage->rect().width(), y-(thickness/2) );
         p.drawLine( 0, y+(thickness/2), owner->markupImage->rect().width(), y+(thickness/2) );
         pen.setStyle( Qt::SolidLine );
+        p.setPen( pen );
     }
 
     // Draw markup legend

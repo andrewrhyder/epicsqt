@@ -260,25 +260,34 @@ void QEImage::setup() {
 
 
     // Create vertical, horizontal, and general profile plots
+    vSliceLabel = new QLabel( "Vertical Profile" );
+    vSliceLabel->setVisible( false );
     vSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_BT );
     vSliceDisplay->setMinimumWidth( 100 );
     vSliceDisplay->setVisible( false );
 
+    hSliceLabel = new QLabel( "Horizontal Profile" );
+    hSliceLabel->setVisible( false );
     hSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR );
     hSliceDisplay->setMinimumHeight( 100 );
     hSliceDisplay->setVisible( false );
 
+    profileLabel = new QLabel( "Arbitrary Line Profile" );
+    profileLabel->setVisible( false );
     profileDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR );
     profileDisplay->setMinimumHeight( 100 );
     profileDisplay->setVisible( false );
 
 
     QGridLayout* graphicsLayout = new QGridLayout();
-    graphicsLayout->addWidget( scrollArea, 0, 0 );
-    graphicsLayout->addLayout( infoLayout, 1, 0 );
-    graphicsLayout->addWidget( vSliceDisplay, 0, 1 );
-    graphicsLayout->addWidget( hSliceDisplay, 2, 0 );
-    graphicsLayout->addWidget( profileDisplay, 3, 0 );
+    graphicsLayout->addWidget( scrollArea,     0, 0 );
+    graphicsLayout->addLayout( infoLayout,     1, 0 );
+    graphicsLayout->addWidget( vSliceLabel,    1, 1 );
+    graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
+    graphicsLayout->addWidget( hSliceLabel,    2, 0 );
+    graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
+    graphicsLayout->addWidget( profileLabel,   4, 0 );
+    graphicsLayout->addWidget( profileDisplay, 5, 0 );
 
     graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
     graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
@@ -2035,6 +2044,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 vSliceX = point1.x();
                 vSliceThickness = thickness;
                 haveVSliceX = true;
+                vSliceLabel->setVisible( true );
                 vSliceDisplay->setVisible( true );
                 generateVSlice(  vSliceX, vSliceThickness );
                 break;
@@ -2043,6 +2053,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 hSliceY = point1.y();
                 hSliceThickness = thickness;
                 haveHSliceY = true;
+                hSliceLabel->setVisible( true );
                 hSliceDisplay->setVisible( true );
                 generateHSlice( hSliceY, hSliceThickness );
                 break;
@@ -2110,6 +2121,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 profileLineEnd = point2;
                 profileThickness = thickness;
                 haveProfileLine = true;
+                profileLabel->setVisible( true );
                 profileDisplay->setVisible( true );
                 generateProfile( profileLineStart, profileLineEnd, profileThickness );
                 break;
@@ -2167,6 +2179,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
             case imageMarkup::MARKUP_ID_V_SLICE:
                 vSliceX = 0;
                 haveVSliceX = false;
+                vSliceLabel->setVisible( false );
                 vSliceDisplay->setVisible( false );
                 currentVertPixelLabel->clear();
                 break;
@@ -2174,6 +2187,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
             case imageMarkup::MARKUP_ID_H_SLICE:
                 hSliceY = 0;
                 haveHSliceY = false;
+                hSliceLabel->setVisible( false );
                 hSliceDisplay->setVisible( false );
                 currentHozPixelLabel->clear();
                 break;
@@ -2212,6 +2226,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 profileLineStart = QPoint();
                 profileLineEnd = QPoint();
                 haveProfileLine = false;
+                profileLabel->setVisible( false );
                 profileDisplay->setVisible( false );
                 currentLineLabel->clear();
                 break;
