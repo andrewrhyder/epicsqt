@@ -140,8 +140,6 @@ SOURCES += \
     widgets/src/QEDesignerPlugin.cpp \
     widgets/src/ContainerProfile.cpp \
 
-OTHER_FILES += \
-    src/record_field_list.txt
 
 #===========================================================
 # Widget sub projects

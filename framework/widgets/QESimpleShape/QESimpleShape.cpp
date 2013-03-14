@@ -291,7 +291,7 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
    // If disconnected always disable the widget.
    //
    this->isConnected = connectionInfo.isChannelConnected ();
-   this->setDataDisabled (this->isConnected);
+   this->setDataDisabled (!this->isConnected);
    this->updateToolTipConnection (this->isConnected);
 
    if (!this->isConnected) {
