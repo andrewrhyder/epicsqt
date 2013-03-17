@@ -269,6 +269,7 @@ private:
     QPoint start;
     QPoint end;
     unsigned int thickness;
+    bool isOverLine( const QPoint point, const QPoint lineStart, const QPoint lineEnd );
 };
 
 class markupRegion : public markupItem

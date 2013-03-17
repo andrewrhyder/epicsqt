@@ -28,6 +28,7 @@
 #include <QDateTime>
 #include <QCursor>
 #include <algorithm>
+#include <math.h>
 
 #include <imageMarkup.h>
 #include <imageContextMenu.h>
@@ -624,6 +625,7 @@ QCursor markupVLine::defaultCursor()
 void markupVLine::scaleSpecific( double xScale, double )
 {
     x *= xScale;
+    //!!! shouldn't thickness be scaled?
 }
 
 //===========================================================================
@@ -826,6 +828,7 @@ QCursor markupHLine::defaultCursor()
 void markupHLine::scaleSpecific( double, double yScale )
 {
     y *= yScale;
+    //!!! shouldn't thickness be scaled?
 }
 
 //===========================================================================
@@ -852,6 +855,39 @@ void markupLine::drawMarkup( QPainter& p )
 
         handle.moveTo( end - halfHandle );
         p.drawRect( handle );
+
+//        p.drawRect( area );// testing only
+//        qDebug() << "area" << area;
+
+    }
+
+    // If single pixel thickness, draw a single handle in the middle
+    if( thickness == 1 )
+    {
+        int x = (start.x()+end.x()-HANDLE_SIZE)/2;
+        int y = (start.y()+end.y()-HANDLE_SIZE)/2;
+        QRect handle( x, y, HANDLE_SIZE, HANDLE_SIZE );
+        p.drawRect( handle );
+    }
+
+    // If thickness more than one pixel, draw the thickness borders (dotted lines either side of the main line)
+    // and draw two handles, one on each border
+    else
+    {
+        QPen pen = p.pen();
+        pen.setStyle( Qt::DashLine );
+        p.setPen( pen );
+
+        int dX = end.x()-start.x();
+        int dY = end.y()-start.y();
+        int len = (int)sqrt( (dX*dX)+(dY*dY) );
+
+        QPoint offset( (int)(thickness) * -dY / (2*len), int(thickness) * dX / (2*len) );
+        p.drawLine( start+offset, end+offset );
+        p.drawLine( start-offset, end-offset );
+
+        pen.setStyle( Qt::SolidLine );
+        p.setPen( pen );
     }
 
     // Draw markup legend
@@ -862,10 +898,31 @@ void markupLine::drawMarkup( QPainter& p )
 
 void markupLine::setArea()
 {
-    area.setCoords( std::min( start.x(), end.x() ),
-                    std::min( start.y(), end.y() ),
-                    std::max( start.x(), end.x() ),
-                    std::max( start.y(), end.y()));
+    // Determine the corners of the area for single pixel thickness
+    QPoint topLeft(     std::min( start.x(), end.x() ), std::min( start.y(), end.y() ) );
+    QPoint bottomRight( std::max( start.x(), end.x() ), std::max( start.y(), end.y() ) );
+
+    // If thickness more than one pixel, calculate and add the additional width and height
+    if( thickness > 1 )
+    {
+        // Calculate variables
+        int dX = end.x()-start.x();
+        int dY = end.y()-start.y();
+        int len = (int)sqrt( (dX*dX)+(dY*dY) );
+
+        // Add offset only if length is not zro (avoid divide by zero error)
+        if( len )
+        {
+            QPoint offset( abs((int)(thickness) * dY / len), abs((int)(thickness) * dX / len) );
+
+            topLeft -= offset;
+            bottomRight += offset;
+        }
+    }
+
+    // Set the area
+    area.setTopLeft( topLeft );
+    area.setBottomRight( bottomRight );
 
     area.adjust( -HANDLE_SIZE, -HANDLE_SIZE, HANDLE_SIZE+1, HANDLE_SIZE+1 );
 
@@ -888,6 +945,7 @@ void markupLine::startDrawing( QPoint pos )
 
 void markupLine::moveTo( QPoint pos )
 {
+    // Move the appropriate part of the line, according to which bit the user has grabbed
     switch( activeHandle )
     {
         case MARKUP_HANDLE_NONE:
@@ -906,6 +964,36 @@ void markupLine::moveTo( QPoint pos )
             end = pos;
             break;
 
+        case MARKUP_HANDLE_CENTER:
+            { // contain scope of variables local to case
+                // Calculate distance from current position to nearest point on the line.
+
+                // Line X and Y dimensions
+                double dX = end.x()-start.x();
+                double dY = end.y()-start.y();
+
+                if( dX == 0 )
+                {
+                    thickness = abs(pos.x()-start.x())*2+1;
+                }
+                else if( dY == 0 )
+                {
+                    thickness = abs(pos.y()-start.y())*2+1;
+                }
+                else
+                {
+                    // Slope
+                    double slope = dY/dX;
+
+                    // Y intercept
+                    double yInt = (double)(start.y())-((double)(start.x()) * slope);
+                    double distance = abs( ((double)(pos.x())*slope) - (double)(pos.y()) + yInt) / (int)sqrt( (slope*slope)+1 );
+                    thickness = 2*(int)(distance)+1;
+                    qDebug() << "3 " << thickness;
+                }
+            }
+            break;
+
         default:
             break;
     }
@@ -922,6 +1010,62 @@ bool markupLine::isOver( const QPoint point, QCursor* cursor )
         return false;
     }
 
+    // If over the line, return true
+    if( isOverLine( point, start, end ) )
+    {
+        if( pointIsNear( point, start ) )
+        {
+            *cursor = Qt::SizeAllCursor;
+            activeHandle = MARKUP_HANDLE_START;
+        }
+        else if(  pointIsNear( point, end ) )
+        {
+            *cursor = Qt::SizeAllCursor;
+            activeHandle = MARKUP_HANDLE_END;
+        }
+        else if( ( thickness == 1 ) && pointIsNear( point, (start+end)/2 ) )
+        {
+            *cursor = Qt::SizeAllCursor;
+            activeHandle = MARKUP_HANDLE_CENTER;
+        }
+        else
+        {
+            *cursor = Qt::OpenHandCursor;
+            activeHandle = MARKUP_HANDLE_NONE;
+        }
+        return true;
+    }
+
+    // If any thickness, and over one of the thickness lines, return true
+    if( thickness > 1 )
+    {
+        // Calculate variables
+        int dX = end.x()-start.x();
+        int dY = end.y()-start.y();
+        int len = (int)sqrt( (dX*dX)+(dY*dY) );
+        int t = thickness / 2;
+
+        // Calculate the offset to the thickness lines
+        QPoint offset( -t*(end.y()-start.y())/len, t*(end.x()-start.x())/len );
+
+        // If over a thickness line, return true
+        if( isOverLine( point+offset, start, end ) ||
+            isOverLine( point-offset, start, end ) )
+        {
+            activeHandle = MARKUP_HANDLE_CENTER;
+            *cursor = cursorForHandle( activeHandle );
+            return true;
+        }
+    }
+
+    // Not over
+    activeHandle = MARKUP_HANDLE_NONE;
+    return false;
+}
+
+bool markupLine::isOverLine( const QPoint point, const QPoint lineStart, const QPoint lineEnd )
+{
+
     // Check if the position is over the slope of the line.
     // Although the tolerance should be measured at right angles to the line, an aproximation
     // is to ensure it is within the tolerance vertically if the line is mostly horizontal,
@@ -936,23 +1080,23 @@ bool markupLine::isOver( const QPoint point, QCursor* cursor )
     int pointB;
 
     // Determine what the arbitrary orientations A and B actually are
-    if( abs( end.y() - start.y() ) < abs( end.x() - start.x() ) )
+    if( abs( lineEnd.y() - lineStart.y() ) < abs( lineEnd.x() - lineStart.x() ) )
     {
         // Mostly horizontal
-        startA = start.x();
-        startB = start.y();
-        endA = end.x();
-        endB = end.y();
+        startA = lineStart.x();
+        startB = lineStart.y();
+        endA = lineEnd.x();
+        endB = lineEnd.y();
         pointA = point.x();
         pointB = point.y();
     }
     else
     {
         // Mostly vertical
-        startA = start.y();
-        startB = start.x();
-        endA = end.y();
-        endB = end.x();
+        startA = lineStart.y();
+        startB = lineStart.x();
+        endA = lineEnd.y();
+        endB = lineEnd.x();
         pointA = point.y();
         pointB = point.x();
     }
@@ -964,30 +1108,7 @@ bool markupLine::isOver( const QPoint point, QCursor* cursor )
     int expectedB = (int)((double)(pointA - startA) * lineSlope) + startB;
 
     // Return 'over' if B is close to as calculated
-    if( abs( pointB - expectedB ) <= OVER_TOLERANCE )
-    {
-        if( pointIsNear( point, start ) )
-        {
-            *cursor = Qt::SizeAllCursor;
-            activeHandle = MARKUP_HANDLE_START;
-        }
-        else if(  pointIsNear( point, end ) )
-        {
-            *cursor = Qt::SizeAllCursor;
-            activeHandle = MARKUP_HANDLE_END;
-        }
-        else
-        {
-            *cursor = Qt::OpenHandCursor;
-            activeHandle = MARKUP_HANDLE_NONE;
-        }
-        return true;
-    }
-    else
-    {
-        activeHandle = MARKUP_HANDLE_NONE;
-        return false;
-    }
+    return( abs( pointB - expectedB ) <= OVER_TOLERANCE );
 }
 
 QPoint markupLine::origin()
@@ -1000,12 +1121,11 @@ QCursor markupLine::cursorForHandle( markupItem::markupHandles handle )
 {
     switch( handle )
     {
-        case MARKUP_HANDLE_L:    return Qt::SizeHorCursor;
-        case MARKUP_HANDLE_R:    return Qt::SizeHorCursor;
-        case MARKUP_HANDLE_T:    return Qt::SizeVerCursor;
-        case MARKUP_HANDLE_B:    return Qt::SizeVerCursor;
-        case MARKUP_HANDLE_NONE: return defaultCursor();
-        default:                 return defaultCursor();
+        case MARKUP_HANDLE_START:  return Qt::SizeAllCursor;
+        case MARKUP_HANDLE_END:    return Qt::SizeAllCursor;
+        case MARKUP_HANDLE_CENTER: return Qt::SizeAllCursor;
+        case MARKUP_HANDLE_NONE:   return defaultCursor();
+        default:                   return defaultCursor();
     }
 }
 
@@ -1056,6 +1176,7 @@ void markupLine::scaleSpecific( double xScale, double yScale )
     start.setY( start.y() * yScale );
     end.setX( end.x() * xScale );
     end.setY( end.y() * yScale );
+    //!!! shouldn't thickness be scaled?
 }
 
 //===========================================================================
