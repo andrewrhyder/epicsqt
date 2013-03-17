@@ -1,4 +1,5 @@
-/*
+/*  VariableNameManager.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -100,6 +101,14 @@ QString VariableNameManager::getSubstitutedVariableName( unsigned int variableIn
 
     // Perform the substitution
     return doSubstitution( variableIndex );
+}
+
+/*
+    Set regular variable name substitutions.
+*/
+void VariableNameManager::initialiseVariableNameSubstitutions( const QString&  macroSubstitutionsIn)
+{
+    macroSubstitutions = macroSubstitutionsIn;
 }
 
 /*
