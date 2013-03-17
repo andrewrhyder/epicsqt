@@ -1,4 +1,5 @@
-/*
+/*  VariableNameManager.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -40,8 +41,6 @@ public:
     QString getOriginalVariableName( unsigned int variableIndex );          // Return variable name prior to any macro substitutions. (eg, SR$SECTOR$V )
     QString getVariableNameSubstitutions();                                 // Return macro substitutions used for variable names (eg, SECTOR=01,V=PRESURE)
     QString getSubstitutedVariableName(unsigned int variableIndex );        // Return variable name after macro substitutions
-
-    void initialiseVariableNameSubstitutions( const QString& substitutions );   // Initialise macro substitutions. May be used on creation.
 
     void setVariableNameSubstitutionsOverride( const QString& substitutions );
 

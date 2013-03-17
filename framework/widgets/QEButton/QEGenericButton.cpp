@@ -1,4 +1,5 @@
-/*
+/*  QEGenericButton.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -430,11 +431,11 @@ void QEGenericButton::userClicked( bool checked )
         // substitutions already present.
         addPriorityMacroSubstitutions( prioritySubstitutions );
 
-        qDebug()<<"QEGenericButton::userClicked() before launch signal";
+        // qDebug()<<"QEGenericButton::userClicked() before launch signal";
 
         emitNewGui( substituteThis( guiName ), creationOption );
 
-        qDebug()<<"QEGenericButton::userClicked() after launch signal";
+        // qDebug()<<"QEGenericButton::userClicked() after launch signal";
 
         // Remove this button's priority macro substitutions now all its children are created
         removeMacroSubstitutions();

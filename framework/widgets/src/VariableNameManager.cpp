@@ -104,14 +104,6 @@ QString VariableNameManager::getSubstitutedVariableName( unsigned int variableIn
 }
 
 /*
-    Set regular variable name substitutions.
-*/
-void VariableNameManager::initialiseVariableNameSubstitutions( const QString&  macroSubstitutionsIn)
-{
-    macroSubstitutions = macroSubstitutionsIn;
-}
-
-/*
     Override variable name substitutions.
     This is called when any macro substitutions set by default are overridden by the creator.
 */
