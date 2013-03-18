@@ -37,6 +37,8 @@
 #include <QToolButton>
 #include <QStringList>
 #include <QList>
+#include <QScrollArea>
+
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
@@ -55,24 +57,14 @@
 #define MIN(a, b)           ((a) <= (b) ? (a) : (b))
 #define LIMIT(x,low,high)   (MAX(low, MIN(x, high)))
 
-#define DEBUG   qDebug () << __FILE__  << ":" << __LINE__ << "(" << __FUNCTION__ << ")"
+#define DEBUG  qDebug () << __FILE__  << ":" << __LINE__ << "(" << __FUNCTION__ << ")"
 
 
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
-// Chart scale options and associated menu names.
-//
-enum ChartYScale {
-   ysManual,
-   ysLoprHopr,
-   ysDisplayed,
-   ysBuffered,
-   ysDynamic,
-   YSMAXIMUM
-};
 
-static const QString chartScaleNames [YSMAXIMUM] = {
+static const QString chartScaleNames [QEStripChart::YSMAXIMUM] = {
    "Manual... ",
    "PV LOPR/HOPRs ",
    "Displayed Min/Max ",
@@ -97,40 +89,54 @@ struct PushButtonSpecifications {
    const char * member;
 };
 
-#define NUMBER_OF_BUTTONS  14
+#define NUMBER_OF_BUTTONS  21
+
 #define ICW                26         // icon width
 #define PREV_SLOT          0
 #define NEXT_SLOT          1
-#define YSCALE_SLOT        6
-#define TSCALE_SLOT        7
+#define TSCALE_SLOT        12
 
 
 static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0, ICW,  QString (""),         QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))    },
    { 0, ICW,  QString (""),         QString ("go_fwd.png"),            QString ("Next state"),                   SLOT (nextStateClicked (bool))    },
 
-   { 2, ICW,  QString (""),         QString ("normal_video.png"),      QString ("White background"),             SLOT (normalVideoClicked (bool))  },
+   { 4, ICW,  QString (""),         QString ("normal_video.png"),      QString ("White background"),             SLOT (normalVideoClicked (bool))  },
    { 0, ICW,  QString (""),         QString ("reverse_video.png"),     QString ("Black background"),             SLOT (reverseVideoClicked (bool)) },
 
-   { 2, ICW,  QString (""),         QString ("linear_scale.png"),      QString ("Linear scale"),                 SLOT (linearScaleClicked (bool)) },
-   { 0, ICW,  QString (""),         QString ("log_scale.png"),         QString ("Log Scale"),                    SLOT (logScaleClicked (bool))    },
+   { 4, ICW,  QString (""),         QString ("linear_scale.png"),      QString ("Linear scale"),                 SLOT (linearScaleClicked (bool))  },
+   { 0, ICW,  QString (""),         QString ("log_scale.png"),         QString ("Log Scale"),                    SLOT (logScaleClicked (bool))     },
 
-   { 2, 92,   QString ("Scale To"), QString (""),                      QString ("Scale chart Y axis"),           NULL                             },
-   { 0, 96,   QString ("Duration"), QString (""),                      QString ("Select chart T axis"),          NULL                             },
+   { 4, ICW,  QString ("M"),        QString (""),                      QString ("Manual Scale"),                 SLOT (manualYScale (bool))        },
+   { 0, ICW,  QString ("A"),        QString (""),                      QString ("HOPR/LOPR Scale"),              SLOT (automaticYScale (bool))     },
+   { 0, ICW,  QString ("P"),        QString (""),                      QString ("Plotted Data Scale"),           SLOT (plottedYScale (bool))       },
+   { 0, ICW,  QString ("B"),        QString (""),                      QString ("Buffer Data Scale"),            SLOT (bufferedYScale (bool))      },
+   { 0, ICW,  QString ("D"),        QString (""),                      QString ("Dynamic Scale"),                SLOT (dynamicYScale (bool))       },
+   { 0, ICW,  QString ("N"),        QString (""),                      QString ("Normalised Scale(TBD)"),        SLOT (normalisedYScale (bool))    },
 
-   { 2, ICW,  QString (""),         QString ("archive.png"),           QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool)) },
+   { 4, 96,   QString ("Duration"), QString (""),                      QString ("Select chart T axis"),          NULL                              },
+
+   { 4, ICW,  QString (""),         QString ("archive.png"),           QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool)) },
    { 0, ICW,  QString (""),         QString ("select_date_times.png"), QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))  },
    { 0, ICW,  QString (""),         QString ("play.png"),              QString ("Play - Real time"),             SLOT (playClicked (bool))        },
    { 0, ICW,  QString (""),         QString ("pause.png"),             QString ("Pause"),                        SLOT (pauseClicked (bool))       },
    { 0, ICW,  QString (""),         QString ("page_backward.png"),     QString ("Back one page"),                SLOT (backwardClicked (bool))    },
-   { 0, ICW,  QString (""),         QString ("page_forward.png"),      QString ("Forward one page"),             SLOT (forwardClicked (bool))     }
+   { 0, ICW,  QString (""),         QString ("page_forward.png"),      QString ("Forward one page"),             SLOT (forwardClicked (bool))     },
+
+   { 324, ICW, QString ("-"),       QString (""),                      QString ("Shrink PV Panel"),              SLOT (shrinkPVFrame (bool))      },
+   { 0, ICW,  QString ("+"),        QString (""),                      QString ("Exapnd PV Panel"),              SLOT (expandPVFrame (bool))      }
 };
+
+
+#define PV_DELTA_HEIGHT    18
+#define PV_FRAME_HEIGHT    ((NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT + 10)
+#define PV_SCROLL_HEIGHT   (PV_FRAME_HEIGHT + 6)
 
 
 struct ChartState {
    bool isNormalVideo;
    bool isLinearScale;
-   ChartYScale chartYScale;
+   QEStripChart::ChartYScale chartYScale;
    double yMinimum;
    double yMaximum;
 
@@ -176,7 +182,7 @@ public:
    bool isLinearScale;              // false implies isLogScale
    double timeScale;                // 1 => units are seconds, 60 => x units are minutes, etc.
    QString timeUnits;
-
+   void adjustPVFrame (int delta);
    void pushState ();
    void prevState ();
    void nextState ();
@@ -187,6 +193,7 @@ protected:
 private:
    QEStripChart *chart;
    QFrame *toolFrame;
+   QScrollArea *pvScrollArea;
    QFrame *pvFrame;
    QFrame *plotFrame;
    QFrame *statusFrame;
@@ -194,8 +201,6 @@ private:
 
    QVBoxLayout *layout1;
    QVBoxLayout *layout2;
-
-   QMenu *m1;
 
    QMenu *m2;
    QMenu *m2s;
@@ -269,17 +274,6 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
       this->pushButtons [j] = button;
    }
 
-   // Create tool bar menus for selected buttons.
-   //
-   this->m1 = new QMenu (this->toolFrame);
-   for (j = 0; j < YSMAXIMUM; j++) {
-      this->m1->addAction (chartScaleNames [j])->setData (QVariant (j));
-   }
-   QObject::connect (this->m1,  SIGNAL (triggered     (QAction *)),
-                     this->chart, SLOT (menuSetYScale (QAction *)));
-
-   this->pushButtons [YSCALE_SLOT]->setMenu (this->m1);
-
    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    this->m2 = new QMenu (this->toolFrame);
 
@@ -335,9 +329,8 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Create PV frame and PV name labels and associated CA labels.
    //
-   this->pvFrame = new QFrame (this->chart);
-   this->pvFrame->setFrameShape (QFrame::Panel);
-   this->pvFrame->setFixedHeight ( (NUMBER_OF_PVS / 2) * 18 + 8);
+   this->pvFrame = new QFrame ();  // this will be pareneted by pvScrollArea
+   this->pvFrame->setFixedHeight (PV_FRAME_HEIGHT);
 
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       int x, y;
@@ -346,8 +339,8 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
       this->pvNames [slot] = new QLabel (this->pvFrame);
       this->caLabels [slot] = new QELabel (this->pvFrame);
 
-      x = (slot % 2) * 492 + 4;
-      y = (slot / 2) * 18  + 4;
+      x = 6 + (slot % 2) * 492;
+      y = 6 + (slot / 2) * PV_DELTA_HEIGHT;
 
       this->channelProperties [slot]->setGeometry (x, y,  16, 15); x += 20;
       this->pvNames [slot]->setGeometry           (x, y, 340, 15); x += 344;
@@ -364,6 +357,14 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
                         this->items [slot],              SLOT   (channelPropertiesClicked (bool)));
 
    }
+
+   // Create scrolling area and add pv frame.
+   //
+   this->pvScrollArea = new QScrollArea (this->chart);
+   this->pvScrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOn);
+   this->pvScrollArea->setFixedHeight (PV_SCROLL_HEIGHT);
+   this->pvScrollArea->setWidgetResizable (true);
+   this->pvScrollArea->setWidget (this->pvFrame);
 
    // Create plotting frame and plot area.
    //
@@ -398,7 +399,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->layout1->setMargin (4);
    this->layout1->setSpacing (4);
    this->layout1->addWidget (this->toolFrame);
-   this->layout1->addWidget (this->pvFrame);
+   this->layout1->addWidget (this->pvScrollArea);
    this->layout1->addWidget (this->plotFrame);
    this->layout1->addWidget (this->statusFrame);
 
@@ -429,6 +430,21 @@ QEStripChart::PrivateData::~PrivateData ()
 
    // all the created QWidget are (indirectly) parented by the PrivateData,
    // they are automatically deleted.
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::adjustPVFrame (int delta)
+{
+   int h;
+   int newh;
+
+   h = this->pvScrollArea->geometry ().height ();
+
+   newh = h + delta;
+   newh = LIMIT (newh, 12, PV_SCROLL_HEIGHT);
+
+   this->pvScrollArea->setFixedHeight (newh);
 }
 
 //------------------------------------------------------------------------------
@@ -790,7 +806,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    // Configure the panel and create contents
    //
    this->setFrameShape (Panel);
-   this->setMinimumSize (1000, 400);
+   this->setMinimumSize (1020, 400);
 
    this->duration = 120;  // two minites.
 
@@ -950,20 +966,9 @@ void QEStripChart::menuSetDuration (QAction *action)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::menuSetYScale (QAction *action)
+void QEStripChart::menuSetYScale (ChartYScale ys)
 {
    int n;
-   bool okay;
-   ChartYScale ys;
-
-   n = action->data().toInt (&okay);
-   if (!okay) {
-      DEBUG << " action data tag unavailable";
-      return;
-   }
-
-   // Convert action number into sensible enumeration value.
-   ys = (ChartYScale) n;
 
    switch (ys) {
    case ysManual:
@@ -987,13 +992,26 @@ void QEStripChart::menuSetYScale (QAction *action)
 
       this->privateData->calcDisplayMinMax ();
       this->privateData->plotData ();
-       this->privateData->pushState ();
+      this->privateData->pushState ();
       break;
 
    default:
-      DEBUG "Well this is unexpected, action tag = " << n;
+      DEBUG "Well this is unexpected:" << (int) ys;
       break;
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::manualYScale     (bool) { this->menuSetYScale (ysManual); }
+void QEStripChart::automaticYScale  (bool) { this->menuSetYScale (ysLoprHopr); }
+void QEStripChart::plottedYScale    (bool) { this->menuSetYScale (ysDisplayed); }
+void QEStripChart::bufferedYScale   (bool) { this->menuSetYScale (ysBuffered); }
+void QEStripChart::dynamicYScale    (bool) { this->menuSetYScale (ysDynamic); }
+
+void QEStripChart::normalisedYScale (bool)
+{
+   // place holder
 }
 
 //------------------------------------------------------------------------------
@@ -1123,6 +1141,20 @@ void QEStripChart::readArchiveClicked (bool checked)
          item->readArchive ();
       }
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::shrinkPVFrame (bool)
+{
+   this->privateData->adjustPVFrame (-PV_DELTA_HEIGHT);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::expandPVFrame (bool)
+{
+   this->privateData->adjustPVFrame (+PV_DELTA_HEIGHT);
 }
 
 //------------------------------------------------------------------------------

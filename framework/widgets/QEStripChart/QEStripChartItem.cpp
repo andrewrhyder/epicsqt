@@ -51,6 +51,9 @@ static const QColor item_colours [QEStripChart::NUMBER_OF_PVS] = {
 
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
+static const QString inuse  ("QWidget { background-color: #e0e0e0; }");
+static const QString unused ("QWidget { background-color: #c0c0c0; }");
+
 
 //==============================================================================
 //
@@ -164,6 +167,8 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    }
    this->setColour (defaultColour);
 
+   this->privateData->caLabel->setStyleSheet (unused);
+
    // Set up a connection to recieve variable name property changes.  The variable
    // name property manager class only delivers an updated variable name after the
    // user has stopped typing.
@@ -178,7 +183,7 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    QObject::connect (&this->archiveAccess, SIGNAL (setArchiveData (const QObject *, const bool, const QCaDataPointList &)),
                      this,                 SLOT   (setArchiveData (const QObject *, const bool, const QCaDataPointList &)));
 
-}   //QEStripChartItem
+}   // QEStripChartItem
 
 
 //------------------------------------------------------------------------------
@@ -196,6 +201,7 @@ void QEStripChartItem::clear ()
    this->privateData->pvName->setText ("");
    this->privateData->caLabel->setVariableNameAndSubstitutions ("", "", 0);
    this->privateData->caLabel->setText ("-");
+   this->privateData->caLabel->setStyleSheet (unused);
 
    this->displayedMinMax.clear ();
    this->historicalMinMax.clear ();
@@ -233,6 +239,7 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
 
    this->privateData->pvName->setText (pvName);
    this->privateData->caLabel->setVariableNameAndSubstitutions (pvName, substitutions, 0);
+   this->privateData->caLabel->setStyleSheet (inuse);
 
    // We know that QELabels use slot zero for the connection.
    //

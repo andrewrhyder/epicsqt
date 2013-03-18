@@ -130,6 +130,18 @@ public:
    //
    void plotData ();
 
+
+   // Chart scale options and associated menu names.
+   //
+   enum ChartYScale {
+      ysManual,
+      ysLoprHopr,
+      ysDisplayed,
+      ysBuffered,
+      ysDynamic,
+      YSMAXIMUM
+   };
+
 protected:
    // Drag and Drop
    //
@@ -226,9 +238,10 @@ private:
 
 #undef PROPERTY_ACCESS
 
+   void menuSetYScale (ChartYScale ys);
+
 private slots:
    void tickTimeout ();
-   void menuSetYScale (QAction *action);
    void menuSetDuration (QAction *action);
 
    void prevStateClicked (bool checked = false);
@@ -238,12 +251,23 @@ private slots:
    void linearScaleClicked (bool checked = false);
    void logScaleClicked (bool checked = false);
 
+   void manualYScale (bool checked = false);
+   void automaticYScale (bool checked = false);
+   void plottedYScale (bool checked = false);
+   void bufferedYScale (bool checked = false);
+   void dynamicYScale (bool checked = false);
+   void normalisedYScale (bool checked = false);
+
    void playClicked (bool checked = false);
    void pauseClicked (bool checked = false);
    void forwardClicked (bool checked = false);
    void backwardClicked (bool checked = false);
    void selectTimeClicked (bool checked = false);
    void readArchiveClicked (bool checked = false);
+
+   void shrinkPVFrame (bool checked = false);
+   void expandPVFrame (bool checked = false);
+
 };
 
 # endif  // QESTRIPCHART_H
