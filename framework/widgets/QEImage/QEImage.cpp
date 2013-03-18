@@ -2254,8 +2254,7 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thickness )
     int x = videoWidget->scaleOrdinate( xUnscaled );
 
     // Display textual info
-    QString s;
-    s.sprintf( "V: %d", x );
+    QString s = QString( "V: %1 x %2" ).arg( x ).arg( thickness );
     currentVertPixelLabel->setText( s );
 
     // If not over the image, remove the profile
@@ -2418,22 +2417,29 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 
     // Translate the corners to match the current flip and roate options
     QRect area = rotateFlipRectangle( corner1, corner2 );
-    // !!! This can end up with negative bits when markup is slid upwards
 
     // Determine the range of pixel values in the selected area
     unsigned int min, max;
     getPixelRange( area, &min, &max );
 
-    // Calculate the brightness and contrast that will set the dynamic range
-    // to match the range of pixels in the area
+    // Range of pixel values in area
     int range = (max>min)?max-min:1;
-    int newContrast = 100*maxPixelValue()/range;
-//    int newBrightness = 100*max/maxPixelValue();
-//!!! Brightness is not calculated correctly
-    int newBrightness = -100*(max+min-maxPixelValue())/maxPixelValue();
-//    int newBrightness = -(newContrast*(min+max)-(maxPixelValue()*100))/200;
 
-//    qDebug() << "min" << min << "max" << max << "newContrast" << newContrast << "newBrightness" << newBrightness << "range" << range << "maxPixelValue()" << maxPixelValue();
+    // Calculate the contrast that will set the dynamic range
+    // to match the range of pixels in the area.
+    double newContrastDouble = (double)(maxPixelValue())/(double)(range);
+    int newContrast = 100*newContrastDouble;
+
+    // Calculate the brightness that will set the dynamic range
+    // to match the range of pixels in the area.
+    // Offset from mid pixel value of range to mid pixel value in area (in original pixel scale) scaled for new contrast...
+    double midOffset = (((double)(maxPixelValue())/2)-((double)(min+max)/2))*newContrastDouble;
+
+    // Calculate brightness that will offset pixel values in the selected area to use full range.
+    // Note, when used, the brightness will be multiplied by (the new pixel range - an offset used to center the new pixel range )
+    double newBrightnessDouble = midOffset/(maxPixelValue()*(newContrastDouble-(newContrastDouble-1)/2));
+//    double newBrightnessDouble = ((((double)(maxPixelValue())/2)-((double)(min+max)/2))*newContrastDouble)/(maxPixelValue()*(newContrastDouble-(newContrastDouble-1)/2));
+    int newBrightness = newBrightnessDouble*100;
 
     // If the brightness and contrast have changed, update the values,
     // update the user interface and redisplay the image
@@ -2577,8 +2583,7 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thickness )
     int y = videoWidget->scaleOrdinate( yUnscaled );
 
     // Display textual info
-    QString s;
-    s.sprintf( "H: %d", y );
+    QString s = QString( "H: %1 x %2" ).arg( y ).arg( thickness );
     currentHozPixelLabel->setText( s );
 
     // If not over the image, remove the profile
@@ -2715,8 +2720,7 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
     QPoint point2 = videoWidget->scalePoint( point2Unscaled );
 
     // Display textual information
-    QString s;
-    s.sprintf( "L: (%d,%d)(%d,%d)", point1.x(), point1.y(), point2.x(), point2.y() );
+    QString s = QString( "L: (%1,%2)(%3,%4)x%5" ).arg( point1.x() ).arg( point1.y() ).arg( point2.x()).arg( point2.y()).arg( thickness );
     currentLineLabel->setText( s );
 
     // X and Y components of line drawn

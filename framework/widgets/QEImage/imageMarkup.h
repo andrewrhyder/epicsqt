@@ -85,7 +85,7 @@ class markupItem
 {
 protected:
     enum isOverOptions{ OVER_LINE, OVER_BORDER, OVER_AREA }; // test required to determine if pointer is over the object
-    markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
+    markupItem( imageMarkup* ownerIn, const isOverOptions over, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
     virtual ~markupItem();
 
 public:
@@ -100,14 +100,14 @@ public:
     void scale( double xScale, double yScale );
 
     virtual QPoint origin()=0;
-    virtual void moveTo( QPoint pos )=0;  // Move an item (always make it visible and highlighed)
-    virtual void startDrawing( QPoint pos ) = 0;
+    virtual void moveTo( const QPoint pos )=0;  // Move an item (always make it visible and highlighed)
+    virtual void startDrawing( const QPoint pos ) = 0;
     virtual bool isOver( const QPoint point, QCursor* cursor )=0;
-    virtual QCursor cursorForHandle( markupItem::markupHandles handle ) = 0;
+    virtual QCursor cursorForHandle( const markupItem::markupHandles handle ) = 0;
     virtual QPoint getPoint1()=0;
     virtual QPoint getPoint2()=0;
     virtual unsigned int getThickness()=0;
-    virtual void setThickness( unsigned int thicknessIn )=0;
+    virtual void setThickness( const unsigned int thicknessIn )=0;
     virtual QCursor defaultCursor()=0;
     virtual void nonInteractiveUpdate( QRect ) {} // Only implemented by those objects that are updated by data such as region of interest
 
@@ -137,9 +137,10 @@ protected:
     const QPoint setLegendPos( QPoint pos, legendJustification just );          // Sets (and returns) the position of the legend (top left of text) given the justificaiton
     const QPoint getLegendPos();                  // Returns the last drawn legend position
     void drawLegend( QPainter& p, QPoint pos, legendJustification just );   // Draw the legend beside the markup
+    QPoint limitPointToImage( const QPoint pos );   // Return the input point limited to the image area
 
 private:
-    virtual void scaleSpecific( double xScale, double yScale )=0;
+    virtual void scaleSpecific( const double xScale, const double yScale )=0;
     QString legend;                               // Text displayed beside markup
     QSize legendSize;                             // Size of legend (according to legend font)
     bool hasLegend();                             // Returns true if legend text is present
@@ -151,21 +152,21 @@ class markupTarget : public markupItem
 {
 public:
 
-    markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
+    markupTarget( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
-    void startDrawing( QPoint pos );
+    void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
-    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, QCursor* cursor );
+    void moveTo( const QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( const QPoint point, QCursor* cursor );
     QPoint origin();
-    QCursor cursorForHandle( markupItem::markupHandles handle );
+    QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int getThickness();
-    void setThickness( unsigned int thicknessIn );
+    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( double xScale, double yScale );
+    void scaleSpecific( const double xScale, const double yScale );
 
 private:
     QPoint pos;
@@ -175,21 +176,21 @@ class markupBeam : public markupItem
 {
 public:
 
-    markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
+    markupBeam( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
-    void startDrawing( QPoint pos );
+    void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
-    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, QCursor* cursor );
+    void moveTo( const QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( const QPoint point, QCursor* cursor );
     QPoint origin();
-    QCursor cursorForHandle( markupItem::markupHandles handle );
+    QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int getThickness();
-    void setThickness( unsigned int thicknessIn );
+    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( double xScale, double yScale );
+    void scaleSpecific( const double xScale, const double yScale );
 
 private:
     QPoint pos;
@@ -200,21 +201,21 @@ class markupHLine : public markupItem
 {
 public:
 
-    markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
+    markupHLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
-    void startDrawing( QPoint pos );
+    void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
-    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, QCursor* cursor );
+    void moveTo( const QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( const QPoint point, QCursor* cursor );
     QPoint origin();
-    QCursor cursorForHandle( markupItem::markupHandles handle );
+    QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int getThickness();
-    void setThickness( unsigned int thicknessIn );
+    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( double xScale, double yScale );
+    void scaleSpecific( const double xScale, const double yScale );
 
 private:
     int y;
@@ -225,21 +226,21 @@ class markupVLine : public markupItem
 {
 public:
 
-    markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
+    markupVLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
-    void startDrawing( QPoint pos );
+    void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
-    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, QCursor* cursor );
+    void moveTo( const QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( const QPoint point, QCursor* cursor );
     QPoint origin();
-    QCursor cursorForHandle( markupItem::markupHandles handle );
+    QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int getThickness();
-    void setThickness( unsigned int thicknessIn );
+    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( double xScale, double yScale );
+    void scaleSpecific( const double xScale, const double yScale );
 
 private:
     int x;
@@ -249,21 +250,21 @@ private:
 class markupLine : public markupItem
 {
 public:
-    markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
+    markupLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
-    void startDrawing( QPoint pos );
+    void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
-    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, QCursor* cursor );
+    void moveTo( const QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( const QPoint point, QCursor* cursor );
     QPoint origin();
-    QCursor cursorForHandle( markupItem::markupHandles handle );
+    QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int getThickness();
-    void setThickness( unsigned int thicknessIn );
+    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( double xScale, double yScale );
+    void scaleSpecific( const double xScale, const double yScale );
 
 private:
     QPoint start;
@@ -276,21 +277,21 @@ class markupRegion : public markupItem
 {
 public:
 
-    markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
+    markupRegion( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
-    void startDrawing( QPoint pos );
+    void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
-    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, QCursor* cursor );
+    void moveTo( const QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( const QPoint point, QCursor* cursor );
     QPoint origin();
-    QCursor cursorForHandle( markupItem::markupHandles handle );
+    QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int getThickness();
-    void setThickness( unsigned int thicknessIn );
+    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( double xScale, double yScale );
+    void scaleSpecific( const double xScale, const double yScale );
 
     void nonInteractiveUpdate( QRect );
 
@@ -303,23 +304,23 @@ class markupText : public markupItem
 {
 public:
 
-    markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn );
+    markupText( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
     void setText( QString textIn, bool draw );
 
-    void startDrawing( QPoint pos );
+    void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
-    void moveTo( QPoint pos );  // Move an item (always make it visible and highlighed)
-    bool isOver( QPoint point, QCursor* cursor );
+    void moveTo( const QPoint pos );  // Move an item (always make it visible and highlighed)
+    bool isOver( const QPoint point, QCursor* cursor );
     QPoint origin();
-    QCursor cursorForHandle( markupItem::markupHandles handle );
+    QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
     unsigned int getThickness();
-    void setThickness( unsigned int thicknessIn );
+    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( double xScale, double yScale );
+    void scaleSpecific( const double xScale, const double yScale );
 
 private:
     QString text;

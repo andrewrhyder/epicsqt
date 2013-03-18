@@ -37,6 +37,9 @@
 #define OVER_TOLERANCE 6
 #define HANDLE_SIZE 6
 
+// Profile thickness selection maximum
+#define THICKNESS_MAX 51
+
 
 //===========================================================================
 // Generic markup base class
@@ -44,7 +47,7 @@
 // Construct a markup item
 // All markup items share the same markup image
 
-markupItem::markupItem( imageMarkup* ownerIn, isOverOptions over, bool interactiveIn, bool reportOnMoveIn, const QString legendIn )
+markupItem::markupItem( imageMarkup* ownerIn, const isOverOptions over, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn )
 {
     isOverType = over;
     interactive = interactiveIn;
@@ -213,7 +216,7 @@ void markupItem::drawLegend( QPainter& p, QPoint pos, legendJustification just )
 //===========================================================================
 // Target markup
 
-markupTarget::markupTarget( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
+markupTarget::markupTarget( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
 }
 
@@ -241,15 +244,18 @@ void markupTarget::setArea()
     owner->markupAreasStale = true;
 }
 
-void markupTarget::startDrawing( QPoint posIn )
+void markupTarget::startDrawing( const QPoint posIn )
 {
     pos = posIn;
     activeHandle = MARKUP_HANDLE_NONE;
 }
 
-void markupTarget::moveTo( QPoint posIn )
+void markupTarget::moveTo( const QPoint posIn )
 {
-    pos = posIn;
+    // Limit position to within the image
+    QPoint limPos = limitPointToImage( posIn );
+
+    pos = limitPointToImage( limPos );
     setArea();
 }
 
@@ -266,7 +272,7 @@ QPoint markupTarget::origin()
 }
 
 // Return the cursor for each handle
-QCursor markupTarget::cursorForHandle( markupItem::markupHandles )
+QCursor markupTarget::cursorForHandle( const markupItem::markupHandles )
 {
 // No special cursors for different handles
 //    switch( handle )
@@ -295,7 +301,7 @@ unsigned int markupTarget::getThickness()
     return 0;
 }
 
-void markupTarget::setThickness( unsigned int  )
+void markupTarget::setThickness( const unsigned int  )
 {
     // Do nothing
 }
@@ -305,7 +311,7 @@ QCursor markupTarget::defaultCursor()
     return owner->getTargetCursor();
 }
 
-void markupTarget::scaleSpecific( double xScale, double yScale )
+void markupTarget::scaleSpecific( const double xScale, const double yScale )
 {
     pos.setX( pos.x() * xScale );
     pos.setY( pos.y() * yScale );
@@ -315,7 +321,7 @@ void markupTarget::scaleSpecific( double xScale, double yScale )
 //===========================================================================
 // Beam markup
 
-markupBeam::markupBeam( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
+markupBeam::markupBeam( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     // Size of cross hair
     armSize = 20;
@@ -352,15 +358,18 @@ void markupBeam::setArea()
     owner->markupAreasStale = true;
 }
 
-void markupBeam::startDrawing( QPoint posIn )
+void markupBeam::startDrawing( const QPoint posIn )
 {
     pos = posIn;
     activeHandle = MARKUP_HANDLE_NONE;
 }
 
-void markupBeam::moveTo( QPoint posIn )
+void markupBeam::moveTo( const QPoint posIn )
 {
-    pos = posIn;
+    // Limit position to within the image
+    QPoint limPos = limitPointToImage( posIn );
+
+    pos = limitPointToImage( limPos );
     setArea();
 }
 
@@ -380,7 +389,7 @@ QPoint markupBeam::origin()
 }
 
 // Return the cursor for each handle
-QCursor markupBeam::cursorForHandle( markupItem::markupHandles )
+QCursor markupBeam::cursorForHandle( const markupItem::markupHandles )
 {
 // No special cursors for different handles
 //    switch( handle )
@@ -414,12 +423,12 @@ unsigned int markupBeam::getThickness()
     return 0;
 }
 
-void markupBeam::setThickness( unsigned int  )
+void markupBeam::setThickness( const unsigned int  )
 {
     // Do nothing
 }
 
-void markupBeam::scaleSpecific( double xScale, double yScale )
+void markupBeam::scaleSpecific( const double xScale, const double yScale )
 {
     pos.setX( pos.x() * xScale );
     pos.setY( pos.y() * yScale );
@@ -428,7 +437,7 @@ void markupBeam::scaleSpecific( double xScale, double yScale )
 //===========================================================================
 // Vertical line markup
 
-markupVLine::markupVLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
+markupVLine::markupVLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     thickness = 1;
 }
@@ -483,23 +492,33 @@ void markupVLine::setArea()
     owner->markupAreasStale = true;
 }
 
-void markupVLine::startDrawing( QPoint pos )
+void markupVLine::startDrawing( const QPoint pos )
 {
     x = pos.x();
     activeHandle = MARKUP_HANDLE_NONE;
 }
 
-void markupVLine::moveTo( QPoint pos )
+void markupVLine::moveTo( const QPoint posIn )
 {
+    // Limit position to within the image
+    QPoint limPos = limitPointToImage( posIn );
+
     // Move the appropriate part of the line, according to which bit the user has grabbed
     switch( activeHandle )
     {
-        case MARKUP_HANDLE_NONE:   x = pos.x();                      break;
-        case MARKUP_HANDLE_CENTER: thickness = abs( x-pos.x() )*2+1; break;
+        case MARKUP_HANDLE_NONE:
+            x = limPos.x();
+            break;
+
+        case MARKUP_HANDLE_CENTER:
+            thickness = abs( x-limPos.x() )*2+1;
+            if( thickness > THICKNESS_MAX ) thickness = THICKNESS_MAX;
+            break;
+
         default: break;
     }
 
-    // Update the area the region now occupies
+    // Update the area the line now occupies
     setArea();
 }
 
@@ -571,7 +590,7 @@ QPoint markupVLine::origin()
 }
 
 // Return the cursor for each handle
-QCursor markupVLine::cursorForHandle( markupItem::markupHandles handle )
+QCursor markupVLine::cursorForHandle( const markupItem::markupHandles handle )
 {
     switch( handle )
     {
@@ -596,7 +615,7 @@ unsigned int markupVLine::getThickness()
     return thickness;
 }
 
-void markupVLine::setThickness( unsigned int thicknessIn )
+void markupVLine::setThickness( const unsigned int thicknessIn )
 {
     // Not if the markup is currently visible
     bool wasVisible = visible;
@@ -631,7 +650,7 @@ void markupVLine::scaleSpecific( double xScale, double )
 //===========================================================================
 // Horizontal line markup
 
-markupHLine::markupHLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
+markupHLine::markupHLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     thickness = 1;
 }
@@ -686,23 +705,33 @@ void markupHLine::setArea()
     owner->markupAreasStale = true;
 }
 
-void markupHLine::startDrawing( QPoint pos )
+void markupHLine::startDrawing( const QPoint pos )
 {
-    y = pos.x();
+    y = pos.y();
     activeHandle = MARKUP_HANDLE_NONE;
 }
 
-void markupHLine::moveTo( QPoint pos )
+void markupHLine::moveTo( const QPoint posIn )
 {
+    // Limit position to within the image
+    QPoint limPos = limitPointToImage( posIn );
+
     // Move the appropriate part of the line, according to which bit the user has grabbed
     switch( activeHandle )
     {
-        case MARKUP_HANDLE_NONE:   y = pos.y();                      break;
-        case MARKUP_HANDLE_CENTER: thickness = abs( y-pos.y() )*2+1; break;
+        case MARKUP_HANDLE_NONE:
+            y = limPos.y();
+            break;
+
+        case MARKUP_HANDLE_CENTER:
+            thickness = abs( y-limPos.y() )*2+1;
+            if( thickness > THICKNESS_MAX ) thickness = THICKNESS_MAX;
+            break;
+
         default: break;
     }
 
-    // Update the area the region now occupies
+    // Update the area the line now occupies
     setArea();
 }
 
@@ -774,7 +803,7 @@ QPoint markupHLine::origin()
 }
 
 // Return the cursor for each handle
-QCursor markupHLine::cursorForHandle( markupItem::markupHandles handle )
+QCursor markupHLine::cursorForHandle( const markupItem::markupHandles handle )
 {
     switch( handle )
     {
@@ -799,7 +828,7 @@ unsigned int markupHLine::getThickness()
     return thickness;
 }
 
-void markupHLine::setThickness( unsigned int thicknessIn )
+void markupHLine::setThickness( const unsigned int thicknessIn )
 {
     // Not if the markup is currently visible
     bool wasVisible = visible;
@@ -834,7 +863,7 @@ void markupHLine::scaleSpecific( double, double yScale )
 //===========================================================================
 // Profile line markup
 
-markupLine::markupLine( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
+markupLine::markupLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     thickness = 1;
 }
@@ -855,10 +884,6 @@ void markupLine::drawMarkup( QPainter& p )
 
         handle.moveTo( end - halfHandle );
         p.drawRect( handle );
-
-//        p.drawRect( area );// testing only
-//        qDebug() << "area" << area;
-
     }
 
     // If single pixel thickness, draw a single handle in the middle
@@ -874,20 +899,23 @@ void markupLine::drawMarkup( QPainter& p )
     // and draw two handles, one on each border
     else
     {
-        QPen pen = p.pen();
-        pen.setStyle( Qt::DashLine );
-        p.setPen( pen );
-
         int dX = end.x()-start.x();
         int dY = end.y()-start.y();
-        int len = (int)sqrt( (dX*dX)+(dY*dY) );
+        if( dX || dY )
+        {
+            QPen pen = p.pen();
+            pen.setStyle( Qt::DashLine );
+            p.setPen( pen );
 
-        QPoint offset( (int)(thickness) * -dY / (2*len), int(thickness) * dX / (2*len) );
-        p.drawLine( start+offset, end+offset );
-        p.drawLine( start-offset, end-offset );
+            int len = (int)sqrt( (dX*dX)+(dY*dY) );
 
-        pen.setStyle( Qt::SolidLine );
-        p.setPen( pen );
+            QPoint offset( (int)(thickness) * -dY / (2*len), int(thickness) * dX / (2*len) );
+            p.drawLine( start+offset, end+offset );
+            p.drawLine( start-offset, end-offset );
+
+            pen.setStyle( Qt::SolidLine );
+            p.setPen( pen );
+        }
     }
 
     // Draw markup legend
@@ -910,7 +938,7 @@ void markupLine::setArea()
         int dY = end.y()-start.y();
         int len = (int)sqrt( (dX*dX)+(dY*dY) );
 
-        // Add offset only if length is not zro (avoid divide by zero error)
+        // Add offset only if length is not zero (avoid divide by zero error)
         if( len )
         {
             QPoint offset( abs((int)(thickness) * dY / len), abs((int)(thickness) * dX / len) );
@@ -937,31 +965,35 @@ void markupLine::setArea()
 
 }
 
-void markupLine::startDrawing( QPoint pos )
+void markupLine::startDrawing( const QPoint pos )
 {
     start = pos;
+    end = pos;
     activeHandle = MARKUP_HANDLE_END;
 }
 
-void markupLine::moveTo( QPoint pos )
+void markupLine::moveTo( const QPoint posIn )
 {
+    // Limit position to within the image
+    QPoint limPos = limitPointToImage( posIn );
+
     // Move the appropriate part of the line, according to which bit the user has grabbed
     switch( activeHandle )
     {
         case MARKUP_HANDLE_NONE:
             { // Constrain scope of endOffset to case
                 QPoint endOffset = end - start;
-                start = pos - owner->grabOffset ;
+                start = limPos - owner->grabOffset ;
                 end = start + endOffset;
             }
             break;
 
         case MARKUP_HANDLE_START:
-            start = pos;
+            start = limPos;
             break;
 
        case MARKUP_HANDLE_END:
-            end = pos;
+            end = limPos;
             break;
 
         case MARKUP_HANDLE_CENTER:
@@ -974,11 +1006,11 @@ void markupLine::moveTo( QPoint pos )
 
                 if( dX == 0 )
                 {
-                    thickness = abs(pos.x()-start.x())*2+1;
+                    thickness = abs(limPos.x()-start.x())*2+1;
                 }
                 else if( dY == 0 )
                 {
-                    thickness = abs(pos.y()-start.y())*2+1;
+                    thickness = abs(limPos.y()-start.y())*2+1;
                 }
                 else
                 {
@@ -987,10 +1019,13 @@ void markupLine::moveTo( QPoint pos )
 
                     // Y intercept
                     double yInt = (double)(start.y())-((double)(start.x()) * slope);
-                    double distance = abs( ((double)(pos.x())*slope) - (double)(pos.y()) + yInt) / (int)sqrt( (slope*slope)+1 );
+                    double distance = abs( ((double)(limPos.x())*slope) - (double)(limPos.y()) + yInt) / (int)sqrt( (slope*slope)+1 );
                     thickness = 2*(int)(distance)+1;
-                    qDebug() << "3 " << thickness;
                 }
+
+                // Limit thickness
+                if( thickness > THICKNESS_MAX ) thickness = THICKNESS_MAX;
+
             }
             break;
 
@@ -1011,17 +1046,19 @@ bool markupLine::isOver( const QPoint point, QCursor* cursor )
     }
 
     // If over the line, return true
+    // Check if over the end in preference to the start. This is especially important when
+    // just starting as the start and end will be set initially to the same point
     if( isOverLine( point, start, end ) )
     {
-        if( pointIsNear( point, start ) )
-        {
-            *cursor = Qt::SizeAllCursor;
-            activeHandle = MARKUP_HANDLE_START;
-        }
-        else if(  pointIsNear( point, end ) )
+        if(  pointIsNear( point, end ) )
         {
             *cursor = Qt::SizeAllCursor;
             activeHandle = MARKUP_HANDLE_END;
+        }
+        else if( pointIsNear( point, start ) )
+        {
+            *cursor = Qt::SizeAllCursor;
+            activeHandle = MARKUP_HANDLE_START;
         }
         else if( ( thickness == 1 ) && pointIsNear( point, (start+end)/2 ) )
         {
@@ -1042,19 +1079,22 @@ bool markupLine::isOver( const QPoint point, QCursor* cursor )
         // Calculate variables
         int dX = end.x()-start.x();
         int dY = end.y()-start.y();
-        int len = (int)sqrt( (dX*dX)+(dY*dY) );
-        int t = thickness / 2;
-
-        // Calculate the offset to the thickness lines
-        QPoint offset( -t*(end.y()-start.y())/len, t*(end.x()-start.x())/len );
-
-        // If over a thickness line, return true
-        if( isOverLine( point+offset, start, end ) ||
-            isOverLine( point-offset, start, end ) )
+        if( dX || dX )
         {
-            activeHandle = MARKUP_HANDLE_CENTER;
-            *cursor = cursorForHandle( activeHandle );
-            return true;
+            int len = (int)sqrt( (dX*dX)+(dY*dY) );
+            int t = thickness / 2;
+
+            // Calculate the offset to the thickness lines
+            QPoint offset( -t*(end.y()-start.y())/len, t*(end.x()-start.x())/len );
+
+            // If over a thickness line, return true
+            if( isOverLine( point+offset, start, end ) ||
+                isOverLine( point-offset, start, end ) )
+            {
+                activeHandle = MARKUP_HANDLE_CENTER;
+                *cursor = cursorForHandle( activeHandle );
+                return true;
+            }
         }
     }
 
@@ -1065,6 +1105,11 @@ bool markupLine::isOver( const QPoint point, QCursor* cursor )
 
 bool markupLine::isOverLine( const QPoint point, const QPoint lineStart, const QPoint lineEnd )
 {
+    // If line is zero length, compare to the point. (avoid divide by zero)
+    if( lineStart == lineEnd )
+    {
+        return pointIsNear( point, lineStart );
+    }
 
     // Check if the position is over the slope of the line.
     // Although the tolerance should be measured at right angles to the line, an aproximation
@@ -1117,7 +1162,7 @@ QPoint markupLine::origin()
 }
 
 // Return the cursor for each handle
-QCursor markupLine::cursorForHandle( markupItem::markupHandles handle )
+QCursor markupLine::cursorForHandle( const markupItem::markupHandles handle )
 {
     switch( handle )
     {
@@ -1144,7 +1189,7 @@ unsigned int markupLine::getThickness()
     return thickness;
 }
 
-void markupLine::setThickness( unsigned int thicknessIn )
+void markupLine::setThickness( const unsigned int thicknessIn )
 {
     // Not if the markup is currently visible
     bool wasVisible = visible;
@@ -1170,7 +1215,7 @@ QCursor markupLine::defaultCursor()
     return owner->getLineCursor();
 }
 
-void markupLine::scaleSpecific( double xScale, double yScale )
+void markupLine::scaleSpecific( const double xScale, const double yScale )
 {
     start.setX( start.x() * xScale );
     start.setY( start.y() * yScale );
@@ -1182,7 +1227,7 @@ void markupLine::scaleSpecific( double xScale, double yScale )
 //===========================================================================
 // Region markup
 
-markupRegion::markupRegion( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn, legendIn )
+markupRegion::markupRegion( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn, legendIn )
 {
 }
 
@@ -1252,27 +1297,30 @@ void markupRegion::setArea()
     owner->markupAreasStale = true;
 }
 
-void markupRegion::startDrawing( QPoint pos )
+void markupRegion::startDrawing( const QPoint pos )
 {
     rect.setBottomLeft( pos );
     rect.setTopRight( pos );
     activeHandle = MARKUP_HANDLE_BR;
 }
 
-void markupRegion::moveTo( QPoint pos )
+void markupRegion::moveTo( const QPoint posIn )
 {
+    // Limit position to within the image
+    QPoint limPos = limitPointToImage( posIn );
+
     // Move the appropriate part of the region, according to which bit the user has grabbed
     switch( activeHandle )
     {
-        case MARKUP_HANDLE_NONE: rect.moveTo( pos - owner->grabOffset ); break;
-        case MARKUP_HANDLE_TL:   rect.setTopLeft(     pos );     break;
-        case MARKUP_HANDLE_TR:   rect.setTopRight(    pos );     break;
-        case MARKUP_HANDLE_BL:   rect.setBottomLeft(  pos );     break;
-        case MARKUP_HANDLE_BR:   rect.setBottomRight( pos );     break;
-        case MARKUP_HANDLE_T:    rect.setTop(         pos.y() ); break;
-        case MARKUP_HANDLE_B:    rect.setBottom(      pos.y() ); break;
-        case MARKUP_HANDLE_L:    rect.setLeft(        pos.x() ); break;
-        case MARKUP_HANDLE_R:    rect.setRight(       pos.x() ); break;
+        case MARKUP_HANDLE_NONE: rect.moveTo( limPos - owner->grabOffset ); break;
+        case MARKUP_HANDLE_TL:   rect.setTopLeft(     limPos );     break;
+        case MARKUP_HANDLE_TR:   rect.setTopRight(    limPos );     break;
+        case MARKUP_HANDLE_BL:   rect.setBottomLeft(  limPos );     break;
+        case MARKUP_HANDLE_BR:   rect.setBottomRight( limPos );     break;
+        case MARKUP_HANDLE_T:    rect.setTop(         limPos.y() ); break;
+        case MARKUP_HANDLE_B:    rect.setBottom(      limPos.y() ); break;
+        case MARKUP_HANDLE_L:    rect.setLeft(        limPos.x() ); break;
+        case MARKUP_HANDLE_R:    rect.setRight(       limPos.x() ); break;
 
         default: break;
     }
@@ -1442,7 +1490,7 @@ QPoint markupRegion::origin()
 }
 
 // Return the cursor for each handle
-QCursor markupRegion::cursorForHandle( markupItem::markupHandles handle )
+QCursor markupRegion::cursorForHandle( const markupItem::markupHandles handle )
 {
     switch( handle )
     {
@@ -1475,7 +1523,7 @@ unsigned int markupRegion::getThickness()
     return 0;
 }
 
-void markupRegion::setThickness( unsigned int )
+void markupRegion::setThickness( const unsigned int )
 {
     // Do nothing
 }
@@ -1485,7 +1533,7 @@ QCursor markupRegion::defaultCursor()
     return owner->getRegionCursor();
 }
 
-void markupRegion::scaleSpecific( double xScale, double yScale )
+void markupRegion::scaleSpecific( const double xScale, const double yScale )
 {
     rect.moveTo( rect.x() * xScale, rect.y() * yScale );
 
@@ -1502,7 +1550,7 @@ void markupRegion::nonInteractiveUpdate( QRect rectIn )
 //===========================================================================
 // Text markup
 
-markupText::markupText( imageMarkup* ownerIn, bool interactiveIn, bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn, legendIn )
+markupText::markupText( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_AREA, interactiveIn, reportOnMoveIn, legendIn )
 {
 
 }
@@ -1548,16 +1596,19 @@ void markupText::setArea()
 
 }
 
-void markupText::startDrawing( QPoint pos )
+void markupText::startDrawing( const QPoint pos )
 {
     rect.setBottomLeft( pos );
     rect.setTopRight( pos + QPoint( 50,30 ) );
     activeHandle = MARKUP_HANDLE_NONE;
 }
 
-void markupText::moveTo( QPoint pos )
+void markupText::moveTo( const QPoint posIn )
 {
-    rect.translate( pos - owner->grabOffset );
+    // Limit position to within the image
+    QPoint limPos = limitPointToImage( posIn );
+
+    rect.translate( limPos - owner->grabOffset );
     setArea();
 }
 
@@ -1574,7 +1625,7 @@ QPoint markupText::origin()
 }
 
 // Return the cursor for each handle
-QCursor markupText::cursorForHandle( markupItem::markupHandles )
+QCursor markupText::cursorForHandle( const markupItem::markupHandles )
 {
 // No special cursors for different handles
 //    switch( handle )
@@ -1603,7 +1654,7 @@ unsigned int markupText::getThickness()
     return 0;
 }
 
-void markupText::setThickness( unsigned int )
+void markupText::setThickness( const unsigned int )
 {
     // Do nothing
 }
@@ -1613,7 +1664,7 @@ QCursor markupText::defaultCursor()
     return Qt::CrossCursor;
 }
 
-void markupText::scaleSpecific( double xScale, double yScale )
+void markupText::scaleSpecific( const double xScale, const double yScale )
 {
     rect.moveTo( rect.x() * xScale, rect.y() * yScale );
 }
@@ -2260,3 +2311,35 @@ void imageMarkup::setActiveItem( const QPoint& pos )
         }
     }
 }
+
+
+// Limit a given point to the image
+QPoint markupItem::limitPointToImage( const QPoint pos )
+{
+    // Limit X
+    QPoint retPos = pos;
+    if( retPos.x() < 0 )
+    {
+        retPos.setX( 0 );
+    }
+    else
+    {
+        int w = owner->markupImage->rect().width();
+        if( retPos.x() > w ) retPos.setX( w-1 );
+    }
+
+    // Limit Y
+    if( retPos.y() < 0 )
+    {
+        retPos.setY( 0 );
+    }
+    else
+    {
+        int h = owner->markupImage->rect().height();
+        if( retPos.y() > h ) retPos.setY( h-1 );
+    }
+
+    // Return limited point
+    return retPos;
+}
+
