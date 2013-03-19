@@ -2248,10 +2248,14 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
 // Generate a profile along a line down an image at a given X position
 // The profile contains values for each pixel intersected by the line.
-void QEImage::generateVSlice( int xUnscaled, unsigned int thickness )
+void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
 {
     // Scale the ordinate to the original image data
     int x = videoWidget->scaleOrdinate( xUnscaled );
+
+    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
+    // Note, thickness is not an ordinate, but scaleOrdinate
+    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):thicknessUnscaled;
 
     // Display textual info
     QString s = QString( "V: %1 x %2" ).arg( x ).arg( thickness );
@@ -2438,7 +2442,6 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     // Calculate brightness that will offset pixel values in the selected area to use full range.
     // Note, when used, the brightness will be multiplied by (the new pixel range - an offset used to center the new pixel range )
     double newBrightnessDouble = midOffset/(maxPixelValue()*(newContrastDouble-(newContrastDouble-1)/2));
-//    double newBrightnessDouble = ((((double)(maxPixelValue())/2)-((double)(min+max)/2))*newContrastDouble)/(maxPixelValue()*(newContrastDouble-(newContrastDouble-1)/2));
     int newBrightness = newBrightnessDouble*100;
 
     // If the brightness and contrast have changed, update the values,
@@ -2577,10 +2580,14 @@ void QEImage::contrastSliderValueChanged( int localContrastIn )
 
 // Generate a profile along a line across an image at a given Y position
 // The profile contains values for each pixel intersected by the line.
-void QEImage::generateHSlice( int yUnscaled, unsigned int thickness )
+void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 {
     // Scale the ordinate to the original image data
     int y = videoWidget->scaleOrdinate( yUnscaled );
+
+    // Scale the thickness to the original image data.
+    // Note, thickness is not an ordinate, but scaleOrdinate
+    unsigned int thickness = videoWidget->scaleOrdinate( thicknessUnscaled );
 
     // Display textual info
     QString s = QString( "H: %1 x %2" ).arg( y ).arg( thickness );
@@ -2713,11 +2720,15 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thickness )
 //   |       |       |       |       |       |
 //   +-------+-------+-------+-------+-------+
 //
-void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thickness )
+void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thicknessUnscaled )
 {
     // Scale the coordinates to the original image data
     QPoint point1 = videoWidget->scalePoint( point1Unscaled );
     QPoint point2 = videoWidget->scalePoint( point2Unscaled );
+
+    // Scale the thickness to the original image data.
+    // Note, thickness is not an ordinate, but scaleOrdinate
+    unsigned int thickness = videoWidget->scaleOrdinate( thicknessUnscaled );
 
     // Display textual information
     QString s = QString( "L: (%1,%2)(%3,%4)x%5" ).arg( point1.x() ).arg( point1.y() ).arg( point2.x()).arg( point2.y()).arg( thickness );

@@ -183,6 +183,21 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
 }
 
 /*
+  Setup the environmental profile prior to creating some QE widgets. (With no passwords)
+  The new widgets will use this profile to determine their external environment.
+
+  This method locks access to the envionmental profile. ReleaseProfile() must be
+  called to release the lock once all QE widgets have been created.
+  */
+void ContainerProfile::setupProfile( QObject* guiLaunchConsumerIn,
+                                     QStringList pathListIn,
+                                     QString parentPathIn,
+                                     QString macroSubstitutionsIn )
+{
+    setupProfile( guiLaunchConsumerIn, pathListIn, parentPathIn, macroSubstitutionsIn, "", "", "" );
+}
+
+/*
   Setup the environmental profile prior to creating some QE widgets.
   The new widgets will use this profile to determine their external environment.
 

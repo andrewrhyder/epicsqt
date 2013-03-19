@@ -127,10 +127,10 @@ void markupItem::erase()
 
 
 // Scale the geometry related to the viewport
-void markupItem::scale( double xScale, double yScale )
+void markupItem::scale( const double xScale, const double yScale, const double zoomScale )
 {
     // Do type specific scaling
-    scaleSpecific( xScale, yScale );
+    scaleSpecific( xScale, yScale, zoomScale );
 
     // Update the generic item area
     setArea();
@@ -311,7 +311,7 @@ QCursor markupTarget::defaultCursor()
     return owner->getTargetCursor();
 }
 
-void markupTarget::scaleSpecific( const double xScale, const double yScale )
+void markupTarget::scaleSpecific( const double xScale, const double yScale, const double )
 {
     pos.setX( pos.x() * xScale );
     pos.setY( pos.y() * yScale );
@@ -428,7 +428,7 @@ void markupBeam::setThickness( const unsigned int  )
     // Do nothing
 }
 
-void markupBeam::scaleSpecific( const double xScale, const double yScale )
+void markupBeam::scaleSpecific( const double xScale, const double yScale, const double )
 {
     pos.setX( pos.x() * xScale );
     pos.setY( pos.y() * yScale );
@@ -440,6 +440,7 @@ void markupBeam::scaleSpecific( const double xScale, const double yScale )
 markupVLine::markupVLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     thickness = 1;
+    maxThickness = THICKNESS_MAX;
 }
 
 void markupVLine::drawMarkup( QPainter& p )
@@ -512,7 +513,7 @@ void markupVLine::moveTo( const QPoint posIn )
 
         case MARKUP_HANDLE_CENTER:
             thickness = abs( x-limPos.x() )*2+1;
-            if( thickness > THICKNESS_MAX ) thickness = THICKNESS_MAX;
+            if( thickness > maxThickness ) thickness = maxThickness;
             break;
 
         default: break;
@@ -641,10 +642,18 @@ QCursor markupVLine::defaultCursor()
     return owner->getVLineCursor();
 }
 
-void markupVLine::scaleSpecific( double xScale, double )
+void markupVLine::scaleSpecific( double xScale, double, const double zoomScale )
 {
+    // Scale the line position
     x *= xScale;
-    //!!! shouldn't thickness be scaled?
+
+    // Scale the line thickness.
+    // Note, one pixel wide is always one pixel wide
+    if( thickness != 1 )
+    {
+        thickness *= xScale;
+    }
+    maxThickness = THICKNESS_MAX * zoomScale;
 }
 
 //===========================================================================
@@ -653,6 +662,7 @@ void markupVLine::scaleSpecific( double xScale, double )
 markupHLine::markupHLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     thickness = 1;
+    maxThickness = THICKNESS_MAX;
 }
 
 void markupHLine::drawMarkup( QPainter& p )
@@ -725,7 +735,7 @@ void markupHLine::moveTo( const QPoint posIn )
 
         case MARKUP_HANDLE_CENTER:
             thickness = abs( y-limPos.y() )*2+1;
-            if( thickness > THICKNESS_MAX ) thickness = THICKNESS_MAX;
+            if( thickness > maxThickness ) thickness = maxThickness;
             break;
 
         default: break;
@@ -854,10 +864,18 @@ QCursor markupHLine::defaultCursor()
     return owner->getHLineCursor();
 }
 
-void markupHLine::scaleSpecific( double, double yScale )
+void markupHLine::scaleSpecific( double, double yScale, const double zoomScale )
 {
+    // Scale the line position
     y *= yScale;
-    //!!! shouldn't thickness be scaled?
+
+    // Scale the line thickness.
+    // Note, one pixel wide is always one pixel wide
+    if( thickness != 1 )
+    {
+       thickness *= yScale;
+    }
+    maxThickness = THICKNESS_MAX * zoomScale;
 }
 
 //===========================================================================
@@ -866,6 +884,7 @@ void markupHLine::scaleSpecific( double, double yScale )
 markupLine::markupLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
     thickness = 1;
+    maxThickness = THICKNESS_MAX;
 }
 
 void markupLine::drawMarkup( QPainter& p )
@@ -1024,7 +1043,7 @@ void markupLine::moveTo( const QPoint posIn )
                 }
 
                 // Limit thickness
-                if( thickness > THICKNESS_MAX ) thickness = THICKNESS_MAX;
+                if( thickness > maxThickness ) thickness = maxThickness;
 
             }
             break;
@@ -1215,13 +1234,21 @@ QCursor markupLine::defaultCursor()
     return owner->getLineCursor();
 }
 
-void markupLine::scaleSpecific( const double xScale, const double yScale )
+void markupLine::scaleSpecific( const double xScale, const double yScale, const double zoomScale )
 {
+    // Scale the line position
     start.setX( start.x() * xScale );
     start.setY( start.y() * yScale );
     end.setX( end.x() * xScale );
     end.setY( end.y() * yScale );
-    //!!! shouldn't thickness be scaled?
+
+    // Scale the line thickness.
+    // Note, one pixel wide is always one pixel wide
+    if( thickness != 1 )
+    {
+        thickness *= xScale;
+    }
+    maxThickness = THICKNESS_MAX * zoomScale;
 }
 
 //===========================================================================
@@ -1533,7 +1560,7 @@ QCursor markupRegion::defaultCursor()
     return owner->getRegionCursor();
 }
 
-void markupRegion::scaleSpecific( const double xScale, const double yScale )
+void markupRegion::scaleSpecific( const double xScale, const double yScale, const double )
 {
     rect.moveTo( rect.x() * xScale, rect.y() * yScale );
 
@@ -1664,7 +1691,7 @@ QCursor markupText::defaultCursor()
     return Qt::CrossCursor;
 }
 
-void markupText::scaleSpecific( const double xScale, const double yScale )
+void markupText::scaleSpecific( const double xScale, const double yScale, const double )
 {
     rect.moveTo( rect.x() * xScale, rect.y() * yScale );
 }
@@ -2057,10 +2084,15 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
     markupChange( *markupImage, changedAreas );
 }
 
-// The viewport size has changed
-void imageMarkup::markupResize( QSize newSize )
+// The viewport size has changed.
+// Note, the zoom scale factor parameter is the scale factor for the current
+// user zoom level.The scaling calculated below determines the scaling needed
+// to convert markups from their current size to the new size.
+// For example, the scaling calculated below will be 2.0 when changing from
+// 100% zoom to 200% or changing from 200% to 400%
+void imageMarkup::markupResize( QSize newSize, double zoomScale )
 {
-    // Determine scaling that will be applied
+    // Determine scaling that will be applied to the markups.
     // Note, X and Y factors will be close, but may not be exactly the same
     bool rescale;
     double xScale;
@@ -2097,7 +2129,7 @@ void imageMarkup::markupResize( QSize newSize )
         // If rescaling is possible (if we have a previous image), then rescale
         if( rescale )
         {
-            items[i]->scale( xScale, yScale );
+            items[i]->scale( xScale, yScale, zoomScale );
         }
         // If the markup is being displayed, redraw it, and act on its 'new' position
         if( items[i]->visible )

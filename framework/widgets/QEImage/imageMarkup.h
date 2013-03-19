@@ -97,7 +97,7 @@ public:
     void drawMarkupIn();
     void drawMarkupOut();
     void setColor( QColor colorIn );
-    void scale( double xScale, double yScale );
+    void scale( const double xScale, const double yScale, const double zoomScale );
 
     virtual QPoint origin()=0;
     virtual void moveTo( const QPoint pos )=0;  // Move an item (always make it visible and highlighed)
@@ -140,7 +140,7 @@ protected:
     QPoint limitPointToImage( const QPoint pos );   // Return the input point limited to the image area
 
 private:
-    virtual void scaleSpecific( const double xScale, const double yScale )=0;
+    virtual void scaleSpecific( const double xScale, const double yScale, const double zoomScale )=0;
     QString legend;                               // Text displayed beside markup
     QSize legendSize;                             // Size of legend (according to legend font)
     bool hasLegend();                             // Returns true if legend text is present
@@ -166,7 +166,7 @@ public:
     unsigned int getThickness();
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( const double xScale, const double yScale );
+    void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
 private:
     QPoint pos;
@@ -190,7 +190,7 @@ public:
     unsigned int getThickness();
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( const double xScale, const double yScale );
+    void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
 private:
     QPoint pos;
@@ -215,11 +215,12 @@ public:
     unsigned int getThickness();
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( const double xScale, const double yScale );
+    void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
 private:
     int y;
-    unsigned int thickness;
+    unsigned int thickness;     // Selected line thickness
+    unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
 };
 
 class markupVLine : public markupItem
@@ -240,11 +241,12 @@ public:
     unsigned int getThickness();
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( const double xScale, const double yScale );
+    void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
 private:
     int x;
-    unsigned int thickness;
+    unsigned int thickness;     // Selected line thickness
+    unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
 };
 
 class markupLine : public markupItem
@@ -264,12 +266,13 @@ public:
     unsigned int getThickness();
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( const double xScale, const double yScale );
+    void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
 private:
     QPoint start;
     QPoint end;
-    unsigned int thickness;
+    unsigned int thickness;     // Selected line thickness
+    unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
     bool isOverLine( const QPoint point, const QPoint lineStart, const QPoint lineEnd );
 };
 
@@ -291,7 +294,7 @@ public:
     unsigned int getThickness();
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( const double xScale, const double yScale );
+    void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
     void nonInteractiveUpdate( QRect );
 
@@ -320,7 +323,7 @@ public:
     unsigned int getThickness();
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
-    void scaleSpecific( const double xScale, const double yScale );
+    void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
 private:
     QString text;
@@ -386,7 +389,7 @@ protected:
     bool markupMouseReleaseEvent ( QMouseEvent* event, bool panning ); // User has released a button
     bool markupMouseMoveEvent( QMouseEvent* event, bool panning );     // User has moved the mouse
 
-    void markupResize( QSize newSize );                         // The viewport size has changed
+    void markupResize( QSize newSize, double scale );           // The viewport size has changed
 
 
     virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
@@ -409,7 +412,6 @@ private:
     QCursor hLineCursor;                        // Used as default cursor when in horizontal slicemode
     QCursor lineCursor;                         // Used as default cursor when in line profile mode
     QCursor regionCursor;                       // Used as default cursor when in area selection mode
-
 };
 
 #endif // IMAGEMARKUP_H

@@ -37,8 +37,6 @@ class QEToolTip
         void updateToolTipAlarm ( const QString& alarm );
         void updateToolTipConnection ( bool connection );
 
-    protected:
-        // variable as tool tip
         void setVariableAsToolTip( bool variableAsToolTip );
         bool getVariableAsToolTip();
 

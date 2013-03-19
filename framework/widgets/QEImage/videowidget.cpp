@@ -173,7 +173,7 @@ void VideoWidget::paintEvent(QPaintEvent* event )
 void VideoWidget::resizeEvent( QResizeEvent *event )
 {
     // Ensure the markups match the new size
-    markupResize( event->size() );
+    markupResize( event->size(), getScale() );
 }
 
 // Act on a markup change
