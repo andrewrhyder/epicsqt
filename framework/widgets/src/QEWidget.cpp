@@ -378,6 +378,7 @@ QString QEWidget::defaultFileLocation()
 //  - The directory where the parent object (form) was read from (set up in the application profile)
 //  - The application's path (set up in the application profile) (the -p switch for QEGui)
 //  - The current directory
+//  - The environment variable QE_UI_PATH
 
 QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
 {
@@ -387,6 +388,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
         //  - The directory where the parent object (form) was read from (set up in the application profile)
         //  - The application's path list (set up in the application profile) (the -p switch for QEGui)
         //  - The current directory
+        //  - The environment variable QE_UI_PATH
         QStringList searchList;
         if(  QDir::isAbsolutePath( name ) )
         {
@@ -412,6 +414,13 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
 
             fileInfo.setFile( QDir::currentPath(), name );
             searchList.append(  fileInfo.filePath() );
+
+//            QString pathVar = QProcessEnvironment::value ( "QE_UI_PATH" );
+//            if( !pathVar.isEmpty() )
+//            {
+//                fileInfo.setFile( pathVar, name );
+//                searchList.append(  fileInfo.filePath() );
+//            }
         }
 
         // Attempt to open the file

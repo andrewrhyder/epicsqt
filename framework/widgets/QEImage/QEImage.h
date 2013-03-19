@@ -29,7 +29,6 @@
 #include <QEWidget.h>
 #include <QEInteger.h>
 #include <videowidget.h>
-//#include <QELabel.h>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <profilePlot.h>
@@ -37,6 +36,7 @@
 #include <flipRotateMenu.h>
 #include <selectMenu.h>
 #include <QCaVariableNamePropertyManager.h>
+#include <imageInfo.h>
 
 
 #include <QEPluginLibrary_global.h>
@@ -75,8 +75,7 @@ class ROIinfo
 };
 
 
-
-class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget {
+class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo{
     Q_OBJECT
 
   public:
@@ -345,20 +344,6 @@ public slots:
 
     VideoWidget* videoWidget;
 
-    // Current pixel and other informational widgets
-    QGridLayout* infoLayout;
-    QLabel* currentCursorPixelLabel;
-    QLabel* currentVertPixelLabel;
-    QLabel* currentHozPixelLabel;
-    QLabel* currentLineLabel;
-    QLabel* currentArea1Label;
-    QLabel* currentArea2Label;
-    QLabel* currentArea3Label;
-    QLabel* currentArea4Label;
-    QLabel* currentTargetLabel;
-    QLabel* currentBeamLabel;
-
-
     // Button bar widgets
     QPushButton* pauseButton;
     QPushButton* saveButton;
@@ -384,7 +369,6 @@ public slots:
     QFrame* brightnessContrastGroupBox;
     double localBrightness;
     double localContrast;
-
 
     // Menus
     zoomMenu*       zMenu;
@@ -451,15 +435,11 @@ public slots:
 
     // Private methods
     void manageButtonBar();                                 // Add or remove the button bar
-    void manageInfoLayout();                                // Add or remove the pixel information layout
 
     void generateVSlice( int x, unsigned int thickness );                           // Generate a profile along a line down an image at a given X position
     void generateHSlice( int y, unsigned int thickness );                           // Generate a profile along a line across an image at a given Y position
     void generateProfile( QPoint point1, QPoint point2, unsigned int thickness );   // Generate a profile along an arbitrary line through an image.
-    void displaySelectedArea1Info( QPoint point1, QPoint point2 );  // Display textual info about the first selected area
-    void displaySelectedArea2Info( QPoint point1, QPoint point2 );  // Display textual info about the second selected area
-    void displaySelectedArea3Info( QPoint point1, QPoint point2 );  // Display textual info about the third selected area
-    void displaySelectedArea4Info( QPoint point1, QPoint point2 );  // Display textual info about the fourth selected area
+    void displaySelectedAreaInfo( const int region, const QPoint point1, const QPoint point2 );  // Display textual info about a selected area
 
     void updateMarkups();                                               // Update markups if required. (For example, after image update)
 

@@ -33,7 +33,8 @@ HEADERS += \
     widgets/QEImage/QEImageManager.h \
     widgets/QEImage/selectMenu.h \
     widgets/QEImage/videowidget.h \
-    widgets/QEImage/zoomMenu.h
+    widgets/QEImage/zoomMenu.h \
+    widgets/QEImage/imageInfo.h
 
 SOURCES += \
     widgets/QEImage/QEImage.cpp \
@@ -44,7 +45,8 @@ SOURCES += \
     widgets/QEImage/flipRotateMenu.cpp \
     widgets/QEImage/profilePlot.cpp \
     widgets/QEImage/selectMenu.cpp \
-    widgets/QEImage/zoomMenu.cpp
+    widgets/QEImage/zoomMenu.cpp \
+    widgets/QEImage/imageInfo.cpp
 
 INCLUDEPATH += \
     widgets/QEImage

@@ -171,30 +171,6 @@ void QEImage::setup() {
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget( videoWidget );
 
-    // Add the pixel display labels
-    currentCursorPixelLabel = new QLabel();
-    currentVertPixelLabel = new QLabel();
-    currentHozPixelLabel = new QLabel();
-    currentLineLabel = new QLabel();
-    currentArea1Label = new QLabel();
-    currentArea2Label = new QLabel();
-    currentArea3Label = new QLabel();
-    currentArea4Label = new QLabel();
-    currentTargetLabel = new QLabel();
-    currentBeamLabel = new QLabel();
-
-    infoLayout = new QGridLayout();
-    infoLayout->addWidget( currentCursorPixelLabel, 0, 0 );
-    infoLayout->addWidget( currentVertPixelLabel, 0, 1 );
-    infoLayout->addWidget( currentHozPixelLabel, 0, 2 );
-    infoLayout->addWidget( currentLineLabel, 0, 3 );
-    infoLayout->addWidget( currentArea1Label, 1, 0 );
-    infoLayout->addWidget( currentArea2Label, 1, 1 );
-    infoLayout->addWidget( currentArea3Label, 1, 2 );
-    infoLayout->addWidget( currentArea4Label, 1, 3 );
-    infoLayout->addWidget( currentTargetLabel, 2, 0 );
-    infoLayout->addWidget( currentBeamLabel, 2, 1 );
-
     // Local brightness and contrast controls
     brightnessContrastGroupBox = new QFrame;
     brightnessContrastGroupBox->setFrameStyle( QFrame::StyledPanel|QFrame::Raised );
@@ -281,7 +257,7 @@ void QEImage::setup() {
 
     QGridLayout* graphicsLayout = new QGridLayout();
     graphicsLayout->addWidget( scrollArea,     0, 0 );
-    graphicsLayout->addLayout( infoLayout,     1, 0 );
+    graphicsLayout->addLayout( getInfoWidget(),1, 0 );
     graphicsLayout->addWidget( vSliceLabel,    1, 1 );
     graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
     graphicsLayout->addWidget( hSliceLabel,    2, 0 );
@@ -371,7 +347,7 @@ void QEImage::setup() {
 
     // Set up labels as required by properties
     manageButtonBar();
-    manageInfoLayout();
+    showInfo( displayCursorPixelInfo );
 
     // Set up context sensitive menu (right click menu)
     setContextMenuPolicy( Qt::CustomContextMenu );
@@ -1187,19 +1163,19 @@ void QEImage::updateMarkups()
     }
     if( haveSelectedArea1 )
     {
-        displaySelectedArea1Info( selectedArea1Point1, selectedArea1Point2 );
+        displaySelectedAreaInfo( 1, selectedArea1Point1, selectedArea1Point2 );
     }
     if( haveSelectedArea2 )
     {
-        displaySelectedArea2Info( selectedArea2Point1, selectedArea2Point2 );
+        displaySelectedAreaInfo( 2, selectedArea2Point1, selectedArea2Point2 );
     }
     if( haveSelectedArea3 )
     {
-        displaySelectedArea3Info( selectedArea3Point1, selectedArea3Point2 );
+        displaySelectedAreaInfo( 3, selectedArea3Point1, selectedArea3Point2 );
     }
     if( haveSelectedArea4 )
     {
-        displaySelectedArea4Info( selectedArea4Point1, selectedArea4Point2 );
+        displaySelectedAreaInfo( 4, selectedArea4Point1, selectedArea4Point2 );
     }
 }
 
@@ -1262,37 +1238,6 @@ void QEImage::manageButtonBar()
     else
     {
         buttonGroup->hide();
-    }
-}
-
-// Add or remove the pixel information layout
-void QEImage::manageInfoLayout()
-{
-    if( displayCursorPixelInfo )
-    {
-        currentCursorPixelLabel->show();
-        currentVertPixelLabel->show();
-        currentHozPixelLabel->show();
-        currentLineLabel->show();
-        currentArea1Label->show();
-        currentArea2Label->show();
-        currentArea3Label->show();
-        currentArea4Label->show();
-        currentTargetLabel->show();
-        currentBeamLabel->show();
-    }
-    else
-    {
-        currentCursorPixelLabel->hide();
-        currentVertPixelLabel->hide();
-        currentHozPixelLabel->hide();
-        currentLineLabel->hide();
-        currentArea1Label->hide();
-        currentArea2Label->hide();
-        currentArea3Label->hide();
-        currentArea4Label->hide();
-        currentTargetLabel->hide();
-        currentBeamLabel->hide();
     }
 }
 
@@ -1823,7 +1768,7 @@ QColor QEImage::getBeamMarkupColor()
 void QEImage::setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn )
 {
     displayCursorPixelInfo = displayCursorPixelInfoIn;
-    manageInfoLayout();
+    showInfo( displayCursorPixelInfo );
 }
 
 bool QEImage::getDisplayCursorPixelInfo(){
@@ -2065,7 +2010,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
                 zMenu->enableAreaSelected( haveSelectedArea1 );
 
-                displaySelectedArea1Info( point1, point2 );
+                displaySelectedAreaInfo( 1, point1, point2 );
                 setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
@@ -2079,7 +2024,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 selectedArea2Point2 = point2;
                 haveSelectedArea2 = true;
 
-                displaySelectedArea2Info( point1, point2 );
+                displaySelectedAreaInfo( 2, point1, point2 );
                 setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
@@ -2093,7 +2038,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 selectedArea3Point2 = point2;
                 haveSelectedArea3 = true;
 
-                displaySelectedArea3Info( point1, point2 );
+                displaySelectedAreaInfo( 3, point1, point2 );
                 setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
@@ -2107,7 +2052,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 selectedArea4Point2 = point2;
                 haveSelectedArea4 = true;
 
-                displaySelectedArea4Info( point1, point2 );
+                displaySelectedAreaInfo( 4, point1, point2 );
                 setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
@@ -2139,10 +2084,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                     if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
 
                     // Display textual info
-                    QString s;
-                    s.sprintf( "T: (%d,%d)", target.x(), target.y() );
-                    currentTargetLabel->setText( s );
-
+                    infoUpdateTarget( target.x(), target.y() );
                 }
                 break;
 
@@ -2159,9 +2101,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                     if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beam.y() ));
 
                     // Display textual info
-                    QString s;
-                    s.sprintf( "B: (%d,%d)", beam.x(), beam.y() );
-                    currentBeamLabel->setText( s );
+                    infoUpdateBeam( beam.x(), beam.y() );
                 }
                 break;
 
@@ -2181,7 +2121,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveVSliceX = false;
                 vSliceLabel->setVisible( false );
                 vSliceDisplay->setVisible( false );
-                currentVertPixelLabel->clear();
+                infoUpdateVertProfile();
                 break;
 
             case imageMarkup::MARKUP_ID_H_SLICE:
@@ -2189,14 +2129,14 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveHSliceY = false;
                 hSliceLabel->setVisible( false );
                 hSliceDisplay->setVisible( false );
-                currentHozPixelLabel->clear();
+                infoUpdateHozProfile();
                 break;
 
             case imageMarkup::MARKUP_ID_REGION1:
                 selectedArea1Point1 = QPoint();
                 selectedArea1Point2 = QPoint();
                 haveSelectedArea1 = false;
-                currentArea1Label->clear();
+                infoUpdateRegion( 1 );
 
                 zMenu->enableAreaSelected( haveSelectedArea1 );
                 break;
@@ -2205,21 +2145,21 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 selectedArea2Point1 = QPoint();
                 selectedArea2Point2 = QPoint();
                 haveSelectedArea2 = false;
-                currentArea2Label->clear();
+                infoUpdateRegion( 2 );
                 break;
 
             case imageMarkup::MARKUP_ID_REGION3:
                 selectedArea3Point1 = QPoint();
                 selectedArea3Point2 = QPoint();
                 haveSelectedArea3 = false;
-                currentArea3Label->clear();
+                infoUpdateRegion( 3 );
                 break;
 
             case imageMarkup::MARKUP_ID_REGION4:
                 selectedArea4Point1 = QPoint();
                 selectedArea4Point2 = QPoint();
                 haveSelectedArea4 = false;
-                currentArea4Label->clear();
+                infoUpdateRegion( 4 );
                 break;
 
             case imageMarkup::MARKUP_ID_LINE:
@@ -2228,15 +2168,15 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveProfileLine = false;
                 profileLabel->setVisible( false );
                 profileDisplay->setVisible( false );
-                currentLineLabel->clear();
+                infoUpdateProfile();
                 break;
 
             case imageMarkup::MARKUP_ID_TARGET:
-                currentTargetLabel->clear();
+                infoUpdateTarget();
                 break;
 
             case imageMarkup::MARKUP_ID_BEAM:
-                currentBeamLabel->clear();
+                infoUpdateBeam();
                 break;
 
             default:
@@ -2258,8 +2198,7 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
     unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):thicknessUnscaled;
 
     // Display textual info
-    QString s = QString( "V: %1 x %2" ).arg( x ).arg( thickness );
-    currentVertPixelLabel->setText( s );
+    infoUpdateVertProfile( x, thickness );
 
     // If not over the image, remove the profile
     if( x < 0 || x >= (int)rotatedImageBuffWidth() )
@@ -2360,52 +2299,13 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
     return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*imageDataSize]);
 }
 
-// Display textual info about the first selected area
-void QEImage::displaySelectedArea1Info( QPoint point1, QPoint point2 )
+// Display textual info about a selected area
+void QEImage::displaySelectedAreaInfo( int region, QPoint point1, QPoint point2 )
 {
-    // Display textual info
-    QString s;
-    s.sprintf( "R1: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
-                                     videoWidget->scaleOrdinate( point1.y() ),
-                                     videoWidget->scaleOrdinate( point2.x() ),
-                                     videoWidget->scaleOrdinate( point2.y() ));
-    currentArea1Label->setText( s );
-}
-
-// Display textual info about the second selected area
-void QEImage::displaySelectedArea2Info( QPoint point1, QPoint point2 )
-{
-    // Display textual info
-    QString s;
-    s.sprintf( "R2: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
-                                     videoWidget->scaleOrdinate( point1.y() ),
-                                     videoWidget->scaleOrdinate( point2.x() ),
-                                     videoWidget->scaleOrdinate( point2.y() ));
-    currentArea2Label->setText( s );
-}
-
-// Display textual info about the third selected area
-void QEImage::displaySelectedArea3Info( QPoint point1, QPoint point2 )
-{
-    // Display textual info
-    QString s;
-    s.sprintf( "R3: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
-                                     videoWidget->scaleOrdinate( point1.y() ),
-                                     videoWidget->scaleOrdinate( point2.x() ),
-                                     videoWidget->scaleOrdinate( point2.y() ));
-    currentArea3Label->setText( s );
-}
-
-// Display textual info about the fourth selected area
-void QEImage::displaySelectedArea4Info( QPoint point1, QPoint point2 )
-{
-    // Display textual info
-    QString s;
-    s.sprintf( "R4: (%d,%d)(%d,%d)", videoWidget->scaleOrdinate( point1.x() ),
-                                     videoWidget->scaleOrdinate( point1.y() ),
-                                     videoWidget->scaleOrdinate( point2.x() ),
-                                     videoWidget->scaleOrdinate( point2.y() ));
-    currentArea4Label->setText( s );
+    infoUpdateRegion( region, videoWidget->scaleOrdinate( point1.x() ),
+                              videoWidget->scaleOrdinate( point1.y() ),
+                              videoWidget->scaleOrdinate( point2.x() ),
+                              videoWidget->scaleOrdinate( point2.y() ));
 }
 
 // Update the brightness and contrast, if in auto, to match the recently selected region
@@ -2590,8 +2490,7 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
     unsigned int thickness = videoWidget->scaleOrdinate( thicknessUnscaled );
 
     // Display textual info
-    QString s = QString( "H: %1 x %2" ).arg( y ).arg( thickness );
-    currentHozPixelLabel->setText( s );
+    infoUpdateHozProfile( y, thickness );
 
     // If not over the image, remove the profile
     if( y < 0 || y >= (int)rotatedImageBuffHeight() )
@@ -2731,8 +2630,7 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
     unsigned int thickness = videoWidget->scaleOrdinate( thicknessUnscaled );
 
     // Display textual information
-    QString s = QString( "L: (%1,%2)(%3,%4)x%5" ).arg( point1.x() ).arg( point1.y() ).arg( point2.x()).arg( point2.y()).arg( thickness );
-    currentLineLabel->setText( s );
+    infoUpdateProfile( point1, point2, thickness );
 
     // X and Y components of line drawn
     double dX = point2.x()-point1.x();
@@ -3003,7 +2901,7 @@ void QEImage::currentPixelInfo( QPoint pos )
     QString s;
     if( pos.x() < 0 || pos.y() < 0 || pos.x() >= (int)rotatedImageBuffWidth() || pos.y() >= (int)rotatedImageBuffHeight() )
     {
-        s = "";
+        infoUpdatePixel();
     }
 
     // If the pixel is within the image, display the pixel position and value
@@ -3011,9 +2909,8 @@ void QEImage::currentPixelInfo( QPoint pos )
     {
         // Extract the pixel data from the original image data
         int value = getPixelValueFromData( getImageDataPtr( pos ) );
-        s.sprintf( "(%d,%d)=%d", pos.x(), pos.y(), value );
+        infoUpdatePixel( pos, value );
     }
-    currentCursorPixelLabel->setText( s );
 }
 
 // Return the image width following any rotation
