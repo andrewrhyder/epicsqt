@@ -12,7 +12,7 @@ public:
     explicit flipRotateMenu( QWidget *parent = 0 );
 
     imageContextMenu::imageContextMenuOptions getFlipRotate( const QPoint& pos );
-    void setChecked( const int rotation, const bool flipH, const bool flipV );
+    void setChecked( const int rotation, const bool flipH, const bool flipV );      // Set the initial state of the menu to reflect the current state of the image
 
 signals:
 

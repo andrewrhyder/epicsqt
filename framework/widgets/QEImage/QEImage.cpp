@@ -3154,10 +3154,19 @@ void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
         default:
         case imageContextMenu::ICM_NONE: break;
 
-        case imageContextMenu::ICM_ROTATE_NONE:         setRotation( ROTATION_0 );                      break;
-        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );               break;
-        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );                break;
-        case imageContextMenu::ICM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
+//vvvvvvvvvvvvvvvvvv
+// Required for set of mutually exclusive radio buttons for rotation (independant of flip check boxes)
+//        case imageContextMenu::ICM_ROTATE_NONE:         setRotation( ROTATION_0 );                      break;
+//        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );               break;
+//        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );                break;
+//        case imageContextMenu::ICM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
+//==================
+// Required for set of check boxes in addition to flip check boxes.
+// This is bending of convention with 5 check boxes where 3 (for rotation) are mutually exclusive
+        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( selectedItem->isChecked()?ROTATION_90_RIGHT:ROTATION_0 );               break;
+        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( selectedItem->isChecked()?ROTATION_90_LEFT:ROTATION_0 );                break;
+        case imageContextMenu::ICM_ROTATE_180:          setRotation( selectedItem->isChecked()?ROTATION_180:ROTATION_0 );                    break;
+//^^^^^^^^^^^^^^^^^^
         case imageContextMenu::ICM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
         case imageContextMenu::ICM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
     }
