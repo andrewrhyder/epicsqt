@@ -308,14 +308,22 @@ void MainWindow::on_actionAbout_triggered()
 
     // Add any path list (-p parameter)
     QStringList paths =  profile.getPathList();
-    about.append( "\n\n\nPath List:" );
+    about.append( "\n\n\nPath List Parameter:" );
     for( int i = 0; i < paths.size(); i++ )
     {
         about.append( "\n      " ).append( paths[i] );
     }
-    about.append( "\n\n\nCurrent User Level:\n      " );
+
+    // Add any path list (environment variable)
+    QStringList envPaths =  profile.getEnvPathList();
+    about.append( "\n\n\nPath List Environment Variable:" );
+    for( int i = 0; i < envPaths.size(); i++ )
+    {
+        about.append( "\n      " ).append( envPaths[i] );
+    }
 
     // Add the current user level
+    about.append( "\n\n\nCurrent User Level:\n      " );
     userLevels level = profile.getUserLevel();
     switch( level )
     {

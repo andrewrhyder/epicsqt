@@ -198,6 +198,8 @@ public:
     QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
     bool isProfileDefined();                  // Returns true if a profile has been setup by setupProfile()
 
+    QStringList getEnvPathList();             // Get the path list from the environment variable
+
     QString getUserLevelPassword( userLevels level );  // Get the local copy of the user level password for the specified user level
     void setUserLevelPassword( userLevels level, QString passwordIn );  // Set the local copy of the user level password for the specified user level
 

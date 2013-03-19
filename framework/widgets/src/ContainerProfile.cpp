@@ -466,6 +466,23 @@ QStringList ContainerProfile::getPathList()
 }
 
 /*
+  Return the environment path list to use for file operations.
+  */
+QStringList ContainerProfile::getEnvPathList()
+{
+    QStringList envPathList;
+
+    QProcessEnvironment sysEnv = QProcessEnvironment::systemEnvironment();
+    QString pathVar = sysEnv.value ( "QE_UI_PATH" );
+    if( !pathVar.isEmpty() )
+    {
+        envPathList = pathVar.split(QRegExp("\\s+"));
+    }
+
+    return envPathList;
+}
+
+/*
   Return the first entry from the application path list to use for file operations.
   */
 QString ContainerProfile::getPath()

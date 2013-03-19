@@ -418,17 +418,12 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
             fileInfo.setFile( QDir::currentPath(), name );
             searchList.append(  fileInfo.filePath() );
 
-            // Add paths from environment variable QE_UI_PATH
-            QProcessEnvironment sysEnv = QProcessEnvironment::systemEnvironment();
-            QString pathVar = sysEnv.value ( "QE_UI_PATH" );
-            if( !pathVar.isEmpty() )
+            // Add paths from environment variable
+            QStringList envPathList = getEnvPathList();
+            for( int i = 0; i < envPathList.count(); i++ )
             {
-                QStringList envPathList = pathVar.split(QRegExp("\\s+"));
-                for( int i = 0; i < envPathList.count(); i++ )
-                {
-                    fileInfo.setFile( envPathList[i], name );
-                    searchList.append(  fileInfo.filePath() );
-                }
+                fileInfo.setFile( envPathList[i], name );
+                searchList.append(  fileInfo.filePath() );
             }
         }
 
