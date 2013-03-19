@@ -398,6 +398,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
         {
             QFileInfo fileInfo;
 
+            // Add the parent path from any parent QEForm
             QString parentPath =  getParentPath();
             if( !parentPath.isEmpty() )
             {
@@ -405,6 +406,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
                 searchList.append( fileInfo.filePath() );
             }
 
+            // Add the paths from the path list in the container profile
             QStringList pathList = getPathList();
             for( int i = 0; i < pathList.count(); i++ )
             {
@@ -412,15 +414,22 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
                 searchList.append(  fileInfo.filePath() );
             }
 
+            // Add the current directory
             fileInfo.setFile( QDir::currentPath(), name );
             searchList.append(  fileInfo.filePath() );
 
-//            QString pathVar = QProcessEnvironment::value ( "QE_UI_PATH" );
-//            if( !pathVar.isEmpty() )
-//            {
-//                fileInfo.setFile( pathVar, name );
-//                searchList.append(  fileInfo.filePath() );
-//            }
+            // Add paths from environment variable QE_UI_PATH
+            QProcessEnvironment sysEnv = QProcessEnvironment::systemEnvironment();
+            QString pathVar = sysEnv.value ( "QE_UI_PATH" );
+            if( !pathVar.isEmpty() )
+            {
+                QStringList envPathList = pathVar.split(QRegExp("\\s+"));
+                for( int i = 0; i < envPathList.count(); i++ )
+                {
+                    fileInfo.setFile( envPathList[i], name );
+                    searchList.append(  fileInfo.filePath() );
+                }
+            }
         }
 
         // Attempt to open the file
