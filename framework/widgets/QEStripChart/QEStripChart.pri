@@ -25,6 +25,8 @@ RESOURCES += \
 
 HEADERS += \
     widgets/QEStripChart/QEStripChart.h \
+    widgets/QEStripChart/QEStripChartNames.h \
+    widgets/QEStripChart/QEStripChartToolBar.h \
     widgets/QEStripChart/QEStripChartItem.h \
     widgets/QEStripChart/QEStripChartRangeDialog.h \
     widgets/QEStripChart/QEStripChartTimeDialog.h \
@@ -33,6 +35,7 @@ HEADERS += \
 
 SOURCES += \
     widgets/QEStripChart/QEStripChart.cpp \
+    widgets/QEStripChart/QEStripChartToolBar.cpp \
     widgets/QEStripChart/QEStripChartItem.cpp \
     widgets/QEStripChart/QEStripChartRangeDialog.cpp \
     widgets/QEStripChart/QEStripChartTimeDialog.cpp \

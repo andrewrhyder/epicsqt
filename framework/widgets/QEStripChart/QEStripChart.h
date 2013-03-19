@@ -46,8 +46,10 @@
 #include <QEDragDrop.h>
 #include <QEWidget.h>
 
-#include <QEStripChartRangeDialog.h>
-#include <QEStripChartTimeDialog.h>
+#include "QEStripChartToolBar.h"
+#include "QEStripChartRangeDialog.h"
+#include "QEStripChartTimeDialog.h"
+
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QEWidget {
    Q_OBJECT
@@ -129,18 +131,6 @@ public:
    // Replots chart data
    //
    void plotData ();
-
-
-   // Chart scale options and associated menu names.
-   //
-   enum ChartYScale {
-      ysManual,
-      ysLoprHopr,
-      ysDisplayed,
-      ysBuffered,
-      ysDynamic,
-      YSMAXIMUM
-   };
 
 protected:
    // Drag and Drop
@@ -238,36 +228,20 @@ private:
 
 #undef PROPERTY_ACCESS
 
-   void menuSetYScale (ChartYScale ys);
+   void menuSetYScale (QEStripChartNames::ChartYRanges ys);
 
 private slots:
    void tickTimeout ();
-   void menuSetDuration (QAction *action);
 
-   void prevStateClicked (bool checked = false);
-   void nextStateClicked (bool checked = false);
-   void normalVideoClicked (bool checked = false);
-   void reverseVideoClicked (bool checked = false);
-   void linearScaleClicked (bool checked = false);
-   void logScaleClicked (bool checked = false);
-
-   void manualYScale (bool checked = false);
-   void automaticYScale (bool checked = false);
-   void plottedYScale (bool checked = false);
-   void bufferedYScale (bool checked = false);
-   void dynamicYScale (bool checked = false);
-   void normalisedYScale (bool checked = false);
-
-   void playClicked (bool checked = false);
-   void pauseClicked (bool checked = false);
-   void forwardClicked (bool checked = false);
-   void backwardClicked (bool checked = false);
-   void selectTimeClicked (bool checked = false);
-   void readArchiveClicked (bool checked = false);
-
-   void shrinkPVFrame (bool checked = false);
-   void expandPVFrame (bool checked = false);
-
+   // From tool bar
+   void stateSelected (const QEStripChartNames::StateModes mode);
+   void videoModeSelected (const QEStripChartNames::VideoModes mode);
+   void yScaleModeSelected (const QEStripChartNames::YScaleModes mode);
+   void yRangeSelected (const QEStripChartNames::ChartYRanges scale);
+   void durationSelected (const int seconds);
+   void playModeSelected (const QEStripChartNames::PlayModes mode);
+   void readArchiveSelected ();
+   void pVFrameSizeSelected (const QEStripChartNames::SizeActions action);
 };
 
 # endif  // QESTRIPCHART_H

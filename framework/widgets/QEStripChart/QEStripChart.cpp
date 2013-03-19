@@ -49,8 +49,9 @@
 #include <QELabel.h>
 #include <QCaVariableNamePropertyManager.h>
 
-#include <QEStripChart.h>
-#include <QEStripChartItem.h>
+#include "QEStripChart.h"
+#include "QEStripChartToolBar.h"
+#include "QEStripChartItem.h"
 
 
 #define MAX(a, b)           ((a) >= (b) ? (a) : (b))
@@ -64,79 +65,21 @@ static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
 
-static const QString chartScaleNames [QEStripChart::YSMAXIMUM] = {
-   "Manual... ",
-   "PV LOPR/HOPRs ",
-   "Displayed Min/Max ",
-   "Buffered Min/Max ",
-   "Dynamic "
-};
-
 // Chart time mode options.
 //
 enum ChartTimeMode {
    tmRealTime,
-   tmPaused,
-   TMMAXIMUM
+   tmPaused
 };
-
-struct PushButtonSpecifications {
-   int gap;
-   int width;
-   const QString caption;
-   const QString iconName;
-   const QString toolTip;
-   const char * member;
-};
-
-#define NUMBER_OF_BUTTONS  21
-
-#define ICW                26         // icon width
-#define PREV_SLOT          0
-#define NEXT_SLOT          1
-#define TSCALE_SLOT        12
-
-
-static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
-   { 0, ICW,  QString (""),         QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))    },
-   { 0, ICW,  QString (""),         QString ("go_fwd.png"),            QString ("Next state"),                   SLOT (nextStateClicked (bool))    },
-
-   { 4, ICW,  QString (""),         QString ("normal_video.png"),      QString ("White background"),             SLOT (normalVideoClicked (bool))  },
-   { 0, ICW,  QString (""),         QString ("reverse_video.png"),     QString ("Black background"),             SLOT (reverseVideoClicked (bool)) },
-
-   { 4, ICW,  QString (""),         QString ("linear_scale.png"),      QString ("Linear scale"),                 SLOT (linearScaleClicked (bool))  },
-   { 0, ICW,  QString (""),         QString ("log_scale.png"),         QString ("Log Scale"),                    SLOT (logScaleClicked (bool))     },
-
-   { 4, ICW,  QString ("M"),        QString (""),                      QString ("Manual Scale"),                 SLOT (manualYScale (bool))        },
-   { 0, ICW,  QString ("A"),        QString (""),                      QString ("HOPR/LOPR Scale"),              SLOT (automaticYScale (bool))     },
-   { 0, ICW,  QString ("P"),        QString (""),                      QString ("Plotted Data Scale"),           SLOT (plottedYScale (bool))       },
-   { 0, ICW,  QString ("B"),        QString (""),                      QString ("Buffer Data Scale"),            SLOT (bufferedYScale (bool))      },
-   { 0, ICW,  QString ("D"),        QString (""),                      QString ("Dynamic Scale"),                SLOT (dynamicYScale (bool))       },
-   { 0, ICW,  QString ("N"),        QString (""),                      QString ("Normalised Scale(TBD)"),        SLOT (normalisedYScale (bool))    },
-
-   { 4, 96,   QString ("Duration"), QString (""),                      QString ("Select chart T axis"),          NULL                              },
-
-   { 4, ICW,  QString (""),         QString ("archive.png"),           QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool)) },
-   { 0, ICW,  QString (""),         QString ("select_date_times.png"), QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))  },
-   { 0, ICW,  QString (""),         QString ("play.png"),              QString ("Play - Real time"),             SLOT (playClicked (bool))        },
-   { 0, ICW,  QString (""),         QString ("pause.png"),             QString ("Pause"),                        SLOT (pauseClicked (bool))       },
-   { 0, ICW,  QString (""),         QString ("page_backward.png"),     QString ("Back one page"),                SLOT (backwardClicked (bool))    },
-   { 0, ICW,  QString (""),         QString ("page_forward.png"),      QString ("Forward one page"),             SLOT (forwardClicked (bool))     },
-
-   { 324, ICW, QString ("-"),       QString (""),                      QString ("Shrink PV Panel"),              SLOT (shrinkPVFrame (bool))      },
-   { 0, ICW,  QString ("+"),        QString (""),                      QString ("Exapnd PV Panel"),              SLOT (expandPVFrame (bool))      }
-};
-
 
 #define PV_DELTA_HEIGHT    18
 #define PV_FRAME_HEIGHT    ((NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT + 10)
 #define PV_SCROLL_HEIGHT   (PV_FRAME_HEIGHT + 6)
 
-
 struct ChartState {
    bool isNormalVideo;
    bool isLinearScale;
-   QEStripChart::ChartYScale chartYScale;
+   QEStripChartNames::ChartYRanges chartYScale;
    double yMinimum;
    double yMaximum;
 
@@ -163,7 +106,7 @@ typedef QList<ChartState>  ChartStateList;
 // here (PrivateData) or in the main widget (QEStripChart) is somewhat arbitary.
 //
 // Even though this is a friend class of QEStripChart, so effectively all members are
-// public we try to maintain the spirit of data encapusation.
+// public we still try to maintain the spirit of data encapusation.
 //
 class QEStripChart::PrivateData : public QObject {
 public:
@@ -177,7 +120,7 @@ public:
    void plotData ();
    void setReadOut (QString text);
    void setNormalBackground (bool state);
-   enum ChartYScale chartYScale;
+   QEStripChartNames::ChartYRanges chartYScale;
    enum ChartTimeMode chartTimeMode;
    bool isLinearScale;              // false implies isLogScale
    double timeScale;                // 1 => units are seconds, 60 => x units are minutes, etc.
@@ -192,7 +135,7 @@ protected:
 
 private:
    QEStripChart *chart;
-   QFrame *toolFrame;
+   QEStripChartToolBar *toolBar;
    QScrollArea *pvScrollArea;
    QFrame *pvFrame;
    QFrame *plotFrame;
@@ -202,14 +145,6 @@ private:
    QVBoxLayout *layout1;
    QVBoxLayout *layout2;
 
-   QMenu *m2;
-   QMenu *m2s;
-   QMenu *m2m;
-   QMenu *m2h;
-   QMenu *m2d;
-   QMenu *m2w;
-
-   QPushButton *pushButtons [NUMBER_OF_BUTTONS];
    QLabel *readOut;
    QLabel *timeStatus;
 
@@ -233,98 +168,39 @@ private:
 //
 QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartIn)
 {
-   static const int seconds_per_minute = 60;
-   static const int seconds_per_hour = 60 * seconds_per_minute;
-   static const int seconds_per_day = 24 * seconds_per_hour;
-   static const int seconds_per_week = 7 * seconds_per_day;
-
-   int j;
    unsigned int slot;
-   int left;
-   int gap;
-   QString iconPathName;
-   QPushButton *button;
 
    this->chart = chartIn;
 
    // Create tool bar frame and tool buttons.
    //
-   this->toolFrame = new QFrame (this->chart);
-   this->toolFrame->setFrameShape (QFrame::Panel);
-   this->toolFrame->setFixedHeight (32);
+   this->toolBar = new QEStripChartToolBar (this->chart);
 
-   // Create toobar buttons
-   // TODO: Try QToolBar - it may auto layout.
+   // Connect various tool bar signals to the chart.
    //
-   left = 4;
-   for (j = 0 ; j < NUMBER_OF_BUTTONS; j++) {
-      button = new QPushButton (buttonSpecs[j].caption, this->toolFrame);
-      if ( ! buttonSpecs[j].iconName.isEmpty () ) {
-         iconPathName = ":/qe/stripchart/";
-         iconPathName.append (buttonSpecs[j].iconName);
-         button->setIcon (QIcon (iconPathName));
-      }
-      button->setToolTip(buttonSpecs[j].toolTip);
-      gap = buttonSpecs[j].gap;
-      button->setGeometry (left + gap, 2, buttonSpecs[j].width, 26);
-      left += gap + buttonSpecs[j].width + 2;
-      if (buttonSpecs[j].member != NULL) {
-         QObject::connect (button,  SIGNAL (clicked (bool)), this->chart, buttonSpecs[j].member);
-      }
-      this->pushButtons [j] = button;
-   }
+   QObject::connect (this->toolBar, SIGNAL (stateSelected  (const QEStripChartNames::StateModes)),
+                     this->chart,   SLOT   (stateSelected  (const QEStripChartNames::StateModes)));
 
-   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   this->m2 = new QMenu (this->toolFrame);
+   QObject::connect (this->toolBar, SIGNAL (videoModeSelected  (const QEStripChartNames::VideoModes)),
+                     this->chart,   SLOT   (videoModeSelected  (const QEStripChartNames::VideoModes)));
 
-   this->m2s = new QMenu ("seconds", this->m2);
-   this->m2m = new QMenu ("minutes", this->m2);
-   this->m2h = new QMenu ("hours", this->m2);
-   this->m2d = new QMenu ("days", this->m2);
-   this->m2w = new QMenu ("weeks", this->m2);
+   QObject::connect (this->toolBar, SIGNAL (yScaleModeSelected  (const QEStripChartNames::YScaleModes)),
+                     this->chart,   SLOT   (yScaleModeSelected  (const QEStripChartNames::YScaleModes)));
 
-   this->m2->addMenu (this->m2s);
-   this->m2->addMenu (this->m2m);
-   this->m2->addMenu (this->m2h);
-   this->m2->addMenu (this->m2d);
-   this->m2->addMenu (this->m2w);
+   QObject::connect (this->toolBar, SIGNAL (yRangeSelected  (const QEStripChartNames::ChartYRanges)),
+                     this->chart,   SLOT   (yRangeSelected  (const QEStripChartNames::ChartYRanges)));
 
-   this->m2s->addAction ("1 sec   ")->setData (QVariant (1));
-   this->m2s->addAction ("2 secs  ")->setData (QVariant (2));
-   this->m2s->addAction ("5 secs  ")->setData (QVariant (5));
-   this->m2s->addAction ("10 secs ")->setData (QVariant (10));
-   this->m2s->addAction ("20 secs ")->setData (QVariant (20));
-   this->m2s->addAction ("30 secs ")->setData (QVariant (30));
+   QObject::connect (this->toolBar, SIGNAL (durationSelected  (const int)),
+                     this->chart,   SLOT   (durationSelected  (const int)));
 
-   this->m2m->addAction ("1 min   ")->setData (QVariant (1 * seconds_per_minute));
-   this->m2m->addAction ("2 mins  ")->setData (QVariant (2 * seconds_per_minute));
-   this->m2m->addAction ("5 mins  ")->setData (QVariant (5 * seconds_per_minute));
-   this->m2m->addAction ("10 mins ")->setData (QVariant (10 * seconds_per_minute));
-   this->m2m->addAction ("20 mins ")->setData (QVariant (20 * seconds_per_minute));
-   this->m2m->addAction ("30 mins ")->setData (QVariant (30 * seconds_per_minute));
+   QObject::connect (this->toolBar, SIGNAL (playModeSelected  (const QEStripChartNames::PlayModes)),
+                     this->chart,   SLOT   (playModeSelected  (const QEStripChartNames::PlayModes)));
 
-   this->m2h->addAction ("1 hour   ")->setData (QVariant (1 * seconds_per_hour));
-   this->m2h->addAction ("2 hours  ")->setData (QVariant (2 * seconds_per_hour));
-   this->m2h->addAction ("5 hours  ")->setData (QVariant (5 * seconds_per_hour));
-   this->m2h->addAction ("10 hours ")->setData (QVariant (10 * seconds_per_hour));
-   this->m2h->addAction ("20 hours ")->setData (QVariant (20 * seconds_per_hour));
+   QObject::connect (this->toolBar, SIGNAL (readArchiveSelected  ()),
+                     this->chart,   SLOT   (readArchiveSelected  ()));
 
-   this->m2d->addAction ("1 day    ")->setData (QVariant (1 * seconds_per_day));
-   this->m2d->addAction ("2 days   ")->setData (QVariant (2 * seconds_per_day));
-   this->m2d->addAction ("5 days   ")->setData (QVariant (5 * seconds_per_day));
-   this->m2d->addAction ("10 days  ")->setData (QVariant (10 * seconds_per_day));
-
-   this->m2w->addAction ("1 week   ")->setData (QVariant (1 * seconds_per_week));
-   this->m2w->addAction ("2 weeks  ")->setData (QVariant (2 * seconds_per_week));
-   this->m2w->addAction ("5 weeks  ")->setData (QVariant (5 * seconds_per_week));
-   this->m2w->addAction ("10 weeks ")->setData (QVariant (10 * seconds_per_week));
-
-   // Connextion seems to apply to all the sub-menus as well
-   //
-   QObject::connect (this->m2,  SIGNAL (triggered       (QAction *)),
-                     this->chart, SLOT (menuSetDuration (QAction *)));
-
-   this->pushButtons [TSCALE_SLOT]->setMenu (this->m2);
+   QObject::connect (this->toolBar, SIGNAL (pVFrameSizeSelected  (const QEStripChartNames::SizeActions)),
+                     this->chart,   SLOT   (pVFrameSizeSelected  (const QEStripChartNames::SizeActions)));
 
 
    // Create PV frame and PV name labels and associated CA labels.
@@ -363,7 +239,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->pvScrollArea = new QScrollArea (this->chart);
    this->pvScrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOn);
    this->pvScrollArea->setFixedHeight (PV_SCROLL_HEIGHT);
-   this->pvScrollArea->setWidgetResizable (true);
+   this->pvScrollArea->setWidgetResizable (true);    // MOST IMPORTANT
    this->pvScrollArea->setWidget (this->pvFrame);
 
    // Create plotting frame and plot area.
@@ -398,7 +274,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->layout1 = new QVBoxLayout (this->chart);
    this->layout1->setMargin (4);
    this->layout1->setSpacing (4);
-   this->layout1->addWidget (this->toolFrame);
+   this->layout1->addWidget (this->toolBar);
    this->layout1->addWidget (this->pvScrollArea);
    this->layout1->addWidget (this->plotFrame);
    this->layout1->addWidget (this->statusFrame);
@@ -410,7 +286,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Clear / initialise plot.
    //
-   this->chartYScale = ysManual;
+   this->chartYScale = QEStripChartNames::manual;
    this->chartTimeMode = tmRealTime;
    this->isLinearScale = true;
    this->timeScale = 1.0;
@@ -507,7 +383,7 @@ void QEStripChart::PrivateData::calcDisplayMinMax ()
    double min;
    double max;
 
-   if (this->chartYScale == ysManual) return;
+   if (this->chartYScale == QEStripChartNames::manual) return;
 
    tr.clear ();
 
@@ -516,10 +392,10 @@ void QEStripChart::PrivateData::calcDisplayMinMax ()
       QEStripChartItem * item = this->getItem (slot);
       if (item->isInUse() == true) {
          switch (this->chartYScale) {
-         case ysLoprHopr:  tr.merge (item->getLoprHopr ());         break;
-         case ysDisplayed: tr.merge (item->getDisplayedMinMax ());  break;
-         case ysBuffered:  tr.merge (item->getBufferedMinMax ());   break;
-         case ysDynamic:   tr.merge (item->getDisplayedMinMax ());  break;
+         case QEStripChartNames::operatingRange:  tr.merge (item->getLoprHopr ());         break;
+         case QEStripChartNames::plotted: tr.merge (item->getDisplayedMinMax ());  break;
+         case QEStripChartNames::buffered:  tr.merge (item->getBufferedMinMax ());   break;
+         case QEStripChartNames::dynamic:   tr.merge (item->getDisplayedMinMax ());  break;
          default:       DEBUG << "Well this is unexpected"; return; break;
          }
       }
@@ -603,7 +479,7 @@ void QEStripChart::PrivateData::plotData ()
       }
    }
 
-   if (this->chartYScale == ysDynamic) {
+   if (this->chartYScale == QEStripChartNames::dynamic) {
       // Re-calculate chart range.
       //
       this->calcDisplayMinMax ();
@@ -744,8 +620,8 @@ void QEStripChart::PrivateData::pushState ()
 
    // Enable/disble buttons according to availability.
    //
-   this->pushButtons [PREV_SLOT]->setEnabled (this->chartStatePointer > 1);
-   this->pushButtons [NEXT_SLOT]->setEnabled (this->chartStatePointer < this->chartStateList.count ());
+   this->toolBar->setStateSelectionEnabled (QEStripChartNames::previous, (this->chartStatePointer > 1));
+   this->toolBar->setStateSelectionEnabled (QEStripChartNames::next,     (this->chartStatePointer < this->chartStateList.count ()));
 }
 
 //------------------------------------------------------------------------------
@@ -768,8 +644,8 @@ void QEStripChart::PrivateData::prevState ()
 
    // Enable/disble buttons according to availability.
    //
-   this->pushButtons [PREV_SLOT]->setEnabled (this->chartStatePointer > 1);
-   this->pushButtons [NEXT_SLOT]->setEnabled (this->chartStatePointer < this->chartStateList.count ());
+   this->toolBar->setStateSelectionEnabled (QEStripChartNames::previous, (this->chartStatePointer > 1));
+   this->toolBar->setStateSelectionEnabled (QEStripChartNames::next,     (this->chartStatePointer < this->chartStateList.count ()));
 }
 
 //------------------------------------------------------------------------------
@@ -792,8 +668,8 @@ void QEStripChart::PrivateData::nextState ()
 
    // Enable/disble buttons according to availability.
    //
-   this->pushButtons [PREV_SLOT]->setEnabled (this->chartStatePointer > 1);
-   this->pushButtons [NEXT_SLOT]->setEnabled (this->chartStatePointer < this->chartStateList.count ());
+   this->toolBar->setStateSelectionEnabled (QEStripChartNames::previous, (this->chartStatePointer > 1));
+   this->toolBar->setStateSelectionEnabled (QEStripChartNames::next,     (this->chartStatePointer < this->chartStateList.count ()));
 }
 
 
@@ -950,190 +826,150 @@ void QEStripChart::tickTimeout ()
    }
 }
 
-//------------------------------------------------------------------------------
+//=============================================================================
+// Handle toolbar signals
 //
-void QEStripChart::menuSetDuration (QAction *action)
+void QEStripChart::stateSelected (const QEStripChartNames::StateModes mode)
 {
-   int d;
-   bool okay;
-
-   d = action->data().toInt (&okay);
-   if (okay) {
-      this->setDuration (d);
-      this->privateData->pushState ();
+   if (mode == QEStripChartNames::previous) {
+      this->privateData->prevState ();
+   } else {
+      this->privateData->nextState ();
    }
+
+   this->privateData->plotData ();
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::menuSetYScale (ChartYScale ys)
+void QEStripChart::videoModeSelected (const QEStripChartNames::VideoModes mode)
+{
+   this->privateData->setNormalBackground (mode == QEStripChartNames::normal);
+   this->privateData->pushState ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::yScaleModeSelected (const QEStripChartNames::YScaleModes mode)
+{
+   this->privateData->isLinearScale = (mode == QEStripChartNames::linear);
+   this->privateData->plotData ();
+   this->privateData->pushState ();
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::yRangeSelected (const QEStripChartNames::ChartYRanges scale)
 {
    int n;
 
-   switch (ys) {
-   case ysManual:
-      this->yRangeDialog.setRange (this->getYMinimum (), this->getYMaximum ());
-      n = this->yRangeDialog.exec ();
-      if (n == 1) {
-         this->privateData->chartYScale = ys;
-         // User has selected okay.
-         //
-         this->setYRange (this->yRangeDialog.getMinimum (),
-                          this->yRangeDialog.getMaximum ());
-      }
-      this->privateData->pushState ();
-      break;
+   switch (scale) {
+      case QEStripChartNames::manual:
+         this->yRangeDialog.setRange (this->getYMinimum (), this->getYMaximum ());
+         n = this->yRangeDialog.exec ();
+         if (n == 1) {
+            this->privateData->chartYScale = scale;
+            // User has selected okay.
+            //
+            this->setYRange (this->yRangeDialog.getMinimum (),
+                             this->yRangeDialog.getMaximum ());
+         }
+         this->privateData->pushState ();
+         break;
 
-   case ysLoprHopr:
-   case ysDisplayed:
-   case ysBuffered:
-   case ysDynamic:
-      this->privateData->chartYScale = ys;
+      case QEStripChartNames::operatingRange:
+      case QEStripChartNames::plotted:
+      case QEStripChartNames::buffered:
+      case QEStripChartNames::dynamic:
+         this->privateData->chartYScale = scale;
+         this->privateData->calcDisplayMinMax ();
+         this->privateData->plotData ();
+         this->privateData->pushState ();
+         break;
 
-      this->privateData->calcDisplayMinMax ();
-      this->privateData->plotData ();
-      this->privateData->pushState ();
-      break;
+      case QEStripChartNames::normalised:
+         this->privateData->chartYScale = scale;
+         this->setYRange (0.0, 100.0);
+         this->privateData->pushState ();
+         // TODO - set each PVs m, d and c parameters to map operating range to 0 .. 100
+         break;
 
-   default:
-      DEBUG "Well this is unexpected:" << (int) ys;
-      break;
+      default:
+         DEBUG "Well this is unexpected:" << (int) scale;
+         break;
    }
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::manualYScale     (bool) { this->menuSetYScale (ysManual); }
-void QEStripChart::automaticYScale  (bool) { this->menuSetYScale (ysLoprHopr); }
-void QEStripChart::plottedYScale    (bool) { this->menuSetYScale (ysDisplayed); }
-void QEStripChart::bufferedYScale   (bool) { this->menuSetYScale (ysBuffered); }
-void QEStripChart::dynamicYScale    (bool) { this->menuSetYScale (ysDynamic); }
-
-void QEStripChart::normalisedYScale (bool)
+void QEStripChart::durationSelected (const int seconds)
 {
-   // place holder
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::prevStateClicked (bool)
-{
-   this->privateData->prevState ();
-   this->privateData->plotData ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::nextStateClicked (bool)
-{
-   this->privateData->nextState ();
-   this->privateData->plotData ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::normalVideoClicked (bool)
-{
-   this->privateData->setNormalBackground (true);
+   this->setDuration (seconds);
    this->privateData->pushState ();
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::reverseVideoClicked (bool)
-{
-   this->privateData->setNormalBackground (false);
-   this->privateData->pushState ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::linearScaleClicked (bool)
-{
-   this->privateData->isLinearScale = true;
-   this->privateData->plotData ();
-   this->privateData->pushState ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::logScaleClicked (bool)
-{
-   this->privateData->isLinearScale = false;
-   this->privateData->plotData ();
-   this->privateData->pushState ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::playClicked (bool)
-{
-   this->privateData->chartTimeMode = tmRealTime;
-   // Note: using setEndTime causes a replot.
-   this->setEndDateTime (QDateTime::currentDateTime ());
-   this->privateData->pushState ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::pauseClicked (bool)
-{
-   this->privateData->chartTimeMode = tmPaused;
-   this->privateData->pushState ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::forwardClicked (bool)
-{
-   this->privateData->chartTimeMode = tmPaused;
-   this->setEndDateTime (this->getEndDateTime ().addSecs (+this->duration));
-   this->privateData->pushState ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::backwardClicked (bool)
-{
-   this->privateData->chartTimeMode = tmPaused;
-   this->setEndDateTime (this->getEndDateTime ().addSecs (-this->duration));
-   this->privateData->pushState ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::selectTimeClicked (bool)
+void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
 {
    int n;
    int d;
 
-   this->timeDialog.setMaximumDateTime (QDateTime::currentDateTime ().toUTC ());
-   this->timeDialog.setStartDateTime (this->getStartDateTime());
-   this->timeDialog.setEndDateTime (this->getEndDateTime());
+   switch (mode) {
 
-   n = this->timeDialog.exec ();
-   if (n == 1) {
-      // User has selected okay.
-      //
-      this->privateData->chartTimeMode = tmPaused;
-      this->setEndDateTime (this->timeDialog.getEndDateTime ());
+      case QEStripChartNames::play:
+         this->privateData->chartTimeMode = tmRealTime;
+         // Note: using setEndTime causes a replot.
+         this->setEndDateTime (QDateTime::currentDateTime ());
+         this->privateData->pushState ();
+         break;
 
-      // We use the possibly limited chart end time in order to calculate the
-      // duration.
-      //
-      d = this->timeDialog.getStartDateTime ().secsTo (this->getEndDateTime());
-      this->setDuration (d);
-      this->privateData->pushState ();
+      case QEStripChartNames::pause:
+         this->privateData->chartTimeMode = tmPaused;
+         this->privateData->pushState ();
+         break;
+
+      case QEStripChartNames::forward:
+         this->privateData->chartTimeMode = tmPaused;
+         this->setEndDateTime (this->getEndDateTime ().addSecs (+this->duration));
+         this->privateData->pushState ();
+         break;
+
+      case QEStripChartNames::backward:
+         this->privateData->chartTimeMode = tmPaused;
+         this->setEndDateTime (this->getEndDateTime ().addSecs (-this->duration));
+         this->privateData->pushState ();
+         break;
+
+      case QEStripChartNames::selectTimes:
+         this->timeDialog.setMaximumDateTime (QDateTime::currentDateTime ().toUTC ());
+         this->timeDialog.setStartDateTime (this->getStartDateTime());
+         this->timeDialog.setEndDateTime (this->getEndDateTime());
+
+         n = this->timeDialog.exec ();
+         if (n == 1) {
+            // User has selected okay.
+            //
+            this->privateData->chartTimeMode = tmPaused;
+            this->setEndDateTime (this->timeDialog.getEndDateTime ());
+
+            // We use the possibly limited chart end time in order to calculate the
+            // duration.
+            //
+            d = this->timeDialog.getStartDateTime ().secsTo (this->getEndDateTime());
+            this->setDuration (d);
+            this->privateData->pushState ();
+         }
+         break;
    }
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::readArchiveClicked (bool checked)
+void QEStripChart::readArchiveSelected ()
 {
    unsigned int slot;
-
-   if (checked) return;
 
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       QEStripChartItem * item = this->privateData->getItem (slot);
@@ -1145,17 +981,20 @@ void QEStripChart::readArchiveClicked (bool checked)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::shrinkPVFrame (bool)
+void QEStripChart::pVFrameSizeSelected (const QEStripChartNames::SizeActions action)
 {
-   this->privateData->adjustPVFrame (-PV_DELTA_HEIGHT);
+   switch (action) {
+      case QEStripChartNames::shrink:
+         this->privateData->adjustPVFrame (-PV_DELTA_HEIGHT);
+         break;
+      case QEStripChartNames::expand:
+         this->privateData->adjustPVFrame (+PV_DELTA_HEIGHT);
+         break;
+   }
 }
-
-//------------------------------------------------------------------------------
 //
-void QEStripChart::expandPVFrame (bool)
-{
-   this->privateData->adjustPVFrame (+PV_DELTA_HEIGHT);
-}
+// end of tool bar handlers ====================================================
+
 
 //------------------------------------------------------------------------------
 //
@@ -1234,7 +1073,7 @@ void QEStripChart::setYMinimum (const double yMinimumIn)
 {
    this->yMinimum = yMinimumIn;
    this->yMaximum = MAX (this->yMaximum, this->yMinimum + 1.0E-3);
-   this->privateData->chartYScale = ysManual;
+   this->privateData->chartYScale = QEStripChartNames::manual;
    this->privateData->plotData ();
 }
 
@@ -1251,7 +1090,7 @@ void QEStripChart::setYMaximum (const double yMaximumIn)
 {
    this->yMaximum = yMaximumIn;
    this->yMinimum = MIN (this->yMinimum, this->yMaximum - 1.0E-3);
-   this->privateData->chartYScale = ysManual;
+   this->privateData->chartYScale = QEStripChartNames::manual;
    this->privateData->plotData ();
 }
 
@@ -1261,7 +1100,7 @@ void QEStripChart::setYRange (const double yMinimumIn, const double yMaximumIn)
 {
     this->yMinimum = yMinimumIn;
     this->yMaximum = MAX (yMaximumIn, this->yMinimum + 1.0E-3);
-    this->privateData->chartYScale = ysManual;
+    this->privateData->chartYScale = QEStripChartNames::manual;
     this->privateData->plotData ();
 }
 
@@ -1371,7 +1210,7 @@ void QEStripChart::setup ()
 //
 qcaobject::QCaObject* QEStripChart::createQcaItem (unsigned int variableIndex)
 {
-   DEBUG << "unexpected call,  variableIndex = " << variableIndex;
+   DEBUG << "unexpected call, variableIndex = " << variableIndex;
    return NULL;
 }
 
@@ -1379,7 +1218,7 @@ qcaobject::QCaObject* QEStripChart::createQcaItem (unsigned int variableIndex)
 //
 void QEStripChart::establishConnection (unsigned int variableIndex)
 {
-   DEBUG << "unexpected call,  variableIndex = " << variableIndex;
+   DEBUG << "unexpected call, variableIndex = " << variableIndex;
 }
 
 // end
