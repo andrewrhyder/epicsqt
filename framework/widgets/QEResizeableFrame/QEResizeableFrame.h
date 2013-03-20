@@ -29,20 +29,20 @@
 #include <QVBoxLayout>
 
 // The QEResizeableFrame provides a frame capable of holding another widget
-// to gether with a grabber widget that allows the the resizable frame, and
+// together with a grabber widget that allows the frame to be re-sized, and
 // hence contained widget to be resized. The class currently only supports
 // vertical resizing. It could be extended to support horizontal scale.
 //
-// NOTE: this is not an plugin class avaiable in dsigner nor is it dervoied
-//       from QEWidget as originally developed as an internal support widget
-//       for the QEStripChart class and as such created programatically.
+// NOTE: this is not a class avaiable in designer as a plugin nor is it derived
+//       from QEWidget nor has it any properties. It was originally developed
+//       as an internal support widget for the QEStripChart class and as such
+//       created and configured programatically.
 //
 class QEResizeableFrame : public QFrame {
 public:
    QEResizeableFrame (QWidget *parent = 0);
 
    /// Construct widget specifying min and max allowed heights.
-   //
    QEResizeableFrame (int minimum, int maximum, QWidget *parent = 0);
    virtual ~QEResizeableFrame ();
 
@@ -54,13 +54,13 @@ public:
    /// Sets the resizeable frame's widget.
    /// The widget becomes a child of the resizeable frame, and will be destroyed when
    /// the resizeable frame is deleted or when a new widget is set.
-   /// Any existing widget is deleted - use takeWidget if needs be.
+   /// Any existing widget is deleted - use takeWidget first if needs be.
    void setWidget (QWidget *widget);
 
    /// Removes the resizeable frame's widget, and passes ownership management of the widget to the caller.
    QWidget *takeWidget();
 
-   /// Set the toop tip for the internal grabber object.
+   /// Set the tool tip for the internal grabber object.
    void setGrabberToolTip (const QString & tip);
 
 protected:
@@ -75,7 +75,8 @@ private:
    QWidget *userWidget;
    QWidget *grabber;
 
-   // We cant use widget min/maximumHeight values to store theseare we call setFixedHeight to the frames height.
+   // We can't use widget's min/maximumHeight values to store these as we call setFixedHeight
+   // to the frame height.
    //
    int allowedMin;
    int allowedMax;
