@@ -316,7 +316,7 @@ void MainWindow::on_actionAbout_triggered()
 
     // Add any path list (environment variable)
     QStringList envPaths =  profile.getEnvPathList();
-    about.append( "\n\n\nPath List Environment Variable:" );
+    about.append( "\n\n\nPath List Environment Variable QE_UI_PATH:" );
     for( int i = 0; i < envPaths.size(); i++ )
     {
         about.append( "\n      " ).append( envPaths[i] );

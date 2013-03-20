@@ -74,7 +74,7 @@ bool QEString::writeString( const QString &data, QString& message )
     }
     else
     {
-        message = QString( "Write failed. String not written was '" ).append( data ).append( "'" );
+        message = QString( "Write failed. String not written was '" ).append( data ).append( "'. " ).append( formattedData.toString() );
     }
     return ok;
 }

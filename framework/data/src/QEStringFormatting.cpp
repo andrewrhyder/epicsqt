@@ -90,6 +90,8 @@ void QEStringFormatting::setDbVariableIsStatField( bool isStatField )
 /*
     Generate a value given a string, using formatting defined within this
     class.
+    If the value can be formatted the formatted value is returned and 'ok' is true.
+    If the value can't be formatted an error string is returned and 'ok' is false
 */
 QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
 {
@@ -128,7 +130,7 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
         }
         // Value does not match an enumeration
         ok = false;
-        return QVariant();
+        return QVariant( QString("Value does not match an enumeration value from the database.") );
     }
 
     // Format the value if a local enumerated list
@@ -147,7 +149,7 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
         }
         // Value does not match an enumeration
         ok = false;
-        return QVariant();
+        return QVariant( QString("Value does not match a local enumeration value.") );
     }
 
     // If formating as a single value...

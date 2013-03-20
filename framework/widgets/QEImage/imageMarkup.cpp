@@ -899,7 +899,7 @@ void markupLine::drawMarkup( QPainter& p )
         QPoint halfHandle( HANDLE_SIZE/2, HANDLE_SIZE/2 );
 
         handle.moveTo( start - halfHandle );
-        p.drawRect( handle );
+        p.drawEllipse( handle );
 
         handle.moveTo( end - halfHandle );
         p.drawRect( handle );
