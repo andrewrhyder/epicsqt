@@ -65,12 +65,6 @@ typedef enum {
    log              // log Y scale - limited to -20
 } YScaleModes;
 
-
-typedef enum {
-   shrink,          // Shrink widget/frame
-   expand           // Expmand widget/frame
-} SizeActions;
-
 }
 
 #endif   // QESTRIPCHARTNAMES_H

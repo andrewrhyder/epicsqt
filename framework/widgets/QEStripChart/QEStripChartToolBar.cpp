@@ -34,14 +34,13 @@
 #include "QEStripChartToolBar.h"
 
 
-#define NUMBER_OF_BUTTONS  21
+#define NUMBER_OF_BUTTONS  19
 #define ICW                26         // icon width
 
 // Special slots - must be consistent with below
 //
 #define PREV_SLOT          0
 #define NEXT_SLOT          1
-#define NORMALISED_SLOT    11
 #define TSCALE_SLOT        12
 
 struct PushButtonSpecifications {
@@ -77,10 +76,7 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, true,  QString ("play.png"),              QString ("Play - Real time"),             SLOT (playClicked (bool))             },
    { 0,   ICW, true,  QString ("pause.png"),             QString ("Pause"),                        SLOT (pauseClicked (bool))            },
    { 0,   ICW, true,  QString ("page_backward.png"),     QString ("Back one page"),                SLOT (backwardClicked (bool))         },
-   { 0,   ICW, true,  QString ("page_forward.png"),      QString ("Forward one page"),             SLOT (forwardClicked (bool))          },
-
-   { 324, ICW, false, QString ("-"),                     QString ("Shrink PV Panel"),              SLOT (shrinkPVFrameClicked (bool))    },
-   { 0,   ICW, false, QString ("+"),                     QString ("Exapnd PV Panel"),              SLOT (expandPVFrameClicked (bool))    }
+   { 0,   ICW, true,  QString ("page_forward.png"),      QString ("Forward one page"),             SLOT (forwardClicked (bool))          }
 };
 
 
@@ -148,8 +144,6 @@ QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObj
       this->pushButtons [j] = button;
    }
 
-   this->pushButtons [NORMALISED_SLOT]->setEnabled (false);
-
    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    this->m2 = new QMenu (parent);
 
@@ -213,14 +207,11 @@ QEStripChartToolBar::OwnWidgets::~OwnWidgets ()
 }
 
 
-
 //==============================================================================
 //
 QEStripChartToolBar::QEStripChartToolBar (QWidget *parent) : QFrame (parent)
 {
-   this->setFrameShape (QFrame::Panel);
    this->setFixedHeight (32);
-
    this->ownWidgets = new OwnWidgets (this);
 }
 
@@ -368,18 +359,6 @@ void QEStripChartToolBar::selectTimeClicked (bool)
 void QEStripChartToolBar::readArchiveClicked (bool)
 {
     emit this->readArchiveSelected ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChartToolBar::shrinkPVFrameClicked (bool)
-{
-   emit this->pVFrameSizeSelected (QEStripChartNames::shrink);
-}
-
-void QEStripChartToolBar::expandPVFrameClicked (bool)
-{
-   emit this->pVFrameSizeSelected (QEStripChartNames::expand);
 }
 
 // end

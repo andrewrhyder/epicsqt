@@ -53,7 +53,6 @@ signals:
    void durationSelected (const int seconds);
    void playModeSelected (const QEStripChartNames::PlayModes mode);
    void readArchiveSelected ();
-   void pVFrameSizeSelected (const QEStripChartNames::SizeActions action);
 
 protected:
    void resizeEvent (QResizeEvent * event);
@@ -91,9 +90,6 @@ private slots:
    void backwardClicked (bool checked = false);
    void selectTimeClicked (bool checked = false);
    void readArchiveClicked (bool checked = false);
-
-   void shrinkPVFrameClicked (bool checked = false);
-   void expandPVFrameClicked (bool checked = false);
 };
 
 #endif  // QESTRIPCHARTTOOLBAR_H

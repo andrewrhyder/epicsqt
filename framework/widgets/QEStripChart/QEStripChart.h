@@ -241,7 +241,6 @@ private slots:
    void durationSelected (const int seconds);
    void playModeSelected (const QEStripChartNames::PlayModes mode);
    void readArchiveSelected ();
-   void pVFrameSizeSelected (const QEStripChartNames::SizeActions action);
 };
 
 # endif  // QESTRIPCHART_H

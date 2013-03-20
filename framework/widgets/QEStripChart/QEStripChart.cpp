@@ -25,19 +25,22 @@
  */
 
 #include <math.h>
-#include <QDebug>
+
 #include <QBoxLayout>
-#include <QLabel>
-#include <QIcon>
-#include <QFont>
-#include <QPen>
 #include <QBrush>
-#include <QPushButton>
-#include <QMenu>
-#include <QToolButton>
-#include <QStringList>
+#include <QCursor>
+#include <QDebug>
+#include <QDockWidget>
+#include <QFont>
+#include <QIcon>
+#include <QLabel>
 #include <QList>
+#include <QMenu>
+#include <QPen>
+#include <QPushButton>
 #include <QScrollArea>
+#include <QStringList>
+#include <QToolButton>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
@@ -48,6 +51,8 @@
 #include <QCaObject.h>
 #include <QELabel.h>
 #include <QCaVariableNamePropertyManager.h>
+#include <QEResizeableFrame.h>
+
 
 #include "QEStripChart.h"
 #include "QEStripChartToolBar.h"
@@ -64,7 +69,6 @@
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
-
 // Chart time mode options.
 //
 enum ChartTimeMode {
@@ -73,9 +77,12 @@ enum ChartTimeMode {
 };
 
 #define PV_DELTA_HEIGHT    18
-#define PV_FRAME_HEIGHT    ((NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT + 10)
-#define PV_SCROLL_HEIGHT   (PV_FRAME_HEIGHT + 6)
 
+#define PV_FRAME_HEIGHT    (6 + (NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT)
+#define PV_SCROLL_HEIGHT   (PV_FRAME_HEIGHT + 10)
+
+// Hold the copy of the chart configurations
+//
 struct ChartState {
    bool isNormalVideo;
    bool isLinearScale;
@@ -105,9 +112,6 @@ typedef QList<ChartState>  ChartStateList;
 // some additional data and associated functions. The placement of there artefacts
 // here (PrivateData) or in the main widget (QEStripChart) is somewhat arbitary.
 //
-// Even though this is a friend class of QEStripChart, so effectively all members are
-// public we still try to maintain the spirit of data encapusation.
-//
 class QEStripChart::PrivateData : public QObject {
 public:
    // Constructor
@@ -125,7 +129,6 @@ public:
    bool isLinearScale;              // false implies isLogScale
    double timeScale;                // 1 => units are seconds, 60 => x units are minutes, etc.
    QString timeUnits;
-   void adjustPVFrame (int delta);
    void pushState ();
    void prevState ();
    void nextState ();
@@ -136,8 +139,12 @@ protected:
 private:
    QEStripChart *chart;
    QEStripChartToolBar *toolBar;
-   QScrollArea *pvScrollArea;
+   QEResizeableFrame *toolBarResize;
+
    QFrame *pvFrame;
+   QScrollArea *pvScrollArea;
+   QEResizeableFrame *pvResizeFrame;
+
    QFrame *plotFrame;
    QFrame *statusFrame;
    QwtPlot *plot;
@@ -169,12 +176,13 @@ private:
 QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartIn)
 {
    unsigned int slot;
+   int x, y;
 
    this->chart = chartIn;
 
    // Create tool bar frame and tool buttons.
    //
-   this->toolBar = new QEStripChartToolBar (this->chart);
+   this->toolBar = new QEStripChartToolBar (); // this will become parented by toolBarResize
 
    // Connect various tool bar signals to the chart.
    //
@@ -203,13 +211,23 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
                      this->chart,   SLOT   (pVFrameSizeSelected  (const QEStripChartNames::SizeActions)));
 
 
+   // Create user controllable resize area
+   //
+   this->toolBarResize = new QEResizeableFrame (12, 36, this->chart);
+   this->toolBarResize->setFixedHeight (36);
+   this->toolBarResize->setFrameShape (QFrame::Panel);
+   this->toolBarResize->setGrabberToolTip ("Re size tool bar display area");
+   this->toolBarResize->setWidget (this->toolBar);
+
+
    // Create PV frame and PV name labels and associated CA labels.
    //
-   this->pvFrame = new QFrame ();  // this will be pareneted by pvScrollArea
+   this->pvFrame = new QFrame ();  // this will become parented by pvScrollArea
    this->pvFrame->setFixedHeight (PV_FRAME_HEIGHT);
 
+   // Create widgets (parented by chart) and chart ittem that manages these.
+   //
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
-      int x, y;
 
       this->channelProperties [slot] = new QToolButton (this->pvFrame);
       this->pvNames [slot] = new QLabel (this->pvFrame);
@@ -231,16 +249,22 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
       QObject::connect (this->channelProperties [slot],  SIGNAL (clicked                  (bool)),
                         this->items [slot],              SLOT   (channelPropertiesClicked (bool)));
-
    }
 
    // Create scrolling area and add pv frame.
    //
-   this->pvScrollArea = new QScrollArea (this->chart);
+   this->pvScrollArea = new QScrollArea (); // this will become parented by pvResizeFrame
    this->pvScrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOn);
-   this->pvScrollArea->setFixedHeight (PV_SCROLL_HEIGHT);
    this->pvScrollArea->setWidgetResizable (true);    // MOST IMPORTANT
    this->pvScrollArea->setWidget (this->pvFrame);
+
+   // Create user controllable resize area
+   //
+   this->pvResizeFrame = new QEResizeableFrame (12, PV_SCROLL_HEIGHT + 8, this->chart);
+   this->pvResizeFrame->setFixedHeight (PV_SCROLL_HEIGHT + 8);
+   this->pvResizeFrame->setFrameShape (QFrame::Panel);
+   this->pvResizeFrame->setGrabberToolTip ("Re size PV display area");
+   this->pvResizeFrame->setWidget (this->pvScrollArea);
 
    // Create plotting frame and plot area.
    //
@@ -274,8 +298,8 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->layout1 = new QVBoxLayout (this->chart);
    this->layout1->setMargin (4);
    this->layout1->setSpacing (4);
-   this->layout1->addWidget (this->toolBar);
-   this->layout1->addWidget (this->pvScrollArea);
+   this->layout1->addWidget (this->toolBarResize);
+   this->layout1->addWidget (this->pvResizeFrame);
    this->layout1->addWidget (this->plotFrame);
    this->layout1->addWidget (this->statusFrame);
 
@@ -306,21 +330,6 @@ QEStripChart::PrivateData::~PrivateData ()
 
    // all the created QWidget are (indirectly) parented by the PrivateData,
    // they are automatically deleted.
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::PrivateData::adjustPVFrame (int delta)
-{
-   int h;
-   int newh;
-
-   h = this->pvScrollArea->geometry ().height ();
-
-   newh = h + delta;
-   newh = LIMIT (newh, 12, PV_SCROLL_HEIGHT);
-
-   this->pvScrollArea->setFixedHeight (newh);
 }
 
 //------------------------------------------------------------------------------
@@ -563,13 +572,28 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
 //
 bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
 {
-   if ((event->type () == QEvent::MouseMove) && (obj == this->plot->canvas ())) {
-      this->onCanvasMouseMove (static_cast<QMouseEvent *> (event));
-      return true;
-   } else {
-      // standard event processing
-      return QObject::eventFilter (obj, event);
+   QMouseEvent * mouseEvent = NULL;
+
+   // case on type first else we get a seg fault.
+   //
+   switch (event->type ()) {
+
+      case QEvent::MouseMove:
+         mouseEvent = static_cast<QMouseEvent *> (event);
+
+         if (obj == this->plot->canvas ()) {
+            this->onCanvasMouseMove (mouseEvent);
+            return true;
+         }
+
+      default:
+         // Just fall through
+         break;
    }
+
+   // standard event processing
+   //
+   return QObject::eventFilter (obj, event);
 }
 
 //------------------------------------------------------------------------------
@@ -684,7 +708,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    this->setFrameShape (Panel);
    this->setMinimumSize (1020, 400);
 
-   this->duration = 120;  // two minites.
+   this->duration = 600;  // ten minites.
 
    // We always use UTC (EPICS) time within the strip chart.
    // Set directly here as using setEndTime has side effects.
@@ -978,20 +1002,6 @@ void QEStripChart::readArchiveSelected ()
       }
    }
 }
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::pVFrameSizeSelected (const QEStripChartNames::SizeActions action)
-{
-   switch (action) {
-      case QEStripChartNames::shrink:
-         this->privateData->adjustPVFrame (-PV_DELTA_HEIGHT);
-         break;
-      case QEStripChartNames::expand:
-         this->privateData->adjustPVFrame (+PV_DELTA_HEIGHT);
-         break;
-   }
-}
 //
 // end of tool bar handlers ====================================================
 
@@ -1139,7 +1149,7 @@ QString QEStripChart::copyVariable ()
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       QEStripChartItem * item = this->privateData->getItem (slot);
 
-      if (item->isInUse ()) {
+      if ((item) && (item->isInUse () == false)) {
          if (!result.isEmpty()) {
             result = result.append (" ");
          };
@@ -1165,7 +1175,7 @@ void QEStripChart::paste (QVariant s)
 {
    // Use pasted text to add PV(s) to the chart.
    //
-   this->addPvNameSet (s.toString());
+   this->addPvNameSet (s.toString ());
 }
 
 //----------------------------------------------------------------------------
@@ -1182,7 +1192,7 @@ void QEStripChart::evaluateAllowDrop ()
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       QEStripChartItem * item = this->privateData->getItem (slot);
 
-      if (item->isInUse () == false) {
+      if ((item) && (item->isInUse () == false)) {
          // Found an empty slot.
          //
          allowDrop = true;
