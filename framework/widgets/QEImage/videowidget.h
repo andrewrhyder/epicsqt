@@ -41,6 +41,9 @@ public:
     QPoint scalePoint( QPoint pnt );
     int scaleOrdinate( int ord );
 
+    QPoint scaleImagePoint( QPoint pnt );
+    int scaleImageOrdinate( int ord );
+
     QImage getImage(){ return currentImage; }
 
 

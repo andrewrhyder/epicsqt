@@ -690,7 +690,17 @@ void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, 
     // markup is visible, update it
     else
     {
-#define USE_ROI_DATA( N, SET_NAME ) roiInfo[N].SET_NAME( value ); if( roiInfo[N].getStatus() ) videoWidget->markupRegionValueChange( N, roiInfo[N].getArea() ); break;
+#define USE_ROI_DATA( N, SET_NAME )                                                                   \
+        roiInfo[N].SET_NAME( value );                                                                 \
+        if( roiInfo[N].getStatus() )                                                                  \
+        {                                                                                             \
+            QRect scaledArea = roiInfo[N].getArea();                                                  \
+            scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
+            scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );    \
+            videoWidget->markupRegionValueChange( N, scaledArea );                                    \
+        }                                                                                             \
+        break;
+
         switch( variableIndex )
         {
             case ROI1_X_VARIABLE:  USE_ROI_DATA( 0, setX )

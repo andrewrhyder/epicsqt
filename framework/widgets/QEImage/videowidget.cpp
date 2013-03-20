@@ -182,7 +182,7 @@ void VideoWidget::markupAction( markupIds mode, bool complete, bool clearing, QP
     emit userSelection( mode, complete, clearing, point1, point2, thickness );
 }
 
-// Return an ordinate from the displayed image as an ordinate in the original image
+// Return a point from the displayed image as a point in the original image
 QPoint VideoWidget::scalePoint( QPoint pnt )
 {
     QPoint scaled;
@@ -191,10 +191,25 @@ QPoint VideoWidget::scalePoint( QPoint pnt )
     return scaled;
 }
 
+// Return a point from the original image as a point in the displayed image
+QPoint VideoWidget::scaleImagePoint( QPoint pnt )
+{
+    QPoint scaled;
+    scaled.setX( scaleImageOrdinate( pnt.x() ));
+    scaled.setY( scaleImageOrdinate( pnt.y() ));
+    return scaled;
+}
+
 // Return an ordinate from the displayed image as an ordinate in the original image
 int VideoWidget::scaleOrdinate( int ord )
 {
     return (int)((double)ord / getScale());
+}
+
+// Return an ordinate from the original image as an ordinate in the displayed image
+int VideoWidget::scaleImageOrdinate( int ord )
+{
+    return (int)((double)ord * getScale());
 }
 
 // Return the scale of the displayed image
