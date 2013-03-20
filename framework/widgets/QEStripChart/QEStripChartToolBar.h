@@ -64,7 +64,6 @@ private:
    //
    class OwnWidgets;
    OwnWidgets *ownWidgets;
-   friend class OwnWidgets;
 
 private slots:
 

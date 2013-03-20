@@ -63,7 +63,7 @@
 #define MIN(a, b)           ((a) <= (b) ? (a) : (b))
 #define LIMIT(x,low,high)   (MAX(low, MIN(x, high)))
 
-#define DEBUG  qDebug () << __FILE__  << ":" << __LINE__ << "(" << __FUNCTION__ << ")"
+#define DEBUG  qDebug () << __FILE__  << "::" << __FUNCTION__ << ":" << __LINE__
 
 
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
@@ -79,7 +79,7 @@ enum ChartTimeMode {
 #define PV_DELTA_HEIGHT    18
 
 #define PV_FRAME_HEIGHT    (6 + (NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT)
-#define PV_SCROLL_HEIGHT   (PV_FRAME_HEIGHT + 10)
+#define PV_SCROLL_HEIGHT   (PV_FRAME_HEIGHT + 6)
 
 // Hold the copy of the chart configurations
 //
@@ -98,6 +98,7 @@ struct ChartState {
 #define MAXIMUM_CHART_STATES   40
 
 typedef QList<ChartState>  ChartStateList;
+
 
 //==============================================================================
 // Local support classes.
@@ -155,7 +156,6 @@ private:
    QLabel *readOut;
    QLabel *timeStatus;
 
-   QToolButton *channelProperties [NUMBER_OF_PVS];
    QLabel *pvNames [NUMBER_OF_PVS];
    QELabel *caLabels [NUMBER_OF_PVS];
    QEStripChartItem *items [NUMBER_OF_PVS];
@@ -207,18 +207,14 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    QObject::connect (this->toolBar, SIGNAL (readArchiveSelected  ()),
                      this->chart,   SLOT   (readArchiveSelected  ()));
 
-   QObject::connect (this->toolBar, SIGNAL (pVFrameSizeSelected  (const QEStripChartNames::SizeActions)),
-                     this->chart,   SLOT   (pVFrameSizeSelected  (const QEStripChartNames::SizeActions)));
-
 
    // Create user controllable resize area
    //
-   this->toolBarResize = new QEResizeableFrame (12, 36, this->chart);
-   this->toolBarResize->setFixedHeight (36);
+   this->toolBarResize = new QEResizeableFrame (8, 38, this->chart);
+   this->toolBarResize->setFixedHeight (38);
    this->toolBarResize->setFrameShape (QFrame::Panel);
    this->toolBarResize->setGrabberToolTip ("Re size tool bar display area");
    this->toolBarResize->setWidget (this->toolBar);
-
 
    // Create PV frame and PV name labels and associated CA labels.
    //
@@ -229,31 +225,26 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    //
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
 
-      this->channelProperties [slot] = new QToolButton (this->pvFrame);
       this->pvNames [slot] = new QLabel (this->pvFrame);
+      this->pvNames [slot]->setToolTip("Use context menu to modify PV attributes");
+
       this->caLabels [slot] = new QELabel (this->pvFrame);
 
       x = 6 + (slot % 2) * 492;
       y = 6 + (slot / 2) * PV_DELTA_HEIGHT;
 
-      this->channelProperties [slot]->setGeometry (x, y,  16, 15); x += 20;
-      this->pvNames [slot]->setGeometry           (x, y, 340, 15); x += 344;
-      this->caLabels [slot]->setGeometry          (x, y, 120, 15); x += 124;
+      this->pvNames [slot]->setGeometry   (x, y, 344, 15); x += 348;
+      this->caLabels [slot]->setGeometry  (x, y, 120, 15);
 
       this->items [slot] = new QEStripChartItem (this->chart,
                                                  this->pvNames [slot],
                                                  this->caLabels [slot],
                                                  slot);
-
-      this->channelProperties [slot]->setToolTip ("Modify PV attributes");
-
-      QObject::connect (this->channelProperties [slot],  SIGNAL (clicked                  (bool)),
-                        this->items [slot],              SLOT   (channelPropertiesClicked (bool)));
    }
 
    // Create scrolling area and add pv frame.
    //
-   this->pvScrollArea = new QScrollArea (); // this will become parented by pvResizeFrame
+   this->pvScrollArea = new QScrollArea ();          // this will become parented by pvResizeFrame
    this->pvScrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOn);
    this->pvScrollArea->setWidgetResizable (true);    // MOST IMPORTANT
    this->pvScrollArea->setWidget (this->pvFrame);
@@ -402,9 +393,9 @@ void QEStripChart::PrivateData::calcDisplayMinMax ()
       if (item->isInUse() == true) {
          switch (this->chartYScale) {
          case QEStripChartNames::operatingRange:  tr.merge (item->getLoprHopr ());         break;
-         case QEStripChartNames::plotted: tr.merge (item->getDisplayedMinMax ());  break;
-         case QEStripChartNames::buffered:  tr.merge (item->getBufferedMinMax ());   break;
-         case QEStripChartNames::dynamic:   tr.merge (item->getDisplayedMinMax ());  break;
+         case QEStripChartNames::plotted:         tr.merge (item->getDisplayedMinMax ());  break;
+         case QEStripChartNames::buffered:        tr.merge (item->getBufferedMinMax ());   break;
+         case QEStripChartNames::dynamic:         tr.merge (item->getDisplayedMinMax ());  break;
          default:       DEBUG << "Well this is unexpected"; return; break;
          }
       }
@@ -566,6 +557,7 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    mouseReadOut.append (f);
 
    this->setReadOut (mouseReadOut);
+   // this->chart->sendMessage (mouseReadOut);
 }
 
 //------------------------------------------------------------------------------
@@ -706,7 +698,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    // Configure the panel and create contents
    //
    this->setFrameShape (Panel);
-   this->setMinimumSize (1020, 400);
+   this->setMinimumSize (1032, 400);
 
    this->duration = 600;  // ten minites.
 
@@ -732,9 +724,14 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    //
    this->evaluateAllowDrop ();
 
-   // Use default context menu.
+   // Use default context menu (for now).
    //
    this->setupContextMenu (this);
+
+   // OR: override contextMenuEvent to deal of context calls.
+   //     this->setContextMenuPolicy (Qt::DefaultContextMenu);
+   // OR: set up signal/slot
+   //     this->setContextMenuPolicy (Qt::CustomContextMenu);
 }
 
 //------------------------------------------------------------------------------
@@ -920,7 +917,7 @@ void QEStripChart::yRangeSelected (const QEStripChartNames::ChartYRanges scale)
          break;
 
       default:
-         DEBUG "Well this is unexpected:" << (int) scale;
+         DEBUG << "Well this is unexpected:" << (int) scale;
          break;
    }
 }
@@ -1004,7 +1001,6 @@ void QEStripChart::readArchiveSelected ()
 }
 //
 // end of tool bar handlers ====================================================
-
 
 //------------------------------------------------------------------------------
 //

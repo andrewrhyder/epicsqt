@@ -31,6 +31,7 @@
 #include <QObject>
 #include <QColor>
 #include <QLabel>
+#include <QPoint>
 #include <QString>
 
 #include <qwt_plot_curve.h>
@@ -43,29 +44,36 @@
 #include <QCaObject.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QEArchiveManager.h>
-#include <QEStripChart.h>
-#include <QEStripChartItemDialog.h>
+
+#include "QEStripChart.h"
+#include "QEStripChartItemDialog.h"
+#include "QEStripChartContextMenu.h"
+
 
 // Provide log and exp 10 macro functions.
 //
 // Log is a safe log in that it avoids attempting to take the log of negative
 // or zero values. The 1.0e-20 limit is somewhat arbitary, but in practice is
-// good for most numbers encountered at the sychrotron.
+// good for most numbers encountered at the synchrotron.
 //
-// Not all platforms provide exp10.
+// Not all platforms provide exp10. What about pow () ??
 //
 #define LOG10(x)  ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
 #define EXP10(x)  exp (2.302585092994046 * (x))
 
-// Utility class - move to a separate unit??
+
+//==============================================================================
+// Utility classes - move to a separate unit??
+//==============================================================================
 // Tracks the minimum and maximum range of a value.
 //
 class TrackRange {
 public:
    TrackRange ();
    void clear ();
-   void merge (const double d);
-   void merge (const TrackRange that);
+   void merge (const double d);           // defines/extends range to include d.
+   void merge (const TrackRange that);    // defines/extends range to include that.
+
    // returns true if range is defined together with min and max.
    //
    bool getMinMax (double & min, double& max);
@@ -76,9 +84,44 @@ private:
 };
 
 
+//==============================================================================
+// Allows PV points to be scaled y' = (y - d)*m + c
+// This is useful whem comparing values with disparate ranages.
+// It is a simple linear scaling. While d and c are not independent, from a
+// user point of view is it often easier to specify a 'd' and/or a 'c' value.
+//
+class ValueScaling {
+public:
+   ValueScaling ();
+
+   void reset ();
+   void assign (const ValueScaling & s);
+   void set (const double dIn, const double mIn, const double cIn);
+   void get (double &dOut, double &mOut, double &cOut);
+
+   // Find d, m and c such that the from values map to the to values,
+   // e.g a PVs HOPR/LOPR values map to current chart range values.
+   //
+   void map (const double fromLower, const double fromUpper,
+             const double toLower,   const double toUpper);
+
+   bool isScaled ();
+
+   inline double value (const double x) {
+      return (x - d) * m + c;
+   }
+
+private:
+   double d;   // origin
+   double m;   // slope
+   double c;   // offset
+};
+
+
+//==============================================================================
 // This is essentially a private classes used soley by the QEStripChart widget.
-// We have to make is public so that it can be a pukka Q_OBJECT and as such receive
-// signals.
+// We have to make is public so that it can be a pukka Q_OBJECT in order to
+// receive signals.
 //
 class QEStripChartItem : public QObject {
    Q_OBJECT
@@ -94,14 +137,20 @@ public:
    void setPvName (QString pvName, QString substitutions);
    QString getPvName ();
 
+   void setScaling (const double d, const double m, const double c);
+   void getScaling (double & d, double & m, double & c);
+   bool isScaled ();
+
    // NOTE: Where ever possible I spell colour properly.
    //
-   void setColour (QColor colourIn);
+public slots:
+   void setColour (const QColor &  colour);    // also used by colour dialog
+public:
    QColor getColour ();
 
    TrackRange getLoprHopr ();                  // returns CA specified operating range
-   TrackRange getDisplayedMinMax ();           // retruns range of values currently plotted
-   TrackRange getBufferedMinMax ();            // retruns range of values that coulb be plotted
+   TrackRange getDisplayedMinMax ();           // returns range of values currently plotted
+   TrackRange getBufferedMinMax ();            // returns range of values that could be plotted
 
    void readArchive ();
 
@@ -109,6 +158,7 @@ public:
                   const bool isLinearScale);   // y scale modifier
 
    QCaVariableNamePropertyManager pvNameProperyManager;
+   ValueScaling scaling;
 
 private:
    qcaobject::QCaObject* getQcaItem ();   // Return reference to QELabel used to stream CA updates
@@ -127,6 +177,7 @@ private:
    //
    bool isConnected;
    QColor colour;
+
    QCaDataPointList historicalTimeDataPoints;
    QCaDataPointList realTimeDataPoints;
    TrackRange historicalMinMax;
@@ -149,12 +200,14 @@ private:
 
 private slots:
    void newVariableNameProperty (QString pvName, QString substitutions, unsigned int slot);
-   void channelPropertiesClicked (bool checked = false);
 
    void setDataConnection (QCaConnectionInfo& connectionInfo);
    void setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime);
 
    void setArchiveData (const QObject *userData, const bool okay, const QCaDataPointList &archiveData);
+
+   void customContextMenuRequested (const QPoint & pos);
+   void contextMenuSelected (const QEStripChartContextMenu::Options option);
 };
 
 #endif  // QSTRIPCHARTITEM_H

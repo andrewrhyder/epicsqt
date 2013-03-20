@@ -30,7 +30,6 @@
 #include <QString>
 #include <QColor>
 #include <QDialog>
-#include <QColorDialog>
 
 namespace Ui {
     class QEStripChartItemDialog;
@@ -50,20 +49,12 @@ public:
    void setPvName (QString pvNameIn);
    QString getPvName ();
 
-   void setColour (QColor colourIn);
-   QColor getColour ();
-
    bool isClear ();
 
 private:
    Ui::QEStripChartItemDialog *ui;
-   QColorDialog *colourDialog;
-   QColor colour;
 
 private slots:
-   void colourButtonClicked (bool checked = false);
-   void colourSelected (const QColor & colourIn);
-
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();
    void clearButtonClicked (bool checked = false);

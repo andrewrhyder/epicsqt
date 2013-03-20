@@ -37,10 +37,6 @@ QEStripChartItemDialog::QEStripChartItemDialog (QWidget *parent) :
       ui (new Ui::QEStripChartItemDialog)
 {
    this->ui->setupUi (this);
-   this->colourDialog = new QColorDialog (this);
-
-   QObject::connect (this->ui->colourButton, SIGNAL (clicked             (bool)),
-                     this,                   SLOT   (colourButtonClicked (bool)));
 
    QObject::connect (this->ui->clearButton,  SIGNAL (clicked            (bool)),
                      this,                   SLOT   (clearButtonClicked (bool)));
@@ -70,54 +66,13 @@ QString QEStripChartItemDialog::getPvName ()
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartItemDialog::setColour (QColor colourIn)
-{
-   int r, g, b;
-   QString style;
-
-   this->colour = colourIn;
-   r = this->colour.red ();
-   g = this->colour.green ();
-   b = this->colour.blue ();
-
-   style.sprintf ("QWidget { background-color: #%02x%02x%02x; }", r, g, b);
-
-   this->ui->colourIndicator->setStyleSheet (style);
-
-}
-
-//------------------------------------------------------------------------------
-//
-QColor QEStripChartItemDialog::getColour ()
-{
-   return this->colour;
-}
-
-//------------------------------------------------------------------------------
-//
 bool QEStripChartItemDialog::isClear ()
 {
    return (this->getPvName() == "");
 }
 
 //------------------------------------------------------------------------------
-// User has pressed color
-//
-void QEStripChartItemDialog::colourButtonClicked (bool)
-{
-   this->colourDialog->setCurrentColor (this->colour);
-   this->colourDialog->open (this, SLOT (colourSelected (const QColor &)));
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChartItemDialog::colourSelected (const QColor & colourIn)
-{
-   this->setColour(colourIn);
-}
-
-//------------------------------------------------------------------------------
-// User has pressed clear
+// User has pressed Clear
 //
 void QEStripChartItemDialog::clearButtonClicked (bool)
 {
@@ -134,7 +89,7 @@ void QEStripChartItemDialog::on_buttonBox_accepted ()
 }
 
 //------------------------------------------------------------------------------
-// User has pressed cancel
+// User has pressed Cancel
 //
 void QEStripChartItemDialog::on_buttonBox_rejected ()
 {
