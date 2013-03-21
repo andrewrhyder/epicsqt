@@ -161,7 +161,8 @@ void ValueScaling::map (const double fromLower, const double fromUpper,
 {
    double delta;
 
-   // We have three unknowns and two constrainst, so have an extra
+   // Scaling is: y = (x - d)*m + c
+   // We have three unknowns and two constraints, so have an extra
    // degree of freedom.
    //
    // Set origin to mid-point from value.
@@ -184,7 +185,7 @@ void ValueScaling::map (const double fromLower, const double fromUpper,
 
    // Set slope as ratio of to (display) span to form span.
    //
-   this->m = (toLower - toUpper) / delta;
+   this->m = (toUpper - toLower) / delta;
 }
 
 //------------------------------------------------------------------------------
@@ -244,7 +245,10 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    this->privateData->menu = menu;
 
    pvName->setIndent (6);
+   pvName->setToolTip ("Use context menu to modify PV attributes");
+
    caLabel->setIndent (6);
+   caLabel->setAlignment (Qt::AlignRight);
 
    if (slot < QEStripChart::NUMBER_OF_PVS) {
       defaultColour = item_colours [slot];
@@ -604,8 +608,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
          // Replicate last value upto end of chart.
          //
          tdata.append (PLOT_T (0.0));
-         ydata.append (ydata.last ());
-         plottedTrackRange.merge (ydata.last ());
+         ydata.append (ydata.last ());   // is a copy - no PLOT_T required.
       }
       curve = this->allocateCurve ();
 #if QWT_VERSION >= 0x060000
@@ -866,6 +869,10 @@ void QEStripChartItem::customContextMenuRequested (const QPoint & pos)
 //
 void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Options option)
 {
+   QEStripChart *chart = this->privateData->chart;  // alias
+   TrackRange range;
+   double min, max;
+   bool status;
    int n;
 
    switch (option) {
@@ -873,6 +880,68 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
       case QEStripChartContextMenu::SCCM_READ_ARCHIVE:
          this->readArchive();
          break;
+
+      case  QEStripChartContextMenu::SCCM_SCALE_CHART_AUTO:
+         range = this->getLoprHopr ();
+         status = range.getMinMax(min, max);
+         if (status) {
+            chart->setYRange (min, max);
+         }
+         break;
+
+      case QEStripChartContextMenu::SCCM_SCALE_CHART_PLOTTED:
+         range = this->getDisplayedMinMax ();
+         status = range.getMinMax(min, max);
+         if (status) {
+            chart->setYRange (min, max);
+         }
+         break;
+
+      case QEStripChartContextMenu::SCCM_SCALE_CHART_BUFFERED:
+         range = this->getBufferedMinMax ();
+         status = range.getMinMax(min, max);
+         if (status) {
+            chart->setYRange (min, max);
+         }
+         break;
+
+
+      case QEStripChartContextMenu::SCCM_SCALE_PV_RESET:
+         this->privateData->pvName->setToolTip ("Use context menu to modify PV attributes");
+         this->scaling.reset();
+         chart->plotData ();
+         break;
+
+      case QEStripChartContextMenu::SCCM_SCALE_PV_AUTO:
+         range = this->getLoprHopr ();
+         status = range.getMinMax (min, max);
+         if (status) {
+            this->privateData->pvName->setToolTip ("PV is scaled");
+            this->scaling.map (min, max, chart->getYMinimum (), chart->getYMaximum ());
+            chart->plotData ();
+         }
+         break;
+
+      case QEStripChartContextMenu::SCCM_SCALE_PV_PLOTTED:
+         range = this->getDisplayedMinMax ();
+         status = range.getMinMax (min, max);
+         if (status) {
+            this->privateData->pvName->setToolTip ("PV is scaled");
+            this->scaling.map (min, max, chart->getYMinimum (), chart->getYMaximum ());
+            chart->plotData ();
+         }
+         break;
+
+      case QEStripChartContextMenu::SCCM_SCALE_PV_BUFFERED:
+         range = this->getBufferedMinMax ();
+         status = range.getMinMax (min, max);
+         if (status) {
+            this->privateData->pvName->setToolTip ("PV is scaled");
+            this->scaling.map (min, max, chart->getYMinimum (), chart->getYMaximum ());
+            chart->plotData ();
+         }
+         break;
+
 
       case QEStripChartContextMenu::SCCM_LINE_COLOUR:
          this->privateData->colourDialog->setCurrentColor (this->getColour ());

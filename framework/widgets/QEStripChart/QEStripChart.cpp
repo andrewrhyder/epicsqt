@@ -123,7 +123,7 @@ public:
    QwtPlotCurve *allocateCurve ();
    void calcDisplayMinMax ();
    void plotData ();
-   void setReadOut (QString text);
+   void setReadOut (const QString & text);
    void setNormalBackground (bool state);
    QEStripChartNames::ChartYRanges chartYScale;
    enum ChartTimeMode chartTimeMode;
@@ -146,15 +146,11 @@ private:
    QScrollArea *pvScrollArea;
    QEResizeableFrame *pvResizeFrame;
 
-   QFrame *plotFrame;
-   QFrame *statusFrame;
    QwtPlot *plot;
+   QFrame *plotFrame;
 
    QVBoxLayout *layout1;
    QVBoxLayout *layout2;
-
-   QLabel *readOut;
-   QLabel *timeStatus;
 
    QLabel *pvNames [NUMBER_OF_PVS];
    QELabel *caLabels [NUMBER_OF_PVS];
@@ -226,8 +222,6 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
 
       this->pvNames [slot] = new QLabel (this->pvFrame);
-      this->pvNames [slot]->setToolTip("Use context menu to modify PV attributes");
-
       this->caLabels [slot] = new QELabel (this->pvFrame);
 
       x = 6 + (slot % 2) * 492;
@@ -270,20 +264,6 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    // Use the privateData object as the event filter object.
    this->plot->canvas()->installEventFilter (this);
 
-   // Create status frame.
-   //
-   this->statusFrame = new QFrame (this->chart);
-   this->statusFrame->setFrameShape (QFrame::Panel);
-   this->statusFrame->setFixedHeight (24);
-
-   this->readOut = new QLabel (this->statusFrame);
-   this->readOut->setGeometry (8, 2, 552, 20);
-   this->readOut->setFont (QFont ("MonoSpace"));
-
-   this->timeStatus = new QLabel (this->statusFrame);
-   this->timeStatus->setGeometry (564, 2, 420, 20);
-   this->timeStatus->setFont (QFont ("MonoSpace"));
-
    // Create layouts.
    //
    this->layout1 = new QVBoxLayout (this->chart);
@@ -292,7 +272,6 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->layout1->addWidget (this->toolBarResize);
    this->layout1->addWidget (this->pvResizeFrame);
    this->layout1->addWidget (this->plotFrame);
-   this->layout1->addWidget (this->statusFrame);
 
    this->layout2 = new QVBoxLayout (this->plotFrame);
    this->layout2->setMargin (4);
@@ -506,14 +485,17 @@ void QEStripChart::PrivateData::plotData ()
    times.append (" to ");
    times.append (this->chart->getEndDateTime().toUTC().toString (format));
    times.append (" UTC");
-   this->timeStatus->setText (times);
+
+   // set on tool bar
+   this->toolBar->setTimeStatus (times);
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::PrivateData::setReadOut (QString text)
+void QEStripChart::PrivateData::setReadOut (const QString & text)
 {
-   this->readOut->setText (text);
+   this->chart->sendMessage (text,
+                             message_types (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS_BAR));
 }
 
 //------------------------------------------------------------------------------
@@ -556,8 +538,7 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    f.sprintf ("    %+.10g", y);
    mouseReadOut.append (f);
 
-   this->chart->sendMessage (mouseReadOut,
-                             message_types (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS_BAR));
+   this->setReadOut (mouseReadOut);
 }
 
 //------------------------------------------------------------------------------

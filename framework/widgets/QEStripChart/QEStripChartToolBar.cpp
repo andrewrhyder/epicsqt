@@ -25,7 +25,9 @@
  *
  */
 
+#include <QDebug>
 #include <QIcon>
+#include <QLabel>
 #include <QMenu>
 #include <QPushButton>
 #include <QString>
@@ -67,7 +69,7 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, false, QString ("P"),                     QString ("Plotted Data Scale"),           SLOT (plottedYScaleClicked (bool))    },
    { 0,   ICW, false, QString ("B"),                     QString ("Buffer Data Scale"),            SLOT (bufferedYScaleClicked (bool))   },
    { 0,   ICW, false, QString ("D"),                     QString ("Dynamic Scale"),                SLOT (dynamicYScaleClicked (bool))    },
-   { 0,   ICW, false, QString ("N"),                     QString ("Normalised Scale(TBD)"),        SLOT (normalisedYScaleClicked (bool)) },
+   { 0,   ICW, false, QString ("N"),                     QString ("Normalised Scale"),             SLOT (normalisedYScaleClicked (bool)) },
 
    { 4,    96, false, QString ("Duration"),              QString ("Select chart T axis"),          NULL                                  },
 
@@ -89,6 +91,7 @@ public:
    ~OwnWidgets ();
 
    QPushButton *pushButtons [NUMBER_OF_BUTTONS];
+   QLabel *timeStatus;
 
 private:
    QMenu *m2;
@@ -196,7 +199,13 @@ QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObj
    QObject::connect (this->m2,  SIGNAL (triggered       (QAction *)),
                      parent,    SLOT   (durationClicked (QAction *)));
 
-   this->pushButtons [TSCALE_SLOT]->setMenu (this->m2);
+   button = this->pushButtons [TSCALE_SLOT];
+   button->setMenu (this->m2);
+   // left = button->geometry().x ();
+
+   this->timeStatus = new QLabel (parent);
+   this->timeStatus->setGeometry (left + 8, 8, 360, 16);
+   // this->timeStatus->setStyleSheet ("QWidget { background-color: #ffffe0; }");
 }
 
 //------------------------------------------------------------------------------
@@ -222,6 +231,12 @@ QEStripChartToolBar::~QEStripChartToolBar ()
    // no special action - place holder
 }
 
+//------------------------------------------------------------------------------
+//
+void QEStripChartToolBar::setTimeStatus (const QString & timeStatusIn)
+{
+   this->ownWidgets->timeStatus->setText (timeStatusIn);
+}
 
 //------------------------------------------------------------------------------
 //
