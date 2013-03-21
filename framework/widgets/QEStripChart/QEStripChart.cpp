@@ -228,7 +228,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
       y = 6 + (slot / 2) * PV_DELTA_HEIGHT;
 
       this->pvNames [slot]->setGeometry   (x, y, 344, 15); x += 348;
-      this->caLabels [slot]->setGeometry  (x, y, 120, 15);
+      this->caLabels [slot]->setGeometry  (x, y, 128, 15);
 
       this->items [slot] = new QEStripChartItem (this->chart,
                                                  this->pvNames [slot],
@@ -371,10 +371,10 @@ void QEStripChart::PrivateData::calcDisplayMinMax ()
       QEStripChartItem * item = this->getItem (slot);
       if (item->isInUse() == true) {
          switch (this->chartYScale) {
-         case QEStripChartNames::operatingRange:  tr.merge (item->getLoprHopr ());         break;
-         case QEStripChartNames::plotted:         tr.merge (item->getDisplayedMinMax ());  break;
-         case QEStripChartNames::buffered:        tr.merge (item->getBufferedMinMax ());   break;
-         case QEStripChartNames::dynamic:         tr.merge (item->getDisplayedMinMax ());  break;
+         case QEStripChartNames::operatingRange:  tr.merge (item->getLoprHopr (true));         break;
+         case QEStripChartNames::plotted:         tr.merge (item->getDisplayedMinMax (true));  break;
+         case QEStripChartNames::buffered:        tr.merge (item->getBufferedMinMax (true));   break;
+         case QEStripChartNames::dynamic:         tr.merge (item->getDisplayedMinMax (true));  break;
          default:       DEBUG << "Well this is unexpected"; return; break;
          }
       }

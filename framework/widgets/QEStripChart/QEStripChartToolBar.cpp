@@ -204,7 +204,12 @@ QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObj
    // left = button->geometry().x ();
 
    this->timeStatus = new QLabel (parent);
-   this->timeStatus->setGeometry (left + 8, 8, 360, 16);
+   this->timeStatus->setGeometry (left + 8, 8, 368, 16);
+
+   QFont font = this->timeStatus->font ();
+   font.setFamily("Monospace");
+   font.setPointSize (9);
+   this->timeStatus->setFont (font);
    // this->timeStatus->setStyleSheet ("QWidget { background-color: #ffffe0; }");
 }
 

@@ -76,7 +76,7 @@ public:
 
    // returns true if range is defined together with min and max.
    //
-   bool getMinMax (double & min, double& max);
+   bool getMinMax (double & min, double& max) const;
 private:
    double minimum;
    double maximum;
@@ -110,6 +110,9 @@ public:
    inline double value (const double x) {
       return (x - d) * m + c;
    }
+   TrackRange value (const TrackRange & x);
+
+   // overloaded function
 
 private:
    double d;   // origin
@@ -148,9 +151,13 @@ public slots:
 public:
    QColor getColour ();
 
-   TrackRange getLoprHopr ();                  // returns CA specified operating range
-   TrackRange getDisplayedMinMax ();           // returns range of values currently plotted
-   TrackRange getBufferedMinMax ();            // returns range of values that could be plotted
+   // For each of these three function whren the bool doScale parameter is true, the
+   // return range item is scaled using the current PV scale. When false, the "raw"
+   // value is returned.
+   //
+   TrackRange getLoprHopr (bool doScale);          // returns CA specified operating range
+   TrackRange getDisplayedMinMax (bool doScale);   // returns range of values currently plotted
+   TrackRange getBufferedMinMax (bool doScale);    // returns range of values that could be plotted
 
    void readArchive ();
 

@@ -116,7 +116,7 @@ void TrackRange::merge (const TrackRange that)
 
 //------------------------------------------------------------------------------
 //
-bool TrackRange::getMinMax (double & min, double& max) {
+bool TrackRange::getMinMax (double & min, double& max) const {
    min = this->minimum;
    max = this->maximum;
    return this->isDefined;
@@ -194,6 +194,25 @@ bool ValueScaling::isScaled () {
    return ((d != 0.0) || (m != 1.0) || (c != 0.0));
 }
 
+//------------------------------------------------------------------------------
+//
+TrackRange ValueScaling::value (const TrackRange & x)
+{
+   TrackRange result;   // undefined
+   bool okay;
+   double min, max;
+
+   okay = x.getMinMax (min, max);
+   if (okay) {
+      // The range is defined - the extracted min and max are good, scale each limit
+      // and merge into result.
+      //
+      result.merge (this->value (min));
+      result.merge (this->value (max));
+   }
+   return result;
+}
+
 
 //==============================================================================
 // Thsi class used purely to store widget references.
@@ -249,6 +268,9 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
 
    caLabel->setIndent (6);
    caLabel->setAlignment (Qt::AlignRight);
+   QFont font = caLabel->font ();
+   font.setFamily ("Monospace");
+   caLabel->setFont (font);
 
    if (slot < QEStripChart::NUMBER_OF_PVS) {
       defaultColour = item_colours [slot];
@@ -385,7 +407,7 @@ bool QEStripChartItem::isInUse ()
 
 //------------------------------------------------------------------------------
 //
-TrackRange QEStripChartItem::getLoprHopr ()
+TrackRange QEStripChartItem::getLoprHopr (bool doScale)
 {
    TrackRange result;
    qcaobject::QCaObject *qca;
@@ -406,28 +428,40 @@ TrackRange QEStripChartItem::getLoprHopr ()
          result.merge (hopr);
       }
    }
+   if (doScale) {
+       result = this->scaling.value (result);
+   }
    return result;
 }   // getLoprHopr
 
 
 //------------------------------------------------------------------------------
 //
-TrackRange QEStripChartItem::getDisplayedMinMax ()
+TrackRange QEStripChartItem::getDisplayedMinMax (bool doScale)
 {
-   return this->displayedMinMax;
+   TrackRange result;
+
+   result = this->displayedMinMax;
+   if (doScale) {
+       result = this->scaling.value (result);
+   }
+   return result;
 }   // getDisplayedMinMax
 
 
 //------------------------------------------------------------------------------
 //
-TrackRange QEStripChartItem::getBufferedMinMax ()
+TrackRange QEStripChartItem::getBufferedMinMax (bool doScale)
 {
-   TrackRange temp;
+   TrackRange result;
 
-   temp = this->historicalMinMax;
-   temp.merge (this->realTimeMinMax);
+   result = this->historicalMinMax;
+   result.merge (this->realTimeMinMax);
 
-   return temp;
+   if (doScale) {
+       result = this->scaling.value (result);
+   }
+   return result;
 }   // getBufferedMinMax
 
 
@@ -882,7 +916,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
       case  QEStripChartContextMenu::SCCM_SCALE_CHART_AUTO:
-         range = this->getLoprHopr ();
+         range = this->getLoprHopr (true);
          status = range.getMinMax(min, max);
          if (status) {
             chart->setYRange (min, max);
@@ -890,7 +924,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
       case QEStripChartContextMenu::SCCM_SCALE_CHART_PLOTTED:
-         range = this->getDisplayedMinMax ();
+         range = this->getDisplayedMinMax (true);
          status = range.getMinMax(min, max);
          if (status) {
             chart->setYRange (min, max);
@@ -898,7 +932,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
       case QEStripChartContextMenu::SCCM_SCALE_CHART_BUFFERED:
-         range = this->getBufferedMinMax ();
+         range = this->getBufferedMinMax (true);
          status = range.getMinMax(min, max);
          if (status) {
             chart->setYRange (min, max);
@@ -913,7 +947,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
       case QEStripChartContextMenu::SCCM_SCALE_PV_AUTO:
-         range = this->getLoprHopr ();
+         range = this->getLoprHopr (false);
          status = range.getMinMax (min, max);
          if (status) {
             this->privateData->pvName->setToolTip ("PV is scaled");
@@ -923,7 +957,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
       case QEStripChartContextMenu::SCCM_SCALE_PV_PLOTTED:
-         range = this->getDisplayedMinMax ();
+         range = this->getDisplayedMinMax (false);
          status = range.getMinMax (min, max);
          if (status) {
             this->privateData->pvName->setToolTip ("PV is scaled");
@@ -933,7 +967,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
       case QEStripChartContextMenu::SCCM_SCALE_PV_BUFFERED:
-         range = this->getBufferedMinMax ();
+         range = this->getBufferedMinMax (false);
          status = range.getMinMax (min, max);
          if (status) {
             this->privateData->pvName->setToolTip ("PV is scaled");
