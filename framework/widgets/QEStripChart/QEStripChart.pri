@@ -24,24 +24,26 @@ RESOURCES += \
     widgets/QEStripChart/QEStripChart.qrc
 
 HEADERS += \
-    widgets/QEStripChart/QEStripChartNames.h \
     widgets/QEStripChart/QEStripChart.h \
     widgets/QEStripChart/QEStripChartContextMenu.h \
-    widgets/QEStripChart/QEStripChartToolBar.h \
     widgets/QEStripChart/QEStripChartItem.h \
+    widgets/QEStripChart/QEStripChartItemDialog.h \
+    widgets/QEStripChart/QEStripChartNames.h \
     widgets/QEStripChart/QEStripChartRangeDialog.h \
     widgets/QEStripChart/QEStripChartTimeDialog.h \
-    widgets/QEStripChart/QEStripChartItemDialog.h \
+    widgets/QEStripChart/QEStripChartToolBar.h \
+    widgets/QEStripChart/QEStripChartUtilities.h \
     widgets/QEStripChart/QEStripChartManager.h
 
 SOURCES += \
     widgets/QEStripChart/QEStripChart.cpp \
     widgets/QEStripChart/QEStripChartContextMenu.cpp \
-    widgets/QEStripChart/QEStripChartToolBar.cpp \
     widgets/QEStripChart/QEStripChartItem.cpp \
+    widgets/QEStripChart/QEStripChartItemDialog.cpp \
     widgets/QEStripChart/QEStripChartRangeDialog.cpp \
     widgets/QEStripChart/QEStripChartTimeDialog.cpp \
-    widgets/QEStripChart/QEStripChartItemDialog.cpp \
+    widgets/QEStripChart/QEStripChartToolBar.cpp \
+    widgets/QEStripChart/QEStripChartUtilities.cpp \
     widgets/QEStripChart/QEStripChartManager.cpp
 
 INCLUDEPATH += \

@@ -48,6 +48,7 @@
 #include "QEStripChart.h"
 #include "QEStripChartItemDialog.h"
 #include "QEStripChartContextMenu.h"
+#include "QEStripChartUtilities.h"
 
 
 // Provide log and exp 10 macro functions.
@@ -60,65 +61,6 @@
 //
 #define LOG10(x)  ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
 #define EXP10(x)  exp (2.302585092994046 * (x))
-
-
-//==============================================================================
-// Utility classes - move to a separate unit??
-//==============================================================================
-// Tracks the minimum and maximum range of a value.
-//
-class TrackRange {
-public:
-   TrackRange ();
-   void clear ();
-   void merge (const double d);           // defines/extends range to include d.
-   void merge (const TrackRange that);    // defines/extends range to include that.
-
-   // returns true if range is defined together with min and max.
-   //
-   bool getMinMax (double & min, double& max) const;
-private:
-   double minimum;
-   double maximum;
-   bool isDefined;
-};
-
-
-//==============================================================================
-// Allows PV points to be scaled y' = (y - d)*m + c
-// This is useful whem comparing values with disparate ranages.
-// It is a simple linear scaling. While d and c are not independent, from a
-// user point of view is it often easier to specify a 'd' and/or a 'c' value.
-//
-class ValueScaling {
-public:
-   ValueScaling ();
-
-   void reset ();
-   void assign (const ValueScaling & s);
-   void set (const double dIn, const double mIn, const double cIn);
-   void get (double &dOut, double &mOut, double &cOut);
-
-   // Find d, m and c such that the from values map to the to values,
-   // e.g a PVs HOPR/LOPR values map to current chart range values.
-   //
-   void map (const double fromLower, const double fromUpper,
-             const double toLower,   const double toUpper);
-
-   bool isScaled ();
-
-   inline double value (const double x) {
-      return (x - d) * m + c;
-   }
-   TrackRange value (const TrackRange & x);
-
-   // overloaded function
-
-private:
-   double d;   // origin
-   double m;   // slope
-   double c;   // offset
-};
 
 
 //==============================================================================
