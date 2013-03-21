@@ -617,10 +617,10 @@ void QELog::refreshLog()
 void QELog::newMessage( QString msg, message_types type )
 {
     // Add the message to the log
-    addLog( type, msg );
+    if ( (type.kind_set & MESSAGE_KIND_LOG) != 0) {
+        addLog( type.severity, msg );
+    }
 }
-
-
 
 
 

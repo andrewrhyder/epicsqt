@@ -212,7 +212,8 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
         case 3: emit dbValueChanged4( value ); break;
         case 4: emit dbValueChanged5( value ); break;
         case 5: emit dbValueChanged6( value ); break;
-        default: sendMessage( "Application error: Unexpected variable index", "QEShape.cpp QEShape::setValue()", MESSAGE_TYPE_ERROR );
+        default: sendMessage( "Application error: Unexpected variable index", "QEShape.cpp QEShape::setValue()",
+                              message_types ( MESSAGE_TYPE_ERROR ) );
     }
 
     // Scale the data.

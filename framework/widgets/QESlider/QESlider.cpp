@@ -230,7 +230,8 @@ void QESlider::userValueChanged( const int &value) {
             // yet been established (and therefore the data type is unknown) then the user
             // interface object should be unaccessable. This code is here in the event that
             // the user can, by design or omision, still attempt a write.
-            sendMessage( "Could not write value as type is not known yet.", "QESlider::userValueChanged()", MESSAGE_TYPE_WARNING );
+            sendMessage( "Could not write value as type is not known yet.", "QESlider::userValueChanged()",
+                          message_types ( MESSAGE_TYPE_WARNING ) );
         }
     }
 }

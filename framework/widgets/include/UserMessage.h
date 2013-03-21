@@ -1,4 +1,5 @@
-/*
+/*  UserMessage.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -29,7 +30,36 @@
 #include <QEPluginLibrary_global.h>
 #include <QtDebug>
 
-enum message_types {MESSAGE_TYPE_INFO, MESSAGE_TYPE_WARNING, MESSAGE_TYPE_ERROR };
+// Note: message_types is now a class (see below) - what was message_types is now message_severities.
+//
+enum message_severities { MESSAGE_TYPE_INFO, MESSAGE_TYPE_WARNING, MESSAGE_TYPE_ERROR };
+
+// These values should be or-ed together.
+// Other values, i.e. 4, 8, 16 etc. can be added as necessary.
+//
+enum message_kinds  { MESSAGE_KIND_NONE = 0,         ///< Degeneate case
+                      MESSAGE_KIND_LOG = 1,          ///< Send message to Loggers (QELog)
+                      MESSAGE_KIND_STATUS_BAR = 2    ///< Send message to statue bars (QEForm/QEGui)
+                    };
+
+typedef unsigned int  message_kind_sets;
+
+// Standard/default kind.
+const message_kind_sets MESSAGE_KIND_STANDARD = ( MESSAGE_KIND_LOG | MESSAGE_KIND_STATUS_BAR );
+
+class message_types {
+public:
+   explicit message_types ();
+   explicit message_types (message_severities severityIn,
+                           message_kind_sets kind_setIn = MESSAGE_KIND_STANDARD);
+
+   /// Function to provide string name for each message type severity
+   QString getSeverityName ();
+
+   message_severities severity;
+   message_kind_sets kind_set;
+};
+
 
 class UserMessage;
 
@@ -160,10 +190,10 @@ public:
     unsigned int getNextMessageFormId();                        ///< Generate a new form ID for all widgets in a new form
 
     void sendMessage( QString message,
-                      message_types type = MESSAGE_TYPE_INFO ); ///< Send a message to the user
+                      message_types type = message_types (MESSAGE_TYPE_INFO) ); ///< Send a message to the user
     void sendMessage( QString message,
                       QString source,
-                      message_types type = MESSAGE_TYPE_INFO ); ///< Send a message to the user with a source reference
+                      message_types type = message_types (MESSAGE_TYPE_INFO) ); ///< Send a message to the user with a source reference
 
     QString getMessageTypeName( message_types type );           ///< Convenience function to provide string names for each message type
 

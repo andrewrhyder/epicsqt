@@ -51,7 +51,7 @@ static QList <struct BufferedMessage> bufferedUserMessages;
 //------------------------------------------------------------------------------
 //
 static void bufferMessage (QString message, 
-                           message_types type = MESSAGE_TYPE_INFO)
+                           message_types type = message_types (MESSAGE_TYPE_INFO))
 {
    QMutexLocker locker (bufferedUserMessagesMutex);
    BufferedMessage bm;
@@ -177,7 +177,7 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
    archiveList = archives.split (' ', QString::SkipEmptyParts);
 
    if (archiveList.count () == 0) {
-      bufferMessage ("no archives specified", MESSAGE_TYPE_WARNING);
+      bufferMessage ("no archives specified");
       return;
    }
 
@@ -319,7 +319,7 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
       }
    } else {
        bufferMessage (QString ("request failure from ").append (interface->getName ()),
-                      MESSAGE_TYPE_ERROR);
+                      message_types (MESSAGE_TYPE_ERROR));
    }
 }
 
@@ -370,7 +370,7 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
 
                   message.sprintf ("PV %s has multiple instances of key %d",
                                    pvChannel.pvName.toAscii().data (), keyTimeSpec.key ) ;
-                  bufferMessage (message, MESSAGE_TYPE_ERROR);
+                  bufferMessage (message, message_types (MESSAGE_TYPE_ERROR));
 
                }
 
@@ -380,7 +380,7 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
                                 pvChannel.pvName.toAscii().data (),
                                 sourceSpec.interface->getName ().toAscii().data (),
                                 context->interface->getName ().toAscii().data ());
-               bufferMessage (message, MESSAGE_TYPE_ERROR);
+               bufferMessage (message, message_types (MESSAGE_TYPE_ERROR));
             }
          }
       }
@@ -390,7 +390,8 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
       bufferMessage (QString ("PV names failure from ").
                      append (context->interface->getName ()).
                      append (" for archive ").
-                     append (context->archive.name), MESSAGE_TYPE_ERROR);
+                     append (context->archive.name),
+                     message_types (MESSAGE_TYPE_ERROR));
 
    }
 
@@ -571,14 +572,14 @@ bool QEArchiveAccess::readArchive (QObject * userData,
          message = "Archive Manager: PV ";
          message.append (pvName);
          message.append (" has no matching time overlaps.");
-         this->sendMessage (message, MESSAGE_TYPE_WARNING);
+         this->sendMessage (message, message_types (MESSAGE_TYPE_WARNING));
       }
 
    } else {
       message = "Archive Manager: PV ";
       message.append (pvName);
       message.append (" not found in archive.");
-      this->sendMessage (message, MESSAGE_TYPE_WARNING);
+      this->sendMessage (message, message_types (MESSAGE_TYPE_WARNING));
    }
 
    return result;

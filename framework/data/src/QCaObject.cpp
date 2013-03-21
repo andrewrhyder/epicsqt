@@ -242,7 +242,9 @@ bool QCaObject::removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent )
         if( userMessage )
         {
             QString msg( recordName );
-            userMessage->sendMessage( msg.append( " Outstanding events list is empty. It should contain at least one event"), "QCaObject::processEvent()", MESSAGE_TYPE_ERROR );
+            userMessage->sendMessage( msg.append( " Outstanding events list is empty. It should contain at least one event"),
+                                      "QCaObject::processEvent()",
+                                      message_types ( MESSAGE_TYPE_ERROR ) );
         }
         return false;
     }
@@ -254,7 +256,9 @@ bool QCaObject::removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent )
         if( userMessage )
         {
             QString msg( recordName );
-            userMessage->sendMessage( msg.append( " Outstanding events list is corrupt. The first event is not the event being processed" ), "QCaObject::processEvent()", MESSAGE_TYPE_ERROR );
+            userMessage->sendMessage( msg.append( " Outstanding events list is corrupt. The first event is not the event being processed" ),
+                                      "QCaObject::processEvent()",
+                                      message_types ( MESSAGE_TYPE_ERROR ) );
         }
         return false;
     }
@@ -296,7 +300,7 @@ bool QCaObject::createChannel() {
             case REQUEST_FAILED:       msg.append( " Request failed.");       break;
             default:                   msg.append( " Unknown error");         break;
         }
-        userMessage->sendMessage( msg, "QCaObject::createChannel()", MESSAGE_TYPE_ERROR );
+        userMessage->sendMessage( msg, "QCaObject::createChannel()", message_types ( MESSAGE_TYPE_ERROR ) );
         return false;
     }
     return false;
@@ -338,7 +342,7 @@ bool QCaObject::createSubscription() {
             case REQUEST_FAILED:       msg.append( " Request failed.");       break;
             default:                   msg.append( " Unknown error");         break;
         }
-        userMessage->sendMessage( msg, "QCaObject::createSubscription()", MESSAGE_TYPE_ERROR );
+        userMessage->sendMessage( msg, "QCaObject::createSubscription()", message_types ( MESSAGE_TYPE_ERROR ) );
         return false;
     }
     return false;
@@ -368,7 +372,7 @@ bool QCaObject::getChannel() {
             case REQUEST_FAILED:       msg.append( " Request failed.");       break;
             default:                   msg.append( " Unknown error");         break;
         }
-        userMessage->sendMessage( msg, "QCaObject::getChannel()", MESSAGE_TYPE_ERROR );
+        userMessage->sendMessage( msg, "QCaObject::getChannel()", message_types ( MESSAGE_TYPE_ERROR ) );
         return false;
     }
     return false;
@@ -466,7 +470,7 @@ bool QCaObject::putChannel() {
             case REQUEST_FAILED:       msg.append( " Request failed.");       break;
             default:                   msg.append( " Unknown error");         break;
         }
-        userMessage->sendMessage( msg, "QCaObject::putChannel()", MESSAGE_TYPE_ERROR );
+        userMessage->sendMessage( msg, "QCaObject::putChannel()", message_types ( MESSAGE_TYPE_ERROR ) );
         return false;
     }
     return false;
@@ -602,7 +606,8 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             if( userMessage )
             {
                 QString msg( recordName );
-                userMessage->sendMessage( msg.append( " Connection down" ), "QCaObject::processEvent()", MESSAGE_TYPE_WARNING );
+                userMessage->sendMessage( msg.append( " Connection down" ), "QCaObject::processEvent()",
+                                          message_types ( MESSAGE_TYPE_WARNING ) );
             }
             connectionMachine->active = false;
             connectionMachine->process( qcastatemachine::DISCONNECTED );
@@ -627,7 +632,8 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             if( userMessage )
             {
                 QString msg( recordName );
-                userMessage->sendMessage( msg.append( " Subscription failed" ), "QCaObject::processEvent()", MESSAGE_TYPE_WARNING );
+                userMessage->sendMessage( msg.append( " Subscription failed" ), "QCaObject::processEvent()",
+                                          message_types ( MESSAGE_TYPE_WARNING ) );
             }
 
             subscriptionMachine->active = false;
@@ -647,7 +653,8 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             if( userMessage )
             {
                 QString msg( recordName );
-                userMessage->sendMessage( msg.append( " Read failed" ), "QCaObject::processEvent()", MESSAGE_TYPE_WARNING );
+                userMessage->sendMessage( msg.append( " Read failed" ), "QCaObject::processEvent()",
+                                          message_types ( MESSAGE_TYPE_WARNING ) );
             }
             readMachine->active = false;
             readMachine->process( qcastatemachine::READING_FAIL );
@@ -664,7 +671,8 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             if( userMessage )
             {
                 QString msg( recordName );
-                userMessage->sendMessage( msg.append( " Write failed" ), "QCaObject::processEvent()", MESSAGE_TYPE_WARNING );
+                userMessage->sendMessage( msg.append( " Write failed" ), "QCaObject::processEvent()",
+                                          message_types ( MESSAGE_TYPE_WARNING ) );
             }
 
             writeMachine->active = false;
@@ -676,7 +684,8 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             if( userMessage )
             {
                 QString msg( recordName );
-                userMessage->sendMessage( msg.append( " Exception" ), "QCaObject::processEvent()", MESSAGE_TYPE_ERROR );
+                userMessage->sendMessage( msg.append( " Exception" ), "QCaObject::processEvent()",
+                                          message_types ( MESSAGE_TYPE_ERROR ) );
             }
             break;
         }
@@ -685,7 +694,8 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             if( userMessage )
             {
                 QString msg( recordName );
-                userMessage->sendMessage( msg.append( " Unknown connection" ), "QCaObject::processEvent()", MESSAGE_TYPE_WARNING );
+                userMessage->sendMessage( msg.append( " Unknown connection" ), "QCaObject::processEvent()",
+                                          message_types ( MESSAGE_TYPE_WARNING ) );
             }
             break;
         }
@@ -694,7 +704,8 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
             if( userMessage )
             {
                 QString msg( recordName );
-                userMessage->sendMessage( msg.append( " Unknown CA callback" ), "QCaObject::processEvent()", MESSAGE_TYPE_ERROR );
+                userMessage->sendMessage( msg.append( " Unknown CA callback" ), "QCaObject::processEvent()",
+                                          message_types ( MESSAGE_TYPE_ERROR ) );
             }
         }
         break;
@@ -1019,7 +1030,9 @@ void QCaObject::setChannelExpired() {
     if( userMessage && !channelExpiredMessage )
     {
         QString msg( recordName );
-        userMessage->sendMessage( msg.append( " Channel expired, will keep retrying" ), "QCaObject::setChannelExpired()", MESSAGE_TYPE_WARNING );
+        userMessage->sendMessage( msg.append( " Channel expired, will keep retrying" ),
+                                  "QCaObject::setChannelExpired()",
+                                  message_types ( MESSAGE_TYPE_WARNING ) );
         channelExpiredMessage = true;
     }
 

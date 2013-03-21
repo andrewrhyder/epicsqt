@@ -556,8 +556,8 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    f.sprintf ("    %+.10g", y);
    mouseReadOut.append (f);
 
-   this->setReadOut (mouseReadOut);
-   // this->chart->sendMessage (mouseReadOut);
+   this->chart->sendMessage (mouseReadOut,
+                             message_types (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS_BAR));
 }
 
 //------------------------------------------------------------------------------

@@ -1,4 +1,5 @@
-/*
+/*  UserMessage.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -38,6 +39,32 @@
 // Static variables used to manage message signals and slots.
 UserMessageSignal UserMessage::userMessageSignal;
 unsigned int UserMessage::nextMessageFormId = 1;
+
+
+// Construction
+message_types::message_types()
+{
+    kind_set = MESSAGE_KIND_NONE;
+    severity = MESSAGE_TYPE_INFO;
+}
+
+message_types::message_types( message_severities severityIn,
+                              message_kind_sets kind_setIn )
+{
+    severity = severityIn;
+    kind_set = kind_setIn;
+}
+
+// Convenience function to provide string names for each message type
+QString message_types::getSeverityName() {
+    switch( severity )
+    {
+        case MESSAGE_TYPE_INFO:    return "Information";
+        case MESSAGE_TYPE_WARNING: return "Warning";
+        case MESSAGE_TYPE_ERROR:   return "Error";
+    }
+    return "";
+}
 
 
 // Construction
@@ -138,13 +165,7 @@ unsigned int UserMessage::getNextMessageFormId()
 // Convenience function to provide string names for each message type
 QString UserMessage::getMessageTypeName( message_types type )
 {
-    switch( type )
-    {
-        case MESSAGE_TYPE_INFO:    return "Information";
-        case MESSAGE_TYPE_WARNING: return "Warning";
-        case MESSAGE_TYPE_ERROR:   return "Error";
-    }
-    return "";
+    return type.getSeverityName();
 }
 
 

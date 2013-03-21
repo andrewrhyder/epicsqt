@@ -143,7 +143,7 @@ bool QEForm::readUiFile()
             {
                 QString msg;
                 QTextStream(&msg) << "User interface file '" << uiFileName << "' could not be opened";
-                sendMessage( msg, "QEForm::readUiFile", MESSAGE_TYPE_WARNING );
+                sendMessage( msg, "QEForm::readUiFile", message_types ( MESSAGE_TYPE_WARNING) );
             }
         }
 

@@ -629,7 +629,9 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
 void MainWindow::newMessage( QString msg, message_types type )
 {
     // Change the message in the status bar
-    statusBar()->showMessage( getMessageTypeName( type ).append( ": ").append( msg ) );
+    if ( ( type.kind_set & MESSAGE_KIND_STATUS_BAR ) != 0 ) {
+        statusBar()->showMessage( getMessageTypeName( type ).append( ": ").append( msg ) );
+    }
 }
 
 //=================================================================================
@@ -869,7 +871,7 @@ QEForm* MainWindow::createGui( QString fileName )
     profile.setPublishedMessageFormId( getChildFormId() );
 
     // Inform user
-    newMessage( QString( "Opening %1 in new window " ).arg( fileName ), MESSAGE_TYPE_INFO );
+    newMessage( QString( "Opening %1 in new window " ).arg( fileName ), message_types ( MESSAGE_TYPE_INFO ) );
 
     // Build the gui
     QEForm* gui = new QEForm( fileName );
