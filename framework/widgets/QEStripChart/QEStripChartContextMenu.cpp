@@ -49,11 +49,11 @@ QEStripChartContextMenu::QEStripChartContextMenu (QWidget *parent) : QMenu (pare
    menu = new QMenu ("Adjust/Scale this PV", this);
    this->addMenu (menu);
    this->make (menu, "Reset",                               false, SCCM_SCALE_PV_RESET);
-   this->make (menu, "General...",                          false, SCCM_SCALE_PV_GENERAL)->setEnabled (false);
+   this->make (menu, "General...",                          false, SCCM_SCALE_PV_GENERAL);
    this->make (menu, "HOPR/LOPR values map to chart range", false, SCCM_SCALE_PV_AUTO);
    this->make (menu, "Plotted values map to chart range",   false, SCCM_SCALE_PV_PLOTTED);
    this->make (menu, "Buffered values map to chart range",  false, SCCM_SCALE_PV_BUFFERED);
-   this->make (menu, "First value maps to chart centre",    false, SCCM_SCALE_PV_CENTRE)->setEnabled (false);
+   this->make (menu, "First value maps to chart centre",    false, SCCM_SCALE_PV_CENTRE);
 
    menu = new QMenu ("Mode", this);
    this->addMenu (menu);

@@ -47,6 +47,7 @@
 
 #include "QEStripChart.h"
 #include "QEStripChartItemDialog.h"
+#include "QEStripChartAdjustPVDialog.h"
 #include "QEStripChartContextMenu.h"
 #include "QEStripChartUtilities.h"
 
@@ -102,6 +103,7 @@ public:
    TrackRange getBufferedMinMax (bool doScale);    // returns range of values that could be plotted
 
    void readArchive ();
+   void normalise ();
 
    void plotData (const double timeScale,      // x scale modifier
                   const bool isLinearScale);   // y scale modifier
@@ -132,10 +134,13 @@ private:
    TrackRange historicalMinMax;
    TrackRange realTimeMinMax;
 
+   bool firstPointIsDefined;
+   QCaDataPoint firstPoint;
    TrackRange displayedMinMax;
 
    QEArchiveAccess archiveAccess;
-   QEStripChartItemDialog dialog;
+   QEStripChartItemDialog pvNameEditDialog;
+   QEStripChartAdjustPVDialog adjustPVDialog;
 
    // Return pv name label style, i.e. colour
    //

@@ -865,6 +865,7 @@ void QEStripChart::yScaleModeSelected (const QEStripChartNames::YScaleModes mode
 void QEStripChart::yRangeSelected (const QEStripChartNames::ChartYRanges scale)
 {
    int n;
+   unsigned int slot;
 
    switch (scale) {
       case QEStripChartNames::manual:
@@ -893,8 +894,14 @@ void QEStripChart::yRangeSelected (const QEStripChartNames::ChartYRanges scale)
       case QEStripChartNames::normalised:
          this->privateData->chartYScale = scale;
          this->setYRange (0.0, 100.0);
+
+         for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
+            QEStripChartItem * item = this->privateData->getItem (slot);
+            if (item->isInUse ()) {
+               item->normalise ();
+            }
+         }
          this->privateData->pushState ();
-         // TODO - set each PVs m, d and c parameters to map operating range to 0 .. 100
          break;
 
       default:

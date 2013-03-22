@@ -422,6 +422,10 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
          // Is it a valid point - can we sensible plot it?
          //
          if (this->isDisplayable (point)) {
+            if (!this->firstPointIsDefined) {
+               this->firstPointIsDefined = true;
+               this->firstPoint = point;
+            }
             // Yes we can.
             //
             // start edge effect required?
@@ -510,6 +514,7 @@ void QEStripChartItem::plotData (const double timeScale, const bool isLinearScal
    TrackRange temp;
 
    this->displayedMinMax.clear ();
+   this->firstPointIsDefined = false;
 
    this->plotDataPoints (this->historicalTimeDataPoints, timeScale, isLinearScale, false, temp);
    this->displayedMinMax.merge (temp);
@@ -687,6 +692,14 @@ void QEStripChartItem::readArchive ()
 
 //------------------------------------------------------------------------------
 //
+void QEStripChartItem:: normalise () {
+   // Just leverage off the context menu handler.
+   //
+   this->contextMenuSelected (QEStripChartContextMenu::SCCM_SCALE_PV_AUTO);
+}
+
+//------------------------------------------------------------------------------
+//
 QString QEStripChartItem::getStyle ()
 {
    QString result;
@@ -752,6 +765,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
    QEStripChart *chart = this->privateData->chart;  // alias
    TrackRange range;
    double min, max;
+   double midway;
    bool status;
    int n;
 
@@ -787,16 +801,30 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
 
 
       case QEStripChartContextMenu::SCCM_SCALE_PV_RESET:
-         this->privateData->pvName->setToolTip ("Use context menu to modify PV attributes");
          this->scaling.reset();
          chart->plotData ();
+         break;
+
+      case QEStripChartContextMenu::SCCM_SCALE_PV_GENERAL:
+         this->adjustPVDialog.setSupport (chart->getYMinimum (),
+                                          chart->getYMaximum (),
+                                          this->getLoprHopr(false),
+                                          this->getDisplayedMinMax(false),
+                                          this->getBufferedMinMax(false));
+
+         this->adjustPVDialog.setValueScaling (this->scaling);
+         n = this->adjustPVDialog.exec ();
+         if (n == 1) {
+             // User has selected okay.
+             this->scaling.assign (this->adjustPVDialog.getValueScaling ());
+             chart->plotData ();
+         }
          break;
 
       case QEStripChartContextMenu::SCCM_SCALE_PV_AUTO:
          range = this->getLoprHopr (false);
          status = range.getMinMax (min, max);
          if (status) {
-            this->privateData->pvName->setToolTip ("PV is scaled");
             this->scaling.map (min, max, chart->getYMinimum (), chart->getYMaximum ());
             chart->plotData ();
          }
@@ -806,7 +834,6 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          range = this->getDisplayedMinMax (false);
          status = range.getMinMax (min, max);
          if (status) {
-            this->privateData->pvName->setToolTip ("PV is scaled");
             this->scaling.map (min, max, chart->getYMinimum (), chart->getYMaximum ());
             chart->plotData ();
          }
@@ -816,12 +843,17 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          range = this->getBufferedMinMax (false);
          status = range.getMinMax (min, max);
          if (status) {
-            this->privateData->pvName->setToolTip ("PV is scaled");
             this->scaling.map (min, max, chart->getYMinimum (), chart->getYMaximum ());
             chart->plotData ();
          }
          break;
 
+      case QEStripChartContextMenu::SCCM_SCALE_PV_CENTRE:
+         if (this->firstPointIsDefined) {
+            midway = (chart->getYMinimum () + chart->getYMaximum () ) / 2.0;
+            this->scaling.set (this->firstPoint.value, 1.0, midway);
+         }
+         break;
 
       case QEStripChartContextMenu::SCCM_LINE_COLOUR:
          this->privateData->colourDialog->setCurrentColor (this->getColour ());
@@ -829,13 +861,13 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
       case QEStripChartContextMenu::SCCM_PV_EDIT_NAME:
-         this->dialog.setPvName (this->getPvName ());
+         this->pvNameEditDialog.setPvName (this->getPvName ());
 
-         n = this->dialog.exec ();
+         n = this->pvNameEditDialog.exec ();
          if (n == 1) {
              // User has selected okay.
-             if (this->getPvName () != this->dialog.getPvName ()) {
-                this->setPvName (this->dialog.getPvName (), "");
+             if (this->getPvName () != this->pvNameEditDialog.getPvName ()) {
+                this->setPvName (this->pvNameEditDialog.getPvName (), "");
              }
              // and replot the data
              //
@@ -850,6 +882,14 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
 
       default:
          DEBUG << int (option) << this->privateData->pvName->text () << "tbd";
+   }
+
+   // Set tool top depending on current scaling.
+   //
+   if (this->scaling.isScaled()) {
+      this->privateData->pvName->setToolTip ("PV is scaled");
+   } else {
+      this->privateData->pvName->setToolTip ("Use context menu to modify PV attributes");
    }
 }
 

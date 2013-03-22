@@ -110,11 +110,11 @@ void ValueScaling::reset ()
 
 //------------------------------------------------------------------------------
 //
-void ValueScaling::assign (const ValueScaling & s)
+void ValueScaling::assign (const ValueScaling & source)
 {
-   d = s.d;
-   m = s.m;
-   c = s.c;
+   d = source.d;
+   m = source.m;
+   c = source.c;
 }
 
 //------------------------------------------------------------------------------

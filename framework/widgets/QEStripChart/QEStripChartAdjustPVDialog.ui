@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Strip Chart Times</string>
+   <string>Strip Chart Adjust/Scale PV</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
@@ -28,6 +28,12 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
+        <height>18</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
         <height>18</height>
        </size>
       </property>
@@ -170,6 +176,12 @@
           <height>0</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>84</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>HOPR/LOPR</string>
         </property>
@@ -177,6 +189,18 @@
       </item>
       <item>
        <widget class="QPushButton" name="plottedButton">
+        <property name="minimumSize">
+         <size>
+          <width>84</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>84</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>Plotted</string>
         </property>
@@ -184,6 +208,18 @@
       </item>
       <item>
        <widget class="QPushButton" name="bufferedButton">
+        <property name="minimumSize">
+         <size>
+          <width>84</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>84</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>Buffered</string>
         </property>
@@ -214,6 +250,12 @@
           <height>0</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>84</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>Reset</string>
         </property>
@@ -221,6 +263,18 @@
       </item>
       <item>
        <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="minimumSize">
+         <size>
+          <width>178</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>178</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="standardButtons">
          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
         </property>
