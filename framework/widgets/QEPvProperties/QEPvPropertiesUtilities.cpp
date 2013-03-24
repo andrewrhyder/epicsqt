@@ -256,7 +256,8 @@ bool QERecordFieldName::pvNameIsValid (const QString & pvName)
    for (j = 1; j < pvName.length (); j++) {
       c = pvName [j];
 
-      if (c.isUpper() || c.isLower() || c.isDigit()) {
+      if (c.isUpper() || c.isLower() || c.isDigit() ||
+         (c == '_')   || (c == '-')) {
          // is good
       } else if (c == ':') {
          colonCount++;

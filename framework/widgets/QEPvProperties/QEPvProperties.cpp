@@ -41,6 +41,7 @@
 #include "QEPvProperties.h"
 #include "QEPvPropertiesUtilities.h"
 
+
 #define DEBUG qDebug() << "QEPvProperties::" << __FUNCTION__ << ":" << __LINE__
 
 
@@ -94,9 +95,9 @@ static void initialise_record_specs ()
    // Lastly augment used file in current (startup) directory.
    //
    okay |= recordSpecList.process_record_spec_file ("./record_field_list.txt");
-   
+
    if (okay == false) {
-      qDebug () << __FUNCTION__ << __LINE__ << "unable to read any record field files";
+      DEBUG << "unable to read any record field files";
    }
 }
 
@@ -104,21 +105,28 @@ static void initialise_record_specs ()
 //==============================================================================
 // Tables columns
 //
-#define FIELD_COL              0
-#define VALUE_COL              1
-#define NUNBER_COLS            2
+#define FIELD_COL                 0
+#define VALUE_COL                 1
+#define NUNBER_COLS               2
+#define DEFAULT_SECTION_SIZE      22
 
-#define WIDGET_MIN_WIDTH       340
-#define WIDGET_MIN_HEIGHT      246
+#define WIDGET_MIN_WIDTH          340
+#define WIDGET_MIN_HEIGHT         246
 
-#define WIDGET_DEFAULT_WIDTH   448
-#define WIDGET_DEFAULT_HEIGHT  290
+#define WIDGET_DEFAULT_WIDTH      448
+#define WIDGET_DEFAULT_HEIGHT     290
+
+#define ENUMERATIONS_MIN_HEIGHT   10
+#define ENUMERATIONS_MAX_HEIGHT   100
+#define NUMBER_OF_ENUMERATIONS    32
 
 
 //==============================================================================
 // WidgetHolder class functions
 //==============================================================================
 //
+class QLabelList : public QList<QLabel *> {};
+
 class QEPvProperties::OwnWidgets {
 public:
    OwnWidgets (QEPvProperties *parent);
@@ -139,7 +147,8 @@ public:
    QLabel *indexInfo;
    QTableWidget *table;
    QMenu *tableContextMenu;
-   QFrame *enumerations;
+   QFrame *enumerationsFrame;
+   QLabelList enumerationLabelList;
    QEResizeableFrame * enumerationResize;
    QVBoxLayout *layout;
 };
@@ -148,6 +157,8 @@ public:
 //
 QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
 {
+   int j;
+
    // Creates all the internal widgets, and apart from static labels, does no
    // other configuration or setup per se.
    //
@@ -168,13 +179,19 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
    this->timeStamp = new QLabel (this->topFrame);
    this->indexInfo = new QLabel (this->topFrame);
 
+   this->enumerationsFrame = new QFrame (NULL); // is re-pareneted by enumerationResize
 
-   this->enumerations = new QFrame (NULL); // is re-pareneted
-   this->enumerationResize = new QEResizeableFrame (10, 80, parent);
-   this->enumerationResize->setFixedHeight (10);
+   for (j = 0; j < NUMBER_OF_ENUMERATIONS; j++) {
+      QLabel * item;
+      item = new QLabel (this->enumerationsFrame);
+      this->enumerationLabelList.append (item);
+   }
+
+   this->enumerationResize = new QEResizeableFrame (ENUMERATIONS_MIN_HEIGHT, ENUMERATIONS_MAX_HEIGHT, parent);
+   this->enumerationResize->setFixedHeight (ENUMERATIONS_MIN_HEIGHT);
    this->enumerationResize->setFrameShape (QFrame::Panel);
    this->enumerationResize->setGrabberToolTip ("Re size enuerations");
-   this->enumerationResize->setWidget (this->enumerations);
+   this->enumerationResize->setWidget (this->enumerationsFrame);
 
    // We create this with 40 rows initially - this will get expanded if/when necessary.
    // Mainly want enough to make it look sensible in designer.
@@ -256,6 +273,8 @@ void QEPvProperties::common_setup ()
    OwnWidgets *own;
    QTableWidgetItem * item;
    QString style;
+   int j;
+   QLabel *enumLabel;
 
    // This control uses a single data source (from a designer point of view)
    //
@@ -319,6 +338,12 @@ void QEPvProperties::common_setup ()
    own->indexInfo->setIndent (4);
    own->indexInfo->setStyleSheet (style);
 
+   for (j = 0; j < own->enumerationLabelList.count (); j++) {
+      enumLabel = own->enumerationLabelList.value (j);
+      enumLabel->setIndent (4);
+      enumLabel->setStyleSheet (style);
+   }
+
    item = new QTableWidgetItem (" Field ");
    own->table->setHorizontalHeaderItem (FIELD_COL, item);
 
@@ -329,7 +354,7 @@ void QEPvProperties::common_setup ()
    own->table->horizontalHeader()->setStretchLastSection (true);
 
    own->table->verticalHeader()->hide ();
-   own->table->verticalHeader()->setDefaultSectionSize (22);
+   own->table->verticalHeader()->setDefaultSectionSize (DEFAULT_SECTION_SIZE);
 
 
    // Setup layout of widgets with the QEPvProperties QFrame
@@ -392,11 +417,15 @@ void QEPvProperties::common_setup ()
 void  QEPvProperties::resizeEvent (QResizeEvent *)
 {
    OwnWidgets *own = this->ownWidgets;
+
+   QLabel *enumLabel;
    int pw, ph;   //
    int x, y;
    int wh;       // widget height
    int lw;       // label width
    int fw;       // field width
+   int j;
+   int epr;
 
    // Get current width and height.
    //
@@ -423,7 +452,13 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
    own->label6->setGeometry    (x, y, lw, wh); x += lw + 6;
    own->indexInfo->setGeometry (x, y, fw, wh); y += 22;
 
-   own->topFrame->setFixedHeight (y);
+   pw = own->enumerationsFrame->width ();
+   epr = pw / 160;    // calc enumerations per row.
+   lw = ((pw - 4)/ epr) - 4;
+   for (j = 0; j < own->enumerationLabelList.count (); j++) {
+      enumLabel = own->enumerationLabelList.value (j);
+      enumLabel->setGeometry (4 + (j%epr)*(lw + 4), 4 + (j/epr)*20, lw, wh);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -698,6 +733,7 @@ void QEPvProperties::setValueConnection (QCaConnectionInfo& connectionInfo)
       //
       s.sprintf ("%d / %ld", 1,  qca->getElementCount());
       this->ownWidgets->indexInfo->setText (s);
+      this->isFirstUpdate = true;
    }
 }
 
@@ -708,13 +744,66 @@ void QEPvProperties::setValueValue (const QString &,
                                     QCaDateTime& dateTime,
                                     const unsigned int&)
 {
-    this->ownWidgets->timeStamp->setText (dateTime.text ());
+   OwnWidgets *own = this->ownWidgets;
 
-    if (this->lastSeverity != alarmInfo.getSeverity ()) {
-       this->lastSeverity = alarmInfo.getSeverity ();
-       this->updateToolTipAlarm (alarmInfo.severityName ());
-       // setStyleSheet (alarmInfo.style ());
-    }
+   qcaobject::QCaObject *qca;
+   QStringList enumerations;
+   QLabel *enumLabel;
+   QLabel *enumLast;
+   int n;
+   int j;
+   QRect g;
+   int h;
+
+   // NOTE: The value lable updates itself.
+   //
+   own->timeStamp->setText (dateTime.text ());
+
+   if (this->isFirstUpdate) {
+
+      // Ensure we do any require resizing.
+      //
+      this->resizeEvent (NULL);
+
+      // Set up any enumeration values
+      // We "know" that the only/main channel is the 1st (slot 0) channel.
+      //
+      qca = this->ownWidgets->value->getQcaItem (0);
+      enumerations = qca->getEnumerations ();
+      n = enumerations.count();
+
+      enumLast = NULL;
+      for (j = 0; j < this->ownWidgets->enumerationLabelList.count (); j++) {
+         enumLabel = this->ownWidgets->enumerationLabelList.value (j);
+         enumLabel->setVisible (j < n);
+         if (j < n) {
+            // Value is specified.
+            enumLabel->setText (enumerations.value (j));
+            enumLast = enumLabel;
+         } else {
+            enumLabel->clear ();
+         }
+      }
+
+      if (enumLast) {
+         g = enumLast->geometry ();
+         h = ENUMERATIONS_MIN_HEIGHT + g.top() + g.height() + 2;
+      } else {
+         h = ENUMERATIONS_MIN_HEIGHT;
+      }
+      own->enumerationResize->setAllowedMaximum (h);
+
+      // Exand to max height.
+      own->enumerationResize->setFixedHeight (h);
+
+      this->isFirstUpdate = false;
+   }
+
+   if (this->lastSeverity != alarmInfo.getSeverity ()) {
+      this->lastSeverity = alarmInfo.getSeverity ();
+      this->updateToolTipAlarm (alarmInfo.severityName ());
+      // setStyleSheet (alarmInfo.style ());
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -765,7 +854,6 @@ void QEPvProperties::setFieldValue (const QString &value,
    }
 }
 
-
 //------------------------------------------------------------------------------
 // Unlike most widgets, the frame is not disabled if/when PVs disconnect
 // Normally, standardProperties::setApplicationEnabled() is called
@@ -795,7 +883,7 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
          setVariableName (newPvName, 0);
          this->establishConnection (0);
       } else {
-          qDebug () << __FUNCTION__ << __LINE__ << "BnB" <<  index << oldPvName << newPvName;
+         DEBUG <<  index << oldPvName << newPvName;
       }
    }
 }
@@ -833,19 +921,19 @@ void QEPvProperties::customContextMenuRequested (const QPoint & posIn)
          break;
 
       default:
-         DEBUG << "unexpected colum number:" << item->column () << trimmed;
+         DEBUG << "unexpected column number:" << item->column () << trimmed;
          newPV = "";
          return;
    }
 
-   menu->clear ();
    action = new QAction ("Properties", menu);
    action->setCheckable (false);
    action->setData (QVariant (newPV));
    action->setEnabled (!newPV.isEmpty ());
+   menu->clear ();
    menu->addAction (action);
 
-   pos.setY (pos.y () + 22);  // A feature of QTableWiget or header vizible.
+   pos.setY (pos.y () + DEFAULT_SECTION_SIZE);  // A feature of QTableWiget (because header visible maybe?).
    golbalPos = table->mapToGlobal (pos);
    menu->exec (golbalPos, 0);
 }
