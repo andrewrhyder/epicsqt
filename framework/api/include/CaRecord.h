@@ -66,6 +66,7 @@ namespace carecord {
       void setUnits( std::string newUnits );
 
       void setTimeStamp( unsigned long timeStampSecondsIn, unsigned long timeStampNanosecondsIn );
+      void clearEnumState();
       void addEnumState( std::string newEnumStates );
 
       void setDisplayLimit( double newUpper, double newLower );

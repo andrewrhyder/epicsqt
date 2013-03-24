@@ -770,8 +770,9 @@ void QCaObject::processData( void* newDataPtr ) {
         // Note the precision
         precision = CaObject::getPrecision();
 
-        // Note the display limits
-        displayLimitUpper = CaObject::getDisplayUpper();
+        // Note the display limits, and the special for .STAT PVs
+        // See QEStringFormatting::formatString
+        displayLimitUpper = isStatField ? 21 : CaObject::getDisplayUpper();
         displayLimitLower = CaObject::getDisplayLower();
 
         // Note the alarm limits

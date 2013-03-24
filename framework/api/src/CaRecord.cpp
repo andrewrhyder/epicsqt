@@ -147,6 +147,13 @@ void CaRecord::setTimeStamp(  unsigned long timeStampSecondsIn, unsigned long ti
     timeStampNanoseconds = timeStampNanosecondsIn;
 }
 
+/*
+    Clear/empty the enumeration states for the record.
+*/
+void CaRecord::clearEnumState() {
+   enumStates.clear ();
+}
+
 
 /*
     Set the enumeration string states for the record.
@@ -259,6 +266,8 @@ void CaRecord::reset() {
     warning.lower = 0;
     control.upper = 0;
     control.lower = 0;
+
+    enumStates.clear();
 }
 
 // end
