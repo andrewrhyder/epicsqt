@@ -27,188 +27,36 @@
 #include <stdlib.h>
 
 #include <QDebug>
-#include <QFile>
-#include <QList>
-#include <QStringList>
 #include <QTableWidgetItem>
-#include <QTextStream>
 #include <QComboBox>
 #include <QFrame>
 #include <QLabel>
+#include <QMenu>
+#include <QVBoxLayout>
+
 #include <QELabel.h>
 #include <QEStringFormatting.h>
+#include <QEResizeableFrame.h>
 
-#include <QEPvProperties.h>
+#include "QEPvProperties.h"
+#include "QEPvPropertiesUtilities.h"
 
-
-//==============================================================================
-// Local classes
-//==============================================================================
-// This class provides a named (by record type: ai, bo, calc etc) list of
-// record field names.
-// No other info about the field (DBF_INLINK, DBF_DOUBLE, DBF_MENU etc.) provided.
-//
-class RecordSpec : public QStringList {
-private:
-   QString recordType;
-
-public:
-   RecordSpec (const QString theRecordType)
-   {
-      this->recordType = theRecordType;
-      this->clear ();
-   }
-
-   QString getRecordType ()
-   {
-      return this->recordType;
-   }
-
-   QString getFieldName (const int index)
-   {
-      if ((0 <= index) && (index < size ())) {
-         return this->at (index);
-      } else {
-         return "";
-      }
-   }
-};
-
-//------------------------------------------------------------------------------
-// This class provides a list of RecordSpec specs, with additional find functions.
-//
-class RecordSpecList : public QList<RecordSpec *> {
-private:
-   int findSlot (const QString recordType);
-
-public:
-    RecordSpec *find (const QString recordType);
-    void appendOrReplace ( RecordSpec *pRecordSpec);
-};
-
-
-//------------------------------------------------------------------------------
-//
-int RecordSpecList::findSlot (const QString recordType) {
-   int result = -1;
-   RecordSpec * pCheckSpec;
-
-   for (int j = 0; j < this->size (); j++) {
-
-      pCheckSpec = this->at (j);
-      if (pCheckSpec->getRecordType () == recordType) {
-         // Found it ;-)
-         //
-         result = j;
-         break;
-      }
-   }
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
-RecordSpec * RecordSpecList::find (const QString recordType) {
-   RecordSpec * result = NULL;
-   int slot;
-
-   slot = this->findSlot(recordType);
-   if (slot >= 0) {
-      result = this->at (slot);
-   }
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
-void RecordSpecList::appendOrReplace ( RecordSpec *pRecordSpec)
-{
-   int slot;
-
-   if (pRecordSpec) {
-      slot = this->findSlot (pRecordSpec->getRecordType());
-      if (slot >= 0) {
-         RecordSpec *pPrevious;
-
-         pPrevious = this->at (slot);
-         this->replace (slot, pRecordSpec);
-         delete pPrevious;
-
-      } else {
-
-         // Just append this ite.
-         //
-         this->append (pRecordSpec);
-      }
-   }
-}
+#define DEBUG qDebug() << "QEPvProperties::" << __FUNCTION__ << ":" << __LINE__
 
 
 //==============================================================================
 // class wide data
 //==============================================================================
 //
-static bool record_specs_are_initialised = false;  // setup housekeeping
-static RecordSpec *pDefaultRecordSpec = NULL;      // default for unknown record types
-static RecordSpecList recordSpecList;              // list of record type specs
+static bool record_specs_are_initialised = false;    // setup housekeeping
+static QERecordSpec *pDefaultRecordSpec = NULL;      // default for unknown record types
+static QERecordSpecList recordSpecList;              // list of record type specs
 
 
 //==============================================================================
-// Utilities functions
+// Utilities function
 //==============================================================================
 //
-static bool process_record_spec_file (const QString& filename)
-{
-   if (filename == "") {
-      return false;
-   }
-
-   QFile record_field_file (filename);
-
-   if (!record_field_file.open (QIODevice::ReadOnly | QIODevice::Text)) {
-      return false;
-   }
-
-   QTextStream source (&record_field_file);
-   RecordSpec *pRecordSpec;
-   QString recordType;
-   unsigned int lineno;
-
-   pRecordSpec = NULL;
-   lineno = 0;
-   while (!source.atEnd()) {
-      QString line = source.readLine ().trimmed ();
-
-      lineno++;
-
-      // Skip empty line and comment lines.
-      //
-      if (line.length () == 0) continue;
-      if (line.left (1) == "#") continue;
-
-      // record types designated by: <<name>>
-      //
-      if ((line.left (2) == "<<") && (line.right (2) == ">>")) {
-
-         recordType = line.mid (2, line.length() - 4).trimmed ();
-         pRecordSpec = new RecordSpec (recordType);
-         recordSpecList.appendOrReplace (pRecordSpec);
-
-      } else {
-         // Just a regular field.
-         //
-         if (pRecordSpec) {
-            pRecordSpec->append (line);
-         } else {
-            qDebug () << __FUNCTION__ << "field occured before first record type: " << filename << lineno << line;
-         }
-      }
-   }
-
-   return true;
-}
-
-//------------------------------------------------------------------------------
 // This function is idempotent
 //
 static void initialise_record_specs ()
@@ -225,7 +73,7 @@ static void initialise_record_specs ()
    // Create a record spec to be used as default if we given an unknown record type.
    // All the common fields plus meta field RTYP plus VAL.
    //
-   pDefaultRecordSpec = new RecordSpec ("_default_");
+   pDefaultRecordSpec = new QERecordSpec ("_default_");
    (*pDefaultRecordSpec)
          << "RTYP" << "NAME" << "DESC" << "ASG"  << "SCAN" << "PINI" << "PHAS"
          << "EVNT" << "TSE"  << "TSEL" << "DTYP" << "DISV" << "DISA" << "SDIS"
@@ -237,82 +85,46 @@ static void initialise_record_specs ()
 
    // First process the internal file list (from resource file).
    //
-   okay |= process_record_spec_file (":/qe/pvproperties/record_field_list.txt");
+   okay |= recordSpecList.process_record_spec_file (":/qe/pvproperties/record_field_list.txt");
 
    // Next agument from any file specified using the environment variable.
    //
-   okay |= process_record_spec_file (getenv ("QE_RECORD_FIELD_LIST"));
+   okay |= recordSpecList.process_record_spec_file (getenv ("QE_RECORD_FIELD_LIST"));
 
    // Lastly augment used file in current (startup) directory.
    //
-   okay |= process_record_spec_file ("./record_field_list.txt");
+   okay |= recordSpecList.process_record_spec_file ("./record_field_list.txt");
    
    if (okay == false) {
       qDebug () << __FUNCTION__ << __LINE__ << "unable to read any record field files";
    }
 }
 
-//------------------------------------------------------------------------------
-// Converts PV name to record name, e.g.:
-//
-// SR11BCM01:CURRENT_MONITOR.PREC => SR11BCM01:CURRENT_MONITOR
-// SR11BCM01:CURRENT_MONITOR.VAL  => SR11BCM01:CURRENT_MONITOR
-// SR11BCM01:CURRENT_MONITOR      => SR11BCM01:CURRENT_MONITOR
-//
-static QString record_name (const QString pvName)
-{
-   QString result;
-   int dot_posn;
 
-   result = pvName;
-   dot_posn = result.indexOf (".", 0);
-   if (dot_posn >= 0) {
-      result.truncate (dot_posn);
-   }
-   return result;
-}
-
-//------------------------------------------------------------------------------
-// Converts PV name to field name, e.g.:
+//==============================================================================
+// Tables columns
 //
-// SR11BCM01:CURRENT_MONITOR.PREC => PREC
-// SR11BCM01:CURRENT_MONITOR.VAL  => VAL
-// SR11BCM01:CURRENT_MONITOR      => VAL (it's the default)
-//
-static QString field_name (const QString pvName)
-{
-   QString result = "VAL";
-   int dot_posn;
-   int fs;
+#define FIELD_COL              0
+#define VALUE_COL              1
+#define NUNBER_COLS            2
 
-   dot_posn = pvName.indexOf (".", 0);
-   if (dot_posn >= 0) {
-      fs = pvName.length() - dot_posn - 1;
-      if (fs > 0) {
-         result = pvName.right (fs);
-      }
-   }
-   return result;
-}
+#define WIDGET_MIN_WIDTH       340
+#define WIDGET_MIN_HEIGHT      246
 
-//------------------------------------------------------------------------------
-// Form pseudo field record type PV name
-//
-static QString rtype_pv_name (const QString pvName)
-{
-   return record_name (pvName) + ".RTYP";
-}
+#define WIDGET_DEFAULT_WIDTH   448
+#define WIDGET_DEFAULT_HEIGHT  290
 
 
 //==============================================================================
 // WidgetHolder class functions
 //==============================================================================
 //
-class QEPvProperties::PrivateWidgetHolder {
+class QEPvProperties::OwnWidgets {
 public:
-   PrivateWidgetHolder (QWidget *parent = 0);
-   ~PrivateWidgetHolder ();
+   OwnWidgets (QEPvProperties *parent);
+   ~OwnWidgets ();
 
+   QFrame *topFrame;
    QLabel *label1;
    QLabel *label2;
    QLabel *label3;
@@ -326,37 +138,63 @@ public:
    QLabel *timeStamp;
    QLabel *indexInfo;
    QTableWidget *table;
+   QMenu *tableContextMenu;
+   QFrame *enumerations;
+   QEResizeableFrame * enumerationResize;
+   QVBoxLayout *layout;
 };
 
 //------------------------------------------------------------------------------
 //
-QEPvProperties::PrivateWidgetHolder::PrivateWidgetHolder (QWidget * parent)
+QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
 {
    // Creates all the internal widgets, and apart from static labels, does no
    // other configuration or setup per se.
    //
-   this->label1 = new QLabel ("NAME", parent);
-   this->label2 = new QLabel ("VAL", parent);
-   this->label3 = new QLabel ("HOST", parent);
-   this->label4 = new QLabel ("TIME", parent);
-   this->label5 = new QLabel ("DBF", parent);
-   this->label6 = new QLabel ("INDEX", parent);
+   this->topFrame = new QFrame (parent);
+   this->topFrame->setFixedHeight (120);   // a sort of gues - this is recalulated later
 
-   this->box = new QComboBox (parent);
-   this->value = new QELabel (parent);
-   this->hostName = new QLabel (parent);
-   this->fieldType = new QLabel (parent);
-   this->timeStamp = new QLabel (parent);
-   this->indexInfo = new QLabel (parent);
-   this->table = new QTableWidget (40, 1, parent);
+   this->label1 = new QLabel ("NAME", this->topFrame);
+   this->label2 = new QLabel ("VAL", this->topFrame);
+   this->label3 = new QLabel ("HOST", this->topFrame);
+   this->label4 = new QLabel ("TIME", this->topFrame);
+   this->label5 = new QLabel ("DBF", this->topFrame);
+   this->label6 = new QLabel ("INDEX", this->topFrame);
+
+   this->box = new QComboBox (this->topFrame);
+   this->value = new QELabel (this->topFrame);
+   this->hostName = new QLabel (this->topFrame);
+   this->fieldType = new QLabel (this->topFrame);
+   this->timeStamp = new QLabel (this->topFrame);
+   this->indexInfo = new QLabel (this->topFrame);
+
+
+   this->enumerations = new QFrame (NULL); // is re-pareneted
+   this->enumerationResize = new QEResizeableFrame (10, 80, parent);
+   this->enumerationResize->setFixedHeight (10);
+   this->enumerationResize->setFrameShape (QFrame::Panel);
+   this->enumerationResize->setGrabberToolTip ("Re size enuerations");
+   this->enumerationResize->setWidget (this->enumerations);
+
+   // We create this with 40 rows initially - this will get expanded if/when necessary.
+   // Mainly want enough to make it look sensible in designer.
+   //
+   this->table = new QTableWidget (40, NUNBER_COLS, parent);
+   this->tableContextMenu = new QMenu (parent);
+
+   this->layout = new QVBoxLayout (parent);
+   this->layout->setMargin (4);
+   this->layout->setSpacing (4);
+   this->layout->addWidget (this->topFrame);
+   this->layout->addWidget (this->enumerationResize);
+   this->layout->addWidget (this->table);
 }
-
 
 //------------------------------------------------------------------------------
 //
-QEPvProperties::PrivateWidgetHolder::~PrivateWidgetHolder ()
+QEPvProperties::OwnWidgets::~OwnWidgets ()
 {
-   // TODO: Find ou if we need to explicitly delete QTableWidgetItems associated
+   // TODO: Find out if we need to explicitly delete QTableWidgetItems associated
    // with the table? or does that happen as part of the table delete?
 }
 
@@ -364,15 +202,6 @@ QEPvProperties::PrivateWidgetHolder::~PrivateWidgetHolder ()
 //==============================================================================
 // QEPvProperties class functions
 //==============================================================================
-//
-#define WIDGET_MIN_WIDTH       340
-#define WIDGET_MIN_HEIGHT      246
-
-#define WIDGET_DEFAULT_WIDTH   448
-#define WIDGET_DEFAULT_HEIGHT  290
-
-
-//------------------------------------------------------------------------------
 //
 QEPvProperties::QEPvProperties (QWidget * parent) :
       QFrame (parent),
@@ -388,7 +217,7 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
       QFrame (parent),
       QEWidget (this)
 {
-   this->recordBaseName = record_name (variableName);
+   this->recordBaseName = QERecordFieldName::recordName (variableName);
    this->common_setup ();
    setVariableName (variableName, 0);
    this->ownWidgets->value->setVariableName (variableName, 0);
@@ -404,15 +233,14 @@ QEPvProperties::~QEPvProperties ()
    //
    while (!this->fieldChannels.isEmpty ()) {
       qca = this->fieldChannels.takeFirst ();
-      delete qca;
+      if (qca) {
+         delete qca;
+      }
    }
-}
 
-//------------------------------------------------------------------------------
-//
-void QEPvProperties::setup ()
-{
-   // Not used but declared pure virtual in parent class.
+   if (this->ownWidgets) {
+      delete this->ownWidgets;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -425,9 +253,13 @@ QSize QEPvProperties::sizeHint () const {
 //
 void QEPvProperties::common_setup ()
 {
-   PrivateWidgetHolder *own;
+   OwnWidgets *own;
    QTableWidgetItem * item;
    QString style;
+
+   // This control uses a single data source (from a designer point of view)
+   //
+   this->setNumVariables (1);
 
    // This function only perform required actions on first call.
    //
@@ -442,7 +274,7 @@ void QEPvProperties::common_setup ()
    // allocate and configure own widgets
    // ...and setup an alias
    //
-   own = this->ownWidgets = new PrivateWidgetHolder (this);
+   own = this->ownWidgets = new OwnWidgets (this);
 
    // Configure widgets
    //
@@ -487,16 +319,23 @@ void QEPvProperties::common_setup ()
    own->indexInfo->setIndent (4);
    own->indexInfo->setStyleSheet (style);
 
+   item = new QTableWidgetItem (" Field ");
+   own->table->setHorizontalHeaderItem (FIELD_COL, item);
+
    item = new QTableWidgetItem (" Value ");
-   own->table->setHorizontalHeaderItem (0, item);
-   own->table->horizontalHeader ()->setStretchLastSection (true);
-   own->table->verticalHeader ()->setDefaultSectionSize (22);
+   own->table->setHorizontalHeaderItem (VALUE_COL, item);
+
+   own->table->horizontalHeader()->setDefaultSectionSize (60);
+   own->table->horizontalHeader()->setStretchLastSection (true);
+
+   own->table->verticalHeader()->hide ();
+   own->table->verticalHeader()->setDefaultSectionSize (22);
+
 
    // Setup layout of widgets with the QEPvProperties QFrame
    //
    this->setMinimumWidth (WIDGET_MIN_WIDTH);
    this->setMinimumHeight(WIDGET_MIN_HEIGHT);
-
 
    this->fieldStringFormatting.setAddUnits (false);
    this->fieldStringFormatting.setUseDbPrecision (false);
@@ -523,8 +362,20 @@ void QEPvProperties::common_setup ()
    //
    QWidget::setEnabled (true);
 
-   // Use standard context menu
-   setupContextMenu( this );
+   // Use standard context menu for overall widget.
+   //
+   setupContextMenu (this);
+
+   // Do special for the table.
+   //
+   own->table->setContextMenuPolicy (Qt::CustomContextMenu);
+
+   QObject::connect (own->table, SIGNAL (customContextMenuRequested (const QPoint &)),
+                     this,       SLOT   (customContextMenuRequested (const QPoint &)));
+
+   QObject::connect (own->tableContextMenu, SIGNAL (triggered             (QAction* )),
+                     this,                  SLOT   (contextMenuTriggered  (QAction* )));
+
 
    // Set up a connection to recieve variable name property changes
    // The variable name property manager class only delivers an updated
@@ -538,9 +389,9 @@ void QEPvProperties::common_setup ()
 //------------------------------------------------------------------------------
 // NB. Need to do a deep clear to avoid memory loss.
 //
-void  QEPvProperties::resizeEvent ( QResizeEvent * )
+void  QEPvProperties::resizeEvent (QResizeEvent *)
 {
-   PrivateWidgetHolder *own = this->ownWidgets;
+   OwnWidgets *own = this->ownWidgets;
    int pw, ph;   //
    int x, y;
    int wh;       // widget height
@@ -549,8 +400,8 @@ void  QEPvProperties::resizeEvent ( QResizeEvent * )
 
    // Get current width and height.
    //
-   pw = this->width();
-   ph = this->height();
+   pw = own->topFrame->width ();
+   ph = own->topFrame->height ();
 
    lw = 48;
    fw = pw - lw - 18;
@@ -571,8 +422,17 @@ void  QEPvProperties::resizeEvent ( QResizeEvent * )
    own->fieldType->setGeometry (x, y, fw, wh); x += fw + 24;
    own->label6->setGeometry    (x, y, lw, wh); x += lw + 6;
    own->indexInfo->setGeometry (x, y, fw, wh); y += 22;
-   x = 6;
-   own->table->setGeometry     (x, y, pw - 12, ph - y - 6);
+
+   own->topFrame->setFixedHeight (y);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvProperties::useNewVariableNameProperty (QString variableNameIn,
+                                                 QString variableNameSubstitutionsIn,
+                                                 unsigned int variableIndex )
+{
+   this->setVariableNameAndSubstitutions (variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }
 
 
@@ -615,17 +475,17 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
    int slot;
 
    if (variableIndex != 0) {
-      qDebug () << __FUNCTION__ << __LINE__ << "unexpected variableIndex" << variableIndex;
+      DEBUG << "unexpected variableIndex" << variableIndex;
       return NULL;
    }
 
    pv_name = getSubstitutedVariableName (0);
    pv_name = pv_name.trimmed ();
-   this->recordBaseName = record_name (pv_name);
+   this->recordBaseName = QERecordFieldName::recordName (pv_name);
 
    // Clear associated data fields.
    //
-   this->ownWidgets->label2->setText (field_name (pv_name));
+   this->ownWidgets->label2->setText (QERecordFieldName::fieldName (pv_name));
    this->ownWidgets->hostName->setText ("");
    this->ownWidgets->timeStamp->setText ("");
    this->ownWidgets->fieldType->setText ("");
@@ -685,7 +545,7 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
    // Regardless of the actual PV, we need to connect to the RTYP pseudo field
    // of the associated record.
    //
-   return new QEString (rtype_pv_name (pv_name), this, &stringFormatting, 0);
+   return new QEString (QERecordFieldName::rtypePvName (pv_name), this, &stringFormatting, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -695,7 +555,7 @@ void QEPvProperties::establishConnection (unsigned int variableIndex)
    qcaobject::QCaObject* qca;
 
    if (variableIndex != 0) {
-      qDebug () << __FUNCTION__ << __LINE__ << "unexpected variableIndex" << variableIndex;
+      DEBUG << "unexpected variableIndex" << variableIndex;
       return;
    }
 
@@ -737,7 +597,7 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
    QTableWidget *table = this->ownWidgets->table;
 
    int j;
-   RecordSpec *pRecordSpec;
+   QERecordSpec *pRecordSpec;
    int numberOfFields;
    QString fieldName;
    QTableWidgetItem *item;
@@ -775,21 +635,21 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
 
       // Ensure vertical header exists and set it.
       //
-      item = table->verticalHeaderItem (j);
+      item = table->item (j, FIELD_COL);
       if (!item) {
          // We need to allocate iteem and inset into the table.
          item = new QTableWidgetItem ();
-         table->setVerticalHeaderItem (j, item);
+         table->setItem (j, FIELD_COL, item);
       }
       item->setText  (" " + fieldName + " ");
 
       // Ensure table entry item exists.
       //
-      item = table->item (j, 0);
+      item = table->item (j, VALUE_COL);
       if (!item) {
          // We need to allocate item and inset into the table.
          item = new QTableWidgetItem ();
-         table->setItem (j, 0, item);
+         table->setItem (j, VALUE_COL, item);
       }
 
       // Form the required PV name.
@@ -868,7 +728,7 @@ void QEPvProperties::setFieldConnection (QCaConnectionInfo& connectionInfo,
 
    numberOfRows = table->rowCount ();
    if ((int) variableIndex < numberOfRows) {
-      item = table->item (variableIndex, 0);
+      item = table->item (variableIndex, VALUE_COL);
 
       if (connectionInfo.isChannelConnected ()) {
          // connected
@@ -879,8 +739,8 @@ void QEPvProperties::setFieldConnection (QCaConnectionInfo& connectionInfo,
          item->setForeground (QColor (160, 160, 160));
       }
    } else {
-      qDebug ()  << __FUNCTION__ << __LINE__ << "variableIndex" << variableIndex
-                 << "out of range - must be <" << numberOfRows;
+      DEBUG << "variableIndex =" << variableIndex
+             << ", out of range - must be <" << numberOfRows;
    }
 }
 
@@ -897,13 +757,11 @@ void QEPvProperties::setFieldValue (const QString &value,
 
    numberOfRows = table->rowCount ();
    if ((int) variableIndex < numberOfRows) {
-      item = table->item (variableIndex, 0);
-
+      item = table->item (variableIndex, VALUE_COL);
       item->setText  (" " + value);
-
    } else {
-      qDebug () << __FUNCTION__ << __LINE__ << "variableIndex" << variableIndex
-                << "out of range - must be <" << numberOfRows;
+      DEBUG << "variableIndex =" << variableIndex
+             << ", out of range - must be <" << numberOfRows;
    }
 }
 
@@ -943,6 +801,70 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
 }
 
 //==============================================================================
+// Conextext menu.
+//
+void QEPvProperties::customContextMenuRequested (const QPoint & posIn)
+{
+   QTableWidget *table = this->ownWidgets->table;
+   QMenu *menu = this->ownWidgets->tableContextMenu;
+   QTableWidgetItem * item;
+   QString trimmed;
+   QString newPV;
+   QAction *action;
+   QPoint pos = posIn;
+   QPoint golbalPos;
+
+   // Find the associated item
+   //
+   item = table->itemAt (posIn);
+   if (!item) {
+      return;  // just in case
+   }
+
+   trimmed = item->text ().trimmed();
+
+   switch (item->column ()) {
+      case FIELD_COL:
+         newPV = QERecordFieldName::fieldPvName (this->recordBaseName, trimmed);
+         break;
+
+      case VALUE_COL:
+         QERecordFieldName::extractPvName (trimmed, newPV);
+         break;
+
+      default:
+         DEBUG << "unexpected colum number:" << item->column () << trimmed;
+         newPV = "";
+         return;
+   }
+
+   menu->clear ();
+   action = new QAction ("Properties", menu);
+   action->setCheckable (false);
+   action->setData (QVariant (newPV));
+   action->setEnabled (!newPV.isEmpty ());
+   menu->addAction (action);
+
+   pos.setY (pos.y () + 22);  // A feature of QTableWiget or header vizible.
+   golbalPos = table->mapToGlobal (pos);
+   menu->exec (golbalPos, 0);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvProperties::contextMenuTriggered (QAction* action)
+{
+   QString newPV;
+
+   if (action) {
+      newPV = action->data ().toString ();
+      this->setVariableName (newPV , 0);
+      this->establishConnection (0);
+   }
+}
+
+
+//==============================================================================
 // Drag drop
 //
 void QEPvProperties::setDrop (QVariant drop)
@@ -955,10 +877,10 @@ void QEPvProperties::setDrop (QVariant drop)
 //
 QVariant QEPvProperties::getDrop ()
 {
-    if( isDraggingVariable() )
-        return QVariant( copyVariable() );
-    else
-        return copyData();
+   if( isDraggingVariable() )
+      return QVariant( copyVariable() );
+   else
+      return copyData();
 }
 
 
@@ -975,10 +897,10 @@ QString QEPvProperties::copyVariable ()
 //
 QVariant QEPvProperties::copyData ()
 {
-    QTableWidget *table = ownWidgets->table;
-   for( int i = 0; i < table->rowCount(); i++ )
-    {
-        QTableWidgetItem *item = table->item( i, 0 );
+   QTableWidget *table = ownWidgets->table;
+
+   for (int i = 0; i < table->rowCount(); i++) {
+        QTableWidgetItem *item = table->item (i, 0);
         qDebug() << item->text();
 
     }
@@ -992,9 +914,8 @@ QVariant QEPvProperties::copyData ()
 //
 void QEPvProperties::paste( QVariant v )
 {
-    if( getAllowDrop() )
-    {
-        setDrop( v );
+    if (getAllowDrop ()) {
+       setDrop (v);
     }
 }
 

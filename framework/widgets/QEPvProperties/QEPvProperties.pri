@@ -12,10 +12,12 @@ RESOURCES += \
 
 HEADERS += \
     widgets/QEPvProperties/QEPvProperties.h \
+    widgets/QEPvProperties/QEPvPropertiesUtilities.h \
     widgets/QEPvProperties/QEPvPropertiesManager.h \
 
 SOURCES += \
     widgets/QEPvProperties/QEPvProperties.cpp \
+    widgets/QEPvProperties/QEPvPropertiesUtilities.cpp \
     widgets/QEPvProperties/QEPvPropertiesManager.cpp
 
 INCLUDEPATH += \

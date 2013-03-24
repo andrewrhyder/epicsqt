@@ -30,10 +30,12 @@
 #ifndef QEPVPROPERTIES_H
 #define QEPVPROPERTIES_H
 
+#include <QAction>
 #include <QList>
 #include <QString>
 #include <QTableWidget>
 #include <QWidget>
+#include <QPoint>
 
 #include <QCaAlarmInfo.h>
 #include <QEDragDrop.h>
@@ -181,11 +183,11 @@ private:
    QEStringFormatting stringFormatting;
    bool isFirstUpdate;
 
-   // If these items are declared at class level, there is a run time exception,
+   // If widgets are declared at class level, there is a run time exception,
    // so we place then in separate and private class.
    //
-   class PrivateWidgetHolder;
-   PrivateWidgetHolder *ownWidgets;
+   class OwnWidgets;
+   OwnWidgets *ownWidgets;
 
    QString recordBaseName;
    QEStringFormatting fieldStringFormatting;
@@ -199,10 +201,9 @@ private:
    void setApplicationEnabled (const bool & state);
 
 private slots:
-   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-   {
-       setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-   }
+   void useNewVariableNameProperty (QString variableNameIn,
+                                    QString variableNameSubstitutionsIn,
+                                    unsigned int variableIndex);
 
    // Basic widgit PV related slots (used for RTYP pseudo field).
    //
@@ -228,15 +229,20 @@ private slots:
    //
    void boxCurrentIndexChanged (int index);
 
+   // For the table.
+   //
+   void customContextMenuRequested (const QPoint & pos);
+   void contextMenuTriggered (QAction* selectedItem);
+
 signals:
    void setCurrentBoxIndex (int index);
 
 protected:
    void resizeEvent ( QResizeEvent * event );
+   void establishConnection (unsigned int variableIndex);
 
    // Override QCaObject/QEWidget functions.
    //
-   void setup();
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
 
    // Drag and Drop
@@ -250,7 +256,7 @@ protected:
    // Copy paste
    QString copyVariable();
    QVariant copyData();
-   void paste( QVariant s );
+   void paste (QVariant s);
 
 
    // Override QEDragDrop functions.
@@ -266,9 +272,6 @@ public:
    ~QEPvProperties ();
 
    QSize sizeHint () const;
-
-   void establishConnection (unsigned int variableIndex);
-
 };
 
 # endif  // QEPVPROPERTIES_H
