@@ -31,6 +31,7 @@
 #include <QStringList>
 #include <QDebug>
 #include <QEPluginLibrary_global.h>
+#include <persistanceManager.h>
 
 class QEWidget;
 class ContainerProfile;
@@ -64,7 +65,7 @@ public:
     ~userLevelSignal();
 
     // Set the application wide user level
-    // When level is set in the single instance of this class, all ContainerPRofile
+    // When level is set in the single instance of this class, all ContainerProfile
     // classes are signaled
     void setLevel( userLevels levelIn );
 
@@ -151,6 +152,8 @@ public:
     QString engineerLevelPassword;      // User Level password for 'engineer'
 
     bool profileDefined;                // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()
+
+    PersistanceManager persistanceManager;  // Persistance manager to manage configuration save and restore
 };
 
 
@@ -219,6 +222,8 @@ public:
     userLevels getUserLevel();                          // Return the current user level
 
     virtual void userLevelChanged( userLevels ){}       // Virtual function implemented by widgets based on QEWidget to allow them to be notified of changes in user level
+
+    PersistanceManager* getPersistanceManager();        // Return a reference to the single persistance manager
 
 private:
     void publishProfile( QObject* guiLaunchConsumerIn,

@@ -261,6 +261,12 @@ QObject* ContainerProfile::replaceGuiLaunchConsumer( QObject* newGuiLaunchConsum
     return savedGuiLaunchConsumer;
 }
 
+PersistanceManager* ContainerProfile::getPersistanceManager()
+{
+    PublishedProfile* publishedProfile = getPublishedProfile();
+    return& publishedProfile->persistanceManager;
+}
+
 /*
   Set up the published profile.
   All instances of ContainerProfile will be able to see the published profile.

@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>548</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -31,6 +31,9 @@
     <addaction name="actionNew_Tab"/>
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Configuration"/>
+    <addaction name="actionRestore_Configuration"/>
     <addaction name="separator"/>
     <addaction name="actionPVProperties"/>
     <addaction name="actionStrip_Chart"/>
@@ -139,6 +142,16 @@
   <action name="actionMessage_Log">
    <property name="text">
     <string>Message Log</string>
+   </property>
+  </action>
+  <action name="actionSave_Configuration">
+   <property name="text">
+    <string>Save Configuration</string>
+   </property>
+  </action>
+  <action name="actionRestore_Configuration">
+   <property name="text">
+    <string>Restore Configuration</string>
    </property>
   </action>
  </widget>

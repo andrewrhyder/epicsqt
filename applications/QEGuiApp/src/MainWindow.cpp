@@ -76,6 +76,11 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     // Setup to allow user to change focus to a window from the 'Windows' menu
     QObject::connect( ui.menuWindows, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
 
+    // Setup to respond to requests to save or restore persistant data
+    PersistanceManager* persistanceManager = profile.getPersistanceManager();
+    persistanceManager->save( "Default" );
+    QObject::connect( persistanceManager->getSaveRestoreObject(), SIGNAL( saveRestore( SaveRestoreSignal::saveRestoreOptions ) ), this, SLOT( saveRestore( SaveRestoreSignal::saveRestoreOptions ) ) );
+
     // Save this instance of a main window in the global list of main windows
     mainWindowList.append( this );
 
@@ -1071,5 +1076,59 @@ void MainWindow::removeAllGuisFromWindowsMenu()
             removeGuiFromWindowsMenu( gui );
         }
     }
+}
+
+
+void MainWindow::on_actionSave_Configuration_triggered()
+{
+
+    QMessageBox::warning( this,"QEGui",
+                          "Under Construction.\n"
+                          "'Save'' is not implemented yet",
+                          QMessageBox::Cancel );
+
+    return;
+
+    PersistanceManager* persistanceManager = profile.getPersistanceManager();
+
+    persistanceManager->save( "Default" );
+}
+
+void MainWindow::on_actionRestore_Configuration_triggered()
+{
+    QMessageBox::warning( this,"QEGui",
+                          "Under Construction.\n"
+                          "'Restore'' is not implemented yet",
+                          QMessageBox::Cancel );
+
+    return;
+    PersistanceManager* persistanceManager = profile.getPersistanceManager();
+
+    persistanceManager->restore( "Default" );
+}
+
+// A save or restore has been requested (Probably by QEGui itself)
+void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
+{
+    PersistanceManager* pm = profile.getPersistanceManager();
+
+    qDebug() << "MainWindow::saveRestore()" << option;
+
+    switch( option )
+    {
+    case SaveRestoreSignal::SAVE:
+        pm->startElement( "guiList" );
+        for( int i = 0; i < guiList.count(); i++ )
+        {
+            QEForm* form = guiList[i];
+            pm->textElement( "guiFullFileName", form->getFullFileName() );
+        }
+        pm->endElement();
+        break;
+
+    case SaveRestoreSignal::RESTORE:
+        break;
+    }
+
 }
 

@@ -114,6 +114,10 @@ private slots:
     void startDesignerAlternate();                  // Timer signal used to attempt restarting designer from outside a QProcess error signal
     void on_actionPVProperties_triggered();
     void on_actionStrip_Chart_triggered();
+    void on_actionSave_Configuration_triggered();
+
+    void saveRestore( SaveRestoreSignal::saveRestoreOptions option );  // A save or restore has been requested (Probably by QEGui itself)
+    void on_actionRestore_Configuration_triggered();
 };
 
 #endif // MAINWINDOW_H
