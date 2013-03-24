@@ -107,7 +107,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
     public:
         // Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.
         // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
-        Q_PROPERTY(QString uiFile READ getUiFileName WRITE setUiFileName);
+        Q_PROPERTY(QString uiFile READ getUiFileName WRITE setUiFileName)
 
         Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
         void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
