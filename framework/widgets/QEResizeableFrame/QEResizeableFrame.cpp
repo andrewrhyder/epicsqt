@@ -144,6 +144,37 @@ void QEResizeableFrame::setGrabberToolTip (const QString & tip)
 
 //------------------------------------------------------------------------------
 //
+void QEResizeableFrame::applyLimits ()
+{
+   int ch;  // current height
+   int ah;  // allowed height
+
+   ch = this->geometry().height ();
+   ah = LIMIT (ch, this->allowedMin, this->allowedMax);
+   this->setFixedHeight (ah);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEResizeableFrame::setAllowedMinimum (const int minimumIn)
+{
+   this->allowedMin = MAX (minimumIn, 8);
+   // Ensure allowed max >= allowed min.
+   this->allowedMax = MAX (this->allowedMax, this->allowedMin);
+   this->applyLimits ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEResizeableFrame::setAllowedMaximum (const int maximumIn)
+{
+   // Ensure allowed max >= allowed min.
+   this->allowedMax = MAX (maximumIn, this->allowedMin);
+   this->applyLimits ();
+}
+
+//------------------------------------------------------------------------------
+//
 bool QEResizeableFrame::eventFilter (QObject *obj, QEvent *event)
 {
    QMouseEvent * mouseEvent = NULL;

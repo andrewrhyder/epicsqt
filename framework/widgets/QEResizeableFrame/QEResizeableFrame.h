@@ -31,9 +31,9 @@
 // The QEResizeableFrame provides a frame capable of holding another widget
 // together with a grabber widget that allows the frame to be re-sized, and
 // hence contained widget to be resized. The class currently only supports
-// vertical resizing. It could be extended to support horizontal scale.
+// vertical resizing. It could be extended to support horizontal resizing.
 //
-// NOTE: this is not a class avaiable in designer as a plugin nor is it derived
+// NOTE: this is not a class available in designer as a plugin nor is it derived
 //       from QEWidget nor has it any properties. It was originally developed
 //       as an internal support widget for the QEStripChart class and as such
 //       created and configured programatically.
@@ -63,10 +63,15 @@ public:
    /// Set the tool tip for the internal grabber object.
    void setGrabberToolTip (const QString & tip);
 
+   /// (Re)set allowd limits.
+   void setAllowedMinimum (const int minimum);
+   void setAllowedMaximum (const int maximum);
+
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
 
 private:
+   void applyLimits ();
    void setup (int minimum, int maximum);
 
    bool isActive;
