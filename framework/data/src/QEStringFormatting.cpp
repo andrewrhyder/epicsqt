@@ -49,7 +49,6 @@ QEStringFormatting::QEStringFormatting() {
 
     // Initialise database information
     dbPrecision = 0;
-    dbVariableIsStatField = false;
 }
 
 /*
@@ -76,16 +75,6 @@ void QEStringFormatting::setDbEnumerations( QStringList enumerations )
 {
     dbEnumerations = enumerations;
 }
-
-/*
-    Set up a flag indicating the variable represents a STAT field.
-    This is required as formatting enumerated strings for the STAT field is a special case.
-*/
-void QEStringFormatting::setDbVariableIsStatField( bool isStatField )
-{
-    dbVariableIsStatField = isStatField;
-}
-
 
 /*
     Generate a value given a string, using formatting defined within this
@@ -389,45 +378,7 @@ QString QEStringFormatting::formatString( const QVariant &value ) {
                         outStr = dbEnumerations[lValue];
                         haveEnumeratedString = true;
                     }
-                    // If the index was higher than the available enumerated strings, handle one special case:
-                    // If the field is the STAT field, and the value is between 16 and 21, then use hard coded enumerated strings.
-                    // This is due to a limit in EPICS. The STAT field which has 21 enumerated values, but only 16 enumerated strings can be included in the record.
-                    else if( lValue >= 16 && lValue <= 21 && dbVariableIsStatField )
-                    {
-                        switch( lValue )
-                        {
-                            case 16:
-                                outStr = "BAD_SUB";
-                                haveEnumeratedString = true;
-                                break;
-
-                            case 17:
-                                outStr = "UDF";
-                                haveEnumeratedString = true;
-                                break;
-
-                            case 18:
-                                outStr = "DISABLE";
-                                haveEnumeratedString = true;
-                                break;
-
-                            case 19:
-                                outStr = "SIMM";
-                                haveEnumeratedString = true;
-                                break;
-
-                            case 20:
-                                outStr = "READ_ACCESS";
-                                haveEnumeratedString = true;
-                                break;
-
-                            case 21:
-                                outStr = "WRITE_ACCESS";
-                                haveEnumeratedString = true;
-                                break;
-
-                        }
-                    }
+                    // NOTE: STAT field hard-coded values now set up in QCaObject.cpp - extra values appended to dbEnumerations.
                 }
             }
 

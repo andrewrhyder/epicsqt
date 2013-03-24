@@ -767,13 +767,29 @@ void QCaObject::processData( void* newDataPtr ) {
                 enumerations.append( QString::number( i ) );
         }
 
+        // If this PV is a record's STAT field, then for value between 16 and 21 use hard coded
+        // enumerated strings.  This is due to a limit in EPICS. The STAT field which has 22
+        // enumerated values, but only 16 enumerated strings can be included in the CA protocol.
+        if (isStatField) {
+           enumerations.append ("BAD_SUB");        // 16
+           enumerations.append ("UDF");            // 17
+           enumerations.append ("DISABLE");        // 18
+           enumerations.append ("SIMM");           // 19
+           enumerations.append ("READ_ACCESS");    // 20
+           enumerations.append ("WRITE_ACCESS");   // 21
+        }
+
         // Note the precision
         precision = CaObject::getPrecision();
 
-        // Note the display limits, and the special for .STAT PVs
-        // See QEStringFormatting::formatString
-        displayLimitUpper = isStatField ? 21 : CaObject::getDisplayUpper();
+        // Note the display limits
+        displayLimitUpper = CaObject::getDisplayUpper();
         displayLimitLower = CaObject::getDisplayLower();
+
+        if (isStatField) {
+           // And do special for a record's STAT field.
+           displayLimitUpper = enumerations.count () - 1;
+        }
 
         // Note the alarm limits
         alarmLimitUpper = CaObject::getAlarmUpper();

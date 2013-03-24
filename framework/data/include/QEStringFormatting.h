@@ -96,7 +96,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     void setDbEgu( QString egu );      // Units to be added (or removed) from the formatted string if 'addUnits' flag is set
     void setDbEnumerations( QStringList enumerations );
     void setDbPrecision( unsigned int dbPrecisionIn );
-    void setDbVariableIsStatField( bool isStatField );
 
     // Functions to configure the formatting
     void setPrecision( int precision );
@@ -148,7 +147,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     QString dbEgu;
     QStringList dbEnumerations;
     unsigned int dbPrecision;
-    bool dbVariableIsStatField;
 
     // Formatting configuration
     bool useDbPrecision;             // Use the number of decimal places displayed as defined in the database.
