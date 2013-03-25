@@ -152,6 +152,10 @@ public:
     ///
     QFile* openQEFile( QString name, QFile::OpenModeFlag mode );
 
+    /// Static method that looks for a file in a standard set of locations
+    /// Returns a pointer to a QFile which is the caller's responsibility to delete, or NULL if the file was not found.
+    static QFile* findQEFile( QString name, ContainerProfile* profile );
+
     /// Returns the default location to create files.
     /// Use this to create files in a consistant location
     QString defaultFileLocation();

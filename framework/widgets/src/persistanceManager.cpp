@@ -151,12 +151,12 @@ void PersistanceManager::startElement( const QString name )
 
 void PersistanceManager::textElement( const QString name, const QString data )
 {
-    qDebug() << "PersistanceManager::setItem() 1" << name << data;
+    qDebug() << "PersistanceManager::textElement() 1" << name << data;
 
     if( !xmlWriter )
         return;
 
-    qDebug() << "PersistanceManager::setItem() 2" << name << data;
+    qDebug() << "PersistanceManager::textElement() 2" << name << data;
 
     xmlWriter->writeTextElement( name, data );
 }

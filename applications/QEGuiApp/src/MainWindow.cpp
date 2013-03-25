@@ -43,7 +43,7 @@
 QList<MainWindow*> MainWindow::mainWindowList;
 
 // Shared list of all GUIs being displayed in all main windows
-QList<QEForm*> MainWindow::guiList;
+QList<guiListItem> MainWindow::guiList;
 
 Q_DECLARE_METATYPE( QEForm* )
 
@@ -215,6 +215,54 @@ void MainWindow::on_actionPVProperties_triggered(){ launchLocalGui( ":/forms/PVP
 void MainWindow::on_actionStrip_Chart_triggered() { launchLocalGui( ":/forms/StripChart.ui"   ); }
 void MainWindow::on_actionUser_Level_triggered()  { launchLocalGui( ":/forms/UserLevel.ui"    ); }
 void MainWindow::on_actionMessage_Log_triggered() { launchLocalGui( ":/forms/MessageLog.ui"   ); }
+
+// Exit.
+// If more than one window is present, offer to close the current window, or all of them
+void MainWindow::on_actionExit_triggered()
+{
+    // If there is only one GUI open (max), just exit
+    if( mainWindowList.count() <= 1 )
+    {
+        exit(0);
+    }
+
+    QString msg;
+    if( mainWindowList.count() == 2 )
+    {
+        msg ="You are closing this window, but QEGui has another open. Do you want to close the other as well?";
+    }
+    else
+    {
+        msg ="You are closing this window, but QEGui has others open. Do you want to close the others as well?";
+    }
+
+    // If more than one main window is open, check what the user wants to do
+    QMessageBox msgBox;
+    msgBox.setText( msg );
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    switch ( msgBox.exec() )
+    {
+       case QMessageBox::Yes:
+            // Yes, close all windows.
+            // Simply exit!
+            exit(0);
+            break;
+
+       case QMessageBox::No:
+            // No, just close the one window
+           close();
+           break;
+
+       case QMessageBox::Cancel:
+           // Cancel, do nothing
+           break;
+
+        default:
+           // Do nothing
+           break;
+     }
+}
 
 // Launch a new gui from the 'File' menu
 void MainWindow::launchLocalGui( QString filename )
@@ -701,62 +749,109 @@ void MainWindow::resizeToFitGui()
 // Slot for launching a new gui from a contained object.
 void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOption )
 {
-    // Get a standard absolute path for the file name
-    QDir uiDir;
-    QString fullGuiName = uiDir.cleanPath( uiDir.absoluteFilePath( guiName ) );
-
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
     ContainerProfile publishedProfile;
+
+    // Get a standard absolute path for the file name
+    QFile* uiFile =  QEWidget::findQEFile( guiName, &publishedProfile );
+
+    // If a file was found, check if it is the same as any already open
+    if( uiFile )
+    {
 
     //!!! Note, repeated substitutions should be removed leaving only the first
     //!!! If a button re-launches the form it is in (with different macro substitutions) the list just grows
 
     // If the form already exists (with the same substitutions), just display that one.
     // Note, even if the gui is found, if the main window is not located and raised, then a new gui will be launched.
-    for( int i = 0; i < guiList.size(); i++ )
-    {
-        if( !guiList[i]->getFullFileName().compare( fullGuiName ) && !guiList[i]->getMacroSubstitutions().trimmed().compare( publishedProfile.getMacroSubstitutions().trimmed() ) )
+        for( int i = 0; i < guiList.size(); i++ )
         {
-            // GUI found. Roll back up the widget hierarchy.
-            // If a parent tab widget is found, set the child as the active tab, when the main window is found, display it.
-            QWidget* w = guiList[i]->parentWidget();
-            while( w )
+            QEForm* form = guiList[i].getForm();
+            if( !form->getFullFileName().compare( uiFile->fileName() ) && !form->getMacroSubstitutions().trimmed().compare( publishedProfile.getMacroSubstitutions().trimmed() ) )
             {
-                // Ensure the correct tab is selected
-                if( QString::compare( w->metaObject()->className(), "QTabWidget" ) == 0 )
+
+// This code replaces the winding back up the widget hierarchy (below) looking for a tab widget and the MainWindow
+// This can be avoided now the guiList contains the MainWindow the gui is in, but this code isn't tested yet and a
+// quick run appeared to have problems: when opening many forms through a QEPushButton (when this is called) forms
+// ended up overlayed over each other in the same tab
+
+//                MainWindow* mw = guiList[i].getMainWindow();
+
+//                // If a tab widget is found, set the gui as the active tab
+//                QTabWidget* tw = mw->getCentralTabs();
+//                if( tw )
+//                {
+//                    int j;
+//                    j = tw->indexOf( form ) ;
+//                    if( j < 0 )
+//                    {
+//                        j = tw->indexOf( form->parentWidget() ) ;
+//                        if( j < 0 )
+//                        {
+//                            j = tw->indexOf( form->parentWidget()->parentWidget() ) ;
+//                        }
+//                    }
+//                    if( j >= 0 )
+//                    {
+//                        tw->setCurrentIndex( j );
+//                    }
+//                }
+
+//                // Display the main window
+//                mw->show();
+//                mw->raise();
+//                mw->activateWindow();
+//                return;
+
+
+                // GUI found. Roll back up the widget hierarchy.
+                // If a parent tab widget is found, set the child as the active tab, when the main window is found, display it.
+                QWidget* w = guiList[i].getForm()->parentWidget();
+                while( w )
                 {
-                    QTabWidget* tw = (QTabWidget*)w;
-                    int j;
-                    j = tw->indexOf( guiList[i] ) ;
-                    if( j < 0 )
+                    // Ensure the correct tab is selected
+                    if( QString::compare( w->metaObject()->className(), "QTabWidget" ) == 0 )
                     {
-                        j = tw->indexOf( guiList[i]->parentWidget() ) ;
+                        QTabWidget* tw = (QTabWidget*)w;
+                        int j;
+                        j = tw->indexOf( guiList[i].getForm() ) ;
                         if( j < 0 )
                         {
-                            j = tw->indexOf( guiList[i]->parentWidget()->parentWidget() ) ;
+                            j = tw->indexOf( guiList[i].getForm()->parentWidget() ) ;
+                            if( j < 0 )
+                            {
+                                j = tw->indexOf( guiList[i].getForm()->parentWidget()->parentWidget() ) ;
+                            }
+                        }
+                        if( j >= 0 )
+                        {
+                            tw->setCurrentIndex( j );
                         }
                     }
-                    if( j >= 0 )
+
+                    // Display the main window
+                    if( QString::compare( w->metaObject()->className(), "MainWindow" ) == 0 )
                     {
-                        tw->setCurrentIndex( j );
+                        w->show();
+                        w->raise();
+                        w->activateWindow();
+
+                        delete uiFile;
+
+                        return;
                     }
+
+                    // Move up a generation
+                    w = w->parentWidget();
                 }
 
-                // Display the main window
-                if( QString::compare( w->metaObject()->className(), "MainWindow" ) == 0 )
-                {
-                    w->show();
-                    w->raise();
-                    w->activateWindow();
-                    return;
-                }
-
-                // Move up a generation
-                w = w->parentWidget();
+                // Sanity check. If gui was found, should always have found it in a main window
+                break;
             }
-
-            // Sanity check. If gui was found, should always have found it in a main window
-            break;
+        }
+        if( uiFile )
+        {
+            delete uiFile;
         }
     }
 
@@ -1011,7 +1106,7 @@ QEForm* MainWindow::getCurrentGui()
 void MainWindow::addGuiToWindowsMenu( QEForm* gui )
 {
     // Add the gui to the list of guis
-    guiList.append( gui );
+    guiList.append( guiListItem( gui, this ) );
 
     // For each main window, add a new action to the window menu
     for( int i = 0; i < mainWindowList.size(); i++ )
@@ -1027,7 +1122,7 @@ void MainWindow::buildWindowsMenu()
     // Add all current guis to the 'windows' menu
     for( int i = 0; i < guiList.size(); i++ )
     {
-        addWindowMenuAction(  ui.menuWindows, guiList[i] );
+        addWindowMenuAction(  ui.menuWindows, guiList[i].getForm() );
     }
 }
 
@@ -1049,7 +1144,7 @@ void MainWindow::removeGuiFromWindowsMenu( QEForm* gui )
     int i;
     for( i = 0; i < guiList.size(); i++ )
     {
-        if( guiList[i] == gui )
+        if( guiList[i].getForm() == gui )
         {
             guiList.removeAt( i );
             guiFound = true;
@@ -1137,12 +1232,27 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
     switch( option )
     {
     case SaveRestoreSignal::SAVE:
-        pm->startElement( "guiList" );
-        for( int i = 0; i < guiList.count(); i++ )
+        pm->startElement( "mainwindows" );
+        for( int i = 0; i < mainWindowList.count(); i++ )
         {
-            QEForm* form = guiList[i];
-            pm->textElement( "guiFullFileName", form->getFullFileName() );
+            pm->startElement( "mainwindow" );
+            pm->textElement( "X", QString( "%1" ).arg( mainWindowList[i]->x() ) );
+            pm->textElement( "Y", QString( "%1" ).arg( mainWindowList[i]->y() ) );
+            pm->textElement( "width", QString( "%1" ).arg( mainWindowList[i]->width() ) );
+            pm->textElement( "height", QString( "%1" ).arg( mainWindowList[i]->height() ) );
+
+            pm->startElement( "guis" );
+            for( int j = 0; j < guiList.count(); j++ )
+            {
+                if( guiList[j].getMainWindow() == this )
+                {
+                    QEForm* form = guiList[j].getForm();
+                    pm->textElement( "guiFullFileName", form->getFullFileName() );
+                }
+            }
+            pm->endElement();
         }
+
         pm->endElement();
         break;
 
@@ -1152,50 +1262,3 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
 }
 
-// Exit.
-// If more than one window is present, offer to close the current window, or all of them
-void MainWindow::on_actionExit_triggered()
-{
-    // If there is only one GUI open (max), just exit
-    if( mainWindowList.count() <= 1 )
-    {
-        exit(0);
-    }
-
-    QString msg;
-    if( mainWindowList.count() == 2 )
-    {
-        msg ="You are closing this window, but QEGui has another open. Do you want to close the other as well?";
-    }
-    else
-    {
-        msg ="You are closing this window, but QEGui has others open. Do you want to close the others as well?";
-    }
-
-    // If more than one main window is open, check what the user wants to do
-    QMessageBox msgBox;
-    msgBox.setText( msg );
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-    msgBox.setDefaultButton(QMessageBox::Cancel);
-    switch ( msgBox.exec() )
-    {
-       case QMessageBox::Yes:
-            // Yes, close all windows.
-            // Simply exit!
-            exit(0);
-            break;
-
-       case QMessageBox::No:
-            // No, just close the one window
-           close();
-           break;
-
-       case QMessageBox::Cancel:
-           // Cancel, do nothing
-           break;
-
-        default:
-           // Do nothing
-           break;
-     }
-}

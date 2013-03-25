@@ -33,6 +33,20 @@
 #include <QProcess>
 #include <QTimer>
 
+class MainWindow;
+class guiListItem
+{
+public:
+//    guiListItem(){ form = NULL; mainWindow = NULL; }
+    guiListItem( QEForm* formIn, MainWindow* mainWindowIn ){ form = formIn; mainWindow = mainWindowIn; }
+    QEForm* getForm(){ return form; }
+    MainWindow* getMainWindow(){ return mainWindow; }
+//   =guiListItem(const guiListItem& other){ other.form = form; other.mainWindow = mainWindow; }
+private:
+    QEForm* form;
+    MainWindow* mainWindow;
+};
+
 class MainWindow : public QMainWindow, public UserMessage
 {
     Q_OBJECT
@@ -46,7 +60,7 @@ private:
     bool enableEdit;                                        // Enable edit menu
     bool disableMenu;                                       // Disable menu bar
     Ui::MainWindowClass ui;                                 // Main window layout
-    static QList<QEForm*> guiList;                       // Shared list of all forms being displayed in all main windows
+    static QList<guiListItem> guiList;                       // Shared list of all forms being displayed in all main windows
     static QList<MainWindow*> mainWindowList;               // Shared list of all main windows
     bool usingTabs;                                         // True if using tabs to display multiple GUIs, false if displaying a single GUI
 

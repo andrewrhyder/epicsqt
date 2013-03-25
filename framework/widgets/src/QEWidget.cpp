@@ -372,6 +372,23 @@ QString QEWidget::defaultFileLocation()
 }
 
 // Returns an open file given a file name.
+// This uses findQEFile() to find files in a consistant set of locations. Refer to findQEFile() for details.
+QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
+{
+    // Find the file
+    QFile* uiFile = findQEFile( name, this );
+    if( uiFile )
+    {
+        if( !uiFile->open( mode ) )
+        {
+            delete uiFile;
+            uiFile = NULL;
+        }
+    }
+    return uiFile;
+}
+
+// Returns a QFile given a file name, or NULL if can't find the file
 // Use this to find files in a consistant set of locations:
 // If the file name contains an absolute path, then no options, just try to open it
 // If the file name contains a relative path (including no path) look in the following locations:
@@ -380,7 +397,7 @@ QString QEWidget::defaultFileLocation()
 //  - The current directory
 //  - The environment variable QE_UI_PATH
 
-QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
+QFile* QEWidget::findQEFile( QString name, ContainerProfile* profile )
 {
         // Build a list of all the places we expect to find the file
         // Use a single location if an absolute path was specified.
@@ -399,7 +416,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
             QFileInfo fileInfo;
 
             // Add the parent path from any parent QEForm
-            QString parentPath =  getParentPath();
+            QString parentPath =  profile->getParentPath();
             if( !parentPath.isEmpty() )
             {
                 fileInfo.setFile( parentPath, name );
@@ -407,7 +424,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
             }
 
             // Add the paths from the path list in the container profile
-            QStringList pathList = getPathList();
+            QStringList pathList = profile->getPathList();
             for( int i = 0; i < pathList.count(); i++ )
             {
                 fileInfo.setFile( pathList[i], name );
@@ -419,7 +436,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
             searchList.append(  fileInfo.filePath() );
 
             // Add paths from environment variable
-            QStringList envPathList = getEnvPathList();
+            QStringList envPathList = profile->getEnvPathList();
             for( int i = 0; i < envPathList.count(); i++ )
             {
                 fileInfo.setFile( envPathList[i], name );
@@ -432,7 +449,7 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
         for( int i = 0; i < searchList.count(); i++ )
         {
             uiFile = new QFile( searchList[i] );
-            if( uiFile->open( mode ) )
+            if( uiFile->exists() )
                 break;
             delete uiFile;
             uiFile = NULL;
