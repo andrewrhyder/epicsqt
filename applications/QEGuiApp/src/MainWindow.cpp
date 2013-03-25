@@ -203,6 +203,7 @@ void MainWindow::on_actionClose_triggered()
         if( gui )
         {
             removeGuiFromWindowsMenu( gui );
+            setCentralWidget( NULL );
         }
 
         setTitle( "" );
@@ -613,12 +614,17 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
     // (note, resize with a timer event to allow all widget sizes to be recalculated before we use them
     else
     {
-        // Remove the old gui from the 'windows' menus
-        QEForm* oldGui = extractGui( centralWidget() );
-        if( oldGui )
+        // Remove the old gui from the 'windows' menus, if any
+        if( centralWidget() )
         {
-            removeGuiFromWindowsMenu( oldGui );
+            QEForm* oldGui = extractGui( centralWidget() );
+            if( oldGui )
+            {
+                removeGuiFromWindowsMenu( oldGui );
+            }
         }
+
+        // Use the gui
         setCentralWidget( rGui );
         QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
     }
@@ -647,6 +653,12 @@ void MainWindow::newMessage( QString msg, message_types type )
 // This is done as a timer event once all processing has completed after creating a new gui.
 void MainWindow::resizeToFitGui()
 {
+    // It is (ever so slightly) possible that the central window has been removed
+    // before the timer event occurs. If so, do nothing.
+    if( !centralWidget() )
+        return;
+
+    // Get dimensions
     int main_w = width();
     int main_h = height();
     int central_w = centralWidget()->width();
@@ -941,6 +953,10 @@ void MainWindow::setTitle( QString title )
 // Return the central widget if it is the tab widget, else return NULL
 QTabWidget* MainWindow::getCentralTabs()
 {
+    // If no central widget, return NULL
+    if( !centralWidget() )
+        return NULL;
+
     QWidget* w = centralWidget();
     if( !w || QString( "QTabWidget").compare( w->metaObject()->className() ) )
         return NULL;
@@ -952,6 +968,10 @@ QTabWidget* MainWindow::getCentralTabs()
 // Note, originally QEForm class did not implement QOBJECT so className() returned it's base class which was QScrollArea.
 QEForm* MainWindow::getCentralGui()
 {
+    // If no central widget, return NULL
+    if( !centralWidget() )
+        return NULL;
+
     QWidget* w = centralWidget();
     if( !w || QString( "QTabWidget").compare( w->metaObject()->className() ) == 0 )
         return NULL;
@@ -1137,14 +1157,24 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 void MainWindow::on_actionExit_triggered()
 {
     // If there is only one GUI open (max), just exit
-    if( guiList.count() <= 1 )
+    if( mainWindowList.count() <= 1 )
     {
         exit(0);
     }
 
-    // If more than one GUI is open, check what the user wants to do
+    QString msg;
+    if( mainWindowList.count() == 2 )
+    {
+        msg ="You are closing this window, but QEGui has another open. Do you want to close the other as well?";
+    }
+    else
+    {
+        msg ="You are closing this window, but QEGui has others open. Do you want to close the others as well?";
+    }
+
+    // If more than one main window is open, check what the user wants to do
     QMessageBox msgBox;
-    msgBox.setText( "You are closing this GUI. There are other GUIs open. Do you want to close the others as well?.");
+    msgBox.setText( msg );
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Cancel);
     switch ( msgBox.exec() )
@@ -1157,7 +1187,7 @@ void MainWindow::on_actionExit_triggered()
 
        case QMessageBox::No:
             // No, just close the one window
-           on_actionClose_triggered();
+           close();
            break;
 
        case QMessageBox::Cancel:
