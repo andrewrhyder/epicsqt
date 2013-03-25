@@ -92,6 +92,7 @@ private:
     void newMessage( QString msg, message_types type );
 
 private slots:
+    void on_actionExit_triggered();
     void on_actionMessage_Log_triggered();
     void on_actionUser_Level_triggered();
     void on_actionRefresh_Current_Form_triggered();             // Slot to perform 'Refresh Current Form' action

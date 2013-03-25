@@ -35,7 +35,7 @@ public:
     standardProperties( QWidget* ownerIn );
     virtual ~standardProperties(){}
 
-protected:
+public:
     userLevels getUserLevelVisibility();
     void setUserLevelVisibility( userLevels level );
 
@@ -45,16 +45,17 @@ protected:
     bool getApplicationEnabled() const;
     void setApplicationEnabled( bool state );
 
-    void setDataDisabled( bool disable );
-
     // visible (widget is visible outside 'Designer')
     void setRunVisible( bool visibleIn );
     bool getRunVisible();
 
-    void checkVisibilityEnabledLevel( userLevels level );
-
     void setDisplayAlarmState( bool displayAlarmStateIn );
     bool getDisplayAlarmState();
+
+protected:
+
+    void setDataDisabled( bool disable );
+    void checkVisibilityEnabledLevel( userLevels level );
 
 private:
     QWidget* owner;

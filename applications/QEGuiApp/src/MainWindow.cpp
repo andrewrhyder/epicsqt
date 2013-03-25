@@ -1132,3 +1132,40 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
 }
 
+// Exit.
+// If more than one window is present, offer to close the current window, or all of them
+void MainWindow::on_actionExit_triggered()
+{
+    // If there is only one GUI open (max), just exit
+    if( guiList.count() <= 1 )
+    {
+        exit(0);
+    }
+
+    // If more than one GUI is open, check what the user wants to do
+    QMessageBox msgBox;
+    msgBox.setText( "You are closing this GUI. There are other GUIs open. Do you want to close the others as well?.");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    switch ( msgBox.exec() )
+    {
+       case QMessageBox::Yes:
+            // Yes, close all windows.
+            // Simply exit!
+            exit(0);
+            break;
+
+       case QMessageBox::No:
+            // No, just close the one window
+           on_actionClose_triggered();
+           break;
+
+       case QMessageBox::Cancel:
+           // Cancel, do nothing
+           break;
+
+        default:
+           // Do nothing
+           break;
+     }
+}

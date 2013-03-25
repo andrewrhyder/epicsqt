@@ -25,6 +25,18 @@
      <property name="heightVariable" stdset="0">
       <string>IMG:cam1:ArraySizeY_RBV</string>
      </property>
+     <property name="regionOfInterest1XVariable" stdset="0">
+      <string>ROI1:X</string>
+     </property>
+     <property name="regionOfInterest1YVariable" stdset="0">
+      <string>ROI1:Y</string>
+     </property>
+     <property name="regionOfInterest1WVariable" stdset="0">
+      <string>ROI1:W</string>
+     </property>
+     <property name="regionOfInterest1HVariable" stdset="0">
+      <string>ROI1:H</string>
+     </property>
      <property name="enableVertSliceSelection">
       <bool>true</bool>
      </property>
@@ -51,6 +63,38 @@
      </property>
     </widget>
    </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QELabel" name="qelabel_3">
+       <property name="variable" stdset="0">
+        <string>ROI1:X</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QELabel" name="qelabel_2">
+       <property name="variable" stdset="0">
+        <string>ROI1:Y</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QELabel" name="qelabel">
+       <property name="variable" stdset="0">
+        <string>ROI1:W</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QELabel" name="qelabel_4">
+       <property name="variable" stdset="0">
+        <string>ROI1:H</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -58,6 +102,11 @@
    <class>QEImage</class>
    <extends>QFrame</extends>
    <header>QEImage.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QELabel</class>
+   <extends>QLabel</extends>
+   <header>QELabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
