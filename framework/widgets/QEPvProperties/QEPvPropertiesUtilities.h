@@ -62,7 +62,7 @@ public:
    QERecordSpec *find (const QString recordType);
    void appendOrReplace (QERecordSpec *recordSpec);
 
-   bool process_record_spec_file (const QString& filename);
+   bool processRecordSpecFile (const QString& filename);
 
 private:
    int findSlot (const QString recordType);
@@ -107,8 +107,8 @@ public:
    //
    static bool pvNameIsValid (const QString & pvName);
 
-   // Remive any qualifiers (e.g. " CPP") priort to validaing name.
-   // Modified name set in pvName.
+   // Remove any qualifiers (e.g. " CPP") prior to validaing name.
+   // Modified name set in pvName is valid, otherwise cleared.
    //
    static bool extractPvName (const QString & item, QString & pvName);
 };

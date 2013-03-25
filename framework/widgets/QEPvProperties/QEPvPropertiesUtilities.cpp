@@ -129,7 +129,7 @@ void QERecordSpecList::appendOrReplace (QERecordSpec *newRecordSpec)
 
 //------------------------------------------------------------------------------
 //
-bool QERecordSpecList::process_record_spec_file (const QString& filename)
+bool QERecordSpecList::processRecordSpecFile (const QString& filename)
 {
    if (filename == "") {
       return false;

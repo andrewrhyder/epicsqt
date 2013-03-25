@@ -32,6 +32,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QMenu>
+#include <QScrollArea>
 #include <QVBoxLayout>
 
 #include <QELabel.h>
@@ -44,12 +45,15 @@
 
 #define DEBUG qDebug() << "QEPvProperties::" << __FUNCTION__ << ":" << __LINE__
 
+#define MAX(a, b)           ((a) >= (b) ? (a) : (b))
+#define MIN(a, b)           ((a) <= (b) ? (a) : (b))
+
 
 //==============================================================================
 // class wide data
 //==============================================================================
 //
-static bool record_specs_are_initialised = false;    // setup housekeeping
+static bool recordSpecsAreInitialised = false;       // setup housekeeping
 static QERecordSpec *pDefaultRecordSpec = NULL;      // default for unknown record types
 static QERecordSpecList recordSpecList;              // list of record type specs
 
@@ -60,14 +64,14 @@ static QERecordSpecList recordSpecList;              // list of record type spec
 //
 // This function is idempotent
 //
-static void initialise_record_specs ()
+static void initialiseRecordSpecs ()
 {
    bool okay;
 
    // If already setup then exit.
    //
-   if (record_specs_are_initialised) return;
-   record_specs_are_initialised = true;
+   if (recordSpecsAreInitialised) return;
+   recordSpecsAreInitialised = true;
 
    recordSpecList.clear ();
 
@@ -86,15 +90,15 @@ static void initialise_record_specs ()
 
    // First process the internal file list (from resource file).
    //
-   okay |= recordSpecList.process_record_spec_file (":/qe/pvproperties/record_field_list.txt");
+   okay |= recordSpecList.processRecordSpecFile (":/qe/pvproperties/record_field_list.txt");
 
    // Next agument from any file specified using the environment variable.
    //
-   okay |= recordSpecList.process_record_spec_file (getenv ("QE_RECORD_FIELD_LIST"));
+   okay |= recordSpecList.processRecordSpecFile (getenv ("QE_RECORD_FIELD_LIST"));
 
    // Lastly augment used file in current (startup) directory.
    //
-   okay |= recordSpecList.process_record_spec_file ("./record_field_list.txt");
+   okay |= recordSpecList.processRecordSpecFile ("./record_field_list.txt");
 
    if (okay == false) {
       DEBUG << "unable to read any record field files";
@@ -111,12 +115,12 @@ static void initialise_record_specs ()
 #define DEFAULT_SECTION_SIZE      22
 
 #define WIDGET_MIN_WIDTH          340
-#define WIDGET_MIN_HEIGHT         246
+#define WIDGET_MIN_HEIGHT         400
 
 #define WIDGET_DEFAULT_WIDTH      448
-#define WIDGET_DEFAULT_HEIGHT     290
+#define WIDGET_DEFAULT_HEIGHT     448
 
-#define ENUMERATIONS_MIN_HEIGHT   10
+#define ENUMERATIONS_MIN_HEIGHT   12
 #define ENUMERATIONS_MAX_HEIGHT   100
 #define NUMBER_OF_ENUMERATIONS    32
 
@@ -147,8 +151,9 @@ public:
    QLabel *indexInfo;
    QTableWidget *table;
    QMenu *tableContextMenu;
-   QFrame *enumerationsFrame;
+   QFrame *enumerationFrame;
    QLabelList enumerationLabelList;
+   QScrollArea *enumerationScroll;
    QEResizeableFrame * enumerationResize;
    QVBoxLayout *layout;
 };
@@ -179,19 +184,27 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
    this->timeStamp = new QLabel (this->topFrame);
    this->indexInfo = new QLabel (this->topFrame);
 
-   this->enumerationsFrame = new QFrame (NULL); // is re-pareneted by enumerationResize
-
+   this->enumerationFrame = new QFrame (NULL); // is re-pareneted by enumerationScroll
    for (j = 0; j < NUMBER_OF_ENUMERATIONS; j++) {
       QLabel * item;
-      item = new QLabel (this->enumerationsFrame);
+      item = new QLabel (this->enumerationFrame);
       this->enumerationLabelList.append (item);
    }
 
+   // Create scrolling area and add pv frame.
+   //
+   this->enumerationScroll = new QScrollArea ();          // this will become parented by enumerationResize
+   this->enumerationScroll->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOn);
+   this->enumerationScroll->setWidgetResizable (true);    // MOST IMPORTANT
+   this->enumerationScroll->setWidget (this->enumerationFrame);
+
+   // Create user controllable resize area
+   //
    this->enumerationResize = new QEResizeableFrame (ENUMERATIONS_MIN_HEIGHT, ENUMERATIONS_MAX_HEIGHT, parent);
    this->enumerationResize->setFixedHeight (ENUMERATIONS_MIN_HEIGHT);
    this->enumerationResize->setFrameShape (QFrame::Panel);
    this->enumerationResize->setGrabberToolTip ("Re size enuerations");
-   this->enumerationResize->setWidget (this->enumerationsFrame);
+   this->enumerationResize->setWidget (this->enumerationScroll);
 
    // We create this with 40 rows initially - this will get expanded if/when necessary.
    // Mainly want enough to make it look sensible in designer.
@@ -276,13 +289,9 @@ void QEPvProperties::common_setup ()
    int j;
    QLabel *enumLabel;
 
-   // This control uses a single data source (from a designer point of view)
-   //
-   this->setNumVariables (1);
-
    // This function only perform required actions on first call.
    //
-   initialise_record_specs ();
+   initialiseRecordSpecs ();
 
    this->fieldChannels.clear ();
 
@@ -391,7 +400,7 @@ void QEPvProperties::common_setup ()
    //
    setupContextMenu (this);
 
-   // Do special for the table.
+   // Do special context for the table.
    //
    own->table->setContextMenuPolicy (Qt::CustomContextMenu);
 
@@ -419,7 +428,7 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
    OwnWidgets *own = this->ownWidgets;
 
    QLabel *enumLabel;
-   int pw, ph;   //
+   int pw;   //
    int x, y;
    int wh;       // widget height
    int lw;       // label width
@@ -430,7 +439,7 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
    // Get current width and height.
    //
    pw = own->topFrame->width ();
-   ph = own->topFrame->height ();
+   // ph = own->topFrame->height ();
 
    lw = 48;
    fw = pw - lw - 18;
@@ -452,8 +461,8 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
    own->label6->setGeometry    (x, y, lw, wh); x += lw + 6;
    own->indexInfo->setGeometry (x, y, fw, wh); y += 22;
 
-   pw = own->enumerationsFrame->width ();
-   epr = pw / 160;    // calc enumerations per row.
+   pw = own->enumerationFrame->width ();
+   epr = MAX (1, (pw / 160));    // calc enumerations per row.
    lw = ((pw - 4)/ epr) - 4;
    for (j = 0; j < own->enumerationLabelList.count (); j++) {
       enumLabel = own->enumerationLabelList.value (j);
@@ -761,7 +770,7 @@ void QEPvProperties::setValueValue (const QString &,
 
    if (this->isFirstUpdate) {
 
-      // Ensure we do any require resizing.
+      // Ensure we do any required resizing.
       //
       this->resizeEvent (NULL);
 
@@ -775,26 +784,28 @@ void QEPvProperties::setValueValue (const QString &,
       enumLast = NULL;
       for (j = 0; j < this->ownWidgets->enumerationLabelList.count (); j++) {
          enumLabel = this->ownWidgets->enumerationLabelList.value (j);
-         enumLabel->setVisible (j < n);
          if (j < n) {
             // Value is specified.
             enumLabel->setText (enumerations.value (j));
             enumLast = enumLabel;
+            enumLabel->setVisible (true);
          } else {
             enumLabel->clear ();
+            enumLabel->setVisible (false);
          }
       }
 
       if (enumLast) {
          g = enumLast->geometry ();
-         h = ENUMERATIONS_MIN_HEIGHT + g.top() + g.height() + 2;
+         h = g.top() + g.height() + 4;
       } else {
-         h = ENUMERATIONS_MIN_HEIGHT;
+         h = 0;
       }
-      own->enumerationResize->setAllowedMaximum (h);
+      own->enumerationFrame->setFixedHeight (h);
 
-      // Exand to max height.
-      own->enumerationResize->setFixedHeight (h);
+      // Set and expand to new max height.
+      own->enumerationResize->setAllowedMaximum (ENUMERATIONS_MIN_HEIGHT + h);
+      own->enumerationResize->setFixedHeight (ENUMERATIONS_MIN_HEIGHT + h);
 
       this->isFirstUpdate = false;
    }
@@ -850,7 +861,7 @@ void QEPvProperties::setFieldValue (const QString &value,
       item->setText  (" " + value);
    } else {
       DEBUG << "variableIndex =" << variableIndex
-             << ", out of range - must be <" << numberOfRows;
+            << ", out of range - must be <" << numberOfRows;
    }
 }
 
@@ -953,7 +964,7 @@ void QEPvProperties::contextMenuTriggered (QAction* action)
 
 
 //==============================================================================
-// Drag drop
+// Drag / drop
 //
 void QEPvProperties::setDrop (QVariant drop)
 {
@@ -976,9 +987,7 @@ QVariant QEPvProperties::getDrop ()
 // Copy / Paste
 QString QEPvProperties::copyVariable ()
 {
-    // Note: we return the record name, as opposed to the selected PV name.
-    //
-    return recordBaseName;
+   return this->getSubstitutedVariableName (0);
 }
 
 //------------------------------------------------------------------------------
@@ -986,16 +995,18 @@ QString QEPvProperties::copyVariable ()
 QVariant QEPvProperties::copyData ()
 {
    QTableWidget *table = ownWidgets->table;
+   QTableWidgetItem *f, *v;
+   QString fieldList;
 
+   // Create csv format.
+   //
+   fieldList.clear ();
    for (int i = 0; i < table->rowCount(); i++) {
-        QTableWidgetItem *item = table->item (i, 0);
-        qDebug() << item->text();
-
-    }
-
-    // !! built a list of field/values
-    QString fieldValues;
-    return QVariant( fieldValues );
+      f = table->item (i, FIELD_COL);
+      v = table->item (i, VALUE_COL);
+      fieldList.append (f->text ()).append (",").append (v->text ().append ("\n"));
+   }
+   return QVariant( fieldList );
 }
 
 //------------------------------------------------------------------------------
