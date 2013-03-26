@@ -161,6 +161,9 @@ private:
    void applyState (const ChartState & chartState);
 
    bool isNormalVideo;
+   QwtPlotGrid *grid;
+
+   // Keep a list of allocated curvers so that we can track and delete them.
    QVector<QwtPlotCurve *> curve_list;
    void releaseCurves ();
    void onCanvasMouseMove (QMouseEvent * event);
@@ -264,6 +267,9 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    // Use the privateData object as the event filter object.
    this->plot->canvas()->installEventFilter (this);
 
+   this->grid = new QwtPlotGrid ();
+   this->grid->attach (this->plot);
+
    // Create layouts.
    //
    this->layout1 = new QVBoxLayout (this->chart);
@@ -288,7 +294,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    this->chartStateList.clear ();
    this->chartStatePointer = 0;
-   setNormalBackground (true);
+   this->setNormalBackground (true);
    this->pushState ();        // baseline state - there is always at leasts one.
 }
 
@@ -312,6 +318,8 @@ QEStripChartItem * QEStripChart::PrivateData::getItem (unsigned int slot)
 void QEStripChart::PrivateData::setNormalBackground (bool isNormalVideoIn)
 {
    QColor background;
+   QRgb gridColour;
+   QPen pen;
 
    this->isNormalVideo = isNormalVideoIn;
 
@@ -321,6 +329,12 @@ void QEStripChart::PrivateData::setNormalBackground (bool isNormalVideoIn)
 #else
    this->plot->setCanvasBackground (background);
 #endif
+
+   gridColour =  this->isNormalVideo ? 0x00c0c0c0 : 0x00404040;
+   pen.setColor(QColor (gridColour));
+   pen.setStyle (Qt::DashLine);
+   this->grid->setPen (pen);
+
    this->plotData ();
 }
 
@@ -679,7 +693,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    // Configure the panel and create contents
    //
    this->setFrameShape (Panel);
-   this->setMinimumSize (1032, 400);
+   this->setMinimumSize (1032, 400);   // keep this and sizeHint consistant
 
    this->duration = 600;  // ten minites.
 
@@ -724,8 +738,9 @@ QEStripChart::~QEStripChart ()
 
 //------------------------------------------------------------------------------
 //
-QSize QEStripChart::sizeHint () const {
-   return QSize (1000, 400);
+QSize QEStripChart::sizeHint () const
+{
+   return QSize (1032, 400);
 }
 
 //------------------------------------------------------------------------------
