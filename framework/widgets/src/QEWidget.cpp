@@ -344,7 +344,10 @@ void QEWidget::setVariableNameAndSubstitutions( QString variableNameIn, QString 
 {
     setVariableNameSubstitutions( variableNameSubstitutionsIn );
     setVariableName( variableNameIn, variableIndex );
-    establishConnection( variableIndex );
+    if( !getDontActivateYet() )
+    {
+        establishConnection( variableIndex );
+    }
 }
 
 // Returns the default location to create files.

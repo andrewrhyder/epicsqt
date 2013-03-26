@@ -547,6 +547,20 @@ void ContainerProfile::setPublishedMessageFormId( unsigned int publishedMessageF
     getPublishedProfile()->messageFormId = publishedMessageFormIdIn;
 }
 
+// Set the flag indicating newly created QE widgets should hold of activating until told to do so
+// Return the previous value so it can be reset
+bool ContainerProfile::setDontActivateYet( bool dontActivateYetIn )
+{
+    bool oldDontActivate = getPublishedProfile()->dontActivateYet;
+    getPublishedProfile()->dontActivateYet = dontActivateYetIn;
+    return oldDontActivate;
+}
+
+// Get the flag indicating newly created QE widgets should hold of activating until told to do so
+bool ContainerProfile::getDontActivateYet()
+{
+    return getPublishedProfile()->dontActivateYet;
+}
 
 /*
   Return the flag indicating true if a profile is currently being published.

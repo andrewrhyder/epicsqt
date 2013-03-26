@@ -135,6 +135,7 @@ public:
         guiLaunchConsumer = NULL;
         messageFormId = 0;
         profileDefined = false;
+        dontActivateYet = false;
     }
 
     QObject* guiLaunchConsumer;         // Object to send GUI launch requests to
@@ -154,6 +155,7 @@ public:
     bool profileDefined;                // Flag true if a profile has been setup. Set between calling setupProfile() and releaseProfile()
 
     PersistanceManager persistanceManager;  // Persistance manager to manage configuration save and restore
+    bool dontActivateYet;               // Flag true if QE widgets should hold of activating (connection to data) until told to do so
 };
 
 
@@ -213,6 +215,9 @@ public:
     unsigned int getMessageFormId();                    // Get the local copy of the message form ID
     unsigned int getPublishedMessageFormId();           // Get the currently published message form ID
     void setPublishedMessageFormId( unsigned int publishedMessageFormIdIn );  // Set the currently published message form ID
+
+    bool setDontActivateYet( bool dontActivateIn );     // Flag newly created QE widgets should hold of activating until told to do so
+    bool getDontActivateYet();                          // Get flag indicating QE widgets should hold of activating until told to do so
 
     void releaseProfile();                              // Clears the context setup by setupProfile(). Local data in all instances is still valid
 

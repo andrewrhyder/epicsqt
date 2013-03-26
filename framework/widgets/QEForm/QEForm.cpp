@@ -206,11 +206,21 @@ bool QEForm::readUiFile()
             unsigned int parentMessageFormId = getPublishedMessageFormId();
             setPublishedMessageFormId( childMessageFormId );
 
+            // Flag the newly created QE widgets of this form should hold off activating
+            // themselves (connecting) until the form has been fully loaded.
+            // (Note what the value was before setting this flag - a parent form may have
+            // set it and we should leave it as we found it)
+            bool oldDontActivateYet = setDontActivateYet( true );
+
             // Load the gui
             QUiLoader loader;
 
             ui = loader.load( uiFile );
             uiFile->close();
+
+            // Reset the flag indicating newly created QE widgets of this form should hold off activating
+            // themselves (connecting) until the form has been fully loaded.
+            setDontActivateYet( oldDontActivateYet );
 
             // Restore the original published message form ID
             setPublishedMessageFormId( parentMessageFormId );
@@ -246,37 +256,43 @@ bool QEForm::readUiFile()
                 releaseProfile();
             }
 
-            // If the form contents should take all its sizing clues from the form, then set the top ui widget to match
-            // the form's size related properties.
-            if( resizeContents )
+            // If a .ui is present, manage resizing it
+            if( ui )
             {
-                QRect formRect = ui->geometry();
-                ui->setGeometry( formRect.x(), formRect.y(), width(), height() );
-                ui->setSizePolicy( sizePolicy() );
-                ui->setMinimumSize( minimumSize() );
-                ui->setMaximumSize( maximumSize() );
-                ui->setSizeIncrement( sizeIncrement() );
-                ui->setBaseSize( baseSize() );
-                ui->setContentsMargins( contentsMargins() );
+                // If the form contents should take all its sizing clues from the form, then set the top ui widget to match
+                // the form's size related properties.
+                if( resizeContents )
+                {
+                    QRect formRect = ui->geometry();
+                    ui->setGeometry( formRect.x(), formRect.y(), width(), height() );
+                    ui->setSizePolicy( sizePolicy() );
+                    ui->setMinimumSize( minimumSize() );
+                    ui->setMaximumSize( maximumSize() );
+                    ui->setSizeIncrement( sizeIncrement() );
+                    ui->setBaseSize( baseSize() );
+                    ui->setContentsMargins( contentsMargins() );
+                }
+
+                // If the form should take all its sizing clues from the form's contents, then set the form to match
+                // the top ui widget's size related properties.
+                else
+                {
+                    QRect formRect = geometry();
+                    setGeometry( formRect.x(), formRect.y(), ui->width(), ui->height() );
+                    setSizePolicy( ui->sizePolicy() );
+                    setMinimumSize( ui->minimumSize() );
+                    setMaximumSize( ui->maximumSize() );
+                    setSizeIncrement( ui->sizeIncrement() );
+                    setBaseSize( ui->baseSize() );
+                    setContentsMargins( ui->contentsMargins() );
+                }
+
+                // Reset the user interface's position.
+                // Not sure why, but the loaded user interface does not always have a position of 0,0
+                // When debugged, the particular example was a QDialog with a position of 0,0 when viewed in designer.
+                QRect uiRect = ui->geometry();
+                ui->setGeometry(0, 0, uiRect.width(), uiRect.height());
             }
-            // If the form should take all its sizing clues from the form's contents, then set the form to match
-            // the top ui widget's size related properties.
-            else
-            {
-                QRect formRect = geometry();
-                setGeometry( formRect.x(), formRect.y(), ui->width(), ui->height() );
-                setSizePolicy( ui->sizePolicy() );
-                setMinimumSize( ui->minimumSize() );
-                setMaximumSize( ui->maximumSize() );
-                setSizeIncrement( ui->sizeIncrement() );
-                setBaseSize( ui->baseSize() );
-                setContentsMargins( ui->contentsMargins() );
-            }
-            // Reset the user interface's position.
-            // Not sure why, but the loaded user interface does not always have a position of 0,0
-            // When debugged, the particular example was a QDialog with a position of 0,0 when viewed in designer.
-            QRect uiRect = ui->geometry();
-            ui->setGeometry(0, 0, uiRect.width(), uiRect.height());
 
             // Set the title to the name of the top level widget title, if it has one
             title.clear();
@@ -300,13 +316,16 @@ bool QEForm::readUiFile()
                     title.chop( 3 );
             }
 
-            // Load the user interface into the QEForm widget
-            ui->setParent( this );
-            ui->show();         // note, this show is only needed when replacing ui in existing QEForm
+            // Load the user interface into the QEForm widget if present
+            if( ui )
+            {
+                ui->setParent( this );
+                ui->show();         // note, this show is only needed when replacing ui in existing QEForm
+            }
 
-            // If the ui is managed by a layout, add a layout to the QEform (if not already present) and add
+            // If the ui is present and is managed by a layout, add a layout to the QEform (if not already present) and add
             // the ui to the layout so layout requests are passed down
-            if( ui->layout() )
+            if( ui && ui->layout() )
             {
                 QLayout* lo = layout();
                 if( !lo )
