@@ -26,7 +26,7 @@
 #include <epicsMutex.h>
 #include <CaConnection.h>
 
-#include <QDebug>
+#include <stdio.h>
 
 using namespace caconnection;
 
@@ -61,10 +61,10 @@ CaConnection::~CaConnection() {
 
     myRef->discard();
 
-    CaRef::accessUnlock();
-
     shutdown();
     reset();
+
+    CaRef::accessUnlock();
 }
 
 /*
@@ -104,11 +104,13 @@ ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct co
         // Sanity check
         if( channel.id == 0 )
         {
-            printf( "CaConnection::establishChannel() ca_create_channel returned a channel ID of zero" );
+            printf( "CaConnection::establishChannel() ca_create_channel returned a channel ID of zero\n" );
+            return REQUEST_FAILED;
         }
 
         ca_pend_io( link.searchTimeout );
         channel.activated = true;
+//        printf( "CaConnection::establishChannel channel activated %ld  chid: %ld  name: %s\n", (long)(&channel), (long)(channel.id), channelName.c_str() );
         switch( channel.creation ) {
             case ECA_NORMAL :
                 return REQUEST_SUCCESSFUL;
@@ -167,7 +169,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
                 return REQUEST_SUCCESSFUL;
             break;
             default :
-                qDebug() << " subscription failure: " << ca_message( subscription.creation );
+                printf( "Subscription failure in CaConnection::establishSubscription() %s\n", ca_message( subscription.creation ) );
                 return REQUEST_FAILED;
             break;
         }
@@ -216,11 +218,18 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
     Use activeChannel() for feedback.
 */
 void CaConnection::removeChannel() {
+    // Ensure we are not in a CA callback
+    CaRef::accessLock();
+
     if( channel.activated == true ) {
         ca_clear_channel( channel.id );
         channel.activated = false;
+//        printf(  "CaConnection::removeChannel() channel deactivated %ld   chid %ld\n", (long)(&channel), (long)(channel.id) );
+
         channel.creation = -1;
     }
+
+    CaRef::accessUnlock();
 }
 
 /*
@@ -366,6 +375,14 @@ channel_states CaConnection::getChannelState() {
     Retrieve the channel's database type.
 */
 short CaConnection::getChannelType() {
+    // If the channel is no longer activated, it is possible it has been cleared prior to reuse with a new variable.
+    if( !channel.activated || !channel.id )
+    {
+        printf( "Attempting to get channel type while channel is not active or channel id is zero in CaConnection::getChannelType() %d %ld\n", channel.activated, (long)(channel.id) );
+        return 0;
+    }
+
+    // Extract and return the channel type
     channel.type = ca_field_type( channel.id );
     return channel.type;
 }
@@ -445,6 +462,8 @@ void CaConnection::reset() {
     link.readTimeout = 2.0;
     link.writeTimeout = 2.0;
     link.state = LINK_DOWN;
+
+//    printf( "CaConnection::reset() channel deactivated %ld  chid: %ld\n", (long)(&channel), (long)(channel.id) );
 
     context.activated = false;
     context.creation = -1;

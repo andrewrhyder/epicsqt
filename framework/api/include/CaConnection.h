@@ -108,6 +108,8 @@ namespace caconnection {
       void setWriteWithCallback( bool writeWithCallbackIn );
       bool getWriteWithCallback();
 
+      bool getChannelActivated(){ return channel.activated; } // Get activated state when checking CA callbacks are OK
+
     private:
       CaRef* myRef;
       caLink link;

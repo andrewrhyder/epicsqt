@@ -66,6 +66,8 @@ public:
 
 //    void dumpList();                        // Diagnostics only
 
+    std::string getVariable(){ return variable; } // Get variable name when checking CA callbacks are OK
+
 private:
     int magic;                              // Magic number used as a sanitly check that this object is very likley to be a CaRef
     void* owner;                            // Owner object - either a CaObject or a CaConnection

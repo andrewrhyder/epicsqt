@@ -35,7 +35,6 @@
 
 #include <stdio.h>
 
-
 static epicsEventId monitorEvent = NULL;
 
 //===============================================================================
@@ -1026,6 +1025,24 @@ void CaObjectPrivate::connectionHandler( struct connection_handler_args args ) {
     }
 
     CaObject* grandParent = (CaObject*)parent->getParent();
+
+    if( !parent->getChannelActivated() )
+    {
+        printf( "Late CA callback. CaObjectPrivate::connectionHandler() called while channel (CaConnection::caChannel) is not activated.\n" );
+        if( grandParent->myRef )
+        {
+            printf( "Variable in CaRef in CaObject: %s\n", grandParent->myRef->getVariable().c_str() );
+        }
+        else
+        {
+            printf( "CaObject has no CaRef to check.\n");
+        }
+        printf( "Variable in CaRef in data in this callback: %s\n", ref->getVariable().c_str() );
+
+        CaRef::accessUnlock();
+        return;
+    }
+
     switch( args.op ) {
         case CA_OP_CONN_UP :
             {

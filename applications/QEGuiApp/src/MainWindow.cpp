@@ -78,7 +78,6 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
 
     // Setup to respond to requests to save or restore persistant data
     PersistanceManager* persistanceManager = profile.getPersistanceManager();
-    persistanceManager->save( "Default" );
     QObject::connect( persistanceManager->getSaveRestoreObject(), SIGNAL( saveRestore( SaveRestoreSignal::saveRestoreOptions ) ), this, SLOT( saveRestore( SaveRestoreSignal::saveRestoreOptions ) ) );
 
     // Save this instance of a main window in the global list of main windows

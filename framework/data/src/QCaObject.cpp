@@ -149,6 +149,7 @@ QCaObject::~QCaObject() {
     // result in an active event in the event queue which would be cause this QCaObject to be accessed
     // after deletion.
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
+
     p->removeChannel();
 
     // Protect access to pending events list
