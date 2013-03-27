@@ -35,7 +35,7 @@
 
 #include "QEStripChartItem.h"
 
-#define DEBUG  qDebug () << __FILE__  << "::" <<  __FUNCTION__  << ":" << __LINE__
+#define DEBUG  qDebug () <<  "QEStripChartItem::" <<  __FUNCTION__  << ":" << __LINE__
 
 #define MAX(a, b)           ((a) >= (b) ? (a) : (b))
 #define MIN(a, b)           ((a) <= (b) ? (a) : (b))
@@ -69,7 +69,7 @@ public:
    QEStripChart *chart;
    QLabel *pvName;
    QELabel *caLabel;
-   QEStripChartContextMenu *menu;
+   QEStripChartContextMenu *menu [2];
    QColorDialog *colourDialog;
 };
 
@@ -80,6 +80,9 @@ QEStripChartItem::PrivateData::PrivateData ()
    this->chart = NULL;
    this->pvName = NULL;
    this->caLabel = NULL;
+   this->menu [0] = NULL;
+   this->menu [1] = NULL;
+   this->colourDialog = NULL;
 }
 
 //==============================================================================
@@ -96,18 +99,18 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    //
    this->privateData = new QEStripChartItem::PrivateData ();
 
-   // Create the context menu and dialog
-   //
-   menu = new QEStripChartContextMenu (chart);
-
-   this->privateData->colourDialog = new QColorDialog (chart);
-
    // Store references to to widgets in private data class.
    //
    this->privateData->chart = chart;
    this->privateData->pvName = pvName;
    this->privateData->caLabel = caLabel;
-   this->privateData->menu = menu;
+
+   // Construct context menus and dialog and save references.
+   //
+   this->privateData->menu [false] = new QEStripChartContextMenu (false, chart);
+   this->privateData->menu [true]  = new QEStripChartContextMenu (true, chart);
+   this->privateData->colourDialog = new QColorDialog (chart);
+
 
    pvName->setIndent (6);
    pvName->setToolTip ("Use context menu to modify PV attributes");
@@ -155,6 +158,13 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    this->connect (pvName, SIGNAL (customContextMenuRequested (const QPoint &)),
                   this,   SLOT   (customContextMenuRequested (const QPoint &)));
 
+   // Connect the context menus
+   //
+   menu = this->privateData->menu [false];
+   this->connect (menu,   SIGNAL (contextMenuSelected (const QEStripChartContextMenu::Options)),
+                  this,   SLOT   (contextMenuSelected (const QEStripChartContextMenu::Options)));
+
+   menu = this->privateData->menu [true];
    this->connect (menu,   SIGNAL (contextMenuSelected (const QEStripChartContextMenu::Options)),
                   this,   SLOT   (contextMenuSelected (const QEStripChartContextMenu::Options)));
 }
@@ -690,7 +700,7 @@ void QEStripChartItem::readArchive ()
    const QDateTime endDateTime   = this->privateData->chart->getEndDateTime ();
 
    // Assign the chart widget message source id the the associated archive access object.
-   // We re-assign just before each read incase it has changed.
+   // We re-assign just before each read in case it has changed.
    //
    this->archiveAccess.setMessageSourceId (this->privateData->chart->getMessageSourceId ());
 
@@ -752,7 +762,7 @@ QPen QEStripChartItem::getPen ()
 
    result.setWidth (1);
    return result;
-}   // getPen
+}
 
 //------------------------------------------------------------------------------
 //
@@ -764,7 +774,7 @@ void QEStripChartItem::customContextMenuRequested (const QPoint & pos)
    tempPos = pos;
    tempPos.setY (2);   // align with top of label
    golbalPos = this->privateData->pvName->mapToGlobal (tempPos);
-   this->privateData->menu->exec (golbalPos, 0);
+   this->privateData->menu [this->isInUse ()]->exec (golbalPos, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -869,20 +879,32 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          this->privateData->colourDialog->open (this, SLOT (setColour (const QColor &)));
          break;
 
+      case QEStripChartContextMenu::SCCM_PV_ADD_NAME:
       case QEStripChartContextMenu::SCCM_PV_EDIT_NAME:
          this->pvNameEditDialog.setPvName (this->getPvName ());
 
          n = this->pvNameEditDialog.exec ();
          if (n == 1) {
-             // User has selected okay.
-             if (this->getPvName () != this->pvNameEditDialog.getPvName ()) {
-                this->setPvName (this->pvNameEditDialog.getPvName (), "");
-             }
-             // and replot the data
-             //
-             this->privateData->chart->plotData ();
-          }
-          break;
+            // User has selected okay.
+            if (this->getPvName () != this->pvNameEditDialog.getPvName ()) {
+               this->setPvName (this->pvNameEditDialog.getPvName (), "");
+            }
+            // and replot the data
+            //
+            this->privateData->chart->plotData ();
+         }
+         break;
+
+      case QEStripChartContextMenu::SCCM_PV_PASTE_NAME:
+         {
+            QClipboard *cb = QApplication::clipboard ();
+            QString pasteText = cb->text().trimmed();
+
+            if (! pasteText.isEmpty()) {
+               this->setPvName (pasteText, "");
+            }
+         }
+         break;
 
       case QEStripChartContextMenu::SCCM_PV_CLEAR:
          this->clear ();

@@ -38,7 +38,9 @@ Q_OBJECT
 public:
    /// Construct strip chart item context menu.
    /// This menu item creates all required sub menu items.
-   explicit QEStripChartContextMenu (QWidget *parent = 0);
+   /// inUse set true for an inuse slot, i.e. already has a PV allocated.
+   /// inUse set false for an empty slot.
+   explicit QEStripChartContextMenu (bool inUse, QWidget *parent = 0);
    virtual ~QEStripChartContextMenu ();
 
    // IDs for all menu options
@@ -82,6 +84,9 @@ public:
       SCCM_PV_STATS,
       SCCM_PV_CLEAR,
       //
+      SCCM_PV_ADD_NAME,
+      SCCM_PV_PASTE_NAME,
+      //
       SCCM_LAST
    };
 
@@ -91,6 +96,8 @@ signals:
    void contextMenuSelected (const QEStripChartContextMenu::Options option);
 
 private:
+   bool inUse;
+
    // Utility function to create and set up an action.
    //
    QAction* make (QMenu *parent,

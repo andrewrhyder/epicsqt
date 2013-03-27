@@ -27,62 +27,74 @@
 #include <QDebug>
 #include "QEStripChartContextMenu.h"
 
+
+#define DEBUG  qDebug () << "QEStripChartContextMenu::" <<  __FUNCTION__  << ":" << __LINE__
+
+
 //------------------------------------------------------------------------------
 //
-QEStripChartContextMenu::QEStripChartContextMenu (QWidget *parent) : QMenu (parent)
+QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent) : QMenu (parent)
 {
    QMenu *menu;
+
+   this->inUse = inUseIn;
 
    this->setTitle ("PV Item");
 
    // Note: action items are not enabled until corresponding functionallity is implemented.
    //
-   this->make (this, "Read Archive",                        false, SCCM_READ_ARCHIVE);
+   if (inUseIn) {
+      this->make (this, "Read Archive",                        false, SCCM_READ_ARCHIVE);
 
-   menu = new QMenu ("Scale chart to this PV's", this);
-   this->addMenu (menu);
-   this->make (menu, "HOPR/LOPR values",                    false, SCCM_SCALE_CHART_AUTO);
-   this->make (menu, "Plotted min/max values",              false, SCCM_SCALE_CHART_PLOTTED);
-   this->make (menu, "Buffered min/max values",             false, SCCM_SCALE_CHART_BUFFERED);
+      menu = new QMenu ("Scale chart to this PV's", this);
+      this->addMenu (menu);
+      this->make (menu, "HOPR/LOPR values",                    false, SCCM_SCALE_CHART_AUTO);
+      this->make (menu, "Plotted min/max values",              false, SCCM_SCALE_CHART_PLOTTED);
+      this->make (menu, "Buffered min/max values",             false, SCCM_SCALE_CHART_BUFFERED);
 
+      menu = new QMenu ("Adjust/Scale this PV", this);
+      this->addMenu (menu);
+      this->make (menu, "Reset",                               false, SCCM_SCALE_PV_RESET);
+      this->make (menu, "General...",                          false, SCCM_SCALE_PV_GENERAL);
+      this->make (menu, "HOPR/LOPR values map to chart range", false, SCCM_SCALE_PV_AUTO);
+      this->make (menu, "Plotted values map to chart range",   false, SCCM_SCALE_PV_PLOTTED);
+      this->make (menu, "Buffered values map to chart range",  false, SCCM_SCALE_PV_BUFFERED);
+      this->make (menu, "First value maps to chart centre",    false, SCCM_SCALE_PV_CENTRE);
 
-   menu = new QMenu ("Adjust/Scale this PV", this);
-   this->addMenu (menu);
-   this->make (menu, "Reset",                               false, SCCM_SCALE_PV_RESET);
-   this->make (menu, "General...",                          false, SCCM_SCALE_PV_GENERAL);
-   this->make (menu, "HOPR/LOPR values map to chart range", false, SCCM_SCALE_PV_AUTO);
-   this->make (menu, "Plotted values map to chart range",   false, SCCM_SCALE_PV_PLOTTED);
-   this->make (menu, "Buffered values map to chart range",  false, SCCM_SCALE_PV_BUFFERED);
-   this->make (menu, "First value maps to chart centre",    false, SCCM_SCALE_PV_CENTRE);
+      menu = new QMenu ("Mode", this);
+      this->addMenu (menu);
+      this->make (menu, "Rectangular",                         false, SCCM_PLOT_RECTANGULAR)->setEnabled (false);
+      this->make (menu, "Smooth",                              false, SCCM_PLOT_SMOOTH)->setEnabled (false);
+      this->make (menu, "User PV Process Time",                false, SCCM_PLOT_SERVER_TIME)->setEnabled (false);
+      this->make (menu, "Use Receive Time",                    false, SCCM_PLOT_CLIENT_TIME)->setEnabled (false);
+      menu->addSeparator();
+      this->make (menu, "Linear",                              false, SCCM_ARCH_LINEAR)->setEnabled (false);
+      this->make (menu, "Plot Binning",                        false, SCCM_ARCH_PLOTBIN)->setEnabled (false);
+      this->make (menu, "Raw",                                 false, SCCM_ARCH_RAW)->setEnabled (false);
+      this->make (menu, "Spread Sheet",                        false, SCCM_ARCH_SHEET)->setEnabled (false);
+      this->make (menu, "Averaged",                            false, SCCM_ARCH_AVERAGED)->setEnabled (false);
 
-   menu = new QMenu ("Mode", this);
-   this->addMenu (menu);
-   this->make (menu, "Rectangular",                         false, SCCM_PLOT_RECTANGULAR)->setEnabled (false);
-   this->make (menu, "Smooth",                              false, SCCM_PLOT_SMOOTH)->setEnabled (false);
-   this->make (menu, "User PV Process Time",                false, SCCM_PLOT_SERVER_TIME)->setEnabled (false);
-   this->make (menu, "Use Receive Time",                    false, SCCM_PLOT_CLIENT_TIME)->setEnabled (false);
-   menu->addSeparator();
-   this->make (menu, "Linear",                              false, SCCM_ARCH_LINEAR)->setEnabled (false);
-   this->make (menu, "Plot Binning",                        false, SCCM_ARCH_PLOTBIN)->setEnabled (false);
-   this->make (menu, "Raw",                                 false, SCCM_ARCH_RAW)->setEnabled (false);
-   this->make (menu, "Spread Sheet",                        false, SCCM_ARCH_SHEET)->setEnabled (false);
-   this->make (menu, "Averaged",                            false, SCCM_ARCH_AVERAGED)->setEnabled (false);
+      menu = new QMenu ("Line", this);
+      this->addMenu (menu);
+      this->make (menu, "Hide",                                true,  SCCM_LINE_HIDE)->setEnabled (false);
+      this->make (menu, "Regular",                             true,  SCCM_LINE_REGULAR)->setEnabled (false);
+      this->make (menu, "Bold",                                true,  SCCM_LINE_BOLD)->setEnabled (false);
+      this->make (menu, "Colour...",                              false, SCCM_LINE_COLOUR);
 
+      this->make (this, "Edit PV Name...",                     false, SCCM_PV_EDIT_NAME);
 
-   menu = new QMenu ("Line", this);
-   this->addMenu (menu);
-   this->make (menu, "Hide",                                true,  SCCM_LINE_HIDE)->setEnabled (false);
-   this->make (menu, "Regular",                             true,  SCCM_LINE_REGULAR)->setEnabled (false);
-   this->make (menu, "Bold",                                true,  SCCM_LINE_BOLD)->setEnabled (false);
-   this->make (menu, "Colour...",                           false, SCCM_LINE_COLOUR);
+      this->make (this, "Write PV trace to file...",           false, SCCM_PV_WRITE_TRACE)->setEnabled (false);
 
-   this->make (this, "Edit PV Name...",                     false, SCCM_PV_EDIT_NAME);
+      this->make (this, "Generate Statistics",                 false, SCCM_PV_STATS)->setEnabled (false);
 
-   this->make (this, "Write PV trace to file...",           false, SCCM_PV_WRITE_TRACE)->setEnabled (false);
+      this->make (this, "Clear",                               false, SCCM_PV_CLEAR)->setEnabled (inUse);
 
-   this->make (this, "Generate Statistics",                 false, SCCM_PV_STATS)->setEnabled (false);
+   } else {
 
-   this->make (this, "Clear",                               false, SCCM_PV_CLEAR);
+      this->make (this, "Add PV Name...",                      false, SCCM_PV_ADD_NAME);
+      this->make (this, "Paste PV Name ",                      false, SCCM_PV_PASTE_NAME);
+      this->make (this, "Colour...",                           false, SCCM_LINE_COLOUR);
+   }
 
    QObject::connect (this, SIGNAL (triggered             (QAction* ) ),
                      this, SLOT   (contextMenuTriggered  (QAction* )));
@@ -102,6 +114,7 @@ void QEStripChartContextMenu::contextMenuTriggered (QAction* selectedItem)
    Options option;
 
    option = Options (selectedItem->data ().toInt ());
+
    if ((option > SCCM_NONE) && (option < SCCM_LAST)) {
       emit this->contextMenuSelected (option);
    }
