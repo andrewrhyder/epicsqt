@@ -129,6 +129,10 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    //
    this->clear ();
 
+   // Assign the chart widget message source id the the associated archive access object.
+   //
+   this->archiveAccess.setMessageSourceId (chart->getMessageSourceId ());
+
    // Set up a connection to recieve variable name property changes.  The variable
    // name property manager class only delivers an updated variable name after the
    // user has stopped typing.
@@ -684,6 +688,11 @@ void QEStripChartItem::readArchive ()
 {
    const QDateTime startDateTime = this->privateData->chart->getStartDateTime ();
    const QDateTime endDateTime   = this->privateData->chart->getEndDateTime ();
+
+   // Assign the chart widget message source id the the associated archive access object.
+   // We re-assign just before each read incase it has changed.
+   //
+   this->archiveAccess.setMessageSourceId (this->privateData->chart->getMessageSourceId ());
 
    this->archiveAccess.readArchive
          (this, this->getPvName (),  startDateTime, endDateTime,  4000,

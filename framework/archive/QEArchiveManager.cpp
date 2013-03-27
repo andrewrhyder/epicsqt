@@ -25,60 +25,20 @@
  */
 
 #include <stdlib.h>
-#include <QUrl>
-#include <QMutex>
+
+#include <QDebug>
 #include <QHash>
 #include <QList>
+#include <QMutex>
+#include <QUrl>
+
 #include <QEArchiveManager.h>
 
+#define DEBUG  qDebug () << __FILE__  << "::" <<  __FUNCTION__  << ":" << __LINE__
 
 #define MAX(a, b)    ((a) >= (b) ? (a) : (b))
 #define MIN(a, b)    ((a) <= (b) ? (a) : (b))
 
-
-//==============================================================================
-// Cannot use user message paradigm during static initialisation.
-// This is used to buffer user messages to an aprorpiate time to send the messages
-//
-struct BufferedMessage {
-   QString message;
-   message_types type;
-};
-
-static QMutex *bufferedUserMessagesMutex = new QMutex ();
-static QList <struct BufferedMessage> bufferedUserMessages;
-
-//------------------------------------------------------------------------------
-//
-static void bufferMessage (QString message, 
-                           message_types type = message_types (MESSAGE_TYPE_INFO))
-{
-   QMutexLocker locker (bufferedUserMessagesMutex);
-   BufferedMessage bm;
-
-   bm.message = message;
-   bm.type = type;
-
-   bufferedUserMessages << bm;
-}
-
-//------------------------------------------------------------------------------
-//
-static void sendBufferedMessages (UserMessage *item)
-{
-   QMutexLocker locker (bufferedUserMessagesMutex);
-   BufferedMessage bm;
-
-   int j, count;
-
-   count = bufferedUserMessages.count ();
-   for (j = 0; j < count; j++) {
-      bm = bufferedUserMessages.at (j);
-      item->sendMessage (QString ("ArchiveManager: ").append (bm.message), bm.type);
-      bm.message.clear ();
-   }
-   bufferedUserMessages.clear ();
-}
 
 
 //==============================================================================
@@ -108,6 +68,15 @@ public:
 // the later made all the EPICS plugin widgets "go away" in designer.
 // I think the are issues when QObjects declared in header files.
 //
+
+// Allows only one object to be effectively created. Second are subsequenct object
+// do nothing, except waste space.
+//
+static QMutex *singletonMutex = new QMutex ();
+static QEArchiveManager *singleton = NULL;
+static QMutex *initialiseMutex = new QMutex ();
+
+
 static QMutex *archiveDataMutex = new QMutex ();
 
 static QList <QEArchiveInterface *>archiveInterfaceList;
@@ -117,26 +86,39 @@ static bool allArchivesRead = false;
 static int numberArchivesRead = 0;
 static bool environmentErrorReported = false;
 
-static QEArchiveManager singleton;
-static QMutex *initialiseMutex = new QMutex ();
 
 
 //==============================================================================
 // QEArchiveManager Class Methods
 //==============================================================================
 //
-QEArchiveManager::QEArchiveManager ()
+//
+QEArchiveManager::QEArchiveManager () :
+   QObject (NULL)  //The singleton manager object is an orphan.
 {
-   if (this != &singleton) {
+   {
+      QMutexLocker locker (singletonMutex);
+
+      if (singleton == NULL) {
+         // This is the first object - we are the singleton.
+         //
+         singleton = this;
+      }
+   }
+
+   if (this != singleton) {
       // This is NOT the singleton object.
+      // There can only be one.
       //
-      bufferMessage ("Duplicate QEArchiveManager object - not used");
-      throw "Duplicate QEArchiveManager object - not used";
+      this->sendMessage ("QEArchiveManager::QEArchiveManager - duplicate object.",
+                         message_types (MESSAGE_TYPE_ERROR));
       return;
    }
 
+   // Hard-coded message Id.
+   this->setSourceId (9001);
+
    this->isInitialised = false;
-   bufferedUserMessages.clear ();
 }
 
 //------------------------------------------------------------------------------
@@ -151,9 +133,10 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
 
    // First check we are the one and only ....
    //
-   if (this != &singleton) {
-      // This is NOT the singleton object
-      throw "QEArchiveManager::initialise - attempt to use non singleton object";
+   if (this != singleton) {
+      // This is NOT the singleton object.
+      this->sendMessage ("QEArchiveManager::initialise - attempt to use non-singleton object",
+                          message_types (MESSAGE_TYPE_ERROR));
       return;
    }
 
@@ -177,20 +160,23 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
    archiveList = archives.split (' ', QString::SkipEmptyParts);
 
    if (archiveList.count () == 0) {
-      bufferMessage ("no archives specified");
+      this->sendMessage ("QEArchiveManager: no archives specified",
+                         message_types (MESSAGE_TYPE_INFO));
       return;
    }
 
    this->clear ();
 
-   bufferMessage (QString ("pattern: ").append (pattern));
+   this->sendMessage (QString ("pattern: ").append (pattern),
+                      message_types (MESSAGE_TYPE_INFO));
+
    for (j = 0; j < archiveList.count (); j++) {
 
       item = "http://";
       item.append (archiveList.value (j));
       url = QUrl (item);
 
-      interface = new QEArchiveInterface (url, &singleton);
+      interface = new QEArchiveInterface (url, singleton);
       archiveInterfaceList.append (interface);
 
       connect (interface, SIGNAL (archivesResponse (const QObject *, const bool, const QEArchiveInterface::ArchiveList &)),
@@ -204,7 +190,8 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
 
       interface->archivesRequest (interface);
 
-      bufferMessage (QString ("requesting PV name info from ").append (interface->getName ()));
+      this->sendMessage (QString ("requesting PV name info from ").append (interface->getName ()),
+                         message_types (MESSAGE_TYPE_INFO));
    }
 }
 
@@ -215,18 +202,12 @@ void QEArchiveManager::initialise ()
 {
    // First check we are the one and only ....
    //
-   if (this != &singleton) {
-      // This is NOT the singleton object
-      throw "QEArchiveManager::initialise - attempt to use non singleton object";
+   if (this != singleton) {
+      // This is NOT the singleton object.
+      this->sendMessage ("QEArchiveManager::initialise - attempt to use non-singleton object",
+                          message_types (MESSAGE_TYPE_ERROR));
       return;
    }
-
-   // Have we already been initialised?
-   //
-   if (this->isInitialised) {
-      return;
-   }
-
 
    QString archives = getenv ("QE_ARCHIVE_LIST");
    QString pattern = getenv ("QE_ARCHIVE_PATTERN");
@@ -237,15 +218,19 @@ void QEArchiveManager::initialise ()
          //
          pattern = ".*";
       }
+
+      // This is idempotent.
+      //
       this->initialise (archives, pattern);
 
    } else {
-      // Cannot use user message paradigm during static initialisation.
       // Has this error already been reported??
+      // Not 100% thread safe but not critical either.
       //
       if (!environmentErrorReported) {
          environmentErrorReported = true;
-         bufferMessage ("QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs");
+         this->sendMessage ("QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs",
+                            message_types (MESSAGE_TYPE_WARNING));
       }
    }
 }
@@ -255,6 +240,16 @@ void QEArchiveManager::initialise ()
 void QEArchiveManager::clear ()
 {
    int j;
+
+   // First check we are the one and only ....
+   //
+   if (this != singleton) {
+      // This is NOT the singleton object.
+      this->sendMessage ("QEArchiveManager::clear - attempt to use non-singleton object",
+                          message_types (MESSAGE_TYPE_ERROR));
+      return;
+   }
+
 
    allArchivesRead = false;
    numberArchivesRead = 0;
@@ -318,8 +313,8 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
          interface->namesRequest (context, archive.key, pattern);
       }
    } else {
-       bufferMessage (QString ("request failure from ").append (interface->getName ()),
-                      message_types (MESSAGE_TYPE_ERROR));
+       this->sendMessage (QString ("request failure from ").append (interface->getName ()),
+                           message_types (MESSAGE_TYPE_ERROR));
    }
 }
 
@@ -370,7 +365,7 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
 
                   message.sprintf ("PV %s has multiple instances of key %d",
                                    pvChannel.pvName.toAscii().data (), keyTimeSpec.key ) ;
-                  bufferMessage (message, message_types (MESSAGE_TYPE_ERROR));
+                  this->sendMessage (message, message_types (MESSAGE_TYPE_ERROR));
 
                }
 
@@ -380,18 +375,18 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
                                 pvChannel.pvName.toAscii().data (),
                                 sourceSpec.interface->getName ().toAscii().data (),
                                 context->interface->getName ().toAscii().data ());
-               bufferMessage (message, message_types (MESSAGE_TYPE_ERROR));
+               this->sendMessage (message, message_types (MESSAGE_TYPE_ERROR));
             }
          }
       }
 
    } else {
 
-      bufferMessage (QString ("PV names failure from ").
-                     append (context->interface->getName ()).
-                     append (" for archive ").
-                     append (context->archive.name),
-                     message_types (MESSAGE_TYPE_ERROR));
+      this->sendMessage (QString ("PV names failure from ").
+                         append (context->interface->getName ()).
+                         append (" for archive ").
+                         append (context->archive.name),
+                         message_types (MESSAGE_TYPE_ERROR));
 
    }
 
@@ -399,7 +394,7 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
       message = "PV name retrival from ";
       message.append (context->interface->getName ());
       message.append (" complete");
-      bufferMessage (message);
+      this->sendMessage (message);
 
       numberArchivesRead++;
       allArchivesRead = (numberArchivesRead = archiveInterfaceList.count ());
@@ -450,9 +445,18 @@ void QEArchiveManager::valuesResponse (const QObject * userData,
 //
 QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
 {
-   // This function is essentially idempotent.
+   // Do we have a sigleton ojbect yet?
+   // The constructor does the safe mutex locking required prior to assigin the
+   // object reference to singleton. We check here in order to reduce, although
+   // not absolutely remove error messages.
    //
-   singleton.initialise ();
+   if (!singleton) {
+      new QEArchiveManager ();
+   }
+
+   // This function is idempotent.
+   //
+   singleton->initialise ();
 }
 
 //------------------------------------------------------------------------------
@@ -463,13 +467,49 @@ QEArchiveAccess::~QEArchiveAccess ()
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveAccess::reportBufferedMessages ()
+unsigned int QEArchiveAccess::getMessageSourceId ()
 {
-   // This is a user call, hopefully not part of static initialisation.
-   // Send any buffered messages.
-   //
-   sendBufferedMessages (this);
+   return this->getSourceId ();
 }
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::setMessageSourceId (unsigned int messageSourceIdIn)
+{
+   this->setSourceId (messageSourceIdIn);
+}
+
+//------------------------------------------------------------------------------
+// static functions
+//
+void QEArchiveAccess::initialise (QString archives, QString pattern)
+{
+   // Do we have a sigleton ojbect yet?
+   //
+   if (!singleton) {
+      new QEArchiveManager ();
+   }
+
+   // This function is idempotent.
+   //
+   singleton->initialise (archives, pattern);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::initialise ()
+{
+   // Do we have a sigleton ojbect yet?
+   //
+   if (!singleton) {
+      new QEArchiveManager ();
+   }
+
+   // This function is idempotent.
+   //
+   singleton->initialise ();
+}
+
 
 //------------------------------------------------------------------------------
 //
@@ -481,11 +521,6 @@ bool QEArchiveAccess::readArchive (QObject * userData,
                                    const QEArchiveInterface::How how,
                                    const unsigned int element)
 {
-   // This is a user call, hopefully not part of static initialisation.
-   // Send any buffered messages.
-   //
-   sendBufferedMessages (this);
-
    QMutexLocker locker (archiveDataMutex);
 
    bool result;
@@ -587,24 +622,6 @@ bool QEArchiveAccess::readArchive (QObject * userData,
 
 //------------------------------------------------------------------------------
 // static functions
-//
-void QEArchiveAccess::initialise (QString archives, QString pattern)
-{
-   // This function is essentially idempotent.
-   //
-   singleton.initialise (archives, pattern);
-}
-
-//------------------------------------------------------------------------------
-//
-void QEArchiveAccess::initialise ()
-{
-   // This function is essentially idempotent.
-   //
-   singleton.initialise ();
-}
-
-//------------------------------------------------------------------------------
 //
 bool QEArchiveAccess::isReady ()
 {

@@ -139,6 +139,7 @@ private:
    TrackRange displayedMinMax;
 
    QEArchiveAccess archiveAccess;
+
    QEStripChartItemDialog pvNameEditDialog;
    QEStripChartAdjustPVDialog adjustPVDialog;
 

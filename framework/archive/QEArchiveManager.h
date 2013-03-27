@@ -57,14 +57,15 @@ public:
    explicit QEArchiveAccess (QObject * parent = 0);
    virtual ~QEArchiveAccess ();
 
+   unsigned int getMessageSourceId ();
+   void setMessageSourceId (unsigned int messageSourceId);
+
    static void initialise (QString archives, QString pattern);
    static void initialise ();
    static bool isReady ();
    static int getNumberInterfaces ();
    static QString getPattern ();
    static int getNumberPVs ();
-
-   void reportBufferedMessages ();
 
    // Simple archive request - single scaler PV, or one arbitary element from
    // a single array PV.  No extended meta data, just values + timestamp + alarm info.
@@ -90,10 +91,10 @@ signals:
 // and slots are declared in header files. Clients should use the QEArchiveAccess
 // specified above.
 //
-class QEArchiveManager : public QObject {
+class QEArchiveManager : public QObject, UserMessage {
    Q_OBJECT
 public:
-   QEArchiveManager();
+   QEArchiveManager ();
 
 private:
    // Object has delayed initialisation, i.e. it does not dself initialise when the
