@@ -1,10 +1,5 @@
 #!/bin/bash
 #
-# $File: //ASP/Personal/starritt/bin/replace_bracketed_text $
-# $Revision: #2 $
-# $DateTime: 2013/02/20 16:17:22 $
-# Last checked in by: $Author: starritt $
-#
 
 iam=$( basename $0 )
 
