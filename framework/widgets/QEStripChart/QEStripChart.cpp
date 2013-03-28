@@ -38,6 +38,7 @@
 #include <QMenu>
 #include <QPen>
 #include <QPushButton>
+#include <QRegExp>
 #include <QScrollArea>
 #include <QStringList>
 #include <QToolButton>
@@ -821,11 +822,9 @@ void QEStripChart::addPvNameSet (QString pvNameSet)
    QStringList pvNameList;
    int j;
 
-   // Split input string using space as delimiter.
-   // Could extend to use regular expression and split on any white space character,
-   // and or comma, and or semi colon.
+   // Split input string using white space as delimiter.
    //
-   pvNameList = pvNameSet.split (' ', QString::SkipEmptyParts);
+   pvNameList = pvNameSet.split (QRegExp ("\\s+"), QString::SkipEmptyParts);
    for (j = 0; j < pvNameList.count (); j++) {
       this->addPvName (pvNameList.value (j));
    }
@@ -1148,7 +1147,7 @@ QString QEStripChart::copyVariable ()
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
       QEStripChartItem * item = this->privateData->getItem (slot);
 
-      if ((item) && (item->isInUse () == false)) {
+      if ((item) && (item->isInUse() == true)) {
          if (!result.isEmpty()) {
             result = result.append (" ");
          };
