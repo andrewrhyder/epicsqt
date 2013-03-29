@@ -1,4 +1,6 @@
-/*  This file is part of the EPICS QT Framework, initially developed at
+/*  QBitStatus.cpp
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at
  *  the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or
@@ -35,11 +37,7 @@
 #include <QtGui>
 
 #include <QBitStatus.h>
-
-
-#define MAX(a, b)           ((a) >= (b) ? (a) : (b))
-#define MIN(a, b)           ((a) <= (b) ? (a) : (b))
-#define LIMIT(x,low,high)   (MAX(low, MIN(x, high)))
+#include <QECommon.h>
 
 
 /* ---------------------------------------------------------------------------

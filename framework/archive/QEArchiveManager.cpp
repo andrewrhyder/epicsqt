@@ -32,13 +32,10 @@
 #include <QMutex>
 #include <QUrl>
 
+#include <QECommon.h>
 #include <QEArchiveManager.h>
 
-#define DEBUG  qDebug () << __FILE__  << "::" <<  __FUNCTION__  << ":" << __LINE__
-
-#define MAX(a, b)    ((a) >= (b) ? (a) : (b))
-#define MIN(a, b)    ((a) <= (b) ? (a) : (b))
-
+#define DEBUG  qDebug () << "QEArchiveManager::" <<  __FUNCTION__  << ":" << __LINE__
 
 
 //==============================================================================

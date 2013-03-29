@@ -50,6 +50,7 @@
 
 #include <alarm.h>
 
+#include <QECommon.h>
 #include <QCaObject.h>
 #include <QELabel.h>
 #include <QCaVariableNamePropertyManager.h>
@@ -59,13 +60,7 @@
 #include "QEStripChartToolBar.h"
 #include "QEStripChartItem.h"
 
-#define ABS(a)              ((a) >= 0  ? (a) : -(a))
-#define MAX(a, b)           ((a) >= (b) ? (a) : (b))
-#define MIN(a, b)           ((a) <= (b) ? (a) : (b))
-#define LIMIT(x,low,high)   (MAX(low, MIN(x, high)))
-
 #define DEBUG  qDebug () << "QEStripChart::" << __FUNCTION__ << ":" << __LINE__
-
 
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
@@ -179,8 +174,8 @@ private:
    QPointF plotToReal (const QPoint & pos) const; // map plot position to real co-ordinated
    void onCanvasMouseMove (QMouseEvent * event);
    static double selectStep (const double step);
-   bool isValidYRangeSelection (const QPoint & origin, const QPoint & offset);
-   bool isValidTRangeSelection (const QPoint & origin, const QPoint & offset);
+   bool isValidYRangeSelection (const QPoint & origin, const QPoint & offset) const;
+   bool isValidTRangeSelection (const QPoint & origin, const QPoint & offset) const;
    void onPlaneScaleSelect     (const QPoint & origin, const QPoint & offset);
 };
 
@@ -543,12 +538,11 @@ void QEStripChart::PrivateData::plotData ()
       curve = this->allocateCurve ();
       curve->setRenderHint (QwtPlotItem::RenderAntialiased);
       curve->setStyle (QwtPlotCurve::Lines);
-      if (this->isValidYRangeSelection (this->plotLeftButton, this->plotCurrent)) {
-         pen.setColor(QColor (0xC08080));  // redish
-      } else if (this->isValidTRangeSelection (this->plotLeftButton, this->plotCurrent)) {
-         pen.setColor(QColor (0x80C080));  // greenish
+      if (this->isValidYRangeSelection (this->plotLeftButton, this->plotCurrent) ||
+          this->isValidTRangeSelection (this->plotLeftButton, this->plotCurrent) ) {
+         pen.setColor(QColor (0x60C060));  // greenish
       } else {
-         pen.setColor(QColor (0x808080));  // grayish
+         pen.setColor(QColor (0x808080));  // gray
       }
       pen.setWidth (1);
       curve->setPen (pen);
@@ -635,22 +629,22 @@ void QEStripChart::PrivateData::plotData ()
 
 //------------------------------------------------------------------------------
 //
-bool QEStripChart::PrivateData::isValidYRangeSelection (const QPoint  & origin, const QPoint  & offset)
+bool QEStripChart::PrivateData::isValidYRangeSelection (const QPoint  & origin, const QPoint  & offset) const
 {
    const int minDiff = 8;
    const int deltaX = offset.x () - origin.x ();
    const int deltaY = offset.y () - origin.y ();
-   return ((deltaY > minDiff) && (deltaY > ABS (2 * deltaX)));
+   return ((deltaY > minDiff) && (deltaY > ABS (3 * deltaX)));
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEStripChart::PrivateData::isValidTRangeSelection (const QPoint  & origin, const QPoint &  offset)
+bool QEStripChart::PrivateData::isValidTRangeSelection (const QPoint  & origin, const QPoint &  offset) const
 {
    const int minDiff = 8;
    const int deltaX = offset.x () - origin.x ();
    const int deltaY = offset.y () - origin.y ();
-   return ((deltaX > minDiff) && (deltaX > ABS (2 * deltaY)));
+   return ((deltaX > minDiff) && (deltaX > ABS (3 * deltaY)));
 }
 
 //------------------------------------------------------------------------------
@@ -690,9 +684,8 @@ void QEStripChart::PrivateData::onPlaneScaleSelect (const QPoint  & origin, cons
 //
 void QEStripChart::PrivateData::setReadOut (const QString & text)
 {
-   this->chart->sendMessage (text,
-                             message_types (MESSAGE_TYPE_INFO, MESSAGE_KIND_LOG ||       /// ******
-                                                               MESSAGE_KIND_STATUS_BAR));
+   message_types mt (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS_BAR);
+   this->chart->sendMessage (text, mt);
 }
 
 //------------------------------------------------------------------------------
@@ -1357,7 +1350,9 @@ void QEStripChart::setYRange (const double yMinimumIn, const double yMaximumIn)
     this->privateData->plotData ();
 }
 
-/** %%%%% work out which of these stuff up mouse cllick reception %%%%%%%
+/* %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ * %% work out which of these stuffs up mouse click reception %%
+ * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //----------------------------------------------------------------------------
 //
 void QEStripChart::setDrop (QVariant drop)
@@ -1407,7 +1402,7 @@ QString QEStripChart::copyVariable ()
 QVariant QEStripChart::copyData ()
 {
    // Place holder for now.
-   // How can we sensibley interpret this? Image?
+   // How can we sensibley interpret this? Image? Trace?
    //
    return QVariant ("");
 }
@@ -1421,7 +1416,8 @@ void QEStripChart::paste (QVariant s)
    this->addPvNameSet (s.toString ());
 }
 
-%%%%%%%  **/
+ * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ */
 
 //----------------------------------------------------------------------------
 // Determine if user allowed to drop new PVs into this widget.

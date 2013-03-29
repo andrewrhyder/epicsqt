@@ -24,12 +24,8 @@
 #include <QRect>
 #include <QString>
 
+#include <QECommon.h>
 #include "QEResizeableFrame.h"
-
-
-#define MAX(a, b)           ((a) >= (b) ? (a) : (b))
-#define MIN(a, b)           ((a) <= (b) ? (a) : (b))
-#define LIMIT(x,low,high)   (MAX(low, MIN(x, high)))
 
 
 static const QString passive ("QWidget { background-color: #a0c0e0; }");

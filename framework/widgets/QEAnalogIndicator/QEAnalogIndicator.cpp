@@ -37,15 +37,12 @@
 #include <QPen>
 #include <QPoint>
 #include <QPolygon>
+#include <QECommon.h>
 
 #define DEBUG qDebug () << __FUNCTION__ << __LINE__
 
 #define MINIMUM_SPAN        0.000001
 #define RADIANS_PER_DEGREE  (M_PI / 180.0)
-
-#define MAX(a, b)           ((a) >= (b) ? (a) : (b))
-#define MIN(a, b)           ((a) <= (b) ? (a) : (b))
-#define LIMIT(x,low,high)   (MAX(low, MIN(x, high)))
 
 
 //------------------------------------------------------------------------------

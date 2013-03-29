@@ -35,6 +35,7 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
+#include <QECommon.h>
 #include <QELabel.h>
 #include <QEStringFormatting.h>
 #include <QEResizeableFrame.h>
@@ -44,10 +45,6 @@
 
 
 #define DEBUG qDebug() << "QEPvProperties::" << __FUNCTION__ << ":" << __LINE__
-
-#define MAX(a, b)           ((a) >= (b) ? (a) : (b))
-#define MIN(a, b)           ((a) <= (b) ? (a) : (b))
-
 
 //==============================================================================
 // class wide data

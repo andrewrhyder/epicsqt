@@ -33,15 +33,14 @@
 
 #include <qwt_plot_curve.h>
 
+#include <QECommon.h>
 #include "QEStripChartItem.h"
 
 #define DEBUG  qDebug () <<  "QEStripChartItem::" <<  __FUNCTION__  << ":" << __LINE__
 
-#define MAX(a, b)           ((a) >= (b) ? (a) : (b))
-#define MIN(a, b)           ((a) <= (b) ? (a) : (b))
-
+// Standard Channel Access archiver only support 10K points
+//
 #define MAXIMUM_POINTS  10000
-
 
 // Define colours: essentially RGB byte triplets
 //
@@ -50,7 +49,6 @@ static const QColor item_colours [QEStripChart::NUMBER_OF_PVS] = {
     QColor (0x4080FF), QColor (0x800000), QColor (0x008080), QColor (0x808000),
     QColor (0x800080), QColor (0x00FF00), QColor (0x00FFFF), QColor (0xFFFF00)
 };
-
 
 // Can't do QColor (0x000000)
 //
@@ -388,10 +386,10 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 {
 
 
-// macro function to convert value to a plot values, safely doing log conversion if required.
+// macro functions to convert value to a plot values, doing safe log conversion if required.
 //
 #define PLOT_T(t) ((t) / timeScale)
-#define PLOT_Y(y) ((yScaleMode == QEStripChartNames:: linear) ? this->scaling.value (y) : LOG10 (this->scaling.value (y)))
+#define PLOT_Y(y) ((yScaleMode == QEStripChartNames::linear) ? this->scaling.value (y) : LOG10 (this->scaling.value (y)))
 
    const QDateTime end_time   = this->privateData->chart->getEndDateTime ();
    const double duration = this->privateData->chart->getDuration ();
