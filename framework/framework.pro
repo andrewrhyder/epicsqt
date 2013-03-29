@@ -59,7 +59,7 @@ INCLUDEPATH += \
     data/include \
     widgets/include
 
-# Explicity add  include, and hence QEFrameworkVersion.h, to the dependacy path
+# Explicity add common, and hence QEFrameworkVersion.h, to the dependacy path
 # So that changes to the version/release numbers forece revent recompilations.
 #
 DEPENDPATH += common
