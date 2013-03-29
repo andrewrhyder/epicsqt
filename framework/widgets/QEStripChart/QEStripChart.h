@@ -137,17 +137,17 @@ protected:
    //
    // Override QWidget functions - call up standard handlers defined in QEDragDrop.
    //
-   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
-   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
-   void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
-   void setDrop (QVariant drop);
-   QVariant getDrop ();
+   //void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
+   //void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
+   //void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
+   //void setDrop (QVariant drop);
+   //QVariant getDrop ();
 
    // Copy and paste
    //
-   QString copyVariable ();
-   QVariant copyData ();
-   void paste (QVariant s);
+   //QString copyVariable ();
+   //QVariant copyData ();
+   //void paste (QVariant s);
 
 
    // override pure virtual functions

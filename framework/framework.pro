@@ -54,7 +54,7 @@ TARGET = QEPlugin
 # Project files
 
 INCLUDEPATH += \
-    include \
+    common \
     api/include \
     data/include \
     widgets/include
@@ -62,10 +62,11 @@ INCLUDEPATH += \
 # Explicity add  include, and hence QEFrameworkVersion.h, to the dependacy path
 # So that changes to the version/release numbers forece revent recompilations.
 #
-DEPENDPATH += include
+DEPENDPATH += common
 
 HEADERS += \
-    include/QEFrameworkVersion.h \
+    common/QECommon.h \
+    common/QEFrameworkVersion.h \
     api/include/Generic.h \
     api/include/CaRecord.h \
     api/include/CaRef.h \
@@ -106,7 +107,7 @@ HEADERS += \
 
 
 SOURCES += \
-    src/QEFrameworkVersion.cpp \
+    common/QEFrameworkVersion.cpp \
     api/src/Generic.cpp \
     api/src/CaRecord.cpp \
     api/src/CaObject.cpp \

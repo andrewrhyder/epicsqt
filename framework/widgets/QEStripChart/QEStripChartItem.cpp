@@ -382,7 +382,7 @@ bool QEStripChartItem::isDisplayable (QCaDataPoint & point)
 //
 void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
                                        const double timeScale,
-                                       const bool isLinearScale,
+                                       const QEStripChartNames::YScaleModes yScaleMode,
                                        const bool isRealTime,
                                        TrackRange & plottedTrackRange)
 {
@@ -391,7 +391,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 // macro function to convert value to a plot values, safely doing log conversion if required.
 //
 #define PLOT_T(t) ((t) / timeScale)
-#define PLOT_Y(y) (isLinearScale ? this->scaling.value (y) : LOG10 (this->scaling.value (y)))
+#define PLOT_Y(y) ((yScaleMode == QEStripChartNames:: linear) ? this->scaling.value (y) : LOG10 (this->scaling.value (y)))
 
    const QDateTime end_time   = this->privateData->chart->getEndDateTime ();
    const double duration = this->privateData->chart->getDuration ();
@@ -523,17 +523,18 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartItem::plotData (const double timeScale, const bool isLinearScale)
+void QEStripChartItem::plotData (const double timeScale,
+                                 const QEStripChartNames::YScaleModes yScaleMode)
 {
    TrackRange temp;
 
    this->displayedMinMax.clear ();
    this->firstPointIsDefined = false;
 
-   this->plotDataPoints (this->historicalTimeDataPoints, timeScale, isLinearScale, false, temp);
+   this->plotDataPoints (this->historicalTimeDataPoints, timeScale, yScaleMode, false, temp);
    this->displayedMinMax.merge (temp);
 
-   this->plotDataPoints (this->realTimeDataPoints,timeScale,  isLinearScale, true, temp);
+   this->plotDataPoints (this->realTimeDataPoints,timeScale,  yScaleMode, true, temp);
    this->displayedMinMax.merge (temp);
 }
 

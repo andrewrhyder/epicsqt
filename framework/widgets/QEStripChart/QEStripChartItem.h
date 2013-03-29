@@ -46,6 +46,7 @@
 #include <QEArchiveManager.h>
 
 #include "QEStripChart.h"
+#include "QEStripChartNames.h"
 #include "QEStripChartItemDialog.h"
 #include "QEStripChartAdjustPVDialog.h"
 #include "QEStripChartContextMenu.h"
@@ -105,8 +106,8 @@ public:
    void readArchive ();
    void normalise ();
 
-   void plotData (const double timeScale,      // x scale modifier
-                  const bool isLinearScale);   // y scale modifier
+   void plotData (const double timeScale,                             // x scale modifier
+                  const QEStripChartNames::YScaleModes yScaleMode);   // y scale modifier
 
    QCaVariableNamePropertyManager pvNameProperyManager;
    ValueScaling scaling;
@@ -119,7 +120,7 @@ private:
    QwtPlotCurve *allocateCurve ();
    void plotDataPoints (const QCaDataPointList & dataPoints,
                         const double timeScale,
-                        const bool isLinearScale,
+                        const QEStripChartNames::YScaleModes yScaleMode,
                         const bool isRealTime,
                         TrackRange & plottedTrackRange);
    static bool isDisplayable (QCaDataPoint & point);
