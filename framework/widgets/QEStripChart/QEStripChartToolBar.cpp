@@ -32,11 +32,13 @@
 #include <QPushButton>
 #include <QString>
 #include <QVariant>
+#include <QDateTime>
 
+#include "QEStripChartUtilities.h"
 #include "QEStripChartToolBar.h"
 
 
-#define NUMBER_OF_BUTTONS  19
+#define NUMBER_OF_BUTTONS  21
 #define ICW                26         // icon width
 
 // Special slots - must be consistent with below
@@ -53,6 +55,8 @@ struct PushButtonSpecifications {
    const QString toolTip;
    const char * member;
 };
+
+static const QString localZone = TimeZone::getZoneTLA (Qt::LocalTime, QDateTime::currentDateTimeUtc ());
 
 static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, true,  QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))        },
@@ -71,7 +75,10 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, false, QString ("D"),                     QString ("Dynamic Scale"),                SLOT (dynamicYScaleClicked (bool))    },
    { 0,   ICW, false, QString ("N"),                     QString ("Normalised Scale"),             SLOT (normalisedYScaleClicked (bool)) },
 
-   { 4,    96, false, QString ("Duration"),              QString ("Select chart T axis"),          NULL                                  },
+   { 4,   96,  false, QString ("Duration"),              QString ("Select chart T axis"),          NULL                                  },
+
+   { 4,   36,  false, localZone,                         QString ("Use local time"),               SLOT (localTimeClicked (bool))        },
+   { 0,   36,  false, QString ("UTC"),                   QString ("Use UTC (GMT) time"),           SLOT (utcTimeClicked (bool))          },
 
    { 4,   ICW, true,  QString ("archive.png"),           QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool))      },
    { 0,   ICW, true,  QString ("select_date_times.png"), QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))       },
@@ -379,6 +386,18 @@ void QEStripChartToolBar::selectTimeClicked (bool)
 void QEStripChartToolBar::readArchiveClicked (bool)
 {
     emit this->readArchiveSelected ();
+}
+
+//------------------------------------------------------------------------------
+//
+void  QEStripChartToolBar::localTimeClicked (bool)
+{
+   emit this->timeZoneSelected (Qt::LocalTime);
+}
+
+void  QEStripChartToolBar::utcTimeClicked (bool)
+{
+   emit this->timeZoneSelected (Qt::UTC);
 }
 
 // end

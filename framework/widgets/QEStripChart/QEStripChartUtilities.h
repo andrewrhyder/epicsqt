@@ -28,6 +28,8 @@
 #ifndef QSTRIPCHARTUTILITIES_H
 #define QSTRIPCHARTUTILITIES_H
 
+#include <QDateTime>
+
 //==============================================================================
 // Utility classes
 //==============================================================================
@@ -84,6 +86,20 @@ private:
    double d;   // origin
    double m;   // slope
    double c;   // offset
+};
+
+
+//==============================================================================
+//
+class TimeZone {
+public:
+   // Get the local time zone offset (in seconds) for the nominated UTC time.
+   // Maybe default atTime = QDateTime::currentDateTimeUtc () ??
+   //
+   static int getZoneOffset (const QDateTime & atTime);
+
+   static QString getZoneTLA (const Qt::TimeSpec timeSpec,
+                              const QDateTime & atTime);
 };
 
 #endif  // QSTRIPCHARTUTILITIES_H

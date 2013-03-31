@@ -28,6 +28,7 @@
 #ifndef QESTRIPCHARTTOOLBAR_H
 #define QESTRIPCHARTTOOLBAR_H
 
+#include <qnamespace.h>
 #include <QAction>
 #include <QFrame>
 #include <QObject>
@@ -52,9 +53,9 @@ signals:
    void yScaleModeSelected (const QEStripChartNames::YScaleModes mode);
    void yRangeSelected (const QEStripChartNames::ChartYRanges scale);
    void durationSelected (const int seconds);
+   void timeZoneSelected (const Qt::TimeSpec timeSpec);
    void playModeSelected (const QEStripChartNames::PlayModes mode);
    void readArchiveSelected ();
-
 protected:
    void resizeEvent (QResizeEvent * event);
 
@@ -90,6 +91,9 @@ private slots:
    void backwardClicked (bool checked = false);
    void selectTimeClicked (bool checked = false);
    void readArchiveClicked (bool checked = false);
+
+   void localTimeClicked (bool checked = false);
+   void utcTimeClicked (bool checked = false);
 };
 
 #endif  // QESTRIPCHARTTOOLBAR_H

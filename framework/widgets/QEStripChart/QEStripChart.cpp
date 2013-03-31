@@ -36,6 +36,7 @@
 #include <QLabel>
 #include <QList>
 #include <QMenu>
+#include <QMutex>
 #include <QPen>
 #include <QPointF>
 #include <QPushButton>
@@ -59,6 +60,8 @@
 #include "QEStripChart.h"
 #include "QEStripChartToolBar.h"
 #include "QEStripChartItem.h"
+#include "QEStripChartUtilities.h"
+
 
 #define DEBUG  qDebug () << "QEStripChart::" << __FUNCTION__ << ":" << __LINE__
 
@@ -69,13 +72,16 @@ static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 //
 enum ChartTimeMode {
    tmRealTime,
-   tmPaused
+   tmPaused,
+   tmHistorical
 };
 
 #define PV_DELTA_HEIGHT    18
 
 #define PV_FRAME_HEIGHT    (6 + (NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT)
 #define PV_SCROLL_HEIGHT   (PV_FRAME_HEIGHT + 6)
+
+#define MAXIMUM_CHART_STATES   40
 
 // Hold the copy of the chart configurations
 //
@@ -85,21 +91,77 @@ struct ChartState {
    QEStripChartNames::ChartYRanges chartYScale;
    double yMinimum;
    double yMaximum;
-
    ChartTimeMode chartTimeMode;
    int duration;
+   Qt::TimeSpec timeZoneSpec;
    QDateTime endDateTime;
 };
-
-#define MAXIMUM_CHART_STATES   40
-
-typedef QList<ChartState>  ChartStateList;
 
 
 //==============================================================================
 // Local support classes.
 //==============================================================================
 //
+class QEChartStateLists : public QList<ChartState> {
+};
+
+
+//==============================================================================
+//
+class QEPVNameLists : public QStringList {
+public:
+   explicit QEPVNameLists ();
+   virtual ~QEPVNameLists ();
+
+   void prependOrMoveToFirst (const QString & item);
+
+   // add save/restore functions
+private:
+   QMutex *mutex;
+};
+
+//------------------------------------------------------------------------------
+//
+QEPVNameLists::QEPVNameLists ()
+{
+   this->mutex = new QMutex ();
+   // inititialise from container and/or environment variable?
+}
+
+//------------------------------------------------------------------------------
+//
+QEPVNameLists::~QEPVNameLists ()
+{
+   delete this->mutex;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPVNameLists::prependOrMoveToFirst (const QString & item)
+{
+   QMutexLocker locker (this->mutex);
+
+   int posn;
+
+   posn = this->indexOf (item, 0);
+   if (posn < 0) {
+      this->prepend (item);
+   } else if (posn > 0) {
+      // item in list - move to front.
+      this->swap (0, posn);
+   }  // else posn = 0 - nothing to do.
+
+   if (this->count () > QEStripChartContextMenu::numberPrefefinedItems) {
+      this->removeLast ();
+   }
+}
+
+// This is a static list shared amongst all instances of the strip chart widget.
+//
+static QEPVNameLists predefinedPVNameList;
+
+
+//==============================================================================
 // The imperative to create this class is to hold references to created QWidgets.
 // If this are declared directly in the header, either none of the widget defined
 // in the plugin are visible in designer or designer seg faults. I think the moc
@@ -121,14 +183,17 @@ public:
    void plotData ();
    void setReadOut (const QString & text);
    void setNormalBackground (bool state);
+   void customContextMenuRequested (const unsigned int slot, const QPoint & pos);
+   void contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options option);
+   void pushState ();
+   void prevState ();
+   void nextState ();
+
    QEStripChartNames::ChartYRanges chartYScale;
    QEStripChartNames::YScaleModes yScaleMode;
    enum ChartTimeMode chartTimeMode;
    double timeScale;             // 1 => units are seconds, 60 => x units are minutes, etc.
    QString timeUnits;
-   void pushState ();
-   void prevState ();
-   void nextState ();
 
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
@@ -151,8 +216,11 @@ private:
    QLabel *pvNames [NUMBER_OF_PVS];
    QELabel *caLabels [NUMBER_OF_PVS];
    QEStripChartItem *items [NUMBER_OF_PVS];
+   QEStripChartContextMenu *inUseMenu;
+   QEStripChartContextMenu *emptyMenu;
 
-   ChartStateList chartStateList;
+
+   QEChartStateLists chartStateList;
    int chartStatePointer;
    void applyState (const ChartState & chartState);
 
@@ -215,6 +283,9 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    QObject::connect (this->toolBar, SIGNAL (playModeSelected  (const QEStripChartNames::PlayModes)),
                      this->chart,   SLOT   (playModeSelected  (const QEStripChartNames::PlayModes)));
 
+   QObject::connect (this->toolBar, SIGNAL (timeZoneSelected (const Qt::TimeSpec)),
+                     this->chart,   SLOT   (timeZoneSelected (const Qt::TimeSpec)));
+
    QObject::connect (this->toolBar, SIGNAL (readArchiveSelected  ()),
                      this->chart,   SLOT   (readArchiveSelected  ()));
 
@@ -235,6 +306,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    // Create widgets (parented by chart) and chart ittem that manages these.
    //
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
+      QEStripChartItem * chartItem;
 
       this->pvNames [slot] = new QLabel (this->pvFrame);
       this->caLabels [slot] = new QELabel (this->pvFrame);
@@ -245,10 +317,15 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
       this->pvNames [slot]->setGeometry   (x, y, 344, 15); x += 348;
       this->caLabels [slot]->setGeometry  (x, y, 128, 15);
 
-      this->items [slot] = new QEStripChartItem (this->chart,
-                                                 this->pvNames [slot],
-                                                 this->caLabels [slot],
-                                                 slot);
+      chartItem = new QEStripChartItem (this->chart,
+                                        this->pvNames [slot],
+                                        this->caLabels [slot],
+                                        slot);
+
+      this->items [slot] = chartItem;
+
+      QObject::connect (chartItem,   SIGNAL (customContextMenuRequested (const unsigned int, const QPoint &)),
+                        this->chart, SLOT   (customContextMenuRequested (const unsigned int, const QPoint &)));
    }
 
    // Create scrolling area and add pv frame.
@@ -296,6 +373,19 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->layout2->setSpacing (4);
    this->layout2->addWidget (this->plot);
 
+   // Create menus.
+   //
+   this->inUseMenu = new QEStripChartContextMenu (true, this->chart);
+   this->emptyMenu = new QEStripChartContextMenu (false, this->chart);
+
+   // Connect the context menus
+   //
+   this->connect (this->inUseMenu, SIGNAL (contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options)),
+                  this->chart,     SLOT   (contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options)));
+
+   this->connect (this->emptyMenu, SIGNAL (contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options)),
+                  this->chart,     SLOT   (contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options)));
+
    // Clear / initialise plot.
    //
    this->chartYScale = QEStripChartNames::manual;
@@ -325,6 +415,39 @@ QEStripChart::PrivateData::~PrivateData ()
 QEStripChartItem * QEStripChart::PrivateData::getItem (unsigned int slot)
 {
    return (slot < NUMBER_OF_PVS) ? this->items [slot] : NULL;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::customContextMenuRequested (const unsigned int slot, const QPoint & pos)
+{
+   QEStripChartItem * item = this->getItem (slot);
+   QPoint tempPos;
+   QPoint golbalPos;
+
+   if (!item) return;
+
+   tempPos = pos;
+   tempPos.setY (2);   // align with top of label
+   golbalPos = this->pvNames [slot]->mapToGlobal (tempPos);
+
+   if (item->isInUse()) {
+      this->inUseMenu->exec (slot, golbalPos, 0);
+   } else {
+      this->emptyMenu->setPredefinedNames (predefinedPVNameList);
+      this->emptyMenu->exec (slot, golbalPos, 0);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::contextMenuSelected (const unsigned int slot, const QEStripChartContextMenu::Options option)
+{
+   QEStripChartItem * item = this->getItem (slot);
+
+   if (item) {
+      item->contextMenuSelected (option);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -469,19 +592,23 @@ QPointF QEStripChart::PrivateData::plotToReal (const QPoint & pos) const
 //
 void QEStripChart::PrivateData::plotData ()
 {
+   QEStripChart *chart = this->chart;
+
    unsigned int slot;
    double d;
    double ylo, yhi;
    double step;
    QString format;
    QString times;
+   QDateTime dt;
+   QString zoneTLA;
 
    // First release any/all allocated curves.
    //
    this->releaseCurves ();
 
 
-   d = this->chart->getDuration ();
+   d = chart->getDuration ();
    if (d <= 1.0) {
       this->timeScale = 0.001;
       this->timeUnits = "mS";
@@ -592,7 +719,6 @@ void QEStripChart::PrivateData::plotData ()
 #endif
    }
 
-
    if (this->chartYScale == QEStripChartNames::dynamic) {
       // Re-calculate chart range.
       //
@@ -602,8 +728,8 @@ void QEStripChart::PrivateData::plotData ()
    if (this->yScaleMode == QEStripChartNames::linear) {
       step = (this->chart->getYMaximum () - this->chart->getYMinimum ())/5.0;
       step = this->selectStep (step);
-      ylo = this->chart->getYMinimum ();
-      yhi =this->chart->getYMaximum ();
+      ylo = chart->getYMinimum ();
+      yhi = chart->getYMaximum ();
    } else {
       // therefore log scale
       step = 1.0;
@@ -617,11 +743,17 @@ void QEStripChart::PrivateData::plotData ()
 
    format = "yyyy-MM-dd hh:mm:ss";
    times = " ";
-   times.append (this->chart->getStartDateTime().toUTC().toString (format));
-   times.append (" UTC");
+
+   dt = chart->getStartDateTime ().toTimeSpec (chart->timeZoneSpec);
+   zoneTLA = TimeZone::getZoneTLA (chart->timeZoneSpec, dt);
+
+   times.append (dt.toString (format)).append (" ").append (zoneTLA);
    times.append (" to ");
-   times.append (this->chart->getEndDateTime().toUTC().toString (format));
-   times.append (" UTC");
+
+   dt = chart->getEndDateTime ().toTimeSpec (chart->timeZoneSpec);
+   zoneTLA = TimeZone::getZoneTLA (chart->timeZoneSpec, dt);
+
+   times.append (dt.toString (format)).append (" ").append (zoneTLA);
 
    // set on tool bar
    this->toolBar->setTimeStatus (times);
@@ -651,6 +783,8 @@ bool QEStripChart::PrivateData::isValidTRangeSelection (const QPoint  & origin, 
 //
 void QEStripChart::PrivateData::onPlaneScaleSelect (const QPoint  & origin, const QPoint  & offset)
 {
+   QEStripChart *chart = this->chart;
+
    const QPointF rTopLeft     = this->plotToReal (origin);
    const QPointF rBottomRight = this->plotToReal (offset);
 
@@ -659,7 +793,7 @@ void QEStripChart::PrivateData::onPlaneScaleSelect (const QPoint  & origin, cons
    if (this->isValidYRangeSelection (origin, offset)) {
       // Makeing a Y scale adjustment.
       //
-      this->chart->setYRange (rBottomRight.y (), rTopLeft.y ());
+      chart->setYRange (rBottomRight.y (), rTopLeft.y ());
       this->pushState ();
 
    } else if (this->isValidTRangeSelection (origin, offset)) {
@@ -667,15 +801,24 @@ void QEStripChart::PrivateData::onPlaneScaleSelect (const QPoint  & origin, cons
       //
       double dt;
       int duration;
+      QDateTime et;
+      QDateTime now;
 
       dt = rBottomRight.x () - rTopLeft.x ();
       duration = MAX (1, int (dt));
 
-      this->chart->setDuration (duration);
+      et = chart->getEndDateTime ().addSecs (rBottomRight.x ());
 
-      // this->chart->setEndDateTime ()
-      // select time mode: tmHistorical if t0 < 0
+      now = QDateTime::currentDateTimeUtc ();
+      if (et >= now) {
+         // constrain
+         et = now;
+      } else {
+         this->chartTimeMode = tmHistorical;
+      }
 
+      chart->setDuration (duration);
+      chart->setEndDateTime (et);
       this->pushState ();
    } // else doing nothing
 }
@@ -695,22 +838,27 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    const QPointF real = this->plotToReal (event->pos ());
    qint64 mSec;
    QDateTime t;
+   QString zoneTLA;
    QString format;
    QString mouseReadOut;
    QString f;
+
+   t = this->chart->getEndDateTime ().toTimeSpec (chart->timeZoneSpec);
 
    // Convert cursor x to absolute cursor time.
    // x is the time (in seconds) relative to the chart end time.
    //
    mSec = qint64(1000.0 * real.x());
-   t = this->chart->getEndDateTime ().toUTC ().addMSecs (mSec);
+   t = t.addMSecs (mSec);
 
    // Keep only most significant digit of the milli-seconds,
    // i.e. tenths of a second.
    //
    format = "yyyy-MM-dd hh:mm:ss.zzz";
    mouseReadOut = t.toString (format).left (format.length() - 2);
-   mouseReadOut.append (" UTC");
+
+   zoneTLA = TimeZone::getZoneTLA (chart->timeZoneSpec, t);
+   mouseReadOut.append (" ").append (zoneTLA);
 
    f.sprintf (" %12.1f ", real.x () /this->timeScale);
    mouseReadOut.append (f);
@@ -833,6 +981,7 @@ void QEStripChart::PrivateData::applyState (const ChartState & chartState)
     this->chartTimeMode =  chartState.chartTimeMode;
     this->chart->setEndDateTime (chartState.endDateTime);
     this->chart->setDuration (chartState.duration);
+    this->chart->timeZoneSpec = chartState.timeZoneSpec;
     this->plotData ();
 }
 
@@ -851,6 +1000,7 @@ void QEStripChart::PrivateData::pushState ()
    chartState.yMaximum = this->chart->getYMaximum ();
    chartState.chartTimeMode = this->chartTimeMode;
    chartState.duration = this->chart->getDuration ();
+   chartState.timeZoneSpec = this->chart->timeZoneSpec;
    chartState.endDateTime = this->chart->getEndDateTime ();
 
    // New state - all potential next states are lost.
@@ -934,6 +1084,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    this->setFrameShape (Panel);
    this->setMinimumSize (1032, 400);   // keep this and sizeHint consistant
 
+   this->timeZoneSpec = Qt::LocalTime;
    this->duration = 600;  // ten minites.
 
    // We always use UTC (EPICS) time within the strip chart.
@@ -1076,9 +1227,25 @@ void QEStripChart::tickTimeout ()
       // Note: when end time changes - setEndTime calls plotData ().
       this->setEndDateTime (QDateTime::currentDateTime ());
    } else {
+      // must be paused or historical - pretty much the same.
       this->privateData->plotData ();
    }
 }
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::customContextMenuRequested (const unsigned int slot, const QPoint & pos)
+{
+   this->privateData->customContextMenuRequested (slot, pos);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::contextMenuSelected (const unsigned int slot, const QEStripChartContextMenu::Options option)
+{
+   this->privateData->contextMenuSelected (slot, option);
+}
+
 
 //=============================================================================
 // Handle toolbar signals
@@ -1172,6 +1339,15 @@ void QEStripChart::durationSelected (const int seconds)
 
 //------------------------------------------------------------------------------
 //
+void QEStripChart::timeZoneSelected (const Qt::TimeSpec timeZoneSpecIn)
+{
+   this->timeZoneSpec = timeZoneSpecIn;
+   this->plotData ();
+   this->privateData->pushState ();
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
 {
    int n;
@@ -1192,27 +1368,26 @@ void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
          break;
 
       case QEStripChartNames::forward:
-         this->privateData->chartTimeMode = tmPaused;
+         this->privateData->chartTimeMode = tmHistorical;
          this->setEndDateTime (this->getEndDateTime ().addSecs (+this->duration));
          this->privateData->pushState ();
          break;
 
       case QEStripChartNames::backward:
-         this->privateData->chartTimeMode = tmPaused;
+         this->privateData->chartTimeMode = tmHistorical;
          this->setEndDateTime (this->getEndDateTime ().addSecs (-this->duration));
          this->privateData->pushState ();
          break;
 
       case QEStripChartNames::selectTimes:
-         this->timeDialog.setMaximumDateTime (QDateTime::currentDateTime ().toUTC ());
-         this->timeDialog.setStartDateTime (this->getStartDateTime());
-         this->timeDialog.setEndDateTime (this->getEndDateTime());
-
+         this->timeDialog.setMaximumDateTime (QDateTime::currentDateTime ().toTimeSpec (this->timeZoneSpec));
+         this->timeDialog.setStartDateTime (this->getStartDateTime().toTimeSpec (this->timeZoneSpec));
+         this->timeDialog.setEndDateTime (this->getEndDateTime().toTimeSpec (this->timeZoneSpec));
          n = this->timeDialog.exec ();
          if (n == 1) {
             // User has selected okay.
             //
-            this->privateData->chartTimeMode = tmPaused;
+            this->privateData->chartTimeMode = tmHistorical;
             this->setEndDateTime (this->timeDialog.getEndDateTime ());
 
             // We use the possibly limited chart end time in order to calculate the
@@ -1241,6 +1416,22 @@ void QEStripChart::readArchiveSelected ()
 }
 //
 // end of tool bar handlers ====================================================
+
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::addToPredefinedList (const QString & pvName)
+{
+   predefinedPVNameList.prependOrMoveToFirst (pvName);
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEStripChart::getPredefinedItem (int i)
+{
+   return predefinedPVNameList.value (i, "");
+}
+
 
 //------------------------------------------------------------------------------
 //

@@ -26,6 +26,7 @@
 #include <QVariant>
 #include <QDebug>
 #include "QEStripChartContextMenu.h"
+#include <QECommon.h>
 
 
 #define DEBUG  qDebug () << "QEStripChartContextMenu::" <<  __FUNCTION__  << ":" << __LINE__
@@ -36,6 +37,9 @@
 QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent) : QMenu (parent)
 {
    QMenu *menu;
+   QAction *action;
+
+   unsigned int j;
 
    this->inUse = inUseIn;
 
@@ -79,7 +83,7 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
       this->make (menu, "Hide",                                true,  SCCM_LINE_HIDE)->setEnabled (false);
       this->make (menu, "Regular",                             true,  SCCM_LINE_REGULAR)->setEnabled (false);
       this->make (menu, "Bold",                                true,  SCCM_LINE_BOLD)->setEnabled (false);
-      this->make (menu, "Colour...",                              false, SCCM_LINE_COLOUR);
+      this->make (menu, "Colour...",                           false, SCCM_LINE_COLOUR);
 
       this->make (this, "Edit PV Name...",                     false, SCCM_PV_EDIT_NAME);
 
@@ -87,13 +91,26 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
 
       this->make (this, "Generate Statistics",                 false, SCCM_PV_STATS)->setEnabled (false);
 
-      this->make (this, "Clear",                               false, SCCM_PV_CLEAR)->setEnabled (inUse);
+      this->make (this, "Add to predefined PV names",          false, SCCM_ADD_TO_PREDEFINED);
+
+      this->make (this, "Clear",                               false, SCCM_PV_CLEAR);
+
+      for (j = 0 ; j < ARRAY_LENGTH (this->predefinedPVs); j++) {
+         this->predefinedPVs [j] = NULL;
+      }
 
    } else {
 
       this->make (this, "Add PV Name...",                      false, SCCM_PV_ADD_NAME);
       this->make (this, "Paste PV Name ",                      false, SCCM_PV_PASTE_NAME);
       this->make (this, "Colour...",                           false, SCCM_LINE_COLOUR);
+      this->addSeparator ();
+
+      for (j = 0 ; j < ARRAY_LENGTH (this->predefinedPVs); j++) {
+         action = this->make (this, "", false, Options (SCCM_PREDEFINED_01 + j));
+         action->setVisible (false);
+         this->predefinedPVs [j] = action;
+      }
    }
 
    QObject::connect (this, SIGNAL (triggered             (QAction* ) ),
@@ -109,6 +126,38 @@ QEStripChartContextMenu::~QEStripChartContextMenu ()
 
 //------------------------------------------------------------------------------
 //
+void QEStripChartContextMenu::setPredefinedNames (const QStringList & pvList)
+{
+   unsigned int j;
+   QAction *action;
+
+   if (!this->inUse) {
+      for (j = 0 ; j < ARRAY_LENGTH (this->predefinedPVs); j++) {
+         action = this->predefinedPVs [j];
+         if (!action) continue;
+         if ((int) j < pvList.count ()) {
+            action->setText (pvList.value(j));
+            action->setVisible (true);
+         } else {
+            action->setVisible (false);
+         }
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QAction *QEStripChartContextMenu::exec (const unsigned int slotIn, const QPoint &pos, QAction *at)
+{
+   this->slot = slotIn;  // save context
+
+   // Call super class function.
+   //
+   return QMenu::exec (pos, at);
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChartContextMenu::contextMenuTriggered (QAction* selectedItem)
 {
    Options option;
@@ -116,7 +165,7 @@ void QEStripChartContextMenu::contextMenuTriggered (QAction* selectedItem)
    option = Options (selectedItem->data ().toInt ());
 
    if ((option > SCCM_NONE) && (option < SCCM_LAST)) {
-      emit this->contextMenuSelected (option);
+      emit this->contextMenuSelected (this->slot, option);
    }
 }
 

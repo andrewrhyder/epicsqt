@@ -46,6 +46,8 @@
 #include <QEDragDrop.h>
 #include <QEWidget.h>
 
+#include "QEStripChartNames.h"
+#include "QEStripChartContextMenu.h"
 #include "QEStripChartToolBar.h"
 #include "QEStripChartRangeDialog.h"
 #include "QEStripChartTimeDialog.h"
@@ -132,6 +134,9 @@ public:
    //
    void plotData ();
 
+   void addToPredefinedList (const QString & pvName);
+   QString getPredefinedItem (int i);
+
 protected:
    // Drag and Drop
    //
@@ -174,6 +179,8 @@ private:
    //
    int duration;
    QDateTime endDateTime;
+   Qt::TimeSpec timeZoneSpec;
+
    QEStripChartTimeDialog timeDialog;
 
    // Chart lower/upper range
@@ -233,12 +240,18 @@ private:
 private slots:
    void tickTimeout ();
 
+   // From chart items
+   //
+   void customContextMenuRequested (const unsigned int slot, const QPoint & pos);
+   void contextMenuSelected (const unsigned int slot, const QEStripChartContextMenu::Options option);
+
    // From tool bar
    void stateSelected (const QEStripChartNames::StateModes mode);
    void videoModeSelected (const QEStripChartNames::VideoModes mode);
    void yScaleModeSelected (const QEStripChartNames::YScaleModes mode);
    void yRangeSelected (const QEStripChartNames::ChartYRanges scale);
    void durationSelected (const int seconds);
+   void timeZoneSelected (const Qt::TimeSpec timeZoneSpec);
    void playModeSelected (const QEStripChartNames::PlayModes mode);
    void readArchiveSelected ();
 };

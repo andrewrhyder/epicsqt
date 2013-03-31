@@ -67,7 +67,6 @@ public:
    QEStripChart *chart;
    QLabel *pvName;
    QELabel *caLabel;
-   QEStripChartContextMenu *menu [2];
    QColorDialog *colourDialog;
 };
 
@@ -78,8 +77,6 @@ QEStripChartItem::PrivateData::PrivateData ()
    this->chart = NULL;
    this->pvName = NULL;
    this->caLabel = NULL;
-   this->menu [0] = NULL;
-   this->menu [1] = NULL;
    this->colourDialog = NULL;
 }
 
@@ -88,9 +85,8 @@ QEStripChartItem::PrivateData::PrivateData ()
 QEStripChartItem::QEStripChartItem (QEStripChart *chart,
                                     QLabel *pvName,
                                     QELabel *caLabel,
-                                    unsigned int slot) : QObject (chart)
+                                    unsigned int slotIn) : QObject (chart)
 {
-   QEStripChartContextMenu *menu;
    QColor defaultColour;
 
    // Construct private data for this chart item.
@@ -103,12 +99,11 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    this->privateData->pvName = pvName;
    this->privateData->caLabel = caLabel;
 
-   // Construct context menus and dialog and save references.
-   //
-   this->privateData->menu [false] = new QEStripChartContextMenu (false, chart);
-   this->privateData->menu [true]  = new QEStripChartContextMenu (true, chart);
-   this->privateData->colourDialog = new QColorDialog (chart);
+   this->slot = slotIn;
 
+   // Construct dialog and save references.
+   //
+   this->privateData->colourDialog = new QColorDialog (chart);
 
    pvName->setIndent (6);
    pvName->setToolTip ("Use context menu to modify PV attributes");
@@ -120,7 +115,7 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    caLabel->setFont (font);
 
    if (slot < QEStripChart::NUMBER_OF_PVS) {
-      defaultColour = item_colours [slot];
+      defaultColour = item_colours [this->slot];
    } else {
       defaultColour = clBlack;
    }
@@ -155,16 +150,6 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
 
    this->connect (pvName, SIGNAL (customContextMenuRequested (const QPoint &)),
                   this,   SLOT   (customContextMenuRequested (const QPoint &)));
-
-   // Connect the context menus
-   //
-   menu = this->privateData->menu [false];
-   this->connect (menu,   SIGNAL (contextMenuSelected (const QEStripChartContextMenu::Options)),
-                  this,   SLOT   (contextMenuSelected (const QEStripChartContextMenu::Options)));
-
-   menu = this->privateData->menu [true];
-   this->connect (menu,   SIGNAL (contextMenuSelected (const QEStripChartContextMenu::Options)),
-                  this,   SLOT   (contextMenuSelected (const QEStripChartContextMenu::Options)));
 }
 
 //------------------------------------------------------------------------------
@@ -238,10 +223,8 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
       QObject::connect (qca, SIGNAL (dataChanged  (const QVariant&, QCaAlarmInfo&, QCaDateTime&) ),
                         this,  SLOT (setDataValue (const QVariant&, QCaAlarmInfo&, QCaDateTime&) ) );
 
-   } else {
-      DEBUG << "no qca object";
    }
-}   // setPvName
+}
 
 
 //------------------------------------------------------------------------------
@@ -249,7 +232,7 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
 QString QEStripChartItem::getPvName ()
 {
    return this->privateData->pvName->text ();
-}   // getPvName
+}
 
 
 //------------------------------------------------------------------------------
@@ -290,7 +273,7 @@ TrackRange QEStripChartItem::getLoprHopr (bool doScale)
        result = this->scaling.value (result);
    }
    return result;
-}   // getLoprHopr
+}
 
 
 //------------------------------------------------------------------------------
@@ -304,7 +287,7 @@ TrackRange QEStripChartItem::getDisplayedMinMax (bool doScale)
        result = this->scaling.value (result);
    }
    return result;
-}   // getDisplayedMinMax
+}
 
 
 //------------------------------------------------------------------------------
@@ -320,7 +303,7 @@ TrackRange QEStripChartItem::getBufferedMinMax (bool doScale)
        result = this->scaling.value (result);
    }
    return result;
-}   // getBufferedMinMax
+}
 
 
 //------------------------------------------------------------------------------
@@ -340,7 +323,7 @@ QwtPlotCurve * QEStripChartItem::allocateCurve ()
    result->setPen (this->getPen ());
 
    return result;
-}   // allocateCurve
+}
 
 
 //------------------------------------------------------------------------------
@@ -391,7 +374,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 #define PLOT_T(t) ((t) / timeScale)
 #define PLOT_Y(y) ((yScaleMode == QEStripChartNames::linear) ? this->scaling.value (y) : LOG10 (this->scaling.value (y)))
 
-   const QDateTime end_time   = this->privateData->chart->getEndDateTime ();
+   const QDateTime end_time = this->privateData->chart->getEndDateTime ();
    const double duration = this->privateData->chart->getDuration ();
 
    QVector<double> tdata;
@@ -420,6 +403,8 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
       t = point.datetime.floating (end_time);
 
       if (t < -duration) {
+         // Point time is before current time range of the chart.
+         //
          // Just save this point. Last time it is saved it will be the
          // pen-ultimate point before the chart start time.
          //
@@ -427,10 +412,12 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 
          // Only "exists" if plottable.
          //
-         doesPreviousExist = (previous.alarm.isInvalid () == false);
+         doesPreviousExist = this->isDisplayable (point);  // (previous.alarm.isInvalid () == false);
+
       }
       else if ((t >= -duration) && (t <= 0.0)) {
-
+         // Point time is within current time range of the chart.
+         //
          // Is it a valid point - can we sensible plot it?
          //
          if (this->isDisplayable (point)) {
@@ -460,18 +447,20 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
             plottedTrackRange.merge (point.value);
 
          } else {
-
             // plot what we have so far (need at least 2 points).
             //
             if (tdata.count () >= 1) {
-               if (tdata.count () >= 2) {
-                  curve = this->allocateCurve ();
+               // The current pont is unplotable (invalid/disconneted).
+               // Create  a valid stopper point consisting of prev. point value and this point time.
+               //
+               tdata.append (PLOT_T (t));
+               ydata.append (ydata.last ());   // is a copy - no PLOT_Y required.
+               curve = this->allocateCurve ();
 #if QWT_VERSION >= 0x060000
-                  curve->setSamples (tdata, ydata);
+               curve->setSamples (tdata, ydata);
 #else
-                  curve->setData (tdata, ydata);
+               curve->setData (tdata, ydata);
 #endif
-               }
                tdata.clear ();
                ydata.clear ();
             }
@@ -480,9 +469,11 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
          // We have processed at least one point now.
          //
          isFirstPoint = false;
+
       } else {
-         // t > 0 - beyond the end time of the chart.
-         // Nothing more to see here.
+         // Point time is after current plot time of the chart.
+         // Move along - nothing more to see here.
+         //
          break;
       }
    }
@@ -504,7 +495,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
          // Replicate last value upto end of chart.
          //
          tdata.append (PLOT_T (0.0));
-         ydata.append (ydata.last ());   // is a copy - no PLOT_T required.
+         ydata.append (ydata.last ());   // is a copy - no PLOT_Y required.
       }
       curve = this->allocateCurve ();
 #if QWT_VERSION >= 0x060000
@@ -516,7 +507,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 
 #undef PLOT_T
 #undef PLOT_Y
-}   // plotDataPoints
+}
 
 
 //------------------------------------------------------------------------------
@@ -728,14 +719,14 @@ QString QEStripChartItem::getStyle ()
    g = this->colour.green ();
    b = this->colour.blue ();
 
-   // Weight sum of background colour to detrmine if white ot black text.
+   // Weight sum of background colour to detrmine if white or black text.
    //
    white_text = ((2*r +3*g + 2*b) <= (7*102));   // 2+3+2 == 7
 
    result.sprintf ("QWidget { background-color: #%02x%02x%02x; color: %s ; }",
                     r, g, b, white_text ? "white" : "black" );
    return result;
-}   // getStyle
+}
 
 
 //------------------------------------------------------------------------------
@@ -743,7 +734,7 @@ QString QEStripChartItem::getStyle ()
 QColor QEStripChartItem::getColour ()
 {
    return this->colour;
-}   // getColour
+}
 
 //------------------------------------------------------------------------------
 //
@@ -767,13 +758,9 @@ QPen QEStripChartItem::getPen ()
 //
 void QEStripChartItem::customContextMenuRequested (const QPoint & pos)
 {
-   QPoint tempPos;
-   QPoint golbalPos;
-
-   tempPos = pos;
-   tempPos.setY (2);   // align with top of label
-   golbalPos = this->privateData->pvName->mapToGlobal (tempPos);
-   this->privateData->menu [this->isInUse ()]->exec (golbalPos, 0);
+   // Include slot number and re-emit to the chart.
+   //
+   emit this->customContextMenuRequested (this->slot, pos);
 }
 
 //------------------------------------------------------------------------------
@@ -890,7 +877,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
             }
             // and replot the data
             //
-            this->privateData->chart->plotData ();
+            chart->plotData ();
          }
          break;
 
@@ -905,9 +892,27 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
+      case QEStripChartContextMenu::SCCM_ADD_TO_PREDEFINED:
+         chart->addToPredefinedList (this->getPvName ());
+         break;
+
+      case QEStripChartContextMenu::SCCM_PREDEFINED_01:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_02:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_03:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_04:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_05:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_06:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_07:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_08:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_09:
+      case QEStripChartContextMenu::SCCM_PREDEFINED_10:
+         n = option - QEStripChartContextMenu::SCCM_PREDEFINED_01;
+         this->setPvName (chart->getPredefinedItem (n), "");
+         break;
+
       case QEStripChartContextMenu::SCCM_PV_CLEAR:
          this->clear ();
-         this->privateData->chart->evaluateAllowDrop ();   // move to strip chart proper??
+         chart->evaluateAllowDrop ();   // move to strip chart proper??
          break;
 
       default:
@@ -917,7 +922,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
    // Set tool top depending on current scaling.
    //
    if (this->scaling.isScaled()) {
-      this->privateData->pvName->setToolTip ("PV is scaled");
+      this->privateData->pvName->setToolTip ("Note: this PV is scaled");
    } else {
       this->privateData->pvName->setToolTip ("Use context menu to modify PV attributes");
    }

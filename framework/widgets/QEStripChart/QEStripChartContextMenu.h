@@ -30,8 +30,10 @@
 #include <QMenu>
 #include <QObject>
 #include <QWidget>
-
+#include <QStringList>
 #include <contextMenu.h>
+
+#include "QEStripChartNames.h"
 
 class QEStripChartContextMenu : public QMenu {
 Q_OBJECT
@@ -42,6 +44,12 @@ public:
    /// inUse set false for an empty slot.
    explicit QEStripChartContextMenu (bool inUse, QWidget *parent = 0);
    virtual ~QEStripChartContextMenu ();
+
+   void setPredefinedNames (const QStringList & pvList);
+
+   // Wrapper exec function.
+   //
+   QAction *exec(const unsigned int slot, const QPoint &pos, QAction *at=0);
 
    // IDs for all menu options
    // Each menu option has a unique ID across all menus
@@ -80,6 +88,7 @@ public:
       SCCM_LINE_COLOUR,
       //
       SCCM_PV_EDIT_NAME,
+      SCCM_ADD_TO_PREDEFINED,
       SCCM_PV_WRITE_TRACE,
       SCCM_PV_STATS,
       SCCM_PV_CLEAR,
@@ -87,16 +96,34 @@ public:
       SCCM_PV_ADD_NAME,
       SCCM_PV_PASTE_NAME,
       //
+      SCCM_PREDEFINED_01,
+      SCCM_PREDEFINED_02,
+      SCCM_PREDEFINED_03,
+      SCCM_PREDEFINED_04,
+      SCCM_PREDEFINED_05,
+      SCCM_PREDEFINED_06,
+      SCCM_PREDEFINED_07,
+      SCCM_PREDEFINED_08,
+      SCCM_PREDEFINED_09,
+      SCCM_PREDEFINED_10,
+      //
       SCCM_LAST
    };
+
+   // Must be consistant with number of SCCM_PREDEFINED_XX items.
+   //
+   static const int numberPrefefinedItems = 10;
 
 signals:
    // All the triggered actions from the various sub-menu items are
    // converted to an Options value.
-   void contextMenuSelected (const QEStripChartContextMenu::Options option);
+   void contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options);
 
 private:
    bool inUse;
+   unsigned int slot;
+
+   QAction *predefinedPVs [numberPrefefinedItems];
 
    // Utility function to create and set up an action.
    //

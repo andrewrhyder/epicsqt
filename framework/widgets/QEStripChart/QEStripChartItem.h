@@ -109,8 +109,12 @@ public:
    void plotData (const double timeScale,                             // x scale modifier
                   const QEStripChartNames::YScaleModes yScaleMode);   // y scale modifier
 
+   void contextMenuSelected (const QEStripChartContextMenu::Options option);
+
    QCaVariableNamePropertyManager pvNameProperyManager;
-   ValueScaling scaling;
+
+public: signals:
+   void customContextMenuRequested (const unsigned int, const QPoint &);
 
 private:
    qcaobject::QCaObject* getQcaItem ();   // Return reference to QELabel used to stream CA updates
@@ -127,8 +131,10 @@ private:
 
    // data members
    //
+   unsigned int slot;
    bool isConnected;
    QColor colour;
+   ValueScaling scaling;
 
    QCaDataPointList historicalTimeDataPoints;
    QCaDataPointList realTimeDataPoints;
@@ -163,7 +169,6 @@ private slots:
    void setArchiveData (const QObject *userData, const bool okay, const QCaDataPointList &archiveData);
 
    void customContextMenuRequested (const QPoint & pos);
-   void contextMenuSelected (const QEStripChartContextMenu::Options option);
 };
 
 #endif  // QSTRIPCHARTITEM_H
