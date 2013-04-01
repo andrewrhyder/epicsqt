@@ -776,7 +776,7 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
    if (event->type () == QEvent::MouseButtonDblClick) {
       if (obj == this->privateData->pvName) {
          this->contextMenuSelected (QEStripChartContextMenu::SCCM_PV_EDIT_NAME);
-         return true;
+         return true;  // we have handled double click
       }
    }
    return false;
