@@ -75,10 +75,10 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, false, QString ("D"),                     QString ("Dynamic Scale"),                SLOT (dynamicYScaleClicked (bool))    },
    { 0,   ICW, false, QString ("N"),                     QString ("Normalised Scale"),             SLOT (normalisedYScaleClicked (bool)) },
 
-   { 4,   96,  false, QString ("Duration"),              QString ("Select chart T axis"),          NULL                                  },
+   { 4,   96,  false, QString ("Duration"),              QString ("Select chart duration"),        NULL                                  },
 
-   { 4,   36,  false, localZone,                         QString ("Use local time"),               SLOT (localTimeClicked (bool))        },
-   { 0,   36,  false, QString ("UTC"),                   QString ("Use UTC (GMT) time"),           SLOT (utcTimeClicked (bool))          },
+   { 4,   40,  false, localZone,                         QString ("Use local time"),               SLOT (localTimeClicked (bool))        },
+   { 0,   40,  false, QString ("UTC"),                   QString ("Use UTC (GMT) time"),           SLOT (utcTimeClicked (bool))          },
 
    { 4,   ICW, true,  QString ("archive.png"),           QString ("Extract data from archive(s)"), SLOT (readArchiveClicked (bool))      },
    { 0,   ICW, true,  QString ("select_date_times.png"), QString ("Set chart start/end time"),     SLOT (selectTimeClicked (bool))       },
@@ -208,13 +208,13 @@ QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObj
 
    button = this->pushButtons [TSCALE_SLOT];
    button->setMenu (this->m2);
-   // left = button->geometry().x ();
+   left = button->geometry().x ();
 
    this->timeStatus = new QLabel (parent);
-   this->timeStatus->setGeometry (left + 8, 8, 368, 16);
+   this->timeStatus->setGeometry (left, 28, 368, 16);
 
    QFont font = this->timeStatus->font ();
-   font.setFamily("Monospace");
+   font.setFamily ("Monospace");
    font.setPointSize (9);
    this->timeStatus->setFont (font);
    // this->timeStatus->setStyleSheet ("QWidget { background-color: #ffffe0; }");

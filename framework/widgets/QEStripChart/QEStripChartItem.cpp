@@ -104,6 +104,8 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    // Construct dialog and save references.
    //
    this->privateData->colourDialog = new QColorDialog (chart);
+   this->pvNameEditDialog = new QEStripChartItemDialog (chart);
+   this->adjustPVDialog = new QEStripChartAdjustPVDialog (chart);
 
    pvName->setIndent (6);
    pvName->setToolTip ("Use context menu to modify PV attributes");
@@ -811,17 +813,17 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
       case QEStripChartContextMenu::SCCM_SCALE_PV_GENERAL:
-         this->adjustPVDialog.setSupport (chart->getYMinimum (),
-                                          chart->getYMaximum (),
-                                          this->getLoprHopr(false),
-                                          this->getDisplayedMinMax(false),
-                                          this->getBufferedMinMax(false));
+         this->adjustPVDialog->setSupport (chart->getYMinimum (),
+                                           chart->getYMaximum (),
+                                           this->getLoprHopr(false),
+                                           this->getDisplayedMinMax(false),
+                                           this->getBufferedMinMax(false));
 
-         this->adjustPVDialog.setValueScaling (this->scaling);
-         n = this->adjustPVDialog.exec ();
+         this->adjustPVDialog->setValueScaling (this->scaling);
+         n = this->adjustPVDialog->exec ();
          if (n == 1) {
              // User has selected okay.
-             this->scaling.assign (this->adjustPVDialog.getValueScaling ());
+             this->scaling.assign (this->adjustPVDialog->getValueScaling ());
              chart->plotData ();
          }
          break;
@@ -867,13 +869,13 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
 
       case QEStripChartContextMenu::SCCM_PV_ADD_NAME:
       case QEStripChartContextMenu::SCCM_PV_EDIT_NAME:
-         this->pvNameEditDialog.setPvName (this->getPvName ());
+         this->pvNameEditDialog->setPvName (this->getPvName ());
 
-         n = this->pvNameEditDialog.exec ();
+         n = this->pvNameEditDialog->exec ();
          if (n == 1) {
             // User has selected okay.
-            if (this->getPvName () != this->pvNameEditDialog.getPvName ()) {
-               this->setPvName (this->pvNameEditDialog.getPvName (), "");
+            if (this->getPvName () != this->pvNameEditDialog->getPvName ()) {
+               this->setPvName (this->pvNameEditDialog->getPvName (), "");
             }
             // and replot the data
             //

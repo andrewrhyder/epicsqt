@@ -27,10 +27,12 @@
 
 #include <QDebug>
 #include <QEStripChartTimeDialog.h>
+#include <QECommon.h>
+
 #include <ui_QEStripChartTimeDialog.h>
 
-
-static const QTime zero (0, 0, 0, 0);
+static const QString valid   ("QWidget { background-color: #c0e0c0; }");
+static const QString invalid ("QWidget { background-color: #e0e0a0; }");
 
 //------------------------------------------------------------------------------
 //
@@ -42,6 +44,12 @@ QEStripChartTimeDialog::QEStripChartTimeDialog (QWidget *parent) :
 
    this->ui->startTimeSlider->setTracking (true);
    this->ui->endTimeSlider->setTracking (true);
+
+   QObject::connect (this->ui->startDate, SIGNAL (clicked          (const QDate &)),
+                     this,                SLOT   (startDateClicked (const QDate &)));
+
+   QObject::connect (this->ui->endDate,   SIGNAL (clicked          (const QDate &)),
+                     this,                SLOT   (endDateClicked   (const QDate &)));
 
    QObject::connect (this->ui->startTimeEdit, SIGNAL (timeChanged      (const QTime &)),
                      this,                    SLOT   (startTimeChanged (const QTime &)));
@@ -89,13 +97,14 @@ void QEStripChartTimeDialog::setStartDateTime (QDateTime datetime)
    this->ui->startDate->setSelectedDate (date);
    this->ui->startTimeSlider->setValue (t);
    this->ui->startTimeEdit->setTime (time);
+   this->calcShowDuration ();
 }
 
 //------------------------------------------------------------------------------
 //
 QDateTime QEStripChartTimeDialog::getStartDateTime ()
 {
-   // By useing the saved time - we preserve the time infor.
+   // By useing the saved time - we preserve the time info (UTC/Local).
    //
    this->savedStartDateTime.setDate (this->ui->startDate->selectedDate ());
    this->savedStartDateTime.setTime (this->ui->startTimeEdit->time ());
@@ -118,6 +127,7 @@ void QEStripChartTimeDialog::setEndDateTime (QDateTime datetime)
    this->ui->endDate->setSelectedDate (date);
    this->ui->endTimeSlider->setValue (t);
    this->ui->endTimeEdit->setTime (time);
+   this->calcShowDuration ();
 }
 
 //------------------------------------------------------------------------------
@@ -130,17 +140,72 @@ QDateTime QEStripChartTimeDialog::getEndDateTime ()
 }
 
 
+//------------------------------------------------------------------------------
+//
+QString QEStripChartTimeDialog::timeFormat (const int duration)
+{
+   QString image;
+   int temp = ABS (duration);
+   int days;
+   int hours;
+   int mins;
+   int secs;
+
+   #define EXTRACT(item, spi) { item = temp / spi; temp = temp - (spi * item); }
+
+   EXTRACT (days, 86400);
+   EXTRACT (hours, 3600);
+   EXTRACT (mins, 60);
+   EXTRACT (secs, 1);
+
+   #undef EXTRACT
+
+   image.sprintf ("%s%d %02d:%02d:%02d", (duration < 0 ? "-" : ""), days, hours, mins, secs);
+   return image;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartTimeDialog::calcShowDuration ()
+{
+   int duration;
+
+   duration = this->getStartDateTime ().secsTo (this->getEndDateTime ());
+   this->ui->duration->setText (this->timeFormat (duration));
+   if (duration > 0) {
+      this->ui->duration->setStyleSheet (valid);
+   } else {
+      this->ui->duration->setStyleSheet (invalid);
+   }
+}
+
 //==============================================================================
 // Slots.
 //==============================================================================
+//
+void QEStripChartTimeDialog::startDateClicked (const QDate &)
+{
+   this->calcShowDuration ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartTimeDialog::endDateClicked (const QDate &)
+{
+   this->calcShowDuration ();
+}
+
+//------------------------------------------------------------------------------
 //
 void QEStripChartTimeDialog::startTimeChanged (const QTime &time)
 {
    int t;
 
+   qDebug () << "startTimeChanged";
+
    t = QTime ().secsTo (time) / 360;
    this->ui->startTimeSlider->setValue (t);
-
+   this->calcShowDuration ();
 }
 
 //------------------------------------------------------------------------------
@@ -151,6 +216,7 @@ void QEStripChartTimeDialog::endTimeChanged (const QTime &time)
 
    t = QTime ().secsTo (time) / 360;
    this->ui->endTimeSlider->setValue (t);
+   this->calcShowDuration ();
 }
 
 
@@ -162,6 +228,7 @@ void QEStripChartTimeDialog::startSliderValueChanged (int value)
 
     time = QTime ().addSecs (360 * value);
     this->ui->startTimeEdit->setTime (time);
+    this->calcShowDuration ();
 }
 
 //------------------------------------------------------------------------------
@@ -172,6 +239,7 @@ void QEStripChartTimeDialog::endSliderValueChanged (int value)
 
    time = QTime ().addSecs (360 * value);
    this->ui->endTimeEdit->setTime (time);
+   this->calcShowDuration ();
 }
 
 

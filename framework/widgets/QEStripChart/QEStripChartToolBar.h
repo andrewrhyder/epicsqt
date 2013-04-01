@@ -47,6 +47,7 @@ public:
   void setTimeStatus (const QString & timeStatus);
   void setStateSelectionEnabled (const QEStripChartNames::StateModes mode, const bool enabled);
   
+   static const int designHeight = 44;
 signals:
    void stateSelected (const QEStripChartNames::StateModes mode);
    void videoModeSelected (const QEStripChartNames::VideoModes mode);
@@ -56,6 +57,7 @@ signals:
    void timeZoneSelected (const Qt::TimeSpec timeSpec);
    void playModeSelected (const QEStripChartNames::PlayModes mode);
    void readArchiveSelected ();
+
 protected:
    void resizeEvent (QResizeEvent * event);
 

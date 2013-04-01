@@ -147,8 +147,8 @@ private:
 
    QEArchiveAccess archiveAccess;
 
-   QEStripChartItemDialog pvNameEditDialog;
-   QEStripChartAdjustPVDialog adjustPVDialog;
+   QEStripChartItemDialog *pvNameEditDialog;
+   QEStripChartAdjustPVDialog *adjustPVDialog;
 
    // Return pv name label style, i.e. colour
    //

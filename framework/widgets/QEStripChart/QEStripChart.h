@@ -181,13 +181,13 @@ private:
    QDateTime endDateTime;
    Qt::TimeSpec timeZoneSpec;
 
-   QEStripChartTimeDialog timeDialog;
+   QEStripChartTimeDialog *timeDialog;
 
    // Chart lower/upper range
    //
    double yMinimum;
    double yMaximum;
-   QEStripChartRangeDialog yRangeDialog;
+   QEStripChartRangeDialog *yRangeDialog;
 
    void addPvName (QString pvName);
 

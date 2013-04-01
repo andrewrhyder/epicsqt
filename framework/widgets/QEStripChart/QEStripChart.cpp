@@ -292,8 +292,8 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Create user controllable resize area
    //
-   this->toolBarResize = new QEResizeableFrame (8, 38, this->chart);
-   this->toolBarResize->setFixedHeight (38);
+   this->toolBarResize = new QEResizeableFrame (8, 8 + this->toolBar->designHeight, this->chart);
+   this->toolBarResize->setFixedHeight (8 + this->toolBar->designHeight);
    this->toolBarResize->setFrameShape (QFrame::Panel);
    this->toolBarResize->setGrabberToolTip ("Re size tool bar display area");
    this->toolBarResize->setWidget (this->toolBar);
@@ -1095,7 +1095,12 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    this->yMinimum = 0.0;
    this->yMaximum = 100.0;
 
-   // construct private data for this chart.
+   // Construct dialogs.
+   //
+   this->timeDialog = new QEStripChartTimeDialog (this);
+   this->yRangeDialog = new QEStripChartRangeDialog (this);
+
+   // Construct private data for this chart.
    //
    this->privateData = new PrivateData (this);
 
@@ -1288,14 +1293,14 @@ void QEStripChart::yRangeSelected (const QEStripChartNames::ChartYRanges scale)
 
    switch (scale) {
       case QEStripChartNames::manual:
-         this->yRangeDialog.setRange (this->getYMinimum (), this->getYMaximum ());
-         n = this->yRangeDialog.exec ();
+         this->yRangeDialog->setRange (this->getYMinimum (), this->getYMaximum ());
+         n = this->yRangeDialog->exec ();
          if (n == 1) {
             this->privateData->chartYScale = scale;
             // User has selected okay.
             //
-            this->setYRange (this->yRangeDialog.getMinimum (),
-                             this->yRangeDialog.getMaximum ());
+            this->setYRange (this->yRangeDialog->getMinimum (),
+                             this->yRangeDialog->getMaximum ());
          }
          this->privateData->pushState ();
          break;
@@ -1380,20 +1385,20 @@ void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
          break;
 
       case QEStripChartNames::selectTimes:
-         this->timeDialog.setMaximumDateTime (QDateTime::currentDateTime ().toTimeSpec (this->timeZoneSpec));
-         this->timeDialog.setStartDateTime (this->getStartDateTime().toTimeSpec (this->timeZoneSpec));
-         this->timeDialog.setEndDateTime (this->getEndDateTime().toTimeSpec (this->timeZoneSpec));
-         n = this->timeDialog.exec ();
+         this->timeDialog->setMaximumDateTime (QDateTime::currentDateTime ().toTimeSpec (this->timeZoneSpec));
+         this->timeDialog->setStartDateTime (this->getStartDateTime().toTimeSpec (this->timeZoneSpec));
+         this->timeDialog->setEndDateTime (this->getEndDateTime().toTimeSpec (this->timeZoneSpec));
+         n = this->timeDialog->exec ();
          if (n == 1) {
             // User has selected okay.
             //
             this->privateData->chartTimeMode = tmHistorical;
-            this->setEndDateTime (this->timeDialog.getEndDateTime ());
+            this->setEndDateTime (this->timeDialog->getEndDateTime ());
 
             // We use the possibly limited chart end time in order to calculate the
             // duration.
             //
-            d = this->timeDialog.getStartDateTime ().secsTo (this->getEndDateTime());
+            d = this->timeDialog->getStartDateTime ().secsTo (this->getEndDateTime());
             this->setDuration (d);
             this->privateData->pushState ();
          }

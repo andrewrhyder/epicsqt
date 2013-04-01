@@ -64,7 +64,13 @@ private:
    QDateTime savedStartDateTime;
    QDateTime savedEndDateTime;
 
+   QString timeFormat (const int duration);
+   void calcShowDuration ();
+
 private slots:
+   void startDateClicked (const QDate & date);
+   void endDateClicked (const QDate & date);
+
    void startTimeChanged (const QTime &time);
    void endTimeChanged (const QTime &time);
 

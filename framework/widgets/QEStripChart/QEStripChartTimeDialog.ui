@@ -6,181 +6,229 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>280</height>
+    <width>516</width>
+    <height>316</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Strip Chart Times</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>300</x>
-     <y>246</y>
-     <width>171</width>
-     <height>26</height>
+     <x>10</x>
+     <y>10</y>
+     <width>496</width>
+     <height>297</height>
     </rect>
    </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>12</x>
-     <y>6</y>
-     <width>220</width>
-     <height>15</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Start DateTime</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>248</x>
-     <y>6</y>
-     <width>220</width>
-     <height>15</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>End DateTime</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QCalendarWidget" name="startDate">
-   <property name="geometry">
-    <rect>
-     <x>12</x>
-     <y>28</y>
-     <width>220</width>
-     <height>158</height>
-    </rect>
-   </property>
-   <property name="minimumDate">
-    <date>
-     <year>2005</year>
-     <month>8</month>
-     <day>1</day>
-    </date>
-   </property>
-   <property name="maximumDate">
-    <date>
-     <year>2099</year>
-     <month>12</month>
-     <day>31</day>
-    </date>
-   </property>
-   <property name="firstDayOfWeek">
-    <enum>Qt::Monday</enum>
-   </property>
-   <property name="gridVisible">
-    <bool>true</bool>
-   </property>
-   <property name="horizontalHeaderFormat">
-    <enum>QCalendarWidget::SingleLetterDayNames</enum>
-   </property>
-   <property name="verticalHeaderFormat">
-    <enum>QCalendarWidget::NoVerticalHeader</enum>
-   </property>
-  </widget>
-  <widget class="QCalendarWidget" name="endDate">
-   <property name="geometry">
-    <rect>
-     <x>248</x>
-     <y>28</y>
-     <width>220</width>
-     <height>158</height>
-    </rect>
-   </property>
-   <property name="minimumDate">
-    <date>
-     <year>2005</year>
-     <month>8</month>
-     <day>1</day>
-    </date>
-   </property>
-   <property name="maximumDate">
-    <date>
-     <year>2099</year>
-     <month>12</month>
-     <day>31</day>
-    </date>
-   </property>
-   <property name="firstDayOfWeek">
-    <enum>Qt::Monday</enum>
-   </property>
-   <property name="gridVisible">
-    <bool>true</bool>
-   </property>
-   <property name="horizontalHeaderFormat">
-    <enum>QCalendarWidget::SingleLetterDayNames</enum>
-   </property>
-   <property name="verticalHeaderFormat">
-    <enum>QCalendarWidget::NoVerticalHeader</enum>
-   </property>
-  </widget>
-  <widget class="QSlider" name="startTimeSlider">
-   <property name="geometry">
-    <rect>
-     <x>12</x>
-     <y>192</y>
-     <width>220</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="maximum">
-    <number>239</number>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="QSlider" name="endTimeSlider">
-   <property name="geometry">
-    <rect>
-     <x>248</x>
-     <y>192</y>
-     <width>220</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="maximum">
-    <number>239</number>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="QTimeEdit" name="startTimeEdit">
-   <property name="geometry">
-    <rect>
-     <x>62</x>
-     <y>218</y>
-     <width>120</width>
-     <height>24</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QTimeEdit" name="endTimeEdit">
-   <property name="geometry">
-    <rect>
-     <x>298</x>
-     <y>218</y>
-     <width>120</width>
-     <height>24</height>
-    </rect>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Start DateTime</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCalendarWidget" name="startDate">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>240</width>
+            <height>180</height>
+           </size>
+          </property>
+          <property name="minimumDate">
+           <date>
+            <year>2005</year>
+            <month>8</month>
+            <day>1</day>
+           </date>
+          </property>
+          <property name="maximumDate">
+           <date>
+            <year>2099</year>
+            <month>12</month>
+            <day>31</day>
+           </date>
+          </property>
+          <property name="firstDayOfWeek">
+           <enum>Qt::Monday</enum>
+          </property>
+          <property name="gridVisible">
+           <bool>true</bool>
+          </property>
+          <property name="horizontalHeaderFormat">
+           <enum>QCalendarWidget::SingleLetterDayNames</enum>
+          </property>
+          <property name="verticalHeaderFormat">
+           <enum>QCalendarWidget::NoVerticalHeader</enum>
+          </property>
+          <property name="dateEditAcceptDelay">
+           <number>500</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="startTimeSlider">
+          <property name="maximum">
+           <number>239</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTimeEdit" name="startTimeEdit"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>End DateTime</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCalendarWidget" name="endDate">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>240</width>
+            <height>180</height>
+           </size>
+          </property>
+          <property name="minimumDate">
+           <date>
+            <year>2005</year>
+            <month>8</month>
+            <day>1</day>
+           </date>
+          </property>
+          <property name="maximumDate">
+           <date>
+            <year>2099</year>
+            <month>12</month>
+            <day>31</day>
+           </date>
+          </property>
+          <property name="firstDayOfWeek">
+           <enum>Qt::Monday</enum>
+          </property>
+          <property name="gridVisible">
+           <bool>true</bool>
+          </property>
+          <property name="horizontalHeaderFormat">
+           <enum>QCalendarWidget::SingleLetterDayNames</enum>
+          </property>
+          <property name="verticalHeaderFormat">
+           <enum>QCalendarWidget::NoVerticalHeader</enum>
+          </property>
+          <property name="dateEditAcceptDelay">
+           <number>500</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="endTimeSlider">
+          <property name="maximum">
+           <number>239</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTimeEdit" name="endTimeEdit"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="duration">
+        <property name="minimumSize">
+         <size>
+          <width>129</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Monospace</family>
+         </font>
+        </property>
+        <property name="text">
+         <string>-00000 00:00:00</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="indent">
+         <number>4</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="minimumSize">
+         <size>
+          <width>180</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
