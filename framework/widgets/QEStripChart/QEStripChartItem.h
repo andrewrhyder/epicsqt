@@ -116,6 +116,9 @@ public:
 public: signals:
    void customContextMenuRequested (const unsigned int, const QPoint &);
 
+protected:
+   bool eventFilter (QObject *obj, QEvent *event);
+
 private:
    qcaobject::QCaObject* getQcaItem ();   // Return reference to QELabel used to stream CA updates
    void clear ();

@@ -59,7 +59,7 @@ static const QString unused ("QWidget { background-color: #c0c0c0; }");
 
 
 //==============================================================================
-// Thsi class used purely to store widget references.
+// This class used purely to store widget references.
 //
 class QEStripChartItem::PrivateData {
 public:
@@ -145,6 +145,10 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
    QObject::connect (&this->archiveAccess, SIGNAL (setArchiveData (const QObject *, const bool, const QCaDataPointList &)),
                      this,                 SLOT   (setArchiveData (const QObject *, const bool, const QCaDataPointList &)));
 
+
+   // Use the chart item objectas the pvName event filter object.
+   //
+   pvName->installEventFilter (this);
 
    // Set up context menus.
    //
@@ -767,6 +771,19 @@ void QEStripChartItem::customContextMenuRequested (const QPoint & pos)
 
 //------------------------------------------------------------------------------
 //
+bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
+{
+   if (event->type () == QEvent::MouseButtonDblClick) {
+      if (obj == this->privateData->pvName) {
+         this->contextMenuSelected (QEStripChartContextMenu::SCCM_PV_EDIT_NAME);
+         return true;
+      }
+   }
+   return false;
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Options option)
 {
    QEStripChart *chart = this->privateData->chart;  // alias
@@ -870,7 +887,6 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
       case QEStripChartContextMenu::SCCM_PV_ADD_NAME:
       case QEStripChartContextMenu::SCCM_PV_EDIT_NAME:
          this->pvNameEditDialog->setPvName (this->getPvName ());
-
          n = this->pvNameEditDialog->exec ();
          if (n == 1) {
             // User has selected okay.
