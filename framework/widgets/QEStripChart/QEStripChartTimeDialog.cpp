@@ -201,8 +201,6 @@ void QEStripChartTimeDialog::startTimeChanged (const QTime &time)
 {
    int t;
 
-   qDebug () << "startTimeChanged";
-
    t = QTime ().secsTo (time) / 360;
    this->ui->startTimeSlider->setValue (t);
    this->calcShowDuration ();
@@ -218,7 +216,6 @@ void QEStripChartTimeDialog::endTimeChanged (const QTime &time)
    this->ui->endTimeSlider->setValue (t);
    this->calcShowDuration ();
 }
-
 
 //------------------------------------------------------------------------------
 //
