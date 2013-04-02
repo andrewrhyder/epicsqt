@@ -809,7 +809,7 @@ void QEStripChart::PrivateData::onPlaneScaleSelect (const QPoint  & origin, cons
 
       et = chart->getEndDateTime ().addSecs (rBottomRight.x ());
 
-      now = QDateTime::currentDateTimeUtc ();
+      now = QDateTime::currentDateTime ();
       if (et >= now) {
          // constrain
          et = now;
@@ -860,7 +860,7 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    zoneTLA = TimeZone::getZoneTLA (chart->timeZoneSpec, t);
    mouseReadOut.append (" ").append (zoneTLA);
 
-   f.sprintf (" %12.1f ", real.x () /this->timeScale);
+   f.sprintf (" %10.2f ", real.x () /this->timeScale);
    mouseReadOut.append (f);
    mouseReadOut.append (this->timeUnits);
 

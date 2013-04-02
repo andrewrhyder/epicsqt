@@ -56,7 +56,7 @@ struct PushButtonSpecifications {
    const char * member;
 };
 
-static const QString localZone = TimeZone::getZoneTLA (Qt::LocalTime, QDateTime::currentDateTimeUtc ());
+static const QString localZone = TimeZone::getZoneTLA (Qt::LocalTime, QDateTime::currentDateTime ());
 
 static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, true,  QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))        },

@@ -94,7 +94,7 @@ private:
 class TimeZone {
 public:
    // Get the local time zone offset (in seconds) for the nominated UTC time.
-   // Maybe default atTime = QDateTime::currentDateTimeUtc () ??
+   // Maybe default atTime = QDateTime::currentDateTime () ??
    //
    static int getZoneOffset (const QDateTime & atTime);
 
