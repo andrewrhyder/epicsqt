@@ -406,8 +406,14 @@ QEStripChart::PrivateData::~PrivateData ()
 {
    this->releaseCurves ();
 
-   // all the created QWidget are (indirectly) parented by the PrivateData,
-   // they are automatically deleted.
+   if (this->grid) {
+      this->grid->detach();
+      delete this->grid;
+      this->grid  = NULL;
+   }
+
+   // All the created QWidget are parented by the QEStripChart and are automatically
+   // deleted when the chart itself is deleted.
 }
 
 //------------------------------------------------------------------------------
