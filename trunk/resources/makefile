@@ -2,8 +2,8 @@
 # author: Ricardo Fernandes
 # email: ricardo.fernandes@synchrotron.org.au
 # copyright: (C) 2012 Australian Synchrotron
-# version: 1.1
-# date: 2013/FEB/19
+# version: 1.2
+# date: 2013/APR/08
 # description: Makefile to automate the building and deployment of the EPICS Qt framework
 # note: Although managed as part of the EPICS Qt framework, this makefile is intended to be run from outside the framework directories
 # status: Production
@@ -28,15 +28,27 @@ QMAKE = qmake-qt4
 
 
 
+ifdef tag
+	FRAMEWORK_VERSION = tags/$(tag)
+else
+	FRAMEWORK_VERSION = trunk
+endif
+
+ifdef TAG
+	FRAMEWORK_VERSION = tags/$(TAG)
+endif
+
+
+ 
 # make all; default target when nothing is specified when executing make
-all: svn_checkout build_framework
+all: checkout framework
 
 
 
 # svn checkout/update framework target
-.PHONY: svn_checkout
-svn_checkout:
-	@echo "Checking conditions for building the framework in directory '$(FRAMEWORK_DIRECTORY)'..."
+.PHONY: checkout
+checkout:
+	@echo "Checking conditions for building the framework in directory '$(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)'..."
 
 ifeq ($(strip $(QWT_INCLUDE_PATH)),)
 	@$(error The environment variable 'QWT_INCLUDE_PATH' should be defined and pointing to the right QWT include directory (example: export QWT_INCLUDE_PATH=/usr/include/qwt). If QWT is not installed in your machine, please perform 'yum install qwt qwt-devel' in a terminal)
@@ -60,25 +72,25 @@ endif
 
 	@echo "...done checking conditions!"
 
-	@if test -d $(FRAMEWORK_DIRECTORY); then \
-		echo "Updating framework to the latest version from SVN repository to '$(FRAMEWORK_DIRECTORY)'..."; \
-		$(SVN) update $(FRAMEWORK_DIRECTORY); \
-		$(MAKE) -C $(FRAMEWORK_DIRECTORY) clean uninstall; \
+	@if test -d $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION); then \
+		echo "Updating framework from SVN repository to '$(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)'..."; \
+		$(SVN) update $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION); \
+		$(MAKE) -C $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION) clean uninstall; \
 		echo "...done updating framework!"; \
 	else \
-		echo "Checkout framework from SVN repository to '$(FRAMEWORK_DIRECTORY)'..."; \
-		$(SVN) checkout $(SVN_REPOSITORY) $(FRAMEWORK_DIRECTORY); \
+		echo "Checkout framework from SVN repository to '$(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)'..."; \
+		$(SVN) checkout $(SVN_REPOSITORY)/$(FRAMEWORK_VERSION) $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION); \
 		echo "...done checkout framework!"; \
 	fi
 
 
 
 # build framework target
-.PHONY: build_framework
-build_framework:
-	@echo "Building framework located in '$(FRAMEWORK_DIRECTORY)'..."
-	@cd $(FRAMEWORK_DIRECTORY) ; $(QMAKE) epicsqt.pro -r -spec linux-g++
-	@export LD_LIBRARY_PATH=$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH) ; $(MAKE) -C $(FRAMEWORK_DIRECTORY) -w -j2
+.PHONY: framework
+framework:
+	@echo "Building framework located in '$(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)'..."
+	@cd $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION) ; $(QMAKE) epicsqt.pro -r -spec linux-g++
+	@export LD_LIBRARY_PATH=$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH) ; $(MAKE) -C $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION) -w -j2
 	@echo "...done building framework!"
 
 
@@ -110,8 +122,8 @@ endif
 
 	@echo "...done checking conditions!"
 
-	@if test -d $(FRAMEWORK_DIRECTORY); then \
-		echo "The framework already exists in directory '$(FRAMEWORK_DIRECTORY)' so no need to build it."; \
+	@if test -d $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION); then \
+		echo "The framework already exists in directory '$(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)' so no need to build it."; \
 	else \
 		$(MAKE); \
 	fi
@@ -119,8 +131,8 @@ endif
 	@echo "Packaging framework in directory '$(PACKAGE_DIRECTORY)'..."
 	@mkdir -p $(PACKAGE_DIRECTORY)/lib $(PACKAGE_DIRECTORY)/bin
 	@cp -r /usr/lib/qt4/plugins $(PACKAGE_DIRECTORY)/lib/.
-	@cp $(FRAMEWORK_DIRECTORY)/applications/QEGuiApp/QEGui $(PACKAGE_DIRECTORY)/bin/.
-	@cp $(FRAMEWORK_DIRECTORY)/framework/designer/libQEPlugin.so $(PACKAGE_DIRECTORY)/lib/.
+	@cp $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/applications/QEGuiApp/QEGui $(PACKAGE_DIRECTORY)/bin/.
+	@cp $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/framework/designer/libQEPlugin.so $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libca.so* $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libCom.so* $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/bin/$(EPICS_HOST_ARCH)/caget $(PACKAGE_DIRECTORY)/bin/.
@@ -192,7 +204,7 @@ endif
 	@echo "%post" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@$(RPM) -bb $(SPEC_FILE)
-	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS/i386'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
+	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
 
 
 
