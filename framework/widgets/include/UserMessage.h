@@ -35,17 +35,17 @@
 enum message_severities { MESSAGE_TYPE_INFO, MESSAGE_TYPE_WARNING, MESSAGE_TYPE_ERROR };
 
 // These values should be or-ed together.
-// Other values, i.e. 4, 8, 16 etc. can be added as necessary.
+// Other kind values, i.e. 4, 8, 16 etc. can be added as necessary.
 //
 enum message_kinds  { MESSAGE_KIND_NONE = 0,         ///< Degeneate case
-                      MESSAGE_KIND_LOG = 1,          ///< Send message to Loggers (QELog)
-                      MESSAGE_KIND_STATUS_BAR = 2    ///< Send message to statue bars (QEForm/QEGui)
+                      MESSAGE_KIND_EVENT = 1,        ///< Message is significant event (captured by QELog)
+                      MESSAGE_KIND_STATUS = 2        ///< Message is transient statue (captured QEForm/QEGui status bar)
                     };
 
 typedef unsigned int  message_kind_sets;
 
 // Standard/default kind.
-const message_kind_sets MESSAGE_KIND_STANDARD = ( MESSAGE_KIND_LOG | MESSAGE_KIND_STATUS_BAR );
+const message_kind_sets MESSAGE_KIND_STANDARD = ( MESSAGE_KIND_EVENT | MESSAGE_KIND_STATUS );
 
 class message_types {
 public:

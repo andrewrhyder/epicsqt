@@ -833,7 +833,7 @@ void QEStripChart::PrivateData::onPlaneScaleSelect (const QPoint  & origin, cons
 //
 void QEStripChart::PrivateData::setReadOut (const QString & text)
 {
-   message_types mt (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS_BAR);
+   message_types mt (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS);
    this->chart->sendMessage (text, mt);
 }
 
