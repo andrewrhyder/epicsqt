@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/forms">
+        <file>PVProperties.ui</file>
+        <file>StripChart.ui</file>
+        <file>UserLevel.ui</file>
+        <file>MessageLog.ui</file>
+    </qresource>
+</RCC>

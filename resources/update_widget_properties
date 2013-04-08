@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+
+iam=$( basename $0 )
+sdir=$( dirname $0 )
+
+function terminate () {
+   local arg
+   for arg in "$@" ; do
+      echo 1>&2 "${arg}"
+   done
+   exit 1
+}
+
+function usage () {
+   echo 1>&2 "${1}"
+   echo 1>&2 "usage: ${iam} replace_def_directory  qt_widget_directory"
+   exit 1
+}
+
+
+if [ $# -lt 2 ] || [ -z "${1}" ]  || [ -z "${2}" ] ; then
+   usage "missing and/or null parameter(s)"
+fi
+
+replace_dir=${1:?}
+widget_dir=${2:?}
+
+if [ ! -d ${replace_dir:?} ] ; then
+   terminate "${iam}: ${replace_dir:?} does not exist or is not a directory"
+fi
+
+if [ ! -d ${widget_dir:?} ] ; then
+   terminate "${iam}: ${widget_dir:?} does not exist or is not a directory"
+fi
+
+start_meta_pattern="__define_replace_start_delimiter__"
+
+for rbt in ${replace_dir:?}/*.rbt ; do
+
+   echo ""
+   echo "processing ${rbt:?} ... "
+   look_for="$( grep "^.*${start_meta_pattern}"  ${rbt:?}  | sed -e "s/^.*${start_meta_pattern} *//g" )"
+   if [ -z "${look_for}" ] ; then
+      echo "no start pattern found in ${rbt:?} - ignoring file."
+      continue
+   fi
+   echo "looking for header files containing ${look_for:?}"
+
+   # Find list of headers with "look_for" as a pre-replace_bracketed_text filter.
+   # replace_bracketed_text will perform a more detailed check.
+   #
+   header_list="$(  grep -l "${look_for:?}" $( find ${widget_dir:?} -type f -name "*.h" ) )"
+   if [ -z "${header_list}" ] ; then
+      echo "no header files found that contain: ${look_for:?} found in ${widget_dir:?}."
+      continue
+   fi
+
+   # Assume replace_bracketed_text in the same directory.
+   #
+   ${sdir:?}/replace_bracketed_text  ${rbt:?}  ${header_list}
+
+done
+echo ""
+
+# end

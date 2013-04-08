@@ -1,0 +1,186 @@
+/*  StartupParams.cpp
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *
+ *  The EPICS QT Framework is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The EPICS QT Framework is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Copyright (c) 2009, 2010
+ *
+ *  Author:
+ *    Andrew Rhyder
+ *  Contact details:
+ *    andrew.rhyder@synchrotron.org.au
+ */
+
+// Manage startup parameters. Parse the startup parameters in a command line, serialize
+// and unserialize parameters when passing them to another application instance.
+
+#include <QStringList>
+#include "StartupParams.h"
+
+// Construction
+startupParams::startupParams()
+{
+    enableEdit = false;
+    disableMenu = false;
+    singleApp = false;
+    printHelp = false;    // not serialized
+    printVersion = false; // not serialized
+
+    // Default user level passwords
+    userLevelPassword = "";
+    scientistLevelPassword = "XKCD242";
+    engineerLevelPassword = "XKCD670";
+}
+
+// Unserialize application startup parameters
+// This must match startupParams::setSharedParams()
+void startupParams::getSharedParams( const QByteArray& in )
+{
+    // Initialise parameters
+    filename.clear();
+    pathList.clear();
+    substitutions.clear();
+
+    // Extract parameters from a stream of bytes.
+    int len = 0;
+    const char* d = in.constData();
+
+    enableEdit    = (bool)(d[len]);    len += 1;
+    disableMenu   = (bool)(d[len]);    len += 1;
+    singleApp     = (bool)(d[len]);    len += 1;
+    filename.append( &(d[len]) );      len += filename.size()+1;
+    int pathCount = d[len];            len += 1;
+    for( int i = 0; i < pathCount; i++ )
+    {
+        pathList.append( &(d[len]) );          len += pathList[i].size()+1;
+    }
+    substitutions.append( &(d[len]) ); len += substitutions.size()+1;
+}
+
+// Serialize application startup parameters
+// This must match startupParams::getSharedParams()
+void startupParams::setSharedParams( QByteArray& out )
+{
+    // Convert parameters into a stream of bytes.
+    int len = 0;
+
+    out[len++] = enableEdit;
+    out[len++] = disableMenu;
+    out[len++] = singleApp;
+    out.insert( len, filename.toAscii() );       len += filename.size();        out[len++] = '\0';
+    out[len++] = pathList.count();
+    for( int i = 0; i < pathList.count(); i++ )
+    {
+        out.insert( len, pathList[i].toAscii() );len += pathList[i].size();   out[len++] = '\0';
+    }
+    out.insert( len, substitutions.toAscii() );  len += substitutions.size(); out[len++] = '\0';
+}
+
+
+// Extract required parameters from argv and argc
+bool startupParams::getStartupParams( QStringList args )
+{
+    // Discard application name
+    args.removeFirst();
+
+    // Get switches
+    // Switches may be separate or grouped.
+    // Switches that precede a parameter (-p, -m) may be grouped. Associated
+    // parameters are then expected in the order the switches were specified.
+    // Examples:
+    // -e -p /home
+    // -epm /home PUMP=02
+    while( args.size() && args[0].left(1) == QString( "-" ) )
+    {
+        // Get the next argument
+        QString arg = args[0];
+        args.removeFirst();
+
+        // Remove the leading '-' and process the argument if there is anything left of it
+        while( arg.remove(0,1).size() )
+        {
+            // Identify the argument by the next letter
+            switch( arg[0].toAscii() )
+            {
+                // 'Editable' flag
+                case 'e':
+                    enableEdit = true;
+                    break;
+
+                // 'Single App' flag
+                case 's':
+                    singleApp = true;
+                    break;
+
+                // Help flag
+                //
+                case 'h':
+                    printHelp = true;
+                    break;
+
+                // Version flag
+                //
+                case 'v':
+                    printVersion = true;
+                    break;
+
+                // 'menu Bar disabled' flag
+                case 'b':
+                    disableMenu = true;
+                    break;
+
+                // 'paths' flag
+                // Take next non switch parameter as path list
+                case 'p':
+                    // Get the path list (next parameter, if present, and as long as it isn't a switch)
+                    if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                    {
+                        QString pathParam = args[0];
+                        pathList = pathParam.split(QRegExp("\\s+"));
+                        args.removeFirst();
+                    } else {
+                        return false;
+                    }
+                    break;
+
+                // 'macros' flag
+                // Take next non switch parameter as macro substitutions
+                case 'm':
+                    // Get the macros (next parameter, if present, and as long as it isn't a switch)
+                    if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                    {
+                        substitutions = args[0];
+                        args.removeFirst();
+                    } else {
+                        return false;
+                    }
+                    break;
+
+                default:
+                    // Unrecognised switch
+                    return false;
+            }
+        }
+    }
+
+    // Get file name if any
+    if( args.size() )
+    {
+        filename = args[0];
+        args.removeFirst();
+    }
+
+    return true;
+}

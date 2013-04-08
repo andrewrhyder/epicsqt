@@ -1,0 +1,609 @@
+epicsqt 2.3 Release Notes
+
+==================================================================================================
+Changes between 2.3 and 2.2
+
+SUMMARY:
+Bugfixes, including bugs relating to macro substitution and QEGui parameters
+QEImage enhancements
+New QESimpleShape widget
+
+DETAIL:
+------------------------------------------------------------------------
+r520 | rhyder | 2013-01-23 21:35:16 +1100 (Wed, 23 Jan 2013) | 2 lines
+
+Update release notes for 2.2
+
+------------------------------------------------------------------------
+r521 | rhyder | 2013-01-23 23:46:20 +1100 (Wed, 23 Jan 2013) | 2 lines
+
+Minor changes to package generation notes
+
+------------------------------------------------------------------------
+r522 | mightyredcorner | 2013-02-04 11:35:56 +1100 (Mon, 04 Feb 2013) | 2 lines
+
+Only apply style (for a certain user type) when defined.
+
+------------------------------------------------------------------------
+r523 | mightyredcorner | 2013-02-05 11:36:09 +1100 (Tue, 05 Feb 2013) | 3 lines
+
+Implemented "textSubstitution" property in the QEPushButton to be able
+to set the button text using macros.
+
+------------------------------------------------------------------------
+r524 | mightyredcorner | 2013-02-06 15:30:48 +1100 (Wed, 06 Feb 2013) | 3 lines
+
+Workaround (based on a 1 second delay) was introduced in order to avoid
+a segmentation fault.
+
+------------------------------------------------------------------------
+r525 | andrewstarritt | 2013-02-10 17:49:57 +1100 (Sun, 10 Feb 2013) | 1 line
+
+cosmetic - layout/comments
+------------------------------------------------------------------------
+r526 | rhyder | 2013-02-11 15:49:25 +1100 (Mon, 11 Feb 2013) | 14 lines
+
+Revert temporary change where user level style is not applied when empty
+(rev 522). This was added as a quick fix where button colors were lost
+when user level changed. Still need to identify the true cause of the
+problem.
+Revert addition of 'textSubstitution' property (rev 523). labelText
+property already provides the option of applying macro substitutions to
+button labels. (Note, the behaviour of the labelText property was
+changed slightly so it overrides any current button text if labelText is
+present)
+Revert delay in connectionHandler callback (rev 524). This was added for
+a bug in a specific user interface file. The bug still needs fixing, but
+this temporary fix should not be in the repository (and doesn't build on
+windows)
+
+------------------------------------------------------------------------
+r527 | andrewstarritt | 2013-02-11 17:14:24 +1100 (Mon, 11 Feb 2013) | 1 line
+
+add get host name, get field type and get element count functions. Also ensure that the bdr subsription requires are the DBR_TIME_XXX type
+------------------------------------------------------------------------
+r528 | andrewstarritt | 2013-02-11 17:26:42 +1100 (Mon, 11 Feb 2013) | 1 line
+
+revamp PV proerties - show host name field type, no. elements as well as show the vale itself as a QELabel
+------------------------------------------------------------------------
+r529 | andrewstarritt | 2013-02-11 17:39:52 +1100 (Mon, 11 Feb 2013) | 1 line
+
+handle DBR_TIME_XXXX updates
+------------------------------------------------------------------------
+r530 | andrewstarritt | 2013-02-11 18:28:28 +1100 (Mon, 11 Feb 2013) | 1 line
+
+add function to handle array of 32 bit int array into long
+------------------------------------------------------------------------
+r531 | andrewstarritt | 2013-02-11 18:32:32 +1100 (Mon, 11 Feb 2013) | 1 line
+
+remove storing Risc data - this is just alignment padding in the strcut types used in the CA protocol and is of no significance
+------------------------------------------------------------------------
+r532 | andrewstarritt | 2013-02-11 18:38:03 +1100 (Mon, 11 Feb 2013) | 1 line
+
+CaObject: remove memcpy - use type cast instead, do not keep resetting PV name, do not store Risc data, apart from STRING type, always set the arrayversion of caRecord.SetLong, SetDouble etc.
+------------------------------------------------------------------------
+r533 | andrewstarritt | 2013-02-11 19:20:45 +1100 (Mon, 11 Feb 2013) | 1 line
+
+QEPvProperties: tweak geometry, make value display handle gneral numerical formats
+------------------------------------------------------------------------
+r534 | andrewstarritt | 2013-02-11 21:19:03 +1100 (Mon, 11 Feb 2013) | 1 line
+
+Just a comment re code structure
+------------------------------------------------------------------------
+r535 | andrewstarritt | 2013-02-12 17:47:55 +1100 (Tue, 12 Feb 2013) | 1 line
+
+Don't include epics header files in framework files.
+------------------------------------------------------------------------
+r536 | rhyder | 2013-02-14 14:04:11 +1100 (Thu, 14 Feb 2013) | 4 lines
+
+Fix crash where startup 'path' parameter was the last parameter.
+This would crash:  QEGui -p C:\mydir
+This was OK: QEGui -p C:\mydir -e
+
+------------------------------------------------------------------------
+r537 | andrewstarritt | 2013-02-15 20:23:49 +1100 (Fri, 15 Feb 2013) | 1 line
+
+make dbr_translation_type a parameter of getDbrType() as opposed to a data member of CaRecord, establishSubscription pass two dbr type parameters
+------------------------------------------------------------------------
+r538 | andrewstarritt | 2013-02-15 20:46:26 +1100 (Fri, 15 Feb 2013) | 1 line
+
+Lose the  $Id: prefix - this does not help snapshots into AS local CM
+------------------------------------------------------------------------
+r539 | andrewstarritt | 2013-02-17 17:33:22 +1100 (Sun, 17 Feb 2013) | 1 line
+
+Make QEAnalogProgressBar and QEBitStatus semi-sensible if connected to an array PV - use first value
+------------------------------------------------------------------------
+r540 | andrewstarritt | 2013-02-17 17:39:43 +1100 (Sun, 17 Feb 2013) | 1 line
+
+allow static means to initialise archiver managers prior to object creation togther with means to interogate when setup is complete
+------------------------------------------------------------------------
+r541 | rhyder | 2013-02-18 17:25:58 +1100 (Mon, 18 Feb 2013) | 5 lines
+
+Add Region of Interest feedback for QEImage widget.
+Region has to be displayed already though. Perhaps need a new property
+for each area to display area by default. (currently only displayed when
+first selected by the user)
+
+------------------------------------------------------------------------
+r542 | rhyder | 2013-02-19 17:59:48 +1100 (Tue, 19 Feb 2013) | 10 lines
+
+Ensure current profile (macro substitutions, path, etc are propogated
+when starting new windows from within QE buttons.
+Add release number to version information.
+Remove unessesary debug statements.
+In QEImage, remove ptarget positioning button when targeting selection
+is not enabled.
+Add extra checks when managing object references passed back in CA
+callbacks. Still need to lock access to CaRef while destroying
+CaConnection. (moved CaRef class source to its own source file)
+
+------------------------------------------------------------------------
+r543 | rhyder | 2013-02-19 18:45:47 +1100 (Tue, 19 Feb 2013) | 3 lines
+
+Ensure CaCallbacks are not interacting with CaConnection class when
+CaConnection destructor is called (as recently done for CaObject)
+
+------------------------------------------------------------------------
+r544 | rhyder | 2013-02-19 23:09:23 +1100 (Tue, 19 Feb 2013) | 3 lines
+
+Add priority macro substitutions property prioritySubstitutions to
+QEPushButton and QERadioButton
+
+------------------------------------------------------------------------
+r545 | rhyder | 2013-02-19 23:55:36 +1100 (Tue, 19 Feb 2013) | 3 lines
+
+Ensure priority substitutions are used when creating new GUIs using
+QEPushButton and QERadioButton.
+
+------------------------------------------------------------------------
+r546 | andrewstarritt | 2013-02-20 12:54:58 +1100 (Wed, 20 Feb 2013) | 1 line
+
+Hide all ca access 'mutex details inside CaRef
+------------------------------------------------------------------------
+r547 | andrewstarritt | 2013-02-20 13:03:44 +1100 (Wed, 20 Feb 2013) | 1 line
+
+fix mutex create success test and update revisonnumber
+------------------------------------------------------------------------
+r548 | rhyder | 2013-02-20 15:55:17 +1100 (Wed, 20 Feb 2013) | 4 lines
+
+Add displayAlarmState as a standard QE property.
+Ensure QE widgets do not become 'not visible' due to user level while in
+Designer
+
+------------------------------------------------------------------------
+r549 | andrewstarritt | 2013-02-20 19:28:43 +1100 (Wed, 20 Feb 2013) | 1 line
+
+use new BEGIN/END-STANDARD-PROPERTIES tags
+------------------------------------------------------------------------
+r550 | andrewstarritt | 2013-02-20 19:32:51 +1100 (Wed, 20 Feb 2013) | 1 line
+
+add update_widget_properties script and update release
+------------------------------------------------------------------------
+r551 | rhyder | 2013-02-20 19:48:46 +1100 (Wed, 20 Feb 2013) | 15 lines
+
+Ensure a unique instance of the published profile is created.
+The details contained in the PublishedProfile class need to be shared
+across the application, but they can't be just static since QE framework
+library QEPlugin may be loaded twice: Once as a run time loaded dll for
+an application (example QEGui) and once when a QEForm is loaded by the
+Qt .ui loader. On Linux this doesn't matter - the library is mapped once
+and the same mapping is returned in both cases. So any static
+variables only exist once. In windows, however, the library
+(QEPlugin.dll) is mapped twice and static variables are created twice.
+This can be observed by printing out the address of a static variable.
+The 'same' static variable will have different addresses depening on
+whether it is being referenced by the application or the Qt .ui form
+loader.
+Debug statement are still present.
+
+------------------------------------------------------------------------
+r552 | rhyder | 2013-02-20 20:47:51 +1100 (Wed, 20 Feb 2013) | 1 line
+
+Remove debug comments from new published profile code, fix compile warnings (windows only) in QEImage
+------------------------------------------------------------------------
+r553 | andrewstarritt | 2013-02-20 22:15:06 +1100 (Wed, 20 Feb 2013) | 1 line
+
+update_widget_properties: check for no matching headers, use replace_bracketed_text from same dir.
+------------------------------------------------------------------------
+r554 | rhyder | 2013-02-20 23:25:54 +1100 (Wed, 20 Feb 2013) | 2 lines
+
+Add Strip Chart and PV Properties menu items to QEGui 'File' menu
+
+------------------------------------------------------------------------
+r555 | rhyder | 2013-02-20 23:44:20 +1100 (Wed, 20 Feb 2013) | 3 lines
+
+Add missing changes for addition of PV Properties form and Strip Chart
+form to QEGui File menu.
+
+------------------------------------------------------------------------
+r556 | andrewstarritt | 2013-02-20 23:44:23 +1100 (Wed, 20 Feb 2013) | 1 line
+
+add  pv_properties.ui strip_chart.ui to sample ui forms
+------------------------------------------------------------------------
+r557 | andrewstarritt | 2013-02-20 23:51:20 +1100 (Wed, 20 Feb 2013) | 1 line
+
+PV Props: relocate geometry calcs from constructor to resizeEvent function - allows more flexibity wrt sizing (and update release)
+------------------------------------------------------------------------
+r558 | rhyder | 2013-02-21 00:04:13 +1100 (Thu, 21 Feb 2013) | 2 lines
+
+Added TIFF format to QEImage save option
+
+------------------------------------------------------------------------
+r559 | rhyder | 2013-02-21 11:56:33 +1100 (Thu, 21 Feb 2013) | 3 lines
+
+Add Initial 'copy' of QEImage plot data (Note, vertical copy copies
+wrong axis)
+
+------------------------------------------------------------------------
+r560 | rhyder | 2013-02-21 13:10:05 +1100 (Thu, 21 Feb 2013) | 2 lines
+
+Complete copy function for QEImage.
+
+------------------------------------------------------------------------
+r561 | andrewstarritt | 2013-02-21 16:57:47 +1100 (Thu, 21 Feb 2013) | 1 line
+
+add src dir
+------------------------------------------------------------------------
+r562 | andrewstarritt | 2013-02-21 16:58:31 +1100 (Thu, 21 Feb 2013) | 1 line
+
+Extend version add buld date time and add function equivilents to rflect when pligin built
+------------------------------------------------------------------------
+r563 | andrewstarritt | 2013-02-21 17:57:48 +1100 (Thu, 21 Feb 2013) | 1 line
+
+QEGui: Add verion option and make argument processing a little more strict
+------------------------------------------------------------------------
+r564 | rhyder | 2013-02-21 18:06:46 +1100 (Thu, 21 Feb 2013) | 2 lines
+
+Add versions and other info to 'about' box
+
+------------------------------------------------------------------------
+r565 | rhyder | 2013-02-21 18:21:53 +1100 (Thu, 21 Feb 2013) | 2 lines
+
+Add missing files to svn
+
+------------------------------------------------------------------------
+r566 | andrewstarritt | 2013-02-21 20:05:49 +1100 (Thu, 21 Feb 2013) | 1 line
+
+no longer required - now built in
+------------------------------------------------------------------------
+r567 | rhyder | 2013-02-21 22:16:25 +1100 (Thu, 21 Feb 2013) | 4 lines
+
+Add default user level passwords (Scientist XKCD242 Engineer XKCD670).
+Document about box details better.
+Fix trivial typos in QEimage.
+
+------------------------------------------------------------------------
+r568 | andrewstarritt | 2013-02-21 22:17:14 +1100 (Thu, 21 Feb 2013) | 1 line
+
+improve help info accuracy, send usage err message to stderr
+------------------------------------------------------------------------
+r569 | andrewstarritt | 2013-02-21 22:23:14 +1100 (Thu, 21 Feb 2013) | 1 line
+
+Add Strip Chart range dialog
+------------------------------------------------------------------------
+r570 | andrewstarritt | 2013-02-21 22:26:18 +1100 (Thu, 21 Feb 2013) | 1 line
+
+Call up new range dialog, tweek chart item dialog, and inc. release number
+------------------------------------------------------------------------
+r571 | andrewstarritt | 2013-02-22 10:34:22 +1100 (Fri, 22 Feb 2013) | 1 line
+
+framework.pro:  include an explicity dependency for QEFrameworkVersion.h
+------------------------------------------------------------------------
+r572 | mightyredcorner | 2013-02-22 15:09:44 +1100 (Fri, 22 Feb 2013) | 1 line
+
+Updated "makefile" file (located in the "resources" directory) to be able to create a RPM package of the framework
+------------------------------------------------------------------------
+r573 | andrewstarritt | 2013-02-23 15:05:57 +1100 (Sat, 23 Feb 2013) | 1 line
+
+QEAnalogProgressBar.h - repostion Q_PROPERTY declarations in header file to colocate related properties in designer
+------------------------------------------------------------------------
+r574 | andrewstarritt | 2013-02-23 17:33:17 +1100 (Sat, 23 Feb 2013) | 1 line
+
+StripChart : add basic log mode plus revrse mode capability
+------------------------------------------------------------------------
+r575 | andrewstarritt | 2013-02-23 17:35:51 +1100 (Sat, 23 Feb 2013) | 1 line
+
+and update framework version to 2.2.34
+------------------------------------------------------------------------
+r576 | andrewstarritt | 2013-02-24 16:41:48 +1100 (Sun, 24 Feb 2013) | 1 line
+
+stripchart: add time scale, update dialogs, add chart state history; and uodate revision
+------------------------------------------------------------------------
+r577 | rhyder | 2013-02-24 22:43:28 +1100 (Sun, 24 Feb 2013) | 4 lines
+
+QEImage: Add initial code for local brightness and contrast controls.
+When Region of Interest data read from variables, present the
+appropriate region (previously, regions only appeared when drawn)
+
+------------------------------------------------------------------------
+r578 | andrewstarritt | 2013-02-25 11:30:55 +1100 (Mon, 25 Feb 2013) | 1 line
+
+strip chart: provide EXP10 macro to complement rebadged LOG10 macro
+------------------------------------------------------------------------
+r579 | mightyredcorner | 2013-02-25 11:33:41 +1100 (Mon, 25 Feb 2013) | 1 line
+
+Updated "makefile" file (located in the "resources" directory) with some few tweaks
+------------------------------------------------------------------------
+r580 | mightyredcorner | 2013-02-25 14:43:00 +1100 (Mon, 25 Feb 2013) | 1 line
+
+Updated "makefile" file (located in the "resources" directory) to be able to create a RPM package withou checking digest
+------------------------------------------------------------------------
+r581 | mightyredcorner | 2013-02-25 15:46:36 +1100 (Mon, 25 Feb 2013) | 1 line
+
+Execute prelink to all shared library in  "makefile" file (located in the "resources" directory)
+------------------------------------------------------------------------
+r582 | rhyder | 2013-02-25 17:35:32 +1100 (Mon, 25 Feb 2013) | 3 lines
+
+Ongoing development for local brightness and contrast controls in
+QEImage.
+
+------------------------------------------------------------------------
+r583 | rhyder | 2013-02-27 16:09:23 +1100 (Wed, 27 Feb 2013) | 3 lines
+
+Fix recently introduced bug in QEImage - widget referenced before set
+up. Add user level passwords to container profile.
+
+------------------------------------------------------------------------
+r584 | andrewstarritt | 2013-02-27 16:26:12 +1100 (Wed, 27 Feb 2013) | 1 line
+
+Set filter to any for built in log form
+------------------------------------------------------------------------
+r585 | rhyder | 2013-02-27 18:48:04 +1100 (Wed, 27 Feb 2013) | 2 lines
+
+Local contrast and brightness controls now do something.
+
+------------------------------------------------------------------------
+r586 | andrewstarritt | 2013-02-28 21:34:43 +1100 (Thu, 28 Feb 2013) | 1 line
+
+generic: don't define own qeInt32, use Qt's very own qint32
+------------------------------------------------------------------------
+r587 | andrewstarritt | 2013-03-03 22:16:35 +1100 (Sun, 03 Mar 2013) | 1 line
+
+add simple shape widget
+------------------------------------------------------------------------
+r588 | andrewstarritt | 2013-03-03 22:19:39 +1100 (Sun, 03 Mar 2013) | 1 line
+
+QCaObject - provide assess to last alarm state (and date time)
+------------------------------------------------------------------------
+r589 | andrewstarritt | 2013-03-03 22:22:34 +1100 (Sun, 03 Mar 2013) | 1 line
+
+framework.pro and QEDesignerPlugin.cpp - call up new QESimpleShape and sort alphabetically and increment release number
+------------------------------------------------------------------------
+r590 | rhyder | 2013-03-03 23:12:17 +1100 (Sun, 03 Mar 2013) | 7 lines
+
+Fix local brightness and contrast for 12 bit. (only worked for 8 bit)
+Move processing of local contrast and brightness, clipping, and contrast
+reversal to a precalculated pixel value table. (Table lookup performed
+per image pixel rather than full calculation).
+Tidy presentation of local brightness and contrast contrals and add
+readback lables.
+
+------------------------------------------------------------------------
+r591 | andrewstarritt | 2013-03-04 11:44:57 +1100 (Mon, 04 Mar 2013) | 1 line
+
+spell ellipse correctly
+------------------------------------------------------------------------
+r592 | rhyder | 2013-03-04 14:57:46 +1100 (Mon, 04 Mar 2013) | 5 lines
+
+Fix 'show time' menu option. (it could not be checked in options menu)
+Add local contrast and brightness reset button.
+Current pixel info now updates with image updates.
+Local brightness and contrast changes now updates a static image.
+
+------------------------------------------------------------------------
+r593 | rhyder | 2013-03-04 16:01:15 +1100 (Mon, 04 Mar 2013) | 9 lines
+
+Temp fix
+Temporary change where user level style is not applied when empty.
+This was added (rev 522) as a quick fix where button colors were lost
+when user level changed.
+Reverted in r526 but reintroduced before finding the true cause of the
+problem as a proper fix is some time away.
+
+Only apply style (for a certain user type) when defined.
+
+------------------------------------------------------------------------
+r594 | rhyder | 2013-03-05 11:02:26 +1100 (Tue, 05 Mar 2013) | 6 lines
+
+Add sanity checking to QEImage: When width, height, or image data
+arrives, ensure adequate image data for the current width and height
+before presenting image. This is an initial attempt to fix a problem
+when region of interest sizes changes.
+Also remove QELineEdit debug statements
+
+------------------------------------------------------------------------
+r595 | rhyder | 2013-03-05 11:05:58 +1100 (Tue, 05 Mar 2013) | 2 lines
+
+Remove debug comment
+
+------------------------------------------------------------------------
+r596 | rhyder | 2013-03-05 11:09:33 +1100 (Tue, 05 Mar 2013) | 2 lines
+
+Update PDF doco from Word source
+
+------------------------------------------------------------------------
+==================================================================================================
+Changes between 2.2 and 2.1
+
+SUMMARY:
+
+QEButton emits signals containing the write value (even when no variable) to allow selection of tabs in tab wigets
+QEImage now has markup legends, and some artifacts fixed.
+QEImage now writes to four areaDetector region of interest plugins.
+Additional Doxygen content.
+Additional guide content
+
+DETAIL:
+
+519
+Minor type, and backout Windows specific change to project file
+
+518:
+Minor update to design doco and gnerate PDF
+
+517:
+Update version to 2.1 in preparation of package. Update design doco with
+notes on QEForm and sub form resizing. Rebuild doxygen doco.
+
+516:
+Mainly doxygen comments in QEImage, but a few code tidy-ups. Make public
+a couple of functions in QELabel. Document QEImage in the QEGui and User
+Interface Design document.
+
+515:
+user private data class
+
+514:
+QEButtons - on click, press, or release, still write a to variable if
+defined, but also emit an integer signal of the same value (if variable
+is defined or not). This is useful for selecting a tab in a tab widget
+on the same form. (user interface design pdf not generated)
+QEImage. Extend to 4 region of interest selections.
+
+513:
+Don't antialias markup text. Artifacts were left when removing markup
+text on Linux. (Because antialias resulted in some pixels drawn blended
+with original image when drawn in and blended again when drawn out? Or
+perhaps not antialiased when when drawn out since composition mode is
+then set to 'clear' which implies no blending, so no antialiasing? )
+
+512:
+Add markup legends to QEImage. Still need to add properties to name and
+enable the legends. Currently always enabled with default names. There
+is still a bug where draging markup items (and the legends) leaves an
+artifact from the legend over the image.
+
+511:
+add qwt configuration to project file for Windows buyilds. Tidy framework project file. Alter getting started to reflect qwt changes. (pdf not updated yet)
+
+510:
+Add QEForm documentation to QEGui and user interface design.
+QEForm doxyden comments still to add.
+pdf still to generate
+
+509:
+UserMessage needs to be exported as it is ued by applications to recieve
+messages from QE widgets.
+
+508:
+Update reference manual PDF
+
+507
+Update QEGui and User interface designer pdf to match current source .docx
+
+506:
+Document QEPushButton and QERadioButton (doxygen and user guide)
+Add user level doco and general properties doco to user guide.
+Standardize properties in QEPushButton and QERadioButton. (A couple were
+common to both but only declared in one of the other)
+Update the notes on generating a package.
+Remove QEGenericButton::onGeneralMessage() this was left over from
+before the current message logging was introduced.
+Drag and Drop variables and methods were changed from protected to
+private in some widgets.
+User guide PDF still to be generated.
+
+505:
+Update doco prior to packaging
+==================================================================================================
+Changes between 2.1 and 2.0
+
+SUMMARY:
+
+QEImage interaction more user friendly.
+Documentation updates.
+Writing of array data.
+
+New widgets added:
+- QEFileImage
+
+DETAIL:
+
+504:
+Add missing property to QELog widget.
+Document user messages and logging. In particular, using QELog widget to
+display messages
+
+503:
+Add check to QEWidget constructor (and its base classes) to ensure the owner widget parameter is not null.
+Also add a bit more doxygen commenting.
+
+502:
+Macro Substitution documentation
+
+501:
+Doxygen documentation updates
+
+500:
+Add example images and doco for QEBitStatus and QEAnalogProgressBar.
+Fix typo in QEGui help
+
+499:
+Update help info, describe environment variables
+
+498:
+Change QCA_RECORD_FIELD_LIST to QE_RECORD_FIELD_LIST, make user specified record fields augment internally specified info, and update concat recod fields
+
+497:
+QEImage changes:
+Scale markups when image is resized.
+Add markup right click menu (to clear markups).
+Profile plots appear only when markups are present and disapear when markup is cleared.
+Various menu changes.
+
+496:
+Scale markups when image is resized
+
+495:
+Tidy ' variable as tool tip' function. Now no longer requires any widget specific code.
+
+494:
+a couple more missing files for QEFileImage widget
+
+493:
+Sorry, put QEFileImage files in the wrong directory
+
+492:
+Integrate QFileImage widget into framework
+
+491:
+added QFileImage widget to display an image from a file, where the filename given by variable data and file is re-read on variable update
+
+
+490:
+Add writing of array data
+
+==================================================================================================
+
+Changes between 2.0 and 1.1.8
+
+SUMMARY:
+
+New widgets added:
+  - QEAnalogIndicator
+  - QEAnalogProgressBar
+  - QEArchive
+  - QEBitStatus
+  - QEConfiguredLayout
+  - QEFileBrowser
+  - QEGroupBox
+  - QEImage
+  - QELog
+  - QELogin
+  - QEPvProperties
+  - QERecipe (incomplete)
+  - QEScript (incomplete)
+  - QEStripChart
+  - QESubstitutedLabel
+
+Significant refactoring. All classes begining QCa renamed to begin with QE unless specificly CA related. Library name changed from QCaPlugin to QEplugin. GUI display application name changed from ASgui to QEGui.
+
+Widget and plugin classes merged. Previously, each widget had a plugin wrapper class.
+
+To assist migration, all original QCa widget classes are still available as deprecated classes, but are light wrappers around the QE equivilent.
+
+Ad hoc doxygen comments removed and consistant Doxygen commenting started.
+
+Design guide started.
+
+Remove qwt from package. qwt is now an external dependancy
