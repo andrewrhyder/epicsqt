@@ -38,6 +38,7 @@ styleManager::styleManager( QWidget* ownerIn )
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
     defaultStyleSheet = owner->styleSheet();
+
     level = USERLEVEL_USER;
 }
 
@@ -116,22 +117,13 @@ void styleManager::updateStyleSheet()
             break;
     }
 
-
-// Temp fix
-// Temporary change where user level style is not applied when empty.
-// This was added (rev 522) as a quick fix where button colors were lost
-// when user level changed.
-// Reverted in r526 but reintroduced before finding the true cause of the
-// problem as a proper fix is some time away.
-//
-// Only apply style (for a certain user type) when defined.
-if (levelStyle.size() > 0)
-{
-    // Compile and apply the entire style string
+    // Compile and apply the entire style string if there is any difference with what is currently there
     QString newStyleSheet;
     newStyleSheet.append( defaultStyleSheet ).append( statusStyleSheet ).append( dataStyleSheet ).append( levelStyle );
-    owner->setStyleSheet( newStyleSheet );
-}
+    if( newStyleSheet.compare( owner->styleSheet() ))
+    {
+        owner->setStyleSheet( newStyleSheet );
+    }
 
 }
 
