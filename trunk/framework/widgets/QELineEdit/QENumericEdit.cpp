@@ -48,6 +48,9 @@ const static int radix_value_list [NUMBER_OF_RADICES] = { 10, 16, 8, 2 };
 // For decimal, this is about 48.9 bits, for the others 48 bits exactly.
 const static int maximum_number_digits_list [NUMBER_OF_RADICES] = { 15, 12, 16, 48 };
 
+// Used to modify the tool tip.
+//
+static const char * custom_tips [NUMBER_OF_RADICES] = { "", "hex", "octal", "binary" };
 
 //------------------------------------------------------------------------------
 // Provides double to QString
@@ -943,6 +946,7 @@ void QENumericEdit::setRadix (const Radicies value)
    if (this->mRadix != value) {
       this->mRadix = value;
       this->setNumericText ();      // Redisplay text.
+      this->updateToolTipCustom ( custom_tips [this->mRadix] );
    }
 }
 

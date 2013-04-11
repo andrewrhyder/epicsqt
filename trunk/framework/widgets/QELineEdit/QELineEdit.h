@@ -32,164 +32,17 @@
 #include <QEStringFormatting.h>
 #include <QEPluginLibrary_global.h>
 #include <QEStringFormattingMethods.h>
+#include <QEGenericEdit.h>
 #include <QCaVariableNamePropertyManager.h>
 
+
 class QEPLUGINLIBRARYSHARED_EXPORT QELineEdit :
-      public QLineEdit, public QEWidget, public QEStringFormattingMethods {
+      public QEGenericEdit, public QEStringFormattingMethods {
 
     Q_OBJECT
 
-    // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
-    // Single Variable properties
-    // These properties should be identical for every widget using a single variable.
-    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
-    // resources directory.
-    //
-    // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
-    // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
-public:
-    /// EPICS variable name (CA PV)
-    ///
-    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty)
-    /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
-    /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
-    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
-
-private:
-    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
-    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
-
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
-    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
-
-    QCaVariableNamePropertyManager variableNamePropertyManager;
-public:
-    // END-SINGLE-VARIABLE-PROPERTIES =================================================
-
-    //=================================================================================
-    // Control widget properties
-    // These properties should be similar for all widgets with control functionality (writing to variables, not just displaying).
-    // WHEN MAKING CHANGES: search for CONTROLVARIABLEPROPERTIES and change all relevent occurances.
-public:
-    /// Sets if this widget subscribes for data updates and displays current data.
-    /// Default is 'true' (subscribes for and displays data updates)
-    Q_PROPERTY(bool subscribe READ getSubscribe WRITE setSubscribe)
-    /// Sets if this widget automatically writes any changes when it loses focus.
-    /// Default is 'false' (does not write any changes when it loses focus).
-    Q_PROPERTY(bool writeOnLoseFocus READ getWriteOnLoseFocus WRITE setWriteOnLoseFocus)
-    /// Sets if this widget writes any changes when the user presses 'enter'.
-    /// Note, the current value will be written even if the user has not changed it.
-    /// Default is 'true' (writes any changes when the user presses 'enter').
-    Q_PROPERTY(bool writeOnEnter READ getWriteOnEnter WRITE setWriteOnEnter)
-    /// Sets if this widget writes any changes when the user finished editing (the QLineEdit 'editingFinished' signal is emitted).
-    /// No writing occurs if no changes were made.
-    /// Default is 'true' (writes any changes when the QLineEdit 'editingFinished' signal is emitted).
-    Q_PROPERTY(bool writeOnFinish READ getWriteOnFinish WRITE setWriteOnFinish)
-    /// Sets if this widget will ask for confirmation (using a dialog box) prior to writing data.
-    /// Default is 'false' (will not ask for confirmation (using a dialog box) prior to writing data).
-    Q_PROPERTY(bool confirmWrite READ getConfirmWrite WRITE setConfirmWrite)
-public:
-    //=================================================================================
-
-    // BEGIN-STANDARD-PROPERTIES ======================================================
-    // Standard properties
-    // These properties should be identical for every widget using them.
-    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
-    // resources directory.
-public:
-    /// Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name.
-    ///
-    Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
-
-    /// Set the prefered 'enabled' state. Default is true.
-    /// This property is copied to the standard Qt 'enabled' property if the data being displayed is valid.
-    /// If the data being displayed is invalid the standard Qt 'enabled' property will always be set to false to indicate invalid data.
-    /// The value of this property will only be copied to the standard Qt 'enabled' property once data is valid.
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-
-    /// Access function for #enabled property - refer to #enabled property for details
-    bool isEnabled() const { return getApplicationEnabled(); }
-
-    /// Access function for #enabled property - refer to #enabled property for details
-    void setEnabled( bool state ){ setApplicationEnabled( state ); }
-
-    /// Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name.
-    ///
-    Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
-
-    /// Display the widget. Default is true.
-    /// Setting this property false is usefull if widget is only used to provide a signal - for example, when supplying data to a QELink widget.
-    /// Note, when false the widget will still be visible in Qt Designer.
-    Q_PROPERTY(bool visible READ getRunVisible WRITE setRunVisible)
-
-    /// Set the ID used by the message filtering system. Default is zero.
-    /// Widgets or applications that use messages from the framework have the option of filtering on this ID.
-    /// For example, by using a unique message source ID a QELog widget may be set up to only log messages from a select set of widgets.
-    Q_PROPERTY(unsigned int messageSourceId READ getMessageSourceId WRITE setMessageSourceId )
-
-    /// Style Sheet string to be applied when the widget is displayed in 'User' mode. Default is an empty string.
-    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
-    /// This Style Sheet string will be applied by the styleManager class.
-    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
-    /// and any Style Sheet strings generated during the display of data.
-    Q_PROPERTY(QString userLevelUserStyle READ getStyleUser WRITE setStyleUser)
-
-    /// Style Sheet string to be applied when the widget is displayed in 'Scientist' mode. Default is an empty string.
-    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
-    /// This Style Sheet string will be applied by the styleManager class.
-    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
-    /// and any Style Sheet strings generated during the display of data.
-    Q_PROPERTY(QString userLevelScientistStyle READ getStyleScientist WRITE setStyleScientist)
-
-    /// Style Sheet string to be applied when the widget is displayed in 'Engineer' mode. Default is an empty string.
-    /// The syntax is the standard Qt Style Sheet syntax. For example, 'background-color: red'
-    /// This Style Sheet string will be applied by the styleManager class.
-    /// Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-existing Style Sheet string
-    /// and any Style Sheet strings generated during the display of data.
-    Q_PROPERTY(QString userLevelEngineerStyle READ getStyleEngineer WRITE setStyleEngineer)
-
-    /// \enum UserLevels
-    /// User friendly enumerations for #userLevelVisibility and #userLevelEnabled properties - refer to #userLevelVisibility and #userLevelEnabled properties and userLevel enumeration for details.
-    enum UserLevels { User      = USERLEVEL_USER,          ///< Refer to USERLEVEL_USER for details
-                      Scientist = USERLEVEL_SCIENTIST,     ///< Refer to USERLEVEL_SCIENTIST for details
-                      Engineer  = USERLEVEL_ENGINEER       ///< Refer to USERLEVEL_ENGINEER for details
-                              };
-    Q_ENUMS(UserLevels)
-
-    /// Lowest user level at which the widget is visible. Default is 'User'.
-    /// Used when designing GUIs that display more and more detail according to the user mode.
-    /// The user mode is set application wide through the QELogin widget, or programatically through setUserLevel()
-    /// Widgets that are always visible should be visible at 'User'.
-    /// Widgets that are only used by scientists managing the facility should be visible at 'Scientist'.
-    /// Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'.
-    Q_PROPERTY(UserLevels userLevelVisibility READ getUserLevelVisibilityProperty WRITE setUserLevelVisibilityProperty)
-
-    /// Lowest user level at which the widget is enabled. Default is 'User'.
-    /// Used when designing GUIs that allow access to more and more detail according to the user mode.
-    /// The user mode is set application wide through the QELogin widget, or programatically through setUserLevel()
-    /// Widgets that are always accessable should be visible at 'User'.
-    /// Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'.
-    /// Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'.
-    Q_PROPERTY(UserLevels userLevelEnabled READ getUserLevelEnabledProperty WRITE setUserLevelEnabledProperty)
-
-    UserLevels getUserLevelVisibilityProperty() { return (UserLevels)getUserLevelVisibility(); }            ///< Access function for #userLevelVisibility property - refer to #userLevelVisibility property for details
-    void setUserLevelVisibilityProperty( UserLevels level ) { setUserLevelVisibility( (userLevels)level ); }///< Access function for #userLevelVisibility property - refer to #userLevelVisibility property for details
-    UserLevels getUserLevelEnabledProperty() { return (UserLevels)getUserLevelEnabled(); }                  ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
-    void setUserLevelEnabledProperty( UserLevels level ) { setUserLevelEnabled( (userLevels)level ); }      ///< Access function for #userLevelEnabled property - refer to #userLevelEnabled property for details
-
-    /// If set (default) widget will indicate the alarm state of any variable data is displaying.
-    /// Typically the background colour is set to indicate the alarm state.
-    /// Note, this property is included in the set of standard properties as it applies to most widgets. It
-    /// will do nothing for widgets that don't display data.
-    Q_PROPERTY(bool displayAlarmState READ getDisplayAlarmState WRITE setDisplayAlarmState)
-
-public slots:
-    /// Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data.
-    /// If disabled due to invalid data, a request to enable the widget will be honoured when the data is no longer invalid.
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }
-
-public:
-    // END-STANDARD-PROPERTIES ========================================================
+    // Single variable properties, control widget properties and standard properties are
+    // all defined in QEGenericEdit
 
     // BEGIN-STRING-FORMATTING-PROPERTIES =============================================
     // String formatting properties
@@ -324,66 +177,11 @@ public:
     /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
     QELineEdit( const QString &variableName, QWidget *parent = 0 );
 
-    // Property convenience functions
-
-    // write on lose focus
-    /// Sets if this widget automatically writes any changes when it loses focus.
-    /// Default is 'false' (does not write any changes when it loses focus).
-    void setWriteOnLoseFocus( bool writeOnLoseFocus );
-    /// Returns 'true' if this widget automatically writes any changes when it loses focus.
-    ///
-    bool getWriteOnLoseFocus();
-
-    // write on enter
-    /// Sets if this widget writes any changes when the user presses 'enter'.
-    /// Note, the current value will be written even if the user has not changed it.
-    /// Default is 'true' (writes any changes when the user presses 'enter').
-    void setWriteOnEnter( bool writeOnEnter );
-    /// Returns 'true' if this widget writes any changes when the user presses 'enter'.
-    ///
-    bool getWriteOnEnter();
-
-    // write on finish
-    /// Sets if this widget writes any changes when the user finished editing (the QLineEdit 'editingFinished' signal is emitted).
-    /// No writing occurs if no changes were made.
-    /// Default is 'true' (writes any changes when the QLineEdit 'editingFinished' signal is emitted).
-    void setWriteOnFinish( bool writeOnFinish );
-    /// Returns 'true' if this widget writes any changes when the user finished editing (the QLineEdit 'editingFinished' signal is emitted).
-    ///
-    bool getWriteOnFinish();
-
-    // confirm write
-    /// Sets if this widget will ask for confirmation (using a dialog box) prior to writing data.
-    /// Default is 'false' (will not ask for confirmation (using a dialog box) prior to writing data).
-    void setConfirmWrite( bool confirmWrite );
-    /// Returns 'true' if this widget will ask for confirmation (using a dialog box) prior to writing data.
-    ///
-    bool getConfirmWrite();
-
-    // subscribe
-    /// Sets if this widget subscribes for data updates and displays current data.
-    /// Default is 'true' (subscribes for and displays data updates)
-    void setSubscribe( bool subscribe );
-    /// Returns 'true' if this widget subscribes for data updates and displays current data.
-    ///
-    bool getSubscribe();
-
 private:
-    bool writeOnLoseFocus;        // Write changed value to database when widget object loses focus (user moves from widget)
-    bool writeOnEnter;            // Write changed value to database when enter is pressed with focus on the widget
-    bool writeOnFinish;           // Write changed value to database when user finishes editing (leaves a widget)
-    bool localEnabled;            // Override the default widget setEnabled to allow alarm states to override current enabled state
-    bool confirmWrite;            // Request confirmation before writing a value
-    bool allowDrop;
-
     void establishConnection( unsigned int variableIndex );
 
 private slots:
-    void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setTextIfNoFocus( const QString& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );  // Update the text in the widget as long as the user is not entering data in it
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-    void userReturnPressed();                       // Act on the user pressing return in the widget
-    void userEditingFinished();                     // Act on the user signaling text editing is complete (pressing return)
 
 signals:
     // Note, the following signals are common to many QE widgets,
@@ -398,27 +196,21 @@ signals:
     void requestResend();
 
 private:
-    void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
-    void writeValue( QEString *qca, QString newValue );
-    QString lastValue;                      // Last updated value (may have arrived while user is editing field)
-    QString lastUserValue;                  // Last updated value seen by the user (same as lastValue unless the user is editing the text)
-    bool messageDialogPresent;              // True if dialog box for the widget is present. When this dialog box is present the line edit no longer have focus, but the user is still effectivly interacting with it
-    bool writeFailMessageDialogPresent;     // True if the write faile message dialog has been created. Cleared in spurious 'editing finished' callback caused by the 'write failed' dialog
-    QCAALARMINFO_SEVERITY lastSeverity;
-    bool isConnected;
 
-    void stringFormattingChange(){ requestResend(); }
+    void stringFormattingChange() { requestResend(); }
 
-    void writeNow();
+    // Override QEGenericEdit abstract functions
+    //
+    /// Sets the undelying QLineEdit widget to the given value.
+    void setValue( const QVariant & value );
 
-    // Drag and Drop
-private:
-    void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
-    void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-    // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
-    void setDrop( QVariant drop );
-    QVariant getDrop();
+    /// Gets the undelying value.
+    QVariant getValue();
+
+    /// Write the data to the channel.
+    bool writeData( const QVariant & value, QString& message );
+
 };
 
 #endif // QELINEEDIT_H

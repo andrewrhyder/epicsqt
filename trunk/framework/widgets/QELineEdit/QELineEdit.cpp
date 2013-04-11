@@ -35,57 +35,17 @@
 /*
     Constructor with no initialisation
 */
-QELineEdit::QELineEdit( QWidget *parent ) : QLineEdit( parent ), QEWidget( this ) {
-    setup();
+QELineEdit::QELineEdit( QWidget *parent ) : QEGenericEdit( parent )
+{
 }
 
 /*
     Constructor with known variable
 */
-QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QLineEdit( parent ), QEWidget( this ) {
-    setup();
-    setVariableName( variableNameIn, 0 );
+QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QEGenericEdit( variableNameIn, parent )
+{
 }
 
-/*
-    Setup common to all constructors
-*/
-void QELineEdit::setup() {
-
-    // Set up data
-    // This control used a single data source
-    setNumVariables(1);
-
-    // Set up default properties
-    writeOnLoseFocus = false;
-    writeOnEnter = true;
-    writeOnFinish = true;
-    localEnabled = true;
-    confirmWrite = false;
-    setAllowDrop( false );
-
-    // Set the initial state
-    setText( "" );
-    lastSeverity = QCaAlarmInfo::getInvalidSeverity();
-    isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
-    messageDialogPresent = false;
-    writeFailMessageDialogPresent = false;
-
-
-    // Use line edit signals
-    QObject::connect( this, SIGNAL( returnPressed() ), this, SLOT( userReturnPressed() ) );
-    QObject::connect( this, SIGNAL( editingFinished() ), this, SLOT( userEditingFinished() ) );
-
-    // Set up a connection to recieve variable name property changes
-    // The variable name property manager class only delivers an updated
-    // variable name after the user has stopped typing.
-    //
-    QObject::connect( &variableNamePropertyManager,
-                      SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
-                      this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
-
- }
 
 
 /*
@@ -120,33 +80,6 @@ void QELineEdit::establishConnection( unsigned int variableIndex ) {
     }
 }
 
-/*
-    Act on a connection change.
-    Change how the label looks and change the tool tip
-    This is the slot used to recieve connection updates from a QCaObject based class.
- */
-void QELineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
-{
-
-    // If connected enabled the widget if required.
-    if( connectionInfo.isChannelConnected() )
-    {
-        isConnected = true;
-        updateToolTipConnection( isConnected );
-
-        if( localEnabled )
-            QWidget::setEnabled( true );
-    }
-
-    // If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
-
-        QWidget::setEnabled( false );
-    }
-}
 
 /*
     Pass the text update straight on to the QLineEdit unless the user is
@@ -157,288 +90,39 @@ void QELineEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
     another user on another gui.
     This is the slot used to recieve data updates from a QCaObject based class.
 */
-void QELineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QELineEdit::setTextIfNoFocus( const QString& value, QCaAlarmInfo& alarmInfo, QCaDateTime& dateTime, const unsigned int& ) {
 
-    // Save the most recent value.
-    // If the user is editing the value updates are not applied. If the user cancels the write, the value the widget
-    // should revert to the latest value.
-    // This last value is also used to manage notifying user changes (save what the user will be changing from)
-    lastValue = value;
+    // Do generic update processing.
+    setDataIfNoFocus (QVariant (value), alarmInfo, dateTime);
 
     // Signal a database value change to any Link widgets
     emit dbValueChanged( value );
-
-    // Update the text if appropriate
-    // If the user is editing the object then updates will be inapropriate
-    if( hasFocus() == false && !messageDialogPresent )
-    {
-        setText( value );
-        lastUserValue = value;
-    }
-
-    // Choose the alarm state to display.
-    // If not displaying the alarm state, use a default 'no alarm' structure. This is
-    // required so the any display of an alarm state is reverted if the displayAlarmState
-    // property changes while displaying an alarm.
-    QCaAlarmInfo ai;
-    if( getDisplayAlarmState() )
-    {
-        ai = alarmInfo;
-    }
-
-    // If in alarm, display as an alarm
-    if( ai.getSeverity() != lastSeverity )
-    {
-            updateToolTipAlarm( ai.severityName() );
-            setStyleSheet( ai.style() );
-            lastSeverity = ai.getSeverity();
-    }
 }
 
-/*
-    The user has pressed return/enter. (Not write when user enters the widget)
-    Note, it doesn't matter if the user presses return and both this function
-    AND userReturnPressed() is called since setText is called in each to clear
-    the 'isModified' flag. So, the first called will perform the write, the
-    second (if any) will do nothing.
-*/
-void QELineEdit::userReturnPressed() {
+// Set widget to the given value
+//
+void QELineEdit::setValue (const QVariant & value)
+{
+    setText( value.toString() );
+}
 
-    // Get the variable to write to
-    QEString *qca = (QEString*)getQcaItem(0);
+QVariant QELineEdit::getValue()
+{
+   return QVariant (text());
+}
 
-    // If a QCa object is present (if there is a variable to write to)
-    // and the object is set up to write when the user presses return
-    // then write the value.
-    // Note, write even if the value has not changed (isModified() is not checked)
+// Wite the given value to the associated channel.
+//
+bool QELineEdit::writeData (const QVariant & value, QString& message)
+{
+    QEString *qca = dynamic_cast <QEString*> ( getQcaItem(0) );
 
-    if( qca && writeOnEnter )
-    {
-        writeValue( qca, text() );
+    if( qca ) {
+       return qca->writeString( value.toString (), message);
+    } else {
+        message = "null qca object";
+        return false;
     }
 }
 
-/*
-    The user has 'finished editing' such as pressed return/enter or moved
-    focus from the object.
-    Note, it doesn't matter if the user presses return and both this function
-    AND userReturnPressed() is called since setText is called in each to clear
-    the 'isModified' flag. So, the first called will perform the write, the
-    second (if any) will do nothing.
-*/
-void QELineEdit::userEditingFinished() {
-
-    // Do nothing if the user is still effectivly working with the widget (just moved to a dialog box)
-    // Any signals received while messageDialogPresent is true should be ignored.
-    // A signal occurs after the 'write failed' dialog closes, so a it sets writeFailMessageDialogPresent to allow this code to ignore the signal.
-    if( messageDialogPresent || writeFailMessageDialogPresent )
-    {
-        if( !messageDialogPresent )
-        {
-            writeFailMessageDialogPresent = false;
-            setFocus();
-        }
-        return;
-    }
-
-    // If no changes were made by the user, do nothing
-    if( !isModified() || !writeOnFinish )
-    {
-        return;
-    }
-
-    // Get the variable to write to
-    QEString *qca = (QEString*)getQcaItem(0);
-
-    // If a QCa object is present (if there is a variable to write to)
-    // and the object is set up to write when the user changes focus away from the object
-    // and the text has actually changed
-    // then write the value
-    if( qca && writeOnLoseFocus )
-    {
-        writeValue( qca, text() );
-    }
-
-    // If, for what ever reason, the value has been changed by the user but not but not written
-    // check with the user what to do about it.
-    else
-    {
-        messageDialogPresent = true;
-        int confirm = QMessageBox::warning( this, "Value changed", "You altered a value but didn't write it.\nDo you want to write this value?",
-                                            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No );
-        messageDialogPresent = false;
-
-        switch( confirm )
-        {
-            // Write the value
-            case QMessageBox::Yes:
-                if( qca )
-                    writeValue( qca, text() );
-                break;
-
-            // Abort the write, revert to latest value
-            case QMessageBox::No:
-                setText( lastValue );       // Note, also clears 'isModified' flag
-                break;
-
-            // Don't write the value, move back to the field being edited
-            case QMessageBox::Cancel:
-                setFocus();
-                break;
-        }
-    }
-}
-
-// Write a value immedietly.
-// Used when writeOnLoseFocus, writeOnEnter, writeOnFinish are all false
-// (widget will never write due to the user pressing return or leaving the widget)
-void QELineEdit::writeNow()
-{
-    qDebug()<<"QELineEdit writeNow";
-    // Get the variable to write to
-    QEString *qca = (QEString*)getQcaItem(0);
-
-    // If a QCa object is present (if there is a variable to write to)
-    // then write the value.
-    if( qca )
-    {
-        writeValue( qca, text() );
-    }
-}
-
-// Write a value in response to user editing the widget
-// Request confirmation if required
-void QELineEdit::writeValue( QEString *qca, QString newValue )
-{
-    // If required, get confirmation from the user as to what to do
-    int confirm = QMessageBox::Yes;
-    if( confirmWrite )
-    {
-        messageDialogPresent = true;
-        confirm = QMessageBox::warning( this, "Confirm write", "Do you want to write this value?",
-                                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes );
-        messageDialogPresent = false;
-    }
-
-    // Perform the required action. Either write the value (the default) or what ever the user requested
-    switch( confirm )
-    {
-        // Write the value and inform any derived class
-        case QMessageBox::Yes:
-            // Write the value
-            {
-                QString error;
-                // Write the value
-                if( !qca->writeString( newValue, error ) )
-                {
-                    // write failed
-                    // Flag what dialog activity is going on so spurious 'editing finished' signals can be ignored
-                    messageDialogPresent = true;
-                    writeFailMessageDialogPresent = true;
-                    // warn user
-                    QMessageBox::warning( this, QString( "Write failed" ), error, QMessageBox::Cancel );
-                    setFocus();
-                    // Clear flag indicating 'editing finished' signals are due to message dialog
-                    messageDialogPresent = false;
-                }
-
-                // Write ok
-                else
-                {
-                    // Manage notifying user changes
-                    emit userChange( newValue, lastUserValue, lastValue );
-
-                    // Clear 'isModified' flag
-                    setText( text() );
-                }
-            }
-            break;
-
-        // Abort the write, revert to latest value
-        case QMessageBox::No:
-            // Revert the text. Note, also clears 'isModified' flag
-            setText( lastValue );
-            break;
-
-        // Don't write the value, keep editing the field
-        case QMessageBox::Cancel:
-            // Do nothing
-            break;
-    }
-}
-
-
-/*
-    Update variable name etc.
-*/
-void QELineEdit::useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )
-{
-    setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-}
-
-
-//==============================================================================
-// Drag drop
-void QELineEdit::setDrop( QVariant drop )
-{
-    setVariableName( drop.toString(), 0 );
-    establishConnection( 0 );
-}
-
-QVariant QELineEdit::getDrop()
-{
-    return QVariant( getSubstitutedVariableName(0) );
-}
-
-//==============================================================================
-// Property convenience functions
-
-// write on lose focus
-void QELineEdit::setWriteOnLoseFocus( bool writeOnLoseFocusIn )
-{
-    writeOnLoseFocus = writeOnLoseFocusIn;
-}
-bool QELineEdit::getWriteOnLoseFocus()
-{
-    return writeOnLoseFocus;
-}
-
-// write on enter
-void QELineEdit::setWriteOnEnter( bool writeOnEnterIn )
-{
-    writeOnEnter = writeOnEnterIn;
-}
-bool QELineEdit::getWriteOnEnter()
-{
-    return writeOnEnter;
-}
-
-// write on finish
-void QELineEdit::setWriteOnFinish( bool writeOnFinishIn )
-{
-    writeOnFinish = writeOnFinishIn;
-}
-bool QELineEdit::getWriteOnFinish()
-{
-    return writeOnFinish;
-}
-
-// subscribe
-void QELineEdit::setSubscribe( bool subscribeIn )
-{
-    subscribe = subscribeIn;
-}
-bool QELineEdit::getSubscribe()
-{
-    return subscribe;
-}
-
-// confirm write
-void QELineEdit::setConfirmWrite( bool confirmWriteIn )
-{
-    confirmWrite = confirmWriteIn;
-}
-bool QELineEdit::getConfirmWrite()
-{
-    return confirmWrite;
-}
+// end
