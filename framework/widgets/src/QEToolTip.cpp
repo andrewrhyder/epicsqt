@@ -1,4 +1,5 @@
-/*
+/*  QEToolTip.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -73,6 +74,14 @@ void QEToolTip::updateToolTipAlarm ( const QString& alarm )
     displayToolTip();
 }
 
+// Update the variable custom information used in the tool tip
+// (Used when displaying a dynamic tool tip only)
+void QEToolTip::updateToolTipCustom ( const QString& custom )
+{
+    toolTipCustom = custom;
+    displayToolTip();
+}
+
 // Update the variable connection status used in the tool tip
 // (Used when displaying a dynamic tool tip only)
 void QEToolTip::updateToolTipConnection ( bool isConnectedIn )
@@ -94,6 +103,9 @@ void QEToolTip::displayToolTip()
 
         if( !isConnected )
             toolTip.append( " - Disconnected" );
+
+        if( toolTipCustom.size() )
+           toolTip.append( " - " ).append( toolTipCustom );
 
         owner->setToolTip( toolTip );
     }

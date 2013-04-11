@@ -1,4 +1,5 @@
-/*
+/*  QEDesignerPlugin.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -25,6 +26,7 @@
 #include <QELabelManager.h>
 #include <QESubstitutedLabelManager.h>
 #include <QELineEditManager.h>
+#include <QENumericEditManager.h>
 #include <QEPushButtonManager.h>
 #include <QERadioButtonManager.h>
 #include <QEShapeManager.h>
@@ -83,6 +85,7 @@
     Add all plugins that will be provided in QT Designer.
 */
 QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
+    // note: maintain in alphaqbetical order.
     widgets.append(new QEAnalogProgressBarManager(this));
     widgets.append(new QEBitStatusManager(this));
     widgets.append(new QEComboBoxManager(this));
@@ -95,6 +98,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QELineEditManager(this));
     widgets.append(new QELogManager(this));
     widgets.append(new QELoginManager(this));
+    widgets.append(new QENumericEditManager(this));
     widgets.append(new QEPeriodicManager(this));
     widgets.append(new QEPlotManager(this));
     widgets.append(new QEPushButtonManager(this));

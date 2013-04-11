@@ -1,4 +1,5 @@
-/*
+/*  QEToolTip.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -35,6 +36,7 @@ class QEToolTip
         virtual ~QEToolTip(){}
         void updateToolTipVariable ( const QString& variable );
         void updateToolTipAlarm ( const QString& alarm );
+        void updateToolTipCustom ( const QString& custom );
         void updateToolTipConnection ( bool connection );
 
         void setVariableAsToolTip( bool variableAsToolTip );
@@ -45,6 +47,7 @@ class QEToolTip
         void displayToolTip();
         QString toolTipVariable;
         QString toolTipAlarm;
+        QString toolTipCustom;          // Custion tool tip extra for specific widget types
         bool isConnected;
         QWidget* owner;
 };
