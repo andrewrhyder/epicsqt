@@ -99,6 +99,9 @@ protected:
     void updateStatusStyle( QString style );//!< Set the Style Sheet string to be applied to reflect an aspect of the current status.
                                             //!< For example, invalid data may be displayed with a white background.
 
+    void updatePropertyStyle( QString style );//!< Set the Style Sheet string to be applied to implement a widget property.
+                                            //!< For example, a style string is used to set QE button text alignment.
+
 
     void styleUserLevelChanged( userLevels levelIn );/**< Set the current user level.*/
 
@@ -112,6 +115,7 @@ private:
     QString defaultStyleSheet;  // Style sheet prior to any manipulation by this class
     QString statusStyleSheet;   // Style to apply to reflect current status
     QString dataStyleSheet;     // Style to apply to reflect current data
+    QString propertyStyleSheet; // Style to apply to implement a QE widget property
 
     void updateStyleSheet();    // Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
 

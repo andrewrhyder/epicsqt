@@ -191,7 +191,7 @@ void QEBitStatus::setBitStatusValue (const long &value,
    //
    if (alarmInfo.getSeverity () != lastSeverity) {
       updateToolTipAlarm (alarmInfo.severityName ());
-      setStyleSheet (alarmInfo.style ());
+      updateStatusStyle( alarmInfo.style() );
       lastSeverity = alarmInfo.getSeverity ();
    }
 

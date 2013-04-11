@@ -357,7 +357,7 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
     if( ai.getSeverity() != lastSeverity )
     {
         updateToolTipAlarm( ai.severityName() );
-        setStyleSheet( ai.style() );
+        updateStatusStyle( ai.style() );
         lastSeverity = ai.getSeverity();
     }
 

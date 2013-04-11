@@ -376,11 +376,12 @@ void QEPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaDa
     {
             updateToolTipAlarm( ai.severityName() );
 
-            if( writeButton )
-               writeButton->setStyleSheet( ai.style() );
-
-            if( readbackLabel )
-                readbackLabel->setStyleSheet( ai.style() );
+            updateStatusStyle( ai.style() );
+//            if( writeButton )
+//               writeButton->setStyleSheet( ai.style() );
+//
+//            if( readbackLabel )
+//                readbackLabel->setStyleSheet( ai.style() );
 
             lastSeverity = ai.getSeverity();
     }

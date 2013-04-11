@@ -184,8 +184,6 @@ private:
     virtual QString getButtonText() = 0;
     virtual void setButtonIcon( QIcon& icon ) = 0;
 
-    virtual void setButtonStyleSheet( QString style ) = 0;
-
     virtual void emitDbValueChanged( QString text ) = 0;
     virtual void emitNewGui( QString guiName, QEForm::creationOptions creationOption ) = 0;
 

@@ -97,6 +97,14 @@ void styleManager::updateStatusStyle( QString style )
     updateStyleSheet();
 }
 
+// Set the Style Sheet string to be applied to implement a widget property.
+// For example, a style string is used to set QE button text alignment.
+void styleManager::updatePropertyStyle( QString style )
+{
+    propertyStyleSheet = style;
+    updateStyleSheet();
+}
+
 // Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
 void styleManager::updateStyleSheet()
 {
@@ -118,8 +126,28 @@ void styleManager::updateStyleSheet()
     }
 
     // Compile and apply the entire style string if there is any difference with what is currently there
-    QString newStyleSheet;
-    newStyleSheet.append( defaultStyleSheet ).append( statusStyleSheet ).append( dataStyleSheet ).append( levelStyle );
+    QString newStyleSheet = defaultStyleSheet;
+
+    if( !newStyleSheet.isEmpty() && !propertyStyleSheet.isEmpty() )
+        newStyleSheet.append( "\n" );
+
+    newStyleSheet.append( propertyStyleSheet );
+
+    if( !newStyleSheet.isEmpty() && !statusStyleSheet.isEmpty() )
+        newStyleSheet.append( "\n" );
+
+    newStyleSheet.append( statusStyleSheet );
+
+    if( !newStyleSheet.isEmpty() && !dataStyleSheet.isEmpty() )
+        newStyleSheet.append( "\n" );
+
+    newStyleSheet.append( dataStyleSheet );
+
+    if( !newStyleSheet.isEmpty() && !levelStyle.isEmpty() )
+        newStyleSheet.append( "\n" );
+
+    newStyleSheet.append( levelStyle );
+
     if( newStyleSheet.compare( owner->styleSheet() ))
     {
         owner->setStyleSheet( newStyleSheet );
