@@ -357,7 +357,7 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
     if( ai.getSeverity() != lastSeverity )
     {
             updateToolTipAlarm( ai.severityName() );
-            setStyleSheet( ai.style() );
+            updateStatusStyle( ai.style() );
             lastSeverity = ai.getSeverity();
     }
 

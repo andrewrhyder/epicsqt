@@ -105,8 +105,6 @@ private:
     QString getButtonText(){ return text(); }
     void setButtonIcon( QIcon& icon ) {setIcon( icon ); }
 
-    void setButtonStyleSheet( QString style ){ setStyleSheet( style ); }
-
     void emitDbValueChanged( QString text ){ emit dbValueChanged( text ); }
 
     void emitNewGui( QString guiName, QEForm::creationOptions creationOption  ){ emit newGui( guiName, creationOption); }

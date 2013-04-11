@@ -251,7 +251,7 @@ void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& a
     if( ai.getSeverity() != lastSeverity )
     {
             updateToolTipAlarm( ai.severityName() );
-            setButtonStyleSheet( ai.style() );
+            updateStatusStyle( ai.style() );
             lastSeverity = ai.getSeverity();
     }
 }
@@ -512,21 +512,23 @@ void QEGenericButton::setTextAlignment( Qt::Alignment textAlignmentIn )
     textAlignment = textAlignmentIn;
 
     // Update the style to match the property
-    QString styleSheetString = "text-align: ";
+    QString styleSheetString = "QPushButton { text-align: ";
 
     if( textAlignmentIn & Qt::AlignLeft )
-        styleSheetString.append( " left");
+        styleSheetString.append( "left");
     else if( textAlignment & Qt::AlignRight )
-        styleSheetString.append( " right");
+        styleSheetString.append( "right");
     else if( textAlignment & Qt::AlignHCenter )
-        styleSheetString.append( " center");
+        styleSheetString.append( "center");
 
     else if( textAlignment & Qt::AlignTop )
-        styleSheetString.append( " top");
+        styleSheetString.append( "top");
     else if( textAlignment & Qt::AlignBottom )
-        styleSheetString.append( " bottom");
+        styleSheetString.append( "bottom");
 
-    setButtonStyleSheet( styleSheetString );
+    styleSheetString.append( "; }" );
+
+    updatePropertyStyle( styleSheetString );
 
 }
 Qt::Alignment QEGenericButton::getTextAlignment()

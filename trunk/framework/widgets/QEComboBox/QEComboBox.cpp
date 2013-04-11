@@ -214,7 +214,7 @@ void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
     if( ai.getSeverity() != lastSeverity )
     {
             updateToolTipAlarm( ai.severityName() );
-            setStyleSheet( ai.style() );
+            updateStatusStyle( ai.style() );
             lastSeverity = ai.getSeverity();
     }
 }

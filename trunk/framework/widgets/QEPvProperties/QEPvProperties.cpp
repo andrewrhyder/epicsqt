@@ -810,7 +810,7 @@ void QEPvProperties::setValueValue (const QString &,
    if (this->lastSeverity != alarmInfo.getSeverity ()) {
       this->lastSeverity = alarmInfo.getSeverity ();
       this->updateToolTipAlarm (alarmInfo.severityName ());
-      // setStyleSheet (alarmInfo.style ());
+      // updateStatusStyle( alarmInfo.style() );
    }
 }
 
