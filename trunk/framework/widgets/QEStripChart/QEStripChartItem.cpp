@@ -200,24 +200,27 @@ qcaobject::QCaObject* QEStripChartItem::getQcaItem ()
 //
 void QEStripChartItem::setPvName (QString pvName, QString substitutions)
 {
+   QLabel  *pvLabel = this->privateData->pvName;    // aliases for breviety
+   QELabel *caLabel = this->privateData->caLabel;   // and SDK auto complete
    qcaobject::QCaObject *qca;
+   QString substitutedPVName;
 
    // Clear any existing data and reset defaults.
    //
    this->clear ();
    this->privateData->chart->evaluateAllowDrop ();   // move to strip chart proper??
 
-   // Verify caller attempting add a potentially sensible PV?
-   //
-   pvName = pvName.trimmed ();
-   if (pvName == "") return;
-
-   this->privateData->pvName->setText (pvName);
-
    // We "know" that a QELabel has only one PV (index = 0).
    //
-   this->privateData->caLabel->setVariableNameAndSubstitutions (pvName, substitutions, 0);
-   this->privateData->caLabel->setStyleSheet (inuse);
+   caLabel->setVariableNameAndSubstitutions (pvName.trimmed (), substitutions, 0);
+   substitutedPVName = caLabel->getSubstitutedVariableName (0);
+
+   // Verify caller attempting add a potentially sensible PV?
+   //
+   if (substitutedPVName  == "") return;
+
+   pvLabel->setText (substitutedPVName);
+   caLabel->setStyleSheet (inuse);
 
    // Set up connection.
    //
