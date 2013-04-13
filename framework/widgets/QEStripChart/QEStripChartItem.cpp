@@ -68,6 +68,7 @@ public:
    QLabel *pvName;
    QELabel *caLabel;
    QColorDialog *colourDialog;
+   qcaobject::QCaObject *previousQcaItem;
 };
 
 //------------------------------------------------------------------------------
@@ -78,6 +79,7 @@ QEStripChartItem::PrivateData::PrivateData ()
    this->pvName = NULL;
    this->caLabel = NULL;
    this->colourDialog = NULL;
+   this->previousQcaItem = NULL;
 }
 
 //==============================================================================
@@ -174,6 +176,7 @@ void QEStripChartItem::clear ()
    this->privateData->caLabel->setVariableNameAndSubstitutions ("", "", 0);
    this->privateData->caLabel->setText ("-");
    this->privateData->caLabel->setStyleSheet (unused);
+   this->privateData->previousQcaItem = NULL;
 
    this->displayedMinMax.clear ();
    this->historicalMinMax.clear ();
@@ -198,11 +201,31 @@ qcaobject::QCaObject* QEStripChartItem::getQcaItem ()
 
 //------------------------------------------------------------------------------
 //
+void QEStripChartItem::connectQcaSignals ()
+{
+   qcaobject::QCaObject *qca;
+
+   // Set up connection if we can/if we need to.
+   //
+   qca = this->getQcaItem ();
+
+   if (qca && (qca != this->privateData->previousQcaItem)) {
+      this->privateData->previousQcaItem = qca;
+
+      QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo&) ),
+                        this,  SLOT (setDataConnection (QCaConnectionInfo&) ) );
+
+      QObject::connect (qca, SIGNAL (dataChanged  (const QVariant&, QCaAlarmInfo&, QCaDateTime&) ),
+                        this,  SLOT (setDataValue (const QVariant&, QCaAlarmInfo&, QCaDateTime&) ) );
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChartItem::setPvName (QString pvName, QString substitutions)
 {
    QLabel  *pvLabel = this->privateData->pvName;    // aliases for breviety
    QELabel *caLabel = this->privateData->caLabel;   // and SDK auto complete
-   qcaobject::QCaObject *qca;
    QString substitutedPVName;
 
    // Clear any existing data and reset defaults.
@@ -222,17 +245,9 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
    pvLabel->setText (substitutedPVName);
    caLabel->setStyleSheet (inuse);
 
-   // Set up connection.
+   // Set up connections.
    //
-   qca = this->getQcaItem ();
-   if (qca) {
-      QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo&) ),
-                        this,  SLOT (setDataConnection (QCaConnectionInfo&) ) );
-
-      QObject::connect (qca, SIGNAL (dataChanged  (const QVariant&, QCaAlarmInfo&, QCaDateTime&) ),
-                        this,  SLOT (setDataValue (const QVariant&, QCaAlarmInfo&, QCaDateTime&) ) );
-
-   }
+   this->connectQcaSignals ();
 }
 
 
@@ -248,9 +263,7 @@ QString QEStripChartItem::getPvName ()
 //
 bool QEStripChartItem::isInUse ()
 {
-   qcaobject::QCaObject *qca;
-
-   qca = this->privateData->caLabel->getQcaItem (0);
+   qcaobject::QCaObject *qca = this->getQcaItem ();
    return (qca != NULL);
 }
 
@@ -377,8 +390,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
                                        TrackRange & plottedTrackRange)
 {
 
-
-// macro functions to convert value to a plot values, doing safe log conversion if required.
+// macro functions to convert real-world values to a plot values, doing safe log conversion if required.
 //
 #define PLOT_T(t) ((t) / timeScale)
 #define PLOT_Y(y) ((yScaleMode == QEStripChartNames::linear) ? this->scaling.value (y) : LOG10 (this->scaling.value (y)))
@@ -534,6 +546,13 @@ void QEStripChartItem::plotData (const double timeScale,
 
    this->plotDataPoints (this->realTimeDataPoints,timeScale,  yScaleMode, true, temp);
    this->displayedMinMax.merge (temp);
+
+   // Sometimes the qca Item first used is not the qca Item we end up with, due the
+   // vagaries of loading ui files and the framework start up. As plot data called
+   // on a regular basis this is a convient place to recall connectQca.
+   // Note: connectQcaSignals only does anything if underlying qca item has changed.
+   //
+   this->connectQcaSignals ();
 }
 
 //------------------------------------------------------------------------------

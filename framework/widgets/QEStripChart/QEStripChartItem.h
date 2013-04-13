@@ -121,6 +121,7 @@ protected:
 
 private:
    qcaobject::QCaObject* getQcaItem ();   // Return reference to QELabel used to stream CA updates
+   void connectQcaSignals ();             // Performs qca connections if needs be.
    void clear ();
 
    QPen getPen ();
