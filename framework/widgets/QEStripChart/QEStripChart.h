@@ -77,6 +77,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QEWidget
    Q_PROPERTY (QString variable11 READ getPropertyVariableName11 WRITE setPropertyVariableName11)
    Q_PROPERTY (QString variable12 READ getPropertyVariableName12 WRITE setPropertyVariableName12)
 
+   /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2...
+   /// Values may be quoted strings. For example, 'SAMPLE=SAM1, NAME = "Ref foil"'
+   /// These substitutions are applied to all the variable names.
+   Q_PROPERTY (QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+
    // NOTE: Where ever possible I spell colour properly.
    //
    Q_PROPERTY (QColor  colour1    READ getColour1Property        WRITE setColour1Property)
@@ -91,7 +96,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QEWidget
    Q_PROPERTY (QColor  colour10   READ getColour10Property       WRITE setColour10Property)
    Q_PROPERTY (QColor  colour11   READ getColour11Property       WRITE setColour11Property)
    Q_PROPERTY (QColor  colour12   READ getColour12Property       WRITE setColour12Property)
-
 
 public:
    enum Constants {
@@ -205,6 +209,14 @@ private:
    //
    void    setVariableNameProperty (unsigned int slot, QString pvName);
    QString getVariableNameProperty (unsigned int slot);
+
+   // The actual subsitutions are handled by embedded chart items and associated QELabels,
+   // this String used just supports the property.
+   //
+   QString variableNameSubstitutions;
+
+   void    setVariableNameSubstitutionsProperty (QString variableNameSubstitutions);
+   QString getVariableNameSubstitutionsProperty();
 
    void   setColourProperty (unsigned int slot, QColor color);
    QColor getColourProperty (unsigned int slot);

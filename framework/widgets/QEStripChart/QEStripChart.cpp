@@ -1101,6 +1101,8 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    this->yMinimum = 0.0;
    this->yMaximum = 100.0;
 
+   this->variableNameSubstitutions = "";
+
    // Construct dialogs.
    //
    this->timeDialog = new QEStripChartTimeDialog (this);
@@ -1120,9 +1122,9 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
    //
    this->evaluateAllowDrop ();
 
-   // No overall conext menu - let eacgh sub component do its own thing.
+   // No overall conext menu - let each sub component do its own thing.
    //
-   //     Use default context menu (for now).
+   // Use default context menu.
    //     this->setupContextMenu (this);
    // OR: override contextMenuEvent to deal of context calls.
    //     this->setContextMenuPolicy (Qt::DefaultContextMenu);
@@ -1167,6 +1169,31 @@ QString QEStripChart::getVariableNameProperty (unsigned int slot)
       DEBUG << "slot out of range " << slot;
       return "";
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::setVariableNameSubstitutionsProperty (QString variableNameSubstitutionsIn)
+{
+   int j;
+
+   // Save local copy - just for getVariableNameSubstitutionsProperty.
+   //
+   this->variableNameSubstitutions = variableNameSubstitutionsIn;
+
+   // The same subtitutions apply to all PVs.
+   //
+   for (j = 0; j < NUMBER_OF_PVS; j++ ) {
+      QEStripChartItem * item = this->privateData->getItem (j);
+      item->pvNameProperyManager.setSubstitutionsProperty (variableNameSubstitutionsIn);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEStripChart::getVariableNameSubstitutionsProperty ()
+{
+   return this->variableNameSubstitutions;
 }
 
 //------------------------------------------------------------------------------
