@@ -510,9 +510,8 @@ void QEPvProperties::clearFieldChannels ()
 //
 qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
 {
-   qcaobject::QCaObject *qca;
    QComboBox *box = this->ownWidgets->box;
-   QString pv_name;
+   QString substitutedPVName;
    int slot;
 
    if (variableIndex != 0) {
@@ -520,36 +519,17 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
       return NULL;
    }
 
-   pv_name = getSubstitutedVariableName (0);
-   pv_name = pv_name.trimmed ();
-   this->recordBaseName = QERecordFieldName::recordName (pv_name);
+   substitutedPVName = this->getSubstitutedVariableName (0).trimmed ();
+   this->recordBaseName = QERecordFieldName::recordName (substitutedPVName);
 
    // Clear associated data fields.
    //
-   this->ownWidgets->label2->setText (QERecordFieldName::fieldName (pv_name));
+   this->ownWidgets->label2->setText (QERecordFieldName::fieldName (substitutedPVName));
    this->ownWidgets->hostName->setText ("");
    this->ownWidgets->timeStamp->setText ("");
    this->ownWidgets->fieldType->setText ("");
    this->ownWidgets->indexInfo->setText ("");
    this->ownWidgets->value->setText("");
-
-   // Set PV name of internal QELabel.
-   //
-   this->ownWidgets->value->setVariableNameAndSubstitutions (pv_name, "", 0);
-
-   // We know that QELabels use slot zero for the connection.
-   //
-   qca = this->ownWidgets->value->getQcaItem (0);
-   if (qca) {
-      QObject::connect (qca, SIGNAL (connectionChanged  (QCaConnectionInfo&) ),
-                        this,  SLOT (setValueConnection (QCaConnectionInfo&) ) );
-
-      QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
-                        this,  SLOT (setValueValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-
-   } else {
-      qDebug () << __FUNCTION__ << " no qca object";
-   }
 
 
    //-----start--do--this---------------------------------
@@ -562,7 +542,7 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
    // Remove this name from mid-list if it exists and (re) insert at top of list.
    //
    for (slot = box->count() - 1; slot >= 0; slot--) {
-      if (box->itemText (slot).trimmed () == pv_name) {
+      if (box->itemText (slot).trimmed () == substitutedPVName) {
          box->removeItem (slot);
       }
    }
@@ -574,7 +554,7 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
       box->removeItem (box->count () - 1);
    }
 
-   box->insertItem (0, pv_name, QVariant ());
+   box->insertItem (0, substitutedPVName, QVariant ());
 
    // Ensure CombBox consistent .
    //
@@ -586,7 +566,8 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
    // Regardless of the actual PV, we need to connect to the RTYP pseudo field
    // of the associated record.
    //
-   return new QEString (QERecordFieldName::rtypePvName (pv_name), this, &stringFormatting, 0);
+   return new QEString (QERecordFieldName::rtypePvName (substitutedPVName),
+                        this, &stringFormatting, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -621,9 +602,38 @@ void QEPvProperties::establishConnection (unsigned int variableIndex)
 //
 void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo)
 {
+   QString substitutedPVName;
+   qcaobject::QCaObject *qca;
+
    // Update tool tip, but leave the basic widget enabled.
    //
    updateToolTipConnection (connectionInfo.isChannelConnected ());
+
+   if (connectionInfo.isChannelConnected ()) {
+
+      // The pseudo RTYP field has connected - we are good to go...
+      //
+      substitutedPVName = this->getSubstitutedVariableName (0).trimmed ();;
+
+      // Set PV name of internal QELabel.
+      //
+      this->ownWidgets->value->setVariableNameAndSubstitutions
+               (substitutedPVName, "", 0);
+
+      // We know that QELabels use slot zero for the connection.
+      //
+      qca = this->ownWidgets->value->getQcaItem (0);
+      if (qca) {
+         QObject::connect (qca, SIGNAL (connectionChanged  (QCaConnectionInfo&) ),
+                           this,  SLOT (setValueConnection (QCaConnectionInfo&) ) );
+
+         QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                           this,  SLOT (setValueValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+
+      } else {
+         qDebug () << __FUNCTION__ << " no qca object";
+      }
+   }
 }
 
 
