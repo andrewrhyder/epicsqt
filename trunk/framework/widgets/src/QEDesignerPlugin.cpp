@@ -29,6 +29,7 @@
 #include <QENumericEditManager.h>
 #include <QEPushButtonManager.h>
 #include <QERadioButtonManager.h>
+#include <QECheckBoxManager.h>
 #include <QEShapeManager.h>
 #include <QESliderManager.h>
 #include <QESpinBoxManager.h>
@@ -88,6 +89,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     // note: maintain in alphaqbetical order.
     widgets.append(new QEAnalogProgressBarManager(this));
     widgets.append(new QEBitStatusManager(this));
+    widgets.append(new QECheckBoxManager(this));
     widgets.append(new QEComboBoxManager(this));
     widgets.append(new QEConfiguredLayoutManager(this));
     widgets.append(new QEFileBrowserManager(this));

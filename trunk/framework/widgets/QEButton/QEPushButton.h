@@ -59,7 +59,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPushButton : public QPushButton, public QEG
     void userClicked( bool checked ) { QEGenericButton::userClicked( checked ); }
 
 public slots:
-    // Note, keep in sync. The text below is repeated in QERadioButton.h
+    // Note, keep in sync. The text below is repeated in QEPushButton.h, QERadioButton.h and QECheckBox.h
     /// Default slot used to create a new GUI if there is no slot indicated in the ContainerProfile class.
     /// This slot is typically used when the button is pressed within the Designer preview window to allow the operation of the button to be tested.
     /// If an application does not specify a slot to use for creating new windows (through the ContainerProfile class) a window will still be created through this slot, but it will not respect the window creation options or any other window related application constraints.
@@ -424,7 +424,7 @@ public:
 
     //=================================================================================
     // Generic button properties
-    // These properties should be identical for specif button wigets (QEPushButton and QERadioButton
+    // These properties should be identical for specif button wigets (QEPushButton, QERadioButton and QECheckBox
     // WHEN MAKING CHANGES: search for BUTTONPROPERTIES and change all occurances.
 public:
 
