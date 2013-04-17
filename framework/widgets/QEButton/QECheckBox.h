@@ -22,10 +22,10 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef QERADIOBUTTON_H
-#define QERADIOBUTTON_H
+#ifndef QECHECKBOX_H
+#define QECHECKBOX_H
 
-#include <QRadioButton>
+#include <QCheckBox>
 #include <QEWidget.h>
 #include <QEString.h>
 #include <QEStringFormatting.h>
@@ -33,18 +33,18 @@
 #include <managePixmaps.h>
 #include <QEGenericButton.h>
 
-class QEPLUGINLIBRARYSHARED_EXPORT QERadioButton : public QRadioButton, public QEGenericButton {
+class QEPLUGINLIBRARYSHARED_EXPORT QECheckBox : public QCheckBox, public QEGenericButton {
     Q_OBJECT
 
   public:
     /// Create without a variable.
     /// Use setVariableNameProperty() and setSubstitutionsProperty() to define a variable and, optionally, macro substitutions later.
-    QERadioButton( QWidget *parent = 0 );
+    QECheckBox( QWidget *parent = 0 );
 
     /// Create with a variable.
     /// A connection is automatically established.
     /// If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation.
-    QERadioButton( const QString& variableName, QWidget *parent = 0 );
+    QECheckBox( const QString& variableName, QWidget *parent = 0 );
 
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo ) { QEGenericButton::connectionChanged( connectionInfo ); }
@@ -100,8 +100,8 @@ public slots:
 private:
     void setup();
 
-    void setButtonState( bool checked ){ QRadioButton::setChecked( checked ); }
-    void setButtonText( QString text ){ QRadioButton::setText( text ); }
+    void setButtonState( bool checked ){ QCheckBox::setChecked( checked ); }
+    void setButtonText( QString text ){ QCheckBox::setText( text ); }
     QString getButtonText(){ return text(); }
     void setButtonIcon( QIcon& icon ) {setIcon( icon ); }
 
@@ -398,7 +398,7 @@ public:
 
     //=================================================================================
     // Generic button properties
-    // These properties should be identical for specif button wigets (QEPushButton, QERadioButton and QECheckBox
+    // These properties should be identical for specif button wigets (QEPushButton, QERadioButton, and QECheckBox
     // WHEN MAKING CHANGES: search for BUTTONPROPERTIES and change all occurances.
 public:
 
@@ -550,7 +550,7 @@ public:
 
 private:
     // Access function for updateOption property
-    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QERadioButton::updateOptions)updateOption ); }
+    void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QECheckBox::updateOptions)updateOption ); }
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 
     // Access function for creationOption property
@@ -577,4 +577,4 @@ private:
 
 };
 
-#endif // QERADIOBUTTON_H
+#endif // QECHECKBOX_H
