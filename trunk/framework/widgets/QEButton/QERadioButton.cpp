@@ -56,7 +56,12 @@ QERadioButton::QERadioButton( const QString &variableNameIn, QWidget *parent ) :
     Setup common to all constructors
 */
 void QERadioButton::setup() {
+    // Identify the type of button
     setText( "QERadioButton" );
+
+    // Write 1 when checked, 0 when uncheked (clicked but not checked)
+    setClickText( "0" );
+    setClickCheckedText( "1" );
 
     // Set up a connection to recieve variable name property changes
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing
