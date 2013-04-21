@@ -1,4 +1,5 @@
-/*
+/*  QEWidget.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -88,7 +89,7 @@
   After the establishConnection() function in the CA aware widget has called createConnection(), the remaining task of the
   establishConnection() function is to connect the signals of the newly created QCaObject based classes to its own slots
   so that data updates can be used. For example, a QELabel connects the 'stringChanged' signal
-  fromthe QEString object to its setLabelText slot.
+  from the QEString object to its setLabelText slot.
  */
 
 class QEWidget : public VariableNameManager,
@@ -110,6 +111,10 @@ public:
     /// Initiate updates.
     /// Called after all configuration is complete.
     void activate();
+
+    /// Terminates updates.
+    /// This has been provided for third party (non QEGui) applications using the framework.
+    void deactivate();
 
     /// Get the message source ID.
     /// The message source ID is used as part of the system where QE widgets can emit

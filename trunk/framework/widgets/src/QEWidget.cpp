@@ -1,4 +1,5 @@
-/*
+/*  QEWidget.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -138,6 +139,18 @@ void QEWidget::activate()
     // called by that class when a variable name is defined or changed
     for( unsigned int i = 0; i < numVariables; i++ )
         establishConnection( i );
+}
+
+/*
+   Terminate updates.
+   This has been provided for third party (non QEGui) applications using the framework.
+ */
+void QEWidget::deactivate()
+{
+    // Delete all the QCaObject instances
+    for( unsigned int i = 0; i < numVariables; i++ ) {
+        deleteQcaItem( i );
+    }
 }
 
 
