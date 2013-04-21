@@ -56,7 +56,12 @@ QECheckBox::QECheckBox( const QString &variableNameIn, QWidget *parent ) : QChec
     Setup common to all constructors
 */
 void QECheckBox::setup() {
+    // Identify the type of button
     setText( "QECheckBox" );
+
+    // Write 1 when checked, 0 when uncheked (clicked but not checked)
+    setClickText( "0" );
+    setClickCheckedText( "1" );
 
     // Set up a connection to recieve variable name property changes
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing

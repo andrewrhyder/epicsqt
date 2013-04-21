@@ -56,6 +56,7 @@ QEPushButton::QEPushButton( const QString &variableNameIn, QWidget *parent ) : Q
     Setup common to all constructors
 */
 void QEPushButton::setup() {
+    // Identify the type of button
     setText( "QEPushButton" );
 
     // For each variable name property manager, set up an index to identify it when it signals and
