@@ -166,7 +166,6 @@ include (widgets/QELineEdit/QELineEdit.pri)
 include (widgets/QELink/QELink.pri)
 include (widgets/QELog/QELog.pri)
 include (widgets/QELogin/QELogin.pri)
-# include (widgets/QENumericEdit/QENumericEdit.pri) - still under construction
 include (widgets/QEPeriodic/QEPeriodic.pri)
 include (widgets/QEPlot/QEPlot.pri)
 include (widgets/QEPvProperties/QEPvProperties.pri)
@@ -180,6 +179,23 @@ include (widgets/QESpinBox/QESpinBox.pri)
 include (widgets/QEStripChart/QEStripChart.pri)
 include (widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
 include (widgets/deprecated/deprecated.pri)
+
+
+#===========================================================
+# Extra targets
+#
+# Install header files into the include/ directory
+#
+# Possible enhancements:
+# a/ be more selective - create an INSTALL_HEADERS variable.
+# b/ be smarter re only installing modified headers.
+#
+install_headers.target   = install_headers
+install_headers.commands = $(MKDIR) include && \
+                           $(INSTALL_FILE) $$HEADERS  include/
+
+QMAKE_EXTRA_TARGETS += install_headers
+
 
 #===========================================================
 # EPICS
