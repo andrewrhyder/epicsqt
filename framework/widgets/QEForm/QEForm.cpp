@@ -296,13 +296,16 @@ bool QEForm::readUiFile()
 
             // Set the title to the name of the top level widget title, if it has one
             title.clear();
-            QVariant windowTitleV = ui->property( "windowTitle" );
-            if( windowTitleV.isValid() && windowTitleV.type() == QVariant::String )
+            if( ui )
             {
-                QString windowTitle = windowTitleV.toString();
-                if( !windowTitle.isEmpty() )
+                QVariant windowTitleV = ui->property( "windowTitle" );
+                if( windowTitleV.isValid() && windowTitleV.type() == QVariant::String )
                 {
-                    title = substituteThis( windowTitle );
+                    QString windowTitle = windowTitleV.toString();
+                    if( !windowTitle.isEmpty() )
+                    {
+                        title = substituteThis( windowTitle );
+                    }
                 }
             }
 
