@@ -129,7 +129,10 @@ void instanceManager::newWindow( const startupParams& params )
 {
     ContainerProfile profile;
     profile.setupProfile( NULL, params.pathList, "", params.substitutions, params.userLevelPassword, params.scientistLevelPassword, params.engineerLevelPassword );
-    MainWindow* mw = new MainWindow( params.filename, params.enableEdit, params.disableMenu );
+    for( int i = 0; i < params.filenameList.count(); i++ )
+    {
+        MainWindow* mw = new MainWindow( params.filenameList[i], params.enableEdit, params.disableMenu );
+        mw->show();
+    }
     profile.releaseProfile();
-    mw->show();
 }
