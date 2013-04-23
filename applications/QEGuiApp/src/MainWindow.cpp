@@ -123,6 +123,9 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
 
     // Ensure this class destructor gets called.
     setAttribute ( Qt::WA_DeleteOnClose );
+
+    // Setup the main window icon
+    setWindowIcon( QIcon (":/icons/QEGuiIcon.png" ));
 }
 
 // Destructor
