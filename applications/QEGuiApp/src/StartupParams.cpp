@@ -49,7 +49,7 @@ startupParams::startupParams()
 void startupParams::getSharedParams( const QByteArray& in )
 {
     // Initialise parameters
-    filename.clear();
+    filenameList.clear();
     pathList.clear();
     substitutions.clear();
 
@@ -60,11 +60,17 @@ void startupParams::getSharedParams( const QByteArray& in )
     enableEdit    = (bool)(d[len]);    len += 1;
     disableMenu   = (bool)(d[len]);    len += 1;
     singleApp     = (bool)(d[len]);    len += 1;
-    filename.append( &(d[len]) );      len += filename.size()+1;
+
+    int fileCount = d[len];            len += 1;
+    for( int i = 0; i < fileCount; i++ )
+    {
+        filenameList.append( &(d[len]) );  len += filenameList[i].size()+1;
+    }
+
     int pathCount = d[len];            len += 1;
     for( int i = 0; i < pathCount; i++ )
     {
-        pathList.append( &(d[len]) );          len += pathList[i].size()+1;
+        pathList.append( &(d[len]) );  len += pathList[i].size()+1;
     }
     substitutions.append( &(d[len]) ); len += substitutions.size()+1;
 }
@@ -75,16 +81,24 @@ void startupParams::setSharedParams( QByteArray& out )
 {
     // Convert parameters into a stream of bytes.
     int len = 0;
+    int i;
 
     out[len++] = enableEdit;
     out[len++] = disableMenu;
     out[len++] = singleApp;
-    out.insert( len, filename.toAscii() );       len += filename.size();        out[len++] = '\0';
+
+    out[len++] = filenameList.count();
+    for( i = 0; i < filenameList.count(); i++ )
+    {
+        out.insert( len, filenameList[i].toAscii() ); len += filenameList[i].size(); out[len++] = '\0';
+    }
+
     out[len++] = pathList.count();
-    for( int i = 0; i < pathList.count(); i++ )
+    for( i = 0; i < pathList.count(); i++ )
     {
         out.insert( len, pathList[i].toAscii() );len += pathList[i].size();   out[len++] = '\0';
     }
+
     out.insert( len, substitutions.toAscii() );  len += substitutions.size(); out[len++] = '\0';
 }
 
@@ -95,91 +109,96 @@ bool startupParams::getStartupParams( QStringList args )
     // Discard application name
     args.removeFirst();
 
-    // Get switches
+    // Get switches and filenames.
     // Switches may be separate or grouped.
+    // Any parameters not associated with a switch are considered filenames.
     // Switches that precede a parameter (-p, -m) may be grouped. Associated
     // parameters are then expected in the order the switches were specified.
     // Examples:
     // -e -p /home
     // -epm /home PUMP=02
-    while( args.size() && args[0].left(1) == QString( "-" ) )
+    while( args.size() )
     {
-        // Get the next argument
-        QString arg = args[0];
-        args.removeFirst();
-
-        // Remove the leading '-' and process the argument if there is anything left of it
-        while( arg.remove(0,1).size() )
+        // If next is a switch, get the switch and assocaited parameters
+        if( args[0].left(1) == QString( "-" ) )
         {
-            // Identify the argument by the next letter
-            switch( arg[0].toAscii() )
+            // Get the next argument
+            QString arg = args[0];
+            args.removeFirst();
+
+            // Remove the leading '-' and process the argument if there is anything left of it
+            while( arg.remove(0,1).size() )
             {
-                // 'Editable' flag
-                case 'e':
-                    enableEdit = true;
-                    break;
+                // Identify the argument by the next letter
+                switch( arg[0].toAscii() )
+                {
+                    // 'Editable' flag
+                    case 'e':
+                        enableEdit = true;
+                        break;
 
-                // 'Single App' flag
-                case 's':
-                    singleApp = true;
-                    break;
+                    // 'Single App' flag
+                    case 's':
+                        singleApp = true;
+                        break;
 
-                // Help flag
-                //
-                case 'h':
-                    printHelp = true;
-                    break;
+                    // Help flag
+                    //
+                    case 'h':
+                        printHelp = true;
+                        break;
 
-                // Version flag
-                //
-                case 'v':
-                    printVersion = true;
-                    break;
+                    // Version flag
+                    //
+                    case 'v':
+                        printVersion = true;
+                        break;
 
-                // 'menu Bar disabled' flag
-                case 'b':
-                    disableMenu = true;
-                    break;
+                    // 'menu Bar disabled' flag
+                    case 'b':
+                        disableMenu = true;
+                        break;
 
-                // 'paths' flag
-                // Take next non switch parameter as path list
-                case 'p':
-                    // Get the path list (next parameter, if present, and as long as it isn't a switch)
-                    if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
-                    {
-                        QString pathParam = args[0];
-                        pathList = pathParam.split(QRegExp("\\s+"));
-                        args.removeFirst();
-                    } else {
+                    // 'paths' flag
+                    // Take next non switch parameter as path list
+                    case 'p':
+                        // Get the path list (next parameter, if present, and as long as it isn't a switch)
+                        if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                        {
+                            QString pathParam = args[0];
+                            pathList = pathParam.split(QRegExp("\\s+"));
+                            args.removeFirst();
+                        } else {
+                            return false;
+                        }
+                        break;
+
+                    // 'macros' flag
+                    // Take next non switch parameter as macro substitutions
+                    case 'm':
+                        // Get the macros (next parameter, if present, and as long as it isn't a switch)
+                        if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                        {
+                            substitutions = args[0];
+                            args.removeFirst();
+                        } else {
+                            return false;
+                        }
+                        break;
+
+                    default:
+                        // Unrecognised switch
                         return false;
-                    }
-                    break;
-
-                // 'macros' flag
-                // Take next non switch parameter as macro substitutions
-                case 'm':
-                    // Get the macros (next parameter, if present, and as long as it isn't a switch)
-                    if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
-                    {
-                        substitutions = args[0];
-                        args.removeFirst();
-                    } else {
-                        return false;
-                    }
-                    break;
-
-                default:
-                    // Unrecognised switch
-                    return false;
+                }
             }
         }
-    }
 
-    // Get file name if any
-    if( args.size() )
-    {
-        filename = args[0];
-        args.removeFirst();
+        // Next is not a switch, get a file name
+        else
+        {
+            filenameList.append( args[0] );
+            args.removeFirst();
+        }
     }
 
     return true;
