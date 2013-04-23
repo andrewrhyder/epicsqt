@@ -23,13 +23,14 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <QECommon.h>
 #include "QESimpleShape.h"
 
 
 //-----------------------------------------------------------------------------
 // Constructor with no initialisation
 //
-QESimpleShape::QESimpleShape (QWidget * parent) : QWidget (parent), QEWidget (this)
+QESimpleShape::QESimpleShape (QWidget * parent):QWidget (parent), QEWidget (this)
 {
    this->setup ();
 }
@@ -38,7 +39,7 @@ QESimpleShape::QESimpleShape (QWidget * parent) : QWidget (parent), QEWidget (th
 //-----------------------------------------------------------------------------
 // Constructor with known variable
 //
-QESimpleShape::QESimpleShape (const QString & variableNameIn, QWidget * parent) : QWidget (parent), QEWidget (this)
+QESimpleShape::QESimpleShape (const QString & variableNameIn, QWidget * parent):QWidget (parent), QEWidget (this)
 {
    this->setup ();
    this->setVariableName (variableNameIn, 0);
@@ -60,6 +61,9 @@ void QESimpleShape::setup ()
    this->value = 0;
    this->setDisplayAlarmState (true);
    this->shape = rectangle;
+   this->textFormat = FixedText;
+   this->fixedText = "";
+   this->textImage = "";
 
    for (j = 0; j < 16; j++) {
       this->colourList[j] = QColor (200, 200, 200, 255);
@@ -107,6 +111,28 @@ void QESimpleShape::equaliseRect (QRect & rect)
    }
 }
 
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::drawText (QPainter & painter, QPoint & textCentre, QString & text)
+{
+   QFont pf (this->font ());
+   painter.setFont (pf);
+
+   QFontMetrics fm = painter.fontMetrics ();
+   int x;
+   int y;
+
+   // Centre text. For height, pointSize seems better than fm.height ()
+   // painter.drawText takes bottom left coordinates.
+   //
+   x = textCentre.x () - fm.width (text) / 2;
+   y = textCentre.y () + (pf.pointSize () + 1) / 2;
+
+   // If text too wide, then ensure we show most significant part.
+   //
+   painter.drawText (MAX (1, x), y, text);
+}
+
 //-----------------------------------------------------------------------------
 //
 void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
@@ -115,9 +141,10 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
    QPen pen;
    QBrush brush;
    QRect rect;
-   QPoint polygon [8];
+   QPoint polygon[8];
    QColor colour;
    qcaobject::QCaObject * qca;
+   QString text;
 
    // Associated qca object - test if connected but avoid the segmentation fault.
    //
@@ -126,16 +153,16 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
       if (this->getDisplayAlarmState ()) {
          // Use alarm colour
          //
-         QCaAlarmInfo ai = qca->getAlarmInfo ();    // 1st param is & mode - cannot use a function.
+         QCaAlarmInfo ai = qca->getAlarmInfo ();        // 1st param is & mode - cannot use a function.
          colour = this->getColor (ai, 255);
       } else {
          // Use value to index colour table.
          //
-         colour = this->getColourProperty (this->getValue ());
+         colour = this->getColourProperty (this->getModuloValue ());
       }
       pen.setColor (QColor (0, 0, 0, 255));
    } else {
-      // Washed-out gray.
+      // Not connected - use washed-out gray.
       //
       colour = QColor (220, 220, 220, 255);
       pen.setColor (QColor (140, 140, 140, 255));
@@ -190,7 +217,7 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
          polygon[1] = QPoint (rect.right (), (rect.top () + rect.bottom ()) / 2);
          polygon[2] = QPoint ((rect.left () + rect.right ()) / 2, rect.bottom ());
          polygon[3] = QPoint (rect.left (), (rect.top () + rect.bottom ()) / 2);
-         polygon[4] = polygon[0];     // close loop
+         polygon[4] = polygon[0];       // close loop
          painter.drawPolygon (polygon, 5);
          break;
 
@@ -199,7 +226,7 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
          polygon[0] = QPoint ((rect.left () + rect.right ()) / 2, rect.top ());
          polygon[1] = QPoint (rect.right (), rect.bottom ());
          polygon[2] = QPoint (rect.left (), rect.bottom ());
-         polygon[3] = polygon[0];     // close loop
+         polygon[3] = polygon[0];       // close loop
          painter.drawPolygon (polygon, 4);
          break;
 
@@ -207,7 +234,7 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
          polygon[0] = QPoint ((rect.left () + rect.right ()) / 2, rect.bottom ());
          polygon[1] = QPoint (rect.right (), rect.top ());
          polygon[2] = QPoint (rect.left (), rect.top ());
-         polygon[3] = polygon[0];     // close loop
+         polygon[3] = polygon[0];       // close loop
          painter.drawPolygon (polygon, 4);
          break;
 
@@ -215,7 +242,7 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
          polygon[0] = QPoint (rect.left (), (rect.top () + rect.bottom ()) / 2);
          polygon[1] = QPoint (rect.right (), rect.top ());
          polygon[2] = QPoint (rect.right (), rect.bottom ());
-         polygon[3] = polygon[0];     // close loop
+         polygon[3] = polygon[0];       // close loop
          painter.drawPolygon (polygon, 4);
          break;
 
@@ -223,12 +250,80 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
          polygon[0] = QPoint (rect.right (), (rect.top () + rect.bottom ()) / 2);
          polygon[1] = QPoint (rect.left (), rect.top ());
          polygon[2] = QPoint (rect.left (), rect.bottom ());
-         polygon[3] = polygon[0];     // close loop
+         polygon[3] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 4);
+         break;
+
+      case triangleTopRight:
+         polygon[0] = QPoint (rect.right (), rect.top ());
+         polygon[1] = QPoint (rect.right (), rect.bottom ());
+         polygon[2] = QPoint (rect.left (), rect.top ());
+         polygon[3] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 4);
+         break;
+
+      case triangleBottomRight:
+         polygon[0] = QPoint (rect.right (), rect.bottom ());
+         polygon[1] = QPoint (rect.left (), rect.bottom ());
+         polygon[2] = QPoint (rect.right (), rect.top ());
+         polygon[3] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 4);
+         break;
+
+      case triangleBottomLeft:
+         polygon[0] = QPoint (rect.left (), rect.bottom ());
+         polygon[1] = QPoint (rect.left (), rect.top ());
+         polygon[2] = QPoint (rect.right (), rect.bottom ());
+         polygon[3] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 4);
+         break;
+
+      case triangleTopLeft:
+         polygon[0] = QPoint (rect.left (), rect.top ());
+         polygon[1] = QPoint (rect.right (), rect.top ());
+         polygon[2] = QPoint (rect.left (), rect.bottom ());
+         polygon[3] = polygon[0];       // close loop
          painter.drawPolygon (polygon, 4);
          break;
 
       default:
          break;
+   }
+
+   // Get the rquired text -f any.
+   //
+   text = this->getTextImage ();
+   if (!text.isEmpty ()) {
+      // Set default centre text positions.
+      //
+      QPoint textCentre (this->width () / 2, this->height () / 2);
+
+      int r, g, b, a;
+      bool white_text;
+
+      if (qca && this->isConnected) {
+         // Split colour
+         // Note: this is basically same as Strip Chart - need common colour utilities.
+         //
+         colour.getRgb (&r, &g, &b, &a);
+
+         // Weight sum of background colour to detrmine if white or black text.
+         //
+         white_text = ((2 * r + 3 * g + 2 * b) <= (7 * 102));      // 2+3+2 == 7
+
+         // Dark are bright background colour ?
+         //
+         if (white_text) {
+            pen.setColor (QColor (255, 255, 255, 255));    // while font
+         } else {
+            pen.setColor (QColor (0, 0, 0, 255));  // black font
+         }
+      } else {
+         pen.setColor (QColor (140, 140, 140, 255));   // gray
+      }
+      painter.setPen (pen);
+
+      this->drawText (painter, textCentre, text);
    }
 }
 
@@ -268,14 +363,14 @@ void QESimpleShape::establishConnection (unsigned int variableIndex)
    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots.
    //
    if ((qca) && (variableIndex == 0)) {
-      QObject::connect (qca, SIGNAL (integerChanged (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
-                        this, SLOT  (setShapeValue  (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
+      QObject::connect (qca,  SIGNAL (integerChanged (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
+                        this, SLOT   (setShapeValue  (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
-      QObject::connect (qca, SIGNAL (integerArrayChanged (const QVector<long>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
-                        this, SLOT  (setShapeValues      (const QVector<long>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
+      QObject::connect (qca,  SIGNAL (integerArrayChanged (const QVector < long >&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
+                        this, SLOT   (setShapeValues      (const QVector < long >&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
-      QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo &)),
-                        this, SLOT  (connectionChanged (QCaConnectionInfo &)));
+      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo &)),
+                        this, SLOT   (connectionChanged (QCaConnectionInfo &)));
    }
 }
 
@@ -293,6 +388,7 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
    this->isConnected = connectionInfo.isChannelConnected ();
    this->setDataDisabled (!this->isConnected);
    this->updateToolTipConnection (this->isConnected);
+   this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
 
    if (!this->isConnected) {
       // Disconnected - clear the alarm state.
@@ -310,8 +406,8 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
 //
 void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo, QCaDateTime &, const unsigned int &)
 {
+   qcaobject::QCaObject * qca;
    QCAALARMINFO_SEVERITY severity;
-   int moduloValue;
 
    // If in alarm, display as an alarm - only update if changed
    //
@@ -319,24 +415,72 @@ void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo
    if (severity != this->lastSeverity) {
       updateToolTipAlarm (alarmInfo.severityName ());
    }
+   
+   // Associated qca object - avoid the segmentation fault.
+   //
+   qca = getQcaItem (0);
+   if (!qca) {
+      return;
+   }
+   
+   // Set up variable details used by some formatting options.
+   //
+   if (this->isFirstUpdate) {
+      this->stringFormatting.setDbEgu (qca->getEgu ());
+      this->stringFormatting.setDbEnumerations (qca->getEnumerations ());
+      this->stringFormatting.setDbPrecision (qca->getPrecision ());
+   }
 
-   moduloValue = (int) (valueIn & 0x0F);
-   if ((this->value != moduloValue) || (severity != this->lastSeverity)) {
-      this->value = moduloValue;
+   if ((this->isFirstUpdate) || (this->value != valueIn) || (severity != this->lastSeverity)) {
+      this->value = valueIn;
       this->lastSeverity = severity;
+      this->setTextImage ();
       this->update ();
    }
 
    // Signal a database value change to any Link widgets
    //
    emit dbValueChanged (value);
+
+   // This update is over, clear first update flag.
+   //
+   this->isFirstUpdate = false;
+}
+
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::setTextImage ()
+{
+   switch (this->getTextFormat ()) {
+
+      case QESimpleShape::FixedText:
+         this->textImage = this->getFixedText ();
+         break;
+
+      case QESimpleShape::PvText:
+         this->textImage = this->stringFormatting.formatString (this->getValue ());
+         break;
+
+      case QESimpleShape::LocalEnumeration:
+         this->textImage = this->stringFormatting.formatString (this->getModuloValue ());
+         break;
+
+      default:
+         this->textImage = "";
+   }
 }
 
 
 //------------------------------------------------------------------------------
+//
+QString QESimpleShape::getTextImage () {
+   return this->textImage;
+}
+
+//------------------------------------------------------------------------------
 // Extract first element (0 index) and use this value.
 //
-void QESimpleShape::setShapeValues (const QVector <long>&values,
+void QESimpleShape::setShapeValues (const QVector<long> & values,
                                     QCaAlarmInfo & alarmInfo, QCaDateTime & dateTime,
                                     const unsigned int &variableIndex)
 {
@@ -363,6 +507,13 @@ int QESimpleShape::getValue ()
 
 //------------------------------------------------------------------------------
 //
+int QESimpleShape::getModuloValue ()
+{
+   return this->value & 0x0F;
+}
+
+//------------------------------------------------------------------------------
+//
 void QESimpleShape::setShape (Shapes shapeIn)
 {
    if (this->shape != shapeIn) {
@@ -380,12 +531,72 @@ QESimpleShape::Shapes QESimpleShape::getShape ()
 
 //------------------------------------------------------------------------------
 //
+void QESimpleShape::setTextFormat (TextFormats value)
+{
+   if (this->textFormat != value) {
+      this->textFormat = value;
+
+      this->textImage = "";
+
+      // Convert local format into appropriate string formmating.
+      //
+      switch (this->textFormat) {
+
+         case QESimpleShape::FixedText:
+            this->textImage = this->fixedText;
+            break;
+
+         case QESimpleShape::PvText:
+            this->setFormat (QEStringFormatting::FORMAT_DEFAULT);
+            break;
+
+         case QESimpleShape::LocalEnumeration:
+            this->setFormat (QEStringFormatting::FORMAT_LOCAL_ENUMERATE);
+            break;
+
+         default:
+            break;
+      }
+
+      this->update ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QESimpleShape::TextFormats QESimpleShape::getTextFormat ()
+{
+   return this->textFormat;
+}
+
+//------------------------------------------------------------------------------
+//
+void QESimpleShape::setFixedText (QString value)
+{
+   if (this->fixedText != value) {
+      this->fixedText = value;
+      if (this->getTextFormat () == FixedText) {
+         this->textImage = this->fixedText;
+         this->update ();
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QString QESimpleShape::getFixedText ()
+{
+   return this->fixedText;
+}
+
+//------------------------------------------------------------------------------
+//
 void QESimpleShape::setColourProperty (int slot, QColor colour)
 {
    if ((slot >= 0) && (slot < 16)) {
       if (this->colourList[slot] != colour) {
          this->colourList[slot] = colour;
-         if (this->getValue () == slot) {
+         if (this->getModuloValue () == slot) {
             this->update ();
          }
       }
@@ -415,6 +626,8 @@ void QESimpleShape::setDrop (QVariant drop)
    establishConnection (0);
 }
 
+//------------------------------------------------------------------------------
+//
 QVariant QESimpleShape::getDrop ()
 {
    return QVariant (getSubstitutedVariableName (0));
@@ -428,10 +641,11 @@ QString QESimpleShape::copyVariable ()
    return getSubstitutedVariableName (0);
 }
 
+//------------------------------------------------------------------------------
+//
 QVariant QESimpleShape::copyData ()
 {
    return QVariant (this->getValue ());
 }
-
 
 // end
