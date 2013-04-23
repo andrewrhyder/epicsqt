@@ -45,7 +45,7 @@ static void printVersion ()
 //
 static void printUsage (std::ostream & stream)
 {
-    stream  << "usage: QEGui [-v] [-h] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name]\n";
+    stream  << "usage: QEGui [-v] [-h] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name] [file_name] [file_name...]\n";
 }
 
 //------------------------------------------------------------------------------
@@ -85,9 +85,9 @@ static void printHelp ()
       "-v      Display version info and exit.\n"
       "\n"
       "\n"
-      "Parameter\n"
+      "Parameters\n"
       "\n"
-      "filename  GUI filename to open.\n"
+      "filenames  GUI filenames to open. Each filename is a separate parameter.\n"
       "\n"
       "\n"
       "Environment variables\n"
