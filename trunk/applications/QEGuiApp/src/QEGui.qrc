@@ -5,4 +5,7 @@
         <file>UserLevel.ui</file>
         <file>MessageLog.ui</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file>QEGuiIcon.png</file>
+    </qresource>
 </RCC>
