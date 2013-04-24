@@ -54,19 +54,11 @@ TARGET = QEPlugin
 # Project files
 
 INCLUDEPATH += \
-    common \
     api/include \
     data/include \
     widgets/include
 
-# Explicity add common, and hence QEFrameworkVersion.h, to the dependacy path
-# So that changes to the version/release numbers forece revent recompilations.
-#
-DEPENDPATH += common
-
 HEADERS += \
-    common/QECommon.h \
-    common/QEFrameworkVersion.h \
     api/include/Generic.h \
     api/include/CaRecord.h \
     api/include/CaRef.h \
@@ -107,7 +99,6 @@ HEADERS += \
 
 
 SOURCES += \
-    common/QEFrameworkVersion.cpp \
     api/src/Generic.cpp \
     api/src/CaRecord.cpp \
     api/src/CaObject.cpp \
@@ -145,9 +136,10 @@ SOURCES += \
 
 
 #===========================================================
-# Widget sub projects
+# Widget and other sub projects
 # Included .pri (project include) files for each widget
 #
+include (common/common.pri)
 include (archive/QEArchive.pri)
 include (widgets/QEAnalogIndicator/QEAnalogIndicator.pri)
 include (widgets/QEAnalogProgressBar/QEAnalogProgressBar.pri)
