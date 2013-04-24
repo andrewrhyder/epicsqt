@@ -2,8 +2,8 @@
 # author: Ricardo Fernandes
 # email: ricardo.fernandes@synchrotron.org.au
 # copyright: (C) 2012 Australian Synchrotron
-# version: 1.2
-# date: 2013/APR/08
+# version: 1.3
+# date: 2013/APR/24
 # description: Makefile to automate the building and deployment of the EPICS Qt framework
 # note: Although managed as part of the EPICS Qt framework, this makefile is intended to be run from outside the framework directories
 # status: Production
@@ -90,7 +90,7 @@ endif
 framework:
 	@echo "Building framework located in '$(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)'..."
 	@cd $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION) ; $(QMAKE) epicsqt.pro -r -spec linux-g++
-	@export LD_LIBRARY_PATH=$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH) ; $(MAKE) -C $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION) -w -j2
+	@export LD_LIBRARY_PATH=$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH) ; $(MAKE) -C $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION) -w -j2 ; $(MAKE) -C $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/framework install_headers
 	@echo "...done building framework!"
 
 
@@ -161,6 +161,14 @@ endif
 rpm:
 	@echo "Checking conditions for creating RPM of the framework in directory '$(RPM_DIRECTORY)'..."
 
+ifeq ($(shell which $(GREP) 2>/dev/null),)
+	@$(error The program '$(GREP)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install grep' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
+endif
+
+ifeq ($(shell which $(SED) 2>/dev/null),)
+	@$(error The program '$(SED)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install sed' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
+endif
+
 ifeq ($(shell which $(RPM) 2>/dev/null),)
 	@$(error The program '$(RPM)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install rpm-build' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
 endif
@@ -182,8 +190,8 @@ endif
 	@echo "%_topdir $(PWD)/rpmbuild" > $(HOME)/.rpmmacros
 	@echo "Name: epics_qt_framework" > $(SPEC_FILE)
 	@echo "Summary: A layered framework based on Qt for accessing Experimental Physics and Industrial Control System (EPICS) data using Channel Access (CA). Designed for rapid development of control system graphical interfaces." >> $(SPEC_FILE)
-	@echo "Version: 2.2" >> $(SPEC_FILE)
-	@echo "Release: 23" >> $(SPEC_FILE)
+	@cd $(PACKAGE_DIRECTORY) ; ./executeQEGui -v | $(GREP) "Framework version: " | $(SED) 's/Framework\ version:\ //' | $(SED) 's/\ .*//' | $(SED) 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/Version: \1.\2/' >> ../$(SPEC_FILE) ; cd ..
+	@cd $(PACKAGE_DIRECTORY) ; ./executeQEGui -v | $(GREP) "Framework version: " | $(SED) 's/Framework\ version:\ //' | $(SED) 's/\ .*//' | $(SED) 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/Release: \3/' >> ../$(SPEC_FILE) ; cd ..
 	@echo "License: GPLv3" >> $(SPEC_FILE)
 	@echo "AutoReqProv: no" >> $(SPEC_FILE)
 	@echo "Prefix: /usr/local" >> $(SPEC_FILE)
