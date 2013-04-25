@@ -242,13 +242,6 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
    //
    if (substitutedPVName  == "") return;
 
-   // If the profile indicates no auto activate then override.
-   // The caLabel created by the strip chart, not the ui loader.
-   //
-   if (caLabel->getDontActivateYet ()) {
-       caLabel->activate ();
-   }
-
    pvLabel->setText (substitutedPVName);
    caLabel->setStyleSheet (inuse);
 

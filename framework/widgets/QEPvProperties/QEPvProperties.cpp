@@ -620,13 +620,6 @@ void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo)
       //
       valueLabel->setVariableNameAndSubstitutions (substitutedPVName, "", 0);
 
-      // If the profile indicates no auto activate then override.
-      // The valueLabel created by the pv properties widget, not the ui loader.
-      //
-      if (valueLabel->getDontActivateYet ()) {
-         valueLabel->activate();
-      }
-
       // We know that QELabels use slot zero for the connection.
       //
       qca = valueLabel->getQcaItem (0);
