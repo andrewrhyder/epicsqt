@@ -154,10 +154,6 @@ private:
    QEStripChartItemDialog *pvNameEditDialog;
    QEStripChartAdjustPVDialog *adjustPVDialog;
 
-   // Return pv name label style, i.e. colour
-   //
-   QString getStyle ();
-
    // Intermal widgets references and associated support data.
    // If these items declared at class level, there is a run time exception.
    //

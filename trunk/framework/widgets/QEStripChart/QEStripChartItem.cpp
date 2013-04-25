@@ -242,6 +242,13 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
    //
    if (substitutedPVName  == "") return;
 
+   // If the profile indicates no auto activate then override.
+   // The caLabel created by the strip chart, not the ui loader.
+   //
+   if (caLabel->getDontActivateYet ()) {
+       caLabel->activate ();
+   }
+
    pvLabel->setText (substitutedPVName);
    caLabel->setStyleSheet (inuse);
 
@@ -250,14 +257,12 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
    this->connectQcaSignals ();
 }
 
-
 //------------------------------------------------------------------------------
 //
 QString QEStripChartItem::getPvName ()
 {
    return this->privateData->pvName->text ();
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -266,7 +271,6 @@ bool QEStripChartItem::isInUse ()
    qcaobject::QCaObject *qca = this->getQcaItem ();
    return (qca != NULL);
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -281,8 +285,12 @@ TrackRange QEStripChartItem::getLoprHopr (bool doScale)
 
    if (this->isInUse ()) {
       qca = this->getQcaItem ();
-      lopr = qca->getDisplayLimitLower ();
-      hopr = qca->getDisplayLimitUpper ();
+      if (qca) {
+         lopr = qca->getDisplayLimitLower ();
+         hopr = qca->getDisplayLimitUpper ();
+      } else {
+         lopr = hopr = 0.0;
+      }
 
       // If either HOPR or LOPR are non zero - then range is deemed defined.
       //
@@ -594,8 +602,7 @@ void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
          this->realTimeDataPoints.remove (0);
       }
    }
-}   // setDataConnection
-
+}
 
 //------------------------------------------------------------------------------
 //
@@ -629,8 +636,7 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
    if (this->realTimeDataPoints.count () > MAXIMUM_POINTS) {
       this->realTimeDataPoints.remove (0);
    }
-}   // setDataValue
-
+}
 
 //------------------------------------------------------------------------------
 //
@@ -737,28 +743,6 @@ void QEStripChartItem:: normalise () {
 
 //------------------------------------------------------------------------------
 //
-QString QEStripChartItem::getStyle ()
-{
-   QString result;
-   int r, g, b;
-   bool white_text;
-
-   r = this->colour.red ();
-   g = this->colour.green ();
-   b = this->colour.blue ();
-
-   // Weight sum of background colour to detrmine if white or black text.
-   //
-   white_text = ((2*r +3*g + 2*b) <= (7*102));   // 2+3+2 == 7
-
-   result.sprintf ("QWidget { background-color: #%02x%02x%02x; color: %s ; }",
-                    r, g, b, white_text ? "white" : "black" );
-   return result;
-}
-
-
-//------------------------------------------------------------------------------
-//
 QColor QEStripChartItem::getColour ()
 {
    return this->colour;
@@ -768,8 +752,11 @@ QColor QEStripChartItem::getColour ()
 //
 void QEStripChartItem::setColour (const QColor & colourIn)
 {
+   QString styleSheet;
+
    this->colour = colourIn;
-   this->privateData->pvName->setStyleSheet (this->getStyle ());
+   styleSheet =  QEUtilities::colourToStyle (this->colour);
+   this->privateData->pvName->setStyleSheet (styleSheet);
 }
 
 //------------------------------------------------------------------------------
