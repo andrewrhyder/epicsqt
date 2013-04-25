@@ -141,7 +141,7 @@ public:
    QLabel *label5;
    QLabel *label6;
    QComboBox *box;
-   QELabel *value;
+   QELabel *valueLabel;
    QLabel *hostName;
    QLabel *fieldType;
    QLabel *timeStamp;
@@ -175,7 +175,7 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
    this->label6 = new QLabel ("INDEX", this->topFrame);
 
    this->box = new QComboBox (this->topFrame);
-   this->value = new QELabel (this->topFrame);
+   this->valueLabel = new QELabel (this->topFrame);
    this->hostName = new QLabel (this->topFrame);
    this->fieldType = new QLabel (this->topFrame);
    this->timeStamp = new QLabel (this->topFrame);
@@ -247,7 +247,7 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
    this->recordBaseName = QERecordFieldName::recordName (variableName);
    this->common_setup ();
    setVariableName (variableName, 0);
-   this->ownWidgets->value->setVariableName (variableName, 0);
+   this->ownWidgets->valueLabel->setVariableName (variableName, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -324,12 +324,12 @@ void QEPvProperties::common_setup ()
 
    style = "QWidget { background-color: #F0F0F0; }";
 
-   own->value->setIndent (4);
-   own->value->setStyleSheet (style);
+   own->valueLabel->setIndent (4);
+   own->valueLabel->setStyleSheet (style);
    // We have to be general here
-   own->value->setPrecision (9);
-   own->value->setUseDbPrecision (false);
-   own->value->setNotationProperty (QELabel::Automatic);
+   own->valueLabel->setPrecision (9);
+   own->valueLabel->setUseDbPrecision (false);
+   own->valueLabel->setNotationProperty (QELabel::Automatic);
 
    own->hostName->setIndent (4);
    own->hostName->setStyleSheet (style);
@@ -443,20 +443,20 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
    wh = 18;
    x = 6;
    y = 4;
-   own->label1->setGeometry    (x,    y + 6, lw, wh);
-   own->box->setGeometry       (lw + 12,  y, fw, 27); y += 30;
-   own->label2->setGeometry    (x,        y, lw, wh);
-   own->value->setGeometry     (lw + 12,  y, fw, wh); y += 22;
-   own->label3->setGeometry    (x,        y, lw, wh);
-   own->hostName->setGeometry  (lw + 12,  y, fw, wh); y += 22;
-   own->label4->setGeometry    (x,        y, lw, wh);
-   own->timeStamp->setGeometry (lw + 12,  y, fw, wh); y += 22;
+   own->label1->setGeometry     (x,    y + 6, lw, wh);
+   own->box->setGeometry        (lw + 12,  y, fw, 27); y += 30;
+   own->label2->setGeometry     (x,        y, lw, wh);
+   own->valueLabel->setGeometry (lw + 12,  y, fw, wh); y += 22;
+   own->label3->setGeometry     (x,        y, lw, wh);
+   own->hostName->setGeometry   (lw + 12,  y, fw, wh); y += 22;
+   own->label4->setGeometry     (x,        y, lw, wh);
+   own->timeStamp->setGeometry  (lw + 12,  y, fw, wh); y += 22;
 
    fw = (pw - (48 + 2*lw)) / 2;
-   own->label5->setGeometry    (x, y, lw, wh); x += lw + 6;
-   own->fieldType->setGeometry (x, y, fw, wh); x += fw + 24;
-   own->label6->setGeometry    (x, y, lw, wh); x += lw + 6;
-   own->indexInfo->setGeometry (x, y, fw, wh); y += 22;
+   own->label5->setGeometry     (x, y, lw, wh); x += lw + 6;
+   own->fieldType->setGeometry  (x, y, fw, wh); x += fw + 24;
+   own->label6->setGeometry     (x, y, lw, wh); x += lw + 6;
+   own->indexInfo->setGeometry  (x, y, fw, wh); y += 22;
 
    pw = own->enumerationFrame->width ();
    epr = MAX (1, (pw / 160));    // calc enumerations per row.
@@ -529,7 +529,7 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
    this->ownWidgets->timeStamp->setText ("");
    this->ownWidgets->fieldType->setText ("");
    this->ownWidgets->indexInfo->setText ("");
-   this->ownWidgets->value->setText("");
+   this->ownWidgets->valueLabel->setText ("");
 
 
    //-----start--do--this---------------------------------
@@ -604,6 +604,7 @@ void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo)
 {
    QString substitutedPVName;
    qcaobject::QCaObject *qca;
+   QELabel *valueLabel = this->ownWidgets->valueLabel;   // brevity and SDK auto complete
 
    // Update tool tip, but leave the basic widget enabled.
    //
@@ -617,12 +618,18 @@ void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo)
 
       // Set PV name of internal QELabel.
       //
-      this->ownWidgets->value->setVariableNameAndSubstitutions
-               (substitutedPVName, "", 0);
+      valueLabel->setVariableNameAndSubstitutions (substitutedPVName, "", 0);
+
+      // If the profile indicates no auto activate then override.
+      // The valueLabel created by the pv properties widget, not the ui loader.
+      //
+      if (valueLabel->getDontActivateYet ()) {
+         valueLabel->activate();
+      }
 
       // We know that QELabels use slot zero for the connection.
       //
-      qca = this->ownWidgets->value->getQcaItem (0);
+      qca = valueLabel->getQcaItem (0);
       if (qca) {
          QObject::connect (qca, SIGNAL (connectionChanged  (QCaConnectionInfo&) ),
                            this,  SLOT (setValueConnection (QCaConnectionInfo&) ) );
@@ -741,7 +748,7 @@ void QEPvProperties::setValueConnection (QCaConnectionInfo& connectionInfo)
    if (connectionInfo.isChannelConnected ()) {
       // We "know" that the only/main channel is the 1st (slot 0) channel.
       //
-      qca = this->ownWidgets->value->getQcaItem (0);
+      qca = this->ownWidgets->valueLabel->getQcaItem (0);
       this->ownWidgets->hostName->setText (qca->getHostName());
       this->ownWidgets->fieldType->setText (qca->getFieldType());
 
@@ -784,7 +791,7 @@ void QEPvProperties::setValueValue (const QString &,
       // Set up any enumeration values
       // We "know" that the only/main channel is the 1st (slot 0) channel.
       //
-      qca = this->ownWidgets->value->getQcaItem (0);
+      qca = this->ownWidgets->valueLabel->getQcaItem (0);
       enumerations = qca->getEnumerations ();
       n = enumerations.count();
 

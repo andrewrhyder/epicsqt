@@ -298,26 +298,8 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
       //
       QPoint textCentre (this->width () / 2, this->height () / 2);
 
-      int r, g, b, a;
-      bool white_text;
-
       if (qca && this->isConnected) {
-         // Split colour
-         // Note: this is basically same as Strip Chart - need common colour utilities.
-         //
-         colour.getRgb (&r, &g, &b, &a);
-
-         // Weight sum of background colour to detrmine if white or black text.
-         //
-         white_text = ((2 * r + 3 * g + 2 * b) <= (7 * 102));      // 2+3+2 == 7
-
-         // Dark are bright background colour ?
-         //
-         if (white_text) {
-            pen.setColor (QColor (255, 255, 255, 255));    // while font
-         } else {
-            pen.setColor (QColor (0, 0, 0, 255));  // black font
-         }
+         pen.setColor (QEUtilities::fontColour (colour));
       } else {
          pen.setColor (QColor (140, 140, 140, 255));   // gray
       }
