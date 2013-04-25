@@ -10,6 +10,7 @@ HEADERS += \
    common/QEGuiLaunchRequests.h
 
 SOURCES += \
+   common/QECommon.cpp \
    common/QEFrameworkVersion.cpp \
    common/QEGuiLaunchRequests.cpp
 

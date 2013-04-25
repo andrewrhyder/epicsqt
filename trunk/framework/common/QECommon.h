@@ -23,8 +23,12 @@
  *    andrew.starritt@synchrotron.org.au
  *
  */
+
 #ifndef QECOMMON_H
 #define QECOMMON_H
+
+#include <QColor>
+#include <QString>
 
 // Useful type neutral numerical macro fuctions.
 //
@@ -34,6 +38,25 @@
 #define LIMIT(x,low,high)  (MAX(low, MIN(x, high)))
 
 // Calculates number of items in an array
+//
 #define ARRAY_LENGTH(xx)   (sizeof (xx) /sizeof (xx [0]))
+
+// Geneal purpose utility functions.
+// We use a class of static methods as opposed to a set of regular functions.
+// This provide a name space, but also allows inheritance if needs be.
+//
+class QEUtilities {
+public:
+    /// For the specified bacground colour, returns font colour (black or white)
+    /// with a suitable contrast. Currently based on rgb values, and ignores alpha.
+    ///
+    static QColor fontColour (const QColor & backgroundColour);
+
+    /// Converts a given colour to associated background-color style,
+    /// and sets foreground (font) colour to black or white accordingly.
+    ///
+    static QString colourToStyle (const QColor backgroundColour);
+
+};
 
 # endif // QECOMMON_H
