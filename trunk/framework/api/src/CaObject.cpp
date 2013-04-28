@@ -820,7 +820,11 @@ bool CaObjectPrivate::processChannel( struct event_handler_args args ) {
             {
                 caRecord.addEnumState( std::string( incommingData->strs[i] ) );
             }
+            // CA provides no display or control limits for DBF_ENUM channels, but we
+            // can use the number states to form sensible values.
+            //
             caRecord.setDisplayLimit( double (incommingData->no_str - 1), 0.0 );
+            caRecord.setControlLimit( double (incommingData->no_str - 1), 0.0 );
             caRecord.setUnsignedShort( &incommingData->value, args.count );
             break;
         }
