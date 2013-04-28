@@ -36,6 +36,8 @@
 #define MAX_SIGNIFICANCE   15
 #define NUMBER_OF_RADICES  4
 
+// create a radix class ??
+
 //==============================================================================
 // Local function.
 // Maybe they should be static functions of the QENumericEdit class
@@ -418,6 +420,14 @@ void QENumericEdit::setDoubleValue (const double& valueIn, QCaAlarmInfo& alarmIn
          //
          ctrlLow = qca->getControlLimitLower ();
          ctrlUpp = qca->getControlLimitUpper ();
+
+         // If control limits are undefined - try display limits.
+         //
+         if ((ctrlLow == 0.0) && (ctrlUpp == 0.0)) {
+            ctrlLow = qca->getDisplayLimitLower ();
+            ctrlUpp = qca->getDisplayLimitUpper ();
+         }
+
          if ((ctrlLow != 0.0) || (ctrlUpp != 0.0)) {
             // At least one of these limits is non-zero - assume database creator
             // has thought about this.
