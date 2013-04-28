@@ -39,7 +39,7 @@
 
 // Calculates number of items in an array
 //
-#define ARRAY_LENGTH(xx)   (sizeof (xx) /sizeof (xx [0]))
+#define ARRAY_LENGTH(xx)   (int (sizeof (xx) /sizeof (xx [0])))
 
 // Geneal purpose utility functions.
 // We use a class of static methods as opposed to a set of regular functions.
