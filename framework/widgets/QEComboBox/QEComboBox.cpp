@@ -1,4 +1,5 @@
-/*
+/*  QEComboBox.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -14,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2009, 2010, 2013
  *
  *  Author:
  *    Andrew Rhyder
@@ -57,8 +58,9 @@ void QEComboBox::setup() {
     // Set up default properties
     useDbEnumerations = true;
     writeOnChange = true;
-    subscribe = false;
+    subscribe = true;
     setAllowDrop( false );
+    setMaxVisibleItems (16);
 
     // Set the initial state
     lastValue = 0;
@@ -316,3 +318,5 @@ bool QEComboBox::getUseDbEnumerations()
 {
     return useDbEnumerations;
 }
+
+// end

@@ -55,6 +55,16 @@ QERadioGroup::QERadioGroup (const QString & variableNameIn, QWidget * parent) :
    this->setVariableName (variableNameIn, 0);
 }
 
+//-----------------------------------------------------------------------------
+// Constructor with title and known variable
+//
+QERadioGroup::QERadioGroup (const QString &title, const QString &variableNameIn, QWidget* parent) :
+    QGroupBox (title, parent), QEWidget (this)
+{
+this->commonSetup ();
+this->setVariableName (variableNameIn, 0);
+}
+
 //---------------------------------------------------------------------------------
 //
 QSize QERadioGroup::sizeHint () const
@@ -76,8 +86,13 @@ void QERadioGroup::commonSetup ()
    this->setNumVariables (1);
 
    this->setMinimumSize (120, 40);
-   this->setDisplayAlarmState (true);
+
+   // Set up default properties
+   //
+   this->useDbEnumerations = true;
    this->setAllowDrop (false);
+   this->setDisplayAlarmState (true);
+   this->userEnumerations.clear ();
 
    // Set the initial state
    //
@@ -87,7 +102,7 @@ void QERadioGroup::commonSetup ()
 
    this->number = 0;
    this->rows = 0;
-   this->cols = 1;
+   this->cols = 2;
 
    // Create buttons - invisble for now.
    //
@@ -196,8 +211,6 @@ void QERadioGroup::valueUpdate (const long &value,
                                 QCaDateTime &,
                                 const unsigned int &variableIndex)
 {
-   qcaobject::QCaObject * qca = NULL;
-   int j;
    QRadioButton *button = NULL;
 
    if (variableIndex != 0) {
@@ -209,31 +222,9 @@ void QERadioGroup::valueUpdate (const long &value,
    //
    if (this->isFirstUpdate) {
       this->isFirstUpdate = false;
-
-      // Associated qca object - avoid the segmentation fault.
-      //
-      qca = getQcaItem (0);
-      if (!qca) {
-         DEBUG << "null qca [0]";
-         return;
-      }
-
-      QStringList enumerations = qca->getEnumerations ();
-
-      this->number = MIN (enumerations.count (), this->radioButtonList.count ());
-      this->rows = (number + this->cols - 1) / MAX (this->cols, 1);
-
-      for (j = 0; j < this->radioButtonList.count (); j++) {
-         button = this->radioButtonList.value (j);
-         button->setVisible (j < number);
-         if (j < number) {
-            button->setText (enumerations.value (j));
-         }
-      }
-
-      this->setButtonGeometry ();
-
+      this->setButtonText ();
    }
+
    // Set the selected index value.
    //
    this->currentIndex = value;
@@ -320,6 +311,38 @@ void QERadioGroup::resizeEvent (QResizeEvent *)
 
 //---------------------------------------------------------------------------------
 //
+void QERadioGroup::setButtonText ()
+{
+   qcaobject::QCaObject * qca = NULL;
+   QRadioButton *button = NULL;
+   QStringList enumerations;
+   int j;
+
+   if (this->useDbEnumerations) {
+      qca = getQcaItem (0);
+      if (qca) {
+         enumerations = qca->getEnumerations ();
+      }
+   } else {
+      enumerations = this->userEnumerations;
+   }
+
+   this->number = MIN (enumerations.count (), this->radioButtonList.count ());
+   this->rows = (number + this->cols - 1) / MAX (this->cols, 1);
+
+   for (j = 0; j < this->radioButtonList.count (); j++) {
+      button = this->radioButtonList.value (j);
+      button->setVisible (j < number);
+      if (j < number) {
+         button->setText (enumerations.value (j));
+      }
+   }
+
+   this->setButtonGeometry ();
+}
+
+//---------------------------------------------------------------------------------
+//
 void QERadioGroup::setButtonGeometry ()
 {
    const int tm = 18;           // top margin
@@ -362,6 +385,20 @@ void QERadioGroup::setButtonGeometry ()
    }
 }
 
+//------------------------------------------------------------------------------
+//
+void QERadioGroup::setCurrentIndex (int indexIn)
+{
+   this->currentIndex = LIMIT (indexIn, -1, (this->number - 1));
+}
+
+//------------------------------------------------------------------------------
+//
+int QERadioGroup::getCurrentIndex ()
+{
+   return this->currentIndex;
+}
+
 //==============================================================================
 // Properties
 // Update variable name etc.
@@ -375,16 +412,31 @@ void QERadioGroup::useNewVariableNameProperty (QString variableNameIn,
 
 //------------------------------------------------------------------------------
 //
-void QERadioGroup::setCurrentIndex (int indexIn)
+void QERadioGroup::setUseDbEnumerations (bool useDbEnumerationsIn)
 {
-   this->currentIndex = LIMIT (indexIn, -1, 15);
+   this->useDbEnumerations = useDbEnumerationsIn;
+   this->setButtonText ();
 }
 
 //------------------------------------------------------------------------------
 //
-int QERadioGroup::getCurrentIndex ()
+bool QERadioGroup::getUseDbEnumerations ()
 {
-   return this->currentIndex;
+   return this->useDbEnumerations;
+}
+
+//------------------------------------------------------------------------------
+//
+void QERadioGroup::setUserEnumerations (const QStringList & userEnumerationsIn)
+{
+   this->userEnumerations = userEnumerationsIn;
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QERadioGroup::getUserEnumerations ()
+{
+   return this->userEnumerations;
 }
 
 //------------------------------------------------------------------------------
