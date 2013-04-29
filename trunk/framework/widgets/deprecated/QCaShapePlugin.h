@@ -47,9 +47,7 @@ public:
                         Arc=QEShape::Arc,
                         Chord=QEShape::Chord,
                         Pie=QEShape::Pie,
-                        Path=QEShape::Path,
-                        Text=QEShape::Text,
-                        Pixmap=QEShape::Pixmap };
+                        Path=QEShape::Path };
     Q_ENUMS(shapeOptions)
     Q_PROPERTY(shapeOptions shape READ getShapeProperty WRITE setShapeProperty)
     void setShapeProperty( shapeOptions shape ){ setShape((QEShape::shapeOptions)shape); }
