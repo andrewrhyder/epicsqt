@@ -57,7 +57,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
 
     /// Options for the type of shape.
     ///
-    enum shapeOptions { Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc, Chord, Pie, Path, Text, Pixmap };
+    enum shapeOptions { Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc, Chord, Pie, Path };
     /// Options for how a variable will animate the shape.
     ///
     enum animationOptions {Width, Height, X, Y, Transperency, Rotation, ColourHue, ColourSaturation, ColourValue, ColourIndex, Penwidth};
@@ -155,12 +155,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     /// Access function for #arc length' properties - refer to arc length' properties for details
     double getArcLength();
 
-    // text
-    /// Access function for #text' properties - refer to text' properties for details
-    void setText( const QString text );
-    /// Access function for #text' properties - refer to text' properties for details
-    QString getText();
-
   private:
     QEIntegerFormatting integerFormatting;                     // Integer formatting options
   #define OFFSETS_SIZE QESHAPE_NUM_VARIABLES
@@ -183,7 +177,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
 
     double startAngle;
     double arcLength;
-    QString text;
     double rotation;
     unsigned int lineWidth;
     bool fill;
@@ -245,7 +238,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     QPen pen;
     QBrush brush;
     bool antialiased;
-    QPixmap pixmap;
 
     double painterCurrentScaleX;
     double painterCurrentScaleY;
@@ -593,10 +585,6 @@ public:
     /// Sector span of all arc related shapes, including Arc, Chord, Pie.
     ///
     Q_PROPERTY(double arcLength READ getArcLength WRITE setArcLength)
-
-    /// Text for Text shape only.
-    ///
-    Q_PROPERTY(QString text READ getText WRITE setText)
 
 private:
     void setAnimation1Property( animationOptions animation ){ setAnimation( animation, 0 ); }

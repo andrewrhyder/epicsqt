@@ -33,13 +33,30 @@
 #define STRINGIFY2(s)         #s
 #define STRINGIFY(s)          STRINGIFY2(s)
 
-#define QE_VERSION_MAJOR      2
-#define QE_VERSION_MINOR      4
-#define QE_VERSION_RELEASE    24
+// These version numbers are updated for each public release.
+//
+// Before tagging, determine if previously incremented 'RELEASE' number is appropriate (fixes only) or
+// if the 'MAJOR' or 'MINOR' numbers should be incremented instead.
+// (Also, before tagging QE_VERSION_STAGE should be set to QE_VERSION_STAGE_PRODUCTION)
+//
+// After tagging, increment QE_VERSION_RELEASE so all future development will
+// be marked with a higher version than the current release.
+// (Also, after tagging QE_VERSION_STAGE should be set to QE_VERSION_STAGE_DEVELOPMENT)
+//
+#define QE_VERSION_MAJOR      2     // Public releases that include interface or paradigm changes that may require changes to the way the framework is used.
+#define QE_VERSION_MINOR      4     // Public releases containing new functionality (may include fixes as well)
+#define QE_VERSION_RELEASE    24    // Public releases containing fixes only.
+
+// During tagging the version stage should be set to production
+// During tagging the version stage should be set to production
+#define QE_VERSION_STAGE_DEVELOPMENT "Development"
+#define QE_VERSION_STAGE_PRODUCTION  "Production"
+#define QE_VERSION_STAGE             QE_VERSION_STAGE_DEVELOPMENT
 
 #define QE_VERSION_STRING     STRINGIFY(QE_VERSION_MAJOR) "." \
                               STRINGIFY(QE_VERSION_MINOR) "." \
-                              STRINGIFY(QE_VERSION_RELEASE)
+                              STRINGIFY(QE_VERSION_RELEASE) \
+                              " (" QE_VERSION_STAGE ")"
 
 #define QE_VERSION_DATE_TIME  __DATE__ " " __TIME__
 

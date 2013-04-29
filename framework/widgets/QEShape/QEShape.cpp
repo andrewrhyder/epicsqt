@@ -65,7 +65,6 @@ void QEShape::setup() {
     setAutoFillBackground(false);
 
     antialiased = false;
-    pixmap.load(":/images/qt-logo.png");
 
     setBackgroundRole(QPalette::NoRole);
 
@@ -122,6 +121,7 @@ void QEShape::setup() {
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
+    setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
     // Use widget signals
     // !! move this functionality into QEWidget???
@@ -384,11 +384,7 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
     // Draw everything with antialiasing
     painter.setRenderHint( QPainter::Antialiasing, true );
 
-    // Alter the viewport according to the origin translation properties
-    // ???Origin translation was added so 0,0 could be some where other than top left as scaling appeared
-    // to be after translation. This causes the translation to also be scaled which was inappropriate.
-    // This may not be the case, in which case the origin translation could be removed and the same effect
-    // could be achieved by giving variables associated with X and Y a negative offset.
+    // Alter the viewport according to the origin translation properties.
     QRect viewportRect = painter.viewport();
     viewportRect.moveLeft( originTranslation.x() );
     viewportRect.moveTop( originTranslation.y() );
@@ -408,9 +404,17 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
             painter.drawPoints(points, numPoints);
             break;
         case Polyline :
+            if( !drawBorder )
+                painter.setPen( Qt::NoPen );
+            if( !fill )
+                painter.setBrush( Qt::NoBrush );
             painter.drawPolyline(points, numPoints);
             break;
         case Polygon :
+            if( !drawBorder )
+                painter.setPen( Qt::NoPen );
+            if( !fill )
+                painter.setBrush( Qt::NoBrush );
             painter.drawPolygon(points, numPoints);
             break;
         case Rect :
@@ -423,6 +427,8 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
         case RoundedRect :
             if( !drawBorder )
                 painter.setPen( Qt::NoPen );
+            if( !fill )
+                painter.setBrush( Qt::NoBrush );
 #if QT_VERSION >= 0x040400
             painter.drawRoundedRect(points[0].x(), points[0].y(), points[1].x(), points[1].y(), 25, 25, Qt::RelativeSize);
 #else
@@ -432,6 +438,8 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
         case Ellipse :
             if( !drawBorder )
                 painter.setPen( Qt::NoPen );
+            if( !fill )
+                painter.setBrush( Qt::NoBrush );
             painter.drawEllipse(points[0].x(), points[0].y(), points[1].x(), points[1].y());
             break;
         case Arc :
@@ -440,34 +448,28 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
         case Chord :
             if( !drawBorder )
                 painter.setPen( Qt::NoPen );
+            if( !fill )
+                painter.setBrush( Qt::NoBrush );
             painter.drawChord(points[0].x(), points[0].y(), points[1].x(), points[1].y(), (int)(startAngle*16), (int)(arcLength*16) );
             break;
         case Pie :
             if( !drawBorder )
                 painter.setPen( Qt::NoPen );
+            if( !fill )
+                painter.setBrush( Qt::NoBrush );
             painter.drawPie(points[0].x(), points[0].y(), points[1].x(), points[1].y(), (int)(startAngle*16), (int)(arcLength*16) );
             break;
         case Path :
-        {
-            QPainterPath path;
-            if( numPoints > 1 ) {
+            if( !drawBorder )
+                painter.setPen( Qt::NoPen );
+            if( !fill )
+                painter.setBrush( Qt::NoBrush );
+            {
+                QPainterPath path;
                 path.moveTo(points[0]);
-                for( unsigned int i = 1; i < numPoints; i++ ) {
-                    path.lineTo( points[i] );
-                }
+                path.cubicTo( points[1], points[2], points[3]  );
                 painter.drawPath(path);
             }
-            break;
-        }
-        case Text :
-        {
-            QRect rect( points[0], points[1] );
-            QRectF qrect( rect );
-            painter.drawText( qrect, Qt::AlignCenter, text );
-            break;
-        }
-        case Pixmap :
-            painter.drawPixmap(10, 10, pixmap);
             break;
     }
 }
@@ -693,16 +695,5 @@ void QEShape::setArcLength( double arcLengthIn )
 double QEShape::getArcLength()
 {
     return arcLength;
-}
-
-// text
-void QEShape::setText( QString textIn )
-{
-    text = textIn;
-    update();
-}
-QString QEShape::getText()
-{
-    return text;
 }
 
