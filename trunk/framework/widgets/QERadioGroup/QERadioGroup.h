@@ -29,6 +29,7 @@
 #include <QGroupBox>
 #include <QList>
 #include <QString>
+#include <QStringList>
 #include <QVector>
 #include <QRadioButton>
 #include <QSize>
@@ -172,40 +173,57 @@ public:
     // END-STANDARD-PROPERTIES ========================================================
 
 
-    // QERadioGroup specific properties ====-==========================================
+    // QERadioGroup specific properties ===============================================
     //
 public:
+    Q_PROPERTY (bool useDbEnumerations READ getUseDbEnumerations WRITE setUseDbEnumerations)
 
-    Q_PROPERTY (int currentIndex READ getCurrentIndex WRITE setCurrentIndex)
+    /// Use database enumerations - defaults to true
+    ///
+    void setUseDbEnumerations (bool useDbEnumerations);
+    bool getUseDbEnumerations ();
 
-    void setCurrentIndex (int index);
-    int getCurrentIndex ();
+    /// Enumrations values used when useDbEnumerations is false.
+    ///
+    Q_PROPERTY (QStringList userEnumerations READ getUserEnumerations  WRITE setUserEnumerations)
 
+    void setUserEnumerations (const QStringList & list);
+    QStringList getUserEnumerations ();
+
+    /// Number of colums - defaults to two.
+    ///
     Q_PROPERTY (int columns READ getColumns WRITE setColumns)
 
     void setColumns (int columns);
     int getColumns ();
-
-
-   // End of QERadioGroup specific properties =====================================
+    //
+    // End of QERadioGroup specific properties =========================================
 
 public:
     /// Create without a variable.
     /// Use setVariableNameProperty() and setSubstitutionsProperty() to define a
     /// variable and, optionally, macro substitutions later.
     ///
-    QERadioGroup (QWidget *parent = 0);
+    explicit QERadioGroup (QWidget *parent = 0);
 
     /// Create with a variable.
     /// A connection is automatically established.
     /// If macro substitutions are required, create without a variable and set the
     /// variable and macro substitutions after creation.
     ///
-    QERadioGroup (const QString &variableName, QWidget *parent = 0);
+    explicit QERadioGroup (const QString &variableName, QWidget *parent = 0);
+
+    /// Create with a group title and a variable.
+    /// A connection is automatically established.
+    /// If macro substitutions are required, create without a variable and set the
+    /// variable and macro substitutions after creation.
+    ///
+    explicit QERadioGroup (const QString &title, const QString &variableName, QWidget* parent = 0);
 
     /// Destruction
     virtual ~QERadioGroup(){}
 
+    int getCurrentIndex ();
 protected:
     QSize sizeHint () const;
     void resizeEvent (QResizeEvent * event);
@@ -215,10 +233,15 @@ protected:
     void establishConnection (unsigned int variableIndex);
     qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
 
+    void setCurrentIndex (int index);
 private:
     QEIntegerFormatting integerFormatting;
+    QStringList userEnumerations;
+    friend class QERadioGroupTaskMenu;    // needs access to designerEnumerations
+
+    bool useDbEnumerations;
     int currentIndex;
-    int number;  // number of displayed buttons.
+    int number;    // number of displayed buttons.
     int rows;
     int cols;
     QCAALARMINFO_SEVERITY lastSeverity;
@@ -230,6 +253,7 @@ private:
     QRadioButtonList radioButtonList;
 
     void commonSetup ();
+    void setButtonText ();
     void setButtonGeometry ();
 
 private slots:
