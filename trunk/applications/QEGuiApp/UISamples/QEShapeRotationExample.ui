@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -15,7 +15,7 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QCaSliderPlugin" name="qcasliderplugin_2">
+    <widget class="QESlider" name="qeslider">
      <property name="variable" stdset="0">
       <string>MY:ao</string>
      </property>
@@ -131,11 +131,6 @@
    <class>QESlider</class>
    <extends>QSlider</extends>
    <header>QESlider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QCaSliderPlugin</class>
-   <extends>QESlider</extends>
-   <header>QCaSliderPlugin.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
