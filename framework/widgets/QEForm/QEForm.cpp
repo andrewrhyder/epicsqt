@@ -237,17 +237,27 @@ bool QEForm::readUiFile()
                  replaceGuiLaunchConsumer( savedGuiLaunchConsumer );
 
             // Any QE widgets that have just been created need to be activated.
+            // They can be activated now all the widgets have been loaded in this form.
+            // Although they can be activated now, we will still hold off if widgets have been told 'dont activate yet'.
+            // This is important for sub forms. Even though they can activate their contents now, it is likely their
+            // filename and macro substitution properties will be set after creation which may cause many widgets
+            // they contain to reconnect, which is inefficient.
+            // When the top form (which set the 'dont activate yet' flag) completes loading it will activate all widgets.
+            //
             // Note, this is only required when QE widgets are not loaded within a form and not directly by 'designer'.
             // When loaded directly by 'designer' they are activated (a CA connection is established) as soon as either
             // the variable name or variable name substitution properties are set
-            QEWidget* containedWidget;
-            while( (containedWidget = getNextContainedWidget()) )
+            if( !getDontActivateYet() )
             {
-                if( containedFrameworkVersion.isEmpty() )
+                QEWidget* containedWidget;
+                while( (containedWidget = getNextContainedWidget()) )
                 {
-                    containedFrameworkVersion = containedWidget->getFrameworkVersion();
+                    if( containedFrameworkVersion.isEmpty() )
+                    {
+                        containedFrameworkVersion = containedWidget->getFrameworkVersion();
+                    }
+                    containedWidget->activate();
                 }
-                containedWidget->activate();
             }
 
             // If the published profile was published within this method, release it so nothing created later tries to use this object's services
