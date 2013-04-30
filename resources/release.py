@@ -142,7 +142,7 @@ if __name__ == "__main__":
 	# make copy of the trunk
 	try:
 		print "Making copy of the framework trunk '%s/trunk' into directory '%s/trunk'..." % (base_path, __TEMP_DIRECTORY__)
-		command = "rm -rf %s ; mkdir %s ; cp -R %s/trunk %s ; find %s -type d -name .svn | xargs rm -rf" % (__TEMP_DIRECTORY__, __TEMP_DIRECTORY__, base_path, __TEMP_DIRECTORY__, __TEMP_DIRECTORY__)
+		command = "rm -rf %s ; mkdir %s ; cd %s/trunk ; make clean ; cp -R %s/trunk %s ; find %s -type d -name .svn | xargs rm -rf" % (__TEMP_DIRECTORY__, __TEMP_DIRECTORY__, base_path, base_path, __TEMP_DIRECTORY__, __TEMP_DIRECTORY__)
 		#print command
 		subprocess.call(command, shell = True)
 	except KeyboardInterrupt:
