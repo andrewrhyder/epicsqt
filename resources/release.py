@@ -7,12 +7,14 @@ __copyright__ = "(C) 2013 Australian Synchrotron"
 __version__ = "1.0"
 __date__ = "2013/APR/30"
 __description__ = "Script to automate the release of a new version of the EPICS Qt Framework"
-__status__ = "Development"
+__status__ = "Production"
 
 
 
+import os
 import sys
 import subprocess
+
 
 
 __SVN_REPOSITORY__ = "https://epicsqt.svn.sourceforge.net/svnroot/epicsqt"
@@ -31,15 +33,20 @@ if __name__ == "__main__":
 	print ""
 
 
+	path =  os.path.dirname(os.path.abspath(sys.argv[0])).split("/")
+	base_path = ""
+	for i in range(0, len(path) - 2):
+		if len(path[i]) > 0:
+			base_path = "%s/%s" % (base_path, path[i])
+
+
 	try:
 		# get summary
 		summary_list = []
-		while True:
-			summary = raw_input("Summary for this new release: ")
-			if len(summary) == 0:
-				break
-			else:
-				summary_list.append(summary)
+		summary = raw_input("Summary for this new release   : ")
+		while len(summary) > 0:
+			summary_list.append(summary)
+			summary = raw_input("(Press ENTER to finish summary): ")
 		print ""
 	except KeyboardInterrupt:
 		print ""
@@ -49,9 +56,9 @@ if __name__ == "__main__":
 
 	# get version of the new release
 	try:
-		executable = "../applications/QEGuiApp/QEGui -v"
-		print "Retrieving version of the new release by executing '%s'..." % executable
-		command = "%s | grep \"Framework version: \" | sed 's/Framework\ version:\ //' | sed 's/\ .*//' > %s" % (executable, __TEMP_FILE__)
+		executable = "/trunk/applications/QEGuiApp/QEGui -v"
+		print "Retrieving version of the new release by executing '%s%s'..." % (base_path, executable)
+		command = "%s%s | grep \"Framework version: \" | sed 's/Framework\ version:\ //' | sed 's/\ .*//' > %s" % (base_path, executable, __TEMP_FILE__)
 		#print command
 		subprocess.call(command, shell = True)
 		file = open(__TEMP_FILE__, "r")
@@ -71,7 +78,7 @@ if __name__ == "__main__":
 
 	# get version of the last release
 	try:
-		print "Retrieving version of the last release from the SVN 'tags' directory..."
+		print "Retrieving version of the last release from SVN 'tags' directory..."
 		command = "svn list %s/tags | sort -V | tail -2 | head -1 > %s" % (__SVN_REPOSITORY__, __TEMP_FILE__)
 		#print command
 		subprocess.call(command, shell = True)
@@ -83,7 +90,7 @@ if __name__ == "__main__":
 		print "Release process interrupted by the user."
 		sys.exit(0)
 	except:
-		print "Error when retrieving version of the last release from the SVN 'tag' directory!"
+		print "Error when retrieving version of the last release from SVN 'tag' directory!"
 		sys.exit(-1)
 
 
@@ -134,8 +141,8 @@ if __name__ == "__main__":
 
 	# make copy of the trunk
 	try:
-		print "Making copy of the 'trunk' of the framework into directory '%s'..." % __TEMP_DIRECTORY__
-		command = "rm -rf %s ; mkdir %s ; cp -R ../../trunk %s ; find %s -type d -name .svn | xargs rm -rf" % (__TEMP_DIRECTORY__, __TEMP_DIRECTORY__, __TEMP_DIRECTORY__, __TEMP_DIRECTORY__)
+		print "Making copy of the framework trunk '%s/trunk' into directory '%s/trunk'..." % (base_path, __TEMP_DIRECTORY__)
+		command = "rm -rf %s ; mkdir %s ; cp -R %s/trunk %s ; find %s -type d -name .svn | xargs rm -rf" % (__TEMP_DIRECTORY__, __TEMP_DIRECTORY__, base_path, __TEMP_DIRECTORY__, __TEMP_DIRECTORY__)
 		#print command
 		subprocess.call(command, shell = True)
 	except KeyboardInterrupt:
@@ -143,7 +150,7 @@ if __name__ == "__main__":
 		print "Release process interrupted by the user."
 		sys.exit(0)
 	except:
-		print "Error when copying 'trunk' of the framework into directory '%s'!" % __TEMP_DIRECTORY__
+		print "Error when copying 'trunk' of the framework into directory '%s/trunk'!" % __TEMP_DIRECTORY__
 		sys.exit(-1)
 
 
@@ -160,7 +167,6 @@ if __name__ == "__main__":
 	except:
 		print "Error when inserting SVN log entries in file '%s/trunk/releasenotes.txt'!" % __TEMP_DIRECTORY__
 		sys.exit(-1)
-
 
 
 	# update project number in Doxyfile
@@ -210,7 +216,7 @@ if __name__ == "__main__":
 
 	# copy reference manual PDF file
 	try:
-		print "Copy reference manual PDF file..."
+		print "Copy reference manual PDF file to '%s/trunk/documentation/QE_ReferenceManual.pdf'..." % __TEMP_DIRECTORY__
 		command = "cp %s/trunk/documentation/latex/refman.pdf %s/trunk/documentation/QE_ReferenceManual.pdf" % (__TEMP_DIRECTORY__, __TEMP_DIRECTORY__)
 		#print command
 		subprocess.call(command, shell = True)
@@ -229,9 +235,10 @@ if __name__ == "__main__":
 		print "You are about to commit/upload new release '%s' into SVN 'tags' directory." % new_release_version
 		print "Please check that the documentation was generated correctly before proceeding."
 		while True:
-			if raw_input("Proceed with commit (y/n): ").upper() == "Y":
+			answer = raw_input("Proceed with commit (y/n): ")
+			if answer.upper() == "Y":
 				break
-			if raw_input("Proceed with commit (y/n): ").upper() == "N":
+			if answer.upper() == "N":
 				print "Release process interrupted by the user."
 				sys.exit(0)
 		print ""
@@ -243,8 +250,8 @@ if __name__ == "__main__":
 
 	# move new release from temporary trunk to tags
 	try:
-		print "Move new release from '%s/trunk' to '../../tags/%s'..." % (__TEMP_DIRECTORY__, new_release_version)
-		command = "mkdir -p ../../tags ; mv %s/trunk ../../tags/%s" % (__TEMP_DIRECTORY__, new_release_version)
+		print "Move new release from '%s/trunk' to '%s/tags/%s'..." % (__TEMP_DIRECTORY__, base_path, new_release_version)
+		command = "mkdir -p %s/tags ; rm -rf %s/tags/%s ; mv %s/trunk %s/tags/%s" % (base_path, base_path, new_release_version, __TEMP_DIRECTORY__, base_path, new_release_version)
 		#print command
 		subprocess.call(command, shell = True)
 	except KeyboardInterrupt:
@@ -252,24 +259,43 @@ if __name__ == "__main__":
 		print "Release process interrupted by the user."
 		sys.exit(0)
 	except:
-		print "Error when moving new release from '%s/trunk' to '../../tags/%s'..." % (__TEMP_DIRECTORY__, new_release_version)
+		print "Error when moving new release from '%s/trunk' to '%s/tags/%s'!" % (__TEMP_DIRECTORY__, base_path, new_release_version)
 		sys.exit(-1)
 
 
 	# commit new release into SVN 'tags' directory
 	try:
 		print "Commiting new release '%s' into SVN 'tags' directory..." % new_release_version
-		command = "svn add ../../tags ; svn commit ../../tags/%s -m \"Release version %s\"" % (new_release_version, new_release_version)
-		print command
+		command = "svn add %s/tags 1>/dev/null; svn commit %s/tags/%s -m \"Release version %s\" 1>/dev/null" % (base_path, base_path, new_release_version, new_release_version)
+		#print command
 		subprocess.call(command, shell = True)
 	except KeyboardInterrupt:
 		print ""
 		print "Release process interrupted by the user."
 		sys.exit(0)
 	except:
-		print "Error when commiting new release '%s' into SVN 'tags' directory..." % new_release_version
+		print "Error when commiting new release '%s' into SVN 'tags' directory!" % new_release_version
 		sys.exit(-1)
 
 
+	# create tar file
+	try:
+		tar_file = "epicsqt-%s-src.tar.gz" % new_release_version
+		print "Creating tar file '%s/trunk/resources/%s'..." % (base_path, tar_file)
+		command = "rm -f %s/trunk/resources/%s ; tar -cvzf %s/trunk/resources/%s -C %s/tags/%s . 1>/dev/null" % (base_path, tar_file, base_path, tar_file, base_path, new_release_version)
+		#print command
+		subprocess.call(command, shell = True)
+		print "Please, upload tar file '%s/trunk/resources/%s' into the EPICS Qt Framework SourceForge download area." % (base_path, tar_file)
+	except KeyboardInterrupt:
+		print ""
+		print "Release process interrupted by the user."
+		sys.exit(0)
+	except:
+		print "Error when creating tar file '%s/trunk/resources/%s'!" % (base_path, tar_file)
+		sys.exit(-1)
+
+
+	print ""
+	print "Release done!"
 
 
