@@ -29,17 +29,19 @@
 #include <QGroupBox>
 #include <QList>
 #include <QString>
-#include <QStringList>
 #include <QVector>
 #include <QRadioButton>
 #include <QSize>
+#include <QMap>
 
 #include <QCaObject.h>
 #include <QEWidget.h>
 #include <QEInteger.h>
 #include <QEIntegerFormatting.h>
+#include <QELocalEnumeration.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QEPluginLibrary_global.h>
+
 
 class QEPLUGINLIBRARYSHARED_EXPORT QERadioGroup :
       public QGroupBox, public QEWidget  {
@@ -185,10 +187,10 @@ public:
 
     /// Enumrations values used when useDbEnumerations is false.
     ///
-    Q_PROPERTY (QStringList userEnumerations READ getUserEnumerations  WRITE setUserEnumerations)
+    Q_PROPERTY (QString localEnumerations READ getLocalEnumerations  WRITE setLocalEnumerations)
 
-    void setUserEnumerations (const QStringList & list);
-    QStringList getUserEnumerations ();
+    void setLocalEnumerations (const QString & localEnumerations);
+    QString getLocalEnumerations ();
 
     /// Number of colums - defaults to two.
     ///
@@ -234,10 +236,22 @@ protected:
     qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
 
     void setCurrentIndex (int index);
+
 private:
+    typedef QList<QRadioButton *> QRadioButtonList;
+    typedef QMap<int, int> QIntTintMap;
+
+
     QEIntegerFormatting integerFormatting;
-    QStringList userEnumerations;
-    friend class QERadioGroupTaskMenu;    // needs access to designerEnumerations
+    QELocalEnumeration localEnumerations;
+
+    // Use of the local enumerations means thay we could have spare mapping,
+    // e.g.: 1 => Red, 5 => Blue, 63 => Green.   Therefore we need to create
+    // and maintain a value to button and button to value maps.
+    //
+    QIntTintMap valueToButtonMap;
+    QIntTintMap buttonToValueMap;
+    QRadioButtonList radioButtonList;
 
     bool useDbEnumerations;
     int currentIndex;
@@ -247,10 +261,6 @@ private:
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
     bool isFirstUpdate;
-
-    typedef QList<QRadioButton *> QRadioButtonList;
-
-    QRadioButtonList radioButtonList;
 
     void commonSetup ();
     void setButtonText ();

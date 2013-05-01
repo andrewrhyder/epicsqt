@@ -30,11 +30,11 @@
 
 #define DEBUG qDebug () << "QERadioGroup" << __FUNCTION__ << __LINE__
 
-// Normallu we expect 16 for an enueration PV, but framework does a special for
-// status (.STAT) PVs, so allow a  little leaway.
+// Normally we expect 16 for an enueration PV, but framework does a special for
+// status (.STAT) PVs so need some more. Also use of local enueration values
+// means many more values may be catered for.
 //
-#define MAXIMUM_BUTTONS   24
-
+#define MAXIMUM_BUTTONS   64
 
 //-----------------------------------------------------------------------------
 // Constructor with no initialisation
@@ -92,7 +92,6 @@ void QERadioGroup::commonSetup ()
    this->useDbEnumerations = true;
    this->setAllowDrop (false);
    this->setDisplayAlarmState (true);
-   this->userEnumerations.clear ();
 
    // Set the initial state
    //
@@ -111,7 +110,7 @@ void QERadioGroup::commonSetup ()
       button->setVisible (false);
 
       QObject::connect (button, SIGNAL (clicked (bool)),
-			this,   SLOT   (buttonClicked (bool)));
+                        this,   SLOT   (buttonClicked (bool)));
 
       this->radioButtonList.append (button);
    }
@@ -127,7 +126,7 @@ void QERadioGroup::commonSetup ()
    // variable name after the user has stopped typing.
    //
    QObject::connect
-      (&this->variableNamePropertyManager, SIGNAL (newVariableNameProperty (QString, QString, unsigned int)),
+      (&this->variableNamePropertyManager, SIGNAL (newVariableNameProperty    (QString, QString, unsigned int)),
        this,                                SLOT  (useNewVariableNameProperty (QString, QString, unsigned int)));
 }
 
@@ -212,6 +211,7 @@ void QERadioGroup::valueUpdate (const long &value,
                                 const unsigned int &variableIndex)
 {
    QRadioButton *button = NULL;
+   int buttonIndex;
 
    if (variableIndex != 0) {
       DEBUG << "unexpected variableIndex" << variableIndex;
@@ -229,12 +229,15 @@ void QERadioGroup::valueUpdate (const long &value,
    //
    this->currentIndex = value;
 
-   if ((this->currentIndex >= 0) && (this->currentIndex < this->number)) {
-      button = this->radioButtonList.value (this->currentIndex, NULL);
+   buttonIndex = this->valueToButtonMap.value (this->currentIndex, -1);
+
+   if ((buttonIndex >= 0) && (buttonIndex < this->number)) {
+      button = this->radioButtonList.value (buttonIndex, NULL);
       if (button) {
          button->setChecked (true);
       }
    }
+
    // Signal a database value change to any Link widgets
    //
    this->dbValueChanged (value);
@@ -274,6 +277,7 @@ void QERadioGroup::buttonClicked (bool)
 {
    int checkedButton;
    int j;
+   int indexValue;
 
    checkedButton = -1;
    for (j = 0; j < this->number && j < this->radioButtonList.count (); j++) {
@@ -288,17 +292,30 @@ void QERadioGroup::buttonClicked (bool)
       }
    }
 
-   if ((checkedButton >= 0) && (checkedButton != this->getCurrentIndex ())) {
-      // Write the value.
-      // Get the variable to write to
-      //
-      QEInteger *qca = (QEInteger *) getQcaItem (0);
+   // Validate
+   //
+   if ((checkedButton < 0) && (checkedButton >= this->number)) {
+      return;
+   }
 
-      // If a QCa object is present (if there is a variable to write to)
-      // then write the value
-      if (qca) {
-         qca->writeInteger (checkedButton);
-      }
+   if (!this->buttonToValueMap.contains (checkedButton)) {
+      return;
+   }
+
+   indexValue = this->buttonToValueMap.value (checkedButton);
+   if (indexValue == this->getCurrentIndex ()) {
+      return;
+   }
+
+   // Write the new value.
+   // Get the variable to write to
+   //
+   QEInteger *qca = (QEInteger *) getQcaItem (0);
+
+   // If a QCa object is present (if there is a variable to write to)
+   // then write the value
+   if (qca) {
+      qca->writeInteger (indexValue);
    }
 }
 
@@ -316,15 +333,62 @@ void QERadioGroup::setButtonText ()
    qcaobject::QCaObject * qca = NULL;
    QRadioButton *button = NULL;
    QStringList enumerations;
+   QString text;
+   bool isMatch;
+   int n;
    int j;
+
+   // Buid forward and revserse EPICS value to button position maps.
+   // We do this even even using db enuberations and the mapping is trivial.
+   //
+   // Clear maps.
+   //
+   this->valueToButtonMap.clear();
+   this->buttonToValueMap.clear ();
 
    if (this->useDbEnumerations) {
       qca = getQcaItem (0);
       if (qca) {
          enumerations = qca->getEnumerations ();
+
+         // Create indentity map.
+         //
+         for (j = 0; j < enumerations.count (); j++) {
+            this->valueToButtonMap.insert (j, j);
+            this->buttonToValueMap.insert (j, j);
+         }
       }
+
    } else {
-      enumerations = this->userEnumerations;
+
+      // Build up enumeration list using the local enumerations.  This may be
+      // sparce - e.g.: 1 => Red, 5 => Blue, 63 => Green.   We create a reverse
+      // map 0 => 1; 1 => 5; 2 => 63 so that when user selects the an element,
+      // say Blue, we can map this directly to integer value of 5.
+      //
+      // Search upto values range -128 .. 128 - this is arbitary.
+      // Maybe localEnumeration can be modified to provide a min/max value
+      // or a list of values.
+      //
+      enumerations.clear ();
+      for (n = -128; n <= 128; n++) {
+         text = this->localEnumerations.valueToText (n, isMatch);
+
+         // Unless exact match, do not use.
+         //
+         if (!isMatch) continue;
+         if (text.isEmpty ()) continue;
+
+         j = enumerations.count ();
+         if (j >= this->radioButtonList.count ()) {
+            // We are full - ignore the rest.
+            break;
+         }
+         enumerations.append (text);
+
+         this->valueToButtonMap.insert (n, j);
+         this->buttonToValueMap.insert (j, n);
+      }
    }
 
    this->number = MIN (enumerations.count (), this->radioButtonList.count ());
@@ -427,16 +491,17 @@ bool QERadioGroup::getUseDbEnumerations ()
 
 //------------------------------------------------------------------------------
 //
-void QERadioGroup::setUserEnumerations (const QStringList & userEnumerationsIn)
+void QERadioGroup::setLocalEnumerations (const QString & localEnumerationsIn)
 {
-   this->userEnumerations = userEnumerationsIn;
+   this->localEnumerations.setLocalEnumeration (localEnumerationsIn);
+   this->setButtonText ();
 }
 
 //------------------------------------------------------------------------------
 //
-QStringList QERadioGroup::getUserEnumerations ()
+QString QERadioGroup::getLocalEnumerations ()
 {
-   return this->userEnumerations;
+   return this->localEnumerations.getLocalEnumeration ();
 }
 
 //------------------------------------------------------------------------------
