@@ -105,7 +105,7 @@ public:
     /// interpretation of the enumeration values, if the value is textual,
     /// then the value is compared to the textual enumeration values.
     ///
-    QString valueToText( const QVariant & value );
+    QString valueToText( const QVariant & value, bool& match );
 
     /// Generate a value given a string, using formatting defined within this class.
     /// If the value can be formatted the formatted value is returned and 'ok' is true.

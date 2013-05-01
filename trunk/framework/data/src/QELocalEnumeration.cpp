@@ -484,7 +484,7 @@ QString QELocalEnumeration::getLocalEnumeration()
 
 //-----------------------------------------------------------------------------
 //
-QString QELocalEnumeration::valueToText( const QVariant & value )
+QString QELocalEnumeration::valueToText( const QVariant & value , bool& match )
 {
     QString result;
     QTextStream stream (&result);
@@ -493,6 +493,8 @@ QString QELocalEnumeration::valueToText( const QVariant & value )
     QString sValue;
 
     result = "";
+    match = false;
+
     dValue = 0;
 
     // If it is a double, use it as a double.
@@ -530,11 +532,11 @@ QString QELocalEnumeration::valueToText( const QVariant & value )
     for( i = 0; i < localEnumeration.size(); i++ )
     {
         // Determine if the value matches an enumeration
-        bool match = false;
+        match = false;
 
 #define LOCAL_ENUM_SEARCH( VALUE )             \
-        switch( localEnumeration[i].op )   \
-        {                                  \
+        switch( localEnumeration[i].op )       \
+        {                                      \
             case localEnumerationItem::LESS:          if( VALUE <  localEnumeration[i].VALUE ) match = true;  break; \
             case localEnumerationItem::LESS_EQUAL:    if( VALUE <= localEnumeration[i].VALUE ) match = true;  break; \
             case localEnumerationItem::EQUAL:         if( VALUE == localEnumeration[i].VALUE ) match = true;  break; \
@@ -544,6 +546,7 @@ QString QELocalEnumeration::valueToText( const QVariant & value )
             case localEnumerationItem::ALWAYS:                                                 match = true;  break; \
             default:                                                                           match = false; break; \
         }
+
 
         if( isDouble )
         {
