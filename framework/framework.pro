@@ -55,7 +55,6 @@ TARGET = QEPlugin
 
 INCLUDEPATH += \
     api/include \
-    data/include \
     widgets/include
 
 HEADERS += \
@@ -65,23 +64,6 @@ HEADERS += \
     api/include/CaObject.h \
     api/include/CaConnection.h \
     api/include/CaObjectPrivate.h \
-    data/include/QCaDataPoint.h \
-    data/include/QCaVariableNamePropertyManager.h \
-    data/include/QCaStateMachine.h \
-    data/include/QCaObject.h \
-    data/include/QCaEventUpdate.h \
-    data/include/QCaEventFilter.h \
-    data/include/QCaDateTime.h \
-    data/include/QCaAlarmInfo.h \
-    data/include/QCaConnectionInfo.h \
-    data/include/QEStringFormatting.h \
-    data/include/QEString.h \
-    data/include/QEIntegerFormatting.h \
-    data/include/QEInteger.h \
-    data/include/QEFloatingFormatting.h \
-    data/include/QEFloating.h \
-    data/include/QEByteArray.h \
-    data/include/qepicspv.h \
     widgets/include/VariableNameManager.h \
     widgets/include/UserMessage.h \
     widgets/include/contextMenu.h \
@@ -104,22 +86,6 @@ SOURCES += \
     api/src/CaObject.cpp \
     api/src/CaConnection.cpp \
     api/src/CaRef.cpp \
-    data/src/QCaVariableNamePropertyManager.cpp \
-    data/src/QCaStateMachine.cpp \
-    data/src/QCaObject.cpp \
-    data/src/QCaEventUpdate.cpp \
-    data/src/QCaEventFilter.cpp \
-    data/src/QCaDateTime.cpp \
-    data/src/QCaAlarmInfo.cpp \
-    data/src/QCaConnectionInfo.cpp \
-    data/src/QEStringFormatting.cpp \
-    data/src/QEString.cpp \
-    data/src/QEIntegerFormatting.cpp \
-    data/src/QEInteger.cpp \
-    data/src/QEFloatingFormatting.cpp \
-    data/src/QEFloating.cpp \
-    data/src/QEByteArray.cpp \
-    data/src/qepicspv.cpp \
     widgets/src/VariableNameManager.cpp \
     widgets/src/UserMessage.cpp \
     widgets/src/contextMenu.cpp \
@@ -140,6 +106,7 @@ SOURCES += \
 # Included .pri (project include) files for each widget
 #
 include (common/common.pri)
+include (data/data.pri)
 include (archive/QEArchive.pri)
 include (widgets/QEAnalogIndicator/QEAnalogIndicator.pri)
 include (widgets/QEAnalogProgressBar/QEAnalogProgressBar.pri)
