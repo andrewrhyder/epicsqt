@@ -47,7 +47,7 @@ typedef unsigned int  message_kind_sets;
 // Standard/default kind.
 const message_kind_sets MESSAGE_KIND_STANDARD = ( MESSAGE_KIND_EVENT | MESSAGE_KIND_STATUS );
 
-class message_types {
+class QEPLUGINLIBRARYSHARED_EXPORT message_types {
 public:
    explicit message_types ();
    explicit message_types (message_severities severityIn,

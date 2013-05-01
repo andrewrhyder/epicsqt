@@ -92,7 +92,8 @@
   from the QEString object to its setLabelText slot.
  */
 
-class QEWidget : public VariableNameManager,
+class QEPLUGINLIBRARYSHARED_EXPORT  QEWidget :
+                 public VariableNameManager,
                  public QEToolTip,
                  public ContainerProfile,
                  public QEDragDrop,
