@@ -38,6 +38,7 @@
 #include <QHash>
 #include <QStringList>
 #include <QXmlStreamWriter>
+#include <QEPluginLibrary_global.h>
 
 
 
@@ -99,7 +100,7 @@ private:
 };
 
 // Persistance manager
-class PersistanceManager
+class QEPLUGINLIBRARYSHARED_EXPORT PersistanceManager
 {
 public:
     PersistanceManager();
