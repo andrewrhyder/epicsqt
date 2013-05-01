@@ -124,15 +124,30 @@ void instanceManager::readParams()
     newWindow( params );
 }
 
-// Create a new main window
+// Create new main windows
 void instanceManager::newWindow( const startupParams& params )
 {
+    // Set up the profile for the new windows
     ContainerProfile profile;
     profile.setupProfile( NULL, params.pathList, "", params.substitutions, params.userLevelPassword, params.scientistLevelPassword, params.engineerLevelPassword );
-    for( int i = 0; i < params.filenameList.count(); i++ )
+
+    // If no files specified, open a single window without a filen name
+    if( !params.filenameList.count() )
     {
-        MainWindow* mw = new MainWindow( params.filenameList[i], params.enableEdit, params.disableMenu );
+        MainWindow* mw = new MainWindow( "", params.enableEdit, params.disableMenu );
         mw->show();
     }
+
+    // Files have been specified. Open a window for each of them
+    else
+    {
+        for( int i = 0; i < params.filenameList.count(); i++ )
+        {
+            MainWindow* mw = new MainWindow( params.filenameList[i], params.enableEdit, params.disableMenu );
+            mw->show();
+        }
+    }
+
+    // Release the profile
     profile.releaseProfile();
 }
