@@ -187,7 +187,7 @@ public:
 
     /// Enumrations values used when useDbEnumerations is false.
     ///
-    Q_PROPERTY (QString localEnumerations READ getLocalEnumerations  WRITE setLocalEnumerations)
+    Q_PROPERTY (QString localEnumeration READ getLocalEnumerations  WRITE setLocalEnumerations)
 
     void setLocalEnumerations (const QString & localEnumerations);
     QString getLocalEnumerations ();
