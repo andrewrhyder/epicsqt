@@ -60,6 +60,13 @@ unsigned int QEFrameworkVersion::getRelease ()
 
 //------------------------------------------------------------------------------
 //
+const QString QEFrameworkVersion::getStage ()
+{
+   return QE_VERSION_STAGE;
+}
+
+//------------------------------------------------------------------------------
+//
 const QString QEFrameworkVersion::getString ()
 {
    return QString (QE_VERSION_STRING);

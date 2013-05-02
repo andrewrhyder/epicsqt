@@ -49,6 +49,7 @@
 
 // During tagging the version stage should be set to production
 // During tagging the version stage should be set to production
+//
 #define QE_VERSION_STAGE_DEVELOPMENT "Development"
 #define QE_VERSION_STAGE_PRODUCTION  "Production"
 #define QE_VERSION_STAGE             QE_VERSION_STAGE_DEVELOPMENT
@@ -70,6 +71,7 @@ public:
    static unsigned int getMajor ();
    static unsigned int getMinor ();
    static unsigned int getRelease ();
+   static const QString getStage ();
    static const QString getString ();
    static const QString getDateTime ();
 };
