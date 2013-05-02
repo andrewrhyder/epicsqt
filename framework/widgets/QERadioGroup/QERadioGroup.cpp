@@ -478,8 +478,10 @@ void QERadioGroup::useNewVariableNameProperty (QString variableNameIn,
 //
 void QERadioGroup::setUseDbEnumerations (bool useDbEnumerationsIn)
 {
-   this->useDbEnumerations = useDbEnumerationsIn;
-   this->setButtonText ();
+   if (this->useDbEnumerations != useDbEnumerationsIn) {
+      this->useDbEnumerations = useDbEnumerationsIn;
+      this->setButtonText ();
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -494,7 +496,9 @@ bool QERadioGroup::getUseDbEnumerations ()
 void QERadioGroup::setLocalEnumerations (const QString & localEnumerationsIn)
 {
    this->localEnumerations.setLocalEnumeration (localEnumerationsIn);
-   this->setButtonText ();
+   if (!this->useDbEnumerations) {
+      this->setButtonText ();
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -508,9 +512,13 @@ QString QERadioGroup::getLocalEnumerations ()
 //
 void QERadioGroup::setColumns (int colsIn)
 {
-   this->cols = LIMIT (colsIn, 1, 16);
-   this->rows = (number + this->cols - 1) / MAX (this->cols, 1);
-   this->setButtonGeometry ();
+   int constrainedCols = LIMIT (colsIn, 1, 16);
+
+   if (this->cols != constrainedCols) {
+      this->cols = constrainedCols;
+      this->rows = (this->number + this->cols - 1) / MAX (this->cols, 1);
+      this->setButtonGeometry ();
+   }
 }
 
 //------------------------------------------------------------------------------
