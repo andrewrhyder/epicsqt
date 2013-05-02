@@ -29,6 +29,7 @@
 #include <QENumericEditManager.h>
 #include <QEPushButtonManager.h>
 #include <QERadioButtonManager.h>
+#include <QERadioGroupManager.h>
 #include <QECheckBoxManager.h>
 #include <QEShapeManager.h>
 #include <QESliderManager.h>
@@ -106,6 +107,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEPushButtonManager(this));
     widgets.append(new QEPvPropertiesManager(this));
     widgets.append(new QERadioButtonManager(this));
+    widgets.append(new QERadioGroupManager(this));
     widgets.append(new QERecipeManager(this));
     widgets.append(new QEScriptManager(this));
     widgets.append(new QEShapeManager(this));
