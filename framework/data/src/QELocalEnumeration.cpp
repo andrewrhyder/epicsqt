@@ -484,6 +484,13 @@ QString QELocalEnumeration::getLocalEnumeration()
 
 //-----------------------------------------------------------------------------
 //
+bool  QELocalEnumeration::isDefined()
+{
+   return (localEnumeration.count() > 0);
+}
+
+//-----------------------------------------------------------------------------
+//
 QString QELocalEnumeration::valueToText( const QVariant & value , bool& match )
 {
     QString result;
@@ -624,7 +631,7 @@ int QELocalEnumeration::textToInt( const QString & text, bool& ok )
 double QELocalEnumeration::textToDouble( const QString & text, bool& ok )
 {
    QVariant v;
-   double result = 0;
+   double result = 0.0;
 
    v = textToValue( text, ok );
    if( ok ) {
