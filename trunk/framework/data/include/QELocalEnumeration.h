@@ -100,6 +100,10 @@ public:
     QString getLocalEnumeration();
 
 
+    /// Evaluates: getLocalEnumeration.count() > 0
+    ///
+    bool isDefined();
+
     /// Format a variant value using local enumeration list.
     /// If the value is numeric, then the value is compared to the numeric
     /// interpretation of the enumeration values, if the value is textual,
@@ -115,7 +119,16 @@ public:
 
     // Convenience wrapper functions.
     //
+    /// Generate an integer value given a string, using formatting defined within this class.
+    /// If the value can be formatted the formatted value is returned and 'ok' is true.
+    /// If the value can't be formatted then 0 is returned and 'ok' is false.
+    ///
     int textToInt( const QString & text, bool& ok );
+
+    /// Generate a double value given a string, using formatting defined within this class.
+    /// If the value can be formatted the formatted value is returned and 'ok' is true.
+    /// If the value can't be formatted then 0.0 is returned and 'ok' is false.
+    ///
     double textToDouble( const QString & text, bool& ok );
 
 private:
