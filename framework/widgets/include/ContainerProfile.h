@@ -156,6 +156,9 @@ public:
 
     PersistanceManager persistanceManager;  // Persistance manager to manage configuration save and restore
     bool dontActivateYet;               // Flag true if QE widgets should hold of activating (connection to data) until told to do so
+
+    QStringList idRootList;             //
+
 };
 
 
@@ -229,6 +232,10 @@ public:
     virtual void userLevelChanged( userLevels ){}       // Virtual function implemented by widgets based on QEWidget to allow them to be notified of changes in user level
 
     PersistanceManager* getPersistanceManager();        // Return a reference to the single persistance manager
+
+    QString getIdRoot();
+    void addIdRoot( QString root );
+    void removeIdRoot();
 
 private:
     void publishProfile( QObject* guiLaunchConsumerIn,

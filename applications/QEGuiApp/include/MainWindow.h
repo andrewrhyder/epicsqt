@@ -41,10 +41,13 @@ public:
     guiListItem( QEForm* formIn, MainWindow* mainWindowIn ){ form = formIn; mainWindow = mainWindowIn; }
     QEForm* getForm(){ return form; }
     MainWindow* getMainWindow(){ return mainWindow; }
+    void setScroll( QPoint scrollIn ){ scroll = scrollIn; }
+    QPoint getScroll(){ return scroll; }
 //   =guiListItem(const guiListItem& other){ other.form = form; other.mainWindow = mainWindow; }
 private:
     QEForm* form;
     MainWindow* mainWindow;
+    QPoint scroll;
 };
 
 class MainWindow : public QMainWindow, public UserMessage
@@ -52,22 +55,25 @@ class MainWindow : public QMainWindow, public UserMessage
     Q_OBJECT
 
 public:
-    MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn, QWidget *parent = 0 );
+    MainWindow( QString fileName, bool openDialog, bool enableEditIn, bool disableMenuIn, QWidget *parent = 0 );
 
     ~MainWindow();
+
+    static void closeAll();
+    static int count();
 
 private:
     bool enableEdit;                                        // Enable edit menu
     bool disableMenu;                                       // Disable menu bar
     Ui::MainWindowClass ui;                                 // Main window layout
-    static QList<guiListItem> guiList;                       // Shared list of all forms being displayed in all main windows
+    static QList<guiListItem> guiList;                      // Shared list of all forms being displayed in all main windows
     static QList<MainWindow*> mainWindowList;               // Shared list of all main windows
     bool usingTabs;                                         // True if using tabs to display multiple GUIs, false if displaying a single GUI
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
     QEForm* createGui( QString filename );               // Create a gui
-    void loadGuiIntoCurrentWindow( QEForm* newGui );     // Load a new gui into the current window (either single window, or tab)
+    void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );               // Load a new gui into a new tab
     void launchLocalGui( QString filename );             // Launch a new gui from the 'File' menu
 
@@ -102,6 +108,16 @@ private:
 
     QString UILoaderFrameworkVersion;                       // QE framework version used by QUILoader when creating widgets in a form
 
+    void getUniqueId();
+    int uniqueId;
+    static int nextUniqueId;
+
+    QScrollArea* guiScrollArea( QEForm* gui );
+
+    QRect setGeomRect;   // Parameter to setGeom() slot (This slot is called from the timer and can't take parameters)
+    void resizeEvent ( QResizeEvent * event ) ;
+    bool scrollToRequired;
+
 private:
     void newMessage( QString msg, message_types type );
 
@@ -133,6 +149,9 @@ private slots:
 
     void saveRestore( SaveRestoreSignal::saveRestoreOptions option );  // A save or restore has been requested (Probably by QEGui itself)
     void on_actionRestore_Configuration_triggered();
+    void setGeom();
+    void scrollTo( );
+
 };
 
 #endif // MAINWINDOW_H

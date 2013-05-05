@@ -31,14 +31,16 @@ CONFIG += uitools \
 SOURCES += ./src/main.cpp \
     ./src/MainWindow.cpp \
     ./src/StartupParams.cpp \
-    ./src/InstanceManager.cpp
+    ./src/InstanceManager.cpp \
+    ./src/saveRestoreManager.cpp
 
 # Include the following gdbmacros line for debugging only
 #SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
 
 HEADERS += include/MainWindow.h \
     include/StartupParams.h \
-    include/InstanceManager.h
+    include/InstanceManager.h \
+    include/saveRestoreManager.h
 
 INCLUDEPATH += . \
     ./include \

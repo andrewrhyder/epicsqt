@@ -114,63 +114,129 @@
  */
 #include <QDebug>
 #include <persistanceManager.h>
-#include <QDomDocument>
+#include <QFile>
+#include <QByteArray>
+#include <QBuffer>
 
 PersistanceManager::PersistanceManager()
 {
-    xmlWriter = NULL;
     restoreInProgress = false;
-}
 
-// Called after restoring is complete.
-//   After this is called newly created QE widgets asking for persistance
-//   data will not receive any data
-void PersistanceManager::restoreComplete()
-{
-    restoreInProgress = false;
-}
-
-
-QString PersistanceManager::getItem( const QString name )
-{
-    return restoreData[name];
-}
-
-void PersistanceManager::startElement( const QString name )
-{
-    qDebug() << "PersistanceManager::setItemStart() 1" << name;
-
-    if( !xmlWriter )
-        return;
-
-    qDebug() << "PersistanceManager::setItemStart() 2" << name;
-
-    xmlWriter->writeStartElement( name );
+    doc = QDomDocument( "QEConfig" );
 
 }
 
-void PersistanceManager::textElement( const QString name, const QString data )
+PMElement PersistanceManager::getMyData( QString name )
 {
-    qDebug() << "PersistanceManager::textElement() 1" << name << data;
-
-    if( !xmlWriter )
-        return;
-
-    qDebug() << "PersistanceManager::textElement() 2" << name << data;
-
-    xmlWriter->writeTextElement( name, data );
+    if( restoreInProgress )
+        return PMElement( this, config.namedItem( name ).toElement() );
+    else
+        return PMElement( this, QDomElement() );
 }
 
-void PersistanceManager::endElement()
+QDomNodeList PersistanceManager::getElementList( QDomElement element, QString name )
 {
-    qDebug() << "PersistanceManager::setItemEnd() 1";
+    if( element.isNull() || !element.isElement() )
+        return QDomNodeList();
 
-    if( !xmlWriter )
-        return;
+    return element.elementsByTagName( name );
+}
 
-    qDebug() << "PersistanceManager::setItemEnd() 2";
+QDomElement PersistanceManager::getElement( QDomElement element, QString name )
+{
+    if( element.isNull() || !element.isElement() )
+        return QDomElement();
 
-    xmlWriter->writeEndElement();
+    return element.elementsByTagName( name ).at(0).toElement();
+}
+
+QDomElement PersistanceManager::getElement( QDomNodeList nodeList, int i )
+{
+    if( nodeList.isEmpty() || nodeList.count() <= i )
+        return QDomElement();
+
+    return nodeList.at( i ).toElement();
+}
+
+QDomElement PersistanceManager::getElement( QDomElement element, QString name, int i )
+{
+    if( element.isNull() || !element.isElement() )
+        return QDomElement();
+
+    return element.elementsByTagName( name ).at(i).toElement();
+}
+
+bool PersistanceManager::getElementValue( QDomElement element, int& val )
+{
+    if( element.isNull() || !element.isElement() )
+    {
+        val = 0;
+        return false;
+    }
+
+    val = element.nodeValue().toInt();
+    return true;
+}
+
+bool PersistanceManager::getElementValue( QDomElement element, QString& val )
+{
+    if( element.isNull() || !element.isElement() )
+    {
+        val = QString();
+        return false;
+    }
+
+    val = element.nodeValue();
+    return true;
+}
+
+bool PersistanceManager::getElementAttribute( QDomElement element, QString name, int& val )
+{
+    if( element.isNull() || !element.isElement() )
+    {
+        val = 0;
+        return false;
+    }
+
+    val = element.attributes().namedItem( name ).nodeValue().toInt();
+    return true;
+}
+
+bool PersistanceManager::getElementAttribute( QDomElement element, QString name, QString& val )
+{
+    if( element.isNull() || !element.isElement() )
+    {
+        val = QString();
+        return false;
+    }
+
+    val = element.attributes().namedItem( name ).nodeValue();
+    return true;
+}
+
+
+PMElement PersistanceManager::addElement( QString name )
+{
+    QDomElement element = doc.createElement( name );
+    config.appendChild( element );
+    return PMElement( this, element );
+}
+
+PMElement PersistanceManager::addElement( QDomElement parent, QString name )
+{
+    QDomElement element = doc.createElement( name );
+    parent.appendChild( element );
+    return PMElement( this, element );
+}
+
+void PersistanceManager::addAttribute( QDomElement element, QString name, int value )
+{
+    element.setAttribute( name, value );
+}
+
+void PersistanceManager::addAttribute( QDomElement element, QString name, QString value )
+{
+    element.setAttribute( name, value );
 }
 
 // Get a reference to the object that will supply save and restore signals
@@ -181,45 +247,61 @@ QObject* PersistanceManager::getSaveRestoreObject()
 
 
 // Save the current configuration
-void PersistanceManager::save( const QString name )
-{
-    // Create an XML writter to generate all save xml data
-    xmlWriter = new QXmlStreamWriter( &xml );
-    xmlWriter->setAutoFormatting( true );
+void PersistanceManager::save( const QString fileName, const QString rootName, const QString configName )
+{ 
+    doc.clear();
 
-    // Start the save document
-    xmlWriter->writeStartDocument();
 
-    // Top element
-    xmlWriter->writeStartElement( "QEConfiguration" );
+    QDomElement root = doc.createElement( rootName );
+    doc.appendChild( root );
 
-    xmlWriter->writeTextElement( "Name", name );
+    config = doc.createElement( configName );
+    root.appendChild( config );
 
     // Notify any interested objects to contribute their persistant data
     signal.save();
 
-    // Close the top element
-    xmlWriter->writeEndElement();
-
-    qDebug() << xml;
-
-    // Destroy XML writter used generate all save xml data
-    delete xmlWriter;
-    xmlWriter = NULL;
-
-
+    QFile file( fileName );
+    if ( file.open( QIODevice::WriteOnly ) )
+    {
+        QTextStream ts( &file );
+        ts << doc.toString() ;
+        file.close();
+    }
+    else
+    {
+        qDebug() << "Could not save configuration";
+    }
 }
 
 // Restore a configuration
-void PersistanceManager::restore( const QString name )
+void PersistanceManager::restore( const QString fileName, const QString rootName, const QString configName  )
 {
-    // Restore the data
-    //!! build hash table (populate restoreData)
-    qDebug() << "restoring..." << name;
+    QFile file( fileName );
+    if (!file.open(QIODevice::ReadOnly))
+             return;
 
+    if ( !doc.setContent( &file ) )
+    {
+        file.close();
+        return;
+    }
+    file.close();
+
+    QDomElement docElem = doc.documentElement();
+
+    if( docElem.nodeName().compare( rootName ) )
+    {
+        qDebug() << "Expected configuration root element (" << rootName << ") not found in config file (" << fileName << ")";
+        return;
+    }
+
+    config = docElem.namedItem( configName ).toElement();
 
     // Notify any interested objects to collect their persistant data
+    restoreInProgress = true;
     signal.restore();
+    restoreInProgress = false;
 
 }
 
@@ -230,10 +312,10 @@ void PersistanceManager::restore( const QString name )
 
 void SaveRestoreSignal::save()
 {
+
     // Ask all interested components to add their persistant data
     //!!! signal must be blocking
     emit saveRestore( SAVE );
-
 }
 
 void SaveRestoreSignal::restore()
@@ -242,3 +324,71 @@ void SaveRestoreSignal::restore()
     //!!! signal must be blocking
     emit saveRestore( RESTORE );
 }
+
+
+
+PMElement::PMElement( PersistanceManager* ownerIn, QDomElement elementIn ) : QDomElement( elementIn )
+{
+    owner = ownerIn;
+}
+
+PMElement PMElement::addElement( QString name )
+{
+    return owner->addElement( *this, name );
+}
+
+void PMElement::addAttribute( QString name, int value )
+{
+    owner->addAttribute( *this, name, value );
+}
+void PMElement::addAttribute( QString name, QString value )
+{
+    owner->addAttribute( *this, name, value );
+}
+
+bool PMElement::getElementValue( int& val )
+{
+    return owner->getElementValue( *this, val );
+}
+
+bool PMElement::getElementValue( QString& val )
+{
+    return owner->getElementValue( *this, val );
+}
+
+bool PMElement::getElementAttribute( QString name, int& val )
+{
+    return owner->getElementAttribute( *this, name, val );
+}
+
+bool PMElement::getElementAttribute( QString name, QString& val )
+{
+    return owner->getElementAttribute( *this, name, val );
+}
+
+PMElement PMElement::getElement( QString name )
+{
+    return PMElement( owner, owner->getElement( *this, name ) );
+}
+
+PMElement PMElement::getElement( QString name, int i )
+{
+    return PMElement( owner, owner->getElement( *this, name, i ) );
+}
+
+PMElementList PMElement::getElementList( QString name )
+{
+    return PMElementList( owner, owner->getElementList( *this, name ) );
+}
+
+PMElementList::PMElementList( PersistanceManager* ownerIn, QDomNodeList elementListIn ) : QDomNodeList( elementListIn )
+{
+    owner = ownerIn;
+}
+
+PMElement PMElementList::getElement( int i )
+{
+    //!!! check range of i
+    return PMElement( owner, this->at( i ).toElement() );
+}
+
