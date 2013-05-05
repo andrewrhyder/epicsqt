@@ -39,11 +39,15 @@
 #define DESIGNER_COMMAND_1 "designer-qt4"
 #define DESIGNER_COMMAND_2 "designer"
 
+#define QE_CONFIG_NAME "QEGuiConfig"
+
 // Shared list of all main windows
 QList<MainWindow*> MainWindow::mainWindowList;
 
 // Shared list of all GUIs being displayed in all main windows
 QList<guiListItem> MainWindow::guiList;
+
+int MainWindow::nextUniqueId = 0;
 
 Q_DECLARE_METATYPE( QEForm* )
 
@@ -53,7 +57,7 @@ Q_DECLARE_METATYPE( QEForm* )
 
 // Constructor
 // A profile should have been defined before calling this constructor
-MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn, QWidget *parent )  : QMainWindow( parent )
+MainWindow::MainWindow( QString fileName, bool openDialog, bool enableEditIn, bool disableMenuIn, QWidget *parent )  : QMainWindow( parent )
 {
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
     // profile was set up by the QEGui application) or objects in another main window (if the profile was published by a button in a gui)
@@ -63,6 +67,8 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     // Initialise
     usingTabs = false;
     nativeSize = QSize( 0, 0 );
+
+    scrollToRequired = false;
 
     // Give the main window's USerMessage class a unique form ID so only messages from
     // the form in each main window are displayed that main window's status bar
@@ -103,9 +109,9 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     if( disableMenu )
         ui.menuBar->hide();
 
-    // If no filename was supplied, open the file selection dialog
+    // If no filename was supplied, and an 'Open...' dialog is required, open the file selection dialog
     // Do it after the creation of the main window is complete
-    if( fileName.isEmpty() )
+    if( fileName.isEmpty() && openDialog )
     {
         QTimer::singleShot( 0, this, SLOT(on_actionOpen_triggered()));
     }
@@ -114,7 +120,7 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
     else
     {
         QEForm* gui = createGui( fileName ); // A profile should have been published before calling this constructor.
-        loadGuiIntoCurrentWindow( gui );
+        loadGuiIntoCurrentWindow( gui, true );
     }
 
     // Set up signals for starting the 'designer' process
@@ -126,6 +132,18 @@ MainWindow::MainWindow( QString fileName, bool enableEditIn, bool disableMenuIn,
 
     // Setup the main window icon
     setWindowIcon( QIcon (":/icons/QEGuiIcon.png" ));
+
+    // Clear unique Id
+    uniqueId = 0;
+
+    // Restore (will only do anything if this main window is being created during a restore)
+    saveRestore( SaveRestoreSignal::RESTORE );
+
+    // If we got a restored unique ID, then go with it, otherwise, generate a unique id for this main window.
+    if( !uniqueId )
+    {
+        getUniqueId();
+    }
 }
 
 // Destructor
@@ -135,6 +153,7 @@ MainWindow::~MainWindow()
     removeAllGuisFromWindowsMenu();
 
     // Remove this main window from the global list of main windows
+    // Note, this may have already been done to hide the the main window if deleting using deleteLater()
     for (int i = 0; i < mainWindowList.size(); ++i)
     {
         if( mainWindowList[i] == this )
@@ -154,7 +173,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNew_Window_triggered()
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( "", enableEdit, disableMenu );
+    MainWindow* w = new MainWindow( "", true, enableEdit, disableMenu );
     profile.releaseProfile();
     w->show();
 }
@@ -182,7 +201,7 @@ void MainWindow::on_actionOpen_triggered()
     profile.publishOwnProfile();
     QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
     profile.releaseProfile();
-    loadGuiIntoCurrentWindow( gui );
+    loadGuiIntoCurrentWindow( gui, true );
 }
 
 // Close a gui
@@ -270,7 +289,7 @@ void MainWindow::on_actionExit_triggered()
 void MainWindow::launchLocalGui( QString filename )
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( filename, enableEdit, disableMenu );
+    MainWindow* w = new MainWindow( filename, true, enableEdit, disableMenu );
     profile.releaseProfile();
     w->show();
 }
@@ -542,7 +561,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     {
         profile.publishOwnProfile();
         QEForm* newGui = createGui( guiPath );
-        loadGuiIntoCurrentWindow( newGui );
+        loadGuiIntoCurrentWindow( newGui, true );
         profile.releaseProfile();
     }
 }
@@ -625,7 +644,7 @@ void MainWindow::loadGuiIntoNewTab( QEForm* gui )
 
 // Open a gui in the current window
 // Either as a result of the gui user requesting a new window, or a contained object (gui push button) requesting a new window
-void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
+void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
 {
     // Do nothing if couldn't create gui
     if( !gui )
@@ -676,7 +695,12 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui )
 
         // Use the gui
         setCentralWidget( rGui );
-        QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
+        // If nothing else is looking after resizing (such as a restore) resize here
+        if( resize )
+        {
+            qDebug() << "set timer resizeToFitGui()";
+            QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
+        }
     }
 
     // Set the title
@@ -864,7 +888,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
         case QEForm::CREATION_OPTION_OPEN:
             {
                 QEForm* gui = createGui( guiName );  // Note, profile should have been published by signal code
-                loadGuiIntoCurrentWindow( gui );
+                loadGuiIntoCurrentWindow( gui, true );
             }
             break;
 
@@ -884,7 +908,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
         // Open the specified gui in a new window
         case QEForm::CREATION_OPTION_NEW_WINDOW:
             {
-                MainWindow* w = new MainWindow( guiName, enableEdit, disableMenu ); // Note, profile should have been published by signal code
+                MainWindow* w = new MainWindow( guiName, true, enableEdit, disableMenu ); // Note, profile should have been published by signal code
                 w->show();
             }
             break;
@@ -987,9 +1011,13 @@ QEForm* MainWindow::createGui( QString fileName )
     // Inform user
     newMessage( QString( "Opening %1 in new window " ).arg( fileName ), message_types ( MESSAGE_TYPE_INFO ) );
 
+    profile.addIdRoot( QString( "MW-%1" ).arg( uniqueId ));
+
     // Build the gui
     QEForm* gui = new QEForm( fileName );
     gui->setResizeContents( false );
+
+    profile.removeIdRoot();
 
     // If built ok, read the ui file
     if( gui )
@@ -1198,30 +1226,30 @@ void MainWindow::removeAllGuisFromWindowsMenu()
 
 void MainWindow::on_actionSave_Configuration_triggered()
 {
+        QMessageBox::warning( this,"QEGui",
+                              "Under Construction.\n"
+                              "'Save'' is not implemented yet",
+                              QMessageBox::Cancel );
 
-    QMessageBox::warning( this,"QEGui",
-                          "Under Construction.\n"
-                          "'Save'' is not implemented yet",
-                          QMessageBox::Cancel );
-
-    return;
+        return;
 
     PersistanceManager* persistanceManager = profile.getPersistanceManager();
 
-    persistanceManager->save( "Default" );
+    persistanceManager->save( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default" );
 }
 
 void MainWindow::on_actionRestore_Configuration_triggered()
 {
-    QMessageBox::warning( this,"QEGui",
-                          "Under Construction.\n"
-                          "'Restore'' is not implemented yet",
-                          QMessageBox::Cancel );
+        QMessageBox::warning( this,"QEGui",
+                              "Under Construction.\n"
+                              "'Restore'' is not implemented yet",
+                              QMessageBox::Cancel );
 
-    return;
+        return;
+
     PersistanceManager* persistanceManager = profile.getPersistanceManager();
 
-    persistanceManager->restore( "Default" );
+    persistanceManager->restore( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default"  );
 }
 
 // A save or restore has been requested (Probably by QEGui itself)
@@ -1231,36 +1259,250 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
     qDebug() << "MainWindow::saveRestore()" << option;
 
+    // Note where this main window is in the list of main windows.
+    // This will be used to generate a unique name
+    int mainWindowId;
+    for( mainWindowId = 0; mainWindowId < mainWindowList.count(); mainWindowId++ )
+    {
+        if( mainWindowList[mainWindowId] == this )
+            break;
+    }
+
+    QString mainWindowName = QString( "QEGuiMainWindow_%1" ).arg( mainWindowId );
+
     switch( option )
     {
     case SaveRestoreSignal::SAVE:
-        pm->startElement( "mainwindows" );
-        for( int i = 0; i < mainWindowList.count(); i++ )
         {
-            pm->startElement( "mainwindow" );
-            pm->textElement( "X", QString( "%1" ).arg( mainWindowList[i]->x() ) );
-            pm->textElement( "Y", QString( "%1" ).arg( mainWindowList[i]->y() ) );
-            pm->textElement( "width", QString( "%1" ).arg( mainWindowList[i]->width() ) );
-            pm->textElement( "height", QString( "%1" ).arg( mainWindowList[i]->height() ) );
+            // Start with the top level element - the main windows
+            PMElement mw =   pm->addElement( mainWindowName );
 
-            pm->startElement( "guis" );
+            PMElement id =  mw.addElement( "Identity" );
+            id.addAttribute( "id", uniqueId );
+
+            PMElement geo =  mw.addElement( "Geometry" );
+            QRect r = geometry();
+            geo.addAttribute( "X", r.x() );
+            geo.addAttribute( "Y", r.y() );
+            geo.addAttribute( "Width", r.width() );
+            geo.addAttribute( "Height", r.height() );
+
+            PMElement state =  mw.addElement( "State" );
+            state.addAttribute( "Flags", windowState() );
+
             for( int j = 0; j < guiList.count(); j++ )
             {
                 if( guiList[j].getMainWindow() == this )
                 {
-                    QEForm* form = guiList[j].getForm();
-                    pm->textElement( "guiFullFileName", form->getFullFileName() );
+                    PMElement form =  mw.addElement( "Gui" );
+                    form.addAttribute( "Name", guiList[j].getForm()->getFullFileName() );
+
+                    // If QEGui is managing the scrolling of the QEForm and has placed it in a scroll area,
+                    // then note the scroll position
+                    QScrollArea* sa = guiScrollArea( guiList[j].getForm() );
+                    if( sa )
+                    {
+                        PMElement pos =  form.addElement( "Scroll" );
+
+                        qDebug() << "save x scroll" << sa->horizontalScrollBar()->value();
+                        qDebug() << "save y scroll" << sa->verticalScrollBar()->value();
+
+                        pos.addAttribute( "X",  sa->horizontalScrollBar()->value() );
+                        pos.addAttribute( "Y", sa->verticalScrollBar()->value() );
+                    }
                 }
             }
-            pm->endElement();
-        }
 
-        pm->endElement();
+        }
         break;
 
+
     case SaveRestoreSignal::RESTORE:
+        {
+            // Get the data for this window
+            PMElement data = pm->getMyData( mainWindowName );
+
+            // If none, do nothing
+            if( data.isNull() )
+            {
+                return;
+            }
+
+            PMElement id = data.getElement( "Identity" );
+            id.getElementAttribute( "id", uniqueId );
+
+            PMElement geometry = data.getElement( "Geometry" );
+            int x, y, w, h;
+            if( geometry.getElementAttribute( "X", x ) &&
+                geometry.getElementAttribute( "Y", y ) &&
+                geometry.getElementAttribute( "Width", w ) &&
+                geometry.getElementAttribute( "Height", h ) )
+            {
+//                qDebug() << x << y << w << h;
+//                setGeometry( QRect( x, y, w, h ) );
+                setGeomRect = QRect( x, y, w, h );
+                qDebug() << "set timer setGeom()";
+                QTimer::singleShot(1, this, SLOT(setGeom()));
+            }
+
+            PMElement pos = data.getElement( "State" );
+            int flags;
+            if( pos.getElementAttribute( "Flags", flags ) )
+            {
+                  setWindowState( (Qt::WindowStates)flags );
+            }
+
+            // Get a list of guis
+            PMElementList guiElements = data.getElementList( "Gui" );
+
+            for(int i = 0; i < guiElements.count(); i++ )
+            {
+                PMElement guiElement = guiElements.getElement( i );
+                {
+                    QString name;
+                    if( guiElement.getElementAttribute( "Name", name ) )
+                    {
+                        QEForm* gui = createGui( name );
+                        if( i == 0)
+                        {
+                            loadGuiIntoCurrentWindow( gui, false );
+                        }
+                        else
+                        {
+                            loadGuiIntoNewTab( gui );
+                        }
+
+                        PMElement scroll = guiElement.getElement( "Scroll" );
+                        int x, y;
+                        if( scroll.getElementAttribute( "X", x ) &&
+                            scroll.getElementAttribute( "Y", y ) )
+                        {
+                            guiList.last().setScroll( QPoint( x, y ) );
+                        }
+                    }
+                }
+           }
+        }
         break;
     }
 
 }
 
+// Static function to close all main windows
+void MainWindow::closeAll()
+{
+    // Queue all windows for closure.
+    // Need to use deleteLater() as this function is usually called from an event from one of the windows
+    // Also, hide the widget from all code by removing it from the main window list
+    while( mainWindowList.count() )
+    {
+        mainWindowList[0]->deleteLater();
+        mainWindowList.removeFirst();
+    }
+}
+
+// Static function to report the number of main windows
+int MainWindow::count()
+{
+    return mainWindowList.count();
+}
+
+
+void MainWindow::getUniqueId()
+{
+    while( true )
+    {
+        uniqueId = ++nextUniqueId;
+        int i;
+        for( i = 0; i < mainWindowList.count(); i++ )
+        {
+            MainWindow* mw = mainWindowList[i];
+            if( mw != this && mw->uniqueId == uniqueId )
+                break;
+        }
+        if( i == mainWindowList.count() )
+        {
+            break;
+        }
+    }
+}
+
+// Return the scroll area a gui is in if it is in one.
+// If a gui appears to be managing it's own resizing (such as having a
+// layout manager for its top level widget or a scroll area as its top level
+// widget, it is left to its own devices. If not, then QEGui places the QEForm
+// widget presenting the gui within a scroll area. This function returns the
+// scroll area added by QEGui if there is one.
+QScrollArea* MainWindow::guiScrollArea( QEForm* gui )
+{
+    QWidget* w = gui->parentWidget();
+    if( w && !QString::compare( w->metaObject()->className(), "QWidget" )  )
+    {
+        qDebug() << w->metaObject()->className();
+        w = w->parentWidget();
+        if( w && !QString::compare( w->metaObject()->className(), "QScrollArea" )  )
+        {
+            qDebug() << w->metaObject()->className();
+            return (QScrollArea*)w;
+        }
+    }
+    return NULL;
+}
+
+// Scroll a gui.
+// When restoring a window, scrolling can't be performed until after it has been created, program flow has
+// returned to the event loop, and various events related to geometry have occured.
+// For this reason, scolling is performed as a timer event.
+// The timer period is not important, it really just determines the order of timer signals.
+// Normal gui resize timer period is 1 mS
+// 'Restore' geometry management timer period is 2mS
+// 'Restore' scroll bar setting timer period is 3mS
+void MainWindow::scrollTo()
+{
+    qDebug() << "MainWindow::scrollTo()";
+    for( int i = 0; i < guiList.count(); i++ )
+    {
+        qDebug() << "scroll new gui to " << guiList[i].getScroll();
+
+        // If QEGui is managing the scrolling of the QEForm and has placed it in a scroll area,
+        // then note the scroll position
+        QScrollArea* sa = guiScrollArea( guiList[i].getForm() );
+        if( sa )
+        {
+            sa->horizontalScrollBar()->setValue( guiList[i].getScroll().x() );
+            sa->verticalScrollBar()->setValue( guiList[i].getScroll().y() );
+
+            qDebug() << "x scroll" << sa->horizontalScrollBar()->value();
+            qDebug() << "y scroll" << sa->verticalScrollBar()->value();
+        }
+    }
+}
+
+// Set a gui geometry.
+// When restoring a window, setting it's geometry and scroll position can't be
+// performed until after it has been created, program flow has returned to the
+// event loop, and various events related to geometry have occured.
+// For this reason, setting specific geometry and scrolling is performed as a timer event.
+void MainWindow::setGeom()
+{
+    qDebug() << "MainWindow::setGeom()" << setGeomRect;
+    setGeometry( setGeomRect );
+
+    scrollToRequired = true;
+//    QTimer::singleShot(1, this, SLOT(scrollTo()));
+}
+
+void MainWindow::resizeEvent ( QResizeEvent * event )
+{
+    qDebug() << "resize" << event->size();
+    if( scrollToRequired )
+    {
+        scrollToRequired = false;
+        //!!! a large time (100ms) is required here when any time (say 1mS) should be enough ensure
+        //!!! the scrolling occurs after all events related to the geometry changes has occured.
+        //!!! Or is it that we can't really know when all consequential events have occured following
+        //!!! resizing?
+        QTimer::singleShot(100, this, SLOT(scrollTo()));
+//        scrollTo();
+    }
+}

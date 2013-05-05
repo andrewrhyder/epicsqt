@@ -682,6 +682,35 @@ userLevels ContainerProfile::getUserLevel()
     return getPublishedProfile()->userSignal.getLevel();
 }
 
+QString ContainerProfile::getIdRoot()
+{
+    PublishedProfile* publishedProfile = getPublishedProfile();
+
+    int n = publishedProfile->idRootList.count();
+    QString rootString;
+    for( int i = 0; i < n; i++ )
+    {
+        if( i > 0 )
+        {
+            rootString.append( "_" );
+        }
+        rootString.append( publishedProfile->idRootList[i] );
+    }
+
+    return rootString;
+}
+
+void ContainerProfile::addIdRoot( QString root )
+{
+    getPublishedProfile()->idRootList.append( root );
+}
+
+void ContainerProfile::removeIdRoot()
+{
+    PublishedProfile* publishedProfile = getPublishedProfile();
+    if( publishedProfile->idRootList.count() )
+        publishedProfile->idRootList.removeLast();
+}
 
 userLevelSlot::userLevelSlot()
 {
@@ -714,4 +743,3 @@ userLevels userLevelSignal::getLevel()
 {
     return level;
 }
-

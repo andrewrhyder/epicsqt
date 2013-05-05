@@ -30,6 +30,7 @@
 #include <QDebug>
 #include <iostream>
 #include <QEFrameworkVersion.h>
+#include <saveRestoreManager.h>
 
 //------------------------------------------------------------------------------
 //
@@ -176,6 +177,10 @@ int main(int argc, char *argv[])
        printVersion ();
        return 0;
     }
+
+    // Prepare to manage save and restore
+    // Note, main windows look after them selves, this is for the overall application
+    saveRestoreManager saveRestore( &params );
 
     // If only a single instance has been requested,
     // and if there is already another instance of QEGui

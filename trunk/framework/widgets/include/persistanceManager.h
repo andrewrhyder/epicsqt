@@ -39,6 +39,9 @@
 #include <QStringList>
 #include <QXmlStreamWriter>
 #include <QEPluginLibrary_global.h>
+#include <QXmlDefaultHandler>
+#include <QVariant>
+#include <QDomDocument>
 
 
 
@@ -99,44 +102,104 @@ private:
     int context;
 };
 
-// Persistance manager
-class QEPLUGINLIBRARYSHARED_EXPORT PersistanceManager
+class PMElement;
+
+class PMElementList: private QDomNodeList
 {
 public:
-    PersistanceManager();
+    PMElementList( PersistanceManager* ownerIn, QDomNodeList elementListIn );
+    PMElement getElement( int i );
+    int count(){ return ((QDomNodeList*)this)->count(); }
+
+private:
+    PersistanceManager* owner;
+};
+
+// Class to conceal QDomElement from users of the persistance manager (and make it easier to add stuff)
+class PMElement : private QDomElement
+{
+public:
+    PMElement( PersistanceManager* ownerIn, QDomElement elementIn );
+    PMElement addElement( QString name );
+    void addAttribute( QString name, int value );
+    void addAttribute( QString name, QString value );
 
 
-    void save( const QString name );            // Save the current configuration
-    void restore( const QString name );         // Restore a configuration
-    void restoreComplete();                     // Called after restoring is complete.
-                                                //   After this is called newly created QE widgets asking for persistance
-                                                //   data will not receive any data
+    PMElement getElement( QString name );
+    PMElement getElement( QString name, int i );
 
-    QString getItem( const QString name );
-    void startElement( const QString name );
-    void textElement( const QString name, const QString itemData );
-    void endElement();
+    PMElementList getElementList( QString name );
 
-    QObject* getSaveRestoreObject();          // Get a reference to the object that will supply save and restore signals
+    bool getElementValue( int& val );
+    bool getElementValue( QString& val );
+    bool getElementAttribute( QString name, int& val );
+    bool getElementAttribute( QString name, QString& val );
 
-//    PMTag getNextTag( const QString data, PMContext& context );
-//    void setNextTag( QString& XML, const QString tag, const QString data );
-
+    bool isNull(){ return QDomElement::isNull(); }
 
 
 private:
+    PersistanceManager* owner;
+};
+
+// Persistance manager
+class QEPLUGINLIBRARYSHARED_EXPORT PersistanceManager : public QXmlDefaultHandler
+{
+public:
+
+    friend class PMElement;
+
+    PersistanceManager();
+
+
+    void save( const QString fileName, const QString rootName, const QString configName );            // Save the current configuration
+    void restore( const QString fileName, const QString rootName, const QString configName );         // Restore a configuration
+
+    PMElement addElement( QString name );
+    QDomElement addDomElement( QString name );
+    void addString( QString name, QString data );
+
+
+
+
+
+    QObject* getSaveRestoreObject();          // Get a reference to the object that will supply save and restore signals
+
+    PMElement getMyData( QString name );
+    QString  getMyDataString( QString name );
+    QDomElement getMyDataDom( QString name );
+
+
+private:
+    PMElement addElement( QDomElement parent, QString name );
+    void addAttribute( QDomElement element, QString name, int value );
+    void addAttribute( QDomElement element, QString name, QString value );
+
+
+
+
+    QDomElement getElement( QDomElement element, QString name );
+    QDomElement getElement( QDomElement element, QString name, int i );
+    QDomElement getElement( QDomNodeList nodeList, int i );
+
+    QDomNodeList getElementList( QDomElement element, QString name );
+
+    bool getElementValue( QDomElement element, int& val );
+    bool getElementValue( QDomElement element, QString& val );
+    bool getElementAttribute( QDomElement element, QString name, int& val );
+    bool getElementAttribute( QDomElement element, QString name, QString& val );
+
+
+
     SaveRestoreSignal signal;           // Save/Restore signal object. One instance to signal all QE Widgets and applications
 
-    QHash<QString, QString> restoreData;// Restore data
-//    QList<PMTag> saveData;              // Save data
-
-    QString xml;    // Save data
-
-    QXmlStreamWriter* xmlWriter;
-
+//    QDomNodeList itemList;              // List of saved items. Each object saving data will have an item with 'name' and 'data' element
 
 
     bool restoreInProgress;             // If true a restore has been started and is not yet complete.
+
+    QDomDocument doc;                   // Save and restore xml document
+    QDomElement config;                   // Current configuration
 
 };
 
