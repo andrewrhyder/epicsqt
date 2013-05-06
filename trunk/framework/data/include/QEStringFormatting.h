@@ -1,4 +1,5 @@
-/*
+/*  QEStringFormatting.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -32,26 +33,10 @@
 #include <QStringList>
 #include <QDataStream>
 #include <QTextStream>
+
+#include <QELocalEnumeration.h>
 #include <QEPluginLibrary_global.h>
 
-
-// Support class used to build the localEnumeration list in the QEStringFormatting class
-class localEnumerationItem {
-    public:
-    enum operations { LESS,
-                      LESS_EQUAL,
-                      EQUAL,
-                      NOT_EQUAL,
-                      GREATER_EQUAL,
-                      GREATER,
-                      ALWAYS,
-                      UNKNOWN
-                  };
-    double dValue;              // Numeric value that numeric data is compared to (derived from sValue if possible)
-    QString sValue;             // Text value that textual data is compared with
-    operations op;              // Operator used for comparison used between data and value (=,<,>)
-    QString text;               // Text used if the data value matches
-};
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
   public:
@@ -157,8 +142,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     bool dbFormatArray;              // True if read value is an array
     bool addUnits;                   // Flag use engineering units from database
     int precision;                   // Floating point precision. Used if 'useDbPrecision' is false.
-    QList<localEnumerationItem> localEnumeration; // Local enumerations (example: 0="Not referencing",1=Referencing)
-    QString localEnumerationString; // Original local enumerations string
+    QELocalEnumeration localEnumerations;
     arrayActions arrayAction;       // Action to take when processing array or waveform data
     unsigned int arrayIndex;        // Index into array or waveform to use when into arrayAction is 'INDEX'
 };
