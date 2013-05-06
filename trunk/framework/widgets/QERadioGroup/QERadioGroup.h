@@ -178,10 +178,17 @@ public:
     // QERadioGroup specific properties ===============================================
     //
 public:
+    /// Number of colums - defaults to two.
+    ///
+    Q_PROPERTY (int columns READ getColumns WRITE setColumns)
+
+    void setColumns (int columns);
+    int getColumns ();
+
+    /// Use database enumerations - defaults to true.
+    ///
     Q_PROPERTY (bool useDbEnumerations READ getUseDbEnumerations WRITE setUseDbEnumerations)
 
-    /// Use database enumerations - defaults to true
-    ///
     void setUseDbEnumerations (bool useDbEnumerations);
     bool getUseDbEnumerations ();
 
@@ -191,13 +198,6 @@ public:
 
     void setLocalEnumerations (const QString & localEnumerations);
     QString getLocalEnumerations ();
-
-    /// Number of colums - defaults to two.
-    ///
-    Q_PROPERTY (int columns READ getColumns WRITE setColumns)
-
-    void setColumns (int columns);
-    int getColumns ();
     //
     // End of QERadioGroup specific properties =========================================
 
@@ -241,17 +241,17 @@ private:
     typedef QList<QRadioButton *> QRadioButtonList;
     typedef QMap<int, int> QIntTintMap;
 
-
     QEIntegerFormatting integerFormatting;
     QELocalEnumeration localEnumerations;
 
-    // Use of the local enumerations means thay we could have spare mapping,
-    // e.g.: 1 => Red, 5 => Blue, 63 => Green.   Therefore we need to create
+    // Use of the local enumerations means that we could have sparce mapping,
+    // e.g.: 1 => Red, 5 => Blue, 63 => Green.  Therefore we need to create
     // and maintain a value to button and button to value maps.
     //
     QIntTintMap valueToButtonMap;
     QIntTintMap buttonToValueMap;
     QRadioButtonList radioButtonList;
+    QRadioButton *noSelectionButton;
 
     bool useDbEnumerations;
     int currentIndex;
@@ -269,10 +269,6 @@ private:
 private slots:
     void connectionChanged (QCaConnectionInfo& connectionInfo);
     void valueUpdate (const long& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int&);
-
-    // Just in case hooked up to an array PV.
-    //
-    void arrayValueUpdate (const QVector<long>& values, QCaAlarmInfo&, QCaDateTime&, const unsigned int&);
 
     void useNewVariableNameProperty (QString variableNameIn,
                                      QString variableNameSubstitutionsIn,
