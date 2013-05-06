@@ -67,6 +67,8 @@ static void printHelp ()
       "\n"
       "-b      Disable menu bar.\n"
       "\n"
+      "-r      Restore from saved configuration.\n"
+      "\n"
       "-p      Search paths\n"
       "        When opening a file, this list of space seperated paths may be used when searching\n"
       "        for the file.  Refer to File location rules (page 3) for the rules QEGui uses\n"

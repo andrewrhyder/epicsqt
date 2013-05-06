@@ -39,8 +39,6 @@
 #define DESIGNER_COMMAND_1 "designer-qt4"
 #define DESIGNER_COMMAND_2 "designer"
 
-#define QE_CONFIG_NAME "QEGuiConfig"
-
 // Shared list of all main windows
 QList<MainWindow*> MainWindow::mainWindowList;
 

@@ -33,6 +33,9 @@
 #include <QProcess>
 #include <QTimer>
 
+// Save / Restore configuration name
+#define QE_CONFIG_NAME "QEGuiConfig"
+
 class MainWindow;
 class guiListItem
 {

@@ -131,20 +131,34 @@ void instanceManager::newWindow( const startupParams& params )
     ContainerProfile profile;
     profile.setupProfile( NULL, params.pathList, "", params.substitutions, params.userLevelPassword, params.scientistLevelPassword, params.engineerLevelPassword );
 
-    // If no files specified, open a single window without a filen name
-    if( !params.filenameList.count() )
+    // If restoring, restore saved configuration
+    if( params.restore )
     {
-        MainWindow* mw = new MainWindow( "", true, params.enableEdit, params.disableMenu );
-        mw->show();
+        // Ask the persistance manager to restore a configuration.
+        // The persistance manager will signal all interested objects (including this application) that
+        // they should collect and apply restore data.
+        PersistanceManager* persistanceManager = profile.getPersistanceManager();
+        persistanceManager->restore( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default"  );
     }
 
-    // Files have been specified. Open a window for each of them
+    // Not restoring, open the required files
     else
     {
-        for( int i = 0; i < params.filenameList.count(); i++ )
+        // If no files specified, open a single window without a filen name
+        if( !params.filenameList.count() )
         {
-            MainWindow* mw = new MainWindow( params.filenameList[i], true, params.enableEdit, params.disableMenu );
+            MainWindow* mw = new MainWindow( "", true, params.enableEdit, params.disableMenu );
             mw->show();
+        }
+
+        // Files have been specified. Open a window for each of them
+        else
+        {
+            for( int i = 0; i < params.filenameList.count(); i++ )
+            {
+                MainWindow* mw = new MainWindow( params.filenameList[i], true, params.enableEdit, params.disableMenu );
+                mw->show();
+            }
         }
     }
 
