@@ -32,6 +32,7 @@
 #include <QMessageBox>
 #include <ContainerProfile.h>
 #include <QVariant>
+#include <saveDialog.h>
 
 // Before Qt 4.8, the command to start designer is 'designer'.
 // Qt 4.8 later uses the command 'designer-qt4'
@@ -1253,6 +1254,10 @@ void MainWindow::on_actionSave_Configuration_triggered()
             // No, do nothing
             return;
      }
+
+// selection of name not available yet
+//    saveDialog sd;
+//    sd.exec();
 
     // Ask the persistance manager to save the current configuration.
     // The persistance manager will signal all interested objects (including this application) that
