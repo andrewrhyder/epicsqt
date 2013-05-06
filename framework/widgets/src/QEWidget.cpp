@@ -76,6 +76,18 @@ QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( owner
         addContainedWidget( this );
         setVariableNameSubstitutionsOverride( getMacroSubstitutions() );
     }
+
+    // Setup to respond to requests to save or restore persistant data
+    saveRestoreReceiver.setOwner( this );
+    PersistanceManager* persistanceManager = getPersistanceManager();
+    if( persistanceManager )
+    {
+        QObject::connect( persistanceManager->getSaveRestoreObject(),
+                          SIGNAL( saveRestore( SaveRestoreSignal::saveRestoreOptions ) ),
+                          &saveRestoreReceiver,
+                          SLOT( saveRestore( SaveRestoreSignal::saveRestoreOptions ) ),
+                          Qt::DirectConnection );
+    }
 }
 
 /*
@@ -478,3 +490,43 @@ QString QEWidget::getFrameworkVersion()
 {
     return QE_VERSION_STRING " " QE_VERSION_DATE_TIME;
 }
+
+saveRestoreSlot::saveRestoreSlot()
+{
+    owner = NULL;
+}
+saveRestoreSlot::~saveRestoreSlot()
+{
+}
+
+void saveRestoreSlot::setOwner( QEWidget* ownerIn )
+{
+    owner = ownerIn;
+}
+
+// A save or restore has been requested
+void saveRestoreSlot::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
+{
+    if( !owner )
+    {
+        return;
+    }
+
+    PersistanceManager* pm = owner->getPersistanceManager();
+    if( !pm )
+    {
+        return;
+    }
+
+    switch( option )
+    {
+        case SaveRestoreSignal::SAVE:
+            owner->saveConfiguration( pm );
+            break;
+
+        case SaveRestoreSignal::RESTORE:
+            owner->restoreConfiguration( pm );
+            break;
+    }
+}
+

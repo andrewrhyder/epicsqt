@@ -115,6 +115,8 @@ private:
     QScrollArea* guiScrollArea( QEForm* gui );              // Return the scroll area a gui is in if it is in one.
     QRect setGeomRect;                                      // Parameter to setGeom() slot (This slot is called from the timer and can't take parameters)
 
+    void raiseGui( QEForm* gui );
+
 private:
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
 

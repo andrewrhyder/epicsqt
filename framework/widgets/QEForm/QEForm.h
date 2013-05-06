@@ -102,6 +102,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
         QString containedFrameworkVersion;
 
+        void saveConfiguration( PersistanceManager* pm );
+        void restoreConfiguration( PersistanceManager* pm );
 
 
     public:

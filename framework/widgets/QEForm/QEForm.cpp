@@ -513,3 +513,13 @@ bool QEForm::getResizeContents()
 {
     return resizeContents;
 }
+
+void QEForm::saveConfiguration( PersistanceManager* /*pm*/ )
+{
+    // Not done yet - perhaps save the scroll position if any
+}
+
+void QEForm::restoreConfiguration( PersistanceManager* /*pm*/ )
+{
+    // Not done yet - restore the scroll position if any
+}

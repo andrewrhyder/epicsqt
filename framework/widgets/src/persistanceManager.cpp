@@ -182,7 +182,14 @@ bool PersistanceManager::getElementAttribute( QDomElement element, QString name,
         return false;
     }
 
-    val = element.attributes().namedItem( name ).nodeValue().toInt();
+    QDomNode node = element.attributes().namedItem( name );
+    if( node.isNull() )
+    {
+        val = 0;
+        return false;
+    }
+
+    val = node.nodeValue().toInt();
     return true;
 }
 
@@ -194,7 +201,14 @@ bool PersistanceManager::getElementAttribute( QDomElement element, QString name,
         return false;
     }
 
-    val = element.attributes().namedItem( name ).nodeValue();
+    QDomNode node = element.attributes().namedItem( name );
+    if( node.isNull() )
+    {
+        val = QString();
+        return false;
+    }
+
+    val = node.nodeValue();
     return true;
 }
 
