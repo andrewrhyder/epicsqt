@@ -1,4 +1,5 @@
-/*
+/*  QEComboBox.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -25,10 +26,12 @@
 #ifndef QECOMBOBOX_H
 #define QECOMBOBOX_H
 
+#include <QMap>
 #include <QComboBox>
 #include <QEWidget.h>
 #include <QEInteger.h>
 #include <QEIntegerFormatting.h>
+#include <QELocalEnumeration.h>
 #include <QCaConnectionInfo.h>
 #include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
@@ -52,9 +55,13 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEComboBox : public QComboBox, public QEWidge
     void setUseDbEnumerations( bool useDbEnumerations );
     bool getUseDbEnumerations();
 
+    // set local enumeration values
+    void setLocalEnumerations( const QString & localEnumerations );
+    QString getLocalEnumerations();
 
   protected:
     QEIntegerFormatting integerFormatting;
+    QELocalEnumeration localEnumerations;
     bool useDbEnumerations;
     bool writeOnChange;                     // Write changed value to database when user changes a value
 
@@ -82,9 +89,20 @@ signals:
   private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
+    void setComboBoxText ();
+
+    typedef QMap<int, int> QIntTintMap;
+
+    // Use of the local enumerations means that we could have sparce mapping,
+    // e.g.: 1 => Red, 5 => Blue, 63 => Green.  Therefore we need to create
+    // and maintain a value to index and index to value maps.
+    //
+    QIntTintMap valueToIndexMap;
+    QIntTintMap indexToValueMap;
 
     QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
+    bool isFirstUpdate;
 
     long lastValue;
     QString lastUserValue;
@@ -243,7 +261,13 @@ public:
     // END-STANDARD-PROPERTIES ========================================================
 
 
-    Q_PROPERTY(bool useDbEnumerations READ getUseDbEnumerations WRITE setUseDbEnumerations)
+    /// Use database enumerations - defaults to true
+    ///
+    Q_PROPERTY( bool useDbEnumerations READ getUseDbEnumerations WRITE setUseDbEnumerations )
+
+    /// Enumrations values used when useDbEnumerations is false.
+    ///
+    Q_PROPERTY( QString localEnumeration READ getLocalEnumerations  WRITE setLocalEnumerations )
 };
 
 #endif // QECOMBOBOX_H

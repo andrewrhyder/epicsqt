@@ -61,8 +61,8 @@ QERadioGroup::QERadioGroup (const QString & variableNameIn, QWidget * parent) :
 QERadioGroup::QERadioGroup (const QString &title, const QString &variableNameIn, QWidget* parent) :
     QGroupBox (title, parent), QEWidget (this)
 {
-this->commonSetup ();
-this->setVariableName (variableNameIn, 0);
+   this->commonSetup ();
+   this->setVariableName (variableNameIn, 0);
 }
 
 //---------------------------------------------------------------------------------
@@ -107,6 +107,7 @@ void QERadioGroup::commonSetup ()
    //
    for (j = 0; j < MAXIMUM_BUTTONS; j++) {
       button = new QRadioButton (this);
+      button->setGeometry (-40, -40, 20, 20);
       button->setVisible (false);
 
       QObject::connect (button, SIGNAL (clicked (bool)),
@@ -114,6 +115,13 @@ void QERadioGroup::commonSetup ()
 
       this->radioButtonList.append (button);
    }
+
+   // Hidden button set when no valid selection available.
+   // We cannot (in some versions) deselect all.
+   //
+   this->noSelectionButton = new QRadioButton (this);
+   this->noSelectionButton->setGeometry (-40, -40, 20, 20);
+   this->noSelectionButton->setVisible (false);
 
    QGroupBox::setEnabled (false);       // Reflects initial disconnected state
 
@@ -172,9 +180,6 @@ void QERadioGroup::establishConnection (unsigned int variableIndex)
       QObject::connect (qca, SIGNAL (integerChanged (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT  (valueUpdate    (const long &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
-      QObject::connect (qca, SIGNAL (integerArrayChanged (const QVector < long >&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
-                        this, SLOT  (arrayValueUpdate    (const QVector < long >&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
-
       QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo &)),
                         this, SLOT  (connectionChanged (QCaConnectionInfo &)));
    }
@@ -217,8 +222,9 @@ void QERadioGroup::valueUpdate (const long &value,
       DEBUG << "unexpected variableIndex" << variableIndex;
       return;
    }
-   // If and only iff first update then use enumeratiob values to populate the
-   // the radio group.
+
+   // If and only iff first update (for this connection) then use enumeration
+   // values to populate the radio group.
    //
    if (this->isFirstUpdate) {
       this->isFirstUpdate = false;
@@ -229,13 +235,18 @@ void QERadioGroup::valueUpdate (const long &value,
    //
    this->currentIndex = value;
 
-   buttonIndex = this->valueToButtonMap.value (this->currentIndex, -1);
-
-   if ((buttonIndex >= 0) && (buttonIndex < this->number)) {
-      button = this->radioButtonList.value (buttonIndex, NULL);
-      if (button) {
-         button->setChecked (true);
+   if (this->valueToButtonMap.contains (value)) {
+      buttonIndex = this->valueToButtonMap.value (this->currentIndex, -1);
+      if ((buttonIndex >= 0) && (buttonIndex < this->number)) {
+         button = this->radioButtonList.value (buttonIndex, NULL);
+         if (button) {
+            button->setChecked (true);
+         }
       }
+   } else {
+      // We haven't mapped this value - use hidden selection
+      //
+      this->noSelectionButton->setChecked (true);
    }
 
    // Signal a database value change to any Link widgets
@@ -258,17 +269,6 @@ void QERadioGroup::valueUpdate (const long &value,
       updateStatusStyle (ai.style ());
       lastSeverity = ai.getSeverity ();
    }
-}
-
-//-----------------------------------------------------------------------------
-//
-void QERadioGroup::arrayValueUpdate (const QVector < long >&values,
-                                     QCaAlarmInfo & alarmInfo,
-                                     QCaDateTime & dateTime,
-                                     const unsigned int &variableIndex)
-{
-   int slot = 0;
-   this->valueUpdate (values.value (slot), alarmInfo, dateTime, variableIndex);
 }
 
 //---------------------------------------------------------------------------------
@@ -409,13 +409,14 @@ void QERadioGroup::setButtonText ()
 //
 void QERadioGroup::setButtonGeometry ()
 {
-   const int tm = 18;           // top margin
+   const int tm = 24;           // top margin
    const int bm = 4;            // bottom margin
    const int sm = 8;            // side margin
-   const int s = 4;             // spacing (horizontal and vertical)
+   const int hs = 8;            // horizontal spacing
+   const int vs = 4;            // vertical spacing
 
-   const int tw = (this->width () - (2 * sm) + s - 1);
-   const int th = (this->height () - (tm + bm) + s - 1);
+   const int tw = (this->width ()  - (sm + sm) + hs - 1);
+   const int th = (this->height () - (tm + bm) + vs - 1);
 
    const double dx = double (tw) / double (MAX (this->cols, 1));
    const double dy = double (th) / double (MAX (this->rows, 1));
@@ -437,10 +438,10 @@ void QERadioGroup::setButtonGeometry ()
          // Do floating point arithmetic.
          //
          x0 = sm + (col * dx);
-         x1 = x0 + dx - s;
+         x1 = x0 + dx - hs;
 
          y0 = tm + (row * dy);
-         y1 = y0 + dy - s;
+         y1 = y0 + dy - vs;
 
          // Apply integer values.
          //

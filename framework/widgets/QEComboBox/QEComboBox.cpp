@@ -129,6 +129,7 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
         updateToolTipConnection( isConnected );
 
         setDataDisabled( false );
+        isFirstUpdate = true;
     }
 
     // If disconnected always disable the widget.
@@ -145,7 +146,7 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     // If the combo box is already populated, then it has been set up at design time, or this is a subsequent 'channel up'
     // If subscribing, then an update will occur without having to initiated one here.
     // Note, channel up implies link up
-    if( connectionInfo.isChannelConnected() && count() == 0 && !subscribe )
+    if( connectionInfo.isChannelConnected() && !subscribe )
     {
         QEInteger* qca = (QEInteger*)getQcaItem(0);
         qca->singleShotRead();
@@ -164,18 +165,16 @@ void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     See  QEComboBox::dynamicSetup() for details.
 */
 
-void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
+void QEComboBox::setValueIfNoFocus( const long& value,QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& ) {
 
-    // If the combo box is not populated, setup the enumerations if any.
+    // If and only iff first update (for this connection) then use enumeration
+    // values to populate the combo box.
     // If not subscribing, there will still be an initial update to get enumeration values.
-    if( count() == 0 )
+    //
+    if( isFirstUpdate )
     {
-        QEInteger* qca = (QEInteger*)getQcaItem(0);
-        QStringList enumerations = qca->getEnumerations();
-        if( useDbEnumerations && enumerations.size() )
-        {
-            insertItems( 0,enumerations );
-        }
+       isFirstUpdate = false;
+       setComboBoxText ();
     }
 
     // Do nothing more if doing a single shot read (done when not subscribing to get enumeration values)
@@ -195,8 +194,20 @@ void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
     // If the user is editing the object then updates will be inapropriate
     if( hasFocus() == false )
     {
+        int index;
+
         // Update the combo box
-        setCurrentIndex( value );
+        if( valueToIndexMap.contains (value) )
+        {
+            index = valueToIndexMap.value (value);
+        }
+        else
+        {
+            // We haven't mapped this value.
+            //
+            index = -1;
+        }
+        setCurrentIndex( index );
 
         // Note the last value presented to the user
         lastUserValue = currentText();
@@ -215,33 +226,121 @@ void QEComboBox::setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, 
     // If in alarm, display as an alarm
     if( ai.getSeverity() != lastSeverity )
     {
-            updateToolTipAlarm( ai.severityName() );
-            updateStatusStyle( ai.style() );
-            lastSeverity = ai.getSeverity();
+        updateToolTipAlarm( ai.severityName() );
+        updateStatusStyle( ai.style() );
+        lastSeverity = ai.getSeverity();
     }
+}
+
+/*
+    Set the text - either from the data base or from the localEnumertion
+ */
+void QEComboBox::setComboBoxText() {
+    qcaobject::QCaObject * qca = NULL;
+    QStringList enumerations;
+    QString text;
+    bool isMatch;
+    int n;
+    int j;
+    int savedIndex;
+
+    // Buid forward and revserse EPICS value to button position maps.
+    // We do this even even using db enuberations and the mapping is trivial.
+    //
+    // Clear maps.
+    //
+    valueToIndexMap.clear();
+    indexToValueMap.clear();
+
+    if( useDbEnumerations ) {
+       qca = getQcaItem( 0 );
+       if( qca ) {
+          enumerations = qca->getEnumerations();
+
+          // Create indentity map.
+          //
+          for( j = 0; j < enumerations.count(); j++ ) {
+             valueToIndexMap.insert( j, j );
+             indexToValueMap.insert( j, j );
+          }
+       }
+
+    } else {
+
+       // Build up enumeration list using the local enumerations.  This may be
+       // sparce - e.g.: 1 => Red, 5 => Blue, 63 => Green.   We create a reverse
+       // map 0 => 1; 1 => 5; 2 => 63 so that when user selects the an element,
+       // say Blue, we can map this directly to integer value of 5.
+       //
+       // Search upto values range -128 .. 128 - this is arbitary.
+       // Maybe localEnumeration can be modified to provide a min/max value
+       // or a list of values.
+       //
+       enumerations.clear();
+       for( n = -128; n <= 128; n++ ) {
+          text = localEnumerations.valueToText( n, isMatch );
+
+          // Unless exact match, do not use.
+          //
+          if( !isMatch ) continue;
+          if( text.isEmpty() ) continue;
+
+          j = enumerations.count();
+          enumerations.append( text );
+
+          valueToIndexMap.insert( n, j );
+          indexToValueMap.insert( j, n );
+       }
+    }
+
+    // Clearing and re-inserting values "upsets" the current index value.
+    //
+    savedIndex = currentIndex();
+
+    clear();
+    insertItems( 0, enumerations );
+    if( savedIndex >= count()) {
+        savedIndex = -1;
+    }
+    setCurrentIndex ( savedIndex );
+
 }
 
 /*
     The user has changed the Combo box.
 */
-void QEComboBox::userValueChanged( int value ) {
+void QEComboBox::userValueChanged( int index ) {
 
     // Do nothing unless writing on change
     if( !writeOnChange )
         return;
 
     // Get the variable to write to
-    QEInteger* qca = (QEInteger*)getQcaItem(0);
+    QEInteger* qca = (QEInteger*)getQcaItem( 0 );
 
     // If a QCa object is present (if there is a variable to write to)
     // then write the value
     if( qca )
     {
+        int value;
+
+        // Validate
+        //
+        if (!this->indexToValueMap.contains (index)) {
+           return;
+        }
+
+        // Don't write same value.
+        //
+        value = this->indexToValueMap.value (index);
+        if (value == lastValue) {
+           return;
+        }
+
         // Write the value
         qca->writeInteger( (long)value );
 
         // Notify user changes
-        QEInteger* qca = (QEInteger*)getQcaItem(0);
         QStringList enumerations = qca->getEnumerations();
         QString lastValueString;
         if( lastValue >= 0 && lastValue < enumerations.size() )
@@ -267,8 +366,21 @@ void QEComboBox::writeNow()
     // then write the value
     if( qca )
     {
+        int index;
+        int value;
+
+        index = currentIndex();
+
+        // Validate
+        //
+        if (!this->indexToValueMap.contains ( index )) {
+           return;
+        }
+
+        value = this->indexToValueMap.value (index);
+
         // Write the value
-        qca->writeInteger( currentIndex() );
+        qca->writeInteger( value );
     }
 }
 
@@ -311,12 +423,29 @@ bool QEComboBox::getSubscribe()
 // use database enumerations
 void QEComboBox::setUseDbEnumerations( bool useDbEnumerationsIn )
 {
-    useDbEnumerations = useDbEnumerationsIn;
+    if( useDbEnumerations != useDbEnumerationsIn ) {
+        useDbEnumerations = useDbEnumerationsIn;
+        setComboBoxText();
+    }
 }
 
 bool QEComboBox::getUseDbEnumerations()
 {
     return useDbEnumerations;
+}
+
+// set local enuerations
+void QEComboBox::setLocalEnumerations( const QString & localEnumerationsIn )
+{
+    localEnumerations.setLocalEnumeration( localEnumerationsIn );
+    if( !this->useDbEnumerations ) {
+        setComboBoxText();
+    }
+}
+
+QString QEComboBox::getLocalEnumerations()
+{
+    return localEnumerations.getLocalEnumeration();
 }
 
 // end
