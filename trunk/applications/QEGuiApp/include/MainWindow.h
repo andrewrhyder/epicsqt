@@ -59,8 +59,8 @@ public:
 
     ~MainWindow();
 
-    static void closeAll();
-    static int count();
+    static void closeAll();                                 // Static function to close all main windows
+    static int count();                                     // Static function to report the number of main windows
 
 private:
     bool enableEdit;                                        // Enable edit menu
@@ -72,22 +72,22 @@ private:
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
-    QEForm* createGui( QString filename );               // Create a gui
+    QEForm* createGui( QString filename );                  // Create a gui
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
-    void loadGuiIntoNewTab( QEForm* gui );               // Load a new gui into a new tab
-    void launchLocalGui( QString filename );             // Launch a new gui from the 'File' menu
+    void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
+    void launchLocalGui( QString filename );                // Launch a new gui from the 'File' menu
 
-    void setTitle( QString title );                      // Set the main window title
+    void setTitle( QString title );                         // Set the main window title
 
     QTabWidget* getCentralTabs();                           // Return the central widget if it is the tab widget
-    QEForm* getCentralGui();                             // Return the central widget if it is a single gui, else return NULL
-    QEForm* getCurrentGui();                             // Return the current gui if any (central, or tab)
+    QEForm* getCentralGui();                                // Return the central widget if it is a single gui, else return NULL
+    QEForm* getCurrentGui();                                // Return the current gui if any (central, or tab)
     void refresh();                                         // Reload the current gui
 
-    void addGuiToWindowsMenu( QEForm* gui );             // Add a gui to the 'windows' menus
+    void addGuiToWindowsMenu( QEForm* gui );                // Add a gui to the 'windows' menus
     void buildWindowsMenu();                                // Build a new 'windows' menu
-    void addWindowMenuAction( QMenu* menu, QEForm* gui );// Add a gui to a 'window' menu
-    void removeGuiFromWindowsMenu( QEForm* gui );        // Remove a gui from the 'windows' menus
+    void addWindowMenuAction( QMenu* menu, QEForm* gui );   // Add a gui to a 'window' menu
+    void removeGuiFromWindowsMenu( QEForm* gui );           // Remove a gui from the 'windows' menus
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
 
     QString GuiFileNameDialog( QString caption );           // Get a gui filename from the user
@@ -108,50 +108,49 @@ private:
 
     QString UILoaderFrameworkVersion;                       // QE framework version used by QUILoader when creating widgets in a form
 
-    void getUniqueId();
-    int uniqueId;
-    static int nextUniqueId;
+    void getUniqueId();                                     // Generate a unique main window ID
+    int uniqueId;                                           // An ID unique to this window. Used when saving configuration.
+    static int nextUniqueId;                                // Next unique main window ID. (warning. may need to skip IDs in restored windows)
 
-    QScrollArea* guiScrollArea( QEForm* gui );
-
-    QRect setGeomRect;   // Parameter to setGeom() slot (This slot is called from the timer and can't take parameters)
-    void resizeEvent ( QResizeEvent * event ) ;
-    bool scrollToRequired;
+    QScrollArea* guiScrollArea( QEForm* gui );              // Return the scroll area a gui is in if it is in one.
+    QRect setGeomRect;                                      // Parameter to setGeom() slot (This slot is called from the timer and can't take parameters)
 
 private:
-    void newMessage( QString msg, message_types type );
+    void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
 
 private slots:
-    void on_actionExit_triggered();
-    void on_actionMessage_Log_triggered();
-    void on_actionUser_Level_triggered();
+    void on_actionExit_triggered();                             // Slot to perform 'Exit' action
+    void on_actionMessage_Log_triggered();                      // Slot to perform 'Open Message Log window' action
+    void on_actionUser_Level_triggered();                       // Slot to perform 'Refresh Current Form' action
     void on_actionRefresh_Current_Form_triggered();             // Slot to perform 'Refresh Current Form' action
     void on_actionOpen_Current_Form_In_Designer_triggered();    // Slot to perform 'Open Current Form In Designer' action
-    void on_actionDesigner_triggered();                         // Slot to perform Open Designer' action
-    void on_actionNew_Window_triggered();           // Slot to perform 'New Window' action
-    void on_actionNew_Tab_triggered();              // Slot to perform 'New Tab' action
-    void on_actionOpen_triggered();                 // Slot to perform 'Open' action
-    void on_actionClose_triggered();                // Slot to perform 'Close' action
-    void onWindowMenuSelection( QAction* action );  // Slot to recieve requests to change focus to a specific gui
-    void on_actionAbout_triggered();                // Slot to perform 'About' action
+    void on_actionDesigner_triggered();                         // Slot to perform 'Open Designer' action
+    void on_actionNew_Window_triggered();                       // Slot to perform 'New Window' action
+    void on_actionNew_Tab_triggered();                          // Slot to perform 'New Tab' action
+    void on_actionOpen_triggered();                             // Slot to perform 'Open' action
+    void on_actionClose_triggered();                            // Slot to perform 'Close' action
+    void on_actionAbout_triggered();                            // Slot to perform 'About' action
+    void onWindowMenuSelection( QAction* action );              // Slot to recieve requests to change focus to a specific gui
 
-    void launchGui( QString guiName, QEForm::creationOptions creationOption );
+    void launchGui( QString guiName, QEForm::creationOptions creationOption );  // Slot to recieve requests to launch a new GUI (typically from a QE Button)
 
-    void tabCurrentChanged( int index );            // Slot to act on user changing tabs
-    void tabCloseRequest( int index );              // Slot to act on user closing a tab
-    void resizeToFitGui();                          // Resize the form to fit a GUI without scroll bars
+    void tabCurrentChanged( int index );               // Slot to act on user changing tabs
+    void tabCloseRequest( int index );                 // Slot to act on user closing a tab
+    void resizeToFitGui();                             // Resize the form to fit a GUI without scroll bars
 
-    void processError( QProcess::ProcessError error ); // An error occured starting designer process
-    void startDesignerAlternate();                  // Timer signal used to attempt restarting designer from outside a QProcess error signal
-    void on_actionPVProperties_triggered();
-    void on_actionStrip_Chart_triggered();
-    void on_actionSave_Configuration_triggered();
+    void processError( QProcess::ProcessError error );  // An error occured starting designer process
+    void startDesignerAlternate();                      // Timer signal used to attempt restarting designer from outside a QProcess error signal
+
+    void on_actionPVProperties_triggered();             // Slot to perform 'Create PV Properties window' action
+    void on_actionStrip_Chart_triggered();              // Slot to perform 'Create strip chart window' action
+
+    void on_actionSave_Configuration_triggered();       // Slot to perform 'Save Configuration' action
+    void on_actionRestore_Configuration_triggered();    // Slot to perform 'Save Configuration' action
 
     void saveRestore( SaveRestoreSignal::saveRestoreOptions option );  // A save or restore has been requested (Probably by QEGui itself)
-    void on_actionRestore_Configuration_triggered();
-    void setGeom();
-    void scrollTo( );
 
+    void setGeom();                                 // Timer slot to set the window geometry on a restore
+    void scrollTo();                                // Timer slot to set the gui scroll positions on a restore
 };
 
 #endif // MAINWINDOW_H

@@ -68,8 +68,6 @@ MainWindow::MainWindow( QString fileName, bool openDialog, bool enableEditIn, bo
     usingTabs = false;
     nativeSize = QSize( 0, 0 );
 
-    scrollToRequired = false;
-
     // Give the main window's USerMessage class a unique form ID so only messages from
     // the form in each main window are displayed that main window's status bar
     setFormId( getNextMessageFormId() );
@@ -316,7 +314,6 @@ void MainWindow::onWindowMenuSelection( QAction* action )
         {
             if( mw->centralWidget() == gui )
             {
-                qDebug() << "gui found (no tabs)";
                 break;
             }
         }
@@ -695,10 +692,10 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
 
         // Use the gui
         setCentralWidget( rGui );
+
         // If nothing else is looking after resizing (such as a restore) resize here
         if( resize )
         {
-            qDebug() << "set timer resizeToFitGui()";
             QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
         }
     }
@@ -1223,32 +1220,58 @@ void MainWindow::removeAllGuisFromWindowsMenu()
     }
 }
 
-
+// The user has requested a save of the current configuration
 void MainWindow::on_actionSave_Configuration_triggered()
 {
+/*
         QMessageBox::warning( this,"QEGui",
                               "Under Construction.\n"
                               "'Save'' is not implemented yet",
                               QMessageBox::Cancel );
 
         return;
-
+*/
+    // Ask the persistance manager to save the current configuration.
+    // The persistance manager will signal all interested objects (including this application) that
+    // they should present anything they wish to save.
     PersistanceManager* persistanceManager = profile.getPersistanceManager();
-
     persistanceManager->save( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default" );
 }
 
+// The user has requested a restore of a saved configuration
 void MainWindow::on_actionRestore_Configuration_triggered()
 {
-        QMessageBox::warning( this,"QEGui",
-                              "Under Construction.\n"
-                              "'Restore'' is not implemented yet",
-                              QMessageBox::Cancel );
+    /*
+            QMessageBox::warning( this,"QEGui",
+                                  "Under Construction.\n"
+                                  "'Restore'' is not implemented yet",
+                                  QMessageBox::Cancel );
 
-        return;
+            return;
+    */
 
+    // Restoring a configuration will close all current windows, check with the user this is OK
+    QMessageBox msgBox;
+    msgBox.setText( "All existing windows will be closed prior to restoring a configuration. Do you want to continue?" );
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    switch ( msgBox.exec() )
+    {
+       case QMessageBox::Yes:
+            // Yes, continue
+            break;
+
+        case QMessageBox::No:
+        case QMessageBox::Cancel:
+        default:
+            // No, do nothing
+            return;
+     }
+
+    // Ask the persistance manager to restore a configuration.
+    // The persistance manager will signal all interested objects (including this application) that
+    // they should collect and apply restore data.
     PersistanceManager* persistanceManager = profile.getPersistanceManager();
-
     persistanceManager->restore( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default"  );
 }
 
@@ -1256,8 +1279,6 @@ void MainWindow::on_actionRestore_Configuration_triggered()
 void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 {
     PersistanceManager* pm = profile.getPersistanceManager();
-
-    qDebug() << "MainWindow::saveRestore()" << option;
 
     // Note where this main window is in the list of main windows.
     // This will be used to generate a unique name
@@ -1303,16 +1324,11 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                     if( sa )
                     {
                         PMElement pos =  form.addElement( "Scroll" );
-
-                        qDebug() << "save x scroll" << sa->horizontalScrollBar()->value();
-                        qDebug() << "save y scroll" << sa->verticalScrollBar()->value();
-
                         pos.addAttribute( "X",  sa->horizontalScrollBar()->value() );
                         pos.addAttribute( "Y", sa->verticalScrollBar()->value() );
                     }
                 }
             }
-
         }
         break;
 
@@ -1338,10 +1354,8 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 geometry.getElementAttribute( "Width", w ) &&
                 geometry.getElementAttribute( "Height", h ) )
             {
-//                qDebug() << x << y << w << h;
-//                setGeometry( QRect( x, y, w, h ) );
+                // Set the geometry in a timer event. This will occur after events due to creation have finished arriving.
                 setGeomRect = QRect( x, y, w, h );
-                qDebug() << "set timer setGeom()";
                 QTimer::singleShot(1, this, SLOT(setGeom()));
             }
 
@@ -1388,7 +1402,8 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
 }
 
-// Static function to close all main windows
+// Static function to close all main windows.
+// Used when restoring a configuration
 void MainWindow::closeAll()
 {
     // Queue all windows for closure.
@@ -1402,14 +1417,18 @@ void MainWindow::closeAll()
 }
 
 // Static function to report the number of main windows
+// Used when saving a configuration
 int MainWindow::count()
 {
     return mainWindowList.count();
 }
 
-
+// Generate a unique main window ID
 void MainWindow::getUniqueId()
 {
+    // Keep incrementing the unique ID until one is found that isn't in use.
+    // (the next increment for uniqueId may not be unique since IDs are restored
+    // during a restore operation)
     while( true )
     {
         uniqueId = ++nextUniqueId;
@@ -1438,32 +1457,43 @@ QScrollArea* MainWindow::guiScrollArea( QEForm* gui )
     QWidget* w = gui->parentWidget();
     if( w && !QString::compare( w->metaObject()->className(), "QWidget" )  )
     {
-        qDebug() << w->metaObject()->className();
         w = w->parentWidget();
         if( w && !QString::compare( w->metaObject()->className(), "QScrollArea" )  )
         {
-            qDebug() << w->metaObject()->className();
             return (QScrollArea*)w;
         }
     }
     return NULL;
 }
 
-// Scroll a gui.
-// When restoring a window, scrolling can't be performed until after it has been created, program flow has
-// returned to the event loop, and various events related to geometry have occured.
-// For this reason, scolling is performed as a timer event.
-// The timer period is not important, it really just determines the order of timer signals.
-// Normal gui resize timer period is 1 mS
-// 'Restore' geometry management timer period is 2mS
-// 'Restore' scroll bar setting timer period is 3mS
+// Scroll all guis in a main window.
+// This is called as part of restoring a main window.
+// When restoring a window, setting it's geometry and scroll position can't be
+// performed until after it has been created, program flow has returned to the
+// event loop, and various events related to geometry have occured.
+// For this reason, setting specific geometry and scrolling is performed as a timer event.
 void MainWindow::scrollTo()
 {
-    qDebug() << "MainWindow::scrollTo()";
+    // When restoring a window scrolling can't be performed until after the window has been created, program flow has
+    // returned to the event loop, and various events related to geometry changes have occured.
+    // For this reason, scolling is performed as a timer event.
+    // The timer period should not be important, it should just ensure all outstanding events are processed first.
+    // However, it seems to require over 30mS on a test implementation which implies this is not the case.
+    // Specifying a large timer period is dangerous since any 'reasonable' period may not be enough if the system is heavily loaded.
+    // To work around this, scrolling is held off (rescheduled with a new timer event here) if there are still
+    // outstanding events (which may be related to resizing) or if the resizing has not yet taken effect (if the
+    // width and height specified in the geometry request have not yet been reflected in the current width and height)
+    if( QCoreApplication::hasPendingEvents() ||
+        setGeomRect.width() != width() ||
+        setGeomRect.height() != height() )
+    {
+        QTimer::singleShot(10, this, SLOT(scrollTo()));
+        return;
+    }
+
+    // The window is ready for scrolling if required.
     for( int i = 0; i < guiList.count(); i++ )
     {
-        qDebug() << "scroll new gui to " << guiList[i].getScroll();
-
         // If QEGui is managing the scrolling of the QEForm and has placed it in a scroll area,
         // then note the scroll position
         QScrollArea* sa = guiScrollArea( guiList[i].getForm() );
@@ -1471,38 +1501,21 @@ void MainWindow::scrollTo()
         {
             sa->horizontalScrollBar()->setValue( guiList[i].getScroll().x() );
             sa->verticalScrollBar()->setValue( guiList[i].getScroll().y() );
-
-            qDebug() << "x scroll" << sa->horizontalScrollBar()->value();
-            qDebug() << "y scroll" << sa->verticalScrollBar()->value();
         }
     }
 }
 
 // Set a gui geometry.
+// This is called as part of restoring a main window.
 // When restoring a window, setting it's geometry and scroll position can't be
 // performed until after it has been created, program flow has returned to the
 // event loop, and various events related to geometry have occured.
 // For this reason, setting specific geometry and scrolling is performed as a timer event.
 void MainWindow::setGeom()
 {
-    qDebug() << "MainWindow::setGeom()" << setGeomRect;
+    // Set the geometry as noted during the restore
     setGeometry( setGeomRect );
 
-    scrollToRequired = true;
-//    QTimer::singleShot(1, this, SLOT(scrollTo()));
-}
-
-void MainWindow::resizeEvent ( QResizeEvent * event )
-{
-    qDebug() << "resize" << event->size();
-    if( scrollToRequired )
-    {
-        scrollToRequired = false;
-        //!!! a large time (100ms) is required here when any time (say 1mS) should be enough ensure
-        //!!! the scrolling occurs after all events related to the geometry changes has occured.
-        //!!! Or is it that we can't really know when all consequential events have occured following
-        //!!! resizing?
-        QTimer::singleShot(100, this, SLOT(scrollTo()));
-//        scrollTo();
-    }
+    // Initiate scrolling of guis within the main window
+    QTimer::singleShot(1, this, SLOT(scrollTo()));
 }

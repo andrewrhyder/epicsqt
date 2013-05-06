@@ -25,7 +25,7 @@
 /*
  * Description:
  *
- * This class provides a mechanism to manage application persistance
+ * This class provides a mechanism to manage application persistance.
  * Any object - typically an application creating QE widgets can use this manager to save and restore
  * a configuration.
  *
@@ -43,23 +43,29 @@
  *   For QE widgets this name is built from its name and the name of all it's ancestors. As these
  *   names are stored in the .ui file, these names will be the same each time the .ui file is loaded.
  *
+ * The PMElement class is used by users of the PersistanceManager class to return XML components from the XML data.
+ * The PMElement class simply hides QDom functionality.
+ *
  *
  * Typical scenarios:
  *
- *  Initial startup:
- *  ================
+ *  Initial startup or restoring:
+ *  =============================
  *
  *   - QEGui starts, connects to the persistance manager's save and restore signals.
  *
- *   - If required, QEGui asks the persistance manager to restore (startup parameters
- *     control if this is done, and what named set is to be restored)
+ *   - If specified in the startup parameters, or if the user requests a restore,
+ *     QEGui asks the persistance manager to restore.
+ *     (In the case of a user request, QEGui closes existing windows returning to a
+ *     state very similar to initial startup)
  *
  *   - QEGui gets a signal to restore. (Yes, it know it's restoring - it just asked!)
  *
  *   - QEGui asks for its data.
  *
- *   - QGui uses the persistance manager to parse the XML restore data it gets and acts on
- *     each item it understands. Typically the data will contain GUI names and positions.
+ *   - QGui uses the persistance manager to help parse the XML restore data it gets.
+ *     QEGui then and acts on the recovered data. Typically the data will contain Main Window
+ *     and GUI information such as positions, sizes, filenames.
  *
  *   - QEGui creates GUIs as its part of restoring a configuration.
  *
@@ -72,7 +78,7 @@
  *     manager that the restoration is complete.
  *
  *
- *  Saving: (instigated by the user or when QEGui exits)
+ *  Saving: (instigated by the user or optionaly when QEGui exits)
  *  =======
  *
  *   - QEGui asks the persistance manager to save, providing a name to tag the
@@ -81,59 +87,37 @@
  *   - The persistance manager sends a 'save' signal.
  *
  *   - All objects connected to the signal (QEGui itself and any interested QE
- *     widgets) use the persistance manager services to build an XML packet and
- *     then give that packet to the persistance manager.
+ *     widgets) use the persistance manager services to build XML data and
+ *     then give that data to the persistance manager to save.
  *
- *   - The persistance manager collects all packets togeather and saves the data
- *
- *
- *  Restoring:
- *  ==========
- *
- *   - This is similar to initial startup, but many of the objects being
- *     restored will already exist.
- *
- *   - QEGui requests the persistance manager to restore.
- *
- *   - QEGui recieves a restore signal.
- *
- *   - QEGui asks for its data.
- *
- *   - QEGui uses the persistance manager to parse the XML data it gets acts on
- *     each item it understands. Typically the data will contain GUI names and positions.
- *
- *   - QEGui deletes GUIs that are not required, repositions and resizes GUIS
- *     that already exist and creates GUIs not present.
- *
- *   - For New GUIs the behaviour is identical to initial startup - Each interested
- *     QE widget on creation connects to the restore signal and asks for acts on
- *     restoration data.
- *
- *   - For existing GUI each interested QE widget receives a restore signal and
- *     asks for acts on restoration data.
+ *   - The persistance manager saves all data presented to it.
  */
+
 #include <QDebug>
 #include <persistanceManager.h>
 #include <QFile>
 #include <QByteArray>
 #include <QBuffer>
 
+// Construction
 PersistanceManager::PersistanceManager()
 {
+    // Initialise
     restoreInProgress = false;
-
     doc = QDomDocument( "QEConfig" );
-
 }
 
+// Get a named set of configuration data.
 PMElement PersistanceManager::getMyData( QString name )
 {
+    // ???
     if( restoreInProgress )
         return PMElement( this, config.namedItem( name ).toElement() );
     else
         return PMElement( this, QDomElement() );
 }
 
+// Get a node list by name
 QDomNodeList PersistanceManager::getElementList( QDomElement element, QString name )
 {
     if( element.isNull() || !element.isElement() )
@@ -305,11 +289,6 @@ void PersistanceManager::restore( const QString fileName, const QString rootName
 
 }
 
-
-
-
-
-
 void SaveRestoreSignal::save()
 {
 
@@ -325,7 +304,8 @@ void SaveRestoreSignal::restore()
     emit saveRestore( RESTORE );
 }
 
-
+//=================================================================================================
+// PMElement class methods
 
 PMElement::PMElement( PersistanceManager* ownerIn, QDomElement elementIn ) : QDomElement( elementIn )
 {

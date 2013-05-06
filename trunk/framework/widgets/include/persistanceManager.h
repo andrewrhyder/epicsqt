@@ -120,26 +120,24 @@ class PMElement : private QDomElement
 {
 public:
     PMElement( PersistanceManager* ownerIn, QDomElement elementIn );
-    PMElement addElement( QString name );
-    void addAttribute( QString name, int value );
-    void addAttribute( QString name, QString value );
+    PMElement addElement( QString name );                   // Add an element
+    void addAttribute( QString name, int value );           // Add an integer attribute
+    void addAttribute( QString name, QString value );       // Add a string attribute
 
+    PMElement getElement( QString name );                   // Get a named element
+    PMElement getElement( QString name, int i );            // Get one element from a named element list
 
-    PMElement getElement( QString name );
-    PMElement getElement( QString name, int i );
+    PMElementList getElementList( QString name );           // Get a named element list
 
-    PMElementList getElementList( QString name );
+    bool getElementValue( int& val );                       // Get the integer value for an element
+    bool getElementValue( QString& val );                   // Get the string value for an element
+    bool getElementAttribute( QString name, int& val );     // Get a named integer attribute from an element
+    bool getElementAttribute( QString name, QString& val ); // Get a named string attribute from an element
 
-    bool getElementValue( int& val );
-    bool getElementValue( QString& val );
-    bool getElementAttribute( QString name, int& val );
-    bool getElementAttribute( QString name, QString& val );
-
-    bool isNull(){ return QDomElement::isNull(); }
-
+    bool isNull(){ return QDomElement::isNull(); }          // Indicate if an element is empty
 
 private:
-    PersistanceManager* owner;
+    PersistanceManager* owner;                              // Persistance manager that supplied this PMElement instance
 };
 
 // Persistance manager
