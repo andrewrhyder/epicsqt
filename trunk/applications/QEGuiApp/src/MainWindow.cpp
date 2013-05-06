@@ -298,6 +298,13 @@ void MainWindow::onWindowMenuSelection( QAction* action )
     // Extract the gui from the action data
     QEForm* gui = action->data().value<QEForm*>();
 
+    // Raise it to be the current window
+    raiseGui( gui );
+}
+
+// Raise a gui.
+void MainWindow::raiseGui( QEForm* gui )
+{
     // Prepare to look for gui
     int mwIndex;
     int tabIndex = 0;
@@ -1231,6 +1238,24 @@ void MainWindow::on_actionSave_Configuration_triggered()
 
         return;
 */
+    // Saving a configuration will overwrite previous configuration, check with the user this is OK
+    QMessageBox msgBox;
+    msgBox.setText( "A previous configuration may be overwritten. Do you want to continue?" );
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    switch ( msgBox.exec() )
+    {
+       case QMessageBox::Yes:
+            // Yes, continue
+            break;
+
+        case QMessageBox::No:
+        case QMessageBox::Cancel:
+        default:
+            // No, do nothing
+            return;
+     }
+
     // Ask the persistance manager to save the current configuration.
     // The persistance manager will signal all interested objects (including this application) that
     // they should present anything they wish to save.
@@ -1293,113 +1318,142 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
     switch( option )
     {
-    case SaveRestoreSignal::SAVE:
-        {
-            // Start with the top level element - the main windows
-            PMElement mw =   pm->addElement( mainWindowName );
-
-            PMElement id =  mw.addElement( "Identity" );
-            id.addAttribute( "id", uniqueId );
-
-            PMElement geo =  mw.addElement( "Geometry" );
-            QRect r = geometry();
-            geo.addAttribute( "X", r.x() );
-            geo.addAttribute( "Y", r.y() );
-            geo.addAttribute( "Width", r.width() );
-            geo.addAttribute( "Height", r.height() );
-
-            PMElement state =  mw.addElement( "State" );
-            state.addAttribute( "Flags", windowState() );
-
-            for( int j = 0; j < guiList.count(); j++ )
+        case SaveRestoreSignal::SAVE:
             {
-                if( guiList[j].getMainWindow() == this )
-                {
-                    PMElement form =  mw.addElement( "Gui" );
-                    form.addAttribute( "Name", guiList[j].getForm()->getFullFileName() );
+                // Start with the top level element - the main windows
+                PMElement mw =   pm->addElement( mainWindowName );
 
-                    // If QEGui is managing the scrolling of the QEForm and has placed it in a scroll area,
-                    // then note the scroll position
-                    QScrollArea* sa = guiScrollArea( guiList[j].getForm() );
-                    if( sa )
+                PMElement id =  mw.addElement( "Identity" );
+                id.addAttribute( "id", uniqueId );
+
+                PMElement geo =  mw.addElement( "Geometry" );
+                QRect r = geometry();
+                geo.addAttribute( "X", r.x() );
+                geo.addAttribute( "Y", r.y() );
+                geo.addAttribute( "Width", r.width() );
+                geo.addAttribute( "Height", r.height() );
+
+                PMElement state =  mw.addElement( "State" );
+                state.addAttribute( "Flags", windowState() );
+
+                // Note which GUI is the current GUI. Mainly if main window is displaying
+                // more than one gui in a tab widget. Redundant but harmless if only one gui is present.
+                QEForm* currentGui = getCurrentGui();
+
+                // Save details for each GUI
+                for( int i = 0; i < guiList.count(); i++ )
+                {
+                    if( guiList[i].getMainWindow() == this )
                     {
-                        PMElement pos =  form.addElement( "Scroll" );
-                        pos.addAttribute( "X",  sa->horizontalScrollBar()->value() );
-                        pos.addAttribute( "Y", sa->verticalScrollBar()->value() );
+                        PMElement form =  mw.addElement( "Gui" );
+                        form.addAttribute( "Name", guiList[i].getForm()->getFullFileName() );
+
+                        if( guiList[i].getForm() == currentGui )
+                        {
+                            form.addAttribute( "CurrentGui", "Yes" );
+                        }
+
+                        // If QEGui is managing the scrolling of the QEForm and has placed it in a scroll area,
+                        // then note the scroll position
+                        QScrollArea* sa = guiScrollArea( guiList[i].getForm() );
+                        if( sa )
+                        {
+                            PMElement pos =  form.addElement( "Scroll" );
+                            pos.addAttribute( "X",  sa->horizontalScrollBar()->value() );
+                            pos.addAttribute( "Y", sa->verticalScrollBar()->value() );
+                        }
                     }
                 }
             }
-        }
-        break;
+            break;
 
 
-    case SaveRestoreSignal::RESTORE:
-        {
-            // Get the data for this window
-            PMElement data = pm->getMyData( mainWindowName );
-
-            // If none, do nothing
-            if( data.isNull() )
+        case SaveRestoreSignal::RESTORE:
             {
-                return;
-            }
+                // Get the data for this window
+                PMElement data = pm->getMyData( mainWindowName );
 
-            PMElement id = data.getElement( "Identity" );
-            id.getElementAttribute( "id", uniqueId );
-
-            PMElement geometry = data.getElement( "Geometry" );
-            int x, y, w, h;
-            if( geometry.getElementAttribute( "X", x ) &&
-                geometry.getElementAttribute( "Y", y ) &&
-                geometry.getElementAttribute( "Width", w ) &&
-                geometry.getElementAttribute( "Height", h ) )
-            {
-                // Set the geometry in a timer event. This will occur after events due to creation have finished arriving.
-                setGeomRect = QRect( x, y, w, h );
-                QTimer::singleShot(1, this, SLOT(setGeom()));
-            }
-
-            PMElement pos = data.getElement( "State" );
-            int flags;
-            if( pos.getElementAttribute( "Flags", flags ) )
-            {
-                  setWindowState( (Qt::WindowStates)flags );
-            }
-
-            // Get a list of guis
-            PMElementList guiElements = data.getElementList( "Gui" );
-
-            for(int i = 0; i < guiElements.count(); i++ )
-            {
-                PMElement guiElement = guiElements.getElement( i );
+                // If none, do nothing
+                if( data.isNull() )
                 {
-                    QString name;
-                    if( guiElement.getElementAttribute( "Name", name ) )
-                    {
-                        QEForm* gui = createGui( name );
-                        if( i == 0)
-                        {
-                            loadGuiIntoCurrentWindow( gui, false );
-                        }
-                        else
-                        {
-                            loadGuiIntoNewTab( gui );
-                        }
+                    return;
+                }
 
-                        PMElement scroll = guiElement.getElement( "Scroll" );
-                        int x, y;
-                        if( scroll.getElementAttribute( "X", x ) &&
-                            scroll.getElementAttribute( "Y", y ) )
+                PMElement id = data.getElement( "Identity" );
+                id.getElementAttribute( "id", uniqueId );
+
+                PMElement geometry = data.getElement( "Geometry" );
+                int x, y, w, h;
+                if( geometry.getElementAttribute( "X", x ) &&
+                    geometry.getElementAttribute( "Y", y ) &&
+                    geometry.getElementAttribute( "Width", w ) &&
+                    geometry.getElementAttribute( "Height", h ) )
+                {
+                    // Set the geometry in a timer event. This will occur after events due to creation have finished arriving.
+                    setGeomRect = QRect( x, y, w, h );
+                    QTimer::singleShot(1, this, SLOT(setGeom()));
+                }
+
+                PMElement pos = data.getElement( "State" );
+                int flags;
+                if( pos.getElementAttribute( "Flags", flags ) )
+                {
+                      setWindowState( (Qt::WindowStates)flags );
+                }
+
+                // Get a list of guis
+                PMElementList guiElements = data.getElementList( "Gui" );
+
+                QEForm* currentGui = NULL;
+
+                // Create al the guis required for this main window
+                for(int i = 0; i < guiElements.count(); i++ )
+                {
+                    PMElement guiElement = guiElements.getElement( i );
+                    {
+                        QString name;
+                        if( guiElement.getElementAttribute( "Name", name ) )
                         {
-                            guiList.last().setScroll( QPoint( x, y ) );
+                            QEForm* gui = createGui( name );
+                            if( i == 0)
+                            {
+                                // Load the gui into the main window
+                                loadGuiIntoCurrentWindow( gui, false );
+                            }
+                            else
+                            {
+                                // If not using tabs, start tabs and migrate any single gui to the first tab
+                                if( !usingTabs )
+                                    setTabMode();
+                                // Create gui as a new tab
+                                loadGuiIntoNewTab( gui );
+                            }
+
+                            // Note if this gui is the current gui
+                            QString currentGuiFlag;
+                            if( guiElement.getElementAttribute( "CurrentGui", currentGuiFlag ) )
+                            {
+                                currentGui = gui;
+                            }
+
+                            // Note any scroll position
+                            PMElement scroll = guiElement.getElement( "Scroll" );
+                            int x, y;
+                            if( scroll.getElementAttribute( "X", x ) &&
+                                scroll.getElementAttribute( "Y", y ) )
+                            {
+                                guiList.last().setScroll( QPoint( x, y ) );
+                            }
                         }
                     }
                 }
-           }
-        }
-        break;
+                if( currentGui )
+                {
+                    raiseGui( currentGui );
+                }
+            }
+            break;
     }
-
 }
 
 // Static function to close all main windows.

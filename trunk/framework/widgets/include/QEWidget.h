@@ -38,6 +38,35 @@
 #include <contextMenu.h>
 #include <standardProperties.h>
 
+class QEWidget;
+
+// Class used to recieve save and restore signals from persistance manager.
+// An instance of this class is used by each QEWidget class.
+// The QEWidget class can't recieve signals directly as it
+// is not based on QObject and can't be as it is a base class for
+// widgets that may also be based on Qwidgets and only one base
+// class can be based on a QObject.
+//
+class saveRestoreSlot: public QObject
+{
+    Q_OBJECT
+
+public:
+    // Constructor, destructor
+    // Default to no owner
+    saveRestoreSlot();
+    ~saveRestoreSlot();
+
+    // Set the QEWidget class that this instance is a part of
+    void setOwner( QEWidget* ownerIn );
+
+public slots:
+    void saveRestore( SaveRestoreSignal::saveRestoreOptions option );
+
+private:
+    QEWidget* owner;                                // QEWidget class that this instance is a part of
+};
+
 /**
   This class is used as a base for all CA aware wigets, such as QELabel, QESpinBox, etc.
   It manages common issues including creating a source of CA data updates, handling error,
@@ -170,26 +199,42 @@ public:
     /// On windows, the QEFramework DLL may be loaded twice with potentially different versions of it.
     QString getFrameworkVersion();
 
+    /// Service a request to save the QE widget's current configuration.
+    /// A widget may save any configuration details through the PersistanceManager.
+    /// For example, a QEStripChart may save the variables being plotted.
+    /// Many QE widgets do not have any persistant data requirements and do not implement this method.
+    virtual void saveConfiguration( PersistanceManager* ){}
+
+    /// Service a request to restore the QE widget's configuration.
+    /// A QE widget recover any configuration details from the PersistanceManager.
+    /// For example, a QEStripChart may restore the variables being plotted.
+    /// Many QE widgets do not have any persistant data requirements and do not implement this method.
+    virtual void restoreConfiguration( PersistanceManager* ){}
+
 protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
 
-    bool subscribe;                 // Flag if data updates should be requested
+    bool subscribe;                                         // Flag if data updates should be requested
 
-    qcaobject::QCaObject* createConnection( unsigned int variableIndex );    // Create a CA connection. Return a QCaObject if successfull
+    qcaobject::QCaObject* createConnection( unsigned int variableIndex );       // Create a CA connection. Return a QCaObject if successfull
 
-    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex ); // Function to create a appropriate superclass of QCaObject to stream data updates
-    virtual void establishConnection( unsigned int variableIndex );     // Create a CA connection and initiates updates if required
+    virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );  // Function to create a appropriate superclass of QCaObject to stream data updates
+    virtual void establishConnection( unsigned int variableIndex );             // Create a CA connection and initiates updates if required
 
 private:
     void deleteQcaItem( unsigned int variableIndex );       // Delete a stream of CA updates
-    unsigned int numVariables;              // The number of process variables that will be managed for the QE widgets.
-    qcaobject::QCaObject** qcaItem;          // CA access - provides a stream of updates. One for each variable name used by the QE widgets
+    unsigned int numVariables;                              // The number of process variables that will be managed for the QE widgets.
+    qcaobject::QCaObject** qcaItem;                         // CA access - provides a stream of updates. One for each variable name used by the QE widgets
 
-    void userLevelChanged( userLevels level );
-    void setToolTipFromVariableNames();
+    void userLevelChanged( userLevels level );              // The user level has changed
+    void setToolTipFromVariableNames();                     // Update the variable name list used in tool tips if requried
+
+    saveRestoreSlot saveRestoreReceiver;                    // QObject based class a save/restore signal can be delivered to
 
 public:
-    static bool inDesigner();
+    static bool inDesigner();                               // Flag indicating this widget is running inside Qt's 'designer'
 };
+
+
 
 #endif // QEWIDGET_H
