@@ -51,6 +51,7 @@ class startupParams
     bool singleApp;                                 // True if only a single instance of this application should be started
     bool printHelp;                                 // True if and only if user requests help (-h).
     bool printVersion;                              // True if and only if user requests version (-v).
+    bool restore;                                   // Flag true if restoring from config file
     QStringList filenameList;                       // Default gui file names
     QStringList pathList;                           // Default gui file path
     QString substitutions;                          // Substitutions. For example, "SECTOR=01,PUMP=03"

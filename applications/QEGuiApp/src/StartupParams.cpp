@@ -37,6 +37,7 @@ startupParams::startupParams()
     singleApp = false;
     printHelp = false;    // not serialized
     printVersion = false; // not serialized
+    restore = false;
 
     // Default user level passwords
     userLevelPassword = "";
@@ -60,6 +61,7 @@ void startupParams::getSharedParams( const QByteArray& in )
     enableEdit    = (bool)(d[len]);    len += 1;
     disableMenu   = (bool)(d[len]);    len += 1;
     singleApp     = (bool)(d[len]);    len += 1;
+    restore       = (bool)(d[len]);    len += 1;
 
     int fileCount = d[len];            len += 1;
     for( int i = 0; i < fileCount; i++ )
@@ -86,6 +88,7 @@ void startupParams::setSharedParams( QByteArray& out )
     out[len++] = enableEdit;
     out[len++] = disableMenu;
     out[len++] = singleApp;
+    out[len++] = restore;
 
     out[len++] = filenameList.count();
     for( i = 0; i < filenameList.count(); i++ )
@@ -157,6 +160,11 @@ bool startupParams::getStartupParams( QStringList args )
                     // 'menu Bar disabled' flag
                     case 'b':
                         disableMenu = true;
+                        break;
+
+                    // 'restore configuration' flag
+                    case 'r':
+                        restore = true;
                         break;
 
                     // 'paths' flag
