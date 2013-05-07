@@ -90,6 +90,13 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
     // Set up a connection to recieve variable name property changes (Actually only interested in substitution changes
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
                       this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
+
+//    // Perform any restore in progress
+//    PersistanceManager* persistanceManager = getPersistanceManager();
+//    if( persistanceManager )
+//    {
+//        restoreConfiguration( persistanceManager );
+//    }
 }
 
 // Destructor.
@@ -516,10 +523,12 @@ bool QEForm::getResizeContents()
 
 void QEForm::saveConfiguration( PersistanceManager* /*pm*/ )
 {
+    qDebug() << "QEForm::saveConfiguration()";
     // Not done yet - perhaps save the scroll position if any
 }
 
 void QEForm::restoreConfiguration( PersistanceManager* /*pm*/ )
 {
+    qDebug() << "QEForm::restoreConfiguration()";
     // Not done yet - restore the scroll position if any
 }

@@ -62,7 +62,7 @@ public:
 
     ~MainWindow();
 
-    static void closeAll();                                 // Static function to close all main windows
+    void closeAll();                                        // Static function to close all main windows
     static int count();                                     // Static function to report the number of main windows
 
 private:
@@ -119,6 +119,9 @@ private:
     QRect setGeomRect;                                      // Parameter to setGeom() slot (This slot is called from the timer and can't take parameters)
 
     void raiseGui( QEForm* gui );
+
+    bool beingDeleted;                                      // This main window is being deleted (deleteLater() has been called on it)
+    int scrollToCount;                                      // Number of times scrollTo() has been called waiting for geometry has been rinalised
 
 private:
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)

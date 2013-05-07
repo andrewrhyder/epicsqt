@@ -7,6 +7,7 @@ saveDialog::saveDialog(QWidget *parent) :
     ui(new Ui::saveDialog)
 {
     savingStartup = true;
+    enableNamedItems( false );
 
     ui->setupUi(this);
 }
@@ -23,15 +24,19 @@ void saveDialog::on_startupRadioButton_clicked()
 void saveDialog::on_startupRadioButton_clicked(bool checked)
 {
     qDebug() << "saveDialog::on_startupRadioButton_clicked()" << checked;
-    ui->namesListWidget->setEnabled( false );
-    ui->nameLineEdit->setEnabled( false );
-    savingStartup = checked;
+    enableNamedItems( false );
+    savingStartup = true;
 }
 
 void saveDialog::on_namedRadioButton_clicked(bool checked)
 {
     qDebug() << "saveDialog::on_namedRadioButton_clicked()" << checked;
-    ui->namesListWidget->setEnabled( true );
-    ui->nameLineEdit->setEnabled( true );
-    savingStartup = !checked;
+    enableNamedItems( true );
+    savingStartup = false;
+}
+
+void saveDialog::enableNamedItems( bool enable )
+{
+    ui->namesListWidget->setEnabled( enable );
+    ui->nameLineEdit->setEnabled( enable );
 }

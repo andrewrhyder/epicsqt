@@ -74,9 +74,6 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
                 return;
             }
 
-            // Close all current windows
-            MainWindow::closeAll();
-
             // Get the number of expected main windows
             int numMainWindows = 0;
             QEGuiData.getElementAttribute( "MainWindows", numMainWindows );
