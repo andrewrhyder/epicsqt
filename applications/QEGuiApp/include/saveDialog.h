@@ -25,6 +25,7 @@ private slots:
 private:
     Ui::saveDialog *ui;
 
+    void enableNamedItems( bool enable );
 
     bool savingStartup;
 };

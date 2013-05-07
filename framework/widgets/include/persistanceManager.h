@@ -104,7 +104,7 @@ private:
 
 class PMElement;
 
-class PMElementList: private QDomNodeList
+class QEPLUGINLIBRARYSHARED_EXPORT PMElementList: private QDomNodeList
 {
 public:
     PMElementList( PersistanceManager* ownerIn, QDomNodeList elementListIn );
@@ -116,7 +116,7 @@ private:
 };
 
 // Class to conceal QDomElement from users of the persistance manager (and make it easier to add stuff)
-class PMElement : private QDomElement
+class QEPLUGINLIBRARYSHARED_EXPORT PMElement : private QDomElement
 {
 public:
     PMElement( PersistanceManager* ownerIn, QDomElement elementIn );
@@ -155,11 +155,6 @@ public:
 
     PMElement addElement( QString name );
     QDomElement addDomElement( QString name );
-    void addString( QString name, QString data );
-
-
-
-
 
     QObject* getSaveRestoreObject();          // Get a reference to the object that will supply save and restore signals
 

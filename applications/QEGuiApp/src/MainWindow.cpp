@@ -67,6 +67,9 @@ MainWindow::MainWindow( QString fileName, bool openDialog, bool enableEditIn, bo
     usingTabs = false;
     nativeSize = QSize( 0, 0 );
 
+    beingDeleted = false;
+    scrollToCount = 0;
+
     // Give the main window's USerMessage class a unique form ID so only messages from
     // the form in each main window are displayed that main window's status bar
     setFormId( getNextMessageFormId() );
@@ -1296,6 +1299,9 @@ void MainWindow::on_actionRestore_Configuration_triggered()
             return;
      }
 
+    // Close all current windows
+    closeAll();
+
     // Ask the persistance manager to restore a configuration.
     // The persistance manager will signal all interested objects (including this application) that
     // they should collect and apply restore data.
@@ -1373,6 +1379,11 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
         case SaveRestoreSignal::RESTORE:
             {
+                // If this window is marked for deletion, (deleteLater() has been called on it when closing
+                // all current windows before restoring a configuration) then do nothing
+                if( beingDeleted )
+                    return;
+
                 // Get the data for this window
                 PMElement data = pm->getMyData( mainWindowName );
 
@@ -1440,6 +1451,8 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             }
 
                             // Note any scroll position
+                            // This scroll position will be applied by scrollTo(), which is a timer event
+                            // that will be run after the restored geometry has been applied
                             PMElement scroll = guiElement.getElement( "Scroll" );
                             int x, y;
                             if( scroll.getElementAttribute( "X", x ) &&
@@ -1459,7 +1472,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
     }
 }
 
-// Static function to close all main windows.
+// Function to close all main windows.
 // Used when restoring a configuration
 void MainWindow::closeAll()
 {
@@ -1468,6 +1481,7 @@ void MainWindow::closeAll()
     // Also, hide the widget from all code by removing it from the main window list
     while( mainWindowList.count() )
     {
+        mainWindowList[0]->beingDeleted = true;
         mainWindowList[0]->deleteLater();
         mainWindowList.removeFirst();
     }
@@ -1540,11 +1554,16 @@ void MainWindow::scrollTo()
     // To work around this, scrolling is held off (rescheduled with a new timer event here) if there are still
     // outstanding events (which may be related to resizing) or if the resizing has not yet taken effect (if the
     // width and height specified in the geometry request have not yet been reflected in the current width and height)
+    // As a safeguard, we won't wait for longer than 10 seconds. One possible reason for this is the following scenario:
+    // a configuration was saved with a large window on a large screen. If the screen size is reduced the requested window
+    // size may not be honoured by the display manager and this function will never see the window size has reached the required size.
     if( QCoreApplication::hasPendingEvents() ||
         setGeomRect.width() != width() ||
-        setGeomRect.height() != height() )
+        setGeomRect.height() != height() ||
+        scrollToCount == 1000 )  /* 1000 = 1000 x 10ms = 10 seconds */
     {
         QTimer::singleShot(10, this, SLOT(scrollTo()));
+        scrollToCount++;
         return;
     }
 
