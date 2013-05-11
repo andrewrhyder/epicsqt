@@ -35,8 +35,6 @@
 #include <QStringList>
 #include <QUrl>
 
-#include <alarm.h>
-
 #include <QCaDataPoint.h>
 #include <QCaDateTime.h>
 #include <QCaAlarmInfo.h>
@@ -60,10 +58,11 @@ public:
    // Extends the EPICS alarm severity with archive specials
    //
    enum archiveAlarmSeverity {
-       archSevNone       = epicsSevNone,
-       archSevMinor      = epicsSevMinor,
-       archSevMajor      = epicsSevMajor,
-       archSevInvalid    = epicsSevInvalid,
+       // alarm.h
+       archSevNone       = 0,
+       archSevMinor      = 1,
+       archSevMajor      = 2,
+       archSevInvalid    = 3,
        // From RawValue.h (arch-2.9.2)
        archSevEstRepeat  = 0x0f80,
        archSevDisconnect = 0x0f40,

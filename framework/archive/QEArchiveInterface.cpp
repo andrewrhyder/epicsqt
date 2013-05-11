@@ -29,9 +29,11 @@
 #include <QtXml>
 #include <QVariantList>
 
+#include <alarm.h>
+
 #include <QEArchiveInterface.h>
 
-#define DEBUG   qDebug () << __FILE__ << ":" << __LINE__<< "(" << __FUNCTION__  << ") "
+#define DEBUG qDebug () << "QEArchiveInterface:" << __FUNCTION__  << ":" << __LINE__
 
 
 //------------------------------------------------------------------------------
