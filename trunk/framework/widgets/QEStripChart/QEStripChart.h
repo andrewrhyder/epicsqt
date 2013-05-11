@@ -37,8 +37,6 @@
 #include <QTimer>
 #include <QVariant>
 
-#include <qwt_plot_curve.h>
-
 #include <QCaAlarmInfo.h>
 #include <QEPluginLibrary_global.h>
 #include <QCaDateTime.h>
@@ -52,6 +50,10 @@
 #include "QEStripChartRangeDialog.h"
 #include "QEStripChartTimeDialog.h"
 
+// Defered declaration - exists in qwt_plot_curve.h - but
+// we don't need to expose that.
+//
+class QwtPlotCurve;
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QEWidget {
    Q_OBJECT
