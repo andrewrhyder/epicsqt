@@ -34,8 +34,6 @@
 #include <QPoint>
 #include <QString>
 
-#include <qwt_plot_curve.h>
-
 #include <QCaAlarmInfo.h>
 #include <QCaConnectionInfo.h>
 #include <QCaDataPoint.h>
@@ -64,6 +62,10 @@
 #define LOG10(x)  ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
 #define EXP10(x)  exp (2.302585092994046 * (x))
 
+// Defered declaration - exists in qwt_plot_curve.h - but
+// we don't need to expose that.
+//
+class QwtPlotCurve;
 
 //==============================================================================
 // This is essentially a private classes used soley by the QEStripChart widget.
