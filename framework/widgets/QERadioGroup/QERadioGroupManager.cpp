@@ -91,7 +91,7 @@ QIcon QERadioGroupManager::icon () const
 */
 QString QERadioGroupManager::toolTip () const
 {
-   return "EPICS Simple Shape";
+   return "EPICS Radio Group";
 }
 
 /*
@@ -99,7 +99,7 @@ QString QERadioGroupManager::toolTip () const
 */
 QString QERadioGroupManager::whatsThis () const
 {
-   return "EPICS Simple Shape";
+   return "EPICS Radio Group";
 }
 
 /*
