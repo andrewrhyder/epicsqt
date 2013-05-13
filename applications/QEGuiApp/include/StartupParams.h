@@ -46,6 +46,7 @@ class startupParams
     bool getStartupParams( QStringList args );      // Extract startup parameters from command line arguments
 
     // Startup parameters
+    double adjustScale;                             // GUI scaling parameter (-a)
     bool enableEdit;                                // Flag true if 'Edit' menu should be available
     bool disableMenu;                               // Flag true if menu bar should be disabled
     bool singleApp;                                 // True if only a single instance of this application should be started

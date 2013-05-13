@@ -26,12 +26,22 @@
 // Manage startup parameters. Parse the startup parameters in a command line, serialize
 // and unserialize parameters when passing them to another application instance.
 
+#include <QString>
 #include <QStringList>
+#include <QVariant>
+
+#include <QECommon.h>
+
 #include "StartupParams.h"
+
+
+#define LIMIT_SCALE(scale)  LIMIT( scale, 20.0, 400.0 )
+
 
 // Construction
 startupParams::startupParams()
 {
+    adjustScale = 100.0;
     enableEdit = false;
     disableMenu = false;
     singleApp = false;
@@ -49,6 +59,10 @@ startupParams::startupParams()
 // This must match startupParams::setSharedParams()
 void startupParams::getSharedParams( const QByteArray& in )
 {
+    double scaleValue;
+    char * scale;
+    int i;
+
     // Initialise parameters
     filenameList.clear();
     pathList.clear();
@@ -57,6 +71,12 @@ void startupParams::getSharedParams( const QByteArray& in )
     // Extract parameters from a stream of bytes.
     int len = 0;
     const char* d = in.constData();
+
+    scale = (char *) &scaleValue;
+    for (i = 0; i < (int) sizeof (adjustScale); i++) {
+       scale [i] = d[len];    len += 1;
+    }
+    adjustScale = LIMIT_SCALE (scaleValue);
 
     enableEdit    = (bool)(d[len]);    len += 1;
     disableMenu   = (bool)(d[len]);    len += 1;
@@ -83,7 +103,13 @@ void startupParams::setSharedParams( QByteArray& out )
 {
     // Convert parameters into a stream of bytes.
     int len = 0;
+    const char * scale;
     int i;
+
+    scale = (const char *) &adjustScale;
+    for (i = 0; i < (int) sizeof (adjustScale); i++) {
+       out[len++] = scale [i];
+    }
 
     out[len++] = enableEdit;
     out[len++] = disableMenu;
@@ -135,6 +161,30 @@ bool startupParams::getStartupParams( QStringList args )
                 // Identify the argument by the next letter
                 switch( arg[0].toAscii() )
                 {
+
+                   // 'Adjust Scale' flag
+                   // Take next non switch parameter as macro substitutions
+                   case 'a':
+                       // Get the scaling (next parameter, if present, and as long as it isn't a switch)
+                       if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                       {
+                          QVariant image( QVariant::String );
+                          double value;
+                          bool okay;
+
+                          image = args [0];
+                          args.removeFirst();
+                          value = image.toDouble( &okay );
+                          if( !okay ){
+                             return false;
+                          }
+                          adjustScale = LIMIT_SCALE( value );
+
+                       } else {
+                           return false;
+                       }
+                       break;
+
                     // 'Editable' flag
                     case 'e':
                         enableEdit = true;
