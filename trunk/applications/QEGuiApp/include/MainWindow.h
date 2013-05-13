@@ -160,6 +160,7 @@ private slots:
 
     void setGeom();                                 // Timer slot to set the window geometry on a restore
     void scrollTo();                                // Timer slot to set the gui scroll positions on a restore
+    void on_actionSet_Passwords_triggered();
 };
 
 #endif // MAINWINDOW_H
