@@ -1,4 +1,5 @@
-/*
+/*  QCaDateTime.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -92,10 +93,12 @@ QString QCaDateTime::text() {
 /*
   Returns a double which represents the date and time in seconds (to mS resolution) from the base time
  */
-double QCaDateTime::floating( QDateTime base ) {
+double QCaDateTime::floating( const QDateTime & base ) {
 
     int days = base.date().daysTo( date() );
     int mSecs = base.time().msecsTo( time() );
 
     return (double)(days) * 86400.0 + (double)mSecs / 1000;
 }
+
+// end
