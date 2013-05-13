@@ -29,6 +29,7 @@
 #include <MainWindow.h>
 #include <QEForm.h>
 #include <QEFrameworkVersion.h>
+#include <QECommon.h>
 #include <QMessageBox>
 #include <ContainerProfile.h>
 #include <QVariant>
@@ -56,8 +57,12 @@ Q_DECLARE_METATYPE( QEForm* )
 
 // Constructor
 // A profile should have been defined before calling this constructor
-MainWindow::MainWindow( QString fileName, bool openDialog, bool enableEditIn, bool disableMenuIn, QWidget *parent )  : QMainWindow( parent )
+MainWindow::MainWindow( QString fileName, bool openDialog, const startupParams & startupParametersIn, QWidget *parent )  : QMainWindow( parent )
 {
+    // Save the start up parameters.
+    //
+    startupParameters = startupParametersIn;
+
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
     // profile was set up by the QEGui application) or objects in another main window (if the profile was published by a button in a gui)
     // Replace the signal consuming objects
@@ -79,6 +84,10 @@ MainWindow::MainWindow( QString fileName, bool openDialog, bool enableEditIn, bo
     // Present the main form's ui
     ui.setupUi( this );
 
+    // Apply scaling to main window proper.
+    //
+    QEUtilities::adjustWidgetScale( this, int (startupParameters.adjustScale) , 100 );
+
     // Setup to allow user to change focus to a window from the 'Windows' menu
     QObject::connect( ui.menuWindows, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
 
@@ -97,16 +106,14 @@ MainWindow::MainWindow( QString fileName, bool openDialog, bool enableEditIn, bo
     buildWindowsMenu();
 
     // Enable the edit menu if requested
-    enableEdit = enableEditIn;
-    if( enableEdit )
+    if( startupParameters.enableEdit )
         ui.menuEdit->setEnabled( true );
 
     // Hide the main tool bar (nothing in it yet)
     ui.mainToolBar->hide();
 
     // Hide the menu bar if not required
-    disableMenu = disableMenuIn;
-    if( disableMenu )
+    if( startupParameters.disableMenu )
         ui.menuBar->hide();
 
     // If no filename was supplied, and an 'Open...' dialog is required, open the file selection dialog
@@ -173,7 +180,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNew_Window_triggered()
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( "", true, enableEdit, disableMenu );
+    MainWindow* w = new MainWindow( "", true, startupParameters );
     profile.releaseProfile();
     w->show();
 }
@@ -289,7 +296,7 @@ void MainWindow::on_actionExit_triggered()
 void MainWindow::launchLocalGui( QString filename )
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( filename, true, enableEdit, disableMenu );
+    MainWindow* w = new MainWindow( filename, true, startupParameters );
     profile.releaseProfile();
     w->show();
 }
@@ -914,7 +921,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
         // Open the specified gui in a new window
         case QEForm::CREATION_OPTION_NEW_WINDOW:
             {
-                MainWindow* w = new MainWindow( guiName, true, enableEdit, disableMenu ); // Note, profile should have been published by signal code
+                MainWindow* w = new MainWindow( guiName, true, startupParameters ); // Note, profile should have been published by signal code
                 w->show();
             }
             break;
@@ -1052,6 +1059,10 @@ QEForm* MainWindow::createGui( QString fileName )
 
         // Load the .ui file into the GUI
         gui->readUiFile();
+
+        // Apply any adjustments to the scaling of the loaded widget.
+        //
+        QEUtilities::adjustWidgetScale( gui, int (startupParameters.adjustScale) , 100 );
 
         UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
 

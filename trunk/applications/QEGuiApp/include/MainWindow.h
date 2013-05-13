@@ -1,4 +1,5 @@
-/*
+/*  MainWindow.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -32,6 +33,7 @@
 #include <ContainerProfile.h>
 #include <QProcess>
 #include <QTimer>
+#include <StartupParams.h>
 
 // Save / Restore configuration name
 #define QE_CONFIG_NAME "QEGuiConfig"
@@ -58,7 +60,7 @@ class MainWindow : public QMainWindow, public UserMessage
     Q_OBJECT
 
 public:
-    MainWindow( QString fileName, bool openDialog, bool enableEditIn, bool disableMenuIn, QWidget *parent = 0 );
+    MainWindow( QString fileName, bool openDialog, const startupParams & startupParams, QWidget *parent = 0 );
 
     ~MainWindow();
 
@@ -66,8 +68,7 @@ public:
     static int count();                                     // Static function to report the number of main windows
 
 private:
-    bool enableEdit;                                        // Enable edit menu
-    bool disableMenu;                                       // Disable menu bar
+    startupParams startupParameters;                        // Start up parameters
     Ui::MainWindowClass ui;                                 // Main window layout
     static QList<guiListItem> guiList;                      // Shared list of all forms being displayed in all main windows
     static QList<MainWindow*> mainWindowList;               // Shared list of all main windows

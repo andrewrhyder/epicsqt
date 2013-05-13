@@ -1,4 +1,5 @@
-/*
+/*  InstanceManager.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -147,7 +148,7 @@ void instanceManager::newWindow( const startupParams& params )
         // If no files specified, open a single window without a filen name
         if( !params.filenameList.count() )
         {
-            MainWindow* mw = new MainWindow( "", true, params.enableEdit, params.disableMenu );
+            MainWindow* mw = new MainWindow( "", true, params );
             mw->show();
         }
 
@@ -156,7 +157,7 @@ void instanceManager::newWindow( const startupParams& params )
         {
             for( int i = 0; i < params.filenameList.count(); i++ )
             {
-                MainWindow* mw = new MainWindow( params.filenameList[i], true, params.enableEdit, params.disableMenu );
+                MainWindow* mw = new MainWindow( params.filenameList[i], true, params );
                 mw->show();
             }
         }

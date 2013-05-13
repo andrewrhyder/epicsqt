@@ -46,7 +46,7 @@ static void printVersion ()
 //
 static void printUsage (std::ostream & stream)
 {
-    stream  << "usage: QEGui [-v] [-h] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name] [file_name] [file_name...]\n";
+    stream  << "usage: QEGui [-v] [-h] [-a scale] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name] [file_name] [file_name...]\n";
 }
 
 //------------------------------------------------------------------------------
@@ -55,6 +55,10 @@ static void printHelp ()
 {
    static const char * help_text =
       "Options\n"
+      "\n"
+      "-a      Adjust the GUIs scaling. This option takes a single value with is the percentage\n"
+      "        scaling to be applies to each GUI. The value may be either an interger or a floating\n"
+      "        point number. If specified its value will be constained to the range 20 to 400.\n"
       "\n"
       "-s      Single application.\n"
       "        QEGui will attempt to pass all parameters to an existing instance of QEGui. When\n"

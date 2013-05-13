@@ -1,4 +1,5 @@
-/*
+/*  saveRestoreManager.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -83,7 +84,7 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
             profile.setupProfile( NULL, params->pathList, "", params->substitutions, params->userLevelPassword, params->scientistLevelPassword, params->engineerLevelPassword );
             for( int i = 0; i < numMainWindows; i++ )
             {
-                MainWindow* mw = new MainWindow( "", false, params->enableEdit, params->disableMenu );
+                MainWindow* mw = new MainWindow( "", false, *params );
                 mw->show();
             }
 
