@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>548</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -54,15 +54,13 @@
     </property>
    </widget>
    <widget class="QMenu" name="menuEdit">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
     <property name="title">
      <string>Edit</string>
     </property>
     <addaction name="actionDesigner"/>
     <addaction name="actionOpen_Current_Form_In_Designer"/>
     <addaction name="actionRefresh_Current_Form"/>
+    <addaction name="actionSet_Passwords"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -105,12 +103,12 @@
   </action>
   <action name="actionDesigner">
    <property name="text">
-    <string>Designer</string>
+    <string>Designer...</string>
    </property>
   </action>
   <action name="actionOpen_Current_Form_In_Designer">
    <property name="text">
-    <string>Open CurrentForm In Designer</string>
+    <string>Open CurrentForm In Designer...</string>
    </property>
    <property name="toolTip">
     <string>Open Current Form In Designer</string>
@@ -159,6 +157,11 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionSet_Passwords">
+   <property name="text">
+    <string>Set Passwords...</string>
    </property>
   </action>
  </widget>

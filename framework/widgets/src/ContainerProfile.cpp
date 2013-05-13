@@ -198,10 +198,7 @@ void ContainerProfile::setupProfile( QObject* guiLaunchConsumerIn,
     publishProfile(guiLaunchConsumerIn,
                    pathListIn,
                    parentPathIn,
-                   macroSubstitutionsIn,
-                   userLevelPassword,
-                   scientistLevelPassword,
-                   engineerLevelPassword );
+                   macroSubstitutionsIn );
 
     // Save a local copy of what has been published
     takeLocalCopy();
@@ -256,10 +253,7 @@ PersistanceManager* ContainerProfile::getPersistanceManager()
 void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
                                        QStringList pathListIn,
                                        QString parentPathIn,
-                                       QString macroSubstitutionsIn,
-                                       QString userLevelPasswordIn,
-                                       QString scientistLevelPasswordIn,
-                                       QString engineerLevelPasswordIn )
+                                       QString macroSubstitutionsIn )
 {
     PublishedProfile* publishedProfile = getPublishedProfile();
 
@@ -282,10 +276,6 @@ void ContainerProfile::publishProfile( QObject* guiLaunchConsumerIn,
         publishedProfile->macroSubstitutions.append( macroSubstitutionsIn );
     }
 
-    publishedProfile->userLevelPassword      = userLevelPasswordIn;
-    publishedProfile->scientistLevelPassword = scientistLevelPasswordIn;
-    publishedProfile->engineerLevelPassword  = engineerLevelPasswordIn;
-
     // flag a published profile now exists
     publishedProfile->profileDefined = true;
 }
@@ -307,10 +297,7 @@ void ContainerProfile::takeLocalCopy()
     setupLocalProfile( publishedProfile->guiLaunchConsumer,
                        publishedProfile->pathList,
                        publishedProfile->parentPath,
-                       subs,
-                       publishedProfile->userLevelPassword,
-                       publishedProfile->scientistLevelPassword,
-                       publishedProfile->engineerLevelPassword );
+                       subs );
 
     messageFormId = publishedProfile->messageFormId;
 }
@@ -324,19 +311,13 @@ void ContainerProfile::takeLocalCopy()
 void ContainerProfile::setupLocalProfile( QObject* guiLaunchConsumerIn,
                                           QStringList pathListIn,
                                           QString parentPathIn,
-                                          QString macroSubstitutionsIn,
-                                          QString userLevelPasswordIn,
-                                          QString scientistLevelPasswordIn,
-                                          QString engineerLevelPasswordIn )
+                                          QString macroSubstitutionsIn )
 {
     // Set up the local profile as specified
     guiLaunchConsumer = guiLaunchConsumerIn;
 
     macroSubstitutions = macroSubstitutionsIn;
 
-    userLevelPassword      = userLevelPasswordIn;
-    scientistLevelPassword = scientistLevelPasswordIn;
-    engineerLevelPassword  = engineerLevelPasswordIn;
     pathList = pathListIn;
     parentPath = parentPathIn;
 
@@ -404,10 +385,7 @@ void ContainerProfile::publishOwnProfile()
     publishProfile( guiLaunchConsumer,
                     pathList,
                     parentPath,
-                    macroSubstitutions,
-                    userLevelPassword,
-                    scientistLevelPassword,
-                    engineerLevelPassword );
+                    macroSubstitutions );
 }
 
 /*
@@ -424,10 +402,6 @@ void ContainerProfile::releaseProfile()
     publishedProfile->parentPath.clear();
 
     publishedProfile->macroSubstitutions.clear();
-
-    publishedProfile->userLevelPassword.clear();
-    publishedProfile->scientistLevelPassword.clear();
-    publishedProfile->engineerLevelPassword.clear();
 
     publishedProfile->containedWidgets.clear();
 
@@ -543,6 +517,14 @@ bool ContainerProfile::getDontActivateYet()
     return getPublishedProfile()->dontActivateYet;
 }
 
+// Return flag if one or more user level passwords have been set in the profile.
+// If the any passwords have been set up in the profile, then they should be used in preference to any others,
+// such as those local to a QELogin widget
+bool ContainerProfile::areUserLevelPasswordsSet()
+{
+    return getPublishedProfile()->userLevelPasswordsSet;
+}
+
 /*
   Return the flag indicating true if a profile is currently being published.
   */
@@ -616,9 +598,9 @@ QString ContainerProfile::getUserLevelPassword( userLevels level )
 {
     switch( level )
     {
-        case USERLEVEL_USER:      return userLevelPassword;      break;
-        case USERLEVEL_SCIENTIST: return scientistLevelPassword; break;
-        case USERLEVEL_ENGINEER:  return engineerLevelPassword;  break;
+        case USERLEVEL_USER:      return getPublishedProfile()->userLevelPassword;      break;
+        case USERLEVEL_SCIENTIST: return getPublishedProfile()->scientistLevelPassword; break;
+        case USERLEVEL_ENGINEER:  return getPublishedProfile()->engineerLevelPassword;  break;
         default: return QString();
     }
 }
@@ -630,10 +612,11 @@ void ContainerProfile::setUserLevelPassword( userLevels level, QString passwordI
 {
     switch( level )
     {
-        case USERLEVEL_USER:      userLevelPassword      = passwordIn; break;
-        case USERLEVEL_SCIENTIST: scientistLevelPassword = passwordIn; break;
-        case USERLEVEL_ENGINEER:  engineerLevelPassword  = passwordIn; break;
+        case USERLEVEL_USER:      getPublishedProfile()->userLevelPassword      = passwordIn; break;
+        case USERLEVEL_SCIENTIST: getPublishedProfile()->scientistLevelPassword = passwordIn; break;
+        case USERLEVEL_ENGINEER:  getPublishedProfile()->engineerLevelPassword  = passwordIn; break;
     }
+    getPublishedProfile()->userLevelPasswordsSet = true;
 }
 
 

@@ -34,6 +34,7 @@
 #include <ContainerProfile.h>
 #include <QVariant>
 #include <saveDialog.h>
+#include <PasswordDialog.h>
 
 // Before Qt 4.8, the command to start designer is 'designer'.
 // Qt 4.8 later uses the command 'designer-qt4'
@@ -106,8 +107,7 @@ MainWindow::MainWindow( QString fileName, bool openDialog, const startupParams &
     buildWindowsMenu();
 
     // Enable the edit menu if requested
-    if( startupParameters.enableEdit )
-        ui.menuEdit->setEnabled( true );
+    ui.menuEdit->setEnabled( startupParameters.enableEdit  );
 
     // Hide the main tool bar (nothing in it yet)
     ui.mainToolBar->hide();
@@ -578,6 +578,15 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
         profile.releaseProfile();
     }
 }
+
+// Allow the user to change user level passwords
+void MainWindow::on_actionSet_Passwords_triggered()
+{
+ContainerProfile profile;
+    PasswordDialog pd;
+    pd.exec();
+}
+
 
 //=================================================================================
 // Methods for managing GUI windows

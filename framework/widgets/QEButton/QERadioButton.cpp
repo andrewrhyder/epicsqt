@@ -63,6 +63,9 @@ void QERadioButton::setup() {
     setClickText( "0" );
     setClickCheckedText( "1" );
 
+    // Subscribe by default
+    setSubscribe( true );
+
     // Set up a connection to recieve variable name property changes
     // The variable name property manager class only delivers an updated variable name after the user has stopped typing
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );

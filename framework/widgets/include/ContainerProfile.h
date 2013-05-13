@@ -136,6 +136,7 @@ public:
         messageFormId = 0;
         profileDefined = false;
         dontActivateYet = false;
+        userLevelPasswordsSet = false;
     }
 
     QObject* guiLaunchConsumer;         // Object to send GUI launch requests to
@@ -159,6 +160,8 @@ public:
 
     QStringList idRootList;             //
 
+    bool userLevelPasswordsSet;         // One or more user level passwords have been set. Use passwords defined in the profile
+
 };
 
 
@@ -178,10 +181,7 @@ public:
     void setupLocalProfile( QObject* guiLaunchConsumerIn,
                             QStringList pathListIn,
                             QString parentPathIn,
-                            QString macroSubstitutionsIn,
-                            QString userLevelPasswordIn,
-                            QString scientistLevelPasswordIn,
-                            QString engineerLevelPasswordIn );// Setup the local environmental profile for this instance only
+                            QString macroSubstitutionsIn );// Setup the local environmental profile for this instance only
     void updateConsumers( QObject* guiLaunchConsumerIn );  // Update the local and published signal consumer objects
     QObject* replaceGuiLaunchConsumer( QObject* newGuiLaunchConsumerIn );  // Override the current GUI launch consumer
 
@@ -198,6 +198,7 @@ public:
     void setPublishedParentPath( QString publishedParentPathIn ); // Set the published current object path used for file operations
     QString getMacroSubstitutions();          // Get the local copy of the variable name macro substitutions
     bool isProfileDefined();                  // Returns true if a profile has been setup by setupProfile()
+    bool areUserLevelPasswordsSet();          // Return true if one or more user level passwords have been set in the profile
 
     QStringList getEnvPathList();             // Get the path list from the environment variable
 
@@ -234,10 +235,7 @@ private:
     void publishProfile( QObject* guiLaunchConsumerIn,
                          QStringList pathListIn,
                          QString publishedParentPathIn,
-                         QString macroSubstitutionsIn,
-                         QString userLevelPasswordIn,
-                         QString scientistLevelPasswordIn,
-                         QString engineerLevelPasswordIn );// Publish an environmental profile for all QEWidgets to use on creation
+                         QString macroSubstitutionsIn );// Publish an environmental profile for all QEWidgets to use on creation
 
     PublishedProfile* getPublishedProfile();            // Get the single instance of the published profile
 
@@ -250,9 +248,9 @@ private:
 
     unsigned int messageFormId;      // Local copy of current form ID. Used to group forms with their widgets for messaging
 
-    QString userLevelPassword;                      // Password for 'user' user level
-    QString scientistLevelPassword;                 // Password for 'scientist' user level
-    QString engineerLevelPassword;                  // Password for 'engineer' user level
+//    QString userLevelPassword;                      // Password for 'user' user level
+//    QString scientistLevelPassword;                 // Password for 'scientist' user level
+//    QString engineerLevelPassword;                  // Password for 'engineer' user level
 };
 
 #endif // CONTAINERPROFILE_H

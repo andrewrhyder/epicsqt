@@ -81,7 +81,7 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
     {
         QStringList tempPathList;
         tempPathList.append( QDir::currentPath() );
-        setupLocalProfile( this, tempPathList, "", "", "", "", "" );
+        setupLocalProfile( this, tempPathList, "", "" );
     }
 
     // Prepare to recieve notification that the ui file being displayed has changed

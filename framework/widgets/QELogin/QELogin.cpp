@@ -53,14 +53,6 @@ QELogin::QELogin(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qLabelUserType->setText(getUserTypeName((userLevels) currentUserType));
     setUserLevel((userLevels) currentUserType);
 
-    // Setup passwords from profile if avaiable
-    if( isProfileDefined() )
-    {
-        setUserPassword( getUserLevelPassword( USERLEVEL_USER ) );
-        setScientistPassword( getUserLevelPassword( USERLEVEL_SCIENTIST ) );
-        setEngineerPassword( getUserLevelPassword( USERLEVEL_ENGINEER ) );
-    }
-
     setDetailsLayout(RIGHT);
 
 }
@@ -155,27 +147,6 @@ QString QELogin::getScientistPassword()
 
     return scientistPassword;
 
-}
-
-// Set the user password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
-void QELogin::setUserPasswordProperty(QString pValue)
-{
-    if( !isProfileDefined() )
-        setUserPassword( pValue );
-}
-
-// Set the scientist password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
-void QELogin::setScientistPasswordProperty(QString pValue)
-{
-    if( !isProfileDefined() )
-        setScientistPassword( pValue );
-}
-
-// Set the engineer password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
-void QELogin::setEngineerPasswordProperty(QString pValue)
-{
-    if( !isProfileDefined() )
-        setEngineerPassword( pValue );
 }
 
 void QELogin::setEngineerPassword(QString pValue)
@@ -343,7 +314,7 @@ void QELogin::buttonLogoutClicked()
     {
         if (logoutUserType == USERLEVEL_USER)
         {
-            if (userPassword.isEmpty())
+            if (getPriorityUserPassword().isEmpty())
             {
                 logoutCurrentUserType();
             }
@@ -400,6 +371,49 @@ void QELogin::logoutCurrentUserType()
     qPushButtonLogout->setEnabled(loginHistory.empty() == false);
 
 }
+
+// Return the user level password from the profile if available, otherwise use the local user level password property
+QString QELogin::getPriorityUserPassword()
+{
+    ContainerProfile profile;
+    if( profile.areUserLevelPasswordsSet() )
+    {
+        return profile.getUserLevelPassword( USERLEVEL_USER );
+    }
+    else
+    {
+        return userPassword;
+    }
+}
+
+// Return the scientist level password from the profile if available, otherwise use the local scientist level password property
+QString QELogin::getPriorityScientistPassword()
+{
+    ContainerProfile profile;
+    if( profile.areUserLevelPasswordsSet() )
+    {
+        return profile.getUserLevelPassword( USERLEVEL_SCIENTIST );
+    }
+    else
+    {
+        return scientistPassword;
+    }
+}
+
+// Return the engineer level password from the profile if available, otherwise use the local engineer level password property
+QString QELogin::getPriorityEngineerPassword()
+{
+    ContainerProfile profile;
+    if( profile.areUserLevelPasswordsSet() )
+    {
+        return profile.getUserLevelPassword( USERLEVEL_ENGINEER );
+    }
+    else
+    {
+        return engineerPassword;
+    }
+}
+
 
 
 
@@ -540,15 +554,15 @@ void _QDialogLogin::radioButtonClicked()
 
     if (qRadioButtonUser->isChecked())
     {
-        qLineEditPassword->setEnabled(parent->getUserPassword().isEmpty() == false);
+        qLineEditPassword->setEnabled(parent->getPriorityUserPassword().isEmpty() == false);
     }
     else if (qRadioButtonScientist->isChecked())
     {
-        qLineEditPassword->setEnabled(parent->getScientistPassword().isEmpty() == false);
+        qLineEditPassword->setEnabled(parent->getPriorityScientistPassword().isEmpty() == false);
     }
     else
     {
-        qLineEditPassword->setEnabled(parent->getEngineerPassword().isEmpty() == false);
+        qLineEditPassword->setEnabled(parent->getPriorityEngineerPassword().isEmpty() == false);
     }
 
     qPushButtonOk->setEnabled(qLineEditPassword->isEnabled() == false || qLineEditPassword->text().isEmpty() == false);
@@ -584,21 +598,21 @@ void _QDialogLogin::buttonOkClicked()
 
     if (qRadioButtonUser->isChecked())
     {
-        if (qLineEditPassword->isEnabled() == false || parent->getUserPassword() == qLineEditPassword->text())
+        if (qLineEditPassword->isEnabled() == false || parent->getPriorityUserPassword() == qLineEditPassword->text())
         {
             type = USERLEVEL_USER;
         }
     }
     else if (qRadioButtonScientist->isChecked())
     {
-        if (qLineEditPassword->isEnabled() == false || parent->getScientistPassword() == qLineEditPassword->text())
+        if (qLineEditPassword->isEnabled() == false || parent->getPriorityScientistPassword() == qLineEditPassword->text())
         {
             type = USERLEVEL_SCIENTIST;
         }
     }
     else
     {
-        if (qLineEditPassword->isEnabled() == false || parent->getEngineerPassword() == qLineEditPassword->text())
+        if (qLineEditPassword->isEnabled() == false || parent->getPriorityEngineerPassword() == qLineEditPassword->text())
         {
             type = USERLEVEL_ENGINEER;
         }
@@ -631,6 +645,3 @@ void _QDialogLogin::buttonCancelClicked()
     this->close();
 
 }
-
-
-
