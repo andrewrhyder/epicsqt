@@ -442,7 +442,7 @@ void QEArchiveManager::valuesResponse (const QObject * userData,
 //
 QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
 {
-   // Do we have a sigleton ojbect yet?
+   // Do we have a singleton ojbect yet?
    // The constructor does the safe mutex locking required prior to assigin the
    // object reference to singleton. We check here in order to reduce, although
    // not absolutely remove error messages.
