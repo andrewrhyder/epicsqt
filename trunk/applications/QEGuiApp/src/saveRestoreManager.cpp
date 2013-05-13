@@ -59,7 +59,14 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
             // Start with the top level element - the QEGui application
             PMElement appElement =  pm->addElement( SAVERESTORE_NAME );
 
-            appElement.addAttribute( "MainWindows", MainWindow::count() );
+            // Note the number of main windows. This will determine how many main windows are expected on restore
+            appElement.addValue( "MainWindows", MainWindow::count() );
+
+            // Add login info
+            PMElement loginElement = appElement.addElement( "Login" );
+            loginElement.addAttribute( "User", getUserLevelPassword( USERLEVEL_USER ) );
+            loginElement.addAttribute( "Scientist", getUserLevelPassword( USERLEVEL_SCIENTIST ) );
+            loginElement.addAttribute( "Engineer", getUserLevelPassword( USERLEVEL_ENGINEER ) );
         }
         break;
 
@@ -75,20 +82,33 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
                 return;
             }
 
+            // Restore login information
+            PMElement loginElement = QEGuiData.getElement( "Login" );
+
+            QString password;
+
+            loginElement.getAttribute( "User", password );
+            setUserLevelPassword( USERLEVEL_USER, password );
+
+            loginElement.getAttribute( "Scientist", password );
+            setUserLevelPassword( USERLEVEL_SCIENTIST, password );
+
+            loginElement.getAttribute( "Engineer", password );
+            setUserLevelPassword( USERLEVEL_ENGINEER, password );
+
             // Get the number of expected main windows
             int numMainWindows = 0;
-            QEGuiData.getElementAttribute( "MainWindows", numMainWindows );
+            QEGuiData.getValue( "MainWindows", numMainWindows );
 
             // Create the main windows. They will restore themselves
-            ContainerProfile profile;
-            profile.setupProfile( NULL, params->pathList, "", params->substitutions, params->userLevelPassword, params->scientistLevelPassword, params->engineerLevelPassword );
+            setupProfile( NULL, params->pathList, "", params->substitutions );
             for( int i = 0; i < numMainWindows; i++ )
             {
                 MainWindow* mw = new MainWindow( "", false, *params );
                 mw->show();
             }
 
-            profile.releaseProfile();
+            releaseProfile();
         }
         break;
     }

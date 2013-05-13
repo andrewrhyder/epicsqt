@@ -56,10 +56,6 @@ class startupParams
     QStringList filenameList;                       // Default gui file names
     QStringList pathList;                           // Default gui file path
     QString substitutions;                          // Substitutions. For example, "SECTOR=01,PUMP=03"
-
-    QString userLevelPassword;                      // Password for 'user' user level
-    QString scientistLevelPassword;                 // Password for 'scientist' user level
-    QString engineerLevelPassword;                  // Password for 'engineer' user level
 };
 
 

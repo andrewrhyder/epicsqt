@@ -174,14 +174,7 @@ public:
     void setupProfile( QObject* guiLaunchConsumerIn,
                        QStringList pathListIn,
                        QString parentPathIn,
-                       QString macroSubstitutionsIn );     // Setup a local and published environmental profile for all QEWidgets to use on creation (no passwords)
-    void setupProfile( QObject* guiLaunchConsumerIn,
-                       QStringList pathListIn,
-                       QString parentPathIn,
-                       QString macroSubstitutionsIn,
-                       QString userLevelPasswordIn,
-                       QString scientistLevelPasswordIn,
-                       QString engineerLevelPasswordIn );     // Setup a local and published environmental profile for all QEWidgets to use on creation
+                       QString macroSubstitutionsIn );     // Setup a local and published environmental profile for all QEWidgets to use on creation
     void setupLocalProfile( QObject* guiLaunchConsumerIn,
                             QStringList pathListIn,
                             QString parentPathIn,

@@ -54,7 +54,7 @@ QELogin::QELogin(QWidget *pParent):QWidget(pParent), QEWidget( this )
     setUserLevel((userLevels) currentUserType);
 
     // Setup passwords from profile if avaiable
-    if( !isProfileDefined() )
+    if( isProfileDefined() )
     {
         setUserPassword( getUserLevelPassword( USERLEVEL_USER ) );
         setScientistPassword( getUserLevelPassword( USERLEVEL_SCIENTIST ) );
@@ -157,6 +157,26 @@ QString QELogin::getScientistPassword()
 
 }
 
+// Set the user password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
+void QELogin::setUserPasswordProperty(QString pValue)
+{
+    if( !isProfileDefined() )
+        setUserPassword( pValue );
+}
+
+// Set the scientist password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
+void QELogin::setScientistPasswordProperty(QString pValue)
+{
+    if( !isProfileDefined() )
+        setScientistPassword( pValue );
+}
+
+// Set the engineer password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
+void QELogin::setEngineerPasswordProperty(QString pValue)
+{
+    if( !isProfileDefined() )
+        setEngineerPassword( pValue );
+}
 
 void QELogin::setEngineerPassword(QString pValue)
 {

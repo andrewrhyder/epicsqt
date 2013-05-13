@@ -491,6 +491,12 @@ QString QEWidget::getFrameworkVersion()
     return QE_VERSION_STRING " " QE_VERSION_DATE_TIME;
 }
 
+// Returns a string that will not change between runs of the application (given the same configuration)
+QString QEWidget::persistantName()
+{
+    return "abcdef"; // not done yet!
+}
+
 saveRestoreSlot::saveRestoreSlot()
 {
     owner = NULL;
@@ -529,4 +535,3 @@ void saveRestoreSlot::saveRestore( SaveRestoreSignal::saveRestoreOptions option 
             break;
     }
 }
-
