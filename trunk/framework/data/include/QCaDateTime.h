@@ -1,4 +1,5 @@
-/*
+/*  QCaDateTime.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -41,7 +42,10 @@ public:
     QString text();
 
     unsigned long nSec;
-    double floating( QDateTime base );
+
+    /// Duration in seconds from base time to this time.
+    ///
+    double floating( const QDateTime & base );
 };
 
 #endif // QCADATETIME_H
