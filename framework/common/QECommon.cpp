@@ -24,6 +24,8 @@
  *
  */
 
+#include <QSize>
+
 #include "QECommon.h"
 
 
@@ -78,6 +80,129 @@ QString QEUtilities::colourToStyle (const QColor backgroundColour) {
    result.sprintf ("QWidget { background-color: #%02x%02x%02x; color: #%02x%02x%02x; }",
                    br, bg, bb, fr, fg, fb );
    return result;
+}
+
+
+//------------------------------------------------------------------------------
+//
+int QEUtilities::scaleBy (const int v, const int m, const int d)
+{
+   int sv;
+
+   // sainity check - avoid null scaling and divide by zero.
+   //
+   if ((m >= 1) && (d >= 1)) {
+      sv = (v * m) / d;
+   } else {
+      // not possible - use input value.
+      //
+      sv= v;
+   }
+
+   return sv;
+}
+
+//------------------------------------------------------------------------------
+//
+#define UPPER_SIZE  16777215
+
+void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
+{
+   // sainity check.
+   //
+   if (!widget) return;
+
+   QSize minSize =  widget->minimumSize();
+   QSize maxSize =  widget->maximumSize();
+   QRect geo =  widget->geometry();
+   QWidget *parent;
+
+   minSize.setWidth  (scaleBy (minSize.width (),  m, d));
+   minSize.setHeight (scaleBy (minSize.height (), m, d));
+
+   // UPPER_SIZE seems to be the default max size - do not scale this value.
+   //
+   if (maxSize.width () != UPPER_SIZE) {
+      maxSize.setWidth  (QEUtilities::scaleBy (maxSize.width  (), m, d));
+   }
+   if (maxSize.height () != UPPER_SIZE) {
+      maxSize.setHeight (QEUtilities::scaleBy (maxSize.height (), m, d));
+   }
+
+   geo = QRect (QEUtilities::scaleBy (geo.left (),   m, d),
+                QEUtilities::scaleBy (geo.top (),    m, d),
+                QEUtilities::scaleBy (geo.width (),  m, d),
+                QEUtilities::scaleBy (geo.height (), m, d));
+
+   if (m >= d) {
+      // getting bigger - ensure consistancy - do max size constraint first.
+      //
+      widget->setMaximumSize (maxSize);
+      widget->setMinimumSize (minSize);
+   } else {
+      // getting smaller - to min size constraint first.
+      //
+      widget->setMinimumSize (minSize);
+      widget->setMaximumSize (maxSize);
+   }
+   widget->setGeometry (geo);
+
+   parent = dynamic_cast <QWidget *>(widget->parent ());
+
+   // If a child's font same as parents then is scaled auto-magically
+   // when the parent's font was scaled, and if we do it again it will
+   // get scalled twice. And the font of a grand-child item will be
+   // scaled three times etc. So only do font scale if no parent or this
+   // widget is not using its parent font.
+   //
+   if (!parent || (widget->font() !=  parent->font())) {
+      QFont font = widget->font();
+      int pointSize = font.pointSize ();
+      int pixelSize = font.pixelSize ();
+
+      if (pointSize >= 0) {
+         // Font point sizes must me at least one.
+         font.setPointSize (MAX (1, QEUtilities::scaleBy (pointSize, m, d)));
+      }
+      else if (pixelSize >= 0) {
+         font.setPixelSize (MAX (1, QEUtilities::scaleBy (pixelSize, m, d)));
+      }
+      widget->setFont (font);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEUtilities::adjustWidgetScale (QWidget * widget, const int m, const int d, const int maxDepth)
+{
+   int j, n;
+   QObjectList childList;
+   QObject *child = NULL;
+   QWidget *childWidget = NULL;
+
+   // sainity checks and avoid divide by zero.
+   //
+   if (!widget) return;
+   if ((m < 1) || (d < 1)) return;
+   if (maxDepth < 0) return;
+
+   if (m == d) return;   // skip null scaling
+
+   QEUtilities::widgetScaleBy (widget, m, d);
+
+   childList = widget->children ();
+   n = childList.count();
+   for (j = 0; j < n; j++) {
+      child = childList.value (j);
+      // We need only tree walk widgets. All widget parents are themselves widgets.
+      //
+      childWidget = dynamic_cast <QWidget *>(child);
+      if (childWidget) {
+         // Recursive call.
+         //
+         QEUtilities::adjustWidgetScale  (childWidget, m, d, maxDepth - 1);
+      }
+   }
 }
 
 // end

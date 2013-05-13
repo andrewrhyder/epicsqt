@@ -29,6 +29,8 @@
 
 #include <QColor>
 #include <QString>
+#include <QWidget>
+
 
 // Useful type neutral numerical macro fuctions.
 //
@@ -56,6 +58,22 @@ public:
     /// and sets foreground (font) colour to black or white accordingly.
     ///
     static QString colourToStyle (const QColor backgroundColour);
+
+    /// Adjust the geometry and font scaling of the widget and all child widgets
+    /// by the ratio m / d. Unless m and d are both positive, no scaling occurs.
+    /// The function tree walks the hiearchy of widgets paranted by the specified widget.
+    /// The maxDepth can be used to limit any possibility of infinite recursion.
+    ///
+    static void adjustWidgetScale (QWidget * widget, const int m, const int d, const int maxDepth = 40);
+
+private:
+    /// Scales a single widget
+    ///
+    static void widgetScaleBy (QWidget * widget, const int m, const int d);
+
+    /// Scales a single value.
+    ///
+    static int scaleBy (const int v, const int m, const int d);
 
 };
 
