@@ -29,7 +29,7 @@
 #include <ContainerProfile.h>
 #include <StartupParams.h>
 
-class saveRestoreManager: public QObject
+class saveRestoreManager: public QObject, ContainerProfile
 {
     Q_OBJECT
 

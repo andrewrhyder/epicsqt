@@ -48,11 +48,6 @@ startupParams::startupParams()
     printHelp = false;    // not serialized
     printVersion = false; // not serialized
     restore = false;
-
-    // Default user level passwords
-    userLevelPassword = "";
-    scientistLevelPassword = "XKCD242";
-    engineerLevelPassword = "XKCD670";
 }
 
 // Unserialize application startup parameters

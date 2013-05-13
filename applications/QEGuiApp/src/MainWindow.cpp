@@ -1373,6 +1373,14 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             form.addAttribute( "CurrentGui", "Yes" );
                         }
 
+                        form.addValue( "MacroSubstitutions", profile.getMacroSubstitutions() );
+                        PMElement pathListElement = form.addElement( "PathList" );
+                        QStringList pathList = profile.getPathList();
+                        for( int pathIndex = 0; pathIndex < pathList.count(); pathIndex++ )
+                        {
+                            pathListElement.addValue( QString( "Path_%1" ).arg( pathIndex+1 ), profile.getPathList().at(pathIndex) );
+                        }
+
                         // If QEGui is managing the scrolling of the QEForm and has placed it in a scroll area,
                         // then note the scroll position
                         QScrollArea* sa = guiScrollArea( guiList[i].getForm() );
@@ -1405,14 +1413,15 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 }
 
                 PMElement id = data.getElement( "Identity" );
-                id.getElementAttribute( "id", uniqueId );
+                id.getAttribute( "id", uniqueId );
 
                 PMElement geometry = data.getElement( "Geometry" );
                 int x, y, w, h;
-                if( geometry.getElementAttribute( "X", x ) &&
-                    geometry.getElementAttribute( "Y", y ) &&
-                    geometry.getElementAttribute( "Width", w ) &&
-                    geometry.getElementAttribute( "Height", h ) )
+                //!!! Note, position jumps down each save and restore. eitehr saving or restoring does not include decoration???
+                if( geometry.getAttribute( "X", x ) &&
+                    geometry.getAttribute( "Y", y ) &&
+                    geometry.getAttribute( "Width", w ) &&
+                    geometry.getAttribute( "Height", h ) )
                 {
                     // Set the geometry in a timer event. This will occur after events due to creation have finished arriving.
                     setGeomRect = QRect( x, y, w, h );
@@ -1421,7 +1430,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
                 PMElement pos = data.getElement( "State" );
                 int flags;
-                if( pos.getElementAttribute( "Flags", flags ) )
+                if( pos.getAttribute( "Flags", flags ) )
                 {
                       setWindowState( (Qt::WindowStates)flags );
                 }
@@ -1431,13 +1440,37 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
                 QEForm* currentGui = NULL;
 
-                // Create al the guis required for this main window
+                // Create all the guis required for this main window
                 for(int i = 0; i < guiElements.count(); i++ )
                 {
                     PMElement guiElement = guiElements.getElement( i );
                     {
+                        QString macroSubstitutions;
+                        if( guiElement.getValue( "MacroSubstitutions", macroSubstitutions ) )
+                        {
+                            //profile.addMacroSubstitutions( macroSubstitutions );
+                            //!!! macro substitutions not used yet. Repeated save and restore accumulates repeated macros. Should there be an option to use only these macros?
+                        }
+                        QStringList pathList;
+                        PMElement pathListElement = guiElement.getElement( "PathList" );
+                        int pathIndex = 1;
+                        while( true )
+                        {
+                            QString path;
+                            if( !pathListElement.getValue( QString( "Path_%1" ).arg( pathIndex ), path ) )
+                            {
+                                break;
+                            }
+                            pathList.append( path );
+                            pathIndex++;
+                        }
+                        if( pathList.count() )
+                        {
+                            // !!! pathList not used yet - should be able to update path list in current profile?
+                        }
+
                         QString name;
-                        if( guiElement.getElementAttribute( "Name", name ) )
+                        if( guiElement.getAttribute( "Name", name ) )
                         {
                             QEForm* gui = createGui( name );
                             if( i == 0)
@@ -1456,7 +1489,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
                             // Note if this gui is the current gui
                             QString currentGuiFlag;
-                            if( guiElement.getElementAttribute( "CurrentGui", currentGuiFlag ) )
+                            if( guiElement.getAttribute( "CurrentGui", currentGuiFlag ) )
                             {
                                 currentGui = gui;
                             }
@@ -1466,8 +1499,8 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             // that will be run after the restored geometry has been applied
                             PMElement scroll = guiElement.getElement( "Scroll" );
                             int x, y;
-                            if( scroll.getElementAttribute( "X", x ) &&
-                                scroll.getElementAttribute( "Y", y ) )
+                            if( scroll.getAttribute( "X", x ) &&
+                                scroll.getAttribute( "Y", y ) )
                             {
                                 guiList.last().setScroll( QPoint( x, y ) );
                             }

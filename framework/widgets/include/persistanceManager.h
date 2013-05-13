@@ -121,6 +121,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT PMElement : private QDomElement
 public:
     PMElement( PersistanceManager* ownerIn, QDomElement elementIn );
     PMElement addElement( QString name );                   // Add an element
+    void addValue( QString name, int value );               // Add an integer value
+    void addValue( QString name, QString value );           // Add a string value
     void addAttribute( QString name, int value );           // Add an integer attribute
     void addAttribute( QString name, QString value );       // Add a string attribute
 
@@ -129,10 +131,10 @@ public:
 
     PMElementList getElementList( QString name );           // Get a named element list
 
-    bool getElementValue( int& val );                       // Get the integer value for an element
-    bool getElementValue( QString& val );                   // Get the string value for an element
-    bool getElementAttribute( QString name, int& val );     // Get a named integer attribute from an element
-    bool getElementAttribute( QString name, QString& val ); // Get a named string attribute from an element
+    bool getValue( QString name, int& val );            // Get an integer value
+    bool getValue( QString name, QString& val );        // Get a string value
+    bool getAttribute( QString name, int& val );        // Get a named integer attribute from an element
+    bool getAttribute( QString name, QString& val );    // Get a named string attribute from an element
 
     bool isNull(){ return QDomElement::isNull(); }          // Indicate if an element is empty
 
@@ -154,6 +156,7 @@ public:
     void restore( const QString fileName, const QString rootName, const QString configName );         // Restore a configuration
 
     PMElement addElement( QString name );
+    void addValue( QString name, QString value );
     QDomElement addDomElement( QString name );
 
     QObject* getSaveRestoreObject();          // Get a reference to the object that will supply save and restore signals
@@ -165,6 +168,8 @@ public:
 
 private:
     PMElement addElement( QDomElement parent, QString name );
+    void addValue( QDomElement parent, QString name, QString value );
+    void addValue( QDomElement parent, QString name, int value );
     void addAttribute( QDomElement element, QString name, int value );
     void addAttribute( QDomElement element, QString name, QString value );
 
@@ -177,8 +182,8 @@ private:
 
     QDomNodeList getElementList( QDomElement element, QString name );
 
-    bool getElementValue( QDomElement element, int& val );
-    bool getElementValue( QDomElement element, QString& val );
+    bool getElementValue( QDomElement element, QString name, int& val );
+    bool getElementValue( QDomElement element, QString name, QString& val );
     bool getElementAttribute( QDomElement element, QString name, int& val );
     bool getElementAttribute( QDomElement element, QString name, QString& val );
 

@@ -95,7 +95,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QEWidget
 
     private:
 
-
+    void setUserPasswordProperty(QString pValue);       // Set the user password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
+    void setScientistPasswordProperty(QString pValue);  // Set the password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
+    void setEngineerPasswordProperty(QString pValue);   // Set the password due to a property change only if there is no container profile defined (profile passwords have higher priority even if blank)
 
     protected:
         QStack<int> loginHistory;
@@ -148,11 +150,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QEWidget
 
         Q_PROPERTY(bool showLogout READ getShowButtonLogout WRITE setShowLogout)
 
-        Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
+        Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPasswordProperty)
 
-        Q_PROPERTY(QString scientistPassword READ getScientistPassword WRITE setScientistPassword)
+        Q_PROPERTY(QString scientistPassword READ getScientistPassword WRITE setScientistPasswordProperty)
 
-        Q_PROPERTY(QString engineerPassword READ getEngineerPassword WRITE setEngineerPassword)
+        Q_PROPERTY(QString engineerPassword READ getEngineerPassword WRITE setEngineerPasswordProperty)
 
         Q_ENUMS(userTypesProperty)
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)

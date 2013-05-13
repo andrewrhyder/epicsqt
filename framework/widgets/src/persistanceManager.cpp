@@ -150,19 +150,19 @@ QDomElement PersistanceManager::getElement( QDomElement element, QString name, i
     return element.elementsByTagName( name ).at(i).toElement();
 }
 
-bool PersistanceManager::getElementValue( QDomElement element, int& val )
+bool PersistanceManager::getElementValue( QDomElement element, QString name, int& val )
 {
-    if( element.isNull() || !element.isElement() )
+    QString strVal;
+    if( !getElementValue( element, name, strVal ) )
     {
-        val = 0;
         return false;
     }
 
-    val = element.nodeValue().toInt();
+    val = strVal.toInt();
     return true;
 }
 
-bool PersistanceManager::getElementValue( QDomElement element, QString& val )
+bool PersistanceManager::getElementValue( QDomElement element, QString name, QString& val )
 {
     if( element.isNull() || !element.isElement() )
     {
@@ -170,7 +170,16 @@ bool PersistanceManager::getElementValue( QDomElement element, QString& val )
         return false;
     }
 
-    val = element.nodeValue();
+    QDomNode textElement = element.namedItem( name );
+    QDomNode node = textElement.firstChild().toText();
+    QDomText text = node.toText();
+    if( text.isNull() )
+    {
+        val = QString();
+        return false;
+    }
+
+    val = text.nodeValue();
     return true;
 }
 
@@ -220,11 +229,32 @@ PMElement PersistanceManager::addElement( QString name )
     return PMElement( this, element );
 }
 
+void PersistanceManager::addValue( QString name, QString value )
+{
+    QDomElement element = doc.createElement( name );
+    config.appendChild( element );
+    QDomText text = doc.createTextNode( value );
+    element.appendChild( text );
+}
+
 PMElement PersistanceManager::addElement( QDomElement parent, QString name )
 {
     QDomElement element = doc.createElement( name );
     parent.appendChild( element );
     return PMElement( this, element );
+}
+
+void PersistanceManager::addValue( QDomElement parent, QString name, int value )
+{
+    addValue( parent, name, QString( value ) );
+}
+
+void PersistanceManager::addValue( QDomElement parent, QString name, QString value )
+{
+    QDomElement element = doc.createElement( name );
+    parent.appendChild( element );
+    QDomText text = doc.createTextNode( value );
+    element.appendChild( text );
 }
 
 void PersistanceManager::addAttribute( QDomElement element, QString name, int value )
@@ -331,6 +361,16 @@ PMElement PMElement::addElement( QString name )
     return owner->addElement( *this, name );
 }
 
+void PMElement::addValue( QString name, int value )
+{
+    return owner->addValue( *this, name, QString( "%1" ).arg( value ) );
+}
+
+void PMElement::addValue( QString name, QString value )
+{
+    return owner->addValue( *this, name, value );
+}
+
 void PMElement::addAttribute( QString name, int value )
 {
     owner->addAttribute( *this, name, value );
@@ -340,22 +380,23 @@ void PMElement::addAttribute( QString name, QString value )
     owner->addAttribute( *this, name, value );
 }
 
-bool PMElement::getElementValue( int& val )
+bool PMElement::getValue( QString name, int& val )
 {
-    return owner->getElementValue( *this, val );
+
+    return owner->getElementValue( *this, name, val );
 }
 
-bool PMElement::getElementValue( QString& val )
+bool PMElement::getValue( QString name, QString& val )
 {
-    return owner->getElementValue( *this, val );
+    return owner->getElementValue( *this, name, val );
 }
 
-bool PMElement::getElementAttribute( QString name, int& val )
+bool PMElement::getAttribute( QString name, int& val )
 {
     return owner->getElementAttribute( *this, name, val );
 }
 
-bool PMElement::getElementAttribute( QString name, QString& val )
+bool PMElement::getAttribute( QString name, QString& val )
 {
     return owner->getElementAttribute( *this, name, val );
 }

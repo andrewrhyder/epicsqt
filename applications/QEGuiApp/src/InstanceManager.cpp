@@ -130,7 +130,7 @@ void instanceManager::newWindow( const startupParams& params )
 {
     // Set up the profile for the new windows
     ContainerProfile profile;
-    profile.setupProfile( NULL, params.pathList, "", params.substitutions, params.userLevelPassword, params.scientistLevelPassword, params.engineerLevelPassword );
+//    profile.setupProfile( NULL, params.pathList, "", params.substitutions );
 
     // If restoring, restore saved configuration
     if( params.restore )
@@ -164,5 +164,5 @@ void instanceManager::newWindow( const startupParams& params )
     }
 
     // Release the profile
-    profile.releaseProfile();
+//    profile.releaseProfile();
 }
