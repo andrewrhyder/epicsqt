@@ -159,32 +159,82 @@ public:
 //
 QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
 {
-   int j;
+   const int left_margin = 6;
+   const int right_margin = 16;
+   const int gap = 4;
+   const int label_height = 18;
+   const int delta_y = 22;
+   const int label_width = 48;
+   const int spacing = 24;
 
-   // Creates all the internal widgets, and apart from static labels, does no
-   // other configuration or setup per se.
+   int y;
+   int j;
+   int xc;
+   int xf;
+   int wc;
+
+   // Creates all the internal widgets including basic geometry.
    //
    this->topFrame = new QFrame (parent);
-   this->topFrame->setFixedHeight (120);   // a sort of gues - this is recalulated later
+   this->topFrame->setFixedHeight (126);   // a sort of guess - this is recalulated later
+
+   // Some geometry parameters.
+   //
+   y = 10;
+   xc =  (left_margin + WIDGET_DEFAULT_WIDTH - right_margin + spacing) / 2;
 
    this->label1 = new QLabel ("NAME", this->topFrame);
+   this->label1->setGeometry (left_margin, y, label_width, label_height); y += delta_y + 6;
+
    this->label2 = new QLabel ("VAL", this->topFrame);
+   this->label2->setGeometry (left_margin, y, label_width, label_height); y += delta_y;
+
    this->label3 = new QLabel ("HOST", this->topFrame);
+   this->label3->setGeometry (left_margin, y, label_width, label_height); y += delta_y;
+
    this->label4 = new QLabel ("TIME", this->topFrame);
+   this->label4->setGeometry (left_margin, y, label_width, label_height); y += delta_y;
+
    this->label5 = new QLabel ("DBF", this->topFrame);
+   this->label5->setGeometry (left_margin, y, label_width, label_height);
+
    this->label6 = new QLabel ("INDEX", this->topFrame);
+   this->label6->setGeometry (xc, y, label_width, label_height);
+
+   // Create the '2nd' column.
+   //
+   y = 10;
+   xf = left_margin + label_width + gap;
+   wc = WIDGET_DEFAULT_WIDTH - xf - right_margin;
 
    this->box = new QComboBox (this->topFrame);
+   this->box->setGeometry (xf, y - 4, wc, label_height + 9); y += delta_y + 6;
+
    this->valueLabel = new QELabel (this->topFrame);
+   this->valueLabel->setGeometry (xf, y, wc, label_height); y += delta_y;
+
    this->hostName = new QLabel (this->topFrame);
-   this->fieldType = new QLabel (this->topFrame);
+   this->hostName->setGeometry (xf, y, wc, label_height); y += delta_y;
+
    this->timeStamp = new QLabel (this->topFrame);
+   this->timeStamp->setGeometry (xf, y, wc, label_height); y += delta_y;
+
+   wc = xc - xf - spacing;
+   this->fieldType = new QLabel (this->topFrame);
+   this->fieldType->setGeometry (xf, y, wc, label_height);
+
+   xf = xc + label_width + gap;
    this->indexInfo = new QLabel (this->topFrame);
+   this->indexInfo->setGeometry (xf, y, wc, label_height); y += delta_y;
+
+   this->topFrame->setFixedHeight (y);
+
 
    this->enumerationFrame = new QFrame (NULL); // is re-pareneted by enumerationScroll
    for (j = 0; j < NUMBER_OF_ENUMERATIONS; j++) {
       QLabel * item;
       item = new QLabel (this->enumerationFrame);
+      item->setGeometry (0, 0, 128, label_height);
       this->enumerationLabelList.append (item);
    }
 
@@ -251,6 +301,7 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
 }
 
 //------------------------------------------------------------------------------
+// NB. Need to do a deep clear to avoid memory loss.
 //
 QEPvProperties::~QEPvProperties ()
 {
@@ -418,52 +469,85 @@ void QEPvProperties::common_setup ()
 }
 
 //------------------------------------------------------------------------------
-// NB. Need to do a deep clear to avoid memory loss.
+//
+double QEPvProperties::getScale ()
+{
+   // Original name label width was 48.
+   //
+   return (double) this->ownWidgets->label1->geometry ().width () / 48.0;
+}
+
+//------------------------------------------------------------------------------
 //
 void  QEPvProperties::resizeEvent (QResizeEvent *)
 {
    OwnWidgets *own = this->ownWidgets;
 
+   double scale;
+   QRect g;
    QLabel *enumLabel;
-   int pw;   //
-   int x, y;
-   int wh;       // widget height
-   int lw;       // label width
-   int fw;       // field width
-   int j;
-   int epr;
+   int pw;
+   int rm;
+   int field_width;
 
+   // Have we been scaled ??
+   //
+   scale = this->getScale ();
+
+   // Recalculate widths only.
    // Get current width and height.
    //
    pw = own->topFrame->width ();
-   // ph = own->topFrame->height ();
 
-   lw = 48;
-   fw = pw - lw - 18;
-   wh = 18;
-   x = 6;
-   y = 4;
-   own->label1->setGeometry     (x,    y + 6, lw, wh);
-   own->box->setGeometry        (lw + 12,  y, fw, 27); y += 30;
-   own->label2->setGeometry     (x,        y, lw, wh);
-   own->valueLabel->setGeometry (lw + 12,  y, fw, wh); y += 22;
-   own->label3->setGeometry     (x,        y, lw, wh);
-   own->hostName->setGeometry   (lw + 12,  y, fw, wh); y += 22;
-   own->label4->setGeometry     (x,        y, lw, wh);
-   own->timeStamp->setGeometry  (lw + 12,  y, fw, wh); y += 22;
+   rm = int (12 * scale);
 
-   fw = (pw - (48 + 2*lw)) / 2;
-   own->label5->setGeometry     (x, y, lw, wh); x += lw + 6;
-   own->fieldType->setGeometry  (x, y, fw, wh); x += fw + 24;
-   own->label6->setGeometry     (x, y, lw, wh); x += lw + 6;
-   own->indexInfo->setGeometry  (x, y, fw, wh); y += 22;
+   field_width = pw - own->box->geometry ().x () - rm;
+
+   g = own->box->geometry ();
+   g.setWidth (field_width);
+   own->box->setGeometry (g);
+
+   g = own->valueLabel->geometry ();
+   g.setWidth (field_width);
+   own->valueLabel->setGeometry (g);
+
+   g = own->hostName->geometry ();
+   g.setWidth (field_width);
+   own->hostName->setGeometry (g);
+
+   g = own->timeStamp->geometry ();
+   g.setWidth (field_width);
+   own->timeStamp->setGeometry (g);
+
+   field_width = own->indexInfo->geometry ().x()  -
+                 own->fieldType->geometry ().x () -
+                 own->label6->geometry ().width () -
+                 2*rm;
+
+   g = own->fieldType->geometry ();
+   g.setWidth (field_width);
+   own->fieldType->setGeometry (g);
+
+   g = own->indexInfo->geometry ();
+   g.setWidth (field_width);
+   own->indexInfo->setGeometry (g);
+
+
+   int epr;  // enumerations per row.
+   int gap;
+   int lh;   // label height
+   int lw;   // label width
+   int j;
 
    pw = own->enumerationFrame->width ();
-   epr = MAX (1, (pw / 160));    // calc enumerations per row.
-   lw = ((pw - 4)/ epr) - 4;
+   gap = (int)(4 * scale);
+   epr = MAX (1, (pw / (160 * scale)));    // calc enumerations per row.
+   lw = ((pw - gap)/ epr) - gap;
+   lh = own->enumerationLabelList.value (0)->geometry().height();
+
    for (j = 0; j < own->enumerationLabelList.count (); j++) {
       enumLabel = own->enumerationLabelList.value (j);
-      enumLabel->setGeometry (4 + (j%epr)*(lw + 4), 4 + (j/epr)*20, lw, wh);
+      enumLabel->setGeometry (gap + (j%epr)*(lw + gap), gap + (j/epr)*(lh + gap), lw, lh);
    }
 }
 

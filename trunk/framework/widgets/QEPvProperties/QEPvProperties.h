@@ -195,9 +195,10 @@ private:
 
    // common constructor function.
    void common_setup ();
+   double getScale ();
    void clearFieldChannels ();
 
-   // Override tandardProperties::setApplicationEnabled()
+   // Override standardProperties::setApplicationEnabled()
    void setApplicationEnabled (const bool & state);
 
 private slots:
