@@ -142,7 +142,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEStringFormatting {
     bool dbFormatArray;              // True if read value is an array
     bool addUnits;                   // Flag use engineering units from database
     int precision;                   // Floating point precision. Used if 'useDbPrecision' is false.
-    QELocalEnumeration localEnumerations;
+    QELocalEnumeration localEnumerations;  // Local enumeration values.
     arrayActions arrayAction;       // Action to take when processing array or waveform data
     unsigned int arrayIndex;        // Index into array or waveform to use when into arrayAction is 'INDEX'
 };
