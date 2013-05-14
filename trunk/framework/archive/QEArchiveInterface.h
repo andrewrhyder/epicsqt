@@ -206,7 +206,7 @@ private:
    MaiaXmlRpcClient *client;
 
    static QCaDateTime convertArchiveToEpics (const int seconds, const int nanoSecs);
-   static void convertEpicsToArchive (const QCaDateTime datetime, int& seconds, int& nanoSecs);
+   static void convertEpicsToArchive (const QCaDateTime& datetime, int& seconds, int& nanoSecs);
 
    void processInfo     (const QObject *userData, QVariant & response);
    void processArchives (const QObject *userData, QVariant & response);
