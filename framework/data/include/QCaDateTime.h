@@ -36,16 +36,25 @@ class QEPLUGINLIBRARYSHARED_EXPORT QCaDateTime : public QDateTime
 public:
     QCaDateTime();
     QCaDateTime( QDateTime dt );
-    void operator=( const QCaDateTime& other );
+    // void operator=( const QCaDateTime& other );
+    QCaDateTime& operator=(const QCaDateTime& other);
+
     QCaDateTime( unsigned long seconds, unsigned long nanoseconds );
 
     QString text();
 
-    unsigned long nSec;
-
     /// Duration in seconds from base time to this time.
+    /// Note: this is the opposite sense to the parent QDateTime daysTo, secsTo and msecsTo functions.
     ///
-    double floating( const QDateTime & base );
+    double floating( const QDateTime & base ) const;
+
+    /// Recover original EPICS time constructor parameters.
+    //
+    unsigned long getSeconds() const;
+    unsigned long getNanoSeconds() const;
+
+private:
+    unsigned long nSec;
 };
 
 #endif // QCADATETIME_H

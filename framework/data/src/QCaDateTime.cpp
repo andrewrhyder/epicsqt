@@ -28,6 +28,12 @@
 #include <QCaDateTime.h>
 #include <QDebug>
 
+
+static const QDateTime qtEpoch    (QDate( 1970, 1, 1 ), QTime( 0, 0, 0, 0 ), Qt::UTC );
+static const QDateTime epicsEpoch (QDate( 1990, 1, 1 ), QTime( 0, 0, 0, 0 ), Qt::UTC );
+static unsigned long EPICSQtEpocOffset = qtEpoch.secsTo ( epicsEpoch );
+
+
 /*
   Construct an empty QCa date time
  */
@@ -46,10 +52,6 @@ QCaDateTime::QCaDateTime( QDateTime dt ) : QDateTime( dt ) {
   Construct a QCa date time set to the same date/time as an EPICS time stamp
  */
 QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds ) {
-    // Static count of the number of seconds between the Qt base time used when specifying
-    // seconds since a base time (1/1/1970) and the EPICS base time (1/1/1990).
-    static unsigned long EPICSQtEpocOffset = QDate( 1970, 1, 1 ).daysTo( QDate( 1990, 1, 1 ) ) *60 *60 *24;
-
     // Set the time to the second
     // Note, although the EPICS time stamp is in seconds since a base, the
     // method which takes seconds since a base time uses a different base, so an offset is added.
@@ -62,20 +64,25 @@ QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds ) {
 }
 
 /*
-  Copy a QCaDateTime from another
+  Copy a QCaDateTime from another and return value to allow t1 = t2 = t3 = etc.
  */
-void QCaDateTime::operator=( const QCaDateTime& other )
+QCaDateTime& QCaDateTime::operator=( const QCaDateTime& other )
 {
-    setDate( other.date() );
-    setTime( other.time() );
+    // Do parent class stuff assignment.
+    *(QDateTime*) this = (QDateTime) other;
+
+    // and then copy class specific stuff.
     nSec = other.nSec;
+
+    // return value as well.
+    return *this;
 }
 
 /*
   Returns a string which represents the date and time
  */
-QString QCaDateTime::text() {
-
+QString QCaDateTime::text()
+{
     // Format the date and time to millisecond resolution
     QString out;
     out = toString( QString( "yyyy-MM-dd hh:mm:ss.zzz" ));
@@ -93,12 +100,32 @@ QString QCaDateTime::text() {
 /*
   Returns a double which represents the date and time in seconds (to mS resolution) from the base time
  */
-double QCaDateTime::floating( const QDateTime & base ) {
+double QCaDateTime::floating( const QDateTime & base ) const
+{
+    qint64 msec = base.msecsTo (*this);
+    return (double) (msec / 1000);
+}
 
-    int days = base.date().daysTo( date() );
-    int mSecs = base.time().msecsTo( time() );
+/*
+  Returns original number of seconds from EPICS Epoch
+ */
+unsigned long QCaDateTime::getSeconds() const
+{
+   qint64 msec = epicsEpoch.msecsTo (*this);
 
-    return (double)(days) * 86400.0 + (double)mSecs / 1000;
+   if( msec < 0 ) msec = 0;
+   return (unsigned long) (msec / 1000);
+}
+
+/*
+  Return soriginal number of nano-seconds.
+ */
+unsigned long QCaDateTime::getNanoSeconds() const
+{
+   qint64 msec = epicsEpoch.msecsTo (*this);
+
+   if( msec < 0 ) msec = 0;
+   return  (unsigned long) ((msec % 1000)*1000000) + nSec;
 }
 
 // end
