@@ -63,9 +63,12 @@ public:
    /// Set the tool tip for the internal grabber object.
    void setGrabberToolTip (const QString & tip);
 
-   /// (Re)set allowd limits.
+   /// (Re)set allowed limits.
    void setAllowedMinimum (const int minimum);
+   int getAllowedMinimum ();
+
    void setAllowedMaximum (const int maximum);
+   int getAllowedMaximum ();
 
 protected:
    bool eventFilter (QObject *obj, QEvent *event);

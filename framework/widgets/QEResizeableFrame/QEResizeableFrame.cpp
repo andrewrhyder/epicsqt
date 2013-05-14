@@ -162,11 +162,25 @@ void QEResizeableFrame::setAllowedMinimum (const int minimumIn)
 
 //------------------------------------------------------------------------------
 //
+int QEResizeableFrame::getAllowedMinimum ()
+{
+   return this->allowedMin;
+}
+
+//------------------------------------------------------------------------------
+//
 void QEResizeableFrame::setAllowedMaximum (const int maximumIn)
 {
    // Ensure allowed max >= allowed min.
    this->allowedMax = MAX (maximumIn, this->allowedMin);
    this->applyLimits ();
+}
+
+//------------------------------------------------------------------------------
+//
+int QEResizeableFrame::getAllowedMaximum ()
+{
+   return this->allowedMax;
 }
 
 //------------------------------------------------------------------------------
