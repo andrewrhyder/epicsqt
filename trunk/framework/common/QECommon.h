@@ -28,9 +28,9 @@
 #define QECOMMON_H
 
 #include <QColor>
+#include <QDateTime>
 #include <QString>
 #include <QWidget>
-
 
 // Useful type neutral numerical macro fuctions.
 //
@@ -59,6 +59,22 @@ public:
     ///
     static QString colourToStyle (const QColor backgroundColour);
 
+
+    /// Get the local time zone offset (in seconds) for the nominated UTC time.
+    /// This is not fixed for the location and will depend on if the the time
+    /// is a standard time or a daylight savings/summer time.
+    ///
+    //  Option: default atTime = QDateTime::currentDateTime () ??
+    //
+    static int getTimeZoneOffset (const QDateTime & atTime);
+
+    /// Extract the local time zone three letter acronym for the time,
+    /// e.g. for the UK this would be GMT or BST, for Victoria Australia EST or EST.
+    ///
+    static QString getTimeZoneTLA (const Qt::TimeSpec timeSpec,
+                                   const QDateTime & atTime);
+
+
     /// Adjust the geometry and font scaling of the widget and all child widgets
     /// by the ratio m / d. Unless m and d are both positive, no scaling occurs.
     /// The function tree walks the hiearchy of widgets paranted by the specified widget.
@@ -74,7 +90,6 @@ private:
     /// Scales a single value.
     ///
     static int scaleBy (const int v, const int m, const int d);
-
 };
 
 # endif // QECOMMON_H
