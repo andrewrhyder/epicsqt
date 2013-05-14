@@ -166,6 +166,8 @@ protected:
    void setup ();
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void establishConnection (unsigned int variableIndex);
+   void saveConfiguration (PersistanceManager* pm);
+   void restoreConfiguration (PersistanceManager* pm);
 
 private:
    // Internal widgets and associated support data. These are declared in

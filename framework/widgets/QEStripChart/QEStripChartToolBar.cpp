@@ -34,6 +34,7 @@
 #include <QVariant>
 #include <QDateTime>
 
+#include <QECommon.h>
 #include "QEStripChartUtilities.h"
 #include "QEStripChartToolBar.h"
 
@@ -56,7 +57,7 @@ struct PushButtonSpecifications {
    const char * member;
 };
 
-static const QString localZone = TimeZone::getZoneTLA (Qt::LocalTime, QDateTime::currentDateTime ());
+static const QString localZone = QEUtilities::getTimeZoneTLA (Qt::LocalTime, QDateTime::currentDateTime ());
 
 static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, true,  QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))        },

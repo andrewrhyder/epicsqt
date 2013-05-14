@@ -618,8 +618,7 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
       point.alarm = QCaAlarmInfo (NO_ALARM, INVALID_ALARM);
    }
 
-   point.datetime = datetime.toUTC ();
-   point.datetime.nSec = datetime.nSec;
+   point.datetime = datetime;
 
    if (this->isDisplayable (point)){
       this->realTimeMinMax.merge (point.value);
@@ -634,7 +633,7 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
 //------------------------------------------------------------------------------
 //
 void QEStripChartItem::setArchiveData (const QObject *userData, const bool okay,
-                                        const QCaDataPointList & archiveData)
+                                       const QCaDataPointList & archiveData)
 {
    QCaDateTime firstRealTime;
    QCaDateTime pointTime;
