@@ -584,51 +584,32 @@ QString QEArchiveInterface::alarmSeverityName (enum archiveAlarmSeverity severit
 // epoch used by Qt but we don't make use of that assumption.
 //
 static const QDateTime archiveEpoch (QDate (1970, 1, 1), QTime (0, 0, 0, 0), Qt::UTC);
+static const QDateTime epicsEpoch   (QDate (1990, 1, 1), QTime (0, 0, 0, 0), Qt::UTC);
+
+// Static count of the number of seconds between the archiver and epics epochs.
+//
+static unsigned long e2aOffset = archiveEpoch.secsTo (epicsEpoch);
+
 
 //------------------------------------------------------------------------------
 //
 QCaDateTime QEArchiveInterface::convertArchiveToEpics (const int seconds, const int nanoSecs)
 {
-   QCaDateTime result;
+   const unsigned long epicsSeconds = (unsigned long) seconds - e2aOffset;
+   const unsigned long epicsNanoSec = (unsigned long) nanoSecs;
 
-   // Down to the millisecond goes in the Qt base class,
-   // the remaining nanoseconds are saved in this QCaDateTime class.
-   //
-   result = archiveEpoch.addSecs (seconds).addMSecs (nanoSecs / 1000000);
-   result.nSec = nanoSecs % 1000000;
-   return result;
+   return QCaDateTime (epicsSeconds, epicsNanoSec);
 }
 
 //------------------------------------------------------------------------------
 //
-void  QEArchiveInterface::convertEpicsToArchive (const QCaDateTime datetime, int& seconds, int& nanoSecs)
+void  QEArchiveInterface::convertEpicsToArchive (const QCaDateTime& datetime, int& seconds, int& nanoSecs)
 {
-   const int seconds_per_day = 24 * 60 * 60;
+   const unsigned long epicsSeconds = datetime.getSeconds ();
+   const unsigned long epicsNanoSec = datetime.getNanoSeconds ();
 
-   QDateTime utc;
-   int days;
-   int mSecs;
-
-   // Must ensure user time and Epoch are in same time zone before conversion to date and time.
-   //
-   utc = datetime.toUTC ();
-   days  = archiveEpoch.date().daysTo  (utc.date ());
-   mSecs = archiveEpoch.time().msecsTo (utc.time ());
-
-   if (mSecs < 0) {
-      // The % is a remainder not a modulo, so ensure mSecs % 1000 is +ve.
-      // Should not be an issue anyway as Epoch.time is 00:00:00.
-      //
-      days--;
-      mSecs += seconds_per_day * 1000;
-   }
-
-   seconds = (days*seconds_per_day) + (mSecs / 1000);
-
-   // When converted to utc , this is a QDataTime which loses the nSec,
-   // so must use from original input parameter.
-   //
-   nanoSecs = (mSecs % 1000) * 1000000 + datetime.nSec;
+   seconds = (int) (epicsSeconds + e2aOffset);
+   nanoSecs = (int) (epicsNanoSec);
 }
 
 
