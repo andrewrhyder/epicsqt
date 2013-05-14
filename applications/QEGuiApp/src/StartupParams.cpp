@@ -35,7 +35,7 @@
 #include "StartupParams.h"
 
 
-#define LIMIT_SCALE(scale)  LIMIT( scale, 20.0, 400.0 )
+#define LIMIT_SCALE(scale)  LIMIT( scale, 40.0, 400.0 )
 
 
 // Construction
