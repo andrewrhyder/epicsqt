@@ -27,7 +27,7 @@
 #include <QSize>
 
 #include "QECommon.h"
-
+#include "QEResizeableFrame.h"
 
 //------------------------------------------------------------------------------
 //
@@ -173,6 +173,8 @@ int QEUtilities::scaleBy (const int v, const int m, const int d)
 
 void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
 {
+   QEResizeableFrame *resizeableFrame;
+
    // sainity check.
    //
    if (!widget) return;
@@ -233,6 +235,30 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
          font.setPixelSize (MAX (1, QEUtilities::scaleBy (pixelSize, m, d)));
       }
       widget->setFont (font);
+   }
+
+   // Specials.
+   //
+   resizeableFrame = dynamic_cast <QEResizeableFrame*>(widget);
+   if (resizeableFrame) {
+      int allowedMin = resizeableFrame->getAllowedMinimum ();
+      int allowedMax = resizeableFrame->getAllowedMaximum ();
+
+      // scale
+      allowedMin = QEUtilities::scaleBy (allowedMin, m, d);
+      allowedMax = QEUtilities::scaleBy (allowedMax, m, d);
+
+      if (m >= d) {
+         // getting bigger - ensure consistancy - do max size constraint first.
+         //
+         resizeableFrame->setAllowedMaximum (allowedMax);
+         resizeableFrame->setAllowedMinimum (allowedMin);
+      } else {
+         // getting smaller - to min size constraint first.
+         //
+         resizeableFrame->setAllowedMinimum (allowedMin);
+         resizeableFrame->setAllowedMaximum (allowedMax);
+      }
    }
 }
 
