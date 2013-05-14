@@ -752,13 +752,13 @@ void QEStripChart::PrivateData::plotData ()
    times = " ";
 
    dt = chart->getStartDateTime ().toTimeSpec (chart->timeZoneSpec);
-   zoneTLA = TimeZone::getZoneTLA (chart->timeZoneSpec, dt);
+   zoneTLA = QEUtilities::getTimeZoneTLA (chart->timeZoneSpec, dt);
 
    times.append (dt.toString (format)).append (" ").append (zoneTLA);
    times.append (" to ");
 
    dt = chart->getEndDateTime ().toTimeSpec (chart->timeZoneSpec);
-   zoneTLA = TimeZone::getZoneTLA (chart->timeZoneSpec, dt);
+   zoneTLA = QEUtilities::getTimeZoneTLA (chart->timeZoneSpec, dt);
 
    times.append (dt.toString (format)).append (" ").append (zoneTLA);
 
@@ -864,7 +864,7 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
    format = "yyyy-MM-dd hh:mm:ss.zzz";
    mouseReadOut = t.toString (format).left (format.length() - 2);
 
-   zoneTLA = TimeZone::getZoneTLA (chart->timeZoneSpec, t);
+   zoneTLA = QEUtilities::getTimeZoneTLA (chart->timeZoneSpec, t);
    mouseReadOut.append (" ").append (zoneTLA);
 
    f.sprintf (" %10.2f ", real.x () /this->timeScale);
@@ -1700,6 +1700,21 @@ qcaobject::QCaObject* QEStripChart::createQcaItem (unsigned int variableIndex)
 void QEStripChart::establishConnection (unsigned int variableIndex)
 {
    DEBUG << "unexpected call, variableIndex = " << variableIndex;
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::saveConfiguration (PersistanceManager*)
+{
+   // place holder: qDebug () << "\nQEStripChart " << __FUNCTION__ << long (pm) << "\n";
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::restoreConfiguration (PersistanceManager*)
+{
+   // place holder: qDebug () << "\nQEStripChart " << __FUNCTION__ << long (pm) << "\n";
 }
 
 // end
