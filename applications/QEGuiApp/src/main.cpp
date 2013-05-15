@@ -58,7 +58,7 @@ static void printHelp ()
       "\n"
       "-a      Adjust the GUIs scaling. This option takes a single value with is the percentage\n"
       "        scaling to be applies to each GUI. The value may be either an integer or a floating\n"
-      "        point number. If specified its value will be constained to the range 40 to 400.\n"
+      "        point number. If specified its value will be constrained to the range 40 to 400.\n"
       "\n"
       "-s      Single application.\n"
       "        QEGui will attempt to pass all parameters to an existing instance of QEGui. When\n"
