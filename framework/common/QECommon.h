@@ -60,7 +60,7 @@ public:
     static QString colourToStyle (const QColor backgroundColour);
 
 
-    /// Get the local time zone offset (in seconds) for the nominated UTC time.
+    /// Get the local time zone offset (in seconds) for the nominated time.
     /// This is not fixed for the location and will depend on if the the time
     /// is a standard time or a daylight savings/summer time.
     ///
@@ -68,12 +68,18 @@ public:
     //
     static int getTimeZoneOffset (const QDateTime & atTime);
 
-    /// Extract the local time zone three letter acronym for the time,
-    /// e.g. for the UK this would be GMT or BST, for Victoria Australia EST or EST.
+    /// Extract the local time zone three letter acronym for the time.
+    /// If the timeSpec patameter is Qt::UTC, then this simply returns "UTC".
+    /// However, if the timeSpec patameter is Qt::LocalTime, then extract the TLA
+    /// application of the time in question (and NOT for the current time).
+    /// E.g. for the UK this would be GMT or BST, for Victoria Australia EST or EST.
     ///
     static QString getTimeZoneTLA (const Qt::TimeSpec timeSpec,
                                    const QDateTime & atTime);
 
+    /// Overloaded function that uses the timeSpec assocaited with atTime.
+    ///
+    static QString getTimeZoneTLA (const QDateTime & atTime);
 
     /// Adjust the geometry and font scaling of the widget and all child widgets
     /// by the ratio m / d. Unless m and d are both positive, no scaling occurs.
