@@ -25,9 +25,11 @@
  */
 
 #include <QSize>
+#include <QHeaderView>
+#include <QTableWidget>
+#include <QEResizeableFrame.h>
 
 #include "QECommon.h"
-#include "QEResizeableFrame.h"
 
 //------------------------------------------------------------------------------
 //
@@ -147,6 +149,12 @@ QString QEUtilities::getTimeZoneTLA (const Qt::TimeSpec timeSpec, const QDateTim
    return result;
 }
 
+//------------------------------------------------------------------------------
+//
+QString QEUtilities::getTimeZoneTLA (const QDateTime & atTime)
+{
+   return QEUtilities::getTimeZoneTLA (atTime.timeSpec(), atTime);
+}
 
 //------------------------------------------------------------------------------
 //
@@ -174,6 +182,7 @@ int QEUtilities::scaleBy (const int v, const int m, const int d)
 void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
 {
    QEResizeableFrame *resizeableFrame;
+   QTableWidget *tableWidget;
 
    // sainity check.
    //
@@ -259,6 +268,19 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
          resizeableFrame->setAllowedMinimum (allowedMin);
          resizeableFrame->setAllowedMaximum (allowedMax);
       }
+   }
+
+   tableWidget =  dynamic_cast <QTableWidget *>(widget);
+   if (tableWidget) {
+      int defaultSectionSize;
+
+      defaultSectionSize = tableWidget->horizontalHeader ()->defaultSectionSize ();
+      defaultSectionSize   = QEUtilities::scaleBy (defaultSectionSize, m, d);
+      tableWidget->horizontalHeader ()->setDefaultSectionSize (defaultSectionSize);
+
+      defaultSectionSize = tableWidget->verticalHeader ()->defaultSectionSize ();
+      defaultSectionSize   = QEUtilities::scaleBy (defaultSectionSize, m, d);
+      tableWidget->verticalHeader ()->setDefaultSectionSize (defaultSectionSize);
    }
 }
 
