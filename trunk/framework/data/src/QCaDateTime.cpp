@@ -28,10 +28,47 @@
 #include <QCaDateTime.h>
 #include <QDebug>
 
-
 static const QDateTime qtEpoch    (QDate( 1970, 1, 1 ), QTime( 0, 0, 0, 0 ), Qt::UTC );
 static const QDateTime epicsEpoch (QDate( 1990, 1, 1 ), QTime( 0, 0, 0, 0 ), Qt::UTC );
 static unsigned long EPICSQtEpocOffset = qtEpoch.secsTo ( epicsEpoch );
+
+
+/*
+  Qt 4.6 does not have the msecTo function - so we roll our own.
+
+  Return the number of milliseconds from this datetime to the other datetime.
+  If the other datetime is earlier than this datetime, the value returned is negative.
+*/
+static qint64 msecsTo_48 (const QDateTime& from, const QDateTime& other)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
+   return from.msecsTo( other );
+#else
+   qint64 result;
+   QTime fromTime = from.time();
+   QTime otherTime = other.time();
+
+   // The secsTo does most of ther work. Before performing the comparison, the two
+   // datetimes are converted to Qt::UTC to ensure that the result is correct if one
+   // of the two datetimes has daylight saving time (DST) and the other doesn't.
+   //
+   int secs = from.secsTo( other );
+
+   // Note: sometimes secsTo round up amd sometimes truncates, but
+   //       looks like msecsTo (of the times) through design or othewise
+   //       compenstates for this - ugghh!!!
+   //
+   int msecs = fromTime.msecsTo( otherTime );
+
+   // We only need the fraction of as second number of mSeonds.
+   //
+   msecs = (msecs) % 1000;
+
+   result =  (qint64)  secs * 1000 + (qint64) msecs;
+
+   return result;
+#endif
+}
 
 
 /*
@@ -102,7 +139,8 @@ QString QCaDateTime::text()
  */
 double QCaDateTime::floating( const QDateTime & base ) const
 {
-    qint64 msec = base.msecsTo (*this);
+    qint64 msec = msecsTo_48 (base, *this);
+    msecsTo_48 (base, *this);
     return (double) (msec / 1000);
 }
 
@@ -111,7 +149,7 @@ double QCaDateTime::floating( const QDateTime & base ) const
  */
 unsigned long QCaDateTime::getSeconds() const
 {
-   qint64 msec = epicsEpoch.msecsTo (*this);
+   qint64 msec = msecsTo_48 (epicsEpoch, *this);
 
    if( msec < 0 ) msec = 0;
    return (unsigned long) (msec / 1000);
@@ -122,7 +160,7 @@ unsigned long QCaDateTime::getSeconds() const
  */
 unsigned long QCaDateTime::getNanoSeconds() const
 {
-   qint64 msec = epicsEpoch.msecsTo (*this);
+   qint64 msec = msecsTo_48 (epicsEpoch, *this);
 
    if( msec < 0 ) msec = 0;
    return  (unsigned long) ((msec % 1000)*1000000) + nSec;
