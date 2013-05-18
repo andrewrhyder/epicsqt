@@ -146,89 +146,86 @@ public:
    QLabel *fieldType;
    QLabel *timeStamp;
    QLabel *indexInfo;
+   QVBoxLayout *topFrameVlayout;
+   QHBoxLayout *hlayouts [6];
+
    QTableWidget *table;
    QMenu *tableContextMenu;
    QFrame *enumerationFrame;
    QLabelList enumerationLabelList;
    QScrollArea *enumerationScroll;
    QEResizeableFrame * enumerationResize;
-   QVBoxLayout *layout;
+   QVBoxLayout *vlayout;
 };
 
 //------------------------------------------------------------------------------
 //
 QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
 {
-   const int left_margin = 6;
-   const int right_margin = 16;
-   const int gap = 4;
    const int label_height = 18;
-   const int delta_y = 22;
    const int label_width = 48;
-   const int spacing = 24;
 
-   int y;
    int j;
-   int xc;
-   int xf;
-   int wc;
 
    // Creates all the internal widgets including basic geometry.
    //
    this->topFrame = new QFrame (parent);
-   this->topFrame->setFixedHeight (126);   // a sort of guess - this is recalulated later
+   this->topFrame->setFixedHeight (128);     // go on - do the sums...
+   this->topFrame->setObjectName ("topFrame");
 
-   // Some geometry parameters.
-   //
-   y = 10;
-   xc =  (left_margin + WIDGET_DEFAULT_WIDTH - right_margin + spacing) / 2;
+   this->topFrameVlayout = new QVBoxLayout (this->topFrame);
+   this->topFrameVlayout->setContentsMargins (0, 2, 0, 4);  // l, t, r, b
+   this->topFrameVlayout->setSpacing (6);
+   this->topFrameVlayout->setObjectName ("topFrameVlayout");
+
+   for (j = 1; j <= 5; j++) {
+      this->hlayouts [j] = new QHBoxLayout ();
+      this->hlayouts [j]->setContentsMargins (2, 0, 2, 0);  // l, t, r, b
+      this->hlayouts [j]->setSpacing (6);
+
+      this->topFrameVlayout->addLayout (this->hlayouts [j], 1);
+   }
 
    this->label1 = new QLabel ("NAME", this->topFrame);
-   this->label1->setGeometry (left_margin, y, label_width, label_height); y += delta_y + 6;
+   this->label1->setFixedSize (QSize (label_width, label_height));
+   this->box = new QComboBox (this->topFrame);
+   this->box->setFixedHeight (label_height + 9);
+   this->hlayouts [1]->addWidget (this->label1, 0, Qt::AlignVCenter);
+   this->hlayouts [1]->addWidget (this->box, 0, Qt::AlignVCenter);
 
    this->label2 = new QLabel ("VAL", this->topFrame);
-   this->label2->setGeometry (left_margin, y, label_width, label_height); y += delta_y;
+   this->label2->setFixedSize (QSize (label_width, label_height));
+   this->valueLabel = new QELabel (this->topFrame);
+   this->valueLabel->setFixedHeight (label_height);
+   this->hlayouts [2]->addWidget (this->label2);
+   this->hlayouts [2]->addWidget (this->valueLabel);
 
    this->label3 = new QLabel ("HOST", this->topFrame);
-   this->label3->setGeometry (left_margin, y, label_width, label_height); y += delta_y;
+   this->label3->setFixedSize (QSize (label_width, label_height));
+   this->hostName = new QLabel (this->topFrame);
+   this->hostName->setFixedHeight (label_height);
+   this->hlayouts [3]->addWidget (this->label3);
+   this->hlayouts [3]->addWidget (this->hostName);
 
    this->label4 = new QLabel ("TIME", this->topFrame);
-   this->label4->setGeometry (left_margin, y, label_width, label_height); y += delta_y;
+   this->label4->setFixedSize (QSize (label_width, label_height));
+   this->timeStamp = new QLabel (this->topFrame);
+   this->timeStamp->setFixedHeight (label_height);
+   this->hlayouts [4]->addWidget (this->label4);
+   this->hlayouts [4]->addWidget (this->timeStamp);
 
    this->label5 = new QLabel ("DBF", this->topFrame);
-   this->label5->setGeometry (left_margin, y, label_width, label_height);
-
-   this->label6 = new QLabel ("INDEX", this->topFrame);
-   this->label6->setGeometry (xc, y, label_width, label_height);
-
-   // Create the '2nd' column.
-   //
-   y = 10;
-   xf = left_margin + label_width + gap;
-   wc = WIDGET_DEFAULT_WIDTH - xf - right_margin;
-
-   this->box = new QComboBox (this->topFrame);
-   this->box->setGeometry (xf, y - 4, wc, label_height + 9); y += delta_y + 6;
-
-   this->valueLabel = new QELabel (this->topFrame);
-   this->valueLabel->setGeometry (xf, y, wc, label_height); y += delta_y;
-
-   this->hostName = new QLabel (this->topFrame);
-   this->hostName->setGeometry (xf, y, wc, label_height); y += delta_y;
-
-   this->timeStamp = new QLabel (this->topFrame);
-   this->timeStamp->setGeometry (xf, y, wc, label_height); y += delta_y;
-
-   wc = xc - xf - spacing;
+   this->label5->setFixedSize (QSize (label_width, label_height));
    this->fieldType = new QLabel (this->topFrame);
-   this->fieldType->setGeometry (xf, y, wc, label_height);
-
-   xf = xc + label_width + gap;
+   this->fieldType->setFixedHeight (label_height);
+   this->label6 = new QLabel ("INDEX", this->topFrame);
+   this->label6->setFixedSize (QSize (label_width, label_height));
    this->indexInfo = new QLabel (this->topFrame);
-   this->indexInfo->setGeometry (xf, y, wc, label_height); y += delta_y;
-
-   this->topFrame->setFixedHeight (y);
-
+   this->indexInfo->setFixedHeight (label_height);
+   this->hlayouts [5]->addWidget (this->label5);
+   this->hlayouts [5]->addWidget (this->fieldType);
+   this->hlayouts [5]->addWidget (this->label6);
+   this->hlayouts [5]->addWidget (this->indexInfo);
 
    this->enumerationFrame = new QFrame (NULL); // is re-pareneted by enumerationScroll
    for (j = 0; j < NUMBER_OF_ENUMERATIONS; j++) {
@@ -259,12 +256,12 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
    this->table = new QTableWidget (40, NUNBER_COLS, parent);
    this->tableContextMenu = new QMenu (parent);
 
-   this->layout = new QVBoxLayout (parent);
-   this->layout->setMargin (4);
-   this->layout->setSpacing (4);
-   this->layout->addWidget (this->topFrame);
-   this->layout->addWidget (this->enumerationResize);
-   this->layout->addWidget (this->table);
+   this->vlayout = new QVBoxLayout (parent);
+   this->vlayout->setMargin (4);
+   this->vlayout->setSpacing (4);
+   this->vlayout->addWidget (this->topFrame);
+   this->vlayout->addWidget (this->enumerationResize);
+   this->vlayout->addWidget (this->table);
 }
 
 //------------------------------------------------------------------------------
@@ -487,61 +484,18 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
    QRect g;
    QLabel *enumLabel;
    int pw;
-   int rm;
-   int field_width;
-
-   // Have we been scaled ??
-   //
-   scale = this->getScale ();
-
-   // Recalculate widths only.
-   // Get current width and height.
-   //
-   pw = own->topFrame->width ();
-
-   rm = int (12 * scale);
-
-   field_width = pw - own->box->geometry ().x () - rm;
-
-   g = own->box->geometry ();
-   g.setWidth (field_width);
-   own->box->setGeometry (g);
-
-   g = own->valueLabel->geometry ();
-   g.setWidth (field_width);
-   own->valueLabel->setGeometry (g);
-
-   g = own->hostName->geometry ();
-   g.setWidth (field_width);
-   own->hostName->setGeometry (g);
-
-   g = own->timeStamp->geometry ();
-   g.setWidth (field_width);
-   own->timeStamp->setGeometry (g);
-
-   field_width = own->indexInfo->geometry ().x()  -
-                 own->fieldType->geometry ().x () -
-                 own->label6->geometry ().width () -
-                 2*rm;
-
-   g = own->fieldType->geometry ();
-   g.setWidth (field_width);
-   own->fieldType->setGeometry (g);
-
-   g = own->indexInfo->geometry ();
-   g.setWidth (field_width);
-   own->indexInfo->setGeometry (g);
-
-
    int epr;  // enumerations per row.
    int gap;
    int lh;   // label height
    int lw;   // label width
    int j;
 
+   // Have we been scaled ??
+   //
+   scale = this->getScale ();
    pw = own->enumerationFrame->width ();
    gap = (int)(4 * scale);
-   epr = MAX (1, (pw / (160 * scale)));    // calc enumerations per row.
+   epr = MAX (1, (pw / (172 * scale)));    // calc enumerations per row.
    lw = ((pw - gap)/ epr) - gap;
    lh = own->enumerationLabelList.value (0)->geometry().height();
 
@@ -857,7 +811,7 @@ void QEPvProperties::setValueValue (const QString &,
 
    // NOTE: The value lable updates itself.
    //
-   own->timeStamp->setText (dateTime.text ());
+   own->timeStamp->setText (dateTime.text () + "  " + QEUtilities::getTimeZoneTLA (dateTime));
 
    if (this->isFirstUpdate) {
 
