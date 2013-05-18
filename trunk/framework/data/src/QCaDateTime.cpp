@@ -32,41 +32,36 @@ static const QDateTime qtEpoch    (QDate( 1970, 1, 1 ), QTime( 0, 0, 0, 0 ), Qt:
 static const QDateTime epicsEpoch (QDate( 1990, 1, 1 ), QTime( 0, 0, 0, 0 ), Qt::UTC );
 static unsigned long EPICSQtEpocOffset = qtEpoch.secsTo ( epicsEpoch );
 
-
 /*
-  Qt 4.6 does not have the msecTo function - so we roll our own.
+  Qt 4.6 does not have the msecsTo function - so we roll our own.
 
   Return the number of milliseconds from this datetime to the other datetime.
   If the other datetime is earlier than this datetime, the value returned is negative.
+
+  Based on msecsTo out of qt-everywhere-opensource-src-4.8.4/src/corelib/tools/qdatetime.cpp
 */
-static qint64 msecsTo_48 (const QDateTime& from, const QDateTime& other)
+static qint64 msecsTo_48 (const QDateTime& self, const QDateTime& other)
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
-   return from.msecsTo( other );
+   return self.msecsTo( other );
 #else
-   qint64 result;
-   QTime fromTime = from.time();
-   QTime otherTime = other.time();
-
-   // The secsTo does most of ther work. Before performing the comparison, the two
-   // datetimes are converted to Qt::UTC to ensure that the result is correct if one
-   // of the two datetimes has daylight saving time (DST) and the other doesn't.
+   // More or less a direct copy of 4.8 code.
    //
-   int secs = from.secsTo( other );
+   enum { MSECS_PER_DAY = 86400000 };
 
-   // Note: sometimes secsTo round up amd sometimes truncates, but
-   //       looks like msecsTo (of the times) through design or othewise
-   //       compenstates for this - ugghh!!!
-   //
-   int msecs = fromTime.msecsTo( otherTime );
+   QDate selfDate;
+   QDate otherDate;
+   QTime selfTime;
+   QTime otherTime;
 
-   // We only need the fraction of as second number of mSeonds.
-   //
-   msecs = (msecs) % 1000;
+   selfDate = self.toUTC().date();
+   selfTime = self.toUTC().time();
 
-   result =  (qint64)  secs * 1000 + (qint64) msecs;
+   otherDate = other.toUTC().date();
+   otherTime = other.toUTC().time();
 
-   return result;
+   return (static_cast<qint64>(selfDate.daysTo(otherDate)) * static_cast<qint64>(MSECS_PER_DAY)) +
+           static_cast<qint64>(selfTime.msecsTo(otherTime));
 #endif
 }
 
