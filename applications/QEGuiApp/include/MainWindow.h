@@ -38,40 +38,21 @@
 // Save / Restore configuration name
 #define QE_CONFIG_NAME "QEGuiConfig"
 
-class MainWindow;
-class guiListItem
-{
-public:
-//    guiListItem(){ form = NULL; mainWindow = NULL; }
-    guiListItem( QEForm* formIn, MainWindow* mainWindowIn ){ form = formIn; mainWindow = mainWindowIn; }
-    QEForm* getForm(){ return form; }
-    MainWindow* getMainWindow(){ return mainWindow; }
-    void setScroll( QPoint scrollIn ){ scroll = scrollIn; }
-    QPoint getScroll(){ return scroll; }
-//   =guiListItem(const guiListItem& other){ other.form = form; other.mainWindow = mainWindow; }
-private:
-    QEForm* form;
-    MainWindow* mainWindow;
-    QPoint scroll;
-};
+class QEGui;
 
 class MainWindow : public QMainWindow, public UserMessage
 {
     Q_OBJECT
 
 public:
-    MainWindow( QString fileName, bool openDialog, const startupParams & startupParams, QWidget *parent = 0 );
+    MainWindow( QEGui* appIn, QString fileName, bool openDialog, QWidget *parent = 0 );
 
     ~MainWindow();
 
     void closeAll();                                        // Static function to close all main windows
-    static int count();                                     // Static function to report the number of main windows
 
 private:
-    startupParams startupParameters;                        // Start up parameters
     Ui::MainWindowClass ui;                                 // Main window layout
-    static QList<guiListItem> guiList;                      // Shared list of all forms being displayed in all main windows
-    static QList<MainWindow*> mainWindowList;               // Shared list of all main windows
     bool usingTabs;                                         // True if using tabs to display multiple GUIs, false if displaying a single GUI
 
     void setSingleMode();                                   // Set up to use only a single gui
@@ -123,6 +104,8 @@ private:
 
     bool beingDeleted;                                      // This main window is being deleted (deleteLater() has been called on it)
     int scrollToCount;                                      // Number of times scrollTo() has been called waiting for geometry has been rinalised
+
+    QEGui* app;
 
 private:
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)

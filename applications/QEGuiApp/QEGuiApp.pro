@@ -33,7 +33,8 @@ SOURCES += ./src/main.cpp \
     ./src/StartupParams.cpp \
     ./src/InstanceManager.cpp \
     ./src/saveRestoreManager.cpp \
-    ./src/saveDialog.cpp
+    ./src/saveDialog.cpp \
+    ./src/QEGui.cpp
 
 # Include the following gdbmacros line for debugging only
 #SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
@@ -42,7 +43,8 @@ HEADERS += include/MainWindow.h \
     include/StartupParams.h \
     include/InstanceManager.h \
     include/saveRestoreManager.h \
-    include/saveDialog.h
+    include/saveDialog.h \
+    include/QEGui.h
 
 INCLUDEPATH += . \
     ./include \
@@ -67,4 +69,3 @@ FORMS += ./src/MainWindow.ui \
          ./src/saveDialog.ui
 
 RESOURCES += ./src/QEGui.qrc
-

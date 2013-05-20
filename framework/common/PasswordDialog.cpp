@@ -39,8 +39,6 @@ PasswordDialog::PasswordDialog(QWidget *parent) :
 {
     ContainerProfile profile;
 
-    qDebug() << "Dialog before" << profile.getUserLevelPassword(USERLEVEL_USER) << profile.getUserLevelPassword(USERLEVEL_SCIENTIST) << profile.getUserLevelPassword(USERLEVEL_ENGINEER) ;
-
     ui->setupUi(this);
 
     ui->lineEditUser->setText( profile.getUserLevelPassword( USERLEVEL_USER ) );
@@ -56,12 +54,8 @@ PasswordDialog::~PasswordDialog()
 void PasswordDialog::on_buttonBox_accepted()
 {
     ContainerProfile profile;
-qDebug() << "Buttonbox before" << profile.getUserLevelPassword(USERLEVEL_USER) << profile.getUserLevelPassword(USERLEVEL_SCIENTIST) << profile.getUserLevelPassword(USERLEVEL_ENGINEER) ;
+
     profile.setUserLevelPassword( USERLEVEL_USER, ui->lineEditUser->text() );
     profile.setUserLevelPassword( USERLEVEL_SCIENTIST, ui->lineEditScientist->text() );
     profile.setUserLevelPassword( USERLEVEL_ENGINEER, ui->lineEditEngineer->text() );
-
-qDebug() << "Buttonbox after" << profile.getUserLevelPassword(USERLEVEL_USER) << profile.getUserLevelPassword(USERLEVEL_SCIENTIST) << profile.getUserLevelPassword(USERLEVEL_ENGINEER) ;
-
-
 }

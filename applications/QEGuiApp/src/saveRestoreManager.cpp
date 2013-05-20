@@ -29,13 +29,15 @@
 
 #include <saveRestoreManager.h>
 #include <MainWindow.h>
+#include <QEGui.h>
 
 #define SAVERESTORE_NAME "QEGui"
 
 // Construction
-saveRestoreManager::saveRestoreManager( startupParams* paramsIn )
+saveRestoreManager::saveRestoreManager( QEGui* appIn )
 {
-    params = paramsIn;
+    // Save reference to the QEGui application
+    app = appIn;
 
     // Setup to respond to requests to save or restore persistant data
     PersistanceManager* persistanceManager = profile.getPersistanceManager();
@@ -60,13 +62,7 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
             PMElement appElement =  pm->addElement( SAVERESTORE_NAME );
 
             // Note the number of main windows. This will determine how many main windows are expected on restore
-            appElement.addValue( "MainWindows", MainWindow::count() );
-
-            // Add login info
-            PMElement loginElement = appElement.addElement( "Login" );
-            loginElement.addAttribute( "User", getUserLevelPassword( USERLEVEL_USER ) );
-            loginElement.addAttribute( "Scientist", getUserLevelPassword( USERLEVEL_SCIENTIST ) );
-            loginElement.addAttribute( "Engineer", getUserLevelPassword( USERLEVEL_ENGINEER ) );
+            appElement.addValue( "MainWindows", app->getMainWindowCount() );
         }
         break;
 
@@ -82,29 +78,15 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
                 return;
             }
 
-            // Restore login information
-            PMElement loginElement = QEGuiData.getElement( "Login" );
-
-            QString password;
-
-            loginElement.getAttribute( "User", password );
-            setUserLevelPassword( USERLEVEL_USER, password );
-
-            loginElement.getAttribute( "Scientist", password );
-            setUserLevelPassword( USERLEVEL_SCIENTIST, password );
-
-            loginElement.getAttribute( "Engineer", password );
-            setUserLevelPassword( USERLEVEL_ENGINEER, password );
-
             // Get the number of expected main windows
             int numMainWindows = 0;
             QEGuiData.getValue( "MainWindows", numMainWindows );
 
             // Create the main windows. They will restore themselves
-            setupProfile( NULL, params->pathList, "", params->substitutions );
+            setupProfile( NULL, app->getParams()->pathList, "", app->getParams()->substitutions );
             for( int i = 0; i < numMainWindows; i++ )
             {
-                MainWindow* mw = new MainWindow( "", false, *params );
+                MainWindow* mw = new MainWindow( app, "", false );
                 mw->show();
             }
 

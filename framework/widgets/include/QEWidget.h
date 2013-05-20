@@ -221,7 +221,7 @@ protected:
     virtual qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );  // Function to create a appropriate superclass of QCaObject to stream data updates
     virtual void establishConnection( unsigned int variableIndex );             // Create a CA connection and initiates updates if required
 
-    QString persistantName();                               // Returns a string that will not change between runs of the application (given the same configuration)
+    QString persistantName( QString prefix );               // Returns a string that will not change between runs of the application (given the same configuration)
 
 private:
     void deleteQcaItem( unsigned int variableIndex );       // Delete a stream of CA updates
@@ -232,6 +232,10 @@ private:
     void setToolTipFromVariableNames();                     // Update the variable name list used in tool tips if requried
 
     saveRestoreSlot saveRestoreReceiver;                    // QObject based class a save/restore signal can be delivered to
+
+    void buildPersistantName( QWidget* w, QString& name );
+
+    QWidget* owner;
 
 public:
     static bool inDesigner();                               // Flag indicating this widget is running inside Qt's 'designer'
