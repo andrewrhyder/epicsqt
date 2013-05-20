@@ -50,6 +50,9 @@ QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( owner
         exit( EXIT_FAILURE );
     }
 
+    // Keep a handle on the underlying QWidget of the QE widgets
+    owner = ownerIn;
+
     // Initially flag no variables array is defined.
     // This will be corrected when the first variable is declared
     numVariables = 0;
@@ -492,10 +495,38 @@ QString QEWidget::getFrameworkVersion()
 }
 
 // Returns a string that will not change between runs of the application (given the same configuration)
-QString QEWidget::persistantName()
+QString QEWidget::persistantName( QString prefix )
 {
-    return "abcdef"; // not done yet!
+    QString name = prefix;
+    buildPersistantName( owner, name );
+
+    qDebug() << name;
+    return name;
 }
+
+// Returns a string that will not change between runs of the application (given the same configuration)
+void QEWidget::buildPersistantName( QWidget* w, QString& name )
+{
+    QWidget* p = w->parentWidget();
+    if( !p )
+        return;
+
+    QObjectList c = p->children();
+    int num = c.count();
+    for( int i = 0; i < num; i++ )
+    {
+        if( c[i] == w )
+        {
+            name.append( "_%1" ).arg( i );
+            buildPersistantName( p, name );
+            return;
+        }
+    }
+
+    // Should never get here
+    return;
+}
+
 
 saveRestoreSlot::saveRestoreSlot()
 {

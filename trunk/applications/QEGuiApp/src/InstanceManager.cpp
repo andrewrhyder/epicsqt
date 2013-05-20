@@ -39,13 +39,16 @@
 #include <InstanceManager.h>
 #include <MainWindow.h>
 #include <ContainerProfile.h>
+#include <QEGui.h>
 
 #define QEGUISERVERNAME "QEGuiInstance"
 
 // Construction
 // Look for an instance server, and if can't find one, then start one
-instanceManager::instanceManager( QObject *parent ) : QObject( parent )
+instanceManager::instanceManager( QEGui* appIn ) : QObject( appIn )
 {
+    app = appIn;
+
     // Create a socket
     socket = new QLocalSocket(this);
     socket->connectToServer( QEGUISERVERNAME, QIODevice::WriteOnly );
@@ -142,13 +145,13 @@ void instanceManager::newWindow( const startupParams& params )
         persistanceManager->restore( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default"  );
     }
 
-    // Not restoring, open the required files
-    else
+    // Not restoring, or if restoring didn't create any main windows, open the required guis
+    if( app->getMainWindowCount() == 0 )
     {
         // If no files specified, open a single window without a filen name
         if( !params.filenameList.count() )
         {
-            MainWindow* mw = new MainWindow( "", true, params );
+            MainWindow* mw = new MainWindow( app, "", true );
             mw->show();
         }
 
@@ -157,7 +160,7 @@ void instanceManager::newWindow( const startupParams& params )
         {
             for( int i = 0; i < params.filenameList.count(); i++ )
             {
-                MainWindow* mw = new MainWindow( params.filenameList[i], true, params );
+                MainWindow* mw = new MainWindow( app, params.filenameList[i], true );
                 mw->show();
             }
         }

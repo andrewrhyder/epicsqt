@@ -29,17 +29,20 @@
 #include <ContainerProfile.h>
 #include <StartupParams.h>
 
+class QEGui;
+
 class saveRestoreManager: public QObject, ContainerProfile
 {
     Q_OBJECT
 
 public:
-    saveRestoreManager( startupParams* paramsIn );
+    saveRestoreManager( QEGui* appIn );
     ~saveRestoreManager();
 
 private:
     ContainerProfile profile;
-    startupParams* params;
+
+    QEGui* app;
 
 public slots:
     void saveRestore( SaveRestoreSignal::saveRestoreOptions option );

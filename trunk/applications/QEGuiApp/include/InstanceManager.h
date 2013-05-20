@@ -30,12 +30,14 @@
 #include <StartupParams.h>
 #include <QDialog>
 
+class QEGui;
+
 class instanceManager: public QObject
 {
     Q_OBJECT
 
 public:
-    instanceManager( QObject *parent );
+    instanceManager( QEGui* app );
     ~instanceManager();
     bool handball( startupParams* params );
     void newWindow( const startupParams& params );
@@ -44,6 +46,8 @@ private:
     QLocalSocket* socket;
     QLocalServer* server;
     QLocalSocket *client;
+
+    QEGui* app;
 
 public slots:
     void connected();

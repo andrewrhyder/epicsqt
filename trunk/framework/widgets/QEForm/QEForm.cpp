@@ -521,10 +521,15 @@ bool QEForm::getResizeContents()
     return resizeContents;
 }
 
-void QEForm::saveConfiguration( PersistanceManager* /*pm*/ )
+void QEForm::saveConfiguration( PersistanceManager* pm )
 {
-    qDebug() << "QEForm::saveConfiguration()";
-    // Not done yet - perhaps save the scroll position if any
+    PMElement f =  pm->addElement( persistantName( "QEForm" ) );
+    f.addValue( "MacroSubstitutions", getMacroSubstitutions() );
+    QStringList pathList = getPathList();
+    for( int i = 0; i < pathList.count(); i++ )
+    {
+        f.addValue( QString( "path_%1" ).arg( i ), pathList.at( i ) );
+    }
 }
 
 void QEForm::restoreConfiguration( PersistanceManager* /*pm*/ )
