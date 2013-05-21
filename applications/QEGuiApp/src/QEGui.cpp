@@ -22,6 +22,7 @@
  *  Contact details:
  *    andrew.rhyder@synchrotron.org.au
  */
+
 /*
  This class is used to manage the overall QEGui application.
  Note, each main window is managed by the QEMainWindow class. This class manages anything not common to all main windows.
@@ -66,6 +67,7 @@ int QEGui::run()
        return 0;
     }
 
+    // Restore the user level passwords
     QSettings settings( "epicsqt", "QEGui");
     setUserLevelPassword( USERLEVEL_USER, settings.value( "userPassword" ).toString() );
     setUserLevelPassword( USERLEVEL_SCIENTIST, settings.value( "scientistPassword" ).toString()  );
@@ -105,7 +107,7 @@ void QEGui::printVersion ()
 // Print command line usage
 void QEGui::printUsage (std::ostream & stream)
 {
-    stream  << "usage: QEGui [-v] [-h] [-a scale] [-s] [-e] [-b] [-m macros] [-p pathname] [file_name] [file_name] [file_name...]\n";
+    stream  << "usage: QEGui [-v] [-h] [-a scale] [-s] [-e] [-b] [-m macros] [-r [configuration_name]] [-c configuration_file] [-p pathname] [file_name] [file_name] [file_name...]\n";
 }
 
 // Prinf command line help
@@ -130,6 +132,13 @@ void QEGui::printHelp ()
       "-b      Disable menu bar.\n"
       "\n"
       "-r      Restore from saved configuration.\n"
+      "        If a configuration name is not provided the saved default configuration is used\n"
+      "        if available.\n"
+      "        Note, a single configuration file may contain multiple named configurations."
+      "\n"
+      "-c      Configuration file.\n"
+      "        Named configurations will be saveed to and read from this file. If not provided\n"
+      "        the default is QEGuiConfig.xml in the current working directory.\n"
       "\n"
       "-p      Search paths\n"
       "        When opening a file, this list of space seperated paths may be used when searching\n"
@@ -215,60 +224,25 @@ void QEGui::printHelp ()
    std::cout << help_text;
 }
 
+// Get the application's startup parameters
+startupParams* QEGui::getParams()
+{
+    return &params;
+}
+
+// Get the number of main windows
 int QEGui::getMainWindowCount()
 {
     return mainWindowList.count();
 }
 
+// Get a main window from the application's list of main windows
 MainWindow* QEGui::getMainWindow( int i )
 {
     return mainWindowList.at( i );
 }
 
-int QEGui::getGuiCount()
-{
-    return guiList.count();
-}
-
-QEForm* QEGui::getGuiForm( int i )
-{
-    return guiList[i].getForm();
-}
-
-MainWindow* QEGui::getGuiMainWindow( int i )
-{
-    return guiList[i].getMainWindow();
-}
-
-QPoint QEGui::getGuiScroll( int i )
-{
-    return guiList[i].getScroll();
-}
-
-void QEGui::setGuiScroll( int i, QPoint scroll )
-{
-    guiList[i].setScroll( scroll );
-}
-
-
-void QEGui::addGui( QEForm* gui, MainWindow* window )
-{
-    guiList.append( guiListItem( gui, window ) );
-}
-
-bool QEGui::removeGui( QEForm* gui )
-{
-    for( int i = 0; i < guiList.count(); i++ )
-    {
-        if( guiList[i].getForm() == gui )
-        {
-            guiList.removeAt( i );
-            return true;
-        }
-    }
-    return false;
-}
-
+// Locate a main window in the application's list of main windows
 int QEGui::getMainWindowPosition( MainWindow* mw )
 {
     for( int i = 0; i < mainWindowList.count(); i++ )
@@ -282,17 +256,13 @@ int QEGui::getMainWindowPosition( MainWindow* mw )
 }
 
 
+// Add a main window to the application's list of main windows
 void QEGui::addMainWindow( MainWindow* window )
 {
     mainWindowList.append( window );
 }
 
-startupParams* QEGui::getParams()
-{
-    return &params;
-}
-
-
+// Remove a main window from the application's list of main windows given a reference to the main window
 void QEGui::removeMainWindow( MainWindow* window )
 {
     // Remove this main window from the global list of main windows
@@ -309,7 +279,61 @@ void QEGui::removeMainWindow( MainWindow* window )
     return;
 }
 
+// Remove a main window from the application's list of main windows given an index into the application's list of main windows
 void QEGui::removeMainWindow( int i )
 {
     mainWindowList.removeAt( i );
 }
+
+
+// Get the total number of GUIs in the application's list of GUIs
+// (This includes all GUIs in all main windows)
+int QEGui::getGuiCount()
+{
+    return guiList.count();
+}
+
+// Get a GUI given an index into the application's list of GUIs
+QEForm* QEGui::getGuiForm( int i )
+{
+    return guiList[i].getForm();
+}
+
+// Get the main window for a GUI given an index into the application's list of GUIs
+MainWindow* QEGui::getGuiMainWindow( int i )
+{
+    return guiList[i].getMainWindow();
+}
+
+// Get the scroll information for a GUI given an index into the application's list of GUIs
+QPoint QEGui::getGuiScroll( int i )
+{
+    return guiList[i].getScroll();
+}
+
+// Set the scroll information for a GUI given an index into the application's list of GUIs
+void QEGui::setGuiScroll( int i, QPoint scroll )
+{
+    guiList[i].setScroll( scroll );
+}
+
+// Add a GUI to the application's list of GUIs
+void QEGui::addGui( QEForm* gui, MainWindow* window )
+{
+    guiList.append( guiListItem( gui, window ) );
+}
+
+// Remove a GUI from the application's list of GUIs
+bool QEGui::removeGui( QEForm* gui )
+{
+    for( int i = 0; i < guiList.count(); i++ )
+    {
+        if( guiList[i].getForm() == gui )
+        {
+            guiList.removeAt( i );
+            return true;
+        }
+    }
+    return false;
+}
+

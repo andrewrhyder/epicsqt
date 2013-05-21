@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>saveDialog</class>
- <widget class="QDialog" name="saveDialog">
+ <class>restoreDialog</class>
+ <widget class="QDialog" name="restoreDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Save Configuration</string>
+   <string>Restore Configuration</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -42,15 +42,12 @@
     <widget class="QListWidget" name="namesListWidget"/>
    </item>
    <item>
-    <widget class="QLineEdit" name="nameLineEdit"/>
-   </item>
-   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Open</set>
      </property>
     </widget>
    </item>
@@ -61,7 +58,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>saveDialog</receiver>
+   <receiver>restoreDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -77,7 +74,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>saveDialog</receiver>
+   <receiver>restoreDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

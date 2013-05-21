@@ -499,25 +499,29 @@ QString QEWidget::persistantName( QString prefix )
 {
     QString name = prefix;
     buildPersistantName( owner, name );
-
-    qDebug() << name;
     return name;
 }
 
 // Returns a string that will not change between runs of the application (given the same configuration)
 void QEWidget::buildPersistantName( QWidget* w, QString& name )
 {
+    // Stop when the top level of siblings is reached
+    // Note, the position in the top level of siblings is not included
     QWidget* p = w->parentWidget();
-    if( !p )
+    if( !p || !p->parentWidget() )
+    {
         return;
+    }
 
+    // Get the widget's sibling, add the widget's position in the list of
+    // siblings to the persistant name, then repeat for the widget's parent.
     QObjectList c = p->children();
     int num = c.count();
     for( int i = 0; i < num; i++ )
     {
         if( c[i] == w )
         {
-            name.append( "_%1" ).arg( i );
+            name.append( QString( "_%1" ).arg( i ) );
             buildPersistantName( p, name );
             return;
         }
@@ -561,8 +565,12 @@ void saveRestoreSlot::saveRestore( SaveRestoreSignal::saveRestoreOptions option 
             owner->saveConfiguration( pm );
             break;
 
-        case SaveRestoreSignal::RESTORE:
-            owner->restoreConfiguration( pm );
+        case SaveRestoreSignal::RESTORE_1:
+            owner->restoreConfiguration( pm, 1 );
+            break;
+
+        case SaveRestoreSignal::RESTORE_2:
+            owner->restoreConfiguration( pm, 2 );
             break;
     }
 }

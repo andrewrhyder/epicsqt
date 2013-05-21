@@ -71,7 +71,7 @@ public:
 
 
 
-enum saveRestoreOptions { SAVE, RESTORE };
+enum saveRestoreOptions { SAVE, RESTORE_1, RESTORE_2 };
   signals:
     // Internal use only. Send when a save or restore is needed.
     void saveRestore( SaveRestoreSignal::saveRestoreOptions option );   // Saving or restoring
@@ -151,7 +151,6 @@ public:
 
     PersistanceManager();
 
-
     void save( const QString fileName, const QString rootName, const QString configName );            // Save the current configuration
     void restore( const QString fileName, const QString rootName, const QString configName );         // Restore a configuration
 
@@ -162,19 +161,18 @@ public:
     QObject* getSaveRestoreObject();          // Get a reference to the object that will supply save and restore signals
 
     PMElement getMyData( QString name );
-    QString  getMyDataString( QString name );
-    QDomElement getMyDataDom( QString name );
+    QStringList getConfigNames( QString fileName, QString rootName );
+    void deleteConfigs( QString fileName, QString rootName, QStringList names );
 
 
 private:
+    bool openRead(  QString fileName, QString rootName );
+
     PMElement addElement( QDomElement parent, QString name );
     void addValue( QDomElement parent, QString name, QString value );
     void addValue( QDomElement parent, QString name, int value );
     void addAttribute( QDomElement element, QString name, int value );
     void addAttribute( QDomElement element, QString name, QString value );
-
-
-
 
     QDomElement getElement( QDomElement element, QString name );
     QDomElement getElement( QDomElement element, QString name, int i );
@@ -198,6 +196,8 @@ private:
 
     QDomDocument doc;                   // Save and restore xml document
     QDomElement config;                   // Current configuration
+
+    QDomElement docElem;                // Configuration document
 
 };
 

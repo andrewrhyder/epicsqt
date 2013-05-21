@@ -53,6 +53,8 @@ class startupParams
     bool printHelp;                                 // True if and only if user requests help (-h).
     bool printVersion;                              // True if and only if user requests version (-v).
     bool restore;                                   // Flag true if restoring from config file
+    QString configurationName;                      // Configuation name (Multiple named configurations can be saved in the configuration file)
+    QString configurationFile;                      // Configuration file
     QStringList filenameList;                       // Default gui file names
     QStringList pathList;                           // Default gui file path
     QString substitutions;                          // Substitutions. For example, "SECTOR=01,PUMP=03"
