@@ -23,7 +23,7 @@
 #
 
 QT -= gui
-TARGET = QEMonitor
+TARGET = qemonitor
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
@@ -39,8 +39,8 @@ HEADERS += \
 
 INCLUDEPATH += \
     ./include \
-    ../../framework/api/include \
-    ../../framework/data/include \
-    ../../framework/widgets/include
+    ../../framework/include
 
 LIBS += -L../../framework/designer -lQEPlugin
+
+# end

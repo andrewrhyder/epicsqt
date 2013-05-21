@@ -24,10 +24,12 @@
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
 QT += network
-TARGET = QEGui
+TARGET = qegui
 TEMPLATE = app
+
 CONFIG += uitools \
     debug_and_release
+
 SOURCES += ./src/main.cpp \
     ./src/MainWindow.cpp \
     ./src/StartupParams.cpp \
@@ -48,12 +50,7 @@ HEADERS += include/MainWindow.h \
 
 INCLUDEPATH += . \
     ./include \
-    ../../framework/common \
-    ../../framework/api/include \
-    ../../framework/data/include \
-    ../../framework/widgets/include \
-    ../../framework/widgets/QEForm \
-    ../../framework/plugins/include
+    ../../framework/include
 
 # Explicity add ../../framework/common, and hence QEFrameworkVersion.h, to the dependacy path
 # So that changes to the version/release numbers forece revent recompilations.
