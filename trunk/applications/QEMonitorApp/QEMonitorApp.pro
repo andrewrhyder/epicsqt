@@ -39,6 +39,9 @@ HEADERS += \
 
 INCLUDEPATH += \
     ./include \
+    ../../framework/widgets/include \
+    ../../framework/data/include \
+    ../../framework/api/include \
     ../../framework/include
 
 LIBS += -L../../framework/designer -lQEPlugin
