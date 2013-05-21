@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>548</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -34,6 +34,7 @@
     <addaction name="separator"/>
     <addaction name="actionSave_Configuration"/>
     <addaction name="actionRestore_Configuration"/>
+    <addaction name="actionManage_Configurations"/>
     <addaction name="separator"/>
     <addaction name="actionPVProperties"/>
     <addaction name="actionStrip_Chart"/>
@@ -162,6 +163,11 @@
   <action name="actionSet_Passwords">
    <property name="text">
     <string>Set Passwords...</string>
+   </property>
+  </action>
+  <action name="actionManage_Configurations">
+   <property name="text">
+    <string>Manage Configurations</string>
    </property>
   </action>
  </widget>

@@ -1712,7 +1712,7 @@ void QEStripChart::saveConfiguration (PersistanceManager*)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::restoreConfiguration (PersistanceManager*)
+void QEStripChart::restoreConfiguration (PersistanceManager*, int)
 {
    // place holder: qDebug () << "\nQEStripChart " << __FUNCTION__ << long (pm) << "\n";
 }

@@ -2,6 +2,7 @@
 #define SAVEDIALOG_H
 
 #include <QDialog>
+#include <QListWidget>
 
 namespace Ui {
 class saveDialog;
@@ -12,11 +13,15 @@ class saveDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit saveDialog(QWidget *parent = 0);
+    explicit saveDialog(QStringList names, QWidget *parent = 0);
     ~saveDialog();
     
+    bool getUseDefault();
+    QString getName();
+
 private slots:
-    void on_startupRadioButton_clicked();
+    void on_namesListWidget_doubleClicked(QModelIndex index);
+    void on_namesListWidget_clicked(QModelIndex index);
 
     void on_startupRadioButton_clicked(bool checked);
 

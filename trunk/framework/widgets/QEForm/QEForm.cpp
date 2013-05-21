@@ -90,13 +90,6 @@ void QEForm::commonInit( const bool alertIfUINoFoundIn )
     // Set up a connection to recieve variable name property changes (Actually only interested in substitution changes
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
                       this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
-
-//    // Perform any restore in progress
-//    PersistanceManager* persistanceManager = getPersistanceManager();
-//    if( persistanceManager )
-//    {
-//        restoreConfiguration( persistanceManager );
-//    }
 }
 
 // Destructor.
@@ -388,11 +381,17 @@ void QEForm::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
     // The macro substitutions have changed. Reload the form to pick up new substitutions.
     // NOTE an alternative to this would be to find all QE widgets contained in the form and it's descentand forms, modify the macro substitutions and reconnect.
     // This is a realistic option since contained widgets now register themselves with the form on creation so the fomr can activate them once all properties have been set up
+    reloadFile();
+}
+
+// Reload the ui file
+void QEForm::reloadFile()
+{
     if( ui )
     {
         ui->close();
-        readUiFile();
     }
+    readUiFile();
 }
 
 // Slot for reloading the file if it has changed.
@@ -403,15 +402,8 @@ void QEForm::fileChanged ( const QString & /*path*/ )
     QStringList monitoredPaths = fileMon.files();
     fileMon.removePaths( monitoredPaths );
 
-    // Close any existing form
-    if( ui )
-    {
-        delete ui;
-        ui = NULL;
-    }
-
-    // Re-open file
-    readUiFile();
+    // Reload the file
+    reloadFile();
 }
 
 // Slot for launching another form.
@@ -521,10 +513,17 @@ bool QEForm::getResizeContents()
     return resizeContents;
 }
 
+// Save configuration
 void QEForm::saveConfiguration( PersistanceManager* pm )
 {
-    PMElement f =  pm->addElement( persistantName( "QEForm" ) );
+    // Add this form
+    QString pname = persistantName( "QEForm" );
+    PMElement f =  pm->addElement( pname );
+
+    // Save macro substitutions
     f.addValue( "MacroSubstitutions", getMacroSubstitutions() );
+
+    // Save the path list
     QStringList pathList = getPathList();
     for( int i = 0; i < pathList.count(); i++ )
     {
@@ -532,8 +531,49 @@ void QEForm::saveConfiguration( PersistanceManager* pm )
     }
 }
 
-void QEForm::restoreConfiguration( PersistanceManager* /*pm*/ )
+// Apply any saved configuration
+void QEForm::restoreConfiguration( PersistanceManager* pm, int restorePhase )
 {
-    qDebug() << "QEForm::restoreConfiguration()";
-    // Not done yet - restore the scroll position if any
+    // Ignore first phase
+    // (Actaully, it should not be called during the first phase as that is when it is created)
+    if( restorePhase != 2 )
+    {
+        return;
+    }
+
+    // Get data for this form, if any
+    // (do nothing if no data)
+    QString pname = persistantName( "QEForm" );
+    PMElement f =  pm->getMyData( pname );
+
+    if( f.isNull() )
+    {
+        return;
+    }
+
+    // Restore the path list
+    QStringList pathList;
+    int i = 0;
+    while( true )
+    {
+        QString path;
+        if( f.getValue( QString( "path_%1" ).arg( i ), path ) )
+        {
+            pathList.append( path );
+            i++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    // Restore macro substitutions
+    QString macroSubstitutions;
+    f.getValue( "MacroSubstitutions", macroSubstitutions );
+
+    setupProfile( getGuiLaunchConsumer(), pathList, getParentPath(), macroSubstitutions );
+    reloadFile();
+    releaseProfile();
+
 }

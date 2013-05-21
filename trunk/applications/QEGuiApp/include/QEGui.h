@@ -1,3 +1,28 @@
+/*  QEGui.cpp
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *
+ *  The EPICS QT Framework is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The EPICS QT Framework is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Copyright (c) 2009, 2010
+ *
+ *  Author:
+ *    Andrew Rhyder
+ *  Contact details:
+ *    andrew.rhyder@synchrotron.org.au
+ */
+
 #ifndef QEGUI_H
 #define QEGUI_H
 
@@ -6,60 +31,58 @@
 #include <ContainerProfile.h>
 #include <MainWindow.h>
 
-
+// Class used to hold information about a GUI in the application's list of GUIs
 class guiListItem
 {
 public:
-//    guiListItem(){ form = NULL; mainWindow = NULL; }
     guiListItem( QEForm* formIn, MainWindow* mainWindowIn ){ form = formIn; mainWindow = mainWindowIn; }
-    QEForm* getForm(){ return form; }
-    MainWindow* getMainWindow(){ return mainWindow; }
-    void setScroll( QPoint scrollIn ){ scroll = scrollIn; }
-    QPoint getScroll(){ return scroll; }
-//   =guiListItem(const guiListItem& other){ other.form = form; other.mainWindow = mainWindow; }
+    QEForm*     getForm(){ return form; }                               // Return the QEForm implementing the GUI
+    MainWindow* getMainWindow(){ return mainWindow; }                   // Return the main window containing the GUI
+    void        setScroll( QPoint scrollIn ){ scroll = scrollIn; }      // Set the scroll position of the GUI (saved during configuration restore)
+    QPoint      getScroll(){ return scroll; }                           // Get the scroll position of the GUI (used immedietly after a restore has completed)
 private:
-    QEForm* form;
-    MainWindow* mainWindow;
-    QPoint scroll;
+    QEForm* form;               // QEForm implementing the GUI
+    MainWindow* mainWindow;     // Main window the GUI is in
+    QPoint scroll;              // Scroll position of the GUI (used to hold the scroll position during a configuration restore)
 };
 
+// Class representing the QEGui application
 class QEGui : public QApplication, ContainerProfile
 {
 public:
-    QEGui( int argc, char *argv[] );
+    QEGui( int argc, char *argv[] );            // Construction
 
-    int run();
+    int run();                                  // Main application code including call to exec()
 
-    startupParams* getParams();
+    startupParams* getParams();                 // Get the parsed application startup parameters
 
-    int getMainWindowCount();
-    MainWindow* getMainWindow( int i );
-    void addMainWindow( MainWindow* window );
+    int         getMainWindowCount();                       // Get the number of main windows
+    MainWindow* getMainWindow( int i );                     // Get a main window from the application's list of main windows
+    int         getMainWindowPosition( MainWindow* mw );    // Locate a main window in the application's list of main windows
+    void        addMainWindow( MainWindow* window );        // Add a main window to the application's list of main windows
+    void        removeMainWindow( MainWindow* window );     // Remove a main window from the application's list of main windows given a reference to the main window
+    void        removeMainWindow( int i );                  // Remove a main window from the application's list of main windows given an index into the application's list of main windows
 
-    int getGuiCount();
-    QEForm* getGuiForm( int i );
-    MainWindow* getGuiMainWindow( int i );
-    QPoint getGuiScroll( int i );
-    void setGuiScroll( int i, QPoint scroll );
-    void addGui( QEForm* gui, MainWindow* window );
-    bool removeGui( QEForm* gui );
-    int getMainWindowPosition( MainWindow* mw );
-    void removeMainWindow( MainWindow* window );
-    void removeMainWindow( int i );
+    int         getGuiCount();                              // Get the total number of GUIs in the application's list of GUIs
+    QEForm*     getGuiForm( int i );                        // Get a GUI given an index into the application's list of GUIs
+    MainWindow* getGuiMainWindow( int i );                  // Get the main window for a GUI given an index into the application's list of GUIs
+    QPoint      getGuiScroll( int i );                      // Get the scroll information for a GUI given an index into the application's list of GUIs
+    void        setGuiScroll( int i, QPoint scroll );       // Set the scroll information for a GUI given an index into the application's list of GUIs
+    void        addGui( QEForm* gui, MainWindow* window );  // Add a GUI to the application's list of GUIs
+    bool        removeGui( QEForm* gui );                   // Remove a GUI from the application's list of GUIs
 
 signals:
 
 public slots:
 
 private:
-    void printVersion ();
-    void printUsage (std::ostream & stream);
-    void printHelp ();
+    void printVersion ();                           // Print the version info
+    void printUsage (std::ostream & stream);        // Print brief usage statement
+    void printHelp ();                              // Print help info
 
-    startupParams params;
-//    int count();                                     // Static function to report the number of main windows
-    QList<guiListItem> guiList;                      // List of all forms being displayed in all main windows
-    QList<MainWindow*> mainWindowList;               // List of all main windows
+    startupParams params;                           // Parsed startup prarameters
+    QList<guiListItem> guiList;                     // List of all forms being displayed in all main windows
+    QList<MainWindow*> mainWindowList;              // List of all main windows
 };
 
 #endif // QEGUI_H

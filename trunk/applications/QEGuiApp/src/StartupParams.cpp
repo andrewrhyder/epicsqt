@@ -48,6 +48,8 @@ startupParams::startupParams()
     printHelp = false;    // not serialized
     printVersion = false; // not serialized
     restore = false;
+    configurationName = "Default";
+    configurationFile = "QEGuiConfig.xml";
 }
 
 // Unserialize application startup parameters
@@ -62,6 +64,8 @@ void startupParams::getSharedParams( const QByteArray& in )
     filenameList.clear();
     pathList.clear();
     substitutions.clear();
+    configurationName.clear();
+    configurationFile.clear();
 
     // Extract parameters from a stream of bytes.
     int len = 0;
@@ -90,6 +94,8 @@ void startupParams::getSharedParams( const QByteArray& in )
         pathList.append( &(d[len]) );  len += pathList[i].size()+1;
     }
     substitutions.append( &(d[len]) ); len += substitutions.size()+1;
+
+    configurationName = QString( &(d[len]) ); len += configurationName.size()+1;
 }
 
 // Serialize application startup parameters
@@ -114,16 +120,20 @@ void startupParams::setSharedParams( QByteArray& out )
     out[len++] = filenameList.count();
     for( i = 0; i < filenameList.count(); i++ )
     {
-        out.insert( len, filenameList[i].toAscii() ); len += filenameList[i].size(); out[len++] = '\0';
+        out.insert( len, filenameList[i].toAscii() ); len += filenameList[i].size();   out[len++] = '\0';
     }
 
     out[len++] = pathList.count();
     for( i = 0; i < pathList.count(); i++ )
     {
-        out.insert( len, pathList[i].toAscii() );len += pathList[i].size();   out[len++] = '\0';
+        out.insert( len, pathList[i].toAscii() );     len += pathList[i].size();       out[len++] = '\0';
     }
 
-    out.insert( len, substitutions.toAscii() );  len += substitutions.size(); out[len++] = '\0';
+    out.insert( len, substitutions.toAscii() );       len += substitutions.size();     out[len++] = '\0';
+
+    out.insert( len, configurationName.toAscii() );   len += configurationName.size(); out[len++] = '\0';
+    out.insert( len, configurationFile.toAscii() );   len += configurationFile.size(); out[len++] = '\0';
+
 }
 
 
@@ -208,8 +218,29 @@ bool startupParams::getStartupParams( QStringList args )
                         break;
 
                     // 'restore configuration' flag
+                    // Take next non switch parameter as the configuration name
+                    // If next parameter is a switch, use default configuration
                     case 'r':
                         restore = true;
+                        if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                        {
+                            configurationName = args[0];
+                            args.removeFirst();
+                        }
+                        break;
+
+                    // 'configuration file' flag
+                    // Take next non switch parameter as the configuration file
+                    case 'c':
+                        if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                        {
+                            configurationFile = args[0];
+                            args.removeFirst();
+                        }
+                        else
+                        {
+                            return false;
+                        }
                         break;
 
                     // 'paths' flag
@@ -221,7 +252,9 @@ bool startupParams::getStartupParams( QStringList args )
                             QString pathParam = args[0];
                             pathList = pathParam.split(QRegExp("\\s+"));
                             args.removeFirst();
-                        } else {
+                        }
+                        else
+                        {
                             return false;
                         }
                         break;

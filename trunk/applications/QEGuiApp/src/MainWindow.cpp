@@ -34,6 +34,8 @@
 #include <ContainerProfile.h>
 #include <QVariant>
 #include <saveDialog.h>
+#include <restoreDialog.h>
+#include <manageConfigDialog.h>
 #include <PasswordDialog.h>
 #include <QEGui.h>
 
@@ -137,7 +139,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
     uniqueId = 0;
 
     // Restore (will only do anything if this main window is being created during a restore)
-    saveRestore( SaveRestoreSignal::RESTORE );
+    saveRestore( SaveRestoreSignal::RESTORE_1 );
 
     // If we got a restored unique ID, then go with it, otherwise, generate a unique id for this main window.
     if( !uniqueId )
@@ -1238,14 +1240,6 @@ void MainWindow::removeAllGuisFromWindowsMenu()
 // The user has requested a save of the current configuration
 void MainWindow::on_actionSave_Configuration_triggered()
 {
-/*
-        QMessageBox::warning( this,"QEGui",
-                              "Under Construction.\n"
-                              "'Save'' is not implemented yet",
-                              QMessageBox::Cancel );
-
-        return;
-*/
     // Saving a configuration will overwrite previous configuration, check with the user this is OK
     QMessageBox msgBox;
     msgBox.setText( "A previous configuration may be overwritten. Do you want to continue?" );
@@ -1264,15 +1258,30 @@ void MainWindow::on_actionSave_Configuration_triggered()
             return;
      }
 
-// selection of name not available yet
-//    saveDialog sd;
-//    sd.exec();
+    PersistanceManager* pm = profile.getPersistanceManager();
+    startupParams* params = app->getParams();
+
+    // Get the user selection
+    saveDialog sd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
+    if ( sd.exec() == QDialog::Rejected )
+    {
+        return;
+    }
+
+    QString configName;
+    if( sd.getUseDefault() || sd.getName().isEmpty() )
+    {
+        configName = "Default";
+    }
+    else
+    {
+        configName = sd.getName();
+    }
 
     // Ask the persistance manager to save the current configuration.
     // The persistance manager will signal all interested objects (including this application) that
     // they should present anything they wish to save.
-    PersistanceManager* persistanceManager = profile.getPersistanceManager();
-    persistanceManager->save( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default" );
+    pm->save( params->configurationFile, QE_CONFIG_NAME, configName );
 }
 
 // The user has requested a restore of a saved configuration
@@ -1305,6 +1314,26 @@ void MainWindow::on_actionRestore_Configuration_triggered()
             return;
      }
 
+    PersistanceManager* pm = profile.getPersistanceManager();
+    startupParams* params = app->getParams();
+
+    // Get the user selection
+    restoreDialog rd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
+    if ( rd.exec() == QDialog::Rejected )
+    {
+        return;
+    }
+
+    QString configName;
+    if( rd.getUseDefault() || rd.getName().isEmpty() )
+    {
+        configName = "Default";
+    }
+    else
+    {
+        configName = rd.getName();
+    }
+
     // Close all current windows
     closeAll();
 
@@ -1312,7 +1341,19 @@ void MainWindow::on_actionRestore_Configuration_triggered()
     // The persistance manager will signal all interested objects (including this application) that
     // they should collect and apply restore data.
     PersistanceManager* persistanceManager = profile.getPersistanceManager();
-    persistanceManager->restore( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default"  );
+    persistanceManager->restore( params->configurationFile, QE_CONFIG_NAME, configName  );
+}
+
+// Manage the save/resore configurations
+void MainWindow::on_actionManage_Configurations_triggered()
+{
+    PersistanceManager* pm = profile.getPersistanceManager();
+    startupParams* params = app->getParams();
+
+    // Present the dialog
+    manageConfigDialog mcd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
+    QObject::connect( &mcd, SIGNAL( deleteConfigs ( const QStringList ) ), this, SLOT( deleteConfigs( const QStringList ) ) );
+    mcd.exec();
 }
 
 // A save or restore has been requested (Probably by QEGui itself)
@@ -1325,6 +1366,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
     switch( option )
     {
+        // Save the main window configuration
         case SaveRestoreSignal::SAVE:
             {
                 // Start with the top level element - the main windows
@@ -1383,7 +1425,9 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
             break;
 
 
-        case SaveRestoreSignal::RESTORE:
+        // First restore phase.
+        // This main window will position itself and create the GUIs it contains
+        case SaveRestoreSignal::RESTORE_1:
             {
                 // If this window is marked for deletion, (deleteLater() has been called on it when closing
                 // all current windows before restoring a configuration) then do nothing
@@ -1501,7 +1545,19 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 }
             }
             break;
+
+        // Second resore phase.
+        // This main window has done it's work. The widgets that have been created will be able to act on the second phase
+        case SaveRestoreSignal::RESTORE_2:
+            break;
     }
+}
+
+// Delete a configuration
+void MainWindow::deleteConfigs( const QStringList names )
+{
+    PersistanceManager* pm = profile.getPersistanceManager();
+    pm->deleteConfigs( app->getParams()->configurationFile, QE_CONFIG_NAME, names );
 }
 
 // Function to close all main windows.
@@ -1623,3 +1679,4 @@ void MainWindow::setGeom()
     // Initiate scrolling of guis within the main window
     QTimer::singleShot(1, this, SLOT(scrollTo()));
 }
+

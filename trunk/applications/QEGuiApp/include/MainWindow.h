@@ -111,6 +111,7 @@ private:
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
 
 private slots:
+    void on_actionManage_Configurations_triggered();
     void on_actionExit_triggered();                             // Slot to perform 'Exit' action
     void on_actionMessage_Log_triggered();                      // Slot to perform 'Open Message Log window' action
     void on_actionUser_Level_triggered();                       // Slot to perform 'Refresh Current Form' action
@@ -144,6 +145,9 @@ private slots:
     void setGeom();                                 // Timer slot to set the window geometry on a restore
     void scrollTo();                                // Timer slot to set the gui scroll positions on a restore
     void on_actionSet_Passwords_triggered();
+
+    void deleteConfigs( const QStringList names );        // Delete configurations
+
 };
 
 #endif // MAINWINDOW_H

@@ -36,7 +36,9 @@ SOURCES += ./src/main.cpp \
     ./src/InstanceManager.cpp \
     ./src/saveRestoreManager.cpp \
     ./src/saveDialog.cpp \
-    ./src/QEGui.cpp
+    ./src/QEGui.cpp \
+    ./src/restoreDialog.cpp \
+    ./src/manageConfigDialog.cpp
 
 # Include the following gdbmacros line for debugging only
 #SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
@@ -46,10 +48,17 @@ HEADERS += include/MainWindow.h \
     include/InstanceManager.h \
     include/saveRestoreManager.h \
     include/saveDialog.h \
-    include/QEGui.h
+    include/QEGui.h \
+    include/restoreDialog.h \
+    include/manageConfigDialog.h
 
 INCLUDEPATH += . \
     ./include \
+    ../../framework/widgets/include \
+    ../../framework/widgets/QEForm \
+    ../../framework/data/include \
+    ../../framework/api/include \
+    ../../framework/common \
     ../../framework/include
 
 # Explicity add ../../framework/common, and hence QEFrameworkVersion.h, to the dependacy path
@@ -63,6 +72,8 @@ FORMS += ./src/MainWindow.ui \
          ./src/StripChart.ui \
          ./src/UserLevel.ui \
          ./src/MessageLog.ui \
-         ./src/saveDialog.ui
+         ./src/saveDialog.ui \
+         ./src/restoreDialog.ui \
+         ./src/manageConfigDialog.ui
 
 RESOURCES += ./src/QEGui.qrc

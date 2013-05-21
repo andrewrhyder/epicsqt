@@ -56,43 +56,51 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
 
     switch( option )
     {
-    case SaveRestoreSignal::SAVE:
-        {
-            // Start with the top level element - the QEGui application
-            PMElement appElement =  pm->addElement( SAVERESTORE_NAME );
-
-            // Note the number of main windows. This will determine how many main windows are expected on restore
-            appElement.addValue( "MainWindows", app->getMainWindowCount() );
-        }
-        break;
-
-
-    case SaveRestoreSignal::RESTORE:
-        {
-            // Get the data for this application
-            PMElement QEGuiData = pm->getMyData( SAVERESTORE_NAME );
-
-            // If none, do nothing
-            if( QEGuiData.isNull() )
+        // Save the application data
+        case SaveRestoreSignal::SAVE:
             {
-                return;
+                // Start with the top level element - the QEGui application
+                PMElement appElement =  pm->addElement( SAVERESTORE_NAME );
+
+                // Note the number of main windows. This will determine how many main windows are expected on restore
+                appElement.addValue( "MainWindows", app->getMainWindowCount() );
             }
+            break;
 
-            // Get the number of expected main windows
-            int numMainWindows = 0;
-            QEGuiData.getValue( "MainWindows", numMainWindows );
-
-            // Create the main windows. They will restore themselves
-            setupProfile( NULL, app->getParams()->pathList, "", app->getParams()->substitutions );
-            for( int i = 0; i < numMainWindows; i++ )
+        // First restore phase.
+        // This application will create the main windows and the GUIs they contain
+        case SaveRestoreSignal::RESTORE_1:
             {
-                MainWindow* mw = new MainWindow( app, "", false );
-                mw->show();
-            }
+                // Get the data for this application
+                PMElement QEGuiData = pm->getMyData( SAVERESTORE_NAME );
 
-            releaseProfile();
-        }
-        break;
+                // If none, do nothing
+                if( QEGuiData.isNull() )
+                {
+                    return;
+                }
+
+                // Get the number of expected main windows
+                int numMainWindows = 0;
+                QEGuiData.getValue( "MainWindows", numMainWindows );
+
+                // Create the main windows. They will restore themselves
+                setupProfile( NULL, app->getParams()->pathList, "", app->getParams()->substitutions );
+                for( int i = 0; i < numMainWindows; i++ )
+                {
+                    MainWindow* mw = new MainWindow( app, "", false );
+                    mw->show();
+                }
+
+                releaseProfile();
+            }
+            break;
+
+        // Second resore phase.
+        // This application has done it's work. The widgets that have been created will be able to act on the second phase
+        case SaveRestoreSignal::RESTORE_2:
+            break;
+
     }
 
 }

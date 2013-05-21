@@ -142,12 +142,14 @@ void instanceManager::newWindow( const startupParams& params )
         // The persistance manager will signal all interested objects (including this application) that
         // they should collect and apply restore data.
         PersistanceManager* persistanceManager = profile.getPersistanceManager();
-        persistanceManager->restore( QString( QE_CONFIG_NAME ).append( ".xml" ), QE_CONFIG_NAME, "Default"  );
+        persistanceManager->restore( params.configurationFile, QE_CONFIG_NAME, params.configurationName  );
     }
 
     // Not restoring, or if restoring didn't create any main windows, open the required guis
     if( app->getMainWindowCount() == 0 )
     {
+        profile.setupProfile( NULL, params.pathList, "", params.substitutions );
+
         // If no files specified, open a single window without a filen name
         if( !params.filenameList.count() )
         {
@@ -164,6 +166,8 @@ void instanceManager::newWindow( const startupParams& params )
                 mw->show();
             }
         }
+
+        profile.releaseProfile();
     }
 
     // Release the profile

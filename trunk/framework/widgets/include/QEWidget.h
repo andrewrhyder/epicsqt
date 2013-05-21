@@ -209,7 +209,9 @@ public:
     /// A QE widget recover any configuration details from the PersistanceManager.
     /// For example, a QEStripChart may restore the variables being plotted.
     /// Many QE widgets do not have any persistant data requirements and do not implement this method.
-    virtual void restoreConfiguration( PersistanceManager* ){}
+    /// This is called twice with an incrementing restorePhase. Most widgets will miss the first call
+    /// as they don't exist yet (they are created as part of the first phase)
+    virtual void restoreConfiguration( PersistanceManager*, int ){}
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.

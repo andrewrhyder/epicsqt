@@ -117,6 +117,84 @@ PMElement PersistanceManager::getMyData( QString name )
         return PMElement( this, QDomElement() );
 }
 
+bool PersistanceManager::openRead( QString fileName, QString rootName )
+{
+    QFile file( fileName );
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    if ( !doc.setContent( &file ) )
+    {
+        file.close();
+        return false;
+    }
+    file.close();
+
+    docElem = doc.documentElement();
+
+    if( docElem.nodeName().compare( rootName ) )
+    {
+        qDebug() << "Expected configuration root element (" << rootName << ") not found in config file (" << fileName << ")";
+        return false;
+    }
+    return true;
+}
+
+QStringList PersistanceManager::getConfigNames( QString fileName, QString rootName )
+{
+    QStringList nameList;
+
+    if( !openRead( fileName, rootName ) )
+    {
+        return nameList;
+    }
+
+    QDomNodeList nodeList = docElem.childNodes();
+    for( int i = 0; i < nodeList.count(); i++ )
+    {
+        QString name = nodeList.at( i ).nodeName();
+        if( name != QString( "Default" ))
+        {
+            nameList.append( name );
+        }
+    }
+    return nameList;
+}
+
+// Delete configurations
+void PersistanceManager::deleteConfigs( QString fileName, QString rootName, QStringList names )
+{
+    // Try to read the configuration file we are saving to
+    // If OK, remove the configuration we are overwriting if present.
+    if( openRead( fileName, rootName ) )
+    {
+        // Remove the configurations
+        for( int i = 0; i < names.count(); i++ )
+        {
+            docElem.removeChild( docElem.namedItem( names[i] ) );
+        }
+
+        // Start with an empty document
+        doc.clear();
+
+        // Add the remaining configs to the document
+        doc.appendChild( docElem );
+    }
+
+    // Recreate the file
+    QFile file( fileName );
+    if ( file.open( QIODevice::WriteOnly ) )
+    {
+        QTextStream ts( &file );
+        ts << doc.toString() ;
+        file.close();
+    }
+    else
+    {
+        qDebug() << "Could not save configuration";
+    }
+}
+
 // Get a node list by name
 QDomNodeList PersistanceManager::getElementList( QDomElement element, QString name )
 {
@@ -276,15 +354,29 @@ QObject* PersistanceManager::getSaveRestoreObject()
 
 // Save the current configuration
 void PersistanceManager::save( const QString fileName, const QString rootName, const QString configName )
-{ 
+{
+    // Start with an empty document
     doc.clear();
 
+    // Try to read the configuration file we are saving to
+    // If OK, remove the configuration we are overwriting if present.
+    if( openRead( fileName, rootName ) )
+    {
+        docElem.removeChild( docElem.namedItem( configName ) );
+    }
 
-    QDomElement root = doc.createElement( rootName );
-    doc.appendChild( root );
+    // Couldn't read the configuration file, create a new document
+    else
+    {
+        docElem = doc.createElement( rootName );
+    }
 
+    // Add the root to the document
+    doc.appendChild( docElem );
+
+    // Add the configuration name
     config = doc.createElement( configName );
-    root.appendChild( config );
+    docElem.appendChild( config );
 
     // Notify any interested objects to contribute their persistant data
     signal.save();
@@ -305,22 +397,8 @@ void PersistanceManager::save( const QString fileName, const QString rootName, c
 // Restore a configuration
 void PersistanceManager::restore( const QString fileName, const QString rootName, const QString configName  )
 {
-    QFile file( fileName );
-    if (!file.open(QIODevice::ReadOnly))
-             return;
-
-    if ( !doc.setContent( &file ) )
+    if( !openRead( fileName, rootName ) )
     {
-        file.close();
-        return;
-    }
-    file.close();
-
-    QDomElement docElem = doc.documentElement();
-
-    if( docElem.nodeName().compare( rootName ) )
-    {
-        qDebug() << "Expected configuration root element (" << rootName << ") not found in config file (" << fileName << ")";
         return;
     }
 
@@ -345,7 +423,8 @@ void SaveRestoreSignal::restore()
 {
     // Ask  all interested components to collect their persistant data
     //!!! signal must be blocking
-    emit saveRestore( RESTORE );
+    emit saveRestore( RESTORE_1 );
+    emit saveRestore( RESTORE_2 );
 }
 
 //=================================================================================================
