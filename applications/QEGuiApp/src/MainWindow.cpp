@@ -35,7 +35,6 @@
 #include <QVariant>
 #include <saveDialog.h>
 #include <restoreDialog.h>
-#include <manageConfigDialog.h>
 #include <PasswordDialog.h>
 #include <QEGui.h>
 
@@ -1240,24 +1239,6 @@ void MainWindow::removeAllGuisFromWindowsMenu()
 // The user has requested a save of the current configuration
 void MainWindow::on_actionSave_Configuration_triggered()
 {
-    // Saving a configuration will overwrite previous configuration, check with the user this is OK
-    QMessageBox msgBox;
-    msgBox.setText( "A previous configuration may be overwritten. Do you want to continue?" );
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-    msgBox.setDefaultButton(QMessageBox::Cancel);
-    switch ( msgBox.exec() )
-    {
-       case QMessageBox::Yes:
-            // Yes, continue
-            break;
-
-        case QMessageBox::No:
-        case QMessageBox::Cancel:
-        default:
-            // No, do nothing
-            return;
-     }
-
     PersistanceManager* pm = profile.getPersistanceManager();
     startupParams* params = app->getParams();
 
@@ -1287,33 +1268,6 @@ void MainWindow::on_actionSave_Configuration_triggered()
 // The user has requested a restore of a saved configuration
 void MainWindow::on_actionRestore_Configuration_triggered()
 {
-    /*
-            QMessageBox::warning( this,"QEGui",
-                                  "Under Construction.\n"
-                                  "'Restore'' is not implemented yet",
-                                  QMessageBox::Cancel );
-
-            return;
-    */
-
-    // Restoring a configuration will close all current windows, check with the user this is OK
-    QMessageBox msgBox;
-    msgBox.setText( "All existing windows will be closed prior to restoring a configuration. Do you want to continue?" );
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-    msgBox.setDefaultButton(QMessageBox::Cancel);
-    switch ( msgBox.exec() )
-    {
-       case QMessageBox::Yes:
-            // Yes, continue
-            break;
-
-        case QMessageBox::No:
-        case QMessageBox::Cancel:
-        default:
-            // No, do nothing
-            return;
-     }
-
     PersistanceManager* pm = profile.getPersistanceManager();
     startupParams* params = app->getParams();
 
@@ -1352,7 +1306,7 @@ void MainWindow::on_actionManage_Configurations_triggered()
 
     // Present the dialog
     manageConfigDialog mcd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
-    QObject::connect( &mcd, SIGNAL( deleteConfigs ( const QStringList ) ), this, SLOT( deleteConfigs( const QStringList ) ) );
+    QObject::connect( &mcd, SIGNAL( deleteConfigs ( manageConfigDialog*, const QStringList ) ), this, SLOT( deleteConfigs(  manageConfigDialog*, const QStringList ) ) );
     mcd.exec();
 }
 
@@ -1554,10 +1508,13 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 }
 
 // Delete a configuration
-void MainWindow::deleteConfigs( const QStringList names )
+void MainWindow::deleteConfigs( manageConfigDialog* mcd, const QStringList names )
 {
     PersistanceManager* pm = profile.getPersistanceManager();
-    pm->deleteConfigs( app->getParams()->configurationFile, QE_CONFIG_NAME, names );
+    startupParams* params = app->getParams();
+
+    pm->deleteConfigs( params->configurationFile, QE_CONFIG_NAME, names );
+    mcd->setCurrentNames( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
 }
 
 // Function to close all main windows.

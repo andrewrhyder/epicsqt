@@ -98,6 +98,7 @@
 #include <QFile>
 #include <QByteArray>
 #include <QBuffer>
+#include <QMessageBox>
 
 // Construction
 PersistanceManager::PersistanceManager()
@@ -164,6 +165,24 @@ QStringList PersistanceManager::getConfigNames( QString fileName, QString rootNa
 // Delete configurations
 void PersistanceManager::deleteConfigs( QString fileName, QString rootName, QStringList names )
 {
+    // Deleting configurations, check with the user this is OK
+    QMessageBox msgBox;
+    msgBox.setText( QString( "%1 configuration%2 will be deleted. Do you want to continue?" ).arg( names.count() ).arg( names.count()>1?QString("s"):QString("") ));
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    switch ( msgBox.exec() )
+    {
+       case QMessageBox::Yes:
+            // Yes, continue
+            break;
+
+        case QMessageBox::No:
+        case QMessageBox::Cancel:
+        default:
+            // No, do nothing
+            return;
+     }
+
     // Try to read the configuration file we are saving to
     // If OK, remove the configuration we are overwriting if present.
     if( openRead( fileName, rootName ) )
@@ -174,11 +193,10 @@ void PersistanceManager::deleteConfigs( QString fileName, QString rootName, QStr
             docElem.removeChild( docElem.namedItem( names[i] ) );
         }
 
-        // Start with an empty document
-        doc.clear();
-
-        // Add the remaining configs to the document
-        doc.appendChild( docElem );
+        for( int i = 0; i < names.count(); i++ )
+        {
+            QDomNode node = docElem.removeChild( docElem.namedItem( names[i] ) );
+        }
     }
 
     // Recreate the file
@@ -355,19 +373,40 @@ QObject* PersistanceManager::getSaveRestoreObject()
 // Save the current configuration
 void PersistanceManager::save( const QString fileName, const QString rootName, const QString configName )
 {
-    // Start with an empty document
-    doc.clear();
-
     // Try to read the configuration file we are saving to
     // If OK, remove the configuration we are overwriting if present.
     if( openRead( fileName, rootName ) )
     {
-        docElem.removeChild( docElem.namedItem( configName ) );
+        QDomNode oldConfig = docElem.namedItem( configName );
+        if( !oldConfig.isNull() )
+        {
+            // Saving will overwrite previous configuration, check with the user this is OK
+            QMessageBox msgBox;
+            msgBox.setText( "A previous configuration will be overwritten. Do you want to continue?" );
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Cancel);
+            switch ( msgBox.exec() )
+            {
+               case QMessageBox::Yes:
+                    // Yes, continue
+                    break;
+
+                case QMessageBox::No:
+                case QMessageBox::Cancel:
+                default:
+                    // No, do nothing
+                    return;
+             }
+
+            // Remove the old configuration
+            docElem.removeChild( oldConfig );
+        }
     }
 
     // Couldn't read the configuration file, create a new document
     else
     {
+        doc.clear();
         docElem = doc.createElement( rootName );
     }
 

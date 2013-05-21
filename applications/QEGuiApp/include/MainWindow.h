@@ -34,6 +34,8 @@
 #include <QProcess>
 #include <QTimer>
 #include <StartupParams.h>
+#include <manageConfigDialog.h>
+
 
 // Save / Restore configuration name
 #define QE_CONFIG_NAME "QEGuiConfig"
@@ -146,7 +148,7 @@ private slots:
     void scrollTo();                                // Timer slot to set the gui scroll positions on a restore
     void on_actionSet_Passwords_triggered();
 
-    void deleteConfigs( const QStringList names );        // Delete configurations
+    void deleteConfigs( manageConfigDialog* mcd, const QStringList names );        // Delete configurations
 
 };
 
