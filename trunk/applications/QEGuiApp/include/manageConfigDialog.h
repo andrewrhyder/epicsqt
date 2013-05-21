@@ -14,12 +14,15 @@ class manageConfigDialog : public QDialog
 public:
     explicit manageConfigDialog( QStringList names, QWidget *parent = 0 );
     ~manageConfigDialog();
+    void setCurrentNames( QStringList currentNamesIn );
+
 
 private:
     Ui::manageConfigDialog *ui;
+    QStringList currentNames;
 
 signals:
-    void deleteConfigs( const QStringList names );
+    void deleteConfigs( manageConfigDialog* mcd, const QStringList names );
 
 private slots:
     void on_deletePushButton_clicked();
