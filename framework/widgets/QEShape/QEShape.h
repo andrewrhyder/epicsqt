@@ -1,4 +1,5 @@
-/*
+/*  QEShape.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -62,6 +63,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     ///
     enum animationOptions {Width, Height, X, Y, Transperency, Rotation, ColourHue, ColourSaturation, ColourValue, ColourIndex, Penwidth};
 
+    /// Scale the widgets my m/d.
+    void scaleBy (const int m, const int d);
 
     // Property convenience functions
 
