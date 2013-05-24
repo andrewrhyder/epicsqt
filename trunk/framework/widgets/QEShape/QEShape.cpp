@@ -1,4 +1,5 @@
-/*
+/*  QEShape.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -27,6 +28,7 @@
   It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
+#include <QECommon.h>
 #include <QEShape.h>
 #include <QCaDateTime.h>
 #include <QtGui>
@@ -134,6 +136,34 @@ void QEShape::setup() {
         variableNamePropertyManagers[i].setVariableIndex( i );
         QObject::connect( &variableNamePropertyManagers[i], SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int ) ) );
     }
+}
+
+/*
+   Scaling drawing parameters.
+   Note overall widget size, min size, max size (and font) have already been scaled.
+ */
+void QEShape::scaleBy (const int m, const int d)
+{
+    double ratio;
+    int i;
+
+    // Sainity check - must avoid zero scaling and divide by zero.
+    //
+    if( ( m < 1 ) || ( d < 1 ) ) return;
+
+    ratio = (double) m / (double) d;
+
+    for( i = 0; i < SCALES_SIZE; i++ )
+        scales[i] *= ratio;
+
+    for( i = 0; i < OFFSETS_SIZE; i++ )
+        offsets[i] *= ratio;
+
+    QEUtilities::adjustPointScale( scaledOriginTranslation, m, d );
+    QEUtilities::adjustPointScale( originTranslation, m, d );
+
+    for( i = 0; i < POINTS_SIZE; i++ )
+        QEUtilities::adjustPointScale( points[i], m, d );
 }
 
 /*

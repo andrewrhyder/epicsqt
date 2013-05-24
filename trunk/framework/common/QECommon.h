@@ -29,6 +29,7 @@
 
 #include <QColor>
 #include <QDateTime>
+#include <QPoint>
 #include <QString>
 #include <QWidget>
 
@@ -86,10 +87,16 @@ public:
     /// The function tree walks the hiearchy of widgets paranted by the specified widget.
     /// The maxDepth can be used to limit any possibility of infinite recursion.
     ///
-    static void adjustWidgetScale (QWidget * widget, const int m, const int d, const int maxDepth = 40);
+    static void adjustWidgetScale (QWidget* widget, const int m, const int d, const int maxDepth = 40);
+
+    /// Conveniance function for widget specific 'scaleBy' functions.
+    ///
+    static void adjustPointScale (QPoint& point, const int m, const int d);
 
 private:
     /// Scales a single widget
+    /// Applies some special processing above and beyond size, min size, max size and font
+    /// depending on the type of widget.
     ///
     static void widgetScaleBy (QWidget * widget, const int m, const int d);
 

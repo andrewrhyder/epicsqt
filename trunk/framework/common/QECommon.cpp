@@ -24,10 +24,14 @@
  *
  */
 
-#include <QSize>
+#include <QDebug>
+#include <QLabel>
 #include <QHeaderView>
+#include <QSize>
 #include <QTableWidget>
+
 #include <QEResizeableFrame.h>
+#include <QEShape.h>
 
 #include "QECommon.h"
 
@@ -181,8 +185,10 @@ int QEUtilities::scaleBy (const int v, const int m, const int d)
 
 void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
 {
-   QEResizeableFrame *resizeableFrame;
-   QTableWidget *tableWidget;
+   QLabel* label;
+   QEShape* shape;
+   QEResizeableFrame* resizeableFrame;
+   QTableWidget* tableWidget;
 
    // sainity check.
    //
@@ -248,6 +254,16 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
 
    // Specials.
    //
+   label = dynamic_cast <QLabel*>(widget);
+   if (label) {
+      int indent = label->indent ();
+
+      if (indent > 0) {
+         indent = QEUtilities::scaleBy (indent, m, d);
+         label->setIndent (indent);
+      }
+   }
+
    resizeableFrame = dynamic_cast <QEResizeableFrame*>(widget);
    if (resizeableFrame) {
       int allowedMin = resizeableFrame->getAllowedMinimum ();
@@ -270,6 +286,14 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
       }
    }
 
+   shape = dynamic_cast <QEShape *>(widget);
+   if (shape) {
+      // QEShape is a geometrically complicated widget that has a bespoke
+      // scaling function.
+      //
+      shape->scaleBy (m, d);
+   }
+
    tableWidget =  dynamic_cast <QTableWidget *>(widget);
    if (tableWidget) {
       int defaultSectionSize;
@@ -282,6 +306,7 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
       defaultSectionSize   = QEUtilities::scaleBy (defaultSectionSize, m, d);
       tableWidget->verticalHeader ()->setDefaultSectionSize (defaultSectionSize);
    }
+
 }
 
 //------------------------------------------------------------------------------
@@ -316,6 +341,18 @@ void QEUtilities::adjustWidgetScale (QWidget * widget, const int m, const int d,
          QEUtilities::adjustWidgetScale  (childWidget, m, d, maxDepth - 1);
       }
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEUtilities::adjustPointScale (QPoint& point, const int m, const int d)
+{
+   int x = point.x ();
+   int y = point.y ();
+
+   x = QEUtilities::scaleBy (x, m, d);
+   y = QEUtilities::scaleBy (y, m, d);
+   point = QPoint (x, y);
 }
 
 // end
