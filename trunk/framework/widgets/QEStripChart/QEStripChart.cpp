@@ -71,7 +71,7 @@ static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
 // Chart time mode options.
 //
-enum ChartTimeMode {
+enum ChartTimeModes {
    tmRealTime,
    tmPaused,
    tmHistorical
@@ -84,28 +84,105 @@ enum ChartTimeMode {
 
 #define MAXIMUM_CHART_STATES   40
 
-// Hold the copy of the chart configurations
-//
-struct ChartState {
-   bool isNormalVideo;
-   QEStripChartNames::YScaleModes  yScaleMode;
-   QEStripChartNames::ChartYRanges chartYScale;
-   double yMinimum;
-   double yMaximum;
-   ChartTimeMode chartTimeMode;
-   int duration;
-   Qt::TimeSpec timeZoneSpec;
-   QDateTime endDateTime;
-};
-
 
 //==============================================================================
 // Local support classes.
 //==============================================================================
 //
-class QEChartStateLists : public QList<ChartState> {
+// Hold the copy of the chart configurations
+//
+class ChartState {
+public:
+   ChartState ();
+   void saveConfiguration (PMElement & parentElement);
+   void restoreConfiguration (PMElement & parentElement);
+
+   bool isNormalVideo;
+   QEStripChartNames::YScaleModes  yScaleMode;
+   QEStripChartNames::ChartYRanges chartYScale;
+   double yMinimum;
+   double yMaximum;
+   ChartTimeModes chartTimeMode;
+   int duration;
+   Qt::TimeSpec timeZoneSpec;
+   QDateTime endDateTime;
 };
 
+//------------------------------------------------------------------------------
+//
+ChartState::ChartState () {
+   this->isNormalVideo = true;
+}
+
+//------------------------------------------------------------------------------
+//
+void ChartState::saveConfiguration (PMElement & parentElement)
+{
+   PMElement stateElement = parentElement.addElement ("ChartState");
+
+   stateElement.addValue ("IsNormalVideo", this->isNormalVideo);
+   stateElement.addValue ("YScaleMode", this->yScaleMode);
+   stateElement.addValue ("ChartYScale", this->chartYScale);
+   stateElement.addValue ("YMinimum", this->yMinimum);
+   stateElement.addValue ("YMaximum", this->yMaximum);
+   stateElement.addValue ("ChartTimeMode", this->chartTimeMode);
+   stateElement.addValue ("Duration", this->duration);
+   stateElement.addValue ("TimeZoneSpec", this->timeZoneSpec);
+   stateElement.addValue ("EndDateTime", (double) this->endDateTime.toTime_t ());
+}
+
+//------------------------------------------------------------------------------
+//
+void ChartState::restoreConfiguration (PMElement & parentElement)
+{
+   PMElement stateElement = parentElement.getElement ("ChartState");
+   bool status;
+   int intVal;
+   double doubleVal;
+
+   if (stateElement.isNull ()) return;
+
+   status = stateElement.getValue ("IsNormalVideo", intVal);
+   if (status) {
+      this->isNormalVideo = (intVal == 1);
+   }
+
+   status = stateElement.getValue ("YScaleMode", intVal);
+   if (status) {
+      this->yScaleMode = (QEStripChartNames::YScaleModes) intVal;
+   }
+
+   status = stateElement.getValue ("ChartYScale", intVal);
+   if (status) {
+      this->chartYScale = (QEStripChartNames::ChartYRanges) intVal;
+   }
+
+   status = stateElement.getValue ("YMinimum", this->yMinimum);
+
+   status = stateElement.getValue ("YMaximum", this->yMaximum);
+
+   status = stateElement.getValue ("ChartTimeMode", intVal);
+   if (status) {
+      this->chartTimeMode = (ChartTimeModes) intVal;
+   }
+
+   status = stateElement.getValue ("Duration", this->duration);
+
+   status = stateElement.getValue ("TimeZoneSpec", intVal);
+   if (status) {
+      this->timeZoneSpec = (Qt::TimeSpec) intVal;
+   }
+
+   status = stateElement.getValue ("EndDateTime", doubleVal);
+   if (status) {
+      this->endDateTime.setTime_t ((uint) doubleVal);
+   }
+}
+
+//==============================================================================
+//
+class QEChartStateLists : public QList<ChartState> {
+};
 
 //==============================================================================
 //
@@ -115,8 +192,8 @@ public:
    virtual ~QEPVNameLists ();
 
    void prependOrMoveToFirst (const QString & item);
-
-   // add save/restore functions
+   void saveConfiguration (PMElement & parentElement);
+   void restoreConfiguration (PMElement & parentElement);
 private:
    QMutex *mutex;
 };
@@ -157,6 +234,57 @@ void QEPVNameLists::prependOrMoveToFirst (const QString & item)
    }
 }
 
+//------------------------------------------------------------------------------
+//
+void QEPVNameLists::saveConfiguration (PMElement & parentElement)
+{
+   PMElement predefinedElement = parentElement.addElement ("Predefined");
+   int number;
+   int j;
+   QString name;
+
+   number = this->count ();
+   predefinedElement.addAttribute ("Number", number);
+   for (j = 0; j < number; j++) {
+      name.sprintf ("PV%d", j);
+      PMElement pvElement = predefinedElement.addElement (name);
+      pvElement.addValue ("PVName", this->value (j));
+   }
+
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPVNameLists::restoreConfiguration (PMElement & parentElement)
+{
+   PMElement predefinedElement = parentElement.getElement ("Predefined");
+   int number;
+   int j;
+   QString name;
+   QString pvName;
+   bool status;
+
+   if (predefinedElement.isNull ()) return;
+
+   status = predefinedElement.getAttribute ("Number", number);
+   if (status) {
+      this->clear ();
+
+      // Read in reverse order (as use insert into list with prependOrMoveToFirst).
+      //
+      for (j = number - 1; j >= 0; j--) {
+         name.sprintf ("PV%d", j);
+         PMElement pvElement = predefinedElement.getElement (name);
+
+         status = pvElement.getValue ("PVName", pvName);
+         if (status) {
+            this->prependOrMoveToFirst (pvName);
+         }
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
 // This is a static list shared amongst all instances of the strip chart widget.
 //
 static QEPVNameLists predefinedPVNameList;
@@ -190,9 +318,12 @@ public:
    void prevState ();
    void nextState ();
 
+   void captureState (ChartState& chartState);
+   void applyState (const ChartState& chartState);
+
    QEStripChartNames::ChartYRanges chartYScale;
    QEStripChartNames::YScaleModes yScaleMode;
-   enum ChartTimeMode chartTimeMode;
+   enum ChartTimeModes chartTimeMode;
    double timeScale;             // 1 => units are seconds, 60 => x units are minutes, etc.
    QString timeUnits;
 
@@ -223,7 +354,6 @@ private:
 
    QEChartStateLists chartStateList;
    int chartStatePointer;
-   void applyState (const ChartState & chartState);
 
    bool isNormalVideo;
    QwtPlotGrid *grid;
@@ -979,6 +1109,23 @@ bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
 
 //------------------------------------------------------------------------------
 //
+void QEStripChart::PrivateData::captureState (ChartState& chartState)
+{
+   // Capture current state.
+   //
+   chartState.isNormalVideo = this->isNormalVideo;
+   chartState.yScaleMode = this->yScaleMode;
+   chartState.chartYScale = this->chartYScale;
+   chartState.yMinimum = this->chart->getYMinimum ();
+   chartState.yMaximum = this->chart->getYMaximum ();
+   chartState.chartTimeMode = this->chartTimeMode;
+   chartState.duration = this->chart->getDuration ();
+   chartState.timeZoneSpec = this->chart->timeZoneSpec;
+   chartState.endDateTime = this->chart->getEndDateTime ();
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChart::PrivateData::applyState (const ChartState & chartState)
 {
     this->setNormalBackground (chartState.isNormalVideo);
@@ -1000,15 +1147,7 @@ void QEStripChart::PrivateData::pushState ()
 
    // Capture current state.
    //
-   chartState.isNormalVideo = this->isNormalVideo;
-   chartState.yScaleMode = this->yScaleMode;
-   chartState.chartYScale = this->chartYScale;
-   chartState.yMinimum = this->chart->getYMinimum ();
-   chartState.yMaximum = this->chart->getYMaximum ();
-   chartState.chartTimeMode = this->chartTimeMode;
-   chartState.duration = this->chart->getDuration ();
-   chartState.timeZoneSpec = this->chart->timeZoneSpec;
-   chartState.endDateTime = this->chart->getEndDateTime ();
+   this->captureState (chartState);
 
    // New state - all potential next states are lost.
    //
@@ -1702,19 +1841,78 @@ void QEStripChart::establishConnection (unsigned int variableIndex)
    DEBUG << "unexpected call, variableIndex = " << variableIndex;
 }
 
-
 //------------------------------------------------------------------------------
 //
-void QEStripChart::saveConfiguration (PersistanceManager*)
+void QEStripChart::saveConfiguration (PersistanceManager* pm)
 {
-   // place holder: qDebug () << "\nQEStripChart " << __FUNCTION__ << long (pm) << "\n";
+   const QString formName = this->persistantName ("QEStripChart");
+
+   qDebug () << "\nQEStripChart " << __FUNCTION__ << formName << "\n";
+
+   // Do common stuff first.
+   // How can we avoid doing this mutiple times??
+   //
+   PMElement commonElement = pm->addElement ("QEStripChart_Common");
+   predefinedPVNameList.saveConfiguration (commonElement);
+
+   // Now do form instance specific stuff.
+   //
+   PMElement formElement = pm->addElement (formName);
+
+   // Capture current state.
+   //
+   ChartState chartState;
+   this->privateData->captureState (chartState);
+   chartState.saveConfiguration (formElement);
+
+   // Save each active PV.
+   //
+   PMElement pvListElement = formElement.addElement ("PV_List");
+   unsigned int slot;
+
+   for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
+      QEStripChartItem * item = this->privateData->getItem (slot);
+      if (item) {
+         item->saveConfiguration (pvListElement);
+      }
+   }
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::restoreConfiguration (PersistanceManager*, int)
+void QEStripChart::restoreConfiguration (PersistanceManager * pm, int restorePhase)
 {
-   // place holder: qDebug () << "\nQEStripChart " << __FUNCTION__ << long (pm) << "\n";
+   const QString formName = this->persistantName ("QEStripChart");
+
+   qDebug () << "\nQEStripChart " << __FUNCTION__ << formName << restorePhase << "\n";
+
+   // Do common stuff first.
+   // How can we avoid doing this mutiple times??
+   //
+   PMElement commonElement = pm->getMyData ("QEStripChart_Common");
+   predefinedPVNameList.restoreConfiguration (commonElement);
+
+   // Now do form instance specific stuff.
+   //
+   PMElement formElement = pm->getMyData (formName);
+
+   // Restore chart state.
+   //
+   ChartState chartState;
+   chartState.restoreConfiguration (formElement);
+   this->privateData->applyState (chartState);
+
+   // Restore each PV.
+   //
+   PMElement pvListElement = formElement.getElement ("PV_List");
+   unsigned int slot;
+
+   for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
+      QEStripChartItem * item = this->privateData->getItem (slot);
+      if (item) {
+         item->restoreConfiguration (pvListElement);
+      }
+   }
 }
 
 // end
