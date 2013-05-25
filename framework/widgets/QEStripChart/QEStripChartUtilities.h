@@ -29,6 +29,7 @@
 #define QSTRIPCHARTUTILITIES_H
 
 #include <QDateTime>
+#include <persistanceManager.h>
 
 //==============================================================================
 // Utility classes
@@ -80,7 +81,8 @@ public:
    }
    TrackRange value (const TrackRange & x);
 
-   // overloaded function
+   void saveConfiguration (PMElement & parentElement);
+   void restoreConfiguration (PMElement & parentElement);
 
 private:
    double d;   // origin

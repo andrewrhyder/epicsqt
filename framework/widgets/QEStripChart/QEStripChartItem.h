@@ -42,6 +42,7 @@
 #include <QCaObject.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QEArchiveManager.h>
+#include <persistanceManager.h>
 
 #include "QEStripChart.h"
 #include "QEStripChartNames.h"
@@ -112,6 +113,9 @@ public:
                   const QEStripChartNames::YScaleModes yScaleMode);   // y scale modifier
 
    void contextMenuSelected (const QEStripChartContextMenu::Options option);
+
+   void saveConfiguration (PMElement & parentElement);
+   void restoreConfiguration (PMElement & parentElement);
 
    QCaVariableNamePropertyManager pvNameProperyManager;
 

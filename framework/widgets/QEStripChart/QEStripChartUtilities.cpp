@@ -172,7 +172,7 @@ void ValueScaling::map (const double fromLower, const double fromUpper,
 //
 bool ValueScaling::isScaled ()
 {
-   return ((d != 0.0) || (m != 1.0) || (c != 0.0));
+   return ((this->d != 0.0) || (this->m != 1.0) || (this->c != 0.0));
 }
 
 //------------------------------------------------------------------------------
@@ -192,6 +192,37 @@ TrackRange ValueScaling::value (const TrackRange & x)
       result.merge (this->value (max));
    }
    return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void ValueScaling::saveConfiguration (PMElement & parentElement)
+{
+   if (this->isScaled()) {
+      PMElement scalingElement = parentElement.addElement ("Scaling");
+
+      scalingElement.addAttribute ("Origin", this->d);
+      scalingElement.addAttribute ("Slope",  this->m);
+      scalingElement.addAttribute ("Offset", this->c);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void ValueScaling::restoreConfiguration (PMElement & parentElement)
+{
+   double ad, am, ac;
+   bool status;
+
+   PMElement scalingElement = parentElement.getElement ("Scaling");
+
+   status = scalingElement.getAttribute ("Origin", ad) &&
+            scalingElement.getAttribute ("Slope",  am) &&
+            scalingElement.getAttribute ("Offset", ac);
+
+   if (status) {
+      this->set (ad, am, ac);
+   }
 }
 
 // end

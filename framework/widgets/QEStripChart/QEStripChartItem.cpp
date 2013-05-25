@@ -947,4 +947,48 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
    }
 }
 
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::saveConfiguration (PMElement & parentElement)
+{
+   QString name;
+
+   // Any config data to save?
+   //
+   if (this->isInUse ()) {
+      name.sprintf ("PV%d", this->slot);
+      PMElement pvElement = parentElement.addElement (name);
+
+      // Note: we save the actual, i.e. substituted, PV name.
+      //
+      pvElement.addValue ("PVName", this->getPvName ());
+
+      // Save any scaling.
+      //
+      this->scaling.saveConfiguration (pvElement);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::restoreConfiguration (PMElement & parentElement)
+{
+   QString name;
+   QString pvName;
+   bool status;
+
+   name.sprintf ("PV%d", this->slot);
+   PMElement pvElement = parentElement.getElement (name);
+
+   if (pvElement.isNull ()) return;
+
+   // Attempt to extract a PV name
+   //
+   status = pvElement.getValue ("PVName", pvName);
+   if (status) {
+      this->setPvName (pvName, "");
+      this->scaling.restoreConfiguration (pvElement);
+   }
+}
+
 // end

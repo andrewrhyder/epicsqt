@@ -43,6 +43,7 @@
 #include <QCaConnectionInfo.h>
 #include <QEDragDrop.h>
 #include <QEWidget.h>
+#include <persistanceManager.h>
 
 #include "QEStripChartNames.h"
 #include "QEStripChartContextMenu.h"
