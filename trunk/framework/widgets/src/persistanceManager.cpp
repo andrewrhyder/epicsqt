@@ -1,4 +1,5 @@
-/*
+/*  persistanceManager.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -249,14 +250,31 @@ QDomElement PersistanceManager::getElement( QDomElement element, QString name, i
 bool PersistanceManager::getElementValue( QDomElement element, QString name, int& val )
 {
     QString strVal;
+    bool okay;
+
     if( !getElementValue( element, name, strVal ) )
     {
         return false;
     }
 
-    val = strVal.toInt();
-    return true;
+    val = strVal.toInt( &okay );
+    return okay;
 }
+
+bool PersistanceManager::getElementValue( QDomElement element, QString name, double& val )
+{
+    QString strVal;
+    bool okay;
+
+    if( !getElementValue( element, name, strVal ) )
+    {
+        return false;
+    }
+
+    val = strVal.toDouble( &okay );
+    return okay;
+}
+
 
 bool PersistanceManager::getElementValue( QDomElement element, QString name, QString& val )
 {
@@ -281,6 +299,8 @@ bool PersistanceManager::getElementValue( QDomElement element, QString name, QSt
 
 bool PersistanceManager::getElementAttribute( QDomElement element, QString name, int& val )
 {
+    bool okay;
+
     if( element.isNull() || !element.isElement() )
     {
         val = 0;
@@ -294,8 +314,29 @@ bool PersistanceManager::getElementAttribute( QDomElement element, QString name,
         return false;
     }
 
-    val = node.nodeValue().toInt();
-    return true;
+    val = node.nodeValue().toInt( &okay );
+    return okay;
+}
+
+bool PersistanceManager::getElementAttribute( QDomElement element, QString name, double& val )
+{
+    bool okay;
+
+    if( element.isNull() || !element.isElement() )
+    {
+        val = 0;
+        return false;
+    }
+
+    QDomNode node = element.attributes().namedItem( name );
+    if( node.isNull() )
+    {
+        val = 0;
+        return false;
+    }
+
+    val = node.nodeValue().toDouble( &okay );
+    return okay;
 }
 
 bool PersistanceManager::getElementAttribute( QDomElement element, QString name, QString& val )
@@ -333,6 +374,12 @@ void PersistanceManager::addValue( QString name, QString value )
     element.appendChild( text );
 }
 
+QDomElement PersistanceManager::addDomElement( QString name )
+{
+   QDomElement element = doc.createElement( name );
+   return element;
+}
+
 PMElement PersistanceManager::addElement( QDomElement parent, QString name )
 {
     QDomElement element = doc.createElement( name );
@@ -345,6 +392,13 @@ void PersistanceManager::addValue( QDomElement parent, QString name, int value )
     addValue( parent, name, QString( value ) );
 }
 
+void PersistanceManager::addValue( QDomElement parent, QString name, double value )
+{
+    // Default precision is designed for school-boy sums, not professional
+    // engineering, hence need full double precision required.
+    addValue( parent, name, QString( "%1" ).arg( value, 0, 'g', 16 ) );
+}
+
 void PersistanceManager::addValue( QDomElement parent, QString name, QString value )
 {
     QDomElement element = doc.createElement( name );
@@ -354,6 +408,11 @@ void PersistanceManager::addValue( QDomElement parent, QString name, QString val
 }
 
 void PersistanceManager::addAttribute( QDomElement element, QString name, int value )
+{
+    element.setAttribute( name, value );
+}
+
+void PersistanceManager::addAttribute( QDomElement element, QString name, double value )
 {
     element.setAttribute( name, value );
 }
@@ -484,6 +543,11 @@ void PMElement::addValue( QString name, int value )
     return owner->addValue( *this, name, QString( "%1" ).arg( value ) );
 }
 
+void PMElement::addValue( QString name, double value )
+{
+    return owner->addValue( *this, name, QString( "%1" ).arg( value, 0, 'g', 16 ) );
+}
+
 void PMElement::addValue( QString name, QString value )
 {
     return owner->addValue( *this, name, value );
@@ -493,6 +557,12 @@ void PMElement::addAttribute( QString name, int value )
 {
     owner->addAttribute( *this, name, value );
 }
+
+void PMElement::addAttribute( QString name, double value )
+{
+    owner->addAttribute( *this, name, value );
+}
+
 void PMElement::addAttribute( QString name, QString value )
 {
     owner->addAttribute( *this, name, value );
@@ -500,7 +570,11 @@ void PMElement::addAttribute( QString name, QString value )
 
 bool PMElement::getValue( QString name, int& val )
 {
+    return owner->getElementValue( *this, name, val );
+}
 
+bool PMElement::getValue( QString name, double& val )
+{
     return owner->getElementValue( *this, name, val );
 }
 
@@ -510,6 +584,11 @@ bool PMElement::getValue( QString name, QString& val )
 }
 
 bool PMElement::getAttribute( QString name, int& val )
+{
+    return owner->getElementAttribute( *this, name, val );
+}
+
+bool PMElement::getAttribute( QString name, double& val )
 {
     return owner->getElementAttribute( *this, name, val );
 }
@@ -545,3 +624,4 @@ PMElement PMElementList::getElement( int i )
     return PMElement( owner, this->at( i ).toElement() );
 }
 
+// end
