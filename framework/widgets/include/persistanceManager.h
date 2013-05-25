@@ -1,4 +1,5 @@
-/*
+/*  persistanceManager.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -121,9 +122,13 @@ class QEPLUGINLIBRARYSHARED_EXPORT PMElement : private QDomElement
 public:
     PMElement( PersistanceManager* ownerIn, QDomElement elementIn );
     PMElement addElement( QString name );                   // Add an element
+
     void addValue( QString name, int value );               // Add an integer value
+    void addValue( QString name, double value );            // Add an double value
     void addValue( QString name, QString value );           // Add a string value
+
     void addAttribute( QString name, int value );           // Add an integer attribute
+    void addAttribute( QString name, double value );        // Add an double attribute
     void addAttribute( QString name, QString value );       // Add a string attribute
 
     PMElement getElement( QString name );                   // Get a named element
@@ -132,8 +137,11 @@ public:
     PMElementList getElementList( QString name );           // Get a named element list
 
     bool getValue( QString name, int& val );            // Get an integer value
+    bool getValue( QString name, double& val );         // Get an double value
     bool getValue( QString name, QString& val );        // Get a string value
+
     bool getAttribute( QString name, int& val );        // Get a named integer attribute from an element
+    bool getAttribute( QString name, double& val );     // Get a named double attribute from an element
     bool getAttribute( QString name, QString& val );    // Get a named string attribute from an element
 
     bool isNull(){ return QDomElement::isNull(); }          // Indicate if an element is empty
@@ -156,6 +164,7 @@ public:
 
     PMElement addElement( QString name );
     void addValue( QString name, QString value );
+
     QDomElement addDomElement( QString name );
 
     QObject* getSaveRestoreObject();          // Get a reference to the object that will supply save and restore signals
@@ -171,7 +180,10 @@ private:
     PMElement addElement( QDomElement parent, QString name );
     void addValue( QDomElement parent, QString name, QString value );
     void addValue( QDomElement parent, QString name, int value );
+    void addValue( QDomElement parent, QString name, double value );
+
     void addAttribute( QDomElement element, QString name, int value );
+    void addAttribute( QDomElement element, QString name, double value );
     void addAttribute( QDomElement element, QString name, QString value );
 
     QDomElement getElement( QDomElement element, QString name );
@@ -181,21 +193,24 @@ private:
     QDomNodeList getElementList( QDomElement element, QString name );
 
     bool getElementValue( QDomElement element, QString name, int& val );
+    bool getElementValue( QDomElement element, QString name, double& val );
     bool getElementValue( QDomElement element, QString name, QString& val );
+
     bool getElementAttribute( QDomElement element, QString name, int& val );
+    bool getElementAttribute( QDomElement element, QString name, double& val );
     bool getElementAttribute( QDomElement element, QString name, QString& val );
 
 
 
     SaveRestoreSignal signal;           // Save/Restore signal object. One instance to signal all QE Widgets and applications
 
-//    QDomNodeList itemList;              // List of saved items. Each object saving data will have an item with 'name' and 'data' element
+//  QDomNodeList itemList;              // List of saved items. Each object saving data will have an item with 'name' and 'data' element
 
 
     bool restoreInProgress;             // If true a restore has been started and is not yet complete.
 
     QDomDocument doc;                   // Save and restore xml document
-    QDomElement config;                   // Current configuration
+    QDomElement config;                 // Current configuration
 
     QDomElement docElem;                // Configuration document
 
