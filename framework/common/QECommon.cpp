@@ -31,7 +31,7 @@
 #include <QTableWidget>
 
 #include <QEResizeableFrame.h>
-#include <QEShape.h>
+#include <QEWidget.h>
 
 #include "QECommon.h"
 
@@ -186,7 +186,7 @@ int QEUtilities::scaleBy (const int v, const int m, const int d)
 void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
 {
    QLabel* label;
-   QEShape* shape;
+   QEWidget* qeWidget;
    QEResizeableFrame* resizeableFrame;
    QTableWidget* tableWidget;
 
@@ -286,14 +286,6 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
       }
    }
 
-   shape = dynamic_cast <QEShape *>(widget);
-   if (shape) {
-      // QEShape is a geometrically complicated widget that has a bespoke
-      // scaling function.
-      //
-      shape->scaleBy (m, d);
-   }
-
    tableWidget =  dynamic_cast <QTableWidget *>(widget);
    if (tableWidget) {
       int defaultSectionSize;
@@ -307,6 +299,13 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
       tableWidget->verticalHeader ()->setDefaultSectionSize (defaultSectionSize);
    }
 
+   qeWidget = dynamic_cast <QEWidget *>(widget);
+   if (qeWidget) {
+      // For QEWidget objects, scaleBy is virtual function. This allows geometrically
+      // complicated widgets, such as QEShape, to provide that has a bespoke scaling function.
+      //
+      qeWidget->scaleBy (m, d);
+   }
 }
 
 //------------------------------------------------------------------------------
