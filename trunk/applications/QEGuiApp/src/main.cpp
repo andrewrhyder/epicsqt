@@ -31,6 +31,8 @@
 //
 int main(int argc, char *argv[])
 {
-    QEGui app(argc, argv);
-    return app.run();
+    QEGui* app = new QEGui( argc, argv );
+    return app->run();
 }
+
+// end
