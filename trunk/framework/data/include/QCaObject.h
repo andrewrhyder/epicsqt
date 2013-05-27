@@ -98,6 +98,10 @@ namespace qcaobject {
       QString getFieldType();
       unsigned long getElementCount();  // num elements available on server as oppsoed to num elements actually subscribed for.
 
+      // Essentially provides same data as dataChanged. Is defined indicates data is valid,
+      // i.e. has been received since channle last connected.
+      void getLastData( bool& isDefined, QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
+
     signals:
       void dataChanged( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
       void dataChanged( const QByteArray& value, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
@@ -142,6 +146,7 @@ namespace qcaobject {
       // Last data emited
       QCaDateTime  lastTimeStamp;
       QCaAlarmInfo lastAlarmInfo;
+      bool         lastValueIsDefined;
       QVariant     lastVariantValue;
       QByteArray   lastByteArrayValue;
       void*        lastNewData; // Record containing data directly refernced by lastByteArrayValue (actually of type carecord::CaRecord*)
