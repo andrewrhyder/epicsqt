@@ -37,6 +37,7 @@
 #include <QWidget>
 #include <QPoint>
 
+#include <persistanceManager.h>
 #include <QCaAlarmInfo.h>
 #include <QEDragDrop.h>
 #include <QCaObject.h>
@@ -45,7 +46,6 @@
 #include <QEStringFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QEWidget.h>
-
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEPvProperties : public QFrame,
                                                     public QEWidget {
@@ -192,14 +192,18 @@ private:
    QString recordBaseName;
    QEStringFormatting fieldStringFormatting;
    QList<QEString *> fieldChannels;
+   int m, d;   // scaling.
 
    // common constructor function.
    void common_setup ();
-   double getScale ();
    void clearFieldChannels ();
 
    // Override standardProperties::setApplicationEnabled()
    void setApplicationEnabled (const bool & state);
+
+   //Set pvName.
+   //
+   void setPvName (const QString& pvName);
 
 private slots:
    void useNewVariableNameProperty (QString variableNameIn,
@@ -241,6 +245,7 @@ signals:
 protected:
    void resizeEvent ( QResizeEvent * event );
    void establishConnection (unsigned int variableIndex);
+   void scaleBy (const int m, const int d);
 
    // Override QCaObject/QEWidget functions.
    //
@@ -253,6 +258,8 @@ protected:
    void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
    void dropEvent (QDropEvent *event)           { qcaDropEvent(event); }
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
+   void saveConfiguration (PersistanceManager* pm);
+   void restoreConfiguration (PersistanceManager* pm, int restorePhase);
 
    // Copy paste
    QString copyVariable();

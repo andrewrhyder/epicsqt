@@ -102,7 +102,7 @@ QString QCaAlarmInfo::style()
 {
     switch( severity )
     {
-        case NO_ALARM:      return "";
+        case NO_ALARM:      return "QWidget { background-color: #e0eae0; }"; // pale green
         case MINOR_ALARM:   return "QWidget { background-color: #ffff80; }"; // yellow
         case MAJOR_ALARM:   return "QWidget { background-color: #ff8080; }"; // red
         case INVALID_ALARM: return "QWidget { background-color: #ffffff; }"; // white
@@ -120,8 +120,8 @@ QString QCaAlarmInfo::getColorName()
         case NO_ALARM:      return "#00ff00"; // green
         case MINOR_ALARM:   return "#ffff00"; // yellow
         case MAJOR_ALARM:   return "#ff0000"; // red
-        default:
         case INVALID_ALARM: return "#ffffff"; // white
+        default:            return "#ffffff"; // white
     }
 }
 
