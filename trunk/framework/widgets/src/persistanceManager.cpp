@@ -247,6 +247,26 @@ QDomElement PersistanceManager::getElement( QDomElement element, QString name, i
     return element.elementsByTagName( name ).at(i).toElement();
 }
 
+bool PersistanceManager::getElementValue( QDomElement element, QString name, bool& val )
+{
+    QString strVal;
+    bool okay;
+    int b;
+
+    if( !getElementValue( element, name, strVal ) )
+    {
+        return false;
+    }
+
+    b = strVal.toInt( &okay );
+    if (okay && ((b == 0) || (b == 1))) {
+       val = (b == 1);
+    } else {
+       okay = false;
+    }
+    return okay;
+}
+
 bool PersistanceManager::getElementValue( QDomElement element, QString name, int& val )
 {
     QString strVal;
@@ -295,6 +315,33 @@ bool PersistanceManager::getElementValue( QDomElement element, QString name, QSt
 
     val = text.nodeValue();
     return true;
+}
+
+bool PersistanceManager::getElementAttribute( QDomElement element, QString name, bool& val )
+{
+    bool okay;
+    int b;
+
+    if( element.isNull() || !element.isElement() )
+    {
+        val = 0;
+        return false;
+    }
+
+    QDomNode node = element.attributes().namedItem( name );
+    if( node.isNull() )
+    {
+        val = 0;
+        return false;
+    }
+
+    b = node.nodeValue().toInt( &okay );
+    if (okay && ((b == 0) || (b == 1))) {
+       val = (b == 1);
+    } else {
+       okay = false;
+    }
+    return okay;
 }
 
 bool PersistanceManager::getElementAttribute( QDomElement element, QString name, int& val )
@@ -387,9 +434,15 @@ PMElement PersistanceManager::addElement( QDomElement parent, QString name )
     return PMElement( this, element );
 }
 
+void PersistanceManager::addValue( QDomElement parent, QString name, bool value )
+{
+   // Enocode boolean as integer
+   addValue( parent, name, ( value ? 1 : 0 ) );
+}
+
 void PersistanceManager::addValue( QDomElement parent, QString name, int value )
 {
-    addValue( parent, name, QString( value ) );
+    addValue( parent, name, QString( "%1" ).arg ( value ) );
 }
 
 void PersistanceManager::addValue( QDomElement parent, QString name, double value )
@@ -405,6 +458,11 @@ void PersistanceManager::addValue( QDomElement parent, QString name, QString val
     parent.appendChild( element );
     QDomText text = doc.createTextNode( value );
     element.appendChild( text );
+}
+
+void PersistanceManager::addAttribute( QDomElement element, QString name, bool value )
+{
+    element.setAttribute( name, value );
 }
 
 void PersistanceManager::addAttribute( QDomElement element, QString name, int value )
@@ -538,6 +596,12 @@ PMElement PMElement::addElement( QString name )
     return owner->addElement( *this, name );
 }
 
+void PMElement::addValue( QString name, bool value )
+{
+    // Enocode boolean as integer
+    return owner->addValue( *this, name, value ? 1 : 0 );
+}
+
 void PMElement::addValue( QString name, int value )
 {
     return owner->addValue( *this, name, QString( "%1" ).arg( value ) );
@@ -551,6 +615,11 @@ void PMElement::addValue( QString name, double value )
 void PMElement::addValue( QString name, QString value )
 {
     return owner->addValue( *this, name, value );
+}
+
+void PMElement::addAttribute( QString name, bool value )
+{
+    owner->addAttribute( *this, name, value );
 }
 
 void PMElement::addAttribute( QString name, int value )
@@ -568,6 +637,11 @@ void PMElement::addAttribute( QString name, QString value )
     owner->addAttribute( *this, name, value );
 }
 
+bool PMElement::getValue( QString name, bool& val )
+{
+    return owner->getElementValue( *this, name, val );
+}
+
 bool PMElement::getValue( QString name, int& val )
 {
     return owner->getElementValue( *this, name, val );
@@ -581,6 +655,11 @@ bool PMElement::getValue( QString name, double& val )
 bool PMElement::getValue( QString name, QString& val )
 {
     return owner->getElementValue( *this, name, val );
+}
+
+bool PMElement::getAttribute( QString name, bool& val )
+{
+    return owner->getElementAttribute( *this, name, val );
 }
 
 bool PMElement::getAttribute( QString name, int& val )

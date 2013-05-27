@@ -123,10 +123,12 @@ public:
     PMElement( PersistanceManager* ownerIn, QDomElement elementIn );
     PMElement addElement( QString name );                   // Add an element
 
+    void addValue( QString name, bool value );              // Add an boolean value
     void addValue( QString name, int value );               // Add an integer value
     void addValue( QString name, double value );            // Add an double value
     void addValue( QString name, QString value );           // Add a string value
 
+    void addAttribute( QString name, bool value );          // Add an boolean attribute
     void addAttribute( QString name, int value );           // Add an integer attribute
     void addAttribute( QString name, double value );        // Add an double attribute
     void addAttribute( QString name, QString value );       // Add a string attribute
@@ -136,10 +138,12 @@ public:
 
     PMElementList getElementList( QString name );           // Get a named element list
 
+    bool getValue( QString name, bool& val );           // Get an boolean value
     bool getValue( QString name, int& val );            // Get an integer value
     bool getValue( QString name, double& val );         // Get an double value
     bool getValue( QString name, QString& val );        // Get a string value
 
+    bool getAttribute( QString name, bool& val );       // Get a named boolean attribute from an element
     bool getAttribute( QString name, int& val );        // Get a named integer attribute from an element
     bool getAttribute( QString name, double& val );     // Get a named double attribute from an element
     bool getAttribute( QString name, QString& val );    // Get a named string attribute from an element
@@ -178,10 +182,13 @@ private:
     bool openRead(  QString fileName, QString rootName );
 
     PMElement addElement( QDomElement parent, QString name );
-    void addValue( QDomElement parent, QString name, QString value );
+
+    void addValue( QDomElement parent, QString name, bool value );
     void addValue( QDomElement parent, QString name, int value );
     void addValue( QDomElement parent, QString name, double value );
+    void addValue( QDomElement parent, QString name, QString value );
 
+    void addAttribute( QDomElement element, QString name, bool value );
     void addAttribute( QDomElement element, QString name, int value );
     void addAttribute( QDomElement element, QString name, double value );
     void addAttribute( QDomElement element, QString name, QString value );
@@ -192,14 +199,15 @@ private:
 
     QDomNodeList getElementList( QDomElement element, QString name );
 
+    bool getElementValue( QDomElement element, QString name, bool& val );
     bool getElementValue( QDomElement element, QString name, int& val );
     bool getElementValue( QDomElement element, QString name, double& val );
     bool getElementValue( QDomElement element, QString name, QString& val );
 
+    bool getElementAttribute( QDomElement element, QString name, bool& val );
     bool getElementAttribute( QDomElement element, QString name, int& val );
     bool getElementAttribute( QDomElement element, QString name, double& val );
     bool getElementAttribute( QDomElement element, QString name, QString& val );
-
 
 
     SaveRestoreSignal signal;           // Save/Restore signal object. One instance to signal all QE Widgets and applications
