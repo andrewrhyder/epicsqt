@@ -1,4 +1,5 @@
-/*
+/*  QCaObject.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -80,6 +81,7 @@ namespace qcaobject {
       bool isWriteCallbacksEnabled();
 
       // Get database information relating to the variable
+      QString getRecordName();
       QString getEgu();
       QStringList getEnumerations();
       unsigned int getPrecision();
