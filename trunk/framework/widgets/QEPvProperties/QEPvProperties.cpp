@@ -334,6 +334,9 @@ void QEPvProperties::common_setup ()
    int j;
    QLabel *enumLabel;
 
+   this->m = 1;
+   this->d = 1;
+
    // This function only perform required actions on first call.
    //
    initialiseRecordSpecs ();
@@ -467,11 +470,14 @@ void QEPvProperties::common_setup ()
 
 //------------------------------------------------------------------------------
 //
-double QEPvProperties::getScale ()
+void QEPvProperties::scaleBy (const int mIn, const int dIn)
 {
-   // Original name label width was 48.
+   // If sensible, save new scaling values..
    //
-   return (double) this->ownWidgets->label1->geometry ().width () / 48.0;
+   if (m > 0 && d > 0) {
+      this->m = mIn;
+      this->d = dIn;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -480,10 +486,10 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
 {
    OwnWidgets *own = this->ownWidgets;
 
-   double scale;
    QRect g;
    QLabel *enumLabel;
    int pw;
+   int ew;
    int epr;  // enumerations per row.
    int gap;
    int lh;   // label height
@@ -492,10 +498,11 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
 
    // Have we been scaled ??
    //
-   scale = this->getScale ();
+   gap = (4 * this->m) / this->d;
+   ew = (172 *this->m) / this->d;
+
    pw = own->enumerationFrame->width ();
-   gap = (int)(4 * scale);
-   epr = MAX (1, (pw / (172 * scale)));    // calc enumerations per row.
+   epr = MAX (1, (pw / ew));    // calc enumerations per row.
    lw = ((pw - gap)/ epr) - gap;
    lh = own->enumerationLabelList.value (0)->geometry().height();
 
@@ -1007,14 +1014,56 @@ void QEPvProperties::contextMenuTriggered (QAction* action)
    }
 }
 
+//==============================================================================
+// Drag / drop
+//
+void QEPvProperties::saveConfiguration (PersistanceManager* pm)
+{
+   const QString formName = this->persistantName ("QEPvProperties");
+   PMElement formElement = pm->addElement (formName);
+
+   // qDebug () << "\nQEPvProperties " << __FUNCTION__ << formName << "\n";
+
+   // Note: we save the subsituted name (as opposed to template name and any macros).
+   //
+   formElement.addValue ("Name", this->getSubstitutedVariableName (0));
+
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvProperties::restoreConfiguration (PersistanceManager* pm, int restorePhase)
+{
+   const QString formName = this->persistantName ("QEPvProperties");
+   PMElement formElement = pm->getMyData (formName);
+   bool status;
+   QString pvName;
+
+   // qDebug () << "\nQEPvProperties " << __FUNCTION__ << formName <<  restorePhase << "\n";
+
+   if ((restorePhase == 1) && !formElement.isNull ()) {
+      status = formElement.getValue ("Name", pvName);
+      if (status) {
+         this->setPvName (pvName);
+      }
+   }
+}
+
+//==============================================================================
+//
+void QEPvProperties::setPvName (const QString& pvNameIn)
+{
+   this->setVariableName (pvNameIn, 0);
+   this->establishConnection (0);
+}
+
 
 //==============================================================================
 // Drag / drop
 //
 void QEPvProperties::setDrop (QVariant drop)
 {
-   setVariableName( drop.toString(), 0);
-   this->establishConnection (0);
+   this->setPvName (drop.toString ());
 }
 
 //------------------------------------------------------------------------------
@@ -1022,14 +1071,15 @@ void QEPvProperties::setDrop (QVariant drop)
 QVariant QEPvProperties::getDrop ()
 {
    if( isDraggingVariable() )
-      return QVariant( copyVariable() );
+      return QVariant (this->copyVariable ());
    else
-      return copyData();
+      return this->copyData();
 }
 
 
 //==============================================================================
 // Copy / Paste
+//
 QString QEPvProperties::copyVariable ()
 {
    return this->getSubstitutedVariableName (0);
@@ -1039,7 +1089,7 @@ QString QEPvProperties::copyVariable ()
 //
 QVariant QEPvProperties::copyData ()
 {
-   QTableWidget *table = ownWidgets->table;
+   QTableWidget* table = ownWidgets->table;
    QTableWidgetItem *f, *v;
    QString fieldList;
 
@@ -1051,16 +1101,16 @@ QVariant QEPvProperties::copyData ()
       v = table->item (i, VALUE_COL);
       fieldList.append (f->text ()).append (",").append (v->text ().append ("\n"));
    }
-   return QVariant( fieldList );
+   return QVariant (fieldList);
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPvProperties::paste( QVariant v )
 {
-    if (getAllowDrop ()) {
-       setDrop (v);
-    }
+   if (this->getAllowDrop ()) {
+      this->setPvName (v.toString ());
+   }
 }
 
 // end
