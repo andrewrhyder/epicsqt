@@ -69,14 +69,6 @@
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
-// Chart time mode options.
-//
-enum ChartTimeModes {
-   tmRealTime,
-   tmPaused,
-   tmHistorical
-};
-
 #define PV_DELTA_HEIGHT    18
 
 #define PV_FRAME_HEIGHT    (6 + (NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT)
@@ -98,11 +90,11 @@ public:
    void restoreConfiguration (PMElement & parentElement);
 
    bool isNormalVideo;
+   QEStripChartNames::ChartTimeModes chartTimeMode;
    QEStripChartNames::YScaleModes  yScaleMode;
    QEStripChartNames::ChartYRanges chartYScale;
    double yMinimum;
    double yMaximum;
-   ChartTimeModes chartTimeMode;
    int duration;
    Qt::TimeSpec timeZoneSpec;
    QDateTime endDateTime;
@@ -118,16 +110,21 @@ ChartState::ChartState () {
 //
 void ChartState::saveConfiguration (PMElement & parentElement)
 {
+   QEStripChartNames meta;
+
    PMElement stateElement = parentElement.addElement ("ChartState");
 
    stateElement.addValue ("IsNormalVideo", this->isNormalVideo);
-   stateElement.addValue ("YScaleMode", this->yScaleMode);
-   stateElement.addValue ("ChartYScale", this->chartYScale);
+   stateElement.addValue ("ChartTimeMode", QEUtilities::enumToString (meta, "ChartTimeModes",this->chartTimeMode));
+   stateElement.addValue ("YScaleMode", QEUtilities::enumToString (meta, "YScaleModes", this->yScaleMode));
+   stateElement.addValue ("ChartYScale", QEUtilities::enumToString (meta, "ChartYRanges", this->chartYScale));
    stateElement.addValue ("YMinimum", this->yMinimum);
    stateElement.addValue ("YMaximum", this->yMaximum);
-   stateElement.addValue ("ChartTimeMode", this->chartTimeMode);
    stateElement.addValue ("Duration", this->duration);
-   stateElement.addValue ("TimeZoneSpec", this->timeZoneSpec);
+   stateElement.addValue ("TimeZoneSpec", (int) this->timeZoneSpec);
+
+   // We use double here as toTime_t returns a uint (as opposed to an int).
+   //
    stateElement.addValue ("EndDateTime", (double) this->endDateTime.toTime_t ());
 }
 
@@ -135,36 +132,49 @@ void ChartState::saveConfiguration (PMElement & parentElement)
 //
 void ChartState::restoreConfiguration (PMElement & parentElement)
 {
+   QEStripChartNames meta;
+
    PMElement stateElement = parentElement.getElement ("ChartState");
    bool status;
+   bool boolVal;
    int intVal;
    double doubleVal;
+   QString stringVal;
 
    if (stateElement.isNull ()) return;
 
-   status = stateElement.getValue ("IsNormalVideo", intVal);
+   status = stateElement.getValue ("IsNormalVideo", boolVal);
    if (status) {
-      this->isNormalVideo = (intVal == 1);
+      this->isNormalVideo = boolVal;
    }
 
-   status = stateElement.getValue ("YScaleMode", intVal);
+   status = stateElement.getValue ("ChartTimeMode", stringVal);
    if (status) {
-      this->yScaleMode = (QEStripChartNames::YScaleModes) intVal;
+      intVal = QEUtilities::stringToEnum (meta, "ChartTimeModes", stringVal, &status);
+      if (status) {
+         this->chartTimeMode = (QEStripChartNames::ChartTimeModes) intVal;
+      }
    }
 
-   status = stateElement.getValue ("ChartYScale", intVal);
+   status = stateElement.getValue ("YScaleMode", stringVal);
    if (status) {
-      this->chartYScale = (QEStripChartNames::ChartYRanges) intVal;
+      intVal = QEUtilities::stringToEnum (meta, "YScaleModes", stringVal, &status);
+      if (status) {
+         this->yScaleMode = (QEStripChartNames::YScaleModes) intVal;
+      }
+   }
+
+   status = stateElement.getValue ("ChartYScale", stringVal);
+   if (status) {
+      intVal = QEUtilities::stringToEnum (meta, "ChartYRanges", stringVal, &status);
+      if (status) {
+         this->chartYScale = (QEStripChartNames::ChartYRanges) intVal;
+      }
    }
 
    status = stateElement.getValue ("YMinimum", this->yMinimum);
 
    status = stateElement.getValue ("YMaximum", this->yMaximum);
-
-   status = stateElement.getValue ("ChartTimeMode", intVal);
-   if (status) {
-      this->chartTimeMode = (ChartTimeModes) intVal;
-   }
 
    status = stateElement.getValue ("Duration", this->duration);
 
@@ -248,7 +258,7 @@ void QEPVNameLists::saveConfiguration (PMElement & parentElement)
    for (j = 0; j < number; j++) {
       name.sprintf ("PV%d", j);
       PMElement pvElement = predefinedElement.addElement (name);
-      pvElement.addValue ("PVName", this->value (j));
+      pvElement.addValue ("Name", this->value (j));
    }
 
 }
@@ -276,7 +286,7 @@ void QEPVNameLists::restoreConfiguration (PMElement & parentElement)
          name.sprintf ("PV%d", j);
          PMElement pvElement = predefinedElement.getElement (name);
 
-         status = pvElement.getValue ("PVName", pvName);
+         status = pvElement.getValue ("Name", pvName);
          if (status) {
             this->prependOrMoveToFirst (pvName);
          }
@@ -323,7 +333,7 @@ public:
 
    QEStripChartNames::ChartYRanges chartYScale;
    QEStripChartNames::YScaleModes yScaleMode;
-   enum ChartTimeModes chartTimeMode;
+   QEStripChartNames::ChartTimeModes chartTimeMode;
    double timeScale;             // 1 => units are seconds, 60 => x units are minutes, etc.
    QString timeUnits;
 
@@ -521,7 +531,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    //
    this->chartYScale = QEStripChartNames::manual;
    this->yScaleMode = QEStripChartNames::linear;
-   this->chartTimeMode = tmRealTime;
+   this->chartTimeMode = QEStripChartNames::tmRealTime;
    this->timeScale = 1.0;
    this->timeUnits = "secs";
 
@@ -951,7 +961,7 @@ void QEStripChart::PrivateData::onPlaneScaleSelect (const QPoint  & origin, cons
          // constrain
          et = now;
       } else {
-         this->chartTimeMode = tmHistorical;
+         this->chartTimeMode = QEStripChartNames::tmHistorical;
       }
 
       chart->setDuration (duration);
@@ -1225,6 +1235,8 @@ void QEStripChart::PrivateData::nextState ()
 //
 QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
 {
+   DEBUG << "construct";
+
    // Configure the panel and create contents
    //
    this->setFrameShape (Panel);
@@ -1277,6 +1289,7 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
 QEStripChart::~QEStripChart ()
 {
    // privateData is a QObject parented by this, so it is automatically deleted.
+   DEBUG << "destruct";
 }
 
 //------------------------------------------------------------------------------
@@ -1401,7 +1414,7 @@ void QEStripChart::addPvNameSet (QString pvNameSet)
 //
 void QEStripChart::tickTimeout ()
 {
-   if (this->privateData->chartTimeMode == tmRealTime) {
+   if (this->privateData->chartTimeMode == QEStripChartNames::tmRealTime) {
       // Note: when end time changes - setEndTime calls plotData ().
       this->setEndDateTime (QDateTime::currentDateTime ());
    } else {
@@ -1534,25 +1547,25 @@ void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
    switch (mode) {
 
       case QEStripChartNames::play:
-         this->privateData->chartTimeMode = tmRealTime;
+         this->privateData->chartTimeMode = QEStripChartNames::tmRealTime;
          // Note: using setEndTime causes a replot.
          this->setEndDateTime (QDateTime::currentDateTime ());
          this->privateData->pushState ();
          break;
 
       case QEStripChartNames::pause:
-         this->privateData->chartTimeMode = tmPaused;
+         this->privateData->chartTimeMode = QEStripChartNames::tmPaused;
          this->privateData->pushState ();
          break;
 
       case QEStripChartNames::forward:
-         this->privateData->chartTimeMode = tmHistorical;
+         this->privateData->chartTimeMode = QEStripChartNames::tmHistorical;
          this->setEndDateTime (this->getEndDateTime ().addSecs (+this->duration));
          this->privateData->pushState ();
          break;
 
       case QEStripChartNames::backward:
-         this->privateData->chartTimeMode = tmHistorical;
+         this->privateData->chartTimeMode = QEStripChartNames::tmHistorical;
          this->setEndDateTime (this->getEndDateTime ().addSecs (-this->duration));
          this->privateData->pushState ();
          break;
@@ -1565,7 +1578,7 @@ void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
          if (n == 1) {
             // User has selected okay.
             //
-            this->privateData->chartTimeMode = tmHistorical;
+            this->privateData->chartTimeMode = QEStripChartNames::tmHistorical;
             this->setEndDateTime (this->timeDialog->getEndDateTime ());
 
             // We use the possibly limited chart end time in order to calculate the
