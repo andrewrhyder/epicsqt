@@ -27,6 +27,7 @@
 #include <QDebug>
 #include <QLabel>
 #include <QHeaderView>
+#include <QMetaObject>
 #include <QSize>
 #include <QTableWidget>
 
@@ -158,6 +159,68 @@ QString QEUtilities::getTimeZoneTLA (const Qt::TimeSpec timeSpec, const QDateTim
 QString QEUtilities::getTimeZoneTLA (const QDateTime & atTime)
 {
    return QEUtilities::getTimeZoneTLA (atTime.timeSpec(), atTime);
+}
+
+
+//------------------------------------------------------------------------------
+//
+QString QEUtilities::enumToString (const QObject& object,
+                                   const QString& enumTypeName,
+                                   const int enumValue)
+{
+   const QMetaObject *mo =  object.metaObject();
+   QString result;
+
+   for (int e = 0; e < mo->enumeratorCount(); e++) {
+      QMetaEnum metaEnum = mo->enumerator(e);
+      if (metaEnum.isValid () && metaEnum.name () == enumTypeName) {
+         // found it.
+         //
+         result = metaEnum.valueToKey (enumValue);
+         break;
+      }
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+int QEUtilities::stringToEnum (const QObject& object,
+                               const QString& enumTypeName,
+                               const QString& enumImage,
+                               bool* ok)
+{
+   const QMetaObject *mo =  object.metaObject();
+   int result = -1;
+   bool okay = false;
+
+   for (int e = 0; e < mo->enumeratorCount(); e++) {
+      QMetaEnum metaEnum = mo->enumerator(e);
+      if (metaEnum.isValid () && metaEnum.name () == enumTypeName) {
+         // found it.
+         //
+         result = metaEnum.keyToValue (enumImage.trimmed ().toAscii ().data ());
+         if (result != (-1)) {
+            // This is a good value.
+            okay = true;
+         } else {
+            okay = false;  // hypothosize not okay
+            for (int i = 0; i < metaEnum.keyCount (); i++) {
+               if (result == metaEnum.value (i)) {
+                  // This was a valid value after all.
+                  //
+                  okay = true;
+                  break;
+               }
+            }
+         }
+         break;
+      }
+   }
+
+   if (ok) *ok = okay;
+   return result;
 }
 
 //------------------------------------------------------------------------------
