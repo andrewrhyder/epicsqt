@@ -961,7 +961,7 @@ void QEStripChartItem::saveConfiguration (PMElement & parentElement)
 
       // Note: we save the actual, i.e. substituted, PV name.
       //
-      pvElement.addValue ("PVName", this->getPvName ());
+      pvElement.addValue ("Name", this->getPvName ());
 
       // Save any scaling.
       //
@@ -984,7 +984,7 @@ void QEStripChartItem::restoreConfiguration (PMElement & parentElement)
 
    // Attempt to extract a PV name
    //
-   status = pvElement.getValue ("PVName", pvName);
+   status = pvElement.getValue ("Name", pvName);
    if (status) {
       this->setPvName (pvName, "");
       this->scaling.restoreConfiguration (pvElement);
