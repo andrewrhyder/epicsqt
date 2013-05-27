@@ -407,6 +407,9 @@ void MainWindow::on_actionAbout_triggered()
         case USERLEVEL_ENGINEER:  about.append( "Engineer" );  break;
     }
 
+    // Add the configuration file details
+    about.append( "\n\n\nConfiguration file:\n      " ).append( app->getParams()->configurationFile );
+
     // Display the 'about' text
     QMessageBox::about(this, "About QEGui", about );
 }

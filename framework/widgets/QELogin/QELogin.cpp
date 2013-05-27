@@ -49,12 +49,10 @@ QELogin::QELogin(QWidget *pParent):QWidget(pParent), QEWidget( this )
     qPushButtonLogout->setEnabled(false);
     QObject::connect(qPushButtonLogout, SIGNAL(clicked()), this, SLOT(buttonLogoutClicked()));
 
-    currentUserType = USERLEVEL_USER;
+    currentUserType = getUserLevel();
     qLabelUserType->setText(getUserTypeName((userLevels) currentUserType));
-    setUserLevel((userLevels) currentUserType);
 
     setDetailsLayout(RIGHT);
-
 }
 
 
