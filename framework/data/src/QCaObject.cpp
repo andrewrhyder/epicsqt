@@ -80,6 +80,7 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
 
     lastTimeStamp = QCaDateTime( QDateTime::currentDateTime() );
     lastVariantValue = (double)0.0;
+    lastValueIsDefined = false;
 
     lastNewData = NULL;
 
@@ -733,8 +734,10 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
     {
         QCaConnectionInfo connectionInfo( lastEventChannelState, lastEventLinkState );
         emit connectionChanged( connectionInfo );
+        if (!connectionInfo.isChannelConnected()) {
+           lastValueIsDefined = false;
+        }
     }
-
 }
 
 /*
@@ -973,6 +976,7 @@ void QCaObject::processData( void* newDataPtr ) {
 
         // Save the data just emited
         lastVariantValue = value;
+        lastValueIsDefined = true;
     }
 
     // Build and emit a byte array containing the data.
@@ -1089,6 +1093,17 @@ void QCaObject::resendLastData()
         // refernces the data held in lastNewData directly which may be deleted before a queued connection is completed
         emit dataChanged( lastByteArrayValue, lastAlarmInfo, lastTimeStamp );
     }
+}
+
+/*
+   Extract last emmited data
+ */
+void QCaObject::getLastData( bool& isDefinedOut, QVariant& valueOut, QCaAlarmInfo& alarmInfoOut, QCaDateTime& timeStampOut )
+{
+   isDefinedOut = lastValueIsDefined;
+   valueOut = lastVariantValue;
+   alarmInfoOut = lastAlarmInfo;
+   timeStampOut = lastTimeStamp;
 }
 
 /*
