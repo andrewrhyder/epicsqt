@@ -1,4 +1,5 @@
-/*
+/*  QCaObject.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -1096,14 +1097,22 @@ void QCaObject::resendLastData()
 }
 
 /*
-   Extract last emmited data
- */
+  Extract last emmited data
+  */
 void QCaObject::getLastData( bool& isDefinedOut, QVariant& valueOut, QCaAlarmInfo& alarmInfoOut, QCaDateTime& timeStampOut )
 {
-   isDefinedOut = lastValueIsDefined;
-   valueOut = lastVariantValue;
-   alarmInfoOut = lastAlarmInfo;
-   timeStampOut = lastTimeStamp;
+    isDefinedOut = lastValueIsDefined;
+    valueOut = lastVariantValue;
+    alarmInfoOut = lastAlarmInfo;
+    timeStampOut = lastTimeStamp;
+}
+
+/*
+  Return the record name (technically the process variable name).
+  */
+QString QCaObject::getRecordName()
+{
+    return recordName;
 }
 
 /*
