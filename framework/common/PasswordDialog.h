@@ -26,12 +26,13 @@
 #define PASSWORDDIALOG_H
 
 #include <QDialog>
+#include <QEPluginLibrary_global.h>
 
 namespace Ui {
 class PasswordDialog;
 }
 
-class PasswordDialog : public QDialog
+class QEPLUGINLIBRARYSHARED_EXPORT PasswordDialog : public QDialog
 {
     Q_OBJECT
     
