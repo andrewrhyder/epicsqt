@@ -1235,8 +1235,6 @@ void QEStripChart::PrivateData::nextState ()
 //
 QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
 {
-   DEBUG << "construct";
-
    // Configure the panel and create contents
    //
    this->setFrameShape (Panel);
@@ -1289,7 +1287,6 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
 QEStripChart::~QEStripChart ()
 {
    // privateData is a QObject parented by this, so it is automatically deleted.
-   DEBUG << "destruct";
 }
 
 //------------------------------------------------------------------------------
