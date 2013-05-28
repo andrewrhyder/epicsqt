@@ -50,7 +50,7 @@ QELogin::QELogin(QWidget *pParent):QWidget(pParent), QEWidget( this )
     QObject::connect(qPushButtonLogout, SIGNAL(clicked()), this, SLOT(buttonLogoutClicked()));
 
     currentUserType = getUserLevel();
-    qLabelUserType->setText(getUserTypeName((userLevels) currentUserType));
+    qLabelUserType->setText(getUserTypeName((userLevelTypes::userLevels) currentUserType));
 
     setDetailsLayout(RIGHT);
 }
@@ -170,31 +170,31 @@ void QELogin::setCurrentUserType(int pValue)
 
     switch(pValue)
     {
-        case USERLEVEL_USER:
-            sendMessage("The user type was changed from '" + getUserTypeName((userLevels) currentUserType) + "' to '" + getUserTypeName((userLevels) pValue) + "'");
+        case userLevelTypes::USERLEVEL_USER:
+            sendMessage("The user type was changed from '" + getUserTypeName((userLevelTypes::userLevels) currentUserType) + "' to '" + getUserTypeName((userLevelTypes::userLevels) pValue) + "'");
             loginHistory.push(currentUserType);
             qPushButtonLogout->setEnabled(true);
-            qLabelUserType->setText(getUserTypeName((userLevels) pValue));
-            currentUserType = USERLEVEL_USER;
-            setUserLevel((userLevels) currentUserType);
+            qLabelUserType->setText(getUserTypeName((userLevelTypes::userLevels) pValue));
+            currentUserType = userLevelTypes::USERLEVEL_USER;
+            setUserLevel((userLevelTypes::userLevels) currentUserType);
             break;
 
-        case USERLEVEL_SCIENTIST:
-            sendMessage("The user type was changed from '" + getUserTypeName((userLevels) currentUserType) + "' to '" + getUserTypeName((userLevels) pValue) + "'");
+        case userLevelTypes::USERLEVEL_SCIENTIST:
+            sendMessage("The user type was changed from '" + getUserTypeName((userLevelTypes::userLevels) currentUserType) + "' to '" + getUserTypeName((userLevelTypes::userLevels) pValue) + "'");
             loginHistory.push(currentUserType);
             qPushButtonLogout->setEnabled(true);
-            qLabelUserType->setText(getUserTypeName((userLevels) pValue));
-            currentUserType = USERLEVEL_SCIENTIST;
-            setUserLevel((userLevels) currentUserType);
+            qLabelUserType->setText(getUserTypeName((userLevelTypes::userLevels) pValue));
+            currentUserType = userLevelTypes::USERLEVEL_SCIENTIST;
+            setUserLevel((userLevelTypes::userLevels) currentUserType);
             break;
 
-        case USERLEVEL_ENGINEER:
-            sendMessage("The user type was changed from '" + getUserTypeName((userLevels) currentUserType) + "' to '" + getUserTypeName((userLevels) pValue) + "'");
+        case userLevelTypes::USERLEVEL_ENGINEER:
+            sendMessage("The user type was changed from '" + getUserTypeName((userLevelTypes::userLevels) currentUserType) + "' to '" + getUserTypeName((userLevelTypes::userLevels) pValue) + "'");
             loginHistory.push(currentUserType);
             qPushButtonLogout->setEnabled(true);
-            qLabelUserType->setText(getUserTypeName((userLevels) pValue));
-            currentUserType = USERLEVEL_ENGINEER;
-            setUserLevel((userLevels) currentUserType);
+            qLabelUserType->setText(getUserTypeName((userLevelTypes::userLevels) pValue));
+            currentUserType = userLevelTypes::USERLEVEL_ENGINEER;
+            setUserLevel((userLevelTypes::userLevels) currentUserType);
     }
 
 }
@@ -202,14 +202,14 @@ void QELogin::setCurrentUserType(int pValue)
 
 
 
-QString QELogin::getUserTypeName(userLevels type)
+QString QELogin::getUserTypeName(userLevelTypes::userLevels type)
 {
     switch( type )
     {
-        case USERLEVEL_USER:      return "User";
-        case USERLEVEL_SCIENTIST: return "Scientist";
-        case USERLEVEL_ENGINEER:  return "Engineer";
-        default:                  return "Unknown";
+        case userLevelTypes::USERLEVEL_USER:      return "User";
+        case userLevelTypes::USERLEVEL_SCIENTIST: return "Scientist";
+        case userLevelTypes::USERLEVEL_ENGINEER:  return "Engineer";
+        default:                                  return "Unknown";
     }
 }
 
@@ -310,7 +310,7 @@ void QELogin::buttonLogoutClicked()
 
     if (logoutUserType > currentUserType)
     {
-        if (logoutUserType == USERLEVEL_USER)
+        if (logoutUserType == userLevelTypes::USERLEVEL_USER)
         {
             if (getPriorityUserPassword().isEmpty())
             {
@@ -318,11 +318,11 @@ void QELogin::buttonLogoutClicked()
             }
             else
             {
-                qELoginDialog = new _QDialogLogin(this, USERLEVEL_USER);
+                qELoginDialog = new _QDialogLogin(this, userLevelTypes::USERLEVEL_USER);
                 qELoginDialog->exec();
             }
         }
-        else if (logoutUserType == USERLEVEL_SCIENTIST)
+        else if (logoutUserType == userLevelTypes::USERLEVEL_SCIENTIST)
         {
             if (scientistPassword.isEmpty())
             {
@@ -330,7 +330,7 @@ void QELogin::buttonLogoutClicked()
             }
             else
             {
-                qELoginDialog = new _QDialogLogin(this, USERLEVEL_SCIENTIST);
+                qELoginDialog = new _QDialogLogin(this, userLevelTypes::USERLEVEL_SCIENTIST);
                 qELoginDialog->exec();
             }
         }
@@ -342,7 +342,7 @@ void QELogin::buttonLogoutClicked()
             }
             else
             {
-                qELoginDialog = new _QDialogLogin(this, USERLEVEL_ENGINEER);
+                qELoginDialog = new _QDialogLogin(this, userLevelTypes::USERLEVEL_ENGINEER);
                 qELoginDialog->exec();
             }
         }
@@ -359,11 +359,11 @@ void QELogin::buttonLogoutClicked()
 void QELogin::logoutCurrentUserType()
 {
 
-    sendMessage("The user type was changed from '" + getUserTypeName((userLevels) currentUserType) + "' to '" + getUserTypeName((userLevels) loginHistory.top()) + "'");
+    sendMessage("The user type was changed from '" + getUserTypeName((userLevelTypes::userLevels) currentUserType) + "' to '" + getUserTypeName((userLevelTypes::userLevels) loginHistory.top()) + "'");
 
-    currentUserType = (userLevels) loginHistory.top();
-    qLabelUserType->setText(getUserTypeName((userLevels) currentUserType));
-    setUserLevel((userLevels) currentUserType);
+    currentUserType = (userLevelTypes::userLevels) loginHistory.top();
+    qLabelUserType->setText(getUserTypeName((userLevelTypes::userLevels) currentUserType));
+    setUserLevel((userLevelTypes::userLevels) currentUserType);
 
     loginHistory.pop();
     qPushButtonLogout->setEnabled(loginHistory.empty() == false);
@@ -376,7 +376,7 @@ QString QELogin::getPriorityUserPassword()
     ContainerProfile profile;
     if( profile.areUserLevelPasswordsSet() )
     {
-        return profile.getUserLevelPassword( USERLEVEL_USER );
+        return profile.getUserLevelPassword( userLevelTypes::USERLEVEL_USER );
     }
     else
     {
@@ -390,7 +390,7 @@ QString QELogin::getPriorityScientistPassword()
     ContainerProfile profile;
     if( profile.areUserLevelPasswordsSet() )
     {
-        return profile.getUserLevelPassword( USERLEVEL_SCIENTIST );
+        return profile.getUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST );
     }
     else
     {
@@ -404,7 +404,7 @@ QString QELogin::getPriorityEngineerPassword()
     ContainerProfile profile;
     if( profile.areUserLevelPasswordsSet() )
     {
-        return profile.getUserLevelPassword( USERLEVEL_ENGINEER );
+        return profile.getUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER );
     }
     else
     {
@@ -442,13 +442,13 @@ _QDialogLogin::_QDialogLogin(QWidget *pParent, int pUserType, Qt::WindowFlags pF
 
     qLabelType->setText("Type:");
 
-    qRadioButtonUser->setText(parent->getUserTypeName(USERLEVEL_USER));
+    qRadioButtonUser->setText(parent->getUserTypeName(userLevelTypes::USERLEVEL_USER));
     QObject::connect(qRadioButtonUser, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
 
-    qRadioButtonScientist->setText(parent->getUserTypeName(USERLEVEL_SCIENTIST));
+    qRadioButtonScientist->setText(parent->getUserTypeName(userLevelTypes::USERLEVEL_SCIENTIST));
     QObject::connect(qRadioButtonScientist, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
 
-    qRadioButtonEngineer->setText(parent->getUserTypeName(USERLEVEL_ENGINEER));
+    qRadioButtonEngineer->setText(parent->getUserTypeName(userLevelTypes::USERLEVEL_ENGINEER));
     QObject::connect(qRadioButtonEngineer, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
 
 
@@ -486,19 +486,19 @@ _QDialogLogin::_QDialogLogin(QWidget *pParent, int pUserType, Qt::WindowFlags pF
         setWindowTitle("Logout");
         switch(userType)
         {
-            case USERLEVEL_USER:
+            case userLevelTypes::USERLEVEL_USER:
                 qRadioButtonUser->setChecked(true);
                 qRadioButtonScientist->setEnabled(false);
                 qRadioButtonEngineer->setEnabled(false);
                 break;
 
-            case USERLEVEL_SCIENTIST:
+            case userLevelTypes::USERLEVEL_SCIENTIST:
                 qRadioButtonScientist->setChecked(true);
                 qRadioButtonUser->setEnabled(false);
                 qRadioButtonEngineer->setEnabled(false);
                 break;
 
-            case USERLEVEL_ENGINEER:
+            case userLevelTypes::USERLEVEL_ENGINEER:
                 qRadioButtonEngineer->setChecked(true);
                 qRadioButtonUser->setEnabled(false);
                 qRadioButtonScientist->setEnabled(false);
@@ -516,11 +516,11 @@ void _QDialogLogin::setCurrentUserType(int pValue)
 
     switch(pValue)
     {
-        case USERLEVEL_USER:
+        case userLevelTypes::USERLEVEL_USER:
             qRadioButtonUser->setChecked(true);
             break;
 
-        case USERLEVEL_SCIENTIST:
+        case userLevelTypes::USERLEVEL_SCIENTIST:
             qRadioButtonScientist->setChecked(true);
             break;
 
@@ -598,21 +598,21 @@ void _QDialogLogin::buttonOkClicked()
     {
         if (qLineEditPassword->isEnabled() == false || parent->getPriorityUserPassword() == qLineEditPassword->text())
         {
-            type = USERLEVEL_USER;
+            type = userLevelTypes::USERLEVEL_USER;
         }
     }
     else if (qRadioButtonScientist->isChecked())
     {
         if (qLineEditPassword->isEnabled() == false || parent->getPriorityScientistPassword() == qLineEditPassword->text())
         {
-            type = USERLEVEL_SCIENTIST;
+            type = userLevelTypes::USERLEVEL_SCIENTIST;
         }
     }
     else
     {
         if (qLineEditPassword->isEnabled() == false || parent->getPriorityEngineerPassword() == qLineEditPassword->text())
         {
-            type = USERLEVEL_ENGINEER;
+            type = userLevelTypes::USERLEVEL_ENGINEER;
         }
     }
 

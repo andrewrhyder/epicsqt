@@ -30,6 +30,7 @@
 #include <saveRestoreManager.h>
 #include <MainWindow.h>
 #include <QEGui.h>
+#include <QECommon.h>
 
 #define SAVERESTORE_NAME "QEGui"
 
@@ -64,6 +65,10 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
 
                 // Note the number of main windows. This will determine how many main windows are expected on restore
                 appElement.addValue( "MainWindows", app->getMainWindowCount() );
+
+                // Note the current user level
+                userLevelTypes meta;
+                appElement.addValue ("UserLevel", QEUtilities::enumToString( meta, "userLevels", getUserLevel() ));
             }
             break;
 
@@ -78,6 +83,18 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
                 if( QEGuiData.isNull() )
                 {
                     return;
+                }
+
+                // Note the current user level
+                QString levelString;
+                QEGuiData.getValue( "UserLevel", levelString );
+                userLevelTypes meta;
+                userLevelTypes::userLevels levelInt;
+                bool ok;
+                levelInt = (userLevelTypes::userLevels)QEUtilities::stringToEnum( meta, "userLevels", levelString, &ok );
+                if( ok )
+                {
+                    setUserLevel( levelInt );
                 }
 
                 // Get the number of expected main windows

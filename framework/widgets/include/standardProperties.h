@@ -36,11 +36,11 @@ public:
     virtual ~standardProperties(){}
 
 public:
-    userLevels getUserLevelVisibility();
-    void setUserLevelVisibility( userLevels level );
+    userLevelTypes::userLevels getUserLevelVisibility();
+    void setUserLevelVisibility( userLevelTypes::userLevels level );
 
-    userLevels getUserLevelEnabled();
-    void setUserLevelEnabled( userLevels level );
+    userLevelTypes::userLevels getUserLevelEnabled();
+    void setUserLevelEnabled( userLevelTypes::userLevels level );
 
     bool getApplicationEnabled() const;
     void setApplicationEnabled( bool state );
@@ -55,18 +55,18 @@ public:
 protected:
 
     void setDataDisabled( bool disable );
-    void checkVisibilityEnabledLevel( userLevels level );
+    void checkVisibilityEnabledLevel( userLevelTypes::userLevels level );
 
 private:
     QWidget* owner;
 
-    userLevels currentLevel;
+    userLevelTypes::userLevels currentLevel;
 
     void setSuperEnabled();
     void setSuperVisibility();
 
-    userLevels visibilityLevel; // User level below which the widget will be made invisible
-    userLevels enabledLevel;    // User level below which the widget will be made disabled
+    userLevelTypes::userLevels visibilityLevel; // User level below which the widget will be made invisible
+    userLevelTypes::userLevels enabledLevel;    // User level below which the widget will be made disabled
 
     bool applicationVisibility; // The 'visibility' state the widget would be in if it wasn't being held invisible due to inapropriate user level
     bool applicationEnabled;    // The 'enabled/disabled' state the widget would be in if it wasn't being held disabled by inapropriate user level or disconnected status

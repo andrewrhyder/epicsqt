@@ -110,7 +110,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QEWidget
 
         void refreshButton();
 
-        void userLevelChanged(userLevels pValue);
+        void userLevelChanged(userLevelTypes::userLevels pValue);
 
 
         Q_PROPERTY(QString recipeDescription READ getRecipeDescription WRITE setRecipeDescription)
@@ -177,9 +177,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QERecipe:public QWidget, public QEWidget
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
         enum userTypesProperty
         {
-            User = USERLEVEL_USER,
-            Scientist = USERLEVEL_SCIENTIST,
-            Engineer = USERLEVEL_ENGINEER
+            User      = userLevelTypes::USERLEVEL_USER,
+            Scientist = userLevelTypes::USERLEVEL_SCIENTIST,
+            Engineer  = userLevelTypes::USERLEVEL_ENGINEER
         };
 
         void setCurrentUserTypeProperty(userTypesProperty pUserType)

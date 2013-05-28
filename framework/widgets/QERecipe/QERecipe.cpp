@@ -452,7 +452,7 @@ int QERecipe::getDetailsLayout()
 void QERecipe::setCurrentUserType(int pValue)
 {
 
-    if (pValue == USERLEVEL_USER || pValue == USERLEVEL_SCIENTIST || pValue == USERLEVEL_ENGINEER)
+    if (pValue == userLevelTypes::USERLEVEL_USER || pValue == userLevelTypes::USERLEVEL_SCIENTIST || pValue == userLevelTypes::USERLEVEL_ENGINEER)
     {
         currentUserType = pValue;
         refreshRecipeList();
@@ -578,10 +578,10 @@ void QERecipe::buttonNewClicked()
         {
             switch (currentUserType)
             {
-                case USERLEVEL_USER:
+                case userLevelTypes::USERLEVEL_USER:
                     visible = "USER";
                     break;
-                case USERLEVEL_SCIENTIST:
+                case userLevelTypes::USERLEVEL_SCIENTIST:
                     visible = "SCIENTIST";
                     break;
                 default:
@@ -1054,7 +1054,7 @@ void QERecipe::refreshButton()
 
 
 
-void QERecipe::userLevelChanged(userLevels pValue)
+void QERecipe::userLevelChanged(userLevelTypes::userLevels pValue)
 {
 
     setCurrentUserType(pValue);

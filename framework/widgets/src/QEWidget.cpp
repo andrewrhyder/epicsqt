@@ -37,6 +37,7 @@
 #include <QDebug>
 #include <QEWidget.h>
 #include <QEFrameworkVersion.h>
+#include <QEForm.h>
 
 /*
     Constructor
@@ -342,7 +343,7 @@ bool QEWidget::inDesigner()
 
 // The user level has changed
 // Modify the label properties accordingly
-void QEWidget::userLevelChanged( userLevels level )
+void QEWidget::userLevelChanged( userLevelTypes::userLevels level )
 {
     styleUserLevelChanged( level );
     checkVisibilityEnabledLevel( level );
@@ -505,10 +506,21 @@ QString QEWidget::persistantName( QString prefix )
 // Returns a string that will not change between runs of the application (given the same configuration)
 void QEWidget::buildPersistantName( QWidget* w, QString& name )
 {
-    // Stop when the top level of siblings is reached
-    // Note, the position in the top level of siblings is not included
+    // Stop when a QEForm is found with a unique identifier.
+    // From this level up the application using the framework is responsible
+    if( QString( "QEForm" ).compare( w->metaObject()->className() ) == false )
+    {
+        QEForm* form = (QEForm*)w;
+        if( form->getUniqueIdentifier().isEmpty() == false )
+        {
+            name.prepend( "_" ).prepend( form->getUniqueIdentifier() );
+            return;
+        }
+    }
+
+    // If no parent, all done
     QWidget* p = w->parentWidget();
-    if( !p || !p->parentWidget() )
+    if( !p )
     {
         return;
     }
@@ -521,8 +533,8 @@ void QEWidget::buildPersistantName( QWidget* w, QString& name )
     {
         if( c[i] == w )
         {
-            name.append( QString( "_%1" ).arg( i ) );
             buildPersistantName( p, name );
+            name.append( QString( "_%1" ).arg( i ) );
             return;
         }
     }

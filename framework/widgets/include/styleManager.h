@@ -103,7 +103,7 @@ protected:
                                             //!< For example, a style string is used to set QE button text alignment.
 
 
-    void styleUserLevelChanged( userLevels levelIn );/**< Set the current user level.*/
+    void styleUserLevelChanged( userLevelTypes::userLevels levelIn );/**< Set the current user level.*/
 
 private:
     QWidget* owner;             // Widget to which style sheet strings will be applied
@@ -119,7 +119,7 @@ private:
 
     void updateStyleSheet();    // Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
 
-    userLevels level;           // Current user level - used to select appropriate user style
+    userLevelTypes::userLevels level;           // Current user level - used to select appropriate user style
 };
 
 #endif // STYLEMANAGER_H

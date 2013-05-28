@@ -67,6 +67,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         bool getResizeContents();
 
         QString getContainedFrameworkVersion(); // Get the versino of the first QE widget (if any) of QE widgets by QUILoader
+        QString getUniqueIdentifier(){ return uniqueIdentifier; }
+        void setUniqueIdentifier( QString name ){ uniqueIdentifier = name; }
 
     public slots:
         bool readUiFile();
@@ -106,7 +108,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         void restoreConfiguration( PersistanceManager* pm, int restorePhase );
         void reloadFile();
 
-
+        QString uniqueIdentifier; // Should be set up by an application using the persistance manager and creating more than one top level QEForm. Not required if only one QEForm is used.
 
     public:
         // Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.

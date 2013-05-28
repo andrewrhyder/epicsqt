@@ -71,6 +71,8 @@ public:
     void        addGui( QEForm* gui, MainWindow* window );  // Add a GUI to the application's list of GUIs
     bool        removeGui( QEForm* gui );                   // Remove a GUI from the application's list of GUIs
 
+    void        identifyWindowsAndForms();                  // Ensure all main windows and QEForms managed by this application (top level forms) have a unique identifier
+
 signals:
 
 public slots:

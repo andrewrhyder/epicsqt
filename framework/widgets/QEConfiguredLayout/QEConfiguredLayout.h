@@ -272,7 +272,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QEW
 
         void refreshFields();
 
-        void userLevelChanged(userLevels pValue);
+        void userLevelChanged( userLevelTypes::userLevels pValue );
 
         QList <_Item *> itemList;    // TODO: this attribute shoule be private
 
@@ -328,9 +328,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEConfiguredLayout:public QWidget, public QEW
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
         enum userTypesProperty
         {
-            User = USERLEVEL_USER,
-            Scientist = USERLEVEL_SCIENTIST,
-            Engineer = USERLEVEL_ENGINEER
+            User =      userLevelTypes::USERLEVEL_USER,
+            Scientist = userLevelTypes::USERLEVEL_SCIENTIST,
+            Engineer =  userLevelTypes::USERLEVEL_ENGINEER
         };
 
         void setCurrentUserTypeProperty(userTypesProperty pUserType)

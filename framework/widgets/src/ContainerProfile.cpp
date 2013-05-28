@@ -86,8 +86,8 @@ ContainerProfile::ContainerProfile()
 {
     // Set up the object that will recieve signals that the user level has changed
     userSlot.setOwner( this );
-    QObject::connect( &(getPublishedProfile()->userSignal),  SIGNAL( userChanged( userLevels ) ),
-                      &userSlot,    SLOT  ( userChanged( userLevels ) ) );
+    QObject::connect( &(getPublishedProfile()->userSignal),  SIGNAL( userChanged( userLevelTypes::userLevels ) ),
+                      &userSlot,    SLOT  ( userChanged( userLevelTypes::userLevels ) ) );
 
     // Take a local copy of the defined profile
     takeLocalCopy();
@@ -594,13 +594,13 @@ QEWidget* ContainerProfile::getNextContainedWidget()
 /*
   Get the local copy of the user level password for the specified user level
   */
-QString ContainerProfile::getUserLevelPassword( userLevels level )
+QString ContainerProfile::getUserLevelPassword( userLevelTypes::userLevels level )
 {
     switch( level )
     {
-        case USERLEVEL_USER:      return getPublishedProfile()->userLevelPassword;      break;
-        case USERLEVEL_SCIENTIST: return getPublishedProfile()->scientistLevelPassword; break;
-        case USERLEVEL_ENGINEER:  return getPublishedProfile()->engineerLevelPassword;  break;
+        case userLevelTypes::USERLEVEL_USER:      return getPublishedProfile()->userLevelPassword;      break;
+        case userLevelTypes::USERLEVEL_SCIENTIST: return getPublishedProfile()->scientistLevelPassword; break;
+        case userLevelTypes::USERLEVEL_ENGINEER:  return getPublishedProfile()->engineerLevelPassword;  break;
         default: return QString();
     }
 }
@@ -608,13 +608,13 @@ QString ContainerProfile::getUserLevelPassword( userLevels level )
 /*
   Set the local copy of the user level password for the specified user level
   */
-void ContainerProfile::setUserLevelPassword( userLevels level, QString passwordIn )
+void ContainerProfile::setUserLevelPassword( userLevelTypes::userLevels level, QString passwordIn )
 {
     switch( level )
     {
-        case USERLEVEL_USER:      getPublishedProfile()->userLevelPassword      = passwordIn; break;
-        case USERLEVEL_SCIENTIST: getPublishedProfile()->scientistLevelPassword = passwordIn; break;
-        case USERLEVEL_ENGINEER:  getPublishedProfile()->engineerLevelPassword  = passwordIn; break;
+        case userLevelTypes::USERLEVEL_USER:      getPublishedProfile()->userLevelPassword      = passwordIn; break;
+        case userLevelTypes::USERLEVEL_SCIENTIST: getPublishedProfile()->scientistLevelPassword = passwordIn; break;
+        case userLevelTypes::USERLEVEL_ENGINEER:  getPublishedProfile()->engineerLevelPassword  = passwordIn; break;
     }
     getPublishedProfile()->userLevelPasswordsSet = true;
 }
@@ -623,7 +623,7 @@ void ContainerProfile::setUserLevelPassword( userLevels level, QString passwordI
 /*
   Set the application user type (user/scientist/engineer)
   */
-void ContainerProfile::setUserLevel( userLevels level )
+void ContainerProfile::setUserLevel( userLevelTypes::userLevels level )
 {
     // Update the user level (this will result in a signal being emited
     getPublishedProfile()->userSignal.setLevel( level );
@@ -632,7 +632,7 @@ void ContainerProfile::setUserLevel( userLevels level )
 
 
 
-void userLevelSignal::setLevel( userLevels levelIn )
+void userLevelSignal::setLevel( userLevelTypes::userLevels levelIn )
 {
     level = levelIn;
     emit userChanged( level );
@@ -641,39 +641,9 @@ void userLevelSignal::setLevel( userLevels levelIn )
 /*
   Get the application user type (user/scientist/engineer)
   */
-userLevels ContainerProfile::getUserLevel()
+userLevelTypes::userLevels ContainerProfile::getUserLevel()
 {
     return getPublishedProfile()->userSignal.getLevel();
-}
-
-QString ContainerProfile::getIdRoot()
-{
-    PublishedProfile* publishedProfile = getPublishedProfile();
-
-    int n = publishedProfile->idRootList.count();
-    QString rootString;
-    for( int i = 0; i < n; i++ )
-    {
-        if( i > 0 )
-        {
-            rootString.append( "_" );
-        }
-        rootString.append( publishedProfile->idRootList[i] );
-    }
-
-    return rootString;
-}
-
-void ContainerProfile::addIdRoot( QString root )
-{
-    getPublishedProfile()->idRootList.append( root );
-}
-
-void ContainerProfile::removeIdRoot()
-{
-    PublishedProfile* publishedProfile = getPublishedProfile();
-    if( publishedProfile->idRootList.count() )
-        publishedProfile->idRootList.removeLast();
 }
 
 userLevelSlot::userLevelSlot()
@@ -689,7 +659,7 @@ void userLevelSlot::setOwner( ContainerProfile* ownerIn )
     owner = ownerIn;
 }
 
-void userLevelSlot::userChanged( userLevels level )
+void userLevelSlot::userChanged( userLevelTypes::userLevels level )
 {
     if( owner )
         owner->userLevelChanged( level );
@@ -697,13 +667,13 @@ void userLevelSlot::userChanged( userLevels level )
 
 userLevelSignal::userLevelSignal()
 {
-    level = USERLEVEL_USER;
+    level = userLevelTypes::USERLEVEL_USER;
 }
 userLevelSignal::~userLevelSignal()
 {
 }
 
-userLevels userLevelSignal::getLevel()
+userLevelTypes::userLevels userLevelSignal::getLevel()
 {
     return level;
 }

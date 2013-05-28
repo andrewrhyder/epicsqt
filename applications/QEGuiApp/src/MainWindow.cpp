@@ -44,8 +44,6 @@
 #define DESIGNER_COMMAND_1 "designer-qt4"
 #define DESIGNER_COMMAND_2 "designer"
 
-int MainWindow::nextUniqueId = 0;
-
 Q_DECLARE_METATYPE( QEForm* )
 
 //=================================================================================
@@ -134,17 +132,8 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
     // Setup the main window icon
     setWindowIcon( QIcon (":/icons/QEGuiIcon.png" ));
 
-    // Clear unique Id
-    uniqueId = 0;
-
     // Restore (will only do anything if this main window is being created during a restore)
     saveRestore( SaveRestoreSignal::RESTORE_1 );
-
-    // If we got a restored unique ID, then go with it, otherwise, generate a unique id for this main window.
-    if( !uniqueId )
-    {
-        getUniqueId();
-    }
 }
 
 // Destructor
@@ -399,12 +388,12 @@ void MainWindow::on_actionAbout_triggered()
 
     // Add the current user level
     about.append( "\n\n\nCurrent User Level:\n      " );
-    userLevels level = profile.getUserLevel();
+    userLevelTypes::userLevels level = profile.getUserLevel();
     switch( level )
     {
-        case USERLEVEL_USER:      about.append( "User" );      break;
-        case USERLEVEL_SCIENTIST: about.append( "Scientist" ); break;
-        case USERLEVEL_ENGINEER:  about.append( "Engineer" );  break;
+        case userLevelTypes::USERLEVEL_USER:      about.append( "User" );      break;
+        case userLevelTypes::USERLEVEL_SCIENTIST: about.append( "Scientist" ); break;
+        case userLevelTypes::USERLEVEL_ENGINEER:  about.append( "Engineer" );  break;
     }
 
     // Add the configuration file details
@@ -1012,6 +1001,11 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 // A profile should have been published before calling this method.
 QEForm* MainWindow::createGui( QString fileName )
 {
+    return createGui( fileName, QString() );
+}
+
+QEForm* MainWindow::createGui( QString fileName, QString restoreId )
+{
     // Don't do anything if no filename was supplied
     if (fileName.isEmpty())
         return NULL;
@@ -1023,13 +1017,13 @@ QEForm* MainWindow::createGui( QString fileName )
     // Inform user
     newMessage( QString( "Opening %1 in new window " ).arg( fileName ), message_types ( MESSAGE_TYPE_INFO ) );
 
-    profile.addIdRoot( QString( "MW-%1" ).arg( uniqueId ));
-
     // Build the gui
     QEForm* gui = new QEForm( fileName );
+    if( !restoreId.isNull() )
+    {
+        gui->setUniqueIdentifier( restoreId );
+    }
     gui->setResizeContents( false );
-
-    profile.removeIdRoot();
 
     // If built ok, read the ui file
     if( gui )
@@ -1262,6 +1256,9 @@ void MainWindow::on_actionSave_Configuration_triggered()
         configName = sd.getName();
     }
 
+    // Give all main windows and top level QEForms (managed by this application) a unique identifier required for restoration
+    app->identifyWindowsAndForms();
+
     // Ask the persistance manager to save the current configuration.
     // The persistance manager will signal all interested objects (including this application) that
     // they should present anything they wish to save.
@@ -1353,10 +1350,11 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                     {
                         PMElement form =  mw.addElement( "Gui" );
                         form.addAttribute( "Name", app->getGuiForm( i )->getFullFileName() );
+                        form.addAttribute( "ID", app->getGuiForm( i )->getUniqueIdentifier() );
 
                         if( app->getGuiForm( i ) == currentGui )
                         {
-                            form.addAttribute( "CurrentGui", "Yes" );
+                            form.addAttribute( "CurrentGui", true );
                         }
 
                         form.addValue( "MacroSubstitutions", profile.getMacroSubstitutions() );
@@ -1460,7 +1458,9 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                         QString name;
                         if( guiElement.getAttribute( "Name", name ) )
                         {
-                            QEForm* gui = createGui( name );
+                            QString restoreId;
+                            guiElement.getAttribute( "ID", restoreId );
+                            QEForm* gui = createGui( name, restoreId );
                             if( i == 0)
                             {
                                 // Load the gui into the main window
@@ -1476,8 +1476,9 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             }
 
                             // Note if this gui is the current gui
-                            QString currentGuiFlag;
-                            if( guiElement.getAttribute( "CurrentGui", currentGuiFlag ) )
+                            bool currentGuiFlag = false;
+                            guiElement.getAttribute( "CurrentGui", currentGuiFlag ) ;
+                            if( currentGuiFlag )
                             {
                                 currentGui = gui;
                             }
@@ -1533,30 +1534,6 @@ void MainWindow::closeAll()
         mw->beingDeleted = true;
         mw->deleteLater();
         app->removeMainWindow( 0 );
-    }
-}
-
-// Generate a unique main window ID
-void MainWindow::getUniqueId()
-{
-    // Keep incrementing the unique ID until one is found that isn't in use.
-    // (the next increment for uniqueId may not be unique since IDs are restored
-    // during a restore operation)
-    while( true )
-    {
-        uniqueId = ++nextUniqueId;
-        int i;
-        int c = app->getMainWindowCount();
-        for( i = 0; i < c; i++ )
-        {
-            MainWindow* mw = app->getMainWindow( i );
-            if( mw != this && mw->uniqueId == uniqueId )
-                break;
-        }
-        if( i == c )
-        {
-            break;
-        }
     }
 }
 
