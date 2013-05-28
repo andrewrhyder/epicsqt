@@ -107,7 +107,7 @@ void QEGui::printVersion ()
 // Print command line usage
 void QEGui::printUsage (std::ostream & stream)
 {
-    stream  << "usage: QEGui [-v] [-h] [-a scale] [-s] [-e] [-b] [-m macros] [-r [configuration_name]] [-c configuration_file] [-p pathname] [file_name] [file_name] [file_name...]\n";
+    stream  << "usage: qegui [-v] [-h] [-a scale] [-s] [-e] [-b] [-m macros] [-r [configuration_name]] [-c configuration_file] [-p pathname] [file_name] [file_name] [file_name...]\n";
 }
 
 // Prinf command line help
