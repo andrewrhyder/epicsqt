@@ -354,7 +354,7 @@ int QEConfiguredLayout::getDetailsLayout()
 
 
 
-void QEConfiguredLayout::userLevelChanged(userLevels pValue)
+void QEConfiguredLayout::userLevelChanged(userLevelTypes::userLevels pValue)
 {
 
     if (subscription)
@@ -375,15 +375,15 @@ void QEConfiguredLayout::setCurrentUserType(int pValue)
     int i;
 
 
-    if (pValue == USERLEVEL_USER || pValue == USERLEVEL_SCIENTIST || pValue == USERLEVEL_ENGINEER)
+    if (pValue == userLevelTypes::USERLEVEL_USER || pValue == userLevelTypes::USERLEVEL_SCIENTIST || pValue == userLevelTypes::USERLEVEL_ENGINEER)
     {
         currentUserType = pValue;
         switch (currentUserType)
         {
-            case USERLEVEL_USER:
+            case userLevelTypes::USERLEVEL_USER:
                 userType = "USER";
                 break;
-            case USERLEVEL_SCIENTIST:
+            case userLevelTypes::USERLEVEL_SCIENTIST:
                 userType = "SCIENTIST";
                 break;
             default:
@@ -470,10 +470,10 @@ void QEConfiguredLayout::refreshFields()
     {
         switch (currentUserType)
         {
-            case USERLEVEL_USER:
+            case userLevelTypes::USERLEVEL_USER:
                 userType = "USER";
                 break;
-            case USERLEVEL_SCIENTIST:
+            case userLevelTypes::USERLEVEL_SCIENTIST:
                 userType = "SCIENTIST";
                 break;
             default:

@@ -39,7 +39,7 @@ styleManager::styleManager( QWidget* ownerIn )
     owner = ownerIn;
     defaultStyleSheet = owner->styleSheet();
 
-    level = USERLEVEL_USER;
+    level = userLevelTypes::USERLEVEL_USER;
 }
 
 // Set the Style Sheet string to be applied when the widget is displayed in 'User' mode.
@@ -112,15 +112,15 @@ void styleManager::updateStyleSheet()
     QString levelStyle;
     switch( level )
     {
-        case USERLEVEL_USER:
+        case userLevelTypes::USERLEVEL_USER:
             levelStyle = userUserStyle;
             break;
 
-        case USERLEVEL_SCIENTIST:
+        case userLevelTypes::USERLEVEL_SCIENTIST:
             levelStyle = userScientistStyle;
             break;
 
-        case USERLEVEL_ENGINEER:
+        case userLevelTypes::USERLEVEL_ENGINEER:
             levelStyle = userEngineerStyle;
             break;
     }
@@ -156,7 +156,7 @@ void styleManager::updateStyleSheet()
 }
 
 // Set the current user level.
-void styleManager::styleUserLevelChanged( userLevels levelIn )
+void styleManager::styleUserLevelChanged( userLevelTypes::userLevels levelIn )
 {
     // Note the new style and update the style string if changed
     bool newLevel = level != levelIn;

@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <saveRestoreManager.h>
 #include <QSettings>
+#include "QEForm.h"
 
 // Construction
 QEGui::QEGui(int argc, char *argv[] ) : QApplication( argc, argv )
@@ -69,9 +70,9 @@ int QEGui::run()
 
     // Restore the user level passwords
     QSettings settings( "epicsqt", "QEGui");
-    setUserLevelPassword( USERLEVEL_USER, settings.value( "userPassword" ).toString() );
-    setUserLevelPassword( USERLEVEL_SCIENTIST, settings.value( "scientistPassword" ).toString()  );
-    setUserLevelPassword( USERLEVEL_ENGINEER, settings.value( "engineerPassword" ).toString()  );
+    setUserLevelPassword( userLevelTypes::USERLEVEL_USER, settings.value( "userPassword" ).toString() );
+    setUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST, settings.value( "scientistPassword" ).toString()  );
+    setUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER, settings.value( "engineerPassword" ).toString()  );
 
     // Prepare to manage save and restore
     // Note, main windows look after them selves, this is for the overall application
@@ -88,9 +89,9 @@ int QEGui::run()
     instance.newWindow( params );
     int ret = exec();
 
-    settings.setValue( "userPassword", getUserLevelPassword( USERLEVEL_USER ));
-    settings.setValue( "scientistPassword", getUserLevelPassword( USERLEVEL_SCIENTIST ));
-    settings.setValue( "engineerPassword", getUserLevelPassword( USERLEVEL_ENGINEER ));
+    settings.setValue( "userPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_USER ));
+    settings.setValue( "scientistPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST ));
+    settings.setValue( "engineerPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER ));
 
     return ret;
 }
@@ -337,3 +338,23 @@ bool QEGui::removeGui( QEForm* gui )
     return false;
 }
 
+// Ensure all main windows and QEForms managed by this application (top level forms) have a unique identifier
+void QEGui::identifyWindowsAndForms()
+{
+    // Give all main windows a unique ID for restoration purposes
+    for( int i = 0; i < mainWindowList.count(); i++ )
+    {
+        mainWindowList[i]->setUniqueId( i );
+    }
+
+    // Give all top level QEForms (managed by this application - not sub forms) a unique ID for restoration purposes
+    for( int i = 0; i < guiList.count(); i++ )
+    {
+        // Get form and main window details
+        guiListItem* guiItem = &guiList[i];
+        MainWindow* mw = guiItem->getMainWindow();
+
+        QString name = QString("QEGui_window_%1_form_%2" ).arg( mw->getUniqueId() ).arg( i );
+        guiItem->getForm()->setUniqueIdentifier( name );
+    }
+}

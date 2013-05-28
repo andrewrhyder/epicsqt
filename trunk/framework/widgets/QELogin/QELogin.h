@@ -140,7 +140,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QEWidget
         void setDetailsLayout(int pValue);
         int getDetailsLayout();
 
-        QString getUserTypeName( userLevels type );
+        QString getUserTypeName( userLevelTypes::userLevels type );
 
         void logoutCurrentUserType();
 
@@ -160,9 +160,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QEWidget
         Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
         enum userTypesProperty
         {
-            User = USERLEVEL_USER,
-            Scientist = USERLEVEL_SCIENTIST,
-            Engineer = USERLEVEL_ENGINEER
+            User      = userLevelTypes::USERLEVEL_USER,
+            Scientist = userLevelTypes::USERLEVEL_SCIENTIST,
+            Engineer  = userLevelTypes::USERLEVEL_ENGINEER
         };
 
         void setCurrentUserTypeProperty(userTypesProperty pUserType)

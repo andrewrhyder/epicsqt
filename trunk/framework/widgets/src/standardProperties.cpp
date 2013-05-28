@@ -46,9 +46,9 @@ standardProperties::standardProperties( QWidget* ownerIn )
     // Keep a handle on the underlying QWidget of the QE widgets
     owner = ownerIn;
 
-    visibilityLevel = USERLEVEL_USER;
-    enabledLevel = USERLEVEL_USER;
-    currentLevel = USERLEVEL_USER;
+    visibilityLevel = userLevelTypes::USERLEVEL_USER;
+    enabledLevel = userLevelTypes::USERLEVEL_USER;
+    currentLevel = userLevelTypes::USERLEVEL_USER;
 
     dataDisabled = false;
 
@@ -59,23 +59,23 @@ standardProperties::standardProperties( QWidget* ownerIn )
 }
 
 // !!
-userLevels standardProperties::getUserLevelVisibility()
+userLevelTypes::userLevels standardProperties::getUserLevelVisibility()
 {
     return visibilityLevel;
 }
 
-void standardProperties::setUserLevelVisibility( userLevels levelIn )
+void standardProperties::setUserLevelVisibility( userLevelTypes::userLevels levelIn )
 {
     visibilityLevel = levelIn;
     setSuperVisibility();
 }
 
-userLevels standardProperties::getUserLevelEnabled()
+userLevelTypes::userLevels standardProperties::getUserLevelEnabled()
 {
     return enabledLevel;
 }
 
-void standardProperties::setUserLevelEnabled( userLevels levelIn )
+void standardProperties::setUserLevelEnabled( userLevelTypes::userLevels levelIn )
 {
     enabledLevel = levelIn;
     setSuperEnabled();
@@ -139,7 +139,7 @@ void standardProperties::setDataDisabled( bool disable )
     setSuperEnabled();
 }
 
-void standardProperties::checkVisibilityEnabledLevel( userLevels level )
+void standardProperties::checkVisibilityEnabledLevel( userLevelTypes::userLevels level )
 {
     currentLevel = level;
     setSuperEnabled();

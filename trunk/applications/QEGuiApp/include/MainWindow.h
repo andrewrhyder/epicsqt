@@ -52,6 +52,8 @@ public:
     ~MainWindow();
 
     void closeAll();                                        // Static function to close all main windows
+    void setUniqueId( int restoreId ){ uniqueId = restoreId; } // Set up an ID that will be used during a restore
+    int getUniqueId(){ return uniqueId; }
 
 private:
     Ui::MainWindowClass ui;                                 // Main window layout
@@ -60,6 +62,7 @@ private:
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
     QEForm* createGui( QString filename );                  // Create a gui
+    QEForm* createGui( QString fileName, QString restoreId ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
     void launchLocalGui( QString filename );                // Launch a new gui from the 'File' menu
@@ -95,9 +98,7 @@ private:
 
     QString UILoaderFrameworkVersion;                       // QE framework version used by QUILoader when creating widgets in a form
 
-    void getUniqueId();                                     // Generate a unique main window ID
     int uniqueId;                                           // An ID unique to this window. Used when saving configuration.
-    static int nextUniqueId;                                // Next unique main window ID. (warning. may need to skip IDs in restored windows)
 
     QScrollArea* guiScrollArea( QEForm* gui );              // Return the scroll area a gui is in if it is in one.
     QRect setGeomRect;                                      // Parameter to setGeom() slot (This slot is called from the timer and can't take parameters)

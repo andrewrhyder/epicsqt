@@ -36,15 +36,24 @@
 class QEWidget;
 class ContainerProfile;
 
+
 // Define the user levels
-// NOTE: order must remain least privileged to most privileged
-/// \public
-/// \enum userLevels
-/// User levels set by widgets such as QELogin and used by many widgets to determine visibility, enabled state, and style.
-enum userLevels { USERLEVEL_USER,       ///< User level - least privilaged
-                  USERLEVEL_SCIENTIST,  ///< User level - more privilaged than user, less than engineer
-                  USERLEVEL_ENGINEER    ///< User level - most privilaged
-              };
+class userLevelTypes : public QObject
+{
+    Q_OBJECT
+public:
+
+    // Define the user levels
+    // NOTE: order must remain least privileged to most privileged
+    /// \public
+    /// \enum userLevels
+    /// User levels set by widgets such as QELogin and used by many widgets to determine visibility, enabled state, and style.
+    enum userLevels { USERLEVEL_USER,       ///< User level - least privilaged
+                      USERLEVEL_SCIENTIST,  ///< User level - more privilaged than user, less than engineer
+                      USERLEVEL_ENGINEER    ///< User level - most privilaged
+                    };
+    Q_ENUMS (userLevels)
+};
 
 // Class used to generate signals that the user level has changed.
 // A single instance of this class is shared by all instances of
@@ -67,20 +76,20 @@ public:
     // Set the application wide user level
     // When level is set in the single instance of this class, all ContainerProfile
     // classes are signaled
-    void setLevel( userLevels levelIn );
+    void setLevel( userLevelTypes::userLevels levelIn );
 
     // Get the application wide user level
     // Each widget can reimplement ContainerProfile::userLevelChanged() to be
     // notified of user level changes, but this function can be used to
     // determine the user level when a widget is first created
-    userLevels getLevel();
+    userLevelTypes::userLevels getLevel();
 
   signals:
     /// Internal use only. Send when the user level has changed
-    void userChanged( userLevels level );   // User level change signal
+    void userChanged( userLevelTypes::userLevels level );   // User level change signal
 
   private:
-    userLevels level;    // Current user level
+    userLevelTypes::userLevels level;    // Current user level
 
 };
 
@@ -105,7 +114,7 @@ public:
     void setOwner( ContainerProfile* ownerIn );
 
 public slots:
-    void userChanged( userLevels level );  // Receive user level change signals
+    void userChanged( userLevelTypes::userLevels level );  // Receive user level change signals
 
 private:
     ContainerProfile* owner;                                // ContainerProfile class that this instance is a part of
@@ -158,8 +167,6 @@ public:
     PersistanceManager persistanceManager;  // Persistance manager to manage configuration save and restore
     bool dontActivateYet;               // Flag true if QE widgets should hold of activating (connection to data) until told to do so
 
-    QStringList idRootList;             //
-
     bool userLevelPasswordsSet;         // One or more user level passwords have been set. Use passwords defined in the profile
 
 };
@@ -202,8 +209,8 @@ public:
 
     QStringList getEnvPathList();             // Get the path list from the environment variable
 
-    QString getUserLevelPassword( userLevels level );  // Get the local copy of the user level password for the specified user level
-    void setUserLevelPassword( userLevels level, QString passwordIn );  // Set the local copy of the user level password for the specified user level
+    QString getUserLevelPassword( userLevelTypes::userLevels level );  // Get the local copy of the user level password for the specified user level
+    void setUserLevelPassword( userLevelTypes::userLevels level, QString passwordIn );  // Set the local copy of the user level password for the specified user level
 
     void addContainedWidget( QEWidget* containedWidget );    // Adds a reference to the list of QE widgets created with this profile
     QEWidget* getNextContainedWidget();                      // Returns a reference to the next QE widgets in the list of QE widgets created with this profile
@@ -220,16 +227,12 @@ public:
 
     void publishOwnProfile();                           // Set the published profile to whatever is saved in our local copy
 
-    void setUserLevel( userLevels level );              // Set the current user level
-    userLevels getUserLevel();                          // Return the current user level
+    void setUserLevel( userLevelTypes::userLevels level );              // Set the current user level
+    userLevelTypes::userLevels getUserLevel();                          // Return the current user level
 
-    virtual void userLevelChanged( userLevels ){}       // Virtual function implemented by widgets based on QEWidget to allow them to be notified of changes in user level
+    virtual void userLevelChanged( userLevelTypes::userLevels ){}       // Virtual function implemented by widgets based on QEWidget to allow them to be notified of changes in user level
 
     PersistanceManager* getPersistanceManager();        // Return a reference to the single persistance manager
-
-    QString getIdRoot();
-    void addIdRoot( QString root );
-    void removeIdRoot();
 
 private:
     void publishProfile( QObject* guiLaunchConsumerIn,
@@ -247,10 +250,6 @@ private:
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
 
     unsigned int messageFormId;      // Local copy of current form ID. Used to group forms with their widgets for messaging
-
-//    QString userLevelPassword;                      // Password for 'user' user level
-//    QString scientistLevelPassword;                 // Password for 'scientist' user level
-//    QString engineerLevelPassword;                  // Password for 'engineer' user level
 };
 
 #endif // CONTAINERPROFILE_H

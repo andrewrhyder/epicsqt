@@ -41,9 +41,9 @@ PasswordDialog::PasswordDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
-    ui->lineEditUser->setText( profile.getUserLevelPassword( USERLEVEL_USER ) );
-    ui->lineEditScientist->setText( profile.getUserLevelPassword( USERLEVEL_SCIENTIST ) );
-    ui->lineEditEngineer->setText( profile.getUserLevelPassword( USERLEVEL_ENGINEER ) );
+    ui->lineEditUser->setText( profile.getUserLevelPassword( userLevelTypes::USERLEVEL_USER ) );
+    ui->lineEditScientist->setText( profile.getUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST ) );
+    ui->lineEditEngineer->setText( profile.getUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER ) );
 }
 
 PasswordDialog::~PasswordDialog()
@@ -55,7 +55,7 @@ void PasswordDialog::on_buttonBox_accepted()
 {
     ContainerProfile profile;
 
-    profile.setUserLevelPassword( USERLEVEL_USER, ui->lineEditUser->text() );
-    profile.setUserLevelPassword( USERLEVEL_SCIENTIST, ui->lineEditScientist->text() );
-    profile.setUserLevelPassword( USERLEVEL_ENGINEER, ui->lineEditEngineer->text() );
+    profile.setUserLevelPassword( userLevelTypes::USERLEVEL_USER, ui->lineEditUser->text() );
+    profile.setUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST, ui->lineEditScientist->text() );
+    profile.setUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER, ui->lineEditEngineer->text() );
 }
