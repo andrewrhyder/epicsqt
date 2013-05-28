@@ -28,6 +28,7 @@
   It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
+#include <QDebug>
 #include <QEComboBox.h>
 
 /*
@@ -51,6 +52,9 @@ QEComboBox::QEComboBox( const QString &variableNameIn, QWidget *parent ) : QComb
     Common construction
 */
 void QEComboBox::setup() {
+    // Some environmnts seem to stuff this up - set explicitly.
+    updatePropertyStyle ("QWidget { selection-background-color: rgb(80, 160, 255); } " );
+
     // Set up data
     // This control used a single data source
     setNumVariables(1);
