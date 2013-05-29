@@ -89,6 +89,7 @@ int QEGui::run()
     instance.newWindow( params );
     int ret = exec();
 
+    // Save passwords
     settings.setValue( "userPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_USER ));
     settings.setValue( "scientistPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST ));
     settings.setValue( "engineerPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER ));

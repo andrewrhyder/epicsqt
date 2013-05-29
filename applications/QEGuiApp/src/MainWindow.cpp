@@ -220,14 +220,52 @@ void MainWindow::on_actionStrip_Chart_triggered() { launchLocalGui( ":/forms/Str
 void MainWindow::on_actionUser_Level_triggered()  { launchLocalGui( ":/forms/UserLevel.ui"    ); }
 void MainWindow::on_actionMessage_Log_triggered() { launchLocalGui( ":/forms/MessageLog.ui"   ); }
 
+// Close this window
+void MainWindow::closeEvent(QCloseEvent *event)
+ {
+     // If there is only one GUI open (max), just exit
+     int guiCount = 0;
+     for( int i = 0; i < app->getGuiCount(); i++ )
+     {
+         if( app->getGuiMainWindow(i) == this )
+         {
+             guiCount++;
+         }
+     }
+     if( guiCount <= 1 )
+     {
+         event->accept();
+         return;
+     }
+
+     // If more than one GUI is open, check what the user wants to do
+     QMessageBox msgBox;
+     msgBox.setText( "This window has more than one form open. Do you want to close them all?" );
+     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+     msgBox.setDefaultButton(QMessageBox::Cancel);
+     switch ( msgBox.exec() )
+     {
+        case QMessageBox::Yes:
+             // Yes, close the window.
+             event->accept();
+             break;
+
+        case QMessageBox::Cancel:
+        default:
+             // Cancel, do nothing
+             event->ignore();
+             break;
+      }
+ }
+
 // Exit.
 // If more than one window is present, offer to close the current window, or all of them
 void MainWindow::on_actionExit_triggered()
 {
-    // If there is only one GUI open (max), just exit
+    // If there is only one window open (max), just exit
     if( app->getMainWindowCount() <= 1 )
     {
-        exit(0);
+        QCoreApplication::exit(0);
     }
 
     QString msg;
@@ -250,7 +288,7 @@ void MainWindow::on_actionExit_triggered()
        case QMessageBox::Yes:
             // Yes, close all windows.
             // Simply exit!
-            exit(0);
+            QCoreApplication::exit(0);
             break;
 
        case QMessageBox::No:
@@ -398,6 +436,14 @@ void MainWindow::on_actionAbout_triggered()
 
     // Add the configuration file details
     about.append( "\n\n\nConfiguration file:\n      " ).append( app->getParams()->configurationFile );
+
+    // Add the current forms
+    about.append( "\n\n\nOpen GUI files:\n" );
+    for( int i = 0; i < app->getGuiCount(); i++ )
+    {
+        about.append( "\n      " ).append( app->getGuiForm(i)->getQEGuiTitle() );
+        about.append( "\n      " ).append( app->getGuiForm(i)->getFullFileName() );
+    }
 
     // Display the 'about' text
     QMessageBox::about(this, "About QEGui", about );

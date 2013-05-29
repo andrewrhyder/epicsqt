@@ -110,6 +110,9 @@ private:
 
     QEGui* app;
 
+    void closeEvent(QCloseEvent *event);
+
+
 private:
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
 
