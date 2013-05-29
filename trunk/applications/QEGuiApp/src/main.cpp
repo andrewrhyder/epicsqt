@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 {
     QEGui* app = new QEGui( argc, argv );
     return app->run();
+    delete app;
 }
 
 // end
