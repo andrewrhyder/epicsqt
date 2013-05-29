@@ -58,7 +58,7 @@ public:
     ~saveRestoreSlot();
 
     // Set the QEWidget class that this instance is a part of
-    void setOwner( QEWidget* ownerIn );
+    void setOwner( QEWidget* ownerIn );     // Set the owner of this class which will be called when a signal is received
 
 public slots:
     void saveRestore( SaveRestoreSignal::saveRestoreOptions option );
@@ -132,6 +132,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT  QEWidget :
                  public standardProperties
 {
 public:
+    /// Restore phases. When a widget's persistant data is restored, the restore occurs in two phases.
+    enum restorePhases { APPLICATION = SaveRestoreSignal::RESTORE_APPLICATION, FRAMEWORK = SaveRestoreSignal::RESTORE_QEFRAMEWORK };
+
     /// Constructor
     QEWidget( QWidget* ownerIn );
 
@@ -211,7 +214,7 @@ public:
     /// Many QE widgets do not have any persistant data requirements and do not implement this method.
     /// This is called twice with an incrementing restorePhase. Most widgets will miss the first call
     /// as they don't exist yet (they are created as part of the first phase)
-    virtual void restoreConfiguration( PersistanceManager*, int ){}
+    virtual void restoreConfiguration( PersistanceManager*, restorePhases ){}
 
     /// Any QEWidget that requires additional scaling, i.e. above and beyond the standard scaling
     /// applied to size, minimum size, maximum size and font size may override this function in

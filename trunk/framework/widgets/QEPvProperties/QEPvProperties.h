@@ -259,7 +259,7 @@ protected:
    void dropEvent (QDropEvent *event)           { qcaDropEvent(event); }
    void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
    void saveConfiguration (PersistanceManager* pm);
-   void restoreConfiguration (PersistanceManager* pm, int restorePhase);
+   void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
    // Copy paste
    QString copyVariable();

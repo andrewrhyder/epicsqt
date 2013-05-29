@@ -543,7 +543,10 @@ void QEWidget::buildPersistantName( QWidget* w, QString& name )
     return;
 }
 
+//===========================================================================
+// Class used to recieve save and restore signals from persistance manager.
 
+// Constructor, destructor
 saveRestoreSlot::saveRestoreSlot()
 {
     owner = NULL;
@@ -552,6 +555,7 @@ saveRestoreSlot::~saveRestoreSlot()
 {
 }
 
+// Set the owner of this class which will be called when a signal is received
 void saveRestoreSlot::setOwner( QEWidget* ownerIn )
 {
     owner = ownerIn;
@@ -560,29 +564,43 @@ void saveRestoreSlot::setOwner( QEWidget* ownerIn )
 // A save or restore has been requested
 void saveRestoreSlot::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 {
+    // Sanity check
     if( !owner )
     {
         return;
     }
 
+    // Get the persistance manager
     PersistanceManager* pm = owner->getPersistanceManager();
     if( !pm )
     {
         return;
     }
 
+    // Get the QE widget to perform the appropriate action
     switch( option )
     {
+        // Save the persistant widget data
         case SaveRestoreSignal::SAVE:
             owner->saveConfiguration( pm );
             break;
 
-        case SaveRestoreSignal::RESTORE_1:
-            owner->restoreConfiguration( pm, 1 );
+        // Restore the widget persistant data (application phase)
+        // If the restore is being performed from QEGui there probably
+        // won't be many QE widgets around at the start of the restore.
+        // It is in this phase that QEGui will be creating the widgets.
+        // This phase is still delivered to QEWidgets as they can be
+        // used directly within an application, or unlike QEGui an
+        // application may have already created QEWidgets.
+        case SaveRestoreSignal::RESTORE_APPLICATION:
+            owner->restoreConfiguration( pm, QEWidget::APPLICATION );
             break;
 
-        case SaveRestoreSignal::RESTORE_2:
-            owner->restoreConfiguration( pm, 2 );
+        // Restore the widget persistant data (framework phase)
+        // If the restore is being performed from QEGui all the widgets
+        // required will be created by now and be ready to collect and use their own persistant datra
+        case SaveRestoreSignal::RESTORE_QEFRAMEWORK:
+            owner->restoreConfiguration( pm, QEWidget::FRAMEWORK );
             break;
     }
 }
