@@ -1862,12 +1862,12 @@ void QEStripChart::saveConfiguration (PersistanceManager* pm)
    // Do common stuff first.
    // How can we avoid doing this mutiple times??
    //
-   PMElement commonElement = pm->addElement ("QEStripChart_Common");
+   PMElement commonElement = pm->addNamedConfiguration ("QEStripChart_Common");
    predefinedPVNameList.saveConfiguration (commonElement);
 
    // Now do form instance specific stuff.
    //
-   PMElement formElement = pm->addElement (formName);
+   PMElement formElement = pm->addNamedConfiguration (formName);
 
    // Capture current state.
    //
@@ -1890,7 +1890,7 @@ void QEStripChart::saveConfiguration (PersistanceManager* pm)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::restoreConfiguration (PersistanceManager * pm, int restorePhase)
+void QEStripChart::restoreConfiguration (PersistanceManager * pm, restorePhases restorePhase)
 {
    const QString formName = this->persistantName ("QEStripChart");
 
@@ -1899,12 +1899,12 @@ void QEStripChart::restoreConfiguration (PersistanceManager * pm, int restorePha
    // Do common stuff first.
    // How can we avoid doing this mutiple times??
    //
-   PMElement commonElement = pm->getMyData ("QEStripChart_Common");
+   PMElement commonElement = pm->getNamedConfiguration ("QEStripChart_Common");
    predefinedPVNameList.restoreConfiguration (commonElement);
 
    // Now do form instance specific stuff.
    //
-   PMElement formElement = pm->getMyData (formName);
+   PMElement formElement = pm->getNamedConfiguration (formName);
 
    // Restore chart state.
    //

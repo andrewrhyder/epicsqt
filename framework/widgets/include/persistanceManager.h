@@ -44,8 +44,6 @@
 #include <QVariant>
 #include <QDomDocument>
 
-
-
 class PersistanceManager;
 // Class used to generate signals that a save or restore is require.
 // A single instance of this class is shared by all instances of
@@ -72,7 +70,7 @@ public:
 
 
 
-enum saveRestoreOptions { SAVE, RESTORE_1, RESTORE_2 };
+enum saveRestoreOptions { SAVE, RESTORE_APPLICATION, RESTORE_QEFRAMEWORK };
   signals:
     // Internal use only. Send when a save or restore is needed.
     void saveRestore( SaveRestoreSignal::saveRestoreOptions option );   // Saving or restoring
@@ -80,19 +78,6 @@ enum saveRestoreOptions { SAVE, RESTORE_1, RESTORE_2 };
   private:
     PersistanceManager* owner;
 };
-
-//// Class to save and return restore data
-//class PMTag
-//{
-//public:
-//    PMTag(){ isRoot = false; }
-//    PMTag( const QString tagIn, const QString dataIn ){ tag = tagIn; data = dataIn; isRoot = false; }
-
-////!!!private
-//    QString tag;
-//    QString data;
-//    bool isRoot;        // If set, data is nested tag/data and needs to be further disassembled
-//};
 
 // Class to maintain a context while parsing XML save/restore data
 class PMContext
@@ -105,15 +90,16 @@ private:
 
 class PMElement;
 
+// Class to conceal QDomNodeList from users of the persistance manager (and make it easier to add stuff)
 class QEPLUGINLIBRARYSHARED_EXPORT PMElementList: private QDomNodeList
 {
 public:
     PMElementList( PersistanceManager* ownerIn, QDomNodeList elementListIn );
-    PMElement getElement( int i );
-    int count(){ return ((QDomNodeList*)this)->count(); }
+    PMElement getElement( int i );                          // Get an element from the list
+    int count(){ return ((QDomNodeList*)this)->count(); }   // Return the size of the list
 
 private:
-    PersistanceManager* owner;
+    PersistanceManager* owner;                              // Persistant manager reference
 };
 
 // Class to conceal QDomElement from users of the persistance manager (and make it easier to add stuff)
@@ -123,14 +109,14 @@ public:
     PMElement( PersistanceManager* ownerIn, QDomElement elementIn );
     PMElement addElement( QString name );                   // Add an element
 
-    void addValue( QString name, bool value );              // Add an boolean value
+    void addValue( QString name, bool value );              // Add a boolean value
     void addValue( QString name, int value );               // Add an integer value
-    void addValue( QString name, double value );            // Add an double value
+    void addValue( QString name, double value );            // Add a double value
     void addValue( QString name, QString value );           // Add a string value
 
-    void addAttribute( QString name, bool value );          // Add an boolean attribute
+    void addAttribute( QString name, bool value );          // Add a boolean attribute
     void addAttribute( QString name, int value );           // Add an integer attribute
-    void addAttribute( QString name, double value );        // Add an double attribute
+    void addAttribute( QString name, double value );        // Add a double attribute
     void addAttribute( QString name, QString value );       // Add a string attribute
 
     PMElement getElement( QString name );                   // Get a named element
@@ -138,15 +124,15 @@ public:
 
     PMElementList getElementList( QString name );           // Get a named element list
 
-    bool getValue( QString name, bool& val );           // Get an boolean value
-    bool getValue( QString name, int& val );            // Get an integer value
-    bool getValue( QString name, double& val );         // Get an double value
-    bool getValue( QString name, QString& val );        // Get a string value
+    bool getValue( QString name, bool& val );               // Get a boolean value
+    bool getValue( QString name, int& val );                // Get an integer value
+    bool getValue( QString name, double& val );             // Get a double value
+    bool getValue( QString name, QString& val );            // Get a string value
 
-    bool getAttribute( QString name, bool& val );       // Get a named boolean attribute from an element
-    bool getAttribute( QString name, int& val );        // Get a named integer attribute from an element
-    bool getAttribute( QString name, double& val );     // Get a named double attribute from an element
-    bool getAttribute( QString name, QString& val );    // Get a named string attribute from an element
+    bool getAttribute( QString name, bool& val );           // Get a named boolean attribute from an element
+    bool getAttribute( QString name, int& val );            // Get a named integer attribute from an element
+    bool getAttribute( QString name, double& val );         // Get a named double attribute from an element
+    bool getAttribute( QString name, QString& val );        // Get a named string attribute from an element
 
     bool isNull(){ return QDomElement::isNull(); }          // Indicate if an element is empty
 
@@ -161,67 +147,60 @@ public:
 
     friend class PMElement;
 
-    PersistanceManager();
+    PersistanceManager();   // Construction
 
-    void save( const QString fileName, const QString rootName, const QString configName );            // Save the current configuration
-    void restore( const QString fileName, const QString rootName, const QString configName );         // Restore a configuration
+    // Main kickstarter methods
+    QObject* getSaveRestoreObject();                                                                  // Get a reference to the object that will supply save and restore signals
+    void     save( const QString fileName, const QString rootName, const QString configName );        // Save the current configuration
+    void     restore( const QString fileName, const QString rootName, const QString configName );     // Restore a configuration
 
-    PMElement addElement( QString name );
-    void addValue( QString name, QString value );
+    // Helper methods to build configuration data
+    PMElement addNamedConfiguration( QString name );               // Add a named configuration. Used during a save signal. The returned element is then loaded with configuration data
+    PMElement getNamedConfiguration( QString name );               // Get a named configuration. Used during a restore signal. The returned element contains the configuration data
 
-    QDomElement addDomElement( QString name );
-
-    QObject* getSaveRestoreObject();          // Get a reference to the object that will supply save and restore signals
-
-    PMElement getMyData( QString name );
-    QStringList getConfigNames( QString fileName, QString rootName );
-    void deleteConfigs( QString fileName, QString rootName, QStringList names );
+    // Configuration management
+    QStringList getConfigNames( QString fileName, QString rootName );                   // Get a list of the existing configurations
+    void deleteConfigs( QString fileName, QString rootName, QStringList names );        // Delete a list of configurations
 
 
 private:
-    bool openRead(  QString fileName, QString rootName );
+    bool openRead(  QString fileName, QString rootName );                   // Open and read the configuration file
 
-    PMElement addElement( QDomElement parent, QString name );
+    PMElement addElement( QDomElement parent, QString name );               // Add an element, return the new added element
 
-    void addValue( QDomElement parent, QString name, bool value );
-    void addValue( QDomElement parent, QString name, int value );
-    void addValue( QDomElement parent, QString name, double value );
-    void addValue( QDomElement parent, QString name, QString value );
+    void addValue( QDomElement parent, QString name, bool value );          // Add a boolean value to an element
+    void addValue( QDomElement parent, QString name, int value );           // Add an integer value to an element
+    void addValue( QDomElement parent, QString name, double value );        // Add a double value to an element
+    void addValue( QDomElement parent, QString name, QString value );       // Add a string value to an element
 
-    void addAttribute( QDomElement element, QString name, bool value );
-    void addAttribute( QDomElement element, QString name, int value );
-    void addAttribute( QDomElement element, QString name, double value );
-    void addAttribute( QDomElement element, QString name, QString value );
+    void addAttribute( QDomElement element, QString name, bool value );     // Add a boolean attribute to an element
+    void addAttribute( QDomElement element, QString name, int value );      // Add an integer attribute to an element
+    void addAttribute( QDomElement element, QString name, double value );   // Add a double attribute to an element
+    void addAttribute( QDomElement element, QString name, QString value );  // Add a string attribute to an element
 
-    QDomElement getElement( QDomElement element, QString name );
-    QDomElement getElement( QDomElement element, QString name, int i );
-    QDomElement getElement( QDomNodeList nodeList, int i );
+    QDomElement getElement( QDomElement element, QString name );            // Get the (first) named element from within an element
+    QDomElement getElement( QDomElement element, QString name, int i );     // Get one of any matching named elements from within an element
+    QDomElement getElement( QDomNodeList nodeList, int i );                 // Get an element from within an element
 
-    QDomNodeList getElementList( QDomElement element, QString name );
+    QDomNodeList getElementList( QDomElement element, QString name );       // Get a named element list from an element
 
-    bool getElementValue( QDomElement element, QString name, bool& val );
-    bool getElementValue( QDomElement element, QString name, int& val );
-    bool getElementValue( QDomElement element, QString name, double& val );
-    bool getElementValue( QDomElement element, QString name, QString& val );
+    bool getElementValue( QDomElement element, QString name, bool& val );        // Get a named boolean value from an element
+    bool getElementValue( QDomElement element, QString name, int& val );         // Get a named integer value from an element
+    bool getElementValue( QDomElement element, QString name, double& val );      // Get a named double value from an element
+    bool getElementValue( QDomElement element, QString name, QString& val );     // Get a named string value from an element
 
-    bool getElementAttribute( QDomElement element, QString name, bool& val );
-    bool getElementAttribute( QDomElement element, QString name, int& val );
-    bool getElementAttribute( QDomElement element, QString name, double& val );
-    bool getElementAttribute( QDomElement element, QString name, QString& val );
+    bool getElementAttribute( QDomElement element, QString name, bool& val );    // Get a named boolean attribute from an element
+    bool getElementAttribute( QDomElement element, QString name, int& val );     // Get a named integer attribute from an element
+    bool getElementAttribute( QDomElement element, QString name, double& val );  // Get a named double attribute from an element
+    bool getElementAttribute( QDomElement element, QString name, QString& val ); // Get a named string attribute from an element
 
 
     SaveRestoreSignal signal;           // Save/Restore signal object. One instance to signal all QE Widgets and applications
-
-//  QDomNodeList itemList;              // List of saved items. Each object saving data will have an item with 'name' and 'data' element
-
-
-    bool restoreInProgress;             // If true a restore has been started and is not yet complete.
 
     QDomDocument doc;                   // Save and restore xml document
     QDomElement config;                 // Current configuration
 
     QDomElement docElem;                // Configuration document
-
 };
 
 #endif // PERSISTANCEMANAGER_H

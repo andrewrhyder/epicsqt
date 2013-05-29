@@ -1020,7 +1020,7 @@ void QEPvProperties::contextMenuTriggered (QAction* action)
 void QEPvProperties::saveConfiguration (PersistanceManager* pm)
 {
    const QString formName = this->persistantName ("QEPvProperties");
-   PMElement formElement = pm->addElement (formName);
+   PMElement formElement = pm->addNamedConfiguration (formName);
 
    // qDebug () << "\nQEPvProperties " << __FUNCTION__ << formName << "\n";
 
@@ -1032,16 +1032,16 @@ void QEPvProperties::saveConfiguration (PersistanceManager* pm)
 
 //------------------------------------------------------------------------------
 //
-void QEPvProperties::restoreConfiguration (PersistanceManager* pm, int restorePhase)
+void QEPvProperties::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
 {
    const QString formName = this->persistantName ("QEPvProperties");
-   PMElement formElement = pm->getMyData (formName);
+   PMElement formElement = pm->getNamedConfiguration (formName);
    bool status;
    QString pvName;
 
    // qDebug () << "\nQEPvProperties " << __FUNCTION__ << formName <<  restorePhase << "\n";
 
-   if ((restorePhase == 1) && !formElement.isNull ()) {
+   if ((restorePhase == FRAMEWORK) && !formElement.isNull ()) {
       status = formElement.getValue ("Name", pvName);
       if (status) {
          this->setPvName (pvName);

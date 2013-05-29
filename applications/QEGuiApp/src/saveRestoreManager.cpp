@@ -61,7 +61,7 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
         case SaveRestoreSignal::SAVE:
             {
                 // Start with the top level element - the QEGui application
-                PMElement appElement =  pm->addElement( SAVERESTORE_NAME );
+                PMElement appElement =  pm->addNamedConfiguration( SAVERESTORE_NAME );
 
                 // Note the number of main windows. This will determine how many main windows are expected on restore
                 appElement.addValue( "MainWindows", app->getMainWindowCount() );
@@ -74,10 +74,10 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
 
         // First restore phase.
         // This application will create the main windows and the GUIs they contain
-        case SaveRestoreSignal::RESTORE_1:
+        case SaveRestoreSignal::RESTORE_APPLICATION:
             {
                 // Get the data for this application
-                PMElement QEGuiData = pm->getMyData( SAVERESTORE_NAME );
+                PMElement QEGuiData = pm->getNamedConfiguration( SAVERESTORE_NAME );
 
                 // If none, do nothing
                 if( QEGuiData.isNull() )
@@ -115,7 +115,7 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
 
         // Second resore phase.
         // This application has done it's work. The widgets that have been created will be able to act on the second phase
-        case SaveRestoreSignal::RESTORE_2:
+        case SaveRestoreSignal::RESTORE_QEFRAMEWORK:
             break;
 
     }

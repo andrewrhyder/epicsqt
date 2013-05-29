@@ -518,7 +518,7 @@ void QEForm::saveConfiguration( PersistanceManager* pm )
 {
     // Add this form
     QString pname = persistantName( "QEForm" );
-    PMElement f =  pm->addElement( pname );
+    PMElement f =  pm->addNamedConfiguration( pname );
 
     // Save macro substitutions
     f.addValue( "MacroSubstitutions", getMacroSubstitutions() );
@@ -532,11 +532,11 @@ void QEForm::saveConfiguration( PersistanceManager* pm )
 }
 
 // Apply any saved configuration
-void QEForm::restoreConfiguration( PersistanceManager* pm, int restorePhase )
+void QEForm::restoreConfiguration( PersistanceManager* pm, restorePhases restorePhase )
 {
-    // Ignore first phase
-    // (Actaully, it should not be called during the first phase as that is when it is created)
-    if( restorePhase != 2 )
+    // Ignore application phase
+    // (Actaully, it should not be called during the application phase as that is when it is created)
+    if( restorePhase != FRAMEWORK )
     {
         return;
     }
@@ -544,7 +544,7 @@ void QEForm::restoreConfiguration( PersistanceManager* pm, int restorePhase )
     // Get data for this form, if any
     // (do nothing if no data)
     QString pname = persistantName( "QEForm" );
-    PMElement f =  pm->getMyData( pname );
+    PMElement f =  pm->getNamedConfiguration( pname );
 
     if( f.isNull() )
     {

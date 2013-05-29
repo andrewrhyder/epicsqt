@@ -105,7 +105,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         QString containedFrameworkVersion;
 
         void saveConfiguration( PersistanceManager* pm );
-        void restoreConfiguration( PersistanceManager* pm, int restorePhase );
+        void restoreConfiguration( PersistanceManager* pm, restorePhases restorePhase );
         void reloadFile();
 
         QString uniqueIdentifier; // Should be set up by an application using the persistance manager and creating more than one top level QEForm. Not required if only one QEForm is used.

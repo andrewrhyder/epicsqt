@@ -133,7 +133,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
     setWindowIcon( QIcon (":/icons/QEGuiIcon.png" ));
 
     // Restore (will only do anything if this main window is being created during a restore)
-    saveRestore( SaveRestoreSignal::RESTORE_1 );
+    saveRestore( SaveRestoreSignal::RESTORE_APPLICATION );
 }
 
 // Destructor
@@ -1370,7 +1370,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
         case SaveRestoreSignal::SAVE:
             {
                 // Start with the top level element - the main windows
-                PMElement mw =   pm->addElement( mainWindowName );
+                PMElement mw =   pm->addNamedConfiguration( mainWindowName );
 
                 PMElement id =  mw.addElement( "Identity" );
                 id.addAttribute( "id", uniqueId );
@@ -1428,7 +1428,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
         // First restore phase.
         // This main window will position itself and create the GUIs it contains
-        case SaveRestoreSignal::RESTORE_1:
+        case SaveRestoreSignal::RESTORE_APPLICATION:
             {
                 // If this window is marked for deletion, (deleteLater() has been called on it when closing
                 // all current windows before restoring a configuration) then do nothing
@@ -1436,7 +1436,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                     return;
 
                 // Get the data for this window
-                PMElement data = pm->getMyData( mainWindowName );
+                PMElement data = pm->getNamedConfiguration( mainWindowName );
 
                 // If none, do nothing
                 if( data.isNull() )
@@ -1552,7 +1552,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
         // Second resore phase.
         // This main window has done it's work. The widgets that have been created will be able to act on the second phase
-        case SaveRestoreSignal::RESTORE_2:
+        case SaveRestoreSignal::RESTORE_QEFRAMEWORK:
             break;
     }
 }
