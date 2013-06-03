@@ -121,6 +121,7 @@ public:
 
     PMElement getElement( QString name );                   // Get a named element
     PMElement getElement( QString name, int i );            // Get one element from a named element list
+    PMElement getElement( QString name, QString attrName, QString attrValue ); // Get a named element with a matching attribute
 
     PMElementList getElementList( QString name );           // Get a named element list
 
@@ -181,6 +182,7 @@ private:
     QDomElement getElement( QDomElement element, QString name );            // Get the (first) named element from within an element
     QDomElement getElement( QDomElement element, QString name, int i );     // Get one of any matching named elements from within an element
     QDomElement getElement( QDomNodeList nodeList, int i );                 // Get an element from within an element
+    QDomElement getElement( QDomElement element, QString name, QString attrName, QString attrValue ); // Get a named element with a matching attribute
 
     QDomNodeList getElementList( QDomElement element, QString name );       // Get a named element list from an element
 

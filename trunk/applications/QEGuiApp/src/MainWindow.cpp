@@ -1293,13 +1293,19 @@ void MainWindow::on_actionSave_Configuration_triggered()
     }
 
     QString configName;
-    if( sd.getUseDefault() || sd.getName().isEmpty() )
+    if( sd.getUseDefault() )
     {
         configName = "Default";
     }
-    else
+    else if ( !sd.getName().isEmpty() )
     {
         configName = sd.getName();
+    }
+    else
+    {
+        // The OK button should only be enabled if there is a configuration selected
+        qDebug() <<  "No configuration selected";
+        return;
     }
 
     // Give all main windows and top level QEForms (managed by this application) a unique identifier required for restoration
@@ -1325,13 +1331,19 @@ void MainWindow::on_actionRestore_Configuration_triggered()
     }
 
     QString configName;
-    if( rd.getUseDefault() || rd.getName().isEmpty() )
+    if( rd.getUseDefault() )
     {
         configName = "Default";
     }
-    else
+    else if( !rd.getName().isEmpty() )
     {
         configName = rd.getName();
+    }
+    else
+    {
+        // The OK button should only be enabled if there is a configuration selected
+        qDebug() <<  "No configuration selected";
+        return;
     }
 
     // Close all current windows
@@ -1394,21 +1406,31 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 {
                     if( app->getGuiMainWindow( i ) == this )
                     {
+                        // Gui name and ID
                         PMElement form =  mw.addElement( "Gui" );
                         form.addAttribute( "Name", app->getGuiForm( i )->getFullFileName() );
                         form.addAttribute( "ID", app->getGuiForm( i )->getUniqueIdentifier() );
 
+                        // Current gui boolean
                         if( app->getGuiForm( i ) == currentGui )
                         {
                             form.addAttribute( "CurrentGui", true );
                         }
 
-                        form.addValue( "MacroSubstitutions", profile.getMacroSubstitutions() );
-                        PMElement pathListElement = form.addElement( "PathList" );
-                        QStringList pathList = profile.getPathList();
-                        for( int pathIndex = 0; pathIndex < pathList.count(); pathIndex++ )
+                        // Macro substitutions, if any
+                        QString macroSubs = profile.getMacroSubstitutions();
+                        if( !macroSubs.isEmpty() )
                         {
-                            pathListElement.addValue( QString( "Path_%1" ).arg( pathIndex+1 ), profile.getPathList().at(pathIndex) );
+                            form.addValue( "MacroSubstitutions", profile.getMacroSubstitutions() );
+                        }
+
+                        // Path list, if any
+                        QStringList pathList = profile.getPathList();
+                        for( int j = 0; j < pathList.count(); j++ )
+                        {
+                            PMElement pl = form.addElement( "PathListItem" );
+                            pl.addAttribute( "Order", j );
+                            pl.addValue( QString( "Path" ), pathList.at( j ) );
                         }
 
                         // If QEGui is managing the scrolling of the QEForm and has placed it in a scroll area,
@@ -1449,7 +1471,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
                 PMElement geometry = data.getElement( "Geometry" );
                 int x, y, w, h;
-                //!!! Note, position jumps down each save and restore. eitehr saving or restoring does not include decoration???
+                //!!! Note, window position jumps down by the window offset in the decoration each save and restore. either saving or restoring does not include decoration???
                 if( geometry.getAttribute( "X", x ) &&
                     geometry.getAttribute( "Y", y ) &&
                     geometry.getAttribute( "Width", w ) &&
@@ -1457,9 +1479,10 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 {
                     // Set the geometry in a timer event. This will occur after events due to creation have finished arriving.
                     setGeomRect = QRect( x, y, w, h );
-                    QTimer::singleShot(1, this, SLOT(setGeom()));
+                    QTimer::singleShot(10, this, SLOT(setGeom()));
                 }
 
+                // Get the state of the window (iconised, maximised, etc
                 PMElement pos = data.getElement( "State" );
                 int flags;
                 if( pos.getAttribute( "Flags", flags ) )
@@ -1478,28 +1501,33 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                     PMElement guiElement = guiElements.getElement( i );
                     {
                         QString macroSubstitutions;
-                        if( guiElement.getValue( "MacroSubstitutions", macroSubstitutions ) )
+                        guiElement.getValue( "MacroSubstitutions", macroSubstitutions );
+
+                        // Restore the path list
+                        PMElementList pl = guiElement.getElementList( "PathListItem" );
+                        QVector<QString> paths( pl.count() );
+                        for( int j = 0; j < pl.count(); j++ )
                         {
-                            //profile.addMacroSubstitutions( macroSubstitutions );
-                            //!!! macro substitutions not used yet. Repeated save and restore accumulates repeated macros. Should there be an option to use only these macros?
-                        }
-                        QStringList pathList;
-                        PMElement pathListElement = guiElement.getElement( "PathList" );
-                        int pathIndex = 1;
-                        while( true )
-                        {
-                            QString path;
-                            if( !pathListElement.getValue( QString( "Path_%1" ).arg( pathIndex ), path ) )
+                            PMElement ple = pl.getElement( j );
+                            int order;
+                            if( ple.getAttribute( "Order", order ) )
                             {
-                                break;
+                                QString path;
+                                if( ple.getValue( "Path", path ) )
+                                {
+                                    paths[order] = path;
+                                }
                             }
-                            pathList.append( path );
-                            pathIndex++;
                         }
-                        if( pathList.count() )
+
+                        QStringList pathList;
+                        for( int j = 0; j < paths.size(); j++  )
                         {
-                            // !!! pathList not used yet - should be able to update path list in current profile?
+                            pathList.append( paths[j] );
                         }
+
+                        // Update local profile now all main window values relevent to the profile have been read
+                        profile.setupLocalProfile( profile.getGuiLaunchConsumer(), pathList, profile.getParentPath(), macroSubstitutions );
 
                         QString name;
                         if( guiElement.getAttribute( "Name", name ) )
@@ -1543,6 +1571,8 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                         }
                     }
                 }
+
+                // If this new GUI is the current one, make it so
                 if( currentGui )
                 {
                     raiseGui( currentGui );
@@ -1623,12 +1653,13 @@ void MainWindow::scrollTo()
     // As a safeguard, we won't wait for longer than 10 seconds. One possible reason for this is the following scenario:
     // a configuration was saved with a large window on a large screen. If the screen size is reduced the requested window
     // size may not be honoured by the display manager and this function will never see the window size has reached the required size.
-    if( QCoreApplication::hasPendingEvents() ||
-        setGeomRect.width() != width() ||
-        setGeomRect.height() != height() ||
-        scrollToCount == 1000 )  /* 1000 = 1000 x 10ms = 10 seconds */
+    if( setGeomRect.width() != width() ||
+        setGeomRect.height() != height() )
     {
-        QTimer::singleShot(10, this, SLOT(scrollTo()));
+        if( scrollToCount < 1000 )/* 1000 = 1000 x 10ms = 10 seconds */
+        {
+            QTimer::singleShot(10, this, SLOT( scrollTo() ));
+        }
         scrollToCount++;
         return;
     }
@@ -1660,6 +1691,6 @@ void MainWindow::setGeom()
     setGeometry( setGeomRect );
 
     // Initiate scrolling of guis within the main window
-    QTimer::singleShot(1, this, SLOT(scrollTo()));
+    QTimer::singleShot( 10, this, SLOT(scrollTo() ));
 }
 

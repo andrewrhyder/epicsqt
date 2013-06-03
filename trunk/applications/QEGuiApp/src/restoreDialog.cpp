@@ -74,7 +74,14 @@ bool restoreDialog::getUseDefault()
 
 QString restoreDialog::getName()
 {
-    return ui->namesListWidget->currentItem()->text();
+    if( ui->namesListWidget->currentItem() )
+    {
+        return ui->namesListWidget->currentItem()->text();
+    }
+    else
+    {
+        return QString();
+    }
 }
 
 void restoreDialog::on_namesListWidget_doubleClicked( QModelIndex )

@@ -127,6 +127,7 @@
 #include <QBuffer>
 #include <QMessageBox>
 
+#define CONFIG_COMPONENT_KEY "Component"
 //=========================================================
 
 // Construction
@@ -145,8 +146,19 @@ void PersistanceManager::save( const QString fileName, const QString rootName, c
     // If OK, remove the configuration we are overwriting if present.
     if( openRead( fileName, rootName ) )
     {
-        QDomNode oldConfig = docElem.namedItem( configName );
-        if( !oldConfig.isNull() )
+        QDomNodeList configNodes = docElem.elementsByTagName( "Config" );
+        QDomElement oldConfig;
+        int i;
+        for( i = 0; i < configNodes.count(); i++ )
+        {
+            oldConfig = configNodes.at(i).toElement();
+            if( oldConfig.attribute( "Name" ) == configName )
+            {
+                break;
+            }
+        }
+
+        if( i < configNodes.count() )
         {
             // Saving will overwrite previous configuration, check with the user this is OK
             QMessageBox msgBox;
@@ -182,7 +194,8 @@ void PersistanceManager::save( const QString fileName, const QString rootName, c
     doc.appendChild( docElem );
 
     // Add the configuration name
-    config = doc.createElement( configName );
+    config = doc.createElement( "Config" );
+    config.setAttribute( "Name", configName );
     docElem.appendChild( config );
 
     // Notify any interested objects to contribute their persistant data
@@ -209,7 +222,7 @@ void PersistanceManager::restore( const QString fileName, const QString rootName
         return;
     }
 
-    config = docElem.namedItem( configName ).toElement();
+    config = getElement( docElem, "Config", "Name", configName );
 
     // Notify any interested objects to collect their persistant data
     signal.restore();
@@ -262,7 +275,8 @@ bool PersistanceManager::openRead( QString fileName, QString rootName )
 // Add a named configuration. Used during a save signal. The returned element is then loaded with configuration data
 PMElement PersistanceManager::addNamedConfiguration( QString name )
 {
-    QDomElement element = doc.createElement( name );
+    QDomElement element = doc.createElement( CONFIG_COMPONENT_KEY );
+    element.setAttribute( "Name", name );
     config.appendChild( element );
     return PMElement( this, element );
 }
@@ -270,7 +284,8 @@ PMElement PersistanceManager::addNamedConfiguration( QString name )
 // Get a named configuration. Used during a restore signal. The returned element contains the configuration data
 PMElement PersistanceManager::getNamedConfiguration( QString name )
 {
-    return PMElement( this, config.namedItem( name ).toElement() );
+    QDomElement element = getElement( config, CONFIG_COMPONENT_KEY, "Name", name );
+    return PMElement( this, element );
 }
 
 //=========================================================
@@ -280,18 +295,19 @@ QStringList PersistanceManager::getConfigNames( QString fileName, QString rootNa
 {
     QStringList nameList;
 
+    // Return the empty list if cant read file
     if( !openRead( fileName, rootName ) )
     {
         return nameList;
     }
 
-    QDomNodeList nodeList = docElem.childNodes();
+    QDomNodeList nodeList = docElem.elementsByTagName( "Config" );
     for( int i = 0; i < nodeList.count(); i++ )
     {
-        QString name = nodeList.at( i ).nodeName();
-        if( name != QString( "Default" ))
+        QString configName = nodeList.at(i).toElement().attribute( "Name" );
+        if( !configName.isEmpty() && configName != QString( "Default" ) )
         {
-            nameList.append( name );
+            nameList.append( configName );
         }
     }
     return nameList;
@@ -322,15 +338,17 @@ void PersistanceManager::deleteConfigs( QString fileName, QString rootName, QStr
     // If OK, remove the configuration we are overwriting if present.
     if( openRead( fileName, rootName ) )
     {
-        // Remove the configurations
+        QDomNodeList nodeList = docElem.elementsByTagName( "Config" );
         for( int i = 0; i < names.count(); i++ )
         {
-            docElem.removeChild( docElem.namedItem( names[i] ) );
-        }
-
-        for( int i = 0; i < names.count(); i++ )
-        {
-            QDomNode node = docElem.removeChild( docElem.namedItem( names[i] ) );
+            for( int j = 0; j < nodeList.count(); j++ )
+            {
+                if( nodeList.at(j).toElement().attribute( "Name" ) == names[i] )
+                {
+                    docElem.removeChild( nodeList.at( j ));
+                    break;
+                }
+            }
         }
     }
 
@@ -386,6 +404,37 @@ QDomElement PersistanceManager::getElement( QDomNodeList nodeList, int i )
         return QDomElement();
 
     return nodeList.at( i ).toElement();
+}
+
+// Get a named element with a matching attribute
+// This is used when there is a group of same-named elements differentiated by an attribute value.
+QDomElement PersistanceManager::getElement( QDomElement element, QString elementName, QString attrName, QString attrValue )
+{
+    // If element is not null and is an element
+    if( !element.isNull() && element.isElement() )
+    {
+        // Look for correct attribute in each matching element
+        QDomNodeList list = element.elementsByTagName( elementName );
+        for( int i = 0; i < list.count(); i++ )
+        {
+            QDomNode listNode = list.at( i );
+            if( listNode.isElement() )
+            {
+                QDomElement listElement = listNode.toElement();
+                QDomNode attrNode = listElement.attributes().namedItem( attrName );
+                if( !attrNode.isNull() )
+                {
+                    if( attrNode.nodeValue() == attrValue )
+                    {
+                        return listElement;
+                    }
+                }
+            }
+        }
+    }
+
+    // Not found
+    return QDomElement();
 }
 
 //=========================================================
@@ -468,93 +517,97 @@ bool PersistanceManager::getElementValue( QDomElement element, QString name, QSt
 // Get a named boolean attribute from an element
 bool PersistanceManager::getElementAttribute( QDomElement element, QString name, bool& val )
 {
-    bool okay;
-    int b;
-
-    if( element.isNull() || !element.isElement() )
+    // If not null and is an element...
+    if( !element.isNull() && element.isElement() )
     {
-        val = 0;
-        return false;
+        // If attribute is present...
+        QDomNode node = element.attributes().namedItem( name );
+        if( !node.isNull() )
+        {
+            // If integer attribute is present, return it as a bool
+            bool okay;
+            int b = node.nodeValue().toInt( &okay );
+            if( okay && ((b == 0) || (b == 1)) )
+            {
+               val = (b == 1);
+               return true;
+            }
+        }
     }
 
-    QDomNode node = element.attributes().namedItem( name );
-    if( node.isNull() )
-    {
-        val = 0;
-        return false;
-    }
-
-    b = node.nodeValue().toInt( &okay );
-    if (okay && ((b == 0) || (b == 1))) {
-       val = (b == 1);
-    } else {
-       okay = false;
-    }
-    return okay;
+    // Something was wrong, default to zero
+    val = 0;
+    return false;
 }
 
 // Get a named integer attribute from an element
 bool PersistanceManager::getElementAttribute( QDomElement element, QString name, int& val )
 {
-    bool okay;
-
-    if( element.isNull() || !element.isElement() )
+    // If not null and is an element...
+    if( !element.isNull() && element.isElement() )
     {
-        val = 0;
-        return false;
+        // If attribute is present...
+        QDomNode node = element.attributes().namedItem( name );
+        if( !node.isNull() )
+        {
+            // If integer attribute is present, return it
+            bool okay;
+            val = node.nodeValue().toInt( &okay );
+            if( okay )
+            {
+                return true;
+            }
+        }
     }
 
-    QDomNode node = element.attributes().namedItem( name );
-    if( node.isNull() )
-    {
-        val = 0;
-        return false;
-    }
-
-    val = node.nodeValue().toInt( &okay );
-    return okay;
+    // Something was wrong, default to zero
+    val = 0;
+    return false;
 }
 
 // Get a named double attribute from an element
 bool PersistanceManager::getElementAttribute( QDomElement element, QString name, double& val )
 {
-    bool okay;
-
-    if( element.isNull() || !element.isElement() )
+    // If not null and is an element...
+    if( !element.isNull() && element.isElement() )
     {
-        val = 0;
-        return false;
+        // If attribute is present...
+        QDomNode node = element.attributes().namedItem( name );
+        if( !node.isNull() )
+        {
+            // If double attribute is present, return it
+            bool okay;
+            val = node.nodeValue().toDouble( &okay );
+            if( okay )
+            {
+                return true;
+            }
+        }
     }
 
-    QDomNode node = element.attributes().namedItem( name );
-    if( node.isNull() )
-    {
-        val = 0;
-        return false;
-    }
-
-    val = node.nodeValue().toDouble( &okay );
-    return okay;
+    // Something was wrong, default to zero
+    val = 0;
+    return false;
 }
 
 // Get a named string attribute from an element
 bool PersistanceManager::getElementAttribute( QDomElement element, QString name, QString& val )
 {
-    if( element.isNull() || !element.isElement() )
+    // If not null and is an element...
+    if( !element.isNull() && element.isElement() )
     {
-        val = QString();
-        return false;
+        // If attribute is present...
+        QDomNode node = element.attributes().namedItem( name );
+        if( !node.isNull() )
+        {
+            val = node.nodeValue();
+            return true;
+        }
     }
 
-    QDomNode node = element.attributes().namedItem( name );
-    if( node.isNull() )
-    {
-        val = QString();
-        return false;
-    }
-
-    val = node.nodeValue();
-    return true;
+    // Something was wrong, default to empty string
+    val = QString();
+    return false;
 }
 
 //=========================================================
@@ -720,6 +773,13 @@ PMElement PMElement::getElement( QString name, int i )
 PMElementList PMElement::getElementList( QString name )
 {
     return PMElementList( owner, owner->getElementList( *this, name ) );
+}
+
+// Get a named element with a matching attribute
+// This is used when there is a group of same-named elements differentiated by an attribute value.
+PMElement PMElement::getElement( QString elementName, QString attrName, QString attrValue )
+{
+    return PMElement( owner, owner->getElement( *this, elementName, attrName, attrValue ) );
 }
 
 //============================

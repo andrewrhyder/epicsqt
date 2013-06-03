@@ -66,7 +66,10 @@ void saveDialog::enableNamedItems( bool enable )
 
 void saveDialog::on_namesListWidget_clicked(QModelIndex)
 {
-    ui->nameLineEdit->setText( ui->namesListWidget->currentItem()->text() );
+    if( ui->namesListWidget->currentItem() )
+    {
+        ui->nameLineEdit->setText( ui->namesListWidget->currentItem()->text() );
+    }
 }
 
 bool saveDialog::getUseDefault()

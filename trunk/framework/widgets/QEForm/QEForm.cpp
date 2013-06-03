@@ -521,13 +521,20 @@ void QEForm::saveConfiguration( PersistanceManager* pm )
     PMElement f =  pm->addNamedConfiguration( pname );
 
     // Save macro substitutions
-    f.addValue( "MacroSubstitutions", getMacroSubstitutions() );
+    QString macroSubs = getMacroSubstitutions();
+    macroSubs = macroSubs.trimmed();
+    if( !macroSubs.isEmpty() )
+    {
+        f.addValue( "MacroSubstitutions", getMacroSubstitutions() );
+    }
 
     // Save the path list
     QStringList pathList = getPathList();
     for( int i = 0; i < pathList.count(); i++ )
     {
-        f.addValue( QString( "path_%1" ).arg( i ), pathList.at( i ) );
+        PMElement pl = f.addElement( "PathListItem" );
+        pl.addAttribute( "Order", i );
+        pl.addValue( QString( "Path" ), pathList.at( i ) );
     }
 }
 
@@ -552,20 +559,26 @@ void QEForm::restoreConfiguration( PersistanceManager* pm, restorePhases restore
     }
 
     // Restore the path list
-    QStringList pathList;
-    int i = 0;
-    while( true )
+    PMElementList pl = f.getElementList( "PathListItem" );
+    QVector<QString> paths( pl.count() );
+    for( int i = 0; i < pl.count(); i++ )
     {
-        QString path;
-        if( f.getValue( QString( "path_%1" ).arg( i ), path ) )
+        PMElement ple = pl.getElement( i );
+        int order;
+        if( ple.getAttribute( "Order", order ) )
         {
-            pathList.append( path );
-            i++;
+            QString path;
+            if( ple.getValue( "Path", path ) )
+            {
+                paths[order] = path;
+            }
         }
-        else
-        {
-            break;
-        }
+    }
+
+    QStringList pathList;
+    for( int i = 0; i < paths.size(); i++  )
+    {
+        pathList.append( paths[i] );
     }
 
     // Restore macro substitutions
