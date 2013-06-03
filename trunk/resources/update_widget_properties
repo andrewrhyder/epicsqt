@@ -13,10 +13,49 @@ function terminate () {
 }
 
 function usage () {
-   echo 1>&2 "${1}"
-   echo 1>&2 "usage: ${iam} replace_def_directory  qt_widget_directory"
-   exit 1
+   terminate "${1}"  \
+             "usage: ${iam} replace_def_directory  qt_widget_directory"  \
+             "       ${iam} --help | -h"
 }
+
+function help () {
+   cat <<HELP_TEXT
+This ${iam} script may be used to maintain consistancy of the
+header files of the the QE widgets.
+
+usage: ${iam} replace_def_directory  qt_widget_directory
+       ${iam} --help | -h
+
+The script parses any replace bracketed text (.rbt) files in the nominated
+replace_def_directory and used these to update the header files for all wigdets
+located in the qt_widget_directory. As of when this help information was
+produced, rbt files exist for single PV properties, standard proverties and
+for string formatting properties.  A QE widget may use none, one, two or all
+three rbt files.
+
+Example: when using the QESinglePVProperties.rbt file, the script searchs
+for QE widget header files with the following text lines:
+
+ BEGIN-SINGLE-VARIABLE-PROPERTIES, and
+ END-SINGLE-VARIABLE-PROPERTIES
+
+There should be only one instance of each text sequence per file, and the
+line number of the latter must be gereater than the former. The text lines
+should be embedded in comments, but the script does not enforce this.
+
+All text from the line fallowing the "begin" text upto but excluding the
+"end" text is removed and replaced by text from the QESinglePVProperties.rbt
+file. Provided the rbt file is unchanged, the ${iam} script
+is idempotent.
+
+HELP_TEXT
+}
+
+
+if [ "${1}" == "--help" ] ||  [ "${1}" == "-h" ] ; then
+   help
+   exit 0
+fi
 
 
 if [ $# -lt 2 ] || [ -z "${1}" ]  || [ -z "${2}" ] ; then
