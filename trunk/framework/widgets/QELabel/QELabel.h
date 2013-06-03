@@ -89,7 +89,6 @@ private slots:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
 
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
     QString lastTextStyle;

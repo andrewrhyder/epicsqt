@@ -356,7 +356,6 @@ private:
 
     QColor colourList [16];
     int value;
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
     bool isFirstUpdate;
 

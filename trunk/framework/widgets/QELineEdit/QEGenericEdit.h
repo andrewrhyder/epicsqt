@@ -290,7 +290,6 @@ protected:
     bool messageDialogPresent;             // True if dialog box for the widget is present. When this dialog box is present the line edit no longer have focus, but the user is still effectivly interacting with it
     bool writeFailMessageDialogPresent;    // True if the write faile message dialog has been created. Cleared in spurious 'editing finished' callback caused by the 'write failed' dialog
 
-    QCAALARMINFO_SEVERITY lastSeverity;    //  Used as low pass tool tip filter.
     bool isConnected;
 
     void setDataIfNoFocus( const QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& dateTime );

@@ -73,7 +73,6 @@ void QESimpleShape::setup ()
 
    // Set the initial state
    //
-   this->lastSeverity = QCaAlarmInfo::getInvalidSeverity ();
    this->isConnected = false;
 
    QWidget::setEnabled (false); // Reflects initial disconnected state
@@ -146,7 +145,7 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
    qcaobject::QCaObject * qca;
    QString text;
 
-   // Associated qca object - test if connected but avoid the segmentation fault.
+   // Associated qca object - test if connected but also avoid the segmentation fault.
    //
    qca = this->getQcaItem (0);
    if (qca && this->isConnected) {
@@ -372,12 +371,6 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
    this->updateToolTipConnection (this->isConnected);
    this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
 
-   if (!this->isConnected) {
-      // Disconnected - clear the alarm state.
-      //
-      this->updateToolTipAlarm ("");
-      this->lastSeverity = QCaAlarmInfo::getInvalidSeverity ();
-   }
    this->update ();
 }
 
@@ -389,15 +382,7 @@ void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
 void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo, QCaDateTime &, const unsigned int &)
 {
    qcaobject::QCaObject * qca;
-   QCAALARMINFO_SEVERITY severity;
 
-   // If in alarm, display as an alarm - only update if changed
-   //
-   severity = alarmInfo.getSeverity ();
-   if (severity != this->lastSeverity) {
-      updateToolTipAlarm (alarmInfo.severityName ());
-   }
-   
    // Associated qca object - avoid the segmentation fault.
    //
    qca = getQcaItem (0);
@@ -413,16 +398,19 @@ void QESimpleShape::setShapeValue (const long &valueIn, QCaAlarmInfo & alarmInfo
       this->stringFormatting.setDbPrecision (qca->getPrecision ());
    }
 
-   if ((this->isFirstUpdate) || (this->value != valueIn) || (severity != this->lastSeverity)) {
-      this->value = valueIn;
-      this->lastSeverity = severity;
-      this->setTextImage ();
-      this->update ();
-   }
+   this->value = valueIn;
+   this->setTextImage ();
+   this->update ();    // causes a paint event.
+
 
    // Signal a database value change to any Link widgets
    //
    emit dbValueChanged (value);
+
+   // Invoke common alarm handling processing.
+   // Although this sets widget style, we invoke for tool tip processing only.
+   //
+   this->processAlarmInfo (alarmInfo);
 
    // This update is over, clear first update flag.
    //

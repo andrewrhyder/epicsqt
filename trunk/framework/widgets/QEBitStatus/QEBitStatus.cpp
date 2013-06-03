@@ -72,7 +72,6 @@ void QEBitStatus::setup ()
 
    // Set the initial state
    //
-   lastSeverity = QCaAlarmInfo::getInvalidSeverity ();
    isConnected = false;
 
    setInvalidColour (this->getColor( invalid, 128));
@@ -187,13 +186,10 @@ void QEBitStatus::setBitStatusValue (const long &value,
    //
    this->setIsValid (alarmInfo.getSeverity () != INVALID_ALARM);
 
-   // If in alarm, display as an alarm
+   // Invoke common alarm handling processing.
+   // Although this sets widget style, we invoke for tool tip processing only.
    //
-   if (alarmInfo.getSeverity () != lastSeverity) {
-      updateToolTipAlarm (alarmInfo.severityName ());
-      updateStatusStyle( alarmInfo.style() );
-      lastSeverity = alarmInfo.getSeverity ();
-   }
+   this->processAlarmInfo (alarmInfo);
 
    // Signal a database value change to any Link widgets
    //

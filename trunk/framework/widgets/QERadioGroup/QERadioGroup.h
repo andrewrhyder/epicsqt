@@ -258,7 +258,6 @@ private:
     int number;    // number of displayed buttons.
     int rows;
     int cols;
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
     bool isFirstUpdate;
 

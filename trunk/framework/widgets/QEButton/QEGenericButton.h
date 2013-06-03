@@ -175,7 +175,6 @@ private:
     void guiSetup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex  );
 
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
     // !! Any of these that are accessing the QWidget don't have to call back up to the specific push button

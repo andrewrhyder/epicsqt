@@ -100,7 +100,6 @@ signals:
     QIntTintMap valueToIndexMap;
     QIntTintMap indexToValueMap;
 
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
     bool isFirstUpdate;
 
