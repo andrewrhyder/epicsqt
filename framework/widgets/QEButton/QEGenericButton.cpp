@@ -82,7 +82,6 @@ void QEGenericButton::dataSetup() {
     subscribe = false;
 
     // Set the initial state
-    lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     updateOption = getDefaultUpdateOption();
 }
@@ -237,23 +236,8 @@ void QEGenericButton::setGenericButtonText( const QString& text, QCaAlarmInfo& a
         setButtonIcon( icon );
     }
 
-    // Choose the alarm state to display.
-    // If not displaying the alarm state, use a default 'no alarm' structure. This is
-    // required so the any display of an alarm state is reverted if the displayAlarmState
-    // property changes while displaying an alarm.
-    QCaAlarmInfo ai;
-    if( getDisplayAlarmState() )
-    {
-        ai = alarmInfo;
-    }
-
-    // If in alarm, display as an alarm
-    if( ai.getSeverity() != lastSeverity )
-    {
-            updateToolTipAlarm( ai.severityName() );
-            updateStatusStyle( ai.style() );
-            lastSeverity = ai.getSeverity();
-    }
+    // Invoke common alarm handling processing.
+    processAlarmInfo( alarmInfo );
 }
 
 /*

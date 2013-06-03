@@ -95,7 +95,6 @@ void QERadioGroup::commonSetup ()
 
    // Set the initial state
    //
-   this->lastSeverity = QCaAlarmInfo::getInvalidSeverity ();
    this->isConnected = false;
    this->currentIndex = -1;
 
@@ -199,13 +198,6 @@ void QERadioGroup::connectionChanged (QCaConnectionInfo & connectionInfo)
    this->setDataDisabled (!this->isConnected);
    this->updateToolTipConnection (this->isConnected);
    this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
-
-   if (!this->isConnected) {
-      // Disconnected - clear the alarm state.
-      //
-      this->updateToolTipAlarm ("");
-      this->lastSeverity = QCaAlarmInfo::getInvalidSeverity ();
-   }
 }
 
 //-----------------------------------------------------------------------------
@@ -253,22 +245,9 @@ void QERadioGroup::valueUpdate (const long &value,
    //
    this->dbValueChanged (value);
 
-   // Choose the alarm state to display.
-   // If not displaying the alarm state, use a default 'no alarm' structure. This is
-   // required so the any display of an alarm state is reverted if the displayAlarmState
-   // property changes while displaying an alarm.
+   // Invoke common alarm handling processing.
    //
-   QCaAlarmInfo ai;
-   if (this->getDisplayAlarmState ()) {
-      ai = alarmInfo;
-   }
-   // Update alarm state if required.
-   //
-   if (ai.getSeverity () != this->lastSeverity) {
-      updateToolTipAlarm (ai.severityName ());
-      updateStatusStyle (ai.style ());
-      lastSeverity = ai.getSeverity ();
-   }
+   this->processAlarmInfo (alarmInfo);
 }
 
 //---------------------------------------------------------------------------------

@@ -435,9 +435,10 @@ void QEPvProperties::common_setup ()
    //
    this->setAllowDrop (true);
 
-   // Set the initial state
+   // By default, the PV properties widget does not display the alarm state.
+   // The interbal VALue widget does this on our behalf.
    //
-   lastSeverity = QCaAlarmInfo::getInvalidSeverity ();
+   this->setDisplayAlarmState (false);
 
    // Unlike most CA aware widgets the PV Properties panel enabled-ness does
    // not reflect the (initial) disconnected state.
@@ -862,11 +863,9 @@ void QEPvProperties::setValueValue (const QString &,
       this->isFirstUpdate = false;
    }
 
-   if (this->lastSeverity != alarmInfo.getSeverity ()) {
-      this->lastSeverity = alarmInfo.getSeverity ();
-      this->updateToolTipAlarm (alarmInfo.severityName ());
-      // updateStatusStyle( alarmInfo.style() );
-   }
+   // Invoke common alarm handling processing.
+   //
+   this->processAlarmInfo (alarmInfo);
 }
 
 //------------------------------------------------------------------------------

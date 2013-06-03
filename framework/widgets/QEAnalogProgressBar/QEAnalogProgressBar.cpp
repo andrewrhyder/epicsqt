@@ -77,7 +77,6 @@ void QEAnalogProgressBar::setup() {
     setAllowDrop( false );
 
     // Set the initial state
-    lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
 
@@ -353,13 +352,10 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
           break;
     }
 
-    // If in alarm, display as an alarm
-    if( ai.getSeverity() != lastSeverity )
-    {
-        updateToolTipAlarm( ai.severityName() );
-        updateStatusStyle( ai.style() );
-        lastSeverity = ai.getSeverity();
-    }
+    // Invoke common alarm handling processing.
+    // Although this sets widget style, we invoke for tool tip processing only.
+    //
+    this->processAlarmInfo (alarmInfo);
 
     // Signal a database value change to any Link widgets
     emit dbValueChanged( value );

@@ -179,7 +179,6 @@ public:
     // END-STANDARD-PROPERTIES ========================================================
 
 private:
-   QCAALARMINFO_SEVERITY lastSeverity;
    QEStringFormatting stringFormatting;
    bool isFirstUpdate;
 

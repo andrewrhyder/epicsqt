@@ -1,4 +1,5 @@
-/*
+/*  QELabel.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -58,7 +59,6 @@ void QELabel::setup() {
 
     // Set the initial state
     setText( "----" );
-    lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
     updateOption = UPDATE_TEXT;
@@ -185,23 +185,8 @@ void QELabel::setLabelText( const QString& textIn, QCaAlarmInfo& alarmInfo, QCaD
             break;
     }
 
-    // Choose the alarm state to display.
-    // If not displaying the alarm state, use a default 'no alarm' structure. This is
-    // required so the any display of an alarm state is reverted if the displayAlarmState
-    // property changes while displaying an alarm.
-    QCaAlarmInfo ai;
-    if( getDisplayAlarmState() )
-    {
-        ai = alarmInfo;
-    }
-
-    // Update alarm state if required
-    if( ai.getSeverity() != lastSeverity )
-    {
-        updateToolTipAlarm( ai.severityName() );
-        updateStatusStyle( ai.style() );
-        lastSeverity = ai.getSeverity();
-    }
+    // Invoke common alarm handling processing.
+    processAlarmInfo( alarmInfo );
 }
 
 //==============================================================================

@@ -351,7 +351,6 @@ private:
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     Band createBand (const double lower, const double upper,  unsigned short severity);
 
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
     bool useDbPrecison;
     bool useDbDisplayLimits;

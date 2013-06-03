@@ -188,7 +188,6 @@ private:
 
    qcaobject::QCaObject * createQcaItem (unsigned int variableIndex);
 
-   QCAALARMINFO_SEVERITY lastSeverity;
    bool isConnected;
 
 private slots:

@@ -90,7 +90,6 @@ private:
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
 
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
     bool programaticValueChange;   // Flag set while the spin box value is being changed programatically (not by the user)

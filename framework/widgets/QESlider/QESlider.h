@@ -84,7 +84,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QEWidget {
 
     bool updateInProgress;                  // Ignore changes during updates, it isn't the user changing the slider.
 
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
     bool ignoreSingleShotRead;
