@@ -174,6 +174,11 @@ public:
     /// gui applications, it can't return a QColor
     QColor getColor( QCaAlarmInfo& alarmInfo, const int saturation );
 
+    /// This convenience function updates the alarm tool tip, and alarm status style if the displayAlarmState
+    /// property is set to true - assumes the widget uses standard properties. This function is perhaps
+    /// most usefull for single-variable widgets.
+    void processAlarmInfo( QCaAlarmInfo& alarmInfo );
+
     /// Perform a single shot read on all variables (Usefull when not subscribing by default)
     ///
     void readNow();
@@ -217,13 +222,13 @@ public:
     virtual void restoreConfiguration( PersistanceManager*, restorePhases ){}
 
     /// Any QEWidget that requires additional scaling, i.e. above and beyond the standard scaling
-    /// applied to size, minimum size, maximum size and font size may override this function in
+    /// applied to size, minimum size, maximum size and font size, may override this function in
     /// order to perform any bespoke scaling need by the widget (for example see QEShape).
     /// The scaling is defined using a rational number specifed by two integers (m, d).
     /// The first (m) parameter is the multiplier and the second (d) parameter is the divisor.
     /// For example, if m = 4 and d = 5, then an 80% scaling should be applied.
     /// And if m = 5 and d = 4, and a 125% scaling is required.
-    virtual void scaleBy (const int, const int) {}
+    virtual void scaleBy( const int, const int ) {}
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
@@ -248,6 +253,9 @@ private:
     saveRestoreSlot saveRestoreReceiver;                    // QObject based class a save/restore signal can be delivered to
 
     void buildPersistantName( QWidget* w, QString& name );
+
+    QCAALARMINFO_SEVERITY lastSeverity;                     // Used as low pass tool tip filter.
+    bool lastDisplayAlarmState;
 
     QWidget* owner;
 

@@ -38,6 +38,7 @@
 #include <QEWidget.h>
 #include <QEFrameworkVersion.h>
 #include <QEForm.h>
+#include <standardProperties.h>
 
 /*
     Constructor
@@ -58,6 +59,10 @@ QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( owner
     // This will be corrected when the first variable is declared
     numVariables = 0;
     qcaItem = 0;
+
+    //
+    lastSeverity = QCaAlarmInfo::getInvalidSeverity();
+    lastDisplayAlarmState = false;
 
     // Default properties
     subscribe = true;
@@ -285,6 +290,41 @@ QColor QEWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
     result.getHsv( &h, &s, &v );
     result.setHsv( h, saturation, 255 );
     return result;
+}
+
+/*
+  Provides default (and consistant) alarm handling for all QE widgets.
+ */
+void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo )
+{
+    QCAALARMINFO_SEVERITY severity = alarmInfo.getSeverity();
+    bool displayAlarmState = getDisplayAlarmState();
+
+    // Choose the alarm state to display.
+    // If not displaying the alarm state, use no special style, i.e. the default style
+    // for the widget class type. Check lastDisplayAlarmState as well. This is required
+    // so that any display of an alarm state is reverted if the displayAlarmState property
+    // changes while displaying an alarm.
+    if( severity != lastSeverity || displayAlarmState != lastDisplayAlarmState )
+    {
+        // Are we displaying the alarm state?
+        if ( getDisplayAlarmState() )
+        {
+            updateStatusStyle( alarmInfo.style() );
+        } else {
+            updateStatusStyle( "" );
+        }
+    }
+
+    if( severity != lastSeverity )
+    {
+        // Always update the tool tip to reflect current alarm state.
+        updateToolTipAlarm( alarmInfo.severityName() );
+    }
+
+    // Save state for processing next update.
+    lastSeverity = severity;
+    lastDisplayAlarmState = displayAlarmState;
 }
 
 // Update the variable name list used in tool tips if requried
