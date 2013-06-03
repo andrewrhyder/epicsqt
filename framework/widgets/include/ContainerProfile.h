@@ -38,7 +38,7 @@ class ContainerProfile;
 
 
 // Define the user levels
-class userLevelTypes : public QObject
+class QEPLUGINLIBRARYSHARED_EXPORT userLevelTypes : public QObject
 {
     Q_OBJECT
 public:
