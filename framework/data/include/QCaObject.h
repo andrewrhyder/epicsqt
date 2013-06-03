@@ -100,8 +100,8 @@ namespace qcaobject {
       QString getFieldType();
       unsigned long getElementCount();  // num elements available on server as oppsoed to num elements actually subscribed for.
 
-      // Essentially provides same data as dataChanged. Is defined indicates data is valid,
-      // i.e. has been received since channle last connected.
+      // Essentially provides same data as the dataChanged signal. The parameter isDefined indicates whether
+      // the data is valid, i.e. has been received since the channel last connected.
       void getLastData( bool& isDefined, QVariant& value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp );
 
     signals:
