@@ -3,7 +3,7 @@ Package generation:
 Update release notes:
   Generate a list of svn changes using with a revision range from revision after last releast to current revision
     svn log . -r 520:596
-  Add summary and svn change logs to ~/epicsqt/releasenotes.txt in the form:
+  Add summary and svn change logs to ~/epicsqt/trunk/releasenotes.txt in the form:
           ==================================================================================================
           Changes between 2.3 and 2.2
 
