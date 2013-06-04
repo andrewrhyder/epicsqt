@@ -1,0 +1,84 @@
+Package generation:
+
+Update release notes:
+  Generate a list of svn changes using with a revision range from revision after last releast to current revision
+    svn log . -r 520:596
+  Add summary and svn change logs to ~/epicsqt/trunk/releasenotes.txt in the form:
+          ==================================================================================================
+          Changes between 2.3 and 2.2
+
+          SUMMARY:
+          <Overall summary of changes>
+
+          DETAIL:
+          <svn log>
+
+
+Rebuild documentation:
+(note, preparation of pdf help from latex source requires
+pdflatex available in lexlive "yum install texlive-latex")
+  update PROJECT_NUMBER in ~/epicsqt/documentation/source/Doxyfile
+  cd ~/epicsqt/trunk/documentation/source
+  doxygen Doxyfile
+  cd ~/epicsqt/trunk/documentation/latex
+  make pdf
+  cp refman.pdf ~/epicsqt/documentation/QE_ReferenceManual.pdf
+
+Commit documentation changes
+  cd ~/epicsqt
+  svn commit -m "Documentation changes prior to release"
+
+Save current version just in case:
+For example, if a new file was not added to svn
+  cd ~
+  mv epicsqt epicsqtSaveNN
+
+Package project (version example below is 2.2 - change as required)
+  firefox http://epicsqt.svn.sourceforge.net/viewvc/epicsqt/
+  'Download GNU tarball'
+  Save File
+  mv ~/Downloads/epicsqt.tar.gz ~/Downloads/epicsqt-2.2-src.tar.gz
+  check epicsqt-2.2-src.tar.gz is a sensible size compared to last package
+
+Verify package:
+  cd ~
+  rm -rf epicsqt
+  tar -xf ~/Downloads/epicsqt-2.2-src.tar.gz
+  cd epicsqt
+  qtcreator
+  open ~/epicsqt/epicsqt.pro
+  turn off shaddow build and build it
+  run QEGui
+
+  check ~/epicsqt/documentation/QE_ReferenceManual.pdf
+
+Upload package:
+  go to https://sourceforge.net/projects/epicsqt/
+  select 'files' (https://sourceforge.net/projects/epicsqt/files/)
+  Press 'Add' button - only available when logged in
+                       (and perhaps only available in firefox?
+  browse, select ~/Downloads/epicsqt-2.2-src.tar.gz and upload
+  revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
+
+Update any changed files in sourceforge documentation
+  go to https://sourceforge.net/projects/epicsqt/files/documentation/
+  add updated files, typically releasenotes.txt and QE_*.pdf
+
+Verify package:
+  cd ~
+  rm -rf epicsqt
+  goto https://sourceforge.net/projects/epicsqt/ and press 'Download'
+  tar -xf ~/Downloads/epicsqt-2.2-src.tar.gz
+  cd epicsqt
+  qtcreator
+  open ~/epicsqt/epicsqt.pro
+  turn off shaddow build and build it
+  run QEGui
+
+  check ~/epicsqt/documentation/QE_ReferenceManual.pdf
+
+Prior to ongoing development:
+Restore svn copy
+  cd ~
+  rm -rf epicsqt
+  svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
