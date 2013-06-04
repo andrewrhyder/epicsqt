@@ -146,8 +146,6 @@ if __name__ == "__main__":
 		print "Release process interrupted by the user."
 		sys.exit(0)
 
-
-
 	# get SVN log entries since revision number of the last release
 	try:
 		file = open(__TEMP_FILE__, "w")
@@ -309,7 +307,7 @@ if __name__ == "__main__":
 	# commit new release into SVN 'tags' directory
 	try:
 		print "Commiting new release '%s' into SVN 'tags' directory..." % new_release_version
-		command = "svn add %s/tags 1>/dev/null; svn commit %s/tags/%s -m \"Release version %s\" 1>/dev/null" % (base_path, base_path, new_release_version, new_release_version)
+		command = "svn add %s/tags/%s 1>/dev/null; svn commit %s/tags/%s -m \"Release version %s\"" % (base_path, new_release_version, base_path, new_release_version, new_release_version)
 		#print command
 		subprocess.call(command, shell = True)
 	except KeyboardInterrupt:
@@ -327,7 +325,8 @@ if __name__ == "__main__":
 		print "Creating tar file '%s/trunk/resources/%s'..." % (base_path, tar_file)
 		command = "rm -f %s/trunk/resources/%s ; tar -cvzf %s/trunk/resources/%s -C %s/tags/%s . 1>/dev/null" % (base_path, tar_file, base_path, tar_file, base_path, new_release_version)
 		#print command
-		subprocess.call(command, shell = True)
+		#subprocess.call(command, shell = True)
+		print "---this step is omited---"
 		print "Please, upload tar file '%s/trunk/resources/%s' into the EPICS Qt Framework SourceForge download area." % (base_path, tar_file)
 	except KeyboardInterrupt:
 		print ""
