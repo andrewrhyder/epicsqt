@@ -5,7 +5,7 @@ Update release notes:
     svn log . -r 520:596
   Add summary and svn change logs to ~/epicsqt/trunk/releasenotes.txt in the form:
           ==================================================================================================
-          Changes between 2.3 and 2.2
+          Changes between 2.5 and 2.4
 
           SUMMARY:
           <Overall summary of changes>
@@ -33,31 +33,36 @@ For example, if a new file was not added to svn
   cd ~
   mv epicsqt epicsqtSaveNN
 
-Package project (version example below is 2.2 - change as required)
-  firefox http://epicsqt.svn.sourceforge.net/viewvc/epicsqt/
-  'Download GNU tarball'
-  Save File
-  mv ~/Downloads/epicsqt.tar.gz ~/Downloads/epicsqt-2.2-src.tar.gz
-  check epicsqt-2.2-src.tar.gz is a sensible size compared to last package
+Package project (version example below is 2.5.0 - change as required)
+  cd ~
+  rm -rf epicsqtClean
+  svn export svn+ssh://rhyder@svn.code.sf.net/p/epicsqt/code epicsqtClean
+  svn co svn+ssh://rhyder@svn.code.sf.net/p/epicsqt/code epicsqt
+  cp -rf epicsqtClean/trunk epicsqt/tags/2.5.0
+  cd epicsqt/tags
+  svn add 2.5.0
+  svn commit -m "Release version 2.5.0"
+  cd ~/epicsqtClean
+  mv trunk/ epicsqt-2.5.0
+  tar cvzf ~/epicsqt-2.5.0-src.tar.gz epicsqt-2.5.0
 
 Verify package:
   cd ~
-  rm -rf epicsqt
-  tar -xf ~/Downloads/epicsqt-2.2-src.tar.gz
-  cd epicsqt
+  rm -rf epicsqt-2.5.0
+  tar -xf epicsqt-2.5.0-src.tar.gz
+  cd epicsqt-2.5.0
   qtcreator
-  open ~/epicsqt/epicsqt.pro
+  open ~/epicsqt-2.5.0/epicsqt.pro
   turn off shaddow build and build it
   run QEGui
 
-  check ~/epicsqt/documentation/QE_ReferenceManual.pdf
+  check ~/epicsqt-2.5.0/documentation/QE_ReferenceManual.pdf
 
 Upload package:
   go to https://sourceforge.net/projects/epicsqt/
   select 'files' (https://sourceforge.net/projects/epicsqt/files/)
-  Press 'Add' button - only available when logged in
-                       (and perhaps only available in firefox?
-  browse, select ~/Downloads/epicsqt-2.2-src.tar.gz and upload
+  Press 'Add' button - (only available when logged in)
+  browse, select ~/epicsqt-2.5.0-src.tar.gz and upload
   revisit summary (https://sourceforge.net/projects/epicsqt/) and check.
 
 Update any changed files in sourceforge documentation
@@ -66,19 +71,30 @@ Update any changed files in sourceforge documentation
 
 Verify package:
   cd ~
-  rm -rf epicsqt
+  rm -rf epicsqt-2.5.0
   goto https://sourceforge.net/projects/epicsqt/ and press 'Download'
-  tar -xf ~/Downloads/epicsqt-2.2-src.tar.gz
-  cd epicsqt
+  tar -xf ~/Downloads/epicsqt-2.5.0-src.tar.gz
+  cd epicsqt-2.5.0
   qtcreator
-  open ~/epicsqt/epicsqt.pro
+  open ~/epicsqt-2.5.0/epicsqt.pro
   turn off shaddow build and build it
   run QEGui
 
-  check ~/epicsqt/documentation/QE_ReferenceManual.pdf
+  check ~/epicsqt-2.5.0/documentation/QE_ReferenceManual.pdf
+
+Verify new tag:
+  cd ~
+  rm -rf epicsqt
+  svn checkout --username=rhyder svn+ssh://rhyder@svn.code.sf.net/p/epicsqt/code/tags/2.5.0 epicsqt/tags/2.5.0
+  cd epicsqt/tags/2.5.0
+  qtcreator
+  open ~/epicsqt/tags/2.5.0/epicsqt.pro
+  turn off shaddow build and build it
+  run QEGui
+
+  check ~/epicsqt-2.5.0/documentation/QE_ReferenceManual.pdf
 
 Prior to ongoing development:
 Restore svn copy
   cd ~
-  rm -rf epicsqt
-  svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
+  svn checkout --username=rhyder svn+ssh://rhyder@svn.code.sf.net/p/epicsqt/code/trunk epicsqt/trunk
