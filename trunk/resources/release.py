@@ -4,8 +4,8 @@
 __author__ = "Ricardo Fernandes"
 __email__ = "ricardo.fernandes@synchrotron.org.au"
 __copyright__ = "(C) 2013 Australian Synchrotron"
-__version__ = "1.0"
-__date__ = "2013/APR/30"
+__version__ = "1.1"
+__date__ = "2013/JUN/04"
 __description__ = "Script to automate the release of a new version of the EPICS Qt Framework"
 __status__ = "Production"
 
@@ -17,7 +17,7 @@ import subprocess
 
 
 
-__SVN_REPOSITORY__ = "https://epicsqt.svn.sourceforge.net/svnroot/epicsqt"
+__SVN_REPOSITORY__ = "https://svn.code.sf.net/p/epicsqt/code"
 
 __TEMP_FILE__ = "/tmp/release.tmp"
 
@@ -27,9 +27,21 @@ __TEMP_DIRECTORY__ = '/tmp/epicsqt'
 
 if __name__ == "__main__":
 
-	print "You are about to release a new version of the EPICS Qt Framework. Please make sure that"
-	print "you have updated the MAJOR, MINOR and/or RELEASE numbers in file 'QEFrameworkVersion.h'"
-	print "and compiled the framework successfully."
+	print "  You are about to release a new version of the EPICS Qt Framework. Please make sure that"
+	print "  you have updated the MAJOR, MINOR and/or RELEASE numbers and QE_VERSION_STAGE string"
+	print "  in file 'QEFrameworkVersion.h' and compiled the framework successfully. (A build is"
+	print "  required as qegui is run to dump the version number later in this process)."
+	print "  Please, DO NOT commit this file if you have changed it. (It will be automatically"
+	print "  commited later after taging is complete)."
+	print ""
+	
+	while True:
+		answer = raw_input("Proceed (y/n): ")
+		if answer.upper() == "Y":
+			break
+		if answer.upper() == "N":
+			print "Release process interrupted by the user."
+			sys.exit(0)
 	print ""
 
 
@@ -40,23 +52,9 @@ if __name__ == "__main__":
 			base_path = "%s/%s" % (base_path, path[i])
 
 
-	try:
-		# get summary
-		summary_list = []
-		summary = raw_input("Summary for this new release   : ")
-		while len(summary) > 0:
-			summary_list.append(summary)
-			summary = raw_input("(Press ENTER to finish summary): ")
-		print ""
-	except KeyboardInterrupt:
-		print ""
-		print "Release process interrupted by the user."
-		sys.exit(0)
-
-
 	# get version of the new release
 	try:
-		executable = "/trunk/applications/QEGuiApp/QEGui -v"
+		executable = "/trunk/applications/QEGuiApp/qegui -v"
 		print "Retrieving version of the new release by executing '%s%s'..." % (base_path, executable)
 		command = "%s%s | grep \"Framework version: \" | sed 's/Framework\ version:\ //' | sed 's/\ .*//' > %s" % (base_path, executable, __TEMP_FILE__)
 		#print command
@@ -97,7 +95,7 @@ if __name__ == "__main__":
 	print "Last release version is '%s'." % last_release_version
 
 
-	# get SVN log entried since last release
+	# get SVN log entries since last release
 	try:
 		print "Retrieving SVN log entries since last release..."
 		command = "svn list --verbose %s/tags | sort -V | tail -2 | head -1 | sed -r 's/ *([0-9]+).+/\\1/' > %s" % (__SVN_REPOSITORY__, __TEMP_FILE__)
@@ -113,6 +111,41 @@ if __name__ == "__main__":
 	except:
 		print "Error when retrieving SVN log entries since last release!"
 		sys.exit(-1)
+
+
+
+	# display SVN log entries
+	try:
+		#print "Displaying SVN log entries..."
+		command = "svn log -r %d:HEAD %s >> %s" % (int(revision_number) + 1, __SVN_REPOSITORY__, __TEMP_FILE__)
+		#print command
+		subprocess.call(command, shell = True)
+		command = "cat %s" % __TEMP_FILE__
+		#print command
+		subprocess.call(command, shell = True)
+	except KeyboardInterrupt:
+		print ""
+		print "Release process interrupted by the user."
+		sys.exit(0)
+	except:
+		print "Error when displaying SVN log entries!"
+		sys.exit(-1)
+
+
+		
+	try:
+		# get summary
+		summary_list = []
+		summary = raw_input("Summary for this new release   : ")
+		while len(summary) > 0:
+			summary_list.append(summary)
+			summary = raw_input("(Press ENTER to finish summary): ")
+		print ""
+	except KeyboardInterrupt:
+		print ""
+		print "Release process interrupted by the user."
+		sys.exit(0)
+
 
 
 	# get SVN log entries since revision number of the last release
@@ -229,11 +262,21 @@ if __name__ == "__main__":
 		sys.exit(-1)
 
 
+	# ask the check the generated PDF
+	while True:
+		print "Check the documentation was generated correctly before proceeding including reference manual. (Location above)"
+		answer = raw_input("Proceed (y/n): ")
+		if answer.upper() == "Y":
+			break
+		if answer.upper() == "N":
+			print "Release process interrupted by the user."
+			sys.exit(0)
+	print ""
+	
 	# ask the user to confirm commit of this new release into the SVN 'tags' repository
 	try:
 		print ""
 		print "You are about to commit/upload new release '%s' into SVN 'tags' directory." % new_release_version
-		print "Please check that the documentation was generated correctly before proceeding."
 		while True:
 			answer = raw_input("Proceed with commit (y/n): ")
 			if answer.upper() == "Y":
