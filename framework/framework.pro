@@ -184,14 +184,14 @@ LIBS += -L$$(EPICS_BASE)/lib/$$(EPICS_HOST_ARCH) \
 #
 # Check QWT is accessable. Check there is a chance QMAKEFEATURES includes a path to
 # the qwt features directory, or that QWT_INCLUDE_PATH is defined.
-# Note, qwt install may set up QMAKEFEATURES to point to the product featuers file, rather than
+# Note, qwt install may set up QMAKEFEATURES to point to the product features file, rather than
 # the directory. Not sure if this is wrong, but changing it to the directory works (C:\Qwt-6.0.1\features\qwt.prf  to  C:\Qwt-6.0.1\features)
 _QWT_INCLUDE_PATH = $$(QWT_INCLUDE_PATH)
 isEmpty( _QWT_INCLUDE_PATH ) {
     _QMAKEFEATURES = $$(QMAKEFEATURES)
     _QWT_FEATURE = $$find( _QMAKEFEATURES, [Q|q][W|w][T|t] )
     isEmpty( _QWT_FEATURE ) {
-        error( "Qwt does not appear to be available. I've checked if 'qwt' is in QMAKEFEATURES or if QWT_INCLUDE_PATH is defiend" )
+        error( "Qwt does not appear to be available. I've checked if 'qwt' is in QMAKEFEATURES or if QWT_INCLUDE_PATH is defined" )
     }
 }
 
