@@ -29,8 +29,8 @@
 TEMPLATE = subdirs
 CONFIG   += ordered
 
-message( Applications may need to load the framework library directly. To ensure this can happen one option is to set up LD_LIBRARY_PATH to include the directory <your-epicsqt-project-location>/framework/designer. LD_LIBRARY_PATH is currently $(LD_LIBRARY_PATH) )
-message( Applications may need to load the framework library as a Qt plugin. To ensure this can happen one option is to set up QT_PLUGIN_PATH to include the directory <your-epicsqt-project-location>/framework. LD_LIBRARY_PATH is currently $(QT_PLUGIN_PATH) )
+unix:message( Applications may need to load the framework library directly. To ensure this can happen one option is to set up LD_LIBRARY_PATH to include the directory <your-epicsqt-project-location>/framework/designer. LD_LIBRARY_PATH is currently $(LD_LIBRARY_PATH) )
+message( Applications may need to load the framework library as a Qt plugin. To ensure this can happen one option is to set up QT_PLUGIN_PATH to include the directory <your-epicsqt-project-location>/framework. QT_PLUGIN_PATH is currently $(QT_PLUGIN_PATH) )
 
 SUBDIRS = \
     framework \
