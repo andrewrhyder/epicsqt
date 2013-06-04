@@ -18,9 +18,9 @@ Rebuild documentation:
 (note, preparation of pdf help from latex source requires
 pdflatex available in lexlive "yum install texlive-latex")
   update PROJECT_NUMBER in ~/epicsqt/documentation/source/Doxyfile
-  cd ~/epicsqt/documentation/source
+  cd ~/epicsqt/trunk/documentation/source
   doxygen Doxyfile
-  cd ~/epicsqt/documentation/latex
+  cd ~/epicsqt/trunk/documentation/latex
   make pdf
   cp refman.pdf ~/epicsqt/documentation/QE_ReferenceManual.pdf
 
