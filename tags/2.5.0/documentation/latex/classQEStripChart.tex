@@ -1,0 +1,318 @@
+\hypertarget{classQEStripChart}{
+\section{QEStripChart Class Reference}
+\label{classQEStripChart}\index{QEStripChart@{QEStripChart}}
+}
+Inheritance diagram for QEStripChart:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.204725cm]{classQEStripChart}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classQEStripChart_1_1PrivateData}{PrivateData}
+\end{DoxyCompactItemize}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bfseries Constants} \{ {\bfseries NUMBER\_\-OF\_\-PVS} =  12
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChart_a7f6b0e9bb943f160e2bb715c89c0b4a9}{
+{\bfseries QEStripChart} (QWidget $\ast$parent=0)}
+\label{classQEStripChart_a7f6b0e9bb943f160e2bb715c89c0b4a9}
+
+\item 
+\hypertarget{classQEStripChart_ad09034a6850ce5dde69e6fc4bdb1d30c}{
+QSize {\bfseries sizeHint} () const }
+\label{classQEStripChart_ad09034a6850ce5dde69e6fc4bdb1d30c}
+
+\item 
+\hypertarget{classQEStripChart_a72f03ddce33852ea70d6bc356a22cc1e}{
+QDateTime {\bfseries getStartDateTime} ()}
+\label{classQEStripChart_a72f03ddce33852ea70d6bc356a22cc1e}
+
+\item 
+\hypertarget{classQEStripChart_a30896b32c84b5b8c51c2431c51d96520}{
+QDateTime {\bfseries getEndDateTime} ()}
+\label{classQEStripChart_a30896b32c84b5b8c51c2431c51d96520}
+
+\item 
+\hypertarget{classQEStripChart_a7e198efa2056cbc8cf1001af282e09d4}{
+void {\bfseries setEndDateTime} (QDateTime endDateTimeIn)}
+\label{classQEStripChart_a7e198efa2056cbc8cf1001af282e09d4}
+
+\item 
+\hypertarget{classQEStripChart_a0cb1e8404dbab4652e537fcf958b33ba}{
+int {\bfseries getDuration} ()}
+\label{classQEStripChart_a0cb1e8404dbab4652e537fcf958b33ba}
+
+\item 
+\hypertarget{classQEStripChart_a4231999600ac5b141719c172780f4b21}{
+void {\bfseries setDuration} (int durationIn)}
+\label{classQEStripChart_a4231999600ac5b141719c172780f4b21}
+
+\item 
+\hypertarget{classQEStripChart_aedfea20674677f31b925ba29efa2cae7}{
+double {\bfseries getYMinimum} ()}
+\label{classQEStripChart_aedfea20674677f31b925ba29efa2cae7}
+
+\item 
+\hypertarget{classQEStripChart_a33f3af01c69e651d2384652f797e8115}{
+void {\bfseries setYMinimum} (const double yMinimumIn)}
+\label{classQEStripChart_a33f3af01c69e651d2384652f797e8115}
+
+\item 
+\hypertarget{classQEStripChart_a1354bcbffa56b4c0c3691536f9a36911}{
+double {\bfseries getYMaximum} ()}
+\label{classQEStripChart_a1354bcbffa56b4c0c3691536f9a36911}
+
+\item 
+\hypertarget{classQEStripChart_a2a29999002274277a55a6e98daaa1ffa}{
+void {\bfseries setYMaximum} (const double yMaximumIn)}
+\label{classQEStripChart_a2a29999002274277a55a6e98daaa1ffa}
+
+\item 
+\hypertarget{classQEStripChart_a266a87d22bd013b219991117440538f0}{
+void {\bfseries setYRange} (const double yMinimumIn, const double yMaximumIn)}
+\label{classQEStripChart_a266a87d22bd013b219991117440538f0}
+
+\item 
+\hypertarget{classQEStripChart_aab6a8fde4f4797167c46a1a30ed1a352}{
+void {\bfseries plotData} ()}
+\label{classQEStripChart_aab6a8fde4f4797167c46a1a30ed1a352}
+
+\item 
+\hypertarget{classQEStripChart_ad8ec2c91a71563edd611be8f4cadb62e}{
+void {\bfseries addToPredefinedList} (const QString \&pvName)}
+\label{classQEStripChart_ad8ec2c91a71563edd611be8f4cadb62e}
+
+\item 
+\hypertarget{classQEStripChart_ade569a1445f704a0f809016dfb5b24f9}{
+QString {\bfseries getPredefinedItem} (int i)}
+\label{classQEStripChart_ade569a1445f704a0f809016dfb5b24f9}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChart_adf7b76b1c510c9272bcf9dc56e0cb9bd}{
+void {\bfseries setup} ()}
+\label{classQEStripChart_adf7b76b1c510c9272bcf9dc56e0cb9bd}
+
+\item 
+\hypertarget{classQEStripChart_a6d845041e2311218e87c40a7390c0607}{
+\hyperlink{classqcaobject_1_1QCaObject}{qcaobject::QCaObject} $\ast$ {\bfseries createQcaItem} (unsigned int variableIndex)}
+\label{classQEStripChart_a6d845041e2311218e87c40a7390c0607}
+
+\item 
+\hypertarget{classQEStripChart_a0b4ba4e13940eab3360678545165ac34}{
+void {\bfseries establishConnection} (unsigned int variableIndex)}
+\label{classQEStripChart_a0b4ba4e13940eab3360678545165ac34}
+
+\item 
+void \hyperlink{classQEStripChart_a23260e4a79a63225c0a1622b62c82ca3}{saveConfiguration} (\hyperlink{classPersistanceManager}{PersistanceManager} $\ast$pm)
+\item 
+void \hyperlink{classQEStripChart_a25d6fea1c3e05fd58b55c60dcb1ef30b}{restoreConfiguration} (\hyperlink{classPersistanceManager}{PersistanceManager} $\ast$pm, \hyperlink{classQEWidget_acff38ca69eed5b30a9d5f9d055e7a0b1}{restorePhases} restorePhase)
+\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChart_a53bdaa736f39a9b31f209ddbd3124ec6}{
+int {\bfseries duration}}
+\label{classQEStripChart_a53bdaa736f39a9b31f209ddbd3124ec6}
+
+\item 
+\hypertarget{classQEStripChart_aa05b4afa8e886d9a9a62024984043b12}{
+double {\bfseries yMinimum}}
+\label{classQEStripChart_aa05b4afa8e886d9a9a62024984043b12}
+
+\item 
+\hypertarget{classQEStripChart_a3a7cb0f12778d173d23dba62a88f7d70}{
+double {\bfseries yMaximum}}
+\label{classQEStripChart_a3a7cb0f12778d173d23dba62a88f7d70}
+
+\item 
+\hypertarget{classQEStripChart_aee41b23d13ef2e47b9365cc791e50ae0}{
+QString {\bfseries variable1}}
+\label{classQEStripChart_aee41b23d13ef2e47b9365cc791e50ae0}
+
+\item 
+\hypertarget{classQEStripChart_a88cbdb8f83de8343855bf4892ad63858}{
+QString {\bfseries variable2}}
+\label{classQEStripChart_a88cbdb8f83de8343855bf4892ad63858}
+
+\item 
+\hypertarget{classQEStripChart_a60a59d375bd708126a9788179fc2f8d4}{
+QString {\bfseries variable3}}
+\label{classQEStripChart_a60a59d375bd708126a9788179fc2f8d4}
+
+\item 
+\hypertarget{classQEStripChart_a12e65511f59d4d07a35b08cee8fde69d}{
+QString {\bfseries variable4}}
+\label{classQEStripChart_a12e65511f59d4d07a35b08cee8fde69d}
+
+\item 
+\hypertarget{classQEStripChart_a4c7f4ef6334fbe70c6b8d77e8ed955a3}{
+QString {\bfseries variable5}}
+\label{classQEStripChart_a4c7f4ef6334fbe70c6b8d77e8ed955a3}
+
+\item 
+\hypertarget{classQEStripChart_a705271b3e2032efd7f0e3b2c242b19e4}{
+QString {\bfseries variable6}}
+\label{classQEStripChart_a705271b3e2032efd7f0e3b2c242b19e4}
+
+\item 
+\hypertarget{classQEStripChart_a180b1b30c90078b021247194068da344}{
+QString {\bfseries variable7}}
+\label{classQEStripChart_a180b1b30c90078b021247194068da344}
+
+\item 
+\hypertarget{classQEStripChart_a311ee9a5cc49919da23eff8e1616854f}{
+QString {\bfseries variable8}}
+\label{classQEStripChart_a311ee9a5cc49919da23eff8e1616854f}
+
+\item 
+\hypertarget{classQEStripChart_a4e1ff9702cd0938c6745bd7a7752ec68}{
+QString {\bfseries variable9}}
+\label{classQEStripChart_a4e1ff9702cd0938c6745bd7a7752ec68}
+
+\item 
+\hypertarget{classQEStripChart_a86b5e0d5e7941558bc6abc7b3d90a7d6}{
+QString {\bfseries variable10}}
+\label{classQEStripChart_a86b5e0d5e7941558bc6abc7b3d90a7d6}
+
+\item 
+\hypertarget{classQEStripChart_ad869ad9d9cd87e975e655e73d06c5b36}{
+QString {\bfseries variable11}}
+\label{classQEStripChart_ad869ad9d9cd87e975e655e73d06c5b36}
+
+\item 
+\hypertarget{classQEStripChart_a2d422277075db98aedaf9193189a04e0}{
+QString {\bfseries variable12}}
+\label{classQEStripChart_a2d422277075db98aedaf9193189a04e0}
+
+\item 
+QString \hyperlink{classQEStripChart_ac64f59db46f9c03b3c83e3578458c17b}{variableSubstitutions}
+\item 
+\hypertarget{classQEStripChart_a6ed7c8d42229f9d8f586e983fb2459cf}{
+QColor {\bfseries colour1}}
+\label{classQEStripChart_a6ed7c8d42229f9d8f586e983fb2459cf}
+
+\item 
+\hypertarget{classQEStripChart_ada49588bd113fef8d282ce91b5842423}{
+QColor {\bfseries colour2}}
+\label{classQEStripChart_ada49588bd113fef8d282ce91b5842423}
+
+\item 
+\hypertarget{classQEStripChart_a4ba30d89aef08ef5c8cb8d75c32a3da1}{
+QColor {\bfseries colour3}}
+\label{classQEStripChart_a4ba30d89aef08ef5c8cb8d75c32a3da1}
+
+\item 
+\hypertarget{classQEStripChart_a66259cdd3d5ad33f791ac72ced707678}{
+QColor {\bfseries colour4}}
+\label{classQEStripChart_a66259cdd3d5ad33f791ac72ced707678}
+
+\item 
+\hypertarget{classQEStripChart_aa53c5de511e6527f20ed694c669429c7}{
+QColor {\bfseries colour5}}
+\label{classQEStripChart_aa53c5de511e6527f20ed694c669429c7}
+
+\item 
+\hypertarget{classQEStripChart_acbde2479b604f49984fdcfc0c6024338}{
+QColor {\bfseries colour6}}
+\label{classQEStripChart_acbde2479b604f49984fdcfc0c6024338}
+
+\item 
+\hypertarget{classQEStripChart_aa438523ba22c4139482e6798602ff780}{
+QColor {\bfseries colour7}}
+\label{classQEStripChart_aa438523ba22c4139482e6798602ff780}
+
+\item 
+\hypertarget{classQEStripChart_ab54b260d6b483ca1078028f8376fb23f}{
+QColor {\bfseries colour8}}
+\label{classQEStripChart_ab54b260d6b483ca1078028f8376fb23f}
+
+\item 
+\hypertarget{classQEStripChart_a8aaca2d851f3401631852b54011ed431}{
+QColor {\bfseries colour9}}
+\label{classQEStripChart_a8aaca2d851f3401631852b54011ed431}
+
+\item 
+\hypertarget{classQEStripChart_ab2befcf9c950ed7c8e5b1a291707013c}{
+QColor {\bfseries colour10}}
+\label{classQEStripChart_ab2befcf9c950ed7c8e5b1a291707013c}
+
+\item 
+\hypertarget{classQEStripChart_a0228f4c3651e9391756326edcb1e366a}{
+QColor {\bfseries colour11}}
+\label{classQEStripChart_a0228f4c3651e9391756326edcb1e366a}
+
+\item 
+\hypertarget{classQEStripChart_aba27f445a5cbf1a872af95cee44c6e90}{
+QColor {\bfseries colour12}}
+\label{classQEStripChart_aba27f445a5cbf1a872af95cee44c6e90}
+
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChart_a2d94d37ca93758ebf89e06b67acba5b9}{
+class {\bfseries PrivateData}}
+\label{classQEStripChart_a2d94d37ca93758ebf89e06b67acba5b9}
+
+\item 
+\hypertarget{classQEStripChart_ad583161301ae0765b893ad1fa94a088c}{
+class \hyperlink{classQEStripChart_ad583161301ae0765b893ad1fa94a088c}{QEStripChartItem}}
+\label{classQEStripChart_ad583161301ae0765b893ad1fa94a088c}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classQEStripChart_a25d6fea1c3e05fd58b55c60dcb1ef30b}{
+\index{QEStripChart@{QEStripChart}!restoreConfiguration@{restoreConfiguration}}
+\index{restoreConfiguration@{restoreConfiguration}!QEStripChart@{QEStripChart}}
+\subsubsection[{restoreConfiguration}]{\setlength{\rightskip}{0pt plus 5cm}void QEStripChart::restoreConfiguration (
+\begin{DoxyParamCaption}
+\item[{{\bf PersistanceManager} $\ast$}]{, }
+\item[{{\bf restorePhases}}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}protected, virtual\mbox{]}}}}
+\label{classQEStripChart_a25d6fea1c3e05fd58b55c60dcb1ef30b}
+Service a request to restore the QE widget's configuration. A QE widget recover any configuration details from the \hyperlink{classPersistanceManager}{PersistanceManager}. For example, a \hyperlink{classQEStripChart}{QEStripChart} may restore the variables being plotted. Many QE widgets do not have any persistant data requirements and do not implement this method. This is called twice with an incrementing restorePhase. Most widgets will miss the first call as they don't exist yet (they are created as part of the first phase) 
+
+Reimplemented from \hyperlink{classQEWidget_abecc5c5d7dec09547bc5d2acac82190d}{QEWidget}.
+
+\hypertarget{classQEStripChart_a23260e4a79a63225c0a1622b62c82ca3}{
+\index{QEStripChart@{QEStripChart}!saveConfiguration@{saveConfiguration}}
+\index{saveConfiguration@{saveConfiguration}!QEStripChart@{QEStripChart}}
+\subsubsection[{saveConfiguration}]{\setlength{\rightskip}{0pt plus 5cm}void QEStripChart::saveConfiguration (
+\begin{DoxyParamCaption}
+\item[{{\bf PersistanceManager} $\ast$}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}protected, virtual\mbox{]}}}}
+\label{classQEStripChart_a23260e4a79a63225c0a1622b62c82ca3}
+Service a request to save the QE widget's current configuration. A widget may save any configuration details through the \hyperlink{classPersistanceManager}{PersistanceManager}. For example, a \hyperlink{classQEStripChart}{QEStripChart} may save the variables being plotted. Many QE widgets do not have any persistant data requirements and do not implement this method. 
+
+Reimplemented from \hyperlink{classQEWidget_a661ceaf355404437497e21c9db4cb110}{QEWidget}.
+
+
+
+\subsection{Property Documentation}
+\hypertarget{classQEStripChart_ac64f59db46f9c03b3c83e3578458c17b}{
+\index{QEStripChart@{QEStripChart}!variableSubstitutions@{variableSubstitutions}}
+\index{variableSubstitutions@{variableSubstitutions}!QEStripChart@{QEStripChart}}
+\subsubsection[{variableSubstitutions}]{\setlength{\rightskip}{0pt plus 5cm}QString QEStripChart::variableSubstitutions\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEStripChart_ac64f59db46f9c03b3c83e3578458c17b}
+Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1\mbox{[},\mbox{]} NAME2=VALUE2... Values may be quoted strings. For example, 'SAMPLE=SAM1, NAME = \char`\"{}Ref foil\char`\"{}' These substitutions are applied to all the variable names. 
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEStripChart/QEStripChart.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEStripChart/QEStripChart.cpp\end{DoxyCompactItemize}

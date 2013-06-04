@@ -1,0 +1,840 @@
+\hypertarget{classQERadioButton}{
+\section{QERadioButton Class Reference}
+\label{classQERadioButton}\index{QERadioButton@{QERadioButton}}
+}
+Inheritance diagram for QERadioButton:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.097378cm]{classQERadioButton}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50}{UserLevels} \{ \hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50a344f1592866eead3f41facf7045f8674}{User} =  userLevelTypes::USERLEVEL\_\-USER, 
+\hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50af0935a04f55bd6957b3de9f0558c56e1}{Scientist} =  userLevelTypes::USERLEVEL\_\-SCIENTIST, 
+\hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50a83647a06fe63d13b39959c7236fa980a}{Engineer} =  userLevelTypes::USERLEVEL\_\-ENGINEER
+ \}
+\item 
+enum \hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7}{Formats} \{ \par
+\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a2a042e82e89ee3608fe4a623eb0a789e}{Default} =  QEStringFormatting::FORMAT\_\-DEFAULT, 
+\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7aea567658a801d20feeb07e352d3c1661}{Floating} =  QEStringFormatting::FORMAT\_\-FLOATING, 
+\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a42d6a3979494d980bf18c9abf46c5983}{Integer} =  QEStringFormatting::FORMAT\_\-INTEGER, 
+\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7ab7a993795e47a29b5835c2a0e9967e89}{UnsignedInteger} =  QEStringFormatting::FORMAT\_\-UNSIGNEDINTEGER, 
+\par
+\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a1f5c87852e2d89a9a5c0d8194af97815}{Time} =  QEStringFormatting::FORMAT\_\-TIME, 
+\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a1f652526a1ded25ab1bad544f03fee0f}{LocalEnumeration} =  QEStringFormatting::FORMAT\_\-LOCAL\_\-ENUMERATE
+ \}
+\item 
+enum \hyperlink{classQERadioButton_a767068fd800eec905334454e97af20ce}{Notations} \{ \hyperlink{classQERadioButton_a767068fd800eec905334454e97af20ceaf2f476b2dbcbcc6214a16a851d7ba5cd}{Fixed} =  QEStringFormatting::NOTATION\_\-FIXED, 
+\hyperlink{classQERadioButton_a767068fd800eec905334454e97af20ceaca1ca9454ea98b8774a4f44167b25c6a}{Scientific} =  QEStringFormatting::NOTATION\_\-SCIENTIFIC, 
+\hyperlink{classQERadioButton_a767068fd800eec905334454e97af20cea265e9ecd144309452d176f33e98b5547}{Automatic} =  QEStringFormatting::NOTATION\_\-AUTOMATIC
+ \}
+\item 
+enum \hyperlink{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83}{ArrayActions} \{ \hyperlink{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83ac335cb6dea643c6dff4c99498e15202d}{Append} =  QEStringFormatting::APPEND, 
+\hyperlink{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83ab4632570722ca47a10d0e81209dda295}{Ascii} =  QEStringFormatting::ASCII, 
+\hyperlink{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83adab4c5db37b3a8a48a0221557ad95a04}{Index} =  QEStringFormatting::INDEX
+ \}
+\item 
+enum \hyperlink{classQERadioButton_aad7a7f64f7433389bff79117604e8098}{UpdateOptions} \{ \hyperlink{classQERadioButton_aad7a7f64f7433389bff79117604e8098ab45a72f7df612f2f3b09d57ca12509bd}{Text} =  QEGenericButton::UPDATE\_\-TEXT, 
+\hyperlink{classQERadioButton_aad7a7f64f7433389bff79117604e8098a030e45e154656dc0e6f2832c35f82c5b}{Icon} =  QEGenericButton::UPDATE\_\-ICON, 
+\hyperlink{classQERadioButton_aad7a7f64f7433389bff79117604e8098aee8dd79029bf966ee3d14e45a894f57f}{TextAndIcon} =  QEGenericButton::UPDATE\_\-TEXT\_\-AND\_\-ICON, 
+\hyperlink{classQERadioButton_aad7a7f64f7433389bff79117604e8098a2dc73967404c3b3fd49c0705d3251d2d}{State} =  QEGenericButton::UPDATE\_\-STATE
+ \}
+\begin{DoxyCompactList}\small\item\em User friendly enumerations for updateOption property -\/ refer to QEGenericButton::updateOptions for details. \end{DoxyCompactList}\item 
+enum \hyperlink{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6}{CreationOptionNames} \{ \hyperlink{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6a20be17f8b2d3e576e1e06f8e26f3de00}{Open} =  QEForm::CREATION\_\-OPTION\_\-OPEN, 
+\hyperlink{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6afa5686675b0bd0fbb273ad162182988a}{NewTab} =  QEForm::CREATION\_\-OPTION\_\-NEW\_\-TAB, 
+\hyperlink{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6a39f46039ea158ab5178a8b1e44662df5}{NewWindow} =  QEForm::CREATION\_\-OPTION\_\-NEW\_\-WINDOW
+ \}
+\begin{DoxyCompactList}\small\item\em Creation options. Used to indicate how to present a GUI when requesting a new GUI be created. Open a new window, open a new tab, or replace the current window. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Slots}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classQERadioButton_aaba01dbffcad0c61b1999d1674fdff52}{launchGui} (QString guiName, QEForm::creationOptions creationOption)
+\item 
+void \hyperlink{classQERadioButton_aff270fc5ca21614928ef8c21a56c922f}{requestEnabled} (const bool \&state)
+\end{DoxyCompactItemize}
+\subsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classQERadioButton_a4b8eb9b652765bda9f78fd097374f037}{dbValueChanged} (const QString \&out)
+\item 
+\hypertarget{classQERadioButton_a965a1fb7861200130f4a803617118f8f}{
+void \hyperlink{classQERadioButton_a965a1fb7861200130f4a803617118f8f}{requestResend} ()}
+\label{classQERadioButton_a965a1fb7861200130f4a803617118f8f}
+
+\begin{DoxyCompactList}\small\item\em Internal use only. Used when changing a property value to force a re-\/display to reflect the new property value. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_a1ceb6587431542c661a4eb906f1572b1}{
+void \hyperlink{classQERadioButton_a1ceb6587431542c661a4eb906f1572b1}{newGui} (QString guiName, QEForm::creationOptions creationOption)}
+\label{classQERadioButton_a1ceb6587431542c661a4eb906f1572b1}
+
+\begin{DoxyCompactList}\small\item\em Internal use only. Request a new GUI is created. Typically, this is caught by the QEGui application. \end{DoxyCompactList}\item 
+void \hyperlink{classQERadioButton_ab0fea7f857c9d5d8bf7fe20bab2e6f10}{pressed} (int value)
+\item 
+void \hyperlink{classQERadioButton_a6e3ee20e334298cad9c99b34885f8be3}{released} (int value)
+\item 
+void \hyperlink{classQERadioButton_a8917903f78ec0e25e5ab3ac6c83abc7e}{clicked} (int value)
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classQERadioButton_a9b0085b628f4567a0205cfbdb85cf254}{QERadioButton} (QWidget $\ast$parent=0)
+\item 
+\hyperlink{classQERadioButton_a142cefe6bed071c0ebbf4dd705e7eb3f}{QERadioButton} (const QString \&variableName, QWidget $\ast$parent=0)
+\item 
+\hypertarget{classQERadioButton_a5e0d84dee0962472b0df7e54534e1f8e}{
+bool \hyperlink{classQERadioButton_a5e0d84dee0962472b0df7e54534e1f8e}{isEnabled} () const }
+\label{classQERadioButton_a5e0d84dee0962472b0df7e54534e1f8e}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_a4d5d822fbcbc310e5e126aad54e49cdd}{enabled} property -\/ refer to \hyperlink{classQERadioButton_a4d5d822fbcbc310e5e126aad54e49cdd}{enabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_ae9fd80c0adb900c2024485aa8cbb3b80}{
+void \hyperlink{classQERadioButton_ae9fd80c0adb900c2024485aa8cbb3b80}{setEnabled} (bool state)}
+\label{classQERadioButton_ae9fd80c0adb900c2024485aa8cbb3b80}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_a4d5d822fbcbc310e5e126aad54e49cdd}{enabled} property -\/ refer to \hyperlink{classQERadioButton_a4d5d822fbcbc310e5e126aad54e49cdd}{enabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_a34b0cb9285265b597d39285e8480a914}{
+\hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50}{UserLevels} \hyperlink{classQERadioButton_a34b0cb9285265b597d39285e8480a914}{getUserLevelVisibilityProperty} ()}
+\label{classQERadioButton_a34b0cb9285265b597d39285e8480a914}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}{userLevelVisibility} property -\/ refer to \hyperlink{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}{userLevelVisibility} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_a990443ac603b3822c8a58991948b1654}{
+void \hyperlink{classQERadioButton_a990443ac603b3822c8a58991948b1654}{setUserLevelVisibilityProperty} (\hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50}{UserLevels} level)}
+\label{classQERadioButton_a990443ac603b3822c8a58991948b1654}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}{userLevelVisibility} property -\/ refer to \hyperlink{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}{userLevelVisibility} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_abe8dee710298972547d1b5a06ed7b6ed}{
+\hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50}{UserLevels} \hyperlink{classQERadioButton_abe8dee710298972547d1b5a06ed7b6ed}{getUserLevelEnabledProperty} ()}
+\label{classQERadioButton_abe8dee710298972547d1b5a06ed7b6ed}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}{userLevelEnabled} property -\/ refer to \hyperlink{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}{userLevelEnabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_ad2abb69387be0f5c6bdde2fa6a4d7ded}{
+void \hyperlink{classQERadioButton_ad2abb69387be0f5c6bdde2fa6a4d7ded}{setUserLevelEnabledProperty} (\hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50}{UserLevels} level)}
+\label{classQERadioButton_ad2abb69387be0f5c6bdde2fa6a4d7ded}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}{userLevelEnabled} property -\/ refer to \hyperlink{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}{userLevelEnabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_a72eabae07b886ec30f1019d0db098a6a}{
+void \hyperlink{classQERadioButton_a72eabae07b886ec30f1019d0db098a6a}{setFormatProperty} (\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7}{Formats} format)}
+\label{classQERadioButton_a72eabae07b886ec30f1019d0db098a6a}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_abcf8ce7d1c1ee9d6c99423ea3b2fc69c}{format} property -\/ refer to \hyperlink{classQERadioButton_abcf8ce7d1c1ee9d6c99423ea3b2fc69c}{format} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_a4d1ffae046083c56bbf444d5633a7b59}{
+\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7}{Formats} \hyperlink{classQERadioButton_a4d1ffae046083c56bbf444d5633a7b59}{getFormatProperty} ()}
+\label{classQERadioButton_a4d1ffae046083c56bbf444d5633a7b59}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_abcf8ce7d1c1ee9d6c99423ea3b2fc69c}{format} property -\/ refer to \hyperlink{classQERadioButton_abcf8ce7d1c1ee9d6c99423ea3b2fc69c}{format} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_ab246642b570d56e001cb31c00d8e53f3}{
+void \hyperlink{classQERadioButton_ab246642b570d56e001cb31c00d8e53f3}{setNotationProperty} (\hyperlink{classQERadioButton_a767068fd800eec905334454e97af20ce}{Notations} notation)}
+\label{classQERadioButton_ab246642b570d56e001cb31c00d8e53f3}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_a3cd753fec8e954fd5547b38f2136253c}{notation} property -\/ refer to \hyperlink{classQERadioButton_a3cd753fec8e954fd5547b38f2136253c}{notation} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_a2c20c4062d04d999bb8e9c66e0da033e}{
+\hyperlink{classQERadioButton_a767068fd800eec905334454e97af20ce}{Notations} \hyperlink{classQERadioButton_a2c20c4062d04d999bb8e9c66e0da033e}{getNotationProperty} ()}
+\label{classQERadioButton_a2c20c4062d04d999bb8e9c66e0da033e}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_a3cd753fec8e954fd5547b38f2136253c}{notation} property -\/ refer to \hyperlink{classQERadioButton_a3cd753fec8e954fd5547b38f2136253c}{notation} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_a751f31c31864e7342938e42c47b83cca}{
+void \hyperlink{classQERadioButton_a751f31c31864e7342938e42c47b83cca}{setArrayActionProperty} (\hyperlink{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83}{ArrayActions} arrayAction)}
+\label{classQERadioButton_a751f31c31864e7342938e42c47b83cca}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_aa9fcd012234b6ff09a5def4005afba53}{arrayAction} property -\/ refer to \hyperlink{classQERadioButton_aa9fcd012234b6ff09a5def4005afba53}{arrayAction} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQERadioButton_aa61d30e856bd532bbcee3d66db4c4243}{
+\hyperlink{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83}{ArrayActions} \hyperlink{classQERadioButton_aa61d30e856bd532bbcee3d66db4c4243}{getArrayActionProperty} ()}
+\label{classQERadioButton_aa61d30e856bd532bbcee3d66db4c4243}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQERadioButton_aa9fcd012234b6ff09a5def4005afba53}{arrayAction} property -\/ refer to \hyperlink{classQERadioButton_aa9fcd012234b6ff09a5def4005afba53}{arrayAction} property for details. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+QString \hyperlink{classQERadioButton_a86f163446433bab555f21d69754ad309}{variable}
+\item 
+QString \hyperlink{classQERadioButton_ab2ed7b39ab32d1a5067d1c8e9fad850b}{variableSubstitutions}
+\item 
+bool \hyperlink{classQERadioButton_a7a75de07f11a61927d1442756f697345}{subscribe}
+\item 
+bool \hyperlink{classQERadioButton_affd89606cebad3bbe85a7ea394b004cb}{variableAsToolTip}
+\item 
+bool \hyperlink{classQERadioButton_a4d5d822fbcbc310e5e126aad54e49cdd}{enabled}
+\item 
+bool \hyperlink{classQERadioButton_a929608c74dad400185efa15f02b72bd9}{allowDrop}
+\item 
+bool \hyperlink{classQERadioButton_a44e1fad82f677ad4f6060cdefb488b4c}{visible}
+\item 
+unsigned \hyperlink{classQERadioButton_a5ce0f55c3e917bff62fab604ed962e29}{int}
+\item 
+QString \hyperlink{classQERadioButton_a89be5341593c73dd2b2dadfa2daf587e}{userLevelUserStyle}
+\item 
+QString \hyperlink{classQERadioButton_a1cc5aaa79764da34d130c4a7a8a1e2df}{userLevelScientistStyle}
+\item 
+QString \hyperlink{classQERadioButton_a6e05c0168077b53a67ef237eb5af1939}{userLevelEngineerStyle}
+\item 
+\hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50}{UserLevels} \hyperlink{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}{userLevelVisibility}
+\item 
+\hyperlink{classQERadioButton_abce53396b682b1c32d9909a34620cb50}{UserLevels} \hyperlink{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}{userLevelEnabled}
+\item 
+bool \hyperlink{classQERadioButton_a91a1d0241459be2381e8402a816c01a8}{displayAlarmState}
+\item 
+int \hyperlink{classQERadioButton_a279ecec8126e3a6716e161fc6af9af7c}{precision}
+\item 
+bool \hyperlink{classQERadioButton_ab91967d814660edc9857b2d985997c26}{useDbPrecision}
+\item 
+bool \hyperlink{classQERadioButton_a5e6014a2cecf20be7252af365fe8b7c5}{leadingZero}
+\item 
+bool \hyperlink{classQERadioButton_a372817b95d22b60e639a7857c6ddf621}{trailingZeros}
+\item 
+bool \hyperlink{classQERadioButton_a41dbe1bbe357e6b5b9b791c74e9a6512}{addUnits}
+\item 
+QString \hyperlink{classQERadioButton_a73bb9290ed25ce3206dd70fa5b170ba8}{localEnumeration}
+\item 
+\hyperlink{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7}{Formats} \hyperlink{classQERadioButton_abcf8ce7d1c1ee9d6c99423ea3b2fc69c}{format}
+\item 
+\hyperlink{classQERadioButton_a767068fd800eec905334454e97af20ce}{Notations} \hyperlink{classQERadioButton_a3cd753fec8e954fd5547b38f2136253c}{notation}
+\item 
+\hyperlink{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83}{ArrayActions} \hyperlink{classQERadioButton_aa9fcd012234b6ff09a5def4005afba53}{arrayAction}
+\item 
+Qt::Alignment \hyperlink{classQERadioButton_a9386513fc2ec438935a5a11587e48814}{alignment}
+\item 
+\hyperlink{classQERadioButton_aad7a7f64f7433389bff79117604e8098}{UpdateOptions} \hyperlink{classQERadioButton_a7c268e3cae168d0c28c48569f274393d}{updateOption}
+\item 
+QPixmap \hyperlink{classQERadioButton_a80f82e420118a7ae1366d06472736f7b}{pixmap0}
+\item 
+QPixmap \hyperlink{classQERadioButton_a6ab9f2a2696ce973def9efb1e4b962c8}{pixmap1}
+\item 
+QPixmap \hyperlink{classQERadioButton_aa46673bac68cb15555002cd6d28a046d}{pixmap2}
+\item 
+QPixmap \hyperlink{classQERadioButton_af64fe5ac6300de6501a5ae92770e254f}{pixmap3}
+\item 
+QPixmap \hyperlink{classQERadioButton_a76c94ee11cc9a49e8a62e4741e956d33}{pixmap4}
+\item 
+QPixmap \hyperlink{classQERadioButton_a7774a3fe78c832be235cd896a0b3b050}{pixmap5}
+\item 
+QPixmap \hyperlink{classQERadioButton_ab853c55e9253e0807aa264d3a631827c}{pixmap6}
+\item 
+QPixmap \hyperlink{classQERadioButton_aed4591af2dbf39278086d296f3e8db7e}{pixmap7}
+\item 
+QString \hyperlink{classQERadioButton_a5c2a86f59174b8993c21cdb82535436f}{password}
+\item 
+bool \hyperlink{classQERadioButton_ab44cfab36427aff037f31420a7121fd7}{confirmAction}
+\item 
+bool \hyperlink{classQERadioButton_abc935229d195497727f4c18a3fd589f0}{writeOnPress}
+\item 
+bool \hyperlink{classQERadioButton_a5b414910f53e8d584e1ccbdb3c813b26}{writeOnRelease}
+\item 
+bool \hyperlink{classQERadioButton_afb7aded1c494314dda17c699ad8cfecb}{writeOnClick}
+\item 
+QString \hyperlink{classQERadioButton_a3eda04a8d01c637711866008838ec71e}{pressText}
+\item 
+QString \hyperlink{classQERadioButton_a5e0edea929429e6d0ba6bc8e6013ae7b}{releaseText}
+\item 
+QString \hyperlink{classQERadioButton_a0e01a1f96bdf5c10665bba5746ea5f99}{clickText}
+\item 
+QString \hyperlink{classQERadioButton_a9216f3b8c8190c929a55abbb003d4020}{clickCheckedText}
+\item 
+QString \hyperlink{classQERadioButton_a973fe8b514687003017bb7d9ba5ea4ed}{labelText}
+\item 
+QString \hyperlink{classQERadioButton_ac2bf379502ab5aa55f63fa2737dc9f7b}{program}
+\item 
+QStringList \hyperlink{classQERadioButton_aa3b16b50a571d339ca359ba54fd4afa8}{arguments}
+\item 
+QString \hyperlink{classQERadioButton_ad29930595b0e32554faaaf0c56d2d2e5}{guiFile}
+\item 
+\hyperlink{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6}{CreationOptionNames} \hyperlink{classQERadioButton_a3bbdb5f0fa63690f2e97491e8bfab454}{creationOption}
+\item 
+QString \hyperlink{classQERadioButton_a83f29517bee8952e95d85d6ad6ddb89c}{prioritySubstitutions}
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83}{
+\index{QERadioButton@{QERadioButton}!ArrayActions@{ArrayActions}}
+\index{ArrayActions@{ArrayActions}!QERadioButton@{QERadioButton}}
+\subsubsection[{ArrayActions}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QERadioButton::ArrayActions}}}
+\label{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83}
+User friendly enumerations for arrayAction property -\/ refer to \hyperlink{classQEStringFormatting_a36b424886bc64cea8f7ed69b2b03c0b9}{QEStringFormatting::arrayActions} for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Append@{Append}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Append@{Append}}\item[{\em 
+\hypertarget{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83ac335cb6dea643c6dff4c99498e15202d}{
+Append}
+\label{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83ac335cb6dea643c6dff4c99498e15202d}
+}]Refer to \hyperlink{classQEStringFormatting_a36b424886bc64cea8f7ed69b2b03c0b9a17613cfb7e87103922490471cd6bde06}{QEStringFormatting::APPEND} for details. \index{Ascii@{Ascii}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Ascii@{Ascii}}\item[{\em 
+\hypertarget{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83ab4632570722ca47a10d0e81209dda295}{
+Ascii}
+\label{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83ab4632570722ca47a10d0e81209dda295}
+}]Refer to \hyperlink{classQEStringFormatting_a36b424886bc64cea8f7ed69b2b03c0b9ae8a32203c042705835af1cd34c85c0d2}{QEStringFormatting::ASCII} for details. \index{Index@{Index}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Index@{Index}}\item[{\em 
+\hypertarget{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83adab4c5db37b3a8a48a0221557ad95a04}{
+Index}
+\label{classQERadioButton_abeae9bf4f263b0a15d7f8f62abb92e83adab4c5db37b3a8a48a0221557ad95a04}
+}]Refer to \hyperlink{classQEStringFormatting_a36b424886bc64cea8f7ed69b2b03c0b9a83330940881ccb325ea24056232b6e68}{QEStringFormatting::INDEX} for details. \end{description}
+\end{Desc}
+
+\hypertarget{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6}{
+\index{QERadioButton@{QERadioButton}!CreationOptionNames@{CreationOptionNames}}
+\index{CreationOptionNames@{CreationOptionNames}!QERadioButton@{QERadioButton}}
+\subsubsection[{CreationOptionNames}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QERadioButton::CreationOptionNames}}}
+\label{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6}
+
+
+Creation options. Used to indicate how to present a GUI when requesting a new GUI be created. Open a new window, open a new tab, or replace the current window. 
+
+\begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Open@{Open}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Open@{Open}}\item[{\em 
+\hypertarget{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6a20be17f8b2d3e576e1e06f8e26f3de00}{
+Open}
+\label{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6a20be17f8b2d3e576e1e06f8e26f3de00}
+}]Replace the current GUI with the new GUI. \index{NewTab@{NewTab}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!NewTab@{NewTab}}\item[{\em 
+\hypertarget{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6afa5686675b0bd0fbb273ad162182988a}{
+NewTab}
+\label{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6afa5686675b0bd0fbb273ad162182988a}
+}]Open new GUI in a new tab. \index{NewWindow@{NewWindow}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!NewWindow@{NewWindow}}\item[{\em 
+\hypertarget{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6a39f46039ea158ab5178a8b1e44662df5}{
+NewWindow}
+\label{classQERadioButton_acb27e9a0a6626e356c5da293352c41c6a39f46039ea158ab5178a8b1e44662df5}
+}]Open new GUI in a new window. \end{description}
+\end{Desc}
+
+\hypertarget{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7}{
+\index{QERadioButton@{QERadioButton}!Formats@{Formats}}
+\index{Formats@{Formats}!QERadioButton@{QERadioButton}}
+\subsubsection[{Formats}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QERadioButton::Formats}}}
+\label{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7}
+User friendly enumerations for format property -\/ refer to \hyperlink{classQEStringFormatting_a41b4737442692b41d12b78c036cf9e56}{QEStringFormatting::formats} for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Default@{Default}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Default@{Default}}\item[{\em 
+\hypertarget{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a2a042e82e89ee3608fe4a623eb0a789e}{
+Default}
+\label{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a2a042e82e89ee3608fe4a623eb0a789e}
+}]Format as best appropriate for the data type. \index{Floating@{Floating}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Floating@{Floating}}\item[{\em 
+\hypertarget{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7aea567658a801d20feeb07e352d3c1661}{
+Floating}
+\label{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7aea567658a801d20feeb07e352d3c1661}
+}]Format as a floating point number. \index{Integer@{Integer}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Integer@{Integer}}\item[{\em 
+\hypertarget{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a42d6a3979494d980bf18c9abf46c5983}{
+Integer}
+\label{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a42d6a3979494d980bf18c9abf46c5983}
+}]Format as an integer. \index{UnsignedInteger@{UnsignedInteger}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!UnsignedInteger@{UnsignedInteger}}\item[{\em 
+\hypertarget{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7ab7a993795e47a29b5835c2a0e9967e89}{
+UnsignedInteger}
+\label{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7ab7a993795e47a29b5835c2a0e9967e89}
+}]Format as an unsigned integer. \index{Time@{Time}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Time@{Time}}\item[{\em 
+\hypertarget{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a1f5c87852e2d89a9a5c0d8194af97815}{
+Time}
+\label{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a1f5c87852e2d89a9a5c0d8194af97815}
+}]Format as a time. \index{LocalEnumeration@{LocalEnumeration}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!LocalEnumeration@{LocalEnumeration}}\item[{\em 
+\hypertarget{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a1f652526a1ded25ab1bad544f03fee0f}{
+LocalEnumeration}
+\label{classQERadioButton_aa0cfe17ce2d6ebd73254671906060cc7a1f652526a1ded25ab1bad544f03fee0f}
+}]Format as a selection from the \hyperlink{classQERadioButton_a73bb9290ed25ce3206dd70fa5b170ba8}{localEnumeration} property. \end{description}
+\end{Desc}
+
+\hypertarget{classQERadioButton_a767068fd800eec905334454e97af20ce}{
+\index{QERadioButton@{QERadioButton}!Notations@{Notations}}
+\index{Notations@{Notations}!QERadioButton@{QERadioButton}}
+\subsubsection[{Notations}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QERadioButton::Notations}}}
+\label{classQERadioButton_a767068fd800eec905334454e97af20ce}
+User friendly enumerations for notation property -\/ refer to \hyperlink{classQEStringFormatting_adfa7fa261e196d1327d4da6e046dbd84}{QEStringFormatting::notations} for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Fixed@{Fixed}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Fixed@{Fixed}}\item[{\em 
+\hypertarget{classQERadioButton_a767068fd800eec905334454e97af20ceaf2f476b2dbcbcc6214a16a851d7ba5cd}{
+Fixed}
+\label{classQERadioButton_a767068fd800eec905334454e97af20ceaf2f476b2dbcbcc6214a16a851d7ba5cd}
+}]Refer to \hyperlink{classQEStringFormatting_adfa7fa261e196d1327d4da6e046dbd84aff4a04845bd3039833cd1cf7f91a8c89}{QEStringFormatting::NOTATION\_\-FIXED} for details. \index{Scientific@{Scientific}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Scientific@{Scientific}}\item[{\em 
+\hypertarget{classQERadioButton_a767068fd800eec905334454e97af20ceaca1ca9454ea98b8774a4f44167b25c6a}{
+Scientific}
+\label{classQERadioButton_a767068fd800eec905334454e97af20ceaca1ca9454ea98b8774a4f44167b25c6a}
+}]Refer to \hyperlink{classQEStringFormatting_adfa7fa261e196d1327d4da6e046dbd84a79198d28f4a318e4c9e7334e6beec56b}{QEStringFormatting::NOTATION\_\-SCIENTIFIC} for details. \index{Automatic@{Automatic}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Automatic@{Automatic}}\item[{\em 
+\hypertarget{classQERadioButton_a767068fd800eec905334454e97af20cea265e9ecd144309452d176f33e98b5547}{
+Automatic}
+\label{classQERadioButton_a767068fd800eec905334454e97af20cea265e9ecd144309452d176f33e98b5547}
+}]Refer to \hyperlink{classQEStringFormatting_adfa7fa261e196d1327d4da6e046dbd84ab8061ebe09c1cacc3f83dc66869c21cd}{QEStringFormatting::NOTATION\_\-AUTOMATIC} for details. \end{description}
+\end{Desc}
+
+\hypertarget{classQERadioButton_aad7a7f64f7433389bff79117604e8098}{
+\index{QERadioButton@{QERadioButton}!UpdateOptions@{UpdateOptions}}
+\index{UpdateOptions@{UpdateOptions}!QERadioButton@{QERadioButton}}
+\subsubsection[{UpdateOptions}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QERadioButton::UpdateOptions}}}
+\label{classQERadioButton_aad7a7f64f7433389bff79117604e8098}
+
+
+User friendly enumerations for updateOption property -\/ refer to QEGenericButton::updateOptions for details. 
+
+\begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Text@{Text}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Text@{Text}}\item[{\em 
+\hypertarget{classQERadioButton_aad7a7f64f7433389bff79117604e8098ab45a72f7df612f2f3b09d57ca12509bd}{
+Text}
+\label{classQERadioButton_aad7a7f64f7433389bff79117604e8098ab45a72f7df612f2f3b09d57ca12509bd}
+}]Data updates will update the button text. \index{Icon@{Icon}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Icon@{Icon}}\item[{\em 
+\hypertarget{classQERadioButton_aad7a7f64f7433389bff79117604e8098a030e45e154656dc0e6f2832c35f82c5b}{
+Icon}
+\label{classQERadioButton_aad7a7f64f7433389bff79117604e8098a030e45e154656dc0e6f2832c35f82c5b}
+}]Data updates will update the button icon. \index{TextAndIcon@{TextAndIcon}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!TextAndIcon@{TextAndIcon}}\item[{\em 
+\hypertarget{classQERadioButton_aad7a7f64f7433389bff79117604e8098aee8dd79029bf966ee3d14e45a894f57f}{
+TextAndIcon}
+\label{classQERadioButton_aad7a7f64f7433389bff79117604e8098aee8dd79029bf966ee3d14e45a894f57f}
+}]Data updates will update the button text and icon. \index{State@{State}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!State@{State}}\item[{\em 
+\hypertarget{classQERadioButton_aad7a7f64f7433389bff79117604e8098a2dc73967404c3b3fd49c0705d3251d2d}{
+State}
+\label{classQERadioButton_aad7a7f64f7433389bff79117604e8098a2dc73967404c3b3fd49c0705d3251d2d}
+}]Data updates will update the button state (checked or unchecked) \end{description}
+\end{Desc}
+
+\hypertarget{classQERadioButton_abce53396b682b1c32d9909a34620cb50}{
+\index{QERadioButton@{QERadioButton}!UserLevels@{UserLevels}}
+\index{UserLevels@{UserLevels}!QERadioButton@{QERadioButton}}
+\subsubsection[{UserLevels}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QERadioButton::UserLevels}}}
+\label{classQERadioButton_abce53396b682b1c32d9909a34620cb50}
+User friendly enumerations for \hyperlink{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}{userLevelVisibility} and \hyperlink{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}{userLevelEnabled} properties -\/ refer to \hyperlink{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}{userLevelVisibility} and \hyperlink{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}{userLevelEnabled} properties and userLevel enumeration for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{User@{User}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!User@{User}}\item[{\em 
+\hypertarget{classQERadioButton_abce53396b682b1c32d9909a34620cb50a344f1592866eead3f41facf7045f8674}{
+User}
+\label{classQERadioButton_abce53396b682b1c32d9909a34620cb50a344f1592866eead3f41facf7045f8674}
+}]Refer to USERLEVEL\_\-USER for details. \index{Scientist@{Scientist}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Scientist@{Scientist}}\item[{\em 
+\hypertarget{classQERadioButton_abce53396b682b1c32d9909a34620cb50af0935a04f55bd6957b3de9f0558c56e1}{
+Scientist}
+\label{classQERadioButton_abce53396b682b1c32d9909a34620cb50af0935a04f55bd6957b3de9f0558c56e1}
+}]Refer to USERLEVEL\_\-SCIENTIST for details. \index{Engineer@{Engineer}!QERadioButton@{QERadioButton}}\index{QERadioButton@{QERadioButton}!Engineer@{Engineer}}\item[{\em 
+\hypertarget{classQERadioButton_abce53396b682b1c32d9909a34620cb50a83647a06fe63d13b39959c7236fa980a}{
+Engineer}
+\label{classQERadioButton_abce53396b682b1c32d9909a34620cb50a83647a06fe63d13b39959c7236fa980a}
+}]Refer to USERLEVEL\_\-ENGINEER for details. \end{description}
+\end{Desc}
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classQERadioButton_a9b0085b628f4567a0205cfbdb85cf254}{
+\index{QERadioButton@{QERadioButton}!QERadioButton@{QERadioButton}}
+\index{QERadioButton@{QERadioButton}!QERadioButton@{QERadioButton}}
+\subsubsection[{QERadioButton}]{\setlength{\rightskip}{0pt plus 5cm}QERadioButton::QERadioButton (
+\begin{DoxyParamCaption}
+\item[{QWidget $\ast$}]{parent = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)}}
+\label{classQERadioButton_a9b0085b628f4567a0205cfbdb85cf254}
+Create without a variable. Use setVariableNameProperty() and setSubstitutionsProperty() to define a variable and, optionally, macro substitutions later. \hypertarget{classQERadioButton_a142cefe6bed071c0ebbf4dd705e7eb3f}{
+\index{QERadioButton@{QERadioButton}!QERadioButton@{QERadioButton}}
+\index{QERadioButton@{QERadioButton}!QERadioButton@{QERadioButton}}
+\subsubsection[{QERadioButton}]{\setlength{\rightskip}{0pt plus 5cm}QERadioButton::QERadioButton (
+\begin{DoxyParamCaption}
+\item[{const QString \&}]{variableName, }
+\item[{QWidget $\ast$}]{parent = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)}}
+\label{classQERadioButton_a142cefe6bed071c0ebbf4dd705e7eb3f}
+Create with a variable. A connection is automatically established. If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation. 
+
+\subsection{Member Function Documentation}
+\hypertarget{classQERadioButton_a8917903f78ec0e25e5ab3ac6c83abc7e}{
+\index{QERadioButton@{QERadioButton}!clicked@{clicked}}
+\index{clicked@{clicked}!QERadioButton@{QERadioButton}}
+\subsubsection[{clicked}]{\setlength{\rightskip}{0pt plus 5cm}void QERadioButton::clicked (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQERadioButton_a8917903f78ec0e25e5ab3ac6c83abc7e}
+Button has been Clicked. The value emitted is the integer interpretation of the clickText property (or the clickCheckedText property if the button was checked) \hypertarget{classQERadioButton_a4b8eb9b652765bda9f78fd097374f037}{
+\index{QERadioButton@{QERadioButton}!dbValueChanged@{dbValueChanged}}
+\index{dbValueChanged@{dbValueChanged}!QERadioButton@{QERadioButton}}
+\subsubsection[{dbValueChanged}]{\setlength{\rightskip}{0pt plus 5cm}void QERadioButton::dbValueChanged (
+\begin{DoxyParamCaption}
+\item[{const QString \&}]{out}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQERadioButton_a4b8eb9b652765bda9f78fd097374f037}
+Sent when the widget is updated following a data change Can be used to pass on EPICS data (as presented in this widget) to other widgets. For example a QList widget could log updates from this widget. \hypertarget{classQERadioButton_aaba01dbffcad0c61b1999d1674fdff52}{
+\index{QERadioButton@{QERadioButton}!launchGui@{launchGui}}
+\index{launchGui@{launchGui}!QERadioButton@{QERadioButton}}
+\subsubsection[{launchGui}]{\setlength{\rightskip}{0pt plus 5cm}void QERadioButton::launchGui (
+\begin{DoxyParamCaption}
+\item[{QString}]{guiName, }
+\item[{QEForm::creationOptions}]{creationOption}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, slot\mbox{]}}}}
+\label{classQERadioButton_aaba01dbffcad0c61b1999d1674fdff52}
+Default slot used to create a new GUI if there is no slot indicated in the \hyperlink{classContainerProfile}{ContainerProfile} class. This slot is typically used when the button is pressed within the Designer preview window to allow the operation of the button to be tested. If an application does not specify a slot to use for creating new windows (through the \hyperlink{classContainerProfile}{ContainerProfile} class) a window will still be created through this slot, but it will not respect the window creation options or any other window related application constraints. For example, the QEGui application does provide a slot for creating new GUIs in the \hyperlink{classContainerProfile}{ContainerProfile} class which respects the creation options, knows how to add tabs in the application, and extend the application's window menu in the menu bar. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_ab0fea7f857c9d5d8bf7fe20bab2e6f10}{
+\index{QERadioButton@{QERadioButton}!pressed@{pressed}}
+\index{pressed@{pressed}!QERadioButton@{QERadioButton}}
+\subsubsection[{pressed}]{\setlength{\rightskip}{0pt plus 5cm}void QERadioButton::pressed (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQERadioButton_ab0fea7f857c9d5d8bf7fe20bab2e6f10}
+Button has been Pressed. The value emitted is the integer interpretation of the pressText property \hypertarget{classQERadioButton_a6e3ee20e334298cad9c99b34885f8be3}{
+\index{QERadioButton@{QERadioButton}!released@{released}}
+\index{released@{released}!QERadioButton@{QERadioButton}}
+\subsubsection[{released}]{\setlength{\rightskip}{0pt plus 5cm}void QERadioButton::released (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQERadioButton_a6e3ee20e334298cad9c99b34885f8be3}
+Button has been Released The value emitted is the integer interpretation of the releaseText property \hypertarget{classQERadioButton_aff270fc5ca21614928ef8c21a56c922f}{
+\index{QERadioButton@{QERadioButton}!requestEnabled@{requestEnabled}}
+\index{requestEnabled@{requestEnabled}!QERadioButton@{QERadioButton}}
+\subsubsection[{requestEnabled}]{\setlength{\rightskip}{0pt plus 5cm}void QERadioButton::requestEnabled (
+\begin{DoxyParamCaption}
+\item[{const bool \&}]{state}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, slot\mbox{]}}}}
+\label{classQERadioButton_aff270fc5ca21614928ef8c21a56c922f}
+Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data. If disabled due to invalid data, a request to enable the widget will be honoured when the data is no longer invalid. 
+
+\subsection{Property Documentation}
+\hypertarget{classQERadioButton_a41dbe1bbe357e6b5b9b791c74e9a6512}{
+\index{QERadioButton@{QERadioButton}!addUnits@{addUnits}}
+\index{addUnits@{addUnits}!QERadioButton@{QERadioButton}}
+\subsubsection[{addUnits}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::addUnits\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a41dbe1bbe357e6b5b9b791c74e9a6512}
+If true (default), add engineering units supplied with the data. \hypertarget{classQERadioButton_a9386513fc2ec438935a5a11587e48814}{
+\index{QERadioButton@{QERadioButton}!alignment@{alignment}}
+\index{alignment@{alignment}!QERadioButton@{QERadioButton}}
+\subsubsection[{alignment}]{\setlength{\rightskip}{0pt plus 5cm}Qt::Alignment QERadioButton::alignment\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a9386513fc2ec438935a5a11587e48814}
+Set the buttons text alignment. Left justification is particularly useful when displaying quickly changing numeric data updates. \hypertarget{classQERadioButton_a929608c74dad400185efa15f02b72bd9}{
+\index{QERadioButton@{QERadioButton}!allowDrop@{allowDrop}}
+\index{allowDrop@{allowDrop}!QERadioButton@{QERadioButton}}
+\subsubsection[{allowDrop}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::allowDrop\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a929608c74dad400185efa15f02b72bd9}
+Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name. 
+
+Reimplemented from \hyperlink{classQEDragDrop}{QEDragDrop}.
+
+\hypertarget{classQERadioButton_aa3b16b50a571d339ca359ba54fd4afa8}{
+\index{QERadioButton@{QERadioButton}!arguments@{arguments}}
+\index{arguments@{arguments}!QERadioButton@{QERadioButton}}
+\subsubsection[{arguments}]{\setlength{\rightskip}{0pt plus 5cm}QStringList QERadioButton::arguments\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_aa3b16b50a571d339ca359ba54fd4afa8}
+Arguments for program specified in the 'program' property. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_aa9fcd012234b6ff09a5def4005afba53}{
+\index{QERadioButton@{QERadioButton}!arrayAction@{arrayAction}}
+\index{arrayAction@{arrayAction}!QERadioButton@{QERadioButton}}
+\subsubsection[{arrayAction}]{\setlength{\rightskip}{0pt plus 5cm}{\bf ArrayActions} QERadioButton::arrayAction\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_aa9fcd012234b6ff09a5def4005afba53}
+Text formatting option for array data. Default is ASCII. Options are: \begin{DoxyItemize}
+\item ASCII -\/ treat array as a single text string. For example an array of three characters 'a' 'b' 'c' will be formatted as 'abc'. \item APPEND -\/ treat array as an array of numbers and format a string containing them all with a space between each. For example, an array of three numbers 10, 11 and 12 will be formatted as '10 11 12'. \item INDEX -\/ Extract a single item from the array. The item is then formatted as any other non array data would be. The item selected is determined by the arrayIndex property. For example, if arrayIndex property is 1, an array of three numbers 10, 11 and 12 will be formatted as '11'. \end{DoxyItemize}
+\hypertarget{classQERadioButton_a9216f3b8c8190c929a55abbb003d4020}{
+\index{QERadioButton@{QERadioButton}!clickCheckedText@{clickCheckedText}}
+\index{clickCheckedText@{clickCheckedText}!QERadioButton@{QERadioButton}}
+\subsubsection[{clickCheckedText}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::clickCheckedText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a9216f3b8c8190c929a55abbb003d4020}
+Text used to compare with text written or read to determine if push button should be marked as checked. Note, must be an exact match following formatting of data updates. When writing values, the 'pressText', 'ReleaseText', or 'clickedtext' must match this property to cause the button to be checked when the write occurs.
+
+Good example: formatting set to diaplay a data value of '1' as 'On', clickCheckedText is 'On', clickText is 'On'. In this example, the push button will be checked when a data update occurs with a value of 1 or when the button is clicked.
+
+Bad example: formatting set to diaplay a data value of '1' as 'On', clickCheckedText is 'On', clickText is '1'. In this example, the push button will be checked when a data update occurs with a value of 1 but, although a valid value will be written when clicked, the button will not be checked when clicked as '1' is not the same as 'On'. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_a0e01a1f96bdf5c10665bba5746ea5f99}{
+\index{QERadioButton@{QERadioButton}!clickText@{clickText}}
+\index{clickText@{clickText}!QERadioButton@{QERadioButton}}
+\subsubsection[{clickText}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::clickText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a0e01a1f96bdf5c10665bba5746ea5f99}
+Value written when user clicks button if 'writeOnClick' property is true 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_ab44cfab36427aff037f31420a7121fd7}{
+\index{QERadioButton@{QERadioButton}!confirmAction@{confirmAction}}
+\index{confirmAction@{confirmAction}!QERadioButton@{QERadioButton}}
+\subsubsection[{confirmAction}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::confirmAction\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_ab44cfab36427aff037f31420a7121fd7}
+If true, a dialog will be presented asking the user to confirm if the button action should be carried out \hypertarget{classQERadioButton_a3bbdb5f0fa63690f2e97491e8bfab454}{
+\index{QERadioButton@{QERadioButton}!creationOption@{creationOption}}
+\index{creationOption@{creationOption}!QERadioButton@{QERadioButton}}
+\subsubsection[{creationOption}]{\setlength{\rightskip}{0pt plus 5cm}{\bf CreationOptionNames} QERadioButton::creationOption\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a3bbdb5f0fa63690f2e97491e8bfab454}
+Creation options when opening a new GUI. Open a new window, open a new tab, or replace the current window. the creation option is supplied when the button generates a newGui signal. Application code connected to this signal should honour this request if possible. When used within the QEGui application, the QEGui application creates a new window, new tab, or replaces the current window as appropriate. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_a91a1d0241459be2381e8402a816c01a8}{
+\index{QERadioButton@{QERadioButton}!displayAlarmState@{displayAlarmState}}
+\index{displayAlarmState@{displayAlarmState}!QERadioButton@{QERadioButton}}
+\subsubsection[{displayAlarmState}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::displayAlarmState\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a91a1d0241459be2381e8402a816c01a8}
+If set (default) widget will indicate the alarm state of any variable data is displaying. Typically the background colour is set to indicate the alarm state. Note, this property is included in the set of standard properties as it applies to most widgets. It will do nothing for widgets that don't display data. 
+
+Reimplemented from \hyperlink{classstandardProperties}{standardProperties}.
+
+\hypertarget{classQERadioButton_a4d5d822fbcbc310e5e126aad54e49cdd}{
+\index{QERadioButton@{QERadioButton}!enabled@{enabled}}
+\index{enabled@{enabled}!QERadioButton@{QERadioButton}}
+\subsubsection[{enabled}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::enabled\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a4d5d822fbcbc310e5e126aad54e49cdd}
+Set the prefered 'enabled' state. Default is true. This property is copied to the standard Qt 'enabled' property if the data being displayed is valid. If the data being displayed is invalid the standard Qt 'enabled' property will always be set to false to indicate invalid data. The value of this property will only be copied to the standard Qt 'enabled' property once data is valid. \hypertarget{classQERadioButton_abcf8ce7d1c1ee9d6c99423ea3b2fc69c}{
+\index{QERadioButton@{QERadioButton}!format@{format}}
+\index{format@{format}!QERadioButton@{QERadioButton}}
+\subsubsection[{format}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Formats} QERadioButton::format\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_abcf8ce7d1c1ee9d6c99423ea3b2fc69c}
+Format to apply to data. Default is 'Default' in which case the data type supplied with the data determines how the data is formatted. For all other options, an attempt is made to format the data as requested (whatever its native form). \hypertarget{classQERadioButton_ad29930595b0e32554faaaf0c56d2d2e5}{
+\index{QERadioButton@{QERadioButton}!guiFile@{guiFile}}
+\index{guiFile@{guiFile}!QERadioButton@{QERadioButton}}
+\subsubsection[{guiFile}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::guiFile\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_ad29930595b0e32554faaaf0c56d2d2e5}
+File name of GUI to be presented on button click. File name can be absolute, relative to the path of the QEform in which the \hyperlink{classQEPushButton}{QEPushButton} is located, relative to the any path in the path list published in the \hyperlink{classContainerProfile}{ContainerProfile} class, or relative to the current path. See \hyperlink{classQEWidget_a1249c1c022d5ec63e0fa82df20356039}{QEWidget::openQEFile()} in QEWidget.cpp for details. \hypertarget{classQERadioButton_a5ce0f55c3e917bff62fab604ed962e29}{
+\index{QERadioButton@{QERadioButton}!int@{int}}
+\index{int@{int}!QERadioButton@{QERadioButton}}
+\subsubsection[{int}]{\setlength{\rightskip}{0pt plus 5cm}unsigned QERadioButton::int\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a5ce0f55c3e917bff62fab604ed962e29}
+Set the ID used by the message filtering system. Default is zero. Widgets or applications that use messages from the framework have the option of filtering on this ID. For example, by using a unique message source ID a \hyperlink{classQELog}{QELog} widget may be set up to only log messages from a select set of widgets.
+
+Base used for when formatting integers. Default is 10 (duh!)
+
+Index used to select a single item of data for formatting from an array of data. Default is 0. Only used when the arrayAction property is INDEX. Refer to the arrayAction property for more details. \hypertarget{classQERadioButton_a973fe8b514687003017bb7d9ba5ea4ed}{
+\index{QERadioButton@{QERadioButton}!labelText@{labelText}}
+\index{labelText@{labelText}!QERadioButton@{QERadioButton}}
+\subsubsection[{labelText}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::labelText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a973fe8b514687003017bb7d9ba5ea4ed}
+Button label text (prior to substitution). Macro substitutions will be applied to this text and the result will be set as the button text. Used when data updates are not being represented in the button text. IF NOT LEFT EMPTY, THIS TEXT WILL TAKE PRIORITY OVER THE PUSH BUTTON 'text' PROPERTY! For example, a button in a sub form may have a 'labelText' property of 'Turn Pump  On'. When the sub form is used twice in a main form with substitutions PUMPNUM=1 and PUMPNUM=2 respectively, the two identical buttons in the sub forms will have the labels 'Turn Pump 1 On' and 'Turn Pump 2 On' respectively. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_a5e6014a2cecf20be7252af365fe8b7c5}{
+\index{QERadioButton@{QERadioButton}!leadingZero@{leadingZero}}
+\index{leadingZero@{leadingZero}!QERadioButton@{QERadioButton}}
+\subsubsection[{leadingZero}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::leadingZero\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a5e6014a2cecf20be7252af365fe8b7c5}
+If true (default), always add a leading zero when formatting numbers. \hypertarget{classQERadioButton_a73bb9290ed25ce3206dd70fa5b170ba8}{
+\index{QERadioButton@{QERadioButton}!localEnumeration@{localEnumeration}}
+\index{localEnumeration@{localEnumeration}!QERadioButton@{QERadioButton}}
+\subsubsection[{localEnumeration}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::localEnumeration\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a73bb9290ed25ce3206dd70fa5b170ba8}
+An enumeration list used to data values. Used only when the formatting option is 'local enumeration'. Value is converted to an integer and used to select a string from this list.
+
+Format is:
+
+\mbox{[}\mbox{[}$<$$|$$<$=$|$=$|$!=$|$$>$=$|$$>$\mbox{]}value1$|$$\ast$\mbox{]} : string1 , \mbox{[}\mbox{[}$<$$|$$<$=$|$=$|$!=$|$$>$=$|$$>$\mbox{]}value2$|$$\ast$\mbox{]} : string2 , \mbox{[}\mbox{[}$<$$|$$<$=$|$=$|$!=$|$$>$=$|$$>$\mbox{]}value3$|$$\ast$\mbox{]} : string3 , ...
+
+Where: $<$ Less than $<$= Less than or equal = Equal (default if no operator specified) $>$= Greather than or equal $>$ Greater than Always match (used to specify default text)
+
+Values may be numeric or textual Values do not have to be in any order, but first match wins Values may be quoted Strings may be quoted Consecutive values do not have to be present. Operator is assumed to be equality if not present. White space is ignored except within quoted strings. \par
+ may be included in a string to indicate a line break
+
+Examples are:
+
+0:Off,1:On 0 : \char`\"{}Pump Running\char`\"{}, 1 : \char`\"{}Pump not running\char`\"{} 0:\char`\"{}\char`\"{}, 1:\char`\"{}Warning!$\backslash$nAlarm\char`\"{} $<$2:\char`\"{}Value is less than two\char`\"{}, =2:\char`\"{}Value is equal to two\char`\"{}, $>$2:\char`\"{}Value is grater than 2\char`\"{} 3:\char`\"{}Beamline Available\char`\"{}, $\ast$:\char`\"{}\char`\"{} \char`\"{}Pump Off\char`\"{}:\char`\"{}OH NO!, the pump is OFF!\char`\"{},\char`\"{}Pump On\char`\"{}:\char`\"{}It's OK, the pump is on\char`\"{}
+
+The data value is converted to a string if no enumeration for that value is available. For example, if the local enumeration is '0:off,1:on', and a value of 10 is processed, the text generated is '10'. If a blank string is required, this should be explicit. for example, '0:off,1:on,10:\char`\"{}\char`\"{}'
+
+A range of numbers can be covered by a pair of values as in the following example: $>$=4:\char`\"{}Between 4 and 8\char`\"{},$<$=8:\char`\"{}Between 4 and 8\char`\"{} \hypertarget{classQERadioButton_a3cd753fec8e954fd5547b38f2136253c}{
+\index{QERadioButton@{QERadioButton}!notation@{notation}}
+\index{notation@{notation}!QERadioButton@{QERadioButton}}
+\subsubsection[{notation}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Notations} QERadioButton::notation\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a3cd753fec8e954fd5547b38f2136253c}
+Notation used for numerical formatting. Default is fixed. \hypertarget{classQERadioButton_a5c2a86f59174b8993c21cdb82535436f}{
+\index{QERadioButton@{QERadioButton}!password@{password}}
+\index{password@{password}!QERadioButton@{QERadioButton}}
+\subsubsection[{password}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::password\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a5c2a86f59174b8993c21cdb82535436f}
+Password user will need to enter before any action is taken 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_a80f82e420118a7ae1366d06472736f7b}{
+\index{QERadioButton@{QERadioButton}!pixmap0@{pixmap0}}
+\index{pixmap0@{pixmap0}!QERadioButton@{QERadioButton}}
+\subsubsection[{pixmap0}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QERadioButton::pixmap0\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a80f82e420118a7ae1366d06472736f7b}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 0 \hypertarget{classQERadioButton_a6ab9f2a2696ce973def9efb1e4b962c8}{
+\index{QERadioButton@{QERadioButton}!pixmap1@{pixmap1}}
+\index{pixmap1@{pixmap1}!QERadioButton@{QERadioButton}}
+\subsubsection[{pixmap1}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QERadioButton::pixmap1\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a6ab9f2a2696ce973def9efb1e4b962c8}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 1 \hypertarget{classQERadioButton_aa46673bac68cb15555002cd6d28a046d}{
+\index{QERadioButton@{QERadioButton}!pixmap2@{pixmap2}}
+\index{pixmap2@{pixmap2}!QERadioButton@{QERadioButton}}
+\subsubsection[{pixmap2}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QERadioButton::pixmap2\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_aa46673bac68cb15555002cd6d28a046d}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 2 \hypertarget{classQERadioButton_af64fe5ac6300de6501a5ae92770e254f}{
+\index{QERadioButton@{QERadioButton}!pixmap3@{pixmap3}}
+\index{pixmap3@{pixmap3}!QERadioButton@{QERadioButton}}
+\subsubsection[{pixmap3}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QERadioButton::pixmap3\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_af64fe5ac6300de6501a5ae92770e254f}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 3 \hypertarget{classQERadioButton_a76c94ee11cc9a49e8a62e4741e956d33}{
+\index{QERadioButton@{QERadioButton}!pixmap4@{pixmap4}}
+\index{pixmap4@{pixmap4}!QERadioButton@{QERadioButton}}
+\subsubsection[{pixmap4}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QERadioButton::pixmap4\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a76c94ee11cc9a49e8a62e4741e956d33}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 4 \hypertarget{classQERadioButton_a7774a3fe78c832be235cd896a0b3b050}{
+\index{QERadioButton@{QERadioButton}!pixmap5@{pixmap5}}
+\index{pixmap5@{pixmap5}!QERadioButton@{QERadioButton}}
+\subsubsection[{pixmap5}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QERadioButton::pixmap5\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a7774a3fe78c832be235cd896a0b3b050}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 5 \hypertarget{classQERadioButton_ab853c55e9253e0807aa264d3a631827c}{
+\index{QERadioButton@{QERadioButton}!pixmap6@{pixmap6}}
+\index{pixmap6@{pixmap6}!QERadioButton@{QERadioButton}}
+\subsubsection[{pixmap6}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QERadioButton::pixmap6\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_ab853c55e9253e0807aa264d3a631827c}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 6 \hypertarget{classQERadioButton_aed4591af2dbf39278086d296f3e8db7e}{
+\index{QERadioButton@{QERadioButton}!pixmap7@{pixmap7}}
+\index{pixmap7@{pixmap7}!QERadioButton@{QERadioButton}}
+\subsubsection[{pixmap7}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QERadioButton::pixmap7\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_aed4591af2dbf39278086d296f3e8db7e}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 7 \hypertarget{classQERadioButton_a279ecec8126e3a6716e161fc6af9af7c}{
+\index{QERadioButton@{QERadioButton}!precision@{precision}}
+\index{precision@{precision}!QERadioButton@{QERadioButton}}
+\subsubsection[{precision}]{\setlength{\rightskip}{0pt plus 5cm}int QERadioButton::precision\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a279ecec8126e3a6716e161fc6af9af7c}
+Precision used when formatting floating point numbers. The default is 4. This is only used if useDbPrecision is false. \hypertarget{classQERadioButton_a3eda04a8d01c637711866008838ec71e}{
+\index{QERadioButton@{QERadioButton}!pressText@{pressText}}
+\index{pressText@{pressText}!QERadioButton@{QERadioButton}}
+\subsubsection[{pressText}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::pressText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a3eda04a8d01c637711866008838ec71e}
+Value written when user presses button if 'writeOnPress' property is true 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_a83f29517bee8952e95d85d6ad6ddb89c}{
+\index{QERadioButton@{QERadioButton}!prioritySubstitutions@{prioritySubstitutions}}
+\index{prioritySubstitutions@{prioritySubstitutions}!QERadioButton@{QERadioButton}}
+\subsubsection[{prioritySubstitutions}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::prioritySubstitutions\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a83f29517bee8952e95d85d6ad6ddb89c}
+Overriding macro substitutions. These macro substitions take precedence over any existing macro substitutions defined by the variableSubstitutions property, any parent forms, or the application containing the button. These macro substitutions are particularly usefull when the button's function is to reload the same form but with different macro substitutions. The variableSubstitutions property cannot be used for this since, although they are added to the list of macro substittions applied to the new form, they are appended to the list and the existing macro substitutions take precedence. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_ac2bf379502ab5aa55f63fa2737dc9f7b}{
+\index{QERadioButton@{QERadioButton}!program@{program}}
+\index{program@{program}!QERadioButton@{QERadioButton}}
+\subsubsection[{program}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::program\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_ac2bf379502ab5aa55f63fa2737dc9f7b}
+Program to run when the button is clicked. No attempt to run a program is made if this property is empty. Example: firefox 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_a5e0edea929429e6d0ba6bc8e6013ae7b}{
+\index{QERadioButton@{QERadioButton}!releaseText@{releaseText}}
+\index{releaseText@{releaseText}!QERadioButton@{QERadioButton}}
+\subsubsection[{releaseText}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::releaseText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a5e0edea929429e6d0ba6bc8e6013ae7b}
+Value written when user releases button if 'writeOnRelease' property is true 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_a7a75de07f11a61927d1442756f697345}{
+\index{QERadioButton@{QERadioButton}!subscribe@{subscribe}}
+\index{subscribe@{subscribe}!QERadioButton@{QERadioButton}}
+\subsubsection[{subscribe}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::subscribe\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a7a75de07f11a61927d1442756f697345}
+Sets if this widget subscribes for data updates and displays current data. Default is 'true' (subscribes for and displays data updates) 
+
+Reimplemented from \hyperlink{classQEWidget}{QEWidget}.
+
+\hypertarget{classQERadioButton_a372817b95d22b60e639a7857c6ddf621}{
+\index{QERadioButton@{QERadioButton}!trailingZeros@{trailingZeros}}
+\index{trailingZeros@{trailingZeros}!QERadioButton@{QERadioButton}}
+\subsubsection[{trailingZeros}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::trailingZeros\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a372817b95d22b60e639a7857c6ddf621}
+If true (default), always remove any trailing zeros when formatting numbers. \hypertarget{classQERadioButton_a7c268e3cae168d0c28c48569f274393d}{
+\index{QERadioButton@{QERadioButton}!updateOption@{updateOption}}
+\index{updateOption@{updateOption}!QERadioButton@{QERadioButton}}
+\subsubsection[{updateOption}]{\setlength{\rightskip}{0pt plus 5cm}{\bf UpdateOptions} QERadioButton::updateOption\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a7c268e3cae168d0c28c48569f274393d}
+Update options (text, pixmap, both, or state (checked or unchecked) 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_ab91967d814660edc9857b2d985997c26}{
+\index{QERadioButton@{QERadioButton}!useDbPrecision@{useDbPrecision}}
+\index{useDbPrecision@{useDbPrecision}!QERadioButton@{QERadioButton}}
+\subsubsection[{useDbPrecision}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::useDbPrecision\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_ab91967d814660edc9857b2d985997c26}
+If true (default), format floating point numbers using the precision supplied with the data. If false, the precision property is used. \hypertarget{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}{
+\index{QERadioButton@{QERadioButton}!userLevelEnabled@{userLevelEnabled}}
+\index{userLevelEnabled@{userLevelEnabled}!QERadioButton@{QERadioButton}}
+\subsubsection[{userLevelEnabled}]{\setlength{\rightskip}{0pt plus 5cm}{\bf UserLevels} QERadioButton::userLevelEnabled\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_ae020d45daeac4979a2b917159bba1c3f}
+Lowest user level at which the widget is enabled. Default is 'User'. Used when designing GUIs that allow access to more and more detail according to the user mode. The user mode is set application wide through the \hyperlink{classQELogin}{QELogin} widget, or programatically through setUserLevel() Widgets that are always accessable should be visible at 'User'. Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'. Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'. \hypertarget{classQERadioButton_a6e05c0168077b53a67ef237eb5af1939}{
+\index{QERadioButton@{QERadioButton}!userLevelEngineerStyle@{userLevelEngineerStyle}}
+\index{userLevelEngineerStyle@{userLevelEngineerStyle}!QERadioButton@{QERadioButton}}
+\subsubsection[{userLevelEngineerStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::userLevelEngineerStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a6e05c0168077b53a67ef237eb5af1939}
+Style Sheet string to be applied when the widget is displayed in 'Engineer' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQERadioButton_a1cc5aaa79764da34d130c4a7a8a1e2df}{
+\index{QERadioButton@{QERadioButton}!userLevelScientistStyle@{userLevelScientistStyle}}
+\index{userLevelScientistStyle@{userLevelScientistStyle}!QERadioButton@{QERadioButton}}
+\subsubsection[{userLevelScientistStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::userLevelScientistStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a1cc5aaa79764da34d130c4a7a8a1e2df}
+Style Sheet string to be applied when the widget is displayed in 'Scientist' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQERadioButton_a89be5341593c73dd2b2dadfa2daf587e}{
+\index{QERadioButton@{QERadioButton}!userLevelUserStyle@{userLevelUserStyle}}
+\index{userLevelUserStyle@{userLevelUserStyle}!QERadioButton@{QERadioButton}}
+\subsubsection[{userLevelUserStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::userLevelUserStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a89be5341593c73dd2b2dadfa2daf587e}
+Style Sheet string to be applied when the widget is displayed in 'User' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}{
+\index{QERadioButton@{QERadioButton}!userLevelVisibility@{userLevelVisibility}}
+\index{userLevelVisibility@{userLevelVisibility}!QERadioButton@{QERadioButton}}
+\subsubsection[{userLevelVisibility}]{\setlength{\rightskip}{0pt plus 5cm}{\bf UserLevels} QERadioButton::userLevelVisibility\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a707c662aa4b125d0fc54c9eae4471a0d}
+Lowest user level at which the widget is visible. Default is 'User'. Used when designing GUIs that display more and more detail according to the user mode. The user mode is set application wide through the \hyperlink{classQELogin}{QELogin} widget, or programatically through setUserLevel() Widgets that are always visible should be visible at 'User'. Widgets that are only used by scientists managing the facility should be visible at 'Scientist'. Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'. \hypertarget{classQERadioButton_a86f163446433bab555f21d69754ad309}{
+\index{QERadioButton@{QERadioButton}!variable@{variable}}
+\index{variable@{variable}!QERadioButton@{QERadioButton}}
+\subsubsection[{variable}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::variable\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a86f163446433bab555f21d69754ad309}
+EPICS variable name (CA PV) \hypertarget{classQERadioButton_affd89606cebad3bbe85a7ea394b004cb}{
+\index{QERadioButton@{QERadioButton}!variableAsToolTip@{variableAsToolTip}}
+\index{variableAsToolTip@{variableAsToolTip}!QERadioButton@{QERadioButton}}
+\subsubsection[{variableAsToolTip}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::variableAsToolTip\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_affd89606cebad3bbe85a7ea394b004cb}
+Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name. 
+
+Reimplemented from \hyperlink{classQEToolTip}{QEToolTip}.
+
+\hypertarget{classQERadioButton_ab2ed7b39ab32d1a5067d1c8e9fad850b}{
+\index{QERadioButton@{QERadioButton}!variableSubstitutions@{variableSubstitutions}}
+\index{variableSubstitutions@{variableSubstitutions}!QERadioButton@{QERadioButton}}
+\subsubsection[{variableSubstitutions}]{\setlength{\rightskip}{0pt plus 5cm}QString QERadioButton::variableSubstitutions\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_ab2ed7b39ab32d1a5067d1c8e9fad850b}
+Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1\mbox{[},\mbox{]} NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = \char`\"{}My Pump\char`\"{}' These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes. \hypertarget{classQERadioButton_a44e1fad82f677ad4f6060cdefb488b4c}{
+\index{QERadioButton@{QERadioButton}!visible@{visible}}
+\index{visible@{visible}!QERadioButton@{QERadioButton}}
+\subsubsection[{visible}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::visible\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a44e1fad82f677ad4f6060cdefb488b4c}
+Display the widget. Default is true. Setting this property false is usefull if widget is only used to provide a signal -\/ for example, when supplying data to a \hyperlink{classQELink}{QELink} widget. Note, when false the widget will still be visible in Qt Designer. \hypertarget{classQERadioButton_afb7aded1c494314dda17c699ad8cfecb}{
+\index{QERadioButton@{QERadioButton}!writeOnClick@{writeOnClick}}
+\index{writeOnClick@{writeOnClick}!QERadioButton@{QERadioButton}}
+\subsubsection[{writeOnClick}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::writeOnClick\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_afb7aded1c494314dda17c699ad8cfecb}
+If true, the 'clickText' property is written when the button is clicked. Default is true 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_abc935229d195497727f4c18a3fd589f0}{
+\index{QERadioButton@{QERadioButton}!writeOnPress@{writeOnPress}}
+\index{writeOnPress@{writeOnPress}!QERadioButton@{QERadioButton}}
+\subsubsection[{writeOnPress}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::writeOnPress\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_abc935229d195497727f4c18a3fd589f0}
+If true, the 'pressText' property is written when the button is pressed. Default is false 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQERadioButton_a5b414910f53e8d584e1ccbdb3c813b26}{
+\index{QERadioButton@{QERadioButton}!writeOnRelease@{writeOnRelease}}
+\index{writeOnRelease@{writeOnRelease}!QERadioButton@{QERadioButton}}
+\subsubsection[{writeOnRelease}]{\setlength{\rightskip}{0pt plus 5cm}bool QERadioButton::writeOnRelease\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQERadioButton_a5b414910f53e8d584e1ccbdb3c813b26}
+If true, the 'releaseText' property is written when the button is released. Default is false 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEButton/QERadioButton.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEButton/QERadioButton.cpp\end{DoxyCompactItemize}

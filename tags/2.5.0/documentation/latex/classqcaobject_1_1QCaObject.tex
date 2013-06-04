@@ -1,0 +1,233 @@
+\hypertarget{classqcaobject_1_1QCaObject}{
+\section{qcaobject::QCaObject Class Reference}
+\label{classqcaobject_1_1QCaObject}\index{qcaobject::QCaObject@{qcaobject::QCaObject}}
+}
+Inheritance diagram for qcaobject::QCaObject:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.958042cm]{classqcaobject_1_1QCaObject}
+\end{center}
+\end{figure}
+\subsection*{Public Slots}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a5efdc960fb686d8f8f817565ca22d58e}{
+bool {\bfseries writeData} (const QVariant \&value)}
+\label{classqcaobject_1_1QCaObject_a5efdc960fb686d8f8f817565ca22d58e}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a9806f80a37174198bd50ab4d26a5a1df}{
+void {\bfseries resendLastData} ()}
+\label{classqcaobject_1_1QCaObject_a9806f80a37174198bd50ab4d26a5a1df}
+
+\end{DoxyCompactItemize}
+\subsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_ad129ff387042de33335d4b0e3d5292f7}{
+void {\bfseries dataChanged} (const QVariant \&value, \hyperlink{classQCaAlarmInfo}{QCaAlarmInfo} \&alarmInfo, \hyperlink{classQCaDateTime}{QCaDateTime} \&timeStamp)}
+\label{classqcaobject_1_1QCaObject_ad129ff387042de33335d4b0e3d5292f7}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a7b131ebd51840824c7b7fcb35569590f}{
+void {\bfseries dataChanged} (const QByteArray \&value, unsigned long dataSize, \hyperlink{classQCaAlarmInfo}{QCaAlarmInfo} \&alarmInfo, \hyperlink{classQCaDateTime}{QCaDateTime} \&timeStamp)}
+\label{classqcaobject_1_1QCaObject_a7b131ebd51840824c7b7fcb35569590f}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_ad71c132f4aebc53792add56250283c21}{
+void {\bfseries connectionChanged} (\hyperlink{classQCaConnectionInfo}{QCaConnectionInfo} \&connectionInfo)}
+\label{classqcaobject_1_1QCaObject_ad71c132f4aebc53792add56250283c21}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a6badf3b34fd50ce6f338bc5b735a6d48}{
+{\bfseries QCaObject} (const QString \&recordName, QObject $\ast$eventObject, unsigned char signalsToSendIn=SIG\_\-VARIANT)}
+\label{classqcaobject_1_1QCaObject_a6badf3b34fd50ce6f338bc5b735a6d48}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_ab17589a7ceb16ef1b22628ab5ee8108f}{
+{\bfseries QCaObject} (const QString \&recordName, QObject $\ast$eventObject, \hyperlink{classUserMessage}{UserMessage} $\ast$userMessageIn, unsigned char signalsToSendIn=SIG\_\-VARIANT)}
+\label{classqcaobject_1_1QCaObject_ab17589a7ceb16ef1b22628ab5ee8108f}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_adea4901780b3d5bbe4345742064008bc}{
+bool {\bfseries subscribe} ()}
+\label{classqcaobject_1_1QCaObject_adea4901780b3d5bbe4345742064008bc}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a675959d11d17faa38da90e11e5324134}{
+bool {\bfseries singleShotRead} ()}
+\label{classqcaobject_1_1QCaObject_a675959d11d17faa38da90e11e5324134}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_addc9c322e685dbb3526498c2c178007f}{
+bool {\bfseries dataTypeKnown} ()}
+\label{classqcaobject_1_1QCaObject_addc9c322e685dbb3526498c2c178007f}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a53e9ca2cf18fd5d6fa1cc30158551181}{
+bool {\bfseries createChannel} ()}
+\label{classqcaobject_1_1QCaObject_a53e9ca2cf18fd5d6fa1cc30158551181}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a035b09eae7c3f70d261cab992dc6cdbe}{
+void {\bfseries deleteChannel} ()}
+\label{classqcaobject_1_1QCaObject_a035b09eae7c3f70d261cab992dc6cdbe}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_aa4e04ac8780690fdcc022b63cfbe55f5}{
+bool {\bfseries createSubscription} ()}
+\label{classqcaobject_1_1QCaObject_aa4e04ac8780690fdcc022b63cfbe55f5}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_ac45694857a969ad5b3398930d2cfcef6}{
+bool {\bfseries getChannel} ()}
+\label{classqcaobject_1_1QCaObject_ac45694857a969ad5b3398930d2cfcef6}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a0612d2d036276b1519b911cf894b3160}{
+bool {\bfseries putChannel} ()}
+\label{classqcaobject_1_1QCaObject_a0612d2d036276b1519b911cf894b3160}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a558db29ea398bd13f8f5a42265cb9f48}{
+bool {\bfseries isChannelConnected} ()}
+\label{classqcaobject_1_1QCaObject_a558db29ea398bd13f8f5a42265cb9f48}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_ab425e2c379a1896965e824c44303dc91}{
+void {\bfseries startConnectionTimer} ()}
+\label{classqcaobject_1_1QCaObject_ab425e2c379a1896965e824c44303dc91}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a0c7930aff1f82307fa2b2b3463c8fa99}{
+void {\bfseries stopConnectionTimer} ()}
+\label{classqcaobject_1_1QCaObject_a0c7930aff1f82307fa2b2b3463c8fa99}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a141f80673eac556ca07fe6272fc4ff33}{
+void {\bfseries setUserMessage} (\hyperlink{classUserMessage}{UserMessage} $\ast$userMessageIn)}
+\label{classqcaobject_1_1QCaObject_a141f80673eac556ca07fe6272fc4ff33}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_ab6f133d5bb5abe262e6b2b815a7a4427}{
+void {\bfseries enableWriteCallbacks} (bool enable)}
+\label{classqcaobject_1_1QCaObject_ab6f133d5bb5abe262e6b2b815a7a4427}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a368a588e550c874b5d941bf4c1600064}{
+bool {\bfseries isWriteCallbacksEnabled} ()}
+\label{classqcaobject_1_1QCaObject_a368a588e550c874b5d941bf4c1600064}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_aeb075f3dd9d72cb0257d93cdbb9b49f4}{
+QString {\bfseries getRecordName} ()}
+\label{classqcaobject_1_1QCaObject_aeb075f3dd9d72cb0257d93cdbb9b49f4}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_aa58b753cfa9a17fea63f93fed7ca895b}{
+QString {\bfseries getEgu} ()}
+\label{classqcaobject_1_1QCaObject_aa58b753cfa9a17fea63f93fed7ca895b}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a3db529d5bf53a5524faed64ed105b47f}{
+QStringList {\bfseries getEnumerations} ()}
+\label{classqcaobject_1_1QCaObject_a3db529d5bf53a5524faed64ed105b47f}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a6197ce7121d183327c85e76440bd2dfc}{
+unsigned int {\bfseries getPrecision} ()}
+\label{classqcaobject_1_1QCaObject_a6197ce7121d183327c85e76440bd2dfc}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a3327209faff236c1b52e2d62f3ac83a5}{
+\hyperlink{classQCaAlarmInfo}{QCaAlarmInfo} {\bfseries getAlarmInfo} ()}
+\label{classqcaobject_1_1QCaObject_a3327209faff236c1b52e2d62f3ac83a5}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a7b5e4066ecbe3aeecd0ea24697835a1f}{
+\hyperlink{classQCaDateTime}{QCaDateTime} {\bfseries getDateTime} ()}
+\label{classqcaobject_1_1QCaObject_a7b5e4066ecbe3aeecd0ea24697835a1f}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a8181eddee54f42a05d33d06a05170394}{
+double {\bfseries getDisplayLimitUpper} ()}
+\label{classqcaobject_1_1QCaObject_a8181eddee54f42a05d33d06a05170394}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a9f496b52e599b5ac37f8a343aa3cbdab}{
+double {\bfseries getDisplayLimitLower} ()}
+\label{classqcaobject_1_1QCaObject_a9f496b52e599b5ac37f8a343aa3cbdab}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_aeb492da8be6b48c1ea843f565f534779}{
+double {\bfseries getAlarmLimitUpper} ()}
+\label{classqcaobject_1_1QCaObject_aeb492da8be6b48c1ea843f565f534779}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a614c87dd22dae6ec3dcdc7a07c2da6b8}{
+double {\bfseries getAlarmLimitLower} ()}
+\label{classqcaobject_1_1QCaObject_a614c87dd22dae6ec3dcdc7a07c2da6b8}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_ae69bc03fe4c80baba0f804512bf8c78b}{
+double {\bfseries getWarningLimitUpper} ()}
+\label{classqcaobject_1_1QCaObject_ae69bc03fe4c80baba0f804512bf8c78b}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_af0b9748e861ad4ce37b02fc61251c8d6}{
+double {\bfseries getWarningLimitLower} ()}
+\label{classqcaobject_1_1QCaObject_af0b9748e861ad4ce37b02fc61251c8d6}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_ae61c9c358be23786fca4457d95308693}{
+double {\bfseries getControlLimitUpper} ()}
+\label{classqcaobject_1_1QCaObject_ae61c9c358be23786fca4457d95308693}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a71defa056a1259d822f23ca58d4b9707}{
+double {\bfseries getControlLimitLower} ()}
+\label{classqcaobject_1_1QCaObject_a71defa056a1259d822f23ca58d4b9707}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a83e65a6279c75cbd8a60176585ab7d3c}{
+generic::generic\_\-types {\bfseries getDataType} ()}
+\label{classqcaobject_1_1QCaObject_a83e65a6279c75cbd8a60176585ab7d3c}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a3f874cb4d25bd165ad4cb1b3ba8eb8e9}{
+QString {\bfseries getHostName} ()}
+\label{classqcaobject_1_1QCaObject_a3f874cb4d25bd165ad4cb1b3ba8eb8e9}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a8f16073a1ea97bc9653c93e5f6ec34b3}{
+QString {\bfseries getFieldType} ()}
+\label{classqcaobject_1_1QCaObject_a8f16073a1ea97bc9653c93e5f6ec34b3}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_af52faf5d49f88d3de4aab0206ea14bab}{
+unsigned long {\bfseries getElementCount} ()}
+\label{classqcaobject_1_1QCaObject_af52faf5d49f88d3de4aab0206ea14bab}
+
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a99639501f1cb2e6173621bc953253273}{
+void {\bfseries getLastData} (bool \&isDefined, QVariant \&value, \hyperlink{classQCaAlarmInfo}{QCaAlarmInfo} \&alarmInfo, \hyperlink{classQCaDateTime}{QCaDateTime} \&timeStamp)}
+\label{classqcaobject_1_1QCaObject_a99639501f1cb2e6173621bc953253273}
+
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classqcaobject_1_1QCaObject_a6f6a66375836869a3bb3ca79987dc74e}{
+static void {\bfseries processEventStatic} (\hyperlink{classQCaEventUpdate}{QCaEventUpdate} $\ast$dataUpdateEvent)}
+\label{classqcaobject_1_1QCaObject_a6f6a66375836869a3bb3ca79987dc74e}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/data/include/QCaObject.h\item 
+/tmp/epicsqt/trunk/framework/data/src/QCaObject.cpp\end{DoxyCompactItemize}

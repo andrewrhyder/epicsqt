@@ -1,0 +1,847 @@
+\hypertarget{classQEPushButton}{
+\section{QEPushButton Class Reference}
+\label{classQEPushButton}\index{QEPushButton@{QEPushButton}}
+}
+Inheritance diagram for QEPushButton:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.097378cm]{classQEPushButton}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}{UserLevels} \{ \hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620a56632ffe023b2c75dfb41f3b1269dd6e}{User} =  userLevelTypes::USERLEVEL\_\-USER, 
+\hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620af726d0eac1cc40dc61d04f282ce99d5a}{Scientist} =  userLevelTypes::USERLEVEL\_\-SCIENTIST, 
+\hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620a42d02d275ed44c49bd91530aafeb28a7}{Engineer} =  userLevelTypes::USERLEVEL\_\-ENGINEER
+ \}
+\item 
+enum \hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5}{Formats} \{ \par
+\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5adefc3aae5336aacf5da9e2e50e1e93af}{Default} =  QEStringFormatting::FORMAT\_\-DEFAULT, 
+\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a43a7c5259a6a7de12716ad18e6b0500e}{Floating} =  QEStringFormatting::FORMAT\_\-FLOATING, 
+\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a9df7c1b7cd13d414e435198320d03e51}{Integer} =  QEStringFormatting::FORMAT\_\-INTEGER, 
+\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a7eecd8e9603af77f2cfa38cb061bb829}{UnsignedInteger} =  QEStringFormatting::FORMAT\_\-UNSIGNEDINTEGER, 
+\par
+\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a2b8fafdc891bfcb1570fa7fae03a1f42}{Time} =  QEStringFormatting::FORMAT\_\-TIME, 
+\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a72e4f9fda3061e16b502f5f9f46d0ed0}{LocalEnumeration} =  QEStringFormatting::FORMAT\_\-LOCAL\_\-ENUMERATE
+ \}
+\item 
+enum \hyperlink{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6}{Notations} \{ \hyperlink{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a615391b789b413fa37cf587da4116475}{Fixed} =  QEStringFormatting::NOTATION\_\-FIXED, 
+\hyperlink{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a5f81d8fbe3fa7917f9bf12658a578201}{Scientific} =  QEStringFormatting::NOTATION\_\-SCIENTIFIC, 
+\hyperlink{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a94086ee2afd806962def5d5c1ab45c20}{Automatic} =  QEStringFormatting::NOTATION\_\-AUTOMATIC
+ \}
+\item 
+enum \hyperlink{classQEPushButton_abdadbc10b7de6910230af3e102f6296c}{ArrayActions} \{ \hyperlink{classQEPushButton_abdadbc10b7de6910230af3e102f6296caea2b0ce777f5e74b75ea2889863789ca}{Append} =  QEStringFormatting::APPEND, 
+\hyperlink{classQEPushButton_abdadbc10b7de6910230af3e102f6296ca384df42b52c3fd5f3a64bcb3a6e84a80}{Ascii} =  QEStringFormatting::ASCII, 
+\hyperlink{classQEPushButton_abdadbc10b7de6910230af3e102f6296ca350ea32a573ad73d94c25e37145d3422}{Index} =  QEStringFormatting::INDEX
+ \}
+\item 
+enum \hyperlink{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834}{UpdateOptions} \{ \hyperlink{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834adcc345160d5f4d7cc0ab90c29cba792e}{Text} =  QEGenericButton::UPDATE\_\-TEXT, 
+\hyperlink{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834a83d371cab542a4005d21f8369ce8d214}{Icon} =  QEGenericButton::UPDATE\_\-ICON, 
+\hyperlink{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834adb10c2ae6d04214cb6e3a24aec27f099}{TextAndIcon} =  QEGenericButton::UPDATE\_\-TEXT\_\-AND\_\-ICON, 
+\hyperlink{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834a910927f933dd0dd4b6880c92cea853f0}{State} =  QEGenericButton::UPDATE\_\-STATE
+ \}
+\begin{DoxyCompactList}\small\item\em User friendly enumerations for updateOption property -\/ refer to QEGenericButton::updateOptions for details. \end{DoxyCompactList}\item 
+enum \hyperlink{classQEPushButton_a739432b8d095d67512aae5d81fcea094}{CreationOptionNames} \{ \hyperlink{classQEPushButton_a739432b8d095d67512aae5d81fcea094a095891158cfa4ba63246074dc5604756}{Open} =  QEForm::CREATION\_\-OPTION\_\-OPEN, 
+\hyperlink{classQEPushButton_a739432b8d095d67512aae5d81fcea094a3ac54242401c23c28769906fb0425cfa}{NewTab} =  QEForm::CREATION\_\-OPTION\_\-NEW\_\-TAB, 
+\hyperlink{classQEPushButton_a739432b8d095d67512aae5d81fcea094abc24475fd9e104561f55af238ba71431}{NewWindow} =  QEForm::CREATION\_\-OPTION\_\-NEW\_\-WINDOW
+ \}
+\begin{DoxyCompactList}\small\item\em Creation options. Used to indicate how to present a GUI when requesting a new GUI be created. Open a new window, open a new tab, or replace the current window. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Slots}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classQEPushButton_a5c0a901fa1a4dd54f4cb5eb344305822}{launchGui} (QString guiName, QEForm::creationOptions creationOption)
+\item 
+void \hyperlink{classQEPushButton_a7c45ea3a5303929fa4985a8f874ecac6}{requestEnabled} (const bool \&state)
+\end{DoxyCompactItemize}
+\subsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classQEPushButton_a61a77fb915d2bcdafc199ec691818da0}{dbValueChanged} (const QString \&out)
+\item 
+\hypertarget{classQEPushButton_ac0c595bf46efc39383980e972d91ea00}{
+void \hyperlink{classQEPushButton_ac0c595bf46efc39383980e972d91ea00}{requestResend} ()}
+\label{classQEPushButton_ac0c595bf46efc39383980e972d91ea00}
+
+\begin{DoxyCompactList}\small\item\em Internal use only. Used when changing a property value to force a re-\/display to reflect the new property value. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a35abb9e473e158b121c698e5ad94a509}{
+void \hyperlink{classQEPushButton_a35abb9e473e158b121c698e5ad94a509}{newGui} (QString guiName, QEForm::creationOptions creationOption)}
+\label{classQEPushButton_a35abb9e473e158b121c698e5ad94a509}
+
+\begin{DoxyCompactList}\small\item\em Internal use only. Request a new GUI is created. Typically, this is caught by the QEGui application. \end{DoxyCompactList}\item 
+void \hyperlink{classQEPushButton_a44517dade5e1a2a834b9a51ec189c73e}{pressed} (int value)
+\item 
+void \hyperlink{classQEPushButton_ae9e14ceeeea506143a51653e6e09e026}{released} (int value)
+\item 
+void \hyperlink{classQEPushButton_aeb56f7b3f3d73d670bb7bf50e8726aef}{clicked} (int value)
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classQEPushButton_aac8385789a87e049b4723068b2d88585}{QEPushButton} (QWidget $\ast$parent=0)
+\item 
+\hyperlink{classQEPushButton_ab745a3d31a8ea4718ab865f4cf5edaf8}{QEPushButton} (const QString \&variableName, QWidget $\ast$parent=0)
+\item 
+\hypertarget{classQEPushButton_a6c8552918ebd572745b3f2f32f6341eb}{
+bool \hyperlink{classQEPushButton_a6c8552918ebd572745b3f2f32f6341eb}{isEnabled} () const }
+\label{classQEPushButton_a6c8552918ebd572745b3f2f32f6341eb}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_a223d8878ab3e235c7da509731d489737}{enabled} property -\/ refer to \hyperlink{classQEPushButton_a223d8878ab3e235c7da509731d489737}{enabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_afe8acae62d139a107c6b250fe6c9ca41}{
+void \hyperlink{classQEPushButton_afe8acae62d139a107c6b250fe6c9ca41}{setEnabled} (bool state)}
+\label{classQEPushButton_afe8acae62d139a107c6b250fe6c9ca41}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_a223d8878ab3e235c7da509731d489737}{enabled} property -\/ refer to \hyperlink{classQEPushButton_a223d8878ab3e235c7da509731d489737}{enabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a6cd075ea0cb3a3be3bf916e3724480e7}{
+\hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}{UserLevels} \hyperlink{classQEPushButton_a6cd075ea0cb3a3be3bf916e3724480e7}{getUserLevelVisibilityProperty} ()}
+\label{classQEPushButton_a6cd075ea0cb3a3be3bf916e3724480e7}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}{userLevelVisibility} property -\/ refer to \hyperlink{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}{userLevelVisibility} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a94028bc01734947c4fb0bfa44e8094b0}{
+void \hyperlink{classQEPushButton_a94028bc01734947c4fb0bfa44e8094b0}{setUserLevelVisibilityProperty} (\hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}{UserLevels} level)}
+\label{classQEPushButton_a94028bc01734947c4fb0bfa44e8094b0}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}{userLevelVisibility} property -\/ refer to \hyperlink{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}{userLevelVisibility} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_aef8b9d234c2c1b2cf14f07179dcfe6e8}{
+\hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}{UserLevels} \hyperlink{classQEPushButton_aef8b9d234c2c1b2cf14f07179dcfe6e8}{getUserLevelEnabledProperty} ()}
+\label{classQEPushButton_aef8b9d234c2c1b2cf14f07179dcfe6e8}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}{userLevelEnabled} property -\/ refer to \hyperlink{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}{userLevelEnabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a0018c691036d865684759a5c65c23368}{
+void \hyperlink{classQEPushButton_a0018c691036d865684759a5c65c23368}{setUserLevelEnabledProperty} (\hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}{UserLevels} level)}
+\label{classQEPushButton_a0018c691036d865684759a5c65c23368}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}{userLevelEnabled} property -\/ refer to \hyperlink{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}{userLevelEnabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a30ae9f3e595b32799c64141e7ce6303a}{
+void \hyperlink{classQEPushButton_a30ae9f3e595b32799c64141e7ce6303a}{setFormatProperty} (\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5}{Formats} format)}
+\label{classQEPushButton_a30ae9f3e595b32799c64141e7ce6303a}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_abd4b0d3b48e4e819f9a89f37b34c4df1}{format} property -\/ refer to \hyperlink{classQEPushButton_abd4b0d3b48e4e819f9a89f37b34c4df1}{format} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a62f730a3bfd999e4e1fe91ec529afd12}{
+\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5}{Formats} \hyperlink{classQEPushButton_a62f730a3bfd999e4e1fe91ec529afd12}{getFormatProperty} ()}
+\label{classQEPushButton_a62f730a3bfd999e4e1fe91ec529afd12}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_abd4b0d3b48e4e819f9a89f37b34c4df1}{format} property -\/ refer to \hyperlink{classQEPushButton_abd4b0d3b48e4e819f9a89f37b34c4df1}{format} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a526b2d2da96c0ecc7578206ddafb6146}{
+void \hyperlink{classQEPushButton_a526b2d2da96c0ecc7578206ddafb6146}{setNotationProperty} (\hyperlink{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6}{Notations} notation)}
+\label{classQEPushButton_a526b2d2da96c0ecc7578206ddafb6146}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_a180f3a67ef06214e07fd5d59e49e1793}{notation} property -\/ refer to \hyperlink{classQEPushButton_a180f3a67ef06214e07fd5d59e49e1793}{notation} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_ad2afd623651bbfebca814a0425ed5649}{
+\hyperlink{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6}{Notations} \hyperlink{classQEPushButton_ad2afd623651bbfebca814a0425ed5649}{getNotationProperty} ()}
+\label{classQEPushButton_ad2afd623651bbfebca814a0425ed5649}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_a180f3a67ef06214e07fd5d59e49e1793}{notation} property -\/ refer to \hyperlink{classQEPushButton_a180f3a67ef06214e07fd5d59e49e1793}{notation} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a9ea9f87ba8ffc2619180a7fd8e176f77}{
+void \hyperlink{classQEPushButton_a9ea9f87ba8ffc2619180a7fd8e176f77}{setArrayActionProperty} (\hyperlink{classQEPushButton_abdadbc10b7de6910230af3e102f6296c}{ArrayActions} arrayAction)}
+\label{classQEPushButton_a9ea9f87ba8ffc2619180a7fd8e176f77}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_a4f7d3bd9238cfbb811ae4aa83bc499eb}{arrayAction} property -\/ refer to \hyperlink{classQEPushButton_a4f7d3bd9238cfbb811ae4aa83bc499eb}{arrayAction} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPushButton_a95f50b37705b7034cf1f0db19739b74a}{
+\hyperlink{classQEPushButton_abdadbc10b7de6910230af3e102f6296c}{ArrayActions} \hyperlink{classQEPushButton_a95f50b37705b7034cf1f0db19739b74a}{getArrayActionProperty} ()}
+\label{classQEPushButton_a95f50b37705b7034cf1f0db19739b74a}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPushButton_a4f7d3bd9238cfbb811ae4aa83bc499eb}{arrayAction} property -\/ refer to \hyperlink{classQEPushButton_a4f7d3bd9238cfbb811ae4aa83bc499eb}{arrayAction} property for details. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+QString \hyperlink{classQEPushButton_adb5a937357068be51507e62e18921561}{variable}
+\item 
+QString \hyperlink{classQEPushButton_ab6eb074afea7056b844a4a712cdf594c}{altReadbackVariable}
+\item 
+QString \hyperlink{classQEPushButton_a9112669af4b7922193ef03e8d9636f9c}{variableSubstitutions}
+\item 
+bool \hyperlink{classQEPushButton_ae3b3fce6a82cb4982174855b7c5af2f3}{subscribe}
+\item 
+bool \hyperlink{classQEPushButton_a4c9ac62a902c4684eac2c18891f776d4}{variableAsToolTip}
+\item 
+bool \hyperlink{classQEPushButton_a223d8878ab3e235c7da509731d489737}{enabled}
+\item 
+bool \hyperlink{classQEPushButton_a634514662515a307ecf680584cdf2cda}{allowDrop}
+\item 
+bool \hyperlink{classQEPushButton_a090ec7fbc7112a38ceb7c91e651f9770}{visible}
+\item 
+unsigned \hyperlink{classQEPushButton_af2101a8ce89f2fa34261cc8b6d2d4715}{int}
+\item 
+QString \hyperlink{classQEPushButton_a70367130f27010d02c5b99ba5efc1a71}{userLevelUserStyle}
+\item 
+QString \hyperlink{classQEPushButton_a53f440b11919a757045b0fc46bcbfa97}{userLevelScientistStyle}
+\item 
+QString \hyperlink{classQEPushButton_a2397eaaa00d562429bd84bf5e04ade53}{userLevelEngineerStyle}
+\item 
+\hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}{UserLevels} \hyperlink{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}{userLevelVisibility}
+\item 
+\hyperlink{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}{UserLevels} \hyperlink{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}{userLevelEnabled}
+\item 
+bool \hyperlink{classQEPushButton_a7753c754e5d4a8c9e0d247d7b94a649f}{displayAlarmState}
+\item 
+int \hyperlink{classQEPushButton_ae4b790894ce57d9d16321ab084ef465b}{precision}
+\item 
+bool \hyperlink{classQEPushButton_a54eac8b0529c52c2e96fbbdd0bb78f33}{useDbPrecision}
+\item 
+bool \hyperlink{classQEPushButton_a39d427acaebc8383149f1ea0fda0c56c}{leadingZero}
+\item 
+bool \hyperlink{classQEPushButton_ab1709fe632baa21e9bf92dccee1ad920}{trailingZeros}
+\item 
+bool \hyperlink{classQEPushButton_a6a2b19a08245fb02d076f5ea954d4823}{addUnits}
+\item 
+QString \hyperlink{classQEPushButton_a5e5b76726d7536cd9779bcdc2b9ddd30}{localEnumeration}
+\item 
+\hyperlink{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5}{Formats} \hyperlink{classQEPushButton_abd4b0d3b48e4e819f9a89f37b34c4df1}{format}
+\item 
+\hyperlink{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6}{Notations} \hyperlink{classQEPushButton_a180f3a67ef06214e07fd5d59e49e1793}{notation}
+\item 
+\hyperlink{classQEPushButton_abdadbc10b7de6910230af3e102f6296c}{ArrayActions} \hyperlink{classQEPushButton_a4f7d3bd9238cfbb811ae4aa83bc499eb}{arrayAction}
+\item 
+Qt::Alignment \hyperlink{classQEPushButton_a5bc6e1c38e2ca091f3a74daa07f8433e}{alignment}
+\item 
+\hyperlink{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834}{UpdateOptions} \hyperlink{classQEPushButton_a30f602810c258f809be5152eaeab7f70}{updateOption}
+\item 
+QPixmap \hyperlink{classQEPushButton_a345f5d33b6c338c20b7575e075eb7488}{pixmap0}
+\item 
+QPixmap \hyperlink{classQEPushButton_afc73bdbd2a700cb62ce0c5de423b9e85}{pixmap1}
+\item 
+QPixmap \hyperlink{classQEPushButton_ac8f2f8810fce18740a578256c8648a8b}{pixmap2}
+\item 
+QPixmap \hyperlink{classQEPushButton_a13af1cdcd6e4464bd9d17e57821195c6}{pixmap3}
+\item 
+QPixmap \hyperlink{classQEPushButton_a032990ba96ae30e11e314258a1a6d5b2}{pixmap4}
+\item 
+QPixmap \hyperlink{classQEPushButton_a9a354f3ca109fd25a5dcfd5d6c91119e}{pixmap5}
+\item 
+QPixmap \hyperlink{classQEPushButton_a8fcaaa8f5e05c36feb340da2f9661dc5}{pixmap6}
+\item 
+QPixmap \hyperlink{classQEPushButton_a4d04d0e65d8128bb377469261647b436}{pixmap7}
+\item 
+QString \hyperlink{classQEPushButton_ae64440ff4fbd449726f83c302be8f12a}{password}
+\item 
+bool \hyperlink{classQEPushButton_a349efcfb5c1e1a306e4a4b8d90c63966}{confirmAction}
+\item 
+bool \hyperlink{classQEPushButton_af37cf41a4f30095f42aa39a5bda5f4b1}{writeOnPress}
+\item 
+bool \hyperlink{classQEPushButton_a552f3699d0798cbe9233ff81947d6d7f}{writeOnRelease}
+\item 
+bool \hyperlink{classQEPushButton_a728ad7d31319f5f82548cd7d1bc65803}{writeOnClick}
+\item 
+QString \hyperlink{classQEPushButton_a8a9405380dd087993785efcc351cefe5}{pressText}
+\item 
+QString \hyperlink{classQEPushButton_a1f08055d333a9899ccaffc3574d38d02}{releaseText}
+\item 
+QString \hyperlink{classQEPushButton_a0c71a9b133e4452dcfef961becf55fba}{clickText}
+\item 
+QString \hyperlink{classQEPushButton_a6dfe1f7842d84c9b8ea19f43346be73f}{clickCheckedText}
+\item 
+QString \hyperlink{classQEPushButton_ac6a77971fd82a22ded755ac39533877e}{labelText}
+\item 
+QString \hyperlink{classQEPushButton_ab038376ec0c330b1aba8c23d82e2f263}{program}
+\item 
+QStringList \hyperlink{classQEPushButton_ae25b176db2b427089e1b1532a3c3ce52}{arguments}
+\item 
+QString \hyperlink{classQEPushButton_a463afceced7f64ea2f738a69e9db425b}{guiFile}
+\item 
+\hyperlink{classQEPushButton_a739432b8d095d67512aae5d81fcea094}{CreationOptionNames} \hyperlink{classQEPushButton_a195284f5eb958b4caaf05c848f12ccf1}{creationOption}
+\item 
+QString \hyperlink{classQEPushButton_af37f9c3f00647a65d0765bdebe3f228a}{prioritySubstitutions}
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classQEPushButton_abdadbc10b7de6910230af3e102f6296c}{
+\index{QEPushButton@{QEPushButton}!ArrayActions@{ArrayActions}}
+\index{ArrayActions@{ArrayActions}!QEPushButton@{QEPushButton}}
+\subsubsection[{ArrayActions}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEPushButton::ArrayActions}}}
+\label{classQEPushButton_abdadbc10b7de6910230af3e102f6296c}
+User friendly enumerations for arrayAction property -\/ refer to \hyperlink{classQEStringFormatting_a36b424886bc64cea8f7ed69b2b03c0b9}{QEStringFormatting::arrayActions} for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Append@{Append}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Append@{Append}}\item[{\em 
+\hypertarget{classQEPushButton_abdadbc10b7de6910230af3e102f6296caea2b0ce777f5e74b75ea2889863789ca}{
+Append}
+\label{classQEPushButton_abdadbc10b7de6910230af3e102f6296caea2b0ce777f5e74b75ea2889863789ca}
+}]Refer to \hyperlink{classQEStringFormatting_a36b424886bc64cea8f7ed69b2b03c0b9a17613cfb7e87103922490471cd6bde06}{QEStringFormatting::APPEND} for details. \index{Ascii@{Ascii}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Ascii@{Ascii}}\item[{\em 
+\hypertarget{classQEPushButton_abdadbc10b7de6910230af3e102f6296ca384df42b52c3fd5f3a64bcb3a6e84a80}{
+Ascii}
+\label{classQEPushButton_abdadbc10b7de6910230af3e102f6296ca384df42b52c3fd5f3a64bcb3a6e84a80}
+}]Refer to \hyperlink{classQEStringFormatting_a36b424886bc64cea8f7ed69b2b03c0b9ae8a32203c042705835af1cd34c85c0d2}{QEStringFormatting::ASCII} for details. \index{Index@{Index}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Index@{Index}}\item[{\em 
+\hypertarget{classQEPushButton_abdadbc10b7de6910230af3e102f6296ca350ea32a573ad73d94c25e37145d3422}{
+Index}
+\label{classQEPushButton_abdadbc10b7de6910230af3e102f6296ca350ea32a573ad73d94c25e37145d3422}
+}]Refer to \hyperlink{classQEStringFormatting_a36b424886bc64cea8f7ed69b2b03c0b9a83330940881ccb325ea24056232b6e68}{QEStringFormatting::INDEX} for details. \end{description}
+\end{Desc}
+
+\hypertarget{classQEPushButton_a739432b8d095d67512aae5d81fcea094}{
+\index{QEPushButton@{QEPushButton}!CreationOptionNames@{CreationOptionNames}}
+\index{CreationOptionNames@{CreationOptionNames}!QEPushButton@{QEPushButton}}
+\subsubsection[{CreationOptionNames}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEPushButton::CreationOptionNames}}}
+\label{classQEPushButton_a739432b8d095d67512aae5d81fcea094}
+
+
+Creation options. Used to indicate how to present a GUI when requesting a new GUI be created. Open a new window, open a new tab, or replace the current window. 
+
+\begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Open@{Open}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Open@{Open}}\item[{\em 
+\hypertarget{classQEPushButton_a739432b8d095d67512aae5d81fcea094a095891158cfa4ba63246074dc5604756}{
+Open}
+\label{classQEPushButton_a739432b8d095d67512aae5d81fcea094a095891158cfa4ba63246074dc5604756}
+}]Replace the current GUI with the new GUI. \index{NewTab@{NewTab}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!NewTab@{NewTab}}\item[{\em 
+\hypertarget{classQEPushButton_a739432b8d095d67512aae5d81fcea094a3ac54242401c23c28769906fb0425cfa}{
+NewTab}
+\label{classQEPushButton_a739432b8d095d67512aae5d81fcea094a3ac54242401c23c28769906fb0425cfa}
+}]Open new GUI in a new tab. \index{NewWindow@{NewWindow}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!NewWindow@{NewWindow}}\item[{\em 
+\hypertarget{classQEPushButton_a739432b8d095d67512aae5d81fcea094abc24475fd9e104561f55af238ba71431}{
+NewWindow}
+\label{classQEPushButton_a739432b8d095d67512aae5d81fcea094abc24475fd9e104561f55af238ba71431}
+}]Open new GUI in a new window. \end{description}
+\end{Desc}
+
+\hypertarget{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5}{
+\index{QEPushButton@{QEPushButton}!Formats@{Formats}}
+\index{Formats@{Formats}!QEPushButton@{QEPushButton}}
+\subsubsection[{Formats}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEPushButton::Formats}}}
+\label{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5}
+User friendly enumerations for format property -\/ refer to \hyperlink{classQEStringFormatting_a41b4737442692b41d12b78c036cf9e56}{QEStringFormatting::formats} for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Default@{Default}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Default@{Default}}\item[{\em 
+\hypertarget{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5adefc3aae5336aacf5da9e2e50e1e93af}{
+Default}
+\label{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5adefc3aae5336aacf5da9e2e50e1e93af}
+}]Format as best appropriate for the data type. \index{Floating@{Floating}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Floating@{Floating}}\item[{\em 
+\hypertarget{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a43a7c5259a6a7de12716ad18e6b0500e}{
+Floating}
+\label{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a43a7c5259a6a7de12716ad18e6b0500e}
+}]Format as a floating point number. \index{Integer@{Integer}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Integer@{Integer}}\item[{\em 
+\hypertarget{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a9df7c1b7cd13d414e435198320d03e51}{
+Integer}
+\label{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a9df7c1b7cd13d414e435198320d03e51}
+}]Format as an integer. \index{UnsignedInteger@{UnsignedInteger}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!UnsignedInteger@{UnsignedInteger}}\item[{\em 
+\hypertarget{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a7eecd8e9603af77f2cfa38cb061bb829}{
+UnsignedInteger}
+\label{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a7eecd8e9603af77f2cfa38cb061bb829}
+}]Format as an unsigned integer. \index{Time@{Time}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Time@{Time}}\item[{\em 
+\hypertarget{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a2b8fafdc891bfcb1570fa7fae03a1f42}{
+Time}
+\label{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a2b8fafdc891bfcb1570fa7fae03a1f42}
+}]Format as a time. \index{LocalEnumeration@{LocalEnumeration}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!LocalEnumeration@{LocalEnumeration}}\item[{\em 
+\hypertarget{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a72e4f9fda3061e16b502f5f9f46d0ed0}{
+LocalEnumeration}
+\label{classQEPushButton_a296a60bfbcbb88939a9152e75dd0f3a5a72e4f9fda3061e16b502f5f9f46d0ed0}
+}]Format as a selection from the \hyperlink{classQEPushButton_a5e5b76726d7536cd9779bcdc2b9ddd30}{localEnumeration} property. \end{description}
+\end{Desc}
+
+\hypertarget{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6}{
+\index{QEPushButton@{QEPushButton}!Notations@{Notations}}
+\index{Notations@{Notations}!QEPushButton@{QEPushButton}}
+\subsubsection[{Notations}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEPushButton::Notations}}}
+\label{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6}
+User friendly enumerations for notation property -\/ refer to \hyperlink{classQEStringFormatting_adfa7fa261e196d1327d4da6e046dbd84}{QEStringFormatting::notations} for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Fixed@{Fixed}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Fixed@{Fixed}}\item[{\em 
+\hypertarget{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a615391b789b413fa37cf587da4116475}{
+Fixed}
+\label{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a615391b789b413fa37cf587da4116475}
+}]Refer to \hyperlink{classQEStringFormatting_adfa7fa261e196d1327d4da6e046dbd84aff4a04845bd3039833cd1cf7f91a8c89}{QEStringFormatting::NOTATION\_\-FIXED} for details. \index{Scientific@{Scientific}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Scientific@{Scientific}}\item[{\em 
+\hypertarget{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a5f81d8fbe3fa7917f9bf12658a578201}{
+Scientific}
+\label{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a5f81d8fbe3fa7917f9bf12658a578201}
+}]Refer to \hyperlink{classQEStringFormatting_adfa7fa261e196d1327d4da6e046dbd84a79198d28f4a318e4c9e7334e6beec56b}{QEStringFormatting::NOTATION\_\-SCIENTIFIC} for details. \index{Automatic@{Automatic}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Automatic@{Automatic}}\item[{\em 
+\hypertarget{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a94086ee2afd806962def5d5c1ab45c20}{
+Automatic}
+\label{classQEPushButton_a33dca048ed3e75cf2c46baca4befe6f6a94086ee2afd806962def5d5c1ab45c20}
+}]Refer to \hyperlink{classQEStringFormatting_adfa7fa261e196d1327d4da6e046dbd84ab8061ebe09c1cacc3f83dc66869c21cd}{QEStringFormatting::NOTATION\_\-AUTOMATIC} for details. \end{description}
+\end{Desc}
+
+\hypertarget{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834}{
+\index{QEPushButton@{QEPushButton}!UpdateOptions@{UpdateOptions}}
+\index{UpdateOptions@{UpdateOptions}!QEPushButton@{QEPushButton}}
+\subsubsection[{UpdateOptions}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEPushButton::UpdateOptions}}}
+\label{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834}
+
+
+User friendly enumerations for updateOption property -\/ refer to QEGenericButton::updateOptions for details. 
+
+\begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Text@{Text}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Text@{Text}}\item[{\em 
+\hypertarget{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834adcc345160d5f4d7cc0ab90c29cba792e}{
+Text}
+\label{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834adcc345160d5f4d7cc0ab90c29cba792e}
+}]Data updates will update the button text. \index{Icon@{Icon}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Icon@{Icon}}\item[{\em 
+\hypertarget{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834a83d371cab542a4005d21f8369ce8d214}{
+Icon}
+\label{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834a83d371cab542a4005d21f8369ce8d214}
+}]Data updates will update the button icon. \index{TextAndIcon@{TextAndIcon}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!TextAndIcon@{TextAndIcon}}\item[{\em 
+\hypertarget{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834adb10c2ae6d04214cb6e3a24aec27f099}{
+TextAndIcon}
+\label{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834adb10c2ae6d04214cb6e3a24aec27f099}
+}]Data updates will update the button text and icon. \index{State@{State}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!State@{State}}\item[{\em 
+\hypertarget{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834a910927f933dd0dd4b6880c92cea853f0}{
+State}
+\label{classQEPushButton_a8e2016e5cdcbe54a5fe6d22a32410834a910927f933dd0dd4b6880c92cea853f0}
+}]Data updates will update the button state (checked or unchecked) \end{description}
+\end{Desc}
+
+\hypertarget{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}{
+\index{QEPushButton@{QEPushButton}!UserLevels@{UserLevels}}
+\index{UserLevels@{UserLevels}!QEPushButton@{QEPushButton}}
+\subsubsection[{UserLevels}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEPushButton::UserLevels}}}
+\label{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620}
+User friendly enumerations for \hyperlink{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}{userLevelVisibility} and \hyperlink{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}{userLevelEnabled} properties -\/ refer to \hyperlink{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}{userLevelVisibility} and \hyperlink{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}{userLevelEnabled} properties and \#userLevel enumeration for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{User@{User}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!User@{User}}\item[{\em 
+\hypertarget{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620a56632ffe023b2c75dfb41f3b1269dd6e}{
+User}
+\label{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620a56632ffe023b2c75dfb41f3b1269dd6e}
+}]Refer to USERLEVEL\_\-USER for details. \index{Scientist@{Scientist}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Scientist@{Scientist}}\item[{\em 
+\hypertarget{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620af726d0eac1cc40dc61d04f282ce99d5a}{
+Scientist}
+\label{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620af726d0eac1cc40dc61d04f282ce99d5a}
+}]Refer to USERLEVEL\_\-SCIENTIST for details. \index{Engineer@{Engineer}!QEPushButton@{QEPushButton}}\index{QEPushButton@{QEPushButton}!Engineer@{Engineer}}\item[{\em 
+\hypertarget{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620a42d02d275ed44c49bd91530aafeb28a7}{
+Engineer}
+\label{classQEPushButton_a1afc62a8bcda84a0c2ec4c5032547620a42d02d275ed44c49bd91530aafeb28a7}
+}]Refer to USERLEVEL\_\-ENGINEER for details. \end{description}
+\end{Desc}
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classQEPushButton_aac8385789a87e049b4723068b2d88585}{
+\index{QEPushButton@{QEPushButton}!QEPushButton@{QEPushButton}}
+\index{QEPushButton@{QEPushButton}!QEPushButton@{QEPushButton}}
+\subsubsection[{QEPushButton}]{\setlength{\rightskip}{0pt plus 5cm}QEPushButton::QEPushButton (
+\begin{DoxyParamCaption}
+\item[{QWidget $\ast$}]{parent = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)}}
+\label{classQEPushButton_aac8385789a87e049b4723068b2d88585}
+Create without a variable. Use setVariableNameProperty() and setSubstitutionsProperty() to define a variable and, optionally, macro substitutions later. \hypertarget{classQEPushButton_ab745a3d31a8ea4718ab865f4cf5edaf8}{
+\index{QEPushButton@{QEPushButton}!QEPushButton@{QEPushButton}}
+\index{QEPushButton@{QEPushButton}!QEPushButton@{QEPushButton}}
+\subsubsection[{QEPushButton}]{\setlength{\rightskip}{0pt plus 5cm}QEPushButton::QEPushButton (
+\begin{DoxyParamCaption}
+\item[{const QString \&}]{variableName, }
+\item[{QWidget $\ast$}]{parent = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)}}
+\label{classQEPushButton_ab745a3d31a8ea4718ab865f4cf5edaf8}
+Create with a variable. A connection is automatically established. If macro substitutions are required, create without a variable and set the variable and macro substitutions after creation. 
+
+\subsection{Member Function Documentation}
+\hypertarget{classQEPushButton_aeb56f7b3f3d73d670bb7bf50e8726aef}{
+\index{QEPushButton@{QEPushButton}!clicked@{clicked}}
+\index{clicked@{clicked}!QEPushButton@{QEPushButton}}
+\subsubsection[{clicked}]{\setlength{\rightskip}{0pt plus 5cm}void QEPushButton::clicked (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQEPushButton_aeb56f7b3f3d73d670bb7bf50e8726aef}
+Button has been Clicked. The value emitted is the integer interpretation of the clickText property (or the clickCheckedText property if the button was checked) \hypertarget{classQEPushButton_a61a77fb915d2bcdafc199ec691818da0}{
+\index{QEPushButton@{QEPushButton}!dbValueChanged@{dbValueChanged}}
+\index{dbValueChanged@{dbValueChanged}!QEPushButton@{QEPushButton}}
+\subsubsection[{dbValueChanged}]{\setlength{\rightskip}{0pt plus 5cm}void QEPushButton::dbValueChanged (
+\begin{DoxyParamCaption}
+\item[{const QString \&}]{out}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQEPushButton_a61a77fb915d2bcdafc199ec691818da0}
+Sent when the widget is updated following a data change Can be used to pass on EPICS data (as presented in this widget) to other widgets. For example a QList widget could log updates from this widget. \hypertarget{classQEPushButton_a5c0a901fa1a4dd54f4cb5eb344305822}{
+\index{QEPushButton@{QEPushButton}!launchGui@{launchGui}}
+\index{launchGui@{launchGui}!QEPushButton@{QEPushButton}}
+\subsubsection[{launchGui}]{\setlength{\rightskip}{0pt plus 5cm}void QEPushButton::launchGui (
+\begin{DoxyParamCaption}
+\item[{QString}]{guiName, }
+\item[{QEForm::creationOptions}]{creationOption}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, slot\mbox{]}}}}
+\label{classQEPushButton_a5c0a901fa1a4dd54f4cb5eb344305822}
+Default slot used to create a new GUI if there is no slot indicated in the \hyperlink{classContainerProfile}{ContainerProfile} class. This slot is typically used when the button is pressed within the Designer preview window to allow the operation of the button to be tested. If an application does not specify a slot to use for creating new windows (through the \hyperlink{classContainerProfile}{ContainerProfile} class) a window will still be created through this slot, but it will not respect the window creation options or any other window related application constraints. For example, the QEGui application does provide a slot for creating new GUIs in the \hyperlink{classContainerProfile}{ContainerProfile} class which respects the creation options, knows how to add tabs in the application, and extend the application's window menu in the menu bar. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a44517dade5e1a2a834b9a51ec189c73e}{
+\index{QEPushButton@{QEPushButton}!pressed@{pressed}}
+\index{pressed@{pressed}!QEPushButton@{QEPushButton}}
+\subsubsection[{pressed}]{\setlength{\rightskip}{0pt plus 5cm}void QEPushButton::pressed (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQEPushButton_a44517dade5e1a2a834b9a51ec189c73e}
+Button has been Pressed. The value emitted is the integer interpretation of the pressText property \hypertarget{classQEPushButton_ae9e14ceeeea506143a51653e6e09e026}{
+\index{QEPushButton@{QEPushButton}!released@{released}}
+\index{released@{released}!QEPushButton@{QEPushButton}}
+\subsubsection[{released}]{\setlength{\rightskip}{0pt plus 5cm}void QEPushButton::released (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQEPushButton_ae9e14ceeeea506143a51653e6e09e026}
+Button has been Released The value emitted is the integer interpretation of the releaseText property \hypertarget{classQEPushButton_a7c45ea3a5303929fa4985a8f874ecac6}{
+\index{QEPushButton@{QEPushButton}!requestEnabled@{requestEnabled}}
+\index{requestEnabled@{requestEnabled}!QEPushButton@{QEPushButton}}
+\subsubsection[{requestEnabled}]{\setlength{\rightskip}{0pt plus 5cm}void QEPushButton::requestEnabled (
+\begin{DoxyParamCaption}
+\item[{const bool \&}]{state}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, slot\mbox{]}}}}
+\label{classQEPushButton_a7c45ea3a5303929fa4985a8f874ecac6}
+Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data. If disabled due to invalid data, a request to enable the widget will be honoured when the data is no longer invalid. 
+
+\subsection{Property Documentation}
+\hypertarget{classQEPushButton_a6a2b19a08245fb02d076f5ea954d4823}{
+\index{QEPushButton@{QEPushButton}!addUnits@{addUnits}}
+\index{addUnits@{addUnits}!QEPushButton@{QEPushButton}}
+\subsubsection[{addUnits}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::addUnits\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a6a2b19a08245fb02d076f5ea954d4823}
+If true (default), add engineering units supplied with the data. \hypertarget{classQEPushButton_a5bc6e1c38e2ca091f3a74daa07f8433e}{
+\index{QEPushButton@{QEPushButton}!alignment@{alignment}}
+\index{alignment@{alignment}!QEPushButton@{QEPushButton}}
+\subsubsection[{alignment}]{\setlength{\rightskip}{0pt plus 5cm}Qt::Alignment QEPushButton::alignment\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a5bc6e1c38e2ca091f3a74daa07f8433e}
+Set the buttons text alignment. Left justification is particularly useful when displaying quickly changing numeric data updates. \hypertarget{classQEPushButton_a634514662515a307ecf680584cdf2cda}{
+\index{QEPushButton@{QEPushButton}!allowDrop@{allowDrop}}
+\index{allowDrop@{allowDrop}!QEPushButton@{QEPushButton}}
+\subsubsection[{allowDrop}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::allowDrop\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a634514662515a307ecf680584cdf2cda}
+Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name. 
+
+Reimplemented from \hyperlink{classQEDragDrop}{QEDragDrop}.
+
+\hypertarget{classQEPushButton_ab6eb074afea7056b844a4a712cdf594c}{
+\index{QEPushButton@{QEPushButton}!altReadbackVariable@{altReadbackVariable}}
+\index{altReadbackVariable@{altReadbackVariable}!QEPushButton@{QEPushButton}}
+\subsubsection[{altReadbackVariable}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::altReadbackVariable\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ab6eb074afea7056b844a4a712cdf594c}
+EPICS variable name (CA PV). This variable is used to provide a readback value when different to the variable written to by a button press. \hypertarget{classQEPushButton_ae25b176db2b427089e1b1532a3c3ce52}{
+\index{QEPushButton@{QEPushButton}!arguments@{arguments}}
+\index{arguments@{arguments}!QEPushButton@{QEPushButton}}
+\subsubsection[{arguments}]{\setlength{\rightskip}{0pt plus 5cm}QStringList QEPushButton::arguments\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ae25b176db2b427089e1b1532a3c3ce52}
+Arguments for program specified in the 'program' property. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a4f7d3bd9238cfbb811ae4aa83bc499eb}{
+\index{QEPushButton@{QEPushButton}!arrayAction@{arrayAction}}
+\index{arrayAction@{arrayAction}!QEPushButton@{QEPushButton}}
+\subsubsection[{arrayAction}]{\setlength{\rightskip}{0pt plus 5cm}{\bf ArrayActions} QEPushButton::arrayAction\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a4f7d3bd9238cfbb811ae4aa83bc499eb}
+Text formatting option for array data. Default is ASCII. Options are: \begin{DoxyItemize}
+\item ASCII -\/ treat array as a single text string. For example an array of three characters 'a' 'b' 'c' will be formatted as 'abc'. \item APPEND -\/ treat array as an array of numbers and format a string containing them all with a space between each. For example, an array of three numbers 10, 11 and 12 will be formatted as '10 11 12'. \item INDEX -\/ Extract a single item from the array. The item is then formatted as any other non array data would be. The item selected is determined by the arrayIndex property. For example, if arrayIndex property is 1, an array of three numbers 10, 11 and 12 will be formatted as '11'. \end{DoxyItemize}
+\hypertarget{classQEPushButton_a6dfe1f7842d84c9b8ea19f43346be73f}{
+\index{QEPushButton@{QEPushButton}!clickCheckedText@{clickCheckedText}}
+\index{clickCheckedText@{clickCheckedText}!QEPushButton@{QEPushButton}}
+\subsubsection[{clickCheckedText}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::clickCheckedText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a6dfe1f7842d84c9b8ea19f43346be73f}
+Text used to compare with text written or read to determine if push button should be marked as checked. Note, must be an exact match following formatting of data updates. When writing values, the 'pressText', 'ReleaseText', or 'clickedtext' must match this property to cause the button to be checked when the write occurs.
+
+Good example: formatting set to diaplay a data value of '1' as 'On', clickCheckedText is 'On', clickText is 'On'. In this example, the push button will be checked when a data update occurs with a value of 1 or when the button is clicked.
+
+Bad example: formatting set to diaplay a data value of '1' as 'On', clickCheckedText is 'On', clickText is '1'. In this example, the push button will be checked when a data update occurs with a value of 1 but, although a valid value will be written when clicked, the button will not be checked when clicked as '1' is not the same as 'On'. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a0c71a9b133e4452dcfef961becf55fba}{
+\index{QEPushButton@{QEPushButton}!clickText@{clickText}}
+\index{clickText@{clickText}!QEPushButton@{QEPushButton}}
+\subsubsection[{clickText}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::clickText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a0c71a9b133e4452dcfef961becf55fba}
+Value written when user clicks button if 'writeOnClick' property is true 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a349efcfb5c1e1a306e4a4b8d90c63966}{
+\index{QEPushButton@{QEPushButton}!confirmAction@{confirmAction}}
+\index{confirmAction@{confirmAction}!QEPushButton@{QEPushButton}}
+\subsubsection[{confirmAction}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::confirmAction\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a349efcfb5c1e1a306e4a4b8d90c63966}
+If true, a dialog will be presented asking the user to confirm if the button action should be carried out \hypertarget{classQEPushButton_a195284f5eb958b4caaf05c848f12ccf1}{
+\index{QEPushButton@{QEPushButton}!creationOption@{creationOption}}
+\index{creationOption@{creationOption}!QEPushButton@{QEPushButton}}
+\subsubsection[{creationOption}]{\setlength{\rightskip}{0pt plus 5cm}{\bf CreationOptionNames} QEPushButton::creationOption\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a195284f5eb958b4caaf05c848f12ccf1}
+Creation options when opening a new GUI. Open a new window, open a new tab, or replace the current window. the creation option is supplied when the button generates a newGui signal. Application code connected to this signal should honour this request if possible. When used within the QEGui application, the QEGui application creates a new window, new tab, or replaces the current window as appropriate. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a7753c754e5d4a8c9e0d247d7b94a649f}{
+\index{QEPushButton@{QEPushButton}!displayAlarmState@{displayAlarmState}}
+\index{displayAlarmState@{displayAlarmState}!QEPushButton@{QEPushButton}}
+\subsubsection[{displayAlarmState}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::displayAlarmState\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a7753c754e5d4a8c9e0d247d7b94a649f}
+If set (default) widget will indicate the alarm state of any variable data is displaying. Typically the background colour is set to indicate the alarm state. Note, this property is included in the set of standard properties as it applies to most widgets. It will do nothing for widgets that don't display data. 
+
+Reimplemented from \hyperlink{classstandardProperties}{standardProperties}.
+
+\hypertarget{classQEPushButton_a223d8878ab3e235c7da509731d489737}{
+\index{QEPushButton@{QEPushButton}!enabled@{enabled}}
+\index{enabled@{enabled}!QEPushButton@{QEPushButton}}
+\subsubsection[{enabled}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::enabled\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a223d8878ab3e235c7da509731d489737}
+Set the prefered 'enabled' state. Default is true. This property is copied to the standard Qt 'enabled' property if the data being displayed is valid. If the data being displayed is invalid the standard Qt 'enabled' property will always be set to false to indicate invalid data. The value of this property will only be copied to the standard Qt 'enabled' property once data is valid. \hypertarget{classQEPushButton_abd4b0d3b48e4e819f9a89f37b34c4df1}{
+\index{QEPushButton@{QEPushButton}!format@{format}}
+\index{format@{format}!QEPushButton@{QEPushButton}}
+\subsubsection[{format}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Formats} QEPushButton::format\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_abd4b0d3b48e4e819f9a89f37b34c4df1}
+Format to apply to data. Default is 'Default' in which case the data type supplied with the data determines how the data is formatted. For all other options, an attempt is made to format the data as requested (whatever its native form). \hypertarget{classQEPushButton_a463afceced7f64ea2f738a69e9db425b}{
+\index{QEPushButton@{QEPushButton}!guiFile@{guiFile}}
+\index{guiFile@{guiFile}!QEPushButton@{QEPushButton}}
+\subsubsection[{guiFile}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::guiFile\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a463afceced7f64ea2f738a69e9db425b}
+File name of GUI to be presented on button click. File name can be absolute, relative to the path of the QEform in which the \hyperlink{classQEPushButton}{QEPushButton} is located, relative to the any path in the path list published in the \hyperlink{classContainerProfile}{ContainerProfile} class, or relative to the current path. See \hyperlink{classQEWidget_a1249c1c022d5ec63e0fa82df20356039}{QEWidget::openQEFile()} in QEWidget.cpp for details. \hypertarget{classQEPushButton_af2101a8ce89f2fa34261cc8b6d2d4715}{
+\index{QEPushButton@{QEPushButton}!int@{int}}
+\index{int@{int}!QEPushButton@{QEPushButton}}
+\subsubsection[{int}]{\setlength{\rightskip}{0pt plus 5cm}unsigned QEPushButton::int\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_af2101a8ce89f2fa34261cc8b6d2d4715}
+Set the ID used by the message filtering system. Default is zero. Widgets or applications that use messages from the framework have the option of filtering on this ID. For example, by using a unique message source ID a \hyperlink{classQELog}{QELog} widget may be set up to only log messages from a select set of widgets.
+
+Base used for when formatting integers. Default is 10 (duh!)
+
+Index used to select a single item of data for formatting from an array of data. Default is 0. Only used when the arrayAction property is INDEX. Refer to the arrayAction property for more details. \hypertarget{classQEPushButton_ac6a77971fd82a22ded755ac39533877e}{
+\index{QEPushButton@{QEPushButton}!labelText@{labelText}}
+\index{labelText@{labelText}!QEPushButton@{QEPushButton}}
+\subsubsection[{labelText}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::labelText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ac6a77971fd82a22ded755ac39533877e}
+Button label text (prior to substitution). Macro substitutions will be applied to this text and the result will be set as the button text. Used when data updates are not being represented in the button text. IF NOT LEFT EMPTY, THIS TEXT WILL TAKE PRIORITY OVER THE PUSH BUTTON 'text' PROPERTY! For example, a button in a sub form may have a 'labelText' property of 'Turn Pump  On'. When the sub form is used twice in a main form with substitutions PUMPNUM=1 and PUMPNUM=2 respectively, the two identical buttons in the sub forms will have the labels 'Turn Pump 1 On' and 'Turn Pump 2 On' respectively. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a39d427acaebc8383149f1ea0fda0c56c}{
+\index{QEPushButton@{QEPushButton}!leadingZero@{leadingZero}}
+\index{leadingZero@{leadingZero}!QEPushButton@{QEPushButton}}
+\subsubsection[{leadingZero}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::leadingZero\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a39d427acaebc8383149f1ea0fda0c56c}
+If true (default), always add a leading zero when formatting numbers. \hypertarget{classQEPushButton_a5e5b76726d7536cd9779bcdc2b9ddd30}{
+\index{QEPushButton@{QEPushButton}!localEnumeration@{localEnumeration}}
+\index{localEnumeration@{localEnumeration}!QEPushButton@{QEPushButton}}
+\subsubsection[{localEnumeration}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::localEnumeration\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a5e5b76726d7536cd9779bcdc2b9ddd30}
+An enumeration list used to data values. Used only when the formatting option is 'local enumeration'. Value is converted to an integer and used to select a string from this list.
+
+Format is:
+
+\mbox{[}\mbox{[}$<$$|$$<$=$|$=$|$!=$|$$>$=$|$$>$\mbox{]}value1$|$$\ast$\mbox{]} : string1 , \mbox{[}\mbox{[}$<$$|$$<$=$|$=$|$!=$|$$>$=$|$$>$\mbox{]}value2$|$$\ast$\mbox{]} : string2 , \mbox{[}\mbox{[}$<$$|$$<$=$|$=$|$!=$|$$>$=$|$$>$\mbox{]}value3$|$$\ast$\mbox{]} : string3 , ...
+
+Where: $<$ Less than $<$= Less than or equal = Equal (default if no operator specified) $>$= Greather than or equal $>$ Greater than Always match (used to specify default text)
+
+Values may be numeric or textual Values do not have to be in any order, but first match wins Values may be quoted Strings may be quoted Consecutive values do not have to be present. Operator is assumed to be equality if not present. White space is ignored except within quoted strings. \par
+ may be included in a string to indicate a line break
+
+Examples are:
+
+0:Off,1:On 0 : \char`\"{}Pump Running\char`\"{}, 1 : \char`\"{}Pump not running\char`\"{} 0:\char`\"{}\char`\"{}, 1:\char`\"{}Warning!$\backslash$nAlarm\char`\"{} $<$2:\char`\"{}Value is less than two\char`\"{}, =2:\char`\"{}Value is equal to two\char`\"{}, $>$2:\char`\"{}Value is grater than 2\char`\"{} 3:\char`\"{}Beamline Available\char`\"{}, $\ast$:\char`\"{}\char`\"{} \char`\"{}Pump Off\char`\"{}:\char`\"{}OH NO!, the pump is OFF!\char`\"{},\char`\"{}Pump On\char`\"{}:\char`\"{}It's OK, the pump is on\char`\"{}
+
+The data value is converted to a string if no enumeration for that value is available. For example, if the local enumeration is '0:off,1:on', and a value of 10 is processed, the text generated is '10'. If a blank string is required, this should be explicit. for example, '0:off,1:on,10:\char`\"{}\char`\"{}'
+
+A range of numbers can be covered by a pair of values as in the following example: $>$=4:\char`\"{}Between 4 and 8\char`\"{},$<$=8:\char`\"{}Between 4 and 8\char`\"{} \hypertarget{classQEPushButton_a180f3a67ef06214e07fd5d59e49e1793}{
+\index{QEPushButton@{QEPushButton}!notation@{notation}}
+\index{notation@{notation}!QEPushButton@{QEPushButton}}
+\subsubsection[{notation}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Notations} QEPushButton::notation\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a180f3a67ef06214e07fd5d59e49e1793}
+Notation used for numerical formatting. Default is fixed. \hypertarget{classQEPushButton_ae64440ff4fbd449726f83c302be8f12a}{
+\index{QEPushButton@{QEPushButton}!password@{password}}
+\index{password@{password}!QEPushButton@{QEPushButton}}
+\subsubsection[{password}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::password\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ae64440ff4fbd449726f83c302be8f12a}
+Password user will need to enter before any action is taken 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a345f5d33b6c338c20b7575e075eb7488}{
+\index{QEPushButton@{QEPushButton}!pixmap0@{pixmap0}}
+\index{pixmap0@{pixmap0}!QEPushButton@{QEPushButton}}
+\subsubsection[{pixmap0}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QEPushButton::pixmap0\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a345f5d33b6c338c20b7575e075eb7488}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 0 \hypertarget{classQEPushButton_afc73bdbd2a700cb62ce0c5de423b9e85}{
+\index{QEPushButton@{QEPushButton}!pixmap1@{pixmap1}}
+\index{pixmap1@{pixmap1}!QEPushButton@{QEPushButton}}
+\subsubsection[{pixmap1}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QEPushButton::pixmap1\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_afc73bdbd2a700cb62ce0c5de423b9e85}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 1 \hypertarget{classQEPushButton_ac8f2f8810fce18740a578256c8648a8b}{
+\index{QEPushButton@{QEPushButton}!pixmap2@{pixmap2}}
+\index{pixmap2@{pixmap2}!QEPushButton@{QEPushButton}}
+\subsubsection[{pixmap2}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QEPushButton::pixmap2\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ac8f2f8810fce18740a578256c8648a8b}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 2 \hypertarget{classQEPushButton_a13af1cdcd6e4464bd9d17e57821195c6}{
+\index{QEPushButton@{QEPushButton}!pixmap3@{pixmap3}}
+\index{pixmap3@{pixmap3}!QEPushButton@{QEPushButton}}
+\subsubsection[{pixmap3}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QEPushButton::pixmap3\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a13af1cdcd6e4464bd9d17e57821195c6}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 3 \hypertarget{classQEPushButton_a032990ba96ae30e11e314258a1a6d5b2}{
+\index{QEPushButton@{QEPushButton}!pixmap4@{pixmap4}}
+\index{pixmap4@{pixmap4}!QEPushButton@{QEPushButton}}
+\subsubsection[{pixmap4}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QEPushButton::pixmap4\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a032990ba96ae30e11e314258a1a6d5b2}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 4 \hypertarget{classQEPushButton_a9a354f3ca109fd25a5dcfd5d6c91119e}{
+\index{QEPushButton@{QEPushButton}!pixmap5@{pixmap5}}
+\index{pixmap5@{pixmap5}!QEPushButton@{QEPushButton}}
+\subsubsection[{pixmap5}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QEPushButton::pixmap5\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a9a354f3ca109fd25a5dcfd5d6c91119e}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 5 \hypertarget{classQEPushButton_a8fcaaa8f5e05c36feb340da2f9661dc5}{
+\index{QEPushButton@{QEPushButton}!pixmap6@{pixmap6}}
+\index{pixmap6@{pixmap6}!QEPushButton@{QEPushButton}}
+\subsubsection[{pixmap6}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QEPushButton::pixmap6\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a8fcaaa8f5e05c36feb340da2f9661dc5}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 6 \hypertarget{classQEPushButton_a4d04d0e65d8128bb377469261647b436}{
+\index{QEPushButton@{QEPushButton}!pixmap7@{pixmap7}}
+\index{pixmap7@{pixmap7}!QEPushButton@{QEPushButton}}
+\subsubsection[{pixmap7}]{\setlength{\rightskip}{0pt plus 5cm}QPixmap QEPushButton::pixmap7\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a4d04d0e65d8128bb377469261647b436}
+Pixmap to display if updateOption is Icon or TextAndIcon and data value translates to an index of 7 \hypertarget{classQEPushButton_ae4b790894ce57d9d16321ab084ef465b}{
+\index{QEPushButton@{QEPushButton}!precision@{precision}}
+\index{precision@{precision}!QEPushButton@{QEPushButton}}
+\subsubsection[{precision}]{\setlength{\rightskip}{0pt plus 5cm}int QEPushButton::precision\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ae4b790894ce57d9d16321ab084ef465b}
+Precision used when formatting floating point numbers. The default is 4. This is only used if useDbPrecision is false. \hypertarget{classQEPushButton_a8a9405380dd087993785efcc351cefe5}{
+\index{QEPushButton@{QEPushButton}!pressText@{pressText}}
+\index{pressText@{pressText}!QEPushButton@{QEPushButton}}
+\subsubsection[{pressText}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::pressText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a8a9405380dd087993785efcc351cefe5}
+Value written when user presses button if 'writeOnPress' property is true 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_af37f9c3f00647a65d0765bdebe3f228a}{
+\index{QEPushButton@{QEPushButton}!prioritySubstitutions@{prioritySubstitutions}}
+\index{prioritySubstitutions@{prioritySubstitutions}!QEPushButton@{QEPushButton}}
+\subsubsection[{prioritySubstitutions}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::prioritySubstitutions\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_af37f9c3f00647a65d0765bdebe3f228a}
+Overriding macro substitutions. These macro substitions take precedence over any existing macro substitutions defined by the variableSubstitutions property, any parent forms, or the application containing the button. These macro substitutions are particularly usefull when the button's function is to reload the same form but with different macro substitutions. The variableSubstitutions property cannot be used for this since, although they are added to the list of macro substittions applied to the new form, they are appended to the list and the existing macro substitutions take precedence. 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_ab038376ec0c330b1aba8c23d82e2f263}{
+\index{QEPushButton@{QEPushButton}!program@{program}}
+\index{program@{program}!QEPushButton@{QEPushButton}}
+\subsubsection[{program}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::program\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ab038376ec0c330b1aba8c23d82e2f263}
+Program to run when the button is clicked. No attempt to run a program is made if this property is empty. Example: firefox 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a1f08055d333a9899ccaffc3574d38d02}{
+\index{QEPushButton@{QEPushButton}!releaseText@{releaseText}}
+\index{releaseText@{releaseText}!QEPushButton@{QEPushButton}}
+\subsubsection[{releaseText}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::releaseText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a1f08055d333a9899ccaffc3574d38d02}
+Value written when user releases button if 'writeOnRelease' property is true 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_ae3b3fce6a82cb4982174855b7c5af2f3}{
+\index{QEPushButton@{QEPushButton}!subscribe@{subscribe}}
+\index{subscribe@{subscribe}!QEPushButton@{QEPushButton}}
+\subsubsection[{subscribe}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::subscribe\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ae3b3fce6a82cb4982174855b7c5af2f3}
+Sets if this widget subscribes for data updates and displays current data. Default is 'true' (subscribes for and displays data updates) 
+
+Reimplemented from \hyperlink{classQEWidget}{QEWidget}.
+
+\hypertarget{classQEPushButton_ab1709fe632baa21e9bf92dccee1ad920}{
+\index{QEPushButton@{QEPushButton}!trailingZeros@{trailingZeros}}
+\index{trailingZeros@{trailingZeros}!QEPushButton@{QEPushButton}}
+\subsubsection[{trailingZeros}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::trailingZeros\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ab1709fe632baa21e9bf92dccee1ad920}
+If true (default), always remove any trailing zeros when formatting numbers. \hypertarget{classQEPushButton_a30f602810c258f809be5152eaeab7f70}{
+\index{QEPushButton@{QEPushButton}!updateOption@{updateOption}}
+\index{updateOption@{updateOption}!QEPushButton@{QEPushButton}}
+\subsubsection[{updateOption}]{\setlength{\rightskip}{0pt plus 5cm}{\bf UpdateOptions} QEPushButton::updateOption\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a30f602810c258f809be5152eaeab7f70}
+Update options (text, pixmap, both, or state (checked or unchecked) 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a54eac8b0529c52c2e96fbbdd0bb78f33}{
+\index{QEPushButton@{QEPushButton}!useDbPrecision@{useDbPrecision}}
+\index{useDbPrecision@{useDbPrecision}!QEPushButton@{QEPushButton}}
+\subsubsection[{useDbPrecision}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::useDbPrecision\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a54eac8b0529c52c2e96fbbdd0bb78f33}
+If true (default), format floating point numbers using the precision supplied with the data. If false, the precision property is used. \hypertarget{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}{
+\index{QEPushButton@{QEPushButton}!userLevelEnabled@{userLevelEnabled}}
+\index{userLevelEnabled@{userLevelEnabled}!QEPushButton@{QEPushButton}}
+\subsubsection[{userLevelEnabled}]{\setlength{\rightskip}{0pt plus 5cm}{\bf UserLevels} QEPushButton::userLevelEnabled\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a6a2efa62cba908ac5647df6c6fd0a381}
+Lowest user level at which the widget is enabled. Default is 'User'. Used when designing GUIs that allow access to more and more detail according to the user mode. The user mode is set application wide through the \hyperlink{classQELogin}{QELogin} widget, or programatically through setUserLevel() Widgets that are always accessable should be visible at 'User'. Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'. Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'. \hypertarget{classQEPushButton_a2397eaaa00d562429bd84bf5e04ade53}{
+\index{QEPushButton@{QEPushButton}!userLevelEngineerStyle@{userLevelEngineerStyle}}
+\index{userLevelEngineerStyle@{userLevelEngineerStyle}!QEPushButton@{QEPushButton}}
+\subsubsection[{userLevelEngineerStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::userLevelEngineerStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a2397eaaa00d562429bd84bf5e04ade53}
+Style Sheet string to be applied when the widget is displayed in 'Engineer' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQEPushButton_a53f440b11919a757045b0fc46bcbfa97}{
+\index{QEPushButton@{QEPushButton}!userLevelScientistStyle@{userLevelScientistStyle}}
+\index{userLevelScientistStyle@{userLevelScientistStyle}!QEPushButton@{QEPushButton}}
+\subsubsection[{userLevelScientistStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::userLevelScientistStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a53f440b11919a757045b0fc46bcbfa97}
+Style Sheet string to be applied when the widget is displayed in 'Scientist' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQEPushButton_a70367130f27010d02c5b99ba5efc1a71}{
+\index{QEPushButton@{QEPushButton}!userLevelUserStyle@{userLevelUserStyle}}
+\index{userLevelUserStyle@{userLevelUserStyle}!QEPushButton@{QEPushButton}}
+\subsubsection[{userLevelUserStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::userLevelUserStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a70367130f27010d02c5b99ba5efc1a71}
+Style Sheet string to be applied when the widget is displayed in 'User' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}{
+\index{QEPushButton@{QEPushButton}!userLevelVisibility@{userLevelVisibility}}
+\index{userLevelVisibility@{userLevelVisibility}!QEPushButton@{QEPushButton}}
+\subsubsection[{userLevelVisibility}]{\setlength{\rightskip}{0pt plus 5cm}{\bf UserLevels} QEPushButton::userLevelVisibility\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_ad95a2bf16f07fbb22fb66bb8e61c02d1}
+Lowest user level at which the widget is visible. Default is 'User'. Used when designing GUIs that display more and more detail according to the user mode. The user mode is set application wide through the \hyperlink{classQELogin}{QELogin} widget, or programatically through setUserLevel() Widgets that are always visible should be visible at 'User'. Widgets that are only used by scientists managing the facility should be visible at 'Scientist'. Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'. \hypertarget{classQEPushButton_adb5a937357068be51507e62e18921561}{
+\index{QEPushButton@{QEPushButton}!variable@{variable}}
+\index{variable@{variable}!QEPushButton@{QEPushButton}}
+\subsubsection[{variable}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::variable\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_adb5a937357068be51507e62e18921561}
+EPICS variable name (CA PV). This variable is used for both writing (on button press), and reading if subscribed and no alternate readback variable is provided. \hypertarget{classQEPushButton_a4c9ac62a902c4684eac2c18891f776d4}{
+\index{QEPushButton@{QEPushButton}!variableAsToolTip@{variableAsToolTip}}
+\index{variableAsToolTip@{variableAsToolTip}!QEPushButton@{QEPushButton}}
+\subsubsection[{variableAsToolTip}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::variableAsToolTip\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a4c9ac62a902c4684eac2c18891f776d4}
+Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name. 
+
+Reimplemented from \hyperlink{classQEToolTip}{QEToolTip}.
+
+\hypertarget{classQEPushButton_a9112669af4b7922193ef03e8d9636f9c}{
+\index{QEPushButton@{QEPushButton}!variableSubstitutions@{variableSubstitutions}}
+\index{variableSubstitutions@{variableSubstitutions}!QEPushButton@{QEPushButton}}
+\subsubsection[{variableSubstitutions}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPushButton::variableSubstitutions\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a9112669af4b7922193ef03e8d9636f9c}
+Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1\mbox{[},\mbox{]} NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = \char`\"{}My Pump\char`\"{}' These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes. \hypertarget{classQEPushButton_a090ec7fbc7112a38ceb7c91e651f9770}{
+\index{QEPushButton@{QEPushButton}!visible@{visible}}
+\index{visible@{visible}!QEPushButton@{QEPushButton}}
+\subsubsection[{visible}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::visible\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a090ec7fbc7112a38ceb7c91e651f9770}
+Display the widget. Default is true. Setting this property false is usefull if widget is only used to provide a signal -\/ for example, when supplying data to a \hyperlink{classQELink}{QELink} widget. Note, when false the widget will still be visible in Qt Designer. \hypertarget{classQEPushButton_a728ad7d31319f5f82548cd7d1bc65803}{
+\index{QEPushButton@{QEPushButton}!writeOnClick@{writeOnClick}}
+\index{writeOnClick@{writeOnClick}!QEPushButton@{QEPushButton}}
+\subsubsection[{writeOnClick}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::writeOnClick\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a728ad7d31319f5f82548cd7d1bc65803}
+If true, the 'clickText' property is written when the button is clicked. Default is true 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_af37cf41a4f30095f42aa39a5bda5f4b1}{
+\index{QEPushButton@{QEPushButton}!writeOnPress@{writeOnPress}}
+\index{writeOnPress@{writeOnPress}!QEPushButton@{QEPushButton}}
+\subsubsection[{writeOnPress}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::writeOnPress\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_af37cf41a4f30095f42aa39a5bda5f4b1}
+If true, the 'pressText' property is written when the button is pressed. Default is false 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+\hypertarget{classQEPushButton_a552f3699d0798cbe9233ff81947d6d7f}{
+\index{QEPushButton@{QEPushButton}!writeOnRelease@{writeOnRelease}}
+\index{writeOnRelease@{writeOnRelease}!QEPushButton@{QEPushButton}}
+\subsubsection[{writeOnRelease}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPushButton::writeOnRelease\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPushButton_a552f3699d0798cbe9233ff81947d6d7f}
+If true, the 'releaseText' property is written when the button is released. Default is false 
+
+Reimplemented from \hyperlink{classQEGenericButton}{QEGenericButton}.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEButton/QEPushButton.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEButton/QEPushButton.cpp\end{DoxyCompactItemize}

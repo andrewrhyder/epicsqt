@@ -1,0 +1,335 @@
+\hypertarget{classQEWidget}{
+\section{QEWidget Class Reference}
+\label{classQEWidget}\index{QEWidget@{QEWidget}}
+}
+
+
+{\ttfamily \#include $<$QEWidget.h$>$}
+
+Inheritance diagram for QEWidget:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{classQEWidget}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{classQEWidget_acff38ca69eed5b30a9d5f9d055e7a0b1}{restorePhases} \{ {\bfseries APPLICATION} =  SaveRestoreSignal::RESTORE\_\-APPLICATION, 
+{\bfseries FRAMEWORK} =  SaveRestoreSignal::RESTORE\_\-QEFRAMEWORK
+ \}
+\begin{DoxyCompactList}\small\item\em Restore phases. When a widget's persistant data is restored, the restore occurs in two phases. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEWidget_a46ee3e2ec7abf3f7d95aa2038e56e044}{
+\hyperlink{classQEWidget_a46ee3e2ec7abf3f7d95aa2038e56e044}{QEWidget} (QWidget $\ast$ownerIn)}
+\label{classQEWidget_a46ee3e2ec7abf3f7d95aa2038e56e044}
+
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\hypertarget{classQEWidget_a391db1f9d84191b801a4914d42ada1b8}{
+virtual \hyperlink{classQEWidget_a391db1f9d84191b801a4914d42ada1b8}{$\sim$QEWidget} ()}
+\label{classQEWidget_a391db1f9d84191b801a4914d42ada1b8}
+
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \hyperlink{classQEWidget_a0990c7f67d2f8211c5225c88c304e708}{activate} ()
+\item 
+void \hyperlink{classQEWidget_a62917495066efb825c49f4f02e155c50}{deactivate} ()
+\item 
+unsigned int \hyperlink{classQEWidget_a01c2560967617574a9b03f3487597ffa}{getMessageSourceId} ()
+\item 
+void \hyperlink{classQEWidget_a2706e4b5748060d22eec1072e0ed0118}{setMessageSourceId} (unsigned int messageSourceId)
+\item 
+\hyperlink{classqcaobject_1_1QCaObject}{qcaobject::QCaObject} $\ast$ \hyperlink{classQEWidget_a15ffecf019fe409df2a3ab487a185295}{getQcaItem} (unsigned int variableIndex)
+\item 
+void \hyperlink{classQEWidget_a2acf585f085e2734f0a184a05bf78583}{setupContextMenu} (QWidget $\ast$w)
+\item 
+QColor \hyperlink{classQEWidget_a0c425f23275370cc852f0f294119d2a8}{getColor} (\hyperlink{classQCaAlarmInfo}{QCaAlarmInfo} \&alarmInfo, const int saturation)
+\item 
+void \hyperlink{classQEWidget_af12f955eaddc3d26f7396c45f4c19ee1}{processAlarmInfo} (\hyperlink{classQCaAlarmInfo}{QCaAlarmInfo} \&alarmInfo)
+\item 
+void \hyperlink{classQEWidget_a2296525a294b725e3464b9d1fb46ccce}{readNow} ()
+\item 
+virtual void \hyperlink{classQEWidget_ac65c36cf29373f3a850d163e7b7c5003}{writeNow} ()
+\item 
+virtual void \hyperlink{classQEWidget_aad46c00865cd37a2221ea69fbaee8806}{setVariableNameAndSubstitutions} (QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex)
+\item 
+QFile $\ast$ \hyperlink{classQEWidget_a1249c1c022d5ec63e0fa82df20356039}{openQEFile} (QString name, QFile::OpenModeFlag mode)
+\item 
+QString \hyperlink{classQEWidget_a42e6a3ab3eff6bb67fc046ef381e28e0}{defaultFileLocation} ()
+\item 
+QString \hyperlink{classQEWidget_a94fb75865de45f884e17ef502c96a5a1}{getFrameworkVersion} ()
+\item 
+virtual void \hyperlink{classQEWidget_a661ceaf355404437497e21c9db4cb110}{saveConfiguration} (\hyperlink{classPersistanceManager}{PersistanceManager} $\ast$)
+\item 
+virtual void \hyperlink{classQEWidget_abecc5c5d7dec09547bc5d2acac82190d}{restoreConfiguration} (\hyperlink{classPersistanceManager}{PersistanceManager} $\ast$, \hyperlink{classQEWidget_acff38ca69eed5b30a9d5f9d055e7a0b1}{restorePhases})
+\item 
+virtual void \hyperlink{classQEWidget_a9ee296007965078d55ddc26ebcc0ef5e}{scaleBy} (const int, const int)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static QFile $\ast$ \hyperlink{classQEWidget_adc57be41e71241cccfd419e0f18e9823}{findQEFile} (QString name, \hyperlink{classContainerProfile}{ContainerProfile} $\ast$profile)
+\item 
+\hypertarget{classQEWidget_a9925e2a5466a753ebd366d770b27dc92}{
+static bool {\bfseries inDesigner} ()}
+\label{classQEWidget_a9925e2a5466a753ebd366d770b27dc92}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEWidget_a8ad4dd7634fb1444bcd1366b01d2643e}{
+void {\bfseries setNumVariables} (unsigned int numVariablesIn)}
+\label{classQEWidget_a8ad4dd7634fb1444bcd1366b01d2643e}
+
+\item 
+\hypertarget{classQEWidget_a44752031c605215a59151f4995515666}{
+\hyperlink{classqcaobject_1_1QCaObject}{qcaobject::QCaObject} $\ast$ {\bfseries createConnection} (unsigned int variableIndex)}
+\label{classQEWidget_a44752031c605215a59151f4995515666}
+
+\item 
+\hypertarget{classQEWidget_a973906d788744e10e970cf30c71bf516}{
+virtual \hyperlink{classqcaobject_1_1QCaObject}{qcaobject::QCaObject} $\ast$ {\bfseries createQcaItem} (unsigned int variableIndex)}
+\label{classQEWidget_a973906d788744e10e970cf30c71bf516}
+
+\item 
+\hypertarget{classQEWidget_a0a181869258d8587e200eaa369186162}{
+virtual void {\bfseries establishConnection} (unsigned int variableIndex)}
+\label{classQEWidget_a0a181869258d8587e200eaa369186162}
+
+\item 
+\hypertarget{classQEWidget_ab8dc86445dc1eb4f3ce4b9f43c45c589}{
+QString {\bfseries persistantName} (QString prefix)}
+\label{classQEWidget_ab8dc86445dc1eb4f3ce4b9f43c45c589}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEWidget_a4eb4ffce867222e221d26ec3b98587de}{
+bool {\bfseries subscribe}}
+\label{classQEWidget_a4eb4ffce867222e221d26ec3b98587de}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class is used as a base for all CA aware wigets, such as \hyperlink{classQELabel}{QELabel}, \hyperlink{classQESpinBox}{QESpinBox}, etc. It manages common issues including creating a source of CA data updates, handling error, warning and status messages, and setting tool tips based on variable names.
+
+Note, there is tight integration between the CA aware widget classes, this class, and its base classes, especially VariableNameManager and \hyperlink{classQEToolTip}{QEToolTip}.
+
+In particular, this class manages QCaObject classes that stream updates to the CA aware widget class. But this class, however, doesn't know how to format the data, or how the updates will be used. To resolve this, this class asks its parent class (such as \hyperlink{classQELabel}{QELabel}) to create the QCaObject class in what ever flavour it wants, by calling the virtual function createQcaItem. A \hyperlink{classQELabel}{QELabel}, for example, wants string updates so it creates a \hyperlink{classQEString}{QEString} which is based on a QCaObject class and formats all updates as strings.
+
+The CA aware parent class (such as \hyperlink{classQELabel}{QELabel}) defines a variable by calling VariableNameManager::setVariableName(). The VariableNamePropertyManager class calls the establishConnection function of the CA aware parent class, such as \hyperlink{classQELabel}{QELabel} when it has a new variable name.
+
+This class uses its base \hyperlink{classQEToolTip}{QEToolTip} class to format tool tips. that class in turn calls the CA aware parent class (such as \hyperlink{classQELabel}{QELabel}) directly to make use of a new tool tip.
+
+After construction, a CA aware widget is activated (starts updating) by calling it's establishConnection() function in one of two ways:
+
+1) The variable name or variable name substitutions is changed by calling setVariableName or setVariableNameSubstitutions respectively. These functions are in the VariableNameManager class. The VariableNamePropertyManager calls a virtual function establishConnection() which is implemented by the CA aware widget. This is how a CA aware widget is activated in 'designer'. It occurs when 'designer' updates the variable name property or variable name substitution property.
+
+2) When an \hyperlink{classQEForm}{QEForm} widget is created, resulting in a set of CA aware widgets being created by loading a UI file contining plugin definitions. After loading the plugin widgets, code in the \hyperlink{classQEForm}{QEForm} class calls the \hyperlink{classQEWidget_a0990c7f67d2f8211c5225c88c304e708}{activate()} function in this class (QEWiget). the \hyperlink{classQEWidget_a0990c7f67d2f8211c5225c88c304e708}{activate()} function calls establishConnection() in the CA aware widget for each variable. This simulates what the VariableNamePropertyManager does as each variable name is entered (see 1, above, for details)
+
+No matter which way a CA aware widget is activated, the establishConnection() function in the CA aware widget is called for each variable. The establishConnection() function asks this \hyperlink{classQEWidget}{QEWidget} base class, by calling the createConnection() function, to perform the tasks common to all CA aware widgets for establishing a stream of CA data.
+
+The createConnection() function sets up the widget 'tool tip', then immedietly calls the CA aware widget back asking it to create an object based on QCaObject. This object will supply a stream of CA update signals to the CA aware object in a form that it needs. For example a \hyperlink{classQELabel}{QELabel} creates a \hyperlink{classQEString}{QEString} object. The \hyperlink{classQEString}{QEString} class is based on the QCaObject class and converts all update data to a strings which is required for updating a Qt label widget. This class stores the QCaObject based class.
+
+After the establishConnection() function in the CA aware widget has called createConnection(), the remaining task of the establishConnection() function is to connect the signals of the newly created QCaObject based classes to its own slots so that data updates can be used. For example, a \hyperlink{classQELabel}{QELabel} connects the 'stringChanged' signal from the \hyperlink{classQEString}{QEString} object to its setLabelText slot. 
+
+\subsection{Member Function Documentation}
+\hypertarget{classQEWidget_a0990c7f67d2f8211c5225c88c304e708}{
+\index{QEWidget@{QEWidget}!activate@{activate}}
+\index{activate@{activate}!QEWidget@{QEWidget}}
+\subsubsection[{activate}]{\setlength{\rightskip}{0pt plus 5cm}void QEWidget::activate (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a0990c7f67d2f8211c5225c88c304e708}
+Initiate updates. Called after all configuration is complete. \hypertarget{classQEWidget_a62917495066efb825c49f4f02e155c50}{
+\index{QEWidget@{QEWidget}!deactivate@{deactivate}}
+\index{deactivate@{deactivate}!QEWidget@{QEWidget}}
+\subsubsection[{deactivate}]{\setlength{\rightskip}{0pt plus 5cm}void QEWidget::deactivate (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a62917495066efb825c49f4f02e155c50}
+Terminates updates. This has been provided for third party (non QEGui) applications using the framework. \hypertarget{classQEWidget_a42e6a3ab3eff6bb67fc046ef381e28e0}{
+\index{QEWidget@{QEWidget}!defaultFileLocation@{defaultFileLocation}}
+\index{defaultFileLocation@{defaultFileLocation}!QEWidget@{QEWidget}}
+\subsubsection[{defaultFileLocation}]{\setlength{\rightskip}{0pt plus 5cm}QString QEWidget::defaultFileLocation (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a42e6a3ab3eff6bb67fc046ef381e28e0}
+Returns the default location to create files. Use this to create files in a consistant location \hypertarget{classQEWidget_adc57be41e71241cccfd419e0f18e9823}{
+\index{QEWidget@{QEWidget}!findQEFile@{findQEFile}}
+\index{findQEFile@{findQEFile}!QEWidget@{QEWidget}}
+\subsubsection[{findQEFile}]{\setlength{\rightskip}{0pt plus 5cm}QFile $\ast$ QEWidget::findQEFile (
+\begin{DoxyParamCaption}
+\item[{QString}]{name, }
+\item[{{\bf ContainerProfile} $\ast$}]{profile}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{classQEWidget_adc57be41e71241cccfd419e0f18e9823}
+Static method that looks for a file in a standard set of locations Returns a pointer to a QFile which is the caller's responsibility to delete, or NULL if the file was not found. \hypertarget{classQEWidget_a0c425f23275370cc852f0f294119d2a8}{
+\index{QEWidget@{QEWidget}!getColor@{getColor}}
+\index{getColor@{getColor}!QEWidget@{QEWidget}}
+\subsubsection[{getColor}]{\setlength{\rightskip}{0pt plus 5cm}QColor QEWidget::getColor (
+\begin{DoxyParamCaption}
+\item[{{\bf QCaAlarmInfo} \&}]{alarmInfo, }
+\item[{const int}]{saturation}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a0c425f23275370cc852f0f294119d2a8}
+Return a colour to update the widget's look to reflect the current alarm state Note, the color is determined by the alarmInfo class, but since that class is used in non gui applications, it can't return a QColor \hypertarget{classQEWidget_a94fb75865de45f884e17ef502c96a5a1}{
+\index{QEWidget@{QEWidget}!getFrameworkVersion@{getFrameworkVersion}}
+\index{getFrameworkVersion@{getFrameworkVersion}!QEWidget@{QEWidget}}
+\subsubsection[{getFrameworkVersion}]{\setlength{\rightskip}{0pt plus 5cm}QString QEWidget::getFrameworkVersion (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a94fb75865de45f884e17ef502c96a5a1}
+Returns the QE framework that built this instance of the widget. On windows, the QEFramework DLL may be loaded twice with potentially different versions of it. \hypertarget{classQEWidget_a01c2560967617574a9b03f3487597ffa}{
+\index{QEWidget@{QEWidget}!getMessageSourceId@{getMessageSourceId}}
+\index{getMessageSourceId@{getMessageSourceId}!QEWidget@{QEWidget}}
+\subsubsection[{getMessageSourceId}]{\setlength{\rightskip}{0pt plus 5cm}unsigned int QEWidget::getMessageSourceId (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classQEWidget_a01c2560967617574a9b03f3487597ffa}
+Get the message source ID. The message source ID is used as part of the system where QE widgets can emit a message and have the right QE widget in the right form catch the message. Refer to the \hyperlink{classUserMessage}{UserMessage} class for further details. \hypertarget{classQEWidget_a15ffecf019fe409df2a3ab487a185295}{
+\index{QEWidget@{QEWidget}!getQcaItem@{getQcaItem}}
+\index{getQcaItem@{getQcaItem}!QEWidget@{QEWidget}}
+\subsubsection[{getQcaItem}]{\setlength{\rightskip}{0pt plus 5cm}{\bf qcaobject::QCaObject} $\ast$ QEWidget::getQcaItem (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{variableIndex}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a15ffecf019fe409df2a3ab487a185295}
+Return a reference to one of the qCaObjects used to stream CA updates \hypertarget{classQEWidget_a1249c1c022d5ec63e0fa82df20356039}{
+\index{QEWidget@{QEWidget}!openQEFile@{openQEFile}}
+\index{openQEFile@{openQEFile}!QEWidget@{QEWidget}}
+\subsubsection[{openQEFile}]{\setlength{\rightskip}{0pt plus 5cm}QFile $\ast$ QEWidget::openQEFile (
+\begin{DoxyParamCaption}
+\item[{QString}]{name, }
+\item[{QFile::OpenModeFlag}]{mode}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a1249c1c022d5ec63e0fa82df20356039}
+Looks for a file in a standard set of locations (and opens the file) \hypertarget{classQEWidget_af12f955eaddc3d26f7396c45f4c19ee1}{
+\index{QEWidget@{QEWidget}!processAlarmInfo@{processAlarmInfo}}
+\index{processAlarmInfo@{processAlarmInfo}!QEWidget@{QEWidget}}
+\subsubsection[{processAlarmInfo}]{\setlength{\rightskip}{0pt plus 5cm}void QEWidget::processAlarmInfo (
+\begin{DoxyParamCaption}
+\item[{{\bf QCaAlarmInfo} \&}]{alarmInfo}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_af12f955eaddc3d26f7396c45f4c19ee1}
+This convenience function updates the alarm tool tip, and alarm status style if the displayAlarmState property is set to true -\/ assumes the widget uses standard properties. This function is perhaps most usefull for single-\/variable widgets. \hypertarget{classQEWidget_a2296525a294b725e3464b9d1fb46ccce}{
+\index{QEWidget@{QEWidget}!readNow@{readNow}}
+\index{readNow@{readNow}!QEWidget@{QEWidget}}
+\subsubsection[{readNow}]{\setlength{\rightskip}{0pt plus 5cm}void QEWidget::readNow (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a2296525a294b725e3464b9d1fb46ccce}
+Perform a single shot read on all variables (Usefull when not subscribing by default) \hypertarget{classQEWidget_abecc5c5d7dec09547bc5d2acac82190d}{
+\index{QEWidget@{QEWidget}!restoreConfiguration@{restoreConfiguration}}
+\index{restoreConfiguration@{restoreConfiguration}!QEWidget@{QEWidget}}
+\subsubsection[{restoreConfiguration}]{\setlength{\rightskip}{0pt plus 5cm}virtual void QEWidget::restoreConfiguration (
+\begin{DoxyParamCaption}
+\item[{{\bf PersistanceManager} $\ast$}]{, }
+\item[{{\bf restorePhases}}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, virtual\mbox{]}}}}
+\label{classQEWidget_abecc5c5d7dec09547bc5d2acac82190d}
+Service a request to restore the QE widget's configuration. A QE widget recover any configuration details from the \hyperlink{classPersistanceManager}{PersistanceManager}. For example, a \hyperlink{classQEStripChart}{QEStripChart} may restore the variables being plotted. Many QE widgets do not have any persistant data requirements and do not implement this method. This is called twice with an incrementing restorePhase. Most widgets will miss the first call as they don't exist yet (they are created as part of the first phase) 
+
+Reimplemented in \hyperlink{classQEPvProperties_a50a0562e96d18c08356acd6345372bd6}{QEPvProperties}, and \hyperlink{classQEStripChart_a25d6fea1c3e05fd58b55c60dcb1ef30b}{QEStripChart}.
+
+\hypertarget{classQEWidget_a661ceaf355404437497e21c9db4cb110}{
+\index{QEWidget@{QEWidget}!saveConfiguration@{saveConfiguration}}
+\index{saveConfiguration@{saveConfiguration}!QEWidget@{QEWidget}}
+\subsubsection[{saveConfiguration}]{\setlength{\rightskip}{0pt plus 5cm}virtual void QEWidget::saveConfiguration (
+\begin{DoxyParamCaption}
+\item[{{\bf PersistanceManager} $\ast$}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, virtual\mbox{]}}}}
+\label{classQEWidget_a661ceaf355404437497e21c9db4cb110}
+Service a request to save the QE widget's current configuration. A widget may save any configuration details through the \hyperlink{classPersistanceManager}{PersistanceManager}. For example, a \hyperlink{classQEStripChart}{QEStripChart} may save the variables being plotted. Many QE widgets do not have any persistant data requirements and do not implement this method. 
+
+Reimplemented in \hyperlink{classQEPvProperties_ab2114c00c762df6a841a528c34aff2f7}{QEPvProperties}, and \hyperlink{classQEStripChart_a23260e4a79a63225c0a1622b62c82ca3}{QEStripChart}.
+
+\hypertarget{classQEWidget_a9ee296007965078d55ddc26ebcc0ef5e}{
+\index{QEWidget@{QEWidget}!scaleBy@{scaleBy}}
+\index{scaleBy@{scaleBy}!QEWidget@{QEWidget}}
+\subsubsection[{scaleBy}]{\setlength{\rightskip}{0pt plus 5cm}virtual void QEWidget::scaleBy (
+\begin{DoxyParamCaption}
+\item[{const int}]{, }
+\item[{const int}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, virtual\mbox{]}}}}
+\label{classQEWidget_a9ee296007965078d55ddc26ebcc0ef5e}
+Any \hyperlink{classQEWidget}{QEWidget} that requires additional scaling, i.e. above and beyond the standard scaling applied to size, minimum size, maximum size and font size, may override this function in order to perform any bespoke scaling need by the widget (for example see \hyperlink{classQEShape}{QEShape}). The scaling is defined using a rational number specifed by two integers (m, d). The first (m) parameter is the multiplier and the second (d) parameter is the divisor. For example, if m = 4 and d = 5, then an 80\% scaling should be applied. And if m = 5 and d = 4, and a 125\% scaling is required. 
+
+Reimplemented in \hyperlink{classQEPvProperties_a9865da78029a71ff6bf9bfe75b22410e}{QEPvProperties}, and \hyperlink{classQEShape_aa6ac6986e028de5e259eea025b4ee037}{QEShape}.
+
+\hypertarget{classQEWidget_a2706e4b5748060d22eec1072e0ed0118}{
+\index{QEWidget@{QEWidget}!setMessageSourceId@{setMessageSourceId}}
+\index{setMessageSourceId@{setMessageSourceId}!QEWidget@{QEWidget}}
+\subsubsection[{setMessageSourceId}]{\setlength{\rightskip}{0pt plus 5cm}void QEWidget::setMessageSourceId (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{messageSourceId}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classQEWidget_a2706e4b5748060d22eec1072e0ed0118}
+Set the message source ID. The message source ID is used as part of the system where QE widgets can emit a message and have the right QE widget in the right form catch the message. Refer to the \hyperlink{classUserMessage}{UserMessage} class for further details. \hypertarget{classQEWidget_a2acf585f085e2734f0a184a05bf78583}{
+\index{QEWidget@{QEWidget}!setupContextMenu@{setupContextMenu}}
+\index{setupContextMenu@{setupContextMenu}!QEWidget@{QEWidget}}
+\subsubsection[{setupContextMenu}]{\setlength{\rightskip}{0pt plus 5cm}void QEWidget::setupContextMenu (
+\begin{DoxyParamCaption}
+\item[{QWidget $\ast$}]{w}
+\end{DoxyParamCaption}
+)}}
+\label{classQEWidget_a2acf585f085e2734f0a184a05bf78583}
+Take a menu widgt and add it as the context menu for this widget \hypertarget{classQEWidget_aad46c00865cd37a2221ea69fbaee8806}{
+\index{QEWidget@{QEWidget}!setVariableNameAndSubstitutions@{setVariableNameAndSubstitutions}}
+\index{setVariableNameAndSubstitutions@{setVariableNameAndSubstitutions}!QEWidget@{QEWidget}}
+\subsubsection[{setVariableNameAndSubstitutions}]{\setlength{\rightskip}{0pt plus 5cm}void QEWidget::setVariableNameAndSubstitutions (
+\begin{DoxyParamCaption}
+\item[{QString}]{variableNameIn, }
+\item[{QString}]{variableNameSubstitutionsIn, }
+\item[{unsigned int}]{variableIndex}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classQEWidget_aad46c00865cd37a2221ea69fbaee8806}
+Virtual function that may be implimented by users of \hyperlink{classQEWidget}{QEWidget} to update variable names and macro substitutions. A default is provided that is suitible in most cases. 
+
+Reimplemented in \hyperlink{classQEBitStatus_acb5b1d97dca3db6081ad4f10717fe2e6}{QEBitStatus}, and \hyperlink{classQEForm_a2c6278bcd9006668e46165459015dfc5}{QEForm}.
+
+\hypertarget{classQEWidget_ac65c36cf29373f3a850d163e7b7c5003}{
+\index{QEWidget@{QEWidget}!writeNow@{writeNow}}
+\index{writeNow@{writeNow}!QEWidget@{QEWidget}}
+\subsubsection[{writeNow}]{\setlength{\rightskip}{0pt plus 5cm}virtual void QEWidget::writeNow (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, virtual\mbox{]}}}}
+\label{classQEWidget_ac65c36cf29373f3a850d163e7b7c5003}
+(Control widgets only -\/ such as \hyperlink{classQELineEdit}{QELineEdit}) Write the value now. Used when writeOnChange, writeOnEnter, etc are all false 
+
+Reimplemented in \hyperlink{classQEGenericEdit_a22c63f981233ad42124d10eef6b7af3b}{QEGenericEdit}.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/include/QEWidget.h\item 
+/tmp/epicsqt/trunk/framework/widgets/src/QEWidget.cpp\end{DoxyCompactItemize}

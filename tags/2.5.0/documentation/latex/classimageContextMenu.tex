@@ -1,0 +1,93 @@
+\hypertarget{classimageContextMenu}{
+\section{imageContextMenu Class Reference}
+\label{classimageContextMenu}\index{imageContextMenu@{imageContextMenu}}
+}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bfseries imageContextMenuOptions} \{ \par
+{\bfseries ICM\_\-NONE} =  contextMenu::CM\_\-SPECIFIC\_\-WIDGETS\_\-START\_\-HERE, 
+{\bfseries ICM\_\-SAVE}, 
+{\bfseries ICM\_\-PAUSE}, 
+{\bfseries ICM\_\-ENABLE\_\-TIME}, 
+\par
+{\bfseries ICM\_\-ENABLE\_\-CURSOR\_\-PIXEL}, 
+{\bfseries ICM\_\-ENABLE\_\-CONTRAST\_\-REVERSAL}, 
+{\bfseries ICM\_\-ENABLE\_\-VERT}, 
+{\bfseries ICM\_\-ENABLE\_\-HOZ}, 
+\par
+{\bfseries ICM\_\-ENABLE\_\-AREA}, 
+{\bfseries ICM\_\-ENABLE\_\-LINE}, 
+{\bfseries ICM\_\-ENABLE\_\-TARGET}, 
+{\bfseries ICM\_\-DISPLAY\_\-BUTTON\_\-BAR}, 
+\par
+{\bfseries ICM\_\-DISPLAY\_\-BRIGHTNESS\_\-CONTRAST}, 
+{\bfseries ICM\_\-ZOOM\_\-SELECTED}, 
+{\bfseries ICM\_\-ZOOM\_\-FIT}, 
+{\bfseries ICM\_\-ZOOM\_\-10}, 
+\par
+{\bfseries ICM\_\-ZOOM\_\-25}, 
+{\bfseries ICM\_\-ZOOM\_\-50}, 
+{\bfseries ICM\_\-ZOOM\_\-75}, 
+{\bfseries ICM\_\-ZOOM\_\-100}, 
+\par
+{\bfseries ICM\_\-ZOOM\_\-150}, 
+{\bfseries ICM\_\-ZOOM\_\-200}, 
+{\bfseries ICM\_\-ZOOM\_\-300}, 
+{\bfseries ICM\_\-ZOOM\_\-400}, 
+\par
+{\bfseries ICM\_\-ROTATE\_\-NONE}, 
+{\bfseries ICM\_\-ROTATE\_\-RIGHT}, 
+{\bfseries ICM\_\-ROTATE\_\-LEFT}, 
+{\bfseries ICM\_\-ROTATE\_\-180}, 
+\par
+{\bfseries ICM\_\-FLIP\_\-HORIZONTAL}, 
+{\bfseries ICM\_\-FLIP\_\-VERTICAL}, 
+{\bfseries ICM\_\-SELECT\_\-PAN}, 
+{\bfseries ICM\_\-SELECT\_\-HSLICE}, 
+\par
+{\bfseries ICM\_\-SELECT\_\-VSLICE}, 
+{\bfseries ICM\_\-SELECT\_\-AREA1}, 
+{\bfseries ICM\_\-SELECT\_\-AREA2}, 
+{\bfseries ICM\_\-SELECT\_\-AREA3}, 
+\par
+{\bfseries ICM\_\-SELECT\_\-AREA4}, 
+{\bfseries ICM\_\-SELECT\_\-PROFILE}, 
+{\bfseries ICM\_\-SELECT\_\-TARGET}, 
+{\bfseries ICM\_\-SELECT\_\-BEAM}, 
+\par
+{\bfseries ICM\_\-CLEAR\_\-MARKUP}, 
+{\bfseries ICM\_\-THICKNESS\_\-ONE\_\-MARKUP}, 
+{\bfseries ICM\_\-THICKNESS\_\-SELECT\_\-MARKUP}, 
+{\bfseries ICM\_\-COPY\_\-PLOT\_\-DATA}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classimageContextMenu_a74a2d31c09f2d410ea3d1e5b6f631530}{
+{\bfseries imageContextMenu} (QWidget $\ast$parent=0)}
+\label{classimageContextMenu_a74a2d31c09f2d410ea3d1e5b6f631530}
+
+\item 
+\hypertarget{classimageContextMenu_a5f57af407bdd1d3bc5e8b9b22ac573ab}{
+void {\bfseries getContextMenuOption} (const QPoint \&, imageContextMenuOptions $\ast$option, bool $\ast$checked)}
+\label{classimageContextMenu_a5f57af407bdd1d3bc5e8b9b22ac573ab}
+
+\item 
+\hypertarget{classimageContextMenu_a92f602856915fa4717ca23f1ee56e5a5}{
+void {\bfseries addMenuItem} (const QString \&title, const bool checkable, const bool checked, const imageContextMenuOptions option)}
+\label{classimageContextMenu_a92f602856915fa4717ca23f1ee56e5a5}
+
+\item 
+\hypertarget{classimageContextMenu_af34ef9194140b925c833b78d93d27db0}{
+void {\bfseries addOptionMenuItem} (const QString \&title, const bool checkable, const bool checked, const imageContextMenuOptions option)}
+\label{classimageContextMenu_af34ef9194140b925c833b78d93d27db0}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEImage/imageContextMenu.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEImage/imageContextMenu.cpp\end{DoxyCompactItemize}

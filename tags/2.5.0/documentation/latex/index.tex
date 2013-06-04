@@ -1,0 +1,71 @@
+
+\begin{DoxyItemize}
+\item QE is a layered software framework for accessing EPICS data using Channel Access on a range of platforms.\par
+\par
+
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item The QE framework provides object oriented C++ access to control systems using EPICS (Experimental Physics and Industrial Control System). It is based on Qt, a widely used cross-\/platform application development framework.\par
+\par
+
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item GUI or console based applications can be written that use QE at several levels. QE includes Qt plugin libraries, EPICS aware widgets, data formatting classes, and classes for accessing raw EPICS data in a Qt friendly way.\par
+\par
+
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item QE also includes an application -\/ QEgui -\/ for displaying forms produced by the Qt development tool ‘Designer’. Using this application a complete EPICS GUI system can be generated without writing any code. A GUI system produced in this way can interact with existing EPICS display tools such as EDM.\par
+\par
+
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item QE handles much of the complexities of Channel Access including initiating and managing a channel. Applications using QE can interact with Channel Access using Qt based classes and data types. Channel Access updates are delivered using Qt’s signals and slots mechanism.
+\end{DoxyItemize}
+
+\hypertarget{index_documentation}{}\section{Documentation}\label{index_documentation}
+Support documents can be found in the \href{https://sourceforge.net/projects/epicsqt/files/documentation/}{\tt documentation} section of the epicsqt sourceforge project. The framework download (available on the epicsqt sourceforge \href{https://sourceforge.net/projects/epicsqt/}{\tt homepage}) also includes this documentation as well as full Doxygen generated documentation of all the epicsqt classes and widgets.\hypertarget{index_license}{}\section{License}\label{index_license}
+epicsqt is distributed under the terms of the \hyperlink{epicsqtlicense}{GNU General Public License}.\hypertarget{index_platforms}{}\section{Platforms}\label{index_platforms}
+epicsqt might be usable in all environments where you find \href{http://www.trolltech.com/products/qt}{\tt Qt}. It is compatible with Qt $>$= 4.4.\hypertarget{index_screenshotsonmainpage}{}\section{Screenshots}\label{index_screenshotsonmainpage}
+
+\begin{DoxyItemize}
+\item \hyperlink{ASguiscreenshots}{ASgui screen shots}\par
+
+\item \hyperlink{otherappscreenshots}{other applications using epicsqt widgets}\par
+
+\item \hyperlink{designerscreenshots}{Qt Designer}\par
+
+\item \hyperlink{qtcreatorscreenshots}{Qt Creator}\par
+
+\end{DoxyItemize}
+
+ Screenshots are only available in the HTML docs.\hypertarget{index_downloads}{}\section{Downloads}\label{index_downloads}
+Stable releases and development snapshots are available at the epicsqt \href{http://sourceforge.net/projects/epicsqt}{\tt project page}.
+
+For getting a development snapshot from the SVN repository: 
+\begin{DoxyCode}
+ svn svn co https://epicsqt.svn.sourceforge.net/svnroot/epicsqt epicsqt
+\end{DoxyCode}
+
+
+Alternativly, get a packaged file (epicsqt.tar.gz) from the \href{http://epicsqt.svn.sourceforge.net/viewvc/epicsqt/?view=tar}{\tt epicsqt repository site}.\hypertarget{index_installonmainpage}{}\section{Installation}\label{index_installonmainpage}
+Read \href{http://sourceforge.net/projects/epicsqt/files/documentation/QE_GettingStarted.pdf/download}{\tt QE\_\-GettingStarted.pdf} in the documentation for setting up an enviroment for building or using the epicsqt framework.\par
+ To build the framework, open epicsqt.pro in QtCreator, ensure shaddow build is turned off, and hit build.\par
+ The resultant library libQEPlugin.so will need to be installed or referenced up according to how it is to be used -\/ see QE\_\-GettingStarted.pdf for details.\par
+ Any Qt specific queries? start at \href{http://qt-project.org}{\tt the Qt Project}\hypertarget{index_support}{}\section{Support}\label{index_support}
+Visit the sourceforge epicsqt \href{http://sourceforge.net/projects/epicsqt/support}{\tt support page} for assistance.\hypertarget{index_relatedprojects}{}\section{Related Projects}\label{index_relatedprojects}
+\href{http://qwt.sourceforge.net/}{\tt Qwt}, The core of a Channel Access aware plotting widget.\hypertarget{index_credits}{}\section{Credits:}\label{index_credits}
+\begin{DoxyParagraph}{Authors: }
+Andrew Rhyder, Anthony Owen, Glenn Jackson 
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Project admin:}
+Andrew Rhyder $<$\href{mailto:andrew.rhyder@synchrotron.org.au}{\tt andrew.rhyder@synchrotron.org.au}$>$ 
+\end{DoxyParagraph}

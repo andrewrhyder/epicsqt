@@ -1,0 +1,150 @@
+\hypertarget{classUserMessage}{
+\section{UserMessage Class Reference}
+\label{classUserMessage}\index{UserMessage@{UserMessage}}
+}
+
+
+{\ttfamily \#include $<$UserMessage.h$>$}
+
+Inheritance diagram for UserMessage:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{classUserMessage}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bfseries message\_\-filter\_\-options} \{ {\bfseries MESSAGE\_\-FILTER\_\-ANY}, 
+{\bfseries MESSAGE\_\-FILTER\_\-MATCH}, 
+{\bfseries MESSAGE\_\-FILTER\_\-NONE}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classUserMessage_a5d476c21b7cdcbda62a96574621396d5}{
+void \hyperlink{classUserMessage_a5d476c21b7cdcbda62a96574621396d5}{setSourceId} (unsigned int sourceId)}
+\label{classUserMessage_a5d476c21b7cdcbda62a96574621396d5}
+
+\begin{DoxyCompactList}\small\item\em Set the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets) \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a91478faf00973a0c7b72efbfe541dcec}{
+void \hyperlink{classUserMessage_a91478faf00973a0c7b72efbfe541dcec}{setFormId} (unsigned int formId)}
+\label{classUserMessage_a91478faf00973a0c7b72efbfe541dcec}
+
+\begin{DoxyCompactList}\small\item\em Set the form ID (the the same ID for all sibling widgets within an \hyperlink{classQEForm}{QEForm} widget) \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_ab39f79176c4a73da0df22c177f7d9c26}{
+void \hyperlink{classUserMessage_ab39f79176c4a73da0df22c177f7d9c26}{setFormFilter} (message\_\-filter\_\-options formFilterIn)}
+\label{classUserMessage_ab39f79176c4a73da0df22c177f7d9c26}
+
+\begin{DoxyCompactList}\small\item\em Set the message filtering applied to the form ID. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a1e0fb779943de9904a006f6130eb597c}{
+void \hyperlink{classUserMessage_a1e0fb779943de9904a006f6130eb597c}{setSourceFilter} (message\_\-filter\_\-options sourceFilterIn)}
+\label{classUserMessage_a1e0fb779943de9904a006f6130eb597c}
+
+\begin{DoxyCompactList}\small\item\em Set the message filtering applied to the source ID. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a900c499564c8c48dba1c7dd2ab53bf41}{
+unsigned int \hyperlink{classUserMessage_a900c499564c8c48dba1c7dd2ab53bf41}{getSourceId} ()}
+\label{classUserMessage_a900c499564c8c48dba1c7dd2ab53bf41}
+
+\begin{DoxyCompactList}\small\item\em Get the source ID (the ID set up by the GUI designer, usually matched to the source ID of logging widgets. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a086c3d5af3d5b442684a0a099b9f1126}{
+unsigned int \hyperlink{classUserMessage_a086c3d5af3d5b442684a0a099b9f1126}{getFormId} ()}
+\label{classUserMessage_a086c3d5af3d5b442684a0a099b9f1126}
+
+\begin{DoxyCompactList}\small\item\em Get the form ID (the the same ID for all sibling widgets within an \hyperlink{classQEForm}{QEForm} widget) \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a342c763a4cb31a8f5d9597655b25f7a3}{
+message\_\-filter\_\-options \hyperlink{classUserMessage_a342c763a4cb31a8f5d9597655b25f7a3}{getFormFilter} ()}
+\label{classUserMessage_a342c763a4cb31a8f5d9597655b25f7a3}
+
+\begin{DoxyCompactList}\small\item\em Get the message filtering applied to the form ID. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a51393a98df511d7ad6ca594ce95ceec9}{
+message\_\-filter\_\-options \hyperlink{classUserMessage_a51393a98df511d7ad6ca594ce95ceec9}{getSourceFilter} ()}
+\label{classUserMessage_a51393a98df511d7ad6ca594ce95ceec9}
+
+\begin{DoxyCompactList}\small\item\em Get the message filtering applied to the source ID. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_aacfecaf9cfe2ad513c0b784e433c1a5d}{
+void \hyperlink{classUserMessage_aacfecaf9cfe2ad513c0b784e433c1a5d}{setChildFormId} (unsigned int)}
+\label{classUserMessage_aacfecaf9cfe2ad513c0b784e433c1a5d}
+
+\begin{DoxyCompactList}\small\item\em Set the for ID of all widgets that are children of this widget. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a1ed8ce29ef209c991bf7fe6872b787fc}{
+unsigned int \hyperlink{classUserMessage_a1ed8ce29ef209c991bf7fe6872b787fc}{getChildFormId} ()}
+\label{classUserMessage_a1ed8ce29ef209c991bf7fe6872b787fc}
+
+\begin{DoxyCompactList}\small\item\em Get the for ID of all widgets that are children of this widget. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a6acc4d4b0bb012d15f1f41d1360452b2}{
+unsigned int \hyperlink{classUserMessage_a6acc4d4b0bb012d15f1f41d1360452b2}{getNextMessageFormId} ()}
+\label{classUserMessage_a6acc4d4b0bb012d15f1f41d1360452b2}
+
+\begin{DoxyCompactList}\small\item\em Generate a new form ID for all widgets in a new form. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_ad4287bb64b8f7a8af52db1ad3356a3bf}{
+void \hyperlink{classUserMessage_ad4287bb64b8f7a8af52db1ad3356a3bf}{sendMessage} (QString message, \hyperlink{classmessage__types}{message\_\-types} type=\hyperlink{classmessage__types}{message\_\-types}(MESSAGE\_\-TYPE\_\-INFO))}
+\label{classUserMessage_ad4287bb64b8f7a8af52db1ad3356a3bf}
+
+\begin{DoxyCompactList}\small\item\em Send a message to the user. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_ab64bf3dd182ba077f75b6516ac873756}{
+void \hyperlink{classUserMessage_ab64bf3dd182ba077f75b6516ac873756}{sendMessage} (QString message, QString source, \hyperlink{classmessage__types}{message\_\-types} type=\hyperlink{classmessage__types}{message\_\-types}(MESSAGE\_\-TYPE\_\-INFO))}
+\label{classUserMessage_ab64bf3dd182ba077f75b6516ac873756}
+
+\begin{DoxyCompactList}\small\item\em Send a message to the user with a source reference. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_a260f472e675bbdb217db78dbed20af6d}{
+QString \hyperlink{classUserMessage_a260f472e675bbdb217db78dbed20af6d}{getMessageTypeName} (\hyperlink{classmessage__types}{message\_\-types} type)}
+\label{classUserMessage_a260f472e675bbdb217db78dbed20af6d}
+
+\begin{DoxyCompactList}\small\item\em Convenience function to provide string names for each message type. \end{DoxyCompactList}\item 
+\hypertarget{classUserMessage_aaa90a4f74b724bb1188307bf623f4212}{
+virtual void \hyperlink{classUserMessage_aaa90a4f74b724bb1188307bf623f4212}{newMessage} (QString, \hyperlink{classmessage__types}{message\_\-types})}
+\label{classUserMessage_aaa90a4f74b724bb1188307bf623f4212}
+
+\begin{DoxyCompactList}\small\item\em Virtual function to pass messages to derived classes (typicaly logging widgets or application windows) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classUserMessage_acade833d9cce9e3083dffc5cdaae82ed}{
+class \hyperlink{classUserMessage_acade833d9cce9e3083dffc5cdaae82ed}{UserMessageSlot}}
+\label{classUserMessage_acade833d9cce9e3083dffc5cdaae82ed}
+
+\item 
+\hypertarget{classUserMessage_a1d41035daed6a068a2173b8d8e7cf950}{
+class \hyperlink{classUserMessage_a1d41035daed6a068a2173b8d8e7cf950}{UserMessageSignal}}
+\label{classUserMessage_a1d41035daed6a068a2173b8d8e7cf950}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A class to manage user messages.
+
+This class passes messages between widgets and application code
+
+This class is used as a base class.
+
+Messages are sent by calling \hyperlink{classUserMessage_ad4287bb64b8f7a8af52db1ad3356a3bf}{sendMessage()} Messages are received by implementing \hyperlink{classUserMessage_aaa90a4f74b724bb1188307bf623f4212}{newMessage()} in the derived class.
+
+Messages can be filtered based on a source ID or a form ID
+
+The derived widget is free to set the source ID to any value
+
+Derived form widgets (\hyperlink{classQEForm}{QEForm}) get a unique form ID using \hyperlink{classUserMessage_a6acc4d4b0bb012d15f1f41d1360452b2}{getNextMessageFormId()} (as well as being able to set a source ID like any other QE widget) and pass this unique form ID to all widgets within the form using the \hyperlink{classContainerProfile}{ContainerProfile} class.
+
+Messages sent by a QE widget are received by all QE widgets and can filter the messages required by form ID and source ID. The form ID is under the management of the \hyperlink{classQEForm}{QEForm} widget, the source ID is under the control of the GUI designer.
+
+The \hyperlink{classQEForm}{QEForm} widget does not display messages, but re-\/send them using its own form ID. Read on to see how this can be used.
+
+Widgets that generate messages, and widgets (or application code) that use messages can be set up as follows:
+
+
+\begin{DoxyItemize}
+\item Application wide logging: An application with a single log window can can base a class on the \hyperlink{classUserMessage}{UserMessage} class and set up filtering to receive all messages. An application with log messages for seperate windows containing \hyperlink{classQEForm}{QEForm} widgets (such as QEGui) can base each window class on the \hyperlink{classUserMessage}{UserMessage} class, then set up filtering for the appropriate form ID.
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item Logging within a \hyperlink{classQEForm}{QEForm}. A logging widget can be set to filter matching on the current form and so will pick up messages from any sibling widget. This includes messages from a sibling widget which is a nested \hyperlink{classQEForm}{QEForm}. Whatever messages that nested form is set to receive, it will resend to its siblings. For example, if it is set to receive messages from the widgets it contains, these are resent up one level to the main form. If messages are dealt with within the nested \hyperlink{classQEForm}{QEForm} (for example, it may have its own logging QE widget) then the nested \hyperlink{classQEForm}{QEForm} could be set up not to filter and resend any messages. 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/include/UserMessage.h\item 
+/tmp/epicsqt/trunk/framework/widgets/src/UserMessage.cpp\end{DoxyCompactItemize}

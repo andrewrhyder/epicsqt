@@ -1,0 +1,67 @@
+\hypertarget{classSaveRestoreSignal}{
+\section{SaveRestoreSignal Class Reference}
+\label{classSaveRestoreSignal}\index{SaveRestoreSignal@{SaveRestoreSignal}}
+}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bfseries saveRestoreOptions} \{ {\bfseries SAVE}, 
+{\bfseries RESTORE\_\-APPLICATION}, 
+{\bfseries RESTORE\_\-QEFRAMEWORK}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSaveRestoreSignal_a310cc02c3964953c5fdf95453e5bfc58}{
+void {\bfseries saveRestore} (SaveRestoreSignal::saveRestoreOptions option)}
+\label{classSaveRestoreSignal_a310cc02c3964953c5fdf95453e5bfc58}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSaveRestoreSignal_a7b7808abf8c65190b2412d9bc0e86fa4}{
+void {\bfseries setOwner} (\hyperlink{classPersistanceManager}{PersistanceManager} $\ast$ownerIn)}
+\label{classSaveRestoreSignal_a7b7808abf8c65190b2412d9bc0e86fa4}
+
+\item 
+void \hyperlink{classSaveRestoreSignal_a5273c07f59550da8f2cb01b610920b60}{save} ()
+\item 
+void \hyperlink{classSaveRestoreSignal_a6351d1623b9ea90db18c0b9ad7ce3f4f}{restore} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classSaveRestoreSignal_a6351d1623b9ea90db18c0b9ad7ce3f4f}{
+\index{SaveRestoreSignal@{SaveRestoreSignal}!restore@{restore}}
+\index{restore@{restore}!SaveRestoreSignal@{SaveRestoreSignal}}
+\subsubsection[{restore}]{\setlength{\rightskip}{0pt plus 5cm}void SaveRestoreSignal::restore (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{classSaveRestoreSignal_a6351d1623b9ea90db18c0b9ad7ce3f4f}
+
+
+!! signal must be blocking 
+
+\hypertarget{classSaveRestoreSignal_a5273c07f59550da8f2cb01b610920b60}{
+\index{SaveRestoreSignal@{SaveRestoreSignal}!save@{save}}
+\index{save@{save}!SaveRestoreSignal@{SaveRestoreSignal}}
+\subsubsection[{save}]{\setlength{\rightskip}{0pt plus 5cm}void SaveRestoreSignal::save (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{classSaveRestoreSignal_a5273c07f59550da8f2cb01b610920b60}
+
+
+!! signal must be blocking 
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/include/persistanceManager.h\item 
+/tmp/epicsqt/trunk/framework/widgets/src/persistanceManager.cpp\end{DoxyCompactItemize}

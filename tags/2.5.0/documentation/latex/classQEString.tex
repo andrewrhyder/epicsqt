@@ -1,0 +1,55 @@
+\hypertarget{classQEString}{
+\section{QEString Class Reference}
+\label{classQEString}\index{QEString@{QEString}}
+}
+Inheritance diagram for QEString:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classQEString}
+\end{center}
+\end{figure}
+\subsection*{Public Slots}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEString_aeb89cdd6e23861198d3d7bfecfa45d16}{
+void {\bfseries writeString} (const QString \&data)}
+\label{classQEString_aeb89cdd6e23861198d3d7bfecfa45d16}
+
+\end{DoxyCompactItemize}
+\subsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEString_abdda6e268cd8ead8a4a9ba374fc623a3}{
+void {\bfseries stringConnectionChanged} (\hyperlink{classQCaConnectionInfo}{QCaConnectionInfo} \&connectionInfo, const unsigned int \&variableIndex)}
+\label{classQEString_abdda6e268cd8ead8a4a9ba374fc623a3}
+
+\item 
+\hypertarget{classQEString_a70a333ffcf04d0051800db83da176290}{
+void {\bfseries stringChanged} (const QString \&value, \hyperlink{classQCaAlarmInfo}{QCaAlarmInfo} \&alarmInfo, \hyperlink{classQCaDateTime}{QCaDateTime} \&timeStamp, const unsigned int \&variableIndex)}
+\label{classQEString_a70a333ffcf04d0051800db83da176290}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEString_ac6ddd3ccf8e1ba581d8f88b813cfd19f}{
+{\bfseries QEString} (QString recordName, QObject $\ast$eventObject, \hyperlink{classQEStringFormatting}{QEStringFormatting} $\ast$stringFormattingIn, unsigned int variableIndexIn)}
+\label{classQEString_ac6ddd3ccf8e1ba581d8f88b813cfd19f}
+
+\item 
+\hypertarget{classQEString_a003299b6fbc829c7b586e7213d83697c}{
+{\bfseries QEString} (QString recordName, QObject $\ast$eventObject, \hyperlink{classQEStringFormatting}{QEStringFormatting} $\ast$stringFormattingIn, unsigned int variableIndexIn, \hyperlink{classUserMessage}{UserMessage} $\ast$userMessageIn)}
+\label{classQEString_a003299b6fbc829c7b586e7213d83697c}
+
+\item 
+\hypertarget{classQEString_ab0d3f164579b23ea546441fa71a405d5}{
+bool {\bfseries writeString} (const QString \&data, QString \&message)}
+\label{classQEString_ab0d3f164579b23ea546441fa71a405d5}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/data/include/QEString.h\item 
+/tmp/epicsqt/trunk/framework/data/src/QEString.cpp\end{DoxyCompactItemize}

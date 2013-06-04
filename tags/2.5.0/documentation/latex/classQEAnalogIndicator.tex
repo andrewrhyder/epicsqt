@@ -1,0 +1,433 @@
+\hypertarget{classQEAnalogIndicator}{
+\section{QEAnalogIndicator Class Reference}
+\label{classQEAnalogIndicator}\index{QEAnalogIndicator@{QEAnalogIndicator}}
+}
+
+
+{\ttfamily \#include $<$QEAnalogIndicator.h$>$}
+
+Inheritance diagram for QEAnalogIndicator:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classQEAnalogIndicator}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structQEAnalogIndicator_1_1Band}{Band}
+\item 
+class \hyperlink{classQEAnalogIndicator_1_1BandList}{BandList}
+\end{DoxyCompactItemize}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbc}{Orientations} \{ \hyperlink{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbcae2aad92dc05cf59a5bc78c6b1f3443eb}{Left\_\-To\_\-Right}, 
+\hyperlink{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbca76c9cb80937b37d78b1a0a1b8201fa66}{Top\_\-To\_\-Bottom}, 
+\hyperlink{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbcac8d11ea24ddbb3b57fed45c74b071cc8}{Right\_\-To\_\-Left}, 
+\hyperlink{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbca29f286d5bbb01a653565db49f33db34c}{Bottom\_\-To\_\-Top}
+ \}
+\item 
+enum \hyperlink{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724}{Modes} \{ \hyperlink{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724a4be72d6b96cfbbb8c0ad7efb5da6360b}{Bar}, 
+\hyperlink{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724a8b1456174555ea28c6a5e5c2b8a6f3de}{Scale}, 
+\hyperlink{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724ab3a2b4d488bfdfe1864c171c44d8d214}{Meter}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Slots}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEAnalogIndicator_a11b88174c6690b26c89e86c876237362}{
+void {\bfseries setRange} (const double MinimumIn, const double MaximumIn)}
+\label{classQEAnalogIndicator_a11b88174c6690b26c89e86c876237362}
+
+\item 
+\hypertarget{classQEAnalogIndicator_aee5248686a351a16d03ed40d067fe19d}{
+void {\bfseries setValue} (const double ValueIn)}
+\label{classQEAnalogIndicator_aee5248686a351a16d03ed40d067fe19d}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEAnalogIndicator_a69e03d6236adcbb0574693bfe2bc9297}{
+\hyperlink{classQEAnalogIndicator_a69e03d6236adcbb0574693bfe2bc9297}{QEAnalogIndicator} (QWidget $\ast$parent=0)}
+\label{classQEAnalogIndicator_a69e03d6236adcbb0574693bfe2bc9297}
+
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a00ac395a5adf71c16f4a2e17ca75f4b9}{
+virtual \hyperlink{classQEAnalogIndicator_a00ac395a5adf71c16f4a2e17ca75f4b9}{$\sim$QEAnalogIndicator} ()}
+\label{classQEAnalogIndicator_a00ac395a5adf71c16f4a2e17ca75f4b9}
+
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_ab837e1ec96e71a7c5677c5ff004fe0cc}{
+virtual QSize \hyperlink{classQEAnalogIndicator_ab837e1ec96e71a7c5677c5ff004fe0cc}{sizeHint} () const }
+\label{classQEAnalogIndicator_ab837e1ec96e71a7c5677c5ff004fe0cc}
+
+\begin{DoxyCompactList}\small\item\em Size hint. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a8c56bd97ffb810a387ff17b82829befc}{
+double \hyperlink{classQEAnalogIndicator_a8c56bd97ffb810a387ff17b82829befc}{getValue} ()}
+\label{classQEAnalogIndicator_a8c56bd97ffb810a387ff17b82829befc}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_ad6440740a8cf86c832157ba7930b48b0}{value} property -\/ refer to \hyperlink{classQEAnalogIndicator_ad6440740a8cf86c832157ba7930b48b0}{value} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a134a1abb19567eb950bdc831ea18f50e}{
+void \hyperlink{classQEAnalogIndicator_a134a1abb19567eb950bdc831ea18f50e}{setMinimum} (const double value)}
+\label{classQEAnalogIndicator_a134a1abb19567eb950bdc831ea18f50e}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a1a1951474ce2320093474dd6d85b6c06}{minimum} -\/ refer to \hyperlink{classQEAnalogIndicator_a1a1951474ce2320093474dd6d85b6c06}{minimum} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a78c43e406718b7debd825f61b278f5cf}{
+double \hyperlink{classQEAnalogIndicator_a78c43e406718b7debd825f61b278f5cf}{getMinimum} ()}
+\label{classQEAnalogIndicator_a78c43e406718b7debd825f61b278f5cf}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a1a1951474ce2320093474dd6d85b6c06}{minimum} -\/ refer to \hyperlink{classQEAnalogIndicator_a1a1951474ce2320093474dd6d85b6c06}{minimum} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a35d6685090869051af10d2765f579b39}{
+void \hyperlink{classQEAnalogIndicator_a35d6685090869051af10d2765f579b39}{setMaximum} (const double value)}
+\label{classQEAnalogIndicator_a35d6685090869051af10d2765f579b39}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_ab18f5d6ec3bac26d8bd3e200be49942a}{maximum} -\/ refer to \hyperlink{classQEAnalogIndicator_ab18f5d6ec3bac26d8bd3e200be49942a}{maximum} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a42658d336672881c67b5344be39cb365}{
+double \hyperlink{classQEAnalogIndicator_a42658d336672881c67b5344be39cb365}{getMaximum} ()}
+\label{classQEAnalogIndicator_a42658d336672881c67b5344be39cb365}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_ab18f5d6ec3bac26d8bd3e200be49942a}{maximum} -\/ refer to \hyperlink{classQEAnalogIndicator_ab18f5d6ec3bac26d8bd3e200be49942a}{maximum} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a87d20cdbd4e202c461545490177f73d0}{
+void \hyperlink{classQEAnalogIndicator_a87d20cdbd4e202c461545490177f73d0}{setOrientation} (const enum \hyperlink{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbc}{Orientations} value)}
+\label{classQEAnalogIndicator_a87d20cdbd4e202c461545490177f73d0}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a86620e24243bd0ef449e07bdb6778720}{orientation} -\/ refer to \hyperlink{classQEAnalogIndicator_a86620e24243bd0ef449e07bdb6778720}{orientation} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a16f8ec202658de27f0da5ed0d772f421}{
+enum \hyperlink{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbc}{Orientations} \hyperlink{classQEAnalogIndicator_a16f8ec202658de27f0da5ed0d772f421}{getOrientation} ()}
+\label{classQEAnalogIndicator_a16f8ec202658de27f0da5ed0d772f421}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a86620e24243bd0ef449e07bdb6778720}{orientation} -\/ refer to \hyperlink{classQEAnalogIndicator_a86620e24243bd0ef449e07bdb6778720}{orientation} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a52154be06cea709f42d99581341c7387}{
+void \hyperlink{classQEAnalogIndicator_a52154be06cea709f42d99581341c7387}{setMode} (const enum \hyperlink{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724}{Modes} value)}
+\label{classQEAnalogIndicator_a52154be06cea709f42d99581341c7387}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_acfe714eddf4dbffca49c3719e006027d}{mode} -\/ refer to \hyperlink{classQEAnalogIndicator_acfe714eddf4dbffca49c3719e006027d}{mode} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a66e8f28c4a2f7cad8f930a053c356e8f}{
+enum \hyperlink{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724}{Modes} \hyperlink{classQEAnalogIndicator_a66e8f28c4a2f7cad8f930a053c356e8f}{getMode} ()}
+\label{classQEAnalogIndicator_a66e8f28c4a2f7cad8f930a053c356e8f}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_acfe714eddf4dbffca49c3719e006027d}{mode} -\/ refer to \hyperlink{classQEAnalogIndicator_acfe714eddf4dbffca49c3719e006027d}{mode} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_ae8715bd9a43cc2781de2fdb4d1f76905}{
+void \hyperlink{classQEAnalogIndicator_ae8715bd9a43cc2781de2fdb4d1f76905}{setCentreAngle} (const int value)}
+\label{classQEAnalogIndicator_ae8715bd9a43cc2781de2fdb4d1f76905}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a8d0b385d12db1960b0d6b9266a1027f0}{centreAngle} -\/ refer to \hyperlink{classQEAnalogIndicator_a8d0b385d12db1960b0d6b9266a1027f0}{centreAngle} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_ac7444b9c4783f5c60fbad31481e09a3f}{
+int \hyperlink{classQEAnalogIndicator_ac7444b9c4783f5c60fbad31481e09a3f}{getCentreAngle} ()}
+\label{classQEAnalogIndicator_ac7444b9c4783f5c60fbad31481e09a3f}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a8d0b385d12db1960b0d6b9266a1027f0}{centreAngle} -\/ refer to \hyperlink{classQEAnalogIndicator_a8d0b385d12db1960b0d6b9266a1027f0}{centreAngle} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_aa0768aba8a3d9404ada7fd8368037c4b}{
+void \hyperlink{classQEAnalogIndicator_aa0768aba8a3d9404ada7fd8368037c4b}{setSpanAngle} (const int value)}
+\label{classQEAnalogIndicator_aa0768aba8a3d9404ada7fd8368037c4b}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a729a2313bdac9b7d6d49ecd4158d0aea}{spanAngle} -\/ refer to \hyperlink{classQEAnalogIndicator_a729a2313bdac9b7d6d49ecd4158d0aea}{spanAngle} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_ad9dd740f2690f9bac7d23bb1cd3b744c}{
+int \hyperlink{classQEAnalogIndicator_ad9dd740f2690f9bac7d23bb1cd3b744c}{getSpanAngle} ()}
+\label{classQEAnalogIndicator_ad9dd740f2690f9bac7d23bb1cd3b744c}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a729a2313bdac9b7d6d49ecd4158d0aea}{spanAngle} -\/ refer to \hyperlink{classQEAnalogIndicator_a729a2313bdac9b7d6d49ecd4158d0aea}{spanAngle} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a963a9f0b29b99b218f12d28d27a8d150}{
+void \hyperlink{classQEAnalogIndicator_a963a9f0b29b99b218f12d28d27a8d150}{setMinorInterval} (const double value)}
+\label{classQEAnalogIndicator_a963a9f0b29b99b218f12d28d27a8d150}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a8727d8c84409a4b1c51c0c4140c65a45}{minorInterval} -\/ refer to \hyperlink{classQEAnalogIndicator_a8727d8c84409a4b1c51c0c4140c65a45}{minorInterval} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a0893c3622a3766eeebceb174bfcf2e1d}{
+double \hyperlink{classQEAnalogIndicator_a0893c3622a3766eeebceb174bfcf2e1d}{getMinorInterval} ()}
+\label{classQEAnalogIndicator_a0893c3622a3766eeebceb174bfcf2e1d}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a8727d8c84409a4b1c51c0c4140c65a45}{minorInterval} -\/ refer to \hyperlink{classQEAnalogIndicator_a8727d8c84409a4b1c51c0c4140c65a45}{minorInterval} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a172c6704657f2d5b3359ed13c32b00ae}{
+void \hyperlink{classQEAnalogIndicator_a172c6704657f2d5b3359ed13c32b00ae}{setMajorInterval} (const double value)}
+\label{classQEAnalogIndicator_a172c6704657f2d5b3359ed13c32b00ae}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a9b3fb4ab140aacdaa66b0c02df3d5a3e}{majorInterval} -\/ refer to \hyperlink{classQEAnalogIndicator_a9b3fb4ab140aacdaa66b0c02df3d5a3e}{majorInterval} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_af3e32c2a52f1eb2e20a78ecc94b1bb35}{
+double \hyperlink{classQEAnalogIndicator_af3e32c2a52f1eb2e20a78ecc94b1bb35}{getMajorInterval} ()}
+\label{classQEAnalogIndicator_af3e32c2a52f1eb2e20a78ecc94b1bb35}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a9b3fb4ab140aacdaa66b0c02df3d5a3e}{majorInterval} -\/ refer to \hyperlink{classQEAnalogIndicator_a9b3fb4ab140aacdaa66b0c02df3d5a3e}{majorInterval} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_ae5bd2899109bae2ad58350ebdc30fcac}{
+void \hyperlink{classQEAnalogIndicator_ae5bd2899109bae2ad58350ebdc30fcac}{setLogScaleInterval} (const int value)}
+\label{classQEAnalogIndicator_ae5bd2899109bae2ad58350ebdc30fcac}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a7ca36f10b9a6b449aa8acbe754d5e4c3}{logScaleInterval} -\/ refer to \hyperlink{classQEAnalogIndicator_a7ca36f10b9a6b449aa8acbe754d5e4c3}{logScaleInterval} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_af287bc68004ec40934bc6dec695ceea6}{
+int \hyperlink{classQEAnalogIndicator_af287bc68004ec40934bc6dec695ceea6}{getLogScaleInterval} ()}
+\label{classQEAnalogIndicator_af287bc68004ec40934bc6dec695ceea6}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a7ca36f10b9a6b449aa8acbe754d5e4c3}{logScaleInterval} -\/ refer to \hyperlink{classQEAnalogIndicator_a7ca36f10b9a6b449aa8acbe754d5e4c3}{logScaleInterval} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a8d624591946c8dcb2fcdbcb86cc9c563}{
+void \hyperlink{classQEAnalogIndicator_a8d624591946c8dcb2fcdbcb86cc9c563}{setBorderColour} (const QColor value)}
+\label{classQEAnalogIndicator_a8d624591946c8dcb2fcdbcb86cc9c563}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a001418f50a836dae0cf488dceae6ce0d}{borderColour} -\/ refer to \hyperlink{classQEAnalogIndicator_a001418f50a836dae0cf488dceae6ce0d}{borderColour} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_ade765bd4ce696220601550ceadcb9070}{
+QColor \hyperlink{classQEAnalogIndicator_ade765bd4ce696220601550ceadcb9070}{getBorderColour} ()}
+\label{classQEAnalogIndicator_ade765bd4ce696220601550ceadcb9070}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a001418f50a836dae0cf488dceae6ce0d}{borderColour} -\/ refer to \hyperlink{classQEAnalogIndicator_a001418f50a836dae0cf488dceae6ce0d}{borderColour} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a69eac13a9ccc7c63c649eea9a2f7b96a}{
+void \hyperlink{classQEAnalogIndicator_a69eac13a9ccc7c63c649eea9a2f7b96a}{setForegroundColour} (const QColor value)}
+\label{classQEAnalogIndicator_a69eac13a9ccc7c63c649eea9a2f7b96a}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a8a9d5b7e1181aeddf3a7022ebff74126}{foregroundColour} -\/ refer to \hyperlink{classQEAnalogIndicator_a8a9d5b7e1181aeddf3a7022ebff74126}{foregroundColour} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_acfa92a843a874e54cdd29cc819340687}{
+QColor \hyperlink{classQEAnalogIndicator_acfa92a843a874e54cdd29cc819340687}{getForegroundColour} ()}
+\label{classQEAnalogIndicator_acfa92a843a874e54cdd29cc819340687}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a8a9d5b7e1181aeddf3a7022ebff74126}{foregroundColour} -\/ refer to \hyperlink{classQEAnalogIndicator_a8a9d5b7e1181aeddf3a7022ebff74126}{foregroundColour} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a0d42ef3aa11c005f1da8116d1ea265ad}{
+void \hyperlink{classQEAnalogIndicator_a0d42ef3aa11c005f1da8116d1ea265ad}{setBackgroundColour} (const QColor value)}
+\label{classQEAnalogIndicator_a0d42ef3aa11c005f1da8116d1ea265ad}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a57c6c5f75b77abe25fc6c01803a4c03d}{backgroundColour} -\/ refer to \hyperlink{classQEAnalogIndicator_a57c6c5f75b77abe25fc6c01803a4c03d}{backgroundColour} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a191218338a740044854d431aa02b3ac1}{
+QColor \hyperlink{classQEAnalogIndicator_a191218338a740044854d431aa02b3ac1}{getBackgroundColour} ()}
+\label{classQEAnalogIndicator_a191218338a740044854d431aa02b3ac1}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a57c6c5f75b77abe25fc6c01803a4c03d}{backgroundColour} -\/ refer to \hyperlink{classQEAnalogIndicator_a57c6c5f75b77abe25fc6c01803a4c03d}{backgroundColour} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a7737fc197aa344c303c61b5a7fce9817}{
+void \hyperlink{classQEAnalogIndicator_a7737fc197aa344c303c61b5a7fce9817}{setFontColour} (const QColor value)}
+\label{classQEAnalogIndicator_a7737fc197aa344c303c61b5a7fce9817}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_aa469d827ef97d89741a1eacf37c10086}{fontColour} -\/ refer to \hyperlink{classQEAnalogIndicator_aa469d827ef97d89741a1eacf37c10086}{fontColour} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_acd403eed6ee973de59b57b13f922103f}{
+QColor \hyperlink{classQEAnalogIndicator_acd403eed6ee973de59b57b13f922103f}{getFontColour} ()}
+\label{classQEAnalogIndicator_acd403eed6ee973de59b57b13f922103f}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_aa469d827ef97d89741a1eacf37c10086}{fontColour} -\/ refer to \hyperlink{classQEAnalogIndicator_aa469d827ef97d89741a1eacf37c10086}{fontColour} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a41a2417b02c1e6e963e87ff423b1d655}{
+void \hyperlink{classQEAnalogIndicator_a41a2417b02c1e6e963e87ff423b1d655}{setShowText} (const bool value)}
+\label{classQEAnalogIndicator_a41a2417b02c1e6e963e87ff423b1d655}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_af21560a34b89683bbf1d86733522a684}{showText} -\/ refer to \hyperlink{classQEAnalogIndicator_af21560a34b89683bbf1d86733522a684}{showText} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_af47a08a8e51dc9baaf47fc438c7d534a}{
+bool \hyperlink{classQEAnalogIndicator_af47a08a8e51dc9baaf47fc438c7d534a}{getShowText} ()}
+\label{classQEAnalogIndicator_af47a08a8e51dc9baaf47fc438c7d534a}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_af21560a34b89683bbf1d86733522a684}{showText} -\/ refer to \hyperlink{classQEAnalogIndicator_af21560a34b89683bbf1d86733522a684}{showText} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a94347fb9b9c9602925300cfbeda10f0b}{
+void \hyperlink{classQEAnalogIndicator_a94347fb9b9c9602925300cfbeda10f0b}{setShowScale} (const bool value)}
+\label{classQEAnalogIndicator_a94347fb9b9c9602925300cfbeda10f0b}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a5566b124bcc23b20c784490ebb5e0095}{showScale} -\/ refer to \hyperlink{classQEAnalogIndicator_a5566b124bcc23b20c784490ebb5e0095}{showScale} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_aee6289ce3e36c51a1db5c8f9775f710d}{
+bool \hyperlink{classQEAnalogIndicator_aee6289ce3e36c51a1db5c8f9775f710d}{getShowScale} ()}
+\label{classQEAnalogIndicator_aee6289ce3e36c51a1db5c8f9775f710d}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_a5566b124bcc23b20c784490ebb5e0095}{showScale} -\/ refer to \hyperlink{classQEAnalogIndicator_a5566b124bcc23b20c784490ebb5e0095}{showScale} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a373c22f941c5127f115dde43165a4e3f}{
+void \hyperlink{classQEAnalogIndicator_a373c22f941c5127f115dde43165a4e3f}{setLogScale} (const bool value)}
+\label{classQEAnalogIndicator_a373c22f941c5127f115dde43165a4e3f}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_ad68533fcf52035397d9fb01086ab957c}{logScale} -\/ refer to \hyperlink{classQEAnalogIndicator_ad68533fcf52035397d9fb01086ab957c}{logScale} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEAnalogIndicator_a11e68230113fb818abdc772227e3574b}{
+bool \hyperlink{classQEAnalogIndicator_a11e68230113fb818abdc772227e3574b}{getLogScale} ()}
+\label{classQEAnalogIndicator_a11e68230113fb818abdc772227e3574b}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEAnalogIndicator_ad68533fcf52035397d9fb01086ab957c}{logScale} -\/ refer to \hyperlink{classQEAnalogIndicator_ad68533fcf52035397d9fb01086ab957c}{logScale} property for details. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEAnalogIndicator_aaf3b7c4d82ec2a4c9edb607e53c932cf}{
+virtual QString {\bfseries getTextImage} ()}
+\label{classQEAnalogIndicator_aaf3b7c4d82ec2a4c9edb607e53c932cf}
+
+\item 
+\hypertarget{classQEAnalogIndicator_a892765b187e3a09e5c9ee17bd1d5da59}{
+virtual \hyperlink{classQEAnalogIndicator_1_1BandList}{BandList} {\bfseries getBandList} ()}
+\label{classQEAnalogIndicator_a892765b187e3a09e5c9ee17bd1d5da59}
+
+\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+double \hyperlink{classQEAnalogIndicator_ad6440740a8cf86c832157ba7930b48b0}{value}
+\item 
+double \hyperlink{classQEAnalogIndicator_a1a1951474ce2320093474dd6d85b6c06}{minimum}
+\item 
+double \hyperlink{classQEAnalogIndicator_ab18f5d6ec3bac26d8bd3e200be49942a}{maximum}
+\item 
+double \hyperlink{classQEAnalogIndicator_a8727d8c84409a4b1c51c0c4140c65a45}{minorInterval}
+\item 
+double \hyperlink{classQEAnalogIndicator_a9b3fb4ab140aacdaa66b0c02df3d5a3e}{majorInterval}
+\item 
+int \hyperlink{classQEAnalogIndicator_a7ca36f10b9a6b449aa8acbe754d5e4c3}{logScaleInterval}
+\item 
+bool \hyperlink{classQEAnalogIndicator_af21560a34b89683bbf1d86733522a684}{showText}
+\item 
+bool \hyperlink{classQEAnalogIndicator_a5566b124bcc23b20c784490ebb5e0095}{showScale}
+\item 
+bool \hyperlink{classQEAnalogIndicator_ad68533fcf52035397d9fb01086ab957c}{logScale}
+\item 
+\hyperlink{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724}{Modes} \hyperlink{classQEAnalogIndicator_acfe714eddf4dbffca49c3719e006027d}{mode}
+\item 
+\hyperlink{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbc}{Orientations} \hyperlink{classQEAnalogIndicator_a86620e24243bd0ef449e07bdb6778720}{orientation}
+\item 
+int \hyperlink{classQEAnalogIndicator_a8d0b385d12db1960b0d6b9266a1027f0}{centreAngle}
+\item 
+int \hyperlink{classQEAnalogIndicator_a729a2313bdac9b7d6d49ecd4158d0aea}{spanAngle}
+\item 
+QColor \hyperlink{classQEAnalogIndicator_a001418f50a836dae0cf488dceae6ce0d}{borderColour}
+\item 
+QColor \hyperlink{classQEAnalogIndicator_a57c6c5f75b77abe25fc6c01803a4c03d}{backgroundColour}
+\item 
+QColor \hyperlink{classQEAnalogIndicator_a8a9d5b7e1181aeddf3a7022ebff74126}{foregroundColour}
+\item 
+QColor \hyperlink{classQEAnalogIndicator_aa469d827ef97d89741a1eacf37c10086}{fontColour}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class provides a non CA aware graphical analog indicator base class. It supports a number of display modes including Bar, Scale and Meter.
+
+When in Bar mode, it mimics QProgressBar and provides an analog progress bar widget. 
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!Modes@{Modes}}
+\index{Modes@{Modes}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{Modes}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEAnalogIndicator::Modes}}}
+\label{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724}
+The type of analog indicator used to represent the value \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Bar@{Bar}!QEAnalogIndicator@{QEAnalogIndicator}}\index{QEAnalogIndicator@{QEAnalogIndicator}!Bar@{Bar}}\item[{\em 
+\hypertarget{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724a4be72d6b96cfbbb8c0ad7efb5da6360b}{
+Bar}
+\label{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724a4be72d6b96cfbbb8c0ad7efb5da6360b}
+}]Bar (solid bar from minimum up to current value) \index{Scale@{Scale}!QEAnalogIndicator@{QEAnalogIndicator}}\index{QEAnalogIndicator@{QEAnalogIndicator}!Scale@{Scale}}\item[{\em 
+\hypertarget{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724a8b1456174555ea28c6a5e5c2b8a6f3de}{
+Scale}
+\label{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724a8b1456174555ea28c6a5e5c2b8a6f3de}
+}]Scale (diamond marker tracks current value) \index{Meter@{Meter}!QEAnalogIndicator@{QEAnalogIndicator}}\index{QEAnalogIndicator@{QEAnalogIndicator}!Meter@{Meter}}\item[{\em 
+\hypertarget{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724ab3a2b4d488bfdfe1864c171c44d8d214}{
+Meter}
+\label{classQEAnalogIndicator_a3f42266f1b130ee612e6187fd146a724ab3a2b4d488bfdfe1864c171c44d8d214}
+}]Meter (Needle moving across an arc scale) \end{description}
+\end{Desc}
+
+\hypertarget{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbc}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!Orientations@{Orientations}}
+\index{Orientations@{Orientations}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{Orientations}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEAnalogIndicator::Orientations}}}
+\label{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbc}
+The orientation of Bar and Scale indicators \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{Left\_\-To\_\-Right@{Left\_\-To\_\-Right}!QEAnalogIndicator@{QEAnalogIndicator}}\index{QEAnalogIndicator@{QEAnalogIndicator}!Left\_\-To\_\-Right@{Left\_\-To\_\-Right}}\item[{\em 
+\hypertarget{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbcae2aad92dc05cf59a5bc78c6b1f3443eb}{
+Left\_\-To\_\-Right}
+\label{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbcae2aad92dc05cf59a5bc78c6b1f3443eb}
+}]Left to right. \index{Top\_\-To\_\-Bottom@{Top\_\-To\_\-Bottom}!QEAnalogIndicator@{QEAnalogIndicator}}\index{QEAnalogIndicator@{QEAnalogIndicator}!Top\_\-To\_\-Bottom@{Top\_\-To\_\-Bottom}}\item[{\em 
+\hypertarget{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbca76c9cb80937b37d78b1a0a1b8201fa66}{
+Top\_\-To\_\-Bottom}
+\label{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbca76c9cb80937b37d78b1a0a1b8201fa66}
+}]Top to bottom. \index{Right\_\-To\_\-Left@{Right\_\-To\_\-Left}!QEAnalogIndicator@{QEAnalogIndicator}}\index{QEAnalogIndicator@{QEAnalogIndicator}!Right\_\-To\_\-Left@{Right\_\-To\_\-Left}}\item[{\em 
+\hypertarget{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbcac8d11ea24ddbb3b57fed45c74b071cc8}{
+Right\_\-To\_\-Left}
+\label{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbcac8d11ea24ddbb3b57fed45c74b071cc8}
+}]Right to left. \index{Bottom\_\-To\_\-Top@{Bottom\_\-To\_\-Top}!QEAnalogIndicator@{QEAnalogIndicator}}\index{QEAnalogIndicator@{QEAnalogIndicator}!Bottom\_\-To\_\-Top@{Bottom\_\-To\_\-Top}}\item[{\em 
+\hypertarget{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbca29f286d5bbb01a653565db49f33db34c}{
+Bottom\_\-To\_\-Top}
+\label{classQEAnalogIndicator_a61edf87791775f2c2e203f93ab4ebfbca29f286d5bbb01a653565db49f33db34c}
+}]Bottom to top. \end{description}
+\end{Desc}
+
+
+
+\subsection{Property Documentation}
+\hypertarget{classQEAnalogIndicator_a57c6c5f75b77abe25fc6c01803a4c03d}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!backgroundColour@{backgroundColour}}
+\index{backgroundColour@{backgroundColour}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{backgroundColour}]{\setlength{\rightskip}{0pt plus 5cm}QColor QEAnalogIndicator::backgroundColour\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a57c6c5f75b77abe25fc6c01803a4c03d}
+Background colour \hypertarget{classQEAnalogIndicator_a001418f50a836dae0cf488dceae6ce0d}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!borderColour@{borderColour}}
+\index{borderColour@{borderColour}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{borderColour}]{\setlength{\rightskip}{0pt plus 5cm}QColor QEAnalogIndicator::borderColour\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a001418f50a836dae0cf488dceae6ce0d}
+Border colour \hypertarget{classQEAnalogIndicator_a8d0b385d12db1960b0d6b9266a1027f0}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!centreAngle@{centreAngle}}
+\index{centreAngle@{centreAngle}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{centreAngle}]{\setlength{\rightskip}{0pt plus 5cm}int QEAnalogIndicator::centreAngle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a8d0b385d12db1960b0d6b9266a1027f0}
+The angle in degreed of the line that Meter indicators are centered around. Zero represents a vertical centerline and angles increment clockwise. \hypertarget{classQEAnalogIndicator_aa469d827ef97d89741a1eacf37c10086}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!fontColour@{fontColour}}
+\index{fontColour@{fontColour}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{fontColour}]{\setlength{\rightskip}{0pt plus 5cm}QColor QEAnalogIndicator::fontColour\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_aa469d827ef97d89741a1eacf37c10086}
+Font colour \hypertarget{classQEAnalogIndicator_a8a9d5b7e1181aeddf3a7022ebff74126}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!foregroundColour@{foregroundColour}}
+\index{foregroundColour@{foregroundColour}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{foregroundColour}]{\setlength{\rightskip}{0pt plus 5cm}QColor QEAnalogIndicator::foregroundColour\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a8a9d5b7e1181aeddf3a7022ebff74126}
+Foreground colour \hypertarget{classQEAnalogIndicator_ad68533fcf52035397d9fb01086ab957c}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!logScale@{logScale}}
+\index{logScale@{logScale}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{logScale}]{\setlength{\rightskip}{0pt plus 5cm}bool QEAnalogIndicator::logScale\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_ad68533fcf52035397d9fb01086ab957c}
+If set, use a logarithmic scale. If clear, use a linear scale \hypertarget{classQEAnalogIndicator_a7ca36f10b9a6b449aa8acbe754d5e4c3}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!logScaleInterval@{logScaleInterval}}
+\index{logScaleInterval@{logScaleInterval}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{logScaleInterval}]{\setlength{\rightskip}{0pt plus 5cm}int QEAnalogIndicator::logScaleInterval\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a7ca36f10b9a6b449aa8acbe754d5e4c3}
+Log scale interval. \hypertarget{classQEAnalogIndicator_a9b3fb4ab140aacdaa66b0c02df3d5a3e}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!majorInterval@{majorInterval}}
+\index{majorInterval@{majorInterval}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{majorInterval}]{\setlength{\rightskip}{0pt plus 5cm}double QEAnalogIndicator::majorInterval\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a9b3fb4ab140aacdaa66b0c02df3d5a3e}
+Minor scale interval. Only applies for linear scale (not log scale) \hypertarget{classQEAnalogIndicator_ab18f5d6ec3bac26d8bd3e200be49942a}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!maximum@{maximum}}
+\index{maximum@{maximum}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{maximum}]{\setlength{\rightskip}{0pt plus 5cm}double QEAnalogIndicator::maximum\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_ab18f5d6ec3bac26d8bd3e200be49942a}
+Maximum indicated value. \hypertarget{classQEAnalogIndicator_a1a1951474ce2320093474dd6d85b6c06}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!minimum@{minimum}}
+\index{minimum@{minimum}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{minimum}]{\setlength{\rightskip}{0pt plus 5cm}double QEAnalogIndicator::minimum\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a1a1951474ce2320093474dd6d85b6c06}
+Minimum indicated value. \hypertarget{classQEAnalogIndicator_a8727d8c84409a4b1c51c0c4140c65a45}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!minorInterval@{minorInterval}}
+\index{minorInterval@{minorInterval}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{minorInterval}]{\setlength{\rightskip}{0pt plus 5cm}double QEAnalogIndicator::minorInterval\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a8727d8c84409a4b1c51c0c4140c65a45}
+Minor scale interval. Only applies for linear scale (not log scale) \hypertarget{classQEAnalogIndicator_acfe714eddf4dbffca49c3719e006027d}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!mode@{mode}}
+\index{mode@{mode}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{mode}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Modes} QEAnalogIndicator::mode\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_acfe714eddf4dbffca49c3719e006027d}
+Selects what type of indicator is used (refer to Modes) \hypertarget{classQEAnalogIndicator_a86620e24243bd0ef449e07bdb6778720}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!orientation@{orientation}}
+\index{orientation@{orientation}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{orientation}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Orientations} QEAnalogIndicator::orientation\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a86620e24243bd0ef449e07bdb6778720}
+The orientation of Bar and Scale indicators (refer to Orientations) \hypertarget{classQEAnalogIndicator_a5566b124bcc23b20c784490ebb5e0095}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!showScale@{showScale}}
+\index{showScale@{showScale}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{showScale}]{\setlength{\rightskip}{0pt plus 5cm}bool QEAnalogIndicator::showScale\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a5566b124bcc23b20c784490ebb5e0095}
+If set, show the scale \hypertarget{classQEAnalogIndicator_af21560a34b89683bbf1d86733522a684}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!showText@{showText}}
+\index{showText@{showText}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{showText}]{\setlength{\rightskip}{0pt plus 5cm}bool QEAnalogIndicator::showText\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_af21560a34b89683bbf1d86733522a684}
+If set, show textual representation of value on the indicator \hypertarget{classQEAnalogIndicator_a729a2313bdac9b7d6d49ecd4158d0aea}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!spanAngle@{spanAngle}}
+\index{spanAngle@{spanAngle}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{spanAngle}]{\setlength{\rightskip}{0pt plus 5cm}int QEAnalogIndicator::spanAngle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_a729a2313bdac9b7d6d49ecd4158d0aea}
+The span of the Meter scale arc in degrees Typical meters are 180 deg and 270 deg \hypertarget{classQEAnalogIndicator_ad6440740a8cf86c832157ba7930b48b0}{
+\index{QEAnalogIndicator@{QEAnalogIndicator}!value@{value}}
+\index{value@{value}!QEAnalogIndicator@{QEAnalogIndicator}}
+\subsubsection[{value}]{\setlength{\rightskip}{0pt plus 5cm}double QEAnalogIndicator::value\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEAnalogIndicator_ad6440740a8cf86c832157ba7930b48b0}
+Current indicated value. 
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEAnalogIndicator/QEAnalogIndicator.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEAnalogIndicator/QEAnalogIndicator.cpp\end{DoxyCompactItemize}

@@ -1,0 +1,135 @@
+\hypertarget{classVideoWidget}{
+\section{VideoWidget Class Reference}
+\label{classVideoWidget}\index{VideoWidget@{VideoWidget}}
+}
+Inheritance diagram for VideoWidget:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classVideoWidget}
+\end{center}
+\end{figure}
+\subsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classVideoWidget_a2f864ca5bb46604f9b6595b770d67cff}{
+void {\bfseries userSelection} (imageMarkup::markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness)}
+\label{classVideoWidget_a2f864ca5bb46604f9b6595b770d67cff}
+
+\item 
+\hypertarget{classVideoWidget_ac12467eaff0135e50434364a3b05ddbb}{
+void {\bfseries zoomInOut} (int zoomAmount)}
+\label{classVideoWidget_ac12467eaff0135e50434364a3b05ddbb}
+
+\item 
+\hypertarget{classVideoWidget_a2948a5b160135fe6c84e6cdda489f7ae}{
+void {\bfseries currentPixelInfo} (QPoint pos)}
+\label{classVideoWidget_a2948a5b160135fe6c84e6cdda489f7ae}
+
+\item 
+\hypertarget{classVideoWidget_acfb149a4d4a419244bf10b39a6003c6b}{
+void {\bfseries pan} (QPoint pos)}
+\label{classVideoWidget_acfb149a4d4a419244bf10b39a6003c6b}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classVideoWidget_a31e7897e4abd9733d45753e4a2e25882}{
+{\bfseries VideoWidget} (QWidget $\ast$parent=0)}
+\label{classVideoWidget_a31e7897e4abd9733d45753e4a2e25882}
+
+\item 
+\hypertarget{classVideoWidget_aef7791533c730a8a26db5a07cd9cb764}{
+void {\bfseries setNewImage} (const QImage image, \hyperlink{classQCaDateTime}{QCaDateTime} \&time)}
+\label{classVideoWidget_aef7791533c730a8a26db5a07cd9cb764}
+
+\item 
+\hypertarget{classVideoWidget_a62de3af677c82438720a9f1262c3179f}{
+void {\bfseries setPanning} (bool panningIn)}
+\label{classVideoWidget_a62de3af677c82438720a9f1262c3179f}
+
+\item 
+\hypertarget{classVideoWidget_a2bdd136e1ba5bef5089d3c23746874bf}{
+bool {\bfseries getPanning} ()}
+\label{classVideoWidget_a2bdd136e1ba5bef5089d3c23746874bf}
+
+\item 
+\hypertarget{classVideoWidget_a68d7ca969b84207508ad7399c43675b1}{
+QPoint {\bfseries scalePoint} (QPoint pnt)}
+\label{classVideoWidget_a68d7ca969b84207508ad7399c43675b1}
+
+\item 
+\hypertarget{classVideoWidget_a7372ef1a407b90d10a14e15099bf286d}{
+int {\bfseries scaleOrdinate} (int ord)}
+\label{classVideoWidget_a7372ef1a407b90d10a14e15099bf286d}
+
+\item 
+\hypertarget{classVideoWidget_a3afa88b0e1c2fc86f3f697e464a8b488}{
+QPoint {\bfseries scaleImagePoint} (QPoint pnt)}
+\label{classVideoWidget_a3afa88b0e1c2fc86f3f697e464a8b488}
+
+\item 
+\hypertarget{classVideoWidget_a806ed8629f1903a29e3ed4a93fe44566}{
+int {\bfseries scaleImageOrdinate} (int ord)}
+\label{classVideoWidget_a806ed8629f1903a29e3ed4a93fe44566}
+
+\item 
+\hypertarget{classVideoWidget_a9853fde90f4df168ba98f99ccb1a7bda}{
+QImage {\bfseries getImage} ()}
+\label{classVideoWidget_a9853fde90f4df168ba98f99ccb1a7bda}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classVideoWidget_aa939c30c66f34fb9180ffb4b05906222}{
+void {\bfseries paintEvent} (QPaintEvent $\ast$)}
+\label{classVideoWidget_aa939c30c66f34fb9180ffb4b05906222}
+
+\item 
+\hypertarget{classVideoWidget_a0009b23a619f77a507d91af01c9cc74e}{
+void {\bfseries mousePressEvent} (QMouseEvent $\ast$event)}
+\label{classVideoWidget_a0009b23a619f77a507d91af01c9cc74e}
+
+\item 
+\hypertarget{classVideoWidget_a228ff06d168fdf815b4de2c94e047313}{
+void {\bfseries mouseReleaseEvent} (QMouseEvent $\ast$event)}
+\label{classVideoWidget_a228ff06d168fdf815b4de2c94e047313}
+
+\item 
+\hypertarget{classVideoWidget_a60c38c3490f1408106c4ba7fdfacc013}{
+void {\bfseries mouseMoveEvent} (QMouseEvent $\ast$event)}
+\label{classVideoWidget_a60c38c3490f1408106c4ba7fdfacc013}
+
+\item 
+\hypertarget{classVideoWidget_a1d955c5ed2bbe15a27634c659859b3db}{
+void {\bfseries wheelEvent} (QWheelEvent $\ast$event)}
+\label{classVideoWidget_a1d955c5ed2bbe15a27634c659859b3db}
+
+\item 
+\hypertarget{classVideoWidget_a5c8d6457e7083a0f9cf8caec313666f1}{
+void {\bfseries markupChange} (QImage \&markups, QVector$<$ QRect $>$ \&changedAreas)}
+\label{classVideoWidget_a5c8d6457e7083a0f9cf8caec313666f1}
+
+\item 
+\hypertarget{classVideoWidget_a535271277b91deed6d52cb1d11caf80d}{
+void {\bfseries resizeEvent} (QResizeEvent $\ast$event)}
+\label{classVideoWidget_a535271277b91deed6d52cb1d11caf80d}
+
+\item 
+\hypertarget{classVideoWidget_a0237f59710ca9812c9f57375211d2f14}{
+void {\bfseries markupSetCursor} (QCursor cursor)}
+\label{classVideoWidget_a0237f59710ca9812c9f57375211d2f14}
+
+\item 
+\hypertarget{classVideoWidget_afdc3e6bab13410e0ddf66f9268ea1959}{
+void {\bfseries markupAction} (markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness)}
+\label{classVideoWidget_afdc3e6bab13410e0ddf66f9268ea1959}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEImage/videowidget.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEImage/videowidget.cpp\end{DoxyCompactItemize}

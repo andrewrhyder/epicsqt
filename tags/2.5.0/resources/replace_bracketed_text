@@ -1,0 +1,168 @@
+#!/bin/bash
+#
+
+iam=$( basename $0 )
+
+function terminate () {
+   local arg
+   for arg in "$@" ; do
+      echo 1>&2 "${arg}"
+   done
+   exit 2
+}
+
+function usage () {
+   echo 1>&2 "${1}"
+   echo 1>&2 "usage: ${iam} replacement_defn  source_files..."
+   exit 1
+}
+
+function check_start_end () {
+   local file
+   local start
+   local end
+   local num
+   local ln1
+   local ln2
+
+   file="${1:?}"
+   start="${2:?}"
+   end="${3:?}"
+
+   num=$( grep "${start:?}"  ${file:?} | wc --line )
+   if [ ${num} -ne 1 ] ; then
+      echo "${file}: has ${num:?} lines that contain '${start:?}' text."
+      return 1
+   fi
+   ln1=$( grep -n  "${start:?}"  ${file:?} | cut -d ':' -f1 )
+
+   num=$( grep "${end:?}"  ${file:?} | wc --line )
+   if [ ${num} -ne 1 ] ; then
+      echo "${file}: has ${num:?} lines that contain '${end:?}' text."
+      return 1
+   fi
+   ln2=$( grep -n  "${end:?}"  ${file:?} | cut -d ':' -f1 )
+
+   if [ ${ln2:?} -lt ${ln1:?} ] ; then
+      echo "${file}: incorrect pattern order"
+      echo "    '${start:?}' text is on line  ${ln1:?}."
+      echo "    '${end:?}' text is on line ${ln2:?}"
+      return 1
+   fi
+
+   return 0
+}
+ 
+# Validation.
+#
+if [ $# -lt 2 ] || [ -z "${1}" ]  || [ -z "${2}" ] ; then
+   usage "missing/null parameters"
+fi
+
+include=${1:?}
+
+if ! [ -f ${include:?} ] || ! [ -r ${include:?} ] ; then
+   terminate "${iam}: include file ${include:?} does not exist or is not a file or is not readable"
+fi
+
+no_lines=$( cat ${include:?} | wc --line )
+if [ ${no_lines} -lt 2 ] ; then
+   terminate "${iam}: include file ${include:?} should requires at least two lines."
+fi
+
+first_line="$( head -n 1 ${include:?}  | awk '{ print $1 }' )"
+first_char="${first_line:0:1}"
+
+if [ -z ${first_char} ] ; then
+   terminate "${iam}: first line of file ${include:?} is empty."
+fi
+
+start_meta_pattern="__define_replace_start_delimiter__"
+end_meta_pattern="__define_replace_end_delimiter__"
+
+check_start_end  ${include:?}  "^${first_char}.*${start_meta_pattern}"  "^${first_char}.*${end_meta_pattern}"
+status=$?
+if [ ${status} -ne 0 ] ; then
+   terminate "${iam}: file ${include:?} error detected"
+fi
+
+# Setup pattern and other local variables variables
+#
+start_pattern="$( grep "^${first_char}.*${start_meta_pattern}"  ${include:?}  | sed -e "s/^.*${start_meta_pattern} *//g" )"
+end_pattern="$(   grep "^${first_char}.*${end_meta_pattern}"    ${include:?}  | sed -e "s/^.*${end_meta_pattern} *//g"   )"
+
+echo "comment char is  '${first_char:?}' "
+echo "start pattern is '${start_pattern:?}'"
+echo "end pattern is   '${end_pattern:?}'"
+echo ""
+
+use_file=/tmp/${USER}_${iam}_$$_1.use
+awk_file=/tmp/${USER}_${iam}_$$_2.awk
+
+# Create include file - remove comments
+#
+grep -v "^${first_char:?}" < ${include:?} > ${use_file:?}
+
+# Create awk file using in-line document file
+#
+cat <<END_AWK  > ${awk_file:?}
+BEGIN                { phase = 1 }
+/${start_pattern:?}/ { phase = 2 ; print ; system ("cat ${use_file:?}") }
+/${end_pattern:?}/   { phase = 3 ; print ; next}
+{ if (phase != 2) print }
+END_AWK
+
+# now process each project file
+#
+shift 1
+skipped=0
+for source_file in "$@" ; do
+
+   if [ -d ${source_file} ] ; then
+      echo "skipping directory: ${source_file}"
+      continue
+   fi
+
+   if ! [ -r ${source_file:?} ] && ! [ -w ${source_file:?} ] ; then
+      echo "skipping non read/writeable-able: ${source_file}"
+      skipped=1
+      continue
+   fi
+
+   # Validate content (as far as we can) of the source_file file.
+   #
+   check_start_end  ${source_file:?}  "${start_pattern}"  "${end_pattern}"
+   status=$?
+   if [ ${status} -ne 0 ] ; then
+      echo "${source_file} will not be updated"
+      skipped=1
+      continue
+   fi
+
+   temp_file="${source_file:?}-rbt~"
+   cp -f ${source_file:?} ${temp_file:?}
+   status=$?
+   if [ $status -ne 0 ] ; then
+      echo "${iam}: cannot create backup ${temp_file:?}"
+      echo "${source_file:?} has not been updated."
+      skipped=1
+      continue
+   fi
+
+   awk -f ${awk_file:?}  < ${temp_file:?}  > ${source_file:?}
+   status=$?
+   if [ $status -ne 0 ] ; then
+      echo "awk failed for ${source_file:?}  ($status)"
+      skipped=1
+      continue
+   fi
+
+   echo "${source_file:?} file updated"
+
+done
+
+rm -f ${use_file} ${awk_file}
+
+exit ${skipped}
+
+# end

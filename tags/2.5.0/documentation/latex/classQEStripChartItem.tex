@@ -1,0 +1,135 @@
+\hypertarget{classQEStripChartItem}{
+\section{QEStripChartItem Class Reference}
+\label{classQEStripChartItem}\index{QEStripChartItem@{QEStripChartItem}}
+}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classQEStripChartItem_1_1PrivateData}{PrivateData}
+\end{DoxyCompactItemize}
+\subsection*{Public Slots}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChartItem_a3ffa3cae21752e04ffdc41ecb609f726}{
+void {\bfseries setColour} (const QColor \&colour)}
+\label{classQEStripChartItem_a3ffa3cae21752e04ffdc41ecb609f726}
+
+\end{DoxyCompactItemize}
+\subsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChartItem_a4c2a3323ff1c821d8c2b115b725f5dd8}{
+void {\bfseries customContextMenuRequested} (const unsigned int, const QPoint \&)}
+\label{classQEStripChartItem_a4c2a3323ff1c821d8c2b115b725f5dd8}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChartItem_a28b3298a32a796e0717122c835b5c578}{
+{\bfseries QEStripChartItem} (\hyperlink{classQEStripChart}{QEStripChart} $\ast$chart, QLabel $\ast$pvName, \hyperlink{classQELabel}{QELabel} $\ast$caLabel, unsigned int slot)}
+\label{classQEStripChartItem_a28b3298a32a796e0717122c835b5c578}
+
+\item 
+\hypertarget{classQEStripChartItem_a583f60c140a2e99ef84da0b0e0825c42}{
+bool {\bfseries isInUse} ()}
+\label{classQEStripChartItem_a583f60c140a2e99ef84da0b0e0825c42}
+
+\item 
+\hypertarget{classQEStripChartItem_a1a35a1c7f0365287dd42d01487441082}{
+void {\bfseries setPvName} (QString pvName, QString substitutions)}
+\label{classQEStripChartItem_a1a35a1c7f0365287dd42d01487441082}
+
+\item 
+\hypertarget{classQEStripChartItem_add3e39a333cb00d9a45555259be919f9}{
+QString {\bfseries getPvName} ()}
+\label{classQEStripChartItem_add3e39a333cb00d9a45555259be919f9}
+
+\item 
+\hypertarget{classQEStripChartItem_aeb0dbf6f27f409797238da86a7ceb135}{
+void {\bfseries setScaling} (const double d, const double m, const double c)}
+\label{classQEStripChartItem_aeb0dbf6f27f409797238da86a7ceb135}
+
+\item 
+\hypertarget{classQEStripChartItem_a2f8b23772fd06eba16873e06ad4236d9}{
+void {\bfseries getScaling} (double \&d, double \&m, double \&c)}
+\label{classQEStripChartItem_a2f8b23772fd06eba16873e06ad4236d9}
+
+\item 
+\hypertarget{classQEStripChartItem_a99554cafbada6a8cf3727f1aa74ef4a5}{
+bool {\bfseries isScaled} ()}
+\label{classQEStripChartItem_a99554cafbada6a8cf3727f1aa74ef4a5}
+
+\item 
+\hypertarget{classQEStripChartItem_a0b506d97e50a6ea0fb899389591c4e82}{
+QColor {\bfseries getColour} ()}
+\label{classQEStripChartItem_a0b506d97e50a6ea0fb899389591c4e82}
+
+\item 
+\hypertarget{classQEStripChartItem_ad29db984dbee09466cef74c8674801fd}{
+\hyperlink{classTrackRange}{TrackRange} {\bfseries getLoprHopr} (bool doScale)}
+\label{classQEStripChartItem_ad29db984dbee09466cef74c8674801fd}
+
+\item 
+\hypertarget{classQEStripChartItem_ac7f7c16ca613ddf12a57df7c033aaf54}{
+\hyperlink{classTrackRange}{TrackRange} {\bfseries getDisplayedMinMax} (bool doScale)}
+\label{classQEStripChartItem_ac7f7c16ca613ddf12a57df7c033aaf54}
+
+\item 
+\hypertarget{classQEStripChartItem_a67410800517a8b62e063042878fc55b6}{
+\hyperlink{classTrackRange}{TrackRange} {\bfseries getBufferedMinMax} (bool doScale)}
+\label{classQEStripChartItem_a67410800517a8b62e063042878fc55b6}
+
+\item 
+\hypertarget{classQEStripChartItem_a45049b6eb9fbc032f627d8aeb1770633}{
+void {\bfseries readArchive} ()}
+\label{classQEStripChartItem_a45049b6eb9fbc032f627d8aeb1770633}
+
+\item 
+\hypertarget{classQEStripChartItem_a6e60396f7ff124bf2ee2da730b646fff}{
+void {\bfseries normalise} ()}
+\label{classQEStripChartItem_a6e60396f7ff124bf2ee2da730b646fff}
+
+\item 
+\hypertarget{classQEStripChartItem_afbba8b120b0e2c55002d4c1194e0cd6a}{
+void {\bfseries plotData} (const double timeScale, const QEStripChartNames::YScaleModes yScaleMode)}
+\label{classQEStripChartItem_afbba8b120b0e2c55002d4c1194e0cd6a}
+
+\item 
+\hypertarget{classQEStripChartItem_a9b26fde23d10fd1f3da0a046a4785026}{
+void {\bfseries contextMenuSelected} (const QEStripChartContextMenu::Options option)}
+\label{classQEStripChartItem_a9b26fde23d10fd1f3da0a046a4785026}
+
+\item 
+\hypertarget{classQEStripChartItem_a45b37ea47f7795436e6e850aca7be7e9}{
+void {\bfseries saveConfiguration} (\hyperlink{classPMElement}{PMElement} \&parentElement)}
+\label{classQEStripChartItem_a45b37ea47f7795436e6e850aca7be7e9}
+
+\item 
+\hypertarget{classQEStripChartItem_afa2d447607636451b9cfb5be29cd6caf}{
+void {\bfseries restoreConfiguration} (\hyperlink{classPMElement}{PMElement} \&parentElement)}
+\label{classQEStripChartItem_afa2d447607636451b9cfb5be29cd6caf}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChartItem_a64705fd0e2a9058e5fcfe994f76f9986}{
+\hyperlink{classQCaVariableNamePropertyManager}{QCaVariableNamePropertyManager} {\bfseries pvNameProperyManager}}
+\label{classQEStripChartItem_a64705fd0e2a9058e5fcfe994f76f9986}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEStripChartItem_a8752fb56adb000c44608aa630b9eb7dc}{
+bool {\bfseries eventFilter} (QObject $\ast$obj, QEvent $\ast$event)}
+\label{classQEStripChartItem_a8752fb56adb000c44608aa630b9eb7dc}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEStripChart/QEStripChartItem.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEStripChart/QEStripChartItem.cpp\end{DoxyCompactItemize}

@@ -1,0 +1,251 @@
+\hypertarget{classmarkupItem}{
+\section{markupItem Class Reference}
+\label{classmarkupItem}\index{markupItem@{markupItem}}
+}
+Inheritance diagram for markupItem:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.600000cm]{classmarkupItem}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bfseries markupHandles} \{ \par
+{\bfseries MARKUP\_\-HANDLE\_\-NONE}, 
+{\bfseries MARKUP\_\-HANDLE\_\-START}, 
+{\bfseries MARKUP\_\-HANDLE\_\-END}, 
+{\bfseries MARKUP\_\-HANDLE\_\-CENTER}, 
+\par
+{\bfseries MARKUP\_\-HANDLE\_\-TL}, 
+{\bfseries MARKUP\_\-HANDLE\_\-TR}, 
+{\bfseries MARKUP\_\-HANDLE\_\-BL}, 
+{\bfseries MARKUP\_\-HANDLE\_\-BR}, 
+\par
+{\bfseries MARKUP\_\-HANDLE\_\-T}, 
+{\bfseries MARKUP\_\-HANDLE\_\-B}, 
+{\bfseries MARKUP\_\-HANDLE\_\-L}, 
+{\bfseries MARKUP\_\-HANDLE\_\-R}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classmarkupItem_a0960bc952de9878a50428d0533e4f457}{
+void {\bfseries erase} ()}
+\label{classmarkupItem_a0960bc952de9878a50428d0533e4f457}
+
+\item 
+\hypertarget{classmarkupItem_a11e173b096f676a87aba4de85853d941}{
+void {\bfseries drawMarkupIn} ()}
+\label{classmarkupItem_a11e173b096f676a87aba4de85853d941}
+
+\item 
+\hypertarget{classmarkupItem_a11adfa5a6c13f2186896c73be533a00c}{
+void {\bfseries drawMarkupOut} ()}
+\label{classmarkupItem_a11adfa5a6c13f2186896c73be533a00c}
+
+\item 
+\hypertarget{classmarkupItem_a1fc353c63476eb484b58188f9f680ae8}{
+void {\bfseries setColor} (QColor colorIn)}
+\label{classmarkupItem_a1fc353c63476eb484b58188f9f680ae8}
+
+\item 
+\hypertarget{classmarkupItem_a02a5561949003f6893cc10f2a6bcb446}{
+void {\bfseries scale} (const double xScale, const double yScale, const double zoomScale)}
+\label{classmarkupItem_a02a5561949003f6893cc10f2a6bcb446}
+
+\item 
+\hypertarget{classmarkupItem_a5bdb8872afad86a0a41b0095765a0767}{
+virtual QPoint {\bfseries origin} ()=0}
+\label{classmarkupItem_a5bdb8872afad86a0a41b0095765a0767}
+
+\item 
+\hypertarget{classmarkupItem_a275f48d7efe53a49be4eb9975596a318}{
+virtual void {\bfseries moveTo} (const QPoint pos)=0}
+\label{classmarkupItem_a275f48d7efe53a49be4eb9975596a318}
+
+\item 
+\hypertarget{classmarkupItem_a94aa96638199a9c663832e259b7c0212}{
+virtual void {\bfseries startDrawing} (const QPoint pos)=0}
+\label{classmarkupItem_a94aa96638199a9c663832e259b7c0212}
+
+\item 
+\hypertarget{classmarkupItem_ac6971d75b1ac89975a38d24157c4830a}{
+virtual bool {\bfseries isOver} (const QPoint point, QCursor $\ast$cursor)=0}
+\label{classmarkupItem_ac6971d75b1ac89975a38d24157c4830a}
+
+\item 
+\hypertarget{classmarkupItem_ac16d69f1d757c23535690b06bb04726f}{
+virtual QCursor {\bfseries cursorForHandle} (const markupItem::markupHandles handle)=0}
+\label{classmarkupItem_ac16d69f1d757c23535690b06bb04726f}
+
+\item 
+\hypertarget{classmarkupItem_a2299e864bc5c49bfcc81ec87d42b3fd8}{
+virtual QPoint {\bfseries getPoint1} ()=0}
+\label{classmarkupItem_a2299e864bc5c49bfcc81ec87d42b3fd8}
+
+\item 
+\hypertarget{classmarkupItem_a89ccf6d10aba6fcb7f9500d44a86719b}{
+virtual QPoint {\bfseries getPoint2} ()=0}
+\label{classmarkupItem_a89ccf6d10aba6fcb7f9500d44a86719b}
+
+\item 
+\hypertarget{classmarkupItem_a5c518450291096bb8524ab0547e5e9bc}{
+virtual unsigned int {\bfseries getThickness} ()=0}
+\label{classmarkupItem_a5c518450291096bb8524ab0547e5e9bc}
+
+\item 
+\hypertarget{classmarkupItem_ac843311c19006ec8f1452a159f05c15b}{
+virtual void {\bfseries setThickness} (const unsigned int thicknessIn)=0}
+\label{classmarkupItem_ac843311c19006ec8f1452a159f05c15b}
+
+\item 
+\hypertarget{classmarkupItem_a019daf6e007a2726d766664d2c3cd587}{
+virtual QCursor {\bfseries defaultCursor} ()=0}
+\label{classmarkupItem_a019daf6e007a2726d766664d2c3cd587}
+
+\item 
+\hypertarget{classmarkupItem_aa3059280872d7dba196e97c8de2cc627}{
+virtual void {\bfseries nonInteractiveUpdate} (QRect)}
+\label{classmarkupItem_aa3059280872d7dba196e97c8de2cc627}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classmarkupItem_aa304f00daed9abc810365cd4eb2294a1}{
+QRect {\bfseries area}}
+\label{classmarkupItem_aa304f00daed9abc810365cd4eb2294a1}
+
+\item 
+\hypertarget{classmarkupItem_a38fabe02da5b2e15efe09eb9b566e67f}{
+bool {\bfseries visible}}
+\label{classmarkupItem_a38fabe02da5b2e15efe09eb9b566e67f}
+
+\item 
+\hypertarget{classmarkupItem_afabb42384d20352200aa5eb651093eac}{
+bool {\bfseries interactive}}
+\label{classmarkupItem_afabb42384d20352200aa5eb651093eac}
+
+\item 
+\hypertarget{classmarkupItem_a7a169f1f96eaee1551ed75ef9073789e}{
+bool {\bfseries reportOnMove}}
+\label{classmarkupItem_a7a169f1f96eaee1551ed75ef9073789e}
+
+\item 
+\hypertarget{classmarkupItem_a9711a70a7cc88b7a64742b6f2273c3f3}{
+QColor {\bfseries color}}
+\label{classmarkupItem_a9711a70a7cc88b7a64742b6f2273c3f3}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Types}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bfseries isOverOptions} \{ {\bfseries OVER\_\-LINE}, 
+{\bfseries OVER\_\-BORDER}, 
+{\bfseries OVER\_\-AREA}
+ \}
+\item 
+enum {\bfseries legendJustification} \{ {\bfseries ABOVE\_\-RIGHT}, 
+{\bfseries BELOW\_\-LEFT}, 
+{\bfseries BELOW\_\-RIGHT}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classmarkupItem_ac5ef046c02757d6cfed49266497b32a2}{
+{\bfseries markupItem} (\hyperlink{classimageMarkup}{imageMarkup} $\ast$ownerIn, const isOverOptions over, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn)}
+\label{classmarkupItem_ac5ef046c02757d6cfed49266497b32a2}
+
+\item 
+\hypertarget{classmarkupItem_a9f3e70c7c7369ea2afa8f36201cfc77b}{
+virtual void {\bfseries setArea} ()=0}
+\label{classmarkupItem_a9f3e70c7c7369ea2afa8f36201cfc77b}
+
+\item 
+\hypertarget{classmarkupItem_a4b1a821fc87983e8b25bc1d4c487b2c1}{
+virtual void {\bfseries drawMarkup} (QPainter \&p)=0}
+\label{classmarkupItem_a4b1a821fc87983e8b25bc1d4c487b2c1}
+
+\item 
+\hypertarget{classmarkupItem_a0e3671930904d68b553bd179958359cc}{
+bool {\bfseries pointIsNear} (QPoint p1, QPoint p)}
+\label{classmarkupItem_a0e3671930904d68b553bd179958359cc}
+
+\item 
+\hypertarget{classmarkupItem_a9c1dbafb10ff279848186de48fdecc83}{
+QColor {\bfseries getColor} ()}
+\label{classmarkupItem_a9c1dbafb10ff279848186de48fdecc83}
+
+\item 
+\hypertarget{classmarkupItem_aafb60d38c8b24196c377117cc7b3ea57}{
+const QString {\bfseries getLegend} ()}
+\label{classmarkupItem_aafb60d38c8b24196c377117cc7b3ea57}
+
+\item 
+\hypertarget{classmarkupItem_a739a5fb72adb5cdc6a6a547d3462dac0}{
+const QSize {\bfseries getLegendSize} ()}
+\label{classmarkupItem_a739a5fb72adb5cdc6a6a547d3462dac0}
+
+\item 
+\hypertarget{classmarkupItem_aa9ae690e1670a00866f49a49d084e2b7}{
+void {\bfseries addLegendArea} ()}
+\label{classmarkupItem_aa9ae690e1670a00866f49a49d084e2b7}
+
+\item 
+\hypertarget{classmarkupItem_abf219acf3a16fef988790892ef176abe}{
+const QPoint {\bfseries setLegendPos} (QPoint pos, legendJustification just)}
+\label{classmarkupItem_abf219acf3a16fef988790892ef176abe}
+
+\item 
+\hypertarget{classmarkupItem_aa7e6db35110f137f434f4c079026f0ac}{
+const QPoint {\bfseries getLegendPos} ()}
+\label{classmarkupItem_aa7e6db35110f137f434f4c079026f0ac}
+
+\item 
+\hypertarget{classmarkupItem_af7eafe469905f735d321b33c3bb43ba7}{
+void {\bfseries drawLegend} (QPainter \&p, QPoint pos, legendJustification just)}
+\label{classmarkupItem_af7eafe469905f735d321b33c3bb43ba7}
+
+\item 
+\hypertarget{classmarkupItem_a17e3a0d799b1bc94d7ad1f23c1382487}{
+QPoint {\bfseries limitPointToImage} (const QPoint pos)}
+\label{classmarkupItem_a17e3a0d799b1bc94d7ad1f23c1382487}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classmarkupItem_a03c7828d130874f61f5c2e116d3deccd}{
+markupHandles {\bfseries activeHandle}}
+\label{classmarkupItem_a03c7828d130874f61f5c2e116d3deccd}
+
+\item 
+\hypertarget{classmarkupItem_a1d3fdc2646c70ea94203ac87110759b4}{
+isOverOptions {\bfseries isOverType}}
+\label{classmarkupItem_a1d3fdc2646c70ea94203ac87110759b4}
+
+\item 
+\hypertarget{classmarkupItem_a1663dc4c7b30838096f7fe5c64c3c718}{
+bool {\bfseries highlighted}}
+\label{classmarkupItem_a1663dc4c7b30838096f7fe5c64c3c718}
+
+\item 
+\hypertarget{classmarkupItem_afebaac631d27bf70714d5a69d4a01fbb}{
+int {\bfseries highlightMargin}}
+\label{classmarkupItem_afebaac631d27bf70714d5a69d4a01fbb}
+
+\item 
+\hypertarget{classmarkupItem_a4b1515d5a7ac8d1081262303d13bcdd3}{
+\hyperlink{classimageMarkup}{imageMarkup} $\ast$ {\bfseries owner}}
+\label{classmarkupItem_a4b1515d5a7ac8d1081262303d13bcdd3}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEImage/imageMarkup.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEImage/imageMarkup.cpp\end{DoxyCompactItemize}

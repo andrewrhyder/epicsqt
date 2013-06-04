@@ -1,0 +1,77 @@
+\hypertarget{classQEIntegerFormatting}{
+\section{QEIntegerFormatting Class Reference}
+\label{classQEIntegerFormatting}\index{QEIntegerFormatting@{QEIntegerFormatting}}
+}
+
+
+{\ttfamily \#include $<$QEIntegerFormatting.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEIntegerFormatting_a5f4eac5f9dd4298891c75c54b807d73e}{
+\hyperlink{classQEIntegerFormatting_a5f4eac5f9dd4298891c75c54b807d73e}{QEIntegerFormatting} ()}
+\label{classQEIntegerFormatting_a5f4eac5f9dd4298891c75c54b807d73e}
+
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+long \hyperlink{classQEIntegerFormatting_a9e67ab8bd667549d256529329cf7bb42}{formatInteger} (const QVariant \&value)
+\item 
+QVector$<$ long $>$ \hyperlink{classQEIntegerFormatting_abb1e2dd15e3797e2aa5022d3b5043e74}{formatIntegerArray} (const QVariant \&value)
+\item 
+QVariant \hyperlink{classQEIntegerFormatting_adba4f788d19732bd676508b25e3a4132}{formatValue} (const long \&integerValue, generic::generic\_\-types valueType)
+\item 
+\hypertarget{classQEIntegerFormatting_af33894b001f9a77a0d6026780edb3a2f}{
+void \hyperlink{classQEIntegerFormatting_af33894b001f9a77a0d6026780edb3a2f}{setRadix} (unsigned int radix)}
+\label{classQEIntegerFormatting_af33894b001f9a77a0d6026780edb3a2f}
+
+\begin{DoxyCompactList}\small\item\em Set the radix used for all conversions. Default is 10. \end{DoxyCompactList}\item 
+\hypertarget{classQEIntegerFormatting_a420b7a7123d13da9d1ee89b0705b0649}{
+unsigned int \hyperlink{classQEIntegerFormatting_a420b7a7123d13da9d1ee89b0705b0649}{getPrecision} ()}
+\label{classQEIntegerFormatting_a420b7a7123d13da9d1ee89b0705b0649}
+
+\begin{DoxyCompactList}\small\item\em Get the precision used for all conversions. \end{DoxyCompactList}\item 
+\hypertarget{classQEIntegerFormatting_a383f1e3375b08580d623fe6bbc58b145}{
+unsigned int \hyperlink{classQEIntegerFormatting_a383f1e3375b08580d623fe6bbc58b145}{getRadix} ()}
+\label{classQEIntegerFormatting_a383f1e3375b08580d623fe6bbc58b145}
+
+\begin{DoxyCompactList}\small\item\em Get the radix used for all conversions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class holds formatting instructions and uses them to convert between an integer and a QVariant of any type. It is generally set up with it's formatting instructions and then passed to a \hyperlink{classQEInteger}{QEInteger} class that will sink and source integer data to widgets or other code. It is used to convert data to and from a QCaObject (which sources and sinks data in the form of a QVariant where the QVariant reflects the underlying variable data type) and the \hyperlink{classQEInteger}{QEInteger} class. An example of a requirement for integer data is a combo box which must determine an integer index to select a menu option. 
+
+\subsection{Member Function Documentation}
+\hypertarget{classQEIntegerFormatting_a9e67ab8bd667549d256529329cf7bb42}{
+\index{QEIntegerFormatting@{QEIntegerFormatting}!formatInteger@{formatInteger}}
+\index{formatInteger@{formatInteger}!QEIntegerFormatting@{QEIntegerFormatting}}
+\subsubsection[{formatInteger}]{\setlength{\rightskip}{0pt plus 5cm}long QEIntegerFormatting::formatInteger (
+\begin{DoxyParamCaption}
+\item[{const QVariant \&}]{value}
+\end{DoxyParamCaption}
+)}}
+\label{classQEIntegerFormatting_a9e67ab8bd667549d256529329cf7bb42}
+Given a data value of any type, format it as an integer according to the formatting instructions held by the class. This is used to convert the QVariant value received from a QCaObject, which is still based on the data variable type, to an integer. \hypertarget{classQEIntegerFormatting_abb1e2dd15e3797e2aa5022d3b5043e74}{
+\index{QEIntegerFormatting@{QEIntegerFormatting}!formatIntegerArray@{formatIntegerArray}}
+\index{formatIntegerArray@{formatIntegerArray}!QEIntegerFormatting@{QEIntegerFormatting}}
+\subsubsection[{formatIntegerArray}]{\setlength{\rightskip}{0pt plus 5cm}QVector$<$ long $>$ QEIntegerFormatting::formatIntegerArray (
+\begin{DoxyParamCaption}
+\item[{const QVariant \&}]{value}
+\end{DoxyParamCaption}
+)}}
+\label{classQEIntegerFormatting_abb1e2dd15e3797e2aa5022d3b5043e74}
+Given a data value of any type, format it as an array of integers according to the formatting instructions held by the class. This is used to convert the QVariant value received from a QCaObject, which is still based on the data variable type, to an integer array. Typically used where the input QVariant value is an array of data values, but will work for any QVariant type. \hypertarget{classQEIntegerFormatting_adba4f788d19732bd676508b25e3a4132}{
+\index{QEIntegerFormatting@{QEIntegerFormatting}!formatValue@{formatValue}}
+\index{formatValue@{formatValue}!QEIntegerFormatting@{QEIntegerFormatting}}
+\subsubsection[{formatValue}]{\setlength{\rightskip}{0pt plus 5cm}QVariant QEIntegerFormatting::formatValue (
+\begin{DoxyParamCaption}
+\item[{const long \&}]{integerValue, }
+\item[{generic::generic\_\-types}]{valueType}
+\end{DoxyParamCaption}
+)}}
+\label{classQEIntegerFormatting_adba4f788d19732bd676508b25e3a4132}
+Given an integer value, format it as a data value of the specified type, according to the formatting instructions held by the class. This is used when writing integer data to a QCaObject. 
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/data/include/QEIntegerFormatting.h\item 
+/tmp/epicsqt/trunk/framework/data/src/QEIntegerFormatting.cpp\end{DoxyCompactItemize}

@@ -1,0 +1,57 @@
+\hypertarget{classQCaDateTime}{
+\section{QCaDateTime Class Reference}
+\label{classQCaDateTime}\index{QCaDateTime@{QCaDateTime}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQCaDateTime_a36100ef216bcd3edef848a5af0bf1f3a}{
+{\bfseries QCaDateTime} (QDateTime dt)}
+\label{classQCaDateTime_a36100ef216bcd3edef848a5af0bf1f3a}
+
+\item 
+\hypertarget{classQCaDateTime_a2b6455a8511f88a2bfc346f70587664e}{
+\hyperlink{classQCaDateTime}{QCaDateTime} \& {\bfseries operator=} (const \hyperlink{classQCaDateTime}{QCaDateTime} \&other)}
+\label{classQCaDateTime_a2b6455a8511f88a2bfc346f70587664e}
+
+\item 
+\hypertarget{classQCaDateTime_a002a1cbbbc6d949aa04ec154f5f2e928}{
+{\bfseries QCaDateTime} (unsigned long seconds, unsigned long nanoseconds)}
+\label{classQCaDateTime_a002a1cbbbc6d949aa04ec154f5f2e928}
+
+\item 
+\hypertarget{classQCaDateTime_a514a6367a3be19ab53dcea6c898d0f07}{
+QString {\bfseries text} ()}
+\label{classQCaDateTime_a514a6367a3be19ab53dcea6c898d0f07}
+
+\item 
+double \hyperlink{classQCaDateTime_ace7b4c21d17575d2a1345bfc1340962f}{floating} (const QDateTime \&base) const 
+\item 
+\hypertarget{classQCaDateTime_a8ef4952a1876de4649ec3dd87df98666}{
+unsigned long \hyperlink{classQCaDateTime_a8ef4952a1876de4649ec3dd87df98666}{getSeconds} () const }
+\label{classQCaDateTime_a8ef4952a1876de4649ec3dd87df98666}
+
+\begin{DoxyCompactList}\small\item\em Recover original EPICS time constructor parameters. \end{DoxyCompactList}\item 
+\hypertarget{classQCaDateTime_ac82d5d1e1a23c45887a960563d09f787}{
+unsigned long {\bfseries getNanoSeconds} () const }
+\label{classQCaDateTime_ac82d5d1e1a23c45887a960563d09f787}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classQCaDateTime_ace7b4c21d17575d2a1345bfc1340962f}{
+\index{QCaDateTime@{QCaDateTime}!floating@{floating}}
+\index{floating@{floating}!QCaDateTime@{QCaDateTime}}
+\subsubsection[{floating}]{\setlength{\rightskip}{0pt plus 5cm}double QCaDateTime::floating (
+\begin{DoxyParamCaption}
+\item[{const QDateTime \&}]{base}
+\end{DoxyParamCaption}
+) const}}
+\label{classQCaDateTime_ace7b4c21d17575d2a1345bfc1340962f}
+Duration in seconds from base time to this time. Note: this is the opposite sense to the parent QDateTime daysTo, secsTo and msecsTo functions. 
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/data/include/QCaDateTime.h\item 
+/tmp/epicsqt/trunk/framework/data/src/QCaDateTime.cpp\end{DoxyCompactItemize}

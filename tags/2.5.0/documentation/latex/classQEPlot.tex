@@ -1,0 +1,725 @@
+\hypertarget{classQEPlot}{
+\section{QEPlot Class Reference}
+\label{classQEPlot}\index{QEPlot@{QEPlot}}
+}
+Inheritance diagram for QEPlot:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.204725cm]{classQEPlot}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}{UserLevels} \{ \hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323aac0b3747eaf8712dcf429ec538773f33}{User} =  userLevelTypes::USERLEVEL\_\-USER, 
+\hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323af8eb0d1c9eaf5bf31da364e105e61658}{Scientist} =  userLevelTypes::USERLEVEL\_\-SCIENTIST, 
+\hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323a820f591cbcb318da7733ff7e7d4d419a}{Engineer} =  userLevelTypes::USERLEVEL\_\-ENGINEER
+ \}
+\item 
+enum {\bfseries TraceStyles} \{ {\bfseries Lines} =  QwtPlotCurve::Lines, 
+{\bfseries Sticks} =  QwtPlotCurve::Sticks, 
+{\bfseries Steps} =  QwtPlotCurve::Steps, 
+{\bfseries Dots} =  QwtPlotCurve::Dots
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Slots}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classQEPlot_a16c5b1193a88ab1ed2e7496e0d570593}{requestEnabled} (const bool \&state)
+\end{DoxyCompactItemize}
+\subsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classQEPlot_a09c2d1b104cd5970807bd9facc3c3b13}{dbValueChanged} (const double \&out)
+\item 
+void \hyperlink{classQEPlot_a1cab9bf6a187b59efbb13829735f5b24}{dbValueChanged} (const QVector$<$ double $>$ \&out)
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEPlot_a8a9ee9165bb279abe9f2e82eb7638e73}{
+{\bfseries QEPlot} (QWidget $\ast$parent=0)}
+\label{classQEPlot_a8a9ee9165bb279abe9f2e82eb7638e73}
+
+\item 
+\hypertarget{classQEPlot_a745fdc879de2da875c6214c9af73adac}{
+{\bfseries QEPlot} (const QString \&variableName, QWidget $\ast$parent=0)}
+\label{classQEPlot_a745fdc879de2da875c6214c9af73adac}
+
+\item 
+\hypertarget{classQEPlot_a2f912f5042d339aed94d752eefcc00d4}{
+void {\bfseries setYMin} (double yMin)}
+\label{classQEPlot_a2f912f5042d339aed94d752eefcc00d4}
+
+\item 
+\hypertarget{classQEPlot_aad2990cbe03dde6ff72514792e13b45b}{
+double {\bfseries getYMin} ()}
+\label{classQEPlot_aad2990cbe03dde6ff72514792e13b45b}
+
+\item 
+\hypertarget{classQEPlot_a3a1057cdfbc746e1638fe0d5a0bf38a9}{
+void {\bfseries setYMax} (double yMax)}
+\label{classQEPlot_a3a1057cdfbc746e1638fe0d5a0bf38a9}
+
+\item 
+\hypertarget{classQEPlot_a64e10ec58024d6fc1329be4b69c2bf2b}{
+double {\bfseries getYMax} ()}
+\label{classQEPlot_a64e10ec58024d6fc1329be4b69c2bf2b}
+
+\item 
+\hypertarget{classQEPlot_a7ec3d6feb3614e834fa5ed222de69798}{
+void {\bfseries setAutoScale} (bool autoScale)}
+\label{classQEPlot_a7ec3d6feb3614e834fa5ed222de69798}
+
+\item 
+\hypertarget{classQEPlot_afc1a41d360f30e4fbf6d51c4f5cf484a}{
+bool {\bfseries getAutoScale} ()}
+\label{classQEPlot_afc1a41d360f30e4fbf6d51c4f5cf484a}
+
+\item 
+\hypertarget{classQEPlot_a8e3b42e0c087b26dd300e3040fb409f3}{
+void {\bfseries setAxisEnableX} (bool axisEnableXIn)}
+\label{classQEPlot_a8e3b42e0c087b26dd300e3040fb409f3}
+
+\item 
+\hypertarget{classQEPlot_abdae68cc361ee82733097a5e347450f4}{
+bool {\bfseries getAxisEnableX} ()}
+\label{classQEPlot_abdae68cc361ee82733097a5e347450f4}
+
+\item 
+\hypertarget{classQEPlot_a3236c8d1a3c6c969a88b475ef1b76465}{
+void {\bfseries setAxisEnableY} (bool axisEnableYIn)}
+\label{classQEPlot_a3236c8d1a3c6c969a88b475ef1b76465}
+
+\item 
+\hypertarget{classQEPlot_ae72570d8a7a65f1072f2a579439ee12b}{
+bool {\bfseries getAxisEnableY} ()}
+\label{classQEPlot_ae72570d8a7a65f1072f2a579439ee12b}
+
+\item 
+\hypertarget{classQEPlot_ad02ef9b37f98abdbe735c53f4a83a5fe}{
+QString {\bfseries getTitle} ()}
+\label{classQEPlot_ad02ef9b37f98abdbe735c53f4a83a5fe}
+
+\item 
+\hypertarget{classQEPlot_a5886b0f03798c3627ac4582ecb99d4ee}{
+void {\bfseries setBackgroundColor} (QColor backgroundColor)}
+\label{classQEPlot_a5886b0f03798c3627ac4582ecb99d4ee}
+
+\item 
+\hypertarget{classQEPlot_a453f42ad50351afca30a416261c9f754}{
+QColor {\bfseries getBackgroundColor} ()}
+\label{classQEPlot_a453f42ad50351afca30a416261c9f754}
+
+\item 
+\hypertarget{classQEPlot_a3321696366c15f96b248553d31eafe90}{
+void {\bfseries setTraceStyle} (QwtPlotCurve::CurveStyle traceStyle, const unsigned int variableIndex)}
+\label{classQEPlot_a3321696366c15f96b248553d31eafe90}
+
+\item 
+\hypertarget{classQEPlot_ad404d19b1df92c9f0ac7b079309e17a2}{
+QwtPlotCurve::CurveStyle {\bfseries getTraceStyle} (const unsigned int variableIndex)}
+\label{classQEPlot_ad404d19b1df92c9f0ac7b079309e17a2}
+
+\item 
+\hypertarget{classQEPlot_a2f294349f3ebf4d913dfc57421f90009}{
+void {\bfseries setTraceColor} (QColor traceColor, const unsigned int variableIndex)}
+\label{classQEPlot_a2f294349f3ebf4d913dfc57421f90009}
+
+\item 
+\hypertarget{classQEPlot_aa7f5cf31eb707c627271869733c2fa01}{
+void {\bfseries setTraceColor1} (QColor traceColor)}
+\label{classQEPlot_aa7f5cf31eb707c627271869733c2fa01}
+
+\item 
+\hypertarget{classQEPlot_a0b9652dd1825d5169d22f6ffef149763}{
+void {\bfseries setTraceColor2} (QColor traceColor)}
+\label{classQEPlot_a0b9652dd1825d5169d22f6ffef149763}
+
+\item 
+\hypertarget{classQEPlot_a89c5f06f94aef5b6374f42b042ad1d8b}{
+void {\bfseries setTraceColor3} (QColor traceColor)}
+\label{classQEPlot_a89c5f06f94aef5b6374f42b042ad1d8b}
+
+\item 
+\hypertarget{classQEPlot_a037f048f45b1a50ee3a71da884db5fa4}{
+void {\bfseries setTraceColor4} (QColor traceColor)}
+\label{classQEPlot_a037f048f45b1a50ee3a71da884db5fa4}
+
+\item 
+\hypertarget{classQEPlot_a968051ae7bfbedec89d33e3c4b1a4451}{
+QColor {\bfseries getTraceColor} (const unsigned int variableIndex)}
+\label{classQEPlot_a968051ae7bfbedec89d33e3c4b1a4451}
+
+\item 
+\hypertarget{classQEPlot_a1fbb18f532e781025c98fc05ff34976e}{
+QColor {\bfseries getTraceColor1} ()}
+\label{classQEPlot_a1fbb18f532e781025c98fc05ff34976e}
+
+\item 
+\hypertarget{classQEPlot_a821e21e2d2546290f45322bc6013b828}{
+QColor {\bfseries getTraceColor2} ()}
+\label{classQEPlot_a821e21e2d2546290f45322bc6013b828}
+
+\item 
+\hypertarget{classQEPlot_a400b85f42b302cd1c27f2ca58ea3a924}{
+QColor {\bfseries getTraceColor3} ()}
+\label{classQEPlot_a400b85f42b302cd1c27f2ca58ea3a924}
+
+\item 
+\hypertarget{classQEPlot_abe8ae852bbb95a5afb616e051ac0c425}{
+QColor {\bfseries getTraceColor4} ()}
+\label{classQEPlot_abe8ae852bbb95a5afb616e051ac0c425}
+
+\item 
+\hypertarget{classQEPlot_a6830abeb10a857288200b56c36e8eb51}{
+void {\bfseries setTraceLegend1} (QString traceLegend)}
+\label{classQEPlot_a6830abeb10a857288200b56c36e8eb51}
+
+\item 
+\hypertarget{classQEPlot_a0a70b150f3127524bc6e6a0774ea9742}{
+void {\bfseries setTraceLegend2} (QString traceLegend)}
+\label{classQEPlot_a0a70b150f3127524bc6e6a0774ea9742}
+
+\item 
+\hypertarget{classQEPlot_a801f91a8a70ebe61041eca7980aed504}{
+void {\bfseries setTraceLegend3} (QString traceLegend)}
+\label{classQEPlot_a801f91a8a70ebe61041eca7980aed504}
+
+\item 
+\hypertarget{classQEPlot_a52aedc06fd14df4c54a812713597d15b}{
+void {\bfseries setTraceLegend4} (QString traceLegend)}
+\label{classQEPlot_a52aedc06fd14df4c54a812713597d15b}
+
+\item 
+\hypertarget{classQEPlot_a27299689e750f8782d383995fe2aed43}{
+QString {\bfseries getTraceLegend1} ()}
+\label{classQEPlot_a27299689e750f8782d383995fe2aed43}
+
+\item 
+\hypertarget{classQEPlot_a6caa209e722cc68286cc198c93c4a396}{
+QString {\bfseries getTraceLegend2} ()}
+\label{classQEPlot_a6caa209e722cc68286cc198c93c4a396}
+
+\item 
+\hypertarget{classQEPlot_abc12ff1cbb7ed4d0cfcff569e541b1bf}{
+QString {\bfseries getTraceLegend3} ()}
+\label{classQEPlot_abc12ff1cbb7ed4d0cfcff569e541b1bf}
+
+\item 
+\hypertarget{classQEPlot_a428dcac7deeae78846619e57bf540ba8}{
+QString {\bfseries getTraceLegend4} ()}
+\label{classQEPlot_a428dcac7deeae78846619e57bf540ba8}
+
+\item 
+\hypertarget{classQEPlot_a02bae9f766d08f3107dbf59549435131}{
+void {\bfseries setXUnit} (QString xUnit)}
+\label{classQEPlot_a02bae9f766d08f3107dbf59549435131}
+
+\item 
+\hypertarget{classQEPlot_ada165d1d111c2aef82996656c573de27}{
+QString {\bfseries getXUnit} ()}
+\label{classQEPlot_ada165d1d111c2aef82996656c573de27}
+
+\item 
+\hypertarget{classQEPlot_ada132c8efc2799df044d8af313d195da}{
+void {\bfseries setYUnit} (QString yUnit)}
+\label{classQEPlot_ada132c8efc2799df044d8af313d195da}
+
+\item 
+\hypertarget{classQEPlot_a91a2eb91b61c2b6ea45d061655a1f0d7}{
+QString {\bfseries getYUnit} ()}
+\label{classQEPlot_a91a2eb91b61c2b6ea45d061655a1f0d7}
+
+\item 
+\hypertarget{classQEPlot_a6ab0d8a132baa89747fa514d1f7e84f6}{
+void {\bfseries setGridEnableMajorX} (bool gridEnableMajorXIn)}
+\label{classQEPlot_a6ab0d8a132baa89747fa514d1f7e84f6}
+
+\item 
+\hypertarget{classQEPlot_aa4583b431a59efc7d80bfb574ab4146d}{
+void {\bfseries setGridEnableMajorY} (bool gridEnableMajorYIn)}
+\label{classQEPlot_aa4583b431a59efc7d80bfb574ab4146d}
+
+\item 
+\hypertarget{classQEPlot_a228fac3d1fdd5d70a4f1644e6a90805c}{
+void {\bfseries setGridEnableMinorX} (bool gridEnableMinorXIn)}
+\label{classQEPlot_a228fac3d1fdd5d70a4f1644e6a90805c}
+
+\item 
+\hypertarget{classQEPlot_af473ff4d41465aa30e868704cc6d2c86}{
+void {\bfseries setGridEnableMinorY} (bool gridEnableMinorYIn)}
+\label{classQEPlot_af473ff4d41465aa30e868704cc6d2c86}
+
+\item 
+\hypertarget{classQEPlot_a4a6aead84c4f7afe159166907b8c14fa}{
+bool {\bfseries getGridEnableMajorX} ()}
+\label{classQEPlot_a4a6aead84c4f7afe159166907b8c14fa}
+
+\item 
+\hypertarget{classQEPlot_ac1040d567f6a0df7c4c5e598df487e59}{
+bool {\bfseries getGridEnableMajorY} ()}
+\label{classQEPlot_ac1040d567f6a0df7c4c5e598df487e59}
+
+\item 
+\hypertarget{classQEPlot_a8d4cdec3a306153d9e8e79f92996d93d}{
+bool {\bfseries getGridEnableMinorX} ()}
+\label{classQEPlot_a8d4cdec3a306153d9e8e79f92996d93d}
+
+\item 
+\hypertarget{classQEPlot_a9ca6f820e870b5120acae69bb9741a95}{
+bool {\bfseries getGridEnableMinorY} ()}
+\label{classQEPlot_a9ca6f820e870b5120acae69bb9741a95}
+
+\item 
+\hypertarget{classQEPlot_a4298ba419be45201efba5bc5d2629e0b}{
+void {\bfseries setGridMajorColor} (QColor gridMajorColorIn)}
+\label{classQEPlot_a4298ba419be45201efba5bc5d2629e0b}
+
+\item 
+\hypertarget{classQEPlot_a88c60ddb5ee1e9f29a034e1c395674ff}{
+void {\bfseries setGridMinorColor} (QColor gridMinorColorIn)}
+\label{classQEPlot_a88c60ddb5ee1e9f29a034e1c395674ff}
+
+\item 
+\hypertarget{classQEPlot_a5a9d48eb2935855efd7d45c7614df7ca}{
+QColor {\bfseries getGridMajorColor} ()}
+\label{classQEPlot_a5a9d48eb2935855efd7d45c7614df7ca}
+
+\item 
+\hypertarget{classQEPlot_a448a46d5346df3f26656c156e4a4d598}{
+QColor {\bfseries getGridMinorColor} ()}
+\label{classQEPlot_a448a46d5346df3f26656c156e4a4d598}
+
+\item 
+\hypertarget{classQEPlot_a769fafe9112421cc140ac7fc94454da2}{
+void {\bfseries setXStart} (double xStart)}
+\label{classQEPlot_a769fafe9112421cc140ac7fc94454da2}
+
+\item 
+\hypertarget{classQEPlot_a21848257ab8d14ae22ccdd5ab6c53307}{
+double {\bfseries getXStart} ()}
+\label{classQEPlot_a21848257ab8d14ae22ccdd5ab6c53307}
+
+\item 
+\hypertarget{classQEPlot_a992cc7d8670eca7a6204b2254127373c}{
+void {\bfseries setXIncrement} (double xIncrement)}
+\label{classQEPlot_a992cc7d8670eca7a6204b2254127373c}
+
+\item 
+\hypertarget{classQEPlot_ac92715c78dca04685a00cc1a76fe7e38}{
+double {\bfseries getXIncrement} ()}
+\label{classQEPlot_ac92715c78dca04685a00cc1a76fe7e38}
+
+\item 
+\hypertarget{classQEPlot_a763a7b12b951f753afadf252c5ed4c24}{
+void {\bfseries setTimeSpan} (unsigned int timeSpan)}
+\label{classQEPlot_a763a7b12b951f753afadf252c5ed4c24}
+
+\item 
+\hypertarget{classQEPlot_a436de197dec68f15e69f3d98388b80b1}{
+unsigned int {\bfseries getTimeSpan} ()}
+\label{classQEPlot_a436de197dec68f15e69f3d98388b80b1}
+
+\item 
+\hypertarget{classQEPlot_afa648e05c2502b9735b2e0a4e10f544c}{
+void {\bfseries setTickRate} (unsigned int tickRate)}
+\label{classQEPlot_afa648e05c2502b9735b2e0a4e10f544c}
+
+\item 
+\hypertarget{classQEPlot_aecaa1998b445fb00efc25bb84817c4c0}{
+unsigned int {\bfseries getTickRate} ()}
+\label{classQEPlot_aecaa1998b445fb00efc25bb84817c4c0}
+
+\item 
+\hypertarget{classQEPlot_a7cc966cea95f9f0fc8d301a3cccbcb6a}{
+bool \hyperlink{classQEPlot_a7cc966cea95f9f0fc8d301a3cccbcb6a}{isEnabled} () const }
+\label{classQEPlot_a7cc966cea95f9f0fc8d301a3cccbcb6a}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPlot_a3bce665d50cf4c8ead83b0f7b914e497}{enabled} property -\/ refer to \hyperlink{classQEPlot_a3bce665d50cf4c8ead83b0f7b914e497}{enabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPlot_ad46dc348a104caa6ea69ad63d9c35469}{
+void \hyperlink{classQEPlot_ad46dc348a104caa6ea69ad63d9c35469}{setEnabled} (bool state)}
+\label{classQEPlot_ad46dc348a104caa6ea69ad63d9c35469}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPlot_a3bce665d50cf4c8ead83b0f7b914e497}{enabled} property -\/ refer to \hyperlink{classQEPlot_a3bce665d50cf4c8ead83b0f7b914e497}{enabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPlot_ae63588c6535de597cf83c32724f530f3}{
+\hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}{UserLevels} \hyperlink{classQEPlot_ae63588c6535de597cf83c32724f530f3}{getUserLevelVisibilityProperty} ()}
+\label{classQEPlot_ae63588c6535de597cf83c32724f530f3}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPlot_acef17c83a058146755dda5a418624b60}{userLevelVisibility} property -\/ refer to \hyperlink{classQEPlot_acef17c83a058146755dda5a418624b60}{userLevelVisibility} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPlot_a272912ba76fb028664f85f1e3de49538}{
+void \hyperlink{classQEPlot_a272912ba76fb028664f85f1e3de49538}{setUserLevelVisibilityProperty} (\hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}{UserLevels} level)}
+\label{classQEPlot_a272912ba76fb028664f85f1e3de49538}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPlot_acef17c83a058146755dda5a418624b60}{userLevelVisibility} property -\/ refer to \hyperlink{classQEPlot_acef17c83a058146755dda5a418624b60}{userLevelVisibility} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPlot_a0ccd990d1cd6d29d5abef03e773223a5}{
+\hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}{UserLevels} \hyperlink{classQEPlot_a0ccd990d1cd6d29d5abef03e773223a5}{getUserLevelEnabledProperty} ()}
+\label{classQEPlot_a0ccd990d1cd6d29d5abef03e773223a5}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPlot_acd90a1dd927f697ad58a888a748cff07}{userLevelEnabled} property -\/ refer to \hyperlink{classQEPlot_acd90a1dd927f697ad58a888a748cff07}{userLevelEnabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPlot_af4713a389386ff0cf48e15371b9c3bc2}{
+void \hyperlink{classQEPlot_af4713a389386ff0cf48e15371b9c3bc2}{setUserLevelEnabledProperty} (\hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}{UserLevels} level)}
+\label{classQEPlot_af4713a389386ff0cf48e15371b9c3bc2}
+
+\begin{DoxyCompactList}\small\item\em Access function for \hyperlink{classQEPlot_acd90a1dd927f697ad58a888a748cff07}{userLevelEnabled} property -\/ refer to \hyperlink{classQEPlot_acd90a1dd927f697ad58a888a748cff07}{userLevelEnabled} property for details. \end{DoxyCompactList}\item 
+\hypertarget{classQEPlot_a9876387ff8e9dc956b5ce2ceb2aa131e}{
+void {\bfseries setTraceStyle1} (TraceStyles traceStyle)}
+\label{classQEPlot_a9876387ff8e9dc956b5ce2ceb2aa131e}
+
+\item 
+\hypertarget{classQEPlot_a858b619f1d9562eb7cc4742e91ce3f03}{
+void {\bfseries setTraceStyle2} (TraceStyles traceStyle)}
+\label{classQEPlot_a858b619f1d9562eb7cc4742e91ce3f03}
+
+\item 
+\hypertarget{classQEPlot_a0ac3e6b75b0ae15c8b05add5f8701a70}{
+void {\bfseries setTraceStyle3} (TraceStyles traceStyle)}
+\label{classQEPlot_a0ac3e6b75b0ae15c8b05add5f8701a70}
+
+\item 
+\hypertarget{classQEPlot_a03efe229509fc25b271c7e1902c4b1d0}{
+void {\bfseries setTraceStyle4} (TraceStyles traceStyle)}
+\label{classQEPlot_a03efe229509fc25b271c7e1902c4b1d0}
+
+\item 
+\hypertarget{classQEPlot_adf8c26e83ac90cccecc400951937bc8c}{
+TraceStyles {\bfseries getTraceStyle1} ()}
+\label{classQEPlot_adf8c26e83ac90cccecc400951937bc8c}
+
+\item 
+\hypertarget{classQEPlot_a64e60b9d675e201cf6810862375909cb}{
+TraceStyles {\bfseries getTraceStyle2} ()}
+\label{classQEPlot_a64e60b9d675e201cf6810862375909cb}
+
+\item 
+\hypertarget{classQEPlot_a28c9e877b380482ed1ecc652409e256e}{
+TraceStyles {\bfseries getTraceStyle3} ()}
+\label{classQEPlot_a28c9e877b380482ed1ecc652409e256e}
+
+\item 
+\hypertarget{classQEPlot_a794a2ba8688b3411b2d17153804b87b1}{
+TraceStyles {\bfseries getTraceStyle4} ()}
+\label{classQEPlot_a794a2ba8688b3411b2d17153804b87b1}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEPlot_a486278d28e22bc66942adc9cf119b246}{
+void {\bfseries establishConnection} (unsigned int variableIndex)}
+\label{classQEPlot_a486278d28e22bc66942adc9cf119b246}
+
+\item 
+\hypertarget{classQEPlot_afd75b9311494c38dc222e9325c39f780}{
+void {\bfseries dragEnterEvent} (QDragEnterEvent $\ast$event)}
+\label{classQEPlot_afd75b9311494c38dc222e9325c39f780}
+
+\item 
+\hypertarget{classQEPlot_a72531f24c6a4dc5ba8c244016bda103c}{
+void {\bfseries dropEvent} (QDropEvent $\ast$event)}
+\label{classQEPlot_a72531f24c6a4dc5ba8c244016bda103c}
+
+\item 
+\hypertarget{classQEPlot_a3aa028b47ecef680bf6d1ef72bf8a10f}{
+void {\bfseries mousePressEvent} (QMouseEvent $\ast$event)}
+\label{classQEPlot_a3aa028b47ecef680bf6d1ef72bf8a10f}
+
+\item 
+\hypertarget{classQEPlot_ac37a481fc830d836b6beebb78316c9c5}{
+void {\bfseries setDrop} (QVariant drop)}
+\label{classQEPlot_ac37a481fc830d836b6beebb78316c9c5}
+
+\item 
+\hypertarget{classQEPlot_addbd0966845973c7f957e2b57a2c0d4d}{
+QVariant {\bfseries getDrop} ()}
+\label{classQEPlot_addbd0966845973c7f957e2b57a2c0d4d}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classQEPlot_a3bb434075a63e9dfabdf43781a68b92a}{
+\hyperlink{classQEFloatingFormatting}{QEFloatingFormatting} {\bfseries floatingFormatting}}
+\label{classQEPlot_a3bb434075a63e9dfabdf43781a68b92a}
+
+\item 
+\hypertarget{classQEPlot_a62ab0c282a776fdf485ab09079a0fac4}{
+bool {\bfseries localEnabled}}
+\label{classQEPlot_a62ab0c282a776fdf485ab09079a0fac4}
+
+\item 
+bool \hyperlink{classQEPlot_aa68e5b9bb3c26d62b65e524970d67159}{allowDrop}
+\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+QString \hyperlink{classQEPlot_ade9ed52d2597230634d7ad4a32cb7150}{variable1}
+\item 
+QString \hyperlink{classQEPlot_aee6877cd682d63bfbf61575560a70390}{variable2}
+\item 
+QString \hyperlink{classQEPlot_a9bfab2a67bfeb7701da6df980b200124}{variable3}
+\item 
+QString \hyperlink{classQEPlot_a34e75617d0de188f7a1dd4c701b4616e}{variable4}
+\item 
+QString \hyperlink{classQEPlot_a5df88f65fefb802459e9e9df1c3200b8}{variableSubstitutions}
+\item 
+bool \hyperlink{classQEPlot_a01d27c6da28b8e719ebfc48400fabbfa}{variableAsToolTip}
+\item 
+bool \hyperlink{classQEPlot_a3bce665d50cf4c8ead83b0f7b914e497}{enabled}
+\item 
+bool \hyperlink{classQEPlot_aefce7f3abbebfba919e621d1e9227678}{visible}
+\item 
+unsigned \hyperlink{classQEPlot_a81aaae8a82c382a2ad61aa2990671c1e}{int}
+\item 
+QString \hyperlink{classQEPlot_a65f72e73ac50f4a85fb5cce783299b49}{userLevelUserStyle}
+\item 
+QString \hyperlink{classQEPlot_a9c6651e019989197a0e952c8348e4215}{userLevelScientistStyle}
+\item 
+QString \hyperlink{classQEPlot_ad3827c125cb4f43a333b3cfbaa14bf16}{userLevelEngineerStyle}
+\item 
+\hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}{UserLevels} \hyperlink{classQEPlot_acef17c83a058146755dda5a418624b60}{userLevelVisibility}
+\item 
+\hyperlink{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}{UserLevels} \hyperlink{classQEPlot_acd90a1dd927f697ad58a888a748cff07}{userLevelEnabled}
+\item 
+bool \hyperlink{classQEPlot_a36de8c7bec3e3ef4486f4b98694fbdd8}{displayAlarmState}
+\item 
+\hypertarget{classQEPlot_a1b4b928764ae61f64d3816518c3fa0b5}{
+QColor {\bfseries traceColor1}}
+\label{classQEPlot_a1b4b928764ae61f64d3816518c3fa0b5}
+
+\item 
+\hypertarget{classQEPlot_aaf7fb0ace584472bf2ced4fb2baf3783}{
+QColor {\bfseries traceColor2}}
+\label{classQEPlot_aaf7fb0ace584472bf2ced4fb2baf3783}
+
+\item 
+\hypertarget{classQEPlot_aed3c2057eb687b755df888dedf28be4a}{
+QColor {\bfseries traceColor3}}
+\label{classQEPlot_aed3c2057eb687b755df888dedf28be4a}
+
+\item 
+\hypertarget{classQEPlot_a866e5c80721c1641053d28db200e1787}{
+QColor {\bfseries traceColor4}}
+\label{classQEPlot_a866e5c80721c1641053d28db200e1787}
+
+\item 
+\hypertarget{classQEPlot_ad64aa2384c4cb0848f319dd2266f305f}{
+TraceStyles {\bfseries traceStyle1}}
+\label{classQEPlot_ad64aa2384c4cb0848f319dd2266f305f}
+
+\item 
+\hypertarget{classQEPlot_a96f3e05f2408ae8df32383626d16e369}{
+TraceStyles {\bfseries traceStyle2}}
+\label{classQEPlot_a96f3e05f2408ae8df32383626d16e369}
+
+\item 
+\hypertarget{classQEPlot_aa354fe3e163a2c49a4272dd37e72d51e}{
+TraceStyles {\bfseries traceStyle3}}
+\label{classQEPlot_aa354fe3e163a2c49a4272dd37e72d51e}
+
+\item 
+\hypertarget{classQEPlot_a152f3e408991fdd06d98575f71ac1bc8}{
+TraceStyles {\bfseries traceStyle4}}
+\label{classQEPlot_a152f3e408991fdd06d98575f71ac1bc8}
+
+\item 
+\hypertarget{classQEPlot_aac5457e6cb1528c9ea47174349cab6de}{
+QString {\bfseries traceLegend1}}
+\label{classQEPlot_aac5457e6cb1528c9ea47174349cab6de}
+
+\item 
+\hypertarget{classQEPlot_aa28971c56bd20661ef8b65ff57eb5a4f}{
+QString {\bfseries traceLegend2}}
+\label{classQEPlot_aa28971c56bd20661ef8b65ff57eb5a4f}
+
+\item 
+\hypertarget{classQEPlot_adb023efdfab6b75e8179447cc49d62bc}{
+QString {\bfseries traceLegend3}}
+\label{classQEPlot_adb023efdfab6b75e8179447cc49d62bc}
+
+\item 
+\hypertarget{classQEPlot_ad80141eafe251a8f17ba7bcf4f463e61}{
+QString {\bfseries traceLegend4}}
+\label{classQEPlot_ad80141eafe251a8f17ba7bcf4f463e61}
+
+\item 
+\hypertarget{classQEPlot_a51d173cb4091d9f4284f5093360399ac}{
+QString {\bfseries title}}
+\label{classQEPlot_a51d173cb4091d9f4284f5093360399ac}
+
+\item 
+\hypertarget{classQEPlot_a17bcca54cf9104bc782012427f188556}{
+QColor {\bfseries backgroundColor}}
+\label{classQEPlot_a17bcca54cf9104bc782012427f188556}
+
+\item 
+\hypertarget{classQEPlot_a7eea8ec5e8abb8f343edba2caf476610}{
+QString {\bfseries xUnit}}
+\label{classQEPlot_a7eea8ec5e8abb8f343edba2caf476610}
+
+\item 
+\hypertarget{classQEPlot_a5dc996c9a3896e2688fdd99c1e8f5266}{
+QString {\bfseries yUnit}}
+\label{classQEPlot_a5dc996c9a3896e2688fdd99c1e8f5266}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}{
+\index{QEPlot@{QEPlot}!UserLevels@{UserLevels}}
+\index{UserLevels@{UserLevels}!QEPlot@{QEPlot}}
+\subsubsection[{UserLevels}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf QEPlot::UserLevels}}}
+\label{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323}
+User friendly enumerations for \hyperlink{classQEPlot_acef17c83a058146755dda5a418624b60}{userLevelVisibility} and \hyperlink{classQEPlot_acd90a1dd927f697ad58a888a748cff07}{userLevelEnabled} properties -\/ refer to \hyperlink{classQEPlot_acef17c83a058146755dda5a418624b60}{userLevelVisibility} and \hyperlink{classQEPlot_acd90a1dd927f697ad58a888a748cff07}{userLevelEnabled} properties and userLevel enumeration for details. \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{User@{User}!QEPlot@{QEPlot}}\index{QEPlot@{QEPlot}!User@{User}}\item[{\em 
+\hypertarget{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323aac0b3747eaf8712dcf429ec538773f33}{
+User}
+\label{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323aac0b3747eaf8712dcf429ec538773f33}
+}]Refer to USERLEVEL\_\-USER for details. \index{Scientist@{Scientist}!QEPlot@{QEPlot}}\index{QEPlot@{QEPlot}!Scientist@{Scientist}}\item[{\em 
+\hypertarget{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323af8eb0d1c9eaf5bf31da364e105e61658}{
+Scientist}
+\label{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323af8eb0d1c9eaf5bf31da364e105e61658}
+}]Refer to USERLEVEL\_\-SCIENTIST for details. \index{Engineer@{Engineer}!QEPlot@{QEPlot}}\index{QEPlot@{QEPlot}!Engineer@{Engineer}}\item[{\em 
+\hypertarget{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323a820f591cbcb318da7733ff7e7d4d419a}{
+Engineer}
+\label{classQEPlot_a3f70d3a05c74fdd4b58eaeed443bc323a820f591cbcb318da7733ff7e7d4d419a}
+}]Refer to USERLEVEL\_\-ENGINEER for details. \end{description}
+\end{Desc}
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classQEPlot_a09c2d1b104cd5970807bd9facc3c3b13}{
+\index{QEPlot@{QEPlot}!dbValueChanged@{dbValueChanged}}
+\index{dbValueChanged@{dbValueChanged}!QEPlot@{QEPlot}}
+\subsubsection[{dbValueChanged}]{\setlength{\rightskip}{0pt plus 5cm}void QEPlot::dbValueChanged (
+\begin{DoxyParamCaption}
+\item[{const double \&}]{out}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQEPlot_a09c2d1b104cd5970807bd9facc3c3b13}
+Sent when the widget is updated following a data change Can be used to pass on EPICS data (as presented in this widget) to other widgets. For example a QList widget could log updates from this widget. \hypertarget{classQEPlot_a1cab9bf6a187b59efbb13829735f5b24}{
+\index{QEPlot@{QEPlot}!dbValueChanged@{dbValueChanged}}
+\index{dbValueChanged@{dbValueChanged}!QEPlot@{QEPlot}}
+\subsubsection[{dbValueChanged}]{\setlength{\rightskip}{0pt plus 5cm}void QEPlot::dbValueChanged (
+\begin{DoxyParamCaption}
+\item[{const QVector$<$ double $>$ \&}]{out}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}
+\label{classQEPlot_a1cab9bf6a187b59efbb13829735f5b24}
+Sent when the widget is updated following a data change Can be used to pass on EPICS data (as presented in this widget) to other widgets. For example a QList widget could log updates from this widget. \hypertarget{classQEPlot_a16c5b1193a88ab1ed2e7496e0d570593}{
+\index{QEPlot@{QEPlot}!requestEnabled@{requestEnabled}}
+\index{requestEnabled@{requestEnabled}!QEPlot@{QEPlot}}
+\subsubsection[{requestEnabled}]{\setlength{\rightskip}{0pt plus 5cm}void QEPlot::requestEnabled (
+\begin{DoxyParamCaption}
+\item[{const bool \&}]{state}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, slot\mbox{]}}}}
+\label{classQEPlot_a16c5b1193a88ab1ed2e7496e0d570593}
+Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data. If disabled due to invalid data, a request to enable the widget will be honoured when the data is no longer invalid. 
+
+\subsection{Member Data Documentation}
+\hypertarget{classQEPlot_aa68e5b9bb3c26d62b65e524970d67159}{
+\index{QEPlot@{QEPlot}!allowDrop@{allowDrop}}
+\index{allowDrop@{allowDrop}!QEPlot@{QEPlot}}
+\subsubsection[{allowDrop}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf QEPlot::allowDrop}\hspace{0.3cm}{\ttfamily  \mbox{[}read, write, protected\mbox{]}}}}
+\label{classQEPlot_aa68e5b9bb3c26d62b65e524970d67159}
+Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name. 
+
+Reimplemented from \hyperlink{classQEDragDrop}{QEDragDrop}.
+
+
+
+\subsection{Property Documentation}
+\hypertarget{classQEPlot_a36de8c7bec3e3ef4486f4b98694fbdd8}{
+\index{QEPlot@{QEPlot}!displayAlarmState@{displayAlarmState}}
+\index{displayAlarmState@{displayAlarmState}!QEPlot@{QEPlot}}
+\subsubsection[{displayAlarmState}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPlot::displayAlarmState\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a36de8c7bec3e3ef4486f4b98694fbdd8}
+If set (default) widget will indicate the alarm state of any variable data is displaying. Typically the background colour is set to indicate the alarm state. Note, this property is included in the set of standard properties as it applies to most widgets. It will do nothing for widgets that don't display data. 
+
+Reimplemented from \hyperlink{classstandardProperties}{standardProperties}.
+
+\hypertarget{classQEPlot_a3bce665d50cf4c8ead83b0f7b914e497}{
+\index{QEPlot@{QEPlot}!enabled@{enabled}}
+\index{enabled@{enabled}!QEPlot@{QEPlot}}
+\subsubsection[{enabled}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPlot::enabled\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a3bce665d50cf4c8ead83b0f7b914e497}
+Set the prefered 'enabled' state. Default is true. This property is copied to the standard Qt 'enabled' property if the data being displayed is valid. If the data being displayed is invalid the standard Qt 'enabled' property will always be set to false to indicate invalid data. The value of this property will only be copied to the standard Qt 'enabled' property once data is valid. \hypertarget{classQEPlot_a81aaae8a82c382a2ad61aa2990671c1e}{
+\index{QEPlot@{QEPlot}!int@{int}}
+\index{int@{int}!QEPlot@{QEPlot}}
+\subsubsection[{int}]{\setlength{\rightskip}{0pt plus 5cm}unsigned QEPlot::int\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a81aaae8a82c382a2ad61aa2990671c1e}
+Set the ID used by the message filtering system. Default is zero. Widgets or applications that use messages from the framework have the option of filtering on this ID. For example, by using a unique message source ID a \hyperlink{classQELog}{QELog} widget may be set up to only log messages from a select set of widgets. \hypertarget{classQEPlot_acd90a1dd927f697ad58a888a748cff07}{
+\index{QEPlot@{QEPlot}!userLevelEnabled@{userLevelEnabled}}
+\index{userLevelEnabled@{userLevelEnabled}!QEPlot@{QEPlot}}
+\subsubsection[{userLevelEnabled}]{\setlength{\rightskip}{0pt plus 5cm}{\bf UserLevels} QEPlot::userLevelEnabled\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_acd90a1dd927f697ad58a888a748cff07}
+Lowest user level at which the widget is enabled. Default is 'User'. Used when designing GUIs that allow access to more and more detail according to the user mode. The user mode is set application wide through the \hyperlink{classQELogin}{QELogin} widget, or programatically through setUserLevel() Widgets that are always accessable should be visible at 'User'. Widgets that are only accessable to scientists managing the facility should be visible at 'Scientist'. Widgets that are only accessable to engineers maintaining the facility should be visible at 'Engineer'. \hypertarget{classQEPlot_ad3827c125cb4f43a333b3cfbaa14bf16}{
+\index{QEPlot@{QEPlot}!userLevelEngineerStyle@{userLevelEngineerStyle}}
+\index{userLevelEngineerStyle@{userLevelEngineerStyle}!QEPlot@{QEPlot}}
+\subsubsection[{userLevelEngineerStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPlot::userLevelEngineerStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_ad3827c125cb4f43a333b3cfbaa14bf16}
+Style Sheet string to be applied when the widget is displayed in 'Engineer' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQEPlot_a9c6651e019989197a0e952c8348e4215}{
+\index{QEPlot@{QEPlot}!userLevelScientistStyle@{userLevelScientistStyle}}
+\index{userLevelScientistStyle@{userLevelScientistStyle}!QEPlot@{QEPlot}}
+\subsubsection[{userLevelScientistStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPlot::userLevelScientistStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a9c6651e019989197a0e952c8348e4215}
+Style Sheet string to be applied when the widget is displayed in 'Scientist' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQEPlot_a65f72e73ac50f4a85fb5cce783299b49}{
+\index{QEPlot@{QEPlot}!userLevelUserStyle@{userLevelUserStyle}}
+\index{userLevelUserStyle@{userLevelUserStyle}!QEPlot@{QEPlot}}
+\subsubsection[{userLevelUserStyle}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPlot::userLevelUserStyle\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a65f72e73ac50f4a85fb5cce783299b49}
+Style Sheet string to be applied when the widget is displayed in 'User' mode. Default is an empty string. The syntax is the standard Qt Style Sheet syntax. For example, 'background-\/color: red' This Style Sheet string will be applied by the styleManager class. Refer to the styleManager class for details about how this Style Sheet string will be merged with any pre-\/existing Style Sheet string and any Style Sheet strings generated during the display of data. \hypertarget{classQEPlot_acef17c83a058146755dda5a418624b60}{
+\index{QEPlot@{QEPlot}!userLevelVisibility@{userLevelVisibility}}
+\index{userLevelVisibility@{userLevelVisibility}!QEPlot@{QEPlot}}
+\subsubsection[{userLevelVisibility}]{\setlength{\rightskip}{0pt plus 5cm}{\bf UserLevels} QEPlot::userLevelVisibility\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_acef17c83a058146755dda5a418624b60}
+Lowest user level at which the widget is visible. Default is 'User'. Used when designing GUIs that display more and more detail according to the user mode. The user mode is set application wide through the \hyperlink{classQELogin}{QELogin} widget, or programatically through setUserLevel() Widgets that are always visible should be visible at 'User'. Widgets that are only used by scientists managing the facility should be visible at 'Scientist'. Widgets that are only used by engineers maintaining the facility should be visible at 'Engineer'. \hypertarget{classQEPlot_ade9ed52d2597230634d7ad4a32cb7150}{
+\index{QEPlot@{QEPlot}!variable1@{variable1}}
+\index{variable1@{variable1}!QEPlot@{QEPlot}}
+\subsubsection[{variable1}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPlot::variable1\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_ade9ed52d2597230634d7ad4a32cb7150}
+EPICS variable name (CA PV). This variable is used to read updating values or waveforms for plotting in the first trace. \hypertarget{classQEPlot_aee6877cd682d63bfbf61575560a70390}{
+\index{QEPlot@{QEPlot}!variable2@{variable2}}
+\index{variable2@{variable2}!QEPlot@{QEPlot}}
+\subsubsection[{variable2}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPlot::variable2\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_aee6877cd682d63bfbf61575560a70390}
+EPICS variable name (CA PV). This variable is used to read updating values or waveforms for plotting in the second trace. \hypertarget{classQEPlot_a9bfab2a67bfeb7701da6df980b200124}{
+\index{QEPlot@{QEPlot}!variable3@{variable3}}
+\index{variable3@{variable3}!QEPlot@{QEPlot}}
+\subsubsection[{variable3}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPlot::variable3\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a9bfab2a67bfeb7701da6df980b200124}
+EPICS variable name (CA PV). This variable is used to read updating values or waveforms for plotting in the third trace. \hypertarget{classQEPlot_a34e75617d0de188f7a1dd4c701b4616e}{
+\index{QEPlot@{QEPlot}!variable4@{variable4}}
+\index{variable4@{variable4}!QEPlot@{QEPlot}}
+\subsubsection[{variable4}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPlot::variable4\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a34e75617d0de188f7a1dd4c701b4616e}
+EPICS variable name (CA PV). This variable is used to read updating values or waveforms for plotting in the fourth trace. \hypertarget{classQEPlot_a01d27c6da28b8e719ebfc48400fabbfa}{
+\index{QEPlot@{QEPlot}!variableAsToolTip@{variableAsToolTip}}
+\index{variableAsToolTip@{variableAsToolTip}!QEPlot@{QEPlot}}
+\subsubsection[{variableAsToolTip}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPlot::variableAsToolTip\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a01d27c6da28b8e719ebfc48400fabbfa}
+Use the variable as the tool tip. Default is true. Tool tip property will be overwritten by the variable name. 
+
+Reimplemented from \hyperlink{classQEToolTip}{QEToolTip}.
+
+\hypertarget{classQEPlot_a5df88f65fefb802459e9e9df1c3200b8}{
+\index{QEPlot@{QEPlot}!variableSubstitutions@{variableSubstitutions}}
+\index{variableSubstitutions@{variableSubstitutions}!QEPlot@{QEPlot}}
+\subsubsection[{variableSubstitutions}]{\setlength{\rightskip}{0pt plus 5cm}QString QEPlot::variableSubstitutions\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_a5df88f65fefb802459e9e9df1c3200b8}
+Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1\mbox{[},\mbox{]} NAME2=VALUE2... Values may be quoted strings. For example, 'SAMPLE=SAM1, NAME = \char`\"{}Ref foil\char`\"{}' These substitutions are applied to all the variable names. \hypertarget{classQEPlot_aefce7f3abbebfba919e621d1e9227678}{
+\index{QEPlot@{QEPlot}!visible@{visible}}
+\index{visible@{visible}!QEPlot@{QEPlot}}
+\subsubsection[{visible}]{\setlength{\rightskip}{0pt plus 5cm}bool QEPlot::visible\hspace{0.3cm}{\ttfamily  \mbox{[}read, write\mbox{]}}}}
+\label{classQEPlot_aefce7f3abbebfba919e621d1e9227678}
+Display the widget. Default is true. Setting this property false is usefull if widget is only used to provide a signal -\/ for example, when supplying data to a \hyperlink{classQELink}{QELink} widget. Note, when false the widget will still be visible in Qt Designer. 
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/QEPlot/QEPlot.h\item 
+/tmp/epicsqt/trunk/framework/widgets/QEPlot/QEPlot.cpp\end{DoxyCompactItemize}

@@ -1,0 +1,33 @@
+\hypertarget{classUserMessageSlot}{
+\section{UserMessageSlot Class Reference}
+\label{classUserMessageSlot}\index{UserMessageSlot@{UserMessageSlot}}
+}
+
+
+{\ttfamily \#include $<$UserMessage.h$>$}
+
+\subsection*{Public Slots}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classUserMessageSlot_ab050a1a0826289eb649cd7ed13b93729}{
+void \hyperlink{classUserMessageSlot_ab050a1a0826289eb649cd7ed13b93729}{message} (QString msg, \hyperlink{classmessage__types}{message\_\-types} type, unsigned int formId, unsigned int sourceId, \hyperlink{classUserMessage}{UserMessage} $\ast$originator)}
+\label{classUserMessageSlot_ab050a1a0826289eb649cd7ed13b93729}
+
+\begin{DoxyCompactList}\small\item\em A message has been received. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classUserMessageSlot_aad910815d01791fd898d3bd66fbd2020}{
+void \hyperlink{classUserMessageSlot_aad910815d01791fd898d3bd66fbd2020}{setOwner} (\hyperlink{classUserMessage}{UserMessage} $\ast$ownerIn)}
+\label{classUserMessageSlot_aad910815d01791fd898d3bd66fbd2020}
+
+\begin{DoxyCompactList}\small\item\em Set the \hyperlink{classUserMessage}{UserMessage} class this is a part of. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Class used to receive message signals. Used only within UserMessage.cpp An instance of this class is created by all instances of the \hyperlink{classUserMessage}{UserMessage} class. The \hyperlink{classUserMessage}{UserMessage} class uses an instance of this class to receive messages so it does not have to be based on QObject itself. This is required as derived classes generally need to be also based on another object derived from QObject (and QObject can only be the base of a single base class) 
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/tmp/epicsqt/trunk/framework/widgets/include/UserMessage.h\item 
+/tmp/epicsqt/trunk/framework/widgets/src/UserMessage.cpp\end{DoxyCompactItemize}
