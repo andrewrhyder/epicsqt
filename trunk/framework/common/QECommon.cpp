@@ -24,12 +24,14 @@
  *
  */
 
+#include <QColor>
 #include <QDebug>
 #include <QLabel>
 #include <QHeaderView>
 #include <QMetaObject>
 #include <QSize>
 #include <QTableWidget>
+#include <QWidget>
 
 #include <QEResizeableFrame.h>
 #include <QEWidget.h>

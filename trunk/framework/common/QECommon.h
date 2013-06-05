@@ -27,12 +27,10 @@
 #ifndef QECOMMON_H
 #define QECOMMON_H
 
-#include <QColor>
 #include <QDateTime>
 #include <QObject>
 #include <QPoint>
 #include <QString>
-#include <QWidget>
 #include <QEPluginLibrary_global.h>
 
 
@@ -46,6 +44,13 @@
 // Calculates number of items in an array
 //
 #define ARRAY_LENGTH(xx)   (int (sizeof (xx) /sizeof (xx [0])))
+
+// We do not include QColor and QWidget header files in this header file (they are
+// called by by QECommon.cpp), we just provide incomplete declarations.
+// This particularly usefull for non-gui command line programs.
+//
+class QColor;
+class QWidget;
 
 // Geneal purpose utility functions.
 // We use a class of static methods as opposed to a set of regular functions.
