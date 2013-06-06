@@ -322,8 +322,13 @@ public:
    void plotData ();
    void setReadOut (const QString & text);
    void setNormalBackground (bool state);
+
+   void chartContextMenuRequested (const QPoint & pos);
+   void chartContextMenuTriggered (QAction* action);
+
    void customContextMenuRequested (const unsigned int slot, const QPoint & pos);
    void contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options option);
+
    void pushState ();
    void prevState ();
    void nextState ();
@@ -358,9 +363,10 @@ private:
    QLabel *pvNames [NUMBER_OF_PVS];
    QELabel *caLabels [NUMBER_OF_PVS];
    QEStripChartItem *items [NUMBER_OF_PVS];
+
+   QMenu* chartContextMenu;
    QEStripChartContextMenu *inUseMenu;
    QEStripChartContextMenu *emptyMenu;
-
 
    QEChartStateLists chartStateList;
    int chartStatePointer;
@@ -394,6 +400,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 {
    unsigned int slot;
    int x, y;
+   QAction* action;
 
    this->chart = chartIn;
 
@@ -516,6 +523,34 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Create menus.
    //
+   // Overall conext menu
+   //
+   this->chartContextMenu = new QMenu (this->chart);
+   action = new QAction ("Paste PV name", this->chartContextMenu);
+   action->setCheckable (false);
+   action->setData (QVariant (int (1)));
+   this->chartContextMenu->addAction (action);
+
+
+   // Set up context menus.
+   // Don't want to do context menu over plot area - is there a better way?
+   //
+   this->toolBarResize->setContextMenuPolicy (Qt::CustomContextMenu);
+   this->pvResizeFrame->setContextMenuPolicy (Qt::CustomContextMenu);
+
+   this->connect (this->toolBarResize, SIGNAL (customContextMenuRequested (const QPoint &)),
+                  this->chart,         SLOT   (chartContextMenuRequested  (const QPoint &)));
+
+   this->connect (this->pvResizeFrame, SIGNAL (customContextMenuRequested (const QPoint &)),
+                  this->chart,         SLOT   (chartContextMenuRequested  (const QPoint &)));
+
+
+   QObject::connect (this->chartContextMenu, SIGNAL (triggered                 (QAction*)),
+                     this->chart,            SLOT   (chartContextMenuTriggered (QAction*)));
+
+
+   // Chart item context menus.
+   //
    this->inUseMenu = new QEStripChartContextMenu (true, this->chart);
    this->emptyMenu = new QEStripChartContextMenu (false, this->chart);
 
@@ -564,11 +599,39 @@ QEStripChartItem * QEStripChart::PrivateData::getItem (unsigned int slot)
    return (slot < NUMBER_OF_PVS) ? this->items [slot] : NULL;
 }
 
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::chartContextMenuRequested (const QPoint & pos)
+{
+   QWidget* theSender = dynamic_cast<QWidget*> ( this->chart->sender () );
+   QPoint golbalPos;
+
+   if (theSender) {
+      golbalPos = theSender->mapToGlobal (pos);
+      this->chartContextMenu->exec (golbalPos, 0);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::PrivateData::chartContextMenuTriggered (QAction*)
+{
+   QClipboard* cb = QApplication::clipboard ();
+   QString pasteText = cb->text().trimmed();
+
+   // Only action is paste - so far.
+   //
+   if (! pasteText.isEmpty()) {
+      this->chart->addPvNameSet (pasteText);
+   }
+}
+
 //------------------------------------------------------------------------------
 //
 void QEStripChart::PrivateData::customContextMenuRequested (const unsigned int slot, const QPoint & pos)
 {
-   QEStripChartItem * item = this->getItem (slot);
+   QEStripChartItem* item = this->getItem (slot);
    QPoint tempPos;
    QPoint golbalPos;
 
@@ -590,7 +653,7 @@ void QEStripChart::PrivateData::customContextMenuRequested (const unsigned int s
 //
 void QEStripChart::PrivateData::contextMenuSelected (const unsigned int slot, const QEStripChartContextMenu::Options option)
 {
-   QEStripChartItem * item = this->getItem (slot);
+   QEStripChartItem* item = this->getItem (slot);
 
    if (item) {
       item->contextMenuSelected (option);
@@ -1040,6 +1103,7 @@ void QEStripChart::PrivateData::onCanvasMouseMove (QMouseEvent * event)
 bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
 {
    QMouseEvent * mouseEvent = NULL;
+   bool isFiltered = false;
 
    // case on type first else we get a seg fault.
    //
@@ -1052,11 +1116,13 @@ bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
                case Qt::LeftButton:
                   this->plotLeftButton = mouseEvent->pos ();
                   this->plotLeftIsDefined = true;
+                  isFiltered = true;
                   break;
 
                case Qt::RightButton:
                   this->plotRightButton = mouseEvent->pos ();
                   this->plotRightIsDefined = true;
+                  isFiltered = true;
                   break;
 
                default:
@@ -1075,6 +1141,7 @@ bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
                      this->onPlaneScaleSelect (this->plotLeftButton, this->plotCurrent);
                      this->plotLeftIsDefined = false;
                      needAreplot = true;
+                     isFiltered = true;
                   }
                   break;
 
@@ -1082,6 +1149,7 @@ bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
                   if (this->plotRightIsDefined) {
                      this->plotRightIsDefined = false;
                      needAreplot = true;
+                     isFiltered = true;
                   }
                   break;
 
@@ -1104,6 +1172,7 @@ bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
                this->plotData ();
             }
             this->onCanvasMouseMove (mouseEvent);
+            isFiltered = true;
          }
          break;
 
@@ -1112,9 +1181,7 @@ bool QEStripChart::PrivateData::eventFilter (QObject *obj, QEvent *event)
          break;
    }
 
-   // standard event processing
-   //
-   return QObject::eventFilter (obj, event);
+   return isFiltered;
 }
 
 //------------------------------------------------------------------------------
@@ -1418,6 +1485,21 @@ void QEStripChart::tickTimeout ()
       // must be paused or historical - pretty much the same.
       this->privateData->plotData ();
    }
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::chartContextMenuRequested (const QPoint& pos)
+{
+   this->privateData->chartContextMenuRequested (pos);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChart::chartContextMenuTriggered (QAction* action)
+{
+   this->privateData->chartContextMenuTriggered (action);
 }
 
 //------------------------------------------------------------------------------
@@ -1729,9 +1811,6 @@ void QEStripChart::setYRange (const double yMinimumIn, const double yMaximumIn)
     this->privateData->plotData ();
 }
 
-/* %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- * %% work out which of these stuffs up mouse click reception %%
- * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //----------------------------------------------------------------------------
 //
 void QEStripChart::setDrop (QVariant drop)
@@ -1740,63 +1819,6 @@ void QEStripChart::setDrop (QVariant drop)
    //
    this->addPvNameSet (drop.toString());
 }
-
-//----------------------------------------------------------------------------
-//
-QVariant QEStripChart::getDrop ()
-{
-   if (this->isDraggingVariable ()) {
-      return QVariant (this->copyVariable ());
-   } else {
-      return this->copyData ();
-   }
-}
-
-//----------------------------------------------------------------------------
-// Copy and paste
-//
-QString QEStripChart::copyVariable ()
-{
-   QString result;
-   unsigned int slot;
-
-   // Copy string delimited set of PV names.
-   //
-   result = "";
-   for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
-      QEStripChartItem * item = this->privateData->getItem (slot);
-
-      if ((item) && (item->isInUse() == true)) {
-         if (!result.isEmpty()) {
-            result = result.append (" ");
-         };
-         result = result.append (item->getPvName());
-      }
-   }
-   return result;
-}
-
-//----------------------------------------------------------------------------
-//
-QVariant QEStripChart::copyData ()
-{
-   // Place holder for now.
-   // How can we sensibley interpret this? Image? Trace?
-   //
-   return QVariant ("");
-}
-
-//----------------------------------------------------------------------------
-//
-void QEStripChart::paste (QVariant s)
-{
-   // Use pasted text to add PV(s) to the chart.
-   //
-   this->addPvNameSet (s.toString ());
-}
-
- * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- */
 
 //----------------------------------------------------------------------------
 // Determine if user allowed to drop new PVs into this widget.
@@ -1820,7 +1842,7 @@ void QEStripChart::evaluateAllowDrop ()
       }
    }
 
-   this->setAcceptDrops (allowDrop);
+   this->setAllowDrop (allowDrop);
 }
 
 //----------------------------------------------------------------------------

@@ -145,22 +145,13 @@ public:
    QString getPredefinedItem (int i);
 
 protected:
-   // Drag and Drop
+   // Drop only. Dragging is from individual embedded QEWidgets.
    //
    // Override QWidget functions - call up standard handlers defined in QEDragDrop.
    //
-   //void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
-   //void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
-   //void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
-   //void setDrop (QVariant drop);
-   //QVariant getDrop ();
-
-   // Copy and paste
-   //
-   //QString copyVariable ();
-   //QVariant copyData ();
-   //void paste (QVariant s);
-
+   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
+   void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
+   void setDrop (QVariant drop);
 
    // override pure virtual functions
    //
@@ -257,12 +248,18 @@ private:
 private slots:
    void tickTimeout ();
 
+   // From chart context menu
+   //
+   void chartContextMenuRequested (const QPoint& pos);
+   void chartContextMenuTriggered (QAction* action);
+
    // From chart items
    //
    void customContextMenuRequested (const unsigned int slot, const QPoint & pos);
    void contextMenuSelected (const unsigned int slot, const QEStripChartContextMenu::Options option);
 
    // From tool bar
+   //
    void stateSelected (const QEStripChartNames::StateModes mode);
    void videoModeSelected (const QEStripChartNames::VideoModes mode);
    void yScaleModeSelected (const QEStripChartNames::YScaleModes mode);
