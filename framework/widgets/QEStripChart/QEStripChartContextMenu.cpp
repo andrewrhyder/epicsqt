@@ -38,6 +38,7 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
 {
    QMenu *menu;
    QAction *action;
+   QEStripChartNames::ContextMenuOptions option;
 
    unsigned int j;
 
@@ -48,52 +49,52 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
    // Note: action items are not enabled until corresponding functionallity is implemented.
    //
    if (inUseIn) {
-      this->make (this, "Read Archive",                        false, SCCM_READ_ARCHIVE);
+      this->make (this, "Read Archive",                        false, QEStripChartNames::SCCM_READ_ARCHIVE);
 
       menu = new QMenu ("Scale chart to this PV's", this);
       this->addMenu (menu);
-      this->make (menu, "HOPR/LOPR values",                    false, SCCM_SCALE_CHART_AUTO);
-      this->make (menu, "Plotted min/max values",              false, SCCM_SCALE_CHART_PLOTTED);
-      this->make (menu, "Buffered min/max values",             false, SCCM_SCALE_CHART_BUFFERED);
+      this->make (menu, "HOPR/LOPR values",                    false, QEStripChartNames::SCCM_SCALE_CHART_AUTO);
+      this->make (menu, "Plotted min/max values",              false, QEStripChartNames::SCCM_SCALE_CHART_PLOTTED);
+      this->make (menu, "Buffered min/max values",             false, QEStripChartNames::SCCM_SCALE_CHART_BUFFERED);
 
       menu = new QMenu ("Adjust/Scale this PV", this);
       this->addMenu (menu);
-      this->make (menu, "Reset",                               false, SCCM_SCALE_PV_RESET);
-      this->make (menu, "General...",                          false, SCCM_SCALE_PV_GENERAL);
-      this->make (menu, "HOPR/LOPR values map to chart range", false, SCCM_SCALE_PV_AUTO);
-      this->make (menu, "Plotted values map to chart range",   false, SCCM_SCALE_PV_PLOTTED);
-      this->make (menu, "Buffered values map to chart range",  false, SCCM_SCALE_PV_BUFFERED);
-      this->make (menu, "First value maps to chart centre",    false, SCCM_SCALE_PV_CENTRE);
+      this->make (menu, "Reset",                               false, QEStripChartNames::SCCM_SCALE_PV_RESET);
+      this->make (menu, "General...",                          false, QEStripChartNames::SCCM_SCALE_PV_GENERAL);
+      this->make (menu, "HOPR/LOPR values map to chart range", false, QEStripChartNames::SCCM_SCALE_PV_AUTO);
+      this->make (menu, "Plotted values map to chart range",   false, QEStripChartNames::SCCM_SCALE_PV_PLOTTED);
+      this->make (menu, "Buffered values map to chart range",  false, QEStripChartNames::SCCM_SCALE_PV_BUFFERED);
+      this->make (menu, "First value maps to chart centre",    false, QEStripChartNames::SCCM_SCALE_PV_CENTRE);
 
       menu = new QMenu ("Mode", this);
       this->addMenu (menu);
-      this->make (menu, "Rectangular",                         false, SCCM_PLOT_RECTANGULAR)->setEnabled (false);
-      this->make (menu, "Smooth",                              false, SCCM_PLOT_SMOOTH)->setEnabled (false);
-      this->make (menu, "User PV Process Time",                false, SCCM_PLOT_SERVER_TIME)->setEnabled (false);
-      this->make (menu, "Use Receive Time",                    false, SCCM_PLOT_CLIENT_TIME)->setEnabled (false);
+      this->make (menu, "Rectangular",                         false, QEStripChartNames::SCCM_PLOT_RECTANGULAR)->setEnabled (false);
+      this->make (menu, "Smooth",                              false, QEStripChartNames::SCCM_PLOT_SMOOTH)->setEnabled (false);
+      this->make (menu, "User PV Process Time",                false, QEStripChartNames::SCCM_PLOT_SERVER_TIME)->setEnabled (false);
+      this->make (menu, "Use Receive Time",                    false, QEStripChartNames::SCCM_PLOT_CLIENT_TIME)->setEnabled (false);
       menu->addSeparator();
-      this->make (menu, "Linear",                              false, SCCM_ARCH_LINEAR)->setEnabled (false);
-      this->make (menu, "Plot Binning",                        false, SCCM_ARCH_PLOTBIN)->setEnabled (false);
-      this->make (menu, "Raw",                                 false, SCCM_ARCH_RAW)->setEnabled (false);
-      this->make (menu, "Spread Sheet",                        false, SCCM_ARCH_SHEET)->setEnabled (false);
-      this->make (menu, "Averaged",                            false, SCCM_ARCH_AVERAGED)->setEnabled (false);
+      this->make (menu, "Linear",                              false, QEStripChartNames::SCCM_ARCH_LINEAR)->setEnabled (false);
+      this->make (menu, "Plot Binning",                        false, QEStripChartNames::SCCM_ARCH_PLOTBIN)->setEnabled (false);
+      this->make (menu, "Raw",                                 false, QEStripChartNames::SCCM_ARCH_RAW)->setEnabled (false);
+      this->make (menu, "Spread Sheet",                        false, QEStripChartNames::SCCM_ARCH_SHEET)->setEnabled (false);
+      this->make (menu, "Averaged",                            false, QEStripChartNames::SCCM_ARCH_AVERAGED)->setEnabled (false);
 
       menu = new QMenu ("Line", this);
       this->addMenu (menu);
-      this->make (menu, "Hide",                                true,  SCCM_LINE_HIDE)->setEnabled (false);
-      this->make (menu, "Regular",                             true,  SCCM_LINE_REGULAR)->setEnabled (false);
-      this->make (menu, "Bold",                                true,  SCCM_LINE_BOLD)->setEnabled (false);
-      this->make (menu, "Colour...",                           false, SCCM_LINE_COLOUR);
+      this->make (menu, "Hide",                                true,  QEStripChartNames::SCCM_LINE_HIDE)->setEnabled (false);
+      this->make (menu, "Regular",                             true,  QEStripChartNames::SCCM_LINE_REGULAR)->setEnabled (false);
+      this->make (menu, "Bold",                                true,  QEStripChartNames::SCCM_LINE_BOLD)->setEnabled (false);
+      this->make (menu, "Colour...",                           false, QEStripChartNames::SCCM_LINE_COLOUR);
 
-      this->make (this, "Edit PV Name...",                     false, SCCM_PV_EDIT_NAME);
+      this->make (this, "Edit PV Name...",                     false, QEStripChartNames::SCCM_PV_EDIT_NAME);
 
-      this->make (this, "Write PV trace to file...",           false, SCCM_PV_WRITE_TRACE)->setEnabled (false);
+      this->make (this, "Write PV trace to file...",           false, QEStripChartNames::SCCM_PV_WRITE_TRACE)->setEnabled (false);
 
-      this->make (this, "Generate Statistics",                 false, SCCM_PV_STATS)->setEnabled (false);
+      this->make (this, "Generate Statistics",                 false, QEStripChartNames::SCCM_PV_STATS)->setEnabled (false);
 
-      this->make (this, "Add to predefined PV names",          false, SCCM_ADD_TO_PREDEFINED);
+      this->make (this, "Add to predefined PV names",          false, QEStripChartNames::SCCM_ADD_TO_PREDEFINED);
 
-      this->make (this, "Clear",                               false, SCCM_PV_CLEAR);
+      this->make (this, "Clear",                               false, QEStripChartNames::SCCM_PV_CLEAR);
 
       for (j = 0 ; j < ARRAY_LENGTH (this->predefinedPVs); j++) {
          this->predefinedPVs [j] = NULL;
@@ -101,13 +102,14 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
 
    } else {
 
-      this->make (this, "Add PV Name...",                      false, SCCM_PV_ADD_NAME);
-      this->make (this, "Paste PV Name ",                      false, SCCM_PV_PASTE_NAME);
-      this->make (this, "Colour...",                           false, SCCM_LINE_COLOUR);
+      this->make (this, "Add PV Name...",                      false, QEStripChartNames::SCCM_PV_ADD_NAME);
+      this->make (this, "Paste PV Name ",                      false, QEStripChartNames::SCCM_PV_PASTE_NAME);
+      this->make (this, "Colour...",                           false, QEStripChartNames::SCCM_LINE_COLOUR);
       this->addSeparator ();
 
       for (j = 0 ; j < ARRAY_LENGTH (this->predefinedPVs); j++) {
-         action = this->make (this, "", false, Options (SCCM_PREDEFINED_01 + j));
+         option = QEStripChartNames::ContextMenuOptions (QEStripChartNames::SCCM_PREDEFINED_01 + j);
+         action = this->make (this, "", false, option);
          action->setVisible (false);
          this->predefinedPVs [j] = action;
       }
@@ -160,11 +162,14 @@ QAction *QEStripChartContextMenu::exec (const unsigned int slotIn, const QPoint 
 //
 void QEStripChartContextMenu::contextMenuTriggered (QAction* selectedItem)
 {
-   Options option;
+   bool okay;
+   QEStripChartNames::ContextMenuOptions option;
 
-   option = Options (selectedItem->data ().toInt ());
+   option = QEStripChartNames::ContextMenuOptions (selectedItem->data ().toInt (&okay));
 
-   if ((option > SCCM_NONE) && (option < SCCM_LAST)) {
+   if (okay &&
+       (option >= QEStripChartNames::ContextMenuItemFirst) &&
+       (option <= QEStripChartNames::ContextMenuItemLast)) {
       emit this->contextMenuSelected (this->slot, option);
    }
 }
@@ -174,7 +179,7 @@ void QEStripChartContextMenu::contextMenuTriggered (QAction* selectedItem)
 QAction* QEStripChartContextMenu::make (QMenu *parent,
                                         const QString & caption,
                                         const bool checkable,
-                                        const Options option)
+                                        const QEStripChartNames::ContextMenuOptions option)
 {
    QAction* action;
 
