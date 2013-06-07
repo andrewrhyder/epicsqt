@@ -261,8 +261,7 @@ QString QEStripChartItem::getPvName ()
 //
 bool QEStripChartItem::isInUse ()
 {
-   qcaobject::QCaObject *qca = this->getQcaItem ();
-   return (qca != NULL);
+   return !(this->privateData->pvName->text ().isEmpty ());
 }
 
 //------------------------------------------------------------------------------
@@ -730,7 +729,7 @@ void QEStripChartItem::readArchive ()
 void QEStripChartItem:: normalise () {
    // Just leverage off the context menu handler.
    //
-   this->contextMenuSelected (QEStripChartContextMenu::SCCM_SCALE_PV_AUTO);
+   this->contextMenuSelected (QEStripChartNames::SCCM_SCALE_PV_AUTO);
 }
 
 //------------------------------------------------------------------------------
@@ -776,7 +775,9 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
 {
    if (event->type () == QEvent::MouseButtonDblClick) {
       if (obj == this->privateData->pvName) {
-         this->contextMenuSelected (QEStripChartContextMenu::SCCM_PV_EDIT_NAME);
+         // Leverage of existing context menu handler.
+         //
+         this->contextMenuSelected (QEStripChartNames::SCCM_PV_EDIT_NAME);
          return true;  // we have handled double click
       }
    }
@@ -785,7 +786,7 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Options option)
+void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenuOptions option)
 {
    QEStripChart *chart = this->privateData->chart;  // alias
    TrackRange range;
@@ -796,11 +797,11 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
 
    switch (option) {
 
-      case QEStripChartContextMenu::SCCM_READ_ARCHIVE:
+      case QEStripChartNames::SCCM_READ_ARCHIVE:
          this->readArchive();
          break;
 
-      case  QEStripChartContextMenu::SCCM_SCALE_CHART_AUTO:
+      case  QEStripChartNames::SCCM_SCALE_CHART_AUTO:
          range = this->getLoprHopr (true);
          status = range.getMinMax(min, max);
          if (status) {
@@ -808,7 +809,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_SCALE_CHART_PLOTTED:
+      case QEStripChartNames::SCCM_SCALE_CHART_PLOTTED:
          range = this->getDisplayedMinMax (true);
          status = range.getMinMax(min, max);
          if (status) {
@@ -816,7 +817,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_SCALE_CHART_BUFFERED:
+      case QEStripChartNames::SCCM_SCALE_CHART_BUFFERED:
          range = this->getBufferedMinMax (true);
          status = range.getMinMax(min, max);
          if (status) {
@@ -825,12 +826,13 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          break;
 
 
-      case QEStripChartContextMenu::SCCM_SCALE_PV_RESET:
+      case QEStripChartNames::SCCM_SCALE_PV_RESET:
          this->scaling.reset();
          chart->plotData ();
          break;
 
-      case QEStripChartContextMenu::SCCM_SCALE_PV_GENERAL:
+
+      case QEStripChartNames::SCCM_SCALE_PV_GENERAL:
          this->adjustPVDialog->setSupport (chart->getYMinimum (),
                                            chart->getYMaximum (),
                                            this->getLoprHopr(false),
@@ -846,7 +848,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_SCALE_PV_AUTO:
+      case QEStripChartNames::SCCM_SCALE_PV_AUTO:
          range = this->getLoprHopr (false);
          status = range.getMinMax (min, max);
          if (status) {
@@ -855,7 +857,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_SCALE_PV_PLOTTED:
+      case QEStripChartNames::SCCM_SCALE_PV_PLOTTED:
          range = this->getDisplayedMinMax (false);
          status = range.getMinMax (min, max);
          if (status) {
@@ -864,7 +866,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_SCALE_PV_BUFFERED:
+      case QEStripChartNames::SCCM_SCALE_PV_BUFFERED:
          range = this->getBufferedMinMax (false);
          status = range.getMinMax (min, max);
          if (status) {
@@ -873,20 +875,20 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_SCALE_PV_CENTRE:
+      case QEStripChartNames::SCCM_SCALE_PV_CENTRE:
          if (this->firstPointIsDefined) {
             midway = (chart->getYMinimum () + chart->getYMaximum () ) / 2.0;
             this->scaling.set (this->firstPoint.value, 1.0, midway);
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_LINE_COLOUR:
+      case QEStripChartNames::SCCM_LINE_COLOUR:
          this->privateData->colourDialog->setCurrentColor (this->getColour ());
          this->privateData->colourDialog->open (this, SLOT (setColour (const QColor &)));
          break;
 
-      case QEStripChartContextMenu::SCCM_PV_ADD_NAME:
-      case QEStripChartContextMenu::SCCM_PV_EDIT_NAME:
+      case QEStripChartNames::SCCM_PV_ADD_NAME:
+      case QEStripChartNames::SCCM_PV_EDIT_NAME:
          this->pvNameEditDialog->setPvName (this->getPvName ());
          n = this->pvNameEditDialog->exec ();
          if (n == 1) {
@@ -900,7 +902,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_PV_PASTE_NAME:
+      case QEStripChartNames::SCCM_PV_PASTE_NAME:
          {
             QClipboard *cb = QApplication::clipboard ();
             QString pasteText = cb->text().trimmed();
@@ -911,25 +913,25 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartContextMenu::Optio
          }
          break;
 
-      case QEStripChartContextMenu::SCCM_ADD_TO_PREDEFINED:
+      case QEStripChartNames::SCCM_ADD_TO_PREDEFINED:
          chart->addToPredefinedList (this->getPvName ());
          break;
 
-      case QEStripChartContextMenu::SCCM_PREDEFINED_01:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_02:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_03:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_04:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_05:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_06:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_07:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_08:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_09:
-      case QEStripChartContextMenu::SCCM_PREDEFINED_10:
-         n = option - QEStripChartContextMenu::SCCM_PREDEFINED_01;
+      case QEStripChartNames::SCCM_PREDEFINED_01:
+      case QEStripChartNames::SCCM_PREDEFINED_02:
+      case QEStripChartNames::SCCM_PREDEFINED_03:
+      case QEStripChartNames::SCCM_PREDEFINED_04:
+      case QEStripChartNames::SCCM_PREDEFINED_05:
+      case QEStripChartNames::SCCM_PREDEFINED_06:
+      case QEStripChartNames::SCCM_PREDEFINED_07:
+      case QEStripChartNames::SCCM_PREDEFINED_08:
+      case QEStripChartNames::SCCM_PREDEFINED_09:
+      case QEStripChartNames::SCCM_PREDEFINED_10:
+         n = option - QEStripChartNames::SCCM_PREDEFINED_01;
          this->setPvName (chart->getPredefinedItem (n), "");
          break;
 
-      case QEStripChartContextMenu::SCCM_PV_CLEAR:
+      case QEStripChartNames::SCCM_PV_CLEAR:
          this->clear ();
          chart->evaluateAllowDrop ();   // move to strip chart proper??
          break;

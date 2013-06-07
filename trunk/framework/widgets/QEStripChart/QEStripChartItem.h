@@ -112,7 +112,7 @@ public:
    void plotData (const double timeScale,                             // x scale modifier
                   const QEStripChartNames::YScaleModes yScaleMode);   // y scale modifier
 
-   void contextMenuSelected (const QEStripChartContextMenu::Options option);
+   void contextMenuSelected (const QEStripChartNames::ContextMenuOptions option);
 
    void saveConfiguration (PMElement & parentElement);
    void restoreConfiguration (PMElement & parentElement);

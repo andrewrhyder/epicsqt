@@ -324,10 +324,11 @@ public:
    void setNormalBackground (bool state);
 
    void chartContextMenuRequested (const QPoint & pos);
+   void nullContextMenuRequested (const QPoint & pos);
    void chartContextMenuTriggered (QAction* action);
 
    void customContextMenuRequested (const unsigned int slot, const QPoint & pos);
-   void contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options option);
+   void contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions option);
 
    void pushState ();
    void prevState ();
@@ -521,32 +522,41 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->layout2->setSpacing (4);
    this->layout2->addWidget (this->plot);
 
-   // Create menus.
+   // Create/setup context menus.
    //
-   // Overall conext menu
+   // First do overall chart context menu
    //
    this->chartContextMenu = new QMenu (this->chart);
-   action = new QAction ("Paste PV name", this->chartContextMenu);
+
+   action = new QAction ("Copy PV names", this->chartContextMenu);
    action->setCheckable (false);
-   action->setData (QVariant (int (1)));
+   action->setData (QVariant (int (QEStripChartNames::SCCM_COPY_PV_NAMES)));
    this->chartContextMenu->addAction (action);
 
+   action = new QAction ("Paste PV names", this->chartContextMenu);
+   action->setCheckable (false);
+   action->setData (QVariant (int (QEStripChartNames::SCCM_PASTE_PV_NAMES)));
+   this->chartContextMenu->addAction (action);
 
-   // Set up context menus.
-   // Don't want to do context menu over plot area - is there a better way?
+   // Connect menu itself to menu handler.
    //
-   this->toolBarResize->setContextMenuPolicy (Qt::CustomContextMenu);
-   this->pvResizeFrame->setContextMenuPolicy (Qt::CustomContextMenu);
-
-   this->connect (this->toolBarResize, SIGNAL (customContextMenuRequested (const QPoint &)),
-                  this->chart,         SLOT   (chartContextMenuRequested  (const QPoint &)));
-
-   this->connect (this->pvResizeFrame, SIGNAL (customContextMenuRequested (const QPoint &)),
-                  this->chart,         SLOT   (chartContextMenuRequested  (const QPoint &)));
-
-
    QObject::connect (this->chartContextMenu, SIGNAL (triggered                 (QAction*)),
                      this->chart,            SLOT   (chartContextMenuTriggered (QAction*)));
+
+   // Set up context menus.
+   //
+   this->chart->setContextMenuPolicy (Qt::CustomContextMenu);
+
+   QObject::connect (this->chart, SIGNAL (customContextMenuRequested (const QPoint &)),
+                     this->chart, SLOT   (chartContextMenuRequested  (const QPoint &)));
+
+   // Don't want to do context menu over plot area - we use right-click for other stuff.
+   //
+   this->plotFrame->setContextMenuPolicy (Qt::CustomContextMenu);
+
+   QObject::connect (this->plotFrame, SIGNAL (customContextMenuRequested (const QPoint &)),
+                     this->chart,     SLOT   (nullContextMenuRequested   (const QPoint &)));
+
 
 
    // Chart item context menus.
@@ -556,11 +566,11 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Connect the context menus
    //
-   this->connect (this->inUseMenu, SIGNAL (contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options)),
-                  this->chart,     SLOT   (contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options)));
+   this->connect (this->inUseMenu, SIGNAL (contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)),
+                  this->chart,     SLOT   (contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)));
 
-   this->connect (this->emptyMenu, SIGNAL (contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options)),
-                  this->chart,     SLOT   (contextMenuSelected (const unsigned int, const QEStripChartContextMenu::Options)));
+   this->connect (this->emptyMenu, SIGNAL (contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)),
+                  this->chart,     SLOT   (contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)));
 
    // Clear / initialise plot.
    //
@@ -604,26 +614,57 @@ QEStripChartItem * QEStripChart::PrivateData::getItem (unsigned int slot)
 //
 void QEStripChart::PrivateData::chartContextMenuRequested (const QPoint & pos)
 {
-   QWidget* theSender = dynamic_cast<QWidget*> ( this->chart->sender () );
    QPoint golbalPos;
 
-   if (theSender) {
-      golbalPos = theSender->mapToGlobal (pos);
-      this->chartContextMenu->exec (golbalPos, 0);
-   }
+   golbalPos = this->chart->mapToGlobal (pos);
+   this->chartContextMenu->exec (golbalPos, 0);
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::PrivateData::chartContextMenuTriggered (QAction*)
+void QEStripChart::PrivateData::chartContextMenuTriggered (QAction* action)
 {
-   QClipboard* cb = QApplication::clipboard ();
-   QString pasteText = cb->text().trimmed();
+   bool okay;
+   QEStripChartNames::ContextMenuOptions option;
+   QClipboard* cb;
+   QString text;
+   unsigned int slot;
 
-   // Only action is paste - so far.
-   //
-   if (! pasteText.isEmpty()) {
-      this->chart->addPvNameSet (pasteText);
+   option = QEStripChartNames::ContextMenuOptions (action->data ().toInt (&okay));
+   if (!okay) {
+      return;
+   }
+
+   switch (option) {
+      case QEStripChartNames::SCCM_COPY_PV_NAMES:
+         // Create space delimited set of PV names.
+         //
+         text = "";
+         for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
+            QEStripChartItem * item = this->getItem (slot);
+
+            if ((item) && (item->isInUse() == true)) {
+               if (!text.isEmpty()) {
+                  text.append (" ");
+               };
+               text.append (item->getPvName ());
+            }
+         }
+         cb = QApplication::clipboard ();
+         cb->setText (text);
+         break;
+
+      case QEStripChartNames::SCCM_PASTE_PV_NAMES:
+         cb = QApplication::clipboard ();
+         text = cb->text().trimmed();
+         if (!text.isEmpty()) {
+            this->chart->addPvNameSet (text);
+         }
+         break;
+
+      default:
+         // do nothing
+         break;
    }
 }
 
@@ -651,7 +692,8 @@ void QEStripChart::PrivateData::customContextMenuRequested (const unsigned int s
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::PrivateData::contextMenuSelected (const unsigned int slot, const QEStripChartContextMenu::Options option)
+void QEStripChart::PrivateData::contextMenuSelected (const unsigned int slot,
+                                                     const QEStripChartNames::ContextMenuOptions option)
 {
    QEStripChartItem* item = this->getItem (slot);
 
@@ -1511,7 +1553,7 @@ void QEStripChart::customContextMenuRequested (const unsigned int slot, const QP
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::contextMenuSelected (const unsigned int slot, const QEStripChartContextMenu::Options option)
+void QEStripChart::contextMenuSelected (const unsigned int slot, const QEStripChartNames::ContextMenuOptions option)
 {
    this->privateData->contextMenuSelected (slot, option);
 }
