@@ -239,17 +239,18 @@ protected:
 
 private:
     typedef QList<QRadioButton *> QRadioButtonList;
-    typedef QMap<int, int> QIntTintMap;
+    typedef QMap<int, int> QIntToIntMap;
 
     QEIntegerFormatting integerFormatting;
     QELocalEnumeration localEnumerations;
 
     // Use of the local enumerations means that we could have sparce mapping,
     // e.g.: 1 => Red, 5 => Blue, 63 => Green.  Therefore we need to create
-    // and maintain a value to button and button to value maps.
+    // and maintain a value to button index and button index to value maps.
+    // Create a single two-way-map object??
     //
-    QIntTintMap valueToButtonMap;
-    QIntTintMap buttonToValueMap;
+    QIntToIntMap valueToButtonIndexMap;
+    QIntToIntMap buttonIndexToValueMap;
     QRadioButtonList radioButtonList;
     QRadioButton *noSelectionButton;
 
