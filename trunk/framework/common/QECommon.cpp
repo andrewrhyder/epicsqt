@@ -27,6 +27,7 @@
 #include <QColor>
 #include <QDebug>
 #include <QLabel>
+#include <QLayout>
 #include <QHeaderView>
 #include <QMetaObject>
 #include <QSize>
@@ -250,10 +251,11 @@ int QEUtilities::scaleBy (const int v, const int m, const int d)
 
 void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
 {
-   QLabel* label;
-   QEWidget* qeWidget;
-   QEResizeableFrame* resizeableFrame;
-   QTableWidget* tableWidget;
+   QLabel* label = NULL;
+   QEWidget* qeWidget = NULL;
+   QLayout* layout = NULL;
+   QEResizeableFrame* resizeableFrame = NULL;
+   QTableWidget* tableWidget = NULL;
 
    // sainity check.
    //
@@ -315,6 +317,26 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
          font.setPixelSize (MAX (1, QEUtilities::scaleBy (pixelSize, m, d)));
       }
       widget->setFont (font);
+   }
+
+   // Check if there is a layout
+   //
+   layout = widget->layout ();
+   if (layout) {
+       int margin [5];   // left, top, right bottom, spacing
+       int j;
+
+       layout->getContentsMargins (&margin [0], &margin [1],&margin [2],&margin [3]);
+       margin [4] = layout->spacing ();
+
+       for (j = 0; j < 5; j++) {
+          if (margin [j] > 0) {
+             margin [j] = QEUtilities::scaleBy (margin [j] , m, d);
+          }
+       }
+
+       layout->setContentsMargins (margin [0], margin [1],margin [2], margin [3]);
+       layout->setSpacing (margin [4]);
    }
 
    // Specials.
