@@ -167,6 +167,7 @@ void QERadioGroup::establishConnection (unsigned int variableIndex)
       DEBUG << "unexpected variableIndex" << variableIndex;
       return;
    }
+
    // Create a connection.
    // If successfull, the QCaObject object that will supply data update signals will be returned
    // Note createConnection creates the connection and returns reference to existing QCaObject.
@@ -227,16 +228,17 @@ void QERadioGroup::valueUpdate (const long &value,
    //
    this->currentIndex = value;
 
-   if (this->valueToButtonMap.contains (value)) {
-      buttonIndex = this->valueToButtonMap.value (this->currentIndex, -1);
+   if (this->valueToButtonIndexMap.contains (value)) {
+      buttonIndex = this->valueToButtonIndexMap.value (this->currentIndex, -1);
       if ((buttonIndex >= 0) && (buttonIndex < this->number)) {
          button = this->radioButtonList.value (buttonIndex, NULL);
          if (button) {
-            button->setChecked (true);
+            button->setChecked (true); // this will uncheck all other buttons
          }
       }
    } else {
-      // We haven't mapped this value - use hidden selection
+      // We haven't mapped this value - use hidden selection.
+      // This will uncheck all the "real" buttons
       //
       this->noSelectionButton->setChecked (true);
    }
@@ -254,35 +256,34 @@ void QERadioGroup::valueUpdate (const long &value,
 //
 void QERadioGroup::buttonClicked (bool)
 {
-   int checkedButton;
-   int j;
-   int indexValue;
+   QRadioButton* sendingButton = NULL;
+   int buttonIndex;
+   int value;
 
-   checkedButton = -1;
-   for (j = 0; j < this->number && j < this->radioButtonList.count (); j++) {
-      QRadioButton *button = this->radioButtonList.value (j, NULL);
-      if (button && button->isVisible ()) {
-         if (button->isChecked ()) {
-            // foound it.
-            //
-            checkedButton = j;
-            break;
-         }
-      }
-   }
-
-   // Validate
+   // Determine signal sending widget
    //
-   if ((checkedButton < 0) && (checkedButton >= this->number)) {
+   sendingButton = dynamic_cast<QRadioButton*> (this->sender());
+   if (!sendingButton) {
       return;
    }
 
-   if (!this->buttonToValueMap.contains (checkedButton)) {
+   // Extract radio button position.
+   //
+   buttonIndex = this->radioButtonList.indexOf (sendingButton);
+   if ((buttonIndex < 0) && (buttonIndex >= this->number)) {
       return;
    }
 
-   indexValue = this->buttonToValueMap.value (checkedButton);
-   if (indexValue == this->getCurrentIndex ()) {
+   // Determine associated value.
+   //
+   if (!this->buttonIndexToValueMap.contains (buttonIndex)) {
+      return;
+   }
+   value = this->buttonIndexToValueMap.value (buttonIndex);
+
+   // Don't write current value.
+   //
+   if (value == this->getCurrentIndex ()) {
       return;
    }
 
@@ -292,9 +293,10 @@ void QERadioGroup::buttonClicked (bool)
    QEInteger *qca = (QEInteger *) getQcaItem (0);
 
    // If a QCa object is present (if there is a variable to write to)
-   // then write the value
+   // then write the value.
+   //
    if (qca) {
-      qca->writeInteger (indexValue);
+      qca->writeInteger (value);
    }
 }
 
@@ -317,13 +319,13 @@ void QERadioGroup::setButtonText ()
    int n;
    int j;
 
-   // Buid forward and revserse EPICS value to button position maps.
-   // We do this even even using db enuberations and the mapping is trivial.
+   // Build forward and revserse EPICS value to button index/position maps.
+   // We do this even when using db enuberations and the mapping is trivial.
    //
    // Clear maps.
    //
-   this->valueToButtonMap.clear();
-   this->buttonToValueMap.clear ();
+   this->valueToButtonIndexMap.clear();
+   this->buttonIndexToValueMap.clear ();
 
    if (this->useDbEnumerations) {
       qca = getQcaItem (0);
@@ -333,8 +335,8 @@ void QERadioGroup::setButtonText ()
          // Create indentity map.
          //
          for (j = 0; j < enumerations.count (); j++) {
-            this->valueToButtonMap.insert (j, j);
-            this->buttonToValueMap.insert (j, j);
+            this->valueToButtonIndexMap.insert (j, j);
+            this->buttonIndexToValueMap.insert (j, j);
          }
       }
 
@@ -345,7 +347,7 @@ void QERadioGroup::setButtonText ()
       // map 0 => 1; 1 => 5; 2 => 63 so that when user selects the an element,
       // say Blue, we can map this directly to integer value of 5.
       //
-      // Search upto values range -128 .. 128 - this is arbitary.
+      // Search upto values range -128 .. 128 - NOTE: this is arbitary.
       // Maybe localEnumeration can be modified to provide a min/max value
       // or a list of values.
       //
@@ -365,8 +367,8 @@ void QERadioGroup::setButtonText ()
          }
          enumerations.append (text);
 
-         this->valueToButtonMap.insert (n, j);
-         this->buttonToValueMap.insert (j, n);
+         this->valueToButtonIndexMap.insert (n, j);
+         this->buttonIndexToValueMap.insert (j, n);
       }
    }
 
