@@ -234,6 +234,9 @@ public:
 
     PersistanceManager* getPersistanceManager();        // Return a reference to the single persistance manager
 
+
+    static QChar platformSeperator();                   // Return the platform dependant path separator (between paths, not directories in a path). Qt only provides a platform directory separator (\ or /)
+
 private:
     void publishProfile( QObject* guiLaunchConsumerIn,
                          QStringList pathListIn,

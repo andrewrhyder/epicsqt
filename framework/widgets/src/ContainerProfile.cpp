@@ -437,7 +437,7 @@ QStringList ContainerProfile::getEnvPathList()
     QString pathVar = sysEnv.value ( "QE_UI_PATH" );
     if( !pathVar.isEmpty() )
     {
-        envPathList = pathVar.split(QRegExp("\\s+"));
+        envPathList = pathVar.split( platformSeperator() );
     }
 
     return envPathList;
@@ -629,6 +629,13 @@ void ContainerProfile::setUserLevel( userLevelTypes::userLevels level )
     getPublishedProfile()->userSignal.setLevel( level );
 }
 
+
+// Return the platform dependant path separator (between paths, not directories in a path).
+// Qt only provides a platform directory separator (\ or /)
+QChar ContainerProfile::platformSeperator()
+{
+    return (QDir::separator () == '/' )?':':';';
+}
 
 
 
