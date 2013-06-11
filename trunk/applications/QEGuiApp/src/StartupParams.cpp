@@ -30,6 +30,7 @@
 #include <QStringList>
 #include <QVariant>
 #include <QDir>
+#include <ContainerProfile.h>
 
 #include <QECommon.h>
 
@@ -250,13 +251,9 @@ bool startupParams::getStartupParams( QStringList args )
                         // Get the path list (next parameter, if present, and as long as it isn't a switch)
                         if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
                         {
-                            // Determine the path separator (between paths, not directories in a path)
-                            // Qt only provides a platform directory separator (\ or /)
-                            QChar sep = (QDir::separator () == '/' )?':':';';
-
                             // Split the paths
                             QString pathParam = args[0];
-                            pathList = pathParam.split( sep );
+                            pathList = pathParam.split( ContainerProfile::platformSeperator() );
                             args.removeFirst();
                         }
                         else

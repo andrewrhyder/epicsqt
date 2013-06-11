@@ -408,6 +408,10 @@ void MainWindow::on_actionAbout_triggered()
     about.append( "\n\n\nMacro Substitutions:\n      " ).append( profile.getMacroSubstitutions() );
 
 
+    // Add current working directory
+    about.append( "\n\n\nCurrent path:" );
+    about.append( "\n      " ).append( QDir::currentPath() );
+
     // Add any path list (-p parameter)
     QStringList paths =  profile.getPathList();
     about.append( "\n\n\nPath List Parameter:" );

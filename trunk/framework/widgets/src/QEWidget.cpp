@@ -499,8 +499,8 @@ QFile* QEWidget::findQEFile( QString name, ContainerProfile* profile )
             QStringList pathList = profile->getPathList();
             for( int i = 0; i < pathList.count(); i++ )
             {
-                fileInfo.setFile( pathList[i], name );
-                searchList.append(  fileInfo.filePath() );
+                QString path = pathList[i];
+                addPathToSearchList( path, name, searchList );
             }
 
             // Add the current directory
@@ -511,8 +511,7 @@ QFile* QEWidget::findQEFile( QString name, ContainerProfile* profile )
             QStringList envPathList = profile->getEnvPathList();
             for( int i = 0; i < envPathList.count(); i++ )
             {
-                fileInfo.setFile( envPathList[i], name );
-                searchList.append(  fileInfo.filePath() );
+                addPathToSearchList( envPathList[i], name, searchList );
             }
         }
 
@@ -527,6 +526,47 @@ QFile* QEWidget::findQEFile( QString name, ContainerProfile* profile )
             uiFile = NULL;
         }
         return uiFile;
+}
+
+// Add a path and filename to a search list.
+// If the path ends in '...' then add all the path's sub directories
+// else, use the path as is.
+// For example, assume /home/rhydera/adir and /home/rhydera/bdir are the only sub directories of /home/rhydera:
+//    addPathToSearchList( "/home/rhydera/...", myFile.ui, searchList )
+//       will add /home/rhydera/adir/myFile.ui and /home/rhydera/bdir/myFile.ui to the search list
+//
+//    addPathToSearchList( "/home/rhydera", myFile.ui, searchList )
+//       will add /home/rhydera/myFile.ui to the search list
+void QEWidget::addPathToSearchList( QString path, QString name, QStringList& searchList )
+{
+    QFileInfo fileInfo;
+
+    // If path ends with ... add sub directories
+    if( path.endsWith( "..." ) )
+    {
+        QString pathTop = path;
+        pathTop.chop( 3 );
+        QDir dir( pathTop );
+        QFileInfoList contents = dir.entryInfoList ( QDir::AllDirs );
+        for( int i = 0; i < contents.count(); i++ )
+        {
+            QFileInfo dirInfo = contents[i];
+            // Add a search path for each sub directory.
+            // Directories with no base name are ignored. These are '.' and '..'
+            if( !dirInfo.baseName().isEmpty() )
+            {
+                fileInfo.setFile( dirInfo.absoluteFilePath(), name );
+                searchList.append(  fileInfo.filePath() );
+            }
+        }
+    }
+
+    // If path does not end with ... add path
+    else
+    {
+        fileInfo.setFile( path, name );
+        searchList.append(  fileInfo.filePath() );
+    }
 }
 
 // Returns the QE framework that built this instance of the widget.
