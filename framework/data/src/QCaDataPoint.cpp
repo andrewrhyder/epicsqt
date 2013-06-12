@@ -34,7 +34,6 @@ QCaDataPoint::QCaDataPoint ()
    this->value = 0.0;
 }
 
-
 //------------------------------------------------------------------------------
 //
 bool QCaDataPoint::isDisplayable ()
@@ -67,6 +66,38 @@ bool QCaDataPoint::isDisplayable ()
    }
 
    return result;
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QCaDataPointList::resample (const QCaDataPointList& source,
+                                 const double interval,
+                                 const QCaDateTime& endTime)
+{
+   QCaDateTime firstTime;
+   int j;
+   int next;
+   QCaDateTime jthTime;
+   QCaDataPoint point;
+
+   this->clear ();
+   if (source.count () <= 0) return;
+
+   firstTime = source.value (0).datetime;
+   jthTime = firstTime;
+   next = 0;
+   for (j = 0; jthTime < endTime; j++) {
+
+      // Calculate to nearest mSec.
+      //
+      jthTime = firstTime.addMSecs ((qint64)( (double) j * 1000.0 * interval));
+
+      while (next < source.count () && source.value (next).datetime <= jthTime) next++;
+      point = source.value (next - 1);
+      point.datetime = jthTime;
+      this->append (point);
+   }
 }
 
 // end

@@ -51,7 +51,13 @@ public:
 // Defines a vector of data points.
 //
 class QCaDataPointList : public QVector<QCaDataPoint>  {
-   // no extra members (so far).
+public:
+   // Resamples the source list on points into current list.
+   // Note: any previous data is lost.
+   //
+   void resample (const QCaDataPointList& source,
+                  const double interval,
+                  const QCaDateTime&  endTime);
 };
 
 #endif  // QCADATAPOINT_H
