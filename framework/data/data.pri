@@ -31,6 +31,7 @@ HEADERS += \
 SOURCES += \
    data/src/QCaAlarmInfo.cpp \
    data/src/QCaConnectionInfo.cpp \
+   data/src/QCaDataPoint.cpp \
    data/src/QCaDateTime.cpp \
    data/src/QCaEventFilter.cpp \
    data/src/QCaEventUpdate.cpp \

@@ -137,7 +137,6 @@ private:
                         const QEStripChartNames::YScaleModes yScaleMode,
                         const bool isRealTime,
                         TrackRange & plottedTrackRange);
-   static bool isDisplayable (QCaDataPoint & point);
 
    // data members
    //
