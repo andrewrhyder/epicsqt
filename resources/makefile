@@ -14,7 +14,7 @@
 FRAMEWORK_DIRECTORY = epicsqt
 PACKAGE_DIRECTORY = package
 RPM_DIRECTORY = rpmbuild
-SVN_REPOSITORY = https://epicsqt.svn.sourceforge.net/svnroot/epicsqt
+SVN_REPOSITORY = https://svn.code.sf.net/p/epicsqt/code
 EXECUTE_FILE = $(PACKAGE_DIRECTORY)/executeQEGui
 SPEC_FILE = $(RPM_DIRECTORY)/SPECS/epicsqt.spec
 SVN = svn
