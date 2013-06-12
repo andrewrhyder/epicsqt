@@ -817,7 +817,7 @@ void QEPvProperties::setValueValue (const QString &,
    QRect g;
    int h;
 
-   // NOTE: The value lable updates itself.
+   // NOTE: The value label updates itself.
    //
    own->timeStamp->setText (dateTime.text () + "  " + QEUtilities::getTimeZoneTLA (dateTime));
 
