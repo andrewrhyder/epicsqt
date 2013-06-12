@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2013
  *
  *  Author:
  *    Andrew Starritt
@@ -35,18 +35,22 @@
 // intended for use QCaStripChart in particular, but also for the interface
 // to the Channel Access archives.
 //
-struct QCaDataPoint {
+class QCaDataPoint {
+public:
+   explicit QCaDataPoint ();
+   bool isDisplayable ();     // i.e is okay
+
    // We don't bother with a variant but just use a double.  A double can be
    // used to hold all CA data types except strings (which is are not plotable).
    //
    double value;
-   QCaDateTime datetime;  // datetime + nSec
+   QCaDateTime datetime;      // datetime + nSec
    QCaAlarmInfo alarm;
 };
 
 // Defines a vector of data points.
 //
-class QCaDataPointList : public QVector<struct QCaDataPoint>  {
+class QCaDataPointList : public QVector<QCaDataPoint>  {
    // no extra members (so far).
 };
 

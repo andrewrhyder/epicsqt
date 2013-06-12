@@ -350,39 +350,6 @@ QwtPlotCurve * QEStripChartItem::allocateCurve ()
 
 //------------------------------------------------------------------------------
 //
-bool QEStripChartItem::isDisplayable (QCaDataPoint & point)
-{
-   // The archive severity encompasses the normal EPICS severity.
-   //
-   QEArchiveInterface::archiveAlarmSeverity severity = (QEArchiveInterface::archiveAlarmSeverity) point.alarm.getSeverity ();
-   bool result;
-
-   switch (severity) {
-      case QEArchiveInterface::archSevNone:
-      case QEArchiveInterface::archSevMinor:
-      case QEArchiveInterface::archSevMajor:
-      case QEArchiveInterface::archSevEstRepeat:
-      case QEArchiveInterface::archSevRepeat:
-         result = true;
-         break;
-
-      case QEArchiveInterface::archSevInvalid:
-      case QEArchiveInterface::archSevDisconnect:
-      case QEArchiveInterface::archSevStopped:
-      case QEArchiveInterface::archSevDisabled:
-         result = false;
-         break;
-
-      default:
-         result = false;
-         break;
-   }
-
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
 void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
                                        const double timeScale,
                                        const QEStripChartNames::YScaleModes yScaleMode,
@@ -433,7 +400,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 
          // Only "exists" if plottable.
          //
-         doesPreviousExist = this->isDisplayable (point);  // (previous.alarm.isInvalid () == false);
+         doesPreviousExist = point.isDisplayable ();  // (previous.alarm.isInvalid () == false);
 
       }
       else if ((t >= -duration) && (t <= 0.0)) {
@@ -441,7 +408,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
          //
          // Is it a valid point - can we sensible plot it?
          //
-         if (this->isDisplayable (point)) {
+         if (point.isDisplayable ()) {
             if (!this->firstPointIsDefined) {
                this->firstPointIsDefined = true;
                this->firstPoint = point;
@@ -619,7 +586,7 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
 
    point.datetime = datetime;
 
-   if (this->isDisplayable (point)){
+   if (point.isDisplayable ()) {
       this->realTimeMinMax.merge (point.value);
    }
    this->realTimeDataPoints.append (point);
@@ -692,7 +659,7 @@ void QEStripChartItem::setArchiveData (const QObject *userData, const bool okay,
          count = this->historicalTimeDataPoints.count ();
          for (j = 0; j < count; j++) {
             point = this->historicalTimeDataPoints.value (j);
-            if (this->isDisplayable(point)) {
+            if (point.isDisplayable ()) {
                this->historicalMinMax.merge (point.value);
             }
          }
