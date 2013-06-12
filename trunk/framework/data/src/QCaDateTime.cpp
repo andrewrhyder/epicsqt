@@ -135,8 +135,7 @@ QString QCaDateTime::text()
 double QCaDateTime::floating( const QDateTime & base ) const
 {
     qint64 msec = msecsTo_48 (base, *this);
-    msecsTo_48 (base, *this);
-    return (double) (msec / 1000);
+    return (double) msec / (double) 1000.0;
 }
 
 /*
