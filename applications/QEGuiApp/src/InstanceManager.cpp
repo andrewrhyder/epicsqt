@@ -146,7 +146,7 @@ void instanceManager::newWindow( const startupParams& params )
     }
 
     // Not restoring, or if restoring didn't create any main windows, open the required guis
-    if( app->getMainWindowCount() == 0 )
+    if( !params.restore || app->getMainWindowCount() == 0 )
     {
         profile.setupProfile( NULL, params.pathList, "", params.substitutions );
 
