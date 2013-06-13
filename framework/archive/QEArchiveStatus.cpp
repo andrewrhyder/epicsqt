@@ -180,8 +180,6 @@ void QEArchiveStatus::archiveStatus (const QEArchiveAccess::StatusList& statusLi
 {
    int j;
 
-   DEBUG << " count => "<< statusList.count ();
-
    for (j = 0; j < QEArchiveStatus::PrivateData::NumberRows; j++ ) {
       QEArchiveStatus::PrivateData::Rows* row = &this->privateData->rowList [j];
 
@@ -191,7 +189,7 @@ void QEArchiveStatus::archiveStatus (const QEArchiveAccess::StatusList& statusLi
          row->hostNamePort->setText (QString ("%1:%2").arg (state.hostName).arg (state.portNumber));
          row->endPoint->setText (state.endPoint);
          row->state->setText ( QEUtilities::enumToString (*this->privateData->archiveAccess,
-                                                           QString ("States"), (int) state.state));
+                                                          QString ("States"), (int) state.state));
          row->available->setText (QString ("%1").arg (state.available));
          row->read->setText (QString ("%1").arg (state.read));
          row->numberPVs->setText (QString ("%1").arg (state.numberPVs));

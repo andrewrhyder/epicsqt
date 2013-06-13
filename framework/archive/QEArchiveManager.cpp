@@ -286,12 +286,12 @@ void QEArchiveManager::resendStatus ()
       status.portNumber = url.port();
       status.endPoint = url.path ();
 
-      // TODO - EXAMPLE VALUES ONLY !!!!
+      // TODO - Complete this.
       //
       status.state = QEArchiveAccess::Unknown;
-      status.available = 24;
-      status.read = 24;
-      status.numberPVs = 8726 + j*19082;
+      status.available = 0;
+      status.read = 0;
+      status.numberPVs = 0;
 
       statusList.append (status);
    }
