@@ -39,9 +39,42 @@
 
 
 //==============================================================================
-// Archive class type provides key (and name and path).
+// Local Types
+//==============================================================================
+// Essentially just tacking on a bit of status to the basic QEArchiveInterface.
 //
-class KeyTimeSpec:public QEArchiveInterface::Archive {
+class ArchiveInterfacePlus : public QEArchiveInterface {
+public:
+   explicit ArchiveInterfacePlus (QUrl url, QObject* parent = 0);
+
+   QEArchiveAccess::States state;
+   int available;
+   int read;
+   int numberPVs;
+};
+
+//------------------------------------------------------------------------------
+//
+ArchiveInterfacePlus::ArchiveInterfacePlus (QUrl url, QObject* parent) : QEArchiveInterface (url, parent)
+{
+   this->state = QEArchiveAccess::Unknown;
+   this->available = 0;
+   this->read = 0;
+   this->numberPVs = 0;
+}
+
+//------------------------------------------------------------------------------
+// The archive manager can support many different interfaces.
+//
+typedef QList <ArchiveInterfacePlus*> ArchiveInterfaceLists;
+
+
+//------------------------------------------------------------------------------
+// Archive class type provides key (and name and path - these not used as suich
+// but may prove to be usefull).
+// For a particualar PV, we also retrieve a start and stop time.
+//
+class KeyTimeSpec : public QEArchiveInterface::Archive {
 public:
    QCaDateTime startTime;
    QCaDateTime endTime;
@@ -52,10 +85,26 @@ public:
 // host, e.g. a short term archive and a long term archive.
 // However we expect all archives for a particlar PV to be co-hosted.
 //
-class SourceSpec:public QHash <int, KeyTimeSpec> {
+// This type provides a mapping from key (sparce numbers) to KeyTimeSpec
+// which contain the key itself, together with the available start/stop
+// times. This allows use to choose the key that best fits the request
+// time frame.
+//
+// Note: QHash provides faster lookups than QMap.
+//       When iterating over a QMap, the items are always sorted by key.
+//       With QHash, the items are arbitrarily ordered.
+//
+class SourceSpec {
 public:
-   QEArchiveInterface * interface;
+   ArchiveInterfacePlus* interface;
+   QHash <int, KeyTimeSpec> keyToTimeSpecLookUp;
 };
+
+//------------------------------------------------------------------------------
+// Mapping by PV name to essentially archive source to key(s) and time range(s)
+// that support the PV.
+//
+typedef QHash <QString, SourceSpec> PVNameToSourceSpecLookUp;
 
 
 //==============================================================================
@@ -71,80 +120,48 @@ public:
 //
 static QMutex *singletonMutex = new QMutex ();
 static QEArchiveManager *singleton = NULL;
-static QMutex *initialiseMutex = new QMutex ();
-
 
 static QMutex *archiveDataMutex = new QMutex ();
+static ArchiveInterfaceLists archiveInterfaceList;
+static PVNameToSourceSpecLookUp pvNameToSourceLookUp;
 
-static QList <QEArchiveInterface *>archiveInterfaceList;
 static QString pattern;
-static QHash <QString, SourceSpec> pvNameHash;
 static bool allArchivesRead = false;
 static int numberArchivesRead = 0;
 static bool environmentErrorReported = false;
-
 
 
 //==============================================================================
 // QEArchiveManager Class Methods
 //==============================================================================
 //
+//The singleton manager object is an orphan.
 //
-QEArchiveManager::QEArchiveManager () :
-   QObject (NULL)  //The singleton manager object is an orphan.
+QEArchiveManager::QEArchiveManager () : QObject (NULL)
 {
-   {
-      QMutexLocker locker (singletonMutex);
-
-      if (singleton == NULL) {
-         // This is the first object - we are the singleton.
-         //
-         singleton = this;
-      }
-   }
-
-   if (this != singleton) {
-      // This is NOT the singleton object.
-      // There can only be one.
-      //
-      this->sendMessage ("QEArchiveManager::QEArchiveManager - duplicate object.",
-                         message_types (MESSAGE_TYPE_ERROR));
-      return;
-   }
-
    // Hard-coded message Id.
+   //
    this->setSourceId (9001);
-
-   this->isInitialised = false;
 }
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveManager::initialise (QString archives, QString patternIn)
+void QEArchiveManager::setup (const QString& archives, const QString& patternIn)
 {
    QStringList archiveList;
    QString item;
    QUrl url;
-   QEArchiveInterface *interface;
+   ArchiveInterfacePlus *interface;
    int j;
 
    // First check we are the one and only ....
+   // Belts 'n' braces sainity check.
    //
    if (this != singleton) {
       // This is NOT the singleton object.
       this->sendMessage ("QEArchiveManager::initialise - attempt to use non-singleton object",
                           message_types (MESSAGE_TYPE_ERROR));
       return;
-   }
-
-   // Have we already been initialised?
-   // Use mutex to ensure thread safe.
-   {
-      QMutexLocker locker (initialiseMutex);
-      if (this->isInitialised) {
-         return;
-      }
-      this->isInitialised = true;
    }
 
    // All okay to go, let get started.
@@ -173,17 +190,17 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
       item.append (archiveList.value (j));
       url = QUrl (item);
 
-      interface = new QEArchiveInterface (url, singleton);
+      interface = new ArchiveInterfacePlus (url, singleton);
       archiveInterfaceList.append (interface);
 
-      connect (interface, SIGNAL (archivesResponse (const QObject *, const bool, const QEArchiveInterface::ArchiveList &)),
-               this,      SLOT   (archivesResponse (const QObject *, const bool, const QEArchiveInterface::ArchiveList &)));
+      connect (interface, SIGNAL (archivesResponse (const QObject*, const bool, const QEArchiveInterface::ArchiveList &)),
+               this,      SLOT   (archivesResponse (const QObject*, const bool, const QEArchiveInterface::ArchiveList &)));
 
-      connect (interface, SIGNAL (pvNamesResponse (const QObject *, const bool, const QEArchiveInterface::PVNameList &)),
-               this,      SLOT   (pvNamesResponse (const QObject *, const bool, const QEArchiveInterface::PVNameList &)));
+      connect (interface, SIGNAL (pvNamesResponse  (const QObject*, const bool, const QEArchiveInterface::PVNameList &)),
+               this,      SLOT   (pvNamesResponse  (const QObject*, const bool, const QEArchiveInterface::PVNameList &)));
 
-      connect (interface, SIGNAL (valuesResponse (const QObject *, const bool, const QEArchiveInterface::ResponseValueList &)),
-               this,      SLOT   (valuesResponse (const QObject *, const bool, const QEArchiveInterface::ResponseValueList &)));
+      connect (interface, SIGNAL (valuesResponse   (const QObject*, const bool, const QEArchiveInterface::ResponseValueList &)),
+               this,      SLOT   (valuesResponse   (const QObject*, const bool, const QEArchiveInterface::ResponseValueList &)));
 
       interface->archivesRequest (interface);
 
@@ -195,41 +212,41 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
 }
 
 
-//----------------------statusList--------------------------------------------------------
-//
+//------------------------------------------------------------------------------
+// static
+void QEArchiveManager::initialise (const QString& archives, const QString& patternIn)
+{
+   QMutexLocker locker (singletonMutex);
+
+   if (!singleton) {
+      singleton = new QEArchiveManager ();
+      singleton->setup (archives, patternIn);
+   }
+}
+
+//------------------------------------------------------------------------------
+// static
 void QEArchiveManager::initialise ()
 {
-   // First check we are the one and only ....
-   //
-   if (this != singleton) {
-      // This is NOT the singleton object.
-      this->sendMessage ("QEArchiveManager::initialise - attempt to use non-singleton object",
-                          message_types (MESSAGE_TYPE_ERROR));
-      return;
-   }
-
    QString archives = getenv ("QE_ARCHIVE_LIST");
    QString pattern = getenv ("QE_ARCHIVE_PATTERN");
 
    if (archives != "") {
-      if (pattern == "") {
+      if (pattern.isEmpty ()) {
          // Pattern environment variable undefined, use "get all" by default.
          //
          pattern = ".*";
       }
 
-      // This is idempotent.
-      //
-      this->initialise (archives, pattern);
+      QEArchiveManager::initialise (archives, pattern);
 
    } else {
       // Has this error already been reported??
-      // Not 100% thread safe but not critical either.
+      // Not strictly 100% thread safe but not strictly critical either.
       //
       if (!environmentErrorReported) {
          environmentErrorReported = true;
-         this->sendMessage ("QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs",
-                            message_types (MESSAGE_TYPE_WARNING));
+         qDebug() << "QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs";
       }
    }
 }
@@ -240,19 +257,9 @@ void QEArchiveManager::clear ()
 {
    int j;
 
-   // First check we are the one and only ....
-   //
-   if (this != singleton) {
-      // This is NOT the singleton object.
-      this->sendMessage ("QEArchiveManager::clear - attempt to use non-singleton object",
-                          message_types (MESSAGE_TYPE_ERROR));
-      return;
-   }
-
-
    allArchivesRead = false;
    numberArchivesRead = 0;
-   pvNameHash.clear ();
+   pvNameToSourceLookUp.clear ();
 
    // Do a deep clear of the archive interface list.
    //
@@ -268,8 +275,6 @@ void QEArchiveManager::clear ()
 //
 void QEArchiveManager::resendStatus ()
 {
-   // QMutexLocker locker (archiveDataMutex);  // do we need this/creates a dead lock
-
    QEArchiveAccess::StatusList statusList;
    int j;
    QUrl url;
@@ -278,20 +283,17 @@ void QEArchiveManager::resendStatus ()
 
    statusList.clear ();
    for (j = 0; j < archiveInterfaceList.count(); j++) {
-      QEArchiveInterface* archiveInterface = archiveInterfaceList.value (j);
+      ArchiveInterfacePlus* archiveInterface = archiveInterfaceList.value (j);
 
-      url = archiveInterface->getUrl();
-
+      url = archiveInterface->getUrl ();
       status.hostName = url.host ();
       status.portNumber = url.port();
       status.endPoint = url.path ();
 
-      // TODO - Complete this.
-      //
-      status.state = QEArchiveAccess::Unknown;
-      status.available = 0;
-      status.read = 0;
-      status.numberPVs = 0;
+      status.state = archiveInterface->state;
+      status.available = archiveInterface->available;
+      status.read = archiveInterface->read;
+      status.numberPVs = archiveInterface->numberPVs;
 
       statusList.append (status);
    }
@@ -304,14 +306,14 @@ void QEArchiveManager::resendStatus ()
 //
 class NamesResponseContext:public QObject {
 public:
-   QEArchiveInterface * interface;
-   QEArchiveInterface::Archive archive;
+   ArchiveInterfacePlus * interface;
+   ArchiveInterfacePlus::Archive archive;
    int instance;
    int number;
 
    // constructor
-   NamesResponseContext (QEArchiveInterface * interfaceIn,
-                         QEArchiveInterface::Archive archiveIn,
+   NamesResponseContext (ArchiveInterfacePlus * interfaceIn,
+                         ArchiveInterfacePlus::Archive archiveIn,
                          int i,
                          int n)
    {
@@ -331,7 +333,7 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
 {
    QMutexLocker locker (archiveDataMutex);
 
-   QEArchiveInterface *interface = (QEArchiveInterface *) userData;
+   ArchiveInterfacePlus *interface = (ArchiveInterfacePlus *) userData;
    int count;
    int j;
 
@@ -339,18 +341,18 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
 
       count = archiveList.count ();
       for (j = 0; j < count; j++) {
-         QEArchiveInterface::Archive archive = archiveList.value (j);
+         ArchiveInterfacePlus::Archive archive = archiveList.value (j);
          NamesResponseContext *context;
 
          // Create the callback context.
          //
-         context =
-             new NamesResponseContext (interface, archive, j + 1, count);
+         context = new NamesResponseContext (interface, archive, j + 1, count);
          interface->namesRequest (context, archive.key, pattern);
       }
+
    } else {
        this->sendMessage (QString ("request failure from ").append (interface->getName ()),
-                           message_types (MESSAGE_TYPE_ERROR));
+                          message_types (MESSAGE_TYPE_ERROR));
    }
 
    singleton->resendStatus ();
@@ -381,23 +383,23 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
          keyTimeSpec.startTime = pvChannel.startTime;
          keyTimeSpec.endTime = pvChannel.endTime;
 
-         if (pvNameHash.contains (pvChannel.pvName) == false) {
+         if (pvNameToSourceLookUp.contains (pvChannel.pvName) == false) {
             // First instance of this PV Name
             //
             sourceSpec.interface = context->interface;
-            sourceSpec.insert (keyTimeSpec.key, keyTimeSpec);
-            pvNameHash.insert (pvChannel.pvName, sourceSpec);
+            sourceSpec.keyToTimeSpecLookUp.insert (keyTimeSpec.key, keyTimeSpec);
+            pvNameToSourceLookUp.insert (pvChannel.pvName, sourceSpec);
 
          } else {
 
-            sourceSpec = pvNameHash.value (pvChannel.pvName);
+            sourceSpec = pvNameToSourceLookUp.value (pvChannel.pvName);
 
             if (sourceSpec.interface == context->interface) {
-               if (sourceSpec.contains (keyTimeSpec.key) == false) {
+               if (sourceSpec.keyToTimeSpecLookUp.contains (keyTimeSpec.key) == false) {
 
-                  sourceSpec.insert (keyTimeSpec.key, keyTimeSpec);
+                  sourceSpec.keyToTimeSpecLookUp.insert (keyTimeSpec.key, keyTimeSpec);
                   // QHash: If there is already an item with the key, that item's value is replaced with value.
-                  pvNameHash.insert (pvChannel.pvName, sourceSpec);
+                  pvNameToSourceLookUp.insert (pvChannel.pvName, sourceSpec);
 
                } else {
 
@@ -484,18 +486,9 @@ void QEArchiveManager::valuesResponse (const QObject * userData,
 //
 QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
 {
-   // Do we have a singleton ojbect yet?
-   // The constructor does the safe mutex locking required prior to assigin the
-   // object reference to singleton. We check here in order to reduce, although
-   // not absolutely remove error messages.
+   // Construct and initialise singleton QEArchiveManager object if needs be.
    //
-   if (!singleton) {
-      new QEArchiveManager ();
-   }
-
-   // This function is idempotent.
-   //
-   singleton->initialise ();
+   QEArchiveManager::initialise ();
 
    QObject::connect (singleton, SIGNAL (archiveStatus (const QEArchiveAccess::StatusList&)),
                      this,      SLOT (rxArchiveStatus (const QEArchiveAccess::StatusList&)));
@@ -524,34 +517,21 @@ void QEArchiveAccess::setMessageSourceId (unsigned int messageSourceIdIn)
 //------------------------------------------------------------------------------
 // static functions
 //
-void QEArchiveAccess::initialise (QString archives, QString pattern)
+void QEArchiveAccess::initialise (const QString& archives, const QString& pattern)
 {
-   // Do we have a sigleton ojbect yet?
+   // Construct and initialise singleton QEArchiveManager object if needs be.
    //
-   if (!singleton) {
-      new QEArchiveManager ();
-   }
-
-   // This function is idempotent.
-   //
-   singleton->initialise (archives, pattern);
+   QEArchiveManager::initialise (archives, pattern);
 }
 
 //------------------------------------------------------------------------------
 //
 void QEArchiveAccess::initialise ()
 {
-   // Do we have a sigleton ojbect yet?
+   // Construct and initialise singleton QEArchiveManager object if needs be.
    //
-   if (!singleton) {
-      new QEArchiveManager ();
-   }
-
-   // This function is idempotent.
-   //
-   singleton->initialise ();
+   QEArchiveManager::initialise ();
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -581,7 +561,7 @@ bool QEArchiveAccess::readArchive (QObject * userData,
 
    // Is this PV currently being archived?
    //
-   result = pvNameHash.contains (pvName);
+   result = pvNameToSourceLookUp.contains (pvName);
    if (result) {
       // Yes - save this exact name.
       //
@@ -596,26 +576,26 @@ bool QEArchiveAccess::readArchive (QObject * userData,
          //
          effectivePvName = pvName;
          effectivePvName.chop (4);
-         result = pvNameHash.contains (effectivePvName);
+         result = pvNameToSourceLookUp.contains (effectivePvName);
       } else {
          // Add .VAL and try again.
          //
          effectivePvName = pvName;
          effectivePvName = effectivePvName.append (".VAL");
-         result = pvNameHash.contains (effectivePvName);
+         result = pvNameToSourceLookUp.contains (effectivePvName);
       }
    }
 
    if (result) {
-      sourceSpec = pvNameHash.value (effectivePvName);
+      sourceSpec = pvNameToSourceLookUp.value (effectivePvName);
 
       key = -1;
       bestOverlap = -864000;
 
-      keys = sourceSpec.keys ();
+      keys = sourceSpec.keyToTimeSpecLookUp.keys ();
       for (j = 0; j < keys.count (); j++) {
 
-         keyTimeSpec = sourceSpec.value (keys.value (j));
+         keyTimeSpec = sourceSpec.keyToTimeSpecLookUp.value (keys.value (j));
 
          useStart = MAX (startTime.toUTC (), keyTimeSpec.startTime);
          useEnd = MIN (endTime.toUTC (), keyTimeSpec.endTime);
@@ -688,7 +668,7 @@ QString QEArchiveAccess::getPattern ()
 //
 int QEArchiveAccess::getNumberPVs ()
 {
-   return pvNameHash.count ();
+   return pvNameToSourceLookUp.count ();
 }
 
 //------------------------------------------------------------------------------
