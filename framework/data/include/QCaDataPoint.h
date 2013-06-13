@@ -27,7 +27,7 @@
 #ifndef QCADATAPOINT_H
 #define QCADATAPOINT_H
 
-#include <QVector>
+#include <QList>
 #include <QCaAlarmInfo.h>
 #include <QCaDateTime.h>
 
@@ -50,7 +50,7 @@ public:
 
 // Defines a vector of data points.
 //
-class QCaDataPointList : public QVector<QCaDataPoint>  {
+class QCaDataPointList : public QList<QCaDataPoint>  {
 public:
    // Resamples the source list on points into current list.
    // Note: any previous data is lost.
