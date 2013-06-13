@@ -190,10 +190,12 @@ void QEArchiveManager::initialise (QString archives, QString patternIn)
       this->sendMessage (QString ("requesting PV name info from ").append (interface->getName ()),
                          message_types (MESSAGE_TYPE_INFO));
    }
+
+   this->resendStatus ();
 }
 
 
-//------------------------------------------------------------------------------
+//----------------------statusList--------------------------------------------------------
 //
 void QEArchiveManager::initialise ()
 {
@@ -258,6 +260,43 @@ void QEArchiveManager::clear ()
       delete archiveInterfaceList.value (j);
    }
    archiveInterfaceList.clear ();
+
+   this->resendStatus ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveManager::resendStatus ()
+{
+   // QMutexLocker locker (archiveDataMutex);  // do we need this/creates a dead lock
+
+   QEArchiveAccess::StatusList statusList;
+   int j;
+   QUrl url;
+
+   QEArchiveAccess::Status status;
+
+   statusList.clear ();
+   for (j = 0; j < archiveInterfaceList.count(); j++) {
+      QEArchiveInterface* archiveInterface = archiveInterfaceList.value (j);
+
+      url = archiveInterface->getUrl();
+
+      status.hostName = url.host ();
+      status.portNumber = url.port();
+      status.endPoint = url.path ();
+
+      // TODO - EXAMPLE VALUES ONLY !!!!
+      //
+      status.state = QEArchiveAccess::Unknown;
+      status.available = 24;
+      status.read = 24;
+      status.numberPVs = 8726 + j*19082;
+
+      statusList.append (status);
+   }
+
+   this->archiveStatus (statusList);
 }
 
 
@@ -313,6 +352,8 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
        this->sendMessage (QString ("request failure from ").append (interface->getName ()),
                            message_types (MESSAGE_TYPE_ERROR));
    }
+
+   singleton->resendStatus ();
 }
 
 
@@ -398,6 +439,7 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
    }
 
    delete context;
+   singleton->resendStatus ();
 }
 
 
@@ -454,6 +496,9 @@ QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
    // This function is idempotent.
    //
    singleton->initialise ();
+
+   QObject::connect (singleton, SIGNAL (archiveStatus (const QEArchiveAccess::StatusList&)),
+                     this,      SLOT (rxArchiveStatus (const QEArchiveAccess::StatusList&)));
 }
 
 //------------------------------------------------------------------------------
@@ -644,6 +689,24 @@ QString QEArchiveAccess::getPattern ()
 int QEArchiveAccess::getNumberPVs ()
 {
    return pvNameHash.count ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::resendStatus ()
+{
+   if (singleton) {
+      singleton->resendStatus ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::rxArchiveStatus (const QEArchiveAccess::StatusList& stringList)
+{
+   // Just re-broadcast status signal.
+   //
+   emit this->archiveStatus (stringList);
 }
 
 // end

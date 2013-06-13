@@ -7,22 +7,34 @@ QT += xml network
 
 _QE_ARCHIVE_LIST = $$(QE_ARCHIVE_LIST)
 isEmpty( _QE_ARCHIVE_LIST ) {
-    warning( "QE_ARCHIVE_LIST is not defined. Thats OK, but if you want to be able to backfill QEStripChart widgets from an archiver you should define this environment variable to be a space delimited list of your archiver URLs" )
-    warning( "For example, archiver.synchrotron.org.au:80/cgi-bin/ArchiveDataServer1.cgi archiver.synchrotron.org.au:80/cgi-bin/ArchiveDataServer2.cgi" )
+    warning( "QE_ARCHIVE_LIST is not defined. That's OK, but if you want to be able to backfill QEStripChart widgets from" )
+    warning( "an archiver you should define this environment variable to be a space delimited list of your archiver URLs" )
+    warning( "For example: 'archiver.synchrotron.org.au:80/cgi-bin/ArchiveDataServer1.cgi archiver.synchrotron.org.au:80/cgi-bin/ArchiveDataServer2.cgi'" )
 }
+
+OTHER_FILES += \
+    archive/archive_status.png
+
+RESOURCES += \
+    archive/QEArchive.qrc
+        
 HEADERS += \
-    archive/QEArchiveInterface.h \
-    archive/QEArchiveManager.h \
     archive/maiaFault.h \
     archive/maiaObject.h \
-    archive/maiaXmlRpcClient.h
+    archive/maiaXmlRpcClient.h \
+    archive/QEArchiveInterface.h \
+    archive/QEArchiveManager.h \
+    archive/QEArchiveStatus.h  \
+    archive/QEArchiveStatusManager.h
 
 SOURCES += \
-    archive/QEArchiveInterface.cpp \
-    archive/QEArchiveManager.cpp \
     archive/maiaFault.cpp \
     archive/maiaObject.cpp \
-    archive/maiaXmlRpcClient.cpp
+    archive/maiaXmlRpcClient.cpp \
+    archive/QEArchiveInterface.cpp \
+    archive/QEArchiveManager.cpp \
+    archive/QEArchiveStatus.cpp  \
+    archive/QEArchiveStatusManager.cpp
 
 INCLUDEPATH += \
     archive

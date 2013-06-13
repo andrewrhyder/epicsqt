@@ -213,9 +213,9 @@ void QEArchiveInterface::valuesRequest (QObject *userData,
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveInterface::processInfo (const QObject *userData, QVariant & response)
+void QEArchiveInterface::processInfo (const QObject *userData, const QVariant & response)
 {
-   QMap<QString, QVariant> map;
+   StringToVariantMaps map;
    QString description;
    int version;
    bool okay;
@@ -242,12 +242,12 @@ void QEArchiveInterface::processInfo (const QObject *userData, QVariant & respon
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveInterface::processArchives (const QObject *userData, QVariant & response)
+void QEArchiveInterface::processArchives (const QObject *userData, const QVariant & response)
 {
    ArchiveList PvArchives;
    QVariantList list;
    QVariant element;
-   QMap<QString, QVariant> map;
+   StringToVariantMaps map;
    int j;
    bool okay;
    struct Archive item;
@@ -279,12 +279,12 @@ void QEArchiveInterface::processArchives (const QObject *userData, QVariant & re
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveInterface::processPvNames  (const QObject *userData, QVariant & response)
+void QEArchiveInterface::processPvNames  (const QObject *userData, const QVariant & response)
 {
    PVNameList PvNames;
    QVariantList list;
    QVariant element;
-   QMap<QString, QVariant> map;
+   StringToVariantMaps map;
    int j;
    bool okay;
    int seconds;
@@ -328,9 +328,9 @@ void QEArchiveInterface::processPvNames  (const QObject *userData, QVariant & re
 //------------------------------------------------------------------------------
 //
 void  QEArchiveInterface::processOnePoint (const DataType dtype,
-                                            QMap<QString, QVariant> value,
-                                            const unsigned int requested_element,
-                                            QCaDataPoint & datum)
+                                           const StringToVariantMaps& value,
+                                           const unsigned int requested_element,
+                                           QCaDataPoint & datum)
 {
    bool okay;
    int seconds;
@@ -380,12 +380,12 @@ void  QEArchiveInterface::processOnePoint (const DataType dtype,
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveInterface::processOnePV (QMap<QString, QVariant> map,
-                                        const unsigned int requested_element,
-                                        struct ResponseValues& item)
+void QEArchiveInterface::processOnePV (const StringToVariantMaps& map,
+                                       const unsigned int requested_element,
+                                       struct ResponseValues& item)
 {
 
-   QMap<QString, QVariant> meta;
+  StringToVariantMaps meta;
    bool okay;
    enum MetaType mtype;
    enum DataType dtype;
@@ -431,18 +431,21 @@ void QEArchiveInterface::processOnePV (QMap<QString, QVariant> map,
    for (v = 0; v < count; v++) {
       // No checking here - just go for it.
       //
-      QMap<QString, QVariant> value = values_list.value (v).toMap ();
+      StringToVariantMaps value = values_list.value (v).toMap ();
       QCaDataPoint datum;
 
       this->processOnePoint (dtype, value, requested_element, datum);
       item.dataPoints.append (datum);
+      // qDebug () << v << datum.value;
    }
 }
 
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveInterface::processValues (const QObject *userData, QVariant & response, const unsigned int requested_element)
+void QEArchiveInterface::processValues (const QObject* userData,
+                                        const QVariant& response,
+                                        const unsigned int requested_element)
 {
    ResponseValueList PvValues;
    QVariantList list;
@@ -459,7 +462,7 @@ void QEArchiveInterface::processValues (const QObject *userData, QVariant & resp
       element = list.value (j);
       if (element.type () == QVariant::Map) {
 
-         QMap<QString, QVariant> map = element.toMap ();
+         StringToVariantMaps map = element.toMap ();
          struct ResponseValues item;
 
          this->processOnePV (map, requested_element, item);
@@ -477,7 +480,7 @@ void QEArchiveInterface::processValues (const QObject *userData, QVariant & resp
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveInterface::xmlRpcResponse (const QEArchiveInterface::Context & context, QVariant & response)
+void QEArchiveInterface::xmlRpcResponse (const QEArchiveInterface::Context & context, const QVariant & response)
 {
    switch (context.method) {
 
@@ -622,8 +625,8 @@ QEArchiveInterfaceAgent::QEArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
 {
    this->client = clientIn;
 
-   QObject::connect (this, SIGNAL (xmlRpcResponse (const QEArchiveInterface::Context &, QVariant &)),
-                     parent, SLOT (xmlRpcResponse (const QEArchiveInterface::Context &, QVariant &)));
+   QObject::connect (this, SIGNAL (xmlRpcResponse (const QEArchiveInterface::Context &, const QVariant &)),
+                     parent, SLOT (xmlRpcResponse (const QEArchiveInterface::Context &, const QVariant &)));
 
    QObject::connect (this, SIGNAL (xmlRpcFault (const QEArchiveInterface::Context &, int, const QString&)),
                      parent, SLOT (xmlRpcFault (const QEArchiveInterface::Context &, int, const QString&)));
