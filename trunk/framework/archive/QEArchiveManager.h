@@ -61,7 +61,7 @@ public:
    unsigned int getMessageSourceId ();
    void setMessageSourceId (unsigned int messageSourceId);
 
-   static void initialise (QString archives, QString pattern);
+   static void initialise (const QString& archives, const QString& pattern);
    static void initialise ();
    static bool isReady ();
    static int getNumberInterfaces ();
@@ -123,14 +123,8 @@ private slots:
 //
 class QEArchiveManager : public QObject, UserMessage {
    Q_OBJECT
-public:
-   QEArchiveManager ();
-
 private:
-   // Object has delayed initialisation, i.e. it does not dself initialise when the
-   // constructor is invoked. This bool ensures object initialised once only.
-   //
-   bool isInitialised;
+   QEArchiveManager ();
 
    // This function connects the specified the archive(s). The format of the string is
    // space separated set of one or more hostname:port/endpoint triplets, e.g.
@@ -144,14 +138,16 @@ private:
    // The pattern parameter can be used to restrict the set of extracted PVs. The same
    // pattern applies of all archives. The pattern is a regular expression.
    //
-   void initialise (QString archives, QString patternIn);
+   void setup (const QString& archives, const QString& patternIn);
 
-   // As above, but uses the environment variables QE_ARCHIVE_LIST and QE_ARCHIVE_PATTERN.
-   // If QE_ARCHIVE_PATTERN is undefined then ".*" is used.
+   // Idempotent and thread safe initialise functions.
+   // The second overloaded form uses the environment variables QE_ARCHIVE_LIST and
+   // QE_ARCHIVE_PATTERN. If QE_ARCHIVE_PATTERN is undefined then ".*" is used.
    //
-   void initialise ();
-   void clear ();
+   static void initialise (const QString& archives, const QString& patternIn);
+   static void initialise ();
 
+   void clear ();
    void resendStatus ();
 
    friend class QEArchiveAccess;

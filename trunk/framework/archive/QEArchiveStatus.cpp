@@ -70,7 +70,7 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
 #define CREATE_LABEL(member, width, align, text)  {              \
    this->rowList [j].member = new QLabel (text, frame);          \
    this->rowList [j].member->setIndent (6);                      \
-   this->rowList [j].member->setFixedWidth (width);              \
+   this->rowList [j].member->setMinimumWidth (width);            \
    this->rowList [j].member->setAlignment (align);               \
    this->rowList [j].member->setStyleSheet (sheet);              \
    hLayout->addWidget (this->rowList [j].member);                \
@@ -87,7 +87,7 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
    this->title = new QLabel ("Archive Status Summary", parent);
    this->title->setFixedHeight (24);
    this->title->setStyleSheet (QEUtilities::colourToStyle (QColor (200, 222, 255, 255)));
-   this->title->setAlignment (Qt::AlignHCenter);
+   this->title->setAlignment (Qt::AlignHCenter | Qt::AlignCenter);
 
    this->vLayout = new QVBoxLayout (parent);
    this->vLayout->setMargin (2);
@@ -114,7 +114,7 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
    this->vLayout->addWidget (frame);
 
 
-   background = QColor (220, 220, 220, 255);
+   background = QColor (240, 240, 240, 255);
    sheet = QEUtilities::colourToStyle (background);
 
    for (j = 0; j < NumberRows; j++ ) {
@@ -132,7 +132,6 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
       CREATE_LABEL (available,     68, Qt::AlignRight,    " - ");
       CREATE_LABEL (read,          68, Qt::AlignRight,    " - ");
       CREATE_LABEL (numberPVs,     68, Qt::AlignRight,    " - ");
-
 
       this->vLayout->addWidget (frame);
    }
