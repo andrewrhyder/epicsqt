@@ -34,6 +34,12 @@ QEFrame::QEFrame (QWidget *parent) : QFrame (parent), QEWidget (this)
    //
    this->setFrameShape (QFrame::StyledPanel);
    this->setFrameShadow (QFrame::Raised);
+
+   // This is not an EPICS aware widget.
+   //
+   this->setVariableAsToolTip (false);
+   this->setAllowDrop (false);
+   this->setNumVariables (0);
 }
 
 //------------------------------------------------------------------------------

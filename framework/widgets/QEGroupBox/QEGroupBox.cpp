@@ -30,6 +30,12 @@
 QEGroupBox::QEGroupBox (QWidget *parent) : QGroupBox (parent), QEWidget (this)
 {
    this->setTitle ("QEGroupBox");
+
+   // This is not an EPICS aware widget.
+   //
+   this->setVariableAsToolTip (false);
+   this->setAllowDrop (false);
+   this->setNumVariables (0);
 }
 
 //------------------------------------------------------------------------------
