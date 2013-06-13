@@ -33,6 +33,7 @@
 #ifndef QEARCHIVEMANAGER_H
 #define QEARCHIVEMANAGER_H
 
+#include <QList>
 #include <QObject>
 #include <QString>
 
@@ -79,8 +80,37 @@ public:
                      const QEArchiveInterface::How how,
                      const unsigned int element = 0);
 
+   // Requests re-transmission of archive status.
+   //
+   void resendStatus ();
+
+   enum States {
+      Unknown,
+      Updating,
+      Complete,
+      No_Response,
+      Error
+   };
+   Q_ENUMS (States)
+
+   struct Status {
+      QString hostName;
+      int portNumber;
+      QString endPoint;
+      States state;
+      int available;
+      int read;
+      int numberPVs;
+   };
+
+   typedef QList<Status> StatusList;
+
 signals:
    void setArchiveData (const QObject *, const bool, const QCaDataPointList &);
+   void archiveStatus (const QEArchiveAccess::StatusList&);
+
+private slots:
+   void rxArchiveStatus (const QEArchiveAccess::StatusList&);
 
    friend class QEArchiveManager;
 };
@@ -122,7 +152,12 @@ private:
    void initialise ();
    void clear ();
 
+   void resendStatus ();
+
    friend class QEArchiveAccess;
+
+signals:
+   void archiveStatus (const QEArchiveAccess::StatusList&);
 
 private slots:
    void archivesResponse (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);

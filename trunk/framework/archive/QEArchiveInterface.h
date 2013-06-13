@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2012, 2013
  *
  *  Author:
  *    Andrew Starritt
@@ -58,7 +58,7 @@ public:
    // Extends the EPICS alarm severity with archive specials
    //
    enum archiveAlarmSeverity {
-       // alarm.h
+       // From Epics base alarm.h
        archSevNone       = 0,
        archSevMinor      = 1,
        archSevMajor      = 2,
@@ -128,13 +128,13 @@ public:
    };
 
    typedef QList <QEArchiveInterface::Archive> ArchiveList;
-   typedef QList<QEArchiveInterface::PVName> PVNameList ;
-   typedef QList<QEArchiveInterface::ResponseValues> ResponseValueList ;
+   typedef QList<QEArchiveInterface::PVName> PVNameList;
+   typedef QList<QEArchiveInterface::ResponseValues> ResponseValueList;
 
 
    //---------------------------------------------------------------------------
    //
-   explicit QEArchiveInterface (QUrl url, QObject *parent = 0);
+   explicit QEArchiveInterface (QUrl url, QObject* parent = 0);
    virtual ~QEArchiveInterface ();
 
    void setUrl (QUrl url);
@@ -149,11 +149,11 @@ public:
    // QEArchiveInterface class per se other it is returned in the signal
    // to provide the caller with signal context.
    //
-   void infoRequest (QObject *userData);
+   void infoRequest (QObject* userData);
 
-   void archivesRequest (QObject *userData);
+   void archivesRequest (QObject* userData);
 
-   void namesRequest (QObject *userData, const int key, QString pattern = ".*");
+   void namesRequest (QObject* userData, const int key, QString pattern = ".*");
 
    /* The requested_element parameter specfies the (waveform) array element required.
     * This parameter applies to all the PVs requested. If different array elements
@@ -161,7 +161,7 @@ public:
     * Note: element numbers start from 0. The default default value of 0 is suitable
     * for scalar PVs.
     */
-   void valuesRequest (QObject *userData,
+   void valuesRequest (QObject* userData,
                        const int key,
                        const QCaDateTime startTime,
                        const QCaDateTime endTime,
@@ -182,13 +182,15 @@ signals:
    // this indicates a successfull response, and when false indicates a fault
    // condition. For the later case, the actual value parameters are undefined.
    //
-   void infoResponse     (const QObject *, const bool, const int, const QString&);
-   void archivesResponse (const QObject *, const bool, const QEArchiveInterface::ArchiveList&);
-   void pvNamesResponse  (const QObject *, const bool, const QEArchiveInterface::PVNameList&);
-   void valuesResponse   (const QObject *, const bool, const QEArchiveInterface::ResponseValueList&);
+   void infoResponse     (const QObject*, const bool, const int, const QString&);
+   void archivesResponse (const QObject*, const bool, const QEArchiveInterface::ArchiveList&);
+   void pvNamesResponse  (const QObject*, const bool, const QEArchiveInterface::PVNameList&);
+   void valuesResponse   (const QObject*, const bool, const QEArchiveInterface::ResponseValueList&);
 
 private:
    friend class QEArchiveInterfaceAgent;
+
+   typedef QMap<QString, QVariant> StringToVariantMaps;
 
    enum MetaType {
       mtEnumeration = 0,
@@ -208,17 +210,17 @@ private:
    static QCaDateTime convertArchiveToEpics (const int seconds, const int nanoSecs);
    static void convertEpicsToArchive (const QCaDateTime& datetime, int& seconds, int& nanoSecs);
 
-   void processInfo     (const QObject *userData, QVariant & response);
-   void processArchives (const QObject *userData, QVariant & response);
-   void processPvNames  (const QObject *userData, QVariant & response);
-   void processValues   (const QObject *userData, QVariant & response, const unsigned int requested_element);
+   void processInfo     (const QObject* userData, const QVariant& response);
+   void processArchives (const QObject* userData, const QVariant& response);
+   void processPvNames  (const QObject* userData, const QVariant& response);
+   void processValues   (const QObject* userData, const QVariant& response, const unsigned int requested_element);
 
    void processOnePoint (const DataType dtype,
-                         QMap<QString, QVariant> value,
+                         const StringToVariantMaps& value,
                          const unsigned int requested_element,
                          QCaDataPoint & datum);
 
-   void processOnePV (QMap<QString, QVariant> map,
+   void processOnePV (const StringToVariantMaps& map,
                       const unsigned int requested_element,
                       struct ResponseValues& item);
 
@@ -226,8 +228,8 @@ private slots:
    // Used by intermediary QEArchiveInterfaceAgent
    // Note need fully qualified QEArchiveInterface::Context in order to match signals.
    //
-   void xmlRpcResponse (const QEArchiveInterface::Context & context, QVariant & response);
-   void xmlRpcFault    (const QEArchiveInterface::Context & context, int error, const QString & response);
+   void xmlRpcResponse (const QEArchiveInterface::Context& context, const QVariant & response);
+   void xmlRpcFault    (const QEArchiveInterface::Context& context, int error, const QString & response);
 };
 
 Q_DECLARE_METATYPE (QEArchiveInterface::ArchiveList)
@@ -250,26 +252,26 @@ class QEArchiveInterfaceAgent : public QObject {
 private:
    friend class QEArchiveInterface;
 
-   QEArchiveInterfaceAgent (MaiaXmlRpcClient *clientIn,
-                            QEArchiveInterface *parent);
+   QEArchiveInterfaceAgent (MaiaXmlRpcClient* clientIn,
+                            QEArchiveInterface* parent);
 
-   QNetworkReply* call (QEArchiveInterface::Context & contextIn,
+   QNetworkReply* call (QEArchiveInterface::Context& contextIn,
                         QString procedure,
                         QList<QVariant> args);
 
-   MaiaXmlRpcClient *client;
+   MaiaXmlRpcClient* client;
    QEArchiveInterface::Context context;
 
 signals:
-   void xmlRpcResponse (const QEArchiveInterface::Context &, QVariant &);
-   void xmlRpcFault    (const QEArchiveInterface::Context &, int, const QString &);
+   void xmlRpcResponse (const QEArchiveInterface::Context&, const QVariant &);
+   void xmlRpcFault    (const QEArchiveInterface::Context&, int, const QString &);
 
 
 private slots:
    // from maia xml_rpc client
    //
-   void xmlRpcResponse (QVariant & response);
-   void xmlRpcFault    (int error, const QString & response);
+   void xmlRpcResponse (QVariant& response);
+   void xmlRpcFault    (int error, const QString& response);
 };
 
 #endif // QARCHIVE_INTERFACE_H
