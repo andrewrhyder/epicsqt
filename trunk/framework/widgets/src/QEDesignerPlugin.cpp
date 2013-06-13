@@ -56,6 +56,7 @@
 #include <QEGroupBoxManager.h>
 #include <QEFileImageManager.h>
 #include <QESimpleShapeManager.h>
+#include <QEArchiveStatusManager.h>
 
 //======================================================
 // Deprecated widgets
@@ -117,8 +118,10 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEStripChartManager(this));
     widgets.append(new QESubstitutedLabelManager(this));
 
-    // Non-EPICS aware framework widgets
+    // Non-EPICS aware framework widgets.
+    //
     widgets.append(new QEAnalogIndicatorManager(this));
+    widgets.append(new QEArchiveStatusManager(this));
     widgets.append(new QBitStatusManager(this));
     widgets.append(new QEFrameManager(this));
     widgets.append(new QEGroupBoxManager(this));
