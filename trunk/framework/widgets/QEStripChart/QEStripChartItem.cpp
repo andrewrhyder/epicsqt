@@ -550,7 +550,7 @@ void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
       point.datetime = QDateTime::currentDateTime ().toUTC ();
       this->realTimeDataPoints.append (point);
       if (this->realTimeDataPoints.count () > MAXIMUM_POINTS) {
-         this->realTimeDataPoints.remove (0);
+         this->realTimeDataPoints.removeFirst ();
       }
 
       // create a dummy point with same time but marked invalid.
@@ -558,7 +558,7 @@ void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
       point.alarm = QCaAlarmInfo (NO_ALARM, INVALID_ALARM);
       this->realTimeDataPoints.append (point);
       if (this->realTimeDataPoints.count () > MAXIMUM_POINTS) {
-         this->realTimeDataPoints.remove (0);
+         this->realTimeDataPoints.removeFirst ();
       }
    }
 }
@@ -592,7 +592,7 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
    this->realTimeDataPoints.append (point);
 
    if (this->realTimeDataPoints.count () > MAXIMUM_POINTS) {
-      this->realTimeDataPoints.remove (0);
+      this->realTimeDataPoints.removeFirst ();
    }
 }
 
@@ -633,28 +633,35 @@ void QEStripChartItem::setArchiveData (const QObject *userData, const bool okay,
             firstRealTime = QDateTime::currentDateTime ().toUTC ();
          }
 
-         // Purge
+         // Purge all points with a time >= firstRealTime, except for the
+         // the very first point after first time.
          //
          last = count - 1;
-         for (j = count - 1; j >= 0; j--) {
+         for (j = last - 1; j >= 0; j--) {
             point = this->historicalTimeDataPoints.value (j);
             pointTime = point.datetime;
-            if (pointTime < firstRealTime) {
-               last = j;
+            if (pointTime >= firstRealTime) {
+               this->historicalTimeDataPoints.removeLast ();  // i.e. j+1
+            } else {
+               // purge complete
                break;
             }
          }
 
-         // Keep points 0 to last, and modify modify (last + 1) if exists.
+         // Tuncate the time of the last point left in historicalTimeDataPoints
+         // to firstTime if needs be.
          //
-         if (last < (count - 1)) {
-            last++;
+         last = this->historicalTimeDataPoints.count () - 1;
+         if (last >= 0) {
             point = this->historicalTimeDataPoints.value (last);
-            point.datetime = firstRealTime;
-            this->historicalTimeDataPoints.replace (last, point);
-            this->historicalTimeDataPoints.remove (last + 1, count - last - 1);
+            if (point.datetime > firstRealTime) {
+                point.datetime = firstRealTime;
+                this->historicalTimeDataPoints.replace (last, point);
+            }
          }
 
+         // Now determine the min and max values of the remaining data points.
+         //
          this->historicalMinMax.clear ();
          count = this->historicalTimeDataPoints.count ();
          for (j = 0; j < count; j++) {
