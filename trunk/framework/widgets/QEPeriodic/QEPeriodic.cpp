@@ -1,4 +1,5 @@
-/*
+/*  QEPeriodic.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -227,7 +228,6 @@ void QEPeriodic::setup() {
     setAllowDrop( false );
 
     // Set the initial state
-    lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
 
     variableType1 = VARIABLE_TYPE_USER_VALUE_1;
@@ -361,30 +361,15 @@ void QEPeriodic::setElement( const double& value, QCaAlarmInfo& alarmInfo, QCaDa
             break;
     }
 
-    // Choose the alarm state to display.
-    // If not displaying the alarm state, use a default 'no alarm' structure. This is
-    // required so the any display of an alarm state is reverted if the displayAlarmState
-    // property changes while displaying an alarm.
-    QCaAlarmInfo ai;
-    if( getDisplayAlarmState() )
-    {
-        ai = alarmInfo;
-    }
+    // Invoke common alarm handling processing.
+    // TODO: Aggregate all channel severities into a single alarm state.
+    processAlarmInfo( alarmInfo );
 
-    // If in alarm, display as an alarm
-    if( ai.getSeverity() != lastSeverity )
-    {
-            updateToolTipAlarm( ai.severityName() );
-
-            updateStatusStyle( ai.style() );
-//            if( writeButton )
-//               writeButton->setStyleSheet( ai.style() );
+//   if( writeButton )
+//      writeButton->setStyleSheet( ai.style() );
 //
-//            if( readbackLabel )
-//                readbackLabel->setStyleSheet( ai.style() );
-
-            lastSeverity = ai.getSeverity();
-    }
+//   if( readbackLabel )
+//       readbackLabel->setStyleSheet( ai.style() );
 }
 
 
