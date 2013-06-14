@@ -1,4 +1,5 @@
-/*
+/*  QEPeriodic.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -186,7 +187,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPeriodic : public QFrame, public QEWidget {
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex  );
 
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
     QEPeriodicComponentData writeButtonData;

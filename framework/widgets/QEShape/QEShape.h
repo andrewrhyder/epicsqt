@@ -233,8 +233,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
     void refreshData( const int index );
 
-
-    QCAALARMINFO_SEVERITY lastSeverity;
     bool isConnected;
 
     void paintEvent(QPaintEvent *event);

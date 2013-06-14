@@ -120,7 +120,6 @@ void QEShape::setup() {
     brush.setColor( colors[currentColor] );
 
     // Set the initial state
-    lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
     QWidget::setEnabled( false );  // Reflects initial disconnected state
     setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
@@ -373,23 +372,9 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
         }
     }
 
-    // Choose the alarm state to display.
-    // If not displaying the alarm state, use a default 'no alarm' structure. This is
-    // required so the any display of an alarm state is reverted if the displayAlarmState
-    // property changes while displaying an alarm.
-    QCaAlarmInfo ai;
-    if( getDisplayAlarmState() )
-    {
-        ai = alarmInfo;
-    }
-
-    // If in alarm, display as an alarm
-    if( ai.getSeverity() != lastSeverity )
-    {
-            updateToolTipAlarm( ai.severityName() );
-            updateStatusStyle( ai.style() );
-            lastSeverity = ai.getSeverity();
-    }
+    // Invoke common alarm handling processing.
+    // TODO: Aggregate all channel severities into a single alarm state.
+    processAlarmInfo( alarmInfo );
 
     // Force the shape to be redrawn
     update();
