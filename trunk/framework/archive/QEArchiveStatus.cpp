@@ -40,7 +40,6 @@ public:
    PrivateData (QEArchiveStatus* parent);
 
    QEArchiveAccess *archiveAccess;
-   QLabel* title;
    QVBoxLayout *vLayout;
 
    static const int NumberRows = 20;   // maximum.
@@ -84,15 +83,9 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
 
    this->archiveAccess = new QEArchiveAccess (parent);
 
-   this->title = new QLabel ("Archive Status Summary", parent);
-   this->title->setFixedHeight (24);
-   this->title->setStyleSheet (QEUtilities::colourToStyle (QColor (200, 222, 255, 255)));
-   this->title->setAlignment (Qt::AlignHCenter | Qt::AlignCenter);
-
    this->vLayout = new QVBoxLayout (parent);
    this->vLayout->setMargin (2);
    this->vLayout->setSpacing (2);
-   this->vLayout->addWidget (this->title);
 
    // Use use the last row as a header row.
    //
@@ -146,9 +139,11 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
 
 //==============================================================================
 //
-QEArchiveStatus::QEArchiveStatus (QWidget* parent) : QEFrame (parent)
+QEArchiveStatus::QEArchiveStatus (QWidget* parent) : QEGroupBox (parent)
 {
    this->privateData = new PrivateData (this);
+
+   this->setTitle (" Archive Status Summary ");
 
    QObject::connect (this->privateData->archiveAccess,
                      SIGNAL     (archiveStatus (const QEArchiveAccess::StatusList&)),

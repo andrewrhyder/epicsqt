@@ -340,12 +340,16 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
    if (isSuccess) {
 
       count = archiveList.count ();
+      interface->available = count;
+
       for (j = 0; j < count; j++) {
-         ArchiveInterfacePlus::Archive archive = archiveList.value (j);
+         QEArchiveInterface::Archive archive;  // key (name and path)
          NamesResponseContext *context;
+
 
          // Create the callback context.
          //
+         archive = archiveList.value (j);
          context = new NamesResponseContext (interface, archive, j + 1, count);
          interface->namesRequest (context, archive.key, pattern);
       }
@@ -368,10 +372,14 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
    QMutexLocker locker (archiveDataMutex);
 
    NamesResponseContext *context = (NamesResponseContext *) userData;
+   ArchiveInterfacePlus *interface = context->interface;
+
    QString message;
    int j;
 
    if (isSuccess) {
+      interface->read++;
+
       for (j = 0; j < pvNameList.count (); j++) {
          QEArchiveInterface::PVName pvChannel = pvNameList.value (j);
          KeyTimeSpec keyTimeSpec;
@@ -386,12 +394,14 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
          if (pvNameToSourceLookUp.contains (pvChannel.pvName) == false) {
             // First instance of this PV Name
             //
+            interface->numberPVs++;
             sourceSpec.interface = context->interface;
             sourceSpec.keyToTimeSpecLookUp.insert (keyTimeSpec.key, keyTimeSpec);
             pvNameToSourceLookUp.insert (pvChannel.pvName, sourceSpec);
 
          } else {
-
+            // Second or subsequent instance of this PV.
+            //
             sourceSpec = pvNameToSourceLookUp.value (pvChannel.pvName);
 
             if (sourceSpec.interface == context->interface) {
