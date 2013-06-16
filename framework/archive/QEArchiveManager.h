@@ -94,13 +94,13 @@ public:
    Q_ENUMS (States)
 
    struct Status {
-      QString hostName;
-      int portNumber;
-      QString endPoint;
-      States state;
-      int available;
-      int read;
-      int numberPVs;
+      QString hostName;  //
+      int portNumber;    //
+      QString endPoint;  //
+      States state;      //
+      int available;     // number of archives
+      int read;          // number of archives suiccessfull yread
+      int numberPVs;     //
    };
 
    typedef QList<Status> StatusList;

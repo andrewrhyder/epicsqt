@@ -29,14 +29,14 @@
 #include <QObject>
 
 #include <QWidget>
-#include <QEFrame.h>
+#include <QEGroupBox.h>
 #include <QEPluginLibrary_global.h>
 #include <QEArchiveManager.h>
 
 /// This is a non EPICS aeare widget.
 /// It extracts and displays states information from the archive manager.
 ///
-class QEPLUGINLIBRARYSHARED_EXPORT QEArchiveStatus : public QEFrame {
+class QEPLUGINLIBRARYSHARED_EXPORT QEArchiveStatus : public QEGroupBox {
   Q_OBJECT
 public:
    explicit QEArchiveStatus (QWidget* parent = 0);
