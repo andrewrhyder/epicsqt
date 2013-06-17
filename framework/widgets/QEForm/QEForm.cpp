@@ -592,8 +592,38 @@ void QEForm::restoreConfiguration( PersistanceManager* pm, restorePhases restore
     QString macroSubstitutions;
     f.getValue( "MacroSubstitutions", macroSubstitutions );
 
-    setupProfile( getGuiLaunchConsumer(), pathList, getParentPath(), macroSubstitutions );
-    reloadFile();
-    releaseProfile();
+    // Determine if the environment this form was created in was the correct environment
+    // (Was the macro substitutions and paths the same)
+    bool environmentChanged = false;
+    if( macroSubstitutions != getMacroSubstitutions() )
+    {
+        environmentChanged = true;
+    }
+    else
+    {
+        QStringList currentPathList = getPathList();
+        if( currentPathList.count() != pathList.count() )
+        {
+            environmentChanged = true;
+        }
+        else
+        {
+            for( int i = 0; i < pathList.count(); i++ )
+            {
+                if( currentPathList[i] != pathList[i] )
+                {
+                    environmentChanged = true;
+                    break;
+                }
+            }
+        }
+    }
 
+    // Reload the file in the correct environment if the environment it was created in was not correct
+    if( environmentChanged )
+    {
+        setupProfile( getGuiLaunchConsumer(), pathList, getParentPath(), macroSubstitutions );
+        reloadFile();
+        releaseProfile();
+    }
 }
