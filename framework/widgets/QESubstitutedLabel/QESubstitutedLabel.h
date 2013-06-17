@@ -58,6 +58,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabel : public QLabel, public QE
     void setLabelTextProperty( QString labelTextIn );
     QString getLabelTextProperty();
 
+    // Macro substitions
+//    void setSubstitutions();
+
+
     // label text (prior to substitution) with line feeds encoded in C style to allow entry in designer
     QString getLabelTextPropertyFormat();
     void setLabelTextPropertyFormat( QString labelTextIn );
@@ -97,6 +101,7 @@ public:
     Q_PROPERTY(QString textSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
 
 private:
+//    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); setSubstitutions(); }
     void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
     QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
     QCaVariableNamePropertyManager variableNamePropertyManager;
