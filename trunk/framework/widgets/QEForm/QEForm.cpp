@@ -485,8 +485,15 @@ void QEForm::setVariableNameAndSubstitutions( QString, QString variableNameSubst
 // UI file name
 void    QEForm::setUiFileName( QString uiFileNameIn )
 {
-    uiFileName = uiFileNameIn;
-    readUiFile();
+    // File name property can be set twice while loading QEForm widgets.
+    // Avoid loading a form twice if file name has not chenged. This is
+    // especially important if forms are deeply nested causing the problem
+    // to grow exponentially
+    if( uiFileNameIn != uiFileName )
+    {
+        uiFileName = uiFileNameIn;
+        readUiFile();
+    }
 }
 QString QEForm::getUiFileName()
 {
