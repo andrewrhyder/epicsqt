@@ -59,7 +59,6 @@ void QEPlot::setup() {
 
     // Set the initial state
     isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     // General plot properties
     yMin = 0.0;
@@ -182,19 +181,11 @@ void QEPlot::establishConnection( unsigned int variableIndex ) {
  */
 void QEPlot::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QE enabled property is true
-    if( connectionInfo.isChannelConnected() )
-    {
-        isConnected = true;
-        updateToolTipConnection( isConnected );
-    }
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
 
-    // If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
-    }
+    // Display the connected state
+    updateToolTipConnection( isConnected );
 }
 
 /*

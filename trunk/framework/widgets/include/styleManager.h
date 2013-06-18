@@ -102,6 +102,8 @@ protected:
     void updatePropertyStyle( QString style );//!< Set the Style Sheet string to be applied to implement a widget property.
                                             //!< For example, a style string is used to set QE button text alignment.
 
+    void updateConnectionStyle( bool connected );  //!< Set the Style Sheet string to be applied to reflect the current connection state (connected or disconnected) of the current data.
+                                                   //!< For example, a disconnected value may be greyed out.
 
     void styleUserLevelChanged( userLevelTypes::userLevels levelIn );/**< Set the current user level.*/
 
@@ -116,6 +118,7 @@ private:
     QString statusStyleSheet;   // Style to apply to reflect current status
     QString dataStyleSheet;     // Style to apply to reflect current data
     QString propertyStyleSheet; // Style to apply to implement a QE widget property
+    QString connectionStyleSheet;// Style to apply to reflect current connection state
 
     void updateStyleSheet();    // Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
 

@@ -50,9 +50,7 @@ standardProperties::standardProperties( QWidget* ownerIn )
     enabledLevel = userLevelTypes::USERLEVEL_USER;
     currentLevel = userLevelTypes::USERLEVEL_USER;
 
-    dataDisabled = false;
-
-    applicationEnabled = true;
+    userLevelDisabled = false;
     applicationVisibility = true;
 
     displayAlarmState = true;
@@ -81,62 +79,58 @@ void standardProperties::setUserLevelEnabled( userLevelTypes::userLevels levelIn
     setSuperEnabled();
 }
 
-
-// Return what the enabled state of widget would be if connected and the appropriate user level
-bool standardProperties::getApplicationEnabled() const
-{
-    return applicationEnabled;
-}
-
-// Set what the enabled state of widget would be if connected and the appropriate user level
-void standardProperties::setApplicationEnabled( bool state )
-{
-    applicationEnabled = state;
-    setSuperEnabled();
-}
-
-
-// Set the enabled/disabled state of the widget.
-// Generally it is enabled or disabled according to 'applicationEnabled', however this can be overridden
-// and it is can be disabled if not connected or not the appropriate user level
+// Set the enabled/disabled state of the widget according to user level
 void standardProperties::setSuperEnabled()
 {
-    owner->setEnabled( applicationEnabled && !dataDisabled && (currentLevel >= enabledLevel) );
+    // Do nothing in designer
+    if( QEWidget::inDesigner() )
+    {
+        return;
+    }
+
+    // If the current user level allows the widget to be enabled
+    // and it was disabled due to an inapropriate user level, enable it.
+    if( currentLevel >= enabledLevel && userLevelDisabled )
+    {
+        owner->setEnabled( true );
+        userLevelDisabled = false;
+    }
+
+    // If the current user level prevents the widget from being enabled,
+    // and it is enabled, disable it.
+    if( currentLevel < enabledLevel && owner->isEnabled() )
+    {
+        owner->setEnabled( false );
+        userLevelDisabled = true;
+    }
 }
 
 // Set the visibility of the widget.
 // Generally it is visible or not according to 'applicationVisibility', however this can be overridden
-// and it is can be disabled if not at the appropriate user level, or enabled running within designer
+// if it is not the appropriate user level, or running within designer
 void standardProperties::setSuperVisibility()
 {
+    // Do nothing in designer
+    if( QEWidget::inDesigner() )
+    {
+        return;
+    }
+
     ContainerProfile profile;
 
     // Note the desired visibility
     bool vis = applicationVisibility;
 
-    // Make visible if running within designer
-    if( QEWidget::inDesigner() )
-    {
-        vis = true;
-    }
-
     // If not in designer, make invisible if not at a suitable user level
     // Note, in designer, the user level will never cause visibility to be false unless in  preview
     // and the user level is changed in the preview window
-    else if( profile.getUserLevel() < visibilityLevel )
+    if( profile.getUserLevel() < visibilityLevel )
     {
         vis = false;
     }
 
     // Apply the result
     owner->setVisible( vis );
-}
-
-// Disable the widget if not connected
-void standardProperties::setDataDisabled( bool disable )
-{
-    dataDisabled = disable;
-    setSuperEnabled();
 }
 
 void standardProperties::checkVisibilityEnabledLevel( userLevelTypes::userLevels level )

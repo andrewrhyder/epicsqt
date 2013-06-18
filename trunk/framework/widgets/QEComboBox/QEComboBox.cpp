@@ -69,7 +69,6 @@ void QEComboBox::setup() {
     // Set the initial state
     lastValue = 0;
     isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     ignoreSingleShotRead = false;
 
@@ -125,31 +124,25 @@ void QEComboBox::establishConnection( unsigned int variableIndex ) {
 */
 void QEComboBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QE enabled property is true
-    if( connectionInfo.isChannelConnected() )
-    {
-        isConnected = true;
-        updateToolTipConnection( isConnected );
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
 
-        setDataDisabled( false );
+    // Note if first update has arrived (ok to set repeatedly)
+    if( isConnected )
+    {
         isFirstUpdate = true;
     }
 
-    // If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
-
-        setDataDisabled( true );
-    }
+    // Display the connected state
+    updateToolTipConnection( isConnected );
+    updateConnectionStyle( isConnected );
 
     // Start a single shot read if the channel is up (ignore channel down),
     // This will allow initialisation of the widget using info from the database.
     // If the combo box is already populated, then it has been set up at design time, or this is a subsequent 'channel up'
     // If subscribing, then an update will occur without having to initiated one here.
     // Note, channel up implies link up
-    if( connectionInfo.isChannelConnected() && !subscribe )
+    if( isConnected && !subscribe )
     {
         QEInteger* qca = (QEInteger*)getQcaItem(0);
         qca->singleShotRead();

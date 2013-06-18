@@ -58,7 +58,6 @@ void QEFileImage::setup() {
 
     // Set the initial state
     isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     // Use standard context menu
     setupContextMenu( this );
@@ -112,23 +111,12 @@ void QEFileImage::establishConnection( unsigned int variableIndex ) {
  */
 void QEFileImage::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QE enabled property is true
-    if( connectionInfo.isChannelConnected() )
-    {
-        isConnected = true;
-        updateToolTipConnection( isConnected );
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
 
-        setDataDisabled( false );
-    }
-
-    // If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
-
-        setDataDisabled( true );
-    }
+    // Display the connected state
+    updateToolTipConnection( isConnected );
+    updateConnectionStyle( isConnected );
 }
 
 /*

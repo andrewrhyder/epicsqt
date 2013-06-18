@@ -440,11 +440,6 @@ void QEPvProperties::common_setup ()
    //
    this->setDisplayAlarmState (false);
 
-   // Unlike most CA aware widgets the PV Properties panel enabled-ness does
-   // not reflect the (initial) disconnected state.
-   //
-   QWidget::setEnabled (true);
-
    // Use standard context menu for overall widget.
    //
    setupContextMenu (this);

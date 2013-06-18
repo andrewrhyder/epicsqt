@@ -84,18 +84,6 @@ public:
     ///
     Q_PROPERTY(bool variableAsToolTip READ getVariableAsToolTip WRITE setVariableAsToolTip)
 
-    /// Set the prefered 'enabled' state. Default is true.
-    /// This property is copied to the standard Qt 'enabled' property if the data being displayed is valid.
-    /// If the data being displayed is invalid the standard Qt 'enabled' property will always be set to false to indicate invalid data.
-    /// The value of this property will only be copied to the standard Qt 'enabled' property once data is valid.
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-
-    /// Access function for #enabled property - refer to #enabled property for details
-    bool isEnabled() const { return getApplicationEnabled(); }
-
-    /// Access function for #enabled property - refer to #enabled property for details
-    void setEnabled( bool state ){ setApplicationEnabled( state ); }
-
     /// Allow drag/drops operations to this widget. Default is false. Any dropped text will be used as a new variable name.
     ///
     Q_PROPERTY(bool allowDrop READ getAllowDrop WRITE setAllowDrop)
@@ -165,11 +153,6 @@ public:
     /// Note, this property is included in the set of standard properties as it applies to most widgets. It
     /// will do nothing for widgets that don't display data.
     Q_PROPERTY(bool displayAlarmState READ getDisplayAlarmState WRITE setDisplayAlarmState)
-
-public slots:
-    /// Similar to standard setEnabled slot, but allows QE widget to determine if the widget remains disabled due to invalid data.
-    /// If disabled due to invalid data, a request to enable the widget will be honoured when the data is no longer invalid.
-    void requestEnabled( const bool& state ){ setApplicationEnabled( state ); }
 
 public:
     // END-STANDARD-PROPERTIES ========================================================

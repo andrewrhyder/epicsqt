@@ -66,7 +66,6 @@ void QESpinBox::setup() {
     // Set the initial state
     lastValue = 0.0;
     isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     ignoreSingleShotRead = false;
 
@@ -117,23 +116,12 @@ void QESpinBox::establishConnection( unsigned int variableIndex ) {
  */
 void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QE enabled property is true
-    if( connectionInfo.isChannelConnected() )
-    {
-        isConnected = true;
-        updateToolTipConnection( isConnected );
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
 
-        setDataDisabled( false );
-    }
-
-    // If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
-
-        setDataDisabled( true );
-    }
+    // Display the connected state
+    updateToolTipConnection( isConnected );
+    updateConnectionStyle( isConnected );
 
     // !!! ??? not sure if this is right. Added as the record type was comming back as GENERIC::UNKNOWN deep in the write
     // Start a single shot read if the channel is up (ignore channel down),
@@ -143,7 +131,7 @@ void QESpinBox::connectionChanged( QCaConnectionInfo& connectionInfo )
     // Note, even though there is nothing to do to initialise the spin box if not subscribing, an
     // initial sing shot read is still performed to ensure we have valid information about the
     // variable when it is time to do a write.
-    if( connectionInfo.isChannelConnected() && !subscribe )
+    if( isConnected && !subscribe )
     {
         QEFloating* qca = (QEFloating*)getQcaItem(0);
         qca->singleShotRead();

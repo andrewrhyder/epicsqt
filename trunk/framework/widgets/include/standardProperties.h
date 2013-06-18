@@ -54,7 +54,6 @@ public:
 
 protected:
 
-    void setDataDisabled( bool disable );
     void checkVisibilityEnabledLevel( userLevelTypes::userLevels level );
 
 private:
@@ -68,9 +67,8 @@ private:
     userLevelTypes::userLevels visibilityLevel; // User level below which the widget will be made invisible
     userLevelTypes::userLevels enabledLevel;    // User level below which the widget will be made disabled
 
-    bool applicationVisibility; // The 'visibility' state the widget would be in if it wasn't being held invisible due to inapropriate user level
-    bool applicationEnabled;    // The 'enabled/disabled' state the widget would be in if it wasn't being held disabled by inapropriate user level or disconnected status
-    bool dataDisabled;          // Flag the widget should be disabled due to disconnected status
+    bool userLevelDisabled;         // Flag indicating the widget has been disabled due to inapropriate user level
+    bool applicationVisibility; // The 'visibility' state of the widget unless held invisible due to inapropriate user level
     bool displayAlarmState;     // Flag the widget should display alarm state
 };
 
