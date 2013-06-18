@@ -122,8 +122,6 @@ void QERadioGroup::commonSetup ()
    this->noSelectionButton->setGeometry (-40, -40, 20, 20);
    this->noSelectionButton->setVisible (false);
 
-   QGroupBox::setEnabled (false);       // Reflects initial disconnected state
-
    // Use default context menu.
    //
    this->setupContextMenu (this);
@@ -192,13 +190,14 @@ void QERadioGroup::establishConnection (unsigned int variableIndex)
 //
 void QERadioGroup::connectionChanged (QCaConnectionInfo & connectionInfo)
 {
-   // If connected, enable the widget if the QE enabled property is true
-   // If disconnected always disable the widget.
-   //
-   this->isConnected = connectionInfo.isChannelConnected ();
-   this->setDataDisabled (!this->isConnected);
-   this->updateToolTipConnection (this->isConnected);
-   this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
+
+    // Display the connected state
+    updateToolTipConnection( isConnected );
+    updateConnectionStyle( isConnected );
+
+    this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
 }
 
 //-----------------------------------------------------------------------------

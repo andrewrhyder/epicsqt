@@ -175,23 +175,12 @@ void QEGenericButton::connectionChanged( QCaConnectionInfo& connectionInfo )
     if( getSubstitutedVariableName( 0 ).isEmpty() )
         return;
 
-    // If connected enabled the widget if required.
-    if( connectionInfo.isChannelConnected() )
-    {
-        isConnected = true;
-        updateToolTipConnection( isConnected );
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
 
-        setDataDisabled( false );
-    }
-
-    // If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
-
-        setDataDisabled( true );
-    }
+    // Display the connected state
+    updateToolTipConnection( isConnected );
+    updateConnectionStyle( isConnected );
 }
 
 /*

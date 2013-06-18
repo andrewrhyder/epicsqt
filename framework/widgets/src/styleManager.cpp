@@ -97,6 +97,22 @@ void styleManager::updateStatusStyle( QString style )
     updateStyleSheet();
 }
 
+// Set the Style Sheet string to be applied to reflect the current connection state
+// (connected or disconnected) of the current data.
+// For example, a disconnected value may be greyed out.
+void styleManager::updateConnectionStyle( bool connected )
+{
+    if( connected )
+    {
+        connectionStyleSheet = "";
+    }
+    else
+    {
+        connectionStyleSheet = "QWidget { color: grey }";
+    }
+    updateStyleSheet();
+}
+
 // Set the Style Sheet string to be applied to implement a widget property.
 // For example, a style string is used to set QE button text alignment.
 void styleManager::updatePropertyStyle( QString style )
@@ -105,7 +121,7 @@ void styleManager::updatePropertyStyle( QString style )
     updateStyleSheet();
 }
 
-// Update the style sheet with the various style sheet components used to modify the label style (alarm info, enumeration color)
+// Update the style sheet with the various style sheet components used to modify the label style (user level, connection state, alarm info, enumeration color)
 void styleManager::updateStyleSheet()
 {
     // Select the appropriate user level style
@@ -127,6 +143,11 @@ void styleManager::updateStyleSheet()
 
     // Compile and apply the entire style string if there is any difference with what is currently there
     QString newStyleSheet = defaultStyleSheet;
+
+    if( !newStyleSheet.isEmpty() && !connectionStyleSheet.isEmpty() )
+        newStyleSheet.append( "\n" );
+
+    newStyleSheet.append( connectionStyleSheet );
 
     if( !newStyleSheet.isEmpty() && !propertyStyleSheet.isEmpty() )
         newStyleSheet.append( "\n" );

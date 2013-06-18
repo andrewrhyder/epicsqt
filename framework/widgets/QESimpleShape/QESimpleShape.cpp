@@ -75,8 +75,6 @@ void QESimpleShape::setup ()
    //
    this->isConnected = false;
 
-   QWidget::setEnabled (false); // Reflects initial disconnected state
-
    // Use default context menu.
    //
    this->setupContextMenu (this);
@@ -363,13 +361,14 @@ void QESimpleShape::establishConnection (unsigned int variableIndex)
 //
 void QESimpleShape::connectionChanged (QCaConnectionInfo & connectionInfo)
 {
-   // If connected, enable the widget if the QE enabled property is true
-   // If disconnected always disable the widget.
-   //
-   this->isConnected = connectionInfo.isChannelConnected ();
-   this->setDataDisabled (!this->isConnected);
-   this->updateToolTipConnection (this->isConnected);
-   this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
+
+    // Display the connected state
+    updateToolTipConnection( isConnected );
+    updateConnectionStyle( isConnected );
+
+    this->isFirstUpdate = true;  // more trob. than it's worth to check if connect or disconnect.
 
    this->update ();
 }

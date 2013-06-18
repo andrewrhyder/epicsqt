@@ -78,7 +78,6 @@ void QEAnalogProgressBar::setup() {
 
     // Set the initial state
     isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
 
     // Use progress bar signals
     // --Currently none--
@@ -154,25 +153,18 @@ void QEAnalogProgressBar::establishConnection( unsigned int variableIndex )
  */
 void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected, enable the widget if the QE enabled property is true
-    if( connectionInfo.isChannelConnected() )
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
+
+    // Note if first update has arrived (ok to set repeatedly)
+    if( isConnected )
     {
-        isConnected = true;
-        updateToolTipConnection( isConnected );
-
-        setDataDisabled( false );
-
         isFirstUpdate = true;
     }
 
-    // If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
-
-        setDataDisabled( true );
-    }
+    // Display the connected state
+    updateToolTipConnection( isConnected );
+    updateConnectionStyle( isConnected );
 }
 
 /* ----------------------------------------------------------------------------

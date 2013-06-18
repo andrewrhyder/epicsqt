@@ -61,7 +61,6 @@ void QEGenericEdit::setup()
     // Set up default properties
     writeOnLoseFocus = false;
     writeOnEnter = true;
-    localEnabled = true;
     writeOnFinish = true;
     confirmWrite = false;
     isFirstUpdate = false;
@@ -70,7 +69,6 @@ void QEGenericEdit::setup()
 
     // Set the initial state
     isConnected = false;
-    QWidget::setEnabled( false );  // Reflects initial disconnected state
     messageDialogPresent = false;
     writeFailMessageDialogPresent = false;
 
@@ -97,25 +95,18 @@ void QEGenericEdit::setup()
 //
 void QEGenericEdit::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
-    // If connected enabled the widget if required.
-    if( connectionInfo.isChannelConnected() )
+    // Note the connected state
+    isConnected = connectionInfo.isChannelConnected();
+
+    // Note if first update has arrived (ok to set repeatedly)
+    if( isConnected )
     {
         isFirstUpdate = true;
-        isConnected = true;
-        updateToolTipConnection( isConnected );
-
-        if( localEnabled )
-            QWidget::setEnabled( true );
     }
 
-    // If disconnected always disable the widget.
-    else
-    {
-        isConnected = false;
-        updateToolTipConnection( isConnected );
-
-        QWidget::setEnabled( false );
-    }
+    // Display the connected state
+    updateToolTipConnection( isConnected );
+    updateConnectionStyle( isConnected );
 }
 
 //------------------------------------------------------------------------------
@@ -148,7 +139,13 @@ void QEGenericEdit::setDataIfNoFocus( const QVariant& value, QCaAlarmInfo& alarm
 // the 'isModified' flag. So, the first called will perform the write, the
 // second (if any) will do nothing.
 //
-void QEGenericEdit::userReturnPressed() {
+void QEGenericEdit::userReturnPressed()
+{
+    // If not connected, do nothing
+    if( !isConnected )
+    {
+        return;
+    }
 
     // Get the variable to write to
     qcaobject::QCaObject *qca = getQcaItem(0);
@@ -173,7 +170,13 @@ void QEGenericEdit::userReturnPressed() {
 // the 'isModified' flag. So, the first called will perform the write, the
 // second (if any) will do nothing.
 //
-void QEGenericEdit::userEditingFinished() {
+void QEGenericEdit::userEditingFinished()
+{
+    // If not connected, do nothing
+    if( !isConnected )
+    {
+        return;
+    }
 
     // Do nothing if the user is still effectivly working with the widget (just moved to a dialog box)
     // Any signals received while messageDialogPresent is true should be ignored.
@@ -248,7 +251,13 @@ void QEGenericEdit::userEditingFinished() {
 //
 void QEGenericEdit::writeNow ()
 {
-   // Get the variable to write to
+    // If not connected, do nothing
+    if( !isConnected )
+    {
+        return;
+    }
+
+    // Get the variable to write to
    qcaobject::QCaObject *qca = this->getQcaItem(0);
 
    // If a QCa object is present (if there is a variable to write to)
