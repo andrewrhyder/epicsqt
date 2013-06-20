@@ -85,6 +85,9 @@ UserMessage::UserMessage()
     // Allow the object receiving messages to pass them back to us
     userMessageSlot.setOwner( this );
 
+    // Need to register the type prior to any connections as this used in inter-thread slignals.
+    qRegisterMetaType<message_types> ("message_types");
+
     // Establish the connection between the common message signaler, and this instance's message slot
     QObject::connect( &userMessageSignal, SIGNAL( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ),
                       &userMessageSlot, SLOT( message( QString, message_types, unsigned int, unsigned int, UserMessage* ) ) );

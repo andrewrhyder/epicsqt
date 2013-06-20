@@ -26,6 +26,7 @@
 #ifndef UserMessage_H
 #define UserMessage_H
 
+#include <QMetaType>
 #include <QObject>
 #include <QEPluginLibrary_global.h>
 #include <QtDebug>
@@ -59,6 +60,8 @@ public:
    message_severities severity;
    message_kind_sets kind_set;
 };
+
+Q_DECLARE_METATYPE (message_types)
 
 
 class UserMessage;
