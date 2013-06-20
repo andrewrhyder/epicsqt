@@ -30,6 +30,7 @@
 #include <QHash>
 #include <QList>
 #include <QMutex>
+#include <QThread>
 #include <QUrl>
 
 #include <QECommon.h>
@@ -119,13 +120,13 @@ typedef QHash <QString, SourceSpec> PVNameToSourceSpecLookUp;
 // do nothing, except waste space.
 //
 static QMutex *singletonMutex = new QMutex ();
-static QEArchiveManager *singleton = NULL;
+static QEArchiveManager *singletonManager = NULL;
+static QThread *singletonThread = NULL;
 
 static QMutex *archiveDataMutex = new QMutex ();
 static ArchiveInterfaceLists archiveInterfaceList;
 static PVNameToSourceSpecLookUp pvNameToSourceLookUp;
 
-static QString pattern;
 static bool allArchivesRead = false;
 static int numberArchivesRead = 0;
 static bool environmentErrorReported = false;
@@ -135,18 +136,28 @@ static bool environmentErrorReported = false;
 // QEArchiveManager Class Methods
 //==============================================================================
 //
-//The singleton manager object is an orphan.
+//The singleton manager object is an orphan because we move it to singletonThread.
 //
-QEArchiveManager::QEArchiveManager () : QObject (NULL)
+QEArchiveManager::QEArchiveManager (const QString& archivesIn,
+                                    const QString& patternIn) : QObject (NULL)
 {
+   this->archives = archivesIn;
+   this->pattern = patternIn;
+
    // Hard-coded message Id.
    //
    this->setSourceId (9001);
+
+   // Register status message types.
+   //
+   qRegisterMetaType<QEArchiveAccess::States> ("QEArchiveAccess::States");
+   qRegisterMetaType<QEArchiveAccess::Status> ("QEArchiveAccess::Status");
+   qRegisterMetaType<QEArchiveAccess::StatusList> ("QEArchiveAccess::StatusList");
 }
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveManager::setup (const QString& archives, const QString& patternIn)
+void QEArchiveManager::setup ()
 {
    QStringList archiveList;
    QString item;
@@ -157,16 +168,12 @@ void QEArchiveManager::setup (const QString& archives, const QString& patternIn)
    // First check we are the one and only ....
    // Belts 'n' braces sainity check.
    //
-   if (this != singleton) {
+   if (this != singletonManager) {
       // This is NOT the singleton object.
       this->sendMessage ("QEArchiveManager::initialise - attempt to use non-singleton object",
                           message_types (MESSAGE_TYPE_ERROR));
       return;
    }
-
-   // All okay to go, let get started.
-   //
-   pattern = patternIn;
 
    // Split input string using space as delimiter.
    // Could extend to use regular expression and split on any white space character.
@@ -190,7 +197,7 @@ void QEArchiveManager::setup (const QString& archives, const QString& patternIn)
       item.append (archiveList.value (j));
       url = QUrl (item);
 
-      interface = new ArchiveInterfacePlus (url, singleton);
+      interface = new ArchiveInterfacePlus (url, this);
       archiveInterfaceList.append (interface);
 
       connect (interface, SIGNAL (archivesResponse (const QObject*, const bool, const QEArchiveInterface::ArchiveList &)),
@@ -211,16 +218,33 @@ void QEArchiveManager::setup (const QString& archives, const QString& patternIn)
    this->resendStatus ();
 }
 
+//------------------------------------------------------------------------------
+// slot
+void QEArchiveManager::started ()
+{
+   this->setup ();
+}
+
+
 
 //------------------------------------------------------------------------------
 // static
-void QEArchiveManager::initialise (const QString& archives, const QString& patternIn)
+void QEArchiveManager::initialise (const QString& archivesIn, const QString& patternIn)
 {
    QMutexLocker locker (singletonMutex);
 
-   if (!singleton) {
-      singleton = new QEArchiveManager ();
-      singleton->setup (archives, patternIn);
+   if (!singletonManager) {
+      singletonManager = new QEArchiveManager (archivesIn, patternIn);
+      singletonThread = new QThread ();
+
+      // Remome the singletonManager to belong to thread, connect the signal and start it.
+      //
+      singletonManager->moveToThread (singletonThread);
+
+      QObject::connect (singletonThread, SIGNAL (started ()),
+                        singletonManager, SLOT  (started ()));
+
+      singletonThread->start ();
    }
 }
 
@@ -298,9 +322,16 @@ void QEArchiveManager::resendStatus ()
       statusList.append (status);
    }
 
-   this->archiveStatus (statusList);
+   emit this->archiveStatusResponse (statusList);
 }
 
+//------------------------------------------------------------------------------
+//
+void QEArchiveManager::archiveStatusRequest () {
+   QMutexLocker locker (archiveDataMutex);
+
+   this->resendStatus ();
+}
 
 //==============================================================================
 //
@@ -359,7 +390,7 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
                           message_types (MESSAGE_TYPE_ERROR));
    }
 
-   singleton->resendStatus ();
+   singletonManager->resendStatus ();
 }
 
 
@@ -451,7 +482,7 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
    }
 
    delete context;
-   singleton->resendStatus ();
+   singletonManager->resendStatus ();
 }
 
 
@@ -500,8 +531,14 @@ QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
    //
    QEArchiveManager::initialise ();
 
-   QObject::connect (singleton, SIGNAL (archiveStatus (const QEArchiveAccess::StatusList&)),
-                     this,      SLOT (rxArchiveStatus (const QEArchiveAccess::StatusList&)));
+
+   // Connect request response signals.
+   //
+   QObject::connect (this,             SIGNAL (archiveStatusRequest ()),
+                     singletonManager, SLOT   (archiveStatusRequest ()));
+
+   QObject::connect (singletonManager, SIGNAL (archiveStatusResponse (const QEArchiveAccess::StatusList&)),
+                     this,             SLOT   (archiveStatusResponse (const QEArchiveAccess::StatusList&)));
 }
 
 //------------------------------------------------------------------------------
@@ -671,7 +708,9 @@ int QEArchiveAccess::getNumberInterfaces ()
 //
 QString QEArchiveAccess::getPattern ()
 {
-   return pattern;
+   QMutexLocker locker (singletonMutex);
+
+   return singletonManager ? singletonManager->pattern : "";
 }
 
 //------------------------------------------------------------------------------
@@ -685,14 +724,14 @@ int QEArchiveAccess::getNumberPVs ()
 //
 void QEArchiveAccess::resendStatus ()
 {
-   if (singleton) {
-      singleton->resendStatus ();
+   if (singletonManager) {
+      emit this->archiveStatusRequest ();
    }
 }
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveAccess::rxArchiveStatus (const QEArchiveAccess::StatusList& stringList)
+void QEArchiveAccess::archiveStatusResponse (const QEArchiveAccess::StatusList& stringList)
 {
    // Just re-broadcast status signal.
    //

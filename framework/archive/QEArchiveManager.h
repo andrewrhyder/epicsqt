@@ -34,6 +34,7 @@
 #define QEARCHIVEMANAGER_H
 
 #include <QList>
+#include <QMetaType>
 #include <QObject>
 #include <QString>
 
@@ -80,10 +81,6 @@ public:
                      const QEArchiveInterface::How how,
                      const unsigned int element = 0);
 
-   // Requests re-transmission of archive status.
-   //
-   void resendStatus ();
-
    enum States {
       Unknown,
       Updating,
@@ -105,15 +102,32 @@ public:
 
    typedef QList<Status> StatusList;
 
+   // Requests re-transmission of archive status via archiveStatus signal
+   //
+   void resendStatus ();
+
 signals:
+   void archiveStatus (const QEArchiveAccess::StatusList&);  // to user
    void setArchiveData (const QObject *, const bool, const QCaDataPointList &);
-   void archiveStatus (const QEArchiveAccess::StatusList&);
+
+
+   // Request response to the archive manager
+   // NOTE: response goes to all archive access instances.
+signals:
+   void archiveStatusRequest ();
 
 private slots:
-   void rxArchiveStatus (const QEArchiveAccess::StatusList&);
+   void archiveStatusResponse (const QEArchiveAccess::StatusList&);
 
    friend class QEArchiveManager;
 };
+
+// These type are distributed via the signal/slot mechanism. Muset
+// declare then as such (here) and register them (within implementation).
+//
+Q_DECLARE_METATYPE (QEArchiveAccess::States)
+Q_DECLARE_METATYPE (QEArchiveAccess::Status)
+Q_DECLARE_METATYPE (QEArchiveAccess::StatusList)
 
 
 // This is a singleton class - the single instance is declared in the .cpp file.
@@ -124,7 +138,7 @@ private slots:
 class QEArchiveManager : public QObject, UserMessage {
    Q_OBJECT
 private:
-   QEArchiveManager ();
+   QEArchiveManager (const QString& archives, const QString& pattern);
 
    // This function connects the specified the archive(s). The format of the string is
    // space separated set of one or more hostname:port/endpoint triplets, e.g.
@@ -138,24 +152,31 @@ private:
    // The pattern parameter can be used to restrict the set of extracted PVs. The same
    // pattern applies of all archives. The pattern is a regular expression.
    //
-   void setup (const QString& archives, const QString& patternIn);
+   void setup ();
 
    // Idempotent and thread safe initialise functions.
    // The second overloaded form uses the environment variables QE_ARCHIVE_LIST and
    // QE_ARCHIVE_PATTERN. If QE_ARCHIVE_PATTERN is undefined then ".*" is used.
    //
-   static void initialise (const QString& archives, const QString& patternIn);
+   static void initialise (const QString& archives, const QString& pattern);
    static void initialise ();
 
    void clear ();
    void resendStatus ();
 
+   QString archives;
+   QString pattern;
+
    friend class QEArchiveAccess;
 
-signals:
-   void archiveStatus (const QEArchiveAccess::StatusList&);
 
 private slots:
+   void archiveStatusRequest ();                                     // from archive interface
+signals:
+   void archiveStatusResponse (const QEArchiveAccess::StatusList&);  // to archive interface
+
+private slots:
+   void started ();
    void archivesResponse (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);
    void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QEArchiveInterface::PVNameList& pvNameList);
    void valuesResponse   (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ResponseValueList& valuesList);
