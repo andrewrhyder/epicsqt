@@ -32,6 +32,10 @@
 QCaDataPoint::QCaDataPoint ()
 {
    this->value = 0.0;
+
+   // Register type.
+   //
+   qRegisterMetaType<QCaDataPoint> ("QCaDataPoint");
 }
 
 //------------------------------------------------------------------------------
@@ -68,6 +72,14 @@ bool QCaDataPoint::isDisplayable ()
    return result;
 }
 
+//------------------------------------------------------------------------------
+//
+QCaDataPointList::QCaDataPointList () : QList ()
+{
+   // Register type.
+   //
+   qRegisterMetaType<QCaDataPointList> ("QCaDataPointList");
+}
 
 //------------------------------------------------------------------------------
 //

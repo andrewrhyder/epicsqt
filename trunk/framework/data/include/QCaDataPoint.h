@@ -28,6 +28,8 @@
 #define QCADATAPOINT_H
 
 #include <QList>
+#include <QMetaType>
+
 #include <QCaAlarmInfo.h>
 #include <QCaDateTime.h>
 
@@ -52,6 +54,8 @@ public:
 //
 class QCaDataPointList : public QList<QCaDataPoint>  {
 public:
+   explicit QCaDataPointList ();
+
    // Resamples the source list on points into current list.
    // Note: any previous data is lost.
    //
@@ -59,5 +63,10 @@ public:
                   const double interval,
                   const QCaDateTime&  endTime);
 };
+
+// These types use in inter thread signals - must be registered.
+//
+Q_DECLARE_METATYPE (QCaDataPoint)
+Q_DECLARE_METATYPE (QCaDataPointList)
 
 #endif  // QCADATAPOINT_H
