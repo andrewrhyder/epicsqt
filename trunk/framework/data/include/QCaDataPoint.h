@@ -50,7 +50,7 @@ public:
    QCaAlarmInfo alarm;
 };
 
-// Defines a vector of data points.
+// Defines a list of data points.
 //
 class QCaDataPointList : public QList<QCaDataPoint>  {
 public:
@@ -64,7 +64,7 @@ public:
                   const QCaDateTime&  endTime);
 };
 
-// These types use in inter thread signals - must be registered.
+// These types are used in inter thread signals - must be registered.
 //
 Q_DECLARE_METATYPE (QCaDataPoint)
 Q_DECLARE_METATYPE (QCaDataPointList)
