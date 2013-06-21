@@ -69,11 +69,18 @@ public:
    static QString getPattern ();
    static int getNumberPVs ();
 
+   // Requests re-transmission of archive status.
+   // Returned status is via archiveStatus signal.
+   //
+   void resendStatus ();
+
    // Simple archive request - single scaler PV, or one arbitary element from
    // a single array PV.  No extended meta data, just values + timestamp + alarm info.
    // The data, if any, is sent via the setArchiveData signal.
    //
-   bool readArchive (QObject * userData,        // provides call back signal context
+   // Returned data is via setArchiveData signal.
+   //
+   void readArchive (QObject* userData,        // provides call back signal context
                      const QString pvName,
                      const QCaDateTime startTime,
                      const QCaDateTime endTime,
@@ -85,6 +92,7 @@ public:
       Unknown,
       Updating,
       Complete,
+      InComplete,
       No_Response,
       Error
    };
@@ -96,28 +104,52 @@ public:
       QString endPoint;  //
       States state;      //
       int available;     // number of archives
-      int read;          // number of archives suiccessfull yread
+      int read;          // number of archives suiccessfully read
       int numberPVs;     //
    };
 
    typedef QList<Status> StatusList;
 
-   // Requests re-transmission of archive status via archiveStatus signal
+
+   // These are essentially a private type, but must be public for metat data registration.
    //
-   void resendStatus ();
+   struct PVDataRequests {
+      QObject* userData;
+      int key;
+      QString pvName;
+      QCaDateTime startTime;
+      QCaDateTime endTime;
+      int count;
+      QEArchiveInterface::How how;
+      unsigned int element;
+   };
+
+   struct PVDataResponses {
+      QObject* userData;
+      bool isSuccess;
+      QCaDataPointList pointsList;
+   };
+
 
 signals:
-   void archiveStatus (const QEArchiveAccess::StatusList&);  // to user
-   void setArchiveData (const QObject *, const bool, const QCaDataPointList &);
+   // Signals back to users in response to above service requests.
+   //
+   void archiveStatus  (const QEArchiveAccess::StatusList&);
+   void setArchiveData (const QObject*, const bool, const QCaDataPointList &);
 
 
-   // Request response to the archive manager
+   // Requests responses to/from the Archive Manager.
    // NOTE: response goes to all archive access instances.
 signals:
    void archiveStatusRequest ();
+   void readArchiveRequest (const QEArchiveAccess*,
+                            const QEArchiveAccess::PVDataRequests&);
 
 private slots:
    void archiveStatusResponse (const QEArchiveAccess::StatusList&);
+
+   void readArchiveResponse (const QEArchiveAccess* archiveAccess,
+                             const QEArchiveAccess::PVDataResponses& response);
 
    friend class QEArchiveManager;
 };
@@ -128,6 +160,8 @@ private slots:
 Q_DECLARE_METATYPE (QEArchiveAccess::States)
 Q_DECLARE_METATYPE (QEArchiveAccess::Status)
 Q_DECLARE_METATYPE (QEArchiveAccess::StatusList)
+Q_DECLARE_METATYPE (QEArchiveAccess::PVDataRequests)
+Q_DECLARE_METATYPE (QEArchiveAccess::PVDataResponses)
 
 
 // This is a singleton class - the single instance is declared in the .cpp file.
@@ -170,16 +204,32 @@ private:
    friend class QEArchiveAccess;
 
 
+   // Status request/response from/to archive interface objects.
+   //
 private slots:
    void archiveStatusRequest ();                                     // from archive interface
 signals:
    void archiveStatusResponse (const QEArchiveAccess::StatusList&);  // to archive interface
 
+
+   // Data request/response from/to archive interface objects.
+   //
 private slots:
+   void readArchiveRequest (const QEArchiveAccess* archiveAccess,
+                            const QEArchiveAccess::PVDataRequests& request);
+
+signals:
+   void readArchiveResponse (const QEArchiveAccess*,
+                             const QEArchiveAccess::PVDataResponses&);
+
+private slots:
+   // From thread
    void started ();
-   void archivesResponse (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);
-   void pvNamesResponse  (const QObject * userData, const bool isSuccess, const QEArchiveInterface::PVNameList& pvNameList);
-   void valuesResponse   (const QObject * userData, const bool isSuccess, const QEArchiveInterface::ResponseValueList& valuesList);
+
+   // From archive interface.
+   void archivesResponse (const QObject* userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);
+   void pvNamesResponse  (const QObject* userData, const bool isSuccess, const QEArchiveInterface::PVNameList& pvNameList);
+   void valuesResponse   (const QObject* userData, const bool isSuccess, const QEArchiveInterface::ResponseValueList& valuesList);
 };
 
 #endif  // QEARCHIVEMANAGER_H

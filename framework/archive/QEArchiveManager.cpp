@@ -153,6 +153,9 @@ QEArchiveManager::QEArchiveManager (const QString& archivesIn,
    qRegisterMetaType<QEArchiveAccess::States> ("QEArchiveAccess::States");
    qRegisterMetaType<QEArchiveAccess::Status> ("QEArchiveAccess::Status");
    qRegisterMetaType<QEArchiveAccess::StatusList> ("QEArchiveAccess::StatusList");
+
+   qRegisterMetaType<QEArchiveAccess::PVDataRequests> ("QEArchiveAccess::PVDataRequests");
+   qRegisterMetaType<QEArchiveAccess::PVDataResponses> ("QEArchiveAccess::PVDataResponses");
 }
 
 //------------------------------------------------------------------------------
@@ -166,10 +169,11 @@ void QEArchiveManager::setup ()
    int j;
 
    // First check we are the one and only ....
-   // Belts 'n' braces sainity check.
+   // Belts 'n' braces sanity check.
    //
    if (this != singletonManager) {
       // This is NOT the singleton object.
+      //
       this->sendMessage ("QEArchiveManager::initialise - attempt to use non-singleton object",
                           message_types (MESSAGE_TYPE_ERROR));
       return;
@@ -210,6 +214,7 @@ void QEArchiveManager::setup ()
                this,      SLOT   (valuesResponse   (const QObject*, const bool, const QEArchiveInterface::ResponseValueList &)));
 
       interface->archivesRequest (interface);
+      interface->state = QEArchiveAccess::Updating;
 
       this->sendMessage (QString ("requesting PV name info from ").append (interface->getName ()),
                          message_types (MESSAGE_TYPE_INFO));
@@ -224,8 +229,6 @@ void QEArchiveManager::started ()
 {
    this->setup ();
 }
-
-
 
 //------------------------------------------------------------------------------
 // static
@@ -337,21 +340,18 @@ void QEArchiveManager::archiveStatusRequest () {
 //
 class NamesResponseContext:public QObject {
 public:
-   ArchiveInterfacePlus * interface;
-   ArchiveInterfacePlus::Archive archive;
+   ArchiveInterfacePlus* interface;
+   QEArchiveInterface::Archive archive;
    int instance;
-   int number;
 
    // constructor
    NamesResponseContext (ArchiveInterfacePlus * interfaceIn,
                          ArchiveInterfacePlus::Archive archiveIn,
-                         int i,
-                         int n)
+                         int i)
    {
       this->interface = interfaceIn;
       this->archive = archiveIn;
       this->instance = i;
-      this->number = n;
    }
 };
 
@@ -381,13 +381,16 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
          // Create the callback context.
          //
          archive = archiveList.value (j);
-         context = new NamesResponseContext (interface, archive, j + 1, count);
+         context = new NamesResponseContext (interface, archive, j + 1);
          interface->namesRequest (context, archive.key, pattern);
       }
 
    } else {
        this->sendMessage (QString ("request failure from ").append (interface->getName ()),
                           message_types (MESSAGE_TYPE_ERROR));
+
+       interface->state = QEArchiveAccess::Error;
+
    }
 
    singletonManager->resendStatus ();
@@ -471,11 +474,19 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
 
    }
 
-   if (context->instance == context->number) {
+   if (context->instance == interface->available) {
       message = "PV name retrival from ";
       message.append (context->interface->getName ());
       message.append (" complete");
       this->sendMessage (message);
+
+      if (interface->read == interface->available) {
+         interface->state = QEArchiveAccess::Complete;
+
+      } else {
+         interface->state = QEArchiveAccess::InComplete;
+
+      }
 
       numberArchivesRead++;
       allArchivesRead = (numberArchivesRead = archiveInterfaceList.count ());
@@ -488,16 +499,16 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
 
 //==============================================================================
 //
-class ValuesResponseContext:public QObject {
+class ValuesResponseContext : public QObject {
 public:
-   QEArchiveAccess * accessor;
-   QObject *userData;
+   const QEArchiveAccess* archiveAccess;
+   QObject* userData;
 
    // constructor
-   ValuesResponseContext (QEArchiveAccess * accessorIn,
-                          QObject * userDataIn)
+   ValuesResponseContext (const QEArchiveAccess* archiveAccessIn,
+                          QObject* userDataIn)
    {
-      this->accessor = accessorIn;
+      this->archiveAccess = archiveAccessIn;
       this->userData = userDataIn;
    }
 };
@@ -505,21 +516,125 @@ public:
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveManager::valuesResponse (const QObject * userData,
+void QEArchiveManager::readArchiveRequest (const QEArchiveAccess* archiveAccess,
+                                           const QEArchiveAccess::PVDataRequests& request)
+{
+   QMutexLocker locker (archiveDataMutex);
+
+   QString effectivePvName;
+   bool isKnownPVName;
+   int j;
+   QStringList pvNames;
+   SourceSpec sourceSpec;
+   KeyTimeSpec keyTimeSpec;
+   int key;
+   int bestOverlap;
+   QList < int >keys;
+   QCaDateTime useStart;
+   QCaDateTime useEnd;
+   int overlap;
+   QString message;
+
+   // Is this PV currently being archived?
+   //
+   effectivePvName = request.pvName;
+
+   isKnownPVName = pvNameToSourceLookUp.contains (effectivePvName);
+   if (!isKnownPVName) {
+      // No - the PV 'as is' is not archived.
+      // If user has requested XXXXXX.VAL, check if XXXXXX is archived.
+      // Similarly, if user requested YYYYYY, check if YYYYYY.VAL archived.
+      //
+      if (effectivePvName.right (4) == ".VAL") {
+         // Remove the .VAL field and try again.
+         //
+         effectivePvName.chop (4);
+      } else {
+         // Add .VAL and try again.
+         //
+         effectivePvName.append (".VAL");
+      }
+      isKnownPVName = pvNameToSourceLookUp.contains (effectivePvName);
+   }
+
+   if (isKnownPVName) {
+      sourceSpec = pvNameToSourceLookUp.value (effectivePvName);
+
+      key = -1;
+      bestOverlap = -864000;
+
+      keys = sourceSpec.keyToTimeSpecLookUp.keys ();
+      for (j = 0; j < keys.count (); j++) {
+
+         keyTimeSpec = sourceSpec.keyToTimeSpecLookUp.value (keys.value (j));
+
+         useStart = MAX (request.startTime.toUTC (), keyTimeSpec.startTime);
+         useEnd = MIN (request.endTime.toUTC (), keyTimeSpec.endTime);
+
+         // We don't worry about calculating the overlap to an accuracy
+         // of any one than one second.
+         //
+         overlap = useStart.secsTo (useEnd);
+         if (bestOverlap < overlap) {
+            bestOverlap = overlap;
+            key = keyTimeSpec.key;
+         }
+      }
+
+      isKnownPVName = (key >= 0);
+      if (isKnownPVName) {
+         pvNames.append (effectivePvName);
+
+         // Create a reasponse context.
+         //
+         ValuesResponseContext* context = new  ValuesResponseContext (archiveAccess, request.userData);
+
+         // The interface signals return data to the valuesResponse slot in the QEArchiveManager
+         // object which (using supplied context) emits QEArchiveAccess setArchiveData signal on behalf
+         // of this object.
+         //
+         sourceSpec.interface->valuesRequest (context, key,
+                                              request.startTime, request.endTime,
+                                              request.count, request.how,
+                                              pvNames, request.element);
+
+      } else {
+         message = "Archive Manager: PV ";
+         message.append (request.pvName);
+         message.append (" has no matching time overlaps.");
+         this->sendMessage (message, message_types (MESSAGE_TYPE_WARNING));
+      }
+
+   } else {
+      message = "Archive Manager: PV ";
+      message.append (request.pvName);
+      message.append (" not found in archive.");
+      this->sendMessage (message, message_types (MESSAGE_TYPE_WARNING));
+   }
+}
+
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveManager::valuesResponse (const QObject* userData,
                                        const bool isSuccess,
                                        const QEArchiveInterface::ResponseValueList& valuesList)
 {
-   ValuesResponseContext *context = (ValuesResponseContext *) userData;
+   const ValuesResponseContext* context = dynamic_cast <ValuesResponseContext*> ((QObject*) userData);
 
-   if ((isSuccess) && (valuesList.count () == 1)) {
-      emit context->accessor->setArchiveData
-              (context->userData, true, valuesList.value (0).dataPoints);
-   } else {
-      QCaDataPointList empty;
-      emit context->accessor->setArchiveData (context->userData, false, empty);
+   if (context) {
+      QEArchiveAccess::PVDataResponses response;
+
+      response.userData = context->userData;
+      response.isSuccess = ((isSuccess) && (valuesList.count () == 1));
+      if (response.isSuccess) {
+         response.pointsList = valuesList.value (0).dataPoints;
+      }
+
+      emit this->readArchiveResponse (context->archiveAccess, response);
+
+      delete context;
    }
-
-   delete context;
 }
 
 
@@ -531,14 +646,23 @@ QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
    //
    QEArchiveManager::initialise ();
 
-
-   // Connect request response signals.
+   // Connect status request response signals.
    //
    QObject::connect (this,             SIGNAL (archiveStatusRequest ()),
                      singletonManager, SLOT   (archiveStatusRequest ()));
 
    QObject::connect (singletonManager, SIGNAL (archiveStatusResponse (const QEArchiveAccess::StatusList&)),
                      this,             SLOT   (archiveStatusResponse (const QEArchiveAccess::StatusList&)));
+
+
+   // Connect data request response signals.
+   //
+   QObject::connect (this,             SIGNAL (readArchiveRequest  (const QEArchiveAccess*, const QEArchiveAccess::PVDataRequests&)),
+                     singletonManager, SLOT   (readArchiveRequest  (const QEArchiveAccess*, const QEArchiveAccess::PVDataRequests&)));
+
+   QObject::connect (singletonManager, SIGNAL (readArchiveResponse (const QEArchiveAccess*, const QEArchiveAccess::PVDataResponses&)),
+                     this,             SLOT   (readArchiveResponse (const QEArchiveAccess*, const QEArchiveAccess::PVDataResponses&)));
+
 }
 
 //------------------------------------------------------------------------------
@@ -562,7 +686,66 @@ void QEArchiveAccess::setMessageSourceId (unsigned int messageSourceIdIn)
 }
 
 //------------------------------------------------------------------------------
+//
+void QEArchiveAccess::resendStatus ()
+{
+   if (singletonManager) {
+      emit this->archiveStatusRequest ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::archiveStatusResponse (const QEArchiveAccess::StatusList& stringList)
+{
+   // Just re-broadcast status signal - no filtering.
+   //
+   emit this->archiveStatus (stringList);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::readArchive (QObject* userData,
+                                   const QString pvName,
+                                   const QCaDateTime startTime,
+                                   const QCaDateTime endTime,
+                                   const int count,
+                                   const QEArchiveInterface::How how,
+                                   const unsigned int element)
+{
+   QEArchiveAccess::PVDataRequests request;
+
+   // Set up request - aggragate parameters
+   //
+   request.userData = userData;
+   request.pvName = pvName;
+   request.startTime = startTime;
+   request.endTime = endTime;
+   request.count = count;
+   request.how = how;
+   request.element = element;
+
+   // and hand-ball off to archiver manager thread.
+   //
+   emit this->readArchiveRequest (this, request);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveAccess::readArchiveResponse (const QEArchiveAccess* archiveAccess,
+                                           const QEArchiveAccess::PVDataResponses& response)
+{
+   // Filter and re-broadcast status signal.
+   //
+   if (archiveAccess == this) {
+      emit this->setArchiveData (response.userData, response.isSuccess, response.pointsList);
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // static functions
+//------------------------------------------------------------------------------
 //
 void QEArchiveAccess::initialise (const QString& archives, const QString& pattern)
 {
@@ -581,116 +764,6 @@ void QEArchiveAccess::initialise ()
 }
 
 //------------------------------------------------------------------------------
-//
-bool QEArchiveAccess::readArchive (QObject * userData,
-                                   const QString pvName,
-                                   const QCaDateTime startTime,
-                                   const QCaDateTime endTime,
-                                   const int count,
-                                   const QEArchiveInterface::How how,
-                                   const unsigned int element)
-{
-   QMutexLocker locker (archiveDataMutex);
-
-   bool result;
-   QString effectivePvName;
-   int j;
-   QStringList pvNames;
-   SourceSpec sourceSpec;
-   KeyTimeSpec keyTimeSpec;
-   int key;
-   int bestOverlap;
-   QList < int >keys;
-   QCaDateTime useStart;
-   QCaDateTime useEnd;
-   int overlap;
-   QString message;
-
-   // Is this PV currently being archived?
-   //
-   result = pvNameToSourceLookUp.contains (pvName);
-   if (result) {
-      // Yes - save this exact name.
-      //
-      effectivePvName = pvName;
-   } else {
-      // No - the PV 'as is' is not archived.
-      // If user has requested XXXXXX.VAL, check if XXXXXX is archived.
-      // Similarly, if user requested YYYYYY, check if YYYYYY.VAL archived.
-      //
-      if (pvName.right (4) == ".VAL") {
-         // Remove the .VAL field and try again.
-         //
-         effectivePvName = pvName;
-         effectivePvName.chop (4);
-         result = pvNameToSourceLookUp.contains (effectivePvName);
-      } else {
-         // Add .VAL and try again.
-         //
-         effectivePvName = pvName;
-         effectivePvName = effectivePvName.append (".VAL");
-         result = pvNameToSourceLookUp.contains (effectivePvName);
-      }
-   }
-
-   if (result) {
-      sourceSpec = pvNameToSourceLookUp.value (effectivePvName);
-
-      key = -1;
-      bestOverlap = -864000;
-
-      keys = sourceSpec.keyToTimeSpecLookUp.keys ();
-      for (j = 0; j < keys.count (); j++) {
-
-         keyTimeSpec = sourceSpec.keyToTimeSpecLookUp.value (keys.value (j));
-
-         useStart = MAX (startTime.toUTC (), keyTimeSpec.startTime);
-         useEnd = MIN (endTime.toUTC (), keyTimeSpec.endTime);
-
-         // We don't worry about calculating the overlap to an accuracy
-         // of any one than one second.
-         //
-         overlap = useStart.secsTo (useEnd);
-         if (bestOverlap < overlap) {
-            bestOverlap = overlap;
-            key = keyTimeSpec.key;
-         }
-      }
-
-      result = (key >= 0);
-      if (result) {
-         ValuesResponseContext *context;
-
-         // Create the callback context.
-         //
-         context = new ValuesResponseContext (this, userData);
-         pvNames.append (pvName);
-
-         // The interface signals return data to the valuesResponse slot in the QEArchiveManager
-         // object which (using supplied context) emits QEArchiveAccess setArchiveData signal on behalf
-         // of this object.
-         //
-         sourceSpec.interface->valuesRequest (context, key, startTime, endTime, count, how, pvNames, element);
-
-      } else {
-         message = "Archive Manager: PV ";
-         message.append (pvName);
-         message.append (" has no matching time overlaps.");
-         this->sendMessage (message, message_types (MESSAGE_TYPE_WARNING));
-      }
-
-   } else {
-      message = "Archive Manager: PV ";
-      message.append (pvName);
-      message.append (" not found in archive.");
-      this->sendMessage (message, message_types (MESSAGE_TYPE_WARNING));
-   }
-
-   return result;
-}
-
-//------------------------------------------------------------------------------
-// static functions
 //
 bool QEArchiveAccess::isReady ()
 {
@@ -717,25 +790,9 @@ QString QEArchiveAccess::getPattern ()
 //
 int QEArchiveAccess::getNumberPVs ()
 {
+   QMutexLocker locker (singletonMutex);
+
    return pvNameToSourceLookUp.count ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEArchiveAccess::resendStatus ()
-{
-   if (singletonManager) {
-      emit this->archiveStatusRequest ();
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEArchiveAccess::archiveStatusResponse (const QEArchiveAccess::StatusList& stringList)
-{
-   // Just re-broadcast status signal.
-   //
-   emit this->archiveStatus (stringList);
 }
 
 // end
