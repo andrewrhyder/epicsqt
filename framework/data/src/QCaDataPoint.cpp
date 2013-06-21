@@ -74,7 +74,7 @@ bool QCaDataPoint::isDisplayable ()
 
 //------------------------------------------------------------------------------
 //
-QCaDataPointList::QCaDataPointList () : QList ()
+QCaDataPointList::QCaDataPointList () : QList<QCaDataPoint> ()
 {
    // Register type.
    //
