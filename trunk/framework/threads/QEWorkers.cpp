@@ -23,143 +23,190 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <QEWorkers.h>
-#include <QThread>
 #include <QDebug>
+#include <QThread>
 
-#include "QEWorkers.h"
+#include <QEWorkers.h>
 
 
-#define DEBUG  qDebug () << __FILE__ << "::" << __FUNCTION__  << ":" << __LINE__ 
+#define DEBUG  qDebug () << "QE Worker::" << __FUNCTION__  << ":" << __LINE__
+#define CTID  ( 1000 + QThread::currentThreadId () % 1000 )
 
+namespace QE {
 
 //==============================================================================
 //
-WorkerThread::WorkerThread
-   (const QEWorkerManager::Counts instanceIn,
-    QEWorkerManager * managerIn) : QThread (managerIn)
+Worker::Worker () : QObject (NULL)
 {
-   this->instance = instanceIn;
-   this->manager = managerIn;
+   this->instance = 0;
+   this->number = 0;
 }
 
 //------------------------------------------------------------------------------
 //
-WorkerThread::~WorkerThread ()
+void Worker::initialise (const Counts, const Counts)
 {
-   // nothing required - just a place holder.
+   // place holder
 }
+
+//------------------------------------------------------------------------------
+//
+void Worker::process (QObject* workPackage, const Counts i, const Counts n)
+{
+   // place holder
+   qDebug ()  << CTID
+              <<  " process (" << workPackage << "," << i << "," << n << ")"
+              <<" - this should be overriden.";
+}
+
+
+//------------------------------------------------------------------------------
+// slot
+void Worker::started ()
+{
+   this->initialise (this->instance, this->number);
+}
+
+//------------------------------------------------------------------------------
+// slot
+void Worker::startProcessing (const QE::SequenceNumbers sequenceNumberIn,
+                              QObject* workPackage)
+{
+   this->sequenceNumber = sequenceNumberIn;
+   this->process (workPackage, this->instance, this->number);
+   emit this->processingComplete (this->sequenceNumber, this->instance);
+}
+
+
+//==============================================================================
+//
+class WorkerThread : public QThread {
+public:
+   WorkerThread (Worker *worker,
+                 Counts intance,
+                 Counts number,
+                 QObject* parent = 0);
+
+protected:
+   void run ();
+
+private:
+   Worker *worker;
+
+   friend class WorkerManager;
+};
+
+//------------------------------------------------------------------------------
+//
+WorkerThread::WorkerThread (Worker *workerIn,
+                            Counts intanceIn,
+                            Counts numberIn,
+                            QObject* parent) : QThread (parent)
+{
+   this->worker = workerIn;
+
+
+   this->worker->instance = intanceIn;
+   this->worker->number = numberIn;
+
+   // Ensure the worker is an orphan prior to rehoming it's thread.
+   //
+   this->worker->setParent (NULL);
+   this->worker->moveToThread (this);
+}
+
 
 //------------------------------------------------------------------------------
 //
 void WorkerThread::run ()
 {
-   // Cross connect manager and worker threads.
-   //
-   connect (this->manager, SIGNAL (readyToGo (const QEWorkerManager::SequenceNumbers)),
-            this, SLOT            (readyToGo (const QEWorkerManager::SequenceNumbers)));
-
-   connect (this, SIGNAL        (finished (const QEWorkerManager::Counts, const QEWorkerManager::SequenceNumbers)),
-            this->manager, SLOT (finished (const QEWorkerManager::Counts, const QEWorkerManager::SequenceNumbers)));
-
-   // And start event loop for this thread.
-   //
-   this->exec ();
-}
-
-//------------------------------------------------------------------------------
-//
-void WorkerThread::process ()
-{
-   if (this->manager) {
-      // This is a dispatching call/hook function.
-      //
-      this->manager->processSubset (this->instance,
-                                    this->manager->getNumber ());
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void WorkerThread::readyToGo (const QEWorkerManager::SequenceNumbers sequenceNumberIn)
-{
-   this->sequenceNumber = sequenceNumberIn;
-   this->process ();
-   emit this->finished (this->instance, this->sequenceNumber);
+   this->exec();
 }
 
 
 //==============================================================================
 //
-class QEWorkerManager::ReallyPrivate {
+class WorkerManager::ReallyPrivate {
 public:
-   ReallyPrivate (const QEWorkerManager::Counts number, QEWorkerManager * manager)
-   {
-      int j;
-
-      for (j = 0; j < number; j++) {
-         this->threadList[j] = new WorkerThread (j, manager);
-         this->threadList[j]->start ();
-
-      } for (j = number; j < MAXIMUM_THREADS; j++) {
-         this->threadList[j] = NULL;
-      }
-   }
-
-private:
-   // NOTE: These objects are owned/parented by the QEWorkerManager.
-   //
-   WorkerThread * threadList[MAXIMUM_THREADS];
+   WorkerThread* threadList [MAXIMUM_THREADS];
+   bool workerComplete [MAXIMUM_THREADS];
 };
 
 
 //==============================================================================
 //
-QEWorkerManager::QEWorkerManager (const Counts numberIn,
-                                  QObject * parent) : QObject (parent)
+WorkerManager::WorkerManager (const WorkerList& workForce, QObject *parent) : QObject (parent)
 {
-   this->number = numberIn;
+   Counts j;
 
-   // Ensure this is sensible.
+   // Register types.
+   //
+   qRegisterMetaType<QE::Counts> ("QE::Counts");
+   qRegisterMetaType<QE::SequenceNumbers> ("QE::SequenceNumbers");
+
+
+   this->pd = new ReallyPrivate ();
+
+   this->number =  workForce.count ();
    if (this->number > MAXIMUM_THREADS) {
       this->number = MAXIMUM_THREADS;
    }
 
-   if (this->number < 1) {
-      this->number = 1;
+   for (j = 0; j < this->number; j++) {
+      Worker* worker = workForce.value (j);
+      WorkerThread* thread = new WorkerThread (worker, j, this->number, parent);
+
+      this->pd->threadList [j] = thread;
+
+      QObject::connect (thread, SIGNAL (started ()), worker, SLOT (started ()));
+
+      QObject::connect (this,   SIGNAL (startProcessing (const QE::SequenceNumbers, QObject*)),
+                        worker, SLOT   (startProcessing (const QE::SequenceNumbers, QObject*)));
+
+      QObject::connect (worker, SIGNAL (processingComplete (const QE::SequenceNumbers, QE::Counts)),
+                        this,   SLOT   (processingComplete (const QE::SequenceNumbers, QE::Counts)));
    }
 
-   this->sequenceNumber = 0;
-   this->privateData = new ReallyPrivate (this->number, this);
+   for (j = 0; j < this->number; j++) {
+      WorkerThread* thread = this->pd->threadList [j];
+      thread->start ();
+   }
 }
 
 //------------------------------------------------------------------------------
 //
-QEWorkerManager::~QEWorkerManager ()
+WorkerManager::~WorkerManager ()
 {
-   // The WorkerThread are owned by this so will be automatically deleted.
-
-   delete this->privateData;
+   // place holder
 }
 
 //------------------------------------------------------------------------------
 //
-QEWorkerManager::Counts QEWorkerManager::getNumber ()
+void WorkerManager::process (QObject* workPackageIn)
 {
-   return this->number;
+   Counts j;
+
+   this->workPackage = workPackageIn;
+
+   this->sequenceNumber++;
+   for (j = 0; j < this->number; j++) {
+      this->pd->workerComplete [j] = false;
+   }
+
+   emit this->startProcessing (this->sequenceNumber, this->workPackage);
 }
 
 //------------------------------------------------------------------------------
-//
-void QEWorkerManager::finished (const Counts instance,
-                                const QEWorkerManager::SequenceNumbers workerSequenceNumber)
+// slot
+void WorkerManager::processingComplete (const QE::SequenceNumbers workerSequenceNumber,
+                                        const QE::Counts instance)
 {
    if (workerSequenceNumber == this->sequenceNumber) {
-      this->workerComplete[instance] = true;
+      this->pd->workerComplete[instance] = true;
       // All done??
       //
-      if (this->isComplete()) {
-         emit this->complete();
+      if (this->isComplete ()) {
+         emit this->complete (this->workPackage);
       }
    } else {
       DEBUG << "sequenceNumber mismatch, "
@@ -168,56 +215,19 @@ void QEWorkerManager::finished (const Counts instance,
             << ", expected" <<this->sequenceNumber;
       // otherwise ignore for now.
    }
+
 }
 
 //------------------------------------------------------------------------------
 //
-void QEWorkerManager::start ()
-{
-   int j;
-
-   this->sequenceNumber++;
-
-   for (j = 0; j < this->getNumber (); j++) {
-      this->workerComplete[j] = false;
-   }
-
-   emit this->readyToGo (this->sequenceNumber);
-}
-
-
-//------------------------------------------------------------------------------
-//
-void QEWorkerManager::startAndWait (const double timeout, bool & complete)
-{
-   const unsigned long delay = 10;   // mSecs
-
-   unsigned long j;
-   unsigned long k;
-
-   complete = false;
-   this->start ();
-   k = (unsigned long) ((1000.0 * timeout) / delay);
-   if (k < 1) k = 1;
-   for (j = 0; (j < k) && (!complete); j++) {
-      // A bit of a cheat - as the manager class is a friend class of the worker
-      // it can see the inherited protected msleep function.
-      //
-      WorkerThread::msleep (delay);
-      complete = this->isComplete ();
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEWorkerManager::isComplete ()
+bool WorkerManager::isComplete ()
 {
    bool result;
-   int j;
+   Counts j;
 
    result = true;               //hypothesize okay.
-   for (j = 0; j < this->getNumber (); j++) {
-      if (!this->workerComplete[j]) {
+   for (j = 0; j < this->number; j++) {
+      if (!this->pd->workerComplete [j]) {
          result = false;
          break;
       }
@@ -226,11 +236,6 @@ bool QEWorkerManager::isComplete ()
    return result;
 }
 
-//------------------------------------------------------------------------------
-//
-void QEWorkerManager::processSubset (const Counts i, const Counts  n)
-{
-   DEBUG <<  "(" << i << "," << n << ") - this should be overriden";
-}
+}  // end QE
 
 // end

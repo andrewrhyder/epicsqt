@@ -26,98 +26,140 @@
 #ifndef QEWORKERS_H
 #define QEWORKERS_H
 
+#include <QList>
+#include <QMetaType>
 #include <QObject>
+#include <QtGlobal>
 #include <QThread>
 
 /*!
  * Proof of concept class - NOT currently in use.
+ *
+ * When manager's process function called, each worker class object process
+ * function is called (in a separate thread).
  */
 
 #define MAXIMUM_THREADS   16
 
-class QEWorkerManager : public QObject {
+namespace QE {
+
+typedef quint8  Counts;
+typedef quint32 SequenceNumbers;
+
+//------------------------------------------------------------------------------
+//
+class Worker : public QObject {
    Q_OBJECT
 public:
-   typedef unsigned short Counts;
-   typedef unsigned int SequenceNumbers;
+   explicit Worker ();   // no parent is specified.
 
-   explicit QEWorkerManager (const Counts number, QObject *parant = 0);
-   virtual ~QEWorkerManager ();
+private:
+   // Derived classes may override this function.
+   // This is executed once in the context of the associated thread
+   // when the thread is started.
+   //
+   virtual void initialise (const Counts i, const Counts n);
 
-   void start ();   // no wait per se - use complete signal.
-
-   void startAndWait (const double timeout, bool & complete);  // or timeout
-   bool isComplete ();
-
-   Counts getNumber();
-
-signals:
-   void complete ();
-
-protected:
    // Derived classes should override this function.  The function in the derived
    // class must do the i-th part of the n-part total work where i is 0 to (n-1).
+   // The nominal workPackage is represented as a QObject and is the same object
+   // as passed to the manager process function.
    //
-   // Each call to processSubset is in the context of a separate thread.
+   // Each call to process is in the context of a separate thread.
    //
-   // It is the responsibilty of the derived class's processSubset function to
-   // ensure that all the instances of execution do not step on each others toes
+   // It is the responsibilty of the derived class's process function to ensure:
+   // a/ that it performs the rquired part and only the required part of
+   //    the overall total work package.
+   // b/ that all the instances of execution do not step on each others toes
    // (that's a technical expression ;-), and that any interaction between each
    // instance and the rest of the system is thread safe.
    //
-   virtual void processSubset (const Counts i, const Counts n);
+   virtual void process (QObject* workPackage, const Counts i, const Counts n);
 
-private:
-   Counts number;
-   SequenceNumbers sequenceNumber;
-
-   // Internally we declare a number of WorkerThread pointer item.
-   // Declareing these in the header of a Q Bject seems to make the Qt SDK
-   // get very upset and confused, so need to hide this a little
-   //
-   class ReallyPrivate;
-   ReallyPrivate * privateData;
-
-   bool workerComplete [MAXIMUM_THREADS];
-
-signals:
-   void readyToGo (const QEWorkerManager::SequenceNumbers sequenceNumber);
+   Counts getInstance () { return instance; }
+   Counts getNumber   () { return number; }
 
 private slots:
-   void finished (const QEWorkerManager::Counts instance,
-                  const QEWorkerManager::SequenceNumbers sequenceNumber);
+   void started ();
+
+   void startProcessing (const QE::SequenceNumbers sequenceNumber,
+                         QObject* workPackage);
+
+signals:
+   void processingComplete (const QE::SequenceNumbers sequenceNumber,
+                            const QE::Counts instance);
+private:
+   Counts instance;
+   Counts number;
+   SequenceNumbers sequenceNumber;
 
    friend class WorkerThread;
 };
 
 
-//==============================================================================
+//------------------------------------------------------------------------------
+// Although not enforced by this thread framework, it would seem eminently
+// sensible that all workers objects are of the same derived class type.
 //
-class WorkerThread : public QThread
-{
+typedef QList <Worker*> WorkerList;
+
+//------------------------------------------------------------------------------
+// Creates and manages a set of threads - one for each of the given work force.
+//
+class WorkerManager : public QObject {
    Q_OBJECT
-
 public:
-   WorkerThread (const QEWorkerManager::Counts instanceIn, QEWorkerManager *managerIn);
-   ~WorkerThread ();
+   // The workForce should be between 1 and MAXIMUM_THREADS (16) workers.
+   // Additional worker objects are ignored.
+   // Note: the worker objects are created independently of the manager.
+   // Also they must be disposed of independently of the manager.
+   //
+   explicit WorkerManager (const WorkerList& workForce,
+                           QObject* parent = 0);
+   virtual ~WorkerManager ();
 
-   void run ();
+   void process (QObject* workPackage);
 
-private:
-   QEWorkerManager::Counts instance;
-   QEWorkerManager *manager;
-   QEWorkerManager::SequenceNumbers sequenceNumber;
-
-   void process ();
+   Counts getNumber () { return number; }
 
 signals:
-   void finished (const QEWorkerManager::Counts instance,
-                  const QEWorkerManager::SequenceNumbers sequenceNumber);
+   // The work load is returned on completion to provide context.
+   //
+   void complete (const QObject* workPackage);
+
+private:
+   Counts number;                      // size of work force.
+   SequenceNumbers sequenceNumber;     // task identifier
+   QObject* workPackage;
+
+   bool isComplete ();
+
+   // Internally we declare a number of WorkerThread pointer items.
+   // Declareing these in the header of a QObject seems to make the Qt SDK
+   // get very upset and confused, so need to hide this a little.
+   //
+   class ReallyPrivate;
+   ReallyPrivate* pd;
+
+signals:
+   // Sent to the work force objects.
+   //
+   void startProcessing (const QE::SequenceNumbers sequenceNumber,
+                         QObject* workPackage);
 
 private slots:
-   void readyToGo (const QEWorkerManager::SequenceNumbers sequenceNumber);
+   // From the work force.
+   //
+   void processingComplete (const QE::SequenceNumbers sequenceNumber,
+                            const QE::Counts instance);
 
-   friend class QEWorkerManager;
+   friend class WorkerThread;
 };
+
+}
+
+Q_DECLARE_METATYPE (QE::SequenceNumbers)
+Q_DECLARE_METATYPE (QE::Counts)
+
 
 #endif  // QEWORKERS_H
