@@ -132,6 +132,11 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     they pop out of the event queue. Also, remove the event filter if this is the last QCaObject.
 */
 QCaObject::~QCaObject() {
+    // Send disconnected signal to monitoring widgets.
+    //
+    QCaConnectionInfo connectionInfo ( caconnection::CLOSED, caconnection::LINK_DOWN );
+    emit connectionChanged( connectionInfo );
+
     // Remove our PV from the drag text.
     QStringList dragText = eventHandler->property( "dragText" ).toStringList();
     for( int i = 0; i < dragText.size(); i++ )
