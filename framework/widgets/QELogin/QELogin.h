@@ -28,15 +28,42 @@
 #include <QEWidget.h>
 
 
-enum details
+class QELogin;
+
+// ============================================================
+//  loginWidget CLASS
+// ============================================================
+class loginWidget:public QFrame
 {
-    TOP,
-    BOTTOM,
-    LEFT,
-    RIGHT
+
+    Q_OBJECT
+
+    private:
+        QELogin* owner;
+
+    protected:
+        QGridLayout *qGridLayout;
+        QVBoxLayout *qVBoxLayout;
+        QGroupBox *qGroupBox;
+        QRadioButton *qRadioButtonUser;
+        QRadioButton *qRadioButtonScientist;
+        QRadioButton *qRadioButtonEngineer;
+        QLineEdit *qLineEditPassword;
+        userLevelTypes::userLevels userType;
+
+
+    public:
+        loginWidget(QELogin* ownerIn );
+        void setCurrentUserType(userLevelTypes::userLevels pValue);
+        void setPassword(QString pValue);
+        userLevelTypes::userLevels getUserType();
+        QString getPassword();
+        void clearPassword();
+
+
+    private slots:
+        void radioButtonClicked();
 };
-
-
 
 
 // ============================================================
@@ -48,33 +75,24 @@ class _QDialogLogin:public QDialog
     Q_OBJECT
 
     private:
+        QELogin* owner;
 
 
     protected:
         QGridLayout *qGridLayout;
-        QVBoxLayout *qVBoxLayout;
-        QGroupBox *qGroupBox;
-        QRadioButton *qRadioButtonUser;
-        QRadioButton *qRadioButtonScientist;
-        QRadioButton *qRadioButtonEngineer;
-        QLabel *qLabelType;
-        QLineEdit *qLineEditPassword;
+
+        loginWidget *loginForm;
         QPushButton *qPushButtonOk;
         QPushButton *qPushButtonCancel;
-        int userType;
 
 
     public:
-        _QDialogLogin(QWidget * pParent = 0, int pUserType = -1, Qt::WindowFlags pF = 0);
-        void setCurrentUserType(int pValue);
+        _QDialogLogin(QELogin* ownerIn, userLevelTypes::userLevels pUserType);
+        void setCurrentUserType(userLevelTypes::userLevels pValue);
         void setPassword(QString pValue);
 
 
     private slots:
-        void radioButtonClicked();
-
-        void lineEditPasswordTextChanged(QString pValue);
-
         void buttonOkClicked();
 
         void buttonCancelClicked();
@@ -88,26 +106,30 @@ class _QDialogLogin:public QDialog
 // ============================================================
 //  QELOGIN CLASS
 // ============================================================
-class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QEWidget
+class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QFrame, public QEWidget
 {
 
     Q_OBJECT
 
     private:
+        void setCurrentLevelText();
 
     protected:
-        QStack<int> loginHistory;
+        QGridLayout *qGridLayout;
+        QStack<userLevelTypes::userLevels> loginHistory;
         QPushButton *qPushButtonLogin;
         QPushButton *qPushButtonLogout;
         QLabel *qLabelUserType;
+        loginWidget *loginForm;
         QString userPassword;
         QString scientistPassword;
         QString engineerPassword;
-        int currentUserType;
-        int detailsLayout;
-
+        userLevelTypes::userLevels currentUserType;
+        bool compactStyle;
 
     public:
+
+        void login( userLevelTypes::userLevels level, QString password );
 
         QString getPriorityUserPassword();
         QString getPriorityScientistPassword();
@@ -115,15 +137,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QEWidget
 
         QELogin(QWidget *pParent = 0);
         virtual ~QELogin(){}
-
-        void setShowUserType(bool pValue);
-        bool getShowUserType();
-
-        void setShowLogin(bool pValue);
-        bool getShowButtonLogin();
-
-        void setShowLogout(bool pValue);
-        bool getShowButtonLogout();
 
         void setUserPassword(QString pValue);
         QString getUserPassword();
@@ -134,67 +147,21 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QWidget, public QEWidget
         void setEngineerPassword(QString pValue);
         QString getEngineerPassword();
 
-        void setCurrentUserType(int pValue);
-        int getCurrentUserType();
+        void setCurrentUserType(userLevelTypes::userLevels pValue);
+        userLevelTypes::userLevels getCurrentUserType();
 
-        void setDetailsLayout(int pValue);
-        int getDetailsLayout();
+        void setCompactStyle(bool compactStyle );
+        bool getCompactStyle();
 
         QString getUserTypeName( userLevelTypes::userLevels type );
 
-        void logoutCurrentUserType();
-
-        Q_PROPERTY(bool showUserType READ getShowUserType WRITE setShowUserType)
-
-        Q_PROPERTY(bool showLogin READ getShowButtonLogin WRITE setShowLogin)
-
-        Q_PROPERTY(bool showLogout READ getShowButtonLogout WRITE setShowLogout)
+        Q_PROPERTY( bool compactStyle READ getCompactStyle WRITE setCompactStyle )
 
         Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
 
         Q_PROPERTY(QString scientistPassword READ getScientistPassword WRITE setScientistPassword)
 
         Q_PROPERTY(QString engineerPassword READ getEngineerPassword WRITE setEngineerPassword)
-
-        Q_ENUMS(userTypesProperty)
-        Q_PROPERTY(userTypesProperty currentUserType READ getCurrentUserTypeProperty WRITE setCurrentUserTypeProperty)
-        enum userTypesProperty
-        {
-            User      = userLevelTypes::USERLEVEL_USER,
-            Scientist = userLevelTypes::USERLEVEL_SCIENTIST,
-            Engineer  = userLevelTypes::USERLEVEL_ENGINEER
-        };
-
-        void setCurrentUserTypeProperty(userTypesProperty pUserType)
-        {
-            setCurrentUserType((userTypesProperty) pUserType);
-        }
-        userTypesProperty getCurrentUserTypeProperty()
-        {
-            return (userTypesProperty) getCurrentUserType();
-        }
-
-
-        Q_ENUMS(detailsLayoutProperty)
-        Q_PROPERTY(detailsLayoutProperty detailsLayout READ getDetailsLayoutProperty WRITE setDetailsLayoutProperty)
-        enum detailsLayoutProperty
-        {
-            Top = TOP,
-            Bottom = BOTTOM,
-            Left = LEFT,
-            Right = RIGHT
-        };
-
-        void setDetailsLayoutProperty(detailsLayoutProperty pDetailsLayout)
-        {
-            setDetailsLayout((detailsLayoutProperty) pDetailsLayout);
-        }
-        detailsLayoutProperty getDetailsLayoutProperty()
-        {
-            return (detailsLayoutProperty) getDetailsLayout();
-        }
-
-
 
     private slots:
         void buttonLoginClicked();

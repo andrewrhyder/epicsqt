@@ -382,7 +382,7 @@ bool QEWidget::inDesigner()
 // User level
 
 // The user level has changed
-// Modify the label properties accordingly
+// Modify the widget visibility and style accordingly
 void QEWidget::userLevelChanged( userLevelTypes::userLevels level )
 {
     styleUserLevelChanged( level );
