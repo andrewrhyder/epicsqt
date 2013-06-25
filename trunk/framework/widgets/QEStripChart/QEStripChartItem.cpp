@@ -927,13 +927,11 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
 //
 void QEStripChartItem::saveConfiguration (PMElement & parentElement)
 {
-   QString name;
-
    // Any config data to save?
    //
    if (this->isInUse ()) {
-      name.sprintf ("PV%d", this->slot);
-      PMElement pvElement = parentElement.addElement (name);
+      PMElement pvElement = parentElement.addElement ("PV");
+      pvElement.addAttribute ("slot", (int) this->slot);
 
       // Note: we save the actual, i.e. substituted, PV name.
       //
@@ -949,12 +947,10 @@ void QEStripChartItem::saveConfiguration (PMElement & parentElement)
 //
 void QEStripChartItem::restoreConfiguration (PMElement & parentElement)
 {
-   QString name;
    QString pvName;
    bool status;
 
-   name.sprintf ("PV%d", this->slot);
-   PMElement pvElement = parentElement.getElement (name);
+   PMElement pvElement = parentElement.getElement ("PV", "slot", (int) this->slot);
 
    if (pvElement.isNull ()) return;
 

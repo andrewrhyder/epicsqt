@@ -1028,6 +1028,8 @@ void QEPvProperties::saveConfiguration (PersistanceManager* pm)
 //
 void QEPvProperties::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
 {
+   if (restorePhase != FRAMEWORK) return;
+
    const QString formName = this->persistantName ("QEPvProperties");
    PMElement formElement = pm->getNamedConfiguration (formName);
    bool status;
