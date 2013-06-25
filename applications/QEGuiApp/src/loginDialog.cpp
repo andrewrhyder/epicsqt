@@ -48,6 +48,9 @@ loginDialog::loginDialog()
     layout->addWidget( login );
     layout->addWidget( cancelButton );
 
+    // Give the QELogin widget the focus so an enter pressed after entering the password will change the user level
+    login->setFocus();
+
     // Set the dialog title
     setWindowTitle( "Change User Level" );
 }
