@@ -251,13 +251,12 @@ void QEPVNameLists::saveConfiguration (PMElement & parentElement)
    PMElement predefinedElement = parentElement.addElement ("Predefined");
    int number;
    int j;
-   QString name;
 
    number = this->count ();
    predefinedElement.addAttribute ("Number", number);
    for (j = 0; j < number; j++) {
-      name.sprintf ("PV%d", j);
-      PMElement pvElement = predefinedElement.addElement (name);
+      PMElement pvElement = predefinedElement.addElement ("PV");
+      pvElement.addAttribute ("id", j);
       pvElement.addValue ("Name", this->value (j));
    }
 
@@ -270,7 +269,6 @@ void QEPVNameLists::restoreConfiguration (PMElement & parentElement)
    PMElement predefinedElement = parentElement.getElement ("Predefined");
    int number;
    int j;
-   QString name;
    QString pvName;
    bool status;
 
@@ -283,8 +281,9 @@ void QEPVNameLists::restoreConfiguration (PMElement & parentElement)
       // Read in reverse order (as use insert into list with prependOrMoveToFirst).
       //
       for (j = number - 1; j >= 0; j--) {
-         name.sprintf ("PV%d", j);
-         PMElement pvElement = predefinedElement.getElement (name);
+         PMElement pvElement = predefinedElement.getElement ("PV", "id", j);
+
+         if (pvElement.isNull ()) continue;
 
          status = pvElement.getValue ("Name", pvName);
          if (status) {
@@ -1921,8 +1920,6 @@ void QEStripChart::saveConfiguration (PersistanceManager* pm)
 {
    const QString formName = this->persistantName ("QEStripChart");
 
-   qDebug () << "\nQEStripChart " << __FUNCTION__ << formName << "\n";
-
    // Do common stuff first.
    // How can we avoid doing this mutiple times??
    //
@@ -1956,9 +1953,9 @@ void QEStripChart::saveConfiguration (PersistanceManager* pm)
 //
 void QEStripChart::restoreConfiguration (PersistanceManager * pm, restorePhases restorePhase)
 {
-   const QString formName = this->persistantName ("QEStripChart");
+   if (restorePhase != FRAMEWORK) return;
 
-   qDebug () << "\nQEStripChart " << __FUNCTION__ << formName << restorePhase << "\n";
+   const QString formName = this->persistantName ("QEStripChart");
 
    // Do common stuff first.
    // How can we avoid doing this mutiple times??
