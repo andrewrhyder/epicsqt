@@ -93,7 +93,7 @@ void QELogin::setCurrentLevelText()
 void QELogin::setCompactStyle(bool compactStyleIn )
 {
     compactStyle = compactStyleIn;
-    loginForm->setHidden( compactStyle );
+    loginForm->setHidden( compactStyle || statusOnly );
 }
 
 bool QELogin::getCompactStyle()
@@ -105,6 +105,7 @@ bool QELogin::getCompactStyle()
 void QELogin::setStatusOnly( bool statusOnlyIn )
 {
     statusOnly = statusOnlyIn;
+    loginForm->setHidden( compactStyle || statusOnly );
     qPushButtonLogin->setHidden( statusOnly );
     qPushButtonLogout->setHidden( statusOnly );
 }
