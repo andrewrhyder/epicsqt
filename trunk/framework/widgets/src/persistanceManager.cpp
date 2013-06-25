@@ -782,6 +782,11 @@ PMElement PMElement::getElement( QString elementName, QString attrName, QString 
     return PMElement( owner, owner->getElement( *this, elementName, attrName, attrValue ) );
 }
 
+PMElement PMElement::getElement( QString name, QString attrName, int attrValue )
+{
+   return getElement( name, attrName, QString( "%1" ).arg( attrValue ) );
+}
+
 //============================
 
 // Get a boolean value

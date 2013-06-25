@@ -122,6 +122,7 @@ public:
     PMElement getElement( QString name );                   // Get a named element
     PMElement getElement( QString name, int i );            // Get one element from a named element list
     PMElement getElement( QString name, QString attrName, QString attrValue ); // Get a named element with a matching attribute
+    PMElement getElement( QString name, QString attrName, int     attrValue ); // Get a named element with a matching attribute
 
     PMElementList getElementList( QString name );           // Get a named element list
 
