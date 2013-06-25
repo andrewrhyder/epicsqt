@@ -30,6 +30,7 @@
 #include <StartupParams.h>
 #include <ContainerProfile.h>
 #include <MainWindow.h>
+#include <loginDialog.h>
 
 // Class used to hold information about a GUI in the application's list of GUIs
 class guiListItem
@@ -73,6 +74,7 @@ public:
 
     void        identifyWindowsAndForms();                  // Ensure all main windows and QEForms managed by this application (top level forms) have a unique identifier
 
+    void        login();                                    // Change user level
 signals:
 
 public slots:
@@ -85,6 +87,8 @@ private:
     startupParams params;                           // Parsed startup prarameters
     QList<guiListItem> guiList;                     // List of all forms being displayed in all main windows
     QList<MainWindow*> mainWindowList;              // List of all main windows
+
+    loginDialog* loginForm;                         // Dialog to use when changing user level. Keep one instance to maintain logout history
 };
 
 #endif // QEGUI_H

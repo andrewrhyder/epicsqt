@@ -27,152 +27,123 @@
 
 #include <QEWidget.h>
 
-
+// Forward delarations
 class QELogin;
 
-// ============================================================
-//  loginWidget CLASS
-// ============================================================
+// Class to manage login.
+// Used in a dialog by the compact form of QELogin or directly by the non-compact QELogin
+
 class loginWidget:public QFrame
 {
-
     Q_OBJECT
 
     private:
-        QELogin* owner;
+        QELogin* owner;                             // QELogin widget using this login form
 
-    protected:
-        QGridLayout *qGridLayout;
-        QVBoxLayout *qVBoxLayout;
-        QGroupBox *qGroupBox;
-        QRadioButton *qRadioButtonUser;
-        QRadioButton *qRadioButtonScientist;
-        QRadioButton *qRadioButtonEngineer;
-        QLineEdit *qLineEditPassword;
-        userLevelTypes::userLevels userType;
+        QRadioButton* qRadioButtonUser;             // User level buttons
+        QRadioButton* qRadioButtonScientist;
+        QRadioButton* qRadioButtonEngineer;
 
+        QLineEdit* qLineEditPassword;               // Password entry
 
     public:
-        loginWidget(QELogin* ownerIn );
-        void setCurrentUserType(userLevelTypes::userLevels pValue);
-        void setPassword(QString pValue);
-        userLevelTypes::userLevels getUserType();
-        QString getPassword();
-        void clearPassword();
-
+        loginWidget(QELogin* ownerIn );             // Construction
+        userLevelTypes::userLevels getUserType();   // Return the selected user type
+        QString getPassword();                      // Return the entered password
+        void    clearPassword();                    // Clear any entered password
 
     private slots:
-        void radioButtonClicked();
+        void radioButtonClicked();                  // A user has pressed a radion button
 };
 
+// ============================================================
+//  QELoginDialog class used when QELogin is in the compact form to present a login interface
 
-// ============================================================
-//  _QDIALOGLOGIN CLASS
-// ============================================================
-class _QDialogLogin:public QDialog
+class QELoginDialog : public QDialog
 {
-
     Q_OBJECT
 
     private:
-        QELogin* owner;
+        QELogin*    owner;                  // QELogin widget using this dialog
 
-
-    protected:
-        QGridLayout *qGridLayout;
-
-        loginWidget *loginForm;
-        QPushButton *qPushButtonOk;
-        QPushButton *qPushButtonCancel;
-
+        loginWidget* loginForm;             // Component widgets and layout
+        QPushButton* qPushButtonOk;
+        QPushButton* qPushButtonCancel;
 
     public:
-        _QDialogLogin(QELogin* ownerIn, userLevelTypes::userLevels pUserType);
-        void setCurrentUserType(userLevelTypes::userLevels pValue);
-        void setPassword(QString pValue);
-
+        QELoginDialog( QELogin* ownerIn );  // Construction
 
     private slots:
-        void buttonOkClicked();
-
-        void buttonCancelClicked();
-
+        void buttonOkClicked();             // OK clicked
+        void buttonCancelClicked();         // Cancel clicked
 };
 
-
-
-
-
 // ============================================================
-//  QELOGIN CLASS
-// ============================================================
+// QELogin class manages the current user type (USER, SCIENTIST, ENGINEER) for the QE framework and applications
+
 class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QFrame, public QEWidget
 {
-
     Q_OBJECT
 
     private:
-        void setCurrentLevelText();
+        QPushButton* qPushButtonLogin;                     // Component widgets and layout
+        QPushButton* qPushButtonLogout;
+        QLabel*      qLabelUserType;
+        loginWidget* loginForm;
 
-    protected:
-        QGridLayout *qGridLayout;
-        QStack<userLevelTypes::userLevels> loginHistory;
-        QPushButton *qPushButtonLogin;
-        QPushButton *qPushButtonLogout;
-        QLabel *qLabelUserType;
-        loginWidget *loginForm;
-        QString userPassword;
-        QString scientistPassword;
-        QString engineerPassword;
-        userLevelTypes::userLevels currentUserType;
-        bool compactStyle;
+        QStack<userLevelTypes::userLevels> loginHistory;    // Previous user level stack
+        QDialog* parentDialog;                              // Dialog this widget is a part of (optional. If present, login will also send accept to dialog)
+
+        QString userPassword;                               // User level password (local to this widget)
+        QString scientistPassword;                          // Scientist level password (local to this widget)
+        QString engineerPassword;                           // Engineer level password (local to this widget)
+
+        bool compactStyle;                                  // True if displaying in compact mode (login info presented in a dialog
+        bool statusOnly;                                    // True if displaying status only
+
+        void setCurrentLevelText();                         // Set the user level information text
+        void userLevelChanged( userLevelTypes::userLevels );// Virtual function implementation called when the user level changes
 
     public:
+        QELogin(QWidget *pParent = 0);                      // Construction
+        virtual ~QELogin(){}                                // Destruction
 
-        void login( userLevelTypes::userLevels level, QString password );
+        bool login( userLevelTypes::userLevels level, QString password );
 
-        QString getPriorityUserPassword();
-        QString getPriorityScientistPassword();
-        QString getPriorityEngineerPassword();
+        QString getPriorityUserPassword();                  // Get the user password. (application wide if pressent, otherwise local to this widget)
+        QString getPriorityScientistPassword();             // Get the scientist password. (application wide if pressent, otherwise local to this widget)
+        QString getPriorityEngineerPassword();              // Get the engineer password. (application wide if pressent, otherwise local to this widget)
 
-        QELogin(QWidget *pParent = 0);
-        virtual ~QELogin(){}
-
-        void setUserPassword(QString pValue);
+        void setUserPassword(QString pValue);               // User password property functions
         QString getUserPassword();
 
-        void setScientistPassword(QString pValue);
+        void setScientistPassword(QString pValue);          // Scientist password property functions
         QString getScientistPassword();
 
-        void setEngineerPassword(QString pValue);
+        void setEngineerPassword(QString pValue);           // Engineer password property functions
         QString getEngineerPassword();
 
-        void setCurrentUserType(userLevelTypes::userLevels pValue);
-        userLevelTypes::userLevels getCurrentUserType();
-
-        void setCompactStyle(bool compactStyle );
+        void setCompactStyle(bool compactStyle );           // Compact style property functions
         bool getCompactStyle();
 
-        QString getUserTypeName( userLevelTypes::userLevels type );
+        void setStatusOnly( bool statusOnlyIn );            // Status only property function
+        bool getStatusOnly();
 
+        QString getUserTypeName( userLevelTypes::userLevels type ); // Get a string to name each user level type
+
+        // Properties
+        Q_PROPERTY( bool statusOnly READ getStatusOnly WRITE setStatusOnly )
         Q_PROPERTY( bool compactStyle READ getCompactStyle WRITE setCompactStyle )
-
         Q_PROPERTY(QString userPassword READ getUserPassword WRITE setUserPassword)
-
         Q_PROPERTY(QString scientistPassword READ getScientistPassword WRITE setScientistPassword)
-
         Q_PROPERTY(QString engineerPassword READ getEngineerPassword WRITE setEngineerPassword)
 
     private slots:
-        void buttonLoginClicked();
+        void buttonLoginClicked();                          // Login clicked. Raise login dialog in compact mode, otherwise attempt login
+        void buttonLogoutClicked();                         // Logout clicked. Move mack to loast level it any
 
-        void buttonLogoutClicked();
-
-
+    signals:
+        void login();                                       // A successfull login has occured. (good for closing a dialog)
 };
 
-
-
 #endif // QELOGIN_H
-
-

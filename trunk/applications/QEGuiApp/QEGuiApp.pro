@@ -38,7 +38,8 @@ SOURCES += ./src/main.cpp \
     ./src/saveDialog.cpp \
     ./src/QEGui.cpp \
     ./src/restoreDialog.cpp \
-    ./src/manageConfigDialog.cpp
+    ./src/manageConfigDialog.cpp \
+    ./src/loginDialog.cpp
 
 # Include the following gdbmacros line for debugging only
 #SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
@@ -50,12 +51,14 @@ HEADERS += include/MainWindow.h \
     include/saveDialog.h \
     include/QEGui.h \
     include/restoreDialog.h \
-    include/manageConfigDialog.h
+    include/manageConfigDialog.h \
+    include/loginDialog.h
 
 INCLUDEPATH += . \
     ./include \
     ../../framework/widgets/include \
     ../../framework/widgets/QEForm \
+    ../../framework/widgets/QELogin \
     ../../framework/data/include \
     ../../framework/api/include \
     ../../framework/common \
@@ -70,7 +73,6 @@ LIBS += -L../../framework/designer -lQEPlugin
 FORMS += ./src/MainWindow.ui \
          ./src/PVProperties.ui \
          ./src/StripChart.ui \
-         ./src/UserLevel.ui \
          ./src/MessageLog.ui \
          ./src/saveDialog.ui \
          ./src/restoreDialog.ui \

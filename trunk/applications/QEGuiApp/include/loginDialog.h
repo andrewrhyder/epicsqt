@@ -22,40 +22,19 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#ifndef RESTOREDIALOG_H
-#define RESTOREDIALOG_H
+ /*
+  * A simple dialog containing a QELogin widget so the user can change the user level
+  */
+
+#ifndef LOGINDIALOG_H
+#define LOGINDIALOG_H
 
 #include <QDialog>
-#include <QListWidget>
 
-namespace Ui {
-    class restoreDialog;
-}
-
-class restoreDialog : public QDialog
+class loginDialog  : public QDialog
 {
-    Q_OBJECT
-
 public:
-    explicit restoreDialog( QStringList names, QWidget *parent = 0 );
-    ~restoreDialog();
-
-    bool getUseDefault();
-    QString getName();
-
-private:
-    Ui::restoreDialog *ui;
-
-    void enableNamedItems( bool enable );
-
-    bool savingStartup;
-
-private slots:
-    void on_namesListWidget_doubleClicked(QModelIndex index);
-    void on_buttonBox_accepted();
-    void on_namedRadioButton_clicked(bool checked);
-    void on_startupRadioButton_clicked(bool checked);
-    void on_namesListWidget_clicked(QModelIndex index);
+    loginDialog();
 };
 
-#endif // RESTOREDIALOG_H
+#endif // LOGINDIALOG_H

@@ -230,7 +230,7 @@ public:
     void setUserLevel( userLevelTypes::userLevels level );              // Set the current user level
     userLevelTypes::userLevels getUserLevel();                          // Return the current user level
 
-    virtual void userLevelChanged( userLevelTypes::userLevels ){}       // Virtual function implemented by widgets based on QEWidget to allow them to be notified of changes in user level
+    virtual void userLevelChangedGeneral( userLevelTypes::userLevels ){} // Virtual function implemented by QEWidget that manages general aspects of user level change, then calls optional QE widget specific virtual functions
 
     PersistanceManager* getPersistanceManager();        // Return a reference to the single persistance manager
 

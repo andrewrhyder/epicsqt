@@ -383,10 +383,14 @@ bool QEWidget::inDesigner()
 
 // The user level has changed
 // Modify the widget visibility and style accordingly
-void QEWidget::userLevelChanged( userLevelTypes::userLevels level )
+void QEWidget::userLevelChangedGeneral( userLevelTypes::userLevels level )
 {
+    // Manage general QE widget aspects of the user level chagning
     styleUserLevelChanged( level );
     checkVisibilityEnabledLevel( level );
+
+    // Allow specific QE widgets to act on a user level change
+    userLevelChanged( level );
 }
 
 // Perform a single shot read on all variables.
