@@ -55,7 +55,7 @@
  * This differs from other environmental information described above in the following ways:
  *
  * - Widgets based on the QEWidget class (and therefore this ContainerProfile class) can be
- *   notified of user level changes by reimplementing ContainerProfile::userLevelChanged()
+ *   notified of user level changes by reimplementing QEWidget::userLevelChanged()
  *   Note, Widgets can also determine the current user level by calling ContainerProfile::getUserLevel()
  *
  * - Both the application and any widgets based on the QEWidget class can set the user level by
@@ -669,7 +669,7 @@ void userLevelSlot::setOwner( ContainerProfile* ownerIn )
 void userLevelSlot::userChanged( userLevelTypes::userLevels level )
 {
     if( owner )
-        owner->userLevelChanged( level );
+        owner->userLevelChangedGeneral( level );
 }
 
 userLevelSignal::userLevelSignal()

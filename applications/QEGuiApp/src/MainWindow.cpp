@@ -217,8 +217,14 @@ void MainWindow::on_actionClose_triggered()
 // Standard GUIs available from the 'File' menu
 void MainWindow::on_actionPVProperties_triggered(){ launchLocalGui( ":/forms/PVProperties.ui" ); }
 void MainWindow::on_actionStrip_Chart_triggered() { launchLocalGui( ":/forms/StripChart.ui"   ); }
-void MainWindow::on_actionUser_Level_triggered()  { launchLocalGui( ":/forms/UserLevel.ui"    ); }
 void MainWindow::on_actionMessage_Log_triggered() { launchLocalGui( ":/forms/MessageLog.ui"   ); }
+
+// User is changing the user level
+void MainWindow::on_actionUser_Level_triggered()
+{
+    // Present the login dialog to the user
+    app->login();
+}
 
 // Close this window
 void MainWindow::closeEvent(QCloseEvent *event)

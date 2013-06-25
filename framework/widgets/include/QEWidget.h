@@ -247,7 +247,9 @@ private:
     unsigned int numVariables;                              // The number of process variables that will be managed for the QE widgets.
     qcaobject::QCaObject** qcaItem;                         // CA access - provides a stream of updates. One for each variable name used by the QE widgets
 
-    void userLevelChanged( userLevelTypes::userLevels level );              // The user level has changed
+    void userLevelChangedGeneral( userLevelTypes::userLevels level );         // Manage general aspects of user level change, then call optional QE widget specific virtual functions
+    virtual void userLevelChanged( userLevelTypes::userLevels ){} // Virtual function implemented by QE widgets when the user level changes
+
     void setToolTipFromVariableNames();                     // Update the variable name list used in tool tips if requried
 
     saveRestoreSlot saveRestoreReceiver;                    // QObject based class a save/restore signal can be delivered to

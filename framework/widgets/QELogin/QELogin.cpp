@@ -22,62 +22,77 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
+/*
+  This class manages the current user type (USER, SCIENTIST, ENGINEER) for the QE framework and applications
+  It uses passwords defined by the application, or if absent by its own properties.
+  It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
+ */
+
 #include <QELogin.h>
 
-
-
 // ============================================================
-//  QELOGIN METHODS
-// ============================================================
+//  QELogin class.
+
 QELogin::QELogin(QWidget *pParent):QFrame(pParent), QEWidget( this )
 {
+    // Presentation of the frame
     setFrameStyle( QFrame::StyledPanel );
     setFrameShadow( QFrame::Raised );
 
+    // Create the widgets that make up a QELogin widget
     qLabelUserType = new QLabel(this);
     loginForm = new loginWidget( this );
-
-    setCompactStyle( true );
-
     qPushButtonLogin = new QPushButton(this);
     qPushButtonLogout = new QPushButton(this);
 
-
-    qGridLayout = new QGridLayout(this);
+    // Arrange the widget
+    QGridLayout* qGridLayout = new QGridLayout(this);
     qGridLayout->addWidget( qLabelUserType, 0, 0, 1, 2 );
     qGridLayout->addWidget( loginForm, 1, 0, 1, 2 );
     qGridLayout->addWidget( qPushButtonLogin, 2, 0);
     qGridLayout->addWidget( qPushButtonLogout, 2, 1);
 
+    // Assume compact style
+    setCompactStyle( true );
+    setStatusOnly( false );
 
     qLabelUserType->setToolTip("Current user");
 
+    // Set up login button
     qPushButtonLogin->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     qPushButtonLogin->setText("Login");
     qPushButtonLogin->setToolTip("Change current user");
     QObject::connect(qPushButtonLogin, SIGNAL(clicked()), this, SLOT(buttonLoginClicked()));
 
+    // Set up logout button
     qPushButtonLogout->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     qPushButtonLogout->setText("Logout");
     qPushButtonLogout->setToolTip("Logout current user");
     qPushButtonLogout->setEnabled(false);
     QObject::connect(qPushButtonLogout, SIGNAL(clicked()), this, SLOT(buttonLogoutClicked()));
 
-    currentUserType = getUserLevel();
+    // Set initial state
     setCurrentLevelText();
-    loginForm->setCurrentUserType( currentUserType );
 }
 
+// Virtual function implementation called when the user level changes
+void QELogin::userLevelChanged( userLevelTypes::userLevels )
+{
+    setCurrentLevelText();
+}
+
+// Set up current level text
 void QELogin::setCurrentLevelText()
 {
-    qLabelUserType->setText(QString( "Current Level: " ).append( getUserTypeName( currentUserType) ));
+    qLabelUserType->setText(QString( "Current Level: " ).append( getUserTypeName( getUserLevel() ) ));
 }
 
-// Set if the widget is small and pops up a dialog to allow login, or larger and displays the login all the time
+// Compact mode property fuctions
+// Set if the widget is small and pops up a dialog to allow login,
+// or larger and displays the login all the time
 void QELogin::setCompactStyle(bool compactStyleIn )
 {
     compactStyle = compactStyleIn;
-
     loginForm->setHidden( compactStyle );
 }
 
@@ -86,6 +101,20 @@ bool QELogin::getCompactStyle()
     return compactStyle;
 }
 
+// Status only property fuctions
+void QELogin::setStatusOnly( bool statusOnlyIn )
+{
+    statusOnly = statusOnlyIn;
+    qPushButtonLogin->setHidden( statusOnly );
+    qPushButtonLogout->setHidden( statusOnly );
+}
+
+bool QELogin::getStatusOnly()
+{
+    return statusOnly;
+}
+
+// User password property fuctions
 void QELogin::setUserPassword(QString pValue)
 {
     userPassword = pValue;
@@ -96,6 +125,7 @@ QString QELogin::getUserPassword()
     return userPassword;
 }
 
+// Scientist password property fuctions
 void QELogin::setScientistPassword(QString pValue)
 {
     scientistPassword = pValue;
@@ -106,6 +136,7 @@ QString QELogin::getScientistPassword()
     return scientistPassword;
 }
 
+// Engineer password property fuctions
 void QELogin::setEngineerPassword(QString pValue)
 {
     engineerPassword = pValue;
@@ -128,13 +159,17 @@ QString QELogin::getUserTypeName(userLevelTypes::userLevels type)
     }
 }
 
+// The login button has been clicked
 void QELogin::buttonLoginClicked()
 {
+    // For compact style, present the login dialog
     if( compactStyle )
     {
-        _QDialogLogin qELoginDialog( this, currentUserType );
+        QELoginDialog qELoginDialog( this );
         qELoginDialog.exec();
     }
+
+    // For non compact style, try to login with the selected user type and password
     else
     {
         login( loginForm->getUserType(), loginForm->getPassword() );
@@ -142,8 +177,11 @@ void QELogin::buttonLoginClicked()
     }
 }
 
-void QELogin::login( userLevelTypes::userLevels level, QString password )
+// Try to login with a selected user type and password.
+// This is called by the QEWidget directly, or from the QEWidget's login dialog
+bool QELogin::login( userLevelTypes::userLevels level, QString password )
 {
+    // Get the required password
     QString requiredPassword;
     switch( level )
     {
@@ -152,36 +190,49 @@ void QELogin::login( userLevelTypes::userLevels level, QString password )
         case userLevelTypes::USERLEVEL_ENGINEER:  requiredPassword = getPriorityEngineerPassword();  break;
     }
 
+    // If the password is OK, change the user type
     if( requiredPassword.isEmpty() || password == requiredPassword )
     {
-        if( level != currentUserType )
+        // Change user level if required
+        userLevelTypes::userLevels currentLevel = getUserLevel();
+        if( level != currentLevel )
         {
-            loginHistory.push(currentUserType);
-            currentUserType = level;
+            loginHistory.push( currentLevel );
+            setUserLevel( level);
             setCurrentLevelText();
             qPushButtonLogout->setEnabled( true );
-            setUserLevel( currentUserType);
         }
+
+        // Signal a successfull login has occured
+        // This is usefull to for closing a dialog this widget may be a part of
+        emit login();
+
+        // Indicate successfull login
+        return true;
     }
-    else
-    {
-        QMessageBox::critical(this, "Error", "The password is invalid. Please try again!");
-    }
+
+    // bad password, tell the user
+    QMessageBox::critical(this, "Error", "The password is invalid. Please try again!");
+    return false;
 }
 
 // Logout to the last user type logged into by THIS widget
 void QELogin::buttonLogoutClicked()
 {
+    // If this widget has any record of previous user levels, then logout
     if( loginHistory.count() )
     {
-        sendMessage("The user type was changed from '" + getUserTypeName( currentUserType) + "' to '" + getUserTypeName( loginHistory.top()) + "'");
-        currentUserType = loginHistory.pop();
+        // Logout
+        userLevelTypes::userLevels currentLevel = getUserLevel();
+        sendMessage("The user type was changed from '" + getUserTypeName( currentLevel ) + "' to '" + getUserTypeName( loginHistory.top() ) + "'");
+        setUserLevel( loginHistory.pop() );
         setCurrentLevelText();
+
+        // If no more history, disable the logout button
         if( loginHistory.count() == 0 )
         {
             qPushButtonLogout->setEnabled( false );
         }
-        setUserLevel( currentUserType);
     }
 }
 
@@ -227,23 +278,24 @@ QString QELogin::getPriorityEngineerPassword()
     }
 }
 
-
 // ============================================================
 // loginWidget
-// This widget is used in the dialog launched by the compact form of QELogin, and by the larger form of QELogin directly
-// ============================================================
+// This widget is used in the dialog launched by the compact form of QELogin,
+// and by the larger form of QELogin directly.
+
 loginWidget::loginWidget( QELogin* ownerIn )
 {
+    // Note the QELogin widget
     owner = ownerIn;
 
-    qGridLayout = new QGridLayout(this);
-    qGroupBox = new QGroupBox(this);
-    qVBoxLayout = new QVBoxLayout();
+    // Create the widgets making up the login form
+    QGroupBox*   qGroupBox = new QGroupBox(this);
     qRadioButtonUser = new QRadioButton();
     qRadioButtonScientist = new QRadioButton(this);
     qRadioButtonEngineer = new QRadioButton(this);
     qLineEditPassword = new QLineEdit(this);
 
+    // Set up the widgets
     qGroupBox->setTitle( "Login as:");
 
     qRadioButtonUser->setText(owner->getUserTypeName(userLevelTypes::USERLEVEL_USER));
@@ -255,42 +307,37 @@ loginWidget::loginWidget( QELogin* ownerIn )
     qRadioButtonEngineer->setText(owner->getUserTypeName(userLevelTypes::USERLEVEL_ENGINEER));
     QObject::connect(qRadioButtonEngineer, SIGNAL(clicked()), this, SLOT(radioButtonClicked()));
 
+    qLineEditPassword->setEchoMode(QLineEdit::Password);
+    qLineEditPassword->setToolTip("Password for the selected type");
+
+    // Layout the form
+    QVBoxLayout* qVBoxLayout = new QVBoxLayout();
     qVBoxLayout->addWidget(qRadioButtonUser);
     qVBoxLayout->addWidget(qRadioButtonScientist);
     qVBoxLayout->addWidget(qRadioButtonEngineer);
     qGroupBox->setLayout(qVBoxLayout);
 
-    qLineEditPassword->setEchoMode(QLineEdit::Password);
-    qLineEditPassword->setToolTip("Password for the selected type");
-
+    QGridLayout* qGridLayout = new QGridLayout(this);
     qGridLayout->addWidget(qGroupBox, 0, 0);
     qGridLayout->addWidget(qLineEditPassword, 1, 0);
 
-    userType = userLevelTypes::USERLEVEL_USER;
-    qRadioButtonUser->setChecked(true);
+    // Select a radio button to match the current user level
+    switch( owner->getUserLevel() )
+    {
+        case userLevelTypes::USERLEVEL_USER:        qRadioButtonUser->setChecked(true);      break;
+        case userLevelTypes::USERLEVEL_SCIENTIST:   qRadioButtonScientist->setChecked(true); break;
+        case userLevelTypes::USERLEVEL_ENGINEER:    qRadioButtonEngineer->setChecked(true);  break;
+    }
+
+    // Enable or disable the password according to the user type
     radioButtonClicked();
 }
 
-void loginWidget::setCurrentUserType(userLevelTypes::userLevels pValue)
-{
-    userType = pValue;
-    switch( userType )
-    {
-        case userLevelTypes::USERLEVEL_USER:      qRadioButtonUser     ->setChecked(true); break;
-        case userLevelTypes::USERLEVEL_SCIENTIST: qRadioButtonScientist->setChecked(true); break;
-        case userLevelTypes::USERLEVEL_ENGINEER:  qRadioButtonScientist->setChecked(true); break;
-    }
-
-}
-
-void loginWidget::setPassword(QString pValue)
-{
-    qLineEditPassword->setText(pValue);
-}
-
+// A user type has been selected.
+// Enable or disable the password according to the user type
 void loginWidget::radioButtonClicked()
 {
-    // Enable password entry if a password is required
+    // Enable password entry if a password is required for the selected user type
     if (qRadioButtonUser->isChecked())
     {
         qLineEditPassword->setEnabled(owner->getPriorityUserPassword().isEmpty() == false);
@@ -305,6 +352,7 @@ void loginWidget::radioButtonClicked()
     }
 }
 
+// Return the user type selected by the radio button group
 userLevelTypes::userLevels loginWidget::getUserType()
 {
     if( qRadioButtonUser->isChecked() )
@@ -320,30 +368,38 @@ userLevelTypes::userLevels loginWidget::getUserType()
     return userLevelTypes::USERLEVEL_USER;
 }
 
+// Return the password entered by the user
 QString loginWidget::getPassword()
 {
     return qLineEditPassword->text();
 }
 
+// Clear the password entered by the user
 void loginWidget::clearPassword()
 {
-    return qLineEditPassword->clear();
+    qLineEditPassword->clear();
 }
 
 // ============================================================
-//  _QDIALOGLOGIN METHODS
-// ============================================================
-_QDialogLogin::_QDialogLogin(QELogin* ownerIn, userLevelTypes::userLevels pUserType )
+// QELoginDialog widget
+// This widget is used when the QELogin widget is in compact form to present the login options.
+
+QELoginDialog::QELoginDialog(QELogin* ownerIn)
 {
+    // Remove maximise and minimise buttons
+    // !!! doesn't work on linux???
+    setWindowFlags( Qt::Dialog );
+
+    // Note the QELogin widget
     owner = ownerIn;
-    setWindowTitle("Login/Logout");
 
+    // Create the widgets making up the login dialog
     loginForm = new loginWidget(owner);
-
-    qGridLayout = new QGridLayout(this);
-
     qPushButtonOk = new QPushButton(this);
     qPushButtonCancel = new QPushButton(this);
+
+    // Set up the widgets
+    setWindowTitle("Login/Logout");
 
     qPushButtonOk->setText("Ok");
     qPushButtonOk->setToolTip("Perform login");
@@ -353,30 +409,25 @@ _QDialogLogin::_QDialogLogin(QELogin* ownerIn, userLevelTypes::userLevels pUserT
     qPushButtonCancel->setToolTip("Cancel login");
     QObject::connect(qPushButtonCancel, SIGNAL(clicked()), this, SLOT(buttonCancelClicked()));
 
+    // Layout the form
+    QGridLayout* qGridLayout = new QGridLayout(this);
     qGridLayout->addWidget( loginForm, 0, 0, 1, 2 );
     qGridLayout->addWidget( qPushButtonCancel, 1, 0);
     qGridLayout->addWidget( qPushButtonOk, 1, 1);
-
-    loginForm->setCurrentUserType( pUserType );
 }
 
-void _QDialogLogin::setCurrentUserType(userLevelTypes::userLevels pValue)
+// Dialog OK clicked
+void QELoginDialog::buttonOkClicked()
 {
-    loginForm->setCurrentUserType( pValue );
+    // Attempt to login and close the dialog if successfull
+    if( owner->login( loginForm->getUserType(), loginForm->getPassword() ) )
+    {
+        close();
+    }
 }
 
-void _QDialogLogin::setPassword(QString pValue)
-{
-    loginForm->setPassword( pValue );
-}
-
-void _QDialogLogin::buttonOkClicked()
-{
-    owner->login( loginForm->getUserType(), loginForm->getPassword() );
-    close();
-}
-
-void _QDialogLogin::buttonCancelClicked()
+// Dialog cancel clicked
+void QELoginDialog::buttonCancelClicked()
 {
     close();
 }

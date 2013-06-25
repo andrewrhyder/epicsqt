@@ -40,6 +40,7 @@
 // Construction
 QEGui::QEGui(int argc, char *argv[] ) : QApplication( argc, argv )
 {
+    loginForm = NULL;
 }
 
 // Run the application
@@ -358,4 +359,14 @@ void QEGui::identifyWindowsAndForms()
         QString name = QString("QEGui_window_%1_form_%2" ).arg( mw->getUniqueId() ).arg( i );
         guiItem->getForm()->setUniqueIdentifier( name );
     }
+}
+
+// Change user level
+void QEGui::login()
+{
+    if( !loginForm )
+    {
+        loginForm = new loginDialog;
+    }
+    loginForm->exec();
 }
