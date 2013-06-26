@@ -113,7 +113,7 @@ QEWidget::~QEWidget() {
 
     // Delete all the QCaObject instances
     for( unsigned int i = 0; i < numVariables; i++ ) {
-        deleteQcaItem( i );
+        deleteQcaItem( i, true );
     }
 
     // Release the list
@@ -170,7 +170,7 @@ void QEWidget::deactivate()
 {
     // Delete all the QCaObject instances
     for( unsigned int i = 0; i < numVariables; i++ ) {
-        deleteQcaItem( i );
+        deleteQcaItem( i, false );
     }
 }
 
@@ -192,7 +192,7 @@ qcaobject::QCaObject* QEWidget::createConnection( unsigned int variableIndex ) {
     setToolTipFromVariableNames();
 
     // Remove any existing QCa connection
-    deleteQcaItem( variableIndex );
+    deleteQcaItem( variableIndex, false );
 
     // Connect to new variable.
     // If a new variable name is present, ask the CA aware widget based on this class to create an
@@ -253,19 +253,32 @@ qcaobject::QCaObject* QEWidget::getQcaItem( unsigned int variableIndex ) {
 
 /*
     Remove any previous QCaObject created to supply CA data updates for a variable name
+    If the object connected to the QCaObject is being destroyed it is not good to receive signals so the disconnect parameter should be true in this case
 */
-void QEWidget::deleteQcaItem( unsigned int variableIndex ) {
+void QEWidget::deleteQcaItem( unsigned int variableIndex, bool disconnect ) {
     // If the index is invalid do nothing.
     // This same test is also valid if qcaItem has never been set up yet as numVariables will be zero
     if( variableIndex >= numVariables )
         return;
 
-    // Delete the QCaObject used for the specified variable name
-    if( qcaItem[variableIndex] )
-        delete qcaItem[variableIndex];
-
     // Remove the reference to the deleted object to prevent accidental use
+    qcaobject::QCaObject* qca = qcaItem[variableIndex];
     qcaItem[variableIndex] = NULL;
+
+    // Delete the QCaObject used for the specified variable name
+    if( qca )
+    {
+        // If we need to disconnect first, do so.
+        // If the object connected is being destroyed it is not good to receive signals. (this happened)
+        // If the object connected is not being destroyed is will want to know a disconnection has occured.
+        if( disconnect )
+        {
+            qca->disconnect();
+        }
+
+        // Delete the QCaObject
+        delete qca;
+    }
 }
 
 /*
