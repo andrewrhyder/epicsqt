@@ -326,8 +326,8 @@ public:
    void nullContextMenuRequested (const QPoint & pos);
    void chartContextMenuTriggered (QAction* action);
 
-   void customContextMenuRequested (const unsigned int slot, const QPoint & pos);
-   void contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions option);
+   void itemContextMenuRequested (const unsigned int slot, const QPoint & pos);
+   void itemContextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions option);
 
    void pushState ();
    void prevState ();
@@ -472,8 +472,8 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
       this->items [slot] = chartItem;
 
-      QObject::connect (chartItem,   SIGNAL (customContextMenuRequested (const unsigned int, const QPoint &)),
-                        this->chart, SLOT   (customContextMenuRequested (const unsigned int, const QPoint &)));
+      QObject::connect (chartItem,   SIGNAL (itemContextMenuRequested (const unsigned int, const QPoint &)),
+                        this->chart, SLOT   (itemContextMenuRequested (const unsigned int, const QPoint &)));
    }
 
    // Create scrolling area and add pv frame.
@@ -565,11 +565,11 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Connect the context menus
    //
-   this->connect (this->inUseMenu, SIGNAL (contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)),
-                  this->chart,     SLOT   (contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)));
+   this->connect (this->inUseMenu, SIGNAL (contextMenuSelected     (const unsigned int, const QEStripChartNames::ContextMenuOptions)),
+                  this->chart,     SLOT   (itemContextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)));
 
-   this->connect (this->emptyMenu, SIGNAL (contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)),
-                  this->chart,     SLOT   (contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)));
+   this->connect (this->emptyMenu, SIGNAL (contextMenuSelected     (const unsigned int, const QEStripChartNames::ContextMenuOptions)),
+                  this->chart,     SLOT   (itemContextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)));
 
    // Clear / initialise plot.
    //
@@ -669,19 +669,21 @@ void QEStripChart::PrivateData::chartContextMenuTriggered (QAction* action)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::PrivateData::customContextMenuRequested (const unsigned int slot, const QPoint & pos)
+void QEStripChart::PrivateData::itemContextMenuRequested (const unsigned int slot, const QPoint & pos)
 {
    QEStripChartItem* item = this->getItem (slot);
    QPoint tempPos;
    QPoint golbalPos;
 
-   if (!item) return;
+   if (!item) return;   // sanity check
 
    tempPos = pos;
    tempPos.setY (2);   // align with top of label
    golbalPos = this->pvNames [slot]->mapToGlobal (tempPos);
 
    if (item->isInUse()) {
+      this->inUseMenu->setUseReceiveTime (item->getUseReceiveTime ());
+      this->inUseMenu->setArchiveReadHow (item->getArchiveReadHow ());
       this->inUseMenu->exec (slot, golbalPos, 0);
    } else {
       this->emptyMenu->setPredefinedNames (predefinedPVNameList);
@@ -691,8 +693,8 @@ void QEStripChart::PrivateData::customContextMenuRequested (const unsigned int s
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::PrivateData::contextMenuSelected (const unsigned int slot,
-                                                     const QEStripChartNames::ContextMenuOptions option)
+void QEStripChart::PrivateData::itemContextMenuSelected (const unsigned int slot,
+                                                         const QEStripChartNames::ContextMenuOptions option)
 {
    QEStripChartItem* item = this->getItem (slot);
 
@@ -1545,16 +1547,17 @@ void QEStripChart::chartContextMenuTriggered (QAction* action)
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::customContextMenuRequested (const unsigned int slot, const QPoint & pos)
+void QEStripChart::itemContextMenuRequested (const unsigned int slot, const QPoint & pos)
 {
-   this->privateData->customContextMenuRequested (slot, pos);
+   this->privateData->itemContextMenuRequested (slot, pos);
 }
 
 //------------------------------------------------------------------------------
 //
-void QEStripChart::contextMenuSelected (const unsigned int slot, const QEStripChartNames::ContextMenuOptions option)
+void QEStripChart::itemContextMenuSelected (const unsigned int slot,
+                                            const QEStripChartNames::ContextMenuOptions option)
 {
-   this->privateData->contextMenuSelected (slot, option);
+   this->privateData->itemContextMenuSelected (slot, option);
 }
 
 

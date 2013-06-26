@@ -46,6 +46,13 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
 
    this->setTitle ("PV Item");
 
+   this->serverTime = NULL;
+   this->serverTime = NULL;
+
+   for (j = 0; j < ARRAY_LENGTH (this->archiveModes); j++) {
+      this->archiveModes [j] = NULL;
+   }
+
    // Note: action items are not enabled until corresponding functionallity is implemented.
    //
    if (inUseIn) {
@@ -70,14 +77,22 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
       this->addMenu (menu);
       this->make (menu, "Rectangular",                         false, QEStripChartNames::SCCM_PLOT_RECTANGULAR)->setEnabled (false);
       this->make (menu, "Smooth",                              false, QEStripChartNames::SCCM_PLOT_SMOOTH)->setEnabled (false);
-      this->make (menu, "User PV Process Time",                false, QEStripChartNames::SCCM_PLOT_SERVER_TIME)->setEnabled (false);
-      this->make (menu, "Use Receive Time",                    false, QEStripChartNames::SCCM_PLOT_CLIENT_TIME)->setEnabled (false);
+      this->serverTime =
+      this->make (menu, "User PV Process Time",                true,  QEStripChartNames::SCCM_PLOT_SERVER_TIME);
+      this->clientTime =
+      this->make (menu, "Use Receive Time",                    true,  QEStripChartNames::SCCM_PLOT_CLIENT_TIME);
+
       menu->addSeparator();
-      this->make (menu, "Linear",                              false, QEStripChartNames::SCCM_ARCH_LINEAR)->setEnabled (false);
-      this->make (menu, "Plot Binning",                        false, QEStripChartNames::SCCM_ARCH_PLOTBIN)->setEnabled (false);
-      this->make (menu, "Raw",                                 false, QEStripChartNames::SCCM_ARCH_RAW)->setEnabled (false);
-      this->make (menu, "Spread Sheet",                        false, QEStripChartNames::SCCM_ARCH_SHEET)->setEnabled (false);
-      this->make (menu, "Averaged",                            false, QEStripChartNames::SCCM_ARCH_AVERAGED)->setEnabled (false);
+      this->archiveModes [QEArchiveInterface::Linear] =
+      this->make (menu, "Linear",                              true,  QEStripChartNames::SCCM_ARCH_LINEAR);
+      this->archiveModes [QEArchiveInterface::PlotBinning] =
+      this->make (menu, "Plot Binning",                        true,  QEStripChartNames::SCCM_ARCH_PLOTBIN);
+      this->archiveModes [QEArchiveInterface::Raw] =
+      this->make (menu, "Raw",                                 true,  QEStripChartNames::SCCM_ARCH_RAW);
+      this->archiveModes [QEArchiveInterface::SpreadSheet] =
+      this->make (menu, "Spread Sheet",                        true,  QEStripChartNames::SCCM_ARCH_SHEET);
+      this->archiveModes [QEArchiveInterface::Averaged] =
+      this->make (menu, "Averaged",                            true,  QEStripChartNames::SCCM_ARCH_AVERAGED);
 
       menu = new QMenu ("Line", this);
       this->addMenu (menu);
@@ -149,7 +164,34 @@ void QEStripChartContextMenu::setPredefinedNames (const QStringList & pvList)
 
 //------------------------------------------------------------------------------
 //
-QAction *QEStripChartContextMenu::exec (const unsigned int slotIn, const QPoint &pos, QAction *at)
+void QEStripChartContextMenu::setUseReceiveTime  (const bool useReceiveTime)
+{
+   if (this->serverTime) {
+      this->serverTime->setChecked (!useReceiveTime);
+   }
+   if (this->clientTime) {
+      this->clientTime->setChecked (useReceiveTime);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartContextMenu::setArchiveReadHow (const QEArchiveInterface::How how)
+{
+   int j;
+   QAction *action;
+
+   for (j = 0; j < ARRAY_LENGTH (this->archiveModes); j++) {
+      action = this->archiveModes [j];
+      if (!action) continue;
+      action->setChecked (j == (int) how);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QAction *QEStripChartContextMenu::exec (const unsigned int slotIn,
+                                        const QPoint &pos, QAction *at)
 {
    this->slot = slotIn;  // save context
 
