@@ -251,10 +251,14 @@ bool PersistanceManager::openRead( QString fileName, QString rootName )
 {
     QFile file( fileName );
     if (!file.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Could not open config file" << fileName;
         return false;
+    }
 
     if ( !doc.setContent( &file ) )
     {
+        qDebug() << "Could not parse the XML in the config file" << fileName;
         file.close();
         return false;
     }
@@ -264,7 +268,7 @@ bool PersistanceManager::openRead( QString fileName, QString rootName )
 
     if( docElem.nodeName().compare( rootName ) )
     {
-        qDebug() << "Expected configuration root element (" << rootName << ") not found in config file (" << fileName << ")";
+        qDebug() << "Expected configuration root element (" << rootName << ") not found in config file" << fileName;
         return false;
     }
     return true;
