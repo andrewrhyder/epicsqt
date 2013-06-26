@@ -24,6 +24,7 @@
 
 
 #include <styleManager.h>
+#include <QEWidget.h>
 
 // Construction.
 styleManager::styleManager( QWidget* ownerIn )
@@ -124,6 +125,18 @@ void styleManager::updatePropertyStyle( QString style )
 // Update the style sheet with the various style sheet components used to modify the label style (user level, connection state, alarm info, enumeration color)
 void styleManager::updateStyleSheet()
 {
+    // Do nothing if in designer.
+    // Altering the style can alter properties that are written when designer saves a form.
+    // For example, setting the background through the style will alter the pallete properties which will be saved when the form is saved.
+    // Designer does not indicate the file hase changed (a * beside the file name) but the pallet property can be seen to be updated
+    // and if the user saves the file the pallette changes are saved.
+    // So, for example, if a variable is disconnected, the style to indicate disconnected becomes permenant when the file
+    // is saved because the property changed by the disconnected style is saved.
+    if( QEWidget::inDesigner() )
+    {
+        return;
+    }
+
     // Select the appropriate user level style
     QString levelStyle;
     switch( level )
