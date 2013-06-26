@@ -2,11 +2,11 @@
 # author: Ricardo Fernandes
 # email: ricardo.fernandes@synchrotron.org.au
 # copyright: (C) 2012 Australian Synchrotron
-# version: 1.3
-# date: 2013/APR/24
+# version: 1.4
+# date: 2013/JUNE/26
 # description: Makefile to automate the building and deployment of the EPICS Qt framework
 # note: Although managed as part of the EPICS Qt framework, this makefile is intended to be run from outside the framework directories
-# status: Production
+# status: Development
 
 
 
@@ -131,7 +131,7 @@ endif
 	@echo "Packaging framework in directory '$(PACKAGE_DIRECTORY)'..."
 	@mkdir -p $(PACKAGE_DIRECTORY)/lib $(PACKAGE_DIRECTORY)/bin
 	@cp -r /usr/lib/qt4/plugins $(PACKAGE_DIRECTORY)/lib/.
-	@cp $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/applications/QEGuiApp/QEGui $(PACKAGE_DIRECTORY)/bin/.
+	@cp $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/applications/QEGuiApp/qegui $(PACKAGE_DIRECTORY)/bin/.
 	@cp $(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)/framework/designer/libQEPlugin.so $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libca.so* $(PACKAGE_DIRECTORY)/lib/.
 	@cp $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/libCom.so* $(PACKAGE_DIRECTORY)/lib/.
@@ -140,16 +140,16 @@ endif
 	@cp $(EPICS_BASE)/bin/$(EPICS_HOST_ARCH)/camonitor $(PACKAGE_DIRECTORY)/bin/.
 	@cp $(EPICS_BASE)/bin/$(EPICS_HOST_ARCH)/cainfo $(PACKAGE_DIRECTORY)/bin/.
 	@cd $(PACKAGE_DIRECTORY)/lib/plugins/designer ; ln -s -f ../../libQEPlugin.so
-	@chmod u+x $(PACKAGE_DIRECTORY)/bin/QEGui
+	@chmod u+x $(PACKAGE_DIRECTORY)/bin/qegui
 	@echo "#!/bin/bash" > script.tmp
-	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/bin/QEGui | $(GREP) 'libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
+	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/bin/qegui | $(GREP) 'libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
 	@chmod u+x script.tmp
 	@./script.tmp
 	@rm -f script.tmp
 	@echo "#!/bin/bash" > $(EXECUTE_FILE)
 	@echo "export LD_LIBRARY_PATH=./lib:./lib/plugins/designer/:\$$LD_LIBRARY_PATH" >> $(EXECUTE_FILE)
 	@echo "export QT_PLUGIN_PATH=./lib/plugins" >> $(EXECUTE_FILE)
-	@echo "./bin/QEGui \"\$$@\"" >> $(EXECUTE_FILE)
+	@echo "./bin/qegui \"\$$@\"" >> $(EXECUTE_FILE)
 	@chmod u+x $(EXECUTE_FILE)
 	@echo "Please note that a file called 'executeQEGui' (located in directory '$(PACKAGE_DIRECTORY)') was created in order to facilitate the launching of ui files. To use it, do the following in a terminal: ./executeQEGui XXX (where XXX is the ui file to be launched)."
 	@echo "...done packaging framework!"
@@ -212,7 +212,7 @@ endif
 	@echo "%post" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@$(RPM) -bb $(SPEC_FILE)
-	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
+	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS/i386'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
 
 
 

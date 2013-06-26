@@ -5,7 +5,7 @@ __author__ = "Ricardo Fernandes"
 __email__ = "ricardo.fernandes@synchrotron.org.au"
 __copyright__ = "(C) 2013 Australian Synchrotron"
 __version__ = "1.2"
-__date__ = "2013/JUN/25"
+__date__ = "2013/JUN/26"
 __description__ = "Script to automate the release of a new version of the EPICS Qt Framework"
 __status__ = "Development"
 
@@ -24,9 +24,11 @@ import subprocess
 #  GLOBAL VARIABLES
 # ===========================================================
 __SVN_REPOSITORY__ = "https://svn.code.sf.net/p/epicsqt/code"
-__SOURCEFORGE_HOSTNAME__ = "1.2.3.4"
+__SOURCEFORGE_HOSTNAME__ = "shell.sourceforge.net"
+__SOURCEFORGE_DIRECTORY__ = "/home/frs/project/epicsqt"
 __TEMP_FILE__ = "/tmp/release.tmp"
 __TEMP_DIRECTORY__ = '/tmp/epicsqt'
+__USER_NAME__ = None
 __DEBUG__ = False
 
 
@@ -38,7 +40,7 @@ if __name__ == "__main__":
 
 
 	try:
-
+		print
 		print "You are about to release a new version of the EPICS Qt Framework. Please make sure that you have updated"
 		print "the MAJOR, MINOR, RELEASE and the QE_VERSION_STAGE definitions in file 'QEFrameworkVersion.h' and compiled"
 		print "the framework successfully (a build is required as 'qegui' is run to dump the version number later in this"
@@ -52,7 +54,7 @@ if __name__ == "__main__":
 			if answer.upper() == "N":
 				sys.exit(0)
 		print
-		path =  os.path.dirname(os.path.abspath(sys.argv[0])).split("/")
+		path = os.path.dirname(os.path.abspath(sys.argv[0])).split("/")
 		base_path = ""
 		for i in range(0, len(path) - 2):
 			if len(path[i]) > 0:
@@ -340,12 +342,29 @@ if __name__ == "__main__":
 
 
 		# ===========================================================
+		#  GET LAST RELEASE VERSION FROM SVN 'tags' DIRECTORY
+		# ===========================================================
+		try:
+			print "Retrieving version '%s' from SVN 'tags' directory..." % new_release_version
+			print
+			command = "svn export %s/tags/%s %s/tags/%s" % (__SVN_REPOSITORY__, new_release_version, __TEMP_DIRECTORY__, new_release_version)
+			if __DEBUG__:
+				print command
+			subprocess.call(command, shell = True)
+			print
+		except:
+			print "Error when retrieving version '%s' from SVN 'tags' directory..." % new_release_version
+			sys.exit(-1)
+
+
+
+		# ===========================================================
 		#  CREATE TAR FILE
 		# ===========================================================
 		try:
 			tar_file = "epicsqt-%s-src.tar.gz" % new_release_version
 			print "Creating TAR file '%s/%s'..." % (__TEMP_DIRECTORY__, tar_file)
-			command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/trunk . 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__)
+			command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags/%s . 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, new_release_version)
 			print
 			if __DEBUG__:
 				print command
@@ -357,28 +376,103 @@ if __name__ == "__main__":
 
 
 		# ===========================================================
-		#  UPLOAD TAR FILE INTO SOURCEFORGE DOWNLOAD AREA
+		#  UPLOAD TAR FILE INTO THE SOURCEFORGE DOWNLOAD AREA
 		# ===========================================================
-		print "You are about to upload the TAR file '%s/%s' into the EPICS Qt Framework SourceForge download area." % (__TEMP_DIRECTORY__, tar_file)
+		print "You are about to upload the TAR file '%s/%s' into the SourceForge download area." % (__TEMP_DIRECTORY__, tar_file)
 		print
 		while True:
 			answer = raw_input("Proceed (y/n): ")
 			if answer.upper() == "Y":
+				if __USER_NAME__ is None:
+					print
+					__USER_NAME__ = raw_input("Please, provide the user name in SourceForge: ")
 				try:
 					print
-					print "Uploading TAR file '%s/%s' into the EPICS Qt Framework SourceForge download area..." % (__TEMP_DIRECTORY__, tar_file)
-					command = "scp %s:%s/%s RPM/. 1>/dev/null" % (__SOURCEFORGE_HOSTNAME__, __TEMP_DIRECTORY__, tar_file)
+					print "Uploading TAR file '%s/%s' into the SourceForge download area..." % (__TEMP_DIRECTORY__, tar_file)
+					command = "scp %s/%s %s,epicsqt@%s:%s/ 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __USER_NAME__, __SOURCEFORGE_HOSTNAME__, __SOURCEFORGE_DIRECTORY__)
 					if __DEBUG__:
 						print command
 					subprocess.call(command, shell = True)
 				except:
-					print "Error when uploading TAR file '%s/%s' into the EPICS Qt Framework SourceForge download area..." % (__TEMP_DIRECTORY__, tar_file)
+					print "Error when uploading TAR file '%s/%s' into the SourceForge download area!" % (__TEMP_DIRECTORY__, tar_file)
 					sys.exit(-1)
 				break
 			if answer.upper() == "N":
 				break
 		print		
 
+
+
+		# ===========================================================
+		#  UPLOAD DOCUMENTATION INTO THE SOURCEFORGE DOWNLOAD AREA
+		# ===========================================================
+		print "You are about to upload the documentation into the SourceForge download area."
+		print
+		while True:
+			answer = raw_input("Proceed (y/n): ")
+			if answer.upper() == "Y":
+				if __USER_NAME__ is None:
+					print
+					__USER_NAME__ = raw_input("Please, provide the user name in SourceForge: ")
+				try:
+					print
+					print "Uploading documentation into the SourceForge download area..."
+					command = "scp %s/trunk/releasenotes.txt %s/trunk/documentation/QE_ReferenceManual.pdf %s,epicsqt@%s:%s/documentation/ 1>/dev/null" % (__TEMP_DIRECTORY__, __TEMP_DIRECTORY__, __USER_NAME__, __SOURCEFORGE_HOSTNAME__, __SOURCEFORGE_DIRECTORY__)
+					if __DEBUG__:
+						print command
+					subprocess.call(command, shell = True)
+				except:
+					print "Error when uploading documentation into the SourceForge download area!"
+					sys.exit(-1)
+				break
+			if answer.upper() == "N":
+				break
+		print
+
+
+
+		# ===========================================================
+		#  CREATE RPM FILE
+		# ===========================================================
+		try:
+			rpm_file = "epics_qt_framework-%s.%s-%s.i386.rpm" % (new_release_version.split(".")[0], new_release_version.split(".")[1], new_release_version.split(".")[2])
+			print "Creating RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s'..." % (__TEMP_DIRECTORY__, rpm_file)
+			command = "cd %s/trunk/resources ; make rpm 1>/dev/null" % __TEMP_DIRECTORY__
+			print
+			if __DEBUG__:
+				print command
+			subprocess.call(command, shell = True)
+		except:
+			print "Error when creating RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s'..." % (__TEMP_DIRECTORY__, rpm_file)
+			sys.exit(-1)
+
+
+
+		# ===========================================================
+		#  UPLOAD RPM FILE INTO THE SOURCEFORGE DOWNLOAD AREA
+		# ===========================================================
+		print "You are about to upload the RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s' into the SourceForge download area." % (__TEMP_DIRECTORY__, rpm_file)
+		print
+		while True:
+			answer = raw_input("Proceed (y/n): ")
+			if answer.upper() == "Y":
+				if __USER_NAME__ is None:
+					print
+					__USER_NAME__ = raw_input("Please, provide the user name in SourceForge: ")
+				try:
+					print
+					print "Uploading RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s' into the SourceForge download area..." % (__TEMP_DIRECTORY__, rpm_file)
+					command = "scp %s/trunk/resources/rpmbuild/RPMS/i386/%s %s,epicsqt@%s:%s/RPM/ 1>/dev/null" % (__TEMP_DIRECTORY__, rpm_file, __USER_NAME__, __SOURCEFORGE_HOSTNAME__, __SOURCEFORGE_DIRECTORY__)
+					if __DEBUG__:
+						print command
+					subprocess.call(command, shell = True)
+				except:
+					print "Error when uploading RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s' into the SourceForge download area!" % (__TEMP_DIRECTORY__, rpm_file)
+					sys.exit(-1)
+				break
+			if answer.upper() == "N":
+				break
+		print		
 
 
 
@@ -392,6 +486,6 @@ if __name__ == "__main__":
 	print "in file 'QEFrameworkVersion.h' since a new cycle of development has started."
 	print
 	print "Release done!"
-
+	print
 
 
