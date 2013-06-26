@@ -593,7 +593,7 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
    // receive time.
    //
    if (this->useReceiveTime) {
-      point.datetime = QDateTime::currentDateTimeUtc ();
+      point.datetime = QDateTime::currentDateTime ().toUTC ();
    } else {
       point.datetime = datetime;
    }
