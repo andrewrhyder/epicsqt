@@ -297,28 +297,31 @@ QColor QEWidget::getColor( QCaAlarmInfo& alarmInfo, int saturation )
  */
 void QEWidget::processAlarmInfo( QCaAlarmInfo& alarmInfo )
 {
+    // Gather the current info
     QCAALARMINFO_SEVERITY severity = alarmInfo.getSeverity();
     bool displayAlarmState = getDisplayAlarmState();
 
-    // Choose the alarm state to display.
-    // If not displaying the alarm state, use no special style, i.e. the default style
-    // for the widget class type. Check lastDisplayAlarmState as well. This is required
-    // so that any display of an alarm state is reverted if the displayAlarmState property
-    // changes while displaying an alarm.
+    // If anything has changed (either the alarm state itself, or if we have just started
+    // or stopped displaying the alarm state), update the alarm style as appropriate.
     if( severity != lastSeverity || displayAlarmState != lastDisplayAlarmState )
     {
-        // Are we displaying the alarm state?
-        if ( getDisplayAlarmState() )
+        // If displaying the alarm state, apply the current alarm style
+        if ( displayAlarmState )
         {
             updateStatusStyle( alarmInfo.style() );
-        } else {
+        }
+
+        // If not displaying the alarm state, remove any alarm style
+        else
+        {
             updateStatusStyle( "" );
         }
     }
 
+    // Regardless of whether we are displaying the alarm state in the widget, update the
+    // tool tip to reflect current alarm state
     if( severity != lastSeverity )
     {
-        // Always update the tool tip to reflect current alarm state.
         updateToolTipAlarm( alarmInfo.severityName() );
     }
 
