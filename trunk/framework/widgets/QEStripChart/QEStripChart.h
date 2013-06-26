@@ -255,9 +255,10 @@ private slots:
    void chartContextMenuTriggered (QAction* action);
 
    // From chart items
+   // Handled centally as we have one context menu object.
    //
-   void customContextMenuRequested (const unsigned int slot, const QPoint & pos);
-   void contextMenuSelected (const unsigned int slot, const QEStripChartNames::ContextMenuOptions option);
+   void itemContextMenuRequested (const unsigned int slot, const QPoint & pos);
+   void itemContextMenuSelected  (const unsigned int slot, const QEStripChartNames::ContextMenuOptions option);
 
    // From tool bar
    //

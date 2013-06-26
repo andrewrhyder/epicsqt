@@ -184,6 +184,9 @@ void QEStripChartItem::clear ()
    this->historicalTimeDataPoints.clear ();
    this->realTimeDataPoints.clear ();
 
+   this->useReceiveTime = false;
+   this->archiveReadHow = QEArchiveInterface::Linear;
+
    // Reset identity sclaing
    //
    this->scaling.reset();
@@ -584,7 +587,16 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
       point.alarm = QCaAlarmInfo (NO_ALARM, INVALID_ALARM);
    }
 
-   point.datetime = datetime;
+   // Some records, e.g. the motor record, post RBV updated without updating
+   // the the process tiime until the end of the move. Sometimes the server and/or
+   // client time is just wrong. In these cases it is better to plot using the
+   // receive time.
+   //
+   if (this->useReceiveTime) {
+      point.datetime = QCaDateTime::currentDateTimeUtc ();
+   } else {
+      point.datetime = datetime;
+   }
 
    if (point.isDisplayable ()) {
       this->realTimeMinMax.merge (point.value);
@@ -694,8 +706,8 @@ void QEStripChartItem::readArchive ()
    this->archiveAccess.setMessageSourceId (this->privateData->chart->getMessageSourceId ());
 
    this->archiveAccess.readArchive
-         (this, this->getPvName (),  startDateTime, endDateTime,  4000,
-          QEArchiveInterface::Linear,  0);
+         (this, this->getPvName (),  startDateTime, endDateTime,
+          4000, this->archiveReadHow, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -740,7 +752,7 @@ void QEStripChartItem::customContextMenuRequested (const QPoint & pos)
 {
    // Include slot number and re-emit to the chart.
    //
-   emit this->customContextMenuRequested (this->slot, pos);
+   emit this->itemContextMenuRequested (this->slot, pos);
 }
 
 //------------------------------------------------------------------------------
@@ -908,6 +920,34 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
       case QEStripChartNames::SCCM_PV_CLEAR:
          this->clear ();
          chart->evaluateAllowDrop ();   // move to strip chart proper??
+         break;
+
+      case QEStripChartNames::SCCM_PLOT_SERVER_TIME:
+         this->useReceiveTime = false;
+         break;
+
+      case QEStripChartNames::SCCM_PLOT_CLIENT_TIME:
+         this->useReceiveTime = true;
+         break;
+
+      case QEStripChartNames::SCCM_ARCH_LINEAR:
+         this->archiveReadHow = QEArchiveInterface::Linear;
+         break;
+
+      case QEStripChartNames::SCCM_ARCH_PLOTBIN:
+         this->archiveReadHow = QEArchiveInterface::PlotBinning;
+         break;
+
+      case QEStripChartNames::SCCM_ARCH_RAW:
+         this->archiveReadHow = QEArchiveInterface::Raw;
+         break;
+
+      case QEStripChartNames::SCCM_ARCH_SHEET:
+         this->archiveReadHow = QEArchiveInterface::SpreadSheet;
+         break;
+
+      case QEStripChartNames::SCCM_ARCH_AVERAGED:
+         this->archiveReadHow = QEArchiveInterface::Averaged;
          break;
 
       default:

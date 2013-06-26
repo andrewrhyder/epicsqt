@@ -90,6 +90,8 @@ public:
    void setScaling (const double d, const double m, const double c);
    void getScaling (double & d, double & m, double & c);
    bool isScaled ();
+   bool getUseReceiveTime () { return this->useReceiveTime; }
+   QEArchiveInterface::How getArchiveReadHow () { return this->archiveReadHow; }
 
    // NOTE: Where ever possible I spell colour properly.
    //
@@ -120,7 +122,7 @@ public:
    QCaVariableNamePropertyManager pvNameProperyManager;
 
 public: signals:
-   void customContextMenuRequested (const unsigned int, const QPoint &);
+   void itemContextMenuRequested (const unsigned int, const QPoint &);
 
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
@@ -142,6 +144,9 @@ private:
    //
    unsigned int slot;
    bool isConnected;
+   bool useReceiveTime;
+   QEArchiveInterface::How archiveReadHow;
+
    QColor colour;
    ValueScaling scaling;
 

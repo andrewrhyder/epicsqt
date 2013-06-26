@@ -32,7 +32,7 @@
 #include <QWidget>
 #include <QStringList>
 #include <contextMenu.h>
-
+#include <QEArchiveInterface.h>
 #include "QEStripChartNames.h"
 
 class QEStripChartContextMenu : public QMenu {
@@ -46,10 +46,13 @@ public:
    virtual ~QEStripChartContextMenu ();
 
    void setPredefinedNames (const QStringList & pvList);
+   void setUseReceiveTime  (const bool useReceiveTime);
+   void setArchiveReadHow  (const QEArchiveInterface::How how);
 
    // Wrapper exec function.
    //
-   QAction *exec(const unsigned int slot, const QPoint &pos, QAction *at=0);
+   QAction *exec (const unsigned int slot,
+                  const QPoint &pos, QAction *at=0);
 
    // Must be consistant with number of SCCM_PREDEFINED_XX items.
    //
@@ -72,6 +75,10 @@ private:
                   const QString &caption,
                   const bool checkable,
                   const QEStripChartNames::ContextMenuOptions option);
+
+   QAction* serverTime;
+   QAction* clientTime;
+   QAction* archiveModes [5];
 
 private slots:
    void contextMenuTriggered (QAction* selectedItem);
