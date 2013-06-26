@@ -108,6 +108,13 @@ public:
 typedef QHash <QString, SourceSpec> PVNameToSourceSpecLookUp;
 
 
+//------------------------------------------------------------------------------
+//
+class QEArchiveThread : public QThread {
+public:
+   void run () { exec (); }
+};
+
 //==============================================================================
 // Local Data
 //==============================================================================
@@ -121,7 +128,7 @@ typedef QHash <QString, SourceSpec> PVNameToSourceSpecLookUp;
 //
 static QMutex *singletonMutex = new QMutex ();
 static QEArchiveManager *singletonManager = NULL;
-static QThread *singletonThread = NULL;
+static QEArchiveThread *singletonThread = NULL;
 
 static QMutex *archiveDataMutex = new QMutex ();
 static ArchiveInterfaceLists archiveInterfaceList;
@@ -238,7 +245,7 @@ void QEArchiveManager::initialise (const QString& archivesIn, const QString& pat
 
    if (!singletonManager) {
       singletonManager = new QEArchiveManager (archivesIn, patternIn);
-      singletonThread = new QThread ();
+      singletonThread = new QEArchiveThread ();
 
       // Remome the singletonManager to belong to thread, connect the signal and start it.
       //
