@@ -684,6 +684,7 @@ void QEStripChart::PrivateData::itemContextMenuRequested (const unsigned int slo
    if (item->isInUse()) {
       this->inUseMenu->setUseReceiveTime (item->getUseReceiveTime ());
       this->inUseMenu->setArchiveReadHow (item->getArchiveReadHow ());
+      this->inUseMenu->setLineDrawMode (item->getLineDrawMode ());
       this->inUseMenu->exec (slot, golbalPos, 0);
    } else {
       this->emptyMenu->setPredefinedNames (predefinedPVNameList);

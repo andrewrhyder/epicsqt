@@ -49,8 +49,16 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
    this->serverTime = NULL;
    this->serverTime = NULL;
 
-   for (j = 0; j < ARRAY_LENGTH (this->archiveModes); j++) {
-      this->archiveModes [j] = NULL;
+   for (j = 0; j < ARRAY_LENGTH (this->archiveModeActions); j++) {
+      this->archiveModeActions [j] = NULL;
+   }
+
+   for (j = 0; j < ARRAY_LENGTH (this->lineDrawModeActions); j++) {
+      this->lineDrawModeActions [j] = NULL;
+   }
+
+   for (j = 0 ; j < ARRAY_LENGTH (this->predefinedPVs); j++) {
+      this->predefinedPVs [j] = NULL;
    }
 
    // Note: action items are not enabled until corresponding functionallity is implemented.
@@ -83,22 +91,25 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
       this->make (menu, "Use Receive Time",                    true,  QEStripChartNames::SCCM_PLOT_CLIENT_TIME);
 
       menu->addSeparator();
-      this->archiveModes [QEArchiveInterface::Linear] =
+      this->archiveModeActions [QEArchiveInterface::Linear] =
       this->make (menu, "Linear",                              true,  QEStripChartNames::SCCM_ARCH_LINEAR);
-      this->archiveModes [QEArchiveInterface::PlotBinning] =
+      this->archiveModeActions [QEArchiveInterface::PlotBinning] =
       this->make (menu, "Plot Binning",                        true,  QEStripChartNames::SCCM_ARCH_PLOTBIN);
-      this->archiveModes [QEArchiveInterface::Raw] =
+      this->archiveModeActions [QEArchiveInterface::Raw] =
       this->make (menu, "Raw",                                 true,  QEStripChartNames::SCCM_ARCH_RAW);
-      this->archiveModes [QEArchiveInterface::SpreadSheet] =
+      this->archiveModeActions [QEArchiveInterface::SpreadSheet] =
       this->make (menu, "Spread Sheet",                        true,  QEStripChartNames::SCCM_ARCH_SHEET);
-      this->archiveModes [QEArchiveInterface::Averaged] =
+      this->archiveModeActions [QEArchiveInterface::Averaged] =
       this->make (menu, "Averaged",                            true,  QEStripChartNames::SCCM_ARCH_AVERAGED);
 
       menu = new QMenu ("Line", this);
       this->addMenu (menu);
-      this->make (menu, "Hide",                                true,  QEStripChartNames::SCCM_LINE_HIDE)->setEnabled (false);
-      this->make (menu, "Regular",                             true,  QEStripChartNames::SCCM_LINE_REGULAR)->setEnabled (false);
-      this->make (menu, "Bold",                                true,  QEStripChartNames::SCCM_LINE_BOLD)->setEnabled (false);
+      this->lineDrawModeActions [QEStripChartNames::ldmHide] =
+      this->make (menu, "Hide",                                true,  QEStripChartNames::SCCM_LINE_HIDE);
+      this->lineDrawModeActions [QEStripChartNames::ldmRegular] =
+      this->make (menu, "Regular",                             true,  QEStripChartNames::SCCM_LINE_REGULAR);
+      this->lineDrawModeActions [QEStripChartNames::ldmBold] =
+      this->make (menu, "Bold",                                true,  QEStripChartNames::SCCM_LINE_BOLD);
       this->make (menu, "Colour...",                           false, QEStripChartNames::SCCM_LINE_COLOUR);
 
       this->make (this, "Edit PV Name...",                     false, QEStripChartNames::SCCM_PV_EDIT_NAME);
@@ -110,10 +121,6 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
       this->make (this, "Add to predefined PV names",          false, QEStripChartNames::SCCM_ADD_TO_PREDEFINED);
 
       this->make (this, "Clear",                               false, QEStripChartNames::SCCM_PV_CLEAR);
-
-      for (j = 0 ; j < ARRAY_LENGTH (this->predefinedPVs); j++) {
-         this->predefinedPVs [j] = NULL;
-      }
 
    } else {
 
@@ -181,10 +188,24 @@ void QEStripChartContextMenu::setArchiveReadHow (const QEArchiveInterface::How h
    int j;
    QAction *action;
 
-   for (j = 0; j < ARRAY_LENGTH (this->archiveModes); j++) {
-      action = this->archiveModes [j];
+   for (j = 0; j < ARRAY_LENGTH (this->archiveModeActions); j++) {
+      action = this->archiveModeActions [j];
       if (!action) continue;
       action->setChecked (j == (int) how);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartContextMenu::setLineDrawMode (const QEStripChartNames::LineDrawModes mode)
+{
+   int j;
+   QAction *action;
+
+   for (j = 0; j < ARRAY_LENGTH (this->lineDrawModeActions); j++) {
+      action = this->lineDrawModeActions [j];
+      if (!action) continue;
+      action->setChecked (j == (int) mode);
    }
 }
 

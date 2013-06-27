@@ -90,8 +90,12 @@ public:
    void setScaling (const double d, const double m, const double c);
    void getScaling (double & d, double & m, double & c);
    bool isScaled ();
+
+   // Following used to extarct status for the sharted context menu object.
+   //
    bool getUseReceiveTime () { return this->useReceiveTime; }
    QEArchiveInterface::How getArchiveReadHow () { return this->archiveReadHow; }
+   QEStripChartNames::LineDrawModes getLineDrawMode () { return this->lineDrawMode; }
 
    // NOTE: Where ever possible I spell colour properly.
    //
@@ -146,6 +150,7 @@ private:
    bool isConnected;
    bool useReceiveTime;
    QEArchiveInterface::How archiveReadHow;
+   QEStripChartNames::LineDrawModes lineDrawMode;
 
    QColor colour;
    ValueScaling scaling;
