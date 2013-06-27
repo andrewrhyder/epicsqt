@@ -48,6 +48,8 @@ public:
    void setPredefinedNames (const QStringList & pvList);
    void setUseReceiveTime  (const bool useReceiveTime);
    void setArchiveReadHow  (const QEArchiveInterface::How how);
+   void setLineDrawMode    (const QEStripChartNames::LineDrawModes mode);
+
 
    // Wrapper exec function.
    //
@@ -78,7 +80,8 @@ private:
 
    QAction* serverTime;
    QAction* clientTime;
-   QAction* archiveModes [5];
+   QAction* archiveModeActions [5];
+   QAction* lineDrawModeActions [3];
 
 private slots:
    void contextMenuTriggered (QAction* selectedItem);

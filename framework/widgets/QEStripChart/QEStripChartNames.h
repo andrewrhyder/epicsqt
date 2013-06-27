@@ -92,6 +92,15 @@ public:
    Q_ENUMS (YScaleModes)
 
 
+   enum LineDrawModes {
+      ldmHide,         // do not draw
+      ldmRegular,      // normal draw
+      ldmBold          // bold draw
+   };
+
+   Q_ENUMS (LineDrawModes)
+
+
    // IDs for all menu options
    // Each menu option has a unique ID across all menus
    // These IDs are in addition to standard context menu IDs and so start after

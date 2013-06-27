@@ -186,6 +186,7 @@ void QEStripChartItem::clear ()
 
    this->useReceiveTime = false;
    this->archiveReadHow = QEArchiveInterface::Linear;
+   this->lineDrawMode = QEStripChartNames::ldmRegular;
 
    // Reset identity sclaing
    //
@@ -511,11 +512,14 @@ void QEStripChartItem::plotData (const double timeScale,
    this->displayedMinMax.clear ();
    this->firstPointIsDefined = false;
 
-   this->plotDataPoints (this->historicalTimeDataPoints, timeScale, yScaleMode, false, temp);
-   this->displayedMinMax.merge (temp);
+   if (this->lineDrawMode != QEStripChartNames::ldmHide) {
 
-   this->plotDataPoints (this->realTimeDataPoints,timeScale,  yScaleMode, true, temp);
-   this->displayedMinMax.merge (temp);
+      this->plotDataPoints (this->historicalTimeDataPoints, timeScale, yScaleMode, false, temp);
+      this->displayedMinMax.merge (temp);
+
+      this->plotDataPoints (this->realTimeDataPoints,timeScale,  yScaleMode, true, temp);
+      this->displayedMinMax.merge (temp);
+   }
 
    // Sometimes the qca Item first used is not the qca Item we end up with, due the
    // vagaries of loading ui files and the framework start up. As plot data called
@@ -742,7 +746,23 @@ QPen QEStripChartItem::getPen ()
 {
    QPen result (this->getColour ());
 
-   result.setWidth (1);
+   switch (this->lineDrawMode) {
+      case QEStripChartNames::ldmHide:
+         result.setWidth (0);
+         break;
+
+      case QEStripChartNames::ldmRegular:
+         result.setWidth (1);
+         break;
+
+      case QEStripChartNames::ldmBold:
+         result.setWidth (2);
+         break;
+
+      default:
+         result.setWidth (1);
+         break;
+   }
    return result;
 }
 
@@ -949,6 +969,22 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
       case QEStripChartNames::SCCM_ARCH_AVERAGED:
          this->archiveReadHow = QEArchiveInterface::Averaged;
          break;
+
+      case QEStripChartNames::SCCM_LINE_HIDE:
+         this->lineDrawMode = QEStripChartNames::ldmHide;
+         chart->plotData ();
+         break;
+
+      case QEStripChartNames::SCCM_LINE_REGULAR:
+         this->lineDrawMode = QEStripChartNames::ldmRegular;
+         chart->plotData ();
+         break;
+
+      case QEStripChartNames::SCCM_LINE_BOLD:
+         this->lineDrawMode = QEStripChartNames::ldmBold;
+         chart->plotData ();
+         break;
+
 
       default:
          DEBUG << int (option) << this->privateData->pvName->text () << "tbd";
