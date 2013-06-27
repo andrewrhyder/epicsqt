@@ -40,7 +40,7 @@
 class QCaDataPoint {
 public:
    explicit QCaDataPoint ();
-   bool isDisplayable ();     // i.e is okay
+   bool isDisplayable ();     // i.e. is okay
 
    // We don't bother with a variant but just use a double.  A double can be
    // used to hold all CA data types except strings (which is are not plotable).

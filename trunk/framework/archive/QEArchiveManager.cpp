@@ -123,7 +123,7 @@ public:
 // I think the are issues when QObjects declared in header files.
 //
 
-// Allows only one object to be effectively created. Second are subsequenct object
+// Allows only one object to be effectively created. Second and subsequent object
 // do nothing, except waste space.
 //
 static QMutex *singletonMutex = new QMutex ();
