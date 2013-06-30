@@ -3,10 +3,10 @@
 # email: ricardo.fernandes@synchrotron.org.au
 # copyright: (C) 2012 Australian Synchrotron
 # version: 1.4
-# date: 2013/JUNE/26
+# date: 2013/JUL/01
 # description: Makefile to automate the building and deployment of the EPICS Qt framework
 # note: Although managed as part of the EPICS Qt framework, this makefile is intended to be run from outside the framework directories
-# status: Development
+# status: Production
 
 
 
