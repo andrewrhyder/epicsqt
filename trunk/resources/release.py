@@ -5,9 +5,9 @@ __author__ = "Ricardo Fernandes"
 __email__ = "ricardo.fernandes@synchrotron.org.au"
 __copyright__ = "(C) 2013 Australian Synchrotron"
 __version__ = "1.2"
-__date__ = "2013/JUN/26"
+__date__ = "2013/JUL/01"
 __description__ = "Script to automate the release of a new version of the EPICS Qt Framework"
-__status__ = "Development"
+__status__ = "Production"
 
 
 
@@ -386,6 +386,11 @@ if __name__ == "__main__":
 				if __USER_NAME__ is None:
 					print
 					__USER_NAME__ = raw_input("Please, provide the user name in SourceForge: ")
+					print "Creating temporary shell in SourceForge for user '%s'..." % __USER_NAME__
+					command = "ssh %s,epicsqt@%s create" % (__USER_NAME__, __SOURCEFORGE_HOSTNAME__)
+					if __DEBUG__:
+						print command
+					subprocess.call(command, shell = True)
 				try:
 					print
 					print "Uploading TAR file '%s/%s' into the SourceForge download area..." % (__TEMP_DIRECTORY__, tar_file)
@@ -414,6 +419,11 @@ if __name__ == "__main__":
 				if __USER_NAME__ is None:
 					print
 					__USER_NAME__ = raw_input("Please, provide the user name in SourceForge: ")
+					print "Creating temporary shell in SourceForge for user '%s'..." % __USER_NAME__
+					command = "ssh %s,epicsqt@%s create" % (__USER_NAME__, __SOURCEFORGE_HOSTNAME__)
+					if __DEBUG__:
+						print command
+					subprocess.call(command, shell = True)
 				try:
 					print
 					print "Uploading documentation into the SourceForge download area..."
@@ -459,6 +469,11 @@ if __name__ == "__main__":
 				if __USER_NAME__ is None:
 					print
 					__USER_NAME__ = raw_input("Please, provide the user name in SourceForge: ")
+					print "Creating temporary shell in SourceForge for user '%s'..." % __USER_NAME__
+					command = "ssh %s,epicsqt@%s create" % (__USER_NAME__, __SOURCEFORGE_HOSTNAME__)
+					if __DEBUG__:
+						print command
+					subprocess.call(command, shell = True)
 				try:
 					print
 					print "Uploading RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s' into the SourceForge download area..." % (__TEMP_DIRECTORY__, rpm_file)
