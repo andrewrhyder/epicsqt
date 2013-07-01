@@ -28,8 +28,10 @@
 
 #include <QDebug>
 #include <QHash>
+#include <QMap>
 #include <QList>
 #include <QMutex>
+#include <QRegExp>
 #include <QThread>
 #include <QUrl>
 
@@ -104,8 +106,9 @@ public:
 //------------------------------------------------------------------------------
 // Mapping by PV name to essentially archive source to key(s) and time range(s)
 // that support the PV.
+// NOTE: We use a map here as we want sorted keys.
 //
-typedef QHash <QString, SourceSpec> PVNameToSourceSpecLookUp;
+typedef QMap <QString, SourceSpec> PVNameToSourceSpecLookUp;
 
 
 //------------------------------------------------------------------------------
@@ -797,9 +800,36 @@ QString QEArchiveAccess::getPattern ()
 //
 int QEArchiveAccess::getNumberPVs ()
 {
-   QMutexLocker locker (singletonMutex);
+   QMutexLocker locker (archiveDataMutex);
 
    return pvNameToSourceLookUp.count ();
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QEArchiveAccess::getMatchingPVnames (const QString& pattern)
+{
+   QRegExp regExp (pattern, Qt::CaseSensitive, QRegExp::RegExp);
+   QStringList existList;
+   QStringList matchList;
+   int n;
+   int j;
+
+   {
+      QMutexLocker locker (archiveDataMutex);
+      existList = pvNameToSourceLookUp.keys ();
+   }
+
+   n = existList.count ();
+   for (j = 0; j < n; j++) {
+      QString pvName = existList.value (j);
+
+      if (regExp.exactMatch (pvName)) {
+         matchList.append (pvName);
+      }
+   }
+
+   return matchList;
 }
 
 // end

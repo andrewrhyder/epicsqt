@@ -37,6 +37,7 @@
 #include <QMetaType>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 #include <QCaDateTime.h>
 #include <QEArchiveInterface.h>
@@ -45,13 +46,13 @@
 // This class provides user access to the archives and indirect management
 // of the underlying QEArchiveManager.
 //
-// Currently only handles scaler values but can/will be extended to
+// Currently only handles scalar values but can/will be extended to
 // provide array data retrival.
 //
 // NOTE: It is the creation of the first object of this class will cause the
 // QEArchiveManager to initialised if not already done so. The QEArchiveManager
 // may also be explicitly initialised prior to that by invoking one of the
-// initialise functions.
+// static initialise functions.
 //
 class QEArchiveAccess : public QObject, UserMessage {
    Q_OBJECT
@@ -68,6 +69,7 @@ public:
    static int getNumberInterfaces ();
    static QString getPattern ();
    static int getNumberPVs ();
+   static QStringList getMatchingPVnames (const QString& pattern);
 
    // Requests re-transmission of archive status.
    // Returned status is via archiveStatus signal.
