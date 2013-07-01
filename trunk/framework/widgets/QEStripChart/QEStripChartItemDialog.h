@@ -53,8 +53,14 @@ public:
 
 private:
    Ui::QEStripChartItemDialog *ui;
+   QString originalPvName;
+   bool returnIsMasked;
+
+   void applyFilter ();
 
 private slots:
+   void filterEditReturnPressed ();
+   void filterEditingFinished ();
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();
    void clearButtonClicked (bool checked = false);

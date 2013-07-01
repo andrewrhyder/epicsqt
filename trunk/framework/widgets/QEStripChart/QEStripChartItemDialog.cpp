@@ -26,9 +26,12 @@
  */
 
 #include <QDebug>
+#include <QStringList>
+
 #include <QEStripChartItemDialog.h>
 #include <ui_QEStripChartItemDialog.h>
 
+#include <QEArchiveManager.h>
 
 //------------------------------------------------------------------------------
 //
@@ -38,8 +41,18 @@ QEStripChartItemDialog::QEStripChartItemDialog (QWidget *parent) :
 {
    this->ui->setupUi (this);
 
-   QObject::connect (this->ui->clearButton,  SIGNAL (clicked            (bool)),
-                     this,                   SLOT   (clearButtonClicked (bool)));
+   this->returnIsMasked = false;
+
+   QObject::connect (this->ui->clearButton, SIGNAL (clicked            (bool)),
+                     this,                  SLOT   (clearButtonClicked (bool)));
+
+   QObject::connect (this->ui->filterEdit,  SIGNAL  (returnPressed ()),
+                     this,                  SLOT (filterEditReturnPressed ()));
+
+
+   QObject::connect (this->ui->filterEdit,  SIGNAL (editingFinished       ()),
+                     this,                  SLOT   (filterEditingFinished ()));
+
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +66,12 @@ QEStripChartItemDialog::~QEStripChartItemDialog ()
 //
 void QEStripChartItemDialog::setPvName (QString pvNameIn)
 {
-   this->ui->pvNameEdit->setText (pvNameIn);
+   this->applyFilter ();
+
+   if (!pvNameIn.isEmpty()) {
+      this->ui->pvNameEdit->insertItem (0, pvNameIn, QVariant ());
+      this->ui->pvNameEdit->setCurrentIndex (0);
+   }
 }
 
 
@@ -61,7 +79,7 @@ void QEStripChartItemDialog::setPvName (QString pvNameIn)
 //
 QString QEStripChartItemDialog::getPvName ()
 {
-   return this->ui->pvNameEdit->text ().trimmed ();
+   return this->ui->pvNameEdit->currentText().trimmed ();
 }
 
 //------------------------------------------------------------------------------
@@ -70,6 +88,44 @@ bool QEStripChartItemDialog::isClear ()
 {
    return (this->getPvName() == "");
 }
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItemDialog::applyFilter ()
+{
+   QString filter = this->ui->filterEdit->text().trimmed ();
+   int n;
+
+   this->ui->pvNameEdit->clear ();
+
+   // QEArchiveAccess ensures thelist is sorted.
+   //
+   this->ui->pvNameEdit->insertItems (0, QEArchiveAccess::getMatchingPVnames (filter));
+
+   n =  this->ui->pvNameEdit->count ();
+
+   this->ui->matchCountLabel->setText (QString ("%1").arg (n));
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItemDialog::filterEditReturnPressed ()
+{
+   this->returnIsMasked = true;
+
+   // this will cause  filterEditingFinished to be invoked - no need
+   // to apply filter here.
+   //
+   this->ui->pvNameEdit->setFocus ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItemDialog::filterEditingFinished ()
+{
+   this->applyFilter ();
+}
+
 
 //------------------------------------------------------------------------------
 // User has pressed Clear
@@ -85,6 +141,11 @@ void QEStripChartItemDialog::clearButtonClicked (bool)
 //
 void QEStripChartItemDialog::on_buttonBox_accepted ()
 {
+   if (this->returnIsMasked) {
+      this->returnIsMasked = false;
+      return;
+   }
+
    this->accept ();
 }
 
