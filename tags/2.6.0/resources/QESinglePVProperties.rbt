@@ -1,0 +1,38 @@
+== QESinglePVProperties.rbt
+==
+== This file defines the common set of single variable properties to be inclued
+== in a widget's header file. The update_widget_properties script can be used to
+== auto include this test into the header file.
+==
+== The following defines specifiy the start/end text expected to be found in
+== the header file (in comments) to allow the text replacement to occur.
+==
+== __define_replace_start_delimiter__  BEGIN-SINGLE-VARIABLE-PROPERTIES
+== __define_replace_end_delimiter__    END-SINGLE-VARIABLE-PROPERTIES
+==
+    // Single Variable properties
+    // These properties should be identical for every widget using a single variable.
+    // WHEN MAKING CHANGES: Use the update_widget_properties script in the
+    // resources directory.
+    //
+    // Note, a property macro in the form 'Q_PROPERTY(QString variableName READ ...' doesn't work.
+    // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
+public:
+    /// EPICS variable name (CA PV)
+    ///
+    Q_PROPERTY(QString variable READ getVariableNameProperty WRITE setVariableNameProperty)
+    /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'PUMP=PMP3, NAME = "My Pump"'
+    /// These substitutions are applied to variable names for all QE widgets. In some widgets are are also used for other purposes.
+    Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+
+private:
+    void    setVariableNameProperty( QString variableName ){ variableNamePropertyManager.setVariableNameProperty( variableName ); }
+    QString getVariableNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
+
+    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
+    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
+
+    QCaVariableNamePropertyManager variableNamePropertyManager;
+public:
+==
+== end

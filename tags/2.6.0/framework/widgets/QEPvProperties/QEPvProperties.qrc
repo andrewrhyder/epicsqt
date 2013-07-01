@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qe/pvproperties">
+        <file>icon.png</file>
+        <file>record_field_list.txt</file>
+    </qresource>
+</RCC>
