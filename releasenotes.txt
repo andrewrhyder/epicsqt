@@ -1,3 +1,276 @@
+==================================================================================================
+Changes between 2.6.0 and 2.5.0
+
+SUMMARY:
+QEStripChart enhancements.
+QERadioGroup enhancements.
+QEGui -p switch changed to use ':' delimiter instead of ' ' delimiter to allow for ' ' in path names, and to allow '...' at end of a path to imply 'all subdirectories.
+Scaling enhancements.
+ArchiveStatus widget added.
+Improve load times, especially for deeply nested sub forms.
+QEGui 'login' and QELogin enhancements.
+Bug fixes
+
+DETAIL:
+------------------------------------------------------------------------
+r814 | rhyder | 2013-06-04 17:33:55 +1000 (Tue, 04 Jun 2013) | 2 lines
+
+Include trunk and tags, and new svn repository location
+
+------------------------------------------------------------------------
+r815 | andrewstarritt | 2013-06-05 16:25:11 +1000 (Wed, 05 Jun 2013) | 1 line
+
+QECommon.h - remove explicit dependency on QColor and QWidget
+------------------------------------------------------------------------
+r816 | andrewstarritt | 2013-06-06 13:52:28 +1000 (Thu, 06 Jun 2013) | 1 line
+
+QEStripChart: Allow dragging into Strip chart, and set up chart wide context menu - paste PV name only for now
+------------------------------------------------------------------------
+r817 | andrewstarritt | 2013-06-07 10:54:09 +1000 (Fri, 07 Jun 2013) | 1 line
+
+QEStripChart - move context ids to QEStripChartNames, add general chart context menu options, add copy all PV names option
+------------------------------------------------------------------------
+r818 | andrewstarritt | 2013-06-09 16:32:08 +1000 (Sun, 09 Jun 2013) | 1 line
+
+QEUtilities::widgetScaleBy - add basic scaling of layouts 
+------------------------------------------------------------------------
+r819 | andrewstarritt | 2013-06-09 21:57:08 +1000 (Sun, 09 Jun 2013) | 1 line
+
+QERadioGroup leverage of signal sender function as opposed to searching all radion buttons.\n Rename some types and variables to improve readability
+------------------------------------------------------------------------
+r820 | andrewstarritt | 2013-06-11 13:11:30 +1000 (Tue, 11 Jun 2013) | 1 line
+
+Back in development mode
+------------------------------------------------------------------------
+r821 | rhyder | 2013-06-12 09:33:21 +1000 (Wed, 12 Jun 2013) | 4 lines
+
+Allow '...' at the end of path names (in QEGui -p switch and in the
+environment variable QE_UI_PATH) which indicates search in all the paths
+sub-directories, rather than the path itself.
+
+------------------------------------------------------------------------
+r822 | andrewstarritt | 2013-06-12 14:23:58 +1000 (Wed, 12 Jun 2013) | 1 line
+
+QCaDataPoint: upgrade form struct to class and move isDisplayable from QEStripChartItem to new QCaDataPoint.cpp
+------------------------------------------------------------------------
+r823 | rhyder | 2013-06-12 15:13:17 +1000 (Wed, 12 Jun 2013) | 2 lines
+
+Fix bug where -s switch fails.
+
+------------------------------------------------------------------------
+r824 | rhyder | 2013-06-12 15:40:46 +1000 (Wed, 12 Jun 2013) | 2 lines
+
+Correct svn repository in doco and package makefile
+
+------------------------------------------------------------------------
+r825 | andrewstarritt | 2013-06-12 16:32:45 +1000 (Wed, 12 Jun 2013) | 1 line
+
+QCaDateTime - ensure floating function calculation is actually a  double calc, and remove un-needed function call
+------------------------------------------------------------------------
+r826 | andrewstarritt | 2013-06-12 16:35:09 +1000 (Wed, 12 Jun 2013) | 1 line
+
+QCaDataPointList - add resample function
+------------------------------------------------------------------------
+r827 | andrewstarritt | 2013-06-13 09:26:11 +1000 (Thu, 13 Jun 2013) | 1 line
+
+QEPvProperties.cpp - fix typo in comment.
+------------------------------------------------------------------------
+r828 | andrewstarritt | 2013-06-13 16:09:04 +1000 (Thu, 13 Jun 2013) | 1 line
+
+QEArchive: initial delivery of ArchiveStatus widget, together with tidyup (eg const parameters where applicable)
+------------------------------------------------------------------------
+r829 | andrewstarritt | 2013-06-13 16:11:06 +1000 (Thu, 13 Jun 2013) | 1 line
+
+QCaDataPoint: Change from QVector to QList - we don't need a vector - minor API impact on QEStripChartItem.cpp
+------------------------------------------------------------------------
+r830 | andrewstarritt | 2013-06-13 16:12:33 +1000 (Thu, 13 Jun 2013) | 1 line
+
+QEFrame/QEGroupBox - turn off setVariableAsToolTip and setAllowDrop as default - not really sensible for these non EPICS widgets anyway
+------------------------------------------------------------------------
+r831 | andrewstarritt | 2013-06-13 16:39:04 +1000 (Thu, 13 Jun 2013) | 1 line
+
+QEArchiveStatus: remove debug statement and call up from QEDesignerPlugin
+------------------------------------------------------------------------
+r832 | andrewstarritt | 2013-06-13 17:49:21 +1000 (Thu, 13 Jun 2013) | 1 line
+
+QEArchiveStatus - update documentation
+------------------------------------------------------------------------
+r833 | andrewstarritt | 2013-06-13 22:31:39 +1000 (Thu, 13 Jun 2013) | 1 line
+
+QEArchive: tweak status widget geometry, simplify archive manager sigleton object management, use for meaningfull type/data names and beef-up comments
+------------------------------------------------------------------------
+r834 | andrewstarritt | 2013-06-14 17:23:42 +1000 (Fri, 14 Jun 2013) | 1 line
+
+Update multi PV widgets to use common QEWidget's processAlarmInfo
+------------------------------------------------------------------------
+r835 | andrewstarritt | 2013-06-16 20:57:37 +1000 (Sun, 16 Jun 2013) | 1 line
+
+QEArchiveStatus - inherited from QEGroupBox - get a title 'for free', and populate actual status values when processing responses
+------------------------------------------------------------------------
+r836 | rhyder | 2013-06-17 15:28:27 +1000 (Mon, 17 Jun 2013) | 3 lines
+
+QEForm ui file name property is set multiple times when loading. Only
+reload file when file name changes.
+
+------------------------------------------------------------------------
+r837 | rhyder | 2013-06-18 09:25:01 +1000 (Tue, 18 Jun 2013) | 5 lines
+
+Avoid reloading QEForms when restoring configuration if not required.
+(They only require reloading if the macro substitutions and paths they
+are given on creation are not the same as those they saved when the
+configuration was saved)
+
+------------------------------------------------------------------------
+r838 | rhyder | 2013-06-18 15:43:17 +1000 (Tue, 18 Jun 2013) | 10 lines
+
+Change widgets to set foreground style to grey when disconnected, rather
+than disable the widget. Disabling the widget had the advantage of
+offloading the work of presenting the widget as disconnected to Qt but
+had several disadvantages including:
+Could not right click on disconnected widget to get menu (a problem when
+you want to get the PV name to see why it is disconnected).
+Required a complicated mechanism to provide an alternative 'enable'
+property that that could be overwritten by the connected/disconnected
+presentation.
+
+------------------------------------------------------------------------
+r839 | andrewstarritt | 2013-06-20 18:20:54 +1000 (Thu, 20 Jun 2013) | 1 line
+
+UserMessage  register the message_type class type
+------------------------------------------------------------------------
+r840 | andrewstarritt | 2013-06-20 18:22:12 +1000 (Thu, 20 Jun 2013) | 1 line
+
+QEArchiveManager: create a separate thread to handle the archive interface
+------------------------------------------------------------------------
+r841 | andrewstarritt | 2013-06-21 12:20:47 +1000 (Fri, 21 Jun 2013) | 1 line
+
+QCaDataPoint - register types as meta data types do that they may be used in inter thread signals 
+------------------------------------------------------------------------
+r842 | andrewstarritt | 2013-06-21 12:35:22 +1000 (Fri, 21 Jun 2013) | 1 line
+
+QEArchiveManager: use signals/slot to communicate betwwen archive access objects and the archive manager object which in different thread
+------------------------------------------------------------------------
+r843 | andrewstarritt | 2013-06-21 14:00:01 +1000 (Fri, 21 Jun 2013) | 1 line
+
+QCaDataPointList constructor - call cporrect paraent constructor
+------------------------------------------------------------------------
+r844 | andrewstarritt | 2013-06-23 12:45:55 +1000 (Sun, 23 Jun 2013) | 1 line
+
+threads - reworked proof of concept classes - still not in use per se
+------------------------------------------------------------------------
+r845 | rhyder | 2013-06-24 16:46:07 +1000 (Mon, 24 Jun 2013) | 6 lines
+
+Add compact/full option. Compact option is as before - the 'login'
+button raises a dialog. The non-compact option presents the full login
+form all the time.
+Remove properties that confilct with compact/non-compact option, or mess
+up the login stack.
+
+------------------------------------------------------------------------
+r846 | andrewstarritt | 2013-06-24 22:36:21 +1000 (Mon, 24 Jun 2013) | 1 line
+
+QCaObject - emit disconnected channel info when object deleted
+------------------------------------------------------------------------
+r847 | andrewstarritt | 2013-06-25 11:20:37 +1000 (Tue, 25 Jun 2013) | 1 line
+
+persistanceManager: add getElement function with matching integer attribute 
+------------------------------------------------------------------------
+r848 | andrewstarritt | 2013-06-25 11:22:54 +1000 (Tue, 25 Jun 2013) | 1 line
+
+save/restore config: remove debug statments, restore in correct phase, use attributes as opposed to named keys
+------------------------------------------------------------------------
+r849 | rhyder | 2013-06-25 15:24:30 +1000 (Tue, 25 Jun 2013) | 7 lines
+
+Complete ongoing work on QELogin widget. Finish documenting.
+QELogin now has 'status only' mode. Emits 'login' signal that can be
+connected to an 'accept' slot when using it within a dialog box.
+Change QEGui to use a QELogin widget within a dialog box to change user
+level, rather than a launching an internal GUI containing a QELogin
+widget.
+
+------------------------------------------------------------------------
+r850 | rhyder | 2013-06-25 16:10:29 +1000 (Tue, 25 Jun 2013) | 3 lines
+
+Forgot to remove userLevel.ui from QEGui app now user level control is
+not using a resource file.
+
+------------------------------------------------------------------------
+r851 | rhyder | 2013-06-25 16:57:51 +1000 (Tue, 25 Jun 2013) | 3 lines
+
+Fix QELogin bug where login controls were visible when in 'status only'
+mode and not in 'compact mode'.
+
+------------------------------------------------------------------------
+r852 | rhyder | 2013-06-25 17:06:24 +1000 (Tue, 25 Jun 2013) | 3 lines
+
+Change QEGui user level change dialog so pressing enter after the
+password will attempt to change the user, not cancel.
+
+------------------------------------------------------------------------
+r853 | mightyredcorner | 2013-06-25 18:01:40 +1000 (Tue, 25 Jun 2013) | 1 line
+
+Refactoring release script.
+------------------------------------------------------------------------
+r854 | andrewstarritt | 2013-06-26 10:23:37 +1000 (Wed, 26 Jun 2013) | 1 line
+
+QEStripChart: impliment missing context menu items (using receive time and archve read methods), also re-badge soem slot names to be more meaningful
+------------------------------------------------------------------------
+r855 | andrewstarritt | 2013-06-26 11:35:50 +1000 (Wed, 26 Jun 2013) | 1 line
+
+QEStripChartItem: use QDateTime::currentDateTimeUtc - not inherited inn all environments
+------------------------------------------------------------------------
+r856 | rhyder | 2013-06-26 13:30:44 +1000 (Wed, 26 Jun 2013) | 7 lines
+
+Don't change a QE widget's style due to connection, alarm state, or user
+level while in designer as this can alter properties that are then
+silently saved along with any user changes.
+Add comments in user guide to avoid displaying alarm status for fields
+unrelated to alarm status as CA updates do not occur for these fields if
+the alarm status changes.
+
+------------------------------------------------------------------------
+r857 | andrewstarritt | 2013-06-26 14:28:50 +1000 (Wed, 26 Jun 2013) | 1 line
+
+currentDateTime ().toUTC () copes better with legacy environments
+------------------------------------------------------------------------
+r858 | rhyder | 2013-06-26 16:09:13 +1000 (Wed, 26 Jun 2013) | 11 lines
+
+Avoid occasional crash when closing forms. When deleting QE widgets the
+QCaObject classes signaling them with data changes would signal a
+disconnection when the QCaObject was deleted. Signaling on destruction
+of a QCaObject is normal if a PV is changing (where one QCaObject is
+replaced with another), but if the QE widget is being deleted, the
+underlying QObject is still receiving signals from the QCaObject, but
+the QE widget can no longer act on them (for example to set the style to
+represent 'disconnected'). Now the signals are dissconnected where
+appropriate.
+Also, log errors opening QEGui configuration file.
+
+------------------------------------------------------------------------
+r859 | mightyredcorner | 2013-06-26 16:13:29 +1000 (Wed, 26 Jun 2013) | 1 line
+
+Updated release script.
+------------------------------------------------------------------------
+r860 | andrewstarritt | 2013-06-26 18:32:29 +1000 (Wed, 26 Jun 2013) | 1 line
+
+QEArchiveManager: create a specific thread class to ensure event loop processing invole in older qt version
+------------------------------------------------------------------------
+r861 | andrewstarritt | 2013-06-27 17:25:37 +1000 (Thu, 27 Jun 2013) | 1 line
+
+QEStripChart: activate hide/regular/bold context menu item options.
+------------------------------------------------------------------------
+r862 | andrewstarritt | 2013-06-27 17:26:57 +1000 (Thu, 27 Jun 2013) | 1 line
+
+Fix up comment typos
+------------------------------------------------------------------------
+r863 | mightyredcorner | 2013-07-01 09:15:16 +1000 (Mon, 01 Jul 2013) | 1 line
+
+Finished release script
+------------------------------------------------------------------------
+r864 | mightyredcorner | 2013-07-01 09:16:59 +1000 (Mon, 01 Jul 2013) | 1 line
+
+Finished make file
+------------------------------------------------------------------------
 epicsqt 2.5.0 Release Notes
 
 ==================================================================================================
