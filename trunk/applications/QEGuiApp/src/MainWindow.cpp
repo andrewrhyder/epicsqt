@@ -132,6 +132,9 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
     // Setup the main window icon
     setWindowIcon( QIcon (":/icons/QEGuiIcon.png" ));
 
+    // Ensure no widget in the loaded gui has focus (and therefore will not update)
+    setFocus();
+
     // Restore (will only do anything if this main window is being created during a restore)
     saveRestore( SaveRestoreSignal::RESTORE_APPLICATION );
 }
