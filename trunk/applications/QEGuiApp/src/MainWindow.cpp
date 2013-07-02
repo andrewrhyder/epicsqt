@@ -582,17 +582,14 @@ void MainWindow::tabContextMenuTrigger( QAction* )
     // Remove the tab - note this does not delete the page widget.
     tabs->removeTab( index );
 
-    delete gui;
-
     // If there is no need for tabs (only one GUI) stop using tabs
     if( tabs->count() == 1 )
         setSingleMode();
 
-
+    // Use extracted filename to open the new window - we assume the file still exists.
     profile.publishOwnProfile();
     MainWindow* w = new MainWindow( app, fileName, false, NULL);
     profile.releaseProfile();
-
     w->show();
 }
 
@@ -1144,7 +1141,7 @@ void MainWindow::setTabMode()
 
     QMenu *tabMenu = new QMenu (tabs);  // note: menu deleted when tabs object deleted.
 
-    QAction *action = new QAction ("Detach tab to new window ", tabMenu);
+    QAction *action = new QAction ("Reopen tab as new window", tabMenu);
     action->setCheckable (false);
     action->setData (QVariant (0));
     action->setEnabled (true);
