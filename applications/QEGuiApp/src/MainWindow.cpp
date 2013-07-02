@@ -46,6 +46,18 @@
 
 Q_DECLARE_METATYPE( QEForm* )
 
+
+//=================================================================================
+// Private class to hold internal widgets
+//=================================================================================
+
+class MainWindow::PrivateData {
+public:
+   QMenu *tabMenu;   // used to hold a dynamic reference
+};
+
+
+
 //=================================================================================
 // Methods for construction, destruction, initialisation
 //=================================================================================
@@ -55,6 +67,10 @@ Q_DECLARE_METATYPE( QEForm* )
 MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidget *parent )  : QMainWindow( parent )
 {
     app = appIn;
+
+    // Construct private data class.
+    privateData = new PrivateData;
+    privateData->tabMenu = NULL;
 
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
     // profile was set up by the QEGui application) or objects in another main window (if the profile was published by a button in a gui)
@@ -148,6 +164,8 @@ MainWindow::~MainWindow()
     // Remove this main window from the global list of main windows
     // Note, this may have already been done to hide the the main window if deleting using deleteLater()
     app->removeMainWindow( this );
+
+    delete privateData;
 }
 
 //=================================================================================
@@ -496,6 +514,88 @@ void MainWindow::tabCloseRequest( int index )
     if( tabs->count() == 1 )
         setSingleMode();
 }
+
+//
+void MainWindow::tabContextMenuRequest( const QPoint& posIn )
+{
+    QTabWidget* tabs = getCentralTabs();
+
+    // Sanity checks ....
+    if (!usingTabs || !tabs || !privateData->tabMenu) {
+        return;
+    }
+
+    // NOTE: We want access to the tab widget's tabBar so that find the tab index
+    // associated the the postion. But the tabBar () function IS protected. So we
+    // get around this by deriving our own tab widget class that can see the
+    // protected tabBar () function and expose this as a public function. We then
+    // cast the QTabWidget pointer to a ExposedTabWidget pointer and call the public
+    // function.
+    //
+    class ExposedTabWidget : QTabWidget {
+    public:
+        QTabBar* getTabBar() const { return this->tabBar(); }
+    };
+
+    // Find and switch to the appropriate tab.
+    //
+    ExposedTabWidget* exposed = (ExposedTabWidget*) tabs;
+    QTabBar* tabBar = exposed->getTabBar();
+    int index;
+    QPoint golbalPos;
+
+    index = tabBar->tabAt (posIn);
+    if (index >= 0) {
+        tabs->setCurrentIndex (index);
+        golbalPos = tabs->mapToGlobal (posIn);
+        privateData->tabMenu->exec (golbalPos, 0);
+    }
+}
+
+// Process context menu action.
+// Currently there is only one action - detach - no need to use the action parameter.
+void MainWindow::tabContextMenuTrigger( QAction* )
+{
+    QTabWidget* tabs = getCentralTabs();
+    QString fileName;
+
+    // Sanity checks ....
+    if (!tabs  || !usingTabs) {
+       return;
+    }
+
+    int index = tabs->currentIndex ();
+
+    // Similar to tab close request
+    QEForm* gui = extractGui( tabs->currentWidget() );
+
+    if (!gui) {
+        return;
+    }
+
+    // Extract and save the filename.
+    fileName = gui->getFullFileName ();
+
+    // Remove the gui from the 'windows' menus
+    removeGuiFromWindowsMenu( gui );
+
+    // Remove the tab - note this does not delete the page widget.
+    tabs->removeTab( index );
+
+    delete gui;
+
+    // If there is no need for tabs (only one GUI) stop using tabs
+    if( tabs->count() == 1 )
+        setSingleMode();
+
+
+    profile.publishOwnProfile();
+    MainWindow* w = new MainWindow( app, fileName, false, NULL);
+    profile.releaseProfile();
+
+    w->show();
+}
+
 
 // Open designer
 void MainWindow::on_actionDesigner_triggered()
@@ -1019,6 +1119,7 @@ void MainWindow::setSingleMode()
 
     // Flag tabs are no longer in use
     usingTabs = false;
+    privateData->tabMenu = NULL;
 }
 
 // Set up to use multiple guis in tabs
@@ -1034,6 +1135,26 @@ void MainWindow::setTabMode()
     tabs->setTabsClosable( true );
     QObject::connect( tabs, SIGNAL( tabCloseRequested ( int ) ), this, SLOT( tabCloseRequest( int ) ) );
     QObject::connect( tabs, SIGNAL( currentChanged ( int ) ), this, SLOT( tabCurrentChanged( int ) ) );
+
+    // Set up tab context menus.
+    //
+    tabs->setContextMenuPolicy (Qt::CustomContextMenu);
+    QObject::connect (tabs, SIGNAL (customContextMenuRequested (const QPoint &)),
+                      this, SLOT   (tabContextMenuRequest      (const QPoint &)));
+
+    QMenu *tabMenu = new QMenu (tabs);  // note: menu deleted when tabs object deleted.
+
+    QAction *action = new QAction ("Detach tab to new window ", tabMenu);
+    action->setCheckable (false);
+    action->setData (QVariant (0));
+    action->setEnabled (true);
+    tabMenu->addAction (action);
+
+    privateData->tabMenu = tabMenu; // save reference.
+
+    QObject::connect (tabMenu, SIGNAL (triggered             (QAction* )),
+                      this,    SLOT   (tabContextMenuTrigger (QAction* )));
+
 
     // If there was a single gui present, move it to the first tab
     QEForm* gui = getCentralGui();
