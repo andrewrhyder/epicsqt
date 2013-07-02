@@ -114,6 +114,13 @@ private:
 
 
 private:
+    // We want to keep a refernece to certain widget objects. Declaring these directly in the
+    // header file seems to confuse the SDE's moc file generation and leads to run time error,
+    // so hide these references in a private data class.
+    //
+    class PrivateData;
+    PrivateData * privateData;
+
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
 
 private slots:
@@ -135,6 +142,10 @@ private slots:
 
     void tabCurrentChanged( int index );               // Slot to act on user changing tabs
     void tabCloseRequest( int index );                 // Slot to act on user closing a tab
+
+    void tabContextMenuRequest( const QPoint & pos );  // Slot for custom tab menu requests
+    void tabContextMenuTrigger( QAction * action );    // Slot for custom tab menu actions
+
     void resizeToFitGui();                             // Resize the form to fit a GUI without scroll bars
 
     void processError( QProcess::ProcessError error );  // An error occured starting designer process
