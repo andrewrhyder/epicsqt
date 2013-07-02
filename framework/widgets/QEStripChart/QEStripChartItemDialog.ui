@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Strip Chart PV Setup</string>
+   <string>Strip Chart PV Name Selection</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -59,6 +59,9 @@
            <width>300</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>Enter a regular expression to filter PV names selectable from the combo-box.</string>
          </property>
          <property name="text">
           <string/>
@@ -140,13 +143,13 @@
         <widget class="QLabel" name="matchCountLabel">
          <property name="minimumSize">
           <size>
-           <width>42</width>
+           <width>48</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>42</width>
+           <width>48</width>
            <height>16777215</height>
           </size>
          </property>
@@ -165,7 +168,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>200</width>
+           <width>800</width>
            <height>20</height>
           </size>
          </property>
