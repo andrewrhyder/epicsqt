@@ -134,6 +134,7 @@
 PersistanceManager::PersistanceManager()
 {
     // Initialise
+    restoring = false;
     doc = QDomDocument( "QEConfig" );
 }
 
@@ -225,7 +226,16 @@ void PersistanceManager::restore( const QString fileName, const QString rootName
     config = getElement( docElem, "Config", "Name", configName );
 
     // Notify any interested objects to collect their persistant data
+    restoring = true;
     signal.restore();
+    restoring = false;
+}
+
+// Returns true if a restore is in progress.
+// Used when QE widgets are being created to determine if they are being restored
+bool PersistanceManager::isRestoring()
+{
+    return restoring;
 }
 
 //=========================================================

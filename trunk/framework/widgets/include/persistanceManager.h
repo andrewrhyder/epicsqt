@@ -155,6 +155,8 @@ public:
     QObject* getSaveRestoreObject();                                                                  // Get a reference to the object that will supply save and restore signals
     void     save( const QString fileName, const QString rootName, const QString configName );        // Save the current configuration
     void     restore( const QString fileName, const QString rootName, const QString configName );     // Restore a configuration
+    bool     restoring;                                                                               // True if a restore is in progress
+    bool     isRestoring();                                                                           // Returns true if a restore is in progress
 
     // Helper methods to build configuration data
     PMElement addNamedConfiguration( QString name );               // Add a named configuration. Used during a save signal. The returned element is then loaded with configuration data

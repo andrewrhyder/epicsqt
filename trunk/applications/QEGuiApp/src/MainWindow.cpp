@@ -1588,6 +1588,12 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 if( beingDeleted )
                     return;
 
+                // If not restoring, do nothing
+                if( !pm->isRestoring() )
+                {
+                    return;
+                }
+
                 // Get the data for this window
                 PMElement data = pm->getNamedConfiguration( mainWindowName );
 
@@ -1657,9 +1663,12 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             pathList.append( paths[j] );
                         }
 
-                        // Update local profile now all main window values relevent to the profile have been read
+                        // All normal window creation is over. Swap currently published profile with profile to restore under
+                        profile.releaseProfile();
                         profile.setupLocalProfile( profile.getGuiLaunchConsumer(), pathList, profile.getParentPath(), macroSubstitutions );
+                        profile.publishOwnProfile();
 
+                        // Create the GUI
                         QString name;
                         if( guiElement.getAttribute( "Name", name ) )
                         {
