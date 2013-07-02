@@ -108,6 +108,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         void restoreConfiguration( PersistanceManager* pm, restorePhases restorePhase );
         void reloadFile();
 
+        void setWindowTitle( QString filename );    // Set the title to the name of the top level widget title, if it has one, or to the file name
+
         QString uniqueIdentifier; // Should be set up by an application using the persistance manager and creating more than one top level QEForm. Not required if only one QEForm is used.
 
     public:

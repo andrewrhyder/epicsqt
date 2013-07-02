@@ -218,6 +218,9 @@ bool QEForm::readUiFile()
             ui = loader.load( uiFile );
             uiFile->close();
 
+            // Set the window title (performing macro substitutions if required)
+            setWindowTitle( uiFile->fileName() );
+
             // Reset the flag indicating newly created QE widgets of this form should hold off activating
             // themselves (connecting) until the form has been fully loaded.
             setDontActivateYet( oldDontActivateYet );
@@ -304,31 +307,6 @@ bool QEForm::readUiFile()
                 ui->setGeometry(0, 0, uiRect.width(), uiRect.height());
             }
 
-            // Set the title to the name of the top level widget title, if it has one
-            title.clear();
-            if( ui )
-            {
-                QVariant windowTitleV = ui->property( "windowTitle" );
-                if( windowTitleV.isValid() && windowTitleV.type() == QVariant::String )
-                {
-                    QString windowTitle = windowTitleV.toString();
-                    if( !windowTitle.isEmpty() )
-                    {
-                        title = substituteThis( windowTitle );
-                    }
-                }
-            }
-
-            // If no title was obtained from the ui, use the file name
-            if( title.isEmpty() )
-            {
-                // Extract the file name part used for the window title
-                QFileInfo fileInfo( uiFile->fileName() );
-                title = QString( "QEGui " ).append( fileInfo.fileName() );
-                if( title.endsWith( ".ui" ) )
-                    title.chop( 3 );
-            }
-
             // Load the user interface into the QEForm widget if present
             if( ui )
             {
@@ -361,9 +339,39 @@ bool QEForm::readUiFile()
     return fileLoaded;
 }
 
+// Set the title to the name of the top level widget title, if it has one, or to the file name
+void QEForm::setWindowTitle( QString filename )
+{
+    // Set the title to the name of the top level widget title, if it has one
+    title.clear();
+    if( ui )
+    {
+        QVariant windowTitleV = ui->property( "windowTitle" );
+        if( windowTitleV.isValid() && windowTitleV.type() == QVariant::String )
+        {
+            QString windowTitle = windowTitleV.toString();
+            if( !windowTitle.isEmpty() )
+            {
+                title = substituteThis( windowTitle );
+            }
+        }
+    }
+
+    // If no title was obtained from the ui, use the file name
+    if( title.isEmpty() )
+    {
+        // Extract the file name part used for the window title
+        QFileInfo fileInfo( filename );
+        title = QString( "QEGui " ).append( fileInfo.fileName() );
+        if( title.endsWith( ".ui" ) )
+            title.chop( 3 );
+    }
+}
+
 
 // Get the form title
-QString QEForm::getQEGuiTitle(){
+QString QEForm::getQEGuiTitle()
+{
     return title;
 }
 
