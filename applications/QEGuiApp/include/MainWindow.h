@@ -28,6 +28,7 @@
 
 #include <QtGui/QMainWindow>
 #include <ui_MainWindow.h>
+#include <QEGuiLaunchRequests.h>
 #include <QEForm.h>
 #include <UserMessage.h>
 #include <ContainerProfile.h>
@@ -65,7 +66,10 @@ private:
     QEForm* createGui( QString fileName, QString restoreId ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
-    void launchLocalGui( QString filename );                // Launch a new gui from the 'File' menu
+    MainWindow* launchLocalGui( const QString& filename );  // Launch a new gui from the 'File' menu and gui launch requests.
+    MainWindow* launchLocalGui( const QString& filename,    // Launch a new gui from the requestGui slot.
+                                const QString& className,
+                                const QString& pvName );
 
     void setTitle( QString title );                         // Set the main window title
 
@@ -136,9 +140,11 @@ private slots:
     void on_actionOpen_triggered();                             // Slot to perform 'Open' action
     void on_actionClose_triggered();                            // Slot to perform 'Close' action
     void on_actionAbout_triggered();                            // Slot to perform 'About' action
-    void onWindowMenuSelection( QAction* action );              // Slot to recieve requests to change focus to a specific gui
+    void onWindowMenuSelection( QAction* action );              // Slot to receive requests to change focus to a specific gui
 
-    void launchGui( QString guiName, QEForm::creationOptions creationOption );  // Slot to recieve requests to launch a new GUI (typically from a QE Button)
+    void launchGui( QString guiName, QEForm::creationOptions creationOption );  // Slot to receive requests to launch a new GUI (typically from a QE Button)
+    void requestGui( const QEGuiLaunchRequests & request );     // Slot to receive (new style) requests to launch a new GUI.
+
 
     void tabCurrentChanged( int index );               // Slot to act on user changing tabs
     void tabCloseRequest( int index );                 // Slot to act on user closing a tab
