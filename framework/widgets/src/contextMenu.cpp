@@ -44,17 +44,20 @@ contextMenuObject::contextMenuObject()
     // !!! Should all menus be able to share the same actions???
 
     QAction* a;
+
+    a = new QAction( "Examine Properties",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_SHOW_PV_PROPERTIES ); addAction( a );
+    a = new QAction( "Plot in new StripChart", this ); a->setCheckable( false ); a->setData( contextMenu::CM_ADD_TO_STRIPCHART );  addAction( a );
+    addSeparator();
+
     a = new QAction( "Copy variable name",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_VARIABLE );      addAction( a );
     a = new QAction( "Copy data",              this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_DATA );          addAction( a );
     a = new QAction( "Paste",                  this ); a->setCheckable( false ); a->setData( contextMenu::CM_PASTE );              addAction( a );
     addSeparator();
+
     a = new QAction( "Drag variable name",     this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_VARIABLE );      addAction( a );
     dragVarAction = a;
     a = new QAction( "Drag data",              this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_DATA );          addAction( a );
     dragDataAction = a;
-    addSeparator();
-    a = new QAction( "Examine Properties",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_SHOW_PV_PROPERTIES ); addAction( a );
-    a = new QAction( "Plot in new StripChart", this ); a->setCheckable( false ); a->setData( contextMenu::CM_ADD_TO_STRIPCHART );  addAction( a );
 
     manageChecked( true );
 
@@ -121,12 +124,14 @@ contextMenu::~contextMenu()
 {
 }
 
-void contextMenu::setConsumer (QObject * consumer)
+void contextMenu::setConsumer (QObject* consumer)
 {
-    // This is not a Q Obhect , so need to "high jack" the menu object.
-    //
-    QObject::connect(&object, SIGNAL (requestGui( const QEGuiLaunchRequests & )),
-                     consumer,  SLOT (requestGui( const QEGuiLaunchRequests & )));
+    if (consumer) {
+        // This is not a Q Object, so need to "high-jack" the menu object.
+        //
+        QObject::connect(&object, SIGNAL (requestGui( const QEGuiLaunchRequests& )),
+                         consumer,  SLOT (requestGui( const QEGuiLaunchRequests& )));
+    }
 }
 
 void contextMenu::triggered( contextMenuOptions option )
