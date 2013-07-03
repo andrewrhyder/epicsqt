@@ -24,6 +24,7 @@
  */
 
 #include <QtGui>
+#include <QDebug>
 #include <QString>
 
 #include <MainWindow.h>
@@ -333,13 +334,33 @@ void MainWindow::on_actionExit_triggered()
      }
 }
 
-// Launch a new gui from the 'File' menu
-void MainWindow::launchLocalGui( QString filename )
+// Launch a new gui from, e.g. the 'File' menu
+MainWindow* MainWindow::launchLocalGui( const QString& filename )
 {
     profile.publishOwnProfile();
     MainWindow* w = new MainWindow( app, filename, true );
     profile.releaseProfile();
     w->show();
+    return w;
+}
+
+// Launch a new gui, find QE widget by class name and paste PV name.
+// Used by gui requests.
+MainWindow* MainWindow::launchLocalGui( const QString& filename,
+                                        const QString& className,
+                                        const QString& pvName )
+{
+    MainWindow* newWindow = NULL;
+    QWidget* widget = NULL;
+    QEWidget* qeWidget = NULL;
+
+    newWindow = launchLocalGui (filename);
+    widget = QEUtilities::findWidget (newWindow, className);
+    qeWidget = dynamic_cast< QEWidget* > (widget);
+    if (qeWidget) {
+       qeWidget->paste (QVariant (pvName));
+    }
+    return newWindow;
 }
 
 // Raise the window selected in the 'Window' menu
@@ -929,7 +950,7 @@ void MainWindow::resizeToFitGui()
 // Slots and methods for launching new GUIs on behalf of objects in the gui (typically buttons)
 //=================================================================================
 
-// Slot for launching a new gui from a contained object.
+// Slot for launching a new gui from a contained object (old style).
 void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOption )
 {
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
@@ -1075,6 +1096,44 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
             break;
     }
 }
+
+
+// Slot for launching a new gui from a contained object (new style).
+void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
+{
+    QStringList arguments =  request.getArguments();
+
+    switch (request.getKind ()) {
+
+        case QEGuiLaunchRequests::KindFileName:
+            if (arguments.count() >= 1) {
+                // Just re-use old style slot.
+                QString guiName = arguments.value( 0 );
+                QEForm::creationOptions createOption = (QEForm::creationOptions) request.getOption ();
+                launchGui ( guiName, createOption );
+            }
+            break;
+
+        case QEGuiLaunchRequests::KindPvProperties:
+            if (arguments.count() >= 1) {
+                QString pvName = arguments.value( 0 );
+                launchLocalGui (":/forms/PVProperties.ui", "QEPvProperties", pvName);
+            }
+            break;
+
+        case QEGuiLaunchRequests::KindStripChart:
+            if (arguments.count() >= 1) {
+                QString pvName = arguments.value( 0 );
+                launchLocalGui (":/forms/StripChart.ui", "QEStripChart", pvName);
+            }
+            break;
+
+        default:
+            sendMessage( "Unhandled gui request kind", message_types( MESSAGE_TYPE_ERROR, MESSAGE_KIND_EVENT ) );
+
+  }
+}
+
 
 //=================================================================================
 // Methods for common support tasks
