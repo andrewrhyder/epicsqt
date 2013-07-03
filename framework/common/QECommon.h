@@ -129,6 +129,12 @@ public:
     ///
     static void adjustPointScale (QPoint& point, const int m, const int d);
 
+
+    /// This function tree walks the given parent looking a widget of the specified class
+    /// name. The function returns the first found or NULL.
+    ///
+    static QWidget* findWidget (QWidget* parent, const QString& className);
+
 private:
     /// Scales a single widget
     /// Applies some special processing above and beyond size, min size, max size and font

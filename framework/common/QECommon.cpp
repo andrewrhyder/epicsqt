@@ -228,6 +228,41 @@ int QEUtilities::stringToEnum (const QObject& object,
 
 //------------------------------------------------------------------------------
 //
+QWidget*  QEUtilities::findWidget (QWidget* parent, const QString& className)
+{
+   const QMetaObject* meta = parent->metaObject ();
+
+   QWidget* result = NULL;
+   int j, n;
+   QObjectList childList;
+   QObject *child = NULL;
+   QWidget *childWidget = NULL;
+
+   if (meta->className () == className) {
+      // found it - return immediatley
+      return parent;
+   }
+
+   childList = parent->children ();
+   n = childList.count();
+   for (j = 0; j < n; j++) {
+      child = childList.value (j);
+      // We need only tree walk widgets. All widget parents are themselves widgets.
+      //
+      childWidget = dynamic_cast <QWidget *>(child);
+      if (childWidget) {
+         // Recursive call.
+         //
+         result = QEUtilities::findWidget (childWidget, className);
+         if (result) break;
+      }
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
 int QEUtilities::scaleBy (const int v, const int m, const int d)
 {
    int sv;
