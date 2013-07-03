@@ -4,8 +4,8 @@
 __author__ = "Ricardo Fernandes"
 __email__ = "ricardo.fernandes@synchrotron.org.au"
 __copyright__ = "(C) 2013 Australian Synchrotron"
-__version__ = "1.2"
-__date__ = "2013/JUL/01"
+__version__ = "1.3"
+__date__ = "2013/JUL/03"
 __description__ = "Script to automate the release of a new version of the EPICS Qt Framework"
 __status__ = "Production"
 
@@ -313,7 +313,7 @@ if __name__ == "__main__":
 		try:
 			print "Commiting changes into SVN repository '%s'..." % __SVN_REPOSITORY__
 			print
-			command = "svn commit %s/trunk -m \"Release version %s\"" % (__TEMP_DIRECTORY__, new_release_version)
+			command = "svn commit %s/trunk -m \"Preparation for release version %s\"" % (__TEMP_DIRECTORY__, new_release_version)
 			if __DEBUG__:
 				print command
 			subprocess.call(command, shell = True)
@@ -391,9 +391,10 @@ if __name__ == "__main__":
 					if __DEBUG__:
 						print command
 					subprocess.call(command, shell = True)
+				print
 				try:
-					print
 					print "Uploading TAR file '%s/%s' into the SourceForge download area..." % (__TEMP_DIRECTORY__, tar_file)
+					print
 					command = "scp %s/%s %s,epicsqt@%s:%s/ 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __USER_NAME__, __SOURCEFORGE_HOSTNAME__, __SOURCEFORGE_DIRECTORY__)
 					if __DEBUG__:
 						print command
@@ -424,9 +425,10 @@ if __name__ == "__main__":
 					if __DEBUG__:
 						print command
 					subprocess.call(command, shell = True)
+				print
 				try:
-					print
 					print "Uploading documentation into the SourceForge download area..."
+					print
 					command = "scp %s/trunk/releasenotes.txt %s/trunk/documentation/QE_ReferenceManual.pdf %s,epicsqt@%s:%s/documentation/ 1>/dev/null" % (__TEMP_DIRECTORY__, __TEMP_DIRECTORY__, __USER_NAME__, __SOURCEFORGE_HOSTNAME__, __SOURCEFORGE_DIRECTORY__)
 					if __DEBUG__:
 						print command
@@ -438,57 +440,6 @@ if __name__ == "__main__":
 			if answer.upper() == "N":
 				break
 		print
-
-
-
-		# ===========================================================
-		#  CREATE RPM FILE
-		# ===========================================================
-		try:
-			rpm_file = "epics_qt_framework-%s.%s-%s.i386.rpm" % (new_release_version.split(".")[0], new_release_version.split(".")[1], new_release_version.split(".")[2])
-			print "Creating RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s'..." % (__TEMP_DIRECTORY__, rpm_file)
-			command = "cd %s/trunk/resources ; make rpm 1>/dev/null" % __TEMP_DIRECTORY__
-			print
-			if __DEBUG__:
-				print command
-			subprocess.call(command, shell = True)
-		except:
-			print "Error when creating RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s'..." % (__TEMP_DIRECTORY__, rpm_file)
-			sys.exit(-1)
-
-
-
-		# ===========================================================
-		#  UPLOAD RPM FILE INTO THE SOURCEFORGE DOWNLOAD AREA
-		# ===========================================================
-		print "You are about to upload the RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s' into the SourceForge download area." % (__TEMP_DIRECTORY__, rpm_file)
-		print
-		while True:
-			answer = raw_input("Proceed (y/n): ")
-			if answer.upper() == "Y":
-				if __USER_NAME__ is None:
-					print
-					__USER_NAME__ = raw_input("Please, provide the user name in SourceForge: ")
-					print "Creating temporary shell in SourceForge for user '%s'..." % __USER_NAME__
-					command = "ssh %s,epicsqt@%s create" % (__USER_NAME__, __SOURCEFORGE_HOSTNAME__)
-					if __DEBUG__:
-						print command
-					subprocess.call(command, shell = True)
-				try:
-					print
-					print "Uploading RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s' into the SourceForge download area..." % (__TEMP_DIRECTORY__, rpm_file)
-					command = "scp %s/trunk/resources/rpmbuild/RPMS/i386/%s %s,epicsqt@%s:%s/RPM/ 1>/dev/null" % (__TEMP_DIRECTORY__, rpm_file, __USER_NAME__, __SOURCEFORGE_HOSTNAME__, __SOURCEFORGE_DIRECTORY__)
-					if __DEBUG__:
-						print command
-					subprocess.call(command, shell = True)
-				except:
-					print "Error when uploading RPM file '%s/trunk/resources/rpmbuild/RPMS/i386/%s' into the SourceForge download area!" % (__TEMP_DIRECTORY__, rpm_file)
-					sys.exit(-1)
-				break
-			if answer.upper() == "N":
-				break
-		print		
-
 
 
 	except KeyboardInterrupt:
