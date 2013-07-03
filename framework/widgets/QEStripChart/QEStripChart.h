@@ -153,6 +153,10 @@ protected:
    void dropEvent (QDropEvent *event)           { qcaDropEvent (event); }
    void setDrop (QVariant drop);
 
+   // Paste only
+   //
+   void paste (QVariant s);
+
    // override pure virtual functions
    //
    void setup ();
