@@ -47,6 +47,17 @@ QEGuiLaunchRequests::QEGuiLaunchRequests (const Kinds kindIn,
 
 //---------------------------------------------------------------------------
 //
+QEGuiLaunchRequests::QEGuiLaunchRequests (const Kinds kindIn,
+                                          const QString& pvName)
+{
+   this->kind = kindIn;
+   this->arguments.clear ();
+   this->arguments << pvName;
+   this->option = OptionNewWindow;
+}
+
+//---------------------------------------------------------------------------
+//
 QEGuiLaunchRequests::QEGuiLaunchRequests (const QString & filename,
                                           const Options optionIn)
 {

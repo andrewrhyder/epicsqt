@@ -43,7 +43,7 @@ public:
                 KindPvProperties };  // application's pv properties
 
    enum Options { OptionOpen,
-                  OptionNewtab,
+                  OptionNewTab,
                   OptionNewWindow };
 
 
@@ -52,8 +52,12 @@ public:
    QEGuiLaunchRequests ();
 
    QEGuiLaunchRequests (const Kinds kindIn,
-                        const QStringList &argumentsIn,
+                        const QStringList& argumentsIn,
                         const Options optionIn);
+
+   // Implicitly of type  OptionNewWindow
+   QEGuiLaunchRequests (const Kinds kindIn,   // !KindFileName
+                        const QString& pvName);
 
    // Equivilent to original QEForm::launchGui request (ui file name plus create option)
    //

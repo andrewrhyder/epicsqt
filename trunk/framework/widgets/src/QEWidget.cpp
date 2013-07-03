@@ -84,6 +84,9 @@ QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( owner
     {
         addContainedWidget( this );
         setVariableNameSubstitutionsOverride( getMacroSubstitutions() );
+
+        // Set up contextMenu consumer
+        setConsumer( getGuiLaunchConsumer() );
     }
 
     // Setup to respond to requests to save or restore persistant data
