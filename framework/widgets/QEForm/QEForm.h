@@ -1,4 +1,5 @@
-/*
+/*  QEForm.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -32,6 +33,7 @@
 #include <QFileSystemWatcher>
 #include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
+#include <QEGuiLaunchRequests.h>
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 {
@@ -47,7 +49,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         QString getQEGuiTitle();     // Get the title to be used as the window or form title.
         QString getFullFileName();   // Get the standard, absolute UI file name
 
-        enum creationOptions { CREATION_OPTION_OPEN, CREATION_OPTION_NEW_TAB, CREATION_OPTION_NEW_WINDOW };
+        // Make sure old style enumeration values are consistent.
+        // Transitional
+        //
+        enum creationOptions { CREATION_OPTION_OPEN       = QEGuiLaunchRequests::OptionOpen,
+                               CREATION_OPTION_NEW_TAB    = QEGuiLaunchRequests::OptionNewTab,
+                               CREATION_OPTION_NEW_WINDOW = QEGuiLaunchRequests::OptionNewWindow};
 
         // Property convenience functions
 
@@ -74,6 +81,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         bool readUiFile();
 
         void launchGui( QString guiName, QEForm::creationOptions createOption );
+        void requestGui( const QEGuiLaunchRequests& request );
 
     private slots:
         void fileChanged ( const QString & path );

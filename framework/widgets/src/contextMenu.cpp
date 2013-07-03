@@ -1,3 +1,28 @@
+/*  contextMenu.cpp
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *
+ *  The EPICS QT Framework is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The EPICS QT Framework is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Copyright (c) 2011
+ *
+ *  Author:
+ *    Andrew Rhyder
+ *  Contact details:
+ *    andrew.rhyder@synchrotron.org.au
+ */
+
 #include <contextMenu.h>
 #include <QClipboard>
 #include <QApplication>
@@ -19,14 +44,18 @@ contextMenuObject::contextMenuObject()
     // !!! Should all menus be able to share the same actions???
 
     QAction* a;
-    a = new QAction( "Copy variable name", this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_VARIABLE );  addAction( a );
-    a = new QAction( "Copy data",          this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_DATA );      addAction( a );
-    a = new QAction( "Paste",              this ); a->setCheckable( false ); a->setData( contextMenu::CM_PASTE );          addAction( a );
+    a = new QAction( "Copy variable name",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_VARIABLE );      addAction( a );
+    a = new QAction( "Copy data",              this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_DATA );          addAction( a );
+    a = new QAction( "Paste",                  this ); a->setCheckable( false ); a->setData( contextMenu::CM_PASTE );              addAction( a );
     addSeparator();
-    a = new QAction( "Drag variable name", this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_VARIABLE );  addAction( a );
+    a = new QAction( "Drag variable name",     this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_VARIABLE );      addAction( a );
     dragVarAction = a;
-    a = new QAction( "Drag data",          this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_DATA );      addAction( a );
+    a = new QAction( "Drag data",              this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_DATA );          addAction( a );
     dragDataAction = a;
+    addSeparator();
+    a = new QAction( "Examine Properties",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_SHOW_PV_PROPERTIES ); addAction( a );
+    a = new QAction( "Plot in new StripChart", this ); a->setCheckable( false ); a->setData( contextMenu::CM_ADD_TO_STRIPCHART );  addAction( a );
+
     manageChecked( true );
 
     setTitle( "Edit" );
@@ -75,6 +104,12 @@ bool contextMenuObject::isDraggingVariable()
     return draggingVariable;
 }
 
+void contextMenuObject::sendRequestGui( const QEGuiLaunchRequests& request)
+{
+    emit requestGui( request );
+}
+
+
 //======================================================
 
 contextMenu::contextMenu()
@@ -84,6 +119,14 @@ contextMenu::contextMenu()
 
 contextMenu::~contextMenu()
 {
+}
+
+void contextMenu::setConsumer (QObject * consumer)
+{
+    // This is not a Q Obhect , so need to "high jack" the menu object.
+    //
+    QObject::connect(&object, SIGNAL (requestGui( const QEGuiLaunchRequests & )),
+                     consumer,  SLOT (requestGui( const QEGuiLaunchRequests & )));
 }
 
 void contextMenu::triggered( contextMenuOptions option )
@@ -112,6 +155,14 @@ void contextMenu::triggered( contextMenuOptions option )
 
         case contextMenu::CM_DRAG_DATA:
             object.manageChecked( false );
+            break;
+
+        case contextMenu::CM_SHOW_PV_PROPERTIES:
+            doShowPvProperties();
+            break;
+
+        case contextMenu::CM_ADD_TO_STRIPCHART:
+            doAddToStripChart();
             break;
 
     }
@@ -164,6 +215,20 @@ void contextMenu::doPaste()
     paste( v );
 }
 
+void contextMenu::doShowPvProperties ()
+{
+    QString pvName = copyVariable();
+    QEGuiLaunchRequests request (QEGuiLaunchRequests::KindPvProperties, pvName);
+    object.sendRequestGui( request );
+}
+
+void contextMenu::doAddToStripChart ()
+{
+    QString pvName = copyVariable();
+    QEGuiLaunchRequests request (QEGuiLaunchRequests::KindStripChart, pvName);
+    object.sendRequestGui( request );
+}
+
 bool contextMenu::isDraggingVariable()
 {
     return object.isDraggingVariable();
@@ -178,3 +243,5 @@ QMenu* contextMenu::getContextMenu()
 {
     return &object;
 }
+
+// end

@@ -1,4 +1,5 @@
-/*
+/*  QEForm.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -447,6 +448,33 @@ void QEForm::fileChanged ( const QString & /*path*/ )
          delete w;
      }
 }
+
+ //
+ void QEForm::requestGui( const QEGuiLaunchRequests & request )
+ {
+    switch (request.getKind()) {
+         case QEGuiLaunchRequests::KindFileName:
+             // Old style - by file name
+             //
+             if (request.getArguments().count () >= 1) {
+                launchGui( request.getArguments().value( 0 ), QEForm::creationOptions (request.getOption()));
+             }
+             break;
+
+        case QEGuiLaunchRequests::KindStripChart:
+        case QEGuiLaunchRequests::KindPvProperties:
+             // can't do this - we are not a application.
+             //
+             sendMessage( "Unhandled gui request kind", message_types( MESSAGE_TYPE_INFO, MESSAGE_KIND_EVENT ) );
+             break;
+
+         default:
+             sendMessage( "Unexpected gui request kind", message_types( MESSAGE_TYPE_ERROR, MESSAGE_KIND_EVENT ) );
+             break;
+     }
+ }
+
+
 
 // Receive new log messages.
 // This widget doesn't do anything itself with messages, but it can regenerate the message as if it came from itself.
