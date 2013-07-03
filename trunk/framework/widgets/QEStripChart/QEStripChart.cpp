@@ -1866,6 +1866,16 @@ void QEStripChart::setDrop (QVariant drop)
 }
 
 //----------------------------------------------------------------------------
+//
+void QEStripChart::paste (QVariant s)
+{
+   // Use pasted text to add a PV(s) to the chart.
+   //
+   this->addPvNameSet (s.toString ());
+}
+
+
+//----------------------------------------------------------------------------
 // Determine if user allowed to drop new PVs into this widget.
 //
 void QEStripChart::evaluateAllowDrop ()
