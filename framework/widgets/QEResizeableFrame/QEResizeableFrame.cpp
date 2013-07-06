@@ -29,20 +29,20 @@
 
 
 static const QString passive ("QWidget { background-color: #a0c0e0; }");
-static const QString active  ("QWidget { background-color: #e0e0e0; }");
+static const QString active  ("QWidget { background-color: #f0f0f0; }");
 
 //------------------------------------------------------------------------------
 //
-QEResizeableFrame::QEResizeableFrame (QWidget *parent) : QFrame (parent)
+QEResizeableFrame::QEResizeableFrame (GrabbingEdges grabbingEdge, QWidget *parent) : QFrame (parent)
 {
-   this->setup (10, 100);
+   this->setup (grabbingEdge, 10, 100);
 }
 
 //------------------------------------------------------------------------------
 //
-QEResizeableFrame::QEResizeableFrame (int minimumIn, int maximumIn, QWidget *parent) : QFrame (parent)
+QEResizeableFrame::QEResizeableFrame (GrabbingEdges grabbingEdge, int minimumIn, int maximumIn, QWidget *parent) : QFrame (parent)
 {
-   this->setup (minimumIn, maximumIn);
+   this->setup (grabbingEdge, minimumIn, maximumIn);
 }
 
 
@@ -55,27 +55,36 @@ QEResizeableFrame::~QEResizeableFrame ()
 
 //------------------------------------------------------------------------------
 //
-void QEResizeableFrame::setup (int minimumIn, int maximumIn)
+void QEResizeableFrame::setup (GrabbingEdges grabbingEdgeIn, int minimumIn, int maximumIn)
 {
+   this->grabbingEdge = grabbingEdgeIn;
    this->allowedMin = MAX (minimumIn, 8);
    this->allowedMax = MAX (maximumIn, this->allowedMin);
    this->isActive = false;
+   this->noMoreDebug = false;
 
+   this->defaultWidget = new QWidget (NULL);
    this->userWidget = NULL;
 
    this->grabber = new QWidget (this);
-   this->grabber->setCursor (QCursor (Qt::SizeVerCursor));
+   if (this->isVertical()) {
+      this->grabber->setCursor (QCursor (Qt::SizeVerCursor));
+      this->grabber->setFixedHeight (4);
+      this->layout = new QVBoxLayout (this);
+   } else {
+      this->grabber->setCursor (QCursor (Qt::SizeHorCursor));
+      this->grabber->setFixedWidth (4);
+      this->layout = new QHBoxLayout (this);
+   }
    this->grabber->setStyleSheet (passive);
-   this->grabber->setFixedHeight (4);
    this->grabber->setMouseTracking (true);
    this->grabber->installEventFilter (this);   // Use self as the event filter object.
    this->grabber->setToolTip ("");
 
-   this->layout = new QVBoxLayout (this);
    this->layout->setMargin (1);
    this->layout->setSpacing (1);
 
-   this->layout->addWidget (this->grabber);
+   this->setWidget (NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -86,9 +95,29 @@ QWidget *QEResizeableFrame::widget() const {
 
 //------------------------------------------------------------------------------
 //
-void QEResizeableFrame::setWidget (QWidget *widgetIn)
+void QEResizeableFrame::setWidget (QWidget* widgetIn)
 {
-   // There should usually be one of these, but just in case ...
+   QWidget* workingWidget = NULL;
+
+   // Sanity check.
+   //
+   if (widgetIn) {
+      if ((widgetIn == this->userWidget) || (widgetIn == this->defaultWidget)) {
+         // Here be dragons - cannot set do this.
+         //
+         qDebug () << "QEResizeableFrame::setWidget - unexpected widget parameter";
+         return;
+      }
+   }
+
+   // First clear all widgets (if any) from the layout.
+   //
+   this->layout->removeWidget (this->grabber);
+
+   this->layout->removeWidget (this->defaultWidget);
+   this->defaultWidget->setParent (NULL);
+
+   // If there is user widget then remove and delete it is well.
    //
    if (this->userWidget) {
       this->layout->removeWidget (this->userWidget);
@@ -96,44 +125,72 @@ void QEResizeableFrame::setWidget (QWidget *widgetIn)
       this->userWidget = NULL;
    }
 
-   // Did user specify a widget.
+   // Now we can start putting it back together again.
    //
    this->userWidget = widgetIn;
-   if (widgetIn) {
-      this->userWidget->setParent (this);
-      // Ensure user widget resizeable.
-      //
-      this->userWidget->setMinimumHeight (0);
-      this->userWidget->setMaximumHeight (8000);   // designer deafults to 16777215
-   }
 
-   // Remove grabber (now empty) and append widgets in desired order.
+   // Did user specify a widget - if not use default widget.
    //
-   this->layout->removeWidget (this->grabber);
-
    if (this->userWidget) {
-      this->layout->addWidget (this->userWidget);
+      workingWidget = this->userWidget;
+   } else {
+      workingWidget = this->defaultWidget;
    }
-   this->layout->addWidget (this->grabber);
+
+   // Reparent userWidget/defaultWidget.
+   //
+   workingWidget->setParent (this);
+
+   // Ensure user widget resizeable.
+   // Actual size is controlled by allowedMin and allowedMax.
+   // designer deafults to 16777215
+   if (this->isVertical()) {
+      workingWidget->setMinimumHeight (0);
+      workingWidget->setMaximumHeight (8000);
+   } else {
+      workingWidget->setMinimumWidth (0);
+      workingWidget->setMaximumWidth (8000);
+   }
+
+   switch (this->grabbingEdge) {
+      case BottomEdge:
+      case RightEdge:
+         this->layout->addWidget (workingWidget);
+         this->layout->addWidget (this->grabber);
+         break;
+
+      case TopEdge:
+      case LeftEdge:
+         this->layout->addWidget (this->grabber);
+         this->layout->addWidget (workingWidget);
+         break;
+   }
 }
 
 //------------------------------------------------------------------------------
 //
-
 QWidget *QEResizeableFrame::takeWidget ()
 {
    QWidget *result = this->userWidget;
 
    if (result) {
-      this->setWidget (NULL);
+      // It exists. Remove it from the layout and then from this widget as parent
+      // and clear the reference. It is now total dis-entangled from this.
+      //
+      this->layout->removeWidget (result);
       result->setParent (NULL);
+      this->userWidget = NULL;
+
+      // Reset layout with default widget
+      //
+      this->setWidget (NULL);
    }
    return result;
 }
 
 //------------------------------------------------------------------------------
 //
-void QEResizeableFrame::setGrabberToolTip (const QString & tip)
+void QEResizeableFrame::setGrabberToolTip (const QString& tip)
 {
    this->grabber->setToolTip (tip);
 }
@@ -142,12 +199,22 @@ void QEResizeableFrame::setGrabberToolTip (const QString & tip)
 //
 void QEResizeableFrame::applyLimits ()
 {
-   int ch;  // current height
-   int ah;  // allowed height
+   int ch;  // current width/height
+   int ah;  // allowed width/height
 
-   ch = this->geometry().height ();
+   if (this->isVertical()) {
+      ch = this->geometry().height ();
+   } else {
+      ch = this->geometry().height ();
+   }
+
    ah = LIMIT (ch, this->allowedMin, this->allowedMax);
-   this->setFixedHeight (ah);
+
+   if (this->isVertical()) {
+      this->setFixedHeight (ah);
+   } else {
+      this->setFixedWidth (ah);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -185,13 +252,63 @@ int QEResizeableFrame::getAllowedMaximum ()
 
 //------------------------------------------------------------------------------
 //
+bool QEResizeableFrame::isVertical ()
+{
+   return ((this->grabbingEdge == BottomEdge) || (this->grabbingEdge == TopEdge));
+}
+
+//------------------------------------------------------------------------------
+//
+void QEResizeableFrame::processMouseMove (const int x, const int y)
+{
+   int delta;
+   int current;
+   int modified;
+
+   switch (this->grabbingEdge) {
+
+      case TopEdge:
+         delta = y - 2;
+         current = this->geometry().height ();
+         modified = LIMIT (current - delta, this->allowedMin, this->allowedMax);
+         this->setFixedHeight (modified);
+         break;
+
+      case LeftEdge:
+         delta = x - 2;
+         current = this->geometry().width ();
+         modified = LIMIT (current - delta, this->allowedMin, this->allowedMax);
+         this->setFixedWidth (modified);
+         break;
+
+      case BottomEdge:
+         delta = y - 2;
+         current = this->geometry().height ();
+         modified = LIMIT (current + delta, this->allowedMin, this->allowedMax);
+         this->setFixedHeight (modified);
+         break;
+
+      case RightEdge:
+         delta = x - 2;
+         current = this->geometry().width ();
+         modified = LIMIT (current + delta, this->allowedMin, this->allowedMax);
+         this->setFixedWidth (modified);
+         break;
+
+      default:
+         if (!this->noMoreDebug) {
+            qDebug () << "QEResizeableFrame::processMouseMove: Unexpected edge " << this->objectName ();
+         }
+         this->noMoreDebug = true;
+         break;
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 bool QEResizeableFrame::eventFilter (QObject *obj, QEvent *event)
 {
    QMouseEvent * mouseEvent = NULL;
-   int y;
-   int dy;
-   int h;
-   int newh;
 
    // case on type first else we get a seg fault.
    //
@@ -220,11 +337,7 @@ bool QEResizeableFrame::eventFilter (QObject *obj, QEvent *event)
          if (obj == this->grabber) {
             // if Actived then stay Activated otherwise ...
             if (this->isActive) {
-               y = mouseEvent->y ();
-               dy = y - 2;
-               h = this->geometry().height ();
-               newh = LIMIT (h + dy, this->allowedMin, this->allowedMax);
-               this->setFixedHeight (newh);
+               this->processMouseMove (mouseEvent->x (), mouseEvent->y ());
             }
             return true;
          }
