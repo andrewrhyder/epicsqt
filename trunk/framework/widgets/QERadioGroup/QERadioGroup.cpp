@@ -39,8 +39,8 @@
 //-----------------------------------------------------------------------------
 // Constructor with no initialisation
 //
-QERadioGroup::QERadioGroup (QWidget * parent) :
-              QGroupBox (" QERadioGroup ", parent), QEWidget (this)
+QERadioGroup::QERadioGroup (QWidget* parent) :
+   QEGroupBox (" QERadioGroup ", parent)
 {
    this->commonSetup ();
 }
@@ -48,8 +48,8 @@ QERadioGroup::QERadioGroup (QWidget * parent) :
 //-----------------------------------------------------------------------------
 // Constructor with known variable
 //
-QERadioGroup::QERadioGroup (const QString & variableNameIn, QWidget * parent) :
-              QGroupBox (" QERadioGroup ", parent), QEWidget (this)
+QERadioGroup::QERadioGroup (const QString& variableNameIn, QWidget* parent) :
+   QEGroupBox (" QERadioGroup ", parent)
 {
    this->commonSetup ();
    this->setVariableName (variableNameIn, 0);
@@ -58,8 +58,8 @@ QERadioGroup::QERadioGroup (const QString & variableNameIn, QWidget * parent) :
 //-----------------------------------------------------------------------------
 // Constructor with title and known variable
 //
-QERadioGroup::QERadioGroup (const QString &title, const QString &variableNameIn, QWidget* parent) :
-    QGroupBox (title, parent), QEWidget (this)
+QERadioGroup::QERadioGroup (const QString& title, const QString& variableNameIn, QWidget* parent) :
+   QEGroupBox (title, parent)
 {
    this->commonSetup ();
    this->setVariableName (variableNameIn, 0);
@@ -80,6 +80,11 @@ void QERadioGroup::commonSetup ()
    int j;
    QRadioButton *button;
 
+   // QEGroupBox sets this to false (as it's not an EPICS aware widget).
+   // But the QERadioGroup is EPICS aware, so set default to true.
+   //
+   this->setVariableAsToolTip (true);
+
    // Set up data
    // This control uses a single data source
    //
@@ -89,7 +94,7 @@ void QERadioGroup::commonSetup ()
 
    // Set up default properties
    //
-   this->useDbEnumerations = true;
+   this->useDbEnumerations = true;  // as opposed to local enumeations.
    this->setAllowDrop (false);
    this->setDisplayAlarmState (true);
 
