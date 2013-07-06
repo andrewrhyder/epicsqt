@@ -244,7 +244,7 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
 
    // Create user controllable resize area
    //
-   this->enumerationResize = new QEResizeableFrame (ENUMERATIONS_MIN_HEIGHT, ENUMERATIONS_MAX_HEIGHT, parent);
+   this->enumerationResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, ENUMERATIONS_MIN_HEIGHT, ENUMERATIONS_MAX_HEIGHT, parent);
    this->enumerationResize->setFixedHeight (ENUMERATIONS_MIN_HEIGHT);
    this->enumerationResize->setFrameShape (QFrame::Panel);
    this->enumerationResize->setGrabberToolTip ("Re size enuerations");

@@ -31,7 +31,7 @@
 // The QEResizeableFrame provides a frame capable of holding another widget
 // together with a grabber widget that allows the frame to be re-sized, and
 // hence contained widget to be resized. The class currently only supports
-// vertical resizing. It could be extended to support horizontal resizing.
+// vertical and horizontal resizing.
 //
 // NOTE: this is not a class available in designer as a plugin nor is it derived
 //       from QEWidget nor has it any properties. It was originally developed
@@ -40,10 +40,12 @@
 //
 class QEResizeableFrame : public QFrame {
 public:
-   QEResizeableFrame (QWidget *parent = 0);
+   enum GrabbingEdges { TopEdge, LeftEdge, BottomEdge, RightEdge };
+
+   QEResizeableFrame (GrabbingEdges grabbingEdge, QWidget *parent = 0);
 
    /// Construct widget specifying min and max allowed heights.
-   QEResizeableFrame (int minimum, int maximum, QWidget *parent = 0);
+   QEResizeableFrame (GrabbingEdges grabbingEdge, int minimum, int maximum, QWidget *parent = 0);
    virtual ~QEResizeableFrame ();
 
    // This modelled on QScrollArea
@@ -75,14 +77,20 @@ protected:
 
 private:
    void applyLimits ();
-   void setup (int minimum, int maximum);
-
+   void setup (GrabbingEdges grabbingEdge, int minimum, int maximum);
+   bool isVertical ();
+   void processMouseMove (const int x, const int y);
    bool isActive;
-   // No slots or signals - this should be safe.
-   QVBoxLayout *layout;
-   QWidget *userWidget;
-   QWidget *grabber;
+   bool noMoreDebug;
 
+   // No slots or signals - this should be safe, as in moc won't get confused.
+   //
+   QBoxLayout* layout;
+   QWidget* userWidget;
+   QWidget* grabber;
+   QWidget* defaultWidget;
+
+   GrabbingEdges grabbingEdge;
    // We can't use widget's min/maximumHeight values to store these as we call setFixedHeight
    // to the frame height.
    //

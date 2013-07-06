@@ -69,6 +69,7 @@
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
+#define PV_LABEL_HEIGHT    15
 #define PV_DELTA_HEIGHT    18
 
 #define PV_FRAME_HEIGHT    (6 + (NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT)
@@ -440,7 +441,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Create user controllable resize area
    //
-   this->toolBarResize = new QEResizeableFrame (8, 8 + this->toolBar->designHeight, this->chart);
+   this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 8, 8 + this->toolBar->designHeight, this->chart);
    this->toolBarResize->setFixedHeight (8 + this->toolBar->designHeight);
    this->toolBarResize->setFrameShape (QFrame::Panel);
    this->toolBarResize->setGrabberToolTip ("Re size tool bar display area");
@@ -462,8 +463,8 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
       x = 6 + (slot % 2) * 492;
       y = 6 + (slot / 2) * PV_DELTA_HEIGHT;
 
-      this->pvNames [slot]->setGeometry   (x, y, 344, 15); x += 348;
-      this->caLabels [slot]->setGeometry  (x, y, 128, 15);
+      this->pvNames [slot]->setGeometry   (x, y, 344, PV_LABEL_HEIGHT); x += 348;
+      this->caLabels [slot]->setGeometry  (x, y, 128, PV_LABEL_HEIGHT);
 
       chartItem = new QEStripChartItem (this->chart,
                                         this->pvNames [slot],
@@ -485,7 +486,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Create user controllable resize area
    //
-   this->pvResizeFrame = new QEResizeableFrame (12, PV_SCROLL_HEIGHT + 8, this->chart);
+   this->pvResizeFrame = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 12, PV_SCROLL_HEIGHT + 8, this->chart);
    this->pvResizeFrame->setFixedHeight (PV_SCROLL_HEIGHT + 8);
    this->pvResizeFrame->setFrameShape (QFrame::Panel);
    this->pvResizeFrame->setGrabberToolTip ("Re size PV display area");
