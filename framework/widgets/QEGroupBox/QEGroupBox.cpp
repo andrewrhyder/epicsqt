@@ -29,7 +29,7 @@
 //
 QEGroupBox::QEGroupBox (QWidget *parent) : QGroupBox (parent), QEWidget (this)
 {
-   this->setTitle ("QEGroupBox");
+   this->setTitle (" QEGroupBox ");
 
    // This is not an EPICS aware widget.
    //
@@ -37,6 +37,17 @@ QEGroupBox::QEGroupBox (QWidget *parent) : QGroupBox (parent), QEWidget (this)
    this->setAllowDrop (false);
    this->setNumVariables (0);
 }
+
+//------------------------------------------------------------------------------
+//
+QEGroupBox::QEGroupBox (const QString& title, QWidget* parent) : QGroupBox (title, parent), QEWidget (this)
+{
+   // This is not an EPICS aware widget.
+   //
+   this->setVariableAsToolTip (false);
+   this->setAllowDrop (false);
+   this->setNumVariables (0);
+   }
 
 //------------------------------------------------------------------------------
 //

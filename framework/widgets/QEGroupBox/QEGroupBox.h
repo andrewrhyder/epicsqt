@@ -125,6 +125,8 @@ public:
 
 public:
     explicit QEGroupBox (QWidget *parent = 0);
+    explicit QEGroupBox (const QString &title, QWidget* parent=0);
+
     virtual ~QEGroupBox ();
     QSize sizeHint () const;
 
