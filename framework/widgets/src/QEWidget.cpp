@@ -526,16 +526,16 @@ QFile* QEWidget::findQEFile( QString name, ContainerProfile* profile )
                 addPathToSearchList( path, name, searchList );
             }
 
-            // Add the current directory
-            fileInfo.setFile( QDir::currentPath(), name );
-            searchList.append(  fileInfo.filePath() );
-
             // Add paths from environment variable
             QStringList envPathList = profile->getEnvPathList();
             for( int i = 0; i < envPathList.count(); i++ )
             {
                 addPathToSearchList( envPathList[i], name, searchList );
             }
+
+            // Add the current directory
+            fileInfo.setFile( QDir::currentPath(), name );
+            searchList.append(  fileInfo.filePath() );
         }
 
         // Attempt to open the file

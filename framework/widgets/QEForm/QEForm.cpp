@@ -43,6 +43,7 @@
 #include <QtGui>
 #include <QString>
 #include <QDir>
+#include <QFileInfo>
 #include <QtDebug>
 #include <QEForm.h>
 #include <ContainerProfile.h>
@@ -50,7 +51,8 @@
 
 // Constructor.
 // No UI file is read. uiFileName must be set and then readUiFile() called after construction
-QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this ) {
+QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this )
+{
     commonInit( false );
 }
 
@@ -64,9 +66,17 @@ QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent
 // Common construction
 void QEForm::commonInit( const bool alertIfUINoFoundIn )
 {
+    // Set up the number of variables managed by the variable name manager
+    // NOTE: there is no data associated with this widget, but it uses the same substitution mechanism as other data widgets.
+    variableNameManagerInitialise( 1 );
+
     setAcceptDrops(true);
 
     ui = NULL;
+
+    placeholderLabel = NULL;
+    displayPlaceholder( true, "No file name" );
+
     alertIfUINoFound = alertIfUINoFoundIn;
     handleGuiLaunchRequests = false;
     resizeContents = true;
@@ -125,25 +135,40 @@ QEForm::~QEForm()
 // The file read depends on the value of uiFileName
 bool QEForm::readUiFile()
 {
+    // Close any pre-existing gui in the form
+    if( ui )
+    {
+        delete ui;
+        ui = NULL;
+    }
+
     // Assume file is bad
     bool fileLoaded = false;
 
-    // If any name has been provided...
-    if (!uiFileName.isEmpty()) {
+    // If no name has been provided...
+    if (uiFileName.isEmpty())
+    {
+        displayPlaceholder( true, "No file name" );
+    }
 
+    // A name has been provided...
+    else
+    {
         // Set up the environment profile for any QE widgets created by the form
         QObject* savedGuiLaunchConsumer = NULL;
 
         // Try to open the UI file
-        QFile* uiFile = openQEFile( uiFileName, QIODevice::ReadOnly );
+        QString substitutedFileName =  substituteThis( uiFileName );
+        QFile* uiFile = openQEFile( substitutedFileName, QIODevice::ReadOnly );
 
         // If the file was not found and opened, notify as appropriate
         if( !uiFile )
         {
+            displayPlaceholder( true, QString( "Could not open " ).append( substitutedFileName ) );
             if( alertIfUINoFound )
             {
                 QString msg;
-                QTextStream(&msg) << "User interface file '" << uiFileName << "' could not be opened";
+                QTextStream(&msg) << "User interface file '" << substitutedFileName << "' could not be opened";
                 sendMessage( msg, "QEForm::readUiFile", message_types ( MESSAGE_TYPE_WARNING) );
             }
         }
@@ -151,13 +176,6 @@ bool QEForm::readUiFile()
         // If the file was found and opened, load it
         else
         {
-            // Close any pre-existing gui in the form
-            if( ui )
-            {
-                delete ui;
-                ui = NULL;
-            }
-
             // Get filename info
             QFileInfo fileInfo( uiFile->fileName() );
 
@@ -172,8 +190,11 @@ bool QEForm::readUiFile()
                 fileMon.removePaths( monitoredPaths );
             }
 
+            // Is this a resource file?
+            bool isResourceFile = (fullUiFileName.left(1).compare( QString( ":" )) == 0);
+
             // Monitor the opened file (if not from the Qt resource database which can't be monitored)
-            if( fullUiFileName.left(1).compare( QString( ":" )) )
+            if( !isResourceFile )
             {
                 fileMon.addPath( fullUiFileName );
             }
@@ -190,7 +211,7 @@ bool QEForm::readUiFile()
 
             // Add this form's macro substitutions for all it's children to use
             // Note, any macros in the substitutions are themselves substituted before applying the substitutions to the form
-            addMacroSubstitutions( substituteThis( variableNameSubstitutions ) );
+            addMacroSubstitutions( substituteThis( getVariableNameSubstitutions()) );
 
             // Temporarily update the published current object's path to the path of the form being created.
             // Any objects created within the form (for example sub forms) can then know where their parent form is located.
@@ -213,11 +234,43 @@ bool QEForm::readUiFile()
             // set it and we should leave it as we found it)
             bool oldDontActivateYet = setDontActivateYet( true );
 
+            // Clear any placeholder
+            displayPlaceholder( false );
+
             // Load the gui
             QUiLoader loader;
 
-            ui = loader.load( uiFile );
+            if( isResourceFile ) {
+                // Just load it.
+                //
+                ui = loader.load( uiFile );
+            } else {
+                // This is a regular file.
+                // Change the current directory to the directory holding the ui file before
+                // loading the file: this is because when desiginer saves a ui file, embedded
+                // file references (e.g. the icon file refrence in a QPushButton) are saved
+                // relative to the location of the ui file.  Our best bet is that the relative
+                // location of any reference file has been maintained from designer environment
+                // to the deployed environment.
+                //
+                QString savedCurrentPath = QDir::currentPath();
+
+                // Find fullUiFileName containing directory name.
+                QString loaderPath = QFileInfo (fullUiFileName).dir().path ();
+
+                QDir::setCurrent( loaderPath );
+                ui = loader.load( uiFile );
+
+                // Change directory back to where we were.
+                QDir::setCurrent (savedCurrentPath);
+            }
             uiFile->close();
+
+            if( !ui )
+            {
+                // Load a placeholder as the ui file could not be loaded
+                displayPlaceholder( true, QString( "Could not load " ).append( fullUiFileName ) );
+            }
 
             // Set the window title (performing macro substitutions if required)
             setWindowTitle( uiFile->fileName() );
@@ -340,6 +393,67 @@ bool QEForm::readUiFile()
     return fileLoaded;
 }
 
+// Display or clear a placeholder.
+// A place holder is placed in the form if the form cannot be populated.
+// (Either no file name has been provided, or the file cannot be opened.)
+void QEForm::displayPlaceholder( bool display, QString message )
+{
+    // Add a message...
+    if( display)
+    {
+        if( !placeholderLabel )
+        {
+            // Create the label with the required text
+            placeholderLabel = new QLabel( message, this );
+
+            // Make sure the label is not drawn through when marking out the area of the QEForm
+            placeholderLabel->setAutoFillBackground( true );
+
+            // Present the new label
+            placeholderLabel->show();
+
+            // Force a paint event so the area of the blank QEForm will be shown
+            update();
+        }
+        else
+        {
+            // Update the label text as the message has changed
+            placeholderLabel->setText( message );
+            placeholderLabel->adjustSize();
+        }
+    }
+
+    // Remove a message...
+    else
+    {
+        if( placeholderLabel )
+        {
+            delete placeholderLabel;
+            placeholderLabel = NULL;
+        }
+    }
+
+}
+
+// Mark out the area of the form until the contents is populated by a .ui file
+void QEForm::paintEvent(QPaintEvent * /* event */)
+{
+    // If the placeholder label is present (if a message saying no .ui file has been loaded) then
+    // mark out the area of the QEForm
+    if( placeholderLabel )
+    {
+        // Move the placeholder label away from the very corner so the border can be seen.
+        // (This coudln't be done during when creating the label as the sizing was not valid yet)
+        placeholderLabel->setGeometry( 1, 1, placeholderLabel->width(), placeholderLabel->height() );
+
+        // Mark out the area of the QEForm
+        QPainter painter( this );
+        painter.drawLine( 0, 0, width(), height() );
+        painter.drawLine( 0, height(), width(), 0 );
+        painter.drawRect( 0, 0, width()-1, height()-1 );
+    }
+}
+
 // Set the title to the name of the top level widget title, if it has one, or to the file name
 void QEForm::setWindowTitle( QString filename )
 {
@@ -380,17 +494,6 @@ QString QEForm::getQEGuiTitle()
 QString QEForm::getFullFileName()
 {
     return fullUiFileName;
-}
-
-// Set the variable name substitutions used by all QE widgets within the form
-void QEForm::setVariableNameSubstitutions( QString variableNameSubstitutionsIn )
-{
-    variableNameSubstitutions = variableNameSubstitutionsIn;
-
-    // The macro substitutions have changed. Reload the form to pick up new substitutions.
-    // NOTE an alternative to this would be to find all QE widgets contained in the form and it's descentand forms, modify the macro substitutions and reconnect.
-    // This is a realistic option since contained widgets now register themselves with the form on creation so the fomr can activate them once all properties have been set up
-    reloadFile();
 }
 
 // Reload the ui file
@@ -492,6 +595,7 @@ void QEForm::newMessage( QString msg, message_types type )
 // (not required if a layout is present)
 void QEForm::resizeEvent ( QResizeEvent * event )
 {
+    event->ignore();
     // If the form's ui does not have a layout, resize it to match the QEForm
     // If it does have a layout, then the QEForm will also have given itself a
     // layout to ensure layout requests are propogated. In this case a resize is not nessesary.
@@ -509,14 +613,6 @@ QString QEForm::getContainedFrameworkVersion()
 
 //==============================================================================
 // Property convenience functions
-
-// Access functions for variableName and variableNameSubstitutions
-// variable substitutions Example: SECTOR=01 will result in any occurance of $SECTOR in variable name being replaced with 01.
-void QEForm::setVariableNameAndSubstitutions( QString, QString variableNameSubstitutionsIn, unsigned int ) {
-
-    // Set new variable name substitutions
-    setVariableNameSubstitutions( variableNameSubstitutionsIn );
-}
 
 // UI file name
 void    QEForm::setUiFileName( QString uiFileNameIn )
