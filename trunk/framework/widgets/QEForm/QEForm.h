@@ -58,9 +58,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
         // Property convenience functions
 
-        // Variable name related properties (for a form no variable name will be set, only the substitutions that will be passed on to widgets within the form)
-        void setVariableNameAndSubstitutions( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
-
         // UI file name
         void    setUiFileName( QString uiFile );
         QString getUiFileName();
@@ -89,6 +86,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         {
             // Note, for a form, variable name is not used. Substitutions still are
             setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
+            reloadFile();   // Only required as there uiFile property does not use the same mechanism as variableName (perhaps it should?!!!)
         }
 
     protected:
@@ -104,8 +102,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         bool alertIfUINoFound;      // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
         QFileSystemWatcher fileMon;
 
-        QString variableNameSubstitutions;
-
         void newMessage( QString msg, message_types type );
         void resizeEvent ( QResizeEvent * event );
         unsigned int childMessageFormId;
@@ -119,6 +115,11 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         void setWindowTitle( QString filename );    // Set the title to the name of the top level widget title, if it has one, or to the file name
 
         QString uniqueIdentifier; // Should be set up by an application using the persistance manager and creating more than one top level QEForm. Not required if only one QEForm is used.
+
+
+        void paintEvent(QPaintEvent *event);                                    // When displaying a blank form, the form area is marked out on every update
+        QLabel* placeholderLabel;                                               // Used to display a message when the QEForm could not be loaded with a .ui file
+        void displayPlaceholder( bool display, QString message = QString() );   // Display or clear a message when the QEForm could not be loaded with a .ui file
 
     public:
         // Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.
@@ -147,7 +148,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         void setMessageSourceFilter( MessageFilterOptions messageSourceFilter ){ setSourceFilter( (message_filter_options)messageSourceFilter ); }
 
       private:
-        QCaVariableNamePropertyManager variableNamePropertyManager; // Note, this is only used to manage the macro substitutions that will be passed down to the form's QE widgets. The form has no varialbe name
+        QCaVariableNamePropertyManager variableNamePropertyManager; // Note, this is only used to manage the macro substitutions that will be passed down to the form's QE widgets. The form has no variable name
 
 };
 
