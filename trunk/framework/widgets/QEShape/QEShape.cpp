@@ -379,6 +379,18 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
 {
     QPainter painter( this );
 
+    switch( shape )
+    {
+        case Line :
+        case Points :
+            pen.setColor( brush.color() );
+            break;
+
+        default:
+            pen.setColor( QColor( 0,0,0 ) );
+            break;
+    }
+
     // Set up the pen and brush (color, thickness, etc)
     pen.setWidth( lineWidth );
     painter.setPen( pen );
@@ -399,7 +411,8 @@ void QEShape::paintEvent(QPaintEvent * /* event */)
     painter.rotate( rotation );
 
     // Draw the shape
-    switch( shape ) {
+    switch( shape )
+    {
         case Line :
             painter.drawLine( points[0], points[1] );
             break;
