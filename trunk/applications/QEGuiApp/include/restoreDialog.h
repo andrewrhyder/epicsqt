@@ -37,7 +37,7 @@ class restoreDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit restoreDialog( QStringList names, QWidget *parent = 0 );
+    explicit restoreDialog( QStringList names, bool hasDefault, QWidget *parent = 0 );
     ~restoreDialog();
 
     bool getUseDefault();
@@ -48,14 +48,14 @@ private:
 
     void enableNamedItems( bool enable );
 
-    bool savingStartup;
+    void enableOpen();
+
 
 private slots:
+    void on_namesListWidget_itemSelectionChanged();
     void on_namesListWidget_doubleClicked(QModelIndex index);
-    void on_buttonBox_accepted();
     void on_namedRadioButton_clicked(bool checked);
-    void on_startupRadioButton_clicked(bool checked);
-    void on_namesListWidget_clicked(QModelIndex index);
+    void on_defaultRadioButton_clicked(bool checked);
 };
 
 #endif // RESTOREDIALOG_H

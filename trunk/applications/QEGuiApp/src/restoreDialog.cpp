@@ -28,16 +28,18 @@
 
 #include "restoreDialog.h"
 #include "ui_restoreDialog.h"
+#include <QPushButton>
 
-restoreDialog::restoreDialog( QStringList names, QWidget *parent ) :
+restoreDialog::restoreDialog( QStringList names, bool hasDefault, QWidget *parent ) :
     QDialog(parent),
     ui(new Ui::restoreDialog)
 {
     ui->setupUi(this);
 
-    savingStartup = true;
     enableNamedItems( false );
     ui->namesListWidget->addItems( names );
+    ui->defaultRadioButton->setEnabled( hasDefault );
+    ui->namedRadioButton->setEnabled( names.count() );
 }
 
 restoreDialog::~restoreDialog()
@@ -45,21 +47,25 @@ restoreDialog::~restoreDialog()
     delete ui;
 }
 
-void restoreDialog::on_namesListWidget_clicked(QModelIndex)
+void restoreDialog::enableOpen()
 {
-
+    QPushButton* openButton = ui->buttonBox->button(QDialogButtonBox::Open);
+    if( openButton )
+    {
+        openButton->setEnabled( ui->defaultRadioButton->isChecked() || ui->namesListWidget->selectedItems().count() );
+    }
 }
 
-void restoreDialog::on_startupRadioButton_clicked( bool )
+void restoreDialog::on_defaultRadioButton_clicked( bool )
 {
     enableNamedItems( false );
-    savingStartup = true;
+    enableOpen();
 }
 
 void restoreDialog::on_namedRadioButton_clicked( bool )
 {
     enableNamedItems( true );
-    savingStartup = false;
+    enableOpen();
 }
 
 void restoreDialog::enableNamedItems( bool enable )
@@ -69,7 +75,7 @@ void restoreDialog::enableNamedItems( bool enable )
 
 bool restoreDialog::getUseDefault()
 {
-    return ui->startupRadioButton->isChecked();
+    return ui->defaultRadioButton->isChecked();
 }
 
 QString restoreDialog::getName()
@@ -89,7 +95,7 @@ void restoreDialog::on_namesListWidget_doubleClicked( QModelIndex )
     accept();
 }
 
-void restoreDialog::on_buttonBox_accepted()
+void restoreDialog::on_namesListWidget_itemSelectionChanged()
 {
-
+    enableOpen();
 }

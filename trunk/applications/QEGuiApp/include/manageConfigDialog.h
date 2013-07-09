@@ -12,7 +12,7 @@ class manageConfigDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit manageConfigDialog( QStringList names, QWidget *parent = 0 );
+    explicit manageConfigDialog( QStringList names, bool hasDefault, QWidget *parent = 0 );
     ~manageConfigDialog();
     void setCurrentNames( QStringList currentNamesIn );
 
@@ -25,6 +25,7 @@ signals:
     void deleteConfigs( manageConfigDialog* mcd, const QStringList names );
 
 private slots:
+    void on_deleteDefaultPushButton_clicked();
     void on_deletePushButton_clicked();
     void on_namesListWidget_itemSelectionChanged();
 };

@@ -29,14 +29,16 @@
 #include "manageConfigDialog.h"
 #include "ui_manageConfigDialog.h"
 #include <QDebug>
+#include "persistanceManager.h"
 
-manageConfigDialog::manageConfigDialog( QStringList names, QWidget *parent ) :
+manageConfigDialog::manageConfigDialog( QStringList names, bool hasDefault, QWidget *parent ) :
     QDialog(parent),
     ui(new Ui::manageConfigDialog)
 {
     ui->setupUi(this);
     ui->namesListWidget->addItems( names );
     ui->deletePushButton->setEnabled( false );
+    ui->deleteDefaultPushButton->setEnabled( hasDefault );
 }
 
 manageConfigDialog::~manageConfigDialog()
@@ -65,4 +67,12 @@ void manageConfigDialog::on_deletePushButton_clicked()
 void manageConfigDialog::setCurrentNames( QStringList currentNamesIn )
 {
     currentNames = currentNamesIn;
+}
+
+void manageConfigDialog::on_deleteDefaultPushButton_clicked()
+{
+    QStringList names;
+    names.append( PersistanceManager::defaultName );
+    emit deleteConfigs( this, names );
+    ui->deleteDefaultPushButton->setEnabled( false );
 }

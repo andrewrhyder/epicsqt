@@ -1485,7 +1485,7 @@ void MainWindow::on_actionSave_Configuration_triggered()
     QString configName;
     if( sd.getUseDefault() )
     {
-        configName = "Default";
+        configName = PersistanceManager::defaultName;
     }
     else if ( !sd.getName().isEmpty() )
     {
@@ -1513,8 +1513,17 @@ void MainWindow::on_actionRestore_Configuration_triggered()
     PersistanceManager* pm = profile.getPersistanceManager();
     startupParams* params = app->getParams();
 
+    // Get the list of restoration options
+    bool hasDefault;
+    QStringList configNames = pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME, hasDefault );
+    if( configNames.count() == 0 && !hasDefault )
+    {
+        QMessageBox::warning( this, "Configuration Restore", "There are no configurations available to restore." );
+        return;
+    }
+
     // Get the user selection
-    restoreDialog rd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
+    restoreDialog rd( configNames, hasDefault );
     if ( rd.exec() == QDialog::Rejected )
     {
         return;
@@ -1523,7 +1532,7 @@ void MainWindow::on_actionRestore_Configuration_triggered()
     QString configName;
     if( rd.getUseDefault() )
     {
-        configName = "Default";
+        configName = PersistanceManager::defaultName;
     }
     else if( !rd.getName().isEmpty() )
     {
@@ -1552,8 +1561,17 @@ void MainWindow::on_actionManage_Configurations_triggered()
     PersistanceManager* pm = profile.getPersistanceManager();
     startupParams* params = app->getParams();
 
+    // Get the list of configuration options
+    bool hasDefault;
+    QStringList configNames = pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME, hasDefault );
+    if( configNames.count() == 0 && !hasDefault )
+    {
+        QMessageBox::warning( this, "Configuration Management", "There are no configurations available to manage." );
+        return;
+    }
+
     // Present the dialog
-    manageConfigDialog mcd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
+    manageConfigDialog mcd( configNames, hasDefault );
     QObject::connect( &mcd, SIGNAL( deleteConfigs ( manageConfigDialog*, const QStringList ) ), this, SLOT( deleteConfigs(  manageConfigDialog*, const QStringList ) ) );
     mcd.exec();
 }

@@ -128,6 +128,9 @@
 #include <QMessageBox>
 
 #define CONFIG_COMPONENT_KEY "Component"
+
+QString PersistanceManager::defaultName("Default");
+
 //=========================================================
 
 // Construction
@@ -307,6 +310,14 @@ PMElement PersistanceManager::getNamedConfiguration( QString name )
 // Get a list of the existing configurations
 QStringList PersistanceManager::getConfigNames( QString fileName, QString rootName )
 {
+    bool hasDefault;
+    return getConfigNames( fileName, rootName, hasDefault );
+}
+
+// Get a list of the existing configurations (and if there is a default configuration)
+QStringList PersistanceManager::getConfigNames( QString fileName, QString rootName, bool& hasDefault )
+{
+    hasDefault = false;
     QStringList nameList;
 
     // Return the empty list if cant read file
@@ -319,9 +330,16 @@ QStringList PersistanceManager::getConfigNames( QString fileName, QString rootNa
     for( int i = 0; i < nodeList.count(); i++ )
     {
         QString configName = nodeList.at(i).toElement().attribute( "Name" );
-        if( !configName.isEmpty() && configName != QString( "Default" ) )
+        if( !configName.isEmpty() )
         {
-            nameList.append( configName );
+            if(  configName == PersistanceManager::defaultName )
+            {
+                hasDefault = true;
+            }
+            else
+            {
+                nameList.append( configName );
+            }
         }
     }
     return nameList;
@@ -332,7 +350,14 @@ void PersistanceManager::deleteConfigs( QString fileName, QString rootName, QStr
 {
     // Deleting configurations, check with the user this is OK
     QMessageBox msgBox;
-    msgBox.setText( QString( "%1 configuration%2 will be deleted. Do you want to continue?" ).arg( names.count() ).arg( names.count()>1?QString("s"):QString("") ));
+    if( names.count()==1 && names.at(0) == PersistanceManager::defaultName )
+    {
+        msgBox.setText( QString( "The default configuration used at startup will be deleted. Do you want to continue?" ) );
+    }
+    else
+    {
+        msgBox.setText( QString( "%1 configuration%2 will be deleted. Do you want to continue?" ).arg( names.count() ).arg( names.count()>1?QString("s"):QString("") ));
+    }
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Cancel);
     switch ( msgBox.exec() )

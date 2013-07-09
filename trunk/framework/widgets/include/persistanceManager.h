@@ -164,8 +164,9 @@ public:
 
     // Configuration management
     QStringList getConfigNames( QString fileName, QString rootName );                   // Get a list of the existing configurations
+    QStringList getConfigNames( QString fileName, QString rootName, bool& hasDefault ); // Get a list of the existing configurations (and if there is a default configuration)
     void deleteConfigs( QString fileName, QString rootName, QStringList names );        // Delete a list of configurations
-
+    static QString defaultName;
 
 private:
     bool openRead(  QString fileName, QString rootName );                   // Open and read the configuration file
