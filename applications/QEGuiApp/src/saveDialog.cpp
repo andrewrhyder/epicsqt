@@ -29,6 +29,7 @@
 #include <saveDialog.h>
 #include <ui_saveDialog.h>
 #include <QDebug>
+#include <QPushButton>
 
 saveDialog::saveDialog( QStringList names, QWidget *parent ) :
     QDialog(parent),
@@ -46,16 +47,27 @@ saveDialog::~saveDialog()
     delete ui;
 }
 
-void saveDialog::on_startupRadioButton_clicked( bool )
+void saveDialog::enableSave()
+{
+    QPushButton* saveButton = ui->buttonBox->button(QDialogButtonBox::Save);
+    if( saveButton )
+    {
+        saveButton->setEnabled( ui->defaultRadioButton->isChecked() || !ui->nameLineEdit->text().isEmpty() );
+    }
+}
+
+void saveDialog::on_defaultRadioButton_clicked( bool )
 {
     enableNamedItems( false );
     savingStartup = true;
+    enableSave();
 }
 
 void saveDialog::on_namedRadioButton_clicked( bool )
 {
     enableNamedItems( true );
     savingStartup = false;
+    enableSave();
 }
 
 void saveDialog::enableNamedItems( bool enable )
@@ -74,7 +86,7 @@ void saveDialog::on_namesListWidget_clicked(QModelIndex)
 
 bool saveDialog::getUseDefault()
 {
-    return ui->startupRadioButton->isChecked();
+    return ui->defaultRadioButton->isChecked();
 }
 
 QString saveDialog::getName()
@@ -89,4 +101,9 @@ QString saveDialog::getName()
 void saveDialog::on_namesListWidget_doubleClicked( QModelIndex )
 {
     accept();
+}
+
+void saveDialog::on_nameLineEdit_textChanged(QString )
+{
+    enableSave();
 }

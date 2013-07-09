@@ -20,10 +20,11 @@ public:
     QString getName();
 
 private slots:
+    void on_nameLineEdit_textChanged(QString );
     void on_namesListWidget_doubleClicked(QModelIndex index);
     void on_namesListWidget_clicked(QModelIndex index);
 
-    void on_startupRadioButton_clicked(bool checked);
+    void on_defaultRadioButton_clicked(bool checked);
 
     void on_namedRadioButton_clicked(bool checked);
 
@@ -33,6 +34,8 @@ private:
     void enableNamedItems( bool enable );
 
     bool savingStartup;
+    void enableSave();
+
 };
 
 #endif // SAVEDIALOG_H

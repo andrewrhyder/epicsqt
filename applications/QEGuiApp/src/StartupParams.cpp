@@ -50,7 +50,7 @@ startupParams::startupParams()
     printHelp = false;    // not serialized
     printVersion = false; // not serialized
     restore = false;
-    configurationName = "Default";
+    configurationName = PersistanceManager::defaultName;
     configurationFile = "QEGuiConfig.xml";
 }
 

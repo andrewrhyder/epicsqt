@@ -1,3 +1,5 @@
+<<<This document is now redundant - all the activity listed in here is covered by the script release.py>>>
+
 Package generation:
 
 Update release notes:
