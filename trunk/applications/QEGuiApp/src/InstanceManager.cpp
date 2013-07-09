@@ -40,6 +40,7 @@
 #include <MainWindow.h>
 #include <ContainerProfile.h>
 #include <QEGui.h>
+#include <QMessageBox>
 
 #define QEGUISERVERNAME "QEGuiInstance"
 
@@ -143,6 +144,16 @@ void instanceManager::newWindow( const startupParams& params )
         // they should collect and apply restore data.
         PersistanceManager* persistanceManager = profile.getPersistanceManager();
         persistanceManager->restore( params.configurationFile, QE_CONFIG_NAME, params.configurationName  );
+
+        // If the restoration did not create any windows, warn the user.
+        // This is especially important as an .ui file specified on the command line will now be opened,
+        // or failing that, an empty window, neither of which will look like the expected configuration
+        if( app->getMainWindowCount() == 0 )
+        {
+            QMessageBox::warning( 0, "Configuration Restore",
+                                  QString( "Configuration restoration did not create any windows.\n"
+                                           "Looked for configuration named '%1'.").arg( params.configurationName ) );
+        }
     }
 
     // Not restoring, or if restoring didn't create any main windows, open the required guis
