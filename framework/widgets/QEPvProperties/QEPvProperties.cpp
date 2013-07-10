@@ -626,7 +626,7 @@ void QEPvProperties::establishConnection (unsigned int variableIndex)
    // If successfull, the QCaObject object that will supply data update signals will be returned
    // Note createConnection creates the connection and returns reference to existing QCaObject.
    //
-   qca = createConnection (variableIndex);
+   qca = this->createConnection (variableIndex);
 
    // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
    //
@@ -886,7 +886,7 @@ void QEPvProperties::setFieldConnection (QCaConnectionInfo& connectionInfo,
       }
    } else {
       DEBUG << "variableIndex =" << variableIndex
-             << ", out of range - must be <" << numberOfRows;
+            << ", out of range - must be <" << numberOfRows;
    }
 }
 
@@ -1059,7 +1059,9 @@ void QEPvProperties::setPvName (const QString& pvNameIn)
 //
 void QEPvProperties::setDrop (QVariant drop)
 {
-   this->setPvName (drop.toString ());
+   if (this->getAllowDrop ()) {
+      this->setPvName (drop.toString ());
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -1102,11 +1104,9 @@ QVariant QEPvProperties::copyData ()
 
 //------------------------------------------------------------------------------
 //
-void QEPvProperties::paste( QVariant v )
+void QEPvProperties::paste (QVariant v)
 {
-   if (this->getAllowDrop ()) {
-      this->setPvName (v.toString ());
-   }
+   this->setPvName (v.toString ());
 }
 
 // end

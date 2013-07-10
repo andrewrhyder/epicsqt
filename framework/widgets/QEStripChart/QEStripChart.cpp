@@ -1861,9 +1861,11 @@ void QEStripChart::setYRange (const double yMinimumIn, const double yMaximumIn)
 //
 void QEStripChart::setDrop (QVariant drop)
 {
-   // Use dropped text to add a PV(s) to the chart.
-   //
-   this->addPvNameSet (drop.toString());
+   if (this->getAllowDrop ()) {
+      // Use dropped text to add a PV(s) to the chart.
+      //
+      this->addPvNameSet (drop.toString());
+   }
 }
 
 //----------------------------------------------------------------------------
