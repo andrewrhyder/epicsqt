@@ -47,7 +47,6 @@
 
 Q_DECLARE_METATYPE( QEForm* )
 
-
 //=================================================================================
 // Private class to hold internal widgets
 //=================================================================================
@@ -877,7 +876,8 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
         // If nothing else is looking after resizing (such as a restore) resize here
         if( resize )
         {
-            QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
+            adjustSize();
+//            QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
         }
     }
 
