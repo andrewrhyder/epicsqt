@@ -56,11 +56,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
                                CREATION_OPTION_NEW_TAB    = QEGuiLaunchRequests::OptionNewTab,
                                CREATION_OPTION_NEW_WINDOW = QEGuiLaunchRequests::OptionNewWindow};
 
-        // Property convenience functions
+        QString getUiFileName();                // Get the fully substituted file name (Not the uiFile property)
 
-        // UI file name
-        void    setUiFileName( QString uiFile );
-        QString getUiFileName();
+        // Property convenience functions
 
         // Flag indicating form should handle gui form launch requests
         void setHandleGuiLaunchRequests( bool handleGuiLaunchRequests );
@@ -82,12 +80,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
     private slots:
         void fileChanged ( const QString & path );
+        // Note, in QEForm, the standard variable name mechanism is used for the UI file name
         void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) // !! move into Standard Properties section??
         {
-            // Note, for a form, variable name is not used. Substitutions still are
             setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-            reloadFile();   // Only required as there uiFile property does not use the same mechanism as variableName (perhaps it should?!!!)
         }
+        void reloadLater(); // Slot for delaying form loading until after existing events have been processed
 
     protected:
         QString uiFileName; // As specified on creation
@@ -97,6 +95,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         bool resizeContents;
 
     private:
+        void establishConnection( unsigned int variableIndex );
+
         QString title;
         QWidget* ui;
         bool alertIfUINoFound;      // True if the UI file could not be read. No alert is required, for example, when a partial UI file name is being typed in Designer
@@ -124,7 +124,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
     public:
         // Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.
         // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
-        Q_PROPERTY(QString uiFile READ getUiFileName WRITE setUiFileName)
+        Q_PROPERTY(QString uiFile READ getUiFileNameProperty WRITE setUiFileNameProperty)
+
+        // Note, standard variable name and macros mechanism is used by QEForm for UI file name and marcos
+        void    setUiFileNameProperty( QString uiFileName ){ variableNamePropertyManager.setVariableNameProperty( uiFileName ); }
+        QString getUiFileNameProperty(){ return variableNamePropertyManager.getVariableNameProperty(); }
+
 
         Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
         void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }

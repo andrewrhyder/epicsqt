@@ -142,11 +142,8 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
     // If we don't have a shared memory yet, create it.
     if( !sharedMemory )
     {
-        sharedMemory = new QSharedMemory ( key );
+        sharedMemory = new QSharedMemory( key );
     }
-
-    // Lock the shared memory
-    sharedMemory->lock();
 
     // Get the shared memory data
     // If the shared memory data is there, it has also been set up to contain a reference
@@ -157,6 +154,8 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
         sharedMemoryData = sharedMemory->data();
         if( sharedMemoryData )
         {
+            // Lock the shared memory
+            sharedMemory->lock();
             publishedProfile = *(PublishedProfile**)(sharedMemoryData);
             sharedMemory->unlock();
             return publishedProfile;
@@ -168,17 +167,25 @@ PublishedProfile* ContainerProfile::getPublishedProfile()
     // hold a reference to the published profile), load the reference to the published profile
     // into the shared memory data, and return the newly created published profile.
     publishedProfile = new PublishedProfile;
-    sharedMemory->create( sizeof( PublishedProfile* ) );
-    sharedMemoryData = sharedMemory->data();
-    if( sharedMemoryData == NULL )
+    if( !sharedMemory->create( sizeof( PublishedProfile* ) ) )
     {
-        qDebug() << "Error setting up ContainerProfile in shared memory." << sharedMemory->error() << sharedMemory->errorString();
+        qDebug() << "Error (1) setting up ContainerProfile in shared memory." << sharedMemory->error() << sharedMemory->errorString();
     }
     else
     {
-        *(PublishedProfile**)(sharedMemoryData) = publishedProfile;
+        sharedMemoryData = sharedMemory->data();
+        if( sharedMemoryData == NULL )
+        {
+            qDebug() << "Error (2) setting up ContainerProfile in shared memory." << sharedMemory->error() << sharedMemory->errorString();
+        }
+        else
+        {
+            // Lock the shared memory
+            sharedMemory->lock();
+            *(PublishedProfile**)(sharedMemoryData) = publishedProfile;
+            sharedMemory->unlock();
+        }
     }
-    sharedMemory->unlock();
     return publishedProfile;
 }
 
