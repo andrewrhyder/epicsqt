@@ -661,10 +661,10 @@ QString QEForm::getContainedFrameworkVersion()
     return containedFrameworkVersion;
 }
 
-// Get the form file name (inclusing all substitutions)
+// Get the full form file name as used to open the file (inclusing all substitutions)
 QString QEForm::getUiFileName()
 {
-    return getSubstitutedVariableName( 0 );
+    return fullUiFileName;
 }
 
 //==============================================================================
