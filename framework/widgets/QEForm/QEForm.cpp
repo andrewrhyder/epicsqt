@@ -58,24 +58,34 @@ QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this )
 
 // Constructor.
 // UI filename is supplied and UI file is read as part of construction.
-QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QEWidget( this ) {
+QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QEWidget( this )
+{
     commonInit( true );
-    uiFileName = uiFileNameIn;
+    setUiFileNameProperty( uiFileNameIn );
 }
 
 // Common construction
 void QEForm::commonInit( const bool alertIfUINoFoundIn )
 {
-    // Set up the number of variables managed by the variable name manager
-    // NOTE: there is no data associated with this widget, but it uses the same substitution mechanism as other data widgets.
-    variableNameManagerInitialise( 1 );
+    // Set up the number of variables managed by the variable name manager.
+    // NOTE: there is no data associated with this widget, but it uses the same mechanism as other data widgets to manage the UI filename and macro substitutions.
+    // The standard variable name and macros mechanism is used by QEForm for UI file name and marcos
+    setNumVariables(1);
 
     setAcceptDrops(true);
 
     ui = NULL;
 
     placeholderLabel = NULL;
-    displayPlaceholder( true, "No file name" );
+
+    // If in designer mark up the form noting there is no file name set yet.
+    // If not in designer, this will be done then establishConnection() is called.
+    // This could be done all the time but QEForm would flash "No File Name" every time the form was loaded in QEGui.
+    // This was done all the time without any problems when the file was loaded synchronously. Now establishConnection() loads the form as a timed event.
+    if( inDesigner() )
+    {
+        displayPlaceholder( true, "No file name" );
+    }
 
     alertIfUINoFound = alertIfUINoFoundIn;
     handleGuiLaunchRequests = false;
@@ -109,6 +119,42 @@ QEForm::~QEForm()
     // Close any existing form
     if( ui )
         ui->close();
+}
+
+/*
+    Start updating. (or in the case of QEForm widget, load the form)
+    Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
+    Normally this function is used to initiate data updates when loaded as a plugin, but in the case of QEForm it uses the variable name as a file name
+*/
+void QEForm::establishConnection( unsigned int variableIndex )
+{
+    // Get the fully substituted variable name
+    QString newFileName = getSubstitutedVariableName( variableIndex );
+
+    // Mark up the widget if there is no file name available
+    if( newFileName.isEmpty() )
+    {
+        displayPlaceholder( true, "No file name" );
+        return;
+    }
+
+    // Load the form.
+    // Avoid loading a form twice if file name has not changed. This is
+    // especially important if forms are deeply nested causing the problem
+    // to grow exponentially
+    if( newFileName != uiFileName )
+    {
+        // Note the required filename and schedule it to be loaded once all events have been processed.
+        // It may be loaded immedietly by calling readUiFile() now, but this keeps things a bit more interactive.
+        uiFileName = newFileName;
+        QTimer::singleShot( 0, this, SLOT(reloadLater()));
+    }
+}
+
+// Load the form once all events have been processed.
+void QEForm::reloadLater()
+{
+    readUiFile();
 }
 
 // Debug function to list the widget hierarchy
@@ -605,32 +651,24 @@ void QEForm::resizeEvent ( QResizeEvent * event )
     }
 }
 
-
+// Get the version of the framework that loaded this form.
+// Note this may vary within the same application.
+// For example, QEGui may create a QEform programatically using the QE framework library it has loaded on startup,
+// and then use Qt's UI loader to load a UI file containing a QEForm which is created by another version of the
+// QE framework found by the UI Loader plugin location process.
 QString QEForm::getContainedFrameworkVersion()
 {
     return containedFrameworkVersion;
 }
 
-//==============================================================================
-// Property convenience functions
-
-// UI file name
-void    QEForm::setUiFileName( QString uiFileNameIn )
-{
-    // File name property can be set twice while loading QEForm widgets.
-    // Avoid loading a form twice if file name has not chenged. This is
-    // especially important if forms are deeply nested causing the problem
-    // to grow exponentially
-    if( uiFileNameIn != uiFileName )
-    {
-        uiFileName = uiFileNameIn;
-        readUiFile();
-    }
-}
+// Get the form file name (inclusing all substitutions)
 QString QEForm::getUiFileName()
 {
-    return uiFileName;
+    return getSubstitutedVariableName( 0 );
 }
+
+//==============================================================================
+// Property convenience functions
 
 // Flag indicating form should handle gui form launch requests
 void QEForm::setHandleGuiLaunchRequests( bool handleGuiLaunchRequestsIn )
