@@ -150,13 +150,14 @@ void QEBitStatus::establishConnection (unsigned int variableIndex)
 void QEBitStatus::connectionChanged (QCaConnectionInfo & connectionInfo)
 {
     // Note the connected state
-    isConnected = connectionInfo.isChannelConnected();
+    this->isConnected = connectionInfo.isChannelConnected();
 
     // Display the connected state
-    updateToolTipConnection( isConnected );
-    updateConnectionStyle( isConnected );
-}
+    updateToolTipConnection (this->isConnected);
+    updateConnectionStyle (this->isConnected);
 
+    this->setIsActive (this->isConnected);
+}
 
 
 /* ----------------------------------------------------------------------------
@@ -184,7 +185,6 @@ void QEBitStatus::setBitStatusValue (const long &value,
    //
    emit dbValueChanged (value);
 }
-
 
 
 /* ----------------------------------------------------------------------------

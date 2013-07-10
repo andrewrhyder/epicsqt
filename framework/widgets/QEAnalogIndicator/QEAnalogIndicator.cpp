@@ -69,6 +69,7 @@ QEAnalogIndicator::QEAnalogIndicator (QWidget *parent) : QWidget (parent)
    this->mValue = 0.0;
    this->mCentreAngle = 0;
    this->mSpanAngle = 180;
+   this->mIsActive = false;
 
    // Do thsi only once, not on paintEvent as it caises another paint event.
    //
@@ -176,21 +177,21 @@ bool QEAnalogIndicator::nextValue  (int & itc, double & value, bool & isMajor)
 //
 QColor QEAnalogIndicator::getBorderPaintColour ()
 {
-   return this->isEnabled () ? this->mBorderColour : QColor (160, 160, 160);
+   return this->getIsActive () ? this->mBorderColour : QColor (160, 160, 160);
 }
 
 //------------------------------------------------------------------------------
 //
 QColor QEAnalogIndicator::getBackgroundPaintColour ()
 {
-   return this->isEnabled () ? this->mBackgroundColour : QColor (240, 240, 240);
+   return this->getIsActive () ? this->mBackgroundColour : QColor (240, 240, 240);
 }
 
 //------------------------------------------------------------------------------
 //
 QColor QEAnalogIndicator::getForegroundPaintColour ()
 {
-   return this->isEnabled () ? this->mForegroundColour : QColor (220, 220, 220);
+   return this->getIsActive () ? this->mForegroundColour : QColor (220, 220, 220);
 }
 
 
@@ -198,7 +199,7 @@ QColor QEAnalogIndicator::getForegroundPaintColour ()
 //
 QColor QEAnalogIndicator::getFontPaintColour ()
 {
-   return this->isEnabled () ? this->mFontColour : QColor (140, 140, 140);
+   return this->getIsActive () ? this->mFontColour : QColor (140, 140, 140);
 }
 
 //------------------------------------------------------------------------------
@@ -1021,7 +1022,7 @@ void QEAnalogIndicator::setRange (const double MinimumIn,
 //
 #define PROPERTY_ACCESS(type, name, convert)                 \
                                                              \
-void QEAnalogIndicator::set##name (const type value)  {     \
+void QEAnalogIndicator::set##name (const type value)  {      \
    type temp;                                                \
    temp = convert;                                           \
    if (this->m##name != temp) {                              \
@@ -1068,6 +1069,8 @@ PROPERTY_ACCESS (double, Value, value)
 PROPERTY_ACCESS (double, Minimum, MIN (value, this->mMaximum - MINIMUM_SPAN) )
 
 PROPERTY_ACCESS (double, Maximum, MAX (value, this->mMinimum + MINIMUM_SPAN) )
+
+PROPERTY_ACCESS (bool, IsActive, value)
 
 #undef PROPERTY_ACCESS
 

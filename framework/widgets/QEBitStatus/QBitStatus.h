@@ -79,6 +79,7 @@ public:
 
    Q_PROPERTY (bool    drawBorder          READ getDrawBorder           WRITE setDrawBorder)
    Q_PROPERTY (bool    isValid             READ getIsValid              WRITE setIsValid)
+   Q_PROPERTY (bool    isActive            READ getIsActive             WRITE setIsActive)
 
 //#endif
 
@@ -100,6 +101,7 @@ private:
    int  mReversePolarityMask;
    int  mOnClearMask;
    int  mOffClearMask;
+   bool mIsActive;          // i.e. is connected in CA speak
    bool mIsValid;
    int mValue;
    enum Orientations mOrientation;
@@ -123,6 +125,8 @@ private:
    static int maskToInt (const QString mask);
 
 protected:
+   void setIsActive (const bool value);
+   bool getIsActive ();
 
 public:
    // Constructor
