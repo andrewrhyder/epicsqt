@@ -120,6 +120,8 @@ public:
     ///
     Q_PROPERTY (QColor fontColour        READ getFontColour          WRITE setFontColour)
 
+    Q_PROPERTY (bool   isActive          READ getIsActive            WRITE setIsActive)
+
 private:
     // class member variable names start with m so as not to clash with
     // the propery names.
@@ -133,6 +135,7 @@ private:
     double mValue;
     enum Orientations mOrientation;
     enum Modes mMode;
+    bool mIsActive;          // i.e. is connected in CA speak
     int mCentreAngle;
     int mSpanAngle;
     bool mShowText;
@@ -195,8 +198,10 @@ protected:
     };
 
     class BandList : public QList <Band> { };
-
     virtual BandList getBandList ();
+
+    void setIsActive (const bool value);
+    bool getIsActive ();
 
 public:
     /// Constructor

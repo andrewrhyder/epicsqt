@@ -58,6 +58,7 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    mGap = 0;               // 0 .. 80
    mShift = 0;             // 0 .. 32
    mIsValid = true;
+   mIsActive = false;
    mValue = 0;
    mOrientation = LSB_On_Right;
    mShape = Rectangle;
@@ -83,28 +84,28 @@ QSize QBitStatus::sizeHint () const {
 //
 QColor QBitStatus::getBorderPaintColour ()
 {
-   return this->isEnabled () ? this->mBorderColour : QColor (160, 160, 160);
+   return this->getIsActive() ? this->mBorderColour : QColor (160, 160, 160);
 }
 
 //------------------------------------------------------------------------------
 //
 QColor QBitStatus::getOffPaintColour ()
 {
-   return this->isEnabled () ? this->mOffColour : QColor (220, 220, 220);
+   return this->getIsActive () ? this->mOffColour : QColor (220, 220, 220);
 }
 
 //------------------------------------------------------------------------------
 //
 QColor QBitStatus::getOnPaintColour ()
 {
-   return this->isEnabled () ? this->mOnColour : QColor (240, 240, 240);
+   return this->getIsActive () ? this->mOnColour : QColor (240, 240, 240);
 }
 
 //------------------------------------------------------------------------------
 //
 QColor QBitStatus::getInvalidPaintColour ()
 {
-   return this->isEnabled () ? this->mInvalidColour : QColor (200, 200, 200);
+   return this->getIsActive () ? this->mInvalidColour : QColor (200, 200, 200);
 }
 
 
@@ -342,7 +343,7 @@ void QBitStatus::set##name (const type value)  {             \
    temp = convert;                                           \
    if (this->m##name != temp) {                              \
       this->m##name = temp;                                  \
-      update ();                                             \
+      this->update ();                                       \
    }                                                         \
  }                                                           \
                                                              \
@@ -358,6 +359,8 @@ PROPERTY_ACCESS (QBitStatus::Orientations, Orientation, value)
 PROPERTY_ACCESS (QBitStatus::Shapes, Shape, value)
 
 PROPERTY_ACCESS (bool, IsValid, value)
+
+PROPERTY_ACCESS (bool, IsActive, value)
 
 PROPERTY_ACCESS (bool, DrawBorder, value)
 

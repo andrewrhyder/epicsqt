@@ -154,17 +154,18 @@ void QEAnalogProgressBar::establishConnection( unsigned int variableIndex )
 void QEAnalogProgressBar::connectionChanged( QCaConnectionInfo& connectionInfo )
 {
     // Note the connected state
-    isConnected = connectionInfo.isChannelConnected();
+    this->isConnected = connectionInfo.isChannelConnected();
 
     // Note if first update has arrived (ok to set repeatedly)
-    if( isConnected )
-    {
+    if (this->isConnected) {
         isFirstUpdate = true;
     }
 
     // Display the connected state
-    updateToolTipConnection( isConnected );
-    updateConnectionStyle( isConnected );
+    updateToolTipConnection (this-> isConnected);
+    updateConnectionStyle (this->isConnected);
+
+    this->setIsActive (this->isConnected);
 }
 
 /* ----------------------------------------------------------------------------
