@@ -102,7 +102,11 @@ void QEResizeableFrame::setWidget (QWidget* widgetIn)
    // Sanity check.
    //
    if (widgetIn) {
-      if ((widgetIn == this->userWidget) || (widgetIn == this->defaultWidget)) {
+      // Cannot set self as widget nor the current widget nor the default widget.
+      //
+      if ((widgetIn == this) ||
+          (widgetIn == this->userWidget) ||
+          (widgetIn == this->defaultWidget)) {
          // Here be dragons - cannot set do this.
          //
          qDebug () << "QEResizeableFrame::setWidget - unexpected widget parameter";
