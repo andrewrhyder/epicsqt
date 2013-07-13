@@ -33,6 +33,7 @@
 #include <QLabel>
 #include <QPoint>
 #include <QString>
+#include <QWidget>
 
 #include <QCaAlarmInfo.h>
 #include <QCaConnectionInfo.h>
@@ -51,18 +52,6 @@
 #include "QEStripChartContextMenu.h"
 #include "QEStripChartUtilities.h"
 
-
-// Provide log and exp 10 macro functions.
-//
-// Log is a safe log in that it avoids attempting to take the log of negative
-// or zero values. The 1.0e-20 limit is somewhat arbitary, but in practice is
-// good for most numbers encountered at the synchrotron.
-//
-// Not all platforms provide exp10. What about pow () ??
-//
-#define LOG10(x)  ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
-#define EXP10(x)  exp (2.302585092994046 * (x))
-
 // Defered declaration - exists in qwt_plot_curve.h - but
 // we don't need to expose that.
 //
@@ -73,13 +62,12 @@ class QwtPlotCurve;
 // We have to make is public so that it can be a pukka Q_OBJECT in order to
 // receive signals.
 //
-class QEStripChartItem : public QObject {
+class QEStripChartItem : public QWidget {
    Q_OBJECT
 public:
-   explicit QEStripChartItem (QEStripChart *chart,
-                              QLabel *pvName,
-                              QELabel *caLabel,
-                              unsigned int slot);
+   explicit QEStripChartItem (QEStripChart* chart,
+                              unsigned int slot,
+                              QWidget* parent);
    virtual ~QEStripChartItem ();
 
    bool isInUse ();
@@ -117,8 +105,6 @@ public:
 
    void plotData (const double timeScale,                             // x scale modifier
                   const QEStripChartNames::YScaleModes yScaleMode);   // y scale modifier
-
-   void contextMenuSelected (const QEStripChartNames::ContextMenuOptions option);
 
    void saveConfiguration (PMElement & parentElement);
    void restoreConfiguration (PMElement & parentElement);
@@ -183,7 +169,9 @@ private slots:
 
    void setArchiveData (const QObject *userData, const bool okay, const QCaDataPointList &archiveData);
 
-   void customContextMenuRequested (const QPoint & pos);
+   void contextMenuRequested (const QPoint & pos);
+   void contextMenuSelected  (const QEStripChartNames::ContextMenuOptions option);
+
 };
 
 #endif  // QSTRIPCHARTITEM_H

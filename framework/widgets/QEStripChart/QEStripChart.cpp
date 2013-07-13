@@ -69,7 +69,6 @@
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 
-#define PV_LABEL_HEIGHT    15
 #define PV_DELTA_HEIGHT    18
 
 #define PV_FRAME_HEIGHT    (6 + (NUMBER_OF_PVS / 2) * PV_DELTA_HEIGHT)
@@ -240,7 +239,7 @@ void QEPVNameLists::prependOrMoveToFirst (const QString & item)
       this->swap (0, posn);
    }  // else posn = 0 - nothing to do.
 
-   if (this->count () > QEStripChartContextMenu::numberPrefefinedItems) {
+   if (this->count () > QEStripChartNames::NumberPrefefinedItems) {
       this->removeLast ();
    }
 }
@@ -327,9 +326,6 @@ public:
    void nullContextMenuRequested (const QPoint & pos);
    void chartContextMenuTriggered (QAction* action);
 
-   void itemContextMenuRequested (const unsigned int slot, const QPoint & pos);
-   void itemContextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions option);
-
    void pushState ();
    void prevState ();
    void nextState ();
@@ -361,13 +357,9 @@ private:
    QVBoxLayout *layout1;
    QVBoxLayout *layout2;
 
-   QLabel *pvNames [NUMBER_OF_PVS];
-   QELabel *caLabels [NUMBER_OF_PVS];
    QEStripChartItem *items [NUMBER_OF_PVS];
 
    QMenu* chartContextMenu;
-   QEStripChartContextMenu *inUseMenu;
-   QEStripChartContextMenu *emptyMenu;
 
    QEChartStateLists chartStateList;
    int chartStatePointer;
@@ -455,26 +447,14 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    // Create widgets (parented by chart) and chart ittem that manages these.
    //
    for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
-      QEStripChartItem * chartItem;
+      QEStripChartItem * chartItem  = new QEStripChartItem (this->chart, slot, this->pvFrame);
 
-      this->pvNames [slot] = new QLabel (this->pvFrame);
-      this->caLabels [slot] = new QELabel (this->pvFrame);
+      x = 4 + (slot % 2) * 492;
+      y = 4 + (slot / 2) * PV_DELTA_HEIGHT;
 
-      x = 6 + (slot % 2) * 492;
-      y = 6 + (slot / 2) * PV_DELTA_HEIGHT;
-
-      this->pvNames [slot]->setGeometry   (x, y, 344, PV_LABEL_HEIGHT); x += 348;
-      this->caLabels [slot]->setGeometry  (x, y, 128, PV_LABEL_HEIGHT);
-
-      chartItem = new QEStripChartItem (this->chart,
-                                        this->pvNames [slot],
-                                        this->caLabels [slot],
-                                        slot);
+      chartItem->setGeometry (x, y, 476, PV_DELTA_HEIGHT);
 
       this->items [slot] = chartItem;
-
-      QObject::connect (chartItem,   SIGNAL (itemContextMenuRequested (const unsigned int, const QPoint &)),
-                        this->chart, SLOT   (itemContextMenuRequested (const unsigned int, const QPoint &)));
    }
 
    // Create scrolling area and add pv frame.
@@ -557,20 +537,6 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    QObject::connect (this->plotFrame, SIGNAL (customContextMenuRequested (const QPoint &)),
                      this->chart,     SLOT   (nullContextMenuRequested   (const QPoint &)));
 
-
-
-   // Chart item context menus.
-   //
-   this->inUseMenu = new QEStripChartContextMenu (true, this->chart);
-   this->emptyMenu = new QEStripChartContextMenu (false, this->chart);
-
-   // Connect the context menus
-   //
-   this->connect (this->inUseMenu, SIGNAL (contextMenuSelected     (const unsigned int, const QEStripChartNames::ContextMenuOptions)),
-                  this->chart,     SLOT   (itemContextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)));
-
-   this->connect (this->emptyMenu, SIGNAL (contextMenuSelected     (const unsigned int, const QEStripChartNames::ContextMenuOptions)),
-                  this->chart,     SLOT   (itemContextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions)));
 
    // Clear / initialise plot.
    //
@@ -665,43 +631,6 @@ void QEStripChart::PrivateData::chartContextMenuTriggered (QAction* action)
       default:
          // do nothing
          break;
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::PrivateData::itemContextMenuRequested (const unsigned int slot, const QPoint & pos)
-{
-   QEStripChartItem* item = this->getItem (slot);
-   QPoint tempPos;
-   QPoint golbalPos;
-
-   if (!item) return;   // sanity check
-
-   tempPos = pos;
-   tempPos.setY (2);   // align with top of label
-   golbalPos = this->pvNames [slot]->mapToGlobal (tempPos);
-
-   if (item->isInUse()) {
-      this->inUseMenu->setUseReceiveTime (item->getUseReceiveTime ());
-      this->inUseMenu->setArchiveReadHow (item->getArchiveReadHow ());
-      this->inUseMenu->setLineDrawMode (item->getLineDrawMode ());
-      this->inUseMenu->exec (slot, golbalPos, 0);
-   } else {
-      this->emptyMenu->setPredefinedNames (predefinedPVNameList);
-      this->emptyMenu->exec (slot, golbalPos, 0);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::PrivateData::itemContextMenuSelected (const unsigned int slot,
-                                                         const QEStripChartNames::ContextMenuOptions option)
-{
-   QEStripChartItem* item = this->getItem (slot);
-
-   if (item) {
-      item->contextMenuSelected (option);
    }
 }
 
@@ -1547,21 +1476,6 @@ void QEStripChart::chartContextMenuTriggered (QAction* action)
    this->privateData->chartContextMenuTriggered (action);
 }
 
-//------------------------------------------------------------------------------
-//
-void QEStripChart::itemContextMenuRequested (const unsigned int slot, const QPoint & pos)
-{
-   this->privateData->itemContextMenuRequested (slot, pos);
-}
-
-//------------------------------------------------------------------------------
-//
-void QEStripChart::itemContextMenuSelected (const unsigned int slot,
-                                            const QEStripChartNames::ContextMenuOptions option)
-{
-   this->privateData->itemContextMenuSelected (slot, option);
-}
-
 
 //=============================================================================
 // Handle toolbar signals
@@ -1739,6 +1653,13 @@ void QEStripChart::readArchiveSelected ()
 void QEStripChart::addToPredefinedList (const QString & pvName)
 {
    predefinedPVNameList.prependOrMoveToFirst (pvName);
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QEStripChart::getPredefinedPVNameList ()
+{
+   return QStringList (predefinedPVNameList);
 }
 
 //------------------------------------------------------------------------------

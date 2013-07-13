@@ -51,25 +51,15 @@ public:
    void setLineDrawMode    (const QEStripChartNames::LineDrawModes mode);
 
 
-   // Wrapper exec function.
-   //
-   QAction *exec (const unsigned int slot,
-                  const QPoint &pos, QAction *at=0);
-
-   // Must be consistant with number of SCCM_PREDEFINED_XX items.
-   //
-   static const int numberPrefefinedItems = 10;
-
 signals:
    // All the triggered actions from the various sub-menu items are
    // converted to an ContextMenuOptions value.
-   void contextMenuSelected (const unsigned int, const QEStripChartNames::ContextMenuOptions);
+   void contextMenuSelected (const QEStripChartNames::ContextMenuOptions);
 
 private:
    bool inUse;
-   unsigned int slot;
 
-   QAction *predefinedPVs [numberPrefefinedItems];
+   QAction *predefinedPVs [QEStripChartNames::NumberPrefefinedItems];
 
    // Utility function to create and set up an action.
    //
