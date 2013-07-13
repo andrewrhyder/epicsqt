@@ -45,6 +45,19 @@
 //
 #define ARRAY_LENGTH(xx)   (int (sizeof (xx) /sizeof (xx [0])))
 
+
+// Provide log and exp 10 macro functions.
+//
+// Log is a safe log in that it avoids attempting to take the log of negative
+// or zero values. The 1.0e-20 limit is somewhat arbitary, but in practice is
+// good for most numbers encountered at the synchrotron.
+//
+// Not all platforms provide exp10. What about pow () ??
+//
+#define LOG10(x)  ( (x) >=  1.0e-20 ? log10 (x) : -20.0 )
+#define EXP10(x)  exp (2.302585092994046 * (x))
+
+
 // We do not include QColor and QWidget header files in this header file (they are
 // called by by QECommon.cpp), we just provide incomplete declarations.
 // This particularly usefull for non-gui command line programs.
