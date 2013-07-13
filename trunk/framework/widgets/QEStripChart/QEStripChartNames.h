@@ -170,6 +170,7 @@ public:
    //
    static const ContextMenuOptions ContextMenuItemFirst = SCCM_READ_ARCHIVE;
    static const ContextMenuOptions ContextMenuItemLast  = SCCM_PREDEFINED_10;
+   static const int NumberPrefefinedItems = (SCCM_PREDEFINED_10 - SCCM_PREDEFINED_01 + 1);
 };
 
 #endif   // QESTRIPCHARTNAMES_H

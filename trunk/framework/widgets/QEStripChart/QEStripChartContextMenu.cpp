@@ -211,18 +211,6 @@ void QEStripChartContextMenu::setLineDrawMode (const QEStripChartNames::LineDraw
 
 //------------------------------------------------------------------------------
 //
-QAction *QEStripChartContextMenu::exec (const unsigned int slotIn,
-                                        const QPoint &pos, QAction *at)
-{
-   this->slot = slotIn;  // save context
-
-   // Call super class function.
-   //
-   return QMenu::exec (pos, at);
-}
-
-//------------------------------------------------------------------------------
-//
 void QEStripChartContextMenu::contextMenuTriggered (QAction* selectedItem)
 {
    bool okay;
@@ -233,7 +221,7 @@ void QEStripChartContextMenu::contextMenuTriggered (QAction* selectedItem)
    if (okay &&
        (option >= QEStripChartNames::ContextMenuItemFirst) &&
        (option <= QEStripChartNames::ContextMenuItemLast)) {
-      emit this->contextMenuSelected (this->slot, option);
+      emit this->contextMenuSelected (option);
    }
 }
 

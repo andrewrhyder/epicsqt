@@ -46,7 +46,6 @@
 #include <persistanceManager.h>
 
 #include "QEStripChartNames.h"
-#include "QEStripChartContextMenu.h"
 #include "QEStripChartToolBar.h"
 #include "QEStripChartRangeDialog.h"
 #include "QEStripChartTimeDialog.h"
@@ -137,13 +136,6 @@ public:
    //
    void setYRange (const double yMinimumIn, const double yMaximumIn);
 
-   // Replots chart data
-   //
-   void plotData ();
-
-   void addToPredefinedList (const QString & pvName);
-   QString getPredefinedItem (int i);
-
 protected:
    // Drop only. Dragging is from individual embedded QEWidgets.
    //
@@ -165,11 +157,21 @@ protected:
    void saveConfiguration (PersistanceManager* pm);
    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
+   // Also used by QEStripChartItem
+   //
+   void addToPredefinedList (const QString & pvName);
+   QStringList getPredefinedPVNameList ();
+   QString getPredefinedItem (int i);
+
+   // Replots chart data
+   //
+   void plotData ();
+
 private:
-   // Internal widgets and associated support data. These are declared in
-   // PrivateData. If these items are declared at class level, there is a run
-   // time exception. PrivateData also allows, what is essentially private,
-   // to be actually private, well at least declared in QEStripChart.cpp
+   // Internal widgets and associated support data. These are declared in PrivateData.
+   // If these items are declared at class level, there is a run time exception.
+   // PrivateData also allows, what is essentially private, to be actually private,
+   // well at least declared in QEStripChart.cpp
    //
    class PrivateData;
    PrivateData *privateData;
@@ -254,15 +256,9 @@ private slots:
 
    // From chart context menu
    //
-   void nullContextMenuRequested (const QPoint& ) {}
+   void nullContextMenuRequested  (const QPoint&) {}
    void chartContextMenuRequested (const QPoint& pos);
    void chartContextMenuTriggered (QAction* action);
-
-   // From chart items
-   // Handled centally as we have one context menu object.
-   //
-   void itemContextMenuRequested (const unsigned int slot, const QPoint & pos);
-   void itemContextMenuSelected  (const unsigned int slot, const QEStripChartNames::ContextMenuOptions option);
 
    // From tool bar
    //

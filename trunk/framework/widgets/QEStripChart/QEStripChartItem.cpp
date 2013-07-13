@@ -34,7 +34,10 @@
 #include <qwt_plot_curve.h>
 
 #include <QECommon.h>
+
 #include "QEStripChartItem.h"
+#include "QEStripChartContextMenu.h"
+
 
 #define DEBUG  qDebug () <<  "QEStripChartItem::" <<  __FUNCTION__  << ":" << __LINE__
 
@@ -63,60 +66,62 @@ static const QString unused ("QWidget { background-color: #c0c0c0; }");
 //
 class QEStripChartItem::PrivateData {
 public:
-   PrivateData ();
+   PrivateData (QWidget* parent);
    QEStripChart *chart;
    QLabel *pvName;
    QELabel *caLabel;
    QColorDialog *colourDialog;
+   QEStripChartContextMenu* inUseMenu;
+   QEStripChartContextMenu* emptyMenu;
    qcaobject::QCaObject *previousQcaItem;
 };
 
 //------------------------------------------------------------------------------
 //
-QEStripChartItem::PrivateData::PrivateData ()
+QEStripChartItem::PrivateData::PrivateData (QWidget* parent)
 {
-   this->chart = NULL;
-   this->pvName = NULL;
-   this->caLabel = NULL;
-   this->colourDialog = NULL;
+   this->pvName = new QLabel (parent);
+   this->caLabel = new QELabel (parent);
+   this->colourDialog = new QColorDialog (parent);
+   this->inUseMenu = new QEStripChartContextMenu (true, parent);
+   this->emptyMenu = new QEStripChartContextMenu (false, parent);
+
    this->previousQcaItem = NULL;
 }
 
 //==============================================================================
 //
-QEStripChartItem::QEStripChartItem (QEStripChart *chart,
-                                    QLabel *pvName,
-                                    QELabel *caLabel,
-                                    unsigned int slotIn) : QObject (chart)
+QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
+                                    unsigned int slotIn,
+                                    QWidget* parent) : QWidget (parent)
 {
    QColor defaultColour;
 
    // Construct private data for this chart item.
    //
-   this->privateData = new QEStripChartItem::PrivateData ();
+   this->privateData = new QEStripChartItem::PrivateData (this);
 
-   // Store references to to widgets in private data class.
-   //
-   this->privateData->chart = chart;
-   this->privateData->pvName = pvName;
-   this->privateData->caLabel = caLabel;
-
+   this->privateData->chart = chartIn;
    this->slot = slotIn;
 
    // Construct dialog and save references.
    //
-   this->privateData->colourDialog = new QColorDialog (chart);
-   this->pvNameEditDialog = new QEStripChartItemDialog (chart);
-   this->adjustPVDialog = new QEStripChartAdjustPVDialog (chart);
+   this->pvNameEditDialog = new QEStripChartItemDialog (this);
+   this->adjustPVDialog = new QEStripChartAdjustPVDialog (this);
 
-   pvName->setIndent (6);
-   pvName->setToolTip ("Use context menu to modify PV attributes");
+   // Set geometry
+   //
+   this->privateData->pvName->setGeometry  (  0, 0, 344, 15);
+   this->privateData->caLabel->setGeometry (348, 0, 128, 15);
 
-   caLabel->setIndent (6);
-   caLabel->setAlignment (Qt::AlignRight);
-   QFont font = caLabel->font ();
+   this->privateData->pvName->setIndent (6);
+   this->privateData->pvName->setToolTip ("Use context menu to modify PV attributes");
+
+   this->privateData->caLabel->setIndent (6);
+   this->privateData->caLabel->setAlignment (Qt::AlignRight);
+   QFont font = this->privateData->caLabel->font ();
    font.setFamily ("Monospace");
-   caLabel->setFont (font);
+   this->privateData->caLabel->setFont (font);
 
    if (slot < QEStripChart::NUMBER_OF_PVS) {
       defaultColour = item_colours [this->slot];
@@ -131,7 +136,7 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
 
    // Assign the chart widget message source id the the associated archive access object.
    //
-   this->archiveAccess.setMessageSourceId (chart->getMessageSourceId ());
+   this->archiveAccess.setMessageSourceId (chartIn->getMessageSourceId ());
 
    // Set up a connection to recieve variable name property changes.  The variable
    // name property manager class only delivers an updated variable name after the
@@ -148,16 +153,25 @@ QEStripChartItem::QEStripChartItem (QEStripChart *chart,
                      this,                 SLOT   (setArchiveData (const QObject *, const bool, const QCaDataPointList &)));
 
 
-   // Use the chart item objectas the pvName event filter object.
+
+   // Use the chart item object as the pvName event filter object.
    //
-   pvName->installEventFilter (this);
+   this->privateData->pvName->installEventFilter (this);
 
    // Set up context menus.
    //
-   pvName->setContextMenuPolicy (Qt::CustomContextMenu);
+   this->privateData->pvName->setContextMenuPolicy (Qt::CustomContextMenu);
 
-   this->connect (pvName, SIGNAL (customContextMenuRequested (const QPoint &)),
-                  this,   SLOT   (customContextMenuRequested (const QPoint &)));
+   this->connect (this->privateData->pvName, SIGNAL (customContextMenuRequested (const QPoint &)),
+                  this,                      SLOT   (contextMenuRequested (const QPoint &)));
+
+   // Connect the context menus
+   //
+   this->connect (this->privateData->inUseMenu, SIGNAL (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)),
+                  this,                         SLOT   (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)));
+
+   this->connect (this->privateData->emptyMenu, SIGNAL (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)),
+                  this,                         SLOT   (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)));
 }
 
 //------------------------------------------------------------------------------
@@ -766,14 +780,6 @@ QPen QEStripChartItem::getPen ()
    return result;
 }
 
-//------------------------------------------------------------------------------
-//
-void QEStripChartItem::customContextMenuRequested (const QPoint & pos)
-{
-   // Include slot number and re-emit to the chart.
-   //
-   emit this->itemContextMenuRequested (this->slot, pos);
-}
 
 //------------------------------------------------------------------------------
 //
@@ -789,6 +795,31 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
    }
    return false;
 }
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::contextMenuRequested (const QPoint & pos)
+{
+   QEStripChart *chart = this->privateData->chart;  // alias
+
+   QPoint tempPos;
+   QPoint golbalPos;
+
+   tempPos = pos;
+   tempPos.setY (2);   // align with top of label
+   golbalPos = this->mapToGlobal (tempPos);
+
+   if (this->isInUse()) {
+      this->privateData->inUseMenu->setUseReceiveTime (this->getUseReceiveTime ());
+      this->privateData->inUseMenu->setArchiveReadHow (this->getArchiveReadHow ());
+      this->privateData->inUseMenu->setLineDrawMode (this->getLineDrawMode ());
+      this->privateData->inUseMenu->exec (golbalPos, 0);
+   } else {
+      this->privateData->emptyMenu->setPredefinedNames (chart->getPredefinedPVNameList ());
+      this->privateData->emptyMenu->exec (golbalPos, 0);
+   }
+}
+
 
 //------------------------------------------------------------------------------
 //
