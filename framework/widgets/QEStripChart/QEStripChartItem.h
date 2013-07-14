@@ -79,7 +79,7 @@ public:
    void getScaling (double & d, double & m, double & c);
    bool isScaled ();
 
-   // Following used to extarct status for the sharted context menu object.
+   // Following used to extract status for the context menu object.
    //
    bool getUseReceiveTime () { return this->useReceiveTime; }
    QEArchiveInterface::How getArchiveReadHow () { return this->archiveReadHow; }
@@ -88,7 +88,7 @@ public:
    // NOTE: Where ever possible I spell colour properly.
    //
 public slots:
-   void setColour (const QColor &  colour);    // also used by colour dialog
+   void setColour (const QColor&  colour);    // also used by colour dialog
 public:
    QColor getColour ();
 
@@ -129,6 +129,10 @@ private:
                         const QEStripChartNames::YScaleModes yScaleMode,
                         const bool isRealTime,
                         TrackRange & plottedTrackRange);
+
+   // Perform a pvNameDropEvent 'drop'
+   //
+   void pvNameDropEvent (QDropEvent *event);
 
    // data members
    //
@@ -171,7 +175,6 @@ private slots:
 
    void contextMenuRequested (const QPoint & pos);
    void contextMenuSelected  (const QEStripChartNames::ContextMenuOptions option);
-
 };
 
 #endif  // QSTRIPCHARTITEM_H
