@@ -105,6 +105,7 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    this->slot = slotIn;
 
    // Construct dialog and save references.
+   // TODO - move to privateData for consistancy.
    //
    this->pvNameEditDialog = new QEStripChartItemDialog (this);
    this->adjustPVDialog = new QEStripChartAdjustPVDialog (this);
@@ -114,9 +115,22 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    this->privateData->pvName->setGeometry  (  0, 0, 344, 15);
    this->privateData->caLabel->setGeometry (348, 0, 128, 15);
 
+   // Set up other properties.
+   //
    this->privateData->pvName->setIndent (6);
    this->privateData->pvName->setToolTip ("Use context menu to modify PV attributes");
+   this->privateData->pvName->setAcceptDrops (true);
 
+   // Use the chart item object as the pvName event filter object.
+   //
+   this->privateData->pvName->installEventFilter (this);
+
+   // Set up context menus.
+   //
+   this->privateData->pvName->setContextMenuPolicy (Qt::CustomContextMenu);
+
+   // Setup QELabel properties.
+   //
    this->privateData->caLabel->setIndent (6);
    this->privateData->caLabel->setAlignment (Qt::AlignRight);
    QFont font = this->privateData->caLabel->font ();
@@ -129,6 +143,7 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
       defaultColour = clBlack;
    }
    this->setColour (defaultColour);
+
 
    // Clear/initialise.
    //
@@ -152,15 +167,6 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    QObject::connect (&this->archiveAccess, SIGNAL (setArchiveData (const QObject *, const bool, const QCaDataPointList &)),
                      this,                 SLOT   (setArchiveData (const QObject *, const bool, const QCaDataPointList &)));
 
-
-
-   // Use the chart item object as the pvName event filter object.
-   //
-   this->privateData->pvName->installEventFilter (this);
-
-   // Set up context menus.
-   //
-   this->privateData->pvName->setContextMenuPolicy (Qt::CustomContextMenu);
 
    this->connect (this->privateData->pvName, SIGNAL (customContextMenuRequested (const QPoint &)),
                   this,                      SLOT   (contextMenuRequested (const QPoint &)));
@@ -780,19 +786,91 @@ QPen QEStripChartItem::getPen ()
    return result;
 }
 
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::pvNameDropEvent (QDropEvent *event)
+{
+   // If no text available, do nothing
+   //
+   if (!event->mimeData()->hasText ()){
+      event->ignore ();
+      return;
+   }
+
+   // Get the drop data
+   //
+   const QMimeData *mime = event->mimeData ();
+
+   // If there is any text, drop the text
+
+   if (!mime->text().isEmpty ()) {
+      // Get the component textual parts
+      //
+      QStringList pieces = mime->text ().split (QRegExp ("\\s+"),
+                                                QString::SkipEmptyParts);
+
+      // Carry out the drop action
+      // Assume only the first text part is of interest
+      //
+      this->setPvName (pieces [0], "");
+   }
+
+   // Tell the dropee that the drop has been acted on
+   //
+   if (event->source() == this) {
+      event->setDropAction(Qt::CopyAction);
+      event->accept();
+   } else {
+      event->acceptProposedAction ();
+   }
+}
 
 //------------------------------------------------------------------------------
 //
 bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
 {
-   if (event->type () == QEvent::MouseButtonDblClick) {
-      if (obj == this->privateData->pvName) {
-         // Leverage of existing context menu handler.
-         //
-         this->contextMenuSelected (QEStripChartNames::SCCM_PV_EDIT_NAME);
-         return true;  // we have handled double click
-      }
+   const QEvent::Type type = event->type ();
+
+   switch (type) {
+
+      case QEvent::MouseButtonDblClick:
+         if (obj == this->privateData->pvName) {
+            // Leverage of existing context menu handler.
+            //
+            this->contextMenuSelected (QEStripChartNames::SCCM_PV_EDIT_NAME);
+            return true;  // we have handled double click
+         }
+         break;
+
+      case QEvent::DragEnter:
+         if (obj == this->privateData->pvName) {
+            QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*> (event);
+
+            // Can only drop if text and not in use.
+            //
+            if (dragEnterEvent->mimeData()->hasText () && !this->isInUse()) {
+               dragEnterEvent->setDropAction (Qt::CopyAction);
+               dragEnterEvent->accept ();
+            } else {
+               dragEnterEvent->ignore ();
+            }
+            return true;
+         }
+         break;
+
+      case QEvent::Drop:
+         if (obj == this->privateData->pvName) {
+            QDropEvent* dropEvent = static_cast<QDropEvent*> (event);
+            this->pvNameDropEvent (dropEvent);
+            return true;
+         }
+         break;
+
+      default:
+         // Just fall through
+         break;
    }
+
    return false;
 }
 
