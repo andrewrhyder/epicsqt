@@ -1,4 +1,6 @@
-/*  This file is part of the EPICS QT Framework, initially developed at the
+/*  QELog.h
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or
@@ -219,10 +221,4 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELog:public QWidget, public QEWidget
 
 };
 
-
-
-
-
 #endif // QELOG_H
-
-
