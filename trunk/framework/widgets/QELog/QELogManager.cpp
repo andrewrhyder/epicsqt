@@ -1,4 +1,5 @@
-/*
+/*  QELogManager.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -121,7 +122,7 @@ bool QELogManager::isContainer() const
 QString QELogManager::includeFile() const
 {
 
-    return "QELogManager.h";
+    return "QELog.h";
 
 }
 
@@ -148,4 +149,4 @@ QString QELogManager::includeFile() const
            "</widget>\n";
 }*/
 
-
+// end
