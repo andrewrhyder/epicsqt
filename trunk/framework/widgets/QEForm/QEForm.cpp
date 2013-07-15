@@ -50,18 +50,34 @@
 #include <QEWidget.h>
 
 // Constructor.
-// No UI file is read. uiFileName must be set and then readUiFile() called after construction
+// No UI file is read. After construction uiFileName (and macroSubstitution) properties must be set and then QEForm::readUiFile() called.
+// If this QEForm is itself a sub-form of some other QEForm, all properties will be set by the UI Loader as it reads the UI file for the parent form,
+// then the QEForm::establishConnection() will be called by the QE widget 'activation' mechanism where each widget is 'activated' after a QEForm
+// has been loaded by the UI Loader. For many QE widgets 'activation' means establish a CA connection to data sources. For
+// QEForm widgets 'activation' means read the UI file.
 QEForm::QEForm( QWidget* parent ) : QWidget( parent ), QEWidget( this )
 {
+    // Common construction
     commonInit( false );
+
+    // Note that this QEForm widget will load itself when QE widgets are 'activated' (when updates are initiated)
+    loadManually = false;
 }
 
 // Constructor.
-// UI filename is supplied and UI file is read as part of construction.
+// UI filename is supplied and saved. No filename or macro substituition properties need to be set, and the caller must
+// call QEForm::readUiFile() after construction to load the contents of the QEForm.
 QEForm::QEForm( const QString& uiFileNameIn, QWidget* parent ) : QWidget( parent ), QEWidget( this )
 {
+    // Common construction
     commonInit( true );
-    setUiFileNameProperty( uiFileNameIn );
+
+    // Note that this QEForm widget will be manually loaded by calling QEForm::readUiFile()
+    // It will not load automatically when QE widgets are 'activated' (when updates are initiated)
+    loadManually = true;
+
+    // Set up the filename during construction
+    uiFileName = uiFileNameIn;
 }
 
 // Common construction
@@ -128,6 +144,10 @@ QEForm::~QEForm()
 */
 void QEForm::establishConnection( unsigned int variableIndex )
 {
+    // Do nothing if form will be manually loaded by calling QEForm::readUiFile()
+    if( loadManually )
+        return;
+
     // Get the fully substituted variable name
     QString newFileName = getSubstitutedVariableName( variableIndex );
 
@@ -145,7 +165,7 @@ void QEForm::establishConnection( unsigned int variableIndex )
     if( newFileName != uiFileName )
     {
         // Note the required filename and schedule it to be loaded once all events have been processed.
-        // It may be loaded immedietly by calling readUiFile() now, but this keeps things a bit more interactive.
+        // It may be loaded immediately by calling readUiFile() now, but this keeps things a bit more interactive.
         uiFileName = newFileName;
         QTimer::singleShot( 0, this, SLOT(reloadLater()));
     }

@@ -121,6 +121,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
         QLabel* placeholderLabel;                                               // Used to display a message when the QEForm could not be loaded with a .ui file
         void displayPlaceholder( bool display, QString message = QString() );   // Display or clear a message when the QEForm could not be loaded with a .ui file
 
+        bool loadManually;                                                      // Set true when QEForm will be manually loaded by calling QEForm::readUiFile()
+
     public:
         // Note, a property macro in the form 'Q_PROPERTY(QString uiFileName READ ...' doesn't work.
         // A property name ending with 'Name' results in some sort of string a variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
