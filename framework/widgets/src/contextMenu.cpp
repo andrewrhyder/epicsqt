@@ -46,7 +46,7 @@ contextMenuObject::contextMenuObject()
     QAction* a;
 
     a = new QAction( "Examine Properties",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_SHOW_PV_PROPERTIES ); addAction( a );
-    a = new QAction( "Plot in new StripChart", this ); a->setCheckable( false ); a->setData( contextMenu::CM_ADD_TO_STRIPCHART );  addAction( a );
+    a = new QAction( "Plot in StripChart",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_ADD_TO_STRIPCHART );  addAction( a );
     addSeparator();
 
     a = new QAction( "Copy variable name",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_VARIABLE );      addAction( a );
