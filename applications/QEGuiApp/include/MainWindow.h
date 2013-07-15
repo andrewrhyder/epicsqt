@@ -170,7 +170,6 @@ private slots:
     void on_actionSet_Passwords_triggered();
 
     void deleteConfigs( manageConfigDialog* mcd, const QStringList names );        // Delete configurations
-
 };
 
 #endif // MAINWINDOW_H

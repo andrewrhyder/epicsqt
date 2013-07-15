@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>969</width>
+    <width>907</width>
     <height>565</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Stored Beam</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
@@ -49,6 +49,168 @@
         <string>Size and position</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Offset</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QELabel" name="qelabel_6">
+            <property name="text">
+             <string>2.8 um</string>
+            </property>
+            <property name="variable" stdset="0">
+             <string>SR10BM02IMG01:Y_OFFSET_MONITOR</string>
+            </property>
+            <property name="allowDrop">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Size</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QELabel" name="qelabel_7">
+            <property name="text">
+             <string>240.9 um</string>
+            </property>
+            <property name="variable" stdset="0">
+             <string>SR10BM02IMG01:Y_SIZE_MONITOR</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Beam Current</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QELabel" name="qelabel_5">
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>200.217 mA</string>
+            </property>
+            <property name="variable" stdset="0">
+             <string>SR11BCM01:CURRENT_MONITOR</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="1">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Offset</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QELabel" name="qelabel_3">
+            <property name="text">
+             <string>-17.5 um</string>
+            </property>
+            <property name="variable" stdset="0">
+             <string>SR10BM02IMG01:X_OFFSET_MONITOR</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Size</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QELabel" name="qelabel">
+            <property name="text">
+             <string>321.2 um</string>
+            </property>
+            <property name="variable" stdset="0">
+             <string>SR10BM02IMG01:X_SIZE_MONITOR</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="0">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
         <item row="0" column="1">
          <widget class="QFrame" name="frame">
           <property name="sizePolicy">
@@ -228,178 +390,7 @@
           <zorder>line</zorder>
          </widget>
         </item>
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>Offset</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QELabel" name="qelabel_6">
-            <property name="text">
-             <string>30.4 µm</string>
-            </property>
-            <property name="variable" stdset="0">
-             <string>SR10BM02IMG01:Y_OFFSET_MONITOR</string>
-            </property>
-            <property name="allowDrop">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>Size</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QELabel" name="qelabel_7">
-            <property name="text">
-             <string>305.2 µm</string>
-            </property>
-            <property name="variable" stdset="0">
-             <string>SR10BM02IMG01:Y_SIZE_MONITOR</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="1">
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0">
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QLabel" name="label_5">
-            <property name="font">
-             <font>
-              <pointsize>16</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Beam Current</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QELabel" name="qelabel_5">
-            <property name="font">
-             <font>
-              <pointsize>16</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>195.905 mA</string>
-            </property>
-            <property name="variable" stdset="0">
-             <string>SR11BCM01:CURRENT_MONITOR</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="1">
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Offset</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QELabel" name="qelabel_3">
-            <property name="text">
-             <string>-20.0 µm</string>
-            </property>
-            <property name="variable" stdset="0">
-             <string>SR10BM02IMG01:X_OFFSET_MONITOR</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Size</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QELabel" name="qelabel">
-            <property name="text">
-             <string>337.3 µm</string>
-            </property>
-            <property name="variable" stdset="0">
-             <string>SR10BM02IMG01:X_SIZE_MONITOR</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
        </layout>
-       <zorder>qcashapeplugin</zorder>
-       <zorder>frame</zorder>
-       <zorder>qcashapeplugin</zorder>
-       <zorder>line_2</zorder>
-       <zorder>line</zorder>
-       <zorder>frame</zorder>
-       <zorder>gridLayoutWidget</zorder>
-       <zorder>verticalLayoutWidget_3</zorder>
-       <zorder>gridLayoutWidget_2</zorder>
       </widget>
      </item>
     </layout>
@@ -411,33 +402,7 @@
        <property name="title">
         <string>Image</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="0" column="0">
-         <widget class="QEImage" name="qeimage">
-          <property name="imageVariable" stdset="0">
-           <string>SR10BM02IMG01:DATA_MONITOR</string>
-          </property>
-          <property name="widthVariable" stdset="0">
-           <string>SR10BM02IMG01:WIDTH_MONITOR</string>
-          </property>
-          <property name="heightVariable" stdset="0">
-           <string>SR10BM02IMG01:HEIGHT_MONITOR</string>
-          </property>
-          <property name="formatOption" stdset="0">
-           <enum>QEImage::Grey_8</enum>
-          </property>
-          <property name="enableProfileSelection">
-           <bool>true</bool>
-          </property>
-          <property name="resizeOption" stdset="0">
-           <enum>QEImage::Zoom</enum>
-          </property>
-          <property name="zoom">
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <layout class="QGridLayout" name="gridLayout_4"/>
       </widget>
      </item>
      <item>
@@ -481,21 +446,43 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <widget class="QEImage" name="qeimage">
+          <property name="imageVariable" stdset="0">
+           <string>SR10BM02IMG01:DATA_MONITOR</string>
+          </property>
+          <property name="widthVariable" stdset="0">
+           <string>SR10BM02IMG01:WIDTH_MONITOR</string>
+          </property>
+          <property name="heightVariable" stdset="0">
+           <string>SR10BM02IMG01:HEIGHT_MONITOR</string>
+          </property>
+          <property name="formatOption" stdset="0">
+           <enum>QEImage::Grey_8</enum>
+          </property>
+          <property name="enableProfileSelection">
+           <bool>true</bool>
+          </property>
+          <property name="resizeOption" stdset="0">
+           <enum>QEImage::Zoom</enum>
+          </property>
+          <property name="zoom">
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
     </layout>
    </item>
   </layout>
-  <zorder>label_2</zorder>
-  <zorder>verticalLayoutWidget</zorder>
-  <zorder>verticalLayoutWidget_2</zorder>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtPlot</class>
+   <class>QEImage</class>
    <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
+   <header>QEImage.h</header>
   </customwidget>
   <customwidget>
    <class>QELabel</class>
@@ -503,24 +490,24 @@
    <header>QELabel.h</header>
   </customwidget>
   <customwidget>
-   <class>QEShape</class>
-   <extends>QWidget</extends>
-   <header>QEShape.h</header>
-  </customwidget>
-  <customwidget>
    <class>QEPlot</class>
    <extends>QwtPlot</extends>
    <header>QEPlot.h</header>
   </customwidget>
   <customwidget>
-   <class>QEImage</class>
-   <extends>QFrame</extends>
-   <header>QEImage.h</header>
+   <class>QEShape</class>
+   <extends>QWidget</extends>
+   <header>QEShape.h</header>
   </customwidget>
   <customwidget>
    <class>QCaShapePlugin</class>
    <extends>QEShape</extends>
    <header>QCaShapePlugin.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
