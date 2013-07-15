@@ -1278,11 +1278,13 @@ QEStripChart::QEStripChart (QWidget * parent) : QFrame (parent), QEWidget (this)
 {
    // Configure the panel and create contents
    //
-   this->setFrameShape (Panel);
+   this->setFrameShape (QFrame::Panel);
+   this->setFrameShadow (QFrame::Plain);
+
    this->setMinimumSize (1032, 400);   // keep this and sizeHint consistant
 
    this->timeZoneSpec = Qt::LocalTime;
-   this->duration = 600;  // ten minites.
+   this->duration = 600;  // ten minutes.
 
    // We always use UTC (EPICS) time within the strip chart.
    // Set directly here as using setEndTime has side effects.
