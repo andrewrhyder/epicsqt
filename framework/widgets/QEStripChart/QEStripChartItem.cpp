@@ -56,6 +56,7 @@ static const QColor item_colours [QEStripChart::NUMBER_OF_PVS] = {
 // Can't do QColor (0x000000)
 //
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
+static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 
 static const QString inuse  ("QWidget { background-color: #e0e0e0; }");
 static const QString unused ("QWidget { background-color: #c0c0c0; }");
@@ -762,6 +763,21 @@ void QEStripChartItem::setColour (const QColor & colourIn)
 
 //------------------------------------------------------------------------------
 //
+void QEStripChartItem::highLight (bool isHigh)
+{
+   QString styleSheet;
+
+   if (isHigh) {
+      styleSheet =  QEUtilities::colourToStyle (clWhite);
+   } else {
+      styleSheet =  QEUtilities::colourToStyle (this->colour);
+   }
+
+   this->privateData->pvName->setStyleSheet (styleSheet);
+}
+
+//------------------------------------------------------------------------------
+//
 QPen QEStripChartItem::getPen ()
 {
    QPen result (this->getColour ());
@@ -851,17 +867,28 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
             if (dragEnterEvent->mimeData()->hasText () && !this->isInUse()) {
                dragEnterEvent->setDropAction (Qt::CopyAction);
                dragEnterEvent->accept ();
+               this->highLight (true);
             } else {
                dragEnterEvent->ignore ();
+               this->highLight (false);
             }
             return true;
          }
          break;
 
+      case QEvent::DragLeave:
+         if (obj == this->privateData->pvName) {
+            this->highLight (false);
+            return true;
+         }
+         break;
+
+
       case QEvent::Drop:
          if (obj == this->privateData->pvName) {
             QDropEvent* dropEvent = static_cast<QDropEvent*> (event);
             this->pvNameDropEvent (dropEvent);
+            this->highLight (false);
             return true;
          }
          break;
