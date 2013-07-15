@@ -277,9 +277,7 @@ QEPvProperties::OwnWidgets::~OwnWidgets ()
 // QEPvProperties class functions
 //==============================================================================
 //
-QEPvProperties::QEPvProperties (QWidget * parent) :
-      QFrame (parent),
-      QEWidget (this)
+QEPvProperties::QEPvProperties (QWidget* parent) : QEFrame (parent)
 {
    this->recordBaseName = "";
    this->common_setup ();
@@ -288,8 +286,7 @@ QEPvProperties::QEPvProperties (QWidget * parent) :
 //------------------------------------------------------------------------------
 //
 QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) :
-      QFrame (parent),
-      QEWidget (this)
+      QEFrame (parent)
 {
    this->recordBaseName = QERecordFieldName::recordName (variableName);
    this->common_setup ();
@@ -345,7 +342,8 @@ void QEPvProperties::common_setup ()
 
    // configure the panel and create contents
    //
-   this->setFrameShape (Panel);
+   this->setFrameShape (QFrame::Panel);
+   this->setFrameShadow (QFrame::Plain);
 
    // allocate and configure own widgets
    // ...and setup an alias
@@ -429,20 +427,20 @@ void QEPvProperties::common_setup ()
    //
    // This control used a single PV via the framework.
    //
-   setNumVariables (1);
+   this->setNumVariables (1);
 
    // Enable drag drop onto this widget by default.
    //
    this->setAllowDrop (true);
 
    // By default, the PV properties widget does not display the alarm state.
-   // The interbal VALue widget does this on our behalf.
+   // The internal VALue widget does this on our behalf.
    //
    this->setDisplayAlarmState (false);
 
    // Use standard context menu for overall widget.
    //
-   setupContextMenu (this);
+   this->setupContextMenu (this);
 
    // Do special context for the table.
    //
@@ -1071,7 +1069,7 @@ QVariant QEPvProperties::getDrop ()
    if( isDraggingVariable() )
       return QVariant (this->copyVariable ());
    else
-      return this->copyData();
+      return this->copyData ();
 }
 
 
@@ -1090,6 +1088,9 @@ QVariant QEPvProperties::copyData ()
    QTableWidget* table = ownWidgets->table;
    QTableWidgetItem *f, *v;
    QString fieldList;
+   QString field;
+   QString value;
+   QString line;
 
    // Create csv format.
    //
@@ -1097,7 +1098,21 @@ QVariant QEPvProperties::copyData ()
    for (int i = 0; i < table->rowCount(); i++) {
       f = table->item (i, FIELD_COL);
       v = table->item (i, VALUE_COL);
-      fieldList.append (f->text ()).append (",").append (v->text ().append ("\n"));
+
+      // Ensure both items have been allocated and assigned.
+      //
+      if (f && v) {
+
+         field = f->text ().trimmed ();
+         value = v->text ().trimmed ();
+
+         // Right pad field to width of 6, suits most records.
+         //
+         while (field.length () < 6) field.append (" ");
+
+         line = QString ("%1 , %2\n").arg (field).arg (value);
+         fieldList.append (line);
+      }
    }
    return QVariant (fieldList);
 }
