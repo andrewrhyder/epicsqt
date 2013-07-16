@@ -60,7 +60,7 @@ void QEPushButton::setup() {
     setText( "QEPushButton" );
 
     // Use standard context menu
-    setupContextMenu( this );
+    setupContextMenu();
 
     // For each variable name property manager, set up an index to identify it when it signals and
     // set up a connection to recieve variable name property changes.

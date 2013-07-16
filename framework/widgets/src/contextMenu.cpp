@@ -55,8 +55,9 @@ void contextMenuObject::showContextMenuSlot( const QPoint& pos ){ menu->showCont
 //======================================================
 
 // Create a class to manage the QE context menu
-contextMenu::contextMenu()
+contextMenu::contextMenu( QEWidget* qewIn )
 {
+    qew = qewIn;
     object = new contextMenuObject( this );
 }
 
@@ -64,39 +65,38 @@ contextMenu::~contextMenu()
 {
 }
 
-// Build the content menu
-QMenu* contextMenu::buildMenu()
+// Build the QE generic context menu
+QMenu* contextMenu::buildContextMenu()
 {
     // Create the menu
-    QMenu* menu = new QMenu( qew->getQWidget() );
+    QMenu* menu = new QMenu( );//qew->getQWidget() );
+    menu->setStyle( QApplication::style() );
 
     // Get Qt widget standard menu if any
     QMenu* defaultMenu = qew->getDefaultContextMenu();
     if( defaultMenu )
     {
-        defaultMenu->setTitle( "Edit..." );
         menu->addMenu( defaultMenu );
     }
 
     // Add QE context menu
-    QWidget* qw = qew->getQWidget();
     QAction* a;
 
-    a = new QAction( "Examine Properties",     qw ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
-    a = new QAction( "Plot in new StripChart", qw ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
+    a = new QAction( "Examine Properties",     menu ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
+    a = new QAction( "Plot in new StripChart", menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
     menu->addSeparator();
 
-    a = new QAction( "Copy variable name",     qw ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
-    a = new QAction( "Copy data",              qw ); a->setCheckable( false ); a->setData( CM_COPY_DATA );          menu->addAction( a );
-    a = new QAction( "Paste",                  qw ); a->setCheckable( false ); a->setData( CM_PASTE );              menu->addAction( a );
+    a = new QAction( "Copy variable name",     menu ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
+    a = new QAction( "Copy data",              menu ); a->setCheckable( false ); a->setData( CM_COPY_DATA );          menu->addAction( a );
+    a = new QAction( "Paste",                  menu ); a->setCheckable( false ); a->setData( CM_PASTE );              menu->addAction( a );
     menu->addSeparator();
 
-    a = new QAction( "Drag variable name",     qw ); a->setCheckable( true );  a->setData( CM_DRAG_VARIABLE );      menu->addAction( a );
+    a = new QAction( "Drag variable name",     menu ); a->setCheckable( true );  a->setData( CM_DRAG_VARIABLE );      menu->addAction( a );
     a->setChecked( draggingVariable );
-    a = new QAction( "Drag data",              qw ); a->setCheckable( true );  a->setData( CM_DRAG_DATA );          menu->addAction( a );
+    a = new QAction( "Drag data",              menu ); a->setCheckable( true );  a->setData( CM_DRAG_DATA );          menu->addAction( a );
     a->setChecked( !draggingVariable );
 
-    menu->setTitle( "Edit" );
+    menu->setTitle( "Use..." );
 
     QObject::connect( menu, SIGNAL( triggered ( QAction* ) ), object, SLOT( contextMenuTriggeredSlot( QAction* )) );
 
@@ -109,7 +109,7 @@ void contextMenu::showContextMenu( const QPoint& pos )
 
     QPoint globalPos = qew->getQWidget()->mapToGlobal( pos );
 
-    QMenu* menu = buildMenu();
+    QMenu* menu = buildContextMenu();
     menu->exec( globalPos );
     delete menu;
 }
@@ -132,20 +132,11 @@ void contextMenu::setConsumer (QObject* consumer)
 }
 
 // Connect the supplied QE widget to a slot that will present out own context menu when requested
-void contextMenu::addContextMenuToWidget( QEWidget* qewIn )
+void contextMenu::setupContextMenu()
 {
-    qew = qewIn;
     QWidget* qw = qew->getQWidget();
     qw->setContextMenuPolicy( Qt::CustomContextMenu );
     QObject::connect( qw, SIGNAL( customContextMenuRequested( const QPoint& )), object, SLOT( showContextMenuSlot( const QPoint& )));
-}
-
-// Return a generic QE context menu.
-// This is used when a QE widget has a specialised context menu and needs
-// to add the generic menu to its own specialised context menu
-QMenu* contextMenu::getContextMenu()
-{
-    return buildMenu();
 }
 
 // An action was selected from the context menu

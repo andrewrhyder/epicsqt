@@ -3064,7 +3064,7 @@ void QEImage::showContextMenu( const QPoint& pos )
     imageContextMenu menu;
 
     // add the standard context menu as a sub menu
-    menu.addMenu( getContextMenu() );
+    menu.addMenu( buildContextMenu() );
 
     // Add the Selection menu
     sMenu->setChecked( getSelectionOption() );

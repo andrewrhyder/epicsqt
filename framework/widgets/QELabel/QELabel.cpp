@@ -64,7 +64,7 @@ void QELabel::setup() {
     updateOption = UPDATE_TEXT;
 
     // Use standard context menu
-    setupContextMenu( this );
+    setupContextMenu();
 
 //    defaultStyleSheet = styleSheet();
     // Use label signals

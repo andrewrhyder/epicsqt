@@ -58,7 +58,7 @@ class contextMenu
 public:
     friend class contextMenuObject;
 
-    explicit contextMenu();
+    explicit contextMenu( QEWidget* qewIn );
     virtual ~contextMenu();
 
 
@@ -70,11 +70,10 @@ public:
                              CM_SHOW_PV_PROPERTIES,
                              CM_ADD_TO_STRIPCHART,
                              CM_SPECIFIC_WIDGETS_START_HERE };
-
-    void addContextMenuToWidget( QEWidget* qew );
+    void setupContextMenu();                            // Set up the standard QE context menu for a QE widget (conextMenu class is a base class for all QE widgets, but a menu is only available to users if this is called)
     bool isDraggingVariable();                          // Return the global 'is dragging variable' flag (Dragging variable is true, draging data if false)
 
-    QMenu* getContextMenu();                            // Return a generic QE context menu
+    QMenu* buildContextMenu();                             // Build the QE generic context menu
     void contextMenuTriggered( int selectedItemNum );   // An action was selected from the context menu
 
     virtual QString copyVariable(){ return ""; }        // Function a widget may implement to perform a 'copy variable' operation
@@ -89,7 +88,6 @@ private:
     void doShowPvProperties();                          // 'Show Properties' was selected from the menu
     void doAddToStripChart();                           // 'Add to strip chart' wasselected from the menu
     void showContextMenu( const QPoint& pos );          // Present the context menu
-    QMenu* buildMenu();                                 // Build the content menu
     static bool draggingVariable;                       // Global 'dragging variable' flag (dragging data if false)
     QEWidget* qew;                                      // QEWidget associated with this instance
 };

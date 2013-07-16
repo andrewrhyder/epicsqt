@@ -43,7 +43,7 @@
 /*
     Constructor
 */
-QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( ownerIn ), styleManager( ownerIn ), standardProperties( ownerIn )
+QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( ownerIn ), styleManager( ownerIn ), contextMenu( this ), standardProperties( ownerIn )
 {
     // Sanity check.
     if( ownerIn == NULL )
@@ -282,15 +282,6 @@ void QEWidget::deleteQcaItem( unsigned int variableIndex, bool disconnect ) {
         // Delete the QCaObject
         delete qca;
     }
-}
-
-/*
-  Take a menu widget and add it as the context menu for this widget
- */
-void QEWidget::setupContextMenu( QEWidget* w )
-{
-    // Set up context sensitive menu (right click menu)
-    addContextMenuToWidget( w );
 }
 
 /*

@@ -84,7 +84,7 @@ void QEAnalogProgressBar::setup() {
 
     // Use default context menu.
     //
-    setupContextMenu (this);
+    setupContextMenu();
 
     // Set up a connection to recieve variable name property changes
     // The variable name property manager class only delivers an updated

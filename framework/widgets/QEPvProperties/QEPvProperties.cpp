@@ -440,7 +440,7 @@ void QEPvProperties::common_setup ()
 
    // Use standard context menu for overall widget.
    //
-   this->setupContextMenu (this);
+   this->setupContextMenu();
 
    // Do special context for the table.
    //

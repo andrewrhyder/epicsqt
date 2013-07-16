@@ -77,7 +77,7 @@ void QESimpleShape::setup ()
 
    // Use default context menu.
    //
-   this->setupContextMenu (this);
+   this->setupContextMenu();
 
    // Set up a connection to recieve variable name property changes
    // The variable name property manager class only delivers an updated
