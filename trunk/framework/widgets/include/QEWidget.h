@@ -165,10 +165,6 @@ public:
     ///
     qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );
 
-    /// Set up the QE context menu for this widget
-    ///
-    void setupContextMenu( QEWidget* w );
-
     /// Return a colour to update the widget's look to reflect the current alarm state
     /// Note, the color is determined by the alarmInfo class, but since that class is used in non
     /// gui applications, it can't return a QColor

@@ -73,7 +73,7 @@ void QEGenericEdit::setup()
     writeFailMessageDialogPresent = false;
 
     // Use standard context menu
-    setupContextMenu( this );
+    setupContextMenu();
 
     // Use line edit signals
     QObject::connect( this, SIGNAL( returnPressed     () ),
@@ -95,7 +95,9 @@ void QEGenericEdit::setup()
 // This is added to the QE context menu
 QMenu* QEGenericEdit::getDefaultContextMenu()
 {
-    return createStandardContextMenu();
+    QMenu* menu = createStandardContextMenu();
+    menu->setTitle( "Edit..." );
+    return menu;
 }
 
 //------------------------------------------------------------------------------
