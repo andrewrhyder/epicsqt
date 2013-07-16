@@ -165,9 +165,9 @@ public:
     ///
     qcaobject::QCaObject* getQcaItem( unsigned int variableIndex );
 
-    /// Take a menu widgt and add it as the context menu for this widget
+    /// Set up the QE context menu for this widget
     ///
-    void setupContextMenu( QWidget* w );
+    void setupContextMenu( QEWidget* w );
 
     /// Return a colour to update the widget's look to reflect the current alarm state
     /// Note, the color is determined by the alarmInfo class, but since that class is used in non
@@ -230,6 +230,10 @@ public:
     /// And if m = 5 and d = 4, and a 125% scaling is required.
     virtual void scaleBy( const int, const int ) {}
 
+    /// Get the QWidget that the parent of this QEWidget instance is based on.
+    /// For example, the parent of a QEWidget might be a QELabel, which is based on QLabel which is based on QWidget.
+    QWidget* getQWidget();
+
 protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
 
@@ -265,6 +269,7 @@ private:
 
 public:
     static bool inDesigner();                               // Flag indicating this widget is running inside Qt's 'designer'
+    virtual QMenu* getDefaultContextMenu(){ return NULL; }  // Return the Qt default context menu to add to the QE context menu
 };
 
 
