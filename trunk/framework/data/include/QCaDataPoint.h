@@ -29,6 +29,8 @@
 
 #include <QList>
 #include <QMetaType>
+#include <QString>
+#include <QTextStream>
 
 #include <QCaAlarmInfo.h>
 #include <QCaDateTime.h>
@@ -41,6 +43,11 @@ class QCaDataPoint {
 public:
    explicit QCaDataPoint ();
    bool isDisplayable ();     // i.e. is okay
+
+   // Generate image of point.
+   //
+   QString toString ();                                    // basic
+   QString toString (const QCaDateTime& originDateTime);   // ... plus a relative time
 
    // We don't bother with a variant but just use a double.  A double can be
    // used to hold all CA data types except strings (which is are not plotable).
@@ -62,6 +69,10 @@ public:
    void resample (const QCaDataPointList& source,
                   const double interval,
                   const QCaDateTime&  endTime);
+
+   // Write whole list to target stream.
+   //
+   void toStream (QTextStream& target, bool withIndex, bool withRelativeTime);
 };
 
 // These types are used in inter thread signals - must be registered.
