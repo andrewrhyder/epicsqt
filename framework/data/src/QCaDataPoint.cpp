@@ -26,6 +26,10 @@
 
 #include <QEArchiveInterface.h>
 #include <QCaDataPoint.h>
+#include <QECommon.h>
+
+
+static const QString stdFormat = "dd/MMM/yyyy HH:mm:ss";
 
 //------------------------------------------------------------------------------
 //
@@ -74,6 +78,68 @@ bool QCaDataPoint::isDisplayable ()
 
 //------------------------------------------------------------------------------
 //
+QString QCaDataPoint::toString ()
+{
+   QString result;
+   QString zone;
+   QString valid = "?";
+   QEArchiveInterface::archiveAlarmSeverity severity;
+   QString severityText = "?";
+   QString statusText = "?";
+
+   zone = QEUtilities::getTimeZoneTLA (this->datetime);
+   valid = this->isDisplayable () ? "True " : "False";
+   severity = (QEArchiveInterface::archiveAlarmSeverity) this->alarm.getSeverity ();
+   severityText = QEArchiveInterface::alarmSeverityName (severity);
+   statusText = this->alarm.statusName();
+
+   result = QString ("%1  %2  %3  %4  %5  %6")
+               .arg (this->datetime.toString (stdFormat), 20)
+               .arg (zone)
+               .arg (this->value, 16, 'e', 8)
+               .arg (valid, 10)
+               .arg (severityText, 10)
+               .arg (statusText, 10);
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QString QCaDataPoint::toString (const QCaDateTime& originDateTime)
+{
+   QString result;
+   QString zone;
+   double relative;
+   QString valid = "?";
+   QEArchiveInterface::archiveAlarmSeverity severity;
+   QString severityText = "?";
+   QString statusText = "?";
+
+   zone = QEUtilities::getTimeZoneTLA (this->datetime);
+   valid = this->isDisplayable () ? "True " : "False";
+   severity = (QEArchiveInterface::archiveAlarmSeverity) this->alarm.getSeverity ();
+   severityText = QEArchiveInterface::alarmSeverityName (severity);
+   statusText = this->alarm.statusName();
+
+   // Calculate the relative time from start.
+   //
+   relative = this->datetime.floating (originDateTime);
+
+   result = QString ("%1  %2  %3  %4  %5  %6  %7")
+               .arg (this->datetime.toString (stdFormat), 20)
+               .arg (zone)
+               .arg (relative, 16, 'f', 3)
+               .arg (this->value, 16, 'e', 8)
+               .arg (valid, 10)
+               .arg (severityText, 10)
+               .arg (statusText, 10);
+
+   return result;
+}
+
+//==============================================================================
+//
 QCaDataPointList::QCaDataPointList () : QList<QCaDataPoint> ()
 {
    // Register type.
@@ -109,6 +175,42 @@ void QCaDataPointList::resample (const QCaDataPointList& source,
       point = source.value (next - 1);
       point.datetime = jthTime;
       this->append (point);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QCaDataPointList::toStream (QTextStream& target,
+                                 bool withIndex,
+                                 bool withRelativeTime)
+{
+   int number = this->count ();
+   int j;
+   QCaDateTime originDateTime;
+
+   if (number > 0) {
+      originDateTime = this->value (0).datetime;
+
+      for (j = 0; j < number; j++) {
+         QCaDataPoint point = this->value (j);
+         QString item;
+
+         item = "";
+         if (withIndex) {
+            item.append (QString ("%1  ").arg (j + 1, 6));
+         }
+
+         if (withRelativeTime) {
+            item.append (point.toString (originDateTime));
+         } else {
+            item.append (point.toString ());
+         }
+
+         target << item << "\n";
+      }
+   }
+   else {
+      target << "(QCaDataPointList empty)" << "\n";
    }
 }
 
