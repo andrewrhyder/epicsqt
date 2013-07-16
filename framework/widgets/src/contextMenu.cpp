@@ -23,120 +23,135 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+/* Description:
+ *
+ * A class to manage the QEGui context menu.
+ *
+ * This class creates a menu that can be added as the right click menu for QE widgets.
+ * The contextMenu class cannot be based on QObject so it creates and owns an instance
+ * of a small class (contextMenyObject) that is based on QObject that can manage
+ * signals and slots.
+ * The contextMenu class can't be based on QObject as only one base class of an object
+ * can be based on QObjects and for all QE widgets that class is typically a standard Qt widget.
+ *
+ */
+
 #include <contextMenu.h>
 #include <QClipboard>
 #include <QApplication>
 #include <QDebug>
+#include <QEWidget.h>
 
-bool contextMenuObject::draggingVariable = true;
+// Flag common to all context menus.
+// true if 'dragging the variable
+// false if dragging the data
+bool contextMenu::draggingVariable = true;
 
-// Create a context menu
-void contextMenuObject::setMenu( contextMenu* menuIn )
-{
-    menu = menuIn;
-}
-
-contextMenuObject::contextMenuObject()
-{
-    menu = NULL;
-    owner = NULL;
-
-    // !!! Should all menus be able to share the same actions???
-
-    QAction* a;
-
-    a = new QAction( "Examine Properties",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_SHOW_PV_PROPERTIES ); addAction( a );
-    a = new QAction( "Plot in StripChart",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_ADD_TO_STRIPCHART );  addAction( a );
-    addSeparator();
-
-    a = new QAction( "Copy variable name",     this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_VARIABLE );      addAction( a );
-    a = new QAction( "Copy data",              this ); a->setCheckable( false ); a->setData( contextMenu::CM_COPY_DATA );          addAction( a );
-    a = new QAction( "Paste",                  this ); a->setCheckable( false ); a->setData( contextMenu::CM_PASTE );              addAction( a );
-    addSeparator();
-
-    a = new QAction( "Drag variable name",     this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_VARIABLE );      addAction( a );
-    dragVarAction = a;
-    a = new QAction( "Drag data",              this ); a->setCheckable( true );  a->setData( contextMenu::CM_DRAG_DATA );          addAction( a );
-    dragDataAction = a;
-
-    manageChecked( true );
-
-    setTitle( "Edit" );
-
-    QObject::connect( this, SIGNAL( triggered ( QAction* ) ), this, SLOT( contextMenuTriggered( QAction* )) );
-    QObject::connect( this, SIGNAL( aboutToShow () ), this, SLOT( setChecked( )) );
-
-}
-
-// An action was selected from this menu
-void contextMenuObject::contextMenuTriggered( QAction* selectedItem )
-{
-    menu->triggered( (contextMenu::contextMenuOptions)(selectedItem->data().toInt()) );
-}
-
-// Slot to present this menu when it is the context menu for a widget
-void contextMenuObject::showContextMenu( const QPoint& pos )
-{
-    QPoint globalPos = owner->mapToGlobal( pos );
-    exec( globalPos );
-}
-
-// Add the context menu to the widget as the entire context menu
-// Widgets may create their own context menu and add this menu as a sub menu
-void contextMenuObject::addContextMenuToWidget( QWidget* w )
-{
-    owner = w;
-    w->setContextMenuPolicy( Qt::CustomContextMenu );
-    QObject::connect( w, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showContextMenu( const QPoint& )));
-}
-
-void contextMenuObject::manageChecked( bool draggingVariableIn )
-{
-    draggingVariable = draggingVariableIn;
-    dragVarAction->setChecked( draggingVariable );
-    dragDataAction->setChecked( !draggingVariable );
-}
-
-void contextMenuObject::setChecked()
-{
-    manageChecked( draggingVariable );
-}
-
-bool contextMenuObject::isDraggingVariable()
-{
-    return draggingVariable;
-}
-
-void contextMenuObject::sendRequestGui( const QEGuiLaunchRequests& request)
-{
-    emit requestGui( request );
-}
-
+//======================================================
+// Methods for QObject based contextMenuObject class
+void contextMenuObject::contextMenuTriggeredSlot( QAction* selectedItem ){ menu->contextMenuTriggered( selectedItem->data().toInt() ); }
+void contextMenuObject::showContextMenuSlot( const QPoint& pos ){ menu->showContextMenu( pos ); }
 
 //======================================================
 
+// Create a class to manage the QE context menu
 contextMenu::contextMenu()
 {
-    object.setMenu( this );
+    object = new contextMenuObject( this );
 }
 
 contextMenu::~contextMenu()
 {
 }
 
+// Build the content menu
+QMenu* contextMenu::buildMenu()
+{
+    // Create the menu
+    QMenu* menu = new QMenu( qew->getQWidget() );
+
+    // Get Qt widget standard menu if any
+    QMenu* defaultMenu = qew->getDefaultContextMenu();
+    if( defaultMenu )
+    {
+        defaultMenu->setTitle( "Edit..." );
+        menu->addMenu( defaultMenu );
+    }
+
+    // Add QE context menu
+    QWidget* qw = qew->getQWidget();
+    QAction* a;
+
+    a = new QAction( "Examine Properties",     qw ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
+    a = new QAction( "Plot in new StripChart", qw ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
+    menu->addSeparator();
+
+    a = new QAction( "Copy variable name",     qw ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
+    a = new QAction( "Copy data",              qw ); a->setCheckable( false ); a->setData( CM_COPY_DATA );          menu->addAction( a );
+    a = new QAction( "Paste",                  qw ); a->setCheckable( false ); a->setData( CM_PASTE );              menu->addAction( a );
+    menu->addSeparator();
+
+    a = new QAction( "Drag variable name",     qw ); a->setCheckable( true );  a->setData( CM_DRAG_VARIABLE );      menu->addAction( a );
+    a->setChecked( draggingVariable );
+    a = new QAction( "Drag data",              qw ); a->setCheckable( true );  a->setData( CM_DRAG_DATA );          menu->addAction( a );
+    a->setChecked( !draggingVariable );
+
+    menu->setTitle( "Edit" );
+
+    QObject::connect( menu, SIGNAL( triggered ( QAction* ) ), object, SLOT( contextMenuTriggeredSlot( QAction* )) );
+
+    return menu;
+}
+
+// Present the context menu
+void contextMenu::showContextMenu( const QPoint& pos )
+{
+
+    QPoint globalPos = qew->getQWidget()->mapToGlobal( pos );
+
+    QMenu* menu = buildMenu();
+    menu->exec( globalPos );
+    delete menu;
+}
+
+// Return the global 'is dragging variable' flag.
+// (Dragging variable is true, draging data if false)
+bool contextMenu::isDraggingVariable()
+{
+    return draggingVariable;
+}
+
+// Set the consumer of the signal generted by this object
+// (send via the associated contextMenuObject object).
 void contextMenu::setConsumer (QObject* consumer)
 {
-    if (consumer) {
-        // This is not a Q Object, so need to "high-jack" the menu object.
-        //
-        QObject::connect(&object, SIGNAL (requestGui( const QEGuiLaunchRequests& )),
+    if (consumer){
+        QObject::connect(object, SIGNAL (requestGui( const QEGuiLaunchRequests& )),
                          consumer,  SLOT (requestGui( const QEGuiLaunchRequests& )));
     }
 }
 
-void contextMenu::triggered( contextMenuOptions option )
+// Connect the supplied QE widget to a slot that will present out own context menu when requested
+void contextMenu::addContextMenuToWidget( QEWidget* qewIn )
 {
-    switch( option )
+    qew = qewIn;
+    QWidget* qw = qew->getQWidget();
+    qw->setContextMenuPolicy( Qt::CustomContextMenu );
+    QObject::connect( qw, SIGNAL( customContextMenuRequested( const QPoint& )), object, SLOT( showContextMenuSlot( const QPoint& )));
+}
+
+// Return a generic QE context menu.
+// This is used when a QE widget has a specialised context menu and needs
+// to add the generic menu to its own specialised context menu
+QMenu* contextMenu::getContextMenu()
+{
+    return buildMenu();
+}
+
+// An action was selected from the context menu
+void contextMenu::contextMenuTriggered( int optionNum )
+{
+    switch( (contextMenuOptions)(optionNum) )
     {
         default:
         case contextMenu::CM_NONE:
@@ -155,11 +170,11 @@ void contextMenu::triggered( contextMenuOptions option )
             break;
 
         case contextMenu::CM_DRAG_VARIABLE:
-            object.manageChecked( true );
+            draggingVariable = true;
             break;
 
         case contextMenu::CM_DRAG_DATA:
-            object.manageChecked( false );
+            draggingVariable = false;
             break;
 
         case contextMenu::CM_SHOW_PV_PROPERTIES:
@@ -173,6 +188,7 @@ void contextMenu::triggered( contextMenuOptions option )
     }
 }
 
+// 'Copy Variable' was selected from the menu
 void contextMenu::doCopyVariable()
 {
     QString s = copyVariable();
@@ -180,6 +196,7 @@ void contextMenu::doCopyVariable()
     cb->setText( s );
 }
 
+// 'Copy Data' was selected from the menu
 void contextMenu::doCopyData()
 {
     QClipboard *cb = QApplication::clipboard();
@@ -197,16 +214,9 @@ void contextMenu::doCopyData()
     }
 }
 
-//void contextMenu::copyToClipboard( QString text )
-//{
-//    qDebug() << "contextMenu::copyToClipboard()" << text;
-//    // !! copy text to clipboard
-//}
-
+// 'Paste' was selected from the menu
 void contextMenu::doPaste()
 {
-    qDebug() << "contextMenu::doPaste()";
-
     QVariant v;
     QClipboard *cb = QApplication::clipboard();
     if( !cb->text().isEmpty() )
@@ -220,33 +230,19 @@ void contextMenu::doPaste()
     paste( v );
 }
 
+// 'Show Properties' was selected from the menu
 void contextMenu::doShowPvProperties ()
 {
     QString pvName = copyVariable();
     QEGuiLaunchRequests request (QEGuiLaunchRequests::KindPvProperties, pvName);
-    object.sendRequestGui( request );
+    object->sendRequestGui( request );
 }
 
+// 'Add to strip chart' wasselected from the menu
 void contextMenu::doAddToStripChart ()
 {
     QString pvName = copyVariable();
     QEGuiLaunchRequests request (QEGuiLaunchRequests::KindStripChart, pvName);
-    object.sendRequestGui( request );
+    object->sendRequestGui( request );
 }
 
-bool contextMenu::isDraggingVariable()
-{
-    return object.isDraggingVariable();
-}
-
-void contextMenu::addContextMenuToWidget( QWidget* w )
-{
-    object.addContextMenuToWidget( w );
-}
-
-QMenu* contextMenu::getContextMenu()
-{
-    return &object;
-}
-
-// end
