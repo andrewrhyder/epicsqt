@@ -247,6 +247,9 @@ private:
 
     void setup();
 
+    QMenu* getDefaultContextMenu();                 // Return the Qt default context menu to add to the QE context menu
+
+
 private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );
@@ -295,6 +298,11 @@ private:
     // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDrop( QVariant drop );
     QVariant getDrop();
+
+    // Copy paste
+    QString copyVariable();
+    QVariant copyData();
+    void paste( QVariant s );
 };
 
 #endif // QEGENERICEDIT_H

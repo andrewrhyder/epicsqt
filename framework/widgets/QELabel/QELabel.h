@@ -98,8 +98,8 @@ private slots:
 
 
 
-    // Drag and Drop
 private:
+    // Drag and Drop
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }

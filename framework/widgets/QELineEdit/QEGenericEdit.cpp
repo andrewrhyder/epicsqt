@@ -72,6 +72,9 @@ void QEGenericEdit::setup()
     messageDialogPresent = false;
     writeFailMessageDialogPresent = false;
 
+    // Use standard context menu
+    setupContextMenu( this );
+
     // Use line edit signals
     QObject::connect( this, SIGNAL( returnPressed     () ),
                       this, SLOT  ( userReturnPressed () ) );
@@ -86,6 +89,13 @@ void QEGenericEdit::setup()
                       SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ),
                       this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 
+}
+
+// Return the Qt default context menu.
+// This is added to the QE context menu
+QMenu* QEGenericEdit::getDefaultContextMenu()
+{
+    return createStandardContextMenu();
 }
 
 //------------------------------------------------------------------------------
@@ -383,6 +393,26 @@ QVariant QEGenericEdit::getDrop()
     return QVariant( getSubstitutedVariableName(0) );
 }
 
+
+//==============================================================================
+// Copy / Paste
+QString QEGenericEdit::copyVariable()
+{
+    return getSubstitutedVariableName(0);
+}
+
+QVariant QEGenericEdit::copyData()
+{
+    return QVariant( text() );
+}
+
+void QEGenericEdit::paste( QVariant v )
+{
+    if( getAllowDrop() )
+    {
+        setDrop( v );
+    }
+}
 
 //==============================================================================
 // Property convenience functions

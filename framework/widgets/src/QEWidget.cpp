@@ -285,9 +285,9 @@ void QEWidget::deleteQcaItem( unsigned int variableIndex, bool disconnect ) {
 }
 
 /*
-  Take a menu widgt and add it as the context menu for this widget
+  Take a menu widget and add it as the context menu for this widget
  */
-void QEWidget::setupContextMenu( QWidget* w )
+void QEWidget::setupContextMenu( QEWidget* w )
 {
     // Set up context sensitive menu (right click menu)
     addContextMenuToWidget( w );
@@ -706,4 +706,11 @@ void saveRestoreSlot::saveRestore( SaveRestoreSignal::saveRestoreOptions option 
             owner->restoreConfiguration( pm, QEWidget::FRAMEWORK );
             break;
     }
+}
+
+// Get the QWidget that the parent of this QEWidget instance is based on.
+// For example, the parent of a QEWidget might be a QELabel, which is based on QLabel which is based on QWidget.
+QWidget* QEWidget::getQWidget()
+{
+    return owner;
 }

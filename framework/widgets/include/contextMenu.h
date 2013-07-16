@@ -30,43 +30,29 @@
 #include <QEGuiLaunchRequests.h>
 
 class contextMenu;
+class QEWidget;
 
-class contextMenuObject : public QMenu
+// QObject based context menu
+// Instance of this created and owned by contextMenu which itself cannot be based on a QObject
+class contextMenuObject : public QObject
 {
     Q_OBJECT
 public:
-
-    contextMenuObject();
-
-    void addContextMenuToWidget( QWidget* w );
-
-    void manageChecked( bool draggingVariable );
-
-    void setMenu( contextMenu* menuIn );
-    bool isDraggingVariable();
+    contextMenuObject( contextMenu* menuIn ){ menu = menuIn; }          // Construction
+    void sendRequestGui( const QEGuiLaunchRequests& request){ emit requestGui( request ); } // Emit a GUI launch request
 
 signals:
-    void requestGui( const QEGuiLaunchRequests& );
+    void requestGui( const QEGuiLaunchRequests& );                      // Signal 'launch a GUI'
 
 public slots:
-    void contextMenuTriggered( QAction* selectedItem );
-    void showContextMenu( const QPoint& pos );
-    void setChecked();
+    void contextMenuTriggeredSlot( QAction* selectedItem );             // Slot - an item has been selected from the context menu
+    void showContextMenuSlot( const QPoint& pos );                      // Slot - a widget has requested the QE sutom context menu be shown
 
 private:
-    static bool draggingVariable;
-    QAction* dragVarAction;
-    QAction* dragDataAction;
-    QWidget* owner;
-    contextMenu* menu;
-
-    // We use this object as a convenience to send these signals.
-    // This object is a QObject, contextMenu is not a QObject.
-    void sendRequestGui( const QEGuiLaunchRequests& request);
-
-    friend class contextMenu;
+    contextMenu* menu;                                                  // contextMenu class owning this class
 };
 
+// Manage QE widget context menu
 class contextMenu
 {
 public:
@@ -75,34 +61,37 @@ public:
     explicit contextMenu();
     virtual ~contextMenu();
 
-    // Set the consumer of the signal generted by this object
-    // (send via the associated contextMenuObject object).
-    //
-    void setConsumer (QObject *consumer);
 
-    enum contextMenuOptions{ CM_NONE,
+    void setConsumer (QObject *consumer);               // Set the consumer of the signal generted by this object
+
+    enum contextMenuOptions{ CM_NONE,                   // Menu options
                              CM_COPY_VARIABLE, CM_COPY_DATA, CM_PASTE,
                              CM_DRAG_VARIABLE, CM_DRAG_DATA,
                              CM_SHOW_PV_PROPERTIES,
                              CM_ADD_TO_STRIPCHART,
                              CM_SPECIFIC_WIDGETS_START_HERE };
 
-    void addContextMenuToWidget( QWidget* w );
-    bool isDraggingVariable();
-    QMenu* getContextMenu();
+    void addContextMenuToWidget( QEWidget* qew );
+    bool isDraggingVariable();                          // Return the global 'is dragging variable' flag (Dragging variable is true, draging data if false)
 
-    virtual QString copyVariable(){ return ""; }
-    virtual QVariant copyData(){ return ""; }
-    virtual void paste( QVariant ){}
+    QMenu* getContextMenu();                            // Return a generic QE context menu
+    void contextMenuTriggered( int selectedItemNum );   // An action was selected from the context menu
+
+    virtual QString copyVariable(){ return ""; }        // Function a widget may implement to perform a 'copy variable' operation
+    virtual QVariant copyData(){ return ""; }           // Function a widget may implement to perform a 'copy data' operation
+    virtual void paste( QVariant ){}                    // Function a widget may implement to perform a 'pastea' operation
 
 private:
-    void triggered( contextMenuOptions option );
-    contextMenuObject object;
-    void doCopyVariable();
-    void doCopyData();
-    void doPaste();
-    void doShowPvProperties();
-    void doAddToStripChart();
+    contextMenuObject* object;                          // Our own QObject based class to managing signals and slots
+    void doCopyVariable();                              // 'Copy Variable' was selected from the menu
+    void doCopyData();                                  // 'Copy Data' was selected from the menu
+    void doPaste();                                     // 'Paste' was selected from the menu
+    void doShowPvProperties();                          // 'Show Properties' was selected from the menu
+    void doAddToStripChart();                           // 'Add to strip chart' wasselected from the menu
+    void showContextMenu( const QPoint& pos );          // Present the context menu
+    QMenu* buildMenu();                                 // Build the content menu
+    static bool draggingVariable;                       // Global 'dragging variable' flag (dragging data if false)
+    QEWidget* qew;                                      // QEWidget associated with this instance
 };
 
 
