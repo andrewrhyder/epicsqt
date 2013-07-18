@@ -227,7 +227,7 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
    this->hlayouts [5]->addWidget (this->label6);
    this->hlayouts [5]->addWidget (this->indexInfo);
 
-   this->enumerationFrame = new QFrame (NULL); // is re-pareneted by enumerationScroll
+   this->enumerationFrame = new QFrame (NULL); // is re-parented by enumerationScroll
    for (j = 0; j < NUMBER_OF_ENUMERATIONS; j++) {
       QLabel * item;
       item = new QLabel (this->enumerationFrame);
