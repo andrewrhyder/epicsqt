@@ -67,6 +67,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEComboBox : public QComboBox, public QEWidge
 
     void establishConnection( unsigned int variableIndex );
 
+
   private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setValueIfNoFocus( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
@@ -117,6 +118,12 @@ protected:
     // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDrop( QVariant drop );
     QVariant getDrop();
+
+    // Copy paste
+    QString copyVariable();
+    QVariant copyData();
+    void paste (QVariant s);
+
 
     // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
