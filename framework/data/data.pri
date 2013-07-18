@@ -19,8 +19,10 @@ HEADERS += \
    data/include/QCaVariableNamePropertyManager.h \
    data/include/QEByteArray.h \
    data/include/QEFloating.h \
+   data/include/QEFloatingArray.h \
    data/include/QEFloatingFormatting.h \
    data/include/QEInteger.h \
+   data/include/QEIntegerArray.h \
    data/include/QEIntegerFormatting.h \
    data/include/QELocalEnumeration.h \
    data/include/QEString.h \
@@ -40,8 +42,10 @@ SOURCES += \
    data/src/QCaVariableNamePropertyManager.cpp \
    data/src/QEByteArray.cpp \
    data/src/QEFloating.cpp \
+   data/src/QEFloatingArray.cpp \
    data/src/QEFloatingFormatting.cpp \
    data/src/QEInteger.cpp \
+   data/src/QEIntegerArray.cpp \
    data/src/QEIntegerFormatting.cpp \
    data/src/QELocalEnumeration.cpp \
    data/src/QEString.cpp \
