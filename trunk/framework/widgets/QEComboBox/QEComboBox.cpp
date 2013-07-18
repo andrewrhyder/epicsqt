@@ -73,7 +73,7 @@ void QEComboBox::setup() {
     ignoreSingleShotRead = false;
 
     // Use standard context menu
-    setupContextMenu( this );
+    setupContextMenu();
 
     // Use line edit signals
     // Set up to write data when the user changes the value
