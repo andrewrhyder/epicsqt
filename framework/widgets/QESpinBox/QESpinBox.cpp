@@ -1,4 +1,5 @@
-/*
+/*  QESpinBox.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -69,6 +70,9 @@ void QESpinBox::setup() {
 
     ignoreSingleShotRead = false;
 
+    // Use standard context menu
+    setupContextMenu();
+
     // Use spin box signals
     QObject::connect( this, SIGNAL( valueChanged( double ) ), this, SLOT( userValueChanged( double ) ) );
 
@@ -77,6 +81,26 @@ void QESpinBox::setup() {
     QObject::connect( &variableNamePropertyManager, SIGNAL( newVariableNameProperty( QString, QString, unsigned int ) ), this, SLOT( useNewVariableNameProperty( QString, QString, unsigned int) ) );
 
 }
+
+/*
+   Return the Qt default context of embedded line edit menu.
+   This is added to the QE context menu
+*/
+QMenu* QESpinBox::getDefaultContextMenu()
+{
+    QMenu* menu = NULL;
+    QLineEdit* edit = NULL;
+
+    // QESpinBox doesn't have a  createStandardContextMenu or equivilent.
+    // But it does have/use an embedded line edit object, which does.
+    edit = lineEdit();
+    if( edit ){
+       menu = edit->createStandardContextMenu();
+       menu->setTitle( "Edit..." );
+    }
+    return menu;
+}
+
 
 /*
     Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
@@ -268,6 +292,24 @@ void QESpinBox::setDrop( QVariant drop )
 QVariant QESpinBox::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
+}
+
+//==============================================================================
+// Copy paste
+QString QESpinBox::copyVariable()
+{
+    return getSubstitutedVariableName( 0 );
+}
+
+QVariant QESpinBox::copyData()
+{
+   return QVariant( value() );
+}
+
+void QESpinBox::paste (QVariant s)
+{
+    setVariableName( s.toString(), 0 );
+    establishConnection( 0 );
 }
 
 //==============================================================================

@@ -1,4 +1,5 @@
-/*
+/*  QESpinBox.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -14,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2009, 2010
+ *  Copyright (c) 2009, 2010, 2013
  *
  *  Author:
  *    Andrew Rhyder
@@ -103,15 +104,21 @@ private:
 
     void writeNow();
 
-
-    // Drag and Drop
 protected:
+    // Drag and Drop
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
     // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDrop( QVariant drop );
     QVariant getDrop();
 
+    // Copy paste
+    QString copyVariable();
+    QVariant copyData();
+    void paste (QVariant s);
+
+
+    QMenu* getDefaultContextMenu();                 // Return the Qt default context menu to add to the QE context menu
 
     // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
