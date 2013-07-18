@@ -72,6 +72,9 @@ void QEComboBox::setup() {
 
     ignoreSingleShotRead = false;
 
+    // Use standard context menu
+    setupContextMenu( this );
+
     // Use line edit signals
     // Set up to write data when the user changes the value
     QObject::connect( this, SIGNAL( activated ( int ) ), this, SLOT( userValueChanged( int ) ) );
@@ -377,6 +380,27 @@ QVariant QEComboBox::getDrop()
 {
     return QVariant( getSubstitutedVariableName(0) );
 }
+
+
+//==============================================================================
+// Copy / paste
+//
+QString QEComboBox::copyVariable()
+{
+   return getSubstitutedVariableName( 0 );
+}
+
+QVariant QEComboBox::copyData()
+{
+   return QVariant( currentText() );
+}
+
+void QEComboBox::paste (QVariant s)
+{
+   setVariableName( s.toString(), 0 );
+   establishConnection( 0 );
+}
+
 
 //==============================================================================
 // Property convenience functions
