@@ -432,7 +432,7 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
 
 //------------------------------------------------------------------------------
 //
-void QEUtilities::adjustWidgetScale (QWidget * widget, const int m, const int d, const int maxDepth)
+void QEUtilities::widgetScaleTreeWalk (QWidget* widget, const int m, const int d, const int maxDepth)
 {
    int j, n;
    QObjectList childList;
@@ -442,13 +442,14 @@ void QEUtilities::adjustWidgetScale (QWidget * widget, const int m, const int d,
    // sainity checks and avoid divide by zero.
    //
    if (!widget) return;
-   if ((m < 1) || (d < 1)) return;
    if (maxDepth < 0) return;
 
-   if (m == d) return;   // skip null scaling
-
+   // Apply scaling to this widget.
+   //
    QEUtilities::widgetScaleBy (widget, m, d);
 
+   // Apply scaling to any child widgets.
+   //
    childList = widget->children ();
    n = childList.count();
    for (j = 0; j < n; j++) {
@@ -459,9 +460,43 @@ void QEUtilities::adjustWidgetScale (QWidget * widget, const int m, const int d,
       if (childWidget) {
          // Recursive call.
          //
-         QEUtilities::adjustWidgetScale  (childWidget, m, d, maxDepth - 1);
+         QEUtilities::widgetScaleTreeWalk (childWidget, m, d, maxDepth - 1);
       }
    }
+}
+
+
+//------------------------------------------------------------------------------
+//
+int QEUtilities::currentScaleM = 1;
+int QEUtilities::currentScaleD = 1;
+
+//------------------------------------------------------------------------------
+//
+void QEUtilities::adjustWidgetScale (QWidget* widget, const int m, const int d, const int maxDepth)
+{
+   // sainity checks and avoid divide by zero.
+   //
+   if (!widget) return;
+   if ((m < 1) || (d < 1)) return;
+   if (m == d) return;   // skip null scaling
+
+   // Save saved xurrent values.
+   //
+   QEUtilities::currentScaleM = m;
+   QEUtilities::currentScaleD = d;
+
+   QEUtilities::widgetScaleTreeWalk (widget, m, d, maxDepth);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEUtilities::applyCurrentWidgetScale (QWidget* widget, const int maxDepth)
+{
+   // Used current values.
+   //
+   QEUtilities::widgetScaleTreeWalk (widget, QEUtilities::currentScaleM,
+                                     QEUtilities::currentScaleD, maxDepth);
 }
 
 //------------------------------------------------------------------------------
