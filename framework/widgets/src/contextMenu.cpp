@@ -41,6 +41,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QEWidget.h>
+#include <QECommon.h>
 
 // Flag common to all context menus.
 // true if 'dragging the variable
@@ -76,14 +77,18 @@ QMenu* contextMenu::buildContextMenu()
     QMenu* defaultMenu = qew->getDefaultContextMenu();
     if( defaultMenu )
     {
+        // Apply current scaling if any to new default menu.
+        //
+        QEUtilities::applyCurrentWidgetScale (defaultMenu, 10);
         menu->addMenu( defaultMenu );
+        menu->addSeparator();
     }
 
     // Add QE context menu
     QAction* a;
 
     a = new QAction( "Examine Properties",     menu ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
-    a = new QAction( "Plot in new StripChart", menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
+    a = new QAction( "Plot in StripChart",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
     menu->addSeparator();
 
     a = new QAction( "Copy variable name",     menu ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
@@ -99,6 +104,10 @@ QMenu* contextMenu::buildContextMenu()
     menu->setTitle( "Use..." );
 
     QObject::connect( menu, SIGNAL( triggered ( QAction* ) ), object, SLOT( contextMenuTriggeredSlot( QAction* )) );
+
+    // This object is created dynamically as opposed to at overall contruction time,
+    // so need to apply current scalling, if any to the new menu.
+    QEUtilities::applyCurrentWidgetScale (menu, 10);
 
     return menu;
 }

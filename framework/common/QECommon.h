@@ -138,6 +138,10 @@ public:
     ///
     static void adjustWidgetScale (QWidget* widget, const int m, const int d, const int maxDepth = 40);
 
+    /// As above, but using previously used m and d values.
+    ///
+    static void applyCurrentWidgetScale (QWidget* widget, const int maxDepth = 40);
+
     /// Conveniance function for widget specific 'scaleBy' functions.
     ///
     static void adjustPointScale (QPoint& point, const int m, const int d);
@@ -149,6 +153,13 @@ public:
     static QWidget* findWidget (QWidget* parent, const QString& className);
 
 private:
+    static int currentScaleM;      /// Cache of last used scaled m value.
+    static int currentScaleD;      /// Cache of last used scaled m value.
+
+    /// Tree walks the QWidget hierarchy in order to apply scaling.
+    ///
+    static void widgetScaleTreeWalk (QWidget* widget, const int m, const int d, const int maxDepth);
+
     /// Scales a single widget
     /// Applies some special processing above and beyond size, min size, max size and font
     /// depending on the type of widget.
