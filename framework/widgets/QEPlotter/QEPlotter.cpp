@@ -64,6 +64,10 @@ static const QString item_labels [1 + QEPlotter::NUMBER_OF_PLOTS] = {
 };
 
 
+static const QEExpressionEvaluation::InputKinds Normal = QEExpressionEvaluation::Normal;
+static const QEExpressionEvaluation::InputKinds Primed = QEExpressionEvaluation::Primed;
+
+
 //=================================================================================
 // Tagged check box.
 //=================================================================================
@@ -71,7 +75,7 @@ static const QString item_labels [1 + QEPlotter::NUMBER_OF_PLOTS] = {
 class TCheckBox : public QCheckBox {
 public:
    explicit TCheckBox (QWidget* parent=0);
-   explicit TCheckBox (const QString& text, QWidget* parent=0);
+   explicit TCheckBox (const QString& text, QWidget* parent = 0);
 
    int tag;
 };
@@ -92,7 +96,7 @@ TCheckBox::TCheckBox (const QString& text, QWidget* parent) : QCheckBox (text, p
 
 
 //=================================================================================
-//
+// PrivateData
 //=================================================================================
 //
 class QEPlotter::PrivateData {
@@ -219,7 +223,7 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* parent)
 
 
 //=================================================================================
-//
+// DataSets
 //=================================================================================
 //
 QEPlotter::DataSets::DataSets ()
@@ -236,7 +240,6 @@ QEPlotter::DataSets::DataSets ()
    this->dataIsConnected = false;
    this->sizeIsConnected = false;
    this->isDisplayed = true;
-
 }
 
 //---------------------------------------------------------------------------------
@@ -300,6 +303,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->setFrameShadow (QFrame::Plain);
    this->setMinimumSize (500, 448);
 
+   this->isReverse = false;
+
    this->setAllowDrop (false);
    this->setDisplayAlarmState (false);
 
@@ -319,13 +324,13 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 
    }
 
-   // Refresh the plot at ~10Hz.
+   // Refresh plot check at ~10Hz.
    //
    this->timer = new QTimer (this);
    connect (this->timer, SIGNAL (timeout ()), this, SLOT (tickTimeout ()));
    this->timer->start (100);  // mSec == 0.1 s
 
-   // Do an initial plot.
+   // Do an initial plot - this clears the refresh plot required flag.
    //
    this->plot ();
 }
@@ -434,6 +439,9 @@ void QEPlotter::setNewVariableName (QString variableName,
    this->setVariableNameAndSubstitutions (variableName, variableNameSubstitutions, variableIndex);
    pvName = this->getSubstitutedVariableName (variableIndex).trimmed ();
 
+   // We need to test for null "PV names" here as the framework does not call
+   // establishConnection in these cases.
+   //
    if (this->isDataIndex (variableIndex)) {
 
       if (pvName.isEmpty()) {
@@ -450,7 +458,6 @@ void QEPlotter::setNewVariableName (QString variableName,
          this->xy [slot].sizeKind = NotSpecified;
          this->replotIsRequired = true;
       }
-
    }
 }
 
@@ -576,7 +583,7 @@ void QEPlotter::dataArrayChanged (const QVector<double>& values,
    const int slot = this->slotOf (variableIndex);
 
    SLOT_CHECK (slot,);
-   this->xy [slot].data = values;
+   this->xy [slot].data = QEFloatingArray (values);
    this->replotIsRequired = true;
 }
 
@@ -660,8 +667,8 @@ void QEPlotter::plot ()
    QwtPlotCurve *curve;
    DataSets* xs;
    DataSets* ys;
-   DoubleVectors xdata;
-   DoubleVectors ydata;
+   QEFloatingArray xdata;
+   QEFloatingArray ydata;
    int effectiveXSize;
    int effectiveYSize;
    int number;
@@ -730,8 +737,8 @@ void QEPlotter::plot ()
 
       // Truncate both data sets to the same length.
       //
-      xdata = xs->data.mid (0, number);
-      ydata = ys->data.mid (0, number);
+      xdata = QEFloatingArray (xs->data.mid (0, number));
+      ydata = QEFloatingArray (ys->data.mid (0, number));
 
 #if QWT_VERSION >= 0x060000
       curve->setSamples (xdata, ydata);
@@ -739,10 +746,10 @@ void QEPlotter::plot ()
       curve->setData (xdata, ydata);
 #endif
 
-      xMin = MIN (xMin, QEPlotter::minimumValue (xdata));
-      xMax = MAX (xMax, QEPlotter::maximumValue (xdata));
-      yMin = MIN (yMin, QEPlotter::minimumValue (ydata));
-      yMax = MAX (yMax, QEPlotter::maximumValue (ydata));
+      xMin = MIN (xMin, xdata.minimumValue ());
+      xMax = MAX (xMax, xdata.maximumValue ());
+      yMin = MIN (yMin, ydata.minimumValue ());
+      yMax = MAX (yMax, ydata.maximumValue ());
    }
 
    QEPlotter::adjustMinMax (xMin, xMax, xMin, xMax, xMajor);
@@ -763,7 +770,7 @@ void QEPlotter::plot ()
 void QEPlotter::doAnyCalculations ()
 {
    const int x = QEExpressionEvaluation::indexOf ('X');
-   const int z = QEExpressionEvaluation::indexOf ('Z');
+   const int s = QEExpressionEvaluation::indexOf ('S');
 
    QEExpressionEvaluation::CalculateArguments userArguments;
    DataSets* xs;
@@ -779,18 +786,49 @@ void QEPlotter::doAnyCalculations ()
 
 
    xs = &this->xy [0];
-   if (xs->dataKind == CalculationPlot) {
-      xs->data.clear ();
-      n = xs->effectiveSize ();
-      for (j = 0; j < n; j++) {
-         QEExpressionEvaluation::clear (userArguments);
-         userArguments [0][z] = (double) j;
-         value = xs->calculator->evaluate (userArguments, &okay);
-         xs->data.append (value);
-      }
+
+   switch (xs->dataKind) {
+      case NotInUse:
+         xs->data.clear ();
+         if (xs->sizeKind == Constant) {
+            // Use default calculation.
+            //
+            n = xs->fixedSize;
+            for (j = 0; j < n; j++) {
+               xs->data.append ((double) j);
+            }
+
+         }
+         break;
+
+      case DataPlot:
+         // Leave as the data, if any, supplied via PV.
+         break;
+
+      case CalculationPlot:
+         xs->data.clear ();
+         n = xs->effectiveSize ();
+         for (j = 0; j < n; j++) {
+            QEExpressionEvaluation::clear (userArguments);
+            userArguments [Normal][s] = (double) j;
+            value = xs->calculator->evaluate (userArguments, &okay);
+            xs->data.append (value);
+         }
+         break;
+
+      case InvalidExpression:
+         xs->data.clear ();
+         break;
    }
 
    effectiveXSize = xs->effectiveSize ();
+
+   for (slot = 1; slot < ARRAY_LENGTH (this->xy); slot++) {
+      ys = &this->xy [slot];
+      if (ys->dataKind == DataPlot) {
+         ys->dyByDx = ys->data.calcDyByDx (xs->data);
+      }
+   }
 
    for (slot = 1; slot < ARRAY_LENGTH (this->xy); slot++) {
       ys = &this->xy [slot];
@@ -809,17 +847,21 @@ void QEPlotter::doAnyCalculations ()
          for (j = 0; j < n; j++) {
             QEExpressionEvaluation::clear (userArguments);
 
-            // Pre-defined values: X and Z
-            userArguments [0][x] = xs->data.value (j);
-            userArguments [0][z] = (double) j;
+            // Pre-defined values: S and Z
+            userArguments [Normal][s] = (double) j;
+            userArguments [Normal][x] = xs->data.value (j);
+            userArguments [Primed][x] = 1.0;    // by defitions.
 
             for (tols = 1; tols < slot; tols++) {
-               userArguments [0] [tols - 1] = this->xy [tols].data.value (j, 0.0);
+               userArguments [Normal] [tols - 1] = this->xy [tols].data.value (j, 0.0);
+               userArguments [Primed] [tols - 1] = this->xy [tols].dyByDx.value (j, 0.0);
             }
 
             value = ys->calculator->evaluate (userArguments, &okay);
             ys->data.append (value);
          }
+
+         ys->dyByDx = ys->data.calcDyByDx (xs->data);
       }
    }
 }
@@ -914,9 +956,13 @@ void QEPlotter::setXYColour (const int slot, const QColor& colour)
 {
    SLOT_CHECK (slot,);
 
-   QLabel* t = this->privateData->itemNames [slot];
-   this->xy[slot].colour = colour;
-   t->setStyleSheet (QEUtilities::colourToStyle (colour));
+   // Slot 0 (X) and last slot (P) have fixed colours.
+   //
+   if (slot != 0 && slot != ARRAY_LENGTH (this->xy) - 1) {
+      QLabel* t = this->privateData->itemNames [slot];
+      this->xy[slot].colour = colour;
+      t->setStyleSheet (QEUtilities::colourToStyle (colour));
+   }
 }
 
 //---------------------------------------------------------------------------------
@@ -925,36 +971,6 @@ QColor QEPlotter::getXYColour (const int slot)
 {
    SLOT_CHECK (slot, QColor (0,0,0,0));
    return this->xy[slot].colour;
-}
-
-//---------------------------------------------------------------------------------
-//
-double QEPlotter::minimumValue (const DoubleVectors& array)
-{
-   double r = +1.0E12;
-   int j;
-   int n;
-
-   n = array.count ();
-   for (j = 0; j < n; j++) {
-      r = MIN (r, array.value (j));
-   }
-   return r;
-}
-
-//---------------------------------------------------------------------------------
-//
-double QEPlotter::maximumValue (const DoubleVectors& array)
-{
-   double r = -1.0E12;
-   int j;
-   int n;
-
-   n = array.count ();
-   for (j = 0; j < n; j++) {
-      r = MAX (r, array.value (j));
-   }
-   return r;
 }
 
 //---------------------------------------------------------------------------------
@@ -975,9 +991,9 @@ void  QEPlotter::adjustMinMax (const double minIn, const double maxIn,
    int s;
    int p, q;
 
-   // Find raw major value.
+   // Find estimated major value.
    //
-   major = (maxIn - minIn) / 8;
+   major = (maxIn - minIn) / 12;
 
    // Round up major to next standard value.
    //

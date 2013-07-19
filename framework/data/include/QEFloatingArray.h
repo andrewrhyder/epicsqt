@@ -50,7 +50,7 @@ public:
    // Calculates dThis/dx for each point using a series of three-point
    // polynomials. First an last point based to a two-point polynomial.
    //
-   QEFloatingArray slope (const QVector<double>& x);
+   QEFloatingArray calcDyByDx (const QVector<double>& x);
 
 private:
    static double derivative (const double xp1, const double yp1,

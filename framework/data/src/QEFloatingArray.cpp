@@ -70,12 +70,14 @@ double QEFloatingArray::maximumValue (const double& defaultValue)
 
 //---------------------------------------------------------------------------------
 //
-QEFloatingArray QEFloatingArray::slope (const QVector<double>& x)
+QEFloatingArray QEFloatingArray::calcDyByDx (const QVector<double>& x)
 {
    const int size = MIN (this->size(), x.size());
-   QEFloatingArray result (size);
+   QEFloatingArray result;
    double s;
    int j;
+
+   result.clear ();
 
    if (size == 1) {
       result.append (0.0);

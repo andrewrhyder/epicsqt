@@ -32,6 +32,7 @@
 #include <QVector>
 #include <QWidget>
 
+#include <QEFloatingArray.h>
 #include <QEFloatingFormatting.h>
 #include <QEIntegerFormatting.h>
 #include <QEFrame.h>
@@ -88,7 +89,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_PROPERTY (QString SizeVariableO   READ getSizePVO  WRITE setSizePVO)
    Q_PROPERTY (QString SizeVariableP   READ getSizePVP  WRITE setSizePVP)
 
-
    Q_PROPERTY (QString AliasNameX      READ getAliasX   WRITE setAliasX)
    Q_PROPERTY (QString AliasNameA      READ getAliasA   WRITE setAliasA)
    Q_PROPERTY (QString AliasNameB      READ getAliasB   WRITE setAliasB)
@@ -132,6 +132,21 @@ public:
 
    static const int NUMBER_OF_PLOTS = 16;
 
+   // Single function for all 'Data Set' properties.
+   // Make public? make slots?
+   //
+   void    setXYDataPV (const int, const QString&);
+   QString getXYDataPV (const int);
+
+   void    setXYSizePV (const int, const QString&);
+   QString getXYSizePV (const int);
+
+   void    setXYAlias (const int, const QString&);
+   QString getXYAlias (const int);
+
+   void   setXYColour (const int, const QColor&);
+   QColor getXYColour (const int);
+
 protected:
    // Implementation of QEWidget's virtual funtions
    //
@@ -152,6 +167,7 @@ private:
    typedef QList<QwtPlotCurve*> QwtCurveList;
    QwtCurveList curve_list;
 
+   bool isReverse;
    QTimer* timer;
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
@@ -166,7 +182,6 @@ private:
                         Constant,            // "[0-9]*" - used fixed integer as number of points
                         SizePVName };        // use speficed PV to provide number of points.
 
-   typedef QVector<double> DoubleVectors;
 
    class DataSets {
    public:
@@ -184,7 +199,8 @@ private:
       bool sizeIsConnected;
       int fixedSize;     // size set by user/designer
       int dbSize;        // max. number of elements of data to process.
-      DoubleVectors data;
+      QEFloatingArray data;
+      QEFloatingArray dyByDx;
 
       // n/a for the X data set, Y data sets only.
       //
@@ -202,21 +218,6 @@ private:
    void releaseCurves ();
    void plot ();
    void doAnyCalculations ();
-
-   // Single function for all 'Data Set' properties.
-   // Make public? make slots?
-   //
-   void    setXYDataPV (const int, const QString&);
-   QString getXYDataPV (const int);
-
-   void    setXYSizePV (const int, const QString&);
-   QString getXYSizePV (const int);
-
-   void    setXYAlias (const int, const QString&);
-   QString getXYAlias (const int);
-
-   void   setXYColour (const int, const QColor&);
-   QColor getXYColour (const int);
 
    // Property READ WRITE functions.
    //
@@ -274,10 +275,8 @@ private:
 
    // Move to a utility class?
    //
-   static double minimumValue (const DoubleVectors& array);
-   static double maximumValue (const DoubleVectors& array);
-   static void   adjustMinMax (const double minIn, const double maxIn,
-                               double& minOut, double& maxOut, double& majorOut);
+   static void adjustMinMax (const double minIn, const double maxIn,
+                             double& minOut, double& maxOut, double& majorOut);
 
 private slots:
    void setNewVariableName (QString variableName,
@@ -302,6 +301,10 @@ private slots:
 
    void checkBoxstateChanged (int state);
    void tickTimeout ();
+
+   friend class PrivateData;
+   friend class DataSets;
+   friend class DoubleVectors;
 };
 
 #endif // QEPLOTTER_H
