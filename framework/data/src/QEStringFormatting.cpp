@@ -440,18 +440,15 @@ QString QEStringFormatting::formatString( const QVariant &value ) {
                                 case ASCII:
                                     {
                                         // Translate all non printing characters to '?' except for trailing zeros (ignore them)
-                                        int nonZeroLen = 0;  // Length before trailing zeros
                                         int len = valueArray.count();
+
                                         for( int i = 0; i < len; i++ )
                                         {
-                                            if( valueArray[i].toInt() != 0 )
-                                            {
-                                                nonZeroLen = i;
-                                            }
-                                        }
-                                        for( int i = 0; i <= nonZeroLen; i++ )
-                                        {
-                                            if( valueArray[i].toInt() < ' ' || valueArray[i].toInt() > '~' )
+                                            int c = valueArray[i].toInt();
+
+                                            if (c == 0) break;  // Got a zero - end of string.
+
+                                            if( c < ' ' || c > '~' )
                                             {
                                                 stream << "?";
                                             }
