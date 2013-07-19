@@ -91,17 +91,25 @@ private:
 
    QString recordBaseName;
    QEStringFormatting fieldStringFormatting;
+
+   QEString* standardRecordType;
+   QEString* alternateRecordType;
+
    QList<QEString *> fieldChannels;
+
    int m, d;   // scaling.
 
    // common constructor function.
    void common_setup ();
    void clearFieldChannels ();
 
+   void setUpLabelChannel ();
+   void setUpRecordTypeChannels (QEString* &qca, const bool useCharArray);
+
    // Override standardProperties::setApplicationEnabled()
    void setApplicationEnabled (const bool & state);
 
-   //Set pvName.
+   // Set pvName.
    //
    void setPvName (const QString& pvName);
 
@@ -112,7 +120,7 @@ private slots:
 
    // Basic widgit PV related slots (used for RTYP pseudo field).
    //
-   void setRecordTypeConnection (QCaConnectionInfo& connectionInfo);
+   void setRecordTypeConnection (QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex);
    void setRecordTypeValue (const QString & rtypeValue, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
 
    // The value item slots.

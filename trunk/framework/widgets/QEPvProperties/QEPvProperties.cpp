@@ -77,11 +77,11 @@ static void initialiseRecordSpecs ()
    //
    pDefaultRecordSpec = new QERecordSpec ("_default_");
    (*pDefaultRecordSpec)
-         << "RTYP" << "NAME" << "DESC" << "ASG"  << "SCAN" << "PINI" << "PHAS"
-         << "EVNT" << "TSE"  << "TSEL" << "DTYP" << "DISV" << "DISA" << "SDIS"
-         << "DISP" << "PROC" << "STAT" << "SEVR" << "NSTA" << "NSEV" << "ACKS"
-         << "ACKT" << "DISS" << "LCNT" << "PACT" << "PUTF" << "RPRO" << "PRIO"
-         << "TPRO" << "UDF"  << "FLNK" << "VAL";
+         << "RTYP" << "NAME$" << "DESC$" << "ASG"   << "SCAN" << "PINI" << "PHAS"
+         << "EVNT" << "TSE"   << "TSEL"  << "DTYP"  << "DISV" << "DISA" << "SDIS$"
+         << "DISP" << "PROC"  << "STAT"  << "SEVR"  << "NSTA" << "NSEV" << "ACKS"
+         << "ACKT" << "DISS"  << "LCNT"  << "PACT"  << "PUTF" << "RPRO" << "PRIO"
+         << "TPRO" << "UDF"   << "FLNK$" << "VAL";
 
    okay = false;
 
@@ -115,7 +115,7 @@ static void initialiseRecordSpecs ()
 #define WIDGET_MIN_HEIGHT         400
 
 #define WIDGET_DEFAULT_WIDTH      448
-#define WIDGET_DEFAULT_HEIGHT     448
+#define WIDGET_DEFAULT_HEIGHT     696
 
 #define ENUMERATIONS_MIN_HEIGHT   12
 #define ENUMERATIONS_MAX_HEIGHT   100
@@ -340,6 +340,9 @@ void QEPvProperties::common_setup ()
 
    this->fieldChannels.clear ();
 
+   this->standardRecordType = NULL;
+   this->alternateRecordType = NULL;
+
    // configure the panel and create contents
    //
    this->setFrameShape (QFrame::Panel);
@@ -507,16 +510,6 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
 }
 
 //------------------------------------------------------------------------------
-//
-void QEPvProperties::useNewVariableNameProperty (QString variableNameIn,
-                                                 QString variableNameSubstitutionsIn,
-                                                 unsigned int variableIndex )
-{
-   this->setVariableNameAndSubstitutions (variableNameIn, variableNameSubstitutionsIn, variableIndex);
-}
-
-
-//------------------------------------------------------------------------------
 // NB. Need to do a deep clear to avoid memory loss.
 //
 void QEPvProperties::clearFieldChannels ()
@@ -547,7 +540,84 @@ void QEPvProperties::clearFieldChannels ()
 
 //------------------------------------------------------------------------------
 //
+void QEPvProperties::useNewVariableNameProperty (QString variableNameIn,
+                                                 QString variableNameSubstitutionsIn,
+                                                 unsigned int variableIndex)
+{
+   this->setVariableNameAndSubstitutions (variableNameIn, variableNameSubstitutionsIn, variableIndex);
+}
+
+//------------------------------------------------------------------------------
+//
 qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
+{
+   DEBUG <<variableIndex;
+   return NULL;  // We don't need a QEwidget managed connection.
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvProperties::setUpRecordTypeChannels (QEString* &qca, const bool useCharArray)
+{
+   QString pvName;
+   QString recordTypeName;
+
+   pvName = this->getSubstitutedVariableName (0).trimmed ();
+   this->recordBaseName = QERecordFieldName::recordName (pvName);
+
+   recordTypeName = QERecordFieldName::rtypePvName (pvName);
+   if (useCharArray)   recordTypeName.append("$");
+
+   if (qca) {
+      delete qca;
+      qca = NULL;
+   }
+
+   qca = new QEString (recordTypeName, this, &stringFormatting, (useCharArray ? 1 : 0));
+
+   QObject::connect (qca,  SIGNAL (stringConnectionChanged (QCaConnectionInfo&, const unsigned int& )),
+                     this, SLOT   (setRecordTypeConnection (QCaConnectionInfo&, const unsigned int& )));
+
+   QObject::connect (qca,  SIGNAL (stringChanged      (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& )),
+                     this, SLOT   (setRecordTypeValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& )));
+
+   qca->subscribe ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvProperties::setUpLabelChannel ()
+{
+   QString pvName;
+   QELabel *valueLabel = this->ownWidgets->valueLabel;   // brevity and SDK auto complete
+   qcaobject::QCaObject *qca = NULL;
+
+   // The pseudo RTYP field has connected - we are good to go...
+   //
+   pvName = this->getSubstitutedVariableName (0).trimmed ();
+
+   // Set PV name of internal QELabel.
+   //
+   valueLabel->setVariableNameAndSubstitutions (pvName, "", 0);
+
+   // We know that QELabels use slot zero for their connection.
+   //
+   qca = valueLabel->getQcaItem (0);
+   if (qca) {
+      QObject::connect (qca, SIGNAL (connectionChanged  (QCaConnectionInfo&) ),
+                        this,  SLOT (setValueConnection (QCaConnectionInfo&) ) );
+
+      QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                        this,  SLOT (setValueValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+
+   } else {
+      DEBUG << " no qca object";
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvProperties::establishConnection (unsigned int variableIndex)
 {
    QComboBox *box = this->ownWidgets->box;
    QString substitutedPVName;
@@ -555,24 +625,24 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
 
    if (variableIndex != 0) {
       DEBUG << "unexpected variableIndex" << variableIndex;
-      return NULL;
+      return;
    }
 
    substitutedPVName = this->getSubstitutedVariableName (0).trimmed ();
    this->recordBaseName = QERecordFieldName::recordName (substitutedPVName);
 
-   // Clear associated data fields.
+   // Set up field name label.
    //
    this->ownWidgets->label2->setText (QERecordFieldName::fieldName (substitutedPVName));
+
+   // Clear associated data fields.
+   //
    this->ownWidgets->hostName->setText ("");
    this->ownWidgets->timeStamp->setText ("");
    this->ownWidgets->fieldType->setText ("");
    this->ownWidgets->indexInfo->setText ("");
    this->ownWidgets->valueLabel->setText ("");
 
-
-   //-----start--do--this---------------------------------
-   // Move to establishConnection??
    //-----------------------------------------------------
    // Clear any exiting field connections.
    //
@@ -586,7 +656,7 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
       }
    }
 
-   // Maksure at least 2 free slots - one for this PV and one
+   // Make sure at least 2 free slots - one for this PV and one
    // for the user to type.
    //
    while (box->count() >= box->maxCount () - 2) {
@@ -599,98 +669,57 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
    //
    emit setCurrentBoxIndex (0);
 
-   //-----end--do--this-----------------------------------
-
-
-   // Regardless of the actual PV, we need to connect to the RTYP pseudo field
-   // of the associated record.
+   // Set up internal QElabel object.
    //
-   return new QEString (QERecordFieldName::rtypePvName (substitutedPVName),
-                        this, &stringFormatting, 0);
+   this->setUpLabelChannel ();
+
+   // Set up connections to XXXX.RTYP and XXXX.RTYP$.
+   // We do this to firstly establish the record type name (e.g. ai, calcout),
+   // but also to determine if the PV server (IOC) supports character array mode
+   // for string PVs. This is usefull for long strings (> 40 charcters).
+   //
+   this->setUpRecordTypeChannels (this->alternateRecordType, true);
+   this->setUpRecordTypeChannels (this->standardRecordType, false);
 }
 
 //------------------------------------------------------------------------------
 //
-void QEPvProperties::establishConnection (unsigned int variableIndex)
+void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex)
 {
-   qcaobject::QCaObject* qca;
-
-   if (variableIndex != 0) {
-      DEBUG << "unexpected variableIndex" << variableIndex;
-      return;
+   if (variableIndex == 1 && connectionInfo.isChannelConnected ()) {
+      // XXX.RTYP$ connected - pre empty standard connection.
+      //
+      delete this->standardRecordType;
+      this->standardRecordType = NULL;
    }
-
-   // Create a connection.
-   // If successfull, the QCaObject object that will supply data update signals will be returned
-   // Note createConnection creates the connection and returns reference to existing QCaObject.
-   //
-   qca = this->createConnection (variableIndex);
-
-   // If a QCaObject object is now available to supply data update signals, connect it to the appropriate slots
-   //
-   if (qca) {
-      QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&)),
-                        this, SLOT (setRecordTypeConnection (QCaConnectionInfo& )));
-
-      QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& )),
-                        this, SLOT (setRecordTypeValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& )));
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo)
-{
-   QString substitutedPVName;
-   qcaobject::QCaObject *qca;
-   QELabel *valueLabel = this->ownWidgets->valueLabel;   // brevity and SDK auto complete
 
    // Update tool tip, but leave the basic widget enabled.
    //
    updateToolTipConnection (connectionInfo.isChannelConnected ());
-
-   if (connectionInfo.isChannelConnected ()) {
-
-      // The pseudo RTYP field has connected - we are good to go...
-      //
-      substitutedPVName = this->getSubstitutedVariableName (0).trimmed ();;
-
-      // Set PV name of internal QELabel.
-      //
-      valueLabel->setVariableNameAndSubstitutions (substitutedPVName, "", 0);
-
-      // We know that QELabels use slot zero for the connection.
-      //
-      qca = valueLabel->getQcaItem (0);
-      if (qca) {
-         QObject::connect (qca, SIGNAL (connectionChanged  (QCaConnectionInfo&) ),
-                           this,  SLOT (setValueConnection (QCaConnectionInfo&) ) );
-
-         QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
-                           this,  SLOT (setValueValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-
-      } else {
-         qDebug () << __FUNCTION__ << " no qca object";
-      }
-   }
 }
 
 
 //------------------------------------------------------------------------------
 // Called when notified of the (new) record type value.
 //
-void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
+void QEPvProperties::setRecordTypeValue (const QString& rtypeValue,
                                          QCaAlarmInfo&,
                                          QCaDateTime&,
-                                         const unsigned int&)
+                                         const unsigned int& variableIndex)
 {
+   bool useCharArrayMode = (variableIndex == 1);
+
    QTableWidget *table = this->ownWidgets->table;
 
    int j;
    QERecordSpec *pRecordSpec;
    int numberOfFields;
-   QString fieldName;
-   QTableWidgetItem *item;
+   bool mayUseCharArray;
+   QString readField;
+   QString pvField;
+   QString displayField;
+
+   QTableWidgetItem* item;
    QString pvName;
    QEString *qca;
 
@@ -721,7 +750,23 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
 
    table->setRowCount (numberOfFields);
    for (j = 0; j < numberOfFields; j++) {
-      fieldName = pRecordSpec->getFieldName (j);
+
+      readField = pRecordSpec->getFieldName (j);
+      mayUseCharArray = readField.endsWith ('$');
+
+      if (mayUseCharArray) {
+         displayField = readField;
+         displayField.chop (1);
+      } else {
+         displayField = readField;
+      }
+
+      if (useCharArrayMode && mayUseCharArray) {
+         pvField = displayField;
+         pvField.append ('$');
+      } else {
+         pvField = displayField;
+      }
 
       // Ensure vertical header exists and set it.
       //
@@ -731,7 +776,7 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
          item = new QTableWidgetItem ();
          table->setItem (j, FIELD_COL, item);
       }
-      item->setText  (" " + fieldName + " ");
+      item->setText  (" " + displayField + " ");
 
       // Ensure table entry item exists.
       //
@@ -744,7 +789,7 @@ void QEPvProperties::setRecordTypeValue (const QString & rtypeValue,
 
       // Form the required PV name.
       //
-      pvName = this->recordBaseName + "." + fieldName;
+      pvName = this->recordBaseName + "." + pvField;
 
       qca = new QEString (pvName, this, &this->fieldStringFormatting, j);
 
@@ -948,10 +993,12 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
 //
 void QEPvProperties::customContextMenuRequested (const QPoint & posIn)
 {
-   QTableWidget *table = this->ownWidgets->table;
+   QTableWidget* table = this->ownWidgets->table;
    QMenu *menu = this->ownWidgets->tableContextMenu;
-   QTableWidgetItem * item;
+   QTableWidgetItem* item = NULL;
    QString trimmed;
+   int row;
+   qcaobject::QCaObject* qca = NULL;
    QString newPV;
    QAction *action;
    QPoint pos = posIn;
@@ -964,14 +1011,19 @@ void QEPvProperties::customContextMenuRequested (const QPoint & posIn)
       return;  // just in case
    }
 
-   trimmed = item->text ().trimmed();
-
    switch (item->column ()) {
       case FIELD_COL:
-         newPV = QERecordFieldName::fieldPvName (this->recordBaseName, trimmed);
+         row = item->row ();
+         qca = this->fieldChannels.value (row, NULL);
+         if (qca) {
+            newPV = qca->getRecordName ();
+         } else {
+            newPV = "";
+         }
          break;
 
       case VALUE_COL:
+         trimmed = item->text ().trimmed ();
          QERecordFieldName::extractPvName (trimmed, newPV);
          break;
 
@@ -1001,6 +1053,7 @@ void QEPvProperties::contextMenuTriggered (QAction* action)
 
    if (action) {
       newPV = action->data ().toString ();
+
       this->setVariableName (newPV , 0);
       this->establishConnection (0);
    }

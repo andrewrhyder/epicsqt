@@ -241,10 +241,10 @@ bool QERecordFieldName::pvNameIsValid (const QString & pvName)
       return false;
    }
 
-   // Must start with an upper case letter.
+   // Must start with a letter.
    //
    c = pvName [0];
-   if (!c.isUpper ()) {
+   if ((!c.isUpper ()) && (!c.isLower())) {
       return false;
    }
 
