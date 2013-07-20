@@ -105,15 +105,14 @@ public:
    //
    PrivateData (QEPlotter* parent);
 
-   QEPlotter* plotter;
-
    QVBoxLayout* vLayout;
    QHBoxLayout* hLayout;
    QVBoxLayout* pLayout;
 
    QEResizeableFrame* toolBarResize;
    QFrame* toolBarFrame;
-   QFrame* theRestFrame;
+   QFrame* theMainFrame;
+   QFrame* statusFrame;
 
    QFrame*  plotFrame;
    QwtPlot*  plotArea;
@@ -124,24 +123,23 @@ public:
 
    QLabel* itemNames [1 + NUMBER_OF_PLOTS];
    TCheckBox* checkBoxes [1 + NUMBER_OF_PLOTS];
+   QEPlotterMenu* itemMenus [1 + NUMBER_OF_PLOTS];
 };
 
 //---------------------------------------------------------------------------------
 //
-QEPlotter::PrivateData::PrivateData (QEPlotter* parent)
+QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
 {
    int slot;
    int y;
 
-   this->plotter = parent;
-
    // Main layout.
    //
-   this->vLayout = new QVBoxLayout (parent);
+   this->vLayout = new QVBoxLayout (harryPlotter);
    this->vLayout->setMargin (4);
    this->vLayout->setSpacing (4);
 
-   this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 4, 48, parent);
+   this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 4, 48, harryPlotter);
    this->toolBarResize->setFrameShape (QFrame::StyledPanel);
    this->toolBarResize->setFrameShadow (QFrame::Raised);
    this->toolBarResize->setFixedHeight (48);
@@ -152,21 +150,27 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* parent)
    this->toolBarFrame = new QFrame (NULL);  // will be re-parented.
    this->toolBarFrame->setFrameShape (QFrame::NoFrame);
    this->toolBarFrame->setFrameShadow (QFrame::Plain);
-   this->toolBarFrame->setFixedHeight (48);
+   this->toolBarFrame->setFixedHeight (40);
    this->toolBarResize->setWidget (this->toolBarFrame);
 
-   this->theRestFrame = new QFrame (parent);
-   this->theRestFrame->setFrameShape (QFrame::NoFrame);
-   this->theRestFrame->setFrameShadow (QFrame::Plain);
-   this->vLayout->addWidget (this->theRestFrame);
+   this->theMainFrame = new QFrame (harryPlotter);
+   this->theMainFrame->setFrameShape (QFrame::NoFrame);
+   this->theMainFrame->setFrameShadow (QFrame::Plain);
+   this->vLayout->addWidget (this->theMainFrame);
 
-   // Inside plot stuff frame - layout left to right.
+   this->statusFrame = new QFrame (harryPlotter);
+   this->statusFrame->setFrameShape (QFrame::StyledPanel);
+   this->statusFrame->setFrameShadow (QFrame::Raised);
+   this->statusFrame->setFixedHeight (40);
+   this->vLayout->addWidget (this->statusFrame);
+
+   // Inside main frame - layout left to right.
    //
-   this->hLayout = new QHBoxLayout (this->theRestFrame);
+   this->hLayout = new QHBoxLayout (this->theMainFrame);
    this->hLayout->setMargin (0);
    this->hLayout->setSpacing (4);
 
-   this->plotFrame = new QFrame (this->theRestFrame);
+   this->plotFrame = new QFrame (this->theMainFrame);
    this->plotFrame->setFrameShape (QFrame::StyledPanel);
    this->plotFrame->setFrameShadow (QFrame::Raised);
    this->hLayout->addWidget (this->plotFrame);
@@ -186,7 +190,7 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* parent)
 
    this->pLayout->addWidget (this->plotArea);
 
-   this->itemResize = new QEResizeableFrame (QEResizeableFrame::LeftEdge, 40, 400, this->theRestFrame);
+   this->itemResize = new QEResizeableFrame (QEResizeableFrame::LeftEdge, 40, 400, this->theMainFrame);
    this->itemResize->setFrameShape (QFrame::StyledPanel);
    this->itemResize->setFrameShadow (QFrame::Raised);
    this->itemResize->setFixedWidth (256);
@@ -199,6 +203,7 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* parent)
 
    for (slot = 0; slot < ARRAY_LENGTH (this->itemNames); slot++) {
       QLabel* label = new QLabel (this->itemFrame);
+      QEPlotterMenu* menu = new QEPlotterMenu (slot, harryPlotter);
       TCheckBox* box = NULL;
 
       y = 4 + (22*slot) + (slot ? 4 : 0);
@@ -207,17 +212,31 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* parent)
       label->setIndent (6);
       label->setStyleSheet (QEUtilities::colourToStyle (item_colours [slot]));
 
+      label->setAcceptDrops (true);
+      label->installEventFilter (harryPlotter);
+      label->setContextMenuPolicy (Qt::CustomContextMenu);
+
+      QObject::connect (label, SIGNAL ( customContextMenuRequested (const QPoint &)),
+                        harryPlotter, SLOT   ( contextMenuRequested (const QPoint &)));
+
+      QObject::connect (menu, SIGNAL ( contextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ),
+                        harryPlotter, SLOT  ( contextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ));
+
       if (slot != 0) {
          box = new TCheckBox (this->itemFrame);
          box->tag = slot;
          box->setGeometry (208, y, 17, 17);
          box->setChecked (true);
+
+         QObject::connect (box,   SIGNAL (stateChanged (int)),
+                           harryPlotter, SLOT   (checkBoxstateChanged (int)));
       }
 
       // Save widget references.
       //
       this->itemNames [slot] = label;
       this->checkBoxes [slot] = box;
+      this->itemMenus [slot] = menu;
    }
 }
 
@@ -240,6 +259,13 @@ QEPlotter::DataSets::DataSets ()
    this->dataIsConnected = false;
    this->sizeIsConnected = false;
    this->isDisplayed = true;
+}
+
+//---------------------------------------------------------------------------------
+//
+QEPlotter::DataSets::~DataSets ()
+{
+   delete this->calculator;
 }
 
 //---------------------------------------------------------------------------------
@@ -289,19 +315,13 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
       //
       this->xy [slot].dataVariableNameManager.setVariableIndex (2*slot + 0);
       this->xy [slot].sizeVariableNameManager.setVariableIndex (2*slot + 1);
-
-      if (this->privateData->checkBoxes [slot]) {
-         QObject::connect (this->privateData->checkBoxes [slot], SIGNAL (stateChanged (int)),
-                           this,                         SLOT   (checkBoxstateChanged (int)));
-
-      }
    }
 
-   // configure the panel and create contents
+   // Configure the panel.
    //
    this->setFrameShape (QFrame::Panel);
    this->setFrameShadow (QFrame::Plain);
-   this->setMinimumSize (500, 448);
+   this->setMinimumSize (500, 500);
 
    this->isReverse = false;
 
@@ -339,14 +359,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 //
 QEPlotter::~QEPlotter ()
 {
-   int slot;
-
    this->timer->stop ();
    this->releaseCurves ();
-
-   for (slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
-      delete this->xy [slot].calculator;
-   }
 
    // The widgets referenced by privateData are parented (indirectly) by
    // this so will be automagically deleted.
@@ -563,6 +577,134 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
 
 //---------------------------------------------------------------------------------
 //
+//---------------------------------------------------------------------------------
+//
+int QEPlotter::findSlot (QObject *obj)
+{
+   int result = -1;
+   int slot;
+
+   for (slot = 0 ; slot < ARRAY_LENGTH (this->xy); slot++) {
+      if (this->privateData->itemNames [slot] == obj) {
+         // found it.
+         //
+         result = slot;
+         break;
+      }
+   }
+
+   return result;
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::highLight (const int slot, const bool isHigh)
+{
+   QString styleSheet;
+
+   SLOT_CHECK (slot,);
+
+   if (isHigh) {
+      styleSheet = QEUtilities::colourToStyle (clWhite);
+   } else {
+      styleSheet = QEUtilities::colourToStyle (this->xy [slot].colour);
+   }
+
+   this->privateData->itemNames [slot]->setStyleSheet (styleSheet);
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::contextMenuRequested (const QPoint& pos)
+{
+   QObject *obj = this->sender();   // who send the signal.
+   int slot = findSlot (obj);
+   QPoint golbalPos;
+
+   SLOT_CHECK (slot,);
+
+   golbalPos = this->privateData->itemNames [slot]->mapToGlobal (pos);
+
+   this->privateData->itemMenus [slot]->exec (golbalPos, 0);
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option)
+{
+   SLOT_CHECK (slot,);
+   DEBUG <<  option;
+}
+
+//---------------------------------------------------------------------------------
+//
+bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
+{
+   const QEvent::Type type = event->type ();
+   int slot;
+
+
+   switch (type) {
+
+      case QEvent::MouseButtonDblClick:
+         slot = this->findSlot (obj);
+         if (slot >= 0) {
+            return true;  // we have handled double click
+         }
+         break;
+
+      case QEvent::DragEnter:
+         slot = this->findSlot (obj);
+         if (slot >= 0) {
+            QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*> (event);
+
+            // Can only drop if text and not in use.
+            //
+            if ((dragEnterEvent->mimeData()->hasText ()) &&
+                (this->xy [slot].dataKind== NotInUse)) {
+               dragEnterEvent->setDropAction (Qt::CopyAction);
+               dragEnterEvent->accept ();
+               this->highLight (slot, true);
+            } else {
+               dragEnterEvent->ignore ();
+               this->highLight (slot, false);
+            }
+            return true;
+         }
+         break;
+
+      case QEvent::DragLeave:
+         slot = this->findSlot (obj);
+         if (slot >= 0) {
+            this->highLight (slot, false);
+            return true;
+         }
+         break;
+
+
+      case QEvent::Drop:
+         slot = this->findSlot (obj);
+         if (slot >= 0) {
+            QDropEvent* dropEvent = static_cast<QDropEvent*> (event);
+            dropEvent->accept ();  // TODO
+            this->highLight (slot, false);
+            return true;
+         }
+         break;
+
+      default:
+         // Just fall through
+         break;
+   }
+
+   return false;
+}
+
+
+//---------------------------------------------------------------------------------
+// Slots receiving PV data
+//---------------------------------------------------------------------------------
+//
 void QEPlotter::dataConnectionChanged (QCaConnectionInfo& connectionInfo,
                                        const unsigned int &variableIndex)
 {
@@ -614,6 +756,8 @@ void QEPlotter::sizeValueChanged (const long& value,
 }
 
 
+//------------------------------------------------------------------------------
+// Plot and plot related functions
 //------------------------------------------------------------------------------
 //
 QwtPlotCurve* QEPlotter::allocateCurve (const int slot)
