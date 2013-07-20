@@ -39,6 +39,8 @@
 #include <QEExpressionEvaluation.h>
 #include <QCaVariableNamePropertyManager.h>
 
+#include <QEPlotterMenu.h>
+
 class QwtPlotCurve;
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
@@ -152,6 +154,8 @@ protected:
    //
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void establishConnection (unsigned int variableIndex);
+   bool eventFilter (QObject *obj, QEvent *event);
+   int findSlot (QObject *obj);
 
 private:
    // Internal widgets and associated support data. These are declared in
@@ -185,7 +189,8 @@ private:
 
    class DataSets {
    public:
-      DataSets ();
+      explicit DataSets ();
+      ~DataSets ();
 
       QCaVariableNamePropertyManager dataVariableNameManager;
       QCaVariableNamePropertyManager sizeVariableNameManager;
@@ -198,7 +203,7 @@ private:
       bool dataIsConnected;
       bool sizeIsConnected;
       int fixedSize;     // size set by user/designer
-      int dbSize;        // max. number of elements of data to process.
+      int dbSize;        // size as defined by PV.
       QEFloatingArray data;
       QEFloatingArray dyByDx;
 
@@ -214,6 +219,7 @@ private:
    //
    DataSets xy [1 + NUMBER_OF_PLOTS];
 
+   void highLight (const int slot, const bool isHigh);
    QwtPlotCurve* allocateCurve (const int slot);
    void releaseCurves ();
    void plot ();
@@ -302,9 +308,11 @@ private slots:
    void checkBoxstateChanged (int state);
    void tickTimeout ();
 
+   void contextMenuRequested (const QPoint& pos);
+   void contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option);
+
    friend class PrivateData;
    friend class DataSets;
-   friend class DoubleVectors;
 };
 
 #endif // QEPLOTTER_H

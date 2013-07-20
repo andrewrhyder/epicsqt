@@ -12,11 +12,13 @@ RESOURCES += \
 HEADERS += \
     widgets/QEPlotter/QEExpressionEvaluation.h  \
     widgets/QEPlotter/QEPlotter.h \
+    widgets/QEPlotter/QEPlotterMenu.h \
     widgets/QEPlotter/QEPlotterManager.h
 
 SOURCES += \
     widgets/QEPlotter/QEExpressionEvaluation.cpp  \
     widgets/QEPlotter/QEPlotter.cpp \
+    widgets/QEPlotter/QEPlotterMenu.cpp \
     widgets/QEPlotter/QEPlotterManager.cpp
 
 INCLUDEPATH += \
