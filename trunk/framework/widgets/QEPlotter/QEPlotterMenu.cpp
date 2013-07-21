@@ -47,14 +47,12 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
       this->make (menu, "Bold",   true, PLOTTER_LINE_BOLD);
       this->make (menu, "Dots",   true, PLOTTER_LINE_DOTS);
       this->make (menu, "Visible", true, PLOTTER_LINE_VISIBLE);
-
-      if (this->slot < 16) {
-         this->make (menu, "Colour...", false, PLOTTER_LINE_COLOUR);
-      }
+      this->make (menu, "Colour...", false, PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
    }
 
    menu = new QMenu ("Data", this);
    this->addMenu (menu);
+   this->make (menu, "Select",    false, PLOTTER_DATA_SELECT)->setEnabled (slot > 0);
    this->make (menu, "Define...", false, PLOTTER_DATA_DIALOG);
    this->make (menu, "Clear",     false, PLOTTER_DATA_CLEAR);
 
@@ -62,6 +60,9 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
    this->addMenu (menu);
    this->make (menu, "Min to Max values",  false, PLOTTER_SCALE_TO_MIN_MAX);
    this->make (menu, "Zero to Max values", false, PLOTTER_SCALE_TO_ZERO_MAX);
+
+   QObject::connect (this, SIGNAL (triggered             (QAction* ) ),
+                     this, SLOT   (contextMenuTriggered  (QAction* )));
 }
 
 //------------------------------------------------------------------------------
@@ -100,7 +101,6 @@ void QEPlotterMenu::contextMenuTriggered (QAction* selectedItem)
        (option <= QEPlotterMenu::ContextMenuItemLast)) {
       emit this->contextMenuSelected (this->slot, option);
    }
-
 }
 
 // end
