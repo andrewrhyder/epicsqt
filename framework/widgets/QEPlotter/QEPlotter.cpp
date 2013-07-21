@@ -35,7 +35,9 @@
 #include <QEFloating.h>
 #include <QEResizeableFrame.h>
 
-#include <QEPlotter.h>
+#include "QEPlotter.h"
+#include "QEPlotterItemDialog.h"
+
 
 #define DEBUG qDebug() << "QEPlotter::" << __FUNCTION__ << ":" << __LINE__
 
@@ -44,6 +46,7 @@
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 static const QColor clGridLine (0xC0C0C0);
+static const QColor clStatus (0xF0F0F0);
 
 // Define default colours: essentially RGB byte triplets
 //
@@ -108,6 +111,7 @@ public:
    QVBoxLayout* vLayout;
    QHBoxLayout* hLayout;
    QVBoxLayout* pLayout;
+   QHBoxLayout* sLayout;
 
    QEResizeableFrame* toolBarResize;
    QFrame* toolBarFrame;
@@ -124,6 +128,24 @@ public:
    QLabel* itemNames [1 + NUMBER_OF_PLOTS];
    TCheckBox* checkBoxes [1 + NUMBER_OF_PLOTS];
    QEPlotterMenu* itemMenus [1 + NUMBER_OF_PLOTS];
+   QEPlotterItemDialog* dataDialog;
+
+   // Status items
+   //
+   QLabel* slotIndicator;
+   QLabel* minLabel;
+   QLabel* minValue;
+   QLabel* maxLabel;
+   QLabel* maxValue;
+   QLabel* maxAtLabel;
+   QLabel* maxAtValue;
+
+   // Full Width (at) Half Max
+   QLabel* fwhmLabel;
+   QLabel* fwhmValue;
+   // Centre Of Mass
+   QLabel* comLabel;
+   QLabel* comValue;
 };
 
 //---------------------------------------------------------------------------------
@@ -132,6 +154,7 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
 {
    int slot;
    int y;
+   QString styleSheet;
 
    // Main layout.
    //
@@ -161,7 +184,7 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
    this->statusFrame = new QFrame (harryPlotter);
    this->statusFrame->setFrameShape (QFrame::StyledPanel);
    this->statusFrame->setFrameShadow (QFrame::Raised);
-   this->statusFrame->setFixedHeight (40);
+   this->statusFrame->setFixedHeight (30);
    this->vLayout->addWidget (this->statusFrame);
 
    // Inside main frame - layout left to right.
@@ -238,6 +261,65 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
       this->checkBoxes [slot] = box;
       this->itemMenus [slot] = menu;
    }
+
+   // Status frame.
+   //
+   // Inside status frame - layout left to right.
+   //
+   this->sLayout = new QHBoxLayout (this->statusFrame);
+   this->sLayout->setMargin (4);
+   this->sLayout->setSpacing (8);
+
+   this->slotIndicator = new QLabel ("", this->statusFrame);
+   this->minLabel   = new QLabel ("Min:", this->statusFrame);
+   this->minValue   = new QLabel ("-", this->statusFrame);
+   this->maxLabel   = new QLabel ("Max:", this->statusFrame);
+   this->maxValue   = new QLabel ("-", this->statusFrame);
+   this->maxAtLabel = new QLabel ("Max At:", this->statusFrame);
+   this->maxAtValue = new QLabel ("-", this->statusFrame);
+   this->fwhmLabel  = new QLabel ("FWHM:", this->statusFrame);
+   this->fwhmValue  = new QLabel ("-", this->statusFrame);
+   this->comLabel   = new QLabel ("CoM:", this->statusFrame);
+   this->comValue   = new QLabel ("-", this->statusFrame);
+
+   this->slotIndicator->setFixedWidth (40);
+   this->minLabel->setFixedWidth (32);
+   this->maxLabel->setFixedWidth (32);
+   this->maxAtLabel->setFixedWidth (52);
+   this->fwhmLabel->setFixedWidth (48);
+   this->comLabel->setFixedWidth (36);
+
+   styleSheet = QEUtilities::colourToStyle (clStatus);
+   this->slotIndicator->setStyleSheet (styleSheet);
+   this->slotIndicator->setAlignment (Qt::AlignHCenter);
+
+#define SET_VALUE_LABEL(nameValue, tip)  {              \
+   this->nameValue->setStyleSheet  (styleSheet);        \
+   this->nameValue->setIndent (6);                      \
+   this->nameValue->setAlignment (Qt::AlignRight);      \
+   this->nameValue->setToolTip (tip);                   \
+}
+   SET_VALUE_LABEL (minValue, "Minimum Value");
+   SET_VALUE_LABEL (maxValue, "Maximum Value");
+   SET_VALUE_LABEL (maxAtValue, "Maximum Value X co-ordinate");
+   SET_VALUE_LABEL (fwhmValue, "Full Width at Half Maximum");
+   SET_VALUE_LABEL (comValue, "Centre of Mass (median position)");
+
+#undef SET_VALUE_LABEL
+
+   this->sLayout->addWidget (this->slotIndicator);
+   this->sLayout->addWidget (this->minLabel);
+   this->sLayout->addWidget (this->minValue);
+   this->sLayout->addWidget (this->maxLabel);
+   this->sLayout->addWidget (this->maxValue);
+   this->sLayout->addWidget (this->maxAtLabel);
+   this->sLayout->addWidget (this->maxAtValue);
+   this->sLayout->addWidget (this->fwhmLabel);
+   this->sLayout->addWidget (this->fwhmValue);
+   this->sLayout->addWidget (this->comLabel);
+   this->sLayout->addWidget (this->comValue);
+
+   dataDialog = new QEPlotterItemDialog (harryPlotter);
 }
 
 
@@ -324,6 +406,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->setMinimumSize (500, 500);
 
    this->isReverse = false;
+   this->selectedDataSet = 0;
 
    this->setAllowDrop (false);
    this->setDisplayAlarmState (false);
@@ -395,7 +478,7 @@ void QEPlotter::updateLabel (const int slot)
    QLabel* t = this->privateData->itemNames [slot];
    QString text = item_labels [slot];
 
-   text.append (": ");
+   text.append (" ");
 
    switch (ds->dataKind) {
       case NotInUse:
@@ -412,7 +495,7 @@ void QEPlotter::updateLabel (const int slot)
          break;
 
       case CalculationPlot:
-         text.append ("= ");
+         text.append (":= ");
          text.append (ds->expression);
          break;
 
@@ -598,6 +681,41 @@ int QEPlotter::findSlot (QObject *obj)
 
 //---------------------------------------------------------------------------------
 //
+void QEPlotter::selectDataSet (const int slot)
+{
+   QString styleSheet;
+   QString text;
+
+   SLOT_CHECK (slot,);
+
+   if (this->selectedDataSet == slot) {
+      this->selectedDataSet = 0;  // none.
+   } else {
+      this->selectedDataSet = slot;
+   }
+
+   if (this->selectedDataSet > 0) {
+      text = item_labels [slot];
+      styleSheet = this->privateData->itemNames [slot]->styleSheet ();
+   } else {
+      text = "";
+      styleSheet = QEUtilities::colourToStyle (clStatus);
+
+      this->privateData->minValue->setText ("-");
+      this->privateData->maxValue->setText ("-");
+      this->privateData->maxAtValue->setText ("-");
+      this->privateData->fwhmValue->setText ("-");
+      this->privateData->comValue->setText ("-");
+   }
+
+   this->privateData->slotIndicator->setText (text);
+   this->privateData->slotIndicator->setStyleSheet (styleSheet);
+
+   this->replotIsRequired = true;
+}
+
+//---------------------------------------------------------------------------------
+//
 void QEPlotter::highLight (const int slot, const bool isHigh)
 {
    QString styleSheet;
@@ -632,8 +750,58 @@ void QEPlotter::contextMenuRequested (const QPoint& pos)
 //
 void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option)
 {
+   QEPlotterItemDialog* dataDialog;
+   int n;
+
    SLOT_CHECK (slot,);
-   DEBUG <<  option;
+
+   switch (option) {
+
+      case QEPlotterMenu::PLOTTER_LINE_BOLD:
+      case QEPlotterMenu::PLOTTER_LINE_DOTS:
+      case QEPlotterMenu::PLOTTER_LINE_VISIBLE:
+      case QEPlotterMenu::PLOTTER_LINE_COLOUR:
+         break;
+
+      case QEPlotterMenu::PLOTTER_DATA_SELECT:
+         if (slot > 0) {
+            this->selectDataSet (slot);
+         }
+         break;
+
+      case QEPlotterMenu::PLOTTER_DATA_DIALOG:
+         dataDialog = this->privateData->dataDialog;
+         dataDialog->setFieldInformation (this->getXYDataPV (slot),
+                                          this->getXYAlias  (slot),
+                                          this->getXYSizePV (slot),
+                                          this->getXYColour (slot));
+         n = dataDialog->exec ();
+         if (n == 1) {
+            QString newData;
+            QString newAlias;
+            QString newSize;
+            QColor newColour;
+
+            dataDialog->getFieldInformation (newData, newAlias, newSize, newColour);
+            this->setXYDataPV (slot, newData);
+            this->setXYAlias  (slot, newAlias);
+            this->setXYSizePV (slot, newSize);
+            this->setXYColour (slot, newColour);
+
+            this->plot ();
+         }
+         break;
+
+      case QEPlotterMenu::PLOTTER_DATA_CLEAR:
+
+      case QEPlotterMenu::PLOTTER_SCALE_TO_MIN_MAX:
+      case QEPlotterMenu::PLOTTER_SCALE_TO_ZERO_MAX:
+         break;
+
+      default:
+         DEBUG << slot <<  option;
+         break;
+   }
 }
 
 //---------------------------------------------------------------------------------
@@ -641,14 +809,26 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
 bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
 {
    const QEvent::Type type = event->type ();
+   QMouseEvent* mouseEvent = NULL;
    int slot;
 
 
    switch (type) {
+      case QEvent::MouseButtonPress:
+         mouseEvent = static_cast<QMouseEvent *> (event);
+         slot = this->findSlot (obj);
+         if (slot > 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
+            // Leverage of menu handler
+            this->contextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_SELECT);
+            return true;  // we have handled this mouse press
+         }
+         break;
 
       case QEvent::MouseButtonDblClick:
          slot = this->findSlot (obj);
          if (slot >= 0) {
+            // Leverage of menu handler
+            this->contextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_DIALOG);
             return true;  // we have handled double click
          }
          break;
@@ -894,6 +1074,57 @@ void QEPlotter::plot ()
       xMax = MAX (xMax, xdata.maximumValue ());
       yMin = MIN (yMin, ydata.minimumValue ());
       yMax = MAX (yMax, ydata.maximumValue ());
+
+      if (slot == this->selectedDataSet) {
+         QString image;
+         double value;
+         int jAtMax;
+         int j;
+         double limit;
+         int lower;
+         int upper;
+         double sxy, sy;
+
+         image = QString ("%1").arg (yMin);
+         this->privateData->minValue->setText (image);
+
+         image = QString ("%1").arg (yMax);
+         this->privateData->maxValue->setText (image);
+
+         value = 0.0;
+         jAtMax = 0;
+         for (j = 0; j < number; j++) {
+            if (ydata.value(j) == yMax) {
+               value = xdata.value (j);
+               jAtMax = j;
+               break;
+            }
+         }
+
+         image = QString ("%1").arg (value);
+         this->privateData->maxAtValue->setText (image);
+
+         // FWHM: half max ias relative to min value.
+         //
+         limit = (yMax + yMin) / 2.0;
+         for (lower = jAtMax; lower > 0          && ydata.value (lower) >= limit; lower--);
+         for (upper = jAtMax; upper < number - 1 && ydata.value (upper) >= limit; upper++);
+
+         value = xdata.value (upper) - xdata.value (lower);
+         image = QString ("%1").arg (ABS(value));
+         this->privateData->fwhmValue->setText (image);
+
+         sxy = 0.0;
+         sy = 0.0;
+         for (j = 0; j < number; j++) {
+            sxy += xdata.value (j)* ydata.value (j);
+            sy  += ydata.value (j);
+         }
+
+         value = sxy / sy;
+         image = QString ("%1").arg (value);
+         this->privateData->comValue->setText (image);
+      }
    }
 
    QEPlotter::adjustMinMax (xMin, xMax, xMin, xMax, xMajor);

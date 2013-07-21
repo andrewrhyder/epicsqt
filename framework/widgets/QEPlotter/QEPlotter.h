@@ -172,6 +172,7 @@ private:
    QwtCurveList curve_list;
 
    bool isReverse;
+   int selectedDataSet;
    QTimer* timer;
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
@@ -219,6 +220,7 @@ private:
    //
    DataSets xy [1 + NUMBER_OF_PLOTS];
 
+   void selectDataSet (const int slot);
    void highLight (const int slot, const bool isHigh);
    QwtPlotCurve* allocateCurve (const int slot);
    void releaseCurves ();
