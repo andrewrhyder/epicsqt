@@ -37,6 +37,7 @@
 #include <QEComboBoxManager.h>
 #include <QELinkManager.h>
 #include <QEPlotManager.h>
+#include <QEPlotterManager.h>
 #include <QEPeriodicManager.h>
 #include <QEAnalogProgressBarManager.h>
 #include <QEAnalogIndicatorManager.h>
@@ -105,6 +106,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QENumericEditManager(this));
     widgets.append(new QEPeriodicManager(this));
     widgets.append(new QEPlotManager(this));
+    widgets.append(new QEPlotterManager(this));
     widgets.append(new QEPushButtonManager(this));
     widgets.append(new QEPvPropertiesManager(this));
     widgets.append(new QERadioButtonManager(this));
