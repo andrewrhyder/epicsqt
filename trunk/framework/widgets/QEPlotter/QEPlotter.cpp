@@ -33,15 +33,10 @@
 #include <QECommon.h>
 #include <QEInteger.h>
 #include <QEFloating.h>
-#include <QEResizeableFrame.h>
 
 #include "QEPlotter.h"
-#include "QEPlotterItemDialog.h"
-
 
 #define DEBUG qDebug() << "QEPlotter::" << __FUNCTION__ << ":" << __LINE__
-
-#define elsif  else if
 
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
@@ -99,70 +94,23 @@ TCheckBox::TCheckBox (const QString& text, QWidget* parent) : QCheckBox (text, p
 
 
 //=================================================================================
-// PrivateData
+// QEPlotter
 //=================================================================================
 //
-class QEPlotter::PrivateData {
-public:
-   // Constructor
-   //
-   PrivateData (QEPlotter* parent);
-
-   QVBoxLayout* vLayout;
-   QHBoxLayout* hLayout;
-   QVBoxLayout* pLayout;
-   QHBoxLayout* sLayout;
-
-   QEResizeableFrame* toolBarResize;
-   QFrame* toolBarFrame;
-   QFrame* theMainFrame;
-   QFrame* statusFrame;
-
-   QFrame*  plotFrame;
-   QwtPlot*  plotArea;
-   QwtPlotGrid* plotGrid;
-
-   QEResizeableFrame* itemResize;
-   QFrame* itemFrame;
-
-   QLabel* itemNames [1 + NUMBER_OF_PLOTS];
-   TCheckBox* checkBoxes [1 + NUMBER_OF_PLOTS];
-   QEPlotterMenu* itemMenus [1 + NUMBER_OF_PLOTS];
-   QEPlotterItemDialog* dataDialog;
-
-   // Status items
-   //
-   QLabel* slotIndicator;
-   QLabel* minLabel;
-   QLabel* minValue;
-   QLabel* maxLabel;
-   QLabel* maxValue;
-   QLabel* maxAtLabel;
-   QLabel* maxAtValue;
-
-   // Full Width (at) Half Max
-   QLabel* fwhmLabel;
-   QLabel* fwhmValue;
-   // Centre Of Mass
-   QLabel* comLabel;
-   QLabel* comValue;
-};
-
-//---------------------------------------------------------------------------------
-//
-QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
+void QEPlotter::createInternalWidgets ()
 {
+
    int slot;
    int y;
    QString styleSheet;
 
    // Main layout.
    //
-   this->vLayout = new QVBoxLayout (harryPlotter);
+   this->vLayout = new QVBoxLayout (this);
    this->vLayout->setMargin (4);
    this->vLayout->setSpacing (4);
 
-   this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 4, 48, harryPlotter);
+   this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 4, 48, this);
    this->toolBarResize->setFrameShape (QFrame::StyledPanel);
    this->toolBarResize->setFrameShadow (QFrame::Raised);
    this->toolBarResize->setFixedHeight (48);
@@ -176,12 +124,12 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
    this->toolBarFrame->setFixedHeight (40);
    this->toolBarResize->setWidget (this->toolBarFrame);
 
-   this->theMainFrame = new QFrame (harryPlotter);
+   this->theMainFrame = new QFrame (this);
    this->theMainFrame->setFrameShape (QFrame::NoFrame);
    this->theMainFrame->setFrameShadow (QFrame::Plain);
    this->vLayout->addWidget (this->theMainFrame);
 
-   this->statusFrame = new QFrame (harryPlotter);
+   this->statusFrame = new QFrame (this);
    this->statusFrame->setFrameShape (QFrame::StyledPanel);
    this->statusFrame->setFrameShadow (QFrame::Raised);
    this->statusFrame->setFixedHeight (30);
@@ -224,9 +172,9 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
    this->itemFrame->setFrameShadow (QFrame::Plain);
    this->itemResize->setWidget (this->itemFrame);
 
-   for (slot = 0; slot < ARRAY_LENGTH (this->itemNames); slot++) {
+   for (slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
       QLabel* label = new QLabel (this->itemFrame);
-      QEPlotterMenu* menu = new QEPlotterMenu (slot, harryPlotter);
+      QEPlotterMenu* menu = new QEPlotterMenu (slot, this);
       TCheckBox* box = NULL;
 
       y = 4 + (22*slot) + (slot ? 4 : 0);
@@ -236,14 +184,14 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
       label->setStyleSheet (QEUtilities::colourToStyle (item_colours [slot]));
 
       label->setAcceptDrops (true);
-      label->installEventFilter (harryPlotter);
+      label->installEventFilter (this);
       label->setContextMenuPolicy (Qt::CustomContextMenu);
 
       QObject::connect (label, SIGNAL ( customContextMenuRequested (const QPoint &)),
-                        harryPlotter, SLOT   ( contextMenuRequested (const QPoint &)));
+                        this,  SLOT   ( contextMenuRequested (const QPoint &)));
 
       QObject::connect (menu, SIGNAL ( contextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ),
-                        harryPlotter, SLOT  ( contextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ));
+                        this,  SLOT  ( contextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ));
 
       if (slot != 0) {
          box = new TCheckBox (this->itemFrame);
@@ -251,15 +199,15 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
          box->setGeometry (208, y, 17, 17);
          box->setChecked (true);
 
-         QObject::connect (box,   SIGNAL (stateChanged (int)),
-                           harryPlotter, SLOT   (checkBoxstateChanged (int)));
+         QObject::connect (box,  SIGNAL (stateChanged (int)),
+                           this, SLOT   (checkBoxstateChanged (int)));
       }
 
       // Save widget references.
       //
-      this->itemNames [slot] = label;
-      this->checkBoxes [slot] = box;
-      this->itemMenus [slot] = menu;
+      this->xy [slot].itemName = label;
+      this->xy [slot].checkBox = box;
+      this->xy [slot].itemMenu = menu;
    }
 
    // Status frame.
@@ -319,7 +267,7 @@ QEPlotter::PrivateData::PrivateData (QEPlotter* harryPlotter)
    this->sLayout->addWidget (this->comLabel);
    this->sLayout->addWidget (this->comValue);
 
-   dataDialog = new QEPlotterItemDialog (harryPlotter);
+   dataDialog = new QEPlotterItemDialog (this);
 }
 
 
@@ -383,7 +331,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    QCaVariableNamePropertyManager* vpnm;
    int slot;
 
-   this->privateData = new PrivateData (this);
+   this->createInternalWidgets ();
 
    this->setNumVariables (2*ARRAY_LENGTH (this->xy));
 
@@ -444,11 +392,6 @@ QEPlotter::~QEPlotter ()
 {
    this->timer->stop ();
    this->releaseCurves ();
-
-   // The widgets referenced by privateData are parented (indirectly) by
-   // this so will be automagically deleted.
-   //
-   delete this->privateData;
 }
 
 //------------------------------------------------------------------------------
@@ -475,7 +418,6 @@ void QEPlotter::updateLabel (const int slot)
    SLOT_CHECK (slot,);
 
    DataSets* ds = &this->xy [slot];
-   QLabel* t = this->privateData->itemNames [slot];
    QString text = item_labels [slot];
 
    text.append (" ");
@@ -505,7 +447,7 @@ void QEPlotter::updateLabel (const int slot)
 
    }
 
-   t->setText (text);
+   ds->itemName->setText (text);
 }
 
 //------------------------------------------------------------------------------
@@ -549,7 +491,7 @@ void QEPlotter::setNewVariableName (QString variableName,
       this->xy [slot].pvName = pvName;
       this->updateLabel (slot);
 
-   } elsif (this->isSizeIndex (variableIndex)) {
+   } else if (this->isSizeIndex (variableIndex)) {
 
       if (pvName.isEmpty()) {
          this->xy [slot].sizeKind = NotSpecified;
@@ -598,7 +540,7 @@ qcaobject::QCaObject* QEPlotter::createQcaItem (unsigned int variableIndex)
       this->replotIsRequired = true;
       this->updateLabel (slot);
 
-   } elsif (this->isSizeIndex (variableIndex)) {
+   } else if (this->isSizeIndex (variableIndex)) {
 
       // Has designer/user just set an integer (as opposed to a PV name)?.
       // Note: no sensible PV names are just integers.
@@ -648,7 +590,7 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
       QObject::connect (qca, SIGNAL (floatingArrayChanged (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT  (dataArrayChanged     (const QVector<double>&, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
-   } elsif (this->isSizeIndex (variableIndex)) {
+   } else if (this->isSizeIndex (variableIndex)) {
       QObject::connect (qca, SIGNAL (integerConnectionChanged  (QCaConnectionInfo &, const unsigned int &)),
                         this, SLOT  (sizeConnectionChanged     (QCaConnectionInfo &, const unsigned int &)));
 
@@ -668,7 +610,7 @@ int QEPlotter::findSlot (QObject *obj)
    int slot;
 
    for (slot = 0 ; slot < ARRAY_LENGTH (this->xy); slot++) {
-      if (this->privateData->itemNames [slot] == obj) {
+      if (this->xy [slot].itemName == obj) {
          // found it.
          //
          result = slot;
@@ -696,20 +638,20 @@ void QEPlotter::selectDataSet (const int slot)
 
    if (this->selectedDataSet > 0) {
       text = item_labels [slot];
-      styleSheet = this->privateData->itemNames [slot]->styleSheet ();
+      styleSheet = this->xy [slot].itemName->styleSheet ();
    } else {
       text = "";
       styleSheet = QEUtilities::colourToStyle (clStatus);
 
-      this->privateData->minValue->setText ("-");
-      this->privateData->maxValue->setText ("-");
-      this->privateData->maxAtValue->setText ("-");
-      this->privateData->fwhmValue->setText ("-");
-      this->privateData->comValue->setText ("-");
+      this->minValue->setText ("-");
+      this->maxValue->setText ("-");
+      this->maxAtValue->setText ("-");
+      this->fwhmValue->setText ("-");
+      this->comValue->setText ("-");
    }
 
-   this->privateData->slotIndicator->setText (text);
-   this->privateData->slotIndicator->setStyleSheet (styleSheet);
+   this->slotIndicator->setText (text);
+   this->slotIndicator->setStyleSheet (styleSheet);
 
    this->replotIsRequired = true;
 }
@@ -728,7 +670,7 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
       styleSheet = QEUtilities::colourToStyle (this->xy [slot].colour);
    }
 
-   this->privateData->itemNames [slot]->setStyleSheet (styleSheet);
+   this->xy [slot].itemName->setStyleSheet (styleSheet);
 }
 
 //---------------------------------------------------------------------------------
@@ -741,9 +683,9 @@ void QEPlotter::contextMenuRequested (const QPoint& pos)
 
    SLOT_CHECK (slot,);
 
-   golbalPos = this->privateData->itemNames [slot]->mapToGlobal (pos);
+   golbalPos = this->xy [slot].itemName->mapToGlobal (pos);
 
-   this->privateData->itemMenus [slot]->exec (golbalPos, 0);
+   this->xy [slot].itemMenu->exec (golbalPos, 0);
 }
 
 //---------------------------------------------------------------------------------
@@ -770,11 +712,10 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
          break;
 
       case QEPlotterMenu::PLOTTER_DATA_DIALOG:
-         dataDialog = this->privateData->dataDialog;
-         dataDialog->setFieldInformation (this->getXYDataPV (slot),
-                                          this->getXYAlias  (slot),
-                                          this->getXYSizePV (slot),
-                                          this->getXYColour (slot));
+         this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
+                                                this->getXYAlias  (slot),
+                                                this->getXYSizePV (slot),
+                                               this->getXYColour (slot));
          n = dataDialog->exec ();
          if (n == 1) {
             QString newData;
@@ -782,7 +723,7 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
             QString newSize;
             QColor newColour;
 
-            dataDialog->getFieldInformation (newData, newAlias, newSize, newColour);
+            this->dataDialog->getFieldInformation (newData, newAlias, newSize, newColour);
             this->setXYDataPV (slot, newData);
             this->setXYAlias  (slot, newAlias);
             this->setXYSizePV (slot, newSize);
@@ -951,7 +892,7 @@ QwtPlotCurve* QEPlotter::allocateCurve (const int slot)
 
    // Attach to the plot area and save a reference.
    //
-   result->attach (this->privateData->plotArea);
+   result->attach (this->plotArea);
    this->curve_list.append (result);
 
    // Set curve propeties plus item Pen which include its colour.
@@ -1010,14 +951,14 @@ void QEPlotter::plot ()
    // Set up brackground and grid.
    //
 #if QWT_VERSION >= 0x060000
-   this->privateData->plotArea->setCanvasBackground (QBrush (this->xy [0].colour));
+   this->plotArea->setCanvasBackground (QBrush (this->xy [0].colour));
 #else
-   this->privateData->plotArea->setCanvasBackground (this->xy [0].colour);
+   this->plotArea->setCanvasBackground (this->xy [0].colour);
 #endif
 
    pen.setColor (clGridLine);
    pen.setStyle (Qt::DashLine);
-   this->privateData->plotGrid->setPen (pen);
+   this->plotGrid->setPen (pen);
 
    xMin = 0.0;
    xMax = 1.0;
@@ -1086,10 +1027,10 @@ void QEPlotter::plot ()
          double sxy, sy;
 
          image = QString ("%1").arg (yMin);
-         this->privateData->minValue->setText (image);
+         this->minValue->setText (image);
 
          image = QString ("%1").arg (yMax);
-         this->privateData->maxValue->setText (image);
+         this->maxValue->setText (image);
 
          value = 0.0;
          jAtMax = 0;
@@ -1102,7 +1043,7 @@ void QEPlotter::plot ()
          }
 
          image = QString ("%1").arg (value);
-         this->privateData->maxAtValue->setText (image);
+         this->maxAtValue->setText (image);
 
          // FWHM: half max ias relative to min value.
          //
@@ -1112,7 +1053,7 @@ void QEPlotter::plot ()
 
          value = xdata.value (upper) - xdata.value (lower);
          image = QString ("%1").arg (ABS(value));
-         this->privateData->fwhmValue->setText (image);
+         this->fwhmValue->setText (image);
 
          sxy = 0.0;
          sy = 0.0;
@@ -1123,17 +1064,17 @@ void QEPlotter::plot ()
 
          value = sxy / sy;
          image = QString ("%1").arg (value);
-         this->privateData->comValue->setText (image);
+         this->comValue->setText (image);
       }
    }
 
    QEPlotter::adjustMinMax (xMin, xMax, xMin, xMax, xMajor);
    QEPlotter::adjustMinMax (yMin, yMax, yMin, yMax, yMajor);
 
-   this->privateData->plotArea->setAxisScale (QwtPlot::xBottom, xMin, xMax, xMajor);
-   this->privateData->plotArea->setAxisScale (QwtPlot::yLeft,   yMin, yMax, yMajor);
+   this->plotArea->setAxisScale (QwtPlot::xBottom, xMin, xMax, xMajor);
+   this->plotArea->setAxisScale (QwtPlot::yLeft,   yMin, yMax, yMajor);
 
-   this->privateData->plotArea->replot ();
+   this->plotArea->replot ();
 
    // Ensure next timer tick only invokes plot if needs be.
    //
@@ -1334,9 +1275,8 @@ void QEPlotter::setXYColour (const int slot, const QColor& colour)
    // Slot 0 (X) and last slot (P) have fixed colours.
    //
    if (slot != 0 && slot != ARRAY_LENGTH (this->xy) - 1) {
-      QLabel* t = this->privateData->itemNames [slot];
       this->xy[slot].colour = colour;
-      t->setStyleSheet (QEUtilities::colourToStyle (colour));
+      this->xy [slot].itemName->setStyleSheet (QEUtilities::colourToStyle (colour));
    }
 }
 
