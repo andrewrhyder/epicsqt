@@ -270,7 +270,7 @@ void QEGenericEdit::writeNow ()
     }
 
     // Get the variable to write to
-   qcaobject::QCaObject *qca = this->getQcaItem(0);
+   qcaobject::QCaObject *qca = getQcaItem(0);
 
    // If a QCa object is present (if there is a variable to write to)
    // and is of the corect type then write the value.
@@ -365,7 +365,7 @@ void QEGenericEdit::useNewVariableNameProperty( QString variableNameIn,
 //
 bool QEGenericEdit::getIsConnected ()
 {
-   return this->isConnected;
+   return isConnected;
 }
 
 //------------------------------------------------------------------------------
@@ -373,8 +373,8 @@ bool QEGenericEdit::getIsConnected ()
 //
 bool QEGenericEdit::testAndClearIsFirstUpdate ()
 {
-    bool result = this->isFirstUpdate;
-    this->isFirstUpdate = false;
+    bool result = isFirstUpdate;
+    isFirstUpdate = false;
     return result;
 }
 

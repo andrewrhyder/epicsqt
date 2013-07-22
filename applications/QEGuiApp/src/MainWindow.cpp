@@ -48,17 +48,6 @@
 Q_DECLARE_METATYPE( QEForm* )
 
 //=================================================================================
-// Private class to hold internal widgets
-//=================================================================================
-
-class MainWindow::PrivateData {
-public:
-   QMenu *tabMenu;   // used to hold a dynamic reference
-};
-
-
-
-//=================================================================================
 // Methods for construction, destruction, initialisation
 //=================================================================================
 
@@ -68,9 +57,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
 {
     app = appIn;
 
-    // Construct private data class.
-    privateData = new PrivateData;
-    privateData->tabMenu = NULL;
+    tabMenu = NULL;
 
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
     // profile was set up by the QEGui application) or objects in another main window (if the profile was published by a button in a gui)
@@ -164,8 +151,6 @@ MainWindow::~MainWindow()
     // Remove this main window from the global list of main windows
     // Note, this may have already been done to hide the the main window if deleting using deleteLater()
     app->removeMainWindow( this );
-
-    delete privateData;
 }
 
 //=================================================================================
@@ -541,7 +526,7 @@ void MainWindow::tabContextMenuRequest( const QPoint& posIn )
     QTabWidget* tabs = getCentralTabs();
 
     // Sanity checks ....
-    if (!usingTabs || !tabs || !privateData->tabMenu) {
+    if (!usingTabs || !tabs || !tabMenu) {
         return;
     }
 
@@ -554,7 +539,7 @@ void MainWindow::tabContextMenuRequest( const QPoint& posIn )
     //
     class ExposedTabWidget : QTabWidget {
     public:
-        QTabBar* getTabBar() const { return this->tabBar(); }
+        QTabBar* getTabBar() const { return tabBar(); }
     };
 
     // Find and switch to the appropriate tab.
@@ -568,7 +553,7 @@ void MainWindow::tabContextMenuRequest( const QPoint& posIn )
     if (index >= 0) {
         tabs->setCurrentIndex (index);
         golbalPos = tabs->mapToGlobal (posIn);
-        privateData->tabMenu->exec (golbalPos, 0);
+        tabMenu->exec (golbalPos, 0);
     }
 }
 
@@ -1175,7 +1160,7 @@ void MainWindow::setSingleMode()
 
     // Flag tabs are no longer in use
     usingTabs = false;
-    privateData->tabMenu = NULL;
+    tabMenu = NULL;
 }
 
 // Set up to use multiple guis in tabs
@@ -1198,15 +1183,13 @@ void MainWindow::setTabMode()
     QObject::connect (tabs, SIGNAL (customContextMenuRequested (const QPoint &)),
                       this, SLOT   (tabContextMenuRequest      (const QPoint &)));
 
-    QMenu *tabMenu = new QMenu (tabs);  // note: menu deleted when tabs object deleted.
+    tabMenu = new QMenu (tabs);  // note: menu deleted when tabs object deleted.
 
     QAction *action = new QAction ("Reopen tab as new window", tabMenu);
     action->setCheckable (false);
     action->setData (QVariant (0));
     action->setEnabled (true);
     tabMenu->addAction (action);
-
-    privateData->tabMenu = tabMenu; // save reference.
 
     QObject::connect (tabMenu, SIGNAL (triggered             (QAction* )),
                       this,    SLOT   (tabContextMenuTrigger (QAction* )));

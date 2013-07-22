@@ -310,13 +310,13 @@ void QEComboBox::userValueChanged( int index ) {
 
         // Validate
         //
-        if (!this->indexToValueMap.contains (index)) {
+        if (!indexToValueMap.contains (index)) {
            return;
         }
 
         // Don't write same value.
         //
-        value = this->indexToValueMap.value (index);
+        value = indexToValueMap.value (index);
         if (value == lastValue) {
            return;
         }
@@ -357,11 +357,11 @@ void QEComboBox::writeNow()
 
         // Validate
         //
-        if (!this->indexToValueMap.contains ( index )) {
+        if (!indexToValueMap.contains ( index )) {
            return;
         }
 
-        value = this->indexToValueMap.value (index);
+        value = indexToValueMap.value (index);
 
         // Write the value
         qca->writeInteger( value );
@@ -443,7 +443,7 @@ bool QEComboBox::getUseDbEnumerations()
 void QEComboBox::setLocalEnumerations( const QString & localEnumerationsIn )
 {
     localEnumerations.setLocalEnumeration( localEnumerationsIn );
-    if( !this->useDbEnumerations ) {
+    if( !useDbEnumerations ) {
         setComboBoxText();
     }
 }
