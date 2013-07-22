@@ -148,6 +148,7 @@ protected:
    // Paste only
    //
    void paste (QVariant s);
+   bool canPaste(){ return getAllowDrop(); }
 
    // override pure virtual functions
    //
