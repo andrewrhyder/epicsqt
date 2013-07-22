@@ -30,11 +30,12 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+#include <QEPluginLibrary_global.h>
 
 /* Note: Still under devlopment and not acutually used yet.
  */
 
-class QEGuiLaunchRequests {
+class QEPLUGINLIBRARYSHARED_EXPORT QEGuiLaunchRequests {
 public:
 
    enum Kinds { KindNone,            // no action
