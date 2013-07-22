@@ -61,6 +61,7 @@ void QESlider::setup() {
 
     scale = 1.0;
     offset = 0.0;
+    currentValue = 0.0;
 
     // Set the initial state
     isConnected = false;
@@ -158,6 +159,7 @@ void QESlider::setValueIfNoFocus( const double& value, QCaAlarmInfo& alarmInfo, 
     // Update the slider only if the user is not interacting with the object.
     if( !hasFocus() ) {
         updateInProgress = true;
+        currentValue = value;
         int intValue = int( (value - offset) * scale );
         setValue( intValue );
         updateInProgress = false;
@@ -193,7 +195,8 @@ void QESlider::userValueChanged( const int &value) {
         // It is not known until a connection is established.
         if( qca->dataTypeKnown() )
         {
-            qca->writeFloating( (value/scale)+offset );
+            currentValue = (value/scale)+offset;
+            qca->writeFloating( currentValue );
         }
         else
         {
@@ -224,7 +227,10 @@ void QESlider::writeNow()
         // It is not known until a connection is established.
         if( qca->dataTypeKnown() )
         {
-            qca->writeFloating( (value()/scale)+offset );
+            double dd = value()/scale;
+            qDebug() << dd;
+            currentValue = (value()/scale)+offset;
+            qca->writeFloating( currentValue );
         }
     }
 }
@@ -239,7 +245,30 @@ void QESlider::setDrop( QVariant drop )
 
 QVariant QESlider::getDrop()
 {
-    return QVariant( getSubstitutedVariableName(0) );
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
+}
+
+//==============================================================================
+// Copy / Paste
+QString QESlider::copyVariable()
+{
+    return getSubstitutedVariableName(0);
+}
+
+QVariant QESlider::copyData()
+{
+    return QVariant( currentValue );
+}
+
+void QESlider::paste( QVariant v )
+{
+    if( getAllowDrop() )
+    {
+        setDrop( v );
+    }
 }
 
 //==============================================================================

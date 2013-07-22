@@ -93,6 +93,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESlider : public QSlider, public QEWidget {
 
     void writeNow();
 
+    double currentValue;        // Value or last update or write
+
     // Drag and Drop
 protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
@@ -101,6 +103,10 @@ protected:
     void setDrop( QVariant drop );
     QVariant getDrop();
 
+    // Copy paste
+    QString copyVariable();
+    QVariant copyData();
+    void paste( QVariant s );
 
     // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties

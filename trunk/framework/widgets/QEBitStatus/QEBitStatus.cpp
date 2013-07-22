@@ -210,7 +210,10 @@ void QEBitStatus::setDrop( QVariant drop )
 
 QVariant QEBitStatus::getDrop()
 {
-    return QVariant( getSubstitutedVariableName(0) );
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
 }
 
 //==============================================================================
