@@ -78,7 +78,8 @@ public:
 
     virtual QString copyVariable(){ return ""; }        // Function a widget may implement to perform a 'copy variable' operation
     virtual QVariant copyData(){ return ""; }           // Function a widget may implement to perform a 'copy data' operation
-    virtual void paste( QVariant ){}                    // Function a widget may implement to perform a 'pastea' operation
+    virtual void paste( QVariant ){}                    // Function a widget may implement to perform a 'paste' operation
+    virtual bool canPaste(){ return false; }            // Function a widget may implement to indicate a paste is allowed
 
 private:
     contextMenuObject* object;                          // Our own QObject based class to managing signals and slots

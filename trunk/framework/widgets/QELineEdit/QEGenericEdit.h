@@ -303,6 +303,8 @@ private:
     QString copyVariable();
     QVariant copyData();
     void paste( QVariant s );
+    bool canPaste(){ return getAllowDrop(); }
+
 };
 
 #endif // QEGENERICEDIT_H

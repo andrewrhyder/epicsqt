@@ -480,11 +480,6 @@ QString QEGenericButton::copyVariable()
     return getSubstitutedVariableName(0);
 }
 
-//QVariant QEGenericButton::copyData()
-//{
-//    return QVariant( isChecked() );
-//}
-
 void QEGenericButton::paste( QVariant v )
 {
     if( getAllowDrop() )
