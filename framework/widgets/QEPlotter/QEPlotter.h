@@ -38,10 +38,16 @@
 #include <QEFrame.h>
 #include <QEExpressionEvaluation.h>
 #include <QCaVariableNamePropertyManager.h>
+#include <QEResizeableFrame.h>
 
-#include <QEPlotterMenu.h>
+#include "QEPlotterItemDialog.h"
+#include "QEPlotterMenu.h"
 
+// Differed class declaration - no explicit dependency on Qwt header files.
+//
 class QwtPlotCurve;
+class QwtPlot;
+class QwtPlotGrid;
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_OBJECT
@@ -135,7 +141,6 @@ public:
    static const int NUMBER_OF_PLOTS = 16;
 
    // Single function for all 'Data Set' properties.
-   // Make public? make slots?
    //
    void    setXYDataPV (const int, const QString&);
    QString getXYDataPV (const int);
@@ -158,13 +163,40 @@ protected:
    int findSlot (QObject *obj);
 
 private:
-   // Internal widgets and associated support data. These are declared in
-   // PrivateData. If these items are declared at class level, there is a run
-   // time exception. PrivateData also allows, what is essentially private,
-   // to be actually private, well at least declared in QEStripChart.cpp
+   // Internal widgets.
    //
-   class PrivateData;
-   PrivateData *privateData;
+   QVBoxLayout* vLayout;
+   QHBoxLayout* hLayout;
+   QVBoxLayout* pLayout;
+   QHBoxLayout* sLayout;
+
+   QEResizeableFrame* toolBarResize;
+   QFrame* toolBarFrame;
+   QFrame* theMainFrame;
+   QFrame* statusFrame;
+
+   QFrame* plotFrame;
+   QwtPlot*  plotArea;
+   QwtPlotGrid* plotGrid;
+
+   QEResizeableFrame* itemResize;
+   QFrame* itemFrame;
+
+   // Status items
+   //
+   QLabel* slotIndicator;
+   QLabel* minLabel;
+   QLabel* minValue;
+   QLabel* maxLabel;
+   QLabel* maxValue;
+   QLabel* maxAtLabel;
+   QLabel* maxAtValue;
+   QLabel* fwhmLabel;   // Full Width (at) Half Max
+   QLabel* fwhmValue;
+   QLabel* comLabel;    // Centre Of Mass
+   QLabel* comValue;
+
+   QEPlotterItemDialog* dataDialog;
 
    // Keep a list of allocated curves so that we can track and delete them.
    //
@@ -192,6 +224,7 @@ private:
    public:
       explicit DataSets ();
       ~DataSets ();
+      int effectiveSize ();
 
       QCaVariableNamePropertyManager dataVariableNameManager;
       QCaVariableNamePropertyManager sizeVariableNameManager;
@@ -213,13 +246,19 @@ private:
       QColor colour;
       bool isDisplayed;
 
-      int effectiveSize ();
+      // Widgets.
+      //
+      QLabel* itemName;
+      QCheckBox* checkBox;
+      QEPlotterMenu* itemMenu;
    };
 
    // Slot 0 used for X data - some redundancy (e.g. colour)
    //
    DataSets xy [1 + NUMBER_OF_PLOTS];
 
+
+   void createInternalWidgets ();
    void selectDataSet (const int slot);
    void highLight (const int slot, const bool isHigh);
    QwtPlotCurve* allocateCurve (const int slot);
@@ -313,7 +352,6 @@ private slots:
    void contextMenuRequested (const QPoint& pos);
    void contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option);
 
-   friend class PrivateData;
    friend class DataSets;
 };
 
