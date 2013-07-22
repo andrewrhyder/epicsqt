@@ -160,11 +160,18 @@ private:
    QEStripChartItemDialog *pvNameEditDialog;
    QEStripChartAdjustPVDialog *adjustPVDialog;
 
-   // Intermal widgets references and associated support data.
-   // If these items declared at class level, there is a run time exception.
+   // Internal widgets.
    //
-   class PrivateData;
-   PrivateData *privateData;
+   QEStripChart *chart;
+   QLabel *pvName;
+   QELabel *caLabel;
+   QColorDialog *colourDialog;
+   QEStripChartContextMenu* inUseMenu;
+   QEStripChartContextMenu* emptyMenu;
+   qcaobject::QCaObject *previousQcaItem;
+
+   void createInternalWidgets ();
+
 
 private slots:
    void newVariableNameProperty (QString pvName, QString substitutions, unsigned int slot);
