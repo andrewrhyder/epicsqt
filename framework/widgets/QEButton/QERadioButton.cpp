@@ -73,13 +73,16 @@ void QERadioButton::setup() {
 
 //==============================================================================
 // Drag drop
-void QERadioButton::setDrop( QVariant drop )
-{
-    setVariableName( drop.toString(), 0 );
-    establishConnection( 0 );
-}
 
-QVariant QERadioButton::getDrop()
+// All in QEGenericButton
+
+
+//==============================================================================
+// Copy / Paste
+
+// Mostly in QEGenericButton
+
+QVariant QERadioButton::copyData()
 {
-    return QVariant( getSubstitutedVariableName(0) );
+    return QVariant( isChecked() );
 }

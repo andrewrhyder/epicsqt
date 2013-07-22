@@ -70,13 +70,16 @@ void QECheckBox::setup() {
 
 //==============================================================================
 // Drag drop
-void QECheckBox::setDrop( QVariant drop )
-{
-    setVariableName( drop.toString(), 0 );
-    establishConnection( 0 );
-}
 
-QVariant QECheckBox::getDrop()
+// All in QEGenericButton
+
+
+//==============================================================================
+// Copy / Paste
+
+// Mostly in QEGenericButton
+
+QVariant QECheckBox::copyData()
 {
-    return QVariant( getSubstitutedVariableName(0) );
+    return QVariant( isChecked() );
 }
