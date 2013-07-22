@@ -527,7 +527,10 @@ void QERadioGroup::setDrop (QVariant drop)
 //
 QVariant QERadioGroup::getDrop ()
 {
-   return QVariant (getSubstitutedVariableName (0));
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
 }
 
 //==============================================================================
