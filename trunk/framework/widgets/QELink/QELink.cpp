@@ -61,53 +61,53 @@ QELink::QELink( QWidget *parent ) : QLabel( parent ), QEWidget( this ) {
 #define EVAL_CONDITION                                              \
                                                                     \
     bool match = false;                                             \
-    switch( condition )                                     \
+    switch( condition )                                             \
     {                                                               \
-        case CONDITION_EQ: if( in == val ) match = true; break;     \
-        case CONDITION_NE: if( in != val ) match = true; break;     \
-        case CONDITION_GT: if( in >  val ) match = true; break;     \
-        case CONDITION_GE: if( in >= val ) match = true; break;     \
-        case CONDITION_LT: if( in <  val ) match = true; break;     \
-        case CONDITION_LE: if( in <= val ) match = true; break;     \
+        case CONDITION_EQ: if( inVal == val ) match = true; break;  \
+        case CONDITION_NE: if( inVal != val ) match = true; break;  \
+        case CONDITION_GT: if( inVal >  val ) match = true; break;  \
+        case CONDITION_GE: if( inVal >= val ) match = true; break;  \
+        case CONDITION_LT: if( inVal <  val ) match = true; break;  \
+        case CONDITION_LE: if( inVal <= val ) match = true; break;  \
     }                                                               \
                                                                     \
     sendValue( match );
 
 // Slot to perform a comparison on a bool
-void QELink::in( const bool& in )
+void QELink::in( const bool& inVal )
 {
     bool val = comparisonValue.toBool();
     EVAL_CONDITION;
 }
 
 // Slot to perform a comparison on an integer
-void QELink::in( const qlonglong& in )
+void QELink::in( const qlonglong& inVal )
 {
     qlonglong val = comparisonValue.toLongLong();
     EVAL_CONDITION;
 }
 
 // Slot to perform a comparison on a floating point number
-void QELink::in( const double& in )
+void QELink::in( const double& inVal )
 {
     double val = comparisonValue.toDouble();
     EVAL_CONDITION;
 }
 
 // Slot to perform a comparison on a string
-void QELink::in( const QString& in )
+void QELink::in( const QString& inVal )
 {
     bool stringIsNum = false;
 
     // If the string is a valid number, compare it as a number
 
-    QStringList inList = in.split(" ", QString::SkipEmptyParts);
+    QStringList inList = inVal.split(" ", QString::SkipEmptyParts);
     if( inList.size() )
     {
         double inDouble = inList[0].toDouble( &stringIsNum );
         if( stringIsNum )
         {
-            this->in( inDouble );
+            in( inDouble );
         }
     }
 

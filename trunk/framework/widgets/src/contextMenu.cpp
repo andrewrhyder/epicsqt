@@ -75,8 +75,11 @@ QMenu* contextMenu::buildContextMenu()
 
     // Get Qt widget standard menu if any
     QMenu* defaultMenu = qew->getDefaultContextMenu();
+
     if( defaultMenu )
     {
+        defaultMenu->setStyle( QApplication::style() );
+
         // Apply current scaling if any to new default menu.
         //
         QEUtilities::applyCurrentWidgetScale (defaultMenu, 10);

@@ -645,11 +645,11 @@ void _QTableWidgetLog::refreshSize()
     int sizeColumn2;
 
 
-    if (this->isColumnHidden(0))
+    if (isColumnHidden(0))
     {
-        if (this->isColumnHidden(1))
+        if (isColumnHidden(1))
         {
-            if (this->isColumnHidden(2))
+            if (isColumnHidden(2))
             {
                 sizeColumn0 = 0;
                 sizeColumn1 = 0;
@@ -659,62 +659,62 @@ void _QTableWidgetLog::refreshSize()
             {
                 sizeColumn0 = 0;
                 sizeColumn1 = 0;
-                sizeColumn2 = this->width();
+                sizeColumn2 = width();
             }
         }
         else
         {
-            if (this->isColumnHidden(2))
+            if (isColumnHidden(2))
             {
                 sizeColumn0 = 0;
-                sizeColumn1 = this->width();
+                sizeColumn1 = width();
                 sizeColumn2 = 0;
             }
             else
             {
                 sizeColumn0 = 0;
-                sizeColumn1 = 1 * this->width() / 5;
-                sizeColumn2 = 4 * this->width() / 5 - 1;
+                sizeColumn1 = 1 * width() / 5;
+                sizeColumn2 = 4 * width() / 5 - 1;
             }
         }
     }
     else
     {
-        if (this->isColumnHidden(1))
+        if (isColumnHidden(1))
         {
-            if (this->isColumnHidden(2))
+            if (isColumnHidden(2))
             {
-                sizeColumn0 = this->width();
+                sizeColumn0 = width();
                 sizeColumn1 = 0;
                 sizeColumn2 = 0;
             }
             else
             {
-                sizeColumn0 = 1 * this->width() / 5;
+                sizeColumn0 = 1 * width() / 5;
                 sizeColumn1 = 0;
-                sizeColumn2 = 4 * this->width() / 5 - 1;
+                sizeColumn2 = 4 * width() / 5 - 1;
             }
         }
         else
         {
-            if (this->isColumnHidden(2))
+            if (isColumnHidden(2))
             {
-                sizeColumn0 = this->width() / 2;
-                sizeColumn1 = this->width() / 2 - 1;
+                sizeColumn0 = width() / 2;
+                sizeColumn1 = width() / 2 - 1;
                 sizeColumn2 = 0;
             }
             else
             {
-                sizeColumn0 = 1 * this->width() / 5;
-                sizeColumn1 = 1 * this->width() / 5;
-                sizeColumn2 = 3 * this->width() / 5 - 1;
+                sizeColumn0 = 1 * width() / 5;
+                sizeColumn1 = 1 * width() / 5;
+                sizeColumn2 = 3 * width() / 5 - 1;
             }
         }
     }
 
-    this->setColumnWidth(0, sizeColumn0);
-    this->setColumnWidth(1, sizeColumn1);
-    this->setColumnWidth(2, sizeColumn2);
+    setColumnWidth(0, sizeColumn0);
+    setColumnWidth(1, sizeColumn1);
+    setColumnWidth(2, sizeColumn2);
 
 
 }

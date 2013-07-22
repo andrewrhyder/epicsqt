@@ -118,12 +118,7 @@ private:
 
 
 private:
-    // We want to keep a refernece to certain widget objects. Declaring these directly in the
-    // header file seems to confuse the SDE's moc file generation and leads to run time error,
-    // so hide these references in a private data class.
-    //
-    class PrivateData;
-    PrivateData * privateData;
+    QMenu *tabMenu;    // We want to keep a refernece to certain widget objects. Declaring these directly in the
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
 

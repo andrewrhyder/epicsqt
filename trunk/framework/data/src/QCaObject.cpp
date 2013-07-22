@@ -1258,7 +1258,7 @@ bool QCaObject::isWriteCallbacksEnabled()
  */
 QCaAlarmInfo QCaObject::getAlarmInfo()
 {
-    return this->lastAlarmInfo;
+    return lastAlarmInfo;
 }
 
 /*
@@ -1266,7 +1266,7 @@ QCaAlarmInfo QCaObject::getAlarmInfo()
  */
 QCaDateTime QCaObject::getDateTime ()
 {
-    return this->lastTimeStamp;
+    return lastTimeStamp;
 }
 
 // end
