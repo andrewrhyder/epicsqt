@@ -100,6 +100,9 @@ void QEGenericButton::guiSetup() {
     // Set default properties
     creationOption = QEForm::CREATION_OPTION_OPEN;
 
+    // Use standard context menu
+    setupContextMenu();
+
     // If a profile is define by whatever contains the button, use it
     if( isProfileDefined() )
     {
@@ -452,6 +455,42 @@ bool QEGenericButton::checkPassword()
 
     // All OK, return password success
     return true;
+}
+
+//==============================================================================
+// Drag drop
+void QEGenericButton::setDrop( QVariant drop )
+{
+    setVariableName( drop.toString(), 0 );
+    establishConnection( 0 );
+}
+
+QVariant QEGenericButton::getDrop()
+{
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
+}
+
+//==============================================================================
+// Copy / Paste
+QString QEGenericButton::copyVariable()
+{
+    return getSubstitutedVariableName(0);
+}
+
+//QVariant QEGenericButton::copyData()
+//{
+//    return QVariant( isChecked() );
+//}
+
+void QEGenericButton::paste( QVariant v )
+{
+    if( getAllowDrop() )
+    {
+        setDrop( v );
+    }
 }
 
 //==============================================================================

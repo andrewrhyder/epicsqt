@@ -73,13 +73,16 @@ void QEPushButton::setup() {
 
 //==============================================================================
 // Drag drop
-void QEPushButton::setDrop( QVariant drop )
-{
-    setVariableName( drop.toString(), 0 );
-    establishConnection( 0 );
-}
 
-QVariant QEPushButton::getDrop()
+// All in QEGenericButton
+
+
+//==============================================================================
+// Copy / Paste
+
+// Mostly in QEGenericButton
+
+QVariant QEPushButton::copyData()
 {
-    return QVariant( getSubstitutedVariableName(0) );
+    return QVariant( getButtonText() );
 }

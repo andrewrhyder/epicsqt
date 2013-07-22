@@ -122,6 +122,7 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     void setLabelTextProperty( QString labelTextIn );
     QString getLabelTextProperty();
 
+
 protected:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setGenericButtonText( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex );
@@ -164,6 +165,15 @@ private:
     bool getIsConnected(){ return isConnected; }
     bool confirmAction();
 
+    // Drag and Drop (See specific QE button widgets for button type specific drag and drop)
+private:
+    void setDrop( QVariant drop );
+    QVariant getDrop();
+
+    // Copy paste (See specific QE button widgets for button type specific copy and paste)
+    QString copyVariable();
+    virtual QVariant copyData() = 0;
+    void paste( QVariant s );
 
 protected:
     void setup();

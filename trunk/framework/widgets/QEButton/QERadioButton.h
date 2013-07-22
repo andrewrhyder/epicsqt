@@ -127,13 +127,15 @@ private:
     void emitReleased( int value ){ emit released( value ); }
     void emitClicked( int value ){ emit clicked( value ); }
 
-    // Drag and Drop
+    // Drag and Drop (See QEGenericButton.cpp for common button drag and drop)
 private:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-    // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
-    void setDrop( QVariant drop );
-    QVariant getDrop();
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+
+    // Copy paste (See QEGenericButton.cpp for common button copy and paste)
+    QVariant copyData();
+
 
     // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties
