@@ -87,6 +87,9 @@ void QEShape::setup() {
     colors[3] = QColor( 255,255,255);
     colors[4] = QColor( 0,0,0);
 
+    for( i = 0; i < QESHAPE_NUM_VARIABLES; i++ )
+        lastValue[i] = 0.0;
+
     for( i = 0; i < SCALES_SIZE; i++ )
         scales[i] = 1.0;
 
@@ -122,6 +125,9 @@ void QEShape::setup() {
     // Set the initial state
     isConnected = false;
     setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+
+    // Use standard context menu
+    setupContextMenu();
 
     // Use widget signals
     // !! move this functionality into QEWidget???
@@ -232,6 +238,9 @@ void QEShape::setValue( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&
         default: sendMessage( "Application error: Unexpected variable index", "QEShape.cpp QEShape::setValue()",
                               message_types ( MESSAGE_TYPE_ERROR ) );
     }
+
+    // Save the value (for copy)
+    lastValue[variableIndex] = value;
 
     // Scale the data.
     // For example, a flow of 0 to 10 l/m may adjust a shape size 0 to 200 pixels
@@ -521,6 +530,16 @@ void QEShape::setDrop( QVariant drop )
 
 QVariant QEShape::getDrop()
 {
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
+}
+
+//==============================================================================
+// Copy / Paste
+QString QEShape::copyVariable()
+{
     QString text;
     for( int i = 0; i < QESHAPE_NUM_VARIABLES; i++ )
     {
@@ -533,8 +552,30 @@ QVariant QEShape::getDrop()
         }
     }
 
+    return text;
+//    return getSubstitutedVariableName(0);
+}
+
+QVariant QEShape::copyData()
+{
+    QString text;
+    for( int i = 0; i < QESHAPE_NUM_VARIABLES; i++ )
+    {
+        text.append( QString( "%1\t" ).arg( lastValue[i] ));
+    }
+
     return QVariant( text );
 }
+
+void QEShape::paste( QVariant v )
+{
+    if( getAllowDrop() )
+    {
+        setDrop( v );
+    }
+}
+
+//==============================================================================
 
 void QEShape::refreshData( const int index )
 {

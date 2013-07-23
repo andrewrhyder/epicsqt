@@ -24,7 +24,7 @@
  */
 
 /*
-  This class is a CA aware Plot widget based on the Qwt QwtPlot widget.
+  This class is a CA aware Plot widget and is based in part on the work of the Qwt project (http://qwt.sf.net).
   It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
@@ -104,6 +104,9 @@ void QEPlot::setup() {
 
     tickRate = 50;
     timeSpan = 59;
+
+    // Use standard context menu
+    setupContextMenu();
 
     // Use QwtPlot signals
     // !! move this functionality into QEWidget???
@@ -362,6 +365,16 @@ void QEPlot::setDrop( QVariant drop )
 
 QVariant QEPlot::getDrop()
 {
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
+}
+
+//==============================================================================
+// Copy / Paste
+QString QEPlot::copyVariable()
+{
     QString text;
     for( int i = 0; i < QEPLOT_NUM_VARIABLES; i++ )
     {
@@ -374,7 +387,32 @@ QVariant QEPlot::getDrop()
         }
     }
 
+    return text;
+//    return getSubstitutedVariableName(0);
+}
+
+QVariant QEPlot::copyData()
+{
+    QString text;
+    for( int i = 0; i < QEPLOT_NUM_VARIABLES; i++ )
+    {
+        trace* tr = &traces[i];
+        text.append( QString( "\n%1\nx\ty\n" ).arg( tr->legend.isEmpty()?QString( "Variable %1" ).arg( i ):tr->legend ) );
+        for( int j = 0; j < tr->xdata.count(); j++ )
+        {
+            text.append( QString( "%1\t%2\n" ).arg( tr->xdata[j] ).arg( tr->ydata[j]) );
+        }
+    }
+
     return QVariant( text );
+}
+
+void QEPlot::paste( QVariant v )
+{
+    if( getAllowDrop() )
+    {
+        setDrop( v );
+    }
 }
 
 //==============================================================================

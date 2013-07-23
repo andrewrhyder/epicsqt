@@ -159,6 +159,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEShape : public QWidget, public QEWidget {
     double getArcLength();
 
   private:
+
+    double lastValue[QESHAPE_NUM_VARIABLES];
+
     QEIntegerFormatting integerFormatting;                     // Integer formatting options
   #define OFFSETS_SIZE QESHAPE_NUM_VARIABLES
     double offsets[OFFSETS_SIZE];
@@ -254,6 +257,12 @@ private:
     void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDrop( QVariant drop );
     QVariant getDrop();
+
+    // Copy paste
+    QString copyVariable();
+    QVariant copyData();
+    void paste( QVariant s );
+    bool canPaste(){ return getAllowDrop(); }
 
 public:
     //=================================================================================
