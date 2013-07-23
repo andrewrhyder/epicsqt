@@ -229,6 +229,12 @@ protected:
     void setDrop( QVariant drop );
     QVariant getDrop();
 
+    // Copy paste
+    QString copyVariable();
+    QVariant copyData();
+    void paste( QVariant s );
+    bool canPaste(){ return getAllowDrop(); }
+
 public:
     //=================================================================================
     // Multiple Variable properties

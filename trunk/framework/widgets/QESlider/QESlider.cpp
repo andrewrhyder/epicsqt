@@ -68,6 +68,9 @@ void QESlider::setup() {
 
     ignoreSingleShotRead = false;
 
+    // Use standard context menu
+    setupContextMenu();
+
     // Use slider signals
     QObject::connect( this, SIGNAL( valueChanged( const int &) ), this, SLOT( userValueChanged( const int & ) ) );
 

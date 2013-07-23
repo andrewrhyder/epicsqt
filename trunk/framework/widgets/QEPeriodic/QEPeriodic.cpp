@@ -233,6 +233,9 @@ void QEPeriodic::setup() {
     variableType1 = VARIABLE_TYPE_USER_VALUE_1;
     variableType2 = VARIABLE_TYPE_USER_VALUE_2;
 
+    // Use standard context menu
+    setupContextMenu();
+
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
     // for each variable name property manager, set up an index to identify it when it signals and
@@ -732,16 +735,67 @@ void QEPeriodic::updatePresentationOptions()
 }
 
 //==============================================================================
-// Drag drop
+// Drag and Drop
 void QEPeriodic::setDrop( QVariant drop )
 {
-    setVariableName( drop.toString(), 0 );
-    establishConnection( 0 );
+    QStringList PVs = drop.toString().split( ' ' );
+    for( int i = 0; i < PVs.size() && i < QEPERIODIC_NUM_VARIABLES; i++ )
+    {
+        setVariableName( PVs[i], i );
+        establishConnection( i );
+    }
 }
 
 QVariant QEPeriodic::getDrop()
 {
-    return QVariant( getSubstitutedVariableName(0) );
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
+}
+
+//==============================================================================
+// Copy / Paste
+QString QEPeriodic::copyVariable()
+{
+    QString text;
+    for( int i = 0; i < QEPERIODIC_NUM_VARIABLES; i++ )
+    {
+        QString pv = getSubstitutedVariableName(i);
+        if( !pv.isEmpty() )
+        {
+            if( !text.isEmpty() )
+                text.append( " " );
+            text.append( pv );
+        }
+    }
+
+    return text;
+//    return getSubstitutedVariableName(0);
+}
+
+QVariant QEPeriodic::copyData()
+{
+    if( readbackLabel )
+    {
+        return QVariant( readbackLabel->text() );
+    }
+    else if( writeButton )
+    {
+        return QVariant( writeButton->text() );
+    }
+    else
+    {
+        return QVariant( QString( "--" ));
+    }
+}
+
+void QEPeriodic::paste( QVariant v )
+{
+    if( getAllowDrop() )
+    {
+        setDrop( v );
+    }
 }
 
 //==============================================================================

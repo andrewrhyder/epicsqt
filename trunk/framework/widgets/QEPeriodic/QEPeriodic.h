@@ -207,10 +207,15 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPeriodic : public QFrame, public QEWidget {
 protected:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-    // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
     void setDrop( QVariant drop );
     QVariant getDrop();
 
+    // Copy paste
+    QString copyVariable();
+    QVariant copyData();
+    void paste( QVariant s );
+    bool canPaste(){ return getAllowDrop(); }
 
 #define QEPERIODIC_NUM_VARIABLES 4
 

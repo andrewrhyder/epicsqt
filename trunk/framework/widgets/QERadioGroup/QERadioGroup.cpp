@@ -534,7 +534,7 @@ QVariant QERadioGroup::getDrop ()
 }
 
 //==============================================================================
-// Copy (no paste)
+// Copy / Paste
 //
 QString QERadioGroup::copyVariable ()
 {
@@ -546,6 +546,14 @@ QString QERadioGroup::copyVariable ()
 QVariant QERadioGroup::copyData ()
 {
    return QVariant (this->currentIndex);
+}
+
+void QERadioGroup::paste( QVariant v )
+{
+    if( getAllowDrop() )
+    {
+        setDrop( v );
+    }
 }
 
 // end

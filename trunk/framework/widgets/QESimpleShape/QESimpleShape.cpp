@@ -599,11 +599,14 @@ void QESimpleShape::setDrop (QVariant drop)
 //
 QVariant QESimpleShape::getDrop ()
 {
-   return QVariant (getSubstitutedVariableName (0));
+    if( isDraggingVariable() )
+        return QVariant( copyVariable() );
+    else
+        return copyData();
 }
 
 //==============================================================================
-// Copy (no paste)
+// Copy / paste
 //
 QString QESimpleShape::copyVariable ()
 {
@@ -615,6 +618,14 @@ QString QESimpleShape::copyVariable ()
 QVariant QESimpleShape::copyData ()
 {
    return QVariant (this->getValue ());
+}
+
+void QESimpleShape::paste( QVariant v )
+{
+    if( getAllowDrop() )
+    {
+        setDrop( v );
+    }
 }
 
 // end
