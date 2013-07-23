@@ -30,21 +30,17 @@
 #include <QTableWidgetItem>
 #include <QComboBox>
 #include <QFrame>
-#include <QLabel>
-#include <QMenu>
-#include <QScrollArea>
-#include <QVBoxLayout>
 
 #include <QECommon.h>
 #include <QELabel.h>
 #include <QEStringFormatting.h>
-#include <QEResizeableFrame.h>
 
 #include "QEPvProperties.h"
 #include "QEPvPropertiesUtilities.h"
 
 
 #define DEBUG qDebug() << "QEPvProperties::" << __FUNCTION__ << ":" << __LINE__
+
 
 //==============================================================================
 // class wide data
@@ -123,44 +119,10 @@ static void initialiseRecordSpecs ()
 
 
 //==============================================================================
-// WidgetHolder class functions
+// QEPvProperties class functions
 //==============================================================================
 //
-class QLabelList : public QList<QLabel *> {};
-
-class QEPvProperties::OwnWidgets {
-public:
-   OwnWidgets (QEPvProperties *parent);
-   ~OwnWidgets ();
-
-   QFrame *topFrame;
-   QLabel *label1;
-   QLabel *label2;
-   QLabel *label3;
-   QLabel *label4;
-   QLabel *label5;
-   QLabel *label6;
-   QComboBox *box;
-   QELabel *valueLabel;
-   QLabel *hostName;
-   QLabel *fieldType;
-   QLabel *timeStamp;
-   QLabel *indexInfo;
-   QVBoxLayout *topFrameVlayout;
-   QHBoxLayout *hlayouts [6];
-
-   QTableWidget *table;
-   QMenu *tableContextMenu;
-   QFrame *enumerationFrame;
-   QLabelList enumerationLabelList;
-   QScrollArea *enumerationScroll;
-   QEResizeableFrame * enumerationResize;
-   QVBoxLayout *vlayout;
-};
-
-//------------------------------------------------------------------------------
-//
-QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
+void QEPvProperties::createInternalWidgets ()
 {
    const int label_height = 18;
    const int label_width = 48;
@@ -169,7 +131,7 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
 
    // Creates all the internal widgets including basic geometry.
    //
-   this->topFrame = new QFrame (parent);
+   this->topFrame = new QFrame (this);
    this->topFrame->setFixedHeight (128);     // go on - do the sums...
    this->topFrame->setObjectName ("topFrame");
 
@@ -244,7 +206,9 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
 
    // Create user controllable resize area
    //
-   this->enumerationResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, ENUMERATIONS_MIN_HEIGHT, ENUMERATIONS_MAX_HEIGHT, parent);
+   this->enumerationResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge,
+                                                    ENUMERATIONS_MIN_HEIGHT,
+                                                    ENUMERATIONS_MAX_HEIGHT, this);
    this->enumerationResize->setFixedHeight (ENUMERATIONS_MIN_HEIGHT);
    this->enumerationResize->setFrameShape (QFrame::Panel);
    this->enumerationResize->setGrabberToolTip ("Re size enuerations");
@@ -253,10 +217,10 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
    // We create this with 40 rows initially - this will get expanded if/when necessary.
    // Mainly want enough to make it look sensible in designer.
    //
-   this->table = new QTableWidget (40, NUNBER_COLS, parent);
-   this->tableContextMenu = new QMenu (parent);
+   this->table = new QTableWidget (40, NUNBER_COLS, this);
+   this->tableContextMenu = new QMenu (this);
 
-   this->vlayout = new QVBoxLayout (parent);
+   this->vlayout = new QVBoxLayout (this);
    this->vlayout->setMargin (4);
    this->vlayout->setSpacing (4);
    this->vlayout->addWidget (this->topFrame);
@@ -265,17 +229,6 @@ QEPvProperties::OwnWidgets::OwnWidgets (QEPvProperties * parent)
 }
 
 //------------------------------------------------------------------------------
-//
-QEPvProperties::OwnWidgets::~OwnWidgets ()
-{
-   // TODO: Find out if we need to explicitly delete QTableWidgetItems associated
-   // with the table? or does that happen as part of the table delete?
-}
-
-
-//==============================================================================
-// QEPvProperties class functions
-//==============================================================================
 //
 QEPvProperties::QEPvProperties (QWidget* parent) : QEFrame (parent)
 {
@@ -291,7 +244,7 @@ QEPvProperties::QEPvProperties (const QString & variableName, QWidget * parent) 
    this->recordBaseName = QERecordFieldName::recordName (variableName);
    this->common_setup ();
    setVariableName (variableName, 0);
-   this->ownWidgets->valueLabel->setVariableName (variableName, 0);
+   this->valueLabel->setVariableName (variableName, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -309,10 +262,6 @@ QEPvProperties::~QEPvProperties ()
          delete qca;
       }
    }
-
-   if (this->ownWidgets) {
-      delete this->ownWidgets;
-   }
 }
 
 //------------------------------------------------------------------------------
@@ -325,7 +274,6 @@ QSize QEPvProperties::sizeHint () const {
 //
 void QEPvProperties::common_setup ()
 {
-   OwnWidgets *own;
    QTableWidgetItem * item;
    QString style;
    int j;
@@ -351,68 +299,68 @@ void QEPvProperties::common_setup ()
    // allocate and configure own widgets
    // ...and setup an alias
    //
-   own = this->ownWidgets = new OwnWidgets (this);
+   this->createInternalWidgets ();
 
    // Configure widgets
    //
-   own->box->setEditable (true);
-   own->box->setMaxCount (36);
-   own->box->setMaxVisibleItems(20);
-   own->box->setEnabled (true);
+   this->box->setEditable (true);
+   this->box->setMaxCount (36);
+   this->box->setMaxVisibleItems(20);
+   this->box->setEnabled (true);
    // These two don't seem to enforce what one might sensibly expect.
-   own->box->setInsertPolicy (QComboBox::InsertAtTop);
-   own->box->setDuplicatesEnabled (false);
+   this->box->setInsertPolicy (QComboBox::InsertAtTop);
+   this->box->setDuplicatesEnabled (false);
 
    // We use the activated signal (as opposed to currentIndexChanged) as it
    // is only emmited on User change.
    //
-   QObject::connect (own->box, SIGNAL (activated              (int)),
-                     this,     SLOT   (boxCurrentIndexChanged (int)));
+   QObject::connect (this->box, SIGNAL (activated              (int)),
+                     this,      SLOT   (boxCurrentIndexChanged (int)));
 
    // We allow ourselves to select the index programatically.
    //
-   QObject::connect (this,     SIGNAL (setCurrentBoxIndex (int)),
-                     own->box, SLOT   (setCurrentIndex    (int)));
+   QObject::connect (this,      SIGNAL (setCurrentBoxIndex (int)),
+                     this->box, SLOT   (setCurrentIndex    (int)));
 
    style = "QWidget { background-color: #F0F0F0; }";
 
-   own->valueLabel->setIndent (4);
-   own->valueLabel->setStyleSheet (style);
+   this->valueLabel->setIndent (4);
+   this->valueLabel->setStyleSheet (style);
    // We have to be general here
-   own->valueLabel->setPrecision (9);
-   own->valueLabel->setUseDbPrecision (false);
-   own->valueLabel->setNotationProperty (QELabel::Automatic);
+   this->valueLabel->setPrecision (9);
+   this->valueLabel->setUseDbPrecision (false);
+   this->valueLabel->setNotationProperty (QELabel::Automatic);
 
-   own->hostName->setIndent (4);
-   own->hostName->setStyleSheet (style);
+   this->hostName->setIndent (4);
+   this->hostName->setStyleSheet (style);
 
-   own->timeStamp->setIndent (4);
-   own->timeStamp->setStyleSheet (style);
+   this->timeStamp->setIndent (4);
+   this->timeStamp->setStyleSheet (style);
 
-   own->fieldType->setAlignment(Qt::AlignHCenter);
-   own->fieldType->setStyleSheet (style);
+   this->fieldType->setAlignment(Qt::AlignHCenter);
+   this->fieldType->setStyleSheet (style);
 
-   own->indexInfo->setAlignment(Qt::AlignRight);
-   own->indexInfo->setIndent (4);
-   own->indexInfo->setStyleSheet (style);
+   this->indexInfo->setAlignment(Qt::AlignRight);
+   this->indexInfo->setIndent (4);
+   this->indexInfo->setStyleSheet (style);
 
-   for (j = 0; j < own->enumerationLabelList.count (); j++) {
-      enumLabel = own->enumerationLabelList.value (j);
+   for (j = 0; j < this->enumerationLabelList.count (); j++) {
+      enumLabel = this->enumerationLabelList.value (j);
       enumLabel->setIndent (4);
       enumLabel->setStyleSheet (style);
    }
 
    item = new QTableWidgetItem (" Field ");
-   own->table->setHorizontalHeaderItem (FIELD_COL, item);
+   this->table->setHorizontalHeaderItem (FIELD_COL, item);
 
    item = new QTableWidgetItem (" Value ");
-   own->table->setHorizontalHeaderItem (VALUE_COL, item);
+   this->table->setHorizontalHeaderItem (VALUE_COL, item);
 
-   own->table->horizontalHeader()->setDefaultSectionSize (60);
-   own->table->horizontalHeader()->setStretchLastSection (true);
+   this->table->horizontalHeader()->setDefaultSectionSize (60);
+   this->table->horizontalHeader()->setStretchLastSection (true);
 
-   own->table->verticalHeader()->hide ();
-   own->table->verticalHeader()->setDefaultSectionSize (DEFAULT_SECTION_SIZE);
+   this->table->verticalHeader()->hide ();
+   this->table->verticalHeader()->setDefaultSectionSize (DEFAULT_SECTION_SIZE);
 
 
    // Setup layout of widgets with the QEPvProperties QFrame
@@ -447,13 +395,13 @@ void QEPvProperties::common_setup ()
 
    // Do special context for the table.
    //
-   own->table->setContextMenuPolicy (Qt::CustomContextMenu);
+   this->table->setContextMenuPolicy (Qt::CustomContextMenu);
 
-   QObject::connect (own->table, SIGNAL (customContextMenuRequested (const QPoint &)),
-                     this,       SLOT   (customContextMenuRequested (const QPoint &)));
+   QObject::connect (this->table, SIGNAL (customContextMenuRequested (const QPoint &)),
+                     this,        SLOT   (customContextMenuRequested (const QPoint &)));
 
-   QObject::connect (own->tableContextMenu, SIGNAL (triggered             (QAction* )),
-                     this,                  SLOT   (contextMenuTriggered  (QAction* )));
+   QObject::connect (this->tableContextMenu, SIGNAL (triggered             (QAction* )),
+                     this,                   SLOT   (contextMenuTriggered  (QAction* )));
 
 
    // Set up a connection to recieve variable name property changes
@@ -481,8 +429,6 @@ void QEPvProperties::scaleBy (const int mIn, const int dIn)
 //
 void  QEPvProperties::resizeEvent (QResizeEvent *)
 {
-   OwnWidgets *own = this->ownWidgets;
-
    QRect g;
    QLabel *enumLabel;
    int pw;
@@ -498,13 +444,13 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
    gap = (4 * this->m) / this->d;
    ew = (172 *this->m) / this->d;
 
-   pw = own->enumerationFrame->width ();
+   pw = this->enumerationFrame->width ();
    epr = MAX (1, (pw / ew));    // calc enumerations per row.
    lw = ((pw - gap)/ epr) - gap;
-   lh = own->enumerationLabelList.value (0)->geometry().height();
+   lh = this->enumerationLabelList.value (0)->geometry().height();
 
-   for (j = 0; j < own->enumerationLabelList.count (); j++) {
-      enumLabel = own->enumerationLabelList.value (j);
+   for (j = 0; j < this->enumerationLabelList.count (); j++) {
+      enumLabel = this->enumerationLabelList.value (j);
       enumLabel->setGeometry (gap + (j%epr)*(lw + gap), gap + (j/epr)*(lh + gap), lw, lh);
    }
 }
@@ -514,7 +460,6 @@ void  QEPvProperties::resizeEvent (QResizeEvent *)
 //
 void QEPvProperties::clearFieldChannels ()
 {
-   QTableWidget *table = this->ownWidgets->table;
    QEString *qca;
    QTableWidgetItem *item;
    QString gap ("           ");  // empirically found to be quivilent width of " DESC "
@@ -525,13 +470,13 @@ void QEPvProperties::clearFieldChannels ()
       delete qca;
    }
 
-   for (j = 0; j < table->rowCount (); j++) {
+   for (j = 0; j < this->table->rowCount (); j++) {
       item = table->verticalHeaderItem (j);
       if (item) {
          item->setText (gap);
       }
 
-      item = table->item (j, 0);
+      item = this->table->item (j, 0);
       if (item) {
          item->setText ("");
       }
@@ -552,7 +497,7 @@ void QEPvProperties::useNewVariableNameProperty (QString variableNameIn,
 qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
 {
    DEBUG <<variableIndex;
-   return NULL;  // We don't need a QEwidget managed connection.
+   return NULL;  // We don't need a QEWidget managed connection.
 }
 
 //------------------------------------------------------------------------------
@@ -589,7 +534,6 @@ void QEPvProperties::setUpRecordTypeChannels (QEString* &qca, const bool useChar
 void QEPvProperties::setUpLabelChannel ()
 {
    QString pvName;
-   QELabel *valueLabel = this->ownWidgets->valueLabel;   // brevity and SDK auto complete
    qcaobject::QCaObject *qca = NULL;
 
    // The pseudo RTYP field has connected - we are good to go...
@@ -598,11 +542,11 @@ void QEPvProperties::setUpLabelChannel ()
 
    // Set PV name of internal QELabel.
    //
-   valueLabel->setVariableNameAndSubstitutions (pvName, "", 0);
+   this->valueLabel->setVariableNameAndSubstitutions (pvName, "", 0);
 
    // We know that QELabels use slot zero for their connection.
    //
-   qca = valueLabel->getQcaItem (0);
+   qca = this->valueLabel->getQcaItem (0);
    if (qca) {
       QObject::connect (qca, SIGNAL (connectionChanged  (QCaConnectionInfo&) ),
                         this,  SLOT (setValueConnection (QCaConnectionInfo&) ) );
@@ -619,7 +563,6 @@ void QEPvProperties::setUpLabelChannel ()
 //
 void QEPvProperties::establishConnection (unsigned int variableIndex)
 {
-   QComboBox *box = this->ownWidgets->box;
    QString substitutedPVName;
    int slot;
 
@@ -633,15 +576,15 @@ void QEPvProperties::establishConnection (unsigned int variableIndex)
 
    // Set up field name label.
    //
-   this->ownWidgets->label2->setText (QERecordFieldName::fieldName (substitutedPVName));
+   this->label2->setText (QERecordFieldName::fieldName (substitutedPVName));
 
    // Clear associated data fields.
    //
-   this->ownWidgets->hostName->setText ("");
-   this->ownWidgets->timeStamp->setText ("");
-   this->ownWidgets->fieldType->setText ("");
-   this->ownWidgets->indexInfo->setText ("");
-   this->ownWidgets->valueLabel->setText ("");
+   this->hostName->setText ("");
+   this->timeStamp->setText ("");
+   this->fieldType->setText ("");
+   this->indexInfo->setText ("");
+   this->valueLabel->setText ("");
 
    //-----------------------------------------------------
    // Clear any exiting field connections.
@@ -650,20 +593,20 @@ void QEPvProperties::establishConnection (unsigned int variableIndex)
 
    // Remove this name from mid-list if it exists and (re) insert at top of list.
    //
-   for (slot = box->count() - 1; slot >= 0; slot--) {
-      if (box->itemText (slot).trimmed () == substitutedPVName) {
-         box->removeItem (slot);
+   for (slot = this->box->count() - 1; slot >= 0; slot--) {
+      if (this->box->itemText (slot).trimmed () == substitutedPVName) {
+         this->box->removeItem (slot);
       }
    }
 
    // Make sure at least 2 free slots - one for this PV and one
    // for the user to type.
    //
-   while (box->count() >= box->maxCount () - 2) {
-      box->removeItem (box->count () - 1);
+   while (this->box->count() >= box->maxCount () - 2) {
+      this->box->removeItem (box->count () - 1);
    }
 
-   box->insertItem (0, substitutedPVName, QVariant ());
+   this->box->insertItem (0, substitutedPVName, QVariant ());
 
    // Ensure CombBox consistent .
    //
@@ -709,8 +652,6 @@ void QEPvProperties::setRecordTypeValue (const QString& rtypeValue,
 {
    bool useCharArrayMode = (variableIndex == 1);
 
-   QTableWidget *table = this->ownWidgets->table;
-
    int j;
    QERecordSpec *pRecordSpec;
    int numberOfFields;
@@ -748,7 +689,7 @@ void QEPvProperties::setRecordTypeValue (const QString& rtypeValue,
 
    numberOfFields = pRecordSpec->size ();
 
-   table->setRowCount (numberOfFields);
+   this->table->setRowCount (numberOfFields);
    for (j = 0; j < numberOfFields; j++) {
 
       readField = pRecordSpec->getFieldName (j);
@@ -770,21 +711,21 @@ void QEPvProperties::setRecordTypeValue (const QString& rtypeValue,
 
       // Ensure vertical header exists and set it.
       //
-      item = table->item (j, FIELD_COL);
+      item = this->table->item (j, FIELD_COL);
       if (!item) {
          // We need to allocate iteem and inset into the table.
          item = new QTableWidgetItem ();
-         table->setItem (j, FIELD_COL, item);
+         this->table->setItem (j, FIELD_COL, item);
       }
       item->setText  (" " + displayField + " ");
 
       // Ensure table entry item exists.
       //
-      item = table->item (j, VALUE_COL);
+      item = this->table->item (j, VALUE_COL);
       if (!item) {
          // We need to allocate item and inset into the table.
          item = new QTableWidgetItem ();
-         table->setItem (j, VALUE_COL, item);
+         this->table->setItem (j, VALUE_COL, item);
       }
 
       // Form the required PV name.
@@ -817,22 +758,22 @@ void QEPvProperties::setValueConnection (QCaConnectionInfo& connectionInfo)
 
    // These are not QELabels - so gotta do manually.
    //
-   this->ownWidgets->hostName->setEnabled  (connectionInfo.isChannelConnected ());
-   this->ownWidgets->timeStamp->setEnabled (connectionInfo.isChannelConnected ());
-   this->ownWidgets->fieldType->setEnabled (connectionInfo.isChannelConnected ());
-   this->ownWidgets->indexInfo->setEnabled (connectionInfo.isChannelConnected ());
+   this->hostName->setEnabled  (connectionInfo.isChannelConnected ());
+   this->timeStamp->setEnabled (connectionInfo.isChannelConnected ());
+   this->fieldType->setEnabled (connectionInfo.isChannelConnected ());
+   this->indexInfo->setEnabled (connectionInfo.isChannelConnected ());
 
    if (connectionInfo.isChannelConnected ()) {
       // We "know" that the only/main channel is the 1st (slot 0) channel.
       //
-      qca = this->ownWidgets->valueLabel->getQcaItem (0);
-      this->ownWidgets->hostName->setText (qca->getHostName());
-      this->ownWidgets->fieldType->setText (qca->getFieldType());
+      qca = this->valueLabel->getQcaItem (0);
+      this->hostName->setText (qca->getHostName());
+      this->fieldType->setText (qca->getFieldType());
 
       // Assume we are looking at 1st/only element for now.
       //
       s.sprintf ("%d / %ld", 1,  qca->getElementCount());
-      this->ownWidgets->indexInfo->setText (s);
+      this->indexInfo->setText (s);
       this->isFirstUpdate = true;
    }
 }
@@ -844,8 +785,6 @@ void QEPvProperties::setValueValue (const QString &,
                                     QCaDateTime& dateTime,
                                     const unsigned int&)
 {
-   OwnWidgets *own = this->ownWidgets;
-
    qcaobject::QCaObject *qca;
    QStringList enumerations;
    QLabel *enumLabel;
@@ -857,7 +796,7 @@ void QEPvProperties::setValueValue (const QString &,
 
    // NOTE: The value label updates itself.
    //
-   own->timeStamp->setText (dateTime.text () + "  " + QEUtilities::getTimeZoneTLA (dateTime));
+   this->timeStamp->setText (dateTime.text () + "  " + QEUtilities::getTimeZoneTLA (dateTime));
 
    if (this->isFirstUpdate) {
 
@@ -868,13 +807,13 @@ void QEPvProperties::setValueValue (const QString &,
       // Set up any enumeration values
       // We "know" that the only/main channel is the 1st (slot 0) channel.
       //
-      qca = this->ownWidgets->valueLabel->getQcaItem (0);
+      qca = this->valueLabel->getQcaItem (0);
       enumerations = qca->getEnumerations ();
       n = enumerations.count();
 
       enumLast = NULL;
-      for (j = 0; j < this->ownWidgets->enumerationLabelList.count (); j++) {
-         enumLabel = this->ownWidgets->enumerationLabelList.value (j);
+      for (j = 0; j < this->enumerationLabelList.count (); j++) {
+         enumLabel = this->enumerationLabelList.value (j);
          if (j < n) {
             // Value is specified.
             enumLabel->setText (enumerations.value (j));
@@ -892,11 +831,11 @@ void QEPvProperties::setValueValue (const QString &,
       } else {
          h = 0;
       }
-      own->enumerationFrame->setFixedHeight (h);
+      this->enumerationFrame->setFixedHeight (h);
 
       // Set and expand to new max height.
-      own->enumerationResize->setAllowedMaximum (ENUMERATIONS_MIN_HEIGHT + h);
-      own->enumerationResize->setFixedHeight (ENUMERATIONS_MIN_HEIGHT + h);
+      this->enumerationResize->setAllowedMaximum (ENUMERATIONS_MIN_HEIGHT + h);
+      this->enumerationResize->setFixedHeight (ENUMERATIONS_MIN_HEIGHT + h);
 
       this->isFirstUpdate = false;
    }
@@ -911,13 +850,12 @@ void QEPvProperties::setValueValue (const QString &,
 void QEPvProperties::setFieldConnection (QCaConnectionInfo& connectionInfo,
                                          const unsigned int &variableIndex)
 {
-   QTableWidget *table = this->ownWidgets->table;
    int numberOfRows;
    QTableWidgetItem *item;
 
-   numberOfRows = table->rowCount ();
+   numberOfRows = this->table->rowCount ();
    if ((int) variableIndex < numberOfRows) {
-      item = table->item (variableIndex, VALUE_COL);
+      item = this->table->item (variableIndex, VALUE_COL);
 
       if (connectionInfo.isChannelConnected ()) {
          // connected
@@ -940,13 +878,12 @@ void QEPvProperties::setFieldValue (const QString &value,
                                     QCaDateTime &,
                                     const unsigned int & variableIndex)
 {
-   QTableWidget *table = this->ownWidgets->table;
    int numberOfRows;
    QTableWidgetItem *item;
 
-   numberOfRows = table->rowCount ();
+   numberOfRows = this->table->rowCount ();
    if ((int) variableIndex < numberOfRows) {
-      item = table->item (variableIndex, VALUE_COL);
+      item = this->table->item (variableIndex, VALUE_COL);
       item->setText  (" " + value);
    } else {
       DEBUG << "variableIndex =" << variableIndex
@@ -969,18 +906,17 @@ void QEPvProperties::setApplicationEnabled (const bool & state)
 //
 void QEPvProperties::boxCurrentIndexChanged (int index)
 {
-   QComboBox *box = this->ownWidgets->box;
    QString newPvName;
    QString oldPvName;
 
    if (index >= 0) {
-      newPvName = box->itemText (index);
+      newPvName = this->box->itemText (index);
       oldPvName = getSubstitutedVariableName (0);
 
       // belts 'n' braces.
       //
       if (newPvName != oldPvName) {
-         setVariableName (newPvName, 0);
+         this->setVariableName (newPvName, 0);
          this->establishConnection (0);
       } else {
          DEBUG <<  index << oldPvName << newPvName;
@@ -993,8 +929,6 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
 //
 void QEPvProperties::customContextMenuRequested (const QPoint & posIn)
 {
-   QTableWidget* table = this->ownWidgets->table;
-   QMenu *menu = this->ownWidgets->tableContextMenu;
    QTableWidgetItem* item = NULL;
    QString trimmed;
    int row;
@@ -1006,7 +940,7 @@ void QEPvProperties::customContextMenuRequested (const QPoint & posIn)
 
    // Find the associated item
    //
-   item = table->itemAt (posIn);
+   item = this->table->itemAt (posIn);
    if (!item) {
       return;  // just in case
    }
@@ -1033,16 +967,16 @@ void QEPvProperties::customContextMenuRequested (const QPoint & posIn)
          return;
    }
 
-   action = new QAction ("Properties", menu);
+   action = new QAction ("Properties", this->tableContextMenu);
    action->setCheckable (false);
    action->setData (QVariant (newPV));
    action->setEnabled (!newPV.isEmpty ());
-   menu->clear ();
-   menu->addAction (action);
+   this->tableContextMenu->clear ();
+   this->tableContextMenu->addAction (action);
 
    pos.setY (pos.y () + DEFAULT_SECTION_SIZE);  // A feature of QTableWiget (because header visible maybe?).
    golbalPos = table->mapToGlobal (pos);
-   menu->exec (golbalPos, 0);
+   this->tableContextMenu->exec (golbalPos, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -1138,7 +1072,6 @@ QString QEPvProperties::copyVariable ()
 //
 QVariant QEPvProperties::copyData ()
 {
-   QTableWidget* table = ownWidgets->table;
    QTableWidgetItem *f, *v;
    QString fieldList;
    QString field;
@@ -1149,8 +1082,8 @@ QVariant QEPvProperties::copyData ()
    //
    fieldList.clear ();
    for (int i = 0; i < table->rowCount(); i++) {
-      f = table->item (i, FIELD_COL);
-      v = table->item (i, VALUE_COL);
+      f = this->table->item (i, FIELD_COL);
+      v = this->table->item (i, VALUE_COL);
 
       // Ensure both items have been allocated and assigned.
       //
