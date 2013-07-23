@@ -66,7 +66,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
 
     // Initialise
     usingTabs = false;
-    nativeSize = QSize( 0, 0 );
+//    nativeSize = QSize( 0, 0 );
 
     beingDeleted = false;
     scrollToCount = 0;
@@ -213,7 +213,7 @@ void MainWindow::on_actionClose_triggered()
         if( gui )
         {
             removeGuiFromWindowsMenu( gui );
-            setCentralWidget( NULL );
+            setCentralWidget( new QWidget() );
         }
 
         setTitle( "" );
@@ -736,7 +736,7 @@ ContainerProfile profile;
 // If the QEForm has a scroll area as its top level child, or if its top level child has
 // a layout, it is managing its own size so just return the QEForm, otherwise return a
 // scroll area containing the QEForm.
-QWidget* MainWindow::resizeableGui( QEForm* gui )
+QWidget* MainWindow::resizeableGui( QEForm* gui, QSize* preferedSize )
 {
     // Determine if the top level widget in the ui is a scroll area
     QObjectList children = gui->children();
@@ -749,13 +749,30 @@ QWidget* MainWindow::resizeableGui( QEForm* gui )
     // If the widget is managing its own size (it is in in a scroll or has a layout), return it as is
     if( topLevelScrollArea || gui->layout() )
     {
+        // Set the prefered size to the gui size.
+        if( preferedSize )
+        {
+            *preferedSize = gui->size();
+        }
+
+        // Return the gui as is
         return gui;
     }
     // If the widget is not managing its own size return it within a scroll area
     else
     {
+        // Add the gui to a scroll area
         QScrollArea* sa = new QScrollArea();
         sa->setWidget( gui );
+
+        // Set the prefered size to the gui size plus the scroll area margins.
+        if( preferedSize )
+        {
+            preferedSize->setWidth( gui->size().width() + sa->contentsMargins().left() + sa->contentsMargins().right() );
+            preferedSize->setHeight( gui->size().height() + sa->contentsMargins().top() + sa->contentsMargins().bottom() );
+        }
+
+        // Return the scroll area
         return sa;
     }
 }
@@ -813,10 +830,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
         return;
 
     // Note the native size of the gui
-    nativeSize = gui->geometry().size();
-
-    // Ensure the gui can be resized
-    QWidget* rGui = resizeableGui( gui );
+//    nativeSize = gui->geometry().size();
 
     // If using tabs, load the gui into the current tab
     if( usingTabs )
@@ -830,6 +844,9 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
             {
                 removeGuiFromWindowsMenu( oldGui );
             }
+
+            // Ensure the gui can be resized
+            QWidget* rGui = resizeableGui( gui );
 
             // Remove the tab
             int i = tabs->currentIndex();
@@ -855,14 +872,29 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
             }
         }
 
-        // Use the gui
-        setCentralWidget( rGui );
-
         // If nothing else is looking after resizing (such as a restore) resize here
         if( resize )
         {
+            // Ensure the gui can be resized (Ensure it has a layout or is in a scroll area)
+            QSize preferedSize;
+            QWidget* rGui = resizeableGui( gui, &preferedSize );
+
+            // Resize the main window to neatly fit the new gui.
+            // (Note, this is done using the old central widget as we are fiddling with the
+            //  size properties to force a specific size. By using the the old (current) central
+            //  widget we can avoid having to restore the size properties)
+            centralWidget()->setFixedSize( preferedSize );
             adjustSize();
+
+            // Load the new gui into the main window
+            setCentralWidget( rGui );
+
 //            QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
+        }
+        else
+        {
+            QWidget* rGui = resizeableGui( gui );
+            setCentralWidget( rGui );
         }
     }
 
@@ -882,54 +914,57 @@ void MainWindow::newMessage( QString msg, message_types type )
     }
 }
 
-//=================================================================================
-// Slots for managing resizing
-//=================================================================================
+//===========================================================================================
+//The following code was used to ensure a main window fitted a new gui.
+// This is now performed by setting a minimum size and calling adjustSize() on the main window.
+////=================================================================================
+//// Slots for managing resizing
+////=================================================================================
 
-// Resize the form.
-// This is done as a timer event once all processing has completed after creating a new gui.
-void MainWindow::resizeToFitGui()
-{
-    // It is (ever so slightly) possible that the central window has been removed
-    // before the timer event occurs. If so, do nothing.
-    if( !centralWidget() )
-        return;
+//// Resize the form.
+//// This is done as a timer event once all processing has completed after creating a new gui.
+//void MainWindow::resizeToFitGui()
+//{
+//    // It is (ever so slightly) possible that the central window has been removed
+//    // before the timer event occurs. If so, do nothing.
+//    if( !centralWidget() )
+//        return;
 
-    // Get dimensions
-    int main_w = width();
-    int main_h = height();
-    int central_w = centralWidget()->width();
-    int central_h = centralWidget()->height();
+//    // Get dimensions
+//    int main_w = width();
+//    int main_h = height();
+//    int central_w = centralWidget()->width();
+//    int central_h = centralWidget()->height();
 
-    int ui_w = nativeSize.width();
-    int ui_h = nativeSize.height();
-    int frame_w = 0;
+//    int ui_w = nativeSize.width();
+//    int ui_h = nativeSize.height();
+//    int frame_w = 0;
 
-    // If the central widget is a QEForm, then the area to size around is simply the form size
-    if ( QString::compare( centralWidget()->metaObject()->className(), "QEForm" ) == 0)
-    {
-        frame_w = 0;
-    }
+//    // If the central widget is a QEForm, then the area to size around is simply the form size
+//    if ( QString::compare( centralWidget()->metaObject()->className(), "QEForm" ) == 0)
+//    {
+//        frame_w = 0;
+//    }
 
-    // If the central widget is a scroll area (containing a QEForm), then the area to size around is
-    // the area of the scroll area's managed widget
-    else if ( QString::compare( centralWidget()->metaObject()->className(), "QScrollArea" ) == 0 )
-    {
-        QScrollArea* sa = (QScrollArea*)centralWidget();
-        frame_w = sa->frameWidth();
-    }
+//    // If the central widget is a scroll area (containing a QEForm), then the area to size around is
+//    // the area of the scroll area's managed widget
+//    else if ( QString::compare( centralWidget()->metaObject()->className(), "QScrollArea" ) == 0 )
+//    {
+//        QScrollArea* sa = (QScrollArea*)centralWidget();
+//        frame_w = sa->frameWidth();
+//    }
 
-    // If no user interface height or width (probably gui file not found) then create an empty window of a reasonable size
-    if( !ui_w || !ui_h )
-    {
-        ui_w = 400;
-        ui_h = 200;
-    }
+//    // If no user interface height or width (probably gui file not found) then create an empty window of a reasonable size
+//    if( !ui_w || !ui_h )
+//    {
+//        ui_w = 400;
+//        ui_h = 200;
+//    }
 
-    // The size required is the size of the user interface plus any
-    // difference between the main window size and the central widget size
-    resize( ui_w + main_w - central_w + frame_w * 2, ui_h + main_h - central_h + frame_w * 2 );
-}
+//    // The size required is the size of the user interface plus any
+//    // difference between the main window size and the central widget size
+//    resize( ui_w + main_w - central_w + frame_w * 2, ui_h + main_h - central_h + frame_w * 2 );
+//}
 
 //=================================================================================
 // Slots and methods for launching new GUIs on behalf of objects in the gui (typically buttons)

@@ -95,10 +95,10 @@ private:
     bool processSecondAttempt;                              // Flag indicating this is the second attempt to start designer with an alternate command
     bool processOpenGui;                                    // Flag indicating designer should be opened with the current GUI
 
-    QWidget* resizeableGui( QEForm* gui );                  // Given a QEForm, return a widget that will manage being resized.
+    QWidget* resizeableGui( QEForm* gui, QSize* preferedSize = 0 ); // Given a QEForm, return a widget that will manage being resized, and optinoally the prefered size
     QEForm* extractGui( QWidget* rGui );                    // Return a QEForm from a widget that may be a QEForm, or a QScrollArea containg a QEForm
 
-    QSize nativeSize;                                       // Size of gui as defined in .ui file (prior to any resizing)
+//    QSize nativeSize;                                       // Size of gui as defined in .ui file (prior to any resizing)
 
     QString UILoaderFrameworkVersion;                       // QE framework version used by QUILoader when creating widgets in a form
 
@@ -147,7 +147,7 @@ private slots:
     void tabContextMenuRequest( const QPoint & pos );  // Slot for custom tab menu requests
     void tabContextMenuTrigger( QAction * action );    // Slot for custom tab menu actions
 
-    void resizeToFitGui();                             // Resize the form to fit a GUI without scroll bars
+//    void resizeToFitGui();                             // Resize the form to fit a GUI without scroll bars
 
     void processError( QProcess::ProcessError error );  // An error occured starting designer process
     void startDesignerAlternate();                      // Timer signal used to attempt restarting designer from outside a QProcess error signal
