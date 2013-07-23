@@ -99,7 +99,6 @@ TCheckBox::TCheckBox (const QString& text, QWidget* parent) : QCheckBox (text, p
 //
 void QEPlotter::createInternalWidgets ()
 {
-
    int slot;
    int y;
    QString styleSheet;
@@ -267,7 +266,7 @@ void QEPlotter::createInternalWidgets ()
    this->sLayout->addWidget (this->comLabel);
    this->sLayout->addWidget (this->comValue);
 
-   dataDialog = new QEPlotterItemDialog (this);
+   this->dataDialog = new QEPlotterItemDialog (this);
 }
 
 
@@ -577,7 +576,7 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
    // If successfull, the QCaObject object that will supply data update signals will be returned
    // Note createConnection creates the connection and returns reference to existing QCaObject.
    //
-   qcaobject::QCaObject*  qca = createConnection (variableIndex);
+   qcaobject::QCaObject* qca = createConnection (variableIndex);
 
    if (!qca) {
       return;
@@ -677,14 +676,13 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
 //
 void QEPlotter::contextMenuRequested (const QPoint& pos)
 {
-   QObject *obj = this->sender();   // who send the signal.
+   QObject *obj = this->sender();   // who sent the signal.
    int slot = findSlot (obj);
    QPoint golbalPos;
 
    SLOT_CHECK (slot,);
 
    golbalPos = this->xy [slot].itemName->mapToGlobal (pos);
-
    this->xy [slot].itemMenu->exec (golbalPos, 0);
 }
 
@@ -692,7 +690,6 @@ void QEPlotter::contextMenuRequested (const QPoint& pos)
 //
 void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option)
 {
-   QEPlotterItemDialog* dataDialog;
    int n;
 
    SLOT_CHECK (slot,);
@@ -700,8 +697,14 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
    switch (option) {
 
       case QEPlotterMenu::PLOTTER_LINE_BOLD:
+         break;
+
       case QEPlotterMenu::PLOTTER_LINE_DOTS:
+         break;
+
       case QEPlotterMenu::PLOTTER_LINE_VISIBLE:
+         break;
+
       case QEPlotterMenu::PLOTTER_LINE_COLOUR:
          break;
 
@@ -715,8 +718,8 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
          this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
                                                 this->getXYAlias  (slot),
                                                 this->getXYSizePV (slot),
-                                               this->getXYColour (slot));
-         n = dataDialog->exec ();
+                                                this->getXYColour (slot));
+         n = this->dataDialog->exec ();
          if (n == 1) {
             QString newData;
             QString newAlias;
@@ -728,12 +731,16 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
             this->setXYAlias  (slot, newAlias);
             this->setXYSizePV (slot, newSize);
             this->setXYColour (slot, newColour);
-
             this->plot ();
          }
          break;
 
       case QEPlotterMenu::PLOTTER_DATA_CLEAR:
+         this->setXYDataPV (slot, "");
+         this->setXYAlias  (slot, "");
+         this->setXYSizePV (slot, "");
+         this->plot ();
+         break;
 
       case QEPlotterMenu::PLOTTER_SCALE_TO_MIN_MAX:
       case QEPlotterMenu::PLOTTER_SCALE_TO_ZERO_MAX:
