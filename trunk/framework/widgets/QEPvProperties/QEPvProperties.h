@@ -24,18 +24,22 @@
  */
 
 /* The QEPvProperties class allows user to view all the displayalbe fields
-     of the associated IOC record.
+   of the associated IOC record.
 */
 
 #ifndef QEPVPROPERTIES_H
 #define QEPVPROPERTIES_H
 
 #include <QAction>
+#include <QLabel>
 #include <QList>
+#include <QMenu>
+#include <QPoint>
+#include <QScrollArea>
 #include <QString>
 #include <QTableWidget>
+#include <QVBoxLayout>
 #include <QWidget>
-#include <QPoint>
 
 #include <persistanceManager.h>
 #include <QCaAlarmInfo.h>
@@ -43,10 +47,13 @@
 #include <QCaObject.h>
 #include <QEPluginLibrary_global.h>
 #include <QEFrame.h>
+#include <QELabel.h>
+#include <QEResizeableFrame.h>
 #include <QEString.h>
 #include <QEStringFormatting.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <QEWidget.h>
+
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEPvProperties : public QEFrame {
 Q_OBJECT
@@ -83,11 +90,36 @@ private:
    QEStringFormatting stringFormatting;
    bool isFirstUpdate;
 
-   // If widgets are declared at class level, there is a run time exception,
-   // so we place then in separate and private class.
+   // Internal widgets.
    //
-   class OwnWidgets;
-   OwnWidgets *ownWidgets;
+   typedef QList<QLabel*> QLabelList;
+
+   QFrame* topFrame;
+   QLabel* label1;
+   QLabel* label2;
+   QLabel* label3;
+   QLabel* label4;
+   QLabel* label5;
+   QLabel* label6;
+   QComboBox* box;
+   QELabel* valueLabel;
+   QLabel* hostName;
+   QLabel* fieldType;
+   QLabel* timeStamp;
+   QLabel* indexInfo;
+   QVBoxLayout* topFrameVlayout;
+   QHBoxLayout* hlayouts [6];
+
+   QTableWidget* table;
+   QMenu* tableContextMenu;
+   QFrame* enumerationFrame;
+   QLabelList enumerationLabelList;
+   QScrollArea* enumerationScroll;
+   QEResizeableFrame*  enumerationResize;
+   QVBoxLayout* vlayout;
+
+   void createInternalWidgets ();
+
 
    QString recordBaseName;
    QEStringFormatting fieldStringFormatting;
@@ -151,7 +183,7 @@ signals:
    void setCurrentBoxIndex (int index);
 
 protected:
-   void resizeEvent ( QResizeEvent * event );
+   void resizeEvent ( QResizeEvent*  event );
    void establishConnection (unsigned int variableIndex);
    void scaleBy (const int m, const int d);
 
@@ -163,9 +195,9 @@ protected:
    //
    // Override QEDragDrop functions.
    //
-   void dragEnterEvent (QDragEnterEvent *event) { qcaDragEnterEvent (event); }
-   void dropEvent (QDropEvent *event)           { qcaDropEvent(event); }
-   // void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event); }
+   void dragEnterEvent (QDragEnterEvent* event) { qcaDragEnterEvent (event); }
+   void dropEvent (QDropEvent* event)           { qcaDropEvent(event); }
+   // void mousePressEvent (QMouseEvent* event)    { qcaMousePressEvent (event); }
    void setDrop (QVariant drop);
 
    QVariant getDrop ();
@@ -183,8 +215,8 @@ protected:
 public:
    // Constructors
    //
-   QEPvProperties (QWidget * parent = 0);
-   QEPvProperties (const QString & variableName, QWidget * parent = 0);
+   QEPvProperties (QWidget*  parent = 0);
+   QEPvProperties (const QString & variableName, QWidget*  parent = 0);
    ~QEPvProperties ();
 
    QSize sizeHint () const;
