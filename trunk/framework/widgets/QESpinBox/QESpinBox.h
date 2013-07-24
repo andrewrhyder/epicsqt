@@ -116,8 +116,6 @@ protected:
     QString copyVariable();
     QVariant copyData();
     void paste (QVariant s);
-    bool canPaste(){ return getAllowDrop(); }
-
 
     QMenu* getDefaultContextMenu();                 // Return the Qt default context menu to add to the QE context menu
 

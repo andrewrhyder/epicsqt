@@ -110,7 +110,6 @@ private:
     QString copyVariable();
     QVariant copyData();
     void paste( QVariant s );
-    bool canPaste(){ return getAllowDrop(); }
 
     // BEGIN-SINGLE-VARIABLE-PROPERTIES ===============================================
     // Single Variable properties

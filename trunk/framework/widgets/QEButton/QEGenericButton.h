@@ -174,7 +174,6 @@ private:
     QString copyVariable();
     virtual QVariant copyData() = 0;
     void paste( QVariant s );
-    bool canPaste(){ return getAllowDrop(); }
 
 protected:
     void setup();
