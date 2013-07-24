@@ -66,7 +66,6 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
 
     // Initialise
     usingTabs = false;
-//    nativeSize = QSize( 0, 0 );
 
     beingDeleted = false;
     scrollToCount = 0;
@@ -94,12 +93,14 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
     // Save this instance of a main window in the global list of main windows
     app->addMainWindow( this );
 
-//    ui.menuUser_Level->add
     // Set the default title
     setTitle( "" );
 
-    // Populate the 'windows' menu to include all current guis in any main window
+    // Populate the 'Windows' menu to include all current guis in any main window
     buildWindowsMenu();
+
+    // Populate the 'Recent...' menu to include recent guis
+    buildRecentMenu();
 
     // Enable the edit menu if requested
     ui.menuEdit->setEnabled( app->getParams()->enableEdit  );
@@ -212,7 +213,7 @@ void MainWindow::on_actionClose_triggered()
         QEForm* gui = getCentralGui();
         if( gui )
         {
-            removeGuiFromWindowsMenu( gui );
+            app->removeGuiFromWindowsMenus( gui );
             setCentralWidget( new QWidget() );
         }
 
@@ -348,8 +349,11 @@ MainWindow* MainWindow::launchLocalGui( const QString& filename,
 }
 
 // Raise the window selected in the 'Window' menu
+// Note, On Qt 4.7 this is called once for each action in the menu, but with the action being the action selected.
+// This appears to be a bug in Qt QTBUG-25669. Additional calls are redundant but cheap and harmless as the desired window has already been rasied.
 void MainWindow::onWindowMenuSelection( QAction* action )
 {
+    qDebug() <<this;
     // Extract the gui from the action data
     QEForm* gui = action->data().value<QEForm*>();
 
@@ -374,9 +378,21 @@ void MainWindow::raiseGui( QEForm* gui )
         // If the main window is not using tabs, just check the central widget
         if( !mw->usingTabs )
         {
-            if( mw->centralWidget() == gui )
+            QWidget* cw = mw->centralWidget();
+
+            // If the central widget is the gui, we have found it
+            if( cw == gui )
             {
                 break;
+            }
+
+            // The central widget may be a scroll area holding the gui
+            // If the central widget is a scroll area holding the gui, we have found it
+            if ( QString::compare( cw->metaObject()->className(), "QScrollArea" ) == 0 )
+            {
+                QScrollArea* sa = (QScrollArea*)cw;
+                if( sa->widget() == gui )
+                    break;
             }
         }
 
@@ -389,9 +405,20 @@ void MainWindow::raiseGui( QEForm* gui )
                 // Compare the gui in each tab
                 for( tabIndex = 0; tabIndex < tabs->count(); tabIndex++ )
                 {
-                    if( tabs->widget( tabIndex ) == gui )
+                    QWidget* tw = tabs->widget( tabIndex );
+                    // If the tab's widget is the gui, we have found it
+                    if( tw == gui )
                     {
                         break;
+                    }
+
+                    // The tab's widget may be a scroll area holding the gui
+                    // If the tab's widget is a scroll area holding the gui, we have found it
+                    if ( QString::compare( tw->metaObject()->className(), "QScrollArea" ) == 0 )
+                    {
+                        QScrollArea* sa = (QScrollArea*)tw;
+                        if( sa->widget() == gui )
+                            break;
                     }
                 }
 
@@ -510,7 +537,7 @@ void MainWindow::tabCloseRequest( int index )
     QEForm* gui = extractGui( tabs->currentWidget() );
 
     // Remove the gui from the 'windows' menus
-    removeGuiFromWindowsMenu( gui );
+    app->removeGuiFromWindowsMenus( gui );
 
     // Remove the tab
     tabs->removeTab( index );
@@ -582,7 +609,7 @@ void MainWindow::tabContextMenuTrigger( QAction* )
     fileName = gui->getFullFileName ();
 
     // Remove the gui from the 'windows' menus
-    removeGuiFromWindowsMenu( gui );
+    app->removeGuiFromWindowsMenus( gui );
 
     // Remove the tab - note this does not delete the page widget.
     tabs->removeTab( index );
@@ -829,9 +856,6 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
     if( !gui )
         return;
 
-    // Note the native size of the gui
-//    nativeSize = gui->geometry().size();
-
     // If using tabs, load the gui into the current tab
     if( usingTabs )
     {
@@ -842,7 +866,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
             QEForm* oldGui = extractGui( tabs->currentWidget() );
             if( oldGui )
             {
-                removeGuiFromWindowsMenu( oldGui );
+                app->removeGuiFromWindowsMenus( oldGui );
             }
 
             // Ensure the gui can be resized
@@ -868,7 +892,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
             QEForm* oldGui = extractGui( centralWidget() );
             if( oldGui )
             {
-                removeGuiFromWindowsMenu( oldGui );
+                app->removeGuiFromWindowsMenus( oldGui );
             }
         }
 
@@ -888,8 +912,6 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
 
             // Load the new gui into the main window
             setCentralWidget( rGui );
-
-//            QTimer::singleShot( 1, this, SLOT(resizeToFitGui())); // note 1mS rather than zero. recalculates size correctly if opening a new window from the file menu
         }
         else
         {
@@ -913,58 +935,6 @@ void MainWindow::newMessage( QString msg, message_types type )
         statusBar()->showMessage( getMessageTypeName( type ).append( ": ").append( msg ) );
     }
 }
-
-//===========================================================================================
-//The following code was used to ensure a main window fitted a new gui.
-// This is now performed by setting a minimum size and calling adjustSize() on the main window.
-////=================================================================================
-//// Slots for managing resizing
-////=================================================================================
-
-//// Resize the form.
-//// This is done as a timer event once all processing has completed after creating a new gui.
-//void MainWindow::resizeToFitGui()
-//{
-//    // It is (ever so slightly) possible that the central window has been removed
-//    // before the timer event occurs. If so, do nothing.
-//    if( !centralWidget() )
-//        return;
-
-//    // Get dimensions
-//    int main_w = width();
-//    int main_h = height();
-//    int central_w = centralWidget()->width();
-//    int central_h = centralWidget()->height();
-
-//    int ui_w = nativeSize.width();
-//    int ui_h = nativeSize.height();
-//    int frame_w = 0;
-
-//    // If the central widget is a QEForm, then the area to size around is simply the form size
-//    if ( QString::compare( centralWidget()->metaObject()->className(), "QEForm" ) == 0)
-//    {
-//        frame_w = 0;
-//    }
-
-//    // If the central widget is a scroll area (containing a QEForm), then the area to size around is
-//    // the area of the scroll area's managed widget
-//    else if ( QString::compare( centralWidget()->metaObject()->className(), "QScrollArea" ) == 0 )
-//    {
-//        QScrollArea* sa = (QScrollArea*)centralWidget();
-//        frame_w = sa->frameWidth();
-//    }
-
-//    // If no user interface height or width (probably gui file not found) then create an empty window of a reasonable size
-//    if( !ui_w || !ui_h )
-//    {
-//        ui_w = 400;
-//        ui_h = 200;
-//    }
-
-//    // The size required is the size of the user interface plus any
-//    // difference between the main window size and the central widget size
-//    resize( ui_w + main_w - central_w + frame_w * 2, ui_h + main_h - central_h + frame_w * 2 );
-//}
 
 //=================================================================================
 // Slots and methods for launching new GUIs on behalf of objects in the gui (typically buttons)
@@ -1320,7 +1290,7 @@ QEForm* MainWindow::createGui( QString fileName, QString restoreId )
         }
 
         // Add the new gui to the list of windows
-        addGuiToWindowsMenu( gui );
+        app->addGui( gui, this );
     }
     // Return the created gui if any
     return gui;
@@ -1392,69 +1362,50 @@ QEForm* MainWindow::getCurrentGui()
  }
 
 //=================================================================================
-// Methods to manage the application wide 'Windows' menu
+// Methods to manage the 'Windows' and 'Recent...' menus
 //=================================================================================
 
-// Add a gui to the 'windows' menus
-// Used when creating a new gui
-void MainWindow::addGuiToWindowsMenu( QEForm* gui )
+// Build new 'Recent...' menu
+// Used when creating a new main window
+void MainWindow::buildRecentMenu()
 {
-    // Add the gui to the list of guis
-    app->addGui( gui, this );
+    ui.menuRecent->clear();
 
-    // For each main window, add a new action to the window menu
-    for( int i = 0; i < app->getMainWindowCount(); i++ )
+    QList<recentFile*> files = app->getRecentFiles();
+    for( int i = 0; i < files.count(); i++ )
     {
-        addWindowMenuAction(  app->getMainWindow( i )->ui.menuWindows, gui );
+        ui.menuRecent->addAction( files.at( i ) );
     }
 }
 
-// Build new 'windows' menu
+// Build new 'Windows' menu
 // Used when creating a new main window and there are already other main windows present with GUIs
 void MainWindow::buildWindowsMenu()
 {
+    ui.menuRecent->clear();
+
     // Add all current guis to the 'windows' menu
     for( int i = 0; i < app->getGuiCount(); i++ )
     {
-        addWindowMenuAction(  ui.menuWindows, app->getGuiForm( i ) );
+        addWindowMenuAction( app->getGuiAction( i ) );
     }
 }
 
-// Add a gui to a 'window' menu
-void MainWindow::addWindowMenuAction( QMenu* menu, QEForm* gui )
+// Add a gui to a 'Recent...' menu
+void MainWindow::addRecentMenuAction( QAction* action )
 {
-    // Create the action and add it to the window menu, setting the action data to be the gui
-    QAction* action = new QAction( gui->getQEGuiTitle(), menu );
-    action->setData( qVariantFromValue( gui ) );
-    menu->addAction( action );
-}
-
-// Remove a gui from the 'windows' menus
-// Used when deleting a single gui
-void MainWindow::removeGuiFromWindowsMenu( QEForm* gui )
-{
-    // Remove the gui from the application wide list of guis
-    bool guiFound = app->removeGui( gui );
-
-    // For each main window, also remove the gui
-    if( guiFound )
+    QAction* beforeAction = 0;
+    if( ui.menuRecent->actions().count() )
     {
-        for( int i = 0; i < app->getMainWindowCount(); i++ )
-        {
-            MainWindow* mw = app->getMainWindow( i );
-            QList<QAction*> actions = mw->ui.menuWindows->actions();
-            for( int j = 0; j < actions.count(); j++ )
-            {
-                // Extract the gui from the action data
-                QEForm* actionGui = actions[j]->data().value<QEForm*>();
-                if( actionGui == gui )
-                {
-                    mw->ui.menuWindows->removeAction( actions[j] );
-                    break;
-                }
-            }
-        }
+        beforeAction = ui.menuRecent->actions().at(0);
     }
+    ui.menuRecent->insertAction( beforeAction, action );
+}
+
+// Add a gui to a 'Window' menu
+void MainWindow::addWindowMenuAction( QAction* action )
+{
+    ui.menuWindows->addAction( action );
 }
 
 // Remove all guis on a main window from the 'windows' menus of all main windows
@@ -1470,7 +1421,7 @@ void MainWindow::removeAllGuisFromWindowsMenu()
             while( tabs->widget( 0 ) )
             {
                 QEForm* gui = extractGui( tabs->widget( 0 ) );
-                removeGuiFromWindowsMenu( gui );
+                app->removeGuiFromWindowsMenus( gui );
                 tabs->removeTab( 0 );
             }
         }
@@ -1482,10 +1433,14 @@ void MainWindow::removeAllGuisFromWindowsMenu()
         QEForm* gui = getCentralGui();
         if( gui )
         {
-            removeGuiFromWindowsMenu( gui );
+            app->removeGuiFromWindowsMenus( gui );
         }
     }
 }
+
+//=================================================================================
+// Methods to manage configurations
+//=================================================================================
 
 // The user has requested a save of the current configuration
 void MainWindow::on_actionSave_Configuration_triggered()
@@ -1832,6 +1787,8 @@ void MainWindow::deleteConfigs( manageConfigDialog* mcd, const QStringList names
     mcd->setCurrentNames( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
 }
 
+//=================================================================================
+
 // Function to close all main windows.
 // Used when restoring a configuration
 void MainWindow::closeAll()
@@ -1916,7 +1873,7 @@ void MainWindow::scrollTo()
 
 // Set a gui geometry.
 // This is called as part of restoring a main window.
-// When restoring a window, setting it's geometry and scroll position can't be
+// When restoring a window, setting its geometry and scroll position can't be
 // performed until after it has been created, program flow has returned to the
 // event loop, and various events related to geometry have occured.
 // For this reason, setting specific geometry and scrolling is performed as a timer event.

@@ -56,6 +56,10 @@ public:
     void setUniqueId( int restoreId ){ uniqueId = restoreId; } // Set up an ID that will be used during a restore
     int getUniqueId(){ return uniqueId; }
 
+    void buildRecentMenu();
+    void addWindowMenuAction( QAction* action );            // Add a gui to a 'window' menu
+    void addRecentMenuAction( QAction* action );
+
 private:
     Ui::MainWindowClass ui;                                 // Main window layout
     bool usingTabs;                                         // True if using tabs to display multiple GUIs, false if displaying a single GUI
@@ -78,11 +82,9 @@ private:
     QEForm* getCurrentGui();                                // Return the current gui if any (central, or tab)
     void refresh();                                         // Reload the current gui
 
-    void addGuiToWindowsMenu( QEForm* gui );                // Add a gui to the 'windows' menus
     void buildWindowsMenu();                                // Build a new 'windows' menu
-    void addWindowMenuAction( QMenu* menu, QEForm* gui );   // Add a gui to a 'window' menu
-    void removeGuiFromWindowsMenu( QEForm* gui );           // Remove a gui from the 'windows' menus
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
+
 
     QString GuiFileNameDialog( QString caption );           // Get a gui filename from the user
     ContainerProfile profile;                               // Environment profile for new QE widgets
@@ -97,8 +99,6 @@ private:
 
     QWidget* resizeableGui( QEForm* gui, QSize* preferedSize = 0 ); // Given a QEForm, return a widget that will manage being resized, and optinoally the prefered size
     QEForm* extractGui( QWidget* rGui );                    // Return a QEForm from a widget that may be a QEForm, or a QScrollArea containg a QEForm
-
-//    QSize nativeSize;                                       // Size of gui as defined in .ui file (prior to any resizing)
 
     QString UILoaderFrameworkVersion;                       // QE framework version used by QUILoader when creating widgets in a form
 
@@ -146,8 +146,6 @@ private slots:
 
     void tabContextMenuRequest( const QPoint & pos );  // Slot for custom tab menu requests
     void tabContextMenuTrigger( QAction * action );    // Slot for custom tab menu actions
-
-//    void resizeToFitGui();                             // Resize the form to fit a GUI without scroll bars
 
     void processError( QProcess::ProcessError error );  // An error occured starting designer process
     void startDesignerAlternate();                      // Timer signal used to attempt restarting designer from outside a QProcess error signal
