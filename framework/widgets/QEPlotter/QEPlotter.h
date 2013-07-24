@@ -289,6 +289,10 @@ private:
    void plot ();
    void doAnyCalculations ();
 
+   // Perform a pvNameDropEvent 'drop'
+   //
+   void pvNameDropEvent (const int slot, QDropEvent *event);
+
    // Property READ WRITE functions.
    //
    void    setVariableSubstitutions (QString variableNameSubstitutions);

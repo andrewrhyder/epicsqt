@@ -75,9 +75,11 @@ QEPlotterMenu::~QEPlotterMenu ()
 //
 void QEPlotterMenu::setState (const bool isDisplayed, const bool isBold, const bool showDots)
 {
-   this->isDisplayedAction->setChecked (isDisplayed);
-   this->isBoldAction->setChecked (isBold);
-   this->showDotsAction->setChecked (showDots);
+   if (this->slot > 0) {
+      this->isDisplayedAction->setChecked (isDisplayed);
+      this->isBoldAction->setChecked (isBold);
+      this->showDotsAction->setChecked (showDots);
+   }
 }
 
 //------------------------------------------------------------------------------
