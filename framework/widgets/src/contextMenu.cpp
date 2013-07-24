@@ -98,7 +98,7 @@ QMenu* contextMenu::buildContextMenu()
     a = new QAction( "Copy data",              menu ); a->setCheckable( false ); a->setData( CM_COPY_DATA );          menu->addAction( a );
     a = new QAction( "Paste to variable name", menu ); a->setCheckable( false ); a->setData( CM_PASTE );              menu->addAction( a );
     QClipboard *cb = QApplication::clipboard();
-    a->setEnabled( canPaste() && !cb->text().isEmpty() );
+    a->setEnabled( qew->getAllowDrop() && !cb->text().isEmpty() );
     menu->addSeparator();
 
     a = new QAction( "Drag variable name",     menu ); a->setCheckable( true );  a->setData( CM_DRAG_VARIABLE );      menu->addAction( a );

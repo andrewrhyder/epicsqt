@@ -499,8 +499,6 @@ protected:
     QString copyVariable();
     QVariant copyData();
     void paste( QVariant v );
-    bool canPaste(){ return getAllowDrop(); }
-
 
     void resizeEvent(QResizeEvent* );
 

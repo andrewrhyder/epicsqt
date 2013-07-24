@@ -34,6 +34,7 @@ class QEDragDrop {
 public:
     QEDragDrop( QWidget* ownerIn );
     virtual ~QEDragDrop(){}
+    bool getAllowDrop();
   protected:
 
     // Drag and Drop
@@ -49,7 +50,6 @@ public:
     virtual QVariant getDrop() { return QVariant(); }
 
     void setAllowDrop( bool allowDropIn );
-    bool getAllowDrop();
 
 private:
     QWidget* owner;
