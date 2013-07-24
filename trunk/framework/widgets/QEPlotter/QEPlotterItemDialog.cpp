@@ -66,13 +66,11 @@ QEPlotterItemDialog::~QEPlotterItemDialog ()
 //
 void QEPlotterItemDialog::setFieldInformation (const QString dataIn,
                                                const QString aliasIn,
-                                               const QString sizeIn,
-                                               const QColor colourIn)
+                                               const QString sizeIn)
 {
    this->ui->dataEdit->setText (dataIn);
    this->ui->aliasEdit->setText (aliasIn);
    this->ui->sizeEdit->setText (sizeIn);
-   this->colour = colourIn;
    this->ui->dataEdit->setFocus ();
 }
 
@@ -80,13 +78,11 @@ void QEPlotterItemDialog::setFieldInformation (const QString dataIn,
 //
 void QEPlotterItemDialog::getFieldInformation (QString& dataOut,
                                                QString& aliasOut,
-                                               QString& sizeOut,
-                                               QColor& colourOut)
+                                               QString& sizeOut)
 {
    dataOut =  this->ui->dataEdit->text ().trimmed();
    aliasOut = this->ui->aliasEdit->text ().trimmed() ;
    sizeOut =  this->ui->sizeEdit->text ().trimmed();
-   colourOut =  this->colour;
 }
 
 //------------------------------------------------------------------------------
