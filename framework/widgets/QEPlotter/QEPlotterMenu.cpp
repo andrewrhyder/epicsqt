@@ -44,9 +44,9 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
       //
       menu = new QMenu ("Line", this);
       this->addMenu (menu);
-      this->make (menu, "Bold",   true, PLOTTER_LINE_BOLD);
-      this->make (menu, "Dots",   true, PLOTTER_LINE_DOTS);
-      this->make (menu, "Visible", true, PLOTTER_LINE_VISIBLE);
+      this->isBoldAction      = this->make (menu, "Bold",   true, PLOTTER_LINE_BOLD);
+      this->showDotsAction    = this->make (menu, "Dots",   true, PLOTTER_LINE_DOTS);
+      this->isDisplayedAction = this->make (menu, "Visible", true, PLOTTER_LINE_VISIBLE);
       this->make (menu, "Colour...", false, PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
    }
 
@@ -69,6 +69,15 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
 //
 QEPlotterMenu::~QEPlotterMenu ()
 {
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotterMenu::setState (const bool isDisplayed, const bool isBold, const bool showDots)
+{
+   this->isDisplayedAction->setChecked (isDisplayed);
+   this->isBoldAction->setChecked (isBold);
+   this->showDotsAction->setChecked (showDots);
 }
 
 //------------------------------------------------------------------------------

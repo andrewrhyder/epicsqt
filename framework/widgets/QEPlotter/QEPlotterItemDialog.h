@@ -28,7 +28,6 @@
 #define QEPLOTTERITEMDIALOG_H
 
 #include <QString>
-#include <QColor>
 #include <QDialog>
 
 namespace Ui {
@@ -46,13 +45,12 @@ public:
    explicit QEPlotterItemDialog (QWidget *parent = 0);
    ~QEPlotterItemDialog ();
 
-   void setFieldInformation (const QString dataIn, const QString aliasIn, const QString sizeIn, const QColor colourIn);
-   void getFieldInformation (QString& dataOut,     QString& aliasOut,     QString& sizeOut,     QColor& colourOut);
+   void setFieldInformation (const QString dataIn, const QString aliasIn, const QString sizeIn);
+   void getFieldInformation (QString& dataOut,     QString& aliasOut,     QString& sizeOut);
 
 private:
    Ui::QEPlotterItemDialog *ui;
    bool returnIsMasked;
-   QColor colour;
 
 private slots:
    void dataEditReturnPressed ();

@@ -38,6 +38,8 @@ public:
    explicit QEPlotterMenu (const int slot, QWidget* parent = 0);
    virtual ~QEPlotterMenu ();
 
+   void setState (const bool isDisplayed, const bool isBold, const bool showDots);
+
    // IDs for all menu options
    // Each menu option has a unique ID across all menus
    // These IDs are in addition to standard context menu IDs and so start after
@@ -73,6 +75,9 @@ signals:
 private:
 
    int slot;
+   QAction* isDisplayedAction;
+   QAction* isBoldAction;
+   QAction* showDotsAction;
 
    // Utility function to create and set up an action.
    //

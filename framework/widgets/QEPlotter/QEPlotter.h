@@ -27,6 +27,7 @@
 #define QEPLOTTER_H
 
 #include <QColor>
+#include <QColorDialog>
 #include <QObject>
 #include <QTimer>
 #include <QVector>
@@ -196,6 +197,7 @@ private:
    QLabel* comLabel;    // Centre Of Mass
    QLabel* comValue;
 
+   QColorDialog *colourDialog;
    QEPlotterItemDialog* dataDialog;
 
    // Keep a list of allocated curves so that we can track and delete them.
@@ -209,6 +211,20 @@ private:
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
    bool replotIsRequired;
+
+   enum ScaleModes   { smFixed,             // Fixed scale in x and y
+                       smNormalised,        // y plots scales such that { min to max } map to { 0 to 1 }
+                       smFractional,        // y plots scales such that { min to max } map to { 0 to 1 }
+                       smDynamic            // x and y scales continually adjuxsted.
+                      };
+
+   ScaleModes xScaleMode;
+   ScaleModes yScaleMode;
+
+   double fixedMinX;
+   double fixedMaxX;
+   double fixedMinY;
+   double fixedMaxY;
 
    enum DataPlotKinds { NotInUse,            // blank  - not in use - no data - no plot
                         DataPlot,            // use specified PV to provide plot data
@@ -241,10 +257,17 @@ private:
       QEFloatingArray data;
       QEFloatingArray dyByDx;
 
+      // Min max values used when last plotted.
+      //
+      double plottedMin;
+      double plottedMax;
+
       // n/a for the X data set, Y data sets only.
       //
       QColor colour;
       bool isDisplayed;
+      bool isBold;
+      bool showDots;
 
       // Widgets.
       //

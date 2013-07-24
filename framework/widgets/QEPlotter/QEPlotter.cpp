@@ -266,6 +266,7 @@ void QEPlotter::createInternalWidgets ()
    this->sLayout->addWidget (this->comLabel);
    this->sLayout->addWidget (this->comValue);
 
+   this->colourDialog = new QColorDialog (this);
    this->dataDialog = new QEPlotterItemDialog (this);
 }
 
@@ -288,6 +289,8 @@ QEPlotter::DataSets::DataSets ()
    this->dataIsConnected = false;
    this->sizeIsConnected = false;
    this->isDisplayed = true;
+   this->isBold = false;
+   this->showDots = false;
 }
 
 //---------------------------------------------------------------------------------
@@ -322,7 +325,7 @@ int QEPlotter::DataSets::effectiveSize ()
 }
 
 //=================================================================================
-//
+// QEPlotter
 //=================================================================================
 //
 QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
@@ -373,6 +376,15 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
                         this, SLOT   (setNewVariableName      (QString, QString, unsigned int)));
 
    }
+
+
+   this->xScaleMode = smDynamic;
+   this->yScaleMode = smDynamic;
+
+   this->fixedMinX = 0.0;
+   this->fixedMaxX = 10.0;
+   this->fixedMinY = 0.0;
+   this->fixedMaxY = 10.0;
 
    // Refresh plot check at ~10Hz.
    //
@@ -677,35 +689,53 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
 void QEPlotter::contextMenuRequested (const QPoint& pos)
 {
    QObject *obj = this->sender();   // who sent the signal.
-   int slot = findSlot (obj);
+   int slot = this->findSlot (obj);
    QPoint golbalPos;
 
    SLOT_CHECK (slot,);
+   DataSets* ds = &(this->xy [slot]);
 
-   golbalPos = this->xy [slot].itemName->mapToGlobal (pos);
-   this->xy [slot].itemMenu->exec (golbalPos, 0);
+   ds->itemMenu->setState (ds->isDisplayed, ds->isBold, ds->showDots);
+   golbalPos = ds->itemName->mapToGlobal (pos);
+   ds->itemMenu->exec (golbalPos, 0);
 }
 
 //---------------------------------------------------------------------------------
 //
 void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option)
 {
-   int n;
-
    SLOT_CHECK (slot,);
+
+   DataSets* ds = &(this->xy [slot]);
+   int n;
 
    switch (option) {
 
       case QEPlotterMenu::PLOTTER_LINE_BOLD:
+         ds->isBold = ! ds->isBold;
+         this->replotIsRequired = true;
          break;
 
       case QEPlotterMenu::PLOTTER_LINE_DOTS:
+         ds->showDots = !ds->showDots;
+         this->replotIsRequired = true;
          break;
 
       case QEPlotterMenu::PLOTTER_LINE_VISIBLE:
+         ds->isDisplayed = ! ds->isDisplayed;
+         ds->checkBox->setChecked (ds->isDisplayed);
+         this->replotIsRequired = true;
          break;
 
       case QEPlotterMenu::PLOTTER_LINE_COLOUR:
+         this->colourDialog->setCurrentColor (ds->colour);
+         n = this->colourDialog->exec();
+         if (n == 1) {
+            ds->colour = this->colourDialog->currentColor ();
+            ds->itemName->setStyleSheet (QEUtilities::colourToStyle (ds->colour) );
+
+            this->replotIsRequired = true;
+         }
          break;
 
       case QEPlotterMenu::PLOTTER_DATA_SELECT:
@@ -717,21 +747,18 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
       case QEPlotterMenu::PLOTTER_DATA_DIALOG:
          this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
                                                 this->getXYAlias  (slot),
-                                                this->getXYSizePV (slot),
-                                                this->getXYColour (slot));
+                                                this->getXYSizePV (slot));
          n = this->dataDialog->exec ();
          if (n == 1) {
             QString newData;
             QString newAlias;
             QString newSize;
-            QColor newColour;
 
-            this->dataDialog->getFieldInformation (newData, newAlias, newSize, newColour);
+            this->dataDialog->getFieldInformation (newData, newAlias, newSize);
             this->setXYDataPV (slot, newData);
             this->setXYAlias  (slot, newAlias);
             this->setXYSizePV (slot, newSize);
-            this->setXYColour (slot, newColour);
-            this->plot ();
+            this->replotIsRequired = true;
          }
          break;
 
@@ -739,11 +766,23 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
          this->setXYDataPV (slot, "");
          this->setXYAlias  (slot, "");
          this->setXYSizePV (slot, "");
-         this->plot ();
+         this->replotIsRequired = true;
          break;
 
       case QEPlotterMenu::PLOTTER_SCALE_TO_MIN_MAX:
+         if ((slot > 0) && (ds->dataKind == DataPlot || ds->dataKind == CalculationPlot)) {
+            this->fixedMinY = ds->plottedMin;
+            this->fixedMaxY = ds->plottedMax;
+            this->yScaleMode = smFixed;
+         }
+         break;
+
       case QEPlotterMenu::PLOTTER_SCALE_TO_ZERO_MAX:
+         if ((slot > 0) && (ds->dataKind == DataPlot || ds->dataKind == CalculationPlot)) {
+            this->fixedMinY = 0;
+            this->fixedMaxY = ds->plottedMax;
+            this->yScaleMode = smFixed;
+         }
          break;
 
       default:
@@ -908,7 +947,11 @@ QwtPlotCurve* QEPlotter::allocateCurve (const int slot)
    result->setStyle (QwtPlotCurve::Lines);
 
    pen.setColor (this->xy [slot].colour);
-   pen.setWidth (1);
+   if (this->xy [slot].isBold) {
+      pen.setWidth (2);
+   } else {
+      pen.setWidth (1);
+   }
    result->setPen (pen);
 
    return result;
@@ -1018,10 +1061,13 @@ void QEPlotter::plot ()
       curve->setData (xdata, ydata);
 #endif
 
+      ys->plottedMin = ydata.minimumValue ();
+      ys->plottedMax = ydata.maximumValue ();
+
       xMin = MIN (xMin, xdata.minimumValue ());
       xMax = MAX (xMax, xdata.maximumValue ());
-      yMin = MIN (yMin, ydata.minimumValue ());
-      yMax = MAX (yMax, ydata.maximumValue ());
+      yMin = MIN (yMin, ys->plottedMin);
+      yMax = MAX (yMax, ys->plottedMax);
 
       if (slot == this->selectedDataSet) {
          QString image;
