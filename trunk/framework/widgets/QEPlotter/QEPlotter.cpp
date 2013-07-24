@@ -695,7 +695,12 @@ void QEPlotter::contextMenuRequested (const QPoint& pos)
    SLOT_CHECK (slot,);
    DataSets* ds = &(this->xy [slot]);
 
-   ds->itemMenu->setState (ds->isDisplayed, ds->isBold, ds->showDots);
+   if (slot > 0) {
+      // Only meaningful for y data sets.
+      //
+      ds->itemMenu->setState (ds->isDisplayed, ds->isBold, ds->showDots);
+   }
+
    golbalPos = ds->itemName->mapToGlobal (pos);
    ds->itemMenu->exec (golbalPos, 0);
 }
@@ -793,12 +798,53 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
 
 //---------------------------------------------------------------------------------
 //
+void QEPlotter::pvNameDropEvent (const int slot, QDropEvent *event)
+{
+   SLOT_CHECK (slot,);
+
+   // If no text available, do nothing
+   //
+   if (!event->mimeData()->hasText ()){
+      event->ignore ();
+      return;
+   }
+
+   // Get the drop data
+   //
+   const QMimeData *mime = event->mimeData ();
+
+   // If there is any text, drop the text
+
+   if (!mime->text().isEmpty ()) {
+      // Get the component textual parts
+      //
+      QStringList pieces = mime->text ().split (QRegExp ("\\s+"),
+                                                QString::SkipEmptyParts);
+
+      // Carry out the drop action
+      //
+      this->setXYDataPV (slot, pieces.value (0, ""));
+      this->setXYSizePV (slot, pieces.value (1, ""));
+      this->setXYAlias  (slot, pieces.value (2, ""));
+   }
+
+   // Tell the dropee that the drop has been acted on
+   //
+   if (event->source() == this) {
+      event->setDropAction(Qt::CopyAction);
+      event->accept();
+   } else {
+      event->acceptProposedAction ();
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
 bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
 {
    const QEvent::Type type = event->type ();
    QMouseEvent* mouseEvent = NULL;
    int slot;
-
 
    switch (type) {
       case QEvent::MouseButtonPress:
@@ -853,7 +899,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          slot = this->findSlot (obj);
          if (slot >= 0) {
             QDropEvent* dropEvent = static_cast<QDropEvent*> (event);
-            dropEvent->accept ();  // TODO
+            this->pvNameDropEvent (slot, dropEvent);
             this->highLight (slot, false);
             return true;
          }
