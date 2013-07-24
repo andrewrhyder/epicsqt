@@ -35,7 +35,11 @@
 #include <QDebug>
 #include <saveRestoreManager.h>
 #include <QSettings>
-#include "QEForm.h"
+#include <QEForm.h>
+#include <QVariant>
+#include <QMetaType>
+
+Q_DECLARE_METATYPE( QEForm* )
 
 // Construction
 QEGui::QEGui(int argc, char *argv[] ) : QApplication( argc, argv )
@@ -72,8 +76,22 @@ int QEGui::run()
     // Restore the user level passwords
     QSettings settings( "epicsqt", "QEGui");
     setUserLevelPassword( userLevelTypes::USERLEVEL_USER, settings.value( "userPassword" ).toString() );
-    setUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST, settings.value( "scientistPassword" ).toString()  );
-    setUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER, settings.value( "engineerPassword" ).toString()  );
+    setUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST, settings.value( "scientistPassword" ).toString() );
+    setUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER, settings.value( "engineerPassword" ).toString() );
+
+    // Restore recent files
+    int i;
+    bool ok;
+    int recentFilesCount = settings.value( "recentFileCount" ).toInt( &ok );
+    if( ok )
+    {
+        for( i = 0; i < recentFilesCount; i++ )
+        {
+            QString name = settings.value( QString( "recentFileName%1" ).arg( i )).toString();
+            QString path = settings.value( QString( "recentFilePath%1" ).arg( i )).toString();
+            recentFiles.append( new recentFile( name, path, this ));
+        }
+    }
 
     // Prepare to manage save and restore
     // Note, main windows look after them selves, this is for the overall application
@@ -94,6 +112,14 @@ int QEGui::run()
     settings.setValue( "userPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_USER ));
     settings.setValue( "scientistPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_SCIENTIST ));
     settings.setValue( "engineerPassword", getUserLevelPassword( userLevelTypes::USERLEVEL_ENGINEER ));
+
+    // Save recent files
+    settings.setValue( "recentFileCount", recentFiles.count() );
+    for( i = 0; i < recentFiles.count(); i++ )
+    {
+        settings.setValue( QString( "recentFileName%1" ).arg( i ), recentFiles.at( i )->name );
+        settings.setValue( QString( "recentFilePath%1" ).arg( i ), recentFiles.at( i )->path );
+    }
 
     return ret;
 }
@@ -259,7 +285,6 @@ int QEGui::getMainWindowPosition( MainWindow* mw )
     return 0;
 }
 
-
 // Add a main window to the application's list of main windows
 void QEGui::addMainWindow( MainWindow* window )
 {
@@ -276,11 +301,9 @@ void QEGui::removeMainWindow( MainWindow* window )
         if( mainWindowList[i] == window )
         {
             mainWindowList.removeAt( i );
-            return;
+            break;
         }
     }
-
-    return;
 }
 
 // Remove a main window from the application's list of main windows given an index into the application's list of main windows
@@ -289,12 +312,23 @@ void QEGui::removeMainWindow( int i )
     mainWindowList.removeAt( i );
 }
 
+// Return list of recently added files
+const QList<recentFile*>&  QEGui::getRecentFiles()
+{
+    return recentFiles;
+}
 
 // Get the total number of GUIs in the application's list of GUIs
 // (This includes all GUIs in all main windows)
 int QEGui::getGuiCount()
 {
     return guiList.count();
+}
+
+// Get the action used to raise a gui in the 'Windows' menus
+QAction* QEGui::getGuiAction( int i )
+{
+    return guiList[i].getAction();
 }
 
 // Get a GUI given an index into the application's list of GUIs
@@ -321,24 +355,95 @@ void QEGui::setGuiScroll( int i, QPoint scroll )
     guiList[i].setScroll( scroll );
 }
 
-// Add a GUI to the application's list of GUIs
+// Add a GUI to the application's list of GUIs, and to the recent menu
 void QEGui::addGui( QEForm* gui, MainWindow* window )
 {
-    guiList.append( guiListItem( gui, window ) );
+    // Create an action for the 'Window' menus
+    QAction* windowMenuAction = new QAction( gui->getQEGuiTitle(), this );
+    windowMenuAction->setData( qVariantFromValue( gui ) );
+
+    // Add this gui to the application wide list of guis
+    guiList.append( guiListItem( gui, window, windowMenuAction ) );
+
+    // For each main window, add a new action to the window menu
+    for( int i = 0; i < mainWindowList.count(); i++ )
+    {
+        mainWindowList.at(i)->addWindowMenuAction( windowMenuAction );
+    }
+
+    // Note the GUI title and full file path
+    QString name = gui->getQEGuiTitle();
+    QString path = gui->getFullFileName();
+
+    // Assume there is no 'Recent' action
+    QAction* recentMenuAction = NULL;
+
+    // Look for the gui in the recent files list
+    for( int i = 0; i < recentFiles.count(); i++ )
+    {
+        // If already in the list, promote the found entry to the top of the list
+        if( name == recentFiles[i]->name && path == recentFiles[i]->path )
+        {
+            // Note the found action
+            recentMenuAction = recentFiles[i];
+
+            // Promote the action to the top of all the menus it is in
+            QList<QWidget*> assocWidgets = recentMenuAction->associatedWidgets();
+            for( int j = 0; j < assocWidgets.count(); j++ )
+            {
+                QWidget* menu = assocWidgets[j];
+                menu->removeAction( recentMenuAction );
+                QAction* beforeAction = 0;
+                if( menu->actions().count() )
+                {
+                    beforeAction = menu->actions().at(0);
+                }
+                menu->insertAction( beforeAction, recentMenuAction );
+            }
+
+            // Promote the recent file info in the recent file list
+            recentFiles.prepend( recentFiles.takeAt( i ) );
+
+            break;
+        }
+    }
+
+    // If the current gui was not found in the recent file list, add it
+    if( !recentMenuAction )
+    {
+        // Add a new recent gui
+        recentFile* rf = new recentFile( name, path, this );
+        recentFiles.prepend( rf );
+
+        // Keep the list down to a limited size
+        if( recentFiles.count() > 10 )
+        {
+            // Deleting the action will remove it from all the menus it is in
+            delete( recentFiles.takeLast() );
+        }
+
+        // For each main window, add the recent file
+        for( int i = 0; i < mainWindowList.count(); i++ )
+        {
+            mainWindowList[i]->addRecentMenuAction( rf );
+        }
+    }
 }
 
 // Remove a GUI from the application's list of GUIs
-bool QEGui::removeGui( QEForm* gui )
+// Note, deleting the action will remove it from all the menus it was associated with
+void QEGui::removeGuiFromWindowsMenus( QEForm* gui )
 {
     for( int i = 0; i < guiList.count(); i++ )
     {
         if( guiList[i].getForm() == gui )
         {
+            // Delete the action. This will remove it from all the menus it was associated with
+            delete guiList[i].getAction();//!! dangerous do this in guiListItem????
             guiList.removeAt( i );
-            return true;
+            break;
         }
     }
-    return false;
 }
 
 // Ensure all main windows and QEForms managed by this application (top level forms) have a unique identifier
@@ -371,3 +476,17 @@ void QEGui::login()
     }
     loginForm->exec();
 }
+
+// Launch a gui for the 'Recent...' menu
+void QEGui::launchRecentGui( QString path )
+{
+    // Set up the profile for the new window
+    ContainerProfile profile;
+
+    profile.setupProfile( NULL, params.pathList, "", params.substitutions );
+
+    MainWindow* mw = new MainWindow( this, path, false );
+    mw->show();
+    profile.releaseProfile();
+}
+
