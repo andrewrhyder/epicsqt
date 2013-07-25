@@ -195,11 +195,11 @@ private:
    double yMaximum;
    QEStripChartRangeDialog *yRangeDialog;
 
-   void addPvName (QString pvName);
+   void addPvName (const QString& pvName);
 
    // Handles space separated set of names
    //
-   void addPvNameSet (QString pvNameSet);  // make public ??
+   void addPvNameSet (const QString& pvNameSet);  // make public ??
 
    // Used by QEStripChartItem
    //
