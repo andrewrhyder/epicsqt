@@ -39,6 +39,8 @@ static const QColor clNotInUse  (0xC8C8C8);
 static const QColor clSelected  (0x7090FF);
 
 static const int NULL_SELECTION = -1;
+static const int COPY_PV_NAMES  =  1;
+static const int PASTE_PV_NAMES =  2;
 
 
 //=================================================================================
@@ -52,7 +54,7 @@ void QEScratchPad::createInternalWidgets ()
    const int horSpacing = 12;
    const int indent = 6;
 
-   int slot;
+   QAction* action;
 
    // Main layout.
    //
@@ -81,60 +83,71 @@ void QEScratchPad::createInternalWidgets ()
    this->titleLayout->addWidget (this->titleValue);
    this->vLayout->addWidget (this->titleFrame);
 
-   for (slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
 
-      DataSets* ds = &(this->items [slot]);
+      DataSets* item = &(this->items [slot]);
 
-      ds->menu = new QEScratchPadMenu (slot, this);
+      item->menu = new QEScratchPadMenu (slot, this);
 
-      ds->frame = new QFrame (this);
-      ds->frame->setFixedHeight (frameHeight);
-      ds->frame->setAcceptDrops (true);
-      ds->frame->installEventFilter (this);
-      ds->frame->setContextMenuPolicy (Qt::CustomContextMenu);
+      item->frame = new QFrame (this);
+      item->frame->setFixedHeight (frameHeight);
+      item->frame->setAcceptDrops (true);
+      item->frame->installEventFilter (this);
+      item->frame->setContextMenuPolicy (Qt::CustomContextMenu);
 
-      ds->pvName = new QLabel (ds->frame);
-      ds->pvName->installEventFilter (this);
-      ds->pvName->setText ("");
-      ds->pvName->setIndent (indent);
-      ds->pvName->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
+      item->pvName = new QLabel (item->frame);
+      item->pvName->installEventFilter (this);
+      item->pvName->setText ("");
+      item->pvName->setIndent (indent);
+      item->pvName->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
 
-      ds->description = new QELabel (ds->frame);
-      ds->description->setDisplayAlarmState (false);
-      ds->description->setText ("");
-      ds->description->setIndent (indent);
-      ds->description->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
+      item->description = new QELabel (item->frame);
+      item->description->setDisplayAlarmState (false);
+      item->description->setText ("");
+      item->description->setIndent (indent);
+      item->description->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
 
-      ds->value = new QELabel (ds->frame);
-      ds->value->setDisplayAlarmState (true);
-      ds->value->setText ("");
-      ds->value->setIndent (indent);
-      ds->value->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
+      item->value = new QELabel (item->frame);
+      item->value->setDisplayAlarmState (true);
+      item->value->setText ("");
+      item->value->setIndent (indent);
+      item->value->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
 
       // Set up layout - paramers must be same as titlelayout
       //
-      ds->hLayout = new QHBoxLayout (ds->frame);
-      ds->hLayout->setMargin (horMargin);
-      ds->hLayout->setSpacing (horSpacing);
+      item->hLayout = new QHBoxLayout (item->frame);
+      item->hLayout->setMargin (horMargin);
+      item->hLayout->setSpacing (horSpacing);
 
       // Add to layouts
       //
-      ds->hLayout->addWidget (ds->pvName);
-      ds->hLayout->addWidget (ds->description);
-      ds->hLayout->addWidget (ds->value);
+      item->hLayout->addWidget (item->pvName);
+      item->hLayout->addWidget (item->description);
+      item->hLayout->addWidget (item->value);
 
-      this->vLayout->addWidget (ds->frame);
+      this->vLayout->addWidget (item->frame);
 
-      QObject::connect (ds->frame, SIGNAL (customContextMenuRequested (const QPoint &)),
-                        this,      SLOT   (contextMenuRequested (const QPoint &)));
+      QObject::connect (item->frame, SIGNAL (customContextMenuRequested (const QPoint &)),
+                        this,        SLOT   (contextMenuRequested (const QPoint &)));
 
-      QObject::connect (ds->menu, SIGNAL (contextMenuSelected (const int, const QEScratchPadMenu::ContextMenuOptions)),
-                        this,     SLOT   (contextMenuSelected (const int, const QEScratchPadMenu::ContextMenuOptions)));
+      QObject::connect (item->menu, SIGNAL (contextMenuSelected (const int, const QEScratchPadMenu::ContextMenuOptions)),
+                        this,       SLOT   (contextMenuSelected (const int, const QEScratchPadMenu::ContextMenuOptions)));
    }
 
    this->vLayout->addStretch ();
 
    this->dataDialog = new QEScratchPadItemDialog (this);
+
+   this->widgetContextMenu = new QMenu (this);
+   action = new QAction ("Copy PV names", this->widgetContextMenu);
+   action->setCheckable (false);
+   action->setData (QVariant (COPY_PV_NAMES));
+   this->widgetContextMenu->addAction (action);
+
+   action = new QAction ("Paste PV names", this->widgetContextMenu);
+   action->setCheckable (false);
+   action->setData (QVariant (PASTE_PV_NAMES));
+   this->widgetContextMenu->addAction (action);
 }
 
 
@@ -175,6 +188,7 @@ void QEScratchPad::DataSets::setHighLighted (const bool isHighLightedIn)
 //
 QEScratchPad::QEScratchPad (QWidget* parent) : QEFrame (parent)
 {
+
    this->createInternalWidgets ();
 
    this->setNumVariables (0);
@@ -191,6 +205,17 @@ QEScratchPad::QEScratchPad (QWidget* parent) : QEFrame (parent)
 
    this->setAllowDrop (false);
    this->setDisplayAlarmState (false);
+
+   // Connect menu itself to menu handler.
+   //
+   this->setContextMenuPolicy (Qt::CustomContextMenu);
+
+   QObject::connect (this, SIGNAL (customContextMenuRequested (const QPoint &)),
+                     this, SLOT   (widgetMenuRequested        (const QPoint &)));
+
+   QObject::connect (this->widgetContextMenu, SIGNAL (triggered          (QAction*)),
+                     this,                    SLOT   (widgetMenuSelected (QAction*)));
+
 }
 
 //---------------------------------------------------------------------------------
@@ -222,9 +247,8 @@ QSize QEScratchPad::sizeHint () const {
 int QEScratchPad::findSlot (QObject *obj)
 {
    int result = -1;
-   int slot;
 
-   for (slot = 0 ; slot < ARRAY_LENGTH (this->items); slot++) {
+   for (int slot = 0 ; slot < ARRAY_LENGTH (this->items); slot++) {
       if ((obj == this->items [slot].frame) ||
           (obj == this->items [slot].pvName)) {
          // found it.
@@ -241,7 +265,6 @@ int QEScratchPad::findSlot (QObject *obj)
 //
 void QEScratchPad::calcMinimumHeight ()
 {
-   int slot;
    int last;
    int count;
    int delta_top;
@@ -249,7 +272,7 @@ void QEScratchPad::calcMinimumHeight ()
    // Find last used item.
    //
    last = -1;
-   for (slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
       if (this->items [slot].isInUse ()) {
          last = slot;
       }
@@ -261,7 +284,7 @@ void QEScratchPad::calcMinimumHeight ()
 
    // Set visibility accordingly
    //
-   for (slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
       this->items [slot].frame->setVisible (slot <= last);
       if (slot <= last) {
       }
@@ -296,14 +319,14 @@ void QEScratchPad::selectItem (const int slot, const bool toggle)
 
    if (this->selectedItem != previousSelection) {
       if (previousSelection != NULL_SELECTION) {
-         DataSets* ds = &(this->items [previousSelection]);
-         ds->frame->setStyleSheet ("");
+         DataSets* item = &(this->items [previousSelection]);
+         item->frame->setStyleSheet ("");
       }
 
       if (this->selectedItem != NULL_SELECTION) {
-         DataSets* ds = &(this->items [this->selectedItem]);
+         DataSets* item = &(this->items [this->selectedItem]);
          QString styleSheet = QEUtilities::colourToStyle (clSelected);
-         ds->frame->setStyleSheet (styleSheet);
+         item->frame->setStyleSheet (styleSheet);
       }
    }
 }
@@ -316,13 +339,12 @@ void QEScratchPad::contextMenuRequested (const QPoint& pos)
    const int slot = this->findSlot (obj);
    SLOT_CHECK (slot,);
 
-
    QWidget* w = dynamic_cast<QWidget*> (obj);
    if (w) {
-      DataSets* ds = &(this->items [slot]);
+      DataSets* item = &(this->items [slot]);
       QPoint golbalPos = w->mapToGlobal(pos);
-      ds->menu->setIsInUse (ds->isInUse ());
-      ds->menu->exec (golbalPos, 0);
+      item->menu->setIsInUse (item->isInUse ());
+      item->menu->exec (golbalPos, 0);
    }
 }
 
@@ -366,6 +388,67 @@ void QEScratchPad::contextMenuSelected (const int slot, const QEScratchPadMenu::
    }
 }
 
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::widgetMenuRequested (const QPoint& pos)
+{
+   QObject *obj = this->sender();   // who sent the signal.
+   QWidget* w = dynamic_cast<QWidget*> (obj);
+   QPoint golbalPos = w->mapToGlobal (pos);
+
+   this->widgetContextMenu->exec (golbalPos, 0);
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::widgetMenuSelected  (QAction* action)
+{
+   bool okay;
+   int option;
+   QClipboard* cb = NULL;
+   QString text;
+
+   option = action->data ().toInt (&okay);
+   if (!okay) {
+      return;
+   }
+
+   switch (option) {
+
+      case COPY_PV_NAMES:
+         // Create space delimited set of PV names.
+         //
+         text = "";
+         for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+            DataSets* item = &(this->items [slot]);
+
+            if (item->isInUse()) {
+               if (!text.isEmpty()) {
+                  text.append (" ");
+               };
+               text.append (this->getPvName (slot));
+            }
+         }
+         cb = QApplication::clipboard ();
+         cb->setText (text);
+         break;
+
+      case PASTE_PV_NAMES:
+         cb = QApplication::clipboard ();
+         text = cb->text().trimmed();
+         if (!text.isEmpty()) {
+            this->addPvNameSet (text);
+         }
+         break;
+
+      default:
+         // do nothing
+         break;
+   }
+}
+
+
 //---------------------------------------------------------------------------------
 //
 void QEScratchPad::pvNameDropEvent (const int slot, QDropEvent *event)
@@ -405,6 +488,37 @@ void QEScratchPad::pvNameDropEvent (const int slot, QDropEvent *event)
       event->acceptProposedAction ();
    }
 }
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::addPvName (const QString& pvName)
+{
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+      DataSets* item = &(this->items [slot]);
+      if (item->isInUse() == false) {
+         // Found an empty slot.
+         //
+         this->setPvName (slot, pvName);
+         break;
+      }
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::addPvNameSet (const QString& pvNameSet)
+{
+   QStringList pvNameList;
+   int j;
+
+   // Split input string using white space as delimiter.
+   //
+   pvNameList = pvNameSet.split (QRegExp ("\\s+"), QString::SkipEmptyParts);
+   for (j = 0; j < pvNameList.count (); j++) {
+      this->addPvName (pvNameList.value (j));
+   }
+}
+
 
 //---------------------------------------------------------------------------------
 //
@@ -489,30 +603,30 @@ void QEScratchPad::setPvName (const int slot, const QString& pvName)
    SLOT_CHECK (slot,);
    QString descPv;
 
-   DataSets* ds = &(this->items [slot]);
+   DataSets* item = &(this->items [slot]);
 
-   ds->thePvName = pvName.trimmed ();
-   ds->pvName->setText (ds->thePvName);
+   item->thePvName = pvName.trimmed ();
+   item->pvName->setText (item->thePvName);
 
    // New PV name or clear - clear current text values.
-   ds->description->setText ("");
-   ds->value->setText ("");
+   item->description->setText ("");
+   item->value->setText ("");
 
-   if (ds->isInUse()) {
-      descPv = QERecordFieldName::fieldPvName (ds->thePvName, "DESC");
-      ds->description->setVariableNameAndSubstitutions (descPv, "", 0);
-      ds->value->setVariableNameAndSubstitutions (ds->thePvName, "", 0);
+   if (item->isInUse()) {
+      descPv = QERecordFieldName::fieldPvName (item->thePvName, "DESC");
+      item->description->setVariableNameAndSubstitutions (descPv, "", 0);
+      item->value->setVariableNameAndSubstitutions (item->thePvName, "", 0);
 
-      ds->pvName->setStyleSheet (QEUtilities::colourToStyle (clInUse));
-      ds->description->setStyleSheet (QEUtilities::colourToStyle (clInUse));
-      ds->value->setStyleSheet (QEUtilities::colourToStyle (clInUse));
+      item->pvName->setStyleSheet (QEUtilities::colourToStyle (clInUse));
+      item->description->setStyleSheet (QEUtilities::colourToStyle (clInUse));
+      item->value->setStyleSheet (QEUtilities::colourToStyle (clInUse));
    } else {
-      ds->description->setVariableNameAndSubstitutions ("", "", 0);
-      ds->value->setVariableNameAndSubstitutions ("", "", 0);
+      item->description->setVariableNameAndSubstitutions ("", "", 0);
+      item->value->setVariableNameAndSubstitutions ("", "", 0);
 
-      ds->pvName->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
-      ds->description->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
-      ds->value->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
+      item->pvName->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
+      item->description->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
+      item->value->setStyleSheet (QEUtilities::colourToStyle (clNotInUse));
    }
 
    this->calcMinimumHeight ();
@@ -525,6 +639,67 @@ QString QEScratchPad::getPvName (const int slot)
 {
    SLOT_CHECK (slot, "");
    return this->items [slot].thePvName;
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::paste (QVariant s)
+{
+   // Use pasted text to add a PV(s) to the chart.
+   //
+   this->addPvNameSet (s.toString ());
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::saveConfiguration (PersistanceManager* pm)
+{
+   const QString formName = this->persistantName ("QEScratchPad");
+
+   PMElement formElement = pm->addNamedConfiguration (formName);
+
+   // Save each active PV.
+   //
+   PMElement pvListElement = formElement.addElement ("PV_List");
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+      DataSets* item = &(this->items [slot]);
+      if (item->isInUse()) {
+         PMElement pvElement = pvListElement.addElement ("PV");
+         pvElement.addAttribute ("id", slot);
+         pvElement.addValue ("Name", this->getPvName(slot));
+      }
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEScratchPad::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
+{
+   if (restorePhase != FRAMEWORK) return;
+
+   const QString formName = this->persistantName ("QEScratchPad");
+
+   PMElement formElement = pm->getNamedConfiguration (formName);
+
+   // Restore each PV.
+   //
+   PMElement pvListElement = formElement.getElement ("PV_List");
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->items); slot++) {
+      PMElement pvElement = pvListElement.getElement ("PV", "id", slot);
+      QString pvName;
+      bool status;
+
+      if (pvElement.isNull ()) continue;
+
+      // Attempt to extract a PV name
+      //
+      status = pvElement.getValue ("Name", pvName);
+      if (status) {
+         this->setPvName (slot, pvName);
+      }
+   }
 }
 
 // end

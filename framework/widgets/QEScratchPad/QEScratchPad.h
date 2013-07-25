@@ -26,14 +26,16 @@
 #ifndef QESCRATCHPAD_H
 #define QESCRATCHPAD_H
 
-#include <QColor>
+#include <QMenu>
 #include <QObject>
 #include <QTimer>
+#include <QVariant>
 #include <QWidget>
 
 #include <QEFrame.h>
 #include <QELabel.h>
 #include <QCaVariableNamePropertyManager.h>
+#include <persistanceManager.h>
 
 #include "QEScratchPadItemDialog.h"
 #include "QEScratchPadMenu.h"
@@ -60,6 +62,18 @@ public:
    QString getPvName (const int slot);
 
 protected:
+   // Overtide super class functions.
+   //
+   // Paste only
+   //
+   void paste (QVariant s);
+
+   // override pure virtual functions
+   //
+   void saveConfiguration (PersistanceManager* pm);
+   void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
+
+
    bool eventFilter (QObject *obj, QEvent *event);
    int findSlot (QObject *obj);
 
@@ -74,6 +88,7 @@ private:
    QHBoxLayout* titleLayout;
 
    QEScratchPadItemDialog* dataDialog;
+   QMenu* widgetContextMenu;
 
    int selectedItem;
 
@@ -109,12 +124,16 @@ private:
    //
    void pvNameDropEvent (const int slot, QDropEvent *event);
 
-   // Property READ WRITE functions.
-   //
+   void addPvName (const QString& pvName);
+   void addPvNameSet (const QString& pvNameSet);
 
 private slots:
    void contextMenuRequested (const QPoint& pos);
    void contextMenuSelected  (const int slot, const QEScratchPadMenu::ContextMenuOptions option);
+
+   void widgetMenuRequested (const QPoint& pos);
+   void widgetMenuSelected  (QAction* action);
+
 };
 
 #endif // QESCRATCHPAD_H
