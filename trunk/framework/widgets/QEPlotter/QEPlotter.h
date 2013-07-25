@@ -161,6 +161,13 @@ protected:
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void establishConnection (unsigned int variableIndex);
    bool eventFilter (QObject *obj, QEvent *event);
+
+   // Paste only
+   //
+   void paste (QVariant s);
+   void saveConfiguration (PersistanceManager* pm);
+   void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
+
    int findSlot (QObject *obj);
 
 private:
@@ -240,6 +247,7 @@ private:
    public:
       explicit DataSets ();
       ~DataSets ();
+      bool isInUse ();
       int effectiveSize ();
 
       QCaVariableNamePropertyManager dataVariableNameManager;
@@ -288,6 +296,8 @@ private:
    void releaseCurves ();
    void plot ();
    void doAnyCalculations ();
+   void addPvName (const QString& pvName);
+   void addPvNameSet (const QString& pvNameSet);
 
    // Perform a pvNameDropEvent 'drop'
    //

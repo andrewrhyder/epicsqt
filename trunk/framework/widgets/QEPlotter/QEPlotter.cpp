@@ -302,6 +302,13 @@ QEPlotter::DataSets::~DataSets ()
 
 //---------------------------------------------------------------------------------
 //
+bool QEPlotter::DataSets::isInUse ()
+{
+   return (this->dataKind != NotInUse);
+}
+
+//---------------------------------------------------------------------------------
+//
 int QEPlotter::DataSets::effectiveSize ()
 {
    int result = 0;
@@ -913,6 +920,120 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
    return false;
 }
 
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::paste (QVariant s)
+{
+   QStringList list;
+   QString pvNameSet;
+
+   // s.toSring is a bit limiting when s is a StringList or a List of String.
+   // We don't worry about List 0f StringList or List of List of String etc.
+   //
+   pvNameSet = "";
+   list = s.toStringList ();
+   for (int j = 0 ; j < list.count(); j++) {
+      pvNameSet.append(" ").append (list.value (j));
+   }
+
+   // Use pasted text to add a PV(s) to the chart.
+   //
+   this->addPvNameSet (pvNameSet);
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::saveConfiguration (PersistanceManager* pm)
+{
+   const QString formName = this->persistantName ("QEPlotter");
+
+   PMElement formElement = pm->addNamedConfiguration (formName);
+
+   // Save each active PV.
+   //
+   PMElement pvListElement = formElement.addElement ("PV_List");
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+      DataSets* ds = &(this->xy [slot]);
+      if (ds->isInUse ()) {
+         PMElement pvElement = pvListElement.addElement ("PV");
+         pvElement.addAttribute ("id", slot);
+         pvElement.addValue ("Data", this->getXYDataPV (slot));
+         pvElement.addValue ("Size", this->getXYSizePV (slot));
+         pvElement.addValue ("Alias", this->getXYAlias (slot));
+      }
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
+{
+   if (restorePhase != FRAMEWORK) return;
+
+   const QString formName = this->persistantName ("QEScratchPad");
+
+   PMElement formElement = pm->getNamedConfiguration (formName);
+
+   // Restore each PV.
+   //
+   PMElement pvListElement = formElement.getElement ("PV_List");
+
+   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+      PMElement pvElement = pvListElement.getElement ("PV", "id", slot);
+      QString strValue;
+      bool status;
+
+      if (pvElement.isNull ()) continue;
+
+      // Attempt to extract a PV names
+      //
+      status = pvElement.getValue ("Data", strValue);
+      if (status) {
+         this->setXYDataPV (slot, strValue);
+      }
+
+      status = pvElement.getValue ("Size", strValue);
+      if (status) {
+         this->setXYSizePV (slot, strValue);
+      }
+
+      status = pvElement.getValue ("Alais", strValue);
+      if (status) {
+         this->setXYAlias(slot, strValue);
+      }
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::addPvName (const QString& pvName)
+{
+   for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+      DataSets* ds = &(this->xy [slot]);
+      if (ds->isInUse () == false) {
+         // Found an empty slot.
+         //
+         this->setXYDataPV (slot, pvName);
+         break;
+      }
+   }
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::addPvNameSet (const QString& pvNameSet)
+{
+   QStringList pvNameList;
+   int j;
+
+   // Split input string using white space as delimiter.
+   //
+   pvNameList = pvNameSet.split (QRegExp ("\\s+"), QString::SkipEmptyParts);
+   for (j = 0; j < pvNameList.count (); j++) {
+      this->addPvName (pvNameList.value (j));
+   }
+}
 
 //---------------------------------------------------------------------------------
 // Slots receiving PV data

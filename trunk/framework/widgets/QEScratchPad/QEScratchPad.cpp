@@ -645,9 +645,21 @@ QString QEScratchPad::getPvName (const int slot)
 //
 void QEScratchPad::paste (QVariant s)
 {
+   QStringList list;
+   QString pvNameSet;
+
+   // s.toSring is a bit limiting when s is a StringList or a List of String.
+   // We don't worry about List 0f StringList or List of List of String etc.
+   //
+   pvNameSet = "";
+   list = s.toStringList ();
+   for (int j = 0 ; j < list.count(); j++) {
+      pvNameSet.append(" ").append (list.value (j));
+   }
+
    // Use pasted text to add a PV(s) to the chart.
    //
-   this->addPvNameSet (s.toString ());
+   this->addPvNameSet (pvNameSet);
 }
 
 //---------------------------------------------------------------------------------

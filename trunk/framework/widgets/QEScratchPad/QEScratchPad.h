@@ -73,7 +73,6 @@ protected:
    void saveConfiguration (PersistanceManager* pm);
    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
-
    bool eventFilter (QObject *obj, QEvent *event);
    int findSlot (QObject *obj);
 
