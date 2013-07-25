@@ -52,6 +52,7 @@
 #include <QELoginManager.h>
 #include <QELogManager.h>
 #include <QEScriptManager.h>
+#include <QEScratchPadManager.h>
 #include <QEFormManager.h>
 #include <QEFrameManager.h>
 #include <QEGroupBoxManager.h>
@@ -112,6 +113,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QERadioButtonManager(this));
     widgets.append(new QERadioGroupManager(this));
     widgets.append(new QERecipeManager(this));
+    widgets.append(new QEScratchPadManager(this));
     widgets.append(new QEScriptManager(this));
     widgets.append(new QEShapeManager(this));
     widgets.append(new QESimpleShapeManager(this));
