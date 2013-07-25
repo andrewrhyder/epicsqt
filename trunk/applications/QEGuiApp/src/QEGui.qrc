@@ -3,6 +3,8 @@
         <file>PVProperties.ui</file>
         <file>StripChart.ui</file>
         <file>MessageLog.ui</file>
+        <file>Plotter.ui</file>
+        <file>ScratchPad.ui</file>
     </qresource>
     <qresource prefix="/icons">
         <file>QEGuiIcon.png</file>
