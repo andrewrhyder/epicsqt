@@ -33,7 +33,7 @@
 #include <QEPluginLibrary_global.h>
 #include <QEArchiveManager.h>
 
-/// This is a non EPICS aeare widget.
+/// This is a non EPICS aware widget.
 /// It extracts and displays states information from the archive manager.
 ///
 class QEPLUGINLIBRARYSHARED_EXPORT QEArchiveStatus : public QEGroupBox {
@@ -44,11 +44,29 @@ public:
    QSize sizeHint () const;
 
 private:
-   // If internal widgets are declared at class level, there is a run time
-   // exception, so they are placed in separate and private class.
+   // Internal widgets.
    //
-   class PrivateData;
-   PrivateData *privateData;
+   QEArchiveAccess *archiveAccess;
+   QVBoxLayout *vLayout;
+
+   static const int NumberRows = 20;   // maximum.
+
+   struct Rows {
+      QFrame* frame;
+      QHBoxLayout *hLayout;
+      QLabel* hostNamePort;
+      QLabel* endPoint;
+      QLabel* state;
+      QLabel* available;
+      QLabel* read;
+      QLabel* numberPVs;
+   };
+
+   Rows rowList [NumberRows + 1];
+   int inUseCount;
+
+   void createInternalWidgets ();
+   void calcMinimumHeight ();
 
 private slots:
    void archiveStatus (const QEArchiveAccess::StatusList& statusList);
