@@ -76,8 +76,12 @@ FORMS += ./src/MainWindow.ui \
          ./src/PVProperties.ui \
          ./src/StripChart.ui \
          ./src/MessageLog.ui \
+         ./src/Plotter.ui \
+         ./src/ScratchPad.ui \
          ./src/saveDialog.ui \
          ./src/restoreDialog.ui \
          ./src/manageConfigDialog.ui
 
 RESOURCES += ./src/QEGui.qrc
+
+# end

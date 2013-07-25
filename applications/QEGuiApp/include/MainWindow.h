@@ -152,6 +152,8 @@ private slots:
 
     void on_actionPVProperties_triggered();             // Slot to perform 'Create PV Properties window' action
     void on_actionStrip_Chart_triggered();              // Slot to perform 'Create strip chart window' action
+    void on_actionPlotter_triggered();                  // Slot to perform 'Create plotter window' action
+    void on_actionScratch_Pad_triggered();              // Slot to perform 'Create scratch pad window' action
 
     void on_actionSave_Configuration_triggered();       // Slot to perform 'Save Configuration' action
     void on_actionRestore_Configuration_triggered();    // Slot to perform 'Save Configuration' action
