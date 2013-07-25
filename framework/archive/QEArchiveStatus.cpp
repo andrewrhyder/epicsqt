@@ -35,35 +35,7 @@
 
 //==============================================================================
 //
-class QEArchiveStatus::PrivateData {
-public:
-   PrivateData (QEArchiveStatus* parent);
-
-   QEArchiveAccess *archiveAccess;
-   QVBoxLayout *vLayout;
-
-   static const int NumberRows = 20;   // maximum.
-
-   struct Rows {
-      QFrame* frame;
-      QHBoxLayout *hLayout;
-      QLabel* hostNamePort;
-      QLabel* endPoint;
-      QLabel* state;
-      QLabel* available;
-      QLabel* read;
-      QLabel* numberPVs;
-   };
-
-   Rows rowList [NumberRows + 1];
-
-private:
-   QWidget* spacer;
-};
-
-//------------------------------------------------------------------------------
-//
-QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
+void QEArchiveStatus::createInternalWidgets ()
 {
 
 #define CREATE_LABEL(member, width, align, text)  {              \
@@ -75,27 +47,31 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
    hLayout->addWidget (this->rowList [j].member);                \
 }
 
+   const int frameHeight = 19;
+   const int horMargin = 2;    // 19 - 2 - 2 => widget height is 15
+   const int horSpacing = 4;
+
    int j;
    QColor background;
    QString sheet;
    QFrame* frame;
    QHBoxLayout *hLayout;
 
-   this->archiveAccess = new QEArchiveAccess (parent);
+   this->archiveAccess = new QEArchiveAccess (this);
 
-   this->vLayout = new QVBoxLayout (parent);
-   this->vLayout->setMargin (2);
-   this->vLayout->setSpacing (2);
+   this->vLayout = new QVBoxLayout (this);
+   this->vLayout->setMargin (horMargin);
+   this->vLayout->setSpacing (1);
 
    // Use use the last row as a header row.
    //
    j = NumberRows;
    sheet = "";
-   this->rowList [j].frame = frame = new QFrame (parent);
-   frame->setFixedHeight (20);
+   this->rowList [j].frame = frame = new QFrame (this);
+   frame->setFixedHeight (frameHeight);
    this->rowList [j].hLayout = hLayout = new QHBoxLayout (frame);
-   hLayout->setMargin (2);
-   hLayout->setSpacing (4);
+   hLayout->setMargin (horMargin);
+   hLayout->setSpacing (horSpacing);
 
    CREATE_LABEL (hostNamePort, 160, Qt::AlignLeft,    "Host:Port");
    CREATE_LABEL (endPoint,     220, Qt::AlignLeft,    "End Point");
@@ -111,13 +87,14 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
    sheet = QEUtilities::colourToStyle (background);
 
    for (j = 0; j < NumberRows; j++ ) {
+      QEArchiveStatus::Rows* row = &this->rowList [j];
 
-      this->rowList [j].frame = frame = new QFrame (parent);
-      frame->setFixedHeight (20);
+      row->frame = frame = new QFrame (this);
+      frame->setFixedHeight (frameHeight);
 
-      this->rowList [j].hLayout = hLayout = new QHBoxLayout (frame);
-      hLayout->setMargin (2);
-      hLayout->setSpacing (4);
+      this->rowList [j].hLayout = hLayout = new QHBoxLayout (row->frame);
+      hLayout->setMargin (horMargin);
+      hLayout->setSpacing (horSpacing);
 
       CREATE_LABEL (hostNamePort, 160, Qt::AlignLeft,     " - ");
       CREATE_LABEL (endPoint,     220, Qt::AlignLeft,     " - ");
@@ -126,31 +103,49 @@ QEArchiveStatus::PrivateData::PrivateData (QEArchiveStatus* parent)
       CREATE_LABEL (read,          68, Qt::AlignRight,    " - ");
       CREATE_LABEL (numberPVs,     68, Qt::AlignRight,    " - ");
 
-      this->vLayout->addWidget (frame);
+      this->vLayout->addWidget (row->frame);
+
+      row->frame->setVisible (false);
    }
 
-   this->spacer = new QWidget (parent);
-   this->vLayout->addWidget (this->spacer);
+   this->vLayout->addStretch ();
 
 #undef CREATE_LABEL
 
 }
 
+//---------------------------------------------------------------------------------
+//
+void QEArchiveStatus::calcMinimumHeight ()
+{
+   int count;
+   int delta_top;
 
-//==============================================================================
+   // Allow +1 for titles.
+   //
+   count = this->inUseCount + 1;
+
+   delta_top = 20;
+   this->setMinimumHeight ((delta_top * count) + 24);
+}
+
+//------------------------------------------------------------------------------
 //
 QEArchiveStatus::QEArchiveStatus (QWidget* parent) : QEGroupBox (parent)
 {
-   this->privateData = new PrivateData (this);
+   this->createInternalWidgets();
 
    this->setTitle (" Archive Status Summary ");
+   this->inUseCount = 0;
 
-   QObject::connect (this->privateData->archiveAccess,
+   QObject::connect (this->archiveAccess,
                      SIGNAL     (archiveStatus (const QEArchiveAccess::StatusList&)),
                      this, SLOT (archiveStatus (const QEArchiveAccess::StatusList&)));
 
-   this->setMinimumSize (712, 60);
-   this->privateData->archiveAccess->resendStatus ();
+   this->calcMinimumHeight ();
+   this->setMinimumWidth (712);
+
+   this->archiveAccess->resendStatus ();
 }
 
 
@@ -158,14 +153,13 @@ QEArchiveStatus::QEArchiveStatus (QWidget* parent) : QEGroupBox (parent)
 //
 QEArchiveStatus::~QEArchiveStatus ()
 {
-   delete this->privateData;
 }
 
 //------------------------------------------------------------------------------
 //
 QSize QEArchiveStatus::sizeHint () const
 {
-   return QSize (712, 100);
+   return QSize (712, 64);   // two rows
 }
 
 //------------------------------------------------------------------------------
@@ -174,15 +168,18 @@ void QEArchiveStatus::archiveStatus (const QEArchiveAccess::StatusList& statusLi
 {
    int j;
 
-   for (j = 0; j < QEArchiveStatus::PrivateData::NumberRows; j++ ) {
-      QEArchiveStatus::PrivateData::Rows* row = &this->privateData->rowList [j];
+   this->inUseCount = statusList.count ();
+   this->calcMinimumHeight ();
+
+   for (j = 0; j < QEArchiveStatus::NumberRows; j++ ) {
+      QEArchiveStatus::Rows* row = &this->rowList [j];
 
       if (j <  statusList.count ()) {
          QEArchiveAccess::Status state = statusList.value (j);
 
          row->hostNamePort->setText (QString ("%1:%2").arg (state.hostName).arg (state.portNumber));
          row->endPoint->setText (state.endPoint);
-         row->state->setText ( QEUtilities::enumToString (*this->privateData->archiveAccess,
+         row->state->setText ( QEUtilities::enumToString (*this->archiveAccess,
                                                           QString ("States"), (int) state.state));
          row->available->setText (QString ("%1").arg (state.available));
          row->read->setText (QString ("%1").arg (state.read));
