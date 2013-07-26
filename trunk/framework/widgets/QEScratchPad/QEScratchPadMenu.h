@@ -38,8 +38,6 @@ public:
    explicit QEScratchPadMenu (const int slot, QWidget* parent = 0);
    virtual ~QEScratchPadMenu ();
 
-   void setIsInUse (const bool isInUse);
-
    // IDs for all menu options
    // Each menu option has a unique ID across all menus
    // These IDs are in addition to standard context menu IDs and so start after
@@ -59,6 +57,16 @@ public:
    //
    static const ContextMenuOptions ContextMenuItemFirst = SCRATCHPAD_ADD_PV_NAME;
    static const ContextMenuOptions ContextMenuItemLast  = SCRATCHPAD_DATA_CLEAR;
+   static const int NumberContextMenuItems = ContextMenuItemLast - ContextMenuItemFirst + 1;
+
+
+   // Allow setting of specific action attributes using option as index.
+   //
+   void setActionChecked (const ContextMenuOptions option, const bool visible);
+   void setActionEnabled (const ContextMenuOptions option, const bool visible);
+   void setActionVisible (const ContextMenuOptions option, const bool visible);
+
+   void setIsInUse (const bool isInUse);
 
 signals:
    // All the triggered actions from the various sub-menu items are
@@ -68,10 +76,7 @@ signals:
 
 private:
    int slot;
-   QAction* actionList [4];
-
-   void setActionEnabled (const ContextMenuOptions, const bool visible);
-   void setActionVisible (const ContextMenuOptions, const bool visible);
+   QAction* actionList [NumberContextMenuItems];
 
    // Utility function to create and set up an action.
    //
