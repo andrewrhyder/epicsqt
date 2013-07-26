@@ -69,6 +69,7 @@ public:
                              CM_DRAG_VARIABLE, CM_DRAG_DATA,
                              CM_SHOW_PV_PROPERTIES,
                              CM_ADD_TO_STRIPCHART,
+                             CM_ADD_TO_SCRATCH_PAD,
                              CM_SPECIFIC_WIDGETS_START_HERE };
     void setupContextMenu();                            // Set up the standard QE context menu for a QE widget (conextMenu class is a base class for all QE widgets, but a menu is only available to users if this is called)
     bool isDraggingVariable();                          // Return the global 'is dragging variable' flag (Dragging variable is true, draging data if false)
@@ -86,11 +87,11 @@ private:
     void doCopyData();                                  // 'Copy Data' was selected from the menu
     void doPaste();                                     // 'Paste' was selected from the menu
     void doShowPvProperties();                          // 'Show Properties' was selected from the menu
-    void doAddToStripChart();                           // 'Add to strip chart' wasselected from the menu
+    void doAddToStripChart();                           // 'Add to strip chart' was selected from the menu
+    void doAddToScratchPad();                           // 'Add to scratch pad' was selected from the menu
     void showContextMenu( const QPoint& pos );          // Present the context menu
     static bool draggingVariable;                       // Global 'dragging variable' flag (dragging data if false)
     QEWidget* qew;                                      // QEWidget associated with this instance
 };
-
 
 #endif // CONTEXTMENU_H

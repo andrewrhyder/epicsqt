@@ -92,6 +92,7 @@ QMenu* contextMenu::buildContextMenu()
 
     a = new QAction( "Examine Properties",     menu ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
     a = new QAction( "Plot in StripChart",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
+    a = new QAction( "Show in Scatch Pad",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_SCRATCH_PAD ); menu->addAction( a );
     menu->addSeparator();
 
     a = new QAction( "Copy variable name",     menu ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
@@ -190,6 +191,9 @@ void contextMenu::contextMenuTriggered( int optionNum )
             doAddToStripChart();
             break;
 
+        case  contextMenu::CM_ADD_TO_SCRATCH_PAD:
+            doAddToScratchPad();
+            break;
     }
 }
 
@@ -251,3 +255,12 @@ void contextMenu::doAddToStripChart ()
     object->sendRequestGui( request );
 }
 
+// 'Add to scratch pad' was selected from the menu
+void contextMenu::doAddToScratchPad()
+{
+   QString pvName = copyVariable();
+   QEGuiLaunchRequests request (QEGuiLaunchRequests::KindScratchPad, pvName);
+   object->sendRequestGui( request );
+}
+
+// end

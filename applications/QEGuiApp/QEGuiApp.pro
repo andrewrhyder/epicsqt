@@ -78,6 +78,7 @@ FORMS += ./src/MainWindow.ui \
          ./src/MessageLog.ui \
          ./src/Plotter.ui \
          ./src/ScratchPad.ui \
+         ./src/ArchiveStatus.ui \
          ./src/saveDialog.ui \
          ./src/restoreDialog.ui \
          ./src/manageConfigDialog.ui

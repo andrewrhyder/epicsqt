@@ -345,6 +345,7 @@ MainWindow* MainWindow::launchLocalGui( const QString& filename,
     newWindow = launchLocalGui (filename);
     widget = QEUtilities::findWidget (newWindow, className);
     qeWidget = dynamic_cast< QEWidget* > (widget);
+
     if (qeWidget) {
        qeWidget->paste (QVariant (pvName));
     }
@@ -1121,7 +1122,14 @@ void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
             }
             break;
 
-        default:
+       case QEGuiLaunchRequests::KindScratchPad:
+           if (arguments.count() >= 1) {
+               QString pvName = arguments.value( 0 );
+               launchLocalGui (":/forms/ScratchPad.ui", "QEScratchPad", pvName);
+           }
+           break;
+
+       default:
             sendMessage( "Unhandled gui request kind", message_types( MESSAGE_TYPE_ERROR, MESSAGE_KIND_EVENT ) );
 
   }
