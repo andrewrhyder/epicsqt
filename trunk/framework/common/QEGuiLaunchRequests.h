@@ -41,6 +41,7 @@ public:
    enum Kinds { KindNone,            // no action
                 KindFileName,        // by file name
                 KindStripChart,      // application's strip chart
+                KindScratchPad,      // application's scratch pad
                 KindPvProperties };  // application's pv properties
 
    enum Options { OptionOpen,
