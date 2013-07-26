@@ -955,12 +955,27 @@ void QEPlotter::saveConfiguration (PersistanceManager* pm)
 
    for (int slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
       DataSets* ds = &(this->xy [slot]);
+      QString strValue;
+
       if (ds->isInUse ()) {
          PMElement pvElement = pvListElement.addElement ("PV");
          pvElement.addAttribute ("id", slot);
-         pvElement.addValue ("Data", this->getXYDataPV (slot));
-         pvElement.addValue ("Size", this->getXYSizePV (slot));
-         pvElement.addValue ("Alias", this->getXYAlias (slot));
+
+         strValue = this->getXYDataPV (slot);
+         if (!strValue.isEmpty()) {
+            pvElement.addValue ("Data",strValue );
+         }
+
+         strValue = this->getXYSizePV (slot);
+         if (!strValue.isEmpty()) {
+            pvElement.addValue ("Size",strValue );
+         }
+
+         strValue = this->getXYAlias (slot);
+         if (!strValue.isEmpty()) {
+            pvElement.addValue ("Alais",strValue );
+         }
+
       }
    }
 }
@@ -971,7 +986,7 @@ void QEPlotter::restoreConfiguration (PersistanceManager* pm, restorePhases rest
 {
    if (restorePhase != FRAMEWORK) return;
 
-   const QString formName = this->persistantName ("QEScratchPad");
+   const QString formName = this->persistantName ("QEPlotter");
 
    PMElement formElement = pm->getNamedConfiguration (formName);
 

@@ -38,8 +38,6 @@ public:
    explicit QEPlotterMenu (const int slot, QWidget* parent = 0);
    virtual ~QEPlotterMenu ();
 
-   void setState (const bool isDisplayed, const bool isBold, const bool showDots);
-
    // IDs for all menu options
    // Each menu option has a unique ID across all menus
    // These IDs are in addition to standard context menu IDs and so start after
@@ -65,6 +63,15 @@ public:
    //
    static const ContextMenuOptions ContextMenuItemFirst = PLOTTER_LINE_BOLD;
    static const ContextMenuOptions ContextMenuItemLast  = PLOTTER_SCALE_TO_ZERO_MAX;
+   static const int NumberContextMenuItems = ContextMenuItemLast - ContextMenuItemFirst + 1;
+
+   // Allow setting of specific action attributes using option as index.
+   //
+   void setActionChecked (const ContextMenuOptions option, const bool visible);
+   void setActionEnabled (const ContextMenuOptions option, const bool visible);
+   void setActionVisible (const ContextMenuOptions option, const bool visible);
+
+   void setState (const bool isDisplayed, const bool isBold, const bool showDots);
 
 signals:
    // All the triggered actions from the various sub-menu items are
@@ -73,18 +80,15 @@ signals:
    void contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions);
 
 private:
-
    int slot;
-   QAction* isDisplayedAction;
-   QAction* isBoldAction;
-   QAction* showDotsAction;
+   QAction* actionList [NumberContextMenuItems];
 
    // Utility function to create and set up an action.
    //
-   static QAction* make (QMenu *parent,
-                         const QString &caption,
-                         const bool checkable,
-                         const QEPlotterMenu::ContextMenuOptions option);
+   QAction* make (QMenu *parent,
+                  const QString &caption,
+                  const bool checkable,
+                  const QEPlotterMenu::ContextMenuOptions option);
 
 private slots:
    void contextMenuTriggered (QAction* selectedItem);

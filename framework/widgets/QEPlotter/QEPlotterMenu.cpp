@@ -24,6 +24,7 @@
  */
 
 #include <QDebug>
+#include <QECommon.h>
 #include <QEPlotterMenu.h>
 
 #define DEBUG  qDebug () << "QEPlotterMenu::" <<  __FUNCTION__  << ":" << __LINE__
@@ -37,6 +38,12 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
 
    this->slot = slotIn;
 
+   // Ensure all actions are null unless otherwise defined.
+   //
+   for (int j = 0; j < ARRAY_LENGTH (this->actionList); j++) {
+      this->actionList [j] = 0;
+   }
+
    this->setTitle ("Plotter Item");
 
    if (this->slot > 0) {
@@ -44,9 +51,9 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
       //
       menu = new QMenu ("Line", this);
       this->addMenu (menu);
-      this->isBoldAction      = this->make (menu, "Bold",   true, PLOTTER_LINE_BOLD);
-      this->showDotsAction    = this->make (menu, "Dots",   true, PLOTTER_LINE_DOTS);
-      this->isDisplayedAction = this->make (menu, "Visible", true, PLOTTER_LINE_VISIBLE);
+      this->make (menu, "Bold",      true, PLOTTER_LINE_BOLD);
+      this->make (menu, "Dots",      true, PLOTTER_LINE_DOTS);
+      this->make (menu, "Visible",   true, PLOTTER_LINE_VISIBLE);
       this->make (menu, "Colour...", false, PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
    }
 
@@ -71,14 +78,36 @@ QEPlotterMenu::~QEPlotterMenu ()
 {
 }
 
+
+//------------------------------------------------------------------------------
+//
+#define SET_ACTION(attribute)                                                  \
+void QEPlotterMenu::setAction##attribute (const ContextMenuOptions option,     \
+                                          const bool value)                    \
+{                                                                              \
+   const int t =  option - ContextMenuItemFirst;                               \
+   if (t >= 0 && t < ARRAY_LENGTH (this->actionList)) {                        \
+      QAction* action = this->actionList [t];                                  \
+      if (action) action->set##attribute (value);                              \
+   }                                                                           \
+}
+
+
+SET_ACTION (Checked)
+SET_ACTION (Enabled)
+SET_ACTION (Visible)
+
+#undef SET_ACTION
+
+
 //------------------------------------------------------------------------------
 //
 void QEPlotterMenu::setState (const bool isDisplayed, const bool isBold, const bool showDots)
 {
    if (this->slot > 0) {
-      this->isDisplayedAction->setChecked (isDisplayed);
-      this->isBoldAction->setChecked (isBold);
-      this->showDotsAction->setChecked (showDots);
+      this->setActionChecked (PLOTTER_LINE_VISIBLE, isDisplayed);
+      this->setActionChecked (PLOTTER_LINE_BOLD, isBold);
+      this->setActionChecked (PLOTTER_LINE_DOTS, showDots);
    }
 }
 
@@ -95,6 +124,8 @@ QAction* QEPlotterMenu::make (QMenu* parent,
    action->setCheckable (checkable);
    action->setData (QVariant (int (option)));
    parent->addAction (action);
+
+   this->actionList [option - ContextMenuItemFirst] = action;
    return action;
 }
 
