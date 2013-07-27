@@ -36,6 +36,7 @@
 #include <saveRestoreManager.h>
 #include <QSettings>
 #include <QEForm.h>
+#include <QMetaType>
 #include <QVariant>
 #include <QMetaType>
 
@@ -44,6 +45,7 @@ Q_DECLARE_METATYPE( QEForm* )
 // Construction
 QEGui::QEGui(int argc, char *argv[] ) : QApplication( argc, argv )
 {
+    qRegisterMetaType<QEForm*> ("QEFormRef");   // must also register declared meta types.
     loginForm = NULL;
 }
 
