@@ -45,7 +45,7 @@ Q_DECLARE_METATYPE( QEForm* )
 // Construction
 QEGui::QEGui(int argc, char *argv[] ) : QApplication( argc, argv )
 {
-    qRegisterMetaType<QEForm*> ("QEFormRef");   // must also register declared meta types.
+    qRegisterMetaType<QEForm*>( "QEForm*" );   // must also register declared meta types.
     loginForm = NULL;
 }
 
