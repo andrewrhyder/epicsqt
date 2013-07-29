@@ -23,6 +23,15 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+/*
+ * Description:
+ *
+ * The application keeps a list of recent files.
+ * An insctance of the recentFile class is used to represent each recent file.
+ * Since the recentFile class is based on QAction, the list of recent files can be directly
+ * added to each main window 'Recent...' menu.
+ */
+
 #ifndef RECENTFILE_H
 #define RECENTFILE_H
 
@@ -47,13 +56,16 @@ class recentFile : public QAction
 {
     Q_OBJECT
 public:
-    recentFile( QString nameIn, QString pathIn, QEGui* appIn );
-    QString name;       // GUI title
-    QString path;       // Full GUI file name
-    QEGui* app;
+    recentFile( QString nameIn, QString pathIn, QStringList pathListIn, QString macroSubstitutionsIn, QEGui* appIn );
+    QString name;               // GUI title
+    QString path;               // Full GUI file name
+    QStringList pathList;       // Paths for locating other files
+    QString macroSubstitutions; // Macro Substitutions
+
+    QEGui* app;                 // Reference to main application
 
 public slots:
-    void recentSelected( bool );
+    void recentSelected( bool );// Slot to act on selectino of this action in a 'Recent...' menu
 
 };
 

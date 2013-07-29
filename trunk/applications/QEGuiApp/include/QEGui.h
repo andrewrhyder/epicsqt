@@ -55,7 +55,7 @@ private:
 class QEGui : public QApplication, ContainerProfile
 {
 public:
-    QEGui( int argc, char *argv[] );            // Construction
+    QEGui( int& argc, char **argv );            // Construction
 
     int run();                                  // Main application code including call to exec()
 
@@ -85,7 +85,7 @@ public:
 
     void        removeGuiFromWindowsMenus( QEForm* gui );
 
-    void        launchRecentGui( QString path );
+    void        launchRecentGui( QString path, QStringList pathList, QString macroSubstitutions );
 
 private:
     void printVersion ();                           // Print the version info

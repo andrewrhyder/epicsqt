@@ -143,7 +143,11 @@ void startupParams::setSharedParams( QByteArray& out )
 bool startupParams::getStartupParams( QStringList args )
 {
     // Discard application name
-    args.removeFirst();
+    // (At least one argument should always be present - the application name - but checking since only need to check
+    if( args.count() )
+    {
+        args.removeFirst();
+    }
 
     // Get switches and filenames.
     // Switches may be separate or grouped.

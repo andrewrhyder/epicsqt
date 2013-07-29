@@ -43,7 +43,7 @@
 Q_DECLARE_METATYPE( QEForm* )
 
 // Construction
-QEGui::QEGui(int argc, char *argv[] ) : QApplication( argc, argv )
+QEGui::QEGui(int& argc, char **argv ) : QApplication( argc, argv )
 {
     qRegisterMetaType<QEForm*>( "QEForm*" );   // must also register declared meta types.
     loginForm = NULL;
@@ -91,7 +91,9 @@ int QEGui::run()
         {
             QString name = settings.value( QString( "recentFileName%1" ).arg( i )).toString();
             QString path = settings.value( QString( "recentFilePath%1" ).arg( i )).toString();
-            recentFiles.append( new recentFile( name, path, this ));
+            QStringList pathList = settings.value( QString( "recentFilePathList%1" ).arg( i )).toStringList();
+            QString macroSubstitutions = settings.value( QString( "recentFileMacroSubstitutions%1" ).arg( i )).toString();
+            recentFiles.append( new recentFile( name, path, pathList, macroSubstitutions, this ));
         }
     }
 
@@ -121,6 +123,8 @@ int QEGui::run()
     {
         settings.setValue( QString( "recentFileName%1" ).arg( i ), recentFiles.at( i )->name );
         settings.setValue( QString( "recentFilePath%1" ).arg( i ), recentFiles.at( i )->path );
+        settings.setValue( QString( "recentFilePathList%1" ).arg( i ), recentFiles.at( i )->pathList );
+        settings.setValue( QString( "recentFileMacroSubstitutions%1" ).arg( i ), recentFiles.at( i )->macroSubstitutions );
     }
 
     return ret;
@@ -414,7 +418,7 @@ void QEGui::addGui( QEForm* gui, MainWindow* window )
     if( !recentMenuAction )
     {
         // Add a new recent gui
-        recentFile* rf = new recentFile( name, path, this );
+        recentFile* rf = new recentFile( name, path, gui->getPathList(), gui->getMacroSubstitutions(), this );
         recentFiles.prepend( rf );
 
         // Keep the list down to a limited size
@@ -480,12 +484,12 @@ void QEGui::login()
 }
 
 // Launch a gui for the 'Recent...' menu
-void QEGui::launchRecentGui( QString path )
+void QEGui::launchRecentGui( QString path, QStringList pathList, QString macroSubstitutions )
 {
     // Set up the profile for the new window
     ContainerProfile profile;
 
-    profile.setupProfile( NULL, params.pathList, "", params.substitutions );
+    profile.setupProfile( NULL, pathList, "", macroSubstitutions );
 
     MainWindow* mw = new MainWindow( this, path, false );
     mw->show();
