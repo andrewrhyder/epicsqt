@@ -222,12 +222,12 @@ void MainWindow::on_actionClose_triggered()
  }
 
 // Standard GUIs available from the 'File' menu
-void MainWindow::on_actionPVProperties_triggered(){ launchLocalGui( ":/forms/PVProperties.ui" ); }
-void MainWindow::on_actionStrip_Chart_triggered() { launchLocalGui( ":/forms/StripChart.ui"   ); }
-void MainWindow::on_actionMessage_Log_triggered() { launchLocalGui( ":/forms/MessageLog.ui"   ); }
-void MainWindow::on_actionPlotter_triggered()     { launchLocalGui( ":/forms/Plotter.ui"      ); }
-void MainWindow::on_actionScratch_Pad_triggered() { launchLocalGui( ":/forms/ScratchPad.ui"   ); }
-
+void MainWindow::on_actionPVProperties_triggered()   { launchLocalGui( ":/forms/PVProperties.ui"  ); }
+void MainWindow::on_actionStrip_Chart_triggered()    { launchLocalGui( ":/forms/StripChart.ui"    ); }
+void MainWindow::on_actionMessage_Log_triggered()    { launchLocalGui( ":/forms/MessageLog.ui"    ); }
+void MainWindow::on_actionPlotter_triggered()        { launchLocalGui( ":/forms/Plotter.ui"       ); }
+void MainWindow::on_actionScratch_Pad_triggered()    { launchLocalGui( ":/forms/ScratchPad.ui"    ); }
+void MainWindow::on_actionArchive_Status_triggered() { launchLocalGui( ":/forms/ArchiveStatus.ui" ); }
 
 // User is changing the user level
 void MainWindow::on_actionUser_Level_triggered()
