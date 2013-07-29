@@ -49,7 +49,7 @@ void QESubstitutedLabel::setup() {
 
 
     // Set the initial state
-    setText( "" );
+    setText( "----" );
 
     // Use label signals
     // --Currently none--
@@ -76,20 +76,6 @@ void QESubstitutedLabel::setLabelTextProperty( QString labelTextIn )
     }
 }
 
-// label text (prior to substitution)
-//void QESubstitutedLabel::setSubstitutions()
-//{
-//    // Update the label's text.
-//    // But don't do it if the label was already displaying something and the
-//    // text-to-be-substituted is just being re-set to blank). This behaviour will
-//    // mean the normal label 'text' property can be used if text substitution is
-//    // not required. Without this the user would always have to use the labelText property.
-//    if (!( !text().isEmpty() && labelText.isEmpty() ))
-//    {
-//        setText( substituteThis( labelText ));
-//    }
-//}
-
 QString QESubstitutedLabel::getLabelTextProperty()
 {
     return labelText;
@@ -110,14 +96,24 @@ void QESubstitutedLabel::setLabelTextPropertyFormat( QString labelTextIn )
     setLabelTextProperty( labelTextIn.replace( "\\n", "\n" ));
 }
 
+// label text substitutions
+void QESubstitutedLabel::setSubstitutionsProperty( QString macroSubstitutionsIn )
+{
+    // Set the substitutions
+    setVariableNameSubstitutions( macroSubstitutionsIn );
 
-/*
-    Update the label text with the required substitutions.
-    Implementation of VariableNameManager's virtual funtion to establish a connection to a PV as the variable name has changed.
-    NOTE, In this usage, the variable name manager is used to manage substitutions in the text displayed in the label, so the
-    'Variable Name' is not used by this widget (as for most other widgets), rather the substitutions are applied to fixed text.
-*/
-void QESubstitutedLabel::establishConnection( unsigned int ) {
+    // Update the label's text to use the new substitutions.
+    // But don't do it if the label was already displaying something and the
+    // text-to-be-substituted is just being re-set to blank). This behaviour will
+    // mean the normal label 'text' property can be used if text substitution is
+    // not required. Without this the user would always have to use the labelText property.
+    if (!( !text().isEmpty() && labelText.isEmpty() ))
+    {
+        setText( substituteThis( labelText ));
+    }
+}
 
-    setText( substituteThis( labelText ));
+QString QESubstitutedLabel::getSubstitutionsProperty()
+{
+    return getVariableNameSubstitutions();
 }
