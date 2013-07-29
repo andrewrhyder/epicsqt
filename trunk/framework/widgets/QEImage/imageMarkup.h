@@ -46,18 +46,17 @@
                                            imageMarkup::markupMouseMoveEvent()
 
         imageMarkup then calls VideoWidget back with any image changes required through virtual method markupChange(),
-        and calls VideoWidget back with any action to take through virtual method markupAction(),
-        and calls VideoWidget back with the appropriate cursor through
+        and calls VideoWidget back with any action to take through the virtual method markupAction().
         In other words, markupChange() is used to signal rendering requirements, markupAction() is used to signal when a task needs to be performed.
         For example, when a user selects an area, markupChange() is called as the selected area moves following the pointer. markupAction() is
         called when selection is over and the application should do something.
 
  The following exchanges occur when the image changes (generating a paint event), or is resized, or panned:
-        When the displayed size of the image changesVideoWidget calls imageMarkup::markupResize()
+        When the displayed size of the image changesVideoWidget calls imageMarkup::markupResize().
         When a paint event occurs, VideoWidget calls imageMarkup::anyVisibleMarkups() to determine if any markups need to be displayed.
         When a paint event occurs, VideoWidget calls imageMarkup::getMarkupAreas() to determine what parts of the image need overlaying with markups.
-        VideoWidget calls imageMarkup::getDefaultMarkupCursor() to determine what the current cursor should be
-        VideoWidget calls imageMarkup::setMarkupTime() to note the time a new image has been presented
+        VideoWidget calls imageMarkup::getDefaultMarkupCursor() to determine what the current cursor should be.
+        VideoWidget calls imageMarkup::setMarkupTime() to note the time a new image has been presented.
 */
 
 #ifndef IMAGEMARKUP_H
@@ -99,61 +98,67 @@ public:
     void setColor( QColor colorIn );
     void scale( const double xScale, const double yScale, const double zoomScale );
 
-    virtual QPoint origin()=0;
-    virtual void moveTo( const QPoint pos )=0;  // Move an item (always make it visible and highlighed)
-    virtual void startDrawing( const QPoint pos ) = 0;
-    virtual bool isOver( const QPoint point, QCursor* cursor )=0;
-    virtual QCursor cursorForHandle( const markupItem::markupHandles handle ) = 0;
-    virtual QPoint getPoint1()=0;
-    virtual QPoint getPoint2()=0;
-    virtual unsigned int getThickness()=0;
-    virtual void setThickness( const unsigned int thicknessIn )=0;
-    virtual QCursor defaultCursor()=0;
-    virtual void nonInteractiveUpdate( QRect ) {} // Only implemented by those objects that are updated by data such as region of interest
+    virtual QPoint origin()=0;                                                      // Origin of the markup, for example, the center of a target
+    virtual void   moveTo( const QPoint pos )=0;                                    // Move an item (always make it visible and highlighed)
+    virtual void   startDrawing( const QPoint pos ) = 0;                            // Action to take when the user starts drawing a markup, such as note the starting point of a line
+    virtual bool   isOver( const QPoint point, QCursor* cursor )=0;                 // Returns true if the cursor is over a markup. Generally, 'over' means near the
+                                                                                    // visual parts of the markup. For example in the center of a rectangle is not 'over' near
+                                                                                    // the lines of the rectangle is 'over'.
+    virtual QCursor cursorForHandle( const markupItem::markupHandles handle ) = 0;  // Returns the cursor for the specified handle. For example, horizontal arrows when over a rectangle
+                                                                                    // left or right side handle
+    virtual QPoint       getPoint1()=0;                                             // Return the first point of the markup (starting point for a line, top left corner for a rectangle, etc)
+    virtual QPoint       getPoint2()=0;                                             // Return the second point of the markup (end point for a line, bottom right corner for a rectangle, etc)
+    virtual unsigned int getThickness()=0;                                          // Return the thickness of a markup where relevent. For example the thickness of a profile line
+    virtual void         setThickness( const unsigned int thicknessIn )=0;          // Set the thickness of a markup where relevent.
+    virtual QCursor      defaultCursor()=0;                                         // Return the default cursor for the markup.
+    virtual void         nonInteractiveUpdate( QRect ) {}                           // Only implemented by those objects that are updated by data such as region of interest
 
     QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
     bool          visible;      // Object is visible to the user
     bool          interactive;  // Object can be moved by the user
     bool          reportOnMove; // Movements reported (not just on move completion)
-    QColor        color;            // Color markup is drawn in
-
+    QColor        color;        // Color markup is drawn in
 
 protected:
-    markupHandles activeHandle;
-    virtual void setArea()=0;
-    virtual void drawMarkup( QPainter& p )=0;
-    bool pointIsNear( QPoint p1, QPoint p );
-    isOverOptions isOverType;
-    QColor getColor();
+    markupHandles activeHandle;                     // The current handle the user is over
+    virtual void  setArea()=0;                       // Update the total rectangular area occupied by the markup
+    virtual void  drawMarkup( QPainter& p )=0;       // Draw the markup
+    bool          pointIsNear( QPoint p1, QPoint p );        // Returns true of point p1 is close to point p
+    isOverOptions isOverType;    //!!!NOT USED - DELETE
+    QColor        getColor();                              // Return the colour used for this markup
 
-    bool          highlighted;  // Object is highlighted
-    int           highlightMargin; // Extra margin required for highlighting
-    imageMarkup*  owner;
+    bool          highlighted;  //!!!NOT USED - DELETE      // Object is highlighted
+    int           highlightMargin; //!!!NOT USED - DELETE   // Extra margin required for highlighting
+    imageMarkup*  owner;                          // Class contining this markup instance
 
     const QString getLegend();                    // Return the string used to notate the markup
     const QSize getLegendSize();                  // Return the size of the string used to notate the markup
     void addLegendArea();                         // Add the legend area to the markup area
-    enum legendJustification{ ABOVE_RIGHT, BELOW_LEFT, BELOW_RIGHT };          // Options for positioning the legend
-    const QPoint setLegendPos( QPoint pos, legendJustification just );          // Sets (and returns) the position of the legend (top left of text) given the justificaiton
-    const QPoint getLegendPos();                  // Returns the last drawn legend position
-    void drawLegend( QPainter& p, QPoint pos, legendJustification just );   // Draw the legend beside the markup
-    QPoint limitPointToImage( const QPoint pos );   // Return the input point limited to the image area
+
+    enum  legendJustification{ ABOVE_RIGHT, BELOW_LEFT, BELOW_RIGHT };      // Options for positioning the legend
+    const  QPoint setLegendPos( QPoint pos, legendJustification just );     // Sets (and returns) the position of the legend (top left of text) given the justificaiton
+    const  QPoint getLegendPos();                                           // Returns the last drawn legend position
+    void   drawLegend( QPainter& p, QPoint pos, legendJustification just ); // Draw the legend beside the markup
+    QPoint limitPointToImage( const QPoint pos );                           // Return the input point limited to the image area
 
 private:
-    virtual void scaleSpecific( const double xScale, const double yScale, const double zoomScale )=0;
-    QString legend;                               // Text displayed beside markup
-    QSize legendSize;                             // Size of legend (according to legend font)
-    bool hasLegend();                             // Returns true if legend text is present
-    void setLegend( const QString legendIn );     // Set the string used to notate the markup (and the calculate its size)
-    QPoint legendPos;                             // Last drawn legend position
+    virtual void scaleSpecific( const double xScale, const double yScale, const double zoomScale )=0;   // Scale the markup for presentation at different zoom levels
+    QString      legend;                                // Text displayed beside markup
+    QSize        legendSize;                            // Size of legend (according to legend font)
+    bool         hasLegend();                           // Returns true if legend text is present
+    void         setLegend( const QString legendIn );   // Set the string used to notate the markup (and the calculate its size)
+    QPoint       legendPos;                             // Last drawn legend position
 };
 
+
+// Target markup used to identify a target point on a sample
 class markupTarget : public markupItem
 {
 public:
-
     markupTarget( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
+    //==================================================================
+    // Implement base class functions - see markupItem class defition for a description of each of these methods
     void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
@@ -167,17 +172,22 @@ public:
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
+    //==================================================================
 
 private:
-    QPoint pos;
+    QPoint pos; // Center of target
 };
 
+
+// Beam markup used to identify beam center in an image
 class markupBeam : public markupItem
 {
 public:
 
     markupBeam( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
+    //==================================================================
+    // Implement base class functions - see markupItem class defition for a description of each of these methods
     void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
@@ -191,18 +201,23 @@ public:
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
+    //==================================================================
 
 private:
     QPoint pos;
     int armSize;    // Length of arms in cross hair
 };
 
+
+// Horizontal line markup used to select a horizontal slice through an image
 class markupHLine : public markupItem
 {
 public:
 
     markupHLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
+    //==================================================================
+    // Implement base class functions - see markupItem class defition for a description of each of these methods
     void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
@@ -216,6 +231,7 @@ public:
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
+    //==================================================================
 
 private:
     int y;
@@ -223,12 +239,16 @@ private:
     unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
 };
 
+
+// Vertical line markup used to select a vertical slice through an image
 class markupVLine : public markupItem
 {
 public:
 
     markupVLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
+    //==================================================================
+    // Implement base class functions - see markupItem class defition for a description of each of these methods
     void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
@@ -242,6 +262,7 @@ public:
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
+    //==================================================================
 
 private:
     int x;
@@ -249,11 +270,15 @@ private:
     unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
 };
 
+
+// Line markup used to select an arbiraty angle slice through an image
 class markupLine : public markupItem
 {
 public:
     markupLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
+    //==================================================================
+    // Implement base class functions - see markupItem class defition for a description of each of these methods
     void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
@@ -267,6 +292,7 @@ public:
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
+    //==================================================================
 
 private:
     QPoint start;
@@ -276,12 +302,16 @@ private:
     bool isOverLine( const QPoint point, const QPoint lineStart, const QPoint lineEnd );
 };
 
+
+// Region markup used to select a rectangular region of an image. Used to select an area detector region, or a scan region
 class markupRegion : public markupItem
 {
 public:
 
     markupRegion( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
+    //==================================================================
+    // Implement base class functions - see markupItem class defition for a description of each of these methods
     void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
@@ -297,12 +327,15 @@ public:
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
     void nonInteractiveUpdate( QRect );
+    //==================================================================
 
 
 private:
     QRect rect;
 };
 
+
+// Text markup. Used to add some text to an image, such as a timestamp
 class markupText : public markupItem
 {
 public:
@@ -311,6 +344,8 @@ public:
 
     void setText( QString textIn, bool draw );
 
+    //==================================================================
+    // Implement base class functions - see markupItem class defition for a description of each of these methods
     void startDrawing( const QPoint pos );
     void setArea();
     void drawMarkup( QPainter& p );
@@ -324,11 +359,24 @@ public:
     void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
+    //==================================================================
 
 private:
-    QString text;
-    QRect rect;
+    QString text;   // Text displayed
+    QRect rect;     // Area of the text
 };
+
+
+// This class manages markups on an image.
+// It manages:
+//    - user interaction with the image
+//    - resizing of markups as the image is zoomed
+//    - drawing of markups
+//    - provision of information such as what areas of the image are affected by markups.
+//    -
+//    -
+//    -
+//    -
 
 class imageMarkup {
 public:
