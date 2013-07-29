@@ -442,6 +442,7 @@ bool QEForm::readUiFile()
                 if( !lo )
                 {
                     lo = new QVBoxLayout;
+                    lo->setMargin( 0 );   // seamless and boarderless
                     setLayout( lo );
                 }
                 lo->addWidget( ui );
