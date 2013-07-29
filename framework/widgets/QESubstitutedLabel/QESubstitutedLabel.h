@@ -48,10 +48,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabel : public QLabel, public QE
   public:
     QESubstitutedLabel( QWidget *parent = 0 );
 
-    void establishConnection( unsigned int variableIndex ); // Used, but not to connect to data, just used to trigger substitution of the QLabel text
-
-
-
     // Property convenience functions
 
     // label text (prior to substitution)
@@ -59,7 +55,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabel : public QLabel, public QE
     QString getLabelTextProperty();
 
     // Macro substitions
-//    void setSubstitutions();
+    void setSubstitutionsProperty( QString macroSubstitutionsIn );
+    QString getSubstitutionsProperty();
 
 
     // label text (prior to substitution) with line feeds encoded in C style to allow entry in designer
@@ -70,12 +67,6 @@ class QEPLUGINLIBRARYSHARED_EXPORT QESubstitutedLabel : public QLabel, public QE
   protected:
 
     QString labelText;                                                 // Fixed text to which substitutions will be applied
-
-private slots:
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex )// !! move into Standard Properties section??
-    {
-        setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-    }
 
   public slots:
 
@@ -98,13 +89,10 @@ public:
 
     /// Text substitutions.
     /// These substitutions are applied to the 'labelText' property prior to copying it to the label text.
-    Q_PROPERTY(QString textSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
+    Q_PROPERTY(QString textSubstitutions READ getSubstitutionsProperty WRITE setSubstitutionsProperty)
 
 private:
-//    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); setSubstitutions(); }
-    void    setVariableNameSubstitutionsProperty( QString variableNameSubstitutions ){ variableNamePropertyManager.setSubstitutionsProperty( variableNameSubstitutions ); }
-    QString getVariableNameSubstitutionsProperty(){ return variableNamePropertyManager.getSubstitutionsProperty(); }
-    QCaVariableNamePropertyManager variableNamePropertyManager;
+    // No standard variaable name and substitutions management required
     //=================================================================================
 };
 
