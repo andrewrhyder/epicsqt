@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <saveRestoreManager.h>
 #include <QSettings>
+#include <QECommon.h>
 #include <QEForm.h>
 #include <QMetaType>
 #include <QVariant>
@@ -479,6 +480,8 @@ void QEGui::login()
     if( !loginForm )
     {
         loginForm = new loginDialog;
+        // Ensure scaling is consistent with the rest of the application's forms.
+        QEUtilities::applyCurrentWidgetScale( loginForm );
     }
     loginForm->exec();
 }
