@@ -32,6 +32,7 @@
 #include <QStringList>
 #include <QGridLayout>
 
+#include <QCaVariableNamePropertyManager.h>
 #include <QEPluginLibrary_global.h>
 
 /// This class load a grid QEForms.
@@ -50,7 +51,7 @@ public:
    ///    6  7  8
    ///    9  -  -
    ///
-   /// Row major (example 10, items, 3 cols):
+   /// Col major (example 10, items, 3 cols):
    ///    0  4  8
    ///    1  5  9
    ///    2  6  -
@@ -65,7 +66,9 @@ public:
 
    /// The uiFile loaded into each QEForm element.
    /// Default value: ""
-   Q_PROPERTY (QString uiFile          READ getUiFile          WRITE setUiFile )
+   Q_PROPERTY (QString uiFile          READ getUiFile           WRITE setUiFile )
+
+   Q_PROPERTY (QString variableSubstitutions READ getGridVariableSubstitutions WRITE setGridVariableSubstitutions)
 
    /// The total number of QEForms. This is restricted to the range 1 to 210.
    /// The upper limit 210 is the product of the first form prime numbers.
@@ -140,25 +143,24 @@ public:
    /// Create a grid widget with default parameters.
    ///
    explicit QEFormGrid (QWidget* parent = 0);
+   explicit QEFormGrid (const QString& uiFile, const int number, const int cols, QWidget* parent = 0);
 
-   /// Destruction - place holder
-   virtual ~QEFormGrid () { }
+   /// Destruction
+   virtual ~QEFormGrid ();
 
    // Property access functions.
    //
    void    setUiFile (QString uiFileName);
    QString getUiFile ();
 
+   void    setGridVariableSubstitutions (QString variableSubstitutions);
+   QString getGridVariableSubstitutions ();
+
    void setNumber (int n);
    int getNumber ();
 
    void setColumns (int n);
    int getColumns ();
-
-   // The number of rows is dertmined from the overall number of items
-   // and the number of columns. It cannot be independently set.
-   //
-   int getRows ();
 
    void setGridOrder (GridOrders go);
    GridOrders getGridOrder ();
@@ -169,23 +171,29 @@ public:
    void setSpacing (int n);
    int getSpacing ();
 
+   // Define propery access functions for slot, row and col attributes.
+   //
+#define SET_GET_ATTRIBUTES(Attr, attr)                                                      \
+   void set##Attr##Offset (int n)  {  this->attr##MacroData->setOffset (n);  }              \
+   int  get##Attr##Offset () { return this->attr##MacroData->getOffset ();   }              \
+                                                                                            \
+   void set##Attr##NumberWidth (int n)  {  this->attr##MacroData->setNumberWidth (n); }     \
+   int  get##Attr##NumberWidth () { return this->attr##MacroData->getNumberWidth ();  }     \
+                                                                                            \
+   void set##Attr##Strings (QStringList& s)  {  this->attr##MacroData->setStrings (s);   }  \
+   QStringList get##Attr##Strings ()   { return this->attr##MacroData->getStrings (); }
 
-   // Define propery access functions.
-#define SET_GET_ATTRIBUTES(Attr, attr)               \
-   void set##Attr##Offset (int n);                   \
-   int  get##Attr##Offset ();                        \
-   void set##Attr##NumberWidth (int n);              \
-   int  get##Attr##NumberWidth ();                   \
-   void set##Attr##Strings (QStringList& strings);   \
-   QStringList get##Attr##Strings ();
 
-
-SET_GET_ATTRIBUTES (Row, row)
-SET_GET_ATTRIBUTES (Col, col)
-SET_GET_ATTRIBUTES (Slot, slot)
+   SET_GET_ATTRIBUTES (Row, row)
+   SET_GET_ATTRIBUTES (Col, col)
+   SET_GET_ATTRIBUTES (Slot, slot)
 
 #undef SET_GET_ATTRIBUTES
 
+   // The number of rows is dertmined from the overall number of items
+   // and the number of columns. It cannot be independently set.
+   //
+   int getRows ();
 
 protected:
    QSize sizeHint () const;
@@ -193,31 +201,57 @@ protected:
 private:
    static const int MaximumForms = 210;    // 2*3*5*7
    static const int MaximumColumns = 42;   // 2*3*7
+
    QGridLayout* layout;
    QList<QEForm*> formsList;              // holds a reference to each of the QEForms
 
-   // Holds the property values.
+   // Holds the subsituted property values.
    //
-   QString uiFileName;
+   QString uiFile;
+
+   // Note, this is only used to manage the macro substitutions that will be passed
+   // down to the grid's QE widgets. The form has no variable names per se. It also
+   // handles the property delay mechanism. The inherited VariableNameManager
+   // holds the name and manages name substiution.
+   //
+   QCaVariableNamePropertyManager variableNamePropertyManager;
+
+   int number;
    int columns;
    GridOrders gridOrder;
 
+   // Class holds and manages rol, column and slot macro data.
+   //
    class MacroData {
    public:
-      explicit MacroData ();
+      explicit MacroData (const QString& prefix, QEFormGrid* formGrid);
+
+      void setOffset (const int offset);
+      int getOffset ();
+
+      void setNumberWidth (const int numberWidth);
+      int getNumberWidth ();
+
+      void setStrings (const QStringList& strings);
+      QStringList getStrings ();
+
+      // Generate macto sub. string of format
+      // <prefix>NAME=strings[n] ,<prefix>=<n+offset>
+      //
+      QString genSubsitutions (const int n);
+
+   private:
+      QString prefix;
+      QEFormGrid* formGrid;
       int offset;          // defaults to 1 - typically 0 or 1
       int numberWidth;     // defaults to 2 - typically 1 to 3
       QStringList strings;
-      QString prefix;
-
-      // Generate macto sub. string of format
-      // <prefix>NAME=
-      QString genSubsitutions (const int n);
    };
+   friend class MacroData;
 
-   MacroData rowMacroData;
-   MacroData colMacroData;
-   MacroData slotMacroData;
+   MacroData* rowMacroData;
+   MacroData* colMacroData;
+   MacroData* slotMacroData;
 
    // Converts row and col number to slot number and vice-versa.
    // The conversions are gridOrder dependent.
@@ -228,13 +262,21 @@ private:
 
    // Local utility functions.
    //
-   void createSubForm ();                       // Crates next QEForm instances
-   void reLayoutForms ();                       // Re assigns all grid layouts
-   void setFormSubstitutions (const int slot);  // Set up the macro substitutions for a single QEForm
-   void setSubstitutions ();                    // Set up the macro substitutions for all QEForms
+   void commonSetup (const QString& uiFile, const int number, const int cols);
+   QString getPrioritySubstitutions (const int slot);
+   QEForm* createQEForm (const int slot);
+
+   void addSubForm ();                          // Crates next QEForm instance
+   void reCreateAllForms ();                    // Re create all forms with new substitutions
+
+   // Called when new ui file specified.
+   //
+   void establishConnection (unsigned int variableIndex);
 
 private slots:
-
+   // Note, in QEFormGrid, the standard variable name mechanism is used for the UI file name.
+   //
+   void setNewUiFile (QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex);
 };
 
 #endif // QEFORMGRID_H
