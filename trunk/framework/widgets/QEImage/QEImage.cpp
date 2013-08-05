@@ -3170,8 +3170,8 @@ void QEImage::showImageAboutDialog()
 
     QString about = QString ("QEImage image information:\n");
 
-    about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));
     about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( image.count() ));
+    about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));
     about.append( QString( "\nCA data elements per pixel (based on expected format): %1" ).arg( elementsPerPixel ));
     about.append( QString( "\nWidth (pixels) taken from width variable: %1" ).arg( imageBuffWidth ));
     about.append( QString( "\nHeight (pixels) taken from height variable: %1" ).arg( imageBuffHeight ));
