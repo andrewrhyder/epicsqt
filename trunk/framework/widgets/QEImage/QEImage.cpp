@@ -117,6 +117,8 @@ void QEImage::setup() {
     nonInteractiveUpdate = false;
 
     imageDataSize = 0;
+    elementsPerPixel = 0;
+    bytesPerPixel = 0;
 
     clippingOn = false;
     clippingLow = 0;
@@ -733,6 +735,20 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     // Save the image data for analysis and redisplay
     image = imageIn;
     imageDataSize = dataSize;
+
+    unsigned int minBits;
+    switch( formatOption )
+    {
+        case GREY8:   minBits = 8;  break;
+        case GREY12:  minBits = 2;  break;
+        case GREY16:  minBits = 16; break;
+        case RGB_888: minBits = 24; break;
+        case NUM_OPTIONS: break;
+    }
+
+    elementsPerPixel = minBits/(imageDataSize*8);
+    bytesPerPixel = imageDataSize * elementsPerPixel;
+
     imageTime = time;
 
     // Present the new image
@@ -816,6 +832,7 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
         case GREY12:  size = 1<<12; insignificantBits = 4; break;
         case GREY16:  size = 1<<16; insignificantBits = 8; break;
         case RGB_888: size = 1<<8;  insignificantBits = 0; break;
+        case NUM_OPTIONS: break;
     }
 
     // Determine table size
@@ -911,13 +928,24 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
 // Display a new image.
 void QEImage::displayImage()
 {
+
     // Do nothing if there are no image dimensions yet
     if( !imageBuffWidth || !imageBuffHeight )
         return;
 
     // Do nothing if the image data is not enough for the expected size (or no image data)
-    if( imageBuffWidth*imageBuffHeight*imageDataSize > (unsigned int)(image.size()) )
+    if( imageBuffWidth*imageBuffHeight*bytesPerPixel > (unsigned int)(image.size()) )
     {
+        if( image.size() )
+        {
+            sendMessage( QString( "Image too small (image size: %1, width: %2, height: %3, data element size: %4, data elements per pixel: %5 (bytes per pixel: %6)")
+                               .arg(image.size())
+                               .arg(imageBuffWidth)
+                               .arg(imageBuffHeight)
+                               .arg(imageDataSize)
+                               .arg(elementsPerPixel)
+                               .arg(bytesPerPixel), "QEImage" );
+        }
         return;
     }
 
@@ -941,8 +969,8 @@ void QEImage::displayImage()
 
     // Determine the number of pixels to process
     // If something is wrong, do nothing
-    unsigned long pixelCount = imageBuffHeight*imageBuffWidth;
-    if(( pixelCount * imageDataSize > (unsigned long)image.size() ) ||
+    unsigned long pixelCount = bytesPerPixel;
+    if(( pixelCount * bytesPerPixel > (unsigned long)image.size() ) ||
        ( pixelCount * IMAGEBUFF_BYTES_PER_PIXEL > (unsigned long)imageBuff.size() ))
     {
         return;  // !!! should clear the image
@@ -1055,7 +1083,7 @@ void QEImage::displayImage()
         case GREY8:
         {
             LOOP_START
-            unsigned char inPixel = dataIn[dataIndex*imageDataSize];
+            unsigned char inPixel = dataIn[dataIndex*bytesPerPixel];
             dataOut[buffIndex] = pixelLookup[inPixel];
             LOOP_END
             break;
@@ -1064,7 +1092,7 @@ void QEImage::displayImage()
         case GREY16:
         {
             LOOP_START
-            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
+            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
             dataOut[buffIndex] = pixelLookup[inPixel];
             LOOP_END
             break;
@@ -1073,7 +1101,7 @@ void QEImage::displayImage()
         case GREY12:
         {
             LOOP_START
-            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*imageDataSize]);
+            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
             dataOut[buffIndex] = pixelLookup[inPixel&0xfff];
             LOOP_END
             break;
@@ -1082,13 +1110,16 @@ void QEImage::displayImage()
         case RGB_888:
         {
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*imageDataSize]);
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
             dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[0]].p[0];
             dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
             dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[2]].p[0];
             dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
         }
+
+        case NUM_OPTIONS: break;
+
     }
 
     // Generate a frame from the data
@@ -2212,8 +2243,8 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
 
     // Set up to step pixel by pixel through the image data along the line
     const unsigned char* data = (unsigned char*)image.constData();
-    const unsigned char* dataPtr = &(data[x*imageDataSize]);
-    int dataPtrStep = rotatedImageBuffWidth()*imageDataSize;
+    const unsigned char* dataPtr = &(data[x*bytesPerPixel]);
+    int dataPtrStep = rotatedImageBuffWidth()*bytesPerPixel;
 
     // Set up to step through the line thickness
     unsigned int halfThickness = thickness/2;
@@ -2295,7 +2326,7 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
     posTr = rotateFlipPoint( pos );
 
     const unsigned char* data = (unsigned char*)image.constData();
-    return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*imageDataSize]);
+    return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*bytesPerPixel]);
 }
 
 // Display textual info about a selected area
@@ -2373,7 +2404,7 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
 {
     // Set up to step pixel by pixel through the area
     const unsigned char* data = (unsigned char*)image.constData();
-    unsigned int index = (area.topLeft().y()*rotatedImageBuffWidth()+area.topLeft().x())*imageDataSize;
+    unsigned int index = (area.topLeft().y()*rotatedImageBuffWidth()+area.topLeft().x())*bytesPerPixel;
 
     // This function is called as the user drags region handles around the
     // screen. Recalculating min and max pixels for large areas
@@ -2383,8 +2414,8 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
     // loop if it was in the form   'for( int i = 0; i < area.height(); i++ )'
     unsigned int w = area.width();
     unsigned int h = area.height();
-    unsigned int stepW = imageDataSize;
-    unsigned int stepH = (rotatedImageBuffWidth()-area.width())*imageDataSize;
+    unsigned int stepW = bytesPerPixel;
+    unsigned int stepH = (rotatedImageBuffWidth()-area.width())*bytesPerPixel;
 
     unsigned int maxP = 0;
     unsigned int minP = UINT_MAX;
@@ -2504,8 +2535,8 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 
     // Set up to step pixel by pixel through the image data along the line
     const unsigned char* data = (unsigned char*)image.constData();
-    const unsigned char* dataPtr = &(data[y*rotatedImageBuffWidth()*imageDataSize]);
-    int dataPtrStep = imageDataSize;
+    const unsigned char* dataPtr = &(data[y*rotatedImageBuffWidth()*bytesPerPixel]);
+    int dataPtrStep = bytesPerPixel;
 
     // Set up to step through the line thickness
     unsigned int halfThickness = thickness/2;
@@ -3079,6 +3110,7 @@ void QEImage::showContextMenu( const QPoint& pos )
     menu.addMenuItem(       "Show cursor pixel info",        true,      displayCursorPixelInfo,     imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
     menu.addMenuItem(       "Contrast reversal",             true,      contrastReversal,           imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
 
+    menu.addMenuItem(       "About image...",                false,     false,                      imageContextMenu::ICM_ABOUT_IMAGE              );
     // Add the zoom menu
     zMenu->enableAreaSelected( haveSelectedArea1 );
     menu.addMenu( zMenu );
@@ -3111,6 +3143,7 @@ void QEImage::showContextMenu( const QPoint& pos )
         case imageContextMenu::ICM_PAUSE:                       pauseClicked();                         break;
         case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         setDisplayCursorPixelInfo  ( checked ); break;
         case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    setContrastReversal        ( checked ); break;
+        case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                 break;
         case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime                ( checked ); break;
         case imageContextMenu::ICM_ENABLE_VERT:                 setEnableVertSliceSelection( checked ); break;
         case imageContextMenu::ICM_ENABLE_HOZ:                  setEnableHozSliceSelection ( checked ); break;
@@ -3123,6 +3156,85 @@ void QEImage::showContextMenu( const QPoint& pos )
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal
     }
+}
+
+// Present information about the image.
+// This is usefull when trying to determine why an image is not displaying well.
+void QEImage::showImageAboutDialog()
+{
+
+//    static QString formatOptionNames[NUM_OPTIONS] = { QString( "8 bit grey scale" ),  // GREY8
+//                                             QString( "12 bit grey scale" ), // GREY12
+//                                             QString( "16 bit grey scale" ), // GREY16
+//                                             QString( "24 bit RGB" ) };         // RGB_888
+
+    QString about = QString ("QEImage image information:\n");
+
+    about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));
+    about.append( QString( "\nCA data elements per pixel (based on expected format): %1" ).arg( elementsPerPixel ));
+    about.append( QString( "\nWidth (pixels) taken from width variable: %1" ).arg( imageBuffWidth ));
+    about.append( QString( "\nHeight (pixels) taken from height variable: %1" ).arg( imageBuffHeight ));
+
+
+    static QString formatOptionNames[NUM_OPTIONS] = { "8 bit grey scale",  // GREY8
+                                                      "12 bit grey scale", // GREY12
+                                                      "16 bit grey scale", // GREY16
+                                                      "24 bit RGB" };      // RGB_888
+
+    about.append( QString( "\nExpected format: " ).append( formatOptionNames[formatOption] ));
+
+    about.append( "\n\nFirst bytes of raw image data:\n   ");
+    if( image.isEmpty() )
+    {
+        about.append( "No data yet." );
+    }
+    else
+    {
+        int count = 20;
+        if( image.count() < count )
+        {
+            count = image.count() ;
+        }
+        for( int i = 0; i < count; i++ )
+        {
+            about.append( QString( " %1" ).arg( (unsigned char)(image[i]) ));
+        }
+    }
+
+    about.append( "\n\nFirst pixels of 32 bit RGBA image data (after flipping, rotating and clipping:");
+    if( imageBuff.isEmpty() )
+    {
+        about.append( "\n   No data yet." );
+    }
+    else
+    {
+        int count = 20;
+        if( imageBuff.count() < count )
+        {
+            count = imageBuff.count() ;
+        }
+        for( int i = 0; i < count; i += 4 )
+        {
+            about.append( QString( "\n   [%1, %2, %3, %4]" ).arg( (unsigned char)(imageBuff[i+0]) )
+                                                            .arg( (unsigned char)(imageBuff[i+1]) )
+                                                            .arg( (unsigned char)(imageBuff[i+2]) )
+                                                            .arg( (unsigned char)(imageBuff[i+3]) ));
+        }
+    }
+
+    qcaobject::QCaObject *qca;
+
+    qca = getQcaItem( IMAGE_VARIABLE );
+    about.append( "\n\nImage data variable: " ).append( qca->getRecordName() );
+
+    qca = getQcaItem( WIDTH_VARIABLE );
+    about.append( "\nImage width variable: " ).append( qca->getRecordName() );
+
+    qca = getQcaItem( HEIGHT_VARIABLE );
+    about.append( "\nImage height variable: " ).append( qca->getRecordName() );
+
+    // Display the 'about' text
+    QMessageBox::about(this, "About Image", about );
 }
 
 void QEImage::zoomMenuTriggered( QAction* selectedItem )

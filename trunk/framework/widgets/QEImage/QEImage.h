@@ -120,8 +120,10 @@ public:
     enum formatOptions{ GREY8,          ///< 8 bit grey scale
                         GREY12,         ///< 12 bit grey scale
                         GREY16,         ///< 16 bit grey scale
-                        RGB_888         ///< 24 bit RGB
+                        RGB_888,         ///< 24 bit RGB
+                        NUM_OPTIONS     // Must be last
                       };
+
     void setFormatOption( formatOptions formatOption );                 ///< Access function for #formatOption property - refer to #formatOption property for details
     formatOptions getFormatOption();                                    ///< Access function for #formatOption property - refer to #formatOption property for details
 
@@ -290,6 +292,7 @@ private slots:
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
     void setImageFile( QString name );
+    void showImageAboutDialog();
 
 public slots:
     // Slots to allow external setting of selection menu options
@@ -391,7 +394,9 @@ public slots:
 
     // Image and related information
     QCaDateTime imageTime;
-    unsigned long imageDataSize;
+    unsigned long imageDataSize;    // Size of elements in image data (originating from CA data type
+    unsigned long elementsPerPixel; // Number of data elements per pixel.
+    unsigned long bytesPerPixel;    // Bytes in input data per pixel (imageDataSize * elementsPerPixel)
     QByteArray image;       // Buffer to hold original image data.
     QByteArray imageBuff;   // Buffer to hold data converted to format for generating QImage.
 #define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32
