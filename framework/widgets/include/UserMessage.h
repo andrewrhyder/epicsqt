@@ -76,9 +76,6 @@ class UserMessageSignal : public QObject
     Q_OBJECT
 
 public:
-    UserMessageSignal(){}
-    ~UserMessageSignal(){}
-
     void sendMessage( QString msg,
                       message_types type,
                       unsigned int formId,
