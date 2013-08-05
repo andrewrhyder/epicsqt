@@ -1051,12 +1051,14 @@ void QEImage::displayImage()
 
     // Draw the input pixels into the image buffer.
     // Drawing is performed in two nested loops, one for height and one for width.
-    // Depenting on the scan option, however, the outer may be height or width.
-    // The input buffer is read consecutivly from first pixel to last and written to the
+    // Depending on the scan option, however, the outer may be height or width.
+    // The input buffer is read consecutively from first pixel to last and written to the
     // output buffer, which is moved to the next pixel by both the inner and outer
     // loops to where ever that next pixel is according to the rotation and flipping.
     dataIndex = start;
 
+    // Get the pixel lookup table to convert raw pixel values to display pixel values taking into
+    // account input pixel size, clipping, contrast reversal, and local brightness and contrast.
     const rgbPixel* pixelLookup = getPixelTranslation();
 
 
@@ -1075,9 +1077,8 @@ void QEImage::displayImage()
         dataIndex += outInc;                \
     }
 
-    // Format each pixel ready for use in an RGB32 QImage
-    // Note, for speed, the conditional code related to clipping has been extracted from the pixel loop
-    // Macros have been used to ensure the same code is used within the clipping and non clipping loops.
+    // Format each pixel ready for use in an RGB32 QImage.
+    // Note, for speed, the switch on format is outside the loop. The loop is duplicated in each case using macros which.
     switch( formatOption )
     {
         case GREY8:
