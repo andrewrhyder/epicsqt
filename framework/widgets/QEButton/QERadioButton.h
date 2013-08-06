@@ -131,7 +131,7 @@ private:
 private:
     void dragEnterEvent(QDragEnterEvent *event) { qcaDragEnterEvent( event ); }
     void dropEvent(QDropEvent *event)           { qcaDropEvent( event ); }
-    void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
+    // Don't drag from interactive widget void mousePressEvent(QMouseEvent *event)    { qcaMousePressEvent( event ); }
 
     // Copy paste (See QEGenericButton.cpp for common button copy and paste)
     QVariant copyData();

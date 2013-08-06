@@ -1169,6 +1169,9 @@ void MainWindow::setSingleMode()
         QWidget* w = resizeableGui( gui );
         setCentralWidget( w );
 
+        // Set the title to the remaining window
+        setTitle( gui->getQEGuiTitle() );
+
         // Must 'show' the gui following the reparenting inherent in the above invocation of setCentralWidget
         // where the gui is reparented from from the tab widget to the main window.
         w->show();
