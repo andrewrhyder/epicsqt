@@ -1124,7 +1124,6 @@ void QEImage::displayImage()
     }
 
     // Generate a frame from the data
-    // !!! don't create new image???
     QImage frameImage( (uchar*)(imageBuff.constData()), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32 );
 
     // Display the new image
@@ -3226,13 +3225,13 @@ void QEImage::showImageAboutDialog()
     qcaobject::QCaObject *qca;
 
     qca = getQcaItem( IMAGE_VARIABLE );
-    about.append( "\n\nImage data variable: " ).append( qca->getRecordName() );
+    about.append( "\n\nImage data variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
     qca = getQcaItem( WIDTH_VARIABLE );
-    about.append( "\nImage width variable: " ).append( qca->getRecordName() );
+    about.append( "\nImage width variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
     qca = getQcaItem( HEIGHT_VARIABLE );
-    about.append( "\nImage height variable: " ).append( qca->getRecordName() );
+    about.append( "\nImage height variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
     // Display the 'about' text
     QMessageBox::about(this, "About Image", about );
