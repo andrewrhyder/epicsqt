@@ -291,10 +291,10 @@ private slots:
     void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
-    void setImageFile( QString name );
     void showImageAboutDialog();
 
 public slots:
+    void setImageFile( QString name );
     // Slots to allow external setting of selection menu options
     void setSelectPanMode()     { sMenu->setChecked(  QEImage::SO_PANNING ); panModeClicked(); }            ///< Framework use only. Slot to allow external setting of selection menu options
     void setSelectVSliceMode()  { sMenu->setChecked(  QEImage::SO_VSLICE );  vSliceSelectModeClicked(); }   ///< Framework use only. Slot to allow external setting of selection menu options
