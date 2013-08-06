@@ -1234,6 +1234,7 @@ void QEImage::setImageBuff()
 
             videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale),
                                  (int)((double)rotatedImageBuffHeight() * scale) );
+            zoom = scale * 100;
             break;
     }
 
@@ -2419,7 +2420,7 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
 
     // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
     // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):thicknessUnscaled;
+    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
 
     // Display textual info
     infoUpdateVertProfile( x, thickness );
@@ -2503,9 +2504,9 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
     // Scale the ordinate to the original image data
     int y = videoWidget->scaleOrdinate( yUnscaled );
 
-    // Scale the thickness to the original image data.
+    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
     // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = videoWidget->scaleOrdinate( thicknessUnscaled );
+    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
 
     // Display textual info
     infoUpdateHozProfile( y, thickness );
@@ -2649,9 +2650,9 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
     QPoint point1 = videoWidget->scalePoint( point1Unscaled );
     QPoint point2 = videoWidget->scalePoint( point2Unscaled );
 
-    // Scale the thickness to the original image data.
+    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
     // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = videoWidget->scaleOrdinate( thicknessUnscaled );
+    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
 
     // Display textual information
     infoUpdateProfile( point1, point2, thickness );
@@ -3104,8 +3105,6 @@ void QEImage::showContextMenu( const QPoint& pos )
     //                      Title                            checkable  checked                     option
     menu.addMenuItem(       "Save...",                       false,     false,                      imageContextMenu::ICM_SAVE                     );
     menu.addMenuItem(       paused?"Resume":"Pause",         true,      paused,                     imageContextMenu::ICM_PAUSE                    );
-    menu.addMenuItem(       "Show time",                     true,      videoWidget->getShowTime(), imageContextMenu::ICM_ENABLE_TIME              );
-    menu.addMenuItem(       "Show cursor pixel info",        true,      displayCursorPixelInfo,     imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
     menu.addMenuItem(       "Contrast reversal",             true,      contrastReversal,           imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
 
     menu.addMenuItem(       "About image...",                false,     false,                      imageContextMenu::ICM_ABOUT_IMAGE              );
@@ -3118,13 +3117,15 @@ void QEImage::showContextMenu( const QPoint& pos )
     menu.addMenu( frMenu );
 
     // Add option menu items
-    menu.addOptionMenuItem( "Enable vertical profile selection",                      true,      enableVSliceSelection,    imageContextMenu::ICM_ENABLE_VERT                 );
-    menu.addOptionMenuItem( "Enable horizontal profile selection",                    true,      enableHSliceSelection,    imageContextMenu::ICM_ENABLE_HOZ                  );
-    menu.addOptionMenuItem( "Enable region selection (required for 'zoom to area'')", true,      enableAreaSelection,      imageContextMenu::ICM_ENABLE_AREA                 );
-    menu.addOptionMenuItem( "Enable arbitrary profile selection",                     true,      enableProfileSelection,   imageContextMenu::ICM_ENABLE_LINE                 );
-    menu.addOptionMenuItem( "Enable target selection",                                true,      enableTargetSelection,    imageContextMenu::ICM_ENABLE_TARGET               );
-    menu.addOptionMenuItem( "Display button bar",                                     true,      displayButtonBar,         imageContextMenu::ICM_DISPLAY_BUTTON_BAR          );
-    menu.addOptionMenuItem( "Display local brightness and contrast controls",         true,      enableBrightnessContrast, imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST );
+    menu.addOptionMenuItem( "Show time",                                              true,      videoWidget->getShowTime(), imageContextMenu::ICM_ENABLE_TIME              );
+    menu.addOptionMenuItem( "Show cursor pixel info",                                 true,      displayCursorPixelInfo,     imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
+    menu.addOptionMenuItem( "Enable vertical profile selection",                      true,      enableVSliceSelection,      imageContextMenu::ICM_ENABLE_VERT                 );
+    menu.addOptionMenuItem( "Enable horizontal profile selection",                    true,      enableHSliceSelection,      imageContextMenu::ICM_ENABLE_HOZ                  );
+    menu.addOptionMenuItem( "Enable region selection (required for 'zoom to area'')", true,      enableAreaSelection,        imageContextMenu::ICM_ENABLE_AREA                 );
+    menu.addOptionMenuItem( "Enable arbitrary profile selection",                     true,      enableProfileSelection,     imageContextMenu::ICM_ENABLE_LINE                 );
+    menu.addOptionMenuItem( "Enable target selection",                                true,      enableTargetSelection,      imageContextMenu::ICM_ENABLE_TARGET               );
+    menu.addOptionMenuItem( "Display button bar",                                     true,      displayButtonBar,           imageContextMenu::ICM_DISPLAY_BUTTON_BAR          );
+    menu.addOptionMenuItem( "Display local brightness and contrast controls",         true,      enableBrightnessContrast,   imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST );
 
     // Present the menu
     imageContextMenu::imageContextMenuOptions option;

@@ -260,9 +260,6 @@ void VideoWidget::wheelEvent( QWheelEvent* event )
 {
     int zoomAmount = event->delta() / 12;
     emit zoomInOut( zoomAmount );
-
-// !! what if draging image (with mouse button down) when wheel event occurs???
-
 }
 
 //Manage a mouse move event
@@ -302,11 +299,16 @@ void VideoWidget::mouseMoveEvent( QMouseEvent* event )
     }
 }
 
+
+// The video widget handles panning.
+// Return if currently panning.
 bool VideoWidget::getPanning()
 {
     return panning;
 }
 
+// The video widget handles panning.
+// Tell the video widget it is currently panning.
 void VideoWidget::setPanning( bool panningIn )
 {
     panning = panningIn;
