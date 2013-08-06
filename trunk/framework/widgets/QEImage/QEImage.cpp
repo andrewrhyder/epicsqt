@@ -1133,6 +1133,7 @@ void QEImage::displayImage()
     updateMarkups();
 }
 
+// Allow a signal to supply a filename of an image that will be used instead of a live image
 void QEImage::setImageFile( QString name )
 {
     // Generate an image given the filename
@@ -1209,7 +1210,7 @@ void QEImage::updateMarkups()
     }
 }
 
-// Set the image buffer used for generate images will be large enough to hold the processed image
+// Set the image buffer used for generating images so it will be large enough to hold the processed image.
 void QEImage::setImageBuff()
 {
     // Do nothing if there are no image dimensions yet
@@ -1234,20 +1235,7 @@ void QEImage::setImageBuff()
             videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale),
                                  (int)((double)rotatedImageBuffHeight() * scale) );
             break;
-
-//        // Resize the QCaItem to exactly fit the image
-//        case SIZE_OPTION_RESIZE:
-//            // The top level QFrame of the QEImage needs to be resized, so rather
-//            // than determine how large it needs to be to fit the image and whatever
-//            // extra is taken up with borders and info widgets, just calculate how
-//            // much bigger or smaller the current scroll area widget neesds to be
-//            // and increase the Qframe by that much
-//            resize( size().width()+rotatedImageBuffWidth()-scrollArea->size().width(),
-//                    size().height()+rotatedImageBuffHeight()-scrollArea->size().height() );
-//            videoWidget->resize( rotatedImageBuffWidth(), rotatedImageBuffHeight() );
-//            break;
     }
-
 
     // Determine buffer size
     unsigned long buffSize = IMAGEBUFF_BYTES_PER_PIXEL * imageBuffWidth * imageBuffHeight;
@@ -1583,7 +1571,7 @@ int QEImage::getZoom()
 // Rotation
 void QEImage::setRotation( rotationOptions rotationIn )
 {
-    // save the rotation requested
+    // Save the rotation requested
     rotation = rotationIn;
 
     // Adjust the size of the image to maintain aspect ratio if required
@@ -2216,92 +2204,6 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
     }
 }
 
-// Generate a profile along a line down an image at a given X position
-// The profile contains values for each pixel intersected by the line.
-void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
-{
-    // Scale the ordinate to the original image data
-    int x = videoWidget->scaleOrdinate( xUnscaled );
-
-    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
-    // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):thicknessUnscaled;
-
-    // Display textual info
-    infoUpdateVertProfile( x, thickness );
-
-    // If not over the image, remove the profile
-    if( x < 0 || x >= (int)rotatedImageBuffWidth() )
-    {
-        vSliceDisplay->clearProfile();
-        return;
-    }
-
-    // Ensure the buffer is the correct size
-    if( vSliceData.size() != (int)rotatedImageBuffHeight() )
-        vSliceData.resize( rotatedImageBuffHeight() );
-
-    // Set up to step pixel by pixel through the image data along the line
-    const unsigned char* data = (unsigned char*)image.constData();
-    const unsigned char* dataPtr = &(data[x*bytesPerPixel]);
-    int dataPtrStep = rotatedImageBuffWidth()*bytesPerPixel;
-
-    // Set up to step through the line thickness
-    unsigned int halfThickness = thickness/2;
-    int xMin = x-halfThickness;
-    if( xMin < 0 ) xMin = 0;
-    int xMax =  xMin+thickness;
-    if( xMax >= (int)rotatedImageBuffWidth() ) xMax = rotatedImageBuffWidth();
-
-    // Accumulate data for each pixel in the thickness
-    bool firstPass = true;
-    for( int nextX = xMin; nextX < xMax; nextX++ )
-    {
-        // Accumulate the image data value at each pixel.
-        // The buffer is filled backwards so the plot, which sits on its side beside the image is drawn correctly
-        QPoint pos;
-        pos.setX( nextX );
-        for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
-        {
-            pos.setY( i );
-            QPointF* dataPoint = &vSliceData[i];
-            double value = getFloatingPixelValueFromData( getImageDataPtr( pos ) );
-
-            // On first pass, set up X and Y
-            if( firstPass )
-            {
-                dataPoint->setY( i );
-                dataPoint->setX( value );
-            }
-
-            // On subsequent passes (when thickness is greater than 1), accumulate X
-            else
-            {
-                dataPoint->setX( dataPoint->x() + value );
-            }
-
-            dataPtr += dataPtrStep;
-        }
-
-        firstPass = false;
-    }
-
-    // Calculate average pixel values if more than one pixel thick
-    if( thickness > 1 )
-    {
-        for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
-        {
-            QPointF* dataPoint = &vSliceData[i];
-            dataPoint->setX( dataPoint->x()/thickness );
-        }
-    }
-
-    // Display the profile
-    QDateTime dt = QDateTime::currentDateTime();
-    QString title = QString( "Vertical profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
-    vSliceDisplay->setProfile( &vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0, title, QPoint( x, 0 ), QPoint( x, rotatedImageBuffHeight()-1 ), thickness );
-}
-
 // Determine the maximum pixel value for the current format
 double QEImage::maxPixelValue()
 {
@@ -2508,6 +2410,92 @@ void QEImage::contrastSliderValueChanged( int localContrastIn )
     displayImage();
 }
 
+// Generate a profile along a line down an image at a given X position
+// The profile contains values for each pixel intersected by the line.
+void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
+{
+    // Scale the ordinate to the original image data
+    int x = videoWidget->scaleOrdinate( xUnscaled );
+
+    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
+    // Note, thickness is not an ordinate, but scaleOrdinate
+    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):thicknessUnscaled;
+
+    // Display textual info
+    infoUpdateVertProfile( x, thickness );
+
+    // If not over the image, remove the profile
+    if( x < 0 || x >= (int)rotatedImageBuffWidth() )
+    {
+        vSliceDisplay->clearProfile();
+        return;
+    }
+
+    // Ensure the buffer is the correct size
+    if( vSliceData.size() != (int)rotatedImageBuffHeight() )
+        vSliceData.resize( rotatedImageBuffHeight() );
+
+    // Set up to step pixel by pixel through the image data along the line
+    const unsigned char* data = (unsigned char*)image.constData();
+    const unsigned char* dataPtr = &(data[x*bytesPerPixel]);
+    int dataPtrStep = rotatedImageBuffWidth()*bytesPerPixel;
+
+    // Set up to step through the line thickness
+    unsigned int halfThickness = thickness/2;
+    int xMin = x-halfThickness;
+    if( xMin < 0 ) xMin = 0;
+    int xMax =  xMin+thickness;
+    if( xMax >= (int)rotatedImageBuffWidth() ) xMax = rotatedImageBuffWidth();
+
+    // Accumulate data for each pixel in the thickness
+    bool firstPass = true;
+    for( int nextX = xMin; nextX < xMax; nextX++ )
+    {
+        // Accumulate the image data value at each pixel.
+        // The buffer is filled backwards so the plot, which sits on its side beside the image is drawn correctly
+        QPoint pos;
+        pos.setX( nextX );
+        for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
+        {
+            pos.setY( i );
+            QPointF* dataPoint = &vSliceData[i];
+            double value = getFloatingPixelValueFromData( getImageDataPtr( pos ) );
+
+            // On first pass, set up X and Y
+            if( firstPass )
+            {
+                dataPoint->setY( i );
+                dataPoint->setX( value );
+            }
+
+            // On subsequent passes (when thickness is greater than 1), accumulate X
+            else
+            {
+                dataPoint->setX( dataPoint->x() + value );
+            }
+
+            dataPtr += dataPtrStep;
+        }
+
+        firstPass = false;
+    }
+
+    // Calculate average pixel values if more than one pixel thick
+    if( thickness > 1 )
+    {
+        for( int i = rotatedImageBuffHeight()-1; i >= 0; i-- )
+        {
+            QPointF* dataPoint = &vSliceData[i];
+            dataPoint->setX( dataPoint->x()/thickness );
+        }
+    }
+
+    // Display the profile
+    QDateTime dt = QDateTime::currentDateTime();
+    QString title = QString( "Vertical profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
+    vSliceDisplay->setProfile( &vSliceData, maxPixelValue(), 0.0, (double)(vSliceData.size()), 0.0, title, QPoint( x, 0 ), QPoint( x, rotatedImageBuffHeight()-1 ), thickness );
+}
+
 // Generate a profile along a line across an image at a given Y position
 // The profile contains values for each pixel intersected by the line.
 void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
@@ -2610,21 +2598,6 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 // (1.5,1.5) (2.2,2.2) (2.9,2.9) (3.6,3.6)
 //
 // The points are marked in the example with an 'x'.
-// The second point has a notional pixel drawn around it like so:
-//      .........
-//      .       .
-//      .       .
-//      .   x   .
-//      .       .
-//      .........
-//
-// This notional pixel overlaps pixels (1,1) (1,2) (2,1) and (2,2).
-//
-// The notional pixel overlaps about 10% of pixel (1,1),
-// 20% of pixels (1,2) and (2,1) and 50% of pixel (2,2).
-//
-// A value for the second point will be the sum of the four pixels
-// overlayed by the notional pixel weighted by these values.
 //
 //     0       1       2       3       4
 //   +-------+-------+-------+-------+-------+
@@ -2648,6 +2621,27 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 // 4 |       |       |       |       |       |
 //   |       |       |       |       |       |
 //   +-------+-------+-------+-------+-------+
+//
+// The second point has a notional pixel drawn around it like so:
+//      .........
+//      .       .
+//      .       .
+//      .   x   .
+//      .       .
+//      .........
+//
+// This notional pixel overlaps pixels (1,1) (1,2) (2,1) and (2,2).
+//
+// The notional pixel overlaps about 10% of pixel (1,1),
+// 20% of pixels (1,2) and (2,1) and 50% of pixel (2,2).
+//
+// A value for the second point will be the sum of the four pixels
+// overlayed by the notional pixel weighted by these values.
+//
+// The line has a notional thickness. The above processing for a single
+// pixel width is repeated with the start and end points moved at right
+// angles to the line by a 'pixel' distance up to the line thickness.
+// The results are then averaged.
 //
 void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thicknessUnscaled )
 {
@@ -2685,7 +2679,8 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
     double initY = point1.y()+0.5;
 
     // Ensure output buffer is the correct size
-    if( profileData.size() != len ) {
+    if( profileData.size() != len )
+    {
        profileData.resize( int( len ) );
     }
 
@@ -2750,7 +2745,7 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
                 const unsigned char* dataPtrBR = getImageDataPtr( posBR );
 
                 // Determine the value of the notional pixel from a weighted average of the four real pixels it overlays.
-                // The larger the proportion of the real picture overlayed, the greated the weight.
+                // The larger the proportion of the real pixel overlayed, the greated the weight.
                 // (Ignore pixels outside the image)
                 int pixelsInValue = 0;
                 value = 0;
@@ -2834,7 +2829,7 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
 //=================================================================================================
 
 
-// Return a floating point number given a pointer into an image data buffer.
+// Return a number representing a pixel intensity given a pointer into an image data buffer.
 // Note, the pointer is indexed according to the pixel data size which will be at least
 // big enough for the data format.
 int QEImage::getPixelValueFromData( const unsigned char* ptr )
@@ -2853,18 +2848,19 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
             return *(unsigned short*)ptr;
 
         case RGB_888:
+            // for RGB, average all colors
             unsigned int pixel = *(unsigned int*)ptr;
             return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
     }
 }
 
-// Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
+// Return a floating point number representing a pixel intensity given a pointer into an image data buffer.
 double QEImage::getFloatingPixelValueFromData( const unsigned char* ptr )
 {
     return getPixelValueFromData( ptr );
 }
 
-// Transform the rectangle according to current rotation and flip options.
+// Transform a rectangle (defined by two points) according to current rotation and flip options.
 QRect QEImage::rotateFlipRectangle( QPoint& pos1, QPoint& pos2 )
 {
     QPoint trPos1 = rotateFlipPoint( pos1 );
@@ -3079,6 +3075,8 @@ void QEImage::pan( QPoint origin )
     scrollArea->verticalScrollBar()->setValue( int( scrollArea->verticalScrollBar()->maximum() * yProportion ) );
 }
 
+//=================================================================================================
+// Present the context menu
 void QEImage::showContextMenu( const QPoint& pos )
 {
     // Get the overall position on the display
@@ -3158,16 +3156,114 @@ void QEImage::showContextMenu( const QPoint& pos )
     }
 }
 
+// Act on a selection from the zoom menu
+void QEImage::zoomMenuTriggered( QAction* selectedItem )
+{
+    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
+    {
+        default:
+        case imageContextMenu::ICM_NONE: break;
+
+        case imageContextMenu::ICM_ZOOM_SELECTED:       zoomToArea();                           break;
+        case imageContextMenu::ICM_ZOOM_FIT:            setResizeOption( RESIZE_OPTION_FIT );   break;
+        case imageContextMenu::ICM_ZOOM_10:             setResizeOptionAndZoom(  10 );          break;
+        case imageContextMenu::ICM_ZOOM_25:             setResizeOptionAndZoom(  25 );          break;
+        case imageContextMenu::ICM_ZOOM_50:             setResizeOptionAndZoom(  50 );          break;
+        case imageContextMenu::ICM_ZOOM_75:             setResizeOptionAndZoom(  75 );          break;
+        case imageContextMenu::ICM_ZOOM_100:            setResizeOptionAndZoom( 100 );          break;
+        case imageContextMenu::ICM_ZOOM_150:            setResizeOptionAndZoom( 150 );          break;
+        case imageContextMenu::ICM_ZOOM_200:            setResizeOptionAndZoom( 200 );          break;
+        case imageContextMenu::ICM_ZOOM_300:            setResizeOptionAndZoom( 300 );          break;
+        case imageContextMenu::ICM_ZOOM_400:            setResizeOptionAndZoom( 400 );          break;
+    }
+}
+
+// Act on a selection from the flip/rotate menu
+void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
+{
+    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
+    {
+        default:
+        case imageContextMenu::ICM_NONE: break;
+
+//vvvvvvvvvvvvvvvvvv
+// Required for set of mutually exclusive radio buttons for rotation (independant of flip check boxes)
+//        case imageContextMenu::ICM_ROTATE_NONE:         setRotation( ROTATION_0 );                      break;
+//        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );               break;
+//        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );                break;
+//        case imageContextMenu::ICM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
+//==================
+// Required for set of check boxes in addition to flip check boxes.
+// This is bending of convention with 5 check boxes where 3 (for rotation) are mutually exclusive
+        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( selectedItem->isChecked()?ROTATION_90_RIGHT:ROTATION_0 );               break;
+        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( selectedItem->isChecked()?ROTATION_90_LEFT:ROTATION_0 );                break;
+        case imageContextMenu::ICM_ROTATE_180:          setRotation( selectedItem->isChecked()?ROTATION_180:ROTATION_0 );                    break;
+//^^^^^^^^^^^^^^^^^^
+        case imageContextMenu::ICM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
+        case imageContextMenu::ICM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
+    }
+
+    // Update the checked state of the buttons now the user has selected an option.
+    // Note, this is also called before displaying the menu to reflect any property
+    // changes from other sources
+    frMenu->setChecked( rotation, flipHoz, flipVert );
+}
+
+// Act on a selection from the select menu
+void QEImage::selectMenuTriggered( QAction* selectedItem )
+{
+    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
+    {
+        default:
+        case imageContextMenu::ICM_NONE: break;
+
+        case imageContextMenu::ICM_SELECT_PAN:          panModeClicked();           break;
+        case imageContextMenu::ICM_SELECT_VSLICE:       vSliceSelectModeClicked();  break;
+        case imageContextMenu::ICM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
+        case imageContextMenu::ICM_SELECT_AREA1:        area1SelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_AREA2:        area2SelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_AREA3:        area3SelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_AREA4:        area4SelectModeClicked();    break;
+        case imageContextMenu::ICM_SELECT_PROFILE:      profileSelectModeClicked(); break;
+        case imageContextMenu::ICM_SELECT_TARGET:       targetSelectModeClicked();  break;
+        case imageContextMenu::ICM_SELECT_BEAM:         beamSelectModeClicked();    break;
+    }
+}
+
+// Get the current selection option
+QEImage::selectOptions QEImage::getSelectionOption()
+{
+    if( videoWidget->getPanning() )
+    {
+        return SO_PANNING;
+    }
+    else
+    {
+        switch( videoWidget->getMode() )
+        {
+        case imageMarkup::MARKUP_ID_V_SLICE:  return SO_VSLICE;
+        case imageMarkup::MARKUP_ID_H_SLICE:  return SO_HSLICE;
+        case imageMarkup::MARKUP_ID_REGION1:  return SO_AREA1;
+        case imageMarkup::MARKUP_ID_REGION2:  return SO_AREA2;
+        case imageMarkup::MARKUP_ID_REGION3:  return SO_AREA3;
+        case imageMarkup::MARKUP_ID_REGION4:  return SO_AREA4;
+        case imageMarkup::MARKUP_ID_LINE:     return SO_PROFILE;
+        case imageMarkup::MARKUP_ID_TARGET:   return SO_TARGET;
+        case imageMarkup::MARKUP_ID_BEAM:     return SO_BEAM;
+
+        default:
+        case imageMarkup::MARKUP_ID_NONE:    return SO_NONE;
+
+        }
+    }
+}
+
+//=================================================================================================
 // Present information about the image.
 // This is usefull when trying to determine why an image is not displaying well.
 void QEImage::showImageAboutDialog()
 {
-
-//    static QString formatOptionNames[NUM_OPTIONS] = { QString( "8 bit grey scale" ),  // GREY8
-//                                             QString( "12 bit grey scale" ), // GREY12
-//                                             QString( "16 bit grey scale" ), // GREY16
-//                                             QString( "24 bit RGB" ) };         // RGB_888
-
+    // Build the image information string
     QString about = QString ("QEImage image information:\n");
 
     about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( image.count() ));
@@ -3237,101 +3333,3 @@ void QEImage::showImageAboutDialog()
     QMessageBox::about(this, "About Image", about );
 }
 
-void QEImage::zoomMenuTriggered( QAction* selectedItem )
-{
-    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
-    {
-        default:
-        case imageContextMenu::ICM_NONE: break;
-
-        case imageContextMenu::ICM_ZOOM_SELECTED:       zoomToArea();                           break;
-        case imageContextMenu::ICM_ZOOM_FIT:            setResizeOption( RESIZE_OPTION_FIT );   break;
-        case imageContextMenu::ICM_ZOOM_10:             setResizeOptionAndZoom(  10 );          break;
-        case imageContextMenu::ICM_ZOOM_25:             setResizeOptionAndZoom(  25 );          break;
-        case imageContextMenu::ICM_ZOOM_50:             setResizeOptionAndZoom(  50 );          break;
-        case imageContextMenu::ICM_ZOOM_75:             setResizeOptionAndZoom(  75 );          break;
-        case imageContextMenu::ICM_ZOOM_100:            setResizeOptionAndZoom( 100 );          break;
-        case imageContextMenu::ICM_ZOOM_150:            setResizeOptionAndZoom( 150 );          break;
-        case imageContextMenu::ICM_ZOOM_200:            setResizeOptionAndZoom( 200 );          break;
-        case imageContextMenu::ICM_ZOOM_300:            setResizeOptionAndZoom( 300 );          break;
-        case imageContextMenu::ICM_ZOOM_400:            setResizeOptionAndZoom( 400 );          break;
-    }
-}
-
-void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
-{
-    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
-    {
-        default:
-        case imageContextMenu::ICM_NONE: break;
-
-//vvvvvvvvvvvvvvvvvv
-// Required for set of mutually exclusive radio buttons for rotation (independant of flip check boxes)
-//        case imageContextMenu::ICM_ROTATE_NONE:         setRotation( ROTATION_0 );                      break;
-//        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );               break;
-//        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );                break;
-//        case imageContextMenu::ICM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
-//==================
-// Required for set of check boxes in addition to flip check boxes.
-// This is bending of convention with 5 check boxes where 3 (for rotation) are mutually exclusive
-        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( selectedItem->isChecked()?ROTATION_90_RIGHT:ROTATION_0 );               break;
-        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( selectedItem->isChecked()?ROTATION_90_LEFT:ROTATION_0 );                break;
-        case imageContextMenu::ICM_ROTATE_180:          setRotation( selectedItem->isChecked()?ROTATION_180:ROTATION_0 );                    break;
-//^^^^^^^^^^^^^^^^^^
-        case imageContextMenu::ICM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
-        case imageContextMenu::ICM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
-    }
-
-    // Update the checked state of the buttons now the user has selected an option.
-    // Note, this is also called before displaying the menu to reflect any property
-    // changes from other sources
-    frMenu->setChecked( rotation, flipHoz, flipVert );
-}
-
-void QEImage::selectMenuTriggered( QAction* selectedItem )
-{
-    switch( (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt()) )
-    {
-        default:
-        case imageContextMenu::ICM_NONE: break;
-
-        case imageContextMenu::ICM_SELECT_PAN:          panModeClicked();           break;
-        case imageContextMenu::ICM_SELECT_VSLICE:       vSliceSelectModeClicked();  break;
-        case imageContextMenu::ICM_SELECT_HSLICE:       hSliceSelectModeClicked();  break;
-        case imageContextMenu::ICM_SELECT_AREA1:        area1SelectModeClicked();    break;
-        case imageContextMenu::ICM_SELECT_AREA2:        area2SelectModeClicked();    break;
-        case imageContextMenu::ICM_SELECT_AREA3:        area3SelectModeClicked();    break;
-        case imageContextMenu::ICM_SELECT_AREA4:        area4SelectModeClicked();    break;
-        case imageContextMenu::ICM_SELECT_PROFILE:      profileSelectModeClicked(); break;
-        case imageContextMenu::ICM_SELECT_TARGET:       targetSelectModeClicked();  break;
-        case imageContextMenu::ICM_SELECT_BEAM:         beamSelectModeClicked();    break;
-    }
-}
-
-// Get the current selection option
-QEImage::selectOptions QEImage::getSelectionOption()
-{
-    if( videoWidget->getPanning() )
-    {
-        return SO_PANNING;
-    }
-    else
-    {
-        switch( videoWidget->getMode() )
-        {
-        case imageMarkup::MARKUP_ID_V_SLICE:  return SO_VSLICE;
-        case imageMarkup::MARKUP_ID_H_SLICE:  return SO_HSLICE;
-        case imageMarkup::MARKUP_ID_REGION1:  return SO_AREA1;
-        case imageMarkup::MARKUP_ID_REGION2:  return SO_AREA2;
-        case imageMarkup::MARKUP_ID_REGION3:  return SO_AREA3;
-        case imageMarkup::MARKUP_ID_REGION4:  return SO_AREA4;
-        case imageMarkup::MARKUP_ID_LINE:     return SO_PROFILE;
-        case imageMarkup::MARKUP_ID_TARGET:   return SO_TARGET;
-        case imageMarkup::MARKUP_ID_BEAM:     return SO_BEAM;
-
-        default:
-        case imageMarkup::MARKUP_ID_NONE:    return SO_NONE;
-
-        }
-    }
-}
