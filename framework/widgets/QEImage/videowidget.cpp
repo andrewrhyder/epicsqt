@@ -65,9 +65,9 @@ void VideoWidget::markupChange( QImage& markups,  QVector<QRect>& changedAreas )
 // Manage a paint event in the video widget
 void VideoWidget::paintEvent(QPaintEvent* event )
 {
-    // If this is the first paint event, and there is no image to display, fill it with black
     QPainter painter(this);
 
+    // If this is the first paint event, and there is no image to display, fill it with black
     if( firstUpdate || currentImage.isNull() )
     {
         QColor bg(0, 0, 0, 255);
@@ -77,6 +77,19 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     // If there is an image to display, paint the appropriate parts
     else
     {
+//        painter.drawImage( event->rect(), currentImage, event->rect() );
+//    }
+//
+//    // Update any markups
+//    drawMarkups( painter, event->rect() );
+//
+//    // Report position for pixel info logging
+//    emit currentPixelInfo( pixelInfoPos );
+//
+//    // Flag first update is over
+//    firstUpdate = false;
+//}
+
         // If there are no markups, and the entire image is being drawn, just display the current image
         if( !anyVisibleMarkups() && event->rect() == rect() )
         {
