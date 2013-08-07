@@ -34,7 +34,15 @@ HEADERS += \
     widgets/QEImage/selectMenu.h \
     widgets/QEImage/videowidget.h \
     widgets/QEImage/zoomMenu.h \
-    widgets/QEImage/imageInfo.h
+    widgets/QEImage/imageInfo.h \
+    widgets/QEImage/markupItem.h \
+    widgets/QEImage/markupBeam.h \
+    widgets/QEImage/markupHLine.h \
+    widgets/QEImage/markupVLine.h \
+    widgets/QEImage/markupLine.h \
+    widgets/QEImage/markupRegion.h \
+    widgets/QEImage/markupTarget.h \
+    widgets/QEImage/markupText.h
 
 SOURCES += \
     widgets/QEImage/QEImage.cpp \
@@ -46,7 +54,15 @@ SOURCES += \
     widgets/QEImage/profilePlot.cpp \
     widgets/QEImage/selectMenu.cpp \
     widgets/QEImage/zoomMenu.cpp \
-    widgets/QEImage/imageInfo.cpp
+    widgets/QEImage/imageInfo.cpp \
+    widgets/QEImage/markupItem.cpp \
+    widgets/QEImage/markupBeam.cpp \
+    widgets/QEImage/markupHLine.cpp \
+    widgets/QEImage/markupVLine.cpp \
+    widgets/QEImage/markupLine.cpp \
+    widgets/QEImage/markupRegion.cpp \
+    widgets/QEImage/markupTarget.cpp \
+    widgets/QEImage/markupText.cpp
 
 INCLUDEPATH += \
     widgets/QEImage

@@ -184,7 +184,7 @@ void QEImage::setup() {
     QHBoxLayout* brightnessContrastSub1Layout = new QHBoxLayout();
     QGridLayout* brightnessContrastSub2Layout = new QGridLayout();
 
-    QLabel* brightnessLabel = new QLabel( "Brightnes:", brightnessContrastGroupBox );
+    QLabel* brightnessLabel = new QLabel( "Brightness:", brightnessContrastGroupBox );
 
     QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastGroupBox );
 
