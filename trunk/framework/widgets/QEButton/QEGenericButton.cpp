@@ -414,7 +414,7 @@ void QEGenericButton::userClicked( bool checked )
         // qDebug()<<"QEGenericButton::userClicked() after launch signal";
 
         // Remove this button's priority macro substitutions now all its children are created
-        removeMacroSubstitutions();
+        removePriorityMacroSubstitutions();
 
         // Remove this button's normal macro substitutions now all its children are created
         removeMacroSubstitutions();
