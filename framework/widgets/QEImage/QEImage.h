@@ -37,7 +37,7 @@
 #include <selectMenu.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <imageInfo.h>
-
+#include <brightnessContrast.h>
 
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
@@ -247,7 +247,7 @@ public:
     bool displayButtonBar;      // True if button bar should be displayed
 
     bool enableBrightnessContrast;// True if local brightness and contrast controls are presented
-    bool autoBrightnessContrast;  // True if automatically setting local brightness and contrast when selecting a region
+//    bool autoBrightnessContrast;  // True if automatically setting local brightness and contrast when selecting a region
 
 private slots:
     // QCa data update slots
@@ -270,11 +270,7 @@ private slots:
 
     void panModeClicked();
 
-    void brightnessSliderValueChanged( int value );
-    void contrastSliderValueChanged( int value );
-    void autoBrightnessCheckBoxChanged( int state );
-    void brightnessContrastResetClicked( bool state );
-
+    void brightnessContrastChanged();
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -363,15 +359,7 @@ public slots:
     profilePlot* hSliceDisplay;
     profilePlot* profileDisplay;
 
-    // Local brightness and contrast controls
-    QCheckBox* autoBrightnessCheckBox;
-    QSlider* brightnessSlider;
-    QSlider* contrastSlider;
-    QLabel* brightnessRBLabel;
-    QLabel* contrastRBLabel;
-    QFrame* brightnessContrastGroupBox;
-    double localBrightness;
-    double localContrast;
+    localBrightnessContrast* localBC;
 
     // Menus
     zoomMenu*       zMenu;
@@ -479,8 +467,6 @@ public slots:
     bool clippingOn;
     unsigned int clippingLow;
     unsigned int clippingHigh;
-
-    bool nonInteractiveUpdate;                      // Set when updating a control from the code (not the user clicking, draging, etc. Used to ignore change signals.
 
     struct rgbPixel
     {

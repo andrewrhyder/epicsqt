@@ -42,7 +42,8 @@ HEADERS += \
     widgets/QEImage/markupLine.h \
     widgets/QEImage/markupRegion.h \
     widgets/QEImage/markupTarget.h \
-    widgets/QEImage/markupText.h
+    widgets/QEImage/markupText.h \
+    widgets/QEImage/brightnessContrast.h
 
 SOURCES += \
     widgets/QEImage/QEImage.cpp \
@@ -62,7 +63,8 @@ SOURCES += \
     widgets/QEImage/markupLine.cpp \
     widgets/QEImage/markupRegion.cpp \
     widgets/QEImage/markupTarget.cpp \
-    widgets/QEImage/markupText.cpp
+    widgets/QEImage/markupText.cpp \
+    widgets/QEImage/brightnessContrast.cpp
 
 INCLUDEPATH += \
     widgets/QEImage
