@@ -434,7 +434,7 @@ public slots:
     void generateProfile( QPoint point1, QPoint point2, unsigned int thickness );   // Generate a profile along an arbitrary line through an image.
     void displaySelectedAreaInfo( const int region, const QPoint point1, const QPoint point2 );  // Display textual info about a selected area
 
-    void updateMarkups();                                               // Update markups if required. (For example, after image update)
+    void updateMarkupData();                                               // Update markups if required. (For example, after image update)
 
     int getPixelValueFromData( const unsigned char* ptr );              // Return a floating point number given a pointer into an image data buffer.
     double getFloatingPixelValueFromData( const unsigned char* ptr );   // Return a floating point number given a pointer to a value of an arbitrary size in a char* buffer.
