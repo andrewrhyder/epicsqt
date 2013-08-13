@@ -37,7 +37,7 @@ class localBrightnessContrast : public QFrame
 public:
     localBrightnessContrast();
 
-    void setBrightnessContrast( double brightness, double contrast );
+    void setBrightnessContrast( int brightness, int contrast );
     void setAutoBrightnessContrast( bool autoBrightnessContrast );
 
     bool getAutoBrightnessContrast();

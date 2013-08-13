@@ -42,10 +42,10 @@ localBrightnessContrast::localBrightnessContrast()
     QGridLayout* brightnessContrastSub2Layout = new QGridLayout();
 
     QLabel* brightnessLabel = new QLabel( "Brightness:", this );
-
     QLabel* contrastLabel = new QLabel( "Contrast:", this );
 
     autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", this );
+    autoBrightnessCheckBox->setToolTip( "Set brightness and contrast to use full dynamic range for selected area");
     QObject::connect( autoBrightnessCheckBox, SIGNAL( stateChanged ( int ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( int )) );
 
     QPushButton* resetButton = new QPushButton( "Reset", this );
@@ -143,7 +143,7 @@ void localBrightnessContrast::contrastSliderValueChanged( int localContrastIn )
 }
 
 
-void localBrightnessContrast::setBrightnessContrast( double brightness, double contrast )
+void localBrightnessContrast::setBrightnessContrast( int brightness, int contrast )
 {
     brightnessSlider->setValue( brightness );
     contrastSlider->setValue( contrast );
