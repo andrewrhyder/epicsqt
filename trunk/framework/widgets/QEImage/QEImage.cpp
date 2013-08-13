@@ -108,13 +108,11 @@ void QEImage::setup() {
     contrastReversal = false;
 
     enableBrightnessContrast = true;
-    autoBrightnessContrast = false;
+//    autoBrightnessContrast = false;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
-
-    nonInteractiveUpdate = false;
 
     imageDataSize = 0;
     elementsPerPixel = 0;
@@ -174,68 +172,8 @@ void QEImage::setup() {
     scrollArea->setWidget( videoWidget );
 
     // Local brightness and contrast controls
-    brightnessContrastGroupBox = new QFrame;
-    brightnessContrastGroupBox->setFrameStyle( QFrame::StyledPanel|QFrame::Raised );
-
-    QVBoxLayout* brightnessContrastMainLayout = new QVBoxLayout();
-    brightnessContrastMainLayout->setSpacing( 0 );
-    brightnessContrastGroupBox->setLayout( brightnessContrastMainLayout );
-
-    QHBoxLayout* brightnessContrastSub1Layout = new QHBoxLayout();
-    QGridLayout* brightnessContrastSub2Layout = new QGridLayout();
-
-    QLabel* brightnessLabel = new QLabel( "Brightness:", brightnessContrastGroupBox );
-
-    QLabel* contrastLabel = new QLabel( "Contrast:", brightnessContrastGroupBox );
-
-    autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", brightnessContrastGroupBox );
-    QObject::connect( autoBrightnessCheckBox, SIGNAL( stateChanged ( int ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( int )) );
-
-    QPushButton* resetButton = new QPushButton( "Reset", brightnessContrastGroupBox );
-    QObject::connect( resetButton, SIGNAL( clicked ( bool ) ), this,  SLOT  ( brightnessContrastResetClicked( bool )) );
-
-
-    brightnessSlider = new QSlider( Qt::Horizontal, brightnessContrastGroupBox );
-    brightnessSlider->setMinimum( -100 );
-    brightnessSlider->setMaximum( 100 );
-    brightnessSlider->setValue( 0 );
-    QObject::connect( brightnessSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( brightnessSliderValueChanged( int )) );
-
-    contrastSlider = new QSlider( Qt::Horizontal, brightnessContrastGroupBox );
-    contrastSlider->setMinimum( 0 );
-    contrastSlider->setMaximum( 1000 );
-    contrastSlider->setValue( 100 );
-    QObject::connect( contrastSlider, SIGNAL( valueChanged ( int ) ), this,  SLOT  ( contrastSliderValueChanged( int )) );
-
-    brightnessRBLabel = new QLabel( brightnessContrastGroupBox );
-    brightnessRBLabel->setText( QString( "%1%" ).arg( brightnessSlider->value() ) );
-
-    contrastRBLabel = new QLabel( brightnessContrastGroupBox );
-    contrastRBLabel->setText( QString( "%1%" ).arg( contrastSlider->value() ) );
-
-
-
-    brightnessContrastSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
-    brightnessContrastSub1Layout->addWidget( resetButton, 1, Qt::AlignLeft );
-
-
-    brightnessContrastSub2Layout->addWidget( brightnessLabel, 0, 0 );
-    brightnessContrastSub2Layout->addWidget( brightnessSlider, 0, 1 );
-    brightnessContrastSub2Layout->addWidget( brightnessRBLabel, 0, 2 );
-
-    brightnessContrastSub2Layout->addWidget( contrastLabel, 1, 0 );
-    brightnessContrastSub2Layout->addWidget( contrastSlider, 1, 1 );
-    brightnessContrastSub2Layout->addWidget( contrastRBLabel, 1, 2 );
-
-    brightnessContrastSub2Layout->setColumnStretch( 1, 1 );  // Read back labels to take all spare room
-
-    brightnessContrastMainLayout->addLayout( brightnessContrastSub1Layout );
-    brightnessContrastMainLayout->addLayout( brightnessContrastSub2Layout );
-
-
-    localBrightness = 0;    // Range -100% (black) to +100% (white)
-    localContrast = 100;    // Range 0% (no difference in any pixels) to 1000% (10 times normal contrast)
-
+    localBC = new localBrightnessContrast;
+    QObject::connect( localBC, SIGNAL( brightnessContrastChange() ), this,  SLOT  ( brightnessContrastChanged()) );
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
@@ -338,7 +276,7 @@ void QEImage::setup() {
     mainLayout->setMargin( 0 );
 
     mainLayout->addWidget( buttonGroup, 0, 0 );
-    mainLayout->addWidget( brightnessContrastGroupBox, 0, 1 );
+    mainLayout->addWidget( localBC, 0, 1 );
     mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
 
     // Set graphics to take all spare room
@@ -848,6 +786,8 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
 
     // Determine if local contrast and brightness applies
     // Even if local brightness and contrast is enabled, no need to go through the pain if they are both neutral
+    int localContrast = localBC->getContrast();
+    int localBrightness = localBC->getBrightness();
     bool doLCB = enableBrightnessContrast && (localContrast!=100 || localBrightness != 0);
 
     // Range of values with contrast applied
@@ -1611,7 +1551,7 @@ bool QEImage::getVerticalFlip()
 void QEImage::setEnableBrightnessContrast( bool enableBrightnessContrastIn )
 {
     enableBrightnessContrast = enableBrightnessContrastIn;
-    brightnessContrastGroupBox->setVisible( enableBrightnessContrast );
+    localBC->setVisible( enableBrightnessContrast );
 }
 
 bool QEImage::getEnableBrightnessContrast()
@@ -1622,12 +1562,12 @@ bool QEImage::getEnableBrightnessContrast()
 // Automatic setting of brightness and contrast on region selection
 void QEImage::setAutoBrightnessContrast( bool autoBrightnessContrastIn )
 {
-    autoBrightnessContrast = autoBrightnessContrastIn;
+    localBC->setAutoBrightnessContrast( autoBrightnessContrastIn );
 }
 
 bool QEImage::getAutoBrightnessContrast()
 {
-    return autoBrightnessContrast;
+    return     localBC->getAutoBrightnessContrast();
 }
 
 // Resize options
@@ -2237,7 +2177,7 @@ void QEImage::displaySelectedAreaInfo( int region, QPoint point1, QPoint point2 
 void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 {
     // Do nothing if not automatically setting brightness and contrast
-    if( !autoBrightnessContrast )
+    if( !localBC->getAutoBrightnessContrast() )
         return;
 
     // Get the area corners scaled to match the original image data
@@ -2257,7 +2197,6 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     // Calculate the contrast that will set the dynamic range
     // to match the range of pixels in the area.
     double newContrastDouble = (double)(maxPixelValue())/(double)(range);
-    int newContrast = 100*newContrastDouble;
 
     // Calculate the brightness that will set the dynamic range
     // to match the range of pixels in the area.
@@ -2267,31 +2206,9 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     // Calculate brightness that will offset pixel values in the selected area to use full range.
     // Note, when used, the brightness will be multiplied by (the new pixel range - an offset used to center the new pixel range )
     double newBrightnessDouble = midOffset/(maxPixelValue()*(newContrastDouble-(newContrastDouble-1)/2));
-    int newBrightness = newBrightnessDouble*100;
 
-    // If the brightness and contrast have changed, update the values,
-    // update the user interface and redisplay the image
-    if(( localContrast != newContrast ) || ( localBrightness != newBrightness ))
-    {
-        // Flag that the current pixel lookup table needs recalculating
-        pixelLookupValid = false;
-
-        // Save the new values
-        localContrast =  newContrast;
-        localBrightness = newBrightness;
-
-        // Update the user interface
-        nonInteractiveUpdate = true;
-        brightnessSlider->setValue( newBrightness );
-        contrastSlider->setValue( newContrast );
-        nonInteractiveUpdate = false;
-        contrastRBLabel->setText( QString( "%1%" ).arg( localContrast ));
-        brightnessRBLabel->setText( QString( "%1%" ).arg( localBrightness ));
-
-        // Present the updated image
-        displayImage();
-    }
-
+    // Update the local brightness and contrast
+    localBC->setBrightnessContrast( newBrightnessDouble*100.0, newContrastDouble*100.0);
 }
 
 // Determine the range of pixel values an area of the image
@@ -2334,70 +2251,11 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
     *max = maxP;
 }
 
-// Reset the brightness and contrast to normal
-void QEImage::brightnessContrastResetClicked( bool )
+// The brightness or contrast have changed
+void QEImage::brightnessContrastChanged()
 {
-    // Reset brightness and contrast
-    brightnessSlider->setValue( 0 );
-    contrastSlider->setValue( 100 );
-}
-
-// Auto brightness and contrast check box has ben checked or unchecked
-void QEImage::autoBrightnessCheckBoxChanged( int state )
-{
-    // Do nothing if no change
-    if( autoBrightnessContrast == (state==Qt::Checked) )
-        return;
-
     // Flag that the current pixel lookup table needs recalculating
     pixelLookupValid = false;
-
-    // Note the new state
-    autoBrightnessContrast = (state==Qt::Checked);
-
-    // Present the updated image
-    displayImage();
-}
-
-// The local brightness slider has been moved
-void QEImage::brightnessSliderValueChanged( int localBrightnessIn )
-{
-    // Do nothing if change was due to internal;
-    if( nonInteractiveUpdate )
-        return;
-
-    // Do nothing if no change
-    if( localBrightness == localBrightnessIn )
-        return;
-
-    // Flag that the current pixel lookup table needs recalculating
-    pixelLookupValid = false;
-
-    // Update the brightness
-    localBrightness = localBrightnessIn;
-    brightnessRBLabel->setText( QString( "%1%" ).arg( localBrightness ));
-
-    // Present the updated image
-    displayImage();
-}
-
-// The local contrast slider has been moved
-void QEImage::contrastSliderValueChanged( int localContrastIn )
-{
-    // Do nothing if change was due to internal;
-    if( nonInteractiveUpdate )
-        return;
-
-    // Do nothing if no change
-    if( localContrast ==  localContrastIn )
-        return;
-
-    // Flag that the current pixel lookup table needs recalculating
-    pixelLookupValid = false;
-
-    // Update the contrast
-    localContrast =  localContrastIn;
-    contrastRBLabel->setText( QString( "%1%" ).arg( localContrast ));
 
     // Present the updated image
     displayImage();
