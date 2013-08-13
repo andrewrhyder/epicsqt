@@ -1,33 +1,38 @@
-
 # author: Ricardo Fernandes
 # email: ricardo.fernandes@synchrotron.org.au
 # copyright: (C) 2012 Australian Synchrotron
-# version: 1.4
-# date: 2013/JUL/01
+# version: 1.5
+# date: 2013/AUG/13
 # description: Makefile to automate the building and deployment of the EPICS Qt framework
 # note: Although managed as part of the EPICS Qt framework, this makefile is intended to be run from outside the framework directories
 # status: Production
 
 
 
-# macro definitions
+# ================================================
+#  MACRO DEFINITIONS
+# ================================================
 FRAMEWORK_DIRECTORY = epicsqt
 PACKAGE_DIRECTORY = package
 RPM_DIRECTORY = rpmbuild
 SVN_REPOSITORY = https://svn.code.sf.net/p/epicsqt/code
 EXECUTE_FILE = $(PACKAGE_DIRECTORY)/executeQEGui
 SPEC_FILE = $(RPM_DIRECTORY)/SPECS/epicsqt.spec
+SOURCEFORGE_HOSTNAME = "shell.sourceforge.net"
+SOURCEFORGE_DIRECTORY = "/home/frs/project/epicsqt"
 SVN = svn
 LDD = ldd
 GREP = grep
 SED = sed
 PRELINK = prelink
-RPM = rpmbuild
 RPM_DEPLOY_DIRECTORY = /usr/local/epicsqt_bin
 QMAKE = qmake-qt4
 
 
 
+# ================================================
+#  DEFINE FRAMEWORK_VERSION MACRO FOR trunk OR tag (IF SPECIFIED)
+# ================================================
 ifdef tag
 	FRAMEWORK_VERSION = tags/$(tag)
 else
@@ -39,13 +44,17 @@ ifdef TAG
 endif
 
 
- 
-# make all; default target when nothing is specified when executing make
+
+# ================================================
+#  MAKE ALL; DEFAULT TARGET WHEN NOTHING IS SPECIFIED WHEN EXECUTING make
+# ================================================
 all: checkout framework
 
 
 
-# svn checkout/update framework target
+# ================================================
+#  SVN CHECKOUT/UPDATE FRAMEWORK TARGET
+# ================================================
 .PHONY: checkout
 checkout:
 	@echo "Checking conditions for building the framework in directory '$(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)'..."
@@ -85,7 +94,9 @@ endif
 
 
 
-# build framework target
+# ================================================
+#  BUILD FRAMEWORK TARGET
+# ================================================
 .PHONY: framework
 framework:
 	@echo "Building framework located in '$(FRAMEWORK_DIRECTORY)/$(FRAMEWORK_VERSION)'..."
@@ -95,7 +106,9 @@ framework:
 
 
 
-# package framework target
+# ================================================
+#  PACKAGE FRAMEWORK TARGET
+# ================================================
 .PHONY: package
 package:
 	@echo "Checking conditions for packaging the framework in directory '$(PACKAGE_DIRECTORY)'..."
@@ -156,7 +169,9 @@ endif
 
 
 
-# rpm target
+# ================================================
+#  RPM TARGET
+# ================================================
 .PHONY: rpm
 rpm:
 	@echo "Checking conditions for creating RPM of the framework in directory '$(RPM_DIRECTORY)'..."
@@ -169,8 +184,8 @@ ifeq ($(shell which $(SED) 2>/dev/null),)
 	@$(error The program '$(SED)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install sed' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
 endif
 
-ifeq ($(shell which $(RPM) 2>/dev/null),)
-	@$(error The program '$(RPM)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install rpm-build' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
+ifeq ($(shell which $(RPM_DIRECTORY) 2>/dev/null),)
+	@$(error The program '$(RPM_DIRECTORY)' is not installed or could not be found in your machine (through the environment variable 'PATH'). Please, perform 'yum install rpm-build' in a terminal to install it and/or modify the environment variable 'PATH' to point to this program)
 endif
 
 ifeq ($(shell which $(PRELINK) 2>/dev/null),)
@@ -191,19 +206,19 @@ endif
 	@echo "Name: epics_qt_framework" > $(SPEC_FILE)
 	@echo "Summary: A layered framework based on Qt for accessing Experimental Physics and Industrial Control System (EPICS) data using Channel Access (CA). Designed for rapid development of control system graphical interfaces." >> $(SPEC_FILE)
 	@cd $(PACKAGE_DIRECTORY) ; ./executeQEGui -v | $(GREP) "Framework version: " | $(SED) 's/Framework\ version:\ //' | $(SED) 's/\ .*//' | $(SED) 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/Version: \1.\2/' >> ../$(SPEC_FILE) ; cd ..
-	@cd $(PACKAGE_DIRECTORY) ; ./executeQEGui -v | $(GREP) "Framework version: " | $(SED) 's/Framework\ version:\ //' | $(SED) 's/\ .*//' | $(SED) 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/Release: \3/' >> ../$(SPEC_FILE) ; cd ..
+	@cd $(PACKAGE_DIRECTORY) ; ./executeQEGui -v | $(GREP) "Framework version: " | $(SED) 's/Framework\ version:\ //' | $(SED) 's/\ .*//' | $(SED) 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/Release: \3%{?dist}/' >> ../$(SPEC_FILE) ; cd ..
 	@echo "License: GPLv3" >> $(SPEC_FILE)
 	@echo "AutoReqProv: no" >> $(SPEC_FILE)
 	@echo "Prefix: /usr/local" >> $(SPEC_FILE)
 	@echo "%define _builddir ./rpmbuild/" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@echo "%description" >> $(SPEC_FILE)
-	@echo "This package installs the EPICS Qt Framework in a self-contained directory." >> $(SPEC_FILE)
+	@echo "This RPM package installs the EPICS Qt Framework in a self-contained directory." >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@echo "%prep" >> $(SPEC_FILE)
-	@echo "mkdir -p ./BUILDROOT/%{name}-%{version}-%{release}.i386$(RPM_DEPLOY_DIRECTORY)" >> $(SPEC_FILE)
-	@echo "cp -rf ../$(PACKAGE_DIRECTORY)/* ./BUILDROOT/%{name}-%{version}-%{release}.i386$(RPM_DEPLOY_DIRECTORY)" >> $(SPEC_FILE)
-	@echo "find ./BUILDROOT/%{name}-%{version}-%{release}.i386$(RPM_DEPLOY_DIRECTORY) -iname '*.so*' | while read filename ; do prelink --undo \"\$${filename}\" || true; done" >> $(SPEC_FILE)
+	@echo "mkdir -p ./BUILDROOT/%{name}-%{version}-%{release}.%{_arch}$(RPM_DEPLOY_DIRECTORY)" >> $(SPEC_FILE)
+	@echo "cp -rf ../$(PACKAGE_DIRECTORY)/* ./BUILDROOT/%{name}-%{version}-%{release}.%{_arch}$(RPM_DEPLOY_DIRECTORY)" >> $(SPEC_FILE)
+	@echo "find ./BUILDROOT/%{name}-%{version}-%{release}.%{_arch}$(RPM_DEPLOY_DIRECTORY) -iname '*.so*' | while read filename ; do prelink --undo \"\$${filename}\" || true; done" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@echo "%files" >> $(SPEC_FILE)
 	@echo "%attr(755, root, root) $(RPM_DEPLOY_DIRECTORY)/executeQEGui" >> $(SPEC_FILE)
@@ -211,18 +226,44 @@ endif
 	@echo "" >> $(SPEC_FILE)
 	@echo "%post" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
-	@$(RPM) -bb $(SPEC_FILE)
-	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS/i386'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
+	@$(RPM_DIRECTORY) -bb $(SPEC_FILE)
+	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
 
 
 
-# clean all target
+# ================================================
+#  UPLOAD RPM TARGET
+# ================================================
+.PHONY: upload_rpm
+upload_rpm:
+	@echo "Checking conditions for uploading RPM of the framework in SourceForge download area..."
+
+	@if test -d $(RPM_DIRECTORY); then \
+		echo "The RPM already exists in directory '$(RPM_DIRECTORY)' so no need to build it."; \
+	else \
+		$(MAKE) rpm; \
+	fi
+
+	@echo "Please, provide the username of your account in Sourceforge: "; \
+	read user_name; \
+	echo "Uploading RPM located in directory '$(RPM_DIRECTORY)' in SourceForge download area..."; \
+	ssh $$user_name,epicsqt@$(SOURCEFORGE_HOSTNAME) create; \
+	scp $(RPM_DIRECTORY)/RPMS/*/epics_qt_framework*.rpm $$user_name,epicsqt@$(SOURCEFORGE_HOSTNAME):$(SOURCEFORGE_DIRECTORY)/RPM/
+	@echo "...done uploading RPM in SourceForge download area!"
+
+
+
+# ================================================
+#  CLEAN ALL TARGET
+# ================================================
 .PHONY: clean
 clean: clean_framework clean_package clean_rpm
 
 
 
-# clean framework target
+# ================================================
+#  CLEAN FRAMEWORK TARGET
+# ================================================
 .PHONY: clean_framework
 clean_framework:
 	@echo "Cleaning framework located in directory '$(FRAMEWORK_DIRECTORY)'..."
@@ -231,7 +272,9 @@ clean_framework:
 
 
 
-# clean package target
+# ================================================
+#  CLEAN PACKAGE TARGET
+# ================================================
 .PHONY: clean_package
 clean_package:
 	@echo "Cleaning package located in directory '$(PACKAGE_DIRECTORY)'..."
@@ -240,7 +283,9 @@ clean_package:
 
 
 
-# clean rpm target
+# ================================================
+#  CLEAN RPM TARGET
+# ================================================
 .PHONY: clean_rpm
 clean_rpm:
 	@echo "Cleaning RPM located in directory '$(RPM_DIRECTORY)'..."
