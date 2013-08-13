@@ -22,6 +22,12 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+/*
+ This class manages the low level presentation of images in a display widget and user interact with the image.
+ The image is delivered as a QImage ready for display. There is no need to flip, rotate, clip, etc.
+ This class manages zooming the image simply by setting the widget size as required and drawing into it. Qt then performs the scaling required.
+ */
+
 #ifndef VIDEOWIDGET_H
 #define VIDEOWIDGET_H
 
@@ -44,7 +50,7 @@ public:
     QPoint scaleImagePoint( QPoint pnt );
     int scaleImageOrdinate( int ord );
 
-    QImage getImage(){ return currentImage; }
+    QImage getImage(){ return refImage; }
 
 
 protected:
@@ -55,7 +61,7 @@ protected:
     void mouseMoveEvent( QMouseEvent* event );
     void wheelEvent( QWheelEvent* event );
 
-    void markupChange( QImage& markups, QVector<QRect>& changedAreas );    // The markup overlay has changed, redraw part of it
+    void markupChange( QVector<QRect>& changedAreas );    // The markup overlay has changed, redraw part of it
 
     void resizeEvent( QResizeEvent *event );
     void markupSetCursor( QCursor cursor );
@@ -72,12 +78,8 @@ private:
     void addMarkups( QPainter& screenPainter, QVector<QRect>& changedAreas );
 
     QImage currentImage;              // Latest camera image
-    QImage markupImage;               // Image of markups, such as region of interest
-    QImage* compositeImage;           // Composite of current image and markups
-    QImage* compositeImageBackground; // Current image, scaled to the composite image size
-    bool compositeImageBackgroundStale;
-
-    bool firstUpdate;
+    QImage refImage;                  // Latest camera image at the same resolution as the display - used for erasing markups when they are moved
+    bool createRefImage();
 
     double getScale();
 
@@ -85,8 +87,6 @@ private:
     QPoint panStart;
 
     QPoint pixelInfoPos;    // Current pixel under pointer
-
-
 };
 
 #endif // VIDEOWIDGET_H

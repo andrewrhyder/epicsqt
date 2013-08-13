@@ -126,16 +126,6 @@ QCursor markupBeam::defaultCursor()
     return owner->getTargetCursor();
 }
 
-unsigned int markupBeam::getThickness()
-{
-    return 0;
-}
-
-void markupBeam::setThickness( const unsigned int  )
-{
-    // Do nothing
-}
-
 void markupBeam::scaleSpecific( const double xScale, const double yScale, const double )
 {
     pos.setX( pos.x() * xScale );

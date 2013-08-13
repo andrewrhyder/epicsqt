@@ -31,20 +31,18 @@
 
 markupHLine::markupHLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-    thickness = 1;
-    maxThickness = THICKNESS_MAX;
 }
 
 void markupHLine::drawMarkup( QPainter& p )
 {
     // Draw markup
-    p.drawLine( 0, y, owner->markupImage->rect().width(), y );
+    p.drawLine( 0, y, imageSize.width(), y );
 
     // If single pixel thickness, draw a single handle in the middle
     if( thickness == 1 )
     {
         //!!! draw the handle in the middle of the existing view, not the entire image
-        QRect handle( (owner->markupImage->rect().width()/2)-(HANDLE_SIZE/2), y-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
+        QRect handle( (imageSize.width()/2)-(HANDLE_SIZE/2), y-(HANDLE_SIZE/2), HANDLE_SIZE, HANDLE_SIZE );
         p.drawRect( handle );
     }
 
@@ -55,14 +53,14 @@ void markupHLine::drawMarkup( QPainter& p )
         QPen pen = p.pen();
         pen.setStyle( Qt::DashLine );
         p.setPen( pen );
-        p.drawLine( 0, y-(thickness/2), owner->markupImage->rect().width(), y-(thickness/2) );
-        p.drawLine( 0, y+(thickness/2), owner->markupImage->rect().width(), y+(thickness/2) );
+        p.drawLine( 0, y-(thickness/2), imageSize.width(), y-(thickness/2) );
+        p.drawLine( 0, y+(thickness/2), imageSize.width(), y+(thickness/2) );
         pen.setStyle( Qt::SolidLine );
         p.setPen( pen );
     }
 
     // Draw markup legend
-    drawLegend( p, QPoint( owner->markupImage->rect().width()/2, y ), ABOVE_RIGHT );
+    drawLegend( p, QPoint( imageSize.width()/2, y ), ABOVE_RIGHT );
 }
 
 void markupHLine::setArea()
@@ -71,7 +69,7 @@ void markupHLine::setArea()
     area.setBottom( y + (thickness/2) + HANDLE_SIZE/2 );
 
     area.setLeft( 0 );
-    area.setRight( owner->markupImage->rect().right());
+    area.setRight( imageSize.width() );
 
     addLegendArea();
 
@@ -146,7 +144,7 @@ bool markupHLine::isOver( const QPoint point, QCursor* cursor )
     // If thickness of one pixel only, look for pointer over the main line, or the thickness handle
     else
     {
-        QPoint handle( owner->markupImage->rect().width()/2, y );
+        QPoint handle( imageSize.width()/2, y );
 
         if( pointIsNear( point, handle ))
         {
@@ -194,32 +192,6 @@ QPoint markupHLine::getPoint1()
 QPoint markupHLine::getPoint2()
 {
     return QPoint();
-}
-
-unsigned int markupHLine::getThickness()
-{
-    return thickness;
-}
-
-void markupHLine::setThickness( const unsigned int thicknessIn )
-{
-    // Not if the markup is currently visible
-    bool wasVisible = visible;
-
-    // If visible, erase it
-    if( visible )
-    {
-        erase();
-    }
-
-    // Update the thickness
-    thickness = thicknessIn;
-
-    // If visible before erasing, redraw it at its new thickness
-    if( wasVisible )
-    {
-        drawMarkupIn();
-    }
 }
 
 QCursor markupHLine::defaultCursor()

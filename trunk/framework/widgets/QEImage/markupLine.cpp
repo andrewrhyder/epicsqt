@@ -33,8 +33,6 @@
 
 markupLine::markupLine( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn ) : markupItem( ownerIn, OVER_LINE, interactiveIn, reportOnMoveIn, legendIn )
 {
-    thickness = 1;
-    maxThickness = THICKNESS_MAX;
 }
 
 void markupLine::drawMarkup( QPainter& p )
@@ -79,6 +77,7 @@ void markupLine::drawMarkup( QPainter& p )
             int len = (int)sqrt( (dX*dX)+(dY*dY) );
 
             QPoint offset( (int)(thickness) * -dY / (2*len), int(thickness) * dX / (2*len) );
+
             p.drawLine( start+offset, end+offset );
             p.drawLine( start-offset, end-offset );
 
@@ -346,32 +345,6 @@ QPoint markupLine::getPoint1()
 QPoint markupLine::getPoint2()
 {
     return end;
-}
-
-unsigned int markupLine::getThickness()
-{
-    return thickness;
-}
-
-void markupLine::setThickness( const unsigned int thicknessIn )
-{
-    // Not if the markup is currently visible
-    bool wasVisible = visible;
-
-    // If visible, erase it
-    if( visible )
-    {
-        erase();
-    }
-
-    // Update the thickness
-    thickness = thicknessIn;
-
-    // If visible before erasing, redraw it at its new thickness
-    if( wasVisible )
-    {
-        drawMarkupIn();
-    }
 }
 
 QCursor markupLine::defaultCursor()

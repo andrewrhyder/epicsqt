@@ -400,7 +400,7 @@ QEImage::~QEImage()
 }
 
 /*
-    Implementation of QEWidget's virtual funtion to create the specific type of QCaObject required.
+    Implementation of QEWidget's virtual funtion to create the specific types of QCaObject required.
 */
 qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
 
@@ -1325,8 +1325,6 @@ void QEImage::roi1Changed()
     qca = (QEInteger*)getQcaItem( ROI1_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea1Point2.y() ) - videoWidget->scaleOrdinate( selectedArea1Point1.y() ));
 
-    // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
-
     return;
 }
 
@@ -1346,8 +1344,6 @@ void QEImage::roi2Changed()
 
     qca = (QEInteger*)getQcaItem( ROI2_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea2Point2.y() ) - videoWidget->scaleOrdinate( selectedArea2Point1.y() ));
-
-    // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
 
     return;
 }
@@ -1369,8 +1365,6 @@ void QEImage::roi3Changed()
     qca = (QEInteger*)getQcaItem( ROI3_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea3Point2.y() ) - videoWidget->scaleOrdinate( selectedArea3Point1.y() ));
 
-    // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
-
     return;
 }
 
@@ -1390,8 +1384,6 @@ void QEImage::roi4Changed()
 
     qca = (QEInteger*)getQcaItem( ROI4_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea4Point2.y() ) - videoWidget->scaleOrdinate( selectedArea4Point1.y() ));
-
-    // !!! should do the above whenever ROI changes?. This function should write to a trigger PV?
 
     return;
 }
@@ -3333,4 +3325,3 @@ void QEImage::showImageAboutDialog()
     // Display the 'about' text
     QMessageBox::about(this, "About Image", about );
 }
-

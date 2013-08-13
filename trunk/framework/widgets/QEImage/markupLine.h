@@ -23,30 +23,21 @@
  */
 
 /*
- This class manages ???
+ This class manages an arbitrary 'line' markup.
+ The markup is drawn as a line anywhere in the image. Either end, or the entire line, can be dragged to any location on the image.
+ The markup has a handle at each end to allow the user to drag one end only, and a handle in the center which can be used to drag the line thickness markers.
+ The line thickness markers are dashed lines either side of the main marker line.
+ This markup is used in the QEImage widget to identify an arbitrary series of pixels to generate a profile plot.
 */
 
 #ifndef MARKUPLINE_H
 #define MARKUPLINE_H
 
 #include <markupItem.h>
-//#include <QSize>
-//#include <QPoint>
-//#include <QLine>
-//#include <QRect>
-//#include <QMouseEvent>
-//#include <QImage>
-//#include <QColor>
-//#include <QFontMetrics>
-//#include <QFont>
-//#include <QCaDateTime.h>
-
 
 #include <QDebug>
 
 class imageMarkup;
-
-
 
 // Line markup used to select an arbiraty angle slice through an image
 class markupLine : public markupItem
@@ -65,8 +56,6 @@ public:
     QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
-    unsigned int getThickness();
-    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
     //==================================================================
@@ -74,8 +63,6 @@ public:
 private:
     QPoint start;
     QPoint end;
-    unsigned int thickness;     // Selected line thickness
-    unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
     bool isOverLine( const QPoint point, const QPoint lineStart, const QPoint lineEnd );
 };
 

@@ -115,7 +115,6 @@ public:
     void markupRegionValueChange( int areaIndex, QRect area ); // Region of interest data has changed. Change region areas to match
 
     // The following are only public so they may be accessed by (internal) markup items.
-    QImage* markupImage;                                        // Image used to draw markups in. Relevent areas will be copied over updating image
     QVector<markupItem*> items;                                 // List of markup items
     QPoint grabOffset;                                          // Offset between a markup item origin, and where the user grabbed it
     bool markupAreasStale;                                      // True if 'markupAreas' is no longer up to date
@@ -133,7 +132,6 @@ public:
 protected:
     void drawMarkups( QPainter& p, const QRect& rect );         // The image has changed, redraw the markups if any
     bool anyVisibleMarkups();                                   // Are there any markups visible
-    QVector<QRect>& getMarkupAreas();                           // Get the visible areas contining markups
     QCursor getDefaultMarkupCursor();                           // Get the cursor appropriate for the current markup
 
     void setMarkupTime( QCaDateTime& time );                    // A new image has arrived, note it's time
@@ -142,10 +140,10 @@ protected:
     bool markupMouseReleaseEvent ( QMouseEvent* event, bool panning ); // User has released a button
     bool markupMouseMoveEvent( QMouseEvent* event, bool panning );     // User has moved the mouse
 
-    void markupResize( QSize newSize, double scale );           // The viewport size has changed
+    void markupResize( const QSize& newSize, const QSize& oldSize, const double scale );           // The viewport size has changed
 
 
-    virtual void markupChange( QImage& markups, QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
+    virtual void markupChange( QVector<QRect>& changedAreas )=0;    // The markup overlay has changed, redraw part of it
     virtual void markupAction( markupIds mode, bool complete, bool clearing, QPoint point1, QPoint point2, unsigned int thickness )=0;     // There is an application task to do in response to user interaction with the markups
 
 private:

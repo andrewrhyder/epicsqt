@@ -23,24 +23,17 @@
  */
 
 /*
- This class manages ???
+ This class manages a 'vertical slice' markup.
+ The markup is drawn as a line down the image and can be dragged left or right to any location on the image.
+ The markup has a handle in the center which can be used to drag the line thickness markers.
+ The line thickness markers are dashed lines either side of the main marker line.
+ This markup is used in the QEImage widget to identify the vertical series of pixels to generate a profile plot.
 */
 
 #ifndef MARKUPVLINE_H
 #define MARKUPVLINE_H
 
 #include <markupItem.h>
-//#include <QSize>
-//#include <QPoint>
-//#include <QLine>
-//#include <QRect>
-//#include <QMouseEvent>
-//#include <QImage>
-//#include <QColor>
-//#include <QFontMetrics>
-//#include <QFont>
-//#include <QCaDateTime.h>
-
 
 #include <QDebug>
 
@@ -64,16 +57,12 @@ public:
     QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
-    unsigned int getThickness();
-    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
     //==================================================================
 
 private:
     int x;
-    unsigned int thickness;     // Selected line thickness
-    unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
 };
 
 
