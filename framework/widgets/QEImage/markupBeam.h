@@ -23,24 +23,15 @@
  */
 
 /*
- This class manages ???
+ This class manages a 'beam' markup.
+ The markup looks like a target (but different to the 'target' markup. It can be dragged to any location in the image.
+ This markup is used in the QEImage widget to interactivly mark where beam is.
 */
 
 #ifndef MARKUPBEAM_H
 #define MARKUPBEAM_H
 
 #include <markupItem.h>
-//#include <QSize>
-//#include <QPoint>
-//#include <QLine>
-//#include <QRect>
-//#include <QMouseEvent>
-//#include <QImage>
-//#include <QColor>
-//#include <QFontMetrics>
-//#include <QFont>
-//#include <QCaDateTime.h>
-
 
 #include <QDebug>
 
@@ -64,8 +55,6 @@ public:
     QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
-    unsigned int getThickness();
-    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
     //==================================================================

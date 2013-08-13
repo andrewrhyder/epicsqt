@@ -39,6 +39,8 @@ markupItem::markupItem( imageMarkup* ownerIn, const isOverOptions /*unused*/, co
     activeHandle = MARKUP_HANDLE_NONE;
     owner = ownerIn;
     color = QColor( 0, 255, 0 ); // green
+    thickness = 1;
+    maxThickness = THICKNESS_MAX;
 
     setLegend( legendIn );
 }
@@ -52,37 +54,14 @@ bool markupItem::pointIsNear( QPoint p1, QPoint p2 )
     return QPoint( p1 - p2 ).manhattanLength() < OVER_TOLERANCE;
 }
 
-// Draw in the item, showing it to the user
-void markupItem::drawMarkupIn()
-{
-    QPainter p( owner->markupImage );
-    drawMarkupIn( p );
-}
-
-// Draw in the item, showing it to the user
-void markupItem::drawMarkupIn( QPainter& p )
+// Draw the item
+void markupItem::drawMarkupItem( QPainter& p )
 {
     QPen pen( color );
     pen.setStyle( Qt::SolidLine );
     p.setPen( pen );
     drawMarkup( p );
-    visible = true;
 }
-
-// Draw out the item, removing it from the user's view
-void markupItem::drawMarkupOut()
-{
-    QPainter p( owner->markupImage );
-    // Erase the item
-    p.setPen( QColor( 0, 0, 0, 255 ) ); // black with fully opaque alpha
-    drawMarkup( p );
-
-    // Draw a transparent background
-    p.setCompositionMode( QPainter::CompositionMode_Clear );
-    drawMarkup( p );
-    visible = false;
-}
-
 
 void markupItem::setColor( QColor colorIn )
 {
@@ -93,25 +72,6 @@ QColor markupItem::getColor()
 {
     return color;
 }
-
-// Erase and item and redraw any items that it was over
-// (note, this does not change its status. For example, it is used if hiding an item, but also when moving an item)
-void markupItem::erase()
-{
-    // Clear the item
-    drawMarkupOut();
-
-    // Redraw any other visible items that have had any part erased as well
-    int n = owner->items.count();
-    for( int i = 0; i < n; i++ )
-    {
-        if( owner->items[i] != this && owner->items[i]->visible && owner->items[i]->area.intersects( this->area ) )
-        {
-            owner->items[i]->drawMarkupIn();
-        }
-    }
-}
-
 
 // Scale the geometry related to the viewport
 void markupItem::scale( const double xScale, const double yScale, const double zoomScale )
@@ -210,7 +170,7 @@ QPoint markupItem::limitPointToImage( const QPoint pos )
     }
     else
     {
-        int w = owner->markupImage->rect().width();
+        int w = imageSize.width();
         if( retPos.x() > w ) retPos.setX( w-1 );
     }
 
@@ -221,10 +181,30 @@ QPoint markupItem::limitPointToImage( const QPoint pos )
     }
     else
     {
-        int h = owner->markupImage->rect().height();
+        int h = imageSize.height();
         if( retPos.y() > h ) retPos.setY( h-1 );
     }
 
     // Return limited point
     return retPos;
+}
+
+// Set the line thickness of a markup
+void markupItem::setThickness( const unsigned int thicknessIn )
+{
+    // Update the thickness
+    thickness = thicknessIn;
+
+    // Update the area the line now occupies
+    setArea();
+}
+
+unsigned int  markupItem::getThickness()
+{
+    return thickness;
+}
+
+void markupItem::setImageSize( const QSize& newSize )
+{
+    imageSize = newSize;
 }

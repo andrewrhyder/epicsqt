@@ -23,24 +23,16 @@
  */
 
 /*
- This class manages ???
+ This class manages a 'region' markup.
+ The markup is drawn as a rectangle anywhere in the image. Individual corners, individual sides, or the entire rectangle, can be dragged to any location on the image.
+ The markup has a handle on each corner and each side.
+ This markup is used in the QEImage widget to identify areas of the image, typically to interact with region or interest variables.
 */
 
 #ifndef MARKUPREGION_H
 #define MARKUPREGION_H
 
 #include <markupItem.h>
-//#include <QSize>
-//#include <QPoint>
-//#include <QLine>
-//#include <QRect>
-//#include <QMouseEvent>
-//#include <QImage>
-//#include <QColor>
-//#include <QFontMetrics>
-//#include <QFont>
-//#include <QCaDateTime.h>
-
 
 #include <QDebug>
 
@@ -64,8 +56,6 @@ public:
     QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
-    unsigned int getThickness();
-    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 

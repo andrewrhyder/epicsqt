@@ -46,9 +46,6 @@ imageMarkup::imageMarkup()
     // set up the font used for notations (and time)
     legendFont = QFont("Courier", 12);
     legendFontMetrics = new QFontMetrics( legendFont );
-    legendFont.setStyleStrategy( QFont::NoAntialias );  // drawMarkupOut() leaves artifacts if text is drawn antialias
-
-    markupImage = new QImage();
 
     items.resize(MARKUP_ID_COUNT );
     items[MARKUP_ID_H_SLICE]   = new markupHLine(  this, true,  true, "slice" );
@@ -116,33 +113,27 @@ void imageMarkup::setMarkupTime( QCaDateTime& time )
     if( showTime )
     {
         markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
-        timeDate->setText( time.text().left( 23 ), showTime );
+        timeDate->setText( time.text().left( 23 ) );
 
-        QVector<QRect> changedAreas;
-        changedAreas.append( timeDate->area );
-        markupChange( *markupImage, changedAreas );
+    // No need to notify of a markup change as the time is only ever set
+    // when a new image arrives and all markups will be redrawn if visible
     }
 }
 
 // Set if time should be shown.
-// time is a markup that the user doesn;t interact with. It is just displayed, or not
+// Time is a markup that the user doesn't interact with. It is just displayed, or not
 void imageMarkup::setShowTime( bool showTimeIn )
 {
     showTime = showTimeIn;
 
-    // Do nothing more (no need to add or remove time) if no markup image yet
-    if( markupImage->isNull() )
-        return;
+    markupItem* item = items[MARKUP_ID_TIMESTAMP];
 
-    markupText* timeDate = (markupText*)items[MARKUP_ID_TIMESTAMP];
-    if( showTime )
-        timeDate->drawMarkupIn();
-    else
-        timeDate->drawMarkupOut();
+    item->visible = showTimeIn;
 
+    // Notify a markup has changed
     QVector<QRect> changedAreas;
-    changedAreas.append( timeDate->area );
-    markupChange( *markupImage, changedAreas );
+    changedAreas.append( item->area );
+    markupChange( changedAreas );
 }
 
 // Get if the time is currently being displayed
@@ -161,11 +152,9 @@ void imageMarkup::drawMarkups( QPainter& p, const QRect& rect )
     {
         markupItem* item = items[i];
         // If the markup is being displayed, redraw it, and act on its 'new' position
-        if( item->visible )
+        if( item->visible && rect.intersects( item->area ))
         {
-            if( rect.contains( item->area ))
-
-            item->drawMarkupIn( p );
+            item->drawMarkupItem( p );
         }
     }
 }
@@ -238,12 +227,12 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
             // and start the process of draging from the current position
             else
             {
+                // If item was visible, ensure original location is redrawn to erase it
                 if( items[activeItem]->visible )
                 {
-                    items[activeItem]->erase();
                     QVector<QRect> changedAreas;
                     changedAreas.append( items[activeItem]->area );
-                    markupChange( *markupImage, changedAreas );
+                    markupChange( changedAreas );
                 }
                 items[activeItem]->startDrawing( event->pos() );
 
@@ -264,111 +253,49 @@ bool imageMarkup::markupMousePressEvent(QMouseEvent *event, bool panning)
 // Manage the markups as the mouse moves
 bool imageMarkup::markupMouseMoveEvent( QMouseEvent* event, bool panning )
 {
-    // If panning, and we havn't noted a button down for the purposes of image markup, then don't take over this move event
-    // (If buttonDown is true then we have already appropriated the button down/move/release for markup purposes)
-    if( panning && !buttonDown )
-    {
-        return false;
-    }
-
-    // If the user has the button down, redraw the item in its new position or shape.
-    if( buttonDown )
-    {
-        redrawActiveItemHere( event->pos() );
-    }
-
     // If no button is down, ensure the cursor reflects what it is over
-    else
+    // (once the button is pressed, this doesn't need to be assesed again)
+    if( !buttonDown )
     {
-        // Set cursor
-        QCursor cursor = getDefaultMarkupCursor();
+        // If the pointer is over a visible item, set the cursor to suit the item
+        int i;
         int n = items.count();
-        for( int i = 0; i < n; i++ )
+        for( i = 0; i < n; i++ )
         {
             QCursor specificCursor;
             if( items[i]->interactive && items[i]->visible && items[i]->isOver( event->pos(), &specificCursor ) )
             {
-                cursor = specificCursor;
+                markupSetCursor( specificCursor );
                 break;
             }
         }
-        markupSetCursor( cursor );
+
+        // If not panning and not over any item, set the default markup cursor
+        if( !panning && i == n /*loop completed without finding an item under the cursor*/ )
+        {
+            markupSetCursor( getDefaultMarkupCursor() );
+        }
+
+        return false;
     }
 
-    // If there is an active item and action is required on move, then report the move
-    if( activeItem != MARKUP_ID_NONE && items[activeItem]->reportOnMove )
+    // If the user has the button down, redraw the item in its new position or shape.
+    if( buttonDown && activeItem != MARKUP_ID_NONE )
     {
-        markupItem* item = items[activeItem];
-        markupAction( getActionMode(), false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+        redrawActiveItemHere( event->pos() );
+
+        // If there is an active item and action is required on move, then report the move
+        if( activeItem != MARKUP_ID_NONE && items[activeItem]->reportOnMove )
+        {
+            markupItem* item = items[activeItem];
+            markupAction( getActionMode(), false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+        }
+
+        // Return indicating the event was appropriated for markup purposes
+        return true;
     }
 
-    // Return indicating the event was appropriated for markup purposes
-    return true;
-}
-
-// A region of interest value has changed.
-// Update any region markup if required
-void imageMarkup::markupRegionValueChange( int areaIndex, QRect area )
-{
-    int region;
-    switch( areaIndex )
-    {
-        case 0:
-        default: region = MARKUP_ID_REGION1; break;
-        case 1:  region = MARKUP_ID_REGION2; break;
-        case 2:  region = MARKUP_ID_REGION3; break;
-        case 3:  region = MARKUP_ID_REGION4; break;
-    }
-
-    bool isVisible =  items[region]->visible;
-    if( isVisible )
-    {
-        items[region]->drawMarkupOut();
-    }
-
-    items[region]->nonInteractiveUpdate( area );
-    items[region]->drawMarkupIn();
-}
-
-// Return the mode according to the active item.
-// Note, this is not the mode as set by setMode(). The mode as set by setMode()
-// is what happens when a user initiates action in a part of the display not
-// occupied by a markup.
-// This mode is related to an existing markup being manipulated.
-// For example, if the current mode set by setMode() is MARKUP_MODE_AREA
-// (select and area) but the user has draged the profile line the mode
-// returned by this method is MARKUP_MODE_LINE
-imageMarkup::markupIds imageMarkup::getActionMode()
-{
-    switch( activeItem )
-    {
-        case MARKUP_ID_H_SLICE:
-        case MARKUP_ID_V_SLICE:
-        case MARKUP_ID_LINE:
-        case MARKUP_ID_REGION1:
-        case MARKUP_ID_REGION2:
-        case MARKUP_ID_REGION3:
-        case MARKUP_ID_REGION4:
-        case MARKUP_ID_TARGET:
-        case MARKUP_ID_BEAM:
-            return activeItem;
-
-        default:
-            return MARKUP_ID_NONE;
-    }
-}
-
-// Return the default markup cursor (to be displayed when not over any particular markup)
-QCursor imageMarkup::getDefaultMarkupCursor()
-{
-    if( mode < MARKUP_ID_COUNT )
-    {
-        return items[mode]->defaultCursor();
-    }
-    else
-    {
-        return Qt::CrossCursor;
-    }
+    return false;
 }
 
 // The mouse has been released over the image
@@ -412,6 +339,76 @@ bool imageMarkup::markupMouseReleaseEvent ( QMouseEvent*, bool panning  )
     return true;
 }
 
+//===========================================================================
+
+// A region of interest value has changed.
+// Update any region markup if required
+void imageMarkup::markupRegionValueChange( int areaIndex, QRect area )
+{
+    int region;
+    switch( areaIndex )
+    {
+        case 0:
+        default: region = MARKUP_ID_REGION1; break;
+        case 1:  region = MARKUP_ID_REGION2; break;
+        case 2:  region = MARKUP_ID_REGION3; break;
+        case 3:  region = MARKUP_ID_REGION4; break;
+    }
+
+    // Area to update
+    QVector<QRect> changedAreas;
+    bool isVisible =  items[region]->visible;
+    if( isVisible )
+    {
+        changedAreas.append( items[region]->area );
+    }
+
+    items[region]->nonInteractiveUpdate( area );
+    changedAreas.append( items[region]->area );
+    markupChange( changedAreas );
+}
+
+// Return the mode according to the active item.
+// Note, this is not the mode as set by setMode(). The mode as set by setMode()
+// is what happens when a user initiates action in a part of the display not
+// occupied by a markup.
+// This mode is related to an existing markup being manipulated.
+// For example, if the current mode set by setMode() is MARKUP_MODE_AREA
+// (select and area) but the user has draged the profile line the mode
+// returned by this method is MARKUP_MODE_LINE
+imageMarkup::markupIds imageMarkup::getActionMode()
+{
+    switch( activeItem )
+    {
+        case MARKUP_ID_H_SLICE:
+        case MARKUP_ID_V_SLICE:
+        case MARKUP_ID_LINE:
+        case MARKUP_ID_REGION1:
+        case MARKUP_ID_REGION2:
+        case MARKUP_ID_REGION3:
+        case MARKUP_ID_REGION4:
+        case MARKUP_ID_TARGET:
+        case MARKUP_ID_BEAM:
+            return activeItem;
+
+        default:
+            return MARKUP_ID_NONE;
+    }
+}
+
+// Return the default markup cursor (to be displayed when not over any particular markup)
+QCursor imageMarkup::getDefaultMarkupCursor()
+{
+    if( mode < MARKUP_ID_COUNT )
+    {
+        return items[mode]->defaultCursor();
+    }
+    else
+    {
+        return Qt::CrossCursor;
+    }
+}
+
 // The active item has moved to a new position. Redraw it.
 void imageMarkup::redrawActiveItemHere( QPoint pos )
 {
@@ -426,19 +423,18 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
     // !!! allows redrawing of diagonal lines
     QVector<QRect> changedAreas;
 
-    // Erase if visible, move, then redraw the item
+    // Ensure item will be erased, move, then ensure it will be redrawn
     if( items[activeItem]->visible )
     {
         changedAreas.append( items[activeItem]->area );
-        items[activeItem]->erase();
     }
-    items[activeItem]->moveTo( pos );
-    items[activeItem]->drawMarkupIn();
 
-    // Extend the changed area to include the item's new area and notify markups require redrawing
-    // !!! if the two areas overlap by much, perhaps smarter to join the two into one, or generate the required four?
+    items[activeItem]->moveTo( pos );
+    items[activeItem]->visible = true;
+
+    // Extend the changed areas to include the item's new area and notify markups require redrawing
     changedAreas.append( items[activeItem]->area );
-    markupChange( *markupImage, changedAreas );
+    markupChange( changedAreas );
 }
 
 // The viewport size has changed.
@@ -447,35 +443,15 @@ void imageMarkup::redrawActiveItemHere( QPoint pos )
 // to convert markups from their current size to the new size.
 // For example, the scaling calculated below will be 2.0 when changing from
 // 100% zoom to 200% or changing from 200% to 400%
-void imageMarkup::markupResize( QSize newSize, double zoomScale )
+void imageMarkup::markupResize( const QSize& newSize, const QSize& oldSize, const double zoomScale )
 {
     // Determine scaling that will be applied to the markups.
     // Note, X and Y factors will be close, but may not be exactly the same
-    bool rescale;
-    double xScale;
-    double yScale;
-    if( markupImage->isNull() )
-    {
-        rescale = false;
-        xScale = 1.0;   // Not used when rescale is false, but set to avoid compilation warning on windows
-        yScale = 1.0;   // Not used when rescale is false, but set to avoid compilation warning on windows
-    }
-    else
-    {
-        rescale = true;
-        xScale = (double)(newSize.width())  / (double)(markupImage->size().width());
-        yScale = (double)(newSize.height()) / (double)(markupImage->size().height());
-    }
+    double xScale = (double)(newSize.width())  / (double)(oldSize.width());
+    double yScale = (double)(newSize.height()) / (double)(oldSize.height());
 
-    // If the markup image is not the right size, create one that is
-    if( markupImage->size() != newSize )
-    {
-        // Delete the old one (may be the initial empty image)
-        // Replace it with a new one, and fill it with a completely transparent background
-        delete markupImage;
-        markupImage = new QImage( newSize, QImage::Format_ARGB32 );
-        markupImage->fill( 0 );
-    }
+    // Area to update
+    QVector<QRect> changedAreas;
 
     // Rescale and redraw any visible markups
     // Also act on all visible markups. This is required as the new viewport coordinates will need to be retranslated according to the new viewport size.
@@ -483,43 +459,34 @@ void imageMarkup::markupResize( QSize newSize, double zoomScale )
     int n = items.count();
     for( int i = 0; i < n; i ++ )
     {
-        // If rescaling is possible (if we have a previous image), then rescale
-        if( rescale )
-        {
-            items[i]->scale( xScale, yScale, zoomScale );
-        }
-        // If the markup is being displayed, redraw it, and act on its 'new' position
-        if( items[i]->visible )
-        {
-            markupItem* item = items[i];
+        markupItem* item = items[i];
 
-            item->drawMarkupIn();
+        // Ensure the area the markup occupied will be cleared
+        if( item->visible )
+        {
+            changedAreas.append( item->area );
+        }
+
+        // Rescale the item
+        item->scale( xScale, yScale, zoomScale );
+
+        // Let the items know the new size of the image
+        item->setImageSize( newSize );
+
+        // If the markup is being displayed, redraw it, and act on its 'new' position
+        if( item->visible )
+        {
+            changedAreas.append( item->area );
+
             markupAction( (markupIds)i, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
         }
     }
 
     // Notify the change
-    markupChange( *markupImage, getMarkupAreas() );
-}
-
-// Return areas of the image where markups are currently drawn
-// Used when redrawing current markups on a new image.
-QVector<QRect>& imageMarkup::getMarkupAreas()
-{
-    if( markupAreasStale )
+    if( changedAreas.count() )
     {
-        markupAreas.clear();
-        int n = items.count();
-        for( int i = 0; i < n; i ++ )
-        {
-            if( items[i]->visible )
-            {
-                markupAreas.append( items[i]->area );
-            }
-        }
-        markupAreasStale = false;
+        markupChange( changedAreas );
     }
-    return markupAreas;
 }
 
 // Return true if there are any markups visible.
@@ -550,17 +517,12 @@ void imageMarkup::setMarkupColor( markupIds mode, QColor markupColorIn )
     // Save the new markup color
     items[mode]->setColor( markupColorIn );
 
-    // Do nothing (no need to change drawn colors) if no markup image yet
-    if( markupImage->isNull() )
-        return;
-
     // If the item is visible, redraw it in the new color
     QVector<QRect> changedAreas;
     if( items[mode]->visible )
     {
-        items[mode]->drawMarkupIn();
         changedAreas.append( items[mode]->area );
-        markupChange( *markupImage, changedAreas );
+        markupChange( changedAreas );
     }
 
 }
@@ -655,10 +617,10 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
 
         case imageContextMenu::ICM_CLEAR_MARKUP:
         {
-            items[activeItem]->erase();
+            items[activeItem]->visible = false;
             QVector<QRect> changedAreas;
             changedAreas.append( items[activeItem]->area );
-            markupChange( *markupImage, changedAreas );
+            markupChange( changedAreas );
 
             markupAction( activeItem, false, true, QPoint(), QPoint(), 0 );
 
@@ -670,7 +632,22 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
         case imageContextMenu::ICM_THICKNESS_ONE_MARKUP:
         {
             markupItem* item = items[activeItem];
+
+            // Start a list of affected areas
+            QVector<QRect> changedAreas;
+
+            // Include the area of the item before its thickness changes
+            changedAreas.append( item->area );
+
+            // set the thickness of the item
             item->setThickness( 1 );
+
+            // Include the area of the item after its thickness has changed
+            changedAreas.append( item->area );
+
+            // Repaint
+            markupChange( changedAreas );
+
             markupAction( activeItem, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
             break;
         }

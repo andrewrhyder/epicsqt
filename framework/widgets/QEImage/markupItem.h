@@ -23,58 +23,16 @@
  */
 
 /*
- This class manages the markups that are overlayed of an image, such as region of interest, line, graticule, time and date, etc.
- The class also handles user interaction with the markups, such as creation and draging.
+ This class is the base class for markups that are overlayed of an image, such as region of interest, line, graticule, time and date, etc.
+ The class also handles generic user interaction with the markups, such as creation and draging.
  The class works at the display resolution of the image, but also understands the actual resolution of
  the underlying image and can describe markups in terms of the underlying image.
-
- There are several markup classes used by imageMarkup, all based on the markupItem class. They are:
-    markupTarget
-    markupBeam
-    markupHLine
-    markupVLine
-    markupLine
-    markupRegion
-    markupText
- All these classes are are included in this module
-
- This module draws markups when interacting with the user, and also when the image changes.
-
- Interaction with user is as follows:
-        On mouse events VideoWidget calls  imageMarkup::markupMousePressEvent(),
-                                           imageMarkup::markupMouseReleaseEvent()
-                                           imageMarkup::markupMouseMoveEvent()
-
-        imageMarkup then calls VideoWidget back with any image changes required through virtual method markupChange(),
-        and calls VideoWidget back with any action to take through the virtual method markupAction().
-        In other words, markupChange() is used to signal rendering requirements, markupAction() is used to signal when a task needs to be performed.
-        For example, when a user selects an area, markupChange() is called as the selected area moves following the pointer. markupAction() is
-        called when selection is over and the application should do something.
-
- The following exchanges occur when the image changes (generating a paint event), or is resized, or panned:
-        When the displayed size of the image changesVideoWidget calls imageMarkup::markupResize().
-        When a paint event occurs, VideoWidget calls imageMarkup::anyVisibleMarkups() to determine if any markups need to be displayed.
-        When a paint event occurs, VideoWidget calls imageMarkup::getMarkupAreas() to determine what parts of the image need overlaying with markups.
-        VideoWidget calls imageMarkup::getDefaultMarkupCursor() to determine what the current cursor should be.
-        VideoWidget calls imageMarkup::setMarkupTime() to note the time a new image has been presented.
 */
 
 #ifndef MARKUPITEM_H
 #define MARKUPITEM_H
 
 #include <QPainter>
-
-//#include <QSize>
-//#include <QPoint>
-//#include <QLine>
-//#include <QRect>
-//#include <QMouseEvent>
-//#include <QImage>
-//#include <QColor>
-//#include <QFontMetrics>
-//#include <QFont>
-//#include <QCaDateTime.h>
-
 
 #include <QDebug>
 
@@ -84,7 +42,6 @@
 
 // Profile thickness selection maximum
 #define THICKNESS_MAX 51
-
 
 class imageMarkup;
 
@@ -102,12 +59,11 @@ public:
                          MARKUP_HANDLE_START, MARKUP_HANDLE_END, MARKUP_HANDLE_CENTER,  // Lines
                          MARKUP_HANDLE_TL, MARKUP_HANDLE_TR, MARKUP_HANDLE_BL, MARKUP_HANDLE_BR, // Area corners
                          MARKUP_HANDLE_T, MARKUP_HANDLE_B, MARKUP_HANDLE_L, MARKUP_HANDLE_R };   // Area sides
-    void erase();                // Erase and item and redraw any items that it was over (note, this does not change its status. For example, it is used if hiding an item, but also when moving an item)
-    void drawMarkupIn();
-    void drawMarkupIn( QPainter& p );
-    void drawMarkupOut();
+    void drawMarkupItem( QPainter& p );
     void setColor( QColor colorIn );
     void scale( const double xScale, const double yScale, const double zoomScale );
+    void setImageSize( const QSize& newSize );
+
 
     virtual QPoint origin()=0;                                                      // Origin of the markup, for example, the center of a target
     virtual void   moveTo( const QPoint pos )=0;                                    // Move an item (always make it visible and highlighed)
@@ -119,10 +75,11 @@ public:
                                                                                     // left or right side handle
     virtual QPoint       getPoint1()=0;                                             // Return the first point of the markup (starting point for a line, top left corner for a rectangle, etc)
     virtual QPoint       getPoint2()=0;                                             // Return the second point of the markup (end point for a line, bottom right corner for a rectangle, etc)
-    virtual unsigned int getThickness()=0;                                          // Return the thickness of a markup where relevent. For example the thickness of a profile line
-    virtual void         setThickness( const unsigned int thicknessIn )=0;          // Set the thickness of a markup where relevent.
     virtual QCursor      defaultCursor()=0;                                         // Return the default cursor for the markup.
     virtual void         nonInteractiveUpdate( QRect ) {}                           // Only implemented by those objects that are updated by data such as region of interest
+
+    void          setThickness( const unsigned int thicknessIn );          // Set the thickness of a markup where relevent.
+    unsigned int  getThickness();
 
     QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
     bool          visible;      // Object is visible to the user
@@ -148,6 +105,11 @@ protected:
     const  QPoint getLegendPos();                                           // Returns the last drawn legend position
     void   drawLegend( QPainter& p, QPoint pos, legendJustification just ); // Draw the legend beside the markup
     QPoint limitPointToImage( const QPoint pos );                           // Return the input point limited to the image area
+
+    QSize imageSize;
+
+    unsigned int thickness;     // Selected line thickness
+    unsigned int maxThickness;  // Maximum line thickness. Changes according to current zoom
 
 private:
     virtual void scaleSpecific( const double xScale, const double yScale, const double zoomScale )=0;   // Scale the markup for presentation at different zoom levels

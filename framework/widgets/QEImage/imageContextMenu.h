@@ -24,7 +24,7 @@
 
 /*
  This class manages the context menu for the QEImage widget
- It extends the standard QEFramework context menu
+ It includes a menu item to present the standard QEFramework context menu.
  Functions are available to add menu options, and sub menus.
  A function is available to present the menu to the user and return a user selection
  */

@@ -37,12 +37,6 @@ void markupText::drawMarkup( QPainter& p )
 {
     // Draw markup
 
-    // Set the area to more than enough.
-    // This will be trimmed to the bounding retangle of the text
-    QSize textSize = owner->legendFontMetrics->size( Qt::TextSingleLine, text );
-
-    rect = QRect( QPoint( 0, 0 ), textSize );
-
     // Draw the text
     p.setFont( owner->legendFont );
     p.drawText( rect, Qt::AlignLeft, text, &rect );
@@ -50,22 +44,24 @@ void markupText::drawMarkup( QPainter& p )
     // Draw markup legend
     // never a legend for text drawLegend( p, ???, ABOVE_RIGHT );
 
-    setArea();
 }
 
-void markupText::setText( QString textIn, bool draw )
+void markupText::setText( QString textIn )
 {
-    if( draw )
-        erase();
-
     text = textIn;
 
-    if( draw )
-        drawMarkupIn();
+    // Update the area to accommodate the new text
+    setArea();
 }
 
 void markupText::setArea()
 {
+    // Set the area to more than enough.
+    // This will be trimmed to the bounding retangle of the text
+    QSize textSize = owner->legendFontMetrics->size( Qt::TextSingleLine, text );
+
+    rect = QRect( QPoint( 0, 0 ), textSize );
+
     area = rect;
 
     addLegendArea();
@@ -125,16 +121,6 @@ QPoint markupText::getPoint1()
 QPoint markupText::getPoint2()
 {
     return rect.bottomRight();
-}
-
-unsigned int markupText::getThickness()
-{
-    return 0;
-}
-
-void markupText::setThickness( const unsigned int )
-{
-    // Do nothing
 }
 
 QCursor markupText::defaultCursor()

@@ -39,8 +39,8 @@ void markupTarget::drawMarkup( QPainter& p )
     QPen pen = p.pen();
     pen.setStyle( Qt::DashLine );
     p.setPen( pen );
-    p.drawLine( pos.x(), 0, pos.x(), owner->markupImage->rect().height() );
-    p.drawLine( 0, pos.y(), owner->markupImage->rect().width(), pos.y() );
+    p.drawLine( pos.x(), 0, pos.x(), imageSize.height() );
+    p.drawLine( 0, pos.y(), imageSize.width(), pos.y() );
     pen.setStyle( Qt::SolidLine );
     p.setPen( pen );
 
@@ -50,7 +50,7 @@ void markupTarget::drawMarkup( QPainter& p )
 
 void markupTarget::setArea()
 {
-    area = owner->markupImage->rect();
+    area = QRect( QPoint(0,0), imageSize );
 
     addLegendArea();
 
@@ -107,16 +107,6 @@ QPoint markupTarget::getPoint1()
 QPoint markupTarget::getPoint2()
 {
     return QPoint();
-}
-
-unsigned int markupTarget::getThickness()
-{
-    return 0;
-}
-
-void markupTarget::setThickness( const unsigned int  )
-{
-    // Do nothing
 }
 
 QCursor markupTarget::defaultCursor()

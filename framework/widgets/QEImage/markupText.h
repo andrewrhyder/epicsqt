@@ -23,24 +23,15 @@
  */
 
 /*
- This class manages ???
+ This class manages a 'test' markup.
+ The markup simply contains some text. The user cannot interact with it.
+ It is used to present a time stamp, but could be used for any text markups.
 */
 
 #ifndef MARKUPTEXT_H
 #define MARKUPTEXT_H
 
 #include <markupItem.h>
-//#include <QSize>
-//#include <QPoint>
-//#include <QLine>
-//#include <QRect>
-//#include <QMouseEvent>
-//#include <QImage>
-//#include <QColor>
-//#include <QFontMetrics>
-//#include <QFont>
-//#include <QCaDateTime.h>
-
 
 #include <QDebug>
 
@@ -53,7 +44,7 @@ public:
 
     markupText( imageMarkup* ownerIn, const bool interactiveIn, const bool reportOnMoveIn, const QString legendIn );
 
-    void setText( QString textIn, bool draw );
+    void setText( QString textIn );
 
     //==================================================================
     // Implement base class functions - see markupItem class defition for a description of each of these methods
@@ -66,8 +57,6 @@ public:
     QCursor cursorForHandle( const markupItem::markupHandles handle );
     QPoint getPoint1();
     QPoint getPoint2();
-    unsigned int getThickness();
-    void setThickness( const unsigned int thicknessIn );
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
     //==================================================================

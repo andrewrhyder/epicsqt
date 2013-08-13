@@ -312,16 +312,6 @@ QPoint markupRegion::getPoint2()
     return rect.bottomRight();
 }
 
-unsigned int markupRegion::getThickness()
-{
-    return 0;
-}
-
-void markupRegion::setThickness( const unsigned int )
-{
-    // Do nothing
-}
-
 QCursor markupRegion::defaultCursor()
 {
     return owner->getRegionCursor();
