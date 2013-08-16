@@ -139,12 +139,12 @@ void QEScratchPad::createInternalWidgets ()
    this->dataDialog = new QEScratchPadItemDialog (this);
 
    this->widgetContextMenu = new QMenu (this);
-   action = new QAction ("Copy PV names", this->widgetContextMenu);
+   action = new QAction ("Copy All PV Names", this->widgetContextMenu);
    action->setCheckable (false);
    action->setData (QVariant (COPY_PV_NAMES));
    this->widgetContextMenu->addAction (action);
 
-   action = new QAction ("Paste PV names", this->widgetContextMenu);
+   action = new QAction ("Paste All PV Names", this->widgetContextMenu);
    action->setCheckable (false);
    action->setData (QVariant (PASTE_PV_NAMES));
    this->widgetContextMenu->addAction (action);

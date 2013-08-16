@@ -508,12 +508,12 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    //
    this->chartContextMenu = new QMenu (this->chart);
 
-   action = new QAction ("Copy PV names", this->chartContextMenu);
+   action = new QAction ("Copy All PV Names", this->chartContextMenu);
    action->setCheckable (false);
    action->setData (QVariant (int (QEStripChartNames::SCCM_COPY_PV_NAMES)));
    this->chartContextMenu->addAction (action);
 
-   action = new QAction ("Paste PV names", this->chartContextMenu);
+   action = new QAction ("Paste All PV Names", this->chartContextMenu);
    action->setCheckable (false);
    action->setData (QVariant (int (QEStripChartNames::SCCM_PASTE_PV_NAMES)));
    this->chartContextMenu->addAction (action);
