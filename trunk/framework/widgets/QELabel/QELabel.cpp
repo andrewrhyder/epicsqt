@@ -59,6 +59,7 @@ void QELabel::setup() {
 
     // Set the initial state
     setText( "----" );
+    setIndent( 6 );
     isConnected = false;
     updateConnectionStyle( isConnected );
     updateOption = UPDATE_TEXT;

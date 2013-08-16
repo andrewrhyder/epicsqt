@@ -90,7 +90,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
     protected:
         QString uiFileName; // As specified on creation
         QString fullUiFileName; // Full standard path
-        void setVariableNameSubstitutions( QString variableNameSubstitutionsIn );
+        // no implementation - void setVariableNameSubstitutions( QString variableNameSubstitutionsIn );
         bool handleGuiLaunchRequests;
         bool resizeContents;
 
