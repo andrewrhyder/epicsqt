@@ -385,7 +385,7 @@ public slots:
     unsigned long imageDataSize;    // Size of elements in image data (originating from CA data type
     unsigned long elementsPerPixel; // Number of data elements per pixel.
     unsigned long bytesPerPixel;    // Bytes in input data per pixel (imageDataSize * elementsPerPixel)
-    QByteArray image;       // Buffer to hold original image data.
+    QByteArray image;       // Buffer to hold original image data. WARNING To avoid expensive memory copies, data is generated using QByteArray::fromRawData(), where the raw data is the original CA update data. This data is held until a subsequent update. The data in this QByteArray will be valid only until the next update arrives.
     QByteArray imageBuff;   // Buffer to hold data converted to format for generating QImage.
 #define IMAGEBUFF_BYTES_PER_PIXEL 4   // 4 bytes for Format_RGB32
     unsigned long imageBuffWidth;   // Original image width
