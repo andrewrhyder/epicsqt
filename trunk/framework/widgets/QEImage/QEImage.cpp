@@ -1345,14 +1345,27 @@ void QEImage::targetClicked()
 // Pause button pressed
 void QEImage::pauseClicked()
 {
+    // If paused, resume
     if (paused)
     {
+        // Resume display of most recent image
         pauseButton->setIcon( *pauseButtonIcon );
         pauseButton->setToolTip("Pause image display");
         paused = false;
     }
+
+    // Not paused, so pause
     else
     {
+        // Force a deep copy of the image data as it will be used while paused if the user
+        // interacts with the image - even by just hovering over it and causing pixel information to be displayed.
+        // For efficiency, the image data was generated from the original update data using QByteArray::fromRawData().
+        // The data system keeps the raw data until the next update so QByteArray instances like 'image' will remain vaild.
+        // The data system discards it and replaces it will the latest data after each update. So if not using the latest
+        // data (such as when paused) the data in 'image' would become stale after an update.
+        image.resize( image.count()+1);
+
+        // Pause the display
         pauseButton->setIcon( *playButtonIcon );
         pauseButton->setToolTip("Resume image display");
         paused = true;
