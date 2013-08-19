@@ -151,7 +151,7 @@ void imageMarkup::drawMarkups( QPainter& p, const QRect& rect )
     for( int i = 0; i < n; i ++ )
     {
         markupItem* item = items[i];
-        // If the markup is being displayed, redraw it, and act on its 'new' position
+        // If the markup is being displayed and in the area of interest, draw it.
         if( item->visible && rect.intersects( item->area ))
         {
             item->drawMarkupItem( p );
