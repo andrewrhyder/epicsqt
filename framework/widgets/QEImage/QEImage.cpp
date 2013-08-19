@@ -681,7 +681,8 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
         case GREY12:  minBits = 2;  break;
         case GREY16:  minBits = 16; break;
         case RGB_888: minBits = 24; break;
-        case NUM_OPTIONS: break;
+        // Need this to make the warnings go away.
+        default:      minBits = 8;  break;
     }
 
     elementsPerPixel = minBits/(imageDataSize*8);
