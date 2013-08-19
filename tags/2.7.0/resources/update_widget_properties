@@ -1,0 +1,105 @@
+#!/bin/bash
+#
+
+iam=$( basename $0 )
+sdir=$( dirname $0 )
+
+function terminate () {
+   local arg
+   for arg in "$@" ; do
+      echo 1>&2 "${arg}"
+   done
+   exit 1
+}
+
+function usage () {
+   terminate "${1}"  \
+             "usage: ${iam} replace_def_directory  qt_widget_directory"  \
+             "       ${iam} --help | -h"
+}
+
+function help () {
+   cat <<HELP_TEXT
+This ${iam} script may be used to maintain consistancy of the
+header files of the the QE widgets.
+
+usage: ${iam} replace_def_directory  qt_widget_directory
+       ${iam} --help | -h
+
+The script parses any replace bracketed text (.rbt) files in the nominated
+replace_def_directory and used these to update the header files for all wigdets
+located in the qt_widget_directory. As of when this help information was
+produced, rbt files exist for single PV properties, standard proverties and
+for string formatting properties.  A QE widget may use none, one, two or all
+three rbt files.
+
+Example: when using the QESinglePVProperties.rbt file, the script searchs
+for QE widget header files with the following text lines:
+
+ BEGIN-SINGLE-VARIABLE-PROPERTIES, and
+ END-SINGLE-VARIABLE-PROPERTIES
+
+There should be only one instance of each text sequence per file, and the
+line number of the latter must be gereater than the former. The text lines
+should be embedded in comments, but the script does not enforce this.
+
+All text from the line fallowing the "begin" text upto but excluding the
+"end" text is removed and replaced by text from the QESinglePVProperties.rbt
+file. Provided the rbt file is unchanged, the ${iam} script
+is idempotent.
+
+HELP_TEXT
+}
+
+
+if [ "${1}" == "--help" ] ||  [ "${1}" == "-h" ] ; then
+   help
+   exit 0
+fi
+
+
+if [ $# -lt 2 ] || [ -z "${1}" ]  || [ -z "${2}" ] ; then
+   usage "missing and/or null parameter(s)"
+fi
+
+replace_dir=${1:?}
+widget_dir=${2:?}
+
+if [ ! -d ${replace_dir:?} ] ; then
+   terminate "${iam}: ${replace_dir:?} does not exist or is not a directory"
+fi
+
+if [ ! -d ${widget_dir:?} ] ; then
+   terminate "${iam}: ${widget_dir:?} does not exist or is not a directory"
+fi
+
+start_meta_pattern="__define_replace_start_delimiter__"
+
+for rbt in ${replace_dir:?}/*.rbt ; do
+
+   echo ""
+   echo "processing ${rbt:?} ... "
+   look_for="$( grep "^.*${start_meta_pattern}"  ${rbt:?}  | sed -e "s/^.*${start_meta_pattern} *//g" )"
+   if [ -z "${look_for}" ] ; then
+      echo "no start pattern found in ${rbt:?} - ignoring file."
+      continue
+   fi
+   echo "looking for header files containing ${look_for:?}"
+
+   # Find list of headers with "look_for" as a pre-replace_bracketed_text filter.
+   # replace_bracketed_text will perform a more detailed check.
+   #
+   header_list="$(  grep -l "${look_for:?}" $( find ${widget_dir:?} -type f -name "*.h" ) )"
+   if [ -z "${header_list}" ] ; then
+      echo "no header files found that contain: ${look_for:?} found in ${widget_dir:?}."
+      continue
+   fi
+
+   # Assume replace_bracketed_text in the same directory.
+   #
+   ${sdir:?}/replace_bracketed_text  ${rbt:?}  ${header_list}
+
+done
+echo ""
+
+# end
