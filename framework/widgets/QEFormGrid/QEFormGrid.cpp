@@ -255,8 +255,8 @@ QEForm* QEFormGrid::createQEForm (const int slot)
    QEForm* form = NULL;
 
    // Publish the profile this button recieved.
-   // Don't seem to need this??
-   // this->publishOwnProfile ();
+   //
+   this->publishOwnProfile ();
 
    // Extend any variable name substitutions with this form grid's substitutions
    // Like most other macro substitutions, the substitutions already present take precedence.
@@ -282,8 +282,8 @@ QEForm* QEFormGrid::createQEForm (const int slot)
    this->removeMacroSubstitutions ();
 
    // Release the profile now all QE widgets have been created.
-   // Don't seem to need this??
-   // this->releaseProfile ();
+   //
+   this->releaseProfile ();
 
    return form;
 }
