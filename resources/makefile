@@ -225,6 +225,7 @@ endif
 	@echo "/*" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@echo "%post" >> $(SPEC_FILE)
+	@echo "echo The EPICS Qt Framework was installed in \'$(RPM_DEPLOY_DIRECTORY)\'." >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@$(RPM_DIRECTORY) -bb $(SPEC_FILE)
 	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."
