@@ -162,7 +162,11 @@ endif
 	@echo "#!/bin/bash" > $(EXECUTE_FILE)
 	@echo "export LD_LIBRARY_PATH=$(RPM_DEPLOY_DIRECTORY)/lib:./lib:$(RPM_DEPLOY_DIRECTORY)/lib/plugins/designer/:./lib/plugins/designer/:\$$LD_LIBRARY_PATH" >> $(EXECUTE_FILE)
 	@echo "export QT_PLUGIN_PATH=$(RPM_DEPLOY_DIRECTORY)/lib/plugins:./lib/plugins" >> $(EXECUTE_FILE)
-	@echo "$(RPM_DEPLOY_DIRECTORY)/bin/qegui \"\$$@\" || ./bin/qegui \"\$$@\"" >> $(EXECUTE_FILE)
+	@echo "if [ -f $(RPM_DEPLOY_DIRECTORY)/bin/qegui ]; then" >> $(EXECUTE_FILE)
+	@echo "    $(RPM_DEPLOY_DIRECTORY)/bin/qegui \"\$$@\"" >> $(EXECUTE_FILE)
+	@echo "else" >> $(EXECUTE_FILE)
+	@echo "    ./bin/qegui \"\$$@\"" >> $(EXECUTE_FILE)
+	@echo "fi" >> $(EXECUTE_FILE)
 	@chmod u+x $(EXECUTE_FILE)
 	@echo "Please note that a file called 'executeQEGui' (located in directory '$(PACKAGE_DIRECTORY)') was created in order to facilitate the launching of ui files. To use it, do the following in a terminal: ./executeQEGui XXX (where XXX is the ui file to be launched)."
 	@echo "...done packaging framework!"
