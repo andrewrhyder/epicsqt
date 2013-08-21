@@ -32,6 +32,9 @@
 
 #define DEBUG qDebug () << "QEFormGrid" << __FUNCTION__ << __LINE__
 
+const int QEFormGrid::MaximumForms = 210;    // 2*3*5*7
+const int QEFormGrid::MaximumColumns = 42;   // 2*3*7
+
 
 //=============================================================================
 // MacroData functions
