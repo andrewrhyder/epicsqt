@@ -45,7 +45,7 @@ static const QColor clStatus (0xF0F0F0);
 
 // Define default colours: essentially RGB byte triplets
 //
-static const QColor item_colours [1 + QEPlotter::NUMBER_OF_PLOTS] = {
+static const QColor item_colours [1 + NUMBER_OF_PLOTS] = {
    clWhite,
    QColor (0xFF0000), QColor (0x0000FF), QColor (0x008000), QColor (0xFF8000),
    QColor (0x4080FF), QColor (0x800000), QColor (0x008080), QColor (0x808000),
@@ -53,7 +53,7 @@ static const QColor item_colours [1 + QEPlotter::NUMBER_OF_PLOTS] = {
    QColor (0x8F00C0), QColor (0xC0008F), QColor (0xB040B0), clBlack
 };
 
-static const QString item_labels [1 + QEPlotter::NUMBER_OF_PLOTS] = {
+static const QString item_labels [1 + NUMBER_OF_PLOTS] = {
    QString ("X"),
    QString ("A"), QString ("B"), QString ("C"), QString ("D"),
    QString ("E"), QString ("F"), QString ("G"), QString ("H"),
@@ -154,6 +154,9 @@ void QEPlotter::createInternalWidgets ()
    this->plotArea = new QwtPlot (this->plotFrame);
    this->plotArea->setCanvasLineWidth (1);
    this->plotArea->setLineWidth (1);
+
+   this->plotArea->canvas()->setMouseTracking (true);
+   this->plotArea->canvas()->installEventFilter (this);
 
    this->plotGrid = new QwtPlotGrid ();
    this->plotGrid->attach (this->plotArea);
@@ -381,9 +384,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
       vpnm = &this->xy [slot].sizeVariableNameManager;
       QObject::connect (vpnm, SIGNAL (newVariableNameProperty (QString, QString, unsigned int)),
                         this, SLOT   (setNewVariableName      (QString, QString, unsigned int)));
-
    }
-
 
    this->xScaleMode = smDynamic;
    this->yScaleMode = smDynamic;
@@ -845,6 +846,49 @@ void QEPlotter::pvNameDropEvent (const int slot, QDropEvent *event)
    }
 }
 
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setReadOut (const QString& text)
+{
+   message_types mt (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS);
+   this->sendMessage (text, mt);
+}
+
+//---------------------------------------------------------------------------------
+//
+QPointF QEPlotter::plotToReal (const QPoint& pos) const
+{
+   double x, y;
+
+   // Perform basic invsere transformation.
+   //
+   x = this->plotArea->invTransform (QwtPlot::xBottom, pos.x ());
+   y = this->plotArea->invTransform (QwtPlot::yLeft,   pos.y ());
+
+   // Scale to real world units - none yet
+   //
+   return QPointF (x, y);
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::onCanvasMouseMove (QMouseEvent* event)
+{
+   const QPointF real = this->plotToReal (event->pos ());
+   QString mouseReadOut;
+   QString f;
+
+   mouseReadOut = "";
+
+   f.sprintf (" x: %+.5g", real.x ());
+   mouseReadOut.append (f);
+
+   f.sprintf (" y: %+.5g", real.y ());
+   mouseReadOut.append (f);
+
+   this->setReadOut (mouseReadOut);
+}
+
 //---------------------------------------------------------------------------------
 //
 bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
@@ -854,6 +898,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
    int slot;
 
    switch (type) {
+
       case QEvent::MouseButtonPress:
          mouseEvent = static_cast<QMouseEvent *> (event);
          slot = this->findSlot (obj);
@@ -864,6 +909,23 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          }
          break;
 
+
+      case QEvent::MouseButtonRelease:
+         mouseEvent = static_cast<QMouseEvent *> (event);
+         // place holder.
+         break;
+
+
+      case QEvent::MouseMove:
+         mouseEvent = static_cast<QMouseEvent *> (event);
+
+         if (obj == this->plotArea->canvas ()) {
+            this->onCanvasMouseMove (mouseEvent);
+            return true;  // we have handled move nouse event
+         }
+         break;
+
+
       case QEvent::MouseButtonDblClick:
          slot = this->findSlot (obj);
          if (slot >= 0) {
@@ -872,6 +934,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
             return true;  // we have handled double click
          }
          break;
+
 
       case QEvent::DragEnter:
          slot = this->findSlot (obj);
@@ -893,6 +956,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          }
          break;
 
+
       case QEvent::DragLeave:
          slot = this->findSlot (obj);
          if (slot >= 0) {
@@ -911,6 +975,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
             return true;
          }
          break;
+
 
       default:
          // Just fall through
