@@ -105,6 +105,7 @@ SOURCES += \
 # Widget and other sub projects
 # Included .pri (project include) files for each widget
 #
+include (adaptation_parameters/adaptation_parameters.pri)
 include (common/common.pri)
 include (data/data.pri)
 include (archive/QEArchive.pri)
