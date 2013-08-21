@@ -139,7 +139,7 @@ public:
    ~QEPlotter();
    QSize sizeHint () const;
 
-   static const int NUMBER_OF_PLOTS = 16;
+#define NUMBER_OF_PLOTS 16
 
    // Single function for all 'Data Set' properties.
    //
@@ -298,6 +298,10 @@ private:
    void doAnyCalculations ();
    void addPvName (const QString& pvName);
    void addPvNameSet (const QString& pvNameSet);
+
+   void setReadOut (const QString& text);
+   QPointF plotToReal (const QPoint& pos) const;  // map plot position to real co-ordinated
+   void onCanvasMouseMove (QMouseEvent* event);
 
    // Perform a pvNameDropEvent 'drop'
    //
