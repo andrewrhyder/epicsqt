@@ -31,6 +31,8 @@
 #include "videowidget.h"
 #include <QPainter>
 
+#define PANNING_CURSOR Qt::CrossCursor
+
 VideoWidget::VideoWidget(QWidget *parent) : QWidget(parent)
 {
     panning = false;
@@ -253,7 +255,7 @@ void VideoWidget::mouseReleaseEvent ( QMouseEvent* event )
     // When panning, the markup system will not use the event unless moving a markup.
     if( !markupMouseReleaseEvent( event, panning ) && panning )
     {
-        setCursor( Qt::OpenHandCursor );
+        setCursor( PANNING_CURSOR );
         emit pan( pos() );
     }
 }
@@ -316,6 +318,6 @@ void VideoWidget::setPanning( bool panningIn )
     panning = panningIn;
     if( panning )
     {
-        setCursor( Qt::OpenHandCursor );
+        setCursor( PANNING_CURSOR );
     }
 }
