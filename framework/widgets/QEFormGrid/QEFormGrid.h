@@ -199,8 +199,8 @@ protected:
    QSize sizeHint () const;
 
 private:
-   static const int MaximumForms = 210;    // 2*3*5*7
-   static const int MaximumColumns = 42;   // 2*3*7
+   static const int MaximumForms;
+   static const int MaximumColumns;
 
    QGridLayout* layout;
    QList<QEForm*> formsList;              // holds a reference to each of the QEForms
