@@ -132,7 +132,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_PROPERTY (QColor  ColourM         READ getColourM  WRITE setColourM)
    Q_PROPERTY (QColor  ColourN         READ getColourN  WRITE setColourN)
    Q_PROPERTY (QColor  ColourO         READ getColourO  WRITE setColourO)
-   // There is no P colour. It is fixed at black (or white for reverse video).
+   // There is no P colour. It is fixed as black (or white for reverse video).
 
 public:
    explicit QEPlotter (QWidget *parent = 0);
@@ -184,7 +184,7 @@ private:
    QFrame* statusFrame;
 
    QFrame* plotFrame;
-   QwtPlot*  plotArea;
+   QwtPlot* plotArea;
    QwtPlotGrid* plotGrid;
 
    QEResizeableFrame* itemResize;
@@ -218,6 +218,15 @@ private:
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
    bool replotIsRequired;
+
+   // Mouse button pressed postions and flags.
+   //
+   QPoint plotCurrent;          // last known mouse position of the plot.
+   QPoint plotLeftButton;       // point at which left button pressed.
+   bool   plotLeftIsDefined;
+   QPoint plotRightButton;      // point at which rightt button pressed.
+   bool   plotRightIsDefined;
+
 
    enum ScaleModes   { smFixed,             // Fixed scale in x and y
                        smNormalised,        // y plots scales such that { min to max } map to { 0 to 1 }
@@ -294,14 +303,26 @@ private:
    void highLight (const int slot, const bool isHigh);
    QwtPlotCurve* allocateCurve (const int slot);
    void releaseCurves ();
+   void plotSelectedArea ();
+   void plotOriginToPoint ();
    void plot ();
    void doAnyCalculations ();
    void addPvName (const QString& pvName);
    void addPvNameSet (const QString& pvNameSet);
 
+   void setXRange (const double xMinimum, const double xMaximum);
+   void setYRange (const double yMinimum, const double yMaximum);
+
    void setReadOut (const QString& text);
    QPointF plotToReal (const QPoint& pos) const;  // map plot position to real co-ordinated
    void onCanvasMouseMove (QMouseEvent* event);
+   bool isValidXRangeSelection (const QPoint& origin, const QPoint& offset) const;
+   bool isValidYRangeSelection (const QPoint& origin, const QPoint& offset) const;
+   void onPlaneScaleSelect (const QPoint& origin, const QPoint& offset);
+
+   void pushState ();
+   void prevState ();
+   void nextState ();
 
    // Perform a pvNameDropEvent 'drop'
    //
