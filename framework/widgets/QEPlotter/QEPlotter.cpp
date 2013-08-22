@@ -345,6 +345,9 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 
    this->createInternalWidgets ();
 
+   this->plotLeftIsDefined = false;
+   this->plotRightIsDefined = false;
+
    this->setNumVariables (2*ARRAY_LENGTH (this->xy));
 
    for (slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
@@ -398,7 +401,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    //
    this->timer = new QTimer (this);
    connect (this->timer, SIGNAL (timeout ()), this, SLOT (tickTimeout ()));
-   this->timer->start (100);  // mSec == 0.1 s
+   this->timer->start (50);  // mSec == 0.05 s
 
    // Do an initial plot - this clears the refresh plot required flag.
    //
@@ -410,7 +413,14 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 QEPlotter::~QEPlotter ()
 {
    this->timer->stop ();
+
    this->releaseCurves ();
+
+   if (this->plotGrid) {
+      this->plotGrid->detach();
+      delete this->plotGrid;
+      this->plotGrid  = NULL;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -856,6 +866,27 @@ void QEPlotter::setReadOut (const QString& text)
 
 //---------------------------------------------------------------------------------
 //
+void QEPlotter::pushState ()
+{
+   this->replotIsRequired = true;
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::prevState ()
+{
+
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::nextState ()
+{
+
+}
+
+//---------------------------------------------------------------------------------
+//
 QPointF QEPlotter::plotToReal (const QPoint& pos) const
 {
    double x, y;
@@ -891,6 +922,63 @@ void QEPlotter::onCanvasMouseMove (QMouseEvent* event)
 
 //---------------------------------------------------------------------------------
 //
+bool QEPlotter::isValidXRangeSelection (const QPoint& origin, const QPoint& offset) const
+{
+   const int minDiff = 8;
+   const int deltaX = offset.x () - origin.x ();
+   const int deltaY = offset.y () - origin.y ();
+   return ((deltaX > minDiff) && (deltaX > ABS (3 * deltaY)));
+}
+
+//---------------------------------------------------------------------------------
+//
+bool QEPlotter::isValidYRangeSelection (const QPoint& origin, const QPoint& offset) const
+{
+   const int minDiff = 8;
+   const int deltaX = offset.x () - origin.x ();
+   const int deltaY = offset.y () - origin.y ();
+   return ((deltaY > minDiff) && (deltaY > ABS (3 * deltaX)));
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::setXRange (const double xMinimumIn, const double xMaximumIn)
+{
+    DEBUG <<  xMinimumIn <<  xMaximumIn;
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::setYRange (const double yMinimumIn, const double yMaximumIn)
+{
+   DEBUG <<  yMinimumIn <<  yMaximumIn;
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::onPlaneScaleSelect(const QPoint& origin, const QPoint& offset)
+{
+   const QPointF rTopLeft     = this->plotToReal (origin);
+   const QPointF rBottomRight = this->plotToReal (offset);
+
+   // Only proceed if user has un-ambiguously selected time scaling or y scaling.
+   //
+   if (this->isValidYRangeSelection (origin, offset)) {
+      // Makeing a Y scale adjustment.
+      //
+      this->setYRange (rBottomRight.y (), rTopLeft.y ());
+      this->pushState ();
+
+   } else if (this->isValidXRangeSelection (origin, offset)) {
+      // Makeing a X  scale adjustment.
+      //
+      this->setXRange (rTopLeft.x (), rBottomRight.x ());
+      this->pushState ();
+   } // else doing nothing
+}
+
+//---------------------------------------------------------------------------------
+//
 bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
 {
    const QEvent::Type type = event->type ();
@@ -907,12 +995,53 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
             this->contextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_SELECT);
             return true;  // we have handled this mouse press
          }
+
+         if (obj == this->plotArea->canvas ()) {
+            switch (mouseEvent->button ()) {
+               case Qt::LeftButton:
+                  this->plotLeftButton = mouseEvent->pos ();
+                  this->plotLeftIsDefined = true;
+                  return true;  // we have handled this mouse press
+                  break;
+
+               case Qt::RightButton:
+                  this->plotRightButton = mouseEvent->pos ();
+                  this->plotRightIsDefined = true;
+                  return true;  // we have handled this mouse press
+                  break;
+
+               default:
+                  break;
+            }
+         }
          break;
 
 
       case QEvent::MouseButtonRelease:
          mouseEvent = static_cast<QMouseEvent *> (event);
-         // place holder.
+         if (obj == this->plotArea->canvas ()) {
+            switch (mouseEvent->button ()) {
+               case Qt::LeftButton:
+                  if (this->plotLeftIsDefined) {
+                     this->onPlaneScaleSelect (this->plotLeftButton, this->plotCurrent);
+                     this->plotLeftIsDefined = false;
+                     this->replotIsRequired = true;
+                     return true;  // we have handled this mouse press
+                  }
+                  break;
+
+               case Qt::RightButton:
+                  if (this->plotRightIsDefined) {
+                     this->plotRightIsDefined = false;
+                     this->replotIsRequired = true;
+                     return true;  // we have handled this mouse press
+                  }
+                  break;
+
+               default:
+                  break;
+            }
+         }
          break;
 
 
@@ -920,6 +1049,10 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          mouseEvent = static_cast<QMouseEvent *> (event);
 
          if (obj == this->plotArea->canvas ()) {
+            this->plotCurrent = mouseEvent->pos ();
+            if (this->plotLeftIsDefined ||this->plotRightIsDefined) {
+               this->replotIsRequired = true;
+            }
             this->onCanvasMouseMove (mouseEvent);
             return true;  // we have handled move nouse event
          }
@@ -1222,6 +1355,92 @@ void QEPlotter::releaseCurves ()
 
 //---------------------------------------------------------------------------------
 //
+void QEPlotter::plotSelectedArea ()
+{
+   double t1, y1;
+   double t2, y2;
+   QVector<double> tdata;
+   QVector<double> ydata;
+   QwtPlotCurve *curve;
+   QPen pen;
+
+   // Do inverse transform on button press postions so that they can be re-transformed when plotted ;-)
+   // At least we don't need to worry about duration/log scaling here - that looks after itself.
+   //
+   t1 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotLeftButton.x ());
+   y1 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotLeftButton.y ());
+
+   t2 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotCurrent.x ());
+   y2 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotCurrent.y ());
+
+   tdata << t1;  ydata << y1;
+   tdata << t2;  ydata << y1;
+   tdata << t2;  ydata << y2;
+   tdata << t1;  ydata << y2;
+   tdata << t1;  ydata << y1;
+
+   // Set curve propeties plus item Pen which include its colour.
+   //
+   curve = this->allocateCurve (0);
+   curve->setRenderHint (QwtPlotItem::RenderAntialiased);
+   curve->setStyle (QwtPlotCurve::Lines);
+   if (this->isValidXRangeSelection (this->plotLeftButton, this->plotCurrent) ||
+       this->isValidYRangeSelection (this->plotLeftButton, this->plotCurrent) ) {
+      pen.setColor(QColor (0x60C060));  // greenish
+   } else {
+      pen.setColor(QColor (0x808080));  // gray
+   }
+   pen.setWidth (1);
+   curve->setPen (pen);
+
+#if QWT_VERSION >= 0x060000
+   curve->setSamples (tdata, ydata);
+#else
+   curve->setData (tdata, ydata);
+#endif
+}
+
+//---------------------------------------------------------------------------------
+//
+void QEPlotter::plotOriginToPoint ()
+{
+   double t1, y1;
+   double t2, y2;
+   QVector<double> tdata;
+   QVector<double> ydata;
+   QwtPlotCurve *curve;
+   QPen pen;
+
+   // Do inverse transform on button press postions so that they can be re-transformed when plotted ;-)
+   // At least we don't need to worry about duration/log scaling here - that looks after itself.
+   //
+   t1 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotRightButton.x ());
+   y1 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotRightButton.y ());
+
+   t2 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotCurrent.x ());
+   y2 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotCurrent.y ());
+
+   tdata << t1;  ydata << y1;
+   tdata << t2;  ydata << y2;
+
+   // Set curve propeties plus item Pen which include its colour.
+   //
+   curve = this->allocateCurve (0);
+   curve->setRenderHint (QwtPlotItem::RenderAntialiased);
+   curve->setStyle (QwtPlotCurve::Lines);
+   pen.setColor(QColor (0x8080C0));  // blueish
+   pen.setWidth (1);
+   curve->setPen (pen);
+
+#if QWT_VERSION >= 0x060000
+   curve->setSamples (tdata, ydata);
+#else
+   curve->setData (tdata, ydata);
+#endif
+}
+
+//---------------------------------------------------------------------------------
+//
 void QEPlotter::plot ()
 {
    QPen pen;
@@ -1366,6 +1585,18 @@ void QEPlotter::plot ()
          image = QString ("%1").arg (value);
          this->comValue->setText (image);
       }
+   }
+
+   // Draw selected area box if defined.
+   //
+   if (this->plotLeftIsDefined) {
+      this->plotSelectedArea ();
+   }
+
+   // Draw origin to target line if defined..
+   //
+   if (this->plotRightIsDefined) {
+      this->plotOriginToPoint ();
    }
 
    QEPlotter::adjustMinMax (xMin, xMax, xMin, xMax, xMajor);
