@@ -149,8 +149,6 @@ int QEPvLoadSaveModel::leafCount ()
 //
 void QEPvLoadSaveModel::acceptActionComplete (const QModelIndex& index, QEPvLoadSaveCommon::ActionKinds action, bool actionSuccessful)
 {
-   DEBUG << index << action << actionSuccessful;
-
    switch (action) {
       case QEPvLoadSaveCommon::Extract:
       case QEPvLoadSaveCommon::ReadArchive:

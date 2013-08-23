@@ -66,8 +66,7 @@ public:
 
    void actionConnect (QObject* actionCompleteObject, const char* actionCompleteSlot);
 
-   // no set node name - it's fixed by the contructor.
-    //
+   void setNodeName (const QString& nodeName);
    QString getNodeName ();
 
    void appendChild (QEPvLoadSaveItem *child);

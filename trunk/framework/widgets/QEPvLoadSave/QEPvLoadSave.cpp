@@ -205,7 +205,6 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
 //
 void QEPvLoadSave::Halves::open (const QString& configurationFileIn)
 {
-   QFile* file = NULL;
    QEPvLoadSaveItem* topItem = NULL;
    QModelIndex topIndex;
 
@@ -230,15 +229,7 @@ void QEPvLoadSave::Halves::open (const QString& configurationFileIn)
       return;
    }
 
-   file = this->owner->openQEFile (this->configurationFile, QFile::ReadOnly);
-   if (!file) {
-      DEBUG << "file open fail: " << this->configurationFile;
-      return;
-   }
-
-   topItem = QEPvLoadSaveUtilities::readTree (file);
-   file->close ();
-
+   topItem = QEPvLoadSaveUtilities::readTree (this->configurationFile);
    if (!topItem) {
        DEBUG << "file read fail";
        return;
@@ -441,7 +432,7 @@ void QEPvLoadSave::writeAllClicked (bool)
    Sides side = this->sideOfSender (this->sender());
    QEPvLoadSaveModel* model = this->half [side]->model;
 
-   this->progressBar->setMaximum (model->leafCount ());
+   this->progressBar->setMaximum (MAX (1, model->leafCount ()));
    this->progressBar->setValue (0);
    model->applyPVData ();
 }
@@ -453,7 +444,7 @@ void QEPvLoadSave::readAllClicked (bool)
    Sides side = this->sideOfSender (this->sender());
    QEPvLoadSaveModel* model = this->half [side]->model;
 
-   this->progressBar->setMaximum (model->leafCount ());
+   this->progressBar->setMaximum (MAX (1, model->leafCount ()));
    this->progressBar->setValue (0);
    model->extractPVData ();
 }

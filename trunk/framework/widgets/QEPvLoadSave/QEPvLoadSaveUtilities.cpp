@@ -28,7 +28,8 @@
 
 #include <QDebug>
 #include <QFile>
-#include <QTextStream>
+#include <QESettings.h>
+#include <QStringList>
 #include <QVariant>
 #include <QVariantList>
 
@@ -40,43 +41,113 @@
 
 #define DEBUG qDebug() << "QEPvLoadSaveUtilities::" << __FUNCTION__ << ":" << __LINE__
 
+static const int maxDepth        = 10;
+static const QString namePrefix  = "*NAME";
+static const QString groupPrefix = "*GROUP";
+static const QString arrayPrefix = "*ARRAY";
+
+
+//------------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (const QString& groupName,
+                                                      QESettings* settings,
+                                                      QEPvLoadSaveItem* parent,
+                                                      const int level)
+{
+   QEPvLoadSaveItem* result = NULL;
+   QStringList theKeys;
+   int j;
+   bool isRenamed;
+   QString variable;
+   QString key;
+   QString newName;
+   QString sectionName;
+   QVariant value;
+   QVariant nilValue (QVariant::Invalid);
+
+   if (!settings) {
+      DEBUG << "bad input";
+      return result;
+   }
+
+   if (level >= maxDepth) {
+      DEBUG << "Nesting too deep (" << level << "), group: " << groupName;
+      return result;
+   }
+
+   result = new QEPvLoadSaveItem (groupName, false, nilValue, parent);
+
+   isRenamed = false;
+   theKeys = settings->groupKeys (groupName);
+   for (j = 0; j < theKeys.count(); j++) {
+      variable = theKeys.value (j);
+      key = groupName + "/" + variable;
+
+//      DEBUG << j << variable << " full" << key;
+
+      if (variable.startsWith ("#")) continue;   // is a comment";
+
+      if (variable.startsWith (namePrefix, Qt::CaseInsensitive)) {
+
+         if (level == 1) {
+            DEBUG << "An attempt to rename the root node section ignored";
+            continue;
+         }
+
+         if (isRenamed) {
+            DEBUG << "An attempt to rename an already renamed section ignored";
+            continue;
+         }
+
+         newName = settings->getString (key, "");
+         if (newName.isEmpty()) {
+            DEBUG << "An attempt to rename to empty name ignored";
+            continue;
+         }
+
+         result->setNodeName (newName);
+         isRenamed = true;
+
+      } else if (variable.startsWith (groupPrefix, Qt::CaseInsensitive)) {
+         // Valid group entry test??
+
+         sectionName = settings->getString (key, "");
+
+         if (sectionName.isEmpty()) {
+            DEBUG << "Unspecified group section name";
+            continue;
+         }
+
+         QEPvLoadSaveUtilities::readSection (sectionName, settings, result, level + 1);
+
+
+      } else if (variable.startsWith (arrayPrefix, Qt::CaseInsensitive)) {
+         DEBUG << "skipping array for now";
+
+      } else {
+         // Assume just a regular PV.
+         //
+
+         value = settings->getValue (key, nilValue );
+         new QEPvLoadSaveItem (variable, true, value, result);
+      }
+   }
+
+   return result;
+}
 
 //==============================================================================
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (QFile* file)
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
 {
-   QVariant nil (QVariant::Invalid);
-   QEPvLoadSaveItem* result;
-   QEPvLoadSaveItem* g1, *g2;
+   QEPvLoadSaveItem* result = NULL;
+   QESettings* settings = NULL;
 
-   result = new QEPvLoadSaveItem ("Root", false, nil, NULL);
-
-   g1 = new QEPvLoadSaveItem ("GROUPS", false, nil, result);
-   g2 = new QEPvLoadSaveItem ("GROUP2", false, nil, result);
-
-
-   new QEPvLoadSaveItem ("COUNTER:MONITOR", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("TS01EVR01:TTL01_DELAY_SP", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("TS01EVR01:TTL02_DELAY_SP", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("BLUEGUM:MONITOR", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("GREENGUM:MONITOR", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("POWER:MONITOR", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("REDGUM:MONITOR", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("SR11BCM01:CURRENT_MONITOR", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("SR11BCM01:LIFETIME_CURRENT_PRODUCT", true, QVariant ((double) 0.0), g1);
-   new QEPvLoadSaveItem ("SR11BCM01:LIFETIME_MONITOR", true, QVariant ((double) 0.0), g1);
-
-   new QEPvLoadSaveItem ("YELLOWGUM:MONITOR", true, QVariant ((double) 0.0), g2);
-   new QEPvLoadSaveItem ("BLUEGUM:MONITOR_STATUS", true, QVariant ((double) 0.0), g2);
-   new QEPvLoadSaveItem ("COUNTER:MONITOR_STATUS", true, QVariant ((double) 0.0), g2);
-   new QEPvLoadSaveItem ("GREENGUM:MONITOR_STATUS", true, QVariant ((double) 0.0), g2);
-   new QEPvLoadSaveItem ("POWER:MONITOR_STATUS", true, QVariant ((double) 0.0), g2);
-   new QEPvLoadSaveItem ("REDGUM:MONITOR_STATUS", true, QVariant ((double) 0.0), g2);
-   new QEPvLoadSaveItem ("YELLOWGUM:MONITOR_STATUS", true, QVariant ((double) 0.0), g2);
-   new QEPvLoadSaveItem ("BLACKGUM:MONITOR_STATUS", true, QVariant ((double) 0.0), g2);
-   new QEPvLoadSaveItem ("WAVEFORM:MONITOR", true, QVariant ((double) 0.0), g2);
-
-
+   settings = new QESettings (filename.trimmed ());
+   if (settings) {
+      result = QEPvLoadSaveUtilities::readSection ("ROOT", settings, result, 1);
+      delete settings;
+   }
    return result;
 }
 
