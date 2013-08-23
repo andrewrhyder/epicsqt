@@ -165,6 +165,7 @@ protected:
    // Paste only
    //
    void paste (QVariant s);
+
    void saveConfiguration (PersistanceManager* pm);
    void restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase);
 
@@ -296,6 +297,7 @@ private:
    // Slot 0 used for X data - some redundancy (e.g. colour)
    //
    DataSets xy [1 + NUMBER_OF_PLOTS];
+
 
 
    void createInternalWidgets ();
