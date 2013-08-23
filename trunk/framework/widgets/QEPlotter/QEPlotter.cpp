@@ -66,9 +66,10 @@ static const QEExpressionEvaluation::InputKinds Normal = QEExpressionEvaluation:
 static const QEExpressionEvaluation::InputKinds Primed = QEExpressionEvaluation::Primed;
 
 
-//=================================================================================
+//==============================================================================
+// Local support classes.
+//==============================================================================
 // Tagged check box.
-//=================================================================================
 //
 class TCheckBox : public QCheckBox {
 public:
@@ -78,14 +79,14 @@ public:
    int tag;
 };
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 TCheckBox::TCheckBox (QWidget* parent) : QCheckBox (parent)
 {
    this->tag = 0;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 TCheckBox::TCheckBox (const QString& text, QWidget* parent) : QCheckBox (text, parent)
 {
@@ -93,9 +94,9 @@ TCheckBox::TCheckBox (const QString& text, QWidget* parent) : QCheckBox (text, p
 }
 
 
-//=================================================================================
+//==============================================================================
 // QEPlotter
-//=================================================================================
+//==============================================================================
 //
 void QEPlotter::createInternalWidgets ()
 {
@@ -274,9 +275,9 @@ void QEPlotter::createInternalWidgets ()
 }
 
 
-//=================================================================================
+//==============================================================================
 // DataSets
-//=================================================================================
+//==============================================================================
 //
 QEPlotter::DataSets::DataSets ()
 {
@@ -296,21 +297,21 @@ QEPlotter::DataSets::DataSets ()
    this->showDots = false;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QEPlotter::DataSets::~DataSets ()
 {
    delete this->calculator;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 bool QEPlotter::DataSets::isInUse ()
 {
    return (this->dataKind != NotInUse);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int QEPlotter::DataSets::effectiveSize ()
 {
@@ -334,9 +335,9 @@ int QEPlotter::DataSets::effectiveSize ()
    return result;
 }
 
-//=================================================================================
+//==============================================================================
 // QEPlotter
-//=================================================================================
+//==============================================================================
 //
 QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 {
@@ -408,12 +409,15 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->plot ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QEPlotter::~QEPlotter ()
 {
    this->timer->stop ();
 
+   // Note: must detach curves and grids, otherwise some (older) versions of qwt
+   // cause a segmentation fault when the associated QwtPolot object is deleted.
+   //
    this->releaseCurves ();
 
    if (this->plotGrid) {
@@ -429,7 +433,7 @@ QSize QEPlotter::sizeHint () const {
    return QSize (600, 500);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Slot range checking macro function.
 // Set default to nil for void functions.
 //
@@ -440,7 +444,7 @@ QSize QEPlotter::sizeHint () const {
    }                                                          \
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::updateLabel (const int slot)
 {
@@ -493,7 +497,7 @@ void QEPlotter::checkBoxstateChanged (int state)
    this->replotIsRequired = true;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::setNewVariableName (QString variableName,
                                     QString variableNameSubstitutions,
@@ -529,7 +533,7 @@ void QEPlotter::setNewVariableName (QString variableName,
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implementation of QEWidget's virtual funtion to create the specific type of
 // QCaObject required. QCaObjects that streams doubles and integers are required.
 //
@@ -594,7 +598,7 @@ qcaobject::QCaObject* QEPlotter::createQcaItem (unsigned int variableIndex)
    return result;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Start updating.
 // Implementation of VariableNameManager's virtual funtion to establish a
 // connection to a PV as the variable name has changed.
@@ -629,9 +633,9 @@ void QEPlotter::establishConnection (unsigned int variableIndex)
 }
 
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int QEPlotter::findSlot (QObject *obj)
 {
@@ -650,7 +654,7 @@ int QEPlotter::findSlot (QObject *obj)
    return result;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::selectDataSet (const int slot)
 {
@@ -685,7 +689,7 @@ void QEPlotter::selectDataSet (const int slot)
    this->replotIsRequired = true;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::highLight (const int slot, const bool isHigh)
 {
@@ -702,7 +706,7 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
    this->xy [slot].itemName->setStyleSheet (styleSheet);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::contextMenuRequested (const QPoint& pos)
 {
@@ -723,7 +727,7 @@ void QEPlotter::contextMenuRequested (const QPoint& pos)
    ds->itemMenu->exec (golbalPos, 0);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option)
 {
@@ -814,7 +818,7 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::pvNameDropEvent (const int slot, QDropEvent *event)
 {
@@ -864,28 +868,28 @@ void QEPlotter::setReadOut (const QString& text)
    this->sendMessage (text, mt);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::pushState ()
 {
    this->replotIsRequired = true;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::prevState ()
 {
-
+   // place holder
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::nextState ()
 {
-
+   // place holder
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QPointF QEPlotter::plotToReal (const QPoint& pos) const
 {
@@ -901,7 +905,7 @@ QPointF QEPlotter::plotToReal (const QPoint& pos) const
    return QPointF (x, y);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::onCanvasMouseMove (QMouseEvent* event)
 {
@@ -911,16 +915,35 @@ void QEPlotter::onCanvasMouseMove (QMouseEvent* event)
 
    mouseReadOut = "";
 
-   f.sprintf (" x: %+.5g", real.x ());
+   f.sprintf ("  x: %+.5g", real.x ());
    mouseReadOut.append (f);
 
-   f.sprintf (" y: %+.5g", real.y ());
+   f.sprintf ("  y: %+.5g", real.y ());
    mouseReadOut.append (f);
+
+   if (this->plotRightIsDefined) {
+      const QPointF origin = this->plotToReal (this->plotRightButton);
+      const QPointF offset = this->plotToReal (this->plotCurrent);
+      const double dx = offset.x() - origin.x ();
+      const double dy = offset.y() - origin.y ();
+
+      f.sprintf ("  dx: %+.5g", dx);
+      mouseReadOut.append (f);
+
+      f.sprintf ("  dy: %+.5g", dy);
+      mouseReadOut.append (f);
+
+      // Calculate slope, but avoid the divide by 0.
+      if (dx != 0.0) {
+         f.sprintf ("  dy/dx: %+.5g", dy/dx);
+         mouseReadOut.append (f);
+      }
+   }
 
    this->setReadOut (mouseReadOut);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 bool QEPlotter::isValidXRangeSelection (const QPoint& origin, const QPoint& offset) const
 {
@@ -930,7 +953,7 @@ bool QEPlotter::isValidXRangeSelection (const QPoint& origin, const QPoint& offs
    return ((deltaX > minDiff) && (deltaX > ABS (3 * deltaY)));
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 bool QEPlotter::isValidYRangeSelection (const QPoint& origin, const QPoint& offset) const
 {
@@ -940,21 +963,27 @@ bool QEPlotter::isValidYRangeSelection (const QPoint& origin, const QPoint& offs
    return ((deltaY > minDiff) && (deltaY > ABS (3 * deltaX)));
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::setXRange (const double xMinimumIn, const double xMaximumIn)
 {
-    DEBUG <<  xMinimumIn <<  xMaximumIn;
+   this->fixedMinX = xMinimumIn;
+   this->fixedMaxX = xMaximumIn;
+   this->xScaleMode = smFixed;
+   this->pushState ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::setYRange (const double yMinimumIn, const double yMaximumIn)
 {
-   DEBUG <<  yMinimumIn <<  yMaximumIn;
+   this->fixedMinY = yMinimumIn;
+   this->fixedMaxY = yMaximumIn;
+   this->yScaleMode = smFixed;
+   this->pushState ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::onPlaneScaleSelect(const QPoint& origin, const QPoint& offset)
 {
@@ -970,14 +999,14 @@ void QEPlotter::onPlaneScaleSelect(const QPoint& origin, const QPoint& offset)
       this->pushState ();
 
    } else if (this->isValidXRangeSelection (origin, offset)) {
-      // Makeing a X  scale adjustment.
+      // Makeing a X scale adjustment.
       //
       this->setXRange (rTopLeft.x (), rBottomRight.x ());
       this->pushState ();
    } // else doing nothing
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
 {
@@ -1118,7 +1147,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
    return false;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::paste (QVariant s)
 {
@@ -1139,7 +1168,7 @@ void QEPlotter::paste (QVariant s)
    this->addPvNameSet (pvNameSet);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::saveConfiguration (PersistanceManager* pm)
 {
@@ -1178,7 +1207,7 @@ void QEPlotter::saveConfiguration (PersistanceManager* pm)
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::restoreConfiguration (PersistanceManager* pm, restorePhases restorePhase)
 {
@@ -1218,7 +1247,7 @@ void QEPlotter::restoreConfiguration (PersistanceManager* pm, restorePhases rest
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::addPvName (const QString& pvName)
 {
@@ -1233,7 +1262,7 @@ void QEPlotter::addPvName (const QString& pvName)
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::addPvNameSet (const QString& pvNameSet)
 {
@@ -1248,9 +1277,9 @@ void QEPlotter::addPvNameSet (const QString& pvNameSet)
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Slots receiving PV data
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::dataConnectionChanged (QCaConnectionInfo& connectionInfo,
                                        const unsigned int &variableIndex)
@@ -1262,7 +1291,7 @@ void QEPlotter::dataConnectionChanged (QCaConnectionInfo& connectionInfo,
    this->replotIsRequired = true;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::dataArrayChanged (const QVector<double>& values,
                                   QCaAlarmInfo&,
@@ -1276,7 +1305,7 @@ void QEPlotter::dataArrayChanged (const QVector<double>& values,
    this->replotIsRequired = true;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::sizeConnectionChanged (QCaConnectionInfo& connectionInfo,
                                        const unsigned int &variableIndex)
@@ -1288,7 +1317,7 @@ void QEPlotter::sizeConnectionChanged (QCaConnectionInfo& connectionInfo,
    this->replotIsRequired = true;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::sizeValueChanged (const long& value,
                                   QCaAlarmInfo&,
@@ -1337,7 +1366,7 @@ QwtPlotCurve* QEPlotter::allocateCurve (const int slot)
    return result;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::releaseCurves ()
 {
@@ -1353,7 +1382,7 @@ void QEPlotter::releaseCurves ()
    this->curve_list.clear ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::plotSelectedArea ()
 {
@@ -1400,7 +1429,7 @@ void QEPlotter::plotSelectedArea ()
 #endif
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::plotOriginToPoint ()
 {
@@ -1439,7 +1468,7 @@ void QEPlotter::plotOriginToPoint ()
 #endif
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::plot ()
 {
@@ -1612,7 +1641,7 @@ void QEPlotter::plot ()
    this->replotIsRequired = false;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::doAnyCalculations ()
 {
@@ -1713,7 +1742,7 @@ void QEPlotter::doAnyCalculations ()
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::tickTimeout ()
 {
@@ -1723,9 +1752,9 @@ void QEPlotter::tickTimeout ()
 }
 
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Property functions.
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::setVariableSubstitutions (QString defaultSubstitutions)
 {
@@ -1739,7 +1768,7 @@ void QEPlotter::setVariableSubstitutions (QString defaultSubstitutions)
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QString QEPlotter::getVariableSubstitutions ()
 {
@@ -1748,7 +1777,7 @@ QString QEPlotter::getVariableSubstitutions ()
    return this->xy [0].dataVariableNameManager.getSubstitutionsProperty ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::setXYDataPV (const int slot, const QString& pvName)
 {
@@ -1756,7 +1785,7 @@ void QEPlotter::setXYDataPV (const int slot, const QString& pvName)
    this->xy [slot].dataVariableNameManager.setVariableNameProperty (pvName);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QString QEPlotter::getXYDataPV (const int slot)
 {
@@ -1764,7 +1793,7 @@ QString QEPlotter::getXYDataPV (const int slot)
    return this->xy [slot].dataVariableNameManager.getVariableNameProperty ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::setXYSizePV (const int slot, const QString& pvName)
 {
@@ -1772,7 +1801,7 @@ void QEPlotter::setXYSizePV (const int slot, const QString& pvName)
    this->xy [slot].sizeVariableNameManager.setVariableNameProperty (pvName);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QString QEPlotter::getXYSizePV (const int slot)
 {
@@ -1780,7 +1809,7 @@ QString QEPlotter::getXYSizePV (const int slot)
    return this->xy [slot].sizeVariableNameManager.getVariableNameProperty ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::setXYAlias (const int slot, const QString& aliasName)
 {
@@ -1789,7 +1818,7 @@ void QEPlotter::setXYAlias (const int slot, const QString& aliasName)
    this->updateLabel (slot);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QString QEPlotter::getXYAlias (const int slot)
 {
@@ -1797,7 +1826,7 @@ QString QEPlotter::getXYAlias (const int slot)
    return this->xy[slot].aliasName;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEPlotter::setXYColour (const int slot, const QColor& colour)
 {
@@ -1811,7 +1840,7 @@ void QEPlotter::setXYColour (const int slot, const QColor& colour)
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QColor QEPlotter::getXYColour (const int slot)
 {
@@ -1819,7 +1848,7 @@ QColor QEPlotter::getXYColour (const int slot)
    return this->xy[slot].colour;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void  QEPlotter::adjustMinMax (const double minIn, const double maxIn,
                                double& minOut, double& maxOut, double& majorOut)
