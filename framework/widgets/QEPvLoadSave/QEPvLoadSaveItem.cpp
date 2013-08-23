@@ -99,6 +99,14 @@ void QEPvLoadSaveItem::setModelIndex (const QModelIndex& indexIn)
 
 //-----------------------------------------------------------------------------
 //
+void QEPvLoadSaveItem::setNodeName (const QString& nodeNameIn)
+{
+   this->nodeName = nodeNameIn;
+   this->updateItemData ();
+}
+
+//-----------------------------------------------------------------------------
+//
 QString QEPvLoadSaveItem::getNodeName ()
 {
    return this->nodeName;
