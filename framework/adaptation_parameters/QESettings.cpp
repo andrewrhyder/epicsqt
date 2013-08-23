@@ -138,9 +138,31 @@ QESettings::~QESettings ()
 
 //------------------------------------------------------------------------------
 //
-bool QESettings::isDefined ()
+bool QESettings::isDefined () const
 {
    return (this->settings != NULL);
+}
+
+//------------------------------------------------------------------------------
+//
+QString QESettings::getSettingFileName () const
+{
+   return this->settings ? this->settings->fileName () : "nil";
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QESettings::groupKeys (const QString &group)
+{
+   QStringList result;
+
+   if (this->settings) {
+      this->settings->beginGroup (group);
+      result = this->settings->allKeys ();
+      this->settings->endGroup ();
+   }
+
+   return result;
 }
 
 //------------------------------------------------------------------------------
