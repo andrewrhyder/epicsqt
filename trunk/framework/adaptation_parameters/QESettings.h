@@ -27,6 +27,7 @@
 #define QE_SETTINGS_H
 
 #include <QString>
+#include <QStringList>
 #include <QSettings>
 #include <QVariant>
 
@@ -72,8 +73,13 @@ public:
    //
    virtual ~QESettings ();
 
-   bool isDefined ();
-   QString getSettingFileName () { return this->settings ? this->settings->fileName () : "nil";  }
+   bool isDefined () const;
+
+   // Provides access to embedded settings functions.
+   //
+   QString getSettingFileName () const;
+   QStringList groupKeys (const QString &group);
+
 
    QVariant getValue  (const QString& key, const QVariant& defaultValue);
    bool     getBool   (const QString& key, const bool      defaultValue);
