@@ -156,7 +156,10 @@ void QEImage::setup() {
 
     // Local brightness and contrast controls
     localBC = new localBrightnessContrast;
-    QObject::connect( localBC, SIGNAL( brightnessContrastChange() ), this,  SLOT  ( brightnessContrastChanged()) );
+    QObject::connect( localBC, SIGNAL( brightnessContrastChange() ),
+                      this,    SLOT  ( brightnessContrastChanged()) );
+    QObject::connect( localBC, SIGNAL( brightnessContrastAutoImage() ),
+                      this,    SLOT  ( brightnessContrastAutoImageRequest() ) );
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
@@ -761,7 +764,7 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
     // Even if local brightness and contrast is enabled, no need to go through the pain if they are both neutral
     int localContrast = localBC->getContrast();
     int localBrightness = localBC->getBrightness();
-    bool doLCB = enableBrightnessContrast && (localContrast!=100 || localBrightness != 0);
+    bool doLCB = localContrast!=100 || localBrightness != 0;
 
     // Range of values with contrast applied
     int range = maxValue*localContrast/100;
@@ -1972,7 +1975,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 zMenu->enableAreaSelected( haveSelectedArea1 );
 
                 displaySelectedAreaInfo( 1, point1, point2 );
-                setRegionAutoBrightnessContrast( point1, point2 );
+                if( localBC->getAutoBrightnessContrast() )
+                {
+                    setRegionAutoBrightnessContrast( point1, point2 );
+                }
 
                 if( complete )
                 {
@@ -1986,7 +1992,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea2 = true;
 
                 displaySelectedAreaInfo( 2, point1, point2 );
-                setRegionAutoBrightnessContrast( point1, point2 );
+                if( localBC->getAutoBrightnessContrast() )
+                {
+                    setRegionAutoBrightnessContrast( point1, point2 );
+                }
 
                 if( complete )
                 {
@@ -2000,7 +2009,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea3 = true;
 
                 displaySelectedAreaInfo( 3, point1, point2 );
-                setRegionAutoBrightnessContrast( point1, point2 );
+                if( localBC->getAutoBrightnessContrast() )
+                {
+                    setRegionAutoBrightnessContrast( point1, point2 );
+                }
 
                 if( complete )
                 {
@@ -2014,7 +2026,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea4 = true;
 
                 displaySelectedAreaInfo( 4, point1, point2 );
-                setRegionAutoBrightnessContrast( point1, point2 );
+                if( localBC->getAutoBrightnessContrast() )
+                {
+                    setRegionAutoBrightnessContrast( point1, point2 );
+                }
 
                 if( complete )
                 {
@@ -2186,10 +2201,6 @@ void QEImage::displaySelectedAreaInfo( int region, QPoint point1, QPoint point2 
 // Update the brightness and contrast, if in auto, to match the recently selected region
 void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 {
-    // Do nothing if not automatically setting brightness and contrast
-    if( !localBC->getAutoBrightnessContrast() )
-        return;
-
     // Get the area corners scaled to match the original image data
     QPoint corner1( videoWidget->scaleOrdinate( point1.x() ), videoWidget->scaleOrdinate( point1.y() ) );
     QPoint corner2( videoWidget->scaleOrdinate( point2.x() ), videoWidget->scaleOrdinate( point2.y() ) );
@@ -2261,6 +2272,9 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
     *max = maxP;
 }
 
+//=====================================================================
+// Slots to use signals from the Brightness/contrast control
+
 // The brightness or contrast have changed
 void QEImage::brightnessContrastChanged()
 {
@@ -2270,6 +2284,14 @@ void QEImage::brightnessContrastChanged()
     // Present the updated image
     displayImage();
 }
+
+// A request has been made to set the brightness and contrast to suit the current image
+void QEImage::brightnessContrastAutoImageRequest()
+{
+    setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( videoWidget->getImageSize().width(), videoWidget->getImageSize().height()) );
+}
+
+//=====================================================================
 
 // Generate a profile along a line down an image at a given X position
 // The profile contains values for each pixel intersected by the line.

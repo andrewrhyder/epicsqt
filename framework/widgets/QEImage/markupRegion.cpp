@@ -159,6 +159,36 @@ void markupRegion::moveTo( const QPoint posIn )
         swapped = true;
     }
 
+    // Ensure the region is still in the window.
+    // The cursor point was limited to the window earlier (in call to limitPointToImage() ), but the area may not be.
+    // For example, if the bottom was dragged up to the top of the window.
+    if( rect.left() < 0 )
+    {
+        int w = rect.width();
+        rect.setLeft( 0 );
+        rect.setWidth( w );
+    }
+
+    if( rect.right() > imageSize.width()-1 )
+    {
+        int w = rect.width();
+        rect.setLeft( imageSize.width()-1 - w );
+        rect.setWidth( w );
+    }
+
+    if( rect.top() < 0 )
+    {
+        int h = rect.height();
+        rect.setTop( 0 );
+        rect.setHeight( h );
+    }
+
+    if( rect.bottom() > imageSize.height()-1 )
+    {
+        int h = rect.height();
+        rect.setTop( imageSize.height() -1 - h );
+        rect.setHeight( h );
+    }
 
     // Set the cursor according to the bit we are over after manipulation
     if( swapped )

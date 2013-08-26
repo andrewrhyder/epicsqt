@@ -686,6 +686,9 @@
      <property name="resizeOption" stdset="0">
       <enum>QEImage::Fit</enum>
      </property>
+     <property name="enableBrightnessContrast">
+      <bool>true</bool>
+     </property>
      <property name="regionOfInterestXVariable" stdset="0">
       <string/>
      </property>

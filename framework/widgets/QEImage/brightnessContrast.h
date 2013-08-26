@@ -45,13 +45,14 @@ public:
     int  getContrast();
 
 signals:
+    void brightnessContrastAutoImage();
     void brightnessContrastChange();
 
 private slots:
     void brightnessSliderValueChanged( int value );
     void contrastSliderValueChanged( int value );
-    void autoBrightnessCheckBoxChanged( int );
     void brightnessContrastResetClicked( bool state );
+    void brightnessContrastAutoImageClicked();
 
 private:
     // Local brightness and contrast controls
