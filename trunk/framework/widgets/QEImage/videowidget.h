@@ -51,6 +51,8 @@ public:
     int scaleImageOrdinate( int ord );
 
     QImage getImage(){ return refImage; }
+    QSize getImageSize();
+
 
 
 protected:

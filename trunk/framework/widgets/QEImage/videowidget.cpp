@@ -217,6 +217,12 @@ int VideoWidget::scaleImageOrdinate( int ord )
     return (int)((double)ord * getScale());
 }
 
+// Return the displayed size of the current image
+QSize VideoWidget::getImageSize()
+{
+    return currentImage.size();
+}
+
 // Return the scale of the displayed image
 double VideoWidget::getScale()
 {

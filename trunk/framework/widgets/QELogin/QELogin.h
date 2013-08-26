@@ -110,9 +110,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QELogin:public QFrame, public QEWidget
 
         bool login( userLevelTypes::userLevels level, QString password );
 
-        QString getPriorityUserPassword();                  // Get the user password. (application wide if pressent, otherwise local to this widget)
-        QString getPriorityScientistPassword();             // Get the scientist password. (application wide if pressent, otherwise local to this widget)
-        QString getPriorityEngineerPassword();              // Get the engineer password. (application wide if pressent, otherwise local to this widget)
+        QString getPriorityUserPassword();                  // Get the user password. (application wide if present, otherwise local to this widget)
+        QString getPriorityScientistPassword();             // Get the scientist password. (application wide if present, otherwise local to this widget)
+        QString getPriorityEngineerPassword();              // Get the engineer password. (application wide if present, otherwise local to this widget)
 
         void setUserPassword(QString pValue);               // User password property functions
         QString getUserPassword();

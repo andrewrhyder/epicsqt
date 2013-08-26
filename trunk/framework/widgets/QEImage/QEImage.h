@@ -247,9 +247,6 @@ public:
 
     bool displayButtonBar;      // True if button bar should be displayed
 
-    bool enableBrightnessContrast;// True if local brightness and contrast controls are presented
-//    bool autoBrightnessContrast;  // True if automatically setting local brightness and contrast when selecting a region
-
 private slots:
     // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
@@ -272,6 +269,7 @@ private slots:
     void panModeClicked();
 
     void brightnessContrastChanged();
+    void brightnessContrastAutoImageRequest();
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -374,15 +372,6 @@ public slots:
     bool paused;
 
     // Options
-//    bool enableAreaSelection;
-//    bool enableVSliceSelection;
-//    bool enableHSliceSelection;
-//    bool enableProfileSelection;
-//    bool enableTargetSelection;
-
-//    bool displayCursorPixelInfo;
-//    bool contrastReversal;
-
     formatOptions formatOption;
 
     // Image and related information
@@ -478,6 +467,7 @@ public slots:
     const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
 
     bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigtness, etc
+
     QByteArray pixelLookup; // Table of translated pixel values (includig contrast reversal, local brightness and contrast, and clipping)
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
@@ -877,11 +867,11 @@ public:
     ///
     Q_PROPERTY(bool horizontalFlip READ getHorizontalFlip WRITE setHorizontalFlip)
 
-    /// Sets the initial position of the horizontal scroll bar, if pressent.
+    /// Sets the initial position of the horizontal scroll bar, if present.
     /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialHosScrollPos READ getInitialHozScrollPos WRITE setInitialHozScrollPos)
 
-    /// Sets the initial position of the vertical scroll bar, if pressent.
+    /// Sets the initial position of the vertical scroll bar, if present.
     /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)
 
