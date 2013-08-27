@@ -156,6 +156,7 @@ endif
 	@chmod u+x $(PACKAGE_DIRECTORY)/bin/qegui
 	@echo "#!/bin/bash" > script.tmp
 	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/bin/qegui | $(GREP) 'libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
+	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/lib/libQEPlugin.so | $(GREP) 'libqwt' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
 	@chmod u+x script.tmp
 	@./script.tmp
 	@rm -f script.tmp
