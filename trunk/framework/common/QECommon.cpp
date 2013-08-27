@@ -329,6 +329,7 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
       widget->setMinimumSize (minSize);
       widget->setMaximumSize (maxSize);
    }
+
    widget->setGeometry (geo);
 
    parent = dynamic_cast <QWidget *>(widget->parent ());
@@ -442,6 +443,8 @@ void QEUtilities::widgetScaleTreeWalk (QWidget* widget, const int m, const int d
    // sainity checks and avoid divide by zero.
    //
    if (!widget) return;
+   if ((m < 1) || (d < 1)) return;
+   if (m == d) return;   // skip null scaling
    if (maxDepth < 0) return;
 
    // Apply scaling to this widget.
@@ -475,13 +478,14 @@ int QEUtilities::currentScaleD = 1;
 //
 void QEUtilities::adjustWidgetScale (QWidget* widget, const int m, const int d, const int maxDepth)
 {
+
    // sainity checks and avoid divide by zero.
    //
    if (!widget) return;
    if ((m < 1) || (d < 1)) return;
    if (m == d) return;   // skip null scaling
 
-   // Save saved xurrent values.
+   // Save saved current values.
    //
    QEUtilities::currentScaleM = m;
    QEUtilities::currentScaleD = d;
@@ -493,6 +497,10 @@ void QEUtilities::adjustWidgetScale (QWidget* widget, const int m, const int d, 
 //
 void QEUtilities::applyCurrentWidgetScale (QWidget* widget, const int maxDepth)
 {
+   // sainity checks and avoid divide by zero.
+   //
+   if (!widget) return;
+
    // Used current values.
    //
    QEUtilities::widgetScaleTreeWalk (widget, QEUtilities::currentScaleM,
