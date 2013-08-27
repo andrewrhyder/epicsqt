@@ -140,8 +140,11 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
    QRect rect;
    QPoint polygon[8];
    QColor colour;
-   qcaobject::QCaObject * qca;
+   qcaobject::QCaObject* qca;
    QString text;
+   int x0, x1, x2;
+   int y0, y1, y2;
+
 
    // Associated qca object - test if connected but also avoid the segmentation fault.
    //
@@ -157,7 +160,7 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
          //
          colour = this->getColourProperty (this->getModuloValue ());
       }
-      pen.setColor (QColor (0, 0, 0, 255));
+      pen.setColor (QColor (0, 0, 0, 255));   // black
    } else {
       // Not connected - use washed-out gray.
       //
@@ -282,6 +285,83 @@ void QESimpleShape::paintEvent (QPaintEvent * /* event */ )
          polygon[3] = polygon[0];       // close loop
          painter.drawPolygon (polygon, 4);
          break;
+
+      case arrowUp:
+         // calculate some intermediate values.
+         //
+         y0 = rect.top () + rect.width () / 2;
+         x0 = (rect.left () + rect.right ()) / 2;
+         x1 = (2 * rect.left () + rect.right ()) / 3;
+         x2 = (rect.left () + 2 * rect.right ()) / 3;
+
+         polygon[0] = QPoint (x0, rect.top ());
+         polygon[1] = QPoint (rect.right (), y0);
+         polygon[2] = QPoint (x2, y0);
+         polygon[3] = QPoint (x2, rect.bottom ());
+         polygon[4] = QPoint (x1, rect.bottom ());
+         polygon[5] = QPoint (x1, y0);
+         polygon[6] = QPoint (rect.left (), y0);
+         polygon[7] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 7);
+         break;
+
+      case arrowDown:
+         // calculate some intermediate values.
+         //
+         y0 = rect.bottom () - rect.width () / 2;
+         x0 = (rect.left () + rect.right ()) / 2;
+         x1 = (2 * rect.left () + rect.right ()) / 3;
+         x2 = (rect.left () + 2 * rect.right ()) / 3;
+
+         polygon[0] = QPoint (x0, rect.bottom ());
+         polygon[1] = QPoint (rect.right (), y0);
+         polygon[2] = QPoint (x2, y0);
+         polygon[3] = QPoint (x2, rect.top ());
+         polygon[4] = QPoint (x1, rect.top ());
+         polygon[5] = QPoint (x1, y0);
+         polygon[6] = QPoint (rect.left (), y0);
+         polygon[7] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 7);
+         break;
+
+      case arrowLeft:
+         // calculate some intermediate values.
+         //
+         x0 = rect.left () + rect.height () / 2;
+         y0 = (rect.top () + rect.bottom ()) / 2;
+         y1 = (2 * rect.top () + rect.bottom ()) / 3;
+         y2 = (rect.top () + 2 * rect.bottom ()) / 3;
+
+         polygon[0] = QPoint (rect.left (),y0);
+         polygon[1] = QPoint (x0, rect.top ());
+         polygon[2] = QPoint (x0, y1);
+         polygon[3] = QPoint (rect.right (), y1);
+         polygon[4] = QPoint (rect.right (), y2);
+         polygon[5] = QPoint (x0, y2);
+         polygon[6] = QPoint (x0, rect.bottom ());
+         polygon[7] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 7);
+         break;
+
+      case arrowRight:
+         // calculate some intermediate values.
+         //
+         x0 = rect.right () - rect.height () / 2;
+         y0 = (rect.top () + rect.bottom ()) / 2;
+         y1 = (2 * rect.top () + rect.bottom ()) / 3;
+         y2 = (rect.top () + 2 * rect.bottom ()) / 3;
+
+         polygon[0] = QPoint (rect.right (), y0);
+         polygon[1] = QPoint (x0, rect.top ());
+         polygon[2] = QPoint (x0, y1);
+         polygon[3] = QPoint (rect.left (), y1);
+         polygon[4] = QPoint (rect.left (), y2);
+         polygon[5] = QPoint (x0, y2);
+         polygon[6] = QPoint (x0, rect.bottom ());
+         polygon[7] = polygon[0];       // close loop
+         painter.drawPolygon (polygon, 7);
+         break;
+
 
       default:
          break;
