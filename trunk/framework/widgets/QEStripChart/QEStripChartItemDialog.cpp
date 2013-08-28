@@ -36,7 +36,7 @@
 //------------------------------------------------------------------------------
 //
 QEStripChartItemDialog::QEStripChartItemDialog (QWidget *parent) :
-      QDialog (parent),
+      QEDialog (parent),
       ui (new Ui::QEStripChartItemDialog)
 {
    this->ui->setupUi (this);

@@ -29,7 +29,7 @@
 
 #include <QString>
 #include <QColor>
-#include <QDialog>
+#include <QEDialog.h>
 #include <QDateTime>
 
 #include <QEStripChartUtilities.h>
@@ -44,7 +44,7 @@ namespace Ui {
  * This dialog form allows the user to select a start datetime and
  * end datetime pair for the strip chart.
  */
-class QEStripChartAdjustPVDialog : public QDialog
+class QEStripChartAdjustPVDialog : public QEDialog
 {
     Q_OBJECT
 

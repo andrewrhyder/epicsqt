@@ -29,7 +29,7 @@
 
 #include <QString>
 #include <QColor>
-#include <QDialog>
+#include <QEDialog.h>
 
 namespace Ui {
     class QEStripChartItemDialog;
@@ -38,7 +38,7 @@ namespace Ui {
 /*
  * Manager class for the QEStripChartItemDialog.ui compiled form.
  */
-class QEStripChartItemDialog : public QDialog
+class QEStripChartItemDialog : public QEDialog
 {
     Q_OBJECT
 
