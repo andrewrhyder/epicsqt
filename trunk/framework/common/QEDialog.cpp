@@ -37,29 +37,27 @@ QEDialog::QEDialog (QWidget* parent) : QDialog (parent) {
 //
 int QEDialog::exec (QWidget* centreOver)
 {
-   // Did caller specify an widget (presumably a form) to centre this over?
+   // Did caller specify an widget to centre this over?
    //
    if (centreOver) {
-
-      const QRect cr = centreOver->geometry ();
-      QPoint centre = QPoint (cr.left () + cr.width  () / 2,
-                              cr.top ()  + cr.height () / 2);
-
-      // Is centreOver a main window?
+      // Find center and map this to global coordinates.
       //
-      QMainWindow* w = dynamic_cast<QMainWindow*> (centreOver);
-      if (!w) {
-         // No, it is a regular widget - map centre to global position.
-         //
-         centre = centreOver->mapToGlobal (centre);
-      }
+      const QRect cr = centreOver->geometry ();
+      QPoint centre = QPoint (cr.width () / 2, cr.height () / 2);
+      centre = centreOver->mapToGlobal (centre);
 
+      // Extract current dialog location and calculate translation offset.
+      //
       QRect dr = this->geometry ();
-      dr.setLeft (centre.x () - dr.width  () / 2);
-      dr.setTop  (centre.y () - dr.height () / 2);
+      int dx = centre.x () - (dr.x () + dr.width ()/2);
+      int dy = centre.y () - (dr.y () + dr.height ()/2);
 
+      // Move dialog widget geometry rectangle, careful not to change width or
+      // height and apply.
+      //
+      dr.translate (dx, dy);
       setGeometry (dr);
-  }
+   }
 
    // Now call parent exec method to do actual work.
    //
