@@ -775,7 +775,7 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
          this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
                                                 this->getXYAlias  (slot),
                                                 this->getXYSizePV (slot));
-         n = this->dataDialog->exec ();
+         n = this->dataDialog->exec (this);
          if (n == 1) {
             QString newData;
             QString newAlias;
