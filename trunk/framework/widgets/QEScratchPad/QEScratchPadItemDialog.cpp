@@ -34,7 +34,7 @@
 //------------------------------------------------------------------------------
 //
 QEScratchPadItemDialog::QEScratchPadItemDialog (QWidget *parent) :
-      QDialog (parent),
+      QEDialog (parent),
       ui (new Ui::QEScratchPadItemDialog)
 {
    this->ui->setupUi (this);

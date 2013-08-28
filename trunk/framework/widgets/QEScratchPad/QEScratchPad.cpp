@@ -370,7 +370,7 @@ void QEScratchPad::contextMenuSelected (const int slot, const QEScratchPadMenu::
       case QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME:
       case QEScratchPadMenu::SCRATCHPAD_EDIT_PV_NAME:
          this->dataDialog->setFieldInformation (this->getPvName (slot));
-         n = this->dataDialog->exec ();
+         n = this->dataDialog->exec (this);
          if (n == 1) {
             QString newData;
             this->dataDialog->getFieldInformation (newData);

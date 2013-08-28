@@ -28,7 +28,7 @@
 #define QESCRATCHPADITEMDIALOG_H
 
 #include <QString>
-#include <QDialog>
+#include <QEDialog.h>
 
 namespace Ui {
     class QEScratchPadItemDialog;
@@ -37,7 +37,7 @@ namespace Ui {
 /*
  * Manager class for the QEScratchPadItemDialog.ui compiled form.
  */
-class QEScratchPadItemDialog : public QDialog
+class QEScratchPadItemDialog : public QEDialog
 {
     Q_OBJECT
 
