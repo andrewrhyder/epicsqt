@@ -1521,7 +1521,7 @@ void QEStripChart::yRangeSelected (const QEStripChartNames::ChartYRanges scale)
    switch (scale) {
       case QEStripChartNames::manual:
          this->yRangeDialog->setRange (this->getYMinimum (), this->getYMaximum ());
-         n = this->yRangeDialog->exec ();
+         n = this->yRangeDialog->exec (this);
          if (n == 1) {
             this->privateData->chartYScale = scale;
             // User has selected okay.
@@ -1615,7 +1615,7 @@ void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
          this->timeDialog->setMaximumDateTime (QDateTime::currentDateTime ().toTimeSpec (this->timeZoneSpec));
          this->timeDialog->setStartDateTime (this->getStartDateTime().toTimeSpec (this->timeZoneSpec));
          this->timeDialog->setEndDateTime (this->getEndDateTime().toTimeSpec (this->timeZoneSpec));
-         n = this->timeDialog->exec ();
+         n = this->timeDialog->exec (this);
          if (n == 1) {
             // User has selected okay.
             //

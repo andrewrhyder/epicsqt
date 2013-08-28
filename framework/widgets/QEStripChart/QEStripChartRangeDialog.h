@@ -29,7 +29,7 @@
 
 #include <QString>
 #include <QColor>
-#include <QDialog>
+#include <QEDialog.h>
 #include <QDateTime>
 
 namespace Ui {
@@ -42,7 +42,7 @@ namespace Ui {
  * This dialog form allows the user to select a start datetime and
  * end datetime pair for the strip chart.
  */
-class QEStripChartRangeDialog : public QDialog
+class QEStripChartRangeDialog : public QEDialog
 {
     Q_OBJECT
 
