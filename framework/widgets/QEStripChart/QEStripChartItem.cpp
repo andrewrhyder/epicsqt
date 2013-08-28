@@ -955,7 +955,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
                                            this->getBufferedMinMax(false));
 
          this->adjustPVDialog->setValueScaling (this->scaling);
-         n = this->adjustPVDialog->exec (this->chart);
+         n = this->adjustPVDialog->exec (this);
          if (n == 1) {
              // User has selected okay.
              this->scaling.assign (this->adjustPVDialog->getValueScaling ());
@@ -1005,7 +1005,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
       case QEStripChartNames::SCCM_PV_ADD_NAME:
       case QEStripChartNames::SCCM_PV_EDIT_NAME:
          this->pvNameEditDialog->setPvName (this->getPvName ());
-         n = this->pvNameEditDialog->exec (this->chart);
+         n = this->pvNameEditDialog->exec (this);
          if (n == 1) {
             // User has selected okay.
             if (this->getPvName () != this->pvNameEditDialog->getPvName ()) {
