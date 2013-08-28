@@ -233,7 +233,7 @@ void MainWindow::on_actionArchive_Status_triggered() { launchLocalGui( ":/forms/
 void MainWindow::on_actionUser_Level_triggered()
 {
     // Present the login dialog to the user
-    app->login();
+    app->login( this );
 }
 
 // Close this window

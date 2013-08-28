@@ -475,7 +475,7 @@ void QEGui::identifyWindowsAndForms()
 }
 
 // Change user level
-void QEGui::login()
+void QEGui::login( QWidget* fromForm )
 {
     if( !loginForm )
     {
@@ -483,7 +483,8 @@ void QEGui::login()
         // Ensure scaling is consistent with the rest of the application's forms.
         QEUtilities::applyCurrentWidgetScale( loginForm );
     }
-    loginForm->exec();
+
+    loginForm->exec( fromForm );
 }
 
 // Launch a gui for the 'Recent...' menu

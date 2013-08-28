@@ -79,7 +79,7 @@ public:
 
     void        identifyWindowsAndForms();                  // Ensure all main windows and QEForms managed by this application (top level forms) have a unique identifier
 
-    void        login();                                    // Change user level
+    void        login( QWidget* fromForm );                 // Change user level
 
     const QList<recentFile*>&  getRecentFiles();            // Return list of recently added files
 
