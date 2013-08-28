@@ -45,6 +45,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QtDebug>
+#include <QECommon.h>
 #include <QEForm.h>
 #include <ContainerProfile.h>
 #include <QEWidget.h>
@@ -175,6 +176,9 @@ void QEForm::establishConnection( unsigned int variableIndex )
 void QEForm::reloadLater()
 {
     readUiFile();
+    // The ui file has been loaded post construction, so this widget missed out on any applied scaling.
+    // Therefore apply the current scaling now.
+    QEUtilities::applyCurrentWidgetScale( ui );
 }
 
 // Debug function to list the widget hierarchy
@@ -571,6 +575,10 @@ void QEForm::reloadFile()
         ui->close();
     }
     readUiFile();
+    
+    // The ui file has been loaded post construction, so this widget missed out on any applied scaling.
+    // Therefore apply the current scaling now.
+    QEUtilities::applyCurrentWidgetScale( ui );
 }
 
 // Slot for reloading the file if it has changed.
