@@ -1,4 +1,5 @@
-/*
+/*  QEImageOptionsDialog.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -30,7 +31,7 @@
 #include "ui_QEImageOptionsDialog.h"
 
 QEImageOptionsDialog::QEImageOptionsDialog(QWidget *parent) :
-    QDialog(parent),
+    QEDialog(parent),
     ui(new Ui::QEImageOptionsDialog)
 {
     ui->setupUi(this);

@@ -37,7 +37,7 @@
   the element is displayed.
   A user defined string may be emitted on element selection.
  */
-
+#include <QECommon.h>
 #include <QEPeriodic.h>
 #include <PeriodicDialog.h>
 #include <math.h>
@@ -606,8 +606,12 @@ void QEPeriodic::userClicked() {
 
         // Present the element selection dialog
         PeriodicDialog dialog( writeButton );
+
+        // The dialog object constructed post QEPeriodic construction -apply scaling.
+        QEUtilities::applyCurrentWidgetScale ( &dialog );
+
         dialog.setElement( writeButton->text(), enabledList, elementList );
-        dialog.exec();
+        dialog.exec( writeButton );
 
         // Use the selected element
         QString selection = dialog.getElement();

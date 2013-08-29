@@ -277,7 +277,8 @@ void QEImage::setup() {
 
     // Create options dialog
     // This is done after all items manipulated by the options dialog have been built - such as the brightness/contrast controls
-    optionsDialog = new QEImageOptionsDialog();
+    // Also pareneted by this so will scaled automatically.
+    optionsDialog = new QEImageOptionsDialog( this );
     QObject::connect( optionsDialog, SIGNAL( optionChange(  imageContextMenu::imageContextMenuOptions, bool )),
                       this,          SLOT  ( optionAction( imageContextMenu::imageContextMenuOptions, bool )) );
     optionsDialog->initialise();
@@ -657,7 +658,7 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
         case GREY12:  minBits = 2;  break;
         case GREY16:  minBits = 16; break;
         case RGB_888: minBits = 24; break;
-        case NUM_OPTIONS: break;
+        default:      minBits = 8;  break;
     }
 
     elementsPerPixel = minBits/(imageDataSize*8);
@@ -3030,7 +3031,7 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
-        case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec();                 break;
+        case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
 
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal
