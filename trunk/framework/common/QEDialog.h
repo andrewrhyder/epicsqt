@@ -50,7 +50,7 @@ public:
 public slots:
    // Re-postion dialog to the centre of the specified widget.
    //
-   int exec (QWidget* centreOver = 0);
+   int exec (QWidget* centreOver);
 };
 
 #endif  // QEDIALOG_H

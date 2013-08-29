@@ -1,4 +1,5 @@
-/*
+/*  QEImageOptionsDialog.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -29,7 +30,7 @@
 #ifndef QEIMAGEOPTIONSDIALOG_H
 #define QEIMAGEOPTIONSDIALOG_H
 
-#include <QDialog>
+#include <QEDialog.h>
 #include <imageContextMenu.h>
 
 
@@ -37,7 +38,7 @@ namespace Ui {
     class QEImageOptionsDialog;
 }
 
-class QEImageOptionsDialog : public QDialog
+class QEImageOptionsDialog : public QEDialog
 {
     Q_OBJECT
 

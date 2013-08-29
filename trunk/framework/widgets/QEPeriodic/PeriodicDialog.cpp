@@ -1,4 +1,5 @@
-/*
+/*  PeriodicDialog.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -40,7 +41,7 @@
 
 // Create the periodic selection dialog
 PeriodicDialog::PeriodicDialog(QWidget *parent) :
-    QDialog(parent),
+    QEDialog(parent),
     m_ui(new Ui::PeriodicDialog)
 {
     m_ui->setupUi(this);
