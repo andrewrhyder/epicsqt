@@ -9,6 +9,7 @@ HEADERS += \
    common/QEFrameworkVersion.h \
    common/QEGuiLaunchRequests.h \
    common/QEDialog.h \
+   common/QEPVNameSelectDialog.h \
    common/PasswordDialog.h
 
 SOURCES += \
@@ -16,6 +17,7 @@ SOURCES += \
    common/QEFrameworkVersion.cpp \
    common/QEGuiLaunchRequests.cpp \
    common/QEDialog.cpp \
+   common/QEPVNameSelectDialog.cpp \
    common/PasswordDialog.cpp
 
 INCLUDEPATH += \
@@ -30,4 +32,8 @@ DEPENDPATH += common
    
 
 FORMS += \
-    common/PasswordDialog.ui
+   common/QEPVNameSelectDialog.ui \
+   common/PasswordDialog.ui
+
+# end
+   
