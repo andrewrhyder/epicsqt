@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
+    <width>484</width>
     <height>110</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>420</width>
+    <width>444</width>
     <height>110</height>
    </size>
   </property>
@@ -26,7 +26,16 @@
    <string>PV Name Selection</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
     <number>2</number>
    </property>
    <item>
