@@ -136,7 +136,7 @@ void QEScratchPad::createInternalWidgets ()
 
    this->vLayout->addStretch ();
 
-   this->dataDialog = new QEScratchPadItemDialog (this);
+   this->pvNameSelectDialog = new QEPVNameSelectDialog (this);
 
    this->widgetContextMenu = new QMenu (this);
    action = new QAction ("Copy All PV Names", this->widgetContextMenu);
@@ -369,12 +369,10 @@ void QEScratchPad::contextMenuSelected (const int slot, const QEScratchPadMenu::
 
       case QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME:
       case QEScratchPadMenu::SCRATCHPAD_EDIT_PV_NAME:
-         this->dataDialog->setFieldInformation (this->getPvName (slot));
-         n = this->dataDialog->exec (this);
+         this->pvNameSelectDialog->setPvName (this->getPvName (slot));
+         n = this->pvNameSelectDialog->exec (this);
          if (n == 1) {
-            QString newData;
-            this->dataDialog->getFieldInformation (newData);
-            this->setPvName (slot, newData);
+            this->setPvName (slot, this->pvNameSelectDialog->getPvName ());
          }
          break;
 
