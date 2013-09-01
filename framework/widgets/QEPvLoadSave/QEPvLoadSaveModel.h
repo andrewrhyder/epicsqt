@@ -49,6 +49,7 @@ public:
    virtual ~QEPvLoadSaveModel ();
 
    void setupModelData (QEPvLoadSaveItem* topItem, const QString& heading);
+   void modelUpdated ();
 
    // Request each item to perform read, write or access archive.
    //
@@ -70,17 +71,26 @@ public:
    int rowCount        (const QModelIndex &parent = QModelIndex()) const;
    int columnCount     (const QModelIndex &parent = QModelIndex()) const;
 
+
    QModelIndex getRootIndex () { return this->rootIndex; }
+   QEPvLoadSaveItem* getTopItem () { return this->topItem; }
+
+   // If index is invalid, then returns null.
+   //
+   QEPvLoadSaveItem* indexToItem (const QModelIndex& index) const;
 
 signals:
    void reportActionComplete (QEPvLoadSaveCommon::ActionKinds, bool);
 
 private:
+   // Like indexToItem but returns rootItem if index is invalid.
+   //
    QEPvLoadSaveItem* getItem (const QModelIndex &index) const;
 
-   QModelIndex rootIndex;
+   QModelIndex rootIndex;       // is an invlaid index
    QEPvLoadSaveItem *rootItem;  // the tree view root - must exist - provides headings
    QEPvLoadSaveItem *topItem;   // top (or data root) item, could be null but unlikely.
+                                // (we could get first child index of rootIndex and then extract item)
    QString heading;
 
    void setModelIndex (QEPvLoadSaveItem* item, int row, const QModelIndex &parentIndex);

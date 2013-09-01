@@ -26,15 +26,21 @@
 #ifndef QEPVLOADSAVE_H
 #define QEPVLOADSAVE_H
 
+#include <QAction>
+#include <QMenu>
+#include <QPoint>
 #include <QString>
 #include <QAbstractItemModel>
 #include <QTreeView>
 
 #include <QCaObject.h>
 #include <QEFrame.h>
+#include <QEGuiLaunchRequests.h>
 #include <QEWidget.h>
 #include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
+#include <QEPVNameSelectDialog.h>
+#include <QEPvLoadSaveGroupNameDialog.h>
 
 #include "QEPvLoadSaveCommon.h"
 
@@ -51,6 +57,7 @@
 
 // Differed declaration - avoids mutual header inclusions.
 //
+class QEPvLoadSaveItem;
 class QEPvLoadSaveModel;
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEPvLoadSave : public QEFrame  {
@@ -105,6 +112,9 @@ public:
    // Used internally but needs to be public.
    static const int NumberOfButtons = 15;
 
+signals:
+    void requestGui (const QEGuiLaunchRequests&);       // Signal 'launch a GUI'
+
 protected:
    // We don't expect these to be called - but do override and output debug error
    //
@@ -117,6 +127,26 @@ protected:
    // No copy paste yet
 
 private:
+   enum TreeContextMenuActions {
+      TCM_CREATE_ROOT,
+      TCM_ADD_GROUP,
+      TCM_RENAME_GROUP,
+      TCM_ADD_PV,
+
+      // This group similar to, but not same as, a regular widget.
+      TCM_COPY_VARIABLE,
+      TCM_COPY_DATA,
+      TCM_SHOW_PV_PROPERTIES,
+      TCM_ADD_TO_STRIPCHART,
+      TCM_ADD_TO_SCRATCH_PAD,
+
+      TCM_EDIT_PV_NAME,
+      TCM_EDIT_PV_VALUE,
+      TCM_NUMBER           // must be last
+   };
+
+   typedef QAction* TreeContextMenuActionLists [TCM_NUMBER];
+
    enum Sides { LeftSide = 0, RightSide = 1, ErrorSide = 2 };
 
    class Halves {
@@ -131,11 +161,13 @@ private:
       void setConfigurationSubstitutions (const QString& substitutions);
       QString getConfigurationSubstitutions ();
 
+      void setTop (QEPvLoadSaveItem* topItem, const QString& heading);
       void open (const QString& configurationFile);
 
       QFrame* container;
       QVBoxLayout* halfLayout;
       QFrame* header;
+      QCheckBox* checkBox;
       QPushButton *headerPushButtons [NumberOfButtons];
 
       QTreeView* tree;    // this is the tree widget
@@ -159,8 +191,26 @@ private:
    QProgressBar* progressBar;
    QPushButton* abortButton;
 
+   QEPvLoadSaveGroupNameDialog* groupNameDialog;
+   QEPVNameSelectDialog* pvNameSelectDialog;
+   QMenu* treeContextMenu;
+   TreeContextMenuActionLists actionList;
 
+   // Only meaningfull after treeMenuRequested called and up until treeMenuSelected.
+   //
+   Halves* selectedHalf;
+   QEPvLoadSaveItem* selectedItem;
+
+   // Use the sentBy object to determine which side sent the signal.
+   //
    Sides sideOfSender (QObject *sentBy);
+
+   // Utility function to create and set up an action.
+   //
+   QAction* createAction (QMenu *parent,
+                          const QString &caption,
+                          const bool checkable,
+                          const TreeContextMenuActions treeAction);
 
 private slots:
    void useNewConfigurationFileProperty (QString configurationFileIn,
@@ -169,6 +219,10 @@ private slots:
 
    void acceptActionComplete (QEPvLoadSaveCommon::ActionKinds, bool);
 
+   void treeMenuRequested (const QPoint& pos);
+   void treeMenuSelected  (QAction* action);
+
+   void checkBoxStateChanged (int);
    void writeAllClicked (bool);
    void readAllClicked (bool);
    void writeSubsetClicked (bool);
@@ -183,6 +237,7 @@ private slots:
    void sortClicked (bool);
    void compareClicked (bool);
    void abortClicked (bool);
+
 };
 
 #endif // QEPVLOADSAVE_H
