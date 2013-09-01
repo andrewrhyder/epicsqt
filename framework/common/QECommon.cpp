@@ -228,7 +228,7 @@ int QEUtilities::stringToEnum (const QObject& object,
 
 //------------------------------------------------------------------------------
 //
-QWidget*  QEUtilities::findWidget (QWidget* parent, const QString& className)
+QWidget* QEUtilities::findWidget (QWidget* parent, const QString& className)
 {
    const QMetaObject* meta = parent->metaObject ();
 
@@ -282,8 +282,6 @@ int QEUtilities::scaleBy (const int v, const int m, const int d)
 
 //------------------------------------------------------------------------------
 //
-#define UPPER_SIZE  16777215
-
 void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
 {
    QLabel* label = NULL;
@@ -296,21 +294,21 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
    //
    if (!widget) return;
 
-   QSize minSize =  widget->minimumSize();
-   QSize maxSize =  widget->maximumSize();
-   QRect geo =  widget->geometry();
+   QSize minSize = widget->minimumSize();
+   QSize maxSize = widget->maximumSize();
+   QRect geo = widget->geometry();
    QWidget *parent;
 
    minSize.setWidth  (scaleBy (minSize.width (),  m, d));
    minSize.setHeight (scaleBy (minSize.height (), m, d));
 
-   // UPPER_SIZE seems to be the default max size - do not scale this value.
+   // QWIDGETSIZE_MAX is the default max size - do not scale nor exceed this value.
    //
-   if (maxSize.width () != UPPER_SIZE) {
-      maxSize.setWidth  (QEUtilities::scaleBy (maxSize.width  (), m, d));
+   if (maxSize.width () != QWIDGETSIZE_MAX) {
+      maxSize.setWidth  (MIN (QEUtilities::scaleBy (maxSize.width  (), m, d), QWIDGETSIZE_MAX));
    }
-   if (maxSize.height () != UPPER_SIZE) {
-      maxSize.setHeight (QEUtilities::scaleBy (maxSize.height (), m, d));
+   if (maxSize.height () != QWIDGETSIZE_MAX) {
+      maxSize.setHeight (MIN (QEUtilities::scaleBy (maxSize.height (), m, d), QWIDGETSIZE_MAX));
    }
 
    geo = QRect (QEUtilities::scaleBy (geo.left (),   m, d),
@@ -409,7 +407,7 @@ void QEUtilities::widgetScaleBy (QWidget * widget, const int m, const int d)
       }
    }
 
-   tableWidget =  dynamic_cast <QTableWidget *>(widget);
+   tableWidget = dynamic_cast <QTableWidget *>(widget);
    if (tableWidget) {
       int defaultSectionSize;
 
@@ -505,6 +503,14 @@ void QEUtilities::applyCurrentWidgetScale (QWidget* widget, const int maxDepth)
    //
    QEUtilities::widgetScaleTreeWalk (widget, QEUtilities::currentScaleM,
                                      QEUtilities::currentScaleD, maxDepth);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEUtilities::getCurrentScaling (int & m, int & d)
+{
+   m = QEUtilities::currentScaleM;
+   d = QEUtilities::currentScaleD;
 }
 
 //------------------------------------------------------------------------------

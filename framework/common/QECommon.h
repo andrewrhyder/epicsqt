@@ -138,14 +138,24 @@ public:
     ///
     static void adjustWidgetScale (QWidget* widget, const int m, const int d, const int maxDepth = 40);
 
-    /// As above, but using previously used m and d values.
+    /// As above, but using previously specified m and d values.
     ///
     static void applyCurrentWidgetScale (QWidget* widget, const int maxDepth = 40);
 
+    /// Extract currently applied scaling - allows widgets to perform widget class
+    /// specific scaling functionality.
+    ///
+    static void getCurrentScaling (int & m, int & d);
+
     /// Conveniance function for widget specific 'scaleBy' functions.
     ///
-    static void adjustPointScale (QPoint& point, const int m, const int d);
+    /// Scales a single value.
+    ///
+    static int scaleBy (const int v, const int m, const int d);
 
+    /// Scales a point.
+    ///
+    static void adjustPointScale (QPoint& point, const int m, const int d);
 
     /// This function tree walks the given parent looking a widget of the specified class
     /// name. The function returns the first found or NULL.
@@ -165,10 +175,6 @@ private:
     /// depending on the type of widget.
     ///
     static void widgetScaleBy (QWidget * widget, const int m, const int d);
-
-    /// Scales a single value.
-    ///
-    static int scaleBy (const int v, const int m, const int d);
 };
 
 # endif // QECOMMON_H
