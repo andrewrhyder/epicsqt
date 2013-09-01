@@ -41,18 +41,14 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
 {
    this->ui->setupUi (this);
 
-   this->returnIsMasked = false;
-
-   QObject::connect (this->ui->clearButton, SIGNAL (clicked            (bool)),
-                     this,                  SLOT   (clearButtonClicked (bool)));
-
    QObject::connect (this->ui->filterEdit,  SIGNAL  (returnPressed ()),
-                     this,                  SLOT (filterEditReturnPressed ()));
-
+                     this,                  SLOT    (filterEditReturnPressed ()));
 
    QObject::connect (this->ui->filterEdit,  SIGNAL (editingFinished       ()),
                      this,                  SLOT   (filterEditingFinished ()));
 
+   QObject::connect (this->ui->pvNameEdit,  SIGNAL (editTextChanged (const QString&)),
+                     this,                  SLOT   (editTextChanged (const QString&)));
 }
 
 //------------------------------------------------------------------------------
@@ -66,43 +62,41 @@ QEPVNameSelectDialog::~QEPVNameSelectDialog ()
 //
 void QEPVNameSelectDialog::setPvName (QString pvNameIn)
 {
-   this->applyFilter ();
+   this->originalPvName = pvNameIn.trimmed ();
+   this->ui->pvNameEdit->clear ();
+   this->ui->pvNameEdit->insertItem (0, this->originalPvName, QVariant ());
+   this->ui->pvNameEdit->setCurrentIndex (0);
 
-   if (!pvNameIn.isEmpty()) {
-      this->ui->pvNameEdit->insertItem (0, pvNameIn, QVariant ());
-      this->ui->pvNameEdit->setCurrentIndex (0);
-   }
+   // setPvName typically invoked just before exec () call.
+   //
+   this->ui->filterEdit->setFocus ();
 }
-
 
 //------------------------------------------------------------------------------
 //
 QString QEPVNameSelectDialog::getPvName ()
 {
-   return this->ui->pvNameEdit->currentText().trimmed ();
-}
-
-//------------------------------------------------------------------------------
-//
-bool QEPVNameSelectDialog::isClear ()
-{
-   return (this->getPvName() == "");
+   return this->ui->pvNameEdit->currentText ().trimmed ();
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPVNameSelectDialog::applyFilter ()
 {
-   QString filter = this->ui->filterEdit->text().trimmed ();
+   QString filter = this->ui->filterEdit->text ().trimmed ();
    int n;
 
    this->ui->pvNameEdit->clear ();
 
-   // QEArchiveAccess ensures thelist is sorted.
+   // QEArchiveAccess ensures the list is sorted.
    //
    this->ui->pvNameEdit->insertItems (0, QEArchiveAccess::getMatchingPVnames (filter));
 
-   n =  this->ui->pvNameEdit->count ();
+   n = this->ui->pvNameEdit->count ();
+   if ((n == 0) && (!this->originalPvName.isEmpty ())) {
+      this->ui->pvNameEdit->insertItem (0, this->originalPvName, QVariant ());
+      this->ui->pvNameEdit->setCurrentIndex (0);
+   }
 
    this->ui->matchCountLabel->setText (QString ("%1").arg (n));
 }
@@ -111,9 +105,7 @@ void QEPVNameSelectDialog::applyFilter ()
 //
 void QEPVNameSelectDialog::filterEditReturnPressed ()
 {
-   this->returnIsMasked = true;
-
-   // this will cause  filterEditingFinished to be invoked - no need
+   // This will cause  filterEditingFinished to be invoked - no need
    // to apply filter here.
    //
    this->ui->pvNameEdit->setFocus ();
@@ -126,14 +118,19 @@ void QEPVNameSelectDialog::filterEditingFinished ()
    this->applyFilter ();
 }
 
-
 //------------------------------------------------------------------------------
-// User has pressed Clear
 //
-void QEPVNameSelectDialog::clearButtonClicked (bool)
+void QEPVNameSelectDialog::editTextChanged (const QString& text)
 {
-   this->ui->pvNameEdit->clear ();
-   this->accept ();
+   QDialogButtonBox::StandardButtons buttons;
+
+   // Okay button only allowed iff text specified.
+   //
+   buttons = QDialogButtonBox::Cancel;
+   if (!text.trimmed ().isEmpty ()) {
+      buttons = buttons | QDialogButtonBox::Ok;
+   }
+   this->ui->buttonBox->setStandardButtons (buttons);
 }
 
 //------------------------------------------------------------------------------
@@ -141,11 +138,7 @@ void QEPVNameSelectDialog::clearButtonClicked (bool)
 //
 void QEPVNameSelectDialog::on_buttonBox_accepted ()
 {
-   if (this->returnIsMasked) {
-      this->returnIsMasked = false;
-      return;
-   }
-
+   qDebug () << "on_buttonBox_accepted ";
    this->accept ();
 }
 

@@ -48,21 +48,18 @@ public:
    void setPvName (QString pvNameIn);
    QString getPvName ();
 
-   bool isClear ();
-
 private:
    Ui::QEPVNameSelectDialog *ui;
    QString originalPvName;
-   bool returnIsMasked;
 
    void applyFilter ();
 
 private slots:
    void filterEditReturnPressed ();
    void filterEditingFinished ();
+   void editTextChanged (const QString &);
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();
-   void clearButtonClicked (bool checked = false);
 };
 
 #endif  // QEPVNAME_SELECT_DIALOG_H
