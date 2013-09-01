@@ -44,6 +44,7 @@ QEPvLoadSaveModel::QEPvLoadSaveModel (QEPvLoadSave* parent) : QAbstractItemModel
    // The root item is a QTreeView/QAbstractItemModel artefact
    // Note this item does not/must not have a parent.
    // It is a place holder - not visible per se.
+   // Note to be confused withe the user ROOT, aka topItem.
    //
    this->rootItem = new QEPvLoadSaveItem ("Origin", false, QVariant (QVariant::Invalid), NULL);
    this->heading = "";
@@ -60,14 +61,14 @@ QEPvLoadSaveModel::~QEPvLoadSaveModel ()
 //
 void QEPvLoadSaveModel::setupModelData (QEPvLoadSaveItem* topItemIn, const QString& headingIn)
 {
+   // Delete rootItem (which deletes any existing children) and then re-construct
+   // the root - all easier than purging any children.
+   //
    if (this->rootItem) {
-      delete this->rootItem;  // this deletes any existing children.
+      delete this->rootItem;
       this->rootItem = NULL;
       this->heading = "";
    }
-
-   // Recreate root - all easier than purging children.
-   //
    this->rootItem = new QEPvLoadSaveItem ("Origin", false, QVariant (QVariant::Invalid), NULL);
 
    this->topItem = topItemIn;
@@ -75,10 +76,23 @@ void QEPvLoadSaveModel::setupModelData (QEPvLoadSaveItem* topItemIn, const QStri
       this->rootItem->appendChild (this->topItem);
       this->heading = headingIn;
 
+      // topItem calls this resursively down the QEPvLoadSaveItem tree.
+      //
       this->topItem->actionConnect (this, SLOT (acceptActionComplete (const QModelIndex&, QEPvLoadSaveCommon::ActionKinds, bool)));
 
+      // The model calls this resursively down the index tree.
+      //
       this->setModelIndex (this->topItem, 0, this->rootIndex);
+
+      this->modelUpdated ();
    }
+}
+
+//-----------------------------------------------------------------------------
+//
+void QEPvLoadSaveModel::modelUpdated ()
+{
+   emit this->layoutChanged ();
 }
 
 //-----------------------------------------------------------------------------
@@ -95,20 +109,17 @@ void QEPvLoadSaveModel::setModelIndex (QEPvLoadSaveItem* item, int row, const QM
 
    // Use createIndex directly (as opposed to index)???
    //
-   // Form own model index list.
-   //
    ownIndex = this->index (row, 0, parentIndex);
    item->setModelIndex (ownIndex);
 
    // Now do chidren.
    //
-   for (childRow = 0; childRow < item->childCount(); childRow++) {
+   for (childRow = 0; childRow < item->childCount (); childRow++) {
        child = item->child (childRow);
-       // Note: this is a recersive function call.
+       // Note: this is a recursive function call.
        this->setModelIndex (child, childRow, ownIndex);
    }
 }
-
 
 //-----------------------------------------------------------------------------
 //
@@ -207,7 +218,7 @@ QVariant QEPvLoadSaveModel::headerData (int section, Qt::Orientation orientation
 
 //-----------------------------------------------------------------------------
 //
-QModelIndex QEPvLoadSaveModel::index (int row, int column, const QModelIndex & parent) const
+QModelIndex QEPvLoadSaveModel::index (int row, int column, const QModelIndex& parent) const
 {
    if (!this->hasIndex (row, column, parent)) {
       return QModelIndex ();
@@ -234,7 +245,7 @@ QModelIndex QEPvLoadSaveModel::parent (const QModelIndex & child) const
    QEPvLoadSaveItem *childItem = this->getItem (child);
    QEPvLoadSaveItem *parentItem = childItem->getParent ();
 
-   if (parentItem == rootItem) {
+   if (parentItem == this->rootItem) {
       return QModelIndex ();
    }
 
@@ -262,9 +273,22 @@ int QEPvLoadSaveModel::columnCount (const QModelIndex & parent) const
 //-----------------------------------------------------------------------------
 // Utility function to hide the nasty static cast and stuff.
 //
+QEPvLoadSaveItem* QEPvLoadSaveModel::indexToItem (const QModelIndex& index) const
+{
+   QEPvLoadSaveItem* result = NULL;
+
+   if (index.isValid ()) {
+      result = static_cast <QEPvLoadSaveItem *>(index.internalPointer ());
+   }
+   return result;
+}
+
+//-----------------------------------------------------------------------------
+// Utility function to hide the nasty static cast and stuff.
+//
 QEPvLoadSaveItem *QEPvLoadSaveModel::getItem (const QModelIndex &index) const
 {
-   QEPvLoadSaveItem * result;
+   QEPvLoadSaveItem* result;
 
    if (index.isValid()) {
       result = static_cast <QEPvLoadSaveItem *>(index.internalPointer ());
