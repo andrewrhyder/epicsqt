@@ -120,17 +120,11 @@ void QEPVNameSelectDialog::filterEditingFinished ()
 
 //------------------------------------------------------------------------------
 //
-void QEPVNameSelectDialog::editTextChanged (const QString& text)
+void QEPVNameSelectDialog::editTextChanged (const QString&)
 {
-   QDialogButtonBox::StandardButtons buttons;
-
-   // Okay button only allowed iff text specified.
-   //
-   buttons = QDialogButtonBox::Cancel;
-   if (!text.trimmed ().isEmpty ()) {
-      buttons = buttons | QDialogButtonBox::Ok;
-   }
-   this->ui->buttonBox->setStandardButtons (buttons);
+   // NOTE: calling buttonBox->setStandardButtons causes a seg fault when cancel
+   // eventually pressed and sometimes okay button as well, so do nothing for now.
+   // Maybe do our own buttons instead of using a QDialogButtonBox.
 }
 
 //------------------------------------------------------------------------------
@@ -138,8 +132,9 @@ void QEPVNameSelectDialog::editTextChanged (const QString& text)
 //
 void QEPVNameSelectDialog::on_buttonBox_accepted ()
 {
-   qDebug () << "on_buttonBox_accepted ";
-   this->accept ();
+   if (!this->getPvName().isEmpty ()) {
+      this->accept ();
+   }
 }
 
 //------------------------------------------------------------------------------
