@@ -114,6 +114,13 @@ QString QEPvLoadSaveItem::getNodeName ()
 
 //-----------------------------------------------------------------------------
 //
+QVariant QEPvLoadSaveItem::getNodeValue ()
+{
+   return this->value;
+}
+
+//-----------------------------------------------------------------------------
+//
 void QEPvLoadSaveItem::updateItemData ()
 {
    QString valueImage;

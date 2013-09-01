@@ -69,6 +69,8 @@ public:
    void setNodeName (const QString& nodeName);
    QString getNodeName ();
 
+   QVariant getNodeValue ();
+
    bool getIsPV () { return this->isPV; }
 
    void appendChild (QEPvLoadSaveItem *child);

@@ -243,7 +243,6 @@ void QEPvLoadSave::Halves::open (const QString& configurationFileIn)
 
    this->configurationFile = configurationFileIn;
    if (this->configurationFile == "") {
-      DEBUG << "no file specified";
       return;
    }
 
@@ -394,7 +393,7 @@ QAction* QEPvLoadSave::createAction (QMenu *parent,
 {
    QAction* action = NULL;
 
-   action = new QAction (caption, parent);
+   action = new QAction (caption + " ", parent);
    action->setCheckable (checkable);
    action->setData (QVariant (int (treeAction)));
    parent->addAction (action);
@@ -407,12 +406,25 @@ QAction* QEPvLoadSave::createAction (QMenu *parent,
 //
 void QEPvLoadSave::resizeEvent (QResizeEvent* )
 {
-   int w = this->geometry ().width ();
+   int fw = this->geometry ().width ();
+   QRect pg = this->progressBar->geometry ();
+   QRect ag = this->abortButton->geometry ();
+
+   int m;
+   int d;
+   QEUtilities::getCurrentScaling (m, d);
 
    // Need to take scaling into account.
    //
-   this->progressBar->setGeometry (12, 28, w - (WCW + 40), 26);
-   this->abortButton->setGeometry (w - (WCW + 20), 28, WCW, 26);
+   int margin = QEUtilities::scaleBy (20, m, d);
+   int space =  QEUtilities::scaleBy (12, m, d);
+
+   int dx = (fw - (margin + ag.width ()) - ag.x ());
+   ag.translate (dx, 0);
+   pg.setWidth (ag.x() - pg.x() - space);
+
+   this->progressBar->setGeometry (pg);
+   this->abortButton->setGeometry (ag);
 }
 
 //------------------------------------------------------------------------------
@@ -485,10 +497,8 @@ QEPvLoadSave::Sides QEPvLoadSave::sideOfSender (QObject *sentBy)
 //
 void QEPvLoadSave::acceptActionComplete (QEPvLoadSaveCommon::ActionKinds, bool okay)
 {
-   int v;
-
    if (okay) {
-      v = this->progressBar->value ();
+      int v = this->progressBar->value ();
       this->progressBar->setValue (v + 1);
    }
 }
@@ -510,49 +520,74 @@ void QEPvLoadSave::treeMenuRequested (const QPoint& pos)
    QModelIndex index;
    int j;
 
+   // Get the model index 'address' of the item at this positon,
+   // and then get the underlying load save item.
+   //
    index = tree->indexAt (pos);
    this->selectedItem = model->indexToItem (index);
 
+   // Make all actions invisible, then set visible required actions.
+   //
    for (j = 0; j < ARRAY_LENGTH (this->actionList); j++) {
       this->actionList [j]->setVisible (false);
    }
 
+   // Does item even exit at this position.
+   //
    if (this->selectedItem) {
+      // Is is a leaf/PV node or a gruop node?
+      //
       if (this->selectedItem->getIsPV ()) {
-
          for (j = TCM_COPY_VARIABLE; j <= TCM_EDIT_PV_VALUE; j++) {
             this->actionList [j]->setVisible (true);
          }
-
       } else {
          this->actionList [TCM_ADD_GROUP]->setVisible (true);
          if (this->selectedItem != model->getTopItem ()) {
+            // Renaming the 'ROOT' node prohibited.
             this->actionList [TCM_RENAME_GROUP]->setVisible (true);
          }
          this->actionList [TCM_ADD_PV]->setVisible (true);
       }
 
    } else
-   // no item selected - is the a root item??
+   // no item selected - is there a root item??
    if (!model->getTopItem ()) {
       // No "ROOT", i.e. top item.
       //
       this->actionList [TCM_CREATE_ROOT]->setVisible (true);
 
    } else {
-      return;
+      return;  // forget it.
    }
 
    QPoint golbalPos = tree->mapToGlobal (pos);
-   golbalPos.setY (golbalPos.y () + 20);
+
+   // NOTE: We want access to the tree's rowHeight function as we need this as a
+   // position offset (I suspect to account for the header). But the rowHeight ()
+   // function IS protected. So we get around this by deriving our own tree view
+   // class that can see the protected rowHeight () function and expose this as a
+   // public function.
+   //
+   class ExposedTreeView : QTreeView {
+   public:
+       int getRowHeight (const QModelIndex &index) const { return this->rowHeight (index); }
+   };
+
+   ExposedTreeView* exposedTree = (ExposedTreeView*) tree;
+   int rowHeight = exposedTree->getRowHeight (index);
+
+   if (rowHeight == 0) rowHeight = 20;  // scale??
+
+   golbalPos.setY (golbalPos.y () + rowHeight);
    this->treeContextMenu->exec (golbalPos, 0);
 }
 
 //------------------------------------------------------------------------------
 //
-void QEPvLoadSave::treeMenuSelected  (QAction* action)
+void QEPvLoadSave::treeMenuSelected (QAction* action)
 {
-   if (!this->selectedHalf) return;
+   if (!this->selectedHalf) return;   // sanity check
 
    QTreeView* tree = this->selectedHalf->tree;
    QEPvLoadSaveModel* model = this->selectedHalf->model;
@@ -562,6 +597,8 @@ void QEPvLoadSave::treeMenuSelected  (QAction* action)
    TreeContextMenuActions menuAction;
    QVariant nilValue (QVariant::Invalid);
    QEPvLoadSaveItem* item;
+   QString nodeName = "";
+   QVariant nodeValue;
    int n;
 
    intAction = action->data ().toInt (&okay);
@@ -569,6 +606,12 @@ void QEPvLoadSave::treeMenuSelected  (QAction* action)
       return;
    }
    menuAction = (TreeContextMenuActions) intAction;
+
+   // Extract current node name - need it is most case options.
+   //
+   if (this->selectedItem) {
+      nodeName = this->selectedItem->getNodeName ();
+   }
 
    switch (menuAction) {
 
@@ -592,7 +635,7 @@ void QEPvLoadSave::treeMenuSelected  (QAction* action)
       case TCM_RENAME_GROUP:
          /// TODO - create group name dialog - re-purposing pvNameSelectDialog here for now
          this->groupNameDialog->setWindowTitle ("QEPvLoadSave - Rename Group");
-         this->groupNameDialog->setGroupName (this->selectedItem->getNodeName ());
+         this->groupNameDialog->setGroupName (nodeName);
          n = this->groupNameDialog->exec (tree);
          if (n == 1) {
             this->selectedItem->setNodeName (this->groupNameDialog->getGroupName ());
@@ -612,7 +655,7 @@ void QEPvLoadSave::treeMenuSelected  (QAction* action)
 
       case TCM_EDIT_PV_NAME:
          this->pvNameSelectDialog->setWindowTitle ("QEPvLoadSave - edit PV");
-         this->pvNameSelectDialog->setPvName (this->selectedItem->getNodeName ());
+         this->pvNameSelectDialog->setPvName (nodeName);
          n = this->pvNameSelectDialog->exec (tree);
          if (n == 1) {
             this->selectedItem->setNodeName (this->pvNameSelectDialog->getPvName ());
@@ -624,36 +667,43 @@ void QEPvLoadSave::treeMenuSelected  (QAction* action)
          break;
 
       case TCM_COPY_VARIABLE:
+         QApplication::clipboard ()->setText (nodeName);
          break;
 
       case TCM_COPY_DATA:
+         nodeValue = this->selectedItem->getNodeValue ();
+
+         // Need be aware of lists.
+         if (nodeValue.type() == QVariant::List) {
+            QStringList sl = nodeValue.toStringList ();
+            QString text = "( ";
+
+            for (int j = 0; j < sl.size (); j++) {
+               if (j > 0) text.append(", ");
+               text.append (sl.value(j));
+            }
+            text.append(" )");
+            QApplication::clipboard ()->setText (text);
+         } else {
+            // Not a list - easy.
+            QApplication::clipboard ()->setText (nodeValue.toString ());
+         }
          break;
 
       case TCM_SHOW_PV_PROPERTIES:
-         {
-            QString pvName = this->selectedItem->getNodeName ();
-            QEGuiLaunchRequests request (QEGuiLaunchRequests::KindPvProperties, pvName);
-            emit this->requestGui (request);
-         }
+         emit this->requestGui (QEGuiLaunchRequests (QEGuiLaunchRequests::KindPvProperties, nodeName));
          break;
 
       case TCM_ADD_TO_STRIPCHART:
-         {
-            QString pvName = this->selectedItem->getNodeName ();
-            QEGuiLaunchRequests request (QEGuiLaunchRequests::KindStripChart, pvName);
-            emit this->requestGui (request);
-         }
+         emit this->requestGui (QEGuiLaunchRequests (QEGuiLaunchRequests::KindStripChart, nodeName));
          break;
 
       case TCM_ADD_TO_SCRATCH_PAD:
-         {
-            QString pvName = this->selectedItem->getNodeName ();
-            QEGuiLaunchRequests request (QEGuiLaunchRequests::KindScratchPad, pvName);
-            emit this->requestGui (request);
-         }
+         emit this->requestGui (QEGuiLaunchRequests (QEGuiLaunchRequests::KindScratchPad, nodeName));
          break;
 
       default:
+         DEBUG << "Unexpected action: " << menuAction;
          break;
    }
 }
