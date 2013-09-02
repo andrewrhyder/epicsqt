@@ -41,6 +41,13 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
 {
    this->ui->setupUi (this);
 
+   this->returnIsMasked = true;
+
+   // Initiate PV name retreval if needs be.
+   // initialise () is idempotent.
+   //
+   QEArchiveAccess::initialise ();
+
    QObject::connect (this->ui->filterEdit,  SIGNAL  (returnPressed ()),
                      this,                  SLOT    (filterEditReturnPressed ()));
 
@@ -105,10 +112,13 @@ void QEPVNameSelectDialog::applyFilter ()
 //
 void QEPVNameSelectDialog::filterEditReturnPressed ()
 {
+   this->returnIsMasked = true;
+
    // This will cause  filterEditingFinished to be invoked - no need
    // to apply filter here.
    //
    this->ui->pvNameEdit->setFocus ();
+
 }
 
 //------------------------------------------------------------------------------
@@ -132,6 +142,11 @@ void QEPVNameSelectDialog::editTextChanged (const QString&)
 //
 void QEPVNameSelectDialog::on_buttonBox_accepted ()
 {
+   if (this->returnIsMasked) {
+      this->returnIsMasked = false;
+      return;
+   }
+
    if (!this->getPvName().isEmpty ()) {
       this->accept ();
    }
