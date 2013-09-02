@@ -51,6 +51,7 @@ public:
 private:
    Ui::QEPVNameSelectDialog *ui;
    QString originalPvName;
+   bool returnIsMasked;
 
    void applyFilter ();
 
