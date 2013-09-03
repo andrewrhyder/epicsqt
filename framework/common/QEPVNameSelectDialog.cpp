@@ -41,7 +41,7 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
 {
    this->ui->setupUi (this);
 
-   this->returnIsMasked = true;
+   this->returnIsMasked = false;
 
    // Initiate PV name retreval if needs be.
    // initialise () is idempotent.
@@ -75,8 +75,10 @@ void QEPVNameSelectDialog::setPvName (QString pvNameIn)
    this->ui->pvNameEdit->setCurrentIndex (0);
 
    // setPvName typically invoked just before exec () call.
+   // Maybe we should override exec?
    //
    this->ui->filterEdit->setFocus ();
+   this->returnIsMasked = false;
 }
 
 //------------------------------------------------------------------------------
@@ -112,13 +114,14 @@ void QEPVNameSelectDialog::applyFilter ()
 //
 void QEPVNameSelectDialog::filterEditReturnPressed ()
 {
+   // This return also pick up by on_buttonBox_accepted, mask this return.
+   //
    this->returnIsMasked = true;
 
-   // This will cause  filterEditingFinished to be invoked - no need
+   // This will cause filterEditingFinished to be invoked - no need
    // to apply filter here.
    //
    this->ui->pvNameEdit->setFocus ();
-
 }
 
 //------------------------------------------------------------------------------
@@ -138,7 +141,7 @@ void QEPVNameSelectDialog::editTextChanged (const QString&)
 }
 
 //------------------------------------------------------------------------------
-// User has pressed OK
+// User has pressed OK (or return)
 //
 void QEPVNameSelectDialog::on_buttonBox_accepted ()
 {
