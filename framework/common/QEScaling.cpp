@@ -30,6 +30,7 @@
 #include <QHeaderView>
 #include <QSize>
 #include <QTableWidget>
+#include <QTreeView>
 #include <QWidget>
 
 #include <QEResizeableFrame.h>
@@ -91,6 +92,7 @@ void QEScaling::widgetScale (QWidget* widget)
    QLayout* layout = NULL;
    QEResizeableFrame* resizeableFrame = NULL;
    QTableWidget* tableWidget = NULL;
+   QTreeView* treeView = NULL;
 
    // sainity check.
    //
@@ -176,6 +178,8 @@ void QEScaling::widgetScale (QWidget* widget)
    }
 
    // Specials.
+   // Q? How expensive are dynamic castes? Use Qt's own caste?
+   //    Leverage off some items being mutually exclusive.
    //
    label = dynamic_cast <QLabel*>(widget);
    if (label) {
@@ -214,12 +218,22 @@ void QEScaling::widgetScale (QWidget* widget)
       int defaultSectionSize;
 
       defaultSectionSize = tableWidget->horizontalHeader ()->defaultSectionSize ();
-      defaultSectionSize   = QEScaling::scale (defaultSectionSize);
+      defaultSectionSize = QEScaling::scale (defaultSectionSize);
       tableWidget->horizontalHeader ()->setDefaultSectionSize (defaultSectionSize);
 
       defaultSectionSize = tableWidget->verticalHeader ()->defaultSectionSize ();
-      defaultSectionSize   = QEScaling::scale (defaultSectionSize);
+      defaultSectionSize = QEScaling::scale (defaultSectionSize);
       tableWidget->verticalHeader ()->setDefaultSectionSize (defaultSectionSize);
+   }
+
+   treeView = dynamic_cast <QTreeView *>(widget);
+   if (treeView) {
+      int indentation = treeView->indentation ();
+
+      if (indentation > 0) {
+         indentation = QEScaling::scale (indentation);
+         treeView->setIndentation (indentation);
+      }
    }
 
    qeWidget = dynamic_cast <QEWidget *>(widget);
@@ -237,8 +251,8 @@ void QEScaling::widgetTreeWalk (QWidget* widget, const int maxDepth)
 {
    int j, n;
    QObjectList childList;
-   QObject *child = NULL;
-   QWidget *childWidget = NULL;
+   QObject* child = NULL;
+   QWidget* childWidget = NULL;
 
    // sainity checks and avoid divide by zero.
    //
