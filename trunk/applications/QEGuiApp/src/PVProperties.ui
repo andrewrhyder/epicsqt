@@ -22,8 +22,14 @@
  <customwidgets>
   <customwidget>
    <class>QEPvProperties</class>
-   <extends>QFrame</extends>
+   <extends>QEFrame</extends>
    <header>QEPvProperties.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEFrame</class>
+   <extends>QFrame</extends>
+   <header>QEFrame.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
