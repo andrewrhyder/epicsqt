@@ -131,50 +131,10 @@ public:
                               const QString& enumImage,
                               bool* ok = 0);
 
-    /// Adjust the geometry and font scaling of the widget and all child widgets
-    /// by the ratio m / d. Unless m and d are both positive, no scaling occurs.
-    /// The function tree walks the hiearchy of widgets paranted by the specified widget.
-    /// The maxDepth can be used to limit any possibility of infinite recursion.
-    ///
-    static void adjustWidgetScale (QWidget* widget, const int m, const int d, const int maxDepth = 40);
-
-    /// As above, but using previously specified m and d values.
-    ///
-    static void applyCurrentWidgetScale (QWidget* widget, const int maxDepth = 40);
-
-    /// Extract currently applied scaling - allows widgets to perform widget class
-    /// specific scaling functionality.
-    ///
-    static void getCurrentScaling (int & m, int & d);
-
-    /// Conveniance function for widget specific 'scaleBy' functions.
-    ///
-    /// Scales a single value.
-    ///
-    static int scaleBy (const int v, const int m, const int d);
-
-    /// Scales a point.
-    ///
-    static void adjustPointScale (QPoint& point, const int m, const int d);
-
     /// This function tree walks the given parent looking a widget of the specified class
     /// name. The function returns the first found or NULL.
     ///
     static QWidget* findWidget (QWidget* parent, const QString& className);
-
-private:
-    static int currentScaleM;      /// Cache of last used scaled m value.
-    static int currentScaleD;      /// Cache of last used scaled m value.
-
-    /// Tree walks the QWidget hierarchy in order to apply scaling.
-    ///
-    static void widgetScaleTreeWalk (QWidget* widget, const int m, const int d, const int maxDepth);
-
-    /// Scales a single widget
-    /// Applies some special processing above and beyond size, min size, max size and font
-    /// depending on the type of widget.
-    ///
-    static void widgetScaleBy (QWidget * widget, const int m, const int d);
 };
 
 # endif // QECOMMON_H
