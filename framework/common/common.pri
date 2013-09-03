@@ -6,6 +6,7 @@
 
 HEADERS += \
    common/QECommon.h \
+   common/QEScaling.h \
    common/QEFrameworkVersion.h \
    common/QEGuiLaunchRequests.h \
    common/QEDialog.h \
@@ -14,6 +15,7 @@ HEADERS += \
 
 SOURCES += \
    common/QECommon.cpp \
+   common/QEScaling.cpp \
    common/QEFrameworkVersion.cpp \
    common/QEGuiLaunchRequests.cpp \
    common/QEDialog.cpp \
@@ -27,9 +29,6 @@ INCLUDEPATH += \
 # So that changes to the version/release numbers force relevent recompilations.
 #
 DEPENDPATH += common
-
-# end
-   
 
 FORMS += \
    common/QEPVNameSelectDialog.ui \
