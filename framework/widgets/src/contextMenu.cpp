@@ -41,7 +41,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QEWidget.h>
-#include <QECommon.h>
+#include <QEScaling.h>
 
 // Flag common to all context menus.
 // true if 'dragging the variable
@@ -82,7 +82,7 @@ QMenu* contextMenu::buildContextMenu()
 
         // Apply current scaling if any to new default menu.
         //
-        QEUtilities::applyCurrentWidgetScale (defaultMenu, 10);
+        QEScaling::applyToWidget (defaultMenu, 10);
         menu->addMenu( defaultMenu );
         menu->addSeparator();
     }
@@ -113,7 +113,7 @@ QMenu* contextMenu::buildContextMenu()
 
     // This object is created dynamically as opposed to at overall contruction time,
     // so need to apply current scalling, if any to the new menu.
-    QEUtilities::applyCurrentWidgetScale (menu, 10);
+    QEScaling::applyToWidget (menu, 10);
 
     return menu;
 }
