@@ -31,6 +31,7 @@
 #include <QEForm.h>
 #include <QEFrameworkVersion.h>
 #include <QECommon.h>
+#include <QEScaling.h>
 #include <QMessageBox>
 #include <ContainerProfile.h>
 #include <QVariant>
@@ -81,7 +82,8 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
 
     // Apply scaling to main window proper.
     //
-    QEUtilities::adjustWidgetScale( this, int (app->getParams()->adjustScale) , 100 );
+    QEScaling::setScaling( int (app->getParams()->adjustScale), 100 );
+    QEScaling::applyToWidget( this );
 
     // Setup to allow user to change focus to a window from the 'Windows' menu
     QObject::connect( ui.menuWindows, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
@@ -1293,7 +1295,7 @@ QEForm* MainWindow::createGui( QString fileName, QString restoreId )
 
         // Apply any adjustments to the scaling of the loaded widget.
         //
-        QEUtilities::adjustWidgetScale( gui, int (app->getParams()->adjustScale) , 100 );
+        QEScaling::applyToWidget( gui );
 
         UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
 
@@ -1466,7 +1468,7 @@ void MainWindow::on_actionSave_Configuration_triggered()
     saveDialog sd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
 
     // Ensure scaling is consistent with the rest of the application's forms.
-    QEUtilities::applyCurrentWidgetScale( &sd );
+    QEScaling::applyToWidget( &sd );
 
     if ( sd.exec() == QDialog::Rejected )
     {
