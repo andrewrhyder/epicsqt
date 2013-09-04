@@ -32,13 +32,11 @@
 #include <QVariant>
 #include <QEPluginLibrary_global.h>
 
-/* Note: Still under devlopment and not acutually used yet.
- */
-
 class QEPLUGINLIBRARYSHARED_EXPORT QEGuiLaunchRequests {
 public:
 
-   enum Kinds { KindNone,            // no action
+   // Type of request
+   enum Kinds { KindNone,            // no action (default, not valid in any request)
                 KindFileName,        // by file name
                 KindStripChart,      // application's strip chart
                 KindScratchPad,      // application's scratch pad
@@ -61,9 +59,9 @@ public:
    QEGuiLaunchRequests (const Kinds kindIn,   // !KindFileName
                         const QString& pvName);
 
-   // Equivilent to original QEForm::launchGui request (ui file name plus create option)
-   //
+   // .ui file name plus create option
    QEGuiLaunchRequests (const QString &filename,
+                        const QString &config,
                         const Options optionIn);
 
    // set and get functions
@@ -81,6 +79,7 @@ private:
    Kinds kind;
    QStringList arguments;
    Options option;
+   QString config;  // Window configuration (menus, buttons, etc)
 };
 
 Q_DECLARE_METATYPE (QEGuiLaunchRequests)

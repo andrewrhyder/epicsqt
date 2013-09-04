@@ -59,12 +59,14 @@ QEGuiLaunchRequests::QEGuiLaunchRequests (const Kinds kindIn,
 //---------------------------------------------------------------------------
 //
 QEGuiLaunchRequests::QEGuiLaunchRequests (const QString & filename,
+                                          const QString & configIn,
                                           const Options optionIn)
 {
    this->kind = KindFileName;
    this->arguments.clear ();
    this->arguments << filename;
    this->option = optionIn;
+   config = configIn;
 }
 
 //---------------------------------------------------------------------------

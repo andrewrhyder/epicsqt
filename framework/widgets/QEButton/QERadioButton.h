@@ -61,16 +61,15 @@ private slots:
         setLabelTextProperty( getLabelTextProperty() );
     }
 
-
 public slots:
-    // Note, keep in sync. The text below is repeated in QEPushButton.h
+    // Note, keep in sync. The text below is repeated in QEPushButton.h, QERadioButton.h and QECheckBox.h
     /// Default slot used to create a new GUI if there is no slot indicated in the ContainerProfile class.
     /// This slot is typically used when the button is pressed within the Designer preview window to allow the operation of the button to be tested.
     /// If an application does not specify a slot to use for creating new windows (through the ContainerProfile class) a window will still be created through this slot, but it will not respect the window creation options or any other window related application constraints.
     /// For example, the QEGui application does provide a slot for creating new GUIs in the ContainerProfile class which respects the creation options, knows how to add tabs in the application, and extend the application's window menu in the menu bar.
-    void launchGui( QString guiName, QEForm::creationOptions creationOption ){ QEGenericButton::launchGui( guiName, creationOption); }
+    void requestGui( const QEGuiLaunchRequests& request ){ startGui( request ); }
 
-  signals:
+signals:
     // Note, the following signals are common to many QE widgets,
     // if changing the doxygen comments, ensure relevent changes are migrated to all instances
     /// Sent when the widget is updated following a data change
@@ -81,7 +80,7 @@ public slots:
     void requestResend();
 
     /// Internal use only. Request a new GUI is created. Typically, this is caught by the QEGui application.
-    void newGui( QString guiName, QEForm::creationOptions creationOption );
+    void newGui( const QEGuiLaunchRequests& request );
 
     /// Button has been Pressed.
     /// The value emitted is the integer interpretation of the pressText property
@@ -107,7 +106,7 @@ private:
 
     void emitDbValueChanged( QString text ){ emit dbValueChanged( text ); }
 
-    void emitNewGui( QString guiName, QEForm::creationOptions creationOption  ){ emit newGui( guiName, creationOption); }
+    void emitNewGui( const QEGuiLaunchRequests& request ){ emit newGui( request ); }
 
     void connectButtonDataChange( qcaobject::QCaObject* qca )
     {
@@ -444,6 +443,10 @@ public:
     ///
     Q_PROPERTY(bool confirmAction READ getConfirmAction WRITE setConfirmAction)
 
+    /// Text used to confirm acion if confirmation dialog is presented
+    ///
+    Q_PROPERTY(QString confirmText READ getConfirmText WRITE setConfirmText)
+
     /// If true, the 'pressText' property is written when the button is pressed. Default is false
     ///
     Q_PROPERTY(bool writeOnPress READ getWriteOnPress WRITE setWriteOnPress)
@@ -513,9 +516,9 @@ public:
     Q_PROPERTY(CreationOptionNames creationOption READ getCreationOptionProperty WRITE setCreationOptionProperty)
 
     /// Creation options. Used to indicate how to present a GUI when requesting a new GUI be created. Open a new window, open a new tab, or replace the current window.
-    enum CreationOptionNames { Open = QEForm::CREATION_OPTION_OPEN,             ///< Replace the current GUI with the new GUI
-                               NewTab = QEForm::CREATION_OPTION_NEW_TAB,        ///< Open new GUI in a new tab
-                               NewWindow = QEForm::CREATION_OPTION_NEW_WINDOW   ///< Open new GUI in a new window
+    enum CreationOptionNames { Open = QEGuiLaunchRequests::OptionOpen,            ///< Replace the current GUI with the new GUI
+                               NewTab = QEGuiLaunchRequests::OptionNewTab,        ///< Open new GUI in a new tab
+                               NewWindow = QEGuiLaunchRequests::OptionNewWindow   ///< Open new GUI in a new window
                              };
 
     /// Overriding macro substitutions. These macro substitions take precedence over any existing
@@ -539,7 +542,7 @@ private:
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 
     // Access function for creationOption property
-    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEForm::creationOptions)creationOptionIn ); }
+    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEGuiLaunchRequests::Options)creationOptionIn ); }
     CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
 
     void setPixmap0Property( QPixmap pixmap ){ setDataPixmap( pixmap, 0 ); }

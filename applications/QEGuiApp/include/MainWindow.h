@@ -121,6 +121,7 @@ private:
     QMenu *tabMenu;    // We want to keep a refernece to certain widget objects. Declaring these directly in the
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
+    void launchGui( QString guiName, QEGuiLaunchRequests::Options creationOption );  // Launch a new GUI given a .ui file name
 
 private slots:
     void on_actionManage_Configurations_triggered();
@@ -137,7 +138,6 @@ private slots:
     void on_actionAbout_triggered();                            // Slot to perform 'About' action
     void onWindowMenuSelection( QAction* action );              // Slot to receive requests to change focus to a specific gui
 
-    void launchGui( QString guiName, QEForm::creationOptions creationOption );  // Slot to receive requests to launch a new GUI (typically from a QE Button)
     void requestGui( const QEGuiLaunchRequests & request );     // Slot to receive (new style) requests to launch a new GUI.
 
 
