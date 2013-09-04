@@ -67,6 +67,7 @@ void QEGenericButton::dataSetup() {
     writeOnClick = true;
     setAllowDrop( false );
     confirmRequired = false;
+    confirmText = "Do you want to perform this action?";
 
     // Set text alignment to the default for a push button
     // This will make no visual difference unless the style has been changed from the default
@@ -98,7 +99,7 @@ void QEGenericButton::commandSetup() {
 void QEGenericButton::guiSetup() {
 
     // Set default properties
-    creationOption = QEForm::CREATION_OPTION_OPEN;
+    creationOption = QEGuiLaunchRequests::OptionOpen;
 
     // Use standard context menu
     setupContextMenu();
@@ -108,16 +109,16 @@ void QEGenericButton::guiSetup() {
     {
         // Setup a signal to launch a new gui
         // The signal will be used by whatever the button is in
-        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, QEForm::creationOptions ) ),
-                          getGuiLaunchConsumer(), SLOT( launchGui( QString,QEForm::creationOptions ) ) );
+        QObject::connect( getButtonQObject(), SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
+                          getGuiLaunchConsumer(), SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
     }
 
     // A profile is not already defined, create one. This is the case if this class is used by an application that does not set up a profile, such as 'designer'.
     else
     {
         // Set up the button's own gui form launcher
-        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, QEForm::creationOptions ) ),
-                          getButtonQObject(), SLOT( launchGui( QString, QEForm::creationOptions ) ) );
+        QObject::connect( getButtonQObject(), SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
+                          getButtonQObject(), SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
     }
 }
 
@@ -243,7 +244,7 @@ bool QEGenericButton::confirmAction()
 
     // Get confirmation from the user as to what to do
     int confirm = QMessageBox::Yes;
-    confirm = QMessageBox::warning( (QWidget*)getButtonQObject(), "Confirm write", "Do you want to perform this action ?",
+    confirm = QMessageBox::warning( (QWidget*)getButtonQObject(), "Confirm write", confirmText,
                                     QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes );
 
     // Return yes/no
@@ -268,7 +269,7 @@ void QEGenericButton::userPressed()
     // Determine the string to write
     QString writeText = substituteThis( pressText );
 
-    // Emit a 'released' signal
+    // Emit a 'pressed' signal
     emitPressed( writeText.toInt() );
 
     // Get the variable to write to
@@ -347,7 +348,7 @@ void QEGenericButton::userClicked( bool checked )
 
         writeText = substituteThis( writeText );
 
-        // Emit a 'released' signal
+        // Emit a 'clicked' signal
         emitClicked( writeText.toInt() );
 
         // Write to the variable if present
@@ -407,11 +408,8 @@ void QEGenericButton::userClicked( bool checked )
         // substitutions already present.
         addPriorityMacroSubstitutions( prioritySubstitutions );
 
-        // qDebug()<<"QEGenericButton::userClicked() before launch signal";
-
-        emitNewGui( substituteThis( guiName ), creationOption );
-
-        // qDebug()<<"QEGenericButton::userClicked() after launch signal";
+        // Start the GUI
+        emitNewGui( QEGuiLaunchRequests( substituteThis( guiName ), ""/*no config yet*/, creationOption ) );
 
         // Remove this button's priority macro substitutions now all its children are created
         removePriorityMacroSubstitutions();
@@ -422,8 +420,6 @@ void QEGenericButton::userClicked( bool checked )
         // Release the profile now all QE widgets have been created
         releaseProfile();
     }
-
-
 }
 
 /*
@@ -563,6 +559,16 @@ bool QEGenericButton::getConfirmAction()
     return confirmRequired;
 }
 
+// confirm text
+void QEGenericButton::setConfirmText( QString confirmTextIn )
+{
+    confirmText = confirmTextIn;
+}
+QString QEGenericButton::getConfirmText()
+{
+    return confirmText;
+}
+
 // write on press
 void QEGenericButton::setWriteOnPress( bool writeOnPress )
 {
@@ -658,11 +664,11 @@ QString QEGenericButton::getGuiName()
 }
 
 // Qt Designer Properties Creation options
-void QEGenericButton::setCreationOption( QEForm::creationOptions creationOptionIn )
+void QEGenericButton::setCreationOption( QEGuiLaunchRequests::Options creationOptionIn )
 {
     creationOption = creationOptionIn;
 }
-QEForm::creationOptions QEGenericButton::getCreationOption()
+QEGuiLaunchRequests::Options QEGenericButton::getCreationOption()
 {
     return creationOption;
 }
@@ -708,30 +714,49 @@ QString QEGenericButton::getLabelTextProperty()
 // Slot for launching a new gui.
 // This is the button's default action for launching a gui.
 // Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.
-void QEGenericButton::launchGui( QString guiName, QEForm::creationOptions )
+void QEGenericButton::startGui( const QEGuiLaunchRequests & request )
 {
-    // Build the gui
-    // Build it in a new window.
-    //??? This could use the create options as follows: (instead of always creating a new window)
-    //       - Wind up through parents until the parent of the first scroll
-    //       - Replace the scroll area's widget with the new gui
-    QMainWindow* w = new QMainWindow;
-    QEForm* gui = new QEForm( guiName );
-    if( gui )
+    switch (request.getKind())
     {
-        if( gui->readUiFile())
-        {
-            w->setCentralWidget( gui );
-            w->show();
-        }
-        else
-        {
-            delete gui;
-            gui = NULL;
-        }
-    }
-    else
-    {
-        delete w;
-    }
+         case QEGuiLaunchRequests::KindFileName:
+             if (request.getArguments().count () >= 1)
+             {
+                // Build the gui
+                // Build it in a new window.
+                //??? This could use the create options as follows: (instead of always creating a new window)
+                //       - Wind up through parents until the parent of the first scroll
+                //       - Replace the scroll area's widget with the new gui
+                QMainWindow* w = new QMainWindow;
+                QEForm* gui = new QEForm( request.getArguments().first() );
+                if( gui )
+                {
+                    if( gui->readUiFile())
+                    {
+                        w->setCentralWidget( gui );
+                        w->show();
+                    }
+                    else
+                    {
+                        delete gui;
+                        gui = NULL;
+                    }
+                }
+                else
+                {
+                    delete w;
+                }
+             }
+             break;
+
+        case QEGuiLaunchRequests::KindStripChart:
+        case QEGuiLaunchRequests::KindPvProperties:
+             // can't do this - we are not a application.
+             //
+             sendMessage( "Unhandled gui request kind", message_types( MESSAGE_TYPE_INFO, MESSAGE_KIND_EVENT ) );
+             break;
+
+         default:
+             sendMessage( "Unexpected gui request kind", message_types( MESSAGE_TYPE_ERROR, MESSAGE_KIND_EVENT ) );
+             break;
+     }
 }

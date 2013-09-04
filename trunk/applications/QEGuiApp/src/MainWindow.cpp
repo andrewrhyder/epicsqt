@@ -946,8 +946,8 @@ void MainWindow::newMessage( QString msg, message_types type )
 // Slots and methods for launching new GUIs on behalf of objects in the gui (typically buttons)
 //=================================================================================
 
-// Slot for launching a new gui from a contained object (old style).
-void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOption )
+// Launching a new gui given a .ui filename
+void MainWindow::launchGui( QString guiName, QEGuiLaunchRequests::Options createOption )
 {
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
     ContainerProfile publishedProfile;
@@ -1059,7 +1059,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
     switch( createOption )
     {
         // Open the specified gui in the current window
-        case QEForm::CREATION_OPTION_OPEN:
+        case QEGuiLaunchRequests::OptionOpen:
             {
                 QEForm* gui = createGui( guiName );  // Note, profile should have been published by signal code
                 loadGuiIntoCurrentWindow( gui, true );
@@ -1067,7 +1067,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
             break;
 
         // Open the specified gui in a new tab
-        case QEForm::CREATION_OPTION_NEW_TAB:
+        case QEGuiLaunchRequests::OptionNewTab:
             {
                 // If not using tabs, start tabs and migrate any single gui to the first tab
                 if( !usingTabs )
@@ -1080,7 +1080,7 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
             break;
 
         // Open the specified gui in a new window
-        case QEForm::CREATION_OPTION_NEW_WINDOW:
+        case QEGuiLaunchRequests::OptionNewWindow:
             {
                 MainWindow* w = new MainWindow( app, guiName, true ); // Note, profile should have been published by signal code
                 w->show();
@@ -1093,20 +1093,17 @@ void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOptio
     }
 }
 
-
-// Slot for launching a new gui from a contained object (new style).
+// Slot for launching a new gui from a contained object.
 void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
 {
     QStringList arguments =  request.getArguments();
 
     switch (request.getKind ()) {
 
+        // Launching a new gui given a .ui file name
         case QEGuiLaunchRequests::KindFileName:
             if (arguments.count() >= 1) {
-                // Just re-use old style slot.
-                QString guiName = arguments.value( 0 );
-                QEForm::creationOptions createOption = (QEForm::creationOptions) request.getOption ();
-                launchGui ( guiName, createOption );
+                launchGui ( arguments.first(), request.getOption() );
             }
             break;
 
