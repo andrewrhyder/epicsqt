@@ -32,6 +32,15 @@
  * Configurations may include other configurations by name.
  * A configuration can be aliased by defining a configuration that only includes another named configuration.
  *
+ * Main class descriptions:
+ *  - windowConfigList contains a list of windowConfig configurations.
+ *
+ *  - windowConfig contains a named configuration consisting of a name and a list of windowConfigMenuItem and
+ *    a list of windowConfigButtonItem classes.
+ *
+ *  - windowConfigMenuItem and windowConfigButtonItem classes are both based on windowConfigItem which holds
+ *    details about what to do (which .ui file to open, etc)
+ *
  * To use this module:
  * Create a single instance of windowConfigList class.
  * Call windowConfigList::loadConfig() at any time to load .xml files containing one or more named configurations.
@@ -72,7 +81,7 @@
 
                 </Menu>
             </Menu>
-        </Config>
+        </ConfigwindowConfigList>
 
 
         <Config Name="IMBL_MINOR">
@@ -135,7 +144,7 @@ private:
     QString configName;             // New window configuration name (menu, buttons, etc)
 
 private slots:
-     void itemAction();             // Slot to call when action is triggered
+     void itemAction();             // Slot to call when actiowindowConfign is triggered
 
 };
 
@@ -148,7 +157,7 @@ public:
                           const QString titleIn,                  // Name of this item. for example: 'Region 1'
 
                           const QString uiFileIn,                 // UI to display
-                          const QString programIn,                // Program to run
+                          const QString programIn,                // Program to runwindowConfig
                           const QStringList programArgumentsIn,   // Arguments for 'program'
                           const QString macroSubstitutionsIn,     // Substitutions for ui file, program and arguments
                           const QString configNameIn );           // New window configuration name (menu, buttons, etc)
