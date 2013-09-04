@@ -29,7 +29,7 @@
  * This class provides a mechanism to manage application persistance
  * Any object - typically an application creating QE widgets can use this manager to save and restore
  * a configuration.
- * Refer to persistanceMAnager.cpp for further details
+ * Refer to persistanceManager.cpp for further details
  */
 
 #ifndef PERSISTANCEMANAGER_H
