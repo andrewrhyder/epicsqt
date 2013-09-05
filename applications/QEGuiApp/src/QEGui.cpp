@@ -76,6 +76,7 @@ int QEGui::run()
        return 0;
     }
 
+
     // Restore the user level passwords
     QSettings settings( "epicsqt", "QEGui");
     setUserLevelPassword( userLevelTypes::USERLEVEL_USER, settings.value( "userPassword" ).toString() );
@@ -108,6 +109,11 @@ int QEGui::run()
     instanceManager instance( this );
     if( params.singleApp && instance.handball( &params ) )
         return 0;
+
+    // Define application scaling to be applied to all widgets.
+    // Recall adjustScale is expressed as a percentage.
+    //
+    QEScaling::setScaling( int( params.adjustScale ), 100 );
 
     // Start the main application window
     instance.newWindow( params );
