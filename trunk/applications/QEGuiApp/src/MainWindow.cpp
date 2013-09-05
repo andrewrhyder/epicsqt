@@ -82,7 +82,6 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
 
     // Apply scaling to main window proper.
     //
-    QEScaling::setScaling( int (app->getParams()->adjustScale), 100 );
     QEScaling::applyToWidget( this );
 
     // Setup to allow user to change focus to a window from the 'Windows' menu
