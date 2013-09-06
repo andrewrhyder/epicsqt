@@ -29,13 +29,11 @@
 #include <QLabel>
 #include <QLayout>
 #include <QHeaderView>
+#include <QMetaEnum>
 #include <QMetaObject>
 #include <QSize>
 #include <QTableWidget>
 #include <QWidget>
-
-#include <QEResizeableFrame.h>
-#include <QEWidget.h>
 
 #include "QECommon.h"
 
@@ -163,7 +161,6 @@ QString QEUtilities::getTimeZoneTLA (const QDateTime & atTime)
 {
    return QEUtilities::getTimeZoneTLA (atTime.timeSpec(), atTime);
 }
-
 
 //------------------------------------------------------------------------------
 //
