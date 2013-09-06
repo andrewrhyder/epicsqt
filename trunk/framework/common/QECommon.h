@@ -29,7 +29,6 @@
 
 #include <QDateTime>
 #include <QObject>
-#include <QPoint>
 #include <QString>
 #include <QEPluginLibrary_global.h>
 
