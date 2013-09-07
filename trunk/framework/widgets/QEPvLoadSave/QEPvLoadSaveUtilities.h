@@ -45,6 +45,10 @@ private:
                                          QESettings* settings,
                                          QEPvLoadSaveItem* parent,
                                          const int level);
+
+   static QEPvLoadSaveItem* readPcfTree (const QString& filename);
+   static QEPvLoadSaveItem* readXmlTree (const QString& filename);
+
 };
 
 

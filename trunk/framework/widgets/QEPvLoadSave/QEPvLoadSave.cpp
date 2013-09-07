@@ -24,9 +24,11 @@
  */
 
 #include <QDebug>
+#include <QFileDialog>
 #include <QModelIndex>
 
 #include <QECommon.h>
+#include <QEScaling.h>
 #include "QEPvLoadSave.h"
 #include "QEPvLoadSaveItem.h"
 #include "QEPvLoadSaveModel.h"
@@ -145,10 +147,9 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
          if (this->side == LeftSide) {
             this->checkBox = new QCheckBox ("Show 2nd tree", this->header);
             this->checkBox->setGeometry (left + 2, top, 120, 26);
-            this->checkBox->setChecked (true);
 
             QObject::connect (this->checkBox, SIGNAL (stateChanged (int)),
-                              ownerIn,        SLOT   (checkBoxStateChanged (int)));
+                              this->owner,    SLOT   (checkBoxStateChanged (int)));
          } else {
             this->checkBox = NULL;
          }
@@ -161,7 +162,8 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
       button->setGeometry (left + gap, top, buttonSpecs[j].width, 26);
       left += gap + buttonSpecs[j].width + 2;
       if (buttonSpecs[j].member != NULL) {
-         QObject::connect (button, SIGNAL (clicked (bool)), ownerIn, buttonSpecs[j].member);
+         QObject::connect (button,      SIGNAL (clicked (bool)),
+                           this->owner, buttonSpecs [j].member);
       }
 
       if (j == 14) {
@@ -172,10 +174,13 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
 
    this->tree = new QTreeView ();
    this->halfLayout->addWidget (this->tree);
+   this->tree->setAcceptDrops (true);
+   this->tree->installEventFilter (this->owner);
    this->tree->setContextMenuPolicy (Qt::CustomContextMenu);
 
    QObject::connect (this->tree,  SIGNAL (customContextMenuRequested (const QPoint &)),
                      this->owner, SLOT   (treeMenuRequested          (const QPoint &)));
+
 
    this->footer = new QFrame ();
    this->footer->setFrameShape (QFrame::NoFrame);
@@ -183,10 +188,8 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
    this->footer->setFixedHeight (40);
    this->halfLayout->addWidget (this->footer);
 
-
    // Configure basic tree setup.
    //
-   // this->tree->setAllowDrop (false);
    this->tree->setIndentation (10);
    this->tree->setItemsExpandable (true);
    this->tree->setUniformRowHeights (true);
@@ -196,11 +199,20 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
    // Create an essentially empty model.
    //
    this->model = new QEPvLoadSaveModel (this->owner);  // not a widget
+   this->tree->setModel (this->model);                 // tree is a widget
 
    QObject::connect (this->model, SIGNAL (reportActionComplete (QEPvLoadSaveCommon::ActionKinds, bool)),
                      this->owner, SLOT   (acceptActionComplete (QEPvLoadSaveCommon::ActionKinds, bool)));
 
-   this->tree->setModel (this->model);                 // is a widget
+
+   // Create the selection model.
+   //
+   this->treeSelectionModel = new QItemSelectionModel (this->model, this->owner);
+   this->tree->setSelectionModel (this->treeSelectionModel);
+
+   QObject::connect (this->treeSelectionModel, SIGNAL (selectionChanged (const QItemSelection&, const QItemSelection&)),
+                     this->owner,              SLOT   (selectionChanged (const QItemSelection&, const QItemSelection&)));
+
 
    // Create an essentially empty model.
    //
@@ -370,12 +382,16 @@ QEPvLoadSave::QEPvLoadSave (QWidget * parent) : QEFrame (parent)
    QObject::connect (this->treeContextMenu, SIGNAL (triggered        (QAction*)),
                      this,                  SLOT   (treeMenuSelected (QAction*)));
 
-
    // Gui requests.
    //
    QObject* consumer = this->getGuiLaunchConsumer ();
-   QObject::connect (this,     SIGNAL (requestGui (const QEGuiLaunchRequests& )),
-                     consumer, SLOT   (requestGui (const QEGuiLaunchRequests& )));
+   if (consumer) {
+      QObject::connect (this,     SIGNAL (requestGui (const QEGuiLaunchRequests& )),
+                        consumer, SLOT   (requestGui (const QEGuiLaunchRequests& )));
+   }
+
+   this->half [LeftSide]->checkBox->setChecked (false);
+   this->checkBoxStateChanged (Qt::Unchecked);
 }
 
 //-----------------------------------------------------------------------------
@@ -404,20 +420,24 @@ QAction* QEPvLoadSave::createAction (QMenu *parent,
 
 //------------------------------------------------------------------------------
 //
+void QEPvLoadSave::setReadOut (const QString& text)
+{
+   message_types mt (MESSAGE_TYPE_INFO, MESSAGE_KIND_STATUS);
+   this->sendMessage (text, mt);
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPvLoadSave::resizeEvent (QResizeEvent* )
 {
    int fw = this->geometry ().width ();
    QRect pg = this->progressBar->geometry ();
    QRect ag = this->abortButton->geometry ();
 
-   int m;
-   int d;
-   QEUtilities::getCurrentScaling (m, d);
-
    // Need to take scaling into account.
    //
-   int margin = QEUtilities::scaleBy (20, m, d);
-   int space =  QEUtilities::scaleBy (12, m, d);
+   int margin = QEScaling::scale (20);
+   int space =  QEScaling::scale (12);
 
    int dx = (fw - (margin + ag.width ()) - ag.x ());
    ag.translate (dx, 0);
@@ -431,7 +451,98 @@ void QEPvLoadSave::resizeEvent (QResizeEvent* )
 //
 QSize QEPvLoadSave::sizeHint () const
 {
-    return QSize (1000, 500);
+    return QSize (500, 500);
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEPvLoadSave::eventFilter (QObject *obj, QEvent* event)
+{
+   const QEvent::Type type = event->type ();
+
+   QTreeView* tree = NULL;
+   QEPvLoadSaveModel* model = NULL;
+   QPoint pos;
+   QModelIndex index;
+   QEPvLoadSaveItem* item = NULL;
+   QString nodeName;
+
+   // *** Big explanation
+   //
+   int dragOffset = QEScaling::scale (17) + 18;  // row height (scale) + fixed
+
+   switch (type) {
+
+      case QEvent::DragEnter:
+         tree = this->treeAssociatedWith (obj);
+         model = this->modelAssociatedWith (obj);
+         if (tree && model) {
+            QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*> (event);
+            pos = dragEnterEvent->pos ();
+            pos.setY (pos.y () - dragOffset);
+            index = tree->indexAt (pos);
+            item = model->indexToItem (index);
+            nodeName = item ? item->getNodeName () : "nil";
+
+            DEBUG << "drag enter event " << pos << nodeName;
+
+            dragEnterEvent->setDropAction (Qt::CopyAction);
+            dragEnterEvent->accept ();
+            return true;
+         }
+         break;
+
+
+      case QEvent::DragMove:
+         tree = this->treeAssociatedWith (obj);
+         model = this->modelAssociatedWith (obj);
+         if (tree && model) {
+            QDragMoveEvent*  dragMoveEvent = static_cast<QDragMoveEvent*> (event);
+            pos = dragMoveEvent->pos ();
+            pos.setY (pos.y () - dragOffset);
+            index = tree->indexAt (pos);
+            item = model->indexToItem (index);
+            nodeName = item ? item->getNodeName () : "nil";
+            this->half [0]->treeSelectionModel->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+            DEBUG << "drag move event " << pos << nodeName;
+            return true;
+         }
+         break;
+
+
+      case QEvent::DragLeave:
+         tree = this->treeAssociatedWith (obj);
+         model = this->modelAssociatedWith (obj);
+         if (tree && model) {
+            QDragLeaveEvent* dragLeaveEvent = static_cast<QDragLeaveEvent*> (event);
+            DEBUG << "drag leave event " << dragLeaveEvent;
+            return true;
+         }
+         break;
+
+
+      case QEvent::Drop:
+         tree = this->treeAssociatedWith (obj);
+         model = this->modelAssociatedWith (obj);
+         if (tree && model) {
+            QDropEvent* dragDropEvent = static_cast<QDropEvent*> (event);
+            pos = dragDropEvent->pos ();
+            pos.setY (pos.y () - dragOffset);
+            index = tree->indexAt (pos);
+            item = model->indexToItem (index);
+            nodeName = item ? item->getNodeName () : "nil";
+
+            DEBUG << "drag drop event" << pos << nodeName;
+            return true;
+         }
+         break;
+
+      default:
+         // Just fall through
+         break;
+   }
+
+   return false; // we did not handle this event
 }
 
 //------------------------------------------------------------------------------
@@ -468,13 +579,24 @@ void QEPvLoadSave::establishConnection (unsigned int variableIndex)
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSave::Sides QEPvLoadSave::sideOfSender (QObject *sentBy)
+QEPvLoadSave::Sides QEPvLoadSave::objectSide (QObject* obj)
 {
    int s;
    int j;
 
    for (s = 0; s < ARRAY_LENGTH (this->half); s++) {
-      if (sentBy == this->half [s]->tree) {
+
+      if (obj == this->half [s]->tree) {
+         // found a match.
+         return Sides (s);
+      }
+
+      if (obj == this->half [s]->model) {
+         // found a match.
+         return Sides (s);
+      }
+
+      if (obj == this->half [s]->treeSelectionModel) {
          // found a match.
          return Sides (s);
       }
@@ -482,7 +604,7 @@ QEPvLoadSave::Sides QEPvLoadSave::sideOfSender (QObject *sentBy)
       // Check push buttons.
       //
       for (j = 0; j < ARRAY_LENGTH (this->half [s]->headerPushButtons); j++) {
-         if (sentBy == this->half [s]->headerPushButtons [j]) {
+         if (obj == this->half [s]->headerPushButtons [j]) {
             // found a match.
             return Sides (s);
          }
@@ -491,6 +613,37 @@ QEPvLoadSave::Sides QEPvLoadSave::sideOfSender (QObject *sentBy)
 
    DEBUG  << "no match found";
    return ErrorSide;
+}
+
+//------------------------------------------------------------------------------
+// Common macro verification
+//
+#define VERIFY_SIDE(item, default)                                 \
+   Sides side = this->objectSide (item);                           \
+   if ((side != LeftSide) && (side != RightSide)) {                \
+      DEBUG << "Unexpected side" << side;                          \
+      return default;                                              \
+   }
+
+// Wrapper for void slot functions
+//
+#define VERIFY_SENDER  VERIFY_SIDE (this->sender (),)
+
+
+//------------------------------------------------------------------------------
+//
+QTreeView* QEPvLoadSave::treeAssociatedWith (QObject* obj)
+{
+   VERIFY_SIDE (obj, NULL);
+   return this->half [side]->tree;
+}
+
+//------------------------------------------------------------------------------
+//
+QEPvLoadSaveModel* QEPvLoadSave::modelAssociatedWith (QObject* obj)
+{
+   VERIFY_SIDE (obj, NULL);
+   return this->half [side]->model;
 }
 
 //------------------------------------------------------------------------------
@@ -503,20 +656,52 @@ void QEPvLoadSave::acceptActionComplete (QEPvLoadSaveCommon::ActionKinds, bool o
    }
 }
 
+//------------------------------------------------------------------------------
+//
+void QEPvLoadSave::selectionChanged (const QItemSelection& selected,
+                                     const QItemSelection&)
+{
+   VERIFY_SENDER;
+
+   QEPvLoadSaveModel* model = this->half [side]->model;
+   QModelIndexList list;
+   int n;
+
+   list = selected.indexes ();
+   n = list.size ();
+   // We expect only one item to be slected.
+   //
+   if (n == 1) {
+      QModelIndex s = list.value (0);
+      QEPvLoadSaveItem* item = model->indexToItem (s);
+      this->half [side]->selectedItem = item;
+      if (item) {
+         int count = item->leafCount ();
+         QString text = "selected ";
+         if (item->getIsPV ()) {
+            text.append (item->getNodeName ());
+         } else {
+            text.append (QString ("%1").arg (count).append (" items"));
+         }
+         this->setReadOut (text);
+      }
+   } else {
+      this->half [side]->selectedItem = NULL;
+      DEBUG << "num selected " << n;
+   }
+}
+
 //==============================================================================
 // Menu request/select
 //
 void QEPvLoadSave::treeMenuRequested (const QPoint& pos)
 {
-   this->selectedHalf = NULL;
-   this->selectedItem = NULL;
+   VERIFY_SENDER;
 
-   Sides side = this->sideOfSender (this->sender ());
-   if (side == ErrorSide)  return;
-
-   this->selectedHalf = this->half [side];
-   QTreeView* tree = this->selectedHalf->tree;
-   QEPvLoadSaveModel* model = this->selectedHalf->model;
+   this->contextMenuItem = NULL;
+   this->contextMenuHalf = this->half [side];
+   QTreeView* tree = this->contextMenuHalf->tree;
+   QEPvLoadSaveModel* model = this->contextMenuHalf->model;
    QModelIndex index;
    int j;
 
@@ -524,7 +709,7 @@ void QEPvLoadSave::treeMenuRequested (const QPoint& pos)
    // and then get the underlying load save item.
    //
    index = tree->indexAt (pos);
-   this->selectedItem = model->indexToItem (index);
+   this->contextMenuItem = model->indexToItem (index);
 
    // Make all actions invisible, then set visible required actions.
    //
@@ -534,16 +719,16 @@ void QEPvLoadSave::treeMenuRequested (const QPoint& pos)
 
    // Does item even exit at this position.
    //
-   if (this->selectedItem) {
+   if (this->contextMenuItem) {
       // Is is a leaf/PV node or a gruop node?
       //
-      if (this->selectedItem->getIsPV ()) {
+      if (this->contextMenuItem->getIsPV ()) {
          for (j = TCM_COPY_VARIABLE; j <= TCM_EDIT_PV_VALUE; j++) {
             this->actionList [j]->setVisible (true);
          }
       } else {
          this->actionList [TCM_ADD_GROUP]->setVisible (true);
-         if (this->selectedItem != model->getTopItem ()) {
+         if (this->contextMenuItem != model->getTopItem ()) {
             // Renaming the 'ROOT' node prohibited.
             this->actionList [TCM_RENAME_GROUP]->setVisible (true);
          }
@@ -587,10 +772,10 @@ void QEPvLoadSave::treeMenuRequested (const QPoint& pos)
 //
 void QEPvLoadSave::treeMenuSelected (QAction* action)
 {
-   if (!this->selectedHalf) return;   // sanity check
+   if (!this->contextMenuHalf) return;   // sanity check
 
-   QTreeView* tree = this->selectedHalf->tree;
-   QEPvLoadSaveModel* model = this->selectedHalf->model;
+   QTreeView* tree = this->contextMenuHalf->tree;
+   QEPvLoadSaveModel* model = this->contextMenuHalf->model;
 
    bool okay;
    int intAction;
@@ -609,15 +794,15 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
 
    // Extract current node name - need it is most case options.
    //
-   if (this->selectedItem) {
-      nodeName = this->selectedItem->getNodeName ();
+   if (this->contextMenuItem) {
+      nodeName = this->contextMenuItem->getNodeName ();
    }
 
    switch (menuAction) {
 
       case TCM_CREATE_ROOT:
          item = new QEPvLoadSaveItem ("ROOT", false, nilValue, false);
-         this->selectedHalf->setTop (item, "");
+         this->contextMenuHalf->setTop (item, "");
          break;
 
       case TCM_ADD_GROUP:
@@ -627,7 +812,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          this->groupNameDialog->setGroupName ("");
          n = this->groupNameDialog->exec (tree);
          if (n == 1) {
-            item = new QEPvLoadSaveItem (this->groupNameDialog->getGroupName (), false, nilValue, this->selectedItem);
+            item = new QEPvLoadSaveItem (this->groupNameDialog->getGroupName (), false, nilValue, this->contextMenuItem);
             model->modelUpdated ();
          }
          break;
@@ -638,7 +823,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          this->groupNameDialog->setGroupName (nodeName);
          n = this->groupNameDialog->exec (tree);
          if (n == 1) {
-            this->selectedItem->setNodeName (this->groupNameDialog->getGroupName ());
+            this->contextMenuItem->setNodeName (this->groupNameDialog->getGroupName ());
             model->modelUpdated ();
          }
          break;
@@ -648,7 +833,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          this->pvNameSelectDialog->setPvName ("");
          n = this->pvNameSelectDialog->exec (tree);
          if (n == 1) {
-            item = new QEPvLoadSaveItem (this->pvNameSelectDialog->getPvName (), true, nilValue, this->selectedItem);
+            item = new QEPvLoadSaveItem (this->pvNameSelectDialog->getPvName (), true, nilValue, this->contextMenuItem);
             model->modelUpdated ();
          }
          break;
@@ -658,7 +843,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          this->pvNameSelectDialog->setPvName (nodeName);
          n = this->pvNameSelectDialog->exec (tree);
          if (n == 1) {
-            this->selectedItem->setNodeName (this->pvNameSelectDialog->getPvName ());
+            this->contextMenuItem->setNodeName (this->pvNameSelectDialog->getPvName ());
             model->modelUpdated ();
          }
          break;
@@ -671,7 +856,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          break;
 
       case TCM_COPY_DATA:
-         nodeValue = this->selectedItem->getNodeValue ();
+         nodeValue = this->contextMenuItem->getNodeValue ();
 
          // Need be aware of lists.
          if (nodeValue.type() == QVariant::List) {
@@ -725,7 +910,7 @@ void QEPvLoadSave::checkBoxStateChanged (int state)
 //
 void QEPvLoadSave::writeAllClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    QEPvLoadSaveModel* model = this->half [side]->model;
 
    this->progressBar->setMaximum (MAX (1, model->leafCount ()));
@@ -737,7 +922,7 @@ void QEPvLoadSave::writeAllClicked (bool)
 //
 void QEPvLoadSave::readAllClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    QEPvLoadSaveModel* model = this->half [side]->model;
 
    this->progressBar->setMaximum (MAX (1, model->leafCount ()));
@@ -749,7 +934,7 @@ void QEPvLoadSave::readAllClicked (bool)
 //
 void QEPvLoadSave::writeSubsetClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -757,7 +942,7 @@ void QEPvLoadSave::writeSubsetClicked (bool)
 //
 void QEPvLoadSave::readSubsetClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -765,7 +950,7 @@ void QEPvLoadSave::readSubsetClicked (bool)
 //
 void QEPvLoadSave::archiveTimeClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -773,7 +958,7 @@ void QEPvLoadSave::archiveTimeClicked (bool)
 //
 void QEPvLoadSave::copyAllClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -781,7 +966,7 @@ void QEPvLoadSave::copyAllClicked (bool)
 //
 void QEPvLoadSave::copySubsetClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -789,23 +974,47 @@ void QEPvLoadSave::copySubsetClicked (bool)
 //
 void QEPvLoadSave::loadClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
-   DEBUG << side;
+   VERIFY_SENDER;
+   QString filename;
+
+   filename = QFileDialog::getOpenFileName
+         (this,
+          "Select input file", "/asp/usr/config",
+          "PV Config Files(*.pcf);;PV Config Files(*.xml);;All files (*.*)");
+
+   if (!filename.isEmpty()) {
+      this->half [side]->open (filename);
+   }
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPvLoadSave::saveClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
-   DEBUG << side;
+   VERIFY_SENDER;
+   QString filename;
+
+   filename = QFileDialog::getSaveFileName
+         (this,
+          "Select output file", "/asp/usr/config",
+          "PV Config Files(*.pcf);;PV Config Files(*.xml)");
+
+   if (!filename.isEmpty()) {
+      if (filename.endsWith (".pcf")) {
+         DEBUG << "traditional" << filename;
+      } else if (filename.endsWith (".xml")) {
+         DEBUG << "xml (new)  " << filename;
+      } else {
+         DEBUG << "Unexpected file type";
+      }
+   }
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPvLoadSave::deleteClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -813,7 +1022,7 @@ void QEPvLoadSave::deleteClicked (bool)
 //
 void QEPvLoadSave::editClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -821,7 +1030,7 @@ void QEPvLoadSave::editClicked (bool)
 //
 void QEPvLoadSave::sortClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -829,7 +1038,7 @@ void QEPvLoadSave::sortClicked (bool)
 //
 void QEPvLoadSave::compareClicked (bool)
 {
-   Sides side = this->sideOfSender (this->sender ());
+   VERIFY_SENDER;
    DEBUG << side;
 }
 
@@ -856,11 +1065,13 @@ void QEPvLoadSave::setSubstitutions (QString configurationFileSubstitutions)
 //
 QString QEPvLoadSave::getSubstitutions ()
 {
+   // We use same substitutions for each half. WEither will do for return value.
+   //
    return this->half [0]->getConfigurationSubstitutions ();
 }
 
 //==============================================================================
-// Copy (no paste)
+// Copy/paste = tbd
 //
 
 // end

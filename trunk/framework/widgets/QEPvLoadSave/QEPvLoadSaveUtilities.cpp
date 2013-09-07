@@ -27,6 +27,7 @@
 #include <stdlib.h>
 
 #include <QDebug>
+#include <qdom.h>
 #include <QFile>
 #include <QESettings.h>
 #include <QStringList>
@@ -136,9 +137,10 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (const QString& groupName,
    return result;
 }
 
-//==============================================================================
+
+//------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readPcfTree (const QString& filename)
 {
    QEPvLoadSaveItem* result = NULL;
    QESettings* settings = NULL;
@@ -148,6 +150,60 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
       result = QEPvLoadSaveUtilities::readSection ("ROOT", settings, result, 1);
       delete settings;
    }
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename)
+{
+   QEPvLoadSaveItem* result = NULL;
+
+   QFile file (filename);
+   QDomDocument doc;
+   QString errorText;
+   int errorLine;
+   int errorCol;
+   QDomElement docElem;
+
+   if (!file.open (QIODevice::ReadOnly)) {
+      qWarning () << filename  << " file open failed";
+      return result;
+   }
+
+   if (!doc.setContent (&file, &errorText, &errorLine, &errorCol)) {
+      qWarning () << QString ("%1:%2:%3").arg (filename).arg (errorLine).arg (errorCol)
+                  << " set content failed " << errorText;
+      file.close ();
+      return result;
+   }
+
+   docElem = doc.documentElement ();
+   if (docElem.tagName () != "QEPvLoadSave") {
+      qWarning () << filename  << " unexpected tag name " << docElem.tagName ();
+      file.close ();
+      return false;
+   }
+
+   DEBUG << " no far so good" ;
+
+   return result;
+}
+
+//==============================================================================
+//
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
+{
+   QEPvLoadSaveItem* result = NULL;
+
+   if (filename.trimmed ().endsWith (".pcf")) {
+      result = readPcfTree (filename);
+   } else if (filename.trimmed ().endsWith (".xml")) {
+      result =  readXmlTree (filename);
+   } else {
+      result =  NULL;
+   }
+
    return result;
 }
 

@@ -553,9 +553,6 @@ void QEPvProperties::setUpLabelChannel ()
 
       QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                         this,  SLOT (setValueValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-
-   } else {
-      DEBUG << " no qca object";
    }
 }
 
