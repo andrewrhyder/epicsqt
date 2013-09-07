@@ -30,6 +30,7 @@
 #include <QModelIndex>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QTreeView>
 #include <QVariant>
 #include <QVariantList>
@@ -40,31 +41,44 @@
 #include <QEArchiveManager.h>
 #include <QEPvLoadSaveCommon.h>
 
-// This class is based on the of example specified in:
-// http://qt-project.org/doc/qt-4.8/itemviews-simpletreemodel.html
-//
-// A major difference is that it is derived from QObject because each leaf item
-// is associated with a PV and needs a slot to recieve value data.
-// A consequence of this is that this class must be exposed in a header file even though
-// it is essentially a QEPvLoadSave private class.
-//
-// Also the constructor automatically makes itself a modelchild QEPvLoadSaveItem
-// of its parent. This augments the normal QObject parent child linking.
-//
+/// This class is based on the of example specified in:
+/// http://qt-project.org/doc/qt-4.8/itemviews-simpletreemodel.html
+///
+/// A major difference is that it is derived from QObject because each leaf item
+/// is associated with a PV and needs  slots to recieve value data.
+/// A consequence of this is that this class must be exposed in a header file even though
+/// it is essentially a QEPvLoadSave private class.
+///
+/// Also the constructor automatically makes itself a model child of its parent.
+/// This augments the normal QObject parent child linking.
+///
+/// QEPvLoadSaveItem are create in one of two flavours:
+/// a/ node - used for groups
+/// b/ leaf - used for PVs.
+/// Consider creating ab abstract item class and two derived concrete classes.
+///
 class QEPvLoadSaveItem : public QObject {
 Q_OBJECT
 public:
    explicit QEPvLoadSaveItem (const QString& nodeName,
                               const bool isPV,   // as opposed to isGroup
                               const QVariant& value,
-                              QEPvLoadSaveItem *parent);
+                              QEPvLoadSaveItem* parent);
    virtual ~QEPvLoadSaveItem ();
+
+   // Clones a QEPvLoadSaveItem and all its children.
+   // Not copies is the model index and the actionConnect state,
+   // which must be done post construction just like the original.
+   // Note assigned a new parent.
+   QEPvLoadSaveItem* clone (QEPvLoadSaveItem* parent);
 
    // Set own model index - used for data changed signals.
    //
    void setModelIndex (const QModelIndex& index);
 
    void actionConnect (QObject* actionCompleteObject, const char* actionCompleteSlot);
+
+   QStringList getNodePath ();
 
    void setNodeName (const QString& nodeName);
    QString getNodeName ();
@@ -115,8 +129,8 @@ private:
    QList<QEPvLoadSaveItem*> childItems;
 
    bool isConnected;
-   qcaobject::QCaObject *qca;
-   QEArchiveAccess * archiveAccess;
+   qcaobject::QCaObject* qca;
+   QEArchiveAccess* archiveAccess;
 
    void updateItemData ();
 

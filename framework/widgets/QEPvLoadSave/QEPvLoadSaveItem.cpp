@@ -49,6 +49,8 @@ QEPvLoadSaveItem::QEPvLoadSaveItem (const QString & nodeNameIn,
 
    this->updateItemData ();
 
+   // Add to parent's own/specific QEPvLoadSaveItem child list.
+   //
    if (parent) {
       parent->appendChild (this);
    }
@@ -76,6 +78,8 @@ QEPvLoadSaveItem::QEPvLoadSaveItem (const QString & nodeNameIn,
                      this,      SLOT   (dataChanged (const QVariant&, QCaAlarmInfo& , QCaDateTime& )));
 
 
+      // Allow item to retrive archive data values.
+      //
       this->archiveAccess = new QEArchiveAccess (this);
 
       this->connect (this->archiveAccess, SIGNAL (setArchiveData ( const QObject*, const bool, const QCaDataPointList&)),
@@ -88,6 +92,28 @@ QEPvLoadSaveItem::QEPvLoadSaveItem (const QString & nodeNameIn,
 //
 QEPvLoadSaveItem::~QEPvLoadSaveItem ()
 {
+   // place holder
+}
+
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveItem::clone (QEPvLoadSaveItem* parent)
+{
+   QEPvLoadSaveItem* result = NULL;
+
+   result = new QEPvLoadSaveItem (this->getNodeName (), this->getIsPV (), this->getNodeValue (), parent);
+
+   if (!this->getIsPV ()) {
+       // Now clone each child.
+      //
+       for (int j = 0; j < this->childItems.count(); j++) {
+           QEPvLoadSaveItem* theChild = this->child (j);
+           QEPvLoadSaveItem* childClone;
+           childClone = theChild->clone (result);
+       }
+   }
+
+   return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -95,6 +121,29 @@ QEPvLoadSaveItem::~QEPvLoadSaveItem ()
 void QEPvLoadSaveItem::setModelIndex (const QModelIndex& indexIn)
 {
    this->index = indexIn;
+}
+
+//-----------------------------------------------------------------------------
+//
+QStringList QEPvLoadSaveItem::getNodePath ()
+{
+   QStringList result;
+   QEPvLoadSaveItem* parentNode;
+   QEPvLoadSaveItem* grandParentNode;
+
+   parentNode = dynamic_cast<QEPvLoadSaveItem*> (this->parent ());
+   if (parentNode) {
+      // This object has a parent.
+      //
+      // Want to exclude the 'internal' tree root node, i.e. start from user root.
+      //
+      grandParentNode = dynamic_cast<QEPvLoadSaveItem*> (parentNode->parent ());
+      if (grandParentNode) {
+         result = parentNode->getNodePath ();
+         result << parentNode->getNodeName ();
+      }
+   }
+   return result;
 }
 
 //-----------------------------------------------------------------------------

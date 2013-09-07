@@ -32,6 +32,7 @@
 #include <QString>
 #include <QAbstractItemModel>
 #include <QTreeView>
+#include <QItemSelectionModel>
 
 #include <QCaObject.h>
 #include <QEFrame.h>
@@ -122,8 +123,9 @@ protected:
    void establishConnection (unsigned int variableIndex);
 
    void resizeEvent (QResizeEvent* );
+   bool eventFilter (QObject *obj, QEvent* event);
 
-   // No Drag and Drop
+   // No Drag and Drop yey
    // No copy paste yet
 
 private:
@@ -173,7 +175,10 @@ private:
       QTreeView* tree;    // this is the tree widget
       QFrame* footer;
 
-      QEPvLoadSaveModel* model;
+      QItemSelectionModel* treeSelectionModel;   // manages tree selections
+      QEPvLoadSaveModel* model;                  // manah=ged tree data
+      QEPvLoadSaveItem* selectedItem;            // the most recently selected item - if any.
+
       QCaVariableNamePropertyManager vnpm;
 
    private:
@@ -185,7 +190,7 @@ private:
    QVBoxLayout* overallLayout;
    QFrame* sidesFrame;
    QHBoxLayout* sideBySidelayout;
-   Halves *half [2];  // two halves make a whole ;-)
+   Halves* half [2];  // two halves make a whole ;-)
    QFrame* loadSaveStatus;
    QLabel* loadSaveTitle;
    QProgressBar* progressBar;
@@ -196,14 +201,17 @@ private:
    QMenu* treeContextMenu;
    TreeContextMenuActionLists actionList;
 
-   // Only meaningfull after treeMenuRequested called and up until treeMenuSelected.
+   // Only meaningfull for context menu processing, i.e. after treeMenuRequested
+   // called and up until treeMenuSelected.
    //
-   Halves* selectedHalf;
-   QEPvLoadSaveItem* selectedItem;
+   Halves* contextMenuHalf;
+   QEPvLoadSaveItem* contextMenuItem;
 
-   // Use the sentBy object to determine which side sent the signal.
+   // Use the objectSide object to determine which side sent the signal.
    //
-   Sides sideOfSender (QObject *sentBy);
+   Sides objectSide (QObject* obj);
+   QTreeView* treeAssociatedWith (QObject* obj);
+   QEPvLoadSaveModel* modelAssociatedWith (QObject* obj);
 
    // Utility function to create and set up an action.
    //
@@ -212,12 +220,18 @@ private:
                           const bool checkable,
                           const TreeContextMenuActions treeAction);
 
+   void setReadOut (const QString& text);
+
+
 private slots:
    void useNewConfigurationFileProperty (QString configurationFileIn,
                                          QString configurationFileSubstitutionsIn,
                                          unsigned int variableIndex );
 
    void acceptActionComplete (QEPvLoadSaveCommon::ActionKinds, bool);
+
+
+   void selectionChanged (const QItemSelection& selected, const QItemSelection& deselected);
 
    void treeMenuRequested (const QPoint& pos);
    void treeMenuSelected  (QAction* action);
