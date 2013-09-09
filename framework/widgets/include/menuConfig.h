@@ -65,7 +65,7 @@
             <Menu Name="Imaging">
                 <Menu Name="Regions">
                     <Item Name="ROI 1">
-                        <UiFile>"ROI.ui"</path>
+                        <UiFile>"ROI.ui"</UiFile>
                         <Program Name="firefox">
                             <Arguments>"www.google.com"</Arguments>
                         </Program>
@@ -74,20 +74,20 @@
                     </Item>
 
                     <Item Name="ROI 2">
-                        <UiFile>"ROI.ui"</path>
+                        <UiFile>"ROI.ui"</UiFile>
                         <macroSubstitutions>"REGION=2"</macroSubstitutions>
                         <config>"ROI"</config>
                     </Item>
 
                 </Menu>
             </Menu>
-        </ConfigwindowConfigList>
+        </Config>
 
 
         <Config Name="IMBL_MINOR">
             <Menu Name="File">
                 <Item Name="Main Window">
-                    <UiFile>"IMBL.ui"</path>
+                    <UiFile>"IMBL.ui"</UiFile>
                     <config>"IMBL_MAIN"</config>
                 </Item>
             </Menu>
@@ -97,19 +97,21 @@
         <Config Name="ROI">
             <Menu Name="Imaging">
                 <Item Name="Plot">
-                    <UiFile>"ROI_Plot.ui"</path>
+                    <UiFile>"ROI_Plot.ui"</UiFile>
                     <config>"IMBL_MINOR"</config>
                 </Item>
             </Menu>
-            <Button>
+            <Button Name="Plot">
                 <Icon>"plot.png"</Icon>
-                <UiFile>"ROI_Plot.ui"</path>
+                <UiFile>"ROI_Plot.ui"</UiFile>
                 <config>"IMBL_MINOR"</config>
             </Button>
-            <IncludeConfig> Name="IMBL_MINOR"</IncludeConfig>
+            <IncludeConfig Name="IMBL_MINOR"></IncludeConfig>
         </Config>
 
-    <QEWindowConfig>
+        <ConfigIncludeFile> </ConfigIncludeFile>
+
+    </QEWindowConfig>
  */
 
 #ifndef WINDOWCONFIG_H
@@ -121,6 +123,7 @@
 #include <QString>
 #include <QStringList>
 #include <QMainWindow>
+#include <QDomDocument>
 
 // Class defining an individual item (base class for button or menu item)
 class windowConfigItem : public QAction
@@ -144,7 +147,7 @@ private:
     QString configName;             // New window configuration name (menu, buttons, etc)
 
 private slots:
-     void itemAction();             // Slot to call when actiowindowConfign is triggered
+    void itemAction();              // Slot to call when actiowindowConfign is triggered
 
 };
 
@@ -162,6 +165,8 @@ public:
                           const QString macroSubstitutionsIn,     // Substitutions for ui file, program and arguments
                           const QString configNameIn );           // New window configuration name (menu, buttons, etc)
 
+    QStringList getMenuHierarchy(){return menuHierarchy;}
+    QString getTitle(){return title;}
 private:
     // Menu bar details.
     // All details are optional.
@@ -185,6 +190,8 @@ public:
                             const QString macroSubstitutionsIn,     // Substitutions for ui file, program and arguments
                             const QString configNameIn );           // New window configuration name (menu, buttons, etc)
 
+    QString getButtonText(){ return buttonText; }
+
 private:
     // Button details.
     // All details are optional.
@@ -205,6 +212,11 @@ public:
     void addItem( windowConfigMenuItem* menuItem );      // Add a menu item to the configuration
     void addItem( windowConfigButtonItem* button );    // Add a button to the configuration
 
+    QList<windowConfigMenuItem*> getMenuItems(){return menuItems;}      // get Menu items list
+    QList<windowConfigButtonItem*> getButtons(){return buttons;}        // get Buttons list
+    QString getName(){ return name; }
+
+
 private:
     QString name;                               // Configuration name
     QList<windowConfigMenuItem*> menuItems;      // Menu items to be added to menu bar to implement configuration
@@ -219,11 +231,23 @@ class windowConfigList
 public:
     windowConfigList();
 
-    void loadConfig( QString xmlFile );                      // Load a set of configurations
+    bool loadConfig( QString xmlFile );                      // Load a set of configurations
     bool applyConfig( QMainWindow* mw, QString configName ); // Add the named configuration to a main window. Return true if named configuration found and loaded.
 
+
 private:
-    QList<windowConfig> configList;                         // List of configurations
+    windowConfig* getConfig(QString name);
+    void addIncludeConfig(windowConfig* config, windowConfig* include);
+    void parseMenuCfg( // Parse menu configuration data
+                       QDomNode menuNode,
+                       windowConfig* config,
+                       QStringList menuHierarchy );
+    windowConfigMenuItem* createMenuItem( // Create a menu configuration item
+                                          QDomElement itemElement,
+                                          QStringList menuHierarchy);
+    windowConfigButtonItem* createButtonItem( // Create a button configuration item
+                                              QDomElement itemElement);
+    QList<windowConfig*> configList;                         // List of configurations
 };
 
 #endif // WINDOWCONFIG_H
