@@ -37,6 +37,9 @@
 
 #include <menuConfig.h>
 #include <QDebug>
+#include <QFile>
+#include <QMenuBar>
+#include <QToolBar>
 
 //==============================================================================================
 // windowConfigItem
@@ -49,7 +52,7 @@ windowConfigItem::windowConfigItem(
     QStringList programArgumentsIn,   // Arguments for 'program'
     QString macroSubstitutionsIn,     // Substitutions for ui file, program and arguments
     QString configNameIn )            // New window configuration name (menu, buttons, etc)
-        : QAction( this )
+         : QAction( 0 )
 {
     // Save the item details
     uiFile = uiFileIn;
@@ -59,13 +62,17 @@ windowConfigItem::windowConfigItem(
     configName = configNameIn;
 
     // Set up an action to respond to the user
-    connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
+//    connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
 }
 
 // A user has triggered the menu item or button
 void windowConfigItem::itemAction()
 {
-
+    qDebug() << "windowConfigItem::itemAction():  "
+             << "uiFileIn = " << uiFile
+             << "programIn = " << program
+             << "macroSubstitutionsIn = " << macroSubstitutions
+             << "configNameIn = " << configName;
 }
 
 //==============================================================================================
@@ -73,7 +80,7 @@ void windowConfigItem::itemAction()
 //==============================================================================================
 
 // Construct instance of class defining an individual menu item
-windowConfigMenuItem::windowConfigMenuItem( QStringList menuHierarchyIn,       // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
+windowConfigMenuItem::windowConfigMenuItem( QStringList menuHierarchyIn,      // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
                                             QString titleIn,                  // Name of this item. for example: 'Region 1'
                                             QString uiFileIn,                 // UI to display
                                             QString programIn,                // Program to run
@@ -84,6 +91,10 @@ windowConfigMenuItem::windowConfigMenuItem( QStringList menuHierarchyIn,       /
 {
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
+    setText(titleIn);
+    setParent(this);
+    // Set up an action to respond to the user
+    connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
 }
 
 //==============================================================================================
@@ -104,6 +115,10 @@ windowConfigButtonItem::windowConfigButtonItem( QString buttonGroupIn,          
     buttonGroup = buttonGroupIn;
     buttonText = buttonTextIn;
     buttonIcon = buttonIconIn;
+    setText(buttonTextIn);
+    setParent(this);
+    // Set up an action to respond to the user
+    connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
 }
 
 //==============================================================================================
@@ -155,21 +170,292 @@ windowConfigList::windowConfigList()
 }
 
 // Load a set of configurations
-void windowConfigList::loadConfig( QString xmlFile )
+bool windowConfigList::loadConfig( QString xmlFile )
 {
+    QDomDocument doc;
+
     qDebug() << "windowConfigList::loadConfig()" << xmlFile;
     // !!! Read and parse xmlFile
+    QFile file( xmlFile );
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Could not open config file" << xmlFile;
+        return false;
+    }
     // !!! if named configuration exists, replace it
+    if ( !doc.setContent( &file ) )
+    {
+        qDebug() << "Could not parse the XML in the config file" << xmlFile;
+        file.close();
+        return false;
+    }
+    file.close();
+    QDomElement docElem = doc.documentElement();
     // !!! Parse XML using Qt's Document Object Model. Refer to code in persistanceManager.cpp/.h
+    QDomNodeList rootNodeList = docElem.elementsByTagName( "Config" );
+    for( int i = 0; i < rootNodeList.count(); i++ )
+    {
+        QDomNode configNode = rootNodeList.at(i);
+        QString configName = configNode.toElement().attribute( "Name" );
+        if( !configName.isEmpty() )
+        {
+            // create a window configuration
+            windowConfig* config = new windowConfig(configName);
+            // add the window configuration to the list
+            configList.append(config);
+            // get a menu list and button list
+            QDomNodeList menuButtonList = configNode.toElement().childNodes();
+            QDomNode node = configNode.firstChild();
+            // check if the item is a menu or a button item
+            while (!node.isNull()){
+                QDomElement itemElement = node.toElement();
+                if (itemElement.tagName() == "Menu"){
+                    QString menuName = itemElement.attribute( "Name" );
+                    QStringList menuHierarchy;
+                    menuHierarchy.append(menuName);
+                    // parse menu configuration
+                    parseMenuCfg(node, config, menuHierarchy);
+                }
+                else if (itemElement.tagName() == "Button"){
+                    // create and add a button item
+                    config->addItem(createButtonItem(itemElement));
+                }
+                else if (itemElement.tagName() == "IncludeConfig"){
+                    QString includeConfigName = itemElement.attribute( "Name" );
+                    // get the config info
+                    windowConfig* includeConfig = getConfig(includeConfigName);
+                    if (includeConfig){
+                        // add all config items to the current configuration
+                        addIncludeConfig(config, includeConfig);
+                    }
+                }
+                node = node.nextSibling();
+            }
+        }
+    }
+    // load ConfigIncludeFile
+    rootNodeList = docElem.elementsByTagName( "ConfigIncludeFile" );
+    for( int i = 0; i < rootNodeList.count(); i++ )
+    {
+        QDomNode configNode = rootNodeList.at(i);
+        QString includeFileName = configNode.toElement().text();
+        if( !includeFileName.isEmpty() )
+        {
+            // load config file
+            loadConfig(includeFileName);
+        }
+    }
+
+    return true;
+}
+
+// Parse menu configuration data
+void windowConfigList::parseMenuCfg( QDomNode menuNode, windowConfig* config, QStringList menuHierarchy){
+    QDomNode node = menuNode.firstChild();
+    while (!node.isNull()){
+        QDomElement itemElement = node.toElement();
+        // check if the item is a submenu or an item
+        if (itemElement.tagName() == "Menu"){
+            // get the menu name
+            QString menuName = itemElement.attribute( "Name" );
+            if( !menuName.isEmpty() )
+            {
+                // update menu hierarchy
+                menuHierarchy.append(menuName);
+                // parse menu configuration
+                parseMenuCfg(node, config, menuHierarchy);
+            }
+        }
+        else if (itemElement.tagName() == "Item"){
+            // create and add a menu item
+            config->addItem(createMenuItem(itemElement, menuHierarchy));
+        }
+        node = node.nextSibling();
+    }
+}
+
+windowConfigMenuItem* windowConfigList::createMenuItem( QDomElement itemElement, QStringList menuHierarchy){
+    QString titleIn = itemElement.attribute("Name");
+    QString uiFileIn;
+    QString programIn;
+    QStringList programArgumentsIn;
+    QString macroSubstitutionsIn;
+    QString configNameIn;
+
+    // read UiFile name
+    QDomNodeList list = itemElement.elementsByTagName("UiFile" );
+    if (list.count() > 0){
+        uiFileIn = list.at(0).toElement().text();
+    }
+    // read Program
+    list = itemElement.elementsByTagName("Program" );
+    if (list.count() > 0){
+        QDomElement program = list.at(0).toElement();
+        // read Program name and args
+        programIn = program.attribute( "Name" );
+        list = program.elementsByTagName("Arguments");
+        if (list.count() > 0){
+            programArgumentsIn = list.at(0).toElement().text().split(" ");
+        }
+    }
+
+    // read macroSubstitutionsIn
+    list = itemElement.elementsByTagName("macroSubstitutions" );
+    if (list.count() > 0){
+        macroSubstitutionsIn = list.at(0).toElement().text();
+    }
+    // read configNameIn
+    list = itemElement.elementsByTagName("config" );
+    if (list.count() > 0){
+        configNameIn = list.at(0).toElement().text();
+    }
+
+    // create a menu item and add it to config
+    windowConfigMenuItem* item = new windowConfigMenuItem(menuHierarchy, titleIn, uiFileIn, programIn,
+                                                          programArgumentsIn, macroSubstitutionsIn, configNameIn);
+    return item;
+}
+
+ windowConfigButtonItem*  windowConfigList::createButtonItem( QDomElement itemElement ){
+    QString buttonGroupIn;
+    QString buttonTextIn = itemElement.attribute("Name" );
+    QString buttonIconIn;
+
+    QString uiFileIn;
+    QString programIn;
+    QStringList programArgumentsIn;
+    QString macroSubstitutionsIn;
+    QString configNameIn;
+
+    // read GroupName
+    QDomNodeList list = itemElement.elementsByTagName("GroupName" );
+    if (list.count() > 0){
+        buttonGroupIn = list.at(0).toElement().text();
+    }
+    // read Icon
+    list = itemElement.elementsByTagName("Icon" );
+    if (list.count() > 0){
+        buttonIconIn = list.at(0).toElement().text();
+    }
+
+    // read UiFile name
+    list = itemElement.elementsByTagName("UiFile" );
+    if (list.count() > 0){
+        uiFileIn = list.at(0).toElement().text();
+    }
+    // read Program
+    list = itemElement.elementsByTagName("Program" );
+    if (list.count() > 0){
+        QDomElement program = list.at(0).toElement();
+        // read Program name and args
+        programIn = program.attribute( "Name" );
+        list = program.elementsByTagName("Arguments");
+        if (list.count() > 0){
+            programArgumentsIn = list.at(0).toElement().text().split(" ");
+        }
+    }
+
+    // read macroSubstitutionsIn
+    list = itemElement.elementsByTagName("macroSubstitutions" );
+    if (list.count() > 0){
+        macroSubstitutionsIn = list.at(0).toElement().text();
+    }
+    // read configNameIn
+    list = itemElement.elementsByTagName("config" );
+    if (list.count() > 0){
+        configNameIn = list.at(0).toElement().text();
+    }
+
+    // create a menu item and add it to config
+    windowConfigButtonItem* item = new windowConfigButtonItem(buttonGroupIn, buttonTextIn, buttonIconIn, uiFileIn, programIn,
+                                                          programArgumentsIn, macroSubstitutionsIn, configNameIn);
+    return item;
+}
+
+ windowConfig* windowConfigList::getConfig(QString name){
+     windowConfig* config = 0;
+     for (int i = 0; i < configList.length(); i++){
+         if (configList.at(i)->getName() == name){
+            config = configList.at(i);
+            break;
+         }
+     }
+     return config;
+ }
+
+ void windowConfigList::addIncludeConfig(windowConfig* config, windowConfig* include){
+     QList<windowConfigMenuItem*> menuItems = include->getMenuItems();
+     QList<windowConfigButtonItem*> buttons = include->getButtons();
+     // add menu items
+     for (int i = 0; i < menuItems.length(); i++){
+         config->addItem(menuItems.at(i));
+     }
+     // add button items
+     for (int i = 0; i < buttons.length(); i++){
+         config->addItem(buttons.at(i));
+     }
 }
 
 // Add the named configuration to a main window.
 // Return true if named configuration found and loaded.
 bool windowConfigList::applyConfig( QMainWindow* mw, QString configName )
 {
-     qDebug() << "windowConfigList::applyConfig()" << mw << configName;
+
+    qDebug() << "windowConfigList::applyConfig()" << mw << configName;
+    windowConfig* config = getConfig(configName);
+    if (!config)
+        return false;
+
+    QToolBar* mainToolBar = new QToolBar(mw);
+    mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
+    mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
+    QList<windowConfigButtonItem*> bList = config->getButtons();
+    for ( int i = 0; i < bList.length(); i++ ){
+        windowConfigButtonItem* item = bList.at(i);
+//        QAction* action = new QAction(item->getButtonText(), mw);
+        mainToolBar->addAction(item);
+//        mainToolBar->addAction(action);
+    }
+
+
+    QMenuBar* menuBar = mw->menuBar();
+    QMap<QString, QMenu*> menuCreated;
+
+    QList<windowConfigMenuItem*> mList = config->getMenuItems();
+
+    for (int i = 0; i < mList.length(); i++){
+        windowConfigMenuItem* menuItem = mList.at(i);
+        QMenu* menuPoint = 0;
+        QStringList menuHierarchy = menuItem->getMenuHierarchy();
+        QString extendedMenuName;
+        for ( int j = 0; j < menuHierarchy.length(); j++ ){
+            QString menuName = menuHierarchy.at(j);
+            extendedMenuName = extendedMenuName.append(menuName);
+            if (!menuCreated.contains(extendedMenuName)){
+                QMenu* newMenu = new QMenu(menuName);
+                if (!menuPoint){
+                    // top menu
+                    menuBar->addMenu(newMenu);
+                }
+                else{ // submenu
+                    menuPoint->addMenu(newMenu);
+                }
+                menuPoint = newMenu;
+                menuCreated.insert(extendedMenuName, newMenu);
+            }
+            else{
+                menuPoint = menuCreated.find(extendedMenuName).value();
+            }
+        }
+//        QAction* action = new QAction(menuItem->getTitle(), mw);
+        if (menuPoint)
+    //        menuPoint->addMenu(menuItem->getTitle());
+    //        menuPoint->addAction(action);
+            menuPoint->addAction(menuItem);
+    }
     //!!! Extend the QMainWindow menu bar and tool bar with the named configuration
     //!!! Add required menus, menu items, button groups and buttons
     //!!! Use the windowConfigItem as the QAction to use for each menu item and button
+
     return true;
 }

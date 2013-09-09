@@ -39,6 +39,7 @@
 #include <restoreDialog.h>
 #include <PasswordDialog.h>
 #include <QEGui.h>
+#include <menuConfig.h>
 
 // Before Qt 4.8, the command to start designer is 'designer'.
 // Qt 4.8 later uses the command 'designer-qt4'
@@ -96,6 +97,12 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
 
     // Set the default title
     setTitle( "" );
+// Zai testing
+//    windowConfigList* configData = new windowConfigList();
+//    configData->loadConfig("test.xml");
+//    configData->applyConfig( this, "ROI" );
+//    configData->applyConfig( this, "IMBL_MINOR" );
+//    configData->applyConfig( this, "IMBL_MAIN" );
 
     // Populate the 'Windows' menu to include all current guis in any main window
     buildWindowsMenu();
