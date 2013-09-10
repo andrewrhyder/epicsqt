@@ -26,11 +26,11 @@
  *
  * Helps applications such as QEGui and QE widgets add menu items from the main window menu bar
  * and push buttons to the main window tool bar.
- * Named configurations are saved in .xml files.
- * Any number of configuration .xml files can be read, building up a directory of named configurations.
- * Configurations can be requested by name.
- * Configurations may include other configurations by name.
- * A configuration can be aliased by defining a configuration that only includes another named configuration.
+ * Named customisations are saved in .xml files.
+ * Any number of customisation .xml files can be read, building up a directory of named customisations.
+ * Customisations can be requested by name.
+ * Customisations may include other customisations by name.
+ * A customisation can be aliased by defining a customisation that only includes another named customisation.
  *
  * REFER TO menuConfig.h for more details on how to use this module.
  */
@@ -42,16 +42,18 @@
 #include <QToolBar>
 
 //==============================================================================================
-// windowConfigItem
+// windowCustomisationItem
 //==============================================================================================
 
 // Construct instance of class defining an individual item (base class for button or menu item)
-windowConfigItem::windowConfigItem(
-    QString uiFileIn,                 // UI to display
-    QString programIn,                // Program to run
-    QStringList programArgumentsIn,   // Arguments for 'program'
-    QString macroSubstitutionsIn,     // Substitutions for ui file, program and arguments
-    QString configNameIn )            // New window configuration name (menu, buttons, etc)
+windowCustomisationItem::windowCustomisationItem(
+    const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
+    const QString uiFileIn,                              // UI to display
+    const QString programIn,                             // Program to run
+    const QStringList programArgumentsIn,                // Arguments for 'program'
+    const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
+    const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
+    const QString customisationNameIn )                  // New window customisation name (menu, buttons, etc)
          : QAction( 0 )
 {
     // Save the item details
@@ -59,83 +61,98 @@ windowConfigItem::windowConfigItem(
     program = programIn;
     programArguments = programArgumentsIn;
     macroSubstitutions = macroSubstitutionsIn;
-    configName = configNameIn;
+    creationOption = creationOptionIn;
+    customisationName = customisationNameIn;
 
     // Set up an action to respond to the user
-//    connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
+    QObject::connect( this, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
+                      launchRequestReceiver, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
 }
 
 // A user has triggered the menu item or button
-void windowConfigItem::itemAction()
+void windowCustomisationItem::itemAction()
 {
-    qDebug() << "windowConfigItem::itemAction():  "
-             << "uiFileIn = " << uiFile
-             << "programIn = " << program
-             << "macroSubstitutionsIn = " << macroSubstitutions
-             << "configNameIn = " << configName;
+    qDebug() << "windowCustomisationItem::itemAction():  "
+             << "uiFile = " << uiFile
+             << "program = " << program
+             << "macroSubstitutions = " << macroSubstitutions
+             << "creationOption" << creationOption
+             << "customisationName = " << customisationName;
+
+    emit newGui( QEGuiLaunchRequests( uiFile, customisationName, creationOption )  );
 }
 
 //==============================================================================================
-// windowConfigMenuItem
+// windowCustomisationMenuItem
 //==============================================================================================
 
 // Construct instance of class defining an individual menu item
-windowConfigMenuItem::windowConfigMenuItem( QStringList menuHierarchyIn,      // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
-                                            QString titleIn,                  // Name of this item. for example: 'Region 1'
-                                            QString uiFileIn,                 // UI to display
-                                            QString programIn,                // Program to run
-                                            QStringList programArgumentsIn,   // Arguments for 'program'
-                                            QString macroSubstitutionsIn,     // Substitutions for ui file, program and arguments
-                                            QString configNameIn )           // New window configuration name (menu, buttons, etc)
-         : windowConfigItem( uiFileIn, programIn, programArgumentsIn, macroSubstitutionsIn, configNameIn )
+windowCustomisationMenuItem::windowCustomisationMenuItem(
+                          const QStringList menuHierarchyIn,                   // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
+                          const QString titleIn,                               // Name of this item. for example: 'Region 1'
+
+                          const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
+                          const QString uiFileIn,                              // UI to display
+                          const QString programIn,                             // Program to run
+                          const QStringList programArgumentsIn,                // Arguments for 'program'
+                          const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
+                          const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
+                          const QString customisationNameIn )                  // New window customisation name (menu, buttons, etc)
+                          : windowCustomisationItem( launchRequestReceiver, uiFileIn, programIn, programArgumentsIn, macroSubstitutionsIn, creationOptionIn, customisationNameIn )
 {
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     setText(titleIn);
     setParent(this);
+
     // Set up an action to respond to the user
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
 }
 
 //==============================================================================================
-// windowConfigButtonItem
+// windowCustomisationButtonItem
 //==============================================================================================
 
 // Construct instance of class defining an individual button item
-windowConfigButtonItem::windowConfigButtonItem( QString buttonGroupIn,            // Name of toolbar button group in which to place a button
-                                                QString buttonTextIn,             // Text to place in button
-                                                QString buttonIconIn,             // Icon for button
-                                                QString uiFileIn,                 // UI to display
-                                                QString programIn,                // Program to run
-                                                QStringList programArgumentsIn,   // Arguments for 'program'
-                                                QString macroSubstitutionsIn,     // Substitutions for ui file, program and arguments
-                                                QString configNameIn )           // New window configuration name (menu, buttons, etc)
-                            : windowConfigItem( uiFileIn, programIn, programArgumentsIn, macroSubstitutionsIn, configNameIn )
+windowCustomisationButtonItem::windowCustomisationButtonItem(
+                        const QString buttonGroupIn,                         // Name of toolbar button group in which to place a button
+                        const QString buttonTextIn,                          // Text to place in button
+                        const QString buttonIconIn,                          // Icon for button
+
+                        const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
+                        const QString uiFileIn,                              // UI to display
+                        const QString programIn,                             // Program to run
+                        const QStringList programArgumentsIn,                // Arguments for 'program'
+                        const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
+                        const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
+                        const QString customisationNameIn )                  // New window customisation name (menu, buttons, etc)
+                            : windowCustomisationItem( launchRequestReceiver, uiFileIn, programIn, programArgumentsIn, macroSubstitutionsIn, creationOptionIn, customisationNameIn )
 {
     buttonGroup = buttonGroupIn;
     buttonText = buttonTextIn;
     buttonIcon = buttonIconIn;
     setText(buttonTextIn);
     setParent(this);
+
     // Set up an action to respond to the user
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
 }
 
 //==============================================================================================
-// windowConfig
+// windowCustomisation
 //==============================================================================================
 
-// Class defining a configuration for a window.
-// Construction - create a named, empty, configuration
-windowConfig::windowConfig( QString nameIn )
+// Class defining the customisation for a window.
+// Construction - create a named, empty, customisation
+windowCustomisation::windowCustomisation( QString nameIn )
 {
     name = nameIn;
 }
 
-// Destruction - release config items
-windowConfig::~windowConfig()
+// Destruction - release customisation items
+windowCustomisation::~windowCustomisation()
 {
-    // Release config items
+    // Release customisation items
     while( !menuItems.isEmpty() )
     {
         delete menuItems.takeFirst();
@@ -146,66 +163,83 @@ windowConfig::~windowConfig()
     }
 }
 
-// Add a menu item to the configuration
-// NOTE! windowConfig TAKES OWNERSHIP of menuItem
-void windowConfig::addItem( windowConfigMenuItem* menuItem )
+// Add a menu item to the customisation
+// NOTE! windowCustomisation TAKES OWNERSHIP of menuItem
+void windowCustomisation::addItem( windowCustomisationMenuItem* menuItem )
 {
     menuItems.append( menuItem );
 }
 
-// Add a button to the configuration
-// NOTE! windowConfig TAKES OWNERSHIP of button
-void windowConfig::addItem( windowConfigButtonItem* button )
+// Add a button to the customisation
+// NOTE! windowCustomisation TAKES OWNERSHIP of button
+void windowCustomisation::addItem( windowCustomisationButtonItem* button )
 {
     buttons.append( button );
 }
 
+// Translate creation option text from .xml file to enumeration in QEGuiLaunchRequests
+QEGuiLaunchRequests::Options windowCustomisation::translateCreationOption( QString creationOption )
+{
+    if( creationOption.compare( "Open") == 0 )
+    {
+        return QEGuiLaunchRequests::OptionOpen;
+    }
+
+    else if( creationOption.compare( "NewTab") == 0 )
+    {
+        return QEGuiLaunchRequests::OptionNewTab;
+    }
+
+    // default is NewWindow
+    return QEGuiLaunchRequests::OptionNewWindow;
+}
+
 //==============================================================================================
-// windowConfigList
+// windowCustomisationList
 //==============================================================================================
 
-windowConfigList::windowConfigList()
+windowCustomisationList::windowCustomisationList()
 {
     // !!! Nothing yet
 }
 
-// Load a set of configurations
-bool windowConfigList::loadConfig( QString xmlFile )
+// Load a set of customisations
+bool windowCustomisationList::loadCustomisation( QString xmlFile )
 {
     QDomDocument doc;
 
-    qDebug() << "windowConfigList::loadConfig()" << xmlFile;
+    qDebug() << "windowCustomisationList::loadCustomisation()" << xmlFile;
     // !!! Read and parse xmlFile
     QFile file( xmlFile );
     if (!file.open(QIODevice::ReadOnly))
     {
-        qDebug() << "Could not open config file" << xmlFile;
+        qDebug() << "Could not open customisation file" << xmlFile;
         return false;
     }
-    // !!! if named configuration exists, replace it
+    // !!! if named customisation exists, replace it
     if ( !doc.setContent( &file ) )
     {
-        qDebug() << "Could not parse the XML in the config file" << xmlFile;
+        qDebug() << "Could not parse the XML in the customisations file" << xmlFile;
         file.close();
         return false;
     }
     file.close();
     QDomElement docElem = doc.documentElement();
     // !!! Parse XML using Qt's Document Object Model. Refer to code in persistanceManager.cpp/.h
-    QDomNodeList rootNodeList = docElem.elementsByTagName( "Config" );
+    QDomNodeList rootNodeList = docElem.elementsByTagName( "Customisation" );
     for( int i = 0; i < rootNodeList.count(); i++ )
     {
-        QDomNode configNode = rootNodeList.at(i);
-        QString configName = configNode.toElement().attribute( "Name" );
-        if( !configName.isEmpty() )
+        QDomNode customisationNode = rootNodeList.at(i);
+        QString customisationName = customisationNode.toElement().attribute( "Name" );
+        if( !customisationName.isEmpty() )
         {
-            // create a window configuration
-            windowConfig* config = new windowConfig(configName);
-            // add the window configuration to the list
-            configList.append(config);
+            // create a window customisation
+            windowCustomisation* customisation = new windowCustomisation(customisationName);
+            // add the window customisation to the list
+            customisationList.append(customisation);
             // get a menu list and button list
-            QDomNodeList menuButtonList = configNode.toElement().childNodes();
-            QDomNode node = configNode.firstChild();
+            QDomNodeList menuButtonList = customisationNode.toElement().childNodes();
+            QDomNode node = customisationNode.firstChild();
             // check if the item is a menu or a button item
             while (!node.isNull()){
                 QDomElement itemElement = node.toElement();
@@ -213,44 +247,44 @@ bool windowConfigList::loadConfig( QString xmlFile )
                     QString menuName = itemElement.attribute( "Name" );
                     QStringList menuHierarchy;
                     menuHierarchy.append(menuName);
-                    // parse menu configuration
-                    parseMenuCfg(node, config, menuHierarchy);
+                    // parse menu customisation
+                    parseMenuCfg(node, customisation, menuHierarchy);
                 }
                 else if (itemElement.tagName() == "Button"){
                     // create and add a button item
-                    config->addItem(createButtonItem(itemElement));
+                    customisation->addItem(createButtonItem(itemElement));
                 }
-                else if (itemElement.tagName() == "IncludeConfig"){
-                    QString includeConfigName = itemElement.attribute( "Name" );
-                    // get the config info
-                    windowConfig* includeConfig = getConfig(includeConfigName);
-                    if (includeConfig){
-                        // add all config items to the current configuration
-                        addIncludeConfig(config, includeConfig);
+                else if (itemElement.tagName() == "IncludeCustomisation"){
+                    QString includeCustomisationName = itemElement.attribute( "Name" );
+                    // get the customisation info
+                    windowCustomisation* includeCustomisation = getCustomisation(includeCustomisationName);
+                    if (includeCustomisation){
+                        // add all customisation items to the current customisation set
+                        addIncludeCustomisation(customisation, includeCustomisation);
                     }
                 }
                 node = node.nextSibling();
             }
         }
     }
-    // load ConfigIncludeFile
-    rootNodeList = docElem.elementsByTagName( "ConfigIncludeFile" );
+    // load customisation include file
+    rootNodeList = docElem.elementsByTagName( "CustomisationIncludeFile" );
     for( int i = 0; i < rootNodeList.count(); i++ )
     {
-        QDomNode configNode = rootNodeList.at(i);
-        QString includeFileName = configNode.toElement().text();
+        QDomNode customisationNode = rootNodeList.at(i);
+        QString includeFileName = customisationNode.toElement().text();
         if( !includeFileName.isEmpty() )
         {
-            // load config file
-            loadConfig(includeFileName);
+            // load customisation file
+            loadCustomisation(includeFileName);
         }
     }
 
     return true;
 }
 
-// Parse menu configuration data
-void windowConfigList::parseMenuCfg( QDomNode menuNode, windowConfig* config, QStringList menuHierarchy){
+// Parse menu customisation data
+void windowCustomisationList::parseMenuCfg( QDomNode menuNode, windowCustomisation* customisation, QStringList menuHierarchy){
     QDomNode node = menuNode.firstChild();
     while (!node.isNull()){
         QDomElement itemElement = node.toElement();
@@ -262,156 +296,174 @@ void windowConfigList::parseMenuCfg( QDomNode menuNode, windowConfig* config, QS
             {
                 // update menu hierarchy
                 menuHierarchy.append(menuName);
-                // parse menu configuration
-                parseMenuCfg(node, config, menuHierarchy);
+                // parse menu customisation
+                parseMenuCfg(node, customisation, menuHierarchy);
             }
         }
         else if (itemElement.tagName() == "Item"){
             // create and add a menu item
-            config->addItem(createMenuItem(itemElement, menuHierarchy));
+            customisation->addItem(createMenuItem(itemElement, menuHierarchy));
         }
         node = node.nextSibling();
     }
 }
 
-windowConfigMenuItem* windowConfigList::createMenuItem( QDomElement itemElement, QStringList menuHierarchy){
-    QString titleIn = itemElement.attribute("Name");
-    QString uiFileIn;
-    QString programIn;
-    QStringList programArgumentsIn;
-    QString macroSubstitutionsIn;
-    QString configNameIn;
+windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElement itemElement, QStringList menuHierarchy){
+    QString title = itemElement.attribute("Name");
+    QString uiFile;
+    QString program;
+    QStringList programArguments;
+    QString macroSubstitutions;
+    QEGuiLaunchRequests::Options creationOption;
+    QString customisationName;
 
     // read UiFile name
     QDomNodeList list = itemElement.elementsByTagName("UiFile" );
     if (list.count() > 0){
-        uiFileIn = list.at(0).toElement().text();
+        uiFile = list.at(0).toElement().text();
     }
     // read Program
     list = itemElement.elementsByTagName("Program" );
     if (list.count() > 0){
-        QDomElement program = list.at(0).toElement();
+        QDomElement programElement = list.at(0).toElement();
         // read Program name and args
-        programIn = program.attribute( "Name" );
-        list = program.elementsByTagName("Arguments");
+        program = programElement.attribute( "Name" );
+        list = programElement.elementsByTagName("Arguments");
         if (list.count() > 0){
-            programArgumentsIn = list.at(0).toElement().text().split(" ");
+            programArguments = list.at(0).toElement().text().split(" ");
         }
     }
 
-    // read macroSubstitutionsIn
-    list = itemElement.elementsByTagName("macroSubstitutions" );
+    // read macro substitutions
+    list = itemElement.elementsByTagName("MacroSubstitutions" );
     if (list.count() > 0){
-        macroSubstitutionsIn = list.at(0).toElement().text();
-    }
-    // read configNameIn
-    list = itemElement.elementsByTagName("config" );
-    if (list.count() > 0){
-        configNameIn = list.at(0).toElement().text();
+        macroSubstitutions = list.at(0).toElement().text();
     }
 
-    // create a menu item and add it to config
-    windowConfigMenuItem* item = new windowConfigMenuItem(menuHierarchy, titleIn, uiFileIn, programIn,
-                                                          programArgumentsIn, macroSubstitutionsIn, configNameIn);
+    // read customisation name
+    list = itemElement.elementsByTagName("CustomisationName" );
+    if (list.count() > 0){
+        customisationName = list.at(0).toElement().text();
+    }
+
+    // read creation option
+    list = itemElement.elementsByTagName("CreationOption" );
+    if (list.count() > 0)
+    {
+        creationOption = windowCustomisation::translateCreationOption( list.at(0).toElement().text() );
+    }
+
+    // create a menu item and add it to the customisation set
+    windowCustomisationMenuItem* item = new windowCustomisationMenuItem(menuHierarchy, title, NULL/*!!! needs launch receiver object*/, uiFile, program,
+                                                          programArguments, macroSubstitutions, creationOption, customisationName);
     return item;
 }
 
- windowConfigButtonItem*  windowConfigList::createButtonItem( QDomElement itemElement ){
-    QString buttonGroupIn;
-    QString buttonTextIn = itemElement.attribute("Name" );
-    QString buttonIconIn;
+ windowCustomisationButtonItem*  windowCustomisationList::createButtonItem( QDomElement itemElement ){
+    QString buttonGroup;
+    QString buttonText = itemElement.attribute("Name" );
+    QString buttonIcon;
 
-    QString uiFileIn;
-    QString programIn;
-    QStringList programArgumentsIn;
-    QString macroSubstitutionsIn;
-    QString configNameIn;
+    QString uiFile;
+    QString program;
+    QStringList programArguments;
+    QString macroSubstitutions;
+    QEGuiLaunchRequests::Options creationOption;
+    QString customisationName;
 
     // read GroupName
     QDomNodeList list = itemElement.elementsByTagName("GroupName" );
     if (list.count() > 0){
-        buttonGroupIn = list.at(0).toElement().text();
+        buttonGroup = list.at(0).toElement().text();
     }
     // read Icon
     list = itemElement.elementsByTagName("Icon" );
     if (list.count() > 0){
-        buttonIconIn = list.at(0).toElement().text();
+        buttonIcon = list.at(0).toElement().text();
     }
 
     // read UiFile name
     list = itemElement.elementsByTagName("UiFile" );
     if (list.count() > 0){
-        uiFileIn = list.at(0).toElement().text();
+        uiFile = list.at(0).toElement().text();
     }
     // read Program
     list = itemElement.elementsByTagName("Program" );
     if (list.count() > 0){
-        QDomElement program = list.at(0).toElement();
+        QDomElement programElement = list.at(0).toElement();
         // read Program name and args
-        programIn = program.attribute( "Name" );
-        list = program.elementsByTagName("Arguments");
+        program = programElement.attribute( "Name" );
+        list = programElement.elementsByTagName("Arguments");
         if (list.count() > 0){
-            programArgumentsIn = list.at(0).toElement().text().split(" ");
+            programArguments = list.at(0).toElement().text().split(" ");
         }
     }
 
-    // read macroSubstitutionsIn
-    list = itemElement.elementsByTagName("macroSubstitutions" );
+    // read macro substitutions
+    list = itemElement.elementsByTagName("MacroSubstitutions" );
     if (list.count() > 0){
-        macroSubstitutionsIn = list.at(0).toElement().text();
-    }
-    // read configNameIn
-    list = itemElement.elementsByTagName("config" );
-    if (list.count() > 0){
-        configNameIn = list.at(0).toElement().text();
+        macroSubstitutions = list.at(0).toElement().text();
     }
 
-    // create a menu item and add it to config
-    windowConfigButtonItem* item = new windowConfigButtonItem(buttonGroupIn, buttonTextIn, buttonIconIn, uiFileIn, programIn,
-                                                          programArgumentsIn, macroSubstitutionsIn, configNameIn);
+    // read customisation name
+    list = itemElement.elementsByTagName("CustomisationName" );
+    if (list.count() > 0){
+        customisationName = list.at(0).toElement().text();
+    }
+
+    // read creation option
+    list = itemElement.elementsByTagName("CreationOption" );
+    if (list.count() > 0)
+    {
+        creationOption = windowCustomisation::translateCreationOption( list.at(0).toElement().text() );
+    }
+
+    // create a menu item and add it to customisation set
+    windowCustomisationButtonItem* item = new windowCustomisationButtonItem(buttonGroup, buttonText, buttonIcon, NULL/*!!! needs launch receiver object*/, uiFile, program,
+                                                          programArguments, macroSubstitutions, creationOption, customisationName);
     return item;
 }
 
- windowConfig* windowConfigList::getConfig(QString name){
-     windowConfig* config = 0;
-     for (int i = 0; i < configList.length(); i++){
-         if (configList.at(i)->getName() == name){
-            config = configList.at(i);
+ windowCustomisation* windowCustomisationList::getCustomisation(QString name){
+     windowCustomisation* customisation = 0;
+     for (int i = 0; i < customisationList.length(); i++){
+         if (customisationList.at(i)->getName() == name){
+            customisation = customisationList.at(i);
             break;
          }
      }
-     return config;
+     return customisation;
  }
 
- void windowConfigList::addIncludeConfig(windowConfig* config, windowConfig* include){
-     QList<windowConfigMenuItem*> menuItems = include->getMenuItems();
-     QList<windowConfigButtonItem*> buttons = include->getButtons();
+ void windowCustomisationList::addIncludeCustomisation(windowCustomisation* customisation, windowCustomisation* include){
+     QList<windowCustomisationMenuItem*> menuItems = include->getMenuItems();
+     QList<windowCustomisationButtonItem*> buttons = include->getButtons();
      // add menu items
      for (int i = 0; i < menuItems.length(); i++){
-         config->addItem(menuItems.at(i));
+         customisation->addItem(menuItems.at(i));
      }
      // add button items
      for (int i = 0; i < buttons.length(); i++){
-         config->addItem(buttons.at(i));
+         customisation->addItem(buttons.at(i));
      }
 }
 
-// Add the named configuration to a main window.
-// Return true if named configuration found and loaded.
-bool windowConfigList::applyConfig( QMainWindow* mw, QString configName )
+// Add the named customisation to a main window.
+// Return true if named customisation found and loaded.
+bool windowCustomisationList::applyCustomisation( QMainWindow* mw, QString customisationName )
 {
 
-    qDebug() << "windowConfigList::applyConfig()" << mw << configName;
-    windowConfig* config = getConfig(configName);
-    if (!config)
+    qDebug() << "windowCustomisationList::applyCustomisation()" << mw << customisationName;
+    windowCustomisation* customisation = getCustomisation(customisationName);
+    if (!customisation)
         return false;
 
     QToolBar* mainToolBar = new QToolBar(mw);
     mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
     mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
-    QList<windowConfigButtonItem*> bList = config->getButtons();
+    QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
     for ( int i = 0; i < bList.length(); i++ ){
-        windowConfigButtonItem* item = bList.at(i);
+        windowCustomisationButtonItem* item = bList.at(i);
 //        QAction* action = new QAction(item->getButtonText(), mw);
         mainToolBar->addAction(item);
 //        mainToolBar->addAction(action);
@@ -421,10 +473,10 @@ bool windowConfigList::applyConfig( QMainWindow* mw, QString configName )
     QMenuBar* menuBar = mw->menuBar();
     QMap<QString, QMenu*> menuCreated;
 
-    QList<windowConfigMenuItem*> mList = config->getMenuItems();
+    QList<windowCustomisationMenuItem*> mList = customisation->getMenuItems();
 
     for (int i = 0; i < mList.length(); i++){
-        windowConfigMenuItem* menuItem = mList.at(i);
+        windowCustomisationMenuItem* menuItem = mList.at(i);
         QMenu* menuPoint = 0;
         QStringList menuHierarchy = menuItem->getMenuHierarchy();
         QString extendedMenuName;
@@ -453,9 +505,9 @@ bool windowConfigList::applyConfig( QMainWindow* mw, QString configName )
     //        menuPoint->addAction(action);
             menuPoint->addAction(menuItem);
     }
-    //!!! Extend the QMainWindow menu bar and tool bar with the named configuration
+    //!!! Extend the QMainWindow menu bar and tool bar with the named customisation
     //!!! Add required menus, menu items, button groups and buttons
-    //!!! Use the windowConfigItem as the QAction to use for each menu item and button
+    //!!! Use the windowCustomisationItem as the QAction to use for each menu item and button
 
     return true;
 }
