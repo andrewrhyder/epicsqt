@@ -238,7 +238,7 @@ private:
 // Class managing all customisation sets
 // Only instance of this class is instantiated (unless groups of customisation sets are required)
 // Multiple .xml files may be loaded, each defining one or more named customisations.
-class windowCustomisationList
+class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationList
 {
 public:
     windowCustomisationList();
