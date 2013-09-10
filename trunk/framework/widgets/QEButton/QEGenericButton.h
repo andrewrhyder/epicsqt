@@ -118,6 +118,10 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     void setPrioritySubstitutions( QString prioritySubstitutionsIn );
     QString getPrioritySubstitutions();
 
+    // Window customisation name
+    void setCustomisationName( QString customisationNameIn );
+    QString getCustomisationName();
+
     // Qt Designer Properties Creation options
     void setCreationOption( QEGuiLaunchRequests::Options creationOption );
     QEGuiLaunchRequests::Options getCreationOption();
@@ -159,6 +163,7 @@ private:
     QString guiName;      // GUI file name to launch
     QEGuiLaunchRequests::Options creationOption;
     QString prioritySubstitutions;  // Macro substitutions that take precedence over existing substitutions when creating new guis
+    QString customisationName;      // Name of set of Window customisations such as additional menu items or tool bar push buttons
 
     bool localEnabled;
 

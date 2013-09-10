@@ -409,7 +409,7 @@ void QEGenericButton::userClicked( bool checked )
         addPriorityMacroSubstitutions( prioritySubstitutions );
 
         // Start the GUI
-        emitNewGui( QEGuiLaunchRequests( substituteThis( guiName ), ""/*no config yet*/, creationOption ) );
+        emitNewGui( QEGuiLaunchRequests( substituteThis( guiName ), customisationName, creationOption ) );
 
         // Remove this button's priority macro substitutions now all its children are created
         removePriorityMacroSubstitutions();
@@ -674,7 +674,7 @@ QEGuiLaunchRequests::Options QEGenericButton::getCreationOption()
 }
 
 
-// GUI name
+// Priority substitutions
 void QEGenericButton::setPrioritySubstitutions( QString prioritySubstitutionsIn )
 {
     prioritySubstitutions = prioritySubstitutionsIn;
@@ -682,6 +682,16 @@ void QEGenericButton::setPrioritySubstitutions( QString prioritySubstitutionsIn 
 QString QEGenericButton::getPrioritySubstitutions()
 {
     return prioritySubstitutions;
+}
+
+// Window customisation name
+void QEGenericButton::setCustomisationName( QString customisationNameIn )
+{
+    customisationName = customisationNameIn;
+}
+QString QEGenericButton::getCustomisationName()
+{
+    return customisationName;
 }
 
 //==============================================================================

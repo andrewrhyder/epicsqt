@@ -27,12 +27,13 @@
 #include <QEGui.h>
 #include <QDebug>
 
-recentFile::recentFile( QString nameIn, QString pathIn, QStringList pathListIn, QString macroSubstitutionsIn, QEGui* appIn ) : QAction( nameIn, appIn )
+recentFile::recentFile( QString nameIn, QString pathIn, QStringList pathListIn, QString macroSubstitutionsIn, QString customisationNameIn, QEGui* appIn ) : QAction( nameIn, appIn )
 {
     name = nameIn;
     path = pathIn;
     pathList = pathListIn;
     macroSubstitutions = macroSubstitutionsIn;
+    customisationName = customisationNameIn;
     app = appIn;
     QObject::connect( this, SIGNAL( triggered( bool ) ), this, SLOT( recentSelected( bool ) ) );
 }
@@ -40,5 +41,5 @@ recentFile::recentFile( QString nameIn, QString pathIn, QStringList pathListIn, 
 void recentFile::recentSelected( bool )
 {
     // Open the file
-    app->launchRecentGui( path, pathList, macroSubstitutions );
+    app->launchRecentGui( path, pathList, macroSubstitutions, customisationName );
 }

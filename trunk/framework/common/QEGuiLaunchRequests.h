@@ -75,11 +75,13 @@ public:
    void setOption (const Options optionIn);
    Options getOption () const;
 
+   QString getCustomisation() const;
+
 private:
    Kinds kind;
    QStringList arguments;
    Options option;
-   QString config;  // Window configuration (menus, buttons, etc)
+   QString customisation;  // Window configuration (menus, buttons, etc)
 };
 
 Q_DECLARE_METATYPE (QEGuiLaunchRequests)

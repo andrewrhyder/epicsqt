@@ -32,6 +32,8 @@
 #include <MainWindow.h>
 #include <loginDialog.h>
 #include <recentFile.h>
+#include <menuConfig.h>
+
 
 // Class used to hold information about a GUI in the application's list of GUIs
 class guiListItem
@@ -43,12 +45,14 @@ public:
     void        setScroll( QPoint scrollIn ){ scroll = scrollIn; }      // Set the scroll position of the GUI (saved during configuration restore)
     QPoint      getScroll(){ return scroll; }                           // Get the scroll position of the GUI (used immedietly after a restore has completed)
     QAction*    getAction(){ return action; }
+    QString     getCustomisationName(){ return customisationName; }     // Get the window customisations name
 
 private:
-    QEForm* form;               // QEForm implementing the GUI
-    MainWindow* mainWindow;     // Main window the GUI is in
-    QPoint scroll;              // Scroll position of the GUI (used to hold the scroll position during a configuration restore)
-    QAction*    action;                                                 // Action to add to window menus
+    QEForm*     form;                  // QEForm implementing the GUI
+    MainWindow* mainWindow;            // Main window the GUI is in
+    QPoint      scroll;                // Scroll position of the GUI (used to hold the scroll position during a configuration restore)
+    QAction*    action;                // Action to add to window menus
+    QString     customisationName;     // Name of window customisations (menus, tool bar buttons)
 };
 
 // Class representing the QEGui application
@@ -75,7 +79,7 @@ public:
     MainWindow* getGuiMainWindow( int i );                  // Get the main window for a GUI given an index into the application's list of GUIs
     QPoint      getGuiScroll( int i );                      // Get the scroll information for a GUI given an index into the application's list of GUIs
     void        setGuiScroll( int i, QPoint scroll );       // Set the scroll information for a GUI given an index into the application's list of GUIs
-    void        addGui( QEForm* gui, MainWindow* window );  // Add a GUI to the application's list of GUIs
+    void        addGui( QEForm* gui, QString customisationName, MainWindow* window );  // Add a GUI to the application's list of GUIs
 
     void        identifyWindowsAndForms();                  // Ensure all main windows and QEForms managed by this application (top level forms) have a unique identifier
 
@@ -84,8 +88,12 @@ public:
     const QList<recentFile*>&  getRecentFiles();            // Return list of recently added files
 
     void        removeGuiFromWindowsMenus( QEForm* gui );
+    QString     getGuiCustomisationName( QEForm* gui );
+    QString     getGuiCustomisationName( int i );
 
-    void        launchRecentGui( QString path, QStringList pathList, QString macroSubstitutions );
+    void        launchRecentGui( QString path, QStringList pathList, QString macroSubstitutions, QString customisationName );
+
+    void        applyCustomisations(  QMainWindow* mw, QString customisationName ){ winCustomisations.applyCustomisation( mw, customisationName ); }
 
 private:
     void printVersion ();                           // Print the version info
@@ -100,6 +108,9 @@ private:
     QList<recentFile*> recentFiles;                 // List of recently opened files
 
     loginDialog* loginForm;                         // Dialog to use when changing user level. Keep one instance to maintain logout history
+
+    windowCustomisationList winCustomisations;             // List of window customisations
+
 };
 
 #endif // QEGUI_H

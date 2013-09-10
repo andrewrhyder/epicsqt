@@ -58,6 +58,8 @@ class startupParams
     QStringList filenameList;                       // Default gui file names
     QStringList pathList;                           // Default gui file path
     QString substitutions;                          // Substitutions. For example, "SECTOR=01,PUMP=03"
+    QString customisationFile;                      // Window customisations file (containing named customisations of menu items and buttons)
+    QString customisationName;                      // Default window customisation name (name of customisation in windowCustomisationFile)
 };
 
 
