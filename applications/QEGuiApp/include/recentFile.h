@@ -56,11 +56,12 @@ class recentFile : public QAction
 {
     Q_OBJECT
 public:
-    recentFile( QString nameIn, QString pathIn, QStringList pathListIn, QString macroSubstitutionsIn, QEGui* appIn );
+    recentFile( QString nameIn, QString pathIn, QStringList pathListIn, QString macroSubstitutionsIn, QString customisationNameIn, QEGui* appIn );
     QString name;               // GUI title
     QString path;               // Full GUI file name
     QStringList pathList;       // Paths for locating other files
     QString macroSubstitutions; // Macro Substitutions
+    QString customisationName;  // Window customisations
 
     QEGui* app;                 // Reference to main application
 

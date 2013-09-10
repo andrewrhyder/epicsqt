@@ -39,7 +39,6 @@
 #include <restoreDialog.h>
 #include <PasswordDialog.h>
 #include <QEGui.h>
-#include <menuConfig.h>
 
 // Before Qt 4.8, the command to start designer is 'designer'.
 // Qt 4.8 later uses the command 'designer-qt4'
@@ -55,7 +54,7 @@ Q_DECLARE_METATYPE( QEForm* )
 
 // Constructor
 // A profile should have been defined before calling this constructor
-MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidget *parent )  : QMainWindow( parent )
+MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationName, bool openDialog, QWidget *parent )  : QMainWindow( parent )
 {
     app = appIn;
 
@@ -130,7 +129,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidge
     // If a filename was supplied, load it
     else
     {
-        QEForm* gui = createGui( fileName ); // A profile should have been published before calling this constructor.
+        QEForm* gui = createGui( fileName, customisationName ); // A profile should have been published before calling this constructor.
         loadGuiIntoCurrentWindow( gui, true );
     }
 
@@ -171,7 +170,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNew_Window_triggered()
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, "", true );
+    MainWindow* w = new MainWindow( app, "", "", true );
     profile.releaseProfile();
     w->show();
 }
@@ -186,7 +185,7 @@ void MainWindow::on_actionNew_Tab_triggered()
 
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName );
     profile.releaseProfile();
     loadGuiIntoNewTab( gui );
 }
@@ -197,7 +196,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName );
     profile.releaseProfile();
     loadGuiIntoCurrentWindow( gui, true );
 }
@@ -334,7 +333,7 @@ void MainWindow::on_actionExit_triggered()
 MainWindow* MainWindow::launchLocalGui( const QString& filename )
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, filename, true );
+    MainWindow* w = new MainWindow( app, filename, app->getParams()->customisationName, true );
     profile.releaseProfile();
     w->show();
     return w;
@@ -509,8 +508,14 @@ void MainWindow::on_actionAbout_triggered()
         case userLevelTypes::USERLEVEL_ENGINEER:  about.append( "Engineer" );  break;
     }
 
-    // Add the configuration file details
+    // Add the configuration details
     about.append( "\n\n\nConfiguration file:\n      " ).append( app->getParams()->configurationFile );
+    about.append( "\n\nConfiguration name:\n      " ).append( app->getParams()->configurationName );
+
+
+    // Add the window customisation details
+    about.append( "\n\n\nWindow customisation file:\n      " ).append( app->getParams()->customisationFile );
+    about.append( "\n\nDefault window customisation name:\n      " ).append( app->getParams()->customisationName );
 
     // Add the current forms
     about.append( "\n\n\nOpen GUI files:\n" );
@@ -601,7 +606,6 @@ void MainWindow::tabContextMenuRequest( const QPoint& posIn )
 void MainWindow::tabContextMenuTrigger( QAction* )
 {
     QTabWidget* tabs = getCentralTabs();
-    QString fileName;
 
     // Sanity checks ....
     if (!tabs  || !usingTabs) {
@@ -618,7 +622,10 @@ void MainWindow::tabContextMenuTrigger( QAction* )
     }
 
     // Extract and save the filename.
-    fileName = gui->getFullFileName ();
+    QString fileName = gui->getFullFileName ();
+
+    // Extract and save the window customisation name
+    QString customisationName = app->getGuiCustomisationName( gui );
 
     // Remove the gui from the 'windows' menus
     app->removeGuiFromWindowsMenus( gui );
@@ -632,7 +639,7 @@ void MainWindow::tabContextMenuTrigger( QAction* )
 
     // Use extracted filename to open the new window - we assume the file still exists.
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, fileName, false, NULL);
+    MainWindow* w = new MainWindow( app, fileName, customisationName, false, NULL);
     profile.releaseProfile();
     w->show();
 }
@@ -752,7 +759,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     if( guiFileName.size() )
     {
         profile.publishOwnProfile();
-        QEForm* newGui = createGui( guiPath );
+        QEForm* newGui = createGui( guiPath, "" ); // no configuration name so configurations remain unaltered
         loadGuiIntoCurrentWindow( newGui, true );
         profile.releaseProfile();
     }
@@ -953,7 +960,7 @@ void MainWindow::newMessage( QString msg, message_types type )
 //=================================================================================
 
 // Launching a new gui given a .ui filename
-void MainWindow::launchGui( QString guiName, QEGuiLaunchRequests::Options createOption )
+void MainWindow::launchGui( QString guiName, QString customisationName, QEGuiLaunchRequests::Options createOption )
 {
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
     ContainerProfile publishedProfile;
@@ -1067,7 +1074,7 @@ void MainWindow::launchGui( QString guiName, QEGuiLaunchRequests::Options create
         // Open the specified gui in the current window
         case QEGuiLaunchRequests::OptionOpen:
             {
-                QEForm* gui = createGui( guiName );  // Note, profile should have been published by signal code
+                QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
                 loadGuiIntoCurrentWindow( gui, true );
             }
             break;
@@ -1080,7 +1087,7 @@ void MainWindow::launchGui( QString guiName, QEGuiLaunchRequests::Options create
                     setTabMode();
 
                 // Create the gui and load it into a new tab
-                QEForm* gui = createGui( guiName );  // Note, profile should have been published by signal code
+                QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
                 loadGuiIntoNewTab( gui );
             }
             break;
@@ -1088,7 +1095,7 @@ void MainWindow::launchGui( QString guiName, QEGuiLaunchRequests::Options create
         // Open the specified gui in a new window
         case QEGuiLaunchRequests::OptionNewWindow:
             {
-                MainWindow* w = new MainWindow( app, guiName, true ); // Note, profile should have been published by signal code
+                MainWindow* w = new MainWindow( app, guiName, customisationName, true ); // Note, profile should have been published by signal code
                 w->show();
             }
             break;
@@ -1109,7 +1116,7 @@ void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
         // Launching a new gui given a .ui file name
         case QEGuiLaunchRequests::KindFileName:
             if (arguments.count() >= 1) {
-                launchGui ( arguments.first(), request.getOption() );
+                launchGui ( arguments.first(), request.getCustomisation(), request.getOption() );
             }
             break;
 
@@ -1242,12 +1249,12 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 // replacing a gui in a tab, replacing a single gui in the main window,
 // or creating a gui in a new main window.
 // A profile should have been published before calling this method.
-QEForm* MainWindow::createGui( QString fileName )
+QEForm* MainWindow::createGui( QString fileName, QString customisationName )
 {
-    return createGui( fileName, QString() );
+    return createGui( fileName, customisationName, QString() );
 }
 
-QEForm* MainWindow::createGui( QString fileName, QString restoreId )
+QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId )
 {
     // Don't do anything if no filename was supplied
     if (fileName.isEmpty())
@@ -1300,6 +1307,10 @@ QEForm* MainWindow::createGui( QString fileName, QString restoreId )
         //
         QEScaling::applyToWidget( gui );
 
+        // Load any required window customisation
+        app->applyCustomisations( this, customisationName );
+
+        // Save the version of the QE framework used by the ui loader. (can be different to the one this application is linked against)
         UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
 
         // If a profile was defined in this method, release it now.
@@ -1309,7 +1320,7 @@ QEForm* MainWindow::createGui( QString fileName, QString restoreId )
         }
 
         // Add the new gui to the list of windows
-        app->addGui( gui, this );
+        app->addGui( gui, customisationName, this );
     }
     // Return the created gui if any
     return gui;
@@ -1625,7 +1636,14 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                         QString macroSubs = profile.getMacroSubstitutions();
                         if( !macroSubs.isEmpty() )
                         {
-                            form.addValue( "MacroSubstitutions", profile.getMacroSubstitutions() );
+                            form.addValue( "MacroSubstitutions", macroSubs );
+                        }
+
+                        // Window customisations, if any
+                        QString customisationName = app->getGuiCustomisationName( i );
+                        if( !customisationName.isEmpty() )
+                        {
+                            form.addValue( "CustomisationName", customisationName );
                         }
 
                         // Path list, if any
@@ -1747,7 +1765,11 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                         {
                             QString restoreId;
                             guiElement.getAttribute( "ID", restoreId );
-                            QEForm* gui = createGui( name, restoreId );
+
+                            QString customisationName;
+                            guiElement.getValue( "CustomisationName", customisationName );
+
+                            QEForm* gui = createGui( name, customisationName, restoreId );
                             if( i == 0)
                             {
                                 // Load the gui into the main window

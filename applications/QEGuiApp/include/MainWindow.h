@@ -48,7 +48,7 @@ class MainWindow : public QMainWindow, public UserMessage
     Q_OBJECT
 
 public:
-    MainWindow( QEGui* appIn, QString fileName, bool openDialog, QWidget *parent = 0 );
+    MainWindow( QEGui* appIn, QString fileName, QString customisationName, bool openDialog, QWidget *parent = 0 );
 
     ~MainWindow();
 
@@ -66,8 +66,8 @@ private:
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
-    QEForm* createGui( QString filename );                  // Create a gui
-    QEForm* createGui( QString fileName, QString restoreId ); // Create a gui with an ID (required for a restore)
+    QEForm* createGui( QString filename, QString customisationName );                  // Create a gui
+    QEForm* createGui( QString fileName, QString customisationName, QString restoreId ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
     MainWindow* launchLocalGui( const QString& filename );  // Launch a new gui from the 'File' menu and gui launch requests.
@@ -121,7 +121,7 @@ private:
     QMenu *tabMenu;    // We want to keep a refernece to certain widget objects. Declaring these directly in the
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
-    void launchGui( QString guiName, QEGuiLaunchRequests::Options creationOption );  // Launch a new GUI given a .ui file name
+    void launchGui( QString guiName, QString customisationName, QEGuiLaunchRequests::Options creationOption );  // Launch a new GUI given a .ui file name
 
 private slots:
     void on_actionManage_Configurations_triggered();
