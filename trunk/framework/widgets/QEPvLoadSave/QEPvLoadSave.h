@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) Australian Synchrotron 2013
  *
  *  Author:
  *    Andrew Starritt
@@ -163,8 +163,10 @@ private:
       void setConfigurationSubstitutions (const QString& substitutions);
       QString getConfigurationSubstitutions ();
 
-      void setTop (QEPvLoadSaveItem* topItem, const QString& heading);
+      void setRoot (QEPvLoadSaveItem* rootItem, const QString& heading);
       void open (const QString& configurationFile);
+
+      QEPvLoadSaveItem* itemAtPos (const QPoint &point) const;
 
       QFrame* container;
       QVBoxLayout* halfLayout;
@@ -210,8 +212,7 @@ private:
    // Use the objectSide object to determine which side sent the signal.
    //
    Sides objectSide (QObject* obj);
-   QTreeView* treeAssociatedWith (QObject* obj);
-   QEPvLoadSaveModel* modelAssociatedWith (QObject* obj);
+   Halves* halfAssociatedWith (QObject* obj);
 
    // Utility function to create and set up an action.
    //

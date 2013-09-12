@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) Australian Synchrotron 2013
  *
  *  Author:
  *    Andrew Starritt
@@ -37,19 +37,62 @@
 class QEPvLoadSave;
 class QEPvLoadSaveItem;
 
-// This class is an almost direct crib of example specified in:
-// http://qt-project.org/doc/qt-4.8/itemviews-simpletreemodel.html
-//
+/// This class is based on the TreeModel example specified in:
+/// http://qt-project.org/doc/qt-4.8/itemviews-editabletreemodel.html
+///
+///  Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+///  Contact: http://www.qt-project.org/legal
+///
+/// Note on naming: the example's root item that provide header info
+/// is refered to the core item. It only ever has one child which is the
+/// visible (on the QTreeView) root item, named "ROOT".
+///
+/// Note: we only re-size the number of rows (children). The
+/// number of columns is fixed.
+///
 class QEPvLoadSaveModel : public QAbstractItemModel {
-
 Q_OBJECT
-
 public:
-   explicit QEPvLoadSaveModel (QEPvLoadSave* parent);
+   explicit QEPvLoadSaveModel (QEPvLoadSave* parent = 0);
    virtual ~QEPvLoadSaveModel ();
 
-   void setupModelData (QEPvLoadSaveItem* topItem, const QString& heading);
+   // Override (pure abstract) virtual functions.
+   //
+   QVariant data       (const QModelIndex& index, int role) const;
+   QVariant headerData (int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const;
+
+   QModelIndex index   (int row, int column,
+                        const QModelIndex& parent = QModelIndex()) const;
+   QModelIndex parent  (const QModelIndex& child) const;
+
+   int rowCount        (const QModelIndex& parent = QModelIndex()) const;
+   int columnCount     (const QModelIndex& parent = QModelIndex()) const;
+
+   // Read-only tree models only need to provide the above functions.
+   // The following public functions provide support for editing and resizing.
+   //
+   Qt::ItemFlags flags (const QModelIndex &index) const;
+
+   bool setData  (const QModelIndex &index, const QVariant &value,
+                  int role = Qt::EditRole);
+   bool setHeaderData  (int section, Qt::Orientation orientation,
+                        const QVariant &value, int role = Qt::EditRole);
+   bool insertRows     (int position, int rows,
+                        const QModelIndex& parent = QModelIndex());
+   bool removeRows     (int position, int rows,
+                        const QModelIndex& parent = QModelIndex());
+
+   // We do not override insertColumns/removeColumns - this is fixed
+
+   //----------------------------------------------------------------------------------
+   // Own functions, i.e. not from the example.
+   //
+   void setupModelData (QEPvLoadSaveItem* rootItem, const QString& heading);
    void modelUpdated ();
+
+   bool addItemToModel (QEPvLoadSaveItem* item, QEPvLoadSaveItem* parentItem);
+   bool removeItemFromModel (QEPvLoadSaveItem* item);
 
    // Request each item to perform read, write or access archive.
    //
@@ -57,25 +100,12 @@ public:
    void applyPVData ();
    void readArchiveData (const QCaDateTime& dateTime);
    int leafCount ();
+   QEPvLoadSaveItem* getRootItem ();
 
-
-   // Override (pure abstract) virtual functions.
-   //
-   QVariant data       (const QModelIndex &index, int role = Qt::DisplayRole) const;
-   Qt::ItemFlags flags (const QModelIndex &index) const;
-   QVariant headerData (int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
-   QModelIndex index   (int row, int column,
-                        const QModelIndex &parent = QModelIndex()) const;
-   QModelIndex parent  (const QModelIndex &child) const;
-   int rowCount        (const QModelIndex &parent = QModelIndex()) const;
-   int columnCount     (const QModelIndex &parent = QModelIndex()) const;
-
-
-   QModelIndex getRootIndex () { return this->rootIndex; }
-   QEPvLoadSaveItem* getTopItem () { return this->topItem; }
+   QModelIndex getRootIndex ()      { return this->index (0, 0, this->getCoreIndex ()); }
 
    // If index is invalid, then returns null.
+   // This is like getItem but for external use.
    //
    QEPvLoadSaveItem* indexToItem (const QModelIndex& index) const;
 
@@ -83,20 +113,24 @@ signals:
    void reportActionComplete (QEPvLoadSaveCommon::ActionKinds, bool);
 
 private:
-   // Like indexToItem but returns rootItem if index is invalid.
+   // The model index associated with the core item is an invalid index.
+   // (as per the URL ref).
+   //
+   QModelIndex getCoreIndex ()      { return QModelIndex (); }
+
+   // Like indexToItem but returns coreItem if index is invalid.
    //
    QEPvLoadSaveItem* getItem (const QModelIndex &index) const;
 
-   QModelIndex rootIndex;       // is an invlaid index
-   QEPvLoadSaveItem *rootItem;  // the tree view root - must exist - provides headings
-   QEPvLoadSaveItem *topItem;   // top (or data root) item, could be null but unlikely.
-                                // (we could get first child index of rootIndex and then extract item)
-   QString heading;
+   QModelIndex getIndex (const QEPvLoadSaveItem* item);
 
-   void setModelIndex (QEPvLoadSaveItem* item, int row, const QModelIndex &parentIndex);
+   QEPvLoadSaveItem *coreItem;  // the tree view root (as opposed to user root) - must exist - provides headings
+   QString heading;             // heading text.
+
+   QEPvLoadSaveItem *requestedInsertItem;   //
 
 private slots:
-   void acceptActionComplete (const QModelIndex&, QEPvLoadSaveCommon::ActionKinds, bool);
+   void acceptActionComplete (const QEPvLoadSaveItem*, QEPvLoadSaveCommon::ActionKinds, bool);
 };
 
 #endif   // QEPVLOADSAVEMODEL_H

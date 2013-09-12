@@ -39,14 +39,14 @@ QEPvLoadSaveModel::QEPvLoadSaveModel (QEPvLoadSave* parent) : QAbstractItemModel
 {
    // Save calling parameter
    //
-   this->topItem = NULL;
+   this->requestedInsertItem = NULL;
 
-   // The root item is a QTreeView/QAbstractItemModel artefact
+   // The core item is a QTreeView/QAbstractItemModel artefact
    // Note this item does not/must not have a parent.
    // It is a place holder - not visible per se.
-   // Note to be confused withe the user ROOT, aka topItem.
+   // Note to be confused withe the user ROOT item.
    //
-   this->rootItem = new QEPvLoadSaveItem ("Origin", false, QVariant (QVariant::Invalid), NULL);
+   this->coreItem = new QEPvLoadSaveItem ("Core", false, QVariant (QVariant::Invalid), NULL);
    this->heading = "";
 }
 
@@ -54,36 +54,29 @@ QEPvLoadSaveModel::QEPvLoadSaveModel (QEPvLoadSave* parent) : QAbstractItemModel
 //
 QEPvLoadSaveModel::~QEPvLoadSaveModel ()
 {
-   if (this->rootItem) delete this->rootItem;
+   if (this->coreItem) delete this->coreItem;
 }
 
 //-----------------------------------------------------------------------------
 //
-void QEPvLoadSaveModel::setupModelData (QEPvLoadSaveItem* topItemIn, const QString& headingIn)
+void QEPvLoadSaveModel::setupModelData (QEPvLoadSaveItem* rootItem, const QString& headingIn)
 {
-   // Delete rootItem (which deletes any existing children) and then re-construct
-   // the root - all easier than purging any children.
+   // Removed exisiting user root item (not model core item).
    //
-   if (this->rootItem) {
-      delete this->rootItem;
-      this->rootItem = NULL;
+   QEPvLoadSaveItem* oldRootItem = this->getRootItem ();
+   if (oldRootItem) {
+      this->removeItemFromModel (oldRootItem);
+      oldRootItem = NULL;
       this->heading = "";
    }
-   this->rootItem = new QEPvLoadSaveItem ("Origin", false, QVariant (QVariant::Invalid), NULL);
 
-   this->topItem = topItemIn;
-   if (this->topItem) {
-      this->rootItem->appendChild (this->topItem);
+   if (rootItem) {
       this->heading = headingIn;
+      this->addItemToModel (rootItem, this->coreItem);
 
-      // topItem calls this resursively down the QEPvLoadSaveItem tree.
+      // rootItem calls this resursively down the QEPvLoadSaveItem tree.
       //
-      this->topItem->actionConnect (this, SLOT (acceptActionComplete (const QModelIndex&, QEPvLoadSaveCommon::ActionKinds, bool)));
-
-      // The model calls this resursively down the index tree.
-      //
-      this->setModelIndex (this->topItem, 0, this->rootIndex);
-
+      rootItem->actionConnect (this, SLOT (acceptActionComplete (const QEPvLoadSaveItem*, QEPvLoadSaveCommon::ActionKinds, bool)));
       this->modelUpdated ();
    }
 }
@@ -97,69 +90,100 @@ void QEPvLoadSaveModel::modelUpdated ()
 
 //-----------------------------------------------------------------------------
 //
-void QEPvLoadSaveModel::setModelIndex (QEPvLoadSaveItem* item, int row, const QModelIndex &parentIndex)
+bool QEPvLoadSaveModel::addItemToModel (QEPvLoadSaveItem* item, QEPvLoadSaveItem* parentItem)
 {
-   QModelIndex ownIndex;
-   int childRow;
-   QEPvLoadSaveItem* child;
+   bool result = false;
 
-   if (!item) {
-      return;   // avoid any chance of a segmentation fault.
-   }
-
-   // Use createIndex directly (as opposed to index)???
+   // sanity checks: item must exist and specified parent.
    //
-   ownIndex = this->index (row, 0, parentIndex);
-   item->setModelIndex (ownIndex);
+   if (item && parentItem) {
+      QModelIndex parentIndex= this->getIndex (parentItem);
+      int number = parentItem->childCount ();
 
-   // Now do chidren.
-   //
-   for (childRow = 0; childRow < item->childCount (); childRow++) {
-       child = item->child (childRow);
-       // Note: this is a recursive function call.
-       this->setModelIndex (child, childRow, ownIndex);
+      // Save reference item - we use this in insertRows.
+      //
+      this->requestedInsertItem = item;
+
+      // We always append items.
+      //
+      result = this->insertRow (number, parentIndex);
+
+      this->requestedInsertItem = NULL;   // remove dangling reference.
+
    }
+   return result;
+}
+
+//-----------------------------------------------------------------------------
+//
+bool QEPvLoadSaveModel::removeItemFromModel (QEPvLoadSaveItem* item)
+{
+   bool result = false;
+
+   // sanity checks: item must exist and specified parent.
+   //
+   if (item) {
+      QEPvLoadSaveItem* parentItem = item->getParent ();
+
+      if (parentItem) {
+         QModelIndex pi = this->getIndex (parentItem);
+         int row = item->childPosition ();
+
+         if (row >= 0) {
+            result = this->removeRow (row, pi);
+         } else {
+            DEBUG << "fail  row" << row;
+         }
+      } else {
+         DEBUG << "fail  no parent";
+      }
+   }
+   return result;
 }
 
 //-----------------------------------------------------------------------------
 //
 void QEPvLoadSaveModel::extractPVData ()
 {
-   if (this->topItem) this->topItem->extractPVData ();
+   // core always exists, and it will find root if it exists.
+   //
+   this->coreItem->extractPVData ();
 }
 
 //-----------------------------------------------------------------------------
 //
 void QEPvLoadSaveModel::applyPVData ()
 {
-   if (this->topItem) this->topItem->applyPVData ();
+   this->coreItem->applyPVData ();
 }
 
 //-----------------------------------------------------------------------------
 //
 void QEPvLoadSaveModel::readArchiveData (const QCaDateTime& dateTime)
 {
-   if (this->topItem) this->topItem->readArchiveData (dateTime);
+   this->coreItem->readArchiveData (dateTime);
 }
 
 //-----------------------------------------------------------------------------
 //
 int QEPvLoadSaveModel::leafCount ()
 {
-   int result;
-   if (this->topItem) {
-      result = this->topItem->leafCount ();
-   } else {
-      result = 0;
-   }
-
-   return result;
+   return this->coreItem->leafCount ();
 }
 
 //-----------------------------------------------------------------------------
 //
-void QEPvLoadSaveModel::acceptActionComplete (const QModelIndex& index, QEPvLoadSaveCommon::ActionKinds action, bool actionSuccessful)
+QEPvLoadSaveItem* QEPvLoadSaveModel::getRootItem ()
 {
+   return this->coreItem->getChild (0);
+}
+
+//-----------------------------------------------------------------------------
+//
+void QEPvLoadSaveModel::acceptActionComplete (const QEPvLoadSaveItem* item, QEPvLoadSaveCommon::ActionKinds action, bool actionSuccessful)
+{
+   QModelIndex index = this->getIndex (item);
+
    switch (action) {
       case QEPvLoadSaveCommon::Extract:
       case QEPvLoadSaveCommon::ReadArchive:
@@ -174,7 +198,9 @@ void QEPvLoadSaveModel::acceptActionComplete (const QModelIndex& index, QEPvLoad
    emit this->reportActionComplete (action, actionSuccessful);
 }
 
-//-----------------------------------------------------------------------------
+//=============================================================================
+// Overriden model functions
+//=============================================================================
 //
 QVariant QEPvLoadSaveModel::data (const QModelIndex& index, int role) const
 {
@@ -182,7 +208,7 @@ QVariant QEPvLoadSaveModel::data (const QModelIndex& index, int role) const
       return QVariant ();
    }
 
-   if (role != Qt::DisplayRole) {
+   if (role != Qt::DisplayRole && role != Qt::EditRole) {
       return QVariant ();
    }
 
@@ -193,12 +219,21 @@ QVariant QEPvLoadSaveModel::data (const QModelIndex& index, int role) const
 
 //-----------------------------------------------------------------------------
 //
+bool QEPvLoadSaveModel::setData (const QModelIndex&, const QVariant&, int)
+{
+   DEBUG << " ==========  UNEXPECTED  ===========";
+   return false;
+}
+
+
+//-----------------------------------------------------------------------------
+//
 Qt::ItemFlags QEPvLoadSaveModel::flags (const QModelIndex & index) const
 {
    if (!index.isValid ()) {
       return 0;
    } else {
-      return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+      return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
    }
 }
 
@@ -218,14 +253,23 @@ QVariant QEPvLoadSaveModel::headerData (int section, Qt::Orientation orientation
 
 //-----------------------------------------------------------------------------
 //
+
+bool QEPvLoadSaveModel::setHeaderData (int, Qt::Orientation, const QVariant&, int)
+{
+   DEBUG << " ==========  UNEXPECTED  ===========";
+   return false;
+}
+
+//-----------------------------------------------------------------------------
+//
 QModelIndex QEPvLoadSaveModel::index (int row, int column, const QModelIndex& parent) const
 {
-   if (!this->hasIndex (row, column, parent)) {
-      return QModelIndex ();
+   if (parent.isValid() && parent.column() != 0) {
+        return QModelIndex();
    }
 
    QEPvLoadSaveItem *parentItem = this->getItem (parent);
-   QEPvLoadSaveItem *childItem = parentItem->child (row);
+   QEPvLoadSaveItem *childItem = parentItem->getChild (row);
 
    if (childItem) {
       return this->createIndex (row, column, childItem);
@@ -243,34 +287,78 @@ QModelIndex QEPvLoadSaveModel::parent (const QModelIndex & child) const
    }
 
    QEPvLoadSaveItem *childItem = this->getItem (child);
+   if (!childItem) {
+      DEBUG << "null childItem " << child;
+   }
    QEPvLoadSaveItem *parentItem = childItem->getParent ();
 
-   if (parentItem == this->rootItem) {
+   if (parentItem == this->coreItem) {
       return QModelIndex ();
    }
 
-   int row = parentItem->row ();
-   return this->createIndex (row, 0, parentItem);
+   if (parentItem) {
+      int row = parentItem->childPosition ();
+      if (row >= 0) {
+         return this->createIndex (row, 0, parentItem);
+      }
+   }
+
+   DEBUG << " ========== UNEXPECTED ===========";
+   return QModelIndex ();
 }
 
 //-----------------------------------------------------------------------------
 //
 int QEPvLoadSaveModel::rowCount (const QModelIndex & parent) const
 {
-   if (parent.column () > 0) {
-      return 0;
-   }
-   return this->getItem (parent)->childCount ();
+   QEPvLoadSaveItem* parentItem = this->getItem (parent);
+
+   if (parentItem) return  parentItem->childCount();
+
+   DEBUG << "========== no parent";
+   return 0;
 }
 
 //-----------------------------------------------------------------------------
 //
-int QEPvLoadSaveModel::columnCount (const QModelIndex & parent) const
+int QEPvLoadSaveModel::columnCount (const QModelIndex& /* parent */ ) const
 {
-   return this->getItem (parent)->columnCount ();
+   return this->coreItem->columnCount ();
 }
 
 //-----------------------------------------------------------------------------
+//
+bool QEPvLoadSaveModel::insertRows (int position, int rows, const QModelIndex& parent)
+{
+   QEPvLoadSaveItem *parentItem = this->getItem (parent);
+   bool success = false;
+
+   // insertRows - ensure we can deal with this request.
+   //
+   if (this->requestedInsertItem && rows == 1) {
+      this->beginInsertRows (parent, position, position);
+      success = parentItem->insertChild (position, this->requestedInsertItem);
+      this->endInsertRows ();
+   }
+   return success;
+}
+
+//-----------------------------------------------------------------------------
+//
+bool QEPvLoadSaveModel::removeRows (int position, int rows, const QModelIndex& parent)
+{
+   QEPvLoadSaveItem *parentItem = this->getItem (parent);
+   bool success = true;
+   int last = position + rows - 1;
+
+   this->beginRemoveRows (parent, position, last);
+   success = parentItem->removeChildren (position, rows);
+   this->endRemoveRows ();
+
+   return success;
+}
+
+//=============================================================================
 // Utility function to hide the nasty static cast and stuff.
 //
 QEPvLoadSaveItem* QEPvLoadSaveModel::indexToItem (const QModelIndex& index) const
@@ -288,13 +376,31 @@ QEPvLoadSaveItem* QEPvLoadSaveModel::indexToItem (const QModelIndex& index) cons
 //
 QEPvLoadSaveItem *QEPvLoadSaveModel::getItem (const QModelIndex &index) const
 {
-   QEPvLoadSaveItem* result;
+   QEPvLoadSaveItem* result = this->coreItem;
 
-   if (index.isValid()) {
-      result = static_cast <QEPvLoadSaveItem *>(index.internalPointer ());
-   } else {
-      // invalid - must be the root item.
-      result = this->rootItem;
+   if (index.isValid ()) {
+       QEPvLoadSaveItem* temp;
+       temp = static_cast <QEPvLoadSaveItem *>(index.internalPointer ());
+      if (temp) result = temp;
+   }
+   // If not set then still the coreItem.
+   return result;
+}
+
+//-----------------------------------------------------------------------------
+//
+QModelIndex QEPvLoadSaveModel::getIndex (const QEPvLoadSaveItem* item)
+{
+   QModelIndex result;  // invalid by default (which is really getCoreIndex)
+
+   if (item == this->coreItem) {
+      result = this->getCoreIndex ();
+   } else
+   if (item) {
+      int row = item->childPosition ();
+      if (row >= 0) {
+         result = this->createIndex (row, 0, (QEPvLoadSaveItem*)item);
+      }
    }
    return result;
 }
