@@ -39,20 +39,17 @@
 QEPvLoadSaveItem::QEPvLoadSaveItem (const QString & nodeNameIn,
                                     const bool isPVIn,
                                     const QVariant& valueIn,
-                                    QEPvLoadSaveItem *parent) : QObject (parent)
+                                    QEPvLoadSaveItem *parentIn) : QObject (NULL)
 {
+   this->parentItem = parentIn;
    this->nodeName = nodeNameIn;
    this->isPV = isPVIn;
    this->value = valueIn;
 
-   this->index = QModelIndex ();
-
-   this->updateItemData ();
-
    // Add to parent's own/specific QEPvLoadSaveItem child list.
    //
-   if (parent) {
-      parent->appendChild (this);
+   if (this->parentItem) {
+      this->parentItem->appendChild (this);
    }
 
    this->isConnected = false;
@@ -67,7 +64,7 @@ QEPvLoadSaveItem::QEPvLoadSaveItem (const QString & nodeNameIn,
       //
       this->qca = new qcaobject::QCaObject (this->nodeName, this);
 
-      // QCaObject does not do this auotmatically. Maybe it should?.
+      // QCaObject does not do this automatically. Maybe it should?.
        //
       qca->setParent (this);
 
@@ -92,10 +89,113 @@ QEPvLoadSaveItem::QEPvLoadSaveItem (const QString & nodeNameIn,
 //
 QEPvLoadSaveItem::~QEPvLoadSaveItem ()
 {
-   // place holder
+   // Remove from parent's own/specific QEPvLoadSaveItem child list.
+   //
+   qDeleteAll (this->childItems);
+}
+
+
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveItem *QEPvLoadSaveItem::getChild (int position)
+{
+   return this->childItems.value (position, NULL);
 }
 
 //-----------------------------------------------------------------------------
+//
+QEPvLoadSaveItem * QEPvLoadSaveItem::getParent () const
+{
+   return this->parentItem;
+}
+
+//-----------------------------------------------------------------------------
+//
+int QEPvLoadSaveItem::childCount () const
+{
+   return this->childItems.count ();
+}
+
+//-----------------------------------------------------------------------------
+//
+int QEPvLoadSaveItem::columnCount () const
+{
+   // Number rcols fixed at 1.
+   // Could split single "Name = Value" into pair ("Name, "Value")
+   return 1;
+}
+
+//-----------------------------------------------------------------------------
+//
+QVariant QEPvLoadSaveItem::getData (int column) const
+{
+   QVariant result;
+
+   if (column == 0) {
+      QString valueImage = this->nodeName;
+
+      if (this->isPV) {
+         valueImage.append (" = ");
+
+         if (this->value.type() == QVariant::List) {
+            QVariantList vl = this->value.toList ();
+            valueImage.append (QString (" << %1 element array >>").arg (vl.size ()));
+         } else {
+            valueImage.append (this->value.toString ());
+         }
+      }
+      result = valueImage;
+   }
+   return result;
+}
+
+//-----------------------------------------------------------------------------
+//
+int QEPvLoadSaveItem::childPosition () const
+{
+   if (this->parentItem) {
+      return this->parentItem->childItems.indexOf (const_cast<QEPvLoadSaveItem*>(this));
+   }
+   return 0;
+}
+
+//-----------------------------------------------------------------------------
+//
+bool QEPvLoadSaveItem::insertChild (int position, QEPvLoadSaveItem* child)
+{
+   if (position < 0 || position > this->childItems.size ()) {
+       return false;
+   }
+
+   if (!child) {
+      return false;
+   }
+
+   child->parentItem = this;
+   this->childItems.insert (position, child);
+
+   return true;
+}
+
+//-----------------------------------------------------------------------------
+//
+bool QEPvLoadSaveItem::removeChildren(int position, int count)
+{
+   if (position < 0 || position + count > childItems.size ()) {
+       return false;
+   }
+
+   for (int row = 0; row < count; ++row) {
+       delete childItems.takeAt (position);
+   }
+
+   return true;
+}
+
+
+//=============================================================================
+// Specific non-example functions.
+//=============================================================================
 //
 QEPvLoadSaveItem* QEPvLoadSaveItem::clone (QEPvLoadSaveItem* parent)
 {
@@ -107,7 +207,7 @@ QEPvLoadSaveItem* QEPvLoadSaveItem::clone (QEPvLoadSaveItem* parent)
        // Now clone each child.
       //
        for (int j = 0; j < this->childItems.count(); j++) {
-           QEPvLoadSaveItem* theChild = this->child (j);
+           QEPvLoadSaveItem* theChild = this->getChild (j);
            QEPvLoadSaveItem* childClone;
            childClone = theChild->clone (result);
        }
@@ -118,26 +218,19 @@ QEPvLoadSaveItem* QEPvLoadSaveItem::clone (QEPvLoadSaveItem* parent)
 
 //-----------------------------------------------------------------------------
 //
-void QEPvLoadSaveItem::setModelIndex (const QModelIndex& indexIn)
-{
-   this->index = indexIn;
-}
-
-//-----------------------------------------------------------------------------
-//
 QStringList QEPvLoadSaveItem::getNodePath ()
 {
    QStringList result;
    QEPvLoadSaveItem* parentNode;
    QEPvLoadSaveItem* grandParentNode;
 
-   parentNode = dynamic_cast<QEPvLoadSaveItem*> (this->parent ());
+   parentNode = this->getParent ();
    if (parentNode) {
       // This object has a parent.
       //
-      // Want to exclude the 'internal' tree root node, i.e. start from user root.
+      // Want to exclude the 'internal' tree core node, i.e. start from user root.
       //
-      grandParentNode = dynamic_cast<QEPvLoadSaveItem*> (parentNode->parent ());
+      grandParentNode = parentNode->getParent ();
       if (grandParentNode) {
          result = parentNode->getNodePath ();
          result << parentNode->getNodeName ();
@@ -151,12 +244,11 @@ QStringList QEPvLoadSaveItem::getNodePath ()
 void QEPvLoadSaveItem::setNodeName (const QString& nodeNameIn)
 {
    this->nodeName = nodeNameIn;
-   this->updateItemData ();
 }
 
 //-----------------------------------------------------------------------------
 //
-QString QEPvLoadSaveItem::getNodeName ()
+QString QEPvLoadSaveItem::getNodeName () const
 {
    return this->nodeName;
 }
@@ -170,36 +262,14 @@ QVariant QEPvLoadSaveItem::getNodeValue ()
 
 //-----------------------------------------------------------------------------
 //
-void QEPvLoadSaveItem::updateItemData ()
-{
-   QString valueImage;
-
-   if (this->isPV) {
-      valueImage = " = ";
-      if (this->value.type() == QVariant::List) {
-         QVariantList vl = this->value.toList ();
-         valueImage.append (QString (" << %1 element array >>").arg (vl.size ()));
-      } else {
-         valueImage.append (this->value.toString ());
-      }
-   } else {
-      valueImage = "";
-   }
-
-   this->itemData.clear();
-   this->itemData << (this->nodeName + valueImage);
-}
-
-//-----------------------------------------------------------------------------
-//
 void QEPvLoadSaveItem::actionConnect (QObject* actionCompleteObject, const char* actionCompleteSlot)
 {
    if (this->isPV) {
-      QObject::connect (this, SIGNAL (reportActionComplete (const QModelIndex&, QEPvLoadSaveCommon::ActionKinds, bool)),
+      QObject::connect (this, SIGNAL (reportActionComplete (const QEPvLoadSaveItem*, QEPvLoadSaveCommon::ActionKinds, bool)),
                         actionCompleteObject, actionCompleteSlot);
    } else {
       for (int j = 0; j < this->childItems.count(); j++) {
-          QEPvLoadSaveItem* item = this->child (j);
+          QEPvLoadSaveItem* item = this->getChild (j);
           if (item) item->actionConnect (actionCompleteObject, actionCompleteSlot);
       }
    }
@@ -214,15 +284,15 @@ void QEPvLoadSaveItem::extractPVData ()
           bool status;
           status = qca->singleShotRead ();
           if (!status) {
-             emit this->reportActionComplete (this->index, QEPvLoadSaveCommon::Extract, false);
+             emit this->reportActionComplete (this, QEPvLoadSaveCommon::Extract, false);
           }
        } else {
-          emit this->reportActionComplete (this->index, QEPvLoadSaveCommon::Extract, false);
+          emit this->reportActionComplete (this, QEPvLoadSaveCommon::Extract, false);
        }
 
     } else {
         for (int j = 0; j < this->childItems.count(); j++) {
-            QEPvLoadSaveItem* item = this->child (j);
+            QEPvLoadSaveItem* item = this->getChild (j);
             if (item) item->extractPVData ();
         }
     }
@@ -236,14 +306,14 @@ void QEPvLoadSaveItem::applyPVData ()
       if (this->qca && isConnected)  {
          bool status;
          status = qca->writeData (this->value);
-         emit this->reportActionComplete (this->index, QEPvLoadSaveCommon::Apply, status);
+         emit this->reportActionComplete (this, QEPvLoadSaveCommon::Apply, status);
       } else {
-         emit this->reportActionComplete (this->index, QEPvLoadSaveCommon::Apply, false);
+         emit this->reportActionComplete (this, QEPvLoadSaveCommon::Apply, false);
       }
 
    } else {
        for (int j = 0; j < this->childItems.count(); j++) {
-           QEPvLoadSaveItem* item = this->child (j);
+           QEPvLoadSaveItem* item = this->getChild (j);
            if (item) item->applyPVData ();
        }
    }
@@ -263,7 +333,7 @@ void QEPvLoadSaveItem::readArchiveData (const QCaDateTime& dateTime)
       }
    } else {
        for (int j = 0; j < this->childItems.count(); j++) {
-           QEPvLoadSaveItem* item = this->child (j);
+           QEPvLoadSaveItem* item = this->getChild (j);
            if (item) item->readArchiveData (dateTime);
        }
    }
@@ -280,7 +350,7 @@ int QEPvLoadSaveItem::leafCount ()
    } else {
        result = 0;
        for (int j = 0; j < this->childItems.count(); j++) {
-           QEPvLoadSaveItem* item = this->child (j);
+           QEPvLoadSaveItem* item = this->getChild (j);
            if (item) result += item->leafCount ();
        }
    }
@@ -301,8 +371,7 @@ void  QEPvLoadSaveItem::dataChanged (const QVariant& valueIn, QCaAlarmInfo& alar
    //
    this->value = valueIn;
    this->alarmInfo = alarmInfoIn;
-   this->updateItemData ();
-   emit this->reportActionComplete (this->index, QEPvLoadSaveCommon::Extract, true);
+   emit this->reportActionComplete (this, QEPvLoadSaveCommon::Extract, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -314,11 +383,10 @@ void QEPvLoadSaveItem::setArchiveData (const QObject*, const bool okay, const QC
 
       this->value = QVariant (item.value);
       this->alarmInfo = item.alarm;
-      this->updateItemData ();
 
-      emit this->reportActionComplete (this->index, QEPvLoadSaveCommon::ReadArchive, true);
+      emit this->reportActionComplete (this, QEPvLoadSaveCommon::ReadArchive, true);
    } else {
-      emit this->reportActionComplete (this->index, QEPvLoadSaveCommon::ReadArchive, false);
+      emit this->reportActionComplete (this, QEPvLoadSaveCommon::ReadArchive, false);
    }
 }
 
@@ -330,69 +398,9 @@ void QEPvLoadSaveItem::appendChild (QEPvLoadSaveItem *child)
    //
    this->childItems.append (child);
 
-   // Ensure consistency.
+   // Ensure consistency
    //
-   if (child->parent() != this) {
-       child->setParent (this);
-   }
-}
-
-//-----------------------------------------------------------------------------
-// Each item is able to return any of its child items when given a suitable row
-// number.
-//
-QEPvLoadSaveItem *QEPvLoadSaveItem::child (int row)
-{
-   return this->childItems.value (row);
-}
-
-//-----------------------------------------------------------------------------
-//
-int QEPvLoadSaveItem::childCount () const
-{
-   return this->childItems.count ();
-}
-
-//-----------------------------------------------------------------------------
-//
-int QEPvLoadSaveItem::columnCount () const
-{
-   return this->itemData.count ();
-}
-
-//-----------------------------------------------------------------------------
-//
-QVariant QEPvLoadSaveItem::getData (int column) const
-{
-   return this->itemData.value (column);
-}
-
-//-----------------------------------------------------------------------------
-// The TreeModel uses this function to determine the number of rows that exist
-// for a given parent item. The row() function reports the item's location
-// within its parent's list of items:
-//
-int QEPvLoadSaveItem::row () const
-{
-   const QEPvLoadSaveItem * parentItem = this->getParent ();
-
-   if (parentItem) {
-      // avoid error: invalid conversion from 'const QEPvLoadSaveItem* const' to 'QEPvLoadSaveItem*'
-      //
-      return parentItem->childItems.indexOf (const_cast <QEPvLoadSaveItem *>(this));
-   }
-   
-   // Note that, although the root item (with no parent item) is automatically
-   // assigned a row number of 0, this information is never used by the model.
-   //
-   return 0;
-}
-
-//-----------------------------------------------------------------------------
-//
-QEPvLoadSaveItem * QEPvLoadSaveItem::getParent () const
-{
-   return (QEPvLoadSaveItem *) this->parent ();
+   child->parentItem = this;
 }
 
 // end
