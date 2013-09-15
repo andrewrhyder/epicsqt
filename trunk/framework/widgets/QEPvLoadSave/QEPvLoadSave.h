@@ -47,12 +47,12 @@
 
 /// This class provides the means to create/manages prescribed set of PVs and
 /// their associated values, but more importantly the capability to:
-/// a) read the current value for each PV from the system;
+/// a) read the current value for each PV from the system (via Channel Access);
 /// b) write the set of names/values to a file;
 /// c) read a the set of names/values from a file; and
-/// d) wite the values to the associated PV.
+/// d) wite the values to the associated PV (via Channel Access).
 ///
-/// Note: This widget is intented to be use as the sole widget of a built in form
+/// Note: This widget is intented to be use as the sole widget of a built in QeGUI form
 /// However, the widget may be used in any form if needs be.
 ///
 
@@ -78,12 +78,11 @@ public:
    /// In some widgets are are also used for other purposes.
    ///
    Q_PROPERTY (QString defaultSubstitutions READ getSubstitutions WRITE setSubstitutions)
-
    //
    // End of QEPvLoadSave specific properties =====================================
 
 
-   // Standard properties:
+   // Standard properties are inherited from QEFrame.
    // variableAsToolTip and displayAlarmState prob not sensible, but part of standard set.
    //
 public:
@@ -125,7 +124,7 @@ protected:
    void resizeEvent (QResizeEvent* );
    bool eventFilter (QObject *obj, QEvent* event);
 
-   // No Drag and Drop yey
+   // No Drag and Drop yet
    // No copy paste yet
 
 private:
@@ -166,22 +165,17 @@ private:
       void setRoot (QEPvLoadSaveItem* rootItem, const QString& heading);
       void open (const QString& configurationFile);
 
-      QEPvLoadSaveItem* itemAtPos (const QPoint &point) const;
-
       QFrame* container;
       QVBoxLayout* halfLayout;
       QFrame* header;
       QCheckBox* checkBox;
       QPushButton *headerPushButtons [NumberOfButtons];
 
-      QTreeView* tree;    // this is the tree widget
+      QTreeView* tree;                        // the tree widget
       QFrame* footer;
 
-      QItemSelectionModel* treeSelectionModel;   // manages tree selections
-      QEPvLoadSaveModel* model;                  // manah=ged tree data
-      QEPvLoadSaveItem* selectedItem;            // the most recently selected item - if any.
-
-      QCaVariableNamePropertyManager vnpm;
+      QEPvLoadSaveModel* model;               // manages tree data
+      QCaVariableNamePropertyManager vnpm;    // manages filenames
 
    private:
       Sides side;
@@ -222,7 +216,7 @@ private:
                           const TreeContextMenuActions treeAction);
 
    void setReadOut (const QString& text);
-
+   friend class QEPvLoadSaveModel;
 
 private slots:
    void useNewConfigurationFileProperty (QString configurationFileIn,
@@ -230,9 +224,6 @@ private slots:
                                          unsigned int variableIndex );
 
    void acceptActionComplete (QEPvLoadSaveCommon::ActionKinds, bool);
-
-
-   void selectionChanged (const QItemSelection& selected, const QItemSelection& deselected);
 
    void treeMenuRequested (const QPoint& pos);
    void treeMenuSelected  (QAction* action);

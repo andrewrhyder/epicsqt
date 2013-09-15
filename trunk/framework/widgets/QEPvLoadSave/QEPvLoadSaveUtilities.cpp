@@ -50,8 +50,22 @@ static const QString arrayPrefix = "*ARRAY";
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (const QString& groupName,
-                                                      QESettings* settings,
+QVariant QEPvLoadSaveUtilities::readArray (QESettings* settings,
+                                           const QString& arrayName,
+                                           QString& pvName)
+{
+    QVariantList result;
+
+    pvName = "SR00TDB01";
+    result << 1 << 2 << arrayName << QVariant ( (bool) (settings == NULL));
+
+    return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (QESettings* settings,
+                                                      const QString& groupName,
                                                       QEPvLoadSaveItem* parent,
                                                       const int level)
 {
@@ -64,6 +78,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (const QString& groupName,
    QString newName;
    QString sectionName;
    QVariant value;
+   QString pvName;
    QVariant nilValue (QVariant::Invalid);
 
    if (!settings) {
@@ -96,7 +111,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (const QString& groupName,
          }
 
          if (isRenamed) {
-            DEBUG << "An attempt to rename an already renamed section ignored";
+            DEBUG << "An attempt to rename an already renamed section ignored - first in, best dressed.";
             continue;
          }
 
@@ -108,30 +123,56 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (const QString& groupName,
 
          result->setNodeName (newName);
          isRenamed = true;
+         continue;
+      }
 
-      } else if (variable.startsWith (groupPrefix, Qt::CaseInsensitive)) {
+      // Is it a group?
+      //
+      if (variable.startsWith (groupPrefix, Qt::CaseInsensitive)) {
          // Valid group entry test??
 
          sectionName = settings->getString (key, "");
 
-         if (sectionName.isEmpty()) {
+         if (sectionName.isEmpty ()) {
             DEBUG << "Unspecified group section name";
             continue;
          }
 
-         QEPvLoadSaveUtilities::readSection (sectionName, settings, result, level + 1);
-
-
-      } else if (variable.startsWith (arrayPrefix, Qt::CaseInsensitive)) {
-         DEBUG << "skipping array for now";
-
-      } else {
-         // Assume just a regular PV.
-         //
-
-         value = settings->getValue (key, nilValue );
-         new QEPvLoadSaveItem (variable, true, value, result);
+         QEPvLoadSaveUtilities::readSection (settings, sectionName, result, level + 1);
+         continue;
       }
+
+      // Is it an extented array?
+      //
+      if (variable.startsWith (arrayPrefix, Qt::CaseInsensitive)) {
+         // Extented Array PV get ther own section.
+         // Line length limits imposed by original program.
+         //
+         sectionName = settings->getString (key, "");
+
+         if (sectionName.isEmpty ()) {
+            DEBUG << "Unspecified array section name";
+            continue;
+         }
+
+         value = QEPvLoadSaveUtilities::readArray (settings, sectionName, pvName);\
+
+         if (pvName.isEmpty ()) {
+            DEBUG << "Unspecified array PV name in section " << groupName <<  variable;
+            continue;
+         }
+
+         new QEPvLoadSaveItem (pvName, true, value, result);
+
+         continue;
+      }
+
+      // Assume just a regular PV.
+      // TBD: Short array format
+      //
+      value = settings->getValue (key, nilValue);
+      new QEPvLoadSaveItem (variable, true, value, result);
+
    }
 
    return result;
@@ -147,7 +188,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readPcfTree (const QString& filename)
 
    settings = new QESettings (filename.trimmed ());
    if (settings) {
-      result = QEPvLoadSaveUtilities::readSection ("ROOT", settings, result, 1);
+      result = QEPvLoadSaveUtilities::readSection (settings, "ROOT", result, 1);
       delete settings;
    }
    return result;

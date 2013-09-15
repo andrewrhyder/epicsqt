@@ -26,6 +26,7 @@
 #include <QDebug>
 #include <QList>
 #include <QVariant>
+#include <QEScaling.h>
 
 #include "QEPvLoadSave.h"
 #include "QEPvLoadSaveItem.h"
@@ -35,10 +36,12 @@
 
 //-----------------------------------------------------------------------------
 //
-QEPvLoadSaveModel::QEPvLoadSaveModel (QEPvLoadSave* parent) : QAbstractItemModel (parent)
+QEPvLoadSaveModel::QEPvLoadSaveModel (QTreeView* treeViewIn, QEPvLoadSave* parent) : QAbstractItemModel (parent)
 {
    // Save calling parameter
    //
+   this->owner = parent;
+   this->treeView = treeViewIn;
    this->requestedInsertItem = NULL;
 
    // The core item is a QTreeView/QAbstractItemModel artefact
@@ -48,6 +51,20 @@ QEPvLoadSaveModel::QEPvLoadSaveModel (QEPvLoadSave* parent) : QAbstractItemModel
    //
    this->coreItem = new QEPvLoadSaveItem ("Core", false, QVariant (QVariant::Invalid), NULL);
    this->heading = "";
+
+   // Associate this model with the treeView.
+   //
+   this->treeView->setModel (this);                              // tree is a widget
+
+   this->treeView->installEventFilter (this);
+
+   // Create a tree selection model.
+   //
+   this->treeSelectionModel = new QItemSelectionModel (this, this);
+   this->treeView->setSelectionModel (this->treeSelectionModel);
+
+   QObject::connect (this->treeSelectionModel, SIGNAL (selectionChanged (const QItemSelection&, const QItemSelection&)),
+                     this,                     SLOT   (selectionChanged (const QItemSelection&, const QItemSelection&)));
 }
 
 //-----------------------------------------------------------------------------
@@ -73,10 +90,6 @@ void QEPvLoadSaveModel::setupModelData (QEPvLoadSaveItem* rootItem, const QStrin
    if (rootItem) {
       this->heading = headingIn;
       this->addItemToModel (rootItem, this->coreItem);
-
-      // rootItem calls this resursively down the QEPvLoadSaveItem tree.
-      //
-      rootItem->actionConnect (this, SLOT (acceptActionComplete (const QEPvLoadSaveItem*, QEPvLoadSaveCommon::ActionKinds, bool)));
       this->modelUpdated ();
    }
 }
@@ -100,16 +113,13 @@ bool QEPvLoadSaveModel::addItemToModel (QEPvLoadSaveItem* item, QEPvLoadSaveItem
       QModelIndex parentIndex= this->getIndex (parentItem);
       int number = parentItem->childCount ();
 
-      // Save reference item - we use this in insertRows.
+      this->requestedInsertItem = item;                // Save reference item - we use this in insertRows.
+      result = this->insertRow (number, parentIndex);  // We always append items.
+      this->requestedInsertItem = NULL;                // Remove dangling reference.
+
+      // item calls this resursively down the QEPvLoadSaveItem tree.
       //
-      this->requestedInsertItem = item;
-
-      // We always append items.
-      //
-      result = this->insertRow (number, parentIndex);
-
-      this->requestedInsertItem = NULL;   // remove dangling reference.
-
+      item->actionConnect (this, SLOT (acceptActionComplete (const QEPvLoadSaveItem*, QEPvLoadSaveCommon::ActionKinds, bool)));
    }
    return result;
 }
@@ -130,6 +140,9 @@ bool QEPvLoadSaveModel::removeItemFromModel (QEPvLoadSaveItem* item)
          int row = item->childPosition ();
 
          if (row >= 0) {
+            // Ensure no dangling references - can we do better?
+            //
+            this->selectedItem = NULL;
             result = this->removeRow (row, pi);
          } else {
             DEBUG << "fail  row" << row;
@@ -196,6 +209,176 @@ void QEPvLoadSaveModel::acceptActionComplete (const QEPvLoadSaveItem* item, QEPv
    }
 
    emit this->reportActionComplete (action, actionSuccessful);
+}
+
+//-----------------------------------------------------------------------------
+//
+void QEPvLoadSaveModel::selectionChanged (const QItemSelection& selected, const QItemSelection& /* deselected*/ )
+{
+   QModelIndexList list;
+   int n;
+
+   list = selected.indexes ();
+   n = list.size ();
+
+   // We expect only one item to be selected.
+   //
+   if (n == 1) {
+      QModelIndex s = list.value (0);
+      QEPvLoadSaveItem* item = this->indexToItem (s);
+      this->selectedItem = item;
+      if (item) {
+         int count = item->leafCount ();
+         QString text = "selected ";
+         if (item->getIsPV ()) {
+            text.append (item->getNodeName ());
+         } else {
+            text.append (QString ("%1").arg (count).append (" item"));
+            if (count != 1) text.append ("s");
+         }
+         this->owner->setReadOut (text);
+
+      }
+   } else {
+      // Don't allow multiple selections (yet)
+      //
+      this->selectedItem = NULL;
+   }
+}
+
+//-----------------------------------------------------------------------------
+//
+bool  QEPvLoadSaveModel::processDropEvent (QEPvLoadSaveItem* parentItem, QDropEvent *event)
+{
+   QString dropText;
+
+   if (!parentItem) return false;  // sanity check.
+
+   if (parentItem->getIsPV ()) {
+      // Don't drop on to PV as such, but create a sibling...
+      //
+      parentItem = parentItem->getParent ();
+   }
+
+   if (!parentItem) return false;  // sanity check.
+   if (!event) return false;  // sanity check.
+
+   // If no text available, do nothing
+   //
+   if (!event->mimeData()->hasText ()){
+      event->ignore ();
+      return false;
+   }
+
+   // Get the drop data
+   //
+   const QMimeData *mime = event->mimeData ();
+
+   // If there is any text, drop the text
+   //
+   dropText = mime->text ();
+   if (!dropText.isEmpty ()) {
+      QEPvLoadSaveItem* item;
+      QVariant nilValue (QVariant::Invalid);
+
+      // Carry out the drop action
+      //
+      item = new QEPvLoadSaveItem (dropText, true, nilValue, NULL);
+      this->addItemToModel (item, parentItem);
+   }
+
+   // Tell the dropee that the drop has been acted on
+   //
+   if (event->source () == this->treeView) {
+      event->setDropAction(Qt::CopyAction);
+      event->accept ();
+   } else {
+      event->acceptProposedAction ();
+   }
+
+   return true;
+}
+
+//-----------------------------------------------------------------------------
+//
+bool QEPvLoadSaveModel::eventFilter (QObject *obj, QEvent* event)
+{
+   const QEvent::Type type = event->type ();
+   QPoint pos;
+   QModelIndex index;
+   QEPvLoadSaveItem* item = NULL;
+   QString nodeName;
+
+   // *** Big explanation
+   //
+   int dragOffset = QEScaling::scale (17) + 18;  // row height (scale) + fixed
+
+   switch (type) {
+
+      case QEvent::DragEnter:
+         if (obj == this->treeView) {
+            QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*> (event);
+            pos = dragEnterEvent->pos ();
+            pos.setY (pos.y () - dragOffset);
+            item = this->itemAtPos (pos);
+            nodeName = item ? item->getNodeName () : "nil";
+            dragEnterEvent->setDropAction (Qt::CopyAction);
+            dragEnterEvent->accept ();
+            this->owner->setReadOut (nodeName);
+            return true;
+         }
+         break;
+
+
+      case QEvent::DragMove:
+         if (obj == this->treeView) {
+            QDragMoveEvent* dragMoveEvent = static_cast<QDragMoveEvent*> (event);
+            pos = dragMoveEvent->pos ();
+            pos.setY (pos.y () - dragOffset);
+            item = this->itemAtPos (pos);
+            nodeName = item ? item->getNodeName () : "nil";
+            if (item) {
+               dragMoveEvent->accept ();
+            } else {
+               dragMoveEvent->ignore ();
+            }
+            index = this->treeView->indexAt (pos);
+            // Is there a better way to high-light?
+            //
+            this->treeSelectionModel->setCurrentIndex (index, QItemSelectionModel::SelectCurrent);
+            //this->owner->setReadOut (nodeName);
+            return true;
+         }
+         break;
+
+
+      case QEvent::DragLeave:
+         if (obj == this->treeView) {
+            // QDragLeaveEvent* dragLeaveEvent = static_cast<QDragLeaveEvent*> (event);
+            this->owner->setReadOut ("");
+            return true;
+         }
+         break;
+
+
+      case QEvent::Drop:
+         if (obj == this->treeView) {
+            QDropEvent* dragDropEvent = static_cast<QDropEvent*> (event);
+            pos = dragDropEvent->pos ();
+            pos.setY (pos.y () - dragOffset);
+            item = this->itemAtPos (pos);
+            if (item) {
+               return this->processDropEvent (item, dragDropEvent);
+            }
+         }
+         break;
+
+      default:
+         // Just fall through
+         break;
+   }
+
+   return false; // we did not handle this event
 }
 
 //=============================================================================
@@ -358,8 +541,10 @@ bool QEPvLoadSaveModel::removeRows (int position, int rows, const QModelIndex& p
    return success;
 }
 
+
 //=============================================================================
 // Utility function to hide the nasty static cast and stuff.
+//=============================================================================
 //
 QEPvLoadSaveItem* QEPvLoadSaveModel::indexToItem (const QModelIndex& index) const
 {
@@ -372,7 +557,6 @@ QEPvLoadSaveItem* QEPvLoadSaveModel::indexToItem (const QModelIndex& index) cons
 }
 
 //-----------------------------------------------------------------------------
-// Utility function to hide the nasty static cast and stuff.
 //
 QEPvLoadSaveItem *QEPvLoadSaveModel::getItem (const QModelIndex &index) const
 {
@@ -401,6 +585,19 @@ QModelIndex QEPvLoadSaveModel::getIndex (const QEPvLoadSaveItem* item)
       if (row >= 0) {
          result = this->createIndex (row, 0, (QEPvLoadSaveItem*)item);
       }
+   }
+   return result;
+}
+
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveModel::itemAtPos (const QPoint& pos) const
+{
+   QEPvLoadSaveItem* result = NULL;
+
+   if (this->treeView) {
+      QModelIndex index = this->treeView->indexAt (pos);
+      result = this->indexToItem (index);
    }
    return result;
 }
