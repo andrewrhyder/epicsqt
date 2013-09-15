@@ -26,6 +26,7 @@
 #ifndef QEPVPROPERTIES_UTILITIES_H
 #define QEPVPROPERTIES_UTILITIES_H
 
+#include <QVariant>
 #include <QESettings.h>
 
 // Differed declaration - avoids mutual header inclusions.
@@ -41,8 +42,13 @@ class QEPvLoadSaveUtilities {
 public:
    static QEPvLoadSaveItem* readTree (const QString& filename);
 private:
-   static QEPvLoadSaveItem* readSection (const QString& groupName,
-                                         QESettings* settings,
+
+   static QVariant readArray (QESettings* settings,
+                              const QString& arrayName,
+                              QString& pvName);
+
+   static QEPvLoadSaveItem* readSection (QESettings* settings,
+                                         const QString& groupName,
                                          QEPvLoadSaveItem* parent,
                                          const int level);
 

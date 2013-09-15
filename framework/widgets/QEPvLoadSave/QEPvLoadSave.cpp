@@ -175,7 +175,6 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
    this->tree = new QTreeView ();
    this->halfLayout->addWidget (this->tree);
    this->tree->setAcceptDrops (true);
-   this->tree->installEventFilter (this->owner);
    this->tree->setContextMenuPolicy (Qt::CustomContextMenu);
 
    QObject::connect (this->tree,  SIGNAL (customContextMenuRequested (const QPoint &)),
@@ -198,20 +197,10 @@ QEPvLoadSave::Halves::Halves (const Sides sideIn, QEPvLoadSave* ownerIn, QBoxLay
 
    // Create an essentially empty model.
    //
-   this->model = new QEPvLoadSaveModel (this->owner);  // not a widget
-   this->tree->setModel (this->model);                 // tree is a widget
+   this->model = new QEPvLoadSaveModel (this->tree, this->owner);  // not a widget
 
    QObject::connect (this->model, SIGNAL (reportActionComplete (QEPvLoadSaveCommon::ActionKinds, bool)),
                      this->owner, SLOT   (acceptActionComplete (QEPvLoadSaveCommon::ActionKinds, bool)));
-
-
-   // Create the selection model.
-   //
-   this->treeSelectionModel = new QItemSelectionModel (this->model, this->owner);
-   this->tree->setSelectionModel (this->treeSelectionModel);
-
-   QObject::connect (this->treeSelectionModel, SIGNAL (selectionChanged (const QItemSelection&, const QItemSelection&)),
-                     this->owner,              SLOT   (selectionChanged (const QItemSelection&, const QItemSelection&)));
 
 
    // Create an essentially empty model.
@@ -269,18 +258,6 @@ void QEPvLoadSave::Halves::open (const QString& configurationFileIn)
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSave::Halves::itemAtPos (const QPoint &point) const
-{
-   QEPvLoadSaveItem* result = NULL;
-   if (this->tree && this->model) {
-      QModelIndex index = this->tree->indexAt (point);
-      result = this->model->indexToItem (index);
-   }
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
 void QEPvLoadSave::Halves::setConfigurationFile  (const QString& configurationFile)
 {
    this->vnpm.setVariableNameProperty (configurationFile);
@@ -313,11 +290,11 @@ QString QEPvLoadSave::Halves::getConfigurationSubstitutions ()
 //=============================================================================
 // Constructor with no initialisation
 //
-QEPvLoadSave::QEPvLoadSave (QWidget * parent) : QEFrame (parent)
+QEPvLoadSave::QEPvLoadSave (QWidget* parent) : QEFrame (parent)
 {
    this->setNumVariables (ARRAY_LENGTH (this->half));
 
-   // configure the panel and create contents
+   // Configure the panel and create contents
    //
    this->setFrameShape (QFrame::Panel);
    this->setFrameShadow (QFrame::Plain);
@@ -386,6 +363,7 @@ QEPvLoadSave::QEPvLoadSave (QWidget * parent) : QEFrame (parent)
    this->createAction (this->treeContextMenu, "Examine Properties",   false, TCM_SHOW_PV_PROPERTIES);
    this->createAction (this->treeContextMenu, "Plot in StripChart",   false, TCM_ADD_TO_STRIPCHART);
    this->createAction (this->treeContextMenu, "Show in Scatch Pad",   false, TCM_ADD_TO_SCRATCH_PAD);
+   this->treeContextMenu->addSeparator ();
    this->createAction (this->treeContextMenu, "Edit PV Name...",      false, TCM_EDIT_PV_NAME);
    this->createAction (this->treeContextMenu, "Edit PV Value...",     false, TCM_EDIT_PV_VALUE);
    this->createAction (this->treeContextMenu, "Copy variable name",   false, TCM_COPY_VARIABLE);
@@ -468,83 +446,9 @@ QSize QEPvLoadSave::sizeHint () const
 
 //------------------------------------------------------------------------------
 //
-bool QEPvLoadSave::eventFilter (QObject *obj, QEvent* event)
+bool QEPvLoadSave::eventFilter (QObject* /* obj*/ , QEvent* /* event */ )
 {
-   const QEvent::Type type = event->type ();
-
-   QEPvLoadSave::Halves* half = NULL;
-   QPoint pos;
-   QEPvLoadSaveItem* item = NULL;
-   QString nodeName;
-
-   // *** Big explanation
-   //
-   int dragOffset = QEScaling::scale (17) + 18;  // row height (scale) + fixed
-
-   switch (type) {
-
-      case QEvent::DragEnter:
-         half = this->halfAssociatedWith (obj);
-         if (half) {
-            QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*> (event);
-            pos = dragEnterEvent->pos ();
-            pos.setY (pos.y () - dragOffset);
-            item = half->itemAtPos (pos);
-            nodeName = item ? item->getNodeName () : "nil";
-
-            DEBUG << "drag enter event " << pos << nodeName;
-
-            dragEnterEvent->setDropAction (Qt::CopyAction);
-            dragEnterEvent->accept ();
-            return true;
-         }
-         break;
-
-
-      case QEvent::DragMove:
-         half = this->halfAssociatedWith (obj);
-         if (half) {
-            QDragMoveEvent* dragMoveEvent = static_cast<QDragMoveEvent*> (event);
-            pos = dragMoveEvent->pos ();
-            pos.setY (pos.y () - dragOffset);
-            item = half->itemAtPos (pos);
-            nodeName = item ? item->getNodeName () : "nil";
-            DEBUG << "drag move event " << pos << nodeName;
-            return true;
-         }
-         break;
-
-
-      case QEvent::DragLeave:
-         half = this->halfAssociatedWith (obj);
-         if (half) {
-            QDragLeaveEvent* dragLeaveEvent = static_cast<QDragLeaveEvent*> (event);
-            DEBUG << "drag leave event " << dragLeaveEvent;
-            return true;
-         }
-         break;
-
-
-      case QEvent::Drop:
-         half = this->halfAssociatedWith (obj);
-         if (half) {
-            QDropEvent* dragDropEvent = static_cast<QDropEvent*> (event);
-            pos = dragDropEvent->pos ();
-            pos.setY (pos.y () - dragOffset);
-            item = half->itemAtPos (pos);
-            nodeName = item ? item->getNodeName () : "nil";
-
-            DEBUG << "drag drop event" << pos << nodeName;
-            return true;
-         }
-         break;
-
-      default:
-         // Just fall through
-         break;
-   }
-
-   return false; // we did not handle this event
+   return false; // place holder - we did not handle this event
 }
 
 //------------------------------------------------------------------------------
@@ -598,11 +502,6 @@ QEPvLoadSave::Sides QEPvLoadSave::objectSide (QObject* obj)
          return Sides (s);
       }
 
-      if (obj == this->half [s]->treeSelectionModel) {
-         // found a match.
-         return Sides (s);
-      }
-
       // Check push buttons.
       //
       for (j = 0; j < ARRAY_LENGTH (this->half [s]->headerPushButtons); j++) {
@@ -646,43 +545,6 @@ void QEPvLoadSave::acceptActionComplete (QEPvLoadSaveCommon::ActionKinds, bool o
    if (okay) {
       int v = this->progressBar->value ();
       this->progressBar->setValue (v + 1);
-   }
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPvLoadSave::selectionChanged (const QItemSelection& selected,
-                                     const QItemSelection&)
-{
-   VERIFY_SENDER;
-
-   QEPvLoadSaveModel* model = this->half [side]->model;
-   QModelIndexList list;
-   int n;
-
-   list = selected.indexes ();
-   n = list.size ();
-   // We expect only one item to be selected.
-   //
-   if (n == 1) {
-      QModelIndex s = list.value (0);
-      QEPvLoadSaveItem* item = model->indexToItem (s);
-      this->half [side]->selectedItem = item;
-      if (item) {
-         int count = item->leafCount ();
-         QString text = "selected ";
-         if (item->getIsPV ()) {
-            text.append (item->getNodeName ());
-         } else {
-            text.append (QString ("%1").arg (count).append (" item"));
-            if (count != 1) text.append ("s");
-         }
-         this->setReadOut (text);
-      }
-   } else {
-      // Don't allow multiple selections (yet)
-      //
-      this->half [side]->selectedItem = NULL;
    }
 }
 
@@ -932,7 +794,7 @@ void QEPvLoadSave::writeSubsetClicked (bool)
 {
    VERIFY_SENDER;
 
-   QEPvLoadSaveItem* item = this->half [side]->selectedItem;
+   QEPvLoadSaveItem* item = this->half [side]->model->getSelectedItem ();
    if (item) {
       this->progressBar->setMaximum (MAX (1, item->leafCount ()));
       this->progressBar->setValue (0);
@@ -946,7 +808,7 @@ void QEPvLoadSave::readSubsetClicked (bool)
 {
    VERIFY_SENDER;
 
-   QEPvLoadSaveItem* item = this->half [side]->selectedItem;
+   QEPvLoadSaveItem* item = this->half [side]->model->getSelectedItem ();
    if (item) {
       this->progressBar->setMaximum (MAX (1, item->leafCount ()));
       this->progressBar->setValue (0);
@@ -979,7 +841,7 @@ void QEPvLoadSave::copySubsetClicked (bool)
 {
    VERIFY_SENDER;
 
-   QEPvLoadSaveItem* item = this->half [side]->selectedItem;
+   QEPvLoadSaveItem* item = this->half [side]->model->getSelectedItem ();
    if (item) {
       DEBUG << item->getNodePath ();
    }
@@ -1035,8 +897,8 @@ void QEPvLoadSave::deleteClicked (bool)
 
    // Get and cleare selected item
    //
-   item = this->half [side]->selectedItem;
-   this->half [side]->selectedItem = NULL;
+   item = this->half [side]->model->getSelectedItem ();
+   /// this->half [side]->selectedItem = NULL;
    if (item) {
       model->removeItemFromModel (item);
    }

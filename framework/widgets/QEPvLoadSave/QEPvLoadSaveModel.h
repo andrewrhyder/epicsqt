@@ -27,7 +27,9 @@
 #define QEPVLOADSAVEMODEL_H
 
 #include <QAbstractItemModel>
+#include <QItemSelectionModel>
 #include <QObject>
+#include <QTreeView>
 
 #include <QCaDateTime.h>
 #include <QEPvLoadSaveCommon.h>
@@ -45,7 +47,7 @@ class QEPvLoadSaveItem;
 ///
 /// Note on naming: the example's root item that provide header info
 /// is refered to the core item. It only ever has one child which is the
-/// visible (on the QTreeView) root item, named "ROOT".
+/// visible (on the QTreeView) which is the user root item, named "ROOT".
 ///
 /// Note: we only re-size the number of rows (children). The
 /// number of columns is fixed.
@@ -53,7 +55,7 @@ class QEPvLoadSaveItem;
 class QEPvLoadSaveModel : public QAbstractItemModel {
 Q_OBJECT
 public:
-   explicit QEPvLoadSaveModel (QEPvLoadSave* parent = 0);
+   explicit QEPvLoadSaveModel (QTreeView* treeView, QEPvLoadSave* parent);
    virtual ~QEPvLoadSaveModel ();
 
    // Override (pure abstract) virtual functions.
@@ -102,6 +104,8 @@ public:
    int leafCount ();
    QEPvLoadSaveItem* getRootItem ();
 
+   QEPvLoadSaveItem* getSelectedItem () { return this->selectedItem; }
+
    QModelIndex getRootIndex ()      { return this->index (0, 0, this->getCoreIndex ()); }
 
    // If index is invalid, then returns null.
@@ -112,6 +116,9 @@ public:
 signals:
    void reportActionComplete (QEPvLoadSaveCommon::ActionKinds, bool);
 
+protected:
+   bool eventFilter (QObject *obj, QEvent* event);
+
 private:
    // The model index associated with the core item is an invalid index.
    // (as per the URL ref).
@@ -121,16 +128,25 @@ private:
    // Like indexToItem but returns coreItem if index is invalid.
    //
    QEPvLoadSaveItem* getItem (const QModelIndex &index) const;
-
    QModelIndex getIndex (const QEPvLoadSaveItem* item);
+   QEPvLoadSaveItem* itemAtPos (const QPoint& pos) const;
+   bool processDropEvent (QEPvLoadSaveItem* item, QDropEvent *event);
+
+
+   QEPvLoadSave* owner;                  // the associated form - duplicates parent () but avoids casting
+   QTreeView* treeView;                       // the associated tree view widget
+   QItemSelectionModel* treeSelectionModel;   // manages tree selections
 
    QEPvLoadSaveItem *coreItem;  // the tree view root (as opposed to user root) - must exist - provides headings
    QString heading;             // heading text.
 
-   QEPvLoadSaveItem *requestedInsertItem;   //
+   QEPvLoadSaveItem* selectedItem;            // the most recently selected item - if any.
+   QEPvLoadSaveItem* requestedInsertItem;     //
 
 private slots:
    void acceptActionComplete (const QEPvLoadSaveItem*, QEPvLoadSaveCommon::ActionKinds, bool);
+   void selectionChanged (const QItemSelection& selected, const QItemSelection& deselected);
+
 };
 
 #endif   // QEPVLOADSAVEMODEL_H
