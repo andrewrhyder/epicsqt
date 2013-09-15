@@ -915,8 +915,6 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
       if (newPvName != oldPvName) {
          this->setVariableName (newPvName, 0);
          this->establishConnection (0);
-      } else {
-         DEBUG <<  index << oldPvName << newPvName;
       }
    }
 }
