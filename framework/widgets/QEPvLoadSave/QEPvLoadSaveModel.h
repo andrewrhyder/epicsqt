@@ -29,6 +29,7 @@
 #include <QAbstractItemModel>
 #include <QItemSelectionModel>
 #include <QObject>
+#include <QStringList>
 #include <QTreeView>
 
 #include <QCaDateTime.h>
@@ -92,9 +93,12 @@ public:
    //
    void setupModelData (QEPvLoadSaveItem* rootItem, const QString& heading);
    void modelUpdated ();
+   void itemUpdated (const QEPvLoadSaveItem* item);
 
    bool addItemToModel (QEPvLoadSaveItem* item, QEPvLoadSaveItem* parentItem);
    bool removeItemFromModel (QEPvLoadSaveItem* item);
+
+   bool mergeItemInToModel (QEPvLoadSaveItem* item);
 
    // Request each item to perform read, write or access archive.
    //
@@ -102,11 +106,10 @@ public:
    void applyPVData ();
    void readArchiveData (const QCaDateTime& dateTime);
    int leafCount ();
+
    QEPvLoadSaveItem* getRootItem ();
-
    QEPvLoadSaveItem* getSelectedItem () { return this->selectedItem; }
-
-   QModelIndex getRootIndex ()      { return this->index (0, 0, this->getCoreIndex ()); }
+   QModelIndex getRootIndex ()          { return this->index (0, 0, this->getCoreIndex ()); }
 
    // If index is invalid, then returns null.
    // This is like getItem but for external use.
@@ -131,6 +134,7 @@ private:
    QModelIndex getIndex (const QEPvLoadSaveItem* item);
    QEPvLoadSaveItem* itemAtPos (const QPoint& pos) const;
    bool processDropEvent (QEPvLoadSaveItem* item, QDropEvent *event);
+   bool mergeItemInToItem (QEPvLoadSaveItem* item, QEPvLoadSaveItem* targetItem);
 
 
    QEPvLoadSave* owner;                  // the associated form - duplicates parent () but avoids casting

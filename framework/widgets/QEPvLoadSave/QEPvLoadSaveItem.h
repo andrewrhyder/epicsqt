@@ -78,7 +78,7 @@ public:
 
    int columnCount () const;
 
-   QEPvLoadSaveItem* getChild (int position);          // get child at row position
+   QEPvLoadSaveItem* getChild (int position);       // get child at row position
    QEPvLoadSaveItem* getParent () const;            // was parent in example
    int childCount () const;                         // fixed
    int childPosition () const;                      // own row number
@@ -87,22 +87,24 @@ public:
    bool removeChildren(int position, int count);
 
    // There is no insertColumns/removeColumns - number colums is fixed.
-
+   //
    void appendChild (QEPvLoadSaveItem *getChild);
 
    // Own functions, i.e. not from the example.
    //
-   // Clones a QEPvLoadSaveItem and all its children.
+   QEPvLoadSaveItem* getNamedChild (const QString& searchName);    // get child with Node name
+
+   // Clones a QEPvLoadSaveItem and all its children if doDeep is true.
    // Does not copy the actionConnect state, which must be done post construction
    // just like the original. Note assigned a new parent.
    //
-   QEPvLoadSaveItem* clone (QEPvLoadSaveItem* parent);
+   QEPvLoadSaveItem* clone (const bool doDeep, QEPvLoadSaveItem* parent);
 
    // Set own model index - used for data changed signals.
    //
    // void setModelIndex (const QModelIndex& index);
    // QModelIndex getModelIndex ();
-
+   //
    void actionConnect (QObject* actionCompleteObject, const char* actionCompleteSlot);
 
    QStringList getNodePath ();
@@ -110,6 +112,7 @@ public:
    void setNodeName (const QString& nodeName);
    QString getNodeName () const;
 
+   void setNodeValue (const QVariant& value);
    QVariant getNodeValue ();
 
    bool getIsPV () { return this->isPV; }

@@ -103,6 +103,16 @@ void QEPvLoadSaveModel::modelUpdated ()
 
 //-----------------------------------------------------------------------------
 //
+void QEPvLoadSaveModel::itemUpdated (const QEPvLoadSaveItem* item)
+{
+   if (!item) return;
+
+   QModelIndex index = this->getIndex (item);
+   emit this->dataChanged (index, index);  // this causes tree view to update
+}
+
+//-----------------------------------------------------------------------------
+//
 bool QEPvLoadSaveModel::addItemToModel (QEPvLoadSaveItem* item, QEPvLoadSaveItem* parentItem)
 {
    bool result = false;
@@ -156,6 +166,97 @@ bool QEPvLoadSaveModel::removeItemFromModel (QEPvLoadSaveItem* item)
 
 //-----------------------------------------------------------------------------
 //
+bool QEPvLoadSaveModel::mergeItemInToItem (QEPvLoadSaveItem* item, QEPvLoadSaveItem* targetItem)
+{
+   if (!item) return false;
+   if (!targetItem) return false;
+
+   QString nodeName = item->getNodeName ();
+   QEPvLoadSaveItem* counterPart = targetItem->getNamedChild (nodeName);
+
+   if (counterPart) {
+      // counter part exists - check types match
+      //
+      if (item->getIsPV () != counterPart->getIsPV ()) {
+         DEBUG << "*** PV/Group conflict" << nodeName;
+         return false;
+      }
+
+      if (item->getIsPV ()) {
+         // Copy value
+         //
+         counterPart->setNodeValue (item->getNodeValue ());
+         this->itemUpdated (counterPart);
+      } else {
+         // Copy children.
+         //
+         int j;
+
+         for (j = 0; j < item->childCount (); j++) {
+            // recursive call.
+            //
+            this->mergeItemInToItem (item->getChild (j), counterPart);
+         }
+
+      }
+
+   } else {
+      // counter part does not exists.
+      //
+      counterPart = item->clone (true, NULL);
+      this->addItemToModel (counterPart, targetItem);
+   }
+
+   return true;
+}
+
+//-----------------------------------------------------------------------------
+//
+bool QEPvLoadSaveModel::mergeItemInToModel (QEPvLoadSaveItem* item)
+{
+   QVariant nilValue (QVariant::Invalid);
+
+   if (!item) return false;
+
+   QStringList location = item->getNodePath ();  // Starts from ROOT, excludes core  and item itself.
+   if (location.size () >= 1 && location.value (0) != "ROOT") return false;
+
+   QEPvLoadSaveItem* parentItem;
+   int s;
+
+   // Create item's path in this model.
+   //
+   parentItem = this->coreItem;
+   for (s = 0; s < location.size (); s++) {
+      QString nodeName = location.value (s);
+      QEPvLoadSaveItem* nextItem;
+
+      nextItem = parentItem->getNamedChild (nodeName);
+
+      if (nextItem) {
+         // already exists.
+         //
+         if (nextItem->getIsPV ()) {
+            // And item cannot be both a group and a PV.
+            //
+            DEBUG << "*** PV/Group conflict" << nodeName;
+            return false;
+         }
+      } else {
+         // does not exists - let's create it.
+         //
+         nextItem = new QEPvLoadSaveItem (nodeName, false, nilValue, NULL);
+         this->addItemToModel (nextItem, parentItem);
+      }
+
+      parentItem = nextItem;
+   }
+
+   return mergeItemInToItem (item, parentItem);
+}
+
+//-----------------------------------------------------------------------------
+//
 void QEPvLoadSaveModel::extractPVData ()
 {
    // core always exists, and it will find root if it exists.
@@ -195,12 +296,12 @@ QEPvLoadSaveItem* QEPvLoadSaveModel::getRootItem ()
 //
 void QEPvLoadSaveModel::acceptActionComplete (const QEPvLoadSaveItem* item, QEPvLoadSaveCommon::ActionKinds action, bool actionSuccessful)
 {
-   QModelIndex index = this->getIndex (item);
+   if (!item) return;
 
    switch (action) {
       case QEPvLoadSaveCommon::Extract:
       case QEPvLoadSaveCommon::ReadArchive:
-         emit this->dataChanged (index, index);  // this causes tree view to update
+         this->itemUpdated (item);  // this causes tree view to update
          break;
 
       case QEPvLoadSaveCommon::Apply:
@@ -309,9 +410,9 @@ bool QEPvLoadSaveModel::eventFilter (QObject *obj, QEvent* event)
    QEPvLoadSaveItem* item = NULL;
    QString nodeName;
 
-   // *** Big explanation
+   // The row size scales, buy the cursor is fixed size.
    //
-   int dragOffset = QEScaling::scale (17) + 18;  // row height (scale) + fixed
+   int dragOffset = QEScaling::scale (17) + 18;
 
    switch (type) {
 
@@ -381,6 +482,7 @@ bool QEPvLoadSaveModel::eventFilter (QObject *obj, QEvent* event)
    return false; // we did not handle this event
 }
 
+
 //=============================================================================
 // Overriden model functions
 //=============================================================================
@@ -404,10 +506,8 @@ QVariant QEPvLoadSaveModel::data (const QModelIndex& index, int role) const
 //
 bool QEPvLoadSaveModel::setData (const QModelIndex&, const QVariant&, int)
 {
-   DEBUG << " ==========  UNEXPECTED  ===========";
    return false;
 }
-
 
 //-----------------------------------------------------------------------------
 //
@@ -436,10 +536,8 @@ QVariant QEPvLoadSaveModel::headerData (int section, Qt::Orientation orientation
 
 //-----------------------------------------------------------------------------
 //
-
 bool QEPvLoadSaveModel::setHeaderData (int, Qt::Orientation, const QVariant&, int)
 {
-   DEBUG << " ==========  UNEXPECTED  ===========";
    return false;
 }
 
@@ -486,7 +584,8 @@ QModelIndex QEPvLoadSaveModel::parent (const QModelIndex & child) const
       }
    }
 
-   DEBUG << " ========== UNEXPECTED ===========";
+   // Unexpected
+   //
    return QModelIndex ();
 }
 
@@ -498,7 +597,8 @@ int QEPvLoadSaveModel::rowCount (const QModelIndex & parent) const
 
    if (parentItem) return  parentItem->childCount();
 
-   DEBUG << "========== no parent";
+   // Unexpected
+   //
    return 0;
 }
 
