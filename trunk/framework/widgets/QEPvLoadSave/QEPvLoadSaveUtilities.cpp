@@ -228,6 +228,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename)
 
    DEBUG << " no far so good" ;
 
+   file.close ();
    return result;
 }
 

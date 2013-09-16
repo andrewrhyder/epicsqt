@@ -831,7 +831,8 @@ void QEPvLoadSave::copyAllClicked (bool)
    VERIFY_SENDER;
    QEPvLoadSaveItem* item = this->half [side]->model->getRootItem ();
    if (item) {
-      DEBUG << item->getNodePath ();
+      Sides otherSide = (side == LeftSide) ? RightSide : LeftSide;
+      this->half [otherSide]->model->mergeItemInToModel (item);
    }
 }
 
@@ -843,7 +844,8 @@ void QEPvLoadSave::copySubsetClicked (bool)
 
    QEPvLoadSaveItem* item = this->half [side]->model->getSelectedItem ();
    if (item) {
-      DEBUG << item->getNodePath ();
+      Sides otherSide = (side == LeftSide) ? RightSide : LeftSide;
+      this->half [otherSide]->model->mergeItemInToModel (item);
    }
 }
 

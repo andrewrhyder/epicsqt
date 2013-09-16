@@ -197,19 +197,38 @@ bool QEPvLoadSaveItem::removeChildren(int position, int count)
 // Specific non-example functions.
 //=============================================================================
 //
-QEPvLoadSaveItem* QEPvLoadSaveItem::clone (QEPvLoadSaveItem* parent)
+QEPvLoadSaveItem* QEPvLoadSaveItem::getNamedChild (const QString& searchName)
+{
+   QEPvLoadSaveItem* result = NULL;
+   int r;
+
+   for (r = 0; r < this->childCount(); r++) {
+      QEPvLoadSaveItem* child = this->getChild (r);
+      if (child->getNodeName () == searchName) {
+         // found it.
+         //
+         result = child;
+         break;
+      }
+   }
+   return result;
+}
+
+//-----------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveItem::clone (const bool doDeep, QEPvLoadSaveItem* parent)
 {
    QEPvLoadSaveItem* result = NULL;
 
    result = new QEPvLoadSaveItem (this->getNodeName (), this->getIsPV (), this->getNodeValue (), parent);
 
-   if (!this->getIsPV ()) {
+   if (doDeep && this->getIsGroup ()) {
        // Now clone each child.
       //
        for (int j = 0; j < this->childItems.count(); j++) {
            QEPvLoadSaveItem* theChild = this->getChild (j);
            QEPvLoadSaveItem* childClone;
-           childClone = theChild->clone (result);
+           childClone = theChild->clone (doDeep, result);
        }
    }
 
@@ -251,6 +270,13 @@ void QEPvLoadSaveItem::setNodeName (const QString& nodeNameIn)
 QString QEPvLoadSaveItem::getNodeName () const
 {
    return this->nodeName;
+}
+
+//-----------------------------------------------------------------------------
+//
+void QEPvLoadSaveItem::setNodeValue (const QVariant& valueIn)
+{
+   this->value = valueIn;
 }
 
 //-----------------------------------------------------------------------------
