@@ -140,7 +140,14 @@ public:
                       const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
                       const QString customisationNameIn );                 // New window customisation name (menu, buttons, etc)
 
+    windowCustomisationItem(windowCustomisationItem* item);
 
+    QString getUiFile(){return uiFile;}
+    QString getProgram(){return program;}
+    QStringList getProgramArguments(){return programArguments;}
+    QString getMacroSubstitutions(){return macroSubstitutions;}
+    QEGuiLaunchRequests::Options getCreationOption(){return creationOption;}
+    QString getCustomisationName(){return customisationName;}
 private:
     // Item action
     QString uiFile;                                 // UI to display
@@ -174,6 +181,8 @@ public:
                           const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
                           const QString customisationNameIn );                 // New window customisation name (menu, buttons, etc)
 
+    windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem);
+
     QStringList getMenuHierarchy(){return menuHierarchy;}
     QString getTitle(){return title;}
 private:
@@ -201,7 +210,11 @@ public:
                             const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
                             const QString customisationNameIn );                 // New window customisation name (menu, buttons, etc)
 
+    windowCustomisationButtonItem(windowCustomisationButtonItem* buttonItem);
+
+    QString getButtonGroup(){ return buttonGroup; }
     QString getButtonText(){ return buttonText; }
+    QString getButtonIcon(){ return buttonIcon; }
 
 private:
     // Button details.
@@ -259,6 +272,7 @@ private:
                                           QStringList menuHierarchy);
     windowCustomisationButtonItem* createButtonItem( // Create a button customisation item
                                               QDomElement itemElement);
+    QAction* createDockWidget( QMainWindow* mw,  windowCustomisationMenuItem* menuItem, QList<QDockWidget*>& dockWidgetList );
     QList<windowCustomisation*> customisationList;                         // List of customisations
 };
 

@@ -26,6 +26,7 @@
 #include <QtGui>
 #include <QDebug>
 #include <QString>
+#include <QUiLoader>
 
 #include <MainWindow.h>
 #include <QEForm.h>
@@ -96,12 +97,14 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
 
     // Set the default title
     setTitle( "" );
-// Zai testing
-//    windowConfigList* configData = new windowConfigList();
-//    configData->loadConfig("test.xml");
-//    configData->applyConfig( this, "ROI" );
-//    configData->applyConfig( this, "IMBL_MINOR" );
-//    configData->applyConfig( this, "IMBL_MAIN" );
+//Zai Testing
+static bool m = false;
+//ui.menuBar->clear();
+if (!m){
+//    setTitle( "Main Window" );
+//    app->applyCustomisations( this, "Testing" );
+    m = true;
+}
 
     // Populate the 'Windows' menu to include all current guis in any main window
     buildWindowsMenu();
@@ -1096,10 +1099,52 @@ void MainWindow::launchGui( QString guiName, QString customisationName, QEGuiLau
         case QEGuiLaunchRequests::OptionNewWindow:
             {
                 MainWindow* w = new MainWindow( app, guiName, customisationName, true ); // Note, profile should have been published by signal code
+//                w->setTitle(customisationName); // Zai Testing
                 w->show();
             }
             break;
-
+/*
+        // Zai Testing
+        // Create a QDockWidget for a gui form
+        case QEGuiLaunchRequests::OptionLeftDockWindow:
+        case QEGuiLaunchRequests::OptionRightDockWindow:
+        case QEGuiLaunchRequests::OptionTopDockWindow:
+        case QEGuiLaunchRequests::OptionBottomDockWindow:
+            {
+                QFile file( guiName );
+                if (!file.open(QIODevice::ReadOnly))
+                {
+                    qDebug() << "Could not open ui file" << guiName;
+                    return;
+                }
+                Qt::DockWidgetArea dockLocation = Qt::BottomDockWidgetArea;
+                QUiLoader loader;
+                QWidget* ui = loader.load( &file );
+                QDockWidget *dock = new QDockWidget(customisationName, this);
+                dock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+                if (createOption == QEGuiLaunchRequests::OptionLeftDockWindow){
+                    dockLocation = Qt::LeftDockWidgetArea;
+                }
+                else if (createOption == QEGuiLaunchRequests::OptionRightDockWindow){
+                    dockLocation = Qt::RightDockWidgetArea;
+                }
+                else if (createOption == QEGuiLaunchRequests::OptionTopDockWindow){
+                    dockLocation = Qt::TopDockWidgetArea;
+                }
+                addDockWidget(dockLocation, dock);
+                dock->setWidget(ui);
+//                dock->hide();
+            }
+            break;
+*/
+        // Open the specified gui in a new child window
+        case QEGuiLaunchRequests::OptionNewChildWindow:
+            {
+                MainWindow* w = new MainWindow( app, guiName, customisationName, true, this ); // Note, profile should have been published by signal code
+                w->setTitle(customisationName); // Zai Testing
+                w->show();
+            }
+            break;
         default:
             qDebug() << "MainWindow::launchGui() Unexpected gui creation option: " << createOption;
             break;
