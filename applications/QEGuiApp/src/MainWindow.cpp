@@ -23,6 +23,110 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
+/*
+ Window and GUI construction paths
+
+        Core GUI construction should always be performed by MainWindow::createGui()
+
+          MainWindow::createGui()
+            manage form IDs
+            create a new QEForm
+            manage restoration
+            manage scaling
+            read ui
+            add gui to application's list of windows
+
+
+        A new GUI may be created by creating a new window:
+
+          MainWindow::MainWindow()
+            manage form ID, form filter, source filter
+            manage scaling
+            add to the window selection menu
+            connect to the persistance manager
+            manage the application's window list
+            set the title
+            update the recent file menu
+            set up the menu bar (enable edit, etc)
+            present the 'Open' dialog if required
+            call MainWindow::createGui()
+            perform restore if required
+
+
+        A new GUI may be created by calling the slot supporting the 'File...' -> 'New Tab' menu item
+          MainWindow::on_actionNew_Tab_triggered()
+            call MainWindow::createGui()
+            put gui in new tab
+
+
+        A new GUI may be created by calling the slot supporting the 'File...' -> 'Open' menu item
+
+          MainWindow::on_actionOpen_triggered()
+            call MainWindow::createGui()
+            put gui in current window
+
+
+        A new GUI may be created by calling the slot supporting the 'Edit...' -> 'Refresh Current Form' menu item
+
+          MainWindow::on_actionRefresh_Current_Form_triggered()
+            call MainWindow::createGui()
+            put gui in current window
+
+
+        A new GUI may be created by calling when performing a 'restore' on a main window
+
+          MainWindow::saveRestore()
+            call MainWindow::createGui()
+
+
+        A new main window may be created by the slot supporting the 'File...' -> 'New Window' menu item
+
+          MainWindow::on_actionNew_Window_triggered()
+            call MainWindow::MainWindow()
+
+
+        A new window may be created by the slots connected to actions for displaying inbuilt forms
+
+          MainWindow::on_actionPVProperties_triggered()
+          MainWindow::on_actionStrip_Chart_triggered()
+          MainWindow::on_actionMessage_Log_triggered()
+          MainWindow::on_actionPlotter_triggered()
+          MainWindow::on_actionScratch_Pad_triggered()
+          MainWindow::on_actionArchive_Status_triggered()
+            call MainWindow::launchLocalGui()
+              call MainWindow::MainWindow()
+
+
+        A new window may be created by the 'Detatch Tab' in the main window's context menu:
+
+          MainWindow::tabContextMenuTrigger()
+            get details from appropriate tabbed GUI
+            close tabbed GUI
+            call MainWindow::MainWindow()
+
+
+        A new window, or a new GUI in an existing main window, may be created by the slot for
+        requesting new GUIs (signaled from QE Buttons and other QE widgets, and custom menu items)
+
+          MainWindow::requestGui()
+            either
+              call MainWindow::launchGui()
+                standardise path name
+                search for existing open .ui file (display it if found)
+                either
+                  call MainWindow::createGui()
+                  put gui in current main window
+                or
+                  call MainWindow::createGui()
+                  put gui in new tab
+                or
+                  call MainWindow::MainWindow( app, "", "", true );
+            or
+              call MainWindow::launchLocalGui()
+                call MainWindow::MainWindow()
+
+ */
+
 #include <QtGui>
 #include <QDebug>
 #include <QString>
@@ -1657,13 +1761,14 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 PMElement state =  mw.addElement( "State" );
                 state.addAttribute( "Flags", windowState() );
 
-                // Note which GUI is the current GUI. Mainly if main window is displaying
+                // Note which GUI is the current GUI. This is relevent if main window is displaying
                 // more than one gui in a tab widget. Redundant but harmless if only one gui is present.
                 QEForm* currentGui = getCurrentGui();
 
                 // Save details for each GUI
                 for( int i = 0; i < app->getGuiCount(); i++ )
                 {
+                    // Only save details for GUIs in this main window (List contains GUIs in all main windows)
                     if( app->getGuiMainWindow( i ) == this )
                     {
                         // Gui name and ID
@@ -1706,9 +1811,31 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                         if( sa )
                         {
                             PMElement pos =  form.addElement( "Scroll" );
-                            pos.addAttribute( "X",  sa->horizontalScrollBar()->value() );
+                            pos.addAttribute( "X", sa->horizontalScrollBar()->value() );
                             pos.addAttribute( "Y", sa->verticalScrollBar()->value() );
                         }
+
+//                        // Save the window presentation.
+//                        // The window may be presented within the main window's central widget (on its own
+//                        // or inside a tabbed widget with other GUIs), or the window may be presented as a docked window.
+//                        if( ??? )
+//                        {
+//                            QDockWidget* dock = NULL;//???
+//                            form.addValue( "Presentation", "Docked" );
+//                            PMElement docking =  form.addElement( "Docking" );
+//                            docking.addAttribute( "AllowedAreas", dock->allowedAreas() );
+//                            docking.addAttribute( "Features", dock->features() );
+//                            docking.addAttribute( "Floating", dock->isFloating() );
+//                            docking.addAttribute( "X", dock->x() );
+//                            docking.addAttribute( "Y", dock->y() );
+//                            docking.addAttribute( "Width", dock->width() );
+//                            docking.addAttribute( "Height", dock->height() );
+//                        }
+//                        else
+//                        {
+//                            form.addValue( "Presentation", "Central" );
+//                        }
+
                     }
                 }
             }
