@@ -44,7 +44,12 @@ public:
 
    enum Options { OptionOpen,
                   OptionNewTab,
-                  OptionNewWindow };
+                  OptionNewWindow,
+                  OptionNewChildWindow,
+                  OptionLeftDockWindow,
+                  OptionRightDockWindow,
+                  OptionTopDockWindow,
+                  OptionBottomDockWindow };
 
 
    // Constructors.
