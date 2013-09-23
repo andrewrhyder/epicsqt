@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>548</width>
-     <height>27</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -35,6 +35,7 @@
     </widget>
     <addaction name="actionNew_Window"/>
     <addaction name="actionNew_Tab"/>
+    <addaction name="actionNew_Dock"/>
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
     <addaction name="menuRecent"/>
@@ -193,6 +194,11 @@
   <action name="actionArchive_Status">
    <property name="text">
     <string>Archive Status</string>
+   </property>
+  </action>
+  <action name="actionNew_Dock">
+   <property name="text">
+    <string>New Dock</string>
    </property>
   </action>
  </widget>

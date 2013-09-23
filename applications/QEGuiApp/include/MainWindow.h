@@ -70,6 +70,8 @@ private:
     QEForm* createGui( QString fileName, QString customisationName, QString restoreId ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
+    void loadGuiIntoNewDock( QEForm* gui, QEGuiLaunchRequests::Options createOption );                 // Load a new gui into a new dock
+
     MainWindow* launchLocalGui( const QString& filename );  // Launch a new gui from the 'File' menu and gui launch requests.
     MainWindow* launchLocalGui( const QString& filename,    // Launch a new gui from the requestGui slot.
                                 const QString& className,
@@ -115,7 +117,8 @@ private:
     QEGui* app;
 
     void closeEvent(QCloseEvent *event);
-
+    enum guiPresentations { PRESENTATION_CENTRAL, PRESENTATION_TAB, PRESENTATION_DOCK, PRESENTATION_UNKNOWN };
+    guiPresentations guiPresentation( QEForm* gui, QWidget** container );
 
 private:
     QMenu *tabMenu;    // We want to keep a refernece to certain widget objects. Declaring these directly in the
@@ -133,6 +136,7 @@ private slots:
     void on_actionDesigner_triggered();                         // Slot to perform 'Open Designer' action
     void on_actionNew_Window_triggered();                       // Slot to perform 'New Window' action
     void on_actionNew_Tab_triggered();                          // Slot to perform 'New Tab' action
+    void on_actionNew_Dock_triggered();                          // Slot to perform 'New Dock' action
     void on_actionOpen_triggered();                             // Slot to perform 'Open' action
     void on_actionClose_triggered();                            // Slot to perform 'Close' action
     void on_actionAbout_triggered();                            // Slot to perform 'About' action

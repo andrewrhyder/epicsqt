@@ -516,9 +516,14 @@ public:
     Q_PROPERTY(CreationOptionNames creationOption READ getCreationOptionProperty WRITE setCreationOptionProperty)
 
     /// Creation options. Used to indicate how to present a GUI when requesting a new GUI be created. Open a new window, open a new tab, or replace the current window.
-    enum CreationOptionNames { Open = QEGuiLaunchRequests::OptionOpen,            ///< Replace the current GUI with the new GUI
-                               NewTab = QEGuiLaunchRequests::OptionNewTab,        ///< Open new GUI in a new tab
-                               NewWindow = QEGuiLaunchRequests::OptionNewWindow   ///< Open new GUI in a new window
+    enum CreationOptionNames { Open = QEGuiLaunchRequests::OptionOpen,                      ///< Replace the current GUI with the new GUI
+                               NewTab = QEGuiLaunchRequests::OptionNewTab,                  ///< Open new GUI in a new tab
+                               NewWindow = QEGuiLaunchRequests::OptionNewWindow,            ///< Open new GUI in a new window
+                               DockTop = QEGuiLaunchRequests::OptionTopDockWindow,          ///< Open new GUI in a top dock window
+                               DockBottom = QEGuiLaunchRequests::OptionBottomDockWindow,    ///< Open new GUI in a bottom dock window
+                               DockLeft = QEGuiLaunchRequests::OptionLeftDockWindow,        ///< Open new GUI in a left dock window
+                               DockRight = QEGuiLaunchRequests::OptionRightDockWindow,      ///< Open new GUI in a right dock window
+                               DockFloating = QEGuiLaunchRequests::OptionFloatingDockWindow ///< Open new GUI in a floating dock window
                              };
 
     /// Overriding macro substitutions. These macro substitions take precedence over any existing

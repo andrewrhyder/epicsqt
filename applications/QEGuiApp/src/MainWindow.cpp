@@ -37,7 +37,7 @@
             add gui to application's list of windows
 
 
-        A new GUI may be created by creating a new window:
+        A new GUI may be created by creating a new Main Window (based on a QMainWindow):
 
           MainWindow::MainWindow()
             manage form ID, form filter, source filter
@@ -57,6 +57,11 @@
           MainWindow::on_actionNew_Tab_triggered()
             call MainWindow::createGui()
             put gui in new tab
+
+        A new GUI may be created by calling the slot supporting the 'File...' -> 'New Dock' menu item
+          MainWindow::on_actionNew_Dock_triggered()
+            call MainWindow::createGui()
+            put gui in new dock
 
 
         A new GUI may be created by calling the slot supporting the 'File...' -> 'Open' menu item
@@ -295,6 +300,17 @@ void MainWindow::on_actionNew_Tab_triggered()
     QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName );
     profile.releaseProfile();
     loadGuiIntoNewTab( gui );
+}
+
+// Open a gui in a new dock.
+// Present a file open dialog box and after generate the gui based on the ui file the user selects
+void MainWindow::on_actionNew_Dock_triggered()
+{
+    // Create the GUI
+    profile.publishOwnProfile();
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName );
+    profile.releaseProfile();
+    loadGuiIntoNewDock( gui, QEGuiLaunchRequests::OptionBottomDockWindow );
 }
 
 // User requested a new gui to be opened
@@ -1050,6 +1066,43 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
     setTitle( gui->getQEGuiTitle() );
 }
 
+// Open a gui in a new dock
+// Either as a result of the gui user requesting a new dock, or a contained object (gui push button) requesting a new dock
+void MainWindow::loadGuiIntoNewDock( QEForm* gui, QEGuiLaunchRequests::Options createOption )
+{
+    // Do nothing if couldn't create gui
+    if( !gui )
+        return;
+
+    // Ensure the gui can be resized
+    QWidget* rGui = resizeableGui( gui );
+
+    Qt::DockWidgetArea dockLocation = Qt::BottomDockWidgetArea;
+
+    QDockWidget *dock = new QDockWidget( this );
+    dock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    switch( createOption )
+    {
+        default:
+        case QEGuiLaunchRequests::OptionFloatingDockWindow:
+        case QEGuiLaunchRequests::OptionLeftDockWindow:     dockLocation = Qt::LeftDockWidgetArea;   break;
+        case QEGuiLaunchRequests::OptionRightDockWindow:    dockLocation = Qt::RightDockWidgetArea;  break;
+        case QEGuiLaunchRequests::OptionTopDockWindow:      dockLocation = Qt::TopDockWidgetArea;    break;
+        case QEGuiLaunchRequests::OptionBottomDockWindow:   dockLocation = Qt::BottomDockWidgetArea; break;
+    }
+
+    // Add the dock to this main window
+    addDockWidget(dockLocation, dock);
+
+    // Load the GUI into the dock
+    dock->setWidget( rGui );
+
+    // Set floating if requested
+    dock->setFloating( createOption == QEGuiLaunchRequests::OptionFloatingDockWindow);
+}
+
+
 //=================================================================================
 // Reimplementation of UserMessage method for presenting messages
 //=================================================================================
@@ -1203,44 +1256,23 @@ void MainWindow::launchGui( QString guiName, QString customisationName, QEGuiLau
         case QEGuiLaunchRequests::OptionNewWindow:
             {
                 MainWindow* w = new MainWindow( app, guiName, customisationName, true ); // Note, profile should have been published by signal code
-//                w->setTitle(customisationName); // Zai Testing
                 w->show();
             }
             break;
-/*
-        // Zai Testing
-        // Create a QDockWidget for a gui form
+
+        // Create the specified gui in a new dosk
         case QEGuiLaunchRequests::OptionLeftDockWindow:
         case QEGuiLaunchRequests::OptionRightDockWindow:
         case QEGuiLaunchRequests::OptionTopDockWindow:
         case QEGuiLaunchRequests::OptionBottomDockWindow:
+        case QEGuiLaunchRequests::OptionFloatingDockWindow:
             {
-                QFile file( guiName );
-                if (!file.open(QIODevice::ReadOnly))
-                {
-                    qDebug() << "Could not open ui file" << guiName;
-                    return;
-                }
-                Qt::DockWidgetArea dockLocation = Qt::BottomDockWidgetArea;
-                QUiLoader loader;
-                QWidget* ui = loader.load( &file );
-                QDockWidget *dock = new QDockWidget(customisationName, this);
-                dock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-                if (createOption == QEGuiLaunchRequests::OptionLeftDockWindow){
-                    dockLocation = Qt::LeftDockWidgetArea;
-                }
-                else if (createOption == QEGuiLaunchRequests::OptionRightDockWindow){
-                    dockLocation = Qt::RightDockWidgetArea;
-                }
-                else if (createOption == QEGuiLaunchRequests::OptionTopDockWindow){
-                    dockLocation = Qt::TopDockWidgetArea;
-                }
-                addDockWidget(dockLocation, dock);
-                dock->setWidget(ui);
-//                dock->hide();
+                // Create the gui and load it into a new dock
+                QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
+                loadGuiIntoNewDock( gui, createOption );
             }
             break;
-*/
+
         // Open the specified gui in a new child window
         case QEGuiLaunchRequests::OptionNewChildWindow:
             {
@@ -1540,6 +1572,44 @@ QEForm* MainWindow::getCurrentGui()
     return NULL;
  }
 
+MainWindow::guiPresentations MainWindow::guiPresentation( QEForm* gui, QWidget** container )
+{
+    // Assume no container
+    *container = NULL;
+
+    // Get the gui parent.
+    // This may be the central widget, the tab widget, or the dock widget we are looking for,
+    // or it may be an intermediate scroll area added to make the GUI resizeable.
+    QWidget* w = gui->parentWidget();
+
+    // If the parent is a scroll area, then wind back up one more widget to the
+    // central widget, the tab widget, or the dock widget
+    if( w && QString( "QScrollArea").compare( w->metaObject()->className() ) == 0 )
+    {
+        w = w->parentWidget();
+    }
+
+    // Depending in where the gui is located, determine the presentation type
+    if( w )
+    {
+        *container = w;
+        if( QString( "QMainWindow").compare( w->metaObject()->className() ) == 0 )
+        {
+            return PRESENTATION_CENTRAL;
+        }
+        else if( QString( "QTabWidget").compare( w->metaObject()->className() ) == 0 )
+        {
+            return PRESENTATION_TAB;
+        }
+        else if( QString( "QDockWidget").compare( w->metaObject()->className() ) == 0 )
+        {
+            return PRESENTATION_DOCK;
+        }
+    }
+    *container = NULL;
+    return PRESENTATION_UNKNOWN;
+}
+
 //=================================================================================
 // Methods to manage the 'Windows' and 'Recent...' menus
 //=================================================================================
@@ -1818,24 +1888,46 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 //                        // Save the window presentation.
 //                        // The window may be presented within the main window's central widget (on its own
 //                        // or inside a tabbed widget with other GUIs), or the window may be presented as a docked window.
-//                        if( ??? )
+//                        QWidget* guiContainer;
+//                        switch( guiPresentation( app->getGuiForm( i ), &guiContainer ) )
 //                        {
-//                            QDockWidget* dock = NULL;//???
-//                            form.addValue( "Presentation", "Docked" );
-//                            PMElement docking =  form.addElement( "Docking" );
-//                            docking.addAttribute( "AllowedAreas", dock->allowedAreas() );
-//                            docking.addAttribute( "Features", dock->features() );
-//                            docking.addAttribute( "Floating", dock->isFloating() );
-//                            docking.addAttribute( "X", dock->x() );
-//                            docking.addAttribute( "Y", dock->y() );
-//                            docking.addAttribute( "Width", dock->width() );
-//                            docking.addAttribute( "Height", dock->height() );
-//                        }
-//                        else
-//                        {
-//                            form.addValue( "Presentation", "Central" );
-//                        }
+//                            case PRESENTATION_CENTRAL:
+//                            {
+//                                form.addValue( "Presentation", "Central" );
+//                                break;
+//                            }
 
+//                            case PRESENTATION_TAB:
+//                            {
+//                                form.addValue( "Presentation", "Tab" );
+//                                break;
+//                            }
+
+//                            case PRESENTATION_DOCK:
+//                            {
+//                                form.addValue( "Presentation", "Dock" );
+//                                if( guiContainer && QString( "QDockWidget").compare( guiContainer->metaObject()->className() ) == 0 )
+//                                {
+//                                    PMElement docking =  form.addElement( "Docking" );
+//                                    QDockWidget* dock = (QDockWidget*)(guiContainer);
+//                                    docking.addAttribute( "AllowedAreas", dock->allowedAreas() );
+//                                    docking.addAttribute( "Features", dock->features() );
+//                                    docking.addAttribute( "Floating", dock->isFloating() );
+//                                    docking.addAttribute( "X", dock->x() );
+//                                    docking.addAttribute( "Y", dock->y() );
+//                                    docking.addAttribute( "Width", dock->width() );
+//                                    docking.addAttribute( "Height", dock->height() );
+//                                }
+//                                break;
+//                            }
+
+//                            case PRESENTATION_UNKNOWN:
+//                            {
+//                                // Assume central
+//                                form.addValue( "Presentation", "Central" );
+//                                break;
+//                            }
+//                        }
                     }
                 }
             }
@@ -1942,18 +2034,64 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             guiElement.getValue( "CustomisationName", customisationName );
 
                             QEForm* gui = createGui( name, customisationName, restoreId );
-                            if( i == 0)
+
+                            QString presentation;
+                            guiElement.getValue( "Presentation", presentation );
+
+                            // If no presentation, assume the first gui is a central gui and any more are tabs.
+                            // (in which case the first was also a tab and will be converted to a tab when the second tab is added)
+                            if( presentation.isEmpty() )
+                            {
+                                if( i == 0 )
+                                {
+                                    presentation = QString( "Central" );
+                                }
+                                else
+                                {
+                                    presentation = QString( "Tab" );
+                                }
+                            }
+
+                            // If the gui is the central widget, create it as such
+                            if( presentation.compare( "Central" ) == 0 )
                             {
                                 // Load the gui into the main window
                                 loadGuiIntoCurrentWindow( gui, false );
                             }
-                            else
+
+                            // If the gui is a tab, create it as such
+                            else if( presentation.compare( "Tab" ) == 0 )
                             {
                                 // If not using tabs, start tabs and migrate any single gui to the first tab
                                 if( !usingTabs )
                                     setTabMode();
+
                                 // Create gui as a new tab
                                 loadGuiIntoNewTab( gui );
+                            }
+
+                            // If the gui is a dock, create it as such
+                            else if( presentation.compare( "Dock" ) == 0 )
+                            {
+                                PMElement docking = guiElement.getElement( "Docking" );
+
+                                int allowedAreas = Qt::AllDockWidgetAreas;
+                                int features = QDockWidget::AllDockWidgetFeatures;
+                                bool floating = false;
+                                int x = 0;
+                                int y = 0;
+                                int width = 100;
+                                int height = 100;
+                                docking.getAttribute( QString( "AllowedAreas" ), allowedAreas );
+                                docking.getAttribute( "Features", features );
+                                docking.getAttribute( "Floating", floating );
+                                docking.getAttribute( "X", x );
+                                docking.getAttribute( "Y", y );
+                                docking.getAttribute( "Width", width );
+                                docking.getAttribute( "Height", height );
+
+                                // Create gui as a new dock
+                                loadGuiIntoNewDock( gui, QEGuiLaunchRequests::OptionTopDockWindow ); //??? doesn't pass in all dock attributes yet
                             }
 
                             // Note if this gui is the current gui
