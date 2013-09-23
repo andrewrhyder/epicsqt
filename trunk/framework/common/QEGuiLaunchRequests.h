@@ -46,10 +46,11 @@ public:
                   OptionNewTab,
                   OptionNewWindow,
                   OptionNewChildWindow,
+                  OptionTopDockWindow,
+                  OptionBottomDockWindow,
                   OptionLeftDockWindow,
                   OptionRightDockWindow,
-                  OptionTopDockWindow,
-                  OptionBottomDockWindow };
+                  OptionFloatingDockWindow };
 
 
    // Constructors.

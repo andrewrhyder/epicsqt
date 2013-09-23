@@ -161,7 +161,7 @@ private:
     QStringList arguments;  // Program arguments
 
     QString guiName;      // GUI file name to launch
-    QEGuiLaunchRequests::Options creationOption;
+    QEGuiLaunchRequests::Options creationOption;  // Indicate how the new gui should be created ( examples: in a new window, or a top dock)
     QString prioritySubstitutions;  // Macro substitutions that take precedence over existing substitutions when creating new guis
     QString customisationName;      // Name of set of Window customisations such as additional menu items or tool bar push buttons
 
