@@ -1,5 +1,4 @@
-/*  PeriodicDialog.h
- *
+/*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -27,13 +26,12 @@
 #define PERIODICDIALOG_H
 
 #include <QtGui/QDialog>
-#include <QEDialog.h>
 
 namespace Ui {
     class PeriodicDialog;
 }
 
-class PeriodicDialog : public QEDialog {
+class PeriodicDialog : public QDialog {
     Q_OBJECT
 public:
     PeriodicDialog(QWidget *parent = 0);

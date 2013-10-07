@@ -164,7 +164,7 @@ void QEStripChartItem::createInternalWidgets ()
    this->colourDialog = new QColorDialog (this);
    this->inUseMenu = new QEStripChartContextMenu (true, this);
    this->emptyMenu = new QEStripChartContextMenu (false, this);
-   this->pvNameSelectDialog = new QEPVNameSelectDialog (this);
+   this->pvNameEditDialog = new QEStripChartItemDialog (this);
    this->adjustPVDialog = new QEStripChartAdjustPVDialog (this);
 }
 
@@ -955,7 +955,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
                                            this->getBufferedMinMax(false));
 
          this->adjustPVDialog->setValueScaling (this->scaling);
-         n = this->adjustPVDialog->exec (this);
+         n = this->adjustPVDialog->exec ();
          if (n == 1) {
              // User has selected okay.
              this->scaling.assign (this->adjustPVDialog->getValueScaling ());
@@ -1004,13 +1004,12 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
 
       case QEStripChartNames::SCCM_PV_ADD_NAME:
       case QEStripChartNames::SCCM_PV_EDIT_NAME:
-         this->pvNameSelectDialog->setPvName (this->getPvName ());
-         n = this->pvNameSelectDialog->exec (this);
+         this->pvNameEditDialog->setPvName (this->getPvName ());
+         n = this->pvNameEditDialog->exec ();
          if (n == 1) {
             // User has selected okay.
-            //
-            if (this->getPvName () != this->pvNameSelectDialog->getPvName ()) {
-               this->setPvName (this->pvNameSelectDialog->getPvName (), "");
+            if (this->getPvName () != this->pvNameEditDialog->getPvName ()) {
+               this->setPvName (this->pvNameEditDialog->getPvName (), "");
             }
             // and replot the data
             //

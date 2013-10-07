@@ -29,9 +29,9 @@
 #ifndef LOGINDIALOG_H
 #define LOGINDIALOG_H
 
-#include <QEDialog.h>
+#include <QDialog>
 
-class loginDialog  : public QEDialog
+class loginDialog  : public QDialog
 {
 public:
     loginDialog();

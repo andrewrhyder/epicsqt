@@ -11,19 +11,21 @@ RESOURCES += \
 
 HEADERS += \
     widgets/QEScratchPad/QEScratchPad.h \
+    widgets/QEScratchPad/QEScratchPadItemDialog.h \
     widgets/QEScratchPad/QEScratchPadMenu.h \
     widgets/QEScratchPad/QEScratchPadManager.h
 
 SOURCES += \
     widgets/QEScratchPad/QEScratchPad.cpp \
+    widgets/QEScratchPad/QEScratchPadItemDialog.cpp \
     widgets/QEScratchPad/QEScratchPadMenu.cpp \
     widgets/QEScratchPad/QEScratchPadManager.cpp
 
 INCLUDEPATH += \
     widgets/QEScratchPad
 
-#FORMS += \
-#   widgets/QEScratchPad/QEScratchPadItemDialog.ui
+FORMS += \
+    widgets/QEScratchPad/QEScratchPadItemDialog.ui
 
 
 # end

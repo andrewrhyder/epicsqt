@@ -28,7 +28,7 @@
 #define QEPLOTTERITEMDIALOG_H
 
 #include <QString>
-#include <QEDialog.h>
+#include <QDialog>
 
 namespace Ui {
     class QEPlotterItemDialog;
@@ -37,7 +37,7 @@ namespace Ui {
 /*
  * Manager class for the QEPlotterItemDialog.ui compiled form.
  */
-class QEPlotterItemDialog : public QEDialog
+class QEPlotterItemDialog : public QDialog
 {
     Q_OBJECT
 

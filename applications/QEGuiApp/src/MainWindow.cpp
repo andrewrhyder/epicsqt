@@ -23,125 +23,14 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-/*
- Window and GUI construction paths
-
-        Core GUI construction should always be performed by MainWindow::createGui()
-
-          MainWindow::createGui()
-            manage form IDs
-            create a new QEForm
-            manage restoration
-            manage scaling
-            read ui
-            add gui to application's list of windows
-
-
-        A new GUI may be created by creating a new Main Window (based on a QMainWindow):
-
-          MainWindow::MainWindow()
-            manage form ID, form filter, source filter
-            manage scaling
-            add to the window selection menu
-            connect to the persistance manager
-            manage the application's window list
-            set the title
-            update the recent file menu
-            set up the menu bar (enable edit, etc)
-            present the 'Open' dialog if required
-            call MainWindow::createGui()
-            perform restore if required
-
-
-        A new GUI may be created by calling the slot supporting the 'File...' -> 'New Tab' menu item
-          MainWindow::on_actionNew_Tab_triggered()
-            call MainWindow::createGui()
-            put gui in new tab
-
-        A new GUI may be created by calling the slot supporting the 'File...' -> 'New Dock' menu item
-          MainWindow::on_actionNew_Dock_triggered()
-            call MainWindow::createGui()
-            put gui in new dock
-
-
-        A new GUI may be created by calling the slot supporting the 'File...' -> 'Open' menu item
-
-          MainWindow::on_actionOpen_triggered()
-            call MainWindow::createGui()
-            put gui in current window
-
-
-        A new GUI may be created by calling the slot supporting the 'Edit...' -> 'Refresh Current Form' menu item
-
-          MainWindow::on_actionRefresh_Current_Form_triggered()
-            call MainWindow::createGui()
-            put gui in current window
-
-
-        A new GUI may be created by calling when performing a 'restore' on a main window
-
-          MainWindow::saveRestore()
-            call MainWindow::createGui()
-
-
-        A new main window may be created by the slot supporting the 'File...' -> 'New Window' menu item
-
-          MainWindow::on_actionNew_Window_triggered()
-            call MainWindow::MainWindow()
-
-
-        A new window may be created by the slots connected to actions for displaying inbuilt forms
-
-          MainWindow::on_actionPVProperties_triggered()
-          MainWindow::on_actionStrip_Chart_triggered()
-          MainWindow::on_actionMessage_Log_triggered()
-          MainWindow::on_actionPlotter_triggered()
-          MainWindow::on_actionScratch_Pad_triggered()
-          MainWindow::on_actionArchive_Status_triggered()
-            call MainWindow::launchLocalGui()
-              call MainWindow::MainWindow()
-
-
-        A new window may be created by the 'Detatch Tab' in the main window's context menu:
-
-          MainWindow::tabContextMenuTrigger()
-            get details from appropriate tabbed GUI
-            close tabbed GUI
-            call MainWindow::MainWindow()
-
-
-        A new window, or a new GUI in an existing main window, may be created by the slot for
-        requesting new GUIs (signaled from QE Buttons and other QE widgets, and custom menu items)
-
-          MainWindow::requestGui()
-            either
-              call MainWindow::launchGui()
-                standardise path name
-                search for existing open .ui file (display it if found)
-                either
-                  call MainWindow::createGui()
-                  put gui in current main window
-                or
-                  call MainWindow::createGui()
-                  put gui in new tab
-                or
-                  call MainWindow::MainWindow( app, "", "", true );
-            or
-              call MainWindow::launchLocalGui()
-                call MainWindow::MainWindow()
-
- */
-
 #include <QtGui>
 #include <QDebug>
 #include <QString>
-#include <QUiLoader>
 
 #include <MainWindow.h>
 #include <QEForm.h>
 #include <QEFrameworkVersion.h>
 #include <QECommon.h>
-#include <QEScaling.h>
 #include <QMessageBox>
 #include <ContainerProfile.h>
 #include <QVariant>
@@ -164,7 +53,7 @@ Q_DECLARE_METATYPE( QEForm* )
 
 // Constructor
 // A profile should have been defined before calling this constructor
-MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationName, bool openDialog, QWidget *parent )  : QMainWindow( parent )
+MainWindow::MainWindow(  QEGui* appIn, QString fileName, bool openDialog, QWidget *parent )  : QMainWindow( parent )
 {
     app = appIn;
 
@@ -192,7 +81,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
 
     // Apply scaling to main window proper.
     //
-    QEScaling::applyToWidget( this );
+    QEUtilities::adjustWidgetScale( this, int (app->getParams()->adjustScale) , 100 );
 
     // Setup to allow user to change focus to a window from the 'Windows' menu
     QObject::connect( ui.menuWindows, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
@@ -206,14 +95,6 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
 
     // Set the default title
     setTitle( "" );
-//Zai Testing
-static bool m = false;
-//ui.menuBar->clear();
-if (!m){
-//    setTitle( "Main Window" );
-//    app->applyCustomisations( this, "Testing" );
-    m = true;
-}
 
     // Populate the 'Windows' menu to include all current guis in any main window
     buildWindowsMenu();
@@ -241,7 +122,7 @@ if (!m){
     // If a filename was supplied, load it
     else
     {
-        QEForm* gui = createGui( fileName, customisationName ); // A profile should have been published before calling this constructor.
+        QEForm* gui = createGui( fileName ); // A profile should have been published before calling this constructor.
         loadGuiIntoCurrentWindow( gui, true );
     }
 
@@ -282,7 +163,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNew_Window_triggered()
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, "", "", true );
+    MainWindow* w = new MainWindow( app, "", true );
     profile.releaseProfile();
     w->show();
 }
@@ -297,20 +178,9 @@ void MainWindow::on_actionNew_Tab_triggered()
 
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
     profile.releaseProfile();
     loadGuiIntoNewTab( gui );
-}
-
-// Open a gui in a new dock.
-// Present a file open dialog box and after generate the gui based on the ui file the user selects
-void MainWindow::on_actionNew_Dock_triggered()
-{
-    // Create the GUI
-    profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName );
-    profile.releaseProfile();
-    loadGuiIntoNewDock( gui, QEGuiLaunchRequests::OptionBottomDockWindow );
 }
 
 // User requested a new gui to be opened
@@ -319,7 +189,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ) );
     profile.releaseProfile();
     loadGuiIntoCurrentWindow( gui, true );
 }
@@ -363,7 +233,7 @@ void MainWindow::on_actionArchive_Status_triggered() { launchLocalGui( ":/forms/
 void MainWindow::on_actionUser_Level_triggered()
 {
     // Present the login dialog to the user
-    app->login( this );
+    app->login();
 }
 
 // Close this window
@@ -456,7 +326,7 @@ void MainWindow::on_actionExit_triggered()
 MainWindow* MainWindow::launchLocalGui( const QString& filename )
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, filename, app->getParams()->customisationName, true );
+    MainWindow* w = new MainWindow( app, filename, true );
     profile.releaseProfile();
     w->show();
     return w;
@@ -631,14 +501,8 @@ void MainWindow::on_actionAbout_triggered()
         case userLevelTypes::USERLEVEL_ENGINEER:  about.append( "Engineer" );  break;
     }
 
-    // Add the configuration details
+    // Add the configuration file details
     about.append( "\n\n\nConfiguration file:\n      " ).append( app->getParams()->configurationFile );
-    about.append( "\n\nConfiguration name:\n      " ).append( app->getParams()->configurationName );
-
-
-    // Add the window customisation details
-    about.append( "\n\n\nWindow customisation file:\n      " ).append( app->getParams()->customisationFile );
-    about.append( "\n\nDefault window customisation name:\n      " ).append( app->getParams()->customisationName );
 
     // Add the current forms
     about.append( "\n\n\nOpen GUI files:\n" );
@@ -729,6 +593,7 @@ void MainWindow::tabContextMenuRequest( const QPoint& posIn )
 void MainWindow::tabContextMenuTrigger( QAction* )
 {
     QTabWidget* tabs = getCentralTabs();
+    QString fileName;
 
     // Sanity checks ....
     if (!tabs  || !usingTabs) {
@@ -745,10 +610,7 @@ void MainWindow::tabContextMenuTrigger( QAction* )
     }
 
     // Extract and save the filename.
-    QString fileName = gui->getFullFileName ();
-
-    // Extract and save the window customisation name
-    QString customisationName = app->getGuiCustomisationName( gui );
+    fileName = gui->getFullFileName ();
 
     // Remove the gui from the 'windows' menus
     app->removeGuiFromWindowsMenus( gui );
@@ -762,7 +624,7 @@ void MainWindow::tabContextMenuTrigger( QAction* )
 
     // Use extracted filename to open the new window - we assume the file still exists.
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, fileName, customisationName, false, NULL);
+    MainWindow* w = new MainWindow( app, fileName, false, NULL);
     profile.releaseProfile();
     w->show();
 }
@@ -882,7 +744,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     if( guiFileName.size() )
     {
         profile.publishOwnProfile();
-        QEForm* newGui = createGui( guiPath, "" ); // no configuration name so configurations remain unaltered
+        QEForm* newGui = createGui( guiPath );
         loadGuiIntoCurrentWindow( newGui, true );
         profile.releaseProfile();
     }
@@ -1066,43 +928,6 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
     setTitle( gui->getQEGuiTitle() );
 }
 
-// Open a gui in a new dock
-// Either as a result of the gui user requesting a new dock, or a contained object (gui push button) requesting a new dock
-void MainWindow::loadGuiIntoNewDock( QEForm* gui, QEGuiLaunchRequests::Options createOption )
-{
-    // Do nothing if couldn't create gui
-    if( !gui )
-        return;
-
-    // Ensure the gui can be resized
-    QWidget* rGui = resizeableGui( gui );
-
-    Qt::DockWidgetArea dockLocation = Qt::BottomDockWidgetArea;
-
-    QDockWidget *dock = new QDockWidget( this );
-    dock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-
-    switch( createOption )
-    {
-        default:
-        case QEGuiLaunchRequests::OptionFloatingDockWindow:
-        case QEGuiLaunchRequests::OptionLeftDockWindow:     dockLocation = Qt::LeftDockWidgetArea;   break;
-        case QEGuiLaunchRequests::OptionRightDockWindow:    dockLocation = Qt::RightDockWidgetArea;  break;
-        case QEGuiLaunchRequests::OptionTopDockWindow:      dockLocation = Qt::TopDockWidgetArea;    break;
-        case QEGuiLaunchRequests::OptionBottomDockWindow:   dockLocation = Qt::BottomDockWidgetArea; break;
-    }
-
-    // Add the dock to this main window
-    addDockWidget(dockLocation, dock);
-
-    // Load the GUI into the dock
-    dock->setWidget( rGui );
-
-    // Set floating if requested
-    dock->setFloating( createOption == QEGuiLaunchRequests::OptionFloatingDockWindow);
-}
-
-
 //=================================================================================
 // Reimplementation of UserMessage method for presenting messages
 //=================================================================================
@@ -1119,8 +944,8 @@ void MainWindow::newMessage( QString msg, message_types type )
 // Slots and methods for launching new GUIs on behalf of objects in the gui (typically buttons)
 //=================================================================================
 
-// Launching a new gui given a .ui filename
-void MainWindow::launchGui( QString guiName, QString customisationName, QEGuiLaunchRequests::Options createOption )
+// Slot for launching a new gui from a contained object (old style).
+void MainWindow::launchGui( QString guiName, QEForm::creationOptions createOption )
 {
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
     ContainerProfile publishedProfile;
@@ -1232,72 +1057,54 @@ void MainWindow::launchGui( QString guiName, QString customisationName, QEGuiLau
     switch( createOption )
     {
         // Open the specified gui in the current window
-        case QEGuiLaunchRequests::OptionOpen:
+        case QEForm::CREATION_OPTION_OPEN:
             {
-                QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
+                QEForm* gui = createGui( guiName );  // Note, profile should have been published by signal code
                 loadGuiIntoCurrentWindow( gui, true );
             }
             break;
 
         // Open the specified gui in a new tab
-        case QEGuiLaunchRequests::OptionNewTab:
+        case QEForm::CREATION_OPTION_NEW_TAB:
             {
                 // If not using tabs, start tabs and migrate any single gui to the first tab
                 if( !usingTabs )
                     setTabMode();
 
                 // Create the gui and load it into a new tab
-                QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
+                QEForm* gui = createGui( guiName );  // Note, profile should have been published by signal code
                 loadGuiIntoNewTab( gui );
             }
             break;
 
         // Open the specified gui in a new window
-        case QEGuiLaunchRequests::OptionNewWindow:
+        case QEForm::CREATION_OPTION_NEW_WINDOW:
             {
-                MainWindow* w = new MainWindow( app, guiName, customisationName, true ); // Note, profile should have been published by signal code
+                MainWindow* w = new MainWindow( app, guiName, true ); // Note, profile should have been published by signal code
                 w->show();
             }
             break;
 
-        // Create the specified gui in a new dosk
-        case QEGuiLaunchRequests::OptionLeftDockWindow:
-        case QEGuiLaunchRequests::OptionRightDockWindow:
-        case QEGuiLaunchRequests::OptionTopDockWindow:
-        case QEGuiLaunchRequests::OptionBottomDockWindow:
-        case QEGuiLaunchRequests::OptionFloatingDockWindow:
-            {
-                // Create the gui and load it into a new dock
-                QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
-                loadGuiIntoNewDock( gui, createOption );
-            }
-            break;
-
-        // Open the specified gui in a new child window
-        case QEGuiLaunchRequests::OptionNewChildWindow:
-            {
-                MainWindow* w = new MainWindow( app, guiName, customisationName, true, this ); // Note, profile should have been published by signal code
-                w->setTitle(customisationName); // Zai Testing
-                w->show();
-            }
-            break;
         default:
             qDebug() << "MainWindow::launchGui() Unexpected gui creation option: " << createOption;
             break;
     }
 }
 
-// Slot for launching a new gui from a contained object.
+
+// Slot for launching a new gui from a contained object (new style).
 void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
 {
     QStringList arguments =  request.getArguments();
 
     switch (request.getKind ()) {
 
-        // Launching a new gui given a .ui file name
         case QEGuiLaunchRequests::KindFileName:
             if (arguments.count() >= 1) {
-                launchGui ( arguments.first(), request.getCustomisation(), request.getOption() );
+                // Just re-use old style slot.
+                QString guiName = arguments.value( 0 );
+                QEForm::creationOptions createOption = (QEForm::creationOptions) request.getOption ();
+                launchGui ( guiName, createOption );
             }
             break;
 
@@ -1430,12 +1237,12 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 // replacing a gui in a tab, replacing a single gui in the main window,
 // or creating a gui in a new main window.
 // A profile should have been published before calling this method.
-QEForm* MainWindow::createGui( QString fileName, QString customisationName )
+QEForm* MainWindow::createGui( QString fileName )
 {
-    return createGui( fileName, customisationName, QString() );
+    return createGui( fileName, QString() );
 }
 
-QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId )
+QEForm* MainWindow::createGui( QString fileName, QString restoreId )
 {
     // Don't do anything if no filename was supplied
     if (fileName.isEmpty())
@@ -1486,12 +1293,8 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
 
         // Apply any adjustments to the scaling of the loaded widget.
         //
-        QEScaling::applyToWidget( gui );
+        QEUtilities::adjustWidgetScale( gui, int (app->getParams()->adjustScale) , 100 );
 
-        // Load any required window customisation
-        app->applyCustomisations( this, customisationName );
-
-        // Save the version of the QE framework used by the ui loader. (can be different to the one this application is linked against)
         UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
 
         // If a profile was defined in this method, release it now.
@@ -1501,7 +1304,7 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
         }
 
         // Add the new gui to the list of windows
-        app->addGui( gui, customisationName, this );
+        app->addGui( gui, this );
     }
     // Return the created gui if any
     return gui;
@@ -1571,44 +1374,6 @@ QEForm* MainWindow::getCurrentGui()
     // No gui present
     return NULL;
  }
-
-MainWindow::guiPresentations MainWindow::guiPresentation( QEForm* gui, QWidget** container )
-{
-    // Assume no container
-    *container = NULL;
-
-    // Get the gui parent.
-    // This may be the central widget, the tab widget, or the dock widget we are looking for,
-    // or it may be an intermediate scroll area added to make the GUI resizeable.
-    QWidget* w = gui->parentWidget();
-
-    // If the parent is a scroll area, then wind back up one more widget to the
-    // central widget, the tab widget, or the dock widget
-    if( w && QString( "QScrollArea").compare( w->metaObject()->className() ) == 0 )
-    {
-        w = w->parentWidget();
-    }
-
-    // Depending in where the gui is located, determine the presentation type
-    if( w )
-    {
-        *container = w;
-        if( QString( "QMainWindow").compare( w->metaObject()->className() ) == 0 )
-        {
-            return PRESENTATION_CENTRAL;
-        }
-        else if( QString( "QTabWidget").compare( w->metaObject()->className() ) == 0 )
-        {
-            return PRESENTATION_TAB;
-        }
-        else if( QString( "QDockWidget").compare( w->metaObject()->className() ) == 0 )
-        {
-            return PRESENTATION_DOCK;
-        }
-    }
-    *container = NULL;
-    return PRESENTATION_UNKNOWN;
-}
 
 //=================================================================================
 // Methods to manage the 'Windows' and 'Recent...' menus
@@ -1701,7 +1466,7 @@ void MainWindow::on_actionSave_Configuration_triggered()
     saveDialog sd( pm->getConfigNames( params->configurationFile, QE_CONFIG_NAME ) );
 
     // Ensure scaling is consistent with the rest of the application's forms.
-    QEScaling::applyToWidget( &sd );
+    QEUtilities::applyCurrentWidgetScale( &sd );
 
     if ( sd.exec() == QDialog::Rejected )
     {
@@ -1831,14 +1596,13 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 PMElement state =  mw.addElement( "State" );
                 state.addAttribute( "Flags", windowState() );
 
-                // Note which GUI is the current GUI. This is relevent if main window is displaying
+                // Note which GUI is the current GUI. Mainly if main window is displaying
                 // more than one gui in a tab widget. Redundant but harmless if only one gui is present.
                 QEForm* currentGui = getCurrentGui();
 
                 // Save details for each GUI
                 for( int i = 0; i < app->getGuiCount(); i++ )
                 {
-                    // Only save details for GUIs in this main window (List contains GUIs in all main windows)
                     if( app->getGuiMainWindow( i ) == this )
                     {
                         // Gui name and ID
@@ -1856,14 +1620,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                         QString macroSubs = profile.getMacroSubstitutions();
                         if( !macroSubs.isEmpty() )
                         {
-                            form.addValue( "MacroSubstitutions", macroSubs );
-                        }
-
-                        // Window customisations, if any
-                        QString customisationName = app->getGuiCustomisationName( i );
-                        if( !customisationName.isEmpty() )
-                        {
-                            form.addValue( "CustomisationName", customisationName );
+                            form.addValue( "MacroSubstitutions", profile.getMacroSubstitutions() );
                         }
 
                         // Path list, if any
@@ -1881,53 +1638,9 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                         if( sa )
                         {
                             PMElement pos =  form.addElement( "Scroll" );
-                            pos.addAttribute( "X", sa->horizontalScrollBar()->value() );
+                            pos.addAttribute( "X",  sa->horizontalScrollBar()->value() );
                             pos.addAttribute( "Y", sa->verticalScrollBar()->value() );
                         }
-
-//                        // Save the window presentation.
-//                        // The window may be presented within the main window's central widget (on its own
-//                        // or inside a tabbed widget with other GUIs), or the window may be presented as a docked window.
-//                        QWidget* guiContainer;
-//                        switch( guiPresentation( app->getGuiForm( i ), &guiContainer ) )
-//                        {
-//                            case PRESENTATION_CENTRAL:
-//                            {
-//                                form.addValue( "Presentation", "Central" );
-//                                break;
-//                            }
-
-//                            case PRESENTATION_TAB:
-//                            {
-//                                form.addValue( "Presentation", "Tab" );
-//                                break;
-//                            }
-
-//                            case PRESENTATION_DOCK:
-//                            {
-//                                form.addValue( "Presentation", "Dock" );
-//                                if( guiContainer && QString( "QDockWidget").compare( guiContainer->metaObject()->className() ) == 0 )
-//                                {
-//                                    PMElement docking =  form.addElement( "Docking" );
-//                                    QDockWidget* dock = (QDockWidget*)(guiContainer);
-//                                    docking.addAttribute( "AllowedAreas", dock->allowedAreas() );
-//                                    docking.addAttribute( "Features", dock->features() );
-//                                    docking.addAttribute( "Floating", dock->isFloating() );
-//                                    docking.addAttribute( "X", dock->x() );
-//                                    docking.addAttribute( "Y", dock->y() );
-//                                    docking.addAttribute( "Width", dock->width() );
-//                                    docking.addAttribute( "Height", dock->height() );
-//                                }
-//                                break;
-//                            }
-
-//                            case PRESENTATION_UNKNOWN:
-//                            {
-//                                // Assume central
-//                                form.addValue( "Presentation", "Central" );
-//                                break;
-//                            }
-//                        }
                     }
                 }
             }
@@ -2029,69 +1742,19 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                         {
                             QString restoreId;
                             guiElement.getAttribute( "ID", restoreId );
-
-                            QString customisationName;
-                            guiElement.getValue( "CustomisationName", customisationName );
-
-                            QEForm* gui = createGui( name, customisationName, restoreId );
-
-                            QString presentation;
-                            guiElement.getValue( "Presentation", presentation );
-
-                            // If no presentation, assume the first gui is a central gui and any more are tabs.
-                            // (in which case the first was also a tab and will be converted to a tab when the second tab is added)
-                            if( presentation.isEmpty() )
-                            {
-                                if( i == 0 )
-                                {
-                                    presentation = QString( "Central" );
-                                }
-                                else
-                                {
-                                    presentation = QString( "Tab" );
-                                }
-                            }
-
-                            // If the gui is the central widget, create it as such
-                            if( presentation.compare( "Central" ) == 0 )
+                            QEForm* gui = createGui( name, restoreId );
+                            if( i == 0)
                             {
                                 // Load the gui into the main window
                                 loadGuiIntoCurrentWindow( gui, false );
                             }
-
-                            // If the gui is a tab, create it as such
-                            else if( presentation.compare( "Tab" ) == 0 )
+                            else
                             {
                                 // If not using tabs, start tabs and migrate any single gui to the first tab
                                 if( !usingTabs )
                                     setTabMode();
-
                                 // Create gui as a new tab
                                 loadGuiIntoNewTab( gui );
-                            }
-
-                            // If the gui is a dock, create it as such
-                            else if( presentation.compare( "Dock" ) == 0 )
-                            {
-                                PMElement docking = guiElement.getElement( "Docking" );
-
-                                int allowedAreas = Qt::AllDockWidgetAreas;
-                                int features = QDockWidget::AllDockWidgetFeatures;
-                                bool floating = false;
-                                int x = 0;
-                                int y = 0;
-                                int width = 100;
-                                int height = 100;
-                                docking.getAttribute( QString( "AllowedAreas" ), allowedAreas );
-                                docking.getAttribute( "Features", features );
-                                docking.getAttribute( "Floating", floating );
-                                docking.getAttribute( "X", x );
-                                docking.getAttribute( "Y", y );
-                                docking.getAttribute( "Width", width );
-                                docking.getAttribute( "Height", height );
-
-                                // Create gui as a new dock
-                                loadGuiIntoNewDock( gui, QEGuiLaunchRequests::OptionTopDockWindow ); //??? doesn't pass in all dock attributes yet
                             }
 
                             // Note if this gui is the current gui

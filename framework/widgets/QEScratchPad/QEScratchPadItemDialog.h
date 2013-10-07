@@ -1,4 +1,4 @@
-/*  QEPvLoadSaveGroupNameDialog.h
+/*  QEScratchPadItemDialog.h
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -24,39 +24,41 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QEPV_LOAD_SAVE_GROUP_NAME_DIALOG_H
-#define QEPV_LOAD_SAVE_GROUP_NAME_DIALOG_H
+#ifndef QESCRATCHPADITEMDIALOG_H
+#define QESCRATCHPADITEMDIALOG_H
 
 #include <QString>
-#include <QEDialog.h>
+#include <QDialog>
 
 namespace Ui {
-   class QEPvLoadSaveGroupNameDialog;
+    class QEScratchPadItemDialog;
 }
 
 /*
- * Manager class for the QEPvLoadSaveGroupNameDialog.ui compiled form.
+ * Manager class for the QEScratchPadItemDialog.ui compiled form.
  */
-class QEPvLoadSaveGroupNameDialog : public QEDialog
+class QEScratchPadItemDialog : public QDialog
 {
-   Q_OBJECT
+    Q_OBJECT
 
 public:
-   explicit QEPvLoadSaveGroupNameDialog (QWidget *parent = 0);
-   ~QEPvLoadSaveGroupNameDialog ();
+   explicit QEScratchPadItemDialog (QWidget *parent = 0);
+   ~QEScratchPadItemDialog ();
 
-   void setGroupName (QString pvNameIn);
-   QString getGroupName ();
-
-   bool isClear ();
+   void setFieldInformation (const QString dataIn);
+   void getFieldInformation (QString& dataOut);
 
 private:
-   Ui::QEPvLoadSaveGroupNameDialog *ui;
+   Ui::QEScratchPadItemDialog *ui;
+   bool returnIsMasked;
 
 private slots:
+   void dataEditReturnPressed ();
+
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();
+   void clearButtonClicked (bool checked = false);
 };
 
-#endif  // QEPV_LOAD_SAVE_GROUP_NAME_DIALOG_H
+#endif  // QESCRATCHPADITEMDIALOG_H
 

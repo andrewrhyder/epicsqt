@@ -35,7 +35,6 @@
 #include <zoomMenu.h>
 #include <flipRotateMenu.h>
 #include <selectMenu.h>
-#include <QEImageOptionsDialog.h>
 #include <QCaVariableNamePropertyManager.h>
 #include <imageInfo.h>
 #include <brightnessContrast.h>
@@ -191,16 +190,16 @@ public:
     void setTimeMarkupColor(QColor pValue);                             ///< Access function for #timeColor property - refer to #timeColor property for details
     QColor getTimeMarkupColor();                                        ///< Access function for #timeColor property - refer to #timeColor property for details
 
-    void setDisplayCursorPixelInfo( bool displayCursorPixelInfo );      ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
+    void setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn );    ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
     bool getDisplayCursorPixelInfo();                                   ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
 
     void setContrastReversal( bool contrastReversalIn );                ///< Access function for #contrastReversal property - refer to #contrastReversal property for details
     bool getContrastReversal();                                         ///< Access function for #contrastReversal property - refer to #contrastReversal property for details
 
-    void setEnableVertSliceSelection( bool enableVSliceSelection );     ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
+    void setEnableVertSliceSelection( bool enableVSliceSelectionIn );   ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
     bool getEnableVertSliceSelection();                                 ///< Access function for #enableVertSliceSelection property - refer to #enableVertSliceSelection property for details
 
-    void setEnableHozSliceSelection( bool enableHSliceSelection );      ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
+    void setEnableHozSliceSelection( bool enableHSliceSelectionIn );    ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
     bool getEnableHozSliceSelection();                                  ///< Access function for #enableHozSliceSelection property - refer to #enableHozSliceSelection property for details
 
     void setEnableAreaSelection( bool enableAreaSelectionIn );          ///< Access function for #enableAreaSelection property - refer to #enableAreaSelection property for details
@@ -247,6 +246,9 @@ public:
 
     bool displayButtonBar;      // True if button bar should be displayed
 
+    bool enableBrightnessContrast;// True if local brightness and contrast controls are presented
+//    bool autoBrightnessContrast;  // True if automatically setting local brightness and contrast when selecting a region
+
 private slots:
     // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
@@ -269,7 +271,6 @@ private slots:
     void panModeClicked();
 
     void brightnessContrastChanged();
-    void brightnessContrastAutoImageRequest();
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -287,7 +288,6 @@ private slots:
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
     void showImageAboutDialog();
-    void optionAction( imageContextMenu::imageContextMenuOptions option, bool checked );
 
 public slots:
     void setImageFile( QString name );
@@ -366,12 +366,18 @@ public slots:
     flipRotateMenu* frMenu;
     selectMenu*     sMenu;
 
-    QEImageOptionsDialog* optionsDialog;
-
-    // Presentation
+    // Options
     bool paused;
 
-    // Options
+    bool enableAreaSelection;
+    bool enableVSliceSelection;
+    bool enableHSliceSelection;
+    bool enableProfileSelection;
+    bool enableTargetSelection;
+
+    bool displayCursorPixelInfo;
+    bool contrastReversal;
+
     formatOptions formatOption;
 
     // Image and related information
@@ -421,6 +427,8 @@ public slots:
 
 
     // Private methods
+    void manageButtonBar();                                 // Add or remove the button bar
+
     void generateVSlice( int x, unsigned int thickness );                           // Generate a profile along a line down an image at a given X position
     void generateHSlice( int y, unsigned int thickness );                           // Generate a profile along a line across an image at a given Y position
     void generateProfile( QPoint point1, QPoint point2, unsigned int thickness );   // Generate a profile along an arbitrary line through an image.
@@ -467,19 +475,10 @@ public slots:
     const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
 
     bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigtness, etc
-
     QByteArray pixelLookup; // Table of translated pixel values (includig contrast reversal, local brightness and contrast, and clipping)
 
     void setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 );    // Update the brightness and contrast, if in auto, to match the recently selected region
     void getPixelRange( const QRect& area, unsigned int* min, unsigned int* max ); // Determine the range of pixel values an area of the image
-
-    void doEnableBrightnessContrast( bool enableBrightnessContrast );
-    void doContrastReversal( bool contrastReversal );
-    void doEnableVertSliceSelection( bool enableVSliceSelection );
-    void doEnableHozSliceSelection( bool enableHSliceSelection );
-    void doEnableAreaSelection( bool enableAreaSelection );
-    void doEnableProfileSelection( bool enableProfileSelection );
-    void doEnableTargetSelection( bool enableTargetSelection );
 
     // Drag and Drop
 protected:
@@ -867,11 +866,11 @@ public:
     ///
     Q_PROPERTY(bool horizontalFlip READ getHorizontalFlip WRITE setHorizontalFlip)
 
-    /// Sets the initial position of the horizontal scroll bar, if present.
+    /// Sets the initial position of the horizontal scroll bar, if pressent.
     /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialHosScrollPos READ getInitialHozScrollPos WRITE setInitialHozScrollPos)
 
-    /// Sets the initial position of the vertical scroll bar, if present.
+    /// Sets the initial position of the vertical scroll bar, if pressent.
     /// Used to set up an initial view when zoomed in.
     Q_PROPERTY(int initialVertScrollPos READ getInitialVertScrollPos WRITE setInitialVertScrollPos)
 

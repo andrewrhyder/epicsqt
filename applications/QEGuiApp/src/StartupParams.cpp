@@ -249,34 +249,6 @@ bool startupParams::getStartupParams( QStringList args )
                         }
                         break;
 
-                    // 'window customisations file' flag
-                    // Take next non switch parameter as the window customisations file
-                    case 'w':
-                        if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
-                        {
-                            customisationFile = args[0];
-                            args.removeFirst();
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                        break;
-
-                    // 'window default customisations name' flag
-                    // Take next non switch parameter as the default window customisation name
-                    case 'n':
-                        if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
-                        {
-                            customisationName = args[0];
-                            args.removeFirst();
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                        break;
-
                     // 'paths' flag
                     // Take next non switch parameter as path list
                     case 'p':

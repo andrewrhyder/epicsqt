@@ -45,15 +45,12 @@ localBrightnessContrast::localBrightnessContrast()
     QLabel* contrastLabel = new QLabel( "Contrast:", this );
 
     autoBrightnessCheckBox = new QCheckBox( "Auto Brightness and Contrast", this );
-    autoBrightnessCheckBox->setToolTip( "Set brightness and contrast to use the full dynamic range of an area when an area is selected");
-
-    QPushButton* autoImageButton = new QPushButton( "Auto all", this );
-    autoImageButton->setToolTip( "Set brightness and contrast to use the full dynamic range for the entire image");
-    QObject::connect( autoImageButton, SIGNAL( clicked ( bool ) ), this,  SLOT  ( brightnessContrastAutoImageClicked()) );
+    autoBrightnessCheckBox->setToolTip( "Set brightness and contrast to use full dynamic range for selected area");
+    QObject::connect( autoBrightnessCheckBox, SIGNAL( stateChanged ( int ) ), this,  SLOT  ( autoBrightnessCheckBoxChanged( int )) );
 
     QPushButton* resetButton = new QPushButton( "Reset", this );
-    resetButton->setToolTip( "Reset brightness and contrast");
     QObject::connect( resetButton, SIGNAL( clicked ( bool ) ), this,  SLOT  ( brightnessContrastResetClicked( bool )) );
+
 
     brightnessSlider = new QSlider( Qt::Horizontal, this );
     brightnessSlider->setMinimum( -100 );
@@ -74,9 +71,10 @@ localBrightnessContrast::localBrightnessContrast()
     contrastRBLabel->setText( QString( "%1%" ).arg( contrastSlider->value() ) );
 
 
+
     brightnessContrastSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
-    brightnessContrastSub1Layout->addWidget( autoImageButton, 0, Qt::AlignLeft );
     brightnessContrastSub1Layout->addWidget( resetButton, 1, Qt::AlignLeft );
+
 
     brightnessContrastSub2Layout->addWidget( brightnessLabel, 0, 0 );
     brightnessContrastSub2Layout->addWidget( brightnessSlider, 0, 1 );
@@ -119,10 +117,11 @@ void localBrightnessContrast::brightnessContrastResetClicked( bool )
     contrastSlider->setValue( 100 );
 }
 
+
 // Auto brightness and contrast check box has ben checked or unchecked
-void localBrightnessContrast::brightnessContrastAutoImageClicked()
+void localBrightnessContrast::autoBrightnessCheckBoxChanged( int )
 {
-    emit brightnessContrastAutoImage();
+    emit brightnessContrastChange();
 }
 
 // The local brightness slider has been moved

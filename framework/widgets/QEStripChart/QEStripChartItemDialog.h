@@ -1,4 +1,4 @@
-/*  QEPVNameSelectDialog.h
+/*  QEStripChartItemDialog.h
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2012
  *
  *  Author:
  *    Andrew Starritt
@@ -24,32 +24,35 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#ifndef QEPVNAME_SELECT_DIALOG_H
-#define QEPVNAME_SELECT_DIALOG_H
+#ifndef QESTRIPCHARTITEMDIALOG_H
+#define QESTRIPCHARTITEMDIALOG_H
 
 #include <QString>
-#include <QEDialog.h>
+#include <QColor>
+#include <QDialog>
 
 namespace Ui {
-   class QEPVNameSelectDialog;
+    class QEStripChartItemDialog;
 }
 
 /*
- * Manager class for the QEPVNameSelectDialog.ui compiled form.
+ * Manager class for the QEStripChartItemDialog.ui compiled form.
  */
-class QEPVNameSelectDialog : public QEDialog
+class QEStripChartItemDialog : public QDialog
 {
-   Q_OBJECT
+    Q_OBJECT
 
 public:
-   explicit QEPVNameSelectDialog (QWidget *parent = 0);
-   ~QEPVNameSelectDialog ();
+   explicit QEStripChartItemDialog (QWidget *parent = 0);
+   ~QEStripChartItemDialog ();
 
    void setPvName (QString pvNameIn);
    QString getPvName ();
 
+   bool isClear ();
+
 private:
-   Ui::QEPVNameSelectDialog *ui;
+   Ui::QEStripChartItemDialog *ui;
    QString originalPvName;
    bool returnIsMasked;
 
@@ -58,10 +61,10 @@ private:
 private slots:
    void filterEditReturnPressed ();
    void filterEditingFinished ();
-   void editTextChanged (const QString &);
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();
+   void clearButtonClicked (bool checked = false);
 };
 
-#endif  // QEPVNAME_SELECT_DIALOG_H
+#endif  // QESTRIPCHARTITEMDIALOG_H
 

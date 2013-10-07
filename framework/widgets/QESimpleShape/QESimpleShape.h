@@ -166,7 +166,7 @@ public:
     enum Shapes { circle, ellipse, rectangle, roundRectangle, roundSquare, square,
                   triangleUp, triangleDown, triangleLeft, triangleRight,
                   triangleTopRight, triangleBottomRight, triangleBottomLeft, triangleTopLeft,
-                  diamond, equalDiamond, arrowUp, arrowDown, arrowLeft, arrowRight };
+                  diamond, equalDiamond };
     Q_ENUMS (Shapes)
 
     /// Nominated shape

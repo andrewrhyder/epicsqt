@@ -37,7 +37,7 @@ static const QString invalid ("QWidget { background-color: #e0e0a0; }");
 //------------------------------------------------------------------------------
 //
 QEStripChartTimeDialog::QEStripChartTimeDialog (QWidget *parent) :
-      QEDialog (parent),
+      QDialog (parent),
       ui (new Ui::QEStripChartTimeDialog)
 {
    this->ui->setupUi (this);

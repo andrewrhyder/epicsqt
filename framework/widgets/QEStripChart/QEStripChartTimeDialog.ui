@@ -10,12 +10,6 @@
     <height>316</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>516</width>
-    <height>316</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>Strip Chart Times</string>
   </property>

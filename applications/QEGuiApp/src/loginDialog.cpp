@@ -1,5 +1,4 @@
-/*  loginDialog.cpp
- *
+/*
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -54,14 +53,4 @@ loginDialog::loginDialog()
 
     // Set the dialog title
     setWindowTitle( "Change User Level" );
-
-    // Explicity set the desired size. If we don't and then apply scaling, the sensible
-    // default sizing "goes out the window"..
-    //
-    QRect g = geometry();
-    g.setWidth( 200 );
-    g.setHeight( 280 );
-    setGeometry( g );
 }
-
-// end

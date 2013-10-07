@@ -45,7 +45,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QtDebug>
-#include <QEScaling.h>
 #include <QEForm.h>
 #include <ContainerProfile.h>
 #include <QEWidget.h>
@@ -175,12 +174,7 @@ void QEForm::establishConnection( unsigned int variableIndex )
 // Load the form once all events have been processed.
 void QEForm::reloadLater()
 {
-    // Load the form
     readUiFile();
-
-    // The ui file has been loaded post construction, so this widget missed out on any applied scaling.
-    // Therefore apply the current scaling now.
-    QEScaling::applyToWidget( ui );
 }
 
 // Debug function to list the widget hierarchy
@@ -577,23 +571,80 @@ void QEForm::reloadFile()
         ui->close();
     }
     readUiFile();
-    
-    // The ui file has been loaded post construction, so this widget missed out on any applied scaling.
-    // Therefore apply the current scaling now.
-    QEScaling::applyToWidget( ui );
 }
 
 // Slot for reloading the file if it has changed.
 // It doesn't matter if it has been deleted, a reload attempt will still tell the user what they need to know - that the file has gone.
 void QEForm::fileChanged ( const QString & /*path*/ )
 {
-    // Ensure we aren't monitoring files any more
+    // Ensure we arn't monitoring files any more
     QStringList monitoredPaths = fileMon.files();
     fileMon.removePaths( monitoredPaths );
 
     // Reload the file
     reloadFile();
 }
+
+// Slot for launching another form.
+// Normally a gui will have provided it's own GUI launch mechanism.
+// This is only used if no environment profile has been set up when a form is created. This is the case if created within 'designer'
+// Launch a GUI.
+// Note, creation options are ignored as the guiForm has no application wide context to know
+// what 'creating a new tab', etc, means. A new window is always created.
+ void QEForm::launchGui( QString guiName, QEForm::creationOptions )
+ {
+     // Build the gui
+     // Build it in a new window.
+     //??? This could use the create options as follows: (instead of always creating a new window)
+     //       - Wind up through parents until the parent of the first scroll
+     //       - Replace the scroll area's widget with the new gui
+     QMainWindow* w = new QMainWindow;
+     QEForm* gui = new QEForm( guiName );
+     if( gui )
+     {
+         if( gui->readUiFile())
+         {
+             w->setCentralWidget( gui );
+             w->show();
+         }
+         else
+         {
+             delete gui;
+             gui = NULL;
+         }
+     }
+     else
+     {
+         delete w;
+     }
+}
+
+ //
+ void QEForm::requestGui( const QEGuiLaunchRequests & request )
+ {
+    switch (request.getKind()) {
+         case QEGuiLaunchRequests::KindFileName:
+             // Old style - by file name
+             //
+             if (request.getArguments().count () >= 1) {
+                launchGui( request.getArguments().value( 0 ), QEForm::creationOptions (request.getOption()));
+             }
+             break;
+
+        case QEGuiLaunchRequests::KindStripChart:
+        case QEGuiLaunchRequests::KindPvProperties:
+             // can't do this - we are not a application.
+             //
+             sendMessage( "Unhandled gui request kind", message_types( MESSAGE_TYPE_INFO, MESSAGE_KIND_EVENT ) );
+             break;
+
+         default:
+             sendMessage( "Unexpected gui request kind", message_types( MESSAGE_TYPE_ERROR, MESSAGE_KIND_EVENT ) );
+             break;
+     }
+ }
+
+
 
 // Receive new log messages.
 // This widget doesn't do anything itself with messages, but it can regenerate the message as if it came from itself.

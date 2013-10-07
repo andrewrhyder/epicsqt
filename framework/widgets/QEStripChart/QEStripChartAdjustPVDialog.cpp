@@ -34,7 +34,7 @@
 //------------------------------------------------------------------------------
 //
 QEStripChartAdjustPVDialog::QEStripChartAdjustPVDialog (QWidget *parent) :
-      QEDialog (parent),
+      QDialog (parent),
       ui (new Ui::QEStripChartAdjustPVDialog)
 {
    this->ui->setupUi (this);

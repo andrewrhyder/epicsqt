@@ -1,4 +1,4 @@
-/*  QEPVNameSelectDialog.cpp
+/*  QEStripChartItemDialog.cpp
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -28,97 +28,92 @@
 #include <QDebug>
 #include <QStringList>
 
-#include <QEPVNameSelectDialog.h>
-#include <ui_QEPVNameSelectDialog.h>
+#include <QEStripChartItemDialog.h>
+#include <ui_QEStripChartItemDialog.h>
 
 #include <QEArchiveManager.h>
 
 //------------------------------------------------------------------------------
 //
-QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
-      QEDialog (parent),
-      ui (new Ui::QEPVNameSelectDialog)
+QEStripChartItemDialog::QEStripChartItemDialog (QWidget *parent) :
+      QDialog (parent),
+      ui (new Ui::QEStripChartItemDialog)
 {
    this->ui->setupUi (this);
 
    this->returnIsMasked = false;
 
-   // Initiate PV name retreval if needs be.
-   // initialise () is idempotent.
-   //
-   QEArchiveAccess::initialise ();
+   QObject::connect (this->ui->clearButton, SIGNAL (clicked            (bool)),
+                     this,                  SLOT   (clearButtonClicked (bool)));
 
    QObject::connect (this->ui->filterEdit,  SIGNAL  (returnPressed ()),
-                     this,                  SLOT    (filterEditReturnPressed ()));
+                     this,                  SLOT (filterEditReturnPressed ()));
+
 
    QObject::connect (this->ui->filterEdit,  SIGNAL (editingFinished       ()),
                      this,                  SLOT   (filterEditingFinished ()));
 
-   QObject::connect (this->ui->pvNameEdit,  SIGNAL (editTextChanged (const QString&)),
-                     this,                  SLOT   (editTextChanged (const QString&)));
 }
 
 //------------------------------------------------------------------------------
 //
-QEPVNameSelectDialog::~QEPVNameSelectDialog ()
+QEStripChartItemDialog::~QEStripChartItemDialog ()
 {
    delete ui;
 }
 
 //------------------------------------------------------------------------------
 //
-void QEPVNameSelectDialog::setPvName (QString pvNameIn)
+void QEStripChartItemDialog::setPvName (QString pvNameIn)
 {
-   this->originalPvName = pvNameIn.trimmed ();
-   this->ui->pvNameEdit->clear ();
-   this->ui->pvNameEdit->insertItem (0, this->originalPvName, QVariant ());
-   this->ui->pvNameEdit->setCurrentIndex (0);
+   this->applyFilter ();
 
-   // setPvName typically invoked just before exec () call.
-   // Maybe we should override exec?
-   //
-   this->ui->filterEdit->setFocus ();
-   this->returnIsMasked = false;
+   if (!pvNameIn.isEmpty()) {
+      this->ui->pvNameEdit->insertItem (0, pvNameIn, QVariant ());
+      this->ui->pvNameEdit->setCurrentIndex (0);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+//
+QString QEStripChartItemDialog::getPvName ()
+{
+   return this->ui->pvNameEdit->currentText().trimmed ();
 }
 
 //------------------------------------------------------------------------------
 //
-QString QEPVNameSelectDialog::getPvName ()
+bool QEStripChartItemDialog::isClear ()
 {
-   return this->ui->pvNameEdit->currentText ().trimmed ();
+   return (this->getPvName() == "");
 }
 
 //------------------------------------------------------------------------------
 //
-void QEPVNameSelectDialog::applyFilter ()
+void QEStripChartItemDialog::applyFilter ()
 {
-   QString filter = this->ui->filterEdit->text ().trimmed ();
+   QString filter = this->ui->filterEdit->text().trimmed ();
    int n;
 
    this->ui->pvNameEdit->clear ();
 
-   // QEArchiveAccess ensures the list is sorted.
+   // QEArchiveAccess ensures thelist is sorted.
    //
    this->ui->pvNameEdit->insertItems (0, QEArchiveAccess::getMatchingPVnames (filter));
 
-   n = this->ui->pvNameEdit->count ();
-   if ((n == 0) && (!this->originalPvName.isEmpty ())) {
-      this->ui->pvNameEdit->insertItem (0, this->originalPvName, QVariant ());
-      this->ui->pvNameEdit->setCurrentIndex (0);
-   }
+   n =  this->ui->pvNameEdit->count ();
 
    this->ui->matchCountLabel->setText (QString ("%1").arg (n));
 }
 
 //------------------------------------------------------------------------------
 //
-void QEPVNameSelectDialog::filterEditReturnPressed ()
+void QEStripChartItemDialog::filterEditReturnPressed ()
 {
-   // This return also pick up by on_buttonBox_accepted, mask this return.
-   //
    this->returnIsMasked = true;
 
-   // This will cause filterEditingFinished to be invoked - no need
+   // this will cause  filterEditingFinished to be invoked - no need
    // to apply filter here.
    //
    this->ui->pvNameEdit->setFocus ();
@@ -126,39 +121,38 @@ void QEPVNameSelectDialog::filterEditReturnPressed ()
 
 //------------------------------------------------------------------------------
 //
-void QEPVNameSelectDialog::filterEditingFinished ()
+void QEStripChartItemDialog::filterEditingFinished ()
 {
    this->applyFilter ();
 }
 
+
 //------------------------------------------------------------------------------
+// User has pressed Clear
 //
-void QEPVNameSelectDialog::editTextChanged (const QString&)
+void QEStripChartItemDialog::clearButtonClicked (bool)
 {
-   // NOTE: calling buttonBox->setStandardButtons causes a seg fault when cancel
-   // eventually pressed and sometimes okay button as well, so do nothing for now.
-   // Maybe do our own buttons instead of using a QDialogButtonBox.
+   this->ui->pvNameEdit->clear ();
+   this->accept ();
 }
 
 //------------------------------------------------------------------------------
-// User has pressed OK (or return)
+// User has pressed OK
 //
-void QEPVNameSelectDialog::on_buttonBox_accepted ()
+void QEStripChartItemDialog::on_buttonBox_accepted ()
 {
    if (this->returnIsMasked) {
       this->returnIsMasked = false;
       return;
    }
 
-   if (!this->getPvName().isEmpty ()) {
-      this->accept ();
-   }
+   this->accept ();
 }
 
 //------------------------------------------------------------------------------
 // User has pressed Cancel
 //
-void QEPVNameSelectDialog::on_buttonBox_rejected ()
+void QEStripChartItemDialog::on_buttonBox_rejected ()
 {
    this->close ();
 }

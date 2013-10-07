@@ -48,6 +48,14 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
         QString getQEGuiTitle();     // Get the title to be used as the window or form title.
         QString getFullFileName();   // Get the standard, absolute UI file name
+
+        // Make sure old style enumeration values are consistent.
+        // Transitional
+        //
+        enum creationOptions { CREATION_OPTION_OPEN       = QEGuiLaunchRequests::OptionOpen,
+                               CREATION_OPTION_NEW_TAB    = QEGuiLaunchRequests::OptionNewTab,
+                               CREATION_OPTION_NEW_WINDOW = QEGuiLaunchRequests::OptionNewWindow};
+
         QString getUiFileName();                // Get the fully substituted file name (Not the uiFile property)
 
         // Property convenience functions
@@ -66,6 +74,9 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 
     public slots:
         bool readUiFile();
+
+        void launchGui( QString guiName, QEForm::creationOptions createOption );
+        void requestGui( const QEGuiLaunchRequests& request );
 
     private slots:
         void fileChanged ( const QString & path );

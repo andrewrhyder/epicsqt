@@ -553,6 +553,9 @@ void QEPvProperties::setUpLabelChannel ()
 
       QObject::connect (qca, SIGNAL (stringChanged (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                         this,  SLOT (setValueValue (const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+
+   } else {
+      DEBUG << " no qca object";
    }
 }
 
@@ -915,6 +918,8 @@ void QEPvProperties::boxCurrentIndexChanged (int index)
       if (newPvName != oldPvName) {
          this->setVariableName (newPvName, 0);
          this->establishConnection (0);
+      } else {
+         DEBUG <<  index << oldPvName << newPvName;
       }
    }
 }

@@ -65,10 +65,6 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     void setConfirmAction( bool confirmRequiredIn );
     bool getConfirmAction();
 
-    // confirm text
-    void setConfirmText( QString confirmTextIn );
-    QString getConfirmText();
-
     // write on press
     void setWriteOnPress( bool writeOnPress );
     bool getWriteOnPress();
@@ -118,13 +114,9 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     void setPrioritySubstitutions( QString prioritySubstitutionsIn );
     QString getPrioritySubstitutions();
 
-    // Window customisation name
-    void setCustomisationName( QString customisationNameIn );
-    QString getCustomisationName();
-
     // Qt Designer Properties Creation options
-    void setCreationOption( QEGuiLaunchRequests::Options creationOption );
-    QEGuiLaunchRequests::Options getCreationOption();
+    void setCreationOption( QEForm::creationOptions creationOption );
+    QEForm::creationOptions getCreationOption();
 
     // label text (prior to substitution)
     void setLabelTextProperty( QString labelTextIn );
@@ -138,9 +130,9 @@ protected:
     void userReleased();
     void userClicked( bool checked );
 
-    virtual updateOptions getDefaultUpdateOption() = 0;
+    void launchGui( QString guiName, QEForm::creationOptions creationOption );
 
-    void startGui( const QEGuiLaunchRequests & request );
+    virtual updateOptions getDefaultUpdateOption() = 0;
 
 private:
     Qt::Alignment textAlignment;
@@ -151,7 +143,6 @@ private:
     bool writeOnRelease;
     bool writeOnClick;
     bool confirmRequired;     // Request confirmation before acting on a button event
-    QString confirmText;      // Text presented when confirming action
     QString releaseText;      // Text to write on a button release
     QString pressText;        // Text to write on a button press
     QString clickText;        // Text to write on a button click
@@ -161,9 +152,8 @@ private:
     QStringList arguments;  // Program arguments
 
     QString guiName;      // GUI file name to launch
-    QEGuiLaunchRequests::Options creationOption;  // Indicate how the new gui should be created ( examples: in a new window, or a top dock)
+    QEForm::creationOptions creationOption;
     QString prioritySubstitutions;  // Macro substitutions that take precedence over existing substitutions when creating new guis
-    QString customisationName;      // Name of set of Window customisations such as additional menu items or tool bar push buttons
 
     bool localEnabled;
 
@@ -204,7 +194,7 @@ private:
     virtual void setButtonIcon( QIcon& icon ) = 0;
 
     virtual void emitDbValueChanged( QString text ) = 0;
-    virtual void emitNewGui( const QEGuiLaunchRequests& request ) = 0;
+    virtual void emitNewGui( QString guiName, QEForm::creationOptions creationOption ) = 0;
 
     virtual void connectButtonDataChange( qcaobject::QCaObject* qca ) = 0;
 

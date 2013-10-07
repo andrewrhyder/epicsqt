@@ -1,4 +1,4 @@
-/*  QEPvLoadSaveGroupNameDialog.cpp
+/*  QEScratchPadItemDialog.cpp
  *
  *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2013
  *
  *  Author:
  *    Andrew Starritt
@@ -26,62 +26,84 @@
  */
 
 #include <QDebug>
-#include <QStringList>
 
-#include <QEPvLoadSaveGroupNameDialog.h>
-#include <ui_QEPvLoadSaveGroupNameDialog.h>
+#include <QEScratchPadItemDialog.h>
+#include <ui_QEScratchPadItemDialog.h>
+
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveGroupNameDialog::QEPvLoadSaveGroupNameDialog (QWidget *parent) :
-      QEDialog (parent),
-      ui (new Ui::QEPvLoadSaveGroupNameDialog)
+QEScratchPadItemDialog::QEScratchPadItemDialog (QWidget *parent) :
+      QDialog (parent),
+      ui (new Ui::QEScratchPadItemDialog)
 {
    this->ui->setupUi (this);
+
+   this->returnIsMasked = false;
+
+   QObject::connect (this->ui->clearButton, SIGNAL (clicked            (bool)),
+                     this,                  SLOT   (clearButtonClicked (bool)));
+
+   QObject::connect (this->ui->dataEdit,  SIGNAL (returnPressed ()),
+                     this,                SLOT   (dataEditReturnPressed ()));
 }
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveGroupNameDialog::~QEPvLoadSaveGroupNameDialog ()
+QEScratchPadItemDialog::~QEScratchPadItemDialog ()
 {
    delete ui;
 }
 
-//------------------------------------------------------------------------------
-//
-void QEPvLoadSaveGroupNameDialog::setGroupName (QString groupNameIn)
-{
-   this->ui->groupEdit->setText (groupNameIn);
-}
-
 
 //------------------------------------------------------------------------------
 //
-QString QEPvLoadSaveGroupNameDialog::getGroupName ()
+void QEScratchPadItemDialog::setFieldInformation (const QString dataIn)
 {
-   return this->ui->groupEdit->text ().trimmed ();
+   this->ui->dataEdit->setText (dataIn);
+   this->ui->dataEdit->setFocus ();
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEPvLoadSaveGroupNameDialog::isClear ()
+void QEScratchPadItemDialog::getFieldInformation (QString& dataOut)
 {
-   return (this->getGroupName() == "");
+   dataOut =  this->ui->dataEdit->text ().trimmed();
 }
 
+//------------------------------------------------------------------------------
+//
+void QEScratchPadItemDialog::dataEditReturnPressed ()
+{
+}
+
+
+//------------------------------------------------------------------------------
+// User has pressed Clear
+//
+void QEScratchPadItemDialog::clearButtonClicked (bool)
+{
+   this->ui->dataEdit->clear ();
+   this->accept ();
+}
 
 //------------------------------------------------------------------------------
 // User has pressed OK
 //
-void QEPvLoadSaveGroupNameDialog::on_buttonBox_accepted ()
+void QEScratchPadItemDialog::on_buttonBox_accepted ()
 {
+   if (this->returnIsMasked) {
+      this->returnIsMasked = false;
+      return;
+   }
+
    this->accept ();
 }
 
 //------------------------------------------------------------------------------
 // User has pressed Cancel
 //
-void QEPvLoadSaveGroupNameDialog::on_buttonBox_rejected ()
+void QEScratchPadItemDialog::on_buttonBox_rejected ()
 {
    this->close ();
 }

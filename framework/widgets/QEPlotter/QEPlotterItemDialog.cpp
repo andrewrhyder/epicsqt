@@ -34,7 +34,7 @@
 //------------------------------------------------------------------------------
 //
 QEPlotterItemDialog::QEPlotterItemDialog (QWidget *parent) :
-      QEDialog (parent),
+      QDialog (parent),
       ui (new Ui::QEPlotterItemDialog)
 {
    this->ui->setupUi (this);

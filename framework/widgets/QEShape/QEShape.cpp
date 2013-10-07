@@ -28,7 +28,7 @@
   It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
-#include <QEScaling.h>
+#include <QECommon.h>
 #include <QEShape.h>
 #include <QCaDateTime.h>
 #include <QtGui>
@@ -163,11 +163,11 @@ void QEShape::scaleBy (const int m, const int d)
     for( i = 0; i < OFFSETS_SIZE; i++ )
         offsets[i] *= ratio;
 
-    QEScaling::applyToPoint( scaledOriginTranslation );
-    QEScaling::applyToPoint( originTranslation );
+    QEUtilities::adjustPointScale( scaledOriginTranslation, m, d );
+    QEUtilities::adjustPointScale( originTranslation, m, d );
 
     for( i = 0; i < POINTS_SIZE; i++ )
-        QEScaling::applyToPoint( points[i] );
+        QEUtilities::adjustPointScale( points[i], m, d );
 }
 
 /*

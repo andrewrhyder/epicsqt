@@ -44,10 +44,10 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <QEArchiveManager.h>
 #include <persistanceManager.h>
-#include <QEPVNameSelectDialog.h>
 
 #include "QEStripChart.h"
 #include "QEStripChartNames.h"
+#include "QEStripChartItemDialog.h"
 #include "QEStripChartAdjustPVDialog.h"
 #include "QEStripChartContextMenu.h"
 #include "QEStripChartUtilities.h"
@@ -131,7 +131,7 @@ private:
                         const bool isRealTime,
                         TrackRange & plottedTrackRange);
 
-   // Perform a pvNameDropEvent 'drop'.
+   // Perform a pvNameDropEvent 'drop'
    //
    void pvNameDropEvent (QDropEvent *event);
 
@@ -157,7 +157,7 @@ private:
 
    QEArchiveAccess archiveAccess;
 
-   QEPVNameSelectDialog *pvNameSelectDialog;
+   QEStripChartItemDialog *pvNameEditDialog;
    QEStripChartAdjustPVDialog *adjustPVDialog;
 
    // Internal widgets.
@@ -171,6 +171,7 @@ private:
    qcaobject::QCaObject *previousQcaItem;
 
    void createInternalWidgets ();
+
 
 private slots:
    void newVariableNameProperty (QString pvName, QString substitutions, unsigned int slot);

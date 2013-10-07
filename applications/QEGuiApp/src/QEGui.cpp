@@ -35,7 +35,7 @@
 #include <QDebug>
 #include <saveRestoreManager.h>
 #include <QSettings>
-#include <QEScaling.h>
+#include <QECommon.h>
 #include <QEForm.h>
 #include <QMetaType>
 #include <QVariant>
@@ -76,7 +76,6 @@ int QEGui::run()
        return 0;
     }
 
-
     // Restore the user level passwords
     QSettings settings( "epicsqt", "QEGui");
     setUserLevelPassword( userLevelTypes::USERLEVEL_USER, settings.value( "userPassword" ).toString() );
@@ -95,20 +94,12 @@ int QEGui::run()
             QString path = settings.value( QString( "recentFilePath%1" ).arg( i )).toString();
             QStringList pathList = settings.value( QString( "recentFilePathList%1" ).arg( i )).toStringList();
             QString macroSubstitutions = settings.value( QString( "recentFileMacroSubstitutions%1" ).arg( i )).toString();
-            QString customisationName = settings.value( QString( "recentCustomisationName%1" ).arg( i )).toString();
-            recentFiles.append( new recentFile( name, path, pathList, macroSubstitutions, customisationName, this ));
+            recentFiles.append( new recentFile( name, path, pathList, macroSubstitutions, this ));
         }
     }
 
-    // Load window customisations
-    // First try the one specified in the parameters (if any), then the default
-    if( !winCustomisations.loadCustomisation( getParams()->customisationFile ) )
-    {
-        winCustomisations.loadCustomisation( "QEWindowCustomisation.xml" );
-    }
-
     // Prepare to manage save and restore
-    // Note, main windows look after themselves, this is for the overall application
+    // Note, main windows look after them selves, this is for the overall application
     saveRestoreManager saveRestore( this );
 
     // If only a single instance has been requested,
@@ -117,11 +108,6 @@ int QEGui::run()
     instanceManager instance( this );
     if( params.singleApp && instance.handball( &params ) )
         return 0;
-
-    // Define application scaling to be applied to all widgets.
-    // Recall adjustScale is expressed as a percentage.
-    //
-    QEScaling::setScaling( int( params.adjustScale ), 100 );
 
     // Start the main application window
     instance.newWindow( params );
@@ -140,7 +126,6 @@ int QEGui::run()
         settings.setValue( QString( "recentFilePath%1" ).arg( i ), recentFiles.at( i )->path );
         settings.setValue( QString( "recentFilePathList%1" ).arg( i ), recentFiles.at( i )->pathList );
         settings.setValue( QString( "recentFileMacroSubstitutions%1" ).arg( i ), recentFiles.at( i )->macroSubstitutions );
-        settings.setValue( QString( "recentCustomisationName%1" ).arg( i ), recentFiles.at( i )->customisationName );
     }
 
     return ret;
@@ -201,19 +186,6 @@ void QEGui::printHelp ()
       "\n"
       "        macros format: keyword=substitution, keyword=substitution,...\n"
       "        Enclose in quotes if this parameter contains any spaces.\n"
-      "\n"
-      "        Typically substitutions are used to specify specific variable names when loading\n"
-      "        generic template forms. Substitutions are not limited to template forms, and some\n"
-      "        QEWidgets use macro substitutions for purposes other than variable names.\n"
-      "\n"
-      "-w      Window customisation file.\n"
-      "        Named customisations will be read from this file. If not provided\n"
-      "        the default is QEWindowCustomisation.xml in the current working directory.\n"
-      "        A customisation file is optional.\n"
-      "\n"
-      "-n      Default window customisation name.\n"
-      "        This name shoud be the name of one ofthe window customisations read from the Window\n"
-      "        customisation file file.\n"
       "\n"
       "        Typically substitutions are used to specify specific variable names when loading\n"
       "        generic template forms. Substitutions are not limited to template forms, and some\n"
@@ -391,7 +363,7 @@ void QEGui::setGuiScroll( int i, QPoint scroll )
 }
 
 // Add a GUI to the application's list of GUIs, and to the recent menu
-void QEGui::addGui( QEForm* gui, QString customisationName, MainWindow* window )
+void QEGui::addGui( QEForm* gui, MainWindow* window )
 {
     // Create an action for the 'Window' menus
     QAction* windowMenuAction = new QAction( gui->getQEGuiTitle(), this );
@@ -447,7 +419,7 @@ void QEGui::addGui( QEForm* gui, QString customisationName, MainWindow* window )
     if( !recentMenuAction )
     {
         // Add a new recent gui
-        recentFile* rf = new recentFile( name, path, gui->getPathList(), gui->getMacroSubstitutions(), customisationName, this );
+        recentFile* rf = new recentFile( name, path, gui->getPathList(), gui->getMacroSubstitutions(), this );
         recentFiles.prepend( rf );
 
         // Keep the list down to a limited size
@@ -463,35 +435,6 @@ void QEGui::addGui( QEForm* gui, QString customisationName, MainWindow* window )
             mainWindowList[i]->addRecentMenuAction( rf );
         }
     }
-}
-
-// Find a GUI in the application's list of GUIs and return the window customisation name.
-QString QEGui::getGuiCustomisationName( QEForm* gui )
-{
-    // Look for the GUI and return the window customisations if found
-    for( int i = 0; i < guiList.count(); i++ )
-    {
-        if( guiList[i].getForm() == gui )
-        {
-            return guiList[i].getCustomisationName();
-        }
-    }
-
-    // GUI not found. Return an empty string
-    return QString();
-}
-
-// Return a GUIs customisation name.
-QString QEGui::getGuiCustomisationName( int guiIndex )
-{
-    // Return customisation name if index is valid
-    if( guiIndex >= 0 && guiIndex < guiList.count() )
-    {
-        return guiList[guiIndex].getCustomisationName();
-    }
-
-    // GUI not found. Return an empty string
-    return QString();
 }
 
 // Remove a GUI from the application's list of GUIs
@@ -532,29 +475,27 @@ void QEGui::identifyWindowsAndForms()
 }
 
 // Change user level
-void QEGui::login( QWidget* fromForm )
+void QEGui::login()
 {
     if( !loginForm )
     {
         loginForm = new loginDialog;
         // Ensure scaling is consistent with the rest of the application's forms.
-        QEScaling::applyToWidget( loginForm );
+        QEUtilities::applyCurrentWidgetScale( loginForm );
     }
-
-    loginForm->exec( fromForm );
+    loginForm->exec();
 }
 
 // Launch a gui for the 'Recent...' menu
-void QEGui::launchRecentGui( QString path, QStringList pathList, QString macroSubstitutions, QString customisationName )
+void QEGui::launchRecentGui( QString path, QStringList pathList, QString macroSubstitutions )
 {
     // Set up the profile for the new window
     ContainerProfile profile;
 
     profile.setupProfile( NULL, pathList, "", macroSubstitutions );
 
-    MainWindow* mw = new MainWindow( this, path, customisationName, false );
+    MainWindow* mw = new MainWindow( this, path, false );
     mw->show();
     profile.releaseProfile();
 }
 
-// end

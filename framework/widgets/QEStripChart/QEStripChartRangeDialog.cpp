@@ -34,7 +34,7 @@
 //------------------------------------------------------------------------------
 //
 QEStripChartRangeDialog::QEStripChartRangeDialog (QWidget *parent) :
-      QEDialog (parent),
+      QDialog (parent),
       ui (new Ui::QEStripChartRangeDialog)
 {
    this->ui->setupUi (this);

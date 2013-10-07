@@ -134,6 +134,7 @@ void instanceManager::newWindow( const startupParams& params )
 {
     // Set up the profile for the new windows
     ContainerProfile profile;
+//    profile.setupProfile( NULL, params.pathList, "", params.substitutions );
 
     // If restoring, restore saved configuration
     if( params.restore )
@@ -160,10 +161,10 @@ void instanceManager::newWindow( const startupParams& params )
     {
         profile.setupProfile( NULL, params.pathList, "", params.substitutions );
 
-        // If no files specified, open a single window without a file name
+        // If no files specified, open a single window without a filen name
         if( !params.filenameList.count() )
         {
-            MainWindow* mw = new MainWindow( app, "", "", true );
+            MainWindow* mw = new MainWindow( app, "", true );
             mw->show();
         }
 
@@ -172,7 +173,7 @@ void instanceManager::newWindow( const startupParams& params )
         {
             for( int i = 0; i < params.filenameList.count(); i++ )
             {
-                MainWindow* mw = new MainWindow( app, params.filenameList[i], params.configurationName, true );
+                MainWindow* mw = new MainWindow( app, params.filenameList[i], true );
                 mw->show();
             }
         }
@@ -181,4 +182,5 @@ void instanceManager::newWindow( const startupParams& params )
     }
 
     // Release the profile
+//    profile.releaseProfile();
 }

@@ -89,8 +89,7 @@ public:
                                   ICM_CLEAR_MARKUP,
                                   ICM_THICKNESS_ONE_MARKUP,
                                   ICM_THICKNESS_SELECT_MARKUP,
-                                  ICM_COPY_PLOT_DATA,
-                                  ICM_OPTIONS
+                                  ICM_COPY_PLOT_DATA
                                 };
 
     // Present the context menu, and return whatever the user selects

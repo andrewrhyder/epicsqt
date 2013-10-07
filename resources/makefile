@@ -156,18 +156,13 @@ endif
 	@chmod u+x $(PACKAGE_DIRECTORY)/bin/qegui
 	@echo "#!/bin/bash" > script.tmp
 	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/bin/qegui | $(GREP) 'libQt\|libqwt\|libreadline\|libncurses' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
-	@echo "`$(LDD) $(PACKAGE_DIRECTORY)/lib/libQEPlugin.so | $(GREP) 'libqwt' | $(SED) s/lib.*\>/cp/ | $(SED) s/\(.*\)/$(PACKAGE_DIRECTORY)\\\/lib/`" >> script.tmp
 	@chmod u+x script.tmp
 	@./script.tmp
 	@rm -f script.tmp
 	@echo "#!/bin/bash" > $(EXECUTE_FILE)
-	@echo "export LD_LIBRARY_PATH=$(RPM_DEPLOY_DIRECTORY)/lib:./lib:$(RPM_DEPLOY_DIRECTORY)/lib/plugins/designer/:./lib/plugins/designer/:\$$LD_LIBRARY_PATH" >> $(EXECUTE_FILE)
-	@echo "export QT_PLUGIN_PATH=$(RPM_DEPLOY_DIRECTORY)/lib/plugins:./lib/plugins" >> $(EXECUTE_FILE)
-	@echo "if [ -f $(RPM_DEPLOY_DIRECTORY)/bin/qegui ]; then" >> $(EXECUTE_FILE)
-	@echo "    $(RPM_DEPLOY_DIRECTORY)/bin/qegui \"\$$@\"" >> $(EXECUTE_FILE)
-	@echo "else" >> $(EXECUTE_FILE)
-	@echo "    ./bin/qegui \"\$$@\"" >> $(EXECUTE_FILE)
-	@echo "fi" >> $(EXECUTE_FILE)
+	@echo "export LD_LIBRARY_PATH=./lib:./lib/plugins/designer/:\$$LD_LIBRARY_PATH" >> $(EXECUTE_FILE)
+	@echo "export QT_PLUGIN_PATH=./lib/plugins" >> $(EXECUTE_FILE)
+	@echo "./bin/qegui \"\$$@\"" >> $(EXECUTE_FILE)
 	@chmod u+x $(EXECUTE_FILE)
 	@echo "Please note that a file called 'executeQEGui' (located in directory '$(PACKAGE_DIRECTORY)') was created in order to facilitate the launching of ui files. To use it, do the following in a terminal: ./executeQEGui XXX (where XXX is the ui file to be launched)."
 	@echo "...done packaging framework!"
@@ -230,7 +225,6 @@ endif
 	@echo "/*" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@echo "%post" >> $(SPEC_FILE)
-	@echo "echo \"The EPICS Qt Framework was installed in '$(RPM_DEPLOY_DIRECTORY)'. Please note that a file called 'executeQEGui' exists in this directory to facilitate the launching of ui files. To use it, do the following in a terminal: ./executeQEGui XXX (where XXX is the ui file to be launched).\"" >> $(SPEC_FILE)
 	@echo "" >> $(SPEC_FILE)
 	@$(RPM_DIRECTORY) -bb $(SPEC_FILE)
 	@echo "Please note that a RPM was created and it is located in './$(RPM_DIRECTORY)/RPMS'. To install this RPM, perform 'rpm -i XXX.rpm' in a terminal (the framework will then be installed in directory '$(RPM_DEPLOY_DIRECTORY)')."

@@ -33,11 +33,11 @@
   User interaction and drawing markups over the image (such as selecting an area) is managed by the imageMarkup class.
  */
 
-#include <QIcon>
 #include <QEImage.h>
 #include <QEByteArray.h>
 #include <QEInteger.h>
 #include <imageContextMenu.h>
+#include <QIcon>
 
 /*
     Constructor with no initialisation
@@ -81,6 +81,8 @@ void QEImage::setup() {
     formatOption = GREY8;
     paused = false;
 
+    displayButtonBar = false;
+
     vSliceThickness = 1;
     hSliceThickness = 1;
     profileThickness = 1;
@@ -95,6 +97,18 @@ void QEImage::setup() {
     haveSelectedArea2 = false;
     haveSelectedArea3 = false;
     haveSelectedArea4 = false;
+
+    enableAreaSelection = true;
+    enableVSliceSelection = false;
+    enableHSliceSelection = false;
+    enableProfileSelection = false;
+    enableTargetSelection = false;
+
+    displayCursorPixelInfo = false;
+    contrastReversal = false;
+
+    enableBrightnessContrast = true;
+//    autoBrightnessContrast = false;
 
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
@@ -134,18 +148,21 @@ void QEImage::setup() {
                       this,        SLOT  ( pan( QPoint ) ) );
 
 
-    // Create zoom sub menu
+    // Create sub menus
     zMenu = new zoomMenu();
     zMenu->enableAreaSelected( haveSelectedArea1 );
     QObject::connect( zMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( zoomMenuTriggered( QAction* )) );
 
-    // Create flip/rotate sub menu
     frMenu = new flipRotateMenu();
     frMenu->setChecked( rotation, flipHoz, flipVert );
     QObject::connect( frMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( flipRotateMenuTriggered( QAction* )) );
 
-    // Create and setup the select menu
     sMenu = new selectMenu();
+    sMenu->setVSliceEnabled( enableVSliceSelection );
+    sMenu->setHSlicetEnabled( enableHSliceSelection );
+    sMenu->setAreaEnabled( enableAreaSelection );
+    sMenu->setProfileEnabled( enableProfileSelection );
+    sMenu->setTargetEnabled( enableTargetSelection );
     QObject::connect( sMenu, SIGNAL( triggered ( QAction* ) ), this,  SLOT  ( selectMenuTriggered( QAction* )) );
 
     // Add the video destination to the widget
@@ -156,10 +173,7 @@ void QEImage::setup() {
 
     // Local brightness and contrast controls
     localBC = new localBrightnessContrast;
-    QObject::connect( localBC, SIGNAL( brightnessContrastChange() ),
-                      this,    SLOT  ( brightnessContrastChanged()) );
-    QObject::connect( localBC, SIGNAL( brightnessContrastAutoImage() ),
-                      this,    SLOT  ( brightnessContrastAutoImageRequest() ) );
+    QObject::connect( localBC, SIGNAL( brightnessContrastChange() ), this,  SLOT  ( brightnessContrastChanged()) );
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
@@ -271,17 +285,13 @@ void QEImage::setup() {
 
     setLayout( mainLayout );
 
+    // Set up labels as required by properties
+    manageButtonBar();
+    showInfo( displayCursorPixelInfo );
+
     // Set up context sensitive menu (right click menu)
     setContextMenuPolicy( Qt::CustomContextMenu );
     connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showContextMenu( const QPoint& )));
-
-    // Create options dialog
-    // This is done after all items manipulated by the options dialog have been built - such as the brightness/contrast controls
-    // Also pareneted by this so will scaled automatically.
-    optionsDialog = new QEImageOptionsDialog( this );
-    QObject::connect( optionsDialog, SIGNAL( optionChange(  imageContextMenu::imageContextMenuOptions, bool )),
-                      this,          SLOT  ( optionAction( imageContextMenu::imageContextMenuOptions, bool )) );
-    optionsDialog->initialise();
 
     // Initially set the video widget to the size of the scroll bar
     // This will be resized when the image size is known
@@ -291,6 +301,19 @@ void QEImage::setup() {
     // Image will not be presented until size is available
     imageBuffWidth = 0;
     imageBuffHeight = 0;
+
+
+    // Act on default property values
+    // Note, this resets them to their current value
+    setShowTime(false );
+
+    setEnableAreaSelection( enableAreaSelection );
+    setEnableVertSliceSelection( enableVSliceSelection );
+    setEnableHozSliceSelection( enableHSliceSelection );
+    setEnableProfileSelection( enableProfileSelection );
+    setEnableTargetSelection( enableTargetSelection );
+
+    setDisplayCursorPixelInfo( displayCursorPixelInfo );
 
     // Simulate pan mode being selected
     panModeClicked();
@@ -658,7 +681,7 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
         case GREY12:  minBits = 2;  break;
         case GREY16:  minBits = 16; break;
         case RGB_888: minBits = 24; break;
-        default:      minBits = 8;  break;
+        case NUM_OPTIONS: break;
     }
 
     elementsPerPixel = minBits/(imageDataSize*8);
@@ -765,7 +788,7 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
     // Even if local brightness and contrast is enabled, no need to go through the pain if they are both neutral
     int localContrast = localBC->getContrast();
     int localBrightness = localBC->getBrightness();
-    bool doLCB = localContrast!=100 || localBrightness != 0;
+    bool doLCB = enableBrightnessContrast && (localContrast!=100 || localBrightness != 0);
 
     // Range of values with contrast applied
     int range = maxValue*localContrast/100;
@@ -809,7 +832,7 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
             int translatedValue = value;
 
             // Reverse contrast if required
-            if( optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL ) )
+            if( contrastReversal )
             {
                 translatedValue = maxValue - translatedValue;
             }
@@ -1167,6 +1190,19 @@ void QEImage::updateMarkupData()
 
 //=================================================================================================
 
+// Add or remove the button bar
+void QEImage::manageButtonBar()
+{
+    if( displayButtonBar )
+    {
+        buttonGroup->show();
+    }
+    else
+    {
+        buttonGroup->hide();
+    }
+}
+
 // Zoom to the area selected on the image
 void QEImage::zoomToArea()
 {
@@ -1390,98 +1426,6 @@ void QEImage::resizeEvent(QResizeEvent* )
     setImageBuff();
 }
 
-
-//==============================================================================
-
-// Manage local brightness and contrast controls
-void QEImage::doEnableBrightnessContrast( bool enableBrightnessContrast )
-{
-    localBC->setVisible( enableBrightnessContrast );
-}
-
-// Manage contrast reversal
-void QEImage::doContrastReversal( bool /*contrastReversal*/ )
-{
-    // Flag color lookup table is invalid
-    pixelLookupValid = false;
-
-    qcaobject::QCaObject* qca = getQcaItem( IMAGE_VARIABLE );
-    if( qca )
-    {
-        qca->resendLastData();
-    }
-}
-
-// Manage vertical slice selection
-void QEImage::doEnableVertSliceSelection( bool enableVSliceSelection )
-{
-    sMenu->setVSliceEnabled( enableVSliceSelection );
-
-    // If disabling, and it is the current mode, then default to panning
-    if( !enableVSliceSelection && getSelectionOption() == SO_VSLICE )
-    {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
-    }
-}
-
-// Enable horizontal slice selection
-void QEImage::doEnableHozSliceSelection( bool enableHSliceSelection )
-{
-    sMenu->setHSlicetEnabled( enableHSliceSelection );
-
-    // If disabling, and it is the current mode, then default to panning
-    if( !enableHSliceSelection && getSelectionOption() == SO_HSLICE )
-    {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
-    }
-}
-
-// Enable area selection (used for ROI and zoom)
-void QEImage::doEnableAreaSelection( bool enableAreaSelection )
-{
-    sMenu->setAreaEnabled( enableAreaSelection );
-
-    // If disabling, and it is the current mode, then default to panning
-    if( !enableAreaSelection &&
-        ( ( getSelectionOption() == SO_AREA1 ) ||
-          ( getSelectionOption() == SO_AREA2 ) ||
-          ( getSelectionOption() == SO_AREA3 ) ||
-          ( getSelectionOption() == SO_AREA4 )))
-    {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
-    }
-}
-
-// Manage profile selection
-void QEImage::doEnableProfileSelection( bool enableProfileSelection )
-{
-    sMenu->setProfileEnabled( enableProfileSelection );
-
-    // If disabling, and it is the current mode, then default to panning
-    if( !enableProfileSelection && getSelectionOption() == SO_PROFILE )
-    {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
-    }
-}
-
-// Manage target selection
-void QEImage::doEnableTargetSelection( bool enableTargetSelection )
-{
-    sMenu->setTargetEnabled( enableTargetSelection );
-    targetButton->setVisible( enableTargetSelection );
-
-    // If disabling, and it is the current mode, then default to panning
-    if( !enableTargetSelection && ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))
-    {
-        sMenu->setChecked( QEImage::SO_PANNING );
-        panModeClicked();
-    }
-}
-
 //==============================================================================
 // Drag drop
 void QEImage::setDrop( QVariant drop )
@@ -1619,6 +1563,18 @@ bool QEImage::getVerticalFlip()
     return flipVert;
 }
 
+// True if local brightness and contrast controls are presented
+void QEImage::setEnableBrightnessContrast( bool enableBrightnessContrastIn )
+{
+    enableBrightnessContrast = enableBrightnessContrastIn;
+    localBC->setVisible( enableBrightnessContrast );
+}
+
+bool QEImage::getEnableBrightnessContrast()
+{
+    return enableBrightnessContrast;
+}
+
 // Automatic setting of brightness and contrast on region selection
 void QEImage::setAutoBrightnessContrast( bool autoBrightnessContrastIn )
 {
@@ -1670,6 +1626,18 @@ void QEImage::setInitialVertScrollPos( int initialVertScrollPosIn )
 int QEImage::getInitialVertScrollPos()
 {
     return initialVertScrollPos;
+}
+
+// Display the button bar
+void QEImage::setDisplayButtonBar( bool displayButtonBarIn )
+{
+    displayButtonBar = displayButtonBarIn;
+    manageButtonBar();
+}
+
+bool QEImage::getDisplayButtonBar()
+{
+    return displayButtonBar;
 }
 
 // Show time
@@ -1763,106 +1731,140 @@ QColor QEImage::getBeamMarkupColor()
     return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_BEAM );
 }
 
-// Display the button bar
-void QEImage::setDisplayButtonBar( bool displayButtonBar )
-{
-    optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_BUTTON_BAR, displayButtonBar );
-}
-
-bool QEImage::getDisplayButtonBar()
-{
-    return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_BUTTON_BAR );
-}
-
 // Show cursor pixel
-void QEImage::setDisplayCursorPixelInfo( bool displayCursorPixelInfo )
+void QEImage::setDisplayCursorPixelInfo( bool displayCursorPixelInfoIn )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_CURSOR_PIXEL, displayCursorPixelInfo );
+    displayCursorPixelInfo = displayCursorPixelInfoIn;
+    showInfo( displayCursorPixelInfo );
 }
 
-bool QEImage::getDisplayCursorPixelInfo()
-{
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_CURSOR_PIXEL );
+bool QEImage::getDisplayCursorPixelInfo(){
+    return displayCursorPixelInfo;
 }
 
 // Show contrast reversal
-void QEImage::setContrastReversal( bool contrastReversal )
+void QEImage::setContrastReversal( bool contrastReversalIn )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL, contrastReversal );
+    if( contrastReversal != contrastReversalIn )
+    {
+        pixelLookupValid = false;
+    }
+
+    contrastReversal = contrastReversalIn;
+
+    qcaobject::QCaObject* qca = getQcaItem( IMAGE_VARIABLE );
+    if( qca )
+    {
+        qca->resendLastData();
+    }
 }
 
-bool QEImage::getContrastReversal()
-{
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
+bool QEImage::getContrastReversal(){
+    return contrastReversal;
 }
 
 // Enable vertical slice selection
-void QEImage::setEnableVertSliceSelection( bool enableVSliceSelection )
+void QEImage::setEnableVertSliceSelection( bool enableVSliceSelectionIn )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_VERT, enableVSliceSelection );
+    enableVSliceSelection = enableVSliceSelectionIn;
+    sMenu->setVSliceEnabled( enableVSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableVSliceSelection && getSelectionOption() == SO_VSLICE )
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableVertSliceSelection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_VERT );
+    return enableVSliceSelection;
 }
 
 // Enable horizontal slice selection
-void QEImage::setEnableHozSliceSelection( bool enableHSliceSelection )
+void QEImage::setEnableHozSliceSelection( bool enableHSliceSelectionIn )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_HOZ, enableHSliceSelection );
+    enableHSliceSelection = enableHSliceSelectionIn;
+    sMenu->setHSlicetEnabled( enableHSliceSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableHSliceSelection && getSelectionOption() == SO_HSLICE )
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableHozSliceSelection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_HOZ );
+    return enableHSliceSelection;
 }
 
 // Enable area selection (used for ROI and zoom)
-void QEImage::setEnableAreaSelection( bool enableAreaSelection )
+void QEImage::setEnableAreaSelection( bool enableAreaSelectionIn )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_AREA, enableAreaSelection );
+    enableAreaSelection = enableAreaSelectionIn;
+    sMenu->setAreaEnabled( enableAreaSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableAreaSelection &&
+        ( ( getSelectionOption() == SO_AREA1 ) ||
+          ( getSelectionOption() == SO_AREA2 ) ||
+          ( getSelectionOption() == SO_AREA3 ) ||
+          ( getSelectionOption() == SO_AREA4 )))
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableAreaSelection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_AREA );
+    return enableAreaSelection;
 }
 
 // Enable profile selection
-void QEImage::setEnableProfileSelection( bool enableProfileSelection )
+void QEImage::setEnableProfileSelection( bool enableProfileSelectionIn )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_LINE, enableProfileSelection );
+    enableProfileSelection = enableProfileSelectionIn;
+    sMenu->setProfileEnabled( enableProfileSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableProfileSelection && getSelectionOption() == SO_PROFILE )
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableProfileSelection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_LINE );
+    return enableProfileSelection;
 }
 
 // Enable target selection
-void QEImage::setEnableTargetSelection( bool enableTargetSelection )
+void QEImage::setEnableTargetSelection( bool enableTargetSelectionIn )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_TARGET, enableTargetSelection );
+    enableTargetSelection = enableTargetSelectionIn;
+    sMenu->setTargetEnabled( enableTargetSelection );
+    targetButton->setVisible( enableTargetSelection );
+
+    // If disabling, and it is the current mode, then default to panning
+    if( !enableTargetSelection && ( getSelectionOption() == SO_TARGET || getSelectionOption() == SO_BEAM ))
+    {
+        sMenu->setChecked( QEImage::SO_PANNING );
+        panModeClicked();
+    }
 }
 
 bool QEImage::getEnableTargetSelection()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_TARGET );
-}
-
-// Enable local brightness and contrast controls if required
-void QEImage::setEnableBrightnessContrast( bool enableBrightnessContrast )
-{
-    optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST, enableBrightnessContrast );
-}
-
-bool QEImage::getEnableBrightnessContrast()
-{
-    return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST );
+    return enableTargetSelection;
 }
 
 //=================================================================================================
+
 
 void QEImage::panModeClicked()
 {
@@ -1976,10 +1978,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 zMenu->enableAreaSelected( haveSelectedArea1 );
 
                 displaySelectedAreaInfo( 1, point1, point2 );
-                if( localBC->getAutoBrightnessContrast() )
-                {
-                    setRegionAutoBrightnessContrast( point1, point2 );
-                }
+                setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
                 {
@@ -1993,10 +1992,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea2 = true;
 
                 displaySelectedAreaInfo( 2, point1, point2 );
-                if( localBC->getAutoBrightnessContrast() )
-                {
-                    setRegionAutoBrightnessContrast( point1, point2 );
-                }
+                setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
                 {
@@ -2010,10 +2006,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea3 = true;
 
                 displaySelectedAreaInfo( 3, point1, point2 );
-                if( localBC->getAutoBrightnessContrast() )
-                {
-                    setRegionAutoBrightnessContrast( point1, point2 );
-                }
+                setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
                 {
@@ -2027,10 +2020,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea4 = true;
 
                 displaySelectedAreaInfo( 4, point1, point2 );
-                if( localBC->getAutoBrightnessContrast() )
-                {
-                    setRegionAutoBrightnessContrast( point1, point2 );
-                }
+                setRegionAutoBrightnessContrast( point1, point2 );
 
                 if( complete )
                 {
@@ -2202,6 +2192,10 @@ void QEImage::displaySelectedAreaInfo( int region, QPoint point1, QPoint point2 
 // Update the brightness and contrast, if in auto, to match the recently selected region
 void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 {
+    // Do nothing if not automatically setting brightness and contrast
+    if( !localBC->getAutoBrightnessContrast() )
+        return;
+
     // Get the area corners scaled to match the original image data
     QPoint corner1( videoWidget->scaleOrdinate( point1.x() ), videoWidget->scaleOrdinate( point1.y() ) );
     QPoint corner2( videoWidget->scaleOrdinate( point2.x() ), videoWidget->scaleOrdinate( point2.y() ) );
@@ -2273,9 +2267,6 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
     *max = maxP;
 }
 
-//=====================================================================
-// Slots to use signals from the Brightness/contrast control
-
 // The brightness or contrast have changed
 void QEImage::brightnessContrastChanged()
 {
@@ -2285,14 +2276,6 @@ void QEImage::brightnessContrastChanged()
     // Present the updated image
     displayImage();
 }
-
-// A request has been made to set the brightness and contrast to suit the current image
-void QEImage::brightnessContrastAutoImageRequest()
-{
-    setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( videoWidget->getImageSize().width(), videoWidget->getImageSize().height()) );
-}
-
-//=====================================================================
 
 // Generate a profile along a line down an image at a given X position
 // The profile contains values for each pixel intersected by the line.
@@ -2988,6 +2971,7 @@ void QEImage::showContextMenu( const QPoint& pos )
     //                      Title                            checkable  checked                     option
     menu.addMenuItem(       "Save...",                       false,     false,                      imageContextMenu::ICM_SAVE                     );
     menu.addMenuItem(       paused?"Resume":"Pause",         true,      paused,                     imageContextMenu::ICM_PAUSE                    );
+    menu.addMenuItem(       "Contrast reversal",             true,      contrastReversal,           imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
 
     menu.addMenuItem(       "About image...",                false,     false,                      imageContextMenu::ICM_ABOUT_IMAGE              );
     // Add the zoom menu
@@ -2998,40 +2982,41 @@ void QEImage::showContextMenu( const QPoint& pos )
     frMenu->setChecked( rotation, flipHoz, flipVert );
     menu.addMenu( frMenu );
 
-    // Add option... dialog
-    menu.addMenuItem(       "Options...",                    false,     false,                      imageContextMenu::ICM_OPTIONS                  );
+    // Add option menu items
+    menu.addOptionMenuItem( "Show time",                                              true,      videoWidget->getShowTime(), imageContextMenu::ICM_ENABLE_TIME              );
+    menu.addOptionMenuItem( "Show cursor pixel info",                                 true,      displayCursorPixelInfo,     imageContextMenu::ICM_ENABLE_CURSOR_PIXEL      );
+    menu.addOptionMenuItem( "Enable vertical profile selection",                      true,      enableVSliceSelection,      imageContextMenu::ICM_ENABLE_VERT                 );
+    menu.addOptionMenuItem( "Enable horizontal profile selection",                    true,      enableHSliceSelection,      imageContextMenu::ICM_ENABLE_HOZ                  );
+    menu.addOptionMenuItem( "Enable region selection (required for 'zoom to area'')", true,      enableAreaSelection,        imageContextMenu::ICM_ENABLE_AREA                 );
+    menu.addOptionMenuItem( "Enable arbitrary profile selection",                     true,      enableProfileSelection,     imageContextMenu::ICM_ENABLE_LINE                 );
+    menu.addOptionMenuItem( "Enable target selection",                                true,      enableTargetSelection,      imageContextMenu::ICM_ENABLE_TARGET               );
+    menu.addOptionMenuItem( "Display button bar",                                     true,      displayButtonBar,           imageContextMenu::ICM_DISPLAY_BUTTON_BAR          );
+    menu.addOptionMenuItem( "Display local brightness and contrast controls",         true,      enableBrightnessContrast,   imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST );
 
     // Present the menu
     imageContextMenu::imageContextMenuOptions option;
     bool checked;
     menu.getContextMenuOption( globalPos, &option, &checked );
 
-    optionAction( option, checked );
-}
-
-// Act on a selection from the option menu or dialog
-void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bool checked )
-{
     // Act on the menu selection
     switch( option )
     {
         default:
         case imageContextMenu::ICM_NONE: break;
 
-        case imageContextMenu::ICM_SAVE:                        saveClicked();                         break;
-        case imageContextMenu::ICM_PAUSE:                       pauseClicked();                        break;
-        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         showInfo                  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    doContrastReversal        ( checked ); break;
-        case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                break;
-        case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime               ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_VERT:                 doEnableVertSliceSelection( checked ); break;
-        case imageContextMenu::ICM_ENABLE_HOZ:                  doEnableHozSliceSelection ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_AREA:                 doEnableAreaSelection     ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_LINE:                 doEnableProfileSelection  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
-        case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
-        case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
+        case imageContextMenu::ICM_SAVE:                        saveClicked();                          break;
+        case imageContextMenu::ICM_PAUSE:                       pauseClicked();                         break;
+        case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         setDisplayCursorPixelInfo  ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    setContrastReversal        ( checked ); break;
+        case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                 break;
+        case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime                ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_VERT:                 setEnableVertSliceSelection( checked ); break;
+        case imageContextMenu::ICM_ENABLE_HOZ:                  setEnableHozSliceSelection ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_AREA:                 setEnableAreaSelection     ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_LINE:                 setEnableProfileSelection  ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_TARGET:               setEnableTargetSelection   ( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          setDisplayButtonBar        ( checked ); break;
+        case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: setEnableBrightnessContrast( checked ); break;
 
         // Note, zoom options caught by zoom menu signal
         // Note, rotate and flip options caught by flip rotate menu signal
@@ -3068,10 +3053,19 @@ void QEImage::flipRotateMenuTriggered( QAction* selectedItem )
         default:
         case imageContextMenu::ICM_NONE: break;
 
+//vvvvvvvvvvvvvvvvvv
+// Required for set of mutually exclusive radio buttons for rotation (independant of flip check boxes)
+//        case imageContextMenu::ICM_ROTATE_NONE:         setRotation( ROTATION_0 );                      break;
+//        case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( ROTATION_90_RIGHT );               break;
+//        case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( ROTATION_90_LEFT );                break;
+//        case imageContextMenu::ICM_ROTATE_180:          setRotation( ROTATION_180 );                    break;
+//==================
+// Required for set of check boxes in addition to flip check boxes.
+// This is bending of convention with 5 check boxes where 3 (for rotation) are mutually exclusive
         case imageContextMenu::ICM_ROTATE_RIGHT:        setRotation( selectedItem->isChecked()?ROTATION_90_RIGHT:ROTATION_0 );               break;
         case imageContextMenu::ICM_ROTATE_LEFT:         setRotation( selectedItem->isChecked()?ROTATION_90_LEFT:ROTATION_0 );                break;
         case imageContextMenu::ICM_ROTATE_180:          setRotation( selectedItem->isChecked()?ROTATION_180:ROTATION_0 );                    break;
-
+//^^^^^^^^^^^^^^^^^^
         case imageContextMenu::ICM_FLIP_HORIZONTAL:     setHorizontalFlip( selectedItem->isChecked() ); break;
         case imageContextMenu::ICM_FLIP_VERTICAL:       setVerticalFlip  ( selectedItem->isChecked() ); break;
     }

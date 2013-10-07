@@ -32,9 +32,6 @@
 
 #define DEBUG qDebug () << "QEFormGrid" << __FUNCTION__ << __LINE__
 
-const int QEFormGrid::MaximumForms = 210;    // 2*3*5*7
-const int QEFormGrid::MaximumColumns = 42;   // 2*3*7
-
 
 //=============================================================================
 // MacroData functions
@@ -258,8 +255,8 @@ QEForm* QEFormGrid::createQEForm (const int slot)
    QEForm* form = NULL;
 
    // Publish the profile this button recieved.
-   //
-   this->publishOwnProfile ();
+   // Don't seem to need this??
+   // this->publishOwnProfile ();
 
    // Extend any variable name substitutions with this form grid's substitutions
    // Like most other macro substitutions, the substitutions already present take precedence.
@@ -285,8 +282,8 @@ QEForm* QEFormGrid::createQEForm (const int slot)
    this->removeMacroSubstitutions ();
 
    // Release the profile now all QE widgets have been created.
-   //
-   this->releaseProfile ();
+   // Don't seem to need this??
+   // this->releaseProfile ();
 
    return form;
 }

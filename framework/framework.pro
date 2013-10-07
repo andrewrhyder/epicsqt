@@ -77,8 +77,7 @@ HEADERS += \
     widgets/include/QEDesignerPlugin.h \
     widgets/include/ContainerProfile.h \
     widgets/include/QEPluginLibrary_global.h \
-    widgets/include/persistanceManager.h \
-    widgets/include/menuConfig.h
+    widgets/include/persistanceManager.h
 
 
 SOURCES += \
@@ -99,15 +98,13 @@ SOURCES += \
     widgets/src/QEToolTip.cpp \
     widgets/src/QEDesignerPlugin.cpp \
     widgets/src/ContainerProfile.cpp \
-    widgets/src/persistanceManager.cpp \
-    widgets/src/menuConfig.cpp
+    widgets/src/persistanceManager.cpp
 
 
 #===========================================================
 # Widget and other sub projects
 # Included .pri (project include) files for each widget
 #
-include (adaptation_parameters/adaptation_parameters.pri)
 include (common/common.pri)
 include (data/data.pri)
 include (archive/QEArchive.pri)
@@ -120,7 +117,6 @@ include (widgets/QEConfiguredLayout/QEConfiguredLayout.pri)
 include (widgets/QEFileBrowser/QEFileBrowser.pri)
 include (widgets/QEFileImage/QEFileImage.pri)
 include (widgets/QEForm/QEForm.pri)
-include (widgets/QEFormGrid/QEFormGrid.pri)
 include (widgets/QEFrame/QEFrame.pri)
 include (widgets/QEGroupBox/QEGroupBox.pri)
 include (widgets/QEImage/QEImage.pri)

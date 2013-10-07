@@ -37,7 +37,7 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <persistanceManager.h>
 
-#include <QEPVNameSelectDialog.h>
+#include "QEScratchPadItemDialog.h"
 #include "QEScratchPadMenu.h"
 
 /// This class provides a flexible scratch pad form, to which any Process Variable
@@ -86,7 +86,7 @@ private:
    QLabel* titleValue;
    QHBoxLayout* titleLayout;
 
-   QEPVNameSelectDialog* pvNameSelectDialog;
+   QEScratchPadItemDialog* dataDialog;
    QMenu* widgetContextMenu;
 
    int selectedItem;
