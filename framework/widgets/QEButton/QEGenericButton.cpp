@@ -108,8 +108,12 @@ void QEGenericButton::guiSetup() {
     {
         // Setup a signal to launch a new gui
         // The signal will be used by whatever the button is in
-        QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, QEForm::creationOptions ) ),
-                          getGuiLaunchConsumer(), SLOT( launchGui( QString,QEForm::creationOptions ) ) );
+        QObject* launcher = getGuiLaunchConsumer();
+        if( launcher )
+        {
+            QObject::connect( getButtonQObject(), SIGNAL( newGui(  QString, QEForm::creationOptions ) ),
+                             launcher, SLOT( launchGui( QString,QEForm::creationOptions ) ) );
+        }
     }
 
     // A profile is not already defined, create one. This is the case if this class is used by an application that does not set up a profile, such as 'designer'.
