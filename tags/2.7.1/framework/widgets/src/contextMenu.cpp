@@ -58,6 +58,7 @@ void contextMenuObject::showContextMenuSlot( const QPoint& pos ){ menu->showCont
 // Create a class to manage the QE context menu
 contextMenu::contextMenu( QEWidget* qewIn )
 {
+    hasConsumer = false;
     qew = qewIn;
     object = new contextMenuObject( this );
 }
@@ -90,10 +91,14 @@ QMenu* contextMenu::buildContextMenu()
     // Add QE context menu
     QAction* a;
 
-    a = new QAction( "Examine Properties",     menu ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
-    a = new QAction( "Plot in StripChart",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
-    a = new QAction( "Show in Scatch Pad",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_SCRATCH_PAD ); menu->addAction( a );
-    menu->addSeparator();
+    // Add menu options that require the application to provide support such as launch a strip chart.
+    if( hasConsumer )
+    {
+        a = new QAction( "Examine Properties",     menu ); a->setCheckable( false ); a->setData( CM_SHOW_PV_PROPERTIES ); menu->addAction( a );
+        a = new QAction( "Plot in StripChart",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_STRIPCHART );  menu->addAction( a );
+        a = new QAction( "Show in Scatch Pad",     menu ); a->setCheckable( false ); a->setData( CM_ADD_TO_SCRATCH_PAD ); menu->addAction( a );
+        menu->addSeparator();
+    }
 
     a = new QAction( "Copy variable name",     menu ); a->setCheckable( false ); a->setData( CM_COPY_VARIABLE );      menu->addAction( a );
     a = new QAction( "Copy data",              menu ); a->setCheckable( false ); a->setData( CM_COPY_DATA );          menu->addAction( a );
@@ -140,7 +145,9 @@ bool contextMenu::isDraggingVariable()
 // (send via the associated contextMenuObject object).
 void contextMenu::setConsumer (QObject* consumer)
 {
-    if (consumer){
+    if (consumer)
+    {
+        hasConsumer = true;
         QObject::connect(object, SIGNAL (requestGui( const QEGuiLaunchRequests& )),
                          consumer,  SLOT (requestGui( const QEGuiLaunchRequests& )));
     }
