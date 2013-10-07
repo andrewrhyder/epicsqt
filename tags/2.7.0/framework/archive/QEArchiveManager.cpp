@@ -658,23 +658,21 @@ QEArchiveAccess::QEArchiveAccess (QObject * parent) : QObject (parent)
 
    // Connect status request response signals.
    //
-   if( singletonManager )
-   {
-       QObject::connect (this,             SIGNAL (archiveStatusRequest ()),
-                         singletonManager, SLOT   (archiveStatusRequest ()));
+   QObject::connect (this,             SIGNAL (archiveStatusRequest ()),
+                     singletonManager, SLOT   (archiveStatusRequest ()));
 
-       QObject::connect (singletonManager, SIGNAL (archiveStatusResponse (const QEArchiveAccess::StatusList&)),
-                         this,             SLOT   (archiveStatusResponse (const QEArchiveAccess::StatusList&)));
+   QObject::connect (singletonManager, SIGNAL (archiveStatusResponse (const QEArchiveAccess::StatusList&)),
+                     this,             SLOT   (archiveStatusResponse (const QEArchiveAccess::StatusList&)));
 
 
-       // Connect data request response signals.
-       //
-       QObject::connect (this,             SIGNAL (readArchiveRequest  (const QEArchiveAccess*, const QEArchiveAccess::PVDataRequests&)),
-                         singletonManager, SLOT   (readArchiveRequest  (const QEArchiveAccess*, const QEArchiveAccess::PVDataRequests&)));
+   // Connect data request response signals.
+   //
+   QObject::connect (this,             SIGNAL (readArchiveRequest  (const QEArchiveAccess*, const QEArchiveAccess::PVDataRequests&)),
+                     singletonManager, SLOT   (readArchiveRequest  (const QEArchiveAccess*, const QEArchiveAccess::PVDataRequests&)));
 
-       QObject::connect (singletonManager, SIGNAL (readArchiveResponse (const QEArchiveAccess*, const QEArchiveAccess::PVDataResponses&)),
-                         this,             SLOT   (readArchiveResponse (const QEArchiveAccess*, const QEArchiveAccess::PVDataResponses&)));
-   }
+   QObject::connect (singletonManager, SIGNAL (readArchiveResponse (const QEArchiveAccess*, const QEArchiveAccess::PVDataResponses&)),
+                     this,             SLOT   (readArchiveResponse (const QEArchiveAccess*, const QEArchiveAccess::PVDataResponses&)));
+
 }
 
 //------------------------------------------------------------------------------
