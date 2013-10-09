@@ -5,7 +5,7 @@ __author__ = "Ricardo Fernandes"
 __email__ = "ricardo.fernandes@synchrotron.org.au"
 __copyright__ = "(C) 2013 Australian Synchrotron"
 __version__ = "1.4"
-__date__ = "2013/OCT/07"
+__date__ = "2013/OCT/09"
 __description__ = "Script to automate the release of a new version of the EPICS Qt Framework"
 __status__ = "Production"
 
@@ -469,10 +469,10 @@ if __name__ == "__main__":
 		try:
 			if tag_name is None:
 				tar_file = "epicsqt-%s-src.tar.gz" % new_release_version
-				command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags/%s . 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, new_release_version)
+				command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags %s 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, new_release_version)
 			else:
 				tar_file = "epicsqt-%s-src.tar.gz" % tag_name
-				command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags/%s . 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tag_name)
+				command = "rm -f %s/%s ; tar -cvzf %s/%s -C %s/tags %s 1>/dev/null" % (__TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tar_file, __TEMP_DIRECTORY__, tag_name)
 			print "Creating TAR file '%s/%s'..." % (__TEMP_DIRECTORY__, tar_file)
 			print
 			if __DEBUG__:
