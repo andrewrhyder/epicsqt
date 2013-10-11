@@ -1354,7 +1354,7 @@ void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
             {
                 QString action = arguments[0];
                 // Handle actions that launch inbuilt forms
-                QString inbuiltForm;
+                QString inbuiltForm = "";
                 QString className;
 
                      if( action == "PV Properties..."  ) { inbuiltForm = ":/forms/PVProperties.ui"  ; className = "QEPvProperties"  ; }
@@ -1362,6 +1362,7 @@ void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
                 else if( action == "Scratch Pad..."    ) { inbuiltForm = ":/forms/ScratchPad.ui"    ; className = "QEScratchPad"    ; }
                 else if( action == "Message Log..."    ) { inbuiltForm = ":/forms/MessageLog.ui"    ; className = "QEMessageLog"    ; }
                 else if( action == "Plotter..."        ) { inbuiltForm = ":/forms/Plotter.ui"       ; className = "QEPlotter"       ; }
+                else if( action == "PV Load/Save..."   ) { inbuiltForm = ":/forms/PVLoadSave.ui"    ; className = "QEPvLoadSave"    ; }
                 else if( action == "Archive Status..." ) { inbuiltForm = ":/forms/ArchiveStatus.ui" ; className = "QEArchiveStatus" ; }
 
                 if( !inbuiltForm.isEmpty() )
@@ -1375,6 +1376,7 @@ void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
                     {
                         launchLocalGui( inbuiltForm );
                     }
+                    break;
                 }
 
                 // Handle other actions
@@ -1393,6 +1395,8 @@ void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
                 else if (action == "Refresh Current Form"              ) { on_actionRefresh_Current_Form_triggered();           }
                 else if (action == "Set Passwords..."                  ) { on_actionSet_Passwords_triggered();                  }
                 else if (action == "About..."                          ) { on_actionAbout_triggered();                          }
+                else  sendMessage( "Unhandled gui action request, action = '" + action + "'",
+                                   message_types( MESSAGE_TYPE_ERROR, MESSAGE_KIND_EVENT ) );
             }
             break;
 

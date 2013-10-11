@@ -734,15 +734,15 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          break;
 
       case TCM_SHOW_PV_PROPERTIES:
-         emit this->requestGui (QEGuiLaunchRequests (QEGuiLaunchRequests::KindPvProperties, nodeName));
+         emit this->requestGui (QEGuiLaunchRequests ("PV Properties...", nodeName));
          break;
 
       case TCM_ADD_TO_STRIPCHART:
-         emit this->requestGui (QEGuiLaunchRequests (QEGuiLaunchRequests::KindStripChart, nodeName));
+         emit this->requestGui (QEGuiLaunchRequests ("Strip Chart...", nodeName));
          break;
 
       case TCM_ADD_TO_SCRATCH_PAD:
-         emit this->requestGui (QEGuiLaunchRequests (QEGuiLaunchRequests::KindScratchPad, nodeName));
+         emit this->requestGui (QEGuiLaunchRequests ("Scratch Pad...", nodeName));
          break;
 
       default:

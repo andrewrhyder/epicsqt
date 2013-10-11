@@ -55,6 +55,9 @@
                 <Item Name="Plotter...">
                     <BuiltIn Name="Plotter..." />
                 </Item>
+                <Item Name="PV Load/Save...">
+                    <BuiltIn Name="PV Load/Save..." />
+                </Item>
                 <Item Name="Archive Status...">
                     <BuiltIn Name="Archive Status..." />
                 </Item>
