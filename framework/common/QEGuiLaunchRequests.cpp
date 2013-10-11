@@ -36,24 +36,14 @@ QEGuiLaunchRequests::QEGuiLaunchRequests ()
 
 //---------------------------------------------------------------------------
 //
-QEGuiLaunchRequests::QEGuiLaunchRequests (const Kinds kindIn,
-                                          const QStringList & argumentsIn,
-                                          const Options optionIn)
-{
-   this->kind = kindIn;
-   this->arguments = argumentsIn;
-   this->option = optionIn;
-}
-
-//---------------------------------------------------------------------------
-//
-QEGuiLaunchRequests::QEGuiLaunchRequests (const Kinds kindIn,
+QEGuiLaunchRequests::QEGuiLaunchRequests (const QString& action,
                                           const QString& pvName)
 {
-   this->kind = kindIn;
-   this->arguments.clear ();
-   this->arguments << pvName;
-   this->option = OptionNewWindow;
+   kind = KindAction;
+   arguments.clear ();
+   arguments << action;
+   arguments << pvName;
+   option = OptionNewWindow;
 }
 
 //---------------------------------------------------------------------------
@@ -62,11 +52,23 @@ QEGuiLaunchRequests::QEGuiLaunchRequests (const QString & filename,
                                           const QString & customisationIn,
                                           const Options optionIn)
 {
-   this->kind = KindFileName;
+   this->kind = KindOpenFile;
    this->arguments.clear ();
    this->arguments << filename;
    this->option = optionIn;
    customisation = customisationIn;
+}
+
+//---------------------------------------------------------------------------
+//
+QEGuiLaunchRequests::QEGuiLaunchRequests( const QList<windowCreationListItem> windowsIn )
+{
+   kind = KindOpenFiles;
+   option = OptionNewWindow; // not required, but keep things neat
+   for( int i = 0; i < windowsIn.count(); i++ )
+   {
+       windows.append( windowsIn.at(i) );
+   }
 }
 
 //---------------------------------------------------------------------------
@@ -111,6 +113,13 @@ QEGuiLaunchRequests::Options QEGuiLaunchRequests::getOption () const
 QString QEGuiLaunchRequests::getCustomisation() const
 {
    return customisation;
+}
+
+//---------------------------------------------------------------------------//
+//
+QList<windowCreationListItem> QEGuiLaunchRequests::getWindows() const
+{
+    return windows;
 }
 
 // end

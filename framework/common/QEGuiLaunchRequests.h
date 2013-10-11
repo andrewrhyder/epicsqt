@@ -32,43 +32,45 @@
 #include <QVariant>
 #include <QEPluginLibrary_global.h>
 
+
+// Class defining a window to create
+class windowCreationListItem;
+
 class QEPLUGINLIBRARYSHARED_EXPORT QEGuiLaunchRequests {
 public:
 
    // Type of request
    enum Kinds { KindNone,            // no action (default, not valid in any request)
-                KindFileName,        // by file name
-                KindStripChart,      // application's strip chart
-                KindScratchPad,      // application's scratch pad
-                KindPvProperties };  // application's pv properties
+                KindOpenFile,        // by file name
+                KindOpenFiles,       // by file names
+                KindAction };        // Inbuilt application action
 
-   enum Options { OptionOpen,
+
+   enum Options { OptionOpen,        // How new windows created for the request are to be presented. May not be relevent for all requests
                   OptionNewTab,
                   OptionNewWindow,
-                  OptionNewChildWindow,
                   OptionTopDockWindow,
                   OptionBottomDockWindow,
                   OptionLeftDockWindow,
                   OptionRightDockWindow,
                   OptionFloatingDockWindow };
 
-
    // Constructors.
    //
    QEGuiLaunchRequests ();
 
-   QEGuiLaunchRequests (const Kinds kindIn,
-                        const QStringList& argumentsIn,
-                        const Options optionIn);
-
-   // Implicitly of type  OptionNewWindow
-   QEGuiLaunchRequests (const Kinds kindIn,   // !KindFileName
+   // Action
+   QEGuiLaunchRequests (const QString& action,
                         const QString& pvName);
+
 
    // .ui file name plus create option
    QEGuiLaunchRequests (const QString &filename,
                         const QString &config,
                         const Options optionIn);
+
+   // a set of .ui files
+   QEGuiLaunchRequests( const QList<windowCreationListItem> windowsIn );
 
    // set and get functions
    //
@@ -83,12 +85,32 @@ public:
 
    QString getCustomisation() const;
 
+   QList<windowCreationListItem> getWindows() const;
+
 private:
    Kinds kind;
    QStringList arguments;
    Options option;
    QString customisation;  // Window configuration (menus, buttons, etc)
+   QList<windowCreationListItem> windows;
 };
+
+class windowCreationListItem
+{
+public:
+    windowCreationListItem(){ hidden = false; creationOption = QEGuiLaunchRequests::OptionNewWindow; }
+    windowCreationListItem(windowCreationListItem* item ){ uiFile = item->uiFile;
+                                                           macroSubstitutions = item->macroSubstitutions;
+                                                           customisationName = item->customisationName;
+                                                           creationOption = item->creationOption;
+                                                           hidden = item->hidden; }
+    QString uiFile;
+    QString macroSubstitutions;
+    QString customisationName;
+    QEGuiLaunchRequests::Options creationOption;
+    bool hidden;
+};
+
 
 Q_DECLARE_METATYPE (QEGuiLaunchRequests)
 

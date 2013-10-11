@@ -10,4 +10,7 @@
     <qresource prefix="/icons">
         <file>QEGuiIcon.png</file>
     </qresource>
+    <qresource prefix="/configuration">
+        <file>QEGuiCustomisationDefault.xml</file>
+    </qresource>
 </RCC>

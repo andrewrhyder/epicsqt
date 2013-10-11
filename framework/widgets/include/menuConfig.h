@@ -44,8 +44,10 @@
  * To use this module:
  * Create a single instance of windowCustomisationList class.
  * Call windowCustomisationList::loadCustomisation() at any time to load .xml files containing one or more named customisations.
- * When starting GUIs, or creating QE widgets (or any other appropriate time) call windowCustomisationList::applyCustomisation()
+ * When starting GUIs, or creating QE widgets (or any other appropriate time) call windowCustomisationList::loadCustomisation()
  * to apply a named customisation to a QMainWindow
+ *
+ * The QEGui application loads a built in .xml file (QEGuiCustomisationDefault.xml). This file is a useful example of customisation XML.
  *
  * The following example allows for the following:
  *
@@ -62,6 +64,12 @@
 
     <QEWindowCustomisation>
         <Customisation Name="IMBL_MAIN">
+            <Menu Name="File">
+                <BuiltIn Name="Open" >
+                <BuiltIn Name="Exit" >
+                <PlaceHolder Name="Recent" >
+            </Menu>
+
             <Menu Name="Imaging">
                 <Menu Name="Regions">
                     <Item Name="ROI 1">
@@ -77,6 +85,12 @@
                         <UiFile>ROI.ui</UiFile>
                         <MacroSubstitutions>REGION=2</MacroSubstitutions>
                         <Customisation>ROI</Customisation>
+                    </Item>
+
+
+                    <Item Name="Status">
+                        <Separator/>
+                        <UiFile>status.ui</UiFile>
                     </Item>
 
                 </Menu>
@@ -124,7 +138,10 @@
 #include <QStringList>
 #include <QMainWindow>
 #include <QDomDocument>
+#include <QMenu>
 #include <QEGuiLaunchRequests.h>
+#include <QMap>
+#include <ContainerProfile.h>
 
 // Class defining an individual item (base class for button or menu item)
 class windowCustomisationItem : public QAction
@@ -133,29 +150,26 @@ class windowCustomisationItem : public QAction
 public:
     windowCustomisationItem( // Construction
                       const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
-                      const QString uiFileIn,                              // UI to display
+                      const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                       const QString programIn,                             // Program to run
-                      const QStringList programArgumentsIn,                // Arguments for 'program'
-                      const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
-                      const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
-                      const QString customisationNameIn );                 // New window customisation name (menu, buttons, etc)
+                      const QStringList programArgumentsIn );              // Arguments for 'program'
 
     windowCustomisationItem(windowCustomisationItem* item);
+    windowCustomisationItem();                                              // Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
+    windowCustomisationItem( const QString builtInActionIn );               // Construct instance of class defining a built in application action
 
-    QString getUiFile(){return uiFile;}
     QString getProgram(){return program;}
     QStringList getProgramArguments(){return programArguments;}
-    QString getMacroSubstitutions(){return macroSubstitutions;}
-    QEGuiLaunchRequests::Options getCreationOption(){return creationOption;}
-    QString getCustomisationName(){return customisationName;}
+    QString getBuiltInAction(){return builtInAction;}
+
 private:
     // Item action
-    QString uiFile;                                 // UI to display
+    QList<windowCreationListItem> windows;          // Windows to create (.ui files and how to present them)
     QString program;                                // Program to run
     QStringList programArguments;                   // Arguments for 'program'
-    QString macroSubstitutions;                     // Substitutions for ui file, program and arguments
-    QEGuiLaunchRequests::Options creationOption;    // Window creation options
-    QString customisationName;                      // New window customisation name (menu, buttons, etc)
+
+    QString builtInAction;                          // Identifier of action built in to the application
+    ContainerProfile profile;
 
 private slots:
     void itemAction();              // Slot to call when action is triggered
@@ -165,32 +179,46 @@ signals:
 
 };
 
+
 // Class defining an individual menu item
 class windowCustomisationMenuItem : public windowCustomisationItem
 {
 public:
-    windowCustomisationMenuItem( // Construction
+    enum menuObjectTypes { MENU_UNKNOWN, MENU_ITEM, MENU_PLACEHOLDER, MENU_BUILT_IN };
+    windowCustomisationMenuItem( // Construction (actual menu item)
                           const QStringList menuHierarchyIn,                   // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
                           const QString titleIn,                               // Name of this item. for example: 'Region 1'
+                          const menuObjectTypes type,                          // type of menu object - must be MENU_ITEM
+                          const bool separatorIn,                              // Separator required before this
 
                           const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
-                          const QString uiFileIn,                              // UI to display
+                          const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                           const QString programIn,                             // Program to run
-                          const QStringList programArgumentsIn,                // Arguments for 'program'
-                          const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
-                          const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
-                          const QString customisationNameIn );                 // New window customisation name (menu, buttons, etc)
+                          const QStringList programArgumentsIn );                // Arguments for 'program'
+
+    windowCustomisationMenuItem( // Construction (placeholder menu item)
+                          const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
+                          const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
+                          const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
+                          const bool separatorIn );                            // Separator required before this
+
 
     windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem);
 
     QStringList getMenuHierarchy(){return menuHierarchy;}
     QString getTitle(){return title;}
+    menuObjectTypes getType(){ return type; }
+
+    bool hasSeparator(){ return separator; }
+
 private:
+    menuObjectTypes type;
     // Menu bar details.
     // All details are optional.
     // A menu item is created if menuHierarchy contains at least one level and title exists
     QStringList menuHierarchy;  // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
     QString title;              // Name of this item. for example: 'Region 1'
+    bool separator;             // Separator should appear before this item
 };
 
 // Class defining an individual button item
@@ -203,12 +231,9 @@ public:
                             const QString buttonIconIn,                          // Icon for button
 
                             const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
-                            const QString uiFileIn,                              // UI to display
+                            const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                             const QString programIn,                             // Program to run
-                            const QStringList programArgumentsIn,                // Arguments for 'program'
-                            const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
-                            const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
-                            const QString customisationNameIn );                 // New window customisation name (menu, buttons, etc)
+                            const QStringList programArgumentsIn );              // Arguments for 'program'
 
     windowCustomisationButtonItem(windowCustomisationButtonItem* buttonItem);
 
@@ -240,12 +265,21 @@ public:
     QList<windowCustomisationButtonItem*> getButtons(){return buttons;}        // get Buttons list
     QString getName(){ return name; }
 
-    static QEGuiLaunchRequests::Options translateCreationOption( QString creationOption);
+    static QEGuiLaunchRequests::Options translateCreationOption( QString creationOption );
 
 private:
     QString name;                                  // Customisation name
     QList<windowCustomisationMenuItem*> menuItems; // Menu items to be added to menu bar to implement customisation
     QList<windowCustomisationButtonItem*> buttons; // Buttons to be added to tool bar to implement customisation
+};
+
+// Window customisation information per Main Window
+class windowCustomisationInfo
+{
+public:
+    QMap<QString, QMenu*> placeholderMenus; // Menus where application may insert items
+    QMap<QString, QMenu*> menus;            // All menus added by customisation system
+    QMap<QString, QToolBar*> toolbars;      // All tool bars added by customisation system
 };
 
 // Class managing all customisation sets
@@ -257,23 +291,34 @@ public:
     windowCustomisationList();
 
     bool loadCustomisation( QString xmlFile );                      // Load a set of customisations
-    bool applyCustomisation( QMainWindow* mw, QString customisationName ); // Add the named customisation set to a main window. Return true if named customisation found and loaded.
+    void applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting ); // Add the named customisation set to a main window. Return true if named customisation found and loaded.
 
+    windowCustomisation* getCustomisation(QString name);
 
 private:
-    windowCustomisation* getCustomisation(QString name);
+    QMenu* buildMenuPath( windowCustomisationInfo* customisationInfo, QMenuBar* menuBar, const QStringList menuHierarchy );
+
     void addIncludeCustomisation(windowCustomisation* customisation, windowCustomisation* include);
-    void parseMenuCfg( // Parse menu customisation data
-                       QDomNode menuNode,
-                       windowCustomisation* customisation,
-                       QStringList menuHierarchy );
-    windowCustomisationMenuItem* createMenuItem( // Create a menu customisation item
-                                          QDomElement itemElement,
-                                          QStringList menuHierarchy);
+    void parseMenuElement( QDomElement element, windowCustomisation* customisation, QStringList menuHierarchy );          // Parse menu customisation data
+
+    bool requiresSeparator( QDomElement itemElement );          // Determine if an item contains a 'separator' tag
+
+    bool parseMenuAndButtonItem( QDomElement itemElement,
+                                 QString& title,
+                                 QList<windowCreationListItem>& windows,
+                                 QString& builtIn,
+                                 QString& program, QStringList& programArguments );
+    void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows );
+
+    windowCustomisationMenuItem* createMenuItem       ( QDomElement itemElement, QStringList menuHierarchy); // Create a custom menu item
+    windowCustomisationMenuItem* createMenuBuiltIn    ( QDomElement itemElement, QStringList menuHierarchy); // Create a built in menu item
+    windowCustomisationMenuItem* createMenuPlaceholder( QDomElement itemElement, QStringList menuHierarchy); // Create a placeholder menu (for the application to add stuff to)
+
     windowCustomisationButtonItem* createButtonItem( // Create a button customisation item
                                               QDomElement itemElement);
-    QAction* createDockWidget( QMainWindow* mw,  windowCustomisationMenuItem* menuItem, QList<QDockWidget*>& dockWidgetList );
     QList<windowCustomisation*> customisationList;                         // List of customisations
+
+
 };
 
 #endif // WINDOWCUSTOMISATION_H

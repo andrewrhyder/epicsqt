@@ -47,94 +47,116 @@
 // windowCustomisationItem
 //==============================================================================================
 
+// Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
+windowCustomisationItem::windowCustomisationItem() : QAction( 0 )
+{
+//    creationOption = QEGuiLaunchRequests::OptionNewWindow;
+}
+
+// Construct instance of class defining a built in application action
+windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn ) : QAction( 0 )
+{
+//    creationOption = QEGuiLaunchRequests::OptionNewWindow;
+    builtInAction = builtInActionIn;
+}
+
 // Construct instance of class defining an individual item (base class for button or menu item)
 windowCustomisationItem::windowCustomisationItem(
     const QObject* /*launchRequestReceiver*/,                // Object (typically QEGui application) which will accept requests to launch a new GUI
-    const QString uiFileIn,                              // UI to display
+    const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
     const QString programIn,                             // Program to run
-    const QStringList programArgumentsIn,                // Arguments for 'program'
-    const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
-    const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
-    const QString customisationNameIn )                  // New window customisation name (menu, buttons, etc)
+    const QStringList programArgumentsIn )               // Arguments for 'program'
          : QAction( 0 )
 {
     // Save the item details
-    uiFile = uiFileIn;
+    for( int i = 0; i < windowsIn.count(); i++ )
+    {
+        windows.append( windowsIn.at(i));
+    }
     program = programIn;
     programArguments = programArgumentsIn;
-    macroSubstitutions = macroSubstitutionsIn;
-    creationOption = creationOptionIn;
-    customisationName = customisationNameIn;
-
-    // Set up an action to respond to the user
-//    QObject::connect( this, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
-//                      launchRequestReceiver, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
 }
 
 // Construct instance of class defining an individual item (base class for button )or menu item)
 windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item): QAction( 0 )
 {
     // Save the item details
-    uiFile = item->getUiFile();
+    for( int i = 0; i < item->windows.count(); i++ )
+    {
+        windows.append( item->windows.at(i));
+    }
     program = item->getProgram();
     programArguments = item->getProgramArguments();
-    macroSubstitutions = item->getMacroSubstitutions();
-    creationOption = item->getCreationOption();
-    customisationName = item->getCustomisationName();
-
-    // Set up an action to respond to the user
-//    QObject::connect( this, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
-//                      launchRequestReceiver, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+    builtInAction = item->getBuiltInAction();
 }
 
 // A user has triggered the menu item or button
 void windowCustomisationItem::itemAction()
 {
-    qDebug() << "windowCustomisationItem::itemAction():  "
-             << "uiFile = " << uiFile
-             << "program = " << program
-             << "macroSubstitutions = " << macroSubstitutions
-             << "creationOption" << creationOption
-             << "customisationName = " << customisationName;
+    profile.publishOwnProfile();
 
-    emit newGui( QEGuiLaunchRequests( uiFile, customisationName, creationOption )  );
+    //    if( !uiFile.isEmpty() )
+    if( windows.count() )
+    {
+        emit newGui( QEGuiLaunchRequests( windows ));
+    }
+    else if ( !builtInAction.isEmpty() )
+    {
+        emit newGui( QEGuiLaunchRequests( builtInAction, "" )  );
+    }
+
+    profile.releaseProfile();
 }
 
 //==============================================================================================
 // windowCustomisationMenuItem
 //==============================================================================================
 
-// Construct instance of class defining an individual menu item
+// Construct instance of class defining an individual menu item (not a placeholder for items the application might add)
 windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QStringList menuHierarchyIn,                   // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
                           const QString titleIn,                               // Name of this item. for example: 'Region 1'
+                          const menuObjectTypes typeIn,                        // type of menu object - must be MENU_ITEM
+                          const bool separatorIn,                              // Separator required before this
 
                           const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
-                          const QString uiFileIn,                              // UI to display
+                          const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                           const QString programIn,                             // Program to run
-                          const QStringList programArgumentsIn,                // Arguments for 'program'
-                          const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
-                          const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
-                          const QString customisationNameIn )                  // New window customisation name (menu, buttons, etc)
-                          : windowCustomisationItem( launchRequestReceiver, uiFileIn, programIn, programArgumentsIn, macroSubstitutionsIn, creationOptionIn, customisationNameIn )
+                          const QStringList programArgumentsIn )               // Arguments for 'program'
+                          : windowCustomisationItem( launchRequestReceiver, windowsIn, programIn, programArgumentsIn )
 {
+    type = typeIn;
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
-//    setText(titleIn);
-//    setParent(this);
+    separator = separatorIn;
+}
 
-    // Set up an action to respond to the user
-//    connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
+// Construct instance of class defining a placeholder for items the application might add
+windowCustomisationMenuItem::windowCustomisationMenuItem(
+                          const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
+                          const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
+                          const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
+                          const bool separatorIn )                             // Separator required before this
+
+                          : windowCustomisationItem( titleIn )
+{
+    type = typeIn;
+    menuHierarchy = menuHierarchyIn;
+    title = titleIn;
+    separator = separatorIn;
 }
 
 // Copy constructor
 windowCustomisationMenuItem::windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem)                  // New window customisation name (menu, buttons, etc)
                           : windowCustomisationItem( menuItem )
 {
+    type = menuItem->type;
     menuHierarchy = menuItem->getMenuHierarchy();
     title = menuItem->getTitle();
     setText(title);
     setParent(this);
+    separator = menuItem->separator;
+
 
     // Set up an action to respond to the user
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
@@ -151,22 +173,14 @@ windowCustomisationButtonItem::windowCustomisationButtonItem(
                         const QString buttonIconIn,                          // Icon for button
 
                         const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
-                        const QString uiFileIn,                              // UI to display
+                        const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                         const QString programIn,                             // Program to run
-                        const QStringList programArgumentsIn,                // Arguments for 'program'
-                        const QString macroSubstitutionsIn,                  // Substitutions for ui file, program and arguments
-                        const QEGuiLaunchRequests::Options creationOptionIn, // Window creation options
-                        const QString customisationNameIn )                  // New window customisation name (menu, buttons, etc)
-                            : windowCustomisationItem( launchRequestReceiver, uiFileIn, programIn, programArgumentsIn, macroSubstitutionsIn, creationOptionIn, customisationNameIn )
+                        const QStringList programArgumentsIn )                // Arguments for 'program'
+                            : windowCustomisationItem( launchRequestReceiver, windowsIn, programIn, programArgumentsIn )
 {
     buttonGroup = buttonGroupIn;
     buttonText = buttonTextIn;
     buttonIcon = buttonIconIn;
-//    setText(buttonTextIn);
-//    setParent(this);
-
-    // Set up an action to respond to the user
-//    connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
 }
 
 // Copy construct
@@ -189,7 +203,7 @@ windowCustomisationButtonItem::windowCustomisationButtonItem(windowCustomisation
 
 // Class defining the customisation for a window.
 // Construction - create a named, empty, customisation
-windowCustomisation::windowCustomisation( QString nameIn )
+windowCustomisation::windowCustomisation( QString nameIn )//: recentMenuPoint(NULL), windowMenuPoint(NULL), recentMenuSet(false), windowMenuSet(false)
 {
     name = nameIn;
 }
@@ -225,43 +239,17 @@ void windowCustomisation::addItem( windowCustomisationButtonItem* button )
 // Translate creation option text from .xml file to enumeration in QEGuiLaunchRequests
 QEGuiLaunchRequests::Options windowCustomisation::translateCreationOption( QString creationOption )
 {
-    if( creationOption.compare( "Open") == 0 )
-    {
-        return QEGuiLaunchRequests::OptionOpen;
-    }
+         if( creationOption.compare( "Open"          ) == 0 ) { return QEGuiLaunchRequests::OptionOpen;                   }
+    else if( creationOption.compare( "NewTab"        ) == 0 ) { return QEGuiLaunchRequests::OptionNewTab;                 }
+    else if( creationOption.compare( "NewWindow"     ) == 0 ) { return QEGuiLaunchRequests::OptionNewWindow;              }
 
-    else if( creationOption.compare( "NewTab") == 0 )
-    {
-        return QEGuiLaunchRequests::OptionNewTab;
-    }
+    else if( creationOption.compare( "LeftDock"      ) == 0 ) { return QEGuiLaunchRequests::OptionLeftDockWindow;         }
+    else if( creationOption.compare( "RightDock"     ) == 0 ) { return QEGuiLaunchRequests::OptionRightDockWindow;        }
+    else if( creationOption.compare( "TopDock"       ) == 0 ) { return QEGuiLaunchRequests::OptionTopDockWindow;          }
+    else if( creationOption.compare( "BottomDock"    ) == 0 ) { return QEGuiLaunchRequests::OptionBottomDockWindow;       }
+    else if( creationOption.compare( "FloatingDock"  ) == 0 ) { return QEGuiLaunchRequests::OptionFloatingDockWindow;     }
 
-    else if( creationOption.compare( "NewLeftDock") == 0 )
-    {
-        return QEGuiLaunchRequests::OptionLeftDockWindow;
-    }
-    else if( creationOption.compare( "NewRightDock") == 0 )
-    {
-        return QEGuiLaunchRequests::OptionRightDockWindow;
-    }
-    else if( creationOption.compare( "NewTopDock") == 0 )
-    {
-        return QEGuiLaunchRequests::OptionTopDockWindow;
-    }
-    else if( creationOption.compare( "NewBottomDock") == 0 )
-    {
-        return QEGuiLaunchRequests::OptionBottomDockWindow;
-    }
-    else if( creationOption.compare( "NewDock") == 0 )
-    {
-        return QEGuiLaunchRequests::OptionBottomDockWindow;
-    }
-    else if( creationOption.compare( "NewChildWindow") == 0 )
-    {
-        return QEGuiLaunchRequests::OptionNewChildWindow;
-    }
-
-    // default is NewWindow
-    return QEGuiLaunchRequests::OptionNewWindow;
+                                                                return QEGuiLaunchRequests::OptionNewWindow;  // Default
 }
 
 //==============================================================================================
@@ -269,6 +257,7 @@ QEGuiLaunchRequests::Options windowCustomisation::translateCreationOption( QStri
 //==============================================================================================
 
 windowCustomisationList::windowCustomisationList()
+
 {
     // !!! Nothing yet
 }
@@ -276,17 +265,24 @@ windowCustomisationList::windowCustomisationList()
 // Load a set of customisations
 bool windowCustomisationList::loadCustomisation( QString xmlFile )
 {
-    QDomDocument doc;
+    // If no file specified, silently return (no error)
+    if( xmlFile.isEmpty() )
+    {
+        return false;
+    }
 
-    qDebug() << "windowCustomisationList::loadCustomisation()" << xmlFile;
-    // !!! Read and parse xmlFile
+    QDomDocument doc;
+    QDomNodeList rootNodeList;
+
+    // Read and parse xmlFile
     QFile file( xmlFile );
     if (!file.open(QIODevice::ReadOnly))
     {
-        qDebug() << "Could not open customisation file" << xmlFile;
+        QString error = file.errorString();
+        qDebug() << "Could not open customisation file" << xmlFile << error;
         return false;
     }
-    // !!! if named customisation exists, replace it
+    // if named customisation exists, replace it
     if ( !doc.setContent( &file ) )
     {
         qDebug() << "Could not parse the XML in the customisations file" << xmlFile;
@@ -295,36 +291,68 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
     }
     file.close();
     QDomElement docElem = doc.documentElement();
-    // !!! Parse XML using Qt's Document Object Model. Refer to code in persistanceManager.cpp/.h
-    QDomNodeList rootNodeList = docElem.elementsByTagName( "Customisation" );
-    for( int i = 0; i < rootNodeList.count(); i++ )
+
+    // Load customisation include file
+    QDomElement customisationIncludeFileElement = docElem.firstChildElement( "CustomisationIncludeFile" );
+    while( !customisationIncludeFileElement.isNull() )
     {
-        QDomNode customisationNode = rootNodeList.at(i);
-        QString customisationName = customisationNode.toElement().attribute( "Name" );
+        QString includeFileName = customisationIncludeFileElement.text();
+        if( !includeFileName.isEmpty() )
+        {
+            // load customisation file
+            loadCustomisation(includeFileName);
+        }
+        customisationIncludeFileElement = customisationIncludeFileElement.nextSiblingElement( "CustomisationIncludeFile" );
+    }
+
+    // Parse XML using Qt's Document Object Model.
+    QDomElement customisationElement = docElem.firstChildElement( "Customisation" );
+    while( !customisationElement.isNull() )
+    {
+        QString customisationName = customisationElement.attribute( "Name" );
         if( !customisationName.isEmpty() )
         {
             // create a window customisation
             windowCustomisation* customisation = new windowCustomisation(customisationName);
             // add the window customisation to the list
-            customisationList.append(customisation);
+            customisationList.prepend( customisation );
             // get a first node
-            QDomNode node = customisationNode.firstChild();
+            QDomNode node = customisationElement.firstChild();
             // check if the item is a menu or a button item
-            while (!node.isNull()){
-                QDomElement itemElement = node.toElement();
-                if (itemElement.tagName() == "Menu"){
-                    QString menuName = itemElement.attribute( "Name" );
+            while (!node.isNull())
+            {
+                QDomElement element = node.toElement();
+
+                // Add a menu
+                if( element.tagName() == "Menu" )
+                {
+                    QString menuName = element.attribute( "Name" );
                     QStringList menuHierarchy;
                     menuHierarchy.append(menuName);
+
                     // parse menu customisation
-                    parseMenuCfg(node, customisation, menuHierarchy);
+                    parseMenuElement( element, customisation, menuHierarchy );
                 }
-                else if (itemElement.tagName() == "Button"){
+
+                // Create a placeholder item if required
+                else if( element.tagName() == "PlaceHolder" )
+                {
+                    QStringList menuHierarchy;
+                    customisation->addItem( createMenuPlaceholder( element, menuHierarchy ));
+                }
+
+
+                // Add a tool bar button
+                else if (element.tagName() == "Button")
+                {
                     // create and add a button item
-                    customisation->addItem(createButtonItem(itemElement));
+                    customisation->addItem( createButtonItem( element ));
                 }
-                else if (itemElement.tagName() == "IncludeCustomisation"){
-                    QString includeCustomisationName = itemElement.attribute( "Name" );
+
+                // Add an include file
+                else if (element.tagName() == "IncludeCustomisation")
+                {
+                    QString includeCustomisationName = element.attribute( "Name" );
                     // get the customisation info
                     windowCustomisation* includeCustomisation = getCustomisation(includeCustomisationName);
                     if (includeCustomisation){
@@ -335,32 +363,21 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
                 node = node.nextSibling();
             }
         }
+        customisationElement = customisationElement.nextSiblingElement( "Customisation" );
     }
-    // load customisation include file
-    rootNodeList = docElem.elementsByTagName( "CustomisationIncludeFile" );
-    for( int i = 0; i < rootNodeList.count(); i++ )
-    {
-        QDomNode customisationNode = rootNodeList.at(i);
-        QString includeFileName = customisationNode.toElement().text();
-        if( !includeFileName.isEmpty() )
-        {
-            // load customisation file
-            loadCustomisation(includeFileName);
-        }
-    }
-
     return true;
 }
-
 // Parse menu customisation data
-void windowCustomisationList::parseMenuCfg( QDomNode menuNode, windowCustomisation* customisation, QStringList menuHierarchy){
-    QDomNode node = menuNode.firstChild();
-    while (!node.isNull()){
-        QDomElement itemElement = node.toElement();
-        // check if the item is a submenu or an item
-        if (itemElement.tagName() == "Menu"){
+void windowCustomisationList::parseMenuElement( QDomElement element, windowCustomisation* customisation, QStringList menuHierarchy)
+{
+    QDomElement childElement = element.firstChildElement();
+    while (!childElement.isNull())
+    {
+         // check if the item is a submenu or an item
+        if (childElement.tagName() == "Menu")
+        {
             // get the menu name
-            QString menuName = itemElement.attribute( "Name" );
+            QString menuName = childElement.attribute( "Name" );
             if( !menuName.isEmpty() )
             {
                 // copy it over
@@ -368,291 +385,500 @@ void windowCustomisationList::parseMenuCfg( QDomNode menuNode, windowCustomisati
                 // update menu hierarchy
                 hierarchy.append(menuName);
                 // parse menu customisation
-                parseMenuCfg(node, customisation, hierarchy);
+                parseMenuElement( childElement, customisation, hierarchy );
             }
         }
-        else if (itemElement.tagName() == "Item"){
-            // create and add a menu item
-            customisation->addItem(createMenuItem(itemElement, menuHierarchy));
+
+        else
+        {
+            // Item to add if found
+            windowCustomisationMenuItem* item = NULL;
+
+            // Create a menu item if required
+            if( childElement.tagName() == "Item" )
+            {
+                item = createMenuItem( childElement, menuHierarchy );
+            }
+
+            // Create a placeholder item if required
+            else if( childElement.tagName() == "PlaceHolder" )
+            {
+                item = createMenuPlaceholder( childElement, menuHierarchy );
+            }
+
+            // If an item was created, add it
+            if( item )
+            {
+                customisation->addItem(item);
+            }
         }
-        else if (itemElement.tagName() == "Separator"){
-            // create and add a menu item
-            // create a menu item and add it to the customisation set
-            windowCustomisationMenuItem* item = new windowCustomisationMenuItem(menuHierarchy, itemElement.tagName(), NULL,
-                                                                                QString(), QString(), QStringList(), QString(),
-                                                                                QEGuiLaunchRequests::OptionOpen, QString());
-            customisation->addItem(item);
-        }
-        node = node.nextSibling();
+
+        childElement = childElement.nextSiblingElement();
     }
 }
 
-windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElement itemElement, QStringList menuHierarchy){
-    QString title = itemElement.attribute("Name");
-    QString uiFile = "";
-    QString program = "";
-    QStringList programArguments;
-    QString macroSubstitutions = "";
-    QEGuiLaunchRequests::Options creationOption = QEGuiLaunchRequests::OptionNewWindow;
-    QString customisationName = "";
+// Determine if an item contains a 'separator' tag
+bool windowCustomisationList::requiresSeparator( QDomElement itemElement )
+{
+    // Determine if separator is required
+    QDomElement separatorElement = itemElement.firstChildElement( "Separator" );
+    return !separatorElement.isNull();
+}
 
-    // read UiFile name
-    QDomNodeList list = itemElement.elementsByTagName("UiFile" );
-    if (list.count() > 0){
-        uiFile = list.at(0).toElement().text();
-    }
-    // read Program
-    list = itemElement.elementsByTagName("Program" );
-    if (list.count() > 0){
-        QDomElement programElement = list.at(0).toElement();
-        // read Program name and args
-        program = programElement.attribute( "Name" );
-        list = programElement.elementsByTagName("Arguments");
-        if (list.count() > 0){
-            programArguments = list.at(0).toElement().text().split(" ");
-        }
-    }
 
-    // read macro substitutions
-    list = itemElement.elementsByTagName("MacroSubstitutions" );
-    if (list.count() > 0){
-        macroSubstitutions = list.at(0).toElement().text();
-    }
+// Add details for a menu item to customisation set
+windowCustomisationMenuItem* windowCustomisationList::createMenuBuiltIn( QDomElement itemElement, QStringList menuHierarchy)
+{
+    QString name = itemElement.attribute( "Name" );
+    if( name.isEmpty() )
+        return NULL;
 
-    // read customisation name
-    list = itemElement.elementsByTagName("CustomisationName" );
-    if (list.count() > 0){
-        customisationName = list.at(0).toElement().text();
-    }
-
-    // read creation option
-    list = itemElement.elementsByTagName("CreationOption" );
-    if (list.count() > 0)
-    {
-        creationOption = windowCustomisation::translateCreationOption( list.at(0).toElement().text() );
-    }
-
-    // create a menu item and add it to the customisation set
-    windowCustomisationMenuItem* item = new windowCustomisationMenuItem(menuHierarchy, title, NULL/*!!! needs launch receiver object*/, uiFile, program,
-                                                          programArguments, macroSubstitutions, creationOption, customisationName);
+    // Add details for a built in menu item to customisation set
+    windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy, name, windowCustomisationMenuItem::MENU_BUILT_IN, requiresSeparator( itemElement ) );
     return item;
 }
 
- windowCustomisationButtonItem*  windowCustomisationList::createButtonItem( QDomElement itemElement ){
-    QString buttonGroup = "";
-    QString buttonText = itemElement.attribute("Name" );
-    QString buttonIcon = "";
+// Add details for a menu item to customisation set
+windowCustomisationMenuItem* windowCustomisationList::createMenuPlaceholder( QDomElement itemElement, QStringList menuHierarchy)
+{
+    QString name = itemElement.attribute( "Name" );
+    if( name.isEmpty() )
+        return NULL;
 
-    QString uiFile = "";
-    QString program = "";
-    QStringList programArguments;
-    QString macroSubstitutions = "";
-    QEGuiLaunchRequests::Options creationOption = QEGuiLaunchRequests::OptionNewWindow;
-    QString customisationName = "";
-
-    // read GroupName
-    QDomNodeList list = itemElement.elementsByTagName("GroupName" );
-    if (list.count() > 0){
-        buttonGroup = list.at(0).toElement().text();
-    }
-    // read Icon
-    list = itemElement.elementsByTagName("Icon" );
-    if (list.count() > 0){
-        buttonIcon = list.at(0).toElement().text();
-    }
-
-    // read UiFile name
-    list = itemElement.elementsByTagName("UiFile" );
-    if (list.count() > 0){
-        uiFile = list.at(0).toElement().text();
-    }
-    // read Program
-    list = itemElement.elementsByTagName("Program" );
-    if (list.count() > 0){
-        QDomElement programElement = list.at(0).toElement();
-        // read Program name and args
-        program = programElement.attribute( "Name" );
-        list = programElement.elementsByTagName("Arguments");
-        if (list.count() > 0){
-            programArguments = list.at(0).toElement().text().split(" ");
-        }
-    }
-
-    // read macro substitutions
-    list = itemElement.elementsByTagName("MacroSubstitutions" );
-    if (list.count() > 0){
-        macroSubstitutions = list.at(0).toElement().text();
-    }
-
-    // read customisation name
-    list = itemElement.elementsByTagName("CustomisationName" );
-    if (list.count() > 0){
-        customisationName = list.at(0).toElement().text();
-    }
-
-    // read creation option
-    list = itemElement.elementsByTagName("CreationOption" );
-    if (list.count() > 0)
-    {
-        creationOption = windowCustomisation::translateCreationOption( list.at(0).toElement().text() );
-    }
-
-    // create a menu item and add it to customisation set
-    windowCustomisationButtonItem* item = new windowCustomisationButtonItem(buttonGroup, buttonText, buttonIcon, NULL/*!!! needs launch receiver object*/, uiFile, program,
-                                                          programArguments, macroSubstitutions, creationOption, customisationName);
+    // Add details for a placeholder (where the applicaiton can add menu items) to customisation set
+    windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy, name, windowCustomisationMenuItem::MENU_PLACEHOLDER, requiresSeparator( itemElement ) );
     return item;
 }
 
- windowCustomisation* windowCustomisationList::getCustomisation(QString name){
-     windowCustomisation* customisation = 0;
-     for (int i = 0; i < customisationList.length(); i++){
-         if (customisationList.at(i)->getName() == name){
-            customisation = customisationList.at(i);
-            break;
+// ???!!!
+bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
+                                                      QString& title,
+                                                      QList<windowCreationListItem>& windows,
+                                                      QString& builtIn,
+                                                      QString& program, QStringList& programArguments )
+{
+    title = itemElement.attribute( "Name" );
+    if( title.isEmpty() )
+    {
+        return false;
+    }
+
+    // Read Program
+    QDomElement programElement = itemElement.firstChildElement( "Program" );
+    if( !programElement.isNull() )
+    {
+        // read Program name and args
+        program = programElement.attribute( "Name" );
+        QDomElement argumentsElement = programElement.firstChildElement( "Arguments" );
+        if( !argumentsElement.isNull() )
+        {
+            programArguments = argumentsElement.text().split(" ");
+        }
+    }
+
+    // Read Built In function
+    QDomElement builtInElement = itemElement.firstChildElement( "BuiltIn" );
+    if( !builtInElement.isNull() )
+    {
+        // read Built In function name
+        builtIn = builtInElement.attribute( "Name" );
+    }
+
+    // Read windows to create
+    QDomElement windowElement = itemElement.firstChildElement( "Window" );
+    while( !windowElement.isNull() )
+    {
+        // Read UiFile name
+        QDomElement uiFileElement = windowElement.firstChildElement( "UiFile" );
+        if( !uiFileElement.isNull() )
+        {
+            QString uiFile = uiFileElement.text();
+            if( !uiFile.isEmpty() )
+            {
+                windowCreationListItem windowItem;
+                windowItem.uiFile = uiFile;
+
+                // Read macro substitutions
+                QDomElement macroSubstitutionsElement = windowElement.firstChildElement( "MacroSubstitutions" );
+                if( !macroSubstitutionsElement.isNull() )
+                {
+                    windowItem.macroSubstitutions = macroSubstitutionsElement.text();
+                }
+
+                // Read customisation name
+                QDomElement customisationNameElement = windowElement.firstChildElement( "CustomisationName" );
+                if( !customisationNameElement.isNull() )
+                {
+                    windowItem.customisationName = customisationNameElement.text();
+                }
+
+                QDomElement creationOptionElement = windowElement.firstChildElement( "CreationOption" );
+                windowItem.creationOption = QEGuiLaunchRequests::OptionNewWindow;
+                if( !creationOptionElement.isNull() )
+                {
+                    windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
+                }
+                windows.append( windowItem );
+
+                parseDockItems( windowElement, windows );
+            }
+        }
+        windowElement = windowElement.nextSiblingElement( "Window" );
+    }
+
+    parseDockItems( itemElement, windows );
+    return true;
+}
+
+// ???!!!
+void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows )
+{
+    // Read Docks to create
+    QDomElement dockElement = itemElement.firstChildElement( "Dock" );
+    while( !dockElement.isNull() )
+    {
+        // Read UiFile name
+        QDomElement uiFileElement = dockElement.firstChildElement( "UiFile" );
+        if( !uiFileElement.isNull() )
+        {
+            QString uiFile = uiFileElement.text();
+            if( !uiFile.isEmpty() )
+            {
+                windowCreationListItem windowItem;
+                windowItem.uiFile = uiFile;
+
+                QDomElement macroSubstitutionsElement = dockElement.firstChildElement( "MacroSubstitutions" );
+                if( !macroSubstitutionsElement.isNull() )
+                {
+                    windowItem.macroSubstitutions = macroSubstitutionsElement.text();
+                }
+
+                QDomElement creationOptionElement = dockElement.firstChildElement( "CreationOption" );
+                windowItem.creationOption = QEGuiLaunchRequests::OptionFloatingDockWindow;
+
+                if( !creationOptionElement.isNull() )
+                {
+                    windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
+                }
+
+                QDomElement hiddenElement = dockElement.firstChildElement( "Hidden" );
+                if( !hiddenElement.isNull() )
+                {
+                    windowItem.hidden = true;
+                }
+
+                windows.append( windowItem );
+            }
+        }
+        dockElement = dockElement.nextSiblingElement( "Dock" );
+    }
+}
+
+
+// Add details for a menu item to customisation set
+windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElement itemElement, QStringList menuHierarchy)
+{
+    QString title;
+    QString program;
+    QStringList programArguments;
+    QList<windowCreationListItem> windows;
+    QString builtIn;
+
+    if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, programArguments ) )
+    {
+        if( !builtIn.isEmpty() )
+        {
+            // Add details for a built in menu item to customisation set
+            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy, builtIn, windowCustomisationMenuItem::MENU_BUILT_IN, requiresSeparator( itemElement ) );
+            return item;
+
+        }
+        else
+        {
+            // Add details for a menu item to customisation set
+            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy, title, windowCustomisationMenuItem::MENU_ITEM,
+                                                                                 requiresSeparator( itemElement ), NULL/*!!! needs launch receiver object*/, windows, program,
+                                                                  programArguments );
+            return item;
+        }
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+// Add details for a tool bar button item to customisation set
+ windowCustomisationButtonItem*  windowCustomisationList::createButtonItem( QDomElement itemElement )
+ {
+    QString buttonGroup;
+    QString buttonIcon;
+//    // Read GroupName
+//    QDomNodeList list = itemElement.elementsByTagName( "GroupName" );
+//    if (list.count() > 0)
+//    {
+//        buttonGroup = list.at(0).toElement().text();
+//    }
+
+//    // Read Icon
+//    list = itemElement.elementsByTagName( "Icon" );
+//    if (list.count() > 0)
+//    {
+//        buttonIcon = list.at(0).toElement().text();
+//    }
+
+        QString title;
+         QString program;
+         QStringList programArguments;
+         QString macroSubstitutions;
+         QString customisationName;
+         QList<windowCreationListItem> windows;
+         QString builtIn;
+
+         if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, programArguments ) )
+         {
+             // Add details for a button item to customisation set
+             windowCustomisationButtonItem* item = new windowCustomisationButtonItem(buttonGroup, title, buttonIcon, NULL/*!!! needs launch receiver object*/, windows, program,
+                                                                   programArguments );
+
+             return item;
+         }
+         else
+         {
+             return NULL;
+         }
+}
+
+ // Return a named set of customisations
+ windowCustomisation* windowCustomisationList::getCustomisation(QString name)
+ {
+     // search for and return customisation
+     for( int i = 0; i < customisationList.length(); i++ )
+     {
+         if( customisationList.at(i)->getName() == name )
+         {
+            return customisationList.at(i);
          }
      }
-     return customisation;
+
+     // Customisations not found
+     return NULL;
  }
 
- void windowCustomisationList::addIncludeCustomisation(windowCustomisation* customisation, windowCustomisation* include){
+ // Parse a customisation include file
+ void windowCustomisationList::addIncludeCustomisation(windowCustomisation* customisation, windowCustomisation* include)
+ {
      QList<windowCustomisationMenuItem*> menuItems = include->getMenuItems();
      QList<windowCustomisationButtonItem*> buttons = include->getButtons();
+
      // add menu items
-     for (int i = 0; i < menuItems.length(); i++){
+     for (int i = 0; i < menuItems.length(); i++)
+     {
          customisation->addItem(menuItems.at(i));
      }
+
      // add button items
-     for (int i = 0; i < buttons.length(); i++){
+     for (int i = 0; i < buttons.length(); i++)
+     {
          customisation->addItem(buttons.at(i));
      }
 }
 
-// Add the named customisation to a main window.
-// Return true if named customisation found and loaded.
-bool windowCustomisationList::applyCustomisation( QMainWindow* mw, QString customisationName )
+// Ensure a menu path exists in the menu bar.
+// For example, if the menu path required is 'File' -> 'Edit', and a
+// 'File' menu exists but does not contain an 'Edit' menu, then add an 'Edit' menu to the 'File' menu.
+// Return the end menu (newly created, or found)
+QMenu* windowCustomisationList::buildMenuPath( windowCustomisationInfo* customisationInfo, QMenuBar* menuBar, const QStringList menuHierarchy )
 {
+    // Work through the anticipated menu hierarchy creating missing menus as required
+    QMenu* menuPoint = NULL;
+    QString hierarchyString;
+    int count = menuHierarchy.count();
+    bool skipSearch = false;
+    for( int i = 0; i < count; i++ )
+    {
+        // Add the next menu level
+        hierarchyString.append( menuHierarchy.at(i) );
 
-    qDebug() << "windowCustomisationList::applyCustomisation()" << mw << customisationName;
-    windowCustomisation* customisation = getCustomisation(customisationName);
-    if (!customisation)
-        return false;
+        // Look for the next menu level
+        QMenu* menu = NULL;
+        if( !skipSearch )
+        {
+            menu = customisationInfo->menus.value( hierarchyString, NULL );
+        }
 
-    QToolBar* mainToolBar = new QToolBar("Toolbar", mw);
-    mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
-    mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
-    QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
-    for ( int i = 0; i < bList.length(); i++ ){
-        windowCustomisationButtonItem* item = new windowCustomisationButtonItem(bList.at(i));
-        // add button action
-        mainToolBar->addAction(item);
-        // Set up an action to respond to the user
-        QObject::connect( item, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
-                          mw, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+        // If the next menu level is present, note it
+        if( menu )
+        {
+            menuPoint = menu;
+        }
+
+        // The next menu level is not present, create it
+        else
+        {
+            // No point looking for deeper menus from now on
+            skipSearch = true;
+
+            // Create the menu
+            QMenu* newMenu = new QMenu( menuHierarchy.at(i) );
+
+            // Add it to the next level up (if any)
+            if( menuPoint )
+            {
+                // add the menu
+                menuPoint->addMenu( newMenu );
+            }
+
+            // Otherwise add it to the menu bar
+            else
+            {
+                menuBar->addMenu( newMenu );
+                menuBar->setVisible( true );
+            }
+
+            // Save the menu just added as the menu to add the next menu to in this loop
+            menuPoint = newMenu;
+
+            // Save the menu for some future menu search
+            customisationInfo->menus.insert( hierarchyString, newMenu );
+        }
+
+        // Add the menu separator.
+        // Note, this is done so things are easier in the debugger (File>Edit is
+        // clearly two levels of menu compared to FileEdit). Also, it may help
+        // avoid conflicts; for example if there is a 'File' menu containing an
+        // 'Edit' menu and there is also a top level menu is called 'FileEdit'.
+        if( i < count - 1 )
+        {
+            hierarchyString.append( ">" );
+        }
     }
 
+    return menuPoint;
+}
 
-    QMenuBar* menuBar = mw->menuBar();
-    QMap<QString, QMenu*> menuCreated;
-    QList<QDockWidget*> dockWidgetList;
+// Add the named customisation to a main window.
+// Return true if named customisation found and loaded.
+void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting )
+{
+    // Clear the existing customisation if requested (but only if we have a customisation name to replace it with)
+    if( !customisationName.isEmpty() && clearExisting )
+    {
+        // Remove all current menus
+        mw->menuBar()->clear();
+        mw->menuBar()->setVisible( false );
+        customisationInfo->menus.clear();
 
+        // Remove all current toolbars
+        foreach (QToolBar* toolBar, customisationInfo->toolbars)
+        {
+            mw->removeToolBar( toolBar );
+            delete toolBar;
+        }
+        customisationInfo->toolbars.clear();
+    }
+
+    // Get the customisations required
+    // Do nothing if not found
+    windowCustomisation* customisation = getCustomisation( customisationName );
+    if (!customisation)
+    {
+        return;
+    }
+
+//    // Create the toolbar
+//    QToolBar* mainToolBar = new QToolBar( "Toolbar", mw );
+//    mainToolBar->setObjectName(QString::fromUtf8( "mainToolBar" ));
+//    mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
+
+//    // Add the required toolbar buttons
+//    QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
+//    for ( int i = 0; i < bList.length(); i++ )
+//    {
+//        windowCustomisationButtonItem* item = new windowCustomisationButtonItem(bList.at(i));
+
+//        // add button action
+//        mainToolBar->addAction(item);
+
+//        // Set up an action to respond to the user
+//        QObject::connect( item, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
+//                          mw, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+//    }
+
+    // Get the menu item customisations required
     QList<windowCustomisationMenuItem*> mList = customisation->getMenuItems();
 
-    for (int i = 0; i < mList.length(); i++){
-        windowCustomisationMenuItem* menuItem = new windowCustomisationMenuItem(mList.at(i));
-        QMenu* menuPoint = 0;
-        QStringList menuHierarchy = menuItem->getMenuHierarchy();
-        QString extendedMenuName;
-        for ( int j = 0; j < menuHierarchy.length(); j++ ){
-            QString menuName = menuHierarchy.at(j);
-            extendedMenuName = extendedMenuName.append(menuName);
-            if (!menuCreated.contains(extendedMenuName)){
-                QMenu* newMenu = new QMenu(menuName);
-                if (!menuPoint){
-                    // top menu
-                    menuBar->addMenu(newMenu);
-                }
-                else{ // submenu
-                    menuPoint->addMenu(newMenu);
-                }
-                menuPoint = newMenu;
-                menuCreated.insert(extendedMenuName, newMenu);
-            }
-            else{
-                menuPoint = menuCreated.find(extendedMenuName).value();
-            }
-        }
-        if (menuPoint){
-            if (menuItem->getTitle() != "Separator"){
-                QEGuiLaunchRequests::Options option = menuItem->getCreationOption();
-                bool isDockItem = option == QEGuiLaunchRequests::OptionLeftDockWindow? true:
-                              option == QEGuiLaunchRequests::OptionRightDockWindow? true:
-                              option == QEGuiLaunchRequests::OptionTopDockWindow? true:
-                              option == QEGuiLaunchRequests::OptionBottomDockWindow? true:false;
-                if (isDockItem){
-                    QAction* dockAction = createDockWidget(mw, menuItem, dockWidgetList);
-                    menuPoint->addAction(dockAction);
-                }
-                else{
-                    menuPoint->addAction(menuItem);
+    // Apply all the menu customisations
+    for (int i = 0; i < mList.length(); i++)
+    {
+        // Get the next customisation required
+        windowCustomisationMenuItem* menuItem = new windowCustomisationMenuItem( mList.at(i) );
+
+        // Ensure the menu hierarchy is present.
+        // For example if the hierarchy required is 'File' -> 'Recent' is required and a 'File' menu is
+        // present but it does not contain a 'Recent' menu, then create a 'Recent' menu in the 'File' menu
+        QMenu* menu = buildMenuPath( customisationInfo, mw->menuBar(), menuItem->getMenuHierarchy() );
+
+        // Act on the type of customisation required
+        switch( menuItem->getType() )
+        {
+            case windowCustomisationMenuItem::MENU_UNKNOWN:
+                break;
+
+            case windowCustomisationMenuItem::MENU_ITEM:
+                // Add the item to the correct menu
+                // (if no menu, don't add to the menu bar - this could change)
+                if( menu )
+                {
+                    if( menuItem->hasSeparator() )
+                    {
+                        menu->addSeparator();
+                    }
+                    menu->addAction( menuItem );
+
                     // Set up an action to respond to the user
                     QObject::connect( menuItem, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
                                       mw, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
                 }
-            }
-            else{
-                menuPoint->addSeparator();
-            }
+                break;
+
+            case windowCustomisationMenuItem::MENU_PLACEHOLDER:
+                {
+                    QMenu* placeholderMenu;
+                    QString menuTitle = menuItem->getTitle();
+
+                    // Add the placeholder to the menu if there is one
+                    if( menu )
+                    {
+                        if( menuItem->hasSeparator() )
+                        {
+                            menu->addSeparator();
+                        }
+                        placeholderMenu = menu->addMenu( menuTitle );
+                    }
+                    // If no menu, add the placeholder to the menu bar
+                    else
+                    {
+                        placeholderMenu = mw->menuBar()->addMenu( menuTitle );
+                        mw->menuBar()->setVisible( true );
+                    }
+                    customisationInfo->placeholderMenus.insert( menuTitle, placeholderMenu );
+
+                    // Save the menu for some future menu search
+                    customisationInfo->menus.insert( menuTitle, placeholderMenu );
+                }
+                break;
+
+            case windowCustomisationMenuItem::MENU_BUILT_IN:
+                if( menuItem->hasSeparator() )
+                {
+                    menu->addSeparator();
+                }
+                menu->addAction( menuItem );
+                QObject::connect( menuItem, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
+                                  mw, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+
+                break;
         }
     }
-    // tabify dock widgets
-    for ( int i = 0; i < dockWidgetList.length() - 1; i++ ){
-        mw->tabifyDockWidget(dockWidgetList.at(i), dockWidgetList.at(i+1));
-    }
-
-    //!!! Extend the QMainWindow menu bar and tool bar with the named customisation
-    //!!! Add required menus, menu items, button groups and buttons
-    //!!! Use the windowCustomisationItem as the QAction to use for each menu item and button
-
-//    qDeleteAll(menuCreated);
-    menuCreated.clear();
-
-    return true;
-}
-
-QAction* windowCustomisationList::createDockWidget( QMainWindow* mw,  windowCustomisationMenuItem* menuItem, QList<QDockWidget*>& dockWidgetList )
-{
-    QEGuiLaunchRequests::Options option = menuItem->getCreationOption();
-    QString guiName = menuItem->getUiFile();
-    QString dockTitle = menuItem->getCustomisationName();
-    QFile file( guiName );
-    if (!file.open(QIODevice::ReadOnly))
-    {
-         qDebug() << "Could not open ui file" << guiName;
-         return false;
-    }
-
-    Qt::DockWidgetArea dockLocation = Qt::BottomDockWidgetArea;
-    QUiLoader loader;
-    QWidget* ui = loader.load( &file );
-    QDockWidget *dock = new QDockWidget(dockTitle, mw);
-
-    dock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-
-    if (option == QEGuiLaunchRequests::OptionLeftDockWindow){
-        dockLocation = Qt::LeftDockWidgetArea;
-    }
-    else if (option == QEGuiLaunchRequests::OptionRightDockWindow){
-        dockLocation = Qt::RightDockWidgetArea;
-    }
-    else if (option == QEGuiLaunchRequests::OptionTopDockWindow){
-        dockLocation = Qt::TopDockWidgetArea;
-    }
-    mw->addDockWidget(dockLocation, dock);
-    dock->setWidget(ui);
-    dockWidgetList.append(dock);
-
-    dock->hide();
-//    dock->isHidden();
-
-    return dock->toggleViewAction();
 }

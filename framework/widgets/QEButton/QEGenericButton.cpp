@@ -726,47 +726,35 @@ QString QEGenericButton::getLabelTextProperty()
 // Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.
 void QEGenericButton::startGui( const QEGuiLaunchRequests & request )
 {
-    switch (request.getKind())
+    // Only handle file open requests
+    if( request.getKind() != QEGuiLaunchRequests::KindOpenFile )
     {
-         case QEGuiLaunchRequests::KindFileName:
-             if (request.getArguments().count () >= 1)
-             {
-                // Build the gui
-                // Build it in a new window.
-                //??? This could use the create options as follows: (instead of always creating a new window)
-                //       - Wind up through parents until the parent of the first scroll
-                //       - Replace the scroll area's widget with the new gui
-                QMainWindow* w = new QMainWindow;
-                QEForm* gui = new QEForm( request.getArguments().first() );
-                if( gui )
-                {
-                    if( gui->readUiFile())
-                    {
-                        w->setCentralWidget( gui );
-                        w->show();
-                    }
-                    else
-                    {
-                        delete gui;
-                        gui = NULL;
-                    }
-                }
-                else
-                {
-                    delete w;
-                }
-             }
-             break;
+        return;
+    }
 
-        case QEGuiLaunchRequests::KindStripChart:
-        case QEGuiLaunchRequests::KindPvProperties:
-             // can't do this - we are not a application.
-             //
-             sendMessage( "Unhandled gui request kind", message_types( MESSAGE_TYPE_INFO, MESSAGE_KIND_EVENT ) );
-             break;
-
-         default:
-             sendMessage( "Unexpected gui request kind", message_types( MESSAGE_TYPE_ERROR, MESSAGE_KIND_EVENT ) );
-             break;
-     }
+    // If there is enough arguments, open the file
+    if (request.getArguments().count () >= 1)
+    {
+        // Build the gui
+        // Build it in a new window.
+        QMainWindow* w = new QMainWindow;
+        QEForm* gui = new QEForm( request.getArguments().first() );
+        if( gui )
+        {
+            if( gui->readUiFile())
+            {
+                w->setCentralWidget( gui );
+                w->show();
+            }
+            else
+            {
+                delete gui;
+                gui = NULL;
+            }
+        }
+        else
+        {
+            delete w;
+        }
+    }
 }
