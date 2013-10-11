@@ -5,6 +5,7 @@
         <file>MessageLog.ui</file>
         <file>Plotter.ui</file>
         <file>ScratchPad.ui</file>
+        <file>PVLoadSave.ui</file>
         <file>ArchiveStatus.ui</file>
     </qresource>
     <qresource prefix="/icons">

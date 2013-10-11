@@ -44,6 +44,7 @@
 #include <QEBitStatusManager.h>
 #include <QBitStatusManager.h>
 #include <QEImageManager.h>
+#include <QEPvLoadSaveManager.h>
 #include <QEPvPropertiesManager.h>
 #include <QEStripChartManager.h>
 #include <QEConfiguredLayoutManager.h>
@@ -91,7 +92,7 @@
     Add all plugins that will be provided in QT Designer.
 */
 QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
-    // note: maintain in alphaqbetical order.
+    // note: maintain in alphabetical order.
     widgets.append(new QEAnalogProgressBarManager(this));
     widgets.append(new QEBitStatusManager(this));
     widgets.append(new QECheckBoxManager(this));
@@ -111,6 +112,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEPlotManager(this));
     widgets.append(new QEPlotterManager(this));
     widgets.append(new QEPushButtonManager(this));
+    widgets.append(new QEPvLoadSaveManager(this));
     widgets.append(new QEPvPropertiesManager(this));
     widgets.append(new QERadioButtonManager(this));
     widgets.append(new QERadioGroupManager(this));
