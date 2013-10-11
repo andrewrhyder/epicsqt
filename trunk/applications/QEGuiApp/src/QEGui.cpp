@@ -101,10 +101,14 @@ int QEGui::run()
     }
 
     // Load window customisations
-    // First try the one specified in the parameters (if any), then the default
-    if( !winCustomisations.loadCustomisation( getParams()->customisationFile ) )
+    // First load the inbuilt default
+    // This can be overwritten by any external file with a customisation set with the name "QEGui_Default"
+    winCustomisations.loadCustomisation( ":/configuration/QEGuiCustomisationDefault.xml" );
+
+    // Now load the configuration file specified in the parameters (if any), otherwise the default external file if present
+    if( !winCustomisations.loadCustomisation( getParams()->customisationFile ))
     {
-        winCustomisations.loadCustomisation( "QEWindowCustomisation.xml" );
+        winCustomisations.loadCustomisation( "QEGuiCustomisation.xml" );
     }
 
     // Prepare to manage save and restore
@@ -301,10 +305,16 @@ int QEGui::getMainWindowCount()
     return mainWindowList.count();
 }
 
-// Get a main window from the application's list of main windows
+// Get the main window given an index into the application's list of main windows
+// Return NULL if past the end of the list
 MainWindow* QEGui::getMainWindow( int i )
 {
-    return mainWindowList.at( i );
+    if( i >= mainWindowList.count() )
+    {
+        return NULL;
+    }
+
+    return mainWindowList[i];
 }
 
 // Locate a main window in the application's list of main windows
@@ -353,59 +363,24 @@ const QList<recentFile*>&  QEGui::getRecentFiles()
     return recentFiles;
 }
 
-// Get the total number of GUIs in the application's list of GUIs
-// (This includes all GUIs in all main windows)
-int QEGui::getGuiCount()
+// If a GUI matching a filename and macro substitutions is present, ensure it is visible and has focus.
+// Return true if GUI is found
+ MainWindow* QEGui::raiseGui(  QString guiFileName, QString macroSubstitutions )
 {
-    return guiList.count();
-}
-
-// Get the action used to raise a gui in the 'Windows' menus
-QAction* QEGui::getGuiAction( int i )
-{
-    return guiList[i].getAction();
-}
-
-// Get a GUI given an index into the application's list of GUIs
-QEForm* QEGui::getGuiForm( int i )
-{
-    return guiList[i].getForm();
-}
-
-// Get the main window for a GUI given an index into the application's list of GUIs
-MainWindow* QEGui::getGuiMainWindow( int i )
-{
-    return guiList[i].getMainWindow();
-}
-
-// Get the scroll information for a GUI given an index into the application's list of GUIs
-QPoint QEGui::getGuiScroll( int i )
-{
-    return guiList[i].getScroll();
-}
-
-// Set the scroll information for a GUI given an index into the application's list of GUIs
-void QEGui::setGuiScroll( int i, QPoint scroll )
-{
-    guiList[i].setScroll( scroll );
+    for( int i = 0; i < mainWindowList.count(); i++ )
+    {
+        MainWindow* mw = mainWindowList[i];
+        if( mw->showGui( guiFileName, macroSubstitutions ) )
+        {
+            return mw;
+        }
+    }
+    return NULL;
 }
 
 // Add a GUI to the application's list of GUIs, and to the recent menu
-void QEGui::addGui( QEForm* gui, QString customisationName, MainWindow* window )
+void QEGui::addGui( QEForm* gui, QString customisationName )
 {
-    // Create an action for the 'Window' menus
-    QAction* windowMenuAction = new QAction( gui->getQEGuiTitle(), this );
-    windowMenuAction->setData( qVariantFromValue( gui ) );
-
-    // Add this gui to the application wide list of guis
-    guiList.append( guiListItem( gui, window, windowMenuAction ) );
-
-    // For each main window, add a new action to the window menu
-    for( int i = 0; i < mainWindowList.count(); i++ )
-    {
-        mainWindowList.at(i)->addWindowMenuAction( windowMenuAction );
-    }
-
     // Note the GUI title and full file path
     QString name = gui->getQEGuiTitle();
     QString path = gui->getFullFileName();
@@ -465,72 +440,6 @@ void QEGui::addGui( QEForm* gui, QString customisationName, MainWindow* window )
     }
 }
 
-// Find a GUI in the application's list of GUIs and return the window customisation name.
-QString QEGui::getGuiCustomisationName( QEForm* gui )
-{
-    // Look for the GUI and return the window customisations if found
-    for( int i = 0; i < guiList.count(); i++ )
-    {
-        if( guiList[i].getForm() == gui )
-        {
-            return guiList[i].getCustomisationName();
-        }
-    }
-
-    // GUI not found. Return an empty string
-    return QString();
-}
-
-// Return a GUIs customisation name.
-QString QEGui::getGuiCustomisationName( int guiIndex )
-{
-    // Return customisation name if index is valid
-    if( guiIndex >= 0 && guiIndex < guiList.count() )
-    {
-        return guiList[guiIndex].getCustomisationName();
-    }
-
-    // GUI not found. Return an empty string
-    return QString();
-}
-
-// Remove a GUI from the application's list of GUIs
-// Note, deleting the action will remove it from all the menus it was associated with
-void QEGui::removeGuiFromWindowsMenus( QEForm* gui )
-{
-    for( int i = 0; i < guiList.count(); i++ )
-    {
-        if( guiList[i].getForm() == gui )
-        {
-            // Delete the action. This will remove it from all the menus it was associated with
-            delete guiList[i].getAction();//!! dangerous do this in guiListItem????
-            guiList.removeAt( i );
-            break;
-        }
-    }
-}
-
-// Ensure all main windows and QEForms managed by this application (top level forms) have a unique identifier
-void QEGui::identifyWindowsAndForms()
-{
-    // Give all main windows a unique ID for restoration purposes
-    for( int i = 0; i < mainWindowList.count(); i++ )
-    {
-        mainWindowList[i]->setUniqueId( i );
-    }
-
-    // Give all top level QEForms (managed by this application - not sub forms) a unique ID for restoration purposes
-    for( int i = 0; i < guiList.count(); i++ )
-    {
-        // Get form and main window details
-        guiListItem* guiItem = &guiList[i];
-        MainWindow* mw = guiItem->getMainWindow();
-
-        QString name = QString("QEGui_window_%1_form_%2" ).arg( mw->getUniqueId() ).arg( i );
-        guiItem->getForm()->setUniqueIdentifier( name );
-    }
-}
-
 // Change user level
 void QEGui::login( QWidget* fromForm )
 {
@@ -555,6 +464,11 @@ void QEGui::launchRecentGui( QString path, QStringList pathList, QString macroSu
     MainWindow* mw = new MainWindow( this, path, customisationName, false );
     mw->show();
     profile.releaseProfile();
+}
+
+void QEGui::applyMainWindowCustomisations(  QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting )
+{
+    winCustomisations.applyCustomisation( mw, customisationName, customisationInfo, clearExisting );
 }
 
 // end

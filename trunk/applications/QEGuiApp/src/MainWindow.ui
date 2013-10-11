@@ -23,63 +23,11 @@
      <height>23</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <widget class="QMenu" name="menuRecent">
-     <property name="title">
-      <string>Recent...</string>
-     </property>
-     <addaction name="actionList"/>
-    </widget>
-    <addaction name="actionNew_Window"/>
-    <addaction name="actionNew_Tab"/>
-    <addaction name="actionNew_Dock"/>
-    <addaction name="actionOpen"/>
-    <addaction name="actionClose"/>
-    <addaction name="menuRecent"/>
-    <addaction name="separator"/>
-    <addaction name="actionSave_Configuration"/>
-    <addaction name="actionRestore_Configuration"/>
-    <addaction name="actionManage_Configurations"/>
-    <addaction name="separator"/>
-    <addaction name="actionPVProperties"/>
-    <addaction name="actionStrip_Chart"/>
-    <addaction name="actionScratch_Pad"/>
-    <addaction name="actionUser_Level"/>
-    <addaction name="actionMessage_Log"/>
-    <addaction name="actionPlotter"/>
-    <addaction name="actionArchive_Status"/>
-    <addaction name="separator"/>
-    <addaction name="actionExit"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="actionAbout"/>
-   </widget>
-   <widget class="QMenu" name="menuWindows">
-    <property name="title">
-     <string>Windows</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
-    <addaction name="actionDesigner"/>
-    <addaction name="actionOpen_Current_Form_In_Designer"/>
-    <addaction name="actionRefresh_Current_Form"/>
-    <addaction name="actionSet_Passwords"/>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
-   <addaction name="menuHelp"/>
-   <addaction name="menuWindows"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>

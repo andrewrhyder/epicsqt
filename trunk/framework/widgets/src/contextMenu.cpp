@@ -243,7 +243,7 @@ void contextMenu::doPaste()
 void contextMenu::doShowPvProperties ()
 {
     QString pvName = copyVariable();
-    QEGuiLaunchRequests request (QEGuiLaunchRequests::KindPvProperties, pvName);
+    QEGuiLaunchRequests request( "PV Properties...", pvName );
     object->sendRequestGui( request );
 }
 
@@ -251,7 +251,7 @@ void contextMenu::doShowPvProperties ()
 void contextMenu::doAddToStripChart ()
 {
     QString pvName = copyVariable();
-    QEGuiLaunchRequests request (QEGuiLaunchRequests::KindStripChart, pvName);
+    QEGuiLaunchRequests request( "Strip Chart...", pvName );
     object->sendRequestGui( request );
 }
 
@@ -259,7 +259,7 @@ void contextMenu::doAddToStripChart ()
 void contextMenu::doAddToScratchPad()
 {
    QString pvName = copyVariable();
-   QEGuiLaunchRequests request (QEGuiLaunchRequests::KindScratchPad, pvName);
+   QEGuiLaunchRequests request( "Scratch Pad...", pvName );
    object->sendRequestGui( request );
 }
 

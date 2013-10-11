@@ -535,12 +535,23 @@ void QEForm::setWindowTitle( QString filename )
     if( ui )
     {
         QVariant windowTitleV = ui->property( "windowTitle" );
+
         if( windowTitleV.isValid() && windowTitleV.type() == QVariant::String )
         {
             QString windowTitle = windowTitleV.toString();
             if( !windowTitle.isEmpty() )
             {
-                title = substituteThis( windowTitle );
+                // Use the window title property as the title as long as it is not the default title.
+                // (It is no use to have titles like 'Form' or 'Frame')
+                // The default title is generally the class name minus the leading 'Q' (such as
+                // 'Frame' for a QFrame), or for some classes (such as a QWidget) it is the word 'Form'
+                QString defaultTitle = ui->metaObject()->className();
+                if( windowTitle != defaultTitle.right( defaultTitle.size() - 1 ) &&
+                    windowTitle != QString( "Dialog" ) &&
+                    windowTitle != QString( "Form" ) )
+                {
+                    title = substituteThis( windowTitle );
+                }
             }
         }
     }

@@ -36,12 +36,44 @@
 #include <QTimer>
 #include <StartupParams.h>
 #include <manageConfigDialog.h>
+#include <menuConfig.h>
+#include <QCloseEvent>
 
 
 // Save / Restore configuration name
 #define QE_CONFIG_NAME "QEGuiConfig"
 
 class QEGui;
+class MainWindow;
+
+// Class used to hold information about each GUI in a main window
+class guiListItem
+{
+public:
+    guiListItem( QEForm* formIn, MainWindow* mainWindowIn, QAction* actionIn, QString customisationNameIn, bool isDockIn )
+                                { form = formIn;
+                                  mainWindow = mainWindowIn;
+                                  action = actionIn;
+                                  customisationName = customisationNameIn;
+                                  isDock = isDockIn; }
+    QEForm*     getForm(){ return form; }                               // Return the QEForm implementing the GUI
+    MainWindow* getMainWindow(){ return mainWindow; }                   // Return the main window containing the GUI
+    void        setScroll( QPoint scrollIn ){ scroll = scrollIn; }      // Set the scroll position of the GUI (saved during configuration restore)
+    QPoint      getScroll(){ return scroll; }                           // Get the scroll position of the GUI (used immedietly after a restore has completed)
+    QAction*    getAction(){ return action; }
+    QString     getCustomisationName(){ return customisationName; }     // Get the window customisations name
+    bool        getIsDock(){ return isDock; }                           // Get the 'is a dock' flag
+    void        deleteAction(){ if( action ){ delete action; } action = NULL; }  // Delete the action
+
+private:
+    QEForm*     form;                  // QEForm implementing the GUI
+    MainWindow* mainWindow;            // Main window the GUI is in
+    QPoint      scroll;                // Scroll position of the GUI (used to hold the scroll position during a configuration restore)
+    QAction*    action;                // Action to add to window menus
+    QString     customisationName;     // Name of window customisations (menus, tool bar buttons)
+    bool        isDock;                // Form has been added as a dock (not as the central widget, or in a tabwidget in the central widget)
+};
+
 
 class MainWindow : public QMainWindow, public UserMessage
 {
@@ -60,17 +92,25 @@ public:
     void addWindowMenuAction( QAction* action );            // Add a gui to a 'window' menu
     void addRecentMenuAction( QAction* action );
 
+    bool showGui( QString guiFileName, QString macroSubstitutions );
+
 private:
     Ui::MainWindowClass ui;                                 // Main window layout
     bool usingTabs;                                         // True if using tabs to display multiple GUIs, false if displaying a single GUI
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
-    QEForm* createGui( QString filename, QString customisationName );                  // Create a gui
-    QEForm* createGui( QString fileName, QString customisationName, QString restoreId ); // Create a gui with an ID (required for a restore)
+    QEForm* createGui( QString filename, QString customisationName, bool isDock = false );                  // Create a gui
+    QEForm* createGui( QString fileName, QString customisationName, QString restoreId, bool isDock = false ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
-    void loadGuiIntoNewDock( QEForm* gui, QEGuiLaunchRequests::Options createOption );                 // Load a new gui into a new dock
+    void loadGuiIntoNewDock( QEForm* gui,
+                             bool hidden = false,
+                             bool tabbed = false,
+                             QEGuiLaunchRequests::Options createOption = QEGuiLaunchRequests::OptionFloatingDockWindow,
+                             Qt::DockWidgetArea allowedAreas = Qt::AllDockWidgetAreas,
+                             QDockWidget::DockWidgetFeature features = QDockWidget::AllDockWidgetFeatures,
+                             QRect geom = QRect( 0, 0, 0, 0 ) ); // Load a new gui into a new dock
 
     MainWindow* launchLocalGui( const QString& filename );  // Launch a new gui from the 'File' menu and gui launch requests.
     MainWindow* launchLocalGui( const QString& filename,    // Launch a new gui from the requestGui slot.
@@ -85,6 +125,7 @@ private:
     void refresh();                                         // Reload the current gui
 
     void buildWindowsMenu();                                // Build a new 'windows' menu
+
     void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
 
 
@@ -109,27 +150,42 @@ private:
     QScrollArea* guiScrollArea( QEForm* gui );              // Return the scroll area a gui is in if it is in one.
     QRect setGeomRect;                                      // Parameter to setGeom() slot (This slot is called from the timer and can't take parameters)
 
-    void raiseGui( QEForm* gui );
+    void raiseGui( QEForm* gui );                           // Raise a gui and select the right tab so the user can see it.
 
     bool beingDeleted;                                      // This main window is being deleted (deleteLater() has been called on it)
     int scrollToCount;                                      // Number of times scrollTo() has been called waiting for geometry has been rinalised
 
-    QEGui* app;
+    QEGui* app;                                             // Application reference
 
-    void closeEvent(QCloseEvent *event);
-    enum guiPresentations { PRESENTATION_CENTRAL, PRESENTATION_TAB, PRESENTATION_DOCK, PRESENTATION_UNKNOWN };
-    guiPresentations guiPresentation( QEForm* gui, QWidget** container );
+    void closeEvent(QCloseEvent *event);                    // Close this window event
+
+    void removeGuiFromWindowsMenus( QEForm* gui );          // Remove a GUI from all window menus (by reference)
+    void removeGuiFromWindowsMenus( int i );                // Remove a GUI from all window menus (by index)
+    QString getCustomisationName( QEForm* gui );            // Get the customisation name used with a GUI
+
 
 private:
-    QMenu *tabMenu;    // We want to keep a refernece to certain widget objects. Declaring these directly in the
+    QMenu* tabMenu;                                         // ???We want to keep a reference to certain widget objects. Declaring these directly in the
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
-    void launchGui( QString guiName, QString customisationName, QEGuiLaunchRequests::Options creationOption );  // Launch a new GUI given a .ui file name
+    MainWindow* launchGui( QString guiName, QString customisationName, QEGuiLaunchRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
+    QMenu* windowMenu;
+    QMenu* recentMenu;
+    QMenu* editMenu;
+
+    windowCustomisationInfo customisationInfo;  // Current customisation of this window
+    void setDefaultCustomisation();             // Set up the initial default customisation
+    void setupPlaceholderMenus();               // Get whatever placeholder menus are available from the current customisation and use them (for example, populate a 'Recent' menu if present)
+    void identifyWindowAndForms( int mwIndex );
+
+
+    QDockWidget* getGuiDock( QWidget* gui );    // Determine the dock widget containing a docked GUI
+
+    QList<guiListItem> guiList;
 
 private slots:
     void on_actionManage_Configurations_triggered();
     void on_actionExit_triggered();                             // Slot to perform 'Exit' action
-    void on_actionMessage_Log_triggered();                      // Slot to perform 'Open Message Log window' action
     void on_actionUser_Level_triggered();                       // Slot to perform 'Refresh Current Form' action
     void on_actionRefresh_Current_Form_triggered();             // Slot to perform 'Refresh Current Form' action
     void on_actionOpen_Current_Form_In_Designer_triggered();    // Slot to perform 'Open Current Form In Designer' action
@@ -153,12 +209,6 @@ private slots:
 
     void processError( QProcess::ProcessError error );  // An error occured starting designer process
     void startDesignerAlternate();                      // Timer signal used to attempt restarting designer from outside a QProcess error signal
-
-    void on_actionPVProperties_triggered();             // Slot to perform 'Create PV Properties window' action
-    void on_actionStrip_Chart_triggered();              // Slot to perform 'Create strip chart window' action
-    void on_actionPlotter_triggered();                  // Slot to perform 'Create plotter window' action
-    void on_actionScratch_Pad_triggered();              // Slot to perform 'Create scratch pad window' action
-    void on_actionArchive_Status_triggered();           // Slot to perform 'Create Archive Status window' action
 
     void on_actionSave_Configuration_triggered();       // Slot to perform 'Save Configuration' action
     void on_actionRestore_Configuration_triggered();    // Slot to perform 'Save Configuration' action
