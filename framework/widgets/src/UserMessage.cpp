@@ -94,9 +94,9 @@ UserMessage::UserMessage()
 }
 
 // Destruction
-//UserMessage::~UserMessage()
-//{
-//}
+UserMessage::~UserMessage()
+{
+}
 
 // Set the source ID
 // (the ID set up by the GUI designer, usually matched to the source ID of logging widgets)
