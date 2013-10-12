@@ -47,6 +47,14 @@ static const QString namePrefix  = "*NAME";
 static const QString groupPrefix = "*GROUP";
 static const QString arrayPrefix = "*ARRAY";
 
+static const QVariant nilValue (QVariant::Invalid);
+
+// XML tag names
+//
+static const QString fileTagName    = "QEPvLoadSave";
+static const QString groupTagName   = "Group";
+static const QString pvTagName      = "PV";
+static const QString valueTagName   = "Value";
 
 //------------------------------------------------------------------------------
 //
@@ -79,7 +87,6 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readSection (QESettings* settings,
    QString sectionName;
    QVariant value;
    QString pvName;
-   QVariant nilValue (QVariant::Invalid);
 
    if (!settings) {
       DEBUG << "bad input";
@@ -222,34 +229,32 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlPv (const QDomElement pvElement,
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlGroup (const QDomElement groupElement,
-                                                       const QString& groupName,
-                                                       QEPvLoadSaveItem* parent,
-                                                       const int level)
+void QEPvLoadSaveUtilities::readXmlGroup (const QDomElement groupElement,
+                                          QEPvLoadSaveItem* parent,
+                                          const int level)
 {
-   QEPvLoadSaveItem* result = NULL;
-   QVariant nilValue (QVariant::Invalid);
 
-   if (groupElement.isNull () || groupName.isEmpty ()) {
-      qWarning () << __FUNCTION__ << " null configElement and/or groupName, level => " << level;
-      return result;
+   if (groupElement.isNull ()) {
+      qWarning () << __FUNCTION__ << " null configElement, level => " << level;
+      return;
    }
 
-   result = new QEPvLoadSaveItem (groupName, false, nilValue, parent);
-
    // Parse XML using Qt's Document Object Model.
+   // We look for Group and PV tags.
    //
    QDomElement itemElement = groupElement.firstChildElement ("");
    while (!itemElement.isNull ())   {
 
       QString tagName = itemElement.tagName ();
 
-      if (tagName == "Group") {
-         QString innerGroupName = itemElement.attribute ("Name");
-         QEPvLoadSaveUtilities::readXmlGroup (itemElement, innerGroupName, result, level + 1);
+      if (tagName == groupTagName) {
+         QString groupName = itemElement.attribute ("Name");
+         QEPvLoadSaveItem* group = new QEPvLoadSaveItem (groupName, false, nilValue, parent);
 
-      } else if  (tagName == "PV") {
-         QEPvLoadSaveUtilities::readXmlPv (itemElement, result);
+         QEPvLoadSaveUtilities::readXmlGroup (itemElement, group, level + 1);
+
+      } else if  (tagName == pvTagName) {
+         QEPvLoadSaveUtilities::readXmlPv (itemElement, parent);
 
       } else {
          qWarning () << __FUNCTION__ << " ignoring unexpected tag " << tagName;
@@ -257,14 +262,11 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlGroup (const QDomElement groupEl
 
       itemElement = itemElement.nextSiblingElement ("");
    }
-
-   return result;
 }
-
 
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename, const QString& configName)
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename)
 {
    QEPvLoadSaveItem* result = NULL;
 
@@ -275,7 +277,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename, c
 
    QFile file (filename);
    if (!file.open (QIODevice::ReadOnly)) {
-      qWarning () << __FUNCTION__ << filename  << " file open failed";
+      qWarning () << __FUNCTION__ << filename  << " file open (read) failed";
       return result;
    }
 
@@ -297,7 +299,9 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename, c
    //
    file.close ();
 
-   if (docElem.tagName () != "QEPvLoadSave") {
+   // Examine top level tag name - is this the tag we expect.
+   //
+   if (docElem.tagName () != fileTagName) {
       qWarning () << filename  << " unexpected tag name " << docElem.tagName ();
       return result;
    }
@@ -307,7 +311,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename, c
    int version = versionImage.toInt (&versionOkay);
 
    if (!versionImage.isEmpty()) {
-      // A version has been specified - it must be senible.
+      // A version has been specified - we must ensure it is sensible.
       //
       if (!versionOkay) {
          qWarning () << filename  << " invalid version string " << versionImage << " (integer expected)";
@@ -325,25 +329,19 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename, c
       return result;
    }
 
+
+   // Create the root item.
+   //
+   result = new QEPvLoadSaveItem ("ROOT", false, nilValue, NULL);
+
    // Parse XML using Qt's Document Object Model.
    //
-   QDomElement configElement = docElem.firstChildElement ("Config");
-   while (!configElement.isNull ())   {
-      QString readConfigName = configElement.attribute ("Name");
-      if (readConfigName == configName) {
-
-         // We have a match
-         //
-         result = QEPvLoadSaveUtilities::readXmlGroup (configElement, "ROOT", NULL, 1);
-         break;
-      }
-      configElement = configElement.nextSiblingElement ("Config");
-   }
+   QEPvLoadSaveUtilities::readXmlGroup (docElem, result, 1);
 
    return result;
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 //
 QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
 {
@@ -353,7 +351,72 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
       result = readPcfTree (filename);
 
    } else if (filename.trimmed ().endsWith (".xml")) {
-      result =  readXmlTree (filename, "Default");   // use default for now
+      result =  readXmlTree (filename);
+
+   }
+
+   return result;
+}
+
+
+//------------------------------------------------------------------------------
+//
+bool QEPvLoadSaveUtilities::writeXmlTree (const QString& filename, const QEPvLoadSaveItem* root)
+{
+   if (filename.isEmpty () || !root) {
+      qWarning () << __FUNCTION__ << "null filename and/or root node specified";
+      return false;
+   }
+
+   QDomDocument doc;
+   QDomElement docElem;
+
+   doc.clear ();
+   docElem = doc.createElement (fileTagName);
+   docElem.setAttribute ("version", 1);
+
+   // Add the root to the document
+   //
+   doc.appendChild (docElem);
+
+   QFile file (filename);
+   if (!file.open (QIODevice::WriteOnly)) {
+      qDebug() << "Could not save configuration " << filename;
+      return false;
+  }
+
+   QTextStream ts (&file);
+   ts << doc.toString ();
+   file.close ();
+
+   return true;
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEPvLoadSaveUtilities::writePcfTree (const QString& filename, const QEPvLoadSaveItem* root)
+{
+   if (filename.isEmpty () || !root) {
+      qWarning () << __FUNCTION__ << "null filename and/or root node specified";
+      return false;
+   }
+
+   return false;   // Are we even going to support this functionality??
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEPvLoadSaveUtilities::writeTree (const QString& filename, const QEPvLoadSaveItem* root)
+{
+   bool result = false;
+
+   DEBUG << filename << root;
+
+   if (filename.trimmed ().endsWith (".pcf")) {
+      result = writePcfTree (filename, root);
+
+   } else if (filename.trimmed ().endsWith (".xml")) {
+      result =  writeXmlTree (filename, root);
 
    }
 

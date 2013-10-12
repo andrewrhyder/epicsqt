@@ -164,6 +164,7 @@ private:
 
       void setRoot (QEPvLoadSaveItem* rootItem, const QString& heading);
       void open (const QString& configurationFile);
+      void save (const QString& configurationFile);
 
       QFrame* container;
       QVBoxLayout* halfLayout;
@@ -216,6 +217,8 @@ private:
                           const TreeContextMenuActions treeAction);
 
    void setReadOut (const QString& text);
+   QString getDefaultDir ();
+
    friend class QEPvLoadSaveModel;
 
 private slots:

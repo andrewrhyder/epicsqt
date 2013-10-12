@@ -243,7 +243,7 @@ void QEPvLoadSave::Halves::open (const QString& configurationFileIn)
    QEPvLoadSaveItem* rootItem = NULL;
 
    this->configurationFile = configurationFileIn;
-   if (this->configurationFile == "") {
+   if (this->configurationFile.isEmpty ()) {
       return;
    }
 
@@ -254,6 +254,23 @@ void QEPvLoadSave::Halves::open (const QString& configurationFileIn)
    }
 
    this->setRoot (rootItem, this->configurationFile);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvLoadSave::Halves::save (const QString& configurationFileIn)
+{
+   bool okay;
+
+   this->configurationFile = configurationFileIn;
+   if (this->configurationFile.isEmpty ()) {
+      return;
+   }
+
+   okay = QEPvLoadSaveUtilities::writeTree (this->configurationFile, this->model->getRootItem ());
+   if (!okay) {
+      this->configurationFile = "";
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -851,6 +868,13 @@ void QEPvLoadSave::copySubsetClicked (bool)
 
 //------------------------------------------------------------------------------
 //
+QString QEPvLoadSave::getDefaultDir ()
+{
+    return "/asp/usr/config";    // TODO: temp default directory
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPvLoadSave::loadClicked (bool)
 {
    VERIFY_SENDER;
@@ -858,8 +882,8 @@ void QEPvLoadSave::loadClicked (bool)
 
    filename = QFileDialog::getOpenFileName
          (this,
-          "Select input file", "/asp/usr/config",   // temp
-          "PV Config Files(*.pcf);;PV Config Files(*.xml);;All files (*.*)");
+          "Select input file", this->getDefaultDir (),
+          "PV Config Files(*.xml);;PV Config Files(*.pcf);;All files (*.*)");
 
    if (!filename.isEmpty()) {
       this->half [side]->open (filename);
@@ -875,17 +899,11 @@ void QEPvLoadSave::saveClicked (bool)
 
    filename = QFileDialog::getSaveFileName
          (this,
-          "Select output file", "/asp/usr/config",
-          "PV Config Files(*.pcf);;PV Config Files(*.xml)");
+          "Select output file", this->getDefaultDir (),
+          "PV Config Files(*.xml);;PV Config Files(*.pcf)");
 
-   if (!filename.isEmpty ()) {
-      if (filename.endsWith (".pcf")) {
-         DEBUG << "traditional" << filename;
-      } else if (filename.endsWith (".xml")) {
-         DEBUG << "xml (new)  " << filename;
-      } else {
-         DEBUG << "Unexpected file type";
-      }
+   if (!filename.isEmpty()) {
+      this->half [side]->save (filename);
    }
 }
 
