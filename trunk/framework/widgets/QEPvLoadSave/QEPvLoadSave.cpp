@@ -325,7 +325,7 @@ QEPvLoadSave::QEPvLoadSave (QWidget* parent) : QEFrame (parent)
    this->loadSaveStatus->setFixedHeight (68);
    this->overallLayout->addWidget (this->loadSaveStatus);
 
-   this->loadSaveTitle = new QLabel ("Transfer to/from System or from Archive", this->loadSaveStatus);
+   this->loadSaveTitle = new QLabel ("Progress to/from System or from Archive", this->loadSaveStatus);
    this->loadSaveTitle->setGeometry (12, 4, 400, 18);
 
    this->progressBar = new QProgressBar (this->loadSaveStatus);

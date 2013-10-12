@@ -194,23 +194,95 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readPcfTree (const QString& filename)
    return result;
 }
 
+
+
 //------------------------------------------------------------------------------
 //
-QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename)
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlPv (const QDomElement pvElement,
+                                                    QEPvLoadSaveItem* parent)
+{
+   QEPvLoadSaveItem* result = NULL;
+   QVariant value (QVariant::Invalid);
+
+   QString pvName = pvElement.attribute ("Name");
+   QString dataType = pvElement.attribute ("Type", "string");
+   QString elementCountImage = pvElement.attribute ("Number", "1");
+   int elementCount = elementCountImage.toInt (NULL);
+
+   if (elementCount == 1) {
+      // scaler
+   } else {
+      // an array
+   }
+
+   result = new QEPvLoadSaveItem (pvName, true, value, parent);
+   return result;
+}
+
+
+//------------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlGroup (const QDomElement groupElement,
+                                                       const QString& groupName,
+                                                       QEPvLoadSaveItem* parent,
+                                                       const int level)
+{
+   QEPvLoadSaveItem* result = NULL;
+   QVariant nilValue (QVariant::Invalid);
+
+   if (groupElement.isNull () || groupName.isEmpty ()) {
+      qWarning () << __FUNCTION__ << " null configElement and/or groupName, level => " << level;
+      return result;
+   }
+
+   result = new QEPvLoadSaveItem (groupName, false, nilValue, parent);
+
+   // Parse XML using Qt's Document Object Model.
+   //
+   QDomElement itemElement = groupElement.firstChildElement ("");
+   while (!itemElement.isNull ())   {
+
+      QString tagName = itemElement.tagName ();
+
+      if (tagName == "Group") {
+         QString innerGroupName = itemElement.attribute ("Name");
+         QEPvLoadSaveUtilities::readXmlGroup (itemElement, innerGroupName, result, level + 1);
+
+      } else if  (tagName == "PV") {
+         QEPvLoadSaveUtilities::readXmlPv (itemElement, result);
+
+      } else {
+         qWarning () << __FUNCTION__ << " ignoring unexpected tag " << tagName;
+      }
+
+      itemElement = itemElement.nextSiblingElement ("");
+   }
+
+   return result;
+}
+
+
+//------------------------------------------------------------------------------
+//
+QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename, const QString& configName)
 {
    QEPvLoadSaveItem* result = NULL;
 
+   if (filename.isEmpty()) {
+      qWarning () << __FUNCTION__ << " null file filename";
+      return result;
+   }
+
    QFile file (filename);
+   if (!file.open (QIODevice::ReadOnly)) {
+      qWarning () << __FUNCTION__ << filename  << " file open failed";
+      return result;
+   }
+
    QDomDocument doc;
    QString errorText;
    int errorLine;
    int errorCol;
-   QDomElement docElem;
-
-   if (!file.open (QIODevice::ReadOnly)) {
-      qWarning () << filename  << " file open failed";
-      return result;
-   }
 
    if (!doc.setContent (&file, &errorText, &errorLine, &errorCol)) {
       qWarning () << QString ("%1:%2:%3").arg (filename).arg (errorLine).arg (errorCol)
@@ -219,16 +291,55 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename)
       return result;
    }
 
-   docElem = doc.documentElement ();
+   QDomElement docElem = doc.documentElement ();
+
+   // The file has been read - we can now close it.
+   //
+   file.close ();
+
    if (docElem.tagName () != "QEPvLoadSave") {
       qWarning () << filename  << " unexpected tag name " << docElem.tagName ();
-      file.close ();
-      return false;
+      return result;
    }
 
-   DEBUG << " no far so good" ;
+   QString versionImage = docElem.attribute ("version").trimmed ();
+   bool versionOkay;
+   int version = versionImage.toInt (&versionOkay);
 
-   file.close ();
+   if (!versionImage.isEmpty()) {
+      // A version has been specified - it must be senible.
+      //
+      if (!versionOkay) {
+         qWarning () << filename  << " invalid version string " << versionImage << " (integer expected)";
+         return result;
+      }
+
+   } else {
+      // no version - go with current version.
+      //
+      version = 1;
+   }
+
+   if (version != 1) {
+      qWarning () << filename  << " unexpected version specified " << versionImage << " (out of range)";
+      return result;
+   }
+
+   // Parse XML using Qt's Document Object Model.
+   //
+   QDomElement configElement = docElem.firstChildElement ("Config");
+   while (!configElement.isNull ())   {
+      QString readConfigName = configElement.attribute ("Name");
+      if (readConfigName == configName) {
+
+         // We have a match
+         //
+         result = QEPvLoadSaveUtilities::readXmlGroup (configElement, "ROOT", NULL, 1);
+         break;
+      }
+      configElement = configElement.nextSiblingElement ("Config");
+   }
+
    return result;
 }
 
@@ -240,10 +351,10 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
 
    if (filename.trimmed ().endsWith (".pcf")) {
       result = readPcfTree (filename);
+
    } else if (filename.trimmed ().endsWith (".xml")) {
-      result =  readXmlTree (filename);
-   } else {
-      result =  NULL;
+      result =  readXmlTree (filename, "Default");   // use default for now
+
    }
 
    return result;

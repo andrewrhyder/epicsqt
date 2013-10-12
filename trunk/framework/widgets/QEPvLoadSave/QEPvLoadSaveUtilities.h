@@ -41,8 +41,8 @@ class QEPvLoadSaveModel;
 class QEPvLoadSaveUtilities {
 public:
    static QEPvLoadSaveItem* readTree (const QString& filename);
-private:
 
+private:
    static QVariant readArray (QESettings* settings,
                               const QString& arrayName,
                               QString& pvName);
@@ -52,10 +52,61 @@ private:
                                          QEPvLoadSaveItem* parent,
                                          const int level);
 
-   static QEPvLoadSaveItem* readPcfTree (const QString& filename);
-   static QEPvLoadSaveItem* readXmlTree (const QString& filename);
+   static QEPvLoadSaveItem* readPcfTree (const QString& filename);  // reads old style .pcf files as used by Delphi PV Load/Save
+
+
+   static QEPvLoadSaveItem* readXmlPv (const QDomElement pvElement,
+                                       QEPvLoadSaveItem* parent);
+
+   static QEPvLoadSaveItem* readXmlGroup (const QDomElement groupElement,
+                                          const QString& groupName,
+                                          QEPvLoadSaveItem* parent,
+                                          const int level);
+
+
+   // Example file:
+   //
+   // <?xml version="1.0" encoding="UTF-8"?>
+   //
+   // <QEPvLoadSave version="1">
+   //    <!-- we allow many (named) PV configurations per file -->
+   //    <Config Name="Default">
+   //
+   //       <!-- No need to specified top level ROOT group in file -->
+   //
+   //       <Group Name="Colour Values">
+   //          <PV Name="REDGUM:MONITOR" Type="int" >     <!-- default number is 1  -->
+   //             <value slot="0">5</value>               <!-- default slot is 0  -->
+   //          </PV>
+   //       </Group>
+   //
+   //       <Group Name="Colour Status">
+   //       </Group>
+   //
+   //       <Group Name="Nested" >
+   //          <Group Name="Inner" >
+   //             <PV Name="WAVEFORM:MONITOR"  Type="float"  Number="8" >
+   //                <Value slot="0">4</Value>
+   //                <Value slot="1">5.6</Value>
+   //                <Value slot="2">3.5</Value>
+   //                <Value slot="3">11.5</Value>
+   //                <Value slot="4">-12.3</Value>
+   //                <Value slot="5">55</Value>
+   //                <Value slot="6">73.73</Value>
+   //                <Value slot="7">0</Value>
+   //             </PV>
+   //          </Group>
+   //       </Group>
+   //
+   //       <PV Name="FS01:BEAM_MODE" Type="string" >     <!-- default number is 1  -->
+   //          <value>User Beam - Top Up</value>          <!-- default slot is 0  -->
+   //       </PV>
+   //
+   //    </Config>
+   // </QEPvLoadSave>
+   //
+   static QEPvLoadSaveItem* readXmlTree (const QString& filename, const QString& configName);  // reads new style xml files.
 
 };
-
 
 # endif  // QEPVPROPERTIES_UTILITIES_H
