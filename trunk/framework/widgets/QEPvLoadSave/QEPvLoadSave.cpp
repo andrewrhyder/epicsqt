@@ -676,7 +676,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
    switch (menuAction) {
 
       case TCM_CREATE_ROOT:
-         item = new QEPvLoadSaveItem ("ROOT", false, nilValue, false);
+         item = new QEPvLoadSaveItem ("ROOT", false, nilValue, NULL);
          this->contextMenuHalf->setRoot (item, "");
          break;
 

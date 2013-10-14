@@ -44,15 +44,11 @@ public:
    // This function reads xml file.
    // Example file:
    //
-   // <?xml version="1.0" encoding="UTF-8"?>
-   //
    // <QEPvLoadSave version="1">
-   //    <!-- No need to specified top level ROOT group in file -->
+   //    <!-- No need to specify top level ROOT group in file -->
    //
    //    <Group Name="Colour Values">
-   //       <PV Name="REDGUM:MONITOR" Type="int" >     <!-- default number is 1  -->
-   //          <value slot="0">5</value>               <!-- default slot is 0  -->
-   //       </PV>
+   //       <PV Name="REDGUM:MONITOR" Type="int" Value = "5" />
    //    </Group>
    //
    //    <Group Name="Colour Status">
@@ -61,22 +57,21 @@ public:
    //
    //    <Group Name="Nested" >
    //       <Group Name="Inner" >
-   //          <PV Name="WAVEFORM:MONITOR"  Type="float"  Number="8" >
-   //             <Value slot="0">4</Value>
-   //             <Value slot="1">5.6</Value>
-   //             <Value slot="2">3.5</Value>
-   //             <Value slot="3">11.5</Value>
-   //             <Value slot="4">-12.3</Value>
-   //             <Value slot="5">55</Value>
-   //             <Value slot="6">73.73</Value>
-   //             <Value slot="7">0</Value>
-   //          </PV>
+   //          <Array Name="WAVEFORM:MONITOR"  Type="float"  Number="8" >
+   //             <Value Index="0">4</Value>
+   //             <Value Index="1">5.6</Value>
+   //             <Value Index="2">3.5</Value>
+   //             <Value Index="3">11.5</Value>
+   //             <Value Index="4">-12.3</Value>
+   //             <Value Index="5">55</Value>
+   //             <Value Index="6">73.73</Value>
+   //             <Value Index="7">0</Value>
+   //          </Array>
    //       </Group>
    //    </Group>
    //
-   //    <PV Name="FS01:BEAM_MODE" Type="string" >     <!-- default number is 1  -->
-   //       <value>User Beam - Top Up</value>          <!-- default slot is 0  -->
-   //    </PV>
+   //    <PV Name="FS01:BEAM_MODE" Type="string" Value = "User Beam - Top Up"  />
+   //
    // </QEPvLoadSave>
    //
    static QEPvLoadSaveItem* readXmlTree (const QString& filename);
@@ -116,13 +111,29 @@ private:
                                          QEPvLoadSaveItem* parent,
                                          const int level);
 
-   static QEPvLoadSaveItem* readXmlPv (const QDomElement pvElement,
-                                       QEPvLoadSaveItem* parent);
+   // XML read write local utilitiy functions.
+   //
+   static QEPvLoadSaveItem* readXmlScalerPv (const QDomElement pvElement,
+                                             QEPvLoadSaveItem* parent);
+
+   static QEPvLoadSaveItem* readXmlArrayPv (const QDomElement pvElement,
+                                            QEPvLoadSaveItem* parent);
 
    static void readXmlGroup (const QDomElement groupElement,
                              QEPvLoadSaveItem* parent,
                              const int level);
 
+
+   static void writeXmlScalerPv (const QEPvLoadSaveItem* item,
+                                 QDomElement& pvElement);
+
+   static void writeXmlArrayPv (const QEPvLoadSaveItem* item,
+                                QDomDocument& doc,
+                                QDomElement& pvElement);
+
+   static void writeXmlGroup (const QEPvLoadSaveItem* group,
+                              QDomDocument& doc,
+                              QDomElement& groupElement);
 };
 
 # endif  // QEPVPROPERTIES_UTILITIES_H

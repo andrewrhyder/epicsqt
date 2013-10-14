@@ -97,7 +97,7 @@ QEPvLoadSaveItem::~QEPvLoadSaveItem ()
 
 //-----------------------------------------------------------------------------
 //
-QEPvLoadSaveItem *QEPvLoadSaveItem::getChild (int position)
+QEPvLoadSaveItem *QEPvLoadSaveItem::getChild (int position) const
 {
    return this->childItems.value (position, NULL);
 }
@@ -281,9 +281,24 @@ void QEPvLoadSaveItem::setNodeValue (const QVariant& valueIn)
 
 //-----------------------------------------------------------------------------
 //
-QVariant QEPvLoadSaveItem::getNodeValue ()
+QVariant QEPvLoadSaveItem::getNodeValue () const
 {
    return this->value;
+}
+
+//-----------------------------------------------------------------------------
+//
+int QEPvLoadSaveItem::getElementCount () const
+{
+   int result;
+
+   if (this->value.type() == QVariant::List) {
+      QVariantList vl = this->value.toList ();
+      result = vl.size ();
+   } else {
+      result = 1;
+   }
+   return result;
 }
 
 //-----------------------------------------------------------------------------
