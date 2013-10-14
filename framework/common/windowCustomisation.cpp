@@ -32,10 +32,10 @@
  * Customisations may include other customisations by name.
  * A customisation can be aliased by defining a customisation that only includes another named customisation.
  *
- * REFER TO menuConfig.h for more details on how to use this module.
+ * REFER TO windowCustomisation.h for more details on how to use this module.
  */
 
-#include <menuConfig.h>
+#include <windowCustomisation.h>
 #include <QDebug>
 #include <QFile>
 #include <QMenuBar>
@@ -50,13 +50,13 @@
 // Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
 windowCustomisationItem::windowCustomisationItem() : QAction( 0 )
 {
-//    creationOption = QEGuiLaunchRequests::OptionNewWindow;
+//    creationOption = QEActionRequests::OptionNewWindow;
 }
 
 // Construct instance of class defining a built in application action
 windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn ) : QAction( 0 )
 {
-//    creationOption = QEGuiLaunchRequests::OptionNewWindow;
+//    creationOption = QEActionRequests::OptionNewWindow;
     builtInAction = builtInActionIn;
 }
 
@@ -98,11 +98,11 @@ void windowCustomisationItem::itemAction()
     //    if( !uiFile.isEmpty() )
     if( windows.count() )
     {
-        emit newGui( QEGuiLaunchRequests( windows ));
+        emit newGui( QEActionRequests( windows ));
     }
     else if ( !builtInAction.isEmpty() )
     {
-        emit newGui( QEGuiLaunchRequests( builtInAction, "" )  );
+        emit newGui( QEActionRequests( builtInAction, "" )  );
     }
 
     profile.releaseProfile();
@@ -236,20 +236,20 @@ void windowCustomisation::addItem( windowCustomisationButtonItem* button )
     buttons.append( button );
 }
 
-// Translate creation option text from .xml file to enumeration in QEGuiLaunchRequests
-QEGuiLaunchRequests::Options windowCustomisation::translateCreationOption( QString creationOption )
+// Translate creation option text from .xml file to enumeration in QEActionRequests
+QEActionRequests::Options windowCustomisation::translateCreationOption( QString creationOption )
 {
-         if( creationOption.compare( "Open"          ) == 0 ) { return QEGuiLaunchRequests::OptionOpen;                   }
-    else if( creationOption.compare( "NewTab"        ) == 0 ) { return QEGuiLaunchRequests::OptionNewTab;                 }
-    else if( creationOption.compare( "NewWindow"     ) == 0 ) { return QEGuiLaunchRequests::OptionNewWindow;              }
+         if( creationOption.compare( "Open"          ) == 0 ) { return QEActionRequests::OptionOpen;                   }
+    else if( creationOption.compare( "NewTab"        ) == 0 ) { return QEActionRequests::OptionNewTab;                 }
+    else if( creationOption.compare( "NewWindow"     ) == 0 ) { return QEActionRequests::OptionNewWindow;              }
 
-    else if( creationOption.compare( "LeftDock"      ) == 0 ) { return QEGuiLaunchRequests::OptionLeftDockWindow;         }
-    else if( creationOption.compare( "RightDock"     ) == 0 ) { return QEGuiLaunchRequests::OptionRightDockWindow;        }
-    else if( creationOption.compare( "TopDock"       ) == 0 ) { return QEGuiLaunchRequests::OptionTopDockWindow;          }
-    else if( creationOption.compare( "BottomDock"    ) == 0 ) { return QEGuiLaunchRequests::OptionBottomDockWindow;       }
-    else if( creationOption.compare( "FloatingDock"  ) == 0 ) { return QEGuiLaunchRequests::OptionFloatingDockWindow;     }
+    else if( creationOption.compare( "LeftDock"      ) == 0 ) { return QEActionRequests::OptionLeftDockWindow;         }
+    else if( creationOption.compare( "RightDock"     ) == 0 ) { return QEActionRequests::OptionRightDockWindow;        }
+    else if( creationOption.compare( "TopDock"       ) == 0 ) { return QEActionRequests::OptionTopDockWindow;          }
+    else if( creationOption.compare( "BottomDock"    ) == 0 ) { return QEActionRequests::OptionBottomDockWindow;       }
+    else if( creationOption.compare( "FloatingDock"  ) == 0 ) { return QEActionRequests::OptionFloatingDockWindow;     }
 
-                                                                return QEGuiLaunchRequests::OptionNewWindow;  // Default
+                                                                return QEActionRequests::OptionNewWindow;  // Default
 }
 
 //==============================================================================================
@@ -513,7 +513,7 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                 }
 
                 QDomElement creationOptionElement = windowElement.firstChildElement( "CreationOption" );
-                windowItem.creationOption = QEGuiLaunchRequests::OptionNewWindow;
+                windowItem.creationOption = QEActionRequests::OptionNewWindow;
                 if( !creationOptionElement.isNull() )
                 {
                     windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
@@ -554,7 +554,7 @@ void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<win
                 }
 
                 QDomElement creationOptionElement = dockElement.firstChildElement( "CreationOption" );
-                windowItem.creationOption = QEGuiLaunchRequests::OptionFloatingDockWindow;
+                windowItem.creationOption = QEActionRequests::OptionFloatingDockWindow;
 
                 if( !creationOptionElement.isNull() )
                 {
@@ -801,8 +801,8 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
 //        mainToolBar->addAction(item);
 
 //        // Set up an action to respond to the user
-//        QObject::connect( item, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
-//                          mw, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+//        QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
+//                          mw, SLOT( requestGui( const QEActionRequests& ) ) );
 //    }
 
     // Get the menu item customisations required
@@ -837,8 +837,8 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                     menu->addAction( menuItem );
 
                     // Set up an action to respond to the user
-                    QObject::connect( menuItem, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
-                                      mw, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+                    QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
+                                      mw, SLOT( requestGui( const QEActionRequests& ) ) );
                 }
                 break;
 
@@ -875,8 +875,8 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                     menu->addSeparator();
                 }
                 menu->addAction( menuItem );
-                QObject::connect( menuItem, SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
-                                  mw, SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+                QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
+                                  mw, SLOT( requestGui( const QEActionRequests& ) ) );
 
                 break;
         }

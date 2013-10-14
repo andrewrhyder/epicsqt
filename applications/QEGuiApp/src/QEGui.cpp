@@ -108,7 +108,12 @@ int QEGui::run()
     // Now load the configuration file specified in the parameters (if any), otherwise the default external file if present
     if( !winCustomisations.loadCustomisation( getParams()->customisationFile ))
     {
-        winCustomisations.loadCustomisation( "QEGuiCustomisation.xml" );
+        QString defaultCustomisationName( "QEGuiCustomisation.xml" );
+        QFile file( defaultCustomisationName );
+        if( file.exists() )
+        {
+            winCustomisations.loadCustomisation( defaultCustomisationName );
+        }
     }
 
     // Prepare to manage save and restore
@@ -162,13 +167,17 @@ void QEGui::printVersion ()
 // Print command line usage
 void QEGui::printUsage (std::ostream & stream)
 {
-    stream  << "usage: qegui [-v] [-h] [-a scale] [-s] [-e] [-b] [-m macros] [-r [configuration_name]] [-c configuration_file] [-p pathname] [file_name] [file_name] [file_name...]\n";
+    stream  << "usage: qegui [-v] [-h] [-a scale] [-s] [-e] [-b] [-p pathname] [-m macros] \n"
+               "             [-r [configuration_name]] [-c configuration_file] \n"
+               "             [-w window_customisation_file] [-n default_window_customisation_name] \n"
+               "             [file_name] [file_name] [file_name...]\n";
 }
 
 // Prinf command line help
 void QEGui::printHelp ()
 {
    static const char * help_text =
+      "Refer to QE_QEGuiAndUserInterfaceDesign.pdf for comprehensive documentation on the QEGui application.\n"
       "Options\n"
       "\n"
       "-a      Adjust the GUIs scaling. This option takes a single value with is the percentage\n"
@@ -187,13 +196,13 @@ void QEGui::printHelp ()
       "-b      Disable menu bar.\n"
       "\n"
       "-r      Restore from saved configuration.\n"
-      "        If a configuration name is not provided the saved default configuration is used\n"
-      "        if available.\n"
+      "        If a configuration name is not provided with this option the saved default\n"
+      "        configuration is used if available.\n"
       "        Note, a single configuration file may contain multiple named configurations as well\n"
       "        as a default configuration."
       "\n"
       "-c      Configuration file.\n"
-      "        Named configurations will be saved to and read from this file. If not provided\n"
+      "        Named configurations will be saved to and read from this file. If this option is not provided\n"
       "        the default is QEGuiConfig.xml in the current working directory.\n"
       "\n"
       "-p      Search paths\n"
@@ -211,13 +220,14 @@ void QEGui::printHelp ()
       "        QEWidgets use macro substitutions for purposes other than variable names.\n"
       "\n"
       "-w      Window customisation file.\n"
-      "        Named customisations will be read from this file. If not provided\n"
-      "        the default is QEWindowCustomisation.xml in the current working directory.\n"
+      "        This file contains named sets of window menubar and tool bar customisations.\n"
+      "        Named customisations will be read from this file. If this option is not provided\n"
+      "        an attempt will be made to use QEWindowCustomisation.xml in the current working directory.\n"
       "        A customisation file is optional.\n"
       "\n"
       "-n      Default window customisation name.\n"
-      "        This name shoud be the name of one ofthe window customisations read from the Window\n"
-      "        customisation file file.\n"
+      "        This name shoud be the name of one of the sets of window customisations read from the\n"
+      "        window customisation file.\n"
       "\n"
       "        Typically substitutions are used to specify specific variable names when loading\n"
       "        generic template forms. Substitutions are not limited to template forms, and some\n"

@@ -8,19 +8,21 @@ HEADERS += \
    common/QECommon.h \
    common/QEScaling.h \
    common/QEFrameworkVersion.h \
-   common/QEGuiLaunchRequests.h \
+   common/QEActionRequests.h \
    common/QEDialog.h \
    common/QEPVNameSelectDialog.h \
-   common/PasswordDialog.h
+   common/PasswordDialog.h \
+   common/windowCustomisation.h
 
 SOURCES += \
    common/QECommon.cpp \
    common/QEScaling.cpp \
    common/QEFrameworkVersion.cpp \
-   common/QEGuiLaunchRequests.cpp \
+   common/QEActionRequests.cpp \
    common/QEDialog.cpp \
    common/QEPVNameSelectDialog.cpp \
-   common/PasswordDialog.cpp
+   common/PasswordDialog.cpp \
+   common/windowCustomisation.cpp
 
 INCLUDEPATH += \
    common

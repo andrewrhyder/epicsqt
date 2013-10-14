@@ -69,10 +69,10 @@ class QCaRadioButtonPlugin : public QERadioButton {
 
     Q_ENUMS(CreationOptionNames)
     Q_PROPERTY(CreationOptionNames creationOption READ getCreationOptionProperty WRITE setCreationOptionProperty)
-    enum CreationOptionNames { Open = QEGuiLaunchRequests::OptionOpen,
-                               NewTab = QEGuiLaunchRequests::OptionNewTab,
-                               NewWindow = QEGuiLaunchRequests::OptionNewWindow };
-    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEGuiLaunchRequests::Options)creationOptionIn ); }
+    enum CreationOptionNames { Open = QEActionRequests::OptionOpen,
+                               NewTab = QEActionRequests::OptionNewTab,
+                               NewWindow = QEActionRequests::OptionNewWindow };
+    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEActionRequests::Options)creationOptionIn ); }
     CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
 
 };

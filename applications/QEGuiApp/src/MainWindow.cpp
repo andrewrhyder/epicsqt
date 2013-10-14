@@ -1149,7 +1149,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
 void MainWindow::loadGuiIntoNewDock( QEForm* gui,
                                      bool hidden,
                                      bool tabbed,
-                                     QEGuiLaunchRequests::Options createOption,
+                                     QEActionRequests::Options createOption,
                                      Qt::DockWidgetArea allowedAreas,
                                      QDockWidget::DockWidgetFeature features,
                                      QRect geom )
@@ -1172,15 +1172,15 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     switch( createOption )
     {
         default:
-        case QEGuiLaunchRequests::OptionFloatingDockWindow:
-        case QEGuiLaunchRequests::OptionLeftDockWindow:     dockLocation = Qt::LeftDockWidgetArea;   break;
-        case QEGuiLaunchRequests::OptionRightDockWindow:    dockLocation = Qt::RightDockWidgetArea;  break;
-        case QEGuiLaunchRequests::OptionTopDockWindow:      dockLocation = Qt::TopDockWidgetArea;    break;
-        case QEGuiLaunchRequests::OptionBottomDockWindow:   dockLocation = Qt::BottomDockWidgetArea; break;
+        case QEActionRequests::OptionFloatingDockWindow:
+        case QEActionRequests::OptionLeftDockWindow:     dockLocation = Qt::LeftDockWidgetArea;   break;
+        case QEActionRequests::OptionRightDockWindow:    dockLocation = Qt::RightDockWidgetArea;  break;
+        case QEActionRequests::OptionTopDockWindow:      dockLocation = Qt::TopDockWidgetArea;    break;
+        case QEActionRequests::OptionBottomDockWindow:   dockLocation = Qt::BottomDockWidgetArea; break;
     }
 
     // If the dock is loating and geometry has been supplied (non zero width and height), set the geometry
-    if( createOption == QEGuiLaunchRequests::OptionFloatingDockWindow && geom.width() && geom.height() )
+    if( createOption == QEActionRequests::OptionFloatingDockWindow && geom.width() && geom.height() )
     {
         dock->setGeometry( geom );
     }
@@ -1192,10 +1192,6 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     if( tabbed )
     {
         QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
-        for( int i = 0; i < dockWidgets.count(); i++ )
-        {
-            qDebug() << dockWidgets[i]->metaObject()->className();
-        }
         for( int i = 0; i < dockWidgets.count(); i++ )
         {
             if( dockWidgetArea( dockWidgets[i] ) == dockLocation )
@@ -1215,7 +1211,7 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     dock->setWindowTitle( gui->getQEGuiTitle() );
 
     // Set floating if requested
-    dock->setFloating( createOption == QEGuiLaunchRequests::OptionFloatingDockWindow);
+    dock->setFloating( createOption == QEActionRequests::OptionFloatingDockWindow);
 
     // Set hidden if required
     dock->setVisible( !hidden );
@@ -1239,7 +1235,7 @@ void MainWindow::newMessage( QString msg, message_types type )
 //=================================================================================
 
 // Launching a new gui given a .ui filename
-MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, QEGuiLaunchRequests::Options createOption, bool hidden )
+MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, QEActionRequests::Options createOption, bool hidden )
 {
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
     ContainerProfile publishedProfile;
@@ -1268,7 +1264,7 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
     switch( createOption )
     {
         // Open the specified gui in the current window
-        case QEGuiLaunchRequests::OptionOpen:
+        case QEActionRequests::OptionOpen:
             {
                 QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
                 loadGuiIntoCurrentWindow( gui, true );
@@ -1276,7 +1272,7 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
             }
 
         // Open the specified gui in a new tab
-        case QEGuiLaunchRequests::OptionNewTab:
+        case QEActionRequests::OptionNewTab:
             {
                 // Create the gui and if created, load it into a new tab
                 QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
@@ -1293,7 +1289,7 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
             }
 
         // Open the specified gui in a new window
-        case QEGuiLaunchRequests::OptionNewWindow:
+        case QEActionRequests::OptionNewWindow:
             {
                 MainWindow* w = new MainWindow( app, guiName, customisationName, true ); // Note, profile should have been published by signal code
                 w->show();
@@ -1301,11 +1297,11 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
             }
 
         // Create the specified gui in a new dock
-        case QEGuiLaunchRequests::OptionLeftDockWindow:
-        case QEGuiLaunchRequests::OptionRightDockWindow:
-        case QEGuiLaunchRequests::OptionTopDockWindow:
-        case QEGuiLaunchRequests::OptionBottomDockWindow:
-        case QEGuiLaunchRequests::OptionFloatingDockWindow:
+        case QEActionRequests::OptionLeftDockWindow:
+        case QEActionRequests::OptionRightDockWindow:
+        case QEActionRequests::OptionTopDockWindow:
+        case QEActionRequests::OptionBottomDockWindow:
+        case QEActionRequests::OptionFloatingDockWindow:
             {
                 // Create the gui and load it into a new dock
                 QEForm* gui = createGui( guiName, customisationName, true );  // Note, profile should have been published by signal code
@@ -1320,7 +1316,7 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
 }
 
 // Slot for launching a new gui from a contained object.
-void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
+void  MainWindow::requestGui( const QEActionRequests & request )
 {
     QStringList arguments =  request.getArguments();
 
@@ -1328,14 +1324,14 @@ void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
     {
 
         // Launching a new gui given a .ui file name
-        case QEGuiLaunchRequests::KindOpenFile:
+        case QEActionRequests::KindOpenFile:
             if (arguments.count() >= 1)
             {
                 launchGui ( arguments.first(), request.getCustomisation(), request.getOption(), true );
             }
             break;
 
-        case QEGuiLaunchRequests::KindOpenFiles:
+        case QEActionRequests::KindOpenFiles:
             {
                 QList<windowCreationListItem> windows = request.getWindows();
                 MainWindow* mw = this;
@@ -1349,7 +1345,7 @@ void  MainWindow::requestGui( const QEGuiLaunchRequests & request )
             }
             break;
 
-        case QEGuiLaunchRequests::KindAction:
+        case QEActionRequests::KindAction:
             if (arguments.count() >= 1)
             {
                 QString action = arguments[0];
@@ -1894,12 +1890,12 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
         case SaveRestoreSignal::SAVE:
             {
                 // Start with the top level element - the main windows
-                PMElement mw =   pm->addNamedConfiguration( mainWindowName );
+                PMElement mw = pm->addNamedConfiguration( mainWindowName );
 
-                PMElement id =  mw.addElement( "Identity" );
+                PMElement id = mw.addElement( "Identity" );
                 id.addAttribute( "id", uniqueId );
 
-                PMElement geo =  mw.addElement( "Geometry" );
+                PMElement geo = mw.addElement( "Geometry" );
                 QRect r = geometry();
                 geo.addAttribute( "X", r.x() );
                 geo.addAttribute( "Y", r.y() );
@@ -2211,20 +2207,20 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                                     docking.getAttribute( "Tabbed", tabbed );
 
                                     // Create gui as a new dock
-                                    QEGuiLaunchRequests::Options createOption;
+                                    QEActionRequests::Options createOption;
                                     if( floating )
                                     {
-                                        createOption = QEGuiLaunchRequests::OptionFloatingDockWindow;
+                                        createOption = QEActionRequests::OptionFloatingDockWindow;
                                     }
                                     else
                                     {
                                         switch( area )
                                         {
                                             default:
-                                            case Qt::BottomDockWidgetArea: createOption = QEGuiLaunchRequests::OptionBottomDockWindow; break;
-                                            case Qt::TopDockWidgetArea:    createOption = QEGuiLaunchRequests::OptionTopDockWindow;    break;
-                                            case Qt::LeftDockWidgetArea:   createOption = QEGuiLaunchRequests::OptionLeftDockWindow;   break;
-                                            case Qt::RightDockWidgetArea:  createOption = QEGuiLaunchRequests::OptionRightDockWindow;  break;
+                                            case Qt::BottomDockWidgetArea: createOption = QEActionRequests::OptionBottomDockWindow; break;
+                                            case Qt::TopDockWidgetArea:    createOption = QEActionRequests::OptionTopDockWindow;    break;
+                                            case Qt::LeftDockWidgetArea:   createOption = QEActionRequests::OptionLeftDockWindow;   break;
+                                            case Qt::RightDockWidgetArea:  createOption = QEActionRequests::OptionRightDockWindow;  break;
                                         }
                                     }
                                     loadGuiIntoNewDock( gui, hidden, tabbed, createOption, (Qt::DockWidgetArea)allowedAreas, (QDockWidget::DockWidgetFeature)features, QRect( x, y, width, height ) );

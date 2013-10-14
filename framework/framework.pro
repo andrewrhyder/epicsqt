@@ -77,9 +77,7 @@ HEADERS += \
     widgets/include/QEDesignerPlugin.h \
     widgets/include/ContainerProfile.h \
     widgets/include/QEPluginLibrary_global.h \
-    widgets/include/persistanceManager.h \
-    widgets/include/menuConfig.h
-
+    widgets/include/persistanceManager.h
 
 SOURCES += \
     api/src/Generic.cpp \
@@ -99,9 +97,7 @@ SOURCES += \
     widgets/src/QEToolTip.cpp \
     widgets/src/QEDesignerPlugin.cpp \
     widgets/src/ContainerProfile.cpp \
-    widgets/src/persistanceManager.cpp \
-    widgets/src/menuConfig.cpp
-
+    widgets/src/persistanceManager.cpp
 
 #===========================================================
 # Widget and other sub projects

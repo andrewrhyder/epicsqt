@@ -99,7 +99,7 @@ void QEGenericButton::commandSetup() {
 void QEGenericButton::guiSetup() {
 
     // Set default properties
-    creationOption = QEGuiLaunchRequests::OptionOpen;
+    creationOption = QEActionRequests::OptionOpen;
 
     // Use standard context menu
     setupContextMenu();
@@ -109,16 +109,16 @@ void QEGenericButton::guiSetup() {
     {
         // Setup a signal to launch a new gui
         // The signal will be used by whatever the button is in
-        QObject::connect( getButtonQObject(), SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
-                          getGuiLaunchConsumer(), SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+        QObject::connect( getButtonQObject(), SIGNAL( newGui( const QEActionRequests& ) ),
+                          getGuiLaunchConsumer(), SLOT( requestGui( const QEActionRequests& ) ) );
     }
 
     // A profile is not already defined, create one. This is the case if this class is used by an application that does not set up a profile, such as 'designer'.
     else
     {
         // Set up the button's own gui form launcher
-        QObject::connect( getButtonQObject(), SIGNAL( newGui( const QEGuiLaunchRequests& ) ),
-                          getButtonQObject(), SLOT( requestGui( const QEGuiLaunchRequests& ) ) );
+        QObject::connect( getButtonQObject(), SIGNAL( newGui( const QEActionRequests& ) ),
+                          getButtonQObject(), SLOT( requestGui( const QEActionRequests& ) ) );
     }
 }
 
@@ -409,7 +409,7 @@ void QEGenericButton::userClicked( bool checked )
         addPriorityMacroSubstitutions( prioritySubstitutions );
 
         // Start the GUI
-        emitNewGui( QEGuiLaunchRequests( substituteThis( guiName ), customisationName, creationOption ) );
+        emitNewGui( QEActionRequests( substituteThis( guiName ), customisationName, creationOption ) );
 
         // Remove this button's priority macro substitutions now all its children are created
         removePriorityMacroSubstitutions();
@@ -664,11 +664,11 @@ QString QEGenericButton::getGuiName()
 }
 
 // Qt Designer Properties Creation options
-void QEGenericButton::setCreationOption( QEGuiLaunchRequests::Options creationOptionIn )
+void QEGenericButton::setCreationOption( QEActionRequests::Options creationOptionIn )
 {
     creationOption = creationOptionIn;
 }
-QEGuiLaunchRequests::Options QEGenericButton::getCreationOption()
+QEActionRequests::Options QEGenericButton::getCreationOption()
 {
     return creationOption;
 }
@@ -724,10 +724,10 @@ QString QEGenericButton::getLabelTextProperty()
 // Slot for launching a new gui.
 // This is the button's default action for launching a gui.
 // Normally the button would be within a container, such as a tab on a gui, that will provide a 'launch gui' mechanism.
-void QEGenericButton::startGui( const QEGuiLaunchRequests & request )
+void QEGenericButton::startGui( const QEActionRequests & request )
 {
     // Only handle file open requests
-    if( request.getKind() != QEGuiLaunchRequests::KindOpenFile )
+    if( request.getKind() != QEActionRequests::KindOpenFile )
     {
         return;
     }

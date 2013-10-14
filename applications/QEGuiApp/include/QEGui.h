@@ -32,7 +32,7 @@
 #include <MainWindow.h>
 #include <loginDialog.h>
 #include <recentFile.h>
-#include <menuConfig.h>
+#include <windowCustomisation.h>
 
 // Class representing the QEGui application
 class QEGui : public QApplication, ContainerProfile
@@ -51,24 +51,11 @@ public:
     void        removeMainWindow( MainWindow* window );     // Remove a main window from the application's list of main windows given a reference to the main window
     void        removeMainWindow( int i );                  // Remove a main window from the application's list of main windows given an index into the application's list of main windows
 
-//    int         getGuiCount();                              // Get the total number of GUIs in the application's list of GUIs
-//    QEForm*     getGuiForm( int i );                        // Get a GUI given an index into the application's list of GUIs
-//    QAction*    getGuiAction( int i );
-
-//    MainWindow* getGuiMainWindow( int i );                  // Get the main window for a GUI given an index into the application's list of GUIs
-//    QPoint      getGuiScroll( int i );                      // Get the scroll information for a GUI given an index into the application's list of GUIs
-//    void        setGuiScroll( int i, QPoint scroll );       // Set the scroll information for a GUI given an index into the application's list of GUIs
     void        addGui( QEForm* gui, QString customisationName );  // Add a GUI to the application's list of GUIs
-
-//    void        identifyWindowsAndForms();                  // Ensure all main windows and QEForms managed by this application (top level forms) have a unique identifier
 
     void        login( QWidget* fromForm );                 // Change user level
 
     const QList<recentFile*>&  getRecentFiles();            // Return list of recently added files
-
-//    void        removeGuiFromWindowsMenus( QEForm* gui );
-//    QString     getGuiCustomisationName( QEForm* gui );
-//    QString     getGuiCustomisationName( int i );
 
     void        launchRecentGui( QString path, QStringList pathList, QString macroSubstitutions, QString customisationName );
 

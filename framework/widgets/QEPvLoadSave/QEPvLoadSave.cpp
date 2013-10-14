@@ -393,8 +393,8 @@ QEPvLoadSave::QEPvLoadSave (QWidget* parent) : QEFrame (parent)
    //
    QObject* consumer = this->getGuiLaunchConsumer ();
    if (consumer) {
-      QObject::connect (this,     SIGNAL (requestGui (const QEGuiLaunchRequests& )),
-                        consumer, SLOT   (requestGui (const QEGuiLaunchRequests& )));
+      QObject::connect (this,     SIGNAL (requestGui (const QEActionRequests& )),
+                        consumer, SLOT   (requestGui (const QEActionRequests& )));
    }
 
    this->half [LeftSide]->checkBox->setChecked (false);
@@ -751,15 +751,15 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          break;
 
       case TCM_SHOW_PV_PROPERTIES:
-         emit this->requestGui (QEGuiLaunchRequests ("PV Properties...", nodeName));
+         emit this->requestGui (QEActionRequests ("PV Properties...", nodeName));
          break;
 
       case TCM_ADD_TO_STRIPCHART:
-         emit this->requestGui (QEGuiLaunchRequests ("Strip Chart...", nodeName));
+         emit this->requestGui (QEActionRequests ("Strip Chart...", nodeName));
          break;
 
       case TCM_ADD_TO_SCRATCH_PAD:
-         emit this->requestGui (QEGuiLaunchRequests ("Scratch Pad...", nodeName));
+         emit this->requestGui (QEActionRequests ("Scratch Pad...", nodeName));
          break;
 
       default:

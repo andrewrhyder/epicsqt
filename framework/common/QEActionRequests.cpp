@@ -1,4 +1,4 @@
-/*  QEGuiLaunchRequests.cpp
+/*  QEActionRequests.cpp
  *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -24,11 +24,11 @@
  *
  */
 
-#include "QEGuiLaunchRequests.h"
+#include "QEActionRequests.h"
 
 //---------------------------------------------------------------------------
 //
-QEGuiLaunchRequests::QEGuiLaunchRequests ()
+QEActionRequests::QEActionRequests ()
 {
    this->kind = KindNone;
    this->arguments.clear ();
@@ -36,7 +36,7 @@ QEGuiLaunchRequests::QEGuiLaunchRequests ()
 
 //---------------------------------------------------------------------------
 //
-QEGuiLaunchRequests::QEGuiLaunchRequests (const QString& action,
+QEActionRequests::QEActionRequests (const QString& action,
                                           const QString& pvName)
 {
    kind = KindAction;
@@ -48,7 +48,7 @@ QEGuiLaunchRequests::QEGuiLaunchRequests (const QString& action,
 
 //---------------------------------------------------------------------------
 //
-QEGuiLaunchRequests::QEGuiLaunchRequests (const QString & filename,
+QEActionRequests::QEActionRequests (const QString & filename,
                                           const QString & customisationIn,
                                           const Options optionIn)
 {
@@ -61,7 +61,7 @@ QEGuiLaunchRequests::QEGuiLaunchRequests (const QString & filename,
 
 //---------------------------------------------------------------------------
 //
-QEGuiLaunchRequests::QEGuiLaunchRequests( const QList<windowCreationListItem> windowsIn )
+QEActionRequests::QEActionRequests( const QList<windowCreationListItem> windowsIn )
 {
    kind = KindOpenFiles;
    option = OptionNewWindow; // not required, but keep things neat
@@ -74,50 +74,50 @@ QEGuiLaunchRequests::QEGuiLaunchRequests( const QList<windowCreationListItem> wi
 //---------------------------------------------------------------------------
 // Set and get functions.
 //
-void QEGuiLaunchRequests::setKind (const Kinds kindIn)
+void QEActionRequests::setKind (const Kinds kindIn)
 {
    this->kind = kindIn;
 }
 
-QEGuiLaunchRequests::Kinds QEGuiLaunchRequests::getKind () const
+QEActionRequests::Kinds QEActionRequests::getKind () const
 {
    return this->kind;
 }
 
 //---------------------------------------------------------------------------
 //
-void QEGuiLaunchRequests::setArguments (const QStringList & argumentsIn)
+void QEActionRequests::setArguments (const QStringList & argumentsIn)
 {
    this->arguments = argumentsIn;
 }
 
-QStringList QEGuiLaunchRequests::getArguments () const
+QStringList QEActionRequests::getArguments () const
 {
    return this->arguments;
 }
 
 //---------------------------------------------------------------------------//
 //
-void QEGuiLaunchRequests::setOption (const Options optionIn)
+void QEActionRequests::setOption (const Options optionIn)
 {
    this->option = optionIn;
 }
 
-QEGuiLaunchRequests::Options QEGuiLaunchRequests::getOption () const
+QEActionRequests::Options QEActionRequests::getOption () const
 {
    return this->option;
 }
 
 //---------------------------------------------------------------------------//
 //
-QString QEGuiLaunchRequests::getCustomisation() const
+QString QEActionRequests::getCustomisation() const
 {
    return customisation;
 }
 
 //---------------------------------------------------------------------------//
 //
-QList<windowCreationListItem> QEGuiLaunchRequests::getWindows() const
+QList<windowCreationListItem> QEActionRequests::getWindows() const
 {
     return windows;
 }
