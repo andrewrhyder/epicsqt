@@ -1,4 +1,4 @@
-/*  QEGuiLaunchRequests.h
+/*  QEActionRequests.h
  *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef QEGUILAUNCHREQUESTS_H
-#define QEGUILAUNCHREQUESTS_H
+#ifndef QEActionRequests_H
+#define QEActionRequests_H
 
 #include <QString>
 #include <QStringList>
@@ -36,7 +36,7 @@
 // Class defining a window to create
 class windowCreationListItem;
 
-class QEPLUGINLIBRARYSHARED_EXPORT QEGuiLaunchRequests {
+class QEPLUGINLIBRARYSHARED_EXPORT QEActionRequests {
 public:
 
    // Type of request
@@ -57,20 +57,20 @@ public:
 
    // Constructors.
    //
-   QEGuiLaunchRequests ();
+   QEActionRequests ();
 
    // Action
-   QEGuiLaunchRequests (const QString& action,
+   QEActionRequests (const QString& action,
                         const QString& pvName);
 
 
    // .ui file name plus create option
-   QEGuiLaunchRequests (const QString &filename,
+   QEActionRequests (const QString &filename,
                         const QString &config,
                         const Options optionIn);
 
    // a set of .ui files
-   QEGuiLaunchRequests( const QList<windowCreationListItem> windowsIn );
+   QEActionRequests( const QList<windowCreationListItem> windowsIn );
 
    // set and get functions
    //
@@ -98,7 +98,7 @@ private:
 class windowCreationListItem
 {
 public:
-    windowCreationListItem(){ hidden = false; creationOption = QEGuiLaunchRequests::OptionNewWindow; }
+    windowCreationListItem(){ hidden = false; creationOption = QEActionRequests::OptionNewWindow; }
     windowCreationListItem(windowCreationListItem* item ){ uiFile = item->uiFile;
                                                            macroSubstitutions = item->macroSubstitutions;
                                                            customisationName = item->customisationName;
@@ -107,11 +107,11 @@ public:
     QString uiFile;
     QString macroSubstitutions;
     QString customisationName;
-    QEGuiLaunchRequests::Options creationOption;
+    QEActionRequests::Options creationOption;
     bool hidden;
 };
 
 
-Q_DECLARE_METATYPE (QEGuiLaunchRequests)
+Q_DECLARE_METATYPE (QEActionRequests)
 
-# endif // QEGUILAUNCHREQUESTS_H
+# endif // QEActionRequests_H

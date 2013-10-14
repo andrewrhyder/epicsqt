@@ -27,7 +27,7 @@
 #define CONTEXTMENU_H
 
 #include <QMenu>
-#include <QEGuiLaunchRequests.h>
+#include <QEActionRequests.h>
 
 class contextMenu;
 class QEWidget;
@@ -39,10 +39,10 @@ class contextMenuObject : public QObject
     Q_OBJECT
 public:
     contextMenuObject( contextMenu* menuIn ){ menu = menuIn; }          // Construction
-    void sendRequestGui( const QEGuiLaunchRequests& request){ emit requestGui( request ); } // Emit a GUI launch request
+    void sendRequestGui( const QEActionRequests& request){ emit requestGui( request ); } // Emit a GUI launch request
 
 signals:
-    void requestGui( const QEGuiLaunchRequests& );                      // Signal 'launch a GUI'
+    void requestGui( const QEActionRequests& );                      // Signal 'launch a GUI'
 
 public slots:
     void contextMenuTriggeredSlot( QAction* selectedItem );             // Slot - an item has been selected from the context menu

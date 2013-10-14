@@ -28,7 +28,7 @@
 
 #include <QtGui/QMainWindow>
 #include <ui_MainWindow.h>
-#include <QEGuiLaunchRequests.h>
+#include <QEActionRequests.h>
 #include <QEForm.h>
 #include <UserMessage.h>
 #include <ContainerProfile.h>
@@ -36,7 +36,7 @@
 #include <QTimer>
 #include <StartupParams.h>
 #include <manageConfigDialog.h>
-#include <menuConfig.h>
+#include <windowCustomisation.h>
 #include <QCloseEvent>
 
 
@@ -107,7 +107,7 @@ private:
     void loadGuiIntoNewDock( QEForm* gui,
                              bool hidden = false,
                              bool tabbed = false,
-                             QEGuiLaunchRequests::Options createOption = QEGuiLaunchRequests::OptionFloatingDockWindow,
+                             QEActionRequests::Options createOption = QEActionRequests::OptionFloatingDockWindow,
                              Qt::DockWidgetArea allowedAreas = Qt::AllDockWidgetAreas,
                              QDockWidget::DockWidgetFeature features = QDockWidget::AllDockWidgetFeatures,
                              QRect geom = QRect( 0, 0, 0, 0 ) ); // Load a new gui into a new dock
@@ -168,7 +168,7 @@ private:
     QMenu* tabMenu;                                         // ???We want to keep a reference to certain widget objects. Declaring these directly in the
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
-    MainWindow* launchGui( QString guiName, QString customisationName, QEGuiLaunchRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
+    MainWindow* launchGui( QString guiName, QString customisationName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
     QMenu* windowMenu;
     QMenu* recentMenu;
     QMenu* editMenu;
@@ -198,7 +198,7 @@ private slots:
     void on_actionAbout_triggered();                            // Slot to perform 'About' action
     void onWindowMenuSelection( QAction* action );              // Slot to receive requests to change focus to a specific gui
 
-    void requestGui( const QEGuiLaunchRequests & request );     // Slot to receive (new style) requests to launch a new GUI.
+    void requestGui( const QEActionRequests & request );     // Slot to receive (new style) requests to launch a new GUI.
 
 
     void tabCurrentChanged( int index );               // Slot to act on user changing tabs

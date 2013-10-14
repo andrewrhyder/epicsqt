@@ -141,8 +141,8 @@ bool contextMenu::isDraggingVariable()
 void contextMenu::setConsumer (QObject* consumer)
 {
     if (consumer){
-        QObject::connect(object, SIGNAL (requestGui( const QEGuiLaunchRequests& )),
-                         consumer,  SLOT (requestGui( const QEGuiLaunchRequests& )));
+        QObject::connect(object, SIGNAL (requestGui( const QEActionRequests& )),
+                         consumer,  SLOT (requestGui( const QEActionRequests& )));
     }
 }
 
@@ -243,7 +243,7 @@ void contextMenu::doPaste()
 void contextMenu::doShowPvProperties ()
 {
     QString pvName = copyVariable();
-    QEGuiLaunchRequests request( "PV Properties...", pvName );
+    QEActionRequests request( "PV Properties...", pvName );
     object->sendRequestGui( request );
 }
 
@@ -251,7 +251,7 @@ void contextMenu::doShowPvProperties ()
 void contextMenu::doAddToStripChart ()
 {
     QString pvName = copyVariable();
-    QEGuiLaunchRequests request( "Strip Chart...", pvName );
+    QEActionRequests request( "Strip Chart...", pvName );
     object->sendRequestGui( request );
 }
 
@@ -259,7 +259,7 @@ void contextMenu::doAddToStripChart ()
 void contextMenu::doAddToScratchPad()
 {
    QString pvName = copyVariable();
-   QEGuiLaunchRequests request( "Scratch Pad...", pvName );
+   QEActionRequests request( "Scratch Pad...", pvName );
    object->sendRequestGui( request );
 }
 

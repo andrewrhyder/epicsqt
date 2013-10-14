@@ -123,8 +123,8 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     QString getCustomisationName();
 
     // Qt Designer Properties Creation options
-    void setCreationOption( QEGuiLaunchRequests::Options creationOption );
-    QEGuiLaunchRequests::Options getCreationOption();
+    void setCreationOption( QEActionRequests::Options creationOption );
+    QEActionRequests::Options getCreationOption();
 
     // label text (prior to substitution)
     void setLabelTextProperty( QString labelTextIn );
@@ -140,7 +140,7 @@ protected:
 
     virtual updateOptions getDefaultUpdateOption() = 0;
 
-    void startGui( const QEGuiLaunchRequests & request );
+    void startGui( const QEActionRequests & request );
 
 private:
     Qt::Alignment textAlignment;
@@ -161,7 +161,7 @@ private:
     QStringList arguments;  // Program arguments
 
     QString guiName;      // GUI file name to launch
-    QEGuiLaunchRequests::Options creationOption;  // Indicate how the new gui should be created ( examples: in a new window, or a top dock)
+    QEActionRequests::Options creationOption;  // Indicate how the new gui should be created ( examples: in a new window, or a top dock)
     QString prioritySubstitutions;  // Macro substitutions that take precedence over existing substitutions when creating new guis
     QString customisationName;      // Name of set of Window customisations such as additional menu items or tool bar push buttons
 
@@ -204,7 +204,7 @@ private:
     virtual void setButtonIcon( QIcon& icon ) = 0;
 
     virtual void emitDbValueChanged( QString text ) = 0;
-    virtual void emitNewGui( const QEGuiLaunchRequests& request ) = 0;
+    virtual void emitNewGui( const QEActionRequests& request ) = 0;
 
     virtual void connectButtonDataChange( qcaobject::QCaObject* qca ) = 0;
 

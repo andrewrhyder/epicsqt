@@ -36,7 +36,7 @@
 
 #include <QCaObject.h>
 #include <QEFrame.h>
-#include <QEGuiLaunchRequests.h>
+#include <QEActionRequests.h>
 #include <QEWidget.h>
 #include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
@@ -113,7 +113,7 @@ public:
    static const int NumberOfButtons = 15;
 
 signals:
-    void requestGui (const QEGuiLaunchRequests&);       // Signal 'launch a GUI'
+    void requestGui (const QEActionRequests&);       // Signal 'launch a GUI'
 
 protected:
    // We don't expect these to be called - but do override and output debug error

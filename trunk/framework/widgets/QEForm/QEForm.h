@@ -33,7 +33,7 @@
 #include <QFileSystemWatcher>
 #include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>
-#include <QEGuiLaunchRequests.h>
+#include <QEActionRequests.h>
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEForm : public QWidget, public QEWidget
 {

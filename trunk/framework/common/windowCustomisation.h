@@ -139,7 +139,7 @@
 #include <QMainWindow>
 #include <QDomDocument>
 #include <QMenu>
-#include <QEGuiLaunchRequests.h>
+#include <QEActionRequests.h>
 #include <QMap>
 #include <ContainerProfile.h>
 
@@ -175,7 +175,7 @@ private slots:
     void itemAction();              // Slot to call when action is triggered
 
 signals:
-    void newGui( const QEGuiLaunchRequests& request );
+    void newGui( const QEActionRequests& request );
 
 };
 
@@ -265,7 +265,7 @@ public:
     QList<windowCustomisationButtonItem*> getButtons(){return buttons;}        // get Buttons list
     QString getName(){ return name; }
 
-    static QEGuiLaunchRequests::Options translateCreationOption( QString creationOption );
+    static QEActionRequests::Options translateCreationOption( QString creationOption );
 
 private:
     QString name;                                  // Customisation name

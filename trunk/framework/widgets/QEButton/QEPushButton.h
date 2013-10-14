@@ -64,7 +64,7 @@ public slots:
     /// This slot is typically used when the button is pressed within the Designer preview window to allow the operation of the button to be tested.
     /// If an application does not specify a slot to use for creating new windows (through the ContainerProfile class) a window will still be created through this slot, but it will not respect the window creation options or any other window related application constraints.
     /// For example, the QEGui application does provide a slot for creating new GUIs in the ContainerProfile class which respects the creation options, knows how to add tabs in the application, and extend the application's window menu in the menu bar.
-    void requestGui( const QEGuiLaunchRequests& request ){ startGui( request ); }
+    void requestGui( const QEActionRequests& request ){ startGui( request ); }
 
   signals:
     // Note, the following signals are common to many QE widgets,
@@ -78,7 +78,7 @@ public slots:
     void requestResend();
 
     /// Internal use only. Request a new GUI is created. Typically, this is caught by the QEGui application.
-    void newGui( const QEGuiLaunchRequests& request );
+    void newGui( const QEActionRequests& request );
 
     /// Button has been Pressed.
     /// The value emitted is the integer interpretation of the pressText property
@@ -104,7 +104,7 @@ private:
 
     void emitDbValueChanged( QString text ){ emit dbValueChanged( text ); }
 
-    void emitNewGui( const QEGuiLaunchRequests& request ){ emit newGui( request ); }
+    void emitNewGui( const QEActionRequests& request ){ emit newGui( request ); }
 
     void connectButtonDataChange( qcaobject::QCaObject* qca )
     {
@@ -541,14 +541,14 @@ public:
     Q_PROPERTY(CreationOptionNames creationOption READ getCreationOptionProperty WRITE setCreationOptionProperty)
 
     /// Creation options. Used to indicate how to present a GUI when requesting a new GUI be created. Open a new window, open a new tab, or replace the current window.
-    enum CreationOptionNames { Open = QEGuiLaunchRequests::OptionOpen,                      ///< Replace the current GUI with the new GUI
-                               NewTab = QEGuiLaunchRequests::OptionNewTab,                  ///< Open new GUI in a new tab
-                               NewWindow = QEGuiLaunchRequests::OptionNewWindow,            ///< Open new GUI in a new window
-                               DockTop = QEGuiLaunchRequests::OptionTopDockWindow,          ///< Open new GUI in a top dock window
-                               DockBottom = QEGuiLaunchRequests::OptionBottomDockWindow,    ///< Open new GUI in a bottom dock window
-                               DockLeft = QEGuiLaunchRequests::OptionLeftDockWindow,        ///< Open new GUI in a left dock window
-                               DockRight = QEGuiLaunchRequests::OptionRightDockWindow,      ///< Open new GUI in a right dock window
-                               DockFloating = QEGuiLaunchRequests::OptionFloatingDockWindow ///< Open new GUI in a floating dock window
+    enum CreationOptionNames { Open = QEActionRequests::OptionOpen,                      ///< Replace the current GUI with the new GUI
+                               NewTab = QEActionRequests::OptionNewTab,                  ///< Open new GUI in a new tab
+                               NewWindow = QEActionRequests::OptionNewWindow,            ///< Open new GUI in a new window
+                               DockTop = QEActionRequests::OptionTopDockWindow,          ///< Open new GUI in a top dock window
+                               DockBottom = QEActionRequests::OptionBottomDockWindow,    ///< Open new GUI in a bottom dock window
+                               DockLeft = QEActionRequests::OptionLeftDockWindow,        ///< Open new GUI in a left dock window
+                               DockRight = QEActionRequests::OptionRightDockWindow,      ///< Open new GUI in a right dock window
+                               DockFloating = QEActionRequests::OptionFloatingDockWindow ///< Open new GUI in a floating dock window
                              };
 
     /// Overriding macro substitutions. These macro substitions take precedence over any existing
@@ -577,7 +577,7 @@ private:
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
 
     // Access function for creationOption property
-    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEGuiLaunchRequests::Options)creationOptionIn ); }
+    void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEActionRequests::Options)creationOptionIn ); }
     CreationOptionNames getCreationOptionProperty(){ return (CreationOptionNames)getCreationOption(); }
 
     // Access function for pixmap properties
