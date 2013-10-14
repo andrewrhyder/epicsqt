@@ -92,6 +92,7 @@ private:
     void showContextMenu( const QPoint& pos );          // Present the context menu
     static bool draggingVariable;                       // Global 'dragging variable' flag (dragging data if false)
     QEWidget* qew;                                      // QEWidget associated with this instance
+    bool hasConsumer;                                   // A launch consumer has been set (it is ok to present menu options that require application support to receive signals to, for example, start a strip chart
 };
 
 #endif // CONTEXTMENU_H
