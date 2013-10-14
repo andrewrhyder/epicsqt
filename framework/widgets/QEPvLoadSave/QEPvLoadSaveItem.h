@@ -78,11 +78,11 @@ public:
 
    int columnCount () const;
 
-   QEPvLoadSaveItem* getChild (int position);       // get child at row position
-   QEPvLoadSaveItem* getParent () const;            // was parent in example
-   int childCount () const;                         // fixed
-   int childPosition () const;                      // own row number
-   QVariant getData (int column) const;             // was data in example
+   QEPvLoadSaveItem* getChild (int position) const;   // get child at row position
+   QEPvLoadSaveItem* getParent () const;              // was parent in example
+   int childCount () const;                           // fixed
+   int childPosition () const;                        // own row number
+   QVariant getData (int column) const;               // was data in example
    bool insertChild (int position, QEPvLoadSaveItem* getChild); // insert single child - fixed number columns
    bool removeChildren(int position, int count);
 
@@ -113,10 +113,11 @@ public:
    QString getNodeName () const;
 
    void setNodeValue (const QVariant& value);
-   QVariant getNodeValue ();
+   QVariant getNodeValue () const ;
+   int getElementCount () const;  // get gets number of elements in value.
 
-   bool getIsPV () { return this->isPV; }
-   bool getIsGroup () { return !this->isPV; }
+   bool getIsPV () const { return this->isPV; }
+   bool getIsGroup () const { return !this->isPV; }
 
 
    // If this is a leaf (PV) item then performs action on associated qca channel.
