@@ -188,7 +188,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     usingTabs = false;
 
     beingDeleted = false;
-    scrollToCount = 0;
+    waitForX11WindowManagerCount = 0;
 
     // Give the main window's UserMessage class a unique form ID so only messages from
     // the form in each main window are displayed that main window's status bar
@@ -1563,6 +1563,9 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
     // Perform tasks required by a main window, but not a dock
     if( !isDock )
     {
+        // Assume the default customisation is required
+        setDefaultCustomisation();
+
         // Load any required window customisation
         app->applyMainWindowCustomisations( this, customisationName, &customisationInfo, false );
 
@@ -2060,7 +2063,6 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 
                 PMElement geometry = data.getElement( "Geometry" );
                 int x, y, w, h;
-                //!!! Note, window position jumps down by the window offset in the decoration each save and restore. either saving or restoring does not include decoration???
                 if( geometry.getAttribute( "X", x ) &&
                     geometry.getAttribute( "Y", y ) &&
                     geometry.getAttribute( "Width", w ) &&
@@ -2319,35 +2321,72 @@ QScrollArea* MainWindow::guiScrollArea( QEForm* gui )
     return NULL;
 }
 
+// Set a gui geometry.
+// This is called as part of restoring a main window.
+// When restoring a window under X11, setting its geometry and scroll position is complicated
+// by the X11 window manager.
+// At some time after window creation the window manager will add the window decorations
+// (title bar, borders, etc)
+// Since the position was saved with the window decorations the position needs to be restored
+// after the window decorations have been added or the window will be moved to the wrong position
+// when decorations are added.
+// Since the X11 window manager operates asynchronously to the application the addition of the
+// window decorations is infered when the origin of the window geometry frame geometry changes.
+// This is reasonably robust, but would fail if there is no X11 window manager running, or
+// some weird window manager is running which adds no decorations to the top or left of the
+// window leaving both window geometry and frame geometry at the same position.
+// To ensure a failure des not result in waiting forever, the wait is limited to a maximum.
+void MainWindow::setGeom()
+{
+    // Loop until the X11 window manager has added window decorations.
+    // When decorations have been added, position of window geometry and frame geometry will differ.
+    // (Set the size regardless of decoration after maximum of 10 seconds)
+    if(( geometry().x() == frameGeometry().x() )&&
+       ( geometry().y() == frameGeometry().y() ) &&
+       ( waitForX11WindowManagerCount < 1000 ) ) /* 1000 = 1000 x 10ms = 10 seconds */
+    {
+        QTimer::singleShot(10, this, SLOT( setGeom() ));
+        waitForX11WindowManagerCount++;
+        return;
+    }
+    waitForX11WindowManagerCount = 0;
+
+    // Set the geometry as noted during the restore
+    setGeometry( setGeomRect );
+
+    // Initiate scrolling of guis within the main window
+    QTimer::singleShot( 10, this, SLOT(scrollTo() ));
+}
+
 // Scroll all guis in a main window.
 // This is called as part of restoring a main window.
-// When restoring a window, setting it's geometry and scroll position can't be
-// performed until after it has been created, program flow has returned to the
-// event loop, and various events related to geometry have occured.
-// For this reason, setting specific geometry and scrolling is performed as a timer event.
+// When restoring a window under X11, setting its geometry and scroll position is complicated
+// by the X11 window manager.
+// The X11 window manager services a request to resize the window some time after the request
+// is made.
+// Since the X11 window manager operates asynchronously to the application the resize of the
+// window decorations is infered by the size changing to the required size.
+// This is reasonably robust, but may fail if there is no X11 window manager running, or
+// the display size has changed since the size was saved and the X11 window manager is not
+// willing to set the size to that requested.
+// To ensure a failure does not result in waiting forever, the wait is limited to a maximum.
 void MainWindow::scrollTo()
 {
-    // When restoring a window scrolling can't be performed until after the window has been created, program flow has
-    // returned to the event loop, and various events related to geometry changes have occured.
-    // For this reason, scolling is performed as a timer event.
-    // The timer period should not be important, it should just ensure all outstanding events are processed first.
-    // However, it seems to require over 30mS on a test implementation which implies this is not the case.
-    // Specifying a large timer period is dangerous since any 'reasonable' period may not be enough if the system is heavily loaded.
-    // To work around this, scrolling is held off (rescheduled with a new timer event here) if there are still
-    // outstanding events (which may be related to resizing) or if the resizing has not yet taken effect (if the
-    // width and height specified in the geometry request have not yet been reflected in the current width and height)
-    // As a safeguard, we won't wait for longer than 10 seconds. One possible reason for this is the following scenario:
-    // a configuration was saved with a large window on a large screen. If the screen size is reduced the requested window
-    // size may not be honoured by the display manager and this function will never see the window size has reached the required size.
+    // Loop until the X11 window manager has set the size. (abandon scrolling after maximum of 10 seconds)
     if( setGeomRect.width() != width() ||
         setGeomRect.height() != height() )
     {
-        if( scrollToCount < 1000 )/* 1000 = 1000 x 10ms = 10 seconds */
+        if( waitForX11WindowManagerCount < 1000 )/* 1000 = 1000 x 10ms = 10 seconds */
         {
             QTimer::singleShot(10, this, SLOT( scrollTo() ));
+            waitForX11WindowManagerCount++;
+            return;
         }
-        scrollToCount++;
-        return;
+        else
+        {
+            waitForX11WindowManagerCount = 0;
+            return;
+        }
     }
 
     // The window is ready for scrolling if required.
@@ -2363,21 +2402,6 @@ void MainWindow::scrollTo()
             sa->verticalScrollBar()->setValue( p.y() );
         }
     }
-}
-
-// Set a gui geometry.
-// This is called as part of restoring a main window.
-// When restoring a window, setting its geometry and scroll position can't be
-// performed until after it has been created, program flow has returned to the
-// event loop, and various events related to geometry have occured.
-// For this reason, setting specific geometry and scrolling is performed as a timer event.
-void MainWindow::setGeom()
-{
-    // Set the geometry as noted during the restore
-    setGeometry( setGeomRect );
-
-    // Initiate scrolling of guis within the main window
-    QTimer::singleShot( 10, this, SLOT(scrollTo() ));
 }
 
 // Remove all guis on a main window from the 'windows' menus of all main windows

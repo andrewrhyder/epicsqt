@@ -153,7 +153,7 @@ private:
     void raiseGui( QEForm* gui );                           // Raise a gui and select the right tab so the user can see it.
 
     bool beingDeleted;                                      // This main window is being deleted (deleteLater() has been called on it)
-    int scrollToCount;                                      // Number of times scrollTo() has been called waiting for geometry has been rinalised
+    int waitForX11WindowManagerCount;                       // Number of times setGeom() or scrollTo() has been called waiting for geometry has been finalised
 
     QEGui* app;                                             // Application reference
 
