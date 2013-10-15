@@ -1340,6 +1340,10 @@ void  MainWindow::requestGui( const QEActionRequests & request )
                     windowCreationListItem* window = &windows[i];
                     profile.addPriorityMacroSubstitutions( window->macroSubstitutions );
                     mw = mw->launchGui ( window->uiFile, window->customisationName, window->creationOption, window->hidden );
+                    if( !window->title.isEmpty() )
+                    {
+                        mw->setTitle( window->title );
+                    }
                     profile.removePriorityMacroSubstitutions();
                 }
             }
@@ -1622,7 +1626,15 @@ void MainWindow::setTitle( QString title )
 {
     if( title.isEmpty() )
     {
-        setWindowTitle( "QEGui" );
+        startupParams* params = app->getParams();
+        if( !params->applicationTitle.isEmpty() )
+        {
+            setWindowTitle( params->applicationTitle );
+        }
+        else
+        {
+            setWindowTitle( "QEGui" );
+        }
     }
     else
     {

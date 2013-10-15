@@ -170,6 +170,7 @@ void QEGui::printUsage (std::ostream & stream)
     stream  << "usage: qegui [-v] [-h] [-a scale] [-s] [-e] [-b] [-p pathname] [-m macros] \n"
                "             [-r [configuration_name]] [-c configuration_file] \n"
                "             [-w window_customisation_file] [-n default_window_customisation_name] \n"
+               "             [-t application_title] \n"
                "             [file_name] [file_name] [file_name...]\n";
 }
 
@@ -232,6 +233,9 @@ void QEGui::printHelp ()
       "        Typically substitutions are used to specify specific variable names when loading\n"
       "        generic template forms. Substitutions are not limited to template forms, and some\n"
       "        QEWidgets use macro substitutions for purposes other than variable names.\n"
+      "\n"
+      "-t      Application title.\n"
+      "        This title will be used instead of the default application title of 'QEGui'\n"
       "\n"
       "-h      Display help text explaining these options and exit.\n"
       "\n"
