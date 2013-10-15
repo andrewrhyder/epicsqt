@@ -498,28 +498,39 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                 windowCreationListItem windowItem;
                 windowItem.uiFile = uiFile;
 
-                // Read macro substitutions
+                // Read optional macro substitutions
                 QDomElement macroSubstitutionsElement = windowElement.firstChildElement( "MacroSubstitutions" );
                 if( !macroSubstitutionsElement.isNull() )
                 {
                     windowItem.macroSubstitutions = macroSubstitutionsElement.text();
                 }
 
-                // Read customisation name
+                // Read optional customisation name
                 QDomElement customisationNameElement = windowElement.firstChildElement( "CustomisationName" );
                 if( !customisationNameElement.isNull() )
                 {
                     windowItem.customisationName = customisationNameElement.text();
                 }
 
+                // Read optional creation option
                 QDomElement creationOptionElement = windowElement.firstChildElement( "CreationOption" );
                 windowItem.creationOption = QEActionRequests::OptionNewWindow;
                 if( !creationOptionElement.isNull() )
                 {
                     windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
                 }
+
+                // Read optional title (This title will override any title in the title property of the top widget in the .ui file)
+                QDomElement titleElement = windowElement.firstChildElement( "Title" );
+                if( !titleElement.isNull() )
+                {
+                    windowItem.title = titleElement.text();
+                }
+
+                // Add a window to the list of windows to create
                 windows.append( windowItem );
 
+                // Read any docks to be added to this window
                 parseDockItems( windowElement, windows );
             }
         }

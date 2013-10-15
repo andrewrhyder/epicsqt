@@ -60,6 +60,7 @@ class startupParams
     QString substitutions;                          // Substitutions. For example, "SECTOR=01,PUMP=03"
     QString customisationFile;                      // Window customisations file (containing named customisations of menu items and buttons)
     QString customisationName;                      // Default window customisation name (name of customisation in windowCustomisationFile)
+    QString applicationTitle;                       // Default application title
 };
 
 

@@ -103,12 +103,14 @@ public:
                                                            macroSubstitutions = item->macroSubstitutions;
                                                            customisationName = item->customisationName;
                                                            creationOption = item->creationOption;
-                                                           hidden = item->hidden; }
+                                                           hidden = item->hidden;
+                                                           title = item->title; }
     QString uiFile;
     QString macroSubstitutions;
     QString customisationName;
     QEActionRequests::Options creationOption;
     bool hidden;
+    QString title;
 };
 
 

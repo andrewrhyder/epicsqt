@@ -263,12 +263,26 @@ bool startupParams::getStartupParams( QStringList args )
                         }
                         break;
 
-                    // 'window default customisations name' flag
+                    // 'window default customisations' name
                     // Take next non switch parameter as the default window customisation name
                     case 'n':
                         if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
                         {
                             customisationName = args[0];
+                            args.removeFirst();
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                        break;
+
+                    // 'Title'
+                    // Take next non switch parameter as the QEGui default application title
+                    case 't':
+                        if( args.count() >= 1 && args[0].left(1) != QString( "-" ) )
+                        {
+                            applicationTitle = args[0];
                             args.removeFirst();
                         }
                         else
