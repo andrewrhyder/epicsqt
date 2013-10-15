@@ -1563,8 +1563,11 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
     // Perform tasks required by a main window, but not a dock
     if( !isDock )
     {
-        // Assume the default customisation is required
-        setDefaultCustomisation();
+        // Use the default customisations if no customisation is specified
+        if( customisationName.isEmpty() )
+        {
+            setDefaultCustomisation();
+        }
 
         // Load any required window customisation
         app->applyMainWindowCustomisations( this, customisationName, &customisationInfo, false );
