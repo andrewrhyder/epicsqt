@@ -67,7 +67,7 @@ public slots:
     /// This slot is typically used when the button is pressed within the Designer preview window to allow the operation of the button to be tested.
     /// If an application does not specify a slot to use for creating new windows (through the ContainerProfile class) a window will still be created through this slot, but it will not respect the window creation options or any other window related application constraints.
     /// For example, the QEGui application does provide a slot for creating new GUIs in the ContainerProfile class which respects the creation options, knows how to add tabs in the application, and extend the application's window menu in the menu bar.
-    void requestGui( const QEActionRequests& request ){ startGui( request ); }
+    void requestAction( const QEActionRequests& request ){ startGui( request ); }
 
 signals:
     // Note, the following signals are common to many QE widgets,

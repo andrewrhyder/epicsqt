@@ -113,7 +113,7 @@ void QEGenericButton::guiSetup() {
         if( launcher )
         {
             QObject::connect( getButtonQObject(), SIGNAL( newGui( const QEActionRequests& ) ),
-                              launcher, SLOT( requestGui( const QEActionRequests& ) ) );
+                              launcher, SLOT( requestAction( const QEActionRequests& ) ) );
         }
     }
 
@@ -122,7 +122,7 @@ void QEGenericButton::guiSetup() {
     {
         // Set up the button's own gui form launcher
         QObject::connect( getButtonQObject(), SIGNAL( newGui( const QEActionRequests& ) ),
-                          getButtonQObject(), SLOT( requestGui( const QEActionRequests& ) ) );
+                          getButtonQObject(), SLOT( requestAction( const QEActionRequests& ) ) );
     }
 }
 

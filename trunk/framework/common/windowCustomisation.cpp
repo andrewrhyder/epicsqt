@@ -813,7 +813,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
 
 //        // Set up an action to respond to the user
 //        QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
-//                          mw, SLOT( requestGui( const QEActionRequests& ) ) );
+//                          mw, SLOT( requestAction( const QEActionRequests& ) ) );
 //    }
 
     // Get the menu item customisations required
@@ -849,7 +849,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
 
                     // Set up an action to respond to the user
                     QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
-                                      mw, SLOT( requestGui( const QEActionRequests& ) ) );
+                                      mw, SLOT( requestAction( const QEActionRequests& ) ) );
                 }
                 break;
 
@@ -887,7 +887,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                 }
                 menu->addAction( menuItem );
                 QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
-                                  mw, SLOT( requestGui( const QEActionRequests& ) ) );
+                                  mw, SLOT( requestAction( const QEActionRequests& ) ) );
 
                 break;
         }

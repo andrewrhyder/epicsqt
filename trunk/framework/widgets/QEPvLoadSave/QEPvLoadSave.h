@@ -113,7 +113,7 @@ public:
    static const int NumberOfButtons = 15;
 
 signals:
-    void requestGui (const QEActionRequests&);       // Signal 'launch a GUI'
+    void requestAction (const QEActionRequests&);       // Signal 'launch a GUI'
 
 protected:
    // We don't expect these to be called - but do override and output debug error

@@ -72,6 +72,18 @@ QEActionRequests::QEActionRequests( const QList<windowCreationListItem> windowsI
 }
 
 //---------------------------------------------------------------------------
+//
+QEActionRequests::QEActionRequests( const QList<componentHostListItem> componentsIn )
+{
+   kind = KindHostComponents;
+   option = OptionFloatingDockWindow; // not required, but keep things neat
+   for( int i = 0; i < componentsIn.count(); i++ )
+   {
+       components.append( componentsIn.at(i) );
+   }
+}
+
+//---------------------------------------------------------------------------
 // Set and get functions.
 //
 void QEActionRequests::setKind (const Kinds kindIn)
@@ -120,6 +132,13 @@ QString QEActionRequests::getCustomisation() const
 QList<windowCreationListItem> QEActionRequests::getWindows() const
 {
     return windows;
+}
+
+//---------------------------------------------------------------------------//
+//
+QList<componentHostListItem> QEActionRequests::getComponents() const
+{
+    return components;
 }
 
 // end

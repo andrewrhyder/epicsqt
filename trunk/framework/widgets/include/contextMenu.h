@@ -39,10 +39,10 @@ class contextMenuObject : public QObject
     Q_OBJECT
 public:
     contextMenuObject( contextMenu* menuIn ){ menu = menuIn; }          // Construction
-    void sendRequestGui( const QEActionRequests& request){ emit requestGui( request ); } // Emit a GUI launch request
+    void sendRequestAction( const QEActionRequests& request){ emit requestAction( request ); } // Emit a GUI launch request
 
 signals:
-    void requestGui( const QEActionRequests& );                      // Signal 'launch a GUI'
+    void requestAction( const QEActionRequests& );                      // Signal 'launch a GUI'
 
 public slots:
     void contextMenuTriggeredSlot( QAction* selectedItem );             // Slot - an item has been selected from the context menu

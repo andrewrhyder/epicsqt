@@ -38,6 +38,7 @@
 #include <QEByteArray.h>
 #include <QEInteger.h>
 #include <imageContextMenu.h>
+#include <windowCustomisation.h>
 
 /*
     Constructor with no initialisation
@@ -110,6 +111,23 @@ void QEImage::setup() {
 
     pixelLookupValid = false;
 
+    appHostsControls = false;
+    hostingAppAvailable = false;
+
+    // Prepare to interact with whatever application is hosting this widget.
+    // For example, the QEGui application can host docks and toolbars for QE widgets
+    if( isProfileDefined() )
+    {
+        // Setup a signal to request component hosting.
+        QObject* launcher = getGuiLaunchConsumer();
+        if( launcher )
+        {
+            QObject::connect( this, SIGNAL( componentHostRequest( const QEActionRequests& ) ),
+                              launcher, SLOT( requestAction( const QEActionRequests& ) ) );
+            hostingAppAvailable = true;
+        }
+    }
+
     // Use frame signals
     // --Currently none--
 
@@ -165,39 +183,37 @@ void QEImage::setup() {
     vSliceLabel = new QLabel( "Vertical Profile" );
     vSliceLabel->setVisible( false );
     vSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_BT );
-    vSliceDisplay->setMinimumWidth( 100 );
     vSliceDisplay->setVisible( false );
 
     hSliceLabel = new QLabel( "Horizontal Profile" );
     hSliceLabel->setVisible( false );
     hSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR );
-    hSliceDisplay->setMinimumHeight( 100 );
     hSliceDisplay->setVisible( false );
 
     profileLabel = new QLabel( "Arbitrary Line Profile" );
     profileLabel->setVisible( false );
     profileDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR );
-    profileDisplay->setMinimumHeight( 100 );
     profileDisplay->setVisible( false );
 
 
-    QGridLayout* graphicsLayout = new QGridLayout();
-    graphicsLayout->addWidget( scrollArea,     0, 0 );
-    graphicsLayout->addLayout( getInfoWidget(),1, 0 );
-    graphicsLayout->addWidget( vSliceLabel,    1, 1 );
-    graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
-    graphicsLayout->addWidget( hSliceLabel,    2, 0 );
-    graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
-    graphicsLayout->addWidget( profileLabel,   4, 0 );
-    graphicsLayout->addWidget( profileDisplay, 5, 0 );
+    graphicsLayout = new QGridLayout();
+    graphicsLayout->addWidget( scrollArea,      0, 0 );
+    graphicsLayout->addLayout( getInfoWidget(), 1, 0 );
+//    graphicsLayout->addWidget( vSliceLabel,    1, 1 );
+//    graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
+//    graphicsLayout->addWidget( hSliceLabel,    2, 0 );
+//    graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
+//    graphicsLayout->addWidget( profileLabel,   4, 0 );
+//    graphicsLayout->addWidget( profileDisplay, 5, 0 );
 
-    graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
-    graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
+//    graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
+//    graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
 
 
     // Create button group
     int buttonWidth = 28;
     int buttonMenuWidth = 48;
+
 
     buttonGroup = new QFrame;
     QHBoxLayout* buttonLayout = new QHBoxLayout();
@@ -211,6 +227,10 @@ void QEImage::setup() {
     pauseButton->setIcon( *pauseButtonIcon );
     pauseButton->setToolTip("Pause image display");
     QObject::connect(pauseButton, SIGNAL(clicked()), this, SLOT(pauseClicked()));
+    pauseAction = new QAction( *pauseButtonIcon, QString( "Pause / Play" ), this );
+    QObject::connect(pauseAction, SIGNAL(actionTriggered(QAction*)), this, SLOT(pauseClicked(QAction*)));
+//    windowCustomisationButtonItem( QString( "Image" ), QString( "Play/Pause" ), *pauseButtonIcon, this,
+
 
     saveButton = new QPushButton(buttonGroup);
     saveButton->setMinimumWidth( buttonWidth );
@@ -218,6 +238,8 @@ void QEImage::setup() {
     saveButton->setIcon( saveButtonIcon );
     saveButton->setToolTip("Save displayed image");
     QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
+    saveAction = new QAction( saveButtonIcon, QString( "Save" ), this );
+    QObject::connect(saveAction, SIGNAL(actionTriggered(QAction*)), this, SLOT(saveClicked(QAction*)));
 
     targetButton = new QPushButton(buttonGroup);
     targetButton->setMinimumWidth( buttonWidth );
@@ -260,9 +282,17 @@ void QEImage::setup() {
     // Create main layout containing image, label, and button layouts
     mainLayout = new QGridLayout;
     mainLayout->setMargin( 0 );
+    graphicsLayout->addWidget( vSliceLabel,    1, 1 );
+    graphicsLayout->addWidget( hSliceLabel,    2, 0 );
+    graphicsLayout->addWidget( profileLabel,   4, 0 );
 
     mainLayout->addWidget( buttonGroup, 0, 0 );
-    mainLayout->addWidget( localBC, 0, 1 );
+
+    presentControls();
+
+    graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
+    graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
+
     mainLayout->addLayout( graphicsLayout, 1, 0, 1, 0 );
 
     // Set graphics to take all spare room
@@ -311,6 +341,53 @@ void QEImage::setup() {
 QEImage::~QEImage()
 {
     delete videoWidget;
+
+}
+
+// Put the controls where they should go.
+// (within this widget, or hosted by the application containing this widget)
+void QEImage::presentControls()
+{
+    if( appHostsControls && hostingAppAvailable )
+    {
+        mainLayout->removeWidget( localBC );
+
+        vSliceLabel->setVisible( false );
+        hSliceLabel->setVisible( false );
+        profileLabel->setVisible( false );
+
+        graphicsLayout->removeWidget( vSliceDisplay );
+        graphicsLayout->removeWidget( hSliceDisplay );
+        graphicsLayout->removeWidget( profileDisplay );
+
+        buttonGroup->hide();
+
+        QList<componentHostListItem> components;
+        components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, false, "Brightness / Contrast" ) );
+
+        components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, false, "Vertical Slice Profile" ) );
+        components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, false, "Horizontal Slice Profile" ) );
+        components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionFloatingDockWindow, false, "Arbitrary Profile" ) );
+
+//        components.append( componentHostListItem( toolBar, QEActionRequests::OptionFloatingDockWindow, false, "Image Tools" ) );
+
+
+        emitComponentHostRequest( QEActionRequests( components ) );
+
+    }
+    else
+    {
+        mainLayout->addWidget( localBC, 0, 1 );
+
+        graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
+        graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
+        graphicsLayout->addWidget( profileDisplay, 5, 0 );
+
+        vSliceLabel->setVisible( vSliceDisplay->isVisible() );
+        hSliceLabel->setVisible( hSliceDisplay->isVisible() );
+        profileLabel->setVisible( profileDisplay->isVisible() );
+
+    }
 
 }
 
@@ -1307,6 +1384,7 @@ void QEImage::targetClicked()
 }
 
 // Pause button pressed
+void QEImage::pauseClicked( QAction* ) { pauseClicked(); }
 void QEImage::pauseClicked()
 {
     // If paused, resume
@@ -1337,6 +1415,7 @@ void QEImage::pauseClicked()
 }
 
 // Save button pressed
+void QEImage::saveClicked( QAction* ) { saveClicked(); }
 void QEImage::saveClicked()
 {
     QFileDialog *qFileDialog;
@@ -1862,6 +1941,19 @@ bool QEImage::getEnableBrightnessContrast()
     return optionsDialog->optionGet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST );
 }
 
+// Request the application host controls such as toolbars and profile views for this widget
+void QEImage::setExternalControls( bool externalControlsIn )
+{
+    appHostsControls = externalControlsIn;
+    presentControls();
+}
+
+bool QEImage::getExternalControls()
+{
+    return appHostsControls;
+}
+
+
 //=================================================================================================
 
 void QEImage::panModeClicked()
@@ -1954,7 +2046,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 vSliceX = point1.x();
                 vSliceThickness = thickness;
                 haveVSliceX = true;
-                vSliceLabel->setVisible( true );
+                if( !appHostsControls )
+                {
+                    vSliceLabel->setVisible( true );
+                }
                 vSliceDisplay->setVisible( true );
                 generateVSlice(  vSliceX, vSliceThickness );
                 break;
@@ -1963,7 +2058,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 hSliceY = point1.y();
                 hSliceThickness = thickness;
                 haveHSliceY = true;
-                hSliceLabel->setVisible( true );
+                if( !appHostsControls )
+                {
+                    hSliceLabel->setVisible( true );
+                }
                 hSliceDisplay->setVisible( true );
                 generateHSlice( hSliceY, hSliceThickness );
                 break;
@@ -2043,7 +2141,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 profileLineEnd = point2;
                 profileThickness = thickness;
                 haveProfileLine = true;
-                profileLabel->setVisible( true );
+                if( !appHostsControls )
+                {
+                    profileLabel->setVisible( true );
+                }
                 profileDisplay->setVisible( true );
                 generateProfile( profileLineStart, profileLineEnd, profileThickness );
                 break;

@@ -218,6 +218,9 @@ public:
     void setAutoBrightnessContrast( bool autoBrightnessContrastIn );    ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
     bool getAutoBrightnessContrast();                                   ///< Access function for #autoBrightnessContrast property - refer to #autoBrightnessContrast property for details
 
+    void setExternalControls( bool externalControlsIn );                ///< Access function for #externalControls property - refer to #externalControls property for details
+    bool getExternalControls();                                         ///< Access function for #externalControls property - refer to #externalControls property for details
+
   protected:
     QEIntegerFormatting integerFormatting; // Integer formatting options.
 
@@ -304,8 +307,11 @@ public slots:
     void setSelectBeamMode()    { sMenu->setChecked(  QEImage::SO_BEAM );    beamSelectModeClicked(); }     ///< Framework use only. Slot to allow external setting of selection menu options
 
     // Slots to allow external operation of control buttons
-    void pauseClicked();       ///< Framework use only. Slot to allow external setting of selection menu options
-    void saveClicked();        ///< Framework use only. Slot to allow external setting of selection menu options
+    void pauseClicked();           ///< Framework use only. Slot to allow external setting of selection menu options
+    void pauseClicked( QAction* ); ///< Framework use only. Slot to allow external setting of selection menu options
+
+    void saveClicked();            ///< Framework use only. Slot to allow external setting of selection menu options
+    void saveClicked( QAction* );  ///< Framework use only. Slot to allow external setting of selection menu options
 
     void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
     void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
@@ -325,7 +331,13 @@ public slots:
     /// Internal use only. Used when changing a property value to force a re-display to reflect the new property value.
     void requestResend();
 
+    void componentHostRequest( const QEActionRequests& request );
+
+
   private:
+
+    void emitComponentHostRequest( const QEActionRequests& request ){ emit componentHostRequest( request ); }
+
     void setup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex );
 
@@ -334,22 +346,40 @@ public slots:
 
     void setImageBuff();
 
-    QGridLayout *mainLayout;
+    QGridLayout* mainLayout;
+    QGridLayout* graphicsLayout;
 
     QFrame *buttonGroup;
+    QToolBar* toolBar;
 
     QScrollArea* scrollArea;
     bool initScrollPosSet;
 
     VideoWidget* videoWidget;
 
-    // Button bar widgets
+    bool appHostsControls;
+    bool hostingAppAvailable;
+
+    void presentControls();
+
+    // Button widgets and actions
     QPushButton* pauseButton;
+    QAction* pauseAction;
+
     QPushButton* saveButton;
+    QAction* saveAction;
+
     QPushButton* targetButton;
+    QAction* targetAction;
+
     QPushButton* selectModeButton;
+    QAction* selectModeAction;
+
     QPushButton* zoomButton;
+    QAction* zoomAction;
+
     QPushButton* flipRotateButton;
+    QAction* flipRotateAction;
 
     // Profile graphic widgets
     QLabel* vSliceLabel;
@@ -882,6 +912,10 @@ public:
     /// If true, local brightness and contrast controls are displayed.
     /// The brightness and contrast is set to use the full range of pixels in the selected area.
     Q_PROPERTY(bool autoBrightnessContrast READ getAutoBrightnessContrast WRITE setAutoBrightnessContrast)
+
+    /// If true, image controls and views such as brightness controls and profile plots are hosted by the application as dock windows, toolbars, etc.
+    /// Refer to the #ContainerProfile class and the #windowCustomisation class to see how this class asks an application to act as a host.
+    Q_PROPERTY(bool externalControls READ getExternalControls WRITE setExternalControls)
 };
 
 #endif // QEIMAGE_H

@@ -149,8 +149,8 @@ void contextMenu::setConsumer (QObject* consumer)
     if (consumer)
     {
         hasConsumer = true;
-        QObject::connect(object, SIGNAL (requestGui( const QEActionRequests& )),
-                         consumer,  SLOT (requestGui( const QEActionRequests& )));
+        QObject::connect(object, SIGNAL (requestAction( const QEActionRequests& )),
+                         consumer,  SLOT (requestAction( const QEActionRequests& )));
     }
 }
 
@@ -252,7 +252,7 @@ void contextMenu::doShowPvProperties ()
 {
     QString pvName = copyVariable();
     QEActionRequests request( "PV Properties...", pvName );
-    object->sendRequestGui( request );
+    object->sendRequestAction( request );
 }
 
 // 'Add to strip chart' wasselected from the menu
@@ -260,7 +260,7 @@ void contextMenu::doAddToStripChart ()
 {
     QString pvName = copyVariable();
     QEActionRequests request( "Strip Chart...", pvName );
-    object->sendRequestGui( request );
+    object->sendRequestAction( request );
 }
 
 // 'Add to scratch pad' was selected from the menu
@@ -268,7 +268,7 @@ void contextMenu::doAddToScratchPad()
 {
    QString pvName = copyVariable();
    QEActionRequests request( "Scratch Pad...", pvName );
-   object->sendRequestGui( request );
+   object->sendRequestAction( request );
 }
 
 // end
