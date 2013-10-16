@@ -51,6 +51,27 @@ profilePlot::profilePlot( plotDirections plotDirectionIn ) : QwtPlot( 0 )
     // Set up context sensitive menu (right click menu)
     setContextMenuPolicy( Qt::CustomContextMenu );
     connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showProfileContextMenu( const QPoint& )));
+
+    int w, h;
+    switch( plotDirection )
+    {
+        case PROFILEPLOT_LR:
+        case PROFILEPLOT_RL:
+            w = 200;
+            h = 100;
+            break;
+
+        case PROFILEPLOT_TB:
+        case PROFILEPLOT_BT:
+            w = 100;
+            h = 200;
+            break;
+    }
+
+    setGeometry( 0, 0, w, h );
+    setMinimumWidth( w );
+    setMinimumHeight( h );
+
 }
 
 // Desctuction

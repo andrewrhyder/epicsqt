@@ -113,7 +113,7 @@ private:
                              QRect geom = QRect( 0, 0, 0, 0 ) ); // Load a new gui into a new dock
 
     MainWindow* launchLocalGui( const QString& filename );  // Launch a new gui from the 'File' menu and gui launch requests.
-    MainWindow* launchLocalGui( const QString& filename,    // Launch a new gui from the requestGui slot.
+    MainWindow* launchLocalGui( const QString& filename,    // Launch a new gui from the requestAction slot.
                                 const QString& className,
                                 const QString& pvName );
 
@@ -183,6 +183,9 @@ private:
 
     QList<guiListItem> guiList;
 
+    Qt::DockWidgetArea creationOptionToDockLocation( QEActionRequests::Options createOption ); // Translate a creation option to a dock location.
+    QEActionRequests::Options dockLocationToCreationOption( Qt::DockWidgetArea dockLocation ); // Translate a dock location to a creation option.
+
 private slots:
     void on_actionManage_Configurations_triggered();
     void on_actionExit_triggered();                             // Slot to perform 'Exit' action
@@ -198,7 +201,7 @@ private slots:
     void on_actionAbout_triggered();                            // Slot to perform 'About' action
     void onWindowMenuSelection( QAction* action );              // Slot to receive requests to change focus to a specific gui
 
-    void requestGui( const QEActionRequests & request );     // Slot to receive (new style) requests to launch a new GUI.
+    void requestAction( const QEActionRequests & request );     // Slot to receive (new style) requests to launch a new GUI.
 
 
     void tabCurrentChanged( int index );               // Slot to act on user changing tabs

@@ -33,9 +33,11 @@
 #include <QEPluginLibrary_global.h>
 
 
-// Class defining a window to create
+// Forward class declarations
 class windowCreationListItem;
+class componentHostListItem;
 
+// Class defining an action an application should carry out on behalf od a QE Widget it has created.
 class QEPLUGINLIBRARYSHARED_EXPORT QEActionRequests {
 public:
 
@@ -43,7 +45,8 @@ public:
    enum Kinds { KindNone,            // no action (default, not valid in any request)
                 KindOpenFile,        // by file name
                 KindOpenFiles,       // by file names
-                KindAction };        // Inbuilt application action
+                KindAction,          // inbuilt application action
+                KindHostComponents };// application to host a widget on behalf of a QE widget. For example a QEImage widget can create a profile plot in a QFrame and either display it within itself or ask the application to host it is a dock window.
 
 
    enum Options { OptionOpen,        // How new windows created for the request are to be presented. May not be relevent for all requests
@@ -69,8 +72,11 @@ public:
                         const QString &config,
                         const Options optionIn);
 
-   // a set of .ui files
+   // a set of windows to create
    QEActionRequests( const QList<windowCreationListItem> windowsIn );
+
+   // a set of components to host for a QE widget
+   QEActionRequests( const QList<componentHostListItem> componentsIn );
 
    // set and get functions
    //
@@ -86,6 +92,7 @@ public:
    QString getCustomisation() const;
 
    QList<windowCreationListItem> getWindows() const;
+   QList<componentHostListItem> getComponents() const;
 
 private:
    Kinds kind;
@@ -93,8 +100,10 @@ private:
    Options option;
    QString customisation;  // Window configuration (menus, buttons, etc)
    QList<windowCreationListItem> windows;
+   QList<componentHostListItem> components;
 };
 
+// Class to hold window creation instructions
 class windowCreationListItem
 {
 public:
@@ -105,14 +114,42 @@ public:
                                                            creationOption = item->creationOption;
                                                            hidden = item->hidden;
                                                            title = item->title; }
-    QString uiFile;
-    QString macroSubstitutions;
-    QString customisationName;
+    QString                   uiFile;
+    QString                   macroSubstitutions;
+    QString                   customisationName;
     QEActionRequests::Options creationOption;
-    bool hidden;
-    QString title;
+    bool                      hidden;
+    QString                   title;
 };
 
+// Class to hold component hosting instructions.
+// (an application can host a widget on behalf of a QE widget.
+//  For example a QEImage widget can create a profile plot in a QFrame and either
+//  display it within itself or ask the application to host it is a dock window.)
+class componentHostListItem
+{
+public:
+    componentHostListItem(){ widget = NULL; hidden = false; creationOption = QEActionRequests::OptionFloatingDockWindow; }
+    componentHostListItem( QWidget*                  widgetIn,
+                           QEActionRequests::Options creationOptionIn,
+                           bool                      hiddenIn,
+                           QString                   titleIn )
+                            {
+                                widget = widgetIn;
+                                creationOption = creationOptionIn;
+                                hidden = hiddenIn;
+                                title = titleIn;
+                            }
+
+    componentHostListItem(componentHostListItem* item ){ widget = item->widget;
+                                                         creationOption = item->creationOption;
+                                                         hidden = item->hidden;
+                                                         title = item->title; }
+    QWidget*                  widget;
+    QEActionRequests::Options creationOption;
+    bool                      hidden;
+    QString                   title;
+};
 
 Q_DECLARE_METATYPE (QEActionRequests)
 

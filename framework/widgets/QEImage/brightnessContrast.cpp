@@ -93,6 +93,9 @@ localBrightnessContrast::localBrightnessContrast()
 
     brightnessSlider->setValue( 0 );    // Range -100% (black) to +100% (white)
     contrastSlider->setValue( 100 );    // Range 0% (no difference in any pixels) to 1000% (10 times normal contrast)
+
+
+    adjustSize();
 }
 
 int localBrightnessContrast::getBrightness()
