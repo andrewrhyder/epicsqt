@@ -174,7 +174,7 @@ void QEGui::printFile (const QString& filename,
       return;
    }
 
-   QTextStream textStream (&textFile);
+   QTextStream textStream( &textFile );
    QString text = textStream.readAll();
    textFile.close();
 
@@ -192,8 +192,8 @@ void QEGui::printHelp ()
 {
    printVersion ();
    std::cout << "\n";
-   printUsage (std::cout);
-   printFile (":/help/help_general.txt", std::cout);
+   printUsage( std::cout );
+   printFile( ":/help/help_general.txt", std::cout );
 }
 
 // Get the application's startup parameters
