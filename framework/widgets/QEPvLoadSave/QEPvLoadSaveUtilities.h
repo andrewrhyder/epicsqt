@@ -58,14 +58,14 @@ public:
    //    <Group Name="Nested" >
    //       <Group Name="Inner" >
    //          <Array Name="WAVEFORM:MONITOR"  Type="float"  Number="8" >
-   //             <Value Index="0">4</Value>
-   //             <Value Index="1">5.6</Value>
-   //             <Value Index="2">3.5</Value>
-   //             <Value Index="3">11.5</Value>
-   //             <Value Index="4">-12.3</Value>
-   //             <Value Index="5">55</Value>
-   //             <Value Index="6">73.73</Value>
-   //             <Value Index="7">0</Value>
+   //             <Element Index="0" Value="4"     />
+   //             <Element Index="1" Value="5.6"   />
+   //             <Element Index="2" Value="3.5"   />
+   //             <Element Index="3" Value="11.5"  />
+   //             <Element Index="4" Value="-12."  />
+   //             <Element Index="5" Value="55"    />
+   //             <Element Index="6" Value="73.73" />
+   //             <Element Index="7" Value="0"     />
    //          </Array>
    //       </Group>
    //    </Group>
@@ -113,6 +113,9 @@ private:
 
    // XML read write local utilitiy functions.
    //
+   static QVariant convert (const QString& dataType,
+                            const QString& valueImage);
+
    static QEPvLoadSaveItem* readXmlScalerPv (const QDomElement pvElement,
                                              QEPvLoadSaveItem* parent);
 

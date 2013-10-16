@@ -51,13 +51,20 @@ static const QString arrayPrefix = "*ARRAY";
 //
 static const QVariant nilValue (QVariant::Invalid);
 
-// XML tag names
+// XML tag/attribute names
 //
-static const QString fileTagName    = "QEPvLoadSave";
-static const QString groupTagName   = "Group";
-static const QString pvTagName      = "PV";       // scaler PV tag
-static const QString arrayTagName   = "Array";
-static const QString valueTagName   = "Value";
+static const QString fileTagName      = "QEPvLoadSave";
+static const QString groupTagName     = "Group";
+static const QString pvTagName        = "PV";       // scaler PV tag
+static const QString arrayTagName     = "Array";
+static const QString elementTagName   = "Element";
+
+static const QString indexAttribute   = "Index";
+static const QString nameAttribute    = "Name";
+static const QString typeAttribute    = "Type";
+static const QString valueAttribute   = "Value";
+static const QString versionAttribute = "Version";
+static const QString numberAttribute  = "Number";
 
 //------------------------------------------------------------------------------
 //
@@ -204,6 +211,45 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readPcfTree (const QString& filename)
    return result;
 }
 
+
+//------------------------------------------------------------------------------
+//
+QVariant QEPvLoadSaveUtilities::convert (const QString& dataType, const QString& valueImage)
+{
+   QVariant result = nilValue;
+
+   if (dataType == "string") {
+      result = QVariant (valueImage);
+
+   } else if (dataType == "int") {
+      int v;
+      bool okay;
+
+      v = valueImage.toInt (&okay);
+      if (okay) {
+         result = QVariant (v);
+      } else {
+         qWarning () << __FUNCTION__ << " ignoring invalid integer: " << valueImage;
+      }
+
+   } else if (dataType == "float") {
+      double v;
+      bool okay;
+
+      v = valueImage.toDouble (&okay);
+      if (okay) {
+         result = QVariant (v);
+      } else {
+         qWarning () << __FUNCTION__ << " ignoring invalid float: " << valueImage;
+      }
+
+   } else {
+      qWarning () << __FUNCTION__ << " ignoring unexpected data type: " << dataType;
+   }
+
+   return result;
+}
+
 //------------------------------------------------------------------------------
 // A scaler PV could be defined as an array of one element, but this form
 // provides a syntactical short cut for scaler values which are typically
@@ -215,47 +261,16 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlScalerPv (const QDomElement pvEl
    QEPvLoadSaveItem* result = NULL;
    QVariant value (QVariant::Invalid);
 
-   QString pvName = pvElement.attribute ("Name", "");
-   QString dataType = pvElement.attribute ("Type", "string");
-   QString valueImage = pvElement.attribute ("Value", "");
+   QString pvName = pvElement.attribute (nameAttribute, "");
+   QString dataType = pvElement.attribute (typeAttribute, "string");
+   QString valueImage = pvElement.attribute (valueAttribute, "");
 
    if (pvName.isEmpty() ) {
       qWarning () << __FUNCTION__ << " ignoring null PV name";
       return result;
    }
 
-   if (dataType == "string") {
-      value = QVariant (valueImage);
-
-   } else if (dataType == "int") {
-      int v;
-      bool okay;
-
-      v = valueImage.toInt (&okay);
-      if (okay) {
-         value = QVariant (v);
-      } else {
-         qWarning () << __FUNCTION__ << pvName << " ignoring invalid integer: " << valueImage;
-         return result;
-      }
-
-   } else if (dataType == "float") {
-      double v;
-      bool okay;
-
-      v = valueImage.toDouble (&okay);
-      if (okay) {
-         value = QVariant (v);
-      } else {
-         qWarning () << __FUNCTION__ << pvName << " ignoring invalid float: " << valueImage;
-         return result;
-      }
-
-   } else {
-      qWarning () << __FUNCTION__ << pvName << " ignoring unexpected data type: " << dataType;
-      return result;
-   }
-
+   value = QEPvLoadSaveUtilities::convert (dataType, valueImage);
    result = new QEPvLoadSaveItem (pvName, true, value, parent);
    return result;
 }
@@ -267,11 +282,11 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlArrayPv (const QDomElement pvEle
                                                          QEPvLoadSaveItem* parent)
 {
    QEPvLoadSaveItem* result = NULL;
-   QVariantList value;
+   QVariantList arrayValue;
 
-   QString pvName = pvElement.attribute ("Name");
-   QString dataType = pvElement.attribute ("Type", "string");
-   QString elementCountImage = pvElement.attribute ("Number", "1");
+   QString pvName = pvElement.attribute (nameAttribute);
+   QString dataType = pvElement.attribute (typeAttribute, "string");
+   QString elementCountImage = pvElement.attribute (numberAttribute, "1");
 
    if (pvName.isEmpty() ) {
       qWarning () << __FUNCTION__ << " ignoring null PV name";
@@ -285,15 +300,33 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlArrayPv (const QDomElement pvEle
 
    int elementCount = elementCountImage.toInt (NULL);
 
+   // Initialise array with nil values.
+   //
    for (int j = 0; j < elementCount; j++) {
-      // TODO
-      value << nilValue;
+      arrayValue << nilValue;
    }
 
-   result = new QEPvLoadSaveItem (pvName, true, value, parent);
+   // Look for array values.
+   //
+   QDomElement itemElement = pvElement.firstChildElement (elementTagName);
+   while (!itemElement.isNull ()) {
+      bool okay;
+      int index = itemElement.attribute (indexAttribute, "-1").toInt (&okay);
+      if (okay && index >= 0 && index < elementCount) {
+         QString valueImage = itemElement.attribute (valueAttribute, "");
+         QVariant value = QEPvLoadSaveUtilities::convert (dataType, valueImage);
+
+         arrayValue.replace (index, value);
+
+      } else {
+         qWarning () << __FUNCTION__ << " ignoring unexpected index " << index;
+      }
+      itemElement = itemElement.nextSiblingElement (elementTagName);
+   }
+
+   result = new QEPvLoadSaveItem (pvName, true, arrayValue, parent);
    return result;
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -316,7 +349,7 @@ void QEPvLoadSaveUtilities::readXmlGroup (const QDomElement groupElement,
       QString tagName = itemElement.tagName ();
 
       if (tagName == groupTagName) {
-         QString groupName = itemElement.attribute ("Name");
+         QString groupName = itemElement.attribute (nameAttribute);
          QEPvLoadSaveItem* group = new QEPvLoadSaveItem (groupName, false, nilValue, parent);
 
          QEPvLoadSaveUtilities::readXmlGroup (itemElement, group, level + 1);
@@ -377,7 +410,7 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readXmlTree (const QString& filename)
       return result;
    }
 
-   QString versionImage = docElem.attribute ("version").trimmed ();
+   QString versionImage = docElem.attribute (versionAttribute).trimmed ();
    bool versionOkay;
    int version = versionImage.toInt (&versionOkay);
 
@@ -441,19 +474,19 @@ void QEPvLoadSaveUtilities::writeXmlScalerPv (const QEPvLoadSaveItem* item,
 
    QVariant value = item->getNodeValue ();
 
-   pvElement.setAttribute ("Name", item->getNodeName ());
+   pvElement.setAttribute (nameAttribute, item->getNodeName ());
 
    switch (value.type ()) {
       case QVariant::Int:
-         pvElement.setAttribute ("Type", "int");
+         pvElement.setAttribute (typeAttribute, "int");
          break;
 
       case QVariant::Double:
-         pvElement.setAttribute ("Type", "float");
+         pvElement.setAttribute (typeAttribute, "float");
          break;
 
       case QVariant::String:
-         pvElement.setAttribute ("Type", "string");
+         pvElement.setAttribute (typeAttribute, "string");
          break;
 
       default:
@@ -461,7 +494,7 @@ void QEPvLoadSaveUtilities::writeXmlScalerPv (const QEPvLoadSaveItem* item,
          break;
    }
 
-   pvElement.setAttribute ("Value", value.toString ());
+   pvElement.setAttribute (valueAttribute, value.toString ());
 }
 
 //------------------------------------------------------------------------------
@@ -478,22 +511,22 @@ void QEPvLoadSaveUtilities::writeXmlArrayPv (const QEPvLoadSaveItem* item,
    QVariant value = valueList.value (0);
    int n = valueList.size ();
 
-   arrayElement.setAttribute ("Name", item->getNodeName ());
-   arrayElement.setAttribute ("Number", QString ("%1").arg (n));
+   arrayElement.setAttribute (nameAttribute, item->getNodeName ());
+   arrayElement.setAttribute (numberAttribute, QString ("%1").arg (n));
 
    // Use first element to figure out type - they should all be the same.
    //
    switch (value.type ()) {
       case QVariant::Int:
-         arrayElement.setAttribute ("Type", "int");
+         arrayElement.setAttribute (typeAttribute, "int");
          break;
 
       case QVariant::Double:
-         arrayElement.setAttribute ("Type", "float");
+         arrayElement.setAttribute (typeAttribute, "float");
          break;
 
       case QVariant::String:
-         arrayElement.setAttribute ("Type", "string");
+         arrayElement.setAttribute (typeAttribute, "string");
          break;
 
       default:
@@ -501,13 +534,13 @@ void QEPvLoadSaveUtilities::writeXmlArrayPv (const QEPvLoadSaveItem* item,
          break;
    }
 
-
    for (int j = 0; j < n; j++) {
-      QDomElement itemElement = doc.createElement ("Value");
-
+      QDomElement itemElement = doc.createElement (elementTagName);
       arrayElement.appendChild (itemElement);
-      itemElement.setAttribute ("Index", QString ("%1").arg (j));
-      itemElement.setAttribute ("Value", "");
+      itemElement.setAttribute (indexAttribute, QString ("%1").arg (j));
+
+      value = valueList.value (j);
+      itemElement.setAttribute (valueAttribute, value.toString ());
    }
 }
 
@@ -536,7 +569,7 @@ void QEPvLoadSaveUtilities::writeXmlGroup (const QEPvLoadSaveItem* group,
          //
          childElement = doc.createElement (groupTagName);
          groupElement.appendChild (childElement);
-         childElement.setAttribute ("Name", child->getNodeName());
+         childElement.setAttribute (nameAttribute, child->getNodeName());
          QEPvLoadSaveUtilities::writeXmlGroup (child, doc, childElement);
 
       } else {
@@ -570,7 +603,7 @@ bool QEPvLoadSaveUtilities::writeXmlTree (const QString& filename, const QEPvLoa
 
    doc.clear ();
    docElem = doc.createElement (fileTagName);
-   docElem.setAttribute ("version", 1);
+   docElem.setAttribute (versionAttribute, 1);
 
    // Add the root to the document
    //
@@ -585,12 +618,11 @@ bool QEPvLoadSaveUtilities::writeXmlTree (const QString& filename, const QEPvLoa
    QEPvLoadSaveUtilities::writeXmlGroup (root, doc, docElem);
 
    QTextStream ts (&file);
-   ts << doc.toString ();
+   ts << doc.toString (2);  // setting the indent to 2 is purely cosmetic
    file.close ();
 
    return true;
 }
-
 
 //------------------------------------------------------------------------------
 //
