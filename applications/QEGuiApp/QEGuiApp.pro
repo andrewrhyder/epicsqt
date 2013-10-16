@@ -72,6 +72,7 @@ INCLUDEPATH += . \
 DEPENDPATH += ../../framework/common
 
 LIBS += -L../../framework/designer -lQEPlugin
+
 FORMS += ./src/MainWindow.ui \
          ./src/PVProperties.ui \
          ./src/StripChart.ui \
@@ -83,6 +84,12 @@ FORMS += ./src/MainWindow.ui \
          ./src/restoreDialog.ui \
          ./src/manageConfigDialog.ui
 
+OTHER_FILES += \
+         ./src/QEGuiCustomisationDefault.xml \
+         ./src/help_usage.txt \
+         ./src/help_general.txt
+         
+         
 RESOURCES += ./src/QEGui.qrc
 
 # end

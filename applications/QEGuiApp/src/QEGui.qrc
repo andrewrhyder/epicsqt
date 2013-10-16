@@ -14,4 +14,8 @@
     <qresource prefix="/configuration">
         <file>QEGuiCustomisationDefault.xml</file>
     </qresource>
+    <qresource prefix="/help">
+        <file>help_usage.txt</file>
+        <file>help_general.txt</file>
+    </qresource>
 </RCC>

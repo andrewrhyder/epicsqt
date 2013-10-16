@@ -66,6 +66,8 @@ public:
 
 
 private:
+    void printFile (const QString&  filename,
+                    std::ostream & stream);         // Print file to stream
     void printVersion ();                           // Print the version info
     void printUsage (std::ostream & stream);        // Print brief usage statement
     void printHelp ();                              // Print help info
