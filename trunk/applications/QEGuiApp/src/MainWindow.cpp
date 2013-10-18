@@ -1437,6 +1437,8 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 
                     // Load the component into the dock
                     dock->setWidget( component->widget );
+                    QObject::connect( component->widget, SIGNAL(destroyed(QObject*)), this, SLOT(dockComponentDestroyed(QObject*)));
+
 
                     dock->setWindowTitle( component->title );
                     dock->adjustSize();
@@ -1456,6 +1458,34 @@ void  MainWindow::requestAction( const QEActionRequests & request )
     }
 }
 
+// Slot to delete a dock holding a component that the application is hosting on
+// behalf of a QE widget.
+// this is called when the component being hosted is destroyed by the QE widget.
+// This should be done here since the component should not need to know how the
+// application is hosting it.
+void MainWindow::dockComponentDestroyed( QObject* component )
+{
+    // Do nothing if no widget is available
+    if( !component->isWidgetType() )
+    {
+        return;
+    }
+
+    // Get parent (should be the dock)
+    QWidget* dock = (QWidget*)(component)->parent();
+
+    // Do nothin if no parent or it is not a dock
+    if( !dock || QString( "QDockWidget").compare( dock->metaObject()->className() ) )
+    {
+        return;
+    }
+
+    // Delete the dock holding the component.
+    // (Delete it later when returned to the event loop. We are only here as we are
+    //  currently deleting the component within the dock. Starting another chain of
+    //  deletion higher up the widget tree at this time would be fatal)
+    dock->deleteLater();
+}
 
 //=================================================================================
 // Methods for common support tasks

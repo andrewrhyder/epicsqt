@@ -152,24 +152,31 @@ public:
                       const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
                       const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                       const QString programIn,                             // Program to run
-                      const QStringList programArgumentsIn );              // Arguments for 'program'
+                      const QStringList argumentsIn );                     // Arguments for 'program'
 
     windowCustomisationItem(windowCustomisationItem* item);
     windowCustomisationItem();                                              // Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
     windowCustomisationItem( const QString builtInActionIn );               // Construct instance of class defining a built in application action
+    windowCustomisationItem( const QString builtInActionIn,                 // Construct instance of class defining a built in application action
+                             const QString widgetNameIn,                    // widget name if built in function is for a widget, not the application
+                             const QString widgetTitleIn );                 // widget title if built in function is for a widget, not the application
 
     QString getProgram(){return program;}
-    QStringList getProgramArguments(){return programArguments;}
+    QStringList getArguments(){return arguments;}
+
     QString getBuiltInAction(){return builtInAction;}
 
 private:
     // Item action
     QList<windowCreationListItem> windows;          // Windows to create (.ui files and how to present them)
     QString program;                                // Program to run
-    QStringList programArguments;                   // Arguments for 'program'
+    QStringList arguments;                   // Arguments for 'program'
 
     QString builtInAction;                          // Identifier of action built in to the application
     ContainerProfile profile;
+
+    QString widgetName;
+    QString widgetTitle;
 
 private slots:
     void itemAction();              // Slot to call when action is triggered
@@ -194,14 +201,23 @@ public:
                           const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
                           const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                           const QString programIn,                             // Program to run
-                          const QStringList programArgumentsIn );                // Arguments for 'program'
+                          const QStringList argumentsIn );                     // Arguments for 'program or for built in function
+
 
     windowCustomisationMenuItem( // Construction (placeholder menu item)
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
-                          const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
+                          const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER
                           const bool separatorIn );                            // Separator required before this
 
+    windowCustomisationMenuItem( // Construction (placeholder menu item)
+                          const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
+                          const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
+                          const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
+                          const bool separatorIn,                              // Separator required before this
+
+                          const QString widgetNameIn,                          // widget name if built in function is for a widget, not the application
+                          const QString widgetTitleIn );                       // widget title if built in function is for a widget, not the application
 
     windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem);
 
@@ -233,7 +249,12 @@ public:
                             const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
                             const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                             const QString programIn,                             // Program to run
-                            const QStringList programArgumentsIn );              // Arguments for 'program'
+                            const QStringList argumentsIn );                     // Arguments for 'program' and for action
+
+    windowCustomisationButtonItem( // Construction
+                            const QString buttonGroupIn,                         // Name of toolbar button group in which to place a button
+                            const QString buttonTextIn,                          // Text to place in button
+                            const QString buttonIconIn );                        // Icon for button
 
     windowCustomisationButtonItem(windowCustomisationButtonItem* buttonItem);
 
@@ -307,11 +328,13 @@ private:
                                  QString& title,
                                  QList<windowCreationListItem>& windows,
                                  QString& builtIn,
-                                 QString& program, QStringList& programArguments );
+                                 QString& program,
+                                 QString& widgetName, QString widgetTitle,
+                                 QStringList& arguments );
     void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows );
 
     windowCustomisationMenuItem* createMenuItem       ( QDomElement itemElement, QStringList menuHierarchy); // Create a custom menu item
-    windowCustomisationMenuItem* createMenuBuiltIn    ( QDomElement itemElement, QStringList menuHierarchy); // Create a built in menu item
+//    windowCustomisationMenuItem* createMenuBuiltIn    ( QDomElement itemElement, QStringList menuHierarchy); // Create a built in menu item
     windowCustomisationMenuItem* createMenuPlaceholder( QDomElement itemElement, QStringList menuHierarchy); // Create a placeholder menu (for the application to add stuff to)
 
     windowCustomisationButtonItem* createButtonItem( // Create a button customisation item

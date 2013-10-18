@@ -178,21 +178,25 @@ void QEImage::setup() {
                       this,    SLOT  ( brightnessContrastChanged()) );
     QObject::connect( localBC, SIGNAL( brightnessContrastAutoImage() ),
                       this,    SLOT  ( brightnessContrastAutoImageRequest() ) );
+    QObject::connect(localBC, SIGNAL(destroyed(QObject*)), this, SLOT(localBCDestroyed(QObject*)));
 
     // Create vertical, horizontal, and general profile plots
     vSliceLabel = new QLabel( "Vertical Profile" );
     vSliceLabel->setVisible( false );
     vSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_BT );
+    QObject::connect(vSliceDisplay, SIGNAL(destroyed(QObject*)), this, SLOT(vSliceDisplayDestroyed(QObject*)));
     vSliceDisplay->setVisible( false );
 
     hSliceLabel = new QLabel( "Horizontal Profile" );
     hSliceLabel->setVisible( false );
     hSliceDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR );
+    QObject::connect(hSliceDisplay, SIGNAL(destroyed(QObject*)), this, SLOT(hSliceDisplayDestroyed(QObject*)));
     hSliceDisplay->setVisible( false );
 
     profileLabel = new QLabel( "Arbitrary Line Profile" );
     profileLabel->setVisible( false );
     profileDisplay = new profilePlot( profilePlot::PROFILEPLOT_LR );
+    QObject::connect(profileDisplay, SIGNAL(destroyed(QObject*)), this, SLOT(profileDisplayDestroyed(QObject*)));
     profileDisplay->setVisible( false );
 
 
@@ -227,10 +231,6 @@ void QEImage::setup() {
     pauseButton->setIcon( *pauseButtonIcon );
     pauseButton->setToolTip("Pause image display");
     QObject::connect(pauseButton, SIGNAL(clicked()), this, SLOT(pauseClicked()));
-    pauseAction = new QAction( *pauseButtonIcon, QString( "Pause / Play" ), this );
-    QObject::connect(pauseAction, SIGNAL(actionTriggered(QAction*)), this, SLOT(pauseClicked(QAction*)));
-//    windowCustomisationButtonItem( QString( "Image" ), QString( "Play/Pause" ), *pauseButtonIcon, this,
-
 
     saveButton = new QPushButton(buttonGroup);
     saveButton->setMinimumWidth( buttonWidth );
@@ -238,8 +238,6 @@ void QEImage::setup() {
     saveButton->setIcon( saveButtonIcon );
     saveButton->setToolTip("Save displayed image");
     QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
-    saveAction = new QAction( saveButtonIcon, QString( "Save" ), this );
-    QObject::connect(saveAction, SIGNAL(actionTriggered(QAction*)), this, SLOT(saveClicked(QAction*)));
 
     targetButton = new QPushButton(buttonGroup);
     targetButton->setMinimumWidth( buttonWidth );
@@ -340,55 +338,114 @@ void QEImage::setup() {
 
 QEImage::~QEImage()
 {
-    delete videoWidget;
+    // Release components hosted by the application.
+    // Note, the application may already have deleted them in which case we will
+    // have recieved a destroyed signal and set the reference to the component to NULL.
+    // An example of this scenario is if a QEGui main window is closed while a GUI is displayed.
+    // Components not hosted by the application will be part of the widget hierarcy under this
+    // widget and will not need explicit deletion.
+    if( appHostsControls && hostingAppAvailable )
+    {
+        if( localBC )
+        {
+            QObject::disconnect( localBC, 0, this, 0);
+            delete localBC;
+        }
 
+        if( vSliceDisplay )
+        {
+            QObject::disconnect( vSliceDisplay, 0, this, 0);
+            delete vSliceDisplay;
+        }
+
+        if( hSliceDisplay )
+        {
+            QObject::disconnect( hSliceDisplay, 0, this, 0);
+            delete hSliceDisplay;
+        }
+
+        if( profileDisplay )
+        {
+            QObject::disconnect( profileDisplay, 0, this, 0);
+            delete profileDisplay;
+        }
+    }
+    delete videoWidget;
 }
+
+void QEImage::localBCDestroyed( QObject* ){ localBC = NULL; }
+void QEImage::vSliceDisplayDestroyed( QObject* ){ vSliceDisplay = NULL; }
+void QEImage::hSliceDisplayDestroyed( QObject* ){ hSliceDisplay = NULL; }
+void QEImage::profileDisplayDestroyed( QObject* ){ profileDisplay = NULL; }
+
 
 // Put the controls where they should go.
 // (within this widget, or hosted by the application containing this widget)
 void QEImage::presentControls()
 {
+    // If components are not being hosted by the application, present them within the widget
+    // (Note, if components are not being hosted, they should always exist, but if something
+    //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     if( appHostsControls && hostingAppAvailable )
     {
-        mainLayout->removeWidget( localBC );
+        QList<componentHostListItem> components;
+
+        if( localBC )
+        {
+            mainLayout->removeWidget( localBC );
+            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, false, "Brightness / Contrast" ) );
+        }
 
         vSliceLabel->setVisible( false );
         hSliceLabel->setVisible( false );
         profileLabel->setVisible( false );
 
-        graphicsLayout->removeWidget( vSliceDisplay );
-        graphicsLayout->removeWidget( hSliceDisplay );
-        graphicsLayout->removeWidget( profileDisplay );
+        if( vSliceDisplay )
+        {
+            graphicsLayout->removeWidget( vSliceDisplay );
+            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionRightDockWindow, false, "Vertical Slice Profile" ) );
+        }
+
+        if( hSliceDisplay )
+        {
+            graphicsLayout->removeWidget( hSliceDisplay );
+            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionBottomDockWindow, false, "Horizontal Slice Profile" ) );
+        }
+
+        if( profileDisplay )
+        {
+            graphicsLayout->removeWidget( profileDisplay );
+            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionBottomDockWindow, false, "Arbitrary Profile" ) );
+        }
 
         buttonGroup->hide();
-
-        QList<componentHostListItem> components;
-        components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, false, "Brightness / Contrast" ) );
-
-        components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, false, "Vertical Slice Profile" ) );
-        components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, false, "Horizontal Slice Profile" ) );
-        components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionFloatingDockWindow, false, "Arbitrary Profile" ) );
-
-//        components.append( componentHostListItem( toolBar, QEActionRequests::OptionFloatingDockWindow, false, "Image Tools" ) );
-
 
         emitComponentHostRequest( QEActionRequests( components ) );
 
     }
     else
     {
-        mainLayout->addWidget( localBC, 0, 1 );
+        if( localBC )
+        {
+            mainLayout->addWidget( localBC, 0, 1 );
+        }
 
-        graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
-        graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
-        graphicsLayout->addWidget( profileDisplay, 5, 0 );
-
-        vSliceLabel->setVisible( vSliceDisplay->isVisible() );
-        hSliceLabel->setVisible( hSliceDisplay->isVisible() );
-        profileLabel->setVisible( profileDisplay->isVisible() );
-
+        if( vSliceDisplay )
+        {
+            graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
+            vSliceLabel->setVisible( vSliceDisplay->isVisible() );
+        }
+        if( hSliceDisplay )
+        {
+            graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
+            hSliceLabel->setVisible( hSliceDisplay->isVisible() );
+        }
+        if( profileDisplay )
+        {
+            graphicsLayout->addWidget( profileDisplay, 5, 0 );
+            profileLabel->setVisible( profileDisplay->isVisible() );
+        }
     }
-
 }
 
 /*
@@ -840,9 +897,15 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
 
     // Determine if local contrast and brightness applies
     // Even if local brightness and contrast is enabled, no need to go through the pain if they are both neutral
-    int localContrast = localBC->getContrast();
-    int localBrightness = localBC->getBrightness();
-    bool doLCB = localContrast!=100 || localBrightness != 0;
+    bool doLCB = false;
+    int localContrast = 100;
+    int localBrightness = 0;
+    if( localBC )
+    {
+        localContrast = localBC->getContrast();
+        localBrightness = localBC->getBrightness();
+        doLCB = localContrast!=100 || localBrightness != 0;
+    }
 
     // Range of values with contrast applied
     int range = maxValue*localContrast/100;
@@ -1475,6 +1538,11 @@ void QEImage::resizeEvent(QResizeEvent* )
 // Manage local brightness and contrast controls
 void QEImage::doEnableBrightnessContrast( bool enableBrightnessContrast )
 {
+    if( !localBC )
+    {
+        return;
+    }
+
     localBC->setVisible( enableBrightnessContrast );
 }
 
@@ -1701,12 +1769,21 @@ bool QEImage::getVerticalFlip()
 // Automatic setting of brightness and contrast on region selection
 void QEImage::setAutoBrightnessContrast( bool autoBrightnessContrastIn )
 {
+    if( !localBC )
+    {
+        return;
+    }
+
     localBC->setAutoBrightnessContrast( autoBrightnessContrastIn );
 }
 
 bool QEImage::getAutoBrightnessContrast()
 {
-    return     localBC->getAutoBrightnessContrast();
+    if( !localBC )
+    {
+        return false;
+    }
+    return localBC->getAutoBrightnessContrast();
 }
 
 // Resize options
@@ -2050,7 +2127,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 {
                     vSliceLabel->setVisible( true );
                 }
-                vSliceDisplay->setVisible( true );
+                if( vSliceDisplay )
+                {
+                    vSliceDisplay->setVisible( true );
+                }
                 generateVSlice(  vSliceX, vSliceThickness );
                 break;
 
@@ -2062,7 +2142,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 {
                     hSliceLabel->setVisible( true );
                 }
-                hSliceDisplay->setVisible( true );
+                if( hSliceDisplay )
+                {
+                    hSliceDisplay->setVisible( true );
+                }
                 generateHSlice( hSliceY, hSliceThickness );
                 break;
 
@@ -2074,7 +2157,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 zMenu->enableAreaSelected( haveSelectedArea1 );
 
                 displaySelectedAreaInfo( 1, point1, point2 );
-                if( localBC->getAutoBrightnessContrast() )
+                if( localBC && localBC->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -2091,7 +2174,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea2 = true;
 
                 displaySelectedAreaInfo( 2, point1, point2 );
-                if( localBC->getAutoBrightnessContrast() )
+                if( localBC && localBC->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -2108,7 +2191,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea3 = true;
 
                 displaySelectedAreaInfo( 3, point1, point2 );
-                if( localBC->getAutoBrightnessContrast() )
+                if( localBC && localBC->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -2125,7 +2208,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveSelectedArea4 = true;
 
                 displaySelectedAreaInfo( 4, point1, point2 );
-                if( localBC->getAutoBrightnessContrast() )
+                if( localBC && localBC->getAutoBrightnessContrast() )
                 {
                     setRegionAutoBrightnessContrast( point1, point2 );
                 }
@@ -2145,7 +2228,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 {
                     profileLabel->setVisible( true );
                 }
-                profileDisplay->setVisible( true );
+                if( profileDisplay )
+                {
+                    profileDisplay->setVisible( true );
+                }
                 generateProfile( profileLineStart, profileLineEnd, profileThickness );
                 break;
 
@@ -2198,7 +2284,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 vSliceX = 0;
                 haveVSliceX = false;
                 vSliceLabel->setVisible( false );
-                vSliceDisplay->setVisible( false );
+                if( vSliceDisplay )
+                {
+                    vSliceDisplay->setVisible( false );
+                }
                 infoUpdateVertProfile();
                 break;
 
@@ -2206,7 +2295,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 hSliceY = 0;
                 haveHSliceY = false;
                 hSliceLabel->setVisible( false );
-                hSliceDisplay->setVisible( false );
+                if( hSliceDisplay )
+                {
+                    hSliceDisplay->setVisible( false );
+                }
                 infoUpdateHozProfile();
                 break;
 
@@ -2245,7 +2337,10 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 profileLineEnd = QPoint();
                 haveProfileLine = false;
                 profileLabel->setVisible( false );
-                profileDisplay->setVisible( false );
+                if( profileDisplay )
+                {
+                    profileDisplay->setVisible( false );
+                }
                 infoUpdateProfile();
                 break;
 
@@ -2331,7 +2426,10 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
     double newBrightnessDouble = midOffset/(maxPixelValue()*(newContrastDouble-(newContrastDouble-1)/2));
 
     // Update the local brightness and contrast
-    localBC->setBrightnessContrast( newBrightnessDouble*100.0, newContrastDouble*100.0);
+    if( localBC )
+    {
+        localBC->setBrightnessContrast( newBrightnessDouble*100.0, newContrastDouble*100.0);
+    }
 }
 
 // Determine the range of pixel values an area of the image
@@ -2399,6 +2497,11 @@ void QEImage::brightnessContrastAutoImageRequest()
 // The profile contains values for each pixel intersected by the line.
 void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
 {
+    if( !vSliceDisplay )
+    {
+        return;
+    }
+
     // Scale the ordinate to the original image data
     int x = videoWidget->scaleOrdinate( xUnscaled );
 
@@ -2485,6 +2588,11 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
 // The profile contains values for each pixel intersected by the line.
 void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 {
+    if( !hSliceDisplay )
+    {
+        return;
+    }
+
     // Scale the ordinate to the original image data
     int y = videoWidget->scaleOrdinate( yUnscaled );
 
@@ -2630,6 +2738,11 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 //
 void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thicknessUnscaled )
 {
+    if( !profileDisplay )
+    {
+        return;
+    }
+
     // Scale the coordinates to the original image data
     QPoint point1 = videoWidget->scalePoint( point1Unscaled );
     QPoint point2 = videoWidget->scalePoint( point2Unscaled );
