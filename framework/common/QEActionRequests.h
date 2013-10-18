@@ -46,6 +46,7 @@ public:
                 KindOpenFile,        // by file name
                 KindOpenFiles,       // by file names
                 KindAction,          // inbuilt application action
+                KindWidgetAction,    // inbuilt QE widget action
                 KindHostComponents };// application to host a widget on behalf of a QE widget. For example a QEImage widget can create a profile plot in a QFrame and either display it within itself or ask the application to host it is a dock window.
 
 
@@ -62,7 +63,7 @@ public:
    //
    QEActionRequests ();
 
-   // Action
+   // Action (for the application)
    QEActionRequests (const QString& action,
                         const QString& pvName);
 
@@ -74,6 +75,12 @@ public:
 
    // a set of windows to create
    QEActionRequests( const QList<windowCreationListItem> windowsIn );
+
+   // Action (for a QE widget)
+   QEActionRequests( const QString& actionIn,
+                     const QString& widgetNameIn,
+                     const QString& widgetTitleIn,
+                     const QStringList& argumentsIn );
 
    // a set of components to host for a QE widget
    QEActionRequests( const QList<componentHostListItem> componentsIn );
@@ -96,11 +103,14 @@ public:
 
 private:
    Kinds kind;
+   QString action;
    QStringList arguments;
    Options option;
    QString customisation;  // Window configuration (menus, buttons, etc)
    QList<windowCreationListItem> windows;
    QList<componentHostListItem> components;
+   QString widgetName;
+   QString widgetTitle;
 };
 
 // Class to hold window creation instructions

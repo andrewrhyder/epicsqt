@@ -36,14 +36,28 @@ QEActionRequests::QEActionRequests ()
 
 //---------------------------------------------------------------------------
 //
-QEActionRequests::QEActionRequests (const QString& action,
-                                          const QString& pvName)
+QEActionRequests::QEActionRequests( const QString& action,
+                                    const QString& pvName)
 {
    kind = KindAction;
    arguments.clear ();
    arguments << action;
    arguments << pvName;
    option = OptionNewWindow;
+}
+
+//---------------------------------------------------------------------------
+//
+QEActionRequests::QEActionRequests( const QString& actionIn,
+                                    const QString& widgetNameIn,
+                                    const QString& widgetTitleIn,
+                                    const QStringList& argumentsIn )
+{
+   kind = KindWidgetAction;
+   action = actionIn;
+   widgetName = widgetNameIn;
+   widgetTitle = widgetTitleIn;
+   arguments = argumentsIn;
 }
 
 //---------------------------------------------------------------------------
