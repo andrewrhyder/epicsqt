@@ -16,7 +16,7 @@
 # along with the EPICS QT Framework.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-#  Copyright (c) 2011
+#  Copyright (c) 2011, 2013
 #
 # Author:
 #   Andrew Rhyder
@@ -35,5 +35,7 @@ message( Applications may need to load the framework library as a Qt plugin. To 
 SUBDIRS = \
     framework \
     applications/QEGuiApp \
+    applications/QEReadArchiveApp \
     applications/QEMonitorApp
 
+# end
