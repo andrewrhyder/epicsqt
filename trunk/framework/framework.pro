@@ -52,60 +52,15 @@ TARGET = QEPlugin
 
 #===========================================================
 # Project files
-
-INCLUDEPATH += \
-    api/include \
-    widgets/include
-
-HEADERS += \
-    api/include/Generic.h \
-    api/include/CaRecord.h \
-    api/include/CaRef.h \
-    api/include/CaObject.h \
-    api/include/CaConnection.h \
-    api/include/CaObjectPrivate.h \
-    widgets/include/VariableNameManager.h \
-    widgets/include/UserMessage.h \
-    widgets/include/contextMenu.h \
-    widgets/include/QEWidget.h \
-    widgets/include/managePixmaps.h \
-    widgets/include/QEDragDrop.h \
-    widgets/include/styleManager.h \
-    widgets/include/standardProperties.h \
-    widgets/include/QEStringFormattingMethods.h \
-    widgets/include/QEToolTip.h \
-    widgets/include/QEDesignerPlugin.h \
-    widgets/include/ContainerProfile.h \
-    widgets/include/QEPluginLibrary_global.h \
-    widgets/include/persistanceManager.h
-
-SOURCES += \
-    api/src/Generic.cpp \
-    api/src/CaRecord.cpp \
-    api/src/CaObject.cpp \
-    api/src/CaConnection.cpp \
-    api/src/CaRef.cpp \
-    widgets/src/VariableNameManager.cpp \
-    widgets/src/UserMessage.cpp \
-    widgets/src/contextMenu.cpp \
-    widgets/src/QEWidget.cpp \
-    widgets/src/managePixmaps.cpp \
-    widgets/src/QEDragDrop.cpp \
-    widgets/src/styleManager.cpp \
-    widgets/src/standardProperties.cpp \
-    widgets/src/QEStringFormattingMethods.cpp \
-    widgets/src/QEToolTip.cpp \
-    widgets/src/QEDesignerPlugin.cpp \
-    widgets/src/ContainerProfile.cpp \
-    widgets/src/persistanceManager.cpp
-
-#===========================================================
+#
 # Widget and other sub projects
 # Included .pri (project include) files for each widget
 #
 include (adaptation_parameters/adaptation_parameters.pri)
 include (common/common.pri)
+include (api/api.pri)
 include (data/data.pri)
+include (widgets/widgets.pri)
 include (archive/QEArchive.pri)
 include (widgets/QEAnalogIndicator/QEAnalogIndicator.pri)
 include (widgets/QEAnalogProgressBar/QEAnalogProgressBar.pri)
@@ -155,6 +110,7 @@ include (widgets/deprecated/deprecated.pri)
 #
 install_headers.target   = install_headers
 install_headers.commands = $(MKDIR) include && \
+                           rm -f include/*  &&  \
                            $(INSTALL_FILE) $$HEADERS  include/
 
 QMAKE_EXTRA_TARGETS += install_headers
