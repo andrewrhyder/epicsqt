@@ -358,6 +358,7 @@ QEPvLoadSave::QEPvLoadSave (QWidget* parent) : QEFrame (parent)
    // Create dialogs.
    //
    this->groupNameDialog = new QEPvLoadSaveGroupNameDialog (this);
+   this->valueEditDialog = new QEPvLoadSaveValueEditDialog (this);
    this->pvNameSelectDialog = new QEPVNameSelectDialog (this);
 
    this->setAllowDrop (false);
@@ -656,7 +657,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
    int intAction;
    TreeContextMenuActions menuAction;
    QVariant nilValue (QVariant::Invalid);
-   QEPvLoadSaveItem* item;
+   QEPvLoadSaveItem* item = NULL;
    QString nodeName = "";
    QVariant nodeValue;
    int n;
@@ -688,7 +689,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          n = this->groupNameDialog->exec (tree);
          if (n == 1) {
             item = new QEPvLoadSaveItem (this->groupNameDialog->getGroupName (), false, nilValue, NULL);
-            model->addItemToModel(item, this->contextMenuItem);
+            model->addItemToModel (item, this->contextMenuItem);
          }
          break;
 
@@ -724,6 +725,7 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          break;
 
       case TCM_EDIT_PV_VALUE:
+         this->editItemValue (this->contextMenuItem, this->contextMenuHalf, tree);
          break;
 
       case TCM_COPY_VARIABLE:
@@ -767,6 +769,27 @@ void QEPvLoadSave::treeMenuSelected (QAction* action)
          break;
    }
 }
+
+//------------------------------------------------------------------------------
+//
+void QEPvLoadSave::editItemValue (QEPvLoadSaveItem* item, Halves* half, QWidget* centerOver)
+{
+   if (!item) return;
+   if (!half) return;
+
+   // Can only edit PV values.
+   //
+   if (!item->getIsPV ()) return;
+
+   this->valueEditDialog->setPvName (item->getNodeName ());
+   this->valueEditDialog->setValue (item->getNodeValue ());
+   int n = this->valueEditDialog->exec (centerOver);
+   if (n == 1) {
+      item->setNodeValue (this->valueEditDialog->getValue ());
+      half->model->modelUpdated ();
+   }
+}
+
 
 //==============================================================================
 // Button and box signal functions
@@ -848,6 +871,7 @@ void QEPvLoadSave::copyAllClicked (bool)
    VERIFY_SENDER;
    QEPvLoadSaveItem* item = this->half [side]->model->getRootItem ();
    if (item) {
+ //     DEBUG << item;
       Sides otherSide = (side == LeftSide) ? RightSide : LeftSide;
       this->half [otherSide]->model->mergeItemInToModel (item);
    }
@@ -861,6 +885,7 @@ void QEPvLoadSave::copySubsetClicked (bool)
 
    QEPvLoadSaveItem* item = this->half [side]->model->getSelectedItem ();
    if (item) {
+//      DEBUG << item;
       Sides otherSide = (side == LeftSide) ? RightSide : LeftSide;
       this->half [otherSide]->model->mergeItemInToModel (item);
    }
@@ -929,7 +954,13 @@ void QEPvLoadSave::deleteClicked (bool)
 void QEPvLoadSave::editClicked (bool)
 {
    VERIFY_SENDER;
-   DEBUG << side;
+
+   QEPvLoadSaveItem* item = this->half [side]->model->getSelectedItem ();
+
+   if (item && item->getIsPV ()) {
+      QWidget* centreOver = dynamic_cast <QWidget*> (this->sender ());
+      this->editItemValue (item, this->half [side], centreOver);
+   }
 }
 
 //------------------------------------------------------------------------------

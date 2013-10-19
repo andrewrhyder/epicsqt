@@ -42,6 +42,7 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <QEPVNameSelectDialog.h>
 #include <QEPvLoadSaveGroupNameDialog.h>
+#include <QEPvLoadSaveValueEditDialog.h>
 
 #include "QEPvLoadSaveCommon.h"
 
@@ -194,6 +195,7 @@ private:
    QPushButton* abortButton;
 
    QEPvLoadSaveGroupNameDialog* groupNameDialog;
+   QEPvLoadSaveValueEditDialog* valueEditDialog;
    QEPVNameSelectDialog* pvNameSelectDialog;
    QMenu* treeContextMenu;
    TreeContextMenuActionLists actionList;
@@ -208,6 +210,8 @@ private:
    //
    Sides objectSide (QObject* obj);
    Halves* halfAssociatedWith (QObject* obj);
+
+   void editItemValue (QEPvLoadSaveItem* item, Halves* half, QWidget* centerOver);
 
    // Utility function to create and set up an action.
    //
