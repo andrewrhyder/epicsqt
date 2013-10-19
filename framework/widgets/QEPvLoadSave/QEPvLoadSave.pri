@@ -26,7 +26,9 @@ HEADERS += \
     widgets/QEPvLoadSave/QEPvLoadSaveModel.h \
     widgets/QEPvLoadSave/QEPvLoadSaveManager.h  \
     widgets/QEPvLoadSave/QEPvLoadSaveUtilities.h \
-    widgets/QEPvLoadSave/QEPvLoadSaveGroupNameDialog.h
+    widgets/QEPvLoadSave/QEPvLoadSaveGroupNameDialog.h \
+    widgets/QEPvLoadSave/QEPvLoadSaveValueEditDialog.h
+
 
 SOURCES += \
     widgets/QEPvLoadSave/QEPvLoadSave.cpp \
@@ -34,12 +36,14 @@ SOURCES += \
     widgets/QEPvLoadSave/QEPvLoadSaveModel.cpp \
     widgets/QEPvLoadSave/QEPvLoadSaveManager.cpp  \
     widgets/QEPvLoadSave/QEPvLoadSaveUtilities.cpp \
-    widgets/QEPvLoadSave/QEPvLoadSaveGroupNameDialog.cpp
+    widgets/QEPvLoadSave/QEPvLoadSaveGroupNameDialog.cpp \
+    widgets/QEPvLoadSave/QEPvLoadSaveValueEditDialog.cpp
 
 INCLUDEPATH += \
     widgets/QEPvLoadSave
 
 FORMS += \
-    widgets/QEPvLoadSave/QEPvLoadSaveGroupNameDialog.ui
+    widgets/QEPvLoadSave/QEPvLoadSaveGroupNameDialog.ui \
+    widgets/QEPvLoadSave/QEPvLoadSaveValueEditDialog.ui
 
 # end

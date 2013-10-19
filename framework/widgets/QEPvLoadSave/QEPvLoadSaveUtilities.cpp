@@ -452,10 +452,10 @@ QEPvLoadSaveItem* QEPvLoadSaveUtilities::readTree (const QString& filename)
    QEPvLoadSaveItem* result = NULL;
 
    if (filename.trimmed ().endsWith (".pcf")) {
-      result = readPcfTree (filename);
+      result = QEPvLoadSaveUtilities::readPcfTree (filename);
 
    } else if (filename.trimmed ().endsWith (".xml")) {
-      result =  readXmlTree (filename);
+      result =  QEPvLoadSaveUtilities::readXmlTree (filename);
 
    }
 
@@ -643,10 +643,10 @@ bool QEPvLoadSaveUtilities::writeTree (const QString& filename, const QEPvLoadSa
    bool result = false;
 
    if (filename.trimmed ().endsWith (".pcf")) {
-      result = writePcfTree (filename, root);
+      result = QEPvLoadSaveUtilities::writePcfTree (filename, root);
 
    } else if (filename.trimmed ().endsWith (".xml")) {
-      result =  writeXmlTree (filename, root);
+      result =  QEPvLoadSaveUtilities::writeXmlTree (filename, root);
 
    }
 
