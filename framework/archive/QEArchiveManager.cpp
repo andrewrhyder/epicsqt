@@ -73,7 +73,7 @@ typedef QList <ArchiveInterfacePlus*> ArchiveInterfaceLists;
 
 
 //------------------------------------------------------------------------------
-// Archive class type provides key (and name and path - these not used as suich
+// Archive class type provides key (and name and path - these not used as such
 // but may prove to be usefull).
 // For a particualar PV, we also retrieve a start and stop time.
 //
@@ -169,6 +169,7 @@ QEArchiveManager::QEArchiveManager (const QString& archivesIn,
 }
 
 //------------------------------------------------------------------------------
+// called from start (which is a thread slot).
 //
 void QEArchiveManager::setup ()
 {
@@ -386,7 +387,6 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
       for (j = 0; j < count; j++) {
          QEArchiveInterface::Archive archive;  // key (name and path)
          NamesResponseContext *context;
-
 
          // Create the callback context.
          //
