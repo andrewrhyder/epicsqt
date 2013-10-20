@@ -49,16 +49,21 @@ public:
 
    void setPvName (const QString& pvName);
 
-   void setValue (const QVariant& value);
+   void setValue (const QVariant& valueList);
 
    QVariant getValue () const;
 
 private:
-   QVariant value;
+   void captureText ();      // copy edit widget text into selected valueList element.
+   void outputText ();       // copy selected valueList element to edit widget text.
 
+   QVariantList valueList;   // we work with a list, even for scaler values.
+   int currentIndex;
    Ui::QEPvLoadSaveValueEditDialog *ui;
 
 private slots:
+   void elementIndexChanged (int newIndex);
+   void numberElementsChanged (int numberOfElements);
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();
 };
