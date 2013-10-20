@@ -28,8 +28,12 @@
 #include <QDebug>
 #include <QStringList>
 
+#include <QECommon.h>
 #include <QEPvLoadSaveValueEditDialog.h>
 #include <ui_QEPvLoadSaveValueEditDialog.h>
+
+
+static const QVariant nilValue (QVariant::Invalid);
 
 //------------------------------------------------------------------------------
 //
@@ -38,6 +42,12 @@ QEPvLoadSaveValueEditDialog::QEPvLoadSaveValueEditDialog (QWidget *parent) :
       ui (new Ui::QEPvLoadSaveValueEditDialog)
 {
    this->ui->setupUi (this);
+
+   QObject::connect (this->ui->elementIndexEdit, SIGNAL (valueChanged (int)),
+                     this,                       SLOT   (elementIndexChanged (int)));
+
+   QObject::connect (this->ui->numberElementsEdit, SIGNAL (valueChanged (int)),
+                     this,                         SLOT   (numberElementsChanged (int)));
 }
 
 //------------------------------------------------------------------------------
@@ -58,20 +68,109 @@ void QEPvLoadSaveValueEditDialog::setPvName (const QString& pvName)
 //
 void QEPvLoadSaveValueEditDialog::setValue (const QVariant& valueIn)
 {
-   this->value = valueIn;
+   int n;
+
+   if (valueIn.type() == QVariant::List) {
+      this->valueList = valueIn.toList ();
+   } else {
+      this->valueList.clear ();
+      this->valueList.append (valueIn);
+   }
+
+   n = this->valueList.size ();
+
+   this->ui->numberElementsEdit->setValue (n);
+
+   this->ui->elementIndexEdit->setMaximum (n);
+   this->ui->elementIndexEdit->setValue (1);
+
+   this->currentIndex = 1;
+   this->outputText ();
 }
 
+//------------------------------------------------------------------------------
+//
 QVariant QEPvLoadSaveValueEditDialog::getValue () const
 {
-   return this->value;
+   QVariant result;
+
+   if (this->valueList.count () == 1) {
+      // Convert array with just one element to a scalar.
+      //
+      result = this->valueList.value (0);
+   } else {
+      // Just return an array variant.
+      //
+      result = this->valueList;
+   }
+
+   return result;
 }
 
+
+//------------------------------------------------------------------------------
+//
+void QEPvLoadSaveValueEditDialog::outputText ()
+{
+   QString text = this->valueList.value (this->currentIndex - 1).toString ();
+   this->ui->valueEdit->setText (text);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvLoadSaveValueEditDialog::captureText ()
+{
+   int j = this->currentIndex - 1;
+
+   if (j >= 0 && j < this->valueList.size ()) {
+      QVariant v = this->ui->valueEdit->text ();
+      this->valueList.replace (j, v);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvLoadSaveValueEditDialog::elementIndexChanged (int newIndex)
+{
+   // Capture current text value, set index, then update text value.
+   //
+   this->captureText ();
+   this->currentIndex = newIndex;
+   this->outputText ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPvLoadSaveValueEditDialog::numberElementsChanged (int numberOfElements)
+{
+   // Limit currently selected index if needs be.
+   //
+   if (this->ui->elementIndexEdit->value() > numberOfElements) {
+      this->ui->elementIndexEdit->setValue (numberOfElements);
+      // this is cause the elementIndexChanged slot to be called.
+   }
+
+   // Limit spin box edit maximum.
+   //
+   this->ui->elementIndexEdit->setMaximum (numberOfElements);
+
+   // Truncate/expand list
+   //
+   while (this->valueList.size () > numberOfElements) {
+      this->valueList.removeLast ();
+   }
+
+   while (this->valueList.size () < numberOfElements) {
+      this->valueList.append (nilValue);
+   }
+}
 
 //------------------------------------------------------------------------------
 // User has pressed OK
 //
 void QEPvLoadSaveValueEditDialog::on_buttonBox_accepted ()
 {
+   this->captureText ();  //ensure valueList is up-to-date
    this->accept ();
 }
 

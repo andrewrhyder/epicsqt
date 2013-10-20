@@ -113,8 +113,8 @@ public:
    QString getNodeName () const;
 
    void setNodeValue (const QVariant& value);
-   QVariant getNodeValue () const ;
-   int getElementCount () const;  // get gets number of elements in value.
+   QVariant getNodeValue () const;
+   int getElementCount () const;   // get the number of elements in value.
 
    bool getIsPV () const { return this->isPV; }
    bool getIsGroup () const { return !this->isPV; }
