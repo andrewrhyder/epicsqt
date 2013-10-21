@@ -43,6 +43,7 @@
 #include <QCaDateTime.h>
 #include <QEArchiveInterface.h>
 #include <UserMessage.h>
+#include <QEPluginLibrary_global.h>
 
 // This class provides user access to the archives and indirect management
 // of the underlying QEArchiveManager.
@@ -55,7 +56,7 @@
 // may also be explicitly initialised prior to that by invoking one of the
 // static initialise functions.
 //
-class QEArchiveAccess : public QObject, UserMessage {
+class QEPLUGINLIBRARYSHARED_EXPORT QEArchiveAccess : public QObject, UserMessage {
    Q_OBJECT
 public:
    explicit QEArchiveAccess (QObject * parent = 0);
