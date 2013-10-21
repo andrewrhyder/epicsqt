@@ -90,13 +90,13 @@ QEWidget::QEWidget( QWidget *ownerIn ) : QEToolTip( ownerIn ), QEDragDrop( owner
     }
 
     // Setup to respond to requests to save or restore persistant data
-    saveRestoreReceiver.setOwner( this );
+    signalSlot.setOwner( this );
     PersistanceManager* persistanceManager = getPersistanceManager();
     if( persistanceManager )
     {
         QObject::connect( persistanceManager->getSaveRestoreObject(),
                           SIGNAL( saveRestore( SaveRestoreSignal::saveRestoreOptions ) ),
-                          &saveRestoreReceiver,
+                          &signalSlot,
                           SLOT( saveRestore( SaveRestoreSignal::saveRestoreOptions ) ),
                           Qt::DirectConnection );
     }
@@ -641,22 +641,22 @@ void QEWidget::buildPersistantName( QWidget* w, QString& name )
 // Class used to recieve save and restore signals from persistance manager.
 
 // Constructor, destructor
-saveRestoreSlot::saveRestoreSlot()
+signalSlotHandler::signalSlotHandler()
 {
     owner = NULL;
 }
-saveRestoreSlot::~saveRestoreSlot()
+signalSlotHandler::~signalSlotHandler()
 {
 }
 
 // Set the owner of this class which will be called when a signal is received
-void saveRestoreSlot::setOwner( QEWidget* ownerIn )
+void signalSlotHandler::setOwner( QEWidget* ownerIn )
 {
     owner = ownerIn;
 }
 
 // A save or restore has been requested
-void saveRestoreSlot::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
+void signalSlotHandler::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
 {
     // Sanity check
     if( !owner )
@@ -704,4 +704,25 @@ void saveRestoreSlot::saveRestore( SaveRestoreSignal::saveRestoreOptions option 
 QWidget* QEWidget::getQWidget()
 {
     return owner;
+}
+
+
+// Find a QE widget and request an action.
+// The widget hierarchy under a supplied widget is searched for a QE widget with a given name and optional title.
+// If found the QE widget will attecjpt to carry out the requested action which consists of an action string and an argument list.
+// This method allows an application to initiate QE widget activity. The QEGui application uses this mechanism when providing custom menus defined in XML files.
+// The method returns true if the named widget was found. (The action was not nessesarily performed, or even recognised by the widget)
+void QEWidget::doAction( QWidget* searchPoint, QString widgetName, QString action, QStringList arguments )
+{
+    QList<QWidget*> targets = ((QObject*)searchPoint)->findChildren<QWidget*>( widgetName );
+    for( int i = 0; i < targets.count(); i++)
+    {
+        qDebug() << targets.at(i)->windowTitle();
+//        if( targets.at(i)->o)
+        QEWidget* qeWidget = dynamic_cast <QEWidget *>(targets.at(i));
+        if (qeWidget)
+        {
+            qeWidget->actionRequest( action, arguments );
+        }
+    }
 }

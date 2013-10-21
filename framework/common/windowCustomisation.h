@@ -158,8 +158,7 @@ public:
     windowCustomisationItem();                                              // Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
     windowCustomisationItem( const QString builtInActionIn );               // Construct instance of class defining a built in application action
     windowCustomisationItem( const QString builtInActionIn,                 // Construct instance of class defining a built in application action
-                             const QString widgetNameIn,                    // widget name if built in function is for a widget, not the application
-                             const QString widgetTitleIn );                 // widget title if built in function is for a widget, not the application
+                             const QString widgetNameIn );                  // widget name if built in function is for a widget, not the application
 
     QString getProgram(){return program;}
     QStringList getArguments(){return arguments;}
@@ -170,13 +169,12 @@ private:
     // Item action
     QList<windowCreationListItem> windows;          // Windows to create (.ui files and how to present them)
     QString program;                                // Program to run
-    QStringList arguments;                   // Arguments for 'program'
+    QStringList arguments;                          // Arguments for 'program'
 
     QString builtInAction;                          // Identifier of action built in to the application
     ContainerProfile profile;
 
     QString widgetName;
-    QString widgetTitle;
 
 private slots:
     void itemAction();              // Slot to call when action is triggered
@@ -216,8 +214,7 @@ public:
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
 
-                          const QString widgetNameIn,                          // widget name if built in function is for a widget, not the application
-                          const QString widgetTitleIn );                       // widget title if built in function is for a widget, not the application
+                          const QString widgetNameIn );                        // widget name if built in function is for a widget, not the application
 
     windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem);
 
@@ -329,7 +326,7 @@ private:
                                  QList<windowCreationListItem>& windows,
                                  QString& builtIn,
                                  QString& program,
-                                 QString& widgetName, QString widgetTitle,
+                                 QString& widgetName,
                                  QStringList& arguments );
     void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows );
 

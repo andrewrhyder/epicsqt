@@ -339,6 +339,8 @@ public slots:
 
 
   private:
+    void actionRequest( QString action, QStringList arguments ); // Perform a named action
+
 
     void emitComponentHostRequest( const QEActionRequests& request ){ emit componentHostRequest( request ); }
 

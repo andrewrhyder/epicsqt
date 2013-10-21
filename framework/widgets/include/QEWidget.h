@@ -40,28 +40,33 @@
 
 class QEWidget;
 
-// Class used to recieve save and restore signals from persistance manager.
+// Class used to recieve save and restore signals from persistance manager,
+// and emit and receive signals for customisation actions.
 // An instance of this class is used by each QEWidget class.
 // The QEWidget class can't recieve signals directly as it
 // is not based on QObject and can't be as it is a base class for
 // widgets that may also be based on Qwidgets and only one base
 // class can be based on a QObject.
 //
-class saveRestoreSlot: public QObject
+class signalSlotHandler: public QObject
 {
     Q_OBJECT
 
 public:
     // Constructor, destructor
     // Default to no owner
-    saveRestoreSlot();
-    ~saveRestoreSlot();
+    signalSlotHandler();
+    ~signalSlotHandler();
 
     // Set the QEWidget class that this instance is a part of
     void setOwner( QEWidget* ownerIn );     // Set the owner of this class which will be called when a signal is received
 
 public slots:
     void saveRestore( SaveRestoreSignal::saveRestoreOptions option );
+
+// none yet  private slots:
+
+// none yet  signals:
 
 private:
     QEWidget* owner;                                // QEWidget class that this instance is a part of
@@ -230,6 +235,13 @@ public:
     /// For example, the parent of a QEWidget might be a QELabel, which is based on QLabel which is based on QWidget.
     QWidget* getQWidget();
 
+    /// Find a QE widget and request an action.
+    /// The widget hierarchy under a supplied widget is searched for a QE widget with a given name.
+    /// If found the QE widget will attecjpt to carry out the requested action which consists of an action string and an argument list.
+    /// This method allows an application to initiate QE widget activity. The QEGui application uses this mechanism when providing custom menus defined in XML files.
+    /// The method returns true if the named widget was found. (The action was not nessesarily performed, or even recognised by the widget)
+    static void doAction( QWidget* searchPoint, QString widgetName, QString action, QStringList arguments );
+
 protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
 
@@ -242,6 +254,8 @@ protected:
 
     QString persistantName( QString prefix );               // Returns a string that will not change between runs of the application (given the same configuration)
 
+    virtual void actionRequest( QString, QStringList ){} // Perform a named action
+
 private:
     void deleteQcaItem( unsigned int variableIndex, bool disconnect );       // Delete a stream of CA updates
     unsigned int numVariables;                              // The number of process variables that will be managed for the QE widgets.
@@ -252,7 +266,7 @@ private:
 
     void setToolTipFromVariableNames();                     // Update the variable name list used in tool tips if requried
 
-    saveRestoreSlot saveRestoreReceiver;                    // QObject based class a save/restore signal can be delivered to
+    signalSlotHandler signalSlot;                    // QObject based class a save/restore signal can be delivered to
 
     void buildPersistantName( QWidget* w, QString& name );
 

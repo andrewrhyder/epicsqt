@@ -3419,3 +3419,46 @@ void QEImage::showImageAboutDialog()
     // Display the 'about' text
     QMessageBox::about(this, "About Image", about );
 }
+
+// Perform a named action
+void QEImage::actionRequest( QString action, QStringList arguments )
+{
+    qDebug() << "QEImage::actionRequest()" << action << arguments;
+    if( action == "Pause/Play")
+    {
+        pauseClicked();
+    }
+    else if( action == "About image..." )
+    {
+        showImageAboutDialog();
+    }
+    // Add other options from context menu - showContextMenu()
+
+
+
+
+//    void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bool checked )
+//    {
+//        // Act on the menu selection
+//        switch( option )
+//        {
+//            default:
+//            case imageContextMenu::ICM_NONE: break;
+
+//            case imageContextMenu::ICM_SAVE:                        saveClicked();                         break;
+//            case imageContextMenu::ICM_PAUSE:                       pauseClicked();                        break;
+//            case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         showInfo                  ( checked ); break;
+//            case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    doContrastReversal        ( checked ); break;
+//            case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                break;
+//            case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime               ( checked ); break;
+//            case imageContextMenu::ICM_ENABLE_VERT:                 doEnableVertSliceSelection( checked ); break;
+//            case imageContextMenu::ICM_ENABLE_HOZ:                  doEnableHozSliceSelection ( checked ); break;
+//            case imageContextMenu::ICM_ENABLE_AREA:                 doEnableAreaSelection     ( checked ); break;
+//            case imageContextMenu::ICM_ENABLE_LINE:                 doEnableProfileSelection  ( checked ); break;
+//            case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
+//            case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
+//            case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
+//            case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
+
+}
+

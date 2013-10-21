@@ -62,14 +62,12 @@ windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn 
 }
 
 windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn,
-                                                  const QString widgetNameIn,                            // widget name if built in function is for a widget, not the application
-                                                  const QString widgetTitleIn )                          // widget title if built in function is for a widget, not the application
+                                                  const QString widgetNameIn )                           // widget name if built in function is for a widget, not the application
                                                   : QAction( 0 )
 {
 //    creationOption = QEActionRequests::OptionNewWindow;
     builtInAction = builtInActionIn;
     widgetName = widgetNameIn;
-    widgetTitle = widgetTitleIn;
 }
 
 // Construct instance of class defining an individual item (base class for button or menu item)
@@ -100,6 +98,8 @@ windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item):
     program = item->getProgram();
     arguments = item->getArguments();
     builtInAction = item->getBuiltInAction();
+
+    widgetName = item->widgetName;
 }
 
 // A user has triggered the menu item or button
@@ -113,9 +113,18 @@ void windowCustomisationItem::itemAction()
     }
     else if ( !builtInAction.isEmpty() )
     {
-        profile.publishOwnProfile();
-        emit newGui( QEActionRequests( builtInAction, "" )  );
-        profile.releaseProfile();
+        // If no widget name, then assume the action is for the application
+        if( widgetName.isEmpty() )
+        {
+            profile.publishOwnProfile();
+            emit newGui( QEActionRequests( builtInAction, "" )  );
+            profile.releaseProfile();
+        }
+        // A widget name is present, assume the action is for a QE widget created by the application
+        else
+        {
+            emit newGui( QEActionRequests( builtInAction, widgetName, arguments ) );
+        }
     }
 }
 
@@ -149,10 +158,9 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
 
-                          const QString widgetNameIn,                          // widget name if built in function is for a widget, not the application
-                          const QString widgetTitleIn )                         // widget title if built in function is for a widget, not the application
+                          const QString widgetNameIn )                          // widget name if built in function is for a widget, not the application
 
-                          : windowCustomisationItem( titleIn, widgetNameIn, widgetTitleIn )
+                          : windowCustomisationItem( titleIn, widgetNameIn )
 {
     type = typeIn;
     menuHierarchy = menuHierarchyIn;
@@ -497,7 +505,7 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                                                       QList<windowCreationListItem>& windows,
                                                       QString& builtIn,
                                                       QString& program,
-                                                      QString& widgetName, QString widgetTitle,
+                                                      QString& widgetName,
                                                       QStringList& arguments )
 {
     title = itemElement.attribute( "Name" );
@@ -526,11 +534,20 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
         // read Built In function name
         builtIn = builtInElement.attribute( "Name" );
 
-        // read Built In widget name
-        widgetName = builtInElement.attribute( "WidgetName" );
+        QDomElement childElement = builtInElement.firstChildElement();
+        while (!childElement.isNull())
+        {
+            QString tagName = childElement.tagName();
 
-        // read Built In widget title
-        widgetTitle = builtInElement.attribute( "WidgetTitle" );
+             // check if the item is a submenu or an item
+            if( tagName == "WidgetName" )
+            {
+                // Get the name of the target widget
+                widgetName = childElement.text();
+            }
+
+            childElement = childElement.nextSiblingElement();
+        }
     }
 
     // Read windows to create
@@ -644,9 +661,8 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
     QList<windowCreationListItem> windows;
     QString builtIn;
     QString widgetName;
-    QString widgetTitle;
 
-    if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, widgetTitle, arguments ) )
+    if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments ) )
     {
         if( !builtIn.isEmpty() )
         {
@@ -655,8 +671,7 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
                                                                                  builtIn,
                                                                                  windowCustomisationMenuItem::MENU_BUILT_IN,
                                                                                  requiresSeparator( itemElement ),
-                                                                                 widgetName,
-                                                                                 widgetTitle );
+                                                                                 widgetName );
             return item;
 
         }
@@ -707,10 +722,9 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
          QList<windowCreationListItem> windows;
          QString builtIn;
          QString widgetName;
-         QString widgetTitle;
 
 
-         if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, widgetTitle, arguments ) )
+         if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments ) )
          {
              // Add details for a button item to customisation set
              windowCustomisationButtonItem* item = new windowCustomisationButtonItem(buttonGroup, title, buttonIcon, NULL/*!!! needs launch receiver object*/, windows, program,
