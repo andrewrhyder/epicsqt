@@ -38,6 +38,7 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QTimer>
 
 #include <QCaDateTime.h>
 #include <QEArchiveInterface.h>
@@ -205,7 +206,6 @@ private:
 
    friend class QEArchiveAccess;
 
-
    // Status request/response from/to archive interface objects.
    //
 private slots:
@@ -225,13 +225,48 @@ signals:
                              const QEArchiveAccess::PVDataResponses&);
 
 private slots:
-   // From thread
+   // From owning thread
    void started ();
 
    // From archive interface.
+   //
    void archivesResponse (const QObject* userData, const bool isSuccess, const QEArchiveInterface::ArchiveList & archiveList);
    void pvNamesResponse  (const QObject* userData, const bool isSuccess, const QEArchiveInterface::PVNameList& pvNameList);
    void valuesResponse   (const QObject* userData, const bool isSuccess, const QEArchiveInterface::ResponseValueList& valuesList);
+
+   // From ArchiveInterfacePlus
+   //
+   void nextRequest      (const int requestIndex);
+};
+
+
+// This class essentially justs tacks on a bit of status and control to the basic
+// QEArchiveInterface. It is only for internal use, and is exposed in a header
+// because the Qt SDK framework requires that signals and slots are declared in
+// header files.
+//
+class ArchiveInterfacePlus : public QEArchiveInterface {
+   Q_OBJECT
+private:
+   explicit ArchiveInterfacePlus (QUrl url, QObject* parent = 0);
+
+   QEArchiveInterface::ArchiveList archiveList;
+   QEArchiveAccess::States state;
+   int available;
+   int read;
+   int numberPVs;
+
+   int requestIndex;
+
+   QTimer* timer;
+
+   friend class QEArchiveManager;
+
+signals:
+   void nextRequest (const int requestIndex);
+
+private slots:
+   void timeout ();
 };
 
 #endif  // QEARCHIVEMANAGER_H
