@@ -1421,6 +1421,12 @@ void  MainWindow::requestAction( const QEActionRequests & request )
             }
             break;
 
+        case QEActionRequests::KindWidgetAction:
+            {
+                QEWidget::doAction( this, request.getWidgetName(), request.getAction(), request.getArguments() );
+            }
+            break;
+
         case QEActionRequests::KindHostComponents:
             {
                 QList<componentHostListItem> components = request.getComponents();
@@ -1474,7 +1480,7 @@ void MainWindow::dockComponentDestroyed( QObject* component )
     // Get parent (should be the dock)
     QWidget* dock = (QWidget*)(component)->parent();
 
-    // Do nothin if no parent or it is not a dock
+    // Do nothing if no parent or it is not a dock
     if( !dock || QString( "QDockWidget").compare( dock->metaObject()->className() ) )
     {
         return;

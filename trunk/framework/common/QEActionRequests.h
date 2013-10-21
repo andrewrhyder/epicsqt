@@ -79,7 +79,6 @@ public:
    // Action (for a QE widget)
    QEActionRequests( const QString& actionIn,
                      const QString& widgetNameIn,
-                     const QString& widgetTitleIn,
                      const QStringList& argumentsIn );
 
    // a set of components to host for a QE widget
@@ -96,6 +95,12 @@ public:
    void setOption (const Options optionIn);
    Options getOption () const;
 
+   void setAction( const QString actionIn );
+   QString getAction() const;
+
+   void setWidgetName(const QString widgetNameIn );
+   QString getWidgetName() const;
+
    QString getCustomisation() const;
 
    QList<windowCreationListItem> getWindows() const;
@@ -110,7 +115,6 @@ private:
    QList<windowCreationListItem> windows;
    QList<componentHostListItem> components;
    QString widgetName;
-   QString widgetTitle;
 };
 
 // Class to hold window creation instructions

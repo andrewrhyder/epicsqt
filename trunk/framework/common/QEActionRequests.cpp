@@ -50,13 +50,11 @@ QEActionRequests::QEActionRequests( const QString& action,
 //
 QEActionRequests::QEActionRequests( const QString& actionIn,
                                     const QString& widgetNameIn,
-                                    const QString& widgetTitleIn,
                                     const QStringList& argumentsIn )
 {
    kind = KindWidgetAction;
    action = actionIn;
    widgetName = widgetNameIn;
-   widgetTitle = widgetTitleIn;
    arguments = argumentsIn;
 }
 
@@ -132,6 +130,30 @@ void QEActionRequests::setOption (const Options optionIn)
 QEActionRequests::Options QEActionRequests::getOption () const
 {
    return this->option;
+}
+
+//---------------------------------------------------------------------------//
+//
+void QEActionRequests::setAction(const QString actionIn )
+{
+   action = actionIn;
+}
+
+QString QEActionRequests::getAction() const
+{
+   return action;
+}
+
+//---------------------------------------------------------------------------//
+//
+void QEActionRequests::setWidgetName(const QString widgetNameIn )
+{
+   widgetName = widgetNameIn;
+}
+
+QString QEActionRequests::getWidgetName() const
+{
+   return widgetName;
 }
 
 //---------------------------------------------------------------------------//
