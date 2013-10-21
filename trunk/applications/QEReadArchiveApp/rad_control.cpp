@@ -81,7 +81,7 @@ void Rad_Control::tickTimeout ()
       case setup:
          this->state = errorExit;  // default next state
          this->initialise ();
-         this->setTimeout (10.0);
+         this->setTimeout (30.0);
          break;
 
       case watingReady:
