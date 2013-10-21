@@ -28,10 +28,11 @@
 #define QCAALARMINFO_H
 
 #include <QString>
+#include <QEPluginLibrary_global.h>
 
 #define QCAALARMINFO_SEVERITY unsigned short
 
-class QCaAlarmInfo
+class QEPLUGINLIBRARYSHARED_EXPORT QCaAlarmInfo
 {
 public:
     QCaAlarmInfo();

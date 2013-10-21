@@ -27,6 +27,7 @@
 #define QE_ENVIRONMENT_VARIABLES_H
 
 #include <QString>
+#include <QEPluginLibrary_global.h>
 
 /// This class provides a means to access environment variables.
 ///
@@ -51,7 +52,7 @@
 /// as from environment variables, command line options and settings. They all
 /// provide a similar API.
 ///
-class QEEnvironmentVariables  {
+class QEPLUGINLIBRARYSHARED_EXPORT QEEnvironmentVariables  {
 public:
    // Uses prefix as specified by setDefaultPrefix.
    // The default default prefix "".
