@@ -41,21 +41,6 @@
 #define DEBUG  qDebug () << "QEArchiveManager::" <<  __FUNCTION__  << ":" << __LINE__
 
 
-//==============================================================================
-// Local Types
-//==============================================================================
-// Essentially just tacking on a bit of status to the basic QEArchiveInterface.
-//
-class ArchiveInterfacePlus : public QEArchiveInterface {
-public:
-   explicit ArchiveInterfacePlus (QUrl url, QObject* parent = 0);
-
-   QEArchiveAccess::States state;
-   int available;
-   int read;
-   int numberPVs;
-};
-
 //------------------------------------------------------------------------------
 //
 ArchiveInterfacePlus::ArchiveInterfacePlus (QUrl url, QObject* parent) : QEArchiveInterface (url, parent)
@@ -64,6 +49,28 @@ ArchiveInterfacePlus::ArchiveInterfacePlus (QUrl url, QObject* parent) : QEArchi
    this->available = 0;
    this->read = 0;
    this->numberPVs = 0;
+
+   this->timer = new QTimer (this);
+   this->timer->setInterval (100);   // Allow 100 mS between requests.
+
+   this->requestIndex = 0;
+
+   connect (this->timer, SIGNAL (timeout ()),
+            this,        SLOT   (timeout ()));
+}
+
+//------------------------------------------------------------------------------
+//
+void ArchiveInterfacePlus::timeout ()
+{
+   if (this->requestIndex < this->available) {
+      emit this->nextRequest (this->requestIndex);
+      this->requestIndex++;
+   } else {
+      // All requests send - we can stop now.
+      //
+      this->timer->stop ();
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -224,6 +231,9 @@ void QEArchiveManager::setup ()
       connect (interface, SIGNAL (valuesResponse   (const QObject*, const bool, const QEArchiveInterface::ResponseValueList &)),
                this,      SLOT   (valuesResponse   (const QObject*, const bool, const QEArchiveInterface::ResponseValueList &)));
 
+      connect (interface, SIGNAL (nextRequest (const int )),
+               this,      SLOT   (nextRequest (const int )));
+
       interface->archivesRequest (interface);
       interface->state = QEArchiveAccess::Updating;
 
@@ -362,7 +372,7 @@ public:
    {
       this->interface = interfaceIn;
       this->archive = archiveIn;
-      this->instance = i;
+      this->instance = i;   // used to determine if this last received, i.e complete. TODO maybe be received in order.
    }
 };
 
@@ -371,29 +381,34 @@ public:
 //
 void QEArchiveManager::archivesResponse (const QObject * userData,
                                          const bool isSuccess,
-                                         const QEArchiveInterface::ArchiveList & archiveList)
+                                         const QEArchiveInterface::ArchiveList & archiveListIn)
 {
    QMutexLocker locker (archiveDataMutex);
 
    ArchiveInterfacePlus *interface = (ArchiveInterfacePlus *) userData;
    int count;
-   int j;
+//   int j;
 
    if (isSuccess) {
 
-      count = archiveList.count ();
+      count = archiveListIn.count ();
       interface->available = count;
+      interface->archiveList = archiveListIn;
+      interface->requestIndex = 0;
+      interface->timer->start ();
 
-      for (j = 0; j < count; j++) {
-         QEArchiveInterface::Archive archive;  // key (name and path)
-         NamesResponseContext *context;
+//      for (j = 0; j < count; j++) {
+//         QEArchiveInterface::Archive archive;  // key (name and path)
+//         NamesResponseContext *context;
 
-         // Create the callback context.
-         //
-         archive = archiveList.value (j);
-         context = new NamesResponseContext (interface, archive, j + 1);
-         interface->namesRequest (context, archive.key, pattern);
-      }
+//         // Create the callback context.
+//         //
+//         archive = archiveListIn.value (j);
+//         context = new NamesResponseContext (interface, archive, j + 1);
+
+//         DEBUG <<  archive.key << pattern;
+//         interface->namesRequest (context, archive.key, pattern);
+//      }
 
    } else {
        this->sendMessage (QString ("request failure from ").append (interface->getName ()),
@@ -406,6 +421,26 @@ void QEArchiveManager::archivesResponse (const QObject * userData,
    singletonManager->resendStatus ();
 }
 
+//------------------------------------------------------------------------------
+//
+void QEArchiveManager::nextRequest (const int requestIndex)
+{
+   ArchiveInterfacePlus* interface = dynamic_cast <ArchiveInterfacePlus *> ( this->sender ());
+   QEArchiveInterface::Archive archive;  // key (name and path)
+   NamesResponseContext *context;
+
+   // sainity checks
+   if (!interface) return;
+   if (requestIndex < 0 || requestIndex >= interface->archiveList.count ()) return;
+
+   // Create the callback context.
+   //
+   archive = interface->archiveList.value (requestIndex);
+   context = new NamesResponseContext (interface, archive, requestIndex + 1);
+
+// DEBUG <<  archive.key << pattern;
+   interface->namesRequest (context, archive.key, pattern);
+}
 
 //------------------------------------------------------------------------------
 //
@@ -423,6 +458,8 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
 
    if (isSuccess) {
       interface->read++;
+
+//    DEBUG << interface->read << pvNameList.count ();
 
       for (j = 0; j < pvNameList.count (); j++) {
          QEArchiveInterface::PVName pvChannel = pvNameList.value (j);
