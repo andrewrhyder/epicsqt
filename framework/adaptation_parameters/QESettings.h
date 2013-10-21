@@ -49,8 +49,8 @@
 /// Do note that QString::toInt () does not accept 0x... hexadecimal or
 /// 0... octal numbers.
 ///
-/// The calss also provides a number of addironal conveniance functions that
-/// are dexcribed below.
+/// The class also provides a number of addironal conveniance functions that
+/// are described below.
 ///
 /// This class is one of several provided to access configuration data such
 /// as from environment variables, command line options and settings. They all
