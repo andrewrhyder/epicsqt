@@ -42,10 +42,11 @@
 #define NUMBER_OF_BUTTONS  21
 #define ICW                26         // icon width
 
-// Special slots - must be consistent with below
+// Special slots NUMBERS  - must be consistent with below
 //
 #define PREV_SLOT          0
 #define NEXT_SLOT          1
+#define YSCALE_SLOT        6
 #define TSCALE_SLOT        12
 
 struct PushButtonSpecifications {
@@ -99,6 +100,7 @@ public:
    ~OwnWidgets ();
 
    QPushButton *pushButtons [NUMBER_OF_BUTTONS];
+   QLabel *yScaleStatus;
    QLabel *timeStatus;
 
 private:
@@ -122,6 +124,7 @@ QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObj
 
    int left;
    int j;
+   QLabel *status;
    QPushButton *button;
    QString iconPathName;
    int gap;
@@ -209,16 +212,26 @@ QEStripChartToolBar::OwnWidgets::OwnWidgets (QEStripChartToolBar *parent) : QObj
 
    button = this->pushButtons [TSCALE_SLOT];
    button->setMenu (this->m2);
-   left = button->geometry().x ();
 
-   this->timeStatus = new QLabel (parent);
-   this->timeStatus->setGeometry (left, 28, 368, 16);
+   // Set up status labels.
+   //
+   this->timeStatus = status = new QLabel (parent);
+   left = this->pushButtons [TSCALE_SLOT]->geometry().x ();
+   status->setGeometry (left, 28, 368, 16);
 
-   QFont font = this->timeStatus->font ();
+   QFont font = status->font ();
    font.setFamily ("Monospace");
    font.setPointSize (9);
-   this->timeStatus->setFont (font);
-   // this->timeStatus->setStyleSheet ("QWidget { background-color: #ffffe0; }");
+   status->setFont (font);
+   // status->setStyleSheet ("QWidget { background-color: #ffffe0; }");
+
+   this->yScaleStatus = status = new QLabel ("Dynamic", parent);
+   left = this->pushButtons [YSCALE_SLOT]->geometry().x ();
+   status->setGeometry (left, 28, 160, 16);
+   status->setAlignment (Qt::AlignHCenter);
+   status->setFont (font);
+   // status->setStyleSheet ("QWidget { background-color: #ffffe0; }");
+
 }
 
 //------------------------------------------------------------------------------
@@ -242,6 +255,13 @@ QEStripChartToolBar::QEStripChartToolBar (QWidget *parent) : QFrame (parent)
 QEStripChartToolBar::~QEStripChartToolBar ()
 {
    // no special action - place holder
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartToolBar::setYRangeStatus (const QString & status)
+{
+   this->ownWidgets->yScaleStatus->setText (status);
 }
 
 //------------------------------------------------------------------------------
