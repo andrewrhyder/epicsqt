@@ -369,9 +369,4 @@ void QEGui::launchRecentGui( QString path, QStringList pathList, QString macroSu
     profile.releaseProfile();
 }
 
-void QEGui::applyMainWindowCustomisations(  QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting )
-{
-    winCustomisations.applyCustomisation( mw, customisationName, customisationInfo, clearExisting );
-}
-
 // end

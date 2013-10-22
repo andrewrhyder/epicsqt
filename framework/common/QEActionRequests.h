@@ -31,6 +31,7 @@
 #include <QStringList>
 #include <QVariant>
 #include <QEPluginLibrary_global.h>
+#include <QAction>
 
 
 // Forward class declarations
@@ -79,7 +80,9 @@ public:
    // Action (for a QE widget)
    QEActionRequests( const QString& actionIn,
                      const QString& widgetNameIn,
-                     const QStringList& argumentsIn );
+                     const QStringList& argumentsIn,
+                     const bool& initialiseIn,
+                     QAction* originator );
 
    // a set of components to host for a QE widget
    QEActionRequests( const QList<componentHostListItem> componentsIn );
@@ -101,6 +104,12 @@ public:
    void setWidgetName(const QString widgetNameIn );
    QString getWidgetName() const;
 
+   void setInitialise (const bool initialiseIn );
+   bool getInitialise() const;
+
+   void setOriginator( QAction* originatorIn );
+   QAction* getOriginator() const;
+
    QString getCustomisation() const;
 
    QList<windowCreationListItem> getWindows() const;
@@ -115,6 +124,8 @@ private:
    QList<windowCreationListItem> windows;
    QList<componentHostListItem> components;
    QString widgetName;
+   bool initialise;     // If true, initial preperation to do this action, don't actually do it. For example, set initial checked state of menu item
+   QAction* originator; // A copy would be safer???
 };
 
 // Class to hold window creation instructions

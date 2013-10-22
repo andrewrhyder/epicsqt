@@ -102,6 +102,15 @@ windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item):
     widgetName = item->widgetName;
 }
 
+// A menu item or button has been created, let the application or widget know about it
+void windowCustomisationItem::initialise()
+{
+    if( !builtInAction.isEmpty() )
+    {
+        emit newGui( QEActionRequests( builtInAction, widgetName, arguments, true, this ) );
+    }
+}
+
 // A user has triggered the menu item or button
 void windowCustomisationItem::itemAction()
 {
@@ -123,7 +132,7 @@ void windowCustomisationItem::itemAction()
         // A widget name is present, assume the action is for a QE widget created by the application
         else
         {
-            emit newGui( QEActionRequests( builtInAction, widgetName, arguments ) );
+            emit newGui( QEActionRequests( builtInAction, widgetName, arguments, false, this ) );
         }
     }
 }
@@ -458,7 +467,7 @@ void windowCustomisationList::parseMenuElement( QDomElement element, windowCusto
             // If an item was created, add it
             if( item )
             {
-                customisation->addItem(item);
+                customisation->addItem( item );
             }
         }
 
@@ -846,6 +855,16 @@ QMenu* windowCustomisationList::buildMenuPath( windowCustomisationInfo* customis
     return menuPoint;
 }
 
+void windowCustomisationList::initialise( windowCustomisationInfo* customisationInfo )
+{
+    int count = customisationInfo->items.count();
+    for( int i = 0; i < count; i++ )
+    {
+        customisationInfo->items.at(i)->initialise();
+    }
+}
+
+
 // Add the named customisation to a main window.
 // Return true if named customisation found and loaded.
 void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting )
@@ -855,6 +874,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
     {
         // Remove all current menus
         mw->menuBar()->clear();
+        customisationInfo->items.clear();
         mw->menuBar()->setVisible( false );
         customisationInfo->menus.clear();
 
@@ -966,6 +986,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                 menu->addAction( menuItem );
                 QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
                                   mw, SLOT( requestAction( const QEActionRequests& ) ) );
+                customisationInfo->items.append( menuItem );
 
                 break;
         }

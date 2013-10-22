@@ -1447,7 +1447,6 @@ void QEImage::targetClicked()
 }
 
 // Pause button pressed
-void QEImage::pauseClicked( QAction* ) { pauseClicked(); }
 void QEImage::pauseClicked()
 {
     // If paused, resume
@@ -1475,10 +1474,20 @@ void QEImage::pauseClicked()
         pauseButton->setToolTip("Resume image display");
         paused = true;
     }
+
+    // Ensure the checked state of the internal pause buttons is set correctly.
+    // (A change in pause state may have originated from the external QAction)
+    pauseButton->setChecked( paused );
+
+    // If there is an external QAction that can pause display, set its checked state correctly.
+    // (A change in pause state may have originated from the interbal button )
+    if( pauseExternalAction )
+    {
+        pauseExternalAction->setChecked( paused );
+    }
 }
 
 // Save button pressed
-void QEImage::saveClicked( QAction* ) { saveClicked(); }
 void QEImage::saveClicked()
 {
     QFileDialog *qFileDialog;
@@ -3420,45 +3429,64 @@ void QEImage::showImageAboutDialog()
     QMessageBox::about(this, "About Image", about );
 }
 
-// Perform a named action
-void QEImage::actionRequest( QString action, QStringList arguments )
+// Perform a named action.
+// A call to this method originates from the application that created this widget and arrives with the
+// support of the windowCustomisation class.
+// The 'originator' QAction reference parameter is the QAction from the application's menu item or button
+// generating this action request.
+//
+// For each action:
+//
+//     If initialising:
+//         - If this widget will need to manipulate the application's menu item or button generating this
+//           action request (such as disable it, or set its checked state), then save the 'originator' QAction
+//           reference for future use.
+//         - If the 'triggered' signal from the 'originator' QAction can be used directly, then connect to it.
+//
+//     If not initialising:
+//         - Nothing may be required if already connected to the 'triggered' signal from the 'originator' QAction.
+//         or
+//         - Perform the action required.
+//         - Optionally manipulate the 'originator' QAction. For example, enable it, disable it, modify its
+//           label, or set its checked state as required. Note, if manipulating the 'originator' QAction
+//           from within this function, the originator reference does not need to be saved when initialising
+//           as it is passed in on each call.
+void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool initialise, QAction* originator )
 {
-    qDebug() << "QEImage::actionRequest()" << action << arguments;
-    if( action == "Pause/Play")
+
+    if( action == "Save...")
     {
-        pauseClicked();
+        if( initialise )
+        {
+            QObject::connect(originator, SIGNAL(triggered()), this, SLOT(saveClicked()));
+        }
     }
+
+    else if( action == "Pause")
+    {
+        if( initialise )
+        {
+            pauseExternalAction = originator;
+            pauseExternalAction->setCheckable( true );
+            QObject::connect(pauseExternalAction, SIGNAL(triggered()), this, SLOT(pauseClicked()));
+        }
+    }
+
+    else if( action == "Move target position into beam")
+    {
+        if( initialise )
+        {
+            QObject::connect(originator, SIGNAL(triggered()), this, SLOT(targetClicked()));
+        }
+    }
+
     else if( action == "About image..." )
     {
-        showImageAboutDialog();
+        if( !initialise )
+        {
+            showImageAboutDialog();
+        }
     }
-    // Add other options from context menu - showContextMenu()
-
-
-
-
-//    void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bool checked )
-//    {
-//        // Act on the menu selection
-//        switch( option )
-//        {
-//            default:
-//            case imageContextMenu::ICM_NONE: break;
-
-//            case imageContextMenu::ICM_SAVE:                        saveClicked();                         break;
-//            case imageContextMenu::ICM_PAUSE:                       pauseClicked();                        break;
-//            case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         showInfo                  ( checked ); break;
-//            case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    doContrastReversal        ( checked ); break;
-//            case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                break;
-//            case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime               ( checked ); break;
-//            case imageContextMenu::ICM_ENABLE_VERT:                 doEnableVertSliceSelection( checked ); break;
-//            case imageContextMenu::ICM_ENABLE_HOZ:                  doEnableHozSliceSelection ( checked ); break;
-//            case imageContextMenu::ICM_ENABLE_AREA:                 doEnableAreaSelection     ( checked ); break;
-//            case imageContextMenu::ICM_ENABLE_LINE:                 doEnableProfileSelection  ( checked ); break;
-//            case imageContextMenu::ICM_ENABLE_TARGET:               doEnableTargetSelection   ( checked ); break;
-//            case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          buttonGroup->setVisible   ( checked ); break;
-//            case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: doEnableBrightnessContrast( checked ); break;
-//            case imageContextMenu::ICM_OPTIONS:                     optionsDialog->exec( this );           break;
 
 }
 
