@@ -59,7 +59,7 @@ public:
 
     void        launchRecentGui( QString path, QStringList pathList, QString macroSubstitutions, QString customisationName );
 
-    void        applyMainWindowCustomisations(  QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting );
+    windowCustomisationList* getMainWindowCustomisations(){ return &winCustomisations; }
     windowCustomisation* getCustomisation(QString name){ return winCustomisations.getCustomisation(name); }
 
     MainWindow* raiseGui(  QString guiFileName, QString macroSubstitutions );

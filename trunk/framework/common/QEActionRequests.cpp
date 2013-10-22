@@ -31,7 +31,9 @@
 QEActionRequests::QEActionRequests ()
 {
    this->kind = KindNone;
-   this->arguments.clear ();
+   option = OptionNewWindow;
+   initialise = false;
+   originator = NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -40,22 +42,28 @@ QEActionRequests::QEActionRequests( const QString& action,
                                     const QString& pvName)
 {
    kind = KindAction;
-   arguments.clear ();
    arguments << action;
    arguments << pvName;
    option = OptionNewWindow;
+   initialise = false;
+   originator = NULL;
 }
 
 //---------------------------------------------------------------------------
 //
 QEActionRequests::QEActionRequests( const QString& actionIn,
                                     const QString& widgetNameIn,
-                                    const QStringList& argumentsIn )
+                                    const QStringList& argumentsIn,
+                                    const bool& initialiseIn,
+                                    QAction* originatorIn )
 {
    kind = KindWidgetAction;
    action = actionIn;
    widgetName = widgetNameIn;
    arguments = argumentsIn;
+   option = OptionNewWindow; // not required, but keep things neat
+   initialise = initialiseIn;
+   originator = originatorIn;
 }
 
 //---------------------------------------------------------------------------
@@ -65,9 +73,10 @@ QEActionRequests::QEActionRequests (const QString & filename,
                                           const Options optionIn)
 {
    this->kind = KindOpenFile;
-   this->arguments.clear ();
    this->arguments << filename;
    this->option = optionIn;
+   initialise = false;
+   originator = NULL;
    customisation = customisationIn;
 }
 
@@ -77,6 +86,9 @@ QEActionRequests::QEActionRequests( const QList<windowCreationListItem> windowsI
 {
    kind = KindOpenFiles;
    option = OptionNewWindow; // not required, but keep things neat
+   initialise = false;
+   originator = NULL;
+
    for( int i = 0; i < windowsIn.count(); i++ )
    {
        windows.append( windowsIn.at(i) );
@@ -89,6 +101,9 @@ QEActionRequests::QEActionRequests( const QList<componentHostListItem> component
 {
    kind = KindHostComponents;
    option = OptionFloatingDockWindow; // not required, but keep things neat
+   initialise = false;
+   originator = NULL;
+
    for( int i = 0; i < componentsIn.count(); i++ )
    {
        components.append( componentsIn.at(i) );
@@ -154,6 +169,30 @@ void QEActionRequests::setWidgetName(const QString widgetNameIn )
 QString QEActionRequests::getWidgetName() const
 {
    return widgetName;
+}
+
+//---------------------------------------------------------------------------
+//
+void QEActionRequests::setInitialise (const bool initialiseIn )
+{
+   initialise = initialiseIn;
+}
+
+bool QEActionRequests::getInitialise() const
+{
+   return initialise;
+}
+
+//---------------------------------------------------------------------------
+//
+void QEActionRequests::setOriginator( QAction* originatorIn )
+{
+   originator = originatorIn;
+}
+
+QAction* QEActionRequests::getOriginator() const
+{
+   return originator;
 }
 
 //---------------------------------------------------------------------------//

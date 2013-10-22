@@ -308,10 +308,8 @@ public slots:
 
     // Slots to allow external operation of control buttons
     void pauseClicked();           ///< Framework use only. Slot to allow external setting of selection menu options
-    void pauseClicked( QAction* ); ///< Framework use only. Slot to allow external setting of selection menu options
 
     void saveClicked();            ///< Framework use only. Slot to allow external setting of selection menu options
-    void saveClicked( QAction* );  ///< Framework use only. Slot to allow external setting of selection menu options
 
     void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
     void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
@@ -339,7 +337,7 @@ public slots:
 
 
   private:
-    void actionRequest( QString action, QStringList arguments ); // Perform a named action
+    void actionRequest( QString action, QStringList arguments, bool initialise, QAction* originator ); // Perform a named action
 
 
     void emitComponentHostRequest( const QEActionRequests& request ){ emit componentHostRequest( request ); }
@@ -368,24 +366,16 @@ public slots:
 
     void presentControls();
 
-    // Button widgets and actions
+    // Button widgets
     QPushButton* pauseButton;
-    QAction* pauseAction;
-
     QPushButton* saveButton;
-    QAction* saveAction;
-
     QPushButton* targetButton;
-    QAction* targetAction;
-
-    QPushButton* selectModeButton;
-    QAction* selectModeAction;
-
     QPushButton* zoomButton;
-    QAction* zoomAction;
-
+    QPushButton* selectModeButton;
     QPushButton* flipRotateButton;
-    QAction* flipRotateAction;
+
+    // External actions optionally provided by the application creating this widget
+    QAction* pauseExternalAction;
 
     // Profile graphic widgets
     QLabel* vSliceLabel;

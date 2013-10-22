@@ -165,6 +165,8 @@ public:
 
     QString getBuiltInAction(){return builtInAction;}
 
+    void initialise();
+
 private:
     // Item action
     QList<windowCreationListItem> windows;          // Windows to create (.ui files and how to present them)
@@ -298,6 +300,7 @@ public:
     QMap<QString, QMenu*> placeholderMenus; // Menus where application may insert items
     QMap<QString, QMenu*> menus;            // All menus added by customisation system
     QMap<QString, QToolBar*> toolbars;      // All tool bars added by customisation system
+    QList<windowCustomisationMenuItem*> items;
 };
 
 // Class managing all customisation sets
@@ -312,8 +315,10 @@ public:
     void applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting ); // Add the named customisation set to a main window. Return true if named customisation found and loaded.
 
     windowCustomisation* getCustomisation(QString name);
+    void initialise( windowCustomisationInfo* customisationInfo );
 
 private:
+
     QMenu* buildMenuPath( windowCustomisationInfo* customisationInfo, QMenuBar* menuBar, const QStringList menuHierarchy );
 
     void addIncludeCustomisation(windowCustomisation* customisation, windowCustomisation* include);
@@ -331,12 +336,12 @@ private:
     void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows );
 
     windowCustomisationMenuItem* createMenuItem       ( QDomElement itemElement, QStringList menuHierarchy); // Create a custom menu item
-//    windowCustomisationMenuItem* createMenuBuiltIn    ( QDomElement itemElement, QStringList menuHierarchy); // Create a built in menu item
     windowCustomisationMenuItem* createMenuPlaceholder( QDomElement itemElement, QStringList menuHierarchy); // Create a placeholder menu (for the application to add stuff to)
 
     windowCustomisationButtonItem* createButtonItem( // Create a button customisation item
                                               QDomElement itemElement);
     QList<windowCustomisation*> customisationList;                         // List of customisations
+//    QList<windowCustomisationMenuItem*> currentItems;
 
 
 };

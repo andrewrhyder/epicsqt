@@ -52,7 +52,8 @@ profilePlot::profilePlot( plotDirections plotDirectionIn ) : QwtPlot( 0 )
     setContextMenuPolicy( Qt::CustomContextMenu );
     connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showProfileContextMenu( const QPoint& )));
 
-    int w, h;
+    int w = 200; // Initialised to avoid compiler warning
+    int h = 100; // Initialised to avoid compiler warning
     switch( plotDirection )
     {
         case PROFILEPLOT_LR:

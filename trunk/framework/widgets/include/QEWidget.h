@@ -240,7 +240,7 @@ public:
     /// If found the QE widget will attecjpt to carry out the requested action which consists of an action string and an argument list.
     /// This method allows an application to initiate QE widget activity. The QEGui application uses this mechanism when providing custom menus defined in XML files.
     /// The method returns true if the named widget was found. (The action was not nessesarily performed, or even recognised by the widget)
-    static void doAction( QWidget* searchPoint, QString widgetName, QString action, QStringList arguments );
+    static void doAction( QWidget* searchPoint, QString widgetName, QString action, QStringList arguments, bool initialise, QAction* originator );
 
 protected:
     void setNumVariables( unsigned int numVariablesIn );    // Set the number of variables that will stream data updates to the widget. Default of 1 if not called.
@@ -254,7 +254,7 @@ protected:
 
     QString persistantName( QString prefix );               // Returns a string that will not change between runs of the application (given the same configuration)
 
-    virtual void actionRequest( QString, QStringList ){} // Perform a named action
+    virtual void actionRequest( QString, QStringList, bool, QAction* ){} // Perform a named action
 
 private:
     void deleteQcaItem( unsigned int variableIndex, bool disconnect );       // Delete a stream of CA updates

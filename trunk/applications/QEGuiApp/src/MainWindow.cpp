@@ -285,9 +285,9 @@ void MainWindow::setDefaultCustomisation()
     {
         defaultCustomisation = "QEGui_Default";
     }
-    // Apply any required window customisations
 
-    app->applyMainWindowCustomisations( this, defaultCustomisation, &customisationInfo, true );
+    // Apply any required window customisations
+    app->getMainWindowCustomisations()->applyCustomisation( this, defaultCustomisation, &customisationInfo, true );
     setupPlaceholderMenus();
 }
 
@@ -1066,6 +1066,9 @@ void MainWindow::loadGuiIntoNewTab( QEForm* gui )
         int index = tabs->addTab( rGui, gui->getQEGuiTitle() );
         tabs->setCurrentIndex( index );
     }
+
+    // Initialise customisation items.
+    app->getMainWindowCustomisations()->initialise( &customisationInfo );
 }
 
 // Open a gui in the current window
@@ -1142,6 +1145,9 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
 
     // Set the title
     setTitle( gui->getQEGuiTitle() );
+
+    // Initialise customisation items.
+    app->getMainWindowCustomisations()->initialise( &customisationInfo );
 }
 
 // Open a gui in a new dock
@@ -1208,6 +1214,9 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
 
     // Set hidden if required
     dock->setVisible( !hidden );
+
+    // Initialise customisation items.
+    app->getMainWindowCustomisations()->initialise( &customisationInfo );
 }
 
 // Translate a creation option to a dock location.
@@ -1423,7 +1432,7 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 
         case QEActionRequests::KindWidgetAction:
             {
-                QEWidget::doAction( this, request.getWidgetName(), request.getAction(), request.getArguments() );
+                QEWidget::doAction( this, request.getWidgetName(), request.getAction(), request.getArguments(), request.getInitialise(), request.getOriginator() );
             }
             break;
 
@@ -1660,7 +1669,7 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
         }
 
         // Load any required window customisation
-        app->applyMainWindowCustomisations( this, customisationName, &customisationInfo, false );
+        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, false );
 
         // Use whatever placeholder menus are available (for example, populate a 'Recent' menu if present)
         setupPlaceholderMenus();
