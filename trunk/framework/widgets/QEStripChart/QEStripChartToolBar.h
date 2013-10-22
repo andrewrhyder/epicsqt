@@ -44,7 +44,9 @@ public:
   explicit QEStripChartToolBar (QWidget *parent = 0);
   virtual ~QEStripChartToolBar ();
 
-  void setTimeStatus (const QString & timeStatus);
+  void setYRangeStatus (const QString& status);
+  void setTimeStatus (const QString& timeStatus);
+
   void setStateSelectionEnabled (const QEStripChartNames::StateModes mode, const bool enabled);
   
    static const int designHeight = 44;

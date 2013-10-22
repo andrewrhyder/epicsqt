@@ -941,6 +941,16 @@ void QEStripChart::PrivateData::plotData ()
 
    // set on tool bar
    this->toolBar->setTimeStatus (times);
+
+   QEStripChartNames meta;   // allows access to enumeration metta data.
+   QString yRangeStatus;
+
+   yRangeStatus = QEUtilities::enumToString (meta, "ChartYRanges", this->chartYScale);
+   if (this->chartYScale == QEStripChartNames::operatingRange) {
+      yRangeStatus = "operating range";
+   }
+   yRangeStatus.append (" scale");
+   this->toolBar->setYRangeStatus (yRangeStatus);
 }
 
 //------------------------------------------------------------------------------
@@ -1543,8 +1553,8 @@ void QEStripChart::yRangeSelected (const QEStripChartNames::ChartYRanges scale)
          break;
 
       case QEStripChartNames::normalised:
-         this->privateData->chartYScale = scale;
          this->setYRange (0.0, 100.0);
+         this->privateData->chartYScale = scale;
 
          for (slot = 0; slot < NUMBER_OF_PVS; slot++) {
             QEStripChartItem * item = this->privateData->getItem (slot);
