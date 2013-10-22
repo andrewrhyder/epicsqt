@@ -73,7 +73,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Enter a regular expression to filter PV names avaialble from the archiver - populated the name combo-box below</string>
+          <string>Enter a regular expression to filter PV names avaialble from the archiver - this used to populated the name combo-box below.</string>
          </property>
          <property name="text">
           <string/>
@@ -167,6 +167,9 @@
            <width>48</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>Number of PVs that match given filter.</string>
          </property>
          <property name="text">
           <string>0</string>

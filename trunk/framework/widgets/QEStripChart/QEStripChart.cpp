@@ -540,7 +540,7 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
 
    // Clear / initialise plot.
    //
-   this->chartYScale = QEStripChartNames::manual;
+   this->chartYScale = QEStripChartNames::dynamic;
    this->yScaleMode = QEStripChartNames::linear;
    this->chartTimeMode = QEStripChartNames::tmRealTime;
    this->timeScale = 1.0;

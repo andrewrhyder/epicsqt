@@ -53,13 +53,16 @@ static const QColor item_colours [QEStripChart::NUMBER_OF_PVS] = {
     QColor (0x800080), QColor (0x00FF00), QColor (0x00FFFF), QColor (0xFFFF00)
 };
 
-// Can't do QColor (0x000000)
+// Can't declare black as QColor (0x000000)
 //
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 
 static const QString inuse  ("QWidget { background-color: #e0e0e0; }");
 static const QString unused ("QWidget { background-color: #c0c0c0; }");
+
+static const QString scaledTip ("Note: this PV has been re-scaled");
+static const QString regularTip ("Use context menu to modify PV attributes or double click here.");
 
 
 //==============================================================================
@@ -86,7 +89,7 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    // Set up other properties.
    //
    this->pvName->setIndent (6);
-   this->pvName->setToolTip ("Use context menu to modify PV attributes");
+   this->pvName->setToolTip (regularTip);
    this->pvName->setAcceptDrops (true);
 
    // Use the chart item object as the pvName event filter object.
@@ -1103,9 +1106,9 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
    // Set tool top depending on current scaling.
    //
    if (this->scaling.isScaled()) {
-      this->pvName->setToolTip ("Note: this PV is scaled");
+      this->pvName->setToolTip (scaledTip);
    } else {
-      this->pvName->setToolTip ("Use context menu to modify PV attributes");
+      this->pvName->setToolTip (regularTip);
    }
 }
 
