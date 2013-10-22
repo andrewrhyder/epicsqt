@@ -189,6 +189,7 @@ QDateTime Rad_Control::value (const QString& timeImage, bool& okay)
 void Rad_Control::initialise ()
 {
    const QString format = "dd/MMM/yyyy HH:mm:ss";
+   QString archives = getenv ("QE_ARCHIVE_LIST");
 
    QString timeImage;
    bool okay;
@@ -300,13 +301,15 @@ void Rad_Control::initialise ()
    line.append (QEUtilities::getTimeZoneTLA (this->endTime));
    std::cout << line.toAscii().data() << "\n";
 
-   line = "pattern:   ";
+   line = "archives: ";
+   line.append (archives);
+   std::cout << line.toAscii().data() << "\n";
+
+   line = "pattern:  ";
    line.append (pattern);
    std::cout << line.toAscii().data() << "\n";
 
-
-   QEArchiveAccess::initialise ("CR01ARC01:80/cgi-bin/ArchiveDataServer.cgi CR01ARC02:80/cgi-bin/ArchiveDataServer.cgi",
-                                pattern);
+   QEArchiveAccess::initialise (archives, pattern);
 
    this->archiveAccess = new QEArchiveAccess ();
 
