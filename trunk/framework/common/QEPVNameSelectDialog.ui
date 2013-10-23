@@ -73,10 +73,35 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Enter a regular expression to filter PV names avaialble from the archiver - this used to populated the name combo-box below.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter a regular expression to filter PV names avaialble from the archiver.&lt;/p&gt;&lt;p&gt;Filtered names are used to populated the name combo-box below.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="helpButton">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Provides brief guide to the use of the PV filtering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(150, 210, 140);</string>
+         </property>
+         <property name="text">
+          <string>Help</string>
          </property>
         </widget>
        </item>

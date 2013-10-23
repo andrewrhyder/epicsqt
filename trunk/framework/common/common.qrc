@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qe/common">
+        <file>QEPVNameSelectFilterHelp.ui</file>
+    </qresource>
+</RCC>

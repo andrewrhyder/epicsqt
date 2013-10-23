@@ -28,6 +28,7 @@
 #define QEPVNAME_SELECT_DIALOG_H
 
 #include <QString>
+#include <QWidget>
 #include <QEDialog.h>
 
 namespace Ui {
@@ -48,17 +49,24 @@ public:
    void setPvName (QString pvNameIn);
    QString getPvName ();
 
+protected:
+   void closeEvent (QCloseEvent * e);
+
 private:
    Ui::QEPVNameSelectDialog *ui;
+   static QWidget *helpUi;
    QString originalPvName;
    bool returnIsMasked;
 
    void applyFilter ();
+   void closeHelp ();
 
 private slots:
    void filterEditReturnPressed ();
    void filterEditingFinished ();
    void editTextChanged (const QString &);
+   void helpClicked (bool checked);
+
    void on_buttonBox_rejected ();
    void on_buttonBox_accepted ();
 };

@@ -36,5 +36,10 @@ FORMS += \
    common/QEPVNameSelectDialog.ui \
    common/PasswordDialog.ui
 
+OTHER_FILES += \
+   common/QEPVNameSelectFilterHelp.ui
+
+RESOURCES += \
+   common/common.qrc
+
 # end
-   
