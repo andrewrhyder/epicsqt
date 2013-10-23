@@ -1797,7 +1797,7 @@ void QEStripChart::setDrop (QVariant drop)
    if (this->getAllowDrop ()) {
       // Use dropped text to add a PV(s) to the chart.
       //
-      this->addPvNameSet (drop.toString());
+      this->paste (drop);
    }
 }
 

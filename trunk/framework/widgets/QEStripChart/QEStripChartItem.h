@@ -138,6 +138,7 @@ private:
    // data members
    //
    unsigned int slot;
+   bool inUse;
    bool isConnected;
    bool useReceiveTime;
    QEArchiveInterface::How archiveReadHow;
