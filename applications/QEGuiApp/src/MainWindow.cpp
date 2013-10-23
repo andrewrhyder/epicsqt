@@ -155,6 +155,7 @@
 #include <restoreDialog.h>
 #include <PasswordDialog.h>
 #include <QEGui.h>
+#include <aboutDialog.h>
 
 // Before Qt 4.8, the command to start designer is 'designer'.
 // Qt 4.8 later uses the command 'designer-qt4'
@@ -640,64 +641,22 @@ void MainWindow::raiseGui( QEForm* gui )
 // Present the 'About' dialog
 void MainWindow::on_actionAbout_triggered()
 {
+    // Build the QE framework version string
+    QString QEFrameworkVersionQEGui = QString( QEFrameworkVersion::getString() ).append(" ").append( QEFrameworkVersion::getDateTime() );
 
-    // Add the version info and the build date/time at compile time of QEGui
-    QString about = QString ("QEGui version:\n      ").append(QE_VERSION_STRING " " QE_VERSION_DATE_TIME);
-
-    // Add the version info and the build date/time at compile time of
-    // the copy of QEPlugin library loaded by QEGui
-    about.append( "\n\n\nQE Framework version (loaded by QEGui):\n      " ).append( QEFrameworkVersion::getString() ).append(" ").append( QEFrameworkVersion::getDateTime() );
-
-
-    // Add the version info and the build date/time at compile time of
-    // the copy of QEPlugin library loaded by QUiLoader while creating QE widgets
-    about.append( "\n\n\nQE Framework version (loaded by QUiLoader):\n      " ).append( UILoaderFrameworkVersion );
-
-    // Add Macro substitutions (-m parameter)
-    about.append( "\n\n\nMacro Substitutions:\n      " ).append( profile.getMacroSubstitutions() );
-
-
-    // Add current working directory
-    about.append( "\n\n\nCurrent path:" );
-    about.append( "\n      " ).append( QDir::currentPath() );
-
-    // Add any path list (-p parameter)
-    QStringList paths =  profile.getPathList();
-    about.append( "\n\n\nPath List Parameter:" );
-    for( int i = 0; i < paths.size(); i++ )
-    {
-        about.append( "\n      " ).append( paths[i] );
-    }
-
-    // Add any path list (environment variable)
-    QStringList envPaths =  profile.getEnvPathList();
-    about.append( "\n\n\nPath List Environment Variable QE_UI_PATH:" );
-    for( int i = 0; i < envPaths.size(); i++ )
-    {
-        about.append( "\n      " ).append( envPaths[i] );
-    }
-
-    // Add the current user level
-    about.append( "\n\n\nCurrent User Level:\n      " );
+    // Build the user level string
     userLevelTypes::userLevels level = profile.getUserLevel();
+    QString userLevel;
     switch( level )
     {
-        case userLevelTypes::USERLEVEL_USER:      about.append( "User" );      break;
-        case userLevelTypes::USERLEVEL_SCIENTIST: about.append( "Scientist" ); break;
-        case userLevelTypes::USERLEVEL_ENGINEER:  about.append( "Engineer" );  break;
+        case userLevelTypes::USERLEVEL_USER:      userLevel = "User";      break;
+        case userLevelTypes::USERLEVEL_SCIENTIST: userLevel = "Scientist"; break;
+        case userLevelTypes::USERLEVEL_ENGINEER:  userLevel = "Engineer";  break;
     }
 
-    // Add the configuration details
-    about.append( "\n\n\nConfiguration file:\n      " ).append( app->getParams()->configurationFile );
-    about.append( "\n\nConfiguration name:\n      " ).append( app->getParams()->configurationName );
-
-    // Add the window customisation details
-    about.append( "\n\n\nWindow customisation file:\n      " ).append( app->getParams()->customisationFile );
-    about.append( "\n\nDefault window customisation name:\n      " ).append( app->getParams()->customisationName );
-
-    // Add the current forms
-    about.append( "\n\n\nOpen GUI files:\n" );
-
+    // Build a list of GUI windows and their files
+    QStringList windowTitles;
+    QStringList windowFiles;
     int i = 0;
     MainWindow* mw;
     while( (mw = app->getMainWindow( i )) )
@@ -709,16 +668,35 @@ void MainWindow::on_actionAbout_triggered()
             {
                 docked = " (Docked)";
             }
-            about.append( "\n      " ).append( mw->guiList[j].getForm()->getQEGuiTitle().append( docked ) );
-            about.append( "\n      " ).append( mw->guiList[j].getForm()->getFullFileName() );
+            windowTitles.append( mw->guiList[j].getForm()->getQEGuiTitle().append( docked ) );
+            windowFiles.append( mw->guiList[j].getForm()->getFullFileName() );
         }
 
         // Next main window
         i++;
     }
 
-    // Display the 'about' text
-    QMessageBox::about(this, "About QEGui", about );
+    // Present the dialog
+    aboutDialog ad( QString( QE_VERSION_STRING " " QE_VERSION_DATE_TIME ), // Version info and the build date/time at compile time of QEGui
+                    QEFrameworkVersionQEGui,                               // Version info and the build date/time at compile time of the copy of QEPlugin library loaded by QEGui
+                    UILoaderFrameworkVersion,                              // Version info and the build date/time at compile time of the copy of QEPlugin library loaded by QUiLoader while creating QE widgets
+
+                    profile.getMacroSubstitutions(),                       // Macro substitutions (-m parameter)
+                    profile.getPathList(),                                 // Path list (-p parameter)
+                    profile.getEnvPathList(),                              // Path list (environment variable)
+                    userLevel,                                             // Current user level
+
+                    windowTitles,                                          // Window titles (must be same length as windowFiles)
+                    windowFiles,                                           // Window file name (must be same length as windowTitles)
+
+                    app->getParams()->configurationFile,                   // Configuration file
+                    app->getParams()->configurationName,                   // Configuration name
+
+                    app->getParams()->customisationFile,                   // Default Window customisation file
+                    app->getParams()->customisationName,                   // Default window customisation name
+                    QString( "not done yet" )                              // Default window customisation name
+                    );
+    ad.exec();
 }
 
 // Change the current tab
