@@ -27,11 +27,18 @@
 
 #include <QDebug>
 #include <QStringList>
+#include <QUiLoader>
 
 #include <QEPVNameSelectDialog.h>
 #include <ui_QEPVNameSelectDialog.h>
 
 #include <QEArchiveManager.h>
+
+#define DEBUG  qDebug () << "QEPVNameSelectDialog::" << __FUNCTION__ << __LINE__
+
+static const QString filterHelpFilename (":/qe/common/QEPVNameSelectFilterHelp.ui");
+
+QWidget* QEPVNameSelectDialog::helpUi = NULL;
 
 //------------------------------------------------------------------------------
 //
@@ -40,6 +47,21 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
       ui (new Ui::QEPVNameSelectDialog)
 {
    this->ui->setupUi (this);
+
+   // Load help ui file - do this only once.
+   // NOTE: We use loader directly rather than requesting the application (QEGui) to
+   // do this for us. The help ui file contains static text, no EPICS aware widgets.
+   //
+   // The dialog is modal. Do we need a mutex??
+   //
+   if (!this->helpUi) {
+      QFile helpUiFile (filterHelpFilename);
+      if (helpUiFile.open (QIODevice::ReadOnly)) {
+         QUiLoader loader;
+         QEPVNameSelectDialog::helpUi = loader.load (&helpUiFile, NULL);
+         helpUiFile.close ();
+      }
+   }
 
    this->returnIsMasked = false;
 
@@ -56,6 +78,9 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
 
    QObject::connect (this->ui->pvNameEdit,  SIGNAL (editTextChanged (const QString&)),
                      this,                  SLOT   (editTextChanged (const QString&)));
+
+   QObject::connect (this->ui->helpButton,  SIGNAL (clicked       (bool)),
+                     this,                  SLOT   (helpClicked   (bool)));
 }
 
 //------------------------------------------------------------------------------
@@ -141,6 +166,33 @@ void QEPVNameSelectDialog::editTextChanged (const QString&)
 }
 
 //------------------------------------------------------------------------------
+//
+void QEPVNameSelectDialog::helpClicked (bool /* checked */ )
+{
+   if (QEPVNameSelectDialog::helpUi) {
+      QEPVNameSelectDialog::helpUi->show ();
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPVNameSelectDialog::closeHelp ()
+{
+   if (QEPVNameSelectDialog::helpUi) {
+      QEPVNameSelectDialog::helpUi->close ();
+   }
+}
+
+//------------------------------------------------------------------------------
+// User close closed the dialog.
+//
+void QEPVNameSelectDialog::closeEvent (QCloseEvent * event)
+{
+   this->closeHelp ();
+   QEDialog::closeEvent (event);
+}
+
+//------------------------------------------------------------------------------
 // User has pressed OK (or return)
 //
 void QEPVNameSelectDialog::on_buttonBox_accepted ()
@@ -151,6 +203,7 @@ void QEPVNameSelectDialog::on_buttonBox_accepted ()
    }
 
    if (!this->getPvName().isEmpty ()) {
+      this->closeHelp ();
       this->accept ();
    }
 }
@@ -160,6 +213,7 @@ void QEPVNameSelectDialog::on_buttonBox_accepted ()
 //
 void QEPVNameSelectDialog::on_buttonBox_rejected ()
 {
+   this->closeHelp ();
    this->close ();
 }
 
