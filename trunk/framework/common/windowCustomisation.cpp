@@ -40,8 +40,6 @@
 #include <QFile>
 #include <QMenuBar>
 #include <QToolBar>
-#include <QUiLoader>
-#include <QDockWidget>
 
 //==============================================================================================
 // windowCustomisationItem
@@ -208,6 +206,17 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(windowCustomisationMenu
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
 }
 
+// Add an initial menu hierarchy.
+// Used when including a customisation set at a particuar point in another customisation set
+void windowCustomisationMenuItem::prependMenuHierarchy( QStringList preMenuHierarchy )
+{
+    int count = preMenuHierarchy.count();
+    for( int i = count - 1; i >= 0; i-- )
+    {
+        menuHierarchy.prepend( preMenuHierarchy.at(i) );
+    }
+}
+
 //==============================================================================================
 // windowCustomisationButtonItem
 //==============================================================================================
@@ -282,9 +291,10 @@ windowCustomisation::~windowCustomisation()
 
 // Add a menu item to the customisation
 // NOTE! windowCustomisation TAKES OWNERSHIP of menuItem
-void windowCustomisation::addItem( windowCustomisationMenuItem* menuItem )
+void windowCustomisation::addItem( windowCustomisationMenuItem* menuItem, QStringList preMenuHierarchy )
 {
     menuItems.append( menuItem );
+    menuItems.last()->prependMenuHierarchy( preMenuHierarchy );
 }
 
 // Add a button to the customisation
@@ -315,9 +325,11 @@ QEActionRequests::Options windowCustomisation::translateCreationOption( QString 
 //==============================================================================================
 
 windowCustomisationList::windowCustomisationList()
-
 {
-    // !!! Nothing yet
+
+    // Load QE widget customisations.
+    loadCustomisation( ":/qe/configuration/QEImageCustomisationDefault.xml" );
+    // Add other QE widget's customisation files here as requried
 }
 
 // Load a set of customisations
@@ -410,13 +422,8 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
                 // Add an include file
                 else if (element.tagName() == "IncludeCustomisation")
                 {
-                    QString includeCustomisationName = element.attribute( "Name" );
-                    // get the customisation info
-                    windowCustomisation* includeCustomisation = getCustomisation(includeCustomisationName);
-                    if (includeCustomisation){
-                        // add all customisation items to the current customisation set
-                        addIncludeCustomisation(customisation, includeCustomisation);
-                    }
+                    // add all customisation items to the current customisation set
+                    addIncludeCustomisation( element, customisation );
                 }
                 node = node.nextSibling();
             }
@@ -449,6 +456,13 @@ void windowCustomisationList::parseMenuElement( QDomElement element, windowCusto
 
         else
         {
+            // Add an include file
+            if (childElement.tagName() == "IncludeCustomisation")
+            {
+                // add all customisation items to the current customisation set
+                addIncludeCustomisation( childElement, customisation, menuHierarchy );
+            }
+
             // Item to add if found
             windowCustomisationMenuItem* item = NULL;
 
@@ -764,21 +778,29 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
  }
 
  // Parse a customisation include file
- void windowCustomisationList::addIncludeCustomisation(windowCustomisation* customisation, windowCustomisation* include)
+ void windowCustomisationList::addIncludeCustomisation( QDomElement includeCustomisationElement, windowCustomisation* customisation, QStringList menuHierarchy )
  {
-     QList<windowCustomisationMenuItem*> menuItems = include->getMenuItems();
-     QList<windowCustomisationButtonItem*> buttons = include->getButtons();
+     QString includeCustomisationName = includeCustomisationElement.attribute( "Name" );
 
-     // add menu items
-     for (int i = 0; i < menuItems.length(); i++)
-     {
-         customisation->addItem(menuItems.at(i));
-     }
+     // Attempt to get the named customisation set
+     windowCustomisation* includeCustomisation = getCustomisation(includeCustomisationName);
 
-     // add button items
-     for (int i = 0; i < buttons.length(); i++)
+     // If the named customisation set was found, then add it
+     if (includeCustomisation)
      {
-         customisation->addItem(buttons.at(i));
+         // add menu items
+         QList<windowCustomisationMenuItem*> menuItems = includeCustomisation->getMenuItems();
+         for (int i = 0; i < menuItems.length(); i++)
+         {
+             customisation->addItem(  menuItems.at(i), menuHierarchy );
+         }
+
+         // add button items
+         QList<windowCustomisationButtonItem*> buttons = includeCustomisation->getButtons();
+         for (int i = 0; i < buttons.length(); i++)
+         {
+             customisation->addItem(buttons.at(i));
+         }
      }
 }
 

@@ -221,6 +221,7 @@ public:
     windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem);
 
     QStringList getMenuHierarchy(){return menuHierarchy;}
+    void prependMenuHierarchy( QStringList preMenuHierarchy );
     QString getTitle(){return title;}
     menuObjectTypes getType(){ return type; }
 
@@ -278,7 +279,7 @@ public:
     windowCustomisation( const QString nameIn );       // Construction - create a named, empty, customisation
     ~windowCustomisation();                            // Destruction
 
-    void addItem( windowCustomisationMenuItem* menuItem );      // Add a menu item to the customisation
+    void addItem( windowCustomisationMenuItem* menuItem, QStringList preMenuHierarchy = QStringList() );      // Add a menu item to the customisation
     void addItem( windowCustomisationButtonItem* button );    // Add a button to the customisation
 
     QList<windowCustomisationMenuItem*> getMenuItems(){return menuItems;}      // get Menu items list
@@ -321,7 +322,7 @@ private:
 
     QMenu* buildMenuPath( windowCustomisationInfo* customisationInfo, QMenuBar* menuBar, const QStringList menuHierarchy );
 
-    void addIncludeCustomisation(windowCustomisation* customisation, windowCustomisation* include);
+    void addIncludeCustomisation( QDomElement includeCustomisationElement, windowCustomisation* customisation, QStringList menuHierarchy = QStringList() );
     void parseMenuElement( QDomElement element, windowCustomisation* customisation, QStringList menuHierarchy );          // Parse menu customisation data
 
     bool requiresSeparator( QDomElement itemElement );          // Determine if an item contains a 'separator' tag

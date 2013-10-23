@@ -17,4 +17,7 @@
         <file>hLineCursor.png</file>
         <file>lineCursor.png</file>
     </qresource>
+    <qresource prefix="/qe/configuration">
+        <file>QEImageCustomisationDefault.xml</file>
+    </qresource>
 </RCC>
