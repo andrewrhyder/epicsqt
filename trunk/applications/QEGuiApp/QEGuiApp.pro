@@ -40,7 +40,8 @@ SOURCES += ./src/main.cpp \
     ./src/restoreDialog.cpp \
     ./src/manageConfigDialog.cpp \
     ./src/loginDialog.cpp \
-    ./src/recentFile.cpp
+    ./src/recentFile.cpp \
+    ./src/aboutDialog.cpp
 
 # Include the following gdbmacros line for debugging only
 #SOURCES += <YOUR-QTSDK-DIRECTORY>/share/qtcreator/gdbmacros/gdbmacros.cpp
@@ -54,7 +55,8 @@ HEADERS += include/MainWindow.h \
     include/restoreDialog.h \
     include/manageConfigDialog.h \
     include/loginDialog.h \
-    include/recentFile.h
+    include/recentFile.h \
+    include/aboutDialog.h
 
 INCLUDEPATH += . \
     ./include \
@@ -82,7 +84,8 @@ FORMS += ./src/MainWindow.ui \
          ./src/ArchiveStatus.ui \
          ./src/saveDialog.ui \
          ./src/restoreDialog.ui \
-         ./src/manageConfigDialog.ui
+         ./src/manageConfigDialog.ui \
+    src/aboutDialog.ui
 
 OTHER_FILES += \
          ./src/QEGuiCustomisationDefault.xml \
