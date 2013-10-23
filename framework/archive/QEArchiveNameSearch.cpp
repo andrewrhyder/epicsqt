@@ -39,12 +39,15 @@ QEArchiveNameSearch::QEArchiveNameSearch (QWidget* parent) : QEFrame (parent)
    this->archiveAccess = new QEArchiveAccess (this);
    this->createInternalWidgets ();
 
+   // Use standard context menu
+   //
+   this->setupContextMenu ();
+
    QObject::connect (this->searchButton, SIGNAL (clicked       (bool)),
                      this,               SLOT   (searchClicked (bool)));
 
    QObject::connect (this->clearButton,  SIGNAL (clicked       (bool)),
                      this,               SLOT   (clearClicked  (bool)));
-
 }
 
 //------------------------------------------------------------------------------
@@ -59,25 +62,28 @@ QEArchiveNameSearch::~QEArchiveNameSearch ()
 void QEArchiveNameSearch::searchClicked (bool /* clicked */ )
 {
    QString searchText;
-   QString filter;
+   QString matchPattern;
    QStringList matchingNames;
 
    searchText = this->lineEdit->text ().trimmed ();
 
    if (searchText.isEmpty ()) return;
 
-   // Replace multiple spaces with wild card.
-   // Sneaking: using a reg exp to generate a reg exp.
+   // Replace special characters . $ \ with the escaped character sequences.
+   // TBD.
+
+   // Replace multiple spaces with wild card.e
+   // Sneaky: using a reg exp to generate a reg exp.
    //
    searchText.replace (QRegExp ("\\s+"), ".*");
 
-   DEBUG << "searchText" << searchText;
-
-   filter = QString (".*").append (searchText).append (".*");
+   // Prefix and postfix match anything.
+   //
+   matchPattern = QString (".*").append (searchText).append (".*");
 
    // QEArchiveAccess ensures the list is sorted.
    //
-   matchingNames = QEArchiveAccess::getMatchingPVnames (filter);
+   matchingNames = QEArchiveAccess::getMatchingPVnames (matchPattern);
 
    this->listWidget->clear ();
    this->listWidget->addItems (matchingNames);
@@ -91,6 +97,46 @@ void QEArchiveNameSearch::clearClicked (bool /* clicked */)
    this->listWidget->clear ();
 }
 
+
+//------------------------------------------------------------------------------
+//
+QStringList QEArchiveNameSearch::getSelectedNames () const
+{
+   QList<QListWidgetItem*> itemList;
+   QStringList result;
+   int n;
+
+   itemList = this->listWidget->selectedItems ();
+   n = itemList.count ();
+   for (int j = 0; j < n; j++) {
+      QListWidgetItem* item = itemList.value (j);
+      result.append (item->text ());
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QVariant QEArchiveNameSearch::getDrop ()
+{
+   QVariant result;
+
+   // Can only sensibly drag strings.
+   //
+   result = QVariant (this->getSelectedNames ().join (" "));
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEArchiveNameSearch::copyVariable ()
+{
+   QString result;
+
+   result = this->getSelectedNames ().join (" ");
+   return result;
+}
 
 //------------------------------------------------------------------------------
 //

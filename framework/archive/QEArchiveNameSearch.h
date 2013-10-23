@@ -29,7 +29,10 @@
 #include <QLayout>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QListWidgetItem>
 #include <QPushButton>
+#include <QString>
+#include <QStringList>
 #include <QWidget>
 
 #include <QEFrame.h>
@@ -44,7 +47,20 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEArchiveNameSearch : public QEFrame {
 public:
    explicit QEArchiveNameSearch (QWidget* parent = 0);
    ~QEArchiveNameSearch ();
+
+   QStringList getSelectedNames () const;
+
+protected:
    QSize sizeHint () const;
+
+   // Drag, no drop
+   //
+   void mousePressEvent (QMouseEvent *event)    { qcaMousePressEvent (event ); }
+   QVariant getDrop();
+
+   // Copy, no paste
+   //
+   QString copyVariable ();  // Function a widget may implement to perform a 'copy variable' operation
 
 private:
    void createInternalWidgets ();
