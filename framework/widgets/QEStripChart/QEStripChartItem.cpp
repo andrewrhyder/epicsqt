@@ -79,6 +79,7 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
 
    this->chart = chartIn;
    this->slot = slotIn;
+   this->inUse = false;
    this->previousQcaItem = NULL;
 
    // Set geometry
@@ -175,6 +176,7 @@ void QEStripChartItem::createInternalWidgets ()
 //
 void QEStripChartItem::clear ()
 {
+   this->inUse = false;
    this->pvName->setText ("");
    this->caLabel->setVariableNameAndSubstitutions ("", "", 0);
    this->caLabel->setText ("-");
@@ -248,6 +250,7 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
 
    this->pvName->setText (substitutedPVName);
    this->caLabel->setStyleSheet (inuse);
+   this->inUse = true;
 
    // Set up connections.
    //
@@ -258,14 +261,14 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
 //
 QString QEStripChartItem::getPvName ()
 {
-   return this->pvName->text ();
+   return this->inUse ? this->pvName->text () : "";
 }
 
 //------------------------------------------------------------------------------
 //
 bool QEStripChartItem::isInUse ()
 {
-   return !(this->pvName->text ().isEmpty ());
+   return this->inUse;
 }
 
 //------------------------------------------------------------------------------
