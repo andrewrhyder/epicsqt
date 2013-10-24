@@ -103,7 +103,7 @@ int QEGui::run()
     // Load window customisations
     // First load the inbuilt default
     // This can be overwritten by any external file with a customisation set with the name "QEGui_Default"
-    winCustomisations.loadCustomisation( ":/configuration/QEGuiCustomisationDefault.xml" );
+    winCustomisations.loadCustomisation( ":/qe/gui/configuration/QEGuiCustomisationDefault.xml" );
 
     // Now load the configuration file specified in the parameters (if any), otherwise the default external file if present
     if( !winCustomisations.loadCustomisation( getParams()->customisationFile ))
@@ -192,7 +192,7 @@ void QEGui::printFile (const QString& filename,
 // Print command line usage
 void QEGui::printUsage (std::ostream& stream)
 {
-   printFile (":/help/help_usage.txt", stream);
+   printFile (":/qe/gui/help/help_usage.txt", stream);
 }
 
 // Prinf command line help
@@ -201,7 +201,7 @@ void QEGui::printHelp ()
    printVersion();
    std::cout << "\n";
    printUsage( std::cout );
-   printFile( ":/help/help_general.txt", std::cout );
+   printFile( ":/qe/gui/help/help_general.txt", std::cout );
 }
 
 // Get the application's startup parameters
