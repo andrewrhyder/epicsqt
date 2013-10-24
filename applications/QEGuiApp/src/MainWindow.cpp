@@ -257,7 +257,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     setAttribute ( Qt::WA_DeleteOnClose );
 
     // Setup the main window icon
-    setWindowIcon( QIcon (":/icons/QEGuiIcon.png" ));
+    setWindowIcon( QIcon (":/qe/gui/icons/QEGuiIcon.png" ));
 
     // Ensure no widget in the loaded gui has focus (and therefore will not update)
     setFocus();
@@ -1365,13 +1365,13 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                 QString inbuiltForm = "";
                 QString className;
 
-                     if( action == "PV Properties..."  ) { inbuiltForm = ":/forms/PVProperties.ui"  ; className = "QEPvProperties"  ; }
-                else if( action == "Strip Chart..."    ) { inbuiltForm = ":/forms/StripChart.ui"    ; className = "QEStripChart"    ; }
-                else if( action == "Scratch Pad..."    ) { inbuiltForm = ":/forms/ScratchPad.ui"    ; className = "QEScratchPad"    ; }
-                else if( action == "Message Log..."    ) { inbuiltForm = ":/forms/MessageLog.ui"    ; className = "QEMessageLog"    ; }
-                else if( action == "Plotter..."        ) { inbuiltForm = ":/forms/Plotter.ui"       ; className = "QEPlotter"       ; }
-                else if( action == "PV Load/Save..."   ) { inbuiltForm = ":/forms/PVLoadSave.ui"    ; className = "QEPvLoadSave"    ; }
-                else if( action == "Archive Status..." ) { inbuiltForm = ":/forms/ArchiveStatus.ui" ; className = "QEArchiveStatus" ; }
+                     if( action == "PV Properties..."  ) { inbuiltForm = ":/qe/gui/forms/PVProperties.ui"  ; className = "QEPvProperties"  ; }
+                else if( action == "Strip Chart..."    ) { inbuiltForm = ":/qe/gui/forms/StripChart.ui"    ; className = "QEStripChart"    ; }
+                else if( action == "Scratch Pad..."    ) { inbuiltForm = ":/qe/gui/forms/ScratchPad.ui"    ; className = "QEScratchPad"    ; }
+                else if( action == "Message Log..."    ) { inbuiltForm = ":/qe/gui/forms/MessageLog.ui"    ; className = "QEMessageLog"    ; }
+                else if( action == "Plotter..."        ) { inbuiltForm = ":/qe/gui/forms/Plotter.ui"       ; className = "QEPlotter"       ; }
+                else if( action == "PV Load/Save..."   ) { inbuiltForm = ":/qe/gui/forms/PVLoadSave.ui"    ; className = "QEPvLoadSave"    ; }
+                else if( action == "Archive Status..." ) { inbuiltForm = ":/qe/gui/forms/ArchiveStatus.ui" ; className = "QEArchiveStatus" ; }
 
                 if( !inbuiltForm.isEmpty() )
                 {

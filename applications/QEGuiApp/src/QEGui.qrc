@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/forms">
+    <qresource prefix="/qe/gui/forms">
         <file>PVProperties.ui</file>
         <file>StripChart.ui</file>
         <file>MessageLog.ui</file>
@@ -8,13 +8,13 @@
         <file>PVLoadSave.ui</file>
         <file>ArchiveStatus.ui</file>
     </qresource>
-    <qresource prefix="/icons">
+    <qresource prefix="/qe/gui/icons">
         <file>QEGuiIcon.png</file>
     </qresource>
-    <qresource prefix="/configuration">
+    <qresource prefix="/qe/gui/configuration">
         <file>QEGuiCustomisationDefault.xml</file>
     </qresource>
-    <qresource prefix="/help">
+    <qresource prefix="/qe/gui/help">
         <file>help_usage.txt</file>
         <file>help_general.txt</file>
     </qresource>

@@ -20,7 +20,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="QEGui.qrc">:/icons/QEGuiIcon.png</pixmap>
+      <pixmap resource="QEGui.qrc">:/qe/gui/icons/QEGuiIcon.png</pixmap>
      </property>
     </widget>
    </item>
