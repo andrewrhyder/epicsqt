@@ -36,6 +36,9 @@
 #include <QUrl>
 
 #include <QECommon.h>
+#include <QEEnvironmentVariables.h>
+#include <QEAdaptationParameters.h>
+
 #include <QEArchiveManager.h>
 
 #define DEBUG  qDebug () << "QEArchiveManager::" <<  __FUNCTION__  << ":" << __LINE__
@@ -255,6 +258,10 @@ void QEArchiveManager::started ()
 // static
 void QEArchiveManager::initialise (const QString& archivesIn, const QString& patternIn)
 {
+   if (archivesIn.isEmpty ()) {
+      qDebug() << "QEArchiveManager: Archive list is undefined.";
+   }
+
    QMutexLocker locker (singletonMutex);
 
    if (!singletonManager) {
@@ -276,25 +283,28 @@ void QEArchiveManager::initialise (const QString& archivesIn, const QString& pat
 // static
 void QEArchiveManager::initialise ()
 {
-   QString archives = getenv ("QE_ARCHIVE_LIST");
-   QString pattern = getenv ("QE_ARCHIVE_PATTERN");
+   {
+      QMutexLocker locker (singletonMutex);
+      if (singletonManager) return; // Already defined.
+   }
 
-   if (archives != "") {
-      if (pattern.isEmpty ()) {
-         // Pattern environment variable undefined, use "get all" by default.
-         //
-         pattern = ".*";
-      }
+   QEAdaptationParameters ap ("QE_");
 
+   QString archives = ap.getString ("archive_list", "");
+   QString pattern  = ap.getString ("archive_pattern", ".*");
+
+   if (!archives.isEmpty ()) {
+      // Something, albeit maybe invalid, has been defined - proceed with initialisation.
+      //
       QEArchiveManager::initialise (archives, pattern);
-
    } else {
       // Has this error already been reported??
       // Not strictly 100% thread safe but not strictly critical either.
       //
       if (!environmentErrorReported) {
          environmentErrorReported = true;
-         qDebug() << "QE_ARCHIVE_LIST undefined. Required to backfill QEStripChart widgets. Define as space delimited archiver URLs";
+         qDebug() << "QE_ARCHIVE_LIST undefined. This is required to be defined in order to backfill QEStripChart widgets.";
+         qDebug() << "Define as space delimited archiver URLs";
       }
    }
 }
