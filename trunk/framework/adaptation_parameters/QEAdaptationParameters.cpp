@@ -40,6 +40,27 @@ static const QString prefix = "Adaptation/";
 //
 QEAdaptationParameters::QEAdaptationParameters ()
 {
+   this->environment = new QEEnvironmentVariables ();
+   this->settings = new QESettings ();
+   this->options = new QEOptions ();
+}
+
+//------------------------------------------------------------------------------
+//
+QEAdaptationParameters::QEAdaptationParameters (const QString& envPrefix)
+{
+   this->environment = new QEEnvironmentVariables (envPrefix);
+   this->settings = new QESettings ();
+   this->options = new QEOptions ();
+}
+
+//------------------------------------------------------------------------------
+//
+QEAdaptationParameters::~QEAdaptationParameters ()
+{
+   delete this->environment;
+   delete this->settings;
+   delete this->options;
 }
 
 //------------------------------------------------------------------------------
@@ -48,10 +69,10 @@ bool QEAdaptationParameters::getBool (const QString &name)
 {
    bool result = false;
 
-   result = this->environment.getBool (name, result);
-   result = this->settings.getBool (prefix + name, result);
+   result = this->environment->getBool (name, result);
+   result = this->settings->getBool (prefix + name, result);
    if (!result) {
-      result = this->options.getBool (name);
+      result = this->options->getBool (name);
    }
 
    return result;
@@ -63,9 +84,9 @@ QString QEAdaptationParameters::getString (const QString &name, const QString &d
 {
    QString result = defaultValue;
 
-   result = this->environment.getString (name, result);
-   result = this->settings.getString (prefix + name, result);
-   result = this->options.getString (name, result);
+   result = this->environment->getString (name, result);
+   result = this->settings->getString (prefix + name, result);
+   result = this->options->getString (name, result);
    return result;
 }
 
@@ -75,9 +96,9 @@ int QEAdaptationParameters::getInt (const QString &name, const int defaultValue)
 {
    int result = defaultValue;
 
-   result = this->environment.getInt (name, result);
-   result = this->settings.getInt (prefix + name, result);
-   result = this->options.getInt (name, result);
+   result = this->environment->getInt (name, result);
+   result = this->settings->getInt (prefix + name, result);
+   result = this->options->getInt (name, result);
    return result;
 }
 
@@ -87,9 +108,9 @@ double QEAdaptationParameters::getFloat (const QString &name, const double defau
 {
    double result = defaultValue;
 
-   result = this->environment.getFloat (name, result);
-   result = this->settings.getFloat (prefix + name, result);
-   result = this->options.getFloat (name, result);
+   result = this->environment->getFloat (name, result);
+   result = this->settings->getFloat (prefix + name, result);
+   result = this->options->getFloat (name, result);
    return result;
 }
 

@@ -44,7 +44,7 @@
 ///
 ///    default_value         - as passed into the getXxxx function.
 ///    environment variable  - the name is converted to upper case and is prefixed with
-///                            application prefix if this has been specified e.g. QEGUI_.
+///                            default or specified prefix if this has been specified e.g. QE_.
 ///    setting               - read from adaptation section if the adaptation_parameters_file.ini file
 ///    command line option   - command line parameter: --name=value. Note is case sensitive.
 ///
@@ -58,7 +58,9 @@
 ///
 class QEPLUGINLIBRARYSHARED_EXPORT QEAdaptationParameters {
 public:
-   QEAdaptationParameters ();
+   QEAdaptationParameters ();  // uses curent default prefix for environment variables.
+   QEAdaptationParameters (const QString& envPrefix);  // spcifies prefix prefix
+   ~QEAdaptationParameters ();
 
    bool    getBool   (const QString& name); // the default is implicitly false
    QString getString (const QString& name, const QString& defaultValue);
@@ -68,9 +70,9 @@ public:
    // TODO - add get file name
 
 private:
-   QEEnvironmentVariables environment;
-   QESettings settings;
-   QEOptions options;
+   QEEnvironmentVariables* environment;
+   QESettings* settings;
+   QEOptions* options;
 };
 
 #endif  // QE_ADAPTATION_PARAMETERS_H
