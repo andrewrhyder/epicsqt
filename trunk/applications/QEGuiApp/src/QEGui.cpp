@@ -158,10 +158,18 @@ int QEGui::run()
 // Print version info
 void QEGui::printVersion ()
 {
-   std::cout  << "QEGui version:     " << QE_VERSION_STRING << "  "<< QE_VERSION_DATE_TIME <<  "\n";
+   std::cout  << "QEGui version:     " << QE_VERSION_STRING << "  "
+              << QE_VERSION_DATE_TIME <<  " (using QT " << QT_VERSION_STR << ")\n";
+
    std::cout  << "Framework version: "
-              << QEFrameworkVersion::getString().toAscii().data()   << "  "
-              << QEFrameworkVersion::getDateTime().toAscii().data() <<  "\n";
+              << QEFrameworkVersion::getString().toAscii().data()       << "  "
+              << QEFrameworkVersion::getDateTime().toAscii().data()     << " (using QT "
+              << QEFrameworkVersion::getQtVersionStr().toAscii().data() << ")\n";
+
+   // Note: the EPICS version string is prefixed by the text "EPICS".
+   //
+   std::cout  << "Support packages:  " << QEFrameworkVersion::getEpicsVersionStr ().toAscii().data()
+              << " and QWT "    << QEFrameworkVersion::getQwtVersionStr().toAscii().data() << "\n";
 }
 
 // Print file to stream
@@ -190,7 +198,7 @@ void QEGui::printUsage (std::ostream& stream)
 // Prinf command line help
 void QEGui::printHelp ()
 {
-   printVersion ();
+   printVersion();
    std::cout << "\n";
    printUsage( std::cout );
    printFile( ":/help/help_general.txt", std::cout );
