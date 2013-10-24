@@ -43,11 +43,8 @@ QEArchiveNameSearch::QEArchiveNameSearch (QWidget* parent) : QEFrame (parent)
    //
    this->setupContextMenu ();
 
-   QObject::connect (this->searchButton, SIGNAL (clicked       (bool)),
-                     this,               SLOT   (searchClicked (bool)));
-
-   QObject::connect (this->clearButton,  SIGNAL (clicked       (bool)),
-                     this,               SLOT   (clearClicked  (bool)));
+   QObject::connect (this->lineEdit, SIGNAL  (returnPressed       ()),
+                     this,           SLOT    (searchReturnPressed ()));
 }
 
 //------------------------------------------------------------------------------
@@ -59,44 +56,57 @@ QEArchiveNameSearch::~QEArchiveNameSearch ()
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveNameSearch::searchClicked (bool /* clicked */ )
+void QEArchiveNameSearch::search ()
 {
    QString searchText;
-   QString matchPattern;
+   QStringList parts;
    QStringList matchingNames;
 
    searchText = this->lineEdit->text ().trimmed ();
 
    if (searchText.isEmpty ()) return;
 
-   // Replace special characters . $ \ with the escaped character sequences.
-   // TBD.
+   // TODO: Replace special reg exp characters (such as '.', '$' and '\' ) with the
+   // escaped character sequences.
 
-   // Replace multiple spaces with wild card.e
-   // Sneaky: using a reg exp to generate a reg exp.
+   // Spilt the patterns into parts.
    //
-   searchText.replace (QRegExp ("\\s+"), ".*");
+   parts = searchText.split (QRegExp ("\\s+"), QString::SkipEmptyParts);
 
-   // Prefix and postfix match anything.
+   matchingNames.clear ();
+
+   // Use each part to find a set of matching names, and then merge the list.
    //
-   matchPattern = QString (".*").append (searchText).append (".*");
+   for (int p = 0; p < parts.count (); p++) {
+      QString part = parts.value (p);
+      QString matchPattern;
+      QStringList partMatches;
 
-   // QEArchiveAccess ensures the list is sorted.
+      // Prefix and postfix match anything.
+      //
+      matchPattern = QString (".*").append (part).append (".*");
+
+      // QEArchiveAccess ensures the list is sorted.
+      //
+      partMatches = QEArchiveAccess::getMatchingPVnames (matchPattern);
+
+      // Now nmerge the lists.
+      //
+      matchingNames = this->merge (matchingNames, partMatches);
+   }
+
+   // Use names to populate the list.
    //
-   matchingNames = QEArchiveAccess::getMatchingPVnames (matchPattern);
-
    this->listWidget->clear ();
    this->listWidget->addItems (matchingNames);
 }
 
 //------------------------------------------------------------------------------
 //
-void QEArchiveNameSearch::clearClicked (bool /* clicked */)
+void QEArchiveNameSearch::searchReturnPressed ()
 {
-   this->lineEdit->setText ("");
-   this->listWidget->clear ();
+   this->search ();
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -114,6 +124,14 @@ QStringList QEArchiveNameSearch::getSelectedNames () const
    }
 
    return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEArchiveNameSearch::clear ()
+{
+   this->lineEdit->setText ("");
+   this->listWidget->clear ();
 }
 
 //------------------------------------------------------------------------------
@@ -165,20 +183,11 @@ void QEArchiveNameSearch::createInternalWidgets ()
    this->horizontalLayout->setContentsMargins (6, 4, 6, 4);
 
    this->lineEdit = new QLineEdit (searchFrame);
+   this->lineEdit->setToolTip ("Enter partial PV names(s) and press return");
 
    this->horizontalLayout->addWidget (lineEdit);
 
-   this->searchButton = new QPushButton ("Search", searchFrame);
-   this->searchButton->setMinimumSize (QSize (64, 0));
-   this->searchButton->setMaximumSize (QSize (64, 16777215));
-
-   this->horizontalLayout->addWidget (searchButton);
-
-   this->clearButton = new QPushButton ("Clear", searchFrame);
-   this->clearButton->setMinimumSize (QSize (64, 0));
-   this->clearButton->setMaximumSize (QSize (64, 16777215));
-
-   this->horizontalLayout->addWidget (clearButton);
+   this->horizontalLayout->setContentsMargins (32, 4, 4, 4);
 
    this->verticalLayout->addWidget (searchFrame);
 
@@ -198,6 +207,64 @@ void QEArchiveNameSearch::createInternalWidgets ()
    this->verticalLayout->addWidget (listWidget);
 
    this->listWidget->setCurrentRow (-1);
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QEArchiveNameSearch::merge (const QStringList& a, const QStringList& b)
+{
+   const int an = a.size ();
+   const int bn = b.size ();
+
+   QStringList result;
+   int ai, bi;
+   QString as, bs;
+
+   // Handle degenerate cases.
+   //
+   if (an == 0) return b;
+   if (bn == 0) return a;
+
+   // At least one item in each list.
+   //
+   ai = bi = 0;
+
+   // While items remaining in both lists ....
+   //
+   while (ai < an && bi < bn) {
+
+      as = a.value (ai);
+      bs = b.value (bi);
+
+      if (as < bs) {
+         result << as;
+         ai++;
+      } else if (bs < as) {
+         result << bs;
+         bi++;
+      } else {
+         // we have a duplucate
+         //
+         result << as;
+         ai++;
+         bi++;
+      }
+   }
+
+   // At least one of the list is empty - just copy whats left.
+   // More trouble than it is worth to figure out which is the empty list.
+   //
+   while (ai < an) {
+      result << a.value (ai);
+      ai++;
+   }
+
+   while (bi < bn) {
+      result << b.value (bi);
+      bi++;
+   }
+
+   return result;
 }
 
 // end
