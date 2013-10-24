@@ -17,7 +17,7 @@ OTHER_FILES += \
     archive/name_search.png
 
 RESOURCES += \
-    archive/QEArchive.qrc
+    archive/archive.qrc
         
 HEADERS += \
     archive/maiaFault.h \
