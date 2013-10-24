@@ -24,6 +24,9 @@
  *
  */
 
+#include <qglobal.h>
+#include <epicsVersion.h>
+#include <qwt_global.h>
 
 #include <QEFrameworkVersion.h>
 
@@ -77,6 +80,27 @@ const QString QEFrameworkVersion::getString ()
 const QString QEFrameworkVersion::getDateTime ()
 {
    return QString (QE_VERSION_DATE_TIME);
+}
+
+//------------------------------------------------------------------------------
+//
+const QString QEFrameworkVersion::getQtVersionStr ()
+{
+   return QString (QT_VERSION_STR);
+}
+
+//------------------------------------------------------------------------------
+//
+const QString QEFrameworkVersion::getQwtVersionStr ()
+{
+   return QString (QWT_VERSION_STR);
+}
+
+//------------------------------------------------------------------------------
+//
+const QString QEFrameworkVersion::getEpicsVersionStr ()
+{
+   return QString (EPICS_VERSION_STRING);
 }
 
 // end

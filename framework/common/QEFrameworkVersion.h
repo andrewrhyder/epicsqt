@@ -74,6 +74,12 @@ public:
    static const QString getStage ();
    static const QString getString ();
    static const QString getDateTime ();
+
+   // Other version info
+   //
+   static const QString getQtVersionStr ();
+   static const QString getQwtVersionStr ();
+   static const QString getEpicsVersionStr ();
 };
 
 #endif // QEFRAMEWORKVERSION_H
