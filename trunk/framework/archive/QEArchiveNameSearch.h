@@ -49,6 +49,7 @@ public:
    ~QEArchiveNameSearch ();
 
    QStringList getSelectedNames () const;
+   void clear ();
 
 protected:
    QSize sizeHint () const;
@@ -65,6 +66,12 @@ protected:
 private:
    void createInternalWidgets ();
 
+   void search ();
+
+   // Utility to merge two string lists - result also sorted and no duplicates.
+   //
+   QStringList merge (const QStringList& a, const QStringList& b);
+
    QEArchiveAccess *archiveAccess;
 
    // Internal widgets.
@@ -73,13 +80,10 @@ private:
    QFrame *searchFrame;
    QHBoxLayout *horizontalLayout;
    QLineEdit *lineEdit;
-   QPushButton *searchButton;
-   QPushButton *clearButton;
    QListWidget *listWidget;
 
 private slots:
-   void searchClicked (bool checked);
-   void clearClicked (bool checked);
+   void searchReturnPressed ();
 };
 
 #endif  // QEARCHIVENAMESEARCH_H 

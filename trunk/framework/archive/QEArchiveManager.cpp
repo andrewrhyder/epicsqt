@@ -36,7 +36,6 @@
 #include <QUrl>
 
 #include <QECommon.h>
-#include <QEEnvironmentVariables.h>
 #include <QEAdaptationParameters.h>
 
 #include <QEArchiveManager.h>
@@ -869,6 +868,8 @@ QStringList QEArchiveAccess::getMatchingPVnames (const QString& pattern)
       existList = pvNameToSourceLookUp.keys ();
    }
 
+   // QStringList::filter () does not do an exact match, so we must do own filtering.
+   //
    n = existList.count ();
    for (j = 0; j < n; j++) {
       QString pvName = existList.value (j);
