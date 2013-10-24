@@ -137,7 +137,7 @@ void Rad_Control::tickTimeout ()
 void Rad_Control::usage (const QString & message)
 {
    std::cerr << message.toAscii().data() << "\n";
-   Rad_Control::printFile (":/help/help_usage.txt", std::cerr);
+   Rad_Control::printFile (":/qe/rad/help/help_usage.txt", std::cerr);
    this->state = errorExit;
 }
 
@@ -146,8 +146,8 @@ void Rad_Control::usage (const QString & message)
 //
 void  Rad_Control::help ()
 {
-   Rad_Control::printFile (":/help/help_usage.txt",   std::cout);
-   Rad_Control::printFile (":/help/help_general.txt", std::cout);
+   Rad_Control::printFile (":/qe/rad/help/help_usage.txt",   std::cout);
+   Rad_Control::printFile (":/qe/rad/help/help_general.txt", std::cout);
 }
 
 //------------------------------------------------------------------------------
@@ -189,7 +189,6 @@ QDateTime Rad_Control::value (const QString& timeImage, bool& okay)
 void Rad_Control::initialise ()
 {
    const QString format = "dd/MMM/yyyy HH:mm:ss";
-   QString archives = getenv ("QE_ARCHIVE_LIST");
 
    QString timeImage;
    bool okay;
@@ -301,6 +300,9 @@ void Rad_Control::initialise ()
    line.append (QEUtilities::getTimeZoneTLA (this->endTime));
    std::cout << line.toAscii().data() << "\n";
 
+   QEAdaptationParameters ap ("QE_");
+   QString archives = ap.getString ("archive_list", "");
+
    line = "archives: ";
    line.append (archives);
    std::cout << line.toAscii().data() << "\n";
@@ -309,6 +311,8 @@ void Rad_Control::initialise ()
    line.append (pattern);
    std::cout << line.toAscii().data() << "\n";
 
+   // We define with own pattern as opposed to default (".*") or by environment variable.
+   //
    QEArchiveAccess::initialise (archives, pattern);
 
    this->archiveAccess = new QEArchiveAccess ();

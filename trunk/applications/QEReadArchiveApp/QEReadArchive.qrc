@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/help">
+    <qresource prefix="/qe/rad/help">
         <file>help_usage.txt</file>
         <file>help_general.txt</file>
     </qresource>
