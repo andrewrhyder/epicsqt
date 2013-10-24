@@ -1,4 +1,6 @@
-Refer to QE_QEGuiAndUserInterfaceDesign.pdf for comprehensive documentation on the QEGui application.
+Refer to QE_QEGuiAndUserInterfaceDesign.pdf for comprehensive documentation on the QEGui
+application.
+
 Options
 
 -a      Adjust the GUIs scaling. This option takes a single value with is the percentage
@@ -23,8 +25,8 @@ Options
         as a default configuration.
 
 -c      Configuration file.
-        Named configurations will be saved to and read from this file. If this option is not provided
-        the default is QEGuiConfig.xml in the current working directory.
+        Named configurations will be saved to and read from this file. If this option is
+        not provided the default is QEGuiConfig.xml in the current working directory.
 
 -p      Search paths
         When opening a file, this list of space seperated paths may be used when searching
@@ -43,12 +45,12 @@ Options
 -w      Window customisation file.
         This file contains named sets of window menubar and tool bar customisations.
         Named customisations will be read from this file. If this option is not provided
-        an attempt will be made to use QEWindowCustomisation.xml in the current working directory.
-        A customisation file is optional.
+        an attempt will be made to use QEWindowCustomisation.xml in the current working
+        directory. A customisation file is optional.
 
 -n      Default window customisation name.
-        This name shoud be the name of one of the sets of window customisations read from the
-        window customisation file.
+        This name shoud be the name of one of the sets of window customisations read from
+        the window customisation file.
 
         Typically substitutions are used to specify specific variable names when loading
         generic template forms. Substitutions are not limited to template forms, and some
