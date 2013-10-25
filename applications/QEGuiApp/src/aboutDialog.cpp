@@ -30,6 +30,7 @@
 #include "aboutDialog.h"
 #include "ui_aboutDialog.h"
 #include <QString>
+#include <QLibraryInfo>
 
 aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info and the build date/time at compile time of QEGui
                           QString QEFrameworkVersionQEGui,     // Version info and the build date/time at compile time of the copy of QEPlugin library loaded by QEGui
@@ -58,6 +59,8 @@ aboutDialog::aboutDialog( QString QEGuiVersion,                // Version info a
 
     // Version
     ui->QEGuiVersionLabel->setText( QEGuiVersion );
+    ui->QtLibraryVersionLabel->setText( QLibraryInfo::buildKey () );
+    ui->QtInstalledPluginsLabel->setText( QLibraryInfo::location ( QLibraryInfo::PluginsPath ) );
     ui->QEFrameworkVersionQEGuiLabel->setText( QEFrameworkVersionQEGui );
     ui->QEFrameworkVersionUILoaderLabel->setText( QEFrameworkVersionUILoader );
 
