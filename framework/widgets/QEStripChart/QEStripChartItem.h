@@ -135,6 +135,9 @@ private:
    //
    void pvNameDropEvent (QDropEvent *event);
 
+   void writeTraceToFile ();
+   QCaDataPointList determinePlotPoints ();
+
    // data members
    //
    unsigned int slot;

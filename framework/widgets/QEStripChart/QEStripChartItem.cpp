@@ -507,6 +507,58 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 
 //------------------------------------------------------------------------------
 //
+QCaDataPointList QEStripChartItem::determinePlotPoints ()
+{
+   const QDateTime end_time = this->chart->getEndDateTime ();
+   const double duration = this->chart->getDuration ();
+
+   QCaDataPointList result;
+
+   int count;
+   QCaDataPoint point;
+   double t;
+   bool isFirst;
+   QCaDataPointList* listArray [2];
+
+   // Create an array so that we loop over both lists.
+   //
+   listArray [0] = &this->historicalTimeDataPoints;
+   listArray [1] = &this->realTimeDataPoints;
+
+   for (int i = 0; i < 2; i++) {
+      QCaDataPointList* list = listArray [i];
+      isFirst = true;
+      count = list->count ();
+      for (int j = 0; j < count; j++) {
+         point = list->value (j);
+
+         // Calculate the time of this point (in seconds) relative to the end of the chart.
+         //
+         t = point.datetime.floating (end_time);
+
+         if ((t >= -duration) && (t <= 0.0)) {
+            // Point time is within current time range of the chart.
+            //
+            if (isFirst && j > 0) {
+               // do one previous point.
+               //
+               result << list->value (j - 1);
+            }
+            isFirst = false;
+            result << point;
+         } else if (t > 0.0) {
+            // do one follwing point, then  skip the rest.
+            result << point;
+            break;
+         }
+      }
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChartItem::plotData (const double timeScale,
                                  const QEStripChartNames::YScaleModes yScaleMode)
 {
@@ -885,6 +937,35 @@ bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
 
 //------------------------------------------------------------------------------
 //
+void QEStripChartItem::writeTraceToFile ()
+{
+   QString filename;
+
+   filename = QFileDialog::getSaveFileName
+         (this, "Select output trace file", "./", "Text files(*.txt);;All files(*.*)");
+
+   if (filename.isEmpty ()) {
+      return;
+   }
+
+   QFile file (filename);
+   if (!file.open (QIODevice::WriteOnly)) {
+      qDebug() << "Could not open file " << filename;
+      return;
+   }
+
+   QTextStream ts (&file);
+
+   ts << "#   No  TimeStamp                     Relative Time    Value                Okay     Severity    Status\n";
+
+   QCaDataPointList dataPoints = this->determinePlotPoints ();
+
+   dataPoints.toStream (ts, true, true);
+   file.close ();
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChartItem::contextMenuRequested (const QPoint & pos)
 {
    QPoint tempPos;
@@ -1033,6 +1114,10 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
                this->setPvName (pasteText, "");
             }
          }
+         break;
+
+      case QEStripChartNames::SCCM_PV_WRITE_TRACE:
+         this->writeTraceToFile ();
          break;
 
       case QEStripChartNames::SCCM_ADD_TO_PREDEFINED:
