@@ -270,7 +270,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
 MainWindow::~MainWindow()
 {
     // Remove the GUIs shown in this main window from the GUIs listed in the 'Windows' menus of all other main windows
-    removeAllGuisFromWindowsMenu();
+    removeAllGuisFromGuiList();
 
     // Remove this main window from the global list of main windows
     // Note, this may have already been done to hide the the main window if deleting using deleteLater()
@@ -368,7 +368,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     // Create the GUI
     profile.publishOwnProfile();
-    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName );
+    QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName, false, true );
     profile.releaseProfile();
     loadGuiIntoCurrentWindow( gui, true );
 }
@@ -394,7 +394,7 @@ void MainWindow::on_actionClose_triggered()
         QEForm* gui = getCentralGui();
         if( gui )
         {
-            removeGuiFromWindowsMenus( gui );
+            removeGuiFromGuiList( gui );
             setCentralWidget( new QWidget() );
         }
 
@@ -726,7 +726,7 @@ void MainWindow::tabCloseRequest( int index )
     QEForm* gui = extractGui( tabs->currentWidget() );
 
     // Remove the gui from the 'windows' menus
-    removeGuiFromWindowsMenus( gui );
+    removeGuiFromGuiList( gui );
 
     // Remove the tab
     tabs->removeTab( index );
@@ -808,7 +808,7 @@ void MainWindow::tabContextMenuTrigger( QAction* )
     }
 
     // Remove the gui from the 'windows' menus
-    removeGuiFromWindowsMenus( gui );
+    removeGuiFromGuiList( gui );
 
     // Remove the tab - note this does not delete the page widget.
     tabs->removeTab( index );
@@ -938,7 +938,7 @@ void MainWindow::on_actionRefresh_Current_Form_triggered()
     if( guiFileName.size() )
     {
         profile.publishOwnProfile();
-        QEForm* newGui = createGui( guiPath, "" ); // no configuration name so configurations remain unaltered
+        QEForm* newGui = createGui( guiPath, "" ); // no customisation name so customisations remain unaltered
         loadGuiIntoCurrentWindow( newGui, true );
         profile.releaseProfile();
     }
@@ -1067,7 +1067,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
             QEForm* oldGui = extractGui( tabs->currentWidget() );
             if( oldGui )
             {
-                removeGuiFromWindowsMenus( oldGui );
+                removeGuiFromGuiList( oldGui );
             }
 
             // Ensure the gui can be resized
@@ -1093,7 +1093,7 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
             QEForm* oldGui = extractGui( centralWidget() );
             if( oldGui )
             {
-                removeGuiFromWindowsMenus( oldGui );
+                removeGuiFromGuiList( oldGui );
             }
         }
 
@@ -1274,7 +1274,7 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
         // Open the specified gui in the current window
         case QEActionRequests::OptionOpen:
             {
-                QEForm* gui = createGui( guiName, customisationName );  // Note, profile should have been published by signal code
+                QEForm* gui = createGui( guiName, customisationName, false, true );  // Note, profile should have been published by signal code
                 loadGuiIntoCurrentWindow( gui, true );
                 return this;
             }
@@ -1581,12 +1581,12 @@ QString MainWindow::GuiFileNameDialog( QString caption )
 // replacing a gui in a tab, replacing a single gui in the main window,
 // or creating a gui in a new main window.
 // A profile should have been published before calling this method.
-QEForm* MainWindow::createGui( QString fileName, QString customisationName, bool isDock )
+QEForm* MainWindow::createGui( QString fileName, QString customisationName, bool isDock, bool clearExistingCustomisations )
 {
-    return createGui( fileName, customisationName, QString(), isDock );
+    return createGui( fileName, customisationName, QString(), isDock, clearExistingCustomisations );
 }
 
-QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId, bool isDock )
+QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId, bool isDock, bool clearExistingCustomisations )
 {
     // Don't do anything if no filename was supplied
     if (fileName.isEmpty())
@@ -1647,7 +1647,7 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
         }
 
         // Load any required window customisation
-        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, false );
+        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, clearExistingCustomisations );
 
         // Use whatever placeholder menus are available (for example, populate a 'Recent' menu if present)
         setupPlaceholderMenus();
@@ -2487,23 +2487,23 @@ void MainWindow::scrollTo()
 
 // Remove all guis on a main window from the 'windows' menus of all main windows
 // Used when deleting a main window
-void MainWindow::removeAllGuisFromWindowsMenu()
+void MainWindow::removeAllGuisFromGuiList()
 {
     for( int i = 0; i < guiList.count(); i++ )
     {
-        removeGuiFromWindowsMenus( i );
+        removeGuiFromGuiList( i );
     }
 }
 
 // Remove a GUI from the application's list of GUIs
 // Note, deleting the action will remove it from all the menus it was associated with
-void MainWindow::removeGuiFromWindowsMenus( QEForm* gui )
+void MainWindow::removeGuiFromGuiList( QEForm* gui )
 {
     for( int i = 0; i < guiList.count(); i++ )
     {
         if( guiList[i].getForm() == gui )
         {
-            removeGuiFromWindowsMenus( i );
+            removeGuiFromGuiList( i );
             return;
         }
     }
@@ -2511,7 +2511,7 @@ void MainWindow::removeGuiFromWindowsMenus( QEForm* gui )
 
 // Remove a GUI from Windows menus.
 // Note, deleting the action will remove it from all the menus it was associated with
-void MainWindow::removeGuiFromWindowsMenus( int i )
+void MainWindow::removeGuiFromGuiList( int i )
 {
     // Avoid use of bad index
     if( guiList.count() <= i )
@@ -2521,6 +2521,7 @@ void MainWindow::removeGuiFromWindowsMenus( int i )
 
     // Delete the action. This will remove it from all the menus it was associated with
     guiList[i].deleteAction();
+    guiList.removeAt( i );
 }
 
 // Get any customisation name for a GUI
