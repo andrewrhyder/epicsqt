@@ -38,7 +38,7 @@
 
 #include "QEStripChartItem.h"
 #include "QEStripChartContextMenu.h"
-#include "QEStripchartStatistics.h"
+#include "QEStripChartStatistics.h"
 
 
 #define DEBUG  qDebug () <<  "QEStripChartItem::" <<  __FUNCTION__  << ":" << __LINE__
