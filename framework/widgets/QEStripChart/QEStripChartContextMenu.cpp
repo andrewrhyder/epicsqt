@@ -116,7 +116,7 @@ QEStripChartContextMenu::QEStripChartContextMenu (bool inUseIn, QWidget *parent)
 
       this->make (this, "Write PV trace to file...",           false, QEStripChartNames::SCCM_PV_WRITE_TRACE);
 
-      this->make (this, "Generate Statistics",                 false, QEStripChartNames::SCCM_PV_STATS)->setEnabled (false);
+      this->make (this, "Generate Statistics",                 false, QEStripChartNames::SCCM_PV_STATS);
 
       this->make (this, "Add to predefined PV names",          false, QEStripChartNames::SCCM_ADD_TO_PREDEFINED);
 

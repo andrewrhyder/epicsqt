@@ -34,9 +34,11 @@
 #include <qwt_plot_curve.h>
 
 #include <QECommon.h>
+#include <QEScaling.h>
 
 #include "QEStripChartItem.h"
 #include "QEStripChartContextMenu.h"
+#include "QEStripchartStatistics.h"
 
 
 #define DEBUG  qDebug () <<  "QEStripChartItem::" <<  __FUNCTION__  << ":" << __LINE__
@@ -966,6 +968,26 @@ void QEStripChartItem::writeTraceToFile ()
 
 //------------------------------------------------------------------------------
 //
+void QEStripChartItem::generateStatistics ()
+{
+   qcaobject::QCaObject* qca = this->getQcaItem ();
+   QEStripChartStatistics* stats;
+   QString egu = qca ? qca->getEgu() : "";
+   QCaDataPointList dataPoints = this->determinePlotPoints ();
+
+   // Create new statistic form.
+   //
+   stats = new QEStripChartStatistics (this->getPvName(), egu, dataPoints, NULL);
+
+   // Scale status to current applicate scaling.
+   //
+   QEScaling::applyToWidget (stats);
+
+   stats->show ();
+}
+
+//------------------------------------------------------------------------------
+//
 void QEStripChartItem::contextMenuRequested (const QPoint & pos)
 {
    QPoint tempPos;
@@ -1118,6 +1140,10 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
 
       case QEStripChartNames::SCCM_PV_WRITE_TRACE:
          this->writeTraceToFile ();
+         break;
+
+      case QEStripChartNames::SCCM_PV_STATS:
+         this->generateStatistics ();
          break;
 
       case QEStripChartNames::SCCM_ADD_TO_PREDEFINED:
