@@ -60,7 +60,7 @@ public:
     MainWindow* getMainWindow(){ return mainWindow; }                   // Return the main window containing the GUI
     void        setScroll( QPoint scrollIn ){ scroll = scrollIn; }      // Set the scroll position of the GUI (saved during configuration restore)
     QPoint      getScroll(){ return scroll; }                           // Get the scroll position of the GUI (used immedietly after a restore has completed)
-    QAction*    getAction(){ return action; }
+    QAction*    getAction(){ return action; }                           // Get the action to place in windows menus.
     QString     getCustomisationName(){ return customisationName; }     // Get the window customisations name
     bool        getIsDock(){ return isDock; }                           // Get the 'is a dock' flag
     void        deleteAction(){ if( action ){ delete action; } action = NULL; }  // Delete the action
@@ -69,7 +69,7 @@ private:
     QEForm*     form;                  // QEForm implementing the GUI
     MainWindow* mainWindow;            // Main window the GUI is in
     QPoint      scroll;                // Scroll position of the GUI (used to hold the scroll position during a configuration restore)
-    QAction*    action;                // Action to add to window menus
+    QAction*    action;                // Action to add to window menus. (Owned by this class)
     QString     customisationName;     // Name of window customisations (menus, tool bar buttons)
     bool        isDock;                // Form has been added as a dock (not as the central widget, or in a tabwidget in the central widget)
 };
@@ -100,8 +100,8 @@ private:
 
     void setSingleMode();                                   // Set up to use only a single gui
     void setTabMode();                                      // Set up to use multiple guis in tabs
-    QEForm* createGui( QString filename, QString customisationName, bool isDock = false );                  // Create a gui
-    QEForm* createGui( QString fileName, QString customisationName, QString restoreId, bool isDock = false ); // Create a gui with an ID (required for a restore)
+    QEForm* createGui( QString filename, QString customisationName, bool isDock = false, bool clearExistingCustomisations = false );                  // Create a gui
+    QEForm* createGui( QString fileName, QString customisationName, QString restoreId, bool isDock = false, bool clearExistingCustomisations = false ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
     void loadGuiIntoNewDock( QEForm* gui,
@@ -126,7 +126,7 @@ private:
 
     void buildWindowsMenu();                                // Build a new 'windows' menu
 
-    void removeAllGuisFromWindowsMenu();                    // Remove all guis on a main window from the 'windows' menus
+    void removeAllGuisFromGuiList();                    // Remove all guis on a main window from the 'windows' menus
 
 
     QString GuiFileNameDialog( QString caption );           // Get a gui filename from the user
@@ -159,8 +159,8 @@ private:
 
     void closeEvent(QCloseEvent *event);                    // Close this window event
 
-    void removeGuiFromWindowsMenus( QEForm* gui );          // Remove a GUI from all window menus (by reference)
-    void removeGuiFromWindowsMenus( int i );                // Remove a GUI from all window menus (by index)
+    void removeGuiFromGuiList( QEForm* gui );               // Remove a GUI from all window menus (by reference)
+    void removeGuiFromGuiList( int i );                     // Remove a GUI from all window menus (by index)
     QString getCustomisationName( QEForm* gui );            // Get the customisation name used with a GUI
 
 
