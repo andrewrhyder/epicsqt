@@ -53,6 +53,8 @@ QEStripChartStatistics::QEStripChartStatistics (const QString& pvName,
    this->ui->pvNameLabel->setText (pvName);
    this->ui->numberOfPointsLabel->setText (QString ("%1").arg (n));
 
+   if (n <= 0) return;
+
    QCaDateTime startTime;
    QCaDateTime endTime;
    QString format ("yyyy-MM-dd hh:mm:ss");
@@ -65,7 +67,7 @@ QEStripChartStatistics::QEStripChartStatistics (const QString& pvName,
 
    double duration = endTime.floating (startTime);
 
-   this->ui->durationLabel->setText (QString ("%1").arg (duration));
+   this->ui->durationLabel->setText (QEUtilities::intervalToString (duration, 0));
 
    int validCount = 0;
    double minimum = +9.99E+99;
@@ -89,7 +91,7 @@ QEStripChartStatistics::QEStripChartStatistics (const QString& pvName,
          validCount++;
 
          minimum = MIN (minimum, point.value);
-         maximum = MAX (minimum, point.value);
+         maximum = MAX (maximum, point.value);
 
          if (validCount == 1) {
             // Save first point value.

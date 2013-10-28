@@ -24,15 +24,13 @@
  *
  */
 
+#include <math.h>
+
 #include <QColor>
 #include <QDebug>
-#include <QLabel>
-#include <QLayout>
-#include <QHeaderView>
 #include <QMetaEnum>
 #include <QMetaObject>
 #include <QSize>
-#include <QTableWidget>
 #include <QWidget>
 
 #include "QECommon.h"
@@ -87,6 +85,55 @@ QString QEUtilities::colourToStyle (const QColor backgroundColour) {
 
    result.sprintf ("QWidget { background-color: #%02x%02x%02x; color: #%02x%02x%02x; }",
                    br, bg, bb, fr, fg, fb );
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEUtilities::intervalToString (const double interval, const int precision)
+{
+   QString result;
+   double seconds;
+   QString sign;
+   QString image;
+   QString fraction;
+   int days;
+   int hours;
+   int mins;
+   int secs;
+   int nanoSecs;
+
+   if (interval >= 0.0) {
+      seconds = +interval;
+      sign= "";
+   } else {
+      seconds = -interval;
+      sign= "-";
+   }
+
+   #define EXTRACT(item, spi) { item = int (floor (seconds / spi)); seconds = seconds - (spi * item); }
+
+   EXTRACT (days, 86400.0);
+   EXTRACT (hours, 3600.0);
+   EXTRACT (mins, 60.0);
+   EXTRACT (secs, 1.0);
+   EXTRACT (nanoSecs, 1.0E-9);
+
+   #undef EXTRACT
+
+   image.sprintf ("%d %02d:%02d:%02d", days, hours, mins, secs);
+
+   if (precision > 0) {
+      // Limit precision to 9.
+      //
+      fraction.sprintf (".%09d", nanoSecs);
+      fraction.truncate (MIN (9, precision) + 1);
+   } else {
+      fraction = "";
+   }
+
+   result = sign.append (image).append (fraction);
+
    return result;
 }
 

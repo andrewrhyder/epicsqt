@@ -80,6 +80,9 @@ public:
     ///
     static QString colourToStyle (const QColor backgroundColour);
 
+    /// Converts a time interval (in seconds) to format  +d hh:mm:ss.fff
+    ///
+    static QString intervalToString (const double time, const int precision);
 
     /// Get the local time zone offset (in seconds) for the nominated time.
     /// This is not fixed for the location and will depend on if the the time
