@@ -153,7 +153,9 @@ void QEPlotter::createInternalWidgets ()
    this->pLayout->setSpacing (4);
 
    this->plotArea = new QwtPlot (this->plotFrame);
+#if QWT_VERSION < 0x060100
    this->plotArea->setCanvasLineWidth (1);
+#endif
    this->plotArea->setLineWidth (1);
 
    this->plotArea->canvas()->setMouseTracking (true);

@@ -478,7 +478,9 @@ QEStripChart::PrivateData::PrivateData (QEStripChart *chartIn) : QObject (chartI
    this->plotFrame->setFrameShape (QFrame::Panel);
 
    this->plot = new QwtPlot (this->plotFrame);
+#if QWT_VERSION < 0x060100
    this->plot->setCanvasLineWidth (1);
+#endif
    this->plot->setLineWidth (1);
 
    this->plot->canvas()->setMouseTracking (true);

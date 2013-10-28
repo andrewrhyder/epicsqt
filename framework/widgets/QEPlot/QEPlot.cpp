@@ -520,8 +520,13 @@ void QEPlot::setGridEnable()
         if( !grid )
         {
             grid = new QwtPlotGrid;
+#if QWT_VERSION >= 0x060100
+            grid->setMajorPen(QPen(gridMajorColor, 0, Qt::DotLine));
+            grid->setMinorPen(QPen(gridMinorColor, 0 , Qt::DotLine));
+#else
             grid->setMajPen(QPen(gridMajorColor, 0, Qt::DotLine));
             grid->setMinPen(QPen(gridMinorColor, 0 , Qt::DotLine));
+#endif
             grid->attach( this );
         }
         grid->enableX(gridEnableMajorX);
@@ -564,7 +569,11 @@ void QEPlot::setGridMajorColor( QColor gridMajorColorIn )
     gridMajorColor = gridMajorColorIn;
     if( grid )
     {
+#if QWT_VERSION >= 0x060100
+        grid->setMajorPen(QPen(gridMajorColor, 0, Qt::DotLine));
+#else
         grid->setMajPen(QPen(gridMajorColor, 0, Qt::DotLine));
+#endif
     }
 }
 void QEPlot::setGridMinorColor( QColor gridMinorColorIn )
@@ -572,7 +581,11 @@ void QEPlot::setGridMinorColor( QColor gridMinorColorIn )
     gridMinorColor = gridMinorColorIn;
     if( grid )
     {
+#if QWT_VERSION >= 0x060100
+        grid->setMinorPen(QPen(gridMinorColor, 0 , Qt::DotLine));
+#else
         grid->setMinPen(QPen(gridMinorColor, 0 , Qt::DotLine));
+#endif
     }
 }
 QColor QEPlot::getGridMajorColor()
