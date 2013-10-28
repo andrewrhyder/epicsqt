@@ -34,7 +34,7 @@ HEADERS += \
     widgets/QEStripChart/QEStripChartToolBar.h \
     widgets/QEStripChart/QEStripChartUtilities.h \
     widgets/QEStripChart/QEStripChartManager.h \
-    widgets/QEStripChart/QEStripchartStatistics.h
+    widgets/QEStripChart/QEStripChartStatistics.h
 
 SOURCES += \
     widgets/QEStripChart/QEStripChart.cpp \
@@ -46,7 +46,7 @@ SOURCES += \
     widgets/QEStripChart/QEStripChartToolBar.cpp \
     widgets/QEStripChart/QEStripChartUtilities.cpp \
     widgets/QEStripChart/QEStripChartManager.cpp \
-    widgets/QEStripChart/QEStripchartStatistics.cpp
+    widgets/QEStripChart/QEStripChartStatistics.cpp
 
 INCLUDEPATH += \
     widgets/QEStripChart

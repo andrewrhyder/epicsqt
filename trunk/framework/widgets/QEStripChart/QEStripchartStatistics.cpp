@@ -29,7 +29,7 @@
 #include <QECommon.h>
 #include <QCaDateTime.h>
 
-#include "QEStripchartStatistics.h"
+#include "QEStripChartStatistics.h"
 #include "ui_QEStripChartStatistics.h"
 
 //------------------------------------------------------------------------------
