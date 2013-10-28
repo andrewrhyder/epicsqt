@@ -60,6 +60,7 @@
 #include <QEGroupBoxManager.h>
 #include <QEFileImageManager.h>
 #include <QESimpleShapeManager.h>
+#include <QEArchiveNameSearchManager.h>
 #include <QEArchiveStatusManager.h>
 
 //======================================================
@@ -129,6 +130,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     // Non-EPICS aware framework widgets.
     //
     widgets.append(new QEAnalogIndicatorManager(this));
+    widgets.append(new QEArchiveNameSearchManager(this));
     widgets.append(new QEArchiveStatusManager(this));
     widgets.append(new QBitStatusManager(this));
     widgets.append(new QEFrameManager(this));
