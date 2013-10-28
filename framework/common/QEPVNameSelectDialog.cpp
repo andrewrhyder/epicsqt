@@ -33,6 +33,7 @@
 #include <ui_QEPVNameSelectDialog.h>
 
 #include <QEArchiveManager.h>
+#include <QEScaling.h>
 
 #define DEBUG  qDebug () << "QEPVNameSelectDialog::" << __FUNCTION__ << __LINE__
 
@@ -54,11 +55,13 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
    //
    // The dialog is modal. Do we need a mutex??
    //
-   if (!this->helpUi) {
+   if (!QEPVNameSelectDialog::helpUi) {
       QFile helpUiFile (filterHelpFilename);
       if (helpUiFile.open (QIODevice::ReadOnly)) {
          QUiLoader loader;
+
          QEPVNameSelectDialog::helpUi = loader.load (&helpUiFile, NULL);
+         QEScaling::applyToWidget (QEPVNameSelectDialog::helpUi);
          helpUiFile.close ();
       }
    }
