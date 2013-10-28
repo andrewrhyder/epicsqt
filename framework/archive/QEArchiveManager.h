@@ -36,6 +36,7 @@
 #include <QList>
 #include <QMetaType>
 #include <QObject>
+#include <QRegExp>
 #include <QString>
 #include <QStringList>
 #include <QTimer>
@@ -71,7 +72,15 @@ public:
    static int getNumberInterfaces ();
    static QString getPattern ();
    static int getNumberPVs ();
-   static QStringList getMatchingPVnames (const QString& pattern);
+
+   // The getMatchingPVnames functions allow the caller to extract a subset of the PV names
+   // extracted from the available archives. The first uses a regular expression and allows
+   // for sophisticated pattern matching. The second just returns a list of all the PV names
+   // containing the substring str. The cs parameter determines whether the string comparison
+   // is case sensitive or case insensitive.
+   //
+   static QStringList getMatchingPVnames (const QRegExp& rx, const bool exactMatch);
+   static QStringList getMatchingPVnames (const QString& str, const Qt::CaseSensitivity cs);
 
    // Requests re-transmission of archive status.
    // Returned status is via archiveStatus signal.

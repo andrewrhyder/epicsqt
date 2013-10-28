@@ -855,9 +855,21 @@ int QEArchiveAccess::getNumberPVs ()
 
 //------------------------------------------------------------------------------
 //
-QStringList QEArchiveAccess::getMatchingPVnames (const QString& pattern)
+QStringList QEArchiveAccess::getMatchingPVnames (const QString& str, const Qt::CaseSensitivity cs)
 {
-   QRegExp regExp (pattern, Qt::CaseSensitive, QRegExp::RegExp);
+   QMutexLocker locker (archiveDataMutex);
+   QStringList existList;
+
+   existList = pvNameToSourceLookUp.keys ();
+   return existList.filter (str, cs);
+}
+
+//------------------------------------------------------------------------------
+//
+QStringList QEArchiveAccess::getMatchingPVnames (const QRegExp& regExp, const bool exactMatch)
+{
+   // QRegExp regExp (pattern, Qt::CaseSensitive, QRegExp::RegExp);
+
    QStringList existList;
    QStringList matchList;
    int n;
@@ -868,17 +880,22 @@ QStringList QEArchiveAccess::getMatchingPVnames (const QString& pattern)
       existList = pvNameToSourceLookUp.keys ();
    }
 
-   // QStringList::filter () does not do an exact match, so we must do own filtering.
-   //
-   n = existList.count ();
-   for (j = 0; j < n; j++) {
-      QString pvName = existList.value (j);
+   if (exactMatch) {
+      // QStringList::filter (regExp) does not do an exact match, so we must do own element-by-element filtering.
+      //
+      n = existList.count ();
+      for (j = 0; j < n; j++) {
+         QString pvName = existList.value (j);
 
-      if (regExp.exactMatch (pvName)) {
-         matchList.append (pvName);
+         if (regExp.exactMatch (pvName)) {
+            matchList.append (pvName);
+         }
       }
+   } else {
+      // No exact match required - can use in built function.
+      //
+      matchList = existList.filter (regExp);
    }
-
    return matchList;
 }
 
