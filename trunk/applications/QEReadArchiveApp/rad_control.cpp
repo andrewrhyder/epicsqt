@@ -243,14 +243,14 @@ void Rad_Control::initialise ()
    timeImage = this->options->getParameter (1);
    this->startTime = this->value (timeImage, okay);
    if (!okay) {
-      this->usage ("Invalid start time format. Valid example is 31/02/2013 16:30:00");
+      this->usage ("Invalid start time format. Valid example is '31/03/2013 16:30:00'");
       return;
    }
 
    timeImage = this->options->getParameter (2);
    this->endTime = this->value (timeImage, okay);
    if (!okay) {
-      this->usage ("Invalid end time format. Valid example is 27/May/2013 16:30:00");
+      this->usage ("Invalid end time format. Valid example is '27/04/2013 16:30:00'");
       return;
    }
 
@@ -506,7 +506,10 @@ void Rad_Control::putArchiveData ()
       }
 
       for (pv = 0 ; pv < this->numberPVNames; pv++) {
-         target << QString ("# %1 %2").arg (pv,3).arg (this->pvDataList [pv].pvName) << "\n";
+         // Note: for output we number PVs 1 to N as opposed to 0 to N-1.
+         // The output is for human consumption as opposed to C/C++ compiler consumption.
+         //
+         target << QString ("# %1 %2").arg (pv + 1, 3).arg (this->pvDataList [pv].pvName) << "\n";
       }
       target << "\n";
       target << "#   No   Time                        Rel. Time    Values...\n";
