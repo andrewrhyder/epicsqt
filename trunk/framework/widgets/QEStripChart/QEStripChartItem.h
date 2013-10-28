@@ -136,6 +136,7 @@ private:
    void pvNameDropEvent (QDropEvent *event);
 
    void writeTraceToFile ();
+   void generateStatistics ();
    QCaDataPointList determinePlotPoints ();
 
    // data members
