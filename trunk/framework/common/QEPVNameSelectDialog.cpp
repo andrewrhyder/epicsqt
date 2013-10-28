@@ -26,6 +26,7 @@
  */
 
 #include <QDebug>
+#include <QRegExp>
 #include <QStringList>
 #include <QUiLoader>
 
@@ -120,14 +121,15 @@ QString QEPVNameSelectDialog::getPvName ()
 //
 void QEPVNameSelectDialog::applyFilter ()
 {
-   QString filter = this->ui->filterEdit->text ().trimmed ();
+   QString pattern = this->ui->filterEdit->text ().trimmed ();
+   QRegExp regExp (pattern, Qt::CaseSensitive, QRegExp::RegExp);
    int n;
 
    this->ui->pvNameEdit->clear ();
 
    // QEArchiveAccess ensures the list is sorted.
    //
-   this->ui->pvNameEdit->insertItems (0, QEArchiveAccess::getMatchingPVnames (filter));
+   this->ui->pvNameEdit->insertItems (0, QEArchiveAccess::getMatchingPVnames (regExp, true));
 
    n = this->ui->pvNameEdit->count ();
    if ((n == 0) && (!this->originalPvName.isEmpty ())) {

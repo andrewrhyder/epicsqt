@@ -79,16 +79,12 @@ void QEArchiveNameSearch::search ()
    //
    for (int p = 0; p < parts.count (); p++) {
       QString part = parts.value (p);
-      QString matchPattern;
       QStringList partMatches;
 
-      // Prefix and postfix match anything.
-      //
-      matchPattern = QString (".*").append (part).append (".*");
-
       // QEArchiveAccess ensures the list is sorted.
+      // Find nay names containing this string (and ignore case as well).
       //
-      partMatches = QEArchiveAccess::getMatchingPVnames (matchPattern);
+      partMatches = QEArchiveAccess::getMatchingPVnames (part, Qt::CaseInsensitive);
 
       // Now nmerge the lists.
       //
