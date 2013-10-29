@@ -563,6 +563,7 @@ public:
     /// Window customisation name. This name will be used to select a set of window customisations including menu items and tool bar buttons.
     /// Applications such as QEGui can load .xml files containing named sets of window customisations. This property is used to select a set loaded from these files.
     /// The selected set of customisations will be applied to the main window containing the new GUI.
+    /// Customisations are not applied if the GUI is opened as a dock.
     Q_PROPERTY(QString customisationName READ getCustomisationName WRITE setCustomisationName)
 
 public:
