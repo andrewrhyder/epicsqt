@@ -70,10 +70,10 @@ windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn,
 
 // Construct instance of class defining an individual item (base class for button or menu item)
 windowCustomisationItem::windowCustomisationItem(
-    const QObject* /*launchRequestReceiver*/,                // Object (typically QEGui application) which will accept requests to launch a new GUI
+    const QObject* /*launchRequestReceiver*/,            // Object (typically QEGui application) which will accept requests to launch a new GUI
     const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
     const QString programIn,                             // Program to run
-    const QStringList argumentsIn )               // Arguments for 'program'
+    const QStringList argumentsIn )                      // Arguments for 'program'
          : QAction( 0 )
 {
     // Save the item details
@@ -562,7 +562,7 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
         {
             QString tagName = childElement.tagName();
 
-             // check if the item is a submenu or an item
+             // Note the widget target, if any
             if( tagName == "WidgetName" )
             {
                 // Get the name of the target widget

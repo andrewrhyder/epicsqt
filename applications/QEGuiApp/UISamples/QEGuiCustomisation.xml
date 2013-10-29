@@ -16,6 +16,119 @@
     </Customisation>
 
 
+    <Customisation Name="IMAGING">
+
+        <Menu Name="Detector">
+
+            <Item Name="Procilica Far">
+                <Window>
+                    <Title>Procilica Far</Title>
+                    <UiFile>detectorOverview.ui</UiFile>
+                    <MacroSubstitutions>DET=DET01</MacroSubstitutions>
+                    <CustomisationName>IMAGING</CustomisationName>
+                </Window>
+            </Item>
+
+            <Item Name="Procilica Near">
+                <Window>
+                    <Title>Procilica Near</Title>
+                    <UiFile>detectorOverview.ui</UiFile>
+                    <MacroSubstitutions>DET=DET02</MacroSubstitutions>
+                    <CustomisationName>IMAGING</CustomisationName>
+                </Window>
+            </Item>
+
+            <Item Name="Sco">
+                <Window>
+                    <Title>Sco</Title>
+                    <UiFile>detectorOverview.ui</UiFile>
+                    <MacroSubstitutions>DET=DET03</MacroSubstitutions>
+                    <CustomisationName>IMAGING</CustomisationName>
+                </Window>
+            </Item>
+
+        </Menu>
+
+        <Menu Name="Experiment">
+
+            <Item Name="Slits">
+                <Window>
+                    <UiFile>slits.ui</UiFile>
+                    <CustomisationName>EXIT_ONLY</CustomisationName>
+                </Window>
+            </Item>
+
+            <Item Name="Filters">
+                <Window>
+                    <UiFile>filters.ui</UiFile>
+                    <CustomisationName>EXIT_ONLY</CustomisationName>
+                </Window>
+            </Item>
+
+        </Menu>
+
+        <Menu Name="Beamline">
+
+            <Item Name="Beamline Status">
+                <Window>
+                    <UiFile>beamlineStatus.ui</UiFile>
+                    <CustomisationName>BEAMLINE</CustomisationName>
+                </Window>
+            </Item>
+
+            <Item Name="Facility Status">
+                <Window>
+                    <UiFile>facilityStatus.ui</UiFile>
+                    <CustomisationName>BEAMLINE</CustomisationName>
+                </Window>
+            </Item>
+
+        </Menu>
+
+        <Menu Name="Tools">
+            <Item Name="PV Properties..." >
+                <BuiltIn Name="PV Properties..." />
+            </Item>
+            <Item Name="Strip Chart..." >
+                <BuiltIn Name="Strip Chart..." />
+            </Item>
+            <Item Name="Scratch Pad..." >
+                <BuiltIn Name="Scratch Pad..." />
+            </Item>
+            <Item Name="Message Log..." >
+                <BuiltIn Name="Message Log..." />
+            </Item>
+            <Item Name="Plotter..." >
+                <BuiltIn Name="Plotter..." />
+            </Item>
+            <Item Name="Archive Status..." >
+                <BuiltIn Name="Archive Status..." />
+            </Item>
+        </Menu>
+
+        <Menu Name="Options">
+            <Item Name="Save Configuration..." >
+                <BuiltIn Name="Save Configuration..." />
+            </Item>
+            <Item Name="Restore Configuration..." >
+                <BuiltIn Name="Restore Configuration..." />
+            </Item>
+            <Item Name="Manage Configuration..." >
+                <BuiltIn Name="Manage Configuration..." />
+            </Item>
+            <Item Name="User Level..." >
+                <BuiltIn Name="User Level..." />
+            </Item>
+        </Menu>
+
+        <Menu Name="Help">
+            <Item Name="About..." >
+                <BuiltIn Name="About..." />
+            </Item>
+        </Menu>
+
+    </Customisation>
+
     <Customisation Name="MAIN">
 
         <IncludeCustomisation Name="QEGui_Default"/>
