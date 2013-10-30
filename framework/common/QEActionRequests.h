@@ -66,13 +66,13 @@ public:
 
    // Action (for the application)
    QEActionRequests (const QString& action,
-                        const QString& pvName);
+                     const QString& pvName);
 
 
    // .ui file name plus create option
    QEActionRequests (const QString &filename,
-                        const QString &config,
-                        const Options optionIn);
+                     const QString &config,
+                     const Options optionIn);
 
    // a set of windows to create
    QEActionRequests( const QList<windowCreationListItem> windowsIn );
@@ -84,8 +84,11 @@ public:
                      const bool& initialiseIn,
                      QAction* originator );
 
+   // single component to host for a QE widget
+   QEActionRequests( const componentHostListItem& componentIn );
+
    // a set of components to host for a QE widget
-   QEActionRequests( const QList<componentHostListItem> componentsIn );
+   QEActionRequests( const QList<componentHostListItem>& componentsIn );
 
    // set and get functions
    //
