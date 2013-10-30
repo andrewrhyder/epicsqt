@@ -97,7 +97,18 @@ QEActionRequests::QEActionRequests( const QList<windowCreationListItem> windowsI
 
 //---------------------------------------------------------------------------
 //
-QEActionRequests::QEActionRequests( const QList<componentHostListItem> componentsIn )
+QEActionRequests::QEActionRequests( const componentHostListItem& componentIn )
+{
+   kind = KindHostComponents;
+   option = OptionFloatingDockWindow; // not required, but keep things neat
+   initialise = false;
+   originator = NULL;
+   components.append( componentIn );
+}
+
+//---------------------------------------------------------------------------
+//
+QEActionRequests::QEActionRequests( const QList<componentHostListItem>& componentsIn )
 {
    kind = KindHostComponents;
    option = OptionFloatingDockWindow; // not required, but keep things neat
