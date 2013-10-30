@@ -986,15 +986,15 @@ void QEStripChartItem::writeTraceToFile ()
 void QEStripChartItem::generateStatistics ()
 {
    qcaobject::QCaObject* qca = this->getQcaItem ();
-   QEStripChartStatistics* pvStatistics;
    QString egu = qca ? qca->getEgu() : "";
    QCaDataPointList dataPoints = this->determinePlotPoints ();
+   QEStripChartStatistics* pvStatistics;
 
    // Create new statistic widget.
    //
    pvStatistics = new QEStripChartStatistics (this->getPvName (), egu, dataPoints, NULL);
 
-   // Scale status to current applicate scaling.
+   // Scale statistics widget to current application scaling.
    //
    QEScaling::applyToWidget (pvStatistics);
 
@@ -1004,9 +1004,9 @@ void QEStripChartItem::generateStatistics ()
                      pvStatistics, SLOT   (processDataList (const QCaDataPointList&)));
 
    if (this->hostSlotAvailable) {
-      // Create cmponebt item and associated request.
+      // Create component item and associated request.
       //
-      componentHostListItem item (pvStatistics, QEActionRequests::OptionFloatingDockWindow , false, this->getPvName() + " Statistics");
+      componentHostListItem item (pvStatistics, QEActionRequests::OptionFloatingDockWindow , false, this->getPvName () + " Statistics");
 
       // ... and request this hosted by the support application.
       //
@@ -1015,7 +1015,7 @@ void QEStripChartItem::generateStatistics ()
    } else {
       // Just show it.
       //
-      pvStatistics->setWindowTitle (this->getPvName() + " Statistics");
+      pvStatistics->setWindowTitle (this->getPvName () + " Statistics");
       pvStatistics->show ();
    }
 }
