@@ -103,7 +103,7 @@ windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item):
 // A menu item or button has been created, let the application or widget know about it
 void windowCustomisationItem::initialise()
 {
-    if( !builtInAction.isEmpty() )
+    if( !builtInAction.isEmpty() && !widgetName.isEmpty() )
     {
         emit newGui( QEActionRequests( builtInAction, widgetName, arguments, true, this ) );
     }

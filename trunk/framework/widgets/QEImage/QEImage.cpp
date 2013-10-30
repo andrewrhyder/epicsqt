@@ -393,7 +393,7 @@ void QEImage::presentControls()
         if( localBC )
         {
             mainLayout->removeWidget( localBC );
-            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, false, "Brightness / Contrast" ) );
+            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, true, "Brightness / Contrast" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -403,19 +403,19 @@ void QEImage::presentControls()
         if( vSliceDisplay )
         {
             graphicsLayout->removeWidget( vSliceDisplay );
-            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionRightDockWindow, false, "Vertical Slice Profile" ) );
+            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionRightDockWindow, true, "Vertical Slice Profile" ) );
         }
 
         if( hSliceDisplay )
         {
             graphicsLayout->removeWidget( hSliceDisplay );
-            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionBottomDockWindow, false, "Horizontal Slice Profile" ) );
+            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionBottomDockWindow, true, "Horizontal Slice Profile" ) );
         }
 
         if( profileDisplay )
         {
             graphicsLayout->removeWidget( profileDisplay );
-            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionBottomDockWindow, false, "Arbitrary Profile" ) );
+            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionBottomDockWindow, true, "Arbitrary Profile" ) );
         }
 
         buttonGroup->hide();
@@ -3454,6 +3454,7 @@ void QEImage::showImageAboutDialog()
 void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool initialise, QAction* originator )
 {
 
+    // Save
     if( action == "Save...")
     {
         if( initialise )
@@ -3462,6 +3463,7 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         }
     }
 
+    // Pause
     else if( action == "Pause")
     {
         if( initialise )
@@ -3472,6 +3474,7 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         }
     }
 
+    // Positioning
     else if( action == "Move target position into beam")
     {
         if( initialise )
@@ -3480,12 +3483,19 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         }
     }
 
+    // About image
     else if( action == "About image..." )
     {
         if( !initialise )
         {
             showImageAboutDialog();
         }
+    }
+
+    // Unimplemented action
+    else
+    {
+        sendMessage( QString( "QEImage widget has recieved the following unimplemented action request: ").append( action ));
     }
 
 }

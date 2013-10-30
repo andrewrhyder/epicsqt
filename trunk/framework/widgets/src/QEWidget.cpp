@@ -714,6 +714,13 @@ QWidget* QEWidget::getQWidget()
 // The method returns true if the named widget was found. (The action was not nessesarily performed, or even recognised by the widget)
 void QEWidget::doAction( QWidget* searchPoint, QString widgetName, QString action, QStringList arguments, bool initialise, QAction* originator )
 {
+    // Do nothing if no widget to search for is provided
+    if( widgetName.isEmpty() )
+    {
+        return;
+    }
+
+    // Request the action of any matching widgets
     QList<QWidget*> targets = ((QObject*)searchPoint)->findChildren<QWidget*>( widgetName );
     for( int i = 0; i < targets.count(); i++)
     {
