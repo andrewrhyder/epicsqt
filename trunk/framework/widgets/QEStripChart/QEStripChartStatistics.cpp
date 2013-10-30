@@ -34,8 +34,8 @@
 
 //------------------------------------------------------------------------------
 //
-QEStripChartStatistics::QEStripChartStatistics (const QString& pvName,
-                                                const QString& egu,
+QEStripChartStatistics::QEStripChartStatistics (const QString& pvNameIn,
+                                                const QString& eguIn,
                                                 const QCaDataPointList& dataList,
                                                 QWidget *parent) :
    QWidget (parent),
@@ -43,12 +43,22 @@ QEStripChartStatistics::QEStripChartStatistics (const QString& pvName,
 {
    this->ui->setupUi (this);
 
-   this->clearLabels ();
+   this->pvName = pvNameIn;
+   this->egu = eguIn;
 
+   this->processDataList (dataList);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartStatistics::processDataList (const QCaDataPointList& dataList)
+{
    // Do stats - populate fields.
    // This form is not directly EPICS aware. Can use a basic form.
    //
    const int n = dataList.count ();
+
+   this->clearLabels ();
 
    this->ui->pvNameLabel->setText (pvName);
    this->ui->numberOfPointsLabel->setText (QString ("%1").arg (n));

@@ -35,7 +35,6 @@
 
 #include <QECommon.h>
 #include <QEScaling.h>
-
 #include "QEStripChartItem.h"
 #include "QEStripChartContextMenu.h"
 #include "QEStripChartStatistics.h"
@@ -71,7 +70,7 @@ static const QString regularTip ("Use context menu to modify PV attributes or do
 //
 QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
                                     unsigned int slotIn,
-                                    QWidget* parent) : QWidget (parent)
+                                    QWidget* parent) : QWidget (parent), QEWidget (this)
 {
    QColor defaultColour;
 
@@ -152,6 +151,23 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
 
    this->connect (this->emptyMenu, SIGNAL (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)),
                   this,            SLOT   (contextMenuSelected (const QEStripChartNames::ContextMenuOptions)));
+
+
+   this->hostSlotAvailable = false;
+
+   // Prepare to interact with whatever application is hosting this widget.
+   // For example, the QEGui application can host docks and toolbars for QE widgets
+   //
+   if (this->isProfileDefined ()) {
+      // Setup a signal to request component hosting.
+      //
+      QObject* launcher = this->getGuiLaunchConsumer ();
+      if (launcher) {
+         this->hostSlotAvailable =
+            QObject::connect (this,     SIGNAL (requestAction (const QEActionRequests& )),
+                              launcher, SLOT   (requestAction (const QEActionRequests& )));
+      }
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -505,7 +521,6 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
 #undef PLOT_T
 #undef PLOT_Y
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -971,19 +986,38 @@ void QEStripChartItem::writeTraceToFile ()
 void QEStripChartItem::generateStatistics ()
 {
    qcaobject::QCaObject* qca = this->getQcaItem ();
-   QEStripChartStatistics* stats;
+   QEStripChartStatistics* pvStatistics;
    QString egu = qca ? qca->getEgu() : "";
    QCaDataPointList dataPoints = this->determinePlotPoints ();
 
-   // Create new statistic form.
+   // Create new statistic widget.
    //
-   stats = new QEStripChartStatistics (this->getPvName(), egu, dataPoints, NULL);
+   pvStatistics = new QEStripChartStatistics (this->getPvName (), egu, dataPoints, NULL);
 
    // Scale status to current applicate scaling.
    //
-   QEScaling::applyToWidget (stats);
+   QEScaling::applyToWidget (pvStatistics);
 
-   stats->show ();
+   // Prepares for dynamic updates.
+   //
+   QObject::connect (this,         SIGNAL (processDataList (const QCaDataPointList&)),
+                     pvStatistics, SLOT   (processDataList (const QCaDataPointList&)));
+
+   if (this->hostSlotAvailable) {
+      // Create cmponebt item and associated request.
+      //
+      componentHostListItem item (pvStatistics, QEActionRequests::OptionFloatingDockWindow , false, this->getPvName() + " Statistics");
+
+      // ... and request this hosted by the support application.
+      //
+      emit requestAction (QEActionRequests (item));
+
+   } else {
+      // Just show it.
+      //
+      pvStatistics->setWindowTitle (this->getPvName() + " Statistics");
+      pvStatistics->show ();
+   }
 }
 
 //------------------------------------------------------------------------------
