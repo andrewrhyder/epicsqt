@@ -47,9 +47,14 @@ public:
                                     QWidget *parent = 0);
    ~QEStripChartStatistics();
    
+public slots:
+   void processDataList (const QCaDataPointList& dataList);
+
 private:
    void clearLabels ();
    Ui::QEStripChartStatistics *ui;
+   QString pvName;
+   QString egu;
 };
 
 #endif // QESTRIPCHARTSTATISTICS_H

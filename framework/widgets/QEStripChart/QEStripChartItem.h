@@ -45,6 +45,8 @@
 #include <QEArchiveManager.h>
 #include <persistanceManager.h>
 #include <QEPVNameSelectDialog.h>
+#include <QEWidget.h>
+#include <QEActionRequests.h>
 
 #include "QEStripChart.h"
 #include "QEStripChartNames.h"
@@ -60,9 +62,10 @@ class QwtPlotCurve;
 //==============================================================================
 // This is essentially a private classes used soley by the QEStripChart widget.
 // We have to make is public so that it can be a pukka Q_OBJECT in order to
-// receive signals.
+// receive signals. We also need tomake it a QEWidget so that we can find the
+// launch consumer.
 //
-class QEStripChartItem : public QWidget {
+class QEStripChartItem : public QWidget, private QEWidget {
    Q_OBJECT
 public:
    explicit QEStripChartItem (QEStripChart* chart,
@@ -113,6 +116,8 @@ public:
 
 public: signals:
    void itemContextMenuRequested (const unsigned int, const QPoint &);
+   void requestAction (const QEActionRequests&);
+   void processDataList (const QCaDataPointList&);
 
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
@@ -174,6 +179,7 @@ private:
    QEStripChartContextMenu* inUseMenu;
    QEStripChartContextMenu* emptyMenu;
    qcaobject::QCaObject *previousQcaItem;
+   bool hostSlotAvailable;
 
    void createInternalWidgets ();
 
