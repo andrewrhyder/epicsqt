@@ -26,8 +26,10 @@
  */
 
 #include <math.h>
+#include <QDebug>
 #include <QECommon.h>
 #include <QCaDateTime.h>
+#include "QEStripChartItem.h"
 
 #include "QEStripChartStatistics.h"
 #include "ui_QEStripChartStatistics.h"
@@ -37,6 +39,7 @@
 QEStripChartStatistics::QEStripChartStatistics (const QString& pvNameIn,
                                                 const QString& eguIn,
                                                 const QCaDataPointList& dataList,
+                                                QEStripChartItem* ownerIn,
                                                 QWidget *parent) :
    QWidget (parent),
    ui (new Ui::QEStripChartStatistics)
@@ -45,8 +48,21 @@ QEStripChartStatistics::QEStripChartStatistics (const QString& pvNameIn,
 
    this->pvName = pvNameIn;
    this->egu = eguIn;
+   this->owner = ownerIn;
+
+   QObject::connect (this->ui->updateButton, SIGNAL (clicked       (bool)),
+                     this,                   SLOT   (updateClicked (bool)));
 
    this->processDataList (dataList);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartStatistics::updateClicked (bool)
+{
+   if (this->owner) {
+      processDataList (this->owner->determinePlotPoints ());
+   }
 }
 
 //------------------------------------------------------------------------------

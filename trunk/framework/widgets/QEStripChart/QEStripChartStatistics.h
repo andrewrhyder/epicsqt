@@ -36,6 +36,8 @@ namespace Ui {
 class QEStripChartStatistics;
 }
 
+class QEStripChartItem;
+
 class QEStripChartStatistics : public QWidget
 {
    Q_OBJECT
@@ -44,17 +46,21 @@ public:
    explicit QEStripChartStatistics (const QString& pvName,
                                     const QString& egu,
                                     const QCaDataPointList& dataList,
+                                    QEStripChartItem* owner,
                                     QWidget *parent = 0);
    ~QEStripChartStatistics();
    
-public slots:
-   void processDataList (const QCaDataPointList& dataList);
-
 private:
+   void processDataList (const QCaDataPointList& dataList);
    void clearLabels ();
    Ui::QEStripChartStatistics *ui;
+   QEStripChartItem* owner;
    QString pvName;
    QString egu;
+
+private slots:
+   void updateClicked (bool);
+
 };
 
 #endif // QESTRIPCHARTSTATISTICS_H
