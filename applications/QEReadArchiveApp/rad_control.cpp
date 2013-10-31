@@ -32,7 +32,7 @@ const static char* yellow = "\033[33;1m";
 const static char* reset  = "\033[00m";
 }
 
-static const QString stdFormat = "dd/MMM/yyyy HH:mm:ss";
+static const QString stdFormat = "dd/MM/yyyy HH:mm:ss";
 
 //------------------------------------------------------------------------------
 //
@@ -79,15 +79,14 @@ void Rad_Control::tickTimeout ()
    switch (this->state) {
 
       case setup:
-         this->state = errorExit;  // default next state
          this->initialise ();
          this->setTimeout (30.0);
          break;
 
-      case watingReady:
+      case waitArchiverReady:
          if (this->archiveAccess->isReady ()) {
             std::cout << "Archiver interface initialised\n";
-            this->state = sendRequest;  // default next state
+            this->state = initialiseRequest;
          } else {
             this->timeout--;
             if (this->timeout <= 0) {
@@ -97,8 +96,18 @@ void Rad_Control::tickTimeout ()
          }
          break;
 
+      case initialiseRequest:
+         // Initialise (first) readArchive request values.
+         //
+         this->pvIndex = 0;
+         this->nextTime = this->startTime;
+         this->state = sendRequest;
+         break;
+
       case sendRequest:
          this->readArchive ();
+         this->state = waitResponse;
+         this->setTimeout (20.0);
          break;
 
       case waitResponse:
@@ -183,19 +192,20 @@ QDateTime Rad_Control::value (const QString& timeImage, bool& okay)
    return result;
 }
 
-
 //------------------------------------------------------------------------------
 //
 void Rad_Control::initialise ()
 {
-   const QString format = "dd/MMM/yyyy HH:mm:ss";
-
    QString timeImage;
    bool okay;
    int j;
    QString pattern;
    QString pv;
    QString line;
+
+   // default next state unless to explicity something else.
+   //
+   this->state = errorExit;
 
    if (this->options->getBool ("help", 'h')) {
       this->help ();
@@ -254,7 +264,6 @@ void Rad_Control::initialise ()
       return;
    }
 
-
    pv = this->options->getParameter (3);
    if (pv.isEmpty()) {
       this->usage ("missing pv name");
@@ -264,7 +273,7 @@ void Rad_Control::initialise ()
    this->pvDataList [0].pvName = pv;
    this->numberPVNames = 1;
 
-   // Make a regular expression - exact match
+   // Make a regular expression - ensure is an exact match.
    //
    pattern = "^" + pv + "$";
 
@@ -275,7 +284,7 @@ void Rad_Control::initialise ()
       }
 
       if (!this->useFixedTime) {
-         // Multiple PVs - must use fiexd time.
+         // Multiple PVs - must use fixed time.
          //
          this->useFixedTime = true;
          this->fixedTime = 1.0;
@@ -283,19 +292,23 @@ void Rad_Control::initialise ()
        }
 
       this->pvDataList [j].pvName = pv;
+      this->pvDataList [j].isOkayStatus = false;
+      this->pvDataList [j].responseCount = 0;
+      this->pvDataList [j].archiveData.clear ();
+
       this->numberPVNames = j + 1;
 
       pattern.append("|^").append (pv).append ("$");
    }
 
    line = "start time: ";
-   line.append (this->startTime.toString(format));
+   line.append (this->startTime.toString (stdFormat));
    line.append (" ");
    line.append (QEUtilities::getTimeZoneTLA (this->startTime));
    std::cout << line.toAscii().data() << "\n";
 
    line = "end time:   ";
-   line.append (this->endTime.toString(format));
+   line.append (this->endTime.toString (stdFormat));
    line.append (" ");
    line.append (QEUtilities::getTimeZoneTLA (this->endTime));
    std::cout << line.toAscii().data() << "\n";
@@ -320,88 +333,207 @@ void Rad_Control::initialise ()
    QObject::connect (this->archiveAccess, SIGNAL (setArchiveData (const QObject *, const bool , const QCaDataPointList &) ),
                      this,                SLOT   (setArchiveData (const QObject *, const bool , const QCaDataPointList &)));
 
-   this->state = watingReady;
-   this->pvIndex = 0;
+   this->state = waitArchiverReady;
 }
-
 
 //------------------------------------------------------------------------------
 //
 void Rad_Control::readArchive ()
 {
-   QString pvName = this->pvDataList [this->pvIndex].pvName;
+   if (this->pvIndex < 0 || this->pvIndex >= ARRAY_LENGTH (this->pvDataList)) {
+      std::cerr << colour::red << "PV index (" << this->pvIndex << ") out of range" << colour::reset << "\n";
+      exit (1);
+      return;
+   }
+
+   struct PVData* pvData = &this->pvDataList [this->pvIndex];
+   QString pvName = pvData->pvName;
+   QCaDateTime adjustedEndTime;
+   double interval;
+
+   // Add 5% - and ensure at least 60 seconds.
+   //
+   interval = this->endTime.floating (this->nextTime);
+   interval = MAX (interval * 1.05, 60.0);
+
+   adjustedEndTime = this->nextTime.addSecs ((int) interval);
 
 
    this->archiveAccess->readArchive (this, pvName,
-                                     this->startTime, this->endTime,
+                                     this->nextTime, adjustedEndTime,
                                      20000,
                                      this->how, 0);
 
-   std::cout << "\nArchiver request issued: "
-             << pvName.toAscii ().data () << "\n";
-
-   this->state = waitResponse;
-   this->setTimeout (10.0);
+   std::cout << "\nArchiver request issued:    "
+             << pvName.toAscii ().data ()
+             << " ("<< this->nextTime.toString(stdFormat).toAscii ().data ()
+             << " to " << adjustedEndTime.toString(stdFormat).toAscii ().data ()
+             << ")\n";
 }
-
 
 //------------------------------------------------------------------------------
 //
-void Rad_Control::setArchiveData (const QObject *, const bool okay, const QCaDataPointList &archiveData)
+void Rad_Control::setArchiveData (const QObject *, const bool okay, const QCaDataPointList &archiveDataIn)
 {
-   QString pvName = this->pvDataList [this->pvIndex].pvName;
+   if (this->pvIndex < 0 || this->pvIndex >= ARRAY_LENGTH (this->pvDataList)) {
+      std::cerr << colour::red << "PV index (" << this->pvIndex << ") out of range" << colour::reset << "\n";
+      exit (1);
+      return;
+   }
+
+   struct PVData* pvData = &this->pvDataList [this->pvIndex];
+   QString pvName = pvData->pvName;
+   QString line;
+   int number;
+   QCaDateTime firstTime;
+   QCaDateTime lastTime;
+
+   number = archiveDataIn.count ();
+
+   line = "Archiver response received: ";
+   line.append (pvName);
+   line.append (" status: ");
+   line.append (okay ? "okay" : "failed");
+   line.append (", number of points: ");
+   line.append (QString ("%1").arg (number));
+
+   if (number > 0) {
+       firstTime = archiveDataIn.value (0).datetime;
+       lastTime = archiveDataIn.value (number - 1).datetime;
+
+       line.append (" (");
+       line.append (firstTime.toString (stdFormat));
+       line.append (" to ");
+       line.append (lastTime.toString (stdFormat));
+       line.append (" ");
+       line.append (QEUtilities::getTimeZoneTLA (lastTime));
+       line.append (")");
+   }
+   line.append ("\n");
+   std::cout << line.toAscii ().data ();
+
+   // Now start processing the data in earnets.
+   //
+   pvData->responseCount++;
+   if (okay && number > 0) {
+      pvData->isOkayStatus = true;
+
+      if (pvData->responseCount == 1) {
+         // First update - just copy
+         //
+         pvData->archiveData = archiveDataIn;
+      } else {
+         // Subsequent update.
+         //
+         number = pvData->archiveData.count ();
+         lastTime = pvData->archiveData.value (number - 1).datetime;
+
+         // We need a working copy - archiveDataIn is const.
+         //
+         QCaDataPointList working = archiveDataIn;
+
+         // Remove any overlap times.
+         //
+         while ((working.count () > 0) && (working.value (0).datetime <= lastTime)) {
+            working.removeFirst ();
+         }
+         pvData->archiveData.append (working);
+      }
+
+      number = pvData->archiveData.count ();
+      lastTime = pvData->archiveData.value (number - 1).datetime;
+
+      if (this->how == QEArchiveInterface::Raw && lastTime < this->endTime && lastTime > this->nextTime) {
+         std::cout << "requesting more data ... \n";
+         this->nextTime = lastTime;
+      } else {
+
+         // All done with this PV - for good or bad.
+         //
+         this->postProcess (pvData);
+
+         // Move onto next PV (if defined).
+         //
+         this->pvIndex++;
+         this->nextTime = this->startTime;
+      }
+
+   } else {
+      // All done with this PV - for good or bad.
+      //
+      this->postProcess (pvData);
+
+      // Move onto next PV (if defined).
+      //
+      this->pvIndex++;
+      this->nextTime = this->startTime;
+   }
+
+   if (pvIndex < this->numberPVNames) {
+      this->state = sendRequest;  // do next request
+   } else {
+      this->state =  printAll;
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void Rad_Control::postProcess (struct PVData* pvData)
+{
    int number;
 
+   if (!pvData) {
+      std::cerr << colour::red << "Null pvData pointer" << colour::reset << "\n";
+      exit (1);
+      return;
+   }
 
-   number = archiveData.count ();
+   if (this->useFixedTime) {
 
-   std::cout << "Archiver response received: "
-             << pvName.toAscii ().data ()
-             << " status: " << (okay ? "okay" : "failed")
-             <<  ", number of points: " << number   << "\n";
+      QCaDataPointList working;
+      QCaDataPoint nullPoint;
 
-   this->pvDataList [this->pvIndex].isOkayStatus = okay;
-
-   if (okay && this->useFixedTime) {
-      std::cout << "resampling ...";
+      number = pvData->archiveData.count ();
+      std::cout << "resampling ... " << number << " points";
 
       if (this->numberPVNames == 1) {
          // Just do a simple resample.
-         this->pvDataList [this->pvIndex].archiveData.resample (archiveData, this->fixedTime, this->endTime);
+         //
+         // Create a distinct and separate copy to resample from.
+         //
+         working = pvData->archiveData;
+         pvData->archiveData.resample (working, this->fixedTime, this->endTime);
       } else {
          // All sets must start at the same time.
          //
-         QCaDataPointList working;
-         QCaDataPoint nullPoint;
-
          nullPoint.alarm = QCaAlarmInfo (0, (int) QEArchiveInterface::archSevInvalid);
          nullPoint.datetime = this->startTime;
          nullPoint.value = 0;
 
          working.clear ();
          working.append (nullPoint);
-         working.append (archiveData);
-         this->pvDataList [this->pvIndex].archiveData.resample (working, this->fixedTime, this->endTime);
+         working.append (pvData->archiveData);
+         pvData->archiveData.resample (working, this->fixedTime, this->endTime);
       }
 
-      number = this->pvDataList [this->pvIndex].archiveData.count ();
+      number = pvData->archiveData.count ();
       std::cout << " resampled to " << number << " points.\n";
+
    } else {
-      // Just copy
-      this->pvDataList [this->pvIndex].archiveData = archiveData;
+      // Remove points beyond endTime
+      //
+      QCaDateTime penUltimate;
+
+      while (true) {
+         if (pvData->archiveData.count () <= 2) break;
+         number = pvData->archiveData.count ();
+         penUltimate = pvData->archiveData.value(number - 2).datetime;
+         if (penUltimate < this->endTime) break;
+         pvData->archiveData.removeLast ();
+      }
    }
-
-   // Move onto next PV (if defined).
-   //
-   this->pvIndex++;
-
-   if (pvIndex < this->numberPVNames) {
-      this->state = sendRequest;  // fo next request
-   } else {
-      this->state =  printAll;
-   }
-
 }
+
 
 //------------------------------------------------------------------------------
 //

@@ -33,10 +33,18 @@ private:
    struct PVData {
       QString pvName;
       bool isOkayStatus;
+      int responseCount;
       QCaDataPointList archiveData;
    };
 
-   enum States { setup, watingReady, sendRequest, waitResponse, printAll, allDone, errorExit };
+   enum States { setup,
+                 waitArchiverReady,
+                 initialiseRequest,
+                 sendRequest,
+                 waitResponse,
+                 printAll,
+                 allDone,
+                 errorExit };
 
    PVData pvDataList [MaximumPVNames];
    int numberPVNames;
@@ -48,6 +56,7 @@ private:
 
    QString outputFile;
    QCaDateTime startTime;
+   QCaDateTime nextTime;
    QCaDateTime endTime;
 
    States state;
@@ -63,6 +72,7 @@ private:
 
    void initialise ();
    void readArchive ();
+   void postProcess (struct PVData* pvData);
 
    void putDatumSet (QTextStream& target, QCaDataPoint p [], const int j, const QCaDateTime & firstTime);
    void putArchiveData ();
