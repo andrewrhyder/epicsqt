@@ -90,9 +90,7 @@ public:
 
    // NOTE: Where ever possible I spell colour properly.
    //
-public slots:
    void setColour (const QColor&  colour);    // also used by colour dialog
-public:
    QColor getColour ();
 
    // For each of these three function whren the bool doScale parameter is true, the
@@ -102,6 +100,7 @@ public:
    TrackRange getLoprHopr (bool doScale);          // returns CA specified operating range
    TrackRange getDisplayedMinMax (bool doScale);   // returns range of values currently plotted
    TrackRange getBufferedMinMax (bool doScale);    // returns range of values that could be plotted
+   QCaDataPointList determinePlotPoints ();
 
    void readArchive ();
    void normalise ();
@@ -114,10 +113,9 @@ public:
 
    QCaVariableNamePropertyManager pvNameProperyManager;
 
-public: signals:
+signals:
    void itemContextMenuRequested (const unsigned int, const QPoint &);
    void requestAction (const QEActionRequests&);
-   void processDataList (const QCaDataPointList&);
 
 protected:
    bool eventFilter (QObject *obj, QEvent *event);
@@ -142,7 +140,6 @@ private:
 
    void writeTraceToFile ();
    void generateStatistics ();
-   QCaDataPointList determinePlotPoints ();
 
    // data members
    //

@@ -992,16 +992,11 @@ void QEStripChartItem::generateStatistics ()
 
    // Create new statistic widget.
    //
-   pvStatistics = new QEStripChartStatistics (this->getPvName (), egu, dataPoints, NULL);
+   pvStatistics = new QEStripChartStatistics (this->getPvName (), egu, dataPoints, this, NULL);
 
    // Scale statistics widget to current application scaling.
    //
    QEScaling::applyToWidget (pvStatistics);
-
-   // Prepares for dynamic updates.
-   //
-   QObject::connect (this,         SIGNAL (processDataList (const QCaDataPointList&)),
-                     pvStatistics, SLOT   (processDataList (const QCaDataPointList&)));
 
    if (this->hostSlotAvailable) {
       // Create component item and associated request.
