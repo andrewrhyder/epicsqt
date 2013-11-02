@@ -1360,7 +1360,7 @@ void  MainWindow::requestAction( const QEActionRequests & request )
         case QEActionRequests::KindAction:
             if (arguments.count() >= 1)
             {
-                QString action = arguments[0];
+                QString action = request.getAction();
                 // Handle actions that launch inbuilt forms
                 QString inbuiltForm = "";
                 QString className;
@@ -1376,9 +1376,9 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                 if( !inbuiltForm.isEmpty() )
                 {
 
-                    if( arguments.count() >= 2 )
+                    if( arguments.count() >= 1 )
                     {
-                        launchLocalGui( inbuiltForm, className, arguments[1] );
+                        launchLocalGui( inbuiltForm, className, arguments[0] );
                     }
                     else
                     {

@@ -38,11 +38,11 @@ QEActionRequests::QEActionRequests ()
 
 //---------------------------------------------------------------------------
 //
-QEActionRequests::QEActionRequests( const QString& action,
+QEActionRequests::QEActionRequests( const QString& actionIn,
                                     const QString& pvName)
 {
    kind = KindAction;
-   arguments << action;
+   action = actionIn;
    arguments << pvName;
    option = OptionNewWindow;
    initialise = false;
@@ -69,8 +69,8 @@ QEActionRequests::QEActionRequests( const QString& actionIn,
 //---------------------------------------------------------------------------
 //
 QEActionRequests::QEActionRequests (const QString & filename,
-                                          const QString & customisationIn,
-                                          const Options optionIn)
+                                    const QString & customisationIn,
+                                    const Options optionIn)
 {
    this->kind = KindOpenFile;
    this->arguments << filename;
