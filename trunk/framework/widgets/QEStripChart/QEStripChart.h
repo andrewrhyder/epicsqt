@@ -27,12 +27,15 @@
 #ifndef QESTRIPCHART_H
 #define QESTRIPCHART_H
 
-#include <QObject>
 #include <QAction>
+#include <QBoxLayout>
 #include <QColor>
 #include <QDateTime>
 #include <QFrame>
+#include <QMenu>
 #include <QMouseEvent>
+#include <QObject>
+#include <QPointF>
 #include <QSize>
 #include <QTimer>
 #include <QVariant>
@@ -44,16 +47,24 @@
 #include <QEDragDrop.h>
 #include <QEWidget.h>
 #include <persistanceManager.h>
+#include <QEResizeableFrame.h>
 
 #include "QEStripChartNames.h"
 #include "QEStripChartToolBar.h"
 #include "QEStripChartRangeDialog.h"
 #include "QEStripChartTimeDialog.h"
+#include "QEStripChartState.h"
 
-// Defered declaration - exists in qwt_plot_curve.h - but
-// we don't need to expose that.
+// Deferred declarations - exists in qwt header files - but we don't need to expose that here.
 //
+class QwtPlot;
 class QwtPlotCurve;
+class QwtPlotGrid;
+
+// Avoid mutual header references.
+//
+class QEStripChartItem;
+
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEStripChart : public QFrame, public QEWidget {
    Q_OBJECT
@@ -168,14 +179,48 @@ protected:
    void plotData ();
 
 private:
-   // Internal widgets and associated support data. These are declared in PrivateData.
-   // If these items are declared at class level, there is a run time exception.
-   // PrivateData also allows, what is essentially private, to be actually private,
-   // well at least declared in QEStripChart.cpp
+   // Internal widgets and state data.
    //
-   class PrivateData;
-   PrivateData *privateData;
-   friend class PrivateData;
+   QEStripChartToolBar* toolBar;
+   QEResizeableFrame* toolBarResize;
+
+   QFrame* pvFrame;
+   QScrollArea* pvScrollArea;
+   QEResizeableFrame* pvResizeFrame;
+
+   QwtPlot* plot;
+   QFrame* plotFrame;
+
+   QVBoxLayout* layout1;
+   QVBoxLayout* layout2;
+
+   QEStripChartItem* items [NUMBER_OF_PVS];
+
+   QMenu* chartContextMenu;
+
+   bool isNormalVideo;
+   QwtPlotGrid* grid;
+
+   // Mouse button pressed postions and flags
+   QPoint plotCurrent;          // last known mouse position of the plot.
+   QPoint plotLeftButton;       // point at which left button pressed.
+   bool   plotLeftIsDefined;
+   QPoint plotRightButton;      // point at which rightt button pressed.
+   bool   plotRightIsDefined;
+
+   // Keep a list of allocated curves so that we can track and delete them.
+   //
+   QVector<QwtPlotCurve *> curve_list;
+
+   // State data
+   //
+   QEStripChartNames::ChartYRanges chartYScale;
+   QEStripChartNames::YScaleModes yScaleMode;
+   QEStripChartNames::ChartTimeModes chartTimeMode;
+   double timeScale;             // 1 => units are seconds, 60 => x units are minutes, etc.
+   QString timeUnits;
+
+   QEStripChartStateList chartStateList;
 
    // Timer to keep strip chart scrolling
    //
@@ -194,6 +239,32 @@ private:
    double yMinimum;
    double yMaximum;
    QEStripChartRangeDialog *yRangeDialog;
+
+   // Functions
+   //
+   void createInternalWidgets ();
+
+   QEStripChartItem* getItem (unsigned int slot);
+   void calcDisplayMinMax ();
+   void setReadOut (const QString& text);
+   void setNormalBackground (bool isNormalVideo);
+
+   void pushState ();
+   void prevState ();
+   void nextState ();
+
+   void captureState (QEStripChartState& chartState);
+   void applyState (const QEStripChartState& chartState);
+
+   bool eventFilter (QObject *obj, QEvent *event);
+
+   void releaseCurves ();
+   QPointF plotToReal (const QPoint & pos) const;
+   void onCanvasMouseMove (QMouseEvent * event);
+   static double selectStep (const double step);    /// TBD
+   bool isValidYRangeSelection (const QPoint & origin, const QPoint & offset) const; /// TBD
+   bool isValidTRangeSelection (const QPoint & origin, const QPoint & offset) const; /// TBD
+   void onPlaneScaleSelect (const QPoint  & origin, const QPoint  & offset);
 
    void addPvName (const QString& pvName);
 
