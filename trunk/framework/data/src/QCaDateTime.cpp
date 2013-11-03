@@ -83,16 +83,24 @@ QCaDateTime::QCaDateTime( QDateTime dt ) : QDateTime( dt ) {
 /*
   Construct a QCa date time set to the same date/time as an EPICS time stamp
  */
-QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds ) {
-    // Set the time to the second
-    // Note, although the EPICS time stamp is in seconds since a base, the
-    // method which takes seconds since a base time uses a different base, so an offset is added.
-    setTime_t( seconds + EPICSQtEpocOffset );
+QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds )
+{
+    qint64 mSec;
+    qint64 mSecsSinceEpoch;
 
-    // Add the nanoseconds. Down to the millisecond goes in the Qt structure,
+    // First calculate mSecs and remaining nSecs
+    // Down to the millisecond goes in the Qt base class structure,
     // the remaining nanoseconds are saved in this class
-    addMSecs( nanoseconds / 1000000 );
+    //
+    mSec = nanoseconds / 1000000;
     nSec = nanoseconds % 1000000;
+
+    // Calc number of mSecs since the epoc.
+    // Note, although the EPICS time stamp is in seconds since a base, the method which
+    // takes seconds since a base time uses a different base, so an offset is added.
+    //
+    mSecsSinceEpoch = ((qint64) (seconds + EPICSQtEpocOffset)) * 1000 + mSec;
+    setMSecsSinceEpoch (mSecsSinceEpoch);
 }
 
 /*
@@ -150,14 +158,16 @@ unsigned long QCaDateTime::getSeconds() const
 }
 
 /*
-  Return soriginal number of nano-seconds.
+  Returns original number of nano-seconds.
  */
 unsigned long QCaDateTime::getNanoSeconds() const
 {
    qint64 msec = msecsTo_48 (epicsEpoch, *this);
 
    if( msec < 0 ) msec = 0;
-   return  (unsigned long) ((msec % 1000)*1000000) + nSec;
+
+   msec = msec % 1000;
+   return  (unsigned long) (msec * 1000000) + nSec;
 }
 
 // end
