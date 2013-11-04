@@ -86,7 +86,6 @@ QCaDateTime::QCaDateTime( QDateTime dt ) : QDateTime( dt ) {
 QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds )
 {
     qint64 mSec;
-    qint64 mSecsSinceEpoch;
 
     // First calculate mSecs and remaining nSecs
     // Down to the millisecond goes in the Qt base class structure,
@@ -95,12 +94,21 @@ QCaDateTime::QCaDateTime( unsigned long seconds, unsigned long nanoseconds )
     mSec = nanoseconds / 1000000;
     nSec = nanoseconds % 1000000;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
     // Calc number of mSecs since the epoc.
     // Note, although the EPICS time stamp is in seconds since a base, the method which
     // takes seconds since a base time uses a different base, so an offset is added.
     //
+    qint64 mSecsSinceEpoch;
     mSecsSinceEpoch = ((qint64) (seconds + EPICSQtEpocOffset)) * 1000 + mSec;
     setMSecsSinceEpoch (mSecsSinceEpoch);
+#else
+    // setMSecsSinceEpoch does not exist in older versions.
+    //
+    QDateTime temp;
+    temp.setTime_t( seconds + EPICSQtEpocOffset );
+    *this = temp.addMSecs (mSec);
+#endif
 }
 
 /*
