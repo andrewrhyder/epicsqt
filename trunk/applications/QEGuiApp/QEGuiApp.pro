@@ -82,6 +82,7 @@ FORMS += ./src/MainWindow.ui \
          ./src/Plotter.ui \
          ./src/ScratchPad.ui \
          ./src/ArchiveStatus.ui \
+         ./src/ArchiveNameSearch.ui \
          ./src/saveDialog.ui \
          ./src/restoreDialog.ui \
          ./src/manageConfigDialog.ui \
@@ -91,8 +92,8 @@ OTHER_FILES += \
          ./src/QEGuiCustomisationDefault.xml \
          ./src/help_usage.txt \
          ./src/help_general.txt
-         
-         
+
+
 RESOURCES += ./src/QEGui.qrc
 
 # end

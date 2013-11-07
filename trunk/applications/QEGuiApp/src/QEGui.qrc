@@ -7,6 +7,7 @@
         <file>ScratchPad.ui</file>
         <file>PVLoadSave.ui</file>
         <file>ArchiveStatus.ui</file>
+        <file>ArchiveNameSearch.ui</file>
     </qresource>
     <qresource prefix="/qe/gui/icons">
         <file>QEGuiIcon.png</file>
