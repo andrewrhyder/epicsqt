@@ -23,7 +23,6 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <unistd.h>
 #include <iostream>
 
 #include <QDebug>
@@ -88,9 +87,12 @@ void QESettings::commonSetup (const QString &fileNameIn)
    QString cleanName = QDir::cleanPath (fileNameIn);
    QFileInfo fileInfo (cleanName);
    QString fileName;
-   char *cFileName;
 
-   // Is the fiven file name an absolute path name?
+   // Hard-coded message Id.
+   //
+   this->setSourceId (9002);
+
+   // Is the given file name an absolute path name?
    //
    if (fileInfo.isAbsolute ()) {
        // Yes - use as is?
@@ -105,10 +107,13 @@ void QESettings::commonSetup (const QString &fileNameIn)
                      .append (cleanName);
    }
 
+   // Access file info for modified name.
+   //
+   QFileInfo fileNameInfo (fileName);
+
    // Do we have read access (implies that file exists if true).
    //
-   cFileName = fileName.toAscii ().data ();
-   if (access (cFileName, R_OK) == 0) {
+   if (fileNameInfo.isFile () && fileNameInfo.isReadable ()) {
       this->settings = new QSettings (fileName, QSettings::IniFormat, NULL);
 
       // QString => QFileInfo => QDir => QString.
@@ -251,16 +256,22 @@ QString QESettings::getFilename (const QString &key, const QString &defaultValue
 QESettings* QESettings::getSettings (const QString &key)
 {
    QString fileName = this->getFilename (key, "");
-   char *cFileName;
 
    if (fileName.isEmpty()) {
-      std::cerr << __FUNCTION__ << " no file found for key: " << key.toAscii().data() << "\n";
+      this->sendMessage (QString ("QESettings: no file name found for key: ").append (key),
+                         message_types (MESSAGE_TYPE_INFO));
       return NULL;
    }
-   cFileName = fileName.toAscii ().data ();
 
-   if (access (cFileName, R_OK) != 0) {
-      std::cerr << __FUNCTION__ << " " << cFileName << " does not exists, or no access\n";
+   // Access file info for modified name.
+   //
+   QFileInfo fileNameInfo (fileName);
+
+   // Do we have read access (implies that file exists if true).
+   //
+   if (fileNameInfo.isFile () && fileNameInfo.isReadable ()) {
+      this->sendMessage (QString ("QESettings: %1 dos not exist or no read access").append (fileName),
+                         message_types (MESSAGE_TYPE_INFO));
       return NULL;
    }
 

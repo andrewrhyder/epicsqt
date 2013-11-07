@@ -31,7 +31,7 @@
 #include <QSettings>
 #include <QVariant>
 #include <QEPluginLibrary_global.h>
-
+#include <UserMessage.h>
 
 /// This class provides access to user defined settings. The setting file
 /// is expected to conform to the QSettings::IniFormat, i.e. like a windows
@@ -58,7 +58,7 @@
 ///
 // This class contains a QSettings objects (as opposed to extending it).
 //
-class QEPLUGINLIBRARYSHARED_EXPORT QESettings {
+class QEPLUGINLIBRARYSHARED_EXPORT QESettings : private UserMessage {
 public:
    // Contructor that locates and uses the applicatuion's adaptation_parmeters.ini
    // This should be located in the application's current directory at start up.
