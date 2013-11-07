@@ -264,6 +264,9 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
 
     // Restore (will only do anything if this main window is being created during a restore)
     saveRestore( SaveRestoreSignal::RESTORE_APPLICATION );
+
+    // Set up request action to form name and clss name maps.
+    createActionMaps();
 }
 
 // Destructor
@@ -1323,6 +1326,29 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
     }
 }
 
+void MainWindow::createActionMaps()
+{
+    inbuiltFormMap.clear();
+    inbuiltFormMap.insert( "PV Properties...",       ":/qe/gui/forms/PVProperties.ui" );
+    inbuiltFormMap.insert( "Strip Chart...",         ":/qe/gui/forms/StripChart.ui" );
+    inbuiltFormMap.insert( "Scratch Pad...",         ":/qe/gui/forms/ScratchPad.ui" );
+    inbuiltFormMap.insert( "Message Log...",         ":/qe/gui/forms/MessageLog.ui" );
+    inbuiltFormMap.insert( "Plotter...",             ":/qe/gui/forms/Plotter.ui" );
+    inbuiltFormMap.insert( "PV Load/Save...",        ":/qe/gui/forms/PVLoadSave.ui" );
+    inbuiltFormMap.insert( "Archive Status...",      ":/qe/gui/forms/ArchiveStatus.ui" );
+    inbuiltFormMap.insert( "Archive Name Search...", ":/qe/gui/forms/ArchiveNameSearch.ui" );
+
+    classNameMap.clear();
+    classNameMap.insert( "PV Properties...",         "QEPvProperties" );
+    classNameMap.insert( "Strip Chart...",           "QEStripChart" );
+    classNameMap.insert( "Scratch Pad...",           "QEScratchPad" );
+    classNameMap.insert( "Message Log...",           "QEMessageLog" );
+    classNameMap.insert( "Plotter...",               "QEPlotter" );
+    classNameMap.insert( "PV Load/Save...",          "QEPvLoadSave" );
+    classNameMap.insert( "Archive Status...",        "QEArchiveStatus" );
+    classNameMap.insert( "Archive Name Search...",   "QEArchiveNameSearch" );
+}
+
 // Slot for launching a new gui from a contained object.
 void  MainWindow::requestAction( const QEActionRequests & request )
 {
@@ -1361,23 +1387,15 @@ void  MainWindow::requestAction( const QEActionRequests & request )
             if (arguments.count() >= 1)
             {
                 QString action = request.getAction();
+
                 // Handle actions that launch inbuilt forms
-                QString inbuiltForm = "";
-                QString className;
-
-                     if( action == "PV Properties..."  ) { inbuiltForm = ":/qe/gui/forms/PVProperties.ui"  ; className = "QEPvProperties"  ; }
-                else if( action == "Strip Chart..."    ) { inbuiltForm = ":/qe/gui/forms/StripChart.ui"    ; className = "QEStripChart"    ; }
-                else if( action == "Scratch Pad..."    ) { inbuiltForm = ":/qe/gui/forms/ScratchPad.ui"    ; className = "QEScratchPad"    ; }
-                else if( action == "Message Log..."    ) { inbuiltForm = ":/qe/gui/forms/MessageLog.ui"    ; className = "QEMessageLog"    ; }
-                else if( action == "Plotter..."        ) { inbuiltForm = ":/qe/gui/forms/Plotter.ui"       ; className = "QEPlotter"       ; }
-                else if( action == "PV Load/Save..."   ) { inbuiltForm = ":/qe/gui/forms/PVLoadSave.ui"    ; className = "QEPvLoadSave"    ; }
-                else if( action == "Archive Status..." ) { inbuiltForm = ":/qe/gui/forms/ArchiveStatus.ui" ; className = "QEArchiveStatus" ; }
-
-                if( !inbuiltForm.isEmpty() )
+                if( inbuiltFormMap.contains( action ) )
                 {
+                    QString inbuiltForm = inbuiltFormMap.value (action, "");
 
                     if( arguments.count() >= 1 )
                     {
+                        QString className = classNameMap.value (action, "");
                         launchLocalGui( inbuiltForm, className, arguments[0] );
                     }
                     else

@@ -32,6 +32,7 @@
 #include <QEForm.h>
 #include <UserMessage.h>
 #include <ContainerProfile.h>
+#include <QMap>
 #include <QProcess>
 #include <QTimer>
 #include <StartupParams.h>
@@ -169,6 +170,8 @@ private:
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
     MainWindow* launchGui( QString guiName, QString customisationName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
+    void createActionMaps ();
+
     QMenu* windowMenu;
     QMenu* recentMenu;
     QMenu* editMenu;
@@ -185,6 +188,11 @@ private:
 
     Qt::DockWidgetArea creationOptionToDockLocation( QEActionRequests::Options createOption ); // Translate a creation option to a dock location.
     QEActionRequests::Options dockLocationToCreationOption( Qt::DockWidgetArea dockLocation ); // Translate a dock location to a creation option.
+
+    typedef QMap<QString, QString> NameMap;
+
+    NameMap inbuiltFormMap;
+    NameMap classNameMap;
 
 private slots:
     void on_actionManage_Configurations_triggered();
