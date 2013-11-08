@@ -556,16 +556,16 @@ QCaDataPointList QEStripChartItem::determinePlotPoints ()
          if ((t >= -duration) && (t <= 0.0)) {
             // Point time is within current time range of the chart.
             //
-            if (isFirst && j > 0) {
+            if (isFirst && (j > 0)) {
                // do one previous point.
                //
-               result << list->value (j - 1);
+               result.append (list->value (j - 1));
             }
             isFirst = false;
-            result << point;
+            result.append (point);
          } else if (t > 0.0) {
             // do one follwing point, then  skip the rest.
-            result << point;
+            result.append (point);
             break;
          }
       }
@@ -664,7 +664,7 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
    }
 
    // Some records, e.g. the motor record, post RBV updated without updating
-   // the the process tiime until the end of the move. Sometimes the server and/or
+   // the the process time until the end of the move. Sometimes the server and/or
    // client time is just wrong. In these cases it is better to plot using the
    // receive time.
    //
