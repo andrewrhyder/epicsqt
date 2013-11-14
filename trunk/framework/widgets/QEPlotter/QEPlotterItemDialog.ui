@@ -18,7 +18,7 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>1200</width>
+    <width>880</width>
     <height>142</height>
    </size>
   </property>
@@ -61,7 +61,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Enter a regular expression to filter PV names selectable from the combo-box.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter a regular PV name or &amp;quot;=&amp;quot; followed by calc record style expression (e.g. =9*A/5 + 32).&lt;/p&gt;&lt;p/&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string/>
@@ -103,7 +103,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Enter a regular expression to filter PV names selectable from the combo-box.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter meaningful name for selected PV (e.g.Energy).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string/>
@@ -145,7 +145,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Enter a regular expression to filter PV names selectable from the combo-box.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter regular PV name or postive decimal interger (e.g. 42) &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string/>
