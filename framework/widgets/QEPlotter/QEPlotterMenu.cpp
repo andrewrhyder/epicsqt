@@ -46,27 +46,31 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
 
    this->setTitle ("Plotter Item");
 
-   if (this->slot > 0) {
-      // These only apply to Y data.
-      //
-      menu = new QMenu ("Line", this);
-      this->addMenu (menu);
-      this->make (menu, "Bold",      true, PLOTTER_LINE_BOLD);
-      this->make (menu, "Dots",      true, PLOTTER_LINE_DOTS);
-      this->make (menu, "Visible",   true, PLOTTER_LINE_VISIBLE);
-      this->make (menu, "Colour...", false, PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
-   }
-
    menu = new QMenu ("Data", this);
    this->addMenu (menu);
-   this->make (menu, "Select",    false, PLOTTER_DATA_SELECT)->setEnabled (slot > 0);
-   this->make (menu, "Define...", false, PLOTTER_DATA_DIALOG);
-   this->make (menu, "Clear",     false, PLOTTER_DATA_CLEAR);
+   this->make (menu, "Define...",           false, PLOTTER_DATA_DIALOG);
+   this->make (menu, "Paste Data PV Name ", false, PLOTTER_PASTE_DATA_PV);
+   this->make (menu, "Paste Size PVName",   false, PLOTTER_PASTE_SIZE_PV);
+   this->make (menu, "Select",              false, PLOTTER_DATA_SELECT)->setEnabled (slot > 0);
+   this->make (menu, "Clear",               false, PLOTTER_DATA_CLEAR);
 
    menu = new QMenu ("Scale to", this);
    this->addMenu (menu);
-   this->make (menu, "Min to Max values",  false, PLOTTER_SCALE_TO_MIN_MAX);
-   this->make (menu, "Zero to Max values", false, PLOTTER_SCALE_TO_ZERO_MAX);
+   this->make (menu, "Min to Max values",   false, PLOTTER_SCALE_TO_MIN_MAX);
+   this->make (menu, "Zero to Max values ", false, PLOTTER_SCALE_TO_ZERO_MAX);
+
+   menu = new QMenu ("Line", this);
+   this->addMenu (menu);
+
+   // This only apply to Y data.
+   //
+   menu->setEnabled (this->slot > 0);
+   if (this->slot > 0) {
+      this->make (menu, "Bold",             true, PLOTTER_LINE_BOLD);
+      this->make (menu, "Dots",             true, PLOTTER_LINE_DOTS);
+      this->make (menu, "Visible",          true, PLOTTER_LINE_VISIBLE);
+      this->make (menu, "Colour... ",       false, PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
+   }
 
    QObject::connect (this, SIGNAL (triggered             (QAction* ) ),
                      this, SLOT   (contextMenuTriggered  (QAction* )));

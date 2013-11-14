@@ -245,8 +245,7 @@ private:
 
    enum DataPlotKinds { NotInUse,            // blank  - not in use - no data - no plot
                         DataPlot,            // use specified PV to provide plot data
-                        CalculationPlot,     // "= ..." - use given calculation for plot data
-                        InvalidExpression }; // "= ..." - is invalid  - no data - no plot.
+                        CalculationPlot };   // "= ..." - use given calculation for plot data
 
    enum SizePlotKinds { NotSpecified,        // blank - use maximum, available no. points
                         Constant,            // "[0-9]*" - used fixed integer as number of points
@@ -257,7 +256,10 @@ private:
    public:
       explicit DataSets ();
       ~DataSets ();
+      void setContext (QEPlotter* owner, int slot);
+      int getSlot ();
       bool isInUse ();
+      int actualSize ();
       int effectiveSize ();
 
       QCaVariableNamePropertyManager dataVariableNameManager;
@@ -266,12 +268,13 @@ private:
       SizePlotKinds sizeKind;
       QString pvName;
       QString aliasName;
-      QString expression;
+      QString expression;        // when dataKind is CalculationPlot
+      bool expressionIsValid;
       QEExpressionEvaluation* calculator;
       bool dataIsConnected;
       bool sizeIsConnected;
-      int fixedSize;     // size set by user/designer
-      int dbSize;        // size as defined by PV.
+      int fixedSize;           // size set by user/designer
+      int dbSize;              // size as defined by PV.
       QEFloatingArray data;
       QEFloatingArray dyByDx;
 
@@ -292,12 +295,14 @@ private:
       QLabel* itemName;
       QCheckBox* checkBox;
       QEPlotterMenu* itemMenu;
+   private:
+      QEPlotter* owner;
+      int slot;
    };
 
    // Slot 0 used for X data - some redundancy (e.g. colour)
    //
    DataSets xy [1 + NUMBER_OF_PLOTS];
-
 
 
    void createInternalWidgets ();
@@ -308,6 +313,7 @@ private:
    void plotSelectedArea ();
    void plotOriginToPoint ();
    void plot ();
+   int maxActualYSizes ();
    void doAnyCalculations ();
    void addPvName (const QString& pvName);
    void addPvNameSet (const QString& pvNameSet);

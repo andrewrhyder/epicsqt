@@ -292,6 +292,7 @@ QEPlotter::DataSets::DataSets ()
    this->pvName = "";
    this->aliasName = "";
    this->expression = "";
+   this->expressionIsValid = false;
    this->dataIsConnected = false;
    this->sizeIsConnected = false;
    this->isDisplayed = true;
@@ -308,6 +309,14 @@ QEPlotter::DataSets::~DataSets ()
 
 //------------------------------------------------------------------------------
 //
+void QEPlotter::DataSets::setContext (QEPlotter* ownerIn, int slotIn)
+{
+   this->owner = ownerIn;
+   this->slot = slotIn;
+}
+
+//------------------------------------------------------------------------------
+//
 bool QEPlotter::DataSets::isInUse ()
 {
    return (this->dataKind != NotInUse);
@@ -315,21 +324,67 @@ bool QEPlotter::DataSets::isInUse ()
 
 //------------------------------------------------------------------------------
 //
+int QEPlotter::DataSets::actualSize ()
+{
+   // use array (waveform) PV size or zero.
+   //
+   return (this->dataKind == QEPlotter::DataPlot) ? this->data.size () : 0;
+}
+
+//------------------------------------------------------------------------------
+//
 int QEPlotter::DataSets::effectiveSize ()
 {
    int result = 0;
+
    switch (this->sizeKind) {
+
       case QEPlotter::NotSpecified:
-         // Use number of data points.
+
+         // The size has not been specified - we must choose best value we can
+         // based on the specified data array (waveform) PVs.
          //
-         result = this->data.size ();
+         switch (this->dataKind) {
+
+            case QEPlotter::NotInUse:
+               // No PV spcified either.
+               //
+               if (this->slot == 0) {
+                  // This is the X - choose the maximum of all the y data sizes.
+                  //
+                  result = this->owner->maxActualYSizes ();
+               } else {
+                  // This is a Y item - zero is the only sensible choice here.
+                  //
+                  result = 0;
+               }
+               break;
+
+            case QEPlotter::CalculationPlot:
+               // This is the X - choose the maximum of all the actual Y data sizes.
+               //
+               result = this->owner->maxActualYSizes ();
+               break;
+
+
+            case QEPlotter::DataPlot:
+               // use size of the specified array (waveform) PV to provide the size.
+               //
+               result = this->data.size ();
+               break;
+         }
+
          break;
 
       case QEPlotter::Constant:
+         // Size specified as a constant - just use as is.
+         //
          result = this->fixedSize;
          break;
 
       case QEPlotter::SizePVName:
+         // Size specified as a PV - just use value (if we have it.
+         //.
          result = this->sizeIsConnected ? this->dbSize : 0;
          break;
    }
@@ -354,6 +409,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->setNumVariables (2*ARRAY_LENGTH (this->xy));
 
    for (slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
+      this->xy [slot].setContext (this, slot);   // set owner and slot number.
       this->xy [slot].colour = item_colours [slot];
 
       this->updateLabel (slot);
@@ -472,12 +528,12 @@ void QEPlotter::updateLabel (const int slot)
          break;
 
       case CalculationPlot:
-         text.append (":= ");
-         text.append (ds->expression);
-         break;
-
-      case InvalidExpression:
-         text.append ("invalid expr.");
+         if (ds->expressionIsValid) {
+            text.append (":= ");
+            text.append (ds->expression);
+         } else {
+            text.append ("invalid expr.");
+         }
          break;
 
    }
@@ -558,14 +614,11 @@ qcaobject::QCaObject* QEPlotter::createQcaItem (unsigned int variableIndex)
       //
       if (pvName.left (1).compare (QString ("=")) == 0) {
 
-         this->xy[slot].expression = pvName.remove (0, 1);
+         this->xy [slot].dataKind = CalculationPlot;
+         this->xy [slot].expression = pvName.remove (0, 1);
 
          okay = this->xy[slot].calculator->initialise (this->xy[slot].expression);
-         if (okay) {
-            this->xy [slot].dataKind = CalculationPlot;
-         } else {
-            this->xy [slot].dataKind = InvalidExpression;
-         }
+         this->xy [slot].expressionIsValid = okay;
 
       } else {
          this->xy [slot].dataKind = DataPlot;
@@ -583,8 +636,8 @@ qcaobject::QCaObject* QEPlotter::createQcaItem (unsigned int variableIndex)
       size = pvName.toInt (&okay);
       if (okay) {
          this->xy [slot].sizeKind = Constant;
-         this->xy[slot].fixedSize = size;
-         this->xy[slot].dbSize = 0;
+         this->xy [slot].fixedSize = size;
+         this->xy [slot].dbSize = 0;
          this->replotIsRequired = true;
 
       } else {
@@ -592,8 +645,8 @@ qcaobject::QCaObject* QEPlotter::createQcaItem (unsigned int variableIndex)
          //
          this->xy [slot].sizeKind = SizePVName;
          result = new QEInteger (pvName, this, &this->integerFormatting, variableIndex);
-         this->xy[slot].fixedSize = 0;
-         this->xy[slot].dbSize = 0;
+         this->xy [slot].fixedSize = 0;
+         this->xy [slot].dbSize = 0;
       }
    }
 
@@ -735,6 +788,8 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
 {
    SLOT_CHECK (slot,);
 
+   QClipboard* cb = NULL;
+   QString pasteText;
    DataSets* ds = &(this->xy [slot]);
    int n;
 
@@ -787,6 +842,26 @@ void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::Contex
             this->setXYDataPV (slot, newData);
             this->setXYAlias  (slot, newAlias);
             this->setXYSizePV (slot, newSize);
+            this->replotIsRequired = true;
+         }
+         break;
+
+      case  QEPlotterMenu::PLOTTER_PASTE_DATA_PV:
+         cb = QApplication::clipboard ();
+         pasteText = cb->text().trimmed();
+
+         if (! pasteText.isEmpty()) {
+            this->setXYDataPV (slot, pasteText);
+            this->replotIsRequired = true;
+         }
+         break;
+
+      case  QEPlotterMenu::PLOTTER_PASTE_SIZE_PV:
+         cb = QApplication::clipboard ();
+         pasteText = cb->text().trimmed();
+
+         if (! pasteText.isEmpty()) {
+            this->setXYSizePV (slot, pasteText);
             this->replotIsRequired = true;
          }
          break;
@@ -1645,6 +1720,19 @@ void QEPlotter::plot ()
 
 //------------------------------------------------------------------------------
 //
+int QEPlotter::maxActualYSizes ()
+{
+   int result = 0;
+
+   for (int j = 1; j < ARRAY_LENGTH (this->xy); j++) {
+      result = MAX (result, this->xy [j].actualSize ());
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPlotter::doAnyCalculations ()
 {
    const int x = QEExpressionEvaluation::indexOf ('X');
@@ -1666,37 +1754,33 @@ void QEPlotter::doAnyCalculations ()
    xs = &this->xy [0];
 
    switch (xs->dataKind) {
+
       case NotInUse:
          xs->data.clear ();
-         if (xs->sizeKind == Constant) {
-            // Use default calculation.
-            //
-            n = xs->fixedSize;
-            for (j = 0; j < n; j++) {
-               xs->data.append ((double) j);
-            }
+         n = xs->effectiveSize ();
 
+         // Use default calculation which is just x = index position 0 .. (n-1)
+         //
+         for (j = 0; j < n; j++) {
+            xs->data.append ((double) j);
          }
          break;
 
       case DataPlot:
-         // Leave as the data, if any, supplied via PV.
+         // Leave as the data, if any, as supplied by the specified PV.
          break;
 
       case CalculationPlot:
          xs->data.clear ();
-         n = xs->effectiveSize ();
-         for (j = 0; j < n; j++) {
-            QEExpressionEvaluation::clear (userArguments);
-            userArguments [Normal][s] = (double) j;
-            value = xs->calculator->evaluate (userArguments, &okay);
-            xs->data.append (value);
+         if (xs->expressionIsValid) {
+            n = xs->effectiveSize ();
+            for (j = 0; j < n; j++) {
+               QEExpressionEvaluation::clear (userArguments);
+               userArguments [Normal][s] = (double) j;
+               value = xs->calculator->evaluate (userArguments, &okay);
+               xs->data.append (value);
+            }
          }
-         break;
-
-      case InvalidExpression:
-         xs->data.clear ();
-         break;
    }
 
    effectiveXSize = xs->effectiveSize ();
