@@ -110,19 +110,23 @@ void QEPlotter::createInternalWidgets ()
    this->vLayout->setMargin (4);
    this->vLayout->setSpacing (4);
 
-   this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 4, 48, this);
+   // Create tool bar frame and tool buttons.
+   //
+   this->toolBar = new QEPlotterToolBar (); // this will become parented by toolBarResize
+
+   // Connect various tool bar signals to the plotter slots.
+   //
+   // TODO: TBD
+   //
+
+   this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 8, 8 + this->toolBar->designHeight, this);
    this->toolBarResize->setFrameShape (QFrame::StyledPanel);
    this->toolBarResize->setFrameShadow (QFrame::Raised);
-   this->toolBarResize->setFixedHeight (48);
+   this->toolBarResize->setFixedHeight (8 + this->toolBar->designHeight);
    this->toolBarResize->setMinimumWidth (300);
    this->toolBarResize->setMaximumWidth (1920);
+   this->toolBarResize->setWidget (this->toolBar);
    this->vLayout->addWidget (this->toolBarResize);
-
-   this->toolBarFrame = new QFrame (NULL);  // will be re-parented.
-   this->toolBarFrame->setFrameShape (QFrame::NoFrame);
-   this->toolBarFrame->setFrameShadow (QFrame::Plain);
-   this->toolBarFrame->setFixedHeight (40);
-   this->toolBarResize->setWidget (this->toolBarFrame);
 
    this->theMainFrame = new QFrame (this);
    this->theMainFrame->setFrameShape (QFrame::NoFrame);

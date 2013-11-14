@@ -43,6 +43,7 @@
 
 #include "QEPlotterItemDialog.h"
 #include "QEPlotterMenu.h"
+#include "QEPlotterToolBar.h"
 
 // Differed class declaration - no explicit dependency on Qwt header files.
 //
@@ -180,7 +181,7 @@ private:
    QHBoxLayout* sLayout;
 
    QEResizeableFrame* toolBarResize;
-   QFrame* toolBarFrame;
+   QEPlotterToolBar* toolBar;
    QFrame* theMainFrame;
    QFrame* statusFrame;
 
@@ -190,6 +191,7 @@ private:
 
    QEResizeableFrame* itemResize;
    QFrame* itemFrame;
+
 
    // Status items
    //
@@ -232,8 +234,8 @@ private:
    enum ScaleModes   { smFixed,             // Fixed scale in x and y
                        smNormalised,        // y plots scales such that { min to max } map to { 0 to 1 }
                        smFractional,        // y plots scales such that { min to max } map to { 0 to 1 }
-                       smDynamic            // x and y scales continually adjuxsted.
-                      };
+                       smDynamic };         // x and y scales continually adjuxsted.
+
 
    ScaleModes xScaleMode;
    ScaleModes yScaleMode;
