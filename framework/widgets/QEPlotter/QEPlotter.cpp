@@ -41,6 +41,7 @@
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 static const QColor clGridLine (0xC0C0C0);
+static const QColor clReverseGridLine (0x404040);
 static const QColor clStatus (0xF0F0F0);
 
 // Define default colours: essentially RGB byte triplets
@@ -114,10 +115,10 @@ void QEPlotter::createInternalWidgets ()
    //
    this->toolBar = new QEPlotterToolBar (); // this will become parented by toolBarResize
 
-   // Connect various tool bar signals to the plotter slots.
+   // Connect various tool bar signal to the plotter slot.
    //
-   // TODO: TBD
-   //
+   QObject::connect (this->toolBar, SIGNAL (selected (const QEPlotterToolBar::ToolBarOptions)),
+                     this, SLOT (toolBarItemSelected (const QEPlotterToolBar::ToolBarOptions)));
 
    this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 8, 8 + this->toolBar->designHeight, this);
    this->toolBarResize->setFrameShape (QFrame::StyledPanel);
@@ -197,10 +198,10 @@ void QEPlotter::createInternalWidgets ()
       label->setContextMenuPolicy (Qt::CustomContextMenu);
 
       QObject::connect (label, SIGNAL ( customContextMenuRequested (const QPoint &)),
-                        this,  SLOT   ( contextMenuRequested (const QPoint &)));
+                        this,  SLOT   ( itemContextMenuRequested (const QPoint &)));
 
       QObject::connect (menu, SIGNAL ( contextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ),
-                        this,  SLOT  ( contextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ));
+                        this,  SLOT  ( itemContextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ));
 
       if (slot != 0) {
          box = new TCheckBox (this->itemFrame);
@@ -407,6 +408,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 
    this->createInternalWidgets ();
 
+   this->generalContextMenu = this->generalContextMenuCreate ();
+
    this->plotLeftIsDefined = false;
    this->plotRightIsDefined = false;
 
@@ -451,6 +454,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
       QObject::connect (vpnm, SIGNAL (newVariableNameProperty (QString, QString, unsigned int)),
                         this, SLOT   (setNewVariableName      (QString, QString, unsigned int)));
    }
+
+   this->calculateMajorValues ();
 
    this->xScaleMode = smDynamic;
    this->yScaleMode = smDynamic;
@@ -767,7 +772,92 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::contextMenuRequested (const QPoint& pos)
+void QEPlotter::toolBarItemSelected (const QEPlotterToolBar::ToolBarOptions item)
+{
+   switch (item) {
+      case QEPlotterToolBar::TOOLBAR_NORMAL_VIDEO:
+         this->isReverse = false;
+         this->setXYColour (NUMBER_OF_PLOTS, clBlack);
+         this->pushState ();
+         break;
+
+      case QEPlotterToolBar::TOOLBAR_REVERSE_VIDEO:
+         this->isReverse = true;
+         this->setXYColour (NUMBER_OF_PLOTS, clWhite);
+         this->pushState ();
+         break;
+
+      default:
+         DEBUG << "not handled" <<  item;
+         break;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+//
+QMenu* QEPlotter::generalContextMenuCreate ()
+{
+   QMenu* result = NULL;
+   QAction* action;
+
+   result = new QMenu ("General", this);
+
+   action = new QAction ("Show/Hide Tool Bar ", result);
+   action->setData (QVariant (int (1)));
+   result->addAction (action);
+
+   action = new QAction ("Show/Hide PV Items ", result);
+   action->setData (QVariant (int (2)));
+   result->addAction (action);
+
+   action = new QAction ("Show/Hide Status ", result);
+   action->setData (QVariant (int (3)));
+   result->addAction (action);
+
+   this->setContextMenuPolicy (Qt::CustomContextMenu);
+
+   QObject::connect (this, SIGNAL (customContextMenuRequested  (const QPoint &)),
+                     this, SLOT   (generalContextMenuRequested (const QPoint &)));
+
+   QObject::connect (result, SIGNAL (triggered                   (QAction* )),
+                     this,   SLOT   (generalContextMenuTriggered (QAction* )));
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::generalContextMenuRequested (const QPoint& pos)
+{
+   QPoint golbalPos;
+   golbalPos = this->mapToGlobal (pos);
+   this->generalContextMenu->exec (golbalPos, 0);
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::generalContextMenuTriggered (QAction* action)
+{
+   bool okay;
+   int option = action->data().toInt (&okay);
+
+   if (!okay) return;
+   switch (option) {
+      case 1: this->setToolBarVisible (! this->getToolBarVisible ());
+         break;
+
+      case 2: this->setPvItemsVisible (! this->getPvItemsVisible ());
+         break;
+
+      case 3: this->setStatusVisible (! this->getStatusVisible ());
+         break;
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::itemContextMenuRequested (const QPoint& pos)
 {
    QObject *obj = this->sender();   // who sent the signal.
    int slot = this->findSlot (obj);
@@ -788,7 +878,7 @@ void QEPlotter::contextMenuRequested (const QPoint& pos)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option)
+void QEPlotter::itemContextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option)
 {
    SLOT_CHECK (slot,);
 
@@ -1102,7 +1192,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          slot = this->findSlot (obj);
          if (slot > 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
             // Leverage of menu handler
-            this->contextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_SELECT);
+            this->itemContextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_SELECT);
             return true;  // we have handled this mouse press
          }
 
@@ -1173,7 +1263,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          slot = this->findSlot (obj);
          if (slot >= 0) {
             // Leverage of menu handler
-            this->contextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_DIALOG);
+            this->itemContextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_DIALOG);
             return true;  // we have handled double click
          }
          break;
@@ -1437,6 +1527,7 @@ QwtPlotCurve* QEPlotter::allocateCurve (const int slot)
    result->setStyle (QwtPlotCurve::Lines);
 
    pen.setColor (this->xy [slot].colour);
+
    if (this->xy [slot].isBold) {
       pen.setWidth (2);
    } else {
@@ -1553,6 +1644,8 @@ void QEPlotter::plotOriginToPoint ()
 //
 void QEPlotter::plot ()
 {
+   QColor background;
+   QColor grid;
    QPen pen;
    int slot;
    QwtPlotCurve *curve;
@@ -1570,19 +1663,27 @@ void QEPlotter::plot ()
    //
    this->doAnyCalculations ();
 
-   // First release any/all previosly allocated curves.
+   // First release any/all previously allocated curves.
    //
    this->releaseCurves ();
 
    // Set up brackground and grid.
    //
+   if (this->isReverse) {
+      background = clBlack;
+      grid = clReverseGridLine;
+   } else {
+      background = clWhite;
+      grid = clGridLine;
+   }
+
 #if QWT_VERSION >= 0x060000
-   this->plotArea->setCanvasBackground (QBrush (this->xy [0].colour));
+   this->plotArea->setCanvasBackground (QBrush (background));
 #else
-   this->plotArea->setCanvasBackground (this->xy [0].colour);
+   this->plotArea->setCanvasBackground (background);
 #endif
 
-   pen.setColor (clGridLine);
+   pen.setColor (grid);
    pen.setStyle (Qt::DashLine);
    this->plotGrid->setPen (pen);
 
@@ -1754,8 +1855,7 @@ void QEPlotter::doAnyCalculations ()
    double value;
    bool okay;
 
-
-   xs = &this->xy [0];
+   xs = &this->xy [0];  // use a alias pointer for brevity
 
    switch (xs->dataKind) {
 
@@ -1922,10 +2022,10 @@ void QEPlotter::setXYColour (const int slot, const QColor& colour)
 {
    SLOT_CHECK (slot,);
 
-   // Slot 0 (X) and last slot (P) have fixed colours.
+   // Slot 0 (X) has a fixed colour.
    //
-   if (slot != 0 && slot != ARRAY_LENGTH (this->xy) - 1) {
-      this->xy[slot].colour = colour;
+   if (slot != 0) {
+      this->xy [slot].colour = colour;
       this->xy [slot].itemName->setStyleSheet (QEUtilities::colourToStyle (colour));
    }
 }
@@ -1940,18 +2040,65 @@ QColor QEPlotter::getXYColour (const int slot)
 
 //------------------------------------------------------------------------------
 //
-void  QEPlotter::adjustMinMax (const double minIn, const double maxIn,
+void QEPlotter::setToolBarVisible (bool visible)
+{
+   this->toolBarResize->setVisible (visible);
+}
+
+bool QEPlotter::getToolBarVisible ()
+{
+   return this->toolBarResize->isVisible ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setPvItemsVisible (bool visible)
+{
+   this->itemResize->setVisible (visible);
+}
+
+bool QEPlotter::getPvItemsVisible()
+{
+   return this->itemResize->isVisible ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setStatusVisible (bool visible)
+{
+   this->statusFrame->setVisible (visible);
+}
+
+bool QEPlotter::getStatusVisible()
+{
+   return this->statusFrame->isVisible ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::calculateMajorValues ()
+{
+   int j;
+   int d;
+   int n;
+   double p;
+   double f;
+
+   for (j = 0; j < ARRAY_LENGTH (majorValues); j++) {
+      d = j / 3;
+      p = -6.0 + d;                 // First value is 1.0e-6
+      n = j % 3;                    // 0,   1,  or 2
+      f = 1.0 + n + 2 *(n / 2);     // 1.0, 2.0 or 5.0
+
+      majorValues [j] = f * EXP10 (p);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::adjustMinMax (const double minIn, const double maxIn,
                                double& minOut, double& maxOut, double& majorOut)
 {
-   static const double majorValues [] = {
-      1.0e-3,  2.0e-3,  5.0e-3,    1.0e-2,  2.0e-2,  5.0e-2,    1.0e-1,  2.0e-1,  5.0e-1,
-      1.0e+0,  2.0e+0,  5.0e+0,    1.0e+1,  2.0e+1,  5.0e+1,    1.0e+2,  2.0e+2,  5.0e+2,
-      1.0e+3,  2.0e+3,  5.0e+3,    1.0e+4,  2.0e+4,  5.0e+4,    1.0e+5,  2.0e+5,  5.0e+5,
-      1.0e+6,  2.0e+6,  5.0e+6,    1.0e+7,  2.0e+7,  5.0e+7,    1.0e+8,  2.0e+8,  5.0e+8,
-      1.0e+9,  2.0e+9,  5.0e+9,    1.0e+10, 2.0e+10, 5.0e+10,   1.0e+11, 2.0e+11, 5.0e+11,
-      1.0e+12, 2.0e+12, 5.0e+12
-   };
-
    double major;
    int s;
    int p, q;

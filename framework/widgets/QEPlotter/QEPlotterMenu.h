@@ -32,6 +32,8 @@
 #include <QWidget>
 #include <contextMenu.h>
 
+/// QEPlotter PV item specific context menu.
+///
 class QEPlotterMenu : public QMenu {
 Q_OBJECT
 public:

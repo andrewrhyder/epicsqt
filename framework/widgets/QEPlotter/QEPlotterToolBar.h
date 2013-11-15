@@ -28,9 +28,9 @@
 #ifndef QEPLOTTERTOOLBAR_H
 #define QEPLOTTERTOOLBAR_H
 
-#include <qnamespace.h>
-#include <QAction>
+//  ??? #include <qnamespace.h>
 #include <QFrame>
+#include <QPushButton>
 #include <QObject>
 #include <QWidget>
 
@@ -43,43 +43,64 @@ Q_OBJECT
 public:  
    explicit QEPlotterToolBar (QWidget *parent = 0);
    virtual ~QEPlotterToolBar ();
-
    static const int designHeight = 32;
 
+
+   enum ToolBarOptions {
+      TOOLBAR_NONE = 0,
+
+      TOOLBAR_PREV,                // Previous state
+      TOOLBAR_NEXT,                // Previous state
+
+      TOOLBAR_NORMAL_VIDEO,        //
+      TOOLBAR_REVERSE_VIDEO,       //
+
+      TOOLBAR_LINEAR_Y_SCALE,      //
+      TOOLBAR_LOG_Y_SCALE,         //
+
+      TOOLBAR_MANUAL_Y_RANGE,      // User selected YMin YMax
+      TOOLBAR_CURRENT_Y_RANGE,     // YMin/YMax based on overal min/max of current data set
+      TOOLBAR_DYNAMIC_Y_RANGE,     // As TOOLBAR_CURRENT_Y_RANGE, but dynamic per update
+      TOOLBAR_NORAMLISED_Y_RANGE,  // Range 0 to 1: Data mapped Min => 0, Max => 1
+      TOOLBAR_FRACTIONAL_Y_RANGE,  // Range 0 to 1: Data mapped (value / Max)
+
+      TOOLBAR_PLAY,                //
+      TOOLBAR_PAUSE,               //
+
+      TOOLBAR_NUMBER_ITEMS         // Must be last
+   };
+
+   void setEnabled (const ToolBarOptions option, const bool value);
+
 signals:
-   void stateSelected (const QEStripChartNames::StateModes mode);
-   void videoModeSelected (const QEStripChartNames::VideoModes mode);
+   void selected (const QEPlotterToolBar::ToolBarOptions);
+
 
 protected:
    void resizeEvent (QResizeEvent * event);
 
 private:
-   // Internal widgets are held on ownWidgets. If these items are declared at
-   // class level, there is a run time exception. I think the SDK moc file
-   // generation gets very confused.
-   //
-   class OwnWidgets;
-   OwnWidgets *ownWidgets;
+   QPushButton *pushButtons [TOOLBAR_NUMBER_ITEMS];
 
 private slots:
 
    void prevStateClicked (bool checked = false);
    void nextStateClicked (bool checked = false);
+
    void normalVideoClicked (bool checked = false);
    void reverseVideoClicked (bool checked = false);
+
    void linearScaleClicked (bool checked = false);
    void logScaleClicked (bool checked = false);
 
    void manualYScaleClicked (bool checked = false);
    void automaticYScaleClicked (bool checked = false);
-   void plottedYScaleClicked (bool checked = false);
-   void bufferedYScaleClicked (bool checked = false);
    void dynamicYScaleClicked (bool checked = false);
    void normalisedYScaleClicked (bool checked = false);
+   void fractionalYScaleClicked (bool checked = false);
 
    void playClicked (bool checked = false);
    void pauseClicked (bool checked = false);
-
 };
 
 #endif  // QEPLOTTERTOOLBAR_H
