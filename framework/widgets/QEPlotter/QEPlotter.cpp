@@ -2084,20 +2084,20 @@ void QEPlotter::calculateMajorValues ()
    double p;
    double f;
 
-   for (j = 0; j < ARRAY_LENGTH (majorValues); j++) {
+   for (j = 0; j < ARRAY_LENGTH (this->majorValues); j++) {
       d = j / 3;
       p = -6.0 + d;                 // First value is 1.0e-6
       n = j % 3;                    // 0,   1,  or 2
       f = 1.0 + n + 2 *(n / 2);     // 1.0, 2.0 or 5.0
 
-      majorValues [j] = f * EXP10 (p);
+      this->majorValues [j] = f * EXP10 (p);
    }
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPlotter::adjustMinMax (const double minIn, const double maxIn,
-                               double& minOut, double& maxOut, double& majorOut)
+                              double& minOut, double& maxOut, double& majorOut)
 {
    double major;
    int s;
@@ -2110,8 +2110,9 @@ void QEPlotter::adjustMinMax (const double minIn, const double maxIn,
    // Round up major to next standard value.
    //
    s = 0;
-   while ((major > majorValues [s]) && ((s + 1) < ARRAY_LENGTH (majorValues))) s++;
-   majorOut = major = majorValues [s];
+   while ((major > this->majorValues [s]) &&
+          ((s + 1) < ARRAY_LENGTH (this->majorValues))) s++;
+   majorOut = major = this->majorValues [s];
 
    p = (int) (minIn / major);
    if ((p * major) > minIn) p--;

@@ -134,8 +134,10 @@ void QEPlotterToolBar::resizeEvent (QResizeEvent *)
 //
 void QEPlotterToolBar::setEnabled (const ToolBarOptions item, const bool value)
 {
-   if (this->pushButtons [item]) {
-      this->pushButtons [item]->setEnabled (value);
+   if (item >= 0 && item < ARRAY_LENGTH (this->pushButtons)){
+      if (this->pushButtons [item]) {
+         this->pushButtons [item]->setEnabled (value);
+      }
    }
 }
 

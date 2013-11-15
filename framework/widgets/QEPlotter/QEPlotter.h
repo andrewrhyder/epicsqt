@@ -409,10 +409,10 @@ private:
 
    // Move to a utility class?
    //
-   static double majorValues [91];   // constant post calculation
-   static void calculateMajorValues ();
-   static void adjustMinMax (const double minIn, const double maxIn,
-                             double& minOut, double& maxOut, double& majorOut);
+   double majorValues [91];   // constant post calculation
+   void calculateMajorValues ();
+   void adjustMinMax (const double minIn, const double maxIn,
+                      double& minOut, double& maxOut, double& majorOut);
 
 private slots:
    void setNewVariableName (QString variableName,
