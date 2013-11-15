@@ -61,6 +61,12 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    //
    Q_PROPERTY (QString variableSubstitutions READ getVariableSubstitutions WRITE setVariableSubstitutions)
 
+   // Layout control
+   //
+   Q_PROPERTY (bool toolBarVisible     READ getToolBarVisible  WRITE setToolBarVisible)
+   Q_PROPERTY (bool pvItemsVisible     READ getPvItemsVisible  WRITE setPvItemsVisible)
+   Q_PROPERTY (bool statusVisible      READ getStatusVisible   WRITE setStatusVisible)
+
    // Data and Size properties,
    //
    Q_PROPERTY (QString DataVariableX   READ getDataPVX  WRITE setDataPVX)
@@ -117,7 +123,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_PROPERTY (QString AliasNameO      READ getAliasO   WRITE setAliasO)
    Q_PROPERTY (QString AliasNameP      READ getAliasP   WRITE setAliasP)
 
-   // There is no X colour.
+   // There is no X colour - we ploy Ys agaist X.
+   //
    Q_PROPERTY (QColor  ColourA         READ getColourA  WRITE setColourA)
    Q_PROPERTY (QColor  ColourB         READ getColourB  WRITE setColourB)
    Q_PROPERTY (QColor  ColourC         READ getColourC  WRITE setColourC)
@@ -155,6 +162,15 @@ public:
 
    void   setXYColour (const int, const QColor&);
    QColor getXYColour (const int);
+
+   void setToolBarVisible (bool visible);
+   bool getToolBarVisible ();
+
+   void setPvItemsVisible (bool visible);
+   bool getPvItemsVisible();
+
+   void setStatusVisible (bool visible);
+   bool getStatusVisible();
 
 protected:
    // Implementation of QEWidget's virtual funtions
@@ -209,6 +225,7 @@ private:
 
    QColorDialog *colourDialog;
    QEPlotterItemDialog* dataDialog;
+   QMenu* generalContextMenu;
 
    // Keep a list of allocated curves so that we can track and delete them.
    //
@@ -230,12 +247,10 @@ private:
    QPoint plotRightButton;      // point at which rightt button pressed.
    bool   plotRightIsDefined;
 
-
    enum ScaleModes   { smFixed,             // Fixed scale in x and y
                        smNormalised,        // y plots scales such that { min to max } map to { 0 to 1 }
                        smFractional,        // y plots scales such that { min to max } map to { 0 to 1 }
                        smDynamic };         // x and y scales continually adjuxsted.
-
 
    ScaleModes xScaleMode;
    ScaleModes yScaleMode;
@@ -243,7 +258,7 @@ private:
    double fixedMinX;
    double fixedMaxX;
    double fixedMinY;
-   double fixedMaxY;
+   double fixedMaxY;   
 
    enum DataPlotKinds { NotInUse,            // blank  - not in use - no data - no plot
                         DataPlot,            // use specified PV to provide plot data
@@ -345,7 +360,7 @@ private:
 
    // Property access READ and WRITE functions.
    // We can define the access functions using a macro.
-   // Alas, due to SDK limitation, we cannot embedded the property definition in a macro.
+   // Alas, due to SDK limitation, we cannot embedded the property definitions in a macro.
    //
    #define PROPERTY_ACCESS(letter, slot)                                                 \
       void    setDataPV##letter (QString name) { this->setXYDataPV (slot, name); }       \
@@ -394,6 +409,8 @@ private:
 
    // Move to a utility class?
    //
+   static double majorValues [91];   // constant post calculation
+   static void calculateMajorValues ();
    static void adjustMinMax (const double minIn, const double maxIn,
                              double& minOut, double& maxOut, double& majorOut);
 
@@ -421,8 +438,14 @@ private slots:
    void checkBoxstateChanged (int state);
    void tickTimeout ();
 
-   void contextMenuRequested (const QPoint& pos);
-   void contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option);
+   void toolBarItemSelected (const QEPlotterToolBar::ToolBarOptions item);
+
+   QMenu* generalContextMenuCreate ();
+   void generalContextMenuRequested (const QPoint& pos);
+   void generalContextMenuTriggered (QAction* action);
+
+   void itemContextMenuRequested (const QPoint& pos);
+   void itemContextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option);
 
    friend class DataSets;
 };

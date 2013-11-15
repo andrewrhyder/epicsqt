@@ -27,18 +27,13 @@
 
 #include <QDebug>
 #include <QIcon>
-#include <QLabel>
-#include <QMenu>
-#include <QPushButton>
 #include <QString>
 #include <QVariant>
-#include <QDateTime>
 
 #include <QECommon.h>
 #include "QEPlotterToolBar.h"
 
 
-#define NUMBER_OF_BUTTONS  21
 #define ICW                26         // icon width
 
 // Special slots NUMBERS  - must be consistent with below
@@ -55,9 +50,7 @@ struct PushButtonSpecifications {
    const char * member;
 };
 
-static const QString localZone = QEUtilities::getTimeZoneTLA (Qt::LocalTime, QDateTime::currentDateTime ());
-
-static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
+static const struct PushButtonSpecifications buttonSpecs [] = {
    { 0,   ICW, true,  QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))        },
    { 0,   ICW, true,  QString ("go_fwd.png"),            QString ("Next state"),                   SLOT (nextStateClicked (bool))        },
 
@@ -68,34 +61,19 @@ static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, true,  QString ("log_scale.png"),         QString ("Log Scale"),                    SLOT (logScaleClicked (bool))         },
 
    { 8,   ICW, false, QString ("M"),                     QString ("Manual Scale"),                 SLOT (manualYScaleClicked (bool))     },
-   { 0,   ICW, false, QString ("P"),                     QString ("Plotted Data Scale"),           SLOT (plottedYScaleClicked (bool))    },
-   { 0,   ICW, false, QString ("B"),                     QString ("Buffer Data Scale"),            SLOT (bufferedYScaleClicked (bool))   },
+   { 0,   ICW, false, QString ("A"),                     QString ("Data Range Scale"),             SLOT (automaticYScaleClicked (bool))  },
    { 0,   ICW, false, QString ("D"),                     QString ("Dynamic Scale"),                SLOT (dynamicYScaleClicked (bool))    },
-   { 0,   ICW, false, QString ("F"),                     QString ("Fractional Scale"),             SLOT (normalisedYScaleClicked (bool)) },
-   { 0,   ICW, false, QString ("N"),                     QString ("Normalised Scale"),             SLOT (normalisedYScaleClicked (bool)) },
+   { 0,   ICW, false, QString ("N"),                     QString ("Noramalised Scale"),            SLOT (normalisedYScaleClicked (bool)) },
+   { 0,   ICW, false, QString ("F"),                     QString ("Fractional Scale"),             SLOT (fractionalYScaleClicked (bool)) },
 
    { 8,   ICW, true,  QString ("play.png"),              QString ("Play - Real time"),             SLOT (playClicked (bool))             },
    { 0,   ICW, true,  QString ("pause.png"),             QString ("Pause"),                        SLOT (pauseClicked (bool))            }
 };
 
 
-
 //==============================================================================
 //
-class QEPlotterToolBar::OwnWidgets : public QObject {
-public:
-   OwnWidgets (QEPlotterToolBar *parent);
-   ~OwnWidgets ();
-
-   QPushButton *pushButtons [NUMBER_OF_BUTTONS];
-
-private:
-};
-
-
-//------------------------------------------------------------------------------
-//
-QEPlotterToolBar::OwnWidgets::OwnWidgets (QEPlotterToolBar *parent) : QObject (parent)
+QEPlotterToolBar::QEPlotterToolBar (QWidget *parent) : QFrame (parent)
 {
    int left;
    int j;
@@ -103,13 +81,17 @@ QEPlotterToolBar::OwnWidgets::OwnWidgets (QEPlotterToolBar *parent) : QObject (p
    QString iconPathName;
    int gap;
 
+   this->setFixedHeight (this->designHeight);
+
+   this->pushButtons [TOOLBAR_NONE] = NULL;
+
    // Create toobar buttons
    // TODO: Try QToolBar - it may auto layout.
    //
    left = 4;
-   for (j = 0 ; j < NUMBER_OF_BUTTONS; j++) {
+   for (j = 0; j < ARRAY_LENGTH (buttonSpecs); j++) {
 
-      button = new QPushButton (parent);
+      button = new QPushButton (this);
 
       // Set up icon or caption text.
       //
@@ -127,26 +109,10 @@ QEPlotterToolBar::OwnWidgets::OwnWidgets (QEPlotterToolBar *parent) : QObject (p
       left += gap + buttonSpecs[j].width + 2;
       if (buttonSpecs[j].member != NULL) {
          QObject::connect (button, SIGNAL (clicked (bool)),
-                           parent, buttonSpecs[j].member);
+                           this, buttonSpecs[j].member);
       }
-      this->pushButtons [j] = button;
+      this->pushButtons [j + 1] = button;  // save reference
    }
-}
-
-//------------------------------------------------------------------------------
-//
-QEPlotterToolBar::OwnWidgets::~OwnWidgets ()
-{
-  // no special action - place holder
-}
-
-
-//==============================================================================
-//
-QEPlotterToolBar::QEPlotterToolBar (QWidget *parent) : QFrame (parent)
-{
-   this->setFixedHeight (this->designHeight);
-   this->ownWidgets = new OwnWidgets (this);
 }
 
 //------------------------------------------------------------------------------
@@ -166,73 +132,86 @@ void QEPlotterToolBar::resizeEvent (QResizeEvent *)
 
 //------------------------------------------------------------------------------
 //
+void QEPlotterToolBar::setEnabled (const ToolBarOptions item, const bool value)
+{
+   if (this->pushButtons [item]) {
+      this->pushButtons [item]->setEnabled (value);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPlotterToolBar::prevStateClicked (bool)
 {
-   emit this->stateSelected (QEStripChartNames::previous);
+   emit this->selected (TOOLBAR_PREV);
 }
 
 void QEPlotterToolBar::nextStateClicked (bool)
 {
-   emit this->stateSelected (QEStripChartNames::next);
+   emit this->selected (TOOLBAR_NEXT);
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPlotterToolBar::normalVideoClicked (bool)
 {
-   emit this->videoModeSelected (QEStripChartNames::normal);
+   emit this->selected (TOOLBAR_NORMAL_VIDEO);
 }
 
 void QEPlotterToolBar::reverseVideoClicked (bool)
 {
-   emit this->videoModeSelected (QEStripChartNames::reverse);
+   emit this->selected (TOOLBAR_REVERSE_VIDEO);
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPlotterToolBar::linearScaleClicked (bool)
 {
+   emit this->selected (TOOLBAR_LINEAR_Y_SCALE);
 }
 
 void QEPlotterToolBar::logScaleClicked (bool)
 {
+   emit this->selected (TOOLBAR_LOG_Y_SCALE);
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPlotterToolBar::manualYScaleClicked (bool)
 {
+   emit this->selected (TOOLBAR_MANUAL_Y_RANGE);
 }
 
 void QEPlotterToolBar::automaticYScaleClicked (bool)
 {
-}
-
-void QEPlotterToolBar::plottedYScaleClicked (bool)
-{
-}
-
-void QEPlotterToolBar::bufferedYScaleClicked (bool)
-{
+   emit this->selected (TOOLBAR_CURRENT_Y_RANGE);
 }
 
 void QEPlotterToolBar::dynamicYScaleClicked (bool)
 {
+   emit this->selected (TOOLBAR_DYNAMIC_Y_RANGE);
 }
 
 void QEPlotterToolBar::normalisedYScaleClicked (bool)
 {
+   emit this->selected (TOOLBAR_NORAMLISED_Y_RANGE);
 }
 
+void QEPlotterToolBar::fractionalYScaleClicked (bool)
+{
+   emit this->selected (TOOLBAR_FRACTIONAL_Y_RANGE);
+}
 
 //------------------------------------------------------------------------------
 //
 void QEPlotterToolBar::playClicked (bool)
 {
+   emit this->selected (TOOLBAR_PLAY);
 }
 
 void QEPlotterToolBar::pauseClicked (bool)
 {
+   emit this->selected (TOOLBAR_PAUSE);
 }
 
 // end
