@@ -325,14 +325,6 @@ void QEStripChart::createInternalWidgets ()
    QObject::connect (this, SIGNAL (customContextMenuRequested (const QPoint &)),
                      this, SLOT   (chartContextMenuRequested  (const QPoint &)));
 
-   // Don't want to do context menu over plot area - we use right-click for other stuff.
-   //
-   this->plotFrame->setContextMenuPolicy (Qt::CustomContextMenu);
-
-   QObject::connect (this->plotFrame, SIGNAL (customContextMenuRequested (const QPoint &)),
-                     this,            SLOT   (nullContextMenuRequested   (const QPoint &)));
-
-
    // Clear / initialise plot.
    //
    this->chartYScale = QEStripChartNames::dynamic;
@@ -360,8 +352,16 @@ void QEStripChart::chartContextMenuRequested (const QPoint & pos)
 {
    QPoint golbalPos;
 
-   golbalPos = this->mapToGlobal (pos);
-   this->chartContextMenu->exec (golbalPos, 0);
+   // Don't want to do context menu over plot canvas area - we use right-click
+   // for other stuff.
+   //
+   // NOTE: This check relies on the fact that the right mouse button event handler
+   // is called before this slot is invoked.
+   //
+   if (this->plotRightIsDefined == false) {
+      golbalPos = this->mapToGlobal (pos);
+      this->chartContextMenu->exec (golbalPos, 0);
+   }
 }
 
 //------------------------------------------------------------------------------
