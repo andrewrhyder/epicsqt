@@ -327,7 +327,6 @@ private slots:
 
    // From chart context menu
    //
-   void nullContextMenuRequested  (const QPoint&) {}
    void chartContextMenuRequested (const QPoint& pos);
    void chartContextMenuTriggered (QAction* action);
 
