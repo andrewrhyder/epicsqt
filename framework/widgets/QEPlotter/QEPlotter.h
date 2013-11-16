@@ -41,6 +41,7 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <QEResizeableFrame.h>
 
+#include <QEStripChartRangeDialog.h>
 #include "QEPlotterItemDialog.h"
 #include "QEPlotterMenu.h"
 #include "QEPlotterToolBar.h"
@@ -178,6 +179,7 @@ protected:
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void establishConnection (unsigned int variableIndex);
    bool eventFilter (QObject *obj, QEvent *event);
+   void wheelEvent (QWheelEvent* event);
 
    // Paste only
    //
@@ -208,7 +210,6 @@ private:
    QEResizeableFrame* itemResize;
    QFrame* itemFrame;
 
-
    // Status items
    //
    QLabel* slotIndicator;
@@ -223,6 +224,7 @@ private:
    QLabel* comLabel;    // Centre Of Mass
    QLabel* comValue;
 
+   QEStripChartRangeDialog* rangeDialog;
    QColorDialog *colourDialog;
    QEPlotterItemDialog* dataDialog;
    QMenu* generalContextMenu;
@@ -232,7 +234,9 @@ private:
    typedef QList<QwtPlotCurve*> QwtCurveList;
    QwtCurveList curve_list;
 
-   bool isReverse;
+   bool isLogarithmic;   // vs. Linear
+   bool isReverse;       // vs. Normal
+   bool isPaused;        // vs. Updating
    int selectedDataSet;
    QTimer* timer;
    QEIntegerFormatting  integerFormatting;
@@ -241,32 +245,40 @@ private:
 
    // Mouse button pressed postions and flags.
    //
-   QPoint plotCurrent;          // last known mouse position of the plot.
-   QPoint plotLeftButton;       // point at which left button pressed.
-   bool   plotLeftIsDefined;
-   QPoint plotRightButton;      // point at which rightt button pressed.
-   bool   plotRightIsDefined;
+   QPoint plotCurrent;                     // last known mouse position on the plot canvas.
+   bool   plotIsDefined;                   //
+   QPoint plotLeftButton;                  // point at which left button pressed.
+   bool   plotLeftIsDefined;               //
+   QPoint plotRightButton;                 // point at which rightt button pressed.
+   bool   plotRightIsDefined;              //
 
-   enum ScaleModes   { smFixed,             // Fixed scale in x and y
-                       smNormalised,        // y plots scales such that { min to max } map to { 0 to 1 }
-                       smFractional,        // y plots scales such that { min to max } map to { 0 to 1 }
-                       smDynamic };         // x and y scales continually adjuxsted.
+   enum ScaleModes { smFixed,              // Fixed scale in x and y
+                     smNormalised,         // y plots scales such that { min to max } map to { 0 to 1 }
+                     smFractional,         // y plots scales such that { min to max } map to { 0 to 1 }
+                     smDynamic };          // x and y scales continually adjuxsted.
 
    ScaleModes xScaleMode;
    ScaleModes yScaleMode;
+
+   // Range of (unscaled) values of last plot.
+   //
+   double currentMinX;                     // current (as in last plotted) min X value.
+   double currentMaxX;                     // ditto max X value
+   double currentMinY;                     // ditto min Y value
+   double currentMaxY;                     // ditto max Y value
 
    double fixedMinX;
    double fixedMaxX;
    double fixedMinY;
    double fixedMaxY;   
 
-   enum DataPlotKinds { NotInUse,            // blank  - not in use - no data - no plot
-                        DataPlot,            // use specified PV to provide plot data
-                        CalculationPlot };   // "= ..." - use given calculation for plot data
+   enum DataPlotKinds { NotInUse,          // blank  - not in use - no data - no plot
+                        DataPlot,          // use specified PV to provide plot data
+                        CalculationPlot }; // "= ..." - use given calculation for plot data
 
-   enum SizePlotKinds { NotSpecified,        // blank - use maximum, available no. points
-                        Constant,            // "[0-9]*" - used fixed integer as number of points
-                        SizePVName };        // use speficed PV to provide number of points.
+   enum SizePlotKinds { NotSpecified,      // blank - use maximum, available no. points
+                        Constant,          // "[0-9]*" - used fixed integer as number of points
+                        SizePVName };      // use speficed PV to provide number of points.
 
 
    class DataSets {
@@ -332,6 +344,10 @@ private:
    void plot ();
    int maxActualYSizes ();
    void doAnyCalculations ();
+   void processSelectedItem (const QEFloatingArray& xdata,
+                             const QEFloatingArray& ydata,
+                             const double yMin, const double yMax);
+
    void addPvName (const QString& pvName);
    void addPvNameSet (const QString& pvNameSet);
 
@@ -409,8 +425,6 @@ private:
 
    // Move to a utility class?
    //
-   double majorValues [91];   // constant post calculation
-   void calculateMajorValues ();
    void adjustMinMax (const double minIn, const double maxIn,
                       double& minOut, double& maxOut, double& majorOut);
 
