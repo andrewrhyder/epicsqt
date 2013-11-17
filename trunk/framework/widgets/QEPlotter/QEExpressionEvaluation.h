@@ -1,6 +1,7 @@
 /*  QEExpressionEvaluation.h
  *
- *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
+ *  This file is part of the EPICS QT Framework, initially developed at the
+ *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -52,8 +53,8 @@
 /// more than 12 inputs specified.
 ///
 /// This input name space extension is to allow sensible use with the Strip
-/// Chart form that has 12 available inputs and the Plot Form that has 16
-/// avialable inputs plus an X input.
+/// Chart widget that has 12 available inputs and the Plotter widget that has
+/// 16 avialable inputs plus an X input.
 ///
 /// Also, the length of the input string is not limited to the 40 characters
 /// of the CALC field, but may use the full 100 characters allowed by the
@@ -89,7 +90,7 @@ private:
 
    static const int MaxInfixSize = 100;
 
-   // This is from the INFIX_TO_POSTFIX_SIZE macro from postfix.h
+   // This is the value from the INFIX_TO_POSTFIX_SIZE macro from postfix.h
    // plus a 20 just in case.
    //
    static const int MaxPostfixSize = 524 + 20;

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -30,71 +30,51 @@
 #include <QMenu>
 #include <QObject>
 #include <QWidget>
-#include <contextMenu.h>
+
+#include "QEPlotterNames.h"
 
 /// QEPlotter PV item specific context menu.
 ///
 class QEPlotterMenu : public QMenu {
 Q_OBJECT
 public:
+   // general context menu constructor
+   //
+   explicit QEPlotterMenu (QWidget* parent = 0);
+
+   // PV item context menu constructor
    explicit QEPlotterMenu (const int slot, QWidget* parent = 0);
    virtual ~QEPlotterMenu ();
 
-   // IDs for all menu options
-   // Each menu option has a unique ID across all menus
-   // These IDs are in addition to standard context menu IDs and so start after
-   // contextMenu::CM_SPECIFIC_WIDGETS_START_HERE
+   // Allow setting of specific action attributes.
    //
-   enum ContextMenuOptions {
-      PLOTTER_NONE = contextMenu::CM_SPECIFIC_WIDGETS_START_HERE,
-
-      PLOTTER_LINE_BOLD,
-      PLOTTER_LINE_DOTS,
-      PLOTTER_LINE_VISIBLE,
-      PLOTTER_LINE_COLOUR,
-
-      PLOTTER_PASTE_DATA_PV,
-      PLOTTER_PASTE_SIZE_PV,
-      PLOTTER_DATA_SELECT,
-      PLOTTER_DATA_DIALOG,
-      PLOTTER_DATA_CLEAR,
-
-      PLOTTER_SCALE_TO_MIN_MAX,
-      PLOTTER_SCALE_TO_ZERO_MAX
-   };
-
-   // These MUST be consistant with above declaration.
-   //
-   static const ContextMenuOptions ContextMenuItemFirst = PLOTTER_LINE_BOLD;
-   static const ContextMenuOptions ContextMenuItemLast  = PLOTTER_SCALE_TO_ZERO_MAX;
-   static const int NumberContextMenuItems = ContextMenuItemLast - ContextMenuItemFirst + 1;
-
-   // Allow setting of specific action attributes using option as index.
-   //
-   void setActionChecked (const ContextMenuOptions option, const bool visible);
-   void setActionEnabled (const ContextMenuOptions option, const bool visible);
-   void setActionVisible (const ContextMenuOptions option, const bool visible);
+   void setActionChecked (const QEPlotterNames::MenuActions action, const bool checked);
+   void setActionEnabled (const QEPlotterNames::MenuActions action, const bool enabled);
+   void setActionVisible (const QEPlotterNames::MenuActions action, const bool visible);
 
    void setState (const bool isDisplayed, const bool isBold, const bool showDots);
 
 signals:
    // All the triggered actions from the various sub-menu items are
-   // converted to an ContextMenuOptions value.
+   // converted to an QEPlotterNames::MenuActions value.
+   // Slot set as applicable, otherwise set to 0.
    //
-   void contextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions);
+   void selected (const QEPlotterNames::MenuActions action, const int slot);
 
 private:
    int slot;
-   QAction* actionList [NumberContextMenuItems];
+   QAction* actionList [QEPlotterNames::PLOTTER_LAST - QEPlotterNames::PLOTTER_FIRST];
 
    // Utility function to create and set up an action.
    //
    QAction* make (QMenu *parent,
                   const QString &caption,
                   const bool checkable,
-                  const QEPlotterMenu::ContextMenuOptions option);
+                  const QEPlotterNames::MenuActions menuAction);
 
 private slots:
+   // Sent form the sub-menus and/or assoictaed actions.
+   //
    void contextMenuTriggered (QAction* selectedItem);
 };
 

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -116,9 +116,9 @@ void QEPlotter::createInternalWidgets ()
    this->toolBar = new QEPlotterToolBar (); // this will become parented by toolBarResize
 
    // Connect various tool bar signal to the plotter slot.
+   // The tool bar generates the same signals at the context menus.
    //
-   QObject::connect (this->toolBar, SIGNAL (selected (const QEPlotterToolBar::ToolBarOptions)),
-                     this, SLOT (toolBarItemSelected (const QEPlotterToolBar::ToolBarOptions)));
+   this->connectMenuOrToolBar (this->toolBar);
 
    this->toolBarResize = new QEResizeableFrame (QEResizeableFrame::BottomEdge, 8, 8 + this->toolBar->designHeight, this);
    this->toolBarResize->setFrameShape (QFrame::StyledPanel);
@@ -203,8 +203,7 @@ void QEPlotter::createInternalWidgets ()
       QObject::connect (label, SIGNAL ( customContextMenuRequested (const QPoint &)),
                         this,  SLOT   ( itemContextMenuRequested (const QPoint &)));
 
-      QObject::connect (menu, SIGNAL ( contextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ),
-                        this,  SLOT  ( itemContextMenuSelected (const int, const QEPlotterMenu::ContextMenuOptions) ));
+      this->connectMenuOrToolBar (menu);
 
       if (slot != 0) {
          box = new TPlotterCheckBox (this->itemFrame);
@@ -213,7 +212,7 @@ void QEPlotter::createInternalWidgets ()
          box->setChecked (true);
 
          QObject::connect (box,  SIGNAL (stateChanged (int)),
-                           this, SLOT   (checkBoxstateChanged (int)));
+                           this, SLOT   (checkBoxStateChanged (int)));
       }
 
       // Save widget references.
@@ -284,7 +283,6 @@ void QEPlotter::createInternalWidgets ()
    this->dataDialog = new QEPlotterItemDialog (this);
    this->rangeDialog = new QEStripChartRangeDialog (this);
    this->rangeDialog->setWindowTitle ("Plotter Y Range");
-
 }
 
 
@@ -362,6 +360,7 @@ int QEPlotter::DataSets::effectiveSize ()
                //
                if (this->slot == 0) {
                   // This is the X - choose the maximum of all the y data sizes.
+                  // There is an implied calculation X [s] = s
                   //
                   result = this->owner->maxActualYSizes ();
                } else {
@@ -372,14 +371,23 @@ int QEPlotter::DataSets::effectiveSize ()
                break;
 
             case QEPlotter::CalculationPlot:
-               // This is the X - choose the maximum of all the actual Y data sizes.
+               // Choose the maximum of all the actual Y data sizes.
                //
-               result = this->owner->maxActualYSizes ();
+               if (this->slot == 0) {
+                  // There is an actual calculation.
+                  //
+                  result = this->owner->maxActualYSizes ();
+               } else {
+                  // Go with the effective X size here.
+                  // This may be driven by maxActualYSizes or may be a constant or a PV.
+                  //
+                  result = this->owner->xy [0].effectiveSize ();
+               }
                break;
 
 
             case QEPlotter::DataPlot:
-               // use size of the specified array (waveform) PV to provide the size.
+               // Use size of the specified array (waveform) PV to provide the size.
                //
                result = this->data.size ();
                break;
@@ -394,8 +402,8 @@ int QEPlotter::DataSets::effectiveSize ()
          break;
 
       case QEPlotter::SizePVName:
-         // Size specified as a PV - just use value (if we have it.
-         //.
+         // Size specified as a PV - just use value (if we have it).
+         //
          result = this->sizeIsConnected ? this->dbSize : 0;
          break;
    }
@@ -439,7 +447,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    //
    this->setFrameShape (QFrame::Panel);
    this->setFrameShadow (QFrame::Plain);
-   this->setMinimumSize (500, 500);
+   this->setMinimumSize (520, 480);
 
    this->isLogarithmic = false;
    this->isReverse = false;
@@ -559,7 +567,7 @@ void QEPlotter::updateLabel (const int slot)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::checkBoxstateChanged (int state)
+void QEPlotter::checkBoxStateChanged (int state)
 {
    TPlotterCheckBox* box = dynamic_cast <TPlotterCheckBox*> (this->sender ());
    int slot;
@@ -779,120 +787,18 @@ void QEPlotter::highLight (const int slot, const bool isHigh)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::toolBarItemSelected (const QEPlotterToolBar::ToolBarOptions item)
-{
-   QWidget* wsender = dynamic_cast<QWidget*> (this->sender ());
-   int n;
-
-   switch (item) {
-      case QEPlotterToolBar::TOOLBAR_NORMAL_VIDEO:
-         this->isReverse = false;
-         this->setXYColour (NUMBER_OF_PLOTS, clBlack);
-         this->pushState ();
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_REVERSE_VIDEO:
-         this->isReverse = true;
-         this->setXYColour (NUMBER_OF_PLOTS, clWhite);
-         this->pushState ();
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_LINEAR_Y_SCALE:
-         this->isLogarithmic = false;
-         this->pushState ();
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_LOG_Y_SCALE:
-         this->isLogarithmic = true;
-         this->pushState ();
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_MANUAL_Y_RANGE:
-         this->rangeDialog->setRange (this->fixedMinY, this->fixedMaxY);
-         n = this->rangeDialog->exec (wsender ? wsender : this);
-         if (n == 1) {
-            // User has selected okay.
-            //
-            this->yScaleMode = smFixed;
-            this->fixedMinY = this->rangeDialog->getMinimum ();
-            this->fixedMaxY = this->rangeDialog->getMaximum ();
-            this->pushState ();
-         }
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_CURRENT_Y_RANGE:
-         this->yScaleMode = smFixed;
-         this->fixedMinY = this->currentMinY;
-         this->fixedMaxY = this->currentMaxY;
-         this->pushState ();
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_DYNAMIC_Y_RANGE:
-         this->yScaleMode = smDynamic;
-         this->pushState ();
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_NORAMLISED_Y_RANGE:
-         this->yScaleMode = smNormalised;
-         this->fixedMinY = 0.0;
-         this->fixedMaxY = 1.0;
-         this->pushState ();
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_FRACTIONAL_Y_RANGE:
-         this->yScaleMode = smFractional;
-         this->fixedMinY = 0.0;
-         this->fixedMaxY = 1.0;
-         this->pushState ();
-         break;
-
-      case  QEPlotterToolBar::TOOLBAR_PLAY:
-         this->isPaused = false;
-         // TODO - request framefork to resend data for all iuse channels.
-         this->pushState ();
-         break;
-
-      case QEPlotterToolBar::TOOLBAR_PAUSE:
-         this->isPaused = true;
-         this->pushState ();
-         break;
-
-      default:
-         DEBUG << "not handled" <<  item;
-         break;
-   }
-}
-
-
-//------------------------------------------------------------------------------
-//
 QMenu* QEPlotter::generalContextMenuCreate ()
 {
-   QMenu* result = NULL;
-   QAction* action;
-
-   result = new QMenu ("General", this);
-
-   action = new QAction ("Show/Hide Tool Bar ", result);
-   action->setData (QVariant (int (1)));
-   result->addAction (action);
-
-   action = new QAction ("Show/Hide PV Items ", result);
-   action->setData (QVariant (int (2)));
-   result->addAction (action);
-
-   action = new QAction ("Show/Hide Status ", result);
-   action->setData (QVariant (int (3)));
-   result->addAction (action);
+   QEPlotterMenu* result = NULL;
 
    this->setContextMenuPolicy (Qt::CustomContextMenu);
 
    QObject::connect (this, SIGNAL (customContextMenuRequested  (const QPoint &)),
                      this, SLOT   (generalContextMenuRequested (const QPoint &)));
 
-   QObject::connect (result, SIGNAL (triggered                   (QAction* )),
-                     this,   SLOT   (generalContextMenuTriggered (QAction* )));
+   result = new QEPlotterMenu (this);
 
+   this->connectMenuOrToolBar (result);
 
    return result;
 }
@@ -915,25 +821,6 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    }
 }
 
-//------------------------------------------------------------------------------
-//
-void QEPlotter::generalContextMenuTriggered (QAction* action)
-{
-   bool okay;
-   int option = action->data().toInt (&okay);
-
-   if (!okay) return;
-   switch (option) {
-      case 1: this->setToolBarVisible (! this->getToolBarVisible ());
-         break;
-
-      case 2: this->setPvItemsVisible (! this->getPvItemsVisible ());
-         break;
-
-      case 3: this->setStatusVisible (! this->getStatusVisible ());
-         break;
-   }
-}
 
 //------------------------------------------------------------------------------
 //
@@ -957,35 +844,159 @@ void QEPlotter::itemContextMenuRequested (const QPoint& pos)
 }
 
 //------------------------------------------------------------------------------
+// Both the QEPlotterMenu and QEPlotterToolBar widgets use the same
+// signal signature.
 //
-void QEPlotter::itemContextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option)
+bool QEPlotter::connectMenuOrToolBar (QWidget* item)
 {
-   SLOT_CHECK (slot,);
+   return QObject::connect (item, SIGNAL (selected     (const QEPlotterNames::MenuActions, const int)),
+                            this, SLOT   (menuSelected (const QEPlotterNames::MenuActions, const int)));
+}
 
+//------------------------------------------------------------------------------
+//
+void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const int slot)
+{
+   SLOT_CHECK (slot,);  // We know slot is 0 (i.e valid) when not used.
+
+   QWidget* wsender = dynamic_cast <QWidget*> (this->sender ());
    QClipboard* cb = NULL;
    QString pasteText;
    DataSets* ds = &(this->xy [slot]);
    int n;
 
-   switch (option) {
+   switch (action) {
 
-      case QEPlotterMenu::PLOTTER_LINE_BOLD:
+      case QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR:
+         this->setToolBarVisible (! this->getToolBarVisible ());
+         break;
+
+      case QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS:
+         this->setPvItemsVisible (! this->getPvItemsVisible ());
+         break;
+
+      case QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS:
+         this->setStatusVisible (! this->getStatusVisible ());
+         break;
+
+      case QEPlotterNames::PLOTTER_NORMAL_VIDEO:
+         this->isReverse = false;
+         this->setXYColour (NUMBER_OF_PLOTS, clBlack);
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_REVERSE_VIDEO:
+         this->isReverse = true;
+         this->setXYColour (NUMBER_OF_PLOTS, clWhite);
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_LINEAR_Y_SCALE:
+         this->isLogarithmic = false;
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_LOG_Y_SCALE:
+         this->isLogarithmic = true;
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_MANUAL_Y_RANGE:
+         this->rangeDialog->setWindowTitle ("Plotter Y Range");
+         this->rangeDialog->setRange (this->fixedMinY, this->fixedMaxY);
+         n = this->rangeDialog->exec (wsender ? wsender : this);
+         if (n == 1) {
+            // User has selected okay.
+            //
+            this->yScaleMode = smFixed;
+            this->fixedMinY = this->rangeDialog->getMinimum ();
+            this->fixedMaxY = this->rangeDialog->getMaximum ();
+            this->pushState ();
+         }
+         break;
+
+      case QEPlotterNames::PLOTTER_CURRENT_Y_RANGE:
+         this->yScaleMode = smFixed;
+         this->fixedMinY = this->currentMinY;
+         this->fixedMaxY = this->currentMaxY;
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_DYNAMIC_Y_RANGE:
+         this->yScaleMode = smDynamic;
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_MANUAL_X_RANGE:
+         this->rangeDialog->setWindowTitle ("Plotter X Range");
+         this->rangeDialog->setRange (this->fixedMinX, this->fixedMaxX);
+         n = this->rangeDialog->exec (wsender ? wsender : this);
+         if (n == 1) {
+            // User has selected okay.
+            //
+            this->xScaleMode = smFixed;
+            this->fixedMinX = this->rangeDialog->getMinimum ();
+            this->fixedMaxX = this->rangeDialog->getMaximum ();
+            this->pushState ();
+         }
+         break;
+
+      case QEPlotterNames::PLOTTER_CURRENT_X_RANGE:
+         this->xScaleMode = smFixed;
+         this->fixedMinX = this->currentMinX;
+         this->fixedMaxX = this->currentMaxX;
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_DYNAMIC_X_RANGE:
+         this->xScaleMode = smDynamic;
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_NORAMLISED_Y_RANGE:
+         this->yScaleMode = smNormalised;
+         this->fixedMinY = 0.0;
+         this->fixedMaxY = 1.0;
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_FRACTIONAL_Y_RANGE:
+         this->yScaleMode = smFractional;
+         this->fixedMinY = 0.0;
+         this->fixedMaxY = 1.0;
+         this->pushState ();
+         break;
+
+      case  QEPlotterNames::PLOTTER_PLAY:
+         this->isPaused = false;
+         // TODO - request framefork to resend data for all iuse channels.
+         this->pushState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_PAUSE:
+         this->isPaused = true;
+         this->pushState ();
+         break;
+
+      // PV item specific.
+      //
+      case QEPlotterNames::PLOTTER_LINE_BOLD:
          ds->isBold = ! ds->isBold;
          this->replotIsRequired = true;
          break;
 
-      case QEPlotterMenu::PLOTTER_LINE_DOTS:
+      case QEPlotterNames::PLOTTER_LINE_DOTS:
          ds->showDots = !ds->showDots;
          this->replotIsRequired = true;
          break;
 
-      case QEPlotterMenu::PLOTTER_LINE_VISIBLE:
+      case QEPlotterNames::PLOTTER_LINE_VISIBLE:
          ds->isDisplayed = ! ds->isDisplayed;
          ds->checkBox->setChecked (ds->isDisplayed);
          this->replotIsRequired = true;
          break;
 
-      case QEPlotterMenu::PLOTTER_LINE_COLOUR:
+      case QEPlotterNames::PLOTTER_LINE_COLOUR:
          this->colourDialog->setCurrentColor (ds->colour);
          n = this->colourDialog->exec();
          if (n == 1) {
@@ -996,13 +1007,13 @@ void QEPlotter::itemContextMenuSelected (const int slot, const QEPlotterMenu::Co
          }
          break;
 
-      case QEPlotterMenu::PLOTTER_DATA_SELECT:
+      case QEPlotterNames::PLOTTER_DATA_SELECT:
          if (slot > 0) {
             this->selectDataSet (slot);
          }
          break;
 
-      case QEPlotterMenu::PLOTTER_DATA_DIALOG:
+      case QEPlotterNames::PLOTTER_DATA_DIALOG:
          this->dataDialog->setFieldInformation (this->getXYDataPV (slot),
                                                 this->getXYAlias  (slot),
                                                 this->getXYSizePV (slot));
@@ -1020,7 +1031,7 @@ void QEPlotter::itemContextMenuSelected (const int slot, const QEPlotterMenu::Co
          }
          break;
 
-      case  QEPlotterMenu::PLOTTER_PASTE_DATA_PV:
+      case  QEPlotterNames::PLOTTER_PASTE_DATA_PV:
          cb = QApplication::clipboard ();
          pasteText = cb->text().trimmed();
 
@@ -1030,7 +1041,7 @@ void QEPlotter::itemContextMenuSelected (const int slot, const QEPlotterMenu::Co
          }
          break;
 
-      case  QEPlotterMenu::PLOTTER_PASTE_SIZE_PV:
+      case  QEPlotterNames::PLOTTER_PASTE_SIZE_PV:
          cb = QApplication::clipboard ();
          pasteText = cb->text().trimmed();
 
@@ -1040,14 +1051,14 @@ void QEPlotter::itemContextMenuSelected (const int slot, const QEPlotterMenu::Co
          }
          break;
 
-      case QEPlotterMenu::PLOTTER_DATA_CLEAR:
+      case QEPlotterNames::PLOTTER_DATA_CLEAR:
          this->setXYDataPV (slot, "");
          this->setXYAlias  (slot, "");
          this->setXYSizePV (slot, "");
          this->replotIsRequired = true;
          break;
 
-      case QEPlotterMenu::PLOTTER_SCALE_TO_MIN_MAX:
+      case QEPlotterNames::PLOTTER_SCALE_TO_MIN_MAX:
          if ((slot > 0) && (ds->dataKind == DataPlot || ds->dataKind == CalculationPlot)) {
             this->fixedMinY = ds->plottedMin;
             this->fixedMaxY = ds->plottedMax;
@@ -1055,7 +1066,7 @@ void QEPlotter::itemContextMenuSelected (const int slot, const QEPlotterMenu::Co
          }
          break;
 
-      case QEPlotterMenu::PLOTTER_SCALE_TO_ZERO_MAX:
+      case QEPlotterNames::PLOTTER_SCALE_TO_ZERO_MAX:
          if ((slot > 0) && (ds->dataKind == DataPlot || ds->dataKind == CalculationPlot)) {
             this->fixedMinY = 0;
             this->fixedMaxY = ds->plottedMax;
@@ -1064,7 +1075,7 @@ void QEPlotter::itemContextMenuSelected (const int slot, const QEPlotterMenu::Co
          break;
 
       default:
-         DEBUG << slot <<  option;
+         DEBUG << slot <<  action;
          break;
    }
 }
@@ -1276,7 +1287,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          slot = this->findSlot (obj);
          if (slot > 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
             // Leverage of menu handler
-            this->itemContextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_SELECT);
+            this->menuSelected (QEPlotterNames::PLOTTER_DATA_SELECT, slot);
             return true;  // we have handled this mouse press
          }
 
@@ -1353,7 +1364,7 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          slot = this->findSlot (obj);
          if (slot >= 0) {
             // Leverage of menu handler
-            this->itemContextMenuSelected (slot, QEPlotterMenu::PLOTTER_DATA_DIALOG);
+            this->menuSelected (QEPlotterNames::PLOTTER_DATA_DIALOG, slot);
             return true;  // we have handled double click
          }
          break;
@@ -1660,9 +1671,9 @@ void QEPlotter::releaseCurves ()
 //
 void QEPlotter::plotSelectedArea ()
 {
-   double t1, y1;
-   double t2, y2;
-   QVector<double> tdata;
+   double x1, y1;
+   double x2, y2;
+   QVector<double> xdata;
    QVector<double> ydata;
    QwtPlotCurve *curve;
    QPen pen;
@@ -1670,17 +1681,17 @@ void QEPlotter::plotSelectedArea ()
    // Do inverse transform on button press postions so that they can be re-transformed when plotted ;-)
    // At least we don't need to worry about duration/log scaling here - that looks after itself.
    //
-   t1 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotLeftButton.x ());
+   x1 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotLeftButton.x ());
    y1 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotLeftButton.y ());
 
-   t2 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotCurrent.x ());
+   x2 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotCurrent.x ());
    y2 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotCurrent.y ());
 
-   tdata << t1;  ydata << y1;
-   tdata << t2;  ydata << y1;
-   tdata << t2;  ydata << y2;
-   tdata << t1;  ydata << y2;
-   tdata << t1;  ydata << y1;
+   xdata << x1;  ydata << y1;
+   xdata << x2;  ydata << y1;
+   xdata << x2;  ydata << y2;
+   xdata << x1;  ydata << y2;
+   xdata << x1;  ydata << y1;
 
    // Set curve propeties plus item Pen which include its colour.
    //
@@ -1697,9 +1708,9 @@ void QEPlotter::plotSelectedArea ()
    curve->setPen (pen);
 
 #if QWT_VERSION >= 0x060000
-   curve->setSamples (tdata, ydata);
+   curve->setSamples (xdata, ydata);
 #else
-   curve->setData (tdata, ydata);
+   curve->setData (xdata, ydata);
 #endif
 }
 
@@ -1707,9 +1718,9 @@ void QEPlotter::plotSelectedArea ()
 //
 void QEPlotter::plotOriginToPoint ()
 {
-   double t1, y1;
-   double t2, y2;
-   QVector<double> tdata;
+   double x1, y1;
+   double x2, y2;
+   QVector<double> xdata;
    QVector<double> ydata;
    QwtPlotCurve *curve;
    QPen pen;
@@ -1717,14 +1728,14 @@ void QEPlotter::plotOriginToPoint ()
    // Do inverse transform on button press postions so that they can be re-transformed when plotted ;-)
    // At least we don't need to worry about duration/log scaling here - that looks after itself.
    //
-   t1 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotRightButton.x ());
+   x1 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotRightButton.x ());
    y1 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotRightButton.y ());
 
-   t2 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotCurrent.x ());
+   x2 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotCurrent.x ());
    y2 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotCurrent.y ());
 
-   tdata << t1;  ydata << y1;
-   tdata << t2;  ydata << y2;
+   xdata << x1;  ydata << y1;
+   xdata << y2;  ydata << y2;
 
    // Set curve propeties plus item Pen which include its colour.
    //
@@ -1736,9 +1747,9 @@ void QEPlotter::plotOriginToPoint ()
    curve->setPen (pen);
 
 #if QWT_VERSION >= 0x060000
-   curve->setSamples (tdata, ydata);
+   curve->setSamples (xdata, ydata);
 #else
-   curve->setData (tdata, ydata);
+   curve->setData (xdata, ydata);
 #endif
 }
 
@@ -1760,6 +1771,8 @@ void QEPlotter::plot ()
    int number;
    double xMin, xMax, xMajor;
    double yMin, yMax, yMajor;
+   bool xMinMaxDefined;
+   bool yMinMaxDefined;
 
    // Prequel
    //
@@ -1789,8 +1802,11 @@ void QEPlotter::plot ()
    pen.setStyle (Qt::DashLine);
    this->plotGrid->setPen (pen);
 
-   xMin = 0.0;
+   xMinMaxDefined = false;
+   xMin = 0.0;   // defaults when no values.
    xMax = 1.0;
+
+   yMinMaxDefined = false;
    yMin = 0.0;
    yMax = 1.0;
 
@@ -1824,12 +1840,6 @@ void QEPlotter::plot ()
          continue;
       }
 
-      curve = this->allocateCurve (slot);
-      if (!curve) {
-         DEBUG << "Unable to allocate curve";
-         continue;
-      }
-
       // Truncate both data sets to the same length.
       //
       xdata = QEFloatingArray (xs->data.mid (0, number));
@@ -1837,14 +1847,28 @@ void QEPlotter::plot ()
 
       // Gather, save  and aggregate minima and maxima
       //
-      xMin = MIN (xMin, xdata.minimumValue ());
-      xMax = MAX (xMax, xdata.maximumValue ());
+      if (xMinMaxDefined) {
+         // merge
+         xMin = MIN (xMin, xdata.minimumValue ());
+         xMax = MAX (xMax, xdata.maximumValue ());
+      } else {
+         xMin = xdata.minimumValue ();
+         xMax = xdata.maximumValue ();
+         xMinMaxDefined = true;
+      }
 
       ys->plottedMin = ydata.minimumValue ();
       ys->plottedMax = ydata.maximumValue ();
 
-      yMin = MIN (yMin, ys->plottedMin);
-      yMax = MAX (yMax, ys->plottedMax);
+      if (yMinMaxDefined) {
+         // merge
+         yMin = MIN (yMin, ys->plottedMin);
+         yMax = MAX (yMax, ys->plottedMax);
+      } else {
+         yMin = ys->plottedMin;
+         yMax = ys->plottedMax;
+         yMinMaxDefined = true;
+      }
 
       // This this item is the selected item, then calculate and display item attributes.
       //
@@ -1883,6 +1907,12 @@ void QEPlotter::plot ()
 
       // Lastly plot the data.
       //
+      curve = this->allocateCurve (slot);
+      if (!curve) {
+         DEBUG << "Unable to allocate curve";
+         continue;
+      }
+
 #if QWT_VERSION >= 0x060000
       curve->setSamples (xdata, ydata);
 #else
@@ -1917,18 +1947,27 @@ void QEPlotter::plot ()
       xMax = this->fixedMaxX;
    }
 
+   // Expand min and max to "nice" values (e.g. 4.02 .. 9.98 becomes 4.0 to 10.0)
+   // and select a suitable major value (e.g for 4.0 to 10.0 this would be 1.0)
+   //
+   QEPlotter::adjustMinMax (xMin, xMax, xMin, xMax, xMajor);
+   this->plotArea->setAxisScale (QwtPlot::xBottom, xMin, xMax, xMajor);
+
+   // Repeat for y  - essentially the same excpet for log scale adjustment.
+   //
    if (this->yScaleMode != smDynamic) {
       yMin = this->fixedMinY;
       yMax = this->fixedMaxY;
    }
 
-   // Expand min and max to "nice" values (e.g. 4.02 .. 9.98 becomes 4.0 to 10.0)
-   // and select a suitable major value (e.g for 4.0 to 10.0 this would be 1.0)
-   //
-   QEPlotter::adjustMinMax (xMin, xMax, xMin, xMax, xMajor);
-   QEPlotter::adjustMinMax (yMin, yMax, yMin, yMax, yMajor);
+   if (this->isLogarithmic) {
+      yMajor = 1.0;
+      yMin = floor (LOG10 (yMin));
+      yMax = ceil  (LOG10 (yMax));
+   } else {
+      QEPlotter::adjustMinMax (yMin, yMax, yMin, yMax, yMajor);
+   }
 
-   this->plotArea->setAxisScale (QwtPlot::xBottom, xMin, xMax, xMajor);
    this->plotArea->setAxisScale (QwtPlot::yLeft,   yMin, yMax, yMajor);
 
    this->plotArea->replot ();
@@ -1969,18 +2008,19 @@ void QEPlotter::doAnyCalculations ()
    int tols;
    double value;
    bool okay;
+   bool dataIsAvailable;
 
    xs = &this->xy [0];  // use a alias pointer for brevity
+   effectiveXSize = xs->effectiveSize ();
 
    switch (xs->dataKind) {
 
       case NotInUse:
          xs->data.clear ();
-         n = xs->effectiveSize ();
 
          // Use default calculation which is just x = index position 0 .. (n-1)
          //
-         for (j = 0; j < n; j++) {
+         for (j = 0; j < effectiveXSize; j++) {
             xs->data.append ((double) j);
          }
          break;
@@ -1992,8 +2032,7 @@ void QEPlotter::doAnyCalculations ()
       case CalculationPlot:
          xs->data.clear ();
          if (xs->expressionIsValid) {
-            n = xs->effectiveSize ();
-            for (j = 0; j < n; j++) {
+            for (j = 0; j < effectiveXSize; j++) {
                QEExpressionEvaluation::clear (userArguments);
                userArguments [Normal][s] = (double) j;
                value = xs->calculator->evaluate (userArguments, &okay);
@@ -2002,8 +2041,8 @@ void QEPlotter::doAnyCalculations ()
          }
    }
 
-   effectiveXSize = xs->effectiveSize ();
-
+   // Next calc slope of actual y fdta values.
+   //
    for (slot = 1; slot < ARRAY_LENGTH (this->xy); slot++) {
       ys = &this->xy [slot];
       if (ys->dataKind == DataPlot) {
@@ -2018,30 +2057,34 @@ void QEPlotter::doAnyCalculations ()
          ys->data.clear ();
          effectiveYSize = ys->effectiveSize ();
 
-         // We ARE doing a calculation and size not specified, so set to X size.
-         if (ys->sizeKind == NotSpecified) {
-            effectiveYSize = effectiveXSize;
-         }
-
          n = MIN (effectiveXSize, effectiveYSize);
 
+         dataIsAvailable = true;
          for (j = 0; j < n; j++) {
             QEExpressionEvaluation::clear (userArguments);
 
-            // Pre-defined values: S and Z
+            // Pre-defined values: S and X
+            //
             userArguments [Normal][s] = (double) j;
             userArguments [Normal][x] = xs->data.value (j);
             userArguments [Primed][x] = 1.0;    // by defitions.
 
             for (tols = 1; tols < slot; tols++) {
-               userArguments [Normal] [tols - 1] = this->xy [tols].data.value (j, 0.0);
-               userArguments [Primed] [tols - 1] = this->xy [tols].dyByDx.value (j, 0.0);
+               DataSets* ts = &this->xy [tols];
+
+               // TODO: determine if this arg used?
+               userArguments [Normal] [tols - 1] = ts->data.value (j, 0.0);
+               userArguments [Primed] [tols - 1] = ts->dyByDx.value (j, 0.0);
             }
+
+            if (!dataIsAvailable) break;
 
             value = ys->calculator->evaluate (userArguments, &okay);
             ys->data.append (value);
          }
 
+         // Calculate slope of calculated plot.
+         //
          ys->dyByDx = ys->data.calcDyByDx (xs->data);
       }
    }
@@ -2281,6 +2324,11 @@ void QEPlotter::adjustMinMax (const double minIn, const double maxIn,
           ((s + 1) < ARRAY_LENGTH (majorValues))) s++;
    majorOut = major = majorValues [s];
 
+   // Determine minOut and maxOut such that they are both exact multiples of
+   // major and that:
+   //
+   //  minOut <= minIn <= maxIn << maxOut
+   //
    p = (int) (minIn / major);
    if ((p * major) > minIn) p--;
 

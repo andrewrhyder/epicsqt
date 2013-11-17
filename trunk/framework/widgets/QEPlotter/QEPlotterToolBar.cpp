@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -32,42 +32,43 @@
 
 #include <QECommon.h>
 #include "QEPlotterToolBar.h"
-
-
-#define ICW                26         // icon width
-
-// Special slots NUMBERS  - must be consistent with below
-//
-#define PREV_SLOT          0
-#define NEXT_SLOT          1
+#include <QEPlotterMenu.h>
 
 struct PushButtonSpecifications {
    int gap;
    int width;
-   bool isIcon;  // when false is caption
-   const QString captionOrIcon;
+   bool isIcon;                         // when false is caption
+   const QString captionOrIcon;         // caption text or iocn filename - not full path
+   QEPlotterNames::MenuActions action;  // associated action
    const QString toolTip;
-   const char * member;
 };
 
+#define NO_SLOT            0
+#define GAP                8          // group gap
+#define ICW                26         // icon width
+
 static const struct PushButtonSpecifications buttonSpecs [] = {
-   { 0,   ICW, true,  QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))        },
-   { 0,   ICW, true,  QString ("go_fwd.png"),            QString ("Next state"),                   SLOT (nextStateClicked (bool))        },
+   { 0,   ICW, true,  QString ("go_back.png"),       QEPlotterNames::PLOTTER_PREV,               QString ("Previous state")     },
+   { 0,   ICW, true,  QString ("go_fwd.png"),        QEPlotterNames::PLOTTER_NEXT,               QString ("Next state")         },
 
-   { 8,   ICW, true,  QString ("normal_video.png"),      QString ("White background"),             SLOT (normalVideoClicked (bool))      },
-   { 0,   ICW, true,  QString ("reverse_video.png"),     QString ("Black background"),             SLOT (reverseVideoClicked (bool))     },
+   { GAP, ICW, true,  QString ("normal_video.png"),  QEPlotterNames::PLOTTER_NORMAL_VIDEO,       QString ("White background")   },
+   { 0,   ICW, true,  QString ("reverse_video.png"), QEPlotterNames::PLOTTER_REVERSE_VIDEO,      QString ("Black background")   },
 
-   { 8,   ICW, true,  QString ("linear_scale.png"),      QString ("Linear scale"),                 SLOT (linearScaleClicked (bool))      },
-   { 0,   ICW, true,  QString ("log_scale.png"),         QString ("Log Scale"),                    SLOT (logScaleClicked (bool))         },
+   { GAP, ICW, true,  QString ("linear_scale.png"),  QEPlotterNames::PLOTTER_LINEAR_Y_SCALE,     QString ("Linear Scale")       },
+   { 0,   ICW, true,  QString ("log_scale.png"),     QEPlotterNames::PLOTTER_LOG_Y_SCALE,        QString ("Log Scale")          },
 
-   { 8,   ICW, false, QString ("M"),                     QString ("Manual Scale"),                 SLOT (manualYScaleClicked (bool))     },
-   { 0,   ICW, false, QString ("A"),                     QString ("Data Range Scale"),             SLOT (automaticYScaleClicked (bool))  },
-   { 0,   ICW, false, QString ("D"),                     QString ("Dynamic Scale"),                SLOT (dynamicYScaleClicked (bool))    },
-   { 0,   ICW, false, QString ("N"),                     QString ("Noramalised Scale"),            SLOT (normalisedYScaleClicked (bool)) },
-   { 0,   ICW, false, QString ("F"),                     QString ("Fractional Scale"),             SLOT (fractionalYScaleClicked (bool)) },
+   { GAP, ICW, false, QString ("My"),                QEPlotterNames::PLOTTER_MANUAL_Y_RANGE,     QString ("Manual Y Scale")     },
+   { 0,   ICW, false, QString ("Ay"),                QEPlotterNames::PLOTTER_CURRENT_Y_RANGE,    QString ("Y Data Range Scale") },
+   { 0,   ICW, false, QString ("Dy"),                QEPlotterNames::PLOTTER_DYNAMIC_Y_RANGE,    QString ("Dynamic Y Scale")    },
+   { 0,   ICW, false, QString ("N"),                 QEPlotterNames::PLOTTER_NORAMLISED_Y_RANGE, QString ("Noramalised Scale")  },
+   { 0,   ICW, false, QString ("F"),                 QEPlotterNames::PLOTTER_FRACTIONAL_Y_RANGE, QString ("Fractional Scale")   },
 
-   { 8,   ICW, true,  QString ("play.png"),              QString ("Play - Real time"),             SLOT (playClicked (bool))             },
-   { 0,   ICW, true,  QString ("pause.png"),             QString ("Pause"),                        SLOT (pauseClicked (bool))            }
+   { GAP, ICW, false, QString ("Mx"),                QEPlotterNames::PLOTTER_MANUAL_X_RANGE,     QString ("Manual X Scale")     },
+   { 0,   ICW, false, QString ("Ax"),                QEPlotterNames::PLOTTER_CURRENT_X_RANGE,    QString ("X Data Range Scale") },
+   { 0,   ICW, false, QString ("Dx"),                QEPlotterNames::PLOTTER_DYNAMIC_X_RANGE,    QString ("Dynamic X Scale")    },
+
+   { GAP, ICW, true,  QString ("play.png"),          QEPlotterNames::PLOTTER_PLAY,               QString ("Play - Real time")   },
+   { 0,   ICW, true,  QString ("pause.png"),         QEPlotterNames::PLOTTER_PAUSE,              QString ("Pause"),             }
 };
 
 
@@ -83,7 +84,10 @@ QEPlotterToolBar::QEPlotterToolBar (QWidget *parent) : QFrame (parent)
 
    this->setFixedHeight (this->designHeight);
 
-   this->pushButtons [TOOLBAR_NONE] = NULL;
+   // Clear array.
+   //
+   this->buttonToActionMap.clear ();
+   this->actionToButtonMap.clear ();
 
    // Create toobar buttons
    // TODO: Try QToolBar - it may auto layout.
@@ -107,11 +111,14 @@ QEPlotterToolBar::QEPlotterToolBar (QWidget *parent) : QFrame (parent)
       gap = buttonSpecs[j].gap;
       button->setGeometry (left + gap, 2, buttonSpecs[j].width, 26);
       left += gap + buttonSpecs[j].width + 2;
-      if (buttonSpecs[j].member != NULL) {
-         QObject::connect (button, SIGNAL (clicked (bool)),
-                           this, buttonSpecs[j].member);
-      }
-      this->pushButtons [j + 1] = button;  // save reference
+
+      QObject::connect (button, SIGNAL (clicked       (bool)),
+                        this,   SLOT   (buttonClicked (bool)));
+
+      // save two-way reference
+      //
+      this->buttonToActionMap.insert (button, buttonSpecs[j].action);
+      this->actionToButtonMap.insert (buttonSpecs[j].action, button);
    }
 }
 
@@ -132,89 +139,30 @@ void QEPlotterToolBar::resizeEvent (QResizeEvent *)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotterToolBar::setEnabled (const ToolBarOptions item, const bool value)
+void QEPlotterToolBar::setEnabled (QEPlotterNames::MenuActions action, const bool value)
 {
-   if (item >= 0 && item < ARRAY_LENGTH (this->pushButtons)){
-      if (this->pushButtons [item]) {
-         this->pushButtons [item]->setEnabled (value);
-      }
+   QPushButton* button;
+
+   button = this->actionToButtonMap.value (action, NULL);
+
+   if (button) {
+      button->setEnabled (value);
    }
 }
 
 //------------------------------------------------------------------------------
 //
-void QEPlotterToolBar::prevStateClicked (bool)
+void QEPlotterToolBar::buttonClicked (bool)
 {
-   emit this->selected (TOOLBAR_PREV);
-}
+   QPushButton* button = dynamic_cast <QPushButton *> (this->sender ());
+   QEPlotterNames::MenuActions action;
 
-void QEPlotterToolBar::nextStateClicked (bool)
-{
-   emit this->selected (TOOLBAR_NEXT);
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotterToolBar::normalVideoClicked (bool)
-{
-   emit this->selected (TOOLBAR_NORMAL_VIDEO);
-}
-
-void QEPlotterToolBar::reverseVideoClicked (bool)
-{
-   emit this->selected (TOOLBAR_REVERSE_VIDEO);
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotterToolBar::linearScaleClicked (bool)
-{
-   emit this->selected (TOOLBAR_LINEAR_Y_SCALE);
-}
-
-void QEPlotterToolBar::logScaleClicked (bool)
-{
-   emit this->selected (TOOLBAR_LOG_Y_SCALE);
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotterToolBar::manualYScaleClicked (bool)
-{
-   emit this->selected (TOOLBAR_MANUAL_Y_RANGE);
-}
-
-void QEPlotterToolBar::automaticYScaleClicked (bool)
-{
-   emit this->selected (TOOLBAR_CURRENT_Y_RANGE);
-}
-
-void QEPlotterToolBar::dynamicYScaleClicked (bool)
-{
-   emit this->selected (TOOLBAR_DYNAMIC_Y_RANGE);
-}
-
-void QEPlotterToolBar::normalisedYScaleClicked (bool)
-{
-   emit this->selected (TOOLBAR_NORAMLISED_Y_RANGE);
-}
-
-void QEPlotterToolBar::fractionalYScaleClicked (bool)
-{
-   emit this->selected (TOOLBAR_FRACTIONAL_Y_RANGE);
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotterToolBar::playClicked (bool)
-{
-   emit this->selected (TOOLBAR_PLAY);
-}
-
-void QEPlotterToolBar::pauseClicked (bool)
-{
-   emit this->selected (TOOLBAR_PAUSE);
+   if (button) {
+      if (this->buttonToActionMap.contains (button)) {
+         action = this->buttonToActionMap.value (button);
+         emit this->selected (action, NO_SLOT);
+      }
+   }
 }
 
 // end
-

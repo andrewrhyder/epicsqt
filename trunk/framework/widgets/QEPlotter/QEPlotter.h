@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -42,6 +42,7 @@
 #include <QEResizeableFrame.h>
 
 #include <QEStripChartRangeDialog.h>
+#include "QEPlotterNames.h"
 #include "QEPlotterItemDialog.h"
 #include "QEPlotterMenu.h"
 #include "QEPlotterToolBar.h"
@@ -365,6 +366,9 @@ private:
    void prevState ();
    void nextState ();
 
+   QMenu* generalContextMenuCreate ();
+   bool connectMenuOrToolBar (QWidget* item);
+
    // Perform a pvNameDropEvent 'drop'
    //
    void pvNameDropEvent (const int slot, QDropEvent *event);
@@ -449,17 +453,15 @@ private slots:
                           QCaDateTime& timeStamp,
                           const unsigned int& variableIndex);
 
-   void checkBoxstateChanged (int state);
+   void checkBoxStateChanged (int state);
    void tickTimeout ();
 
-   void toolBarItemSelected (const QEPlotterToolBar::ToolBarOptions item);
-
-   QMenu* generalContextMenuCreate ();
    void generalContextMenuRequested (const QPoint& pos);
-   void generalContextMenuTriggered (QAction* action);
-
    void itemContextMenuRequested (const QPoint& pos);
-   void itemContextMenuSelected (const int slot, const QEPlotterMenu::ContextMenuOptions option);
+
+   // Handles all context menu and tool bar actions.
+   //
+   void menuSelected (const QEPlotterNames::MenuActions action, const int slot);
 
    friend class DataSets;
 };

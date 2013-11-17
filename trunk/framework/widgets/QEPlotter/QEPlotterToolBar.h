@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -28,79 +28,45 @@
 #ifndef QEPLOTTERTOOLBAR_H
 #define QEPLOTTERTOOLBAR_H
 
-//  ??? #include <qnamespace.h>
 #include <QFrame>
 #include <QPushButton>
-#include <QObject>
+#include <QHash>
+#include <QPushButton>
 #include <QWidget>
 
-#include <QEStripChartNames.h>
+#include "QEPlotterNames.h"
 
-
-/// This class holds all the QEPlotter tool bar widgets.
+/// This class holds all the QEPlotter tool bar widget.
+///
 class QEPlotterToolBar : public QFrame {
 Q_OBJECT
 public:  
    explicit QEPlotterToolBar (QWidget *parent = 0);
    virtual ~QEPlotterToolBar ();
+
    static const int designHeight = 32;
 
-
-   enum ToolBarOptions {
-      TOOLBAR_NONE = 0,
-
-      TOOLBAR_PREV,                // Previous state
-      TOOLBAR_NEXT,                // Previous state
-
-      TOOLBAR_NORMAL_VIDEO,        //
-      TOOLBAR_REVERSE_VIDEO,       //
-
-      TOOLBAR_LINEAR_Y_SCALE,      //
-      TOOLBAR_LOG_Y_SCALE,         //
-
-      TOOLBAR_MANUAL_Y_RANGE,      // User selected YMin YMax
-      TOOLBAR_CURRENT_Y_RANGE,     // YMin/YMax based on overal min/max of current data set
-      TOOLBAR_DYNAMIC_Y_RANGE,     // As TOOLBAR_CURRENT_Y_RANGE, but dynamic per update
-      TOOLBAR_NORAMLISED_Y_RANGE,  // Range 0 to 1: Data mapped Min => 0, Max => 1
-      TOOLBAR_FRACTIONAL_Y_RANGE,  // Range 0 to 1: Data mapped (value / Max)
-
-      TOOLBAR_PLAY,                //
-      TOOLBAR_PAUSE,               //
-
-      TOOLBAR_NUMBER_ITEMS         // Must be last
-   };
-
-   void setEnabled (const ToolBarOptions option, const bool value);
+   void setEnabled (const QEPlotterNames::MenuActions action, const bool enabled);
 
 signals:
-   void selected (const QEPlotterToolBar::ToolBarOptions);
-
+   // Note: this is the same signature as the QEPlotterMenu signal.
+   // For the toolbar slot is always 0.
+   //
+   void selected (const QEPlotterNames::MenuActions action, const int slot);
 
 protected:
    void resizeEvent (QResizeEvent * event);
 
 private:
-   QPushButton *pushButtons [TOOLBAR_NUMBER_ITEMS];
+   // Map actions <==>  QPushButtons
+   //
+   QHash <QPushButton*, QEPlotterNames::MenuActions> buttonToActionMap;
+   QHash <QEPlotterNames::MenuActions, QPushButton*> actionToButtonMap;
 
 private slots:
-
-   void prevStateClicked (bool checked = false);
-   void nextStateClicked (bool checked = false);
-
-   void normalVideoClicked (bool checked = false);
-   void reverseVideoClicked (bool checked = false);
-
-   void linearScaleClicked (bool checked = false);
-   void logScaleClicked (bool checked = false);
-
-   void manualYScaleClicked (bool checked = false);
-   void automaticYScaleClicked (bool checked = false);
-   void dynamicYScaleClicked (bool checked = false);
-   void normalisedYScaleClicked (bool checked = false);
-   void fractionalYScaleClicked (bool checked = false);
-
-   void playClicked (bool checked = false);
-   void pauseClicked (bool checked = false);
+   // Send from the various buttons on the toolbar.
+   //
+   void buttonClicked (bool checked = false);
 };
 
 #endif  // QEPLOTTERTOOLBAR_H
