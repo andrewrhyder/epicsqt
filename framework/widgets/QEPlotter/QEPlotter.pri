@@ -12,6 +12,7 @@ RESOURCES += \
 HEADERS += \
     widgets/QEPlotter/QEExpressionEvaluation.h  \
     widgets/QEPlotter/QEPlotter.h \
+    widgets/QEPlotter/QEPlotterNames.h \
     widgets/QEPlotter/QEPlotterItemDialog.h \
     widgets/QEPlotter/QEPlotterMenu.h \
     widgets/QEPlotter/QEPlotterToolBar.h \
