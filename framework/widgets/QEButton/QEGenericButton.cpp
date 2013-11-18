@@ -396,13 +396,13 @@ void QEGenericButton::userClicked( bool checked )
         if( programStartupOption == PSO_TERMINAL )
         {
 #ifdef WIN32
-            prog.prepend( "cmd.exe start " );
+            prog.prepend( "cmd.exe /C start " );
 #else
             prog.prepend( "xterm -hold -e " );// use $TERM ??
 #endif
         }
 
-        qDebug() << prog;
+        // Run the program
         process->start( prog );
 
         // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
