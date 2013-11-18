@@ -32,7 +32,6 @@
   widgets of the same name.
  */
 
-#include <math.h>
 #include <QDebug>
 #include <QtGui>
 
@@ -40,9 +39,22 @@
 #include <QECommon.h>
 
 
-/* ---------------------------------------------------------------------------
- *
- */
+//------------------------------------------------------------------------------
+// Not all compilers support lround.
+// Move this to QECommon Utilities?
+//
+static int roundDoubleToInt (double x) {
+   if (x >= 0.0) {
+      // conversion to int truncates towards 0.
+      //
+      return (int)(x + 0.5);
+   } else {
+      return (int)(x - 0.5);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
 {
    // Set up data
@@ -73,9 +85,9 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
 }
 
 
-/* ---------------------------------------------------------------------------
- *  Define default size for this widget class.
- */
+//------------------------------------------------------------------------------
+//  Define default size for this widget class.
+//
 QSize QBitStatus::sizeHint () const {
    return QSize (48, 16);
 }
@@ -120,7 +132,7 @@ void QBitStatus::drawItem (QPainter & painter, const QRect & rect)
 {
    // Round down top-left offset, round up botton-right offset.
    //
-   const int pen_width =  painter.pen().width ();
+   const int pen_width =  painter.pen ().width ();
    const int tl = pen_width / 2;
    const int br = pen_width - tl;
 
@@ -280,8 +292,10 @@ void QBitStatus::paintEvent (QPaintEvent *)
       //
       centre = left - 0.5 + (j + 0.5)*bitSpacing;
 
-      bit_area.setLeft  (MAX (left,  int (lround (centre - offset))));
-      bit_area.setRight (MIN (right, int (lround (centre + offset))));
+      // Calucalte size, but constrain to be within left to right.
+      //
+      bit_area.setLeft  (MAX (left,  roundDoubleToInt (centre - offset)));
+      bit_area.setRight (MIN (right, roundDoubleToInt (centre + offset)));
 
       if (mIsValid) {
 
