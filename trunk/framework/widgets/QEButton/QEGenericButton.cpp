@@ -29,7 +29,6 @@
  */
 
 #include <QEGenericButton.h>
-#include <QProcess>
 #include <QMessageBox>
 #include <QMainWindow>
 #include <QIcon>
@@ -56,7 +55,8 @@ void QEGenericButton::setup() {
 /*
     Setup for reading and writing data
 */
-void QEGenericButton::dataSetup() {
+void QEGenericButton::dataSetup()
+{
     // Set up data
     // This control uses two data sources, the first is written to and (by default) read from. The second is the alternative read back
     setNumVariables(QEGENERICBUTTON_NUM_VARIABLES);
@@ -90,13 +90,16 @@ void QEGenericButton::dataSetup() {
 /*
     Setup for running commands
 */
-void QEGenericButton::commandSetup() {
+void QEGenericButton::commandSetup()
+{
+    programStartupOption = PSO_NONE;
 }
 
 /*
     Setup for starting new GUIs
 */
-void QEGenericButton::guiSetup() {
+void QEGenericButton::guiSetup()
+{
 
     // Set default properties
     creationOption = QEActionRequests::OptionOpen;
@@ -370,7 +373,7 @@ void QEGenericButton::userClicked( bool checked )
     if( !program.isEmpty() )
     {
         // Create a new process to run the program
-        QProcess *process = new QProcess();
+        processManager* process = new processManager( programStartupOption == PSO_LOGOUTPUT );
 
         // Apply substitutions to the arguments
         QStringList substitutedArguments = arguments;
@@ -388,6 +391,18 @@ void QEGenericButton::userClicked( bool checked )
             prog.append( " " );
             prog.append( substitutedArguments[i] );
         }
+
+        // Add apropriate terminal command if starting up within a terminal
+        if( programStartupOption == PSO_TERMINAL )
+        {
+#ifdef WIN32
+            prog.prepend( "cmd.exe start " );
+#else
+            prog.prepend( "xterm -hold -e " );// use $TERM ??
+#endif
+        }
+
+        qDebug() << prog;
         process->start( prog );
 
         // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
@@ -665,6 +680,16 @@ void QEGenericButton::setGuiName( QString guiNameIn )
 QString QEGenericButton::getGuiName()
 {
     return guiName;
+}
+
+// Qt Designer Properties program startup options
+void QEGenericButton::setProgramStartupOption( programStartupOptions programStartupOptionIn )
+{
+    programStartupOption = programStartupOptionIn;
+}
+QEGenericButton::programStartupOptions QEGenericButton::getProgramStartupOption()
+{
+    return programStartupOption;
 }
 
 // Qt Designer Properties Creation options

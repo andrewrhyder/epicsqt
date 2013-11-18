@@ -31,10 +31,46 @@
 #include <QEStringFormatting.h>
 #include <managePixmaps.h>
 #include <QEStringFormattingMethods.h>
+#include <QProcess>
 
 // Maximum number of variables.
 #define QEGENERICBUTTON_NUM_VARIABLES 2
 
+
+// Class to manage a process started by a QE button
+class processManager : public QProcess
+{
+    Q_OBJECT
+
+public:
+    processManager( bool logOutput )
+    {
+        // Catch when the process can be deleted
+        QObject::connect( this, SIGNAL( finished(int, QProcess::ExitStatus) ), this, SLOT( doFinished(int, QProcess::ExitStatus) ) );
+
+        // Catch output if required
+        if( logOutput )
+        {
+            QObject::connect( this, SIGNAL( readyReadStandardOutput() ), this, SLOT( doRead() ) );
+            QObject::connect( this, SIGNAL( readyReadStandardError() ), this, SLOT( doRead() ) );
+        }
+    }
+
+public slots:
+    void doRead()
+    {
+        message.sendMessage( readAll() );
+    }
+    void doFinished( int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/ )
+    {
+        deleteLater();
+    }
+
+private:
+    UserMessage message;
+};
+
+// Class common to all QE buttons
 class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFormattingMethods {
 
   public:
@@ -42,6 +78,10 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     virtual ~QEGenericButton(){}
 
     enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON, UPDATE_STATE };
+
+    enum programStartupOptions { PSO_NONE,         // Just run the program
+                                 PSO_TERMINAL,     // Run the program in a termainal
+                                 PSO_LOGOUTPUT };  // Run the program, and log the output in the QE message system
 
     // subscribe
     void setSubscribe( bool subscribe );
@@ -108,6 +148,10 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     void setArguments( QStringList arguments );
     QStringList getArguments();
 
+    // Qt Designer Properties program startup options
+    void setProgramStartupOption( programStartupOptions programStartupOptionIn );
+    programStartupOptions getProgramStartupOption();
+
     // 'Start new GUI' Property convenience functions
 
     // GUI name
@@ -159,6 +203,7 @@ private:
 
     QString program;        // Program to run
     QStringList arguments;  // Program arguments
+    programStartupOptions programStartupOption; // Startup option (in a terminal, log output, or just start it and forget it)
 
     QString guiName;      // GUI file name to launch
     QEActionRequests::Options creationOption;  // Indicate how the new gui should be created ( examples: in a new window, or a top dock)

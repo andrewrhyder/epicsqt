@@ -523,6 +523,20 @@ public:
     ///
     Q_PROPERTY(QStringList arguments READ getArguments WRITE setArguments)
 
+    /// Startup options. Just run the command, run the command within a terminal, or display the output in QE message system.
+    ///
+    Q_PROPERTY(ProgramStartupOptionNames programStartupOption READ getProgramStartupOptionProperty WRITE setProgramStartupOptionProperty)
+
+    // Program startup options
+    Q_ENUMS(ProgramStartupOptionNames)
+
+    /// Startup options. Just run the command, run the command within a terminal, or display the output in QE message system.
+    ///
+    enum ProgramStartupOptionNames{ None      = QEGenericButton::PSO_NONE,       ///< Just run the program
+                                    Terminal  = QEGenericButton::PSO_TERMINAL,   ///< Run the program in a termainal (in Windows a command interpreter will also be started, so the program may be a built-in command like 'dir')
+                                    LogOutput = QEGenericButton::PSO_LOGOUTPUT   ///< Run the program, and log the output in the QE message system
+                                  };
+
     // Note, a property macro in the form 'Q_PROPERTY(QString guiName READ ...' doesn't work.
     // A property name ending with 'Name' results in some sort of string variable being displayed, but will only accept alphanumeric and won't generate callbacks on change.
     /// File name of GUI to be presented on button click.
@@ -576,6 +590,10 @@ private:
     // Access function for updateOption property
     void setUpdateOptionProperty( UpdateOptions updateOption ){ setUpdateOption( (QEPushButton::updateOptions)updateOption ); }
     UpdateOptions getUpdateOptionProperty(){ return (UpdateOptions)getUpdateOption(); }
+
+    // Access function for programStartupOptions property
+    void setProgramStartupOptionProperty( ProgramStartupOptionNames programStartupOptionIn ){ setProgramStartupOption( (programStartupOptions)programStartupOptionIn ); }
+    ProgramStartupOptionNames getProgramStartupOptionProperty(){ return (ProgramStartupOptionNames)getProgramStartupOption(); }
 
     // Access function for creationOption property
     void setCreationOptionProperty( CreationOptionNames creationOptionIn ){ setCreationOption( (QEActionRequests::Options)creationOptionIn ); }
