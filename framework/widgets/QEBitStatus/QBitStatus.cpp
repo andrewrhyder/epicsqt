@@ -38,21 +38,6 @@
 #include <QBitStatus.h>
 #include <QECommon.h>
 
-
-//------------------------------------------------------------------------------
-// Not all compilers support lround.
-// Move this to QECommon Utilities?
-//
-static int roundDoubleToInt (double x) {
-   if (x >= 0.0) {
-      // conversion to int truncates towards 0.
-      //
-      return (int)(x + 0.5);
-   } else {
-      return (int)(x - 0.5);
-   }
-}
-
 //------------------------------------------------------------------------------
 //
 QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
@@ -70,7 +55,7 @@ QBitStatus::QBitStatus( QWidget *parent ) : QWidget (parent)
    mGap = 0;               // 0 .. 80
    mShift = 0;             // 0 .. 32
    mIsValid = true;
-   mIsActive = false;
+   mIsActive = true;
    mValue = 0;
    mOrientation = LSB_On_Right;
    mShape = Rectangle;
@@ -294,8 +279,8 @@ void QBitStatus::paintEvent (QPaintEvent *)
 
       // Calucalte size, but constrain to be within left to right.
       //
-      bit_area.setLeft  (MAX (left,  roundDoubleToInt (centre - offset)));
-      bit_area.setRight (MIN (right, roundDoubleToInt (centre + offset)));
+      bit_area.setLeft  (MAX (left,  QEUtilities::roundToInt (centre - offset)));
+      bit_area.setRight (MIN (right, QEUtilities::roundToInt (centre + offset)));
 
       if (mIsValid) {
 

@@ -68,16 +68,16 @@ void QEBitStatus::setup ()
    setNumVariables (1);
 
    // Set up default properties
-   setAllowDrop( false );
+   //
+   setAllowDrop (false);
 
    // Set the initial state
+   // Widget is inactive until connected.
    //
-   isConnected = false;
+   this->isConnected = false;
+   this->setIsActive (this->isConnected);
 
    setInvalidColour (this->getColor( invalid, 128));
-
-   // Use progress bar signals
-   // --Currently none--
 
    // Use default context menu.
    //
