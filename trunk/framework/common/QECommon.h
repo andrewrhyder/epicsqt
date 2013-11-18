@@ -80,6 +80,12 @@ public:
     ///
     static QString colourToStyle (const QColor backgroundColour);
 
+    /// Rounds a float to the nearest integer. Not all compilers support lround.
+    /// If x outside of integer range, the result is set to the min or max allowed
+    /// integer value and the ok parameter (if defined) set false if x out of range.
+    ///
+    static int roundToInt (const double x, bool* ok = NULL);
+
     /// Converts a time interval (in seconds) to format  +d hh:mm:ss.fff
     ///
     static QString intervalToString (const double time, const int precision);

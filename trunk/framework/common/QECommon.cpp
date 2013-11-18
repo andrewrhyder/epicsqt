@@ -26,6 +26,7 @@
 
 #include <math.h>
 
+#include <QtGlobal>
 #include <QColor>
 #include <QDebug>
 #include <QMetaEnum>
@@ -85,6 +86,46 @@ QString QEUtilities::colourToStyle (const QColor backgroundColour) {
 
    result.sprintf ("QWidget { background-color: #%02x%02x%02x; color: #%02x%02x%02x; }",
                    br, bg, bb, fr, fg, fb );
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+int QEUtilities::roundToInt (const double x, bool* ok)
+{
+   const double dimin = (double) INT_MIN;
+   const double dimax = (double) INT_MAX;
+
+   int result;
+   bool okay;
+
+   if (x < dimin) {
+      // Too small
+      //
+      result = INT_MIN;
+      okay = false;
+
+   } else if (x > dimax) {
+      // Tooo big
+      //
+      result = INT_MAX;
+      okay = false;
+
+   } else {
+      // In range - conversion possible.
+      //
+      if (x >= 0.0) {
+         // Conversion to int truncates towards 0, must treat positive and
+         // negative numbers differently.
+         //
+         result = (int)(x + 0.5);
+      } else {
+         result = (int)(x - 0.5);
+      }
+      okay = true;
+   }
+
+   if (ok) *ok = okay;
    return result;
 }
 
