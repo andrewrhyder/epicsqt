@@ -111,7 +111,6 @@ QString QEFormGrid::MacroData::genSubsitutions (const int n)
 
    // Pad number with '0' to required width.
    //
-   qDebug () << QString ("%1").arg (int (n + this->offset), this->numberWidth, 10, QChar ('0'));
    subs.append (QString ("%1").arg (n + this->offset, this->numberWidth, 10, QChar ('0')));
    return subs;
 }
