@@ -58,11 +58,29 @@ public:
    QCaAlarmInfo alarm;
 };
 
+
 // Defines a list of data points.
 //
-class QEPLUGINLIBRARYSHARED_EXPORT QCaDataPointList : public QList<QCaDataPoint>  {
+// Note this class orginally extended QList<QCaDataPoint>, but this way of
+// specificying this class has issues with the Windows Visual Studio Compiler.
+// It has now been modified to include a QList<QCaDataPoint> member. The
+// downside of this is that we must now provide list member access functions.
+//
+class QEPLUGINLIBRARYSHARED_EXPORT QCaDataPointList  {
 public:
    explicit QCaDataPointList ();
+
+   // Provide access to the inner list.
+   //
+   void clear ()                               { data.clear ();         }
+   void removeLast ()                          { data.removeLast ();    }
+   void removeFirst ()                         { data.removeFirst ();   }
+   void append (const QCaDataPointList& other);
+   void append (const QCaDataPoint& r)         { data.append (r);       }
+   void replace (int i, const QCaDataPoint &t) { data.replace (i, t);   }
+   int count () const                          { return data.count ();  }
+   QCaDataPoint value (const int j) const;
+   QCaDataPoint last () const                  { return data.last ();   }
 
    // Resamples the source list on points into current list.
    // Note: any previous data is lost.
@@ -74,6 +92,9 @@ public:
    // Write whole list to target stream.
    //
    void toStream (QTextStream& target, bool withIndex, bool withRelativeTime);
+
+private:
+   QList<QCaDataPoint> data;
 };
 
 // These types are used in inter thread signals - must be registered.
