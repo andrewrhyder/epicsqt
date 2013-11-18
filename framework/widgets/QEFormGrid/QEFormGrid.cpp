@@ -23,8 +23,6 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <stdio.h>
-
 #include <QDebug>
 #include <QECommon.h>
 
@@ -98,12 +96,10 @@ QStringList QEFormGrid::MacroData::getStrings ()
 QString QEFormGrid::MacroData::genSubsitutions (const int n)
 {
    QString subs;
-   char format [20];
-   QString t;
 
    subs = "";
 
-   // E.g.  ROWNAME=Fred
+   // E.g.  ROWNAME=Fred where prefix provides ROW or COL
    //
    subs.append (this->prefix).append ("NAME=").append (this->strings.value (n, ""));
 
@@ -112,9 +108,11 @@ QString QEFormGrid::MacroData::genSubsitutions (const int n)
    // E.g.  ROW=09
    //
    subs.append (this->prefix).append ("=");
-   snprintf (format, sizeof (format), "%%0%dd", this->numberWidth);
-   subs.append (t.sprintf (format, n + this->offset));
 
+   // Pad number with '0' to required width.
+   //
+   qDebug () << QString ("%1").arg (int (n + this->offset), this->numberWidth, 10, QChar ('0'));
+   subs.append (QString ("%1").arg (n + this->offset, this->numberWidth, 10, QChar ('0')));
    return subs;
 }
 
