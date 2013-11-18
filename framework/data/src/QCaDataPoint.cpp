@@ -140,11 +140,25 @@ QString QCaDataPoint::toString (const QCaDateTime& originDateTime)
 
 //==============================================================================
 //
-QCaDataPointList::QCaDataPointList () : QList<QCaDataPoint> ()
+QCaDataPointList::QCaDataPointList () // : QList<QCaDataPoint> ()
 {
    // Register type.
    //
    qRegisterMetaType<QCaDataPointList> ("QCaDataPointList");
+}
+
+//------------------------------------------------------------------------------
+//
+void  QCaDataPointList::append (const QCaDataPointList& other)
+{
+   this->data.append (other.data);
+}
+
+//------------------------------------------------------------------------------
+//
+QCaDataPoint QCaDataPointList::value (const int j) const
+{
+   return data.value (j);
 }
 
 //------------------------------------------------------------------------------
