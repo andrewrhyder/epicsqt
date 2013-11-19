@@ -80,6 +80,7 @@ public:
     virtual QString copyVariable(){ return ""; }        // Function a widget may implement to perform a 'copy variable' operation
     virtual QVariant copyData(){ return ""; }           // Function a widget may implement to perform a 'copy data' operation
     virtual void paste( QVariant ){}                    // Function a widget may implement to perform a 'paste' operation
+    void showContextMenu( const QPoint& pos );          // Present the context menu
 
 private:
     contextMenuObject* object;                          // Our own QObject based class to managing signals and slots
@@ -89,7 +90,6 @@ private:
     void doShowPvProperties();                          // 'Show Properties' was selected from the menu
     void doAddToStripChart();                           // 'Add to strip chart' was selected from the menu
     void doAddToScratchPad();                           // 'Add to scratch pad' was selected from the menu
-    void showContextMenu( const QPoint& pos );          // Present the context menu
     static bool draggingVariable;                       // Global 'dragging variable' flag (dragging data if false)
     QEWidget* qew;                                      // QEWidget associated with this instance
     bool hasConsumer;                                   // A launch consumer has been set (it is ok to present menu options that require application support to receive signals to, for example, start a strip chart

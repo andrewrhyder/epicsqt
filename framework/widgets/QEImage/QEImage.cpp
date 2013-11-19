@@ -301,7 +301,8 @@ void QEImage::setup() {
 
     // Set up context sensitive menu (right click menu)
     setContextMenuPolicy( Qt::CustomContextMenu );
-    connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showContextMenu( const QPoint& )));
+    connect( this, SIGNAL( customContextMenuRequested( const QPoint& )), this, SLOT( showImageContextMenu( const QPoint& )));
+    fullContextMenu = true;
 
     // Create options dialog
     // This is done after all items manipulated by the options dialog have been built - such as the brightness/contrast controls
@@ -2039,6 +2040,17 @@ bool QEImage::getExternalControls()
     return appHostsControls;
 }
 
+// Determine if a full context menu allowing manipulation of the image is available or not
+void QEImage::setFullContextMenu( bool fullContextMenuIn )
+{
+    fullContextMenu = fullContextMenuIn;
+    return;
+}
+
+bool QEImage::getFullContextMenu()
+{
+    return fullContextMenu;
+}
 
 //=================================================================================================
 
@@ -3184,7 +3196,7 @@ void QEImage::pan( QPoint origin )
 
 //=================================================================================================
 // Present the context menu
-void QEImage::showContextMenu( const QPoint& pos )
+void QEImage::showImageContextMenu( const QPoint& pos )
 {
     // Get the overall position on the display
     QPoint globalPos = mapToGlobal( pos );
@@ -3196,40 +3208,48 @@ void QEImage::showContextMenu( const QPoint& pos )
         return;
     }
 
-    // Create the image context menu
-    imageContextMenu menu;
+    if( fullContextMenu )
+    {
+        // Create the image context menu
+        imageContextMenu menu;
 
-    // add the standard context menu as a sub menu
-    menu.addMenu( buildContextMenu() );
+        // add the standard context menu as a sub menu
+        menu.addMenu( buildContextMenu() );
 
-    // Add the Selection menu
-    sMenu->setChecked( getSelectionOption() );
-    menu.addMenu( sMenu );
+        // Add the Selection menu
+        sMenu->setChecked( getSelectionOption() );
+        menu.addMenu( sMenu );
 
-    // Add menu items
+        // Add menu items
 
-    //                      Title                            checkable  checked                     option
-    menu.addMenuItem(       "Save...",                       false,     false,                      imageContextMenu::ICM_SAVE                     );
-    menu.addMenuItem(       paused?"Resume":"Pause",         true,      paused,                     imageContextMenu::ICM_PAUSE                    );
+        //                      Title                            checkable  checked                     option
+        menu.addMenuItem(       "Save...",                       false,     false,                      imageContextMenu::ICM_SAVE                     );
+        menu.addMenuItem(       paused?"Resume":"Pause",         true,      paused,                     imageContextMenu::ICM_PAUSE                    );
 
-    menu.addMenuItem(       "About image...",                false,     false,                      imageContextMenu::ICM_ABOUT_IMAGE              );
-    // Add the zoom menu
-    zMenu->enableAreaSelected( haveSelectedArea1 );
-    menu.addMenu( zMenu );
+        menu.addMenuItem(       "About image...",                false,     false,                      imageContextMenu::ICM_ABOUT_IMAGE              );
+        // Add the zoom menu
+        zMenu->enableAreaSelected( haveSelectedArea1 );
+        menu.addMenu( zMenu );
 
-    // Add the flip/rotate menu
-    frMenu->setChecked( rotation, flipHoz, flipVert );
-    menu.addMenu( frMenu );
+        // Add the flip/rotate menu
+        frMenu->setChecked( rotation, flipHoz, flipVert );
+        menu.addMenu( frMenu );
 
-    // Add option... dialog
-    menu.addMenuItem(       "Options...",                    false,     false,                      imageContextMenu::ICM_OPTIONS                  );
+        // Add option... dialog
+        menu.addMenuItem(       "Options...",                    false,     false,                      imageContextMenu::ICM_OPTIONS                  );
 
-    // Present the menu
-    imageContextMenu::imageContextMenuOptions option;
-    bool checked;
-    menu.getContextMenuOption( globalPos, &option, &checked );
+        // Present the menu
+        imageContextMenu::imageContextMenuOptions option;
+        bool checked;
+        menu.getContextMenuOption( globalPos, &option, &checked );
 
-    optionAction( option, checked );
+        optionAction( option, checked );
+    }
+    else
+    {
+        showContextMenu( pos );
+    }
+
 }
 
 // Act on a selection from the option menu or dialog
@@ -3454,7 +3474,7 @@ void QEImage::showImageAboutDialog()
 void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool initialise, QAction* originator )
 {
 
-    // Save
+    // Save button
     if( action == "Save...")
     {
         if( initialise )
@@ -3463,7 +3483,7 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         }
     }
 
-    // Pause
+    // Pause button
     else if( action == "Pause")
     {
         if( initialise )
@@ -3474,7 +3494,7 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         }
     }
 
-    // Positioning
+    // Positioning button
     else if( action == "Move target position into beam")
     {
         if( initialise )
@@ -3483,12 +3503,48 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         }
     }
 
-    // About image
+    // About image button
     else if( action == "About image..." )
     {
         if( !initialise )
         {
             showImageAboutDialog();
+        }
+    }
+
+    // Zoom menu
+    else if( action == "Zoom" )
+    {
+        if( initialise )
+        {
+            originator->setMenu( zMenu );
+        }
+    }
+
+    // Flip/Rotate menu
+    else if( action == "Flip/Rotate" )
+    {
+        if( initialise )
+        {
+            originator->setMenu( frMenu );
+        }
+    }
+
+    // Mode menu
+    else if( action == "Mode" )
+    {
+        if( initialise )
+        {
+            originator->setMenu( sMenu );
+        }
+    }
+
+    // Options dialog
+    else if( action == "Options..." )
+    {
+        if( !initialise )
+        {
+            optionsDialog->exec( this );
         }
     }
 

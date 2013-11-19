@@ -580,7 +580,7 @@ QCursor imageMarkup::getRegionCursor()
 // If required, present the menu, act on the user selection, then return true
 //
 // This method currently populates a imageContextMenu with one 'clear' option.
-// Refer to  QEImage::showContextMenu() to see how imageContextMenu can be populated with checkable, and non checkable items, and sub menus
+// Refer to  QEImage::showImageContextMenu() to see how imageContextMenu can be populated with checkable, and non checkable items, and sub menus
 bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
 {
     // Determine if the user clicked over an interactive, visible item,
