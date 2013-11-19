@@ -125,7 +125,7 @@ void profilePlot::updateProfile( QVector<QPointF>* profile, double minX, double 
 // Show the profile plot context menu.
 //
 // This method currently populates a imageContextMenu with one 'copy plot data' option.
-// Refer to  QEImage::showContextMenu() to see how imageContextMenu can be populated with checkable, and non checkable items, and sub menus
+// Refer to  QEImage::showImageContextMenu() to see how imageContextMenu can be populated with checkable, and non checkable items, and sub menus
 void profilePlot::showProfileContextMenu( const QPoint& pos )
 {
     // Get the overall position on the display

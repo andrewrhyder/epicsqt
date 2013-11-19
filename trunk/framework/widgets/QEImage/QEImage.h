@@ -221,6 +221,9 @@ public:
     void setExternalControls( bool externalControlsIn );                ///< Access function for #externalControls property - refer to #externalControls property for details
     bool getExternalControls();                                         ///< Access function for #externalControls property - refer to #externalControls property for details
 
+    void setFullContextMenu( bool fullContextMenuIn );                  ///< Access function for #fullContextMenu property - refer to #fullContextMenu property for details
+    bool getFullContextMenu();                                          ///< Access function for #fullContextMenu property - refer to #fullContextMenu property for details
+
   protected:
     QEIntegerFormatting integerFormatting; // Integer formatting options.
 
@@ -285,7 +288,7 @@ private slots:
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
-    void showContextMenu( const QPoint& );
+    void showImageContextMenu( const QPoint& );
     void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
@@ -363,6 +366,8 @@ public slots:
 
     bool appHostsControls;
     bool hostingAppAvailable;
+
+    bool fullContextMenu;
 
     void presentControls();
 
@@ -912,6 +917,10 @@ public:
     /// If true, image controls and views such as brightness controls and profile plots are hosted by the application as dock windows, toolbars, etc.
     /// Refer to the #ContainerProfile class and the #windowCustomisation class to see how this class asks an application to act as a host.
     Q_PROPERTY(bool externalControls READ getExternalControls WRITE setExternalControls)
+
+    /// If true, a full context menu allowing manipulation of the image is available. If false, a simpler context menu containing common context menu options such as 'copy' is presented.
+    ///
+    Q_PROPERTY(bool fullContextMenu READ getFullContextMenu WRITE setFullContextMenu)
 };
 
 #endif // QEIMAGE_H
