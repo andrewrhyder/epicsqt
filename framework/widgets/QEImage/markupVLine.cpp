@@ -212,3 +212,9 @@ void markupVLine::scaleSpecific( double xScale, double, const double zoomScale )
     }
     maxThickness = THICKNESS_MAX * zoomScale;
 }
+
+void markupVLine::nonInteractiveUpdate( QPoint p1, QPoint )
+{
+    x = p1.x();
+    setArea();
+}

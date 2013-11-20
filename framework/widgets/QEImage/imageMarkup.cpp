@@ -342,7 +342,7 @@ bool imageMarkup::markupMouseReleaseEvent ( QMouseEvent*, bool panning  )
 //===========================================================================
 
 // A region of interest value has changed.
-// Update any region markup if required
+// Update a markup if required
 void imageMarkup::markupRegionValueChange( int areaIndex, QRect area )
 {
     int region;
@@ -355,16 +355,53 @@ void imageMarkup::markupRegionValueChange( int areaIndex, QRect area )
         case 3:  region = MARKUP_ID_REGION4; break;
     }
 
-    // Area to update
-    QVector<QRect> changedAreas;
-    bool isVisible =  items[region]->visible;
-    if( isVisible )
+    markupValueChange( region, area.topLeft(), area.bottomRight() );
+}
+
+// A horizontal profile value has changed.
+// Update the markup
+void imageMarkup::markupHProfileChange( int y )
+{
+    markupValueChange( MARKUP_ID_H_SLICE, QPoint( 0, y ) );
+}
+
+// A vertical profile value has changed.
+// Update the markup
+void imageMarkup::markupVProfileChange( int x )
+{
+    markupValueChange( MARKUP_ID_V_SLICE, QPoint( x, 0 ) );
+}
+
+// An arbitrary line profile value has changed.
+// Update the markup
+void imageMarkup::markupLineProfileChange( QPoint start, QPoint end )
+{
+    markupValueChange( MARKUP_ID_LINE, start, end );
+}
+
+// A markup related value has changed.
+// Update any markup if required.
+void imageMarkup::markupValueChange( int markup, QPoint p1, QPoint p2 )
+{
+    // If the markup is active (being dragged, for instance) then don't fiddle with it.
+    if( markup == activeItem )
     {
-        changedAreas.append( items[region]->area );
+        return;
     }
 
-    items[region]->nonInteractiveUpdate( area );
-    changedAreas.append( items[region]->area );
+    // Initial area to update
+    QVector<QRect> changedAreas;
+    bool isVisible =  items[markup]->visible;
+    if( isVisible )
+    {
+        changedAreas.append( items[markup]->area );
+    }
+
+    // Update the markup
+    items[markup]->nonInteractiveUpdate( p1, p2 );
+
+    // Extend the area to update and update it
+    changedAreas.append( items[markup]->area );
     markupChange( changedAreas );
 }
 

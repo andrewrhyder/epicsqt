@@ -59,7 +59,7 @@ public:
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
 
-    void nonInteractiveUpdate( QRect );
+    void nonInteractiveUpdate(  QPoint p1, QPoint p2 );
     //==================================================================
 
 

@@ -59,6 +59,8 @@ public:
     QPoint getPoint2();
     QCursor defaultCursor();
     void scaleSpecific( const double xScale, const double yScale, const double zoomScale );
+
+    void nonInteractiveUpdate(  QPoint p1, QPoint p2 );
     //==================================================================
 
 private:

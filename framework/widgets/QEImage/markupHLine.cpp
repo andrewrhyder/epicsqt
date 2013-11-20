@@ -212,3 +212,9 @@ void markupHLine::scaleSpecific( double, double yScale, const double zoomScale )
     }
     maxThickness = THICKNESS_MAX * zoomScale;
 }
+
+void markupHLine::nonInteractiveUpdate( QPoint p1, QPoint )
+{
+    y = p1.y();
+    setArea();
+}
