@@ -1010,6 +1010,10 @@ public:
     /// If true, a full context menu allowing manipulation of the image is available. If false, a simpler context menu containing common context menu options such as 'copy' is presented.
     ///
     Q_PROPERTY(bool fullContextMenu READ getFullContextMenu WRITE setFullContextMenu)
+
+    /// If true, the information area willl be brief (one row)
+    ///
+    Q_PROPERTY(bool briefInfoArea READ getBriefInfoArea WRITE setBriefInfoArea)
 };
 
 #endif // QEIMAGE_H

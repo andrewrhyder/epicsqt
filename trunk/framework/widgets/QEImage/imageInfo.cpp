@@ -33,6 +33,9 @@
 // Initialise the information area
 imageInfo::imageInfo()
 {
+    show = false;
+    brief = false;
+
     currentCursorPixelLabel = new QLabel();
     currentVertPixelLabel = new QLabel();
     currentHozPixelLabel = new QLabel();
@@ -43,18 +46,22 @@ imageInfo::imageInfo()
     currentArea4Label = new QLabel();
     currentTargetLabel = new QLabel();
     currentBeamLabel = new QLabel();
+    currentPausedLabel = new QLabel();
+    currentZoomLabel = new QLabel();
 
     infoLayout = new QGridLayout();
     infoLayout->addWidget( currentCursorPixelLabel, 0, 0 );
-    infoLayout->addWidget( currentVertPixelLabel, 0, 1 );
-    infoLayout->addWidget( currentHozPixelLabel, 0, 2 );
-    infoLayout->addWidget( currentLineLabel, 0, 3 );
-    infoLayout->addWidget( currentArea1Label, 1, 0 );
-    infoLayout->addWidget( currentArea2Label, 1, 1 );
-    infoLayout->addWidget( currentArea3Label, 1, 2 );
-    infoLayout->addWidget( currentArea4Label, 1, 3 );
-    infoLayout->addWidget( currentTargetLabel, 2, 0 );
-    infoLayout->addWidget( currentBeamLabel, 2, 1 );
+    infoLayout->addWidget( currentPausedLabel, 0, 1 );
+    infoLayout->addWidget( currentZoomLabel, 0, 2 );
+    infoLayout->addWidget( currentVertPixelLabel, 1, 0 );
+    infoLayout->addWidget( currentHozPixelLabel, 1, 1 );
+    infoLayout->addWidget( currentLineLabel, 1, 2 );
+    infoLayout->addWidget( currentArea1Label, 2, 0 );
+    infoLayout->addWidget( currentArea2Label, 2, 1 );
+    infoLayout->addWidget( currentArea3Label, 2, 2 );
+    infoLayout->addWidget( currentArea4Label, 2, 3 );
+    infoLayout->addWidget( currentTargetLabel, 3, 0 );
+    infoLayout->addWidget( currentBeamLabel, 3, 1 );
 }
 
 // Return the layout of the infomation area for insertion into the main QEImage widget
@@ -63,22 +70,41 @@ QLayout* imageInfo::getInfoWidget()
     return infoLayout;
 }
 
+void imageInfo::setBriefInfoArea( const bool briefIn )
+{
+    // Save the state
+    brief = briefIn;
+
+    // Update the info, only if currently shown
+    if( show )
+    {
+        showInfo( true );
+    }
+}
+
+bool imageInfo::getBriefInfoArea()
+{
+    return brief;
+}
 
 // Display or hide the contents of the information area
-void imageInfo::showInfo( const bool show )
+void imageInfo::showInfo( const bool showIn )
 {
+    show = showIn;
     if( show )
     {
         currentCursorPixelLabel->show();
-        currentVertPixelLabel->show();
-        currentHozPixelLabel->show();
-        currentLineLabel->show();
-        currentArea1Label->show();
-        currentArea2Label->show();
-        currentArea3Label->show();
-        currentArea4Label->show();
-        currentTargetLabel->show();
-        currentBeamLabel->show();
+        currentPausedLabel->show();
+        currentZoomLabel->show();
+        currentVertPixelLabel->setHidden( brief );
+        currentHozPixelLabel->setHidden( brief );
+        currentLineLabel->setHidden( brief );
+        currentArea1Label->setHidden( brief );
+        currentArea2Label->setHidden( brief );
+        currentArea3Label->setHidden( brief );
+        currentArea4Label->setHidden( brief );
+        currentTargetLabel->setHidden( brief );
+        currentBeamLabel->setHidden( brief );
     }
     else
     {
@@ -157,6 +183,18 @@ void imageInfo::infoUpdatePixel()
     currentCursorPixelLabel->clear();
 }
 
+// Clear the current paused information
+void imageInfo::infoUpdatePaused()
+{
+    currentPausedLabel->clear();
+}
+
+// Clear the current zoom information
+void imageInfo::infoUpdateZoom()
+{
+    currentZoomLabel->clear();
+}
+
 
 
 // Update the target information
@@ -223,3 +261,16 @@ void imageInfo::infoUpdatePixel( const QPoint pos, int value )
 {
     currentCursorPixelLabel->setText( QString( "(%1,%2)=%3" ).arg( pos.x() ).arg( pos.y() ).arg( value ) );
 }
+
+// Update the paused information
+void imageInfo::infoUpdatePaused( bool paused )
+{
+    currentPausedLabel->setText( paused?QString( "Paused" ):QString( "Live" ));
+}
+
+// Update the zoom information
+void imageInfo::infoUpdateZoom( const int zoom )
+{
+    currentZoomLabel->setText( QString( "Zoom: %1%" ).arg( zoom ) );
+}
+

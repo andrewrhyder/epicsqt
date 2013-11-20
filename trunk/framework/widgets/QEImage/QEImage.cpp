@@ -71,16 +71,23 @@ void QEImage::setup() {
     setVariableAsToolTip( false );
 
     setAllowDrop( false );
+
     resizeOption = RESIZE_OPTION_ZOOM;
     zoom = 100;
+    infoUpdateZoom( zoom );
+
     rotation = ROTATION_0;
     flipVert = false;
     flipHoz = false;
+
     initialHozScrollPos = 0;
     initialVertScrollPos = 0;
     initScrollPosSet = false;
+
     formatOption = GREY8;
+
     paused = false;
+    infoUpdatePaused( paused );
 
     vSliceThickness = 1;
     hSliceThickness = 1;
@@ -1307,6 +1314,10 @@ void QEImage::setImageBuff()
             videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale),
                                  (int)((double)rotatedImageBuffHeight() * scale) );
             zoom = scale * 100;
+
+            // Update the info area
+            infoUpdateZoom( zoom );
+
             break;
     }
 
@@ -1445,6 +1456,9 @@ void QEImage::zoomToArea()
 
     // Set current zoom percentage
     zoom = int( newZoom*100.0 );
+
+    // Update the info area
+    infoUpdateZoom( zoom );
 }
 
 // ROI area 1 changed
@@ -1619,6 +1633,10 @@ void QEImage::pauseClicked()
     {
         pauseExternalAction->setChecked( paused );
     }
+
+    // Update the info area
+    infoUpdatePaused( paused );
+
 }
 
 // Save button pressed
@@ -1856,6 +1874,10 @@ void QEImage::setZoom( int zoomIn )
 
     // Resize and rescale
     setImageBuff();
+
+    // Update the info area
+    infoUpdateZoom( zoom );
+
 }
 
 int QEImage::getZoom()

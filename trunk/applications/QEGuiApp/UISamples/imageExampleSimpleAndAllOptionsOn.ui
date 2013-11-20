@@ -127,6 +127,9 @@
      <property name="externalControls">
       <bool>true</bool>
      </property>
+     <property name="briefInfoArea">
+      <bool>true</bool>
+     </property>
      <property name="profileHVariable" stdset="0">
       <string>HOZLINE:Y</string>
      </property>
