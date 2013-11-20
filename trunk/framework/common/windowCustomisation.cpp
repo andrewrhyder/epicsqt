@@ -329,7 +329,7 @@ windowCustomisationList::windowCustomisationList()
 
     // Load QE widget customisations.
     loadCustomisation( ":/qe/configuration/QEImageCustomisationDefault.xml" );
-    // Add other QE widget's customisation files here as requried
+    // Add other QE widget's customisation files here as required
 }
 
 // Load a set of customisations
@@ -402,6 +402,13 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
 
                     // parse menu customisation
                     parseMenuElement( element, customisation, menuHierarchy );
+                }
+
+                // Create a menu item if required
+                else if( element.tagName() == "Item" )
+                {
+                    QStringList menuHierarchy;
+                    customisation->addItem( createMenuItem( element, menuHierarchy ));
                 }
 
                 // Create a placeholder item if required
@@ -958,7 +965,6 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
 
             case windowCustomisationMenuItem::MENU_ITEM:
                 // Add the item to the correct menu
-                // (if no menu, don't add to the menu bar - this could change)
                 if( menu )
                 {
                     if( menuItem->hasSeparator() )
@@ -966,11 +972,18 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                         menu->addSeparator();
                     }
                     menu->addAction( menuItem );
-
-                    // Set up an action to respond to the user
-                    QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
-                                      mw, SLOT( requestAction( const QEActionRequests& ) ) );
                 }
+
+                // Or add the item to the menu bar, if not in a menu
+                // (Unusual, but OK)
+                else
+                {
+                    mw->menuBar()->addAction( menuItem );
+                }
+
+                // Set up an action to respond to the user
+                QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
+                                  mw, SLOT( requestAction( const QEActionRequests& ) ) );
                 break;
 
             case windowCustomisationMenuItem::MENU_PLACEHOLDER:
@@ -987,6 +1000,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                         }
                         placeholderMenu = menu->addMenu( menuTitle );
                     }
+
                     // If no menu, add the placeholder to the menu bar
                     else
                     {
@@ -1001,11 +1015,24 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                 break;
 
             case windowCustomisationMenuItem::MENU_BUILT_IN:
-                if( menuItem->hasSeparator() )
+                // Add the item to the correct menu
+                if( menu )
                 {
-                    menu->addSeparator();
+                    if( menuItem->hasSeparator() )
+                    {
+                        menu->addSeparator();
+                    }
+                    menu->addAction( menuItem );
                 }
-                menu->addAction( menuItem );
+
+                // Or add the item to the menu bar, if not in a menu
+                // (This is normal if the built-in function adds a menu to the action - such as the QEImage zoom menu,
+                // but is a bit unusual otherwise)
+                else
+                {
+                    mw->menuBar()->addAction( menuItem );
+                }
+
                 QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
                                   mw, SLOT( requestAction( const QEActionRequests& ) ) );
                 customisationInfo->items.append( menuItem );
