@@ -116,7 +116,7 @@
       <bool>true</bool>
      </property>
      <property name="contrastReversal">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="showTime">
       <bool>true</bool>

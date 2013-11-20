@@ -74,7 +74,6 @@ void QEImageOptionsDialog::optionSet( imageContextMenu::imageContextMenuOptions 
         case imageContextMenu::ICM_ENABLE_TARGET:               ui->checkBoxTarget            ->setChecked( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          ui->checkBoxButtonBar         ->setChecked( checked ); break;
         case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: ui->checkBoxBrightnessContrast->setChecked( checked ); break;
-        case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    ui->checkBoxContrastReversal  ->setChecked( checked ); break;
 
             // This switch should cater for all check boxes in the dialog, but this is not all context menu options
             // so include a default to keep compiler from generating warnings
@@ -100,7 +99,6 @@ bool QEImageOptionsDialog::optionGet( imageContextMenu::imageContextMenuOptions 
         case imageContextMenu::ICM_ENABLE_TARGET:               return ui->checkBoxTarget            ->isChecked();
         case imageContextMenu::ICM_DISPLAY_BUTTON_BAR:          return ui->checkBoxButtonBar         ->isChecked();
         case imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST: return ui->checkBoxBrightnessContrast->isChecked();
-        case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    return ui->checkBoxContrastReversal  ->isChecked();
 
             // This switch should cater for all check boxes in the dialog, but this is not all context menu options
             // so include a default to keep compiler from generating warnings
@@ -118,4 +116,3 @@ void QEImageOptionsDialog::on_checkBoxTime_clicked              (bool checked) {
 void QEImageOptionsDialog::on_checkBoxInfo_clicked              (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_CURSOR_PIXEL,         checked ); }
 void QEImageOptionsDialog::on_checkBoxAreaSelection_clicked     (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_AREA,                 checked ); }
 void QEImageOptionsDialog::on_checkBoxTarget_clicked            (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_TARGET,               checked ); }
-void QEImageOptionsDialog::on_checkBoxContrastReversal_clicked  (bool checked) { emit optionChange( imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL,    checked ); }

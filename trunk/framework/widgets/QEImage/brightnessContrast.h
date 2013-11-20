@@ -56,7 +56,7 @@ private slots:
     void contrastSliderValueChanged( int value );
     void brightnessContrastResetClicked( bool state );
     void brightnessContrastAutoImageClicked();
-    void contrastReversalToggled( bool state );
+    void contrastReversalToggled( bool );
 
 private:
     // Local brightness and contrast controls

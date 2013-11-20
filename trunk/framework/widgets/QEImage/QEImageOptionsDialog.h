@@ -54,7 +54,6 @@ private:
     Ui::QEImageOptionsDialog *ui;
 
 private slots:
-    void on_checkBoxContrastReversal_clicked(bool checked);
     void on_checkBoxTarget_clicked(bool checked);
     void on_checkBoxAreaSelection_clicked(bool checked);
     void on_checkBoxInfo_clicked(bool checked);

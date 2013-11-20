@@ -304,7 +304,6 @@ private slots:
 
     void brightnessContrastChanged();
     void brightnessContrastAutoImageRequest();
-    void brightnessContrastReversalRequest( bool state );
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
