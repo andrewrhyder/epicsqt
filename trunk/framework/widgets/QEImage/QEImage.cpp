@@ -34,6 +34,7 @@
  */
 
 #include <QIcon>
+#include <QECommon.h>
 #include <QEImage.h>
 #include <QEByteArray.h>
 #include <QEInteger.h>
@@ -125,6 +126,9 @@ void QEImage::setup() {
 
     appHostsControls = false;
     hostingAppAvailable = false;
+
+    receivedImageSize = 0;
+    previousMessageText = "";
 
     // Prepare to interact with whatever application is hosting this widget.
     // For example, the QEGui application can host docks and toolbars for QE widgets
@@ -664,6 +668,9 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
     // Display the connected state
     updateToolTipConnection( isConnected );
     updateConnectionStyle( isConnected );
+
+    // Connection status change - reset message filter.
+    previousMessageText = "";
 }
 
 /*
@@ -676,11 +683,13 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     switch( variableIndex )
     {
         case WIDTH_VARIABLE:
-            imageBuffWidth = value;
+            // C/C++ not so smart assiging signed long value to an
+            // unsigned long value - ensure sensible.
+            imageBuffWidth = MAX( 0, value );
             break;
 
         case HEIGHT_VARIABLE:
-            imageBuffHeight = value;
+            imageBuffHeight = MAX( 0, value );
             break;
     }
 
@@ -893,6 +902,7 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
 
     // Save the image data for analysis and redisplay
     image = imageIn;
+    receivedImageSize = (unsigned long) image.size ();
     imageDataSize = dataSize;
 
     unsigned int minBits;
@@ -1100,20 +1110,39 @@ void QEImage::displayImage()
     if( !imageBuffWidth || !imageBuffHeight )
         return;
 
-    // Do nothing if the image data is not enough for the expected size (or no image data)
-    if( imageBuffWidth*imageBuffHeight*bytesPerPixel > (unsigned int)(image.size()) )
+    // Do we have enough or any data
+    //
+    const unsigned long required_size = imageBuffWidth * imageBuffHeight * bytesPerPixel;
+    if( required_size > (unsigned int)(image.size()) )
     {
-        if( image.size() )
-        {
-            sendMessage( QString( "Image too small (image size: %1, width: %2, height: %3, data element size: %4, data elements per pixel: %5 (bytes per pixel: %6)")
-                               .arg(image.size())
-                               .arg(imageBuffWidth)
-                               .arg(imageBuffHeight)
-                               .arg(imageDataSize)
-                               .arg(elementsPerPixel)
-                               .arg(bytesPerPixel), "QEImage" );
+        // Do nothing if no image data.
+        //
+        if( receivedImageSize == 0 ) {
+            return;
         }
-        return;
+
+        QString messageText;
+
+        messageText = QString( "Image too small (")
+                .append( QString( "available image size: %1, " )   .arg( receivedImageSize ))
+                .append( QString( "required size: %1, " )          .arg( required_size ))
+                .append( QString( "width: %1, " )                  .arg( imageBuffWidth ))
+                .append( QString( "height: %1, " )                 .arg( imageBuffHeight ))
+                .append( QString( "data element size: %1, " )      .arg( imageDataSize ))
+                .append( QString( "data elements per pixel: %1, " ).arg( elementsPerPixel ))
+                .append( QString( "bytes per pixel: %1)" )         .arg( bytesPerPixel ));
+
+        // Skip if messageText same as last message.
+        if (messageText != previousMessageText) {
+            sendMessage( messageText, "QEImage" );
+            previousMessageText = messageText;
+        }
+
+        // If not enough image data for the expected size then zero extend.
+        // Part image better than no image at all.
+        int extra = (int)required_size - image.size();
+        QByteArray zero_extend ( extra, '\0' );
+        image.append( zero_extend );
     }
 
     // Set up the image buffer if not done already
