@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2013
+ *  Copyright (c) 2013 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -39,7 +39,7 @@
 // create a radix class ??
 
 //==============================================================================
-// Local function.
+// Local functions.
 // Maybe they should be static functions of the QENumericEdit class
 //==============================================================================
 //
@@ -52,7 +52,7 @@ const static int maximum_number_digits_list [NUMBER_OF_RADICES] = { 15, 12, 16, 
 
 // Used to modify the tool tip.
 //
-static const char * custom_tips [NUMBER_OF_RADICES] = { "", "hex", "octal", "binary" };
+static const char* custom_tips [NUMBER_OF_RADICES] = { "", "hex", "octal", "binary" };
 
 //------------------------------------------------------------------------------
 // Provides double to QString
@@ -67,7 +67,7 @@ static QString fixedRadixImage (const double value,
    const char radixChars [] = "0123456789ABCDEF";
    const char separatorChars [] = " ,_ ";
    const int  separatorSizes [NUMBER_OF_RADICES] = { 3, 4, 3, 4 };
-   const int r = radix_value_list [radix];
+   const double dblRadix = (double) radix_value_list [radix];
 
    QString result;
    double work;
@@ -90,7 +90,7 @@ static QString fixedRadixImage (const double value,
 
    work = ABS (value);
    mostSig = 0;
-   while (pow (r, mostSig + 1) < work) {
+   while (pow (dblRadix, int (mostSig + 1)) < work) {
       mostSig++;
    }
 
@@ -103,11 +103,11 @@ static QString fixedRadixImage (const double value,
 
    // Round up by half the value of the least significant digit.
    //
-   work = work + (pow ((1.0/r), precision) * 0.499999999);
+   work = work + (pow ((1.0/radix), precision) * 0.499999999);
 
    for (s = mostSig; s >= -precision; s--) {
 
-      prs = pow (r, s);
+      prs = pow (radix, s);
       t = int (floor (work / prs));
       work = work - t*prs;
 
@@ -132,11 +132,11 @@ static QString fixedRadixImage (const double value,
 //------------------------------------------------------------------------------
 // Provides QString to double.
 //
-static bool fixedRadixValue (const QString & image,
+static bool fixedRadixValue (const QString& image,
                              const QENumericEdit::Radicies radix,
-                             double & result)
+                             double& result)
 {
-   const int r = radix_value_list [radix];
+   const int intRadix = radix_value_list [radix];
    bool isNegative;
    bool isPoint;
    bool signIsAllowed;
@@ -199,7 +199,7 @@ static bool fixedRadixValue (const QString & image,
          case '8':
          case '9':
             d = int (c) - int ('0');
-            result = (result*r) + d;
+            result = (result*intRadix) + d;
             if (isPoint) scale--;
             break;
 
@@ -210,7 +210,7 @@ static bool fixedRadixValue (const QString & image,
          case 'E':
          case 'F':
             d = int (c) - int ('A') + 10;
-            result = (result*r) + d;
+            result = (result*intRadix) + d;
             if (isPoint) scale--;
             break;
 
@@ -221,7 +221,7 @@ static bool fixedRadixValue (const QString & image,
          case 'e':
          case 'f':
             d = int (c) - int ('a') + 10;
-            result = (result*r) + d;
+            result = (result*intRadix) + d;
             if (isPoint) scale--;
             break;
 
@@ -229,14 +229,14 @@ static bool fixedRadixValue (const QString & image,
             return false;
             break;
       }
-      if (d >= r) {
+      if (d >= intRadix) {
          return false;
       }
    }
 
    // Scale result.
    //
-   result = result * pow (r, scale);
+   result = result * pow (intRadix, scale);
 
    // Apply sign
    //
@@ -253,12 +253,12 @@ static double calcUpper (const QENumericEdit::Radicies radix,
                          const int leadingZeros,
                          const int precison)
 {
-   const double r = (double) radix_value_list [radix];
+   const double dblRadix = (double) radix_value_list [radix];
 
    double a, b;
 
-   a = pow (r, leadingZeros);
-   b = pow (r, -precison);
+   a = pow (dblRadix, leadingZeros);
+   b = pow (dblRadix, -precison);
 
    return a - b;
 }
