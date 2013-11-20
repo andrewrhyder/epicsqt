@@ -67,7 +67,7 @@ static QString fixedRadixImage (const double value,
    const char radixChars [] = "0123456789ABCDEF";
    const char separatorChars [] = " ,_ ";
    const int  separatorSizes [NUMBER_OF_RADICES] = { 3, 4, 3, 4 };
-   const double dblRadix = (double) radix_value_list [radix];
+   const double dblRadix = double (radix_value_list [radix]);
 
    QString result;
    double work;
@@ -103,7 +103,7 @@ static QString fixedRadixImage (const double value,
 
    // Round up by half the value of the least significant digit.
    //
-   work = work + (pow ((1.0/radix), precision) * 0.499999999);
+   work = work + (pow ((1.0/dblRadix), precision) * 0.499999999);
 
    for (s = mostSig; s >= -precision; s--) {
 
@@ -137,6 +137,7 @@ static bool fixedRadixValue (const QString& image,
                              double& result)
 {
    const int intRadix = radix_value_list [radix];
+   const int dblRadix = double (intRadix);
    bool isNegative;
    bool isPoint;
    bool signIsAllowed;
@@ -236,7 +237,7 @@ static bool fixedRadixValue (const QString& image,
 
    // Scale result.
    //
-   result = result * pow (intRadix, scale);
+   result = result * pow (dblRadix, scale);
 
    // Apply sign
    //
@@ -253,7 +254,7 @@ static double calcUpper (const QENumericEdit::Radicies radix,
                          const int leadingZeros,
                          const int precison)
 {
-   const double dblRadix = (double) radix_value_list [radix];
+   const double dblRadix = double (radix_value_list [radix]);
 
    double a, b;
 
@@ -479,6 +480,7 @@ int QENumericEdit::maximumSignificance ()
 void QENumericEdit::keyPressEvent (QKeyEvent * event)
 {
    const int key = event->key ();
+   const double dblRadix = double (this->getRadixValue ());
 
    int index;
    int significance;
@@ -498,7 +500,7 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
 
          // Is this a digit charcter?
          //
-         if (this->isRadixDigit(qc)) {
+         if (this->isRadixDigit (qc)) {
             significance = -this->getPrecision ();
             for (j = index + 1; j <= this->lengthOfImageValue(); j++) {
                qc = this->text () [j];
@@ -506,7 +508,7 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
                   significance++;
                }
             }
-            delta = pow (this->getRadixValue (), significance);
+            delta = pow (dblRadix, significance);
             this->setNumericValue (this->getNumericValue () + delta);
          } else if (this->cursorOverSign ()) {
             this->setNumericValue (+fabs (this->getNumericValue ()));
@@ -528,7 +530,7 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
                   significance++;
                }
             }
-            delta = pow (this->getRadixValue (), significance);
+            delta = pow (dblRadix, significance);
             this->setNumericValue (this->getNumericValue () - delta);
          } else if (this->cursorOverSign ()) {
             this->setNumericValue (-fabs (this->getNumericValue ()));
