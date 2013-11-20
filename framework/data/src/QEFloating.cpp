@@ -66,6 +66,15 @@ void QEFloating::writeFloating( const double &data ) {
 }
 
 /*
+    Take a new floating array and write it to the database.
+    The type of data formatted (text, floating, integer, etc) will be determined by the record data type,
+    How the floating is parsed will be determined by the floating formatting. For example, floating to string may require always including a sign.
+*/
+void QEFloating::writeFloating( const QVector<double> &data ) {
+    writeData( floatingFormat->formatValue( data, getDataType() ) );
+}
+
+/*
     Slot to recieve data updates from the base QCaObject and generate floating updates.
 */
 void QEFloating::convertVariant( const QVariant &value, QCaAlarmInfo& alarmInfo, QCaDateTime& timeStamp ) {

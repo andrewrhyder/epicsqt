@@ -42,6 +42,7 @@
 
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
+#include <QEFloatingFormatting.h>
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
@@ -250,7 +251,8 @@ public:
     bool getEnableVertSlicePresentation();                                     ///< Access function for #fullContextMenu property - refer to #enableVertSlicePresentation property for details
 
   protected:
-    QEIntegerFormatting integerFormatting; // Integer formatting options.
+    QEIntegerFormatting integerFormatting;   // Integer formatting options.
+    QEFloatingFormatting floatingFormatting; // Floating formatting options.
 
     void establishConnection( unsigned int variableIndex );
 
@@ -267,6 +269,7 @@ public:
                           CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE,
                           PROFILE_H_VARIABLE, PROFILE_V_VARIABLE,
                           LINE_PROFILE_X1_VARIABLE, LINE_PROFILE_Y1_VARIABLE, LINE_PROFILE_X2_VARIABLE, LINE_PROFILE_Y2_VARIABLE,
+                          PROFILE_H_ARRAY, PROFILE_V_ARRAY, PROFILE_LINE_ARRAY,
                           QEIMAGE_NUM_VARIABLES /*Must be last*/ };
 
     resizeOptions resizeOption; // Resize option. (zoom or fit)
@@ -741,6 +744,21 @@ protected:
     /// EPICS variable name (CA PV).
     /// This variable is used to write the areadetector arbitrary line profile end Y.
     Q_PROPERTY(QString lineProfileY2Variable READ getVariableName32Property WRITE setVariableName32Property)
+
+    VARIABLE_PROPERTY_ACCESS(33)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector horizontal profile array.
+    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName33Property WRITE setVariableName33Property)
+
+    VARIABLE_PROPERTY_ACCESS(34)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector vertical profile array.
+    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName34Property WRITE setVariableName34Property)
+
+    VARIABLE_PROPERTY_ACCESS(35)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile array.
+    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName35Property WRITE setVariableName35Property)
 
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
     /// These substitutions are applied to all the variable names.

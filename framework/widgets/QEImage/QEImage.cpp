@@ -37,6 +37,7 @@
 #include <QEImage.h>
 #include <QEByteArray.h>
 #include <QEInteger.h>
+#include <QEFloating.h>
 #include <imageContextMenu.h>
 #include <windowCustomisation.h>
 
@@ -518,6 +519,11 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
 
             return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
+        case PROFILE_H_ARRAY:
+        case PROFILE_V_ARRAY:
+        case PROFILE_LINE_ARRAY:
+
+            return new QEFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
 
         default:
             return NULL;
@@ -636,6 +642,11 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
 
         case BEAM_X_VARIABLE:
         case BEAM_Y_VARIABLE:
+
+        case PROFILE_H_ARRAY:
+        case PROFILE_V_ARRAY:
+        case PROFILE_LINE_ARRAY:
+
             break;
      }
 }
@@ -1378,15 +1389,15 @@ void QEImage::setImageFile( QString name )
 // This is called after displaying the image.
 void QEImage::updateMarkupData()
 {
-    if( haveVSliceX && enableVertSlicePresentation )
+    if( haveVSliceX )
     {
         generateVSlice( vSliceX, vSliceThickness );
     }
-    if( haveHSliceY && enableHozSlicePresentation )
+    if( haveHSliceY )
     {
         generateHSlice( hSliceY, hSliceThickness );
     }
-    if( haveProfileLine && enableProfilePresentation )
+    if( haveProfileLine )
     {
         generateProfile( profileLineStart, profileLineEnd, profileThickness );
     }
@@ -2800,6 +2811,20 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
         }
     }
 
+    // Write the profile data
+    QEFloating *qca;
+    qca = (QEFloating*)getQcaItem( PROFILE_V_ARRAY );
+    if( qca )
+    {
+        int arraySize = vSliceData.size();
+        QVector<double> waveform(arraySize);
+        for( int i = 0; i < arraySize; i++ )
+        {
+            waveform[i] = vSliceData[i].x();
+        }
+        qca->writeFloating( waveform );
+    }
+
     // Display the profile
     QDateTime dt = QDateTime::currentDateTime();
     QString title = QString( "Vertical profile - " ).append( getSubstitutedVariableName( IMAGE_VARIABLE ) ).append( dt.toString(" - dd.MM.yyyy HH:mm:ss.zzz") );
@@ -2889,6 +2914,20 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
             QPointF* dataPoint = &hSliceData[i];
             dataPoint->setY( dataPoint->y()/thickness );
         }
+    }
+
+    // Write the profile data
+    QEFloating *qca;
+    qca = (QEFloating*)getQcaItem( PROFILE_H_ARRAY );
+    if( qca )
+    {
+        int arraySize = hSliceData.size();
+        QVector<double> waveform(arraySize);
+        for( int i = 0; i < arraySize; i++ )
+        {
+            waveform[i] = hSliceData[i].y();
+        }
+        qca->writeFloating( waveform );
     }
 
     // Display the profile
@@ -3139,6 +3178,19 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
         data->setY( data->y() / thickness );
     }
 
+    // Write the profile data
+    QEFloating *qca;
+    qca = (QEFloating*)getQcaItem( PROFILE_LINE_ARRAY );
+    if( qca )
+    {
+        int arraySize = profileData.size();
+        QVector<double> waveform(arraySize);
+        for( int i = 0; i < arraySize; i++ )
+        {
+            waveform[i] = profileData[i].y();
+        }
+        qca->writeFloating( waveform );
+    }
 
     // Update the profile display
     QDateTime dt = QDateTime::currentDateTime();

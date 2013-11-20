@@ -138,6 +138,23 @@ QVariant QEFloatingFormatting::formatValue( const double &floatingValue, generic
 }
 
 /*
+    Generate a value given an array of floating point number, using formatting defined within this class.
+    The formatting mainly applies if formatting as a string. For example, was is
+    the number base? should a sign always be included? are leading zeros requried?
+    The formatting could include properties related to other types. For example, generate
+    an error if attempting to convert a negative floating point number to an unsigned integer.
+*/
+QVariant QEFloatingFormatting::formatValue( const QVector<double> &floatingValue, generic::generic_types valueType ) {
+    QList<QVariant> array;
+    int arraySize = floatingValue.size();
+    for( int i = 0; i < arraySize; i++ )
+    {
+        array.append( formatValue( floatingValue[i], valueType ));
+    }
+    return array;
+}
+
+/*
     Generate an floating point number given a value, using formatting defined within this class.
     The value may be an array of variants or a single variant
 */

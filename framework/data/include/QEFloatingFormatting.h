@@ -53,6 +53,7 @@ class QEFloatingFormatting {
     double formatFloating( const QVariant &value );
     QVector<double> formatFloatingArray( const QVariant &value );
     QVariant formatValue( const double &floatingValue, generic::generic_types valueType );
+    QVariant formatValue( const QVector<double> &floatingValue, generic::generic_types valueType );
 
     // Functions to configure the formatting
     void setPrecision( unsigned int precision );

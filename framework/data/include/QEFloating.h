@@ -47,6 +47,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEFloating : public qcaobject::QCaObject {
 
   public slots:
     void writeFloating( const double &data );
+    void writeFloating( const QVector<double> &data );
 
   private:
     void initialise( QEFloatingFormatting *floatingFormattingIn, unsigned int variableIndexIn );
