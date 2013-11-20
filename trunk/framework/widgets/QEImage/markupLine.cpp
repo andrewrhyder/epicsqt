@@ -74,7 +74,7 @@ void markupLine::drawMarkup( QPainter& p )
             pen.setStyle( Qt::DashLine );
             p.setPen( pen );
 
-            int len = (int)sqrt( (dX*dX)+(dY*dY) );
+            int len = (int)sqrt( double ( (dX*dX)+(dY*dY) ) );
 
             QPoint offset( (int)(thickness) * -dY / (2*len), int(thickness) * dX / (2*len) );
 
@@ -104,7 +104,7 @@ void markupLine::setArea()
         // Calculate variables
         int dX = end.x()-start.x();
         int dY = end.y()-start.y();
-        int len = (int)sqrt( (dX*dX)+(dY*dY) );
+        int len = (int)sqrt( double ( (dX*dX)+(dY*dY) ) );
 
         // Add offset only if length is not zero (avoid divide by zero error)
         if( len )
@@ -244,7 +244,7 @@ bool markupLine::isOver( const QPoint point, QCursor* cursor )
         int dY = end.y()-start.y();
         if( dX || dX )
         {
-            int len = (int)sqrt( (dX*dX)+(dY*dY) );
+            int len = (int)sqrt( double ( (dX*dX)+(dY*dY) ) );
             int t = thickness / 2;
 
             // Calculate the offset to the thickness lines
