@@ -125,7 +125,7 @@ bool markupHLine::isOver( const QPoint point, QCursor* cursor )
         }
 
         // If over top edge...
-        else if( abs( point.y() - (y - (thickness/2) )) <= OVER_TOLERANCE )
+        else if( abs( point.y() - (y - int (thickness/2) )) <= OVER_TOLERANCE )
         {
             activeHandle = MARKUP_HANDLE_CENTER;
             *cursor = cursorForHandle( activeHandle );
@@ -133,7 +133,7 @@ bool markupHLine::isOver( const QPoint point, QCursor* cursor )
         }
 
         // If over bottom edge...
-        else if( abs( point.y() - (y + (thickness/2) )) <= OVER_TOLERANCE )
+        else if( abs( point.y() - (y + int (thickness/2) )) <= OVER_TOLERANCE )
         {
             activeHandle = MARKUP_HANDLE_CENTER;
             *cursor = cursorForHandle( activeHandle );
@@ -208,7 +208,7 @@ void markupHLine::scaleSpecific( double, double yScale, const double zoomScale )
     // Note, one pixel wide is always one pixel wide
     if( thickness != 1 )
     {
-       thickness *= yScale;
+        thickness *= yScale;
     }
     maxThickness = THICKNESS_MAX * zoomScale;
 }

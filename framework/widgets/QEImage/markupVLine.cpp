@@ -125,7 +125,7 @@ bool markupVLine::isOver( const QPoint point, QCursor* cursor )
         }
 
         // If over left edge...
-        else if( abs( point.x() - (x - (thickness/2) )) <= OVER_TOLERANCE )
+        else if( abs( point.x() - (x - int (thickness/2) )) <= OVER_TOLERANCE )
         {
             activeHandle = MARKUP_HANDLE_CENTER;
             *cursor = cursorForHandle( activeHandle );
@@ -133,7 +133,7 @@ bool markupVLine::isOver( const QPoint point, QCursor* cursor )
         }
 
         // If over right edge...
-        else if( abs( point.x() - (x + (thickness/2) )) <= OVER_TOLERANCE )
+        else if( abs( point.x() - (x + int (thickness/2) )) <= OVER_TOLERANCE )
         {
             activeHandle = MARKUP_HANDLE_CENTER;
             *cursor = cursorForHandle( activeHandle );
