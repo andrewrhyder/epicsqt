@@ -91,14 +91,23 @@
      <property name="lineProfileY2Variable" stdset="0">
       <string>LINE:Y2</string>
      </property>
+     <property name="profileHozArrayVariable" stdset="0">
+      <string>HOZLINE:ARRAY</string>
+     </property>
+     <property name="profileVertArrayVariable" stdset="0">
+      <string>VERTLINE:ARRAY</string>
+     </property>
+     <property name="lineProfileArrayVariable" stdset="0">
+      <string>LINE:ARRAY</string>
+     </property>
      <property name="enableVertSliceSelection">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="enableHozSliceSelection">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="enableProfileSelection">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="enableHozSlicePresentation">
       <bool>false</bool>
@@ -784,23 +793,58 @@
       </layout>
      </item>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QEPlot" name="qeplot">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="variable1" stdset="0">
+          <string>HOZLINE:ARRAY</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QEPlot" name="qeplot_2">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="variable1" stdset="0">
+          <string>VERTLINE:ARRAY</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QEPlot" name="qeplot_3">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="variable1" stdset="0">
+          <string>LINE:ARRAY</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
+  </customwidget>
   <customwidget>
    <class>QEImage</class>
    <extends>QFrame</extends>
@@ -810,6 +854,11 @@
    <class>QELineEdit</class>
    <extends>QLineEdit</extends>
    <header>QELineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEPlot</class>
+   <extends>QwtPlot</extends>
+   <header>QEPlot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
