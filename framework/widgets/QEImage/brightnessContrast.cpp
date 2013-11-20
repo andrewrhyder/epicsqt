@@ -139,9 +139,9 @@ void localBrightnessContrast::brightnessContrastAutoImageClicked()
 }
 
 // Contrast reversal check box has ben checked or unchecked
-void localBrightnessContrast::contrastReversalToggled( bool state )
+void localBrightnessContrast::contrastReversalToggled( bool )
 {
-    emit brightnessContrastReversal( state );
+    emit brightnessContrastChange();
 }
 
 // The local brightness slider has been moved

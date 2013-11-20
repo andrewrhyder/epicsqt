@@ -50,7 +50,6 @@ public:
                                   ICM_PAUSE,
                                   ICM_ENABLE_TIME,
                                   ICM_ENABLE_CURSOR_PIXEL,
-                                  ICM_ENABLE_CONTRAST_REVERSAL,
                                   ICM_ABOUT_IMAGE,
                                   ICM_ENABLE_VERT,
                                   ICM_ENABLE_HOZ,

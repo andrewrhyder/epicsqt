@@ -1041,7 +1041,7 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
             int translatedValue = value;
 
             // Reverse contrast if required
-            if( optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL ) )
+            if( localBC->getContrastReversal() )
             {
                 translatedValue = maxValue - translatedValue;
             }
@@ -2087,12 +2087,12 @@ bool QEImage::getDisplayCursorPixelInfo()
 // Show contrast reversal
 void QEImage::setContrastReversal( bool contrastReversal )
 {
-    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL, contrastReversal );
+    localBC->setContrastReversal( contrastReversal );
 }
 
 bool QEImage::getContrastReversal()
 {
-    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL );
+    return localBC->getContrastReversal();
 }
 
 // Enable vertical slice selection
@@ -2675,7 +2675,7 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
 //=====================================================================
 // Slots to use signals from the Brightness/contrast control
 
-// The brightness or contrast have changed
+// The brightness or contrast or contrast reversal has changed
 void QEImage::brightnessContrastChanged()
 {
     // Flag that the current pixel lookup table needs recalculating
@@ -2689,12 +2689,6 @@ void QEImage::brightnessContrastChanged()
 void QEImage::brightnessContrastAutoImageRequest()
 {
     setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( videoWidget->getImageSize().width(), videoWidget->getImageSize().height()) );
-}
-
-// A request has been made to set reverse the contrast
-void QEImage::brightnessContrastReversalRequest( bool state )
-{
-    setContrastReversal( state );
 }
 
 //=====================================================================
@@ -3449,7 +3443,6 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_SAVE:                        saveClicked();                         break;
         case imageContextMenu::ICM_PAUSE:                       pauseClicked();                        break;
         case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         showInfo                  ( checked ); break;
-        case imageContextMenu::ICM_ENABLE_CONTRAST_REVERSAL:    doContrastReversal        ( checked ); break;
         case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                break;
         case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime               ( checked ); break;
         case imageContextMenu::ICM_ENABLE_VERT:                 doEnableVertSliceSelection( checked ); break;
