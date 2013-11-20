@@ -97,6 +97,10 @@ void QEImage::setup() {
     haveSelectedArea3 = false;
     haveSelectedArea4 = false;
 
+    enableProfilePresentation = true;
+    enableHozSlicePresentation = true;
+    enableVertSlicePresentation = true;
+
     // Set the initial state
     lastSeverity = QCaAlarmInfo::getInvalidSeverity();
     isConnected = false;
@@ -178,6 +182,8 @@ void QEImage::setup() {
                       this,    SLOT  ( brightnessContrastChanged()) );
     QObject::connect( localBC, SIGNAL( brightnessContrastAutoImage() ),
                       this,    SLOT  ( brightnessContrastAutoImageRequest() ) );
+    QObject::connect( localBC, SIGNAL( brightnessContrastReversal( bool ) ),
+                      this,    SLOT  ( brightnessContrastReversalRequest( bool ) ) );
     QObject::connect(localBC, SIGNAL(destroyed(QObject*)), this, SLOT(localBCDestroyed(QObject*)));
 
     // Create vertical, horizontal, and general profile plots
@@ -374,6 +380,7 @@ QEImage::~QEImage()
     delete videoWidget;
 }
 
+// If an object handed over to the application (which we have a reference to) has been deleted, then clear the reference
 void QEImage::localBCDestroyed( QObject* ){ localBC = NULL; }
 void QEImage::vSliceDisplayDestroyed( QObject* ){ vSliceDisplay = NULL; }
 void QEImage::hSliceDisplayDestroyed( QObject* ){ hSliceDisplay = NULL; }
@@ -394,29 +401,29 @@ void QEImage::presentControls()
         if( localBC )
         {
             mainLayout->removeWidget( localBC );
-            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, true, "Brightness / Contrast" ) );
+            components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, false, "Brightness / Contrast" ) );
         }
 
         vSliceLabel->setVisible( false );
         hSliceLabel->setVisible( false );
         profileLabel->setVisible( false );
 
-        if( vSliceDisplay )
+        if( vSliceDisplay && enableVertSlicePresentation )
         {
             graphicsLayout->removeWidget( vSliceDisplay );
-            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionRightDockWindow, true, "Vertical Slice Profile" ) );
+            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, true, "Vertical Slice Profile" ) );
         }
 
-        if( hSliceDisplay )
+        if( hSliceDisplay && enableHozSlicePresentation )
         {
             graphicsLayout->removeWidget( hSliceDisplay );
-            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionBottomDockWindow, true, "Horizontal Slice Profile" ) );
+            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, true, "Horizontal Slice Profile" ) );
         }
 
-        if( profileDisplay )
+        if( profileDisplay && enableProfilePresentation )
         {
             graphicsLayout->removeWidget( profileDisplay );
-            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionBottomDockWindow, true, "Arbitrary Profile" ) );
+            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionFloatingDockWindow, true, "Arbitrary Profile" ) );
         }
 
         buttonGroup->hide();
@@ -431,17 +438,17 @@ void QEImage::presentControls()
             mainLayout->addWidget( localBC, 0, 1 );
         }
 
-        if( vSliceDisplay )
+        if( vSliceDisplay && enableVertSlicePresentation )
         {
             graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
             vSliceLabel->setVisible( vSliceDisplay->isVisible() );
         }
-        if( hSliceDisplay )
+        if( hSliceDisplay && enableHozSlicePresentation )
         {
             graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
             hSliceLabel->setVisible( hSliceDisplay->isVisible() );
         }
-        if( profileDisplay )
+        if( profileDisplay && enableProfilePresentation )
         {
             graphicsLayout->addWidget( profileDisplay, 5, 0 );
             profileLabel->setVisible( profileDisplay->isVisible() );
@@ -460,7 +467,7 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case IMAGE_VARIABLE:
             return new QEByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
 
-        // Create the width, height, target and beam, and clipping items as a QEInteger
+        // Create the width, height, target and beam, regions and profile and clipping items as a QEInteger
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
 
@@ -494,7 +501,16 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case CLIPPING_ONOFF_VARIABLE:
         case CLIPPING_LOW_VARIABLE:
         case CLIPPING_HIGH_VARIABLE:
+
+        case PROFILE_H_VARIABLE:
+        case PROFILE_V_VARIABLE:
+        case LINE_PROFILE_X1_VARIABLE:
+        case LINE_PROFILE_Y1_VARIABLE:
+        case LINE_PROFILE_X2_VARIABLE:
+        case LINE_PROFILE_Y2_VARIABLE:
+
             return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
+
 
         default:
             return NULL;
@@ -581,6 +597,25 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             {
                 QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                                   this, SLOT( setROI( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+
+        // Connect to line profile variables
+        case PROFILE_H_VARIABLE:
+        case PROFILE_V_VARIABLE:
+        case LINE_PROFILE_X1_VARIABLE:
+        case LINE_PROFILE_Y1_VARIABLE:
+        case LINE_PROFILE_X2_VARIABLE:
+        case LINE_PROFILE_Y2_VARIABLE:
+
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setProfile( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
                 QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                                   this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
                 QObject::connect( this, SIGNAL( requestResend() ),
@@ -760,6 +795,62 @@ void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, 
             case ROI4_Y_VARIABLE:  USE_ROI_DATA( 3, setY )
             case ROI4_W_VARIABLE:  USE_ROI_DATA( 3, setW )
             case ROI4_H_VARIABLE:  USE_ROI_DATA( 3, setH )
+        }
+    }
+}
+
+/*
+    Update the Profile displays if any
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+{
+    // If invalid, mark the appropriate profile info as not present
+    if( alarmInfo.isInvalid() )
+    {
+        switch( variableIndex )
+        {
+            case PROFILE_H_VARIABLE: vSliceX = 0; break;
+            case PROFILE_V_VARIABLE: hSliceY = 0; break;
+            case LINE_PROFILE_X1_VARIABLE: lineProfileInfo.clearX1(); break;
+            case LINE_PROFILE_Y1_VARIABLE: lineProfileInfo.clearY1(); break;
+            case LINE_PROFILE_X2_VARIABLE: lineProfileInfo.clearX2(); break;
+            case LINE_PROFILE_Y2_VARIABLE: lineProfileInfo.clearY2(); break;
+        }
+    }
+
+    // Good data. Save the profile data (and note it is present) then if the
+    // markup is visible, update it
+    else
+    {
+        switch( variableIndex )
+        {
+            case PROFILE_H_VARIABLE:
+                hSliceY = value;
+                videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ) );
+                break;
+
+            case PROFILE_V_VARIABLE:
+                vSliceX = value;
+                videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ) );
+                break;
+
+#define USE_PROFILE_DATA( SET_NAME )                                                                        \
+                lineProfileInfo.SET_NAME( value );                                                          \
+                if( lineProfileInfo.getStatus() )                                                           \
+                {                                                                                           \
+                    QRect scaledArea = lineProfileInfo.getArea();                                           \
+                    scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );          \
+                    scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );  \
+                    videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight() ); \
+                }                                                                                           \
+                break;
+            case LINE_PROFILE_X1_VARIABLE: USE_PROFILE_DATA( setX1 );
+            case LINE_PROFILE_Y1_VARIABLE: USE_PROFILE_DATA( setY1 );
+            case LINE_PROFILE_X2_VARIABLE: USE_PROFILE_DATA( setX2 );
+            case LINE_PROFILE_Y2_VARIABLE: USE_PROFILE_DATA( setY2 );
+
+                break;
         }
     }
 }
@@ -1276,15 +1367,15 @@ void QEImage::setImageFile( QString name )
 // This is called after displaying the image.
 void QEImage::updateMarkupData()
 {
-    if( haveVSliceX )
+    if( haveVSliceX && enableVertSlicePresentation )
     {
         generateVSlice( vSliceX, vSliceThickness );
     }
-    if( haveHSliceY )
+    if( haveHSliceY && enableHozSlicePresentation )
     {
         generateHSlice( hSliceY, hSliceThickness );
     }
-    if( haveProfileLine )
+    if( haveProfileLine && enableProfilePresentation )
     {
         generateProfile( profileLineStart, profileLineEnd, profileThickness );
     }
@@ -1432,6 +1523,48 @@ void QEImage::roi4Changed()
 
     qca = (QEInteger*)getQcaItem( ROI4_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( selectedArea4Point2.y() ) - videoWidget->scaleOrdinate( selectedArea4Point1.y() ));
+
+    return;
+}
+
+// Arbitrary line profile  changed
+void QEImage::lineProfileChanged()
+{
+    // Write the arbitrary line profile variables.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( LINE_PROFILE_X1_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( profileLineStart.x() ));
+
+    qca = (QEInteger*)getQcaItem( LINE_PROFILE_Y1_VARIABLE );
+    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( profileLineStart.y() ));
+
+    qca = (QEInteger*)getQcaItem( LINE_PROFILE_X2_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( profileLineEnd.x() ));
+
+    qca = (QEInteger*)getQcaItem( LINE_PROFILE_Y2_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( profileLineEnd.y() ));
+
+    return;
+}
+
+// Horizontal line profile changed
+void QEImage::hozProfileChanged()
+{
+    // Write the horizontal line profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_H_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( hSliceY ));
+
+    return;
+}
+
+// Vertical line profile changed
+void QEImage::vertProfileChanged()
+{
+    // Write the horizontal line profile variable.
+    QEInteger *qca;
+    qca = (QEInteger*)getQcaItem( PROFILE_V_VARIABLE );
+    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( vSliceX ));
 
     return;
 }
@@ -2006,6 +2139,39 @@ bool QEImage::getEnableProfileSelection()
     return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_LINE );
 }
 
+// Enable profile presentation
+void QEImage::setEnableProfilePresentation( bool enableProfilePresentationIn )
+{
+    enableProfilePresentation = enableProfilePresentationIn;
+}
+
+bool QEImage::getEnableProfilePresentation()
+{
+    return enableProfilePresentation;
+}
+
+// Enable horizontal profile presentation
+void QEImage::setEnableHozSlicePresentation( bool enableHozSlicePresentationIn )
+{
+    enableHozSlicePresentation = enableHozSlicePresentationIn;
+}
+
+bool QEImage::getEnableHozSlicePresentation()
+{
+    return enableHozSlicePresentation;
+}
+
+// Enable vertical profile presentation
+void QEImage::setEnableVertSlicePresentation( bool enableVertSlicePresentationIn )
+{
+    enableVertSlicePresentation = enableVertSlicePresentationIn;
+}
+
+bool QEImage::getEnableVertSlicePresentation()
+{
+    return enableVertSlicePresentation;
+}
+
 // Enable target selection
 void QEImage::setEnableTargetSelection( bool enableTargetSelection )
 {
@@ -2144,30 +2310,38 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 vSliceX = point1.x();
                 vSliceThickness = thickness;
                 haveVSliceX = true;
-                if( !appHostsControls )
+                if( enableVertSlicePresentation )
                 {
-                    vSliceLabel->setVisible( true );
+                    if( !appHostsControls )
+                    {
+                        vSliceLabel->setVisible( true );
+                    }
+                    if( vSliceDisplay )
+                    {
+                        vSliceDisplay->setVisible( true );
+                    }
+                    generateVSlice(  vSliceX, vSliceThickness );
                 }
-                if( vSliceDisplay )
-                {
-                    vSliceDisplay->setVisible( true );
-                }
-                generateVSlice(  vSliceX, vSliceThickness );
+                vertProfileChanged();
                 break;
 
             case imageMarkup::MARKUP_ID_H_SLICE:
                 hSliceY = point1.y();
                 hSliceThickness = thickness;
                 haveHSliceY = true;
-                if( !appHostsControls )
+                if( enableHozSlicePresentation )
                 {
-                    hSliceLabel->setVisible( true );
+                    if( !appHostsControls )
+                    {
+                        hSliceLabel->setVisible( true );
+                    }
+                    if( hSliceDisplay )
+                    {
+                        hSliceDisplay->setVisible( true );
+                    }
+                    generateHSlice( hSliceY, hSliceThickness );
                 }
-                if( hSliceDisplay )
-                {
-                    hSliceDisplay->setVisible( true );
-                }
-                generateHSlice( hSliceY, hSliceThickness );
+                hozProfileChanged();
                 break;
 
             case imageMarkup::MARKUP_ID_REGION1:
@@ -2245,15 +2419,20 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 profileLineEnd = point2;
                 profileThickness = thickness;
                 haveProfileLine = true;
-                if( !appHostsControls )
+                if( enableProfilePresentation )
                 {
-                    profileLabel->setVisible( true );
+                    if( !appHostsControls )
+                    {
+                        profileLabel->setVisible( true );
+                    }
+                    if( profileDisplay )
+                    {
+                        profileDisplay->setVisible( true );
+                    }
+                    generateProfile( profileLineStart, profileLineEnd, profileThickness );
                 }
-                if( profileDisplay )
-                {
-                    profileDisplay->setVisible( true );
-                }
-                generateProfile( profileLineStart, profileLineEnd, profileThickness );
+
+                lineProfileChanged();
                 break;
 
             case imageMarkup::MARKUP_ID_TARGET:
@@ -2510,6 +2689,12 @@ void QEImage::brightnessContrastChanged()
 void QEImage::brightnessContrastAutoImageRequest()
 {
     setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( videoWidget->getImageSize().width(), videoWidget->getImageSize().height()) );
+}
+
+// A request has been made to set reverse the contrast
+void QEImage::brightnessContrastReversalRequest( bool state )
+{
+    setContrastReversal( state );
 }
 
 //=====================================================================
@@ -3291,6 +3476,8 @@ void QEImage::zoomMenuTriggered( QAction* selectedItem )
 
         case imageContextMenu::ICM_ZOOM_SELECTED:       zoomToArea();                           break;
         case imageContextMenu::ICM_ZOOM_FIT:            setResizeOption( RESIZE_OPTION_FIT );   break;
+        case imageContextMenu::ICM_ZOOM_PLUS:           zoomInOut( 10 );                        break;
+        case imageContextMenu::ICM_ZOOM_MINUS:          zoomInOut( -10 );                       break;
         case imageContextMenu::ICM_ZOOM_10:             setResizeOptionAndZoom(  10 );          break;
         case imageContextMenu::ICM_ZOOM_25:             setResizeOptionAndZoom(  25 );          break;
         case imageContextMenu::ICM_ZOOM_50:             setResizeOptionAndZoom(  50 );          break;

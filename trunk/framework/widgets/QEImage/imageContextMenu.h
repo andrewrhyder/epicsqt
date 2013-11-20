@@ -61,6 +61,8 @@ public:
                                   ICM_DISPLAY_BRIGHTNESS_CONTRAST,
                                   ICM_ZOOM_SELECTED,
                                   ICM_ZOOM_FIT,
+                                  ICM_ZOOM_PLUS,
+                                  ICM_ZOOM_MINUS,
                                   ICM_ZOOM_10,
                                   ICM_ZOOM_25,
                                   ICM_ZOOM_50,

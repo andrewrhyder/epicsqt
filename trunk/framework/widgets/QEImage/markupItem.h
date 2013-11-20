@@ -76,7 +76,7 @@ public:
     virtual QPoint       getPoint1()=0;                                             // Return the first point of the markup (starting point for a line, top left corner for a rectangle, etc)
     virtual QPoint       getPoint2()=0;                                             // Return the second point of the markup (end point for a line, bottom right corner for a rectangle, etc)
     virtual QCursor      defaultCursor()=0;                                         // Return the default cursor for the markup.
-    virtual void         nonInteractiveUpdate( QRect ) {}                           // Only implemented by those objects that are updated by data such as region of interest
+    virtual void         nonInteractiveUpdate( QPoint, QPoint ) {}                  // Only implemented by those objects that are updated by data such as region of interest
 
     void          setThickness( const unsigned int thicknessIn );          // Set the thickness of a markup where relevent.
     unsigned int  getThickness();

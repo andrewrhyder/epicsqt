@@ -73,6 +73,9 @@ localBrightnessContrast::localBrightnessContrast()
     contrastRBLabel = new QLabel( this );
     contrastRBLabel->setText( QString( "%1%" ).arg( contrastSlider->value() ) );
 
+    contrastReversalCheckBox = new QCheckBox( "Contrast Reversal", this );
+    contrastReversalCheckBox->setToolTip( "Reverse light for dark");
+    QObject::connect( contrastReversalCheckBox, SIGNAL( toggled( bool ) ), this,  SLOT  ( contrastReversalToggled( bool )) );
 
     brightnessContrastSub1Layout->addWidget( autoBrightnessCheckBox, 0, Qt::AlignLeft );
     brightnessContrastSub1Layout->addWidget( autoImageButton, 0, Qt::AlignLeft );
@@ -90,6 +93,8 @@ localBrightnessContrast::localBrightnessContrast()
 
     brightnessContrastMainLayout->addLayout( brightnessContrastSub1Layout );
     brightnessContrastMainLayout->addLayout( brightnessContrastSub2Layout );
+
+    brightnessContrastMainLayout->addWidget( contrastReversalCheckBox );
 
     brightnessSlider->setValue( 0 );    // Range -100% (black) to +100% (white)
     contrastSlider->setValue( 100 );    // Range 0% (no difference in any pixels) to 1000% (10 times normal contrast)
@@ -114,6 +119,11 @@ bool localBrightnessContrast::getAutoBrightnessContrast()
     return autoBrightnessCheckBox->isChecked();
 }
 
+bool localBrightnessContrast::getContrastReversal()
+{
+    return contrastReversalCheckBox->isChecked();
+}
+
 // Reset the brightness and contrast to normal
 void localBrightnessContrast::brightnessContrastResetClicked( bool )
 {
@@ -126,6 +136,12 @@ void localBrightnessContrast::brightnessContrastResetClicked( bool )
 void localBrightnessContrast::brightnessContrastAutoImageClicked()
 {
     emit brightnessContrastAutoImage();
+}
+
+// Contrast reversal check box has ben checked or unchecked
+void localBrightnessContrast::contrastReversalToggled( bool state )
+{
+    emit brightnessContrastReversal( state );
 }
 
 // The local brightness slider has been moved
@@ -157,3 +173,9 @@ void localBrightnessContrast::setAutoBrightnessContrast( bool autoBrightnessCont
 {
     autoBrightnessCheckBox->setChecked( autoBrightnessContrast );
 }
+
+void localBrightnessContrast::setContrastReversal( bool contrastReversal )
+{
+    contrastReversalCheckBox->setChecked( contrastReversal );
+}
+

@@ -355,8 +355,9 @@ void markupRegion::scaleSpecific( const double xScale, const double yScale, cons
     rect.setHeight( rect.height() * yScale );
 }
 
-void markupRegion::nonInteractiveUpdate( QRect rectIn )
+void markupRegion::nonInteractiveUpdate( QPoint p1, QPoint p2 )
 {
-    rect = rectIn;
+    rect.setTopLeft( p1 );
+    rect.setBottomRight( p2 );
     setArea();
 }

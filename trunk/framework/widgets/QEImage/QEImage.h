@@ -43,36 +43,52 @@
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
 
-// Class to keep track of region of interest information
-// As ROI data arrives, this class us used to record it.
-class ROIinfo
+// Class to keep track of a rectangular area such as region of interest or profile line information
+// As data arrives, this class is used to record it.
+class areaInfo
 {
     public:
         // Construction
-        ROIinfo() { haveX = false; haveY = false; haveW = false; haveH = false; }
+        areaInfo() { haveX1 = false; haveY1 = false; haveX2 = false; haveY2 = false; }
 
         // Set elements
-        void setX( long x ) { rect.moveLeft( x );  haveX = true; }
-        void setY( long y ) { rect.moveTop( y );   haveY = true; }
-        void setW( long w ) { rect.setWidth( w );  haveW = true; }
-        void setH( long h ) { rect.setHeight( h ); haveH = true; }
+        void setX1( long x ) { p1.setX( x ); haveX1 = true; }
+        void setY1( long y ) { p1.setY( y ); haveY1 = true; }
+        void setX2( long x ) { p2.setX( x ); haveX2 = true; }
+        void setY2( long y ) { p2.setY( y ); haveY2 = true; }
+
+        void setX( long x ) { int w = p2.x()-p1.x(); p1.setX( x ); p2.setX( x+w ); haveX1 = true; }
+        void setY( long y ) { int h = p2.y()-p1.y(); p1.setY( y ); p2.setY( y+h ); haveY1 = true; }
+        void setW( long w ) { p2.setX( p1.x()+w ); haveX2 = true; }
+        void setH( long h ) { p2.setY( p1.y()+h ); haveY2 = true; }
+
+        void setPoint1( QPoint p1In ) { p1 = p1In; haveX1 = true; haveY1 = true; }
+        void setPoint2( QPoint p2In ) { p2 = p2In; haveX2 = true; haveY2 = true; }
 
         // Clear elements (invalid data)
-        void clearX() { haveX = false; }
-        void clearY() { haveY = false; }
-        void clearW() { haveW = false; }
-        void clearH() { haveH = false; }
+        void clearX1() { haveX1 = false; }
+        void clearY1() { haveY1 = false; }
+        void clearX2() { haveX2 = false; }
+        void clearY2() { haveY2 = false; }
+
+        void clearX() { clearX1(); }
+        void clearY() { clearY1(); }
+        void clearW() { clearX2(); }
+        void clearH() { clearY2(); }
 
         // Get ROI info
-        bool getStatus() { return haveX && haveY && haveW && haveH; }
-        QRect getArea() { return rect; }
+        bool getStatus() { return haveX1 && haveY1 && haveX2 && haveY2; }
+        QRect getArea() { return QRect( p1, p2 ); }
+        QPoint getPoint1() { return p1; }
+        QPoint getPoint2() { return p2; }
 
     private:
-        QRect rect;
-        bool haveX;
-        bool haveY;
-        bool haveW;
-        bool haveH;
+        QPoint p1;
+        QPoint p2;
+        bool haveX1;
+        bool haveY1;
+        bool haveX2;
+        bool haveY2;
 };
 
 
@@ -82,7 +98,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, pub
   public:
 
     /// Create without a variable.
-    /// Use setVariableName'n'Property() - where 'n' is a number from 0 to 26 - and setSubstitutionsProperty() to define variables and, optionally, macro substitutions later.
+    /// Use setVariableName'n'Property() - where 'n' is a number from 0 to 32 - and setSubstitutionsProperty() to define variables and, optionally, macro substitutions later.
     /// Note, each variable property is named by function (such as imageVariable and widthVariable) but given
     /// a numeric get and set property access function such as setVariableName22Property(). Refer to the
     /// property definitions to determine what 'set' and 'get' function is used for each varible, or use Qt library functions to set or get the variable names by name.
@@ -224,6 +240,15 @@ public:
     void setFullContextMenu( bool fullContextMenuIn );                  ///< Access function for #fullContextMenu property - refer to #fullContextMenu property for details
     bool getFullContextMenu();                                          ///< Access function for #fullContextMenu property - refer to #fullContextMenu property for details
 
+    void setEnableProfilePresentation( bool enableProfilePresentationIn );     ///< Access function for #fullContextMenu property - refer to #enableProfilePresentation property for details
+    bool getEnableProfilePresentation();                                       ///< Access function for #fullContextMenu property - refer to #enableProfilePresentation property for details
+
+    void setEnableHozSlicePresentation( bool enableHozSlicePresentationIn );   ///< Access function for #fullContextMenu property - refer to #enableHozSlicePresentation property for details
+    bool getEnableHozSlicePresentation();                                      ///< Access function for #fullContextMenu property - refer to #enableHozSlicePresentation property for details
+
+    void setEnableVertSlicePresentation( bool enableVertSlicePresentationIn ); ///< Access function for #fullContextMenu property - refer to #enableVertSlicePresentation property for details
+    bool getEnableVertSlicePresentation();                                     ///< Access function for #fullContextMenu property - refer to #enableVertSlicePresentation property for details
+
   protected:
     QEIntegerFormatting integerFormatting; // Integer formatting options.
 
@@ -240,6 +265,8 @@ public:
                           BEAM_X_VARIABLE, BEAM_Y_VARIABLE,
                           TARGET_TRIGGER_VARIABLE,
                           CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE,
+                          PROFILE_H_VARIABLE, PROFILE_V_VARIABLE,
+                          LINE_PROFILE_X1_VARIABLE, LINE_PROFILE_Y1_VARIABLE, LINE_PROFILE_X2_VARIABLE, LINE_PROFILE_Y2_VARIABLE,
                           QEIMAGE_NUM_VARIABLES /*Must be last*/ };
 
     resizeOptions resizeOption; // Resize option. (zoom or fit)
@@ -260,6 +287,7 @@ private slots:
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
+    void setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
     // Menu choice slots
     void vSliceSelectModeClicked();
@@ -276,6 +304,7 @@ private slots:
 
     void brightnessContrastChanged();
     void brightnessContrastAutoImageRequest();
+    void brightnessContrastReversalRequest( bool state );
 
     // !! move this functionality into QEWidget???
     // !! needs one for single variables and one for multiple variables, or just the multiple variable one for all
@@ -314,11 +343,6 @@ public slots:
 
     void saveClicked();            ///< Framework use only. Slot to allow external setting of selection menu options
 
-    void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
-    void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
-    void roi3Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
-    void roi4Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
-
     void targetClicked();      ///< Framework use only. Slot to allow external setting of selection menu options
 
     void localBCDestroyed( QObject* ); ///< Framework use only. Slot to catch deletion of components (such as profile plots) that have been passed to the application for presentation
@@ -340,6 +364,16 @@ public slots:
 
 
   private:
+    void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
+    void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
+    void roi3Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
+    void roi4Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
+
+    void lineProfileChanged();  ///< Framework use only. Slot to allow external setting of selection menu options
+    void hozProfileChanged();   ///< Framework use only. Slot to allow external setting of selection menu options
+    void vertProfileChanged();  ///< Framework use only. Slot to allow external setting of selection menu options
+
+
     void actionRequest( QString action, QStringList arguments, bool initialise, QAction* originator ); // Perform a named action
 
 
@@ -402,6 +436,10 @@ public slots:
     // Presentation
     bool paused;
 
+    bool enableHozSlicePresentation;
+    bool enableVertSlicePresentation;
+    bool enableProfilePresentation;
+
     // Options
     formatOptions formatOption;
 
@@ -417,7 +455,7 @@ public slots:
     unsigned long imageBuffHeight;  // Original image height
 
     // Region of interest information
-    ROIinfo roiInfo[4];
+    areaInfo roiInfo[4];
 
     // User selected information
     int vSliceX;
@@ -426,6 +464,7 @@ public slots:
     int hSliceY;
     unsigned int hSliceThickness;
 
+    areaInfo lineProfileInfo;
     QPoint profileLineStart;
     QPoint profileLineEnd;
     unsigned int profileThickness;
@@ -674,6 +713,36 @@ protected:
     /// This variable is used to write the areadetector clipping high level.
     Q_PROPERTY(QString clippingHighVariable READ getVariableName26Property WRITE setVariableName26Property)
 
+    VARIABLE_PROPERTY_ACCESS(27)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector horizontal profile.
+    Q_PROPERTY(QString profileHozVariable READ getVariableName27Property WRITE setVariableName27Property)
+
+    VARIABLE_PROPERTY_ACCESS(28)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector vertical profile.
+    Q_PROPERTY(QString profileVertVariable READ getVariableName28Property WRITE setVariableName28Property)
+
+    VARIABLE_PROPERTY_ACCESS(29)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile start X.
+    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName29Property WRITE setVariableName29Property)
+
+    VARIABLE_PROPERTY_ACCESS(30)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile start Y.
+    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName30Property WRITE setVariableName30Property)
+
+    VARIABLE_PROPERTY_ACCESS(31)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile end X.
+    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName31Property WRITE setVariableName31Property)
+
+    VARIABLE_PROPERTY_ACCESS(32)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile end Y.
+    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName32Property WRITE setVariableName32Property)
+
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
     /// These substitutions are applied to all the variable names.
     Q_PROPERTY(QString variableSubstitutions READ getVariableNameSubstitutionsProperty WRITE setVariableNameSubstitutionsProperty)
@@ -796,16 +865,37 @@ public:
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }                                     ///< Access function for #formatOption property - refer to #formatOption property for details
 
     /// If true, the option to select a vertical slice through the image will be available to the user.
-    /// This will be used to generate a vertical pixel profile.
+    /// This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the #profileVertVariable property.
+    /// The profile will only be presented to the user if #enableVertSlicePresentation property is true.
     Q_PROPERTY(bool enableVertSliceSelection READ getEnableVertSliceSelection WRITE setEnableVertSliceSelection)
 
     /// If true, the option to select a horizontal slice through the image will be available to the user.
-    /// This will be used to generate a horizontal pixel profile.
+    /// This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the #profileHozVariable property.
+    /// The profile will only be presented to the user if #enableHozSlicePresentation property is true.
     Q_PROPERTY(bool enableHozSliceSelection READ getEnableHozSliceSelection WRITE setEnableHozSliceSelection)
 
     /// If true, the option to select an arbitrary line through any part of the image will be available to the user.
     /// This will be used to generate a pixel profile.
     Q_PROPERTY(bool enableProfileSelection READ getEnableProfileSelection WRITE setEnableProfileSelection)
+
+    //=========
+
+    /// If true, the horizontal pixel profile plot will be presented to the user when a horizontal slice is selected.
+    /// If false, the profile plot will not be presented to the user. False is used when a variable has been specified
+    /// in the #profileHozVariable property and the presentation or use of the slice information is being managed elsewhere.
+    Q_PROPERTY(bool enableHozSlicePresentation READ getEnableHozSlicePresentation WRITE setEnableHozSlicePresentation)
+
+    /// If true, the vertical pixel profile plot will be presented to the user when a vertical slice is selected.
+    /// If false, the profile plot will not be presented to the user. False is used when a variable has been specified
+    /// in the #profileVertVariable property and the presentation or use of the slice information is being managed elsewhere.
+    Q_PROPERTY(bool enableVertSlicePresentation READ getEnableVertSlicePresentation WRITE setEnableVertSlicePresentation)
+
+    /// If true, the vertical pixel profile plot will be presented to the user when a vertical slice is selected.
+    /// If false, the profile plot will not be presented to the user. False is used when a variable has been specified
+    /// in the #profileVertVariable property and the presentation or use of the slice information is being managed elsewhere.
+    Q_PROPERTY(bool enableProfilePresentation READ getEnableProfilePresentation WRITE setEnableProfilePresentation)
+
+    //=========
 
     /// If true, the user will be able to select areas. These are used for selection of Region of Interests,
     /// and for zooming to a particular area

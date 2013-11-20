@@ -39,20 +39,24 @@ public:
 
     void setBrightnessContrast( int brightness, int contrast );
     void setAutoBrightnessContrast( bool autoBrightnessContrast );
+    void setContrastReversal( bool contrastReversal );
 
     bool getAutoBrightnessContrast();
+    bool getContrastReversal();
     int  getBrightness();
     int  getContrast();
 
 signals:
     void brightnessContrastAutoImage();
     void brightnessContrastChange();
+    void brightnessContrastReversal( bool state );
 
 private slots:
     void brightnessSliderValueChanged( int value );
     void contrastSliderValueChanged( int value );
     void brightnessContrastResetClicked( bool state );
     void brightnessContrastAutoImageClicked();
+    void contrastReversalToggled( bool state );
 
 private:
     // Local brightness and contrast controls
@@ -61,6 +65,7 @@ private:
     QSlider* contrastSlider;
     QLabel* brightnessRBLabel;
     QLabel* contrastRBLabel;
+    QCheckBox* contrastReversalCheckBox;
 
 };
 

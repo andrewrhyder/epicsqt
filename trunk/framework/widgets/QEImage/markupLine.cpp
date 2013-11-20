@@ -368,3 +368,10 @@ void markupLine::scaleSpecific( const double xScale, const double yScale, const 
     }
     maxThickness = THICKNESS_MAX * zoomScale;
 }
+
+void markupLine::nonInteractiveUpdate( QPoint p1, QPoint p2 )
+{
+    start = p1;
+    end = p2;
+    setArea();
+}
