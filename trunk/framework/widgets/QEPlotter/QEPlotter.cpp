@@ -487,6 +487,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    connect (this->timer, SIGNAL (timeout ()), this, SLOT (tickTimeout ()));
    this->timer->start (50);  // mSec == 0.05 s
 
+   this->pushState ();  // baseline state - there is always at least one.
+
    // Do an initial plot - this clears the refresh plot required flag.
    //
    this->plot ();
