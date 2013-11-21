@@ -53,9 +53,13 @@ public:
 
 
 // This class uses a QList in order to implement a stack.
-// Consider crerating a QEStack template class.
 //
-class QEPLUGINLIBRARYSHARED_EXPORT QEStripChartStateList : private QList<QEStripChartState> {
+// Note this class orginally extended QList<QEStripChartState>, but this way of
+// specificying this class has issues with the Windows Visual Studio Compiler.
+// It has now been modified to include a QList<QEStripChartState> member. The
+// downside of this is that we must now provide list member access functions.
+//
+class QEPLUGINLIBRARYSHARED_EXPORT QEStripChartStateList {
 public:
    QEStripChartStateList ();
 
@@ -69,6 +73,7 @@ public:
 
 private:
    int chartStatePointer;
+   QList<QEStripChartState> stateList;
 };
 
 #endif  // QESTRIPCHARTSTATE_H
