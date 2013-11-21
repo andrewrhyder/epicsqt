@@ -45,6 +45,7 @@
 #include "QEPlotterNames.h"
 #include "QEPlotterItemDialog.h"
 #include "QEPlotterMenu.h"
+#include "QEPlotterState.h"
 #include "QEPlotterToolBar.h"
 
 // Differed class declaration - no explicit dependency on Qwt header files.
@@ -65,9 +66,10 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
 
    // Layout control
    //
-   Q_PROPERTY (bool toolBarVisible     READ getToolBarVisible  WRITE setToolBarVisible)
-   Q_PROPERTY (bool pvItemsVisible     READ getPvItemsVisible  WRITE setPvItemsVisible)
-   Q_PROPERTY (bool statusVisible      READ getStatusVisible   WRITE setStatusVisible)
+   Q_PROPERTY (bool enableContextMenu  READ getEnableConextMenu  WRITE setEnableConextMenu)
+   Q_PROPERTY (bool toolBarVisible     READ getToolBarVisible    WRITE setToolBarVisible)
+   Q_PROPERTY (bool pvItemsVisible     READ getPvItemsVisible    WRITE setPvItemsVisible)
+   Q_PROPERTY (bool statusVisible      READ getStatusVisible     WRITE setStatusVisible)
 
    // Data and Size properties,
    //
@@ -165,6 +167,9 @@ public:
    void   setXYColour (const int, const QColor&);
    QColor getXYColour (const int);
 
+   void setEnableConextMenu (bool enable);
+   bool getEnableConextMenu ();
+
    void setToolBarVisible (bool visible);
    bool getToolBarVisible ();
 
@@ -235,9 +240,20 @@ private:
    typedef QList<QwtPlotCurve*> QwtCurveList;
    QwtCurveList curve_list;
 
+   // State data
+   //
    bool isLogarithmic;   // vs. Linear
    bool isReverse;       // vs. Normal
    bool isPaused;        // vs. Updating
+   double fixedMinX;
+   double fixedMaxX;
+   double fixedMinY;
+   double fixedMaxY;
+   QEPlotterNames::ScaleModes xScaleMode;
+   QEPlotterNames::ScaleModes yScaleMode;
+   QEPlotterStateList  stateList;
+
+   bool enableConextMenu;
    int selectedDataSet;
    QTimer* timer;
    QEIntegerFormatting  integerFormatting;
@@ -253,13 +269,6 @@ private:
    QPoint plotRightButton;                 // point at which rightt button pressed.
    bool   plotRightIsDefined;              //
 
-   enum ScaleModes { smFixed,              // Fixed scale in x and y
-                     smNormalised,         // y plots scales such that { min to max } map to { 0 to 1 }
-                     smFractional,         // y plots scales such that { min to max } map to { 0 to 1 }
-                     smDynamic };          // x and y scales continually adjuxsted.
-
-   ScaleModes xScaleMode;
-   ScaleModes yScaleMode;
 
    // Range of (unscaled) values of last plot.
    //
@@ -268,10 +277,6 @@ private:
    double currentMinY;                     // ditto min Y value
    double currentMaxY;                     // ditto max Y value
 
-   double fixedMinX;
-   double fixedMaxX;
-   double fixedMinY;
-   double fixedMaxY;   
 
    enum DataPlotKinds { NotInUse,          // blank  - not in use - no data - no plot
                         DataPlot,          // use specified PV to provide plot data
@@ -361,6 +366,9 @@ private:
    bool isValidXRangeSelection (const QPoint& origin, const QPoint& offset) const;
    bool isValidYRangeSelection (const QPoint& origin, const QPoint& offset) const;
    void onPlaneScaleSelect (const QPoint& origin, const QPoint& offset);
+
+   void captureState (QEPlotterState& plotterState);
+   void applyState (const QEPlotterState& plotterState);
 
    void pushState ();
    void prevState ();

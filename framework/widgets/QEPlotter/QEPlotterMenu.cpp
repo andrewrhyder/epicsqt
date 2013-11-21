@@ -137,7 +137,6 @@ QEPlotterMenu::~QEPlotterMenu ()
 {
 }
 
-
 //------------------------------------------------------------------------------
 //
 #define SET_ACTION(attribute)                                                  \
@@ -151,13 +150,11 @@ void QEPlotterMenu::setAction##attribute (const QEPlotterNames::MenuActions acti
    }                                                                           \
 }
 
-
 SET_ACTION (Checked)
 SET_ACTION (Enabled)
 SET_ACTION (Visible)
 
 #undef SET_ACTION
-
 
 //------------------------------------------------------------------------------
 //

@@ -15,6 +15,7 @@ HEADERS += \
     widgets/QEPlotter/QEPlotterNames.h \
     widgets/QEPlotter/QEPlotterItemDialog.h \
     widgets/QEPlotter/QEPlotterMenu.h \
+    widgets/QEPlotter/QEPlotterState.h \
     widgets/QEPlotter/QEPlotterToolBar.h \
     widgets/QEPlotter/QEPlotterManager.h
 
@@ -23,6 +24,7 @@ SOURCES += \
     widgets/QEPlotter/QEPlotter.cpp \
     widgets/QEPlotter/QEPlotterItemDialog.cpp \
     widgets/QEPlotter/QEPlotterMenu.cpp \
+    widgets/QEPlotter/QEPlotterState.cpp \
     widgets/QEPlotter/QEPlotterToolBar.cpp \
     widgets/QEPlotter/QEPlotterManager.cpp
 
@@ -31,6 +33,5 @@ INCLUDEPATH += \
 
 FORMS += \
     widgets/QEPlotter/QEPlotterItemDialog.ui
-
 
 # end
