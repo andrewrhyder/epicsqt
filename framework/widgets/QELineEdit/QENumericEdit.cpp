@@ -107,7 +107,7 @@ static QString fixedRadixImage (const double value,
 
    for (s = mostSig; s >= -precision; s--) {
 
-      prs = pow (radix, s);
+      prs = pow (dblRadix, s);
       t = int (floor (work / prs));
       work = work - t*prs;
 
@@ -137,7 +137,7 @@ static bool fixedRadixValue (const QString& image,
                              double& result)
 {
    const int intRadix = radix_value_list [radix];
-   const int dblRadix = double (intRadix);
+   const double dblRadix = double (intRadix);
    bool isNegative;
    bool isPoint;
    bool signIsAllowed;
