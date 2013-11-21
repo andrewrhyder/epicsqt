@@ -138,7 +138,7 @@ QEStripChartStateList::QEStripChartStateList ()
 //
 void QEStripChartStateList::clear ()
 {
-   QList<QEStripChartState>::clear ();   // call parent method
+   this->stateList.clear ();   // call parent method
    this->chartStatePointer = 0;
 }
 
@@ -148,19 +148,19 @@ void QEStripChartStateList::push (const QEStripChartState& state)
 {
    // New state - all potential next states are lost.
    //
-   while (this->count () > this->chartStatePointer) {
-      this->removeLast ();
+   while (this->stateList.count () > this->chartStatePointer) {
+      this->stateList.removeLast ();
    }
 
-   this->append (state);
+   this->stateList.append (state);
 
    // Don't let this list get tooo big.
    //
-   if (this->count () > MAXIMUM_CHART_STATES) {
-       this->removeFirst ();  // remove oldest
+   if (this->stateList.count () > MAXIMUM_CHART_STATES) {
+       this->stateList.removeFirst ();  // remove oldest
    }
 
-   this->chartStatePointer = this->count ();
+   this->chartStatePointer = this->stateList.count ();
 }
 
 //------------------------------------------------------------------------------
@@ -169,15 +169,15 @@ bool QEStripChartStateList::prev (QEStripChartState& state)
 {
    bool result;
 
-   if (this->count () < 1) return false;    // sanity check.
+   if (this->stateList.count () < 1) return false;    // sanity check.
 
    // Ensure in range.
    //
-   this->chartStatePointer = LIMIT (this->chartStatePointer, 1, this->count ());
+   this->chartStatePointer = LIMIT (this->chartStatePointer, 1, this->stateList.count ());
 
    if (this->chartStatePointer > 1) {
       this->chartStatePointer--;
-      state = this->value (this->chartStatePointer - 1);  // zero indexed
+      state = this->stateList.value (this->chartStatePointer - 1);  // zero indexed
       result = true;
    } else {
       result = false;
@@ -192,15 +192,15 @@ bool QEStripChartStateList::next (QEStripChartState& state)
 {
    bool result;
 
-   if (this->count () < 1) return false; // sanity check.
+   if (this->stateList.count () < 1) return false; // sanity check.
 
    // Ensure in range.
    //
-   this->chartStatePointer = LIMIT (this->chartStatePointer, 1, this->count ());
+   this->chartStatePointer = LIMIT (this->chartStatePointer, 1, this->stateList.count ());
 
-   if (this->chartStatePointer < this->count ()) {
+   if (this->chartStatePointer < this->stateList.count ()) {
       this->chartStatePointer++;
-      state = this->value (this->chartStatePointer - 1);  // zero indexed
+      state = this->stateList.value (this->chartStatePointer - 1);  // zero indexed
       result = true;
    } else {
       result = false;
@@ -220,7 +220,7 @@ bool QEStripChartStateList::prevAvailable ()
 //
 bool QEStripChartStateList::nextAvailable ()
 {
-   return (this->chartStatePointer < this->count ());
+   return (this->chartStatePointer < this->stateList.count ());
 }
 
 // end
