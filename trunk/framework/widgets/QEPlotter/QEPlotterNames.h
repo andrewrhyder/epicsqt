@@ -28,15 +28,18 @@
 #ifndef QE_PLOTTER_NAMES_H
 #define QE_PLOTTER_NAMES_H
 
+#include <QObject>
 #include <contextMenu.h>
 
-// This is essentially a namespace
+// Define plotter specific names (enumerations)
+// We use a QObject as opposed to a namespace as this allows us leverage off the
+// meta object compiler output, specifically allows us to use the enumToString
+// and stringToEnum functions in QEUtilities.
 //
-class QEPlotterNames {
-
+class QEPlotterNames : public QObject {
+   Q_OBJECT
 public:
-
-   QEPlotterNames () {}
+    QEPlotterNames (QObject* parent = 0) : QObject (parent) {}
 
    // IDs for all menu options
    // Each menu option has a unique ID across all plotter menus and toolbars
@@ -93,7 +96,11 @@ public:
       PLOTTER_LAST                 // Must be last
    };
 
-};
+   enum ScaleModes { smFixed,          // Fixed scale in x and y
+                     smNormalised,     // y plots scales such that { min to max } map to { 0 to 1 }
+                     smFractional,     // y plots scales such that { min to max } map to { 0 to 1 }
+                     smDynamic };      // x and y scales continually adjuxsted.
 
+};
 
 #endif  // QE_PLOTTER_ACTIONS_H

@@ -449,6 +449,7 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
    this->setFrameShadow (QFrame::Plain);
    this->setMinimumSize (520, 480);
 
+   this->enableConextMenu = true;
    this->isLogarithmic = false;
    this->isReverse = false;
    this->isPaused = false;
@@ -472,8 +473,8 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
                         this, SLOT   (setNewVariableName      (QString, QString, unsigned int)));
    }
 
-   this->xScaleMode = smDynamic;
-   this->yScaleMode = smDynamic;
+   this->xScaleMode = QEPlotterNames::smDynamic;
+   this->yScaleMode = QEPlotterNames::smDynamic;
 
    this->currentMinX = this->fixedMinX = 0.0;
    this->currentMaxX = this->fixedMaxX = 10.0;
@@ -812,10 +813,10 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    // Don't want to do context menu over plot canvas area - we use right-click
    // for other stuff.
    //
-   // NOTE: This check relies on the fact that the right mouse button event handler
-   // is called before this slot is invoked.
+   // NOTE: The 2nd part of this check relies on the fact that the right mouse
+   // button event handler is called before this slot is invoked.
    //
-   if (this->plotRightIsDefined == false) {
+   if (this->enableConextMenu && this->plotRightIsDefined == false) {
       golbalPos = this->mapToGlobal (pos);
       this->generalContextMenu->exec (golbalPos, 0);
    }
@@ -879,6 +880,14 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          this->setStatusVisible (! this->getStatusVisible ());
          break;
 
+      case QEPlotterNames::PLOTTER_PREV:
+         this->prevState ();
+         break;
+
+      case QEPlotterNames::PLOTTER_NEXT:
+         this->nextState ();
+         break;
+
       case QEPlotterNames::PLOTTER_NORMAL_VIDEO:
          this->isReverse = false;
          this->setXYColour (NUMBER_OF_PLOTS, clBlack);
@@ -908,7 +917,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          if (n == 1) {
             // User has selected okay.
             //
-            this->yScaleMode = smFixed;
+            this->yScaleMode = QEPlotterNames::smFixed;
             this->fixedMinY = this->rangeDialog->getMinimum ();
             this->fixedMaxY = this->rangeDialog->getMaximum ();
             this->pushState ();
@@ -916,14 +925,14 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          break;
 
       case QEPlotterNames::PLOTTER_CURRENT_Y_RANGE:
-         this->yScaleMode = smFixed;
+         this->yScaleMode = QEPlotterNames::smFixed;
          this->fixedMinY = this->currentMinY;
          this->fixedMaxY = this->currentMaxY;
          this->pushState ();
          break;
 
       case QEPlotterNames::PLOTTER_DYNAMIC_Y_RANGE:
-         this->yScaleMode = smDynamic;
+         this->yScaleMode = QEPlotterNames::smDynamic;
          this->pushState ();
          break;
 
@@ -934,7 +943,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          if (n == 1) {
             // User has selected okay.
             //
-            this->xScaleMode = smFixed;
+            this->xScaleMode = QEPlotterNames::smFixed;
             this->fixedMinX = this->rangeDialog->getMinimum ();
             this->fixedMaxX = this->rangeDialog->getMaximum ();
             this->pushState ();
@@ -942,26 +951,26 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          break;
 
       case QEPlotterNames::PLOTTER_CURRENT_X_RANGE:
-         this->xScaleMode = smFixed;
+         this->xScaleMode = QEPlotterNames::smFixed;
          this->fixedMinX = this->currentMinX;
          this->fixedMaxX = this->currentMaxX;
          this->pushState ();
          break;
 
       case QEPlotterNames::PLOTTER_DYNAMIC_X_RANGE:
-         this->xScaleMode = smDynamic;
+         this->xScaleMode = QEPlotterNames::smDynamic;
          this->pushState ();
          break;
 
       case QEPlotterNames::PLOTTER_NORAMLISED_Y_RANGE:
-         this->yScaleMode = smNormalised;
+         this->yScaleMode = QEPlotterNames::smNormalised;
          this->fixedMinY = 0.0;
          this->fixedMaxY = 1.0;
          this->pushState ();
          break;
 
       case QEPlotterNames::PLOTTER_FRACTIONAL_Y_RANGE:
-         this->yScaleMode = smFractional;
+         this->yScaleMode = QEPlotterNames::smFractional;
          this->fixedMinY = 0.0;
          this->fixedMaxY = 1.0;
          this->pushState ();
@@ -1062,7 +1071,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          if ((slot > 0) && (ds->dataKind == DataPlot || ds->dataKind == CalculationPlot)) {
             this->fixedMinY = ds->plottedMin;
             this->fixedMaxY = ds->plottedMax;
-            this->yScaleMode = smFixed;
+            this->yScaleMode = QEPlotterNames::smFixed;
          }
          break;
 
@@ -1070,7 +1079,7 @@ void QEPlotter::menuSelected (const QEPlotterNames::MenuActions action, const in
          if ((slot > 0) && (ds->dataKind == DataPlot || ds->dataKind == CalculationPlot)) {
             this->fixedMinY = 0;
             this->fixedMaxY = ds->plottedMax;
-            this->yScaleMode = smFixed;
+            this->yScaleMode = QEPlotterNames::smFixed;
          }
          break;
 
@@ -1132,8 +1141,52 @@ void QEPlotter::setReadOut (const QString& text)
 
 //------------------------------------------------------------------------------
 //
+void QEPlotter::captureState (QEPlotterState& state)
+{
+   // Capture current state.
+   //
+   state.isLogarithmic = this->isLogarithmic;
+   state.isReverse = this->isReverse;
+   state.isPaused = this->isPaused;
+   state.xMinimum = this->fixedMinX;
+   state.xMaximum = this->fixedMaxX;
+   state.xScaleMode = this->xScaleMode;
+   state.yMinimum = this->fixedMinY;
+   state.yMaximum = this->fixedMaxY;
+   state.yScaleMode = this->yScaleMode;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::applyState (const QEPlotterState& state)
+{
+   this->isLogarithmic  = state.isLogarithmic;
+   this->isReverse  = state.isReverse;
+   this->isPaused  = state.isPaused;
+   this->fixedMinX  = state.xMinimum;
+   this->fixedMaxX  = state.xMaximum;
+   this->xScaleMode  = state.xScaleMode;
+   this->fixedMinY  = state.yMinimum;
+   this->fixedMaxY  = state.yMaximum;
+   this->yScaleMode  = state.yScaleMode;
+   this->replotIsRequired = true;
+}
+
+//------------------------------------------------------------------------------
+//
 void QEPlotter::pushState ()
 {
+   QEPlotterState state;
+
+   // Capture current state.
+   //
+   this->captureState (state);
+   this->stateList.push (state);
+
+   // Enable/disble buttons according to availability.
+   //
+   this->toolBar->setEnabled (QEPlotterNames::PLOTTER_PREV, (this->stateList.prevAvailable ()));
+   this->toolBar->setEnabled (QEPlotterNames::PLOTTER_NEXT, (this->stateList.nextAvailable ()));
    this->replotIsRequired = true;
 }
 
@@ -1141,14 +1194,28 @@ void QEPlotter::pushState ()
 //
 void QEPlotter::prevState ()
 {
-   // place holder
+   QEPlotterState state;
+
+   if (this->stateList.prev (state)) {
+      this->applyState (state);
+      this->toolBar->setEnabled (QEPlotterNames::PLOTTER_PREV, (this->stateList.prevAvailable ()));
+      this->toolBar->setEnabled (QEPlotterNames::PLOTTER_NEXT, (this->stateList.nextAvailable ()));
+      this->replotIsRequired = true;
+   }
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPlotter::nextState ()
 {
-   // place holder
+   QEPlotterState state;
+
+   if (this->stateList.next (state)) {
+      this->applyState (state);
+      this->toolBar->setEnabled (QEPlotterNames::PLOTTER_PREV, (this->stateList.prevAvailable ()));
+      this->toolBar->setEnabled (QEPlotterNames::PLOTTER_NEXT, (this->stateList.nextAvailable ()));
+      this->replotIsRequired = true;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -1231,8 +1298,8 @@ void QEPlotter::setXRange (const double xMinimumIn, const double xMaximumIn)
 {
    this->fixedMinX = xMinimumIn;
    this->fixedMaxX = xMaximumIn;
-   if (this->xScaleMode == smDynamic) {
-      this->xScaleMode = smFixed;
+   if (this->xScaleMode == QEPlotterNames::smDynamic) {
+      this->xScaleMode = QEPlotterNames::smFixed;
    }
    this->pushState ();
 }
@@ -1243,8 +1310,8 @@ void QEPlotter::setYRange (const double yMinimumIn, const double yMaximumIn)
 {
    this->fixedMinY = yMinimumIn;
    this->fixedMaxY = yMaximumIn;
-   if (this->yScaleMode == smDynamic) {
-      this->yScaleMode = smFixed;
+   if (this->yScaleMode == QEPlotterNames::smDynamic) {
+      this->yScaleMode = QEPlotterNames::smFixed;
    }
    this->pushState ();
 }
@@ -1878,11 +1945,12 @@ void QEPlotter::plot ()
 
       // Scale the y data as required.
       //
-      if ((this->yScaleMode == smNormalised) || (this->yScaleMode == smFractional)) {
+      if ((this->yScaleMode == QEPlotterNames::smNormalised) ||
+          (this->yScaleMode == QEPlotterNames::smFractional)) {
          double m;
          double c;
 
-         if (this->yScaleMode == smNormalised) {
+         if (this->yScaleMode == QEPlotterNames::smNormalised) {
             m = 1.0 / MAX (ys->plottedMax - ys->plottedMin, 1.0e-6);
             c = -m * ys->plottedMin;
          } else {
@@ -1942,7 +2010,7 @@ void QEPlotter::plot ()
    // Determine plot x and y range to use.
    // If not dynamic, use the fixed values.
    //
-   if (this->xScaleMode != smDynamic) {
+   if (this->xScaleMode != QEPlotterNames::smDynamic) {
       xMin = this->fixedMinX;
       xMax = this->fixedMaxX;
    }
@@ -1955,7 +2023,7 @@ void QEPlotter::plot ()
 
    // Repeat for y  - essentially the same excpet for log scale adjustment.
    //
-   if (this->yScaleMode != smDynamic) {
+   if (this->yScaleMode != QEPlotterNames::smDynamic) {
       yMin = this->fixedMinY;
       yMax = this->fixedMaxY;
    }
@@ -2251,6 +2319,18 @@ QColor QEPlotter::getXYColour (const int slot)
 {
    SLOT_CHECK (slot, QColor (0,0,0,0));
    return this->xy[slot].colour;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::setEnableConextMenu (bool enable)
+{
+   this->enableConextMenu = enable;
+}
+
+bool QEPlotter::getEnableConextMenu ()
+{
+   return this->enableConextMenu;
 }
 
 //------------------------------------------------------------------------------
