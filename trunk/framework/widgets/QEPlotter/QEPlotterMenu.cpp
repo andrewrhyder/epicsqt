@@ -181,7 +181,7 @@ QAction* QEPlotterMenu::make (QMenu* parent,
 
    QAction* action = NULL;
 
-   if (t >= 0 and t < ARRAY_LENGTH (this->actionList)) {
+   if ((t >= 0) && (t < ARRAY_LENGTH (this->actionList))) {
       action = new QAction (caption + " ", parent);
       action->setCheckable (checkable);
       action->setData (QVariant (int (menuAction)));
