@@ -5,22 +5,24 @@
 #
 
 HEADERS += \
-   common/QECommon.h \
-   common/QEScaling.h \
-   common/QEFrameworkVersion.h \
    common/QEActionRequests.h \
+   common/QECommon.h \
    common/QEDialog.h \
+   common/QEExpressionEvaluation.h  \
+   common/QEFrameworkVersion.h \
    common/QEPVNameSelectDialog.h \
+   common/QEScaling.h \
    common/PasswordDialog.h \
    common/windowCustomisation.h
 
 SOURCES += \
-   common/QECommon.cpp \
-   common/QEScaling.cpp \
-   common/QEFrameworkVersion.cpp \
    common/QEActionRequests.cpp \
+   common/QECommon.cpp \
    common/QEDialog.cpp \
+   common/QEExpressionEvaluation.cpp  \
+   common/QEFrameworkVersion.cpp \
    common/QEPVNameSelectDialog.cpp \
+   common/QEScaling.cpp \
    common/PasswordDialog.cpp \
    common/windowCustomisation.cpp
 

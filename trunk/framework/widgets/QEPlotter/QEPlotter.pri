@@ -10,7 +10,6 @@ RESOURCES += \
     widgets/QEPlotter/QEPlotter.qrc
 
 HEADERS += \
-    widgets/QEPlotter/QEExpressionEvaluation.h  \
     widgets/QEPlotter/QEPlotter.h \
     widgets/QEPlotter/QEPlotterNames.h \
     widgets/QEPlotter/QEPlotterItemDialog.h \
@@ -20,7 +19,6 @@ HEADERS += \
     widgets/QEPlotter/QEPlotterManager.h
 
 SOURCES += \
-    widgets/QEPlotter/QEExpressionEvaluation.cpp  \
     widgets/QEPlotter/QEPlotter.cpp \
     widgets/QEPlotter/QEPlotterItemDialog.cpp \
     widgets/QEPlotter/QEPlotterMenu.cpp \
