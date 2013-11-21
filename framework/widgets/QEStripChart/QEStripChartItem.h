@@ -78,8 +78,6 @@ public:
    void setPvName (QString pvName, QString substitutions);
    QString getPvName ();
 
-   void setScaling (const double d, const double m, const double c);
-   void getScaling (double & d, double & m, double & c);
    bool isScaled ();
 
    // Following used to extract status for the context menu object.
@@ -123,6 +121,7 @@ protected:
 private:
    qcaobject::QCaObject* getQcaItem ();   // Return reference to QELabel used to stream CA updates
    void connectQcaSignals ();             // Performs qca connections if needs be.
+   void setCaption ();
    void clear ();
    void highLight (bool isHigh);
 
@@ -170,6 +169,7 @@ private:
    // Internal widgets.
    //
    QEStripChart *chart;
+   QLabel *pvSlotLetter;
    QLabel *pvName;
    QELabel *caLabel;
    QColorDialog *colourDialog;

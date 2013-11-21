@@ -59,8 +59,9 @@ static const QColor item_colours [QEStripChart::NUMBER_OF_PVS] = {
 static const QColor clBlack (0x00, 0x00, 0x00, 0xFF);
 static const QColor clWhite (0xFF, 0xFF, 0xFF, 0xFF);
 
-static const QString inuse  ("QWidget { background-color: #e0e0e0; }");
-static const QString unused ("QWidget { background-color: #c0c0c0; }");
+static const QString letterStyle ("QWidget { background-color: #e8e8e8; }");
+static const QString inuseStyle  ("QWidget { background-color: #e0e0e0; }");
+static const QString unusedStyle ("QWidget { background-color: #c0c0c0; }");
 
 static const QString scaledTip ("Note: this PV has been re-scaled");
 static const QString regularTip ("Use context menu to modify PV attributes or double click here.");
@@ -74,22 +75,29 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
 {
    QColor defaultColour;
 
+   // Save abnd set input parameters.
+   //
+   this->chart = chartIn;
+   this->slot = slotIn;
+
    // Construct internal widgets for this chart item.
    //
    this->createInternalWidgets ();
 
-   this->chart = chartIn;
-   this->slot = slotIn;
    this->inUse = false;
    this->previousQcaItem = NULL;
 
    // Set geometry
    //
-   this->pvName->setGeometry  (  0, 0, 344, 15);
-   this->caLabel->setGeometry (348, 0, 128, 15);
+   this->pvSlotLetter->setGeometry (  0, 0,  16, 15); // x, y, w, h
+   this->pvName->setGeometry       ( 16, 0, 328, 15);
+   this->caLabel->setGeometry      (348, 0, 128, 15);
 
    // Set up other properties.
    //
+   this->pvSlotLetter->setStyleSheet (letterStyle);
+   this->pvSlotLetter->setAlignment(Qt::AlignHCenter);
+
    this->pvName->setIndent (6);
    this->pvName->setToolTip (regularTip);
    this->pvName->setAcceptDrops (true);
@@ -181,6 +189,11 @@ QEStripChartItem::~QEStripChartItem ()
 //
 void QEStripChartItem::createInternalWidgets ()
 {
+   QString letter;
+
+   letter.clear ();
+   letter.append (char (int ('A') + this->slot));
+   this->pvSlotLetter = new QLabel (letter, this);
    this->pvName = new QLabel (this);
    this->caLabel = new QELabel (this);
    this->colourDialog = new QColorDialog (this);
@@ -195,10 +208,9 @@ void QEStripChartItem::createInternalWidgets ()
 void QEStripChartItem::clear ()
 {
    this->inUse = false;
-   this->pvName->setText ("");
    this->caLabel->setVariableNameAndSubstitutions ("", "", 0);
    this->caLabel->setText ("-");
-   this->caLabel->setStyleSheet (unused);
+   this->caLabel->setStyleSheet (unusedStyle);
    this->previousQcaItem = NULL;
 
    this->displayedMinMax.clear ();
@@ -214,6 +226,8 @@ void QEStripChartItem::clear ()
    // Reset identity sclaing
    //
    this->scaling.reset();
+
+   this->setCaption ();
 }
 
 //------------------------------------------------------------------------------
@@ -259,16 +273,16 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
 
    // We "know" that a QELabel has only one PV (index = 0).
    //
-   caLabel->setVariableNameAndSubstitutions (pvName.trimmed (), substitutions, 0);
+   this->caLabel->setVariableNameAndSubstitutions (pvName.trimmed (), substitutions, 0);
    substitutedPVName = caLabel->getSubstitutedVariableName (0);
 
    // Verify caller attempting add a potentially sensible PV?
    //
    if (substitutedPVName  == "") return;
 
-   this->pvName->setText (substitutedPVName);
-   this->caLabel->setStyleSheet (inuse);
+   this->caLabel->setStyleSheet (inuseStyle);
    this->inUse = true;
+   this->setCaption ();
 
    // Set up connections.
    //
@@ -279,7 +293,30 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
 //
 QString QEStripChartItem::getPvName ()
 {
-   return this->inUse ? this->pvName->text () : "";
+   return this->isInUse () ? this->caLabel->getSubstitutedVariableName (0) : "";
+}
+
+//------------------------------------------------------------------------------
+//
+void QEStripChartItem::setCaption ()
+{
+   QString caption;
+   QString substitutedPVName;
+
+   caption.clear ();
+
+   if (this->isInUse ()) {
+      if (this->scaling.isScaled ()) {
+         caption.append ("*");
+      } else {
+         caption.append (" ");
+      }
+
+      substitutedPVName = this->caLabel->getSubstitutedVariableName (0);
+      caption.append (substitutedPVName);
+   }
+
+   this->pvName->setText (caption);
 }
 
 //------------------------------------------------------------------------------
@@ -611,7 +648,6 @@ void QEStripChartItem::newVariableNameProperty (QString pvName, QString substitu
    //
    this->chart->evaluateAllowDrop ();
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -1080,7 +1116,8 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
 
 
       case QEStripChartNames::SCCM_SCALE_PV_RESET:
-         this->scaling.reset();
+         this->scaling.reset ();
+         this->setCaption ();
          this->chart->plotData ();
          break;
 
@@ -1095,9 +1132,10 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
          this->adjustPVDialog->setValueScaling (this->scaling);
          n = this->adjustPVDialog->exec (this);
          if (n == 1) {
-             // User has selected okay.
-             this->scaling.assign (this->adjustPVDialog->getValueScaling ());
-             this->chart->plotData ();
+            // User has selected okay.
+            this->scaling.assign (this->adjustPVDialog->getValueScaling ());
+            this->setCaption ();
+            this->chart->plotData ();
          }
          break;
 
@@ -1106,6 +1144,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
          status = range.getMinMax (min, max);
          if (status) {
             this->scaling.map (min, max, this->chart->getYMinimum (), this->chart->getYMaximum ());
+            this->setCaption ();
             this->chart->plotData ();
          }
          break;
@@ -1115,6 +1154,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
          status = range.getMinMax (min, max);
          if (status) {
             this->scaling.map (min, max, this->chart->getYMinimum (), this->chart->getYMaximum ());
+            this->setCaption ();
             this->chart->plotData ();
          }
          break;
@@ -1124,6 +1164,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
          status = range.getMinMax (min, max);
          if (status) {
             this->scaling.map (min, max, this->chart->getYMinimum (), this->chart->getYMaximum ());
+            this->setCaption ();
             this->chart->plotData ();
          }
          break;
@@ -1132,6 +1173,8 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
          if (this->firstPointIsDefined) {
             midway = (chart->getYMinimum () + this->chart->getYMaximum () ) / 2.0;
             this->scaling.set (this->firstPoint.value, 1.0, midway);
+            this->setCaption ();
+            this->chart->plotData ();
          }
          break;
 
@@ -1292,6 +1335,7 @@ void QEStripChartItem::restoreConfiguration (PMElement & parentElement)
    if (status) {
       this->setPvName (pvName, "");
       this->scaling.restoreConfiguration (pvElement);
+      this->setCaption ();
    }
 }
 
