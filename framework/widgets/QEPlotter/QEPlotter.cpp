@@ -44,6 +44,8 @@ static const QColor clGridLine (0xC0C0C0);
 static const QColor clReverseGridLine (0x404040);
 static const QColor clStatus (0xF0F0F0);
 
+static const QString letterStyle ("QWidget { background-color: #e8e8e8; }");
+
 // Define default colours: essentially RGB byte triplets
 //
 static const QColor item_colours [1 + NUMBER_OF_PLOTS] = {
@@ -102,7 +104,6 @@ TPlotterCheckBox::TPlotterCheckBox (const QString& text, QWidget* parent) : QChe
 void QEPlotter::createInternalWidgets ()
 {
    int slot;
-   int y;
    QString styleSheet;
 
    // Main layout.
@@ -153,9 +154,9 @@ void QEPlotter::createInternalWidgets ()
 
    // Inside plot frame - whole thing.
    //
-   this->pLayout = new QVBoxLayout (this->plotFrame);
-   this->pLayout->setMargin (4);
-   this->pLayout->setSpacing (4);
+   this->plotLayout = new QVBoxLayout (this->plotFrame);
+   this->plotLayout->setMargin (4);
+   this->plotLayout->setSpacing (4);
 
    this->plotArea = new QwtPlot (this->plotFrame);
 #if QWT_VERSION < 0x060100
@@ -172,9 +173,9 @@ void QEPlotter::createInternalWidgets ()
    this->plotGrid = new QwtPlotGrid ();
    this->plotGrid->attach (this->plotArea);
 
-   this->pLayout->addWidget (this->plotArea);
+   this->plotLayout->addWidget (this->plotArea);
 
-   this->itemResize = new QEResizeableFrame (QEResizeableFrame::LeftEdge, 40, 400, this->theMainFrame);
+   this->itemResize = new QEResizeableFrame (QEResizeableFrame::LeftEdge,60, 400, this->theMainFrame);
    this->itemResize->setFrameShape (QFrame::StyledPanel);
    this->itemResize->setFrameShadow (QFrame::Raised);
    this->itemResize->setFixedWidth (256);
@@ -185,31 +186,57 @@ void QEPlotter::createInternalWidgets ()
    this->itemFrame->setFrameShadow (QFrame::Plain);
    this->itemResize->setWidget (this->itemFrame);
 
+   this->itemLayout = new QVBoxLayout (this->itemFrame);
+   this->itemLayout->setMargin (2);
+   this->itemLayout->setSpacing (6);
+
    for (slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
-      QLabel* label = new QLabel (this->itemFrame);
+      QFrame* frame = new QFrame (this->itemFrame);
+      frame->setFixedHeight (16);
+      this->itemLayout->addWidget (frame);
+      if (slot == 0) {
+         this->itemLayout->addSpacing (4);
+      }
+
+      QHBoxLayout* frameLayout = new QHBoxLayout (frame);
+      frameLayout->setMargin (0);
+      frameLayout->setSpacing (0);
+
+      QLabel* letter = new QLabel (frame);
+      QLabel* label = new QLabel (frame);
       QEPlotterMenu* menu = new QEPlotterMenu (slot, this);
       TPlotterCheckBox* box = NULL;
 
-      y = 4 + (22*slot) + (slot ? 4 : 0);
+      letter->setFixedWidth (16);
+      letter->setText (item_labels [slot]);
+      letter->setStyleSheet (letterStyle);
+      letter->setAlignment (Qt::AlignHCenter);
+      frameLayout->addWidget (letter);
 
-      label->setGeometry (4, y, 200, 17);
+      label->setMinimumWidth (16);
+      label->setMaximumWidth (400);
       label->setIndent (6);
       label->setStyleSheet (QEUtilities::colourToStyle (item_colours [slot]));
-
       label->setAcceptDrops (true);
       label->installEventFilter (this);
       label->setContextMenuPolicy (Qt::CustomContextMenu);
+      frameLayout->addWidget (label);
 
       QObject::connect (label, SIGNAL ( customContextMenuRequested (const QPoint &)),
                         this,  SLOT   ( itemContextMenuRequested (const QPoint &)));
 
       this->connectMenuOrToolBar (menu);
 
-      if (slot != 0) {
-         box = new TPlotterCheckBox (this->itemFrame);
+
+      if (slot == 0) {
+         frameLayout->addSpacing (4 + 17);
+      } else {
+         frameLayout->addSpacing (4);
+         box = new TPlotterCheckBox (frame);
          box->tag = slot;
-         box->setGeometry (208, y, 17, 17);
+         box->setFixedWidth (17);
          box->setChecked (true);
+         frameLayout->addWidget (box);
 
          QObject::connect (box,  SIGNAL (stateChanged (int)),
                            this, SLOT   (checkBoxStateChanged (int)));
@@ -217,18 +244,26 @@ void QEPlotter::createInternalWidgets ()
 
       // Save widget references.
       //
+      this->xy [slot].frame = frame;
+      this->xy [slot].frameLayout = frameLayout;
+      this->xy [slot].itemLetter = letter;
       this->xy [slot].itemName = label;
       this->xy [slot].checkBox = box;
       this->xy [slot].itemMenu = menu;
    }
 
+   // Add spacer at the bottom of the items.
+   //
+   QSpacerItem* verticalSpacer = new QSpacerItem (10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
+   this->itemLayout->addItem (verticalSpacer);
+
    // Status frame.
    //
    // Inside status frame - layout left to right.
    //
-   this->sLayout = new QHBoxLayout (this->statusFrame);
-   this->sLayout->setMargin (4);
-   this->sLayout->setSpacing (8);
+   this->statusLayout = new QHBoxLayout (this->statusFrame);
+   this->statusLayout->setMargin (4);
+   this->statusLayout->setSpacing (8);
 
    this->slotIndicator = new QLabel ("", this->statusFrame);
    this->minLabel   = new QLabel ("Min:", this->statusFrame);
@@ -267,17 +302,17 @@ void QEPlotter::createInternalWidgets ()
 
 #undef SET_VALUE_LABEL
 
-   this->sLayout->addWidget (this->slotIndicator);
-   this->sLayout->addWidget (this->minLabel);
-   this->sLayout->addWidget (this->minValue);
-   this->sLayout->addWidget (this->maxLabel);
-   this->sLayout->addWidget (this->maxValue);
-   this->sLayout->addWidget (this->maxAtLabel);
-   this->sLayout->addWidget (this->maxAtValue);
-   this->sLayout->addWidget (this->fwhmLabel);
-   this->sLayout->addWidget (this->fwhmValue);
-   this->sLayout->addWidget (this->comLabel);
-   this->sLayout->addWidget (this->comValue);
+   this->statusLayout->addWidget (this->slotIndicator);
+   this->statusLayout->addWidget (this->minLabel);
+   this->statusLayout->addWidget (this->minValue);
+   this->statusLayout->addWidget (this->maxLabel);
+   this->statusLayout->addWidget (this->maxValue);
+   this->statusLayout->addWidget (this->maxAtLabel);
+   this->statusLayout->addWidget (this->maxAtValue);
+   this->statusLayout->addWidget (this->fwhmLabel);
+   this->statusLayout->addWidget (this->fwhmValue);
+   this->statusLayout->addWidget (this->comLabel);
+   this->statusLayout->addWidget (this->comValue);
 
    this->colourDialog = new QColorDialog (this);
    this->dataDialog = new QEPlotterItemDialog (this);
@@ -536,9 +571,9 @@ void QEPlotter::updateLabel (const int slot)
    SLOT_CHECK (slot,);
 
    DataSets* ds = &this->xy [slot];
-   QString text = item_labels [slot];
+   QString text;
 
-   text.append (" ");
+   text.clear ();
 
    switch (ds->dataKind) {
       case NotInUse:
@@ -800,6 +835,10 @@ QMenu* QEPlotter::generalContextMenuCreate ()
                      this, SLOT   (generalContextMenuRequested (const QPoint &)));
 
    result = new QEPlotterMenu (this);
+
+   result->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_TOOLBAR, true);
+   result->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_PV_ITEMS, true);
+   result->setActionChecked (QEPlotterNames::PLOTTER_SHOW_HIDE_STATUS, true);
 
    this->connectMenuOrToolBar (result);
 
@@ -1246,10 +1285,10 @@ void QEPlotter::onCanvasMouseMove (QMouseEvent* event)
 
    mouseReadOut = "";
 
-   f.sprintf ("  x: %+.5g", real.x ());
+   f.sprintf ("  x: %+.6g", real.x ());
    mouseReadOut.append (f);
 
-   f.sprintf ("  y: %+.5g", real.y ());
+   f.sprintf ("  y: %+.6g", real.y ());
    mouseReadOut.append (f);
 
    if (this->plotRightIsDefined) {
@@ -1258,15 +1297,15 @@ void QEPlotter::onCanvasMouseMove (QMouseEvent* event)
       const double dx = offset.x() - origin.x ();
       const double dy = offset.y() - origin.y ();
 
-      f.sprintf ("  dx: %+.5g", dx);
+      f.sprintf ("  dx: %+.6g", dx);
       mouseReadOut.append (f);
 
-      f.sprintf ("  dy: %+.5g", dy);
+      f.sprintf ("  dy: %+.6g", dy);
       mouseReadOut.append (f);
 
       // Calculate slope, but avoid the divide by 0.
       if (dx != 0.0) {
-         f.sprintf ("  dy/dx: %+.5g", dy/dx);
+         f.sprintf ("  dy/dx: %+.6g", dy/dx);
          mouseReadOut.append (f);
       }
    }

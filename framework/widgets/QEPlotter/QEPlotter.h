@@ -28,6 +28,7 @@
 
 #include <QColor>
 #include <QColorDialog>
+#include <QFrame>
 #include <QObject>
 #include <QTimer>
 #include <QVector>
@@ -127,7 +128,7 @@ class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_PROPERTY (QString AliasNameO      READ getAliasO   WRITE setAliasO)
    Q_PROPERTY (QString AliasNameP      READ getAliasP   WRITE setAliasP)
 
-   // There is no X colour - we ploy Ys agaist X.
+   // There is no X colour - we plot the Ys agaist X.
    //
    Q_PROPERTY (QColor  ColourA         READ getColourA  WRITE setColourA)
    Q_PROPERTY (QColor  ColourB         READ getColourB  WRITE setColourB)
@@ -201,8 +202,9 @@ private:
    //
    QVBoxLayout* vLayout;
    QHBoxLayout* hLayout;
-   QVBoxLayout* pLayout;
-   QHBoxLayout* sLayout;
+   QVBoxLayout* plotLayout;
+   QHBoxLayout* statusLayout;
+   QVBoxLayout* itemLayout;
 
    QEResizeableFrame* toolBarResize;
    QEPlotterToolBar* toolBar;
@@ -327,6 +329,9 @@ private:
 
       // Widgets.
       //
+      QFrame* frame;
+      QHBoxLayout* frameLayout;
+      QLabel* itemLetter;
       QLabel* itemName;
       QCheckBox* checkBox;
       QEPlotterMenu* itemMenu;
