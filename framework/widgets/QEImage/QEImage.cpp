@@ -3492,39 +3492,50 @@ void QEImage::showImageContextMenu( const QPoint& pos )
 
     if( fullContextMenu )
     {
-        // Create the image context menu
-        imageContextMenu menu;
-
-        // add the standard context menu as a sub menu
-        menu.addMenu( buildContextMenu() );
+        // Create the standard context menu
+        QMenu* cm = buildContextMenu();
 
         // Add the Selection menu
+        cm->addSeparator();
         sMenu->setChecked( getSelectionOption() );
-        menu.addMenu( sMenu );
+        cm->addMenu( sMenu );
 
         // Add menu items
 
-        //                      Title                            checkable  checked                     option
-        menu.addMenuItem(       "Save...",                       false,     false,                      imageContextMenu::ICM_SAVE                     );
-        menu.addMenuItem(       paused?"Resume":"Pause",         true,      paused,                     imageContextMenu::ICM_PAUSE                    );
+        //                    Title                            checkable  checked                     option
+        addMenuItem( cm,      "Save...",                       false,     false,                      imageContextMenu::ICM_SAVE                     );
+        addMenuItem( cm,      paused?"Resume":"Pause",         true,      paused,                     imageContextMenu::ICM_PAUSE                    );
 
-        menu.addMenuItem(       "About image...",                false,     false,                      imageContextMenu::ICM_ABOUT_IMAGE              );
+        addMenuItem( cm,      "About image...",                false,     false,                      imageContextMenu::ICM_ABOUT_IMAGE              );
+
         // Add the zoom menu
         zMenu->enableAreaSelected( haveSelectedArea1 );
-        menu.addMenu( zMenu );
+        cm->addMenu( zMenu );
 
         // Add the flip/rotate menu
         frMenu->setChecked( rotation, flipHoz, flipVert );
-        menu.addMenu( frMenu );
+        cm->addMenu( frMenu );
 
         // Add option... dialog
-        menu.addMenuItem(       "Options...",                    false,     false,                      imageContextMenu::ICM_OPTIONS                  );
+        addMenuItem( cm,      "Options...",                    false,     false,                      imageContextMenu::ICM_OPTIONS                  );
 
         // Present the menu
         imageContextMenu::imageContextMenuOptions option;
         bool checked;
-        menu.getContextMenuOption( globalPos, &option, &checked );
+        QAction* selectedItem = showContextMenu( cm, pos );
+        if( selectedItem )
+        {
+            option = (imageContextMenu::imageContextMenuOptions)(selectedItem->data().toInt());
+            checked = selectedItem->isChecked();
+        }
+        else
+        {
+            option = imageContextMenu::ICM_NONE;
+            checked = false;
+        }
 
+        // Act on the selected option.
+        // (there won't be one if a standard context menu option was selected)
         optionAction( option, checked );
     }
     else
