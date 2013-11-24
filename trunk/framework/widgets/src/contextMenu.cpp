@@ -42,6 +42,7 @@
 #include <QDebug>
 #include <QEWidget.h>
 #include <QEScaling.h>
+#include <QAction>
 
 // Flag common to all context menus.
 // true if 'dragging the variable
@@ -125,14 +126,19 @@ QMenu* contextMenu::buildContextMenu()
 }
 
 // Present the context menu
-void contextMenu::showContextMenu( const QPoint& pos )
+QAction* contextMenu::showContextMenu( const QPoint& pos )
 {
-
-    QPoint globalPos = qew->getQWidget()->mapToGlobal( pos );
-
     QMenu* menu = buildContextMenu();
-    menu->exec( globalPos );
+    QAction* action = showContextMenu( menu, pos );
     delete menu;
+    return action;
+}
+
+// Present the context menu
+QAction* contextMenu::showContextMenu(  QMenu* menu, const QPoint& pos )
+{
+    QPoint globalPos = qew->getQWidget()->mapToGlobal( pos );
+    return menu->exec( globalPos );
 }
 
 // Return the global 'is dragging variable' flag.
@@ -271,4 +277,16 @@ void contextMenu::doAddToScratchPad()
    object->sendRequestAction( request );
 }
 
+// Add a menu item to the either the context menu, or one of its sub menus
+void contextMenu::addMenuItem( QMenu* menu, const QString& title, const bool checkable, const bool checked, const int option )
+{
+    QAction* a = new QAction( title, menu );
+    a->setCheckable( checkable );
+    if( checkable )
+    {
+        a->setChecked( checked );
+    }
+    a->setData( option );
+    menu->addAction( a );
+}
 // end

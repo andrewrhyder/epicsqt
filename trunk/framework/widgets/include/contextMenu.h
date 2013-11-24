@@ -80,7 +80,10 @@ public:
     virtual QString copyVariable(){ return ""; }        // Function a widget may implement to perform a 'copy variable' operation
     virtual QVariant copyData(){ return ""; }           // Function a widget may implement to perform a 'copy data' operation
     virtual void paste( QVariant ){}                    // Function a widget may implement to perform a 'paste' operation
-    void showContextMenu( const QPoint& pos );          // Present the context menu
+    QAction* showContextMenu( const QPoint& pos );          // Present the context menu
+    QAction* showContextMenu( QMenu* menu, const QPoint& pos ); // Present a context menu already created by a call to buildContextMenu()
+
+    void addMenuItem( QMenu* menu, const QString& title, const bool checkable, const bool checked, const int option );
 
 private:
     contextMenuObject* object;                          // Our own QObject based class to managing signals and slots

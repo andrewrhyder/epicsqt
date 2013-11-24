@@ -96,10 +96,9 @@ public:
 
     // Present the context menu, and return whatever the user selects
     void getContextMenuOption( const QPoint&, imageContextMenuOptions* option, bool* checked );
+
     // Add an item to the context menu
     void addMenuItem( const QString& title, const bool checkable, const bool checked, const imageContextMenuOptions option );
-    // Add an item to the context menu's 'Option' sub menu
-    void addOptionMenuItem( const QString& title, const bool checkable, const bool checked, const imageContextMenuOptions option );
 
 signals:
 
@@ -108,8 +107,6 @@ public slots:
 private:
     // Add a menu item to the either the context menu, or one of its sub menus
     void addMenuItemGeneric( QMenu* menu, const QString& title, const bool checkable, const bool checked, const imageContextMenuOptions option );
-
-    QMenu* optionMenu;
 };
 
 #endif // IMAGECONTEXTMENU_H

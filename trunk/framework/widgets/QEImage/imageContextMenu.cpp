@@ -34,7 +34,6 @@
 // Construction
 imageContextMenu::imageContextMenu( QWidget *parent) : QMenu(parent)
 {
-    optionMenu = NULL;
     setTitle( "Image options" );
 }
 
@@ -58,20 +57,6 @@ void imageContextMenu::getContextMenuOption( const QPoint& pos, imageContextMenu
 void imageContextMenu::addMenuItem( const QString& title, const bool checkable, const bool checked, const imageContextMenuOptions option )
 {
     addMenuItemGeneric( this, title, checkable, checked, option);
-}
-
-// Add an item to the context menu's 'Option' sub menu
-void imageContextMenu::addOptionMenuItem( const QString& title, const bool checkable, const bool checked, const imageContextMenuOptions option )
-{
-    // If the 'Option' sub menu is not present yet, create it
-    if( !optionMenu )
-    {
-        optionMenu = new QMenu( "Options" );
-        addMenu( optionMenu );
-    }
-
-    // Add the 'Option' menu item
-    addMenuItemGeneric( optionMenu, title, checkable, checked, option);
 }
 
 // Add a menu item to the either the context menu, or one of its sub menus
