@@ -34,7 +34,7 @@
 #include "QEPlotterToolBar.h"
 #include <QEPlotterMenu.h>
 
-struct PushButtonSpecifications {
+struct PBSpecs {
    int gap;
    int width;
    bool isIcon;                         // when false is caption
@@ -47,7 +47,7 @@ struct PushButtonSpecifications {
 #define GAP                8          // group gap
 #define ICW                26         // icon width
 
-static const struct PushButtonSpecifications buttonSpecs [] = {
+static const struct PBSpecs buttonSpecs [] = {
    { 0,   ICW, true,  QString ("go_back.png"),       QEPlotterNames::PLOTTER_PREV,               QString ("Previous state")     },
    { 0,   ICW, true,  QString ("go_fwd.png"),        QEPlotterNames::PLOTTER_NEXT,               QString ("Next state")         },
 
