@@ -194,8 +194,6 @@ void QEImage::setup() {
                       this,    SLOT  ( brightnessContrastChanged()) );
     QObject::connect( localBC, SIGNAL( brightnessContrastAutoImage() ),
                       this,    SLOT  ( brightnessContrastAutoImageRequest() ) );
-    QObject::connect( localBC, SIGNAL( brightnessContrastReversal( bool ) ),
-                      this,    SLOT  ( brightnessContrastReversalRequest( bool ) ) );
     QObject::connect(localBC, SIGNAL(destroyed(QObject*)), this, SLOT(localBCDestroyed(QObject*)));
 
     // Create vertical, horizontal, and general profile plots
@@ -413,7 +411,7 @@ void QEImage::presentControls()
         if( localBC )
         {
             mainLayout->removeWidget( localBC );
-            components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, false, "Brightness / Contrast" ) );
+            components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, true, "Brightness / Contrast" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -891,6 +889,9 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
  */
 void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time, const unsigned int& )
 {
+//Testing    static int imageCount=0;
+//Testing    qDebug() << "QEImage::setImage()" << this->getVariableName0Property() << imageCount++ << imageIn.size();
+
     // If the display is paused, do nothing
     if (paused)
     {
