@@ -49,7 +49,6 @@ public:
 signals:
     void brightnessContrastAutoImage();
     void brightnessContrastChange();
-    void brightnessContrastReversal( bool state );
 
 private slots:
     void brightnessSliderValueChanged( int value );

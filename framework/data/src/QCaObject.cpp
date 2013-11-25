@@ -34,7 +34,6 @@
 #include <CaRecord.h>
 #include <CaConnection.h>
 
-
 using namespace qcaobject;
 using namespace generic;
 using namespace caconnection;
@@ -527,6 +526,7 @@ bool QCaObject::writeData( const QVariant& newData ) {
     posts via an event.
 */
 void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
+// Testing qDebug() << "QCaObject::signalCallback()";
 
     // Initialise data package.
     // It is really of type carecord::CaRecord*
@@ -557,6 +557,7 @@ void QCaObject::signalCallback( caobject::callback_reasons newReason ) {
                     delete (carecord::CaRecord*)(event->dataPtr);
                     event->dataPtr = dataPackage;
                     replaced = true;
+//Testing                    qDebug() << "========================data replaced in queue";
                 }
                 break;
             }
