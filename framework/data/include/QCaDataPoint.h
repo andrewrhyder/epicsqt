@@ -83,11 +83,18 @@ public:
    QCaDataPoint last () const                  { return data.last ();   }
 
    // Resamples the source list on points into current list.
+   // Items are resamples into data points at fixed time intervals.
+   // No interploation - the "current" value is carried forward tp the next sample point(s).
    // Note: any previous data is lost.
    //
    void resample (const QCaDataPointList& source,
                   const double interval,
-                  const QCaDateTime&  endTime);
+                  const QCaDateTime& endTime);
+
+   // Removes duplicate sample points.
+   // Note: any previous data is lost.
+   //
+   void compact (const QCaDataPointList& source);
 
    // Write whole list to target stream.
    //
