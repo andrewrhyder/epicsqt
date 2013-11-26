@@ -1084,6 +1084,19 @@ void QCaObject::setUserMessage( UserMessage* userMessageIn )
 }
 
 /*
+ Setup the number of elements required.
+ This can be called before a subscription, or during a subscription, in which
+ case the connection will be renewed with the new element count, if changed.
+ */
+void QCaObject::setRequestedElementCount( unsigned int elementCount )
+{
+    // Get the private part of this object (not visible to users of this class)
+    CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
+
+    p->caConnection->setChannelRequestedElementCount( elementCount );
+}
+
+/*
   Re-emit the last data emited, if any
   This can be used after a property of a widget using this QCaObject has changed to
   force an update of the data and a re-presentation of the data in the widget to reflect the new property

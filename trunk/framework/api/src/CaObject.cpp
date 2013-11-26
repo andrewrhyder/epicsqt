@@ -80,8 +80,10 @@ CaObject::~CaObject() {
     CaRef::accessUnlock();
 
     shutdown();
+
     delete p->caConnection;
     delete p;
+
 }
 
 /*

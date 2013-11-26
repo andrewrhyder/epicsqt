@@ -58,6 +58,8 @@ namespace caconnection {
       int writeResponse;
       int state;
       short type;
+      bool requestedElementCountSet;
+      unsigned long requestedElementCount;
       unsigned long elementCount;
       chid id;
       bool writeWithCallback;
@@ -104,11 +106,14 @@ namespace caconnection {
       bool activatedChannel() { return channel.activated; }
       bool isSubscribed() { return subscription.activated; }
       void setChannelElementCount();
+      void setChannelRequestedElementCount( unsigned long requestedElementCountIn );
 
       void setWriteWithCallback( bool writeWithCallbackIn );
       bool getWriteWithCallback();
 
       bool getChannelActivated(){ return channel.activated; } // Get activated state when checking CA callbacks are OK
+
+      unsigned long getSubscribeElementCount();
 
     private:
       CaRef* myRef;

@@ -475,7 +475,18 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
     {
         // Create the image item as a QEByteArray
         case IMAGE_VARIABLE:
-            return new QEByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
+            {
+                // Create the image item
+                QEByteArray* qca = new QEByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
+
+                // If we already have the image dimensions, update the image size we need here before the subscription
+                // (we should have image dimensions as a connection is only established once these have been read)
+                if( imageBuffWidth && imageBuffHeight )
+                {
+                    qca->setRequestedElementCount(  imageBuffWidth * imageBuffHeight );
+                }
+                return qca;
+            }
 
         // Create the width, height, target and beam, regions and profile and clipping items as a QEInteger
         case WIDTH_VARIABLE:
@@ -538,6 +549,10 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
     This function may also be used to initiate updates when loaded as a plugin.
 */
 void QEImage::establishConnection( unsigned int variableIndex ) {
+
+    // Do nothing regarding the image until the width and height are available
+    if( variableIndex == IMAGE_VARIABLE && imageBuffWidth == 0 && imageBuffHeight == 0 )
+       return;
 
     // Create a connection.
     // If successfull, the QCaObject object that will supply data update signals will be returned
@@ -677,6 +692,8 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
  */
 void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
 {
+    unsigned long previousElementCount = imageBuffWidth * imageBuffHeight;
+
     // Update image size variable
     switch( variableIndex )
     {
@@ -701,6 +718,19 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     // The image data will be present, but will not have been used to update the image if the
     // width and height were not suitable at the time of the image update
     displayImage();
+
+    // If the image size has changed and we now have both dimensions (if either
+    // is zero imageBuffWidth * imageBuffHeight will be zero), update the image
+    // variable connection to reflect the elements we now need.
+    unsigned long elementCount = imageBuffWidth * imageBuffHeight;
+    if( elementCount && (elementCount != previousElementCount ))
+    {
+        // Clear any current image as the data in it is not our own and will be lost when the connection is re-established
+        image.clear();
+
+        // Re-establish the image connection. This will set request the appropriate array size.
+        establishConnection( IMAGE_VARIABLE );
+    }
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -1107,8 +1137,8 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
 void QEImage::displayImage()
 {
 
-    // Do nothing if there are no image dimensions yet
-    if( !imageBuffWidth || !imageBuffHeight )
+    // Do nothing if there is no image, or are no image dimensions yet
+    if( image.isEmpty() || !imageBuffWidth || !imageBuffHeight )
         return;
 
     // Do we have enough or any data
@@ -3325,6 +3355,12 @@ QPoint QEImage::rotateFlipPoint( QPoint& pos )
 // Display a pixel value.
 void QEImage::currentPixelInfo( QPoint pos )
 {
+    // Don't do anything if no image data yet
+    if( image.isEmpty() )
+    {
+        return;
+    }
+
     // If the pixel is not within the image, display nothing
     QString s;
     if( pos.x() < 0 || pos.y() < 0 || pos.x() >= (int)rotatedImageBuffWidth() || pos.y() >= (int)rotatedImageBuffHeight() )
