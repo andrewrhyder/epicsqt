@@ -1,4 +1,5 @@
-/*
+/*  QCaAlarmInfo.h
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -38,6 +39,9 @@ public:
     QCaAlarmInfo();
     QCaAlarmInfo( unsigned short statusIn, unsigned short severityIn );
 
+    bool operator==(const QCaAlarmInfo& other) const;   // Return true if equal
+    bool operator!=(const QCaAlarmInfo& other) const;   // Return true if not equal
+
     QString statusName();       // Return the name of the current alarm state
     QString severityName();     // Return the name of the current alarm severity
     bool isInAlarm();           // Return true if there is an alarm
@@ -54,7 +58,6 @@ public:
 private:
     unsigned short status;      // Alarm state
     unsigned short severity;    // Alarm severity
-
 
 };
 
