@@ -80,6 +80,8 @@ namespace qcaobject {
       void enableWriteCallbacks( bool enable );
       bool isWriteCallbacksEnabled();
 
+      void setRequestedElementCount( unsigned int elementCount );
+
       // Get database information relating to the variable
       QString getRecordName();
       QString getEgu();

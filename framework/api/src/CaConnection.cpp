@@ -124,8 +124,17 @@ ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct co
     }
 }
 
+// Set the channel element count to be requested.
+// This must be done before the connection is requested.
+void CaConnection::setChannelRequestedElementCount( unsigned long requestedElementCountIn )
+{
+    channel.requestedElementCount = requestedElementCountIn;
+    channel.requestedElementCountSet = true;
+}
+
 
 // Set the channel element count.
+// This is the number of elementes returned, not requested.
 // This can be done after the connection callback has been called and the connection is up
 void CaConnection::setChannelElementCount()
 {
@@ -138,6 +147,13 @@ void CaConnection::setChannelElementCount()
     {
         channel.elementCount = 1;
     }
+}
+
+// Get the number of elements to subscribe to,
+// the will be the number requested if any, otherwise it will be the array size reported on connection.
+unsigned long CaConnection::getSubscribeElementCount()
+{
+    return (channel.requestedElementCountSet) ? channel.requestedElementCount : channel.elementCount;
 }
 
 /*
@@ -161,7 +177,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
     updateDbrStructType = updateDbrStructTypeIn;
 
     if( channel.activated == true && subscription.activated == false ) {
-        subscription.creation = ca_array_get_callback( initialDbrStructType, channel.elementCount, channel.id, subscriptionInitialHandler, myRef );
+        subscription.creation = ca_array_get_callback( initialDbrStructType, getSubscribeElementCount(), channel.id, subscriptionInitialHandler, myRef );
         ca_flush_io();
         subscription.activated = true;
         switch( subscription.creation ) {
@@ -205,7 +221,7 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
     // Now switch to the "time" update type that provides value(s), status and time.
     //
     me->subscription.creation = ca_create_subscription( me->updateDbrStructType,
-                                                        me->channel.elementCount,
+                                                        me->getSubscribeElementCount(),
                                                         me->channel.id,
                                                         DBE_VALUE|DBE_ALARM,
                                                         me->subscriptionSubscriptionHandler,
@@ -436,6 +452,8 @@ unsigned long CaConnection::getElementCount()
 */
 void CaConnection::initialise() {
     CA_UNIQUE_CONNECTION_ID++;
+    channel.requestedElementCount = 0;
+    channel.requestedElementCountSet = false;
 }
 
 /*
