@@ -1,4 +1,5 @@
-/*
+/*  QCaAlarmInfo.cpp
+ *
  *  This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or modify
@@ -44,6 +45,21 @@ QCaAlarmInfo::QCaAlarmInfo( unsigned short statusIn, unsigned short severityIn )
     status = statusIn;
     severity = severityIn;
 }
+
+/*
+  Equality function.
+ */
+bool QCaAlarmInfo::operator==(const QCaAlarmInfo& other) const {
+    return( ( this->status == other.status ) && ( this->severity == other.severity ) );
+}
+
+/*
+  InEquality function - defined in terms of == to ensure consistancy.
+ */
+bool QCaAlarmInfo::operator!=(const QCaAlarmInfo& other) const {
+    return !(*this == other);
+}
+
 
 /*
   Return a string identifying the alarm state
@@ -142,3 +158,5 @@ QCAALARMINFO_SEVERITY QCaAlarmInfo::getSeverity()
 {
     return severity;
 }
+
+// end
