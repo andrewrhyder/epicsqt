@@ -34,7 +34,11 @@
 #include "QEPlotterToolBar.h"
 #include <QEPlotterMenu.h>
 
-struct PBSpecs {
+// Structure used in buttonSpecs for definining plotter tool bar.
+// Note, a similar structure is used in QEStripChart. If they are the same name a
+// strange problem occurs when built with GCC 4.5.1 where the QString destructor is
+// called inappropriately on exit causing a crash.
+struct QEPlotterPushButtonSpecifications {
    int gap;
    int width;
    bool isIcon;                         // when false is caption
@@ -47,7 +51,7 @@ struct PBSpecs {
 #define GAP                8          // group gap
 #define ICW                26         // icon width
 
-static const struct PBSpecs buttonSpecs [] = {
+static const struct QEPlotterPushButtonSpecifications buttonSpecs [] = {
    { 0,   ICW, true,  QString ("go_back.png"),       QEPlotterNames::PLOTTER_PREV,               QString ("Previous state")     },
    { 0,   ICW, true,  QString ("go_fwd.png"),        QEPlotterNames::PLOTTER_NEXT,               QString ("Next state")         },
 

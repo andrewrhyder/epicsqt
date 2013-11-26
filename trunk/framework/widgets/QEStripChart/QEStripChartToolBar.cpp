@@ -49,7 +49,11 @@
 #define YSCALE_SLOT        6
 #define TSCALE_SLOT        12
 
-struct PushButtonSpecifications {
+// Structure used in buttonSpecs for definining strip chart tool bar.
+// Note, a similar structure is used in QEPlotter. If they are the same name a
+// strange problem occurs when built with GCC 4.5.1 where the QString destructor is
+// called inappropriately on exit causing a crash.
+struct QEStripChartPushButtonSpecifications {
    int gap;
    int width;
    bool isIcon;  // when false is caption
@@ -60,7 +64,7 @@ struct PushButtonSpecifications {
 
 static const QString localZone = QEUtilities::getTimeZoneTLA (Qt::LocalTime, QDateTime::currentDateTime ());
 
-static const struct PushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
+static const struct QEStripChartPushButtonSpecifications buttonSpecs [NUMBER_OF_BUTTONS] = {
    { 0,   ICW, true,  QString ("go_back.png"),           QString ("Previous state"),               SLOT (prevStateClicked (bool))        },
    { 0,   ICW, true,  QString ("go_fwd.png"),            QString ("Next state"),                   SLOT (nextStateClicked (bool))        },
 
