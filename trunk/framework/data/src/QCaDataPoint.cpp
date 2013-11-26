@@ -194,6 +194,30 @@ void QCaDataPointList::resample (const QCaDataPointList& source,
 
 //------------------------------------------------------------------------------
 //
+void QCaDataPointList::compact (const QCaDataPointList& source)
+{
+   int j;
+   QCaDataPoint lastPoint;
+
+   this->clear ();
+   if (source.count () <= 0) return;
+
+   // Copy first point.
+   lastPoint = source.value (0);
+   this->append (lastPoint);
+
+   for (j = 1; j < source.data.count (); j++) {
+      QCaDataPoint point = source.data.value (j);
+      if ((point.value != lastPoint.value) ||
+          (point.alarm != lastPoint.alarm)) {
+         this->append (point);
+         lastPoint = point;
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
+//
 void QCaDataPointList::toStream (QTextStream& target,
                                  bool withIndex,
                                  bool withRelativeTime)
