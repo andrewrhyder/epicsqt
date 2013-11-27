@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2012
+ *  Copyright (c) 2012, 2013 Australian Synchrotron.
  *
  *  Author:
  *    Andrew Starritt
@@ -40,6 +40,10 @@
 
 
 #define DEBUG qDebug() << "QEPvProperties::" << __FUNCTION__ << ":" << __LINE__
+
+// INP/OUT and CALC fields are 80, 120 should cover it.
+//
+#define MAX_FIELD_DATA_SIZE  120
 
 
 //==============================================================================
@@ -372,6 +376,7 @@ void QEPvProperties::common_setup ()
    this->fieldStringFormatting.setUseDbPrecision (false);
    this->fieldStringFormatting.setPrecision (12);
    this->fieldStringFormatting.setNotation (QEStringFormatting::NOTATION_AUTOMATIC);
+   this->fieldStringFormatting.setArrayAction (QEStringFormatting::ASCII);
 
    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    // Framework boiler-plate stuff.
@@ -502,7 +507,7 @@ qcaobject::QCaObject* QEPvProperties::createQcaItem (unsigned int variableIndex)
 
 //------------------------------------------------------------------------------
 //
-void QEPvProperties::setUpRecordTypeChannels (QEString* &qca, const bool useCharArray)
+void QEPvProperties::setUpRecordTypeChannels (QEString* &qca, const  PVReadModes readMode)
 {
    QString pvName;
    QString recordTypeName;
@@ -511,14 +516,26 @@ void QEPvProperties::setUpRecordTypeChannels (QEString* &qca, const bool useChar
    this->recordBaseName = QERecordFieldName::recordName (pvName);
 
    recordTypeName = QERecordFieldName::rtypePvName (pvName);
-   if (useCharArray)   recordTypeName.append("$");
+   if (readMode == ReadAsCharArray) {
+      recordTypeName.append ("$");
+   }
 
+   // Delete any existing qca object if needs be.
+   //
    if (qca) {
       delete qca;
       qca = NULL;
    }
 
-   qca = new QEString (recordTypeName, this, &stringFormatting, (useCharArray ? 1 : 0));
+   qca = new QEString (recordTypeName, this, &stringFormatting, (unsigned int) readMode);
+
+   if (readMode == ReadAsCharArray)  {
+      // Record type names are never longer than standard string.
+      //
+      qca->setRequestedElementCount (40);
+   } else {
+      qca->setRequestedElementCount (1);
+   }
 
    QObject::connect (qca,  SIGNAL (stringConnectionChanged (QCaConnectionInfo&, const unsigned int& )),
                      this, SLOT   (setRecordTypeConnection (QCaConnectionInfo&, const unsigned int& )));
@@ -616,17 +633,19 @@ void QEPvProperties::establishConnection (unsigned int variableIndex)
    // Set up connections to XXXX.RTYP and XXXX.RTYP$.
    // We do this to firstly establish the record type name (e.g. ai, calcout),
    // but also to determine if the PV server (IOC) supports character array mode
-   // for string PVs. This is usefull for long strings (> 40 charcters).
+   // for string PVs. This is usefull for long strings (> 40 characters).
    //
-   this->setUpRecordTypeChannels (this->alternateRecordType, true);
-   this->setUpRecordTypeChannels (this->standardRecordType, false);
+   this->setUpRecordTypeChannels (this->alternateRecordType, ReadAsCharArray);
+   this->setUpRecordTypeChannels (this->standardRecordType,  StandardRead);
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPvProperties::setRecordTypeConnection (QCaConnectionInfo& connectionInfo, const unsigned int &variableIndex)
 {
-   if (variableIndex == 1 && connectionInfo.isChannelConnected ()) {
+   const PVReadModes readMode = (PVReadModes) variableIndex;
+
+   if ((readMode == ReadAsCharArray) && connectionInfo.isChannelConnected ()) {
       // XXX.RTYP$ connected - pre empty standard connection.
       //
       delete this->standardRecordType;
@@ -647,12 +666,13 @@ void QEPvProperties::setRecordTypeValue (const QString& rtypeValue,
                                          QCaDateTime&,
                                          const unsigned int& variableIndex)
 {
-   bool useCharArrayMode = (variableIndex == 1);
+   const PVReadModes readMode = (PVReadModes) variableIndex;
 
    int j;
    QERecordSpec *pRecordSpec;
    int numberOfFields;
    bool mayUseCharArray;
+   bool fieldUsingCharArray;
    QString readField;
    QString pvField;
    QString displayField;
@@ -694,14 +714,16 @@ void QEPvProperties::setRecordTypeValue (const QString& rtypeValue,
 
       if (mayUseCharArray) {
          displayField = readField;
-         displayField.chop (1);
+         displayField.chop (1);       // remove last character
       } else {
-         displayField = readField;
+         displayField = readField;    // use as is.
       }
 
-      if (useCharArrayMode && mayUseCharArray) {
+      fieldUsingCharArray = (readMode == ReadAsCharArray) && mayUseCharArray;
+
+      if (fieldUsingCharArray) {
          pvField = displayField;
-         pvField.append ('$');
+         pvField.append ('$');        // append CA array mode qualifier.
       } else {
          pvField = displayField;
       }
@@ -730,6 +752,12 @@ void QEPvProperties::setRecordTypeValue (const QString& rtypeValue,
       pvName = this->recordBaseName + "." + pvField;
 
       qca = new QEString (pvName, this, &this->fieldStringFormatting, j);
+
+      if (fieldUsingCharArray) {
+         qca->setRequestedElementCount (MAX_FIELD_DATA_SIZE);
+      } else {
+         qca->setRequestedElementCount (1);
+      }
 
       QObject::connect (qca, SIGNAL (stringConnectionChanged (QCaConnectionInfo&, const unsigned int& )),
                         this,  SLOT (setFieldConnection (QCaConnectionInfo&, const unsigned int& )));
@@ -881,7 +909,12 @@ void QEPvProperties::setFieldValue (const QString &value,
    numberOfRows = this->table->rowCount ();
    if ((int) variableIndex < numberOfRows) {
       item = this->table->item (variableIndex, VALUE_COL);
-      item->setText  (" " + value);
+      if (value.length () < MAX_FIELD_DATA_SIZE) {
+         item->setText  (" " + value);
+      } else {
+         // The string has maxed-out the read length, add ...
+         item->setText  (" " + value + "...");
+      }
    } else {
       DEBUG << "variableIndex =" << variableIndex
             << ", out of range - must be <" << numberOfRows;
