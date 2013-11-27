@@ -87,6 +87,11 @@ public:
 
 
 private:
+   enum PVReadModes {
+      StandardRead,      // no name qualification - read as is.
+      ReadAsCharArray    // read field as array of chars to overcome 40 character DBF_STRING limit.
+   };
+
    QEStringFormatting stringFormatting;
    bool isFirstUpdate;
 
@@ -120,7 +125,6 @@ private:
 
    void createInternalWidgets ();
 
-
    QString recordBaseName;
    QEStringFormatting fieldStringFormatting;
 
@@ -136,7 +140,7 @@ private:
    void clearFieldChannels ();
 
    void setUpLabelChannel ();
-   void setUpRecordTypeChannels (QEString* &qca, const bool useCharArray);
+   void setUpRecordTypeChannels (QEString* &qca, const PVReadModes readMode);
 
    // Override standardProperties::setApplicationEnabled()
    void setApplicationEnabled (const bool & state);
