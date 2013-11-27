@@ -153,7 +153,16 @@ void CaConnection::setChannelElementCount()
 // the will be the number requested if any, otherwise it will be the array size reported on connection.
 unsigned long CaConnection::getSubscribeElementCount()
 {
-    return (channel.requestedElementCountSet) ? channel.requestedElementCount : channel.elementCount;
+    unsigned long result = channel.elementCount;   //default
+    if( channel.requestedElementCountSet )
+    {
+        // Use requested element count but ensure no more than supported by the channel server.
+        if( channel.requestedElementCount < channel.elementCount )
+        {
+            result = channel.requestedElementCount;
+        }
+    }
+    return result;
 }
 
 /*
