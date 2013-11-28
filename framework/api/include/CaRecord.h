@@ -89,7 +89,7 @@ namespace carecord {
       unsigned long getTimeStampSeconds() { return timeStampSeconds; }
       unsigned long getTimeStampNanoseconds() { return timeStampNanoseconds; }
       std::string getEnumState( int position ) { return enumStates[position]; }
-      int getEnumStateCount() { return enumStates.size(); }
+      int getEnumStateCount() { return (int) enumStates.size(); }
 
       ca_limit getDisplayLimit() { return display; }
       ca_limit getAlarmLimit() { return alarm; }
