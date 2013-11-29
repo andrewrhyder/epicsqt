@@ -23,8 +23,9 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <stdlib.h>
 #include <QDebug>
+#include <QByteArray>
+#include <QtGlobal>
 
 #include "QEEnvironmentVariables.h"
 
@@ -82,12 +83,15 @@ bool QEEnvironmentVariables::getBool (const QString &name, const bool defaultVal
 QString QEEnvironmentVariables::getString (const QString& name, const QString& defaultValue)
 {
    QString envVar;
+   QByteArray byteArray;
    QString result;
 
    envVar = this->prefix;
    envVar.append (name.toUpper ());
 
-   result = getenv (envVar.toAscii().data());
+   byteArray = qgetenv (envVar.toAscii ().data ());
+
+   result = byteArray.constData ();
    if (result.isEmpty ()) {
       result = defaultValue;
    }

@@ -59,7 +59,7 @@
 class QEPLUGINLIBRARYSHARED_EXPORT QEAdaptationParameters {
 public:
    QEAdaptationParameters ();  // uses curent default prefix for environment variables.
-   QEAdaptationParameters (const QString& envPrefix);  // spcifies prefix prefix
+   QEAdaptationParameters (const QString& envPrefix);  // specifies environment prefix
    ~QEAdaptationParameters ();
 
    bool    getBool   (const QString& name); // the default is implicitly false

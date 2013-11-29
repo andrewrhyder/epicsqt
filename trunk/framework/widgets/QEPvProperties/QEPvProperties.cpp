@@ -24,14 +24,13 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
-#include <stdlib.h>
-
 #include <QDebug>
 #include <QTableWidgetItem>
 #include <QComboBox>
 #include <QFrame>
 
 #include <QECommon.h>
+#include <QEAdaptationParameters.h>
 #include <QELabel.h>
 #include <QEStringFormatting.h>
 
@@ -64,6 +63,7 @@ static QERecordSpecList recordSpecList;              // list of record type spec
 static void initialiseRecordSpecs ()
 {
    bool okay;
+   QEAdaptationParameters ap ("QE_");
 
    // If already setup then exit.
    //
@@ -91,11 +91,7 @@ static void initialiseRecordSpecs ()
 
    // Next agument from any file specified using the environment variable.
    //
-   okay |= recordSpecList.processRecordSpecFile (getenv ("QE_RECORD_FIELD_LIST"));
-
-   // Lastly augment used file in current (startup) directory.
-   //
-   okay |= recordSpecList.processRecordSpecFile ("./record_field_list.txt");
+   okay |= recordSpecList.processRecordSpecFile (ap.getString ("record_field_list", ""));
 
    if (okay == false) {
       DEBUG << "unable to read any record field files";
