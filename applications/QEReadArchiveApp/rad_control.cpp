@@ -527,7 +527,7 @@ void Rad_Control::postProcess (struct PVData* pvData)
       while (true) {
          if (pvData->archiveData.count () <= 2) break;
          number = pvData->archiveData.count ();
-         penUltimate = pvData->archiveData.value(number - 2).datetime;
+         penUltimate = pvData->archiveData.value (number - 2).datetime;
          if (penUltimate < this->endTime) break;
          pvData->archiveData.removeLast ();
       }

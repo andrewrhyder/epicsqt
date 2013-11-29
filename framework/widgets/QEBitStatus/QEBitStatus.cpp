@@ -1,4 +1,6 @@
-/*  This file is part of the EPICS QT Framework, initially developed at the
+/*  QEBitStatus.cpp
+ *
+ *  This file is part of the EPICS QT Framework, initially developed at the
  *  Australian Synchrotron.
  *
  *  The EPICS QT Framework is free software: you can redistribute it and/or
@@ -14,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with the EPICS QT Framework.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright (c) 2011
+ *  Copyright (c) 2011, 2013
  *
  *  Author:
  *    Andrew Starritt
@@ -30,9 +32,12 @@
 
 #include <alarm.h>
 
+#include <QDebug>
+
 #include <QEBitStatus.h>
 #include <QCaObject.h>
 
+#define DEBUG  qDebug () << "QEBitStatus" << __FUNCTION__ << __LINE__
 
 /* ----------------------------------------------------------------------------
     Constructor with no initialisation
@@ -107,7 +112,12 @@ qcaobject::QCaObject *
    // assert variableIndex == 0 ??
 
    result = new QEInteger (getSubstitutedVariableName (variableIndex),
-                            this, &integerFormatting, variableIndex);
+                           this, &integerFormatting, variableIndex);
+
+   // We only need/want the first element.
+   //
+   result->setRequestedElementCount (1);
+
    return result;
 }
 
@@ -132,9 +142,6 @@ void QEBitStatus::establishConnection (unsigned int variableIndex)
    if ((qca) && (variableIndex == 0)) {
       QObject::connect (qca,  SIGNAL (integerChanged  (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)),
                         this, SLOT (setBitStatusValue (const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)));
-
-      QObject::connect (qca,  SIGNAL (integerArrayChanged  (const QVector<long>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)),
-                        this, SLOT (setBitStatusValues     (const QVector<long>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int &)));
 
       QObject::connect (qca,  SIGNAL (connectionChanged (QCaConnectionInfo&)),
                         this, SLOT (connectionChanged   (QCaConnectionInfo&)));
@@ -188,16 +195,14 @@ void QEBitStatus::setBitStatusValue (const long &value,
 
 
 /* ----------------------------------------------------------------------------
-    If/when array PV extracxt first value.
-    This is the slot used to recieve data updates from a QCaObject based class.
+    This is the slot used to recieve new PV information.
  */
-void QEBitStatus::setBitStatusValues (const QVector<long>& values, QCaAlarmInfo &alarmInfo,
-                                      QCaDateTime &dateTime, const unsigned int & variableIndex)
+void QEBitStatus::useNewVariableNameProperty( QString variableNameIn,
+                                              QString variableNameSubstitutionsIn,
+                                              unsigned int variableIndex )
 {
-   int slot = 0;
-   this->setBitStatusValue (values.value (slot), alarmInfo, dateTime, variableIndex);
+   this->setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
 }
-
 
 //==============================================================================
 // Drag drop
