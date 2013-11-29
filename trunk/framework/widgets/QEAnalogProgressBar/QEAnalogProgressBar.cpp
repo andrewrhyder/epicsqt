@@ -106,6 +106,10 @@ qcaobject::QCaObject* QEAnalogProgressBar::createQcaItem( unsigned int variableI
 
     if (variableIndex == 0) {
         result = new QEFloating( getSubstitutedVariableName( variableIndex ), this, &floatingFormatting, variableIndex );
+
+        // We only need/want the first element.
+        //
+        result->setRequestedElementCount (1);
     } else {
         result = NULL;  // Unexpected
     }
@@ -133,9 +137,6 @@ void QEAnalogProgressBar::establishConnection( unsigned int variableIndex )
     if ((  qca ) && (variableIndex == 0)) {
         QObject::connect( qca,  SIGNAL( floatingChanged(   const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setProgressBarValue( const double&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-
-        QObject::connect( qca,  SIGNAL( floatingArrayChanged( const QVector<double>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
-                          this, SLOT( setProgressBarValues(   const QVector<double>&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
 
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged(   QCaConnectionInfo& ) ) );
@@ -355,19 +356,6 @@ void QEAnalogProgressBar::setProgressBarValue( const double& value,
 
     // This update is over, clear first update flag.
     isFirstUpdate = false;
-}
-
-
-/* ----------------------------------------------------------------------------
-    Extract first element (0 index) and use this value.
- */
-void QEAnalogProgressBar::setProgressBarValues (const QVector<double>& values,
-                                                QCaAlarmInfo& alarmInfo,
-                                                QCaDateTime& dateTime,
-                                                const unsigned int& variableIndex)
-{
-   int slot = 0;
-   this->setProgressBarValue (values.value (slot), alarmInfo, dateTime, variableIndex);
 }
 
 /* ----------------------------------------------------------------------------

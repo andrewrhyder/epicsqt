@@ -347,10 +347,10 @@ private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
 
     void setProgressBarValue( const double& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
-    // Just in case hooked up to an array PV.
-    void setProgressBarValues( const QVector<double>& values, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
 
-    void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex );  // !! move into Standard Properties section??
+    void useNewVariableNameProperty (QString variableNameIn,
+                                     QString variableNameSubstitutionsIn,
+                                     unsigned int variableIndex);
 
 signals:
     // Note, the following signals are common to many QE widgets,

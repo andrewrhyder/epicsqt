@@ -179,14 +179,10 @@ private slots:
 
    void setBitStatusValue (const long &value, QCaAlarmInfo &,
                            QCaDateTime &, const unsigned int &);
-    // Just in case hooked up to an array PV.
-   void setBitStatusValues (const QVector<long>&values, QCaAlarmInfo &,
-                            QCaDateTime &, const unsigned int &);
 
-   void useNewVariableNameProperty( QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex ) // !! move into Standard Properties section??
-   {
-       setVariableNameAndSubstitutions(variableNameIn, variableNameSubstitutionsIn, variableIndex);
-   }
+   void useNewVariableNameProperty (QString variableNameIn,
+                                    QString variableNameSubstitutionsIn,
+                                    unsigned int variableIndex);
 
 signals:
    // Note, the following signals are common to many QE widgets,

@@ -53,6 +53,7 @@
 // Note, a similar structure is used in QEPlotter. If they are the same name a
 // strange problem occurs when built with GCC 4.5.1 where the QString destructor is
 // called inappropriately on exit causing a crash.
+//
 struct QEStripChartPushButtonSpecifications {
    int gap;
    int width;
