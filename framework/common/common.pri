@@ -11,6 +11,7 @@ HEADERS += \
    common/QEExpressionEvaluation.h  \
    common/QEFrameworkVersion.h \
    common/QEPVNameSelectDialog.h \
+   common/QEGraphic.h \ 
    common/QEScaling.h \
    common/PasswordDialog.h \
    common/windowCustomisation.h
@@ -22,6 +23,7 @@ SOURCES += \
    common/QEExpressionEvaluation.cpp  \
    common/QEFrameworkVersion.cpp \
    common/QEPVNameSelectDialog.cpp \
+   common/QEGraphic.cpp \
    common/QEScaling.cpp \
    common/PasswordDialog.cpp \
    common/windowCustomisation.cpp
