@@ -25,10 +25,12 @@
 
 #include <QDebug>
 #include <QCheckBox>
+
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
+#include <QEGraphic.h>
 
 #include <QECommon.h>
 #include <QEInteger.h>
@@ -158,24 +160,22 @@ void QEPlotter::createInternalWidgets ()
    this->plotLayout->setMargin (4);
    this->plotLayout->setSpacing (4);
 
-   this->plotArea = new QwtPlot (this->plotFrame);
-#if QWT_VERSION < 0x060100
-   this->plotArea->setCanvasLineWidth (1);
-#endif
-   this->plotArea->setLineWidth (1);
-
-   this->plotArea->canvas()->setMouseTracking (true);
-   this->plotArea->canvas()->installEventFilter (this);
-
-   this->plotArea->setMouseTracking (true);
-   this->plotArea->installEventFilter (this);
-
-   this->plotGrid = new QwtPlotGrid ();
-   this->plotGrid->attach (this->plotArea);
-
+   this->plotArea = new QEGraphic (this->plotFrame);
    this->plotLayout->addWidget (this->plotArea);
 
-   this->itemResize = new QEResizeableFrame (QEResizeableFrame::LeftEdge,60, 400, this->theMainFrame);
+   QObject::connect (this->plotArea, SIGNAL (mouseMove     (const QPointF&)),
+                     this,           SLOT   (plotMouseMove (const QPointF&)));
+
+   QObject::connect (this->plotArea, SIGNAL (wheelRotate   (const QPointF&, const int)),
+                     this,           SLOT   (zoomInOut     (const QPointF&, const int)));
+
+   QObject::connect (this->plotArea, SIGNAL (leftSelected  (const QPointF&, const QPointF&)),
+                     this,           SLOT   (scaleSelect   (const QPointF&, const QPointF&)));
+
+   QObject::connect (this->plotArea, SIGNAL (rightSelected (const QPointF&, const QPointF&)),
+                     this,           SLOT   (lineSelected  (const QPointF&, const QPointF&)));
+
+   this->itemResize = new QEResizeableFrame (QEResizeableFrame::LeftEdge, 60, 400, this->theMainFrame);
    this->itemResize->setFrameShape (QFrame::StyledPanel);
    this->itemResize->setFrameShadow (QFrame::Raised);
    this->itemResize->setFixedWidth (256);
@@ -534,17 +534,6 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 QEPlotter::~QEPlotter ()
 {
    this->timer->stop ();
-
-   // Note: must detach curves and grids, otherwise some (older) versions of qwt
-   // cause a segmentation fault when the associated QwtPolot object is deleted.
-   //
-   this->releaseCurves ();
-
-   if (this->plotGrid) {
-      this->plotGrid->detach();
-      delete this->plotGrid;
-      this->plotGrid  = NULL;
-   }
 }
 
 //------------------------------------------------------------------------------
@@ -857,7 +846,7 @@ void QEPlotter::generalContextMenuRequested (const QPoint& pos)
    // NOTE: The 2nd part of this check relies on the fact that the right mouse
    // button event handler is called before this slot is invoked.
    //
-   if (this->enableConextMenu && this->plotRightIsDefined == false) {
+   if (this->plotArea->rightButtonPressed () == false) {
       golbalPos = this->mapToGlobal (pos);
       this->generalContextMenu->exec (golbalPos, 0);
    }
@@ -1241,7 +1230,6 @@ void QEPlotter::prevState ()
       this->applyState (state);
       this->toolBar->setEnabled (QEPlotterNames::PLOTTER_PREV, (this->stateList.prevAvailable ()));
       this->toolBar->setEnabled (QEPlotterNames::PLOTTER_NEXT, (this->stateList.nextAvailable ()));
-      this->replotIsRequired = true;
    }
 }
 
@@ -1255,47 +1243,28 @@ void QEPlotter::nextState ()
       this->applyState (state);
       this->toolBar->setEnabled (QEPlotterNames::PLOTTER_PREV, (this->stateList.prevAvailable ()));
       this->toolBar->setEnabled (QEPlotterNames::PLOTTER_NEXT, (this->stateList.nextAvailable ()));
-      this->replotIsRequired = true;
    }
 }
 
 //------------------------------------------------------------------------------
 //
-QPointF QEPlotter::plotToReal (const QPoint& pos) const
+void QEPlotter::plotMouseMove (const QPointF& posn)
 {
-   double x, y;
-
-   // Perform basic invsere transformation.
-   //
-   x = this->plotArea->invTransform (QwtPlot::xBottom, pos.x ());
-   y = this->plotArea->invTransform (QwtPlot::yLeft,   pos.y ());
-
-   // Scale to real world units - none yet
-   //
-   return QPointF (x, y);
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotter::onCanvasMouseMove (QMouseEvent* event)
-{
-   const QPointF real = this->plotToReal (event->pos ());
    QString mouseReadOut;
    QString f;
+   QPointF slope;
 
    mouseReadOut = "";
 
-   f.sprintf ("  x: %+.6g", real.x ());
+   f.sprintf ("  x: %+.6g", posn.x ());
    mouseReadOut.append (f);
 
-   f.sprintf ("  y: %+.6g", real.y ());
+   f.sprintf ("  y: %+.6g", posn.y ());
    mouseReadOut.append (f);
 
-   if (this->plotRightIsDefined) {
-      const QPointF origin = this->plotToReal (this->plotRightButton);
-      const QPointF offset = this->plotToReal (this->plotCurrent);
-      const double dx = offset.x() - origin.x ();
-      const double dy = offset.y() - origin.y ();
+   if (this->plotArea->getRightIsDefined (slope)) {
+      const double dx = slope.x ();
+      const double dy = slope.y ();
 
       f.sprintf ("  dx: %+.6g", dx);
       mouseReadOut.append (f);
@@ -1304,33 +1273,69 @@ void QEPlotter::onCanvasMouseMove (QMouseEvent* event)
       mouseReadOut.append (f);
 
       // Calculate slope, but avoid the divide by 0.
+      //
+      mouseReadOut.append ("  dy/dx: ");
       if (dx != 0.0) {
-         f.sprintf ("  dy/dx: %+.6g", dy/dx);
-         mouseReadOut.append (f);
+         f.sprintf ("%+.6g", dy/dx);
+      } else {
+         if (dy != 0.0) {
+            f.sprintf ("%sinf", (dy >= 0.0) ? "+" : "-");
+         } else {
+            f.sprintf ("n/a");
+         }
       }
+      mouseReadOut.append (f);
    }
 
    this->setReadOut (mouseReadOut);
+
+   if (this->plotArea->getLeftIsDefined () ||
+       this->plotArea->getRightIsDefined ()) {
+      this->replotIsRequired = true;
+   }
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEPlotter::isValidXRangeSelection (const QPoint& origin, const QPoint& offset) const
+void QEPlotter::zoomInOut (const QPointF& about, const int zoomAmount)
 {
-   const int minDiff = 8;
-   const int deltaX = offset.x () - origin.x ();
-   const int deltaY = offset.y () - origin.y ();
-   return ((deltaX > minDiff) && (deltaX > ABS (3 * deltaY)));
+   if (zoomAmount) {
+      // We really only need the sign of the zoomAmount.
+      //
+      const double factor = (zoomAmount >= 0) ? 0.95 : (1.0 / 0.95);
+
+      double newMin;
+      double newMax;
+
+      if (this->isLogarithmic) {
+         const double logAboutY = LOG10 (about.y ());
+
+         newMin = EXP10 (logAboutY + (LOG10 (this->fixedMinY) - logAboutY) * factor);
+         newMax = EXP10 (logAboutY + (LOG10 (this->fixedMaxY) - logAboutY) * factor);
+      } else {
+         newMin = about.y () + (this->fixedMinY - about.y ()) * factor;
+         newMax = about.y () + (this->fixedMaxY - about.y ()) * factor;
+      }
+
+      this->setYRange (newMin, newMax);
+      this->pushState ();
+   }
 }
 
 //------------------------------------------------------------------------------
 //
-bool QEPlotter::isValidYRangeSelection (const QPoint& origin, const QPoint& offset) const
+bool QEPlotter::isValidXRangeSelection (const QPoint& diff) const
 {
    const int minDiff = 8;
-   const int deltaX = offset.x () - origin.x ();
-   const int deltaY = offset.y () - origin.y ();
-   return ((deltaY > minDiff) && (deltaY > ABS (3 * deltaX)));
+   return ((diff.x () > minDiff) && (diff.x () > ABS (3 * diff.y ())));
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEPlotter::isValidYRangeSelection (const QPoint& diff) const
+{
+   const int minDiff = 8;
+   return ((diff.y () > minDiff) && (diff.y () > ABS (3 * diff.x ())));
 }
 
 //------------------------------------------------------------------------------
@@ -1349,8 +1354,14 @@ void QEPlotter::setXRange (const double xMinimumIn, const double xMaximumIn)
 //
 void QEPlotter::setYRange (const double yMinimumIn, const double yMaximumIn)
 {
-   this->fixedMinY = yMinimumIn;
-   this->fixedMaxY = yMaximumIn;
+   if (this->isLogarithmic) {
+      this->fixedMinY = LIMIT (yMinimumIn,  0.0, +1.0e23);
+   } else {
+      this->fixedMinY = LIMIT (yMinimumIn, -1.0e24, +1.0e23);
+   }
+
+   this->fixedMaxY = LIMIT (yMaximumIn, this->fixedMinY + 1.0e-20, +1.0e24);
+
    if (this->yScaleMode == QEPlotterNames::smDynamic) {
       this->yScaleMode = QEPlotterNames::smFixed;
    }
@@ -1359,25 +1370,36 @@ void QEPlotter::setYRange (const double yMinimumIn, const double yMaximumIn)
 
 //------------------------------------------------------------------------------
 //
-void QEPlotter::onPlaneScaleSelect(const QPoint& origin, const QPoint& offset)
+void QEPlotter::scaleSelect (const QPointF& start, const QPointF& finish)
 {
-   const QPointF rTopLeft     = this->plotToReal (origin);
-   const QPointF rBottomRight = this->plotToReal (offset);
+   QPoint distance = this->plotArea->pixelDistance (start, finish);
 
-   // Only proceed if user has un-ambiguously selected time scaling or y scaling.
+   // Only proceed if user has un-ambiguously selected x scaling or y scaling.
    //
-   if (this->isValidYRangeSelection (origin, offset)) {
+   if (this->isValidYRangeSelection (distance)) {
       // Makeing a Y scale adjustment.
       //
-      this->setYRange (rBottomRight.y (), rTopLeft.y ());
+      this->setYRange (finish.y (), start.y ());
       this->pushState ();
 
-   } else if (this->isValidXRangeSelection (origin, offset)) {
+   } else if (this->isValidXRangeSelection (distance)) {
       // Makeing a X scale adjustment.
       //
-      this->setXRange (rTopLeft.x (), rBottomRight.x ());
+      this->setXRange (start.x (), finish.x ());
       this->pushState ();
-   } // else doing nothing
+
+   } else {
+      this->replotIsRequired = true;
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+void QEPlotter::lineSelected (const QPointF&, const QPointF&)
+{
+   // no action per se - just request a replot (without the line).
+   //
+   this->replotIsRequired = true;
 }
 
 //------------------------------------------------------------------------------
@@ -1398,75 +1420,15 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
             this->menuSelected (QEPlotterNames::PLOTTER_DATA_SELECT, slot);
             return true;  // we have handled this mouse press
          }
-
-         if (obj == this->plotArea->canvas ()) {
-            switch (mouseEvent->button ()) {
-               case Qt::LeftButton:
-                  this->plotLeftButton = mouseEvent->pos ();
-                  this->plotLeftIsDefined = true;
-                  return true;  // we have handled this mouse press
-                  break;
-
-               case Qt::RightButton:
-                  this->plotRightButton = mouseEvent->pos ();
-                  this->plotRightIsDefined = true;
-                  return true;  // we have handled this mouse press
-                  break;
-
-               default:
-                  break;
-            }
-         }
          break;
-
 
       case QEvent::MouseButtonRelease:
          mouseEvent = static_cast<QMouseEvent *> (event);
-         if (obj == this->plotArea->canvas ()) {
-            switch (mouseEvent->button ()) {
-               case Qt::LeftButton:
-                  if (this->plotLeftIsDefined) {
-                     this->onPlaneScaleSelect (this->plotLeftButton, this->plotCurrent);
-                     this->plotLeftIsDefined = false;
-                     this->replotIsRequired = true;
-                     return true;  // we have handled this mouse press
-                  }
-                  break;
-
-               case Qt::RightButton:
-                  if (this->plotRightIsDefined) {
-                     this->plotRightIsDefined = false;
-                     this->replotIsRequired = true;
-                     return true;  // we have handled this mouse press
-                  }
-                  break;
-
-               default:
-                  break;
-            }
-         }
          break;
-
 
       case QEvent::MouseMove:
          mouseEvent = static_cast<QMouseEvent *> (event);
-
-         if (obj == this->plotArea->canvas ()) {
-            this->plotCurrent = mouseEvent->pos ();
-            this->plotIsDefined = true;
-
-            if (this->plotLeftIsDefined || this->plotRightIsDefined) {
-               this->replotIsRequired = true;
-            }
-            this->onCanvasMouseMove (mouseEvent);
-            return true;  // we have handled move nouse event
-         } else {
-            // Mouse not over the canvas
-            //
-            this->plotIsDefined = false;
-         }
          break;
-
 
       case QEvent::MouseButtonDblClick:
          slot = this->findSlot (obj);
@@ -1476,7 +1438,6 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
             return true;  // we have handled double click
          }
          break;
-
 
       case QEvent::DragEnter:
          slot = this->findSlot (obj);
@@ -1498,7 +1459,6 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          }
          break;
 
-
       case QEvent::DragLeave:
          slot = this->findSlot (obj);
          if (slot >= 0) {
@@ -1506,7 +1466,6 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
             return true;
          }
          break;
-
 
       case QEvent::Drop:
          slot = this->findSlot (obj);
@@ -1518,22 +1477,12 @@ bool QEPlotter::eventFilter (QObject *obj, QEvent *event)
          }
          break;
 
-
       default:
          // Just fall through
          break;
    }
 
    return false;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotter::wheelEvent (QWheelEvent* event)
-{
-   if (this->plotIsDefined && (event->delta() != 0)) {
-      // place holder
-   }
 }
 
 
@@ -1728,137 +1677,44 @@ void QEPlotter::sizeValueChanged (const long& value,
 // Plot and plot related functions
 //------------------------------------------------------------------------------
 //
-QwtPlotCurve* QEPlotter::allocateCurve (const int slot)
-{
-   QwtPlotCurve* result = NULL;
-   QPen pen;
-
-   SLOT_CHECK (slot, NULL);
-
-   result = new QwtPlotCurve ();
-
-   // Attach to the plot area and save a reference.
-   //
-   result->attach (this->plotArea);
-   this->curve_list.append (result);
-
-   // Set curve propeties plus item Pen which include its colour.
-   //
-   result->setRenderHint (QwtPlotItem::RenderAntialiased);
-   result->setStyle (QwtPlotCurve::Lines);
-
-   pen.setColor (this->xy [slot].colour);
-
-   if (this->xy [slot].isBold) {
-      pen.setWidth (2);
-   } else {
-      pen.setWidth (1);
-   }
-   result->setPen (pen);
-
-   return result;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotter::releaseCurves ()
-{
-   int j;
-   QwtPlotCurve *curve;
-
-   for (j = 0; j < this->curve_list.count(); j++) {
-      curve = this->curve_list.value (j);
-      curve->detach ();
-      delete curve;
-   }
-
-   this->curve_list.clear ();
-}
-
-//------------------------------------------------------------------------------
-//
 void QEPlotter::plotSelectedArea ()
 {
-   double x1, y1;
-   double x2, y2;
-   QVector<double> xdata;
-   QVector<double> ydata;
-   QwtPlotCurve *curve;
+   QPoint s;
    QPen pen;
 
-   // Do inverse transform on button press postions so that they can be re-transformed when plotted ;-)
-   // At least we don't need to worry about duration/log scaling here - that looks after itself.
-   //
-   x1 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotLeftButton.x ());
-   y1 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotLeftButton.y ());
+   if (this->plotArea->getLeftIsDefined (s)) {
+      this->plotArea->setCurveRenderHint (QwtPlotItem::RenderAntialiased);
+      this->plotArea->setCurveStyle (QwtPlotCurve::Lines);
 
-   x2 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotCurrent.x ());
-   y2 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotCurrent.y ());
+      if (this->isValidXRangeSelection (s) ||
+          this->isValidYRangeSelection (s)) {
+         pen.setColor(QColor (0x60E060));   // greenish
+      } else {
+         pen.setColor(QColor (0xC08080));   // redish gray
+      }
+      pen.setWidth (1);
+      this->plotArea->setCurvePen (pen);
 
-   xdata << x1;  ydata << y1;
-   xdata << x2;  ydata << y1;
-   xdata << x2;  ydata << y2;
-   xdata << x1;  ydata << y2;
-   xdata << x1;  ydata << y1;
-
-   // Set curve propeties plus item Pen which include its colour.
-   //
-   curve = this->allocateCurve (0);
-   curve->setRenderHint (QwtPlotItem::RenderAntialiased);
-   curve->setStyle (QwtPlotCurve::Lines);
-   if (this->isValidXRangeSelection (this->plotLeftButton, this->plotCurrent) ||
-       this->isValidYRangeSelection (this->plotLeftButton, this->plotCurrent) ) {
-      pen.setColor(QColor (0x60C060));  // greenish
-   } else {
-      pen.setColor(QColor (0x808080));  // gray
+      this->plotArea->plotSelectedLeft (true);
    }
-   pen.setWidth (1);
-   curve->setPen (pen);
-
-#if QWT_VERSION >= 0x060000
-   curve->setSamples (xdata, ydata);
-#else
-   curve->setData (xdata, ydata);
-#endif
 }
 
 //------------------------------------------------------------------------------
 //
 void QEPlotter::plotOriginToPoint ()
 {
-   double x1, y1;
-   double x2, y2;
-   QVector<double> xdata;
-   QVector<double> ydata;
-   QwtPlotCurve *curve;
    QPen pen;
 
-   // Do inverse transform on button press postions so that they can be re-transformed when plotted ;-)
-   // At least we don't need to worry about duration/log scaling here - that looks after itself.
-   //
-   x1 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotRightButton.x ());
-   y1 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotRightButton.y ());
+   if (this->plotArea->getRightIsDefined ()) {
+      this->plotArea->setCurveRenderHint (QwtPlotItem::RenderAntialiased);
+      this->plotArea->setCurveStyle (QwtPlotCurve::Lines);
 
-   x2 = this->plotArea->invTransform (QwtPlot::xBottom, this->plotCurrent.x ());
-   y2 = this->plotArea->invTransform (QwtPlot::yLeft,   this->plotCurrent.y ());
+      pen.setColor(QColor (0x80C0E0));  // blueish
+      pen.setWidth (1);
+      this->plotArea->setCurvePen (pen);
 
-   xdata << x1;  ydata << y1;
-   xdata << y2;  ydata << y2;
-
-   // Set curve propeties plus item Pen which include its colour.
-   //
-   curve = this->allocateCurve (0);
-   curve->setRenderHint (QwtPlotItem::RenderAntialiased);
-   curve->setStyle (QwtPlotCurve::Lines);
-   pen.setColor(QColor (0x8080C0));  // blueish
-   pen.setWidth (1);
-   curve->setPen (pen);
-
-#if QWT_VERSION >= 0x060000
-   curve->setSamples (xdata, ydata);
-#else
-   curve->setData (xdata, ydata);
-#endif
+      this->plotArea->plotSelectedRight (false);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -1869,7 +1725,6 @@ void QEPlotter::plot ()
    QColor grid;
    QPen pen;
    int slot;
-   QwtPlotCurve *curve;
    DataSets* xs;
    DataSets* ys;
    QEFloatingArray xdata;
@@ -1877,8 +1732,8 @@ void QEPlotter::plot ()
    int effectiveXSize;
    int effectiveYSize;
    int number;
-   double xMin, xMax, xMajor;
-   double yMin, yMax, yMajor;
+   double xMin, xMax;
+   double yMin, yMax;
    bool xMinMaxDefined;
    bool yMinMaxDefined;
 
@@ -1888,7 +1743,7 @@ void QEPlotter::plot ()
 
    // First release any/all previously allocated curves.
    //
-   this->releaseCurves ();
+   this->plotArea->releaseCurves ();
 
    // Set up brackground and grid.
    //
@@ -1900,15 +1755,12 @@ void QEPlotter::plot ()
       grid = clGridLine;
    }
 
-#if QWT_VERSION >= 0x060000
-   this->plotArea->setCanvasBackground (QBrush (background));
-#else
-   this->plotArea->setCanvasBackground (background);
-#endif
+   this->plotArea->setBackgroundColour (background);
 
    pen.setColor (grid);
+   pen.setWidth (1);
    pen.setStyle (Qt::DashLine);
-   this->plotGrid->setPen (pen);
+   this->plotArea->setGridPen (pen);
 
    xMinMaxDefined = false;
    xMin = 0.0;   // defaults when no values.
@@ -2016,30 +1868,28 @@ void QEPlotter::plot ()
 
       // Lastly plot the data.
       //
-      curve = this->allocateCurve (slot);
-      if (!curve) {
-         DEBUG << "Unable to allocate curve";
-         continue;
+      pen.setColor (ys->colour);
+      if (ys->isBold) {
+         pen.setWidth (2);
+      } else {
+         pen.setWidth (1);
       }
+      pen.setStyle (Qt::SolidLine);
 
-#if QWT_VERSION >= 0x060000
-      curve->setSamples (xdata, ydata);
-#else
-      curve->setData (xdata, ydata);
-#endif
+      this->plotArea->setCurvePen (pen);
+      this->plotArea->setCurveRenderHint (QwtPlotItem::RenderAntialiased);
+      this->plotArea->setCurveStyle (QwtPlotCurve::Lines);
+
+      this->plotArea->plotCurveData (xdata, ydata);
    }
 
    // Draw selected area box if defined.
    //
-   if (this->plotLeftIsDefined) {
-      this->plotSelectedArea ();
-   }
+   this->plotSelectedArea ();
 
    // Draw origin to target line if defined..
    //
-   if (this->plotRightIsDefined) {
-      this->plotOriginToPoint ();
-   }
+   this->plotOriginToPoint ();
 
    // Save current min/max values.
    //
@@ -2056,12 +1906,6 @@ void QEPlotter::plot ()
       xMax = this->fixedMaxX;
    }
 
-   // Expand min and max to "nice" values (e.g. 4.02 .. 9.98 becomes 4.0 to 10.0)
-   // and select a suitable major value (e.g for 4.0 to 10.0 this would be 1.0)
-   //
-   QEPlotter::adjustMinMax (xMin, xMax, xMin, xMax, xMajor);
-   this->plotArea->setAxisScale (QwtPlot::xBottom, xMin, xMax, xMajor);
-
    // Repeat for y  - essentially the same excpet for log scale adjustment.
    //
    if (this->yScaleMode != QEPlotterNames::smDynamic) {
@@ -2069,15 +1913,9 @@ void QEPlotter::plot ()
       yMax = this->fixedMaxY;
    }
 
-   if (this->isLogarithmic) {
-      yMajor = 1.0;
-      yMin = floor (LOG10 (yMin));
-      yMax = ceil  (LOG10 (yMax));
-   } else {
-      QEPlotter::adjustMinMax (yMin, yMax, yMin, yMax, yMajor);
-   }
-
-   this->plotArea->setAxisScale (QwtPlot::yLeft,   yMin, yMax, yMajor);
+   this->plotArea->setYLogarithmic (this->isLogarithmic);
+   this->plotArea->setXRange (xMin, xMax);
+   this->plotArea->setYRange (yMin, yMax);
 
    this->plotArea->replot ();
 
@@ -2393,7 +2231,7 @@ void QEPlotter::setPvItemsVisible (bool visible)
    this->itemResize->setVisible (visible);
 }
 
-bool QEPlotter::getPvItemsVisible()
+bool QEPlotter::getPvItemsVisible ()
 {
    return this->itemResize->isVisible ();
 }
@@ -2405,61 +2243,9 @@ void QEPlotter::setStatusVisible (bool visible)
    this->statusFrame->setVisible (visible);
 }
 
-bool QEPlotter::getStatusVisible()
+bool QEPlotter::getStatusVisible ()
 {
    return this->statusFrame->isVisible ();
-}
-
-//------------------------------------------------------------------------------
-//
-void QEPlotter::adjustMinMax (const double minIn, const double maxIn,
-                              double& minOut, double& maxOut, double& majorOut)
-{
-   static const double majorValues [] = {
-      1.0e-9,  2.0e-9,  5.0e-9,    1.0e-8,  2.0e-8,  5.0e-8,    1.0e-7,  2.0e-7,  5.0e-7,
-      1.0e-6,  2.0e-6,  5.0e-6,    1.0e-5,  2.0e-5,  5.0e-5,    1.0e-4,  2.0e-4,  5.0e-4,
-      1.0e-3,  2.0e-3,  5.0e-3,    1.0e-2,  2.0e-2,  5.0e-2,    1.0e-1,  2.0e-1,  5.0e-1,
-      1.0e+0,  2.0e+0,  5.0e+0,    1.0e+1,  2.0e+1,  5.0e+1,    1.0e+2,  2.0e+2,  5.0e+2,
-      1.0e+3,  2.0e+3,  5.0e+3,    1.0e+4,  2.0e+4,  5.0e+4,    1.0e+5,  2.0e+5,  5.0e+5,
-      1.0e+6,  2.0e+6,  5.0e+6,    1.0e+7,  2.0e+7,  5.0e+7,    1.0e+8,  2.0e+8,  5.0e+8,
-      1.0e+9,  2.0e+9,  5.0e+9,    1.0e+10, 2.0e+10, 5.0e+10,   1.0e+11, 2.0e+11, 5.0e+11,
-      1.0e+12, 2.0e+12, 5.0e+12,   1.0e+13, 2.0e+13, 5.0e+13,   1.0e+14, 2.0e+14, 5.0e+14,
-      1.0e+15, 2.0e+15, 5.0e+15,   1.0e+16, 2.0e+16, 5.0e+16,   1.0e+17, 2.0e+17, 5.0e+17,
-      1.0e+18, 2.0e+18, 5.0e+18,   1.0e+19, 2.0e+19, 5.0e+19,   1.0e+20, 2.0e+20, 5.0e+20,
-      1.0e+21, 2.0e+21, 5.0e+21,   1.0e+22, 2.0e+22, 5.0e+22,   1.0e+23, 2.0e+23, 5.0e+23,
-      1.0e+24, 2.0e+24, 5.0e+24
-   };
-
-   double major;
-   int s;
-   int p, q;
-
-   // Find estimated major value.
-   //
-   major = (maxIn - minIn) / 12;
-
-   // Round up major to next standard value.
-   //
-   s = 0;
-   while ((major > majorValues [s]) &&
-          ((s + 1) < ARRAY_LENGTH (majorValues))) s++;
-   majorOut = major = majorValues [s];
-
-   // Determine minOut and maxOut such that they are both exact multiples of
-   // major and that:
-   //
-   //  minOut <= minIn <= maxIn << maxOut
-   //
-   p = (int) (minIn / major);
-   if ((p * major) > minIn) p--;
-
-   q = (int) (maxIn / major);
-   if ((q * major) < maxIn) q++;
-
-   q = MAX (q, p+1);   // Ensure q > p
-
-   minOut = p * major;
-   maxOut = q * major;
 }
 
 // end

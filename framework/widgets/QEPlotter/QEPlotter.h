@@ -51,9 +51,7 @@
 
 // Differed class declaration - no explicit dependency on Qwt header files.
 //
-class QwtPlotCurve;
-class QwtPlot;
-class QwtPlotGrid;
+class QEGraphic;
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEPlotter : public QEFrame {
    Q_OBJECT
@@ -186,7 +184,6 @@ protected:
    qcaobject::QCaObject* createQcaItem (unsigned int variableIndex);
    void establishConnection (unsigned int variableIndex);
    bool eventFilter (QObject *obj, QEvent *event);
-   void wheelEvent (QWheelEvent* event);
 
    // Paste only
    //
@@ -212,8 +209,7 @@ private:
    QFrame* statusFrame;
 
    QFrame* plotFrame;
-   QwtPlot* plotArea;
-   QwtPlotGrid* plotGrid;
+   QEGraphic* plotArea;
 
    QEResizeableFrame* itemResize;
    QFrame* itemFrame;
@@ -236,11 +232,6 @@ private:
    QColorDialog *colourDialog;
    QEPlotterItemDialog* dataDialog;
    QMenu* generalContextMenu;
-
-   // Keep a list of allocated curves so that we can track and delete them.
-   //
-   typedef QList<QwtPlotCurve*> QwtCurveList;
-   QwtCurveList curve_list;
 
    // State data
    //
@@ -348,8 +339,6 @@ private:
    void createInternalWidgets ();
    void selectDataSet (const int slot);
    void highLight (const int slot, const bool isHigh);
-   QwtPlotCurve* allocateCurve (const int slot);
-   void releaseCurves ();
    void plotSelectedArea ();
    void plotOriginToPoint ();
    void plot ();
@@ -366,14 +355,16 @@ private:
    void setYRange (const double yMinimum, const double yMaximum);
 
    void setReadOut (const QString& text);
-   QPointF plotToReal (const QPoint& pos) const;  // map plot position to real co-ordinated
-   void onCanvasMouseMove (QMouseEvent* event);
-   bool isValidXRangeSelection (const QPoint& origin, const QPoint& offset) const;
-   bool isValidYRangeSelection (const QPoint& origin, const QPoint& offset) const;
-   void onPlaneScaleSelect (const QPoint& origin, const QPoint& offset);
 
-   void captureState (QEPlotterState& plotterState);
-   void applyState (const QEPlotterState& plotterState);
+   // Checks if the differance (distance) between mouse down and mouse up
+   // positions is sufficient and unambiguous. For a given diff, only one of
+   // these functions can returns true, however both may return false.
+   //
+   bool isValidXRangeSelection (const QPoint& diff) const;
+   bool isValidYRangeSelection (const QPoint& diff) const;
+
+   void captureState (QEPlotterState& state);
+   void applyState (const QEPlotterState& state);
 
    void pushState ();
    void prevState ();
@@ -393,7 +384,8 @@ private:
 
    // Property access READ and WRITE functions.
    // We can define the access functions using a macro.
-   // Alas, due to SDK limitation, we cannot embedded the property definitions in a macro.
+   // Alas, due to SDK limitation, we cannot embedded the property definitions
+   // in a macro.
    //
    #define PROPERTY_ACCESS(letter, slot)                                                 \
       void    setDataPV##letter (QString name) { this->setXYDataPV (slot, name); }       \
@@ -406,7 +398,7 @@ private:
       QString getAlias##letter  ()      { return this->getXYAlias (slot); }              \
                                                                                          \
       void    setColour##letter (QColor colour) { this->setXYColour (slot, colour); }    \
-      QColor  getColour##letter ()      { return  this->getXYColour (slot); }
+      QColor  getColour##letter ()       { return this->getXYColour (slot); }
 
 
    PROPERTY_ACCESS  (X, 0)
@@ -440,11 +432,6 @@ private:
 
    void updateLabel (const int slot);
 
-   // Move to a utility class?
-   //
-   void adjustMinMax (const double minIn, const double maxIn,
-                      double& minOut, double& maxOut, double& majorOut);
-
 private slots:
    void setNewVariableName (QString variableName,
                             QString variableNameSubstitutions,
@@ -475,6 +462,14 @@ private slots:
    // Handles all context menu and tool bar actions.
    //
    void menuSelected (const QEPlotterNames::MenuActions action, const int slot);
+
+   // Handles signals from the plot object.
+   //
+   void plotMouseMove  (const QPointF& posn);
+   void zoomInOut      (const QPointF& about, const int zoomAmount);
+
+   void scaleSelect    (const QPointF& origin, const QPointF& offset);
+   void lineSelected   (const QPointF& origin, const QPointF& offset);
 
    friend class DataSets;
 };
