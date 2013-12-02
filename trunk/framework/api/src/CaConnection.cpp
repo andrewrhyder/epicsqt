@@ -100,8 +100,11 @@ ca_responses CaConnection::establishContext( void (*exceptionHandler)(struct exc
 */
 ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName ) {
 //    printf( "CaConnection::establishChannel %ld  chid: %ld  name: %s\n", (long)(&channel), (long)(channel.id), channelName.c_str() ); fflush(stdout);
+//capri prio;
+//channelName.compare( "INTEG01DET02:IMAGE:ArrayData" )?prio=1:prio=0;
     if( context.activated == true && channel.activated == false ) {
         channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, CA_PRIORITY_DEFAULT, &channel.id );
+//        channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, prio, &channel.id );
         // Sanity check
         if( channel.id == 0 )
         {
@@ -111,7 +114,7 @@ ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct co
 
         ca_pend_io( link.searchTimeout );
         channel.activated = true;
-//        printf( "CaConnection::establishChannel channel activated %ld  chid: %ld  name: %s\n", (long)(&channel), (long)(channel.id), channelName.c_str() ); fflush(stdout);
+//        printf( "CaConnection::establishChannel channel activated %ld  chid: %ld  name: %s prio: %ld\n", (long)(&channel), (long)(channel.id), channelName.c_str(), (long)prio ); fflush(stdout);
         switch( channel.creation ) {
             case ECA_NORMAL :
                 return REQUEST_SUCCESSFUL;
@@ -252,9 +255,12 @@ void CaConnection::removeChannel() {
     CaRef::accessLock();
 
     if( channel.activated == true ) {
-//        printf(  "CaConnection::removeChannel() channel deactivated %ld   chid %ld eventId %ld\n", (long)(&channel), (long)(channel.id), (long)eventId ); fflush(stdout);
-        ca_clear_subscription( eventId );
-        eventId = 0;
+        printf(  "CaConnection::removeChannel() channel deactivated %ld   chid %ld eventId %ld\n", (long)(&channel), (long)(channel.id), (long)eventId ); fflush(stdout);
+        if( eventId )
+        {
+            ca_clear_subscription( eventId );
+            eventId = 0;
+        }
         ca_clear_channel( channel.id );
         channel.activated = false;
 
