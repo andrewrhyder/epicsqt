@@ -130,6 +130,7 @@ namespace caconnection {
       void shutdown();
       void reset();
 
+      evid eventId;
       void (*subscriptionSubscriptionHandler)(struct event_handler_args);       // Subscription callback handler
       void* subscriptionArgs;                                                   // Data to be passed to subscription callback
       short initialDbrStructType;                                               // Data type to be used for read

@@ -99,18 +99,19 @@ ca_responses CaConnection::establishContext( void (*exceptionHandler)(struct exc
     Returns: REQUEST_SUCCESSFUL or REQUEST_FAILED
 */
 ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName ) {
+//    printf( "CaConnection::establishChannel %ld  chid: %ld  name: %s\n", (long)(&channel), (long)(channel.id), channelName.c_str() ); fflush(stdout);
     if( context.activated == true && channel.activated == false ) {
         channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, CA_PRIORITY_DEFAULT, &channel.id );
         // Sanity check
         if( channel.id == 0 )
         {
-            printf( "CaConnection::establishChannel() ca_create_channel returned a channel ID of zero\n" );
+            printf( "CaConnection::establishChannel() ca_create_channel returned a channel ID of zero\n" ); fflush(stdout);
             return REQUEST_FAILED;
         }
 
         ca_pend_io( link.searchTimeout );
         channel.activated = true;
-//        printf( "CaConnection::establishChannel channel activated %ld  chid: %ld  name: %s\n", (long)(&channel), (long)(channel.id), channelName.c_str() );
+//        printf( "CaConnection::establishChannel channel activated %ld  chid: %ld  name: %s\n", (long)(&channel), (long)(channel.id), channelName.c_str() ); fflush(stdout);
         switch( channel.creation ) {
             case ECA_NORMAL :
                 return REQUEST_SUCCESSFUL;
@@ -178,6 +179,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
                                                   void* args, short initialDbrStructTypeIn,
                                                   short updateDbrStructTypeIn) {
 
+//    printf( "CaConnection::establishSubscription chid: %ld\n", (long)getChannelId() ); fflush(stdout);
     // Save the callers callback information
     // This will be used when a subscription is really established
     subscriptionSubscriptionHandler = subscriptionHandler;
@@ -194,7 +196,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
                 return REQUEST_SUCCESSFUL;
             break;
             default :
-                printf( "Subscription failure in CaConnection::establishSubscription() %s\n", ca_message( subscription.creation ) );
+                printf( "Subscription failure in CaConnection::establishSubscription() %s\n", ca_message( subscription.creation ) ); fflush(stdout);
                 return REQUEST_FAILED;
             break;
         }
@@ -212,6 +214,7 @@ ca_responses CaConnection::establishSubscription( void (*subscriptionHandler)(st
   */
 void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
 {
+//    printf( "CaConnection::subscriptionInitialHandler\n" ); fflush(stdout);
     // As this is a static function, recover the CaConnection class instance
     CaConnection* me = (CaConnection*)(((CaRef*)(args.usr))->getRef( args.chid ));
     if( !me )
@@ -234,7 +237,8 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
                                                         me->channel.id,
                                                         DBE_VALUE|DBE_ALARM,
                                                         me->subscriptionSubscriptionHandler,
-                                                        me->subscriptionArgs, NULL );
+                                                        me->subscriptionArgs, &me->eventId );
+//    printf( "CaConnection::subscriptionInitialHandler setting real subscription: chid: %ld (%ld) eventId: %ld\n", (long)(me->channel.id), (long)(args.chid), (long)me->eventId ); fflush(stdout);
     ca_flush_io();
 }
 
@@ -243,15 +247,19 @@ void CaConnection::subscriptionInitialHandler( struct event_handler_args args )
     Use activeChannel() for feedback.
 */
 void CaConnection::removeChannel() {
+//    printf(  "CaConnection::removeChannel() %ld   chid %ld\n", (long)(&channel), (long)(channel.id) ); fflush(stdout);
     // Ensure we are not in a CA callback
     CaRef::accessLock();
 
     if( channel.activated == true ) {
+//        printf(  "CaConnection::removeChannel() channel deactivated %ld   chid %ld eventId %ld\n", (long)(&channel), (long)(channel.id), (long)eventId ); fflush(stdout);
+        ca_clear_subscription( eventId );
+        eventId = 0;
         ca_clear_channel( channel.id );
         channel.activated = false;
-//        printf(  "CaConnection::removeChannel() channel deactivated %ld   chid %ld\n", (long)(&channel), (long)(channel.id) );
 
         channel.creation = -1;
+        ca_flush_io();
     }
 
     CaRef::accessUnlock();
@@ -261,6 +269,7 @@ void CaConnection::removeChannel() {
     Cancels channel subscription.
 */
 void CaConnection::removeSubscription() {
+//    printf(  "CaConnection::removeSubscription() (does nothing) %ld   chid %ld\n", (long)(&channel), (long)(channel.id) );  fflush(stdout);
     //NOT IMPLEMENTED
     //ca_clear_subscription( channelId );
 }
@@ -269,6 +278,7 @@ void CaConnection::removeSubscription() {
     Read channel once and register an event handler.
 */
 ca_responses CaConnection::readChannel( void (*readHandler)(struct event_handler_args), void* args, short dbrStructType ) {
+//    printf(  "CaConnection::readChannel() %ld   chid %ld\n", (long)(&channel), (long)(channel.id) ); fflush(stdout);
     if( channel.activated == true ) {
         channel.readResponse = ca_array_get_callback( dbrStructType, channel.elementCount, channel.id, readHandler, args);
         ca_pend_io( link.readTimeout );
@@ -403,7 +413,7 @@ short CaConnection::getChannelType() {
     // If the channel is no longer activated, it is possible it has been cleared prior to reuse with a new variable.
     if( !channel.activated || !channel.id )
     {
-        printf( "Attempting to get channel type while channel is not active or channel id is zero in CaConnection::getChannelType() %d %ld\n", channel.activated, (long)(channel.id) );
+        printf( "Attempting to get channel type while channel is not active or channel id is zero in CaConnection::getChannelType() %d %ld\n", channel.activated, (long)(channel.id) ); fflush(stdout);
         return 0;
     }
 
@@ -463,6 +473,7 @@ void CaConnection::initialise() {
     CA_UNIQUE_CONNECTION_ID++;
     channel.requestedElementCount = 0;
     channel.requestedElementCountSet = false;
+    eventId = 0;
 }
 
 /*
@@ -490,7 +501,7 @@ void CaConnection::reset() {
     link.writeTimeout = 2.0;
     link.state = LINK_DOWN;
 
-//    printf( "CaConnection::reset() channel deactivated %ld  chid: %ld\n", (long)(&channel), (long)(channel.id) );
+//    printf( "CaConnection::reset() channel deactivated %ld  chid: %ld\n", (long)(&channel), (long)(channel.id) ); fflush(stdout);
 
     context.activated = false;
     context.creation = -1;
@@ -507,4 +518,6 @@ void CaConnection::reset() {
 
     subscription.activated = false;
     subscription.creation = false;
+
+    eventId = 0;
 }
