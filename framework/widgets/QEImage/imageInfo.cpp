@@ -109,6 +109,8 @@ void imageInfo::showInfo( const bool showIn )
     else
     {
         currentCursorPixelLabel->hide();
+        currentPausedLabel->hide();
+        currentZoomLabel->hide();
         currentVertPixelLabel->hide();
         currentHozPixelLabel->hide();
         currentLineLabel->hide();
