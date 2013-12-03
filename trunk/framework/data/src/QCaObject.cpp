@@ -299,6 +299,7 @@ bool QCaObject::createChannel() {
         case QE_PRIORITY_LOW:    caPriority = caconnection::PRIORITY_LOW;     break;
         case QE_PRIORITY_NORMAL: caPriority = caconnection::PRIORITY_DEFAULT; break;
         case QE_PRIORITY_HIGH:   caPriority = caconnection::PRIORITY_HIGH;    break;
+        default:                 caPriority = caconnection::PRIORITY_DEFAULT; break;
     };
 
     // Try to create the channel
