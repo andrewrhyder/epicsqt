@@ -41,7 +41,7 @@ class CaObjectPrivate {
         CaObjectPrivate( CaObject* ownerIn ) { owner = ownerIn; }
 
         // Manage connections
-        caconnection::ca_responses setChannel( std::string channelName );       // Return type actually caconnection::ca_responses
+        caconnection::ca_responses setChannel( std::string channelName, caconnection::priorities priority );       // Return type actually caconnection::ca_responses
         caconnection::ca_responses startSubscription();                         // Return type actually caconnection::ca_responses
         void                       removeChannel();
         void                       cancelSubscription(); //< NOT IMPLEMENTED

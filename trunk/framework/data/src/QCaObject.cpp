@@ -51,15 +51,15 @@ QCaEventFilter QCaObject::eventFilter;
    In other words, the event object does not need to be set up in any way.
    It just need to have a suitable event loop running.
 */
-QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, unsigned char signalsToSendIn ) {
-    initialise( newRecordName, newEventHandler, NULL, signalsToSendIn );
+QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, unsigned char signalsToSendIn, priorities priorityIn ) {
+    initialise( newRecordName, newEventHandler, NULL, signalsToSendIn, priorityIn );
 }
 
-QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn ) {
-    initialise( newRecordName, newEventHandler, userMessageIn, signalsToSendIn );
+QCaObject::QCaObject( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn, priorities priorityIn ) {
+    initialise( newRecordName, newEventHandler, userMessageIn, signalsToSendIn, priorityIn );
 }
 
-void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn ) {
+void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn, priorities priorityIn ) {
 
     // Initialise variables
     precision = 0;
@@ -85,6 +85,7 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     lastNewData = NULL;
 
     signalsToSend = signalsToSendIn;
+    priority = priorityIn;
 
     // Setup any the mechanism to handle messages to the user, if supplied
     setUserMessage( userMessageIn );
@@ -291,8 +292,17 @@ bool QCaObject::createChannel() {
     // Get the private part of this object (not visible to users of this class)
     CaObjectPrivate* p = (CaObjectPrivate*)(priPtr);
 
+    // Select the CA priority appropriate
+    caconnection::priorities caPriority;
+    switch( priority )
+    {
+        case QE_PRIORITY_LOW:    caPriority = caconnection::PRIORITY_LOW;     break;
+        case QE_PRIORITY_NORMAL: caPriority = caconnection::PRIORITY_DEFAULT; break;
+        case QE_PRIORITY_HIGH:   caPriority = caconnection::PRIORITY_HIGH;    break;
+    };
+
     // Try to create the channel
-    caconnection::ca_responses response = p->setChannel( recordName.toStdString() );
+    caconnection::ca_responses response = p->setChannel( recordName.toStdString(), caPriority );
     if( response == caconnection::REQUEST_SUCCESSFUL )
     {
         return true;
@@ -854,9 +864,9 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
+                    values.reserve( arrayCount);
                     short* data;
                     newData->getShort( &data );
-
                     for( unsigned long i = 0; i < arrayCount; i++ )
                     {
                         values.append( (qlonglong)(data[i]) );
@@ -872,6 +882,7 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
+                    values.reserve( arrayCount);
                     unsigned short* data;
                     newData->getUnsignedShort( &data );
 
@@ -890,6 +901,7 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
+                    values.reserve( arrayCount);
                     unsigned char* data;
                     newData->getUnsignedChar( &data );
 
@@ -908,6 +920,7 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
+                    values.reserve( arrayCount);
                     long* data;
                     newData->getLong( &data );
 
@@ -927,6 +940,7 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
+                    values.reserve( arrayCount);
                     unsigned long* data;
                     newData->getUnsignedLong( &data );
 
@@ -945,6 +959,7 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
+                    values.reserve( arrayCount);
                     float* data;
                     newData->getFloat( &data );
 
@@ -963,6 +978,7 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
+                    values.reserve( arrayCount);
                     double* data;
                     newData->getDouble( &data );
 
