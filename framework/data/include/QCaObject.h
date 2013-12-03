@@ -52,10 +52,11 @@ namespace qcaobject {
       Q_OBJECT
 
     public:
-      QCaObject( const QString& recordName, QObject *eventObject, unsigned char signalsToSendIn=SIG_VARIANT );
-      QCaObject( const QString& recordName, QObject *eventObject, UserMessage* userMessageIn, unsigned char signalsToSendIn=SIG_VARIANT );
-      virtual ~QCaObject();
+      enum priorities{ QE_PRIORITY_LOW, QE_PRIORITY_NORMAL, QE_PRIORITY_HIGH };
 
+      QCaObject( const QString& recordName, QObject *eventObject, unsigned char signalsToSendIn=SIG_VARIANT, priorities priorityIn=QE_PRIORITY_NORMAL );
+      QCaObject( const QString& recordName, QObject *eventObject, UserMessage* userMessageIn, unsigned char signalsToSendIn=SIG_VARIANT, priorities priorityIn=QE_PRIORITY_NORMAL );
+      virtual ~QCaObject();
 
       bool subscribe();
       bool singleShotRead();
@@ -116,7 +117,7 @@ namespace qcaobject {
       void resendLastData();
 
     private:
-      void initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn );
+      void initialise( const QString& newRecordName, QObject *newEventHandler, UserMessage* userMessageIn, unsigned char signalsToSendIn, priorities priorityIn );
 
       long lastEventChannelState; // Channel state from most recent update event. This is actually of type caconnection::channel_states
       long lastEventLinkState;    // Link state from most recent update event. This is actually of type aconnection::link_states
@@ -175,6 +176,8 @@ namespace qcaobject {
       bool isStatField;
 
       unsigned char signalsToSend;
+      priorities priority;
+
       bool channelExpiredMessage;
 
     private slots:

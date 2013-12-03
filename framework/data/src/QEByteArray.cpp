@@ -35,14 +35,18 @@
 #include <QtDebug>
 
 /*
-    ???
+    QE Byte array creation.
+
+    Note, the QCaObject is created with low priorityfor the following scenario:
+    Several large rapidly updating images being displayed. Network bandwith is far less than would support the image update rate.
+    When scalar values are requested, the request times out before the scalar updates.
 */
 QEByteArray::QEByteArray( QString recordName, QObject *eventObject,
-                        unsigned int variableIndexIn ) : QCaObject( recordName, eventObject, SIG_BYTEARRAY ) {
+                        unsigned int variableIndexIn ) : QCaObject( recordName, eventObject, SIG_BYTEARRAY, QE_PRIORITY_LOW ) {
     initialise( variableIndexIn );
 }
 QEByteArray::QEByteArray( QString recordName, QObject *eventObject,
-                        unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn ) {
+                        unsigned int variableIndexIn, UserMessage* userMessageIn ) : QCaObject( recordName, eventObject, userMessageIn, SIG_BYTEARRAY, QE_PRIORITY_LOW ) {
     initialise( variableIndexIn );
 }
 

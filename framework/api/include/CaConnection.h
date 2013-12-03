@@ -34,6 +34,7 @@ namespace caconnection {
   enum link_states { LINK_UP, LINK_DOWN, LINK_UNKNOWN };
   enum channel_states { NEVER_CONNECTED, PREVIOUSLY_CONNECTED, CONNECTED, CLOSED, CHANNEL_UNKNOWN };
   enum ca_responses { REQUEST_SUCCESSFUL, CHANNEL_DISCONNECTED, REQUEST_FAILED };
+  enum priorities { PRIORITY_LOW = CA_PRIORITY_MIN, PRIORITY_DEFAULT = CA_PRIORITY_MIN+1, PRIORITY_HIGH = CA_PRIORITY_MIN+2 };
 
   // Connection link state and properties.
   struct caLink {
@@ -77,7 +78,7 @@ namespace caconnection {
       ~CaConnection();
 
       ca_responses establishContext( void (*exceptionHandler)(struct exception_handler_args), void* args );
-      ca_responses establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName );
+      ca_responses establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName, priorities priority );
 
       // initialDbrStructType is for the initial read - provides values and all all meta data, e.g. DBR_CTRL_LONG
       // updateDbrStructType is for on going updates -provides value(s), status and timestamp, e.g. DBR_TIME_LONG

@@ -98,12 +98,12 @@ ca_responses CaConnection::establishContext( void (*exceptionHandler)(struct exc
     Use activeChannel() for feedback.
     Returns: REQUEST_SUCCESSFUL or REQUEST_FAILED
 */
-ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName ) {
+ca_responses CaConnection::establishChannel( void (*connectionHandler)(struct connection_handler_args), std::string channelName, priorities priority ) {
 //    printf( "CaConnection::establishChannel %ld  chid: %ld  name: %s\n", (long)(&channel), (long)(channel.id), channelName.c_str() ); fflush(stdout);
 //capri prio;
 //channelName.compare( "INTEG01DET02:IMAGE:ArrayData" )?prio=1:prio=0;
     if( context.activated == true && channel.activated == false ) {
-        channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, CA_PRIORITY_DEFAULT, &channel.id );
+        channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, priority, &channel.id );
 //        channel.creation = ca_create_channel( channelName.c_str(), connectionHandler, myRef, prio, &channel.id );
         // Sanity check
         if( channel.id == 0 )
