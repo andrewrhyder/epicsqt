@@ -74,6 +74,12 @@ void QEGraphic::construct ()
    this->xIsLogarithmic = false;
    this->yIsLogarithmic = false;
 
+   this->xScale = 1.0;
+   this->xOffset  = 0.0;
+
+   this->yScale = 1.0;
+   this->yOffset  = 0.0;
+
    this->leftIsDefined = false;
    this->leftIsDefined = false;
 
@@ -146,8 +152,11 @@ QPointF QEGraphic::pointToReal (const QPoint& pos) const
       y = EXP10 (y);
    }
 
-   // Scale to real world units - none yet
+   // Scale to real world units.
    //
+   x = (x - this->xOffset) / this->xScale;
+   y = (y - this->yOffset) / this->yScale;
+
    return QPointF (x, y);
 }
 
@@ -159,29 +168,26 @@ QPoint QEGraphic::realToPoint (const QPointF& pos) const
    double useX;
    double useY;
 
+   // Do linear scaling (if any) followed by log scaling if required.
+   //
+   useX = this->xScale * (double) pos.x () + this->xOffset;
+   useY = this->yScale * (double) pos.y () + this->yOffset;
+
    if (this->xIsLogarithmic) {
-      useX = LOG10 (pos.x ());
-   } else {
-      useX = pos.x ();
+      useX = LOG10 (useX);
    }
 
    if (this->yIsLogarithmic) {
-      useY = LOG10 (pos.y ());
-   } else {
-      useY = pos.y ();
+      useY = LOG10 (useY);
    }
 
-   // Perform basic transformation.
+   // Perform basic plot transformation.
    //
    x = this->plot->transform (QwtPlot::xBottom, useX);
    y = this->plot->transform (QwtPlot::yLeft,   useY);
 
-
-   // Scale to real world units - none yet
-   //
    return QPoint (x, y);
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -215,45 +221,43 @@ void QEGraphic::attchOwnCurve (QwtPlotCurve* curve)
 void QEGraphic::plotCurveData (const DoubleVector& xData, const DoubleVector& yData)
 {
    QwtPlotCurve* curve;
-   DoubleVector logXData;
-   DoubleVector logYData;
-   const DoubleVector* useXData;
-   const DoubleVector* useYData;
-
+   DoubleVector useXData;
+   DoubleVector useYData;
+   int n;
    curve = new QwtPlotCurve ();
 
-   // Set curve propeties using current attributes.
+   // Set curve propeties using current curve attributes.
    //
    curve->setPen (this->getCurvePen ());
    curve->setRenderHint (this->getCurveRenderHint ());
    curve->setStyle (this->getCurveStyle ());
 
    // Scale data as need be. Underlying Qwr widget does basic transformation,
-   // but we need to do any required log scaling.
+   // but we need to do any required real world/log scaling.
    //
-   if (this->xIsLogarithmic) {
-      for (int j = 0; j < xData.size (); j++) {
-         logXData.append (LOG10 (xData.value (j)));
-      }
-      useXData = &logXData;
-   } else {
-      useXData = &xData;
-   }
+   useXData.clear();
+   useYData.clear();
+   n = MIN (xData.size (), yData.size ());
+   for (int j = 0; j < n; j++) {
+      double x, y;
 
-   if (this->yIsLogarithmic) {
-      for (int j = 0; j < yData.size (); j++) {
-         logYData.append (LOG10 (yData.value (j)));
+      x = this->xScale * xData.value (j) + this->xOffset;
+      if (this->xIsLogarithmic) {
+         x = LOG10 (x);
       }
-      useYData = &logYData;
-   } else {
-      useYData = &yData;
-   }
+      useXData.append (x);
 
+      y = this->yScale * yData.value (j) + this->yOffset;
+      if (this->yIsLogarithmic) {
+         y = LOG10 (y);
+      }
+      useYData.append (y);
+   }
 
 #if QWT_VERSION >= 0x060000
-   curve->setSamples (*useXData, *useYData);
+   curve->setSamples (useXData, useYData);
 #else
-   curve->setData (*useXData, *useYData);
+   curve->setData (useXData, useYData);
 #endif
 
    // Attach to this QwtPlot object.
@@ -277,7 +281,7 @@ bool QEGraphic::getLeftIsDefined ()
 
 //------------------------------------------------------------------------------
 //
-bool QEGraphic::getLeftIsDefined (QPoint & distance)
+bool QEGraphic::getLeftIsDefined (QPoint& distance)
 {
    if (this->leftIsDefined) {
       distance = this->currentPosition - this->leftOrigin;
@@ -318,7 +322,7 @@ bool QEGraphic::getRightIsDefined ()
 
 //------------------------------------------------------------------------------
 //
-bool QEGraphic::getRightIsDefined (QPoint & distance)
+bool QEGraphic::getRightIsDefined (QPoint& distance)
 {
    if (this->rightIsDefined) {
       distance = this->currentPosition - this->rightOrigin;
@@ -328,7 +332,7 @@ bool QEGraphic::getRightIsDefined (QPoint & distance)
 
 //------------------------------------------------------------------------------
 //
-bool QEGraphic::getRightIsDefined (QPointF & distance)
+bool QEGraphic::getRightIsDefined (QPointF& distance)
 {
    if (this->rightIsDefined) {
       QPointF realCurrent = this->pointToReal (this->currentPosition);
@@ -437,16 +441,21 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
       case QEvent::MouseButtonPress:
          mouseEvent = static_cast<QMouseEvent *> (event);
          if (obj == this->plot->canvas ()) {
+            // save where we are.
+            //
+            this->currentPosition = mouseEvent->pos ();
             switch (mouseEvent->button ()) {
                case Qt::LeftButton:
                   this->leftOrigin = mouseEvent->pos ();
                   this->leftIsDefined = true;
+                  emit mouseMove (this->pointToReal (this->currentPosition));
                   return true;  // we have handled this mouse press
                   break;
 
                case Qt::RightButton:
                   this->rightOrigin = mouseEvent->pos ();
                   this->rightIsDefined = true;
+                  emit mouseMove (this->pointToReal (this->currentPosition));
                   return true;  // we have handled this mouse press
                   break;
 
@@ -460,6 +469,9 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
       case QEvent::MouseButtonRelease:
          mouseEvent = static_cast<QMouseEvent *> (event);
          if (obj == this->plot->canvas ()) {
+            // save where we are.
+            //
+            this->currentPosition = mouseEvent->pos ();
 
             switch (mouseEvent->button ()) {
                case Qt::LeftButton:
@@ -467,6 +479,7 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
                      this->leftIsDefined = false;
                      emit leftSelected (this->pointToReal (this->leftOrigin),
                                         this->pointToReal (this->currentPosition));
+                     emit mouseMove (this->pointToReal (this->currentPosition));
                      return true;  // we have handled this mouse press
                   }
                   break;
@@ -476,6 +489,7 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
                      this->rightIsDefined = false;
                      emit rightSelected (this->pointToReal (this->rightOrigin),
                                          this->pointToReal (this->currentPosition));
+                     emit mouseMove (this->pointToReal (this->currentPosition));
                      return true;  // we have handled this mouse press
                   }
                   break;
@@ -520,6 +534,53 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
    return false;
 }
 
+//------------------------------------------------------------------------------
+//
+void QEGraphic::setXScale (const double scale)
+{
+   this->xScale = scale;
+}
+
+double QEGraphic::getXScale ()
+{
+   return this->xScale;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::setXOffset (const double offset)
+{
+   this->xOffset = offset;
+}
+
+double QEGraphic::getXOffset ()
+{
+   return this->xOffset;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::setYScale (const double scale)
+{
+   this->yScale = scale;
+}
+
+double QEGraphic::getYScale ()
+{
+   return this->yScale;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::setYOffset (const double offset)
+{
+   this->yOffset = offset;
+}
+
+double QEGraphic::getYOffset ()
+{
+   return this->yOffset;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -554,15 +615,16 @@ void QEGraphic::setXRange (const double minIn, const double maxIn)
    double useMin;
    double useMax;
    double useStep;
+   int size = this->plot->canvas()->width ();
 
    this->xMinimum = minIn;
    this->xMaximum = LIMIT (maxIn, minIn + MINIMUM_SPAN, minIn + MAXIMUM_SPAN);
 
    if (this->xIsLogarithmic) {
-      QEGraphic::adjustLogMinMax (this->xMinimum, this->xMaximum,
+      QEGraphic::adjustLogMinMax (this->xMinimum, this->xMaximum, size,
                                   useMin, useMax, useStep);
    } else {
-      QEGraphic::adjustMinMax (this->xMinimum, this->xMaximum,
+      QEGraphic::adjustMinMax (this->xMinimum, this->xMaximum, size,
                                useMin, useMax, useStep);
    }
 
@@ -576,15 +638,16 @@ void QEGraphic::setYRange (const double minIn, const double maxIn)
    double useMin;
    double useMax;
    double useStep;
+   int size = this->plot->canvas()->height ();
 
    this->yMinimum = minIn;
    this->yMaximum = LIMIT (maxIn, minIn + MINIMUM_SPAN, minIn + MAXIMUM_SPAN);
 
    if (this->yIsLogarithmic) {
-      QEGraphic::adjustLogMinMax (this->yMinimum, this->yMaximum,
+      QEGraphic::adjustLogMinMax (this->yMinimum, this->yMaximum, size,
                                   useMin, useMax, useStep);
    } else {
-      QEGraphic::adjustMinMax (this->yMinimum, this->yMaximum,
+      QEGraphic::adjustMinMax (this->yMinimum, this->yMaximum, size,
                                useMin, useMax, useStep);
    }
 
@@ -636,7 +699,7 @@ QwtPlotCurve::CurveStyle QEGraphic::getCurveStyle ()
 //------------------------------------------------------------------------------
 // static
 //
-void QEGraphic::adjustLogMinMax (const double minIn, const double maxIn,
+void QEGraphic::adjustLogMinMax (const double minIn, const double maxIn, const int /* size */,
                                  double& minOut, double& maxOut, double& majorOut)
 {
    minOut = floor (LOG10 (minIn));
@@ -651,7 +714,7 @@ void QEGraphic::adjustLogMinMax (const double minIn, const double maxIn,
 //------------------------------------------------------------------------------
 // static
 //
-void QEGraphic::adjustMinMax (const double minIn, const double maxIn,
+void QEGraphic::adjustMinMax (const double minIn, const double maxIn, const int size,
                               double& minOut, double& maxOut, double& majorOut)
 {
    // The compiler does a better job of evaluating these constants and
@@ -684,9 +747,9 @@ void QEGraphic::adjustMinMax (const double minIn, const double maxIn,
    int s;
    int p, q;
 
-   // Find estimated major value.
+   // Find estimated major value - use size (width or height) to help here.
    //
-   major = (maxIn - minIn) / 12;
+   major = (maxIn - minIn) * 40 / MAX (size, 20);
 
    // Round up major to next standard value.
    //
@@ -708,7 +771,15 @@ void QEGraphic::adjustMinMax (const double minIn, const double maxIn,
    q = (int) (maxIn / minor);
    if ((q * minor) < maxIn) q++;
 
-   q = MAX (q, p+1);   // Ensure q > p
+   q = MAX (q, p+1);   // Ensure p < q
+
+   // Extend lower/upper limit to include 0 if min < 5% max
+   //
+   if ((p > 0) && (q > 20*p)) {
+      p = 0;
+   } else if ((q < 0) && (p < 20*q)) {
+      q = 0;
+   }
 
    minOut = p * minor;
    maxOut = q * minor;
