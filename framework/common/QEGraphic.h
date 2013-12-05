@@ -73,7 +73,7 @@ public:
 
    void releaseCurves ();   // call before replotting.
 
-   // User defined curve attached to this QEGraphic.
+   // User defined curve attached to the internal QwtPlot object.
    // Will be released by releaseCurves.
    //
    void attchOwnCurve (QwtPlotCurve* curve);
@@ -113,8 +113,22 @@ public:
    //
    QPoint pixelDistance (const QPointF& from, const QPointF& to);
 
+   void replot ();   // calls inner replot
+
    // Set and get attribute functions
    //
+   void setXScale (const double scale);
+   double getXScale ();
+
+   void setXOffset (const double offset);
+   double getXOffset ();
+
+   void setYScale (const double scale);
+   double getYScale ();
+
+   void setYOffset (const double offset);
+   double getYOffset ();
+
    void setXLogarithmic (const bool logarithmic);
    bool getXLogarithmic ();
 
@@ -123,8 +137,6 @@ public:
 
    void setXRange (const double min, const double max);
    void setYRange (const double min, const double max);
-
-   void replot ();   // calls inner replot
 
    // Set and get current curve attributes.
    // These are used for internally allocated curves.
@@ -137,6 +149,16 @@ public:
 
    void setCurveStyle (const QwtPlotCurve::CurveStyle style);
    QwtPlotCurve::CurveStyle getCurveStyle ();
+
+   // Utilify functions.
+   //
+
+   // Converts between pixel coords to real world coords taking into
+   // account any scaling and/or logarithic scaling.
+   //
+   QPointF pointToReal (const QPoint& pos) const;
+   QPoint realToPoint (const QPointF& pos) const;
+
 
 signals:
    void mouseMove     (const QPointF& posn);
@@ -154,24 +176,26 @@ protected:
 private:
    void construct ();
 
-   QPointF pointToReal (const QPoint& pos) const;
-   QPoint realToPoint (const QPointF& pos) const;
+   static void adjustLogMinMax (const double minIn, const double maxIn, const int size,
+                                double& minOut, double& maxOut, double& majorOut);
 
-   static void adjustLogMinMax (const double minIn, const double maxIn,
-                                double& minOut, double& maxOut,
-                                double& majorOut);
-
-   static void adjustMinMax (const double minIn, const double maxIn,
-                             double& minOut, double& maxOut,
-                             double& majorOut);
+   static void adjustMinMax (const double minIn, const double maxIn, const int size,
+                             double& minOut, double& maxOut, double& majorOut);
 
    double xMinimum;
    double xMaximum;
    double yMinimum;
    double yMaximum;
 
+   // Log10 scaling.
    bool yIsLogarithmic;   // vs. Linear
    bool xIsLogarithmic;   // vs. Linear
+
+   // Data scaling. This is applied before any log10 scaling.
+   double xScale;
+   double xOffset;
+   double yScale;
+   double yOffset;
 
    QHBoxLayout *layout;
    QwtPlot* plot;
