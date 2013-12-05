@@ -865,7 +865,9 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
-                    values.reserve( arrayCount);
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+                    values.reserve( arrayCount );
+#endif
                     short* data;
                     newData->getShort( &data );
                     for( unsigned long i = 0; i < arrayCount; i++ )
@@ -883,7 +885,9 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
-                    values.reserve( arrayCount);
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+                    values.reserve( arrayCount );
+#endif
                     unsigned short* data;
                     newData->getUnsignedShort( &data );
 
@@ -902,7 +906,9 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
-                    values.reserve( arrayCount);
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+                    values.reserve( arrayCount );
+#endif
                     unsigned char* data;
                     newData->getUnsignedChar( &data );
 
@@ -921,7 +927,9 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
-                    values.reserve( arrayCount);
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+                    values.reserve( arrayCount );
+#endif
                     long* data;
                     newData->getLong( &data );
 
@@ -941,7 +949,9 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
-                    values.reserve( arrayCount);
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+                    values.reserve( arrayCount );
+#endif
                     unsigned long* data;
                     newData->getUnsignedLong( &data );
 
@@ -960,7 +970,9 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
-                    values.reserve( arrayCount);
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+                    values.reserve( arrayCount );
+#endif
                     float* data;
                     newData->getFloat( &data );
 
@@ -979,7 +991,9 @@ void QCaObject::processData( void* newDataPtr ) {
                 else
                 {
                     QVariantList values;
-                    values.reserve( arrayCount);
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+                    values.reserve( arrayCount );
+#endif
                     double* data;
                     newData->getDouble( &data );
 
