@@ -43,12 +43,12 @@
 class QEPLUGINLIBRARYSHARED_EXPORT QCaDataPoint {
 public:
    explicit QCaDataPoint ();
-   bool isDisplayable ();     // i.e. is okay
+   bool isDisplayable () const;     // i.e. is okay
 
    // Generate image of point.
    //
-   QString toString ();                                    // basic
-   QString toString (const QCaDateTime& originDateTime);   // ... plus a relative time
+   QString toString () const;                                   // basic
+   QString toString (const QCaDateTime& originDateTime) const;  // ... plus a relative time
 
    // We don't bother with a variant but just use a double.  A double can be
    // used to hold all CA data types except strings (which is are not plotable).
@@ -98,7 +98,7 @@ public:
 
    // Write whole list to target stream.
    //
-   void toStream (QTextStream& target, bool withIndex, bool withRelativeTime);
+   void toStream (QTextStream& target, bool withIndex, bool withRelativeTime)  const;
 
 private:
    QList<QCaDataPoint> data;

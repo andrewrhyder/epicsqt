@@ -44,7 +44,7 @@ QCaDataPoint::QCaDataPoint ()
 
 //------------------------------------------------------------------------------
 //
-bool QCaDataPoint::isDisplayable ()
+bool QCaDataPoint::isDisplayable () const
 {
    bool result;
    QEArchiveInterface::archiveAlarmSeverity severity;
@@ -78,7 +78,7 @@ bool QCaDataPoint::isDisplayable ()
 
 //------------------------------------------------------------------------------
 //
-QString QCaDataPoint::toString ()
+QString QCaDataPoint::toString () const
 {
    QString result;
    QString zone;
@@ -106,7 +106,7 @@ QString QCaDataPoint::toString ()
 
 //------------------------------------------------------------------------------
 //
-QString QCaDataPoint::toString (const QCaDateTime& originDateTime)
+QString QCaDataPoint::toString (const QCaDateTime& originDateTime) const
 {
    QString result;
    QString zone;
@@ -220,7 +220,7 @@ void QCaDataPointList::compact (const QCaDataPointList& source)
 //
 void QCaDataPointList::toStream (QTextStream& target,
                                  bool withIndex,
-                                 bool withRelativeTime)
+                                 bool withRelativeTime) const
 {
    int number = this->count ();
    int j;
