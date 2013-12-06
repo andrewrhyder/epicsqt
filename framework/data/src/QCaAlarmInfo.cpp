@@ -64,7 +64,7 @@ bool QCaAlarmInfo::operator!=(const QCaAlarmInfo& other) const {
 /*
   Return a string identifying the alarm state
  */
-QString QCaAlarmInfo::statusName() {
+QString QCaAlarmInfo::statusName() const {
 
     if( status <= lastEpicsAlarmCond )
         return QString( epicsAlarmConditionStrings[status] );
@@ -75,7 +75,7 @@ QString QCaAlarmInfo::statusName() {
 /*
   Return a string identifying the alarm severity
  */
-QString QCaAlarmInfo::severityName() {
+QString QCaAlarmInfo::severityName() const {
 
     if( severity <= lastEpicsAlarmSev )
         return QString( epicsAlarmSeverityStrings[severity] );
@@ -86,35 +86,35 @@ QString QCaAlarmInfo::severityName() {
 /*
   Return true if there is an alarm
  */
-bool QCaAlarmInfo::isInAlarm() {
+bool QCaAlarmInfo::isInAlarm() const {
     return( status != NO_ALARM );
 }
 
 /*
   Return true if there is a minor alarm
  */
-bool QCaAlarmInfo::isMinor() {
+bool QCaAlarmInfo::isMinor() const {
     return( severity == MINOR_ALARM );
 }
 
 /*
   Return true if there is a major alarm
  */
-bool QCaAlarmInfo::isMajor() {
+bool QCaAlarmInfo::isMajor() const {
     return( severity == MAJOR_ALARM );
 }
 
 /*
   Return true if there is an invalid alarm
  */
-bool QCaAlarmInfo::isInvalid() {
+bool QCaAlarmInfo::isInvalid() const {
     return( severity == INVALID_ALARM );
 }
 
 /*
   Return a style string to update the widget's look to reflect the current alarm state
  */
-QString QCaAlarmInfo::style()
+QString QCaAlarmInfo::style() const
 {
     switch( severity )
     {
@@ -129,7 +129,7 @@ QString QCaAlarmInfo::style()
 /*
   Return the color name for the alarm state
  */
-QString QCaAlarmInfo::getColorName()
+QString QCaAlarmInfo::getColorName() const
 {
     switch( severity )
     {
@@ -143,7 +143,7 @@ QString QCaAlarmInfo::getColorName()
 
 
 /*
-  Return a severity that will not match any valid severity
+  Return a severity that will not match any valid severity (static)
  */
 QCAALARMINFO_SEVERITY QCaAlarmInfo::getInvalidSeverity()
 {
@@ -154,7 +154,7 @@ QCAALARMINFO_SEVERITY QCaAlarmInfo::getInvalidSeverity()
   Return the severity
   The caller is only expected to compare this to
  */
-QCAALARMINFO_SEVERITY QCaAlarmInfo::getSeverity()
+QCAALARMINFO_SEVERITY QCaAlarmInfo::getSeverity() const
 {
     return severity;
 }

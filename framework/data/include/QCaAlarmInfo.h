@@ -42,18 +42,18 @@ public:
     bool operator==(const QCaAlarmInfo& other) const;   // Return true if equal
     bool operator!=(const QCaAlarmInfo& other) const;   // Return true if not equal
 
-    QString statusName();       // Return the name of the current alarm state
-    QString severityName();     // Return the name of the current alarm severity
-    bool isInAlarm();           // Return true if there is an alarm
-    bool isMinor();             // Return true if there is a minor alarm
-    bool isMajor();             // Return true if there is a major alarm
-    bool isInvalid();           // Return true if there is an invalid alarm
-    QString style();            // Return a style string to update the widget's look to reflect the current alarm state
-    QString getColorName();     // Return 'standard' colour for the alarm state.
+    QString statusName() const;       // Return the name of the current alarm state
+    QString severityName() const;     // Return the name of the current alarm severity
+    bool isInAlarm() const;           // Return true if there is an alarm
+    bool isMinor() const;             // Return true if there is a minor alarm
+    bool isMajor() const;             // Return true if there is a major alarm
+    bool isInvalid() const;           // Return true if there is an invalid alarm
+    QString style() const;            // Return a style string to update the widget's look to reflect the current alarm state
+    QString getColorName() const;     // Return 'standard' colour for the alarm state.
 
 
     static QCAALARMINFO_SEVERITY getInvalidSeverity(); // Return a severity that will not match any valid severity
-    QCAALARMINFO_SEVERITY getSeverity(); // Return the current severity
+    QCAALARMINFO_SEVERITY getSeverity() const; // Return the current severity
 
 private:
     unsigned short status;      // Alarm state
