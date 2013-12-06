@@ -135,8 +135,11 @@ public:
    void setYLogarithmic (const bool logarithmic);
    bool getYLogarithmic ();
 
-   void setXRange (const double min, const double max);
-   void setYRange (const double min, const double max);
+   enum AxisMajorIntervalModes { SelectByNumber,  // y span / value used for inital major value
+                                 SelectBySize };  // y span / (size / value) used for inital major value
+
+   void setXRange (const double min, const double max, const AxisMajorIntervalModes, const int value);
+   void setYRange (const double min, const double max, const AxisMajorIntervalModes, const int value);
 
    // Set and get current curve attributes.
    // These are used for internally allocated curves.
@@ -176,10 +179,10 @@ protected:
 private:
    void construct ();
 
-   static void adjustLogMinMax (const double minIn, const double maxIn, const int size,
+   static void adjustLogMinMax (const double minIn, const double maxIn,
                                 double& minOut, double& maxOut, double& majorOut);
 
-   static void adjustMinMax (const double minIn, const double maxIn, const int size,
+   static void adjustMinMax (const double minIn, const double maxIn, const int number,
                              double& minOut, double& maxOut, double& majorOut);
 
    double xMinimum;

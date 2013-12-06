@@ -35,10 +35,10 @@
 
 #include <QECommon.h>
 #include <QEScaling.h>
+#include <QEGraphic.h>
 #include "QEStripChartItem.h"
 #include "QEStripChartContextMenu.h"
 #include "QEStripChartStatistics.h"
-
 
 #define DEBUG  qDebug () <<  "QEStripChartItem::" <<  __FUNCTION__  << ":" << __LINE__
 
@@ -84,8 +84,12 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    //
    this->createInternalWidgets ();
 
-   this->inUse = false;
    this->previousQcaItem = NULL;
+
+   this->dataKind = NotInUse;
+   this->calculator = new QEExpressionEvaluation ();
+   this->expression = "";
+   this->expressionIsValid = false;
 
    // Set geometry
    //
@@ -207,7 +211,7 @@ void QEStripChartItem::createInternalWidgets ()
 //
 void QEStripChartItem::clear ()
 {
-   this->inUse = false;
+   this->dataKind = NotInUse;
    this->caLabel->setVariableNameAndSubstitutions ("", "", 0);
    this->caLabel->setText ("-");
    this->caLabel->setStyleSheet (unusedStyle);
@@ -281,7 +285,7 @@ void QEStripChartItem::setPvName (QString pvName, QString substitutions)
    if (substitutedPVName  == "") return;
 
    this->caLabel->setStyleSheet (inuseStyle);
-   this->inUse = true;
+   this->dataKind = PVData;
    this->setCaption ();
 
    // Set up connections.
@@ -323,7 +327,14 @@ void QEStripChartItem::setCaption ()
 //
 bool QEStripChartItem::isInUse ()
 {
-   return this->inUse;
+   return ((this->dataKind == PVData) || (this->dataKind == CalculationData));
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEStripChartItem::isCalculation ()
+{
+   return (this->dataKind == CalculationData);
 }
 
 //------------------------------------------------------------------------------
@@ -389,43 +400,21 @@ TrackRange QEStripChartItem::getBufferedMinMax (bool doScale)
    return result;
 }
 
-
-//------------------------------------------------------------------------------
-//
-QwtPlotCurve * QEStripChartItem::allocateCurve ()
-{
-   QwtPlotCurve * result;
-
-   // Curves are managed by the chart widget.
-   //
-   result = this->chart->allocateCurve ();
-
-   // Set curve propeties plus item Pen which include its colour.
-   //
-   result->setRenderHint (QwtPlotItem::RenderAntialiased);
-   result->setStyle (QwtPlotCurve::Lines);
-   result->setPen (this->getPen ());
-
-   return result;
-}
-
-
 //------------------------------------------------------------------------------
 //
 void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
-                                       const double timeScale,
-                                       const QEStripChartNames::YScaleModes yScaleMode,
                                        const bool isRealTime,
                                        TrackRange & plottedTrackRange)
 {
 
 // macro functions to convert real-world values to a plot values, doing safe log conversion if required.
 //
-#define PLOT_T(t) ((t) / timeScale)
-#define PLOT_Y(y) ((yScaleMode == QEStripChartNames::linear) ? this->scaling.value (y) : LOG10 (this->scaling.value (y)))
+#define PLOT_T(t) (t)
+#define PLOT_Y(y) (this->scaling.value (y))
 
    const QDateTime end_time = this->chart->getEndDateTime ();
    const double duration = this->chart->getDuration ();
+   QEGraphic* graphic = this->chart->plotArea;
 
    QVector<double> tdata;
    QVector<double> ydata;
@@ -436,7 +425,12 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
    bool doesPreviousExist;
    bool isFirstPoint;
    double t;
-   QwtPlotCurve *curve;
+
+   if (!graphic) return;   // sanity check
+
+   graphic->setCurveRenderHint (QwtPlotItem::RenderAntialiased);
+   graphic->setCurveStyle (QwtPlotCurve::Lines);
+   graphic->setCurvePen (this->getPen ());
 
    // Both values zero is deemed to be undefined.
    //
@@ -505,12 +499,9 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
                //
                tdata.append (PLOT_T (t));
                ydata.append (ydata.last ());   // is a copy - no PLOT_Y required.
-               curve = this->allocateCurve ();
-#if QWT_VERSION >= 0x060000
-               curve->setSamples (tdata, ydata);
-#else
-               curve->setData (tdata, ydata);
-#endif
+
+               graphic->plotCurveData (tdata, ydata);
+
                tdata.clear ();
                ydata.clear ();
             }
@@ -547,12 +538,7 @@ void QEStripChartItem::plotDataPoints (const QCaDataPointList & dataPoints,
          tdata.append (PLOT_T (0.0));
          ydata.append (ydata.last ());   // is a copy - no PLOT_Y required.
       }
-      curve = this->allocateCurve ();
-#if QWT_VERSION >= 0x060000
-      curve->setSamples (tdata, ydata);
-#else
-      curve->setData (tdata, ydata);
-#endif
+      graphic->plotCurveData (tdata, ydata);
    }
 
 #undef PLOT_T
@@ -613,8 +599,7 @@ QCaDataPointList QEStripChartItem::determinePlotPoints ()
 
 //------------------------------------------------------------------------------
 //
-void QEStripChartItem::plotData (const double timeScale,
-                                 const QEStripChartNames::YScaleModes yScaleMode)
+void QEStripChartItem::plotData ()
 {
    TrackRange temp;
 
@@ -623,10 +608,10 @@ void QEStripChartItem::plotData (const double timeScale,
 
    if (this->lineDrawMode != QEStripChartNames::ldmHide) {
 
-      this->plotDataPoints (this->historicalTimeDataPoints, timeScale, yScaleMode, false, temp);
+      this->plotDataPoints (this->historicalTimeDataPoints, false, temp);
       this->displayedMinMax.merge (temp);
 
-      this->plotDataPoints (this->realTimeDataPoints,timeScale,  yScaleMode, true, temp);
+      this->plotDataPoints (this->realTimeDataPoints, true, temp);
       this->displayedMinMax.merge (temp);
    }
 
@@ -675,6 +660,8 @@ void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
       if (this->realTimeDataPoints.count () > MAXIMUM_POINTS) {
          this->realTimeDataPoints.removeFirst ();
       }
+
+      this->chart->setRecalcIsRequired ();
    }
 }
 
@@ -718,6 +705,8 @@ void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm,
    if (this->realTimeDataPoints.count () > MAXIMUM_POINTS) {
       this->realTimeDataPoints.removeFirst ();
    }
+
+   this->chart->setRecalcIsRequired ();
 }
 
 //------------------------------------------------------------------------------
@@ -798,7 +787,7 @@ void QEStripChartItem::setArchiveData (const QObject *userData, const bool okay,
 
       // and replot the data
       //
-      this->chart->plotData ();
+      this->chart->setReplotIsRequired ();
 
    } else {
       DEBUG << "wrong item and/or data response not okay";
@@ -1118,7 +1107,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
       case QEStripChartNames::SCCM_SCALE_PV_RESET:
          this->scaling.reset ();
          this->setCaption ();
-         this->chart->plotData ();
+         this->chart->setReplotIsRequired ();
          break;
 
 
@@ -1135,7 +1124,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
             // User has selected okay.
             this->scaling.assign (this->adjustPVDialog->getValueScaling ());
             this->setCaption ();
-            this->chart->plotData ();
+            this->chart->setReplotIsRequired ();
          }
          break;
 
@@ -1145,7 +1134,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
          if (status) {
             this->scaling.map (min, max, this->chart->getYMinimum (), this->chart->getYMaximum ());
             this->setCaption ();
-            this->chart->plotData ();
+            this->chart->setReplotIsRequired ();
          }
          break;
 
@@ -1155,7 +1144,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
          if (status) {
             this->scaling.map (min, max, this->chart->getYMinimum (), this->chart->getYMaximum ());
             this->setCaption ();
-            this->chart->plotData ();
+            this->chart->setReplotIsRequired ();
          }
          break;
 
@@ -1165,7 +1154,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
          if (status) {
             this->scaling.map (min, max, this->chart->getYMinimum (), this->chart->getYMaximum ());
             this->setCaption ();
-            this->chart->plotData ();
+            this->chart->setReplotIsRequired ();
          }
          break;
 
@@ -1174,7 +1163,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
             midway = (chart->getYMinimum () + this->chart->getYMaximum () ) / 2.0;
             this->scaling.set (this->firstPoint.value, 1.0, midway);
             this->setCaption ();
-            this->chart->plotData ();
+            this->chart->setReplotIsRequired ();
          }
          break;
 
@@ -1195,7 +1184,7 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
             }
             // and replot the data
             //
-            this->chart->plotData ();
+            this->chart->setReplotIsRequired ();
          }
          break;
 
@@ -1271,17 +1260,17 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
 
       case QEStripChartNames::SCCM_LINE_HIDE:
          this->lineDrawMode = QEStripChartNames::ldmHide;
-         this->chart->plotData ();
+         this->chart->setReplotIsRequired ();
          break;
 
       case QEStripChartNames::SCCM_LINE_REGULAR:
          this->lineDrawMode = QEStripChartNames::ldmRegular;
-         this->chart->plotData ();
+         this->chart->setReplotIsRequired ();
          break;
 
       case QEStripChartNames::SCCM_LINE_BOLD:
          this->lineDrawMode = QEStripChartNames::ldmBold;
-         this->chart->plotData ();
+         this->chart->setReplotIsRequired ();
          break;
 
 

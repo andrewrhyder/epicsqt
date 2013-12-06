@@ -124,10 +124,10 @@ QEPlotterMenu::QEPlotterMenu (const int slotIn, QWidget* parent) : QMenu (parent
       this->make (menu, "Bold",             true, QEPlotterNames::PLOTTER_LINE_BOLD);
       this->make (menu, "Dots",             true, QEPlotterNames::PLOTTER_LINE_DOTS);
       this->make (menu, "Visible",          true, QEPlotterNames::PLOTTER_LINE_VISIBLE);
-      this->make (menu, "Colour... ",       false,QEPlotterNames:: PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
+      this->make (menu, "Colour... ",       false,QEPlotterNames::PLOTTER_LINE_COLOUR)->setEnabled (slot < 16);
    }
 
-   QObject::connect (this, SIGNAL (triggered             (QAction* ) ),
+   QObject::connect (this, SIGNAL (triggered             (QAction* )),
                      this, SLOT   (contextMenuTriggered  (QAction* )));
 }
 
