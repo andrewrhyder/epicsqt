@@ -138,7 +138,8 @@ class QEPLUGINLIBRARYSHARED_EXPORT  QEWidget :
 {
 public:
     /// Restore phases. When a widget's persistant data is restored, the restore occurs in two phases.
-    enum restorePhases { APPLICATION = SaveRestoreSignal::RESTORE_APPLICATION, FRAMEWORK = SaveRestoreSignal::RESTORE_QEFRAMEWORK };
+    enum restorePhases { APPLICATION = SaveRestoreSignal::RESTORE_APPLICATION,
+                         FRAMEWORK   = SaveRestoreSignal::RESTORE_QEFRAMEWORK };
 
     /// Constructor
     QEWidget( QWidget* ownerIn );

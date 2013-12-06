@@ -47,17 +47,12 @@
 #include <QEPVNameSelectDialog.h>
 #include <QEWidget.h>
 #include <QEActionRequests.h>
-
+#include <QEExpressionEvaluation.h>
 #include "QEStripChart.h"
 #include "QEStripChartNames.h"
 #include "QEStripChartAdjustPVDialog.h"
 #include "QEStripChartContextMenu.h"
 #include "QEStripChartUtilities.h"
-
-// Defered declaration - exists in qwt_plot_curve.h - but
-// we don't need to expose that.
-//
-class QwtPlotCurve;
 
 //==============================================================================
 // This is essentially a private classes used soley by the QEStripChart widget.
@@ -74,6 +69,7 @@ public:
    virtual ~QEStripChartItem ();
 
    bool isInUse ();
+   bool isCalculation ();
 
    void setPvName (QString pvName, QString substitutions);
    QString getPvName ();
@@ -103,8 +99,7 @@ public:
    void readArchive ();
    void normalise ();
 
-   void plotData (const double timeScale,                             // x scale modifier
-                  const QEStripChartNames::YScaleModes yScaleMode);   // y scale modifier
+   void plotData ();
 
    void saveConfiguration (PMElement & parentElement);
    void restoreConfiguration (PMElement & parentElement);
@@ -126,10 +121,7 @@ private:
    void highLight (bool isHigh);
 
    QPen getPen ();
-   QwtPlotCurve *allocateCurve ();
    void plotDataPoints (const QCaDataPointList & dataPoints,
-                        const double timeScale,
-                        const QEStripChartNames::YScaleModes yScaleMode,
                         const bool isRealTime,
                         TrackRange & plottedTrackRange);
 
@@ -143,7 +135,6 @@ private:
    // data members
    //
    unsigned int slot;
-   bool inUse;
    bool isConnected;
    bool useReceiveTime;
    QEArchiveInterface::How archiveReadHow;
@@ -166,9 +157,19 @@ private:
    QEPVNameSelectDialog *pvNameSelectDialog;
    QEStripChartAdjustPVDialog *adjustPVDialog;
 
+   enum DataChartKinds { NotInUse,          // blank  - not in use - no data - no plot
+                         PVData,          // use specified PV to provide plot data
+                         CalculationData }; // "= ..." - use given calculation for plot data
+
+   DataChartKinds dataKind;
+   QString expression;        // when dataKind is CalculationPlot
+   bool expressionIsValid;
+   QEExpressionEvaluation* calculator;
+
    // Internal widgets.
    //
    QEStripChart *chart;
+
    QLabel *pvSlotLetter;
    QLabel *pvName;
    QELabel *caLabel;

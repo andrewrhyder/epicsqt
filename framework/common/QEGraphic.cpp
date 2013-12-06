@@ -83,8 +83,8 @@ void QEGraphic::construct ()
    this->leftIsDefined = false;
    this->leftIsDefined = false;
 
-   this->setXRange (0.0, 1.0);
-   this->setYRange (0.0, 1.0);
+   this->setXRange (0.0, 1.0, SelectByNumber, 8);
+   this->setYRange (0.0, 1.0, SelectByNumber, 8);
 
    this->pen = QPen (QColor (0, 0, 0, 255));  // black
    this->hint = QwtPlotItem::RenderAntialiased;
@@ -610,21 +610,27 @@ bool QEGraphic::getYLogarithmic ()
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::setXRange (const double minIn, const double maxIn)
+void QEGraphic::setXRange (const double minIn, const double maxIn,
+                           const AxisMajorIntervalModes mode, const int value)
 {
    double useMin;
    double useMax;
    double useStep;
-   int size = this->plot->canvas()->width ();
+   int number;
 
    this->xMinimum = minIn;
    this->xMaximum = LIMIT (maxIn, minIn + MINIMUM_SPAN, minIn + MAXIMUM_SPAN);
 
    if (this->xIsLogarithmic) {
-      QEGraphic::adjustLogMinMax (this->xMinimum, this->xMaximum, size,
+      QEGraphic::adjustLogMinMax (this->xMinimum, this->xMaximum,
                                   useMin, useMax, useStep);
    } else {
-      QEGraphic::adjustMinMax (this->xMinimum, this->xMaximum, size,
+      if (mode == SelectBySize) {
+         number = this->plot->canvas()->width () / MAX (1, value);
+      } else {
+         number = value;
+      }
+      QEGraphic::adjustMinMax (this->xMinimum, this->xMaximum, number,
                                useMin, useMax, useStep);
    }
 
@@ -633,21 +639,27 @@ void QEGraphic::setXRange (const double minIn, const double maxIn)
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::setYRange (const double minIn, const double maxIn)
+void QEGraphic::setYRange (const double minIn, const double maxIn,
+                           const AxisMajorIntervalModes mode, const int value)
 {
    double useMin;
    double useMax;
    double useStep;
-   int size = this->plot->canvas()->height ();
+   int number;
 
    this->yMinimum = minIn;
    this->yMaximum = LIMIT (maxIn, minIn + MINIMUM_SPAN, minIn + MAXIMUM_SPAN);
 
    if (this->yIsLogarithmic) {
-      QEGraphic::adjustLogMinMax (this->yMinimum, this->yMaximum, size,
+      QEGraphic::adjustLogMinMax (this->yMinimum, this->yMaximum,
                                   useMin, useMax, useStep);
    } else {
-      QEGraphic::adjustMinMax (this->yMinimum, this->yMaximum, size,
+      if (mode == SelectBySize) {
+         number = this->plot->canvas()->height () / MAX (1, value);
+      } else {
+         number = value;
+      }
+      QEGraphic::adjustMinMax (this->yMinimum, this->yMaximum, number,
                                useMin, useMax, useStep);
    }
 
@@ -699,7 +711,7 @@ QwtPlotCurve::CurveStyle QEGraphic::getCurveStyle ()
 //------------------------------------------------------------------------------
 // static
 //
-void QEGraphic::adjustLogMinMax (const double minIn, const double maxIn, const int /* size */,
+void QEGraphic::adjustLogMinMax (const double minIn, const double maxIn,
                                  double& minOut, double& maxOut, double& majorOut)
 {
    minOut = floor (LOG10 (minIn));
@@ -714,7 +726,7 @@ void QEGraphic::adjustLogMinMax (const double minIn, const double maxIn, const i
 //------------------------------------------------------------------------------
 // static
 //
-void QEGraphic::adjustMinMax (const double minIn, const double maxIn, const int size,
+void QEGraphic::adjustMinMax (const double minIn, const double maxIn, const int number,
                               double& minOut, double& maxOut, double& majorOut)
 {
    // The compiler does a better job of evaluating these constants and
@@ -749,16 +761,23 @@ void QEGraphic::adjustMinMax (const double minIn, const double maxIn, const int 
 
    // Find estimated major value - use size (width or height) to help here.
    //
-   major = (maxIn - minIn) * 40 / MAX (size, 20);
+   major = (maxIn - minIn) / MAX (number, 2);
 
    // Round up major to next standard value.
    //
    s = major <= 1.0 ? 0 : 36;  // short cut
    while ((major > majorValues [s]) &&
           ((s + 1) < ARRAY_LENGTH (majorValues))) s++;
+
    majorOut = major = majorValues [s];
 
-   minor = major / 5.0;
+   if ((s%3) == 1) {
+      // Is a 2.0eN number.
+      minor = major / 4.0;
+   } else {
+      // Is a 1.0eN or 5.0eN number.
+      minor = major / 5.0;
+   }
 
    // Determine minOut and maxOut such that they are both exact multiples of
    // minor and that:
@@ -781,8 +800,10 @@ void QEGraphic::adjustMinMax (const double minIn, const double maxIn, const int 
       q = 0;
    }
 
-   minOut = p * minor;
-   maxOut = q * minor;
+   // Subtract/add tolerance as Qwt Axis ploting of minor ticks a bit slack.
+   //
+   minOut = ((double)p - 0.05) * minor;
+   maxOut = ((double)q + 0.05) * minor;
 }
 
 // end

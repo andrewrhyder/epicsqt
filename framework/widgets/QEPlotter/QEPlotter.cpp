@@ -459,10 +459,6 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 
    this->generalContextMenu = this->generalContextMenuCreate ();
 
-   this->plotIsDefined = false;
-   this->plotLeftIsDefined = false;
-   this->plotRightIsDefined = false;
-
    this->setNumVariables (2*ARRAY_LENGTH (this->xy));
 
    for (slot = 0; slot < ARRAY_LENGTH (this->xy); slot++) {
@@ -518,22 +514,21 @@ QEPlotter::QEPlotter (QWidget* parent) : QEFrame (parent)
 
    // Refresh plot check at ~10Hz.
    //
-   this->timer = new QTimer (this);
-   connect (this->timer, SIGNAL (timeout ()), this, SLOT (tickTimeout ()));
-   this->timer->start (50);  // mSec == 0.05 s
+   this->tickTimer = new QTimer (this);
+   this->tickTimerCount = 0;
+   this->replotIsRequired = true; // ensure process on first tick.
+
+   connect (this->tickTimer, SIGNAL (timeout ()), this, SLOT (tickTimeout ()));
+   this->tickTimer->start (50);  // mSec == 0.05 s
 
    this->pushState ();  // baseline state - there is always at least one.
-
-   // Do an initial plot - this clears the refresh plot required flag.
-   //
-   this->plot ();
 }
 
 //------------------------------------------------------------------------------
 //
 QEPlotter::~QEPlotter ()
 {
-   this->timer->stop ();
+   this->tickTimer->stop ();
 }
 
 //------------------------------------------------------------------------------
@@ -1914,8 +1909,8 @@ void QEPlotter::plot ()
    }
 
    this->plotArea->setYLogarithmic (this->isLogarithmic);
-   this->plotArea->setXRange (xMin, xMax);
-   this->plotArea->setYRange (yMin, yMax);
+   this->plotArea->setXRange (xMin, xMax, QEGraphic::SelectBySize, 40);
+   this->plotArea->setYRange (yMin, yMax, QEGraphic::SelectBySize, 40);
 
    this->plotArea->replot ();
 
@@ -2098,8 +2093,15 @@ void QEPlotter::processSelectedItem (const QEFloatingArray& xdata,
 //
 void QEPlotter::tickTimeout ()
 {
+   this->tickTimerCount = (this->tickTimerCount + 1) % 20;
+
+   if ((this->tickTimerCount % 20) == 0) {
+      // 20th update, i.e. 1 second has passed - must replot.
+      this->replotIsRequired = true;
+   }
+
    if (this->replotIsRequired) {
-      this->plot ();
+      this->plot ();   // clears replotIsRequired
    }
 }
 

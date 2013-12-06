@@ -248,20 +248,11 @@ private:
 
    bool enableConextMenu;
    int selectedDataSet;
-   QTimer* timer;
+   QTimer* tickTimer;
+   int tickTimerCount;
+   bool replotIsRequired;
    QEIntegerFormatting  integerFormatting;
    QEFloatingFormatting floatingFormatting;
-   bool replotIsRequired;
-
-   // Mouse button pressed postions and flags.
-   //
-   QPoint plotCurrent;                     // last known mouse position on the plot canvas.
-   bool   plotIsDefined;                   //
-   QPoint plotLeftButton;                  // point at which left button pressed.
-   bool   plotLeftIsDefined;               //
-   QPoint plotRightButton;                 // point at which rightt button pressed.
-   bool   plotRightIsDefined;              //
-
 
    // Range of (unscaled) values of last plot.
    //

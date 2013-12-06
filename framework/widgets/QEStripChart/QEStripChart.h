@@ -55,11 +55,9 @@
 #include "QEStripChartTimeDialog.h"
 #include "QEStripChartState.h"
 
-// Deferred declarations - exists in qwt header files - but we don't need to expose that here.
+// Differed class declaration - no explicit dependency on Qwt header files.
 //
-class QwtPlot;
-class QwtPlotCurve;
-class QwtPlotGrid;
+class QEGraphic;
 
 // Avoid mutual header references.
 //
@@ -170,15 +168,24 @@ protected:
 
    // Also used by QEStripChartItem
    //
+   friend class QEStripChartItem;
+
    void addToPredefinedList (const QString & pvName);
    QStringList getPredefinedPVNameList ();
    QString getPredefinedItem (int i);
-
-   // Replots chart data
-   //
-   void plotData ();
+   void setRecalcIsRequired () { this->recalcIsRequired = true; }
+   void setReplotIsRequired () { this->replotIsRequired = true; }
+   void evaluateAllowDrop ();
 
 private:
+   // Recalculates plots chart data
+   //
+   void recalculateData ();
+
+   void plotSelectedArea ();
+   void plotOriginToPoint ();
+   void plotData ();
+
    // Internal widgets and state data.
    //
    QEStripChartToolBar* toolBar;
@@ -188,29 +195,16 @@ private:
    QScrollArea* pvScrollArea;
    QEResizeableFrame* pvResizeFrame;
 
-   QwtPlot* plot;
+   QEGraphic* plotArea;
    QFrame* plotFrame;
 
    QVBoxLayout* layout1;
    QVBoxLayout* layout2;
 
    QEStripChartItem* items [NUMBER_OF_PVS];
-
    QMenu* chartContextMenu;
 
    bool isNormalVideo;
-   QwtPlotGrid* grid;
-
-   // Mouse button pressed postions and flags
-   QPoint plotCurrent;          // last known mouse position of the plot.
-   QPoint plotLeftButton;       // point at which left button pressed.
-   bool   plotLeftIsDefined;
-   QPoint plotRightButton;      // point at which rightt button pressed.
-   bool   plotRightIsDefined;
-
-   // Keep a list of allocated curves so that we can track and delete them.
-   //
-   QVector<QwtPlotCurve *> curve_list;
 
    // State data
    //
@@ -225,6 +219,9 @@ private:
    // Timer to keep strip chart scrolling
    //
    QTimer* tickTimer;
+   int tickTimerCount;
+   bool replotIsRequired;
+   bool recalcIsRequired;
 
    // Chart time range in seconds.
    //
@@ -256,27 +253,18 @@ private:
    void captureState (QEStripChartState& chartState);
    void applyState (const QEStripChartState& chartState);
 
-   bool eventFilter (QObject *obj, QEvent *event);
-
-   void releaseCurves ();
-   QPointF plotToReal (const QPoint & pos) const;
-   void onCanvasMouseMove (QMouseEvent * event);
-   static double selectStep (const double step);    /// TBD
-   bool isValidYRangeSelection (const QPoint & origin, const QPoint & offset) const; /// TBD
-   bool isValidTRangeSelection (const QPoint & origin, const QPoint & offset) const; /// TBD
-   void onPlaneScaleSelect (const QPoint  & origin, const QPoint  & offset);
+   // Checks if the differance (distance) between mouse down and mouse up
+   // positions is sufficient and unambiguous. For a given diff, only one of
+   // these functions can return true, however both may return false.
+   //
+   bool isValidTRangeSelection (const QPoint& distance) const;
+   bool isValidYRangeSelection (const QPoint& distance) const;
 
    void addPvName (const QString& pvName);
 
    // Handles space separated set of names
    //
    void addPvNameSet (const QString& pvNameSet);  // make public ??
-
-   // Used by QEStripChartItem
-   //
-   friend class QEStripChartItem;
-   void evaluateAllowDrop ();
-   QwtPlotCurve *allocateCurve ();
 
    // Property access support functions.
    //
@@ -340,6 +328,13 @@ private slots:
    void timeZoneSelected (const Qt::TimeSpec timeZoneSpec);
    void playModeSelected (const QEStripChartNames::PlayModes mode);
    void readArchiveSelected ();
+
+   // From the QEGraphic plot object.
+   //
+   void plotMouseMove  (const QPointF& posn);
+   void zoomInOut      (const QPointF& about, const int zoomAmount);
+   void scaleSelect    (const QPointF& origin, const QPointF& offset);
+   void lineSelected   (const QPointF& origin, const QPointF& offset);
 };
 
 # endif  // QESTRIPCHART_H
