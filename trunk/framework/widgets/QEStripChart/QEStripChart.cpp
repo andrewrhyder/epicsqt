@@ -1192,7 +1192,27 @@ void QEStripChart::playModeSelected (const QEStripChartNames::PlayModes mode)
 //
 void QEStripChart::zoomInOut      (const QPointF& about, const int zoomAmount)
 {
-   DEBUG <<  about << zoomAmount;
+   if (zoomAmount) {
+      // We really only need the sign of the zoomAmount.
+      //
+      const double factor = (zoomAmount >= 0) ? 0.95 : (1.0 / 0.95);
+
+      double newMin;
+      double newMax;
+
+      if (this->yScaleMode == QEStripChartNames::log) {
+         const double logAboutY = LOG10 (about.y ());
+
+         newMin = EXP10 (logAboutY + (LOG10 (this->yMinimum) - logAboutY) * factor);
+         newMax = EXP10 (logAboutY + (LOG10 (this->yMaximum) - logAboutY) * factor);
+      } else {
+         newMin = about.y () + (this->yMinimum - about.y ()) * factor;
+         newMax = about.y () + (this->yMaximum - about.y ()) * factor;
+      }
+
+      this->setYRange (newMin, newMax);
+      this->pushState ();
+   }
 }
 
 //------------------------------------------------------------------------------
