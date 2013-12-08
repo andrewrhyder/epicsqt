@@ -255,7 +255,6 @@ void CaConnection::removeChannel() {
     CaRef::accessLock();
 
     if( channel.activated == true ) {
-        printf(  "CaConnection::removeChannel() channel deactivated %ld   chid %ld eventId %ld\n", (long)(&channel), (long)(channel.id), (long)eventId ); fflush(stdout);
         if( eventId )
         {
             ca_clear_subscription( eventId );
