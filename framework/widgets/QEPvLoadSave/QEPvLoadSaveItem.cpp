@@ -163,7 +163,7 @@ int QEPvLoadSaveItem::childPosition () const
 //
 bool QEPvLoadSaveItem::insertChild (int position, QEPvLoadSaveItem* child)
 {
-   if (position < 0 || position > this->childItems.size ()) {
+   if (position < 0 || position > childItems.size ()) {
        return false;
    }
 
@@ -227,8 +227,7 @@ QEPvLoadSaveItem* QEPvLoadSaveItem::clone (const bool doDeep, QEPvLoadSaveItem* 
       //
        for (int j = 0; j < this->childItems.count(); j++) {
            QEPvLoadSaveItem* theChild = this->getChild (j);
-           QEPvLoadSaveItem* childClone;
-           childClone = theChild->clone (doDeep, result);
+           theChild->clone (doDeep, result);
        }
    }
 
