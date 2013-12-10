@@ -29,6 +29,7 @@
 #include <QComboBox>
 #include <QFrame>
 
+#include <QEScaling.h>
 #include <QECommon.h>
 #include <QEAdaptationParameters.h>
 #include <QELabel.h>
@@ -129,7 +130,7 @@ void QEPvProperties::createInternalWidgets ()
 
    int j;
 
-   // Creates all the internal widgets including basic geometry.
+   // Creates all the internal widgets including setting basic geometry.
    //
    this->topFrame = new QFrame (this);
    this->topFrame->setFixedHeight (128);     // go on - do the sums...
@@ -150,6 +151,7 @@ void QEPvProperties::createInternalWidgets ()
 
    this->label1 = new QLabel ("NAME", this->topFrame);
    this->label1->setFixedSize (QSize (label_width, label_height));
+
    this->box = new QComboBox (this->topFrame);
    this->box->setFixedHeight (label_height + 9);
    this->hlayouts [1]->addWidget (this->label1, 0, Qt::AlignVCenter);
@@ -279,9 +281,6 @@ void QEPvProperties::common_setup ()
    int j;
    QLabel *enumLabel;
 
-   this->m = 1;
-   this->d = 1;
-
    // This function only perform required actions on first call.
    //
    initialiseRecordSpecs ();
@@ -303,9 +302,14 @@ void QEPvProperties::common_setup ()
 
    // Configure widgets
    //
+#ifndef QT_NO_COMPLETER
+   // Could not get completer to work
+   this->box->setAutoCompletion (true);
+   this->box->setAutoCompletionCaseSensitivity (Qt::CaseSensitive);
+#endif
    this->box->setEditable (true);
    this->box->setMaxCount (36);
-   this->box->setMaxVisibleItems(20);
+   this->box->setMaxVisibleItems (20);
    this->box->setEnabled (true);
    // These two don't seem to enforce what one might sensibly expect.
    this->box->setInsertPolicy (QComboBox::InsertAtTop);
@@ -416,34 +420,22 @@ void QEPvProperties::common_setup ()
 
 //------------------------------------------------------------------------------
 //
-void QEPvProperties::scaleBy (const int mIn, const int dIn)
-{
-   // If sensible, save new scaling values..
-   //
-   if (m > 0 && d > 0) {
-      this->m = mIn;
-      this->d = dIn;
-   }
-}
-
-//------------------------------------------------------------------------------
-//
 void  QEPvProperties::resizeEvent (QResizeEvent *)
 {
    QRect g;
    QLabel *enumLabel;
    int pw;
-   int ew;
+   int ew;   // enumerations with
    int epr;  // enumerations per row.
    int gap;
    int lh;   // label height
    int lw;   // label width
    int j;
 
-   // Have we been scaled ??
+   // Find scaled gap and enumeration width values.
    //
-   gap = (4 * this->m) / this->d;
-   ew = (172 *this->m) / this->d;
+   gap = QEScaling::scale (4);
+   ew  = QEScaling::scale (172);
 
    pw = this->enumerationFrame->width ();
    epr = MAX (1, (pw / ew));    // calc enumerations per row.
