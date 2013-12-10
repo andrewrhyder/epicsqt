@@ -85,6 +85,13 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
 
    QObject::connect (this->ui->helpButton,  SIGNAL (clicked       (bool)),
                      this,                  SLOT   (helpClicked   (bool)));
+
+#ifndef QT_NO_COMPLETER
+   // Could not get completer to work - yet.
+   this->ui->pvNameEdit->setAutoCompletion (true);
+   this->ui->pvNameEdit->setAutoCompletionCaseSensitivity (Qt::CaseSensitive);
+#endif
+
 }
 
 //------------------------------------------------------------------------------

@@ -133,8 +133,6 @@ private:
 
    QList<QEString *> fieldChannels;
 
-   int m, d;   // scaling.
-
    // common constructor function.
    void common_setup ();
    void clearFieldChannels ();
@@ -189,7 +187,6 @@ signals:
 protected:
    void resizeEvent ( QResizeEvent*  event );
    void establishConnection (unsigned int variableIndex);
-   void scaleBy (const int m, const int d);
 
    // Override QCaObject/QEWidget functions.
    //
