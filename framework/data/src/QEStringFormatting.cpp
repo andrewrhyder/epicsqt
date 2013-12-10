@@ -439,7 +439,7 @@ QString QEStringFormatting::formatString( const QVariant &value ) {
 
                                 case ASCII:
                                     {
-                                        // Translate all non printing characters to '?' except for trailing zeros (ignore them)
+                                        // Translate most non printing characters to '?' except for trailing zeros (ignore them)
                                         int len = valueArray.count();
 
                                         for( int i = 0; i < len; i++ )
@@ -448,10 +448,17 @@ QString QEStringFormatting::formatString( const QVariant &value ) {
 
                                             if (c == 0) break;  // Got a zero - end of string.
 
-                                            if( c < ' ' || c > '~' )
+                                            // Ignore carriage returns.
+                                            // Note this will cause problems when implementing on Commodore 8-bit machines, Acorn BBC, ZX Spectrum, and TRS-80 as they don't use a line feed
+                                            if( c == '\r' )
+                                            {
+                                            }
+                                            // Translate all non printing characters (except for space and line feed) to a '?'
+                                            else if( (c!= '\n') && (c < ' ' || c > '~') )
                                             {
                                                 stream << "?";
                                             }
+                                            // Use everything else as is.
                                             else
                                             {
                                                 stream << valueArray[i].toChar();

@@ -101,7 +101,7 @@ void QELabel::establishConnection( unsigned int variableIndex ) {
     if(  qca ) {
         QObject::connect( qca,  SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
                           this, SLOT( setLabelText( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
-        qca->setRequestedElementCount( 1000 );
+        qca->setRequestedElementCount( 10000 );
 
         QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                           this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
