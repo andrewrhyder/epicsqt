@@ -123,6 +123,7 @@ void QEImage::setup() {
     clippingHigh = 0;
 
     pixelLookupValid = false;
+    pixelLookup.resize( 256*sizeof(rgbPixel) );
 
     appHostsControls = false;
     hostingAppAvailable = false;
@@ -337,6 +338,11 @@ void QEImage::setup() {
     imageBuffWidth = 0;
     imageBuffHeight = 0;
 
+    numDimensions = 0;
+    imageDimension0 = 0;
+    imageDimension1 = 0;
+    imageDimension2 = 0;
+
     // Simulate pan mode being selected
     panModeClicked();
     sMenu->setChecked( QEImage::SO_PANNING );
@@ -470,7 +476,7 @@ void QEImage::presentControls()
     Implementation of QEWidget's virtual funtion to create the specific types of QCaObject required.
 */
 qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
-
+qDebug() << " QEImage::createQcaItem()" << variableIndex;
     switch( variableIndex )
     {
         // Create the image item as a QEByteArray
@@ -479,16 +485,36 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
                 // Create the image item
                 QEByteArray* qca = new QEByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
 
-                // If we already have the image dimensions, update the image size we need here before the subscription
+                // If we already have the image dimensions (and the elements per pixel if required), update the image
+                // size we need here before the subscription.
                 // (we should have image dimensions as a connection is only established once these have been read)
-                if( imageBuffWidth && imageBuffHeight )
+                if( imageBuffWidth && imageBuffHeight && ( numDimensions !=3 || imageDimension0))
                 {
-                    qca->setRequestedElementCount(  imageBuffWidth * imageBuffHeight );
+                    // element count is at least width x height
+                    unsigned int elementCount = imageBuffWidth * imageBuffHeight;
+
+                    // Regardless of the souce of the width and height( either from width and height variables or from
+                    // the appropriate area detector dimension vvariables), if the number of area detector dimensions
+                    // is 3, then the first dimension is the number or elements per pixel so the element count needs to
+                    // be multiplied by the first area detector dimension
+                    if( numDimensions == 3 && imageDimension0 )
+                    {
+                        elementCount = elementCount * imageDimension0;
+                    }
+
+                    qca->setRequestedElementCount( elementCount );
                 }
                 return qca;
             }
 
-        // Create the width, height, target and beam, regions and profile and clipping items as a QEInteger
+        // Create the image format, image dimensions, target and beam, regions and profile and clipping items as a QEInteger
+        case FORMAT_VARIABLE:
+
+        case NUM_DIMENSIONS_VARIABLE:
+        case DIMENSION_0_VARIABLE:
+        case DIMENSION_1_VARIABLE:
+        case DIMENSION_2_VARIABLE:
+
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
 
@@ -573,9 +599,25 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
+        case FORMAT_VARIABLE:
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setFormat( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+
         // Connect the image dimension variables
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
+        case NUM_DIMENSIONS_VARIABLE:
+        case DIMENSION_0_VARIABLE:
+        case DIMENSION_1_VARIABLE:
+        case DIMENSION_2_VARIABLE:
             if(  qca )
             {
                 QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
@@ -686,6 +728,42 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
     previousMessageText = "";
 }
 
+// Update the image dimensions (width and height) from the area detector dimension variables.
+// If an area detector dimension is available, then set up the width and height from the
+// appropriate area detector dimension variables if available.
+// This function is called when any area detector dimension related variable changes
+// Width and height will not be touched untill the number of dimensions is avaliable, and
+// will only be altered if there is a valid dimension.
+void QEImage::setWidthHeightFromDimensions()
+{
+    switch( numDimensions )
+    {
+        // 2 dimensions - one data element per pixel, dimensions are width x height
+        case 2:
+            if( imageDimension0 )
+            {
+                imageBuffWidth = imageDimension0;
+            }
+            if( imageDimension1 )
+            {
+                imageBuffHeight = imageDimension1;
+            }
+            break;
+
+        // 3 dimensions - multiple data elements per pixel, dimensions are pixel x width x height
+        case 3:
+            if( imageDimension1 )
+            {
+                imageBuffWidth = imageDimension1;
+            }
+            if( imageDimension2 )
+            {
+                imageBuffHeight = imageDimension2;
+            }
+            break;
+    }
+}
+
 /*
     Update the image dimensions
     This is the slot used to recieve data updates from a QCaObject based class.
@@ -694,17 +772,49 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
 {
     unsigned long previousElementCount = imageBuffWidth * imageBuffHeight;
 
+    // C/C++ not so smart assiging signed long value to an
+    // unsigned long value - ensure sensible.
+    unsigned long uValue = MAX( 0, value );
+
     // Update image size variable
     switch( variableIndex )
     {
         case WIDTH_VARIABLE:
-            // C/C++ not so smart assiging signed long value to an
-            // unsigned long value - ensure sensible.
-            imageBuffWidth = MAX( 0, value );
+            imageBuffWidth = uValue;
             break;
 
         case HEIGHT_VARIABLE:
-            imageBuffHeight = MAX( 0, value );
+            imageBuffHeight = uValue;
+            break;
+
+        case NUM_DIMENSIONS_VARIABLE:
+            switch( uValue )
+            {
+                case 0:
+                    numDimensions = uValue;
+                    break;
+
+                case 2:
+                case 3:
+                    numDimensions = uValue;
+                    setWidthHeightFromDimensions();
+                    break;
+            }
+            break;
+
+        case DIMENSION_0_VARIABLE:
+            imageDimension0 = uValue;
+            setWidthHeightFromDimensions();
+            break;
+
+        case DIMENSION_1_VARIABLE:
+            imageDimension1 = uValue;
+            setWidthHeightFromDimensions();
+            break;
+
+        case DIMENSION_2_VARIABLE:
+            imageDimension2 = uValue;
+            setWidthHeightFromDimensions();
             break;
     }
 
@@ -722,8 +832,8 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     // If the image size has changed and we now have both dimensions (if either
     // is zero imageBuffWidth * imageBuffHeight will be zero), update the image
     // variable connection to reflect the elements we now need.
-    unsigned long elementCount = imageBuffWidth * imageBuffHeight;
-    if( elementCount && (elementCount != previousElementCount ))
+    unsigned long pixelCount = imageBuffWidth * imageBuffHeight;
+    if( pixelCount && (pixelCount != previousElementCount ))
     {
         // Clear any current image as the data in it is not our own and will be lost when the connection is re-established
         image.clear();
@@ -962,27 +1072,28 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 }
 
-// Generate a lookup table to convert raw pixel values to display pixel values taking into
-// account input pixel size, clipping, contrast reversal, and local brightness and contrast.
+// Generate a lookup table to convert the top 8 bits of raw pixel values to display pixel values taking into
+// account, clipping, contrast reversal, and local brightness and contrast.
+// Only the top 8 bits are used as all presentation is performed using 8 bit.
+// Note, the table will be used to translate each colour in an RGB format.
 //
 // The following example assumes:
-//  - a 12 bit image (range of 0 to 4095 )
 //  - a user set contrast of 150%
 //  - a user set brightness of -15%
 //
 //       (A)    (B)    (C)    (D)    (E)
 //
-//  6144         *
+//   382         *
 //               *
 //               *
 //               *      *
 //               *      *
 //               *      *      *
-//  4096  *      *      *      *-
+//   255  *      *      *      *-
 //        *      *      *      * -
 //        *      *      *      *  -
 //        *      *      *      *   -
-//   255  *    --*--    *      *    --*-----
+//        *    --*--    *      *    --*-----
 //        *  --  *  --  *      *      *
 //      --*--    *    --*--    *      *
 //        *      *      *  --  *      *
@@ -996,54 +1107,35 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
 //                             *
 //                             *
 //
-// (A) Image has a range of values depending on bit size.
-//     In this example, a 12 bit image has values 4096 values ranging from 0 to 4095.
+// (A) Top 8 bits in each pixel in the image has a range of values from 0 to 255.
 //     Note central mid grey is marked.
 //
 // (B) Range of values is extended by contrast.
-//     In this example, 12 bits and 150% contrast results in 4096 values ranging from 0 to 6144.
-//     If left like this the top 2048 values would be lost in the white.
+//     In this example, 150% contrast results in 4096 values ranging from 0 to 382.
+//     If left like this the top 127 values would be lost in the white.
 //
 // (C) Range of values is offset so half of the extended range is lost in the white and half in the black.
-//     The values now range from -1024 to 5119.
+//     The values now range from -64 to 318.
 //
 // (D) Range of values is offset by a user set brightness.
 //     The brightness range of -100% to +100% is meant to bring the highest value down to 0 (black) or the lowest value up to white.
 //     The offset applied by the user brightness value must take into account the varying range of values caused by contrast changes.
-//     In the example, the brightness is lowered by 15%. -100% would bring 5119 down to 0. +100% would take -1024 up to 4095.
+//     In the example, the brightness is lowered by 15%. -100% would bring 318 down to 0. +100% would take -64 up to 255.
 //
-// (E) Values matching the original range of values (0 to 4095 in the example) are selected from the translated table and
-//     scaled down to 8 bits as all display is performed at 8 bit resolution.
+// (E) Values matching the original range of values are selected from the translated table.
 //
 const QEImage::rgbPixel* QEImage::getPixelTranslation()
 {
+    // If the table is already set up, return it.
     if( pixelLookupValid )
     {
         return (rgbPixel*)(pixelLookup.constData());
     }
 
-    // Determine size of lookup, the number of bits to discard (to have 8 bits left), and the used bits in the pixel.
-    // Note, the table will be used for each colour in the RGB_888 format, so for the sake of this lookup table this format is 8 bits.
-    unsigned int size = 1<<8;
-    unsigned int insignificantBits = 0;
-    switch( formatOption )
-    {
-        case GREY8:   size = 1<<8;  insignificantBits = 0; break;
-        case GREY12:  size = 1<<12; insignificantBits = 4; break;
-        case GREY16:  size = 1<<16; insignificantBits = 8; break;
-        case RGB_888: size = 1<<8;  insignificantBits = 0; break;
-        case NUM_OPTIONS: break;
-    }
+// Maximum pixel value for 8 bit
+#define MAX_VALUE 255
 
-    // Determine table size
-    int maxValue = size-1;
-
-    // Allocate lookup if not already done or not the right size
-    if( pixelLookup.isNull() || (unsigned int)(pixelLookup.size()) != size*sizeof(rgbPixel) )
-    {
-        pixelLookup.resize( size*sizeof(rgbPixel) );
-    }
-
+    // View the table as an array or rgb pixels
     rgbPixel* lookupTable = (rgbPixel*)(pixelLookup.constData());
 
     // Determine if local contrast and brightness applies
@@ -1059,14 +1151,14 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
     }
 
     // Range of values with contrast applied
-    int range = maxValue*localContrast/100;
+    int range = MAX_VALUE*localContrast/100;
 
     // Offset to set black level with new range of values
-    int offset = (range-maxValue)/2;
+    int offset = (range-MAX_VALUE)/2;
 
     // Loop populating table with pixel translations for every pixel value
     unsigned int value = 0;
-    for( value = 0; value <= (unsigned int)maxValue; value++ )
+    for( value = 0; value <= MAX_VALUE; value++ )
     {
         // Alpha always 100%
         lookupTable[value].p[3] = 0xff;
@@ -1102,7 +1194,7 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
             // Reverse contrast if required
             if( localBC->getContrastReversal() )
             {
-                translatedValue = maxValue - translatedValue;
+                translatedValue = MAX_VALUE - translatedValue;
             }
 
             // Apply local brightness and contrast if required
@@ -1113,14 +1205,11 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
                 {
                     translatedValue = 0;
                 }
-                else if ( translatedValue > (int)maxValue )
+                else if ( translatedValue > MAX_VALUE )
                 {
-                    translatedValue = maxValue;
+                    translatedValue = MAX_VALUE;
                 }
             }
-
-            // Convert to 8 bits
-            translatedValue = translatedValue>>insignificantBits;
 
             // Save translated pixel
             lookupTable[value].p[0] = (unsigned char)translatedValue;
@@ -1320,7 +1409,7 @@ void QEImage::displayImage()
         case GREY16:
         {
             LOOP_START
-            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
+            unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+1]);
             dataOut[buffIndex] = pixelLookup[inPixel];
             LOOP_END
             break;
@@ -1330,7 +1419,7 @@ void QEImage::displayImage()
         {
             LOOP_START
             unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex] = pixelLookup[inPixel&0xfff];
+            dataOut[buffIndex] = pixelLookup[(inPixel>>4)&0xff];
             LOOP_END
             break;
         }
@@ -3716,8 +3805,8 @@ void QEImage::showImageAboutDialog()
     about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( image.count() ));
     about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));
     about.append( QString( "\nCA data elements per pixel (based on expected format): %1" ).arg( elementsPerPixel ));
-    about.append( QString( "\nWidth (pixels) taken from width variable: %1" ).arg( imageBuffWidth ));
-    about.append( QString( "\nHeight (pixels) taken from height variable: %1" ).arg( imageBuffHeight ));
+    about.append( QString( "\nWidth (pixels) taken from dimension variables or width variable: %1" ).arg( imageBuffWidth ));
+    about.append( QString( "\nHeight (pixels) taken from dimension variables or height variable: %1" ).arg( imageBuffHeight ));
 
     static QString formatOptionNames[NUM_OPTIONS] = { "8 bit grey scale",  // GREY8
                                                       "12 bit grey scale", // GREY12
@@ -3770,11 +3859,26 @@ void QEImage::showImageAboutDialog()
     qca = getQcaItem( IMAGE_VARIABLE );
     about.append( "\n\nImage data variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
+    qca = getQcaItem( FORMAT_VARIABLE );
+    about.append( "\n\nImage format variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
     qca = getQcaItem( WIDTH_VARIABLE );
     about.append( "\nImage width variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
     qca = getQcaItem( HEIGHT_VARIABLE );
     about.append( "\nImage height variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( NUM_DIMENSIONS_VARIABLE );
+    about.append( "\n\nImage data dimensions variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( DIMENSION_0_VARIABLE );
+    about.append( "\n\nImage dimension 1 variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( DIMENSION_1_VARIABLE );
+    about.append( "\n\nImage dimension 2 variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( DIMENSION_2_VARIABLE );
+    about.append( "\n\nImage dimension 3 variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
     // Display the 'about' text
     QMessageBox::about(this, "About Image", about );
