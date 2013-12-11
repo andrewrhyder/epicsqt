@@ -120,6 +120,44 @@ private:
     ContainerProfile* owner;                                // ContainerProfile class that this instance is a part of
 };
 
+class QEPLUGINLIBRARYSHARED_EXPORT LockLayoutSignal : public QObject
+{
+    Q_OBJECT
+
+public:
+
+    // Constructor, destructor
+    LockLayoutSignal(): layoutLocked(false) {}
+    ~LockLayoutSignal(){}
+
+    void setLayoutLocked(bool locked);
+    bool getLayoutLocked(){ return layoutLocked; }
+
+  signals:
+    void lockLayout( bool lockedl );    // lock/unlock layout request
+
+  private:
+    bool layoutLocked;                  // lock status
+
+};
+
+class QEPLUGINLIBRARYSHARED_EXPORT LockLayoutSlot : public QObject
+{
+    Q_OBJECT
+
+public:
+    // Constructor, destructor
+    LockLayoutSlot(): owner(NULL){}
+    ~LockLayoutSlot(){}
+
+    void setOwner( ContainerProfile* ownerIn ){ owner = ownerIn; }
+
+public slots:
+    void lockLayout( bool locked );
+private:
+    ContainerProfile* owner;
+};
+
 // Class to allow construction of a QE widgets list
 // The class simply holds a reference to a class based on a QEWidget
 // Usage QList<WidgetRef> myWidgetList
@@ -157,6 +195,7 @@ public:
     QList<WidgetRef> containedWidgets;  // List of QE widgets created with this profile
 
     userLevelSignal userSignal;         // Current user level signal object. One instance to signal all QE Widgets
+    LockLayoutSignal lockLayoutSignal;
 
     QString userLevelPassword;          // User Level password for 'user'
     QString scientistLevelPassword;     // User Level password for 'scientist'
@@ -229,9 +268,11 @@ public:
 
     void setUserLevel( userLevelTypes::userLevels level );              // Set the current user level
     userLevelTypes::userLevels getUserLevel();                          // Return the current user level
+    void setLockLayoutStatus( bool locked ){ getPublishedProfile()->lockLayoutSignal.setLayoutLocked(locked); }
+    bool getLockLayoutStatus(){ return getPublishedProfile()->lockLayoutSignal.getLayoutLocked(); }
 
     virtual void userLevelChangedGeneral( userLevelTypes::userLevels ){} // Virtual function implemented by QEWidget that manages general aspects of user level change, then calls optional QE widget specific virtual functions
-
+    virtual void lockLayoutStatusChanged( bool ){}                // Virtual function implemented by MainWindow
     PersistanceManager* getPersistanceManager();        // Return a reference to the single persistance manager
 
 
@@ -246,6 +287,7 @@ private:
     PublishedProfile* getPublishedProfile();            // Get the single instance of the published profile
 
     userLevelSlot userSlot;                             // Current user level slot object. An instance per ContainerProfile to recieve level changes
+    LockLayoutSlot lockLayoutSlot;
 
     QObject* guiLaunchConsumer;      // Local copy of GUI launch consumer. Still valid after the profile has been released by releaseProfile()
     QStringList pathList;            // Local copy of application path list used for file operations
@@ -253,6 +295,7 @@ private:
     QString macroSubstitutions;      // Local copy of macro substitutions (converted to a single string) Still valid after the profile has been released by releaseProfile()
 
     unsigned int messageFormId;      // Local copy of current form ID. Used to group forms with their widgets for messaging
+
 };
 
 #endif // CONTAINERPROFILE_H

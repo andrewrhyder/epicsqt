@@ -88,6 +88,9 @@ ContainerProfile::ContainerProfile()
     userSlot.setOwner( this );
     QObject::connect( &(getPublishedProfile()->userSignal),  SIGNAL( userChanged( userLevelTypes::userLevels ) ),
                       &userSlot,    SLOT  ( userChanged( userLevelTypes::userLevels ) ) );
+    lockLayoutSlot.setOwner( this );
+    QObject::connect( &(getPublishedProfile()->lockLayoutSignal),  SIGNAL( lockLayout( bool ) ),
+                      &lockLayoutSlot,    SLOT  ( lockLayout( bool ) ) );
 
     // Take a local copy of the defined profile
     takeLocalCopy();
@@ -691,3 +694,16 @@ userLevelTypes::userLevels userLevelSignal::getLevel()
 {
     return level;
 }
+
+void LockLayoutSignal::setLayoutLocked(bool locked)
+{
+    layoutLocked = locked;
+    emit lockLayout( locked );
+}
+
+void LockLayoutSlot::lockLayout( bool locked )
+{
+    if( owner )
+        owner->lockLayoutStatusChanged( locked );
+}
+
