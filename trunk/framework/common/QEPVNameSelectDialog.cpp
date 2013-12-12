@@ -50,6 +50,10 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
 {
    this->ui->setupUi (this);
 
+   // Ensure the dialog centres using this widget as reference point.
+   //
+   this->sourceWidget = this->ui->pvNameEdit;
+
    // Load help ui file - do this only once.
    // NOTE: We use loader directly rather than requesting the application (QEGui) to
    // do this for us. The help ui file contains static text, no EPICS aware widgets.
@@ -113,7 +117,7 @@ void QEPVNameSelectDialog::setPvName (QString pvNameIn)
    // setPvName typically invoked just before exec () call.
    // Maybe we should override exec?
    //
-   this->ui->filterEdit->setFocus ();
+   this->ui->pvNameEdit->setFocus ();
    this->returnIsMasked = false;
 }
 
