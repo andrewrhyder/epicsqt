@@ -156,13 +156,13 @@
 #include <PasswordDialog.h>
 #include <QEGui.h>
 #include <aboutDialog.h>
+#include <DetectorEditor.h>
 
 // Before Qt 4.8, the command to start designer is 'designer'.
 // Qt 4.8 later uses the command 'designer-qt4'
 // Try both before giving up starting designer
 #define DESIGNER_COMMAND_1 "designer-qt4"
 #define DESIGNER_COMMAND_2 "designer"
-
 Q_DECLARE_METATYPE( QEForm* )
 
 //=================================================================================
@@ -171,7 +171,7 @@ Q_DECLARE_METATYPE( QEForm* )
 
 // Constructor
 // A profile should have been defined before calling this constructor
-MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationName, bool openDialog, QWidget *parent )  : QMainWindow( parent )
+MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationName, bool openDialog, QString title, QWidget *parent )  : QMainWindow( parent ), forceDockSize(false)
 {
     app = appIn;
 
@@ -179,6 +179,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     windowMenu = NULL;
     recentMenu = NULL;
     editMenu = NULL;
+    windowCustomisationName = customisationName;
 
     // A published profile should always be available, but the various signal consumers will always be either NULL (if the
     // profile was set up by the QEGui application) or objects in another main window (if the profile was published by a button in a gui)
@@ -211,8 +212,14 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     // Save this instance of a main window in the global list of main windows
     app->addMainWindow( this );
 
-    // Set the default title
-    setTitle( "" );
+    if (fileName.isEmpty()){
+        // Load any required window customisation
+        applyCustomisation( customisationName, &customisationInfo, false );
+        tabifyDocks();
+    }
+
+    // Set the defined title
+    setTitle( title );
 
     // Hide the main tool bar (nothing in it yet)
     ui.mainToolBar->hide();
@@ -222,11 +229,12 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
 
     // If no filename was supplied, and an 'Open...' dialog is required, open the file selection dialog
     // Do it after the creation of the main window is complete
-    if( fileName.isEmpty() && openDialog )
+    if( fileName.isEmpty() )
     {
-        setDefaultCustomisation();
-
-        QTimer::singleShot( 0, this, SLOT(on_actionOpen_triggered()));
+        if (!profile.getPersistanceManager()->isRestoring())
+            setDefaultCustomisation();
+        if (openDialog)
+            QTimer::singleShot( 0, this, SLOT(on_actionOpen_triggered()));
     }
 
     // If a filename was supplied, load it
@@ -235,6 +243,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     {
         QEForm* gui = createGui( fileName, customisationName ); // A profile should have been published before calling this constructor.
         loadGuiIntoCurrentWindow( gui, true );
+        if (fileName == "RealEmpty.ui") centralWidget()->hide();
     }
 
     // Setup to allow user to change focus to a window from the 'Windows' menu
@@ -278,6 +287,7 @@ MainWindow::~MainWindow()
     // Remove this main window from the global list of main windows
     // Note, this may have already been done to hide the the main window if deleting using deleteLater()
     app->removeMainWindow( this );
+    customisationInfo.clear();
 }
 
 // Set up the initial default customisation
@@ -291,7 +301,8 @@ void MainWindow::setDefaultCustomisation()
     }
 
     // Apply any required window customisations
-    app->getMainWindowCustomisations()->applyCustomisation( this, defaultCustomisation, &customisationInfo, true );
+    windowCustomisationName = defaultCustomisation;
+    applyCustomisation( defaultCustomisation, &customisationInfo, true );
     setupPlaceholderMenus();
 }
 
@@ -362,7 +373,7 @@ void MainWindow::on_actionNew_Dock_triggered()
     profile.publishOwnProfile();
     QEForm* gui = createGui( GuiFileNameDialog( "Open" ), app->getParams()->customisationName, true );
     profile.releaseProfile();
-    loadGuiIntoNewDock( gui );
+    loadGuiIntoNewDock( "", gui );
 }
 
 // User requested a new gui to be opened
@@ -515,7 +526,8 @@ void MainWindow::on_actionExit_triggered()
 MainWindow* MainWindow::launchLocalGui( const QString& filename )
 {
     profile.publishOwnProfile();
-    MainWindow* w = new MainWindow( app, filename, app->getParams()->customisationName, true );
+// Zai no customisation    MainWindow* w = new MainWindow( app, filename, app->getParams()->customisationName, true );
+    MainWindow* w = new MainWindow( app, filename, "", true );
     profile.releaseProfile();
     w->show();
     return w;
@@ -630,6 +642,8 @@ void MainWindow::raiseGui( QEForm* gui )
     if( i < app->getMainWindowCount() )
     {
         // Ensure the main form is visible and the active form
+        // Zai: restore it as well
+        mw->showNormal();
         mw->raise();
         mw->activateWindow();
 
@@ -638,6 +652,42 @@ void MainWindow::raiseGui( QEForm* gui )
         {
             tabs->setCurrentIndex( tabIndex );
         }
+    }
+}
+
+void MainWindow::toggleCenterWidget(){
+    if (centralWidget()->isHidden()){
+        centralWidget()->show();
+    }
+    else{
+        centralWidget()->hide();
+    }
+}
+
+void MainWindow::runDetectorEditor(){
+    QList<QStringList> detectorList;
+    // read customisation file and get detector list
+    DetectorEditor::loadDetectorData("DetectorMainCustomisations.xml", detectorList);
+    DetectorEditor dEditor(detectorList, "DetectorMainCustomisations.xml");
+
+    while (true){
+        if ( dEditor.exec() == QDialog::Rejected )
+        {
+            return;
+        }
+        // update the system customisation: reload
+        if (dEditor.save()) return;
+    }
+}
+
+void MainWindow::lockLayoutToggled(){
+    bool lockStatus = getLockLayoutStatus();
+    setLockLayoutStatus(!lockStatus);
+    // checked and unchecked
+    QMap<QString, windowCustomisationMenuItem*>::const_iterator items_i = customisationInfo.menuItems.find("LockLayout");
+    if (items_i != customisationInfo.menuItems.end()){
+        windowCustomisationMenuItem* actionItem = items_i.value();
+        actionItem->setChecked(!lockStatus);
     }
 }
 
@@ -996,8 +1046,13 @@ QWidget* MainWindow::resizeableGui( QEForm* gui, QSize* preferedSize )
         // Set the prefered size to the gui size plus the scroll area margins.
         if( preferedSize )
         {
+#if defined(Q_OS_WIN32)
+            preferedSize->setWidth( gui->size().width() + sa->contentsMargins().left() + sa->contentsMargins().right() + 2 );
+            preferedSize->setHeight( gui->size().height() + sa->contentsMargins().top() + sa->contentsMargins().bottom() + 2 );
+#else
             preferedSize->setWidth( gui->size().width() + sa->contentsMargins().left() + sa->contentsMargins().right() );
             preferedSize->setHeight( gui->size().height() + sa->contentsMargins().top() + sa->contentsMargins().bottom() );
+#endif
         }
 
         // Return the scroll area
@@ -1125,7 +1180,8 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
     }
 
     // Set the title
-    setTitle( gui->getQEGuiTitle() );
+    if (app->getParams()->applicationTitle.isEmpty())
+        setTitle( gui->getQEGuiTitle() );
 
     // Initialise customisation items.
     app->getMainWindowCustomisations()->initialise( &customisationInfo );
@@ -1133,7 +1189,8 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
 
 // Open a gui in a new dock
 // Either as a result of the gui user requesting a new dock, or a contained object (gui push button) requesting a new dock
-void MainWindow::loadGuiIntoNewDock( QEForm* gui,
+QAction* MainWindow::loadGuiIntoNewDock( QString dockTitle,
+                                     QEForm* gui,
                                      bool hidden,
                                      bool tabbed,
                                      QEActionRequests::Options createOption,
@@ -1144,7 +1201,7 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     // Do nothing if couldn't create gui
     if( !gui )
     {
-        return;
+        return NULL;
     }
 
     // Ensure the gui can be resized
@@ -1156,7 +1213,7 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     dock->setFeatures( features );
 
 
-    Qt::DockWidgetArea dockLocation = creationOptionToDockLocation( createOption );
+    Qt::DockWidgetArea dockLocation = creationOptionToDockLocation( createOption,  dock);
 
 
     // If the dock is loating and geometry has been supplied (non zero width and height), set the geometry
@@ -1168,7 +1225,6 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     // Add the dock to the appropriate main window
     addDockWidget(dockLocation, dock);
 
-    // If tabbed, tabify the dock
     if( tabbed )
     {
         QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
@@ -1178,17 +1234,27 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
             {
                 if( dock != dockWidgets[i] )
                 {
-                    tabifyDockWidget ( dock, dockWidgets[i] );
+                    tabifyDockWidget ( dockWidgets[i], dock );
                     break;
                 }
             }
         }
     }
 
+    if (createOption != QEActionRequests::OptionFloatingDockWindow && geom.width() && geom.height()){
+        // qt workaround for dock size
+        dock->setMinimumWidth(geom.width());
+        dock->setMinimumHeight(geom.height());
+        if (!forceDockSize){
+            // flag for restoring the default min size
+            forceDockSize = true;
+        }
+    }
+
     // Load the GUI into the dock
     dock->setWidget( rGui );
 
-    dock->setWindowTitle( gui->getQEGuiTitle() );
+    dock->setWindowTitle( dockTitle.isEmpty()? gui->getQEGuiTitle():dockTitle );
 
     // Set floating if requested
     dock->setFloating( createOption == QEActionRequests::OptionFloatingDockWindow);
@@ -1198,22 +1264,43 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
 
     // Initialise customisation items.
     app->getMainWindowCustomisations()->initialise( &customisationInfo );
+
+    if (!dockTitle.isEmpty())
+        replaceMenuAction(dockTitle, dock->toggleViewAction());
+    return dock->toggleViewAction();
 }
 
 // Translate a creation option to a dock location.
 // This is not a one for one. For example if a floating option is requested, the dock will still need a location.
-Qt::DockWidgetArea MainWindow::creationOptionToDockLocation( QEActionRequests::Options createOption )
+Qt::DockWidgetArea MainWindow::creationOptionToDockLocation( QEActionRequests::Options createOption, QDockWidget *dock )
 {
+    Qt::DockWidgetArea dockLocation;
+
     switch( createOption )
     {
-        default:
+        case QEActionRequests::OptionLeftDockWindow:
+            dockLocation = Qt::LeftDockWidgetArea;
+            if (dock) customisationInfo.dockLeftWidgetList.append(dock);
+            break;
+        case QEActionRequests::OptionRightDockWindow:
+            dockLocation = Qt::RightDockWidgetArea;
+            if (dock) customisationInfo.dockRightWidgetList.append(dock);
+            break;
+        case QEActionRequests::OptionTopDockWindow:
+            dockLocation = Qt::TopDockWidgetArea;
+            if (dock) customisationInfo.dockTopWidgetList.append(dock);
+            break;
+        case QEActionRequests::OptionBottomDockWindow:
+            dockLocation = Qt::BottomDockWidgetArea;
+            if (dock) customisationInfo.dockBottomWidgetList.append(dock);
+            break;
         case QEActionRequests::OptionFloatingDockWindow:
-        case QEActionRequests::OptionLeftDockWindow:     return Qt::LeftDockWidgetArea;
-        case QEActionRequests::OptionRightDockWindow:    return Qt::RightDockWidgetArea;
-        case QEActionRequests::OptionTopDockWindow:      return Qt::TopDockWidgetArea;
-        case QEActionRequests::OptionBottomDockWindow:   return Qt::BottomDockWidgetArea;
+        if (dock) customisationInfo.dockFloatingWidgetList.append(dock);
+        default:
+            dockLocation = Qt::LeftDockWidgetArea;
     }
 
+    return dockLocation;
 }
 
 // Translate a dock location to a creation option
@@ -1246,7 +1333,7 @@ void MainWindow::newMessage( QString msg, message_types type )
 //=================================================================================
 
 // Launching a new gui given a .ui filename
-MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, QEActionRequests::Options createOption, bool hidden )
+MainWindow* MainWindow::launchGui( QString guiName, QString title, QString customisationName, QString actionName, QEActionRequests::Options createOption, bool hidden )
 {
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
     ContainerProfile publishedProfile;
@@ -1277,8 +1364,32 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
         // Open the specified gui in the current window
         case QEActionRequests::OptionOpen:
             {
+                // cleanup window and its data - close widgets and elete them all
+                this->removeAllGuisFromGuiList();
+                qDeleteAll(this->findChildren<QDockWidget*>());
+                QList<QMainWindow*> winList = findChildren<QMainWindow*>();
+                QList<QMainWindow*> winListToBeDeleted;
+                for (int i = 0; i < winList.count(); i++){
+                    if (winList.at(i)->parent() == this)
+                    {
+                        winListToBeDeleted.append(winList.at(i));
+                    }
+                }
+                qDeleteAll(winListToBeDeleted);
+
+                // update window title
+                if (!title.isEmpty() && title != windowTitle()){
+                    setTitle(title);
+                }
                 QEForm* gui = createGui( guiName, customisationName, false, true );  // Note, profile should have been published by signal code
                 loadGuiIntoCurrentWindow( gui, true );
+                lockLayoutStatusChanged(getLockLayoutStatus());
+                QMap<QString, windowCustomisationMenuItem*>::const_iterator items_i = customisationInfo.menuItems.find(actionName);
+                if (items_i != customisationInfo.menuItems.end()){
+                    windowCustomisationMenuItem* actionItem = items_i.value();
+                    actionItem->setCheckable(true);
+                    actionItem->setChecked(true);
+                }
                 return this;
             }
 
@@ -1302,7 +1413,17 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
         // Open the specified gui in a new window
         case QEActionRequests::OptionNewWindow:
             {
-                MainWindow* w = new MainWindow( app, guiName, customisationName, true ); // Note, profile should have been published by signal code
+                MainWindow* w = new MainWindow( app, guiName, customisationName, true, title ); // Note, profile should have been published by signal code
+                w->lockLayoutStatusChanged(getLockLayoutStatus());
+                w->show();
+                return w;
+            }
+
+        // Open the specified gui in a new child window
+        case QEActionRequests::OptionNewChildWindow:
+            {
+                MainWindow* w = new MainWindow( app, guiName, customisationName, false, title, this ); // Note, profile should have been published by signal code
+                w->lockLayoutStatusChanged(getLockLayoutStatus());
                 w->show();
                 return w;
             }
@@ -1315,8 +1436,9 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
         case QEActionRequests::OptionFloatingDockWindow:
             {
                 // Create the gui and load it into a new dock
-                QEForm* gui = createGui( guiName, customisationName, true );  // Note, profile should have been published by signal code
-                loadGuiIntoNewDock( gui, hidden, false, createOption );
+                QEForm* gui = createGui( guiName, title, true );  // Note, customisationName is the title of the Dock
+                replaceMenuAction(actionName, loadGuiIntoNewDock( title, gui, hidden, false, createOption ));
+
                 return this;
             }
 
@@ -1361,7 +1483,14 @@ void  MainWindow::requestAction( const QEActionRequests & request )
         case QEActionRequests::KindOpenFile:
             if (arguments.count() >= 1)
             {
-                launchGui ( arguments.first(), request.getCustomisation(), request.getOption(), true );
+                QList<windowCreationListItem> windows = request.getWindows();
+                if (windows.count() > 0){
+                    windowCreationListItem* window = &windows[0];
+                    launchGui ( arguments.first(),  window->title, request.getCustomisation(), request.getAction(), request.getOption(), true );
+                }
+                else{
+                    launchGui ( arguments.first(), "", request.getCustomisation(), request.getAction(), request.getOption(), true );
+                }
             }
             break;
 
@@ -1373,10 +1502,15 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                 {
                     windowCreationListItem* window = &windows[i];
                     profile.addPriorityMacroSubstitutions( window->macroSubstitutions );
-                    mw = mw->launchGui ( window->uiFile, window->customisationName, window->creationOption, window->hidden );
-                    if( !window->title.isEmpty() )
-                    {
-                        mw->setTitle( window->title );
+                    if (window->creationOption == QEActionRequests::OptionBottomDockWindow ||
+                        window->creationOption == QEActionRequests::OptionFloatingDockWindow ||
+                        window->creationOption == QEActionRequests::OptionLeftDockWindow ||
+                        window->creationOption == QEActionRequests::OptionRightDockWindow ||
+                        window->creationOption == QEActionRequests::OptionTopDockWindow){
+                        mw = mw->launchGui ( window->uiFile, window->title, "", request.getAction(), window->creationOption, window->hidden );
+                    }
+                    else{
+                        mw = mw->launchGui ( window->uiFile, window->title, window->customisationName, request.getAction(), window->creationOption, window->hidden );
                     }
                     profile.removePriorityMacroSubstitutions();
                 }
@@ -1421,6 +1555,9 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                 else if (action == "Refresh Current Form"              ) { on_actionRefresh_Current_Form_triggered();           }
                 else if (action == "Set Passwords..."                  ) { on_actionSet_Passwords_triggered();                  }
                 else if (action == "About..."                          ) { on_actionAbout_triggered();                          }
+                else if (action == "ToggleCenterWidget"                ) { toggleCenterWidget();                                }
+                else if (action == "DetectorEditor"                    ) { runDetectorEditor();                                 }
+                else if (action == "LockLayout"                        ) { lockLayoutToggled();                                 }
                 else  sendMessage( "Unhandled gui action request, action = '" + action + "'",
                                    message_types( MESSAGE_TYPE_ERROR, MESSAGE_KIND_EVENT ) );
             }
@@ -1459,6 +1596,8 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 
                     // Set hidden if required
                     dock->setVisible( !component->hidden );
+
+                    replaceMenuAction(component->title, dock->toggleViewAction());
                 }
             }
             break;
@@ -1606,10 +1745,34 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, bool
 
 QEForm* MainWindow::createGui( QString fileName, QString customisationName, QString restoreId, bool isDock, bool clearExistingCustomisations )
 {
+    bool isRestoring = !restoreId.isEmpty();
     // Don't do anything if no filename was supplied
     if (fileName.isEmpty())
         return NULL;
 
+    // Perform tasks required by a main window, but not a dock
+    if( !isDock )
+    {
+        // Use the default customisations if no customisation is specified
+        if( customisationName.isEmpty() )
+        {
+//Zai            setDefaultCustomisation();
+        }
+        else{
+            // Load any required window customisation
+            applyCustomisation( customisationName, &customisationInfo, clearExistingCustomisations, isRestoring );
+            tabifyDocks();
+        }
+
+        // Use whatever placeholder menus are available (for example, populate a 'Recent' menu if present)
+        setupPlaceholderMenus();
+
+        // Setup to allow user to change focus to a window from the 'Windows' menu
+        if( windowMenu )
+        {
+            QObject::connect( windowMenu, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
+        }
+    }
     // Publish the main window's form Id so the new QEForm will pick it up
     setChildFormId( getNextMessageFormId() );
     profile.setPublishedMessageFormId( getChildFormId() );
@@ -1655,28 +1818,6 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
     //
     QEScaling::applyToWidget( gui );
 
-    // Perform tasks required by a main window, but not a dock
-    if( !isDock )
-    {
-        // Use the default customisations if no customisation is specified
-        if( customisationName.isEmpty() )
-        {
-            setDefaultCustomisation();
-        }
-
-        // Load any required window customisation
-        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, clearExistingCustomisations );
-
-        // Use whatever placeholder menus are available (for example, populate a 'Recent' menu if present)
-        setupPlaceholderMenus();
-
-        // Setup to allow user to change focus to a window from the 'Windows' menu
-        if( windowMenu )
-        {
-            QObject::connect( windowMenu, SIGNAL( triggered( QAction* ) ), this, SLOT( onWindowMenuSelection( QAction* ) ) );
-        }
-    }
-
     // Save the version of the QE framework used by the ui loader. (can be different to the one this application is linked against)
     UILoaderFrameworkVersion = gui->getContainedFrameworkVersion();
 
@@ -1687,23 +1828,28 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
     }
 
     // Add the new gui to the list of windows
+    if( !isDock ){
+        // Create an action for the 'Window' menus
+        QAction* windowMenuAction = new QAction( !windowTitle().isEmpty()? windowTitle():gui->getQEGuiTitle(), this );
+        windowMenuAction->setData( qVariantFromValue( gui ) );
 
-    // Create an action for the 'Window' menus
-    QAction* windowMenuAction = new QAction( gui->getQEGuiTitle(), this );
-    windowMenuAction->setData( qVariantFromValue( gui ) );
+        // Add this gui to the application wide list of guis
+        guiList.append( guiListItem( gui, this, windowMenuAction, customisationName, isDock ) );
 
-    // Add this gui to the application wide list of guis
-    guiList.append( guiListItem( gui, this, windowMenuAction, customisationName, isDock ) );
+        // For each main window, add a new action to the window menu
+        int i = 0;
+        MainWindow* mw;
+        while( (mw = app->getMainWindow( i )) )
+        {
+            mw->addWindowMenuAction( windowMenuAction );
 
-    // For each main window, add a new action to the window menu
-    int i = 0;
-    MainWindow* mw;
-    while( (mw = app->getMainWindow( i )) )
-    {
-        mw->addWindowMenuAction( windowMenuAction );
-
-        // Next main window
-        i++;
+            // Next main window
+            i++;
+        }
+    }
+    else{
+        // Add this gui to the application wide list of guis with no action
+        guiList.append( guiListItem( gui, this, NULL, customisationName, isDock ) );
     }
 
     app->addGui( gui, customisationName );
@@ -1801,6 +1947,9 @@ void MainWindow::buildRecentMenu()
 //    recentMenu->clear();
 
     QList<recentFile*> files = app->getRecentFiles();
+    if (files.count() > 0){
+        recentMenu->setEnabled(true);
+    }
     for( int i = 0; i < files.count(); i++ )
     {
         recentMenu->addAction( files.at( i ) );
@@ -1822,6 +1971,7 @@ void MainWindow::buildWindowsMenu()
 
     while( (mw = app->getMainWindow( i )) )
     {
+        windowMenu->setEnabled(true);
         for( int j = 0; j < mw->guiList.count(); j++ )
         {
             if( !mw->guiList[j].getIsDock() )
@@ -2000,6 +2150,15 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
             {
                 // Start with the top level element - the main windows
                 PMElement mw = pm->addNamedConfiguration( mainWindowName );
+                mw.addValue( "CustomisationName", windowCustomisationName );
+                mw.addValue( "Title", windowTitle() );
+                // check if it has a window parent
+                if (parent() != NULL){
+                    QString className = parent()->metaObject()->className();
+                    if (className == "MainWindow"){
+                        mw.addValue( "WindowParent", ((QMainWindow*)parent())->windowTitle() );
+                    }
+                }
 
                 PMElement id = mw.addElement( "Identity" );
                 id.addAttribute( "id", uniqueId );
@@ -2017,7 +2176,19 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 // Note which GUI is the current GUI. This is relevent if main window is displaying
                 // more than one gui in a tab widget. Redundant but harmless if only one gui is present.
                 QEForm* currentGui = getCurrentGui();
-
+/*
+                // Zai ??? workaround - put central widget first
+                for( int i = 0; i < guiList.count(); i++ )
+                {
+                    if (!guiList[i].getIsDock()){
+                        // assumption: central widget if not a dock - fix it for other cases: tabs
+                        guiListItem centralUI = guiList[i];
+                        guiList.removeAt(i);
+                        guiList.prepend(centralUI);
+                        break;
+                    }
+                }
+*/
                 // Save details for each GUI
                 for( int i = 0; i < guiList.count(); i++ )
                 {
@@ -2031,6 +2202,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                     if( gui == currentGui )
                     {
                         form.addAttribute( "CurrentGui", true );
+                        form.addAttribute( "CentralWidgetVisibility", !centralWidget()->isHidden() );
                     }
 
                     // Macro substitutions, if any
@@ -2084,6 +2256,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                                 if( dock )
                                 {
                                     PMElement docking =  form.addElement( "Docking" );
+                                    docking.addAttribute( "Title", dock->windowTitle() );
                                     docking.addAttribute( "AllowedAreas", dock->allowedAreas() );
                                     docking.addAttribute( "Area", dockWidgetArea( dock ) );
                                     docking.addAttribute( "Features", dock->features() );
@@ -2144,6 +2317,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
         // This main window will position itself and create the GUIs it contains
         case SaveRestoreSignal::RESTORE_APPLICATION:
             {
+                QString windowTitle;
                 // If this window is marked for deletion, (deleteLater() has been called on it when closing
                 // all current windows before restoring a configuration) then do nothing
                 if( beingDeleted )
@@ -2163,6 +2337,10 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 {
                     return;
                 }
+
+                data.getValue( "Title", windowTitle );
+                QString winCustomisationName;
+                data.getValue( "CustomisationName", winCustomisationName );
 
                 PMElement id = data.getElement( "Identity" );
                 id.getAttribute( "id", uniqueId );
@@ -2269,6 +2447,16 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             {
                                 // Load the gui into the main window
                                 loadGuiIntoCurrentWindow( gui, false );
+                                bool visibility;
+                                guiElement.getAttribute("CentralWidgetVisibility", visibility);
+                                if (!visibility) {
+                                    centralWidget()->hide();
+                                    QMap<QString, windowCustomisationMenuItem*>::const_iterator items_i = customisationInfo.menuItems.find("ToggleCenterWidget");
+                                    if (items_i != customisationInfo.menuItems.end()){
+                                        windowCustomisationMenuItem* actionItem = items_i.value();
+                                        actionItem->setChecked(false);
+                                    }
+                                }
                             }
 
                             // If the gui is a tab, create it as such
@@ -2290,6 +2478,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                             {
                                 if( gui )
                                 {
+                                    QString title;
                                     PMElement docking = guiElement.getElement( "Docking" );
 
                                     int allowedAreas = Qt::AllDockWidgetAreas;
@@ -2303,6 +2492,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                                     int area = Qt::BottomDockWidgetArea;
                                     bool hidden = false;
                                     bool tabbed = false;
+                                    docking.getAttribute( QString( "Title" ), title );
                                     docking.getAttribute( QString( "AllowedAreas" ), allowedAreas );
                                     docking.getAttribute( QString( "Area" ), area );
                                     docking.getAttribute( "Features", features );
@@ -2324,7 +2514,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                                     {
                                         createOption = dockLocationToCreationOption( (Qt::DockWidgetArea)area );
                                     }
-                                    loadGuiIntoNewDock( gui, hidden, tabbed, createOption, (Qt::DockWidgetArea)allowedAreas, (QDockWidget::DockWidgetFeature)features, QRect( x, y, width, height ) );
+                                    loadGuiIntoNewDock( title, gui, hidden, tabbed, createOption, (Qt::DockWidgetArea)allowedAreas, (QDockWidget::DockWidgetFeature)features, QRect( x, y, width, height ) );
                                 }
 
                                 // If not a dock...
@@ -2360,6 +2550,7 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                 {
                     raiseGui( currentGui );
                 }
+                setWindowTitle(windowTitle);
             }
             break;
 
@@ -2398,6 +2589,7 @@ void MainWindow::closeAll()
         //mw->deleteLater();
         mw->close();
     }
+    app->mainWindowMap.clear();
 }
 
 // Return the scroll area a gui is in if it is in one.
@@ -2679,4 +2871,400 @@ QDockWidget* MainWindow::getGuiDock( QWidget* gui )
         child = parent;
     }
     return NULL;
+}
+
+void MainWindow::replaceMenuAction(QString actionName, QAction* newAction){
+    QMap<QString, QMenu*>::const_iterator menu_i = customisationInfo.actions.find(actionName);
+    if (menu_i == customisationInfo.actions.end()) return;
+    QMenu* menu = menu_i.value();
+    int actionIndex = 0;
+    bool found = false;
+    QList<QAction*> actionlist = menu->actions();
+    // find action location
+    for ( int i = 0; i < actionlist.length(); i++ ){
+        if (actionlist.at(i)->text() == actionName){
+            actionIndex = i;
+            found = true;
+            break;
+        }
+    }
+    if (!found) return;
+    // delete all actions
+    for ( int i = 0; i < actionlist.length(); i++ ){
+        menu->removeAction(actionlist.at(i));
+    }
+    // update actions
+    for ( int i = 0; i < actionlist.length(); i++ ){
+        if (i == actionIndex){
+            menu->addAction(newAction);
+        }
+        else{
+            menu->addAction(actionlist.at(i));
+        }
+    }
+}
+
+void MainWindow::tabifyDocks(){
+    if (profile.getPersistanceManager()->isRestoring()){
+        return;
+    }
+    // tabify dock widgets
+    for ( int i = 0; i < customisationInfo.dockLeftWidgetList.length() - 1; i++ ){
+        tabifyDockWidget(customisationInfo.dockLeftWidgetList.at(i), customisationInfo.dockLeftWidgetList.at(i+1));
+    }
+    if (customisationInfo.dockLeftWidgetList.length() > 1){
+        customisationInfo.dockLeftWidgetList.at(0)->raise();
+    }
+    for ( int i = 0; i < customisationInfo.dockRightWidgetList.length() - 1; i++ ){
+        tabifyDockWidget(customisationInfo.dockRightWidgetList.at(i), customisationInfo.dockRightWidgetList.at(i+1));
+    }
+    if (customisationInfo.dockRightWidgetList.length() > 1){
+        customisationInfo.dockRightWidgetList.at(0)->raise();
+    }
+    for ( int i = 0; i < customisationInfo.dockTopWidgetList.length() - 1; i++ ){
+        tabifyDockWidget(customisationInfo.dockTopWidgetList.at(i), customisationInfo.dockTopWidgetList.at(i+1));
+    }
+    if (customisationInfo.dockTopWidgetList.length() > 1){
+        customisationInfo.dockTopWidgetList.at(0)->raise();
+    }
+    for ( int i = 0; i < customisationInfo.dockBottomWidgetList.length() - 1; i++ ){
+        tabifyDockWidget(customisationInfo.dockBottomWidgetList.at(i), customisationInfo.dockBottomWidgetList.at(i+1));
+    }
+    if (customisationInfo.dockBottomWidgetList.length() > 1){
+        customisationInfo.dockBottomWidgetList.at(0)->raise();
+    }
+}
+
+// Add the named customisation to a main window.
+// Return true if named customisation found and loaded.
+void MainWindow::applyCustomisation( QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting, bool restoring )
+{
+    // Clear the existing customisation if requested (but only if we have a customisation name to replace it with)
+    if( !customisationName.isEmpty() && clearExisting )
+    {
+        // Remove all current menus
+        menuBar()->clear();
+        menuBar()->setVisible( false );
+
+        // Remove all current toolbars
+        foreach (QToolBar* toolBar, customisationInfo->toolbars)
+        {
+            removeToolBar( toolBar );
+            delete toolBar;
+        }
+        // clear all
+        customisationInfo->clear();
+    }
+
+    // Get the customisations required
+    // Do nothing if not found
+    windowCustomisation* customisation = app->getCustomisation( customisationName );
+    if (!customisation)
+    {
+        return;
+    }
+
+//    // Create the toolbar
+//    QToolBar* mainToolBar = new QToolBar( "Toolbar", mw );
+//    mainToolBar->setObjectName(QString::fromUtf8( "mainToolBar" ));
+//    mw->addToolBar(Qt::TopToolBarArea, mainToolBar);
+
+//    // Add the required toolbar buttons
+//    QList<windowCustomisationButtonItem*> bList = customisation->getButtons();
+//    for ( int i = 0; i < bList.length(); i++ )
+//    {
+//        windowCustomisationButtonItem* item = new windowCustomisationButtonItem(bList.at(i));
+
+//        // add button action
+//        mainToolBar->addAction(item);
+
+//        // Set up an action to respond to the user
+//        QObject::connect( item, SIGNAL( newGui( const QEActionRequests& ) ),
+//                          mw, SLOT( requestAction( const QEActionRequests& ) ) );
+//    }
+
+    // Get the menu item customisations required
+    QList<windowCustomisationMenuItem*> mList = customisation->getMenuItems();
+
+    // Apply all the menu customisations
+    for (int i = 0; i < mList.length(); i++)
+    {
+        // Get the next customisation required
+        windowCustomisationMenuItem* menuItem = new windowCustomisationMenuItem( mList.at(i) );
+
+        // Ensure the menu hierarchy is present.
+        // For example if the hierarchy required is 'File' -> 'Recent' is required and a 'File' menu is
+        // present but it does not contain a 'Recent' menu, then create a 'Recent' menu in the 'File' menu
+        QMenu* menu = buildMenuPath( customisationInfo, menuBar(), menuItem->getMenuHierarchy() );
+
+        // Act on the type of customisation required
+        switch( menuItem->getType() )
+        {
+            case windowCustomisationMenuItem::MENU_UNKNOWN:
+                break;
+
+            case windowCustomisationMenuItem::MENU_ITEM:
+                // Add the item to the correct menu
+                // (if no menu, don't add to the menu bar - this could change)                
+                if( menu )
+                {   // Enable when add an item to placeholder
+                    if (customisationInfo->placeholderMenus.contains(menu->title())){
+                        menu->setEnabled(true);
+                    }
+                    if( menuItem->hasSeparator() )
+                    {
+                        menu->addSeparator();
+                    }
+                    // Zai - create a dock immediately if one dock view but not a restoring process
+                    if (isDockView(menuItem) && !restoring){
+                        // create the doce and add view action
+                        menu->addAction(createDockWidget(menuItem));
+                        customisationInfo->actions.insert(menuItem->getTitle(), menu);
+                        customisationInfo->items.append( menuItem );
+                        break;
+                    }
+                    menu->addAction( menuItem );
+                    customisationInfo->actions.insert(menuItem->getTitle(), menu);
+                    customisationInfo->items.append( menuItem );
+                    customisationInfo->menuItems.insert( menuItem->getTitle(), menuItem );
+
+                    // Set up an action to respond to the user
+                    QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
+                                      this, SLOT( requestAction( const QEActionRequests& ) ) );
+                }
+                break;
+
+            case windowCustomisationMenuItem::MENU_PLACEHOLDER:
+                {
+                    QMenu* placeholderMenu;
+                    QString menuTitle = menuItem->getTitle();
+
+                    // Add the placeholder to the menu if there is one
+                    if( menu )
+                    {
+                        if( menuItem->hasSeparator() )
+                        {
+                            menu->addSeparator();
+                        }
+                        placeholderMenu = menu->addMenu( menuTitle );
+                    }
+                    // If no menu, add the placeholder to the menu bar
+                    else
+                    {
+                        placeholderMenu = menuBar()->addMenu( menuTitle );
+                        menuBar()->setVisible( true );
+                        // Disabled when created as no item yet
+                        placeholderMenu->setEnabled(false);
+                    }
+                    customisationInfo->placeholderMenus.insert( menuTitle, placeholderMenu );
+
+                    // Save the menu for some future menu search
+                    customisationInfo->menus.insert( menuTitle, placeholderMenu );
+                }
+                break;
+
+            case windowCustomisationMenuItem::MENU_BUILT_IN:
+                if (menu){
+                    if( menuItem->hasSeparator() )
+                    {
+                        menu->addSeparator();
+                    }
+                    menu->addAction( menuItem );
+                    // if toggle required
+                    if (menuItem->getBuiltInAction() == "ToggleCenterWidget"){
+                        menuItem->setCheckable(true);
+                        menuItem->setChecked(true);
+                    }
+                    QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
+                                      this, SLOT( requestAction( const QEActionRequests& ) ) );
+
+                    customisationInfo->items.append( menuItem );
+                    customisationInfo->actions.insert(menuItem->getTitle(), menu);
+                    customisationInfo->menuItems.insert( menuItem->getBuiltInAction(), menuItem );
+                }
+                else{
+                    // add builtin menu from widgets - eg Image widget
+                    menuBar()->addAction(menuItem);
+                    QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
+                                      this, SLOT( requestAction( const QEActionRequests& ) ) );
+
+                    customisationInfo->items.append( menuItem );
+                    customisationInfo->menuItems.insert( menuItem->getBuiltInAction(), menuItem );
+                }
+                break;
+        }
+    }
+    userLevelChangedGeneral(getUserLevel());
+    // initial layout lock status
+    QMap<QString, windowCustomisationMenuItem*>::const_iterator items_i = customisationInfo->menuItems.find("LockLayout");
+    bool lockStatus = getLockLayoutStatus();
+    if (items_i != customisationInfo->menuItems.end()){
+        windowCustomisationMenuItem* actionItem = items_i.value();
+        actionItem->setCheckable(true);
+        actionItem->setChecked(lockStatus);
+    }
+}
+
+// Ensure a menu path exists in the menu bar.
+// For example, if the menu path required is 'File' -> 'Edit', and a
+// 'File' menu exists but does not contain an 'Edit' menu, then add an 'Edit' menu to the 'File' menu.
+// Return the end menu (newly created, or found)
+QMenu* MainWindow::buildMenuPath( windowCustomisationInfo* customisationInfo, QMenuBar* menuBar, const QStringList menuHierarchy )
+{
+    // Work through the anticipated menu hierarchy creating missing menus as required
+    QMenu* menuPoint = NULL;
+    QString hierarchyString;
+    int count = menuHierarchy.count();
+    bool skipSearch = false;
+    for( int i = 0; i < count; i++ )
+    {
+        // Add the next menu level
+        hierarchyString.append( menuHierarchy.at(i) );
+
+        // Look for the next menu level
+        QMenu* menu = NULL;
+        if( !skipSearch )
+        {
+            menu = customisationInfo->menus.value( hierarchyString, NULL );
+        }
+
+        // If the next menu level is present, note it
+        if( menu )
+        {
+            menuPoint = menu;
+        }
+
+        // The next menu level is not present, create it
+        else
+        {
+            // No point looking for deeper menus from now on
+            skipSearch = true;
+
+            // Create the menu
+            QMenu* newMenu = new QMenu( menuHierarchy.at(i) );
+
+            // Add it to the next level up (if any)
+            if( menuPoint )
+            {
+                // add the menu
+                menuPoint->addMenu( newMenu );
+            }
+
+            // Otherwise add it to the menu bar
+            else
+            {
+                menuBar->addMenu( newMenu );
+                menuBar->setVisible( true );
+            }
+
+            // Save the menu just added as the menu to add the next menu to in this loop
+            menuPoint = newMenu;
+
+            // Save the menu for some future menu search
+            customisationInfo->menus.insert( hierarchyString, newMenu );
+        }
+
+        // Add the menu separator.
+        // Note, this is done so things are easier in the debugger (File>Edit is
+        // clearly two levels of menu compared to FileEdit). Also, it may help
+        // avoid conflicts; for example if there is a 'File' menu containing an
+        // 'Edit' menu and there is also a top level menu is called 'FileEdit'.
+        if( i < count - 1 )
+        {
+            hierarchyString.append( ">" );
+        }
+    }
+
+    return menuPoint;
+}
+
+bool MainWindow::isDockView(windowCustomisationMenuItem* item){
+    QEActionRequests::Options option = item->getWindows().at(0).creationOption;
+    bool isDock = (option == QEActionRequests::OptionLeftDockWindow ||
+            option == QEActionRequests::OptionRightDockWindow ||
+            option == QEActionRequests::OptionTopDockWindow ||
+            option == QEActionRequests::OptionBottomDockWindow ||
+            option == QEActionRequests::OptionFloatingDockWindow);
+    if (option == QEActionRequests::OptionFloatingDockWindow){
+        return false;
+    }
+    if ((item->getWindows().count() == 1) && isDock)
+    {
+        return true;
+    }
+    return false;
+}
+
+QAction* MainWindow::createDockWidget(windowCustomisationMenuItem* item)
+{
+    profile.addPriorityMacroSubstitutions( item->getWindows().at(0).macroSubstitutions );
+
+    QEActionRequests::Options createOption = item->getWindows().at(0).creationOption;
+    QString customisationName = item->getWindows().at(0).customisationName;
+    bool hidden = item->getWindows().at(0).hidden;
+    QEForm* gui = createGui( item->getWindows().at(0).uiFile, customisationName, true );
+
+    profile.removePriorityMacroSubstitutions();
+
+    return loadGuiIntoNewDock( item->getWindows().at(0).title, gui, hidden, false, createOption );
+}
+
+void MainWindow::userLevelChangedGeneral( userLevelTypes::userLevels level ){
+    int count = customisationInfo.items.count();
+    for ( int i = 0; i < count; i++){
+        windowCustomisationMenuItem* item = customisationInfo.items.at(i);
+        if (level >= item->getUserLevel()){
+            customisationInfo.items.at(i)->setEnabled(true);
+        }
+        else{
+            customisationInfo.items.at(i)->setEnabled(false);
+        }
+    }
+}
+
+void MainWindow::lockLayoutStatusChanged( bool locked ){
+    // apply user level restrictions on docks
+    QDockWidget::DockWidgetFeatures features = QDockWidget::NoDockWidgetFeatures;
+    if (!locked){
+        // default policy for Docks
+        features = QDockWidget::AllDockWidgetFeatures;
+    }
+    for ( int i = 0; i < customisationInfo.dockLeftWidgetList.length(); i++ ){
+        customisationInfo.dockLeftWidgetList.at(i)->setFeatures(features);
+    }
+    for ( int i = 0; i < customisationInfo.dockRightWidgetList.length(); i++ ){
+       customisationInfo.dockRightWidgetList.at(i)->setFeatures(features);
+    }
+    for ( int i = 0; i < customisationInfo.dockTopWidgetList.length(); i++ ){
+        customisationInfo.dockTopWidgetList.at(i)->setFeatures(features);
+    }
+    for ( int i = 0; i < customisationInfo.dockBottomWidgetList.length(); i++ ){
+        customisationInfo.dockBottomWidgetList.at(i)->setFeatures(features);
+    }
+    for ( int i = 0; i < customisationInfo.dockFloatingWidgetList.length(); i++ ){
+        customisationInfo.dockFloatingWidgetList.at(i)->setFeatures(features);
+    }
+}
+
+void MainWindow::showEvent ( QShowEvent* ){
+    // restore dock min size settings
+    if (forceDockSize){
+        for ( int i = 0; i < customisationInfo.dockLeftWidgetList.length(); i++ ){
+            customisationInfo.dockLeftWidgetList.at(i)->setMinimumWidth(0);
+            customisationInfo.dockLeftWidgetList.at(i)->setMinimumHeight(0);
+        }
+        for ( int i = 0; i < customisationInfo.dockRightWidgetList.length(); i++ ){
+            customisationInfo.dockRightWidgetList.at(i)->setMinimumWidth(0);
+            customisationInfo.dockRightWidgetList.at(i)->setMinimumHeight(0);
+        }
+        for ( int i = 0; i < customisationInfo.dockTopWidgetList.length(); i++ ){
+            customisationInfo.dockTopWidgetList.at(i)->setMinimumWidth(0);
+            customisationInfo.dockTopWidgetList.at(i)->setMinimumHeight(0);
+        }
+        for ( int i = 0; i < customisationInfo.dockBottomWidgetList.length(); i++ ){
+            customisationInfo.dockBottomWidgetList.at(i)->setMinimumWidth(0);
+            customisationInfo.dockBottomWidgetList.at(i)->setMinimumHeight(0);
+        }
+        forceDockSize = false;
+    }
 }

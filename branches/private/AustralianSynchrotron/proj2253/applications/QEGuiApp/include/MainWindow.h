@@ -32,7 +32,6 @@
 #include <QEForm.h>
 #include <UserMessage.h>
 #include <ContainerProfile.h>
-#include <QMap>
 #include <QProcess>
 #include <QTimer>
 #include <StartupParams.h>
@@ -76,12 +75,12 @@ private:
 };
 
 
-class MainWindow : public QMainWindow, public UserMessage
+class MainWindow : public QMainWindow, public UserMessage, public ContainerProfile
 {
     Q_OBJECT
 
 public:
-    MainWindow( QEGui* appIn, QString fileName, QString customisationName, bool openDialog, QWidget *parent = 0 );
+    MainWindow( QEGui* appIn, QString fileName, QString customisationName, bool openDialog, QString title = "", QWidget *parent = 0 );
 
     ~MainWindow();
 
@@ -95,6 +94,13 @@ public:
 
     bool showGui( QString guiFileName, QString macroSubstitutions );
 
+    // override vitual methods of ContainerProfile class
+    void userLevelChangedGeneral( userLevelTypes::userLevels level );         // Manage general aspects of user level change, then call optional QE widget specific virtual functions
+    void lockLayoutStatusChanged( bool locked );
+
+protected:
+    void showEvent ( QShowEvent * event );
+
 private:
     Ui::MainWindowClass ui;                                 // Main window layout
     bool usingTabs;                                         // True if using tabs to display multiple GUIs, false if displaying a single GUI
@@ -105,7 +111,8 @@ private:
     QEForm* createGui( QString fileName, QString customisationName, QString restoreId, bool isDock = false, bool clearExistingCustomisations = false ); // Create a gui with an ID (required for a restore)
     void loadGuiIntoCurrentWindow( QEForm* newGui, bool resize );     // Load a new gui into the current window (either single window, or tab)
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
-    void loadGuiIntoNewDock( QEForm* gui,
+    QAction* loadGuiIntoNewDock( QString dockTitle,
+                             QEForm* gui,
                              bool hidden = false,
                              bool tabbed = false,
                              QEActionRequests::Options createOption = QEActionRequests::OptionFloatingDockWindow,
@@ -119,7 +126,6 @@ private:
                                 const QString& pvName );
 
     void setTitle( QString title );                         // Set the main window title
-
     QTabWidget* getCentralTabs();                           // Return the central widget if it is the tab widget
     QEForm* getCentralGui();                                // Return the central widget if it is a single gui, else return NULL
     QEForm* getCurrentGui();                                // Return the current gui if any (central, or tab)
@@ -169,12 +175,12 @@ private:
     QMenu* tabMenu;                                         // ???We want to keep a reference to certain widget objects. Declaring these directly in the
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
-    MainWindow* launchGui( QString guiName, QString customisationName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
     void createActionMaps ();
-
+    MainWindow* launchGui( QString guiName, QString title, QString customisationName, QString actionName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
     QMenu* windowMenu;
     QMenu* recentMenu;
     QMenu* editMenu;
+    bool forceDockSize;
 
     windowCustomisationInfo customisationInfo;  // Current customisation of this window
     void setDefaultCustomisation();             // Set up the initial default customisation
@@ -186,8 +192,21 @@ private:
 
     QList<guiListItem> guiList;
 
-    Qt::DockWidgetArea creationOptionToDockLocation( QEActionRequests::Options createOption ); // Translate a creation option to a dock location.
+    QMenu* buildMenuPath( windowCustomisationInfo* customisationInfo, QMenuBar* menuBar, const QStringList menuHierarchy );
+    void applyCustomisation( QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting , bool restoring = false); // Add the named customisation set to a main window. Return true if named customisation found and loaded.
+    void replaceMenuAction(QString actionName, QAction* newAction);
+    bool isDockView(windowCustomisationMenuItem* item);
+    QAction* createDockWidget(windowCustomisationMenuItem* item);
+    QString windowCustomisationName;
+    void tabifyDocks();
+
+    Qt::DockWidgetArea creationOptionToDockLocation( QEActionRequests::Options createOption,
+                                                     QDockWidget *dock = NULL ); // Translate a creation option to a dock location.
     QEActionRequests::Options dockLocationToCreationOption( Qt::DockWidgetArea dockLocation ); // Translate a dock location to a creation option.
+
+    void toggleCenterWidget();                                  // toggle the center widget
+    void runDetectorEditor();                                   // run Detector Editor
+    void lockLayoutToggled();                                   // toggle layout locker
 
     typedef QMap<QString, QString> NameMap;
 
