@@ -69,6 +69,7 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
                 // Note the current user level
                 userLevelTypes meta;
                 appElement.addValue ("UserLevel", QEUtilities::enumToString( meta, "userLevels", getUserLevel() ));
+                appElement.addValue ("LayoutLock", getLockLayoutStatus());
             }
             break;
 
@@ -92,20 +93,38 @@ void saveRestoreManager::saveRestore( SaveRestoreSignal::saveRestoreOptions opti
                 userLevelTypes::userLevels levelInt;
                 bool ok;
                 levelInt = (userLevelTypes::userLevels)QEUtilities::stringToEnum( meta, "userLevels", levelString, &ok );
-                if( ok )
+                if( ok && getUserLevel() < levelInt )
                 {
-                    setUserLevel( levelInt );
+//Zai: no change - user level is better to be stayed?   setUserLevel( levelInt );
                 }
 
                 // Get the number of expected main windows
                 int numMainWindows = 0;
                 QEGuiData.getValue( "MainWindows", numMainWindows );
+                int layoutLockStatus = 0;
+                QEGuiData.getValue( "LayoutLock", layoutLockStatus );
+                setLockLayoutStatus((bool)layoutLockStatus);
 
                 // Create the main windows. They will restore themselves
                 setupProfile( NULL, app->getParams()->pathList, "", app->getParams()->substitutions );
                 for( int i = 0; i < numMainWindows; i++ )
                 {
-                    MainWindow* mw = new MainWindow( app, "", "", false );
+                    QString mainWindowName = QString( "QEGuiMainWindow_%1" ).arg( i );
+                    // Get the data for this window
+                    PMElement data = pm->getNamedConfiguration( mainWindowName );
+                    QString windowTitle;
+                    QString parentWindowTitle;
+                    QWidget* parent = NULL;
+                    data.getValue( "Title", windowTitle );
+                    // find its parent and set it
+                    data.getValue( "WindowParent", parentWindowTitle );
+                    if (!parentWindowTitle.isEmpty() && app->mainWindowMap.contains(parentWindowTitle)){
+                        parent = app->mainWindowMap.find(parentWindowTitle).value();
+                    }
+
+                    MainWindow* mw = new MainWindow( app, "", "", false, windowTitle, parent );
+                    mw->lockLayoutStatusChanged(getLockLayoutStatus());
+                    app->mainWindowMap.insert(mw->windowTitle(), mw);
                     mw->show();
                 }
 
