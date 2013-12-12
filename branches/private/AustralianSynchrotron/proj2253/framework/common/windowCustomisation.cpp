@@ -115,7 +115,7 @@ void windowCustomisationItem::itemAction()
     if( windows.count() )
     {
         profile.publishOwnProfile();
-        emit newGui( QEActionRequests( windows ));
+        emit newGui( QEActionRequests( title, windows ));
         profile.releaseProfile();
     }
     else if ( !builtInAction.isEmpty() )
@@ -149,13 +149,15 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
                           const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                           const QString programIn,                             // Program to run
-                          const QStringList argumentsIn )                      // Arguments for 'program'
+                          const QStringList argumentsIn,                       // Arguments for 'program or for built in function
+                          const userLevelTypes::userLevels userLevel )         // User level
                           : windowCustomisationItem( launchRequestReceiver, windowsIn, programIn, argumentsIn )
 {
     type = typeIn;
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+    level = userLevel;
 }
 
 // Construct instance of class defining a placeholder for items the application might add
@@ -165,7 +167,8 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
 
-                          const QString widgetNameIn )                          // widget name if built in function is for a widget, not the application
+                          const QString widgetNameIn,                          // widget name if built in function is for a widget, not the application
+                          const userLevelTypes::userLevels userLevel )         // User level
 
                           : windowCustomisationItem( titleIn, widgetNameIn )
 {
@@ -173,6 +176,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+    level = userLevel;
 }
 
 // Construct instance of class defining a placeholder for items the application might add
@@ -180,7 +184,8 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
-                          const bool separatorIn )                             // Separator required before this
+                          const bool separatorIn,                              // Separator required before this
+                          const userLevelTypes::userLevels userLevel )         // User level
 
                           : windowCustomisationItem( titleIn )
 {
@@ -188,6 +193,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     menuHierarchy = menuHierarchyIn;
     title = titleIn;
     separator = separatorIn;
+    level = userLevel;
 }
 
 // Copy constructor
@@ -200,7 +206,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(windowCustomisationMenu
     setText(title);
     setParent(this);
     separator = menuItem->separator;
-
+    level = menuItem->level;
 
     // Set up an action to respond to the user
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
@@ -310,6 +316,7 @@ QEActionRequests::Options windowCustomisation::translateCreationOption( QString 
          if( creationOption.compare( "Open"          ) == 0 ) { return QEActionRequests::OptionOpen;                   }
     else if( creationOption.compare( "NewTab"        ) == 0 ) { return QEActionRequests::OptionNewTab;                 }
     else if( creationOption.compare( "NewWindow"     ) == 0 ) { return QEActionRequests::OptionNewWindow;              }
+    else if( creationOption.compare( "NewChildWindow") == 0 ) { return QEActionRequests::OptionNewChildWindow;         }
 
     else if( creationOption.compare( "LeftDock"      ) == 0 ) { return QEActionRequests::OptionLeftDockWindow;         }
     else if( creationOption.compare( "RightDock"     ) == 0 ) { return QEActionRequests::OptionRightDockWindow;        }
@@ -329,7 +336,7 @@ windowCustomisationList::windowCustomisationList()
 
     // Load QE widget customisations.
     loadCustomisation( ":/qe/configuration/QEImageCustomisationDefault.xml" );
-    // Add other QE widget's customisation files here as required
+    // Add other QE widget's customisation files here as requried
 }
 
 // Load a set of customisations
@@ -392,32 +399,29 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
             while (!node.isNull())
             {
                 QDomElement element = node.toElement();
+                QStringList menuHierarchy;
 
                 // Add a menu
                 if( element.tagName() == "Menu" )
                 {
                     QString menuName = element.attribute( "Name" );
-                    QStringList menuHierarchy;
                     menuHierarchy.append(menuName);
 
                     // parse menu customisation
                     parseMenuElement( element, customisation, menuHierarchy );
                 }
 
-                // Create a menu item if required
-                else if( element.tagName() == "Item" )
-                {
-                    QStringList menuHierarchy;
-                    customisation->addItem( createMenuItem( element, menuHierarchy ));
-                }
-
                 // Create a placeholder item if required
                 else if( element.tagName() == "PlaceHolder" )
                 {
-                    QStringList menuHierarchy;
                     customisation->addItem( createMenuPlaceholder( element, menuHierarchy ));
                 }
 
+                // Create an item if required
+                else if( element.tagName() == "Item" )
+                {
+                    customisation->addItem( createMenuItem( element, menuHierarchy ) );
+                }
 
                 // Add a tool bar button
                 else if (element.tagName() == "Button")
@@ -610,7 +614,7 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
 
                 // Read optional creation option
                 QDomElement creationOptionElement = windowElement.firstChildElement( "CreationOption" );
-                windowItem.creationOption = QEActionRequests::OptionNewWindow;
+                windowItem.creationOption = QEActionRequests::OptionNewChildWindow;
                 if( !creationOptionElement.isNull() )
                 {
                     windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
@@ -633,12 +637,12 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
         windowElement = windowElement.nextSiblingElement( "Window" );
     }
 
-    parseDockItems( itemElement, windows );
+    parseDockItems( itemElement, windows, title );
     return true;
 }
 
 // ???!!!
-void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows )
+void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows, QString title )
 {
     // Read Docks to create
     QDomElement dockElement = itemElement.firstChildElement( "Dock" );
@@ -674,6 +678,7 @@ void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<win
                     windowItem.hidden = true;
                 }
 
+                windowItem.title = title;
                 windows.append( windowItem );
             }
         }
@@ -691,6 +696,14 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
     QList<windowCreationListItem> windows;
     QString builtIn;
     QString widgetName;
+    userLevelTypes::userLevels userLevel = userLevelTypes::USERLEVEL_USER;
+    QDomElement levelElement = itemElement.firstChildElement( "UserLevel" );
+    if (!levelElement.isNull()){
+        int level = levelElement.text().toInt();
+        level = level < 0? 0:
+                level > 2? 2: level;
+        userLevel = (userLevelTypes::userLevels)level;
+    }
 
     if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments ) )
     {
@@ -698,10 +711,11 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
         {
             // Add details for a built in menu item to customisation set
             windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy,
-                                                                                 builtIn,
+                                                                                 title,
                                                                                  windowCustomisationMenuItem::MENU_BUILT_IN,
                                                                                  requiresSeparator( itemElement ),
-                                                                                 widgetName );
+                                                                                 widgetName, userLevel );
+            item->setBuiltInAction(builtIn);
             return item;
 
         }
@@ -715,7 +729,7 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
                                                                                  NULL/*!!! needs launch receiver object*/,
                                                                                  windows,
                                                                                  program,
-                                                                                 arguments );
+                                                                                 arguments, userLevel );
             return item;
         }
     }
@@ -965,6 +979,7 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
 
             case windowCustomisationMenuItem::MENU_ITEM:
                 // Add the item to the correct menu
+                // (if no menu, don't add to the menu bar - this could change)
                 if( menu )
                 {
                     if( menuItem->hasSeparator() )
@@ -972,18 +987,12 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                         menu->addSeparator();
                     }
                     menu->addAction( menuItem );
-                }
+                    customisationInfo->actions.insert(menuItem->getTitle(), menu);
 
-                // Or add the item to the menu bar, if not in a menu
-                // (Unusual, but OK)
-                else
-                {
-                    mw->menuBar()->addAction( menuItem );
+                    // Set up an action to respond to the user
+                    QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
+                                      mw, SLOT( requestAction( const QEActionRequests& ) ) );
                 }
-
-                // Set up an action to respond to the user
-                QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
-                                  mw, SLOT( requestAction( const QEActionRequests& ) ) );
                 break;
 
             case windowCustomisationMenuItem::MENU_PLACEHOLDER:
@@ -1000,7 +1009,6 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                         }
                         placeholderMenu = menu->addMenu( menuTitle );
                     }
-
                     // If no menu, add the placeholder to the menu bar
                     else
                     {
@@ -1015,24 +1023,11 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                 break;
 
             case windowCustomisationMenuItem::MENU_BUILT_IN:
-                // Add the item to the correct menu
-                if( menu )
+                if( menuItem->hasSeparator() )
                 {
-                    if( menuItem->hasSeparator() )
-                    {
-                        menu->addSeparator();
-                    }
-                    menu->addAction( menuItem );
+                    menu->addSeparator();
                 }
-
-                // Or add the item to the menu bar, if not in a menu
-                // (This is normal if the built-in function adds a menu to the action - such as the QEImage zoom menu,
-                // but is a bit unusual otherwise)
-                else
-                {
-                    mw->menuBar()->addAction( menuItem );
-                }
-
+                menu->addAction( menuItem );
                 QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
                                   mw, SLOT( requestAction( const QEActionRequests& ) ) );
                 customisationInfo->items.append( menuItem );

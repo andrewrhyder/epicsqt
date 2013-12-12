@@ -165,7 +165,13 @@ public:
 
     QString getBuiltInAction(){return builtInAction;}
 
+    void setBuiltInAction(QString action){builtInAction = action;}
+    QList<windowCreationListItem> getWindows(){ return windows; }
+    QString getTitle(){return title;}
     void initialise();
+
+protected:
+    QString title;                                  // Name of this action title. for example: 'Region 1'
 
 private:
     // Item action
@@ -188,7 +194,7 @@ signals:
 
 
 // Class defining an individual menu item
-class windowCustomisationMenuItem : public windowCustomisationItem
+class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationMenuItem : public windowCustomisationItem
 {
 public:
     enum menuObjectTypes { MENU_UNKNOWN, MENU_ITEM, MENU_PLACEHOLDER, MENU_BUILT_IN };
@@ -201,14 +207,17 @@ public:
                           const QObject* launchRequestReceiver,                // Object (typically QEGui application) which will accept requests to launch a new GUI
                           const QList<windowCreationListItem>& windowsIn,      // Windows to display (centrals and docks)
                           const QString programIn,                             // Program to run
-                          const QStringList argumentsIn );                     // Arguments for 'program or for built in function
-
+                          const QStringList argumentsIn,                       // Arguments for 'program or for built in function
+                          const userLevelTypes::userLevels userLevel =
+                                      userLevelTypes::USERLEVEL_USER );        // User level
 
     windowCustomisationMenuItem( // Construction (placeholder menu item)
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER
-                          const bool separatorIn );                            // Separator required before this
+                          const bool separatorIn,                              // Separator required before this
+                          const userLevelTypes::userLevels userLevel =
+                                      userLevelTypes::USERLEVEL_USER );        // User level
 
     windowCustomisationMenuItem( // Construction (placeholder menu item)
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
@@ -216,16 +225,18 @@ public:
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
 
-                          const QString widgetNameIn );                        // widget name if built in function is for a widget, not the application
+                          const QString widgetNameIn,                          // widget name if built in function is for a widget, not the application
+                          const userLevelTypes::userLevels userLevel =
+                                      userLevelTypes::USERLEVEL_USER );        // User level
 
     windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem);
 
     QStringList getMenuHierarchy(){return menuHierarchy;}
     void prependMenuHierarchy( QStringList preMenuHierarchy );
-    QString getTitle(){return title;}
     menuObjectTypes getType(){ return type; }
 
     bool hasSeparator(){ return separator; }
+    userLevelTypes::userLevels getUserLevel(){ return level; }
 
 private:
     menuObjectTypes type;
@@ -233,8 +244,8 @@ private:
     // All details are optional.
     // A menu item is created if menuHierarchy contains at least one level and title exists
     QStringList menuHierarchy;  // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
-    QString title;              // Name of this item. for example: 'Region 1'
     bool separator;             // Separator should appear before this item
+    userLevelTypes::userLevels level;
 };
 
 // Class defining an individual button item
@@ -302,6 +313,28 @@ public:
     QMap<QString, QMenu*> menus;            // All menus added by customisation system
     QMap<QString, QToolBar*> toolbars;      // All tool bars added by customisation system
     QList<windowCustomisationMenuItem*> items;
+    QMap<QString, windowCustomisationMenuItem*> menuItems;
+
+    QMap<QString, QMenu*> actions;          // All actions added by customisation system to their menus
+    QList<QDockWidget*> dockLeftWidgetList;
+    QList<QDockWidget*> dockRightWidgetList;
+    QList<QDockWidget*> dockTopWidgetList;
+    QList<QDockWidget*> dockBottomWidgetList;
+    QList<QDockWidget*> dockFloatingWidgetList;
+
+    void clear(){
+        placeholderMenus.clear();
+        menus.clear();
+        toolbars.clear();
+        items.clear();
+        menuItems.clear();
+        actions.clear();
+        dockLeftWidgetList.clear();
+        dockRightWidgetList.clear();
+        dockTopWidgetList.clear();
+        dockBottomWidgetList.clear();
+        dockFloatingWidgetList.clear();
+    }
 };
 
 // Class managing all customisation sets
@@ -334,7 +367,7 @@ private:
                                  QString& program,
                                  QString& widgetName,
                                  QStringList& arguments );
-    void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows );
+    void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows, QString title = "" );
 
     windowCustomisationMenuItem* createMenuItem       ( QDomElement itemElement, QStringList menuHierarchy); // Create a custom menu item
     windowCustomisationMenuItem* createMenuPlaceholder( QDomElement itemElement, QStringList menuHierarchy); // Create a placeholder menu (for the application to add stuff to)
