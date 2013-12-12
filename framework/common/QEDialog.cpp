@@ -23,41 +23,65 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <QDebug>
 #include <QMainWindow>
+
 #include "QEDialog.h"
 
 //------------------------------------------------------------------------------
 //
 QEDialog::QEDialog (QWidget* parent) : QDialog (parent) {
-   // place holder
+   this->sourceWidget = this;
+   this->firstExec = true;
 }
 
 
 //------------------------------------------------------------------------------
 //
-int QEDialog::exec (QWidget* centreOver)
+int QEDialog::exec (QWidget* targetWidget)
 {
    // Did caller specify an widget to centre this over?
    //
-   if (centreOver) {
-      // Find center and map this to global coordinates.
+   if (targetWidget && this->sourceWidget) {
+      // Find centres and map this to global coordinates.
       //
-      const QRect cr = centreOver->geometry ();
-      QPoint centre = QPoint (cr.width () / 2, cr.height () / 2);
-      centre = centreOver->mapToGlobal (centre);
+      const QRect sourceGeo = sourceWidget->geometry ();
+      const QRect targetGeo = targetWidget->geometry ();
+
+      QPoint sourceMiddle = QPoint (sourceGeo.width () / 2, sourceGeo.height () / 2);
+      QPoint targetMiddle = QPoint (targetGeo.width () / 2, targetGeo.height () / 2);
+
+      // Convert both to global coordinates.
+      //
+      targetMiddle = targetWidget->mapToGlobal (targetMiddle);
+      sourceMiddle = sourceWidget->mapToGlobal (sourceMiddle);
+
+      QPoint delta = targetMiddle - sourceMiddle;
+
+      // Empircally determined offset needed for this to work as expected.
+      //
+      if (this->firstExec) {
+         // Very first time this is different.
+         // This seems to be related to fact taht widget has no-relative position
+         // until first displayed.
+         //
+         delta = delta + QPoint (-112, -42);
+      } else {
+         // I think this is related to the window decoration sizes.
+         //
+         delta = delta + QPoint (4, 22);
+      }
 
       // Extract current dialog location and calculate translation offset.
-      //
-      QRect dr = this->geometry ();
-      int dx = centre.x () - (dr.x () + dr.width ()/2);
-      int dy = centre.y () - (dr.y () + dr.height ()/2);
-
       // Move dialog widget geometry rectangle, careful not to change width or
       // height and apply.
       //
-      dr.translate (dx, dy);
-      setGeometry (dr);
+      QRect dialogGeo = this->geometry ();
+      dialogGeo.translate (delta);
+      setGeometry (dialogGeo);
    }
+
+   this->firstExec = false;
 
    // Now call parent exec method to do actual work.
    //
