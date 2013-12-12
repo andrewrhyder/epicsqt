@@ -64,6 +64,8 @@ public:
 
     MainWindow* raiseGui(  QString guiFileName, QString macroSubstitutions );
 
+    QMap<QString, MainWindow*> mainWindowMap;       // Map of all main windows
+
 
 private:
     void printFile (const QString&  filename,
