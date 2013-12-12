@@ -54,6 +54,7 @@ public:
    enum Options { OptionOpen,        // How new windows created for the request are to be presented. May not be relevent for all requests
                   OptionNewTab,
                   OptionNewWindow,
+                  OptionNewChildWindow,
                   OptionTopDockWindow,
                   OptionBottomDockWindow,
                   OptionLeftDockWindow,
@@ -76,6 +77,7 @@ public:
 
    // a set of windows to create
    QEActionRequests( const QList<windowCreationListItem> windowsIn );
+   QEActionRequests( const QString actionName, const QList<windowCreationListItem> windowsIn );
 
    // Action (for a QE widget)
    QEActionRequests( const QString& actionIn,

@@ -97,6 +97,19 @@ QEActionRequests::QEActionRequests( const QList<windowCreationListItem> windowsI
 
 //---------------------------------------------------------------------------
 //
+QEActionRequests::QEActionRequests( const QString actionName, const QList<windowCreationListItem> windowsIn )
+{
+    kind = KindOpenFiles;
+    option = OptionNewWindow; // not required, but keep things neat
+    for( int i = 0; i < windowsIn.count(); i++ )
+    {
+        windows.append( windowsIn.at(i) );
+    }
+    action = actionName;
+}
+
+//---------------------------------------------------------------------------
+//
 QEActionRequests::QEActionRequests( const componentHostListItem& componentIn )
 {
    kind = KindHostComponents;
