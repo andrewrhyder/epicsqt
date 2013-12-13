@@ -81,7 +81,7 @@ void QEGraphic::construct ()
    this->yOffset  = 0.0;
 
    this->leftIsDefined = false;
-   this->leftIsDefined = false;
+   this->rightIsDefined = false;
 
    this->setXRange (0.0, 1.0, SelectByNumber, 8);
    this->setYRange (0.0, 1.0, SelectByNumber, 8);

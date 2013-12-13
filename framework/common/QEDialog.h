@@ -53,12 +53,17 @@ public slots:
    int exec (QWidget* targetWidget);
 
 protected:
-   // widget (within dialog) to use to colocate over centre target - default is this.
+   // widget (within dialog) to use to colocate over targetWidget - default is this.
    //
    QWidget* sourceWidget;
 
 private:
-   bool firstExec;    // first time indicator.
+   // widget (defined by caller) to use to colocation point.
+   //
+   QWidget* targetWidget;
+
+private slots:
+   void relocateToCenteredPosition ();
 };
 
 #endif  // QEDIALOG_H
