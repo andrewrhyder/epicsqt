@@ -476,7 +476,6 @@ void QEImage::presentControls()
     Implementation of QEWidget's virtual funtion to create the specific types of QCaObject required.
 */
 qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
-qDebug() << " QEImage::createQcaItem()" << variableIndex;
     switch( variableIndex )
     {
         // Create the image item as a QEByteArray
