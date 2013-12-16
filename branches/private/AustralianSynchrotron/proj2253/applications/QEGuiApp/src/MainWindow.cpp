@@ -1180,7 +1180,10 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
     }
 
     // Set the title
-    if (app->getParams()->applicationTitle.isEmpty())
+    if (app->getParams()->applicationTitle.isEmpty() ||
+        // make Application Title and QEGui title work togather - workaround solution
+        (!windowTitle().isEmpty() && windowTitle() == app->getParams()->applicationTitle &&
+         app->getMainWindowCount() > 1))
         setTitle( gui->getQEGuiTitle() );
 
     // Initialise customisation items.
