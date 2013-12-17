@@ -43,6 +43,7 @@
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
 #include <QEFloatingFormatting.h>
+//#include <mpeg.h>
 
 // Class to keep track of a rectangular area such as region of interest or profile line information
 // As data arrives, this class is used to record it.
@@ -93,7 +94,7 @@ class areaInfo
 };
 
 
-class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo{
+class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo/*, mpegSource*/ {
     Q_OBJECT
 
   public:
@@ -288,6 +289,7 @@ public:
 private slots:
     // QCa data update slots
     void connectionChanged( QCaConnectionInfo& connectionInfo );
+    void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
@@ -368,6 +370,7 @@ public slots:
 
 
   private:
+
     void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
     void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
     void roi3Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
@@ -1078,6 +1081,10 @@ public:
     /// If true, the information area willl be brief (one row)
     ///
     Q_PROPERTY(bool briefInfoArea READ getBriefInfoArea WRITE setBriefInfoArea)
+
+//    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
+//    Q_PROPERTY(QString URL READ getURL WRITE setURL)
+
 };
 
 #endif // QEIMAGE_H
