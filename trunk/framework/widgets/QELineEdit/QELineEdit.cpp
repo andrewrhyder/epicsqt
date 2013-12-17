@@ -37,6 +37,7 @@
 */
 QELineEdit::QELineEdit( QWidget *parent ) : QEGenericEdit( parent )
 {
+    setup();
 }
 
 /*
@@ -44,8 +45,13 @@ QELineEdit::QELineEdit( QWidget *parent ) : QEGenericEdit( parent )
 */
 QELineEdit::QELineEdit( const QString& variableNameIn, QWidget *parent ) : QEGenericEdit( variableNameIn, parent )
 {
+    setup();
 }
 
+void QELineEdit::setup()
+{
+    setAddUnits( false );
+}
 
 
 /*
