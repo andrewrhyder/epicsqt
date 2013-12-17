@@ -1019,6 +1019,17 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
     }
 }
 
+// Update image from non CA souce (no associated CA timestamp or alarm info available)
+void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height )
+{
+    imageBuffWidth = width;
+    imageBuffHeight = height;
+
+    QCaAlarmInfo alarmInfo;
+    QCaDateTime dateTime = QCaDateTime( QDateTime::currentDateTime() );
+    setImage( imageIn, dataSize, alarmInfo, dateTime, 0 );
+}
+
 /*
     Update the image
     This is the slot used to recieve data updates from a QCaObject based class.
@@ -1431,6 +1442,10 @@ void QEImage::displayImage()
             dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
             dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
             dataOut[buffIndex].p[3] = 0xff;
+//            if( buffIndex < 1000 )
+//            {
+//                qDebug() << buffIndex << inPixel->p[0] << inPixel->p[1] << inPixel->p[2];
+//            }
             LOOP_END
         }
 

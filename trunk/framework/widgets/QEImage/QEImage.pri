@@ -44,7 +44,8 @@ HEADERS += \
     widgets/QEImage/markupTarget.h \
     widgets/QEImage/markupText.h \
     widgets/QEImage/brightnessContrast.h \
-    widgets/QEImage/QEImageOptionsDialog.h
+    widgets/QEImage/QEImageOptionsDialog.h \
+#    widgets/QEImage/mpeg.h
 
 SOURCES += \
     widgets/QEImage/QEImage.cpp \
@@ -66,7 +67,8 @@ SOURCES += \
     widgets/QEImage/markupTarget.cpp \
     widgets/QEImage/markupText.cpp \
     widgets/QEImage/brightnessContrast.cpp \
-    widgets/QEImage/QEImageOptionsDialog.cpp
+    widgets/QEImage/QEImageOptionsDialog.cpp \
+#    widgets/QEImage/mpeg.cpp
 
 INCLUDEPATH += \
     widgets/QEImage
