@@ -179,6 +179,7 @@ public:
 
 private:
     void establishConnection( unsigned int variableIndex );
+    void setup();
 
 private slots:
     void setTextIfNoFocus( const QString& value, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );  // Update the text in the widget as long as the user is not entering data in it
