@@ -483,6 +483,12 @@ QFile* QEWidget::openQEFile( QString name, QFile::OpenModeFlag mode )
 //  - The current directory
 //  - The environment variable QE_UI_PATH
 
+QFile* QEWidget::findQEFile( QString name )
+{
+    ContainerProfile publishedProfile;
+    return findQEFile( name, &publishedProfile );
+}
+
 QFile* QEWidget::findQEFile( QString name, ContainerProfile* profile )
 {
         // Build a list of all the places we expect to find the file

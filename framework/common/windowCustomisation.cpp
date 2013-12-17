@@ -40,6 +40,7 @@
 #include <QFile>
 #include <QMenuBar>
 #include <QToolBar>
+#include <QEWidget.h>
 
 //==============================================================================================
 // windowCustomisationItem
@@ -345,21 +346,26 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
     QDomNodeList rootNodeList;
 
     // Read and parse xmlFile
-    QFile file( xmlFile );
-    if (!file.open(QIODevice::ReadOnly))
+    QFile* file = QEWidget::findQEFile( xmlFile );
+
+//    QFile file( xmlFile );
+    if( !file || !file->open(QIODevice::ReadOnly) )
     {
-        QString error = file.errorString();
+        QString error = file->errorString();
         qDebug() << "Could not open customisation file" << xmlFile << error;
         return false;
     }
     // if named customisation exists, replace it
-    if ( !doc.setContent( &file ) )
+    if ( !doc.setContent( file ) )
     {
         qDebug() << "Could not parse the XML in the customisations file" << xmlFile;
-        file.close();
+        file->close();
+        delete file;
         return false;
     }
-    file.close();
+    file->close();
+    delete file;
+    file = NULL; // Ensure no further reference
     QDomElement docElem = doc.documentElement();
 
     // Load customisation include file
