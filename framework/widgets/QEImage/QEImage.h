@@ -167,7 +167,15 @@ public:
     enum formatOptions{ GREY8,          ///< 8 bit grey scale
                         GREY12,         ///< 12 bit grey scale
                         GREY16,         ///< 16 bit grey scale
-                        RGB_888,         ///< 24 bit RGB
+                        GREYN,          ///< Grey scale, depth determined by data element size
+                        RGB_888,        ///< 24 bit RGB
+                        BAYER,          ///< ???
+                        RGB1,           ///< ???
+                        RGB2,           ///< ???
+                        RGB3,           ///< ???
+                        YUV444,         ///< ???
+                        YUV422,         ///< ???
+                        YUV421,         ///< ???
                         NUM_OPTIONS     // Must be last
                       };
 
@@ -283,6 +291,7 @@ public:
     bool getDisplayMarkups();                                           ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
 
   protected:
+    QEStringFormatting stringFormatting;     // String formatting options.
     QEIntegerFormatting integerFormatting;   // Integer formatting options.
     QEFloatingFormatting floatingFormatting; // Floating formatting options.
 
@@ -322,6 +331,7 @@ private slots:
     void connectionChanged( QCaConnectionInfo& connectionInfo );
     void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
+    void setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
@@ -487,7 +497,6 @@ public slots:
     // Image and related information
     QCaDateTime imageTime;
     unsigned long imageDataSize;    // Size of elements in image data (originating from CA data type)
-    unsigned long elementsPerPixel; // Number of data elements per pixel.
     unsigned long bytesPerPixel;    // Bytes in input data per pixel (imageDataSize * elementsPerPixel)
     QByteArray image;       // Buffer to hold original image data. WARNING To avoid expensive memory copies, data is
                             // generated using QByteArray::fromRawData(), where the raw data is the original CA update

@@ -115,7 +115,6 @@ void QEImage::setup() {
     isConnected = false;
 
     imageDataSize = 0;
-    elementsPerPixel = 0;
     bytesPerPixel = 0;
 
     clippingOn = false;
@@ -510,6 +509,7 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
 
         // Create the image format, image dimensions, target and beam, regions and profile and clipping items as a QEInteger
         case FORMAT_VARIABLE:
+            return new QEString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
 
         case NUM_DIMENSIONS_VARIABLE:
         case DIMENSION_0_VARIABLE:
@@ -603,8 +603,8 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
         case FORMAT_VARIABLE:
             if(  qca )
             {
-                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
-                                  this, SLOT( setFormat( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setFormat( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
                 QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
                                   this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
                 QObject::connect( this, SIGNAL( requestResend() ),
@@ -773,6 +773,51 @@ void QEImage::setWidthHeightFromDimensions()
                 imageBuffHeight = imageDimension2;
             }
             break;
+    }
+}
+
+/*
+    Update the image format from a variable.
+    This tends to take precedence over the format property simply as variable data arrives after all properties are set.
+    If the 'format' property is set later, then it be used.
+
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
+{
+    formatOptions previousFormatOption = formatOption;
+
+    // Update image format
+    if     ( !text.compare( "Mono8" ) )   formatOption = GREYN;
+    else if( !text.compare( "Bayer" ) )   formatOption = BAYER;
+    else if( !text.compare( "RGB1" ) )    formatOption = RGB1;
+    else if( !text.compare( "RGB2" ) )    formatOption = RGB2;
+    else if( !text.compare( "RGB3" ) )    formatOption = RGB3;
+    else if( !text.compare( "YUV444" ) )  formatOption = YUV444;
+    else if( !text.compare( "YUV422" ) )  formatOption = YUV422;
+    else if( !text.compare( "YUV421" ) )  formatOption = YUV421;
+    else
+    {
+        // !!! warn unexpected format
+    }
+
+    // Do nothing if no format change
+    if( previousFormatOption == formatOption)
+    {
+        return;
+    }
+
+    // Update the image.
+    // This is required if image data arrived before the format.
+    // The image data will be present, but will not have been used to update the image if the
+    // width and height and format were not available at the time of the image update.
+    displayImage();
+
+    // Display invalid if invalid
+    if( alarmInfo.isInvalid() )
+    {
+        //setImageInvalid()
+        // !!! not done
     }
 }
 
@@ -1110,18 +1155,22 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     receivedImageSize = (unsigned long) image.size ();
     imageDataSize = dataSize;
 
-    unsigned int minBits;
     switch( formatOption )
     {
-        case GREY8:   minBits = 8;  break;
-        case GREY12:  minBits = 2;  break;
-        case GREY16:  minBits = 16; break;
-        case RGB_888: minBits = 24; break;
-        default:      minBits = 8;  break;
+        case NUM_OPTIONS: // Included to avoid 'case not handled' compiler warning. This is better than a default as it will warn as unhandled types are added
+        case GREY8:   bytesPerPixel = 1; break;
+        case GREY12:  bytesPerPixel = 2; break;
+        case GREY16:  bytesPerPixel = 2; break;
+        case GREYN:   bytesPerPixel = imageDataSize; break;
+        case RGB_888: bytesPerPixel = 4; break;
+        case BAYER:   bytesPerPixel = 1; break;
+        case RGB1:    bytesPerPixel = 3; break;  //!!! not done yet
+        case RGB2:    bytesPerPixel = 3; break;  //!!! not done yet
+        case RGB3:    bytesPerPixel = 3; break;  //!!! not done yet
+        case YUV444:  bytesPerPixel = 3; break;  //!!! not done yet
+        case YUV422:  bytesPerPixel = 3; break;  //!!! not done yet
+        case YUV421:  bytesPerPixel = 3; break;  //!!! not done yet
     }
-
-    elementsPerPixel = minBits/(imageDataSize*8);
-    bytesPerPixel = imageDataSize * elementsPerPixel;
 
     imageTime = time;
 
@@ -1313,7 +1362,6 @@ void QEImage::displayImage()
                 .append( QString( "width: %1, " )                  .arg( imageBuffWidth ))
                 .append( QString( "height: %1, " )                 .arg( imageBuffHeight ))
                 .append( QString( "data element size: %1, " )      .arg( imageDataSize ))
-                .append( QString( "data elements per pixel: %1, " ).arg( elementsPerPixel ))
                 .append( QString( "bytes per pixel: %1)" )         .arg( bytesPerPixel ));
 
         // Skip if messageText same as last message.
@@ -1488,6 +1536,41 @@ void QEImage::displayImage()
             break;
         }
 
+        case GREYN:
+        {
+            switch( imageDataSize )
+            {
+                default:
+                case 1:
+                {
+                    LOOP_START
+                    unsigned char inPixel = dataIn[dataIndex*bytesPerPixel];
+                    dataOut[buffIndex] = pixelLookup[inPixel];
+                    LOOP_END
+                    break;
+                }
+
+                case 2:
+                {
+                    LOOP_START
+                    unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+1]);
+                    dataOut[buffIndex] = pixelLookup[inPixel];
+                    LOOP_END
+                    break;
+                }
+
+                case 4:
+                {
+                    LOOP_START
+                    unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                    dataOut[buffIndex] = pixelLookup[inPixel];
+                    LOOP_END
+                    break;
+                }
+            }
+            break;
+        }
+
         case RGB_888:
         {
             LOOP_START
@@ -1496,11 +1579,99 @@ void QEImage::displayImage()
             dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
             dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
             dataOut[buffIndex].p[3] = 0xff;
-//            if( buffIndex < 1000 )
-//            {
-//                qDebug() << buffIndex << inPixel->p[0] << inPixel->p[1] << inPixel->p[2];
-//            }
             LOOP_END
+            break;
+        }
+
+        case BAYER:
+        {
+            //!!! not done yet - this is a copy of RGB_888
+            LOOP_START
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
+            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+            dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case RGB1:
+        {
+            //!!! not done yet - this is a copy of RGB_888
+            LOOP_START
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
+            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+            dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case RGB2:
+        {
+            //!!! not done yet - this is a copy of RGB_888
+            LOOP_START
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
+            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+            dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case RGB3:
+        {
+            //!!! not done yet - this is a copy of RGB_888
+            LOOP_START
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
+            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+            dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case YUV444:
+        {
+            //!!! not done yet - this is a copy of RGB_888
+            LOOP_START
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
+            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+            dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case YUV422:
+        {
+            //!!! not done yet - this is a copy of RGB_888
+            LOOP_START
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
+            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+            dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case YUV421:
+        {
+            //!!! not done yet - this is a copy of RGB_888
+            LOOP_START
+            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
+            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+            dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
         }
 
         case NUM_OPTIONS: break;
@@ -2068,10 +2239,6 @@ void QEImage::setFormatOption( formatOptions formatOptionIn )
 
     // Save the option
     formatOption = formatOptionIn;
-
-    // Resize and rescale
-    // !!! why is this needed??? is formatOption used by the video widget?
-    setImageBuff();
 }
 
 QEImage::formatOptions QEImage::getFormatOption()
@@ -2825,12 +2992,23 @@ double QEImage::maxPixelValue()
 {
     switch( formatOption )
     {
-        default:
-        case GREY8:  return (1<<8)-1;
-        case GREY16: return (1<<16)-1;
-        case GREY12: return (1<<12)-2;
-        case RGB_888:return (1<<8)-1;
+        case NUM_OPTIONS: // Included to avoid 'case not handled' compiler warning. This is better than a default as it will warn as unhandled types are added
+        case GREY8:   return (1<<8)-1;
+        case GREY12:  return (1<<12)-1;
+        case GREY16:  return (1<<16)-1;
+        case GREYN:   return (1<<(imageDataSize*8))-1;
+        case RGB_888: return (1<<8)-1;
+        case BAYER:   return (1<<8)-1; //???!!! not done yet probably correct
+        case RGB1:    return (1<<8)-1; //???!!! not done yet probably correct
+        case RGB2:    return (1<<8)-1; //???!!! not done yet probably correct
+        case RGB3:    return (1<<8)-1; //???!!! not done yet probably correct
+        case YUV444:  return (1<<8)-1; //???!!! not done yet probably correct
+        case YUV422:  return (1<<8)-1; //???!!! not done yet probably correct
+        case YUV421:  return (1<<8)-1; //???!!! not done yet probably correct
     }
+
+    // Avoid compilation warning (not sure why this is required as all cases are handled in switch.
+    return (1<<8)-1;
 }
 
 // Return a pointer to pixel data in the original image data.
@@ -3437,21 +3615,90 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
     // Case the data to the correct size, then return the data as a floating point number.
     switch( formatOption )
     {
-        default:
+        case NUM_OPTIONS: // Included to avoid 'case not handled' compiler warning. This is better than a default as it will warn as unhandled types are added
         case GREY8:
             return *ptr;
-
-        case GREY16:
-            return *(unsigned short*)ptr;
 
         case GREY12:
             return *(unsigned short*)ptr;
 
+        case GREY16:
+            return *(unsigned short*)ptr;
+
+        case GREYN:
+            switch( imageDataSize )
+            {
+                default:
+                case 1: return *ptr;
+                case 2: return *(unsigned short*)ptr;
+            }
+
         case RGB_888:
-            // for RGB, average all colors
-            unsigned int pixel = *(unsigned int*)ptr;
-            return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case BAYER:
+            //!!! not done - copy of RGB_888
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case RGB1:
+            //!!! not done - copy of RGB_888
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case RGB2:
+            //!!! not done - copy of RGB_888
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case RGB3:
+            //!!! not done - copy of RGB_888
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case YUV444:
+            //!!! not done - copy of RGB_888
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case YUV422:
+            //!!! not done - copy of RGB_888
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case YUV421:
+            //!!! not done - copy of RGB_888
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
     }
+
+    // Avoid compilation warning (not sure why this is required as all cases are handled in switch statements.
+    return *ptr;
 }
 
 // Return a floating point number representing a pixel intensity given a pointer into an image data buffer.
@@ -3883,16 +4130,28 @@ void QEImage::showImageAboutDialog()
 
     about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( image.count() ));
     about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));
-    about.append( QString( "\nCA data elements per pixel (based on expected format): %1" ).arg( elementsPerPixel ));
     about.append( QString( "\nWidth (pixels) taken from dimension variables or width variable: %1" ).arg( imageBuffWidth ));
     about.append( QString( "\nHeight (pixels) taken from dimension variables or height variable: %1" ).arg( imageBuffHeight ));
 
-    static QString formatOptionNames[NUM_OPTIONS] = { "8 bit grey scale",  // GREY8
-                                                      "12 bit grey scale", // GREY12
-                                                      "16 bit grey scale", // GREY16
-                                                      "24 bit RGB" };      // RGB_888
+    QString name;
+    switch( formatOption )
+    {
+        case NUM_OPTIONS: // Included to avoid 'case not handled' compiler warning. This is better than a default as it will warn as unhandled types are added
+        case GREY8:   name = "8 bit grey scale";                                  break;
+        case GREY12:  name = "12 bit grey scale";                                 break;
+        case GREY16:  name = "16 bit grey scale";                                 break;
+        case GREYN:   name = "Grey scale, depth determined by data element size"; break;
+        case RGB_888: name = "24 bit RGB";                                        break;
+        case BAYER:   name = "8 bit Bayer";                                       break;
+        case RGB1:    name = "???";                                               break;
+        case RGB2:    name = "???";                                               break;
+        case RGB3:    name = "???";                                               break;
+        case YUV444:  name = "???bit YUV444";                                     break;
+        case YUV422:  name = "???bit YUV422";                                     break;
+        case YUV421:  name = "???bit YUV421";                                     break;
+    }
 
-    about.append( QString( "\nExpected format: " ).append( formatOptionNames[formatOption] ));
+    about.append( QString( "\nExpected format: " ).append( name ));
 
     about.append( "\n\nFirst bytes of raw image data:\n   ");
     if( image.isEmpty() )
