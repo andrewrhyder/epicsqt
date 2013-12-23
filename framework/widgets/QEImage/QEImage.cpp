@@ -131,6 +131,8 @@ void QEImage::setup() {
     receivedImageSize = 0;
     previousMessageText = "";
 
+    displayMarkups = false;
+
     // Prepare to interact with whatever application is hosting this widget.
     // For example, the QEGui application can host docks and toolbars for QE widgets
     if( isProfileDefined() )
@@ -694,13 +696,24 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
-        // QCa creation occured, but no connection for display is required here.
+        // Connect to targeting variables
         case TARGET_X_VARIABLE:
         case TARGET_Y_VARIABLE:
 
         case BEAM_X_VARIABLE:
         case BEAM_Y_VARIABLE:
 
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setTargeting( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+        // QCa creation occured, but no connection for display is required here.
         case PROFILE_H_ARRAY:
         case PROFILE_V_ARRAY:
         case PROFILE_LINE_ARRAY:
@@ -937,7 +950,7 @@ void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, 
             QRect scaledArea = roiInfo[N].getArea();                                                  \
             scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
             scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );    \
-            videoWidget->markupRegionValueChange( N, scaledArea );                                    \
+            videoWidget->markupRegionValueChange( N, scaledArea, displayMarkups );                    \
         }                                                                                             \
         break;
 
@@ -991,23 +1004,23 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         {
             case PROFILE_H_VARIABLE:
                 hSliceY = value;
-                videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ) );
+                videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ), displayMarkups );
                 break;
 
             case PROFILE_V_VARIABLE:
                 vSliceX = value;
-                videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ) );
+                videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ), displayMarkups );
                 break;
 
-#define USE_PROFILE_DATA( SET_NAME )                                                                        \
-                lineProfileInfo.SET_NAME( value );                                                          \
-                if( lineProfileInfo.getStatus() )                                                           \
-                {                                                                                           \
-                    QRect scaledArea = lineProfileInfo.getArea();                                           \
-                    scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );          \
-                    scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );  \
-                    videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight() ); \
-                }                                                                                           \
+#define USE_PROFILE_DATA( SET_NAME )                                                                                        \
+                lineProfileInfo.SET_NAME( value );                                                                          \
+                if( lineProfileInfo.getStatus() )                                                                           \
+                {                                                                                                           \
+                    QRect scaledArea = lineProfileInfo.getArea();                                                           \
+                    scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );                          \
+                    scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );                  \
+                    videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups ); \
+                }                                                                                                           \
                 break;
             case LINE_PROFILE_X1_VARIABLE: USE_PROFILE_DATA( setX1 );
             case LINE_PROFILE_Y1_VARIABLE: USE_PROFILE_DATA( setY1 );
@@ -1015,6 +1028,47 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
             case LINE_PROFILE_Y2_VARIABLE: USE_PROFILE_DATA( setY2 );
 
                 break;
+        }
+    }
+}
+
+/*
+    Update the target and beam position markers if any.
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setTargeting( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+{
+    // If invalid, mark the appropriate profile info as not present
+    if( alarmInfo.isInvalid() )
+    {
+        switch( variableIndex )
+        {
+            case TARGET_X_VARIABLE: targetInfo.clearX();  break;
+            case TARGET_Y_VARIABLE: targetInfo.clearY();  break;
+            case BEAM_X_VARIABLE:   beamInfo.clearX();    break;
+            case BEAM_Y_VARIABLE:   beamInfo.clearX();    break;
+        }
+    }
+
+    // Good data. Save the target and beam data (and note it is present) then if the
+    // markup is visible, update it
+    else
+    {
+#define USE_TARGETING_DATA( VAR, SET_NAME, USE_NAME )                            \
+        VAR.SET_NAME( value );                                                   \
+        if(VAR.getStatus() )                                                     \
+        {                                                                        \
+            QPoint scaledPoint = videoWidget->scaleImagePoint( VAR.getPoint() ); \
+            videoWidget->USE_NAME( scaledPoint, displayMarkups );                \
+        }                                                                        \
+        break;
+
+        switch( variableIndex )
+        {
+            case TARGET_X_VARIABLE:  USE_TARGETING_DATA( targetInfo, setX, markupTargetValueChange )
+            case TARGET_Y_VARIABLE:  USE_TARGETING_DATA( targetInfo, setY, markupTargetValueChange )
+            case BEAM_X_VARIABLE:    USE_TARGETING_DATA( beamInfo, setX, markupBeamValueChange )
+            case BEAM_Y_VARIABLE:    USE_TARGETING_DATA( beamInfo, setY, markupBeamValueChange )
         }
     }
 }
@@ -2414,6 +2468,17 @@ bool QEImage::getFullContextMenu()
     return fullContextMenu;
 }
 
+// Display all markups for which there is data available.
+void QEImage::setDisplayMarkups( bool displayMarkupsIn )
+{
+    displayMarkups = displayMarkupsIn;
+}
+
+bool QEImage::getDisplayMarkups()
+{
+    return displayMarkups;
+}
+
 //=================================================================================================
 
 void QEImage::panModeClicked()
@@ -2633,35 +2698,35 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_TARGET:
                 {
-                    target = point1;
+                    targetInfo.setPoint( point1 );
 
                     // Write the target variables.
                     QEInteger *qca;
                     qca = (QEInteger*)getQcaItem( TARGET_X_VARIABLE );
-                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( target.x() ));
+                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( targetInfo.getPoint().x() ));
 
                     qca = (QEInteger*)getQcaItem( TARGET_Y_VARIABLE );
-                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
+                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( targetInfo.getPoint().y() ));
 
                     // Display textual info
-                    infoUpdateTarget( target.x(), target.y() );
+                    infoUpdateTarget( targetInfo.getPoint().x(), targetInfo.getPoint().y() );
                 }
                 break;
 
             case imageMarkup::MARKUP_ID_BEAM:
                 {
-                    beam = point1;
+                    beamInfo.setPoint( point1 );
 
                     // Write the beam variables.
                     QEInteger *qca;
                     qca = (QEInteger*)getQcaItem( BEAM_X_VARIABLE );
-                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beam.x() ));
+                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beamInfo.getPoint().x() ));
 
                     qca = (QEInteger*)getQcaItem( BEAM_Y_VARIABLE );
-                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beam.y() ));
+                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beamInfo.getPoint().y() ));
 
                     // Display textual info
-                    infoUpdateBeam( beam.x(), beam.y() );
+                    infoUpdateBeam( beamInfo.getPoint().x(), beamInfo.getPoint().y() );
                 }
                 break;
 

@@ -131,3 +131,9 @@ void markupBeam::scaleSpecific( const double xScale, const double yScale, const 
     pos.setX( pos.x() * xScale );
     pos.setY( pos.y() * yScale );
 }
+
+void markupBeam::nonInteractiveUpdate( QPoint p1, QPoint )
+{
+    pos = p1;
+    setArea();
+}

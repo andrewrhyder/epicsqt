@@ -93,6 +93,34 @@ class areaInfo
         bool haveY2;
 };
 
+// Class to keep track of a point such as beam or target information
+// As data arrives, this class is used to record it.
+class pointInfo
+{
+    public:
+        // Construction
+        pointInfo() { haveX = false; haveY = false; }
+
+        // Set elements
+        void setX( long x ) { p.setX( x ); haveX = true; }
+        void setY( long y ) { p.setY( y ); haveY = true; }
+
+        void setPoint( QPoint pIn ) { p = pIn; haveX = true; haveY = true; }
+
+        // Clear elements (invalid data)
+        void clearX() { haveX = false; }
+        void clearY() { haveY = false; }
+
+        // Get ROI info
+        bool getStatus() { return haveX && haveY; }
+        QPoint getPoint() { return p; }
+
+    private:
+        QPoint p;
+        bool haveX;
+        bool haveY;
+};
+
 
 class QEPLUGINLIBRARYSHARED_EXPORT QEImage : public QFrame, public QEWidget, public imageInfo/*, mpegSource*/ {
     Q_OBJECT
@@ -242,14 +270,17 @@ public:
     void setFullContextMenu( bool fullContextMenuIn );                  ///< Access function for #fullContextMenu property - refer to #fullContextMenu property for details
     bool getFullContextMenu();                                          ///< Access function for #fullContextMenu property - refer to #fullContextMenu property for details
 
-    void setEnableProfilePresentation( bool enableProfilePresentationIn );     ///< Access function for #fullContextMenu property - refer to #enableProfilePresentation property for details
-    bool getEnableProfilePresentation();                                       ///< Access function for #fullContextMenu property - refer to #enableProfilePresentation property for details
+    void setEnableProfilePresentation( bool enableProfilePresentationIn );     ///< Access function for #enableProfilePresentation property - refer to #enableProfilePresentation property for details
+    bool getEnableProfilePresentation();                                       ///< Access function for #enableProfilePresentation property - refer to #enableProfilePresentation property for details
 
-    void setEnableHozSlicePresentation( bool enableHozSlicePresentationIn );   ///< Access function for #fullContextMenu property - refer to #enableHozSlicePresentation property for details
-    bool getEnableHozSlicePresentation();                                      ///< Access function for #fullContextMenu property - refer to #enableHozSlicePresentation property for details
+    void setEnableHozSlicePresentation( bool enableHozSlicePresentationIn );   ///< Access function for #enableHozSlicePresentation property - refer to #enableHozSlicePresentation property for details
+    bool getEnableHozSlicePresentation();                                      ///< Access function for #enableHozSlicePresentation property - refer to #enableHozSlicePresentation property for details
 
-    void setEnableVertSlicePresentation( bool enableVertSlicePresentationIn ); ///< Access function for #fullContextMenu property - refer to #enableVertSlicePresentation property for details
-    bool getEnableVertSlicePresentation();                                     ///< Access function for #fullContextMenu property - refer to #enableVertSlicePresentation property for details
+    void setEnableVertSlicePresentation( bool enableVertSlicePresentationIn ); ///< Access function for #enableVertSlicePresentation property - refer to #enableVertSlicePresentation property for details
+    bool getEnableVertSlicePresentation();                                     ///< Access function for #enableVertSlicePresentation property - refer to #enableVertSlicePresentation property for details
+
+    void setDisplayMarkups( bool displayMarkupsIn );                    ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
+    bool getDisplayMarkups();                                           ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
 
   protected:
     QEIntegerFormatting integerFormatting;   // Integer formatting options.
@@ -295,6 +326,7 @@ private slots:
     void setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
+    void setTargeting( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
     // Menu choice slots
     void vSliceSelectModeClicked();
@@ -412,6 +444,8 @@ public slots:
 
     void presentControls();
 
+    bool displayMarkups;
+
     // Button widgets
     QPushButton* pauseButton;
     QPushButton* saveButton;
@@ -495,8 +529,8 @@ public slots:
     QPoint selectedArea4Point1;
     QPoint selectedArea4Point2;
 
-    QPoint target;
-    QPoint beam;
+    pointInfo targetInfo;
+    pointInfo beamInfo;
 
     bool haveVSliceX;
     bool haveHSliceY;
@@ -1081,6 +1115,12 @@ public:
     /// If true, the information area willl be brief (one row)
     ///
     Q_PROPERTY(bool briefInfoArea READ getBriefInfoArea WRITE setBriefInfoArea)
+
+    /// If true, all markups for which there is data available will be displayed.
+    /// If false, markups will only be displayed when a user interacts with the image.
+    /// For example, if true and target variables are defined a target position markup will be displayed as soon as target position data is read.
+    /// If false, the target position markup will only be displayed when in target selection mode and the user selects a point in the image.
+    Q_PROPERTY(bool displayMarkups READ getDisplayMarkups WRITE setDisplayMarkups)
 
 //    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
 //    Q_PROPERTY(QString URL READ getURL WRITE setURL)
