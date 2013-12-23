@@ -343,7 +343,7 @@ bool imageMarkup::markupMouseReleaseEvent ( QMouseEvent*, bool panning  )
 
 // A region of interest value has changed.
 // Update a markup if required
-void imageMarkup::markupRegionValueChange( int areaIndex, QRect area )
+void imageMarkup::markupRegionValueChange( int areaIndex, QRect area, bool displayMarkups )
 {
     int region;
     switch( areaIndex )
@@ -355,38 +355,58 @@ void imageMarkup::markupRegionValueChange( int areaIndex, QRect area )
         case 3:  region = MARKUP_ID_REGION4; break;
     }
 
-    markupValueChange( region, area.topLeft(), area.bottomRight() );
+    markupValueChange( region, displayMarkups, area.topLeft(), area.bottomRight() );
 }
 
 // A horizontal profile value has changed.
 // Update the markup
-void imageMarkup::markupHProfileChange( int y )
+void imageMarkup::markupHProfileChange( int y, bool displayMarkups )
 {
-    markupValueChange( MARKUP_ID_H_SLICE, QPoint( 0, y ) );
+    markupValueChange( MARKUP_ID_H_SLICE, displayMarkups, QPoint( 0, y ) );
 }
 
 // A vertical profile value has changed.
 // Update the markup
-void imageMarkup::markupVProfileChange( int x )
+void imageMarkup::markupVProfileChange( int x, bool displayMarkups )
 {
-    markupValueChange( MARKUP_ID_V_SLICE, QPoint( x, 0 ) );
+    markupValueChange( MARKUP_ID_V_SLICE, displayMarkups, QPoint( x, 0 ) );
 }
 
 // An arbitrary line profile value has changed.
 // Update the markup
-void imageMarkup::markupLineProfileChange( QPoint start, QPoint end )
+void imageMarkup::markupLineProfileChange( QPoint start, QPoint end, bool displayMarkups )
 {
-    markupValueChange( MARKUP_ID_LINE, start, end );
+    markupValueChange( MARKUP_ID_LINE, displayMarkups, start, end );
+}
+
+// A target value has changed.
+// Update markup if required
+void imageMarkup::markupTargetValueChange( QPoint point, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_TARGET, displayMarkups, point );
+}
+
+// A beam position value has changed.
+// Update markup if required
+void imageMarkup::markupBeamValueChange( QPoint point, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_BEAM, displayMarkups, point );
 }
 
 // A markup related value has changed.
 // Update any markup if required.
-void imageMarkup::markupValueChange( int markup, QPoint p1, QPoint p2 )
+void imageMarkup::markupValueChange( int markup, bool displayMarkups, QPoint p1, QPoint p2 )
 {
     // If the markup is active (being dragged, for instance) then don't fiddle with it.
     if( markup == activeItem )
     {
         return;
+    }
+
+    // If markup should now be visible, set it visible
+    if( displayMarkups )
+    {
+        items[markup]->visible = true;
     }
 
     // Initial area to update

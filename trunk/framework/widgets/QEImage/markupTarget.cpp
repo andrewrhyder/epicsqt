@@ -119,3 +119,9 @@ void markupTarget::scaleSpecific( const double xScale, const double yScale, cons
     pos.setX( pos.x() * xScale );
     pos.setY( pos.y() * yScale );
 }
+
+void markupTarget::nonInteractiveUpdate( QPoint p1, QPoint )
+{
+    pos = p1;
+    setArea();
+}

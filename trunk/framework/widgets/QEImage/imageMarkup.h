@@ -112,11 +112,13 @@ public:
 
     bool showMarkupMenu( const QPoint& pos, const QPoint& globalPos );// Show the markup menu if required
 
-    void markupRegionValueChange( int areaIndex, QRect area );  // Region of interest data has changed. Change markups to match
-    void markupHProfileChange( int y );                         // Horizontal profile data has changed. Change markups to match
-    void markupVProfileChange( int y );                         // Horizontal profile data has changed. Change markups to match
-    void markupLineProfileChange( QPoint start, QPoint end );   // Arbitrary profile data has changed. Change markups to match
-    void markupValueChange( int markup, QPoint p1, QPoint p2 = QPoint() ); // A markup related value has changed. Change markups to match
+    void markupRegionValueChange( int areaIndex, QRect area, bool displayMarkups );  // Region of interest data has changed. Change markups to match
+    void markupHProfileChange( int y, bool displayMarkups );                         // Horizontal profile data has changed. Change markups to match
+    void markupVProfileChange( int x, bool displayMarkups );                         // Horizontal profile data has changed. Change markups to match
+    void markupLineProfileChange( QPoint start, QPoint end, bool displayMarkups );   // Arbitrary profile data has changed. Change markups to match
+    void markupTargetValueChange( QPoint point, bool displayMarkups );               // Target position data has changed. Change markup to match
+    void markupBeamValueChange( QPoint point, bool displayMarkups );                 // Beam position data has changed. Change markup to match
+    void markupValueChange( int markup, bool displayMarkups, QPoint p1, QPoint p2 = QPoint() ); // A markup related value has changed. Change markups to match
 
     // The following are only public so they may be accessed by (internal) markup items.
     QVector<markupItem*> items;                                 // List of markup items
