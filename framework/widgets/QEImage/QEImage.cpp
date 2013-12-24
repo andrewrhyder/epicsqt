@@ -788,14 +788,33 @@ void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTi
     formatOptions previousFormatOption = formatOption;
 
     // Update image format
-    if     ( !text.compare( "Mono8" ) )   formatOption = GREYN;
-    else if( !text.compare( "Bayer" ) )   formatOption = BAYER;
-    else if( !text.compare( "RGB1" ) )    formatOption = RGB1;
-    else if( !text.compare( "RGB2" ) )    formatOption = RGB2;
-    else if( !text.compare( "RGB3" ) )    formatOption = RGB3;
-    else if( !text.compare( "YUV444" ) )  formatOption = YUV444;
-    else if( !text.compare( "YUV422" ) )  formatOption = YUV422;
-    else if( !text.compare( "YUV421" ) )  formatOption = YUV421;
+    // Area detector formats
+    if     ( !text.compare( "Mono" ) )        formatOption = GREY8;
+    else if( !text.compare( "Bayer" ) )        formatOption = BAYER;
+    else if( !text.compare( "RGB1" ) )         formatOption = RGB1;
+    else if( !text.compare( "RGB2" ) )         formatOption = RGB2;
+    else if( !text.compare( "RGB3" ) )         formatOption = RGB3;
+    else if( !text.compare( "YUV444" ) )       formatOption = YUV444;
+    else if( !text.compare( "YUV422" ) )       formatOption = YUV422;
+    else if( !text.compare( "YUV421" ) )       formatOption = YUV421;
+
+    // Manta formats
+    else if( !text.compare( "Mono8" ) )        formatOption = GREY8;
+    else if( !text.compare( "Mono10" ) )       formatOption = GREY10;
+    else if( !text.compare( "Mono12" ) )       formatOption = GREY12;
+//    else if( !text.compare( "Mono12Packed" ) ) formatOption = GREY???;
+    else if( !text.compare( "Mono14" ) )       formatOption = GREY14;
+//    else if( !text.compare( "BayerGR8" ) )       formatOption = ???;
+//    else if( !text.compare( "BayerGR8" ) )       formatOption = ???;
+//    else if( !text.compare( "BayerRG8" ) )       formatOption = ???;
+//    else if( !text.compare( "BayerBG8" ) )       formatOption = ???;
+//    else if( !text.compare( "BayerBG10" ) )       formatOption = ???;
+//    else if( !text.compare( "BayerRG12" ) )       formatOption = ???;
+//    else if( !text.compare( "BayerGR12Packed" ) )       formatOption = ???;
+//    else if( !text.compare( "BayerRG12Packed" ) )       formatOption = ???;
+    else if( !text.compare( "RGB8Packed" ) )       formatOption = RGB8Packed;
+//    else if( !text.compare( "BGR8Packed" ) )       formatOption = ???;
+//    else if( !text.compare( "RGBA8Packed" ) )       formatOption = ???;
     else
     {
         // !!! warn unexpected format
@@ -1158,18 +1177,20 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     switch( formatOption )
     {
         case NUM_OPTIONS: // Included to avoid 'case not handled' compiler warning. This is better than a default as it will warn as unhandled types are added
-        case GREY8:   bytesPerPixel = 1; break;
-        case GREY12:  bytesPerPixel = 2; break;
-        case GREY16:  bytesPerPixel = 2; break;
-        case GREYN:   bytesPerPixel = imageDataSize; break;
-        case RGB_888: bytesPerPixel = 4; break;
-        case BAYER:   bytesPerPixel = 1; break;
-        case RGB1:    bytesPerPixel = 3; break;  //!!! not done yet
-        case RGB2:    bytesPerPixel = 3; break;  //!!! not done yet
-        case RGB3:    bytesPerPixel = 3; break;  //!!! not done yet
-        case YUV444:  bytesPerPixel = 3; break;  //!!! not done yet
-        case YUV422:  bytesPerPixel = 3; break;  //!!! not done yet
-        case YUV421:  bytesPerPixel = 3; break;  //!!! not done yet
+        case GREY8:       bytesPerPixel = 1; break;
+        case GREY10:      bytesPerPixel = 2; break;
+        case GREY12:      bytesPerPixel = 2; break;
+        case GREY14:      bytesPerPixel = 2; break;
+        case GREY16:      bytesPerPixel = 2; break;
+        case RGB_888:     bytesPerPixel = 4; break;
+        case BAYER:       bytesPerPixel = 1; break;
+        case RGB1:        bytesPerPixel = 3; break;  //!!! not done yet
+        case RGB2:        bytesPerPixel = 3; break;  //!!! not done yet
+        case RGB3:        bytesPerPixel = 3; break;  //!!! not done yet
+        case YUV444:      bytesPerPixel = 3; break;  //!!! not done yet
+        case YUV422:      bytesPerPixel = 3; break;  //!!! not done yet
+        case YUV421:      bytesPerPixel = 3; break;  //!!! not done yet
+        case RGB8Packed:  bytesPerPixel = 3; break;
     }
 
     imageTime = time;
@@ -1512,17 +1533,19 @@ void QEImage::displayImage()
         case GREY8:
         {
             LOOP_START
-            unsigned char inPixel = dataIn[dataIndex*bytesPerPixel];
-            dataOut[buffIndex] = pixelLookup[inPixel];
+                // Pixel data is 8 bits wide - use it all
+                unsigned char inPixel = dataIn[dataIndex*imageDataSize];
+                dataOut[buffIndex] = pixelLookup[inPixel];
             LOOP_END
             break;
         }
 
-        case GREY16:
+        case GREY10:
         {
             LOOP_START
-            unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+1]);
-            dataOut[buffIndex] = pixelLookup[inPixel];
+                unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                // Pixel data is 10 bits wide - use the top 8 bits
+                dataOut[buffIndex] = pixelLookup[(inPixel>>6)&0xff];
             LOOP_END
             break;
         }
@@ -1530,55 +1553,41 @@ void QEImage::displayImage()
         case GREY12:
         {
             LOOP_START
-            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex] = pixelLookup[(inPixel>>4)&0xff];
+                unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                // Pixel data is 12 bits wide - use the top 8 bits
+                dataOut[buffIndex] = pixelLookup[(inPixel>>4)&0xff];
             LOOP_END
             break;
         }
 
-        case GREYN:
+        case GREY14:
         {
-            switch( imageDataSize )
-            {
-                default:
-                case 1:
-                {
-                    LOOP_START
-                    unsigned char inPixel = dataIn[dataIndex*bytesPerPixel];
-                    dataOut[buffIndex] = pixelLookup[inPixel];
-                    LOOP_END
-                    break;
-                }
+            LOOP_START
+                unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                // Pixel data is 14 bits wide - use the top 8 bits
+                dataOut[buffIndex] = pixelLookup[(inPixel>>2)&0xff];
+            LOOP_END
+            break;
+        }
 
-                case 2:
-                {
-                    LOOP_START
-                    unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+1]);
-                    dataOut[buffIndex] = pixelLookup[inPixel];
-                    LOOP_END
-                    break;
-                }
-
-                case 4:
-                {
-                    LOOP_START
-                    unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                    dataOut[buffIndex] = pixelLookup[inPixel];
-                    LOOP_END
-                    break;
-                }
-            }
+        case GREY16:
+        {
+            LOOP_START
+                // Pixel data is 16 bits wide - use the top 8 bits
+                unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+1]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex] = pixelLookup[inPixel];
+            LOOP_END
             break;
         }
 
         case RGB_888:
         {
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
@@ -1587,11 +1596,11 @@ void QEImage::displayImage()
         {
             //!!! not done yet - this is a copy of RGB_888
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
@@ -1600,11 +1609,11 @@ void QEImage::displayImage()
         {
             //!!! not done yet - this is a copy of RGB_888
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
@@ -1613,11 +1622,11 @@ void QEImage::displayImage()
         {
             //!!! not done yet - this is a copy of RGB_888
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
@@ -1626,11 +1635,11 @@ void QEImage::displayImage()
         {
             //!!! not done yet - this is a copy of RGB_888
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
@@ -1639,11 +1648,11 @@ void QEImage::displayImage()
         {
             //!!! not done yet - this is a copy of RGB_888
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
@@ -1652,11 +1661,11 @@ void QEImage::displayImage()
         {
             //!!! not done yet - this is a copy of RGB_888
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
@@ -1665,11 +1674,25 @@ void QEImage::displayImage()
         {
             //!!! not done yet - this is a copy of RGB_888
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);// !!!???should be [dataIndex*imageDataSize]
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case RGB8Packed:
+        {
+            LOOP_START
+                unsigned char* inPixel = (unsigned char*)(&dataIn[dataIndex*imageDataSize]);
+                dataOut[buffIndex].p[0] = pixelLookup[*inPixel].p[0];
+                inPixel = &inPixel[bytesPerPixel];
+                dataOut[buffIndex].p[1] = pixelLookup[*inPixel].p[0];
+                inPixel = &inPixel[bytesPerPixel];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
@@ -2993,18 +3016,20 @@ double QEImage::maxPixelValue()
     switch( formatOption )
     {
         case NUM_OPTIONS: // Included to avoid 'case not handled' compiler warning. This is better than a default as it will warn as unhandled types are added
-        case GREY8:   return (1<<8)-1;
-        case GREY12:  return (1<<12)-1;
-        case GREY16:  return (1<<16)-1;
-        case GREYN:   return (1<<(imageDataSize*8))-1;
-        case RGB_888: return (1<<8)-1;
-        case BAYER:   return (1<<8)-1; //???!!! not done yet probably correct
-        case RGB1:    return (1<<8)-1; //???!!! not done yet probably correct
-        case RGB2:    return (1<<8)-1; //???!!! not done yet probably correct
-        case RGB3:    return (1<<8)-1; //???!!! not done yet probably correct
-        case YUV444:  return (1<<8)-1; //???!!! not done yet probably correct
-        case YUV422:  return (1<<8)-1; //???!!! not done yet probably correct
-        case YUV421:  return (1<<8)-1; //???!!! not done yet probably correct
+        case GREY8:      return (1<<8)-1;
+        case GREY10:     return (1<<10)-1;
+        case GREY12:     return (1<<12)-1;
+        case GREY14:     return (1<<12)-1;
+        case GREY16:     return (1<<16)-1;
+        case RGB_888:    return (1<<8)-1;
+        case BAYER:      return (1<<8)-1; //???!!! not done yet probably correct
+        case RGB1:       return (1<<8)-1; //???!!! not done yet probably correct
+        case RGB2:       return (1<<8)-1; //???!!! not done yet probably correct
+        case RGB3:       return (1<<8)-1; //???!!! not done yet probably correct
+        case YUV444:     return (1<<8)-1; //???!!! not done yet probably correct
+        case YUV422:     return (1<<8)-1; //???!!! not done yet probably correct
+        case YUV421:     return (1<<8)-1; //???!!! not done yet probably correct
+        case RGB8Packed: return (1<<8)-1;
     }
 
     // Avoid compilation warning (not sure why this is required as all cases are handled in switch.
@@ -3619,19 +3644,17 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
         case GREY8:
             return *ptr;
 
+        case GREY10:
+            return *(unsigned short*)ptr;
+
         case GREY12:
+            return *(unsigned short*)ptr;
+
+        case GREY14:
             return *(unsigned short*)ptr;
 
         case GREY16:
             return *(unsigned short*)ptr;
-
-        case GREYN:
-            switch( imageDataSize )
-            {
-                default:
-                case 1: return *ptr;
-                case 2: return *(unsigned short*)ptr;
-            }
 
         case RGB_888:
             {
@@ -3694,6 +3717,11 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
                 // for RGB, average all colors
                 unsigned int pixel = *(unsigned int*)ptr;
                 return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case RGB8Packed:
+            {
+                return ((*ptr) + ptr[bytesPerPixel] + ptr[bytesPerPixel*2] ) / 3;
             }
     }
 
@@ -4137,18 +4165,20 @@ void QEImage::showImageAboutDialog()
     switch( formatOption )
     {
         case NUM_OPTIONS: // Included to avoid 'case not handled' compiler warning. This is better than a default as it will warn as unhandled types are added
-        case GREY8:   name = "8 bit grey scale";                                  break;
-        case GREY12:  name = "12 bit grey scale";                                 break;
-        case GREY16:  name = "16 bit grey scale";                                 break;
-        case GREYN:   name = "Grey scale, depth determined by data element size"; break;
-        case RGB_888: name = "24 bit RGB";                                        break;
-        case BAYER:   name = "8 bit Bayer";                                       break;
-        case RGB1:    name = "???";                                               break;
-        case RGB2:    name = "???";                                               break;
-        case RGB3:    name = "???";                                               break;
-        case YUV444:  name = "???bit YUV444";                                     break;
-        case YUV422:  name = "???bit YUV422";                                     break;
-        case YUV421:  name = "???bit YUV421";                                     break;
+        case GREY8:       name = "8 bit grey scale";                                  break;
+        case GREY10:      name = "10 bit grey scale";                                 break;
+        case GREY12:      name = "12 bit grey scale";                                 break;
+        case GREY14:      name = "14 bit grey scale";                                 break;
+        case GREY16:      name = "16 bit grey scale";                                 break;
+        case RGB_888:     name = "24 bit RGB";                                        break;
+        case BAYER:       name = "8 bit Bayer";                                       break;
+        case RGB1:        name = "???";                                               break;
+        case RGB2:        name = "???";                                               break;
+        case RGB3:        name = "???";                                               break;
+        case YUV444:      name = "???bit YUV444";                                     break;
+        case YUV422:      name = "???bit YUV422";                                     break;
+        case YUV421:      name = "???bit YUV421";                                     break;
+        case RGB8Packed:  name = "RGB8Packed???";                                     break;
     }
 
     about.append( QString( "\nExpected format: " ).append( name ));

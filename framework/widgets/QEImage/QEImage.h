@@ -165,9 +165,10 @@ public:
     /// \enum formatOptions
     /// Video format options
     enum formatOptions{ GREY8,          ///< 8 bit grey scale
+                        GREY10,         ///< 12 bit grey scale
                         GREY12,         ///< 12 bit grey scale
+                        GREY14,         ///< 14 bit grey scale
                         GREY16,         ///< 16 bit grey scale
-                        GREYN,          ///< Grey scale, depth determined by data element size
                         RGB_888,        ///< 24 bit RGB
                         BAYER,          ///< ???
                         RGB1,           ///< ???
@@ -176,6 +177,8 @@ public:
                         YUV444,         ///< ???
                         YUV422,         ///< ???
                         YUV421,         ///< ???
+
+                        RGB8Packed,     ///< 24 Bit RGB
                         NUM_OPTIONS     // Must be last
                       };
 
