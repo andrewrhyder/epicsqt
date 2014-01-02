@@ -627,6 +627,18 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                     windowItem.title = titleElement.text();
                 }
 
+                // Read Size offset for a window or dock widget for size adjustment
+                QDomElement sizeXElement = windowElement.firstChildElement( "SizeX" );
+                if( !sizeXElement.isNull() )
+                {
+                    windowItem.winSize.setWidth(sizeXElement.text().toInt());
+                }
+                QDomElement sizeYElement = windowElement.firstChildElement( "SizeY" );
+                if( !sizeYElement.isNull() )
+                {
+                    windowItem.winSize.setHeight(sizeYElement.text().toInt());
+                }
+
                 // Add a window to the list of windows to create
                 windows.append( windowItem );
 
@@ -676,6 +688,18 @@ void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<win
                 if( !hiddenElement.isNull() )
                 {
                     windowItem.hidden = true;
+                }
+
+                // Read Size offset for a window or dock widget for size adjustment
+                QDomElement sizeXElement = dockElement.firstChildElement( "SizeX" );
+                if( !sizeXElement.isNull() )
+                {
+                    windowItem.winSize.setWidth(sizeXElement.text().toInt());
+                }
+                QDomElement sizeYElement = dockElement.firstChildElement( "SizeY" );
+                if( !sizeYElement.isNull() )
+                {
+                    windowItem.winSize.setHeight(sizeYElement.text().toInt());
                 }
 
                 windowItem.title = title;

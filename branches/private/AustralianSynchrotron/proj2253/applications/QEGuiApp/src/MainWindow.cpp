@@ -243,7 +243,7 @@ MainWindow::MainWindow(  QEGui* appIn, QString fileName, QString customisationNa
     {
         QEForm* gui = createGui( fileName, customisationName ); // A profile should have been published before calling this constructor.
         loadGuiIntoCurrentWindow( gui, true );
-        if (fileName == "RealEmpty.ui") centralWidget()->hide();
+        if (fileName.contains("RealEmpty.ui")) centralWidget()->hide();
     }
 
     // Setup to allow user to change focus to a window from the 'Windows' menu
@@ -1336,7 +1336,7 @@ void MainWindow::newMessage( QString msg, message_types type )
 //=================================================================================
 
 // Launching a new gui given a .ui filename
-MainWindow* MainWindow::launchGui( QString guiName, QString title, QString customisationName, QString actionName, QEActionRequests::Options createOption, bool hidden )
+MainWindow* MainWindow::launchGui( QString guiName, QString title, QString customisationName, QString actionName, QEActionRequests::Options createOption, bool hidden, QSize size )
 {
     // Get the profile published by whatever is launching a new GUI (probably a QEPushButton)
     ContainerProfile publishedProfile;
@@ -1419,6 +1419,9 @@ MainWindow* MainWindow::launchGui( QString guiName, QString title, QString custo
                 MainWindow* w = new MainWindow( app, guiName, customisationName, true, title ); // Note, profile should have been published by signal code
                 w->lockLayoutStatusChanged(getLockLayoutStatus());
                 w->show();
+                if (!size.isEmpty()){
+                    w->resize(size);
+                }
                 return w;
             }
 
@@ -1428,6 +1431,10 @@ MainWindow* MainWindow::launchGui( QString guiName, QString title, QString custo
                 MainWindow* w = new MainWindow( app, guiName, customisationName, false, title, this ); // Note, profile should have been published by signal code
                 w->lockLayoutStatusChanged(getLockLayoutStatus());
                 w->show();
+                if (!size.isEmpty()){
+                    w->resize(size);
+                }
+
                 return w;
             }
 
@@ -1440,7 +1447,8 @@ MainWindow* MainWindow::launchGui( QString guiName, QString title, QString custo
             {
                 // Create the gui and load it into a new dock
                 QEForm* gui = createGui( guiName, title, true );  // Note, customisationName is the title of the Dock
-                replaceMenuAction(actionName, loadGuiIntoNewDock( title, gui, hidden, false, createOption ));
+                replaceMenuAction(actionName, loadGuiIntoNewDock( title, gui, hidden, false, createOption,
+                        Qt::AllDockWidgetAreas, QDockWidget::AllDockWidgetFeatures, QRect(0,0, size.width(), size.height())));
 
                 return this;
             }
@@ -1510,10 +1518,10 @@ void  MainWindow::requestAction( const QEActionRequests & request )
                         window->creationOption == QEActionRequests::OptionLeftDockWindow ||
                         window->creationOption == QEActionRequests::OptionRightDockWindow ||
                         window->creationOption == QEActionRequests::OptionTopDockWindow){
-                        mw = mw->launchGui ( window->uiFile, window->title, "", request.getAction(), window->creationOption, window->hidden );
+                        mw = mw->launchGui ( window->uiFile, window->title, "", request.getAction(), window->creationOption, window->hidden, window->winSize );
                     }
                     else{
-                        mw = mw->launchGui ( window->uiFile, window->title, window->customisationName, request.getAction(), window->creationOption, window->hidden );
+                        mw = mw->launchGui ( window->uiFile, window->title, window->customisationName, request.getAction(), window->creationOption, window->hidden, window->winSize );
                     }
                     profile.removePriorityMacroSubstitutions();
                 }
@@ -3208,8 +3216,10 @@ QAction* MainWindow::createDockWidget(windowCustomisationMenuItem* item)
     QEForm* gui = createGui( item->getWindows().at(0).uiFile, customisationName, true );
 
     profile.removePriorityMacroSubstitutions();
+    QRect geo(0,0,item->getWindows().at(0).winSize.width(),item->getWindows().at(0).winSize.height());
 
-    return loadGuiIntoNewDock( item->getWindows().at(0).title, gui, hidden, false, createOption );
+    return loadGuiIntoNewDock( item->getWindows().at(0).title, gui, hidden, false, createOption,
+                               Qt::AllDockWidgetAreas, QDockWidget::AllDockWidgetFeatures, geo);
 }
 
 void MainWindow::userLevelChangedGeneral( userLevelTypes::userLevels level ){

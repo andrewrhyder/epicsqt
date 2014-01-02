@@ -176,7 +176,7 @@ private:
 
     void newMessage( QString msg, message_types type );     // Slot to receive a message to present to the user (typically from the QE framework)
     void createActionMaps ();
-    MainWindow* launchGui( QString guiName, QString title, QString customisationName, QString actionName, QEActionRequests::Options creationOption, bool hidden );  // Launch a new GUI given a .ui file name
+    MainWindow* launchGui( QString guiName, QString title, QString customisationName, QString actionName, QEActionRequests::Options creationOption, bool hidden, QSize size = QSize() );  // Launch a new GUI given a .ui file name
     QMenu* windowMenu;
     QMenu* recentMenu;
     QMenu* editMenu;

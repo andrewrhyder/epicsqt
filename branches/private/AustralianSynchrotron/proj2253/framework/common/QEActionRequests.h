@@ -150,6 +150,7 @@ public:
     QEActionRequests::Options creationOption;
     bool                      hidden;
     QString                   title;
+    QSize                     winSize;
 };
 
 // Class to hold component hosting instructions.
