@@ -31,8 +31,6 @@
 #include <QEArchiveInterface.h>
 #include <QColorDialog>
 
-#include <qwt_plot_curve.h>
-
 #include <QECommon.h>
 #include <QEScaling.h>
 #include <QEGraphic.h>
@@ -921,11 +919,14 @@ void QEStripChartItem::pvNameDropEvent (QDropEvent *event)
 bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
 {
    const QEvent::Type type = event->type ();
+   QMouseEvent* mouseEvent = NULL;
 
    switch (type) {
 
+      case QEvent::MouseButtonPress:
       case QEvent::MouseButtonDblClick:
-         if (obj == this->pvName) {
+         mouseEvent = static_cast<QMouseEvent *> (event);
+         if (obj == this->pvName && (mouseEvent->button () == Qt::LeftButton)) {
             // Leverage of existing context menu handler.
             //
             this->contextMenuSelected (QEStripChartNames::SCCM_PV_EDIT_NAME);
