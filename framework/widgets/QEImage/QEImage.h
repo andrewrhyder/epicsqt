@@ -161,25 +161,20 @@ public:
 public:
     // Property convenience functions
 
+    void setBitDepth( unsigned int bitDepthIn );                        ///< Access function for #bitDepth property - refer to #bitDepth property for details
+    unsigned int getBitDepth();                                         ///< Access function for #bitDepth property - refer to #bitDepth property for details
+
     // Video format options
     /// \enum formatOptions
     /// Video format options
-    enum formatOptions{ GREY8,          ///< 8 bit grey scale
-                        GREY10,         ///< 12 bit grey scale
-                        GREY12,         ///< 12 bit grey scale
-                        GREY14,         ///< 14 bit grey scale
-                        GREY16,         ///< 16 bit grey scale
-                        RGB_888,        ///< 24 bit RGB
-                        BAYER,          ///< ???
-                        RGB1,           ///< ???
-                        RGB2,           ///< ???
-                        RGB3,           ///< ???
-                        YUV444,         ///< ???
-                        YUV422,         ///< ???
-                        YUV421,         ///< ???
-
-                        RGB8Packed,     ///< 24 Bit RGB
-                        NUM_OPTIONS     // Must be last
+    enum formatOptions{ MONO,           ///< Grey scale
+                        BAYER,          ///< Colour (Bayer)
+                        RGB1,           ///< Colour (RGB ???)
+                        RGB2,           ///< Colour (RGB ???)
+                        RGB3,           ///< Colour (RGB ???)
+                        YUV444,         ///< Colour (???)
+                        YUV422,         ///< Colour (???)
+                        YUV421          ///< Colour (???)
                       };
 
     void setFormatOption( formatOptions formatOption );                 ///< Access function for #formatOption property - refer to #formatOption property for details
@@ -302,7 +297,7 @@ public:
 
     // Index for access to registered variables
     enum variableIndexes{ IMAGE_VARIABLE,
-                          FORMAT_VARIABLE,
+                          FORMAT_VARIABLE, BIT_DEPTH_VARIABLE,
                           WIDTH_VARIABLE, HEIGHT_VARIABLE,
                           NUM_DIMENSIONS_VARIABLE, DIMENSION_0_VARIABLE, DIMENSION_1_VARIABLE, DIMENSION_2_VARIABLE,
                           ROI1_X_VARIABLE, ROI1_Y_VARIABLE, ROI1_W_VARIABLE, ROI1_H_VARIABLE,
@@ -335,6 +330,7 @@ private slots:
     void setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height );
     void setImage( const QByteArray& image, unsigned long dataSize, QCaAlarmInfo&, QCaDateTime&, const unsigned int& );
     void setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& );
+    void setBitDepth( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setClipping( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
@@ -496,10 +492,12 @@ public slots:
 
     // Options
     formatOptions formatOption;
+    unsigned int bitDepth;
 
     // Image and related information
     QCaDateTime imageTime;
     unsigned long imageDataSize;    // Size of elements in image data (originating from CA data type)
+    unsigned long elementsPerPixel; // Number of data elements per pixel. Derived from image dimension 0 (only when there are three dimensions)
     unsigned long bytesPerPixel;    // Bytes in input data per pixel (imageDataSize * elementsPerPixel)
     QByteArray image;       // Buffer to hold original image data. WARNING To avoid expensive memory copies, data is
                             // generated using QByteArray::fromRawData(), where the raw data is the original CA update
@@ -597,9 +595,10 @@ public slots:
 
     struct rgbPixel
     {
-        unsigned char p[4]; // Alpha/R/G/B
+        unsigned char p[4]; // R/G/B/Alpha
     };
     const rgbPixel* getPixelTranslation();    // Get a table of translated pixel values (from pixelLookup) creating it first if required
+    QEImage::rgbPixel getFalseColor (const unsigned char value);    // Get a false color representation for an entry fro the color lookup table
 
     bool pixelLookupValid;  // pixelLookup is valid. It is invalid if anything that affects the translation changes, such as pixel format, local brigtness, etc
 
@@ -655,205 +654,210 @@ protected:
 
     VARIABLE_PROPERTY_ACCESS(2)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read the width of the image.
-    Q_PROPERTY(QString widthVariable READ getVariableName2Property WRITE setVariableName2Property)
+    /// This variable is used to read the bit depth of the image.
+    Q_PROPERTY(QString bitDepthVariable READ getVariableName2Property WRITE setVariableName2Property)
 
     VARIABLE_PROPERTY_ACCESS(3)
     /// EPICS variable name (CA PV).
-    /// This variable is used to read the height of the image.
-    Q_PROPERTY(QString heightVariable READ getVariableName3Property WRITE setVariableName3Property)
+    /// This variable is used to read the width of the image.
+    Q_PROPERTY(QString widthVariable READ getVariableName3Property WRITE setVariableName3Property)
 
     VARIABLE_PROPERTY_ACCESS(4)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read the height of the image.
+    Q_PROPERTY(QString heightVariable READ getVariableName4Property WRITE setVariableName4Property)
+
+    VARIABLE_PROPERTY_ACCESS(5)
     /// EPICS variable name (CA PV).
     /// This variable is used to read the number of area detector dimensions of the image.
     /// If used, this will be 2 (one element per pixel arranged by width and height) or
     /// 3 (multiple elements per pixel arranged by pixel, width and height)
-    Q_PROPERTY(QString dimensionsVariable READ getVariableName4Property WRITE setVariableName4Property)
+    Q_PROPERTY(QString dimensionsVariable READ getVariableName5Property WRITE setVariableName5Property)
 
-    VARIABLE_PROPERTY_ACCESS(5)
+    VARIABLE_PROPERTY_ACCESS(6)
     /// EPICS variable name (CA PV).
     /// This variable is used to read the first area detector dimension of the image.
     /// If there are 2 dimensions, this will be the image width.
     /// If there are 3 dimensions, this will be the number of elements per pixel.
-    Q_PROPERTY(QString dimension1Variable READ getVariableName5Property WRITE setVariableName5Property)
+    Q_PROPERTY(QString dimension1Variable READ getVariableName6Property WRITE setVariableName6Property)
 
-    VARIABLE_PROPERTY_ACCESS(6)
+    VARIABLE_PROPERTY_ACCESS(7)
     /// EPICS variable name (CA PV).
     /// This variable is used to read the second area detector dimension of the image.
     /// If there are 2 dimensions, this will be the image height.
     /// If there are 3 dimensions, this will be the image width.
-    Q_PROPERTY(QString dimension2Variable READ getVariableName6Property WRITE setVariableName6Property)
-
-    VARIABLE_PROPERTY_ACCESS(7)
-    /// EPICS variable name (CA PV).
-    /// This variable is used to read the third area detector dimension of the image.
-    /// If there are 3 dimensions, this will be the image height.
-    Q_PROPERTY(QString dimension3Variable READ getVariableName7Property WRITE setVariableName7Property)
+    Q_PROPERTY(QString dimension2Variable READ getVariableName7Property WRITE setVariableName7Property)
 
     VARIABLE_PROPERTY_ACCESS(8)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the first region of interest X position.
-    Q_PROPERTY(QString regionOfInterest1XVariable READ getVariableName8Property WRITE setVariableName8Property)
+    /// This variable is used to read the third area detector dimension of the image.
+    /// If there are 3 dimensions, this will be the image height.
+    Q_PROPERTY(QString dimension3Variable READ getVariableName8Property WRITE setVariableName8Property)
 
     VARIABLE_PROPERTY_ACCESS(9)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the first region of interest Y position.
-    Q_PROPERTY(QString regionOfInterest1YVariable READ getVariableName9Property WRITE setVariableName9Property)
+    /// This variable is used to write the first region of interest X position.
+    Q_PROPERTY(QString regionOfInterest1XVariable READ getVariableName9Property WRITE setVariableName9Property)
 
     VARIABLE_PROPERTY_ACCESS(10)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the first region of interest width.
-    Q_PROPERTY(QString regionOfInterest1WVariable READ getVariableName10Property WRITE setVariableName10Property)
+    /// This variable is used to write the first region of interest Y position.
+    Q_PROPERTY(QString regionOfInterest1YVariable READ getVariableName10Property WRITE setVariableName10Property)
 
     VARIABLE_PROPERTY_ACCESS(11)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the first region of interest height.
-    Q_PROPERTY(QString regionOfInterest1HVariable READ getVariableName11Property WRITE setVariableName11Property)
+    /// This variable is used to write the first region of interest width.
+    Q_PROPERTY(QString regionOfInterest1WVariable READ getVariableName11Property WRITE setVariableName11Property)
 
     VARIABLE_PROPERTY_ACCESS(12)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the second region of interest X position.
-    Q_PROPERTY(QString regionOfInterest2XVariable READ getVariableName12Property WRITE setVariableName12Property)
+    /// This variable is used to write the first region of interest height.
+    Q_PROPERTY(QString regionOfInterest1HVariable READ getVariableName12Property WRITE setVariableName12Property)
 
     VARIABLE_PROPERTY_ACCESS(13)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the second region of interest Y position.
-    Q_PROPERTY(QString regionOfInterest2YVariable READ getVariableName13Property WRITE setVariableName13Property)
+    /// This variable is used to write the second region of interest X position.
+    Q_PROPERTY(QString regionOfInterest2XVariable READ getVariableName13Property WRITE setVariableName13Property)
 
     VARIABLE_PROPERTY_ACCESS(14)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the second region of interest width.
-    Q_PROPERTY(QString regionOfInterest2WVariable READ getVariableName14Property WRITE setVariableName14Property)
+    /// This variable is used to write the second region of interest Y position.
+    Q_PROPERTY(QString regionOfInterest2YVariable READ getVariableName14Property WRITE setVariableName14Property)
 
     VARIABLE_PROPERTY_ACCESS(15)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the second region of interest height.
-    Q_PROPERTY(QString regionOfInterest2HVariable READ getVariableName15Property WRITE setVariableName15Property)
+    /// This variable is used to write the second region of interest width.
+    Q_PROPERTY(QString regionOfInterest2WVariable READ getVariableName15Property WRITE setVariableName15Property)
 
     VARIABLE_PROPERTY_ACCESS(16)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the third region of interest X position.
-    Q_PROPERTY(QString regionOfInterest3XVariable READ getVariableName16Property WRITE setVariableName16Property)
+    /// This variable is used to write the second region of interest height.
+    Q_PROPERTY(QString regionOfInterest2HVariable READ getVariableName16Property WRITE setVariableName16Property)
 
     VARIABLE_PROPERTY_ACCESS(17)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the third region of interest Y position.
-    Q_PROPERTY(QString regionOfInterest3YVariable READ getVariableName17Property WRITE setVariableName17Property)
+    /// This variable is used to write the third region of interest X position.
+    Q_PROPERTY(QString regionOfInterest3XVariable READ getVariableName17Property WRITE setVariableName17Property)
 
     VARIABLE_PROPERTY_ACCESS(18)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the third region of interest width.
-    Q_PROPERTY(QString regionOfInterest3WVariable READ getVariableName18Property WRITE setVariableName18Property)
+    /// This variable is used to write the third region of interest Y position.
+    Q_PROPERTY(QString regionOfInterest3YVariable READ getVariableName18Property WRITE setVariableName18Property)
 
     VARIABLE_PROPERTY_ACCESS(19)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the third region of interest height.
-    Q_PROPERTY(QString regionOfInterest3HVariable READ getVariableName19Property WRITE setVariableName19Property)
+    /// This variable is used to write the third region of interest width.
+    Q_PROPERTY(QString regionOfInterest3WVariable READ getVariableName19Property WRITE setVariableName19Property)
 
     VARIABLE_PROPERTY_ACCESS(20)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the fourth region of interest X position.
-    Q_PROPERTY(QString regionOfInterest4XVariable READ getVariableName20Property WRITE setVariableName20Property)
+    /// This variable is used to write the third region of interest height.
+    Q_PROPERTY(QString regionOfInterest3HVariable READ getVariableName20Property WRITE setVariableName20Property)
 
     VARIABLE_PROPERTY_ACCESS(21)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the fourth region of interest Y position.
-    Q_PROPERTY(QString regionOfInterest4YVariable READ getVariableName21Property WRITE setVariableName21Property)
+    /// This variable is used to write the fourth region of interest X position.
+    Q_PROPERTY(QString regionOfInterest4XVariable READ getVariableName21Property WRITE setVariableName21Property)
 
     VARIABLE_PROPERTY_ACCESS(22)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the fourth region of interest width.
-    Q_PROPERTY(QString regionOfInterest4WVariable READ getVariableName22Property WRITE setVariableName22Property)
+    /// This variable is used to write the fourth region of interest Y position.
+    Q_PROPERTY(QString regionOfInterest4YVariable READ getVariableName22Property WRITE setVariableName22Property)
 
     VARIABLE_PROPERTY_ACCESS(23)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the fourth region of interest height.
-    Q_PROPERTY(QString regionOfInterest4HVariable READ getVariableName23Property WRITE setVariableName23Property)
+    /// This variable is used to write the fourth region of interest width.
+    Q_PROPERTY(QString regionOfInterest4WVariable READ getVariableName23Property WRITE setVariableName23Property)
 
     VARIABLE_PROPERTY_ACCESS(24)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the selected target X position.
-    Q_PROPERTY(QString targetXVariable READ getVariableName24Property WRITE setVariableName24Property)
+    /// This variable is used to write the fourth region of interest height.
+    Q_PROPERTY(QString regionOfInterest4HVariable READ getVariableName24Property WRITE setVariableName24Property)
 
     VARIABLE_PROPERTY_ACCESS(25)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the selected target Y position.
-    Q_PROPERTY(QString targetYVariable READ getVariableName25Property WRITE setVariableName25Property)
+    /// This variable is used to write the selected target X position.
+    Q_PROPERTY(QString targetXVariable READ getVariableName25Property WRITE setVariableName25Property)
 
     VARIABLE_PROPERTY_ACCESS(26)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the selected beam X position.
-    Q_PROPERTY(QString beamXVariable READ getVariableName26Property WRITE setVariableName26Property)
+    /// This variable is used to write the selected target Y position.
+    Q_PROPERTY(QString targetYVariable READ getVariableName26Property WRITE setVariableName26Property)
 
     VARIABLE_PROPERTY_ACCESS(27)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the selected beam Y position.
-    Q_PROPERTY(QString beamYVariable READ getVariableName27Property WRITE setVariableName27Property)
+    /// This variable is used to write the selected beam X position.
+    Q_PROPERTY(QString beamXVariable READ getVariableName27Property WRITE setVariableName27Property)
 
     VARIABLE_PROPERTY_ACCESS(28)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write a 'trigger' to initiate movement of the target into the beam as defined by the target and beam X and Y positions.
-    Q_PROPERTY(QString targetTriggerVariable READ getVariableName28Property WRITE setVariableName28Property)
+    /// This variable is used to write the selected beam Y position.
+    Q_PROPERTY(QString beamYVariable READ getVariableName28Property WRITE setVariableName28Property)
 
     VARIABLE_PROPERTY_ACCESS(29)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector clipping on/off command.
-    Q_PROPERTY(QString clippingOnOffVariable READ getVariableName29Property WRITE setVariableName29Property)
+    /// This variable is used to write a 'trigger' to initiate movement of the target into the beam as defined by the target and beam X and Y positions.
+    Q_PROPERTY(QString targetTriggerVariable READ getVariableName29Property WRITE setVariableName29Property)
 
     VARIABLE_PROPERTY_ACCESS(30)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector clipping low level.
-    Q_PROPERTY(QString clippingLowVariable READ getVariableName30Property WRITE setVariableName30Property)
+    /// This variable is used to write the areadetector clipping on/off command.
+    Q_PROPERTY(QString clippingOnOffVariable READ getVariableName30Property WRITE setVariableName30Property)
 
     VARIABLE_PROPERTY_ACCESS(31)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector clipping high level.
-    Q_PROPERTY(QString clippingHighVariable READ getVariableName31Property WRITE setVariableName31Property)
+    /// This variable is used to write the areadetector clipping low level.
+    Q_PROPERTY(QString clippingLowVariable READ getVariableName31Property WRITE setVariableName31Property)
 
     VARIABLE_PROPERTY_ACCESS(32)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector horizontal profile.
-    Q_PROPERTY(QString profileHozVariable READ getVariableName32Property WRITE setVariableName32Property)
+    /// This variable is used to write the areadetector clipping high level.
+    Q_PROPERTY(QString clippingHighVariable READ getVariableName32Property WRITE setVariableName32Property)
 
     VARIABLE_PROPERTY_ACCESS(33)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile.
-    Q_PROPERTY(QString profileVertVariable READ getVariableName33Property WRITE setVariableName33Property)
+    /// This variable is used to write the areadetector horizontal profile.
+    Q_PROPERTY(QString profileHozVariable READ getVariableName33Property WRITE setVariableName33Property)
 
     VARIABLE_PROPERTY_ACCESS(34)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile start X.
-    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName34Property WRITE setVariableName34Property)
+    /// This variable is used to write the areadetector vertical profile.
+    Q_PROPERTY(QString profileVertVariable READ getVariableName34Property WRITE setVariableName34Property)
 
     VARIABLE_PROPERTY_ACCESS(35)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile start Y.
-    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName35Property WRITE setVariableName35Property)
+    /// This variable is used to write the areadetector arbitrary line profile start X.
+    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName35Property WRITE setVariableName35Property)
 
     VARIABLE_PROPERTY_ACCESS(36)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end X.
-    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName36Property WRITE setVariableName36Property)
+    /// This variable is used to write the areadetector arbitrary line profile start Y.
+    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName36Property WRITE setVariableName36Property)
 
     VARIABLE_PROPERTY_ACCESS(37)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end Y.
-    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName37Property WRITE setVariableName37Property)
+    /// This variable is used to write the areadetector arbitrary line profile end X.
+    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName37Property WRITE setVariableName37Property)
 
     VARIABLE_PROPERTY_ACCESS(38)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector horizontal profile array.
-    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName38Property WRITE setVariableName38Property)
+    /// This variable is used to write the areadetector arbitrary line profile end Y.
+    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName38Property WRITE setVariableName38Property)
 
     VARIABLE_PROPERTY_ACCESS(39)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile array.
-    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName39Property WRITE setVariableName39Property)
+    /// This variable is used to write the areadetector horizontal profile array.
+    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName39Property WRITE setVariableName39Property)
 
     VARIABLE_PROPERTY_ACCESS(40)
     /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector vertical profile array.
+    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName40Property WRITE setVariableName40Property)
+
+    VARIABLE_PROPERTY_ACCESS(41)
+    /// EPICS variable name (CA PV).
     /// This variable is used to write the areadetector arbitrary line profile array.
-    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName40Property WRITE setVariableName40Property)
+    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName41Property WRITE setVariableName41Property)
 
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
     /// These substitutions are applied to all the variable names.
@@ -960,7 +964,7 @@ public:
 // Widget specific properties
 public:
 
-    // Format options (8 bit grey scale, 32 bit color, etc)
+    // Format options (Mono, RGB, etc)
     Q_ENUMS(FormatOptions)
     /// Video format.
     /// EPICS data type size will typically be adequate for the number of bits required (one byte for 8 bits, 2 bytes for 12 and 16 bits), but can be larger (4 bytes for 24 bits.)
@@ -968,13 +972,26 @@ public:
 
     /// \enum FormatOptions
     /// User friendly enumerations for #formatOption property - refer to #formatOption property and #formatOptions enumeration for details.
-    enum FormatOptions { Grey_8   = QEImage::GREY8,     ///< 8 bit grey scale
-                         Grey_12  = QEImage::GREY12,    ///< 12 bit grey scale
-                         Grey_16  = QEImage::GREY16,    ///< 16 bit grey scale
-                         RGB      = QEImage::RGB_888 }; ///< 24 bit RGB
+    enum FormatOptions { Mono     = QEImage::MONO,      ///< Grey scale
+                         Bayer    = QEImage::BAYER,     ///< Colour (Bayer)
+                         rgb1     = QEImage::RGB1,      ///< Colour (24 bit RGB)
+                         rgb2     = QEImage::RGB2,      ///< Colour (??? bit RGB)
+                         rgb3     = QEImage::RGB3,      ///< Colour (??? bit RGB)
+                         yuv444   = QEImage::YUV444,    ///< Colour (???)
+                         yuv422   = QEImage::YUV422,    ///< Colour (???)
+                         yuv421   = QEImage::YUV421 };  ///< Colour (???)
 
     void setFormatOptionProperty( FormatOptions formatOption ){ setFormatOption( (QEImage::formatOptions)formatOption ); }  ///< Access function for #formatOption property - refer to #formatOption property for details
     FormatOptions getFormatOptionProperty(){ return (FormatOptions)getFormatOption(); }                                     ///< Access function for #formatOption property - refer to #formatOption property for details
+
+    // Mono format option bit depths
+    /// Bit depth.
+    /// Note, EPICS data type size will typically be adequate for the number of bits required (one byte for up to 8 bits, 2 bytes for up to 16 bits, etc),
+    /// but can be larger (for example, 4 bytes for 24 bits) and may be larger than nessesary (4 bytes for 8 bits).
+    Q_PROPERTY(unsigned int bitDepth READ getBitDepthProperty WRITE setBitDepthProperty)
+
+    void setBitDepthProperty( unsigned int bitDepth ){ setBitDepth( bitDepth ); }                                           ///< Access function for #bitDepth property - refer to #bitDepth property for details
+    unsigned int getBitDepthProperty(){ return getBitDepth(); }                                                             ///< Access function for #bitDepth property - refer to #bitDepth property for details
 
     /// If true, the option to select a vertical slice through the image will be available to the user.
     /// This will be used to generate a horizontal pixel profile, and write the position of the slice to the optional variable specified by the #profileVertVariable property.
