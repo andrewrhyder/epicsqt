@@ -86,7 +86,8 @@ void QEImage::setup() {
     initialVertScrollPos = 0;
     initScrollPosSet = false;
 
-    formatOption = GREY8;
+    formatOption = MONO;
+    bitDepth = 8;
 
     paused = false;
     infoUpdatePaused( paused );
@@ -115,7 +116,7 @@ void QEImage::setup() {
     isConnected = false;
 
     imageDataSize = 0;
-    elementsPerPixel = 0;
+    elementsPerPixel = 1;
     bytesPerPixel = 0;
 
     clippingOn = false;
@@ -123,12 +124,18 @@ void QEImage::setup() {
     clippingHigh = 0;
 
     pixelLookupValid = false;
+    pixelLookup.resize( 256*sizeof(rgbPixel) );
 
     appHostsControls = false;
     hostingAppAvailable = false;
 
     receivedImageSize = 0;
     previousMessageText = "";
+
+    displayMarkups = false;
+
+    // With so many variables involved, don't bother alterning the presentation of the widget when any one variable goes into alarm
+    setDisplayAlarmState( false );
 
     // Prepare to interact with whatever application is hosting this widget.
     // For example, the QEGui application can host docks and toolbars for QE widgets
@@ -219,11 +226,11 @@ void QEImage::setup() {
     graphicsLayout = new QGridLayout();
     graphicsLayout->addWidget( scrollArea,      0, 0 );
     graphicsLayout->addLayout( getInfoWidget(), 1, 0 );
-//    graphicsLayout->addWidget( vSliceLabel,    1, 1 );
+    graphicsLayout->addWidget( vSliceLabel,    1, 1 );
 //    graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
-//    graphicsLayout->addWidget( hSliceLabel,    2, 0 );
+    graphicsLayout->addWidget( hSliceLabel,    2, 0 );
 //    graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
-//    graphicsLayout->addWidget( profileLabel,   4, 0 );
+    graphicsLayout->addWidget( profileLabel,   4, 0 );
 //    graphicsLayout->addWidget( profileDisplay, 5, 0 );
 
 //    graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
@@ -336,6 +343,11 @@ void QEImage::setup() {
     // Image will not be presented until size is available
     imageBuffWidth = 0;
     imageBuffHeight = 0;
+
+    numDimensions = 0;
+    imageDimension0 = 0;
+    imageDimension1 = 0;
+    imageDimension2 = 0;
 
     // Simulate pan mode being selected
     panModeClicked();
@@ -470,7 +482,6 @@ void QEImage::presentControls()
     Implementation of QEWidget's virtual funtion to create the specific types of QCaObject required.
 */
 qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
-
     switch( variableIndex )
     {
         // Create the image item as a QEByteArray
@@ -479,16 +490,49 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
                 // Create the image item
                 QEByteArray* qca = new QEByteArray( getSubstitutedVariableName( variableIndex ), this, variableIndex );
 
-                // If we already have the image dimensions, update the image size we need here before the subscription
+                // If we already have the image dimensions (and the elements per pixel if required), update the image
+                // size we need here before the subscription.
                 // (we should have image dimensions as a connection is only established once these have been read)
-                if( imageBuffWidth && imageBuffHeight )
+                if( imageBuffWidth && imageBuffHeight && ( numDimensions !=3 || imageDimension0))
                 {
-                    qca->setRequestedElementCount(  imageBuffWidth * imageBuffHeight );
+                    // element count is at least width x height
+                    unsigned int elementCount = imageBuffWidth * imageBuffHeight;
+
+                    // Regardless of the souce of the width and height (either from width and height variables or from
+                    // the appropriate area detector dimension variables), if the number of area detector dimensions
+                    // is 3, then the first dimension is the number or elements per pixel so the element count needs to
+                    // be multiplied by the first area detector dimension.
+
+                    // It is possible for the image dimensions to change dynamically. For example to change from
+                    // 3 dimensions to 2. In this example, the first dimension may change from being the data elements
+                    // per pixel to being the image width before the 'number of dimensions' variable changes. This results
+                    // in a window where the first dimension is assumed to be the data elements per pixel (num dimensions is 3)
+                    // but it is actually the image width (much larger) this can result in crashes where a huge number of bytes
+                    // per pixel is assumed and data arrays are overrun. If the dimensions appear odd, 32 was chosen as being large enough to cater for the
+                    // largest number of elements per pixel. It is reasonable for image widths to be less than 32, so code must
+                    // still handle invalid bytes per pixel calculations.
+                    if( numDimensions == 3 && imageDimension0 && imageDimension0 <= 32 )
+                    {
+                        elementCount = elementCount * elementsPerPixel;
+                    }
+
+                    qca->setRequestedElementCount( elementCount );
                 }
                 return qca;
             }
 
-        // Create the width, height, target and beam, regions and profile and clipping items as a QEInteger
+        // Create the image format, image dimensions, target and beam, regions and profile and clipping items as a QEString
+        case FORMAT_VARIABLE:
+            return new QEString( getSubstitutedVariableName( variableIndex ), this, &stringFormatting, variableIndex );
+
+        // Create the image dimensions, target and beam, regions and profile, clipping items and other variables as a QEInteger
+        case BIT_DEPTH_VARIABLE:
+
+        case NUM_DIMENSIONS_VARIABLE:
+        case DIMENSION_0_VARIABLE:
+        case DIMENSION_1_VARIABLE:
+        case DIMENSION_2_VARIABLE:
+
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
 
@@ -573,9 +617,38 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
+        case FORMAT_VARIABLE:
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( stringChanged( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setFormat( const QString&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+
+        // Connect the bit depth variable
+        case BIT_DEPTH_VARIABLE:
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setBitDepth( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+
         // Connect the image dimension variables
         case WIDTH_VARIABLE:
         case HEIGHT_VARIABLE:
+        case NUM_DIMENSIONS_VARIABLE:
+        case DIMENSION_0_VARIABLE:
+        case DIMENSION_1_VARIABLE:
+        case DIMENSION_2_VARIABLE:
             if(  qca )
             {
                 QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
@@ -653,13 +726,24 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
             }
             break;
 
-        // QCa creation occured, but no connection for display is required here.
+        // Connect to targeting variables
         case TARGET_X_VARIABLE:
         case TARGET_Y_VARIABLE:
 
         case BEAM_X_VARIABLE:
         case BEAM_Y_VARIABLE:
 
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setTargeting( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+        // QCa creation occured, but no connection for display is required here.
         case PROFILE_H_ARRAY:
         case PROFILE_V_ARRAY:
         case PROFILE_LINE_ARRAY:
@@ -686,25 +770,163 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
     previousMessageText = "";
 }
 
+// Update the image dimensions (width and height) from the area detector dimension variables.
+// If an area detector dimension is available, then set up the width and height from the
+// appropriate area detector dimension variables if available.
+// This function is called when any area detector dimension related variable changes
+// Width and height will not be touched untill the number of dimensions is avaliable, and
+// will only be altered if there is a valid dimension.
+void QEImage::setWidthHeightFromDimensions()
+{
+    switch( numDimensions )
+    {
+        // 2 dimensions - one data element per pixel, dimensions are width x height
+        case 2:
+            if( imageDimension0 )
+            {
+                imageBuffWidth = imageDimension0;
+            }
+            if( imageDimension1 )
+            {
+                imageBuffHeight = imageDimension1;
+            }
+            break;
+
+        // 3 dimensions - multiple data elements per pixel, dimensions are pixel x width x height
+        case 3:
+            if( imageDimension1 )
+            {
+                imageBuffWidth = imageDimension1;
+            }
+            if( imageDimension2 )
+            {
+                imageBuffHeight = imageDimension2;
+            }
+            break;
+    }
+}
+
+/*
+    Update the image format from a variable.
+    This tends to take precedence over the format property simply as variable data arrives after all properties are set.
+    If the 'format' property is set later, then it be used.
+
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
+{
+    formatOptions previousFormatOption = formatOption;
+
+    // Update image format
+    // Area detector formats
+    if     ( !text.compare( "Mono" ) )         formatOption = MONO;
+    else if( !text.compare( "Bayer" ) )        formatOption = BAYER;
+    else if( !text.compare( "RGB1" ) )         formatOption = RGB1;
+    else if( !text.compare( "RGB2" ) )         formatOption = RGB2;
+    else if( !text.compare( "RGB3" ) )         formatOption = RGB3;
+    else if( !text.compare( "YUV444" ) )       formatOption = YUV444;
+    else if( !text.compare( "YUV422" ) )       formatOption = YUV422;
+    else if( !text.compare( "YUV421" ) )       formatOption = YUV421;
+    else
+    {
+        // !!! warn unexpected format
+    }
+
+    // Do nothing if no format change
+    if( previousFormatOption == formatOption)
+    {
+        return;
+    }
+
+    // Update the image.
+    // This is required if image data arrived before the format.
+    // The image data will be present, but will not have been used to update the image if the
+    // width and height and format were not available at the time of the image update.
+    displayImage();
+
+    // Display invalid if invalid
+    if( alarmInfo.isInvalid() )
+    {
+        //setImageInvalid()
+        // !!! not done
+    }
+}
+
 /*
     Update the image dimensions
     This is the slot used to recieve data updates from a QCaObject based class.
  */
 void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
 {
-    unsigned long previousElementCount = imageBuffWidth * imageBuffHeight;
+    bool dimensionChange = false;
+
+    // C/C++ not so smart assiging signed long value to an
+    // unsigned long value - ensure sensible.
+    unsigned long uValue = MAX( 0, value );
 
     // Update image size variable
     switch( variableIndex )
     {
         case WIDTH_VARIABLE:
-            // C/C++ not so smart assiging signed long value to an
-            // unsigned long value - ensure sensible.
-            imageBuffWidth = MAX( 0, value );
+            if( imageBuffWidth != uValue )
+            {
+                dimensionChange = true;
+                imageBuffWidth = uValue;
+            }
             break;
 
         case HEIGHT_VARIABLE:
-            imageBuffHeight = MAX( 0, value );
+            if( imageBuffHeight != uValue )
+            {
+                dimensionChange = true;
+                imageBuffHeight = uValue;
+            }
+            break;
+
+        case NUM_DIMENSIONS_VARIABLE:
+            if( numDimensions != uValue )
+            {
+                dimensionChange = true;
+                switch( uValue )
+                {
+                    case 0:
+                        numDimensions = uValue;
+                        break;
+
+                    case 2:
+                    case 3:
+                        numDimensions = uValue;
+                        setWidthHeightFromDimensions();
+                        break;
+                }
+            }
+            break;
+
+        case DIMENSION_0_VARIABLE:
+            if( imageDimension0 != uValue )
+            {
+                dimensionChange = true;
+                imageDimension0 = uValue;
+                setWidthHeightFromDimensions();
+            }
+            break;
+
+        case DIMENSION_1_VARIABLE:
+            if( imageDimension1 != uValue )
+            {
+                dimensionChange = true;
+                imageDimension1 = uValue;
+                setWidthHeightFromDimensions();
+            }
+            break;
+
+        case DIMENSION_2_VARIABLE:
+            if( imageDimension2 != uValue )
+            {
+                dimensionChange = true;
+                imageDimension2 = uValue;
+                setWidthHeightFromDimensions();
+            }
             break;
     }
 
@@ -719,18 +941,65 @@ void QEImage::setDimension( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     // width and height were not suitable at the time of the image update
     displayImage();
 
-    // If the image size has changed and we now have both dimensions (if either
-    // is zero imageBuffWidth * imageBuffHeight will be zero), update the image
+    // If the image size or data array dimensions has changed and we have good dimensions, update the image
     // variable connection to reflect the elements we now need.
-    unsigned long elementCount = imageBuffWidth * imageBuffHeight;
-    if( elementCount && (elementCount != previousElementCount ))
+    // If an image dimensions change dynamically we may pass through a period where a set of dimensions that are nonsense. For example,
+    // if the number of dimensions is changing from 3 to 2, this means the first dimension will change from being the data elements
+    // per pixel to the image width. If the update for the first dimension arrives first, the number of dimensions will still be 3 (implying the
+    // first dimension is the number of data elements per pixel, but the the first dimension will be the image width.
+    // If the dimensions appear nonsense, then don't force an image update. Note, this won't stop an image update from occuring, so
+    // the image update must cope with odd dimensions, but just no point forcing it here.
+    // The test for good dimensions is to check if a width and height is present, and (if the first dimension is expected to be the number
+    // of data elements per pixel, then is is less than 32. 32 was chosen as being large enough for any pixel format (for example 32 bits
+    // per color for 4 Bayer RGBG colours) but less than most image widths. This test doesn't have to be perfect since the image update must
+    // be able to cope with an invalid set of dimensions as mentioned above.
+    unsigned long pixelCount = imageBuffWidth * imageBuffHeight;
+    if( pixelCount && dimensionChange && (( numDimensions != 3 ) || ( imageDimension0 < 32 ) ) )
     {
+        if( numDimensions == 3 )
+        {
+            elementsPerPixel = imageDimension0;
+        }
+        else
+        {
+            elementsPerPixel = 1;
+        }
+
         // Clear any current image as the data in it is not our own and will be lost when the connection is re-established
         image.clear();
 
         // Re-establish the image connection. This will set request the appropriate array size.
         establishConnection( IMAGE_VARIABLE );
     }
+
+    // Display invalid if invalid
+    if( alarmInfo.isInvalid() )
+    {
+        //setImageInvalid()
+        // !!! not done
+    }
+}
+
+/*
+    Update the image dimensions
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setBitDepth( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+{
+    // Sanity check - Only deal with bit depth
+    if( variableIndex != BIT_DEPTH_VARIABLE)
+    {
+        return;
+    }
+
+    // Update the depth
+    setBitDepth( value );
+
+    // Update the image.
+    // This is required if image data for an enlarged image arrived before the width and height.
+    // The image data will be present, but will not have been used to update the image if the
+    // width and height were not suitable at the time of the image update
+    displayImage();
 
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
@@ -828,7 +1097,7 @@ void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, 
             QRect scaledArea = roiInfo[N].getArea();                                                  \
             scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
             scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );    \
-            videoWidget->markupRegionValueChange( N, scaledArea );                                    \
+            videoWidget->markupRegionValueChange( N, scaledArea, displayMarkups );                    \
         }                                                                                             \
         break;
 
@@ -882,23 +1151,23 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         {
             case PROFILE_H_VARIABLE:
                 hSliceY = value;
-                videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ) );
+                videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ), displayMarkups );
                 break;
 
             case PROFILE_V_VARIABLE:
                 vSliceX = value;
-                videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ) );
+                videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ), displayMarkups );
                 break;
 
-#define USE_PROFILE_DATA( SET_NAME )                                                                        \
-                lineProfileInfo.SET_NAME( value );                                                          \
-                if( lineProfileInfo.getStatus() )                                                           \
-                {                                                                                           \
-                    QRect scaledArea = lineProfileInfo.getArea();                                           \
-                    scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );          \
-                    scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );  \
-                    videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight() ); \
-                }                                                                                           \
+#define USE_PROFILE_DATA( SET_NAME )                                                                                        \
+                lineProfileInfo.SET_NAME( value );                                                                          \
+                if( lineProfileInfo.getStatus() )                                                                           \
+                {                                                                                                           \
+                    QRect scaledArea = lineProfileInfo.getArea();                                                           \
+                    scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );                          \
+                    scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );                  \
+                    videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups ); \
+                }                                                                                                           \
                 break;
             case LINE_PROFILE_X1_VARIABLE: USE_PROFILE_DATA( setX1 );
             case LINE_PROFILE_Y1_VARIABLE: USE_PROFILE_DATA( setY1 );
@@ -911,6 +1180,58 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
 }
 
 /*
+    Update the target and beam position markers if any.
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setTargeting( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+{
+    // If invalid, mark the appropriate profile info as not present
+    if( alarmInfo.isInvalid() )
+    {
+        switch( variableIndex )
+        {
+            case TARGET_X_VARIABLE: targetInfo.clearX();  break;
+            case TARGET_Y_VARIABLE: targetInfo.clearY();  break;
+            case BEAM_X_VARIABLE:   beamInfo.clearX();    break;
+            case BEAM_Y_VARIABLE:   beamInfo.clearX();    break;
+        }
+    }
+
+    // Good data. Save the target and beam data (and note it is present) then if the
+    // markup is visible, update it
+    else
+    {
+#define USE_TARGETING_DATA( VAR, SET_NAME, USE_NAME )                            \
+        VAR.SET_NAME( value );                                                   \
+        if(VAR.getStatus() )                                                     \
+        {                                                                        \
+            QPoint scaledPoint = videoWidget->scaleImagePoint( VAR.getPoint() ); \
+            videoWidget->USE_NAME( scaledPoint, displayMarkups );                \
+        }                                                                        \
+        break;
+
+        switch( variableIndex )
+        {
+            case TARGET_X_VARIABLE:  USE_TARGETING_DATA( targetInfo, setX, markupTargetValueChange )
+            case TARGET_Y_VARIABLE:  USE_TARGETING_DATA( targetInfo, setY, markupTargetValueChange )
+            case BEAM_X_VARIABLE:    USE_TARGETING_DATA( beamInfo, setX, markupBeamValueChange )
+            case BEAM_Y_VARIABLE:    USE_TARGETING_DATA( beamInfo, setY, markupBeamValueChange )
+        }
+    }
+}
+
+// Update image from non CA souce (no associated CA timestamp or alarm info available)
+void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, unsigned long width, unsigned long height )
+{
+    imageBuffWidth = width;
+    imageBuffHeight = height;
+
+    QCaAlarmInfo alarmInfo;
+    QCaDateTime dateTime = QCaDateTime( QDateTime::currentDateTime() );
+    setImage( imageIn, dataSize, alarmInfo, dateTime, 0 );
+}
+
+/*
     Update the image
     This is the slot used to recieve data updates from a QCaObject based class.
     Note the following comments from the Qt help:
@@ -919,9 +1240,6 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
  */
 void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAlarmInfo& alarmInfo, QCaDateTime& time, const unsigned int& )
 {
-//Testing    static int imageCount=0;
-//Testing    qDebug() << "QEImage::setImage()" << this->getVariableName0Property() << imageCount++ << imageIn.size();
-
     // If the display is paused, do nothing
     if (paused)
     {
@@ -936,19 +1254,14 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     receivedImageSize = (unsigned long) image.size ();
     imageDataSize = dataSize;
 
-    unsigned int minBits;
-    switch( formatOption )
-    {
-        case GREY8:   minBits = 8;  break;
-        case GREY12:  minBits = 2;  break;
-        case GREY16:  minBits = 16; break;
-        case RGB_888: minBits = 24; break;
-        default:      minBits = 8;  break;
-    }
-
-    elementsPerPixel = minBits/(imageDataSize*8);
+    // Calculate the number of bytes per pixel.
+    // If the number of elements per pixel is known (derived from the image dimension zero if there are three dimensions)
+    // then it is the image data element size * the number of elements per pixel
+    // If the number of elements per pixel is not known (number of dimensions is not know or not three or dimension zero is not present)
+    // then the elements per pixel will default to 1.
     bytesPerPixel = imageDataSize * elementsPerPixel;
 
+    // Note the time of this image
     imageTime = time;
 
     // Present the new image
@@ -962,27 +1275,28 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     }
 }
 
-// Generate a lookup table to convert raw pixel values to display pixel values taking into
-// account input pixel size, clipping, contrast reversal, and local brightness and contrast.
+// Generate a lookup table to convert the top 8 bits of raw pixel values to display pixel values taking into
+// account, clipping, contrast reversal, and local brightness and contrast.
+// Only the top 8 bits are used as all presentation is performed using 8 bit.
+// Note, the table will be used to translate each colour in an RGB format.
 //
 // The following example assumes:
-//  - a 12 bit image (range of 0 to 4095 )
 //  - a user set contrast of 150%
 //  - a user set brightness of -15%
 //
 //       (A)    (B)    (C)    (D)    (E)
 //
-//  6144         *
+//   382         *
 //               *
 //               *
 //               *      *
 //               *      *
 //               *      *      *
-//  4096  *      *      *      *-
+//   255  *      *      *      *-
 //        *      *      *      * -
 //        *      *      *      *  -
 //        *      *      *      *   -
-//   255  *    --*--    *      *    --*-----
+//        *    --*--    *      *    --*-----
 //        *  --  *  --  *      *      *
 //      --*--    *    --*--    *      *
 //        *      *      *  --  *      *
@@ -996,54 +1310,35 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
 //                             *
 //                             *
 //
-// (A) Image has a range of values depending on bit size.
-//     In this example, a 12 bit image has values 4096 values ranging from 0 to 4095.
+// (A) Top 8 bits in each pixel in the image has a range of values from 0 to 255.
 //     Note central mid grey is marked.
 //
 // (B) Range of values is extended by contrast.
-//     In this example, 12 bits and 150% contrast results in 4096 values ranging from 0 to 6144.
-//     If left like this the top 2048 values would be lost in the white.
+//     In this example, 150% contrast results in 4096 values ranging from 0 to 382.
+//     If left like this the top 127 values would be lost in the white.
 //
 // (C) Range of values is offset so half of the extended range is lost in the white and half in the black.
-//     The values now range from -1024 to 5119.
+//     The values now range from -64 to 318.
 //
 // (D) Range of values is offset by a user set brightness.
 //     The brightness range of -100% to +100% is meant to bring the highest value down to 0 (black) or the lowest value up to white.
 //     The offset applied by the user brightness value must take into account the varying range of values caused by contrast changes.
-//     In the example, the brightness is lowered by 15%. -100% would bring 5119 down to 0. +100% would take -1024 up to 4095.
+//     In the example, the brightness is lowered by 15%. -100% would bring 318 down to 0. +100% would take -64 up to 255.
 //
-// (E) Values matching the original range of values (0 to 4095 in the example) are selected from the translated table and
-//     scaled down to 8 bits as all display is performed at 8 bit resolution.
+// (E) Values matching the original range of values are selected from the translated table.
 //
 const QEImage::rgbPixel* QEImage::getPixelTranslation()
 {
+    // If the table is already set up, return it.
     if( pixelLookupValid )
     {
         return (rgbPixel*)(pixelLookup.constData());
     }
 
-    // Determine size of lookup, the number of bits to discard (to have 8 bits left), and the used bits in the pixel.
-    // Note, the table will be used for each colour in the RGB_888 format, so for the sake of this lookup table this format is 8 bits.
-    unsigned int size = 1<<8;
-    unsigned int insignificantBits = 0;
-    switch( formatOption )
-    {
-        case GREY8:   size = 1<<8;  insignificantBits = 0; break;
-        case GREY12:  size = 1<<12; insignificantBits = 4; break;
-        case GREY16:  size = 1<<16; insignificantBits = 8; break;
-        case RGB_888: size = 1<<8;  insignificantBits = 0; break;
-        case NUM_OPTIONS: break;
-    }
+// Maximum pixel value for 8 bit
+#define MAX_VALUE 255
 
-    // Determine table size
-    int maxValue = size-1;
-
-    // Allocate lookup if not already done or not the right size
-    if( pixelLookup.isNull() || (unsigned int)(pixelLookup.size()) != size*sizeof(rgbPixel) )
-    {
-        pixelLookup.resize( size*sizeof(rgbPixel) );
-    }
-
+    // View the table as an array or rgb pixels
     rgbPixel* lookupTable = (rgbPixel*)(pixelLookup.constData());
 
     // Determine if local contrast and brightness applies
@@ -1059,14 +1354,14 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
     }
 
     // Range of values with contrast applied
-    int range = maxValue*localContrast/100;
+    int range = MAX_VALUE*localContrast/100;
 
     // Offset to set black level with new range of values
-    int offset = (range-maxValue)/2;
+    int offset = (range-MAX_VALUE)/2;
 
     // Loop populating table with pixel translations for every pixel value
     unsigned int value = 0;
-    for( value = 0; value <= (unsigned int)maxValue; value++ )
+    for( value = 0; value <= MAX_VALUE; value++ )
     {
         // Alpha always 100%
         lookupTable[value].p[3] = 0xff;
@@ -1102,7 +1397,7 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
             // Reverse contrast if required
             if( localBC->getContrastReversal() )
             {
-                translatedValue = maxValue - translatedValue;
+                translatedValue = MAX_VALUE - translatedValue;
             }
 
             // Apply local brightness and contrast if required
@@ -1113,14 +1408,11 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
                 {
                     translatedValue = 0;
                 }
-                else if ( translatedValue > (int)maxValue )
+                else if ( translatedValue > MAX_VALUE )
                 {
-                    translatedValue = maxValue;
+                    translatedValue = MAX_VALUE;
                 }
             }
-
-            // Convert to 8 bits
-            translatedValue = translatedValue>>insignificantBits;
 
             // Save translated pixel
             lookupTable[value].p[0] = (unsigned char)translatedValue;
@@ -1133,6 +1425,32 @@ const QEImage::rgbPixel* QEImage::getPixelTranslation()
     return lookupTable;
 }
 
+// Get a false color representation for an entry from the color lookup table
+//???!!! not used yet
+QEImage::rgbPixel QEImage::getFalseColor (const unsigned char value) {
+    rgbPixel result;
+    int h, l;
+    QColor c;
+
+    // Hue goes 320 (purple) down to 0 (red) as monochrome value goes 0 to 255.
+    //
+    h = (320 * (0xFF - value)) / 0xFF;
+
+    // Intesity ramps up to a max of 128
+    //
+    l = MIN (4*value, 128);
+
+    c.setHsl (h, 0xFF, l);
+
+    result.p[0] = (unsigned char) c.blue();
+    result.p[1] = (unsigned char) c.green();
+    result.p[2] = (unsigned char) c.red();
+    result.p[3] = (unsigned char) 0xFF; // Alpha always 100%
+
+    return result;
+}
+
+
 // Display a new image.
 void QEImage::displayImage()
 {
@@ -1141,7 +1459,7 @@ void QEImage::displayImage()
     if( image.isEmpty() || !imageBuffWidth || !imageBuffHeight )
         return;
 
-    // Do we have enough or any data
+    // Do we have enough (or any) data
     //
     const unsigned long required_size = imageBuffWidth * imageBuffHeight * bytesPerPixel;
     if( required_size > (unsigned int)(image.size()) )
@@ -1155,13 +1473,13 @@ void QEImage::displayImage()
         QString messageText;
 
         messageText = QString( "Image too small (")
-                .append( QString( "available image size: %1, " )   .arg( receivedImageSize ))
-                .append( QString( "required size: %1, " )          .arg( required_size ))
-                .append( QString( "width: %1, " )                  .arg( imageBuffWidth ))
-                .append( QString( "height: %1, " )                 .arg( imageBuffHeight ))
-                .append( QString( "data element size: %1, " )      .arg( imageDataSize ))
-                .append( QString( "data elements per pixel: %1, " ).arg( elementsPerPixel ))
-                .append( QString( "bytes per pixel: %1)" )         .arg( bytesPerPixel ));
+                .append( QString( "available image size: %1, " )    .arg( receivedImageSize ))
+                .append( QString( "required size: %1, " )           .arg( required_size ))
+                .append( QString( "width: %1, " )                   .arg( imageBuffWidth ))
+                .append( QString( "height: %1, " )                  .arg( imageBuffHeight ))
+                .append( QString( "data element size: %1, " )       .arg( imageDataSize ))
+                .append( QString( "data elements per pixel: %1, " ) .arg( elementsPerPixel ))
+                .append( QString( "bytes per pixel: %1)" )          .arg( bytesPerPixel ));
 
         // Skip if messageText same as last message.
         if (messageText != previousMessageText) {
@@ -1196,7 +1514,7 @@ void QEImage::displayImage()
 
     // Determine the number of pixels to process
     // If something is wrong, do nothing
-    unsigned long pixelCount = bytesPerPixel;
+    unsigned long pixelCount = imageBuffWidth*imageBuffHeight;
     if(( pixelCount * bytesPerPixel > (unsigned long)image.size() ) ||
        ( pixelCount * IMAGEBUFF_BYTES_PER_PIXEL > (unsigned long)imageBuff.size() ))
     {
@@ -1308,46 +1626,644 @@ void QEImage::displayImage()
     // Note, for speed, the switch on format is outside the loop. The loop is duplicated in each case using macros which.
     switch( formatOption )
     {
-        case GREY8:
+        case MONO:
         {
+            switch( bitDepth )
+            {
+                default:
+                // Pixel data is 1 to 8 bits wide. Extract the fist byte. For less than 8 bits assume rest of byte is zero
+                case 1:
+                case 2:
+                case 4:
+                case 6:
+                case 8:
+                {
+                    LOOP_START
+                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                        dataOut[buffIndex] = pixelLookup[inPixel];
+                    LOOP_END
+                    break;
+                }
+
+                // Pixel data is 10 bits wide - extract as 16 bit and use the top 8 bits of the first 10 bits
+                case 10:
+                {
+                    LOOP_START
+                        unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
+                        dataOut[buffIndex] = pixelLookup[inPixel>>2];
+                    LOOP_END
+                    break;
+                }
+
+                // Pixel data is 12 bits wide - extract as 16 bit and use the top 8 bits of the first 12 bits
+                case 12:
+                {
+                    LOOP_START
+                        unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
+                        dataOut[buffIndex] = pixelLookup[inPixel>>4];
+                    LOOP_END
+                    break;
+                }
+
+                // Pixel data is 14 bits wide - extract as 16 bit and use the top 8 bits of the first 14 bits
+                case 14:
+                {
+                    LOOP_START
+                        unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
+                        dataOut[buffIndex] = pixelLookup[inPixel>>6];
+                    LOOP_END
+                    break;
+                }
+
+                // Pixel data is 16 bits wide - use the top byte
+                case 16:
+                {
+                    LOOP_START
+                        unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+1]);
+                        dataOut[buffIndex] = pixelLookup[inPixel];
+                    LOOP_END
+                    break;
+                }
+
+                // Pixel data is 18 bits wide - extract as 32 bit and use the top 8 bits of the first 18 bits
+                case 18:
+                    {
+                        LOOP_START
+                            // Pixel data is 18 bits wide - use the top 8 bits
+                            quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
+                            dataOut[buffIndex] = pixelLookup[inPixel>>10];
+                        LOOP_END
+                        break;
+                    }
+
+                // Pixel data is 20 bits wide - extract as 32 bit and use the top 8 bits of the first 20 bits
+                case 20:
+                    {
+                        LOOP_START
+                            quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
+                            dataOut[buffIndex] = pixelLookup[inPixel>>12];
+                        LOOP_END
+                        break;
+                    }
+
+                // Pixel data is 22 bits wide - extract as 32 bit and use the top 8 bits of the first 22 bits
+                case 22:
+                    {
+                        LOOP_START
+                            // Pixel data is 22 bits wide - use the top 8 bits
+                            quint32 inPixel = *(quint32*)(&dataIn[dataIndex*bytesPerPixel]);
+                            dataOut[buffIndex] = pixelLookup[inPixel>>14];
+                        LOOP_END
+                        break;
+                    }
+
+                // Pixel data is 24 bits wide - use the top byte
+                case 24:
+                    {
+                        LOOP_START
+                            unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+2]);
+                            dataOut[buffIndex] = pixelLookup[inPixel];
+                        LOOP_END
+                        break;
+                    }
+
+                // Pixel data is 26 bits wide - extract as 32 bit and use the top 8 bits of the first 26 bits
+                case 26:
+                    {
+                        LOOP_START
+                            unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
+                            dataOut[buffIndex] = pixelLookup[inPixel>>18];
+                        LOOP_END
+                        break;
+                    }
+
+                // Pixel data is 28 bits wide - extract as 32 bit and use the top 8 bits of the first 28 bits
+                case 28:
+                    {
+                        LOOP_START
+                            unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
+                            dataOut[buffIndex] = pixelLookup[inPixel>>20];
+                        LOOP_END
+                        break;
+                    }
+
+                // Pixel data is 30 bits wide - extract as 32 bit and use the top 8 bits of the first 30 bits
+                case 30:
+                    {
+                        LOOP_START
+                            unsigned long inPixel = *(unsigned long*)(&dataIn[dataIndex*bytesPerPixel]);
+                            dataOut[buffIndex] = pixelLookup[inPixel>>22];
+                        LOOP_END
+                        break;
+                    }
+
+                // Pixel data is 32 bits wide - use the top byte
+                case 32:
+                    {
+                        LOOP_START
+                            // Pixel data is 32 bits wide - use the top 8 bits
+                            unsigned char inPixel = *(unsigned char*)(&dataIn[dataIndex*bytesPerPixel+3]);
+                            dataOut[buffIndex] = pixelLookup[inPixel];
+                        LOOP_END
+                        break;
+                    }
+            }
+            break;
+        }
+
+        case BAYER:
+        {
+            int TLOffset = (-imageBuffWidth-1)*bytesPerPixel;
+            int  TOffset = -imageBuffWidth*bytesPerPixel;
+            int TROffset = (-imageBuffWidth+1)*bytesPerPixel;
+            int  LOffset = -bytesPerPixel;
+            int  ROffset = bytesPerPixel;
+            int BLOffset = (+imageBuffWidth-1)*bytesPerPixel;
+            int  BOffset = imageBuffWidth*bytesPerPixel;
+            int BROffset = (+imageBuffWidth+1)*bytesPerPixel;
+
+            enum regions {REG_TL, REG_T, REG_TR, REG_L, REG_C, REG_R, REG_BL, REG_B, REG_BR};
+
+//            qDebug() << "ImageSize" << image.size() << "w" << w << "h" << h << "imageDataSize" << imageDataSize << "elementsPerPixel"  << elementsPerPixel << "bytesPerPixel" << bytesPerPixel;
+
+            quint32 r1;
+            quint32 r2;
+            quint32 r3;
+            quint32 r4;
+            quint32 g1;
+            quint32 g2;
+            quint32 g3;
+            quint32 g4;
+            quint32 b1;
+            quint32 b2;
+            quint32 b3;
+            quint32 b4;
+
+
+
+            int outLast = outCount-1;
+            int inLast = inCount-1;
+
+
+            unsigned int TLPixel = 0;
+            unsigned int TRPixel = imageBuffWidth-1;
+            unsigned int BLPixel = (imageBuffHeight-1)*imageBuffWidth;
+            unsigned int BRPixel = (imageBuffHeight*imageBuffWidth)-1;
+
+
+            regions region;
+
+            int shift = (bitDepth<=8)?0:bitDepth-8;
+            quint32 mask = (1<<bitDepth)-1;
+
             LOOP_START
-            unsigned char inPixel = dataIn[dataIndex*bytesPerPixel];
-            dataOut[buffIndex] = pixelLookup[inPixel];
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                unsigned int color = (dataIndex&0b01)|(((dataIndex/imageBuffWidth)&1)<<1);
+
+                // Assume Central region
+                region = REG_C;
+
+                // If on an edge...
+                if( i == 0 || j == 0 || i == outLast || j == inLast )
+                {
+                    // Determine where on edge
+                    // (this will be simpler if we loop through source data rather than output image)
+
+                    // If on top edge...
+                    if( dataIndex < imageBuffWidth )
+                    {
+                        if     ( dataIndex == TLPixel ) region = REG_TL;
+                        else if( dataIndex == TRPixel ) region = REG_TR;
+                        else                            region = REG_T;
+                    }
+
+                    // If on bottom edge...
+                    else if( dataIndex >= BLPixel)
+                    {
+                        if     ( dataIndex == BLPixel ) region = REG_BL;
+                        else if( dataIndex == BRPixel ) region = REG_BR;
+                        else                            region = REG_B;
+                    }
+
+                    // if on left or right edge...
+                    else if( !(dataIndex % imageBuffWidth) ) region = REG_L;
+                    else                                     region = REG_R;
+                }
+
+
+
+                switch( color )
+                {
+                    case 0: // red
+                        r1 = (*((quint32*)inPixel))&mask;
+                        switch( region )
+                        {
+                            case REG_C:
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                b1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                b3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                break;
+
+                            case REG_TL:
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g1 = g2;
+                                g3 = g4;
+                                b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                b1 = b4;
+                                b2 = b4;
+                                b3 = b4;
+                                break;
+
+                            case REG_T:
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g1 = (g2+g3+g4)/3;
+                                b3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                b1 = b3;
+                                b2 = b4;
+                                break;
+
+                            case REG_TR:
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g1 = g2;
+                                g4 = g3;
+                                b3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                b1 = b3;
+                                b2 = b3;
+                                b4 = b3;
+                                break;
+
+                            case REG_L:
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g3 =
+                                b1 =
+                                b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                b3 =
+                                b4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                break;
+
+                            case REG_R:
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g4 = (g1+g2+g3)/3;
+                                b1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                b3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                b2 = b1;
+                                b4 = b3;
+                                break;
+
+                            case REG_BL:
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g2 = g1;
+                                g3 = g4;
+                                b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                b1 = b2;
+                                b3 = b2;
+                                b4 = b2;
+                                break;
+
+                            case REG_B:
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g2 = (g1+g3+g4)/3;
+                                b1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                b2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                b3 = b1;
+                                b4 = b2;
+                                break;
+
+                            case REG_BR:
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g2 = g1;
+                                g4 = g3;
+                                b1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                b2 = b1;
+                                b3 = b1;
+                                b4 = b1;
+                                break;
+
+                        }
+
+                        dataOut[buffIndex].p[2] = pixelLookup[r1>>shift].p[0];                  // red
+                        dataOut[buffIndex].p[1] = pixelLookup[(g1+g2+g3+g4)>>(shift+2)].p[0];   // green
+                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2+b3+b4)>>(shift+2)].p[0];   // blue
+
+                        break;
+
+                    case 1: // green 1
+                        g1 = (*((quint32*)inPixel))&mask;
+                        switch( region )
+                        {
+                            case REG_C:
+                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                r2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                b1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                b2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                break;
+
+                            case REG_T:
+                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                r2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                b2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                b1 = b2;
+                                break;
+
+                            case REG_TR:
+                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                r2 = r1;
+                                b2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                b1 = b2;
+                                break;
+
+                            case REG_R:
+                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                r2 = r1;
+                                b1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                b2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                break;
+
+                            case REG_B:
+                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                r2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                b1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                b2 = b1;
+                                break;
+
+                            case REG_BR:
+                                r1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                r2 = r1;
+                                b1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                b2 = b1;
+                                break;
+
+                            // Top left, Left, Bottom-Left is never green 1
+                            case REG_TL:
+                            case REG_L:
+                            case REG_BL:
+                                r1 = 0;
+                                r2 = 0;
+                                b1 = 0;
+                                b2 = 0;
+                                break;
+
+                        }
+
+                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2)>>(shift+1)].p[0]; // red
+                        dataOut[buffIndex].p[1] = pixelLookup[g1>>shift].p[0];          // green
+                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2)>>(shift+1)].p[0]; // blue
+
+                        break;
+
+                    case 2: // green 2
+                        g2 = (*((quint32*)inPixel))&mask;
+                        switch( region )
+                        {
+                            case REG_C:
+                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                r2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                b1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                b2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                break;
+
+                            case REG_L:
+                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                r2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                b2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                b1 = b2;
+                                break;
+
+                            case REG_R:
+                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                r2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                b1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                b2 = b1;
+                                break;
+
+                            case REG_BL:
+                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                r2 = r1;
+                                b2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                b1 = b2;
+                                break;
+
+                            case REG_B:
+                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                r2 = r1;
+                                b1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                b2 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                break;
+
+                            case REG_BR:
+                                r1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                r2 = r1;
+                                b1 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                b2 = b1;
+                                break;
+
+                            // Top left, Top, Top-Right is never green 2
+                            case REG_TL:
+                            case REG_T:
+                            case REG_TR:
+                                r1 = 0;
+                                r2 = 0;
+                                b1 = 0;
+                                b2 = 0;
+                                break;
+                        }
+
+                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2)>>(shift+1)].p[0]; // red
+                        dataOut[buffIndex].p[1] = pixelLookup[g2>>shift].p[0];          // green
+                        dataOut[buffIndex].p[0] = pixelLookup[(b1+b2)>>(shift+1)].p[0]; // blue
+
+                        break;
+
+                    case 3: // blue
+                        b1 = (*((quint32*)inPixel))&mask;
+                        switch( region )
+                        {
+                            case REG_C:
+                                r1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                r2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                r3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                r4 = (*((quint32*)(&inPixel[BROffset])))&mask;
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                break;
+
+                            // Top-left, Top, Top-right, Left, Bottom-Left is never blue
+                            case REG_T:
+                            case REG_TL:
+                            case REG_TR:
+                            case REG_L:
+                            case REG_BL:
+                                r1 = 0;
+                                r2 = 0;
+                                r3 = 0;
+                                r4 = 0;
+                                g1 = 0;
+                                g2 = 0;
+                                g3 = 0;
+                                g4 = 0;
+                                break;
+
+                            case REG_R:
+                                r1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                r3 = (*((quint32*)(&inPixel[BLOffset])))&mask;
+                                r2 = r1;
+                                r4 = r3;
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g2 = (*((quint32*)(&inPixel[BOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g4 = (g1+g2+g3)/3;
+                                break;
+
+                            case REG_B:
+                                r1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                r2 = (*((quint32*)(&inPixel[TROffset])))&mask;
+                                r3 = r1;
+                                r4 = r2;
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g4 = (*((quint32*)(&inPixel[ROffset])))&mask;
+                                g2 = (r1+r3+r4)/3;
+                                break;
+
+                            case REG_BR:
+                                r1 = (*((quint32*)(&inPixel[TLOffset])))&mask;
+                                r2 = r1;
+                                r3 = r1;
+                                r4 = r1;
+                                g1 = (*((quint32*)(&inPixel[TOffset])))&mask;
+                                g3 = (*((quint32*)(&inPixel[LOffset])))&mask;
+                                g2 = g1;
+                                g4 = g3;
+                                break;
+
+                        }
+
+                        dataOut[buffIndex].p[2] = pixelLookup[(r1+r2+r3+r4)>>(shift+2)].p[0];   // red
+                        dataOut[buffIndex].p[1] = pixelLookup[(g1+g2+g3+g4)>>(shift+2)].p[0];   // green
+                        dataOut[buffIndex].p[0] = pixelLookup[b1>>shift].p[0];                  // blue
+
+                        break;
+                }
+
+
             LOOP_END
             break;
         }
 
-        case GREY16:
+        case RGB1:
         {
+            //unsigned int rOffset = 0*imageDataSize;
+            unsigned int gOffset = imageDataSize;
+            unsigned int bOffset = 2*imageDataSize;
             LOOP_START
-            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex] = pixelLookup[inPixel];
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
 
-        case GREY12:
+        case RGB2:
         {
+            //!!! not done yet - this is a copy of RGB1
+            //unsigned int rOffset = 0*imageDataSize;
+            unsigned int gOffset = imageDataSize;
+            unsigned int bOffset = 2*imageDataSize;
             LOOP_START
-            unsigned short inPixel = *(unsigned short*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex] = pixelLookup[inPixel&0xfff];
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
             break;
         }
 
-        case RGB_888:
+        case RGB3:
         {
+            //!!! not done yet - this is a copy of RGB1
+            //unsigned int rOffset = 0*imageDataSize;
+            unsigned int gOffset = imageDataSize;
+            unsigned int bOffset = 2*imageDataSize;
             LOOP_START
-            rgbPixel* inPixel  = (rgbPixel*)(&dataIn[dataIndex*bytesPerPixel]);
-            dataOut[buffIndex].p[0] = pixelLookup[inPixel->p[2]].p[0];
-            dataOut[buffIndex].p[1] = pixelLookup[inPixel->p[1]].p[0];
-            dataOut[buffIndex].p[2] = pixelLookup[inPixel->p[0]].p[0];
-            dataOut[buffIndex].p[3] = 0xff;
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
             LOOP_END
+            break;
         }
 
-        case NUM_OPTIONS: break;
+        case YUV444:
+        {
+            //!!! not done yet - this is a copy of RGB1
+            //unsigned int rOffset = 0*imageDataSize;
+            unsigned int gOffset = imageDataSize;
+            unsigned int bOffset = 2*imageDataSize;
+            LOOP_START
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
 
+        case YUV422:
+        {
+            //!!! not done yet - this is a copy of RGB1
+            //unsigned int rOffset = 0*imageDataSize;
+            unsigned int gOffset = imageDataSize;
+            unsigned int bOffset = 2*imageDataSize;
+            LOOP_START
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
+
+        case YUV421:
+        {
+            //!!! not done yet - this is a copy of RGB1
+            //unsigned int rOffset = 0*imageDataSize;
+            unsigned int gOffset = imageDataSize;
+            unsigned int bOffset = 2*imageDataSize;
+            LOOP_START
+                unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
+                dataOut[buffIndex].p[0] = pixelLookup[inPixel[bOffset]].p[0];
+                dataOut[buffIndex].p[1] = pixelLookup[inPixel[gOffset]].p[0];
+                dataOut[buffIndex].p[2] = pixelLookup[*inPixel].p[0];
+                dataOut[buffIndex].p[3] = 0xff;
+            LOOP_END
+            break;
+        }
     }
 
     // Generate a frame from the data
@@ -1380,7 +2296,6 @@ void QEImage::setImageBuff()
             double vScale = (double)(scrollArea->size().height()) / (double)(rotatedImageBuffHeight());
             double hScale = (double)(scrollArea->size().width()) / (double)(rotatedImageBuffWidth());
             double scale = (hScale<vScale)?hScale:vScale;
-
 
             videoWidget->resize( (int)((double)rotatedImageBuffWidth() * scale),
                                  (int)((double)rotatedImageBuffHeight() * scale) );
@@ -1436,7 +2351,7 @@ void QEImage::setImageFile( QString name )
     scrollArea->setEnabled( true );
     imageBuffWidth = stdImage.width();
     imageBuffHeight = stdImage.height();
-    setFormatOption( RGB_888 );
+    setFormatOption( RGB1 );
     setImageBuff();
 
     // Use the image data just like it came from a waveform variable
@@ -1911,15 +2826,40 @@ void QEImage::setFormatOption( formatOptions formatOptionIn )
 
     // Save the option
     formatOption = formatOptionIn;
-
-    // Resize and rescale
-    // !!! why is this needed??? is formatOption used by the video widget?
-    setImageBuff();
 }
 
 QEImage::formatOptions QEImage::getFormatOption()
 {
     return formatOption;
+}
+
+// Allow user to set the bit depth for Mono video format
+void QEImage::setBitDepth( unsigned int bitDepthIn )
+{
+    // Ensure bit depth is reasonable
+    unsigned int sanitiedBitDepth = bitDepthIn;
+    if( sanitiedBitDepth == 0 )
+    {
+        sanitiedBitDepth = 1;
+    }
+    else if( sanitiedBitDepth > 32 )
+    {
+        sanitiedBitDepth = 32;
+    }
+
+    // Invalidate pixel look up table if bit depth changes (it will be regenerated with the new depth when next needed)
+    if( bitDepth != sanitiedBitDepth )
+    {
+        pixelLookupValid = false;
+    }
+
+    // Save the option
+    bitDepth = sanitiedBitDepth;
+}
+
+unsigned int QEImage::getBitDepth()
+{
+    return bitDepth;
 }
 
 // Set the zoom percentage (and force zoom mode)
@@ -2311,6 +3251,17 @@ bool QEImage::getFullContextMenu()
     return fullContextMenu;
 }
 
+// Display all markups for which there is data available.
+void QEImage::setDisplayMarkups( bool displayMarkupsIn )
+{
+    displayMarkups = displayMarkupsIn;
+}
+
+bool QEImage::getDisplayMarkups()
+{
+    return displayMarkups;
+}
+
 //=================================================================================================
 
 void QEImage::panModeClicked()
@@ -2530,35 +3481,35 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 
             case imageMarkup::MARKUP_ID_TARGET:
                 {
-                    target = point1;
+                    targetInfo.setPoint( point1 );
 
                     // Write the target variables.
                     QEInteger *qca;
                     qca = (QEInteger*)getQcaItem( TARGET_X_VARIABLE );
-                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( target.x() ));
+                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( targetInfo.getPoint().x() ));
 
                     qca = (QEInteger*)getQcaItem( TARGET_Y_VARIABLE );
-                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( target.y() ));
+                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( targetInfo.getPoint().y() ));
 
                     // Display textual info
-                    infoUpdateTarget( target.x(), target.y() );
+                    infoUpdateTarget( targetInfo.getPoint().x(), targetInfo.getPoint().y() );
                 }
                 break;
 
             case imageMarkup::MARKUP_ID_BEAM:
                 {
-                    beam = point1;
+                    beamInfo.setPoint( point1 );
 
                     // Write the beam variables.
                     QEInteger *qca;
                     qca = (QEInteger*)getQcaItem( BEAM_X_VARIABLE );
-                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beam.x() ));
+                    if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( beamInfo.getPoint().x() ));
 
                     qca = (QEInteger*)getQcaItem( BEAM_Y_VARIABLE );
-                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beam.y() ));
+                    if( qca ) qca->writeInteger(  videoWidget->scaleOrdinate( beamInfo.getPoint().y() ));
 
                     // Display textual info
-                    infoUpdateBeam( beam.x(), beam.y() );
+                    infoUpdateBeam( beamInfo.getPoint().x(), beamInfo.getPoint().y() );
                 }
                 break;
 
@@ -2657,17 +3608,26 @@ double QEImage::maxPixelValue()
 {
     switch( formatOption )
     {
-        default:
-        case GREY8:  return (1<<8)-1;
-        case GREY16: return (1<<16)-1;
-        case GREY12: return (1<<12)-2;
-        case RGB_888:return (1<<8)-1;
+        case BAYER:
+        case MONO:
+            return (1<<bitDepth)-1;
+
+        case RGB1:
+        case RGB2:
+        case RGB3:
+            return (1<<8)-1; //???!!! not done yet probably correct
+
+        case YUV444:
+        case YUV422:
+        case YUV421:
+            return (1<<8)-1; //???!!! not done yet probably correct
     }
 }
 
 // Return a pointer to pixel data in the original image data.
 // The position parameter is scaled to the original image size but reflects
 // the displayed rotation and flip options, so it must be transformed first.
+// Return NULL, if there is no image data, or point is beyond end of image data
 const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
 {
     QPoint posTr;
@@ -2675,8 +3635,19 @@ const unsigned char* QEImage::getImageDataPtr( QPoint& pos )
     // Transform the position to reflect the original unrotated or flipped data
     posTr = rotateFlipPoint( pos );
 
+    // Set up reference to start of the data, and the index to the required pixel
     const unsigned char* data = (unsigned char*)image.constData();
-    return &(data[(posTr.x()+posTr.y()*imageBuffWidth)*bytesPerPixel]);
+    int index = (posTr.x()+posTr.y()*imageBuffWidth)*bytesPerPixel;
+
+    // Return a pointer to the pixel data if possible
+    if( !image.isEmpty() && index < image.size() )
+    {
+        return &(data[index]);
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 // Display textual info about a selected area
@@ -2728,9 +3699,16 @@ void QEImage::setRegionAutoBrightnessContrast( QPoint point1, QPoint point2 )
 // Determine the range of pixel values an area of the image
 void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int* max )
 {
+    // If the area selected was the the entire image, and the image was not presented at 100%, rounding areas while scaling
+    // may result in area dimensions outside than the actual image by a pixel or so, so limit the area to within the image.
+    unsigned int areaX = (area.topLeft().x()>=0)?area.topLeft().x():0;
+    unsigned int areaY = (area.topLeft().y()>=0)?area.topLeft().y():0;
+    unsigned int areaW = (area.width()<=(int)rotatedImageBuffWidth())?area.width():rotatedImageBuffWidth();
+    unsigned int areaH = (area.height()<=(int)rotatedImageBuffHeight())?area.height():rotatedImageBuffHeight();
+
     // Set up to step pixel by pixel through the area
     const unsigned char* data = (unsigned char*)image.constData();
-    unsigned int index = (area.topLeft().y()*rotatedImageBuffWidth()+area.topLeft().x())*bytesPerPixel;
+    unsigned int index = (areaY*rotatedImageBuffWidth()+areaX)*bytesPerPixel;
 
     // This function is called as the user drags region handles around the
     // screen. Recalculating min and max pixels for large areas
@@ -2738,18 +3716,18 @@ void QEImage::getPixelRange( const QRect& area, unsigned int* min, unsigned int*
     // extracting width and height. (Compiler can't assume QRect width
     // and height stays constant so it is evaluated each iteration of for
     // loop if it was in the form   'for( int i = 0; i < area.height(); i++ )'
-    unsigned int w = area.width();
-    unsigned int h = area.height();
     unsigned int stepW = bytesPerPixel;
-    unsigned int stepH = (rotatedImageBuffWidth()-area.width())*bytesPerPixel;
+
+    // Calculate the step to the start of the next row in the area selected.
+    unsigned int stepH = (rotatedImageBuffWidth()-areaW)*bytesPerPixel;
 
     unsigned int maxP = 0;
     unsigned int minP = UINT_MAX;
 
     // Determine the maximum and minimum pixel values in the area
-    for( unsigned int i = 0; i < h; i++ )
+    for( unsigned int i = 0; i < areaH; i++ )
     {
-        for( unsigned int j = 0; j < w; j++ )
+        for( unsigned int j = 0; j < areaW; j++ )
         {
             unsigned int p = getPixelValueFromData( &(data[index]) );
             if( p < minP ) minP = p;
@@ -2781,7 +3759,7 @@ void QEImage::brightnessContrastChanged()
 // A request has been made to set the brightness and contrast to suit the current image
 void QEImage::brightnessContrastAutoImageRequest()
 {
-    setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( videoWidget->getImageSize().width(), videoWidget->getImageSize().height()) );
+    setRegionAutoBrightnessContrast( QPoint( 0, 0), QPoint( videoWidget->width(), videoWidget->height()) );
 }
 
 //=====================================================================
@@ -3266,24 +4244,77 @@ void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, uns
 // big enough for the data format.
 int QEImage::getPixelValueFromData( const unsigned char* ptr )
 {
+    // Sanity check
+    if( !ptr )
+        return 0;
+
     // Case the data to the correct size, then return the data as a floating point number.
     switch( formatOption )
     {
-        default:
-        case GREY8:
-            return *ptr;
+        case BAYER:
+        case MONO:
+            {
+                unsigned int usableDepth = bitDepth;
+                if( bitDepth > (imageDataSize*8) )
+                {
+                    usableDepth = imageDataSize*8;
+                }
 
-        case GREY16:
-            return *(unsigned short*)ptr;
+                quint32 mask = (1<<usableDepth)-1;
 
-        case GREY12:
-            return *(unsigned short*)ptr;
+                return (*((quint32*)ptr))&mask;
+            }
 
-        case RGB_888:
-            // for RGB, average all colors
-            unsigned int pixel = *(unsigned int*)ptr;
-            return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+        case RGB1:
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case RGB2:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case RGB3:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case YUV444:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case YUV422:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
+
+        case YUV421:
+            //!!! not done - copy of RGB1
+            {
+                // for RGB, average all colors
+                unsigned int pixel = *(unsigned int*)ptr;
+                return ((pixel&0xff0000>>16) + (pixel&0x00ff00>>8) + (pixel&0x0000ff)) / 3;
+            }
     }
+
+    // Avoid compilation warning (not sure why this is required as all cases are handled in switch statements.
+    return *ptr;
 }
 
 // Return a floating point number representing a pixel intensity given a pointer into an image data buffer.
@@ -3715,16 +4746,24 @@ void QEImage::showImageAboutDialog()
 
     about.append( QString( "\nSize (bytes) of CA data array: %1" ).arg( image.count() ));
     about.append( QString( "\nSize (bytes) of CA data elements: %1" ).arg( imageDataSize ));
-    about.append( QString( "\nCA data elements per pixel (based on expected format): %1" ).arg( elementsPerPixel ));
-    about.append( QString( "\nWidth (pixels) taken from width variable: %1" ).arg( imageBuffWidth ));
-    about.append( QString( "\nHeight (pixels) taken from height variable: %1" ).arg( imageBuffHeight ));
+    about.append( QString( "\nWidth (pixels) taken from dimension variables or width variable: %1" ).arg( imageBuffWidth ));
+    about.append( QString( "\nHeight (pixels) taken from dimension variables or height variable: %1" ).arg( imageBuffHeight ));
+    about.append( QString( "\nPixel depth taken from bit depth variable or bit depth property: %1" ).arg( bitDepth ));
 
-    static QString formatOptionNames[NUM_OPTIONS] = { "8 bit grey scale",  // GREY8
-                                                      "12 bit grey scale", // GREY12
-                                                      "16 bit grey scale", // GREY16
-                                                      "24 bit RGB" };      // RGB_888
+    QString name;
+    switch( formatOption )
+    {
+        case MONO:        name = "Monochrome";    break;
+        case BAYER:       name = "Bayer";         break;
+        case RGB1:        name = "8 bit RGB";     break;
+        case RGB2:        name = "RGB2???";       break;
+        case RGB3:        name = "RGB3???";       break;
+        case YUV444:      name = "???bit YUV444"; break;
+        case YUV422:      name = "???bit YUV422"; break;
+        case YUV421:      name = "???bit YUV421"; break;
+    }
 
-    about.append( QString( "\nExpected format: " ).append( formatOptionNames[formatOption] ));
+    about.append( QString( "\nExpected format: " ).append( name ));
 
     about.append( "\n\nFirst bytes of raw image data:\n   ");
     if( image.isEmpty() )
@@ -3770,11 +4809,29 @@ void QEImage::showImageAboutDialog()
     qca = getQcaItem( IMAGE_VARIABLE );
     about.append( "\n\nImage data variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
+    qca = getQcaItem( FORMAT_VARIABLE );
+    about.append( "\n\nImage format variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( BIT_DEPTH_VARIABLE );
+    about.append( "\n\nBit depth variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
     qca = getQcaItem( WIDTH_VARIABLE );
     about.append( "\nImage width variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
     qca = getQcaItem( HEIGHT_VARIABLE );
     about.append( "\nImage height variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( NUM_DIMENSIONS_VARIABLE );
+    about.append( "\n\nImage data dimensions variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( DIMENSION_0_VARIABLE );
+    about.append( "\n\nImage dimension 1 variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( DIMENSION_1_VARIABLE );
+    about.append( "\n\nImage dimension 2 variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
+
+    qca = getQcaItem( DIMENSION_2_VARIABLE );
+    about.append( "\n\nImage dimension 3 variable: " ).append( (qca!=0)?qca->getRecordName():"No variable" );
 
     // Display the 'about' text
     QMessageBox::about(this, "About Image", about );

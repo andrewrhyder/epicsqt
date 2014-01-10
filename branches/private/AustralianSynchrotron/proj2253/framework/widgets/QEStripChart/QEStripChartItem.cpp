@@ -31,8 +31,6 @@
 #include <QEArchiveInterface.h>
 #include <QColorDialog>
 
-#include <qwt_plot_curve.h>
-
 #include <QECommon.h>
 #include <QEScaling.h>
 #include <QEGraphic.h>
@@ -203,7 +201,6 @@ void QEStripChartItem::createInternalWidgets ()
    this->colourDialog = new QColorDialog (this);
    this->inUseMenu = new QEStripChartContextMenu (true, this);
    this->emptyMenu = new QEStripChartContextMenu (false, this);
-   this->pvNameSelectDialog = new QEPVNameSelectDialog (this);
    this->adjustPVDialog = new QEStripChartAdjustPVDialog (this);
 }
 
@@ -922,11 +919,14 @@ void QEStripChartItem::pvNameDropEvent (QDropEvent *event)
 bool QEStripChartItem::eventFilter (QObject *obj, QEvent *event)
 {
    const QEvent::Type type = event->type ();
+   QMouseEvent* mouseEvent = NULL;
 
    switch (type) {
 
+      case QEvent::MouseButtonPress:
       case QEvent::MouseButtonDblClick:
-         if (obj == this->pvName) {
+         mouseEvent = static_cast<QMouseEvent *> (event);
+         if (obj == this->pvName && (mouseEvent->button () == Qt::LeftButton)) {
             // Leverage of existing context menu handler.
             //
             this->contextMenuSelected (QEStripChartNames::SCCM_PV_EDIT_NAME);
@@ -1174,13 +1174,13 @@ void QEStripChartItem::contextMenuSelected (const QEStripChartNames::ContextMenu
 
       case QEStripChartNames::SCCM_PV_ADD_NAME:
       case QEStripChartNames::SCCM_PV_EDIT_NAME:
-         this->pvNameSelectDialog->setPvName (this->getPvName ());
-         n = this->pvNameSelectDialog->exec (this);
+         this->chart->pvNameSelectDialog->setPvName (this->getPvName ());
+         n = this->chart->pvNameSelectDialog->exec (this->pvName);
          if (n == 1) {
             // User has selected okay.
             //
-            if (this->getPvName () != this->pvNameSelectDialog->getPvName ()) {
-               this->setPvName (this->pvNameSelectDialog->getPvName (), "");
+            if (this->getPvName () != this->chart->pvNameSelectDialog->getPvName ()) {
+               this->setPvName (this->chart->pvNameSelectDialog->getPvName (), "");
             }
             // and replot the data
             //

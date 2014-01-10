@@ -95,30 +95,15 @@ Generic::Generic( unsigned char* newValue, unsigned long arrayCountIn ) {
 }
 
 /*
-    Creates overloaded constructor of type long
-*/
-Generic::Generic( long newValue ) {
-    value = NULL;
-    arrayCount = 0;
-    setLong( newValue );
-}
-
-Generic::Generic( long* newValue, unsigned long arrayCountIn ) {
-    value = NULL;
-    arrayCount = 0;
-    setLong( newValue, arrayCountIn );
-}
-
-/*
     Creates overloaded constructor of type unsigned long
 */
-Generic::Generic( unsigned long newValue ) {
+Generic::Generic( quint32 newValue ) {
     value = NULL;
     arrayCount = 0;
     setUnsignedLong( newValue );
 }
 
-Generic::Generic( unsigned long* newValue, unsigned long arrayCountIn ) {
+Generic::Generic( quint32* newValue, unsigned long arrayCountIn ) {
     value = NULL;
     arrayCount = 0;
     setUnsignedLong( newValue, arrayCountIn );
@@ -275,78 +260,58 @@ void Generic::updateUnsignedChar( unsigned char newValue, unsigned long arrayInd
 /*
     Creates and records new type  long
 */
-void Generic::setLong( long newValue ) {
+void Generic::setLong( qint32 newValue ) {
     setLong( &newValue, 1 );
 }
 
 /*
     Creates and records new type long (an array larger than 1)
 */
-void Generic::setLong( long* newValueArray, unsigned long arrayCountIn ) {
+void Generic::setLong( qint32* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
-    value = new long[arrayCountIn];
+    value = new qint32[arrayCountIn];
     if( newValueArray )
     {
-        memcpy( value, newValueArray, sizeof(long)*arrayCountIn );
+        memcpy( value, newValueArray, sizeof(qint32)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
     type = LONG;
 }
 
-/*
-    Creates and records new type long (an array larger than 1) based on dbr_long_t
-*/
-void Generic::setLong( qint32* newValueArray, unsigned long arrayCountIn )
-{
-   deleteValue();
-   value = new long[arrayCountIn];
-   if( newValueArray )
-   {
-       // can't just memcpy - ling is a differnent size to dbr_long_t (as used by CA)
-       unsigned long j;
-       long *longArray = (long *)value;
-       for (j = 0; j < arrayCountIn; j++) {
-          longArray [j] = (long) newValueArray [j];
-       }
-   }
-   arrayCount = arrayCountIn;
-   type = LONG;
-}
-
-void Generic::updateLong( long newValue, unsigned long arrayIndex ) {
+void Generic::updateLong( qint32 newValue, unsigned long arrayIndex ) {
     if( arrayIndex >= arrayCount )
         return;
 
-    long* valueArray = (long*)value;
+    qint32* valueArray = (qint32*)value;
     valueArray[arrayIndex] = newValue;
 }
 
 /*
     Creates and records new type unsigned long
 */
-void Generic::setUnsignedLong( unsigned long newValue ) {
+void Generic::setUnsignedLong( quint32 newValue ) {
     setUnsignedLong( &newValue, 1 );
 }
 
 /*
     Creates and records new type unsigned long (an array larger than 1)
 */
-void Generic::setUnsignedLong( unsigned long* newValueArray, unsigned long arrayCountIn ) {
+void Generic::setUnsignedLong( quint32* newValueArray, unsigned long arrayCountIn ) {
     deleteValue();
-    value = new unsigned long[arrayCountIn];
+    value = new quint32[arrayCountIn];
     if( newValueArray )
     {
-        memcpy( value, newValueArray, sizeof(unsigned long)*arrayCountIn );
+        memcpy( value, newValueArray, sizeof(quint32)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
     type = UNSIGNED_LONG;
 }
 
-void Generic::updateUnsignedLong( unsigned long newValue, unsigned long arrayIndex ) {
+void Generic::updateUnsignedLong( quint32 newValue, unsigned long arrayIndex ) {
     if( arrayIndex >= arrayCount )
         return;
 
-    unsigned long* valueArray = (unsigned long*)value;
+    quint32* valueArray = (quint32*)value;
     valueArray[arrayIndex] = newValue;
 }
 /*
@@ -510,9 +475,9 @@ void Generic::getUnsignedChar( unsigned char** valueArray, unsigned long* arrayC
 /*
     Returns type long or invalid
 */
-long Generic::getLong() {
+qint32 Generic::getLong() {
     if( getType() == LONG ) {
-        return *(long*)value;
+        return *(qint32*)value;
     }
     return 0;
 }
@@ -520,9 +485,9 @@ long Generic::getLong() {
 /*
     Returns type long array or invalid
 */
-void Generic::getLong( long** valueArray, unsigned long* arrayCountOut ) {
+void Generic::getLong( qint32** valueArray, unsigned long* arrayCountOut ) {
     if( getType() == LONG ) {
-        *valueArray = (long*)value;
+        *valueArray = (qint32*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
         return;
@@ -535,9 +500,9 @@ void Generic::getLong( long** valueArray, unsigned long* arrayCountOut ) {
 /*
     Returns type unsigned long or invalid
 */
-unsigned long Generic::getUnsignedLong() { 
+quint32 Generic::getUnsignedLong() {
     if( getType() == UNSIGNED_LONG ) {
-        return *(unsigned long*)value;
+        return *(quint32*)value;
     }
     return 0;
 }
@@ -545,9 +510,9 @@ unsigned long Generic::getUnsignedLong() {
 /*
     Returns type unsigned long array or invalid
 */
-void Generic::getUnsignedLong( unsigned long** valueArray, unsigned long* arrayCountOut ) {
+void Generic::getUnsignedLong( quint32** valueArray, unsigned long* arrayCountOut ) {
     if( getType() == UNSIGNED_LONG ) {
-        *valueArray = (unsigned long*)value;
+        *valueArray = (quint32*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
         return;
@@ -652,10 +617,10 @@ void Generic::deleteValue() {
             delete (char*)value;
         break;
         case LONG :
-            delete (long*)value;
+            delete (qint32*)value;
         break;
         case UNSIGNED_LONG :
-            delete (unsigned long*)value;
+            delete (quint32*)value;
         break;
         case FLOAT :
             delete (float*)value;
@@ -706,7 +671,7 @@ void Generic::cloneValue( Generic *param ) {
         break;
         case LONG :
             {
-                long* paramValue;
+                qint32* paramValue;
                 unsigned long paramCount;
                 param->getLong( &paramValue, &paramCount );
                 setLong( paramValue, paramCount );
@@ -714,7 +679,7 @@ void Generic::cloneValue( Generic *param ) {
         break;
          case UNSIGNED_LONG :
             {
-                unsigned long* paramValue;
+                quint32* paramValue;
                 unsigned long paramCount;
                 param->getUnsignedLong( &paramValue, &paramCount );
                 setUnsignedLong( paramValue, paramCount );

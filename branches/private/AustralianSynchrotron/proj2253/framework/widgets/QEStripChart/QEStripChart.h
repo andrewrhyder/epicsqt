@@ -48,6 +48,7 @@
 #include <QEWidget.h>
 #include <persistanceManager.h>
 #include <QEResizeableFrame.h>
+#include <QEPVNameSelectDialog.h>
 
 #include "QEStripChartNames.h"
 #include "QEStripChartToolBar.h"
@@ -188,6 +189,8 @@ private:
 
    // Internal widgets and state data.
    //
+   QEPVNameSelectDialog *pvNameSelectDialog;
+
    QEStripChartToolBar* toolBar;
    QEResizeableFrame* toolBarResize;
 

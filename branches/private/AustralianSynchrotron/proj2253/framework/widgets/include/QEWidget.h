@@ -201,6 +201,10 @@ public:
     /// Returns a pointer to a QFile which is the caller's responsibility to delete, or NULL if the file was not found.
     static QFile* findQEFile( QString name, ContainerProfile* profile );
 
+    /// Static method that looks for a file in a standard set of locations and assumes a current published profile.
+    /// Returns a pointer to a QFile which is the caller's responsibility to delete, or NULL if the file was not found.
+    static QFile* findQEFile( QString name );
+
     /// Returns the default location to create files.
     /// Use this to create files in a consistant location
     QString defaultFileLocation();

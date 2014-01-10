@@ -191,6 +191,12 @@ void QEStripChart::createInternalWidgets ()
    int x, y;
    QAction* action;
 
+   // Create dialog.
+   // We have one dialog per strip chart (as opposed to per pv item) as this not only saves
+   // resources, but a single dialog will remember filter and other state information.
+   //
+   this->pvNameSelectDialog = new QEPVNameSelectDialog (this);
+
    // Create tool bar frame and tool buttons.
    //
    this->toolBar = new QEStripChartToolBar (); // this will become parented by toolBarResize

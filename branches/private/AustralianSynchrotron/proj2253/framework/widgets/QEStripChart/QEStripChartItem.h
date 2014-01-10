@@ -44,7 +44,6 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <QEArchiveManager.h>
 #include <persistanceManager.h>
-#include <QEPVNameSelectDialog.h>
 #include <QEWidget.h>
 #include <QEActionRequests.h>
 #include <QEExpressionEvaluation.h>
@@ -154,7 +153,6 @@ private:
 
    QEArchiveAccess archiveAccess;
 
-   QEPVNameSelectDialog *pvNameSelectDialog;
    QEStripChartAdjustPVDialog *adjustPVDialog;
 
    enum DataChartKinds { NotInUse,          // blank  - not in use - no data - no plot

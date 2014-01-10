@@ -411,12 +411,13 @@ bool QCaObject::putChannel() {
             case QVariant::Double :
                 outputData.setDouble( writingData.toDouble() );
             break;
+            case QVariant::Int :
             case QVariant::LongLong :
-                outputData.setUnsignedLong( writingData.toLongLong() );
+                outputData.setLong( writingData.toInt() );
             break;
             case QVariant::UInt :
             case QVariant::ULongLong :
-                outputData.setUnsignedLong( writingData.toULongLong() );
+                outputData.setUnsignedLong( writingData.toUInt() );
             break;
             case QVariant::String :
                 outputData.setString( writingData.toString().toStdString() );
@@ -443,11 +444,12 @@ bool QCaObject::putChannel() {
                     outputData.updateDouble( list[i].toDouble(), i );
                 }
             break;
+            case QVariant::Int :
             case QVariant::LongLong :
                 outputData.setUnsignedLong( NULL, list.count() );
                 for( int i = 0; i < list.count(); i++ )
                 {
-                    outputData.updateUnsignedLong( list[i].toLongLong(), i );
+                    outputData.updateUnsignedLong( list[i].toInt(), i );
                 }
             break;
             case QVariant::UInt :
@@ -455,7 +457,7 @@ bool QCaObject::putChannel() {
                 outputData.setUnsignedLong( NULL, list.count() );
                 for( int i = 0; i < list.count(); i++ )
                 {
-                    outputData.updateUnsignedLong( list[i].toLongLong(), i );
+                    outputData.updateUnsignedLong( list[i].toUInt(), i );
                 }
             break;
             case QVariant::String :
@@ -930,7 +932,7 @@ void QCaObject::processData( void* newDataPtr ) {
 #if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
                     values.reserve( arrayCount );
 #endif
-                    long* data;
+                    qint32* data;
                     newData->getLong( &data );
 
                     for( unsigned long i = 0; i < arrayCount; i++ )
@@ -941,7 +943,6 @@ void QCaObject::processData( void* newDataPtr ) {
                 }
             break;
             case generic::UNSIGNED_LONG :
-                value = QVariant( (qlonglong)newData->getUnsignedLong() );
                 if( arrayCount <= 1 )
                 {
                     value = QVariant( (qulonglong)newData->getUnsignedLong() );
@@ -952,7 +953,7 @@ void QCaObject::processData( void* newDataPtr ) {
 #if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
                     values.reserve( arrayCount );
 #endif
-                    unsigned long* data;
+                    quint32* data;
                     newData->getUnsignedLong( &data );
 
                     for( unsigned long i = 0; i < arrayCount; i++ )
@@ -1031,8 +1032,8 @@ void QCaObject::processData( void* newDataPtr ) {
             case generic::SHORT          : newData->getShort        ( (short**)         (&data) ); dataSize = 2; break;
             case generic::UNSIGNED_SHORT : newData->getUnsignedShort( (unsigned short**)(&data) ); dataSize = 2; break;
             case generic::UNSIGNED_CHAR  : newData->getUnsignedChar ( (unsigned char**) (&data) ); dataSize = 1; break;
-            case generic::LONG           : newData->getLong         ( (long**)          (&data) ); dataSize = 4; break;
-            case generic::UNSIGNED_LONG  : newData->getUnsignedLong ( (unsigned long**) (&data) ); dataSize = 4; break;
+            case generic::LONG           : newData->getLong         ( (qint32**)        (&data) ); dataSize = 4; break;
+            case generic::UNSIGNED_LONG  : newData->getUnsignedLong ( (quint32**)       (&data) ); dataSize = 4; break;
             case generic::FLOAT          : newData->getFloat        ( (float**)         (&data) ); dataSize = 4; break;
             case generic::DOUBLE         : newData->getDouble       ( (double**)        (&data) ); dataSize = 8; break;
             case generic::UNKNOWN        : data = NULL;                                            dataSize = 0; break;

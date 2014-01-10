@@ -291,7 +291,7 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
             }
             case generic::UNSIGNED_LONG :
             {
-                unsigned long* outValue;
+                quint32* outValue;
                 newValue->getUnsignedLong( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, arrayCount, outValue );
                 break;

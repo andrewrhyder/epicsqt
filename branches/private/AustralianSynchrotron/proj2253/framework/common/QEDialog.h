@@ -50,7 +50,20 @@ public:
 public slots:
    // Re-postion dialog to the centre of the specified widget.
    //
-   int exec (QWidget* centreOver);
+   int exec (QWidget* targetWidget);
+
+protected:
+   // widget (within dialog) to use to colocate over targetWidget - default is this.
+   //
+   QWidget* sourceWidget;
+
+private:
+   // widget (defined by caller) to use to colocation point.
+   //
+   QWidget* targetWidget;
+
+private slots:
+   void relocateToCenteredPosition ();
 };
 
 #endif  // QEDIALOG_H

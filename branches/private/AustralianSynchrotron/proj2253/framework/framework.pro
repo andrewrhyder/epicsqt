@@ -98,6 +98,9 @@ include (widgets/QEStripChart/QEStripChart.pri)
 include (widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
 include (widgets/deprecated/deprecated.pri)
 
+HEADERS +=
+SOURCES +=
+
 
 #===========================================================
 # Extra targets
@@ -162,6 +165,17 @@ INCLUDEPATH += $$(QWT_INCLUDE_PATH)
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 LIBS += -lqwt
+
+# ffmpeg stuff
+#INCLUDEPATH += /usr/local/include
+#LIBS += -L/usr/local/lib/
+#LIBS += -lavdevice -lavformat -lavcodec -lavutil -lbz2 -lswscale -lz
+#LIBS += -lX11
+#DEFINES += __STDC_CONSTANT_MACROS
+
+# xvideo stuff
+#LIBS += -lXv
+
 
 #
 # end

@@ -43,10 +43,10 @@ namespace generic {
       Generic( unsigned short* newValueArray, unsigned long countIn );
       Generic( unsigned char newValue );
       Generic( unsigned char* newValueArray, unsigned long countIn );
-      Generic( long newValue );
-      Generic( long* newValueArray, unsigned long countIn );
-      Generic( unsigned long newValue );
-      Generic( unsigned long* newValueArray, unsigned long countIn );
+      Generic( qint32 newValue );
+      Generic( qint32* newValueArray, unsigned long countIn );
+      Generic( quint32 newValue );
+      Generic( quint32* newValueArray, unsigned long countIn );
       Generic( float newValue );
       Generic( float* newValueArray, unsigned long countIn );
       Generic( double newValue );
@@ -66,17 +66,12 @@ namespace generic {
       void setUnsignedChar( unsigned char newValue );
       void setUnsignedChar( unsigned char* newValueArray, unsigned long countIn );
       void updateUnsignedChar( unsigned char newValue, unsigned long arrayIndex );
-      void setLong( long newValue );
-      void setLong( long* newValueArray, unsigned long countIn );
-      // Most of the array set set functions can just memcpy the data.
-      // processChannel (out of CaObject "long" type is infact a 32 bit type, so
-      // we need to copy (and cast) element by element.
-      //
+      void setLong( qint32 newValue );
       void setLong( qint32* newValueArray, unsigned long countIn );
-      void updateLong( long newValue, unsigned long arrayIndex );
-      void setUnsignedLong( unsigned long newValue );
-      void setUnsignedLong( unsigned long* newValueArray, unsigned long countIn );
-      void updateUnsignedLong( unsigned long newValue, unsigned long arrayIndex );
+      void updateLong( qint32 newValue, unsigned long arrayIndex );
+      void setUnsignedLong( quint32 newValue );
+      void setUnsignedLong( quint32* newValueArray, unsigned long countIn );
+      void updateUnsignedLong( quint32 newValue, unsigned long arrayIndex );
       void setFloat( float newValue );
       void setFloat( float* newValueArray, unsigned long countIn );
       void updateFloat( float newValue, unsigned long arrayIndex );
@@ -92,10 +87,10 @@ namespace generic {
       void           getUnsignedShort( unsigned short** valueArray, unsigned long* countOut = NULL );
       unsigned char getUnsignedChar();
       void          getUnsignedChar( unsigned char** valueArray, unsigned long* countOut = NULL );
-      long getLong();
-      void getLong( long** valueArray, unsigned long* countOut = NULL );
-      unsigned long getUnsignedLong();
-      void          getUnsignedLong( unsigned long** valueArray, unsigned long* countOut = NULL );
+      qint32 getLong();
+      void getLong( qint32** valueArray, unsigned long* countOut = NULL );
+      quint32 getUnsignedLong();
+      void          getUnsignedLong( quint32** valueArray, unsigned long* countOut = NULL );
       float getFloat();
       void  getFloat( float** valueArray, unsigned long* countOut = NULL );
       double getDouble();

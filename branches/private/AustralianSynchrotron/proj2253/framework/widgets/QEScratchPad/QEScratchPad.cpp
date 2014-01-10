@@ -370,7 +370,7 @@ void QEScratchPad::contextMenuSelected (const int slot, const QEScratchPadMenu::
       case QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME:
       case QEScratchPadMenu::SCRATCHPAD_EDIT_PV_NAME:
          this->pvNameSelectDialog->setPvName (this->getPvName (slot));
-         n = this->pvNameSelectDialog->exec (this);
+         n = this->pvNameSelectDialog->exec (this->items [slot].pvName);
          if (n == 1) {
             this->setPvName (slot, this->pvNameSelectDialog->getPvName ());
          }
@@ -532,13 +532,18 @@ bool QEScratchPad::eventFilter (QObject *obj, QEvent *event)
          slot = this->findSlot (obj);
          if (slot >= 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
             this->selectItem (slot, true);
+            if (obj == this->items [slot].pvName) {
+               // Leverage of menu handler
+               this->contextMenuSelected (slot, QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME);
+            }
             return true;  // we have handled this mouse press
          }
          break;
 
       case QEvent::MouseButtonDblClick:
+         mouseEvent = static_cast<QMouseEvent *> (event);
          slot = this->findSlot (obj);
-         if (slot >= 0) {
+         if (slot >= 0 && (mouseEvent->button () ==  Qt::LeftButton)) {
             // Leverage of menu handler
             this->selectItem (slot, false);
             this->contextMenuSelected (slot, QEScratchPadMenu::SCRATCHPAD_ADD_PV_NAME);

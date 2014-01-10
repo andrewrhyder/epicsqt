@@ -23,45 +23,70 @@
  *    andrew.starritt@synchrotron.org.au
  */
 
+#include <QDebug>
 #include <QMainWindow>
+#include <QTimer>
+
 #include "QEDialog.h"
+
+#define DEBUG qDebug () << "QEDialog" << __FUNCTION__ << ":" << __LINE__
 
 //------------------------------------------------------------------------------
 //
 QEDialog::QEDialog (QWidget* parent) : QDialog (parent) {
-   // place holder
+   this->sourceWidget = this;
 }
-
 
 //------------------------------------------------------------------------------
 //
-int QEDialog::exec (QWidget* centreOver)
+int QEDialog::exec (QWidget* targetWidgetIn)
 {
-   // Did caller specify an widget to centre this over?
+   this->targetWidget = targetWidgetIn;
+
+   // Allow 5 mSec to allow dialog widget to "sort itself out" before trying to
+   // relocate it. Thisis particularly important on first activation.
+   // Empirically found that we need more than 1 mSec.
    //
-   if (centreOver) {
-      // Find center and map this to global coordinates.
-      //
-      const QRect cr = centreOver->geometry ();
-      QPoint centre = QPoint (cr.width () / 2, cr.height () / 2);
-      centre = centreOver->mapToGlobal (centre);
-
-      // Extract current dialog location and calculate translation offset.
-      //
-      QRect dr = this->geometry ();
-      int dx = centre.x () - (dr.x () + dr.width ()/2);
-      int dy = centre.y () - (dr.y () + dr.height ()/2);
-
-      // Move dialog widget geometry rectangle, careful not to change width or
-      // height and apply.
-      //
-      dr.translate (dx, dy);
-      setGeometry (dr);
-   }
+   QTimer::singleShot (5, this, SLOT (relocateToCenteredPosition ()));
 
    // Now call parent exec method to do actual work.
    //
    return QDialog::exec ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEDialog::relocateToCenteredPosition ()
+{
+  // Did caller specify an widget to centre this over?
+  //
+  if (this->targetWidget && this->sourceWidget) {
+
+     // Find centres and map this to global coordinates.
+     //
+     const QRect sourceGeo = this->sourceWidget->geometry ();
+     const QRect targetGeo = this->targetWidget->geometry ();
+
+     QPoint sourceMiddle = QPoint (sourceGeo.width () / 2, sourceGeo.height () / 2);
+     QPoint targetMiddle = QPoint (targetGeo.width () / 2, targetGeo.height () / 2);
+
+     // Convert both to global coordinates.
+     //
+     sourceMiddle = this->sourceWidget->mapToGlobal (sourceMiddle);
+     targetMiddle = this->targetWidget->mapToGlobal (targetMiddle);
+
+     // Calculate difference between where we are and where we want to get to.
+     //
+     QPoint delta = targetMiddle - sourceMiddle;
+
+     // Extract current dialog location and calculate translation offset.
+     // Move dialog widget geometry rectangle, careful not to change width or
+     // height and apply.
+     //
+     QRect dialogGeo = this->geometry ();
+     dialogGeo.translate (delta);
+     this->setGeometry (dialogGeo);
+  }
 }
 
 // end

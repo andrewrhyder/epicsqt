@@ -73,6 +73,18 @@
      <property name="regionOfInterest4HVariable" stdset="0">
       <string>ROI4:H</string>
      </property>
+     <property name="targetXVariable" stdset="0">
+      <string>POS:TARGET_X</string>
+     </property>
+     <property name="targetYVariable" stdset="0">
+      <string>POS:TARGET_Y</string>
+     </property>
+     <property name="beamXVariable" stdset="0">
+      <string>POS:BEAM_X</string>
+     </property>
+     <property name="beamYVariable" stdset="0">
+      <string>POS:BEAM_Y</string>
+     </property>
      <property name="profileHozVariable" stdset="0">
       <string>HOZLINE:Y</string>
      </property>
@@ -119,7 +131,7 @@
       <bool>false</bool>
      </property>
      <property name="enableTargetSelection">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="displayCursorPixelInfo">
       <bool>true</bool>
@@ -721,6 +733,119 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
+          <string>Targeting</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_23">
+            <property name="text">
+             <string>Beam X:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_24">
+            <property name="text">
+             <string>Beam Y:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_25">
+            <property name="text">
+             <string>Target X:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>TargetY:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QELineEdit" name="qelineedit_23">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="variable" stdset="0">
+             <string>POS:BEAM_X</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QELineEdit" name="qelineedit_24">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="variable" stdset="0">
+             <string>POS:BEAM_Y</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QELineEdit" name="qelineedit_25">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="variable" stdset="0">
+             <string>POS:TARGET_X</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QELineEdit" name="qelineedit_26">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="variable" stdset="0">
+             <string>POS:TARGET_Y</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
           <string>Horizontal line profile</string>
@@ -841,11 +966,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
-  </customwidget>
-  <customwidget>
    <class>QEImage</class>
    <extends>QFrame</extends>
    <header>QEImage.h</header>
@@ -859,6 +979,11 @@
    <class>QEPlot</class>
    <extends>QwtPlot</extends>
    <header>QEPlot.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
