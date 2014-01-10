@@ -86,7 +86,7 @@ void QEImage::setup() {
     initialVertScrollPos = 0;
     initScrollPosSet = false;
 
-    formatOption = MONO;
+    mFormatOption = MONO;
     bitDepth = 8;
 
     paused = false;
@@ -815,25 +815,25 @@ void QEImage::setWidthHeightFromDimensions()
  */
 void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
-    formatOptions previousFormatOption = formatOption;
+    formatOptions previousFormatOption = mFormatOption;
 
     // Update image format
     // Area detector formats
-    if     ( !text.compare( "Mono" ) )         formatOption = MONO;
-    else if( !text.compare( "Bayer" ) )        formatOption = BAYER;
-    else if( !text.compare( "RGB1" ) )         formatOption = RGB1;
-    else if( !text.compare( "RGB2" ) )         formatOption = RGB2;
-    else if( !text.compare( "RGB3" ) )         formatOption = RGB3;
-    else if( !text.compare( "YUV444" ) )       formatOption = YUV444;
-    else if( !text.compare( "YUV422" ) )       formatOption = YUV422;
-    else if( !text.compare( "YUV421" ) )       formatOption = YUV421;
+    if     ( !text.compare( "Mono" ) )         mFormatOption = MONO;
+    else if( !text.compare( "Bayer" ) )        mFormatOption = BAYER;
+    else if( !text.compare( "RGB1" ) )         mFormatOption = RGB1;
+    else if( !text.compare( "RGB2" ) )         mFormatOption = RGB2;
+    else if( !text.compare( "RGB3" ) )         mFormatOption = RGB3;
+    else if( !text.compare( "YUV444" ) )       mFormatOption = YUV444;
+    else if( !text.compare( "YUV422" ) )       mFormatOption = YUV422;
+    else if( !text.compare( "YUV421" ) )       mFormatOption = YUV421;
     else
     {
         // !!! warn unexpected format
     }
 
     // Do nothing if no format change
-    if( previousFormatOption == formatOption)
+    if( previousFormatOption == mFormatOption)
     {
         return;
     }
@@ -1624,7 +1624,7 @@ void QEImage::displayImage()
 
     // Format each pixel ready for use in an RGB32 QImage.
     // Note, for speed, the switch on format is outside the loop. The loop is duplicated in each case using macros which.
-    switch( formatOption )
+    switch( mFormatOption )
     {
         case MONO:
         {
@@ -2825,18 +2825,18 @@ void QEImage::paste( QVariant v )
 // Allow user to set the video format
 void QEImage::setFormatOption( formatOptions formatOptionIn )
 {
-    if( formatOption != formatOptionIn )
+    if( mFormatOption != formatOptionIn )
     {
         pixelLookupValid = false;
     }
 
     // Save the option
-    formatOption = formatOptionIn;
+    mFormatOption = formatOptionIn;
 }
 
 QEImage::formatOptions QEImage::getFormatOption()
 {
-    return formatOption;
+    return mFormatOption;
 }
 
 // Allow user to set the bit depth for Mono video format
@@ -3631,22 +3631,29 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
 // Determine the maximum pixel value for the current format
 double QEImage::maxPixelValue()
 {
-    switch( formatOption )
+    double result = 0;
+
+    switch( mFormatOption )
     {
         case BAYER:
         case MONO:
-            return (1<<bitDepth)-1;
+            result = (1<<bitDepth)-1;
+            break;
 
         case RGB1:
         case RGB2:
         case RGB3:
-            return (1<<8)-1; //???!!! not done yet probably correct
+            result = (1<<8)-1; //???!!! not done yet probably correct
+            break;
 
         case YUV444:
         case YUV422:
         case YUV421:
-            return (1<<8)-1; //???!!! not done yet probably correct
+            result = (1<<8)-1; //???!!! not done yet probably correct
+            break;
     }
+
+    return result;
 }
 
 // Return a pointer to pixel data in the original image data.
@@ -4274,7 +4281,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
         return 0;
 
     // Case the data to the correct size, then return the data as a floating point number.
-    switch( formatOption )
+    switch( mFormatOption )
     {
         case BAYER:
         case MONO:
@@ -4776,7 +4783,7 @@ void QEImage::showImageAboutDialog()
     about.append( QString( "\nPixel depth taken from bit depth variable or bit depth property: %1" ).arg( bitDepth ));
 
     QString name;
-    switch( formatOption )
+    switch( mFormatOption )
     {
         case MONO:        name = "Monochrome";    break;
         case BAYER:       name = "Bayer";         break;

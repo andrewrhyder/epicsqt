@@ -511,7 +511,7 @@ public slots:
     bool enableProfilePresentation;
 
     // Options
-    formatOptions formatOption;
+    formatOptions mFormatOption;
     unsigned int bitDepth;
 
     // Image and related information
