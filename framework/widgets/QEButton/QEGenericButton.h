@@ -31,44 +31,46 @@
 #include <QEStringFormatting.h>
 #include <managePixmaps.h>
 #include <QEStringFormattingMethods.h>
-#include <QProcess>
+//#include <QProcess>
+#include <applicationLauncher.h>
+
 
 // Maximum number of variables.
 #define QEGENERICBUTTON_NUM_VARIABLES 2
 
 
-// Class to manage a process started by a QE button
-class processManager : public QProcess
-{
-    Q_OBJECT
+//// Class to manage a process started by a QE button
+//class processManager : public QProcess
+//{
+//    Q_OBJECT
 
-public:
-    processManager( bool logOutput )
-    {
-        // Catch when the process can be deleted
-        QObject::connect( this, SIGNAL( finished(int, QProcess::ExitStatus) ), this, SLOT( doFinished(int, QProcess::ExitStatus) ) );
+//public:
+//    processManager( bool logOutput )
+//    {
+//        // Catch when the process can be deleted
+//        QObject::connect( this, SIGNAL( finished(int, QProcess::ExitStatus) ), this, SLOT( doFinished(int, QProcess::ExitStatus) ) );
 
-        // Catch output if required
-        if( logOutput )
-        {
-            QObject::connect( this, SIGNAL( readyReadStandardOutput() ), this, SLOT( doRead() ) );
-            QObject::connect( this, SIGNAL( readyReadStandardError() ), this, SLOT( doRead() ) );
-        }
-    }
+//        // Catch output if required
+//        if( logOutput )
+//        {
+//            QObject::connect( this, SIGNAL( readyReadStandardOutput() ), this, SLOT( doRead() ) );
+//            QObject::connect( this, SIGNAL( readyReadStandardError() ), this, SLOT( doRead() ) );
+//        }
+//    }
 
-public slots:
-    void doRead()
-    {
-        message.sendMessage( readAll() );
-    }
-    void doFinished( int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/ )
-    {
-        deleteLater();
-    }
+//public slots:
+//    void doRead()
+//    {
+//        message.sendMessage( readAll() );
+//    }
+//    void doFinished( int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/ )
+//    {
+//        deleteLater();
+//    }
 
-private:
-    UserMessage message;
-};
+//private:
+//    UserMessage message;
+//};
 
 // Class common to all QE buttons
 class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFormattingMethods {
@@ -79,9 +81,9 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
 
     enum updateOptions { UPDATE_TEXT, UPDATE_ICON, UPDATE_TEXT_AND_ICON, UPDATE_STATE };
 
-    enum programStartupOptions { PSO_NONE,         // Just run the program
-                                 PSO_TERMINAL,     // Run the program in a termainal
-                                 PSO_LOGOUTPUT };  // Run the program, and log the output in the QE message system
+//    enum programStartupOptions { PSO_NONE,         // Just run the program
+//                                 PSO_TERMINAL,     // Run the program in a termainal
+//                                 PSO_LOGOUTPUT };  // Run the program, and log the output in the QE message system
 
     // subscribe
     void setSubscribe( bool subscribe );
@@ -149,8 +151,8 @@ class QEGenericButton : public QEWidget, public managePixmaps, public QEStringFo
     QStringList getArguments();
 
     // Qt Designer Properties program startup options
-    void setProgramStartupOption( programStartupOptions programStartupOptionIn );
-    programStartupOptions getProgramStartupOption();
+    void setProgramStartupOption( applicationLauncher::programStartupOptions programStartupOptionIn );
+    applicationLauncher::programStartupOptions getProgramStartupOption();
 
     // 'Start new GUI' Property convenience functions
 
@@ -185,6 +187,7 @@ protected:
     virtual updateOptions getDefaultUpdateOption() = 0;
 
     void startGui( const QEActionRequests & request );
+    applicationLauncher programLauncher;
 
 private:
     Qt::Alignment textAlignment;
@@ -201,9 +204,9 @@ private:
     QString clickText;        // Text to write on a button click
     QString clickCheckedText; // Text to write on a button click when the button moves to the checked position
 
-    QString program;        // Program to run
-    QStringList arguments;  // Program arguments
-    programStartupOptions programStartupOption; // Startup option (in a terminal, log output, or just start it and forget it)
+//    QString program;        // Program to run
+//    QStringList arguments;  // Program arguments
+//    programStartupOptions programStartupOption; // Startup option (in a terminal, log output, or just start it and forget it)
 
     QString guiName;      // GUI file name to launch
     QEActionRequests::Options creationOption;  // Indicate how the new gui should be created ( examples: in a new window, or a top dock)
@@ -236,7 +239,7 @@ protected:
 
 private:
     void dataSetup();
-    void commandSetup();
+//    void commandSetup();
     void guiSetup();
     qcaobject::QCaObject* createQcaItem( unsigned int variableIndex  );
 

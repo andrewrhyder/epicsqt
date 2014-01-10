@@ -43,7 +43,7 @@ QEGenericButton::QEGenericButton( QWidget *owner ) : QEWidget( owner )
 */
 void QEGenericButton::setup() {
     dataSetup();
-    commandSetup();
+//    commandSetup();
     guiSetup();
 
     // Use push button signals
@@ -87,13 +87,13 @@ void QEGenericButton::dataSetup()
     updateOption = getDefaultUpdateOption();
 }
 
-/*
-    Setup for running commands
-*/
-void QEGenericButton::commandSetup()
-{
-    programStartupOption = PSO_NONE;
-}
+///*
+//    Setup for running commands
+//*/
+//void QEGenericButton::commandSetup()
+//{
+//    programStartupOption = PSO_NONE;
+//}
 
 /*
     Setup for starting new GUIs
@@ -330,7 +330,7 @@ void QEGenericButton::userClicked( bool checked )
 {
     // Do nothing if nothing to do. (no point asking for confirmation or password)
     // Then keep doing nothing if user confirmation required but not given, or password required but not given
-    if(( !writeOnClick && program.isEmpty() && guiName.isEmpty() ) ||  !confirmAction() || !checkPassword() )
+    if(( !writeOnClick && programLauncher.getProgram().isEmpty() && guiName.isEmpty() ) ||  !confirmAction() || !checkPassword() )
         return;
 
     // Get the variable to write to
@@ -370,46 +370,48 @@ void QEGenericButton::userClicked( bool checked )
     }
 
     // If there is a command to run, run it, with substitutions applied to the command and arguments
-    if( !program.isEmpty() )
-    {
-        // Create a new process to run the program
-        processManager* process = new processManager( programStartupOption == PSO_LOGOUTPUT );
+    programLauncher.launch( this );
 
-        // Apply substitutions to the arguments
-        QStringList substitutedArguments = arguments;
-        for( int i = 0; i < substitutedArguments.size(); i++ )
-        {
-            substitutedArguments[i] = substituteThis( substitutedArguments[i] );
-        }
+//    if( !program.isEmpty() )
+//    {
+//        // Create a new process to run the program
+//        processManager* process = new processManager( programStartupOption == PSO_LOGOUTPUT );
 
-        // Apply substitutions to the program name
-        QString prog = substituteThis( program );
+//        // Apply substitutions to the arguments
+//        QStringList substitutedArguments = arguments;
+//        for( int i = 0; i < substitutedArguments.size(); i++ )
+//        {
+//            substitutedArguments[i] = substituteThis( substitutedArguments[i] );
+//        }
 
-        // Build up a single string with the command and arguments and run the program
-        for( int i = 0; i < substitutedArguments.size(); i++)
-        {
-            prog.append( " " );
-            prog.append( substitutedArguments[i] );
-        }
+//        // Apply substitutions to the program name
+//        QString prog = substituteThis( program );
 
-        // Add apropriate terminal command if starting up within a terminal
-        if( programStartupOption == PSO_TERMINAL )
-        {
-#ifdef WIN32
-            prog.prepend( "cmd.exe /C start " );
-#else
-            prog.prepend( "xterm -hold -e " );// use $TERM ??
-#endif
-        }
+//        // Build up a single string with the command and arguments and run the program
+//        for( int i = 0; i < substitutedArguments.size(); i++)
+//        {
+//            prog.append( " " );
+//            prog.append( substitutedArguments[i] );
+//        }
 
-        // Run the program
-        process->start( prog );
-
-        // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
-        // (This didn't seem to work when starting EDM with the '-one' switch, perhaps due to the
-        //  way EDM checks all arguments are identical when the '-one' switch is present?)
-        //process->start( substituteThis( program ), substitutedArguments );
-    }
+//        // Add apropriate terminal command if starting up within a terminal
+//        if( programStartupOption == PSO_TERMINAL )
+//        {
+//#ifdef WIN32
+//            prog.prepend( "cmd.exe /C start " );
+//#else
+//            prog.prepend( "xterm -hold -e " );// use $TERM ??
+//#endif
+//        }
+//
+//        // Run the program
+//        process->start( prog );
+//
+//        // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
+//        // (This didn't seem to work when starting EDM with the '-one' switch, perhaps due to the
+//        //  way EDM checks all arguments are identical when the '-one' switch is present?)
+//        //process->start( substituteThis( program ), substitutedArguments );
+//    }
 
     // If a new GUI is required, start it
     if( !guiName.isEmpty() )
@@ -659,15 +661,16 @@ QString QEGenericButton::getClickCheckedText()
 // 'Command button' Property convenience functions
 
 // Program String
-void QEGenericButton::setProgram( QString program ){ QEGenericButton::program = program; }
-QString QEGenericButton::getProgram(){ return QEGenericButton::program; }
+void QEGenericButton::setProgram( QString program ){ programLauncher.setProgram( program ); }
+QString QEGenericButton::getProgram(){ return programLauncher.getProgram(); }
 
 // Arguments String
-void QEGenericButton::setArguments( QStringList arguments ){ QEGenericButton::arguments = arguments; }
-QStringList QEGenericButton::getArguments(){ return QEGenericButton::arguments; }
+void QEGenericButton::setArguments( QStringList arguments ){ programLauncher.setArguments( arguments ); }
+QStringList QEGenericButton::getArguments(){ return  programLauncher.getArguments(); }
 
-
-
+// Startup option
+void QEGenericButton::setProgramStartupOption( applicationLauncher::programStartupOptions programStartupOption ){ programLauncher.setProgramStartupOption( programStartupOption ); }
+applicationLauncher::programStartupOptions QEGenericButton::getProgramStartupOption(){ return programLauncher.getProgramStartupOption(); }
 
 //==============================================================================
 // 'Start new GUI' Property convenience functions
@@ -680,16 +683,6 @@ void QEGenericButton::setGuiName( QString guiNameIn )
 QString QEGenericButton::getGuiName()
 {
     return guiName;
-}
-
-// Qt Designer Properties program startup options
-void QEGenericButton::setProgramStartupOption( programStartupOptions programStartupOptionIn )
-{
-    programStartupOption = programStartupOptionIn;
-}
-QEGenericButton::programStartupOptions QEGenericButton::getProgramStartupOption()
-{
-    return programStartupOption;
 }
 
 // Qt Designer Properties Creation options

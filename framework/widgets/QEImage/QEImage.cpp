@@ -2640,19 +2640,18 @@ void QEImage::saveClicked()
 
     if (qFileDialog->exec())
     {
-
-        QImage qImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
+        QImage qImage = copyImage();
         filename = qFileDialog->selectedFiles().at(0);
 
         if (qFileDialog->selectedNameFilter() == filterList.at(0))
         {
             result = qImage.save(filename, "TIFF");
         }
-        else if (qFileDialog->selectedNameFilter() == filterList.at(0))
+        else if (qFileDialog->selectedNameFilter() == filterList.at(1))
         {
             result = qImage.save(filename, "PNG");
         }
-        else if (qFileDialog->selectedNameFilter() == filterList.at(1))
+        else if (qFileDialog->selectedNameFilter() == filterList.at(2))
         {
             result = qImage.save(filename, "BMP");
         }
@@ -2672,6 +2671,13 @@ void QEImage::saveClicked()
     }
 
 }
+
+// Return a QImage based on the current image
+QImage QEImage::copyImage()
+{
+    return QImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
+}
+
 
 // Update the video widget if the QEImage has changed
 void QEImage::resizeEvent(QResizeEvent* )
@@ -3261,6 +3267,25 @@ bool QEImage::getDisplayMarkups()
 {
     return displayMarkups;
 }
+
+// Application launching
+// Program String
+void QEImage::setProgram1( QString program ){ programLauncher1.setProgram( program ); }
+QString QEImage::getProgram1(){ return programLauncher1.getProgram(); }
+void QEImage::setProgram2( QString program ){ programLauncher2.setProgram( program ); }
+QString QEImage::getProgram2(){ return programLauncher2.getProgram(); }
+
+// Arguments String
+void QEImage::setArguments1( QStringList arguments ){ programLauncher1.setArguments( arguments ); }
+QStringList QEImage::getArguments1(){ return  programLauncher1.getArguments(); }
+void QEImage::setArguments2( QStringList arguments ){ programLauncher2.setArguments( arguments ); }
+QStringList QEImage::getArguments2(){ return  programLauncher2.getArguments(); }
+
+// Startup option
+void QEImage::setProgramStartupOption1( applicationLauncher::programStartupOptions programStartupOption ){ programLauncher1.setProgramStartupOption( programStartupOption ); }
+applicationLauncher::programStartupOptions QEImage::getProgramStartupOption1(){ return programLauncher1.getProgramStartupOption(); }
+void QEImage::setProgramStartupOption2( applicationLauncher::programStartupOptions programStartupOption ){ programLauncher2.setProgramStartupOption( programStartupOption ); }
+applicationLauncher::programStartupOptions QEImage::getProgramStartupOption2(){ return programLauncher2.getProgramStartupOption(); }
 
 //=================================================================================================
 
@@ -4933,6 +4958,33 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         if( !initialise )
         {
             optionsDialog->exec( this );
+        }
+    }
+
+    // Copy Image
+    else if( action == "Copy" )
+    {
+        if( !initialise )
+        {
+            contextMenuTriggered( CM_COPY_DATA );
+        }
+    }
+
+    // Launch Application 1
+    else if( action == "LaunchApplication1" )
+    {
+        if( !initialise )
+        {
+            programLauncher1.launchImage( this, copyImage() );
+        }
+    }
+
+    // Launch Application 2
+    else if( action == "LaunchApplication2" )
+    {
+        if( !initialise )
+        {
+            programLauncher2.launchImage( this, copyImage() );
         }
     }
 
