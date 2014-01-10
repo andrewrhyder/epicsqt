@@ -137,13 +137,15 @@ private:
 class windowCreationListItem
 {
 public:
-    windowCreationListItem(){ hidden = false; creationOption = QEActionRequests::OptionNewWindow; }
+    windowCreationListItem(){ hidden = false; creationOption = QEActionRequests::OptionNewWindow; winSize.setHeight(0); winSize.setWidth(0);}
     windowCreationListItem(windowCreationListItem* item ){ uiFile = item->uiFile;
                                                            macroSubstitutions = item->macroSubstitutions;
                                                            customisationName = item->customisationName;
                                                            creationOption = item->creationOption;
                                                            hidden = item->hidden;
-                                                           title = item->title; }
+                                                           title = item->title;
+                                                           winSize.setHeight(0); winSize.setWidth(0);
+                                                         }
     QString                   uiFile;
     QString                   macroSubstitutions;
     QString                   customisationName;

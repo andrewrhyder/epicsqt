@@ -29,6 +29,7 @@
 #include <QPushButton>
 #include <QFile>
 #include <QMessageBox>
+#include <QEWidget.h>
 
 DetectorEditor::DetectorEditor( QList<QStringList> detectorList, QString xmlFile, QWidget *parent ) :
     QDialog(parent),
@@ -137,21 +138,23 @@ bool DetectorEditor::save()
 {
     QDomDocument doc;
     // Open to write a new/updated detector configurations to its xmlFile
-    QFile file( xmlFileName );
-    if (!file.open(QIODevice::ReadWrite))
+    ContainerProfile containerProfile;
+    QFile* file = QEWidget::findQEFile(xmlFileName, &containerProfile);
+    if (!file && !file->open(QIODevice::ReadWrite))
     {
-        QString error = file.errorString();
+        QString error = file->errorString();
         qDebug() << "Could not open customisation file" << xmlFileName << error;
         return false;
     }
     // if named customisation exists, replace it
-    if ( !doc.setContent( &file ) )
+    if ( !doc.setContent( file ) )
     {
         qDebug() << "Could not parse the XML in the customisations file" << xmlFileName;
-        file.close();
+        file->close();
+        delete file;
         return false;
     }
-    file.close();
+    file->close();
 
     QDomElement docElem = doc.documentElement();
     QDomElement customisationElement = docElem.firstChildElement( "Customisation" );
@@ -220,16 +223,19 @@ bool DetectorEditor::save()
         }
     }
 
-   if (!file.open(QIODevice::WriteOnly))
+   if (!file->open(QIODevice::WriteOnly))
    {
-       QString error = file.errorString();
+       QString error = file->errorString();
        qDebug() << "Could not open customisation file" << xmlFileName << error;
+       file->close();
+       delete file;
        return false;
    }
     // save it
-    QTextStream out(&file);
+    QTextStream out(file);
     out << doc.toString();
-    file.close();
+    file->close();
+    delete file;
 
     QMessageBox msgBox(QMessageBox::NoIcon,
                        "Detector Editor Information",
@@ -248,7 +254,7 @@ QDomElement DetectorEditor::createDetectorElement( QDomDocument doc, QString nam
     detectorItem.appendChild(windowItem);
     // create children
     QDomElement UiFileItem = doc.createElement( "UiFile" );
-    QDomText text = doc.createTextNode("Empty.ui");
+    QDomText text = doc.createTextNode("areaDetector/ADApp/op/ui/Empty.ui");
     UiFileItem.appendChild(text);
 
     QDomElement CustomisationNameItem = doc.createElement( "CustomisationName" );
@@ -287,23 +293,28 @@ bool DetectorEditor::loadDetectorData( QString xmlFile, QList<QStringList>& list
     QDomDocument doc;
 
     // Read and parse xmlFile
-    QFile file( xmlFile );
-    if (!file.open(QIODevice::ReadOnly))
+    ContainerProfile containerProfile;
+    QFile* file = QEWidget::findQEFile(xmlFile, &containerProfile);
+    if (!file && !file->open(QIODevice::ReadOnly))
     {
-        QString error = file.errorString();
+        QString error = file->errorString();
         qDebug() << "Could not open customisation file" << xmlFile << error;
+        delete file;
         return false;
     }
     // if named customisation exists, replace it
-    if ( !doc.setContent( &file ) )
+    if ( !doc.setContent( file ) )
     {
         qDebug() << "Could not parse the XML in the customisations file" << xmlFile;
-        file.close();
+        file->close();
+        delete file;
         return false;
     }
-    file.close();
-    QDomElement docElem = doc.documentElement();
+    file->close();
+    delete file;
+    file = NULL;
 
+    QDomElement docElem = doc.documentElement();
     // Parse XML using Qt's Document Object Model.
     QDomElement customisationElement = docElem.firstChildElement( "Customisation" );
    if ( !customisationElement.isNull() )

@@ -3026,7 +3026,7 @@ void MainWindow::applyCustomisation( QString customisationName, windowCustomisat
                     {
                         menu->addSeparator();
                     }
-                    // Zai - create a dock immediately if one dock view but not a restoring process
+                    // Zai - create a dock immediately if it is a dock view but not a restoring process
                     if (isDockView(menuItem) && !restoring){
                         // create the doce and add view action
                         menu->addAction(createDockWidget(menuItem));
