@@ -209,6 +209,21 @@ QString VariableNameManager::standardizeSubs( const QString &subsIn ) {
     std = std.replace( " ,", "," );
     std = std.replace( ", ", "," );
     std = std.replace( " ", "," );
+    // ZW: one standardizing string (microSubstitute) solution to fix value with "space" char.
+    QStringList list = subsIn.split("=");
+    for ( int i = 0; i < list.count(); i++ ){
+        list[i] = list[i].simplified();
+        if (list[i].contains(" ,")){
+            list[i] = list[i].replace( " ,", "," );
+        }
+        else if (list[i].contains(", ")){
+            list[i] = list[i].replace( ", ", "," );
+        }
+        else{
+            list[i].replace(list[i].lastIndexOf(" "), 1, ",");
+        }
+    }
+    std = list.join("=");
 
     return std;
 }
