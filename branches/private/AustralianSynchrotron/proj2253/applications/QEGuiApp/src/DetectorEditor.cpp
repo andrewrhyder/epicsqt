@@ -262,7 +262,7 @@ QDomElement DetectorEditor::createDetectorElement( QDomDocument doc, QString nam
     CustomisationNameItem.appendChild(text);
 
     QDomElement MacroSubstitutionsItem = doc.createElement( "MacroSubstitutions" );
-    text = doc.createTextNode("P=" + pv + ":");
+    text = doc.createTextNode("P=" + pv + ": " +"T1=" + pv);
     MacroSubstitutionsItem.appendChild(text);
 
     QDomElement TitleItem = doc.createElement( "Title" );
