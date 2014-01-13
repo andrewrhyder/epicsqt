@@ -206,7 +206,6 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(windowCustomisationMenu
 
     // Set up an action to respond to the user
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
-    qDebug() << "4" << title;
 }
 
 // Add an initial menu hierarchy.
