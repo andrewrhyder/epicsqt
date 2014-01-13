@@ -219,7 +219,8 @@ QString VariableNameManager::standardizeSubs( const QString &subsIn ) {
         else if (list[i].contains(", ")){
             list[i] = list[i].replace( ", ", "," );
         }
-        else{
+        else if (list[i].contains(" ") && i < list.count()-1) {
+            // not last one
             list[i].replace(list[i].lastIndexOf(" "), 1, ",");
         }
     }
