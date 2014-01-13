@@ -162,13 +162,14 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
 // Construct instance of class defining a placeholder for items the application might add
 windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
-                          const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
+                          const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER or MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
 
-                          const QString widgetNameIn )                          // widget name if built in function is for a widget, not the application
+                          const QString builtIn,                               // Name of built in function (built into the application or a QE widget). For example: 'Region 1'
+                          const QString widgetNameIn )                         // widget name if built in function is for a widget, not the application
 
-                          : windowCustomisationItem( titleIn, widgetNameIn )
+                          : windowCustomisationItem( builtIn, widgetNameIn )
 {
     type = typeIn;
     menuHierarchy = menuHierarchyIn;
@@ -205,6 +206,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(windowCustomisationMenu
 
     // Set up an action to respond to the user
     connect( this, SIGNAL( triggered()), this, SLOT(itemAction()));
+    qDebug() << "4" << title;
 }
 
 // Add an initial menu hierarchy.
@@ -571,7 +573,7 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
     QDomElement builtInElement = itemElement.firstChildElement( "BuiltIn" );
     if( !builtInElement.isNull() )
     {
-        // read Built In function name
+        // Read Built In function name
         builtIn = builtInElement.attribute( "Name" );
 
         QDomElement childElement = builtInElement.firstChildElement();
@@ -586,7 +588,7 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                 widgetName = childElement.text();
             }
 
-            childElement = childElement.nextSiblingElement();
+           childElement = childElement.nextSiblingElement();
         }
     }
 
@@ -708,9 +710,11 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
         {
             // Add details for a built in menu item to customisation set
             windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy,
-                                                                                 builtIn,
+                                                                                 title,
                                                                                  windowCustomisationMenuItem::MENU_BUILT_IN,
                                                                                  requiresSeparator( itemElement ),
+
+                                                                                 builtIn,
                                                                                  widgetName );
             return item;
 
@@ -722,6 +726,7 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
                                                                                  title,
                                                                                  windowCustomisationMenuItem::MENU_ITEM,
                                                                                  requiresSeparator( itemElement ),
+
                                                                                  NULL/*!!! needs launch receiver object*/,
                                                                                  windows,
                                                                                  program,

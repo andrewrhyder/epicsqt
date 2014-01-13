@@ -176,7 +176,7 @@ private:
     QString builtInAction;                          // Identifier of action built in to the application
     ContainerProfile profile;
 
-    QString widgetName;
+    QString widgetName;                             // Widget to locate if passing this action on to a widget in a GUI
 
 private slots:
     void itemAction();              // Slot to call when action is triggered
@@ -212,10 +212,11 @@ public:
 
     windowCustomisationMenuItem( // Construction (placeholder menu item)
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
-                          const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
+                          const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
                           const bool separatorIn,                              // Separator required before this
 
+                          const QString builtIn,                               // Name of built in function (built into the application or a QE widget). For example: 'Region 1'
                           const QString widgetNameIn );                        // widget name if built in function is for a widget, not the application
 
     windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem);
