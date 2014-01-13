@@ -116,7 +116,7 @@ QString QEFormGrid::MacroData::genSubsitutions (const int n)
 
    subs = "";
 
-   // E.g.  ROWNAME=Fred where prefix provides ROW or COL
+   // E.g. ROWNAME=Fred where prefix provides SLOT, ROW or COL.
    //
    subs.append (this->prefix).append ("NAME=").append (this->strings.value (n, ""));
 
@@ -185,7 +185,6 @@ void QEFormGrid::commonSetup (const QString& uiFileIn,
        this->inputTimer = NULL;
    }
 
-
    // Set up the number of variables managed by the variable name manager.
    // NOTE: there is no channel data associated with this widget, but it uses
    // the same mechanism as other data widgets to manage the UI filename and
@@ -243,10 +242,10 @@ QEFormGrid::~QEFormGrid ()
 //
 void QEFormGrid::triggerReCreateAllForms ()
 {
-   if (this->interactive) {
+   if (this->interactive && this->inputTimer) {
       this->inputTimer->start (WAIT_FOR_TYPING_TO_FINISH);   // Delayed call
    } else {
-      this->inputDelayExpired ();   // Call directly
+      this->reCreateAllForms ();   // Immediate call
    }
 }
 
@@ -263,7 +262,9 @@ void QEFormGrid::setNewUiFile (QString variableNameIn,
                                QString variableNameSubstitutionsIn,
                                unsigned int variableIndex)
 {
-    this->setVariableNameAndSubstitutions (variableNameIn, variableNameSubstitutionsIn, variableIndex);
+   this->setVariableNameAndSubstitutions (variableNameIn,
+                                          variableNameSubstitutionsIn,
+                                          variableIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -312,12 +313,21 @@ QString QEFormGrid::getPrioritySubstitutions (const int slot)
 //
 QEForm* QEFormGrid::createQEForm (const int slot)
 {
+   bool localProfile;
    QString psubs;
    QEForm* form = NULL;
 
-   // Publish the profile this button recieved.
+   // Do we need to publish a local profile?
    //
-   this->publishOwnProfile ();
+   if (!this->isProfileDefined ()) {
+      // Flag the profile was set up in this function (and so should be released
+      // in this function).
+      //
+      localProfile = true;
+      this->publishOwnProfile ();
+   } else {
+      localProfile = false;
+   }
 
    // Extend any variable name substitutions with this form grid's substitutions
    // Like most other macro substitutions, the substitutions already present
@@ -345,9 +355,12 @@ QEForm* QEFormGrid::createQEForm (const int slot)
    //
    this->removeMacroSubstitutions ();
 
-   // Release the profile now all QE widgets have been created.
+   // Release the profile, if we defined one, now that all QE widgets have been
+   // created.
    //
-   this->releaseProfile ();
+   if (localProfile) {
+      this->releaseProfile ();
+   }
 
    return form;
 }
