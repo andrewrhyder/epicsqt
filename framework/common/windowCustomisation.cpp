@@ -347,9 +347,13 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
 
     // Read and parse xmlFile
     QFile* file = QEWidget::findQEFile( xmlFile );
+    if( !file )
+    {
+        qDebug() << "Could not find customisation file" << xmlFile;
+        return false;
+    }
 
-//    QFile file( xmlFile );
-    if( !file || !file->open(QIODevice::ReadOnly) )
+    if( !file->open(QIODevice::ReadOnly) )
     {
         QString error = file->errorString();
         qDebug() << "Could not open customisation file" << xmlFile << error;
