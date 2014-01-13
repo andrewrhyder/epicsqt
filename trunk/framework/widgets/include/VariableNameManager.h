@@ -51,7 +51,8 @@ public:
 
   private:
     QString doSubstitution( unsigned int variableIndex );
-    QString standardizeSubs( const QString &subsIn );
+    void substituteKey( QString& string, QString key, const QString value );
+
 
     QString macroSubstitutions;
     QString macroSubstitutionsOverride;

@@ -372,47 +372,6 @@ void QEGenericButton::userClicked( bool checked )
     // If there is a command to run, run it, with substitutions applied to the command and arguments
     programLauncher.launch( this );
 
-//    if( !program.isEmpty() )
-//    {
-//        // Create a new process to run the program
-//        processManager* process = new processManager( programStartupOption == PSO_LOGOUTPUT );
-
-//        // Apply substitutions to the arguments
-//        QStringList substitutedArguments = arguments;
-//        for( int i = 0; i < substitutedArguments.size(); i++ )
-//        {
-//            substitutedArguments[i] = substituteThis( substitutedArguments[i] );
-//        }
-
-//        // Apply substitutions to the program name
-//        QString prog = substituteThis( program );
-
-//        // Build up a single string with the command and arguments and run the program
-//        for( int i = 0; i < substitutedArguments.size(); i++)
-//        {
-//            prog.append( " " );
-//            prog.append( substitutedArguments[i] );
-//        }
-
-//        // Add apropriate terminal command if starting up within a terminal
-//        if( programStartupOption == PSO_TERMINAL )
-//        {
-//#ifdef WIN32
-//            prog.prepend( "cmd.exe /C start " );
-//#else
-//            prog.prepend( "xterm -hold -e " );// use $TERM ??
-//#endif
-//        }
-//
-//        // Run the program
-//        process->start( prog );
-//
-//        // Alternate (and cleaner) way to run the program without building a string containing the program and arguments.
-//        // (This didn't seem to work when starting EDM with the '-one' switch, perhaps due to the
-//        //  way EDM checks all arguments are identical when the '-one' switch is present?)
-//        //process->start( substituteThis( program ), substitutedArguments );
-//    }
-
     // If a new GUI is required, start it
     if( !guiName.isEmpty() )
     {
