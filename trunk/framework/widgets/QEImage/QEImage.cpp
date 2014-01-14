@@ -91,6 +91,7 @@ void QEImage::setup() {
 
     paused = false;
     infoUpdatePaused( paused );
+    pauseExternalAction = NULL;
 
     vSliceThickness = 1;
     hSliceThickness = 1;
@@ -173,6 +174,10 @@ void QEImage::setup() {
                       this,        SLOT  ( currentPixelInfo( QPoint ) ) );
     QObject::connect( videoWidget, SIGNAL( pan( QPoint ) ),
                       this,        SLOT  ( pan( QPoint ) ) );
+    QObject::connect( videoWidget, SIGNAL( redraw() ),
+                      this,        SLOT  ( redraw() ) );
+
+
 
 
     // Create zoom sub menu
@@ -1267,6 +1272,9 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     // Present the new image
     displayImage();
 
+    // Indicate another image has arrived
+    freshImage();
+
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
     {
@@ -1783,8 +1791,6 @@ void QEImage::displayImage()
             int BROffset = (+imageBuffWidth+1)*bytesPerPixel;
 
             enum regions {REG_TL, REG_T, REG_TR, REG_L, REG_C, REG_R, REG_BL, REG_B, REG_BR};
-
-//            qDebug() << "ImageSize" << image.size() << "w" << w << "h" << h << "imageDataSize" << imageDataSize << "elementsPerPixel"  << elementsPerPixel << "bytesPerPixel" << bytesPerPixel;
 
             quint32 r1;
             quint32 r2;
@@ -2705,11 +2711,8 @@ void QEImage::doContrastReversal( bool /*contrastReversal*/ )
     // Flag color lookup table is invalid
     pixelLookupValid = false;
 
-    qcaobject::QCaObject* qca = getQcaItem( IMAGE_VARIABLE );
-    if( qca )
-    {
-        qca->resendLastData();
-    }
+    // Redraw the current image (don't wait for next update (image may be stalled)
+    redraw();
 }
 
 // Manage vertical slice selection
@@ -3381,14 +3384,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveVSliceX = true;
                 if( enableVertSlicePresentation )
                 {
-                    if( !appHostsControls )
-                    {
-                        vSliceLabel->setVisible( true );
-                    }
-                    if( vSliceDisplay )
-                    {
-                        vSliceDisplay->setVisible( true );
-                    }
+                    QTimer::singleShot( 0, this, SLOT(setVSliceControlsVisible() ) );
                     generateVSlice(  vSliceX, vSliceThickness );
                 }
                 vertProfileChanged();
@@ -3400,14 +3396,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveHSliceY = true;
                 if( enableHozSlicePresentation )
                 {
-                    if( !appHostsControls )
-                    {
-                        hSliceLabel->setVisible( true );
-                    }
-                    if( hSliceDisplay )
-                    {
-                        hSliceDisplay->setVisible( true );
-                    }
+                    QTimer::singleShot( 0, this, SLOT(setHSliceControlsVisible() ) );
                     generateHSlice( hSliceY, hSliceThickness );
                 }
                 hozProfileChanged();
@@ -3490,14 +3479,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveProfileLine = true;
                 if( enableProfilePresentation )
                 {
-                    if( !appHostsControls )
-                    {
-                        profileLabel->setVisible( true );
-                    }
-                    if( profileDisplay )
-                    {
-                        profileDisplay->setVisible( true );
-                    }
+                    QTimer::singleShot( 0, this, SLOT(setLineProfileControlsVisible() ) );
                     generateProfile( profileLineStart, profileLineEnd, profileThickness );
                 }
 
@@ -3552,22 +3534,14 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
             case imageMarkup::MARKUP_ID_V_SLICE:
                 vSliceX = 0;
                 haveVSliceX = false;
-                vSliceLabel->setVisible( false );
-                if( vSliceDisplay )
-                {
-                    vSliceDisplay->setVisible( false );
-                }
+                QTimer::singleShot( 0, this, SLOT(setVSliceControlsNotVisible() ) );
                 infoUpdateVertProfile();
                 break;
 
             case imageMarkup::MARKUP_ID_H_SLICE:
                 hSliceY = 0;
                 haveHSliceY = false;
-                hSliceLabel->setVisible( false );
-                if( hSliceDisplay )
-                {
-                    hSliceDisplay->setVisible( false );
-                }
+                QTimer::singleShot( 0, this, SLOT(setHSliceControlsNotVisible() ) );
                 infoUpdateHozProfile();
                 break;
 
@@ -3605,11 +3579,8 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 profileLineStart = QPoint();
                 profileLineEnd = QPoint();
                 haveProfileLine = false;
-                profileLabel->setVisible( false );
-                if( profileDisplay )
-                {
-                    profileDisplay->setVisible( false );
-                }
+
+                QTimer::singleShot( 0, this, SLOT(setLineProfileControlsNotVisible() ) );
                 infoUpdateProfile();
                 break;
 
@@ -3627,6 +3598,82 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
         }
     }
 }
+
+//==================================================
+// Slots to make profile plots appear or disappear
+// They are used as timer events to ensure resize events (that happen as the controls are inserted or deleted)
+// don't cause a redraw of markups while handling a markup draw event
+
+// Slot to make vertical slice profile plot appear
+void QEImage::setVSliceControlsVisible()
+{
+    if( !appHostsControls )
+    {
+        vSliceLabel->setVisible( true );
+    }
+    if( vSliceDisplay )
+    {
+        vSliceDisplay->setVisible( true );
+    }
+}
+
+// Slot to make vertical slice profile plot disapear
+void QEImage::setVSliceControlsNotVisible()
+{
+    vSliceLabel->setVisible( false );
+    if( vSliceDisplay )
+    {
+        vSliceDisplay->setVisible( false );
+    }
+}
+
+// Slot to make horizontal slice profile plot appear
+void QEImage::setHSliceControlsVisible()
+{
+    if( !appHostsControls )
+    {
+        hSliceLabel->setVisible( true );
+    }
+    if( hSliceDisplay )
+    {
+        hSliceDisplay->setVisible( true );
+    }
+}
+
+// Slot to make horizontal profile plot disapear
+void QEImage::setHSliceControlsNotVisible()
+{
+    hSliceLabel->setVisible( false );
+    if( hSliceDisplay )
+    {
+        hSliceDisplay->setVisible( false );
+    }
+}
+
+// Slot to make arbitrary line profile plot appear
+void QEImage::setLineProfileControlsVisible()
+{
+    if( !appHostsControls )
+    {
+        profileLabel->setVisible( true );
+    }
+    if( profileDisplay )
+    {
+        profileDisplay->setVisible( true );
+    }
+}
+
+// Slot to make arbitrary line profile plot disapear
+void QEImage::setLineProfileControlsNotVisible()
+{
+    profileLabel->setVisible( false );
+    if( profileDisplay )
+    {
+        profileDisplay->setVisible( false );
+    }
+}
+
+//==================================================
 
 // Determine the maximum pixel value for the current format
 double QEImage::maxPixelValue()
@@ -4574,6 +4621,18 @@ void QEImage::pan( QPoint origin )
     // Update the scroll bars to match the panning
     scrollArea->horizontalScrollBar()->setValue( int( scrollArea->horizontalScrollBar()->maximum() * xProportion ) );
     scrollArea->verticalScrollBar()->setValue( int( scrollArea->verticalScrollBar()->maximum() * yProportion ) );
+}
+
+//=================================================================================================
+// Slot to redraw the current image.
+// Required when properties change, such as contrast reversal, or when the video widget changes, such as a resize
+void QEImage::redraw()
+{
+    qcaobject::QCaObject* qca = getQcaItem( IMAGE_VARIABLE );
+    if( qca )
+    {
+        qca->resendLastData();
+    }
 }
 
 //=================================================================================================

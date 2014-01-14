@@ -384,12 +384,23 @@ private slots:
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
+    void redraw();
     void showImageContextMenu( const QPoint& );
     void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
     void showImageAboutDialog();
     void optionAction( imageContextMenu::imageContextMenuOptions option, bool checked );
+
+    // Slots to make profile plots appear or disappear
+    // They are used as timer events to ensure resize events (that happen as the controls are inserted or deleted)
+    // don't cause a redraw of markups while handling a markup draw event
+    void setVSliceControlsVisible();
+    void setVSliceControlsNotVisible();
+    void setHSliceControlsVisible();
+    void setHSliceControlsNotVisible();
+    void setLineProfileControlsVisible();
+    void setLineProfileControlsNotVisible();
 
 public slots:
     void setImageFile( QString name );

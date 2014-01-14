@@ -81,6 +81,7 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     lastTimeStamp = QCaDateTime( QDateTime::currentDateTime() );
     lastVariantValue = (double)0.0;
     lastValueIsDefined = false;
+    lastDataSize = 0;
 
     lastNewData = NULL;
 
@@ -1053,6 +1054,7 @@ void QCaObject::processData( void* newDataPtr ) {
 
         // Save the data just emited so it can be re-sent if required
         lastByteArrayValue = byteArrayValue;
+        lastDataSize = dataSize;
 
         // Delete any old data now it is no longer referenced by byte arrays
         if( lastNewData )
@@ -1143,7 +1145,7 @@ void QCaObject::resendLastData()
     {
         // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection as the byte array
         // refernces the data held in lastNewData directly which may be deleted before a queued connection is completed
-        emit dataChanged( lastByteArrayValue, lastAlarmInfo, lastTimeStamp );
+        emit dataChanged( lastByteArrayValue, lastDataSize, lastAlarmInfo, lastTimeStamp );
     }
 }
 

@@ -182,14 +182,15 @@ QString VariableNameManager::substituteThis( const QString string ) {
     // The case statement for each state is prefixed with a comment showing which parts of the format that case deals with.
     //
     // The substitutions format is:
-    // [___]KEY[___]=[___][']VALUE['][___][,...]
+    // [___]KEY[___]=[___][[']VALUE[']][___][,...]
     //
     // where:
     //    ___ = whitespace
     //    If optional ' is present before VALUE, a ' must be present after VALUE
     //    VALUE may include any character (including white space) except '
+    //    If VALUE is not present, key is replaced with an empty string
     //
-    // Example:   AAA=123, BBB = 456, CCC = xx xx   ,  DDD= 'xx xx'
+    // Example:   AAA=123, BBB = 456, CCC = xx xx   ,  DDD= 'xx xx'  EEE=
     // Note, in the above example, the values for CCC and DDD are both 'xx xx'
 
     int keyStart = 0;   // Index to first key character
@@ -220,7 +221,7 @@ QString VariableNameManager::substituteThis( const QString string ) {
             i = subs.length();
             break;
 
-        // [___]KEY[___]=[___][']VALUE['][___][,...]
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
         //  ^^^ ^
         case PRE_KEY:
             switch( nextChar )
@@ -242,7 +243,7 @@ QString VariableNameManager::substituteThis( const QString string ) {
             }
             break;
 
-        // [___]KEY[___]=[___][']VALUE['][___][,...]
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
         //       ^^ ^   ^
         case KEY:
             switch( nextChar )
@@ -265,7 +266,7 @@ QString VariableNameManager::substituteThis( const QString string ) {
             }
             break;
 
-        // [___]KEY[___]=[___][']VALUE['][___][,...]
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
         //           ^^ ^
         case POST_KEY:
             switch( nextChar )
@@ -284,8 +285,8 @@ QString VariableNameManager::substituteThis( const QString string ) {
             }
             break;
 
-        // [___]KEY[___]=[___][']VALUE['][___][,...]
-        //                ^^^  ^ ^
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
+        //                ^^^   ^ ^              ^
         case EQUATE:
             switch( nextChar )
             {
@@ -295,6 +296,13 @@ QString VariableNameManager::substituteThis( const QString string ) {
 
             case '\'':
                 state = VALUE_START_QUOTE;
+                break;
+
+            case ',':
+                value = QString();
+                substituteKey( result, key, value );
+
+                state = PRE_KEY;
                 break;
 
             default:
@@ -377,8 +385,8 @@ QString VariableNameManager::substituteThis( const QString string ) {
             }
             break;
 
-        // [___]KEY[___]=[___][']VALUE['][___][,...]
-        //                                ^^^  ^
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
+        //                                  ^^^  ^
         case POST_VALUE:
             switch( nextChar )
             {
@@ -399,14 +407,24 @@ QString VariableNameManager::substituteThis( const QString string ) {
     }
 
     // Use last value
-    if( state == VALUE )
+    switch( state )
     {
+    case VALUE:
         if( !processingSpaces )
         {
             valueEnd = i;
         }
         value = subs.mid( valueStart, valueEnd-valueStart );
         substituteKey( result, key, value );
+        break;
+
+    case EQUATE:
+        value = QString();
+        substituteKey( result, key, value );
+        break;
+
+    default:
+        break;
     }
 
     // Return the string with substitutions applied
