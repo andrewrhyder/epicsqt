@@ -229,9 +229,15 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_CHAR, 0, &outValue );
                 break;
             }
+            case generic::LONG :
+            {
+                qint32 outValue = newValue->getLong();
+                return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, 0, &outValue );
+                break;
+            }
             case generic::UNSIGNED_LONG :
             {
-                unsigned long outValue = newValue->getUnsignedLong();
+                quint32 outValue = newValue->getUnsignedLong();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, 0, &outValue );
                 break;
             }
@@ -287,6 +293,13 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
                 unsigned char* outValue;
                 newValue->getUnsignedChar( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_CHAR, arrayCount, outValue );
+                break;
+            }
+            case generic::LONG :
+            {
+                qint32* outValue;
+                newValue->getLong( &outValue, &arrayCount );
+                return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, arrayCount, outValue );
                 break;
             }
             case generic::UNSIGNED_LONG :
