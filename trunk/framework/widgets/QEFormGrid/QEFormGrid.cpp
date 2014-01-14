@@ -51,10 +51,17 @@ QEFormGrid::MacroData::MacroData (const QString& prefixIn, QEFormGrid* formGridI
 //
 void QEFormGrid::MacroData::setMacroPrefix (const QString& prefixIn)
 {
-   this->prefix = prefixIn;
-   this->formGrid->triggerReCreateAllForms ();
-}
+   QString trimmedPrefix = prefixIn.trimmed ();
 
+   // Do not allow null prefixes.
+   //
+   if (!trimmedPrefix.isEmpty()) {
+      if (this->prefix != trimmedPrefix) {
+         this->prefix = trimmedPrefix;
+         this->formGrid->triggerReCreateAllForms ();
+      }
+   }
+}
 
 //------------------------------------------------------------------------------
 //
@@ -113,22 +120,25 @@ QStringList QEFormGrid::MacroData::getStrings ()
 QString QEFormGrid::MacroData::genSubsitutions (const int n)
 {
    QString subs;
+   QString value;
 
    subs = "";
 
    // E.g. ROWNAME=Fred where prefix provides SLOT, ROW or COL.
+   // Note: the string value must quoted this incase it is a null string
+   // or it contailes spaces.
    //
-   subs.append (this->prefix).append ("NAME=").append (this->strings.value (n, ""));
+   value = "'" + this->strings.value (n, "") + "'";
+   subs.append (this->prefix).append ("NAME=").append (value);
 
-   subs.append (", ");
+   subs.append (", ");   // Separator
 
    // E.g.  ROW=09
-   //
-   subs.append (this->prefix).append ("=");
-
    // Pad number with '0' to required width.
    //
-   subs.append (QString ("%1").arg (n + this->offset, this->numberWidth, 10, QChar ('0')));
+   value = QString ("%1").arg (n + this->offset, this->numberWidth, 10, QChar ('0'));
+   subs.append (this->prefix).append ("=").append (value);
+
    return subs;
 }
 
