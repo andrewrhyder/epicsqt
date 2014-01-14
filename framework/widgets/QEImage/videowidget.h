@@ -75,6 +75,7 @@ signals:
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
+    void redraw();
 
 private:
     void addMarkups( QPainter& screenPainter, QVector<QRect>& changedAreas );
