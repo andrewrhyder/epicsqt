@@ -86,11 +86,12 @@ void QEImage::setup() {
     initialVertScrollPos = 0;
     initScrollPosSet = false;
 
-    formatOption = MONO;
+    mFormatOption = MONO;
     bitDepth = 8;
 
     paused = false;
     infoUpdatePaused( paused );
+    pauseExternalAction = NULL;
 
     vSliceThickness = 1;
     hSliceThickness = 1;
@@ -173,6 +174,10 @@ void QEImage::setup() {
                       this,        SLOT  ( currentPixelInfo( QPoint ) ) );
     QObject::connect( videoWidget, SIGNAL( pan( QPoint ) ),
                       this,        SLOT  ( pan( QPoint ) ) );
+    QObject::connect( videoWidget, SIGNAL( redraw() ),
+                      this,        SLOT  ( redraw() ) );
+
+
 
 
     // Create zoom sub menu
@@ -815,25 +820,25 @@ void QEImage::setWidthHeightFromDimensions()
  */
 void QEImage::setFormat( const QString& text, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& )
 {
-    formatOptions previousFormatOption = formatOption;
+    formatOptions previousFormatOption = mFormatOption;
 
     // Update image format
     // Area detector formats
-    if     ( !text.compare( "Mono" ) )         formatOption = MONO;
-    else if( !text.compare( "Bayer" ) )        formatOption = BAYER;
-    else if( !text.compare( "RGB1" ) )         formatOption = RGB1;
-    else if( !text.compare( "RGB2" ) )         formatOption = RGB2;
-    else if( !text.compare( "RGB3" ) )         formatOption = RGB3;
-    else if( !text.compare( "YUV444" ) )       formatOption = YUV444;
-    else if( !text.compare( "YUV422" ) )       formatOption = YUV422;
-    else if( !text.compare( "YUV421" ) )       formatOption = YUV421;
+    if     ( !text.compare( "Mono" ) )         mFormatOption = MONO;
+    else if( !text.compare( "Bayer" ) )        mFormatOption = BAYER;
+    else if( !text.compare( "RGB1" ) )         mFormatOption = RGB1;
+    else if( !text.compare( "RGB2" ) )         mFormatOption = RGB2;
+    else if( !text.compare( "RGB3" ) )         mFormatOption = RGB3;
+    else if( !text.compare( "YUV444" ) )       mFormatOption = YUV444;
+    else if( !text.compare( "YUV422" ) )       mFormatOption = YUV422;
+    else if( !text.compare( "YUV421" ) )       mFormatOption = YUV421;
     else
     {
         // !!! warn unexpected format
     }
 
     // Do nothing if no format change
-    if( previousFormatOption == formatOption)
+    if( previousFormatOption == mFormatOption)
     {
         return;
     }
@@ -1267,6 +1272,9 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
     // Present the new image
     displayImage();
 
+    // Indicate another image has arrived
+    freshImage();
+
     // Display invalid if invalid
     if( alarmInfo.isInvalid() )
     {
@@ -1624,7 +1632,7 @@ void QEImage::displayImage()
 
     // Format each pixel ready for use in an RGB32 QImage.
     // Note, for speed, the switch on format is outside the loop. The loop is duplicated in each case using macros which.
-    switch( formatOption )
+    switch( mFormatOption )
     {
         case MONO:
         {
@@ -1783,8 +1791,6 @@ void QEImage::displayImage()
             int BROffset = (+imageBuffWidth+1)*bytesPerPixel;
 
             enum regions {REG_TL, REG_T, REG_TR, REG_L, REG_C, REG_R, REG_BL, REG_B, REG_BR};
-
-//            qDebug() << "ImageSize" << image.size() << "w" << w << "h" << h << "imageDataSize" << imageDataSize << "elementsPerPixel"  << elementsPerPixel << "bytesPerPixel" << bytesPerPixel;
 
             quint32 r1;
             quint32 r2;
@@ -2640,19 +2646,18 @@ void QEImage::saveClicked()
 
     if (qFileDialog->exec())
     {
-
-        QImage qImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
+        QImage qImage = copyImage();
         filename = qFileDialog->selectedFiles().at(0);
 
         if (qFileDialog->selectedNameFilter() == filterList.at(0))
         {
             result = qImage.save(filename, "TIFF");
         }
-        else if (qFileDialog->selectedNameFilter() == filterList.at(0))
+        else if (qFileDialog->selectedNameFilter() == filterList.at(1))
         {
             result = qImage.save(filename, "PNG");
         }
-        else if (qFileDialog->selectedNameFilter() == filterList.at(1))
+        else if (qFileDialog->selectedNameFilter() == filterList.at(2))
         {
             result = qImage.save(filename, "BMP");
         }
@@ -2672,6 +2677,13 @@ void QEImage::saveClicked()
     }
 
 }
+
+// Return a QImage based on the current image
+QImage QEImage::copyImage()
+{
+    return QImage((uchar*) imageBuff.constData(), rotatedImageBuffWidth(), rotatedImageBuffHeight(), QImage::Format_RGB32);
+}
+
 
 // Update the video widget if the QEImage has changed
 void QEImage::resizeEvent(QResizeEvent* )
@@ -2699,11 +2711,8 @@ void QEImage::doContrastReversal( bool /*contrastReversal*/ )
     // Flag color lookup table is invalid
     pixelLookupValid = false;
 
-    qcaobject::QCaObject* qca = getQcaItem( IMAGE_VARIABLE );
-    if( qca )
-    {
-        qca->resendLastData();
-    }
+    // Redraw the current image (don't wait for next update (image may be stalled)
+    redraw();
 }
 
 // Manage vertical slice selection
@@ -2819,18 +2828,18 @@ void QEImage::paste( QVariant v )
 // Allow user to set the video format
 void QEImage::setFormatOption( formatOptions formatOptionIn )
 {
-    if( formatOption != formatOptionIn )
+    if( mFormatOption != formatOptionIn )
     {
         pixelLookupValid = false;
     }
 
     // Save the option
-    formatOption = formatOptionIn;
+    mFormatOption = formatOptionIn;
 }
 
 QEImage::formatOptions QEImage::getFormatOption()
 {
-    return formatOption;
+    return mFormatOption;
 }
 
 // Allow user to set the bit depth for Mono video format
@@ -3262,6 +3271,25 @@ bool QEImage::getDisplayMarkups()
     return displayMarkups;
 }
 
+// Application launching
+// Program String
+void QEImage::setProgram1( QString program ){ programLauncher1.setProgram( program ); }
+QString QEImage::getProgram1(){ return programLauncher1.getProgram(); }
+void QEImage::setProgram2( QString program ){ programLauncher2.setProgram( program ); }
+QString QEImage::getProgram2(){ return programLauncher2.getProgram(); }
+
+// Arguments String
+void QEImage::setArguments1( QStringList arguments ){ programLauncher1.setArguments( arguments ); }
+QStringList QEImage::getArguments1(){ return  programLauncher1.getArguments(); }
+void QEImage::setArguments2( QStringList arguments ){ programLauncher2.setArguments( arguments ); }
+QStringList QEImage::getArguments2(){ return  programLauncher2.getArguments(); }
+
+// Startup option
+void QEImage::setProgramStartupOption1( applicationLauncher::programStartupOptions programStartupOption ){ programLauncher1.setProgramStartupOption( programStartupOption ); }
+applicationLauncher::programStartupOptions QEImage::getProgramStartupOption1(){ return programLauncher1.getProgramStartupOption(); }
+void QEImage::setProgramStartupOption2( applicationLauncher::programStartupOptions programStartupOption ){ programLauncher2.setProgramStartupOption( programStartupOption ); }
+applicationLauncher::programStartupOptions QEImage::getProgramStartupOption2(){ return programLauncher2.getProgramStartupOption(); }
+
 //=================================================================================================
 
 void QEImage::panModeClicked()
@@ -3356,14 +3384,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveVSliceX = true;
                 if( enableVertSlicePresentation )
                 {
-                    if( !appHostsControls )
-                    {
-                        vSliceLabel->setVisible( true );
-                    }
-                    if( vSliceDisplay )
-                    {
-                        vSliceDisplay->setVisible( true );
-                    }
+                    QTimer::singleShot( 0, this, SLOT(setVSliceControlsVisible() ) );
                     generateVSlice(  vSliceX, vSliceThickness );
                 }
                 vertProfileChanged();
@@ -3375,14 +3396,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveHSliceY = true;
                 if( enableHozSlicePresentation )
                 {
-                    if( !appHostsControls )
-                    {
-                        hSliceLabel->setVisible( true );
-                    }
-                    if( hSliceDisplay )
-                    {
-                        hSliceDisplay->setVisible( true );
-                    }
+                    QTimer::singleShot( 0, this, SLOT(setHSliceControlsVisible() ) );
                     generateHSlice( hSliceY, hSliceThickness );
                 }
                 hozProfileChanged();
@@ -3465,14 +3479,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 haveProfileLine = true;
                 if( enableProfilePresentation )
                 {
-                    if( !appHostsControls )
-                    {
-                        profileLabel->setVisible( true );
-                    }
-                    if( profileDisplay )
-                    {
-                        profileDisplay->setVisible( true );
-                    }
+                    QTimer::singleShot( 0, this, SLOT(setLineProfileControlsVisible() ) );
                     generateProfile( profileLineStart, profileLineEnd, profileThickness );
                 }
 
@@ -3527,22 +3534,14 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
             case imageMarkup::MARKUP_ID_V_SLICE:
                 vSliceX = 0;
                 haveVSliceX = false;
-                vSliceLabel->setVisible( false );
-                if( vSliceDisplay )
-                {
-                    vSliceDisplay->setVisible( false );
-                }
+                QTimer::singleShot( 0, this, SLOT(setVSliceControlsNotVisible() ) );
                 infoUpdateVertProfile();
                 break;
 
             case imageMarkup::MARKUP_ID_H_SLICE:
                 hSliceY = 0;
                 haveHSliceY = false;
-                hSliceLabel->setVisible( false );
-                if( hSliceDisplay )
-                {
-                    hSliceDisplay->setVisible( false );
-                }
+                QTimer::singleShot( 0, this, SLOT(setHSliceControlsNotVisible() ) );
                 infoUpdateHozProfile();
                 break;
 
@@ -3580,11 +3579,8 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 profileLineStart = QPoint();
                 profileLineEnd = QPoint();
                 haveProfileLine = false;
-                profileLabel->setVisible( false );
-                if( profileDisplay )
-                {
-                    profileDisplay->setVisible( false );
-                }
+
+                QTimer::singleShot( 0, this, SLOT(setLineProfileControlsNotVisible() ) );
                 infoUpdateProfile();
                 break;
 
@@ -3603,25 +3599,108 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
     }
 }
 
+//==================================================
+// Slots to make profile plots appear or disappear
+// They are used as timer events to ensure resize events (that happen as the controls are inserted or deleted)
+// don't cause a redraw of markups while handling a markup draw event
+
+// Slot to make vertical slice profile plot appear
+void QEImage::setVSliceControlsVisible()
+{
+    if( !appHostsControls )
+    {
+        vSliceLabel->setVisible( true );
+    }
+    if( vSliceDisplay )
+    {
+        vSliceDisplay->setVisible( true );
+    }
+}
+
+// Slot to make vertical slice profile plot disapear
+void QEImage::setVSliceControlsNotVisible()
+{
+    vSliceLabel->setVisible( false );
+    if( vSliceDisplay )
+    {
+        vSliceDisplay->setVisible( false );
+    }
+}
+
+// Slot to make horizontal slice profile plot appear
+void QEImage::setHSliceControlsVisible()
+{
+    if( !appHostsControls )
+    {
+        hSliceLabel->setVisible( true );
+    }
+    if( hSliceDisplay )
+    {
+        hSliceDisplay->setVisible( true );
+    }
+}
+
+// Slot to make horizontal profile plot disapear
+void QEImage::setHSliceControlsNotVisible()
+{
+    hSliceLabel->setVisible( false );
+    if( hSliceDisplay )
+    {
+        hSliceDisplay->setVisible( false );
+    }
+}
+
+// Slot to make arbitrary line profile plot appear
+void QEImage::setLineProfileControlsVisible()
+{
+    if( !appHostsControls )
+    {
+        profileLabel->setVisible( true );
+    }
+    if( profileDisplay )
+    {
+        profileDisplay->setVisible( true );
+    }
+}
+
+// Slot to make arbitrary line profile plot disapear
+void QEImage::setLineProfileControlsNotVisible()
+{
+    profileLabel->setVisible( false );
+    if( profileDisplay )
+    {
+        profileDisplay->setVisible( false );
+    }
+}
+
+//==================================================
+
 // Determine the maximum pixel value for the current format
 double QEImage::maxPixelValue()
 {
-    switch( formatOption )
+    double result = 0;
+
+    switch( mFormatOption )
     {
         case BAYER:
         case MONO:
-            return (1<<bitDepth)-1;
+            result = (1<<bitDepth)-1;
+            break;
 
         case RGB1:
         case RGB2:
         case RGB3:
-            return (1<<8)-1; //???!!! not done yet probably correct
+            result = (1<<8)-1; //???!!! not done yet probably correct
+            break;
 
         case YUV444:
         case YUV422:
         case YUV421:
-            return (1<<8)-1; //???!!! not done yet probably correct
+            result = (1<<8)-1; //???!!! not done yet probably correct
+            break;
     }
+
+    return result;
 }
 
 // Return a pointer to pixel data in the original image data.
@@ -4249,7 +4328,7 @@ int QEImage::getPixelValueFromData( const unsigned char* ptr )
         return 0;
 
     // Case the data to the correct size, then return the data as a floating point number.
-    switch( formatOption )
+    switch( mFormatOption )
     {
         case BAYER:
         case MONO:
@@ -4545,6 +4624,18 @@ void QEImage::pan( QPoint origin )
 }
 
 //=================================================================================================
+// Slot to redraw the current image.
+// Required when properties change, such as contrast reversal, or when the video widget changes, such as a resize
+void QEImage::redraw()
+{
+    qcaobject::QCaObject* qca = getQcaItem( IMAGE_VARIABLE );
+    if( qca )
+    {
+        qca->resendLastData();
+    }
+}
+
+//=================================================================================================
 // Present the context menu
 void QEImage::showImageContextMenu( const QPoint& pos )
 {
@@ -4751,7 +4842,7 @@ void QEImage::showImageAboutDialog()
     about.append( QString( "\nPixel depth taken from bit depth variable or bit depth property: %1" ).arg( bitDepth ));
 
     QString name;
-    switch( formatOption )
+    switch( mFormatOption )
     {
         case MONO:        name = "Monochrome";    break;
         case BAYER:       name = "Bayer";         break;
@@ -4933,6 +5024,33 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         if( !initialise )
         {
             optionsDialog->exec( this );
+        }
+    }
+
+    // Copy Image
+    else if( action == "Copy" )
+    {
+        if( !initialise )
+        {
+            contextMenuTriggered( CM_COPY_DATA );
+        }
+    }
+
+    // Launch Application 1
+    else if( action == "LaunchApplication1" )
+    {
+        if( !initialise )
+        {
+            programLauncher1.launchImage( this, copyImage() );
+        }
+    }
+
+    // Launch Application 2
+    else if( action == "LaunchApplication2" )
+    {
+        if( !initialise )
+        {
+            programLauncher2.launchImage( this, copyImage() );
         }
     }
 

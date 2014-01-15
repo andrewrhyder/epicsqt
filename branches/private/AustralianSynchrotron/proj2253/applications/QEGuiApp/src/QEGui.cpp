@@ -49,18 +49,21 @@ QEGui::QEGui(int& argc, char **argv ) : QApplication( argc, argv )
     qRegisterMetaType<QEForm*>( "QEForm*" );   // must also register declared meta types.
     loginForm = NULL;
     // apply app stylesheet if existing
-    ContainerProfile containerProfile;
-    QFile* file = QEWidget::findQEFile("stylesheet.qss", &containerProfile);
-    if(file && file->open(QIODevice::ReadOnly))
+    QString stylesheetName = "stylesheet.qss";
+    QFile* file = QEWidget::findQEFile(stylesheetName);
+    if (!file){
+        qDebug() << stylesheetName << "can't be found";
+    }
+    else if(file->open(QIODevice::ReadOnly))
     {
         setStyleSheet(file->readAll());
         file->close();
         delete file;
-        qDebug() << "Opened";
+        qDebug() << stylesheetName << "Opened";
     }
-    else if(file){
+    else{
         delete file;
-        qDebug() << "Opene Failed";
+        qDebug() << stylesheetName << "Open Failed";
     }
 }
 

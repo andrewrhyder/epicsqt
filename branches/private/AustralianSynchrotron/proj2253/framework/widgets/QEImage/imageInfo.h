@@ -27,6 +27,22 @@
 
 #include <QGridLayout>
 #include <QLabel>
+#include <QFrame>
+
+#define UPDATE_INDICATOR_SIZE 20
+#define UPDATE_INDICATOR_STEPS 32
+class imageUpdateIndicator : public QWidget
+{
+public:
+    imageUpdateIndicator();
+    ~imageUpdateIndicator();
+    void freshImage();
+    void paintEvent ( QPaintEvent * );
+
+private:
+    int imageCount;
+    QList<QRect> lines;
+};
 
 class imageInfo
 {
@@ -67,6 +83,7 @@ public:
     void setBriefInfoArea( const bool briefIn );            // Set if displaying all info, or a brief summary
     bool getBriefInfoArea();                                // Report if displaying all info, or a brief summary
 
+    void freshImage();                                      // Indicate another image has arrived
 
 private:
     bool show;
@@ -85,6 +102,8 @@ private:
     QLabel* currentBeamLabel;
     QLabel* currentPausedLabel;
     QLabel* currentZoomLabel;
+
+    imageUpdateIndicator* updateIndicator;
 };
 
 #endif // IMAGEINFO_H

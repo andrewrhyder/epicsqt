@@ -81,6 +81,7 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     lastTimeStamp = QCaDateTime( QDateTime::currentDateTime() );
     lastVariantValue = (double)0.0;
     lastValueIsDefined = false;
+    lastDataSize = 0;
 
     lastNewData = NULL;
 
@@ -132,6 +133,7 @@ void QCaObject::initialise( const QString& newRecordName, QObject *newEventHandl
     they pop out of the event queue. Also, remove the event filter if this is the last QCaObject.
 */
 QCaObject::~QCaObject() {
+
     // Send disconnected signal to monitoring widgets.
     //
     QCaConnectionInfo connectionInfo ( caconnection::CLOSED, caconnection::LINK_DOWN );
@@ -150,14 +152,22 @@ QCaObject::~QCaObject() {
     }
 
     // Prevent channel access callbacks.
-    // There will be no more callbacks from CaObject after this call returns.
+    // There should be no more callbacks from CaObject after this call returns. (This does not appear to always be the case)
     // Without this, a callback could occur while the outstanding events list contents
     // is being marked as 'to be ignored' (below). While access to the list is thread safe, this would
     // result in an active event in the event queue which would be cause this QCaObject to be accessed
     // after deletion.
     CaObjectPrivate* p = (CaObjectPrivate*)priPtr;
-
     p->removeChannel();
+
+    // Prevent callbacks to this class from the base CaObject class through the CaObject::signalCallback() virtual function.
+    // Callbacks should not occur after removeChannel is called (above) but CA callbacks sometimes do.
+    // Although there is a mechanism to catch these late CA callbacks to the CaObject class this mechanism is only initiated
+    // in the CAObject destructor. This leaves a window after this QCaObject destrucor has run but before the the base class
+    // CaObject destructor has run.
+    // Ensuring the CaObject will not deliver any more callbacks to this class (through the signalCallback() virtual function) will
+    // protect this window.
+    inhibitCallbacks();
 
     // Protect access to pending events list
     QMutexLocker locker( &pendingEventsLock );
@@ -1053,6 +1063,7 @@ void QCaObject::processData( void* newDataPtr ) {
 
         // Save the data just emited so it can be re-sent if required
         lastByteArrayValue = byteArrayValue;
+        lastDataSize = dataSize;
 
         // Delete any old data now it is no longer referenced by byte arrays
         if( lastNewData )
@@ -1143,7 +1154,7 @@ void QCaObject::resendLastData()
     {
         // NOTE, the signal/slot connections to this signal must be Qt::DirectConnection as the byte array
         // refernces the data held in lastNewData directly which may be deleted before a queued connection is completed
-        emit dataChanged( lastByteArrayValue, lastAlarmInfo, lastTimeStamp );
+        emit dataChanged( lastByteArrayValue, lastDataSize, lastAlarmInfo, lastTimeStamp );
     }
 }
 

@@ -26,11 +26,13 @@
 #ifndef QEFORMGRID_H
 #define QEFORMGRID_H
 
-#include <QEFrame.h>
-#include <QEForm.h>
+#include <QGridLayout>
 #include <QString>
 #include <QStringList>
-#include <QGridLayout>
+#include <QTimer>
+
+#include <QEForm.h>
+#include <QEFrame.h>
 
 #include <QCaVariableNamePropertyManager.h>
 #include <QEPluginLibrary_global.h>
@@ -93,6 +95,10 @@ public:
    Q_PROPERTY (int spacing             READ getSpacing          WRITE setSpacing    )
 
 
+   /// Specified formal slot macro name prefix
+   /// Default value: SLOT
+   Q_PROPERTY (QString  slotMacroPrefix  READ getSlotMacroPrefix    WRITE setSlotMacroPrefix )
+
    /// Specifies the SLOT macro number offset.
    /// Default value: 1.
    Q_PROPERTY (int slotNumberOffset    READ getSlotOffset       WRITE setSlotOffset  )
@@ -109,6 +115,10 @@ public:
 
    // Ditto ROW and COL
 
+   /// Specified formal slot macro name prefix
+   /// Default value: ROW
+   Q_PROPERTY (QString  rowMacroPrefix  READ getRowMacroPrefix      WRITE setRowMacroPrefix )
+
    /// Specifies the ROW macro number offset.
    /// Default value: 1.
    Q_PROPERTY (int rowNumberOffset     READ getRowOffset        WRITE setRowOffset  )
@@ -122,6 +132,10 @@ public:
    /// Default value: ""
    Q_PROPERTY (QStringList rowStrings  READ getRowStrings       WRITE setRowStrings )
 
+
+   /// Specified formal slot macro name prefix
+   /// Default value: COL
+   Q_PROPERTY (QString  colMacroPrefix  READ getColMacroPrefix      WRITE setColMacroPrefix )
 
    /// Specifies the COL macro number offset.
    /// Default value: 1.
@@ -173,14 +187,17 @@ public:
 
    // Define propery access functions for slot, row and col attributes.
    //
-#define SET_GET_ATTRIBUTES(Attr, attr)                                                      \
-   void set##Attr##Offset (int n)  {  this->attr##MacroData->setOffset (n);  }              \
-   int  get##Attr##Offset () { return this->attr##MacroData->getOffset ();   }              \
-                                                                                            \
-   void set##Attr##NumberWidth (int n)  {  this->attr##MacroData->setNumberWidth (n); }     \
-   int  get##Attr##NumberWidth () { return this->attr##MacroData->getNumberWidth ();  }     \
-                                                                                            \
-   void set##Attr##Strings (QStringList& s)  {  this->attr##MacroData->setStrings (s);   }  \
+#define SET_GET_ATTRIBUTES(Attr, attr)                                                         \
+   void set##Attr##MacroPrefix (QString m) {  this->attr##MacroData->setMacroPrefix (m);  }    \
+   QString get##Attr##MacroPrefix () { return this->attr##MacroData->getMacroPrefix ();   }    \
+                                                                                               \
+   void set##Attr##Offset (int n)  {  this->attr##MacroData->setOffset (n);  }                 \
+   int  get##Attr##Offset () { return this->attr##MacroData->getOffset ();   }                 \
+                                                                                               \
+   void set##Attr##NumberWidth (int n)  {  this->attr##MacroData->setNumberWidth (n); }        \
+   int  get##Attr##NumberWidth () { return this->attr##MacroData->getNumberWidth ();  }        \
+                                                                                               \
+   void set##Attr##Strings (QStringList& s)  {  this->attr##MacroData->setStrings (s);   }     \
    QStringList get##Attr##Strings ()   { return this->attr##MacroData->getStrings (); }
 
 
@@ -226,6 +243,9 @@ private:
    public:
       explicit MacroData (const QString& prefix, QEFormGrid* formGrid);
 
+      void setMacroPrefix (const QString& prefix);
+      QString getMacroPrefix ();
+
       void setOffset (const int offset);
       int getOffset ();
 
@@ -266,14 +286,27 @@ private:
    QString getPrioritySubstitutions (const int slot);
    QEForm* createQEForm (const int slot);
 
-   void addSubForm ();                          // Crates next QEForm instance
-   void reCreateAllForms ();                    // Re create all forms with new substitutions
+   void addSubForm ();                      // Crates next QEForm instance
+   void triggerReCreateAllForms ();         // trigger
+   void reCreateAllForms ();                // Re create all forms with new settings
 
    // Called when new ui file specified.
    //
    void establishConnection (unsigned int variableIndex);
 
+   // Manage property input delayed action similar  QCaVariableNamePropertyManager
+   //
+   // If set, there is a user typing new propety values.
+   // Use timers to wait for typing to finish.
+   //
+   QTimer* inputTimer;
+   bool interactive;
+
 private slots:
+   // Called a short time after a user stops typing in 'designer'
+   //
+   void inputDelayExpired ();
+
    // Note, in QEFormGrid, the standard variable name mechanism is used for the UI file name.
    //
    void setNewUiFile (QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex);

@@ -93,6 +93,7 @@ void DetectorEditor::on_detectorNameComboBox_activated( int )
             QString PVPrefix = detectors.at(i).at(1);
             PVPrefix.chop(1);
             PVPrefix.remove(0,2);
+            PVPrefix = PVPrefix.left(PVPrefix.indexOf(",")-1);
             ui->detectorPVPrefix->setText(PVPrefix);
             QString type = detectors.at(i).at(2);
             type.chop(5);
@@ -138,9 +139,14 @@ bool DetectorEditor::save()
 {
     QDomDocument doc;
     // Open to write a new/updated detector configurations to its xmlFile
-    ContainerProfile containerProfile;
-    QFile* file = QEWidget::findQEFile(xmlFileName, &containerProfile);
-    if (!file && !file->open(QIODevice::ReadWrite))
+    QFile* file = QEWidget::findQEFile(xmlFileName);
+    if (!file)
+    {
+        qDebug() << "Could not found customisation file" << xmlFileName;
+        return false;
+    }
+
+    if (!file->open(QIODevice::ReadOnly))
     {
         QString error = file->errorString();
         qDebug() << "Could not open customisation file" << xmlFileName << error;
@@ -262,7 +268,7 @@ QDomElement DetectorEditor::createDetectorElement( QDomDocument doc, QString nam
     CustomisationNameItem.appendChild(text);
 
     QDomElement MacroSubstitutionsItem = doc.createElement( "MacroSubstitutions" );
-    text = doc.createTextNode("P=" + pv + ": " +"T1=" + pv);
+    text = doc.createTextNode("P=" + pv + ":, " +"T1=" + name);
     MacroSubstitutionsItem.appendChild(text);
 
     QDomElement TitleItem = doc.createElement( "Title" );
@@ -293,13 +299,17 @@ bool DetectorEditor::loadDetectorData( QString xmlFile, QList<QStringList>& list
     QDomDocument doc;
 
     // Read and parse xmlFile
-    ContainerProfile containerProfile;
-    QFile* file = QEWidget::findQEFile(xmlFile, &containerProfile);
-    if (!file && !file->open(QIODevice::ReadOnly))
+    QFile* file = QEWidget::findQEFile(xmlFile);
+    if (!file)
+    {
+        qDebug() << "Could not found customisation file" << xmlFile;
+        return false;
+    }
+
+    if (!file->open(QIODevice::ReadOnly))
     {
         QString error = file->errorString();
         qDebug() << "Could not open customisation file" << xmlFile << error;
-        delete file;
         return false;
     }
     // if named customisation exists, replace it

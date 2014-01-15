@@ -36,6 +36,12 @@
 #include <QStringList>
 #include <QtDebug>
 
+class sub
+{
+    QString key;
+    QString value;
+};
+
 /*
     Assume one variable name.
 */
@@ -167,64 +173,268 @@ QString VariableNameManager::substituteThis( const QString string ) {
 
     // Generate a list where each item in the list is a single substitution in the form MACRO1=VALUE1
     QString subs;
-    subs.append( macroSubstitutionsOverride ).append( " " ).append( macroSubstitutions );
-    subs = standardizeSubs( subs );
-    QStringList subList = subs.split( "," );
+    subs.append( macroSubstitutionsOverride ).append( "," ).append( macroSubstitutions );
 
-    // Perform all substitutions
-    QStringList::const_iterator subsIndex;
-    for ( subsIndex = subList.constBegin(); subsIndex != subList.constEnd(); ++subsIndex ) {
-        // Get the key to search for and the value to replace it with.
-        // If both a key and value are present (and nothing more) perform the substitution.
-        // Note, the key will only be replaced if it is prefixed with a $.
-        QStringList subList = ( *subsIndex ).split( "=" );
-        if( subList.size() == 2 ) {
-            QString before( "$(" );
-            before.append( subList[0] ).append( ")" );
+    //!!! for efficiency, should this be done when substitutions are added or removed?? Build a list of keys and values...
+    // Process the substitutions.
+    // This is implemented using a finite state table.
+    // the states are defined in the enumeration list 'states'.
+    // The case statement for each state is prefixed with a comment showing which parts of the format that case deals with.
+    //
+    // The substitutions format is:
+    // [___]KEY[___]=[___][[']VALUE[']][___][,...]
+    //
+    // where:
+    //    ___ = whitespace
+    //    If optional ' is present before VALUE, a ' must be present after VALUE
+    //    VALUE may include any character (including white space) except '
+    //    If VALUE is not present, key is replaced with an empty string
+    //
+    // Example:   AAA=123, BBB = 456, CCC = xx xx   ,  DDD= 'xx xx'  EEE=
+    // Note, in the above example, the values for CCC and DDD are both 'xx xx'
 
-            QString after = subList[1];
+    int keyStart = 0;   // Index to first key character
+    int keyEnd = 0;     // Index to character PAST last key character (key length = keyEnd - keyStart)
+    int valueStart = 0; // Index to first value character
+    int valueEnd = 0;   // Index to character PAST last value character (value length = valueEnd - valueStart)
 
-            result = result.replace( before, after );
+    QString key;        // Key extracted from macro substitutions
+    QString value;      // Value extracted from macro substitutions
+
+    bool processingSpaces = false; // True if working through spaces that may be in the middle of a value
+
+    enum states{ PRE_KEY, KEY, POST_KEY, EQUATE, VALUE_START_QUOTE, VALUE, VALUE_QUOTED, POST_VALUE, ERROR };
+    states state = PRE_KEY;
+
+    int i;
+    for( i = 0; i < subs.length(); i++ )
+    {
+        // Get next character from the macro substitutions
+        char nextChar = subs.at(i).toLatin1();
+
+        // Finite state switch
+        switch( state )
+        {
+
+        // Error parsing. Ignore rest of string.
+        case ERROR:
+            i = subs.length();
+            break;
+
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
+        //  ^^^ ^
+        case PRE_KEY:
+            switch( nextChar )
+            {
+            case '\t':
+            case ' ':
+            case ',':  // Handles case where macros were blindly added on to an empty macro string with a ',' in between (,KEY=VALUE_)
+                break;
+
+            case '=':
+            case '\'':
+                state = ERROR;
+                break;
+
+            default:
+                keyStart = i;
+                state = KEY;
+                break;
+            }
+            break;
+
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
+        //       ^^ ^   ^
+        case KEY:
+            switch( nextChar )
+            {
+            case '\t':
+            case ' ':
+                keyEnd = i;
+                key = subs.mid( keyStart, keyEnd-keyStart );
+                state = POST_KEY;
+                break;
+
+            case '=':
+                keyEnd = i;
+                key = subs.mid( keyStart, keyEnd-keyStart );
+                state = EQUATE;
+                break;
+
+            default:
+                break;
+            }
+            break;
+
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
+        //           ^^ ^
+        case POST_KEY:
+            switch( nextChar )
+            {
+            case '\t':
+            case ' ':
+                break;
+
+            case '=':
+                state = EQUATE;
+                break;
+
+            default:
+                state = ERROR;
+                break;
+            }
+            break;
+
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
+        //                ^^^   ^ ^              ^
+        case EQUATE:
+            switch( nextChar )
+            {
+            case '\t':
+            case ' ':
+                break;
+
+            case '\'':
+                state = VALUE_START_QUOTE;
+                break;
+
+            case ',':
+                value = QString();
+                substituteKey( result, key, value );
+
+                state = PRE_KEY;
+                break;
+
+            default:
+                valueStart = i;
+                processingSpaces = false;
+
+                state = VALUE;
+                break;
+            }
+            break;
+
+        // [___]KEY[___]=[___]'VALUE'[___][,...]
+        //                     ^    ^
+        case VALUE_START_QUOTE:
+            switch( nextChar )
+            {
+            case '\'':
+                value = QString();
+                substituteKey( result, key, value );
+
+                state = POST_VALUE;
+                break;
+
+            default:
+                valueStart = i;
+
+                state = VALUE_QUOTED;
+                break;
+            }
+            break;
+
+        // [___]KEY[___]=[___]VALUE[___][,...]
+        //                     ^^^^ ^^^  ^
+        case VALUE:
+            switch( nextChar )
+            {
+            case '\t':
+            case ' ':
+                if( !processingSpaces )
+                {
+                    processingSpaces = true;  // Working through spaces that may be in the middle of the value
+                    valueEnd = i;             // This will mark the value end if there are no more non white space value characters
+                }
+                break;
+
+            case ',':
+                if( !processingSpaces )
+                {
+                    valueEnd = i;
+                }
+                value = subs.mid( valueStart, valueEnd-valueStart );
+                substituteKey( result, key, value );
+
+                processingSpaces = false;
+                state = PRE_KEY;
+                break;
+
+            default:
+                processingSpaces = false;   // No longer working through spaces that may be in the middle of the value
+                break;
+            }
+            break;
+
+        // [___]KEY[___]=[___]'VALUE'[___][,...]
+        //                      ^^^^^
+        case VALUE_QUOTED:
+            switch( nextChar )
+            {
+            case '\'':
+                valueEnd = i;
+
+                value = subs.mid( valueStart, valueEnd-valueStart );
+                substituteKey( result, key, value );
+
+                state = POST_VALUE;
+                break;
+
+            default:
+                break;
+            }
+            break;
+
+        // [___]KEY[___]=[___][[']VALUE[']][___][,...]
+        //                                  ^^^  ^
+        case POST_VALUE:
+            switch( nextChar )
+            {
+            case '\t':
+            case ' ':
+                break;
+
+            case ',':
+                state = PRE_KEY;
+                break;
+
+            default:
+                state = ERROR;
+                break;
+            }
+            break;
         }
     }
+
+    // Use last value
+    switch( state )
+    {
+    case VALUE:
+        if( !processingSpaces )
+        {
+            valueEnd = i;
+        }
+        value = subs.mid( valueStart, valueEnd-valueStart );
+        substituteKey( result, key, value );
+        break;
+
+    case EQUATE:
+        value = QString();
+        substituteKey( result, key, value );
+        break;
+
+    default:
+        break;
+    }
+
+    // Return the string with substitutions applied
     return result;
 }
 
-/*
-    Standardize the substitution string to make parsing it easier.
-    Remove all white space except white space seperating key/value pairs.
-    Replace any white space between white space seperating key/value pairs with a comma.
-*/
-QString VariableNameManager::standardizeSubs( const QString &subsIn ) {
-    // Standardise the string to the form MACRO1=VALUE1,MACRO2=VALUE2
-    // (no spaces, each substitution seperated by a comma)
-    // This allows the following forms:
-    //     MACRO1=VALUE1,MACRO2=VALUE2
-    //     MACRO1=VALUE1 MACRO2=VALUE2
-    //     MACRO1=VALUE1 , MACRO2=VALUE2
-    //     MACRO1 = VALUE1,MACRO2 = VALUE2
-    QString std = subsIn.simplified();
-    std = std.replace( " =", "=" );
-    std = std.replace( "= ", "=" );
-    std = std.replace( " ,", "," );
-    std = std.replace( ", ", "," );
-    std = std.replace( " ", "," );
-    // ZW: one standardizing string (microSubstitute) solution to fix value with "space" char.
-    QStringList list = subsIn.split("=");
-    for ( int i = 0; i < list.count(); i++ ){
-        list[i] = list[i].simplified();
-        if (list[i].contains(" ,")){
-            list[i] = list[i].replace( " ,", "," );
-        }
-        else if (list[i].contains(", ")){
-            list[i] = list[i].replace( ", ", "," );
-        }
-        else if (list[i].contains(" ") && i < list.count()-1) {
-            // not last one
-            list[i].replace(list[i].lastIndexOf(" "), 1, ",");
-        }
-    }
-    std = list.join("=");
-
-    return std;
+// Replace occurances of a single key with a value
+void VariableNameManager::substituteKey( QString& string, QString key, const QString value )
+{
+    key.prepend( "$(" );
+    key.append( ")" );
+    string.replace( key, value );
 }

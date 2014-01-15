@@ -300,7 +300,7 @@ void ContainerProfile::takeLocalCopy()
     QString subs;
     for( int i = 0; i < publishedProfile->macroSubstitutions.size(); i++ )
     {
-        subs.append( " " );
+        subs.append( "," );
         subs.append( publishedProfile->macroSubstitutions[i] );
     }
 

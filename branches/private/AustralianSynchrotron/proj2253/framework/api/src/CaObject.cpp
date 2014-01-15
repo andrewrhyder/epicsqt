@@ -53,6 +53,9 @@ CaObject::CaObject() {
     // Construct or reuse a durable object that can be passed to CA and used as a callback argument
     myRef = CaRef::getCaRef( this, true );
 
+    // Initialise flag that will prevent callbacks when shutting down
+    allowCallbacks = true;
+
     // Get the parts not shared with the non CA world
     CaObjectPrivate* p = new CaObjectPrivate( this );
     priPtr = p;
@@ -84,6 +87,18 @@ CaObject::~CaObject() {
     delete p->caConnection;
     delete p;
 
+}
+
+// Inhibit callbacks to derived classes through the signalCallback() virtual function
+// Callbacks should not occur after calling CaObjectPrivate::removeChannel(), but CA callbacks appear to occur after this.
+// While CaObject has a mechanism to catch late CA callbacks (see CaRef class), there still remains a window as follows:
+// When QCaObject is destroyed ~QCaObject() is called, then ~CaObject(). At the start of ~CaObject() the CaRef mechanism
+// is used to catch late CA callbacks, but there is a window when the QCaObject destructor has been called, but the
+// CaObject destructor has not been called. If a CA callback occurs in this window, the QCaObject implementation of
+// the CaObject virtual function signalCallback() is called. This crashes as the QCaObject has been destroyed.
+void CaObject::inhibitCallbacks()
+{
+    allowCallbacks = false;
 }
 
 /*
@@ -229,9 +244,15 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_CHAR, 0, &outValue );
                 break;
             }
+            case generic::LONG :
+            {
+                qint32 outValue = newValue->getLong();
+                return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, 0, &outValue );
+                break;
+            }
             case generic::UNSIGNED_LONG :
             {
-                unsigned long outValue = newValue->getUnsignedLong();
+                quint32 outValue = newValue->getUnsignedLong();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, 0, &outValue );
                 break;
             }
@@ -287,6 +308,13 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
                 unsigned char* outValue;
                 newValue->getUnsignedChar( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_CHAR, arrayCount, outValue );
+                break;
+            }
+            case generic::LONG :
+            {
+                qint32* outValue;
+                newValue->getLong( &outValue, &arrayCount );
+                return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, arrayCount, outValue );
                 break;
             }
             case generic::UNSIGNED_LONG :
@@ -911,10 +939,24 @@ void CaObjectPrivate::subscriptionHandler( struct event_handler_args args ) {
     switch( args.status ) {
         case ECA_NORMAL :
             p->processChannel( args );
-            context->signalCallback( SUBSCRIPTION_SUCCESS );
+            if( context->allowCallbacks )
+            {
+                context->signalCallback( SUBSCRIPTION_SUCCESS );
+            }
+            else
+            {
+                printf( "Late CA callback. CaObjectPrivate::subscriptionHandler() called during deletion of CaObject.\n" );
+            }
         break;
         default :
-            context->signalCallback( SUBSCRIPTION_FAIL );
+            if( context->allowCallbacks )
+            {
+                context->signalCallback( SUBSCRIPTION_FAIL );
+            }
+            else
+            {
+                printf( "Late CA callback. CaObjectPrivate::subscriptionHandler() called during deletion of CaObject.\n" );
+            }
         break;
     }
     epicsEventSignal( monitorEvent );

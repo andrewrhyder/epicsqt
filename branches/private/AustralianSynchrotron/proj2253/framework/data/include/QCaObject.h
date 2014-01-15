@@ -155,6 +155,7 @@ namespace qcaobject {
       QVariant     lastVariantValue;
       QByteArray   lastByteArrayValue;
       void*        lastNewData; // Record containing data directly refernced by lastByteArrayValue (actually of type carecord::CaRecord*)
+      unsigned long lastDataSize;
 
       // Database information relating to the variable
       QString egu;

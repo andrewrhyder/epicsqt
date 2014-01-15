@@ -39,6 +39,7 @@
 #include <QCaVariableNamePropertyManager.h>
 #include <imageInfo.h>
 #include <brightnessContrast.h>
+#include <applicationLauncher.h>
 
 #include <QEPluginLibrary_global.h>
 #include <QEIntegerFormatting.h>
@@ -288,6 +289,24 @@ public:
     void setDisplayMarkups( bool displayMarkupsIn );                    ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
     bool getDisplayMarkups();                                           ///< Access function for #displayMarkups property - refer to #displayMarkups property for details
 
+    void setProgram1( QString program );                       ///< Access function for #program1 property - refer to #program1 property for details
+    QString getProgram1();                                     ///< Access function for #program1 property - refer to #program1 property for details
+    void setProgram2( QString program );                       ///< Access function for #program2 property - refer to #program2 property for details
+    QString getProgram2();                                     ///< Access function for #program2 property - refer to #program2 property for details
+
+    // Arguments String
+    void setArguments1( QStringList arguments );                       ///< Access function for #arguments1 property - refer to #arguments1 property for details
+    QStringList getArguments1();                                       ///< Access function for #arguments1 property - refer to #arguments1 property for details
+    void setArguments2( QStringList arguments );                       ///< Access function for #arguments2 property - refer to #arguments2 property for details
+    QStringList getArguments2();                                       ///< Access function for #arguments2 property - refer to #arguments2 property for details
+
+    // Startup option
+    void setProgramStartupOption1( applicationLauncher::programStartupOptions programStartupOption ); ///< Access function for #programStartupOption1 property - refer to #programStartupOption1 property for details
+    applicationLauncher::programStartupOptions getProgramStartupOption1();                            ///< Access function for #programStartupOption1 property - refer to #programStartupOption1 property for details
+    void setProgramStartupOption2( applicationLauncher::programStartupOptions programStartupOption ); ///< Access function for #programStartupOption2 property - refer to #programStartupOption2 property for details
+    applicationLauncher::programStartupOptions getProgramStartupOption2();                            ///< Access function for #programStartupOption2 property - refer to #programStartupOption2 property for details
+
+
   protected:
     QEStringFormatting stringFormatting;     // String formatting options.
     QEIntegerFormatting integerFormatting;   // Integer formatting options.
@@ -323,6 +342,7 @@ public:
     int initialVertScrollPos;   // Initial vertical scroll bar position (for when starting zoomed)
 
     bool displayButtonBar;      // True if button bar should be displayed
+    QImage copyImage();         // Return a QImage based on the current image
 
 private slots:
     // QCa data update slots
@@ -364,12 +384,23 @@ private slots:
     void zoomInOut( int zoomAmount );
     void currentPixelInfo( QPoint pos );
     void pan( QPoint pos );
+    void redraw();
     void showImageContextMenu( const QPoint& );
     void selectMenuTriggered( QAction* selectedItem );
     void zoomMenuTriggered( QAction* selectedItem );
     void flipRotateMenuTriggered( QAction* selectedItem );
     void showImageAboutDialog();
     void optionAction( imageContextMenu::imageContextMenuOptions option, bool checked );
+
+    // Slots to make profile plots appear or disappear
+    // They are used as timer events to ensure resize events (that happen as the controls are inserted or deleted)
+    // don't cause a redraw of markups while handling a markup draw event
+    void setVSliceControlsVisible();
+    void setVSliceControlsNotVisible();
+    void setHSliceControlsVisible();
+    void setHSliceControlsNotVisible();
+    void setLineProfileControlsVisible();
+    void setLineProfileControlsNotVisible();
 
 public slots:
     void setImageFile( QString name );
@@ -491,7 +522,7 @@ public slots:
     bool enableProfilePresentation;
 
     // Options
-    formatOptions formatOption;
+    formatOptions mFormatOption;
     unsigned int bitDepth;
 
     // Image and related information
@@ -614,6 +645,9 @@ public slots:
     void doEnableAreaSelection( bool enableAreaSelection );
     void doEnableProfileSelection( bool enableProfileSelection );
     void doEnableTargetSelection( bool enableTargetSelection );
+
+    applicationLauncher programLauncher1;
+    applicationLauncher programLauncher2;
 
     // Drag and Drop
 protected:
@@ -1150,6 +1184,54 @@ public:
     /// For example, if true and target variables are defined a target position markup will be displayed as soon as target position data is read.
     /// If false, the target position markup will only be displayed when in target selection mode and the user selects a point in the image.
     Q_PROPERTY(bool displayMarkups READ getDisplayMarkups WRITE setDisplayMarkups)
+
+    //=========
+    // This grouop of properties should be kept consistant QE Buttons
+
+    /// Program to run when a request is made to pass on the current image to the first external application.
+    /// No attempt to run a program is made if this property is empty.
+    /// Example: paint.exe
+    Q_PROPERTY(QString program1 READ getProgram1 WRITE setProgram1)
+
+    /// Arguments for program specified in the 'program1' property.
+    ///
+    Q_PROPERTY(QStringList arguments1 READ getArguments1 WRITE setArguments1)
+
+    /// Startup options for the program specified in the 'program1' property.
+    /// Just run the command, run the command within a terminal, or display the output in QE message system.
+    ///
+    Q_PROPERTY(ProgramStartupOptionNames programStartupOption2 READ getProgramStartupOptionProperty1 WRITE setProgramStartupOptionProperty1)
+
+    /// Program to run when a request is made to pass on the current image to the second external application.
+    /// No attempt to run a program is made if this property is empty.
+    /// Example: paint.exe
+    Q_PROPERTY(QString program2 READ getProgram2 WRITE setProgram2)
+
+    /// Arguments for program specified in the 'program2' property.
+    ///
+    Q_PROPERTY(QStringList arguments2 READ getArguments2 WRITE setArguments2)
+
+    /// Startup options for the program specified in the 'program2' property.
+    /// Just run the command, run the command within a terminal, or display the output in QE message system.
+    ///
+    Q_PROPERTY(ProgramStartupOptionNames programStartupOption2 READ getProgramStartupOptionProperty2 WRITE setProgramStartupOptionProperty2)
+
+    // Program startup options
+    Q_ENUMS(ProgramStartupOptionNames)
+
+    /// Startup options. Just run the command, run the command within a terminal, or display the output in QE message system.
+    ///
+    enum ProgramStartupOptionNames{ None      = applicationLauncher::PSO_NONE,       ///< Just run the program
+                                    Terminal  = applicationLauncher::PSO_TERMINAL,   ///< Run the program in a termainal (in Windows a command interpreter will also be started, so the program may be a built-in command like 'dir')
+                                    LogOutput = applicationLauncher::PSO_LOGOUTPUT   ///< Run the program, and log the output in the QE message system
+                                  };
+
+    void setProgramStartupOptionProperty1( ProgramStartupOptionNames programStartupOption ){ setProgramStartupOption1( (applicationLauncher::programStartupOptions)programStartupOption ); }  ///< Access function for #ProgramStartupOptionNames1 property - refer to #ProgramStartupOptionNames1 property for details
+    ProgramStartupOptionNames getProgramStartupOptionProperty1(){ return (ProgramStartupOptionNames)getProgramStartupOption1(); }                                                             ///< Access function for #ProgramStartupOptionNames1 property - refer to #ProgramStartupOptionNames1 property for details
+    void setProgramStartupOptionProperty2( ProgramStartupOptionNames programStartupOption ){ setProgramStartupOption2( (applicationLauncher::programStartupOptions)programStartupOption ); }  ///< Access function for #ProgramStartupOptionNames2 property - refer to #ProgramStartupOptionNames2 property for details
+    ProgramStartupOptionNames getProgramStartupOptionProperty2(){ return (ProgramStartupOptionNames)getProgramStartupOption2(); }                                                             ///< Access function for #ProgramStartupOptionNames2 property - refer to #ProgramStartupOptionNames2 property for details
+
+    //=========
 
 //    /// MPEG stream URL. If this is specified, this will be used as the source of the image in preference to variables (variables defining the image data, width, and height will be ignored)
 //    Q_PROPERTY(QString URL READ getURL WRITE setURL)

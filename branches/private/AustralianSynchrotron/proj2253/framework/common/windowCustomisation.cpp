@@ -350,12 +350,16 @@ bool windowCustomisationList::loadCustomisation( QString xmlFile )
     }
 
     QDomDocument doc;
-    QDomNodeList rootNodeList;
 
     // Read and parse xmlFile
-    ContainerProfile containerProfile;
-    QFile* file = QEWidget::findQEFile(xmlFile, &containerProfile);
-    if (!file && !file->open(QIODevice::ReadOnly))
+    QFile* file = QEWidget::findQEFile(xmlFile);
+    if (!file)
+    {
+        qDebug() << "Could not found customisation file" << xmlFile;
+        return false;
+    }
+
+    if (!file->open(QIODevice::ReadOnly))
     {
         QString error = file->errorString();
         qDebug() << "Could not open customisation file" << xmlFile << error;

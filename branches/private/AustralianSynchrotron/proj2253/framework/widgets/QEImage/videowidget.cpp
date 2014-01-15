@@ -183,8 +183,11 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
         return;
     }
 
+    emit redraw();
+
     // Ensure the markups match the new size
     markupResize( event->size(), event->oldSize(), getScale() );
+
 }
 
 // Act on a markup change

@@ -209,6 +209,11 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
                     {
                         list.append( QVariant( unitlessText[i] ));
                     }
+
+                    // Zero terminate. Initially required for writing to area detector file name.
+                    // (Readback string included all values up to a zero which might include parts of earlier, longer, filename)
+                    list.append( QVariant( QChar( 0 )) );
+
                     ok = true;
                 }
                 break;
@@ -230,6 +235,11 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
                     {
                         list.append( QVariant( ll ));
                     }
+
+                    // Zero terminate. Initially required for writing to area detector file name.
+                    // (Readback string included all values up to a zero which might include parts of earlier, longer, filename)
+                    list.append( QVariant( (qlonglong)(0)) );
+
                 }
                 break;
 
@@ -240,6 +250,11 @@ QVariant QEStringFormatting::formatValue( const QString& text, bool& ok )
                         qulonglong ul = unitlessText[i].toAscii();
                         list.append( QVariant( ul ));
                     }
+
+                    // Zero terminate. Initially required for writing to area detector file name.
+                    // (Readback string included all values up to a zero which might include parts of earlier, longer, filename)
+                    list.append( QVariant( (qulonglong)(0) ) );
+
                     ok = true;
                 }
                 break;

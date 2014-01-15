@@ -29,6 +29,10 @@
  */
 
 #include "imageInfo.h"
+#include <QPainter>
+#include <math.h>
+#include <QDebug>
+#include <QHBoxLayout>
 
 // Initialise the information area
 imageInfo::imageInfo()
@@ -49,9 +53,15 @@ imageInfo::imageInfo()
     currentPausedLabel = new QLabel();
     currentZoomLabel = new QLabel();
 
+    updateIndicator = new imageUpdateIndicator();
+
+    QHBoxLayout* imageLayout = new QHBoxLayout();
+    imageLayout->addWidget( updateIndicator );
+    imageLayout->addWidget( currentPausedLabel );
+
     infoLayout = new QGridLayout();
     infoLayout->addWidget( currentCursorPixelLabel, 0, 0 );
-    infoLayout->addWidget( currentPausedLabel, 0, 1 );
+    infoLayout->addLayout( imageLayout, 0, 1 );
     infoLayout->addWidget( currentZoomLabel, 0, 2 );
     infoLayout->addWidget( currentVertPixelLabel, 1, 0 );
     infoLayout->addWidget( currentHozPixelLabel, 1, 1 );
@@ -95,6 +105,7 @@ void imageInfo::showInfo( const bool showIn )
     {
         currentCursorPixelLabel->show();
         currentPausedLabel->show();
+        updateIndicator->show();
         currentZoomLabel->show();
         currentVertPixelLabel->setHidden( brief );
         currentHozPixelLabel->setHidden( brief );
@@ -110,6 +121,7 @@ void imageInfo::showInfo( const bool showIn )
     {
         currentCursorPixelLabel->hide();
         currentPausedLabel->hide();
+        updateIndicator->hide();
         currentZoomLabel->hide();
         currentVertPixelLabel->hide();
         currentHozPixelLabel->hide();
@@ -274,5 +286,76 @@ void imageInfo::infoUpdatePaused( bool paused )
 void imageInfo::infoUpdateZoom( const int zoom )
 {
     currentZoomLabel->setText( QString( "Zoom: %1%" ).arg( zoom ) );
+}
+
+// Update the zoom information
+void imageInfo::freshImage()
+{
+    updateIndicator->freshImage();
+}
+
+//=============================================
+// Class to give a visual indication of the image update rate (a rotating line as the image updates)
+
+// Construction
+imageUpdateIndicator::imageUpdateIndicator()
+{
+    // Fix the size
+    setMinimumWidth( UPDATE_INDICATOR_SIZE );
+    setMinimumHeight( UPDATE_INDICATOR_SIZE );
+    setMaximumWidth( UPDATE_INDICATOR_SIZE );
+    setMaximumHeight( UPDATE_INDICATOR_SIZE );
+
+    // Initialise
+    imageCount = 0;
+
+    // Calculate a set of lines
+    float angle = 2*M_PI / UPDATE_INDICATOR_STEPS;
+
+    for( int i = 0; i < UPDATE_INDICATOR_STEPS; i++ )
+    {
+        QRect line;
+        int cX = UPDATE_INDICATOR_SIZE/2;
+        int cY = UPDATE_INDICATOR_SIZE/2;
+        int len = UPDATE_INDICATOR_SIZE/2;
+
+        float x = len * cos( angle * (float)i );
+        float y = len * sin( angle * (float)i );
+
+        line.setLeft( cX-x );
+        line.setRight( cX+x );
+        line.setTop( cY-y );
+        line.setBottom( cY+y );
+
+        lines.append( line );
+    }
+
+}
+
+imageUpdateIndicator::~imageUpdateIndicator()
+{
+
+}
+
+// Manage a paint event in image update indicator
+void imageUpdateIndicator::paintEvent(QPaintEvent* )
+{
+    // Draw the indicator line
+    QPainter painter(this);
+    painter.drawLine( lines.at( imageCount ).topLeft(), lines.at( imageCount ).bottomRight() );
+}
+
+// Update the zoom information
+void imageUpdateIndicator::freshImage()
+{
+    // step onto the next indicator line
+    imageCount++;
+    if(imageCount>=lines.count() )
+    {
+        imageCount = 0;
+    }
+
+    // Redraw with new indicator line
+    update();
 }
 

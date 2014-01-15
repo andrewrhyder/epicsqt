@@ -1842,6 +1842,9 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
     if( !isDock ){
         // Create an action for the 'Window' menus
         QAction* windowMenuAction = new QAction( !windowTitle().isEmpty()? windowTitle():gui->getQEGuiTitle(), this );
+        if (windowTitle().isEmpty()){
+            setWindowTitle(gui->getQEGuiTitle());
+        }
         windowMenuAction->setData( qVariantFromValue( gui ) );
 
         // Add this gui to the application wide list of guis
@@ -1877,7 +1880,8 @@ void MainWindow::setTitle( QString title )
         startupParams* params = app->getParams();
         if( !params->applicationTitle.isEmpty() )
         {
-            setWindowTitle( params->applicationTitle );
+            setWindowTitle( "" );
+//            setWindowTitle( params->applicationTitle );
         }
         else
         {

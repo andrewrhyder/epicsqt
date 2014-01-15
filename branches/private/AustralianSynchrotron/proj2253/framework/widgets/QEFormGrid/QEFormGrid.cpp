@@ -30,13 +30,14 @@
 
 #define DEBUG qDebug () << "QEFormGrid" << __FUNCTION__ << __LINE__
 
+#define WAIT_FOR_TYPING_TO_FINISH 1000       // One Second
+
 const int QEFormGrid::MaximumForms = 210;    // 2*3*5*7
 const int QEFormGrid::MaximumColumns = 42;   // 2*3*7
 
-
-//=============================================================================
+//==============================================================================
 // MacroData functions
-//=============================================================================
+//==============================================================================
 //
 QEFormGrid::MacroData::MacroData (const QString& prefixIn, QEFormGrid* formGridIn)
 {
@@ -46,72 +47,98 @@ QEFormGrid::MacroData::MacroData (const QString& prefixIn, QEFormGrid* formGridI
    this->numberWidth = 2;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//
+void QEFormGrid::MacroData::setMacroPrefix (const QString& prefixIn)
+{
+   QString trimmedPrefix = prefixIn.trimmed ();
+
+   // Do not allow null prefixes.
+   //
+   if (!trimmedPrefix.isEmpty()) {
+      if (this->prefix != trimmedPrefix) {
+         this->prefix = trimmedPrefix;
+         this->formGrid->triggerReCreateAllForms ();
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+QString QEFormGrid::MacroData::getMacroPrefix ()
+{
+   return this->prefix;
+}
+
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::MacroData::setOffset (const int offsetIn)
 {
    this->offset = offsetIn;
-   this->formGrid->reCreateAllForms ();
+   this->formGrid->triggerReCreateAllForms ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int QEFormGrid::MacroData::getOffset ()
 {
    return this->offset;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::MacroData::setNumberWidth (const int numberWidthIn)
 {
    this->numberWidth = LIMIT (numberWidthIn, 1, 6);
-   this->formGrid->reCreateAllForms ();
+   this->formGrid->triggerReCreateAllForms ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int QEFormGrid::MacroData::getNumberWidth ()
 {
    return this->numberWidth;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::MacroData::setStrings (const QStringList& stringsIn)
 {
    this->strings = stringsIn;
-   this->formGrid->reCreateAllForms ();
+   this->formGrid->triggerReCreateAllForms ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QStringList QEFormGrid::MacroData::getStrings ()
 {
    return this->strings;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QString QEFormGrid::MacroData::genSubsitutions (const int n)
 {
    QString subs;
+   QString value;
 
    subs = "";
 
-   // E.g.  ROWNAME=Fred where prefix provides ROW or COL
+   // E.g. ROWNAME=Fred where prefix provides SLOT, ROW or COL.
+   // Note: the string value must quoted this incase it is a null string
+   // or it contailes spaces.
    //
-   subs.append (this->prefix).append ("NAME=").append (this->strings.value (n, ""));
+   value = "'" + this->strings.value (n, "") + "'";
+   subs.append (this->prefix).append ("NAME=").append (value);
 
-   subs.append (", ");
+   subs.append (", ");   // Separator
 
    // E.g.  ROW=09
-   //
-   subs.append (this->prefix).append ("=");
-
    // Pad number with '0' to required width.
    //
-   subs.append (QString ("%1").arg (n + this->offset, this->numberWidth, 10, QChar ('0')));
+   value = QString ("%1").arg (n + this->offset, this->numberWidth, 10, QChar ('0'));
+   subs.append (this->prefix).append ("=").append (value);
+
    return subs;
 }
 
@@ -126,7 +153,7 @@ QEFormGrid::QEFormGrid (QWidget* parent) : QEFrame (parent)
    this->commonSetup ("", 4, 1);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QEFormGrid::QEFormGrid (const QString& uiFileIn, const int numberIn,
                         const int colsIn, QWidget* parent) : QEFrame (parent)
@@ -134,9 +161,11 @@ QEFormGrid::QEFormGrid (const QString& uiFileIn, const int numberIn,
    this->commonSetup (uiFileIn, numberIn, colsIn);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-void QEFormGrid::commonSetup (const QString& uiFileIn, const int numberIn, const int colsIn)
+void QEFormGrid::commonSetup (const QString& uiFileIn,
+                              const int numberIn,
+                              const int colsIn)
 {
    // Save input parameters.
    //
@@ -144,10 +173,33 @@ void QEFormGrid::commonSetup (const QString& uiFileIn, const int numberIn, const
    this->number = LIMIT (numberIn, 1, QEFormGrid::MaximumForms);
    this->columns = LIMIT (colsIn, 1, QEFormGrid::MaximumColumns);
 
+   // If a container profile has been defined, then this widget isn't being created
+   // within designer, so flag the various properties are not being modified
+   // interactively.  If a user is not modifying the properties there is no need
+   // to wait for a user to finish typing before using new property value.
+   //
+   this->interactive = QEWidget::inDesigner ();
+
+   // Setup a timer so rapid changes to the property values are ignored.
+   // Only after the user has stopped typing for a while will the entry be used.
+   // The timer will be set on the first keystroke and reset with each subsequent
+   // keystroke untill the keystrokes stop for longer than the timeout period.
+   // Note, timers are not required if there is no user entering values.
+   //
+   if (this->interactive) {
+       this->inputTimer = new QTimer (this);
+       this->inputTimer->setSingleShot (true);
+       QObject::connect (this->inputTimer, SIGNAL (timeout ()),
+                         this,             SLOT   (inputDelayExpired ()));
+   } else {
+       this->inputTimer = NULL;
+   }
+
    // Set up the number of variables managed by the variable name manager.
-   // NOTE: there is no data associated with this widget, but it uses the same mechanism
-   // as other data widgets to manage the UI filename and macro substitutions. The standard
-   // variable name and macros mechanism is used by QEFormGrid for UI file name and marcos
+   // NOTE: there is no channel data associated with this widget, but it uses
+   // the same mechanism as other data widgets to manage the UI filename and
+   // macro substitutions. The standard variable name and macros mechanism is
+   // used by QEFormGrid for UI file name and marcos
    //
    this->setNumVariables (1);
 
@@ -158,8 +210,7 @@ void QEFormGrid::commonSetup (const QString& uiFileIn, const int numberIn, const
 
    this->gridOrder = RowMajor;
 
-   // Set up macro formal name prefixes.
-   // Maybe theses could be defined by properties.
+   // Set up default macro formal name prefixes.
    //
    this->rowMacroData = new MacroData ("ROW", this);
    this->colMacroData = new MacroData ("COL", this);
@@ -169,7 +220,7 @@ void QEFormGrid::commonSetup (const QString& uiFileIn, const int numberIn, const
    this->layout->setMargin (2);
    this->layout->setSpacing (2);
 
-   // Create initial number of sub-forms. .
+   // Create initial number of sub-forms.
    //
    for (int j = 0; j < this->number; j++) {
       this->addSubForm ();
@@ -188,7 +239,7 @@ void QEFormGrid::commonSetup (const QString& uiFileIn, const int numberIn, const
                      this, SLOT        (setNewUiFile (QString, QString, unsigned int) ) );
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QEFormGrid::~QEFormGrid ()
 {
@@ -197,14 +248,36 @@ QEFormGrid::~QEFormGrid ()
    delete this->slotMacroData;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-void QEFormGrid::setNewUiFile (QString variableNameIn, QString variableNameSubstitutionsIn, unsigned int variableIndex)
+void QEFormGrid::triggerReCreateAllForms ()
 {
-    this->setVariableNameAndSubstitutions (variableNameIn, variableNameSubstitutionsIn, variableIndex);
+   if (this->interactive && this->inputTimer) {
+      this->inputTimer->start (WAIT_FOR_TYPING_TO_FINISH);   // Delayed call
+   } else {
+      this->reCreateAllForms ();   // Immediate call
+   }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//
+void QEFormGrid::inputDelayExpired ()
+{
+   this->reCreateAllForms ();
+}
+
+//------------------------------------------------------------------------------
+//
+void QEFormGrid::setNewUiFile (QString variableNameIn,
+                               QString variableNameSubstitutionsIn,
+                               unsigned int variableIndex)
+{
+   this->setVariableNameAndSubstitutions (variableNameIn,
+                                          variableNameSubstitutionsIn,
+                                          variableIndex);
+}
+
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::establishConnection (unsigned int variableIndex)
 {
@@ -225,8 +298,7 @@ void QEFormGrid::establishConnection (unsigned int variableIndex)
    }
 }
 
-
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QString QEFormGrid::getPrioritySubstitutions (const int slot)
 {
@@ -247,25 +319,35 @@ QString QEFormGrid::getPrioritySubstitutions (const int slot)
    return result;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QEForm* QEFormGrid::createQEForm (const int slot)
 {
+   bool localProfile;
    QString psubs;
    QEForm* form = NULL;
 
-   // Publish the profile this button recieved.
+   // Do we need to publish a local profile?
    //
-   this->publishOwnProfile ();
+   if (!this->isProfileDefined ()) {
+      // Flag the profile was set up in this function (and so should be released
+      // in this function).
+      //
+      localProfile = true;
+      this->publishOwnProfile ();
+   } else {
+      localProfile = false;
+   }
 
    // Extend any variable name substitutions with this form grid's substitutions
-   // Like most other macro substitutions, the substitutions already present take precedence.
+   // Like most other macro substitutions, the substitutions already present
+   // take precedence.
    //
    this->addMacroSubstitutions (this->getGridVariableSubstitutions ());
 
-   // Extend any variable name substitutions with this grid's priority substitutions
-   // Unlike most other macro substitutions, these macro substitutions take precedence over
-   // substitutions already present.
+   // Extend any variable name substitutions with this grid's priority
+   // substitutions. Unlike most other macro substitutions, these macro
+   // substitutions take precedence over substitutions already present.
    //
    psubs = this->getPrioritySubstitutions (slot);
    this->addPriorityMacroSubstitutions (psubs);
@@ -273,22 +355,27 @@ QEForm* QEFormGrid::createQEForm (const int slot)
    form = new QEForm (this);
    form->setUiFileNameProperty (this->uiFile);
 
-   // Remove this grid's priority macro substitutions now all its children are created
+   // Remove this grid's priority macro substitutions now all its children are
+   // created
    //
    this->removePriorityMacroSubstitutions ();
 
-   // Remove this grid's normal macro substitutions now all its children are created
+   // Remove this grid's normal macro substitutions now all its children are
+   // created
    //
    this->removeMacroSubstitutions ();
 
-   // Release the profile now all QE widgets have been created.
+   // Release the profile, if we defined one, now that all QE widgets have been
+   // created.
    //
-   this->releaseProfile ();
+   if (localProfile) {
+      this->releaseProfile ();
+   }
 
    return form;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::addSubForm ()
 {
@@ -309,7 +396,7 @@ void QEFormGrid::addSubForm ()
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::reCreateAllForms ()
 {
@@ -325,7 +412,7 @@ void QEFormGrid::reCreateAllForms ()
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int QEFormGrid::slotOf (const int row, const int col)
 {
@@ -348,7 +435,7 @@ int QEFormGrid::slotOf (const int row, const int col)
    return slot;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::splitSlot (const int slot, int& row, int& col)
 {
@@ -367,7 +454,7 @@ void QEFormGrid::splitSlot (const int slot, int& row, int& col)
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QSize QEFormGrid::sizeHint () const
 {
@@ -375,9 +462,9 @@ QSize QEFormGrid::sizeHint () const
 }
 
 
-//=================================================================================
+//==============================================================================
 // Property access.
-//=================================================================================
+//==============================================================================
 //
 // We use the variableNamePropertyManager to manage the uiFile and local subsitutions.
 //
@@ -386,28 +473,28 @@ void QEFormGrid::setUiFile (QString uiFileIn)
    this->variableNamePropertyManager.setVariableNameProperty (uiFileIn);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QString QEFormGrid::getUiFile ()
 {
    return this->variableNamePropertyManager.getVariableNameProperty ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void  QEFormGrid::setGridVariableSubstitutions (QString variableSubstitutionsIn)
 {
    this->variableNamePropertyManager.setSubstitutionsProperty (variableSubstitutionsIn);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QString QEFormGrid::getGridVariableSubstitutions ()
 {
-   return  this->variableNamePropertyManager.getSubstitutionsProperty ();
+   return this->variableNamePropertyManager.getSubstitutionsProperty ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::setNumber (int number)
 {
@@ -433,7 +520,7 @@ void QEFormGrid::setNumber (int number)
       // Existing row and col numbers may change.
       //
       while (this->formsList.count () > 0) {
-         QEForm* form =  this->formsList.value (0);
+         QEForm* form = this->formsList.value (0);
          this->formsList.removeFirst ();
          this->layout->removeWidget (form);
          delete form;
@@ -445,32 +532,33 @@ void QEFormGrid::setNumber (int number)
    }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int QEFormGrid::getNumber ()
 {
    return this->number;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::setColumns (int number)
 {
-   this->columns = LIMIT (number, 1, QEFormGrid::MaximumColumns);
-   // May get smarter and only re-create those we really need to do.
-   // E.g. slot 0 is _always_ row 0, col 0.
-   //
-   this->reCreateAllForms ();
+   int newColumns = LIMIT (number, 1, QEFormGrid::MaximumColumns);
+
+   if (this->columns != newColumns) {
+      this->columns = newColumns;
+      this->triggerReCreateAllForms ();
+   }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int QEFormGrid::getColumns ()
 {
    return this->columns;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 int QEFormGrid::getRows ()
 {
@@ -478,43 +566,48 @@ int QEFormGrid::getRows ()
    return MAX (1, r);  // always at least 1 row.
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void QEFormGrid::setGridOrder (GridOrders gridOrderIn)
 {
-   this->gridOrder = gridOrderIn;
-   this->reCreateAllForms ();
+   if (this->gridOrder != gridOrderIn) {
+      this->gridOrder = gridOrderIn;
+      this->triggerReCreateAllForms ();
+   }
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 QEFormGrid::GridOrders QEFormGrid::getGridOrder ()
 {
    return this->gridOrder;
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-void  QEFormGrid::setMargin (int margin) {
+void  QEFormGrid::setMargin (int margin)
+{
    this->layout->setMargin (margin);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-int  QEFormGrid::getMargin () {
+int  QEFormGrid::getMargin ()
+{
    return this->layout->margin ();
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 void  QEFormGrid::setSpacing (int spacing)
 {
    this->layout->setSpacing (spacing);
 }
 
-//---------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-int  QEFormGrid::getSpacing () {
+int  QEFormGrid::getSpacing ()
+{
    return this->layout->spacing ();
 }
 
