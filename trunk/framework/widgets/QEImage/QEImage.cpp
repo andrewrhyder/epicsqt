@@ -3016,12 +3016,12 @@ int QEImage::getInitialVertScrollPos()
 // Show time
 void QEImage::setShowTime(bool value)
 {
-    videoWidget->setShowTime( value );
+    optionsDialog->optionSet( imageContextMenu::ICM_ENABLE_TIME, value );
 }
 
 bool QEImage::getShowTime()
 {
-    return videoWidget->getShowTime();
+    return optionsDialog->optionGet( imageContextMenu::ICM_ENABLE_TIME );
 }
 
 // Vertical slice markup colour
@@ -4717,7 +4717,7 @@ void QEImage::optionAction( imageContextMenu::imageContextMenuOptions option, bo
         case imageContextMenu::ICM_PAUSE:                       pauseClicked();                        break;
         case imageContextMenu::ICM_ENABLE_CURSOR_PIXEL:         showInfo                  ( checked ); break;
         case imageContextMenu::ICM_ABOUT_IMAGE:                 showImageAboutDialog();                break;
-        case imageContextMenu::ICM_ENABLE_TIME:                 setShowTime               ( checked ); break;
+        case imageContextMenu::ICM_ENABLE_TIME:                 videoWidget->setShowTime  ( checked ); break;
         case imageContextMenu::ICM_ENABLE_VERT:                 doEnableVertSliceSelection( checked ); break;
         case imageContextMenu::ICM_ENABLE_HOZ:                  doEnableHozSliceSelection ( checked ); break;
         case imageContextMenu::ICM_ENABLE_AREA:                 doEnableAreaSelection     ( checked ); break;
