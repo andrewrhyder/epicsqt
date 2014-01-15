@@ -651,7 +651,7 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
     imageContextMenu menu;
 
     //                      Title                            checkable  checked                 option
-    menu.addMenuItem(       "Clear",                         false,     false,                  imageContextMenu::ICM_CLEAR_MARKUP             );
+    menu.addMenuItem(       "Hide",                          false,     false,                  imageContextMenu::ICM_CLEAR_MARKUP             );
 
     // If any thickness, add thickness options (zero means item has no concept of thickness)
     if( items[activeItem]->getThickness() )

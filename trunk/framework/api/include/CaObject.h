@@ -80,9 +80,12 @@ namespace caobject {
             std::string   getFieldType();
             unsigned long getElementCount();
 
+            void inhibitCallbacks();
+
         public:
             virtual void  signalCallback( callback_reasons ) = 0;
             CaRef* myRef;
+            bool allowCallbacks;
 
             // CA specific data private to the CaObject code
             // To allow application to include the QEFramework without requiring
