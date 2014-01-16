@@ -39,12 +39,21 @@ win32QMAKE_LFLAGS += -Wl,-enable-auto-import
 
 #===========================================================
 # Project configuration
-QT += core gui xml network uitools designer
+
+# Qt 4 configuration
+equals( QT_MAJOR_VERSION, 4 ) {
+    CONFIG += plugin debug_and_release uitools designer qwt
+    QT += core gui xml network
+}
+
+# Qt 5 configuration
+equals( QT_MAJOR_VERSION, 5 ) {
+    CONFIG += plugin debug_and_release qwt
+    QT += core gui xml network uitools designer
+}
+
 TEMPLATE = lib
 
-CONFIG += plugin \
-          debug_and_release \
-          qwt
 DEFINES += QEPLUGIN_LIBRARY
 DESTDIR = designer
 TARGET = QEPlugin
@@ -159,8 +168,8 @@ isEmpty( _QWT_INCLUDE_PATH ) {
 # qwt was not installed fully, with qwt available as a Qt 'feature'.
 # When installed as a Qt 'feature' all that is needed is CONFIG += qwt (above)
 INCLUDEPATH += $$(QWT_INCLUDE_PATH)
-LIBS += -LC:\qwt-6.0.1\lib
-#LIBS += -LC:\qwt-6.1.0\lib
+LIBS += -LC:/qwt-6.0.1/lib
+#LIBS += -LC:/qwt-6.1.0/lib
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 LIBS += -lqwt
