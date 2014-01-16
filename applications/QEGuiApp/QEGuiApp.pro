@@ -23,11 +23,21 @@
 # - analyse the results with the command: gprof <your-program-name>
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
-QT += core gui network uitools designer
+
+# Qt 4 configuration
+equals( QT_MAJOR_VERSION, 4 ) {
+    CONFIG += debug_and_release uitools designer
+    QT += core gui network
+}
+
+# Qt 5 configuration
+equals( QT_MAJOR_VERSION, 5 ) {
+    CONFIG += debug_and_release
+    QT += core gui network uitools designer
+}
+
 TARGET = qegui
 TEMPLATE = app
-
-CONFIG += debug_and_release
 
 SOURCES += ./src/main.cpp \
     ./src/MainWindow.cpp \
