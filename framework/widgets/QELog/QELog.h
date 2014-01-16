@@ -27,6 +27,9 @@
 #ifndef QELOG_H
 #define QELOG_H
 
+#include <QCheckBox>
+#include <QTableWidget>
+#include <QPushButton>
 #include <QEWidget.h>
 
 
@@ -37,18 +40,6 @@ enum details
     LEFT,
     RIGHT
 };
-
-
-
-enum messageTypes
-{
-    INFO,
-    WARNING,
-    ERROR
-};
-
-
-
 
 // ============================================================
 //  _QTABLEWIDGETLOG CLASS

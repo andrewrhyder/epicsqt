@@ -174,7 +174,7 @@ void contextMenu::contextMenuTriggered( int optionNum )
     switch( (contextMenuOptions)(optionNum) )
     {
         default:
-        case contextMenu::CM_NONE:
+        case contextMenu::CM_NOOPTION:
             break;
 
         case contextMenu::CM_COPY_VARIABLE:

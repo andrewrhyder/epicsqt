@@ -31,6 +31,8 @@
 #include <QTimer>
 #include <QVariant>
 #include <QWidget>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #include <QEFrame.h>
 #include <QELabel.h>

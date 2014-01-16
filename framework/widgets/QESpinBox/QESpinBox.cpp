@@ -28,6 +28,7 @@
   It is tighly integrated with the base class QEWidget. Refer to QEWidget.cpp for details
  */
 
+#include <QLineEdit>
 #include "QESpinBox.h"
 
 /*

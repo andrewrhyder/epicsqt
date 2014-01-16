@@ -63,8 +63,7 @@ public:
 
 
     void setConsumer (QObject *consumer);               // Set the consumer of the signal generted by this object
-
-    enum contextMenuOptions{ CM_NONE,                   // Menu options
+    enum contextMenuOptions{ CM_NOOPTION,
                              CM_COPY_VARIABLE, CM_COPY_DATA, CM_PASTE,
                              CM_DRAG_VARIABLE, CM_DRAG_DATA,
                              CM_SHOW_PV_PROPERTIES,

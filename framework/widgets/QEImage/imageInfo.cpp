@@ -30,6 +30,7 @@
 
 #include "imageInfo.h"
 #include <QPainter>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <QDebug>
 #include <QHBoxLayout>
@@ -310,7 +311,7 @@ imageUpdateIndicator::imageUpdateIndicator()
     imageCount = 0;
 
     // Calculate a set of lines
-    float angle = 2*M_PI / UPDATE_INDICATOR_STEPS;
+    float angle = (float)(2*M_PI) / UPDATE_INDICATOR_STEPS;
 
     for( int i = 0; i < UPDATE_INDICATOR_STEPS; i++ )
     {

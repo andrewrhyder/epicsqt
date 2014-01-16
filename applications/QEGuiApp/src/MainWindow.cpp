@@ -151,6 +151,8 @@
 #include <QMessageBox>
 #include <ContainerProfile.h>
 #include <QVariant>
+#include <QScrollBar>
+#include <QFileDialog>
 #include <saveDialog.h>
 #include <restoreDialog.h>
 #include <PasswordDialog.h>

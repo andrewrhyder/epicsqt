@@ -25,6 +25,8 @@
 #ifndef QEFILEBROWSER_H
 #define QEFILEBROWSER_H
 
+#include <QTableWidget>
+#include <QPushButton>
 #include <QEWidget.h>
 
 

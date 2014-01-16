@@ -45,13 +45,13 @@ QEFloatingFormatting::QEFloatingFormatting() {
 */
 QVariant QEFloatingFormatting::formatValue( const double &floatingValue, generic::generic_types valueType ) {
     switch( valueType ) {
-        case generic::DOUBLE :
-        case generic::FLOAT :
+        case generic::GENERIC_DOUBLE :
+        case generic::GENERIC_FLOAT :
         {
             QVariant dValue( floatingValue );
             return dValue;
         }
-        case generic::LONG :
+        case generic::GENERIC_LONG :
         {
             qlonglong integerValue;
             if( floatingValue < (double)LONG_MIN )
@@ -64,7 +64,7 @@ QVariant QEFloatingFormatting::formatValue( const double &floatingValue, generic
             QVariant lValue( integerValue );
             return lValue;
         }
-        case generic::SHORT :
+        case generic::GENERIC_SHORT :
         {
             qlonglong integerValue;
             if( floatingValue < (double)SHRT_MIN )
@@ -77,7 +77,7 @@ QVariant QEFloatingFormatting::formatValue( const double &floatingValue, generic
             QVariant lValue( integerValue );
             return lValue;
         }
-        case generic::UNSIGNED_LONG :
+        case generic::GENERIC_UNSIGNED_LONG :
         {
             qulonglong unsignedIntegerValue;
             if( floatingValue < 0 )
@@ -90,7 +90,7 @@ QVariant QEFloatingFormatting::formatValue( const double &floatingValue, generic
             QVariant ulValue( unsignedIntegerValue );
             return ulValue;
         }
-        case generic::UNSIGNED_SHORT :
+        case generic::GENERIC_UNSIGNED_SHORT :
         {
             qulonglong unsignedIntegerValue;
             if( floatingValue < 0 )
@@ -103,7 +103,7 @@ QVariant QEFloatingFormatting::formatValue( const double &floatingValue, generic
             QVariant ulValue( unsignedIntegerValue );
             return ulValue;
         }
-        case generic::UNSIGNED_CHAR :
+        case generic::GENERIC_UNSIGNED_CHAR :
         {
             qulonglong unsignedIntegerValue;
             if( floatingValue < 0 )
@@ -116,13 +116,13 @@ QVariant QEFloatingFormatting::formatValue( const double &floatingValue, generic
             QVariant ulValue( unsignedIntegerValue );
             return ulValue;
         }
-        case generic::STRING :
+        case generic::GENERIC_STRING :
         {
             QString string = QString::number( floatingValue, getFormatChar(), precision );
             QVariant sValue( string );
             return sValue;
         }
-        case generic::UNKNOWN :
+        case generic::GENERIC_UNKNOWN :
         {
         }
         default :

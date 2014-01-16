@@ -34,6 +34,10 @@
  */
 
 #include <QIcon>
+#include <QPushButton>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QScrollBar>
 #include <QECommon.h>
 #include <QEImage.h>
 #include <QEByteArray.h>
@@ -1787,14 +1791,14 @@ void QEImage::displayImage()
 
         case BAYER:
         {
-            int TLOffset = (-imageBuffWidth-1)*bytesPerPixel;
-            int  TOffset = -imageBuffWidth*bytesPerPixel;
-            int TROffset = (-imageBuffWidth+1)*bytesPerPixel;
-            int  LOffset = -bytesPerPixel;
-            int  ROffset = bytesPerPixel;
-            int BLOffset = (+imageBuffWidth-1)*bytesPerPixel;
-            int  BOffset = imageBuffWidth*bytesPerPixel;
-            int BROffset = (+imageBuffWidth+1)*bytesPerPixel;
+            int TLOffset = (-(int)(imageBuffWidth)-1)*(int)(bytesPerPixel);
+            int  TOffset = -(int)(imageBuffWidth)*(int)(bytesPerPixel);
+            int TROffset = (-(int)(imageBuffWidth)+1)*(int)(bytesPerPixel);
+            int  LOffset = -(int)(bytesPerPixel);
+            int  ROffset = (int)(bytesPerPixel);
+            int BLOffset = ((int)(imageBuffWidth)-1)*(int)(bytesPerPixel);
+            int  BOffset = imageBuffWidth*(int)(bytesPerPixel);
+            int BROffset = ((int)(imageBuffWidth)+1)*(int)(bytesPerPixel);
 
             enum regions {REG_TL, REG_T, REG_TR, REG_L, REG_C, REG_R, REG_BL, REG_B, REG_BR};
 
@@ -1830,7 +1834,7 @@ void QEImage::displayImage()
 
             LOOP_START
                 unsigned char* inPixel  = (unsigned char*)(&dataIn[dataIndex*bytesPerPixel]);
-                unsigned int color = (dataIndex&0b01)|(((dataIndex/imageBuffWidth)&1)<<1);
+                unsigned int color = (dataIndex&1)|(((dataIndex/imageBuffWidth)&1)<<1);
 
                 // Assume Central region
                 region = REG_C;
@@ -2647,7 +2651,7 @@ void QEImage::saveClicked()
 
     qFileDialog = new QFileDialog(this, "Save displayed image", QString());
     filterList << "Tagged Image File Format (*.tiff)" << "Portable Network Graphics (*.png)" << "Windows Bitmap (*.bmp)" << "Joint Photographics Experts Group (*.jpg)";
-    qFileDialog->setFilters(filterList);
+    qFileDialog->setNameFilters(filterList);
     qFileDialog->setAcceptMode(QFileDialog::AcceptSave);
 
     if (qFileDialog->exec())

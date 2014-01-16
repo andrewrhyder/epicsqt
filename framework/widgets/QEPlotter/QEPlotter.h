@@ -33,6 +33,8 @@
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
+#include <QLabel>
+#include <QCheckBox>
 
 #include <QEFloatingArray.h>
 #include <QEFloatingFormatting.h>

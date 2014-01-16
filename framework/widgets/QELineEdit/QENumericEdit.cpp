@@ -157,7 +157,7 @@ static bool fixedRadixValue (const QString& image,
    signIsAllowed = true;
 
    for (j = 0; j < image.length(); j++) {
-      c = image [j].toAscii ();
+      c = image [j].toLatin1 ();
       d = 0;
 
       switch (c) {
@@ -757,7 +757,7 @@ int QENumericEdit::getCursor ()
 bool QENumericEdit::isRadixDigit (QChar qc)
 {
    bool result;
-   char c = qc.toAscii ();
+   char c = qc.toLatin1 ();
 
    switch (this->getRadix()) {
       case Decimal:
@@ -789,7 +789,7 @@ bool QENumericEdit::isRadixDigit (QChar qc)
 //
 bool QENumericEdit::isSign (QChar qc)
 {
-   char c = qc.toAscii ();
+   char c = qc.toLatin1 ();
 
    return ((c == '+') || (c == '-'));
 }

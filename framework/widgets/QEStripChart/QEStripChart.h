@@ -39,6 +39,7 @@
 #include <QSize>
 #include <QTimer>
 #include <QVariant>
+#include <QScrollArea>
 
 #include <QCaAlarmInfo.h>
 #include <QEPluginLibrary_global.h>

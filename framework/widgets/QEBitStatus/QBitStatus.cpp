@@ -470,7 +470,7 @@ int QBitStatus::maskToInt (const QString mask)
 
    result = 0;
    for (j = 0; j < mask.length(); j++) {
-      c = mask.at (j).toAscii ();
+      c = mask.at (j).toLatin1 ();
 
       switch (c) {
       case '0':

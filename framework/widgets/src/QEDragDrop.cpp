@@ -53,6 +53,7 @@
  */
 
 #include <QtGui>
+#include <QWidget>
 #include <QEDragDrop.h>
 #include <QGraphicsOpacityEffect>
 #include <QLinearGradient>

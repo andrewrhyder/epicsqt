@@ -28,6 +28,7 @@
  * It uses a QELogin widget to manage the task
  */
 
+#include <QVBoxLayout>
 #include "loginDialog.h"
 #include <QELogin.h>
 

@@ -288,7 +288,7 @@ int QEUtilities::stringToEnum (const QObject& object,
       if (metaEnum.isValid () && metaEnum.name () == enumTypeName) {
          // found it.
          //
-         result = metaEnum.keyToValue (enumImage.trimmed ().toAscii ().data ());
+         result = metaEnum.keyToValue (enumImage.trimmed ().toLatin1 ().data ());
          if (result != (-1)) {
             // This is a good value.
             okay = true;

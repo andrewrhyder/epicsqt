@@ -1,4 +1,3 @@
-#svntestChange A. Rhyder 16/1/14
 # This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
 # The EPICS QT Framework is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,17 +39,17 @@ win32QMAKE_LFLAGS += -Wl,-enable-auto-import
 
 #===========================================================
 # Project configuration
-QT += core gui xml network
+QT += core gui xml network uitools designer
 TEMPLATE = lib
+
 CONFIG += plugin \
-    uitools \
-    designer \
-    debug_and_release \
-    qwt
+          debug_and_release \
+          qwt
 DEFINES += QEPLUGIN_LIBRARY
 DESTDIR = designer
 TARGET = QEPlugin
 
+DEFINES += QWT_DLL=TRUE
 #===========================================================
 # Project files
 #
@@ -99,9 +98,7 @@ include (widgets/QEStripChart/QEStripChart.pri)
 include (widgets/QESubstitutedLabel/QESubstitutedLabel.pri)
 include (widgets/deprecated/deprecated.pri)
 
-HEADERS +=
-SOURCES +=
-
+OTHER_FILES += analogindicator.json
 
 #===========================================================
 # Extra targets
@@ -162,7 +159,8 @@ isEmpty( _QWT_INCLUDE_PATH ) {
 # qwt was not installed fully, with qwt available as a Qt 'feature'.
 # When installed as a Qt 'feature' all that is needed is CONFIG += qwt (above)
 INCLUDEPATH += $$(QWT_INCLUDE_PATH)
-#LIBS += -LC:\Qwt-6.0.1\lib
+LIBS += -LC:\qwt-6.0.1\lib
+#LIBS += -LC:\qwt-6.1.0\lib
 
 # Depending on build, the qwt library below may need to be -lqwt or -lqwt6
 LIBS += -lqwt

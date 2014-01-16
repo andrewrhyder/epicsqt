@@ -122,7 +122,7 @@ void QELocalEnumeration::setLocalEnumeration( const QString &  localEnumerationI
                     switch( len )
                     {
                         case 1: // single character operator <, >, =
-                            switch( localEnumerationIn[start].toAscii() )
+                            switch( localEnumerationIn[start].toLatin1() )
                             {
                                 case '<': item.op = localEnumerationItem::LESS;    break;
                                 case '>': item.op = localEnumerationItem::GREATER; break;
@@ -134,7 +134,7 @@ void QELocalEnumeration::setLocalEnumeration( const QString &  localEnumerationI
                         case 2: // double character operator (always ending in '=') <=, >=, !=
                             if( localEnumerationIn[start+1] == '=' )
                             {
-                                switch( localEnumerationIn[start].toAscii() )
+                                switch( localEnumerationIn[start].toLatin1() )
                                 {
                                     case '<': item.op = localEnumerationItem::LESS_EQUAL;    break;
                                     case '>': item.op = localEnumerationItem::GREATER_EQUAL; break;

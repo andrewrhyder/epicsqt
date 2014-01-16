@@ -30,6 +30,8 @@
 
 #include <QWidget>
 #include <QEGroupBox.h>
+#include <QVBoxLayout>
+#include <QLabel>
 #include <QEPluginLibrary_global.h>
 #include <QEArchiveManager.h>
 

@@ -26,6 +26,10 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QModelIndex>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHeaderView>
+#include <QApplication>
 
 #include <QECommon.h>
 #include <QEScaling.h>

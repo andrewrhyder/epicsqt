@@ -30,6 +30,8 @@
 #include <QCaObject.h>
 #include <QEArchiveInterface.h>
 #include <QColorDialog>
+#include <QFileDialog>
+#include <QApplication>
 
 #include <QECommon.h>
 #include <QEScaling.h>

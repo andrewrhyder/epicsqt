@@ -44,6 +44,7 @@
 #include <QString>
 #include <QDir>
 #include <QFileInfo>
+#include <QVBoxLayout>
 #include <QtDebug>
 #include <QEScaling.h>
 #include <QEForm.h>

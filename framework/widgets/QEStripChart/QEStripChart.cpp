@@ -41,6 +41,7 @@
 #include <QScrollArea>
 #include <QStringList>
 #include <QToolButton>
+#include <QApplication>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
