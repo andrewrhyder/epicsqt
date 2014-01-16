@@ -135,6 +135,9 @@ public:
     QFont legendFont;                                           // Font used to notate markups (and for time)
     QFontMetrics* legendFontMetrics;                            // Size info about legendFont;
 
+    void setMarkupLegend( markupIds mode, QString legend );       // Set the markup legend (for example, area 1 markup might be called 'ROI 1')
+    QString getMarkupLegend( markupIds mode );                   // Get the markup legend
+
 protected:
     void drawMarkups( QPainter& p, const QRect& rect );         // The image has changed, redraw the markups if any
     bool anyVisibleMarkups();                                   // Are there any markups visible

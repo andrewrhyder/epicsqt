@@ -308,6 +308,27 @@ public:
     applicationLauncher::programStartupOptions getProgramStartupOption2();                            ///< Access function for #programStartupOption2 property - refer to #programStartupOption2 property for details
 
 
+    QString getHozSliceLegend();                       ///< Access function for #hozSliceLegend property - refer to #hozSliceLegend property for details
+    void setHozSliceLegend( QString legend );           ///< Access function for #hozSliceLegend property - refer to #hozSliceLegend property for details
+    QString getVertSliceLegend();                      ///< Access function for #vertSliceLegend property - refer to #vertSliceLegend property for details
+    void setVertSliceLegend( QString legend );          ///< Access function for #vertSliceLegend property - refer to #vertSliceLegend property for details
+    QString getprofileLegend();                        ///< Access function for #profileLegend property - refer to #profileLegend property for details
+    void setProfileLegend( QString legend );            ///< Access function for #profileLegend property - refer to #profileLegend property for details
+    QString getAreaSelection1Legend();                 ///< Access function for #areaSelection1Legend property - refer to #areaSelection1Legend property for details
+    void setAreaSelection1Legend( QString legend );     ///< Access function for #areaSelection1Legend property - refer to #areaSelection1Legend property for details
+    QString getAreaSelection2Legend();                 ///< Access function for #areaSelection2Legend property - refer to #areaSelection2Legend property for details
+    void setAreaSelection2Legend( QString legend );     ///< Access function for #areaSelection2Legend property - refer to #areaSelection2Legend property for details
+    QString getAreaSelection3Legend();                 ///< Access function for #areaSelection3Legend property - refer to #areaSelection3Legend property for details
+    void setAreaSelection3Legend( QString legend );     ///< Access function for #areaSelection3Legend property - refer to #areaSelection3Legend property for details
+    QString getAreaSelection4Legend();                 ///< Access function for #areaSelection4Legend property - refer to #areaSelection4Legend property for details
+    void setAreaSelection4Legend( QString legend );     ///< Access function for #areaSelection4Legend property - refer to #areaSelection4Legend property for details
+    QString getTargetLegend();                         ///< Access function for #targetLegend property - refer to #targetLegend property for details
+    void setTargetLegend( QString legend );             ///< Access function for #targetLegend property - refer to #targetLegend property for details
+    QString getBeamLegend();                           ///< Access function for #beamLegend property - refer to #beamLegend property for details
+    void setBeamLegend( QString legend );               ///< Access function for #beamLegend property - refer to #beamLegend property for details
+
+
+
   protected:
     QEStringFormatting stringFormatting;     // String formatting options.
     QEIntegerFormatting integerFormatting;   // Integer formatting options.
@@ -443,6 +464,13 @@ public slots:
 
 
   private:
+
+    void useTargetingData();
+    void useAllMarkupData();
+    void useROIData( const unsigned int& variableIndex );
+    void useProfileData( const unsigned int& variableIndex );
+
+
 
     void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
     void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
@@ -1068,6 +1096,37 @@ public:
     /// If true, the user will be able to select points on the image to mark a target position and the
     /// current beam position. This can be used for automatic beam positioning.
     Q_PROPERTY(bool enableTargetSelection READ getEnableTargetSelection WRITE setEnableTargetSelection)
+
+    //=========
+
+    /// Name of horizontal slice profile markup
+    Q_PROPERTY(QString hozSliceLegend READ getHozSliceLegend WRITE setHozSliceLegend)
+
+    /// Name of vertical slice profile markup
+    Q_PROPERTY(QString vertSliceLegend READ getVertSliceLegend WRITE setVertSliceLegend)
+
+    /// Name of arbitrary priofile markup
+    Q_PROPERTY(QString profileLegend READ getprofileLegend WRITE setProfileLegend)
+
+    /// Name of area selection 1 markup
+    Q_PROPERTY(QString areaSelection1Legend READ getAreaSelection1Legend WRITE setAreaSelection1Legend)
+
+    /// Name of area selection 2 markup
+    Q_PROPERTY(QString areaSelection2Legend READ getAreaSelection2Legend WRITE setAreaSelection2Legend)
+
+    /// Name of area selection 3 markup
+    Q_PROPERTY(QString areaSelection3Legend READ getAreaSelection3Legend WRITE setAreaSelection3Legend)
+
+    /// Name of area selection 4 markup
+    Q_PROPERTY(QString areaSelection4Legend READ getAreaSelection4Legend WRITE setAreaSelection4Legend)
+
+    /// Name of target markup
+    Q_PROPERTY(QString targetLegend READ getTargetLegend WRITE setTargetLegend)
+
+    /// Name of beam markup
+    Q_PROPERTY(QString beamLegend READ getBeamLegend WRITE setBeamLegend)
+
+    //=========
 
     /// If true, an area will be presented under the image with textual information about the pixel under
     /// the cursor, and for other selections such as selected areas.
