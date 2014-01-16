@@ -1,3 +1,4 @@
+#svntestChange A. Rhyder 16/1/14
 # This file is part of the EPICS QT Framework, initially developed at the Australian Synchrotron.
 # The EPICS QT Framework is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
