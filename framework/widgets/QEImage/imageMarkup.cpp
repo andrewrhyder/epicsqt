@@ -383,6 +383,7 @@ void imageMarkup::markupLineProfileChange( QPoint start, QPoint end, bool displa
 // Update markup if required
 void imageMarkup::markupTargetValueChange( QPoint point, bool displayMarkups )
 {
+    qDebug() << point;
     markupValueChange( MARKUP_ID_TARGET, displayMarkups, point );
 }
 
@@ -390,6 +391,7 @@ void imageMarkup::markupTargetValueChange( QPoint point, bool displayMarkups )
 // Update markup if required
 void imageMarkup::markupBeamValueChange( QPoint point, bool displayMarkups )
 {
+    qDebug() << point;
     markupValueChange( MARKUP_ID_BEAM, displayMarkups, point );
 }
 
@@ -535,7 +537,7 @@ void imageMarkup::markupResize( const QSize& newSize, const QSize& oldSize, cons
         {
             changedAreas.append( item->area );
 
-            markupAction( (markupIds)i, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+//            markupAction( (markupIds)i, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
         }
     }
 
