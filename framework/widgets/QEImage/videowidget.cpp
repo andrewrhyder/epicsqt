@@ -177,21 +177,20 @@ void VideoWidget::paintEvent(QPaintEvent* event )
 // Manage a resize event
 void VideoWidget::resizeEvent( QResizeEvent *event )
 {
-    qDebug() <<event->oldSize();
     // Ignore resizes from nothing (there are no markups and scaling calculations go weird)
     if( event->oldSize().width() <= 0 || event->oldSize().height() <= 0 )
     {
         return;
     }
 
-
-    // If there is an image to draw, ensure the markups match the new size
-//    if( !currentImage.isNull() )
-//    {
+    // If there is a current image, redraw it and recalculate the markup dimensions
+    if( !currentImage.isNull() )
+    {
         emit redraw();
-        markupResize( event->size(), event->oldSize(), getScale() );
-//    }
+    }
 
+    // Ensure the markups match the new size
+    markupResize( event->size(), event->oldSize(), getScale() );
 }
 
 // Act on a markup change

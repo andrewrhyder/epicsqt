@@ -78,8 +78,11 @@ public:
     virtual QCursor      defaultCursor()=0;                                         // Return the default cursor for the markup.
     virtual void         nonInteractiveUpdate( QPoint, QPoint ) {}                  // Only implemented by those objects that are updated by data such as region of interest
 
-    void          setThickness( const unsigned int thicknessIn );          // Set the thickness of a markup where relevent.
+    void          setThickness( const unsigned int thicknessIn );                   // Set the thickness of a markup where relevent.
     unsigned int  getThickness();
+
+    void          setLegend( const QString legendIn );                              // Set the string used to notate the markup (and the calculate its size)
+    const QString getLegend();                                                      // Return the string used to notate the markup
 
     QRect         area;         // Area object occupies, used for repainting, and actual object coordinates where appropriate
     bool          visible;      // Object is visible to the user
@@ -94,9 +97,9 @@ protected:
     bool          pointIsNear( QPoint p1, QPoint p );        // Returns true of point p1 is close to point p
     QColor        getColor();                              // Return the colour used for this markup
 
+
     imageMarkup*  owner;                          // Class contining this markup instance
 
-    const QString getLegend();                    // Return the string used to notate the markup
     const QSize getLegendSize();                  // Return the size of the string used to notate the markup
     void addLegendArea();                         // Add the legend area to the markup area
 
@@ -116,7 +119,6 @@ private:
     QString      legend;                                // Text displayed beside markup
     QSize        legendSize;                            // Size of legend (according to legend font)
     bool         hasLegend();                           // Returns true if legend text is present
-    void         setLegend( const QString legendIn );   // Set the string used to notate the markup (and the calculate its size)
     QPoint       legendPos;                             // Last drawn legend position
 };
 

@@ -383,7 +383,6 @@ void imageMarkup::markupLineProfileChange( QPoint start, QPoint end, bool displa
 // Update markup if required
 void imageMarkup::markupTargetValueChange( QPoint point, bool displayMarkups )
 {
-    qDebug() << point;
     markupValueChange( MARKUP_ID_TARGET, displayMarkups, point );
 }
 
@@ -391,7 +390,6 @@ void imageMarkup::markupTargetValueChange( QPoint point, bool displayMarkups )
 // Update markup if required
 void imageMarkup::markupBeamValueChange( QPoint point, bool displayMarkups )
 {
-    qDebug() << point;
     markupValueChange( MARKUP_ID_BEAM, displayMarkups, point );
 }
 
@@ -561,6 +559,41 @@ bool imageMarkup::anyVisibleMarkups()
         }
     }
     return false;
+}
+
+// Set the legend for a given mode.
+// For example, area 1 markup might be called 'ROI 1'
+void imageMarkup::setMarkupLegend( markupIds mode, QString legendIn )
+{
+    // Do nothing if mode is invalid
+    if( mode < 0 || mode >= MARKUP_ID_NONE )
+    {
+        return ;
+    }
+
+    // Save the new markup legend
+    items[mode]->setLegend( legendIn );
+
+    // If the item is visible, redraw it with the new legend
+    QVector<QRect> changedAreas;
+    if( items[mode]->visible )
+    {
+        changedAreas.append( items[mode]->area );
+        markupChange( changedAreas );
+    }
+}
+
+// Return the legend for a given mode.
+QString imageMarkup::getMarkupLegend( markupIds mode )
+{
+    // Do nothing if mode is invalid
+    if( mode < 0 || mode >= MARKUP_ID_NONE )
+    {
+        return QString();
+    }
+
+    // Return the markup legend
+    return items[mode]->getLegend();
 }
 
 // Set the color for a given mode.

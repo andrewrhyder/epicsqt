@@ -52,6 +52,7 @@ public:
 
     QImage getImage(){ return refImage; }
     QSize getImageSize();
+    bool hasCurrentImage(){ return !currentImage.isNull(); }                 // Return true if displaying an image
 
 
 
