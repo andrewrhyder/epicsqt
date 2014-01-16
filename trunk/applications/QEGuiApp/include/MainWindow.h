@@ -26,7 +26,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <ui_MainWindow.h>
 #include <QEActionRequests.h>
 #include <QEForm.h>
@@ -35,6 +35,7 @@
 #include <QMap>
 #include <QProcess>
 #include <QTimer>
+#include <QDockWidget>
 #include <StartupParams.h>
 #include <manageConfigDialog.h>
 #include <windowCustomisation.h>

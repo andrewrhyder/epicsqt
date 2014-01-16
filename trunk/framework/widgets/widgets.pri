@@ -40,4 +40,6 @@ SOURCES += \
     widgets/src/persistanceManager.cpp\
     widgets/src/applicationLauncher.cpp
 
+OTHER_FILES += widgets/include/qeplugin.json
+
 # end

@@ -30,6 +30,7 @@
 #include <QEWidget.h>
 #include <QWidget>
 #include <QString>
+#include <QLabel>
 #include <QFileSystemWatcher>
 #include <QEPluginLibrary_global.h>
 #include <QCaVariableNamePropertyManager.h>

@@ -31,7 +31,7 @@
 #ifndef VIDEOWIDGET_H
 #define VIDEOWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <imageMarkup.h>
 
 class VideoWidget : public QWidget, public imageMarkup

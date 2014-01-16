@@ -220,49 +220,49 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
         // Write the appropriate type
         switch( newValue->getType() )
         {
-            case generic::STRING :
+            case generic::GENERIC_STRING :
             {
                 std::string outValue = newValue->getString();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_STRING, 0, outValue.c_str() );
                 break;
             }
-            case generic::SHORT :
+            case generic::GENERIC_SHORT :
             {
                 short outValue = newValue->getShort();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_SHORT, 0, &outValue );
                 break;
             }
-            case generic::UNSIGNED_SHORT :
+            case generic::GENERIC_UNSIGNED_SHORT :
             {
                 unsigned short outValue = newValue->getUnsignedShort();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_ENUM, 0, &outValue );
                 break;
             }
-            case generic::UNSIGNED_CHAR :
+            case generic::GENERIC_UNSIGNED_CHAR :
             {
                 char outValue = newValue->getUnsignedChar();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_CHAR, 0, &outValue );
                 break;
             }
-            case generic::LONG :
+            case generic::GENERIC_LONG :
             {
                 qint32 outValue = newValue->getLong();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, 0, &outValue );
                 break;
             }
-            case generic::UNSIGNED_LONG :
+            case generic::GENERIC_UNSIGNED_LONG :
             {
                 quint32 outValue = newValue->getUnsignedLong();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, 0, &outValue );
                 break;
             }
-            case generic::FLOAT :
+            case generic::GENERIC_FLOAT :
             {
                 float outValue = newValue->getFloat();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_FLOAT, 0, &outValue );
                 break;
             }
-            case generic::DOUBLE :
+            case generic::GENERIC_DOUBLE :
             {
                 double outValue = newValue->getDouble();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_DOUBLE, 0, &outValue );
@@ -282,56 +282,56 @@ caconnection::ca_responses CaObjectPrivate::writeChannel( generic::Generic *newV
         // Write the appropriate type
         switch( newValue->getType() )
         {
-            case generic::STRING :
+            case generic::GENERIC_STRING :
             {
             //??? dont do arrays of strings yet
                 std::string outValue = newValue->getString();
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_STRING, 0, outValue.c_str() );
                 break;
             }
-            case generic::SHORT :
+            case generic::GENERIC_SHORT :
             {
                 short* outValue;
                 newValue->getShort( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_SHORT, arrayCount, outValue );
                 break;
             }
-            case generic::UNSIGNED_SHORT :
+            case generic::GENERIC_UNSIGNED_SHORT :
             {
                 unsigned short* outValue;
                 newValue->getUnsignedShort( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_ENUM, arrayCount, outValue );
                 break;
             }
-            case generic::UNSIGNED_CHAR :
+            case generic::GENERIC_UNSIGNED_CHAR :
             {
                 unsigned char* outValue;
                 newValue->getUnsignedChar( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_CHAR, arrayCount, outValue );
                 break;
             }
-            case generic::LONG :
+            case generic::GENERIC_LONG :
             {
                 qint32* outValue;
                 newValue->getLong( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, arrayCount, outValue );
                 break;
             }
-            case generic::UNSIGNED_LONG :
+            case generic::GENERIC_UNSIGNED_LONG :
             {
                 quint32* outValue;
                 newValue->getUnsignedLong( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_LONG, arrayCount, outValue );
                 break;
             }
-            case generic::FLOAT :
+            case generic::GENERIC_FLOAT :
             {
                 float* outValue;
                 newValue->getFloat( &outValue, &arrayCount );
                 return caConnection->writeChannel( writeHandler, owner->myRef, DBR_FLOAT, arrayCount, outValue );
                 break;
             }
-            case generic::DOUBLE :
+            case generic::GENERIC_DOUBLE :
             {
                 double* outValue;
                 newValue->getDouble( &outValue, &arrayCount );

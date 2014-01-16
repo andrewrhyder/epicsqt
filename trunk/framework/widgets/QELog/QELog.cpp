@@ -22,6 +22,11 @@
  *    ricardo.fernandes@synchrotron.org.au
  */
 
+#include <QMessageBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QFileDialog>
+#include <QHeaderView>
 #include <QELog.h>
 
 
@@ -513,17 +518,17 @@ void QELog::addLog(int pType, QString pMessage)
 
     switch(pType)
     {
-        case INFO:
+        case MESSAGE_TYPE_INFO:
             type = "INFO";
             color = qColorInfo;
             break;
 
-        case WARNING:
+        case MESSAGE_TYPE_WARNING:
             type = "WARNING";
             color = qColorWarning;
             break;
 
-        case ERROR:
+        case MESSAGE_TYPE_ERROR:
             type = "ERROR";
             color = qColorError;
             break;

@@ -89,7 +89,7 @@ QString QEEnvironmentVariables::getString (const QString& name, const QString& d
    envVar = this->prefix;
    envVar.append (name.toUpper ());
 
-   byteArray = qgetenv (envVar.toAscii ().data ());
+   byteArray = qgetenv (envVar.toLatin1().data ());
 
    result = byteArray.constData ();
    if (result.isEmpty ()) {

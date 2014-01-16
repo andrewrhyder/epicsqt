@@ -23,7 +23,7 @@
  *    andrew.rhyder@synchrotron.org.au
  */
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QEGui.h>
 
 

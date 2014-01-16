@@ -122,19 +122,19 @@ void startupParams::setSharedParams( QByteArray& out )
     out[len++] = filenameList.count();
     for( i = 0; i < filenameList.count(); i++ )
     {
-        out.insert( len, filenameList[i].toAscii() ); len += filenameList[i].size();   out[len++] = '\0';
+        out.insert( len, filenameList[i].toLatin1() ); len += filenameList[i].size();   out[len++] = '\0';
     }
 
     out[len++] = pathList.count();
     for( i = 0; i < pathList.count(); i++ )
     {
-        out.insert( len, pathList[i].toAscii() );     len += pathList[i].size();       out[len++] = '\0';
+        out.insert( len, pathList[i].toLatin1() );     len += pathList[i].size();       out[len++] = '\0';
     }
 
-    out.insert( len, substitutions.toAscii() );       len += substitutions.size();     out[len++] = '\0';
+    out.insert( len, substitutions.toLatin1() );       len += substitutions.size();     out[len++] = '\0';
 
-    out.insert( len, configurationName.toAscii() );   len += configurationName.size(); out[len++] = '\0';
-    out.insert( len, configurationFile.toAscii() );   len += configurationFile.size(); out[len++] = '\0';
+    out.insert( len, configurationName.toLatin1() );   len += configurationName.size(); out[len++] = '\0';
+    out.insert( len, configurationFile.toLatin1() );   len += configurationFile.size(); out[len++] = '\0';
 
 }
 
@@ -170,7 +170,7 @@ bool startupParams::getStartupParams( QStringList args )
             while( arg.remove(0,1).size() )
             {
                 // Identify the argument by the next letter
-                switch( arg[0].toAscii() )
+                switch( arg[0].toLatin1() )
                 {
 
                    // 'Adjust Scale' flag

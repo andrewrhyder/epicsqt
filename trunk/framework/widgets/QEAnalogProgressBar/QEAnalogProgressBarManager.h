@@ -29,7 +29,7 @@
 #include <QEPluginLibrary_global.h>
 
 /*
-    ???
+    Interface to manage creating a QEAnalogProgressBar as a Designer plugin
 */
 class QEPLUGINLIBRARYSHARED_EXPORT QEAnalogProgressBarManager : public QObject, public QDesignerCustomWidgetInterface {
     Q_OBJECT

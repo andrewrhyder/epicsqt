@@ -31,6 +31,7 @@
 #include <videowidget.h>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QToolBar>
 #include <profilePlot.h>
 #include <zoomMenu.h>
 #include <flipRotateMenu.h>

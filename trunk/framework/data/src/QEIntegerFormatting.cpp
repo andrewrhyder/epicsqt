@@ -44,34 +44,34 @@ QEIntegerFormatting::QEIntegerFormatting() {
 */
 QVariant QEIntegerFormatting::formatValue( const long &integerValue, generic::generic_types valueType ) {
     switch( valueType ) {
-        case generic::STRING :
+        case generic::GENERIC_STRING :
         {
             QString string = QString::number( integerValue, radix);
             QVariant sValue( string );
             return sValue;
         }
-        case generic::SHORT :
-        case generic::LONG :
+        case generic::GENERIC_SHORT :
+        case generic::GENERIC_LONG :
         {
             QVariant lValue( (qlonglong)integerValue );
             return lValue;
         }
-        case generic::UNSIGNED_SHORT :
-        case generic::UNSIGNED_CHAR :
-        case generic::UNSIGNED_LONG :
+        case generic::GENERIC_UNSIGNED_SHORT :
+        case generic::GENERIC_UNSIGNED_CHAR :
+        case generic::GENERIC_UNSIGNED_LONG :
         {
             qulonglong unsignedIntegerValue;
             ( integerValue < 0 ) ? unsignedIntegerValue=0 : unsignedIntegerValue=integerValue;
             QVariant ulValue( unsignedIntegerValue );
             return ulValue;
         }
-        case generic::FLOAT :
-        case generic::DOUBLE :
+        case generic::GENERIC_FLOAT :
+        case generic::GENERIC_DOUBLE :
         {
             QVariant dValue( (double)integerValue );
             return dValue;
         }
-        case generic::UNKNOWN :
+        case generic::GENERIC_UNKNOWN :
         default :
         {
             //qDebug() << "QEIntegerFormatting::formatValue() Unknown value 'Generic' type: " << valueType;

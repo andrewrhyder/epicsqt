@@ -37,7 +37,7 @@ using namespace generic;
 Generic::Generic() { 
     value = NULL;
     arrayCount = 0;
-    type = UNKNOWN;
+    type = generic::GENERIC_UNKNOWN;
 }
 
 /*
@@ -167,7 +167,7 @@ Generic& Generic::operator= ( Generic &param ) {
 void Generic::setString( std::string newValue ) {
     deleteValue();
     value = new std::string( newValue );
-    type = STRING;
+    type = GENERIC_STRING;
 }
 
 /*
@@ -188,7 +188,7 @@ void Generic::setShort( short* newValueArray, unsigned long arrayCountIn ) {
         memcpy( value, newValueArray, sizeof(short)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
-    type = SHORT;
+    type = GENERIC_SHORT;
 }
 
 void Generic::updateShort( short newValue, unsigned long arrayIndex ) {
@@ -217,7 +217,7 @@ void Generic::setUnsignedShort( unsigned short* newValueArray, unsigned long arr
         memcpy( value, newValueArray, sizeof(unsigned short)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
-    type = UNSIGNED_SHORT;
+    type = GENERIC_UNSIGNED_SHORT;
 }
 
 void Generic::updateUnsignedShort( unsigned short newValue, unsigned long arrayIndex ) {
@@ -246,7 +246,7 @@ void Generic::setUnsignedChar( unsigned char* newValueArray, unsigned long array
         memcpy( value, newValueArray, sizeof(unsigned char)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
-    type = UNSIGNED_CHAR;
+    type = GENERIC_UNSIGNED_CHAR;
 }
 
 void Generic::updateUnsignedChar( unsigned char newValue, unsigned long arrayIndex ) {
@@ -275,7 +275,7 @@ void Generic::setLong( qint32* newValueArray, unsigned long arrayCountIn ) {
         memcpy( value, newValueArray, sizeof(qint32)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
-    type = LONG;
+    type = GENERIC_LONG;
 }
 
 void Generic::updateLong( qint32 newValue, unsigned long arrayIndex ) {
@@ -304,7 +304,7 @@ void Generic::setUnsignedLong( quint32* newValueArray, unsigned long arrayCountI
         memcpy( value, newValueArray, sizeof(quint32)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
-    type = UNSIGNED_LONG;
+    type = GENERIC_UNSIGNED_LONG;
 }
 
 void Generic::updateUnsignedLong( quint32 newValue, unsigned long arrayIndex ) {
@@ -332,7 +332,7 @@ void Generic::setFloat( float* newValueArray, unsigned long arrayCountIn ) {
         memcpy( value, newValueArray, sizeof(float)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
-    type = FLOAT;
+    type = GENERIC_FLOAT;
 }
 
 void Generic::updateFloat( float newValue, unsigned long arrayIndex ) {
@@ -361,7 +361,7 @@ void Generic::setDouble( double* newValueArray, unsigned long arrayCountIn ) {
         memcpy( value, newValueArray, sizeof(double)*arrayCountIn );
     }
     arrayCount = arrayCountIn;
-    type = DOUBLE;
+    type = GENERIC_DOUBLE;
 }
 
 void Generic::updateDouble( double newValue, unsigned long arrayIndex ) {
@@ -376,7 +376,7 @@ void Generic::updateDouble( double newValue, unsigned long arrayIndex ) {
     Returns type string or invalid
 */
 std::string Generic::getString() {
-    if( getType() == STRING ) {
+    if( getType() == GENERIC_STRING ) {
         return *(std::string*)value;
     }
     return "";
@@ -386,7 +386,7 @@ std::string Generic::getString() {
     Returns type string array (char array) or invalid
 */
 void Generic::getString( char** valueArray, unsigned long* arrayCountOut ){
-    if( getType() == STRING ) {
+    if( getType() == GENERIC_STRING ) {
         *valueArray = (char*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
@@ -401,7 +401,7 @@ void Generic::getString( char** valueArray, unsigned long* arrayCountOut ){
     Returns type short or invalid
 */
 short Generic::getShort() { 
-    if( getType() == SHORT ) {
+    if( getType() == GENERIC_SHORT ) {
         return *(short*)value;
     }
     return 0;
@@ -411,7 +411,7 @@ short Generic::getShort() {
     Returns type short array or invalid
 */
 void Generic::getShort( short** valueArray, unsigned long* arrayCountOut ) {
-    if( getType() == SHORT ) {
+    if( getType() == GENERIC_SHORT ) {
         *valueArray = (short*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
@@ -426,7 +426,7 @@ void Generic::getShort( short** valueArray, unsigned long* arrayCountOut ) {
     Returns type unsigned short or invalid
 */
 unsigned short Generic::getUnsignedShort() {
-    if( getType() == UNSIGNED_SHORT ) {
+    if( getType() == GENERIC_UNSIGNED_SHORT ) {
         return *(unsigned short*)value;
     }
     return 0;
@@ -436,7 +436,7 @@ unsigned short Generic::getUnsignedShort() {
     Returns type short array or invalid
 */
 void Generic::getUnsignedShort( unsigned short** valueArray, unsigned long* arrayCountOut ) {
-    if( getType() == UNSIGNED_SHORT ) {
+    if( getType() == GENERIC_UNSIGNED_SHORT ) {
         *valueArray = (unsigned short*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
@@ -451,7 +451,7 @@ void Generic::getUnsignedShort( unsigned short** valueArray, unsigned long* arra
     Returns type char or invalid
 */
 unsigned char Generic::getUnsignedChar() {
-    if( getType() == UNSIGNED_CHAR ) {
+    if( getType() == GENERIC_UNSIGNED_CHAR ) {
         return *(char*)value;
     }
     return 0;
@@ -461,7 +461,7 @@ unsigned char Generic::getUnsignedChar() {
     Returns type char array or invalid
 */
 void Generic::getUnsignedChar( unsigned char** valueArray, unsigned long* arrayCountOut ) {
-    if( getType() == UNSIGNED_CHAR ) {
+    if( getType() == GENERIC_UNSIGNED_CHAR ) {
         *valueArray = (unsigned char*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
@@ -476,7 +476,7 @@ void Generic::getUnsignedChar( unsigned char** valueArray, unsigned long* arrayC
     Returns type long or invalid
 */
 qint32 Generic::getLong() {
-    if( getType() == LONG ) {
+    if( getType() == GENERIC_LONG ) {
         return *(qint32*)value;
     }
     return 0;
@@ -486,7 +486,7 @@ qint32 Generic::getLong() {
     Returns type long array or invalid
 */
 void Generic::getLong( qint32** valueArray, unsigned long* arrayCountOut ) {
-    if( getType() == LONG ) {
+    if( getType() == GENERIC_LONG ) {
         *valueArray = (qint32*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
@@ -501,7 +501,7 @@ void Generic::getLong( qint32** valueArray, unsigned long* arrayCountOut ) {
     Returns type unsigned long or invalid
 */
 quint32 Generic::getUnsignedLong() {
-    if( getType() == UNSIGNED_LONG ) {
+    if( getType() == GENERIC_UNSIGNED_LONG ) {
         return *(quint32*)value;
     }
     return 0;
@@ -511,7 +511,7 @@ quint32 Generic::getUnsignedLong() {
     Returns type unsigned long array or invalid
 */
 void Generic::getUnsignedLong( quint32** valueArray, unsigned long* arrayCountOut ) {
-    if( getType() == UNSIGNED_LONG ) {
+    if( getType() == GENERIC_UNSIGNED_LONG ) {
         *valueArray = (quint32*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
@@ -526,7 +526,7 @@ void Generic::getUnsignedLong( quint32** valueArray, unsigned long* arrayCountOu
     Returns type float or invalid
 */
 float Generic::getFloat() {
-    if( getType() == FLOAT ) {
+    if( getType() == GENERIC_FLOAT ) {
         return *(float*)value;
     }
     return 0;
@@ -536,7 +536,7 @@ float Generic::getFloat() {
     Returns type double array or invalid
 */
 void Generic::getFloat( float** valueArray, unsigned long* arrayCountOut ) {
-    if( getType() == FLOAT ) {
+    if( getType() == GENERIC_FLOAT ) {
         *valueArray = (float*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
@@ -551,7 +551,7 @@ void Generic::getFloat( float** valueArray, unsigned long* arrayCountOut ) {
     Returns type double or invalid
 */
 double Generic::getDouble() { 
-    if( getType() == DOUBLE ) {
+    if( getType() == GENERIC_DOUBLE ) {
         return *(double*)value;
     }
     return 0;
@@ -561,7 +561,7 @@ double Generic::getDouble() {
     Returns type double array or invalid
 */
 void Generic::getDouble( double** valueArray, unsigned long* arrayCountOut ) {
-    if( getType() == DOUBLE ) {
+    if( getType() == GENERIC_DOUBLE ) {
         *valueArray = (double*)value;
         if( arrayCountOut )
             *arrayCountOut = arrayCount;
@@ -600,41 +600,41 @@ void Generic::setType( generic_types newType ) {
 */
 void Generic::deleteValue() {
     if( value == NULL ) {
-        type = UNKNOWN;
+        type = GENERIC_UNKNOWN;
         return;
     }
     switch( getType() ) {
-        case STRING :
+        case GENERIC_STRING :
             delete (std::string*)value;
         break;
-        case SHORT :
+        case GENERIC_SHORT :
             delete (short*)value;
         break;
-        case UNSIGNED_SHORT :
+        case GENERIC_UNSIGNED_SHORT :
             delete (unsigned short*)value;
         break;
-        case UNSIGNED_CHAR :
+        case GENERIC_UNSIGNED_CHAR :
             delete (char*)value;
         break;
-        case LONG :
+        case GENERIC_LONG :
             delete (qint32*)value;
         break;
-        case UNSIGNED_LONG :
+        case GENERIC_UNSIGNED_LONG :
             delete (quint32*)value;
         break;
-        case FLOAT :
+        case GENERIC_FLOAT :
             delete (float*)value;
         break;
-        case DOUBLE :
+        case GENERIC_DOUBLE :
             delete (double*)value;
         break;
-        case UNKNOWN :
+        case GENERIC_UNKNOWN :
             value = NULL;
             return;
         break;
     }
     value = NULL;
-    type = UNKNOWN;
+    type = GENERIC_UNKNOWN;
 }
 
 /*
@@ -642,10 +642,10 @@ void Generic::deleteValue() {
 */
 void Generic::cloneValue( Generic *param ) {
     switch( param->getType() ) {
-        case STRING :
+        case GENERIC_STRING :
             setString( param->getString() );
         break;
-        case UNSIGNED_SHORT :
+        case GENERIC_UNSIGNED_SHORT :
             {
                 unsigned short* paramValue;
                 unsigned long paramCount;
@@ -653,7 +653,7 @@ void Generic::cloneValue( Generic *param ) {
                 setUnsignedShort( paramValue, paramCount );
             }
         break;
-        case SHORT :
+        case GENERIC_SHORT :
             {
                 short* paramValue;
                 unsigned long paramCount;
@@ -661,7 +661,7 @@ void Generic::cloneValue( Generic *param ) {
                 setShort( paramValue, paramCount );
             }
         break;
-        case UNSIGNED_CHAR :
+        case GENERIC_UNSIGNED_CHAR :
             {
                 unsigned char* paramValue;
                 unsigned long paramCount;
@@ -669,7 +669,7 @@ void Generic::cloneValue( Generic *param ) {
                 setUnsignedChar( paramValue, paramCount );
             }
         break;
-        case LONG :
+        case GENERIC_LONG :
             {
                 qint32* paramValue;
                 unsigned long paramCount;
@@ -677,7 +677,7 @@ void Generic::cloneValue( Generic *param ) {
                 setLong( paramValue, paramCount );
             }
         break;
-         case UNSIGNED_LONG :
+         case GENERIC_UNSIGNED_LONG :
             {
                 quint32* paramValue;
                 unsigned long paramCount;
@@ -685,7 +685,7 @@ void Generic::cloneValue( Generic *param ) {
                 setUnsignedLong( paramValue, paramCount );
             }
         break;
-        case FLOAT :
+        case GENERIC_FLOAT :
             {
                 float* paramValue;
                 unsigned long paramCount;
@@ -693,7 +693,7 @@ void Generic::cloneValue( Generic *param ) {
                 setFloat( paramValue, paramCount );
             }
         break;
-        case DOUBLE :
+        case GENERIC_DOUBLE :
             {
                 double* paramValue;
                 unsigned long paramCount;
@@ -701,7 +701,7 @@ void Generic::cloneValue( Generic *param ) {
                 setDouble( paramValue, paramCount );
             }
         break;
-        case UNKNOWN :
+        case GENERIC_UNKNOWN :
             deleteValue();
         break;
     }

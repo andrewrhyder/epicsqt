@@ -26,7 +26,7 @@
 #ifndef QEGUI_H
 #define QEGUI_H
 
-#include <QApplication>
+//#include <QApplication>
 #include <StartupParams.h>
 #include <ContainerProfile.h>
 #include <MainWindow.h>

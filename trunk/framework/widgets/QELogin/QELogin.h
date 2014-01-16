@@ -25,6 +25,13 @@
 #ifndef QELOGIN_H
 #define QELOGIN_H
 
+#include <QFrame>
+#include <QRadioButton>
+#include <QDialog>
+#include <QLineEdit>
+#include <QLabel>
+#include <QPushButton>
+
 #include <QEWidget.h>
 
 // Forward delarations

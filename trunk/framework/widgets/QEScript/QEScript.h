@@ -25,6 +25,8 @@
 #ifndef QESCRIPT_H
 #define QESCRIPT_H
 
+#include <QTableWidgetItem>
+#include <QPushButton>
 #include <QEWidget.h>
 
 

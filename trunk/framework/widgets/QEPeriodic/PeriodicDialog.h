@@ -26,7 +26,7 @@
 #ifndef PERIODICDIALOG_H
 #define PERIODICDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QEDialog.h>
 
 namespace Ui {

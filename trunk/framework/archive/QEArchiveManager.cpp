@@ -504,7 +504,7 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
                } else {
 
                   message.sprintf ("PV %s has multiple instances of key %d",
-                                   pvChannel.pvName.toAscii().data (), keyTimeSpec.key ) ;
+                                   pvChannel.pvName.toLatin1().data (), keyTimeSpec.key ) ;
                   this->sendMessage (message, message_types (MESSAGE_TYPE_ERROR));
 
                }
@@ -512,9 +512,9 @@ void QEArchiveManager::pvNamesResponse (const QObject * userData,
             } else {
 
                message.sprintf ("PV %s hosted on multiple interfaces. Primary %s, Secondary %s",
-                                pvChannel.pvName.toAscii().data (),
-                                sourceSpec.interface->getName ().toAscii().data (),
-                                context->interface->getName ().toAscii().data ());
+                                pvChannel.pvName.toLatin1().data (),
+                                sourceSpec.interface->getName ().toLatin1().data (),
+                                context->interface->getName ().toLatin1().data ());
                this->sendMessage (message, message_types (MESSAGE_TYPE_ERROR));
             }
          }

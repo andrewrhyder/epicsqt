@@ -291,7 +291,7 @@ bool QCaObject::removeEventFromPendingList( QCaEventUpdate* dataUpdateEvent )
     The data type will be unknown until a connection is established
 */
 bool QCaObject::dataTypeKnown() {
-    return( ( getType() != generic::UNKNOWN ) ? true:false );
+    return( ( getType() != generic::GENERIC_UNKNOWN ) ? true:false );
 }
 
 /*
@@ -529,7 +529,7 @@ void QCaObject::stopConnectionTimer() {
 
 /*
     Returns the type of data being read or to be written.
-    This will be Type::UNKNOWN if a connection has never been established.
+    This will be Type::GENERIC_UNKNOWN if a connection has never been established.
 */
 generic::generic_types QCaObject::getDataType() {
     return getType();
@@ -866,10 +866,10 @@ void QCaObject::processData( void* newDataPtr ) {
         // Package up the CA data as a Qt variant
         QVariant value;
         switch( newData->getType() ) {
-            case generic::STRING :
+            case generic::GENERIC_STRING :
                 value = QVariant( QString::fromStdString( newData->getString() ) );
             break;
-            case generic::SHORT :
+            case generic::GENERIC_SHORT :
                 if( arrayCount <= 1 )
                 {
                     value = QVariant( (qlonglong)newData->getShort() );
@@ -889,7 +889,7 @@ void QCaObject::processData( void* newDataPtr ) {
                     value = QVariant( values );
                 }
             break;
-            case generic::UNSIGNED_SHORT :
+            case generic::GENERIC_UNSIGNED_SHORT :
                 if( arrayCount <= 1 )
                 {
                     value = QVariant( (qulonglong)newData->getUnsignedShort() );
@@ -910,7 +910,7 @@ void QCaObject::processData( void* newDataPtr ) {
                     value = QVariant( values );
                 }
             break;
-            case generic::UNSIGNED_CHAR :
+            case generic::GENERIC_UNSIGNED_CHAR :
                 if( arrayCount <= 1 )
                 {
                     value = QVariant( (qulonglong)newData->getUnsignedChar() );
@@ -931,7 +931,7 @@ void QCaObject::processData( void* newDataPtr ) {
                     value = QVariant( values );
                 }
             break;
-            case generic::LONG :
+            case generic::GENERIC_LONG :
                 if( arrayCount <= 1 )
                 {
                     value = QVariant( (qlonglong)newData->getLong() );
@@ -952,7 +952,7 @@ void QCaObject::processData( void* newDataPtr ) {
                     value = QVariant( values );
                 }
             break;
-            case generic::UNSIGNED_LONG :
+            case generic::GENERIC_UNSIGNED_LONG :
                 if( arrayCount <= 1 )
                 {
                     value = QVariant( (qulonglong)newData->getUnsignedLong() );
@@ -973,7 +973,7 @@ void QCaObject::processData( void* newDataPtr ) {
                     value = QVariant( values );
                 }
             break;
-            case generic::FLOAT :
+            case generic::GENERIC_FLOAT :
                 if( arrayCount <= 1 )
                 {
                     value = QVariant( (double)newData->getFloat() );
@@ -994,7 +994,7 @@ void QCaObject::processData( void* newDataPtr ) {
                     value = QVariant( values );
                 }
             break;
-            case generic::DOUBLE :
+            case generic::GENERIC_DOUBLE :
                 if( arrayCount <= 1 )
                 {
                     value = QVariant( newData->getDouble() );
@@ -1015,7 +1015,7 @@ void QCaObject::processData( void* newDataPtr ) {
                     value = QVariant( values );
                 }
             break;
-            case generic::UNKNOWN :
+            case generic::GENERIC_UNKNOWN :
                 value = QVariant();
             break;
         }
@@ -1038,15 +1038,15 @@ void QCaObject::processData( void* newDataPtr ) {
         unsigned long dataSize = 0;
 
         switch( newData->getType() ) {
-            case generic::STRING         : newData->getString       ( (char**)          (&data) ); dataSize = 1; break;
-            case generic::SHORT          : newData->getShort        ( (short**)         (&data) ); dataSize = 2; break;
-            case generic::UNSIGNED_SHORT : newData->getUnsignedShort( (unsigned short**)(&data) ); dataSize = 2; break;
-            case generic::UNSIGNED_CHAR  : newData->getUnsignedChar ( (unsigned char**) (&data) ); dataSize = 1; break;
-            case generic::LONG           : newData->getLong         ( (qint32**)        (&data) ); dataSize = 4; break;
-            case generic::UNSIGNED_LONG  : newData->getUnsignedLong ( (quint32**)       (&data) ); dataSize = 4; break;
-            case generic::FLOAT          : newData->getFloat        ( (float**)         (&data) ); dataSize = 4; break;
-            case generic::DOUBLE         : newData->getDouble       ( (double**)        (&data) ); dataSize = 8; break;
-            case generic::UNKNOWN        : data = NULL;                                            dataSize = 0; break;
+            case generic::GENERIC_STRING         : newData->getString       ( (char**)          (&data) ); dataSize = 1; break;
+            case generic::GENERIC_SHORT          : newData->getShort        ( (short**)         (&data) ); dataSize = 2; break;
+            case generic::GENERIC_UNSIGNED_SHORT : newData->getUnsignedShort( (unsigned short**)(&data) ); dataSize = 2; break;
+            case generic::GENERIC_UNSIGNED_CHAR  : newData->getUnsignedChar ( (unsigned char**) (&data) ); dataSize = 1; break;
+            case generic::GENERIC_LONG           : newData->getLong         ( (qint32**)        (&data) ); dataSize = 4; break;
+            case generic::GENERIC_UNSIGNED_LONG  : newData->getUnsignedLong ( (quint32**)       (&data) ); dataSize = 4; break;
+            case generic::GENERIC_FLOAT          : newData->getFloat        ( (float**)         (&data) ); dataSize = 4; break;
+            case generic::GENERIC_DOUBLE         : newData->getDouble       ( (double**)        (&data) ); dataSize = 8; break;
+            case generic::GENERIC_UNKNOWN        : data = NULL;                                            dataSize = 0; break;
         }
 
         unsigned long arraySize = arrayCount * dataSize;

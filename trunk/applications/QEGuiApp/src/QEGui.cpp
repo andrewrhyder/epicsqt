@@ -162,14 +162,14 @@ void QEGui::printVersion ()
               << QE_VERSION_DATE_TIME <<  " (using QT " << QT_VERSION_STR << ")\n";
 
    std::cout  << "Framework version: "
-              << QEFrameworkVersion::getString().toAscii().data()       << "  "
-              << QEFrameworkVersion::getDateTime().toAscii().data()     << " (using QT "
-              << QEFrameworkVersion::getQtVersionStr().toAscii().data() << ")\n";
+              << QEFrameworkVersion::getString().toLatin1().data()       << "  "
+              << QEFrameworkVersion::getDateTime().toLatin1().data()     << " (using QT "
+              << QEFrameworkVersion::getQtVersionStr().toLatin1().data() << ")\n";
 
    // Note: the EPICS version string is prefixed by the text "EPICS".
    //
-   std::cout  << "Support packages:  " << QEFrameworkVersion::getEpicsVersionStr ().toAscii().data()
-              << " and QWT "    << QEFrameworkVersion::getQwtVersionStr().toAscii().data() << "\n";
+   std::cout  << "Support packages:  " << QEFrameworkVersion::getEpicsVersionStr ().toLatin1().data()
+              << " and QWT "    << QEFrameworkVersion::getQwtVersionStr().toLatin1().data() << "\n";
 }
 
 // Print file to stream
@@ -186,7 +186,7 @@ void QEGui::printFile (const QString& filename,
    QString text = textStream.readAll();
    textFile.close();
 
-   stream << text.toAscii().data();
+   stream << text.toLatin1().data();
 }
 
 // Print command line usage

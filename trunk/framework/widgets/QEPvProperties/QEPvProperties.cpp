@@ -28,6 +28,7 @@
 #include <QTableWidgetItem>
 #include <QComboBox>
 #include <QFrame>
+#include <QHeaderView>
 
 #include <QEScaling.h>
 #include <QECommon.h>

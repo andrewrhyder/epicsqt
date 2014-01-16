@@ -145,7 +145,7 @@ void Rad_Control::tickTimeout ()
 //
 void Rad_Control::usage (const QString & message)
 {
-   std::cerr << message.toAscii().data() << "\n";
+   std::cerr << message.toLatin1().data() << "\n";
    Rad_Control::printFile (":/qe/rad/help/help_usage.txt", std::cerr);
    this->state = errorExit;
 }
@@ -305,24 +305,24 @@ void Rad_Control::initialise ()
    line.append (this->startTime.toString (stdFormat));
    line.append (" ");
    line.append (QEUtilities::getTimeZoneTLA (this->startTime));
-   std::cout << line.toAscii().data() << "\n";
+   std::cout << line.toLatin1().data() << "\n";
 
    line = "end time:   ";
    line.append (this->endTime.toString (stdFormat));
    line.append (" ");
    line.append (QEUtilities::getTimeZoneTLA (this->endTime));
-   std::cout << line.toAscii().data() << "\n";
+   std::cout << line.toLatin1().data() << "\n";
 
    QEAdaptationParameters ap ("QE_");
    QString archives = ap.getString ("archive_list", "");
 
    line = "archives: ";
    line.append (archives);
-   std::cout << line.toAscii().data() << "\n";
+   std::cout << line.toLatin1().data() << "\n";
 
    line = "pattern:  ";
    line.append (pattern);
-   std::cout << line.toAscii().data() << "\n";
+   std::cout << line.toLatin1().data() << "\n";
 
    // We define with own pattern as opposed to default (".*") or by environment variable.
    //
@@ -365,9 +365,9 @@ void Rad_Control::readArchive ()
                                      this->how, 0);
 
    std::cout << "\nArchiver request issued:    "
-             << pvName.toAscii ().data ()
-             << " ("<< this->nextTime.toString(stdFormat).toAscii ().data ()
-             << " to " << adjustedEndTime.toString(stdFormat).toAscii ().data ()
+             << pvName.toLatin1 ().data ()
+             << " ("<< this->nextTime.toString(stdFormat).toLatin1 ().data ()
+             << " to " << adjustedEndTime.toString(stdFormat).toLatin1 ().data ()
              << ")\n";
 }
 
@@ -410,7 +410,7 @@ void Rad_Control::setArchiveData (const QObject *, const bool okay, const QCaDat
        line.append (")");
    }
    line.append ("\n");
-   std::cout << line.toAscii ().data ();
+   std::cout << line.toLatin1 ().data ();
 
    // Now start processing the data in earnets.
    //
@@ -591,7 +591,7 @@ void Rad_Control::putArchiveData ()
    int j;
    QCaDataPoint point;
 
-   std::cout << "\nOutputing data to file: " << this->outputFile.toAscii ().data () << "\n";
+   std::cout << "\nOutputing data to file: " << this->outputFile.toLatin1 ().data () << "\n";
 
    if (!target_file.open (QIODevice::WriteOnly | QIODevice::Text)) {
       std::cerr << "open file failed\n";
@@ -686,7 +686,7 @@ void Rad_Control::printFile (const QString& filename,
    QString text = textStream.readAll();
    textFile.close();
 
-   stream << text.toAscii().data();
+   stream << text.toLatin1().data();
 }
 
 

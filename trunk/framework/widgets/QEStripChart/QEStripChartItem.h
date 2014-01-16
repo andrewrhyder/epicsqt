@@ -34,6 +34,7 @@
 #include <QPoint>
 #include <QString>
 #include <QWidget>
+#include <QColorDialog>
 
 #include <QCaAlarmInfo.h>
 #include <QCaConnectionInfo.h>
