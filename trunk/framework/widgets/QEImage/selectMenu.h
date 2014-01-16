@@ -50,6 +50,13 @@ public:
     void setProfileEnabled( bool enableProfileSelection );
     void setTargetEnabled( bool enableTargetSelection );
 
+    bool getPanEnabled();
+    bool getVSliceEnabled();
+    bool getHSliceEnabled();
+    bool getAreaEnabled();
+    bool getProfileEnabled();
+    bool getTargetEnabled();
+
 signals:
 
 public slots:

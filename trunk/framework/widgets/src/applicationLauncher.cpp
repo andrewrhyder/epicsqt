@@ -28,6 +28,7 @@
  */
 
 #include <QTemporaryFile>
+#include <QMessageBox>
 #include "applicationLauncher.h"
 
 #define FILE_KEYWORD "<FILENAME>"
@@ -53,7 +54,13 @@ void applicationLauncher::launchImage( VariableNameManager* variableNameManager,
     // Create a temporary file containing the image
     QTemporaryFile* tempFile = new QTemporaryFile;
     tempFile->open();
-    image.save( tempFile, "TIFF");
+    if( !image.save( tempFile, "TIFF") )
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Can't start application. There is no image available.");
+        msgBox.exec();
+        return;
+    }
 
     // Launch the program
     launchCommon( variableNameManager, tempFile );

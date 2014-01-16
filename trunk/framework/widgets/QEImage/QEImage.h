@@ -1200,7 +1200,7 @@ public:
     /// Startup options for the program specified in the 'program1' property.
     /// Just run the command, run the command within a terminal, or display the output in QE message system.
     ///
-    Q_PROPERTY(ProgramStartupOptionNames programStartupOption2 READ getProgramStartupOptionProperty1 WRITE setProgramStartupOptionProperty1)
+    Q_PROPERTY(ProgramStartupOptionNames programStartupOption1 READ getProgramStartupOptionProperty1 WRITE setProgramStartupOptionProperty1)
 
     /// Program to run when a request is made to pass on the current image to the second external application.
     /// No attempt to run a program is made if this property is empty.

@@ -1097,7 +1097,7 @@ void QEImage::setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, 
     {
 #define USE_ROI_DATA( N, SET_NAME )                                                                   \
         roiInfo[N].SET_NAME( value );                                                                 \
-        if( roiInfo[N].getStatus() )                                                                  \
+        if( sMenu->getAreaEnabled() && roiInfo[N].getStatus() )                                       \
         {                                                                                             \
             QRect scaledArea = roiInfo[N].getArea();                                                  \
             scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );            \
@@ -1156,17 +1156,23 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         {
             case PROFILE_H_VARIABLE:
                 hSliceY = value;
-                videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ), displayMarkups );
+                if( sMenu->getHSliceEnabled() )
+                {
+                    videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ), displayMarkups );
+                }
                 break;
 
             case PROFILE_V_VARIABLE:
                 vSliceX = value;
-                videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ), displayMarkups );
+                if( sMenu->getVSliceEnabled() )
+                {
+                    videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ), displayMarkups );
+                }
                 break;
 
 #define USE_PROFILE_DATA( SET_NAME )                                                                                        \
                 lineProfileInfo.SET_NAME( value );                                                                          \
-                if( lineProfileInfo.getStatus() )                                                                           \
+                if( sMenu->getProfileEnabled() && lineProfileInfo.getStatus() )                                             \
                 {                                                                                                           \
                     QRect scaledArea = lineProfileInfo.getArea();                                                           \
                     scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );                          \
@@ -1208,7 +1214,7 @@ void QEImage::setTargeting( const long& value, QCaAlarmInfo& alarmInfo, QCaDateT
     {
 #define USE_TARGETING_DATA( VAR, SET_NAME, USE_NAME )                            \
         VAR.SET_NAME( value );                                                   \
-        if(VAR.getStatus() )                                                     \
+        if( sMenu->getTargetEnabled() && VAR.getStatus() )                       \
         {                                                                        \
             QPoint scaledPoint = videoWidget->scaleImagePoint( VAR.getPoint() ); \
             videoWidget->USE_NAME( scaledPoint, displayMarkups );                \
