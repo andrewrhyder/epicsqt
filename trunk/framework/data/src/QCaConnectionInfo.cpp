@@ -40,9 +40,10 @@ QCaConnectionInfo::QCaConnectionInfo()
 /*
   Construct an instance given a channel and link state
  */
-QCaConnectionInfo::QCaConnectionInfo( unsigned short channelStateIn, unsigned short linkStateIn ) {
+QCaConnectionInfo::QCaConnectionInfo( unsigned short channelStateIn, unsigned short linkStateIn, QString variableNameIn ) {
     channelState = channelStateIn;
     linkState = linkStateIn;
+    variableName = variableNameIn;
 }
 
 /*
@@ -57,4 +58,12 @@ bool QCaConnectionInfo::isChannelConnected() {
  */
 bool QCaConnectionInfo::isLinkUp() {
     return( linkState == caconnection::LINK_UP );
+}
+
+/*
+ Return the variable name
+ Usefull if same slot is used for reporting multiple QCa connections
+ */
+QString QCaConnectionInfo::variable() {
+    return variableName;
 }

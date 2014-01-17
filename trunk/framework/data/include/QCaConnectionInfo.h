@@ -28,19 +28,22 @@
 #define QCACONNECTIONINFO_H
 
 #include <QEPluginLibrary_global.h>
+#include <QString>
 
 class QEPLUGINLIBRARYSHARED_EXPORT QCaConnectionInfo
 {
 public:
     QCaConnectionInfo();
-    QCaConnectionInfo( unsigned short channelStateIn, unsigned short linkStateIn );
+    QCaConnectionInfo( unsigned short channelStateIn, unsigned short linkStateIn, QString recordName );
 
     bool isChannelConnected();   // Return true if the channel is connected
     bool isLinkUp();             // Return true if the link is up
+    QString variable();          // Return the variable name. Usefull if same slot is used for reporting multiple QCa connections
 
 private:
-    unsigned short channelState;      // Channel status
-    unsigned short linkState;    // Link status
+    unsigned short channelState;    // Channel status
+    unsigned short linkState;       // Link status
+    QString variableName;           // record name
 
 
 };
