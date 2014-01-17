@@ -135,7 +135,6 @@ void QEImage::setup() {
     hostingAppAvailable = false;
 
     receivedImageSize = 0;
-    previousMessageText = "";
 
     displayMarkups = false;
 
@@ -422,7 +421,8 @@ void QEImage::profileDisplayDestroyed( QObject* ){ profileDisplay = NULL; }
 // (within this widget, or hosted by the application containing this widget)
 void QEImage::presentControls()
 {
-    // If components are not being hosted by the application, present them within the widget
+    // If components are being hosted by the application, hide any associated labels within the widget and
+    // hand over the components to the application.
     // (Note, if components are not being hosted, they should always exist, but if something
     //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     if( appHostsControls && hostingAppAvailable )
@@ -432,7 +432,7 @@ void QEImage::presentControls()
         if( localBC )
         {
             mainLayout->removeWidget( localBC );
-            components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, true, "Brightness / Contrast" ) );
+            components.append( componentHostListItem( localBC, QEActionRequests::OptionTopDockWindow, true, "Brightness / Contrast" ) );
         }
 
         vSliceLabel->setVisible( false );
@@ -442,19 +442,19 @@ void QEImage::presentControls()
         if( vSliceDisplay && enableVertSlicePresentation )
         {
             graphicsLayout->removeWidget( vSliceDisplay );
-            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, true, "Vertical Slice Profile" ) );
+            components.append( componentHostListItem( vSliceDisplay,  QEActionRequests::OptionLeftDockWindow, true, "Vertical Slice Profile" ) );
         }
 
         if( hSliceDisplay && enableHozSlicePresentation )
         {
             graphicsLayout->removeWidget( hSliceDisplay );
-            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionFloatingDockWindow, true, "Horizontal Slice Profile" ) );
+            components.append( componentHostListItem( hSliceDisplay,  QEActionRequests::OptionTopDockWindow, true, "Horizontal Slice Profile" ) );
         }
 
         if( profileDisplay && enableProfilePresentation )
         {
             graphicsLayout->removeWidget( profileDisplay );
-            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionFloatingDockWindow, true, "Arbitrary Profile" ) );
+            components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionTopDockWindow, true, "Arbitrary Profile" ) );
         }
 
         buttonGroup->hide();
@@ -462,6 +462,10 @@ void QEImage::presentControls()
         emitComponentHostRequest( QEActionRequests( components ) );
 
     }
+
+    // If components are not being hosted by the application, present them within the widget.
+    // (Note, if components are not being hosted, they should always exist, but if something
+    //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     else
     {
         if( localBC )
@@ -771,12 +775,20 @@ void QEImage::connectionChanged( QCaConnectionInfo& connectionInfo )
     // Note the connected state
     isConnected = connectionInfo.isChannelConnected();
 
-    // Display the connected state
-    updateToolTipConnection( isConnected );
-    updateConnectionStyle( isConnected );
+// Don't perform standard connection action (grey out widget and all its dialogs, and place disconnected in tooltip)
+// If
+//    // Display the connected state
+//    updateToolTipConnection( isConnected );
+//    updateConnectionStyle( isConnected );
 
-    // Connection status change - reset message filter.
-    previousMessageText = "";
+// Instead just log the disconnected variables.
+    if( !isConnected )
+    {
+        QString messageText;
+        messageText.append( "Disconnected variable: " ).append( connectionInfo.variable() );
+        sendMessage( messageText, "QEImage" );
+    }
+
 }
 
 // Update the image dimensions (width and height) from the area detector dimension variables.
@@ -1183,8 +1195,8 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
     {
         switch( variableIndex )
         {
-            case PROFILE_H_VARIABLE: vSliceX = 0; break;
-            case PROFILE_V_VARIABLE: hSliceY = 0; break;
+            case PROFILE_H_VARIABLE: hSliceY = 0; break;
+            case PROFILE_V_VARIABLE: vSliceX = 0; break;
             case LINE_PROFILE_X1_VARIABLE: lineProfileInfo.clearX1(); break;
             case LINE_PROFILE_Y1_VARIABLE: lineProfileInfo.clearY1(); break;
             case LINE_PROFILE_X2_VARIABLE: lineProfileInfo.clearX2(); break;
@@ -1199,8 +1211,10 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         // Save the tageting data
         switch( variableIndex )
         {
-            case PROFILE_H_VARIABLE:       hSliceY = value; break;
-            case PROFILE_V_VARIABLE:       vSliceX = value; break;
+            // !!! these next two lines are broken - when called on the initial updates of the scalar values the scaling is not available as there is no image.
+            //     change hSliceY and vSliceX (and infact all other similar variables for regions, targeting, etc) to be ordinates in raw image
+            case PROFILE_H_VARIABLE:       hSliceY = videoWidget->scaleImageOrdinate( value ); break;
+            case PROFILE_V_VARIABLE:       vSliceX = videoWidget->scaleImageOrdinate( value ); break;
             case LINE_PROFILE_X1_VARIABLE: lineProfileInfo.setX1( value ); break;
             case LINE_PROFILE_Y1_VARIABLE: lineProfileInfo.setY1( value ); break;
             case LINE_PROFILE_X2_VARIABLE: lineProfileInfo.setX2( value ); break;
@@ -1226,14 +1240,14 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
         case PROFILE_H_VARIABLE:
             if( sMenu->getHSliceEnabled() )
             {
-                videoWidget->markupHProfileChange(  videoWidget->scaleImageOrdinate( hSliceY ), displayMarkups );
+                videoWidget->markupHProfileChange(  videoWidget->scaleOrdinate( hSliceY ), displayMarkups );
             }
             break;
 
         case PROFILE_V_VARIABLE:
             if( sMenu->getVSliceEnabled() )
             {
-                videoWidget->markupVProfileChange(  videoWidget->scaleImageOrdinate( vSliceX ), displayMarkups );
+                videoWidget->markupVProfileChange(  videoWidget->scaleOrdinate( vSliceX ), displayMarkups );
             }
             break;
 
@@ -1395,9 +1409,10 @@ void QEImage::setImage( const QByteArray& imageIn, unsigned long dataSize, QCaAl
 
     // If this is the first image update, use any markup data that may have already arrived
     // (markup data can't be used until there is an image to determine the current scaling from)
+    // Set of as a timer only to ensure it occurs after the initial paint already queued by displayImage() above.
     if( !hasImage )
     {
-        useAllMarkupData();
+        QTimer::singleShot( 0, this, SLOT(useAllMarkupData() ) );
     }
 
     // Indicate another image has arrived
@@ -2500,15 +2515,15 @@ void QEImage::updateMarkupData()
 {
     if( haveVSliceX )
     {
-        generateVSlice( vSliceX, vSliceThickness );
+        generateVSliceUnscaled( vSliceX, vSliceThickness );
     }
     if( haveHSliceY )
     {
-        generateHSlice( hSliceY, hSliceThickness );
+        generateHSliceUnscaled( hSliceY, hSliceThickness );
     }
     if( haveProfileLine )
     {
-        generateProfile( profileLineStart, profileLineEnd, profileThickness );
+        generateProfileUnscaled( profileLineStart, profileLineEnd, profileThickness );
     }
     if( haveSelectedArea1 )
     {
@@ -3532,7 +3547,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableVertSlicePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setVSliceControlsVisible() ) );
-                    generateVSlice(  vSliceX, vSliceThickness );
+                    generateVSliceUnscaled(  vSliceX, vSliceThickness );
                 }
                 vertProfileChanged();
                 break;
@@ -3544,7 +3559,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableHozSlicePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setHSliceControlsVisible() ) );
-                    generateHSlice( hSliceY, hSliceThickness );
+                    generateHSliceUnscaled( hSliceY, hSliceThickness );
                 }
                 hozProfileChanged();
                 break;
@@ -3627,7 +3642,7 @@ void QEImage::userSelection( imageMarkup::markupIds mode, bool complete, bool cl
                 if( enableProfilePresentation )
                 {
                     QTimer::singleShot( 0, this, SLOT(setLineProfileControlsVisible() ) );
-                    generateProfile( profileLineStart, profileLineEnd, profileThickness );
+                    generateProfileUnscaled( profileLineStart, profileLineEnd, profileThickness );
                 }
 
                 lineProfileChanged();
@@ -3991,8 +4006,10 @@ void QEImage::brightnessContrastAutoImageRequest()
 //=====================================================================
 
 // Generate a profile along a line down an image at a given X position
+// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
 // The profile contains values for each pixel intersected by the line.
-void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
+// See generateVSlice() below for further details
+void QEImage::generateVSliceUnscaled( int xUnscaled, unsigned int thicknessUnscaled )
 {
     if( !vSliceDisplay )
     {
@@ -4005,6 +4022,20 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
     // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
     // Note, thickness is not an ordinate, but scaleOrdinate
     unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
+
+    // Generate the profile
+    generateVSlice( x, thickness );
+}
+
+// Generate a profile along a line down an image at a given X position
+// Input ordinates are scaled to the source image data.
+// The profile contains values for each pixel intersected by the line.
+void QEImage::generateVSlice( int x, unsigned int thickness )
+{
+    if( !vSliceDisplay )
+    {
+        return;
+    }
 
     // Display textual info
     infoUpdateVertProfile( x, thickness );
@@ -4096,8 +4127,10 @@ void QEImage::generateVSlice( int xUnscaled, unsigned int thicknessUnscaled )
 }
 
 // Generate a profile along a line across an image at a given Y position
+// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
 // The profile contains values for each pixel intersected by the line.
-void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
+// See generateHSlice() below for further details
+void QEImage::generateHSliceUnscaled( int yUnscaled, unsigned int thicknessUnscaled )
 {
     if( !hSliceDisplay )
     {
@@ -4110,6 +4143,20 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
     // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
     // Note, thickness is not an ordinate, but scaleOrdinate
     unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
+
+    // Generate the profile
+    generateHSlice( y, thickness );
+}
+
+// Generate a profile along a line across an image at a given Y position
+// Input ordinates are at the resolution of the source image data
+// The profile contains values for each pixel intersected by the line.
+void QEImage::generateHSlice( int y, unsigned int thickness )
+{
+    if( !hSliceDisplay )
+    {
+        return;
+    }
 
     // Display textual info
     infoUpdateHozProfile( y, thickness );
@@ -4201,6 +4248,29 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 }
 
 // Generate a profile along an arbitrary line through an image.
+// Input ordinates are at the resolution of the displayed image (not scaled to the source image data)
+// See generateProfile() below for further details
+void QEImage::generateProfileUnscaled( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thicknessUnscaled )
+{
+    if( !profileDisplay )
+    {
+        return;
+    }
+
+    // Scale the coordinates to the original image data
+    QPoint point1 = videoWidget->scalePoint( point1Unscaled );
+    QPoint point2 = videoWidget->scalePoint( point2Unscaled );
+
+    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
+    // Note, thickness is not an ordinate, but scaleOrdinate
+    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
+
+    // Generate the profile
+    generateProfile( point1, point2, thickness );
+}
+
+// Generate a profile along an arbitrary line through an image.
+// Input ordinates are scaled to the source image data.
 // The profile contains values one pixel length along the line.
 // Except where the line is vertical or horizontal points one pixel
 // length along the line will not line up with actual pixels.
@@ -4261,20 +4331,12 @@ void QEImage::generateHSlice( int yUnscaled, unsigned int thicknessUnscaled )
 // angles to the line by a 'pixel' distance up to the line thickness.
 // The results are then averaged.
 //
-void QEImage::generateProfile( QPoint point1Unscaled, QPoint point2Unscaled, unsigned int thicknessUnscaled )
+void QEImage::generateProfile( QPoint point1, QPoint point2, unsigned int thickness )
 {
     if( !profileDisplay )
     {
         return;
     }
-
-    // Scale the coordinates to the original image data
-    QPoint point1 = videoWidget->scalePoint( point1Unscaled );
-    QPoint point2 = videoWidget->scalePoint( point2Unscaled );
-
-    // Scale the thickness to the original image data. (thickness of 1 pixel is not scaled, 1 is the minimum)
-    // Note, thickness is not an ordinate, but scaleOrdinate
-    unsigned int thickness = (thicknessUnscaled>1)?std::max(1,videoWidget->scaleOrdinate( thicknessUnscaled )):1;
 
     // Display textual information
     infoUpdateProfile( point1, point2, thickness );

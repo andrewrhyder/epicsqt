@@ -136,7 +136,7 @@ QCaObject::~QCaObject() {
 
     // Send disconnected signal to monitoring widgets.
     //
-    QCaConnectionInfo connectionInfo ( caconnection::CLOSED, caconnection::LINK_DOWN );
+    QCaConnectionInfo connectionInfo ( caconnection::CLOSED, caconnection::LINK_DOWN, getRecordName() );
     emit connectionChanged( connectionInfo );
 
     // Remove our PV from the drag text.
@@ -762,7 +762,7 @@ void QCaObject::processEvent( QCaEventUpdate* dataUpdateEvent ) {
     // If there is a change in the connection (link of channel), signal it
     if( connectionChange )
     {
-        QCaConnectionInfo connectionInfo( lastEventChannelState, lastEventLinkState );
+        QCaConnectionInfo connectionInfo( lastEventChannelState, lastEventLinkState, getRecordName() );
         emit connectionChanged( connectionInfo );
         if (!connectionInfo.isChannelConnected()) {
            lastValueIsDefined = false;
@@ -1095,7 +1095,7 @@ void QCaObject::setChannelExpired() {
     // Signal a connection change.
     // (This is done with some licence. There isn't really a connection change.
     //  The connection has gone from 'no connection' to 'given up waiting for a connection')
-    QCaConnectionInfo connectionInfo( caconnection::NEVER_CONNECTED, caconnection::LINK_DOWN );
+    QCaConnectionInfo connectionInfo( caconnection::NEVER_CONNECTED, caconnection::LINK_DOWN, getRecordName() );
     emit connectionChanged( connectionInfo );
 
     // Generate a user message

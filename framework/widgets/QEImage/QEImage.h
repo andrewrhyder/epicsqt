@@ -424,6 +424,8 @@ private slots:
     void setLineProfileControlsVisible();
     void setLineProfileControlsNotVisible();
 
+    void useAllMarkupData();
+
 public slots:
     void setImageFile( QString name );
     // Slots to allow external setting of selection menu options
@@ -466,7 +468,7 @@ public slots:
   private:
 
     void useTargetingData();
-    void useAllMarkupData();
+//    void useAllMarkupData();
     void useROIData( const unsigned int& variableIndex );
     void useProfileData( const unsigned int& variableIndex );
 
@@ -612,6 +614,9 @@ public slots:
 
 
     // Private methods
+    void generateVSliceUnscaled( int unscaledX, unsigned int unscaledThickness );           // Generate a profile along a line down an image at a given unscaled X position
+    void generateHSliceUnscaled( int unscaledY, unsigned int unscaledThickness );           // Generate a profile along a line across an image at a given unscaled Y position
+    void generateProfileUnscaled( QPoint unscaledPoint1, QPoint unscaledPoint2, unsigned int unscaledThickness );   // Generate a profile along an arbitrary line through an image given unscaled positions.
     void generateVSlice( int x, unsigned int thickness );                           // Generate a profile along a line down an image at a given X position
     void generateHSlice( int y, unsigned int thickness );                           // Generate a profile along a line across an image at a given Y position
     void generateProfile( QPoint point1, QPoint point2, unsigned int thickness );   // Generate a profile along an arbitrary line through an image.
