@@ -28,13 +28,14 @@
 #ifndef QSTRIPCHARTITEM_H
 #define QSTRIPCHARTITEM_H
 
-#include <QObject>
 #include <QColor>
+#include <QColorDialog>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QObject>
 #include <QPoint>
 #include <QString>
 #include <QWidget>
-#include <QColorDialog>
 
 #include <QCaAlarmInfo.h>
 #include <QCaConnectionInfo.h>
@@ -57,7 +58,7 @@
 //==============================================================================
 // This is essentially a private classes used soley by the QEStripChart widget.
 // We have to make is public so that it can be a pukka Q_OBJECT in order to
-// receive signals. We also need tomake it a QEWidget so that we can find the
+// receive signals. We also need to make it a QEWidget so that we can find the
 // launch consumer.
 //
 class QEStripChartItem : public QWidget, private QEWidget {
@@ -121,9 +122,9 @@ private:
    void highLight (bool isHigh);
 
    QPen getPen ();
-   void plotDataPoints (const QCaDataPointList & dataPoints,
+   void plotDataPoints (const QCaDataPointList& dataPoints,
                         const bool isRealTime,
-                        TrackRange & plottedTrackRange);
+                        TrackRange& plottedTrackRange);
 
    // Perform a pvNameDropEvent 'drop'.
    //
@@ -157,7 +158,7 @@ private:
    QEStripChartAdjustPVDialog *adjustPVDialog;
 
    enum DataChartKinds { NotInUse,          // blank  - not in use - no data - no plot
-                         PVData,          // use specified PV to provide plot data
+                         PVData,            // use specified PV to provide plot data
                          CalculationData }; // "= ..." - use given calculation for plot data
 
    DataChartKinds dataKind;
@@ -169,6 +170,7 @@ private:
    //
    QEStripChart *chart;
 
+   QHBoxLayout* layout;
    QLabel *pvSlotLetter;
    QLabel *pvName;
    QELabel *caLabel;

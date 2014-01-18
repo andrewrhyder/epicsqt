@@ -91,12 +91,6 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
    this->expression = "";
    this->expressionIsValid = false;
 
-   // Set geometry
-   //
-   this->pvSlotLetter->setGeometry (  0, 0,  16, 15); // x, y, w, h
-   this->pvName->setGeometry       ( 16, 0, 328, 15);
-   this->caLabel->setGeometry      (348, 0, 128, 15);
-
    // Set up other properties.
    //
    this->pvSlotLetter->setStyleSheet (letterStyle);
@@ -116,8 +110,14 @@ QEStripChartItem::QEStripChartItem (QEStripChart* chartIn,
 
    // Setup QELabel properties.
    //
-   this->caLabel->setIndent (6);
    this->caLabel->setAlignment (Qt::AlignRight);
+
+   // We have to be general here.
+   //
+   this->caLabel->setPrecision (9);
+   this->caLabel->setUseDbPrecision (false);
+   this->caLabel->setNotationProperty (QELabel::Automatic);
+
    QFont font = this->caLabel->font ();
    font.setFamily ("Monospace");
    this->caLabel->setFont (font);
@@ -197,9 +197,26 @@ void QEStripChartItem::createInternalWidgets ()
 
    letter.clear ();
    letter.append (char (int ('A') + this->slot));
+
+   this->layout = new QHBoxLayout (this);
+   this->layout->setSpacing (4);
+   this->layout->setContentsMargins (1, 1, 1, 1);
+
    this->pvSlotLetter = new QLabel (letter, this);
+   this->pvSlotLetter->setMinimumSize (QSize (16, 15));
+   this->pvSlotLetter->setMaximumSize (QSize (16, 15));
+   layout->addWidget (this->pvSlotLetter);
+
    this->pvName = new QLabel (this);
+   this->pvName->setMinimumSize (QSize (328, 15));
+   this->pvName->setMaximumSize (QSize (328, 15));
+   layout->addWidget (this->pvName);
+
    this->caLabel = new QELabel (this);
+   this->caLabel->setMinimumSize (QSize (100, 15));
+   this->caLabel->setMaximumSize (QSize (1600, 15));
+   this->layout->addWidget (this->caLabel);
+
    this->colourDialog = new QColorDialog (this);
    this->inUseMenu = new QEStripChartContextMenu (true, this);
    this->emptyMenu = new QEStripChartContextMenu (false, this);
