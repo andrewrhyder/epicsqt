@@ -26,16 +26,17 @@
 
 #include <alarm.h>
 
+#include <QApplication>
 #include <QColor>
-#include <QCaObject.h>
-#include <QEArchiveInterface.h>
 #include <QColorDialog>
 #include <QFileDialog>
-#include <QApplication>
+#include <QVariantList>
 
+#include <QCaObject.h>
+#include <QEArchiveInterface.h>
 #include <QECommon.h>
-#include <QEScaling.h>
 #include <QEGraphic.h>
+#include <QEScaling.h>
 #include "QEStripChartItem.h"
 #include "QEStripChartContextMenu.h"
 #include "QEStripChartStatistics.h"
@@ -685,11 +686,24 @@ void QEStripChartItem::setDataConnection (QCaConnectionInfo& connectionInfo)
 //
 void QEStripChartItem::setDataValue (const QVariant& value, QCaAlarmInfo& alarm, QCaDateTime& datetime)
 {
+   QVariant input;
    double y;
    bool okay;
    QCaDataPoint point;
 
-   y = value.toDouble (&okay);
+   // Do something sensible with array PVs.
+   //
+   if (value.type () == QVariant::List) {
+      QVariantList list = value.toList ();
+      // Use first element. Consdider some mechanism to all the element to
+      // be selected buy the user.
+      //
+      input = list.value (0);
+   } else {
+      input = value;  // use as is
+   }
+
+   y = input.toDouble (&okay);
    if (okay) {
       // Conversion went okay - use this point.
       //
