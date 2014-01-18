@@ -36,10 +36,229 @@
 
 // These should be consistant with adjustMinMax functions.
 //
-#define MINIMUM_SPAN  (1.0e-12)
-#define MAXIMUM_SPAN  (1.0e+26)
+#define MINIMUM_SPAN              (1.0e-12)
+#define MAXIMUM_SPAN              (1.0e+26)
+#define NUMBER_TRANISTION_STEPS   6
+
+
+//==============================================================================
+// QEGraphic::Axis class
+//==============================================================================
+//
+QEGraphic::Axis::Axis (QwtPlot* plotIn, const int axisIdIn)
+{
+   this->plot = plotIn;
+   this->axisId = axisIdIn;
+
+   // Set defaults.
+   //
+   this->isLogarithmic = false;
+   this->scale = 1.0;
+   this->offset  = 0.0;
+
+   // Set 'current' ranges.
+   //
+   this->source.minimum = 0.0;
+   this->source.maximum = 1.0;
+   this->transitionCount = 0;
+   this->setRange (0.0, 1.0, QEGraphic::SelectByNumber, 8);
+   this->transitionCount = 0;   // reset
+}
 
 //------------------------------------------------------------------------------
+//
+void QEGraphic::Axis::setRange (const double minIn, const double maxIn,
+                                const AxisMajorIntervalModes modeIn, const int valueIn)
+{
+   QEGraphic::DisplayRanges newTarget;
+
+   newTarget.minimum = minIn;
+   newTarget.maximum = LIMIT (maxIn, minIn + MINIMUM_SPAN, minIn + MAXIMUM_SPAN);
+
+   // Is this a significant change?
+   //
+   if ((this->target.minimum != newTarget.minimum) ||
+       (this->target.maximum != newTarget.maximum) ||
+       (this->intervalMode != modeIn) || (this->intervalValue != valueIn)) {
+
+      this->intervalMode = modeIn;
+      this->intervalValue = valueIn;
+
+      // New source is where we currently are.
+      //
+      this->source = QEGraphic::calcTransitionPoint (this->source,
+                                                     this->target,
+                                                     this->transitionCount);
+
+      // Set up new target and transition count down.
+      //
+      this->target = newTarget;
+      this->transitionCount = NUMBER_TRANISTION_STEPS;
+      this->determineAxis (this->source);
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEGraphic::Axis::doDynamicRescaling ()
+{
+   bool result = false;
+   QEGraphic::DisplayRanges intermediate;
+
+   if (this->transitionCount > 0) {
+      this->transitionCount--;
+      intermediate = QEGraphic::calcTransitionPoint (this->source, this->target,
+                                                     this->transitionCount);
+      this->determineAxis (intermediate);
+      result = true;
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::Axis::determineAxis (const QEGraphic::DisplayRanges& current)
+{
+   double useMin;
+   double useMax;
+   double useStep;
+   int canvasSize;
+   int number;
+
+   if (this->isLogarithmic) {
+      QEGraphic::adjustLogMinMax (current, useMin, useMax, useStep);
+   } else {
+      if (this->intervalMode == QEGraphic::SelectBySize) {
+         switch (this->axisId) {
+            case QwtPlot::xTop:
+            case QwtPlot::xBottom:
+               canvasSize = this->plot->canvas()->width ();
+               break;
+
+            case QwtPlot::yLeft:
+            case QwtPlot::yRight:
+               canvasSize = this->plot->canvas()->height ();
+               break;
+
+            default:
+               canvasSize = 800;   // avoid compiler warning
+               break;
+         }
+
+         number = canvasSize / MAX (1, this->intervalValue);
+      } else {
+         number = this->intervalValue;
+      }
+      QEGraphic::adjustMinMax (current, number, useMin, useMax, useStep);
+   }
+
+   this->plot->setAxisScale (this->axisId, useMin, useMax , useStep);
+}
+
+
+//------------------------------------------------------------------------------
+//
+double QEGraphic::Axis::pointToReal (const int pos) const
+{
+   double x;
+
+   // Perform basic inverse transformation.
+   //
+   x = this->plot->invTransform (this->axisId, pos);
+
+   if (this->isLogarithmic) {
+      x = EXP10 (x);
+   }
+
+   // Scale to real world units.
+   //
+   x = (x - this->offset) / this->scale;
+
+   return x;
+}
+
+//------------------------------------------------------------------------------
+//
+int QEGraphic::Axis::realToPoint (const double pos) const
+{
+   int x;
+   double useX;
+
+   // Do linear scaling (if any) followed by log scaling if required.
+   //
+   useX = this->scale * (double) pos + this->offset;
+
+   if (this->isLogarithmic) {
+      useX = LOG10 (useX);
+   }
+
+   // Perform basic plot transformation.
+   //
+   x = this->plot->transform (this->axisId, useX);
+
+   return x;
+}
+
+//------------------------------------------------------------------------------
+//
+double QEGraphic::Axis::scaleValue (const double coordinate) const
+{
+   double x;
+
+   x = this->scale * coordinate + this->offset;
+   if (this->isLogarithmic) {
+      x = LOG10 (x);
+   }
+
+   return x;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::Axis::setScale (const double scaleIn)
+{
+   this->scale = scaleIn;
+}
+
+//------------------------------------------------------------------------------
+//
+double QEGraphic::Axis::getScale ()
+{
+   return this->scale;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::Axis::setOffset (const double offsetIn)
+{
+   this->offset = offsetIn;
+}
+
+//------------------------------------------------------------------------------
+//
+double QEGraphic::Axis::getOffset ()
+{
+  return this->offset;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::Axis::setLogarithmic (const bool logarithmicIn)
+{
+ this->isLogarithmic = logarithmicIn;
+}
+
+//------------------------------------------------------------------------------
+//
+bool QEGraphic::Axis::getLogarithmic ()
+{
+   return this->isLogarithmic;
+}
+
+//==============================================================================
+// QEGraphic class
+//==============================================================================
 //
 QEGraphic::QEGraphic (QWidget* parent) : QWidget (parent)
 {
@@ -69,22 +288,13 @@ void QEGraphic::construct ()
    this->plotGrid = new QwtPlotGrid ();
    this->plotGrid->attach (this->plot);
 
+   this->xAxis = new Axis (this->plot, QwtPlot::xBottom);
+   this->yAxis = new Axis (this->plot, QwtPlot::yLeft);
+
    // Set defaults.
    //
-   this->xIsLogarithmic = false;
-   this->yIsLogarithmic = false;
-
-   this->xScale = 1.0;
-   this->xOffset  = 0.0;
-
-   this->yScale = 1.0;
-   this->yOffset  = 0.0;
-
    this->leftIsDefined = false;
    this->rightIsDefined = false;
-
-   this->setXRange (0.0, 1.0, SelectByNumber, 8);
-   this->setYRange (0.0, 1.0, SelectByNumber, 8);
 
    this->pen = QPen (QColor (0, 0, 0, 255));  // black
    this->hint = QwtPlotItem::RenderAntialiased;
@@ -115,6 +325,26 @@ QEGraphic::~QEGraphic ()
    }
 }
 
+// static int k = 100001;
+
+//------------------------------------------------------------------------------
+//
+bool QEGraphic::doDynamicRescaling ()
+{
+   bool result;
+   bool a, b;
+
+   a = this->xAxis->doDynamicRescaling ();
+   b = this->yAxis->doDynamicRescaling ();
+
+   result = a||b;
+   if (result) {
+      this->plot->replot();
+   }
+
+   return result;
+}
+
 //------------------------------------------------------------------------------
 //
 void QEGraphic::setBackgroundColour (const QColor colour)
@@ -139,23 +369,8 @@ QPointF QEGraphic::pointToReal (const QPoint& pos) const
 {
    double x, y;
 
-   // Perform basic inverse transformation.
-   //
-   x = this->plot->invTransform (QwtPlot::xBottom, pos.x ());
-   y = this->plot->invTransform (QwtPlot::yLeft,   pos.y ());
-
-   if (this->xIsLogarithmic) {
-      x = EXP10 (x);
-   }
-
-   if (this->yIsLogarithmic) {
-      y = EXP10 (y);
-   }
-
-   // Scale to real world units.
-   //
-   x = (x - this->xOffset) / this->xScale;
-   y = (y - this->yOffset) / this->yScale;
+   x = this->xAxis->pointToReal (pos.x ());
+   y = this->yAxis->pointToReal (pos.y ());
 
    return QPointF (x, y);
 }
@@ -165,26 +380,9 @@ QPointF QEGraphic::pointToReal (const QPoint& pos) const
 QPoint QEGraphic::realToPoint (const QPointF& pos) const
 {
    int x, y;
-   double useX;
-   double useY;
 
-   // Do linear scaling (if any) followed by log scaling if required.
-   //
-   useX = this->xScale * (double) pos.x () + this->xOffset;
-   useY = this->yScale * (double) pos.y () + this->yOffset;
-
-   if (this->xIsLogarithmic) {
-      useX = LOG10 (useX);
-   }
-
-   if (this->yIsLogarithmic) {
-      useY = LOG10 (useY);
-   }
-
-   // Perform basic plot transformation.
-   //
-   x = this->plot->transform (QwtPlot::xBottom, useX);
-   y = this->plot->transform (QwtPlot::yLeft,   useY);
+   x = this->xAxis->realToPoint (pos.x ());
+   y = this->yAxis->realToPoint (pos.y ());
 
    return QPoint (x, y);
 }
@@ -241,16 +439,10 @@ void QEGraphic::plotCurveData (const DoubleVector& xData, const DoubleVector& yD
    for (int j = 0; j < n; j++) {
       double x, y;
 
-      x = this->xScale * xData.value (j) + this->xOffset;
-      if (this->xIsLogarithmic) {
-         x = LOG10 (x);
-      }
+      x = this->xAxis->scaleValue (xData.value (j));
       useXData.append (x);
 
-      y = this->yScale * yData.value (j) + this->yOffset;
-      if (this->yIsLogarithmic) {
-         y = LOG10 (y);
-      }
+      y = this->yAxis->scaleValue (yData.value (j));
       useYData.append (y);
    }
 
@@ -536,134 +728,19 @@ bool QEGraphic::eventFilter (QObject* obj, QEvent* event)
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::setXScale (const double scale)
-{
-   this->xScale = scale;
-}
-
-double QEGraphic::getXScale ()
-{
-   return this->xScale;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEGraphic::setXOffset (const double offset)
-{
-   this->xOffset = offset;
-}
-
-double QEGraphic::getXOffset ()
-{
-   return this->xOffset;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEGraphic::setYScale (const double scale)
-{
-   this->yScale = scale;
-}
-
-double QEGraphic::getYScale ()
-{
-   return this->yScale;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEGraphic::setYOffset (const double offset)
-{
-   this->yOffset = offset;
-}
-
-double QEGraphic::getYOffset ()
-{
-   return this->yOffset;
-}
-
-//------------------------------------------------------------------------------
-//
-void QEGraphic::setXLogarithmic (const bool logarithmic)
-{
-   this->xIsLogarithmic = logarithmic;
-}
-
-bool QEGraphic::getXLogarithmic ()
-{
-   return this->xIsLogarithmic;
-}
-
-
-//------------------------------------------------------------------------------
-//
-void QEGraphic::setYLogarithmic (const bool logarithmic)
-{
-   this->yIsLogarithmic = logarithmic;
-}
-
-bool QEGraphic::getYLogarithmic ()
-{
-   return this->yIsLogarithmic;
-}
-
-
-//------------------------------------------------------------------------------
-//
-void QEGraphic::setXRange (const double minIn, const double maxIn,
+void QEGraphic::setXRange (const double min, const double max,
                            const AxisMajorIntervalModes mode, const int value)
 {
-   double useMin;
-   double useMax;
-   double useStep;
-   int number;
-
-   this->xMinimum = minIn;
-   this->xMaximum = LIMIT (maxIn, minIn + MINIMUM_SPAN, minIn + MAXIMUM_SPAN);
-
-   if (this->xIsLogarithmic) {
-      QEGraphic::adjustLogMinMax (this->xMinimum, this->xMaximum,
-                                  useMin, useMax, useStep);
-   } else {
-      if (mode == SelectBySize) {
-         number = this->plot->canvas()->width () / MAX (1, value);
-      } else {
-         number = value;
-      }
-      QEGraphic::adjustMinMax (this->xMinimum, this->xMaximum, number,
-                               useMin, useMax, useStep);
-   }
-
-   this->plot->setAxisScale (QwtPlot::xBottom, useMin, useMax , useStep);
+   this->xAxis->setRange (min, max, mode, value);
 }
+
 
 //------------------------------------------------------------------------------
 //
-void QEGraphic::setYRange (const double minIn, const double maxIn,
+void QEGraphic::setYRange (const double min, const double max,
                            const AxisMajorIntervalModes mode, const int value)
 {
-   double useMin;
-   double useMax;
-   double useStep;
-   int number;
-
-   this->yMinimum = minIn;
-   this->yMaximum = LIMIT (maxIn, minIn + MINIMUM_SPAN, minIn + MAXIMUM_SPAN);
-
-   if (this->yIsLogarithmic) {
-      QEGraphic::adjustLogMinMax (this->yMinimum, this->yMaximum,
-                                  useMin, useMax, useStep);
-   } else {
-      if (mode == SelectBySize) {
-         number = this->plot->canvas()->height () / MAX (1, value);
-      } else {
-         number = value;
-      }
-      QEGraphic::adjustMinMax (this->yMinimum, this->yMaximum, number,
-                               useMin, useMax, useStep);
-   }
-
-   this->plot->setAxisScale (QwtPlot::yLeft, useMin, useMax , useStep);
+   this->yAxis->setRange (min, max, mode, value);
 }
 
 //------------------------------------------------------------------------------
@@ -710,12 +787,38 @@ QwtPlotCurve::CurveStyle QEGraphic::getCurveStyle ()
 
 //------------------------------------------------------------------------------
 // static
+//------------------------------------------------------------------------------
 //
-void QEGraphic::adjustLogMinMax (const double minIn, const double maxIn,
+QEGraphic::DisplayRanges QEGraphic::calcTransitionPoint (const DisplayRanges& start,
+                                                         const DisplayRanges& finish,
+                                                         const int step)
+{
+   QEGraphic::DisplayRanges result;
+
+   if (step <= 0) {
+         result = finish;
+   } else if (step >= NUMBER_TRANISTION_STEPS) {
+      result = start;
+   } else  {
+
+      // Truely in transition - perform a linear interpolation.
+      //
+      const double s = double (step) / (double) NUMBER_TRANISTION_STEPS;
+      const double f = 1.0 - s;
+
+      result.minimum = (s * start.minimum) + (f * finish.minimum);
+      result.maximum = (s * start.maximum) + (f * finish.maximum);
+   }
+   return result;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEGraphic::adjustLogMinMax (const DisplayRanges& useRange,
                                  double& minOut, double& maxOut, double& majorOut)
 {
-   minOut = floor (LOG10 (minIn));
-   maxOut = ceil  (LOG10 (maxIn));
+   minOut = floor (LOG10 (useRange.minimum));
+   maxOut = ceil  (LOG10 (useRange.maximum));
    if ((maxOut - minOut) >= 16) {
       majorOut = 2.0;
    } else {
@@ -726,7 +829,7 @@ void QEGraphic::adjustLogMinMax (const double minIn, const double maxIn,
 //------------------------------------------------------------------------------
 // static
 //
-void QEGraphic::adjustMinMax (const double minIn, const double maxIn, const int number,
+void QEGraphic::adjustMinMax (const DisplayRanges& useRange, const int number,
                               double& minOut, double& maxOut, double& majorOut)
 {
    // The compiler does a better job of evaluating these constants and
@@ -761,7 +864,7 @@ void QEGraphic::adjustMinMax (const double minIn, const double maxIn, const int 
 
    // Find estimated major value - use size (width or height) to help here.
    //
-   major = (maxIn - minIn) / MAX (number, 2);
+   major = (useRange.maximum - useRange.minimum) / MAX (number, 2);
 
    // Round up major to next standard value.
    //
@@ -784,11 +887,11 @@ void QEGraphic::adjustMinMax (const double minIn, const double maxIn, const int 
    //
    //  minOut <= minIn <= maxIn << maxOut
    //
-   p = (int) (minIn / minor);
-   if ((p * minor) > minIn) p--;
+   p = (int) (useRange.minimum / minor);
+   if ((p * minor) > useRange.minimum) p--;
 
-   q = (int) (maxIn / minor);
-   if ((q * minor) < maxIn) q++;
+   q = (int) (useRange.maximum / minor);
+   if ((q * minor) < useRange.maximum) q++;
 
    q = MAX (q, p+1);   // Ensure p < q
 

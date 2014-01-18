@@ -522,7 +522,6 @@ void QEStripChart::plotOriginToPoint ()
    }
 }
 
-
 //------------------------------------------------------------------------------
 //
 void QEStripChart::plotData ()
@@ -1029,6 +1028,10 @@ void QEStripChart::tickTimeout ()
    if (this->recalcIsRequired) {
       this->recalculateData ();
    }
+
+   // Progress any on-going cgart rescaling.
+   //
+   this->plotArea->doDynamicRescaling ();
 
    if ((this->tickTimerCount % 20) == 0) {
       // 20th update, i.e. 1 second has passed - must replot.

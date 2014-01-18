@@ -54,14 +54,20 @@
 ///    selection of a major interval value, e.g.:
 ///    2.1 .. 7.83 (user min/max) =>  2.0 .. 8.0, 1.0  (display min/max, major);
 ///
-/// e) Standardised mouse and wheel zoomimg; and
+/// e) Standardised mouse and wheel zoomimg;
 ///
-/// f) Provides wrapper functions to hide QWT version API changes.
+/// f) Smart axis re-scaling; and
+///
+/// g) Provides wrapper functions to hide QWT version API changes.
 ///
 class QEPLUGINLIBRARYSHARED_EXPORT QEGraphic : public QWidget {
    Q_OBJECT
 public:
    typedef QVector<double> DoubleVector;
+
+   enum AxisMajorIntervalModes {
+      SelectByNumber,  // (span / value)           used for estimated major value
+      SelectBySize };  // (span / (size / value))  used for estimated major value
 
    explicit QEGraphic (QWidget* parent = 0);
    explicit QEGraphic (const QwtText &title, QWidget* parent = 0);
@@ -86,7 +92,17 @@ public:
    //
    void plotCurveData (const DoubleVector& xData, const DoubleVector& yData);
 
-   bool rightButtonPressed ();   // allow inhibition of context menu.
+   void setXRange (const double min, const double max, const AxisMajorIntervalModes mode, const int value);
+   void setYRange (const double min, const double max, const AxisMajorIntervalModes mode, const int value);
+
+   // Progresses any on-going dynamic axis rescaling.
+   // Return true when this is in progress.
+   //
+   bool doDynamicRescaling ();
+
+   void replot ();   // calls inner replot
+
+   bool rightButtonPressed ();   // to allow inhibition of context menu.
 
    // Overloaded functions to extract definitions.
    // In distance parameter x, y is to be interpreted as dx, dy
@@ -113,33 +129,25 @@ public:
    //
    QPoint pixelDistance (const QPointF& from, const QPointF& to);
 
-   void replot ();   // calls inner replot
-
    // Set and get attribute functions
    //
-   void setXScale (const double scale);
-   double getXScale ();
+   void setXScale (const double scale) { this->xAxis->setScale (scale);    }
+   double getXScale ()                 { return this->xAxis->getScale ();  }
 
-   void setXOffset (const double offset);
-   double getXOffset ();
+   void setXOffset (const double offset) { this->xAxis->setOffset (offset);   }
+   double getXOffset ()                  { return this->xAxis->getOffset ();  }
 
-   void setYScale (const double scale);
-   double getYScale ();
+   void setXLogarithmic (const bool isLog) { this->xAxis->setLogarithmic (isLog);   }
+   bool getXLogarithmic ()                 { return this->xAxis->getLogarithmic (); }
 
-   void setYOffset (const double offset);
-   double getYOffset ();
+   void setYScale (const double scale) { this->yAxis->setScale (scale);    }
+   double getYScale ()                 { return this->yAxis->getScale ();  }
 
-   void setXLogarithmic (const bool logarithmic);
-   bool getXLogarithmic ();
+   void setYOffset (const double offset) { this->yAxis->setOffset (offset);   }
+   double getYOffset ()                  { return this->yAxis->getOffset ();  }
 
-   void setYLogarithmic (const bool logarithmic);
-   bool getYLogarithmic ();
-
-   enum AxisMajorIntervalModes { SelectByNumber,  // y span / value used for inital major value
-                                 SelectBySize };  // y span / (size / value) used for inital major value
-
-   void setXRange (const double min, const double max, const AxisMajorIntervalModes, const int value);
-   void setYRange (const double min, const double max, const AxisMajorIntervalModes, const int value);
+   void setYLogarithmic (const bool isLog) { this->yAxis->setLogarithmic (isLog);   }
+   bool getYLogarithmic ()                 { return this->yAxis->getLogarithmic (); }
 
    // Set and get current curve attributes.
    // These are used for internally allocated curves.
@@ -153,15 +161,13 @@ public:
    void setCurveStyle (const QwtPlotCurve::CurveStyle style);
    QwtPlotCurve::CurveStyle getCurveStyle ();
 
-   // Utilify functions.
+   // Utility functions.
    //
-
    // Converts between pixel coords to real world coords taking into
    // account any scaling and/or logarithic scaling.
    //
    QPointF pointToReal (const QPoint& pos) const;
    QPoint realToPoint (const QPointF& pos) const;
-
 
 signals:
    void mouseMove     (const QPointF& posn);
@@ -177,28 +183,72 @@ protected:
    bool eventFilter (QObject *obj, QEvent *event);
 
 private:
+
+   struct DisplayRanges {
+      double minimum;
+      double maximum;
+   };
+
+   // Handle each axis in own class.
+   //
+   class Axis {
+   public:
+      explicit Axis (QwtPlot* plot, const int axisId);
+
+      void setRange (const double min, const double max,
+                     const AxisMajorIntervalModes mode, const int value);
+      bool doDynamicRescaling ();
+      void determineAxis (const QEGraphic::DisplayRanges& current);
+
+      // Converts between pixel coords to real world coords taking into
+      // account any scaling and/or logarithic scaling.
+      //
+      double pointToReal (const int pos) const;
+      int realToPoint (const double pos) const;
+
+      double scaleValue (const double coordinate) const;
+
+      void setScale (const double scale);
+      double getScale ();
+
+      void setOffset (const double offset);
+      double getOffset ();
+
+      void setLogarithmic (const bool logarithmic);
+      bool getLogarithmic ();
+
+   private:
+      QwtPlot* plot;
+      int axisId;
+      DisplayRanges source;
+      DisplayRanges target;
+      AxisMajorIntervalModes intervalMode;
+      int intervalValue;
+      int transitionCount;
+      bool isLogarithmic;   // vs. Linear
+
+      // Data scaling x' = mx + c. This is applied before any log10 scaling.
+      //
+      double scale;     // m
+      double offset;    // c
+   };
+
    void construct ();
 
-   static void adjustLogMinMax (const double minIn, const double maxIn,
+   // Steps go from NUMBER_TRANISTION_STEPS (at start) down to 0 (at finish).
+   //
+   static DisplayRanges calcTransitionPoint (const DisplayRanges& start,
+                                             const DisplayRanges& finish,
+                                             const int step);
+
+   static void adjustLogMinMax (const DisplayRanges& useRnge,
                                 double& minOut, double& maxOut, double& majorOut);
 
-   static void adjustMinMax (const double minIn, const double maxIn, const int number,
+   static void adjustMinMax (const DisplayRanges& useRnge, const int number,
                              double& minOut, double& maxOut, double& majorOut);
 
-   double xMinimum;
-   double xMaximum;
-   double yMinimum;
-   double yMaximum;
-
-   // Log10 scaling.
-   bool yIsLogarithmic;   // vs. Linear
-   bool xIsLogarithmic;   // vs. Linear
-
-   // Data scaling. This is applied before any log10 scaling.
-   double xScale;
-   double xOffset;
-   double yScale;
-   double yOffset;
+   Axis* xAxis;
+   Axis* yAxis;
 
    QHBoxLayout *layout;
    QwtPlot* plot;
