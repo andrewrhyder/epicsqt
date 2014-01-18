@@ -329,7 +329,6 @@ void QEPvProperties::common_setup ()
 
    style = "QWidget { background-color: #F0F0F0; }";
 
-   this->valueLabel->setIndent (4);
    this->valueLabel->setStyleSheet (style);
    // We have to be general here
    this->valueLabel->setPrecision (9);
