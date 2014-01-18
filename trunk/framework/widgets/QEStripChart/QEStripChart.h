@@ -32,6 +32,7 @@
 #include <QColor>
 #include <QDateTime>
 #include <QFrame>
+#include <QGridLayout>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QObject>
@@ -196,8 +197,11 @@ private:
    QEResizeableFrame* toolBarResize;
 
    QFrame* pvFrame;
+   QGridLayout *pvGridLayout;
+
    QScrollArea* pvScrollArea;
    QEResizeableFrame* pvResizeFrame;
+
 
    QEGraphic* plotArea;
    QFrame* plotFrame;
