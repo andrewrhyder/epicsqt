@@ -78,7 +78,7 @@ INCLUDEPATH += . \
     ../../framework/include
 
 # Explicity add ../../framework/common, and hence QEFrameworkVersion.h, to the dependacy path
-# So that changes to the version/release numbers forece revent recompilations.
+# so that changes to the version/release numbers force relavent recompilations.
 #
 DEPENDPATH += ../../framework/common
 
