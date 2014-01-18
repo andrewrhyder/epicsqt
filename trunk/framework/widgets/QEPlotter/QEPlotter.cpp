@@ -2096,6 +2096,10 @@ void QEPlotter::tickTimeout ()
 {
    this->tickTimerCount = (this->tickTimerCount + 1) % 20;
 
+   // Progress any on-going cgart rescaling.
+   //
+   this->plotArea->doDynamicRescaling ();
+
    if ((this->tickTimerCount % 20) == 0) {
       // 20th update, i.e. 1 second has passed - must replot.
       this->replotIsRequired = true;
