@@ -239,14 +239,21 @@ void QEGraphic::Axis::setOffset (const double offsetIn)
 //
 double QEGraphic::Axis::getOffset ()
 {
-  return this->offset;
+   return this->offset;
 }
 
 //------------------------------------------------------------------------------
 //
 void QEGraphic::Axis::setLogarithmic (const bool logarithmicIn)
 {
- this->isLogarithmic = logarithmicIn;
+   if (this->isLogarithmic != logarithmicIn) {
+      this->isLogarithmic = logarithmicIn;
+
+      // Do immediate trasition and reset
+      //
+      this->determineAxis (this->target);
+      this->transitionCount = 0;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -796,7 +803,7 @@ QEGraphic::DisplayRanges QEGraphic::calcTransitionPoint (const DisplayRanges& st
    QEGraphic::DisplayRanges result;
 
    if (step <= 0) {
-         result = finish;
+      result = finish;
    } else if (step >= NUMBER_TRANISTION_STEPS) {
       result = start;
    } else  {
