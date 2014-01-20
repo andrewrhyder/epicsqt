@@ -168,7 +168,10 @@ void VideoWidget::paintEvent(QPaintEvent* event )
     painter.drawImage( event->rect(), refImage, event->rect() );
 
     // Update any markups
-    drawMarkups( painter, event->rect() );
+    if( !currentImage.isNull() )
+    {
+        drawMarkups( painter, event->rect() );
+    }
 
     // Report position for pixel info logging
     emit currentPixelInfo( pixelInfoPos );
