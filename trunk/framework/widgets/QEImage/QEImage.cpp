@@ -3382,7 +3382,7 @@ bool QEImage::getEnableBrightnessContrast()
 // Request the application host controls such as toolbars and profile views for this widget
 void QEImage::setExternalControls( bool externalControlsIn )
 {
-    appHostsControls = externalControlsIn;
+//    appHostsControls = externalControlsIn;
     presentControls();
 }
 
@@ -5264,7 +5264,7 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
     }
 
     // Brightness/Contrast
-    else if( action == "Brightness/Contrast" )
+    else if( action == "Brightness / Contrast" )
     {
         // Only respond to requests fromthe application if managing the brightness/contrast control within the widget.
         // If the management of the brightness/contrast control has been handed over to the application (the
