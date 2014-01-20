@@ -52,7 +52,7 @@ QEPVNameSelectDialog::QEPVNameSelectDialog (QWidget *parent) :
 
    // Ensure the dialog centres using this widget as reference point.
    //
-   this->sourceWidget = this->ui->pvNameEdit;
+   this->setSourceWidget (this->ui->pvNameEdit);
 
    // Load help ui file - do this only once.
    // NOTE: We use loader directly rather than requesting the application (QEGui) to
