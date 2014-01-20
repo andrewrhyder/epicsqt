@@ -27,6 +27,7 @@
 #include <QMainWindow>
 #include <QTimer>
 
+#include "QECommon.h"
 #include "QEDialog.h"
 
 #define DEBUG qDebug () << "QEDialog" << __FUNCTION__ << ":" << __LINE__
@@ -35,6 +36,13 @@
 //
 QEDialog::QEDialog (QWidget* parent) : QDialog (parent) {
    this->sourceWidget = this;
+}
+
+//------------------------------------------------------------------------------
+//
+void QEDialog::setSourceWidget (QWidget* widget)
+{
+   this->sourceWidget = widget;
 }
 
 //------------------------------------------------------------------------------
@@ -58,35 +66,41 @@ int QEDialog::exec (QWidget* targetWidgetIn)
 //
 void QEDialog::relocateToCenteredPosition ()
 {
-  // Did caller specify an widget to centre this over?
-  //
-  if (this->targetWidget && this->sourceWidget) {
+   // Did caller specify an widget to centre this over?
+   //
+   if (this->targetWidget && this->sourceWidget) {
 
-     // Find centres and map this to global coordinates.
-     //
-     const QRect sourceGeo = this->sourceWidget->geometry ();
-     const QRect targetGeo = this->targetWidget->geometry ();
+      // Find centres and map this to global coordinates.
+      //
+      const QRect sourceGeo = this->sourceWidget->geometry ();
+      const QRect targetGeo = this->targetWidget->geometry ();
 
-     QPoint sourceMiddle = QPoint (sourceGeo.width () / 2, sourceGeo.height () / 2);
-     QPoint targetMiddle = QPoint (targetGeo.width () / 2, targetGeo.height () / 2);
+      QPoint sourceMiddle = QPoint (sourceGeo.width () / 2, sourceGeo.height () / 2);
+      QPoint targetMiddle = QPoint (targetGeo.width () / 2, targetGeo.height () / 2);
 
-     // Convert both to global coordinates.
-     //
-     sourceMiddle = this->sourceWidget->mapToGlobal (sourceMiddle);
-     targetMiddle = this->targetWidget->mapToGlobal (targetMiddle);
+      // Convert both to global coordinates.
+      //
+      sourceMiddle = this->sourceWidget->mapToGlobal (sourceMiddle);
+      targetMiddle = this->targetWidget->mapToGlobal (targetMiddle);
 
-     // Calculate difference between where we are and where we want to get to.
-     //
-     QPoint delta = targetMiddle - sourceMiddle;
+      // Calculate difference between where we are and where we want to get to.
+      //
+      QPoint delta = targetMiddle - sourceMiddle;
 
-     // Extract current dialog location and calculate translation offset.
-     // Move dialog widget geometry rectangle, careful not to change width or
-     // height and apply.
-     //
-     QRect dialogGeo = this->geometry ();
-     dialogGeo.translate (delta);
-     this->setGeometry (dialogGeo);
-  }
+      // Extract current dialog location and calculate translation offset.
+      // Move dialog widget geometry rectangle, careful not to change width or
+      // height and apply.
+      //
+      QRect dialogGeo = this->geometry ();
+      dialogGeo.translate (delta);
+      if (dialogGeo.x () < 0 || dialogGeo.y () < 0 ) {
+         // Ensure no off screen mis-calculations.
+         delta.setX  (MAX (0, -dialogGeo.x ()));
+         delta.setY  (MAX (0, -dialogGeo.y ()));
+         dialogGeo.translate (delta);
+      }
+      this->setGeometry (dialogGeo);
+   }
 }
 
 // end

@@ -53,12 +53,16 @@ public slots:
    int exec (QWidget* targetWidget);
 
 protected:
-   // widget (within dialog) to use to colocate over targetWidget - default is this.
+   // Spcified the widget on the dialog to be centered over the target widget.
+   //
+   void setSourceWidget (QWidget* widget);
+
+private:
+   // Widget (within dialog) to use to colocate over targetWidget - default is this.
    //
    QWidget* sourceWidget;
 
-private:
-   // widget (defined by caller) to use to colocation point.
+   // Widget (defined by caller) to use to colocation point.
    //
    QWidget* targetWidget;
 
