@@ -108,7 +108,6 @@ private:
     void loadGuiIntoNewTab( QEForm* gui );                  // Load a new gui into a new tab
     void loadGuiIntoNewDock( QEForm* gui,
                              bool hidden = false,
-                             bool tabbed = false,
                              QEActionRequests::Options createOption = QEActionRequests::OptionFloatingDockWindow,
                              Qt::DockWidgetArea allowedAreas = Qt::AllDockWidgetAreas,
                              QDockWidget::DockWidgetFeature features = QDockWidget::AllDockWidgetFeatures,
@@ -188,7 +187,7 @@ private:
     QList<guiListItem> guiList;
 
     Qt::DockWidgetArea creationOptionToDockLocation( QEActionRequests::Options createOption ); // Translate a creation option to a dock location.
-    QEActionRequests::Options dockLocationToCreationOption( Qt::DockWidgetArea dockLocation ); // Translate a dock location to a creation option.
+    QEActionRequests::Options dockLocationToCreationOption( Qt::DockWidgetArea dockLocation, bool tabbed ); // Translate a dock location to a creation option.
 
     typedef QMap<QString, QString> NameMap;
 

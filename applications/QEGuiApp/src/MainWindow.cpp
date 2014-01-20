@@ -1137,7 +1137,6 @@ void MainWindow::loadGuiIntoCurrentWindow( QEForm* gui, bool resize )
 // Either as a result of the gui user requesting a new dock, or a contained object (gui push button) requesting a new dock
 void MainWindow::loadGuiIntoNewDock( QEForm* gui,
                                      bool hidden,
-                                     bool tabbed,
                                      QEActionRequests::Options createOption,
                                      Qt::DockWidgetArea allowedAreas,
                                      QDockWidget::DockWidgetFeature features,
@@ -1161,7 +1160,7 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     Qt::DockWidgetArea dockLocation = creationOptionToDockLocation( createOption );
 
 
-    // If the dock is loating and geometry has been supplied (non zero width and height), set the geometry
+    // If the dock is floating and geometry has been supplied (non zero width and height), set the geometry
     if( createOption == QEActionRequests::OptionFloatingDockWindow && geom.width() && geom.height() )
     {
         dock->setGeometry( geom );
@@ -1171,7 +1170,10 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     addDockWidget(dockLocation, dock);
 
     // If tabbed, tabify the dock
-    if( tabbed )
+    if( createOption == QEActionRequests::OptionTopDockWindowTabbed ||
+        createOption == QEActionRequests::OptionBottomDockWindowTabbed ||
+        createOption == QEActionRequests::OptionLeftDockWindowTabbed ||
+        createOption == QEActionRequests::OptionRightDockWindowTabbed )
     {
         QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
         for( int i = 0; i < dockWidgets.count(); i++ )
@@ -1210,24 +1212,45 @@ Qt::DockWidgetArea MainWindow::creationOptionToDockLocation( QEActionRequests::O
     {
         default:
         case QEActionRequests::OptionFloatingDockWindow:
-        case QEActionRequests::OptionLeftDockWindow:     return Qt::LeftDockWidgetArea;
-        case QEActionRequests::OptionRightDockWindow:    return Qt::RightDockWidgetArea;
-        case QEActionRequests::OptionTopDockWindow:      return Qt::TopDockWidgetArea;
-        case QEActionRequests::OptionBottomDockWindow:   return Qt::BottomDockWidgetArea;
+        case QEActionRequests::OptionLeftDockWindow:
+        case QEActionRequests::OptionLeftDockWindowTabbed:     return Qt::LeftDockWidgetArea;
+
+        case QEActionRequests::OptionRightDockWindow:
+        case QEActionRequests::OptionRightDockWindowTabbed:    return Qt::RightDockWidgetArea;
+
+        case QEActionRequests::OptionTopDockWindow:
+        case QEActionRequests::OptionTopDockWindowTabbed:      return Qt::TopDockWidgetArea;
+
+        case QEActionRequests::OptionBottomDockWindow:
+        case QEActionRequests::OptionBottomDockWindowTabbed:   return Qt::BottomDockWidgetArea;
     }
 
 }
 
 // Translate a dock location to a creation option
-QEActionRequests::Options MainWindow::dockLocationToCreationOption( Qt::DockWidgetArea dockLocation )
+QEActionRequests::Options MainWindow::dockLocationToCreationOption( Qt::DockWidgetArea dockLocation, bool tabbed )
 {
-    switch( dockLocation )
+    if( tabbed  )
     {
-        default:
-        case Qt::BottomDockWidgetArea: return QEActionRequests::OptionBottomDockWindow;
-        case Qt::TopDockWidgetArea:    return QEActionRequests::OptionTopDockWindow;
-        case Qt::LeftDockWidgetArea:   return QEActionRequests::OptionLeftDockWindow;
-        case Qt::RightDockWidgetArea:  return QEActionRequests::OptionRightDockWindow;
+        switch( dockLocation )
+        {
+            default:
+            case Qt::BottomDockWidgetArea: return QEActionRequests::OptionBottomDockWindowTabbed;
+            case Qt::TopDockWidgetArea:    return QEActionRequests::OptionTopDockWindowTabbed;
+            case Qt::LeftDockWidgetArea:   return QEActionRequests::OptionLeftDockWindowTabbed;
+            case Qt::RightDockWidgetArea:  return QEActionRequests::OptionRightDockWindowTabbed;
+        }
+    }
+    else
+    {
+        switch( dockLocation )
+        {
+            default:
+            case Qt::BottomDockWidgetArea: return QEActionRequests::OptionBottomDockWindow;
+            case Qt::TopDockWidgetArea:    return QEActionRequests::OptionTopDockWindow;
+            case Qt::LeftDockWidgetArea:   return QEActionRequests::OptionLeftDockWindow;
+            case Qt::RightDockWidgetArea:  return QEActionRequests::OptionRightDockWindow;
+        }
     }
 }
 
@@ -1314,11 +1337,15 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
         case QEActionRequests::OptionRightDockWindow:
         case QEActionRequests::OptionTopDockWindow:
         case QEActionRequests::OptionBottomDockWindow:
+        case QEActionRequests::OptionLeftDockWindowTabbed:
+        case QEActionRequests::OptionRightDockWindowTabbed:
+        case QEActionRequests::OptionTopDockWindowTabbed:
+        case QEActionRequests::OptionBottomDockWindowTabbed:
         case QEActionRequests::OptionFloatingDockWindow:
             {
                 // Create the gui and load it into a new dock
                 QEForm* gui = createGui( guiName, customisationName, true );  // Note, profile should have been published by signal code
-                loadGuiIntoNewDock( gui, hidden, false, createOption );
+                loadGuiIntoNewDock( gui, hidden, createOption );
                 return this;
             }
 
@@ -2324,9 +2351,9 @@ void MainWindow::saveRestore( SaveRestoreSignal::saveRestoreOptions option )
                                     }
                                     else
                                     {
-                                        createOption = dockLocationToCreationOption( (Qt::DockWidgetArea)area );
+                                        createOption = dockLocationToCreationOption( (Qt::DockWidgetArea)area, tabbed );
                                     }
-                                    loadGuiIntoNewDock( gui, hidden, tabbed, createOption, (Qt::DockWidgetArea)allowedAreas, (QDockWidget::DockWidgetFeature)features, QRect( x, y, width, height ) );
+                                    loadGuiIntoNewDock( gui, hidden, createOption, (Qt::DockWidgetArea)allowedAreas, (QDockWidget::DockWidgetFeature)features, QRect( x, y, width, height ) );
                                 }
 
                                 // If not a dock...
