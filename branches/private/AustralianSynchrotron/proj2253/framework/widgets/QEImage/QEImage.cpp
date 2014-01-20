@@ -423,6 +423,7 @@ void QEImage::presentControls()
     //  has gone wrong perhaps the appliction has deleted them, so don't assume they are present)
     if( appHostsControls && hostingAppAvailable )
     {
+/*
         QList<componentHostListItem> components;
 
         if( localBC )
@@ -452,10 +453,10 @@ void QEImage::presentControls()
             graphicsLayout->removeWidget( profileDisplay );
             components.append( componentHostListItem( profileDisplay, QEActionRequests::OptionFloatingDockWindow, true, "Arbitrary Profile" ) );
         }
-
+*/
         buttonGroup->hide();
 
-        emitComponentHostRequest( QEActionRequests( components ) );
+//        emitComponentHostRequest( QEActionRequests( components ) );
 
     }
     else
@@ -5033,6 +5034,23 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         if( !initialise )
         {
             contextMenuTriggered( CM_COPY_DATA );
+        }
+    }
+
+    // About image button
+    else if( action == "Brightness / Contrast" )
+    {
+        if( appHostsControls && hostingAppAvailable ){
+            if( !initialise )
+            {
+                if( localBC )
+                {
+                    QList<componentHostListItem> components;
+                    mainLayout->removeWidget( localBC );
+                    components.append( componentHostListItem( localBC, QEActionRequests::OptionFloatingDockWindow, false, "Brightness / Contrast" ) );
+                    emitComponentHostRequest( QEActionRequests( components ) );
+                }
+            }
         }
     }
 
