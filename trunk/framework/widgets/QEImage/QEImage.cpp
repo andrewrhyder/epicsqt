@@ -5263,6 +5263,36 @@ void QEImage::actionRequest( QString action, QStringList /*arguments*/, bool ini
         }
     }
 
+    // Brightness/Contrast
+    else if( action == "Brightness/Contrast" )
+    {
+        // Only respond to requests fromthe application if managing the brightness/contrast control within the widget.
+        // If the management of the brightness/contrast control has been handed over to the application (the
+        // 'externalControls' property is set) and the application is able to take over the control (the application
+        // has provided a 'launch consumer' in the container profile), then do nothing - the application should be doing
+        // all management of the control.
+        if( !appHostsControls || !hostingAppAvailable)
+        {
+            // Initialising, make the originating action checkable, and checked if a local brightness/contrast control exists
+            if( initialise )
+            {
+                originator->setCheckable( true );
+                if( localBC )
+                {
+                    originator->setChecked( localBC->isVisible() );
+                }
+            }
+            // The user has triggered the action, hide/show the local brightness contrast control via the options menu
+            // (this will leave the options menu in the correct state)
+            // !!! Note, the inverse is not correct (20/1/14) if the brightness/contrast control is enabled from the options menu,
+            // !!! the originator of this action is not set to reflect the new state of the brightness/contrast menu.
+            else
+            {
+                optionsDialog->optionSet( imageContextMenu::ICM_DISPLAY_BRIGHTNESS_CONTRAST, originator->isChecked() );
+            }
+        }
+    }
+
     // Unimplemented action
     else
     {

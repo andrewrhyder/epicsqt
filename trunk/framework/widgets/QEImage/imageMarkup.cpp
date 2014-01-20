@@ -34,6 +34,7 @@
 #include <markupLine.h>
 #include <markupRegion.h>
 #include <markupText.h>
+#include <QEImageMarkupThickness.h>
 
 #include <imageContextMenu.h>
 
@@ -745,6 +746,32 @@ bool imageMarkup::showMarkupMenu( const QPoint& pos, const QPoint& globalPos )
         }
 
         case imageContextMenu::ICM_THICKNESS_SELECT_MARKUP:
+            markupItem* item = items[activeItem];
+
+            // Start a list of affected areas
+            QVector<QRect> changedAreas;
+
+            // Get a new thickness from the user
+            QEImageMarkupThickness thicknessDialog;
+            thicknessDialog.setThickness( item->getThickness() );
+            thicknessDialog.exec();
+            unsigned int newThickness = thicknessDialog.getThickness();
+
+            // Update the item if the thickness has changed
+            if( newThickness != item->getThickness() )
+            {
+                // Change the thickness
+                item->setThickness( newThickness );
+
+                // Include the area of the item after its thickness has changed
+                changedAreas.append( item->area );
+
+                // Repaint
+                markupChange( changedAreas );
+
+                markupAction( activeItem, false, false, item->getPoint1(), item->getPoint2(), item->getThickness() );
+            }
+
             break;
     }
 
