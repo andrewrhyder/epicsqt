@@ -55,8 +55,6 @@ public slots:
 protected:
    // Spcified the widget on the dialog to be centered over the target widget.
    //
-
-
    void setSourceWidget (QWidget* widget);
 
 private:
