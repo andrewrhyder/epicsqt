@@ -58,6 +58,10 @@ public:
                   OptionBottomDockWindow,
                   OptionLeftDockWindow,
                   OptionRightDockWindow,
+                  OptionTopDockWindowTabbed,
+                  OptionBottomDockWindowTabbed,
+                  OptionLeftDockWindowTabbed,
+                  OptionRightDockWindowTabbed,
                   OptionFloatingDockWindow };
 
    // Constructors.

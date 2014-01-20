@@ -537,6 +537,10 @@ public:
                                DockBottom = QEActionRequests::OptionBottomDockWindow,    ///< Open new GUI in a bottom dock window
                                DockLeft = QEActionRequests::OptionLeftDockWindow,        ///< Open new GUI in a left dock window
                                DockRight = QEActionRequests::OptionRightDockWindow,      ///< Open new GUI in a right dock window
+                               DockTopTabbed = QEActionRequests::OptionTopDockWindowTabbed,          ///< Open new GUI in a top dock window (tabbed with any existing dock in that area)
+                               DockBottomTabbed = QEActionRequests::OptionBottomDockWindowTabbed,    ///< Open new GUI in a bottom dock window (tabbed with any existing dock in that area)
+                               DockLeftTabbed = QEActionRequests::OptionLeftDockWindowTabbed,        ///< Open new GUI in a left dock window (tabbed with any existing dock in that area)
+                               DockRightTabbed = QEActionRequests::OptionRightDockWindowTabbed,      ///< Open new GUI in a right dock window (tabbed with any existing dock in that area)
                                DockFloating = QEActionRequests::OptionFloatingDockWindow ///< Open new GUI in a floating dock window
                              };
 

@@ -309,17 +309,23 @@ void windowCustomisation::addItem( windowCustomisationButtonItem* button )
 // Translate creation option text from .xml file to enumeration in QEActionRequests
 QEActionRequests::Options windowCustomisation::translateCreationOption( QString creationOption )
 {
-         if( creationOption.compare( "Open"          ) == 0 ) { return QEActionRequests::OptionOpen;                   }
-    else if( creationOption.compare( "NewTab"        ) == 0 ) { return QEActionRequests::OptionNewTab;                 }
-    else if( creationOption.compare( "NewWindow"     ) == 0 ) { return QEActionRequests::OptionNewWindow;              }
+         if( creationOption.compare( "Open"              ) == 0 ) { return QEActionRequests::OptionOpen;                   }
+    else if( creationOption.compare( "NewTab"            ) == 0 ) { return QEActionRequests::OptionNewTab;                 }
+    else if( creationOption.compare( "NewWindow"         ) == 0 ) { return QEActionRequests::OptionNewWindow;              }
 
-    else if( creationOption.compare( "LeftDock"      ) == 0 ) { return QEActionRequests::OptionLeftDockWindow;         }
-    else if( creationOption.compare( "RightDock"     ) == 0 ) { return QEActionRequests::OptionRightDockWindow;        }
-    else if( creationOption.compare( "TopDock"       ) == 0 ) { return QEActionRequests::OptionTopDockWindow;          }
-    else if( creationOption.compare( "BottomDock"    ) == 0 ) { return QEActionRequests::OptionBottomDockWindow;       }
-    else if( creationOption.compare( "FloatingDock"  ) == 0 ) { return QEActionRequests::OptionFloatingDockWindow;     }
+    else if( creationOption.compare( "FloatingDock"      ) == 0 ) { return QEActionRequests::OptionFloatingDockWindow;     }
 
-                                                                return QEActionRequests::OptionNewWindow;  // Default
+    else if( creationOption.compare( "LeftDock"          ) == 0 ) { return QEActionRequests::OptionLeftDockWindow;         }
+    else if( creationOption.compare( "RightDock"         ) == 0 ) { return QEActionRequests::OptionRightDockWindow;        }
+    else if( creationOption.compare( "TopDock"           ) == 0 ) { return QEActionRequests::OptionTopDockWindow;          }
+    else if( creationOption.compare( "BottomDock"        ) == 0 ) { return QEActionRequests::OptionBottomDockWindow;       }
+
+    else if( creationOption.compare( "LeftDockTabbed"    ) == 0 ) { return QEActionRequests::OptionLeftDockWindowTabbed;   }
+    else if( creationOption.compare( "RightDockTabbed"   ) == 0 ) { return QEActionRequests::OptionRightDockWindowTabbed;  }
+    else if( creationOption.compare( "TopDockTabbed"     ) == 0 ) { return QEActionRequests::OptionTopDockWindowTabbed;    }
+    else if( creationOption.compare( "BottomDockTabbed"  ) == 0 ) { return QEActionRequests::OptionBottomDockWindowTabbed; }
+
+    return QEActionRequests::OptionNewWindow;  // Default
 }
 
 //==============================================================================================
