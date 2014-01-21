@@ -329,6 +329,8 @@ public:
     void setTargetLegend( QString legend );             ///< Access function for #targetLegend property - refer to #targetLegend property for details
     QString getBeamLegend();                           ///< Access function for #beamLegend property - refer to #beamLegend property for details
     void setBeamLegend( QString legend );               ///< Access function for #beamLegend property - refer to #beamLegend property for details
+    QString getEllipseLegend();                        ///< Access function for #ellipseLegend property - refer to #ellipseLegend property for details
+    void setEllipseLegend( QString legend );            ///< Access function for #ellipseLegend property - refer to #ellipseLegend property for details
 
 
 
@@ -478,9 +480,7 @@ public slots:
 //    void useAllMarkupData();
     void useROIData( const unsigned int& variableIndex );
     void useProfileData( const unsigned int& variableIndex );
-    void useEllipseData( const unsigned int& variableIndex );
-
-
+    void useEllipseData();
 
     void roi1Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
     void roi2Changed();        ///< Framework use only. Slot to allow external setting of selection menu options
@@ -1174,6 +1174,9 @@ public:
 
     /// Name of beam markup
     Q_PROPERTY(QString beamLegend READ getBeamLegend WRITE setBeamLegend)
+
+    /// Name of ellipse markup
+    Q_PROPERTY(QString ellipseLegend READ getEllipseLegend WRITE setEllipseLegend)
 
     //=========
 

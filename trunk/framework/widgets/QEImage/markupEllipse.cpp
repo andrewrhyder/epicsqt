@@ -89,7 +89,7 @@ QPoint markupEllipse::origin()
 }
 
 // Return the cursor for each handle
-QCursor markupEllipse::cursorForHandle( const markupItem::markupHandles handle )
+QCursor markupEllipse::cursorForHandle( const markupItem::markupHandles /*handle*/ )
 {
     // No special cursors for different handles
     //    switch( handle )
