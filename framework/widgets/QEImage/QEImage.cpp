@@ -231,25 +231,16 @@ void QEImage::setup() {
     QObject::connect(profileDisplay, SIGNAL(destroyed(QObject*)), this, SLOT(profileDisplayDestroyed(QObject*)));
     profileDisplay->setVisible( false );
 
-
     graphicsLayout = new QGridLayout();
     graphicsLayout->addWidget( scrollArea,      0, 0 );
     graphicsLayout->addLayout( getInfoWidget(), 1, 0 );
     graphicsLayout->addWidget( vSliceLabel,    1, 1 );
-//    graphicsLayout->addWidget( vSliceDisplay,  0, 1 );
     graphicsLayout->addWidget( hSliceLabel,    2, 0 );
-//    graphicsLayout->addWidget( hSliceDisplay,  3, 0 );
     graphicsLayout->addWidget( profileLabel,   4, 0 );
-//    graphicsLayout->addWidget( profileDisplay, 5, 0 );
-
-//    graphicsLayout->setColumnStretch( 0, 1 );  // display image to take all spare room
-//    graphicsLayout->setRowStretch( 0, 1 );  // display image to take all spare room
-
 
     // Create button group
     int buttonWidth = 28;
     int buttonMenuWidth = 48;
-
 
     buttonGroup = new QFrame;
     QHBoxLayout* buttonLayout = new QHBoxLayout();
@@ -582,11 +573,19 @@ qcaobject::QCaObject* QEImage::createQcaItem( unsigned int variableIndex ) {
         case CLIPPING_HIGH_VARIABLE:
 
         case PROFILE_H_VARIABLE:
+        case PROFILE_H_THICKNESS_VARIABLE:
         case PROFILE_V_VARIABLE:
+        case PROFILE_V_THICKNESS_VARIABLE:
         case LINE_PROFILE_X1_VARIABLE:
         case LINE_PROFILE_Y1_VARIABLE:
         case LINE_PROFILE_X2_VARIABLE:
         case LINE_PROFILE_Y2_VARIABLE:
+        case LINE_PROFILE_THICKNESS_VARIABLE:
+
+        case ELLIPSE_X1_VARIABLE:
+        case ELLIPSE_Y1_VARIABLE:
+        case ELLIPSE_X2_VARIABLE:
+        case ELLIPSE_Y2_VARIABLE:
 
             return new QEInteger( getSubstitutedVariableName( variableIndex ), this, &integerFormatting, variableIndex );
 
@@ -723,11 +722,14 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
 
         // Connect to line profile variables
         case PROFILE_H_VARIABLE:
+        case PROFILE_H_THICKNESS_VARIABLE:
         case PROFILE_V_VARIABLE:
+        case PROFILE_V_THICKNESS_VARIABLE:
         case LINE_PROFILE_X1_VARIABLE:
         case LINE_PROFILE_Y1_VARIABLE:
         case LINE_PROFILE_X2_VARIABLE:
         case LINE_PROFILE_Y2_VARIABLE:
+        case LINE_PROFILE_THICKNESS_VARIABLE:
 
             if(  qca )
             {
@@ -763,6 +765,23 @@ void QEImage::establishConnection( unsigned int variableIndex ) {
         case PROFILE_LINE_ARRAY:
 
             break;
+
+        // Connect to ellipse variables
+        case ELLIPSE_X1_VARIABLE:
+        case ELLIPSE_Y1_VARIABLE:
+        case ELLIPSE_X2_VARIABLE:
+        case ELLIPSE_Y2_VARIABLE:
+            if(  qca )
+            {
+                QObject::connect( qca,  SIGNAL( integerChanged( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ),
+                                  this, SLOT( setEllipse( const long&, QCaAlarmInfo&, QCaDateTime&, const unsigned int& ) ) );
+                QObject::connect( qca,  SIGNAL( connectionChanged( QCaConnectionInfo& ) ),
+                                  this, SLOT( connectionChanged( QCaConnectionInfo& ) ) );
+                QObject::connect( this, SIGNAL( requestResend() ),
+                                  qca, SLOT( resendLastData() ) );
+            }
+            break;
+
      }
 }
 
@@ -1196,12 +1215,15 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
     {
         switch( variableIndex )
         {
-            case PROFILE_H_VARIABLE: hSliceY = 0; break;
-            case PROFILE_V_VARIABLE: vSliceX = 0; break;
-            case LINE_PROFILE_X1_VARIABLE: lineProfileInfo.clearX1(); break;
-            case LINE_PROFILE_Y1_VARIABLE: lineProfileInfo.clearY1(); break;
-            case LINE_PROFILE_X2_VARIABLE: lineProfileInfo.clearX2(); break;
-            case LINE_PROFILE_Y2_VARIABLE: lineProfileInfo.clearY2(); break;
+            case PROFILE_H_VARIABLE:              hSliceY = 0;               break;
+            case PROFILE_V_VARIABLE:              vSliceX = 0;               break;
+            case PROFILE_H_THICKNESS_VARIABLE:    hSliceThickness = 1;       break;
+            case PROFILE_V_THICKNESS_VARIABLE:    vSliceThickness = 1;       break;
+            case LINE_PROFILE_X1_VARIABLE:        lineProfileInfo.clearX1(); break;
+            case LINE_PROFILE_Y1_VARIABLE:        lineProfileInfo.clearY1(); break;
+            case LINE_PROFILE_X2_VARIABLE:        lineProfileInfo.clearX2(); break;
+            case LINE_PROFILE_Y2_VARIABLE:        lineProfileInfo.clearY2(); break;
+            case LINE_PROFILE_THICKNESS_VARIABLE: profileThickness = 1;      break;
         }
     }
 
@@ -1214,12 +1236,15 @@ void QEImage::setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         {
             // !!! these next two lines are broken - when called on the initial updates of the scalar values the scaling is not available as there is no image.
             //     change hSliceY and vSliceX (and infact all other similar variables for regions, targeting, etc) to be ordinates in raw image
-            case PROFILE_H_VARIABLE:       hSliceY = videoWidget->scaleImageOrdinate( value ); break;
-            case PROFILE_V_VARIABLE:       vSliceX = videoWidget->scaleImageOrdinate( value ); break;
-            case LINE_PROFILE_X1_VARIABLE: lineProfileInfo.setX1( value ); break;
-            case LINE_PROFILE_Y1_VARIABLE: lineProfileInfo.setY1( value ); break;
-            case LINE_PROFILE_X2_VARIABLE: lineProfileInfo.setX2( value ); break;
-            case LINE_PROFILE_Y2_VARIABLE: lineProfileInfo.setY2( value ); break;
+            case PROFILE_H_VARIABLE:              hSliceY = videoWidget->scaleImageOrdinate( value ); break;
+            case PROFILE_V_VARIABLE:              vSliceX = videoWidget->scaleImageOrdinate( value ); break;
+            case PROFILE_H_THICKNESS_VARIABLE:    hSliceThickness = value;                            break;
+            case PROFILE_V_THICKNESS_VARIABLE:    vSliceThickness = value;                            break;
+            case LINE_PROFILE_X1_VARIABLE:        lineProfileInfo.setX1( value );                     break;
+            case LINE_PROFILE_Y1_VARIABLE:        lineProfileInfo.setY1( value );                     break;
+            case LINE_PROFILE_X2_VARIABLE:        lineProfileInfo.setX2( value );                     break;
+            case LINE_PROFILE_Y2_VARIABLE:        lineProfileInfo.setY2( value );                     break;
+            case LINE_PROFILE_THICKNESS_VARIABLE: profileThickness = 1;                               break;
         }
 
         // If there is an image, present the profile data
@@ -1302,7 +1327,7 @@ void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
         // (if there is no image, the profile data will be used when one arrives)
         if( videoWidget->hasCurrentImage() )
         {
-            useEllipseData( variableIndex );
+            useEllipseData();
         }
     }
 }
@@ -1310,7 +1335,7 @@ void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTim
 // Apply the ellipse data.
 // This can be done once all ellipse data is available and an image is available
 // (the image is needed to determine scaling)
-void QEImage::useEllipseData( const unsigned int& /*variableIndex*/ )
+void QEImage::useEllipseData()
 {
     if( ellipseInfo.getStatus() )
     {
@@ -1409,6 +1434,8 @@ void QEImage::useAllMarkupData()
     useProfileData( LINE_PROFILE_Y2_VARIABLE );
 
     useTargetingData(); //!!! change this to use each of the targeting
+
+    useEllipseData();
 }
 
 // Update image from non CA souce (no associated CA timestamp or alarm info available)
@@ -2748,6 +2775,9 @@ void QEImage::lineProfileChanged()
     qca = (QEInteger*)getQcaItem( LINE_PROFILE_Y2_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( profileLineEnd.y() ));
 
+    qca = (QEInteger*)getQcaItem( LINE_PROFILE_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( profileThickness );
+
     return;
 }
 
@@ -2759,6 +2789,9 @@ void QEImage::hozProfileChanged()
     qca = (QEInteger*)getQcaItem( PROFILE_H_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( hSliceY ));
 
+    qca = (QEInteger*)getQcaItem( PROFILE_H_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( hSliceThickness );
+
     return;
 }
 
@@ -2769,6 +2802,9 @@ void QEImage::vertProfileChanged()
     QEInteger *qca;
     qca = (QEInteger*)getQcaItem( PROFILE_V_VARIABLE );
     if( qca ) qca->writeInteger( videoWidget->scaleOrdinate( vSliceX ));
+
+    qca = (QEInteger*)getQcaItem( PROFILE_V_THICKNESS_VARIABLE );
+    if( qca ) qca->writeInteger( vSliceThickness );
 
     return;
 }
@@ -3517,6 +3553,8 @@ QString QEImage::getTargetLegend()                       { return videoWidget->g
 void    QEImage::setTargetLegend        ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_TARGET,  legend ); }
 QString QEImage::getBeamLegend()                         { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_BEAM );           }
 void    QEImage::setBeamLegend          ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_BEAM,    legend ); }
+QString QEImage::getEllipseLegend()                       { return videoWidget->getMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE );       }
+void    QEImage::setEllipseLegend       ( QString legend ){        videoWidget->setMarkupLegend( imageMarkup::MARKUP_ID_ELLIPSE, legend ); }
 
 //=================================================================================================
 
