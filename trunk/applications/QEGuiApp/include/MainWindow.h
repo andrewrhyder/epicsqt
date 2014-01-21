@@ -194,6 +194,8 @@ private:
     NameMap inbuiltFormMap;
     NameMap classNameMap;
 
+    windowCustomisationList::dockMap dockedComponents;          // List of docks created to host components from QE widgets. Used when applying customisations. (customisation system can link menu items to pre-existing docks)
+
 private slots:
     void on_actionManage_Configurations_triggered();
     void on_actionExit_triggered();                             // Slot to perform 'Exit' action
@@ -233,6 +235,10 @@ private slots:
     void deleteConfigs( manageConfigDialog* mcd, const QStringList names );        // Delete configurations
 
     void dockComponentDestroyed( QObject* component );  // A component hosted by the application has gone away, delete the dock that was holding it.
+
+signals:
+    void dockCreated( QDockWidget* );               // Signal to customisation system that a dock has been created. The customisation system may need to use 'dock toggle' action from the dock in a menu
+
 };
 
 #endif // MAINWINDOW_H

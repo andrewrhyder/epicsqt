@@ -159,17 +159,25 @@ public:
     windowCustomisationItem( const QString builtInActionIn );               // Construct instance of class defining a built in application action
     windowCustomisationItem( const QString builtInActionIn,                 // Construct instance of class defining a built in application action
                              const QString widgetNameIn );                  // widget name if built in function is for a widget, not the application
+    windowCustomisationItem( const QString dockTitleIn, bool unused );      // Construct instance of class defining a link to an existing dock
 
     QString getProgram(){return program;}
     QStringList getArguments(){return arguments;}
 
     QString getBuiltInAction(){return builtInAction;}
 
+    QString getDockTitle(){ return dockTitle; }
+
+    bool createsDocks();                                                    // Return true if at least one dock is created by this item
+
     void initialise();
+
+    QDockWidget* dock;                                                      // Temporary reference to a dock (used to suply a 'toggle view' action for a menu item)
 
 private:
     // Item action
     QList<windowCreationListItem> windows;          // Windows to create (.ui files and how to present them)
+    QString dockTitle;                              // Title of dock to locate the associate with (not used when creating a new UI in a dock. In that case the dock to associate with is returned in the useDock() slot)
     QString program;                                // Program to run
     QStringList arguments;                          // Arguments for 'program'
 
@@ -178,9 +186,9 @@ private:
 
     QString widgetName;                             // Widget to locate if passing this action on to a widget in a GUI
 
-private slots:
-    void itemAction();              // Slot to call when action is triggered
-
+public slots:
+    void itemAction();                              // Slot to call when action is triggered
+    void useDock( QDockWidget* );                   // Slot to call when a dock has been created that needs to be linked to a menu item
 signals:
     void newGui( const QEActionRequests& request );
 
@@ -192,7 +200,7 @@ class windowCustomisationMenuItem : public windowCustomisationItem
 {
 public:
     enum menuObjectTypes { MENU_UNKNOWN, MENU_ITEM, MENU_PLACEHOLDER, MENU_BUILT_IN };
-    windowCustomisationMenuItem( // Construction (actual menu item)
+    windowCustomisationMenuItem( // Construction (menu item to create new GUI windows or docks)
                           const QStringList menuHierarchyIn,                   // Location in menus to place this item. for example: 'Imaging'->'Region of interest'
                           const QString titleIn,                               // Name of this item. for example: 'Region 1'
                           const menuObjectTypes type,                          // type of menu object - must be MENU_ITEM
@@ -210,7 +218,7 @@ public:
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_PLACEHOLDER
                           const bool separatorIn );                            // Separator required before this
 
-    windowCustomisationMenuItem( // Construction (placeholder menu item)
+    windowCustomisationMenuItem( // Construction (menu item to pass a action request on to the application, or a QE widget inthe application)
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
                           const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
@@ -218,6 +226,14 @@ public:
 
                           const QString builtIn,                               // Name of built in function (built into the application or a QE widget). For example: 'Region 1'
                           const QString widgetNameIn );                        // widget name if built in function is for a widget, not the application
+
+    windowCustomisationMenuItem( // Construction (menu item to pass a action request on to the application, or a QE widget inthe application)
+                          const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
+                          const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
+                          const menuObjectTypes typeIn,                        // type of menu object - must be MENU_BUILT_IN
+                          const bool separatorIn,                              // Separator required before this
+
+                          const QString dockTitleIn );                         // Title of existing dock widget to assocaite the menu item with
 
     windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem);
 
@@ -311,10 +327,12 @@ public:
 class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationList
 {
 public:
+    typedef QMap<QString, QDockWidget*> dockMap;                    // Used to pass a list of docks than may be linked to menu items based on the dock title
+
     windowCustomisationList();
 
     bool loadCustomisation( QString xmlFile );                      // Load a set of customisations
-    void applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting ); // Add the named customisation set to a main window. Return true if named customisation found and loaded.
+    void applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting, dockMap dockedComponents = dockMap() ); // Add the named customisation set to a main window. Return true if named customisation found and loaded.
 
     windowCustomisation* getCustomisation(QString name);
     void initialise( windowCustomisationInfo* customisationInfo );
@@ -334,8 +352,9 @@ private:
                                  QString& builtIn,
                                  QString& program,
                                  QString& widgetName,
-                                 QStringList& arguments );
-    void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows );
+                                 QStringList& arguments,
+                                 QString& dockTitle );
+    void parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows, QString& dockTitle );
 
     windowCustomisationMenuItem* createMenuItem       ( QDomElement itemElement, QStringList menuHierarchy); // Create a custom menu item
     windowCustomisationMenuItem* createMenuPlaceholder( QDomElement itemElement, QStringList menuHierarchy); // Create a placeholder menu (for the application to add stuff to)
