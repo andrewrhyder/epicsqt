@@ -36,6 +36,7 @@
     markupLine
     markupRegion
     markupText
+    markupEllipse
  All these classes are are included in this module
 
  This module draws markups when interacting with the user, and also when the image changes.
@@ -98,6 +99,7 @@ public:
                      MARKUP_ID_TARGET,
                      MARKUP_ID_BEAM,
                      MARKUP_ID_TIMESTAMP,
+                     MARKUP_ID_ELLIPSE,
                      MARKUP_ID_COUNT,  // must be second last
                      MARKUP_ID_NONE }; // must be last
 
@@ -118,6 +120,8 @@ public:
     void markupLineProfileChange( QPoint start, QPoint end, bool displayMarkups );   // Arbitrary profile data has changed. Change markups to match
     void markupTargetValueChange( QPoint point, bool displayMarkups );               // Target position data has changed. Change markup to match
     void markupBeamValueChange( QPoint point, bool displayMarkups );                 // Beam position data has changed. Change markup to match
+    void markupEllipseValueChange( QPoint point1, QPoint point2, bool displayMarkups ); // Ellipse position data has changed. Change markup to match
+
     void markupValueChange( int markup, bool displayMarkups, QPoint p1, QPoint p2 = QPoint() ); // A markup related value has changed. Change markups to match
 
     // The following are only public so they may be accessed by (internal) markup items.

@@ -34,6 +34,7 @@
 #include <markupLine.h>
 #include <markupRegion.h>
 #include <markupText.h>
+#include <markupEllipse.h>
 #include <QEImageMarkupThickness.h>
 
 #include <imageContextMenu.h>
@@ -59,6 +60,7 @@ imageMarkup::imageMarkup()
     items[MARKUP_ID_TARGET]    = new markupTarget( this, true,  true, "target" );
     items[MARKUP_ID_BEAM]      = new markupBeam(   this, true,  true, "beam" );
     items[MARKUP_ID_TIMESTAMP] = new markupText(   this, false, false, "" );
+    items[MARKUP_ID_ELLIPSE]   = new markupEllipse(this, false, false, "Centroid" );
 
     markupAreasStale = true;
 
@@ -378,6 +380,13 @@ void imageMarkup::markupVProfileChange( int x, bool displayMarkups )
 void imageMarkup::markupLineProfileChange( QPoint start, QPoint end, bool displayMarkups )
 {
     markupValueChange( MARKUP_ID_LINE, displayMarkups, start, end );
+}
+
+// An ellipse markup value has changed.
+// Update the markup
+void imageMarkup::markupEllipseValueChange( QPoint start, QPoint end, bool displayMarkups )
+{
+    markupValueChange( MARKUP_ID_ELLIPSE, displayMarkups, start, end );
 }
 
 // A target value has changed.
