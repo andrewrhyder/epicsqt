@@ -168,6 +168,7 @@ void QEImage::setup() {
     setBeamMarkupColor(      QColor(255,   0,   0));
     setTargetMarkupColor(    QColor(  0, 255,   0));
     setTimeMarkupColor(      QColor(255, 255, 255));
+    setEllipseMarkupColor(   QColor(255, 127, 255));
 
     QObject::connect( videoWidget, SIGNAL( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint, unsigned int ) ),
                       this,        SLOT  ( userSelection( imageMarkup::markupIds, bool, bool, QPoint, QPoint, unsigned int )) );
@@ -1263,6 +1264,60 @@ void QEImage::useProfileData( const unsigned int& variableIndex )
                 videoWidget->markupLineProfileChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
             }
             break;
+    }
+}
+
+/*
+    Update the Ellipse displays if any
+    This is the slot used to recieve data updates from a QCaObject based class.
+ */
+void QEImage::setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex)
+{
+    // If invalid, mark the appropriate profile info as not present
+    if( alarmInfo.isInvalid() )
+    {
+        switch( variableIndex )
+        {
+            case ELLIPSE_X1_VARIABLE: ellipseInfo.clearX1(); break;
+            case ELLIPSE_Y1_VARIABLE: ellipseInfo.clearY1(); break;
+            case ELLIPSE_X2_VARIABLE: ellipseInfo.clearX2(); break;
+            case ELLIPSE_Y2_VARIABLE: ellipseInfo.clearY2(); break;
+        }
+    }
+
+    // Good data. Save the ellipse data (and note it is present) then if the
+    // markup is visible, update it
+    else
+    {
+        // Save the ellipse data
+        switch( variableIndex )
+        {
+            case ELLIPSE_X1_VARIABLE: ellipseInfo.setX1( value ); break;
+            case ELLIPSE_Y1_VARIABLE: ellipseInfo.setY1( value ); break;
+            case ELLIPSE_X2_VARIABLE: ellipseInfo.setX2( value ); break;
+            case ELLIPSE_Y2_VARIABLE: ellipseInfo.setY2( value ); break;
+        }
+
+        // If there is an image, present the ellipse data
+        // (if there is no image, the profile data will be used when one arrives)
+        if( videoWidget->hasCurrentImage() )
+        {
+            useEllipseData( variableIndex );
+        }
+    }
+}
+
+// Apply the ellipse data.
+// This can be done once all ellipse data is available and an image is available
+// (the image is needed to determine scaling)
+void QEImage::useEllipseData( const unsigned int& /*variableIndex*/ )
+{
+    if( ellipseInfo.getStatus() )
+    {
+        QRect scaledArea = ellipseInfo.getArea();
+        scaledArea.setTopLeft( videoWidget->scaleImagePoint( scaledArea.topLeft() ) );
+        scaledArea.setBottomRight( videoWidget->scaleImagePoint( scaledArea.bottomRight() ) );
+        videoWidget->markupEllipseValueChange( scaledArea.topLeft(), scaledArea.bottomRight(), displayMarkups );
     }
 }
 
@@ -3245,6 +3300,17 @@ void QEImage::setBeamMarkupColor(QColor markupColor )
 QColor QEImage::getBeamMarkupColor()
 {
     return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_BEAM );
+}
+
+// Ellipse markup colour
+void QEImage::setEllipseMarkupColor(QColor markupColor )
+{
+    videoWidget->setMarkupColor( imageMarkup::MARKUP_ID_ELLIPSE, markupColor );
+}
+
+QColor QEImage::getEllipseMarkupColor()
+{
+    return videoWidget->getMarkupColor( imageMarkup::MARKUP_ID_ELLIPSE );
 }
 
 // Display the button bar

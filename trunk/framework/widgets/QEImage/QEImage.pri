@@ -43,6 +43,7 @@ HEADERS += \
     widgets/QEImage/markupRegion.h \
     widgets/QEImage/markupTarget.h \
     widgets/QEImage/markupText.h \
+    widgets/QEImage/markupEllipse.h \
     widgets/QEImage/brightnessContrast.h \
     widgets/QEImage/QEImageOptionsDialog.h \
     widgets/QEImage/QEImageMarkupThickness.h
@@ -67,6 +68,7 @@ SOURCES += \
     widgets/QEImage/markupRegion.cpp \
     widgets/QEImage/markupTarget.cpp \
     widgets/QEImage/markupText.cpp \
+    widgets/QEImage/markupEllipse.cpp \
     widgets/QEImage/brightnessContrast.cpp \
     widgets/QEImage/QEImageOptionsDialog.cpp \
     widgets/QEImage/QEImageMarkupThickness.cpp

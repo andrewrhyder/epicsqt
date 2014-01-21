@@ -245,6 +245,9 @@ public:
     void setTimeMarkupColor(QColor pValue);                             ///< Access function for #timeColor property - refer to #timeColor property for details
     QColor getTimeMarkupColor();                                        ///< Access function for #timeColor property - refer to #timeColor property for details
 
+    void setEllipseMarkupColor(QColor markupColor );                    ///< Access function for ellipseColor property - refer to #ellipseColor property for details
+    QColor getEllipseMarkupColor();                                     ///< Access function for #ellipseColor property - refer to #ellipseColor property for details
+
     void setDisplayCursorPixelInfo( bool displayCursorPixelInfo );      ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
     bool getDisplayCursorPixelInfo();                                   ///< Access function for #displayCursorPixelInfo property - refer to #displayCursorPixelInfo property for details
 
@@ -349,9 +352,12 @@ public:
                           BEAM_X_VARIABLE, BEAM_Y_VARIABLE,
                           TARGET_TRIGGER_VARIABLE,
                           CLIPPING_ONOFF_VARIABLE, CLIPPING_LOW_VARIABLE, CLIPPING_HIGH_VARIABLE,
-                          PROFILE_H_VARIABLE, PROFILE_V_VARIABLE,
-                          LINE_PROFILE_X1_VARIABLE, LINE_PROFILE_Y1_VARIABLE, LINE_PROFILE_X2_VARIABLE, LINE_PROFILE_Y2_VARIABLE,
+                          PROFILE_H_VARIABLE, PROFILE_H_THICKNESS_VARIABLE,
+                          PROFILE_V_VARIABLE, PROFILE_V_THICKNESS_VARIABLE,
+                          LINE_PROFILE_X1_VARIABLE, LINE_PROFILE_Y1_VARIABLE, LINE_PROFILE_X2_VARIABLE, LINE_PROFILE_Y2_VARIABLE, LINE_PROFILE_THICKNESS_VARIABLE,
                           PROFILE_H_ARRAY, PROFILE_V_ARRAY, PROFILE_LINE_ARRAY,
+                          ELLIPSE_X1_VARIABLE, ELLIPSE_Y1_VARIABLE, ELLIPSE_X2_VARIABLE, ELLIPSE_Y2_VARIABLE,
+
                           QEIMAGE_NUM_VARIABLES /*Must be last*/ };
 
     resizeOptions resizeOption; // Resize option. (zoom or fit)
@@ -378,6 +384,7 @@ private slots:
     void setROI( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setProfile( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
     void setTargeting( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
+    void setEllipse( const long& value, QCaAlarmInfo& alarmInfo, QCaDateTime&, const unsigned int& variableIndex);
 
     // Menu choice slots
     void vSliceSelectModeClicked();
@@ -471,6 +478,7 @@ public slots:
 //    void useAllMarkupData();
     void useROIData( const unsigned int& variableIndex );
     void useProfileData( const unsigned int& variableIndex );
+    void useEllipseData( const unsigned int& variableIndex );
 
 
 
@@ -588,6 +596,7 @@ public slots:
     unsigned int hSliceThickness;
 
     areaInfo lineProfileInfo;
+    areaInfo ellipseInfo;
     QPoint profileLineStart;
     QPoint profileLineEnd;
     unsigned int profileThickness;
@@ -889,43 +898,78 @@ protected:
 
     VARIABLE_PROPERTY_ACCESS(34)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile.
-    Q_PROPERTY(QString profileVertVariable READ getVariableName34Property WRITE setVariableName34Property)
+    /// This variable is used to write the areadetector horizontal profile thickness.
+    Q_PROPERTY(QString profileHozThicknessVariable READ getVariableName34Property WRITE setVariableName34Property)
 
     VARIABLE_PROPERTY_ACCESS(35)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile start X.
-    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName35Property WRITE setVariableName35Property)
+    /// This variable is used to write the areadetector vertical profile.
+    Q_PROPERTY(QString profileVertVariable READ getVariableName35Property WRITE setVariableName35Property)
 
     VARIABLE_PROPERTY_ACCESS(36)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile start Y.
-    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName36Property WRITE setVariableName36Property)
+    /// This variable is used to write the areadetector vertical profile.
+    Q_PROPERTY(QString profileVertThicknessVariable READ getVariableName36Property WRITE setVariableName36Property)
 
     VARIABLE_PROPERTY_ACCESS(37)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end X.
-    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName37Property WRITE setVariableName37Property)
+    /// This variable is used to write the areadetector arbitrary line profile start X.
+    Q_PROPERTY(QString lineProfileX1Variable READ getVariableName37Property WRITE setVariableName37Property)
 
     VARIABLE_PROPERTY_ACCESS(38)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector arbitrary line profile end Y.
-    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName38Property WRITE setVariableName38Property)
+    /// This variable is used to write the areadetector arbitrary line profile start Y.
+    Q_PROPERTY(QString lineProfileY1Variable READ getVariableName38Property WRITE setVariableName38Property)
 
     VARIABLE_PROPERTY_ACCESS(39)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector horizontal profile array.
-    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName39Property WRITE setVariableName39Property)
+    /// This variable is used to write the areadetector arbitrary line profile end X.
+    Q_PROPERTY(QString lineProfileX2Variable READ getVariableName39Property WRITE setVariableName39Property)
 
     VARIABLE_PROPERTY_ACCESS(40)
     /// EPICS variable name (CA PV).
-    /// This variable is used to write the areadetector vertical profile array.
-    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName40Property WRITE setVariableName40Property)
+    /// This variable is used to write the areadetector arbitrary line profile end Y.
+    Q_PROPERTY(QString lineProfileY2Variable READ getVariableName40Property WRITE setVariableName40Property)
 
     VARIABLE_PROPERTY_ACCESS(41)
     /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector arbitrary line profile end Y.
+    Q_PROPERTY(QString lineProfileThicknessVariable READ getVariableName41Property WRITE setVariableName41Property)
+
+    VARIABLE_PROPERTY_ACCESS(42)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector horizontal profile array.
+    Q_PROPERTY(QString profileHozArrayVariable READ getVariableName42Property WRITE setVariableName42Property)
+
+    VARIABLE_PROPERTY_ACCESS(43)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to write the areadetector vertical profile array.
+    Q_PROPERTY(QString profileVertArrayVariable READ getVariableName43Property WRITE setVariableName43Property)
+
+    VARIABLE_PROPERTY_ACCESS(44)
+    /// EPICS variable name (CA PV).
     /// This variable is used to write the areadetector arbitrary line profile array.
-    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName41Property WRITE setVariableName41Property)
+    Q_PROPERTY(QString lineProfileArrayVariable READ getVariableName44Property WRITE setVariableName44Property)
+
+    VARIABLE_PROPERTY_ACCESS(45)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse start X.
+    Q_PROPERTY(QString ellipseX1Variable READ getVariableName45Property WRITE setVariableName45Property)
+
+    VARIABLE_PROPERTY_ACCESS(46)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse start Y.
+    Q_PROPERTY(QString ellipseY1Variable READ getVariableName46Property WRITE setVariableName46Property)
+
+    VARIABLE_PROPERTY_ACCESS(47)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse end X.
+    Q_PROPERTY(QString ellipseX2Variable READ getVariableName47Property WRITE setVariableName47Property)
+
+    VARIABLE_PROPERTY_ACCESS(48)
+    /// EPICS variable name (CA PV).
+    /// This variable is used to read an ellipse end Y.
+    Q_PROPERTY(QString ellipseY2Variable READ getVariableName48Property WRITE setVariableName48Property)
 
     /// Macro substitutions. The default is no substitutions. The format is NAME1=VALUE1[,] NAME2=VALUE2... Values may be quoted strings. For example, 'CAM=1, NAME = "Image 1"'
     /// These substitutions are applied to all the variable names.
@@ -1176,6 +1220,10 @@ public:
     /// Used to select the color of the timestamp.
     ///
     Q_PROPERTY(QColor timeColor READ getTimeMarkupColor WRITE setTimeMarkupColor)
+
+    /// Used to select the color of the ellipse marker.
+    ///
+    Q_PROPERTY(QColor ellipseColor READ getEllipseMarkupColor WRITE setEllipseMarkupColor)
 
 
     Q_ENUMS(ResizeOptions)
