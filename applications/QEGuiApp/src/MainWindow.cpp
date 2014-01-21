@@ -1170,10 +1170,7 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
     addDockWidget(dockLocation, dock);
 
     // If tabbed, tabify the dock
-    if( createOption == QEActionRequests::OptionTopDockWindowTabbed ||
-        createOption == QEActionRequests::OptionBottomDockWindowTabbed ||
-        createOption == QEActionRequests::OptionLeftDockWindowTabbed ||
-        createOption == QEActionRequests::OptionRightDockWindowTabbed )
+    if( QEActionRequests::isTabbedDockCreationOption( createOption ) )
     {
         QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
         for( int i = 0; i < dockWidgets.count(); i++ )
@@ -1202,6 +1199,10 @@ void MainWindow::loadGuiIntoNewDock( QEForm* gui,
 
     // Initialise customisation items.
     app->getMainWindowCustomisations()->initialise( &customisationInfo );
+
+    // Signal to the customisation system that a dock has been created.
+    // The customisation system may need to use 'dock toggle' action from the dock in a menu.
+    emit dockCreated( dock );
 }
 
 // Translate a creation option to a dock location.
@@ -1488,6 +1489,10 @@ void  MainWindow::requestAction( const QEActionRequests & request )
 
                     // Set hidden if required
                     dock->setVisible( !component->hidden );
+
+                    // Record that this dock has been added
+                    // This may be used by the customisation system to link a menu item to this dock.
+                    dockedComponents.insert( component->title, dock );
                 }
             }
             break;
@@ -1694,7 +1699,7 @@ QEForm* MainWindow::createGui( QString fileName, QString customisationName, QStr
         }
 
         // Load any required window customisation
-        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, clearExistingCustomisations );
+        app->getMainWindowCustomisations()->applyCustomisation( this, customisationName, &customisationInfo, clearExistingCustomisations, dockedComponents );
 
         // Use whatever placeholder menus are available (for example, populate a 'Recent' menu if present)
         setupPlaceholderMenus();

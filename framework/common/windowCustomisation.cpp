@@ -41,6 +41,7 @@
 #include <QMenuBar>
 #include <QToolBar>
 #include <QEWidget.h>
+#include <QDockWidget>
 
 //==============================================================================================
 // windowCustomisationItem
@@ -49,6 +50,7 @@
 // Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
 windowCustomisationItem::windowCustomisationItem() : QAction( 0 )
 {
+    dock = NULL;
 //    creationOption = QEActionRequests::OptionNewWindow;
 }
 
@@ -56,6 +58,7 @@ windowCustomisationItem::windowCustomisationItem() : QAction( 0 )
 windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn )
                                                   : QAction( 0 )
 {
+    dock = NULL;
 //    creationOption = QEActionRequests::OptionNewWindow;
     builtInAction = builtInActionIn;
 }
@@ -64,6 +67,7 @@ windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn,
                                                   const QString widgetNameIn )                           // widget name if built in function is for a widget, not the application
                                                   : QAction( 0 )
 {
+    dock = NULL;
 //    creationOption = QEActionRequests::OptionNewWindow;
     builtInAction = builtInActionIn;
     widgetName = widgetNameIn;
@@ -77,6 +81,7 @@ windowCustomisationItem::windowCustomisationItem(
     const QStringList argumentsIn )                      // Arguments for 'program'
          : QAction( 0 )
 {
+    dock = NULL;
     // Save the item details
     for( int i = 0; i < windowsIn.count(); i++ )
     {
@@ -89,6 +94,7 @@ windowCustomisationItem::windowCustomisationItem(
 // Construct instance of class defining an individual item (base class for button )or menu item)
 windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item): QAction( 0 )
 {
+    dock = NULL;
     // Save the item details
     for( int i = 0; i < item->windows.count(); i++ )
     {
@@ -99,6 +105,15 @@ windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item):
     builtInAction = item->getBuiltInAction();
 
     widgetName = item->widgetName;
+
+    dockTitle = item->dockTitle;
+}
+
+// Construct instance of class defining a link to an existing dock
+windowCustomisationItem::windowCustomisationItem( const QString dockTitleIn, bool /*unused*/ ): QAction( 0 )
+{
+    dock = NULL;
+    dockTitle = dockTitleIn;
 }
 
 // A menu item or button has been created, let the application or widget know about it
@@ -109,6 +124,19 @@ void windowCustomisationItem::initialise()
         emit newGui( QEActionRequests( builtInAction, widgetName, arguments, true, this ) );
     }
 }
+
+// Return true if at least one dock is created by this item
+bool windowCustomisationItem::createsDocks()
+ {
+     for( int i = 0; i < windows.count(); i++ )
+     {
+         if( QEActionRequests::isDockCreationOption( windows.at(i).creationOption ) )
+         {
+             return true;
+         }
+     }
+     return false;
+ }
 
 // A user has triggered the menu item or button
 void windowCustomisationItem::itemAction()
@@ -136,6 +164,17 @@ void windowCustomisationItem::itemAction()
     }
 }
 
+// Note a reference to a dock that has just been created by the application.
+// This reference is used when creating menu items. When creating a menu item
+// that creates a dock, a 'toggle view' action from the dock noted here is used
+// as the action for the menu item
+void windowCustomisationItem::useDock( QDockWidget* dockIn )
+{
+    // Note the dock just created
+    dock = dockIn;
+}
+
+
 //==============================================================================================
 // windowCustomisationMenuItem
 //==============================================================================================
@@ -159,7 +198,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     separator = separatorIn;
 }
 
-// Construct instance of class defining a placeholder for items the application might add
+// Construct instance of class defining an item that will request the application (or a QE widget) take a named action
 windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Title for this item. for example: 'Region 1' Usually same as name of built in function. (for example, function='Copy' and title='Copy', but may be different (function='LaunchApplication1' and title='paint.exe')
@@ -177,7 +216,7 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     separator = separatorIn;
 }
 
-// Construct instance of class defining a placeholder for items the application might add
+// Construct instance of class defining an item that will be a placeholder. The application can locate placeholder menu items and use them directly
 windowCustomisationMenuItem::windowCustomisationMenuItem(
                           const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
                           const QString titleIn,                               // Identifier of placeholder. for example: 'Recent'
@@ -191,6 +230,23 @@ windowCustomisationMenuItem::windowCustomisationMenuItem(
     title = titleIn;
     separator = separatorIn;
 }
+
+// Construct instance of class defining an item that will be associated with an existing dock (assocaition is by dock title)
+windowCustomisationMenuItem::windowCustomisationMenuItem(
+                      const QStringList menuHierarchyIn,                   // Location in menus for application to place future items. for example: 'File' -> 'Recent'
+                      const QString titleIn,                               // Title for this item. for example: 'Brightness/Contrast' Must match the title of the dock widget it is to be associated with.
+                      const menuObjectTypes typeIn,                        // type of menu object - must be MENU_ITEM
+                      const bool separatorIn,                              // Separator required before this
+
+                      const QString dockTitleIn )                          // Title of existing dock widget to assocaite the menu item with
+                      : windowCustomisationItem( dockTitleIn, true )
+{
+    type = typeIn;
+    menuHierarchy = menuHierarchyIn;
+    title = titleIn;
+    separator = separatorIn;
+}
+
 
 // Copy constructor
 windowCustomisationMenuItem::windowCustomisationMenuItem(windowCustomisationMenuItem* menuItem)                  // New window customisation name (menu, buttons, etc)
@@ -553,7 +609,8 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                                                       QString& builtIn,
                                                       QString& program,
                                                       QString& widgetName,
-                                                      QStringList& arguments )
+                                                      QStringList& arguments,
+                                                      QString& dockTitle )
 {
     title = itemElement.attribute( "Name" );
     if( title.isEmpty() )
@@ -644,57 +701,68 @@ bool windowCustomisationList::parseMenuAndButtonItem( QDomElement itemElement,
                 windows.append( windowItem );
 
                 // Read any docks to be added to this window
-                parseDockItems( windowElement, windows );
+                parseDockItems( windowElement, windows, dockTitle );
             }
         }
         windowElement = windowElement.nextSiblingElement( "Window" );
     }
 
-    parseDockItems( itemElement, windows );
+    parseDockItems( itemElement, windows, dockTitle );
     return true;
 }
 
-// ???!!!
-void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows )
+// Parse a Dock element.
+// If the dock has a title, return the title: This item is to be linked to a pre-existing dock with the given title.
+// If the dock has a UI file, return a single 'window creation list item' containing the UI file to be opened as a dock.
+void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<windowCreationListItem>& windows, QString& dockTitle )
 {
-    // Read Docks to create
+    // Get the dock element
     QDomElement dockElement = itemElement.firstChildElement( "Dock" );
-    while( !dockElement.isNull() )
+    if( dockElement.isNull() )
     {
-        // Read UiFile name
-        QDomElement uiFileElement = dockElement.firstChildElement( "UiFile" );
-        if( !uiFileElement.isNull() )
+        return;
+    }
+
+    // If first Dock has a title, we are not creating one or more windows, we are just linking up with a dock with the given title.
+    QDomElement titleElement = dockElement.firstChildElement( "Title" );
+    if( !titleElement.isNull() )
+    {
+        dockTitle = titleElement.text();
+        return;
+    }
+
+    // If first Dock has a UI file, note the UI file name and other details required for starting a new GUI as a dock.
+    QDomElement uiFileElement = dockElement.firstChildElement( "UiFile" );
+    if( !uiFileElement.isNull() )
+    {
+        QString uiFile = uiFileElement.text();
+        if( !uiFile.isEmpty() )
         {
-            QString uiFile = uiFileElement.text();
-            if( !uiFile.isEmpty() )
+            windowCreationListItem windowItem;
+            windowItem.uiFile = uiFile;
+
+            QDomElement macroSubstitutionsElement = dockElement.firstChildElement( "MacroSubstitutions" );
+            if( !macroSubstitutionsElement.isNull() )
             {
-                windowCreationListItem windowItem;
-                windowItem.uiFile = uiFile;
-
-                QDomElement macroSubstitutionsElement = dockElement.firstChildElement( "MacroSubstitutions" );
-                if( !macroSubstitutionsElement.isNull() )
-                {
-                    windowItem.macroSubstitutions = macroSubstitutionsElement.text();
-                }
-
-                QDomElement creationOptionElement = dockElement.firstChildElement( "CreationOption" );
-                windowItem.creationOption = QEActionRequests::OptionFloatingDockWindow;
-
-                if( !creationOptionElement.isNull() )
-                {
-                    windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
-                }
-
-                QDomElement hiddenElement = dockElement.firstChildElement( "Hidden" );
-                if( !hiddenElement.isNull() )
-                {
-                    windowItem.hidden = true;
-                }
-
-                windows.append( windowItem );
+                windowItem.macroSubstitutions = macroSubstitutionsElement.text();
             }
+
+            QDomElement creationOptionElement = dockElement.firstChildElement( "CreationOption" );
+            windowItem.creationOption = QEActionRequests::OptionFloatingDockWindow;
+
+            if( !creationOptionElement.isNull() )
+            {
+                windowItem.creationOption = windowCustomisation::translateCreationOption( creationOptionElement.text() );
+            }
+
+            QDomElement hiddenElement = dockElement.firstChildElement( "Hidden" );
+            if( !hiddenElement.isNull() )
+            {
+                windowItem.hidden = true;
+            }
+
+            windows.append( windowItem );
         }
-        dockElement = dockElement.nextSiblingElement( "Dock" );
     }
 }
 
@@ -702,16 +770,29 @@ void windowCustomisationList::parseDockItems( QDomElement itemElement, QList<win
 // Add details for a menu item to customisation set
 windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElement itemElement, QStringList menuHierarchy)
 {
-    QString title;
-    QString program;
-    QStringList arguments;
-    QList<windowCreationListItem> windows;
-    QString builtIn;
-    QString widgetName;
+    QString title;                          // Menu item title
+    QString program;                        // Program to run when the user selects this menu item
+    QStringList arguments;                  // Arguments to supply to 'program'
+    QList<windowCreationListItem> windows;  // Windows to create (displaying .UI files) when the user selects this menu item
+    QString builtIn;                        // Function (built in to the application, or a QE widget) to call when the user selects this menu item
+    QString widgetName;                     // QE widget name to pass built in function request to. If not provided, the built in function is assumed to be handled by the application
+    QString dockTitle;                      // Title of existing dock to associate this menu item with
 
-    if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments ) )
+    if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments, dockTitle ) )
     {
-        if( !builtIn.isEmpty() )
+        if( !dockTitle.isEmpty() )
+        {
+            // Add details for a existing dock menu item to customisation set
+            windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy,
+                                                                                 title,
+                                                                                 windowCustomisationMenuItem::MENU_ITEM,
+                                                                                 requiresSeparator( itemElement ),
+
+                                                                                 dockTitle );
+            return item;
+
+        }
+        else if( !builtIn.isEmpty() )
         {
             // Add details for a built in menu item to customisation set
             windowCustomisationMenuItem* item = new windowCustomisationMenuItem( menuHierarchy,
@@ -764,17 +845,16 @@ windowCustomisationMenuItem* windowCustomisationList::createMenuItem( QDomElemen
 //        buttonIcon = list.at(0).toElement().text();
 //    }
 
-        QString title;
-         QString program;
-         QStringList arguments;
-         QString macroSubstitutions;
-         QString customisationName;
-         QList<windowCreationListItem> windows;
-         QString builtIn;
-         QString widgetName;
+    QString title;                          // Menu item title
+    QString program;                        // Program to run when the user selects this menu item
+    QStringList arguments;                  // Arguments to supply to 'program'
+    QList<windowCreationListItem> windows;  // Windows to create (displaying .UI files) when the user selects this menu item
+    QString builtIn;                        // Function (built in to the application, or a QE widget) to call when the user selects this menu item
+    QString widgetName;                     // QE widget name to pass built in function request to. If not provided, the built in function is assumed to be handled by the application
+    QString dockTitle;                      // Title of existing dock to associate this menu item with
 
 
-         if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments ) )
+         if( parseMenuAndButtonItem( itemElement, title, windows, builtIn, program, widgetName, arguments, dockTitle ) )
          {
              // Add details for a button item to customisation set
              windowCustomisationButtonItem* item = new windowCustomisationButtonItem(buttonGroup, title, buttonIcon, NULL/*!!! needs launch receiver object*/, windows, program,
@@ -916,7 +996,7 @@ void windowCustomisationList::initialise( windowCustomisationInfo* customisation
 
 // Add the named customisation to a main window.
 // Return true if named customisation found and loaded.
-void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting )
+void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString customisationName, windowCustomisationInfo* customisationInfo, bool clearExisting, dockMap dockedComponents )
 {
     // Clear the existing customisation if requested (but only if we have a customisation name to replace it with)
     if( !customisationName.isEmpty() && clearExisting )
@@ -984,26 +1064,82 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                 break;
 
             case windowCustomisationMenuItem::MENU_ITEM:
-                // Add the item to the correct menu
-                if( menu )
                 {
-                    if( menuItem->hasSeparator() )
+                    // Set up an action to respond to the user
+                    QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
+                                      mw, SLOT( requestAction( const QEActionRequests& ) ) );
+
+                    // Assume the action to add is the menuItem action itself.
+                    // (This default will be required if a dock is created, but a toggle action could not be obtained from it)
+                    QAction* action = menuItem;
+
+                    if( !menuItem->getDockTitle().isEmpty() )
                     {
-                        menu->addSeparator();
+                        QDockWidget* component =  dockedComponents.value( menuItem->getDockTitle(), NULL );
+
+                        // Use the dock toggle action from the existing dock matching the title as the menu action
+                        if( component )
+                        {
+                            action =  component->toggleViewAction();
+                        }
+                        else
+                        {
+                            QMapIterator<QString, QDockWidget*> i(dockedComponents);
+                            qDebug() << "When applying window customisations, could not find a dock titled: " << menuItem->getDockTitle() << ". Dock titles found were:";
+                            while (i.hasNext())
+                            {
+                                i.next();
+                                qDebug() << "   " << i.key();
+                             }
+
+                        }
+
+
+                        qDebug() << "attaching item to dock titled: " << menuItem->getDockTitle();
                     }
-                    menu->addAction( menuItem );
-                }
 
-                // Or add the item to the menu bar, if not in a menu
-                // (Unusual, but OK)
-                else
-                {
-                    mw->menuBar()->addAction( menuItem );
-                }
+                    // If the menu item creates at least one dock. Activate the item, locate the dock created,
+                    // and add the action provided by the dock for hiding and showing the dock.
+                    else if( menuItem->createsDocks() )
+                    {
+                        // Prepare to catch a reference to the newly created dock.
+                        QObject::connect( mw, SIGNAL( dockCreated( QDockWidget* ) ),
+                                          menuItem, SLOT( useDock( QDockWidget* ) ) );
 
-                // Set up an action to respond to the user
-                QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
-                                  mw, SLOT( requestAction( const QEActionRequests& ) ) );
+                        // Create the dock
+                        menuItem->dock = NULL;
+                        menuItem->itemAction();
+
+                        // Use the newly created dock's toggle action as the menu action
+                        if( menuItem->dock )
+                        {
+                            action =  menuItem->dock->toggleViewAction();
+                        }
+
+                        // Don't keep the reference to the dock as we are not in control of its demise.
+                        menuItem->dock = NULL;
+                    }
+
+                    // Add the item action to the correct menu
+                    if( menu )
+                    {
+                        if( menuItem->hasSeparator() )
+                        {
+                            menu->addSeparator();
+                        }
+                        if( action )
+                        {
+                            menu->addAction( action );
+                        }
+                    }
+
+                    // Or add the item action to the menu bar, if not in a menu
+                    // (Unusual, but OK)
+                    else
+                    {
+                        mw->menuBar()->addAction( action );
+                    }
+                }
                 break;
 
             case windowCustomisationMenuItem::MENU_PLACEHOLDER:

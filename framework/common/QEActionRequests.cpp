@@ -214,6 +214,64 @@ QString QEActionRequests::getCustomisation() const
 }
 
 //---------------------------------------------------------------------------//
+// Return true if creation option creates a dock
+bool QEActionRequests::isDockCreationOption( const Options createOption )
+{
+    // Use a switch so compiler can complain if all cases are not considered
+    bool result = false;
+    switch( createOption )
+    {
+        case OptionOpen:
+        case OptionNewTab:
+        case OptionNewWindow:
+            result = false;
+            break;
+
+        case OptionTopDockWindow:
+        case OptionBottomDockWindow:
+        case OptionLeftDockWindow:
+        case OptionRightDockWindow:
+        case OptionTopDockWindowTabbed:
+        case OptionBottomDockWindowTabbed:
+        case OptionLeftDockWindowTabbed:
+        case OptionRightDockWindowTabbed:
+        case OptionFloatingDockWindow:
+            result = true;
+            break;
+    }
+    return result;
+}
+
+//---------------------------------------------------------------------------//
+// Creation option creates a tabbed dock
+bool QEActionRequests::isTabbedDockCreationOption( const Options createOption )
+{
+    // Use a switch so compiler can complain if all cases are not considered
+    bool result = false;
+    switch( createOption )
+    {
+        case OptionOpen:
+        case OptionNewTab:
+        case OptionNewWindow:
+        case OptionTopDockWindow:
+        case OptionBottomDockWindow:
+        case OptionLeftDockWindow:
+        case OptionRightDockWindow:
+        case OptionFloatingDockWindow:
+            result = false;
+            break;
+
+        case OptionTopDockWindowTabbed:
+        case OptionBottomDockWindowTabbed:
+        case OptionLeftDockWindowTabbed:
+        case OptionRightDockWindowTabbed:
+            result = true;
+            break;
+    }
+    return result;
+}
+
+//---------------------------------------------------------------------------//
 //
 QList<windowCreationListItem> QEActionRequests::getWindows() const
 {
