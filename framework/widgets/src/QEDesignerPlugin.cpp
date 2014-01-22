@@ -57,6 +57,7 @@
 #include <QEFormManager.h>
 #include <QEFormGridManager.h>
 #include <QEFrameManager.h>
+#include <QEGeneralEditManager.h>
 #include <QEGroupBoxManager.h>
 #include <QEFileImageManager.h>
 #include <QESimpleShapeManager.h>
@@ -103,6 +104,7 @@ QEWidgets::QEWidgets(QObject *parent) : QObject(parent) {
     widgets.append(new QEFileImageManager(this));
     widgets.append(new QEFormManager(this));
     widgets.append(new QEFormGridManager(this));
+    widgets.append(new QEGeneralEditManager(this));
     widgets.append(new QEImageManager(this));
     widgets.append(new QELabelManager(this));
     widgets.append(new QELineEditManager(this));
