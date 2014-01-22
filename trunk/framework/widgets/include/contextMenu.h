@@ -69,6 +69,7 @@ public:
                              CM_SHOW_PV_PROPERTIES,
                              CM_ADD_TO_STRIPCHART,
                              CM_ADD_TO_SCRATCH_PAD,
+                             CM_GENERAL_PV_EDIT,
                              CM_SPECIFIC_WIDGETS_START_HERE };
     void setupContextMenu();                            // Set up the standard QE context menu for a QE widget (conextMenu class is a base class for all QE widgets, but a menu is only available to users if this is called)
     bool isDraggingVariable();                          // Return the global 'is dragging variable' flag (Dragging variable is true, draging data if false)
@@ -92,6 +93,7 @@ private:
     void doShowPvProperties();                          // 'Show Properties' was selected from the menu
     void doAddToStripChart();                           // 'Add to strip chart' was selected from the menu
     void doAddToScratchPad();                           // 'Add to scratch pad' was selected from the menu
+    void doGeneralPVEdit();                             // 'Add to scratch pad' was selected from the menu
     static bool draggingVariable;                       // Global 'dragging variable' flag (dragging data if false)
     QEWidget* qew;                                      // QEWidget associated with this instance
     bool hasConsumer;                                   // A launch consumer has been set (it is ok to present menu options that require application support to receive signals to, for example, start a strip chart
