@@ -107,7 +107,6 @@ public:
 public:
     double getNumericValue ();
 
-protected:
     // Property set and get functions.
     void setAutoScale (const bool value);
     bool getAutoScale ();
