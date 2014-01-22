@@ -85,19 +85,20 @@ DEPENDPATH += ../../framework/common
 LIBS += -L../../framework/designer -lQEPlugin
 
 FORMS += ./src/MainWindow.ui \
-         ./src/PVProperties.ui \
-         ./src/StripChart.ui \
          ./src/MessageLog.ui \
-         ./src/Plotter.ui \
-         ./src/ScratchPad.ui \
-         ./src/ArchiveStatus.ui \
-         ./src/ArchiveNameSearch.ui \
          ./src/saveDialog.ui \
          ./src/restoreDialog.ui \
          ./src/manageConfigDialog.ui \
-    src/aboutDialog.ui
+         ./src/aboutDialog.ui
 
 OTHER_FILES += \
+         ./src/General_PV_Edit.ui \
+         ./src/Plotter.ui \
+         ./src/PVProperties.ui \
+         ./src/StripChart.ui \
+         ./src/ScratchPad.ui \
+         ./src/ArchiveStatus.ui \
+         ./src/ArchiveNameSearch.ui \
          ./src/QEGuiCustomisationDefault.xml \
          ./src/help_usage.txt \
          ./src/help_general.txt
