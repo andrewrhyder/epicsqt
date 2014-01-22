@@ -192,7 +192,7 @@ private:
    bool showSign ();
    bool cursorOverSign ();
 
-   void setNumericValue (const double value);
+   void setNumericValue (const double value, const bool userUpdate);  // as opposed to system update
 
    void setNumericText ();          // Calls parent class setText using string from imageOfValue.
    void setDigitSelection ();       // high-lights selected digit
