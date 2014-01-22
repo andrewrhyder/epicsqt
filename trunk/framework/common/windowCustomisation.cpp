@@ -50,7 +50,8 @@
 // Construct instance of class defining an individual item when none exists (for example, a menu placeholder)
 windowCustomisationItem::windowCustomisationItem() : QAction( 0 )
 {
-    dock = NULL;
+    profile.takeLocalCopy();
+
 //    creationOption = QEActionRequests::OptionNewWindow;
 }
 
@@ -58,8 +59,8 @@ windowCustomisationItem::windowCustomisationItem() : QAction( 0 )
 windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn )
                                                   : QAction( 0 )
 {
-    dock = NULL;
-//    creationOption = QEActionRequests::OptionNewWindow;
+    profile.takeLocalCopy();
+
     builtInAction = builtInActionIn;
 }
 
@@ -67,8 +68,8 @@ windowCustomisationItem::windowCustomisationItem( const QString builtInActionIn,
                                                   const QString widgetNameIn )                           // widget name if built in function is for a widget, not the application
                                                   : QAction( 0 )
 {
-    dock = NULL;
-//    creationOption = QEActionRequests::OptionNewWindow;
+    profile.takeLocalCopy();
+
     builtInAction = builtInActionIn;
     widgetName = widgetNameIn;
 }
@@ -81,7 +82,8 @@ windowCustomisationItem::windowCustomisationItem(
     const QStringList argumentsIn )                      // Arguments for 'program'
          : QAction( 0 )
 {
-    dock = NULL;
+    profile.takeLocalCopy();
+
     // Save the item details
     for( int i = 0; i < windowsIn.count(); i++ )
     {
@@ -94,7 +96,8 @@ windowCustomisationItem::windowCustomisationItem(
 // Construct instance of class defining an individual item (base class for button )or menu item)
 windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item): QAction( 0 )
 {
-    dock = NULL;
+    profile.takeLocalCopy();
+
     // Save the item details
     for( int i = 0; i < item->windows.count(); i++ )
     {
@@ -112,7 +115,8 @@ windowCustomisationItem::windowCustomisationItem(windowCustomisationItem* item):
 // Construct instance of class defining a link to an existing dock
 windowCustomisationItem::windowCustomisationItem( const QString dockTitleIn, bool /*unused*/ ): QAction( 0 )
 {
-    dock = NULL;
+    profile.takeLocalCopy();
+
     dockTitle = dockTitleIn;
 }
 
@@ -163,17 +167,6 @@ void windowCustomisationItem::itemAction()
         }
     }
 }
-
-// Note a reference to a dock that has just been created by the application.
-// This reference is used when creating menu items. When creating a menu item
-// that creates a dock, a 'toggle view' action from the dock noted here is used
-// as the action for the menu item
-void windowCustomisationItem::useDock( QDockWidget* dockIn )
-{
-    // Note the dock just created
-    dock = dockIn;
-}
-
 
 //==============================================================================================
 // windowCustomisationMenuItem
@@ -390,6 +383,9 @@ QEActionRequests::Options windowCustomisation::translateCreationOption( QString 
 
 windowCustomisationList::windowCustomisationList()
 {
+    // Initialise
+    toBeActivatedMW = NULL;
+    toBeActivatedMenu = NULL;
 
     // Load QE widget customisations.
     loadCustomisation( ":/qe/configuration/QEImageCustomisationDefault.xml" );
@@ -1069,9 +1065,9 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                     QObject::connect( menuItem, SIGNAL( newGui( const QEActionRequests& ) ),
                                       mw, SLOT( requestAction( const QEActionRequests& ) ) );
 
-                    // Assume the action to add is the menuItem action itself.
-                    // (This default will be required if a dock is created, but a toggle action could not be obtained from it)
-                    QAction* action = menuItem;
+                    // Assume there is no action to add yet.
+                    // This will remain the case if a dock is to created and the 'toggle view' action from the dock is required.
+                    QAction* action = NULL;
 
                     if( !menuItem->getDockTitle().isEmpty() )
                     {
@@ -1091,53 +1087,43 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                                 i.next();
                                 qDebug() << "   " << i.key();
                              }
-
                         }
-
-
-                        qDebug() << "attaching item to dock titled: " << menuItem->getDockTitle();
                     }
 
-                    // If the menu item creates at least one dock. Activate the item, locate the dock created,
-                    // and add the action provided by the dock for hiding and showing the dock.
+                    // If the menu item creates at least one dock, prepare to activate the item (which will create the docked GUI).
+                    // Once activated the dock's 'toggle view' action will be added to the menu noted here.
                     else if( menuItem->createsDocks() )
                     {
-                        // Prepare to catch a reference to the newly created dock.
-                        QObject::connect( mw, SIGNAL( dockCreated( QDockWidget* ) ),
-                                          menuItem, SLOT( useDock( QDockWidget* ) ) );
-
-                        // Create the dock
-                        menuItem->dock = NULL;
-                        menuItem->itemAction();
-
-                        // Use the newly created dock's toggle action as the menu action
-                        if( menuItem->dock )
-                        {
-                            action =  menuItem->dock->toggleViewAction();
-                        }
-
-                        // Don't keep the reference to the dock as we are not in control of its demise.
-                        menuItem->dock = NULL;
+                        // Save this menu item, and the associated menu, in a transient list of dock related
+                        // items to be activated as soon as this window's set of customisations has been applied
+                        toBeActivatedList.append(menuItemToBeActivated( menuItem, menu ));
                     }
 
-                    // Add the item action to the correct menu
-                    if( menu )
-                    {
-                        if( menuItem->hasSeparator() )
-                        {
-                            menu->addSeparator();
-                        }
-                        if( action )
-                        {
-                            menu->addAction( action );
-                        }
-                    }
-
-                    // Or add the item action to the menu bar, if not in a menu
-                    // (Unusual, but OK)
+                    // Not dock related, just add the menu item as the action
                     else
                     {
-                        mw->menuBar()->addAction( action );
+                        action = menuItem;
+                    }
+
+                    // If the required action is available, add the item action to the correct menu.
+                    // (it won't be available if the action is the 'toggle view' action of a dock that is yet to be created)
+                    if( action )
+                    {
+                        if( menu )
+                        {
+                            if( menuItem->hasSeparator() )
+                            {
+                                menu->addSeparator();
+                            }
+                            menu->addAction( action );
+                        }
+
+                        // Or add the item action to the menu bar, if not in a menu
+                        // (Unusual, but OK)
+                        else
+                        {
+                            mw->menuBar()->addAction( action );
+                        }
                     }
                 }
                 break;
@@ -1196,4 +1182,74 @@ void windowCustomisationList::applyCustomisation( QMainWindow* mw, QString custo
                 break;
         }
     }
+
+    // Activate any dock related items.
+    // The dock related items have been added to the transient list 'toBeActivatedList'.
+    // NOTE, the action is performed as a timer event not to delay it, but to ensure
+    // is called after this customisation has been applied. This is required since
+    // there is a currenly published profile (published for the creation of the new
+    // window this customisation is being applied to). When the item acction is performed,
+    // it will (if creating a gui) want to publish it's own profile, and can't do so while
+    // one is already published.
+    if( toBeActivatedList.count() )
+    {
+        toBeActivatedMW = mw;
+        QTimer::singleShot( 0, this, SLOT(activateDocks()));
+    }
 }
+
+// Slot to create any docks required to support dock menu items.
+// Docked GUIs are created once customisation has been applied.
+// They are created in this slot as a timer event, not because a delay is required,
+// but to ensure is occurs after the customisation has been applied. This is required since
+// there is a currenly published profile (published for the creation of the new
+// window this customisation is being applied to). When the item acction is performed,
+// it will (if creating a gui) want to publish it's own profile, and can't do so while
+// one is already published.
+void windowCustomisationList::activateDocks()
+{
+    // Sanity check. Do nothing if a main window was not noted
+    if( !toBeActivatedMW )
+    {
+        return;
+    }
+
+    // Prepare to catch signals when a dock is created
+    QObject::connect( toBeActivatedMW, SIGNAL( dockCreated( QDockWidget* ) ),
+                      this, SLOT( useDock( QDockWidget* ) ) );
+
+    // Activate each of the dock related menu items.
+    for( int i = 0; i < toBeActivatedList.count(); i++ )
+    {
+        // Extract the next dock related item from the list
+        menuItemToBeActivated mitba = toBeActivatedList.at(i);
+
+        // Note the menu that an action should be added to
+        toBeActivatedMenu = mitba.menu;
+
+        // Perform the menu action (create the dock)
+        mitba.item->itemAction();
+
+    }
+    QObject::disconnect(toBeActivatedMW, SIGNAL( dockCreated( QDockWidget* ) ), this, SLOT( useDock( QDockWidget* ) ));
+
+    // To prevent accidental missuse, clear the transitory variables that
+    // are only used while the docks are created
+    toBeActivatedList.clear();
+    toBeActivatedMenu = NULL;
+    toBeActivatedMW = NULL;
+}
+
+// A dock has just been created in response to applying a customisation menu item.
+// Add the dock's 'toggle view' action to the appropriate menu
+// NOTE: This will result in all dock 'toggle view' actions appearing at the bottom of the menu.
+// NOTE, Also, if the menu item indicates requests a seperator before this action, this is not honoured
+void windowCustomisationList::useDock( QDockWidget* dock )
+{
+    // Add the dock's 'toggle view' action to the appropriate menu.
+    if( toBeActivatedMenu )
+    {
+        toBeActivatedMenu->addAction( dock->toggleViewAction() );
+    }
+}
+

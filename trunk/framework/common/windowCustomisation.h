@@ -172,7 +172,7 @@ public:
 
     void initialise();
 
-    QDockWidget* dock;                                                      // Temporary reference to a dock (used to suply a 'toggle view' action for a menu item)
+//    QMenu* menu;                                                            // Temporary reference to a menu (updated with 'toggle view' action from dock when dock is created)
 
 private:
     // Item action
@@ -188,7 +188,8 @@ private:
 
 public slots:
     void itemAction();                              // Slot to call when action is triggered
-    void useDock( QDockWidget* );                   // Slot to call when a dock has been created that needs to be linked to a menu item
+//    void itemActionDock( QMainWindow* mw );
+//    void useDock( QDockWidget* );                   // Slot to call when a dock has been created that needs to be linked to a menu item
 signals:
     void newGui( const QEActionRequests& request );
 
@@ -321,11 +322,26 @@ public:
     QList<windowCustomisationMenuItem*> items;
 };
 
+// Class to hold a relationship between a customisation menu item, and an actual QMenu.
+// Used to build a transient list of menus that need to have dock 'toggle view' actions added.
+class menuItemToBeActivated
+{
+public:
+    menuItemToBeActivated( menuItemToBeActivated* other ){ item = other->item; menu = other->menu; }
+    menuItemToBeActivated(){ item = NULL; menu = NULL; }
+    menuItemToBeActivated( windowCustomisationMenuItem* itemIn, QMenu* menuIn ){ item = itemIn; menu = menuIn; }
+
+    windowCustomisationMenuItem* item;  // Customisation item reference
+    QMenu* menu;                        // Menu reference
+    //!!! location required in item (or placeholder of some sort)
+};
+
 // Class managing all customisation sets
 // Only instance of this class is instantiated (unless groups of customisation sets are required)
 // Multiple .xml files may be loaded, each defining one or more named customisations.
-class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationList
+class QEPLUGINLIBRARYSHARED_EXPORT windowCustomisationList : public QObject
 {
+    Q_OBJECT
 public:
     typedef QMap<QString, QDockWidget*> dockMap;                    // Used to pass a list of docks than may be linked to menu items based on the dock title
 
@@ -364,7 +380,15 @@ private:
     QList<windowCustomisation*> customisationList;                         // List of customisations
 //    QList<windowCustomisationMenuItem*> currentItems;
 
+    // Variables to manage setting up 'toggle view' actions from docks created as a result of, but after, the window customisation has been applied.
+    QList<menuItemToBeActivated> toBeActivatedList;     // Transient list of menus and customisation menu items
+    QMainWindow* toBeActivatedMW;                       // Main Window being customised. Used to connect to to receive signals relating to newly created docks
+    QMenu*       toBeActivatedMenu;                     // Menu currently currently waiting on a dock to be created (at which point the dock's 'toggle view' action will be added)
 
+private slots:
+    void activateDocks();                               // Slot to create any docks required to support dock menu items. Docked GUIs are created at the time customisation is applied.
+    void useDock( QDockWidget* dock );                  // Slot to receive notification a docked GUI has been created. Used to then associate the dock's 'toggle view' action to be added to relevent menus
 };
+
 
 #endif // WINDOWCUSTOMISATION_H
