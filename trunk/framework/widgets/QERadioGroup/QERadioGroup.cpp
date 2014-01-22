@@ -394,7 +394,7 @@ void QERadioGroup::setButtonText ()
 //
 void QERadioGroup::setButtonGeometry ()
 {
-   const int tm = 24;           // top margin
+   const int tm = this->title().isEmpty() ? 4 : 20;  // top margin
    const int bm = 4;            // bottom margin
    const int sm = 8;            // side margin
    const int hs = 8;            // horizontal spacing
