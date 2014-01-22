@@ -319,7 +319,7 @@ void QENumericEdit::commonConstructor ()
    // force setNumericValue to process.
    //
    this->firstNumericUpdate = true;
-   this->setNumericValue (0.0);
+   this->setNumericValue (0.0, false);
 }
 
 //------------------------------------------------------------------------------
@@ -516,9 +516,9 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
                }
             }
             delta = pow (dblRadix, significance);
-            this->setNumericValue (this->getNumericValue () + delta);
+            this->setNumericValue (this->getNumericValue () + delta, true);
          } else if (this->cursorOverSign ()) {
-            this->setNumericValue (+fabs (this->getNumericValue ()));
+            this->setNumericValue (+fabs (this->getNumericValue ()), true);
          }
          break;
 
@@ -538,9 +538,9 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
                }
             }
             delta = pow (dblRadix, significance);
-            this->setNumericValue (this->getNumericValue () - delta);
+            this->setNumericValue (this->getNumericValue () - delta, true);
          } else if (this->cursorOverSign ()) {
-            this->setNumericValue (-fabs (this->getNumericValue ()));
+            this->setNumericValue (-fabs (this->getNumericValue ()), true);
          }
          break;
 
@@ -572,9 +572,9 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
       case Qt::Key_Minus:
          if (this->cursorOverSign ()) {
             if (key == Qt::Key_Plus) {
-               this->setNumericValue (+fabs (this->getNumericValue ()));
+               this->setNumericValue (+fabs (this->getNumericValue ()), true);
             } else {
-               this->setNumericValue (-fabs (this->getNumericValue ()));
+               this->setNumericValue (-fabs (this->getNumericValue ()), true);
             }
             this->setCursor (this->getCursor () + 1);
          }
@@ -608,7 +608,7 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
             tryThis [index] = QChar (key);
 
             newval = this->valueOfImage (tryThis);
-            this->setNumericValue (newval);
+            this->setNumericValue (newval, true);
             this->setCursor (this->getCursor () + 1);
 
             // If we have moved onto a filler character, then move again.
@@ -744,7 +744,6 @@ void QENumericEdit::setNumericText ()
 
    this->setText (image);
    this->setDigitSelection ();
-   this->setModified (true);
 }
 
 //------------------------------------------------------------------------------
@@ -815,7 +814,7 @@ bool QENumericEdit::isSignOrDigit (QChar qc)
 
 //------------------------------------------------------------------------------
 //
-void QENumericEdit::setNumericValue (const double value)
+void QENumericEdit::setNumericValue (const double value, const bool userUpdate)
 {
    double limited_value;
 
@@ -824,6 +823,7 @@ void QENumericEdit::setNumericValue (const double value)
    if (this->mValue != limited_value || this->firstNumericUpdate) {
       this->mValue = limited_value;
       this->setNumericText ();
+      if (userUpdate) this->setModified (true);
    }
 }
 
@@ -1087,7 +1087,7 @@ void QENumericEdit::setValue (const QVariant & value)
 
    d = value.toDouble (&ok);
    if (ok) {
-       this->setNumericValue (d);
+       this->setNumericValue (d, false);
    }
 }
 
