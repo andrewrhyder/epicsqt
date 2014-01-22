@@ -180,6 +180,10 @@ private:
    Separators mSeparator;
    double mValue;
 
+   // local copy of testAndClearIsFirstUpdate() call.
+   //
+   bool firstNumericUpdate;
+
    void commonConstructor ();
 
    QString imageOfValue ();         // Generate image of the current value - excludes any EGU.
