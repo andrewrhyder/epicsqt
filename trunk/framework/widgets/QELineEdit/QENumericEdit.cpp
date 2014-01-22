@@ -301,12 +301,15 @@ void QENumericEdit::commonConstructor ()
    this->mRadix = Decimal;
    this->mSeparator = None;
 
+   // Ensure sensible auto values
+   //
    this->propertyPrecision = 4;
    this->propertyLeadingZeros = 3;
    this->propertyMinimum = calcLower (this->mRadix, 3, 4);
    this->propertyMaximum = calcUpper (this->mRadix, 3, 4);
 
    // Ensure sensible auto values
+   // Note: these should be re-calcuated when the first update arrives.
    //
    this->autoPrecision = this->propertyPrecision;
    this->autoLeadingZeros = this->propertyLeadingZeros;
@@ -315,7 +318,7 @@ void QENumericEdit::commonConstructor ()
 
    // force setNumericValue to process.
    //
-   this->mValue = 1.0;
+   this->firstNumericUpdate = true;
    this->setNumericValue (0.0);
 }
 
@@ -380,6 +383,8 @@ void QENumericEdit::establishConnection (unsigned int variableIndex)
       QObject::connect (qca, SIGNAL (floatingChanged (const double &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)),
                         this, SLOT  (setDoubleValue  (const double &, QCaAlarmInfo &, QCaDateTime &, const unsigned int &)));
 
+      // The connectionChanged slot is in parent class.
+      //
       QObject::connect (qca, SIGNAL (connectionChanged (QCaConnectionInfo &)),
                         this, SLOT  (connectionChanged (QCaConnectionInfo &)));
    }
@@ -404,11 +409,13 @@ void QENumericEdit::setDoubleValue (const double& valueIn, QCaAlarmInfo& alarmIn
 
    // Check first update.
    //
-   if (this->testAndClearIsFirstUpdate ()) {
+   this->firstNumericUpdate = this->testAndClearIsFirstUpdate ();
+   if (this->firstNumericUpdate) {
 
       // Check for auto scale and avoid the segment fault.
       //
       if (this->getAutoScale () && (qca)) {
+
          // Do the auto scale calculations.
          //
          double ctrlLow;
@@ -616,6 +623,10 @@ void QENumericEdit::keyPressEvent (QKeyEvent * event)
       case Qt::Key_Space:
          break;
 
+      case Qt::Key_Backspace:
+      case Qt::Key_Delete:
+         break;
+
       default:
          // Only reprocess enter, return etc.
          invokeInherited = (key >= 256);
@@ -726,13 +737,14 @@ void QENumericEdit::setNumericText ()
       }
    }
 
-   // Note: this is an intended side effect.
+   // Note: this has an intended side effect.
    // TODO: Explain this more !!!
    //
    this->setMaxLength (image.length ());
 
    this->setText (image);
    this->setDigitSelection ();
+   this->setModified (true);
 }
 
 //------------------------------------------------------------------------------
@@ -809,7 +821,7 @@ void QENumericEdit::setNumericValue (const double value)
 
    limited_value = LIMIT (value, this->getMinimum (), this->getMaximum ());
 
-   if (this->mValue != limited_value) {
+   if (this->mValue != limited_value || this->firstNumericUpdate) {
       this->mValue = limited_value;
       this->setNumericText ();
    }
