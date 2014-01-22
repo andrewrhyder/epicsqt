@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/qe/gui/forms">
+        <file>General_PV_Edit.ui</file>
         <file>PVProperties.ui</file>
         <file>StripChart.ui</file>
         <file>MessageLog.ui</file>

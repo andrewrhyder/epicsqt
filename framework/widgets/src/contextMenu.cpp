@@ -43,6 +43,7 @@
 #include <QEWidget.h>
 #include <QEScaling.h>
 #include <QAction>
+#include <ContainerProfile.h>
 
 // Flag common to all context menus.
 // true if 'dragging the variable
@@ -51,8 +52,15 @@ bool contextMenu::draggingVariable = true;
 
 //======================================================
 // Methods for QObject based contextMenuObject class
-void contextMenuObject::contextMenuTriggeredSlot( QAction* selectedItem ){ menu->contextMenuTriggered( selectedItem->data().toInt() ); }
-void contextMenuObject::showContextMenuSlot( const QPoint& pos ){ menu->showContextMenu( pos ); }
+void contextMenuObject::contextMenuTriggeredSlot( QAction* selectedItem )
+{
+   menu->contextMenuTriggered( selectedItem->data().toInt() );
+}
+
+void contextMenuObject::showContextMenuSlot( const QPoint& pos )
+{
+   menu->showContextMenu( pos );
+}
 
 //======================================================
 
@@ -113,6 +121,17 @@ QMenu* contextMenu::buildContextMenu()
     a->setChecked( draggingVariable );
     a = new QAction( "Drag data",              menu ); a->setCheckable( true );  a->setData( CM_DRAG_DATA );          menu->addAction( a );
     a->setChecked( !draggingVariable );
+
+    // Add edit PV menu if and only if we are using the engineer use level.
+    bool inEngineeringMode = qew->getUserLevel () == userLevelTypes::USERLEVEL_ENGINEER;
+    if ( inEngineeringMode )
+    {
+       menu->addSeparator();
+       a = new QAction( "Edit PV", menu );
+       a->setCheckable( false );
+       a->setData( CM_GENERAL_PV_EDIT );
+       menu->addAction( a );
+    }
 
     menu->setTitle( "Use..." );
 
@@ -208,6 +227,10 @@ void contextMenu::contextMenuTriggered( int optionNum )
         case  contextMenu::CM_ADD_TO_SCRATCH_PAD:
             doAddToScratchPad();
             break;
+
+       case  contextMenu::CM_GENERAL_PV_EDIT:
+            doGeneralPVEdit();
+            break;
     }
 }
 
@@ -274,6 +297,14 @@ void contextMenu::doAddToScratchPad()
 {
    QString pvName = copyVariable();
    QEActionRequests request( "Scratch Pad...", pvName );
+   object->sendRequestAction( request );
+}
+
+// Request mini general PV edit form.
+void contextMenu::doGeneralPVEdit()
+{
+   QString pvName = copyVariable();
+   QEActionRequests request( "General PV Edit...", pvName );
    object->sendRequestAction( request );
 }
 

@@ -134,9 +134,9 @@ void QEGeneralEdit::createInternalWidgets ()
    this->stringEditWidget->setMinimumSize (342, 23);
    this->verticalLayout->addWidget (this->stringEditWidget);
 
-   this->numericEditWidget->setVisible (false);
-   this->radioGroupPanel->setVisible (false);
-   this->stringEditWidget->setVisible (false);
+   this->numericEditWidget->setRunVisible (false);
+   this->radioGroupPanel->setRunVisible (false);
+   this->stringEditWidget->setRunVisible (false);
 }
 
 
@@ -221,9 +221,9 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
       pvName = this->getSubstitutedVariableName (0).trimmed ();
       this->valueLabel->setVariableNameAndSubstitutions (pvName, "", 0);
 
-      this->numericEditWidget->setVisible (false);
-      this->radioGroupPanel->setVisible (false);
-      this->stringEditWidget->setVisible (false);
+      this->numericEditWidget->setRunVisible (false);
+      this->radioGroupPanel->setRunVisible (false);
+      this->stringEditWidget->setRunVisible (false);
 
       // Use data type to figure out which type of editting widget is most
       // appropriate.
@@ -270,7 +270,7 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
 
          this->pvNameLabel->setText (pvName);
 
-         useThisWidget->setVisible (true);
+         qeWidget->setRunVisible (true);
          qeWidget->setVariableNameAndSubstitutions (pvName, "", 0);
 
          int newHeight =

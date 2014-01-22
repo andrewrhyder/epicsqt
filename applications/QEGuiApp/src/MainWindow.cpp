@@ -1359,6 +1359,7 @@ MainWindow* MainWindow::launchGui( QString guiName, QString customisationName, Q
 void MainWindow::createActionMaps()
 {
     inbuiltFormMap.clear();
+    inbuiltFormMap.insert( "General PV Edit...",     ":/qe/gui/forms/General_PV_Edit.ui" );
     inbuiltFormMap.insert( "PV Properties...",       ":/qe/gui/forms/PVProperties.ui" );
     inbuiltFormMap.insert( "Strip Chart...",         ":/qe/gui/forms/StripChart.ui" );
     inbuiltFormMap.insert( "Scratch Pad...",         ":/qe/gui/forms/ScratchPad.ui" );
@@ -1369,6 +1370,7 @@ void MainWindow::createActionMaps()
     inbuiltFormMap.insert( "Archive Name Search...", ":/qe/gui/forms/ArchiveNameSearch.ui" );
 
     classNameMap.clear();
+    classNameMap.insert( "General PV Edit...",       "QEGeneralEdit" );
     classNameMap.insert( "PV Properties...",         "QEPvProperties" );
     classNameMap.insert( "Strip Chart...",           "QEStripChart" );
     classNameMap.insert( "Scratch Pad...",           "QEScratchPad" );
