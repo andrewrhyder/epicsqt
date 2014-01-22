@@ -29,6 +29,7 @@
 #include <QString>
 #include <QVariant>
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QSize>
@@ -48,6 +49,15 @@
 #include <QEPluginLibrary_global.h>
 #include <QEFrame.h>
 
+/*!
+ * \brief The QEGeneralEdit class
+ * This class provides a general PV edit widget, presenting one off a QELineEdit,
+ * a QENumericEdit or a QERadioGroup for string, numerical and enumeration data
+ * kinds respectively.
+ *
+ * This widget is intented for use within a qegui predefined form, displayed in
+ * response to context menu request to edit an arbitary PV.
+ */
 class QEPLUGINLIBRARYSHARED_EXPORT QEGeneralEdit : public QEFrame {
 
 Q_OBJECT
@@ -112,12 +122,11 @@ private:
     void createInternalWidgets ();
 
     QVBoxLayout *verticalLayout;
-    QELabel *qelabel;
-    QGroupBox *numericEditPanel;
-    QENumericEdit *qenumericedit;
+    QLabel *pvNameLabel;
+    QELabel *valueLabel;
+    QENumericEdit *numericEditWidget;
     QERadioGroup *radioGroupPanel;
-    QGroupBox *stringEditPanel;
-    QELineEdit *qelineedit;
+    QELineEdit *stringEditWidget;
 
     bool isFirstUpdate;
 

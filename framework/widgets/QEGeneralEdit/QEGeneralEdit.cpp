@@ -83,6 +83,9 @@ void QEGeneralEdit::commonSetup ()
 
    this->createInternalWidgets ();
 
+   this->setMinimumWidth (400);
+   this->setMinimumHeight (50);
+
    // Use default context menu.
    //
    this->setupContextMenu ();
@@ -102,33 +105,38 @@ void QEGeneralEdit::commonSetup ()
 void QEGeneralEdit::createInternalWidgets ()
 {
    this->verticalLayout = new QVBoxLayout (this);
+   this->verticalLayout->setMargin (4);
    this->verticalLayout->setSpacing (4);
 
-   this->qelabel = new QELabel (this);
-   this->qelabel->setFrameShape (QFrame::Panel);
-   this->qelabel->setFrameShadow (QFrame::Plain);
-   this->qelabel->setMinimumSize (QSize (0, 19));
-   this->qelabel->setMaximumSize (QSize (16777215, 19));
-   this->verticalLayout->addWidget (qelabel);
+   this->pvNameLabel = new QLabel (this);
+   this->pvNameLabel->setAlignment (Qt::AlignHCenter);
+   this->pvNameLabel->setMinimumWidth (320);
+   this->pvNameLabel->setMinimumHeight (17);
+   this->pvNameLabel->setMaximumHeight (17);
+   this->verticalLayout->addWidget (pvNameLabel);
 
-   this->numericEditPanel = new QGroupBox (this);
-   this->numericEditPanel->setMinimumSize (QSize (0, 64));
-   this->numericEditPanel->setMaximumSize (QSize (16777215, 64));
-   this->qenumericedit = new QENumericEdit (this->numericEditPanel);
-   this->qenumericedit->setGeometry (QRect (14, 24, 144, 23));
-   this->verticalLayout->addWidget (this->numericEditPanel);
+   this->valueLabel = new QELabel (this);
+   this->valueLabel->setFrameShape (QFrame::Panel);
+   this->valueLabel->setFrameShadow (QFrame::Plain);
+   this->verticalLayout->addWidget (valueLabel);
 
-   this->radioGroupPanel = new QERadioGroup (this);
+   this->numericEditWidget = new QENumericEdit (this);
+   this->numericEditWidget->setAddUnits (false);
+   this->numericEditWidget->setMinimumSize (200, 23);
+   this->verticalLayout->addWidget (numericEditWidget);
+
+   this->radioGroupPanel = new QERadioGroup ("", "", this);
    this->radioGroupPanel->setMinimumSize (QSize (412, 192));
    this->radioGroupPanel->setColumns (3);
    this->verticalLayout->addWidget (this->radioGroupPanel);
 
-   this->stringEditPanel = new QGroupBox (this);
-   this->stringEditPanel->setMinimumSize (QSize (0, 64));
-   this->stringEditPanel->setMaximumSize (QSize (16777215, 64));
-   this->qelineedit = new QELineEdit (this->stringEditPanel);
-   this->qelineedit->setGeometry (QRect (16, 26, 381, 23));
-   this->verticalLayout->addWidget (this->stringEditPanel);
+   this->stringEditWidget = new QELineEdit (this);
+   this->stringEditWidget->setMinimumSize (342, 23);
+   this->verticalLayout->addWidget (this->stringEditWidget);
+
+   this->numericEditWidget->setVisible (false);
+   this->radioGroupPanel->setVisible (false);
+   this->stringEditWidget->setVisible (false);
 }
 
 
@@ -206,19 +214,16 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
    qcaobject::QCaObject* qca = this->getQcaItem (0);
 
    if (qca && this->isFirstUpdate) {
-      QGroupBox* useThisPanel = NULL;
-      QEWidget* useThisWidget = NULL;
+      QWidget* useThisWidget = NULL;
       QString pvName;
       int numElements = 0;
 
-
-
       pvName = this->getSubstitutedVariableName (0).trimmed ();
-      this->qelabel->setVariableNameAndSubstitutions (pvName, "", 0);
+      this->valueLabel->setVariableNameAndSubstitutions (pvName, "", 0);
 
-      this->numericEditPanel->setVisible (false);
+      this->numericEditWidget->setVisible (false);
       this->radioGroupPanel->setVisible (false);
-      this->stringEditPanel->setVisible (false);
+      this->stringEditWidget->setVisible (false);
 
       // Use data type to figure out which type of editting widget is most
       // appropriate.
@@ -226,8 +231,7 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
       QVariant::Type type = value.type ();
       switch (type) {
          case QVariant::String:
-            useThisPanel = this->stringEditPanel;
-            useThisWidget = this->qelineedit;
+            useThisWidget = this->stringEditWidget;
             break;
 
          case QVariant::Int:
@@ -240,24 +244,20 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
 
                // represents an enumeration.
                //
-               useThisPanel = this->radioGroupPanel;
-               useThisWidget = this->radioGroupPanel;
-
                numRows = (numElements + 2) / 3;
-               useThisPanel->setMinimumHeight ((numRows + 2) *  QEScaling::scale (20));
+               this->radioGroupPanel->setMinimumHeight ((numRows + 2) *  QEScaling::scale (20));
 
+               useThisWidget = this->radioGroupPanel;
             } else {
                // basic integer
                //
-               useThisPanel = this->numericEditPanel;
-               useThisWidget = this->qenumericedit;
+               useThisWidget = this->numericEditWidget;
 
             }
             break;
 \
          case QVariant::Double:
-            useThisPanel = this->numericEditPanel;
-            useThisWidget = this->qenumericedit;
+            useThisWidget = this->numericEditWidget;
             break;
 
          default:
@@ -265,19 +265,27 @@ void QEGeneralEdit::dataChanged (const QVariant& value, QCaAlarmInfo& alarmInfo,
             return; // do nothing
       }
 
-      if (useThisPanel && useThisWidget) {
-         useThisPanel->setVisible (true);
-         useThisPanel->setTitle (" " + pvName + " ");
+      QEWidget* qeWidget = dynamic_cast <QEWidget*> (useThisWidget);
+      if (useThisWidget && qeWidget) {
 
-         useThisWidget->setVariableNameAndSubstitutions (pvName, "", 0);
+         this->pvNameLabel->setText (pvName);
+
+         useThisWidget->setVisible (true);
+         qeWidget->setVariableNameAndSubstitutions (pvName, "", 0);
 
          int newHeight =
-               this->qelabel->minimumHeight () +
-               useThisPanel->minimumHeight () +
-               QEScaling::scale (32);
+               this->pvNameLabel->minimumHeight () +
+               this->valueLabel->minimumHeight () +
+               useThisWidget->minimumHeight () +
+               QEScaling::scale (40);
 
-         this->setMinimumHeight (newHeight);
-         this->setMaximumHeight (newHeight);
+         int newWidth =
+               MAX (this->pvNameLabel->minimumWidth (),
+                    useThisWidget->minimumWidth ()) +
+               QEScaling::scale (20);
+
+         this->setMinimumSize (newWidth, newHeight);
+         this->setMaximumSize (newWidth, newHeight);
       }
 
       this->isFirstUpdate = false;
