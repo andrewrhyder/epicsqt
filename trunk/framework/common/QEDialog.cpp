@@ -55,7 +55,7 @@ int QEDialog::exec (QWidget* targetWidgetIn)
    // relocate it. Thisis particularly important on first activation.
    // Empirically found that we need more than 1 mSec.
    //
-   QTimer::singleShot (5, this, SLOT (relocateToCenteredPosition ()));
+   QTimer::singleShot (25, this, SLOT (relocateToCenteredPosition ()));
 
    // Now call parent exec method to do actual work.
    //
@@ -93,12 +93,16 @@ void QEDialog::relocateToCenteredPosition ()
       //
       QRect dialogGeo = this->geometry ();
       dialogGeo.translate (delta);
-      if (dialogGeo.x () < 0 || dialogGeo.y () < 0 ) {
-         // Ensure no off screen mis-calculations.
-         delta.setX  (MAX (0, -dialogGeo.x ()));
-         delta.setY  (MAX (0, -dialogGeo.y ()));
+
+      // Sanity check - ensure no off screen mis-calculations.
+      //
+      const int gap = 20;
+      if (dialogGeo.x () < gap || dialogGeo.y () < gap) {
+         delta.setX  (MAX (0, gap - dialogGeo.x ()));
+         delta.setY  (MAX (0, gap - dialogGeo.y ()));
          dialogGeo.translate (delta);
       }
+
       this->setGeometry (dialogGeo);
    }
 }
